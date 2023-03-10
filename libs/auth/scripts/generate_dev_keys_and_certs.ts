@@ -3,16 +3,17 @@ import { Buffer } from 'buffer';
 import * as fs from 'fs/promises';
 
 import {
+  CERT_EXPIRY_IN_DAYS,
   constructMachineCertSubject,
   STANDARD_CERT_FIELDS,
 } from '../src/certs';
+import {
+  DEV_JURISDICTION,
+  DEV_PRIVATE_KEY_PASSWORD,
+} from '../src/java_card_config';
 import { createCert, openssl } from '../src/openssl';
 import { runCommand } from './utils';
 
-const DEV_CERT_EXPIRY_IN_DAYS = 36500; // 100 years
-const DEV_CERTS_DIR = './certs/dev';
-const DEV_JURISDICTION = 'ST.Jurisdiction';
-const DEV_PRIVATE_KEY_PASSWORD = '1234';
 const OPENSSL_CONFIG_PATH = './certs/openssl.cnf';
 
 async function generateDevPrivateKey(): Promise<Buffer> {
@@ -63,7 +64,7 @@ async function generateDevVxCertAuthorityCert(
     '-subj',
     `/${STANDARD_CERT_FIELDS.join('/')}/`,
     '-days',
-    `${DEV_CERT_EXPIRY_IN_DAYS}`,
+    `${CERT_EXPIRY_IN_DAYS.DEV}`,
   ]);
 }
 
@@ -93,7 +94,7 @@ async function generateDevVxAndVxAdminKeysAndCerts(
   const vxAdminCertAuthorityCert = await createCert({
     certSubject: constructMachineCertSubject('admin', DEV_JURISDICTION),
     certType: 'certAuthorityCert',
-    expiryInDays: DEV_CERT_EXPIRY_IN_DAYS,
+    expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
     opensslConfig: OPENSSL_CONFIG_PATH,
     publicKeyToSign: vxAdminPublicKey,
     signingCertAuthorityCert: vxCertAuthorityCertPath,
@@ -101,7 +102,6 @@ async function generateDevVxAndVxAdminKeysAndCerts(
     signingPrivateKeyPassword: DEV_PRIVATE_KEY_PASSWORD,
   });
   await fs.writeFile(vxAdminCertAuthorityCertPath, vxAdminCertAuthorityCert);
-  runCommand(['rm', vxCertAuthorityCertPath.replace('.pem', '.srl')]);
 }
 
 /**
@@ -113,7 +113,7 @@ async function generateDevVxAndVxAdminKeysAndCerts(
  */
 export async function main(): Promise<void> {
   try {
-    await generateDevVxAndVxAdminKeysAndCerts(DEV_CERTS_DIR);
+    await generateDevVxAndVxAdminKeysAndCerts('./certs/dev');
   } catch (error) {
     console.error(error instanceof Error ? `❌ ${error.message}` : error);
     process.exit(1);

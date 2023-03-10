@@ -1,6 +1,15 @@
-import { InsertedSmartCardAuth, MemoryCard } from '@votingworks/auth';
+import {
+  constructDevJavaCardConfig,
+  InsertedSmartCardAuth,
+  JavaCard,
+  MemoryCard,
+} from '@votingworks/auth';
 import { getUsbDrives } from '@votingworks/backend';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { PrecinctScannerInterpreter } from './interpret';
@@ -25,11 +34,15 @@ export function start({
   workspace,
   logger = new Logger(LogSource.VxScanBackend),
 }: StartOptions): void {
-  // clear any cached data
-  workspace.clearUploads();
-
   const auth = new InsertedSmartCardAuth({
-    card: new MemoryCard({ baseUrl: 'http://localhost:3001' }),
+    card: isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS)
+      ? /* istanbul ignore next */
+        new JavaCard(
+          constructDevJavaCardConfig({
+            pathToAuthLibRoot: '../../../libs/auth',
+          })
+        )
+      : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
     config: {
       allowedUserRoles: [
         'system_administrator',
@@ -39,7 +52,12 @@ export function start({
     },
     logger,
   });
+
+  // Clear any cached data
+  workspace.clearUploads();
+
   const usb: Usb = { getUsbDrives };
+
   const app = buildApp(
     auth,
     precinctScannerStateMachine,

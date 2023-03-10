@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+VX_CERT_AUTHORITY_CERT_PATH=./certs/dev/vx-cert-authority-cert.pem \
+VX_OPENSSL_CONFIG_PATH=./certs/openssl.cnf \
+VX_PRIVATE_KEY_PASSWORD=1234 \
+VX_PRIVATE_KEY_PATH=./certs/dev/vx-private-key.pem \
+./scripts/configure-java-card

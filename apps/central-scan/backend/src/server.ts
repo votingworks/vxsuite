@@ -1,8 +1,17 @@
 import { Exporter, getUsbDrives } from '@votingworks/backend';
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
-import { DippedSmartCardAuth, MemoryCard } from '@votingworks/auth';
+import {
+  constructDevJavaCardConfig,
+  DippedSmartCardAuth,
+  JavaCard,
+  MemoryCard,
+} from '@votingworks/auth';
 import { Server } from 'http';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { PORT, SCAN_ALLOWED_EXPORT_PATTERNS, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, BatchScanner, ScannerMode } from './fujitsu_scanner';
@@ -33,6 +42,21 @@ export async function start({
   logger = new Logger(LogSource.VxScanService),
   workspace,
 }: Partial<StartOptions> = {}): Promise<Server> {
+  const auth = new DippedSmartCardAuth({
+    card: isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS)
+      ? /* istanbul ignore next */
+        new JavaCard(
+          constructDevJavaCardConfig({
+            pathToAuthLibRoot: '../../../libs/auth',
+          })
+        )
+      : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
+    config: {
+      allowElectionManagersToAccessUnconfiguredMachines: true,
+    },
+    logger,
+  });
+
   let resolvedWorkspace: Workspace;
 
   if (workspace) {
@@ -83,13 +107,7 @@ export async function start({
   const resolvedApp =
     app ??
     (await buildCentralScannerApp({
-      auth: new DippedSmartCardAuth({
-        card: new MemoryCard({ baseUrl: 'http://localhost:3001' }),
-        config: {
-          allowElectionManagersToAccessUnconfiguredMachines: true,
-        },
-        logger,
-      }),
+      auth,
       exporter: resolvedExporter,
       importer: resolvedImporter,
       workspace: resolvedWorkspace,

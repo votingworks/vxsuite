@@ -59,6 +59,13 @@ const CustomCertFieldsSchema: z.ZodSchema<CustomCertFields> = z.object({
 });
 
 /**
+ * Cert expiries in days
+ */
+export const CERT_EXPIRY_IN_DAYS = {
+  DEV: 36500, // ~100 years
+} as const;
+
+/**
  * Parses the provided cert and returns the custom cert fields. Throws an error if the cert doesn't
  * follow VotingWorks's cert format.
  */

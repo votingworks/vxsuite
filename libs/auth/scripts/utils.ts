@@ -1,5 +1,7 @@
 import { spawnSync } from 'child_process';
-import { assert } from '@votingworks/basics';
+import { assert, sleep } from '@votingworks/basics';
+
+import { Card } from '../src/card';
 
 /**
  * Checks whether an error contains the specified message
@@ -30,4 +32,23 @@ export function runCommand(command: string[]): string {
     throw new Error(stderr.toString());
   }
   return stdout.toString();
+}
+
+/**
+ * Waits for a card to have a ready status
+ */
+export async function waitForReadyCardStatus(
+  card: Card,
+  waitTimeSeconds = 3
+): Promise<void> {
+  let cardStatus = await card.getCardStatus();
+  let remainingWaitTimeSeconds = waitTimeSeconds;
+  while (cardStatus.status !== 'ready' && remainingWaitTimeSeconds > 0) {
+    await sleep(1000);
+    cardStatus = await card.getCardStatus();
+    remainingWaitTimeSeconds -= 1;
+  }
+  if (cardStatus.status !== 'ready') {
+    throw new Error(`Card status not "ready" after ${waitTimeSeconds} seconds`);
+  }
 }

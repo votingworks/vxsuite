@@ -39,10 +39,14 @@ frontend error boundary, which throwing errors on the backend typically does.
 
 ## Scripts
 
+Note that all scripts are meant to be run from `libs/auth/` and not
+`libs/auth/scripts/`.
+
 ### Initial Java Card Configuration Script
 
-This script is an initial Java Card configuration script to be run at the
-Bakery.
+This script configures a Java Card for use with VotingWorks machines. The script
+will be run at the Bakery for production cards and can be run locally for local
+development.
 
 ```
 # Install script dependencies
@@ -52,20 +56,46 @@ make install-script-dependencies
 ./scripts/configure-java-card
 ```
 
-The script can also be used to prepare Java Cards for local development.
+For local development, you can use the following command, which sets the
+relevant env vars for local development and then calls the base script:
 
 ```
-VX_CERT_AUTHORITY_CERT_PATH=./certs/dev/vx-cert-authority-cert.pem \
-VX_OPENSSL_CONFIG_PATH=./certs/openssl.cnf \
-VX_PRIVATE_KEY_PASSWORD=1234 \
-VX_PRIVATE_KEY_PATH=./certs/dev/vx-private-key.pem \
-./scripts/configure-java-card
+./scripts/configure-dev-java-card
 ```
+
+This command needs to be run on all Java Cards before they can be used in any
+local development capacity, including before they can be programmed through
+VxAdmin. This same command can be used to unprogram a card. This can come in
+handy if you ever need to unprogram a system administrator card, the one type of
+card that can't be unprogrammed through VxAdmin.
+
+### Dev System Administrator Java Card Programming Script
+
+This script programs a dev system administrator Java Card to bootstrap local
+development with real smart cards. Once you have your first system administrator
+card, you can program all other cards, including additional system administrator
+cards, through VxAdmin.
+
+```
+./scripts/program-dev-system-administrator-java-card
+```
+
+The initial Java Card configuration script needs to be run before this script
+can be run. This script will remind you if you haven't done so.
+
+### Common Java Card Script Gotchas
+
+This library's card reader code only allows one process to access the card
+reader at a time, so make sure you quit any locally running backends before you
+try to run the above scripts. Even if you don't think any backends are running,
+you might have to `ps aux | grep node` for lingering Node processes.
 
 ### Dev Keys and Certs Generation Script
 
-This script generates the dev keys and certs located in `./certs/dev/`.
+This script generates the dev keys and certs located in `./certs/dev/`. We
+shouldn't have to update the current dev certs until they expire in 2123 ⏳😝,
+so this script is mostly just a way to document how the certs were created.
 
 ```
-./scripts/generate_dev_keys_and_certs
+./scripts/generate-dev-keys-and-certs
 ```
