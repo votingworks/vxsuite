@@ -97,6 +97,7 @@ beforeEach(() => {
 
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
+  apiMock.removeCard(); // Set a default auth state of no card inserted.
 });
 
 afterEach(() => {

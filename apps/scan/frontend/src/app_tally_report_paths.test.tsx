@@ -107,6 +107,7 @@ beforeEach(() => {
   jest.useFakeTimers();
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
+  apiMock.removeCard(); // Set a default auth state of no card inserted.
 
   const kiosk = fakeKiosk();
   kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);

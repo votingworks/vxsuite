@@ -46,13 +46,7 @@ export const statusNoPaper: PrecinctScannerStatus = {
   ballotsCounted: 0,
 };
 
-type MockApiClient = Omit<
-  MockClient<Api>,
-  'getAuthStatus' | 'saveScannerReportDataToCard'
-> & {
-  // Because this is polled so frequently, we opt for a standard jest mock instead of a
-  // libs/test-utils mock since the latter requires every call to be explicitly mocked
-  getAuthStatus: jest.Mock;
+type MockApiClient = Omit<MockClient<Api>, 'saveScannerReportDataToCard'> & {
   // Because the values passed to this are so complex, we opt for a standard jest mock instead of a
   // libs/test-utils mock since the latter requires exact input matching and doesn't support
   // matchers like expect.objectContaining
@@ -61,11 +55,8 @@ type MockApiClient = Omit<
 
 function createMockApiClient(): MockApiClient {
   const mockApiClient = createMockClient<Api>();
-  // For some reason, using an object spread to override the getAuthStatus method breaks the rest
-  // of the mockApiClient, so we override like this instead
-  (mockApiClient.getAuthStatus as unknown as jest.Mock) = jest.fn(() =>
-    Promise.resolve({ status: 'logged_out', reason: 'no_card' })
-  );
+  // Because mockApiClient uses a Proxy under the hood, we add an explicit field
+  // to the object to override the Proxy implementation.
   (mockApiClient.saveScannerReportDataToCard as unknown as jest.Mock) = jest.fn(
     () => Promise.resolve(ok())
   );
@@ -81,9 +72,7 @@ export function createApiMock() {
   const mockApiClient = createMockApiClient();
 
   function setAuthStatus(authStatus: InsertedSmartCardAuth.AuthStatus): void {
-    mockApiClient.getAuthStatus.mockImplementation(() =>
-      Promise.resolve(authStatus)
-    );
+    mockApiClient.getAuthStatus.expectRepeatedCallsWith().resolves(authStatus);
   }
 
   return {
