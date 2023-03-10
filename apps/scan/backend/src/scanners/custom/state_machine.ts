@@ -1082,6 +1082,9 @@ function buildMachine({
                 onDone: 'cooling_off',
                 onError: 'unexpected_error',
               },
+              after: {
+                DELAY_RECONNECT_ON_UNEXPECTED_ERROR: '#disconnected',
+              },
             },
             // Now that we've disconnected, wait a bit to give the scanner time
             // to finish up anything it might be doing
