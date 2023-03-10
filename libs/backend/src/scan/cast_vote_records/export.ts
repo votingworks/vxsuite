@@ -39,7 +39,7 @@ import { buildCastVoteRecordReportMetadata } from './build_report_metadata';
 export interface ResultSheet {
   readonly id: Id;
   readonly batchId: Id;
-  readonly batchSequenceId?: number; // central scanner only
+  readonly indexInBatch?: number; // central scanner only
   // TODO: remove once the deprecated CVR export is no longer using batchLabel
   readonly batchLabel?: string;
   readonly interpretation: SheetOf<PageInterpretation>;
@@ -118,7 +118,7 @@ function* getCastVoteRecordGenerator({
   for (const {
     id,
     batchId,
-    batchSequenceId,
+    indexInBatch,
     interpretation: [sideOne, sideTwo],
     frontNormalizedFilename: sideOneFilename,
     backNormalizedFilename: sideTwoFilename,
@@ -147,7 +147,7 @@ function* getCastVoteRecordGenerator({
           canonicalizedSheet.interpretation.ballotId ||
           unsafeParse(BallotIdSchema, id),
         batchId,
-        batchSequenceId,
+        indexInBatch,
         ballotMarkingMode: 'machine',
         interpretation: canonicalizedSheet.interpretation,
       });
@@ -168,7 +168,7 @@ function* getCastVoteRecordGenerator({
       scannerId,
       castVoteRecordId: unsafeParse(BallotIdSchema, id),
       batchId,
-      batchSequenceId,
+      indexInBatch,
       ballotMarkingMode: 'hand',
       definiteMarkThreshold,
       pages: [

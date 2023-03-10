@@ -964,7 +964,7 @@ export class Store {
         back_interpretation_json as backInterpretationJson,
         front_normalized_filename as frontNormalizedFilename,
         back_normalized_filename as backNormalizedFilename,
-        row_number() over (partition by batches.id order by sheets.created_at) batchSequenceId
+        row_number() over (partition by batches.id order by sheets.created_at) indexInBatch
       from sheets left join batches
       on sheets.batch_id = batches.id
       where
@@ -980,12 +980,12 @@ export class Store {
       backInterpretationJson: string;
       frontNormalizedFilename: string;
       backNormalizedFilename: string;
-      batchSequenceId: number;
+      indexInBatch: number;
     }>) {
       yield {
         id: row.id,
         batchId: row.batchId,
-        batchSequenceId: row.batchSequenceId,
+        indexInBatch: row.indexInBatch,
         batchLabel: row.batchLabel ?? undefined,
         interpretation: mapSheet(
           [row.frontInterpretationJson, row.backInterpretationJson],

@@ -818,7 +818,7 @@ test('iterating over all result sheets', () => {
       {
         id: expect.any(String),
         batchId,
-        batchSequenceId: 1,
+        indexInBatch: 1,
         batchLabel: 'Batch 1',
         interpretation: mapSheet(sheetWithFiles, (page) => page.interpretation),
         frontNormalizedFilename: '/normalized.png',
@@ -898,7 +898,7 @@ test('iterating over each result sheet includes correct batch sequence id', () =
   const resultSheets = Array.from(store.forEachResultSheet());
   expect(resultSheets).toHaveLength(6);
   const expectedResultSheets: Array<
-    [id: string, batchId: string, batchSequenceId: number]
+    [id: string, batchId: string, indexInBatch: number]
   > = [
     [batch1Sheet1Id, batch1Id, 1],
     [batch1Sheet2Id, batch1Id, 2],
@@ -913,7 +913,7 @@ test('iterating over each result sheet includes correct batch sequence id', () =
         expect.objectContaining({
           id: expectedResultSheet[0],
           batchId: expectedResultSheet[1],
-          batchSequenceId: expectedResultSheet[2],
+          indexInBatch: expectedResultSheet[2],
         }),
       ])
     );
