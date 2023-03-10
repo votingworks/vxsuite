@@ -558,6 +558,7 @@ function buildMachine({
           // The first ballot will get deposited as the second ballot is loaded slightly from the load paper command.
           // Mark the first ballot as accepted and then the state of where the second ballot is will be appropriately handled.
           onDone: '#accepted',
+          onError: '#error',
         },
       },
     },
@@ -974,6 +975,7 @@ function buildMachine({
         jam: {
           id: 'jam',
           entry: [clearError, clearLastScan],
+          initial: 'reject_paper',
           states: {
             reject_paper: {
               invoke: {
@@ -981,6 +983,7 @@ function buildMachine({
                 onDone: {
                   target: 'checking_complete',
                 },
+                onError: '#error',
               },
             },
             checking_complete: {
