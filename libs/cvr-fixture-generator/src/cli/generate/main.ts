@@ -240,6 +240,7 @@ export async function main(
     // export information from the relevant ballot package entries
     for (const imageUri of imageUris) {
       const regexMatch = imageUri.match(IMAGE_URI_REGEX);
+      // istanbul ignore next
       if (regexMatch === null) {
         throw new Error('unexpected file URI format');
       }
