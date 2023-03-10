@@ -9,7 +9,10 @@ import {
   InterpretedHmpbPage,
   safeParseJson,
 } from '@votingworks/types';
-import { SCANNER_RESULTS_FOLDER } from '@votingworks/utils';
+import {
+  CAST_VOTE_RECORD_REPORT_FILENAME,
+  SCANNER_RESULTS_FOLDER,
+} from '@votingworks/utils';
 import {
   advanceTo as setDateMock,
   clear as clearDateMock,
@@ -274,7 +277,7 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
   expect(exportDataToUsbDriveMock).toHaveBeenNthCalledWith(
     1,
     expectedReportPath,
-    'cast-vote-record-report.json',
+    CAST_VOTE_RECORD_REPORT_FILENAME,
     expect.anything()
   );
   expect(exportDataToUsbDriveMock).toHaveBeenNthCalledWith(
