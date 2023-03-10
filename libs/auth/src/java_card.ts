@@ -28,6 +28,7 @@ import {
   parseCert,
   parseUserDataFromCert,
 } from './certs';
+import { JavaCardConfig } from './java_card_config';
 import {
   certDerToPem,
   certPemToDer,
@@ -135,33 +136,19 @@ export const GENERIC_STORAGE_SPACE = {
 } as const;
 
 /**
- * Additional constructor inputs that only VxAdmin needs to provide for card programming
- */
-interface CardProgrammingParams {
-  vxAdminCertAuthorityCertPath: string;
-  vxAdminOpensslConfigPath: string;
-  vxAdminPrivateKeyPassword: string;
-  vxAdminPrivateKeyPath: string;
-}
-
-/**
  * An implementation of the card API that uses a Java Card running our fork of the OpenFIPS201
  * applet (https://github.com/votingworks/openfips201) and X.509 certs. The implementation takes
  * inspiration from the NIST PIV standard but diverges where PIV doesn't suit our needs.
  */
 export class JavaCard implements Card {
-  private readonly cardProgrammingParams?: CardProgrammingParams;
+  private readonly cardProgrammingConfig?: JavaCardConfig['cardProgrammingConfig'];
   private readonly cardReader: CardReader;
   private cardStatus: CardStatus;
   private readonly jurisdiction: string;
   private readonly vxCertAuthorityCertPath: string;
 
-  constructor(input: {
-    cardProgrammingParams?: CardProgrammingParams;
-    jurisdiction: string;
-    vxCertAuthorityCertPath: string;
-  }) {
-    this.cardProgrammingParams = input.cardProgrammingParams;
+  constructor(input: JavaCardConfig) {
+    this.cardProgrammingConfig = input.cardProgrammingConfig;
     this.cardStatus = { status: 'no_card' };
     this.jurisdiction = input.jurisdiction;
     this.vxCertAuthorityCertPath = input.vxCertAuthorityCertPath;
@@ -236,13 +223,13 @@ export class JavaCard implements Card {
       | { user: ElectionManagerUser; pin: string; electionData: string }
       | { user: PollWorkerUser }
   ): Promise<void> {
-    assert(this.cardProgrammingParams !== undefined);
+    assert(this.cardProgrammingConfig !== undefined);
     const {
       vxAdminCertAuthorityCertPath,
       vxAdminOpensslConfigPath,
       vxAdminPrivateKeyPassword,
       vxAdminPrivateKeyPath,
-    } = this.cardProgrammingParams;
+    } = this.cardProgrammingConfig;
     const pin = 'pin' in input ? input.pin : DEFAULT_PIN;
     await this.selectApplet();
 
