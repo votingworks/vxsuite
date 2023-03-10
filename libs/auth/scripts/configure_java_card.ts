@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { Buffer } from 'buffer';
 import { existsSync } from 'fs';
-import { sleep } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 
 import { CommandApdu, constructTlv } from '../src/apdu';
@@ -20,7 +19,12 @@ import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
 } from '../src/piv';
-import { errorContains, getEnvVar, runCommand } from './utils';
+import {
+  errorContains,
+  getEnvVar,
+  runCommand,
+  waitForReadyCardStatus,
+} from './utils';
 
 const APPLET_PATH = 'applets/OpenFIPS201-v1.10.2-with-vx-mods.cap';
 const GLOBAL_PLATFORM_PATH = 'scripts/gp.jar';
@@ -260,22 +264,11 @@ function runAppletConfigurationCommands(): void {
 
 async function createAndStoreCardVxCert(): Promise<void> {
   sectionLog('🔏', 'Creating and storing card VotingWorks cert...');
-
   const card = new JavaCard({
     jurisdiction: '',
     vxCertAuthorityCertPath,
   });
-
-  // Wait for ready card status
-  let remainingWaitTimeSeconds = 3;
-  while (
-    (await card.getCardStatus()).status !== 'ready' &&
-    remainingWaitTimeSeconds > 0
-  ) {
-    await sleep(1000);
-    remainingWaitTimeSeconds -= 1;
-  }
-
+  await waitForReadyCardStatus(card);
   await card.createAndStoreCardVxCert({
     vxOpensslConfigPath,
     vxPrivateKeyPassword,
