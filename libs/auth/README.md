@@ -41,8 +41,9 @@ frontend error boundary, which throwing errors on the backend typically does.
 
 ### Initial Java Card Configuration Script
 
-This script is an initial Java Card configuration script to be run at the
-Bakery.
+This script configures a Java Card for use with VotingWorks machines. The script
+will be run at the Bakery for production cards and can be run locally for local
+development.
 
 ```
 # Install script dependencies
@@ -52,7 +53,7 @@ make install-script-dependencies
 ./scripts/configure-java-card
 ```
 
-The script can also be used to prepare Java Cards for local development.
+For local development, run the command as follows:
 
 ```
 VX_CERT_AUTHORITY_CERT_PATH=./certs/dev/vx-cert-authority-cert.pem \
@@ -61,6 +62,20 @@ VX_PRIVATE_KEY_PASSWORD=1234 \
 VX_PRIVATE_KEY_PATH=./certs/dev/vx-private-key.pem \
 ./scripts/configure-java-card
 ```
+
+### Dev System Administrator Java Card Programming Script
+
+This script programs a dev system administrator Java Card to bootstrap local
+development with real smart cards. Once you have your first system administrator
+card, you can program all other cards, including additional system administrator
+cards, through VxAdmin.
+
+```
+./scripts/program_dev_system_administrator_java_card
+```
+
+The initial Java Card configuration script needs to be run before this script
+can be run.
 
 ### Dev Keys and Certs Generation Script
 
