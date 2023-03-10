@@ -51,6 +51,15 @@ impl Rect {
         }
     }
 
+    pub const fn from_points(top_left: Point<i32>, bottom_right: Point<i32>) -> Self {
+        Self::new(
+            top_left.x,
+            top_left.y,
+            (bottom_right.x - top_left.x + 1) as u32,
+            (bottom_right.y - top_left.y + 1) as u32,
+        )
+    }
+
     pub const fn left(&self) -> i32 {
         self.left
     }
@@ -77,6 +86,21 @@ impl Rect {
 
     pub const fn offset(&self, dx: i32, dy: i32) -> Self {
         Self::new(self.left + dx, self.top + dy, self.width, self.height)
+    }
+
+    pub const fn top_left(&self) -> Point<i32> {
+        Point::new(self.left, self.top)
+    }
+
+    pub const fn bottom_right(&self) -> Point<i32> {
+        Point::new(self.right(), self.bottom())
+    }
+
+    pub const fn contains(&self, point: &Point<i32>) -> bool {
+        point.x >= self.left
+            && point.x <= self.right()
+            && point.y >= self.top
+            && point.y <= self.bottom()
     }
 }
 

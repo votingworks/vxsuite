@@ -4,7 +4,7 @@ use std::{
     path::Path,
 };
 
-use image::{GenericImageView, GrayImage};
+use image::{imageops::rotate180, GenericImageView, GrayImage};
 use imageproc::{
     contours::{find_contours_with_threshold, BorderType, Contour},
     contrast::otsu_level,
@@ -15,14 +15,15 @@ use rayon::prelude::IntoParallelRefIterator;
 use serde::Serialize;
 
 use crate::{
-    ballot_card::{BallotSide, Geometry},
+    ballot_card::{BallotCardOrientation, BallotSide, Geometry},
     debug,
-    debug::ImageDebugWriter,
+    debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
     election::{GridLayout, GridLocation, GridPosition},
     geometry::{
         center_of_rect, find_best_line_through_items, intersection_of_lines, Point, Rect, Segment,
+        Size,
     },
-    image_utils::{diff, expand_image, ratio, BLACK, WHITE},
+    image_utils::{diff, expand_image, ratio, Inset, BLACK, WHITE},
     interpret::Error,
     metadata::{decode_metadata_from_timing_marks, BallotPageMetadata},
 };
@@ -84,13 +85,27 @@ pub struct Complete {
     pub bottom_right_rect: Rect,
 }
 
-/// Represents a grid of timing marks and provides access to the location of
-/// ovals in the grid.
+/// Represents a grid of timing marks and provides access to the expected
+/// location of ovals in the grid. Note that all coordinates are based in an
+/// image that may have been rotated, cropped, and scaled. To recreate the image
+/// that corresponds to the grid, follow these steps starting with the original:
+///   1. rotate 180 degrees if `orientation` is `PortraitReversed`.
+///   2. crop the image edges by `border_inset`.
+///   3. scale the image to `scaled_size`.
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TimingMarkGrid {
     /// The geometry of the ballot card.
     pub geometry: Geometry,
+
+    /// The orientation of the ballot card.
+    pub orientation: BallotCardOrientation,
+
+    /// Inset to crop to exclude the border.
+    pub border_inset: Inset,
+
+    /// The size of the image after scaling.
+    pub scaled_size: Size<u32>,
 
     /// Timing marks found by examining the image.
     pub partial_timing_marks: Partial,
@@ -108,6 +123,9 @@ pub struct TimingMarkGrid {
 impl TimingMarkGrid {
     pub fn new(
         geometry: Geometry,
+        orientation: BallotCardOrientation,
+        border_inset: Inset,
+        scaled_size: Size<u32>,
         partial_timing_marks: Partial,
         complete_timing_marks: Complete,
         candidate_timing_marks: Vec<Rect>,
@@ -115,6 +133,9 @@ impl TimingMarkGrid {
     ) -> Self {
         Self {
             geometry,
+            orientation,
+            border_inset,
+            scaled_size,
             partial_timing_marks,
             complete_timing_marks,
             candidate_timing_marks,
@@ -160,8 +181,9 @@ pub fn find_timing_mark_grid(
     image_path: &Path,
     geometry: &Geometry,
     img: &GrayImage,
-    debug: &ImageDebugWriter,
-) -> Result<TimingMarkGrid, Error> {
+    border_inset: Inset,
+    debug: &mut ImageDebugWriter,
+) -> Result<(TimingMarkGrid, Option<GrayImage>), Error> {
     let candidate_timing_marks = find_timing_mark_shapes(geometry, img, debug);
 
     let partial_timing_marks = match find_partial_timing_marks_from_candidate_rects(
@@ -176,6 +198,43 @@ pub fn find_timing_mark_grid(
             })
         }
     };
+
+    let orientation =
+        if partial_timing_marks.top_rects.len() >= partial_timing_marks.bottom_rects.len() {
+            BallotCardOrientation::Portrait
+        } else {
+            BallotCardOrientation::PortraitReversed
+        };
+
+    let (partial_timing_marks, normalized_img, border_inset) =
+        if orientation == BallotCardOrientation::Portrait {
+            (partial_timing_marks, None, border_inset)
+        } else {
+            let (width, height) = img.dimensions();
+            debug.rotate180();
+            match rotate_partial_timing_marks(&Size { width, height }, partial_timing_marks) {
+                Some(partial_timing_marks) => {
+                    debug.write("rotated_partial_timing_marks", |canvas| {
+                        draw_timing_mark_debug_image_mut(canvas, geometry, &partial_timing_marks)
+                    });
+                    (
+                        partial_timing_marks,
+                        Some(rotate180(img)),
+                        Inset {
+                            top: border_inset.bottom,
+                            bottom: border_inset.top,
+                            left: border_inset.right,
+                            right: border_inset.left,
+                        },
+                    )
+                }
+                None => {
+                    return Err(Error::MissingTimingMarks {
+                        rects: candidate_timing_marks,
+                    })
+                }
+            }
+        };
 
     let complete_timing_marks = match find_complete_timing_marks_from_partial_timing_marks(
         geometry,
@@ -201,8 +260,16 @@ pub fn find_timing_mark_grid(
             }
         };
 
+    let scaled_size = Size {
+        width: img.width(),
+        height: img.height(),
+    };
+
     let timing_mark_grid = TimingMarkGrid::new(
         *geometry,
+        orientation,
+        border_inset,
+        scaled_size,
         partial_timing_marks,
         complete_timing_marks,
         candidate_timing_marks,
@@ -213,7 +280,7 @@ pub fn find_timing_mark_grid(
         debug::draw_timing_mark_grid_debug_image_mut(canvas, &timing_mark_grid, geometry);
     });
 
-    Ok(timing_mark_grid)
+    Ok((timing_mark_grid, normalized_img))
 }
 
 /// Determines if the given contour is rectangular. This is not an exact test,
@@ -434,6 +501,163 @@ pub fn find_partial_timing_marks_from_candidate_rects(
     });
 
     Some(partial_timing_marks)
+}
+
+struct Rotator180 {
+    canvas_area: Rect,
+}
+
+impl Rotator180 {
+    pub const fn new(canvas_size: &Size<u32>) -> Self {
+        Self {
+            canvas_area: Rect::new(0, 0, canvas_size.width, canvas_size.height),
+        }
+    }
+
+    pub fn rotate_rect(&self, rect: &Rect) -> Option<Rect> {
+        match (
+            self.rotate_point_i32(&rect.bottom_right()),
+            self.rotate_point_i32(&rect.top_left()),
+        ) {
+            (Some(top_left), Some(bottom_right)) => Some(Rect::from_points(top_left, bottom_right)),
+            _ => None,
+        }
+    }
+
+    fn rotate_point_i32(&self, point: &Point<i32>) -> Option<Point<i32>> {
+        if !self.canvas_area.contains(point) {
+            return None;
+        }
+
+        Some(Point::new(
+            self.canvas_area.width() as i32 - 1 - point.x,
+            self.canvas_area.height() as i32 - 1 - point.y,
+        ))
+    }
+
+    fn rotate_point_f32(&self, point: &Point<f32>) -> Option<Point<f32>> {
+        if !self
+            .canvas_area
+            .contains(&Point::new(point.x as i32, point.y as i32))
+        {
+            return None;
+        }
+
+        Some(Point::new(
+            (self.canvas_area.width() as i32 - 1) as f32 - point.x,
+            (self.canvas_area.height() as i32 - 1) as f32 - point.y,
+        ))
+    }
+}
+
+#[time]
+pub fn rotate_partial_timing_marks(
+    image_size: &Size<u32>,
+    partial_timing_marks: Partial,
+) -> Option<Partial> {
+    let Partial {
+        geometry,
+        top_left_corner,
+        top_right_corner,
+        bottom_left_corner,
+        bottom_right_corner,
+        top_left_rect,
+        top_right_rect,
+        bottom_left_rect,
+        bottom_right_rect,
+        top_rects,
+        bottom_rects,
+        left_rects,
+        right_rects,
+    } = partial_timing_marks;
+
+    let rotator = Rotator180::new(image_size);
+
+    let (top_left_corner, top_right_corner, bottom_left_corner, bottom_right_corner) = match (
+        rotator.rotate_point_f32(&top_left_corner),
+        rotator.rotate_point_f32(&top_right_corner),
+        rotator.rotate_point_f32(&bottom_left_corner),
+        rotator.rotate_point_f32(&bottom_right_corner),
+    ) {
+        (
+            Some(top_left_corner),
+            Some(top_right_corner),
+            Some(bottom_left_corner),
+            Some(bottom_right_corner),
+        ) => (
+            bottom_right_corner,
+            bottom_left_corner,
+            top_right_corner,
+            top_left_corner,
+        ),
+        _ => return None,
+    };
+
+    let (top_left_rect, top_right_rect, bottom_left_rect, bottom_right_rect) = match (
+        top_left_rect.map(|r| rotator.rotate_rect(&r)),
+        top_right_rect.map(|r| rotator.rotate_rect(&r)),
+        bottom_left_rect.map(|r| rotator.rotate_rect(&r)),
+        bottom_right_rect.map(|r| rotator.rotate_rect(&r)),
+    ) {
+        (
+            Some(top_left_rect),
+            Some(top_right_rect),
+            Some(bottom_left_rect),
+            Some(bottom_right_rect),
+        ) => (
+            top_left_rect,
+            top_right_rect,
+            bottom_left_rect,
+            bottom_right_rect,
+        ),
+        _ => return None,
+    };
+
+    let mut rotated_top_rects: Vec<Rect> = top_rects
+        .iter()
+        .flat_map(|r| rotator.rotate_rect(r))
+        .collect();
+    let mut rotated_bottom_rects: Vec<Rect> = bottom_rects
+        .iter()
+        .flat_map(|r| rotator.rotate_rect(r))
+        .collect();
+    let mut rotated_left_rects: Vec<Rect> = left_rects
+        .iter()
+        .flat_map(|r| rotator.rotate_rect(r))
+        .collect();
+    let mut rotated_right_rects: Vec<Rect> = right_rects
+        .iter()
+        .flat_map(|r| rotator.rotate_rect(r))
+        .collect();
+
+    if rotated_top_rects.len() != top_rects.len()
+        || rotated_bottom_rects.len() != bottom_rects.len()
+        || rotated_left_rects.len() != left_rects.len()
+        || rotated_right_rects.len() != right_rects.len()
+    {
+        return None;
+    }
+
+    rotated_bottom_rects.sort_by_key(Rect::left);
+    rotated_top_rects.sort_by_key(Rect::left);
+    rotated_left_rects.sort_by_key(Rect::top);
+    rotated_right_rects.sort_by_key(Rect::top);
+
+    Some(Partial {
+        geometry,
+        top_left_corner,
+        top_right_corner,
+        bottom_left_corner,
+        bottom_right_corner,
+        top_left_rect,
+        top_right_rect,
+        bottom_left_rect,
+        bottom_right_rect,
+        top_rects: rotated_bottom_rects,
+        bottom_rects: rotated_top_rects,
+        left_rects: rotated_right_rects,
+        right_rects: rotated_left_rects,
+    })
 }
 
 #[time]

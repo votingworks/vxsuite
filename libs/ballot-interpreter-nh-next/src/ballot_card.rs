@@ -18,6 +18,18 @@ pub enum BallotPaperSize {
     Legal,
 }
 
+/// Ballot card orientation.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+pub enum BallotCardOrientation {
+    /// The ballot card is portrait and right-side up.
+    #[serde(rename = "portrait")]
+    Portrait,
+
+    /// The ballot card is portrait and upside down.
+    #[serde(rename = "portrait-reversed")]
+    PortraitReversed,
+}
+
 #[derive(Copy, Clone, Debug, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Geometry {

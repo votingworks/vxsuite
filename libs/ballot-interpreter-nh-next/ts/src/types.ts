@@ -49,7 +49,6 @@ export interface InterpretedBallotCard {
 
 /** A successfully imported ballot page. */
 export interface InterpretedBallotPage {
-  borderInset: Inset;
   grid: TimingMarkGrid;
   marks: ScoredOvalMarks;
 }
@@ -57,10 +56,30 @@ export interface InterpretedBallotPage {
 /** An array of optional marks and their corresponding grid positions. */
 export type ScoredOvalMarks = Array<[GridPosition, Optional<ScoredOvalMark>]>;
 
-/** Layout and metadata information about the discovered timing mark grid. */
+/**
+ * Represents a grid of timing marks and provides access to the expected
+ * location of ovals in the grid. Note that all coordinates are based in an
+ * image that may have been rotated, cropped, and scaled. To recreate the image
+ * that corresponds to the grid, follow these steps starting with the original:
+ *   1. rotate 180 degrees if `orientation` is `PortraitReversed`.
+ *   2. crop the image edges by `borderInset`.
+ *   3. scale the image to `scaledSize`.
+ */
 export interface TimingMarkGrid {
   /** The geometry of the ballot card. */
   geometry: Geometry;
+
+  /** The orientation of the ballot card. */
+  orientation: BallotCardOrientation;
+
+  /**
+   * Inset to crop to exclude the border. The units are in pixels, and the
+   * inset is applied after the image is rotated but before it is scaled.
+   */
+  borderInset: Inset;
+
+  /** The size of the image after scaling. */
+  scaledSize: Size<u32>;
 
   /** Timing marks found by examining the image. */
   partialTimingMarks: PartialTimingMarks;
@@ -248,6 +267,15 @@ export interface Geometry {
 export enum BallotPaperSize {
   Letter = 'letter',
   Legal = 'legal',
+}
+
+/** Ballot card orientation. */
+export enum BallotCardOrientation {
+  /** The ballot card is portrait and right-side up. */
+  Portrait = 'portrait',
+
+  /** The ballot card is portrait and upside down. */
+  PortraitReversed = 'portrait-reversed',
 }
 
 /** A coordinate in a grid. Units are typically either pixels or timing marks. */

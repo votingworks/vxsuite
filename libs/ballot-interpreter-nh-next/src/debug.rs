@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use image::{DynamicImage, GrayImage, Rgb, RgbImage};
+use image::{imageops::rotate180, DynamicImage, GrayImage, Rgb, RgbImage};
 use imageproc::drawing::{
     draw_cross_mut, draw_filled_rect_mut, draw_hollow_rect_mut, draw_line_segment_mut,
     draw_text_mut, text_size,
@@ -469,6 +469,10 @@ impl ImageDebugWriter {
             debug!("{}", output_path.display());
             output_path
         })
+    }
+
+    pub fn rotate180(&mut self) {
+        self.input_image = self.input_image.as_ref().map(rotate180);
     }
 }
 
