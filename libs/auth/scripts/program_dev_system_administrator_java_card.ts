@@ -4,15 +4,9 @@ import { constructDevJavaCardConfig } from '../src/java_card_config';
 import { waitForReadyCardStatus } from './utils';
 
 const initialJavaCardConfigurationScriptReminder = `
-Have you run ./scripts/configure_java_card on this card yet?
+Have you run \`./scripts/configure-dev-java-card\` on this card yet?
 If not, that's likely the cause of this error.
-Run the following command and then retry:
-
-VX_CERT_AUTHORITY_CERT_PATH=./certs/dev/vx-cert-authority-cert.pem \\
-VX_OPENSSL_CONFIG_PATH=./certs/openssl.cnf \\
-VX_PRIVATE_KEY_PASSWORD=1234 \\
-VX_PRIVATE_KEY_PATH=./certs/dev/vx-private-key.pem \\
-./scripts/configure-java-card
+Run that and then retry.
 `;
 
 async function programDevSystemAdministratorJavaCard(): Promise<void> {

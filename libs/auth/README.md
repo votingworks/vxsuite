@@ -56,14 +56,11 @@ make install-script-dependencies
 ./scripts/configure-java-card
 ```
 
-For local development, use this command:
+For local development, you can use the following command, which sets the
+relevant env vars for local development and then calls the base script:
 
 ```
-VX_CERT_AUTHORITY_CERT_PATH=./certs/dev/vx-cert-authority-cert.pem \
-VX_OPENSSL_CONFIG_PATH=./certs/openssl.cnf \
-VX_PRIVATE_KEY_PASSWORD=1234 \
-VX_PRIVATE_KEY_PATH=./certs/dev/vx-private-key.pem \
-./scripts/configure-java-card
+./scripts/configure-dev-java-card
 ```
 
 This command needs to be run on all Java Cards before they can be used in any
