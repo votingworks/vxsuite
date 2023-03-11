@@ -11,7 +11,7 @@ use rusttype::{Font, Scale};
 use crate::{
     ballot_card::Geometry,
     election::GridPosition,
-    geometry::{center_of_rect, segment_with_length, Rect, Segment},
+    geometry::{segment_with_length, Rect, Segment},
     image_utils::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RAINBOW, RED,
         WHITE_RGB,
@@ -126,7 +126,7 @@ pub fn draw_timing_mark_debug_image_mut(
     let scale = Scale::uniform(font_scale);
 
     for (i, rect) in partial_timing_marks.top_rects.iter().enumerate() {
-        let center = center_of_rect(rect);
+        let center = rect.center();
         let text = format!("{i}");
         let (text_width, text_height) = text_size(scale, font, text.as_str());
         draw_filled_rect_mut(canvas, (*rect).into(), GREEN);
@@ -142,7 +142,7 @@ pub fn draw_timing_mark_debug_image_mut(
     }
 
     for (i, rect) in partial_timing_marks.bottom_rects.iter().enumerate() {
-        let center = center_of_rect(rect);
+        let center = rect.center();
         let text = format!("{i}");
         let (text_width, text_height) = text_size(scale, font, text.as_str());
         draw_filled_rect_mut(canvas, (*rect).into(), BLUE);
@@ -158,7 +158,7 @@ pub fn draw_timing_mark_debug_image_mut(
     }
 
     for (i, rect) in partial_timing_marks.left_rects.iter().enumerate() {
-        let center = center_of_rect(rect);
+        let center = rect.center();
         let text = format!("{i}");
         let (_, text_height) = text_size(scale, font, text.as_str());
         draw_filled_rect_mut(canvas, (*rect).into(), RED);
@@ -174,7 +174,7 @@ pub fn draw_timing_mark_debug_image_mut(
     }
 
     for (i, rect) in partial_timing_marks.right_rects.iter().enumerate() {
-        let center = center_of_rect(rect);
+        let center = rect.center();
         let text = format!("{i}");
         let (text_width, text_height) = text_size(scale, font, text.as_str());
         draw_filled_rect_mut(canvas, (*rect).into(), CYAN);
