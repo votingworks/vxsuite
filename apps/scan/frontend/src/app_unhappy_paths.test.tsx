@@ -229,7 +229,7 @@ test('App shows warning message to connect to power when disconnected', async ()
 
   // Remove pollworker card
   apiMock.removeCard();
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
   // There should be no warning about power
   expect(screen.queryByText('No Power Detected.')).toBeNull();
   // Disconnect from power and check for warning
@@ -258,7 +258,7 @@ test('removing card during calibration', async () => {
   apiMock.expectGetConfig({ pollsState: 'polls_open' });
   await screen.findByText('Polls are open.');
   apiMock.removeCard();
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
 
   // Start calibrating
   apiMock.authenticateAsElectionManager(electionSampleDefinition);
@@ -289,5 +289,5 @@ test('removing card during calibration', async () => {
 
   apiMock.expectGetScannerStatus(statusNoPaper);
   resolve(true);
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
 });

@@ -29,7 +29,7 @@ export function InsertBallotScreen({
         <InsertBallotImage />
       </Section>
       <Section horizontalAlign="center">
-        <H2 as="h1">Insert Your Ballot Below</H2>
+        <H2 as="h1">Insert Your Ballot Above</H2>
         <Caption>Scan one ballot sheet at a time.</Caption>
         {showNoChargerWarning && (
           <Caption color="warning">
