@@ -19,10 +19,7 @@ use crate::{
     debug,
     debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
     election::{GridLayout, GridLocation, GridPosition},
-    geometry::{
-        center_of_rect, find_best_line_through_items, intersection_of_lines, Point, Rect, Segment,
-        Size,
-    },
+    geometry::{find_best_line_through_items, intersection_of_lines, Point, Rect, Segment, Size},
     image_utils::{diff, expand_image, ratio, Inset, BLACK, WHITE},
     interpret::Error,
     metadata::{decode_metadata_from_timing_marks, BallotPageMetadata},
@@ -162,15 +159,13 @@ impl TimingMarkGrid {
 
         let left = self.complete_timing_marks.left_rects.get(row as usize)?;
         let right = self.complete_timing_marks.right_rects.get(row as usize)?;
-        let top = self.complete_timing_marks.top_rects.get(column as usize)?;
-        let bottom = self
-            .complete_timing_marks
-            .bottom_rects
-            .get(column as usize)?;
-        let horizontal_segment = Segment::new(center_of_rect(left), center_of_rect(right));
-        let vertical_segment = Segment::new(center_of_rect(top), center_of_rect(bottom));
-
-        intersection_of_lines(&horizontal_segment, &vertical_segment, false)
+        let horizontal_segment = Segment::new(left.center(), right.center());
+        let distance_percentage = column as f32 / (self.geometry.grid_size.width - 1) as f32;
+        let Segment {
+            start: _,
+            end: expected_timing_mark_center,
+        } = horizontal_segment.with_length(horizontal_segment.length() * distance_percentage);
+        Some(expected_timing_mark_center)
     }
 }
 
@@ -408,17 +403,17 @@ pub fn find_partial_timing_marks_from_candidate_rects(
     left_line.sort_by_key(Rect::top);
     right_line.sort_by_key(Rect::top);
 
-    let top_start_rect_center = center_of_rect(top_line.first()?);
-    let top_last_rect_center = center_of_rect(top_line.last()?);
+    let top_start_rect_center = (top_line.first()?).center();
+    let top_last_rect_center = (top_line.last()?).center();
 
-    let bottom_start_rect_center = center_of_rect(bottom_line.first()?);
-    let bottom_last_rect_center = center_of_rect(bottom_line.last()?);
+    let bottom_start_rect_center = (bottom_line.first()?).center();
+    let bottom_last_rect_center = (bottom_line.last()?).center();
 
-    let left_start_rect_center = center_of_rect(left_line.first()?);
-    let left_last_rect_center = center_of_rect(left_line.last()?);
+    let left_start_rect_center = (left_line.first()?).center();
+    let left_last_rect_center = (left_line.last()?).center();
 
-    let right_start_rect_center = center_of_rect(right_line.first()?);
-    let right_last_rect_center = center_of_rect(right_line.last()?);
+    let right_start_rect_center = (right_line.first()?).center();
+    let right_last_rect_center = (right_line.last()?).center();
 
     let top_left_corner = if top_line.first() == left_line.first() {
         top_line.first()
@@ -506,14 +501,14 @@ impl Rotator180 {
         )
     }
 
-    fn rotate_point_i32(&self, point: Point<i32>) -> Point<i32> {
+    pub const fn rotate_point_i32(&self, point: Point<i32>) -> Point<i32> {
         Point::new(
             self.canvas_area.width() as i32 - 1 - point.x,
             self.canvas_area.height() as i32 - 1 - point.y,
         )
     }
 
-    fn rotate_point_f32(&self, point: Point<f32>) -> Point<f32> {
+    pub fn rotate_point_f32(&self, point: Point<f32>) -> Point<f32> {
         Point::new(
             (self.canvas_area.width() as i32 - 1) as f32 - point.x,
             (self.canvas_area.height() as i32 - 1) as f32 - point.y,
@@ -723,10 +718,8 @@ fn infer_missing_timing_marks_on_segment(
         let closest_rect = timing_marks
             .iter()
             .min_by(|a, b| {
-                let a_distance =
-                    Segment::new(center_of_rect(a), current_timing_mark_center).length();
-                let b_distance =
-                    Segment::new(center_of_rect(b), current_timing_mark_center).length();
+                let a_distance = Segment::new((a).center(), current_timing_mark_center).length();
+                let b_distance = Segment::new((b).center(), current_timing_mark_center).length();
                 a_distance
                     .partial_cmp(&b_distance)
                     .unwrap_or(std::cmp::Ordering::Equal)
@@ -737,11 +730,11 @@ fn infer_missing_timing_marks_on_segment(
             );
 
         // if the closest timing mark is close enough, use it
-        if Segment::new(center_of_rect(closest_rect), current_timing_mark_center).length()
+        if Segment::new((closest_rect).center(), current_timing_mark_center).length()
             <= maximum_error
         {
             inferred_timing_marks.push(*closest_rect);
-            current_timing_mark_center = center_of_rect(closest_rect) + next_point_vector;
+            current_timing_mark_center = (closest_rect).center() + next_point_vector;
         } else {
             // otherwise, we need to fill in a point
             inferred_timing_marks.push(Rect::new(
@@ -774,7 +767,7 @@ pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
 pub fn distances_between_rects(rects: &[Rect]) -> Vec<f32> {
     let mut distances = rects
         .windows(2)
-        .map(|w| Segment::new(center_of_rect(&w[1]), center_of_rect(&w[0])).length())
+        .map(|w| Segment::new((&w[1]).center(), (&w[0]).center()).length())
         .collect::<Vec<f32>>();
     distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
     distances

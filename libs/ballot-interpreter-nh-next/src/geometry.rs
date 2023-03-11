@@ -1,24 +1,24 @@
 use std::{
     f32::consts::PI,
-    ops::{Add, AddAssign},
+    ops::{Add, AddAssign, Sub},
 };
 
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::Serialize;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
-pub struct Point<T> {
+pub struct Point<T: Sub<Output = T>> {
     pub x: T,
     pub y: T,
 }
 
-impl<T> Point<T> {
+impl<T: Sub<Output = T>> Point<T> {
     pub const fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
 }
 
-impl<T: Add<Output = T>> Add for Point<T> {
+impl<T: Sub<Output = T> + Add<Output = T>> Add for Point<T> {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
@@ -26,7 +26,7 @@ impl<T: Add<Output = T>> Add for Point<T> {
     }
 }
 
-impl<T: AddAssign + Copy> AddAssign for Point<T> {
+impl<T: Sub<Output = T> + AddAssign + Copy> AddAssign for Point<T> {
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
@@ -94,6 +94,13 @@ impl Rect {
 
     pub const fn bottom_right(&self) -> Point<i32> {
         Point::new(self.right(), self.bottom())
+    }
+
+    pub fn center(&self) -> Point<f32> {
+        Point::new(
+            self.left() as f32 + (self.right() as f32 - self.left() as f32) / 2.0,
+            self.top() as f32 + (self.bottom() as f32 - self.top() as f32) / 2.0,
+        )
     }
 }
 
@@ -242,14 +249,6 @@ pub fn segment_with_length(segment: &Segment, length: f32) -> Segment {
     Segment::new(p1, p3)
 }
 
-/// Returns the center of a rect.
-pub fn center_of_rect(rect: &Rect) -> Point<f32> {
-    Point::new(
-        rect.left() as f32 + (rect.right() as f32 - rect.left() as f32) / 2.0,
-        rect.top() as f32 + (rect.bottom() as f32 - rect.top() as f32) / 2.0,
-    )
-}
-
 #[cfg(test)]
 mod normalize_angle_tests {
     use std::{f32::consts::PI, ops::Range};
@@ -313,7 +312,7 @@ mod normalize_center_of_rect {
     #[test]
     fn test_center_of_rect() {
         let rect = super::Rect::new(0, 0, 10, 10);
-        let center = super::center_of_rect(&rect);
+        let center = rect.center();
         assert_eq!(center.x, 4.5);
         assert_eq!(center.y, 4.5);
     }
@@ -321,7 +320,7 @@ mod normalize_center_of_rect {
     #[test]
     fn test_center_of_rect_with_odd_dimensions() {
         let rect = super::Rect::new(0, 0, 11, 11);
-        let center = super::center_of_rect(&rect);
+        let center = rect.center();
         assert_eq!(center.x, 5.0);
         assert_eq!(center.y, 5.0);
     }
@@ -330,7 +329,7 @@ mod normalize_center_of_rect {
         #[test]
         fn prop_center_of_rect_is_in_rect(x in 0i32..100i32, y in 0i32..100i32, width in 1u32..100u32, height in 1u32..100u32) {
             let rect = super::Rect::new(x, y, width, height);
-            let center = super::center_of_rect(&rect);
+            let center = rect.center();
             prop_assert!((rect.left() as f32) <= center.x);
             prop_assert!(center.x <= (rect.right() as f32));
             prop_assert!((rect.top() as f32) <= center.y);
@@ -350,8 +349,8 @@ pub fn find_best_line_through_items(rects: &Vec<Rect>, angle: f32, tolerance: f3
             let mut best_rects = best_rects;
 
             for other_rect in rects.iter() {
-                let rect_center = center_of_rect(rect);
-                let other_rect_center = center_of_rect(other_rect);
+                let rect_center = rect.center();
+                let other_rect_center = other_rect.center();
                 let line_angle = (other_rect_center.y - rect_center.y)
                     .atan2(other_rect_center.x - rect_center.x);
 
