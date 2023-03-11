@@ -13,7 +13,7 @@ use crate::{
     election::GridPosition,
     geometry::{center_of_rect, segment_with_length, Rect, Segment},
     image_utils::{
-        BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, PINK, RAINBOW, RED,
+        BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RAINBOW, RED,
         WHITE_RGB,
     },
     timing_marks::{Partial, ScoredOvalMark, TimingMarkGrid},
@@ -355,7 +355,8 @@ pub fn draw_scored_oval_marks_debug_image_mut(
     let option_color = PINK;
     let matched_oval_color = DARK_GREEN;
     let original_oval_color = DARK_BLUE;
-    let score_color = DARK_GREEN;
+    let match_score_color = ORANGE;
+    let fill_score_color = DARK_CYAN;
     let font = &monospace_font();
     let font_scale = 20.0;
     let scale = Scale::uniform(font_scale);
@@ -365,6 +366,14 @@ pub fn draw_scored_oval_marks_debug_image_mut(
         &vec![
             (original_oval_color, "Expected Oval Bounds"),
             (matched_oval_color, "Matched Oval Bounds"),
+            (
+                match_score_color,
+                "Oval Match Score (100% = perfect alignment)",
+            ),
+            (
+                fill_score_color,
+                "Oval Fill Score (0% = no fill, 100% = perfect fill)",
+            ),
         ],
     );
 
@@ -376,8 +385,11 @@ pub fn draw_scored_oval_marks_debug_image_mut(
             let (option_text_width, option_text_height) =
                 text_size(scale, font, option_text.as_str());
 
-            let score_text = scored_oval_mark.fill_score.to_string();
-            let (score_text_width, _) = text_size(scale, font, score_text.as_str());
+            let match_score_text = scored_oval_mark.match_score.to_string();
+            let fill_score_text = scored_oval_mark.fill_score.to_string();
+            let (match_score_text_width, match_score_text_height) =
+                text_size(scale, font, match_score_text.as_str());
+            let (fill_score_text_width, _) = text_size(scale, font, fill_score_text.as_str());
 
             draw_text_with_background_mut(
                 canvas,
@@ -406,7 +418,7 @@ pub fn draw_scored_oval_marks_debug_image_mut(
 
             draw_text_with_background_mut(
                 canvas,
-                &score_text,
+                &match_score_text,
                 (scored_oval_mark
                     .expected_bounds
                     .left()
@@ -416,7 +428,32 @@ pub fn draw_scored_oval_marks_debug_image_mut(
                         .right()
                         .max(scored_oval_mark.matched_bounds.right()))
                     / 2
-                    - (score_text_width / 2),
+                    - (match_score_text_width / 2),
+                scored_oval_mark
+                    .expected_bounds
+                    .top()
+                    .min(scored_oval_mark.matched_bounds.top())
+                    - 5
+                    - match_score_text_height,
+                scale,
+                font,
+                match_score_color,
+                WHITE_RGB,
+            );
+
+            draw_text_with_background_mut(
+                canvas,
+                &fill_score_text,
+                (scored_oval_mark
+                    .expected_bounds
+                    .left()
+                    .min(scored_oval_mark.matched_bounds.left())
+                    + scored_oval_mark
+                        .expected_bounds
+                        .right()
+                        .max(scored_oval_mark.matched_bounds.right()))
+                    / 2
+                    - (fill_score_text_width / 2),
                 scored_oval_mark
                     .expected_bounds
                     .bottom()
@@ -424,7 +461,7 @@ pub fn draw_scored_oval_marks_debug_image_mut(
                     + 5,
                 scale,
                 font,
-                score_color,
+                fill_score_color,
                 WHITE_RGB,
             );
 
