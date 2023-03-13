@@ -116,10 +116,13 @@ test('ballot pagination', async () => {
   });
 
   const pageCount = 3;
+  apiMock.expectGetWriteInImage(mockWriteInRecords[0].id);
   userEvent.click(await screen.findByText(`Transcribe ${pageCount}`));
 
   for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
-    apiMock.expectGetWriteInImage(mockWriteInRecords[pageNumber - 1].id);
+    if (pageNumber > 1) {
+      apiMock.expectGetWriteInImage(mockWriteInRecords[pageNumber - 1].id);
+    }
     await screen.findByText(new RegExp(`${pageNumber} of ${pageCount}`));
     const previousButton = await screen.findButton('Previous');
     if (pageNumber === 1) {
