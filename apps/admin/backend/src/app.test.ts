@@ -378,13 +378,9 @@ test('addCastVoteRecordFile - handle parsing error', async () => {
 test('auth', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { electionData, electionHash } = electionDefinition;
-  const { apiClient, auth, workspace } = buildTestEnvironment();
-  workspace.store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
-  workspace.store.addElection(
-    electionFamousNames2021Fixtures.electionDefinition.electionData
-  );
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
 
   await apiClient.getAuthStatus();
   await apiClient.checkPin({ pin: '123456' });
@@ -393,8 +389,8 @@ test('auth', async () => {
   void (await apiClient.programCard({ userRole: 'election_manager' }));
   void (await apiClient.unprogramCard());
 
-  expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, { electionHash });
+  expect(auth.getAuthStatus).toHaveBeenCalledTimes(2);
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(2, { electionHash });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
