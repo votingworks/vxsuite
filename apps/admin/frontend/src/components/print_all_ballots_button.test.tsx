@@ -159,6 +159,11 @@ test('print sequence proceeds as expected', async () => {
 
 test('initial modal state toggles based on printer state', async () => {
   const { renderApp, hardware } = buildApp(apiMock);
+  // Set default auth status to logged out.
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   hardware.setPrinterConnected(false);
@@ -184,6 +189,11 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
   window.kiosk = mockKiosk;
 
   const { renderApp, hardware, logger } = buildApp(apiMock);
+  // Set default auth status to logged out.
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   renderApp();
@@ -223,6 +233,11 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
 
 test('modal is different for system administrators', async () => {
   const { renderApp } = buildApp(apiMock);
+  // Set default auth status to logged out.
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   renderApp();

@@ -31,7 +31,14 @@ let apiMock: ApiMock;
 beforeEach(() => {
   mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
+
   apiMock = createApiMock();
+  // Set default auth status to logged out.
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
+
   fetchMock.reset();
   fetchMock.get(
     '/convert/tallies/files',

@@ -13,20 +13,10 @@ import {
   ElectionDefinition,
 } from '@votingworks/types';
 
-export type MockApiClient = Omit<MockClient<Api>, 'getAuthStatus'> & {
-  // Because this is polled so frequently, we opt for a standard jest mock instead of a
-  // libs/test-utils mock since the latter requires every call to be explicitly mocked
-  getAuthStatus: jest.Mock;
-};
+export type MockApiClient = MockClient<Api>;
 
 export function createMockApiClient(): MockApiClient {
-  const mockApiClient = createMockClient<Api>();
-  // For some reason, using an object spread to override the getAuthStatus method breaks the rest
-  // of the mockApiClient, so we override like this instead
-  (mockApiClient.getAuthStatus as unknown as jest.Mock) = jest.fn(() =>
-    Promise.resolve({ status: 'logged_out', reason: 'machine_locked' })
-  );
-  return mockApiClient as unknown as MockApiClient;
+  return createMockClient<Api>();
 }
 
 /**
@@ -43,9 +33,7 @@ export function createApiMock(
     assertComplete: apiClient.assertComplete,
 
     setAuthStatus(authStatus: DippedSmartCardAuth.AuthStatus) {
-      apiClient.getAuthStatus.mockImplementation(() =>
-        Promise.resolve(authStatus)
-      );
+      apiClient.getAuthStatus.expectRepeatedCallsWith().resolves(authStatus);
     },
 
     async authenticateAsSystemAdministrator() {
