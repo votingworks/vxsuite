@@ -154,7 +154,7 @@ test('generate live mode CVRs', async () => {
     ballotPackagePath,
     '--outputPath',
     outputDirectory.name,
-    '--liveBallots',
+    '--officialBallots',
     '--numBallots',
     '10',
   ]);

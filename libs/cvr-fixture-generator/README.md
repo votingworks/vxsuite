@@ -14,8 +14,8 @@ Optional flags:
 
 - `--includeBallotImages` - whether to include images and layouts for cast vote
   records with write-ins
-- `--liveBallots` - whether to export a report for official ballots. By default
-  the report is for test ballots.
+- `--officialBallots` - whether to export a report for official ballots. By
+  default the report is for test ballots.
 - `--scannerNames` - if provided with a comma-separated list of scanners, there
   will be cast vote records for each of the listed scanners. Otherwise, all
   records will appear to come from a single `scanner`.

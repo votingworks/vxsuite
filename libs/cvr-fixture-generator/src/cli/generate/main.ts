@@ -38,7 +38,7 @@ interface GenerateCvrFileArguments {
   outputPath?: string;
   numBallots?: number;
   scannerNames?: Array<string | number>;
-  liveBallots: boolean;
+  officialBallots: boolean;
   includeBallotImages: boolean;
   help?: boolean;
   [x: string]: unknown;
@@ -77,7 +77,7 @@ export async function main(
         type: 'number',
         description: 'Number of ballots to include in the output.',
       },
-      liveBallots: {
+      officialBallots: {
         type: 'boolean',
         default: false,
         description:
@@ -133,7 +133,7 @@ export async function main(
     ballotPackage: ballotPackagePath,
   } = args;
   const scannerNames = (args.scannerNames ?? ['scanner']).map((s) => `${s}`);
-  const testMode = !args.liveBallots;
+  const testMode = !args.officialBallots;
 
   const ballotPackage = await readBallotPackageFromBuffer(
     fs.readFileSync(ballotPackagePath)
