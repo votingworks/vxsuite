@@ -1304,7 +1304,7 @@ export interface Election {
   /**
    * Used for establishing a collection of contest definitions that will be referenced by the CVRs.
    */
-  readonly Contest: ReadonlyArray<Contest | BallotMeasureContest | CandidateContest | RetentionContest>;
+  readonly Contest: ReadonlyArray<Contest | BallotMeasureContest | CandidateContest>;
 
   /**
    * Used to identify the election scope, i.e., the political geography corresponding to the election.
@@ -1325,7 +1325,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z.object({
   '@type': z.literal('CVR.Election'),
   Candidate: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CandidateSchema))),
   Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
-  Contest: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next */ () => CandidateContestSchema), z.lazy(/* istanbul ignore next */ () => RetentionContestSchema)])).min(1),
+  Contest: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next */ () => CandidateContestSchema)])).min(1),
   ElectionScopeId: z.string(),
   Name: z.optional(z.string()),
 });
@@ -1601,65 +1601,6 @@ export const ReportingDeviceSchema: z.ZodSchema<ReportingDevice> = z.object({
   Model: z.optional(z.string()),
   Notes: z.optional(z.array(z.string())),
   SerialNumber: z.optional(z.string()),
-});
-
-/**
- * RetentionContest is a subclass of BallotMeasureContest and is used to identify the type of contest as involving a retention, such as for a judicial retention.  While it is similar to BallotMeasureContest, it contains a link to Candidate that BallotMeasureContest does not.  RetentionContest inherits attributes from Contest.
- */
-export interface RetentionContest {
-  readonly '@id': string;
-
-  readonly '@type': 'CVR.RetentionContest';
-
-  /**
-   * An abbreviation associated with the contest.
-   */
-  readonly Abbreviation?: string;
-
-  /**
-   * Identifies the candidate in the retention contest.
-   */
-  readonly CandidateId?: string;
-
-  /**
-   * A code or identifier used for this contest.
-   */
-  readonly Code?: readonly Code[];
-
-  /**
-   * Identifies the contest selections in the contest.
-   */
-  readonly ContestSelection: ReadonlyArray<ContestSelection | BallotMeasureSelection | CandidateSelection>;
-
-  /**
-   * Title or name of the contest, e.g., "Governor" or "Question on Legalization of Gambling".
-   */
-  readonly Name?: string;
-
-  /**
-   * If VoteVariation is 'other', the vote variation for this contest.
-   */
-  readonly OtherVoteVariation?: string;
-
-  /**
-   * The vote variation for this contest, from the VoteVariation enumeration.
-   */
-  readonly VoteVariation?: VoteVariation;
-}
-
-/**
- * Schema for {@link RetentionContest}.
- */
-export const RetentionContestSchema: z.ZodSchema<RetentionContest> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('CVR.RetentionContest'),
-  Abbreviation: z.optional(z.string()),
-  CandidateId: z.optional(z.string()),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
-  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)])).min(1),
-  Name: z.optional(z.string()),
-  OtherVoteVariation: z.optional(z.string()),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
 });
 
 /**

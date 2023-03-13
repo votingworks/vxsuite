@@ -215,8 +215,7 @@
           "refTypes": [
             "CVR.Contest",
             "CVR.BallotMeasureContest",
-            "CVR.CandidateContest",
-            "CVR.RetentionContest"
+            "CVR.CandidateContest"
           ]
         },
         "OtherStatus": {
@@ -727,9 +726,6 @@
               },
               {
                 "$ref": "#/definitions/CVR.CandidateContest"
-              },
-              {
-                "$ref": "#/definitions/CVR.RetentionContest"
               }
             ]
           },
@@ -984,60 +980,6 @@
         "vote-center"
       ],
       "type": "string"
-    },
-    "CVR.RetentionContest": {
-      "required": ["@id", "@type", "ContestSelection"],
-      "additionalProperties": false,
-      "properties": {
-        "@id": {
-          "type": "string"
-        },
-        "@type": {
-          "enum": ["CVR.RetentionContest"],
-          "type": "string"
-        },
-        "Abbreviation": {
-          "type": "string"
-        },
-        "CandidateId": {
-          "type": "string",
-          "refTypes": ["CVR.Candidate"]
-        },
-        "Code": {
-          "items": {
-            "$ref": "#/definitions/CVR.Code"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "ContestSelection": {
-          "items": {
-            "oneOf": [
-              {
-                "$ref": "#/definitions/CVR.ContestSelection"
-              },
-              {
-                "$ref": "#/definitions/CVR.BallotMeasureSelection"
-              },
-              {
-                "$ref": "#/definitions/CVR.CandidateSelection"
-              }
-            ]
-          },
-          "minItems": 1,
-          "type": "array"
-        },
-        "Name": {
-          "type": "string"
-        },
-        "OtherVoteVariation": {
-          "type": "string"
-        },
-        "VoteVariation": {
-          "$ref": "#/definitions/CVR.VoteVariation"
-        }
-      },
-      "type": "object"
     },
     "CVR.SelectionPosition": {
       "required": ["@type", "HasIndication", "NumberVotes"],
