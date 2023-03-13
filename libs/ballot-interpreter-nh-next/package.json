@@ -21,6 +21,7 @@
   },
   "author": "VotingWorks Eng <eng@voting.works>",
   "license": "AGPL-3.0",
+  "packageManager": "pnpm@7.24.3",
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
