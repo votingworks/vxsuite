@@ -34,24 +34,28 @@ afterEach(async () => {
   await fs.rm(ballotImagesPath, { recursive: true });
 });
 
-test('NH interpreter of overvote yields a sheet that needs to be reviewed', async () => {
-  const interpreter = createInterpreter();
+test.each([true, false])(
+  'NH interpreter (next=%s) of overvote yields a sheet that needs to be reviewed',
+  async (useNhNext) => {
+    const interpreter = createInterpreter();
 
-  interpreter.configure({
-    electionDefinition:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-    layouts: [],
-    ballotImagesPath,
-    testMode: true,
-  });
+    interpreter.configure({
+      electionDefinition:
+        electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      layouts: [],
+      ballotImagesPath,
+      testMode: true,
+      useNhNext,
+    });
 
-  const result = await interpreter.interpret(
-    'foo-sheet-id',
-    ballotImages.overvoteBallot
-  );
-  expect(result.ok()?.type).toEqual('NeedsReviewSheet');
-});
+    const result = await interpreter.interpret(
+      'foo-sheet-id',
+      ballotImages.overvoteBallot
+    );
+    expect(result.ok()?.type).toEqual('NeedsReviewSheet');
+  }
+);
 
 test.each([true, false])(
   'NH interpreter with testMode=%s',
@@ -65,6 +69,7 @@ test.each([true, false])(
       layouts: [],
       ballotImagesPath,
       testMode,
+      useNhNext: true,
     });
 
     const sheet = (
