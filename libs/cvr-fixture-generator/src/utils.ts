@@ -107,7 +107,8 @@ export function splitContestsByPage({
 }
 
 /**
- * Re-arranges contests grouped by page to an contests further grouped by sheets.
+ * Re-arranges contests grouped by page into contests grouped by sheet and page,
+ * as from [[...A], [...B], [...C], [...D]] to [[[...A], [...B]], [[...C],[...D]]]
  */
 export function arrangeContestsBySheet(
   contestsByPage: Contests[]
