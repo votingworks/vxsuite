@@ -1,4 +1,4 @@
-import { GridPosition, Optional } from '@votingworks/types';
+import { BallotPaperSize, GridPosition, Optional } from '@votingworks/types';
 import { Result } from '@votingworks/basics';
 
 /// ////////////////////////////////////////
@@ -261,12 +261,6 @@ export interface Geometry {
   gridSize: Size<u32>;
   frontUsableArea: Rect;
   backUsableArea: Rect;
-}
-
-/** The standard size of paper used for the ballot card. */
-export enum BallotPaperSize {
-  Letter = 'letter',
-  Legal = 'legal',
 }
 
 /** Ballot card orientation. */
