@@ -245,9 +245,9 @@ export async function main(
         throw new Error('unexpected file URI format');
       }
       const [, ballotStyleId, precinctId, pageNumberString] = regexMatch;
-      assert(typeof ballotStyleId !== 'undefined');
-      assert(typeof precinctId !== 'undefined');
-      assert(typeof pageNumberString !== 'undefined');
+      assert(ballotStyleId !== undefined);
+      assert(precinctId !== undefined);
+      assert(pageNumberString !== undefined);
       // eslint-disable-next-line vx/gts-safe-number-parse
       const pageNumber = Number(pageNumberString);
 
