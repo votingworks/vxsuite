@@ -279,6 +279,7 @@
             "$ref": "#/definitions/CVR.SelectionPosition"
           },
           "minItems": 1,
+          "maxItems": 1,
           "type": "array"
         },
         "Status": {
