@@ -401,12 +401,12 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
       - run:
           name: Install Rust
           command: |
             curl https://sh.rustup.rs -sSf | sh -s -- -y
             echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> $BASH_ENV
+      - checkout-and-install
       - run:
           name: Build
           command: |
