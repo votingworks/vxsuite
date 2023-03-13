@@ -16,6 +16,17 @@ import {
   AdminActionScreenProps,
   AdminActionsScreen,
 } from './admin_actions_screen';
+import { createMockApiClient, MockApiClient } from '../../test/api';
+
+let mockApiClient: MockApiClient;
+
+beforeEach(() => {
+  mockApiClient = createMockApiClient();
+});
+
+afterEach(() => {
+  mockApiClient.assertComplete();
+});
 
 type BackupFn = AdminActionScreenProps['backup'];
 type BackupResult = BackupFn extends (...args: any[]) => Promise<infer R>
@@ -37,7 +48,8 @@ function renderScreen(props: Partial<AdminActionScreenProps> = {}) {
       markThresholds={undefined}
       electionDefinition={testElectionDefinition}
       {...props}
-    />
+    />,
+    { apiClient: mockApiClient }
   );
 }
 
