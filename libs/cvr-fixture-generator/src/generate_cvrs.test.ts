@@ -58,7 +58,7 @@ test('produces well-formed cast vote records with all contests', async () => {
       expect.arrayContaining(
         getContests({
           ballotStyle: getBallotStyle({
-            ballotStyleId: ballotStyleId!,
+            ballotStyleId,
             election,
           })!,
           election,
