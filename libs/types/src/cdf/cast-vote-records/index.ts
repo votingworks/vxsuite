@@ -644,17 +644,17 @@ export interface CVR {
   /**
    * An identifier of the ballot style associated with the corresponding ballot.
    */
-  readonly BallotStyleId?: string;
+  readonly BallotStyleId: string;
 
   /**
    * Identifies the smallest unit of geography associated with the corresponding ballot, typically a precinct or split-precinct.
    */
-  readonly BallotStyleUnitId?: string;
+  readonly BallotStyleUnitId: string;
 
   /**
    * The identifier for the batch that includes this CVR.
    */
-  readonly BatchId?: string;
+  readonly BatchId: string;
 
   /**
    * The sequence number of the corresponding paper ballot within a batch.
@@ -669,7 +669,7 @@ export interface CVR {
   /**
    * Identifies the device that created the CVR.
    */
-  readonly CreatingDeviceId?: string;
+  readonly CreatingDeviceId: string;
 
   /**
    * Identifies the snapshot that is currently tabulatable.
@@ -689,12 +689,12 @@ export interface CVR {
   /**
    * The sequence number for this CVR. This represents the ordinal number that this CVR was processed by the tabulating device.
    */
-  readonly UniqueId?: string;
+  readonly UniqueId: string;
 
   /**
    * Indicates whether the ballot is an absentee or precinct ballot.
    */
-  readonly vxBallotType?: vxBallotType;
+  readonly vxBallotType: vxBallotType;
 }
 
 /**
@@ -706,17 +706,17 @@ export const CVRSchema: z.ZodSchema<CVR> = z.object({
   BallotImage: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ImageDataSchema))),
   BallotPrePrintedId: z.optional(z.string()),
   BallotSheetId: z.optional(z.string()),
-  BallotStyleId: z.optional(z.string()),
-  BallotStyleUnitId: z.optional(z.string()),
-  BatchId: z.optional(z.string()),
+  BallotStyleId: z.string(),
+  BallotStyleUnitId: z.string(),
+  BatchId: z.string(),
   BatchSequenceId: z.optional(integerSchema),
   CVRSnapshot: z.array(z.lazy(/* istanbul ignore next */ () => CVRSnapshotSchema)).min(1),
-  CreatingDeviceId: z.optional(z.string()),
+  CreatingDeviceId: z.string(),
   CurrentSnapshotId: z.string(),
   ElectionId: z.string(),
   PartyIds: z.optional(z.array(z.string())),
-  UniqueId: z.optional(z.string()),
-  vxBallotType: z.optional(z.lazy(/* istanbul ignore next */ () => vxBallotTypeSchema)),
+  UniqueId: z.string(),
+  vxBallotType: z.lazy(/* istanbul ignore next */ () => vxBallotTypeSchema),
 });
 
 /**

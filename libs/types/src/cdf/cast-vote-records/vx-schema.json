@@ -113,7 +113,18 @@
       "type": "object"
     },
     "CVR.CVR": {
-      "required": ["@type", "CVRSnapshot", "CurrentSnapshotId", "ElectionId"],
+      "required": [
+        "@type",
+        "CVRSnapshot",
+        "CurrentSnapshotId",
+        "ElectionId",
+        "BallotStyleId",
+        "BallotStyleUnitId",
+        "BatchId",
+        "CreatingDeviceId",
+        "UniqueId",
+        "vxBallotType"
+      ],
       "additionalProperties": false,
       "properties": {
         "@type": {
