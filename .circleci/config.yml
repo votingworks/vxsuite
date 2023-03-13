@@ -932,7 +932,7 @@ commands:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
             "pnpm-lock.yaml" }}
           paths:
-            - ~/.pnpm-store
+            - /root/.local/share/pnpm/store/v3
   install-cypress-browser:
     description: Installs a browser for Cypress tests.
     steps:
