@@ -401,11 +401,6 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - run:
-          name: Install Rust
-          command: |
-            curl https://sh.rustup.rs -sSf | sh -s -- -y
-            echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> $BASH_ENV
       - checkout-and-install
       - run:
           name: Build
@@ -965,6 +960,12 @@ commands:
   checkout-and-install:
     description: Get the code and install dependencies.
     steps:
+      # TODO: move this to our own docker image
+      - run:
+          name: Install Rust
+          command: |
+            curl https://sh.rustup.rs -sSf | sh -s -- -y
+            echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> $BASH_ENV
       - checkout
       # Edit this comment somehow in order to invalidate the CircleCI cache.
       # Since the contents of this file affect the cache key, editing only a
