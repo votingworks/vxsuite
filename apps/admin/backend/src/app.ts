@@ -28,6 +28,7 @@ import { basename } from 'path';
 import { parseCvrFileInfoFromFilename } from '@votingworks/utils';
 import { AddCastVoteRecordFileResult, ConfigureResult } from './types';
 import { Workspace } from './util/workspace';
+import { listCastVoteRecordFilesOnUsb } from './cvr_files';
 
 function getMostRecentlyCreateElectionDefinition(
   workspace: Workspace
@@ -186,6 +187,14 @@ function buildApi({
           disposition: 'success',
         }
       );
+    },
+
+    listCastVoteRecordFilesOnUsb() {
+      const electionDefinition =
+        getMostRecentlyCreateElectionDefinition(workspace);
+      assert(electionDefinition);
+
+      return listCastVoteRecordFilesOnUsb(electionDefinition, logger);
     },
 
     getCastVoteRecordFiles(): Admin.CastVoteRecordFileRecord[] {
