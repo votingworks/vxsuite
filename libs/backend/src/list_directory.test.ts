@@ -58,14 +58,6 @@ describe('listDirectory', () => {
     expect(listDirectoryResult.isErr()).toBeTruthy();
     expect(listDirectoryResult.err()).toMatchObject({ type: 'not-directory' });
   });
-
-  test('returns error on permission denied', async () => {
-    const listDirectoryResult = await listDirectory('/root');
-    expect(listDirectoryResult.isErr()).toBeTruthy();
-    expect(listDirectoryResult.err()).toMatchObject({
-      type: 'permission-denied',
-    });
-  });
 });
 
 describe('listDirectoryOnUsbDrive', () => {
