@@ -6,6 +6,7 @@ import {
   electionSampleCdfDefinition,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
+import { mockOf } from '@votingworks/test-utils';
 import { promises as fs } from 'fs';
 import { sha256 } from 'js-sha256';
 import { tmpdir } from 'os';
@@ -16,10 +17,13 @@ import {
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
 } from '../test/app';
+import { listCastVoteRecordFilesOnUsb } from './cvr_files';
 
 beforeEach(() => {
   jest.restoreAllMocks();
 });
+
+jest.mock('./cvr_files');
 
 test('managing the current election', async () => {
   const { apiClient, auth, logger } = buildTestEnvironment();
@@ -145,6 +149,10 @@ test('cast vote records - happy path election flow', async () => {
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual(
     Admin.CvrFileMode.Unlocked
   );
+
+  // frontend can poll for available cast vote record files
+  mockOf(listCastVoteRecordFilesOnUsb).mockResolvedValueOnce([]);
+  expect(await apiClient.listCastVoteRecordFilesOnUsb()).toEqual([]);
 
   // add a file, with a filename that is not parse-able
   const cvrTestFilePath = standardCvrFile.asFilePath();
