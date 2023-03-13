@@ -11,18 +11,7 @@ import {
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 import { join } from 'path';
-
-/**
- * Metadata about a found cast vote record file.
- */
-export interface CastVoteRecordFileMetadata {
-  readonly name: string;
-  readonly path: string;
-  readonly cvrCount: number;
-  readonly scannerIds: readonly string[];
-  readonly exportTimestamp: Date;
-  readonly isTestModeResults: boolean;
-}
+import { CastVoteRecordFileMetadata } from './types';
 
 /**
  * Gets the metadata, including the path, of cast vote record files found in
