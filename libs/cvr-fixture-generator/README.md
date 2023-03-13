@@ -47,7 +47,7 @@ included.
   this and ensure the fixtures are correct.
 - Vote variations do not include any cases of multiple write-ins for a single
   contest
-- Vote variations do not reflect any probably real-world distribution of votes.
+- Vote variations do not reflect any probable real-world distribution of votes.
   For example, the number of undervotes and overvotes for ballot measure
   contests is extremely high.
 - BMD ballots are not represented in the exports, only HMPB ballots.
