@@ -933,6 +933,7 @@ commands:
             "pnpm-lock.yaml" }}
           paths:
             - /root/.local/share/pnpm/store/v3
+            - /root/.cache/Cypress
   install-cypress-browser:
     description: Installs a browser for Cypress tests.
     steps:
