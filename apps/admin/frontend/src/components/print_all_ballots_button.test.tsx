@@ -48,14 +48,17 @@ afterEach(() => {
 });
 
 test('button renders properly when not clicked', () => {
-  renderInAppContext(<PrintAllBallotsButton />);
+  renderInAppContext(<PrintAllBallotsButton />, { apiMock });
 
   screen.getButton('Print All');
   expect(screen.queryByRole('alertdialog')).toBeNull();
 });
 
 test('modal shows "No Printer Detected" if no printer attached', async () => {
-  renderInAppContext(<PrintAllBallotsButton />, { hasPrinterAttached: false });
+  renderInAppContext(<PrintAllBallotsButton />, {
+    hasPrinterAttached: false,
+    apiMock,
+  });
 
   userEvent.click(screen.getByText('Print All'));
 
@@ -69,6 +72,7 @@ test('modal shows "No Printer Detected" if no printer attached', async () => {
 test('modal allows editing print options', async () => {
   renderInAppContext(<PrintAllBallotsButton />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    apiMock,
   });
 
   userEvent.click(screen.getByText('Print All'));

@@ -1,11 +1,11 @@
 import React from 'react';
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
-import { BallotPaperSize, Printer } from '@votingworks/types';
 import {
+  electionMinimalExhaustiveSampleDefinition,
   asElectionDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
+import userEvent from '@testing-library/user-event';
+import { BallotPaperSize, Printer } from '@votingworks/types';
 import {
   expectPrint,
   fakeKiosk,
@@ -25,12 +25,15 @@ import {
   TWO_SIDED_PAGE_PRINT_TIME_MS,
 } from './print_test_deck_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
+import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 jest.mock('../components/hand_marked_paper_ballot');
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let mockLogger: Logger;
 let mockPrinter: jest.Mocked<Printer>;
+
+let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -45,10 +48,13 @@ beforeEach(() => {
   const fileWriter = fakeFileWriter();
   mockKiosk.saveAs = jest.fn().mockResolvedValue(fileWriter);
   mockKiosk.writeFile = jest.fn().mockResolvedValue(fileWriter);
+
+  apiMock = createApiMock();
 });
 
 afterAll(() => {
   delete window.kiosk;
+  apiMock.assertComplete();
 });
 
 test('Saving L&A package for one precinct', () => {
@@ -57,6 +63,7 @@ test('Saving L&A package for one precinct', () => {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
     logger: mockLogger,
     usbDrive,
+    apiMock,
   });
 
   userEvent.click(screen.getByText('Save Precinct 1 to PDF'));
@@ -70,6 +77,7 @@ test('Saving L&A package for all precincts', () => {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
     logger: mockLogger,
     usbDrive,
+    apiMock,
   });
 
   userEvent.click(screen.getByText('Save Packages for All Precincts as PDF'));
@@ -80,6 +88,7 @@ test('Saving L&A package for all precincts', () => {
 test('Printing L&A package for one precinct', async () => {
   renderInAppContext(<PrintTestDeckScreen />, {
     logger: mockLogger,
+    apiMock,
   });
 
   userEvent.click(screen.getByText('Print District 5'));
@@ -138,6 +147,7 @@ test('Printing L&A packages for all precincts', async () => {
   renderInAppContext(<PrintTestDeckScreen />, {
     logger: mockLogger,
     printer: mockPrinter,
+    apiMock,
   });
 
   userEvent.click(screen.getByText('Print Packages for All Precincts'));
@@ -234,6 +244,7 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
     electionDefinition: electionWithLegalSizeHmpbsDefinition,
     logger: mockLogger,
     printer: mockPrinter,
+    apiMock,
   });
 
   userEvent.click(screen.getByText('Print District 5'));
@@ -307,6 +318,7 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
     electionDefinition: electionWithLegalSizeHmpbsDefinition,
     logger: mockLogger,
     printer: mockPrinter,
+    apiMock,
   });
 
   userEvent.click(screen.getByText('Print Packages for All Precincts'));

@@ -5,12 +5,24 @@ import userEvent from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
+import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 const contest = electionDefinition.election.contests[0] as CandidateContest;
 const onClose = jest.fn();
 const saveTranscribedValue = jest.fn();
 
+let apiMock: ApiMock;
+
+beforeEach(() => {
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.assertComplete();
+});
+
 test('clicking a previously-saved value', async () => {
+  apiMock.expectGetWriteInImage('id-174');
   renderInAppContext(
     <WriteInsTranscriptionScreen
       election={electionDefinition.election}
@@ -31,7 +43,7 @@ test('clicking a previously-saved value', async () => {
       onClose={onClose}
       saveTranscribedValue={saveTranscribedValue}
     />,
-    { electionDefinition }
+    { electionDefinition, apiMock }
   );
 
   // Click a previously-saved transcription
@@ -39,6 +51,7 @@ test('clicking a previously-saved value', async () => {
   expect(saveTranscribedValue).toHaveBeenCalledWith('id-174', 'Mickey Mouse');
 
   await screen.findByTestId('transcribe:id-174');
+  apiMock.expectGetWriteInImage('id-175');
   userEvent.click(await screen.findByText('Next'));
   await screen.findByTestId('transcribe:id-175');
   userEvent.click(await screen.findByText('Previous'));

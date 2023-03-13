@@ -41,7 +41,7 @@ import {
 } from '../src/lib/backends';
 import { mockUsbDrive } from './helpers/mock_usb_drive';
 import { ApiClient, ApiClientContext } from '../src/api';
-import { ApiMock, createMockApiClient } from './helpers/api_mock';
+import { ApiMock } from './helpers/api_mock';
 
 export const eitherNeitherElectionDefinition =
   electionWithMsEitherNeitherDefinition;
@@ -82,7 +82,12 @@ export function renderRootElement(
     backend = new ElectionManagerStoreMemoryBackend(),
     logger = fakeLogger(),
     storage = new MemoryStorage(),
-    apiClient = createMockApiClient(),
+    // If there's no apiClient given, we don't want to create one by default,
+    // since the apiClient needs to have assertComplete called by the test. If
+    // the test doesn't need to make API calls, then it should not pass in an
+    // apiClient here, which will cause an error if the test tries to make an
+    // API call.
+    apiClient,
     // TODO: Determine why tests fail when using useErrorBoundary = true
     queryClient = new QueryClient({
       defaultOptions: {

@@ -52,6 +52,7 @@ test('toggling ballot types before data has been added does not update tallies',
       manualTallyVotingMethod: VotingMethod.Precinct,
       setManualTallyVotingMethod,
       updateExternalTally,
+      apiMock,
     }
   );
   getByText('Manually Entered Precinct Results');
@@ -97,6 +98,7 @@ test('toggling ballot types before data after been added does does update tallie
       fullElectionExternalTallies: new Map([
         [ExternalTallySourceType.Manual, manualFullElectionExternalTally],
       ]),
+      apiMock,
     }
   );
   getByText('Manually Entered Absentee Results');
@@ -132,6 +134,7 @@ test('precinct table renders properly when there is no data', () => {
       route: '/tally/manual-data-import',
       electionDefinition: electionSampleDefinition,
       updateExternalTally,
+      apiMock,
     }
   );
   getByText('Manually Entered Precinct Results');
