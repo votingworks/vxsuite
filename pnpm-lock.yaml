@@ -3158,6 +3158,7 @@ importers:
       '@votingworks/basics': workspace:*
       '@votingworks/cdf-schema-builder': workspace:*
       ajv: ^8.12.0
+      ajv-draft-04: ^1.0.0
       esbuild-runner: ^2.2.1
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
@@ -3198,6 +3199,7 @@ importers:
       '@typescript-eslint/parser': 5.37.0_2owex2qphpdtje5ztrbqluisqa
       '@votingworks/cdf-schema-builder': link:../cdf-schema-builder
       ajv: 8.12.0
+      ajv-draft-04: 1.0.0_ajv@8.12.0
       esbuild-runner: 2.2.1_esbuild@0.17.6
       eslint: 8.23.1
       eslint-config-prettier: 8.5.0_eslint@8.23.1
@@ -11862,6 +11864,17 @@ packages:
     dependencies:
       clean-stack: 2.2.0
       indent-string: 4.0.0
+
+  /ajv-draft-04/1.0.0_ajv@8.12.0:
+    resolution: {integrity: sha512-mv00Te6nmYbRp5DCwclxtt7yV/joXJPGS7nM+97GdxvuttCOfgI3K4U25zboyeX0O+myI8ERluxQe5wljMmVIw==}
+    peerDependencies:
+      ajv: ^8.5.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
+    dependencies:
+      ajv: 8.12.0
+    dev: true
 
   /ajv-errors/1.0.1_ajv@6.12.6:
     resolution: {integrity: sha512-DCRfO/4nQ+89p/RK43i8Ezd41EqdGIU4ld7nGF8OQ14oc/we5rEntLCUa7+jrn3nn83BosfwZA0wb4pon2o8iQ==}

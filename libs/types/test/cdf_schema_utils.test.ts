@@ -3,12 +3,26 @@ import {
   findUnusedDefinitions,
   isSubsetCdfSchema,
   validateSchema,
+  validateSchemaDraft04,
 } from './cdf_schema_utils';
 
 test('validateSchema', () => {
   validateSchema({ definitions: { A: { type: 'string' } } });
   expect(() =>
     validateSchema({
+      definitions: {
+        A: {
+          type: 'not-a-real-type',
+        },
+      },
+    })
+  ).toThrow();
+});
+
+test('validateSchemaDraft04', () => {
+  validateSchemaDraft04({ definitions: { A: { type: 'string' } } });
+  expect(() =>
+    validateSchemaDraft04({
       definitions: {
         A: {
           type: 'not-a-real-type',

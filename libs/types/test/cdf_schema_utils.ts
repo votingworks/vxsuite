@@ -6,6 +6,7 @@ import {
   assert,
 } from '@votingworks/basics';
 import Ajv, { AnySchema } from 'ajv';
+import AjvDraft04, { AnySchema as AnySchemaDraft04 } from 'ajv-draft-04';
 
 // Limited types for the kinds of JSON schemas that we see in CDF
 
@@ -42,6 +43,25 @@ export function validateSchema(schema: AnySchema): void {
       date: true,
       time: true,
       'date-time': true,
+    },
+  });
+  ajv.compile(schema);
+}
+
+/**
+ * Validates that a schema is a valid JSON schema.
+ * @throws if the schema is invalid
+ */
+export function validateSchemaDraft04(schema: AnySchemaDraft04): void {
+  // Allow some custom keywords/formats that the NIST schema uses
+  const ajv = new AjvDraft04({
+    keywords: ['refTypes'],
+    formats: {
+      uri: true,
+      date: true,
+      time: true,
+      'date-time': true,
+      byte: true,
     },
   });
   ajv.compile(schema);

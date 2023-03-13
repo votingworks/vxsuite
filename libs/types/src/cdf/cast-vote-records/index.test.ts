@@ -16,7 +16,7 @@ import {
 import {
   findUnusedDefinitions,
   isSubsetCdfSchema,
-  validateSchema,
+  validateSchemaDraft04,
 } from '../../../test/cdf_schema_utils';
 
 const castVoteRecordReport: CastVoteRecordReport = {
@@ -153,11 +153,11 @@ test('generated types are in sync with schema', () => {
 });
 
 test('NIST schemas is valid JSON schema', () => {
-  validateSchema(nistSchema);
+  validateSchemaDraft04(nistSchema);
 });
 
 test('VX schema is valid JSON schema', () => {
-  validateSchema(vxSchema);
+  validateSchemaDraft04(vxSchema);
 });
 
 test('VX schema has no unused definitions', () => {
