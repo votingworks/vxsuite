@@ -498,7 +498,8 @@
         "GpUnit",
         "ReportGeneratingDeviceIds",
         "ReportingDevice",
-        "Version"
+        "Version",
+        "vxBatch"
       ],
       "additionalProperties": false,
       "properties": {

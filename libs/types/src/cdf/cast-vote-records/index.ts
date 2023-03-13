@@ -1127,7 +1127,7 @@ export interface CastVoteRecordReport {
   /**
    * List of scanner batches with metadata.
    */
-  readonly vxBatch?: readonly vxBatch[];
+  readonly vxBatch: readonly vxBatch[];
 }
 
 /**
@@ -1146,7 +1146,7 @@ export const CastVoteRecordReportSchema: z.ZodSchema<CastVoteRecordReport> = z.o
   ReportType: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ReportTypeSchema))),
   ReportingDevice: z.array(z.lazy(/* istanbul ignore next */ () => ReportingDeviceSchema)).min(1),
   Version: z.lazy(/* istanbul ignore next */ () => CastVoteRecordVersionSchema),
-  vxBatch: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => vxBatchSchema))),
+  vxBatch: z.array(z.lazy(/* istanbul ignore next */ () => vxBatchSchema)),
 });
 
 /**
