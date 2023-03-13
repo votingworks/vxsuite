@@ -51,3 +51,7 @@ included.
   For example, the number of undervotes and overvotes for ballot measure
   contests is extremely high.
 - BMD ballots are not represented in the exports, only HMPB ballots.
+- Ballot images do not have any real marks on them, they are only blank ballots.
+- Ballot images are shared between different ballots of the same style and
+  precinct since they are all identically blank. This is on purpose, to reduce
+  the size of the fixture. This could be changed if it is deemed a limitation.
