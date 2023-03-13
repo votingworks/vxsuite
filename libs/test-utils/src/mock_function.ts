@@ -141,7 +141,7 @@ export function mockFunction<Func extends AnyFunc>(
     // know what the next expected call should be.
     if (previousActualCall.matchingExpectedCallIndex === undefined) {
       throw new MockFunctionError(
-        `Previous call to mock function did not match expected calls`
+        'Previous call to mock function did not match expected calls'
       );
     }
 
