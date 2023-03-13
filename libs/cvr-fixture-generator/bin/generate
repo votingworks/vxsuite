@@ -2,7 +2,7 @@
 
 require('esbuild-runner/register');
 
-require('../src/cli/generate-sample-cvr-file')
+require('../src/cli/generate')
   .main(process.argv, {
     stdin: process.stdin,
     stdout: process.stdout,

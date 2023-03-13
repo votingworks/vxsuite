@@ -4,7 +4,10 @@ import {
 } from '@votingworks/backend';
 import { FULL_LOG_PATH } from '@votingworks/logging';
 import { assert, ok, Result } from '@votingworks/basics';
-import { generateElectionBasedSubfolderName } from '@votingworks/utils';
+import {
+  CAST_VOTE_RECORD_REPORT_FILENAME,
+  generateElectionBasedSubfolderName,
+} from '@votingworks/utils';
 import Database from 'better-sqlite3';
 import { Buffer } from 'buffer';
 import { createReadStream, existsSync } from 'fs-extra';
@@ -106,7 +109,7 @@ export class Backup {
       );
     } else {
       await this.addEntry(
-        'cast-vote-record-report.json',
+        CAST_VOTE_RECORD_REPORT_FILENAME,
         getCastVoteRecordReportStream({
           electionDefinition,
           definiteMarkThreshold:

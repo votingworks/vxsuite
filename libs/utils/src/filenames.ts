@@ -17,6 +17,8 @@ export const BALLOT_PDFS_FOLDER = 'ballot-pdfs';
 export const SCANNER_RESULTS_FOLDER = 'cast-vote-records';
 export const SCANNER_BACKUPS_FOLDER = 'scanner-backups';
 
+export const CAST_VOTE_RECORD_REPORT_FILENAME = 'cast-vote-record-report.json';
+
 export interface ElectionData {
   electionCounty: string;
   electionName: string;

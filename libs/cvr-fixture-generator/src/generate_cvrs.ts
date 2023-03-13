@@ -1,31 +1,30 @@
-import { pdfToImages, toDataUrl } from '@votingworks/image-utils';
+/* eslint-disable vx/gts-identifiers */
 import {
-  BallotIdSchema,
   Candidate,
   CandidateContest,
-  CastVoteRecord,
+  CandidateVote,
   ContestId,
-  ContestOptionId,
+  CVR,
   getContests,
-  InlineBallotImage,
-  SheetOf,
-  unsafeParse,
+  Vote,
+  VotesDict,
   YesNoVote,
 } from '@votingworks/types';
+import { BallotPackage } from '@votingworks/utils';
+import { find, throwIllegalValue } from '@votingworks/basics';
+import { buildCVRContestsFromVotes, hasWriteIns } from '@votingworks/backend';
 import {
-  BallotPackage,
-  BallotPackageEntry,
-  castVoteRecordHasWriteIns,
-} from '@votingworks/utils';
-import {
-  assert,
-  mapAsync,
-  takeAsync,
-  throwIllegalValue,
-} from '@votingworks/basics';
-import { generateCombinations } from './utils';
+  arrangeContestsBySheet,
+  BATCH_ID,
+  filterVotesByContests,
+  generateBallotAssetPath,
+  generateCombinations,
+  splitContestsByPage,
+} from './utils';
 
-// All valid contest choice options for a yes no contest
+/**
+ *  All valid contest choice options for a yes no contest.
+ */
 const YES_NO_OPTIONS: YesNoVote[] = [['yes'], ['no'], ['yes', 'no'], []];
 
 /**
@@ -35,144 +34,133 @@ const YES_NO_OPTIONS: YesNoVote[] = [['yes'], ['no'], ['yes', 'no'], []];
  */
 function getCandidateOptionsForContest(
   contest: CandidateContest
-): Array<string[]> {
-  const candidateOptions: Array<string[]> = [];
+): CandidateVote[] {
+  const candidateVotes: CandidateVote[] = [];
   const numSeats = contest.seats;
-  const candidateIds = contest.candidates.map((c: Candidate) => c.id);
+  const { candidates } = contest;
 
   // Generate a result for all possible number of undervotes
-  for (let i = 0; i < numSeats && i < candidateIds.length; i += 1) {
-    candidateOptions.push(candidateIds.slice(0, i));
+  for (let i = 0; i < numSeats && i < candidates.length; i += 1) {
+    candidateVotes.push(candidates.slice(0, i));
   }
 
   // Generate a result for all possible number of overvotes
-  for (let i = numSeats + 1; i <= candidateIds.length; i += 1) {
-    candidateOptions.push(candidateIds.slice(0, i));
+  for (let i = numSeats + 1; i <= candidates.length; i += 1) {
+    candidateVotes.push(candidates.slice(0, i));
   }
 
   // Add a write-in vote if applicable
   if (contest.allowWriteIns) {
-    const combinations = generateCombinations(candidateIds, numSeats - 1);
+    const combinations = generateCombinations(candidates, numSeats - 1);
+    const writeInCandidate: Candidate = {
+      id: `write-in-${Math.floor(Math.random() * numSeats)}`,
+      name: 'Mock Write-In',
+      isWriteIn: true,
+    };
     for (const combo of combinations) {
-      combo.push('write-in-0');
-      candidateOptions.push(combo);
+      combo.push(writeInCandidate);
+      candidateVotes.push(combo);
     }
     if (numSeats === 1) {
-      candidateOptions.push(['write-in-0']);
+      candidateVotes.push([writeInCandidate]);
     }
   }
 
   // Generate all possible valid votes
-  for (const option of generateCombinations(candidateIds, numSeats)) {
-    candidateOptions.push(option);
+  for (const option of generateCombinations(candidates, numSeats)) {
+    candidateVotes.push(option);
   }
 
-  return candidateOptions;
+  return candidateVotes;
 }
 
 /**
  * Generates all possible vote configurations across a ballot given a list of contests and possible contest choice options for those contests.
- * @param candidateOptionsForContest Dictionary of contests to the possible contest choice options for that contest.
+ * @param optionsForContest Dictionary of contests to the possible contest choice options for that contest.
  * @returns Array of dictionaries where each dictionary represents the votes across all contests provided from each contest ID to the votes to mark on that contest.
  */
-function getVoteConfigurationsForCandidateOptions(
-  candidateOptionsForContest: ReadonlyMap<
-    ContestId,
-    ReadonlyArray<readonly ContestOptionId[]>
-  >
-): Array<Map<ContestId, readonly ContestOptionId[]>> {
+function getVoteConfigurations(
+  optionsForEachContest: ReadonlyMap<ContestId, readonly Vote[]>
+): VotesDict[] {
   // Find the contest with the most vote combinations generated to determine the number of vote combinations to generate.
-  const numOptionsToProduce = [...candidateOptionsForContest.values()].reduce(
+  const numOptionsToProduce = [...optionsForEachContest.values()].reduce(
     (prev, options) => Math.max(prev, options.length),
     0
   );
-  const voteOptions: Array<Map<ContestId, readonly ContestOptionId[]>> = [];
+  const voteOptions: VotesDict[] = [];
   for (let i = 0; i < numOptionsToProduce; i += 1) {
-    const voteOption = new Map<ContestId, readonly ContestOptionId[]>();
-    for (const [contestId, optionsForContest] of candidateOptionsForContest) {
+    const voteOption: VotesDict = {};
+    for (const [contestId, optionsForContest] of optionsForEachContest) {
       // Add the ith contest choice option as the vote for each contest
       // If i is greater than the number of votes generated for this contest, vote for the final generated vote again.
-      voteOption.set(
-        contestId,
-        optionsForContest[
-          Math.min(i, optionsForContest.length - 1)
-        ] as readonly ContestOptionId[]
-      );
+      voteOption[contestId] =
+        optionsForContest[Math.min(i, optionsForContest.length - 1)];
     }
     voteOptions.push(voteOption);
   }
   return voteOptions;
 }
 
-/**
- * Options for when to include ballot images in generated CVRs.
- */
-export type IncludeBallotImagesOption = 'always' | 'never' | 'write-ins';
+interface GenerateCvrsParams {
+  testMode: boolean;
+  scannerNames: readonly string[];
+  ballotPackage: BallotPackage;
+  includeBallotImages: boolean;
+}
 
 /**
  * Generates a base set of CVRs for a given election that obtains maximum coverage of all the ballot metadata (precincts, scanners, etc.) and all possible votes on each contest.
  * @param options.ballotPackage Ballot package containing the election data to generate CVRs for
  * @param options.scannerNames Scanners to include in the output CVRs
  * @param options.testMode Generate CVRs for test ballots or live ballots
- * @returns Array of generated CastVoteRecords
+ * @returns Array of generated {@link CVR.CVR}
  */
-export async function* generateCvrs({
-  ballotPackage,
-  scannerNames,
+export function* generateCvrs({
   testMode,
-  includeBallotImages = 'never',
-}: {
-  ballotPackage: BallotPackage;
-  scannerNames: readonly string[];
-  testMode: boolean;
-  includeBallotImages?: IncludeBallotImagesOption;
-}): AsyncGenerator<CastVoteRecord> {
-  if (ballotPackage.ballots.some((b) => b.layout.length !== 2)) {
-    throw new Error(`only single-sheet ballots are supported`);
-  }
-
+  scannerNames,
+  ballotPackage,
+  includeBallotImages,
+}: GenerateCvrsParams): Generator<CVR.CVR> {
   const { electionDefinition } = ballotPackage;
-  const { ballotStyles } = electionDefinition.election;
-  const ballotImageCache = new Map<
-    BallotPackageEntry,
-    SheetOf<InlineBallotImage>
-  >();
-  let ballotId = 0;
+  const { election } = electionDefinition;
+  const { ballotStyles } = election;
+  let castVoteRecordId = 0;
   for (const ballotStyle of ballotStyles) {
-    const { precincts } = ballotStyle;
-    for (const ballotType of ['absentee', 'provisional', 'standard'] as const) {
-      for (const precinct of precincts) {
+    const { precincts: precinctIds, id: ballotStyleId, partyId } = ballotStyle;
+    for (const ballotType of [
+      CVR.vxBallotType.Absentee,
+      CVR.vxBallotType.Precinct,
+    ]) {
+      for (const precinctId of precinctIds) {
         for (const scanner of scannerNames) {
-          // Define base information for all resulting CVRs with this precinct, ballot style and scanner.
-          const baseRecord = {
-            _precinctId: precinct,
-            _ballotStyleId: ballotStyle.id,
-            _testBallot: testMode,
-            _scannerId: scanner,
-            _batchId: 'batch-1',
-            _batchLabel: 'Batch 1',
-            _pageNumbers: [1, 2],
-          } as const;
+          // Find the layout, which we'll use to determine which contests are on which page
+          const ballotPageLayouts = find(
+            ballotPackage.ballots,
+            (ballot) =>
+              ballot.ballotConfig.ballotStyleId === ballotStyleId &&
+              ballot.ballotConfig.precinctId === precinctId &&
+              ballot.ballotConfig.isLiveMode === !testMode
+          ).layout;
+          if (ballotPageLayouts.length > 2) {
+            throw new Error('only single-sheet ballots are supported');
+          }
 
           // For each contest determine all possible contest choices.
-          const candidateOptionsForContest = new Map<
-            string,
-            ReadonlyArray<readonly string[]>
-          >();
+          const optionsForEachContest = new Map<string, readonly Vote[]>();
           for (const contest of getContests({
             ballotStyle,
-            election: electionDefinition.election,
+            election,
           })) {
             // Generate an array of all possible contest choice responses for this contest
             switch (contest.type) {
               case 'candidate':
-                candidateOptionsForContest.set(
+                optionsForEachContest.set(
                   contest.id,
                   getCandidateOptionsForContest(contest)
                 );
                 break;
               case 'yesno':
-                candidateOptionsForContest.set(contest.id, YES_NO_OPTIONS);
+                optionsForEachContest.set(contest.id, YES_NO_OPTIONS);
                 break;
               // istanbul ignore next
               default:
@@ -180,75 +168,108 @@ export async function* generateCvrs({
             }
           }
           // Generate as many vote combinations as necessary that contain all contest choice options
-          const voteConfigurations = getVoteConfigurationsForCandidateOptions(
-            candidateOptionsForContest
+          const voteConfigurations = getVoteConfigurations(
+            optionsForEachContest
           );
           // Add the generated vote combinations as CVRs
-          for (const voteConfig of voteConfigurations) {
-            const cvr: CastVoteRecord = {
-              _ballotId: unsafeParse(BallotIdSchema, `id-${ballotId}`),
-              _ballotType: ballotType,
-              ...baseRecord,
-              ...[...voteConfig.entries()].reduce(
-                (votes, [key, value]) => ({ ...votes, [key]: value }),
-                {}
-              ),
-            };
-            ballotId += 1;
-
-            if (
-              includeBallotImages === 'never' ||
-              (includeBallotImages === 'write-ins' &&
-                !castVoteRecordHasWriteIns(cvr))
-            ) {
-              yield cvr;
-              continue;
-            }
-
-            const matchingBallot = ballotPackage.ballots.find(
-              (b) =>
-                b.ballotConfig.ballotStyleId === ballotStyle.id &&
-                b.ballotConfig.precinctId === precinct &&
-                b.ballotConfig.isLiveMode === !testMode
+          for (const votes of voteConfigurations) {
+            const contestsBySheet = arrangeContestsBySheet(
+              splitContestsByPage({
+                allVotes: votes,
+                ballotPageLayouts,
+                election,
+              })
             );
 
-            /* istanbul ignore next */
-            if (!matchingBallot) {
-              throw new Error(
-                `unable to find ballot for ballot style ${ballotStyle.id}`
+            // Generate a CVR for each sheet
+            for (const [
+              sheetIndex,
+              sheetContests,
+            ] of contestsBySheet.entries()) {
+              const [frontContests, backContests] = sheetContests;
+              const frontHasWriteIns = hasWriteIns(
+                filterVotesByContests(votes, frontContests)
               );
+              const backHasWriteIns = hasWriteIns(
+                filterVotesByContests(votes, backContests)
+              );
+              const sheetHasWriteIns = frontHasWriteIns || backHasWriteIns;
+
+              const frontImageFileUri = `file:${generateBallotAssetPath({
+                ballotStyleId: ballotStyle.id,
+                precinctId,
+                assetType: 'image',
+                pageNumber: sheetIndex * 2 + 1,
+              })}`;
+              const backImageFileUri = `file:${generateBallotAssetPath({
+                ballotStyleId: ballotStyle.id,
+                precinctId,
+                assetType: 'image',
+                pageNumber: sheetIndex * 2 + 2,
+              })}`;
+
+              yield {
+                '@type': 'CVR.CVR',
+                BallotStyleId: ballotStyleId,
+                BallotStyleUnitId: precinctId,
+                PartyIds: partyId ? [partyId] : undefined, // VVSG 2.0 1.1.5-E.4
+                CreatingDeviceId: scanner,
+                ElectionId: electionDefinition.electionHash,
+                BatchId: BATCH_ID,
+                vxBallotType: ballotType,
+                BallotSheetId: (sheetIndex + 1).toString(),
+                CurrentSnapshotId: `${castVoteRecordId}-modified`,
+                UniqueId: castVoteRecordId.toString(),
+                CVRSnapshot: [
+                  {
+                    '@type': 'CVR.CVRSnapshot',
+                    '@id': `${castVoteRecordId}-modified`,
+                    Type: CVR.CVRType.Modified,
+                    CVRContest: [
+                      ...buildCVRContestsFromVotes({
+                        contests: frontContests,
+                        votes,
+                        options: {
+                          ballotMarkingMode: 'hand',
+                          imageFileUri: includeBallotImages
+                            ? frontImageFileUri
+                            : undefined,
+                        },
+                      }),
+                      ...buildCVRContestsFromVotes({
+                        contests: backContests,
+                        votes,
+                        options: {
+                          ballotMarkingMode: 'hand',
+                          imageFileUri: includeBallotImages
+                            ? backImageFileUri
+                            : undefined,
+                        },
+                      }),
+                    ],
+                  },
+                ],
+                BallotImage:
+                  includeBallotImages && sheetHasWriteIns
+                    ? [
+                        {
+                          '@type': 'CVR.ImageData',
+                          Location: frontHasWriteIns
+                            ? frontImageFileUri
+                            : undefined,
+                        },
+                        {
+                          '@type': 'CVR.ImageData',
+                          Location: backHasWriteIns
+                            ? backImageFileUri
+                            : undefined,
+                        },
+                      ]
+                    : undefined,
+              };
+
+              castVoteRecordId += 1;
             }
-
-            let ballotImages = ballotImageCache.get(matchingBallot);
-
-            if (!ballotImages) {
-              const [frontImageUrl, backImageUrl] = await takeAsync(
-                2,
-                mapAsync(
-                  pdfToImages(matchingBallot.pdf, { scale: 2 }),
-                  ({ page }) => toDataUrl(page, 'image/png')
-                )
-              );
-              assert(
-                typeof frontImageUrl === 'string' &&
-                  typeof backImageUrl === 'string'
-              );
-
-              ballotImages = [
-                { normalized: frontImageUrl },
-                { normalized: backImageUrl },
-              ];
-              ballotImageCache.set(matchingBallot, ballotImages);
-            }
-
-            const [frontLayout, backLayout] = matchingBallot.layout;
-            assert(frontLayout && backLayout);
-
-            yield {
-              ...cvr,
-              _ballotImages: ballotImages,
-              _layouts: [frontLayout, backLayout],
-            };
           }
         }
       }

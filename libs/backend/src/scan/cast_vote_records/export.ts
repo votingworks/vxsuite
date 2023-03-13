@@ -14,6 +14,7 @@ import {
 import { err, ok, Result } from '@votingworks/basics';
 import { Readable } from 'stream';
 import {
+  CAST_VOTE_RECORD_REPORT_FILENAME,
   generateCastVoteRecordReportDirectoryName,
   generateElectionBasedSubfolderName,
   jsonStream,
@@ -359,7 +360,7 @@ export async function exportCastVoteRecordReportToUsbDrive({
   try {
     const exportReportResult = await exporter.exportDataToUsbDrive(
       reportDirectory,
-      'cast-vote-record-report.json',
+      CAST_VOTE_RECORD_REPORT_FILENAME,
       castVoteRecordReportStream
     );
 
