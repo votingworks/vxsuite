@@ -20,11 +20,13 @@ Object {
               "@type": "CVR.CVRContest",
               "CVRContestSelection": Array [],
               "ContestId": "best-animal-fish",
+              "Overvotes": 0,
               "Status": Array [
                 "not-indicated",
                 "undervoted",
               ],
               "Undervotes": 1,
+              "WriteIns": 0,
             },
             Object {
               "@type": "CVR.CVRContest",
@@ -44,10 +46,12 @@ Object {
                 },
               ],
               "ContestId": "aquarium-council-fish",
+              "Overvotes": 0,
               "Status": Array [
                 "undervoted",
               ],
               "Undervotes": 1,
+              "WriteIns": 0,
             },
             Object {
               "@type": "CVR.CVRContest",
@@ -67,9 +71,12 @@ Object {
                 },
               ],
               "ContestId": "fishing",
+              "Overvotes": 0,
+              "Undervotes": 0,
             },
           ],
           "Type": "modified",
+          "vxWriteIns": 0,
         },
         Object {
           "@id": "ballot-1-original",
@@ -160,11 +167,13 @@ Object {
               "@type": "CVR.CVRContest",
               "CVRContestSelection": Array [],
               "ContestId": "best-animal-fish",
+              "Overvotes": 0,
               "Status": Array [
                 "not-indicated",
                 "undervoted",
               ],
               "Undervotes": 1,
+              "WriteIns": 0,
             },
             Object {
               "@type": "CVR.CVRContest",
@@ -184,15 +193,18 @@ Object {
                 },
               ],
               "ContestId": "aquarium-council-fish",
+              "Overvotes": 0,
               "Status": Array [
                 "undervoted",
               ],
               "Undervotes": 1,
+              "WriteIns": 0,
             },
             Object {
               "@type": "CVR.CVRContest",
               "CVRContestSelection": Array [],
               "ContestId": "new-zoo-either",
+              "Overvotes": 0,
               "Status": Array [
                 "undervoted",
                 "not-indicated",
@@ -203,6 +215,7 @@ Object {
               "@type": "CVR.CVRContest",
               "CVRContestSelection": Array [],
               "ContestId": "new-zoo-pick",
+              "Overvotes": 0,
               "Status": Array [
                 "undervoted",
                 "not-indicated",
@@ -227,9 +240,12 @@ Object {
                 },
               ],
               "ContestId": "fishing",
+              "Overvotes": 0,
+              "Undervotes": 0,
             },
           ],
           "Type": "original",
+          "vxWriteIns": 0,
         },
       ],
       "CreatingDeviceId": "000",

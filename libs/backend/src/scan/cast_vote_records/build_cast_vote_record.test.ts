@@ -1,6 +1,6 @@
 /* eslint-disable vx/gts-identifiers */
 
-import { assert, find } from '@votingworks/basics';
+import { assert, find, typedAs } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import {
   BallotIdSchema,
@@ -10,6 +10,7 @@ import {
   CVR,
   getBallotStyle,
   getContests,
+  InterpretedHmpbPage,
   unsafeParse,
 } from '@votingworks/types';
 import {
@@ -26,6 +27,7 @@ import {
   toCdfBallotType,
   getOptionPosition,
   hasWriteIns,
+  getWriteInCount,
 } from './build_cast_vote_record';
 
 const electionDefinition = electionMinimalExhaustiveSampleDefinition;
@@ -116,9 +118,9 @@ describe('buildCVRContestsFromVotes', () => {
           },
         ],
         "ContestId": "fishing",
-        "Overvotes": undefined,
+        "Overvotes": 0,
         "Status": undefined,
-        "Undervotes": undefined,
+        "Undervotes": 0,
       }
     `);
   });
@@ -133,6 +135,8 @@ describe('buildCVRContestsFromVotes', () => {
     expect(result).toHaveLength(1);
     const cvrContest = result[0];
     expect(cvrContest).toMatchObject({
+      Overvotes: 0,
+      Undervotes: 0,
       CVRContestSelection: [
         expect.objectContaining({
           ContestSelectionId: 'no',
@@ -158,6 +162,7 @@ describe('buildCVRContestsFromVotes', () => {
         CVR.ContestStatus.Overvoted,
       ]),
       Overvotes: 1,
+      Undervotes: 0,
       CVRContestSelection: expect.anything(),
     });
     for (const contestSelection of cvrContest!.CVRContestSelection!) {
@@ -182,6 +187,7 @@ describe('buildCVRContestsFromVotes', () => {
     expect(result).toHaveLength(1);
     const cvrContest = result[0];
     expect(cvrContest).toMatchObject({
+      Overvotes: 0,
       Undervotes: 1,
       Status: expect.arrayContaining([
         CVR.ContestStatus.NotIndicated,
@@ -255,10 +261,10 @@ describe('buildCVRContestsFromVotes', () => {
           },
         ],
         "ContestId": "zoo-council-mammal",
-        "Overvotes": undefined,
+        "Overvotes": 0,
         "Status": undefined,
-        "Undervotes": undefined,
-        "WriteIns": undefined,
+        "Undervotes": 0,
+        "WriteIns": 0,
       }
     `);
   });
@@ -273,6 +279,7 @@ describe('buildCVRContestsFromVotes', () => {
     expect(result).toHaveLength(1);
     const cvrContest = result[0];
     expect(cvrContest).toMatchObject({
+      Overvotes: 0,
       Undervotes: 3,
       Status: expect.arrayContaining([
         CVR.ContestStatus.NotIndicated,
@@ -293,6 +300,7 @@ describe('buildCVRContestsFromVotes', () => {
     expect(result).toHaveLength(1);
     const cvrContest = result[0];
     expect(cvrContest).toMatchObject({
+      Overvotes: 0,
       Undervotes: 2,
       Status: expect.arrayContaining([CVR.ContestStatus.Undervoted]),
     });
@@ -311,6 +319,7 @@ describe('buildCVRContestsFromVotes', () => {
     const cvrContest = result[0];
     expect(cvrContest).toMatchObject({
       Overvotes: 1,
+      Undervotes: 0,
       Status: expect.arrayContaining([
         CVR.ContestStatus.Overvoted,
         CVR.ContestStatus.InvalidatedRules,
@@ -451,6 +460,49 @@ describe('buildCVRContestsFromVotes', () => {
       ContestId: fishingContest.id,
     });
   });
+});
+
+test('getWriteInCount', () => {
+  expect(getWriteInCount({ fishing: ['yes'] })).toEqual(0);
+  expect(
+    getWriteInCount({
+      council: [
+        {
+          id: 'zebra',
+          name: 'Zebra',
+        },
+      ],
+    })
+  ).toEqual(0);
+  expect(
+    getWriteInCount({
+      council: [
+        {
+          id: 'write-in-0',
+          name: 'Write In #0',
+          isWriteIn: true,
+        },
+      ],
+    })
+  ).toEqual(1);
+  expect(
+    getWriteInCount({
+      council: [
+        {
+          id: 'write-in-0',
+          name: 'Write In #0',
+          isWriteIn: true,
+        },
+      ],
+      board: [
+        {
+          id: 'write-in-0',
+          name: 'Write In #0',
+          isWriteIn: true,
+        },
+      ],
+    })
+  ).toEqual(2);
 });
 
 test('hasWriteIns', () => {
@@ -644,7 +696,16 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
   });
 });
 
-test('buildCastVoteRecord - HMPB ballot with write-in references', () => {
+test('buildCastVoteRecord - HMPB ballot with write-in', () => {
+  const interpretedHmpbPage1WithWriteIn: InterpretedHmpbPage = {
+    ...interpretedHmpbPage1,
+    votes: {
+      [fishCouncilContest.id]: [
+        { id: 'write-in-1', name: 'Write In #1', isWriteIn: true },
+      ],
+    },
+  };
+
   const castVoteRecord = buildCastVoteRecord({
     election,
     electionId,
@@ -654,7 +715,7 @@ test('buildCastVoteRecord - HMPB ballot with write-in references', () => {
     ballotMarkingMode: 'hand',
     pages: [
       {
-        interpretation: interpretedHmpbPage1,
+        interpretation: interpretedHmpbPage1WithWriteIn,
         imageFileUri: 'file:./ballot-images/front.jpg',
       },
       {
@@ -665,6 +726,7 @@ test('buildCastVoteRecord - HMPB ballot with write-in references', () => {
     ballotPageLayoutsLookup: [],
   });
 
+  // image references are included
   expect(castVoteRecord.BallotImage).toMatchInlineSnapshot(`
     Array [
       Object {
@@ -676,4 +738,16 @@ test('buildCastVoteRecord - HMPB ballot with write-in references', () => {
       },
     ]
   `);
+
+  // total write-in count is included
+  expect(castVoteRecord.CVRSnapshot).toMatchObject(
+    expect.arrayContaining([
+      expect.objectContaining(
+        typedAs<Partial<CVR.CVRSnapshot>>({
+          Type: CVR.CVRType.Modified,
+          vxWriteIns: 1,
+        })
+      ),
+    ])
+  );
 });

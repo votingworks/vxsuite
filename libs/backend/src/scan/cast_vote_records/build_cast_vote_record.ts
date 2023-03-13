@@ -59,8 +59,8 @@ function buildCVRBallotMeasureContest({
   return {
     '@type': 'CVR.CVRContest',
     ContestId: contest.id,
-    Overvotes: overvoted ? 1 : undefined,
-    Undervotes: undervoted ? 1 : undefined,
+    Overvotes: Math.max(vote.length - 1, 0),
+    Undervotes: Math.max(1 - vote.length, 0),
     Status: overvoted
       ? [CVR.ContestStatus.Overvoted, CVR.ContestStatus.InvalidatedRules]
       : undervoted
@@ -214,9 +214,9 @@ function buildCVRCandidateContest({
   return {
     '@type': 'CVR.CVRContest',
     ContestId: contest.id,
-    Overvotes: overvoted ? vote.length - contest.seats : undefined, // VVSG 2.0 1.1.5-E.2
-    Undervotes: undervoted ? contest.seats - vote.length : undefined, // VVSG 2.0 1.1.5-E.2
-    WriteIns: numWriteIns > 0 ? numWriteIns : undefined, // VVSG 2.0 1.1.5-E.3
+    Overvotes: Math.max(vote.length - contest.seats, 0), // VVSG 2.0 1.1.5-E.2
+    Undervotes: Math.max(contest.seats - vote.length, 0), // VVSG 2.0 1.1.5-E.2
+    WriteIns: numWriteIns, // VVSG 2.0 1.1.5-E.3
     Status: statuses.length > 0 ? statuses : undefined,
     CVRContestSelection: voteWriteInIndexed.map((candidate) => {
       const { isWriteIn } = candidate;
@@ -384,6 +384,28 @@ function buildOriginalSnapshot({
 }
 
 /**
+ * Determines the number of write-in candidates in a {@link VotesDict}
+ */
+export function getWriteInCount(votes: VotesDict): number {
+  let count = 0;
+  for (const vote of Object.values(votes)) {
+    if (vote) {
+      for (const voteOption of vote) {
+        if (
+          voteOption !== 'yes' &&
+          voteOption !== 'no' &&
+          voteOption.isWriteIn
+        ) {
+          count += 1;
+        }
+      }
+    }
+  }
+
+  return count;
+}
+
+/**
  * Determines whether a {@link VotesDict} contains any write-in candidates
  */
 export function hasWriteIns(votes: VotesDict): boolean {
@@ -476,6 +498,7 @@ export function buildCastVoteRecord({
     });
     assert(ballotStyle);
     const contests = getContests({ election, ballotStyle });
+    const writeInCount = getWriteInCount(interpretation.votes);
 
     return {
       ...cvrMetadata,
@@ -492,6 +515,7 @@ export function buildCastVoteRecord({
               ballotMarkingMode: 'machine',
             },
           }),
+          vxWriteIns: writeInCount,
         },
       ],
     };
@@ -509,6 +533,9 @@ export function buildCastVoteRecord({
   ).toString();
 
   const hasImageFileUris = pages[0].imageFileUri || pages[1].imageFileUri;
+  const writeInCount =
+    getWriteInCount(pages[0].interpretation.votes) +
+    getWriteInCount(pages[1].interpretation.votes);
 
   // CVR for hand-marked paper ballots, has both "original" snapshot with
   // scores for all marks and "modified" snapshot with contest rules applied.
@@ -547,6 +574,7 @@ export function buildCastVoteRecord({
             },
           }),
         ],
+        vxWriteIns: writeInCount,
       },
       buildOriginalSnapshot({
         castVoteRecordId,
