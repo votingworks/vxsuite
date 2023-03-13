@@ -1331,35 +1331,6 @@ export const ElectionSchema: z.ZodSchema<Election> = z.object({
 });
 
 /**
- * Used to hold the contents of a file or identify a file created by the scanning device.  The file generally would contain an image of the scanned ballot or an image of a write-in entered by a voter onto the scanned ballot.  SubClass Image is used if the file contains an image.
- */
-export interface File {
-  readonly '@type': 'CVR.File';
-
-  readonly Data: Byte;
-
-  /**
-   * Contains the name of the file or an identifier of the file.
-   */
-  readonly FileName?: string;
-
-  /**
-   * The mime type of the file, e.g., image/jpeg.
-   */
-  readonly MimeType?: string;
-}
-
-/**
- * Schema for {@link File}.
- */
-export const FileSchema: z.ZodSchema<File> = z.object({
-  '@type': z.literal('CVR.File'),
-  Data: ByteSchema,
-  FileName: z.optional(z.string()),
-  MimeType: z.optional(z.string()),
-});
-
-/**
  * Used for identifying a geographical unit for various purposes, including:
  * 
  * The reporting unit of the report generation device, e.g., a precinct location of a scanner that generates the collection of CVRs,
