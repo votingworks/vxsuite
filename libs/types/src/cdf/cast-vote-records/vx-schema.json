@@ -63,9 +63,6 @@
                 "$ref": "#/definitions/CVR.ContestSelection"
               },
               {
-                "$ref": "#/definitions/CVR.PartySelection"
-              },
-              {
                 "$ref": "#/definitions/CVR.BallotMeasureSelection"
               },
               {
@@ -113,7 +110,18 @@
       "type": "object"
     },
     "CVR.CVR": {
-      "required": ["@type", "CVRSnapshot", "CurrentSnapshotId", "ElectionId"],
+      "required": [
+        "@type",
+        "CVRSnapshot",
+        "CurrentSnapshotId",
+        "ElectionId",
+        "BallotStyleId",
+        "BallotStyleUnitId",
+        "BatchId",
+        "CreatingDeviceId",
+        "UniqueId",
+        "vxBallotType"
+      ],
       "additionalProperties": false,
       "properties": {
         "@type": {
@@ -206,10 +214,8 @@
           "type": "string",
           "refTypes": [
             "CVR.Contest",
-            "CVR.PartyContest",
             "CVR.BallotMeasureContest",
-            "CVR.CandidateContest",
-            "CVR.RetentionContest"
+            "CVR.CandidateContest"
           ]
         },
         "OtherStatus": {
@@ -249,7 +255,6 @@
           "type": "string",
           "refTypes": [
             "CVR.ContestSelection",
-            "CVR.PartySelection",
             "CVR.BallotMeasureSelection",
             "CVR.CandidateSelection"
           ]
@@ -268,6 +273,7 @@
             "$ref": "#/definitions/CVR.SelectionPosition"
           },
           "minItems": 1,
+          "maxItems": 1,
           "type": "array"
         },
         "Status": {
@@ -412,9 +418,6 @@
                 "$ref": "#/definitions/CVR.ContestSelection"
               },
               {
-                "$ref": "#/definitions/CVR.PartySelection"
-              },
-              {
                 "$ref": "#/definitions/CVR.BallotMeasureSelection"
               },
               {
@@ -487,7 +490,8 @@
         "GpUnit",
         "ReportGeneratingDeviceIds",
         "ReportingDevice",
-        "Version"
+        "Version",
+        "vxBatch"
       ],
       "additionalProperties": false,
       "properties": {
@@ -624,9 +628,6 @@
                 "$ref": "#/definitions/CVR.ContestSelection"
               },
               {
-                "$ref": "#/definitions/CVR.PartySelection"
-              },
-              {
                 "$ref": "#/definitions/CVR.BallotMeasureSelection"
               },
               {
@@ -721,16 +722,10 @@
                 "$ref": "#/definitions/CVR.Contest"
               },
               {
-                "$ref": "#/definitions/CVR.PartyContest"
-              },
-              {
                 "$ref": "#/definitions/CVR.BallotMeasureContest"
               },
               {
                 "$ref": "#/definitions/CVR.CandidateContest"
-              },
-              {
-                "$ref": "#/definitions/CVR.RetentionContest"
               }
             ]
           },
@@ -742,27 +737,6 @@
           "refTypes": ["CVR.GpUnit"]
         },
         "Name": {
-          "type": "string"
-        }
-      },
-      "type": "object"
-    },
-    "CVR.File": {
-      "required": ["@type", "Data"],
-      "additionalProperties": false,
-      "properties": {
-        "@type": {
-          "enum": ["CVR.File"],
-          "type": "string"
-        },
-        "Data": {
-          "type": "string",
-          "format": "byte"
-        },
-        "FileName": {
-          "type": "string"
-        },
-        "MimeType": {
           "type": "string"
         }
       },
@@ -918,88 +892,6 @@
       },
       "type": "object"
     },
-    "CVR.PartyContest": {
-      "required": ["@id", "@type", "ContestSelection"],
-      "additionalProperties": false,
-      "properties": {
-        "@id": {
-          "type": "string"
-        },
-        "@type": {
-          "enum": ["CVR.PartyContest"],
-          "type": "string"
-        },
-        "Abbreviation": {
-          "type": "string"
-        },
-        "Code": {
-          "items": {
-            "$ref": "#/definitions/CVR.Code"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "ContestSelection": {
-          "items": {
-            "oneOf": [
-              {
-                "$ref": "#/definitions/CVR.ContestSelection"
-              },
-              {
-                "$ref": "#/definitions/CVR.PartySelection"
-              },
-              {
-                "$ref": "#/definitions/CVR.BallotMeasureSelection"
-              },
-              {
-                "$ref": "#/definitions/CVR.CandidateSelection"
-              }
-            ]
-          },
-          "minItems": 1,
-          "type": "array"
-        },
-        "Name": {
-          "type": "string"
-        },
-        "OtherVoteVariation": {
-          "type": "string"
-        },
-        "VoteVariation": {
-          "$ref": "#/definitions/CVR.VoteVariation"
-        }
-      },
-      "type": "object"
-    },
-    "CVR.PartySelection": {
-      "required": ["@id", "@type", "PartyIds"],
-      "additionalProperties": false,
-      "properties": {
-        "@id": {
-          "type": "string"
-        },
-        "@type": {
-          "enum": ["CVR.PartySelection"],
-          "type": "string"
-        },
-        "Code": {
-          "items": {
-            "$ref": "#/definitions/CVR.Code"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "PartyIds": {
-          "items": {
-            "type": "string",
-            "refTypes": ["CVR.Party"]
-          },
-          "minItems": 1,
-          "type": "array"
-        }
-      },
-      "type": "object"
-    },
     "CVR.PositionStatus": {
       "enum": ["adjudicated", "generated-rules", "invalidated-rules", "other"],
       "type": "string"
@@ -1067,63 +959,6 @@
         "vote-center"
       ],
       "type": "string"
-    },
-    "CVR.RetentionContest": {
-      "required": ["@id", "@type", "ContestSelection"],
-      "additionalProperties": false,
-      "properties": {
-        "@id": {
-          "type": "string"
-        },
-        "@type": {
-          "enum": ["CVR.RetentionContest"],
-          "type": "string"
-        },
-        "Abbreviation": {
-          "type": "string"
-        },
-        "CandidateId": {
-          "type": "string",
-          "refTypes": ["CVR.Candidate"]
-        },
-        "Code": {
-          "items": {
-            "$ref": "#/definitions/CVR.Code"
-          },
-          "minItems": 0,
-          "type": "array"
-        },
-        "ContestSelection": {
-          "items": {
-            "oneOf": [
-              {
-                "$ref": "#/definitions/CVR.ContestSelection"
-              },
-              {
-                "$ref": "#/definitions/CVR.PartySelection"
-              },
-              {
-                "$ref": "#/definitions/CVR.BallotMeasureSelection"
-              },
-              {
-                "$ref": "#/definitions/CVR.CandidateSelection"
-              }
-            ]
-          },
-          "minItems": 1,
-          "type": "array"
-        },
-        "Name": {
-          "type": "string"
-        },
-        "OtherVoteVariation": {
-          "type": "string"
-        },
-        "VoteVariation": {
-          "$ref": "#/definitions/CVR.VoteVariation"
-        }
-      },
-      "type": "object"
     },
     "CVR.SelectionPosition": {
       "required": ["@type", "HasIndication", "NumberVotes"],

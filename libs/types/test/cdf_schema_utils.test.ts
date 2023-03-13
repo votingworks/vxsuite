@@ -3,12 +3,26 @@ import {
   findUnusedDefinitions,
   isSubsetCdfSchema,
   validateSchema,
+  validateSchemaDraft04,
 } from './cdf_schema_utils';
 
 test('validateSchema', () => {
   validateSchema({ definitions: { A: { type: 'string' } } });
   expect(() =>
     validateSchema({
+      definitions: {
+        A: {
+          type: 'not-a-real-type',
+        },
+      },
+    })
+  ).toThrow();
+});
+
+test('validateSchemaDraft04', () => {
+  validateSchemaDraft04({ definitions: { A: { type: 'string' } } });
+  expect(() =>
+    validateSchemaDraft04({
       definitions: {
         A: {
           type: 'not-a-real-type',
@@ -87,6 +101,13 @@ test('isSubsetCdfSchema', () => {
       { definitions: { A: { type: 'string' } } }
     )
   ).toEqual(err('extra definition in subschema: B'));
+  // Extra definitions prefixed with 'vx' are allowed
+  expect(
+    isSubsetCdfSchema(
+      { definitions: { 'Namespace.vxDefinition': { type: 'string' } } },
+      { definitions: { A: { type: 'string' } } }
+    )
+  ).toEqual(ok());
 
   // Basic type matching
   expect(

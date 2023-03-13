@@ -1,6 +1,7 @@
 import { buildSchema } from '@votingworks/cdf-schema-builder';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { ok } from '@votingworks/basics';
 import { mockWritable } from '../../../test/helpers/mock_writable';
 import {
   AllocationStatus,
@@ -10,7 +11,13 @@ import {
   CVRType,
   IndicationStatus,
   ReportingUnitType,
+  vxBallotType,
 } from '.';
+import {
+  findUnusedDefinitions,
+  isSubsetCdfSchema,
+  validateSchemaDraft04,
+} from '../../../test/cdf_schema_utils';
 
 const castVoteRecordReport: CastVoteRecordReport = {
   '@type': 'CVR.CastVoteRecordReport',
@@ -113,25 +120,50 @@ const castVoteRecordReport: CastVoteRecordReport = {
       ],
       BallotSheetId: '1',
       BatchSequenceId: 1,
+      UniqueId: 'a8932',
+      vxBallotType: vxBallotType.Precinct,
       ElectionId: '1',
     },
     // More ballots go here...
   ],
 };
 
+const nistXsd = readFileSync(
+  join(__dirname, '../../../data/cdf/cast-vote-records/nist-schema.xsd'),
+  'utf-8'
+);
+const nistJson = readFileSync(
+  join(__dirname, '../../../data/cdf/cast-vote-records/nist-schema.json'),
+  'utf-8'
+);
+const nistSchema = JSON.parse(nistJson);
+const vxJson = readFileSync(join(__dirname, './vx-schema.json'), 'utf-8');
+const vxSchema = JSON.parse(vxJson);
+
 test('CastVoteRecordReport', () => {
   CastVoteRecordReportSchema.parse(castVoteRecordReport);
 });
 
-test('schema in sync', () => {
-  const xsd = readFileSync(
-    join(__dirname, '../../../data/cdf/cast-vote-records/nist-schema.xsd'),
-    'utf-8'
-  );
-  const json = readFileSync(join(__dirname, './vx-schema.json'), 'utf-8');
-  const currentOutput = readFileSync(join(__dirname, './index.ts'), 'utf-8');
+test('generated types are in sync with schema', () => {
+  const generatedTypes = readFileSync(join(__dirname, './index.ts'), 'utf-8');
   const out = mockWritable();
-  buildSchema(xsd, json, out).unsafeUnwrap();
-  const expectedOutput = out.toString();
-  expect(currentOutput).toEqual(expectedOutput);
+  buildSchema(nistXsd, vxJson, out).unsafeUnwrap();
+  const expectedTypes = out.toString();
+  expect(generatedTypes).toEqual(expectedTypes);
+});
+
+test('NIST schemas is valid JSON schema', () => {
+  validateSchemaDraft04(nistSchema);
+});
+
+test('VX schema is valid JSON schema', () => {
+  validateSchemaDraft04(vxSchema);
+});
+
+test('VX schema has no unused definitions', () => {
+  expect(findUnusedDefinitions(vxSchema)).toEqual([]);
+});
+
+test('VX schema accepts a subset of NIST schema', () => {
+  expect(isSubsetCdfSchema(vxSchema, nistSchema)).toEqual(ok());
 });
