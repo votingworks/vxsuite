@@ -218,6 +218,10 @@ export function isSubsetCdfSchema(
   for (const [key, subDefinition] of Object.entries(
     rootSubSchema.definitions
   )) {
+    // carve out for additional custom definitions
+    const [, keyName] = key.split('.');
+    if (keyName && keyName.startsWith('vx')) continue;
+
     const superDefinition = rootSuperSchema.definitions[key];
     if (!superDefinition) {
       return err(`extra definition in subschema: ${key}`);

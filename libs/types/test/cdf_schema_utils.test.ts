@@ -101,6 +101,13 @@ test('isSubsetCdfSchema', () => {
       { definitions: { A: { type: 'string' } } }
     )
   ).toEqual(err('extra definition in subschema: B'));
+  // Extra definitions prefixed with 'vx' are allowed
+  expect(
+    isSubsetCdfSchema(
+      { definitions: { 'Namespace.vxDefinition': { type: 'string' } } },
+      { definitions: { A: { type: 'string' } } }
+    )
+  ).toEqual(ok());
 
   // Basic type matching
   expect(
