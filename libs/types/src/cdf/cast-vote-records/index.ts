@@ -554,7 +554,7 @@ export interface BallotMeasureContest {
   /**
    * Identifies the contest selections in the contest.
    */
-  readonly ContestSelection: ReadonlyArray<ContestSelection | PartySelection | BallotMeasureSelection | CandidateSelection>;
+  readonly ContestSelection: ReadonlyArray<ContestSelection | BallotMeasureSelection | CandidateSelection>;
 
   /**
    * Title or name of the contest, e.g., "Governor" or "Question on Legalization of Gambling".
@@ -580,7 +580,7 @@ export const BallotMeasureContestSchema: z.ZodSchema<BallotMeasureContest> = z.o
   '@type': z.literal('CVR.BallotMeasureContest'),
   Abbreviation: z.optional(z.string()),
   Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
-  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next */ () => PartySelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)])).min(1),
+  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)])).min(1),
   Name: z.optional(z.string()),
   OtherVoteVariation: z.optional(z.string()),
   VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
@@ -978,7 +978,7 @@ export interface CandidateContest {
   /**
    * Identifies the contest selections in the contest.
    */
-  readonly ContestSelection: ReadonlyArray<ContestSelection | PartySelection | BallotMeasureSelection | CandidateSelection>;
+  readonly ContestSelection: ReadonlyArray<ContestSelection | BallotMeasureSelection | CandidateSelection>;
 
   /**
    * Title or name of the contest, e.g., "Governor" or "Question on Legalization of Gambling".
@@ -1019,7 +1019,7 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> = z.object({
   '@type': z.literal('CVR.CandidateContest'),
   Abbreviation: z.optional(z.string()),
   Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
-  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next */ () => PartySelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)])).min(1),
+  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)])).min(1),
   Name: z.optional(z.string()),
   NumberElected: z.optional(integerSchema),
   OtherVoteVariation: z.optional(z.string()),
@@ -1216,7 +1216,7 @@ export interface Contest {
   /**
    * Identifies the contest selections in the contest.
    */
-  readonly ContestSelection: ReadonlyArray<ContestSelection | PartySelection | BallotMeasureSelection | CandidateSelection>;
+  readonly ContestSelection: ReadonlyArray<ContestSelection | BallotMeasureSelection | CandidateSelection>;
 
   /**
    * Title or name of the contest, e.g., "Governor" or "Question on Legalization of Gambling".
@@ -1242,7 +1242,7 @@ export const ContestSchema: z.ZodSchema<Contest> = z.object({
   '@type': z.literal('CVR.Contest'),
   Abbreviation: z.optional(z.string()),
   Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
-  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next */ () => PartySelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)])).min(1),
+  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)])).min(1),
   Name: z.optional(z.string()),
   OtherVoteVariation: z.optional(z.string()),
   VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
@@ -1304,7 +1304,7 @@ export interface Election {
   /**
    * Used for establishing a collection of contest definitions that will be referenced by the CVRs.
    */
-  readonly Contest: ReadonlyArray<Contest | PartyContest | BallotMeasureContest | CandidateContest | RetentionContest>;
+  readonly Contest: ReadonlyArray<Contest | BallotMeasureContest | CandidateContest | RetentionContest>;
 
   /**
    * Used to identify the election scope, i.e., the political geography corresponding to the election.
@@ -1325,7 +1325,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z.object({
   '@type': z.literal('CVR.Election'),
   Candidate: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CandidateSchema))),
   Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
-  Contest: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSchema), z.lazy(/* istanbul ignore next */ () => PartyContestSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next */ () => CandidateContestSchema), z.lazy(/* istanbul ignore next */ () => RetentionContestSchema)])).min(1),
+  Contest: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next */ () => CandidateContestSchema), z.lazy(/* istanbul ignore next */ () => RetentionContestSchema)])).min(1),
   ElectionScopeId: z.string(),
   Name: z.optional(z.string()),
 });
@@ -1545,88 +1545,6 @@ export const PartySchema: z.ZodSchema<Party> = z.object({
 });
 
 /**
- * PartyContest is a subclass of Contest and is used to identify the type of contest as involving a straight party selection.  It inherits attributes from Contest.
- */
-export interface PartyContest {
-  readonly '@id': string;
-
-  readonly '@type': 'CVR.PartyContest';
-
-  /**
-   * An abbreviation associated with the contest.
-   */
-  readonly Abbreviation?: string;
-
-  /**
-   * A code or identifier used for this contest.
-   */
-  readonly Code?: readonly Code[];
-
-  /**
-   * Identifies the contest selections in the contest.
-   */
-  readonly ContestSelection: ReadonlyArray<ContestSelection | PartySelection | BallotMeasureSelection | CandidateSelection>;
-
-  /**
-   * Title or name of the contest, e.g., "Governor" or "Question on Legalization of Gambling".
-   */
-  readonly Name?: string;
-
-  /**
-   * If VoteVariation is 'other', the vote variation for this contest.
-   */
-  readonly OtherVoteVariation?: string;
-
-  /**
-   * The vote variation for this contest, from the VoteVariation enumeration.
-   */
-  readonly VoteVariation?: VoteVariation;
-}
-
-/**
- * Schema for {@link PartyContest}.
- */
-export const PartyContestSchema: z.ZodSchema<PartyContest> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('CVR.PartyContest'),
-  Abbreviation: z.optional(z.string()),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
-  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next */ () => PartySelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)])).min(1),
-  Name: z.optional(z.string()),
-  OtherVoteVariation: z.optional(z.string()),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
-});
-
-/**
- * PartySelection is a subclass of ContestSelection and is used typically for a contest selection in a straight-party contest.
- */
-export interface PartySelection {
-  readonly '@id': string;
-
-  readonly '@type': 'CVR.PartySelection';
-
-  /**
-   * Code used to identify the contest selection.
-   */
-  readonly Code?: readonly Code[];
-
-  /**
-   * The party associated with the contest selection.
-   */
-  readonly PartyIds: readonly string[];
-}
-
-/**
- * Schema for {@link PartySelection}.
- */
-export const PartySelectionSchema: z.ZodSchema<PartySelection> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('CVR.PartySelection'),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
-  PartyIds: z.array(z.string()).min(1),
-});
-
-/**
  * ReportingDevice is used to specify a voting device as the "political geography" at hand.  CastVoteRecordReport refers to it as ReportGeneratingDevice and uses it to specify the device that created the CVR report. CVR refers to it as CreatingDevice to specify the device that created the CVRs.
  */
 export interface ReportingDevice {
@@ -1711,7 +1629,7 @@ export interface RetentionContest {
   /**
    * Identifies the contest selections in the contest.
    */
-  readonly ContestSelection: ReadonlyArray<ContestSelection | PartySelection | BallotMeasureSelection | CandidateSelection>;
+  readonly ContestSelection: ReadonlyArray<ContestSelection | BallotMeasureSelection | CandidateSelection>;
 
   /**
    * Title or name of the contest, e.g., "Governor" or "Question on Legalization of Gambling".
@@ -1738,7 +1656,7 @@ export const RetentionContestSchema: z.ZodSchema<RetentionContest> = z.object({
   Abbreviation: z.optional(z.string()),
   CandidateId: z.optional(z.string()),
   Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
-  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next */ () => PartySelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)])).min(1),
+  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)])).min(1),
   Name: z.optional(z.string()),
   OtherVoteVariation: z.optional(z.string()),
   VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
