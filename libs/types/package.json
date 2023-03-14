@@ -56,7 +56,7 @@
     "ajv": "^8.12.0",
     "ajv-draft-04": "^1.0.0",
     "esbuild-runner": "^2.2.1",
-    "eslint": "^8.23.1",
+    "eslint": "8.23.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-node": "^0.3.6",
     "eslint-plugin-import": "^2.26.0",

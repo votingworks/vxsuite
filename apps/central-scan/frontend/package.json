@@ -113,7 +113,7 @@
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "^0.15.10",
     "esbuild-runner": "^2.2.1",
-    "eslint": "^8.23.1",
+    "eslint": "8.23.1",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-node": "^0.3.4",

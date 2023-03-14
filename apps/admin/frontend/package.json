@@ -185,7 +185,7 @@
     "@votingworks/grout-test-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "babel-plugin-transform-import-meta": "^2.1.1",
-    "eslint": "^8.23.1",
+    "eslint": "8.23.1",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-react-app": "^7.0.1",
