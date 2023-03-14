@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
+    "@votingworks/fixtures": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
@@ -40,12 +41,14 @@
     "node-fetch": "^2.6.0",
     "pcsclite": "^1.0.1",
     "uuid": "^9.0.0",
+    "yargs": "^17.7.1",
     "zod": "3.14.4"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
     "@types/node-fetch": "^2.6.0",
     "@types/uuid": "^9.0.1",
+    "@types/yargs": "^17.0.22",
     "@typescript-eslint/eslint-plugin": "^5.37.0",
     "@typescript-eslint/parser": "^5.37.0",
     "@votingworks/test-utils": "workspace:*",
