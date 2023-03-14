@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import * as fs from 'fs/promises';
+import { promises as fs } from 'fs';
 import { sha256 } from 'js-sha256';
 import { v4 as uuid } from 'uuid';
 import { assert, throwIllegalValue } from '@votingworks/basics';

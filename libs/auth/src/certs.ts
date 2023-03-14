@@ -72,7 +72,7 @@ export const CERT_EXPIRY_IN_DAYS = {
 export async function parseCert(cert: Buffer): Promise<CustomCertFields> {
   const response = await openssl(['x509', '-noout', '-subject', '-in', cert]);
 
-  const responseString = response.toString();
+  const responseString = response.toString('utf-8');
   assert(responseString.startsWith('subject='));
   const certSubject = responseString.replace('subject=', '').trimEnd();
 

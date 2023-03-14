@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { Buffer } from 'buffer';
-import * as fs from 'fs/promises';
+import { promises as fs } from 'fs';
 
 import {
   CERT_EXPIRY_IN_DAYS,
