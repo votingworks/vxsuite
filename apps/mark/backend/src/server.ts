@@ -4,11 +4,13 @@ import {
   InsertedSmartCardAuth,
   JavaCard,
   MemoryCard,
+  MockFileCard,
 } from '@votingworks/auth';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
+  isIntegrationTest,
 } from '@votingworks/utils';
 
 import { buildApp } from './app';
@@ -27,14 +29,17 @@ export function start({
   logger = new Logger(LogSource.VxMarkBackend),
 }: Partial<StartOptions> = {}): Server {
   const auth = new InsertedSmartCardAuth({
-    card: isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS)
-      ? /* istanbul ignore next */
-        new JavaCard(
-          constructDevJavaCardConfig({
-            pathToAuthLibRoot: '../../../libs/auth',
-          })
-        )
-      : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
+    card:
+      isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
+      isIntegrationTest()
+        ? /* istanbul ignore next */ new MockFileCard()
+        : isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS)
+        ? /* istanbul ignore next */ new JavaCard(
+            constructDevJavaCardConfig({
+              pathToAuthLibRoot: '../../../libs/auth',
+            })
+          )
+        : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
     config: {
       allowedUserRoles: [
         'system_administrator',
