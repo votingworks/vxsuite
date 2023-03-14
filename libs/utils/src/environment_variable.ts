@@ -1,6 +1,7 @@
 import { ConverterClientTypeSchema } from '@votingworks/types';
 import { ZodSchema } from 'zod';
 import { throwIllegalValue } from '@votingworks/basics';
+import { asBoolean } from './as_boolean';
 
 export enum BooleanEnvironmentVariableName {
   // Enables the write in adjudication tab in VxAdmin, and enables exporting images with write ins in the scan service
@@ -19,6 +20,9 @@ export enum BooleanEnvironmentVariableName {
   SKIP_PIN_ENTRY = 'REACT_APP_VX_SKIP_PIN_ENTRY',
   // Enable auth with Java Cards (as opposed to our existing memory cards)
   ENABLE_JAVA_CARDS = 'REACT_APP_VX_ENABLE_JAVA_CARDS',
+  // Use mock cards instead of a real card reader. Meant for development and integration tests.
+  // Real smart cards will not work when this flag is enabled.
+  USE_MOCK_CARDS = 'REACT_APP_VX_USE_MOCK_CARDS',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -61,6 +65,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_SKIP_PIN_ENTRY;
     case BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS:
       return process.env.REACT_APP_VX_ENABLE_JAVA_CARDS;
+    case BooleanEnvironmentVariableName.USE_MOCK_CARDS:
+      return process.env.REACT_APP_VX_USE_MOCK_CARDS;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
     /* istanbul ignore next compile time check */
@@ -121,6 +127,12 @@ export function getBooleanEnvVarConfig(
         allowInProduction: false,
         autoEnableInDevelopment: false,
       };
+    case BooleanEnvironmentVariableName.USE_MOCK_CARDS:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: false,
+      };
     /* istanbul ignore next compile time check */
     default:
       throwIllegalValue(name);
@@ -141,4 +153,13 @@ export function getStringEnvVarConfig(
     default:
       throwIllegalValue(name);
   }
+}
+
+/**
+ * We use a custom environment variable for this instead of overloading NODE_ENV, e.g.
+ * NODE_ENV=test or NODE_ENV=integration-test, because we want integration tests to use
+ * NODE_ENV=production to ensure that they're mimicking production as closely as possible.
+ */
+export function isIntegrationTest(): boolean {
+  return asBoolean(process.env.IS_INTEGRATION_TEST);
 }
