@@ -44,15 +44,15 @@ IDs are logged with each log to identify the log being written.
 **Machines:** All
 ### auth-pin-entry
 **Type:** [user-action](#user-action)  
-**Description:** A user attempted to enter a PIN to log in.  
+**Description:** A user entered a PIN to log in.  
 **Machines:** All
 ### auth-login
 **Type:** [user-action](#user-action)  
-**Description:** A user attempted to log in. Disposition is success if they logged in, failure if not. An optional reason may be provided.  
+**Description:** A user logged in (or failed to log in). An optional reason key may be provided for failures.  
 **Machines:** All
 ### auth-logout
 **Type:** [user-action](#user-action)  
-**Description:** A user logged out.  
+**Description:** A user logged out (or failed to log out).  
 **Machines:** All
 ### usb-drive-detected
 **Type:** [application-status](#application-status)  
@@ -144,7 +144,7 @@ IDs are logged with each log to identify the log being written.
 **Machines:** vx-admin-service
 ### smart-card-program-complete
 **Type:** [user-action](#user-action)  
-**Description:** A smart card has been programmed. The new smart card user role is indicated by the programmedUserRole key. Success or failure is indicated by the disposition.  
+**Description:** A smart card has been programmed (or failed to be programmed). The new smart card user role is indicated by the programmedUserRole key.  
 **Machines:** vx-admin-service
 ### smart-card-unprogram-init
 **Type:** [user-action](#user-action)  
@@ -152,7 +152,7 @@ IDs are logged with each log to identify the log being written.
 **Machines:** vx-admin-service
 ### smart-card-unprogram-complete
 **Type:** [user-action](#user-action)  
-**Description:** A smart card has been unprogrammed. The previous (or current in the case of failure) smart card user role is indicated by the previousProgrammedUserRole (or programmedUserRole in the case of failure) key. Success or failure is indicated by the disposition.  
+**Description:** A smart card has been unprogrammed (or failed to be unprogrammed). The previous (or current in the case of failure) smart card user role is indicated by the previousProgrammedUserRole key (or programmedUserRole key in the case of failure).  
 **Machines:** vx-admin-service
 ### cvr-loaded
 **Type:** [user-action](#user-action)  

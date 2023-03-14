@@ -66,7 +66,7 @@ async function logAuthEvent(
           newAuthStatus.cardUserRole ?? 'unknown',
           {
             disposition: LogDispositionStandardTypes.Failure,
-            message: `User failed login: ${newAuthStatus.reason}.`,
+            message: 'User failed login.',
             reason: newAuthStatus.reason,
           }
         );
@@ -130,7 +130,7 @@ async function logAuthEvent(
 }
 
 /**
- * An implementation of the dipped smart card auth API
+ * An implementation of the inserted smart card auth API
  *
  * TODO:
  * - Locking to avoid concurrent card writes
