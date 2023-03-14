@@ -115,6 +115,12 @@ function formatExpectedAndActualCalls(
  *  addMock.expectCallWith(1, 2).returns(3);
  *  addMock.assertComplete(); // -> throws an error because we didn't use the expected call
  *
+ *  // You can also expect repeated calls, which is useful for functions that are polled
+ *  addMock.expectedRepeatedCallsWith(1, 2).returns(3);
+ *  addMock(1, 2); // -> returns 3
+ *  addMock(1, 2); // -> returns 3
+ *  addMock(1, 3); // -> throws an error because the input doesn't match
+ *
  * Recommendations:
  * - Always call mockFunction.assertComplete() to ensure that all expected calls were used
  * - If you are going to reuse a mock between test cases, call mockFunction.reset() in afterEach
