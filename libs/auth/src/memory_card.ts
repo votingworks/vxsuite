@@ -147,7 +147,7 @@ export class MemoryCard implements Card {
   async checkPin(pin: string): Promise<CheckPinResponse> {
     const cardSummary = await this.card.readSummary();
     if (cardSummary.status !== 'ready') {
-      return { response: 'error' };
+      throw new Error('Card status is not ready');
     }
     const { pin: correctPin } = parseUserDataFromCardSummary(cardSummary);
     return pin === correctPin

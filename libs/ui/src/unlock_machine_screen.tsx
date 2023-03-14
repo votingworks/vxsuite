@@ -76,7 +76,9 @@ export function UnlockMachineScreen({
     .join(' ');
 
   let primarySentence: JSX.Element = <p>Enter the card PIN to unlock.</p>;
-  if (auth.wrongPinEnteredAt) {
+  if (auth.error) {
+    primarySentence = <Text error>Error checking PIN. Please try again.</Text>;
+  } else if (auth.wrongPinEnteredAt) {
     primarySentence = <Text warning>Invalid PIN. Please try again.</Text>;
   }
 

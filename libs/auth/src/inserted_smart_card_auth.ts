@@ -34,9 +34,11 @@ import {
   InsertedSmartCardAuthMachineState,
 } from './inserted_smart_card_auth_api';
 
+type CheckPinResponseExtended = CheckPinResponse | { response: 'error' };
+
 type AuthAction =
   | { type: 'check_card_reader'; cardStatus: CardStatus }
-  | { type: 'check_pin'; checkPinResponse: CheckPinResponse };
+  | { type: 'check_pin'; checkPinResponse: CheckPinResponseExtended };
 
 /**
  * Given a previous auth status and a new auth status following an auth status transition, infers
@@ -106,6 +108,7 @@ async function logAuthEvent(
             }
           );
         }
+        // PIN check errors are logged in checkPin, where we have access to the full error message
       }
       return;
     }
@@ -191,7 +194,19 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     input: { pin: string }
   ): Promise<void> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
-    const checkPinResponse = await this.card.checkPin(input.pin);
+    let checkPinResponse: CheckPinResponseExtended;
+    try {
+      checkPinResponse = await this.card.checkPin(input.pin);
+    } catch (error) {
+      const userRole =
+        'user' in this.authStatus ? this.authStatus.user.role : 'unknown';
+      const errorMessage = error instanceof Error ? error.message : error;
+      await this.logger.log(LogEventId.AuthPinEntry, userRole, {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: `Error checking PIN: ${errorMessage}.`,
+      });
+      checkPinResponse = { response: 'error' };
+    }
     await this.updateAuthStatus(machineState, {
       type: 'check_pin',
       checkPinResponse,
@@ -373,19 +388,30 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       }
 
       case 'check_pin': {
-        if (
-          currentAuthStatus.status !== 'checking_pin' ||
-          action.checkPinResponse.response === 'error'
-        ) {
+        if (currentAuthStatus.status !== 'checking_pin') {
           return currentAuthStatus;
         }
-        if (action.checkPinResponse.response === 'correct') {
-          if (currentAuthStatus.user.role === 'system_administrator') {
+        switch (action.checkPinResponse.response) {
+          case 'correct': {
+            if (currentAuthStatus.user.role === 'system_administrator') {
+              return { status: 'logged_in', user: currentAuthStatus.user };
+            }
             return { status: 'logged_in', user: currentAuthStatus.user };
           }
-          return { status: 'logged_in', user: currentAuthStatus.user };
+          case 'incorrect': {
+            return {
+              ...currentAuthStatus,
+              error: undefined,
+              wrongPinEnteredAt: new Date(),
+            };
+          }
+          case 'error': {
+            return { ...currentAuthStatus, error: true };
+          }
+          default: {
+            return throwIllegalValue(action.checkPinResponse, 'response');
+          }
         }
-        return { ...currentAuthStatus, wrongPinEnteredAt: new Date() };
       }
 
       /* istanbul ignore next: Compile-time check for completeness */

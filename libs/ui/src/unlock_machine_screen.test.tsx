@@ -10,49 +10,48 @@ const checkingPinAuthStatus: DippedSmartCardAuth.CheckingPin = {
   user: fakeSystemAdministratorUser(),
 };
 
-test('Unlock machine screen submits pin', async () => {
+test('PIN submission', async () => {
   const checkPin = jest.fn();
-  const { getByText } = render(
+  render(
     <UnlockMachineScreen auth={checkingPinAuthStatus} checkPin={checkPin} />
   );
-  getByText('- - - - - -');
+  screen.getByText('- - - - - -');
 
   userEvent.click(screen.getButton('0'));
-  getByText('• - - - - -');
+  screen.getByText('• - - - - -');
 
   userEvent.click(screen.getButton('clear'));
-  getByText('- - - - - -');
+  screen.getByText('- - - - - -');
 
   userEvent.click(screen.getButton('0'));
-  getByText('• - - - - -');
+  screen.getByText('• - - - - -');
 
   userEvent.click(screen.getButton('1'));
-  getByText('• • - - - -');
+  screen.getByText('• • - - - -');
 
   userEvent.click(screen.getButton('2'));
-  getByText('• • • - - -');
+  screen.getByText('• • • - - -');
 
   userEvent.click(screen.getButton('3'));
-  getByText('• • • • - -');
+  screen.getByText('• • • • - -');
 
   userEvent.click(screen.getButton('4'));
-  getByText('• • • • • -');
+  screen.getByText('• • • • • -');
 
   userEvent.click(screen.getButton('backspace'));
-  getByText('• • • • - -');
+  screen.getByText('• • • • - -');
 
   userEvent.click(screen.getButton('4'));
-  getByText('• • • • • -');
+  screen.getByText('• • • • • -');
 
   userEvent.click(screen.getButton('5'));
-
   await waitFor(() => expect(checkPin).toHaveBeenNthCalledWith(1, '012345'));
-  getByText('- - - - - -');
+  screen.getByText('- - - - - -');
 });
 
-test('If PIN is incorrect, error message is shown', () => {
+test('Invalid PIN', () => {
   const checkPin = jest.fn();
-  const { getByText } = render(
+  render(
     <UnlockMachineScreen
       auth={{
         ...checkingPinAuthStatus,
@@ -61,5 +60,20 @@ test('If PIN is incorrect, error message is shown', () => {
       checkPin={checkPin}
     />
   );
-  getByText('Invalid PIN. Please try again.');
+  screen.getByText('Invalid PIN. Please try again.');
+});
+
+test('Error checking PIN', () => {
+  const checkPin = jest.fn();
+  render(
+    <UnlockMachineScreen
+      auth={{
+        ...checkingPinAuthStatus,
+        error: true,
+        wrongPinEnteredAt: new Date(),
+      }}
+      checkPin={checkPin}
+    />
+  );
+  screen.getByText('Error checking PIN. Please try again.');
 });

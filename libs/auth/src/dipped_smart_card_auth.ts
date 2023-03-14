@@ -28,9 +28,11 @@ import {
   DippedSmartCardAuthMachineState,
 } from './dipped_smart_card_auth_api';
 
+type CheckPinResponseExtended = CheckPinResponse | { response: 'error' };
+
 type AuthAction =
   | { type: 'check_card_reader'; cardStatus: CardStatus }
-  | { type: 'check_pin'; checkPinResponse: CheckPinResponse }
+  | { type: 'check_pin'; checkPinResponse: CheckPinResponseExtended }
   | { type: 'log_out' };
 
 function cardStatusToProgrammableCard(
@@ -112,6 +114,7 @@ async function logAuthEventIfNecessary(
             }
           );
         }
+        // PIN check errors are logged in checkPin, where we have access to the full error message
       }
       return;
     }
@@ -180,7 +183,19 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     input: { pin: string }
   ): Promise<void> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
-    const checkPinResponse = await this.card.checkPin(input.pin);
+    let checkPinResponse: CheckPinResponseExtended;
+    try {
+      checkPinResponse = await this.card.checkPin(input.pin);
+    } catch (error) {
+      const userRole =
+        'user' in this.authStatus ? this.authStatus.user.role : 'unknown';
+      const errorMessage = error instanceof Error ? error.message : error;
+      await this.logger.log(LogEventId.AuthPinEntry, userRole, {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: `Error checking PIN: ${errorMessage}.`,
+      });
+      checkPinResponse = { response: 'error' };
+    }
     await this.updateAuthStatus(machineState, {
       type: 'check_pin',
       checkPinResponse,
@@ -451,15 +466,27 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       }
 
       case 'check_pin': {
-        if (
-          currentAuthStatus.status !== 'checking_pin' ||
-          action.checkPinResponse.response === 'error'
-        ) {
+        if (currentAuthStatus.status !== 'checking_pin') {
           return currentAuthStatus;
         }
-        return action.checkPinResponse.response === 'correct'
-          ? { status: 'remove_card', user: currentAuthStatus.user }
-          : { ...currentAuthStatus, wrongPinEnteredAt: new Date() };
+        switch (action.checkPinResponse.response) {
+          case 'correct': {
+            return { status: 'remove_card', user: currentAuthStatus.user };
+          }
+          case 'incorrect': {
+            return {
+              ...currentAuthStatus,
+              error: undefined,
+              wrongPinEnteredAt: new Date(),
+            };
+          }
+          case 'error': {
+            return { ...currentAuthStatus, error: true };
+          }
+          default: {
+            return throwIllegalValue(action.checkPinResponse, 'response');
+          }
+        }
       }
 
       case 'log_out': {
