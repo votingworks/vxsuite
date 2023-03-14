@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
 import { Buffer } from 'buffer';
+import * as fs from 'fs';
+import { sha256 } from 'js-sha256';
 import yargs from 'yargs/yargs';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import * as fixtures from '@votingworks/fixtures';
-import { ElectionDefinition, Optional } from '@votingworks/types';
+import { Optional, safeParseElection } from '@votingworks/types';
 
 import { mockCard } from '../src/mock_file_card';
 
@@ -15,36 +16,6 @@ const CARD_TYPES = [
   'no-card',
 ] as const;
 type CardType = typeof CARD_TYPES[number];
-
-const ELECTION_DEFINITIONS: { [electionName: string]: ElectionDefinition } = {
-  electionFamousNames2021:
-    fixtures.electionFamousNames2021Fixtures.electionDefinition,
-  electionGridLayoutNewHampshireAmherst:
-    fixtures.electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
-  electionGridLayoutNewHampshireHudson:
-    fixtures.electionGridLayoutNewHampshireHudsonFixtures.electionDefinition,
-  electionMinimalExhaustiveSample:
-    fixtures.electionMinimalExhaustiveSampleFixtures.electionDefinition,
-  electionMinimalExhaustiveSampleRightSideTargets:
-    fixtures.electionMinimalExhaustiveSampleRightSideTargetsDefinition,
-  electionMinimalExhaustiveSampleSinglePrecinct:
-    fixtures.electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-  electionMinimalExhaustiveSampleWithReportingUrl:
-    fixtures.electionMinimalExhaustiveSampleWithReportingUrlFixtures
-      .electionDefinition,
-  electionMultiPartyPrimary:
-    fixtures.electionMultiPartyPrimaryFixtures.electionDefinition,
-  electionPrimary: fixtures.primaryElectionSampleFixtures.electionDefinition,
-  electionPrimaryNonpartisanContests:
-    fixtures.electionPrimaryNonpartisanContestsFixtures.electionDefinition,
-  electionSample: fixtures.electionSampleDefinition,
-  electionSample2: fixtures.electionSample2Fixtures.electionDefinition,
-  electionSampleCdf: fixtures.electionSampleCdfDefinition,
-  electionSampleLongContent: fixtures.electionSampleLongContentDefinition,
-  electionSampleNoSeal: fixtures.electionSampleNoSealDefinition,
-  electionWithMsEitherNeither:
-    fixtures.electionWithMsEitherNeitherFixtures.electionDefinition,
-};
 
 async function mockCardGivenEnvVars() {
   const argParser = yargs()
@@ -58,7 +29,6 @@ async function mockCardGivenEnvVars() {
         description:
           'The election definition to use for an election manager or poll worker card',
         type: 'string',
-        choices: Object.keys(ELECTION_DEFINITIONS).sort(),
       },
     })
     .hide('help')
@@ -66,11 +36,13 @@ async function mockCardGivenEnvVars() {
     .example('$ ./scripts/mock-card --help', '')
     .example('$ ./scripts/mock-card --card-type system-administrator', '')
     .example(
-      '$ ./scripts/mock-card --card-type election-manager --election-definition electionFamousNames2021',
+      '$ ./scripts/mock-card --card-type election-manager --election-definition \\\n' +
+        '../fixtures/data/electionFamousNames2021/election.json',
       ''
     )
     .example(
-      '$ ./scripts/mock-card --card-type poll-worker --election-definition electionSample',
+      '$ ./scripts/mock-card --card-type poll-worker --election-definition \\\n' +
+        '../fixtures/data/electionSample.json',
       ''
     )
     .example('$ ./scripts/mock-card --card-type unprogrammed', '')
@@ -97,14 +69,21 @@ async function mockCardGivenEnvVars() {
     throw new Error(`Must specify card type\n\n${helpMessage}`);
   }
 
-  let electionDefinition: Optional<ElectionDefinition>;
+  let electionData: Optional<string>;
+  let electionHash: Optional<string>;
   if (['election-manager', 'poll-worker'].includes(args.cardType)) {
     if (!args.electionDefinition) {
       throw new Error(
         `Must specify election definition for election manager and poll worker cards\n\n${helpMessage}`
       );
     }
-    electionDefinition = ELECTION_DEFINITIONS[args.electionDefinition];
+    electionData = fs.readFileSync(args.electionDefinition).toString('utf-8');
+    if (!safeParseElection(electionData).isOk()) {
+      throw new Error(
+        `${args.electionDefinition} isn't a valid election definition`
+      );
+    }
+    electionHash = sha256(electionData);
   }
 
   switch (args.cardType) {
@@ -112,38 +91,30 @@ async function mockCardGivenEnvVars() {
       mockCard({
         cardStatus: {
           status: 'ready',
-          user: {
-            role: 'system_administrator',
-          },
+          user: { role: 'system_administrator' },
         },
         pin: '000000',
       });
       break;
     }
     case 'election-manager': {
-      assert(electionDefinition !== undefined);
+      assert(electionHash !== undefined && electionData !== undefined);
       mockCard({
         cardStatus: {
           status: 'ready',
-          user: {
-            role: 'election_manager',
-            electionHash: electionDefinition.electionHash,
-          },
+          user: { role: 'election_manager', electionHash },
         },
-        data: Buffer.from(electionDefinition.electionData, 'utf-8'),
+        data: Buffer.from(electionData, 'utf-8'),
         pin: '000000',
       });
       break;
     }
     case 'poll-worker': {
-      assert(electionDefinition !== undefined);
+      assert(electionHash !== undefined);
       mockCard({
         cardStatus: {
           status: 'ready',
-          user: {
-            role: 'poll_worker',
-            electionHash: electionDefinition.electionHash,
-          },
+          user: { role: 'poll_worker', electionHash },
         },
       });
       break;
