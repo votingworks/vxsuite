@@ -48,14 +48,17 @@ afterEach(() => {
 });
 
 test('button renders properly when not clicked', () => {
-  renderInAppContext(<PrintAllBallotsButton />);
+  renderInAppContext(<PrintAllBallotsButton />, { apiMock });
 
   screen.getButton('Print All');
   expect(screen.queryByRole('alertdialog')).toBeNull();
 });
 
 test('modal shows "No Printer Detected" if no printer attached', async () => {
-  renderInAppContext(<PrintAllBallotsButton />, { hasPrinterAttached: false });
+  renderInAppContext(<PrintAllBallotsButton />, {
+    hasPrinterAttached: false,
+    apiMock,
+  });
 
   userEvent.click(screen.getByText('Print All'));
 
@@ -69,6 +72,7 @@ test('modal shows "No Printer Detected" if no printer attached', async () => {
 test('modal allows editing print options', async () => {
   renderInAppContext(<PrintAllBallotsButton />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    apiMock,
   });
 
   userEvent.click(screen.getByText('Print All'));
@@ -159,6 +163,11 @@ test('print sequence proceeds as expected', async () => {
 
 test('initial modal state toggles based on printer state', async () => {
   const { renderApp, hardware } = buildApp(apiMock);
+  // Set default auth status to logged out.
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   hardware.setPrinterConnected(false);
@@ -184,6 +193,11 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
   window.kiosk = mockKiosk;
 
   const { renderApp, hardware, logger } = buildApp(apiMock);
+  // Set default auth status to logged out.
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   renderApp();
@@ -223,6 +237,11 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
 
 test('modal is different for system administrators', async () => {
   const { renderApp } = buildApp(apiMock);
+  // Set default auth status to logged out.
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
   renderApp();

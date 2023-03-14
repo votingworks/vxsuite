@@ -17,12 +17,24 @@ import {
 } from '@votingworks/types';
 
 import { assert } from '@votingworks/basics';
+import { Admin } from '@votingworks/api';
 import { getByText as domGetByText } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
 import { BallotCountsTable } from './ballot_counts_table';
 import { fakeTally } from '../../test/helpers/fake_tally';
 import { fakeExternalTally } from '../../test/helpers/fake_external_tally';
+import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+
+let apiMock: ApiMock;
+
+beforeEach(() => {
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.assertComplete();
+});
 
 describe('Ballot Counts by Precinct', () => {
   const resultsByPrecinct: Dictionary<Tally> = {
@@ -81,7 +93,8 @@ describe('Ballot Counts by Precinct', () => {
 
   it('renders as expected when there is no tally data', () => {
     const { getByText, getAllByTestId } = renderInAppContext(
-      <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
+      <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />,
+      { apiMock }
     );
     for (const precinct of electionWithMsEitherNeither.precincts) {
       getByText(precinct.name);
@@ -111,6 +124,7 @@ describe('Ballot Counts by Precinct', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />,
       {
         fullElectionTally,
+        apiMock,
       }
     );
     for (const precinct of electionWithMsEitherNeither.precincts) {
@@ -149,6 +163,7 @@ describe('Ballot Counts by Precinct', () => {
         fullElectionExternalTallies: new Map([
           [fullElectionExternalTally.source, fullElectionExternalTally],
         ]),
+        apiMock,
       }
     );
     for (const precinct of electionWithMsEitherNeither.precincts) {
@@ -215,7 +230,8 @@ describe('Ballot Counts by Scanner', () => {
 
   it('renders as expected when there is no tally data', () => {
     const { getByText, getAllByTestId } = renderInAppContext(
-      <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
+      <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />,
+      { apiMock }
     );
 
     getByText('Total Ballot Count');
@@ -232,6 +248,7 @@ describe('Ballot Counts by Scanner', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />,
       {
         fullElectionTally,
+        apiMock,
       }
     );
 
@@ -272,6 +289,7 @@ describe('Ballot Counts by Scanner', () => {
         fullElectionExternalTallies: new Map([
           [fullElectionExternalTally.source, fullElectionExternalTally],
         ]),
+        apiMock,
       }
     );
 
@@ -362,7 +380,8 @@ describe('Ballots Counts by Party', () => {
   it('does not render when the election has not ballot styles with parties', () => {
     // The default election is not a primary
     const { container } = renderInAppContext(
-      <BallotCountsTable breakdownCategory={TallyCategory.Party} />
+      <BallotCountsTable breakdownCategory={TallyCategory.Party} />,
+      { apiMock }
     );
     expect(container.firstChild).toBeNull();
   });
@@ -380,6 +399,7 @@ describe('Ballots Counts by Party', () => {
           ...multiPartyPrimaryElectionDefinition,
           electionData: '',
         },
+        apiMock,
       }
     );
 
@@ -417,6 +437,7 @@ describe('Ballots Counts by Party', () => {
           electionData: '',
         },
         fullElectionTally,
+        apiMock,
       }
     );
 
@@ -461,6 +482,7 @@ describe('Ballots Counts by Party', () => {
         fullElectionExternalTallies: new Map([
           [fullElectionExternalTally.source, fullElectionExternalTally],
         ]),
+        apiMock,
       }
     );
 
@@ -529,7 +551,8 @@ describe('Ballots Counts by VotingMethod', () => {
     // No row for "Other" ballots renders when there are 0 CVRs for that category.
     const expectedLabels = ['Absentee', 'Precinct'];
     const { getByText, getAllByTestId } = renderInAppContext(
-      <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
+      <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />,
+      { apiMock }
     );
 
     for (const label of expectedLabels) {
@@ -563,7 +586,7 @@ describe('Ballots Counts by VotingMethod', () => {
     ];
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />,
-      { fullElectionTally }
+      { fullElectionTally, apiMock }
     );
 
     for (const { method, label } of expectedLabels) {
@@ -606,6 +629,7 @@ describe('Ballots Counts by VotingMethod', () => {
         fullElectionExternalTallies: new Map([
           [fullElectionExternalTally.source, fullElectionExternalTally],
         ]),
+        apiMock,
       }
     );
 
@@ -640,6 +664,10 @@ describe('Ballots Counts by VotingMethod', () => {
 });
 
 describe('Ballots Counts by Batch', () => {
+  beforeEach(() => {
+    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
+  });
+
   const resultsByBatch: Dictionary<BatchTally> = {
     '12341': {
       ...fakeTally({
@@ -696,7 +724,8 @@ describe('Ballots Counts by Batch', () => {
   it('renders as expected when there is no data', () => {
     // No row for "Other" ballots renders when there are 0 CVRs for that category.
     const { getByText, getAllByTestId } = renderInAppContext(
-      <BallotCountsTable breakdownCategory={TallyCategory.Batch} />
+      <BallotCountsTable breakdownCategory={TallyCategory.Batch} />,
+      { apiMock }
     );
 
     getByText('Total Ballot Count');
@@ -732,7 +761,7 @@ describe('Ballots Counts by Batch', () => {
     ];
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Batch} />,
-      { fullElectionTally }
+      { fullElectionTally, apiMock }
     );
 
     for (const { batchId, label, scannerLabel } of expectedLabels) {
@@ -791,6 +820,7 @@ describe('Ballots Counts by Batch', () => {
         fullElectionExternalTallies: new Map([
           [fullElectionExternalTally.source, fullElectionExternalTally],
         ]),
+        apiMock,
       }
     );
 

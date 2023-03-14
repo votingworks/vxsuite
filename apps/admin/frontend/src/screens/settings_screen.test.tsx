@@ -6,17 +6,24 @@ import { screen, waitFor, within } from '../../test/react_testing_library';
 
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { SettingsScreen } from './settings_screen';
+import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
+let apiMock: ApiMock;
 
 beforeEach(() => {
   MockDate.set('2022-06-22T00:00:00.000Z');
   mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.assertComplete();
 });
 
 test('Setting current date and time', async () => {
-  renderInAppContext(<SettingsScreen />);
+  renderInAppContext(<SettingsScreen />, { apiMock });
 
   screen.getByRole('heading', { name: 'Current Date and Time' });
   const startDateTime = 'Wed, Jun 22, 2022, 12:00 AM UTC';
@@ -43,7 +50,7 @@ test('Setting current date and time', async () => {
 });
 
 test('Rebooting from USB', async () => {
-  renderInAppContext(<SettingsScreen />);
+  renderInAppContext(<SettingsScreen />, { apiMock });
 
   screen.getByRole('heading', { name: 'Software Update' });
 
@@ -55,7 +62,7 @@ test('Rebooting from USB', async () => {
 });
 
 test('Rebooting to BIOS', () => {
-  renderInAppContext(<SettingsScreen />);
+  renderInAppContext(<SettingsScreen />, { apiMock });
 
   screen.getByRole('heading', { name: 'Software Update' });
 

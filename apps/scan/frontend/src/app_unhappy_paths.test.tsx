@@ -47,6 +47,7 @@ beforeEach(() => {
   jest.useFakeTimers();
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
+  apiMock.removeCard(); // Set a default auth state of no card inserted.
 });
 
 afterEach(() => {
@@ -96,7 +97,7 @@ test('backend fails to unconfigure', async () => {
 
 test('Show invalid card screen when unsupported cards are given', async () => {
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper, 2);
+  apiMock.expectGetScannerStatus(statusNoPaper);
 
   renderApp();
   await screen.findByText('Polls Closed');
@@ -195,7 +196,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   const kiosk = fakeKiosk();
   kiosk.getUsbDriveInfo = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
-  apiMock.expectGetScannerStatus(statusNoPaper, 7);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp({ hardware });
   apiMock.expectGetCastVoteRecordsForTally([]);
   await screen.findByText('Polls Closed');
@@ -245,7 +246,7 @@ test('removing card during calibration', async () => {
   kiosk.getUsbDriveInfo = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   apiMock.expectCheckCalibrationSupported(true);
-  apiMock.expectGetScannerStatus(statusNoPaper, 4);
+  apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetCastVoteRecordsForTally([]);
   renderApp();
 

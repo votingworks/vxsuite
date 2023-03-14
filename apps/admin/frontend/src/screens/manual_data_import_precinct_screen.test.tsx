@@ -42,6 +42,7 @@ afterEach(() => {
 });
 
 test('displays error screen for invalid precinct', async () => {
+  apiMock.expectGetWriteInSummaryAdjudicated([]);
   renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
@@ -49,6 +50,7 @@ test('displays error screen for invalid precinct', async () => {
     {
       route: '/tally/manual-data-import/precinct/12345',
       electionDefinition: electionWithMsEitherNeitherDefinition,
+      apiMock,
     }
   );
   await screen.findByText('Error: Could not find precinct 12345.');

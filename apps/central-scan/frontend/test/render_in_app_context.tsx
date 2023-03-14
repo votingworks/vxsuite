@@ -11,7 +11,6 @@ import { fakeElectionManagerUser } from '@votingworks/test-utils';
 import { render, RenderResult } from './react_testing_library';
 import { ApiClient, ApiClientContext, createQueryClient } from '../src/api';
 import { AppContext, AppContextInterface } from '../src/contexts/app_context';
-import { createMockApiClient } from './api';
 
 interface RenderInAppContextParams {
   route?: string;
@@ -67,7 +66,7 @@ export function wrapInAppContext(
     storage,
     auth,
     logger,
-    apiClient = createMockApiClient(),
+    apiClient,
     queryClient = createQueryClient(),
   }: RenderInAppContextParams = {}
 ): React.ReactElement {

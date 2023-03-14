@@ -22,7 +22,7 @@ import {
 import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { QUERY_CLIENT_DEFAULT_OPTIONS, UsbDrive } from '@votingworks/ui';
+import { UsbDrive } from '@votingworks/ui';
 import {
   fakeElectionManagerUser,
   fakeSystemAdministratorUser,
@@ -40,8 +40,8 @@ import {
   ElectionManagerStoreMemoryBackend,
 } from '../src/lib/backends';
 import { mockUsbDrive } from './helpers/mock_usb_drive';
-import { ApiClient, ApiClientContext } from '../src/api';
-import { ApiMock, createMockApiClient } from './helpers/api_mock';
+import { ApiClient, ApiClientContext, createQueryClient } from '../src/api';
+import { ApiMock } from './helpers/api_mock';
 
 export const eitherNeitherElectionDefinition =
   electionWithMsEitherNeitherDefinition;
@@ -82,17 +82,13 @@ export function renderRootElement(
     backend = new ElectionManagerStoreMemoryBackend(),
     logger = fakeLogger(),
     storage = new MemoryStorage(),
-    apiClient = createMockApiClient(),
-    // TODO: Determine why tests fail when using useErrorBoundary = true
-    queryClient = new QueryClient({
-      defaultOptions: {
-        ...QUERY_CLIENT_DEFAULT_OPTIONS,
-        queries: {
-          ...(QUERY_CLIENT_DEFAULT_OPTIONS.queries ?? {}),
-          useErrorBoundary: false,
-        },
-      },
-    }),
+    // If there's no apiClient given, we don't want to create one by default,
+    // since the apiClient needs to have assertComplete called by the test. If
+    // the test doesn't need to make API calls, then it should not pass in an
+    // apiClient here, which will cause an error if the test tries to make an
+    // API call.
+    apiClient,
+    queryClient = createQueryClient(),
   }: {
     backend?: ElectionManagerStoreBackend;
     logger?: Logger;

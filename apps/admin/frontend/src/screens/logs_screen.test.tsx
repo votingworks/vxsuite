@@ -5,16 +5,23 @@ import { screen } from '../../test/react_testing_library';
 
 import { LogsScreen } from './logs_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
+import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
+let apiMock: ApiMock;
 
 beforeEach(() => {
   mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.assertComplete();
 });
 
 test('Exporting logs', async () => {
-  renderInAppContext(<LogsScreen />);
+  renderInAppContext(<LogsScreen />, { apiMock });
 
   // Log saving is tested fully in src/components/export_logs_modal.test.tsx
   userEvent.click(screen.getByText('Save Log File'));
@@ -28,7 +35,7 @@ test('Exporting logs', async () => {
 });
 
 test('Exporting logs when no election definition', async () => {
-  renderInAppContext(<LogsScreen />, { electionDefinition: 'NONE' });
+  renderInAppContext(<LogsScreen />, { electionDefinition: 'NONE', apiMock });
 
   // Log saving is tested fully in src/components/export_logs_modal.test.tsx
   userEvent.click(screen.getByText('Save Log File'));

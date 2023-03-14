@@ -21,6 +21,10 @@ afterEach(() => {
 });
 
 test('renders without crashing', async () => {
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });

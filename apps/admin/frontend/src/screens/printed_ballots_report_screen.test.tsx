@@ -87,9 +87,11 @@ test('renders information, prints, and logs success', async () => {
 
 test('renders SaveFileToUsb component for saving PDF', async () => {
   const usbDrive = mockUsbDrive('mounted');
+  apiMock.expectGetOfficialPrintedBallots([]);
   renderInAppContext(<PrintedBallotsReportScreen />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
     usbDrive,
+    apiMock,
   });
   userEvent.click(screen.getByText('Save Report to PDF'));
   const modal = await screen.findByRole('alertdialog');

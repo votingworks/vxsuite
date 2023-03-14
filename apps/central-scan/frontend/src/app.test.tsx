@@ -37,6 +37,11 @@ beforeEach(() => {
   window.kiosk = undefined;
 
   mockApiClient = createMockApiClient();
+  // Set a default auth status of logged out
+  setAuthStatus(mockApiClient, {
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
 
   fetchMock.config.fallbackToNetwork = true;
   fetchMock.get(

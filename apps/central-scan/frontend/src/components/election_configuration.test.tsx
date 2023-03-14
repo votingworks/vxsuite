@@ -8,6 +8,17 @@ import {
 } from '../../test/react_testing_library';
 import { ElectionConfiguration } from './election_configuration';
 import { renderInAppContext } from '../../test/render_in_app_context';
+import { createMockApiClient, MockApiClient } from '../../test/api';
+
+let mockApiClient: MockApiClient;
+
+beforeEach(() => {
+  mockApiClient = createMockApiClient();
+});
+
+afterEach(() => {
+  mockApiClient.assertComplete();
+});
 
 test('shows loading screen when usb is mounting or ejecting', () => {
   const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
@@ -18,7 +29,7 @@ test('shows loading screen when usb is mounting or ejecting', () => {
         acceptManuallyChosenFile={jest.fn()}
         acceptAutomaticallyChosenFile={jest.fn()}
       />,
-      { usbDriveStatus: status }
+      { usbDriveStatus: status, apiClient: mockApiClient }
     );
     getByText('Loading');
     unmount();
@@ -36,7 +47,7 @@ test('shows insert usb screen when no usb is present with manual load button', a
           acceptManuallyChosenFile={manualUpload}
           acceptAutomaticallyChosenFile={jest.fn()}
         />,
-        { usbDriveStatus: status }
+        { usbDriveStatus: status, apiClient: mockApiClient }
       );
     getByText('Load Election Configuration');
     getByText('You may load via the following methods:');
@@ -65,7 +76,7 @@ test('reads files from usb when mounted and shows proper display when there are 
       acceptManuallyChosenFile={manualUpload}
       acceptAutomaticallyChosenFile={jest.fn()}
     />,
-    { usbDriveStatus: 'mounted' }
+    { usbDriveStatus: 'mounted', apiClient: mockApiClient }
   );
 
   await waitFor(() => getByText('No Election Ballot Packages Found'));
@@ -102,7 +113,7 @@ test('reads files from usb when mounted and shows list of files', async () => {
       acceptManuallyChosenFile={manualUpload}
       acceptAutomaticallyChosenFile={automaticUpload}
     />,
-    { usbDriveStatus: 'mounted' }
+    { usbDriveStatus: 'mounted', apiClient: mockApiClient }
   );
 
   await waitFor(() => getByText('Choose Election Configuration'));
@@ -152,7 +163,7 @@ test('shows errors that occur when loading in file list screen', async () => {
         .fn()
         .mockRejectedValueOnce(new Error('FAKE-ERROR'))}
     />,
-    { usbDriveStatus: 'mounted' }
+    { usbDriveStatus: 'mounted', apiClient: mockApiClient }
   );
 
   await waitFor(() => getByText('Choose Election Configuration'));

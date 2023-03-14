@@ -79,6 +79,11 @@ beforeEach(() => {
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   apiMock = createApiMock();
+  // Set default auth status to logged out.
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
 
   MockDate.set(new Date('2020-11-03T22:22:00'));
   fetchMock.reset();
