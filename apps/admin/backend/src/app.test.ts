@@ -6,24 +6,23 @@ import {
   electionSampleCdfDefinition,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
-import { mockOf } from '@votingworks/test-utils';
+
 import { promises as fs } from 'fs';
 import { sha256 } from 'js-sha256';
 import { tmpdir } from 'os';
-import { join, sep } from 'path';
+import { basename, join, sep } from 'path';
+import tmp from 'tmp';
 import {
   buildTestEnvironment,
   configureMachine,
+  mockCastVoteRecordFileTree,
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
 } from '../test/app';
-import { listCastVoteRecordFilesOnUsb } from './cvr_files';
 
 beforeEach(() => {
   jest.restoreAllMocks();
 });
-
-jest.mock('./cvr_files');
 
 test('managing the current election', async () => {
   const { apiClient, auth, logger } = buildTestEnvironment();
@@ -136,7 +135,7 @@ test('configuring with a CDF election', async () => {
 });
 
 test('cast vote records - happy path election flow', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, mockUsb, logger } = buildTestEnvironment();
 
   const { electionDefinition, standardCvrFile, standardLiveCvrFile } =
     electionMinimalExhaustiveSampleFixtures;
@@ -149,35 +148,70 @@ test('cast vote records - happy path election flow', async () => {
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual(
     Admin.CvrFileMode.Unlocked
   );
-
-  // frontend can poll for available cast vote record files
-  mockOf(listCastVoteRecordFilesOnUsb).mockResolvedValueOnce([]);
   expect(await apiClient.listCastVoteRecordFilesOnUsb()).toEqual([]);
 
+  // insert a USB drive
+  const { insertUsbDrive, removeUsbDrive } = mockUsb;
+  const testFileName =
+    'TEST__machine_0000__3000_ballots__2022-07-01_11-21-41.jsonl';
+  const testExportTimestamp = '2022-07-01T11:21:41.000Z';
+  insertUsbDrive(
+    mockCastVoteRecordFileTree(electionDefinition, {
+      [testFileName]: standardCvrFile.asBuffer(),
+    })
+  );
+  const availableCastVoteRecordFiles =
+    await apiClient.listCastVoteRecordFilesOnUsb();
+  expect(availableCastVoteRecordFiles).toMatchObject([
+    expect.objectContaining({
+      name: testFileName,
+      cvrCount: 3000,
+      exportTimestamp: testExportTimestamp,
+      isTestModeResults: true,
+      scannerIds: ['0000'],
+    }),
+  ]);
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.CvrFilesReadFromUsb,
+    'system',
+    {
+      disposition: 'success',
+      message: 'Found 1 CVR files on USB drive, user shown option to load.',
+    }
+  );
+
   // add a file, with a filename that is not parse-able
-  const cvrTestFilePath = standardCvrFile.asFilePath();
-  const cvrFileLastModified1 = (
-    await fs.stat(cvrTestFilePath)
-  ).mtime.toISOString();
   const addTestFileResult = await apiClient.addCastVoteRecordFile({
-    path: cvrTestFilePath,
+    path: availableCastVoteRecordFiles[0]!.path,
   });
   assert(addTestFileResult.isOk());
   expect(addTestFileResult.ok()).toMatchObject({
     wasExistingFile: false,
-    exportedTimestamp: cvrFileLastModified1,
+    exportedTimestamp: testExportTimestamp,
     alreadyPresent: 0,
     newlyAdded: 3000,
     scannerIds: ['scanner-1', 'scanner-2'],
     fileMode: 'test',
-    fileName: 'standard.jsonl',
+    fileName: testFileName,
   });
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.CvrLoaded,
+    'election_manager',
+    {
+      disposition: 'success',
+      filename: testFileName,
+      message: expect.anything(),
+      numberOfBallotsImported: 3000,
+      duplicateBallotsIgnored: 0,
+    }
+  );
+  removeUsbDrive();
 
   // should now be able to retrieve the file
   expect(await apiClient.getCastVoteRecordFiles()).toEqual([
     expect.objectContaining({
-      exportTimestamp: cvrFileLastModified1,
-      filename: 'standard.jsonl',
+      exportTimestamp: testExportTimestamp,
+      filename: testFileName,
       numCvrsImported: 3000,
       precinctIds: ['precinct-1', 'precinct-2'],
       scannerIds: ['scanner-1', 'scanner-2'],
@@ -217,11 +251,50 @@ test('cast vote records - happy path election flow', async () => {
   );
 
   // now try loading official CVR files, as if after L&A
-  const cvrLiveFilePath = standardLiveCvrFile.asFilePath();
+  const officialFileName =
+    'machine_0000__3000_ballots__2022-07-01_11-21-41.jsonl';
+  insertUsbDrive(
+    mockCastVoteRecordFileTree(electionDefinition, {
+      [officialFileName]: standardLiveCvrFile.asBuffer(),
+    })
+  );
+  const availableCastVoteRecordFiles2 =
+    await apiClient.listCastVoteRecordFilesOnUsb();
+  expect(availableCastVoteRecordFiles2).toMatchObject([
+    expect.objectContaining({
+      name: officialFileName,
+      cvrCount: 3000,
+      exportTimestamp: '2022-07-01T11:21:41.000Z',
+      isTestModeResults: false,
+      scannerIds: ['0000'],
+    }),
+  ]);
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.CvrFilesReadFromUsb,
+    'system',
+    {
+      disposition: 'success',
+      message: 'Found 1 CVR files on USB drive, user shown option to load.',
+    }
+  );
+
   const addLiveFileResult = await apiClient.addCastVoteRecordFile({
-    path: cvrLiveFilePath,
+    path: availableCastVoteRecordFiles2[0]!.path,
   });
   assert(addLiveFileResult.isOk());
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.CvrLoaded,
+    'election_manager',
+    {
+      disposition: 'success',
+      filename: officialFileName,
+      message: expect.anything(),
+      numberOfBallotsImported: 3000,
+      duplicateBallotsIgnored: 0,
+    }
+  );
+  removeUsbDrive();
+
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(3000);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual(
@@ -240,24 +313,12 @@ test('addCastVoteRecordFile - handle duplicate file', async () => {
   // initially, no files
   expect(await apiClient.getCastVoteRecordFiles()).toEqual([]);
 
-  // add a file, with a filename that is not parse-able
+  // add file
   const cvrFilePath = standardCvrFile.asFilePath();
   const addStandardFileResult = await apiClient.addCastVoteRecordFile({
     path: cvrFilePath,
   });
   assert(addStandardFileResult.isOk());
-  expect(logger.log).toHaveBeenNthCalledWith(
-    2,
-    LogEventId.CvrLoaded,
-    'election_manager',
-    {
-      disposition: 'success',
-      filename: 'standard.jsonl',
-      message: expect.anything(),
-      numberOfBallotsImported: 3000,
-      duplicateBallotsIgnored: 0,
-    }
-  );
 
   // try adding duplicate file
   const addDuplicateFileResult = await apiClient.addCastVoteRecordFile({
@@ -273,8 +334,7 @@ test('addCastVoteRecordFile - handle duplicate file', async () => {
   });
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(3000);
-  expect(logger.log).toHaveBeenNthCalledWith(
-    3,
+  expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.CvrLoaded,
     'election_manager',
     expect.objectContaining({
@@ -292,7 +352,7 @@ test('addCastVoteRecordFile - handle file with previously added entries', async 
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  // add normal file
+  // add file
   const cvrFilePath1 = standardCvrFile.asFilePath();
   const addStandardFileResult = await apiClient.addCastVoteRecordFile({
     path: cvrFilePath1,
@@ -304,29 +364,21 @@ test('addCastVoteRecordFile - handle file with previously added entries', async 
   // create file that is duplicate but with one new entry
   const standardEntries = standardCvrFile.asText().split('\n');
   const newEntry = standardEntries[0]!.replace('id-0', 'id-3000');
-
-  // test ability to parse expected filename format here also
-  const duplicateEntryFileName =
-    'TEST__machine_000__20_ballots__2022-07-01_11-21-41.jsonl';
-  const duplicateEntryFilePath = join(
-    await fs.mkdtemp(tmpdir() + sep),
-    duplicateEntryFileName
-  );
+  const duplicateEntryFile = tmp.fileSync();
   await fs.writeFile(
-    duplicateEntryFilePath,
+    duplicateEntryFile.name,
     `${standardCvrFile.asText()}\n${newEntry}`
   );
   const addDuplicateEntriesResult = await apiClient.addCastVoteRecordFile({
-    path: duplicateEntryFilePath,
+    path: duplicateEntryFile.name,
   });
   assert(addDuplicateEntriesResult.isOk());
   expect(addDuplicateEntriesResult.ok()).toMatchObject({
     wasExistingFile: false,
     newlyAdded: 1,
     alreadyPresent: 3000,
-    exportedTimestamp: '2022-07-01T11:21:41.000Z',
     fileMode: 'test',
-    fileName: duplicateEntryFileName,
+    fileName: basename(duplicateEntryFile.name),
   });
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(2);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(3001);

@@ -1,93 +1,57 @@
-import {
-  listDirectoryOnUsbDrive,
-  FileSystemEntry,
-  FileSystemEntryType,
-} from '@votingworks/backend';
-import { err, ok } from '@votingworks/basics';
+import { Buffer } from 'buffer';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { mockOf } from '@votingworks/test-utils';
 import { getDisplayElectionHash } from '@votingworks/types';
+import { createMockUsb } from '../test/app';
 import { listCastVoteRecordFilesOnUsb } from './cvr_files';
 
-jest.mock('@votingworks/backend');
-
-const mockListDirectoryOnUsbDrive = mockOf(listDirectoryOnUsbDrive);
-const mockFileSystemEntry: FileSystemEntry = {
-  name: 'TEST__machine_0000__4_ballots__2022-07-01_11-21-41.jsonl',
-  path: '/tmp/TEST__machine_0000__4_ballots__2022-07-01_11-21-41.jsonl',
-  type: FileSystemEntryType.File,
-  size: 1024,
-  mtime: new Date(),
-  atime: new Date(),
-  ctime: new Date(),
-};
-
 const electionDefinition = electionMinimalExhaustiveSampleDefinition;
-
-beforeEach(() => {
-  mockListDirectoryOnUsbDrive.mockReset();
-});
+const file = Buffer.from([]);
 
 describe('list cast vote record files on USB drive', () => {
-  test('files present', async () => {
+  test('finds present files meeting criteria', async () => {
     const logger = fakeLogger();
-    mockListDirectoryOnUsbDrive.mockResolvedValueOnce(
-      ok([
-        mockFileSystemEntry, // valid
-        {
-          ...mockFileSystemEntry, // valid
-          name: 'TEST__machine_0000__8_ballots__2022-07-01_11-31-41.jsonl',
-          path: '/tmp/TEST__machine_0000__8_ballots__2022-07-01_11-31-41.jsonl',
+    const { usb, insertUsbDrive } = createMockUsb();
+    insertUsbDrive({
+      'cast-vote-records': {
+        [`sample-county_example-primary-election_${getDisplayElectionHash(
+          electionDefinition
+        )}`]: {
+          'TEST__machine_0000__4_ballots__2022-07-01_11-21-41.jsonl': file, // valid
+          'TEST__machine_0000__8_ballots__2022-07-01_11-31-41.jsonl': file, // valid
+          'cvr.jsonl': file, // invalid name
+          'TEST__machine_0000__8_ballots__2022-07-01_11-41-41.jsonl': {
+            file, // invalid as directory
+          },
+          'TEST__machine_0000__8_ballots__2022-07-01_11-31-41.json': file, // invalid extension
         },
-        {
-          ...mockFileSystemEntry, // invalid because file name
-          name: 'cvr.jsonl',
-          path: '/tmp/cvr.jsonl',
-        },
-        { ...mockFileSystemEntry, type: FileSystemEntryType.Directory }, // invalid because directory
-        {
-          ...mockFileSystemEntry,
-          name: 'TEST__machine_0000__4_ballots__2022-07-01_11-21-41.json', // invalid because extension
-          path: '/tmp/TEST__machine_0000__4_ballots__2022-07-01_11-21-41.json',
-        },
-      ])
-    );
+      },
+    });
 
     const cvrFileMetadata = await listCastVoteRecordFilesOnUsb(
       electionDefinition,
+      usb,
       logger
     );
 
-    expect(mockListDirectoryOnUsbDrive).toHaveBeenCalledWith(
-      `cast-vote-records/sample-county_example-primary-election_${getDisplayElectionHash(
-        electionDefinition
-      )}`
+    expect(cvrFileMetadata).toMatchObject(
+      expect.arrayContaining([
+        expect.objectContaining({
+          cvrCount: 8,
+          exportTimestamp: new Date('2022-07-01T11:31:41.000Z'),
+          isTestModeResults: true,
+          name: 'TEST__machine_0000__8_ballots__2022-07-01_11-31-41.jsonl',
+          scannerIds: ['0000'],
+        }),
+        expect.objectContaining({
+          cvrCount: 4,
+          exportTimestamp: new Date('2022-07-01T11:21:41.000Z'),
+          isTestModeResults: true,
+          name: 'TEST__machine_0000__4_ballots__2022-07-01_11-21-41.jsonl',
+          scannerIds: ['0000'],
+        }),
+      ])
     );
-    expect(cvrFileMetadata).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "cvrCount": 8,
-          "exportTimestamp": 2022-07-01T11:31:41.000Z,
-          "isTestModeResults": true,
-          "name": "TEST__machine_0000__8_ballots__2022-07-01_11-31-41.jsonl",
-          "path": "/tmp/TEST__machine_0000__8_ballots__2022-07-01_11-31-41.jsonl",
-          "scannerIds": Array [
-            "0000",
-          ],
-        },
-        Object {
-          "cvrCount": 4,
-          "exportTimestamp": 2022-07-01T11:21:41.000Z,
-          "isTestModeResults": true,
-          "name": "TEST__machine_0000__4_ballots__2022-07-01_11-21-41.jsonl",
-          "path": "/tmp/TEST__machine_0000__4_ballots__2022-07-01_11-21-41.jsonl",
-          "scannerIds": Array [
-            "0000",
-          ],
-        },
-      ]
-    `);
 
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
@@ -101,19 +65,20 @@ describe('list cast vote record files on USB drive', () => {
 
   test('usb not present or mounted', async () => {
     const logger = fakeLogger();
+    const { usb } = createMockUsb();
 
-    mockListDirectoryOnUsbDrive.mockResolvedValueOnce(
-      err({ type: 'usb-drive-not-mounted' })
-    );
     expect(
-      await listCastVoteRecordFilesOnUsb(electionDefinition, logger)
+      await listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger)
     ).toEqual([]);
 
-    mockListDirectoryOnUsbDrive.mockResolvedValueOnce(
-      err({ type: 'no-usb-drive' })
-    );
+    usb.getUsbDrives.mockResolvedValue([
+      {
+        deviceName: 'mock-usb-drive',
+      },
+    ]);
+
     expect(
-      await listCastVoteRecordFilesOnUsb(electionDefinition, logger)
+      await listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger)
     ).toEqual([]);
 
     expect(logger.log).not.toHaveBeenCalled();
@@ -121,12 +86,17 @@ describe('list cast vote record files on USB drive', () => {
 
   test('default directory not found on USB', async () => {
     const logger = fakeLogger();
+    const { usb, insertUsbDrive } = createMockUsb();
 
-    mockListDirectoryOnUsbDrive.mockResolvedValueOnce(
-      err({ type: 'no-entity', message: 'any' })
-    );
+    insertUsbDrive({
+      'cast-vote-records': {
+        'other-election-folder': {
+          'other-cvr': file,
+        },
+      },
+    });
     expect(
-      await listCastVoteRecordFilesOnUsb(electionDefinition, logger)
+      await listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger)
     ).toEqual([]);
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
@@ -141,32 +111,19 @@ describe('list cast vote record files on USB drive', () => {
 
   test('unexpected issue accessing directory', async () => {
     const logger = fakeLogger();
-
-    mockListDirectoryOnUsbDrive.mockResolvedValueOnce(
-      err({ type: 'not-directory', message: 'any' })
-    );
+    const { usb, insertUsbDrive } = createMockUsb();
+    insertUsbDrive({
+      'cast-vote-records': {
+        [`sample-county_example-primary-election_${getDisplayElectionHash(
+          electionDefinition
+        )}`]: file,
+      },
+    });
     expect(
-      await listCastVoteRecordFilesOnUsb(electionDefinition, logger)
+      await listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger)
     ).toEqual([]);
     expect(logger.log).toHaveBeenNthCalledWith(
       1,
-      LogEventId.CvrFilesReadFromUsb,
-      'system',
-      {
-        disposition: 'failure',
-        message:
-          'Error accessing cast vote record files on USB drive, which may be corrupted.',
-      }
-    );
-
-    mockListDirectoryOnUsbDrive.mockResolvedValueOnce(
-      err({ type: 'permission-denied', message: 'any' })
-    );
-    expect(
-      await listCastVoteRecordFilesOnUsb(electionDefinition, logger)
-    ).toEqual([]);
-    expect(logger.log).toHaveBeenNthCalledWith(
-      2,
       LogEventId.CvrFilesReadFromUsb,
       'system',
       {

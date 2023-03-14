@@ -9,19 +9,23 @@ import {
   fakeSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
-import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
+import {
+  DippedSmartCardAuth,
+  ElectionDefinition,
+  getDisplayElectionHash,
+} from '@votingworks/types';
 import * as grout from '@votingworks/grout';
 import { assert } from '@votingworks/basics';
-import { fakeLogger, Logger } from '@votingworks/logging';
-import { Application } from 'express';
+import { fakeLogger } from '@votingworks/logging';
 import { AddressInfo } from 'net';
 import { Buffer } from 'buffer';
 import fs from 'fs';
 import tmp from 'tmp';
 import { execSync } from 'child_process';
 import { join } from 'path';
+import { SCANNER_RESULTS_FOLDER } from '@votingworks/utils';
 import { Api } from '../src';
-import { createWorkspace, Workspace } from '../src/util/workspace';
+import { createWorkspace } from '../src/util/workspace';
 import { buildApp } from '../src/app';
 import { Usb } from '../src/util/usb';
 
@@ -42,6 +46,19 @@ function writeMockFileTree(destinationPath: string, tree: MockFileTree): void {
       writeMockFileTree(join(destinationPath, name), child);
     }
   }
+}
+
+export function mockCastVoteRecordFileTree(
+  electionDefinition: ElectionDefinition,
+  mockDirectory: MockDirectory
+): MockFileTree {
+  return {
+    [SCANNER_RESULTS_FOLDER]: {
+      [`sample-county_example-primary-election_${getDisplayElectionHash(
+        electionDefinition
+      )}`]: mockDirectory,
+    },
+  };
 }
 
 interface MockUsb {
@@ -139,13 +156,8 @@ export async function configureMachine(
   return configureResult.ok().electionId;
 }
 
-export function buildTestEnvironment(): {
-  logger: Logger;
-  auth: DippedSmartCardAuthApi;
-  workspace: Workspace;
-  app: Application;
-  apiClient: grout.Client<Api>;
-} {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function buildTestEnvironment() {
   const logger = fakeLogger();
   const auth = buildMockDippedSmartCardAuth();
   const workspace = createWorkspace(tmp.dirSync().name);
@@ -167,5 +179,6 @@ export function buildTestEnvironment(): {
     workspace,
     app,
     apiClient,
+    mockUsb,
   };
 }
