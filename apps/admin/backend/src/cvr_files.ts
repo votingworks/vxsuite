@@ -12,6 +12,7 @@ import {
 } from '@votingworks/utils';
 import { join } from 'path';
 import { CastVoteRecordFileMetadata } from './types';
+import { Usb } from './util/usb';
 
 /**
  * Gets the metadata, including the path, of cast vote record files found in
@@ -20,6 +21,7 @@ import { CastVoteRecordFileMetadata } from './types';
  */
 export async function listCastVoteRecordFilesOnUsb(
   electionDefinition: ElectionDefinition,
+  usb: Usb,
   logger: Logger
 ): Promise<CastVoteRecordFileMetadata[]> {
   const { election, electionHash } = electionDefinition;
@@ -27,7 +29,8 @@ export async function listCastVoteRecordFilesOnUsb(
     join(
       SCANNER_RESULTS_FOLDER,
       generateElectionBasedSubfolderName(election, electionHash)
-    )
+    ),
+    usb.getUsbDrives
   );
 
   if (fileSearchResult.isErr()) {

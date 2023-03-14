@@ -29,6 +29,7 @@ import { parseCvrFileInfoFromFilename } from '@votingworks/utils';
 import { AddCastVoteRecordFileResult, ConfigureResult } from './types';
 import { Workspace } from './util/workspace';
 import { listCastVoteRecordFilesOnUsb } from './cvr_files';
+import { Usb } from './util/usb';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -58,10 +59,12 @@ function buildApi({
   auth,
   workspace,
   logger,
+  usb,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
+  usb: Usb;
 }) {
   const { store } = workspace;
 
@@ -182,7 +185,7 @@ function buildApi({
       const electionDefinition = getCurrentElectionDefinition(workspace);
       assert(electionDefinition);
 
-      return listCastVoteRecordFilesOnUsb(electionDefinition, logger);
+      return listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger);
     },
 
     getCastVoteRecordFiles(): Admin.CastVoteRecordFileRecord[] {
@@ -523,13 +526,15 @@ export function buildApp({
   auth,
   workspace,
   logger,
+  usb,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
+  usb: Usb;
 }): Application {
   const app: Application = express();
-  const api = buildApi({ auth, workspace, logger });
+  const api = buildApi({ auth, workspace, logger, usb });
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }

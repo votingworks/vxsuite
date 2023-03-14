@@ -1,7 +1,10 @@
 import { err, ok, Result, assert } from '@votingworks/basics';
 import { Dirent, promises as fs } from 'fs';
 import { isAbsolute, join } from 'path';
-import { getUsbDrives } from './get_usb_drives';
+import {
+  getUsbDrives as defaultGetUsbDrives,
+  UsbDrive,
+} from './get_usb_drives';
 
 /**
  * Types of file system entities defined in `libuv`. We omit only `Unknown`,
@@ -119,7 +122,8 @@ export type ListDirectoryOnUsbDriveError =
  * drive's filesystem. Looks at only the first found USB drive.
  */
 export async function listDirectoryOnUsbDrive(
-  relativePath: string
+  relativePath: string,
+  getUsbDrives: () => Promise<UsbDrive[]> = defaultGetUsbDrives
 ): Promise<Result<FileSystemEntry[], ListDirectoryOnUsbDriveError>> {
   // We currently do not support multiple USB drives
   const [usbDrive] = await getUsbDrives();

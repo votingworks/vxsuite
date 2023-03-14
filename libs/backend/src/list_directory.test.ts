@@ -112,4 +112,29 @@ describe('listDirectoryOnUsbDrive', () => {
       type: 'usb-drive-not-mounted',
     });
   });
+
+  test('can inject a different getUsbDrive for testing', async () => {
+    const mockMountPoint = tmp.dirSync();
+    const directory = tmp.dirSync({
+      name: 'directory',
+      dir: mockMountPoint.name,
+    });
+    tmp.fileSync({ name: 'mock-file-1', dir: directory.name });
+
+    const injectedGetUsbDrive = jest
+      .fn()
+      .mockResolvedValueOnce([
+        { deviceName: 'mock', mountPoint: mockMountPoint.name },
+      ]);
+
+    const result = await listDirectoryOnUsbDrive(
+      './directory',
+      injectedGetUsbDrive
+    );
+    expect(result.ok()).toMatchObject([
+      expect.objectContaining({
+        name: 'mock-file-1',
+      }),
+    ]);
+  });
 });

@@ -8,6 +8,7 @@ import { start } from './server';
 import { createWorkspace } from './util/workspace';
 import { PORT } from './globals';
 import { buildApp } from './app';
+import { createMockUsb } from '../test/app';
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -17,7 +18,8 @@ test('starts with default logger and port', async () => {
   const auth = buildMockDippedSmartCardAuth();
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
-  const app = buildApp({ auth, workspace, logger });
+  const { usb } = createMockUsb();
+  const app = buildApp({ auth, workspace, logger, usb });
 
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -39,7 +41,8 @@ test('start with config options', async () => {
   const auth = buildMockDippedSmartCardAuth();
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
-  const app = buildApp({ auth, workspace, logger });
+  const { usb } = createMockUsb();
+  const app = buildApp({ auth, workspace, logger, usb });
 
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -59,7 +62,8 @@ test('errors on start with no workspace', async () => {
   const auth = buildMockDippedSmartCardAuth();
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
-  const app = buildApp({ auth, workspace, logger });
+  const { usb } = createMockUsb();
+  const app = buildApp({ auth, workspace, logger, usb });
 
   // start up the server
   try {
