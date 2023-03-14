@@ -20,8 +20,7 @@ build-smartcards:
 build: build-frontend build-backend build-smartcards
 
 run:
-	export NODE_ENV=production
-	./node_modules/.bin/concurrently -n smartcards,frontend,backend --kill-others \
+	NODE_ENV=production IS_INTEGRATION_TEST=true ./node_modules/.bin/concurrently -n smartcards,frontend,backend --kill-others \
 		"make -C ${SMARTCARDS} run" \
 		"make -C $(APP)/frontend run" \
 		"make -C $(APP)/backend run"

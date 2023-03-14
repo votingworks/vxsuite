@@ -17,54 +17,50 @@ import '@testing-library/cypress/add-commands';
 import './commands';
 
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { CardData } from '@votingworks/types';
 import { methodUrl } from '@votingworks/grout';
 
-const ELECTION_MANAGER_CARD_DATA = {
-  t: 'election_manager',
-  h: electionSampleDefinition.electionHash,
-  p: '000000',
-};
+// Importing all of @votingworks/auth causes Cypress tests to fail since Cypress doesn't seem to
+// interact well with PCSC Lite card reader code
+// eslint-disable-next-line vx/no-import-workspace-subfolders
+import { mockCard } from '@votingworks/auth/src/mock_file_card';
 
-const POLL_WORKER_CARD_DATA = {
-  t: 'poll_worker',
-  h: electionSampleDefinition.electionHash,
-};
+const { electionData, electionHash } = electionSampleDefinition;
+const PIN = '000000';
 
-/**
- * 
- * @param {CardData} card
- * @param {string=} longValue 
- * @returns {void}
- */
-function insertCard(card, longValue) {
-  cy.request({
-    method: 'PUT',
-    url: 'http://localhost:3001/mock',
-    body: JSON.stringify({
-      enabled: true,
-      shortValue: JSON.stringify(card),
-      longValue,
-    }),
-    headers: {
-      'Content-Type': 'application/json',
+function mockCardCypress(mockFileContents) {
+  mockCard(mockFileContents, cy.writeFile);
+}
+
+function insertElectionManagerCard() {
+  mockCardCypress({
+    cardStatus: {
+      status: 'ready',
+      user: {
+        role: 'election_manager',
+        electionHash,
+      },
+    },
+    data: Buffer.from(electionData, 'utf-8'),
+    pin: PIN,
+  });
+}
+
+function insertPollWorkerCard() {
+  mockCardCypress({
+    cardStatus: {
+      status: 'ready',
+      user: {
+        role: 'poll_worker',
+        electionHash,
+      },
     },
   });
 }
 
-/**
- * @returns {void}
- */
 function removeCard() {
-  cy.request({
-    method: 'PUT',
-    url: 'http://localhost:3001/mock',
-    body: JSON.stringify({
-      enabled: true,
-      hasCard: false,
-    }),
-    headers: {
-      'Content-Type': 'application/json',
+  mockCardCypress({
+    cardStatus: {
+      status: 'no_card',
     },
   });
 }
@@ -76,11 +72,11 @@ function endCardlessVoterSession() {
 beforeEach(() => {
   endCardlessVoterSession();
 
-  insertCard(ELECTION_MANAGER_CARD_DATA, electionSampleDefinition.electionData);
+  insertElectionManagerCard();
   cy.visit('/');
 
   // Authenticate
-  for (const digit of ELECTION_MANAGER_CARD_DATA.p) {
+  for (const digit of PIN) {
     cy.contains(digit).click();
   }
 
@@ -93,7 +89,7 @@ beforeEach(() => {
   cy.contains('Insert Poll Worker card to open');
 
   // Open polls
-  insertCard(POLL_WORKER_CARD_DATA);
+  insertPollWorkerCard();
   cy.contains('Open Polls').click();
   cy.contains('Open Polls on VxMark Now').click();
 

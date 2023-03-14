@@ -27,10 +27,9 @@ build-smartcards:
 build: build-frontend build-backend build-converter-ms-sems build-smartcards
 
 run:
-	export NODE_ENV=production
 	rm -rf $(ADMIN_WORKSPACE)
 	mkdir $(ADMIN_WORKSPACE)
-	./node_modules/.bin/concurrently -n smartcards,sems,frontend,backend --kill-others \
+	NODE_ENV=production IS_INTEGRATION_TEST=true ./node_modules/.bin/concurrently -n smartcards,sems,frontend,backend --kill-others \
 		"make -C ${SMARTCARDS} run" \
 		"make -C $(SEMS) run" \
 		"make -C $(APP)/frontend run" \

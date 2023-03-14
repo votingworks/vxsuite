@@ -2,20 +2,35 @@ import { Buffer } from 'buffer';
 import { methodUrl } from '@votingworks/grout';
 import { sha256 } from 'js-sha256';
 
+// Importing all of @votingworks/auth causes Cypress tests to fail since Cypress doesn't seem to
+// interact well with PCSC Lite card reader code
+// eslint-disable-next-line vx/no-import-workspace-subfolders
+import {
+  mockCard,
+  MockFileContents,
+} from '@votingworks/auth/src/mock_file_card';
+
 const PIN = '000000';
+
+function mockCardCypress(mockFileContents: MockFileContents): void {
+  mockCard(mockFileContents, cy.writeFile);
+}
 
 function mockElectionManagerCard() {
   cy.readFile('cypress/fixtures/election.json', null).then(
     (electionBytes: Uint8Array) => {
-      const electionData = Buffer.from(electionBytes).toString('utf-8');
-      cy.request('PUT', 'http://localhost:3001/mock', {
-        enabled: true,
-        shortValue: JSON.stringify({
-          t: 'election_manager',
-          h: sha256(electionBytes),
-          p: PIN,
-        }),
-        longValue: electionData,
+      const electionData = Buffer.from(electionBytes);
+      const electionHash = sha256(electionBytes);
+      mockCardCypress({
+        cardStatus: {
+          status: 'ready',
+          user: {
+            role: 'election_manager',
+            electionHash,
+          },
+        },
+        data: electionData,
+        pin: PIN,
       });
     }
   );
@@ -28,9 +43,10 @@ function enterPin() {
 }
 
 function removeCard() {
-  cy.request('PUT', 'http://localhost:3001/mock', {
-    enabled: true,
-    hasCard: false,
+  mockCardCypress({
+    cardStatus: {
+      status: 'no_card',
+    },
   });
 }
 
