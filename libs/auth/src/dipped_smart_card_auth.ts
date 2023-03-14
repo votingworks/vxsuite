@@ -384,97 +384,93 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
 
     switch (action.type) {
       case 'check_card_reader': {
-        const newAuthStatus = ((): DippedSmartCardAuthTypes.AuthStatus => {
-          switch (currentAuthStatus.status) {
-            case 'logged_out': {
-              switch (action.cardStatus.status) {
-                // TODO: Consider an alternative screen on the frontend for unknown errors
-                case 'no_card':
-                case 'unknown_error': {
-                  return { status: 'logged_out', reason: 'machine_locked' };
-                }
-
-                case 'card_error': {
-                  return { status: 'logged_out', reason: 'card_error' };
-                }
-
-                case 'ready': {
-                  const { user } = action.cardStatus;
-                  const validationResult = this.validateCardUser(
-                    machineState,
-                    user
-                  );
-                  if (validationResult.isOk()) {
-                    assert(
-                      user &&
-                        (user.role === 'system_administrator' ||
-                          user.role === 'election_manager')
-                    );
-                    return isFeatureFlagEnabled(
-                      BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
-                    )
-                      ? { status: 'remove_card', user }
-                      : { status: 'checking_pin', user };
-                  }
-                  return {
-                    status: 'logged_out',
-                    reason: validationResult.err(),
-                    cardUserRole: user?.role,
-                  };
-                }
-
-                /* istanbul ignore next: Compile-time check for completeness */
-                default: {
-                  return throwIllegalValue(action.cardStatus, 'status');
-                }
-              }
-            }
-
-            case 'checking_pin': {
-              if (action.cardStatus.status === 'no_card') {
+        switch (currentAuthStatus.status) {
+          case 'logged_out': {
+            switch (action.cardStatus.status) {
+              // TODO: Consider an alternative screen on the frontend for unknown errors
+              case 'no_card':
+              case 'unknown_error': {
                 return { status: 'logged_out', reason: 'machine_locked' };
               }
-              return currentAuthStatus;
-            }
 
-            case 'remove_card': {
-              if (action.cardStatus.status === 'no_card') {
-                const { user } = currentAuthStatus;
-                if (user.role === 'system_administrator') {
-                  return {
-                    status: 'logged_in',
-                    user,
-                    programmableCard: cardStatusToProgrammableCard(
-                      action.cardStatus
-                    ),
-                  };
-                }
-                return { status: 'logged_in', user };
+              case 'card_error': {
+                return { status: 'logged_out', reason: 'card_error' };
               }
-              return currentAuthStatus;
-            }
 
-            case 'logged_in': {
+              case 'ready': {
+                const { user } = action.cardStatus;
+                const validationResult = this.validateCardUser(
+                  machineState,
+                  user
+                );
+                if (validationResult.isOk()) {
+                  assert(
+                    user &&
+                      (user.role === 'system_administrator' ||
+                        user.role === 'election_manager')
+                  );
+                  return isFeatureFlagEnabled(
+                    BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
+                  )
+                    ? { status: 'remove_card', user }
+                    : { status: 'checking_pin', user };
+                }
+                return {
+                  status: 'logged_out',
+                  reason: validationResult.err(),
+                  cardUserRole: user?.role,
+                };
+              }
+
+              /* istanbul ignore next: Compile-time check for completeness */
+              default: {
+                return throwIllegalValue(action.cardStatus, 'status');
+              }
+            }
+          }
+
+          case 'checking_pin': {
+            if (action.cardStatus.status === 'no_card') {
+              return { status: 'logged_out', reason: 'machine_locked' };
+            }
+            return currentAuthStatus;
+          }
+
+          case 'remove_card': {
+            if (action.cardStatus.status === 'no_card') {
               const { user } = currentAuthStatus;
               if (user.role === 'system_administrator') {
                 return {
-                  ...currentAuthStatus,
+                  status: 'logged_in',
+                  user,
                   programmableCard: cardStatusToProgrammableCard(
                     action.cardStatus
                   ),
                 };
               }
-              return currentAuthStatus;
+              return { status: 'logged_in', user };
             }
-
-            /* istanbul ignore next: Compile-time check for completeness */
-            default: {
-              throwIllegalValue(currentAuthStatus, 'status');
-            }
+            return currentAuthStatus;
           }
-        })();
 
-        return newAuthStatus;
+          case 'logged_in': {
+            const { user } = currentAuthStatus;
+            if (user.role === 'system_administrator') {
+              return {
+                ...currentAuthStatus,
+                programmableCard: cardStatusToProgrammableCard(
+                  action.cardStatus
+                ),
+              };
+            }
+            return currentAuthStatus;
+          }
+
+          /* istanbul ignore next: Compile-time check for completeness */
+          default: {
+            return throwIllegalValue(currentAuthStatus, 'status');
+          }
+        }
       }
 
       case 'check_pin': {

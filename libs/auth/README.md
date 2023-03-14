@@ -11,18 +11,18 @@ For methods that transition auth status, e.g. `checkPin`, `logOut`,
 `startCardlessVoterSession`, `endCardlessVoterSession`:
 
 - Use `assert` / throw errors for states incompatible with the static config
-  (`this.config`)
+  (`this.config`).
 - For other incompatible states (e.g. trying to check PIN when you're not in the
   PIN-checking state or trying to start a cardless voter session when you're not
   logged in as a poll worker), just ignore the request and leave the auth status
-  unchanged
+  unchanged.
 
 For card reading and writing methods, e.g. `programCard`, `unprogramCard`,
 `readCardData`, `writeCardData`:
 
 - Use `assert` / throw errors for states incompatible with the static config
-  (`this.config`)
-- Otherwise, return an error `Result` instead of throwing
+  (`this.config`).
+- Otherwise, return an error `Result` instead of throwing.
 - Methods that can perform access checks themselves should (e.g. `programCard`
   should check if you're logged in as a system administrator and return an error
   `Result` if need be). Methods that can't perform access checks themselves

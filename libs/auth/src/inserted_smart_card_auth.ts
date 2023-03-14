@@ -328,63 +328,56 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
 
     switch (action.type) {
       case 'check_card_reader': {
-        const newAuthStatus = ((): InsertedSmartCardAuthTypes.AuthStatus => {
-          switch (action.cardStatus.status) {
-            // TODO: Consider an alternative screen on the frontend for unknown errors
-            case 'no_card':
-            case 'unknown_error': {
-              return { status: 'logged_out', reason: 'no_card' };
-            }
+        switch (action.cardStatus.status) {
+          // TODO: Consider an alternative screen on the frontend for unknown errors
+          case 'no_card':
+          case 'unknown_error': {
+            return { status: 'logged_out', reason: 'no_card' };
+          }
 
-            case 'card_error': {
-              return { status: 'logged_out', reason: 'card_error' };
-            }
+          case 'card_error': {
+            return { status: 'logged_out', reason: 'card_error' };
+          }
 
-            case 'ready': {
-              const { user } = action.cardStatus;
-              const validationResult = this.validateCardUser(
-                machineState,
-                user
-              );
-              if (validationResult.isOk()) {
-                assert(user);
-                if (currentAuthStatus.status === 'logged_out') {
-                  if (user.role === 'system_administrator') {
-                    return isFeatureFlagEnabled(
-                      BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
-                    )
-                      ? { status: 'logged_in', user }
-                      : { status: 'checking_pin', user };
-                  }
-                  if (user.role === 'election_manager') {
-                    return isFeatureFlagEnabled(
-                      BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
-                    )
-                      ? { status: 'logged_in', user }
-                      : { status: 'checking_pin', user };
-                  }
-                  if (user.role === 'poll_worker') {
-                    return { status: 'logged_in', user };
-                  }
+          case 'ready': {
+            const { user } = action.cardStatus;
+            const validationResult = this.validateCardUser(machineState, user);
+            if (validationResult.isOk()) {
+              assert(user);
+              if (currentAuthStatus.status === 'logged_out') {
+                if (user.role === 'system_administrator') {
+                  return isFeatureFlagEnabled(
+                    BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
+                  )
+                    ? { status: 'logged_in', user }
+                    : { status: 'checking_pin', user };
+                }
+                if (user.role === 'election_manager') {
+                  return isFeatureFlagEnabled(
+                    BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
+                  )
+                    ? { status: 'logged_in', user }
+                    : { status: 'checking_pin', user };
+                }
+                if (user.role === 'poll_worker') {
                   return { status: 'logged_in', user };
                 }
-                return currentAuthStatus;
+                return { status: 'logged_in', user };
               }
-              return {
-                status: 'logged_out',
-                reason: validationResult.err(),
-                cardUserRole: user?.role,
-              };
+              return currentAuthStatus;
             }
-
-            /* istanbul ignore next: Compile-time check for completeness */
-            default: {
-              throwIllegalValue(action.cardStatus, 'status');
-            }
+            return {
+              status: 'logged_out',
+              reason: validationResult.err(),
+              cardUserRole: user?.role,
+            };
           }
-        })();
 
-        return newAuthStatus;
+          /* istanbul ignore next: Compile-time check for completeness */
+          default: {
+            return throwIllegalValue(action.cardStatus, 'status');
+          }
+        }
       }
 
       case 'check_pin': {
