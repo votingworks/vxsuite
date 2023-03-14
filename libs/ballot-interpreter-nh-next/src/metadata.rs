@@ -5,13 +5,14 @@ use std::{
 
 use serde::Serialize;
 
-use crate::{
-    geometry::Rect,
-    timing_marks::{Complete, Partial},
-};
+use crate::{ballot_card::Geometry, geometry::Rect};
 
 /// Expected number of metadata bits encoded in the bottom row of a ballot card.
 pub const METADATA_BITS: usize = 32;
+
+/// Expected number of timing marks comprising the border of a ballot card that
+/// encodes the metadata.
+pub const METADATA_BORDER_MARK_COUNT: usize = METADATA_BITS + 2;
 
 /// Ending sequence of bits encoded on the back of a ballot card.
 pub const ENDER_CODE: [bool; 11] = [
@@ -179,52 +180,47 @@ pub enum BallotPageMetadataError {
 
 /// Computes the metadata bits from the bottom row of a ballot page.
 pub fn compute_bits_from_bottom_timing_marks(
-    partial_timing_marks: &[Rect],
-    complete_timing_marks: &[Rect],
+    geometry: &Geometry,
+    bottom_timing_marks: &[Option<Rect>],
 ) -> Result<[bool; METADATA_BITS], BallotPageMetadataError> {
-    if complete_timing_marks.len() != 34 {
+    // Validate the number of timing marks.
+    if bottom_timing_marks.len() != geometry.grid_size.width as usize
+        || geometry.grid_size.width as usize != METADATA_BORDER_MARK_COUNT
+    {
         return Err(BallotPageMetadataError::InvalidTimingMarkCount {
-            expected: 34,
-            actual: complete_timing_marks.len(),
+            expected: geometry.grid_size.width as usize,
+            actual: bottom_timing_marks.len(),
         });
     }
 
-    if partial_timing_marks.len() < 2 {
-        return Err(BallotPageMetadataError::InvalidTimingMarkCount {
-            expected: 2,
-            actual: partial_timing_marks.len(),
-        });
-    }
-
-    let mut bits = [false; METADATA_BITS];
-
-    let mut partial_iter = partial_timing_marks.iter().rev();
-    let mut complete_iter = complete_timing_marks.iter().rev();
-
-    // Skip the last timing mark.
-    complete_iter.next();
-    partial_iter.next();
-
-    let (Some(mut current_complete), Some(mut current_partial)) =
-        (complete_iter.next(), partial_iter.next()) else {
-            unreachable!("There are at least 2 partial timing marks.");
-        };
-
-    for bit in &mut bits {
-        if current_complete == current_partial {
-            *bit = true;
-            current_partial = match partial_iter.next() {
-                Some(partial) => partial,
-                None => break,
-            };
+    // The first and last timing marks must be present.
+    match (bottom_timing_marks.first(), bottom_timing_marks.last()) {
+        (Some(Some(_)), Some(Some(_))) => {}
+        _ => {
+            return Err(BallotPageMetadataError::InvalidTimingMarkCount {
+                expected: 2,
+                actual: bottom_timing_marks
+                    .iter()
+                    .filter(|&mark| mark.is_some())
+                    .count(),
+            });
         }
-        current_complete = complete_iter.next().map_or_else(
-            || unreachable!("There should be 34 complete timing marks."),
-            |complete| complete,
-        );
     }
 
-    Ok(bits)
+    let bits: Vec<bool> = bottom_timing_marks
+        .iter()
+        .skip(1)
+        .take(METADATA_BITS)
+        .map(|timing_mark| timing_mark.is_some())
+        .rev()
+        .collect();
+
+    let bit_count = bits.len();
+    bits.try_into()
+        .map_err(|_| BallotPageMetadataError::InvalidTimingMarkCount {
+            expected: METADATA_BITS,
+            actual: bit_count,
+        })
 }
 
 /// Decodes the metadata bits assuming it's the front page of a ballot card.
@@ -336,13 +332,10 @@ pub fn decode_back_metadata_from_bits(
 /// between the partial and complete timing marks to determine the metadata
 /// bits.
 pub fn decode_metadata_from_timing_marks(
-    partial_timing_marks: &Partial,
-    complete_timing_marks: &Complete,
+    geometry: &Geometry,
+    bottom_timing_marks: &[Option<Rect>],
 ) -> Result<BallotPageMetadata, BallotPageMetadataError> {
-    let bits = compute_bits_from_bottom_timing_marks(
-        &partial_timing_marks.bottom_rects,
-        &complete_timing_marks.bottom_rects,
-    )?;
+    let bits = compute_bits_from_bottom_timing_marks(geometry, bottom_timing_marks)?;
 
     let front_metadata_result = decode_front_metadata_from_bits(&bits);
     let back_metadata_result = decode_back_metadata_from_bits(&bits);

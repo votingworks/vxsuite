@@ -188,7 +188,8 @@ pub fn find_timing_mark_grid(
     border_inset: Inset,
     debug: &mut ImageDebugWriter,
 ) -> Result<(TimingMarkGrid, Option<GrayImage>), Error> {
-    let candidate_timing_marks = find_timing_mark_shapes(geometry, img, debug);
+    let threshold = otsu_level(img);
+    let candidate_timing_marks = find_timing_mark_shapes(geometry, img, threshold, debug);
 
     let Some(partial_timing_marks) = find_partial_timing_marks_from_candidate_rects(
         geometry,
@@ -240,16 +241,24 @@ pub fn find_timing_mark_grid(
         })
     };
 
-    let metadata =
-        match decode_metadata_from_timing_marks(&partial_timing_marks, &complete_timing_marks) {
-            Ok(metadata) => metadata,
-            Err(error) => {
-                return Err(Error::InvalidMetadata {
-                    path: image_path.to_str().unwrap_or_default().to_string(),
-                    error,
-                })
-            }
-        };
+    let filled_bottom_timing_marks = find_actual_bottom_timing_marks(
+        &complete_timing_marks,
+        match normalized_img {
+            Some(ref img) => img,
+            None => img,
+        },
+        threshold,
+    );
+
+    let metadata = match decode_metadata_from_timing_marks(geometry, &filled_bottom_timing_marks) {
+        Ok(metadata) => metadata,
+        Err(error) => {
+            return Err(Error::InvalidMetadata {
+                path: image_path.to_str().unwrap_or_default().to_string(),
+                error,
+            })
+        }
+    };
 
     let scaled_size = Size {
         width: img.width(),
@@ -272,6 +281,46 @@ pub fn find_timing_mark_grid(
     });
 
     Ok((timing_mark_grid, normalized_img))
+}
+
+fn find_actual_bottom_timing_marks(
+    complete_timing_marks: &Complete,
+    image: &GrayImage,
+    threshold: u8,
+) -> Vec<Option<Rect>> {
+    complete_timing_marks
+        .bottom_rects
+        .par_iter()
+        .map(|rect| {
+            let Some(rect_within_image) = rect.intersect(&Rect::new(
+                0,
+                0,
+                image.width(),
+                image.height(),
+            )) else {
+                return None;
+            };
+
+            let rect_sub_image = GenericImageView::view(
+                image,
+                rect_within_image.left() as u32,
+                rect_within_image.top() as u32,
+                rect_within_image.width(),
+                rect_within_image.height(),
+            );
+            let rect_area = rect.width() * rect.height();
+            if rect_sub_image
+                .pixels()
+                .filter(|(_, _, luma)| luma.0[0] < threshold)
+                .count()
+                > (rect_area / 2) as usize
+            {
+                Some(*rect)
+            } else {
+                None
+            }
+        })
+        .collect()
 }
 
 /// Determines if the given contour is rectangular. This is not an exact test,
@@ -316,10 +365,9 @@ const BORDER_SIZE: u8 = 1;
 pub fn find_timing_mark_shapes(
     geometry: &Geometry,
     img: &GrayImage,
+    threshold: u8,
     debug: &ImageDebugWriter,
 ) -> Vec<Rect> {
-    let threshold = otsu_level(img);
-
     // `find_contours_with_threshold` does not consider timing marks on the edge
     // of the image to be contours, so we expand the image and add whitespace
     // around the edges to ensure no timing marks are on the edge of the image
