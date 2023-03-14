@@ -157,9 +157,18 @@ impl TimingMarkGrid {
             return None;
         }
 
+        let timing_mark_width = self.geometry.timing_mark_size.width.round() as u32;
         let left = self.complete_timing_marks.left_rects.get(row as usize)?;
         let right = self.complete_timing_marks.right_rects.get(row as usize)?;
-        let horizontal_segment = Segment::new(left.center(), right.center());
+        let corrected_left = Rect::new(
+            left.right() - timing_mark_width as i32,
+            left.top(),
+            timing_mark_width,
+            left.height(),
+        );
+        let corrected_right =
+            Rect::new(right.left(), right.top(), timing_mark_width, right.height());
+        let horizontal_segment = Segment::new(corrected_left.center(), corrected_right.center());
         let distance_percentage = column as f32 / (self.geometry.grid_size.width - 1) as f32;
         let Segment {
             start: _,
