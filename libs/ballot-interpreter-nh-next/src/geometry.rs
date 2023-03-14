@@ -102,6 +102,23 @@ impl Rect {
             self.top() as f32 + (self.bottom() as f32 - self.top() as f32) / 2.0,
         )
     }
+
+    pub fn intersect(&self, other: &Self) -> Option<Self> {
+        let left = self.left.max(other.left);
+        let top = self.top.max(other.top);
+        let right = self.right().min(other.right());
+        let bottom = self.bottom().min(other.bottom());
+        if left <= right && top <= bottom {
+            Some(Self::new(
+                left,
+                top,
+                (right - left + 1) as u32,
+                (bottom - top + 1) as u32,
+            ))
+        } else {
+            None
+        }
+    }
 }
 
 impl From<Rect> for imageproc::rect::Rect {
