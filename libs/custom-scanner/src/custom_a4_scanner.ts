@@ -442,8 +442,8 @@ export class CustomA4Scanner implements CustomScanner {
       }
 
       if (
-        ((scanSide & ScanSide.A) === 0 || a4Status.endScanSideA) &&
-        ((scanSide & ScanSide.B) === 0 || a4Status.endScanSideB)
+        ((scanSide & ScanSide.A) !== ScanSide.A || a4Status.endScanSideA) &&
+        ((scanSide & ScanSide.B) !== ScanSide.B || a4Status.endScanSideB)
       ) {
         if (a4Status.imageWidthSideA !== 0) {
           scannerImageA.imageWidth = a4Status.imageWidthSideA;
@@ -460,10 +460,7 @@ export class CustomA4Scanner implements CustomScanner {
         return ok('break');
       }
 
-      if (
-        (scanSide === ScanSide.A || scanSide === ScanSide.A_AND_B) &&
-        !a4Status.endScanSideA
-      ) {
+      if ((scanSide & ScanSide.A) === ScanSide.A && !a4Status.endScanSideA) {
         const processImageDataResult = await processImageData(ScanSide.A, {
           pageSize: a4Status.pageSizeSideA,
           imageWidth: a4Status.imageWidthSideA,
@@ -476,10 +473,7 @@ export class CustomA4Scanner implements CustomScanner {
         }
       }
 
-      if (
-        (scanSide === ScanSide.B || scanSide === ScanSide.A_AND_B) &&
-        !a4Status.endScanSideB
-      ) {
+      if ((scanSide & ScanSide.B) === ScanSide.B && !a4Status.endScanSideB) {
         const processImageDataResult = await processImageData(ScanSide.B, {
           pageSize: a4Status.pageSizeSideB,
           imageWidth: a4Status.imageWidthSideB,
