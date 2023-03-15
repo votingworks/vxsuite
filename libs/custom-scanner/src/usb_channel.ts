@@ -1,4 +1,4 @@
-import { err, ok, Result } from '@votingworks/basics';
+import { assert, err, ok, Result } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import { inspect } from 'util';
@@ -217,21 +217,19 @@ export class UsbChannel implements DuplexChannel {
    */
   private validateReadWriteEndpoints(): Result<void, ErrorCode> {
     const { configuration } = this.device;
-    /* istanbul ignore next - this shouldn't happen because of the `selectConfiguration` call in `connect` */
-    if (!configuration) {
-      debug('no selected configuration');
-      return err(ErrorCode.OpenDeviceError);
-    }
+    assert(
+      configuration,
+      'configuration should be set because of the `selectConfiguration` call in `connect`'
+    );
 
     const usbInterface = configuration.interfaces.find(
       ({ interfaceNumber }) => interfaceNumber === this.options.interfaceNumber
     );
 
-    /* istanbul ignore next - this shouldn't happen because of the `claimInterface` call in `connect` */
-    if (!usbInterface) {
-      debug('no interface at index %s', this.options.interfaceNumber);
-      return err(ErrorCode.OpenDeviceError);
-    }
+    assert(
+      usbInterface,
+      'interface should be set because of the `claimInterface` call in `connect`'
+    );
 
     const readEndpoint = usbInterface.alternate.endpoints.find(
       ({ endpointNumber, direction }) =>
