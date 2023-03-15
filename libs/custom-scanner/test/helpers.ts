@@ -3,7 +3,7 @@ import { DuplexChannelListeners, ProtocolListeners } from '../src/mocks';
 /**
  * Creates protocol listeners that are all Jest mocks.
  */
-export function makeProtocolListeners(): jest.MockedObject<ProtocolListeners> {
+export function makeProtocolListeners(): jest.Mocked<ProtocolListeners> {
   return {
     onReleaseVersionRequest: jest.fn(),
     onStatusInternalRequest: jest.fn(),
@@ -25,7 +25,7 @@ export function makeProtocolListeners(): jest.MockedObject<ProtocolListeners> {
 /**
  * Creates duplex channel listeners that are all Jest mocks.
  */
-export function makeDuplexChannelListeners(): jest.MockedObject<DuplexChannelListeners> {
+export function makeDuplexChannelListeners(): jest.Mocked<DuplexChannelListeners> {
   return {
     onConnect: jest.fn(),
     onDisconnect: jest.fn(),
