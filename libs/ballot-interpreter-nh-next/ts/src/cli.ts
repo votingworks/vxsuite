@@ -4,6 +4,7 @@ import {
   mapSheet,
   Optional,
   safeParseElectionDefinition,
+  safeParseJson,
   SheetOf,
 } from '@votingworks/types';
 import { jsonStream } from '@votingworks/utils';
@@ -182,6 +183,53 @@ async function interpretFiles(
   return 0;
 }
 
+function tryReadElectionFromElectionTable(
+  db: Sqlite3.Database
+): Optional<ElectionDefinition> {
+  try {
+    const electionData = (
+      db
+        .prepare('SELECT election_data as electionData FROM election LIMIT 1')
+        .get() as Optional<{ electionData: string }>
+    )?.electionData;
+
+    return electionData
+      ? safeParseElectionDefinition(electionData).ok()
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function tryReadElectionFromConfigTable(
+  db: Sqlite3.Database
+): Optional<ElectionDefinition> {
+  try {
+    const electionDefinitionJson = (
+      db
+        .prepare(
+          'SELECT value as electionDefinitionJson FROM configs where key = ?'
+        )
+        .get('election') as Optional<{ electionDefinitionJson: string }>
+    )?.electionDefinitionJson;
+
+    // this election data is unlikely to be valid, so parse non-strictly
+    return electionDefinitionJson
+      ? (safeParseJson(electionDefinitionJson).ok() as ElectionDefinition)
+      : undefined;
+  } catch (error) {
+    return undefined;
+  }
+}
+
+function readElectionDefinitionFromDatabase(
+  db: Sqlite3.Database
+): Optional<ElectionDefinition> {
+  return (
+    tryReadElectionFromElectionTable(db) ?? tryReadElectionFromConfigTable(db)
+  );
+}
+
 async function interpretWorkspace(
   workspacePath: string,
   {
@@ -207,20 +255,14 @@ async function interpretWorkspace(
   }
 
   const db = new Sqlite3(dbPath);
-  const { electionData } =
-    (db
-      .prepare('SELECT election_data as electionData FROM election LIMIT 1')
-      .get() as Optional<{ electionData: string }>) ?? {};
+  const electionDefinition = readElectionDefinitionFromDatabase(db);
 
-  if (!electionData) {
+  if (!electionDefinition) {
     stderr.write(
       `No election data found in workspace. Is the workspace configured?\n`
     );
     return 1;
   }
-
-  const electionDefinition =
-    safeParseElectionDefinition(electionData).unsafeUnwrap();
 
   const sheetIdsArray = [...sheetIds];
   const sheets = (
