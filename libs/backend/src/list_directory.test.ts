@@ -5,6 +5,7 @@ import {
   FileSystemEntryType,
   listDirectory,
   listDirectoryOnUsbDrive,
+  listDirectoryRecursive,
 } from './list_directory';
 
 jest.mock('./get_usb_drives');
@@ -13,9 +14,7 @@ const getUsbDrivesMock = mockOf(getUsbDrives);
 
 describe('listDirectory', () => {
   test('happy path', async () => {
-    const directory = tmp.dirSync({
-      dir: '/tmp',
-    });
+    const directory = tmp.dirSync();
     tmp.fileSync({ name: 'file-1', dir: directory.name });
     tmp.fileSync({ name: 'file-2', dir: directory.name });
     tmp.dirSync({
@@ -57,6 +56,47 @@ describe('listDirectory', () => {
     const listDirectoryResult = await listDirectory(file.name);
     expect(listDirectoryResult.isErr()).toBeTruthy();
     expect(listDirectoryResult.err()).toMatchObject({ type: 'not-directory' });
+  });
+});
+
+describe(listDirectoryRecursive, () => {
+  test('happy path', async () => {
+    const directory = tmp.dirSync();
+    tmp.fileSync({ name: 'file-1', dir: directory.name });
+    tmp.fileSync({ name: 'file-2', dir: directory.name });
+    const subDirectory = tmp.dirSync({
+      name: 'subdirectory',
+      dir: directory.name,
+    });
+    tmp.fileSync({ name: 'sub-file-2', dir: subDirectory.name });
+
+    const result = await listDirectoryRecursive(directory.name);
+    expect(result.isOk()).toBeTruthy();
+
+    expect(result.ok()).toMatchObject([
+      expect.objectContaining({
+        name: 'file-1',
+        type: FileSystemEntryType.File,
+      }),
+      expect.objectContaining({
+        name: 'file-2',
+        type: FileSystemEntryType.File,
+      }),
+      expect.objectContaining({
+        name: 'sub-file-2',
+        type: FileSystemEntryType.File,
+      }),
+      expect.objectContaining({
+        name: 'subdirectory',
+        type: FileSystemEntryType.Directory,
+      }),
+    ]);
+  });
+
+  test('bubbles up root errors', async () => {
+    const result = await listDirectoryRecursive('/tmp/no-entity');
+    expect(result.isErr()).toBeTruthy();
+    expect(result.err()).toMatchObject({ type: 'no-entity' });
   });
 });
 
