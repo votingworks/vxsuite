@@ -38,7 +38,7 @@ export async function openScanner(): Promise<Result<CustomScanner, ErrorCode>> {
 
   try {
     debug('found device: %o', legacyDevice);
-    const customA4ScannerDevice = new UsbChannel(
+    const customA4ScannerChannel = new UsbChannel(
       await WebUSBDevice.createInstance(legacyDevice),
       {
         configurationValue: 1,
@@ -47,7 +47,7 @@ export async function openScanner(): Promise<Result<CustomScanner, ErrorCode>> {
         writeEndpointNumber: 2,
       }
     );
-    const connectResult = await customA4ScannerDevice.connect();
+    const connectResult = await customA4ScannerChannel.connect();
 
     if (connectResult.isErr()) {
       debug('connection error: %o', connectResult.err());
@@ -55,7 +55,7 @@ export async function openScanner(): Promise<Result<CustomScanner, ErrorCode>> {
     }
 
     debug('connected to device');
-    return ok(new CustomA4Scanner(customA4ScannerDevice));
+    return ok(new CustomA4Scanner(customA4ScannerChannel));
   } catch (error) {
     debug('unexpected error: %o', error);
     return err(ErrorCode.OpenDeviceError);
