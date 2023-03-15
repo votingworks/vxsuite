@@ -7,6 +7,7 @@ export * as standardCvrFile from './cvrFiles/standard.jsonl';
 export * as standardLiveCvrFile from './cvrFiles/standard.live.jsonl';
 export * as partial1CvrFile from './cvrFiles/partial1.jsonl';
 export * as partial2CvrFile from './cvrFiles/partial2.jsonl';
+export * as standardCdfCvrFile from './cdf-cvr-files/standard';
 
 export const cvrData = standardCvrsAsText();
 export const liveCvrsData = standardLiveCvrsAsText();
