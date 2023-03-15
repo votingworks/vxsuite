@@ -1,14 +1,28 @@
 import { methodUrl } from '@votingworks/grout';
 
+// Importing all of @votingworks/auth causes Cypress tests to fail since Cypress doesn't seem to
+// interact well with PCSC Lite card reader code
+// eslint-disable-next-line vx/no-import-workspace-subfolders
+import {
+  mockCard,
+  MockFileContents,
+} from '@votingworks/auth/src/mock_file_card';
+
 const PIN = '000000';
 
+function mockCardCypress(mockFileContents: MockFileContents): void {
+  mockCard(mockFileContents, cy.writeFile);
+}
+
 export function mockSystemAdministratorCardInsertion(): void {
-  cy.request('PUT', 'http://localhost:3001/mock', {
-    enabled: true,
-    shortValue: JSON.stringify({
-      t: 'system_administrator',
-      p: PIN,
-    }),
+  mockCardCypress({
+    cardStatus: {
+      status: 'ready',
+      user: {
+        role: 'system_administrator',
+      },
+    },
+    pin: PIN,
   });
 }
 
@@ -19,14 +33,16 @@ export function mockElectionManagerCardInsertion({
   electionData: string;
   electionHash: string;
 }): void {
-  cy.request('PUT', 'http://localhost:3001/mock', {
-    enabled: true,
-    shortValue: JSON.stringify({
-      t: 'election_manager',
-      h: electionHash,
-      p: PIN,
-    }),
-    longValue: electionData,
+  mockCardCypress({
+    cardStatus: {
+      status: 'ready',
+      user: {
+        role: 'election_manager',
+        electionHash,
+      },
+    },
+    data: Buffer.from(electionData, 'utf-8'),
+    pin: PIN,
   });
 }
 
@@ -38,9 +54,10 @@ export function enterPin(): void {
 }
 
 export function mockCardRemoval(): void {
-  cy.request('PUT', 'http://localhost:3001/mock', {
-    enabled: true,
-    hasCard: false,
+  mockCardCypress({
+    cardStatus: {
+      status: 'no_card',
+    },
   });
 }
 

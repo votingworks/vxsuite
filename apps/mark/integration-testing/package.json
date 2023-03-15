@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@testing-library/cypress": "^8.0.3",
+    "@votingworks/auth": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/test-utils": "workspace:*",

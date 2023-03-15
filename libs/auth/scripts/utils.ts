@@ -29,9 +29,9 @@ export function runCommand(command: string[]): string {
   assert(command[0] !== undefined);
   const { status, stderr, stdout } = spawnSync(command[0], command.slice(1));
   if (status !== 0) {
-    throw new Error(stderr.toString());
+    throw new Error(stderr.toString('utf-8'));
   }
-  return stdout.toString();
+  return stdout.toString('utf-8');
 }
 
 /**

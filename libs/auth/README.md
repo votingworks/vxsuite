@@ -90,6 +90,21 @@ reader at a time, so make sure you quit any locally running backends before you
 try to run the above scripts. Even if you don't think any backends are running,
 you might have to `ps aux | grep node` for lingering Node processes.
 
+### Card Mocking Script
+
+If you'd like to mock cards during local development (instead of using a real
+card reader), add `REACT_APP_VX_USE_MOCK_CARDS=TRUE` to your `.env.local` and
+use this script:
+
+```
+./scripts/mock-card
+```
+
+The script prints a detailed usage/help message.
+
+Note that, when `REACT_APP_VX_USE_MOCK_CARDS=TRUE`, real smart cards will not
+work.
+
 ### Dev Keys and Certs Generation Script
 
 This script generates the dev keys and certs located in `./certs/dev/`. We

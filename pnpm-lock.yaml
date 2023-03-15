@@ -550,6 +550,7 @@ importers:
       '@types/node': ^18.0.6
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/auth': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/grout': workspace:*
       '@votingworks/test-utils': workspace:*
@@ -575,6 +576,7 @@ importers:
       typescript: 4.6.3
     dependencies:
       '@testing-library/cypress': 8.0.3_cypress@10.3.1
+      '@votingworks/auth': link:../../../libs/auth
       '@votingworks/fixtures': link:../../../libs/fixtures
       '@votingworks/grout': link:../../../libs/grout
       '@votingworks/test-utils': link:../../../libs/test-utils
@@ -966,6 +968,7 @@ importers:
       '@testing-library/cypress': ^8.0.3
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/auth': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/grout': workspace:*
       buffer: ^6.0.3
@@ -992,6 +995,7 @@ importers:
       typescript: 4.6.3
     dependencies:
       '@testing-library/cypress': 8.0.3_cypress@10.3.1
+      '@votingworks/auth': link:../../../libs/auth
       '@votingworks/fixtures': link:../../../libs/fixtures
       '@votingworks/grout': link:../../../libs/grout
       buffer: 6.0.3
@@ -1356,6 +1360,7 @@ importers:
       '@types/node': ^18.0.6
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/auth': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/grout': workspace:*
       '@votingworks/test-utils': workspace:*
@@ -1381,6 +1386,7 @@ importers:
       typescript: 4.6.3
     dependencies:
       '@testing-library/cypress': 8.0.3_cypress@10.3.1
+      '@votingworks/auth': link:../../../libs/auth
       '@votingworks/fixtures': link:../../../libs/fixtures
       '@votingworks/grout': link:../../../libs/grout
       '@votingworks/test-utils': link:../../../libs/test-utils
@@ -1865,9 +1871,11 @@ importers:
       '@types/jest': ^27.0.3
       '@types/node-fetch': ^2.6.0
       '@types/uuid': ^9.0.1
+      '@types/yargs': ^17.0.22
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/basics': workspace:*
+      '@votingworks/fixtures': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
@@ -1895,9 +1903,11 @@ importers:
       ts-jest: ^27.0.7
       typescript: 4.6.3
       uuid: ^9.0.0
+      yargs: ^17.7.1
       zod: 3.14.4
     dependencies:
       '@votingworks/basics': link:../basics
+      '@votingworks/fixtures': link:../fixtures
       '@votingworks/logging': link:../logging
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
@@ -1906,11 +1916,13 @@ importers:
       node-fetch: 2.6.7
       pcsclite: 1.0.1
       uuid: 9.0.0
+      yargs: 17.7.1
       zod: 3.14.4
     devDependencies:
       '@types/jest': 27.4.1
       '@types/node-fetch': 2.6.2
       '@types/uuid': 9.0.1
+      '@types/yargs': 17.0.22
       '@typescript-eslint/eslint-plugin': 5.37.0_clqnhij63k7sxivgn64qsibvv4
       '@typescript-eslint/parser': 5.37.0_2owex2qphpdtje5ztrbqluisqa
       '@votingworks/test-utils': link:../test-utils
@@ -8201,7 +8213,7 @@ packages:
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
       '@types/node': 18.11.18
-      '@types/yargs': 17.0.12
+      '@types/yargs': 17.0.22
       chalk: 4.1.2
 
   /@jest/types/29.4.3:
@@ -8212,7 +8224,7 @@ packages:
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
       '@types/node': 18.11.18
-      '@types/yargs': 17.0.12
+      '@types/yargs': 17.0.22
       chalk: 4.1.2
 
   /@joshwooding/vite-plugin-react-docgen-typescript/0.2.1_gl4qsmwzp7wy5uclz4tx77gbli:
@@ -10595,6 +10607,12 @@ packages:
 
   /@types/yargs/17.0.12:
     resolution: {integrity: sha512-Nz4MPhecOFArtm81gFQvQqdV7XYCrWKx5uUt6GNHredFHn1i2mtWqXTON7EPXMtNi1qjtjEM/VCHDhcHsAMLXQ==}
+    dependencies:
+      '@types/yargs-parser': 21.0.0
+    dev: true
+
+  /@types/yargs/17.0.22:
+    resolution: {integrity: sha512-pet5WJ9U8yPVRhkwuEIp5ktAeAqRZOq4UdAyWLWzxbtpyXnzbtLdKiXAjJzi/KLmPGS9wk86lUFWZFN6sISo4g==}
     dependencies:
       '@types/yargs-parser': 21.0.0
 
@@ -21048,7 +21066,7 @@ packages:
       jest-util: 28.1.3
       jest-validate: 28.1.3
       prompts: 2.4.2
-      yargs: 17.6.0
+      yargs: 17.7.1
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
@@ -21076,7 +21094,7 @@ packages:
       jest-util: 28.1.3
       jest-validate: 28.1.3
       prompts: 2.4.2
-      yargs: 17.6.0
+      yargs: 17.7.1
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
@@ -21104,7 +21122,7 @@ packages:
       jest-util: 28.1.3
       jest-validate: 28.1.3
       prompts: 2.4.2
-      yargs: 17.6.0
+      yargs: 17.7.1
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
@@ -21132,7 +21150,7 @@ packages:
       jest-util: 29.4.2
       jest-validate: 29.4.2
       prompts: 2.4.2
-      yargs: 17.6.0
+      yargs: 17.7.1
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
@@ -21160,7 +21178,7 @@ packages:
       jest-util: 29.4.2
       jest-validate: 29.4.2
       prompts: 2.4.2
-      yargs: 17.6.0
+      yargs: 17.7.1
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
@@ -21188,7 +21206,7 @@ packages:
       jest-util: 29.4.2
       jest-validate: 29.4.2
       prompts: 2.4.2
-      yargs: 17.6.0
+      yargs: 17.7.1
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
@@ -21216,7 +21234,7 @@ packages:
       jest-util: 29.4.3
       jest-validate: 29.4.3
       prompts: 2.4.2
-      yargs: 17.6.0
+      yargs: 17.7.1
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
@@ -32702,6 +32720,18 @@ packages:
 
   /yargs/17.6.0:
     resolution: {integrity: sha512-8H/wTDqlSwoSnScvV2N/JHfLWOKuh5MVla9hqLjK3nsfyy6Y4kDSYSvkU5YCUEPOSnRXfIyx3Sq+B/IWudTo4g==}
+    engines: {node: '>=12'}
+    dependencies:
+      cliui: 8.0.1
+      escalade: 3.1.1
+      get-caller-file: 2.0.5
+      require-directory: 2.1.1
+      string-width: 4.2.3
+      y18n: 5.0.8
+      yargs-parser: 21.1.1
+
+  /yargs/17.7.1:
+    resolution: {integrity: sha512-cwiTb08Xuv5fqF4AovYacTFNxk62th7LKJ6BL9IGUpTJrWoU7/7WdQGTP2SjKf1dUNBGzDd28p/Yfs/GI6JrLw==}
     engines: {node: '>=12'}
     dependencies:
       cliui: 8.0.1

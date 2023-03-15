@@ -1,7 +1,6 @@
 import { Buffer } from 'buffer';
 import { spawn } from 'child_process';
-import { existsSync } from 'fs';
-import * as fs from 'fs/promises';
+import { existsSync, promises as fs } from 'fs';
 import { v4 as uuid } from 'uuid';
 
 /**
@@ -71,7 +70,7 @@ export async function openssl(
         cleanupError = error;
       }
       if (code !== 0) {
-        reject(new Error(stderr.toString()));
+        reject(new Error(stderr.toString('utf-8')));
       } else if (cleanupError) {
         reject(cleanupError);
       } else {

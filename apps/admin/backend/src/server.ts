@@ -5,11 +5,13 @@ import {
   MemoryCard,
   JavaCard,
   constructDevJavaCardConfig,
+  MockFileCard,
 } from '@votingworks/auth';
 import { Server } from 'http';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
+  isIntegrationTest,
 } from '@votingworks/utils';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -35,15 +37,18 @@ export async function start({
   workspace,
 }: Partial<StartOptions>): Promise<Server> {
   const auth = new DippedSmartCardAuth({
-    card: isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS)
-      ? /* istanbul ignore next */
-        new JavaCard(
-          constructDevJavaCardConfig({
-            includeCardProgrammingConfig: true,
-            pathToAuthLibRoot: '../../../libs/auth',
-          })
-        )
-      : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
+    card:
+      isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
+      isIntegrationTest()
+        ? /* istanbul ignore next */ new MockFileCard()
+        : isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS)
+        ? /* istanbul ignore next */ new JavaCard(
+            constructDevJavaCardConfig({
+              includeCardProgrammingConfig: true,
+              pathToAuthLibRoot: '../../../libs/auth',
+            })
+          )
+        : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
     config: {
       allowElectionManagersToAccessUnconfiguredMachines: false,
     },

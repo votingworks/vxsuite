@@ -1,6 +1,7 @@
 declare namespace NodeJS {
   export interface ProcessEnv {
     NODE_ENV: 'development' | 'production' | 'test';
+    IS_INTEGRATION_TEST?: string;
     REACT_APP_VX_DEV?: string;
     REACT_APP_VX_DISABLE_CARD_READER_CHECK?: string;
     REACT_APP_VX_ENABLE_WRITE_IN_ADJUDICATION?: string;
@@ -10,6 +11,7 @@ declare namespace NodeJS {
     REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS?: string;
     REACT_APP_VX_SKIP_PIN_ENTRY?: string;
     REACT_APP_VX_ENABLE_JAVA_CARDS?: string;
+    REACT_APP_VX_USE_MOCK_CARDS?: string;
     REACT_APP_VX_CONVERTER?: string;
   }
 }

@@ -1,7 +1,6 @@
 import { Buffer } from 'buffer';
 import { spawn } from 'child_process';
-import { existsSync } from 'fs';
-import * as fs from 'fs/promises';
+import { existsSync, promises as fs } from 'fs';
 import { v4 as uuid } from 'uuid';
 import {
   fakeChildProcess as newMockChildProcess,
@@ -12,8 +11,14 @@ import {
 import { createCert, openssl } from './openssl';
 
 jest.mock('child_process');
-jest.mock('fs');
-jest.mock('fs/promises');
+jest.mock('fs', () => ({
+  existsSync: jest.fn(),
+  promises: {
+    mkdir: jest.fn(),
+    unlink: jest.fn(),
+    writeFile: jest.fn(),
+  },
+}));
 jest.mock('uuid');
 
 let mockChildProcess: MockChildProcess;
@@ -74,7 +79,7 @@ test('openssl', async () => {
     'command',
     fileBuffers[1],
   ]);
-  expect(response.toString()).toEqual('Hey! How is it going?');
+  expect(response.toString('utf-8')).toEqual('Hey! How is it going?');
 
   expect(existsSync).toHaveBeenCalledTimes(2);
   expect(existsSync).toHaveBeenNthCalledWith(1, '/tmp/openssl');
@@ -114,7 +119,7 @@ test('openssl - no Buffer params', async () => {
   });
 
   const response = await openssl(['some', 'command']);
-  expect(response.toString()).toEqual('Hey! How is it going?');
+  expect(response.toString('utf-8')).toEqual('Hey! How is it going?');
 
   expect(existsSync).toHaveBeenCalledTimes(0);
   expect(fs.mkdir).toHaveBeenCalledTimes(0);
