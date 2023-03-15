@@ -370,6 +370,42 @@ test('convert Election JSON adjacent', async () => {
   expect(content).not.toContain(`export async function asImage()`);
 });
 
+test('convert directory', async () => {
+  const electionPath = fileSync({ template: 'election-XXXXXX.json' }).name;
+  await fs.writeFile(electionPath, '{}');
+
+  const directory = dirSync({ template: 'dir-XXXXXX' });
+  const directoryPath = directory.name;
+
+  const stdio: Stdio = {
+    stdin: fakeReadable(),
+    stdout: fakeWritable(),
+    stderr: fakeWritable(),
+  };
+
+  const electionOutputPath = getOutputPath(electionPath);
+  const directoryOutputPath = getOutputPath(directoryPath);
+  const exitCode = await main(
+    ['node', '/path/to/res-to-ts', electionPath, `${directoryPath}*`],
+    stdio
+  );
+  expect({
+    exitCode,
+    stdout: stdio.stdout.toString(),
+    stderr: stdio.stderr.toString(),
+  }).toEqual({
+    exitCode: 0,
+    stdout: `📝 ${relativize(
+      electionOutputPath,
+      process.cwd()
+    )}\n📝 ${relativize(directoryOutputPath, process.cwd())}\n`,
+    stderr: '',
+  });
+
+  const content = await fs.readFile(directoryOutputPath, 'utf8');
+  expect(content).toContain('export function asDirectoryPath(): string {');
+});
+
 test('convert unknown type adjacent', async () => {
   const path = fileSync({ template: 'XXXXXX' }).name;
   await fs.writeFile(path, 'content');
