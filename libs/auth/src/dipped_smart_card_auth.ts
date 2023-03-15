@@ -4,7 +4,6 @@ import {
   ok,
   Result,
   throwIllegalValue,
-  wrapException,
 } from '@votingworks/basics';
 import {
   LogDispositionStandardTypes,
@@ -28,9 +27,11 @@ import {
   DippedSmartCardAuthMachineState,
 } from './dipped_smart_card_auth_api';
 
+type CheckPinResponseExtended = CheckPinResponse | { response: 'error' };
+
 type AuthAction =
   | { type: 'check_card_reader'; cardStatus: CardStatus }
-  | { type: 'check_pin'; checkPinResponse: CheckPinResponse }
+  | { type: 'check_pin'; checkPinResponse: CheckPinResponseExtended }
   | { type: 'log_out' };
 
 function cardStatusToProgrammableCard(
@@ -74,7 +75,7 @@ async function logAuthEventIfNecessary(
           newAuthStatus.cardUserRole ?? 'unknown',
           {
             disposition: LogDispositionStandardTypes.Failure,
-            message: `User failed login: ${newAuthStatus.reason}.`,
+            message: 'User failed login.',
             reason: newAuthStatus.reason,
           }
         );
@@ -112,6 +113,7 @@ async function logAuthEventIfNecessary(
             }
           );
         }
+        // PIN check errors are logged in checkPin, where we have access to the full error message
       }
       return;
     }
@@ -180,7 +182,19 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     input: { pin: string }
   ): Promise<void> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
-    const checkPinResponse = await this.card.checkPin(input.pin);
+    let checkPinResponse: CheckPinResponseExtended;
+    try {
+      checkPinResponse = await this.card.checkPin(input.pin);
+    } catch (error) {
+      const userRole =
+        'user' in this.authStatus ? this.authStatus.user.role : 'unknown';
+      const errorMessage = error instanceof Error ? error.message : error;
+      await this.logger.log(LogEventId.AuthPinEntry, userRole, {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: `Error checking PIN: ${errorMessage}.`,
+      });
+      checkPinResponse = { response: 'error' };
+    }
     await this.updateAuthStatus(machineState, {
       type: 'check_pin',
       checkPinResponse,
@@ -206,19 +220,32 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         programmedUserRole: input.userRole,
       }
     );
-    const result = await this.programCardBase(machineState, input);
+    let pin: string | undefined;
+    try {
+      pin = await this.programCardBase(machineState, input);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : error;
+      await this.logger.log(
+        LogEventId.SmartCardProgramComplete,
+        'system_administrator',
+        {
+          disposition: 'failure',
+          message: `Error programming ${input.userRole} smart card: ${errorMessage}.`,
+          programmedUserRole: input.userRole,
+        }
+      );
+      return err(new Error('Error programming card'));
+    }
     await this.logger.log(
       LogEventId.SmartCardProgramComplete,
       'system_administrator',
       {
-        disposition: result.isOk() ? 'success' : 'failure',
-        message: result.isOk()
-          ? `Successfully programmed ${input.userRole} smart card.`
-          : `Error programming ${input.userRole} smart card.`,
+        disposition: 'success',
+        message: `Successfully programmed ${input.userRole} smart card.`,
         programmedUserRole: input.userRole,
       }
     );
-    return result;
+    return ok({ pin });
   }
 
   async unprogramCard(
@@ -237,20 +264,31 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         programmedUserRole,
       }
     );
-    const result = await this.unprogramCardBase(machineState);
+    try {
+      await this.unprogramCardBase(machineState);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : error;
+      await this.logger.log(
+        LogEventId.SmartCardUnprogramComplete,
+        'system_administrator',
+        {
+          disposition: 'failure',
+          message: `Error unprogramming ${programmedUserRole} smart card: ${errorMessage}.`,
+          programmedUserRole,
+        }
+      );
+      return err(new Error('Error unprogramming card'));
+    }
     await this.logger.log(
       LogEventId.SmartCardUnprogramComplete,
       'system_administrator',
       {
-        disposition: result.isOk() ? 'success' : 'failure',
-        message: result.isOk()
-          ? `Successfully unprogrammed ${programmedUserRole} smart card.`
-          : `Error unprogramming ${programmedUserRole} smart card.`,
-        [result.isOk() ? 'previousProgrammedUserRole' : 'programmedUserRole']:
-          programmedUserRole,
+        disposition: 'success',
+        message: `Successfully unprogrammed ${programmedUserRole} smart card.`,
+        previousProgrammedUserRole: programmedUserRole,
       }
     );
-    return result;
+    return ok();
   }
 
   private async programCardBase(
@@ -259,71 +297,60 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       | { userRole: 'system_administrator' }
       | { userRole: 'election_manager'; electionData: string }
       | { userRole: 'poll_worker' }
-  ): Promise<Result<{ pin?: string }, Error>> {
+  ): Promise<string | undefined> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
     if (this.authStatus.status !== 'logged_in') {
-      return err(new Error('User is not logged in'));
+      throw new Error('User is not logged in');
     }
     if (this.authStatus.user.role !== 'system_administrator') {
-      return err(new Error('User is not a system administrator'));
+      throw new Error('User is not a system administrator');
     }
 
     const { electionHash } = machineState;
     const pin = generatePin();
-    try {
-      switch (input.userRole) {
-        case 'system_administrator': {
-          await this.card.program({
-            user: { role: 'system_administrator' },
-            pin,
-          });
-          break;
-        }
-        case 'election_manager': {
-          assert(electionHash !== undefined);
-          await this.card.program({
-            user: { role: 'election_manager', electionHash },
-            pin,
-            electionData: input.electionData,
-          });
-          break;
-        }
-        case 'poll_worker': {
-          assert(electionHash !== undefined);
-          await this.card.program({
-            user: { role: 'poll_worker', electionHash },
-            pin,
-          });
-          break;
-        }
-        /* istanbul ignore next: Compile-time check for completeness */
-        default: {
-          throwIllegalValue(input, 'userRole');
-        }
+    switch (input.userRole) {
+      case 'system_administrator': {
+        await this.card.program({
+          user: { role: 'system_administrator' },
+          pin,
+        });
+        return pin;
       }
-    } catch (error) {
-      return wrapException(error);
+      case 'election_manager': {
+        assert(electionHash !== undefined);
+        await this.card.program({
+          user: { role: 'election_manager', electionHash },
+          pin,
+          electionData: input.electionData,
+        });
+        return pin;
+      }
+      case 'poll_worker': {
+        assert(electionHash !== undefined);
+        await this.card.program({
+          user: { role: 'poll_worker', electionHash },
+        });
+        return undefined;
+      }
+      /* istanbul ignore next: Compile-time check for completeness */
+      default: {
+        throwIllegalValue(input, 'userRole');
+      }
     }
-    return ok({ pin });
   }
 
   private async unprogramCardBase(
     machineState: DippedSmartCardAuthMachineState
-  ): Promise<Result<void, Error>> {
+  ): Promise<void> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
     if (this.authStatus.status !== 'logged_in') {
-      return err(new Error('User is not logged in'));
+      throw new Error('User is not logged in');
     }
     if (this.authStatus.user.role !== 'system_administrator') {
-      return err(new Error('User is not a system administrator'));
+      throw new Error('User is not a system administrator');
     }
 
-    try {
-      await this.card.unprogram();
-    } catch (error) {
-      return wrapException(error);
-    }
-    return ok();
+    await this.card.unprogram();
   }
 
   private async checkCardReaderAndUpdateAuthStatus(
@@ -357,109 +384,117 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
 
     switch (action.type) {
       case 'check_card_reader': {
-        const newAuthStatus = ((): DippedSmartCardAuthTypes.AuthStatus => {
-          switch (currentAuthStatus.status) {
-            case 'logged_out': {
-              switch (action.cardStatus.status) {
-                // TODO: Consider an alternative screen on the frontend for unknown errors
-                case 'no_card':
-                case 'unknown_error': {
-                  return { status: 'logged_out', reason: 'machine_locked' };
-                }
-
-                case 'card_error': {
-                  return { status: 'logged_out', reason: 'card_error' };
-                }
-
-                case 'ready': {
-                  const { user } = action.cardStatus;
-                  const validationResult = this.validateCardUser(
-                    machineState,
-                    user
-                  );
-                  if (validationResult.isOk()) {
-                    assert(
-                      user &&
-                        (user.role === 'system_administrator' ||
-                          user.role === 'election_manager')
-                    );
-                    return isFeatureFlagEnabled(
-                      BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
-                    )
-                      ? { status: 'remove_card', user }
-                      : { status: 'checking_pin', user };
-                  }
-                  return {
-                    status: 'logged_out',
-                    reason: validationResult.err(),
-                    cardUserRole: user?.role,
-                  };
-                }
-
-                /* istanbul ignore next: Compile-time check for completeness */
-                default: {
-                  return throwIllegalValue(action.cardStatus, 'status');
-                }
-              }
-            }
-
-            case 'checking_pin': {
-              if (action.cardStatus.status === 'no_card') {
+        switch (currentAuthStatus.status) {
+          case 'logged_out': {
+            switch (action.cardStatus.status) {
+              // TODO: Consider an alternative screen on the frontend for unknown errors
+              case 'no_card':
+              case 'unknown_error': {
                 return { status: 'logged_out', reason: 'machine_locked' };
               }
-              return currentAuthStatus;
-            }
 
-            case 'remove_card': {
-              if (action.cardStatus.status === 'no_card') {
-                const { user } = currentAuthStatus;
-                if (user.role === 'system_administrator') {
-                  return {
-                    status: 'logged_in',
-                    user,
-                    programmableCard: cardStatusToProgrammableCard(
-                      action.cardStatus
-                    ),
-                  };
-                }
-                return { status: 'logged_in', user };
+              case 'card_error': {
+                return { status: 'logged_out', reason: 'card_error' };
               }
-              return currentAuthStatus;
-            }
 
-            case 'logged_in': {
+              case 'ready': {
+                const { user } = action.cardStatus;
+                const validationResult = this.validateCardUser(
+                  machineState,
+                  user
+                );
+                if (validationResult.isOk()) {
+                  assert(
+                    user &&
+                      (user.role === 'system_administrator' ||
+                        user.role === 'election_manager')
+                  );
+                  return isFeatureFlagEnabled(
+                    BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
+                  )
+                    ? { status: 'remove_card', user }
+                    : { status: 'checking_pin', user };
+                }
+                return {
+                  status: 'logged_out',
+                  reason: validationResult.err(),
+                  cardUserRole: user?.role,
+                };
+              }
+
+              /* istanbul ignore next: Compile-time check for completeness */
+              default: {
+                return throwIllegalValue(action.cardStatus, 'status');
+              }
+            }
+          }
+
+          case 'checking_pin': {
+            if (action.cardStatus.status === 'no_card') {
+              return { status: 'logged_out', reason: 'machine_locked' };
+            }
+            return currentAuthStatus;
+          }
+
+          case 'remove_card': {
+            if (action.cardStatus.status === 'no_card') {
               const { user } = currentAuthStatus;
               if (user.role === 'system_administrator') {
                 return {
-                  ...currentAuthStatus,
+                  status: 'logged_in',
+                  user,
                   programmableCard: cardStatusToProgrammableCard(
                     action.cardStatus
                   ),
                 };
               }
-              return currentAuthStatus;
+              return { status: 'logged_in', user };
             }
-
-            /* istanbul ignore next: Compile-time check for completeness */
-            default: {
-              throwIllegalValue(currentAuthStatus, 'status');
-            }
+            return currentAuthStatus;
           }
-        })();
 
-        return newAuthStatus;
+          case 'logged_in': {
+            const { user } = currentAuthStatus;
+            if (user.role === 'system_administrator') {
+              return {
+                ...currentAuthStatus,
+                programmableCard: cardStatusToProgrammableCard(
+                  action.cardStatus
+                ),
+              };
+            }
+            return currentAuthStatus;
+          }
+
+          /* istanbul ignore next: Compile-time check for completeness */
+          default: {
+            return throwIllegalValue(currentAuthStatus, 'status');
+          }
+        }
       }
 
       case 'check_pin': {
-        if (
-          currentAuthStatus.status !== 'checking_pin' ||
-          action.checkPinResponse.response === 'error'
-        ) {
+        if (currentAuthStatus.status !== 'checking_pin') {
           return currentAuthStatus;
         }
-        return action.checkPinResponse.response === 'correct'
-          ? { status: 'remove_card', user: currentAuthStatus.user }
-          : { ...currentAuthStatus, wrongPinEnteredAt: new Date() };
+        switch (action.checkPinResponse.response) {
+          case 'correct': {
+            return { status: 'remove_card', user: currentAuthStatus.user };
+          }
+          case 'incorrect': {
+            return {
+              ...currentAuthStatus,
+              error: undefined,
+              wrongPinEnteredAt: new Date(),
+            };
+          }
+          case 'error': {
+            return { ...currentAuthStatus, error: true };
+          }
+          default: {
+            return throwIllegalValue(action.checkPinResponse, 'response');
+          }
+        }
       }
 
       case 'log_out': {

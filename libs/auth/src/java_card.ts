@@ -212,7 +212,7 @@ export class JavaCard implements Card {
           ),
         };
       }
-      return { response: 'error' };
+      throw error;
     }
     return { response: 'correct' };
   }

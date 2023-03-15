@@ -174,22 +174,20 @@ const MachineShutdownCompleteEvent: LogDetails = {
 const AuthPinEntryEvent: LogDetails = {
   eventId: LogEventId.AuthPinEntry,
   eventType: LogEventType.UserAction,
-  documentationMessage: 'A user attempted to enter a PIN to log in.',
+  documentationMessage: 'A user entered a PIN to log in.',
 };
 
 const AuthLoginEvent: LogDetails = {
   eventId: LogEventId.AuthLogin,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'A user attempted to log in. Disposition is success if they logged in, failure if not. An optional reason may be provided.',
-  defaultMessage: 'User logged in.',
+    'A user logged in (or failed to log in). An optional reason key may be provided for failures.',
 };
 
 const AuthLogoutEvent: LogDetails = {
   eventId: LogEventId.AuthLogout,
   eventType: LogEventType.UserAction,
-  documentationMessage: 'A user logged out.',
-  defaultMessage: 'User logged out.',
+  documentationMessage: 'A user logged out (or failed to log out).',
 };
 
 const UsbDriveDetected: LogDetails = {
@@ -359,7 +357,7 @@ const SmartCardProgramComplete: LogDetails = {
   eventId: LogEventId.SmartCardProgramComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'A smart card has been programmed. The new smart card user role is indicated by the programmedUserRole key. Success or failure is indicated by the disposition.',
+    'A smart card has been programmed (or failed to be programmed). The new smart card user role is indicated by the programmedUserRole key.',
   restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
 const SmartCardUnprogramInit: LogDetails = {
@@ -373,9 +371,10 @@ const SmartCardUnprogramComplete: LogDetails = {
   eventId: LogEventId.SmartCardUnprogramComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'A smart card has been unprogrammed. The previous (or current in the case of failure) smart card user role is indicated by the previousProgrammedUserRole (or programmedUserRole in the case of failure) key. Success or failure is indicated by the disposition.',
+    'A smart card has been unprogrammed (or failed to be unprogrammed). The previous (or current in the case of failure) smart card user role is indicated by the previousProgrammedUserRole key (or programmedUserRole key in the case of failure).',
   restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
+
 const CvrLoaded: LogDetails = {
   eventId: LogEventId.CvrLoaded,
   eventType: LogEventType.UserAction,

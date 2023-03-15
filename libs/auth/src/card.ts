@@ -29,17 +29,12 @@ interface CheckPinResponseIncorrect {
   numRemainingAttempts: number;
 }
 
-interface CheckPinResponseError {
-  response: 'error';
-}
-
 /**
  * The response to a PIN check
  */
 export type CheckPinResponse =
   | CheckPinResponseCorrect
-  | CheckPinResponseIncorrect
-  | CheckPinResponseError;
+  | CheckPinResponseIncorrect;
 
 /**
  * The API for a smart card

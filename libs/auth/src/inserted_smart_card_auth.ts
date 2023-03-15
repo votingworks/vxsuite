@@ -34,9 +34,11 @@ import {
   InsertedSmartCardAuthMachineState,
 } from './inserted_smart_card_auth_api';
 
+type CheckPinResponseExtended = CheckPinResponse | { response: 'error' };
+
 type AuthAction =
   | { type: 'check_card_reader'; cardStatus: CardStatus }
-  | { type: 'check_pin'; checkPinResponse: CheckPinResponse };
+  | { type: 'check_pin'; checkPinResponse: CheckPinResponseExtended };
 
 /**
  * Given a previous auth status and a new auth status following an auth status transition, infers
@@ -64,7 +66,7 @@ async function logAuthEvent(
           newAuthStatus.cardUserRole ?? 'unknown',
           {
             disposition: LogDispositionStandardTypes.Failure,
-            message: `User failed login: ${newAuthStatus.reason}.`,
+            message: 'User failed login.',
             reason: newAuthStatus.reason,
           }
         );
@@ -106,6 +108,7 @@ async function logAuthEvent(
             }
           );
         }
+        // PIN check errors are logged in checkPin, where we have access to the full error message
       }
       return;
     }
@@ -127,7 +130,7 @@ async function logAuthEvent(
 }
 
 /**
- * An implementation of the dipped smart card auth API
+ * An implementation of the inserted smart card auth API
  *
  * TODO:
  * - Locking to avoid concurrent card writes
@@ -191,7 +194,19 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     input: { pin: string }
   ): Promise<void> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
-    const checkPinResponse = await this.card.checkPin(input.pin);
+    let checkPinResponse: CheckPinResponseExtended;
+    try {
+      checkPinResponse = await this.card.checkPin(input.pin);
+    } catch (error) {
+      const userRole =
+        'user' in this.authStatus ? this.authStatus.user.role : 'unknown';
+      const errorMessage = error instanceof Error ? error.message : error;
+      await this.logger.log(LogEventId.AuthPinEntry, userRole, {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: `Error checking PIN: ${errorMessage}.`,
+      });
+      checkPinResponse = { response: 'error' };
+    }
     await this.updateAuthStatus(machineState, {
       type: 'check_pin',
       checkPinResponse,
@@ -313,79 +328,83 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
 
     switch (action.type) {
       case 'check_card_reader': {
-        const newAuthStatus = ((): InsertedSmartCardAuthTypes.AuthStatus => {
-          switch (action.cardStatus.status) {
-            // TODO: Consider an alternative screen on the frontend for unknown errors
-            case 'no_card':
-            case 'unknown_error': {
-              return { status: 'logged_out', reason: 'no_card' };
-            }
+        switch (action.cardStatus.status) {
+          // TODO: Consider an alternative screen on the frontend for unknown errors
+          case 'no_card':
+          case 'unknown_error': {
+            return { status: 'logged_out', reason: 'no_card' };
+          }
 
-            case 'card_error': {
-              return { status: 'logged_out', reason: 'card_error' };
-            }
+          case 'card_error': {
+            return { status: 'logged_out', reason: 'card_error' };
+          }
 
-            case 'ready': {
-              const { user } = action.cardStatus;
-              const validationResult = this.validateCardUser(
-                machineState,
-                user
-              );
-              if (validationResult.isOk()) {
-                assert(user);
-                if (currentAuthStatus.status === 'logged_out') {
-                  if (user.role === 'system_administrator') {
-                    return isFeatureFlagEnabled(
-                      BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
-                    )
-                      ? { status: 'logged_in', user }
-                      : { status: 'checking_pin', user };
-                  }
-                  if (user.role === 'election_manager') {
-                    return isFeatureFlagEnabled(
-                      BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
-                    )
-                      ? { status: 'logged_in', user }
-                      : { status: 'checking_pin', user };
-                  }
-                  if (user.role === 'poll_worker') {
-                    return { status: 'logged_in', user };
-                  }
+          case 'ready': {
+            const { user } = action.cardStatus;
+            const validationResult = this.validateCardUser(machineState, user);
+            if (validationResult.isOk()) {
+              assert(user);
+              if (currentAuthStatus.status === 'logged_out') {
+                if (user.role === 'system_administrator') {
+                  return isFeatureFlagEnabled(
+                    BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
+                  )
+                    ? { status: 'logged_in', user }
+                    : { status: 'checking_pin', user };
+                }
+                if (user.role === 'election_manager') {
+                  return isFeatureFlagEnabled(
+                    BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
+                  )
+                    ? { status: 'logged_in', user }
+                    : { status: 'checking_pin', user };
+                }
+                if (user.role === 'poll_worker') {
                   return { status: 'logged_in', user };
                 }
-                return currentAuthStatus;
+                return { status: 'logged_in', user };
               }
-              return {
-                status: 'logged_out',
-                reason: validationResult.err(),
-                cardUserRole: user?.role,
-              };
+              return currentAuthStatus;
             }
-
-            /* istanbul ignore next: Compile-time check for completeness */
-            default: {
-              throwIllegalValue(action.cardStatus, 'status');
-            }
+            return {
+              status: 'logged_out',
+              reason: validationResult.err(),
+              cardUserRole: user?.role,
+            };
           }
-        })();
 
-        return newAuthStatus;
+          /* istanbul ignore next: Compile-time check for completeness */
+          default: {
+            return throwIllegalValue(action.cardStatus, 'status');
+          }
+        }
       }
 
       case 'check_pin': {
-        if (
-          currentAuthStatus.status !== 'checking_pin' ||
-          action.checkPinResponse.response === 'error'
-        ) {
+        if (currentAuthStatus.status !== 'checking_pin') {
           return currentAuthStatus;
         }
-        if (action.checkPinResponse.response === 'correct') {
-          if (currentAuthStatus.user.role === 'system_administrator') {
+        switch (action.checkPinResponse.response) {
+          case 'correct': {
+            if (currentAuthStatus.user.role === 'system_administrator') {
+              return { status: 'logged_in', user: currentAuthStatus.user };
+            }
             return { status: 'logged_in', user: currentAuthStatus.user };
           }
-          return { status: 'logged_in', user: currentAuthStatus.user };
+          case 'incorrect': {
+            return {
+              ...currentAuthStatus,
+              error: undefined,
+              wrongPinEnteredAt: new Date(),
+            };
+          }
+          case 'error': {
+            return { ...currentAuthStatus, error: true };
+          }
+          default: {
+            return throwIllegalValue(action.checkPinResponse, 'response');
+          }
         }
-        return { ...currentAuthStatus, wrongPinEnteredAt: new Date() };
       }
 
       /* istanbul ignore next: Compile-time check for completeness */
