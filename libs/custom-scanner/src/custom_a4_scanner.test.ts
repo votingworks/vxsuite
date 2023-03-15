@@ -741,34 +741,66 @@ test('move motor', async () => {
       expect(movement).toEqual(FormMovement.EJECT_PAPER_FORWARD);
       return ok({ jobId: 0x01 });
     },
+
+    onJobCreateRequest() {
+      return ok({ jobId: 0x01 });
+    },
   });
 
   expect(await scanner.move(FormMovement.EJECT_PAPER_FORWARD)).toEqual(ok());
 });
 
 test('move motor retries once on job error', async () => {
-  const { onFormMovementRequest } = makeProtocolListeners();
+  const { onFormMovementRequest, onJobCreateRequest } = makeProtocolListeners();
 
   onFormMovementRequest
     .mockReturnValueOnce(err(ResponseErrorCode.INVALID_JOB_ID))
     .mockReturnValueOnce(ok({ jobId: 0x01 }));
+  onJobCreateRequest
+    .mockReturnValueOnce(ok({ jobId: 0x01 }))
+    .mockReturnValueOnce(ok({ jobId: 0x01 }));
 
   const scanner = await scannerWithListeners({
     onFormMovementRequest,
+    onJobCreateRequest,
   });
 
   expect(await scanner.move(FormMovement.EJECT_PAPER_FORWARD)).toEqual(ok());
 });
 
+test('move motor gives up if it cannot create a job', async () => {
+  const { onFormMovementRequest, onJobCreateRequest, onJobEndRequest } =
+    makeProtocolListeners();
+
+  onFormMovementRequest.mockReturnValueOnce(
+    err(ResponseErrorCode.INVALID_COMMAND)
+  );
+  onJobCreateRequest.mockReturnValue(err(ResponseErrorCode.INVALID_JOB_ID));
+  onJobEndRequest.mockReturnValue(ok({ jobId: 0x01 }));
+
+  const scanner = await scannerWithListeners({
+    onFormMovementRequest,
+    onJobCreateRequest,
+    onJobEndRequest,
+  });
+
+  expect(await scanner.move(FormMovement.EJECT_PAPER_FORWARD)).toEqual(
+    err(ErrorCode.JobNotValid)
+  );
+});
+
 test('move motor never retries on non-job errors', async () => {
-  const { onFormMovementRequest } = makeProtocolListeners();
+  const { onFormMovementRequest, onJobCreateRequest } = makeProtocolListeners();
 
   onFormMovementRequest.mockReturnValueOnce(
     err(ResponseErrorCode.FORMAT_ERROR)
   );
 
+  onJobCreateRequest.mockReturnValueOnce(ok({ jobId: 0x01 }));
+
   const scanner = await scannerWithListeners({
     onFormMovementRequest,
+    onJobCreateRequest,
   });
 
   expect(await scanner.move(FormMovement.EJECT_PAPER_FORWARD)).toEqual(
@@ -792,6 +824,10 @@ test('scanner commands wait for each other', async () => {
   const scanner = await scannerWithListeners({
     onFormMovementRequest({ movement }) {
       events.push(`move request: ${FormMovement[movement]}`);
+      return ok({ jobId: 0x01 });
+    },
+
+    onJobCreateRequest() {
       return ok({ jobId: 0x01 });
     },
   });

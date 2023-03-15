@@ -747,6 +747,24 @@ test('resetHardware', async () => {
   );
 });
 
+test('resetHardware ignores clearHalt errors', async () => {
+  const { onRead, onWrite } = makeDuplexChannelListeners();
+  const channel = createDuplexChannelMock({ onRead, onWrite });
+  expect(await channel.connect()).toEqual(ok());
+
+  onRead.mockRejectedValueOnce(new Error('clearHalt error'));
+  expect(await resetHardware(channel, 0x01)).toEqual(ok());
+});
+
+test('resetHardware does not ignore other errors', async () => {
+  const { onRead, onWrite } = makeDuplexChannelListeners();
+  const channel = createDuplexChannelMock({ onRead, onWrite });
+  expect(await channel.connect()).toEqual(ok());
+
+  onRead.mockRejectedValueOnce(new Error('EOHNOES'));
+  await expect(resetHardware(channel, 0x01)).rejects.toThrowError('EOHNOES');
+});
+
 test('getImageData', async () => {
   await fc.assert(
     fc.asyncProperty(
