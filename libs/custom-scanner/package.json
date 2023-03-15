@@ -28,7 +28,6 @@
     "chalk": "^4.0.0",
     "debug": "^4.3.4",
     "usb": "^2.6.0",
-    "xstate": "^4.32.1",
     "zod": "3.14.4"
   },
   "devDependencies": {

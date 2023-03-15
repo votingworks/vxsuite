@@ -2447,7 +2447,6 @@ importers:
       typescript: 4.6.3
       usb: ^2.6.0
       vite: ^4.0.4
-      xstate: ^4.32.1
       zod: 3.14.4
     dependencies:
       '@votingworks/basics': link:../basics
@@ -2458,7 +2457,6 @@ importers:
       chalk: 4.1.2
       debug: 4.3.4
       usb: 2.8.3
-      xstate: 4.32.1
       zod: 3.14.4
     devDependencies:
       '@types/debug': 4.1.7
@@ -18947,16 +18945,6 @@ packages:
       inherits: 2.0.4
       readable-stream: 2.3.7
 
-  /follow-redirects/1.14.1:
-    resolution: {integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    dev: false
-
   /follow-redirects/1.14.1_debug@4.3.2:
     resolution: {integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==}
     engines: {node: '>=4.0'}
@@ -18967,6 +18955,18 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.2
+    dev: false
+
+  /follow-redirects/1.14.1_debug@4.3.4:
+    resolution: {integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dependencies:
+      debug: 4.3.4
     dev: false
 
   /for-each/0.3.3:
@@ -19924,7 +19924,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.1
+      follow-redirects: 1.14.1_debug@4.3.2
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
@@ -19935,7 +19935,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.1_debug@4.3.2
+      follow-redirects: 1.14.1_debug@4.3.4
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
