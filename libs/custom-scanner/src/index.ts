@@ -19,4 +19,3 @@ export {
   type ScanParameters,
 } from './types';
 export * from './types/custom_scanner';
-export * from './utils/status_watcher';
