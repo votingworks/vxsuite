@@ -525,10 +525,10 @@ class GetImageDataRequestScanSideCoder extends BaseCoder<ScanSide> {
     );
   }
 
-  /* istanbul ignore next -- this coder never decodes in the normal course of things */
   decodeFrom(buffer: Buffer, bitOffset: number): DecodeResult<ScanSide> {
     const decodeResult = this.internalCoder.decodeFrom(buffer, bitOffset);
 
+    /* istanbul ignore next */
     if (decodeResult.isErr()) {
       return decodeResult;
     }
@@ -542,6 +542,7 @@ class GetImageDataRequestScanSideCoder extends BaseCoder<ScanSide> {
       case GetImageDataRequestScanSideCoder.SideB:
         return ok({ value: ScanSide.B, bitOffset: decoded.bitOffset });
 
+      /* istanbul ignore next */
       default:
         return err('InvalidValue');
     }
