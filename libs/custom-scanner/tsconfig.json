@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.shared.json",
-  "include": ["src", "test"],
+  "include": ["src", "test", "examples"],
   "exclude": [],
   "compilerOptions": {
     "module": "commonjs",

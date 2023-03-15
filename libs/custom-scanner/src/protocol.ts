@@ -48,7 +48,12 @@ import {
 
 const debug = baseDebug.extend('protocol');
 
-/// Basic Protocol ///
+/**
+ * Basic protocol for communicating with the scanner. This is a low-level
+ * protocol that is used by the higher-level {@link CustomA4Scanner} class.
+ *
+ * See "Manuale comandi SCANNER.pdf" for details.
+ */
 
 /**
  * Generic acknowledgement response encoder/decoder.

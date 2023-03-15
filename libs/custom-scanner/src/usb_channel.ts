@@ -20,9 +20,32 @@ function truncateStringForDisplay(string: string, maxLength = 100): string {
  * Options for building a `UsbChannel`.
  */
 export interface UsbChannelOptions {
+  /**
+   * The `configurationValue` of the USB configuration to use.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/USBConfiguration/configurationValue
+   */
   readonly configurationValue: number;
+
+  /**
+   * The `interfaceNumber` of the USB interface to use.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/USBInterface
+   */
   readonly interfaceNumber: number;
+
+  /**
+   * The `endpointNumber` of the USB endpoint to use for reading.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/USBEndpoint
+   */
   readonly readEndpointNumber: number;
+
+  /**
+   * The `endpointNumber` of the USB endpoint to use for writing.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/USBEndpoint
+   */
   readonly writeEndpointNumber: number;
 }
 
@@ -35,7 +58,7 @@ export class UsbChannel implements DuplexChannel {
   private connected = false;
 
   /**
-   * @param device the underlying USB device
+   * @param device the underlying USB device (https://developer.mozilla.org/en-US/docs/Web/API/USBDevice)
    * @param options which USB configuration, interface, and endpoints to use
    */
   constructor(
