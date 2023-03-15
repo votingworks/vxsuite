@@ -7,6 +7,7 @@ import {
   constructDevJavaCardConfig,
   MockFileCard,
 } from '@votingworks/auth';
+import { getUsbDrives } from '@votingworks/backend';
 import { Server } from 'http';
 import {
   BooleanEnvironmentVariableName,
@@ -16,6 +17,7 @@ import {
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
+import { Usb } from './util/usb';
 
 /**
  * Options for starting the admin service.
@@ -78,6 +80,8 @@ export async function start({
   // clear any cached data
   resolvedWorkspace.clearUploads();
 
+  const usb: Usb = { getUsbDrives };
+
   /* istanbul ignore next */
   const resolvedApp =
     app ??
@@ -85,6 +89,7 @@ export async function start({
       auth,
       workspace: resolvedWorkspace,
       logger,
+      usb,
     });
 
   const server = resolvedApp.listen(port, async () => {

@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
-import { basename, join } from 'path';
+import { basename } from 'path';
 import moment from 'moment';
 
 import { Admin } from '@votingworks/api';
@@ -12,16 +12,13 @@ import {
   Prose,
   Button,
   ElectronFile,
+  useExternalStateChangeListener,
 } from '@votingworks/ui';
 import {
-  generateElectionBasedSubfolderName,
-  SCANNER_RESULTS_FOLDER,
-  usbstick,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { LogEventId } from '@votingworks/logging';
 
 import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
@@ -31,12 +28,11 @@ import {
 } from '../config/types';
 import { FileInputButton } from './file_input_button';
 import { TIME_FORMAT } from '../config/globals';
-
-import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
 import {
   addCastVoteRecordFile,
   getCastVoteRecordFileMode,
   getCastVoteRecordFiles,
+  listCastVoteRecordFilesOnUsb,
 } from '../api';
 
 const CvrFileTable = styled(Table)`
@@ -72,21 +68,17 @@ export interface Props {
 }
 
 export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
-  const { usbDrive, electionDefinition, auth, logger } = useContext(AppContext);
+  const { usbDrive, electionDefinition, auth } = useContext(AppContext);
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
+  const cvrFilesOnUsbQuery = listCastVoteRecordFilesOnUsb.useQuery();
   const addCastVoteRecordFileMutation = addCastVoteRecordFile.useMutation();
 
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) check permissions for loaded cvr
-  const userRole = auth.user.role;
   const [currentState, setCurrentState] = useState<ModalState>({
     state: 'init',
   });
-  const [foundFiles, setFoundFiles] = useState<
-    CastVoteRecordFilePreprocessedData[]
-  >([]);
-  const { election, electionHash } = electionDefinition;
 
   function importCastVoteRecordFile(path: string) {
     const filename = basename(path);
@@ -140,62 +132,15 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     importCastVoteRecordFile(file.path);
   };
 
-  async function fetchFilenames() {
-    setCurrentState({ state: 'loading' });
-    const usbPath = await usbstick.getPath();
-    try {
-      assert(typeof usbPath !== 'undefined');
-      assert(window.kiosk);
-      const files = await window.kiosk.getFileSystemEntries(
-        join(
-          usbPath,
-          SCANNER_RESULTS_FOLDER,
-          generateElectionBasedSubfolderName(election, electionHash)
-        )
-      );
-      const newFoundFiles = files.filter(
-        (f) => f.type === 1 && f.name.endsWith('.jsonl')
-      );
-      assert(electionDefinition !== undefined);
-      const parsedFileInformation =
-        CastVoteRecordFiles.parseAllFromFileSystemEntries(newFoundFiles).sort(
-          (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
-        );
-      setFoundFiles(parsedFileInformation);
-      await logger.log(LogEventId.CvrFilesReadFromUsb, userRole, {
-        message: `Found ${newFoundFiles.length} CVR files on USB drive, user shown option to load.`,
-        disposition: 'success',
-      });
-      setCurrentState({ state: 'init' });
-    } catch (err) {
-      assert(err instanceof Error);
-      if (err.message.includes('ENOENT')) {
-        // No files found
-        setFoundFiles([]);
-        setCurrentState({ state: 'init' });
-        await logger.log(LogEventId.CvrFilesReadFromUsb, userRole, {
-          message:
-            'No CVR files automatically found on USB drive. User allowed to load manually.',
-          disposition: 'success',
-          result: 'User allowed to manually select files.',
-        });
-      } else {
-        await logger.log(LogEventId.CvrFilesReadFromUsb, userRole, {
-          message: 'Error searching USB for CVR files.',
-          disposition: 'failure',
-          result: 'Error shown to user.',
-        });
-        throw err;
-      }
-    }
-  }
-
-  useEffect(() => {
+  // TODO: Rather than explicitly refetching, which is outside of the standard
+  // React Query pattern, we should invalidate the query on USB drive status
+  // change. Currently React Query is not managing USB drive status and polling
+  // is being performed elsewhere.
+  useExternalStateChangeListener(usbDrive.status, () => {
     if (usbDrive.status === 'mounted') {
-      void fetchFilenames();
+      void cvrFilesOnUsbQuery.refetch();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [usbDrive.status]);
+  });
 
   if (currentState.state === 'error') {
     return (
@@ -261,6 +206,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   if (
     !castVoteRecordFilesQuery.isSuccess ||
     !castVoteRecordFileModeQuery.isSuccess ||
+    !cvrFilesOnUsbQuery.isSuccess ||
     currentState.state === 'loading' ||
     usbDrive.status === 'ejecting' ||
     usbDrive.status === 'mounting'
@@ -324,7 +270,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     let numberOfNewFiles = 0;
     const cvrFiles = castVoteRecordFilesQuery.data;
     const importedFileNames = new Set(cvrFiles.map((f) => f.filename));
-    for (const file of foundFiles) {
+    for (const file of cvrFilesOnUsbQuery.data) {
       const { isTestModeResults, scannerIds, exportTimestamp, cvrCount, name } =
         file;
       const fileImported = importedFileNames.has(name);

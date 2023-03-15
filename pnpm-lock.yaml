@@ -90,6 +90,7 @@ importers:
       '@typescript-eslint/parser': ^5.37.0
       '@votingworks/api': workspace:*
       '@votingworks/auth': workspace:*
+      '@votingworks/backend': workspace:*
       '@votingworks/basics': workspace:*
       '@votingworks/db': workspace:*
       '@votingworks/fixtures': workspace:*
@@ -135,6 +136,7 @@ importers:
     dependencies:
       '@votingworks/api': link:../../../libs/api
       '@votingworks/auth': link:../../../libs/auth
+      '@votingworks/backend': link:../../../libs/backend
       '@votingworks/basics': link:../../../libs/basics
       '@votingworks/db': link:../../../libs/db
       '@votingworks/fixtures': link:../../../libs/fixtures

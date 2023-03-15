@@ -123,6 +123,18 @@ export const getCurrentElectionMetadata = {
   },
 } as const;
 
+export const listCastVoteRecordFilesOnUsb = {
+  queryKey(): QueryKey {
+    return ['listCastVoteRecordFilesOnUsb'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.listCastVoteRecordFilesOnUsb()
+    );
+  },
+} as const;
+
 export const getCastVoteRecordFiles = {
   queryKey(): QueryKey {
     return ['getCastVoteRecordFiles'];

@@ -1,5 +1,5 @@
 import { screen } from '@testing-library/react';
-import type { Api } from '@votingworks/admin-backend'; // eslint-disable-line vx/gts-no-import-export-type
+import { Api, CastVoteRecordFileMetadata } from '@votingworks/admin-backend';
 import { Admin } from '@votingworks/api';
 import { ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -174,6 +174,10 @@ export function createApiMock(
 
     expectClearCastVoteRecordFiles() {
       apiClient.clearCastVoteRecordFiles.expectCallWith().resolves();
+    },
+
+    expectListCastVoteRecordFilesOnUsb(files: CastVoteRecordFileMetadata[]) {
+      apiClient.listCastVoteRecordFilesOnUsb.expectCallWith().resolves(files);
     },
   };
 }

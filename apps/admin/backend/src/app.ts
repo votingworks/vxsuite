@@ -28,34 +28,26 @@ import { basename } from 'path';
 import { parseCvrFileInfoFromFilename } from '@votingworks/utils';
 import { AddCastVoteRecordFileResult, ConfigureResult } from './types';
 import { Workspace } from './util/workspace';
+import { listCastVoteRecordFilesOnUsb } from './cvr_files';
+import { Usb } from './util/usb';
 
-function getMostRecentlyCreateElectionDefinition(
+function getCurrentElectionDefinition(
   workspace: Workspace
 ): Optional<ElectionDefinition> {
+  const currentElectionId = workspace.store.getCurrentElectionId();
   const elections = workspace.store.getElections();
-  const mostRecentlyCreatedElection =
-    elections.length > 0
-      ? elections.reduce((e1, e2) =>
-          new Date(e1.createdAt) > new Date(e2.createdAt)
-            ? /* istanbul ignore next */ e1
-            : e2
-        )
-      : undefined;
+  const mostRecentlyCreatedElection = elections.find(
+    (election) => election.id === currentElectionId
+  );
   return mostRecentlyCreatedElection?.electionDefinition;
 }
 
 function constructDippedSmartCardAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
-  // TODO: Once we actually support multiple elections, configure the auth instance with the
-  // currently selected election rather than the most recently created. In fact, do so as soon as
-  // the currently selected election is persisted on the backend instead of the frontend since,
-  // even today, in dev, we can end up with multiple election definitions under the hood via
-  // incognito windows
-  const mostRecentlyCreatedElectionDefinition =
-    getMostRecentlyCreateElectionDefinition(workspace);
+  const currentElectionDefinition = getCurrentElectionDefinition(workspace);
   return {
-    electionHash: mostRecentlyCreatedElectionDefinition?.electionHash,
+    electionHash: currentElectionDefinition?.electionHash,
   };
 }
 
@@ -67,10 +59,12 @@ function buildApi({
   auth,
   workspace,
   logger,
+  usb,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
+  usb: Usb;
 }) {
   const { store } = workspace;
 
@@ -107,8 +101,7 @@ function buildApi({
     }: {
       userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
     }) {
-      const electionDefinition =
-        getMostRecentlyCreateElectionDefinition(workspace);
+      const electionDefinition = getCurrentElectionDefinition(workspace);
       assert(electionDefinition !== undefined);
       const { electionData, electionHash } = electionDefinition;
 
@@ -186,6 +179,13 @@ function buildApi({
           disposition: 'success',
         }
       );
+    },
+
+    listCastVoteRecordFilesOnUsb() {
+      const electionDefinition = getCurrentElectionDefinition(workspace);
+      assert(electionDefinition);
+
+      return listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger);
     },
 
     getCastVoteRecordFiles(): Admin.CastVoteRecordFileRecord[] {
@@ -526,13 +526,15 @@ export function buildApp({
   auth,
   workspace,
   logger,
+  usb,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
+  usb: Usb;
 }): Application {
   const app: Application = express();
-  const api = buildApi({ auth, workspace, logger });
+  const api = buildApi({ auth, workspace, logger, usb });
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }
