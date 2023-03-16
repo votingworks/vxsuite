@@ -5,7 +5,6 @@ import {
   InsertedSmartCardAuth,
   Optional,
   PrecinctId,
-  UserRole,
 } from '@votingworks/types';
 
 /**
@@ -50,7 +49,7 @@ export interface InsertedSmartCardAuthApi {
  * Configuration parameters for an inserted smart card auth instance
  */
 export interface InsertedSmartCardAuthConfig {
-  allowedUserRoles: UserRole[];
+  allowCardlessVoterSessions?: boolean;
   allowElectionManagersToAccessMachinesConfiguredForOtherElections?: boolean;
 }
 

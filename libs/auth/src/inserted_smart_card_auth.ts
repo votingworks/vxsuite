@@ -217,7 +217,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     machineState: InsertedSmartCardAuthMachineState,
     input: { ballotStyleId: BallotStyleId; precinctId: PrecinctId }
   ): Promise<void> {
-    assert(this.config.allowedUserRoles.includes('cardless_voter'));
+    assert(this.config.allowCardlessVoterSessions);
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
     if (
       this.authStatus.status !== 'logged_in' ||
@@ -235,7 +235,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   }
 
   async endCardlessVoterSession(): Promise<void> {
-    assert(this.config.allowedUserRoles.includes('cardless_voter'));
+    assert(this.config.allowCardlessVoterSessions);
 
     this.cardlessVoterUser = undefined;
 
@@ -420,10 +420,6 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   ): Result<void, InsertedSmartCardAuthTypes.LoggedOut['reason']> {
     if (!user) {
       return err('invalid_user_on_card');
-    }
-
-    if (!this.config.allowedUserRoles.includes(user.role)) {
-      return err('user_role_not_allowed');
     }
 
     if (user.role === 'election_manager') {

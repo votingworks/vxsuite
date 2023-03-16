@@ -41,12 +41,7 @@ export function start({
           )
         : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
     config: {
-      allowedUserRoles: [
-        'system_administrator',
-        'election_manager',
-        'poll_worker',
-        'cardless_voter',
-      ],
+      allowCardlessVoterSessions: true,
       allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,
     },
     logger,
