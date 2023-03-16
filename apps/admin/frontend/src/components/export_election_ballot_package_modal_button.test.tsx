@@ -4,6 +4,7 @@ import { fakeKiosk, fakeUsbDrive, mockOf } from '@votingworks/test-utils';
 import React from 'react';
 import { BallotPageLayoutWithImage, BallotType } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
+import { iter } from '@votingworks/basics';
 import {
   fireEvent,
   screen,
@@ -31,24 +32,27 @@ beforeEach(() => {
   mockKiosk.writeFile = jest.fn().mockResolvedValue(fileWriter);
   window.kiosk = mockKiosk;
 
-  mockOf(pdfToImages).mockImplementation(
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async function* pdfToImagesMock(): AsyncGenerator<{
-      page: ImageData;
-      pageNumber: number;
-      pageCount: number;
-    }> {
-      yield {
-        page: { data: Uint8ClampedArray.of(0, 0, 0, 0), width: 1, height: 1 },
+  mockOf(pdfToImages).mockImplementation(() =>
+    iter([
+      {
+        page: {
+          data: Uint8ClampedArray.of(0, 0, 0, 0),
+          width: 1,
+          height: 1,
+        },
         pageNumber: 1,
         pageCount: 2,
-      };
-      yield {
-        page: { data: Uint8ClampedArray.of(0, 0, 0, 0), width: 1, height: 1 },
+      },
+      {
+        page: {
+          data: Uint8ClampedArray.of(0, 0, 0, 0),
+          width: 1,
+          height: 1,
+        },
         pageNumber: 2,
         pageCount: 2,
-      };
-    }
+      },
+    ]).async()
   );
 
   mockOf(interpretTemplate).mockImplementation(

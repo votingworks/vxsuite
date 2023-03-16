@@ -7,7 +7,7 @@ import {
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import { mockOf } from '@votingworks/test-utils';
-import { integers, take } from '@votingworks/basics';
+import { integers } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library';
 import { ScanWarningScreen, Props } from './scan_warning_screen';
 import {
@@ -180,7 +180,7 @@ test('undervote by 1', async () => {
         optionIds: contest.candidates
           .slice(0, contest.seats - 1)
           .map(({ id }) => id),
-        optionIndexes: take(contest.seats, integers()),
+        optionIndexes: integers().take(contest.seats).toArray(),
       },
     ],
   });

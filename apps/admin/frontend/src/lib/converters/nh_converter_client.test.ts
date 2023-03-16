@@ -5,7 +5,8 @@ import {
 import { electionMinimalExhaustiveSample } from '@votingworks/fixtures';
 import { mockOf } from '@votingworks/test-utils';
 import { safeParseElection } from '@votingworks/types';
-import { typedAs } from '@votingworks/basics';
+import { iter, typedAs } from '@votingworks/basics';
+import { PdfPage } from '@votingworks/image-utils';
 import { pdfToImages } from '../../utils/pdf_to_images';
 import { readBlobAsString } from '../blob';
 import { NhConverterClient } from './nh_converter_client';
@@ -20,9 +21,9 @@ function makePdfToImagesMockReturnValue({
 }: { pageCount?: number } = {}): ReturnType<typeof pdfToImages> {
   let pageNumber = 0;
 
-  return {
+  const iterable: AsyncIterableIterator<PdfPage> = {
     [Symbol.asyncIterator]() {
-      return this;
+      return iterable;
     },
 
     async next() {
@@ -54,6 +55,8 @@ function makePdfToImagesMockReturnValue({
       throw error;
     },
   };
+
+  return iter(iterable);
 }
 /* eslint-enable @typescript-eslint/require-await */
 

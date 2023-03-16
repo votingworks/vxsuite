@@ -1,5 +1,5 @@
 import { CVR } from '@votingworks/types';
-import { assert, find, take } from '@votingworks/basics';
+import { assert, find } from '@votingworks/basics';
 import {
   buildCastVoteRecordReportMetadata,
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
@@ -140,15 +140,12 @@ export async function main(
   );
   const { electionDefinition } = ballotPackage;
 
-  const castVoteRecords = take(
-    Infinity,
-    generateCvrs({
-      ballotPackage,
-      includeBallotImages,
-      testMode,
-      scannerNames,
-    })
-  );
+  const castVoteRecords = generateCvrs({
+    ballotPackage,
+    includeBallotImages,
+    testMode,
+    scannerNames,
+  }).toArray();
 
   const uniqueCastVoteRecordCount = castVoteRecords.length;
   const numBallots = args.numBallots || uniqueCastVoteRecordCount;

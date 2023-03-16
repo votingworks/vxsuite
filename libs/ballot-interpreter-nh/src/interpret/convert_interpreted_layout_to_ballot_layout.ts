@@ -1,4 +1,4 @@
-import { Result, groupBy, err, ok } from '@votingworks/basics';
+import { Result, err, ok, iter } from '@votingworks/basics';
 import { Debugger, noDebug } from '@votingworks/image-utils';
 import {
   BallotPageContestLayout,
@@ -74,8 +74,7 @@ export function convertInterpretedLayoutToBallotLayout({
   const { geometry } = interpretedLayout;
   const { ovalSize, timingMarkSize } = geometry;
 
-  const gridPositionsByContestId = groupBy(
-    gridLayout.gridPositions,
+  const gridPositionsByContestId = iter(gridLayout.gridPositions).toMap(
     (gridPosition) => gridPosition.contestId
   );
 

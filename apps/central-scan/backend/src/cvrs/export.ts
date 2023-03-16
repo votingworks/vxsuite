@@ -1,4 +1,4 @@
-import { mapAsync } from '@votingworks/basics';
+import { iter } from '@votingworks/basics';
 import { loadImage, toDataUrl, toImageData } from '@votingworks/image-utils';
 import {
   BallotIdSchema,
@@ -173,8 +173,7 @@ export function exportCastVoteRecordsAsNdJson({
   skipImages?: boolean;
 }): NodeJS.ReadableStream {
   return Readable.from(
-    mapAsync(
-      exportCastVoteRecords({ store, skipImages }),
+    iter(exportCastVoteRecords({ store, skipImages })).map(
       (cvr) => `${JSON.stringify(cvr)}\n`
     )
   );

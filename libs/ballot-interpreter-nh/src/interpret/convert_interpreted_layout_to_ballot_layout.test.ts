@@ -1,3 +1,4 @@
+import { assert, iter } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
   BallotType,
@@ -5,7 +6,6 @@ import {
   getContests,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { assert, zip } from '@votingworks/basics';
 import { readFixtureImage } from '../../test/fixtures';
 import {
   getScannedBallotCardGeometry,
@@ -63,8 +63,7 @@ test('contains layout information for each contest option', async () => {
   }).slice(0, convertedLayout.contests.length);
 
   expect(convertedLayout.contests).toHaveLength(contests.length);
-  for (const [contest, contestLayout] of zip(
-    contests,
+  for (const [contest, contestLayout] of iter(contests).zip(
     convertedLayout.contests
   )) {
     expect(contestLayout.contestId).toStrictEqual(contest.id);

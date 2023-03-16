@@ -1,4 +1,4 @@
-import { zip } from '@votingworks/basics';
+import { iter } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { execFileSync } from 'child_process';
 import * as fc from 'fast-check';
@@ -274,7 +274,9 @@ test('split works like POSIX split', async () => {
         }
 
         // compare outputs
-        for (const [fileOutput, output] of zip(fileOutputs, streamOutputs)) {
+        for (const [fileOutput, output] of iter(fileOutputs).zip(
+          streamOutputs
+        )) {
           expect(fileOutput).toEqual(output.toString());
         }
       }
@@ -315,10 +317,9 @@ test('splitToFiles works like POSIX split', async () => {
         }
 
         // compare outputs
-        for (const [posixSplitPath, splitToFilesPath] of zip(
-          posixSplitPaths,
-          splitToFilesPaths
-        )) {
+        for (const [posixSplitPath, splitToFilesPath] of iter(
+          posixSplitPaths
+        ).zip(splitToFilesPaths)) {
           expect(readFileSync(splitToFilesPath, 'utf-8')).toEqual(
             readFileSync(posixSplitPath, 'utf-8')
           );

@@ -1,4 +1,4 @@
-import { Result, ok, err, groupBy, find } from '@votingworks/basics';
+import { Result, ok, err, find, iter } from '@votingworks/basics';
 import { writeImageData } from '@votingworks/image-utils';
 import {
   MarkThresholds,
@@ -298,8 +298,7 @@ export async function main(
       );
     }
 
-    const marksByContest = groupBy(
-      pageInterpretation.markInfo.marks,
+    const marksByContest = iter(pageInterpretation.markInfo.marks).toMap(
       (m) => m.contestId
     );
 

@@ -16,7 +16,7 @@ import {
   safeParseJson,
   safeParseNumber,
 } from '@votingworks/types';
-import { assert, assertDefined, err, ok, zip } from '@votingworks/basics';
+import { assert, assertDefined, err, ok, iter } from '@votingworks/basics';
 import express, { Application } from 'express';
 import {
   DippedSmartCardAuthApi,
@@ -431,7 +431,9 @@ function buildApi({
         ballotStyle,
         election,
       }).map((c) => c.id);
-      const [layouts, ballotImages] = [...zip(cvr._layouts, cvr._ballotImages)]
+      const [layouts, ballotImages] = iter(cvr._layouts)
+        .zip(cvr._ballotImages)
+        .toArray()
         .sort(([a], [b]) => a.metadata.pageNumber - b.metadata.pageNumber)
         .reduce<[BallotPageLayout[], InlineBallotImage[]]>(
           ([layoutsAcc, ballotImagesAcc], [layout, ballotImage]) => [

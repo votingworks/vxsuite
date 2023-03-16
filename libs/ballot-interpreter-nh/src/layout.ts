@@ -1,4 +1,4 @@
-import { assert, err, find, groupBy, ok, Result } from '@votingworks/basics';
+import { assert, err, find, iter, ok, Result } from '@votingworks/basics';
 import {
   BallotMetadata,
   BallotPageContestLayout,
@@ -203,12 +203,10 @@ export function generateBallotPageLayouts(
     ({ side }) => side === 'back'
   );
 
-  const frontGridPositionsByContest = groupBy(
-    frontGridPositions,
+  const frontGridPositionsByContest = iter(frontGridPositions).toMap(
     ({ contestId }) => contestId
   );
-  const backGridPositionsByContest = groupBy(
-    backGridPositions,
+  const backGridPositionsByContest = iter(backGridPositions).toMap(
     ({ contestId }) => contestId
   );
 

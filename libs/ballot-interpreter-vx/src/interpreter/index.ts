@@ -1,8 +1,9 @@
+import { assert, iter } from '@votingworks/basics';
 import {
-  crop,
   countPixels,
-  diff,
+  crop,
   Debugger,
+  diff,
   noDebug,
   rotate180,
 } from '@votingworks/image-utils';
@@ -33,7 +34,6 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
-import { assert, map, zip, zipMin } from '@votingworks/basics';
 import makeDebug from 'debug';
 import * as jsfeat from 'jsfeat';
 import { inspect } from 'util';
@@ -305,13 +305,11 @@ export class Interpreter {
           height: imageData.height,
         },
         metadata,
-        contests: [
-          ...map(contests, ({ bounds, corners }) => ({
-            bounds,
-            corners,
-            options: [],
-          })),
-        ],
+        contests: contests.map(({ bounds, corners }) => ({
+          bounds,
+          corners,
+          options: [],
+        })),
       },
     };
     debug(
@@ -559,10 +557,9 @@ export class Interpreter {
       marks.push(mark);
     };
 
-    for (const [{ options }, contest] of zip(
-      template.ballotPageLayout.contests,
-      contests
-    )) {
+    for (const [{ options }, contest] of iter(
+      template.ballotPageLayout.contests
+    ).zip(contests)) {
       debug(`getting marks for %s contest '%s'`, contest.type, contest.id);
 
       for (const option of options) {
@@ -586,7 +583,9 @@ export class Interpreter {
           );
         }
 
-        for (const [layout, candidate] of zipMin(options, contest.candidates)) {
+        for (const [layout, candidate] of iter(options).zipMin(
+          contest.candidates
+        )) {
           addCandidateMark(contest, layout, candidate);
         }
 
@@ -770,7 +769,7 @@ export class Interpreter {
     for (const [
       { corners: ballotContestCorners },
       { bounds: templateContestBounds },
-    ] of zip(ballot.ballotPageLayout.contests, template.contests)) {
+    ] of iter(ballot.ballotPageLayout.contests).zip(template.contests)) {
       const [
         ballotTopLeft,
         ballotTopRight,

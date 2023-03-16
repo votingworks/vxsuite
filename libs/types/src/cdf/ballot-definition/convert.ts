@@ -7,7 +7,6 @@ import {
   naturals,
   ok,
   Result,
-  take,
   throwIllegalValue,
   unique,
   wrapException,
@@ -99,13 +98,15 @@ export function convertVxfElectionToCdfBallotDefinition(
                   ),
                   // Create write-in options up to the number of votes allowed
                   ...(contest.allowWriteIns
-                    ? take(contest.seats, naturals()).map(
-                        (writeInIndex): Cdf.CandidateOption => ({
-                          '@type': 'BallotDefinition.CandidateOption',
-                          '@id': `${contest.id}-option-write-in-${writeInIndex}`,
-                          IsWriteIn: true,
-                        })
-                      )
+                    ? naturals()
+                        .take(contest.seats)
+                        .map(
+                          (writeInIndex): Cdf.CandidateOption => ({
+                            '@type': 'BallotDefinition.CandidateOption',
+                            '@id': `${contest.id}-option-write-in-${writeInIndex}`,
+                            IsWriteIn: true,
+                          })
+                        )
                     : []),
                 ],
                 PrimaryPartyIds: contest.partyId

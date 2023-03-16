@@ -5,7 +5,7 @@ import {
 } from '@votingworks/fixtures';
 import { CVR, getBallotStyle, getContests } from '@votingworks/types';
 import { BallotPackage, readBallotPackageFromBuffer } from '@votingworks/utils';
-import { assert, find, take, throwIllegalValue } from '@votingworks/basics';
+import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { generateCvrs } from './generate_cvrs';
 import { IMAGE_URI_REGEX } from './utils';
 
@@ -29,15 +29,12 @@ async function mockMultiSheetBallotPackage(): Promise<BallotPackage> {
 
 test('fails on ballot package with more than one sheet', async () => {
   await expect(async () =>
-    take(
-      Infinity,
-      generateCvrs({
-        ballotPackage: await mockMultiSheetBallotPackage(),
-        scannerNames: ['scanner-1'],
-        testMode: true,
-        includeBallotImages: false,
-      })
-    )
+    generateCvrs({
+      ballotPackage: await mockMultiSheetBallotPackage(),
+      scannerNames: ['scanner-1'],
+      testMode: true,
+      includeBallotImages: false,
+    }).toArray()
   ).rejects.toThrowError('only single-sheet ballots are supported');
 });
 
