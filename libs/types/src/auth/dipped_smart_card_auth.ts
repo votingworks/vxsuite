@@ -1,8 +1,8 @@
 import {
   ElectionManagerUser,
   SystemAdministratorUser,
-  User,
   UserRole,
+  UserWithCard,
 } from './auth';
 
 export interface LoggedOut {
@@ -29,9 +29,16 @@ export interface RemoveCard {
   readonly user: SystemAdministratorUser | ElectionManagerUser;
 }
 
-export type ProgrammableCard =
-  | { status: 'no_card' | 'error' }
-  | { status: 'ready'; programmedUser?: User };
+interface ProgrammableCardReady {
+  status: 'ready';
+  programmedUser?: UserWithCard;
+}
+
+interface ProgrammableCardNotReady {
+  status: 'card_error' | 'no_card' | 'unknown_error';
+}
+
+export type ProgrammableCard = ProgrammableCardReady | ProgrammableCardNotReady;
 
 export interface SystemAdministratorLoggedIn {
   readonly status: 'logged_in';

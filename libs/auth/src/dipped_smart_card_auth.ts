@@ -39,16 +39,15 @@ function cardStatusToProgrammableCard(
   cardStatus: CardStatus
 ): DippedSmartCardAuthTypes.ProgrammableCard {
   switch (cardStatus.status) {
-    case 'no_card': {
-      return { status: 'no_card' };
-    }
     case 'card_error':
+    case 'no_card':
     case 'unknown_error': {
-      return { status: 'error' };
+      return { status: cardStatus.status };
     }
     case 'ready': {
       return { status: 'ready', programmedUser: cardStatus.user };
     }
+    /* istanbul ignore next: Compile-time check for completeness */
     default: {
       throwIllegalValue(cardStatus, 'status');
     }

@@ -750,7 +750,7 @@ test('Error handling', async () => {
   }
 });
 
-test('Card inserted backwards is handled with message', async () => {
+test('Backwards card handling', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
@@ -760,7 +760,7 @@ test('Card inserted backwards is handled with message', async () => {
   apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
-    programmableCard: { status: 'error' },
+    programmableCard: { status: 'card_error' },
   });
   await screen.findByText('Card is Backwards');
 
