@@ -40,23 +40,13 @@ export function buildMockCard(): MockCard {
   };
 }
 
-type MockCardField = keyof MockCard;
-
 /**
  * Asserts that all the expected calls to all the methods of a mock card were made
  */
 export function mockCardAssertComplete(mockCard: MockCard): void {
-  // Use a Record type to ensure that we're being exhaustive
-  const methods: Record<MockCardField, undefined> = {
-    getCardStatus: undefined,
-    checkPin: undefined,
-    program: undefined,
-    readData: undefined,
-    writeData: undefined,
-    clearData: undefined,
-    unprogram: undefined,
-  };
-  for (const method of Object.keys(methods) as MockCardField[]) {
-    mockCard[method].assertComplete();
+  for (const mockMethod of Object.values(mockCard) as Array<
+    MockCard[keyof MockCard]
+  >) {
+    mockMethod.assertComplete();
   }
 }
