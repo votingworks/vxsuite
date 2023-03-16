@@ -13,7 +13,7 @@ import {
 } from '@votingworks/logging';
 import {
   DippedSmartCardAuth as DippedSmartCardAuthTypes,
-  User,
+  UserWithCard,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -512,7 +512,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
 
   private validateCardUser(
     machineState: DippedSmartCardAuthMachineState,
-    user?: User
+    user?: UserWithCard
   ): Result<void, DippedSmartCardAuthTypes.LoggedOut['reason']> {
     if (!user) {
       return err('invalid_user_on_card');

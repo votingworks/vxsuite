@@ -7,9 +7,9 @@ import {
   PollWorkerUser,
   safeParseJson,
   SystemAdministratorUser,
-  User,
   UserRole,
   UserRoleSchema,
+  UserWithCard,
 } from '@votingworks/types';
 
 import { Card, CardStatus, CheckPinResponse } from './card';
@@ -86,7 +86,7 @@ const AnyCardDataSchema: z.ZodSchema<AnyCardData> = z.union([
 ]);
 
 function parseUserDataFromCardSummary(cardSummary: Legacy.CardSummaryReady): {
-  user?: User;
+  user?: UserWithCard;
   pin?: string;
 } {
   if (!cardSummary.shortValue) {

@@ -4,7 +4,7 @@ import {
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
-  User,
+  UserWithCard,
 } from '@votingworks/types';
 import {
   electionSampleDefinition,
@@ -60,7 +60,7 @@ test('Smartcard modal displays card details', async () => {
   await apiMock.authenticateAsSystemAdministrator();
 
   const testCases: Array<{
-    programmedUser: User;
+    programmedUser: UserWithCard;
     expectedHeading: string;
     expectedElectionString?: string;
     shouldResetCardPinButtonBeDisplayed: boolean;
@@ -171,7 +171,7 @@ test('Smartcard modal displays card details when no election definition on machi
   await apiMock.authenticateAsSystemAdministrator();
 
   const testCases: Array<{
-    programmedUser: User;
+    programmedUser: UserWithCard;
     expectedHeading: string;
     expectedElectionString?: string;
     shouldResetCardPinButtonBeDisplayed: boolean;
@@ -569,7 +569,7 @@ test('Unprogramming smartcards', async () => {
   await screen.findByRole('heading', { name: 'Election Definition' });
 
   const testCases: Array<{
-    programmedUser: User;
+    programmedUser: UserWithCard;
     expectedHeadingBeforeUnprogramming: string;
     expectedSuccessText: string;
   }> = [
@@ -640,7 +640,7 @@ test('Error handling', async () => {
 
   const testCases: Array<{
     beginFromSuperAdminCardsScreen?: boolean;
-    programmedUser?: User;
+    programmedUser?: UserWithCard;
     buttonToPress: string;
     expectedProgressText: string;
     expectedErrorText: string;

@@ -9,7 +9,7 @@ import {
   Optional,
   PollWorkerUser,
   SystemAdministratorUser,
-  User,
+  UserWithCard,
 } from '@votingworks/types';
 
 import {
@@ -328,7 +328,7 @@ export class JavaCard implements Card {
    * 2. Can throw errors due to external actions like preemptively removing the card from the card
    *    reader
    */
-  private async safeReadUser(): Promise<Optional<User>> {
+  private async safeReadUser(): Promise<Optional<UserWithCard>> {
     try {
       return await this.readUser();
     } catch {
@@ -340,7 +340,7 @@ export class JavaCard implements Card {
    * Reads the user on the card, performing various forms of verification along the way. Throws an
    * error if any verification fails.
    */
-  private async readUser(): Promise<Optional<User>> {
+  private async readUser(): Promise<Optional<UserWithCard>> {
     await this.selectApplet();
 
     // Verify that the card VotingWorks cert was signed by VotingWorks

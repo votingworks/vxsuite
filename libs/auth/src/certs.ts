@@ -1,12 +1,7 @@
 import { Buffer } from 'buffer';
 import { z } from 'zod';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import {
-  ElectionManagerUser,
-  PollWorkerUser,
-  SystemAdministratorUser,
-  User,
-} from '@votingworks/types';
+import { UserWithCard } from '@votingworks/types';
 
 import { openssl } from './openssl';
 
@@ -104,7 +99,7 @@ export async function parseCert(cert: Buffer): Promise<CustomCertFields> {
 export async function parseUserDataFromCert(
   cert: Buffer,
   expectedJurisdiction: string
-): Promise<User> {
+): Promise<UserWithCard> {
   const { component, jurisdiction, cardType, electionHash } = await parseCert(
     cert
   );
@@ -135,7 +130,7 @@ export async function parseUserDataFromCert(
  * Constructs a VotingWorks card cert subject that can be passed to an openssl command
  */
 export function constructCardCertSubject(
-  user: SystemAdministratorUser | ElectionManagerUser | PollWorkerUser,
+  user: UserWithCard,
   jurisdiction: string
 ): string {
   const component: CustomCertFields['component'] = 'card';

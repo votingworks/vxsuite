@@ -21,7 +21,7 @@ import {
   Optional,
   PrecinctId,
   safeParseJson,
-  User,
+  UserWithCard,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -359,9 +359,6 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
                     ? { status: 'logged_in', user }
                     : { status: 'checking_pin', user };
                 }
-                if (user.role === 'poll_worker') {
-                  return { status: 'logged_in', user };
-                }
                 return { status: 'logged_in', user };
               }
               return currentAuthStatus;
@@ -416,7 +413,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
 
   private validateCardUser(
     machineState: InsertedSmartCardAuthMachineState,
-    user?: User
+    user?: UserWithCard
   ): Result<void, InsertedSmartCardAuthTypes.LoggedOut['reason']> {
     if (!user) {
       return err('invalid_user_on_card');
