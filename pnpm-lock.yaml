@@ -8659,7 +8659,7 @@ packages:
       '@storybook/csf-plugin': 7.0.0-beta.31
       '@storybook/csf-tools': 7.0.0-beta.31
       '@storybook/global': 5.0.0
-      '@storybook/mdx2-csf': 1.0.0-next.5
+      '@storybook/mdx2-csf': 1.0.0-next.6
       '@storybook/node-logger': 7.0.0-beta.31
       '@storybook/postinstall': 7.0.0-beta.31
       '@storybook/preview-api': 7.0.0-beta.31
@@ -8957,7 +8957,7 @@ packages:
       '@storybook/client-logger': 7.0.0-beta.31
       '@storybook/core-common': 7.0.0-beta.31
       '@storybook/csf-plugin': 7.0.0-beta.31
-      '@storybook/mdx2-csf': 1.0.0-next.5
+      '@storybook/mdx2-csf': 1.0.0-next.6
       '@storybook/node-logger': 7.0.0-beta.31
       '@storybook/preview': 7.0.0-beta.31
       '@storybook/preview-api': 7.0.0-beta.31
@@ -9298,8 +9298,8 @@ packages:
     resolution: {integrity: sha512-cNkJEds7542Dj6k/oxm3jx0ZddyxUVz/2qQ2sQjz/qy4a6K+vFfMMLHuJEKKTl+26nqqCgia+sfFyCtzUzXr8g==}
     dev: true
 
-  /@storybook/mdx2-csf/1.0.0-next.5:
-    resolution: {integrity: sha512-02w0sgGZaK1agT050yCVhJ+o4rLHANWvLKWjQjeAsYbjneLC5ITt+3GDB4jRiWwJboZ8dHW1fGSK1Vg5fA34aQ==}
+  /@storybook/mdx2-csf/1.0.0-next.6:
+    resolution: {integrity: sha512-m6plojocU/rmrqWd26yvm8D+oHZPZ6PtSSFmZIgpNDEPVmc8s4fBD6LXOAB5MiPI5f8KLUr2HVhOMZ97o5pDTw==}
     dev: true
 
   /@storybook/node-logger/7.0.0-beta.31:
@@ -17526,7 +17526,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 5.37.0_clqnhij63k7sxivgn64qsibvv4
       '@typescript-eslint/utils': 5.22.0_2owex2qphpdtje5ztrbqluisqa
       eslint: 8.23.1
-      jest: 27.3.1
+      jest: 27.3.1_canvas@2.9.1
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -30837,7 +30837,7 @@ packages:
       '@types/jest': 27.0.3
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.3.1
+      jest: 27.3.1_canvas@2.9.1
       jest-util: 27.3.1
       json5: 2.2.0
       lodash.memoize: 4.1.2
