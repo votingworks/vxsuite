@@ -121,31 +121,155 @@ export type JobEndRequest = CoderType<typeof JobEndRequest>;
  * Internal status message encoder/decoder.
  */
 export const StatusInternalMessage = message({
+  /**
+   * Bytes 0-3 hardcoded to 'IDAT' per docs.
+   */
   header: literal('IDAT'),
+
+  /**
+   * Bytes 4-5. The number of pages scanned on side A.
+   */
   pageNumSideA: uint16(),
+
+  /**
+   * Bytes 6-7. The number of pages scanned on side B.
+   */
   pageNumSideB: uint16(),
+
+  /**
+   * Bytes 8-11. How many bytes of side A image data are available for reading.
+   * When this is 0, we've read all the data for side A.
+   */
   validPageSizeA: uint32(),
+
+  /**
+   * Bytes 12-15. How many bytes of side B image data are available for reading.
+   * When this is 0, we've read all the data for side B.
+   */
   validPageSizeB: uint32(),
+
+  /**
+   * Bytes 16-17. How wide the image is on side A in pixels. This value will be
+   * available as soon as any image data is available, and otherwise will be 0.
+   */
   imageWidthA: uint16(),
+
+  /**
+   * Bytes 18-19. How wide the image is on side B in pixels. This value will be
+   * available as soon as any image data is available, and otherwise will be 0.
+   */
   imageWidthB: uint16(),
+
+  /**
+   * Bytes 20-21. How tall the image is on side A in pixels. This value will be
+   * available once the entire image has been scanned, and otherwise will be 0.
+   */
   imageHeightA: uint16(),
+
+  /**
+   * Bytes 22-23. How tall the image is on side B in pixels. This value will be
+   * available once the entire image has been scanned, and otherwise will be 0.
+   */
   imageHeightB: uint16(),
+
+  /**
+   * Byte 24. Per Custom docs, "'P' = end page A, 'p' = end page B".
+   */
   endPageA: uint8(),
+
+  /**
+   * Byte 25. Per Custom docs, "'P' = end page A, 'p' = end page B".
+   */
   endPageB: uint8(),
+
+  /**
+   * Byte 26. Per Custom docs, "'S' = end scan A, 'S' = end scan B".
+   */
   endScanA: uint8(),
+
+  /**
+   * Byte 27. Per Custom docs, "'S' = end scan A, 'S' = end scan B".
+   */
   endScanB: uint8(),
+
+  /**
+   * Byte 28. Ultrasonic status.
+   */
   ultrasonic: uint8(),
+
+  /**
+   * Byte 29. 'J' if there is a paper jam, but which kind of jam depends on bit
+   * 0 of byte 35: 0 = generic jam, 1 = encoder error (the paper was held back
+   * during scanning).
+   */
   paperJam: uint8(),
+
+  /**
+   * Byte 30. The scanner cover is open if this is non-zero.
+   */
   coverOpen: uint8(),
+
+  /**
+   * Byte 31. 'C' if the scan was canceled.
+   */
   cancel: uint8(),
+
+  /**
+   * Byte 32. Per Custom docs, "button press".
+   */
   key: uint8(),
+
+  /**
+   * Byte 33. 'S' if scanning, 'M' if moving but not scanning.
+   */
   motorMove: uint8(),
+
+  /**
+   * Byte 34. Not used.
+   */
   adfSensor: uint8(),
+
+  /**
+   * Byte 35. Document sensor status.
+   * Bit 0: 1 if encoder error (the paper was held back during scanning).
+   * Bit 1: 1 if double sheet (more than one sheet was detected).
+   * Bit 2: DL (deskew left).
+   * Bit 3: DR (deskew right).
+   * Bit 4: ILL (sensor detected paper at input left left).
+   * Bit 5: ICL (sensor detected paper at input center left).
+   * Bit 6: ICR (sensor detected paper at input center right).
+   * Bit 7: IRR (sensor detected paper at input right right).
+   */
   docSensor: uint8(),
+
+  /**
+   * Byte 36. Home sensor status.
+   * Bit 0: OLL (sensor detected paper at output left left).
+   * Bit 1: OCL (sensor detected paper at output center left).
+   * Bit 2: OCR (sensor detected paper at output center right).
+   * Bit 3: ORR (sensor detected paper at output right right).
+   * Bits 4-7: Not used.
+   */
   homeSensor: uint8(),
+
+  /**
+   * Byte 37. Job owner set to 0x01 if job ID is 0x01, which it always is.
+   */
   jobOwner: uint8(),
+
+  /**
+   * Bytes 38-39. Not used.
+   */
   reserve1: uint16(),
+
+  /**
+   * Bytes 40-43. Not used.
+   */
   reserve2: uint32(),
+
+  /**
+   * Bytes 44-47. Per Custom docs, "Job state".
+   */
   jobState: uint32(),
 });
 
