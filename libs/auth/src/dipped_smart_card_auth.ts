@@ -227,7 +227,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         LogEventId.SmartCardProgramComplete,
         'system_administrator',
         {
-          disposition: 'failure',
+          disposition: LogDispositionStandardTypes.Failure,
           message: `Error programming smart card: ${extractErrorMessage(
             error
           )}.`,
@@ -240,7 +240,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       LogEventId.SmartCardProgramComplete,
       'system_administrator',
       {
-        disposition: 'success',
+        disposition: LogDispositionStandardTypes.Success,
         message: 'Successfully programmed smart card.',
         programmedUserRole: input.userRole,
       }
@@ -271,7 +271,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         LogEventId.SmartCardUnprogramComplete,
         'system_administrator',
         {
-          disposition: 'failure',
+          disposition: LogDispositionStandardTypes.Failure,
           message: `Error unprogramming smart card: ${extractErrorMessage(
             error
           )}.`,
@@ -284,7 +284,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       LogEventId.SmartCardUnprogramComplete,
       'system_administrator',
       {
-        disposition: 'success',
+        disposition: LogDispositionStandardTypes.Success,
         message: 'Successfully unprogrammed smart card.',
         previousProgrammedUserRole: programmedUserRole,
       }
