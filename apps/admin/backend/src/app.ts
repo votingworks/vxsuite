@@ -30,6 +30,7 @@ import { AddCastVoteRecordFileResult, ConfigureResult } from './types';
 import { Workspace } from './util/workspace';
 import { listCastVoteRecordFilesOnUsb } from './cvr_files';
 import { Usb } from './util/usb';
+import { getMachineConfig } from './machine_config';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -79,6 +80,8 @@ function buildApi({
   }
 
   return grout.createApi({
+    getMachineConfig,
+
     getAuthStatus() {
       return auth.getAuthStatus(
         constructDippedSmartCardAuthMachineState(workspace)

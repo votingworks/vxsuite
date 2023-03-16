@@ -4,6 +4,15 @@ import { Id } from '@votingworks/types';
 import { AddCastVoteRecordError } from './store';
 
 /**
+ * Environment variables that identify the machine and its software. Set at the
+ * machine-level rather than the at the software-level.
+ */
+export interface MachineConfig {
+  machineId: string;
+  codeVersion: string;
+}
+
+/**
  * Result of attempt to configure the app with a new election definition
  */
 export type ConfigureResult = Result<
