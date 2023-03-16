@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { CVR, safeParse } from '@votingworks/types';
-import { ok, err, Result } from '@votingworks/basics';
+import { ok, err, Result, arrayFromAsyncIterator } from '@votingworks/basics';
 import { chain } from 'stream-chain';
 import { parser } from 'stream-json';
 import { pick } from 'stream-json/filters/Pick';
@@ -162,48 +162,57 @@ export async function validateCastVoteRecordReportDirectoryStructure(
     });
   }
 
-  const listBallotImageContentsResult = await listDirectoryRecursive(
-    join(directoryAbsolutePath, CVR_BALLOT_IMAGES_SUBDIRECTORY)
-  );
-  if (listBallotImageContentsResult.isErr()) {
-    return invalidDirectoryError(listBallotImageContentsResult.err());
-  }
-  const ballotImageFiles = listBallotImageContentsResult
-    .ok()
-    .filter(
-      (fileEntry) =>
-        fileEntry.type !== FileSystemEntryType.Directory &&
-        (fileEntry.name.endsWith('.jpg') || fileEntry.name.endsWith('.jpeg'))
-    );
-
-  const listBallotLayoutContentsResult = await listDirectoryRecursive(
-    join(directoryAbsolutePath, CVR_BALLOT_LAYOUTS_SUBDIRECTORY)
-  );
-  if (listBallotLayoutContentsResult.isErr()) {
-    return invalidDirectoryError(listBallotLayoutContentsResult.err());
-  }
-  const ballotLayoutFileRelativePaths = listBallotLayoutContentsResult
-    .ok()
-    .filter(
-      (fileEntry) =>
-        fileEntry.type !== FileSystemEntryType.Directory &&
-        fileEntry.name.endsWith('.layout.json')
+  const listBallotImageContentsResults = await arrayFromAsyncIterator(
+    listDirectoryRecursive(
+      join(directoryAbsolutePath, CVR_BALLOT_IMAGES_SUBDIRECTORY)
     )
-    .map((layoutFile) =>
-      relative(
-        join(directoryAbsolutePath, CVR_BALLOT_LAYOUTS_SUBDIRECTORY),
-        layoutFile.path
-      )
-    );
-
+  );
   const relativeImagePaths: string[] = [];
-  for (const imageFile of ballotImageFiles) {
-    const relativeImagePath = relative(
-      join(directoryAbsolutePath, CVR_BALLOT_IMAGES_SUBDIRECTORY),
-      imageFile.path
-    );
+  for (const result of listBallotImageContentsResults) {
+    if (result.isErr()) {
+      return invalidDirectoryError(result.err());
+    }
+    const fileEntry = result.ok();
+    if (
+      fileEntry.type !== FileSystemEntryType.Directory &&
+      (fileEntry.name.endsWith('.jpg') || fileEntry.name.endsWith('.jpeg'))
+    ) {
+      relativeImagePaths.push(
+        relative(
+          join(directoryAbsolutePath, CVR_BALLOT_IMAGES_SUBDIRECTORY),
+          fileEntry.path
+        )
+      );
+    }
+  }
+
+  const listBallotLayoutContentsResults = await arrayFromAsyncIterator(
+    listDirectoryRecursive(
+      join(directoryAbsolutePath, CVR_BALLOT_LAYOUTS_SUBDIRECTORY)
+    )
+  );
+  const relativeLayoutPaths: string[] = [];
+  for (const result of listBallotLayoutContentsResults) {
+    if (result.isErr()) {
+      return invalidDirectoryError(result.err());
+    }
+    const fileEntry = result.ok();
+    if (
+      fileEntry.type !== FileSystemEntryType.Directory &&
+      fileEntry.name.endsWith('.layout.json')
+    ) {
+      relativeLayoutPaths.push(
+        relative(
+          join(directoryAbsolutePath, CVR_BALLOT_LAYOUTS_SUBDIRECTORY),
+          fileEntry.path
+        )
+      );
+    }
+  }
+
+  for (const relativeImagePath of relativeImagePaths) {
     const imagePathParts = parse(relativeImagePath);
-    const hasCorrespondingLayout = ballotLayoutFileRelativePaths.some(
+    const hasCorrespondingLayout = relativeLayoutPaths.some(
       (relativeLayoutPath) =>
         relativeLayoutPath ===
         `${join(imagePathParts.dir, imagePathParts.name)}.layout.json`
@@ -211,10 +220,9 @@ export async function validateCastVoteRecordReportDirectoryStructure(
     if (!hasCorrespondingLayout) {
       return err({
         type: 'missing-layouts',
-        message: `Expected ballot image "${relativeImagePath}" to be accompanied by a ballot layout, but none were found.`,
+        message: `Expected ballot image "${relativeImagePath}" to be accompanied by a ballot layout, but none was found.`,
       });
     }
-    relativeImagePaths.push(relativeImagePath);
   }
 
   return ok(relativeImagePaths);

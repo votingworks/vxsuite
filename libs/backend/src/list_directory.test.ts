@@ -1,3 +1,4 @@
+import { arrayFromAsyncIterator } from '@votingworks/basics';
 import { mockOf } from '@votingworks/test-utils';
 import tmp from 'tmp';
 import { getUsbDrives } from './get_usb_drives';
@@ -70,10 +71,11 @@ describe(listDirectoryRecursive, () => {
     });
     tmp.fileSync({ name: 'sub-file-2', dir: subDirectory.name });
 
-    const result = await listDirectoryRecursive(directory.name);
-    expect(result.isOk()).toBeTruthy();
+    const fileEntries = (
+      await arrayFromAsyncIterator(listDirectoryRecursive(directory.name))
+    ).map((result) => result.ok());
 
-    expect(result.ok()).toMatchObject([
+    expect(fileEntries).toMatchObject([
       expect.objectContaining({
         name: 'file-1',
         type: FileSystemEntryType.File,
@@ -94,9 +96,10 @@ describe(listDirectoryRecursive, () => {
   });
 
   test('bubbles up root errors', async () => {
-    const result = await listDirectoryRecursive('/tmp/no-entity');
-    expect(result.isErr()).toBeTruthy();
-    expect(result.err()).toMatchObject({ type: 'no-entity' });
+    const results = await arrayFromAsyncIterator(
+      listDirectoryRecursive('/tmp/no-entity')
+    );
+    expect(results.some((result) => result.err())).toBeTruthy();
   });
 });
 

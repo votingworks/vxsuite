@@ -114,29 +114,20 @@ export async function listDirectory(
  * Get entries for a directory recursively, includes stat information for each entry.
  * Requires that the path be absolute. Includes directories in result.
  */
-export async function listDirectoryRecursive(
+export async function* listDirectoryRecursive(
   path: string
-): Promise<Result<FileSystemEntry[], ListDirectoryError>> {
+): AsyncGenerator<Result<FileSystemEntry, ListDirectoryError>> {
   const listRootResult = await listDirectory(path);
   if (listRootResult.isErr()) {
-    return err(listRootResult.err());
-  }
-
-  const unpackedFileEntries: FileSystemEntry[] = [];
-  for (const fileEntry of listRootResult.ok()) {
-    if (fileEntry.type === FileSystemEntryType.Directory) {
-      const listSubdirectoryResult = await listDirectoryRecursive(
-        fileEntry.path
-      );
-      if (listSubdirectoryResult.isErr()) {
-        return err(listSubdirectoryResult.err());
+    yield listRootResult;
+  } else {
+    for (const fileEntry of listRootResult.ok()) {
+      if (fileEntry.type === FileSystemEntryType.Directory) {
+        yield* listDirectoryRecursive(fileEntry.path);
       }
-      unpackedFileEntries.push(...listSubdirectoryResult.ok());
+      yield ok(fileEntry);
     }
-    unpackedFileEntries.push(fileEntry);
   }
-
-  return ok(unpackedFileEntries);
 }
 
 /**
