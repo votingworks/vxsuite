@@ -158,7 +158,7 @@ test('take', () => {
   expect(iter([]).take(-1).toArray()).toEqual([]);
 });
 
-test('drop', () => {
+test('skip', () => {
   expect(iter(['a', 'b']).skip(1).take(1).toArray()).toEqual(['b']);
   expect(iter(integers()).skip(2).take(2).toArray()).toEqual([2, 3]);
   expect(iter(integers()).skip(0).take(2).toArray()).toEqual([0, 1]);

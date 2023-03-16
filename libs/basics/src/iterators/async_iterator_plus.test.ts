@@ -215,7 +215,7 @@ test('take', async () => {
   expect(await iter([]).async().take(-1).toArray()).toEqual([]);
 });
 
-test('drop', async () => {
+test('skip', async () => {
   expect(await iter(['a', 'b']).async().skip(1).take(1).toArray()).toEqual([
     'b',
   ]);
