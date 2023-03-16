@@ -13,12 +13,13 @@ import {
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
 } from './scan';
 
-const cdfCvrFile = electionMinimalExhaustiveSampleFixtures.standardCdfCvrFile;
+const cdfCvrReport =
+  electionMinimalExhaustiveSampleFixtures.standardCdfCvrReport;
 
 describe('getCastVoteRecordReportImport', () => {
   test('imports a valid cast vote record report', async () => {
     const castVoteRecordImportResult = await getCastVoteRecordReportImport(
-      join(cdfCvrFile.asDirectoryPath(), CAST_VOTE_RECORD_REPORT_FILENAME)
+      join(cdfCvrReport.asDirectoryPath(), CAST_VOTE_RECORD_REPORT_FILENAME)
     );
 
     expect(castVoteRecordImportResult.isOk()).toBeTruthy();
@@ -36,7 +37,7 @@ describe('getCastVoteRecordReportImport', () => {
   });
 
   test('returns a parsing error if report metadata is invalid', async () => {
-    const mockReportDirectoryPath = cdfCvrFile.asDirectoryPath();
+    const mockReportDirectoryPath = cdfCvrReport.asDirectoryPath();
     writeFileSync(
       join(mockReportDirectoryPath, CAST_VOTE_RECORD_REPORT_FILENAME),
       '{}'
@@ -64,7 +65,7 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
   test('returns ballot images on success validation', async () => {
     const validationResult =
       await validateCastVoteRecordReportDirectoryStructure(
-        cdfCvrFile.asDirectoryPath()
+        cdfCvrReport.asDirectoryPath()
       );
     expect(validationResult.isOk()).toBeTruthy();
     expect(validationResult.ok()).toMatchInlineSnapshot(`
@@ -78,7 +79,7 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
   });
 
   test('success with no ballot images', async () => {
-    const directoryPath = cdfCvrFile.asDirectoryPath();
+    const directoryPath = cdfCvrReport.asDirectoryPath();
     rmSync(join(directoryPath, CVR_BALLOT_IMAGES_SUBDIRECTORY), {
       recursive: true,
       force: true,
@@ -90,7 +91,7 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
   });
 
   test('fails if missing a ballot layout', async () => {
-    const directoryPath = cdfCvrFile.asDirectoryPath();
+    const directoryPath = cdfCvrReport.asDirectoryPath();
     rmSync(
       join(
         directoryPath,
@@ -108,7 +109,7 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
   });
 
   test('fails if missing all ballot layouts', async () => {
-    const directoryPath = cdfCvrFile.asDirectoryPath();
+    const directoryPath = cdfCvrReport.asDirectoryPath();
     rmSync(join(directoryPath, CVR_BALLOT_LAYOUTS_SUBDIRECTORY), {
       recursive: true,
       force: true,
@@ -120,7 +121,7 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
   });
 
   test('fails if no report', async () => {
-    const directoryPath = cdfCvrFile.asDirectoryPath();
+    const directoryPath = cdfCvrReport.asDirectoryPath();
     rmSync(join(directoryPath, CAST_VOTE_RECORD_REPORT_FILENAME));
     const validationResult =
       await validateCastVoteRecordReportDirectoryStructure(directoryPath);
@@ -136,7 +137,7 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
   });
 
   test('fails if ballot layout directory is somehow invalid', async () => {
-    const directoryPath = cdfCvrFile.asDirectoryPath();
+    const directoryPath = cdfCvrReport.asDirectoryPath();
     rmSync(join(directoryPath, CVR_BALLOT_LAYOUTS_SUBDIRECTORY), {
       recursive: true,
       force: true,
@@ -149,7 +150,7 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
   });
 
   test('fails if ballot images directory is somehow invalid', async () => {
-    const directoryPath = cdfCvrFile.asDirectoryPath();
+    const directoryPath = cdfCvrReport.asDirectoryPath();
     rmSync(join(directoryPath, CVR_BALLOT_IMAGES_SUBDIRECTORY), {
       recursive: true,
       force: true,
