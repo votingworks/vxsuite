@@ -1,9 +1,7 @@
 import React from 'react';
-import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { typedAs } from '@votingworks/basics';
 import {
   expectPrint,
   fakeKiosk,
@@ -20,19 +18,10 @@ import {
   PRINTER_WARMUP_TIME,
   TWO_SIDED_PRINT_TIME,
 } from './print_all_ballots_button';
-import { MachineConfig } from '../config/types';
 import { createApiMock, ApiMock } from '../../test/helpers/api_mock';
 import { buildApp } from '../../test/helpers/build_app';
 
 jest.mock('../components/hand_marked_paper_ballot');
-
-fetchMock.get(
-  '/machine-config',
-  typedAs<MachineConfig>({
-    machineId: '0000',
-    codeVersion: 'TEST',
-  })
-);
 
 let apiMock: ApiMock;
 
@@ -170,6 +159,7 @@ test('initial modal state toggles based on printer state', async () => {
   });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetMachineConfig();
   hardware.setPrinterConnected(false);
   renderApp();
 
@@ -200,6 +190,7 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
   });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetMachineConfig();
   renderApp();
 
   await apiMock.authenticateAsElectionManager(electionDefinition);
@@ -244,6 +235,7 @@ test('modal is different for system administrators', async () => {
   });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetMachineConfig();
   renderApp();
 
   await apiMock.authenticateAsElectionManager(electionDefinition);

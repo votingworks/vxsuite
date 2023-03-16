@@ -27,13 +27,11 @@ import {
   fakeElectionManagerUser,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { MachineConfig } from '@votingworks/admin-backend';
 import { render as testRender, RenderResult } from './react_testing_library';
 import { AppContext } from '../src/contexts/app_context';
-import {
-  Iso8601Timestamp,
-  ExportableTallies,
-  MachineConfig,
-} from '../src/config/types';
+import { Iso8601Timestamp, ExportableTallies } from '../src/config/types';
 import { ServicesContext } from '../src/contexts/services_context';
 import {
   ElectionManagerStoreBackend,
@@ -142,7 +140,7 @@ export function renderInAppContext(
         },
     machineConfig = {
       machineId: '0000',
-      codeVersion: '',
+      codeVersion: 'dev',
     },
     hasCardReaderAttached = true,
     hasPrinterAttached = true,

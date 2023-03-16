@@ -19,7 +19,6 @@ import { err, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
 
 import { ApiMock, createApiMock } from '../../../test/helpers/api_mock';
-import { MachineConfig } from '../../config/types';
 import { VxFiles } from '../../lib/converters';
 import { buildApp } from '../../../test/helpers/build_app';
 
@@ -36,15 +35,12 @@ beforeEach(() => {
     status: 'logged_out',
     reason: 'machine_locked',
   });
+  apiMock.expectGetMachineConfig();
 
   fetchMock.reset();
   fetchMock.get(
     '/convert/election/files',
     typedAs<VxFiles>({ inputFiles: [], outputFiles: [] })
-  );
-  fetchMock.get(
-    '/machine-config',
-    typedAs<MachineConfig>({ codeVersion: '', machineId: '' })
   );
 });
 

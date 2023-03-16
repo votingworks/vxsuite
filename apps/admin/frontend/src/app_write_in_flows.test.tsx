@@ -9,7 +9,6 @@ import { ApiMock, createApiMock } from '../test/helpers/api_mock';
 import { buildApp } from '../test/helpers/build_app';
 import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
 import { VxFiles } from './lib/converters';
-import { MachineConfig } from './config/types';
 
 const nonOfficialAdjudicationSummaryMammal: Admin.WriteInSummaryEntryAdjudicated =
   {
@@ -38,6 +37,7 @@ beforeEach(() => {
     status: 'logged_out',
     reason: 'machine_locked',
   });
+  apiMock.expectGetMachineConfig();
 
   fetchMock.reset();
   fetchMock.get(
@@ -45,13 +45,6 @@ beforeEach(() => {
     typedAs<VxFiles>({
       inputFiles: [{ name: 'name' }, { name: 'name' }],
       outputFiles: [{ name: 'name' }],
-    })
-  );
-  fetchMock.get(
-    '/machine-config',
-    typedAs<MachineConfig>({
-      machineId: '0000',
-      codeVersion: 'TEST',
     })
   );
   fetchMock.delete('/admin/write-ins/cvrs', { body: { status: 'ok ' } });

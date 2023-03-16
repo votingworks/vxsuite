@@ -9,14 +9,12 @@ import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import './App.css';
 import { AppRoot, Props as AppRootProps } from './app_root';
-import { machineConfigProvider as defaultMachineConfigProvider } from './utils/machine_config';
 
 export type Props = Partial<AppRootProps>;
 
 export function App({
   hardware = getHardware(),
   printer = getPrinter(),
-  machineConfigProvider = defaultMachineConfigProvider,
   converter = getConverterClientType(),
   generateBallotId,
 }: Props): JSX.Element {
@@ -37,7 +35,6 @@ export function App({
         <AppRoot
           printer={printer}
           hardware={hardware}
-          machineConfigProvider={machineConfigProvider}
           converter={converter}
           generateBallotId={generateBallotId}
         />

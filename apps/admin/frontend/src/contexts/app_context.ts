@@ -12,11 +12,12 @@ import {
 import { NullPrinter, getEmptyFullElectionTally } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/ui';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { MachineConfig } from '@votingworks/admin-backend';
 import {
   Iso8601Timestamp,
   ExportableTallies,
   ResultsFileType,
-  MachineConfig,
 } from '../config/types';
 import { getEmptyExportableTallies } from '../utils/exportable_tallies';
 
@@ -70,7 +71,7 @@ const appContext: AppContextInterface = {
   auth: DippedSmartCardAuth.DEFAULT_AUTH_STATUS,
   machineConfig: {
     machineId: '0000',
-    codeVersion: '',
+    codeVersion: 'dev',
   },
   hasCardReaderAttached: true,
   hasPrinterAttached: true,

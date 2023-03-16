@@ -19,16 +19,6 @@ module.exports = function (app) {
   app.use(proxy('/admin', { target: 'http://localhost:3004/' }));
   app.use(proxy('/api', { target: 'http://localhost:3004/' }));
 
-  app.use('/machine-config', (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.end(
-      JSON.stringify({
-        machineId: process.env.VX_MACHINE_ID || '0000',
-        codeVersion: process.env.VX_CODE_VERSION || 'dev',
-      })
-    );
-  });
-
   const pdfjsDistBuildPath = dirname(
     resolve.sync('pdfjs-dist', { basedir: join(__dirname, '../../../../libs/image-utils') })
   );

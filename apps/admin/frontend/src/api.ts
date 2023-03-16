@@ -5,6 +5,7 @@ import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
 import {
+  Query,
   QueryClient,
   QueryKey,
   useMutation,
@@ -35,11 +36,23 @@ export function createQueryClient(): QueryClient {
   return new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS });
 }
 
+export const getMachineConfig = {
+  queryKeyPrefix: 'getMachineConfig',
+  queryKey(): QueryKey {
+    return [this.queryKeyPrefix];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getMachineConfig());
+  },
+} as const;
+
 // Auth
 
 export const getAuthStatus = {
+  queryKeyPrefix: 'getAuthStatus',
   queryKey(): QueryKey {
-    return ['getAuthStatus'];
+    return [this.queryKeyPrefix];
   },
   useQuery() {
     const apiClient = useApiClient();
@@ -273,7 +286,16 @@ export const unconfigure = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.unconfigure, {
       async onSuccess() {
-        await queryClient.invalidateQueries();
+        // invalidate all queries except a select few
+        await queryClient.invalidateQueries({
+          predicate: (query: Query) => {
+            const queryKeyPrefix = query.queryKey[0];
+            return (
+              getMachineConfig.queryKeyPrefix !== queryKeyPrefix &&
+              getAuthStatus.queryKeyPrefix !== queryKeyPrefix
+            );
+          },
+        });
       },
     });
   },

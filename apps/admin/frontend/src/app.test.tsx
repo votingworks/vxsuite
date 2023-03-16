@@ -37,7 +37,6 @@ import {
 
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
 import { convertTalliesByPrecinctToFullExternalTally } from './utils/external_tallies';
-import { MachineConfig } from './config/types';
 import { VxFiles } from './lib/converters';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/api_mock';
@@ -84,6 +83,7 @@ beforeEach(() => {
     status: 'logged_out',
     reason: 'machine_locked',
   });
+  apiMock.expectGetMachineConfig();
 
   MockDate.set(new Date('2020-11-03T22:22:00'));
   fetchMock.reset();
@@ -99,13 +99,6 @@ beforeEach(() => {
     typedAs<VxFiles>({
       inputFiles: [{ name: 'name' }, { name: 'name' }],
       outputFiles: [{ name: 'name' }],
-    })
-  );
-  fetchMock.get(
-    '/machine-config',
-    typedAs<MachineConfig>({
-      machineId: '0000',
-      codeVersion: 'TEST',
     })
   );
   fetchMock.delete('/admin/write-ins/cvrs', { body: { status: 'ok ' } });
