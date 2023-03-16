@@ -36,7 +36,14 @@ const debug = baseDebug.extend('scanner');
 
 const RECREATE_JOB_MAX = 1;
 const CREATE_JOB_ERROR_MAX = 4;
-const ONLY_VALID_JOB_ID = 0x01; // At the moment, this is the only valid JOB ID!!!
+
+/**
+ * The only valid job ID. This is a constant because the scanner firmware
+ * currently only supports a single job at a time. It's unclear why the concept
+ * of a job ID exists at all given this condition, but it does. The firmware
+ * will return an error if you try to use any other job ID.
+ */
+const ONLY_VALID_JOB_ID = 0x01;
 
 /**
  * Interface for Custom A4 scanner. The public API methods return `Promise`s
@@ -45,8 +52,6 @@ const ONLY_VALID_JOB_ID = 0x01; // At the moment, this is the only valid JOB ID!
  * will cause the second method to wait until the first method is complete.
  */
 export class CustomA4Scanner implements CustomScanner {
-  private currentJobId = ONLY_VALID_JOB_ID;
-
   /**
    * Lock that must be held by any public API method. Does not provide exclusive
    * access to any shared resource other than the lock state of the mutex
@@ -148,7 +153,6 @@ export class CustomA4Scanner implements CustomScanner {
    */
   private async createJobInternal(): Promise<Result<number, ErrorCode>> {
     debug('creating job');
-    this.currentJobId = ONLY_VALID_JOB_ID;
     let createJobResult!: Result<number, ErrorCode>;
 
     for (
@@ -181,9 +185,7 @@ export class CustomA4Scanner implements CustomScanner {
 
     debug('create job result: %o', createJobResult);
     if (createJobResult.isOk()) {
-      const jobId = createJobResult.ok();
-      debug('setting current job id to %d', jobId);
-      this.currentJobId = jobId;
+      debug('ignoring returned job id: %d', createJobResult.ok());
     }
     return createJobResult;
   }
@@ -235,7 +237,7 @@ export class CustomA4Scanner implements CustomScanner {
         }
 
         return await this.channelMutex.withLock((channel) =>
-          formMove(channel, this.currentJobId, movement)
+          formMove(channel, ONLY_VALID_JOB_ID, movement)
         );
       })
     );
@@ -577,7 +579,7 @@ export class CustomA4Scanner implements CustomScanner {
     const scanParametersInternal =
       convertToInternalScanParameters(scanParameters);
     const result = await this.channelMutex.withLock((channel) =>
-      setScanParameters(channel, this.currentJobId, scanParametersInternal)
+      setScanParameters(channel, ONLY_VALID_JOB_ID, scanParametersInternal)
     );
     debug('set scan parameters result: %o', result);
     return result;
@@ -589,7 +591,7 @@ export class CustomA4Scanner implements CustomScanner {
   private async startScanInternal(): Promise<Result<void, ErrorCode>> {
     debug('starting scan');
     const result = await this.channelMutex.withLock((channel) =>
-      startScan(channel, this.currentJobId)
+      startScan(channel, ONLY_VALID_JOB_ID)
     );
     debug('start scan result: %o', result);
     return result;
@@ -601,7 +603,7 @@ export class CustomA4Scanner implements CustomScanner {
   private async stopScanInternal(): Promise<Result<void, ErrorCode>> {
     debug('stopping scan');
     return await this.channelMutex.withLock((channel) =>
-      stopScan(channel, this.currentJobId)
+      stopScan(channel, ONLY_VALID_JOB_ID)
     );
   }
 
@@ -620,7 +622,7 @@ export class CustomA4Scanner implements CustomScanner {
   private async resetHardwareInternal(): Promise<Result<void, ErrorCode>> {
     debug('resetting hardware');
     return await this.channelMutex.withLock((channel) =>
-      resetHardware(channel, this.currentJobId)
+      resetHardware(channel, ONLY_VALID_JOB_ID)
     );
   }
 }
