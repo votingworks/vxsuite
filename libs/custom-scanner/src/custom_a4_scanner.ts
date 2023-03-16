@@ -1,4 +1,5 @@
 import { err, ok, Result, sleep, throwIllegalValue } from '@votingworks/basics';
+import { MAX_UINT24 } from '@votingworks/message-coder';
 import { SheetOf } from '@votingworks/types';
 import { time } from '@votingworks/utils';
 import { Buffer } from 'buffer';
@@ -44,6 +45,13 @@ const CREATE_JOB_ERROR_MAX = 4;
  * will return an error if you try to use any other job ID.
  */
 const ONLY_VALID_JOB_ID = 0x01;
+
+/**
+ * The maximum number of bytes that can be retrieved in a single call to
+ * {@link getImageData}. This is a limitation of the scanner firmware since it
+ * uses a 24-bit integer to represent the size of the image portion.
+ */
+const MAX_IMAGE_PORTION_SIZE = MAX_UINT24;
 
 /**
  * Interface for Custom A4 scanner. The public API methods return `Promise`s
@@ -314,7 +322,7 @@ export class CustomA4Scanner implements CustomScanner {
     let errorCount = 0;
     let startNoMoveNoScan = 0;
 
-    const readImageData = async (
+    const processImageData = async (
       currentSide: ScanSide,
       {
         pageSize,
@@ -322,17 +330,24 @@ export class CustomA4Scanner implements CustomScanner {
         imageHeight,
       }: { pageSize: number; imageWidth: number; imageHeight: number }
     ): Promise<Result<void, ErrorCode>> => {
+      if (pageSize === 0 || imageWidth === 0) {
+        return ok();
+      }
+
+      debug(
+        'side %s has data: pageSize=%d, imageWidth=%d, imageHeight=%d',
+        ScanSide[currentSide],
+        pageSize,
+        imageWidth,
+        imageHeight
+      );
+
       let readImageDataErrorCount = 0;
       const scannerImage =
         currentSide === ScanSide.A ? scannerImageA : scannerImageB;
       for (;;) {
         const getImagePortionBySideResult =
-          await this.getImagePortionBySideInternal(
-            currentSide,
-            pageSize,
-            imageWidth,
-            imageHeight
-          );
+          await this.getImagePortionBySideInternal(currentSide, pageSize);
 
         /* istanbul ignore next */
         if (getImagePortionBySideResult.isErr()) {
@@ -355,37 +370,6 @@ export class CustomA4Scanner implements CustomScanner {
         return ok();
       }
     };
-
-    async function processImageData(
-      currentSide: ScanSide,
-      {
-        pageSize,
-        imageWidth,
-        imageHeight,
-      }: { pageSize: number; imageWidth: number; imageHeight: number }
-    ): Promise<Result<void, ErrorCode>> {
-      if (pageSize !== 0 && imageWidth !== 0) {
-        debug(
-          'side %s has data: pageSize=%d, imageWidth=%d, imageHeight=%d',
-          ScanSide[currentSide],
-          pageSize,
-          imageWidth,
-          imageHeight
-        );
-
-        const readImageDataResult = await readImageData(currentSide, {
-          pageSize,
-          imageWidth,
-          imageHeight,
-        });
-
-        /* istanbul ignore next */
-        if (readImageDataResult.isErr()) {
-          return readImageDataResult;
-        }
-      }
-      return ok();
-    }
 
     const scanLoopTick = async (): Promise<
       Result<'continue' | 'break', ErrorCode>
@@ -543,29 +527,19 @@ export class CustomA4Scanner implements CustomScanner {
    */
   private async getImagePortionBySideInternal(
     scanSide: ScanSide,
-    imagePortionSize: number,
-    imageWidth: number,
-    imageHeight: number
+    imagePortionSize: number
   ): Promise<Result<Buffer, ErrorCode>> {
-    const MAX_IMAGE_PORTION_SIZE = 0xffffff; // Max 3 bytes
-
     /* istanbul ignore next */
     if (imagePortionSize === 0) {
       return ok(Buffer.alloc(0));
     }
 
-    /* istanbul ignore next */
-    if (imagePortionSize > MAX_IMAGE_PORTION_SIZE) {
-      return await this.getImagePortionBySideInternal(
-        scanSide,
-        MAX_IMAGE_PORTION_SIZE,
-        imageWidth,
-        imageHeight
-      );
-    }
-
     return await this.channelMutex.withLock((channel) =>
-      getImageData(channel, imagePortionSize, scanSide)
+      getImageData(
+        channel,
+        Math.min(imagePortionSize, MAX_IMAGE_PORTION_SIZE),
+        scanSide
+      )
     );
   }
 
