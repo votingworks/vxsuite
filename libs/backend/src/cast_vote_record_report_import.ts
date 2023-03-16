@@ -173,7 +173,7 @@ export async function validateCastVoteRecordReportDirectoryStructure(
     .filter(
       (fileEntry) =>
         fileEntry.type !== FileSystemEntryType.Directory &&
-        fileEntry.name.endsWith('.jpg')
+        (fileEntry.name.endsWith('.jpg') || fileEntry.name.endsWith('.jpeg'))
     );
 
   const listBallotLayoutContentsResult = await listDirectoryRecursive(
