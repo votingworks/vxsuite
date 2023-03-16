@@ -459,7 +459,6 @@ export function arbitraryDataResponseMessage(): fc.Arbitrary<DataResponseMessage
  */
 export function arbitraryStatusInternalMessage(): fc.Arbitrary<StatusInternalMessage> {
   return fc.record({
-    code: arbitraryUint32(),
     pageNumSideA: arbitraryUint16(),
     pageNumSideB: arbitraryUint16(),
     validPageSizeA: arbitraryUint32(),

@@ -121,7 +121,7 @@ export type JobEndRequest = CoderType<typeof JobEndRequest>;
  * Internal status message encoder/decoder.
  */
 export const StatusInternalMessage = message({
-  code: uint32(),
+  header: literal('IDAT'),
   pageNumSideA: uint16(),
   pageNumSideB: uint16(),
   validPageSizeA: uint32(),
