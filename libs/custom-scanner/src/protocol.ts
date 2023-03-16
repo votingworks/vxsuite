@@ -884,7 +884,7 @@ function mapResult<T, U>(
 /**
  * Encodes and sends a request to the channel.
  */
-export async function sendRequest<T extends object>(
+export async function sendRequest<T>(
   channel: DuplexChannel,
   requestCoder: Coder<T>,
   value: T
@@ -911,13 +911,7 @@ export async function sendRequestAndReadResponse<
   maxLength: number,
   expectedResponseType: R
 ): Promise<Result<Extract<CheckAnswerResult, { type: R }>, ErrorCode>> {
-  const encoded = mapCoderError(requestCoder.encode(value));
-
-  if (encoded.isErr()) {
-    return encoded;
-  }
-
-  const writeResult = await channel.write(encoded.ok());
+  const writeResult = await sendRequest(channel, requestCoder, value);
 
   if (writeResult.isErr()) {
     return writeResult;
@@ -1072,34 +1066,16 @@ export async function setScanParameters(
     return setScanParametersResult;
   }
 
-  const setScanParametersDataResult = await sendRequest(
+  const setScanParametersDataResult = await sendRequestAndReadResponse(
     channel,
     SetScanParametersRequestData,
-    scanParameters
+    scanParameters,
+    DEFAULT_MAX_READ_LENGTH,
+    'ack'
   );
 
-  if (setScanParametersDataResult.isErr()) {
-    return setScanParametersDataResult;
-  }
-
-  const result = await channel.read(DEFAULT_MAX_READ_LENGTH);
-
-  if (result.isErr()) {
-    return result;
-  }
-
-  const response = checkAnswer(result.ok());
-
-  switch (response.type) {
-    case 'ack':
-      return ok();
-
-    case 'error':
-      return err(response.errorCode);
-
-    default:
-      return err(ErrorCode.DeviceAnswerUnknown);
-  }
+  // drop the `jobId` from the response
+  return mapResult(setScanParametersDataResult, () => undefined);
 }
 
 /**
