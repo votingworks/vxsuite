@@ -30,10 +30,11 @@ export function SmartcardModal(): JSX.Element | null {
   }, [cardStatus]);
 
   switch (cardStatus) {
-    case 'no_card': {
+    case 'no_card':
+    case 'unknown_error': {
       return null;
     }
-    case 'error': {
+    case 'card_error': {
       return (
         <Modal fullscreen content={<InvalidCardScreen reason="card_error" />} />
       );

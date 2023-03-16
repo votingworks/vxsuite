@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   assert,
   err,
+  extractErrorMessage,
   ok,
   Result,
   throwIllegalValue,
@@ -20,7 +21,7 @@ import {
   Optional,
   PrecinctId,
   safeParseJson,
-  User,
+  UserWithCard,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -51,12 +52,7 @@ async function logAuthEvent(
 ) {
   switch (previousAuthStatus.status) {
     case 'logged_out': {
-      if (newAuthStatus.status === 'logged_in') {
-        await logger.log(LogEventId.AuthLogin, newAuthStatus.user.role, {
-          disposition: LogDispositionStandardTypes.Success,
-          message: 'User logged in.',
-        });
-      } else if (
+      if (
         previousAuthStatus.reason === 'no_card' &&
         newAuthStatus.status === 'logged_out' &&
         newAuthStatus.reason !== 'no_card'
@@ -70,6 +66,11 @@ async function logAuthEvent(
             reason: newAuthStatus.reason,
           }
         );
+      } else if (newAuthStatus.status === 'logged_in') {
+        await logger.log(LogEventId.AuthLogin, newAuthStatus.user.role, {
+          disposition: LogDispositionStandardTypes.Success,
+          message: 'User logged in.',
+        });
       }
       return;
     }
@@ -84,15 +85,6 @@ async function logAuthEvent(
             message: 'User canceled PIN entry.',
           }
         );
-      } else if (newAuthStatus.status === 'logged_in') {
-        await logger.log(LogEventId.AuthPinEntry, newAuthStatus.user.role, {
-          disposition: LogDispositionStandardTypes.Success,
-          message: 'User entered correct PIN.',
-        });
-        await logger.log(LogEventId.AuthLogin, newAuthStatus.user.role, {
-          disposition: LogDispositionStandardTypes.Success,
-          message: 'User logged in.',
-        });
       } else if (newAuthStatus.status === 'checking_pin') {
         if (
           newAuthStatus.wrongPinEnteredAt &&
@@ -108,8 +100,17 @@ async function logAuthEvent(
             }
           );
         }
-        // PIN check errors are logged in checkPin, where we have access to the full error message
+      } else if (newAuthStatus.status === 'logged_in') {
+        await logger.log(LogEventId.AuthPinEntry, newAuthStatus.user.role, {
+          disposition: LogDispositionStandardTypes.Success,
+          message: 'User entered correct PIN.',
+        });
+        await logger.log(LogEventId.AuthLogin, newAuthStatus.user.role, {
+          disposition: LogDispositionStandardTypes.Success,
+          message: 'User logged in.',
+        });
       }
+      // PIN check errors are logged in checkPin, where we have access to the full error message
       return;
     }
 
@@ -130,13 +131,9 @@ async function logAuthEvent(
 }
 
 /**
- * An implementation of the inserted smart card auth API
+ * An implementation of the inserted smart card auth API.
  *
- * TODO:
- * - Locking to avoid concurrent card writes
- * - Tests
- *
- * See the libs/auth README for notes on error handling
+ * See the libs/auth README for notes on error handling.
  */
 export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   private authStatus: InsertedSmartCardAuthTypes.AuthStatus;
@@ -200,10 +197,9 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     } catch (error) {
       const userRole =
         'user' in this.authStatus ? this.authStatus.user.role : 'unknown';
-      const errorMessage = error instanceof Error ? error.message : error;
       await this.logger.log(LogEventId.AuthPinEntry, userRole, {
         disposition: LogDispositionStandardTypes.Failure,
-        message: `Error checking PIN: ${errorMessage}.`,
+        message: `Error checking PIN: ${extractErrorMessage(error)}`,
       });
       checkPinResponse = { response: 'error' };
     }
@@ -217,7 +213,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     machineState: InsertedSmartCardAuthMachineState,
     input: { ballotStyleId: BallotStyleId; precinctId: PrecinctId }
   ): Promise<void> {
-    assert(this.config.allowedUserRoles.includes('cardless_voter'));
+    assert(this.config.allowCardlessVoterSessions);
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
     if (
       this.authStatus.status !== 'logged_in' ||
@@ -235,7 +231,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   }
 
   async endCardlessVoterSession(): Promise<void> {
-    assert(this.config.allowedUserRoles.includes('cardless_voter'));
+    assert(this.config.allowCardlessVoterSessions);
 
     this.cardlessVoterUser = undefined;
 
@@ -334,11 +330,9 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
           case 'unknown_error': {
             return { status: 'logged_out', reason: 'no_card' };
           }
-
           case 'card_error': {
             return { status: 'logged_out', reason: 'card_error' };
           }
-
           case 'ready': {
             const { user } = action.cardStatus;
             const validationResult = this.validateCardUser(machineState, user);
@@ -359,9 +353,6 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
                     ? { status: 'logged_in', user }
                     : { status: 'checking_pin', user };
                 }
-                if (user.role === 'poll_worker') {
-                  return { status: 'logged_in', user };
-                }
                 return { status: 'logged_in', user };
               }
               return currentAuthStatus;
@@ -372,7 +363,6 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
               cardUserRole: user?.role,
             };
           }
-
           /* istanbul ignore next: Compile-time check for completeness */
           default: {
             return throwIllegalValue(action.cardStatus, 'status');
@@ -401,6 +391,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
           case 'error': {
             return { ...currentAuthStatus, error: true };
           }
+          /* istanbul ignore next: Compile-time check for completeness */
           default: {
             return throwIllegalValue(action.checkPinResponse, 'response');
           }
@@ -416,14 +407,10 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
 
   private validateCardUser(
     machineState: InsertedSmartCardAuthMachineState,
-    user?: User
+    user?: UserWithCard
   ): Result<void, InsertedSmartCardAuthTypes.LoggedOut['reason']> {
     if (!user) {
       return err('invalid_user_on_card');
-    }
-
-    if (!this.config.allowedUserRoles.includes(user.role)) {
-      return err('user_role_not_allowed');
     }
 
     if (user.role === 'election_manager') {

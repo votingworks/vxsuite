@@ -3,12 +3,12 @@ import {
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
-  User,
+  UserWithCard,
 } from '@votingworks/types';
 
 interface CardStatusReady {
   status: 'ready';
-  user?: User;
+  user?: UserWithCard;
 }
 
 interface CardStatusNotReady {

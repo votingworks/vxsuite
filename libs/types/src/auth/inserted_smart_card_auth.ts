@@ -14,8 +14,7 @@ export interface LoggedOut {
     | 'invalid_user_on_card'
     | 'machine_not_configured'
     | 'no_card'
-    | 'poll_worker_wrong_election'
-    | 'user_role_not_allowed';
+    | 'poll_worker_wrong_election';
   readonly cardUserRole?: UserRole;
 }
 
