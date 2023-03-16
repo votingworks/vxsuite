@@ -3,6 +3,7 @@ export * from './assert';
 export * as collections from './collections';
 export * from './deferred';
 export * from './duplicates';
+export * from './errors';
 export * from './find';
 export * from './group_by';
 export * from './in_groups_of';

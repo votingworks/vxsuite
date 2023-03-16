@@ -1,6 +1,7 @@
 import {
   assert,
   err,
+  extractErrorMessage,
   ok,
   Result,
   throwIllegalValue,
@@ -188,10 +189,9 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     } catch (error) {
       const userRole =
         'user' in this.authStatus ? this.authStatus.user.role : 'unknown';
-      const errorMessage = error instanceof Error ? error.message : error;
       await this.logger.log(LogEventId.AuthPinEntry, userRole, {
         disposition: LogDispositionStandardTypes.Failure,
-        message: `Error checking PIN: ${errorMessage}.`,
+        message: `Error checking PIN: ${extractErrorMessage(error)}.`,
       });
       checkPinResponse = { response: 'error' };
     }
@@ -216,7 +216,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       LogEventId.SmartCardProgramInit,
       'system_administrator',
       {
-        message: `Programming ${input.userRole} smart card...`,
+        message: 'Programming smart card...',
         programmedUserRole: input.userRole,
       }
     );
@@ -224,13 +224,14 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     try {
       pin = await this.programCardBase(machineState, input);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : error;
       await this.logger.log(
         LogEventId.SmartCardProgramComplete,
         'system_administrator',
         {
           disposition: 'failure',
-          message: `Error programming ${input.userRole} smart card: ${errorMessage}.`,
+          message: `Error programming smart card: ${extractErrorMessage(
+            error
+          )}.`,
           programmedUserRole: input.userRole,
         }
       );
@@ -241,7 +242,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       'system_administrator',
       {
         disposition: 'success',
-        message: `Successfully programmed ${input.userRole} smart card.`,
+        message: 'Successfully programmed smart card.',
         programmedUserRole: input.userRole,
       }
     );
@@ -260,20 +261,21 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       LogEventId.SmartCardUnprogramInit,
       'system_administrator',
       {
-        message: `Unprogramming ${programmedUserRole} smart card...`,
+        message: 'Unprogramming smart card...',
         programmedUserRole,
       }
     );
     try {
       await this.unprogramCardBase(machineState);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : error;
       await this.logger.log(
         LogEventId.SmartCardUnprogramComplete,
         'system_administrator',
         {
           disposition: 'failure',
-          message: `Error unprogramming ${programmedUserRole} smart card: ${errorMessage}.`,
+          message: `Error unprogramming smart card: ${extractErrorMessage(
+            error
+          )}.`,
           programmedUserRole,
         }
       );
@@ -284,7 +286,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       'system_administrator',
       {
         disposition: 'success',
-        message: `Successfully unprogrammed ${programmedUserRole} smart card.`,
+        message: 'Successfully unprogrammed smart card.',
         previousProgrammedUserRole: programmedUserRole,
       }
     );

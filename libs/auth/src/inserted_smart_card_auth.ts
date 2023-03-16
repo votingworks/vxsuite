@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   assert,
   err,
+  extractErrorMessage,
   ok,
   Result,
   throwIllegalValue,
@@ -200,10 +201,9 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     } catch (error) {
       const userRole =
         'user' in this.authStatus ? this.authStatus.user.role : 'unknown';
-      const errorMessage = error instanceof Error ? error.message : error;
       await this.logger.log(LogEventId.AuthPinEntry, userRole, {
         disposition: LogDispositionStandardTypes.Failure,
-        message: `Error checking PIN: ${errorMessage}.`,
+        message: `Error checking PIN: ${extractErrorMessage(error)}.`,
       });
       checkPinResponse = { response: 'error' };
     }
