@@ -93,11 +93,6 @@ async function logAuthEventIfNecessary(
             message: 'User canceled PIN entry.',
           }
         );
-      } else if (newAuthStatus.status === 'remove_card') {
-        await logger.log(LogEventId.AuthPinEntry, newAuthStatus.user.role, {
-          disposition: LogDispositionStandardTypes.Success,
-          message: 'User entered correct PIN.',
-        });
       } else if (newAuthStatus.status === 'checking_pin') {
         if (
           newAuthStatus.wrongPinEnteredAt &&
@@ -113,8 +108,13 @@ async function logAuthEventIfNecessary(
             }
           );
         }
-        // PIN check errors are logged in checkPin, where we have access to the full error message
+      } else if (newAuthStatus.status === 'remove_card') {
+        await logger.log(LogEventId.AuthPinEntry, newAuthStatus.user.role, {
+          disposition: LogDispositionStandardTypes.Success,
+          message: 'User entered correct PIN.',
+        });
       }
+      // PIN check errors are logged in checkPin, where we have access to the full error message
       return;
     }
 
@@ -145,13 +145,9 @@ async function logAuthEventIfNecessary(
 }
 
 /**
- * An implementation of the dipped smart card auth API
+ * An implementation of the dipped smart card auth API.
  *
- * TODO:
- * - Locking to avoid concurrent card writes
- * - Tests
- *
- * See the libs/auth README for notes on error handling
+ * See the libs/auth README for notes on error handling.
  */
 export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
   private authStatus: DippedSmartCardAuthTypes.AuthStatus;
@@ -190,7 +186,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         'user' in this.authStatus ? this.authStatus.user.role : 'unknown';
       await this.logger.log(LogEventId.AuthPinEntry, userRole, {
         disposition: LogDispositionStandardTypes.Failure,
-        message: `Error checking PIN: ${extractErrorMessage(error)}.`,
+        message: `Error checking PIN: ${extractErrorMessage(error)}`,
       });
       checkPinResponse = { response: 'error' };
     }
@@ -230,7 +226,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
           disposition: LogDispositionStandardTypes.Failure,
           message: `Error programming smart card: ${extractErrorMessage(
             error
-          )}.`,
+          )}`,
           programmedUserRole: input.userRole,
         }
       );
@@ -254,7 +250,8 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     const programmedUserRole =
       ('programmableCard' in this.authStatus &&
         'programmedUser' in this.authStatus.programmableCard &&
-        this.authStatus.programmableCard?.programmedUser?.role) ??
+        /* istanbul ignore next */
+        this.authStatus.programmableCard.programmedUser?.role) ||
       'unprogrammed';
     await this.logger.log(
       LogEventId.SmartCardUnprogramInit,
@@ -274,7 +271,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
           disposition: LogDispositionStandardTypes.Failure,
           message: `Error unprogramming smart card: ${extractErrorMessage(
             error
-          )}.`,
+          )}`,
           programmedUserRole,
         }
       );
@@ -393,11 +390,9 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
               case 'unknown_error': {
                 return { status: 'logged_out', reason: 'machine_locked' };
               }
-
               case 'card_error': {
                 return { status: 'logged_out', reason: 'card_error' };
               }
-
               case 'ready': {
                 const { user } = action.cardStatus;
                 const validationResult = this.validateCardUser(
@@ -422,7 +417,6 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                   cardUserRole: user?.role,
                 };
               }
-
               /* istanbul ignore next: Compile-time check for completeness */
               default: {
                 return throwIllegalValue(action.cardStatus, 'status');
@@ -492,6 +486,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
           case 'error': {
             return { ...currentAuthStatus, error: true };
           }
+          /* istanbul ignore next: Compile-time check for completeness */
           default: {
             return throwIllegalValue(action.checkPinResponse, 'response');
           }
