@@ -69,5 +69,3 @@ export function asElectionDefinition(election: Election): ElectionDefinition {
     electionHash: sha256(electionData),
   };
 }
-
-export * from './copied_fixtures';
