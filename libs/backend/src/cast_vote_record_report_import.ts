@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { CVR, safeParse } from '@votingworks/types';
-import { ok, err, Result, arrayFromAsyncIterator } from '@votingworks/basics';
+import { ok, err, Result } from '@votingworks/basics';
 import { chain } from 'stream-chain';
 import { parser } from 'stream-json';
 import { pick } from 'stream-json/filters/Pick';
@@ -162,13 +162,11 @@ export async function validateCastVoteRecordReportDirectoryStructure(
     });
   }
 
-  const listBallotImageContentsResults = await arrayFromAsyncIterator(
-    listDirectoryRecursive(
-      join(directoryAbsolutePath, CVR_BALLOT_IMAGES_SUBDIRECTORY)
-    )
+  const listBallotImageContentsResultsGenerator = listDirectoryRecursive(
+    join(directoryAbsolutePath, CVR_BALLOT_IMAGES_SUBDIRECTORY)
   );
   const relativeImagePaths: string[] = [];
-  for (const result of listBallotImageContentsResults) {
+  for await (const result of listBallotImageContentsResultsGenerator) {
     if (result.isErr()) {
       return invalidDirectoryError(result.err());
     }
@@ -186,13 +184,11 @@ export async function validateCastVoteRecordReportDirectoryStructure(
     }
   }
 
-  const listBallotLayoutContentsResults = await arrayFromAsyncIterator(
-    listDirectoryRecursive(
-      join(directoryAbsolutePath, CVR_BALLOT_LAYOUTS_SUBDIRECTORY)
-    )
+  const listBallotLayoutContentsResultGenerator = listDirectoryRecursive(
+    join(directoryAbsolutePath, CVR_BALLOT_LAYOUTS_SUBDIRECTORY)
   );
   const relativeLayoutPaths: string[] = [];
-  for (const result of listBallotLayoutContentsResults) {
+  for await (const result of listBallotLayoutContentsResultGenerator) {
     if (result.isErr()) {
       return invalidDirectoryError(result.err());
     }
