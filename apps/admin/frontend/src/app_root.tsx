@@ -9,7 +9,6 @@ import { LogEventId } from '@votingworks/logging';
 import {
   FullElectionExternalTally,
   ExternalTallySourceType,
-  Provider,
   Printer,
   VotingMethod,
   ConverterClientType,
@@ -25,11 +24,7 @@ import { useUsbDrive, useDevices } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { AppContext } from './contexts/app_context';
 import { ElectionManager } from './components/election_manager';
-import {
-  ResultsFileType,
-  MachineConfig,
-  ExportableTallies,
-} from './config/types';
+import { ResultsFileType, ExportableTallies } from './config/types';
 import { useElectionManagerStore } from './hooks/use_election_manager_store';
 import { getExportableTallies } from './utils/exportable_tallies';
 import { ServicesContext } from './contexts/services_context';
@@ -38,12 +33,12 @@ import {
   getAuthStatus,
   getCastVoteRecords,
   getCurrentElectionMetadata,
+  getMachineConfig,
 } from './api';
 
 export interface Props {
   printer: Printer;
   hardware: Hardware;
-  machineConfigProvider: Provider<MachineConfig>;
   converter?: ConverterClientType;
   generateBallotId?: () => string;
 }
@@ -51,7 +46,6 @@ export interface Props {
 export function AppRoot({
   printer,
   hardware,
-  machineConfigProvider,
   converter,
   generateBallotId = randomBallotId,
 }: Props): JSX.Element | null {
@@ -63,12 +57,9 @@ export function AppRoot({
   const [manualTallyVotingMethod, setManualTallyVotingMethod] = useState(
     VotingMethod.Precinct
   );
-  const [machineConfig, setMachineConfig] = useState<MachineConfig>({
-    machineId: '0000',
-    codeVersion: '',
-  });
 
   const authStatusQuery = getAuthStatus.useQuery();
+  const getMachineConfigQuery = getMachineConfig.useQuery();
   const currentElectionMetadataQuery = getCurrentElectionMetadata.useQuery();
   const castVoteRecordsQuery = getCastVoteRecords.useQuery();
   const currentUserRole =
@@ -98,18 +89,6 @@ export function AppRoot({
     );
     return fullTally;
   }, [currentUserRole, electionDefinition, logger, cvrs]);
-
-  // Handle Machine Config
-  useEffect(() => {
-    void (async () => {
-      try {
-        const newMachineConfig = await machineConfigProvider.get();
-        setMachineConfig(newMachineConfig);
-      } catch {
-        // Do nothing if machineConfig fails. Default values will be used.
-      }
-    })();
-  }, [machineConfigProvider]);
 
   const usbDrive = useUsbDrive({ logger });
 
@@ -195,6 +174,7 @@ export function AppRoot({
 
   if (
     !authStatusQuery.isSuccess ||
+    !getMachineConfigQuery.isSuccess ||
     !currentElectionMetadataQuery.isSuccess ||
     !castVoteRecordsQuery.isSuccess
   ) {
@@ -222,7 +202,7 @@ export function AppRoot({
         setIsTabulationRunning,
         generateExportableTallies,
         auth: authStatusQuery.data,
-        machineConfig,
+        machineConfig: getMachineConfigQuery.data,
         hasCardReaderAttached: !!cardReader,
         hasPrinterAttached: !!printerInfo,
         logger,

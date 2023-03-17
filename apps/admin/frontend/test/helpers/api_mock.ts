@@ -1,5 +1,9 @@
 import { screen } from '@testing-library/react';
-import { Api, CastVoteRecordFileMetadata } from '@votingworks/admin-backend';
+import {
+  Api,
+  CastVoteRecordFileMetadata,
+  MachineConfig,
+} from '@votingworks/admin-backend';
 import { Admin } from '@votingworks/api';
 import { ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -88,6 +92,15 @@ export function createApiMock(
 
     expectUnprogramCard() {
       apiClient.unprogramCard.expectCallWith().resolves(ok());
+    },
+
+    expectGetMachineConfig(
+      machineConfig: MachineConfig = {
+        machineId: '0000',
+        codeVersion: 'dev',
+      }
+    ) {
+      apiClient.getMachineConfig.expectCallWith().resolves(machineConfig);
     },
 
     expectGetCurrentElectionMetadata(

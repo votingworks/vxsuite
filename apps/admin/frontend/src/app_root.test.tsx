@@ -4,7 +4,6 @@ import React from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { screen } from '../test/react_testing_library';
-import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { renderRootElement } from '../test/render_in_app_context';
 import { AppRoot } from './app_root';
 import { ApiMock, createApiMock } from '../test/helpers/api_mock';
@@ -29,6 +28,7 @@ test('renders without crashing', async () => {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
   apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetMachineConfig();
   renderRootElement(
     <BrowserRouter>
       <Route
@@ -37,7 +37,6 @@ test('renders without crashing', async () => {
           <AppRoot
             printer={new NullPrinter()}
             hardware={MemoryHardware.buildStandard()}
-            machineConfigProvider={fakeMachineConfigProvider()}
             {...props}
           />
         )}

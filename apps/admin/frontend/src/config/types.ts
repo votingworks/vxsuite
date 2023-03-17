@@ -4,7 +4,6 @@ import {
   CastVoteRecord,
   ContestTallyMeta,
   Dictionary,
-  MachineId,
   Optional,
   PartyId,
   PrecinctId,
@@ -144,13 +143,3 @@ export type Iso8601Timestamp = string;
 
 export type SmartcardType = 'election' | 'system-administrator';
 export const SmartcardTypeRegExPattern = '(election|system-administrator)';
-
-export interface MachineConfig {
-  machineId: string;
-  codeVersion: string;
-}
-
-export const MachineConfigSchema: z.ZodSchema<MachineConfig> = z.object({
-  machineId: MachineId,
-  codeVersion: z.string().nonempty(),
-});
