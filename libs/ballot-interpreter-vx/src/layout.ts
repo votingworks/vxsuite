@@ -4,7 +4,7 @@ import {
   BallotPageMetadata,
   ElectionDefinition,
 } from '@votingworks/types';
-import { map, reversed } from '@votingworks/basics';
+import { iter } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { ContestShape, findContests } from './hmpb/find_contests';
 import { findContestOptions } from './hmpb/find_contest_options';
@@ -115,24 +115,25 @@ export async function interpretTemplate({
 
   debug('using metadata for template: %O', normalized.metadata);
 
-  const contests = findContestOptions([
-    ...map(
-      findContestsWithUnknownColumnLayout(normalized.imageData).contests,
-      ({ bounds, corners }) => ({
+  const contests = findContestOptions(
+    iter(findContestsWithUnknownColumnLayout(normalized.imageData).contests)
+      .map(({ bounds, corners }) => ({
         bounds,
         corners,
-        targets: imdebug.capture('targets', () => [
-          ...reversed(
+        targets: imdebug.capture('targets', () =>
+          iter(
             findTargets(normalized.imageData, bounds, {
               targetMarkPosition:
                 electionDefinition.election.ballotLayout?.targetMarkPosition,
               imdebug,
             })
-          ),
-        ]),
-      })
-    ),
-  ]);
+          )
+            .rev()
+            .toArray()
+        ),
+      }))
+      .toArray()
+  );
 
   return {
     imageData: normalized.imageData,

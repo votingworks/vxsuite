@@ -11,7 +11,7 @@ import {
   Id,
 } from '@votingworks/types';
 
-import { assert, collections, groupBy } from '@votingworks/basics';
+import { assert, collections, iter } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { NavigationScreen } from '../components/navigation_screen';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
@@ -54,10 +54,10 @@ export function WriteInsScreen(): JSX.Element {
   // Get write-in counts grouped by contest
   const writeInCountsByContest = useMemo(() => {
     return collections.map(
-      groupBy(writeInsQuery.data ?? [], ({ contestId }) => contestId),
+      iter(writeInsQuery.data ?? []).toMap(({ contestId }) => contestId),
       (writeIns) =>
         collections.map(
-          groupBy(writeIns, ({ status }) => status),
+          iter(writeIns).toMap(({ status }) => status),
           (group) => group.size
         )
     );

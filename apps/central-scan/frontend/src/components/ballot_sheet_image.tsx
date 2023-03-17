@@ -1,5 +1,5 @@
 import { BallotPageLayout, Contest } from '@votingworks/types';
-import { zip } from '@votingworks/basics';
+import { iter } from '@votingworks/basics';
 import React, { useCallback, useRef, useState } from 'react';
 
 export interface Props {
@@ -81,8 +81,9 @@ export function BallotSheetImage({
       />
       {layout &&
         contestIds &&
-        [...zip(layout.contests, contestIds)].map(
-          ([contestLayout, contestId]) => (
+        iter(layout.contests)
+          .zip(contestIds)
+          .map(([contestLayout, contestId]) => (
             <div
               key={contestId}
               data-contest-id={contestId}
@@ -97,8 +98,8 @@ export function BallotSheetImage({
                 ...(styleForContest?.(contestId) ?? {}),
               }}
             />
-          )
-        )}
+          ))
+          .toArray()}
     </div>
   );
 }

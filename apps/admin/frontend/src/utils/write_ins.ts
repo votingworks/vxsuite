@@ -11,7 +11,7 @@ import {
   PartyId,
   writeInCandidate,
 } from '@votingworks/types';
-import { assert, collections, groupBy } from '@votingworks/basics';
+import { assert, collections, iter } from '@votingworks/basics';
 
 export type CountsByContestAndCandidateName = Map<
   ContestId,
@@ -23,30 +23,27 @@ export function getScreenAdjudicatedWriteInCounts(
   onlyOfficialCandidates = false
 ): CountsByContestAndCandidateName {
   const writeInsByContestAndCandidate = collections.map(
-    groupBy(writeInSummaryData, ({ contestId }) => contestId),
+    iter(writeInSummaryData).toMap(({ contestId }) => contestId),
     (writeInSummary) => {
       return onlyOfficialCandidates
-        ? groupBy(
-            [...writeInSummary].filter(
+        ? iter(writeInSummary)
+            .filter(
               (s) => s.writeInAdjudication.adjudicatedOptionId !== undefined
-            ),
-            (s) => s.writeInAdjudication.adjudicatedOptionId as ContestOptionId
-          )
-        : groupBy(
-            [...writeInSummary].filter(
+            )
+            .toMap(
+              (s) =>
+                s.writeInAdjudication.adjudicatedOptionId as ContestOptionId
+            )
+        : iter(writeInSummary)
+            .filter(
               (s) => s.writeInAdjudication.adjudicatedOptionId === undefined
-            ),
-            (s) => s.writeInAdjudication.adjudicatedValue
-          );
+            )
+            .toMap((s) => s.writeInAdjudication.adjudicatedValue);
     }
   );
   return collections.map(writeInsByContestAndCandidate, (byCandidate) =>
     collections.map(byCandidate, (entries) =>
-      collections.reduce(
-        entries,
-        (sum, entry) => sum + entry.writeInCount ?? 0,
-        0
-      )
+      iter(entries).sum((entry) => entry.writeInCount ?? 0)
     )
   );
 }

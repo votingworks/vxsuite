@@ -20,13 +20,7 @@ import {
   unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
-import {
-  assert,
-  groupBy,
-  throwIllegalValue,
-  zip,
-  zipMin,
-} from '@votingworks/basics';
+import { assert, iter, throwIllegalValue } from '@votingworks/basics';
 import { decode as decodeHtmlEntities } from 'he';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
@@ -148,8 +142,8 @@ export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
   grid1: readonly T[],
   grid2: readonly U[]
 ): PairColumnEntriesResult<T, U> {
-  const grid1ByColumn = groupBy(grid1, (e) => e.column);
-  const grid2ByColumn = groupBy(grid2, (e) => e.column);
+  const grid1ByColumn = iter(grid1).toMap((e) => e.column);
+  const grid2ByColumn = iter(grid2).toMap((e) => e.column);
   const grid1Columns = Array.from(grid1ByColumn.entries())
     // sort by column
     .sort((a, b) => a[0] - b[0])
@@ -172,7 +166,7 @@ export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
   }
 
   let columnIndex = 0;
-  for (const [column1, column2] of zipMin(grid1Columns, grid2Columns)) {
+  for (const [column1, column2] of iter(grid1Columns).zipMin(grid2Columns)) {
     if (column1.length !== column2.length) {
       issues.push({
         kind: PairColumnEntriesIssueKind.ColumnEntryCountMismatch,
@@ -183,7 +177,7 @@ export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
         extraRightEntries: column2.slice(column1.length),
       });
     }
-    for (const [entry1, entry2] of zipMin(column1, column2)) {
+    for (const [entry1, entry2] of iter(column1).zipMin(column2)) {
       pairs.push([entry1, entry2]);
     }
     columnIndex += 1;
@@ -242,8 +236,7 @@ function matchContestOptionsOnGrid(
   }
 
   // Add the YES/NO options to the grid.
-  for (const [contest, yesGridEntry, noGridEntry] of zip(
-    yesNoContests,
+  for (const [contest, yesGridEntry, noGridEntry] of iter(yesNoContests).zip(
     yesColumnIssue.extraRightEntries,
     noColumnIssue.extraRightEntries
   )) {

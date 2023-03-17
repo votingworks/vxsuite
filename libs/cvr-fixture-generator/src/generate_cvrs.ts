@@ -1,4 +1,6 @@
 /* eslint-disable vx/gts-identifiers */
+import { buildCVRContestsFromVotes, hasWriteIns } from '@votingworks/backend';
+import { find, throwIllegalValue } from '@votingworks/basics';
 import {
   Candidate,
   CandidateContest,
@@ -11,8 +13,6 @@ import {
   YesNoVote,
 } from '@votingworks/types';
 import { BallotPackage } from '@votingworks/utils';
-import { find, throwIllegalValue } from '@votingworks/basics';
-import { buildCVRContestsFromVotes, hasWriteIns } from '@votingworks/backend';
 import {
   arrangeContestsBySheet,
   BATCH_ID,
@@ -120,7 +120,7 @@ export function* generateCvrs({
   scannerNames,
   ballotPackage,
   includeBallotImages,
-}: GenerateCvrsParams): Generator<CVR.CVR> {
+}: GenerateCvrsParams): Iterable<CVR.CVR> {
   const { electionDefinition } = ballotPackage;
   const { election } = electionDefinition;
   const { ballotStyles } = election;

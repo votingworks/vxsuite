@@ -1,5 +1,5 @@
 import { CandidateContest } from '@votingworks/types';
-import { collections, groupBy, take } from '@votingworks/basics';
+import { collections, iter } from '@votingworks/basics';
 import {
   WriteInAdjudicationTable,
   WriteInAdjudicationTableAdjudicatedRow,
@@ -112,12 +112,11 @@ function renderAdjudicatedTableRowGroup(
   contest: CandidateContest,
   writeInSummaries: WriteInSummaryEntryNonPending[]
 ): WriteInAdjudicationTableAdjudicatedRowGroup[] {
-  const writeInSummariesByAdjudicatedValue = groupBy(
-    writeInSummaries.filter(
+  const writeInSummariesByAdjudicatedValue = iter(writeInSummaries)
+    .filter(
       (s): s is WriteInSummaryEntryAdjudicated => s.status === 'adjudicated'
-    ),
-    (s) => s.writeInAdjudication.adjudicatedValue
-  );
+    )
+    .toMap((s) => s.writeInAdjudication.adjudicatedValue);
 
   return Array.from(
     writeInSummariesByAdjudicatedValue,
@@ -127,10 +126,9 @@ function renderAdjudicatedTableRowGroup(
         (sum, s) => sum + s.writeInCount,
         0
       );
-      const firstSummary = take(
-        1,
+      const firstSummary = iter(
         summaries
-      )[0] as WriteInSummaryEntryAdjudicated;
+      ).first() as WriteInSummaryEntryAdjudicated;
       const { adjudicatedOptionId } = firstSummary.writeInAdjudication;
 
       return {

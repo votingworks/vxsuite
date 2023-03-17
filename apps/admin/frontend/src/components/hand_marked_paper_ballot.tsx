@@ -1,4 +1,4 @@
-import { assert, integers, take, throwIllegalValue } from '@votingworks/basics';
+import { assert, integers, throwIllegalValue } from '@votingworks/basics';
 import React, { useLayoutEffect, useRef } from 'react';
 import ReactDom from 'react-dom';
 import styled from 'styled-components';
@@ -511,9 +511,9 @@ export function CandidateContestChoices({
   targetMarkPosition,
 }: CandidateContestChoicesProps): JSX.Element {
   const { t } = useTranslation();
-  const writeInItemKeys = take(contest.seats, integers()).map(
-    (num) => `write-in-${contest.id}-${num}`
-  );
+  const writeInItemKeys = integers()
+    .take(contest.seats)
+    .map((num) => `write-in-${contest.id}-${num}`);
   const dualLanguageWithSlash = dualLanguageComposer(t, locales);
   return (
     <React.Fragment>
@@ -540,24 +540,26 @@ export function CandidateContestChoices({
         </Text>
       ))}
       {contest.allowWriteIns &&
-        writeInItemKeys.map((key, position) => (
-          <WriteInItem key={key} data-write-in>
-            <BubbleMark
-              position={targetMarkPosition}
-              checked={hasWriteInAtPosition(vote, position)}
-            >
-              <WriteInLine />
-              <Text small noWrap as="span">
-                {dualLanguageWithSlash('write-in')}
-              </Text>
-            </BubbleMark>
-            {hasWriteInAtPosition(vote, position) && (
-              <WriteInName>
-                {getWriteInNameAtPosition(vote, position)}
-              </WriteInName>
-            )}
-          </WriteInItem>
-        ))}
+        writeInItemKeys
+          .map((key, position) => (
+            <WriteInItem key={key} data-write-in>
+              <BubbleMark
+                position={targetMarkPosition}
+                checked={hasWriteInAtPosition(vote, position)}
+              >
+                <WriteInLine />
+                <Text small noWrap as="span">
+                  {dualLanguageWithSlash('write-in')}
+                </Text>
+              </BubbleMark>
+              {hasWriteInAtPosition(vote, position) && (
+                <WriteInName>
+                  {getWriteInNameAtPosition(vote, position)}
+                </WriteInName>
+              )}
+            </WriteInItem>
+          ))
+          .toArray()}
     </React.Fragment>
   );
 }

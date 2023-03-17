@@ -1,4 +1,4 @@
-import { inGroupsOf } from '@votingworks/basics';
+import { iter } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { createImageData, loadImage } from 'canvas';
 import { fileSync } from 'tmp';
@@ -123,11 +123,10 @@ test('text', async () => {
   expect(writeFn).toHaveBeenNthCalledWith(1, ['test'], expect.any(Buffer));
 
   const imageData = toImageData(await loadImage(writeFn.mock.calls[0][1]));
-  const countRed = [...inGroupsOf(imageData.data, 4)].reduce(
-    (acc, [r, g = 0, b = 0]) => (r > 200 && g < 200 && b < 200 ? acc + 1 : acc),
-    0
-  );
-  expect(countRed).toBeGreaterThanOrEqual(1);
+  const hasRed = iter(imageData.data)
+    .chunks(4)
+    .some(([r, g = 0, b = 0]) => r > 200 && g < 200 && b < 200);
+  expect(hasRed).toEqual(true);
 });
 
 test('imageData', async () => {

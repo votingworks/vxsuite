@@ -1,4 +1,4 @@
-import { assert, mapAsync, ok, Result } from '@votingworks/basics';
+import { assert, iter, ok, Result } from '@votingworks/basics';
 import { ExportDataError } from '@votingworks/backend';
 import { loadImage, toDataUrl, toImageData } from '@votingworks/image-utils';
 import {
@@ -180,8 +180,7 @@ export function exportCastVoteRecordsAsNdJson({
   skipImages?: boolean;
 }): NodeJS.ReadableStream {
   return Readable.from(
-    mapAsync(
-      exportCastVoteRecords({ store, skipImages }),
+    iter(exportCastVoteRecords({ store, skipImages })).map(
       (cvr) => `${JSON.stringify(cvr)}\n`
     )
   );

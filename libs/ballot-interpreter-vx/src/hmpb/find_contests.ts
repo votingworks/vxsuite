@@ -1,7 +1,8 @@
+import { iter } from '@votingworks/basics';
 import {
+  Debugger,
   getImageChannelCount,
   noDebug,
-  Debugger,
 } from '@votingworks/image-utils';
 import {
   AnyContest,
@@ -11,7 +12,6 @@ import {
   Corners,
   Rect,
 } from '@votingworks/types';
-import { zip } from '@votingworks/basics';
 import makeDebug from 'debug';
 import {
   CONTEST_BOUNDING_BOX_COLOR,
@@ -288,8 +288,7 @@ export function findBallotLayoutCorrespondence(
   const mismatchedContests: BallotLayoutCorrespondence['mismatchedContests'] =
     [];
 
-  for (const [definition, templateContest, ballotContest] of zip(
-    contests,
+  for (const [definition, templateContest, ballotContest] of iter(contests).zip(
     template.contests,
     ballot.contests
   )) {

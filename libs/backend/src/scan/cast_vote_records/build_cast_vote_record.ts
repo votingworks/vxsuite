@@ -1,6 +1,6 @@
 /* eslint-disable vx/gts-identifiers */
 
-import { assert, find, groupBy, throwIllegalValue } from '@votingworks/basics';
+import { assert, find, iter, throwIllegalValue } from '@votingworks/basics';
 import {
   AnyContest,
   BallotId,
@@ -343,7 +343,7 @@ function buildOriginalSnapshot({
   definiteMarkThreshold: number;
   election: Election;
 }): CVR.CVRSnapshot {
-  const marksByContest = groupBy(marks, (mark) => mark.contestId);
+  const marksByContest = iter(marks).toMap((mark) => mark.contestId);
 
   return {
     '@id': `${castVoteRecordId}-original`,

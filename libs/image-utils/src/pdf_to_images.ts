@@ -1,7 +1,7 @@
 import { assert } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { Canvas, createCanvas } from 'canvas';
-import { getDocument, CanvasFactory, GlobalWorkerOptions } from 'pdfjs-dist';
+import { CanvasFactory, getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 
 // Extend `pdfjs-dist`'s `render` function to include `canvasFactory`.
 declare module 'pdfjs-dist' {
@@ -78,7 +78,7 @@ export interface PdfPage {
 export async function* pdfToImages(
   pdfBytes: Buffer,
   { scale = 1 } = {}
-): AsyncGenerator<PdfPage> {
+): AsyncIterable<PdfPage> {
   const canvas = createCanvas(0, 0);
   const context = canvas.getContext('2d');
   const pdf = await getDocument(pdfBytes).promise;

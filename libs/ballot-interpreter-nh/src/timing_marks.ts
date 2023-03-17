@@ -4,7 +4,7 @@ import {
   Debugger,
   noDebug,
 } from '@votingworks/image-utils';
-import { assert, integers, map, zip, zipMin } from '@votingworks/basics';
+import { assert, integers, iter } from '@votingworks/basics';
 import {
   Bit,
   CompleteTimingMarks,
@@ -682,26 +682,28 @@ export function computeTimingMarkGrid(
     `left and right must be the same length (${left.length} vs ${right.length})`
   );
 
-  const columnAngles = [
-    ...map(zip(top, bottom), ([topRect, bottomRect]) =>
+  const columnAngles = iter(top)
+    .zip(bottom)
+    .map(([topRect, bottomRect]) =>
       Math.atan2(
         centerOfRect(bottomRect).y - centerOfRect(topRect).y,
         centerOfRect(bottomRect).x - centerOfRect(topRect).x
       )
-    ),
-  ];
-  const rowAngles = [
-    ...map(zip(left, right), ([leftRect, rightRect]) =>
+    )
+    .toArray();
+  const rowAngles = iter(left)
+    .zip(right)
+    .map(([leftRect, rightRect]) =>
       Math.atan2(
         centerOfRect(rightRect).y - centerOfRect(leftRect).y,
         centerOfRect(rightRect).x - centerOfRect(leftRect).x
       )
-    ),
-  ];
+    )
+    .toArray();
 
   /* istanbul ignore next */
   if (debug.isEnabled()) {
-    for (const [topRect, bottomRect] of zip(top, bottom)) {
+    for (const [topRect, bottomRect] of iter(top).zip(bottom)) {
       const topRectCenter = centerOfRect(topRect);
       const bottomRectCenter = centerOfRect(bottomRect);
 
@@ -714,7 +716,7 @@ export function computeTimingMarkGrid(
       );
     }
 
-    for (const [leftRect, rightRect] of zip(left, right)) {
+    for (const [leftRect, rightRect] of iter(left).zip(right)) {
       const leftRectCenter = centerOfRect(leftRect);
       const rightRectCenter = centerOfRect(rightRect);
 
@@ -730,16 +732,14 @@ export function computeTimingMarkGrid(
 
   const rows: Array<Point[]> = [];
 
-  for (const [leftShape, rowAngle, column] of zipMin(
-    left,
+  for (const [leftShape, rowAngle, column] of iter(left).zipMin(
     rowAngles,
     integers()
   )) {
     const leftShapeCenter = centerOfRect(leftShape);
     const intersections: Point[] = [];
 
-    for (const [topShape, columnAngle, row] of zipMin(
-      top,
+    for (const [topShape, columnAngle, row] of iter(top).zipMin(
       columnAngles,
       integers()
     )) {

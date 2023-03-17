@@ -20,7 +20,7 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
-import { assert, find, integers, take } from '@votingworks/basics';
+import { assert, find, integers } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
 
@@ -510,7 +510,7 @@ export function Undervote1ContestPreview(): JSX.Element {
           optionIds: contest.candidates
             .slice(0, contest.seats - 1)
             .map(({ id }) => id),
-          optionIndexes: take(contest.seats, integers()),
+          optionIndexes: integers().take(contest.seats).toArray(),
           expected: contest.seats,
         },
       ]}
