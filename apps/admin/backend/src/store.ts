@@ -18,6 +18,8 @@ import {
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
+  SystemSettings,
+  SystemSettingsDbRow,
 } from '@votingworks/types';
 import { ParseCastVoteRecordResult, parseCvrs } from '@votingworks/utils';
 import * as fs from 'fs';
@@ -233,6 +235,39 @@ export class Store {
     ) as { currentElectionId: Id } | null;
 
     return settings?.currentElectionId ?? undefined;
+  }
+
+  /**
+   * Creates a system settings record and returns its ID.
+   * Note `system_settings` are logical settings that span other machines eg. VxScan.
+   * `settings` are local to VxAdmin
+   */
+  saveSystemSettings(systemSettings: SystemSettings): void {
+    this.client.run(
+      'insert into system_settings (are_poll_worker_card_pins_enabled) values (?)',
+      systemSettings.arePollWorkerCardPinsEnabled ? 1 : 0 // No booleans in sqlite3
+    );
+  }
+
+  /**
+   * Gets a specific system settings record.
+   */
+  getSystemSettings(): SystemSettings | undefined {
+    const result = this.client.one(
+      `
+      select
+        are_poll_worker_card_pins_enabled as arePollWorkerCardPinsEnabled
+      from system_settings
+    `
+    ) as SystemSettingsDbRow | undefined;
+
+    if (!result) {
+      return undefined;
+    }
+
+    return {
+      arePollWorkerCardPinsEnabled: result.arePollWorkerCardPinsEnabled === 1,
+    };
   }
 
   private convertCvrParseErrorsToApiError(

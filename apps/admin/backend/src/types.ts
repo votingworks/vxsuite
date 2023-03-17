@@ -21,6 +21,17 @@ export type ConfigureResult = Result<
 >;
 
 /**
+ * Result of attempt to store and apply system settings
+ */
+export type SetSystemSettingsResult = Result<
+  Record<string, never>,
+  {
+    type: 'parsing' | 'database';
+    message: string;
+  }
+>;
+
+/**
  * Errors that may occur when loading a cast vote record file from a path
  */
 export type AddCastVoteRecordFileError =

@@ -11,6 +11,7 @@ export * as format from './format';
 export * from './features';
 export * from './fetch_json';
 export * from './filenames';
+export * from './file_reading';
 export * from './Hardware';
 export * from './hmpb';
 export * from './json_stream';

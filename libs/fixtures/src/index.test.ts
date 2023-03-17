@@ -43,6 +43,7 @@ test('has various election definitions', () => {
       "primaryElectionSampleDefinition",
       "primaryElectionSampleFixtures",
       "sampleBallotImages",
+      "systemSettings",
     ]
   `);
 });

@@ -15,7 +15,7 @@ import {
 } from '@votingworks/types';
 
 import { Button, SegmentedButton, Prose, Text } from '@votingworks/ui';
-import { readFileAsync } from '../lib/read_file_async';
+import { readFileAsyncAsString } from '@votingworks/utils';
 import { InputEventFunction, TextareaEventFunction } from '../config/types';
 
 import { NavigationScreen } from '../components/navigation_screen';
@@ -284,7 +284,7 @@ export function DefinitionContestsScreen({
     if (file?.type === 'image/svg+xml') {
       const yesNoContest = contest as YesNoContest;
       try {
-        const fileContent = await readFileAsync(file);
+        const fileContent = await readFileAsyncAsString(file);
         const description = `${yesNoContest.description}
 
 ${fileContent}`;

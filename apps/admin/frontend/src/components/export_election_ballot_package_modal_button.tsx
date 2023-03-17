@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
 import React, { useContext, useEffect, useState } from 'react';
+import { UseQueryResult } from '@tanstack/react-query';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
 import { join } from 'path';
@@ -10,6 +11,7 @@ import {
   getElectionLocales,
   getPrecinctById,
   HmpbBallotPageMetadata,
+  SystemSettings,
 } from '@votingworks/types';
 
 import { Admin } from '@votingworks/api';
@@ -31,6 +33,7 @@ import {
   printElementToPdfWhenReady,
 } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
+import { getSystemSettings } from '../api';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { getHumanBallotLanguageFormat } from '../utils/election';
 import { pdfToImages } from '../utils/pdf_to_images';
@@ -51,6 +54,11 @@ const UsbImage = styled.img`
 export function ExportElectionBallotPackageModalButton(): JSX.Element {
   const { electionDefinition, usbDrive, auth, logger } = useContext(AppContext);
   assert(electionDefinition);
+  const systemSettingsQuery =
+    getSystemSettings.useQuery() as UseQueryResult<SystemSettings>;
+  const systemSettings = systemSettingsQuery.isSuccess
+    ? systemSettingsQuery.data
+    : undefined;
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
   const { election, electionData, electionHash } = electionDefinition;
@@ -59,6 +67,8 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
   const [state, setState] = useState<workflow.State>(
     workflow.init(electionDefinition, electionLocaleCodes)
   );
+
+  const loaded = systemSettingsQuery.isSuccess;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -190,6 +200,10 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       }
       await state.archive.file('election.json', electionData);
       await state.archive.file(
+        'systemSettings.json',
+        JSON.stringify(systemSettings || {}, null, 2)
+      );
+      await state.archive.file(
         'manifest.json',
         JSON.stringify({ ballots: state.ballotConfigs }, undefined, 2)
       );
@@ -254,8 +268,12 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         case 'mounted': {
           actions = (
             <React.Fragment>
-              <Button variant="primary" onPress={() => saveFileCallback(false)}>
-                Save
+              <Button
+                disabled={!loaded}
+                variant="primary"
+                onPress={() => saveFileCallback(false)}
+              >
+                {loaded ? 'Save' : 'Loading …'}
               </Button>
               <Button onPress={closeModal}>Cancel</Button>
               <Button onPress={() => saveFileCallback(true)}>Custom</Button>

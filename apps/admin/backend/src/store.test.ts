@@ -9,7 +9,12 @@ import {
   arbitraryBallotStyleId,
   arbitraryPrecinctId,
 } from '@votingworks/test-utils';
-import { BallotId, CastVoteRecord } from '@votingworks/types';
+import {
+  BallotId,
+  CastVoteRecord,
+  SystemSettingsSchema,
+  safeParseJson,
+} from '@votingworks/types';
 import { typedAs } from '@votingworks/basics';
 import fc from 'fast-check';
 import { promises as fs } from 'fs';
@@ -1118,6 +1123,7 @@ test('write-in adjudication lifecycle', async () => {
       "elections" => 1,
       "printed_ballots" => 0,
       "settings" => 1,
+      "system_settings" => 0,
       "write_in_adjudications" => 1,
       "write_ins" => 1,
     }
@@ -1133,6 +1139,7 @@ test('write-in adjudication lifecycle', async () => {
       "elections" => 1,
       "printed_ballots" => 0,
       "settings" => 1,
+      "system_settings" => 0,
       "write_in_adjudications" => 0,
       "write_ins" => 0,
     }
@@ -1246,4 +1253,32 @@ test('current election id', () => {
 
   store.setCurrentElectionId(undefined);
   expect(store.getCurrentElectionId()).toBeUndefined();
+});
+
+/**
+ * System settings tests
+ */
+function makeSystemSettings() {
+  const systemSettingsString =
+    electionMinimalExhaustiveSampleFixtures.systemSettings.asText();
+  return safeParseJson(
+    systemSettingsString,
+    SystemSettingsSchema
+  ).unsafeUnwrap();
+}
+
+test('saveSystemSettings and getSystemSettings write and read system settings', () => {
+  const store = Store.memoryStore();
+  const systemSettings = makeSystemSettings();
+  store.saveSystemSettings(systemSettings);
+  const retrievedSystemSettings = store.getSystemSettings();
+  expect(retrievedSystemSettings?.arePollWorkerCardPinsEnabled).toEqual(
+    systemSettings.arePollWorkerCardPinsEnabled
+  );
+});
+
+test('getSystemSettings returns undefined when no system settings exist', () => {
+  const store = Store.memoryStore();
+  const retrievedSystemSettings = store.getSystemSettings();
+  expect(retrievedSystemSettings).toBeUndefined();
 });

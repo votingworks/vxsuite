@@ -176,6 +176,7 @@ test('authentication works', async () => {
   const { renderApp, hardware } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetSystemSettings();
   renderApp();
 
   await screen.findByText('VxAdmin is Locked');
@@ -268,6 +269,7 @@ test('L&A (logic and accuracy) flow', async () => {
     electionDefinition,
   });
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+  apiMock.expectGetSystemSettings();
 
   renderApp();
   await apiMock.authenticateAsElectionManager(electionDefinition);
@@ -376,6 +378,7 @@ test('printing ballots', async () => {
   const { renderApp, hardware, logger } = buildApp(apiMock);
   hardware.setPrinterConnected(false);
   apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
   });
@@ -443,6 +446,7 @@ test('marking results as official', async () => {
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
   });
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetOfficialPrintedBallots([]);
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
   apiMock.expectGetWriteInSummaryAdjudicated([]);
@@ -473,6 +477,7 @@ test('marking results as official', async () => {
 test('tabulating CVRs', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
   const { renderApp, logger } = buildApp(apiMock, 'ms-sems');
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(EITHER_NEITHER_CVR_DATA, electionDefinition)
   );
@@ -612,6 +617,7 @@ test('tabulating CVRs with manual data', async () => {
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(EITHER_NEITHER_CVR_DATA, electionDefinition)
   );
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
     isOfficialResults: false,
@@ -787,6 +793,7 @@ test('reports screen shows appropriate summary data about ballot counts and prin
     await fileDataToCastVoteRecords(cvrData, electionDefinition)
   );
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetOfficialPrintedBallots([
     mockPrintedBallotRecord,
     mockPrintedBallotRecord,
@@ -830,6 +837,7 @@ test('removing election resets cvr and manual data files', async () => {
   const { renderApp, backend } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetSystemSettings();
 
   const manualTally = convertTalliesByPrecinctToFullExternalTally(
     { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
@@ -884,6 +892,7 @@ test('clearing results', async () => {
     { ...mockCastVoteRecordFileRecord, numCvrsImported: 3000 },
   ]);
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
+  apiMock.expectGetSystemSettings();
 
   const manualTally = convertTalliesByPrecinctToFullExternalTally(
     { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
@@ -952,6 +961,7 @@ test('Can not view or print ballots when using an election with gridlayouts (lik
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetSystemSettings();
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
@@ -974,6 +984,7 @@ test('election manager UI has expected nav', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetOfficialPrintedBallots([]);
@@ -1142,6 +1153,7 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetSystemSettings();
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
@@ -1228,6 +1240,7 @@ test('primary election with nonpartisan contests', async () => {
   const { renderApp } = buildApp(apiMock);
 
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(cvrData, electionDefinition)
   );

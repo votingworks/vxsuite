@@ -69,6 +69,10 @@ export enum LogEventId {
   TestDeckPrinted = 'test-deck-printed',
   TestDeckTallyReportPrinted = 'test-deck-tally-report-printed',
   TestDeckTallyReportSavedToPdf = 'test-deck-tally-report-saved-to-pdf',
+  InitialSetupPackageLoaded = 'initial-setup-zip-package-loaded',
+  SystemSettingsSaveInitiated = 'system-settings-save-initiated',
+  SystemSettingsSaved = 'system-settings-saved',
+  SystemSettingsRetrieved = 'system-settings-retrieved',
   // VxCentralScan specific user action logs
   TogglingTestMode = 'toggle-test-mode-init',
   ToggledTestMode = 'toggled-test-mode',
@@ -866,6 +870,34 @@ const ScannerStateChanged: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxScanBackend],
 };
 
+const InitialSetupPackageLoaded: LogDetails = {
+  eventId: LogEventId.InitialSetupPackageLoaded,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User loaded VxAdmin initial setup package',
+  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+};
+
+const SystemSettingsSaveInitiated: LogDetails = {
+  eventId: LogEventId.SystemSettingsSaveInitiated,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'VxAdmin attempting to save System Settings to db',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
+};
+
+const SystemSettingsSaved: LogDetails = {
+  eventId: LogEventId.SystemSettingsSaved,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'VxAdmin System Settings saved to db',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
+};
+
+const SystemSettingsRetrieved: LogDetails = {
+  eventId: LogEventId.SystemSettingsRetrieved,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'VxAdmin System Settings read from db',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1058,6 +1090,15 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ScannerEvent;
     case LogEventId.ScannerStateChanged:
       return ScannerStateChanged;
+    case LogEventId.InitialSetupPackageLoaded:
+      return InitialSetupPackageLoaded;
+    case LogEventId.SystemSettingsSaveInitiated:
+      return SystemSettingsSaveInitiated;
+    case LogEventId.SystemSettingsSaved:
+      return SystemSettingsSaved;
+    case LogEventId.SystemSettingsRetrieved:
+      return SystemSettingsRetrieved;
+
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

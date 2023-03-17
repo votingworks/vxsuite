@@ -210,6 +210,22 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User attempted to save the test deck tally report as PDF. Success or failure indicated by subsequent FileSaved log disposition.  
 **Machines:** vx-admin-frontend
+### initial-setup-zip-package-loaded
+**Type:** [user-action](#user-action)  
+**Description:** User loaded VxAdmin initial setup package  
+**Machines:** vx-admin-frontend
+### system-settings-save-initiated
+**Type:** [application-status](#application-status)  
+**Description:** VxAdmin attempting to save System Settings to db  
+**Machines:** vx-admin-service
+### system-settings-saved
+**Type:** [application-status](#application-status)  
+**Description:** VxAdmin System Settings saved to db  
+**Machines:** vx-admin-service
+### system-settings-retrieved
+**Type:** [application-status](#application-status)  
+**Description:** VxAdmin System Settings read from db  
+**Machines:** vx-admin-service
 ### toggle-test-mode-init
 **Type:** [user-action](#user-action)  
 **Description:** User has initiated toggling between test mode and live mode in the current application.  

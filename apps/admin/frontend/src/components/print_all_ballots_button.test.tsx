@@ -158,6 +158,7 @@ test('initial modal state toggles based on printer state', async () => {
     reason: 'machine_locked',
   });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetMachineConfig();
   hardware.setPrinterConnected(false);
@@ -189,6 +190,7 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
     reason: 'machine_locked',
   });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetMachineConfig();
   renderApp();
@@ -234,6 +236,7 @@ test('modal is different for system administrators', async () => {
     reason: 'machine_locked',
   });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetMachineConfig();
   renderApp();

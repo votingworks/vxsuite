@@ -14,11 +14,12 @@ import { assert } from '@votingworks/basics';
 
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { ConfigureResult } from '@votingworks/admin-backend';
+import { readFileAsyncAsString } from '@votingworks/utils';
+import { readInitialAdminSetupPackageFromFile } from '../utils/initial_setup_package';
 import {
   getElectionDefinitionConverterClient,
   VxFile,
 } from '../lib/converters';
-import { readFileAsync } from '../lib/read_file_async';
 
 import { InputEventFunction } from '../config/types';
 
@@ -29,7 +30,7 @@ import { FileInputButton } from '../components/file_input_button';
 import { HorizontalRule } from '../components/horizontal_rule';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
-import { configure } from '../api';
+import { configure, setSystemSettings } from '../api';
 
 const Loaded = styled.p`
   line-height: 2.5rem;
@@ -65,6 +66,7 @@ export function UnconfiguredScreen(): JSX.Element {
   const history = useHistory();
   const isMounted = useMountedState();
   const configureMutation = configure.useMutation();
+  const setSystemSettingsMutation = setSystemSettings.useMutation();
 
   const configureMutateAsync = useCallback(
     async (electionData) => {
@@ -85,12 +87,15 @@ export function UnconfiguredScreen(): JSX.Element {
   const { converter } = useContext(AppContext);
 
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingZip, setIsUploadingZip] = useState(false);
 
   const [inputConversionFiles, setInputConversionFiles] = useState<VxFile[]>(
     []
   );
   const [isLoading, setIsLoading] = useState(false);
   const [vxElectionFileIsInvalid, setVxElectionFileIsInvalid] = useState(false);
+  const [systemSettingsFileIsInvalid, setSystemSettingsFileIsInvalid] =
+    useState(false);
   const [isUsingConverter, setIsUsingConverter] = useState(false);
 
   const client = useMemo(
@@ -103,6 +108,37 @@ export function UnconfiguredScreen(): JSX.Element {
     history.push(routerPaths.electionDefinition);
   }
 
+  const saveElectionToBackend = useCallback(
+    async (fileContent: string) => {
+      const configureResult = await configureMutateAsync(fileContent);
+      if (configureResult.isErr()) {
+        setVxElectionFileIsInvalid(true);
+        // eslint-disable-next-line no-console
+        console.error(
+          'configureMutateAsync failed in saveElectionToBackend',
+          configureResult.err().message
+        );
+      }
+    },
+    [configureMutateAsync]
+  );
+
+  const saveSystemSettingsToBackend = useCallback(
+    (fileContent: string) => {
+      setSystemSettingsMutation.mutate(
+        { systemSettings: fileContent },
+        {
+          onSuccess: (result) => {
+            if (result.isErr()) {
+              setSystemSettingsFileIsInvalid(true);
+            }
+          },
+        }
+      );
+    },
+    [setSystemSettingsMutation]
+  );
+
   const handleVxElectionFile: InputEventFunction = async (event) => {
     setIsUploading(true);
     const input = event.currentTarget;
@@ -111,18 +147,27 @@ export function UnconfiguredScreen(): JSX.Element {
     if (file) {
       setVxElectionFileIsInvalid(false);
       // TODO: read file content from backend
-      const fileContent = await readFileAsync(file);
-      const configureResult = await configureMutateAsync(fileContent);
-      if (configureResult.isErr()) {
-        setVxElectionFileIsInvalid(true);
-        // eslint-disable-next-line no-console
-        console.error(
-          'handleVxElectionFile failed',
-          configureResult.err().message
-        );
-      }
-      setIsUploading(false);
+      const fileContent = await readFileAsyncAsString(file);
+      await saveElectionToBackend(fileContent);
     }
+    setIsUploading(false);
+  };
+
+  const handleSetupPackageFile: InputEventFunction = async (event) => {
+    setIsUploadingZip(true);
+    const input = event.currentTarget;
+    const file = input.files && input.files[0];
+
+    if (file) {
+      const initialSetupPackage = await readInitialAdminSetupPackageFromFile(
+        file
+      );
+      setVxElectionFileIsInvalid(false);
+      setSystemSettingsFileIsInvalid(false);
+      await saveElectionToBackend(initialSetupPackage.electionString);
+      saveSystemSettingsToBackend(initialSetupPackage.systemSettingsString);
+    }
+    setIsUploadingZip(false);
   };
 
   const resetServerFiles = useCallback(async () => {
@@ -238,7 +283,7 @@ export function UnconfiguredScreen(): JSX.Element {
     void updateStatus();
   }, [updateStatus]);
 
-  if (isUploading || isLoading) {
+  if (isUploading || isUploadingZip || isLoading) {
     return (
       <NavigationScreen centerChild>
         <Loading isFullscreen />
@@ -301,12 +346,23 @@ export function UnconfiguredScreen(): JSX.Element {
         {vxElectionFileIsInvalid && (
           <Invalid>Invalid Vx Election Definition file.</Invalid>
         )}
+        {systemSettingsFileIsInvalid && (
+          <Invalid>Invalid System Settings file.</Invalid>
+        )}
         <p>
           <FileInputButton
             accept=".json,application/json"
             onChange={handleVxElectionFile}
           >
             Select Existing Election Definition File
+          </FileInputButton>
+        </p>
+        <p>
+          <FileInputButton
+            accept=".zip,application/zip"
+            onChange={handleSetupPackageFile}
+          >
+            Select Existing Setup Package Zip File
           </FileInputButton>
         </p>
 
