@@ -176,23 +176,24 @@ async function parseOptions(
     rootDir = process.cwd();
   }
 
-  for (const glob of globs) {
-    for (const path of await globby(glob, { absolute: true })) {
-      if (rootDir && !path.startsWith(`${rootDir}/`)) {
-        return {
-          type: 'error',
-          error: new Error(
-            `resource '${path}' is not in the root directory '${rootDir}'`
-          ),
-        };
-      }
-
-      resources.push({
-        path,
-        tsPath: getOutputPath(path, rootDir, outDir),
-        mimeType: getMimeType(path),
-      });
+  for (const path of await globby(globs, {
+    absolute: true,
+    onlyFiles: false,
+  })) {
+    if (rootDir && !path.startsWith(`${rootDir}/`)) {
+      return {
+        type: 'error',
+        error: new Error(
+          `resource '${path}' is not in the root directory '${rootDir}'`
+        ),
+      };
     }
+
+    resources.push({
+      path,
+      tsPath: getOutputPath(path, rootDir, outDir),
+      mimeType: getMimeType(path),
+    });
   }
 
   if (resources.length === 0) {

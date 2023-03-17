@@ -171,7 +171,7 @@ export async function main(
     assert(castVoteRecord);
 
     // we need each cast vote record to have a unique id
-    const newCastVoteRecord = replaceUniqueId(castVoteRecord, `id-${ballotId}`);
+    const newCastVoteRecord = replaceUniqueId(castVoteRecord, `${ballotId}`);
 
     // clone deep so jsonStream util will not detect circular references
     castVoteRecords.push(cloneDeep(newCastVoteRecord));
@@ -291,7 +291,7 @@ export async function main(
             assetType: 'layout',
           })
         ),
-        JSON.stringify(layout, undefined, 2)
+        `${JSON.stringify(layout, undefined, 2)}\n`
       );
     }
   }

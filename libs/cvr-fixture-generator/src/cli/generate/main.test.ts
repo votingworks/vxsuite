@@ -1,11 +1,12 @@
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { fakeReadable, fakeWritable } from '@votingworks/test-utils';
-import { safeParseJson, CVR } from '@votingworks/types';
+import { safeParseJson, CVR, unsafeParse } from '@votingworks/types';
 import { readFileSync } from 'fs';
 import fs from 'fs/promises';
 import { join, resolve } from 'path';
 import { dirSync } from 'tmp';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
+import { getCastVoteRecordReportImport } from '@votingworks/backend';
 import { assert } from '@votingworks/basics';
 import { main } from './main';
 import { BATCH_ID } from '../../utils';
@@ -137,11 +138,20 @@ test('generate with custom number of records above the suggested number', async 
     stderr: '',
   });
 
-  // TODO (drew): build utility for VxAdmin to stream in large JSON file
-  // to allow this to work. Currently it exceeds memory limits.
+  const castVoteRecordReportImport = (
+    await getCastVoteRecordReportImport(
+      join(outputDirectory.name, CAST_VOTE_RECORD_REPORT_FILENAME)
+    )
+  ).assertOk('generated cast vote record should be valid');
 
-  // const report = reportFromFile(outputFile.name);
-  // expect(report.CVR).toHaveLength(3000);
+  let cvrCount = 0;
+  for await (const unparsedCastVoteRecord of castVoteRecordReportImport.CVR) {
+    const castVoteRecord = unsafeParse(CVR.CVRSchema, unparsedCastVoteRecord);
+    expect(castVoteRecord.UniqueId).toEqual(`${cvrCount}`);
+    cvrCount += 1;
+  }
+
+  expect(cvrCount).toEqual(3000);
 });
 
 test('generate live mode CVRs', async () => {

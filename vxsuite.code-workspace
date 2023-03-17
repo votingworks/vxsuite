@@ -53,6 +53,10 @@
       "path": "libs/auth"
     },
     {
+      "name": "libs/backend",
+      "path": "libs/backend"
+    },
+    {
       "name": "libs/ballot-encoder",
       "path": "libs/ballot-encoder"
     },
@@ -75,10 +79,6 @@
     {
       "name": "libs/cvr-fixture-generator",
       "path": "libs/cvr-fixture-generator"
-    },
-    {
-      "name": "libs/backend",
-      "path": "libs/backend"
     },
     {
       "name": "libs/db",

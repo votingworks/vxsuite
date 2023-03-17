@@ -111,6 +111,26 @@ export async function listDirectory(
 }
 
 /**
+ * Get entries for a directory recursively, includes stat information for each entry.
+ * Requires that the path be absolute. Includes directories in result.
+ */
+export async function* listDirectoryRecursive(
+  path: string
+): AsyncGenerator<Result<FileSystemEntry, ListDirectoryError>> {
+  const listRootResult = await listDirectory(path);
+  if (listRootResult.isErr()) {
+    yield listRootResult;
+  } else {
+    for (const fileEntry of listRootResult.ok()) {
+      if (fileEntry.type === FileSystemEntryType.Directory) {
+        yield* listDirectoryRecursive(fileEntry.path);
+      }
+      yield ok(fileEntry);
+    }
+  }
+}
+
+/**
  * Expected errors that can occur when trying to list directories on a USB drive.
  */
 export type ListDirectoryOnUsbDriveError =
