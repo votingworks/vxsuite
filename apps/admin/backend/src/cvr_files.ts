@@ -7,10 +7,11 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import { ElectionDefinition } from '@votingworks/types';
 import {
   generateElectionBasedSubfolderName,
-  parseCvrFileInfoFromFilename,
+  parseCastVoteRecordReportDirectoryName,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 import { join } from 'path';
+import { CvrImportFormat } from './globals';
 import { CastVoteRecordFileMetadata } from './types';
 import { Usb } from './util/usb';
 
@@ -22,7 +23,8 @@ import { Usb } from './util/usb';
 export async function listCastVoteRecordFilesOnUsb(
   electionDefinition: ElectionDefinition,
   usb: Usb,
-  logger: Logger
+  logger: Logger,
+  importFormat: CvrImportFormat = 'vxf'
 ): Promise<CastVoteRecordFileMetadata[]> {
   const { election, electionHash } = electionDefinition;
   const fileSearchResult = await listDirectoryOnUsbDrive(
@@ -66,25 +68,21 @@ export async function listCastVoteRecordFilesOnUsb(
 
   for (const entry of fileSearchResult.ok()) {
     if (
-      entry.type === FileSystemEntryType.File &&
-      entry.name.endsWith('.jsonl')
+      (importFormat === 'vxf' &&
+        entry.type === FileSystemEntryType.File &&
+        entry.name.endsWith('.jsonl')) ||
+      (importFormat === 'cdf' && entry.type === FileSystemEntryType.Directory)
     ) {
-      try {
-        const parsedFileInfo = parseCvrFileInfoFromFilename(entry.name);
-        if (parsedFileInfo) {
-          castVoteRecordFileMetadataList.push({
-            exportTimestamp: parsedFileInfo.timestamp,
-            cvrCount: parsedFileInfo.numberOfBallots,
-            isTestModeResults: parsedFileInfo.isTestModeResults,
-            name: entry.name,
-            path: entry.path,
-            scannerIds: [parsedFileInfo.machineId],
-          });
-        }
-      } catch (error) {
-        // The filename isn't able to be parsed as a valid CVR filename. We are
-        // only interested in valid CVR files so ignore it.
-        continue;
+      const parsedFileInfo = parseCastVoteRecordReportDirectoryName(entry.name);
+      if (parsedFileInfo) {
+        castVoteRecordFileMetadataList.push({
+          exportTimestamp: parsedFileInfo.timestamp,
+          cvrCount: parsedFileInfo.numberOfBallots,
+          isTestModeResults: parsedFileInfo.isTestModeResults,
+          name: entry.name,
+          path: entry.path,
+          scannerIds: [parsedFileInfo.machineId],
+        });
       }
     }
   }

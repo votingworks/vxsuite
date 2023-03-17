@@ -31,7 +31,7 @@ import { basename } from 'path';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
-  parseCvrFileInfoFromFilename,
+  parseCastVoteRecordReportDirectoryName,
 } from '@votingworks/utils';
 import {
   AddCastVoteRecordFileResult,
@@ -42,6 +42,7 @@ import { Workspace } from './util/workspace';
 import { listCastVoteRecordFilesOnUsb } from './cvr_files';
 import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
+import { CvrImportFormat } from './globals';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -256,11 +257,18 @@ function buildApi({
       );
     },
 
-    listCastVoteRecordFilesOnUsb() {
+    listCastVoteRecordFilesOnUsb(
+      input: { cvrImportFormat?: CvrImportFormat } = {}
+    ) {
       const electionDefinition = getCurrentElectionDefinition(workspace);
       assert(electionDefinition);
 
-      return listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger);
+      return listCastVoteRecordFilesOnUsb(
+        electionDefinition,
+        usb,
+        logger,
+        input.cvrImportFormat
+      );
     },
 
     getCastVoteRecordFiles(): Admin.CastVoteRecordFileRecord[] {
@@ -314,16 +322,10 @@ function buildApi({
         });
       }
 
-      // try to get the exported timestamp from the filename
-      let exportedTimestamp: Date = fileStat.mtime;
-      try {
-        const parsedFileInfo = parseCvrFileInfoFromFilename(basename(path));
-        if (parsedFileInfo) {
-          exportedTimestamp = parsedFileInfo.timestamp;
-        }
-      } catch {
-        // file name was not in standard format, we'll try to import anyway
-      }
+      // try to get the exported timestamp from the filename, other use use file last modified
+      const exportedTimestamp =
+        parseCastVoteRecordReportDirectoryName(basename(path))?.timestamp ||
+        fileStat.mtime;
 
       const addFileResult = await store.addCastVoteRecordFile({
         electionId: loadCurrentElectionIdOrThrow(workspace),

@@ -9,7 +9,60 @@ const electionDefinition = electionMinimalExhaustiveSampleDefinition;
 const file = Buffer.from([]);
 
 describe('list cast vote record files on USB drive', () => {
-  test('finds present files meeting criteria', async () => {
+  test('lists cast vote record report directories meeting criteria', async () => {
+    const logger = fakeLogger();
+    const { usb, insertUsbDrive } = createMockUsb();
+    insertUsbDrive({
+      'cast-vote-records': {
+        [`sample-county_example-primary-election_${getDisplayElectionHash(
+          electionDefinition
+        )}`]: {
+          'TEST__machine_0000__4_ballots__2022-07-01_11-21-41': {}, // valid
+          'TEST__machine_0000__8_ballots__2022-07-01_11-31-41': {}, // valid
+          'cvr.jsonl': {}, // invalid name
+          'TEST__machine_0000__8_ballots__2022-07-01_11-41-41': file, // invalid as file
+        },
+      },
+    });
+
+    const cvrFileMetadata = await listCastVoteRecordFilesOnUsb(
+      electionDefinition,
+      usb,
+      logger,
+      'cdf'
+    );
+
+    expect(cvrFileMetadata).toMatchObject(
+      expect.arrayContaining([
+        expect.objectContaining({
+          cvrCount: 8,
+          exportTimestamp: new Date('2022-07-01T11:31:41.000Z'),
+          isTestModeResults: true,
+          name: 'TEST__machine_0000__8_ballots__2022-07-01_11-31-41',
+          scannerIds: ['0000'],
+        }),
+        expect.objectContaining({
+          cvrCount: 4,
+          exportTimestamp: new Date('2022-07-01T11:21:41.000Z'),
+          isTestModeResults: true,
+          name: 'TEST__machine_0000__4_ballots__2022-07-01_11-21-41',
+          scannerIds: ['0000'],
+        }),
+      ])
+    );
+
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.CvrFilesReadFromUsb,
+      'system',
+      {
+        disposition: 'success',
+        message: 'Found 2 CVR files on USB drive, user shown option to load.',
+      }
+    );
+  });
+
+  // TODO: remove once we've moved to CDF
+  test('lists legacy cast vote record files meeting criteria', async () => {
     const logger = fakeLogger();
     const { usb, insertUsbDrive } = createMockUsb();
     insertUsbDrive({
