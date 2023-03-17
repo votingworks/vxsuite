@@ -1,3 +1,4 @@
+import { iter } from '@votingworks/basics';
 import { Size } from '@votingworks/types';
 import { promises as fs } from 'fs';
 import { join } from 'path';
@@ -29,7 +30,7 @@ test('yields the right number of images sized correctly', async () => {
   const pdfBytes = await fs.readFile(
     ballotNotRequiringPdfjsIntermediateCanvasPath
   );
-  assertHasPageCountAndSize(await pdfToImages(pdfBytes).toArray(), {
+  assertHasPageCountAndSize(await iter(pdfToImages(pdfBytes)).toArray(), {
     pageCount: 6,
     size: {
       width: 612,
@@ -43,7 +44,7 @@ test('can generate images with a different scale', async () => {
     ballotNotRequiringPdfjsIntermediateCanvasPath
   );
   assertHasPageCountAndSize(
-    await pdfToImages(pdfBytes, { scale: 2 }).toArray(),
+    await iter(pdfToImages(pdfBytes, { scale: 2 })).toArray(),
     {
       pageCount: 6,
       size: { width: 1224, height: 1584 },
@@ -55,7 +56,7 @@ test('can render a PDF that requires the PDF.js intermediate canvas', async () =
   const pdfBytes = await fs.readFile(
     ballotRequiringPdfjsIntermediateCanvasPath
   );
-  assertHasPageCountAndSize(await pdfToImages(pdfBytes).toArray(), {
+  assertHasPageCountAndSize(await iter(pdfToImages(pdfBytes)).toArray(), {
     pageCount: 2,
     size: { width: 684, height: 1080 },
   });

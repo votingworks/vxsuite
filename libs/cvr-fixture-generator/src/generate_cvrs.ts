@@ -1,4 +1,6 @@
 /* eslint-disable vx/gts-identifiers */
+import { buildCVRContestsFromVotes, hasWriteIns } from '@votingworks/backend';
+import { find, throwIllegalValue } from '@votingworks/basics';
 import {
   Candidate,
   CandidateContest,
@@ -11,13 +13,6 @@ import {
   YesNoVote,
 } from '@votingworks/types';
 import { BallotPackage } from '@votingworks/utils';
-import {
-  find,
-  iter,
-  IteratorPlus,
-  throwIllegalValue,
-} from '@votingworks/basics';
-import { buildCVRContestsFromVotes, hasWriteIns } from '@votingworks/backend';
 import {
   arrangeContestsBySheet,
   BATCH_ID,
@@ -120,172 +115,164 @@ interface GenerateCvrsParams {
  * @param options.testMode Generate CVRs for test ballots or live ballots
  * @returns Array of generated {@link CVR.CVR}
  */
-export function generateCvrs({
+export function* generateCvrs({
   testMode,
   scannerNames,
   ballotPackage,
   includeBallotImages,
-}: GenerateCvrsParams): IteratorPlus<CVR.CVR> {
-  return iter(
-    (function* gen() {
-      const { electionDefinition } = ballotPackage;
-      const { election } = electionDefinition;
-      const { ballotStyles } = election;
-      let castVoteRecordId = 0;
-      for (const ballotStyle of ballotStyles) {
-        const {
-          precincts: precinctIds,
-          id: ballotStyleId,
-          partyId,
-        } = ballotStyle;
-        for (const ballotType of [
-          CVR.vxBallotType.Absentee,
-          CVR.vxBallotType.Precinct,
-        ]) {
-          for (const precinctId of precinctIds) {
-            for (const scanner of scannerNames) {
-              // Find the layout, which we'll use to determine which contests are on which page
-              const ballotPageLayouts = find(
-                ballotPackage.ballots,
-                (ballot) =>
-                  ballot.ballotConfig.ballotStyleId === ballotStyleId &&
-                  ballot.ballotConfig.precinctId === precinctId &&
-                  ballot.ballotConfig.isLiveMode === !testMode
-              ).layout;
-              if (ballotPageLayouts.length > 2) {
-                throw new Error('only single-sheet ballots are supported');
-              }
+}: GenerateCvrsParams): Iterable<CVR.CVR> {
+  const { electionDefinition } = ballotPackage;
+  const { election } = electionDefinition;
+  const { ballotStyles } = election;
+  let castVoteRecordId = 0;
+  for (const ballotStyle of ballotStyles) {
+    const { precincts: precinctIds, id: ballotStyleId, partyId } = ballotStyle;
+    for (const ballotType of [
+      CVR.vxBallotType.Absentee,
+      CVR.vxBallotType.Precinct,
+    ]) {
+      for (const precinctId of precinctIds) {
+        for (const scanner of scannerNames) {
+          // Find the layout, which we'll use to determine which contests are on which page
+          const ballotPageLayouts = find(
+            ballotPackage.ballots,
+            (ballot) =>
+              ballot.ballotConfig.ballotStyleId === ballotStyleId &&
+              ballot.ballotConfig.precinctId === precinctId &&
+              ballot.ballotConfig.isLiveMode === !testMode
+          ).layout;
+          if (ballotPageLayouts.length > 2) {
+            throw new Error('only single-sheet ballots are supported');
+          }
 
-              // For each contest determine all possible contest choices.
-              const optionsForEachContest = new Map<string, readonly Vote[]>();
-              for (const contest of getContests({
-                ballotStyle,
-                election,
-              })) {
-                // Generate an array of all possible contest choice responses for this contest
-                switch (contest.type) {
-                  case 'candidate':
-                    optionsForEachContest.set(
-                      contest.id,
-                      getCandidateOptionsForContest(contest)
-                    );
-                    break;
-                  case 'yesno':
-                    optionsForEachContest.set(contest.id, YES_NO_OPTIONS);
-                    break;
-                  // istanbul ignore next
-                  default:
-                    throwIllegalValue(contest);
-                }
-              }
-              // Generate as many vote combinations as necessary that contain all contest choice options
-              const voteConfigurations = getVoteConfigurations(
-                optionsForEachContest
-              );
-              // Add the generated vote combinations as CVRs
-              for (const votes of voteConfigurations) {
-                const contestsBySheet = arrangeContestsBySheet(
-                  splitContestsByPage({
-                    allVotes: votes,
-                    ballotPageLayouts,
-                    election,
-                  })
+          // For each contest determine all possible contest choices.
+          const optionsForEachContest = new Map<string, readonly Vote[]>();
+          for (const contest of getContests({
+            ballotStyle,
+            election,
+          })) {
+            // Generate an array of all possible contest choice responses for this contest
+            switch (contest.type) {
+              case 'candidate':
+                optionsForEachContest.set(
+                  contest.id,
+                  getCandidateOptionsForContest(contest)
                 );
+                break;
+              case 'yesno':
+                optionsForEachContest.set(contest.id, YES_NO_OPTIONS);
+                break;
+              // istanbul ignore next
+              default:
+                throwIllegalValue(contest);
+            }
+          }
+          // Generate as many vote combinations as necessary that contain all contest choice options
+          const voteConfigurations = getVoteConfigurations(
+            optionsForEachContest
+          );
+          // Add the generated vote combinations as CVRs
+          for (const votes of voteConfigurations) {
+            const contestsBySheet = arrangeContestsBySheet(
+              splitContestsByPage({
+                allVotes: votes,
+                ballotPageLayouts,
+                election,
+              })
+            );
 
-                // Generate a CVR for each sheet
-                for (const [
-                  sheetIndex,
-                  sheetContests,
-                ] of contestsBySheet.entries()) {
-                  const [frontContests, backContests] = sheetContests;
-                  const frontHasWriteIns = hasWriteIns(
-                    filterVotesByContests(votes, frontContests)
-                  );
-                  const backHasWriteIns = hasWriteIns(
-                    filterVotesByContests(votes, backContests)
-                  );
-                  const sheetHasWriteIns = frontHasWriteIns || backHasWriteIns;
+            // Generate a CVR for each sheet
+            for (const [
+              sheetIndex,
+              sheetContests,
+            ] of contestsBySheet.entries()) {
+              const [frontContests, backContests] = sheetContests;
+              const frontHasWriteIns = hasWriteIns(
+                filterVotesByContests(votes, frontContests)
+              );
+              const backHasWriteIns = hasWriteIns(
+                filterVotesByContests(votes, backContests)
+              );
+              const sheetHasWriteIns = frontHasWriteIns || backHasWriteIns;
 
-                  const frontImageFileUri = `file:${generateBallotAssetPath({
-                    ballotStyleId: ballotStyle.id,
-                    precinctId,
-                    assetType: 'image',
-                    pageNumber: sheetIndex * 2 + 1,
-                  })}`;
-                  const backImageFileUri = `file:${generateBallotAssetPath({
-                    ballotStyleId: ballotStyle.id,
-                    precinctId,
-                    assetType: 'image',
-                    pageNumber: sheetIndex * 2 + 2,
-                  })}`;
+              const frontImageFileUri = `file:${generateBallotAssetPath({
+                ballotStyleId: ballotStyle.id,
+                precinctId,
+                assetType: 'image',
+                pageNumber: sheetIndex * 2 + 1,
+              })}`;
+              const backImageFileUri = `file:${generateBallotAssetPath({
+                ballotStyleId: ballotStyle.id,
+                precinctId,
+                assetType: 'image',
+                pageNumber: sheetIndex * 2 + 2,
+              })}`;
 
-                  yield {
-                    '@type': 'CVR.CVR',
-                    BallotStyleId: ballotStyleId,
-                    BallotStyleUnitId: precinctId,
-                    PartyIds: partyId ? [partyId] : undefined, // VVSG 2.0 1.1.5-E.4
-                    CreatingDeviceId: scanner,
-                    ElectionId: electionDefinition.electionHash,
-                    BatchId: BATCH_ID,
-                    vxBallotType: ballotType,
-                    BallotSheetId: (sheetIndex + 1).toString(),
-                    CurrentSnapshotId: `${castVoteRecordId}-modified`,
-                    UniqueId: castVoteRecordId.toString(),
-                    CVRSnapshot: [
-                      {
-                        '@type': 'CVR.CVRSnapshot',
-                        '@id': `${castVoteRecordId}-modified`,
-                        Type: CVR.CVRType.Modified,
-                        CVRContest: [
-                          ...buildCVRContestsFromVotes({
-                            contests: frontContests,
-                            votes,
-                            options: {
-                              ballotMarkingMode: 'hand',
-                              imageFileUri: includeBallotImages
-                                ? frontImageFileUri
-                                : undefined,
-                            },
-                          }),
-                          ...buildCVRContestsFromVotes({
-                            contests: backContests,
-                            votes,
-                            options: {
-                              ballotMarkingMode: 'hand',
-                              imageFileUri: includeBallotImages
-                                ? backImageFileUri
-                                : undefined,
-                            },
-                          }),
-                        ],
-                      },
+              yield {
+                '@type': 'CVR.CVR',
+                BallotStyleId: ballotStyleId,
+                BallotStyleUnitId: precinctId,
+                PartyIds: partyId ? [partyId] : undefined, // VVSG 2.0 1.1.5-E.4
+                CreatingDeviceId: scanner,
+                ElectionId: electionDefinition.electionHash,
+                BatchId: BATCH_ID,
+                vxBallotType: ballotType,
+                BallotSheetId: (sheetIndex + 1).toString(),
+                CurrentSnapshotId: `${castVoteRecordId}-modified`,
+                UniqueId: castVoteRecordId.toString(),
+                CVRSnapshot: [
+                  {
+                    '@type': 'CVR.CVRSnapshot',
+                    '@id': `${castVoteRecordId}-modified`,
+                    Type: CVR.CVRType.Modified,
+                    CVRContest: [
+                      ...buildCVRContestsFromVotes({
+                        contests: frontContests,
+                        votes,
+                        options: {
+                          ballotMarkingMode: 'hand',
+                          imageFileUri: includeBallotImages
+                            ? frontImageFileUri
+                            : undefined,
+                        },
+                      }),
+                      ...buildCVRContestsFromVotes({
+                        contests: backContests,
+                        votes,
+                        options: {
+                          ballotMarkingMode: 'hand',
+                          imageFileUri: includeBallotImages
+                            ? backImageFileUri
+                            : undefined,
+                        },
+                      }),
                     ],
-                    BallotImage:
-                      includeBallotImages && sheetHasWriteIns
-                        ? [
-                            {
-                              '@type': 'CVR.ImageData',
-                              Location: frontHasWriteIns
-                                ? frontImageFileUri
-                                : undefined,
-                            },
-                            {
-                              '@type': 'CVR.ImageData',
-                              Location: backHasWriteIns
-                                ? backImageFileUri
-                                : undefined,
-                            },
-                          ]
-                        : undefined,
-                  };
+                  },
+                ],
+                BallotImage:
+                  includeBallotImages && sheetHasWriteIns
+                    ? [
+                        {
+                          '@type': 'CVR.ImageData',
+                          Location: frontHasWriteIns
+                            ? frontImageFileUri
+                            : undefined,
+                        },
+                        {
+                          '@type': 'CVR.ImageData',
+                          Location: backHasWriteIns
+                            ? backImageFileUri
+                            : undefined,
+                        },
+                      ]
+                    : undefined,
+              };
 
-                  castVoteRecordId += 1;
-                }
-              }
+              castVoteRecordId += 1;
             }
           }
         }
       }
-    })()
-  );
+    }
+  }
 }
