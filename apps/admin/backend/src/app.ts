@@ -171,7 +171,7 @@ function buildApi({
       return ok({});
     },
 
-    async getSystemSettings(): Promise<SystemSettings | undefined> {
+    async getSystemSettings(): Promise<SystemSettings | null> {
       try {
         const settings = store.getSystemSettings();
         await logger.log(
@@ -179,7 +179,7 @@ function buildApi({
           assertDefined(await getUserRole()),
           { disposition: 'success' }
         );
-        return settings;
+        return settings || null;
       } catch (error) {
         await logger.log(
           LogEventId.SystemSettingsRetrieved,
