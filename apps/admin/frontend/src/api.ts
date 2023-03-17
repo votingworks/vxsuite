@@ -421,9 +421,7 @@ export const setSystemSettings = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.setSystemSettings, {
       async onSuccess() {
-        await queryClient.invalidateQueries(
-          getCurrentElectionMetadata.queryKey()
-        );
+        await queryClient.invalidateQueries(getSystemSettings.queryKey());
       },
     });
   },

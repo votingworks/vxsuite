@@ -551,13 +551,13 @@ test('setSystemSettings happy path', async () => {
   );
 });
 
-test('setSystemSettings throws error when store.addSystemSettings fails', async () => {
+test('setSystemSettings throws error when store.saveSystemSettings fails', async () => {
   const { apiClient, auth, workspace, logger } = buildTestEnvironment();
   const { electionDefinition, systemSettings } =
     electionMinimalExhaustiveSampleFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
-  const errorString = 'db error at addSystemSettings';
-  workspace.store.addSystemSettings = jest.fn(() => {
+  const errorString = 'db error at saveSystemSettings';
+  workspace.store.saveSystemSettings = jest.fn(() => {
     throw new Error(errorString);
   });
 
@@ -627,8 +627,8 @@ test('getSystemSettings happy path', async () => {
   assert(setResult.isOk());
 
   const systemSettingsResult = await apiClient.getSystemSettings();
-  expect(systemSettingsResult).not.toBeUndefined();
-  expect(systemSettingsResult?.arePollWorkerCardPinsEnabled).toEqual(true);
+  assert(systemSettingsResult);
+  expect(systemSettingsResult.arePollWorkerCardPinsEnabled).toEqual(true);
 });
 
 test('getSystemSettings returns undefined when no `system settings` are found', async () => {

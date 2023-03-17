@@ -151,7 +151,7 @@ function buildApi({
       }
 
       try {
-        store.addSystemSettings(validatedSystemSettings.ok());
+        store.saveSystemSettings(validatedSystemSettings.ok());
       } catch (error) {
         const typedError = error as Error;
         await logger.log(

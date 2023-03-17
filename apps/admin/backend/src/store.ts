@@ -242,7 +242,7 @@ export class Store {
    * Note `system_settings` are logical settings that span other machines eg. VxScan.
    * `settings` are local to VxAdmin
    */
-  addSystemSettings(systemSettings: SystemSettings): void {
+  saveSystemSettings(systemSettings: SystemSettings): void {
     this.client.run(
       'insert into system_settings (are_poll_worker_card_pins_enabled) values (?)',
       systemSettings.arePollWorkerCardPinsEnabled ? 1 : 0 // No booleans in sqlite3

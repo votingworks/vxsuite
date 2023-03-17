@@ -1267,10 +1267,10 @@ function makeSystemSettings() {
   ).unsafeUnwrap();
 }
 
-test('addSystemSettings and getSystemSettings write and read system settings', () => {
+test('saveSystemSettings and getSystemSettings write and read system settings', () => {
   const store = Store.memoryStore();
   const systemSettings = makeSystemSettings();
-  store.addSystemSettings(systemSettings);
+  store.saveSystemSettings(systemSettings);
   const retrievedSystemSettings = store.getSystemSettings();
   expect(retrievedSystemSettings?.arePollWorkerCardPinsEnabled).toEqual(
     systemSettings.arePollWorkerCardPinsEnabled
