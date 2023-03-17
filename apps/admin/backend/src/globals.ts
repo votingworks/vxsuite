@@ -32,3 +32,9 @@ export const ADMIN_WORKSPACE =
  */
 // eslint-disable-next-line vx/gts-safe-number-parse
 export const PORT = Number(process.env.PORT || 3004);
+
+/**
+ * TODO: Remove once we only import CDF format
+ */
+export const CVR_IMPORT_FORMAT: 'vxf' | 'cdf' =
+  process.env.CVR_IMPORT_FORMAT ?? 'vxf';
