@@ -28,11 +28,13 @@ import { resolve, sep } from 'path';
 
 const copiedDirectories: string[] = [];
 
-afterAll(() => {
-  for (const copiedDirectory of copiedDirectories) {
-    fs.rmSync(copiedDirectory, { recursive: true, force: true });
-  }
-});
+if (typeof jest !== 'undefined') {
+  afterAll(() => {
+    for (const copiedDirectory of copiedDirectories) {
+      fs.rmSync(copiedDirectory, { recursive: true, force: true });
+    }
+  });
+}
 
 export function asDirectoryPath(): string {
   const tmpDir = fs.mkdtempSync(tmpdir() + sep);
