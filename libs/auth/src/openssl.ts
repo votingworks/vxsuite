@@ -70,7 +70,9 @@ export async function openssl(
         cleanupError = error;
       }
       if (code !== 0) {
-        reject(new Error(stderr.toString('utf-8')));
+        reject(
+          new Error(`${stderr.toString('utf-8')}\n${stdout.toString('utf-8')}`)
+        );
       } else if (cleanupError) {
         reject(cleanupError);
       } else {
@@ -120,6 +122,8 @@ export function publicKeyDerToPem(
 /**
  * Converts an ECC public key in PEM format to DER format
  */
+// Only used in a script so doesn't get covered by java_card.test.ts
+/* istanbul ignore next */
 export function publicKeyPemToDer(
   publicKey: FilePathOrBuffer
 ): Promise<Buffer> {
@@ -172,9 +176,9 @@ export async function verifySignature({
 }): Promise<void> {
   await openssl([
     'dgst',
+    '-sha256',
     '-verify',
     publicKey,
-    '-sha256',
     '-signature',
     challengeSignature,
     challenge,
