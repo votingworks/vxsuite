@@ -9,7 +9,6 @@ import {
   Optional,
   PollWorkerUser,
   SystemAdministratorUser,
-  UserWithCard,
 } from '@votingworks/types';
 
 import {
@@ -20,13 +19,13 @@ import {
   SELECT,
   STATUS_WORD,
 } from './apdu';
-import { Card, CardStatus, CheckPinResponse } from './card';
+import { Card, CardDetails, CardStatus, CheckPinResponse } from './card';
 import { CardReader } from './card_reader';
 import {
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
+  parseCardDetailsFromCert,
   parseCert,
-  parseUserDataFromCert,
 } from './certs';
 import { JavaCardConfig } from './java_card_config';
 import {
@@ -144,13 +143,11 @@ export class JavaCard implements Card {
   private readonly cardProgrammingConfig?: JavaCardConfig['cardProgrammingConfig'];
   private readonly cardReader: CardReader;
   private cardStatus: CardStatus;
-  private readonly jurisdiction: string;
   private readonly vxCertAuthorityCertPath: string;
 
   constructor(input: JavaCardConfig) {
     this.cardProgrammingConfig = input.cardProgrammingConfig;
     this.cardStatus = { status: 'no_card' };
-    this.jurisdiction = input.jurisdiction;
     this.vxCertAuthorityCertPath = input.vxCertAuthorityCertPath;
 
     this.cardReader = new CardReader({
@@ -170,8 +167,8 @@ export class JavaCard implements Card {
             return;
           }
           case 'ready': {
-            const user = await this.safeReadUser();
-            this.cardStatus = { status: 'ready', user };
+            const cardDetails = await this.safeReadCardDetails();
+            this.cardStatus = { status: 'ready', cardDetails };
             return;
           }
           default: {
@@ -239,8 +236,11 @@ export class JavaCard implements Card {
       CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
       pin
     );
+    const { jurisdiction } = await parseCert(
+      await fs.readFile(vxAdminCertAuthorityCertPath)
+    );
     const cardVxAdminCert = await createCert({
-      certSubject: constructCardCertSubject(input.user, this.jurisdiction),
+      certSubject: constructCardCertSubject({ jurisdiction, user: input.user }),
       opensslConfig: vxAdminOpensslConfigPath,
       publicKeyToSign: publicKey,
       signingCertAuthorityCert: vxAdminCertAuthorityCertPath,
@@ -323,24 +323,25 @@ export class JavaCard implements Card {
   }
 
   /**
-   * We wrap this.readUser() because it:
+   * We wrap readCardDetails to create safeReadCardDetails because readCardDetails:
    * 1. Intentionally throws errors if any verification fails
    * 2. Can throw errors due to external actions like preemptively removing the card from the card
    *    reader
+   * This wrapper should never throw errors.
    */
-  private async safeReadUser(): Promise<Optional<UserWithCard>> {
+  private async safeReadCardDetails(): Promise<Optional<CardDetails>> {
     try {
-      return await this.readUser();
+      return await this.readCardDetails();
     } catch {
       return undefined;
     }
   }
 
   /**
-   * Reads the user on the card, performing various forms of verification along the way. Throws an
-   * error if any verification fails.
+   * Reads the card details, performing various forms of verification along the way. Throws an
+   * error if any verification fails (this includes the case that the card is simply unprogrammed).
    */
-  private async readUser(): Promise<Optional<UserWithCard>> {
+  private async readCardDetails(): Promise<CardDetails> {
     await this.selectApplet();
 
     // Verify that the card VotingWorks cert was signed by VotingWorks
@@ -362,13 +363,11 @@ export class JavaCard implements Card {
       vxAdminCertAuthorityCert
     );
 
-    // Verify that the VxAdmin cert authority cert is 1) a valid VxAdmin cert, 2) for the correct
-    // jurisdiction, and 3) signed by VotingWorks
+    // Verify that the VxAdmin cert authority cert is a valid VxAdmin cert, signed by VotingWorks
     const vxAdminCertAuthorityCertDetails = await parseCert(
       vxAdminCertAuthorityCert
     );
     assert(vxAdminCertAuthorityCertDetails.component === 'admin');
-    assert(vxAdminCertAuthorityCertDetails.jurisdiction === this.jurisdiction);
     await verifyFirstCertWasSignedBySecondCert(
       vxAdminCertAuthorityCert,
       this.vxCertAuthorityCertPath
@@ -378,10 +377,10 @@ export class JavaCard implements Card {
     // VotingWorks cert
     await this.verifyCardPrivateKey(CARD_VX_CERT.PRIVATE_KEY_ID, cardVxCert);
 
-    const user = await parseUserDataFromCert(
-      cardVxAdminCert,
-      this.jurisdiction
+    const { user, jurisdiction } = await parseCardDetailsFromCert(
+      cardVxAdminCert
     );
+    assert(jurisdiction === vxAdminCertAuthorityCertDetails.jurisdiction);
 
     /**
      * If the user doesn't have a PIN:
@@ -400,7 +399,7 @@ export class JavaCard implements Card {
       );
     }
 
-    return user;
+    return { jurisdiction, user };
   }
 
   /**

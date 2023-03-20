@@ -9,14 +9,8 @@ export interface JavaCardConfig {
     vxAdminPrivateKeyPassword: string;
     vxAdminPrivateKeyPath: string;
   };
-  jurisdiction: string;
   vxCertAuthorityCertPath: string;
 }
-
-/**
- * The jurisdiction in dev certs
- */
-export const DEV_JURISDICTION = 'ST.Jurisdiction';
 
 /**
  * The password for all dev private keys
@@ -37,18 +31,14 @@ function constructDevCardProgrammingConfig(
 /**
  * Constructs a dev Java Card config
  */
-export function constructDevJavaCardConfig({
-  includeCardProgrammingConfig,
-  pathToAuthLibRoot,
-}: {
+export function constructDevJavaCardConfig(input: {
   includeCardProgrammingConfig?: boolean;
   pathToAuthLibRoot: string;
 }): JavaCardConfig {
   return {
-    cardProgrammingConfig: includeCardProgrammingConfig
-      ? constructDevCardProgrammingConfig(pathToAuthLibRoot)
+    cardProgrammingConfig: input.includeCardProgrammingConfig
+      ? constructDevCardProgrammingConfig(input.pathToAuthLibRoot)
       : undefined,
-    jurisdiction: DEV_JURISDICTION,
-    vxCertAuthorityCertPath: `${pathToAuthLibRoot}/certs/dev/vx-cert-authority-cert.pem`,
+    vxCertAuthorityCertPath: `${input.pathToAuthLibRoot}/certs/dev/vx-cert-authority-cert.pem`,
   };
 }

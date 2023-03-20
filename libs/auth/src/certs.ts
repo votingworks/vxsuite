@@ -1,8 +1,8 @@
 import { Buffer } from 'buffer';
 import { z } from 'zod';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { UserWithCard } from '@votingworks/types';
 
+import { CardDetails } from './card';
 import { openssl } from './openssl';
 
 /**
@@ -16,9 +16,9 @@ const VX_IANA_ENTERPRISE_OID = '1.3.6.1.4.1.59817';
 const VX_CUSTOM_CERT_FIELD = {
   /** One of: card, admin, central-scan, mark, scan (the latter four referring to machines) */
   COMPONENT: `${VX_IANA_ENTERPRISE_OID}.1`,
-  /** Format: {state-2-letter-abbreviation}.{county-or-town} (e.g. MS.Warren) */
+  /** Format: {state-2-letter-abbreviation}.{county-or-town} (e.g. ms.warren or ca.los-angeles) */
   JURISDICTION: `${VX_IANA_ENTERPRISE_OID}.2`,
-  /** One of: sa, em, pw (system administrator, election manager, or poll worker) */
+  /** One of: system-administrator, election-manager, poll-worker */
   CARD_TYPE: `${VX_IANA_ENTERPRISE_OID}.3`,
   /** The SHA-256 hash of the election definition  */
   ELECTION_HASH: `${VX_IANA_ENTERPRISE_OID}.4`,
@@ -39,7 +39,7 @@ export const STANDARD_CERT_FIELDS = [
 export interface CustomCertFields {
   component: 'card' | 'admin' | 'central-scan' | 'mark' | 'scan';
   jurisdiction: string;
-  cardType?: 'sa' | 'em' | 'pw';
+  cardType?: 'system-administrator' | 'election-manager' | 'poll-worker';
   electionHash?: string;
 }
 
@@ -49,7 +49,9 @@ export interface CustomCertFields {
 const CustomCertFieldsSchema: z.ZodSchema<CustomCertFields> = z.object({
   component: z.enum(['card', 'admin', 'central-scan', 'mark', 'scan']),
   jurisdiction: z.string(),
-  cardType: z.optional(z.enum(['sa', 'em', 'pw'])),
+  cardType: z.optional(
+    z.enum(['system-administrator', 'election-manager', 'poll-worker'])
+  ),
   electionHash: z.optional(z.string()),
 });
 
@@ -59,6 +61,11 @@ const CustomCertFieldsSchema: z.ZodSchema<CustomCertFields> = z.object({
 export const CERT_EXPIRY_IN_DAYS = {
   DEV: 36500, // ~100 years
 } as const;
+
+/**
+ * The jurisdiction in all dev certs
+ */
+export const DEV_JURISDICTION = 'st.dev-jurisdiction';
 
 /**
  * Parses the provided cert and returns the custom cert fields. Throws an error if the cert doesn't
@@ -93,31 +100,38 @@ export async function parseCert(cert: Buffer): Promise<CustomCertFields> {
 }
 
 /**
- * Parses the provided cert and returns a user object. Throws an error if the cert doesn't follow
- * VotingWorks's card cert format or isn't for the specified jurisdiction.
+ * Parses the provided cert and returns card details. Throws an error if the cert doesn't follow
+ * VotingWorks's card cert format.
  */
-export async function parseUserDataFromCert(
-  cert: Buffer,
-  expectedJurisdiction: string
-): Promise<UserWithCard> {
+export async function parseCardDetailsFromCert(
+  cert: Buffer
+): Promise<CardDetails> {
   const { component, jurisdiction, cardType, electionHash } = await parseCert(
     cert
   );
   assert(component === 'card');
-  assert(jurisdiction === expectedJurisdiction);
   assert(cardType !== undefined);
 
   switch (cardType) {
-    case 'sa': {
-      return { role: 'system_administrator' };
+    case 'system-administrator': {
+      return {
+        jurisdiction,
+        user: { role: 'system_administrator' },
+      };
     }
-    case 'em': {
+    case 'election-manager': {
       assert(electionHash !== undefined);
-      return { role: 'election_manager', electionHash };
+      return {
+        jurisdiction,
+        user: { role: 'election_manager', electionHash },
+      };
     }
-    case 'pw': {
+    case 'poll-worker': {
       assert(electionHash !== undefined);
-      return { role: 'poll_worker', electionHash };
+      return {
+        jurisdiction,
+        user: { role: 'poll_worker', electionHash },
+      };
     }
     /* istanbul ignore next: Compile-time check for completeness */
     default: {
@@ -129,26 +143,24 @@ export async function parseUserDataFromCert(
 /**
  * Constructs a VotingWorks card cert subject that can be passed to an openssl command
  */
-export function constructCardCertSubject(
-  user: UserWithCard,
-  jurisdiction: string
-): string {
+export function constructCardCertSubject(cardDetails: CardDetails): string {
+  const { jurisdiction, user } = cardDetails;
   const component: CustomCertFields['component'] = 'card';
 
   let cardType: CustomCertFields['cardType'];
   let electionHash: string | undefined;
   switch (user.role) {
     case 'system_administrator': {
-      cardType = 'sa';
+      cardType = 'system-administrator';
       break;
     }
     case 'election_manager': {
-      cardType = 'em';
+      cardType = 'election-manager';
       electionHash = user.electionHash;
       break;
     }
     case 'poll_worker': {
-      cardType = 'pw';
+      cardType = 'poll-worker';
       electionHash = user.electionHash;
       break;
     }

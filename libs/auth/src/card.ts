@@ -6,9 +6,17 @@ import {
   UserWithCard,
 } from '@votingworks/types';
 
+/**
+ * Details about a programmed card
+ */
+export interface CardDetails {
+  jurisdiction: string;
+  user: UserWithCard;
+}
+
 interface CardStatusReady {
   status: 'ready';
-  user?: UserWithCard;
+  cardDetails?: CardDetails;
 }
 
 interface CardStatusNotReady {
