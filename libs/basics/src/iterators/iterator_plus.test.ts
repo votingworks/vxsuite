@@ -299,3 +299,16 @@ test('sum', () => {
     })
   );
 });
+
+test('partition', () => {
+  expect(iter([]).partition(() => true)).toEqual([new Set(), new Set()]);
+  expect(iter([1]).partition(() => true)).toEqual([new Set([1]), new Set()]);
+  expect(iter([1, 2, 3]).partition(() => true)).toEqual([
+    new Set([1, 2, 3]),
+    new Set(),
+  ]);
+  expect(iter([1, 2, 3]).partition((a) => a % 2 === 0)).toEqual([
+    new Set([2]),
+    new Set([1, 3]),
+  ]);
+});

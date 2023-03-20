@@ -200,6 +200,19 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return min;
   }
 
+  async partition(predicate: (item: T) => boolean): Promise<[Set<T>, Set<T>]> {
+    const left = new Set<T>();
+    const right = new Set<T>();
+    for await (const it of this.iterable) {
+      if (predicate(it)) {
+        left.add(it);
+      } else {
+        right.add(it);
+      }
+    }
+    return [left, right];
+  }
+
   rev(): AsyncIteratorPlus<T> {
     const toArrayPromise = this.toArray();
     return new AsyncIteratorPlusImpl(
