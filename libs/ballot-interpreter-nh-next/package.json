@@ -25,6 +25,7 @@
   "dependencies": {
     "@votingworks/ballot-interpreter-nh": "workspace:*",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "better-sqlite3": "^8.2.0",

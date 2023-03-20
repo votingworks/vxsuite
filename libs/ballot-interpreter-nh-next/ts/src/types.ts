@@ -95,6 +95,14 @@ export interface InterpretedBallotCard {
 export interface InterpretedBallotPage {
   grid: TimingMarkGrid;
   marks: ScoredOvalMarks;
+  normalizedImage: NormalizedImageBuffer;
+}
+
+/** Image data for the normalized ballot image produced during interpetation. */
+export interface NormalizedImageBuffer {
+  width: u32;
+  height: u32;
+  data: number[];
 }
 
 /** An array of optional marks and their corresponding grid positions. */

@@ -7,6 +7,7 @@ import {
   Optional,
   Result,
 } from '@votingworks/basics';
+import { writeImageData } from '@votingworks/image-utils';
 import {
   ElectionDefinition,
   mapSheet,
@@ -151,6 +152,26 @@ function prettyPrintInterpretation({
   }
 }
 
+async function writeNormalizedImages({
+  front,
+  back,
+}: InterpretedBallotCard): Promise<{
+  front: string;
+  back: string;
+}> {
+  const frontPath = 'normalized-front.png';
+  const backPath = 'normalized-back.png';
+  await writeImageData(frontPath, {
+    ...front.normalizedImage,
+    data: new Uint8ClampedArray(front.normalizedImage.data),
+  });
+  await writeImageData(backPath, {
+    ...back.normalizedImage,
+    data: new Uint8ClampedArray(back.normalizedImage.data),
+  });
+  return { front: frontPath, back: backPath };
+}
+
 async function interpretFiles(
   electionDefinitionOrPath: ElectionDefinition | string,
   [ballotPathSideA, ballotPathSideB]: SheetOf<string>,
@@ -204,11 +225,14 @@ async function interpretFiles(
     return 1;
   }
 
+  const normalizedImagePaths = await writeNormalizedImages(result.ok());
+
   if (json) {
-    await writeIterToStream(
-      jsonStream(result.ok(), { compact: false }),
-      stdout
-    );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const resultJson: any = result.ok();
+    resultJson.front.normalizedImage = normalizedImagePaths.front;
+    resultJson.back.normalizedImage = normalizedImagePaths.back;
+    await writeIterToStream(jsonStream(resultJson, { compact: false }), stdout);
   } else {
     prettyPrintInterpretation({
       electionDefinition,
