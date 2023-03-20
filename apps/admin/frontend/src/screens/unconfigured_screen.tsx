@@ -9,8 +9,8 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
 import {
-  electionMinimalExhaustiveSampleFixtures,
-  systemSettings,
+  // electionMinimalExhaustiveSampleFixtures,
+  // systemSettings,
   electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
 import { Button, Prose, useMountedState } from '@votingworks/ui';
@@ -19,7 +19,7 @@ import { assert } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { ConfigureResult } from '@votingworks/admin-backend';
 import { readFileAsyncAsString } from '@votingworks/utils';
-// import { readInitialAdminSetupPackageFromFile } from '../utils/initial_setup_package';
+import { readInitialAdminSetupPackageFromFile } from '../utils/initial_setup_package';
 import {
   getElectionDefinitionConverterClient,
   VxFile,
@@ -163,16 +163,16 @@ export function UnconfiguredScreen(): JSX.Element {
     const file = input.files && input.files[0];
 
     if (file) {
-      // This configuration passes because the test does not end prematurely
-      // const initialSetupPackage = await readInitialAdminSetupPackageFromFile(
-      //   file
-      // );
-      const initialSetupPackage = await Promise.resolve({
-        electionString:
-          electionMinimalExhaustiveSampleFixtures.electionDefinition
-            .electionData,
-        systemSettingsString: systemSettings.asText(),
-      });
+      // This configuration fails because the test ends before all code is done running
+      const initialSetupPackage = await readInitialAdminSetupPackageFromFile(
+        file
+      );
+      // const initialSetupPackage = await Promise.resolve({
+      //   electionString:
+      //     electionMinimalExhaustiveSampleFixtures.electionDefinition
+      //       .electionData,
+      //   systemSettingsString: systemSettings.asText(),
+      // });
 
       setVxElectionFileIsInvalid(false);
       setSystemSettingsFileIsInvalid(false);
