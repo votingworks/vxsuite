@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use image::DynamicImage;
 use image::GenericImage;
 use image::GrayImage;
 use imageproc::contrast::otsu_level;
@@ -48,10 +49,18 @@ pub struct LoadedBallotCard {
 }
 
 #[derive(Debug, Serialize)]
+pub struct NormalizedImageBuffer {
+    width: u32,
+    height: u32,
+    data: Vec<u8>,
+}
+
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterpretedBallotPage {
     grid: TimingMarkGrid,
     marks: ScoredOvalMarks,
+    normalized_image: NormalizedImageBuffer,
 }
 #[derive(Debug, Serialize)]
 pub struct InterpretedBallotCard {
@@ -218,6 +227,17 @@ pub fn load_and_prepare_ballot_page_image(
 }
 
 #[time]
+fn make_normalized_image_buffer(image: GrayImage) -> NormalizedImageBuffer {
+    let (width, height) = image.dimensions();
+    let rgba_image = DynamicImage::ImageLuma8(image).into_rgba8();
+    NormalizedImageBuffer {
+        width,
+        height,
+        data: rgba_image.into_raw(),
+    }
+}
+
+#[time]
 pub fn interpret_ballot_card(side_a_path: &Path, side_b_path: &Path, options: &Options) -> Result {
     let LoadedBallotCard {
         side_a,
@@ -339,10 +359,12 @@ pub fn interpret_ballot_card(side_a_path: &Path, side_b_path: &Path, options: &O
         front: InterpretedBallotPage {
             grid: front_grid,
             marks: front_scored_oval_marks,
+            normalized_image: make_normalized_image_buffer(front_image),
         },
         back: InterpretedBallotPage {
             grid: back_grid,
             marks: back_scored_oval_marks,
+            normalized_image: make_normalized_image_buffer(back_image),
         },
     })
 }

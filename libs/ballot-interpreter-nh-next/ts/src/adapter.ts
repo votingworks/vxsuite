@@ -266,6 +266,10 @@ function convertNextInterpretedBallotPage(
         nextInterpretation.marks
       ),
     },
+    normalizedImage: {
+      ...nextInterpretation.normalizedImage,
+      data: new Uint8ClampedArray(nextInterpretation.normalizedImage.data),
+    },
   };
 }
 
