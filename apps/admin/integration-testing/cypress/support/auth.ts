@@ -8,6 +8,7 @@ import {
   MockFileContents,
 } from '@votingworks/auth/src/mock_file_card';
 
+const JURISDICTION = 'st.jurisdiction';
 const PIN = '000000';
 
 function mockCardCypress(mockFileContents: MockFileContents): void {
@@ -18,8 +19,9 @@ export function mockSystemAdministratorCardInsertion(): void {
   mockCardCypress({
     cardStatus: {
       status: 'ready',
-      user: {
-        role: 'system_administrator',
+      cardDetails: {
+        jurisdiction: JURISDICTION,
+        user: { role: 'system_administrator' },
       },
     },
     pin: PIN,
@@ -36,9 +38,12 @@ export function mockElectionManagerCardInsertion({
   mockCardCypress({
     cardStatus: {
       status: 'ready',
-      user: {
-        role: 'election_manager',
-        electionHash,
+      cardDetails: {
+        jurisdiction: JURISDICTION,
+        user: {
+          role: 'election_manager',
+          electionHash,
+        },
       },
     },
     data: Buffer.from(electionData, 'utf-8'),

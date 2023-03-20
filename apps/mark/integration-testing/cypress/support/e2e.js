@@ -24,6 +24,7 @@ import { methodUrl } from '@votingworks/grout';
 // eslint-disable-next-line vx/no-import-workspace-subfolders
 import { mockCard } from '@votingworks/auth/src/mock_file_card';
 
+const JURISDICTION = 'st.jurisdiction';
 const { electionData, electionHash } = electionSampleDefinition;
 const PIN = '000000';
 
@@ -35,9 +36,12 @@ function insertElectionManagerCard() {
   mockCardCypress({
     cardStatus: {
       status: 'ready',
-      user: {
-        role: 'election_manager',
-        electionHash,
+      cardDetails: {
+        jurisdiction: JURISDICTION,
+        user: {
+          role: 'election_manager',
+          electionHash,
+        },
       },
     },
     data: Buffer.from(electionData, 'utf-8'),
@@ -49,9 +53,12 @@ function insertPollWorkerCard() {
   mockCardCypress({
     cardStatus: {
       status: 'ready',
-      user: {
-        role: 'poll_worker',
-        electionHash,
+      cardDetails: {
+        jurisdiction: JURISDICTION,
+        user: {
+          role: 'poll_worker',
+          electionHash,
+        },
       },
     },
   });
