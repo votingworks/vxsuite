@@ -6,6 +6,7 @@ import yargs from 'yargs/yargs';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Optional, safeParseElection } from '@votingworks/types';
 
+import { DEV_JURISDICTION } from '../src/certs';
 import { mockCard } from '../src/mock_file_card';
 
 const CARD_TYPES = [
@@ -91,7 +92,10 @@ async function mockCardGivenEnvVars() {
       mockCard({
         cardStatus: {
           status: 'ready',
-          user: { role: 'system_administrator' },
+          cardDetails: {
+            jurisdiction: DEV_JURISDICTION,
+            user: { role: 'system_administrator' },
+          },
         },
         pin: '000000',
       });
@@ -102,7 +106,10 @@ async function mockCardGivenEnvVars() {
       mockCard({
         cardStatus: {
           status: 'ready',
-          user: { role: 'election_manager', electionHash },
+          cardDetails: {
+            jurisdiction: DEV_JURISDICTION,
+            user: { role: 'election_manager', electionHash },
+          },
         },
         data: Buffer.from(electionData, 'utf-8'),
         pin: '000000',
@@ -114,7 +121,10 @@ async function mockCardGivenEnvVars() {
       mockCard({
         cardStatus: {
           status: 'ready',
-          user: { role: 'poll_worker', electionHash },
+          cardDetails: {
+            jurisdiction: DEV_JURISDICTION,
+            user: { role: 'poll_worker', electionHash },
+          },
         },
       });
       break;
@@ -123,7 +133,7 @@ async function mockCardGivenEnvVars() {
       mockCard({
         cardStatus: {
           status: 'ready',
-          user: undefined,
+          cardDetails: undefined,
         },
       });
       break;

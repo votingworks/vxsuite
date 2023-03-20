@@ -8,6 +8,7 @@ import {
 } from '@votingworks/types';
 
 import { Card, CardStatus, CheckPinResponse } from './card';
+import { DEV_JURISDICTION } from './certs';
 
 type WriteFileFn = (filePath: string, fileContents: Buffer) => void;
 
@@ -103,12 +104,17 @@ export class MockFileCard implements Card {
       | { user: ElectionManagerUser; pin: string; electionData: string }
       | { user: PollWorkerUser }
   ): Promise<void> {
+    const jurisdiction = DEV_JURISDICTION;
     const { user } = input;
+
     switch (user.role) {
       case 'system_administrator': {
         assert('pin' in input);
         writeToMockFile({
-          cardStatus: { status: 'ready', user },
+          cardStatus: {
+            status: 'ready',
+            cardDetails: { jurisdiction, user },
+          },
           pin: input.pin,
         });
         break;
@@ -117,7 +123,10 @@ export class MockFileCard implements Card {
         assert('pin' in input);
         assert('electionData' in input);
         writeToMockFile({
-          cardStatus: { status: 'ready', user },
+          cardStatus: {
+            status: 'ready',
+            cardDetails: { jurisdiction, user },
+          },
           data: Buffer.from(input.electionData, 'utf-8'),
           pin: input.pin,
         });
@@ -125,7 +134,10 @@ export class MockFileCard implements Card {
       }
       case 'poll_worker': {
         writeToMockFile({
-          cardStatus: { status: 'ready', user },
+          cardStatus: {
+            status: 'ready',
+            cardDetails: { jurisdiction, user },
+          },
         });
         break;
       }
@@ -138,7 +150,10 @@ export class MockFileCard implements Card {
 
   unprogram(): Promise<void> {
     writeToMockFile({
-      cardStatus: { status: 'ready', user: undefined },
+      cardStatus: {
+        status: 'ready',
+        cardDetails: undefined,
+      },
     });
     return Promise.resolve();
   }
