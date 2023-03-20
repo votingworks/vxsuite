@@ -5,12 +5,10 @@ import { promises as fs } from 'fs';
 import {
   CERT_EXPIRY_IN_DAYS,
   constructMachineCertSubject,
+  DEV_JURISDICTION,
   STANDARD_CERT_FIELDS,
 } from '../src/certs';
-import {
-  DEV_JURISDICTION,
-  DEV_PRIVATE_KEY_PASSWORD,
-} from '../src/java_card_config';
+import { DEV_PRIVATE_KEY_PASSWORD } from '../src/java_card_config';
 import { createCert, openssl } from '../src/openssl';
 import { runCommand } from './utils';
 
