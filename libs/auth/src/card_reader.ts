@@ -29,7 +29,15 @@ interface ReaderNotReady {
 
 type Reader = ReaderReady | ReaderNotReady;
 
-type OnReaderStatusChange = (readerStatus: Reader['status']) => void;
+/**
+ * The status of the smart card reader
+ */
+export type ReaderStatus = Reader['status'];
+
+/**
+ * A on-change handler for reader status changes
+ */
+export type OnReaderStatusChange = (readerStatus: ReaderStatus) => void;
 
 /**
  * A class for interfacing with a smart card reader, implemented using PCSC Lite
