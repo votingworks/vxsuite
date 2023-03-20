@@ -2,13 +2,16 @@
  * Config params for the Java Card implementation of the card API
  */
 export interface JavaCardConfig {
-  /** Additional config params that only VxAdmin needs to provide for card programming */
+  /** Only VxAdmin should provide these params, for card programming */
   cardProgrammingConfig?: {
     vxAdminCertAuthorityCertPath: string;
     vxAdminOpensslConfigPath: string;
     vxAdminPrivateKeyPassword: string;
     vxAdminPrivateKeyPath: string;
   };
+  /** Only tests should provide this param, to make challenge generation non-random */
+  customChallengeGenerator?: () => string;
+  /** The path to the VotingWorks cert authority cert on the machine */
   vxCertAuthorityCertPath: string;
 }
 
