@@ -4,13 +4,13 @@ import {
   assert,
   err,
   find,
+  iter,
   ok,
   Ok,
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
   AdjudicationInfo,
-  AdjudicationReasonInfo,
   BallotType,
   Candidate,
   ElectionDefinition,
@@ -91,22 +91,15 @@ function convertMarksToAdjudicationInfo(
     })
   );
 
-  const enabledReasonInfos: AdjudicationReasonInfo[] = [];
-  const ignoredReasonInfos: AdjudicationReasonInfo[] = [];
-
-  for (const reasonInfo of adjudicationReasonInfos) {
-    if (enabledReasons.includes(reasonInfo.type)) {
-      enabledReasonInfos.push(reasonInfo);
-    } else {
-      ignoredReasonInfos.push(reasonInfo);
-    }
-  }
+  const [enabledReasonInfos, ignoredReasonInfos] = iter(
+    adjudicationReasonInfos
+  ).partition((reasonInfo) => enabledReasons.includes(reasonInfo.type));
 
   return {
-    requiresAdjudication: enabledReasonInfos.length > 0,
-    enabledReasonInfos,
+    requiresAdjudication: enabledReasonInfos.size > 0,
+    enabledReasonInfos: [...enabledReasonInfos],
     enabledReasons,
-    ignoredReasonInfos,
+    ignoredReasonInfos: [...ignoredReasonInfos],
   };
 }
 

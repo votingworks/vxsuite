@@ -1,4 +1,4 @@
-import { assert, find } from '@votingworks/basics';
+import { assert, find, iter } from '@votingworks/basics';
 import {
   AdjudicationInfo,
   AdjudicationReason,
@@ -72,21 +72,14 @@ export function convertMarksToAdjudicationInfo({
     })
   );
 
-  const enabledReasonInfos: AdjudicationReasonInfo[] = [];
-  const ignoredReasonInfos: AdjudicationReasonInfo[] = [];
-
-  for (const reasonInfo of adjudicationReasonInfos) {
-    if (enabledReasons.includes(reasonInfo.type)) {
-      enabledReasonInfos.push(reasonInfo);
-    } else {
-      ignoredReasonInfos.push(reasonInfo);
-    }
-  }
+  const [enabledReasonInfos, ignoredReasonInfos] = iter(
+    adjudicationReasonInfos
+  ).partition((reasonInfo) => enabledReasons.includes(reasonInfo.type));
 
   return {
-    requiresAdjudication: enabledReasonInfos.length > 0,
-    enabledReasonInfos,
+    requiresAdjudication: enabledReasonInfos.size > 0,
+    enabledReasonInfos: [...enabledReasonInfos],
     enabledReasons,
-    ignoredReasonInfos,
+    ignoredReasonInfos: [...ignoredReasonInfos],
   };
 }
