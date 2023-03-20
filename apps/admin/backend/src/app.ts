@@ -39,7 +39,10 @@ import {
   SetSystemSettingsResult,
 } from './types';
 import { Workspace } from './util/workspace';
-import { listCastVoteRecordFilesOnUsb } from './cvr_files';
+import {
+  addCastVoteRecordReport,
+  listCastVoteRecordFilesOnUsb,
+} from './cvr_files';
 import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
 import { CvrImportFormat } from './globals';
@@ -298,8 +301,13 @@ function buildApi({
         }));
     },
 
+    /**
+     * TODO: Currently this supports CDF and VXF cast vote record files. Move
+     * to only supporting CDF files and clean up the error message handling.
+     */
     async addCastVoteRecordFile(input: {
       path: string;
+      cvrImportFormat?: CvrImportFormat;
     }): Promise<AddCastVoteRecordFileResult> {
       const { path } = input;
       const userRole = assertDefined(await getUserRole());
@@ -322,10 +330,54 @@ function buildApi({
         });
       }
 
-      // try to get the exported timestamp from the filename, other use use file last modified
+      // try to get the exported timestamp from the filename, otherwise use file last modified
       const exportedTimestamp =
         parseCastVoteRecordReportDirectoryName(basename(path))?.timestamp ||
         fileStat.mtime;
+
+      if (input.cvrImportFormat === 'cdf') {
+        const addCastVoteRecordReportResult = await addCastVoteRecordReport({
+          store,
+          reportDirectoryPath: path,
+          exportedTimestamp: exportedTimestamp.toISOString(),
+        });
+
+        if (addCastVoteRecordReportResult.isErr()) {
+          const errorType = addCastVoteRecordReportResult.err().type;
+          const userFriendlyMessage = errorType;
+          await logger.log(LogEventId.CvrLoaded, userRole, {
+            message: `Failed to load CVR file: ${errorType}`,
+            disposition: 'failure',
+            filename,
+            error: errorType,
+            result: 'File not loaded, error shown to user.',
+          });
+          return err({ type: 'invalid-cdf-report', userFriendlyMessage });
+        }
+
+        if (addCastVoteRecordReportResult.ok().wasExistingFile) {
+          // log failure if the file was a duplicate
+          await logger.log(LogEventId.CvrLoaded, userRole, {
+            message:
+              'CVR file was not loaded as it is a duplicate of a previously loaded file.',
+            disposition: 'failure',
+            filename,
+            result: 'File not loaded, error shown to user.',
+          });
+        } else {
+          // log success otherwise
+          await logger.log(LogEventId.CvrLoaded, userRole, {
+            message: 'CVR file successfully loaded.',
+            disposition: 'success',
+            filename,
+            numberOfBallotsImported:
+              addCastVoteRecordReportResult.ok().newlyAdded,
+            duplicateBallotsIgnored:
+              addCastVoteRecordReportResult.ok().alreadyPresent,
+          });
+        }
+        return addCastVoteRecordReportResult;
+      }
 
       const addFileResult = await store.addLegacyCastVoteRecordFile({
         electionId: loadCurrentElectionIdOrThrow(workspace),
