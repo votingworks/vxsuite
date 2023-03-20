@@ -43,7 +43,7 @@
     "fast-check": "^2.18.0",
     "jest-diff": "^27.3.1",
     "js-sha256": "^0.9.0",
-    "luxon": "1.26.0",
+    "luxon": "^3.0.0",
     "zip-stream": "^4.1.0"
   },
   "devDependencies": {

@@ -93,7 +93,7 @@
     "history": "^4.10.1",
     "http-proxy-middleware": "1.0.6",
     "lodash.camelcase": "^4.3.0",
-    "luxon": "^1.26.0",
+    "luxon": "^3.0.0",
     "mini-css-extract-plugin": "0.11.3",
     "mockdate": "^3.0.2",
     "normalize.css": "^8.0.1",
