@@ -106,6 +106,22 @@ export class Store {
   }
 
   /**
+   * Runs the given function in a transaction. If the function throws an error,
+   * the transaction is rolled back. Otherwise, the transaction is committed.
+   *
+   * You can also control rollback by including a `shouldCommit` callback.
+   *
+   * Returns the result of the function.
+   */
+  withTransaction<T>(
+    fn: () => Promise<T>,
+    shouldCommit?: (result: T) => boolean
+  ): Promise<T>;
+  withTransaction<T>(fn: () => T, shouldCommit?: (result: T) => boolean): T {
+    return this.client.transaction(() => fn(), shouldCommit);
+  }
+
+  /**
    * Creates an election record and returns its ID.
    */
   addElection(electionData: string): Id {
@@ -505,6 +521,97 @@ export class Store {
     return await this.client.transaction(transactionFn, shouldCommit);
   }
 
+  getCastVoteRecordFileByHash(
+    electionId: Id,
+    sha256Hash: string
+  ): Optional<Id> {
+    return (
+      this.client.one(
+        `
+        select id
+        from cvr_files
+        where election_id = ?
+          and sha256_hash = ?
+      `,
+        electionId,
+        sha256Hash
+      ) as { id: Id } | undefined
+    )?.id;
+  }
+
+  getCastVoteRecordCountByFileId(fileId: Id): number {
+    return (
+      this.client.one(
+        `
+          select count(cvr_id) as alreadyPresent
+          from cvr_file_entries
+          where cvr_file_id = ?
+        `,
+        fileId
+      ) as { alreadyPresent: number }
+    ).alreadyPresent;
+  }
+
+  addInitialCastVoteRecordFileRecord({
+    id,
+    electionId,
+    filename,
+    exportedTimestamp,
+    sha256Hash,
+  }: {
+    id: Id;
+    electionId: Id;
+    filename: string;
+    exportedTimestamp: Iso8601Timestamp;
+    sha256Hash: string;
+  }): void {
+    this.client.run(
+      `
+        insert into cvr_files (
+          id,
+          election_id,
+          filename,
+          export_timestamp,
+          precinct_ids,
+          scanner_ids,
+          sha256_hash
+        ) values (
+          ?, ?, ?, ?, ?, ?, ?
+        )
+      `,
+      id,
+      electionId,
+      filename,
+      exportedTimestamp,
+      JSON.stringify([]),
+      JSON.stringify([]),
+      sha256Hash
+    );
+  }
+
+  updateCastVoteRecordFileRecord({
+    id,
+    precinctIds,
+    scannerIds,
+  }: {
+    id: Id;
+    precinctIds: Set<string>;
+    scannerIds: Set<string>;
+  }): void {
+    this.client.run(
+      `
+        update cvr_files
+        set
+          precinct_ids = ?,
+          scanner_ids = ?
+        where id = ?
+      `,
+      JSON.stringify([...precinctIds]),
+      JSON.stringify([...scannerIds]),
+      id
+    );
+  }
+
   getCastVoteRecordForWriteIn(
     writeInId: Id
   ): Admin.CastVoteRecordData | undefined {
@@ -550,12 +657,19 @@ export class Store {
    * the same contents has already been added, returns the ID of that record and
    * associates `cvrFileId` with it.
    */
-  private addCastVoteRecordFileEntry(
+  addCastVoteRecordFileEntry(
     electionId: Id,
     cvrFileId: Id,
     ballotId: BallotId,
     data: string
-  ): Result<{ id: Id; isNew: boolean }, AddCastVoteRecordError> {
+  ): Result<
+    { id: Id; isNew: boolean },
+    {
+      kind: 'BallotIdAlreadyExistsWithDifferentData';
+      newData: string;
+      existingData: string;
+    }
+  > {
     const existing = this.client.one(
       `
         select

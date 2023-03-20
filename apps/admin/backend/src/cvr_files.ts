@@ -1,6 +1,11 @@
+import { Admin } from '@votingworks/api';
 import {
   FileSystemEntryType,
+  getCastVoteRecordReportImport,
   listDirectoryOnUsbDrive,
+  validateCastVoteRecordReportDirectoryStructure,
+  CastVoteRecordReportDirectoryStructureValidationError,
+  CVR_BALLOT_IMAGES_SUBDIRECTORY,
 } from '@votingworks/backend';
 import {
   assert,
@@ -22,16 +27,23 @@ import {
   ElectionDefinition,
   getBallotStyle,
   getContests,
+  Iso8601Timestamp,
+  safeParse,
   safeParseNumber,
 } from '@votingworks/types';
 import {
+  CAST_VOTE_RECORD_REPORT_FILENAME,
   generateElectionBasedSubfolderName,
   parseCastVoteRecordReportDirectoryName,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
-import { join } from 'path';
+import { basename, join } from 'path';
+import { z } from 'zod';
+import { v4 as uuid } from 'uuid';
 import { CvrImportFormat } from './globals';
+import { Store } from './store';
 import { CastVoteRecordFileMetadata } from './types';
+import { sha256File } from './util/sha256_file';
 import { Usb } from './util/usb';
 
 /**
@@ -393,4 +405,243 @@ export function convertCastVoteRecordToLegacyFormat({
     _testBallot: isTestReport,
     ...convertCastVoteRecordVotesToLegacyVotes(currentSnapshot),
   };
+}
+
+/**
+ *
+ */
+export type AddCastVoteRecordReportError =
+  | {
+      type: 'invalid-report-structure';
+      error: CastVoteRecordReportDirectoryStructureValidationError;
+    }
+  | {
+      type: 'malformed-report-metadata';
+      error: z.ZodError;
+    }
+  | {
+      type: 'malformed-cast-vote-record';
+      index: number;
+      error: z.ZodError;
+    }
+  | {
+      type: 'invalid-cast-vote-record';
+      index: number;
+      error: CastVoteRecordValidationError;
+    }
+  | {
+      type: 'invalid-report-file-mode';
+      currentFileMode: Admin.CvrFileMode;
+    }
+  | {
+      type: 'ballot-id-already-exists-with-different-data';
+    };
+
+/**
+ *
+ */
+export type AddCastVoteRecordReportResult = Result<
+  Admin.CvrFileImportInfo,
+  AddCastVoteRecordReportError
+>;
+
+/**
+ *
+ * @param param0
+ */
+export async function addCastVoteRecordReport({
+  store,
+  reportDirectoryPath,
+  exportedTimestamp,
+}: {
+  store: Store;
+  reportDirectoryPath: string;
+  exportedTimestamp: Iso8601Timestamp;
+}): Promise<AddCastVoteRecordReportResult> {
+  const electionId = store.getCurrentElectionId();
+  if (!electionId) {
+    throw new Error('no current election id');
+  }
+
+  const electionDefinition = store.getElection(electionId)?.electionDefinition;
+  if (!electionDefinition) {
+    throw new Error('no election associated with the current election id');
+  }
+
+  // Check whether this directory looks like a valid report directory
+  const directoryValidationResult =
+    await validateCastVoteRecordReportDirectoryStructure(reportDirectoryPath);
+  if (directoryValidationResult.isErr()) {
+    return err({
+      type: 'invalid-report-structure',
+      error: directoryValidationResult.err(),
+    });
+  }
+  const relativeBallotImagePaths = directoryValidationResult.ok();
+  const reportPath = join(
+    reportDirectoryPath,
+    CAST_VOTE_RECORD_REPORT_FILENAME
+  );
+
+  // We are hashing only the JSON report here - perhaps we should hash some
+  // structure of the report directory as well or even the images.
+  const sha256Hash = await sha256File(reportPath);
+  const filename = basename(reportDirectoryPath);
+
+  // Parse the report metadata and get an iterator for the cast vote records
+  const getCastVoteRecordReportImportResult =
+    await getCastVoteRecordReportImport(reportPath);
+  if (getCastVoteRecordReportImportResult.isErr()) {
+    return err({
+      type: 'malformed-report-metadata',
+      error: getCastVoteRecordReportImportResult.err(),
+    });
+  }
+  const { CVR: unparsedCastVoteRecords, ...reportMetadata } =
+    getCastVoteRecordReportImportResult.ok();
+
+  // Ensure the report matches the file mode of previous imports
+  const reportFileMode =
+    reportMetadata.OtherReportType === 'test'
+      ? Admin.CvrFileMode.Test
+      : Admin.CvrFileMode.Official;
+  const currentFileMode = store.getCurrentCvrFileModeForElection(electionId);
+  if (
+    currentFileMode !== Admin.CvrFileMode.Unlocked &&
+    reportFileMode !== currentFileMode
+  ) {
+    return err({
+      type: 'invalid-report-file-mode',
+      currentFileMode,
+    });
+  }
+
+  return await store.withTransaction(
+    async () => {
+      const existingFileId = store.getCastVoteRecordFileByHash(
+        electionId,
+        sha256Hash
+      );
+
+      if (existingFileId) {
+        return ok({
+          id: existingFileId,
+          alreadyPresent: store.getCastVoteRecordCountByFileId(existingFileId),
+          exportedTimestamp,
+          fileMode: currentFileMode,
+          fileName: filename,
+          newlyAdded: 0,
+          // TODO: Get scannerIds from the existing file OR remove it entirely
+          // because it is not being used in the frontend.
+          scannerIds: [],
+          wasExistingFile: true,
+        });
+      }
+
+      // Add a file record which the cast vote records will link to
+      const fileId = uuid();
+      store.addInitialCastVoteRecordFileRecord({
+        id: fileId,
+        electionId,
+        filename,
+        exportedTimestamp,
+        sha256Hash,
+      });
+
+      // Iterate through all the cast vote records
+      let castVoteRecordIndex = 0;
+      const precinctIds = new Set<string>();
+      const scannerIds = new Set<string>();
+      let newlyAdded = 0;
+      let alreadyPresent = 0;
+      for await (const unparsedCastVoteRecord of unparsedCastVoteRecords) {
+        // Parse the text data
+        const parseResult = safeParse(CVR.CVRSchema, unparsedCastVoteRecord);
+        if (parseResult.isErr()) {
+          return err({
+            type: 'malformed-cast-vote-record',
+            index: castVoteRecordIndex,
+            error: parseResult.err(),
+          });
+        }
+        const cvr = parseResult.ok();
+
+        // Validate the resulting cast vote record
+        const validationResult = validateCastVoteRecord({
+          cvr,
+          electionDefinition,
+          reportBatchIds: reportMetadata.vxBatch.map((batch) => batch['@id']),
+          reportBallotImageLocations: relativeBallotImagePaths.map(
+            (relativePath) =>
+              `file:./${join(CVR_BALLOT_IMAGES_SUBDIRECTORY, relativePath)}`
+          ),
+        });
+        if (validationResult.isErr()) {
+          return err({
+            type: 'invalid-cast-vote-record',
+            index: castVoteRecordIndex,
+            error: validationResult.err(),
+          });
+        }
+
+        // Convert the cast vote record to the format our store and tally logic use
+        const legacyCastVoteRecord = convertCastVoteRecordToLegacyFormat({
+          cvr,
+          isTestReport: reportFileMode === Admin.CvrFileMode.Test,
+          batchLabel: find(
+            reportMetadata.vxBatch,
+            (batch) => batch['@id'] === cvr.BatchId
+          ).BatchLabel,
+        });
+
+        // Add the cast vote record to the store
+        const cvrData = JSON.stringify(legacyCastVoteRecord);
+        const addCastVoteRecordResult = store.addCastVoteRecordFileEntry(
+          electionId,
+          fileId,
+          cvr.UniqueId as BallotId,
+          cvrData
+        );
+        if (addCastVoteRecordResult.isErr()) {
+          return err({ type: 'ballot-id-already-exists-with-different-data' });
+        }
+        const { isNew: cvrIsNew } = addCastVoteRecordResult.ok();
+
+        // Update our ongoing data about the file relevant to the result
+        if (cvrIsNew) {
+          newlyAdded += 1;
+        } else {
+          alreadyPresent += 1;
+        }
+        precinctIds.add(cvr.BallotStyleUnitId);
+        scannerIds.add(cvr.CreatingDeviceId);
+
+        castVoteRecordIndex += 1;
+      }
+
+      // Update the cast vote file record with information we learned by
+      // iterating through the records.
+      //
+      // TODO: we should have the precinct and scanner list at the top-level of
+      // the report, which would allow this data to be stored up front
+      store.updateCastVoteRecordFileRecord({
+        id: fileId,
+        precinctIds,
+        scannerIds,
+      });
+
+      return ok({
+        id: fileId,
+        alreadyPresent,
+        exportedTimestamp,
+        fileMode: reportFileMode,
+        fileName: filename,
+        newlyAdded,
+        scannerIds: [...scannerIds],
+        wasExistingFile: false,
+      });
+    },
+    // Only commit the transaction if there were no errors
+    (result) => result.isOk()
+  );
 }
