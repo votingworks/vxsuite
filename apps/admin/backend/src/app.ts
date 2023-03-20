@@ -45,7 +45,7 @@ import {
 } from './cvr_files';
 import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
-import { CvrImportFormat } from './globals';
+import { CvrImportFormat, CVR_IMPORT_FORMAT } from './globals';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -270,7 +270,7 @@ function buildApi({
         electionDefinition,
         usb,
         logger,
-        input.cvrImportFormat
+        input.cvrImportFormat || CVR_IMPORT_FORMAT
       );
     },
 
@@ -307,8 +307,10 @@ function buildApi({
      */
     async addCastVoteRecordFile(input: {
       path: string;
-      cvrImportFormat?: CvrImportFormat;
+      cvrImportFormatFromParams?: CvrImportFormat;
     }): Promise<AddCastVoteRecordFileResult> {
+      const cvrImportFormat =
+        input.cvrImportFormatFromParams || CVR_IMPORT_FORMAT;
       const { path } = input;
       const userRole = assertDefined(await getUserRole());
       const filename = basename(path);
@@ -335,7 +337,7 @@ function buildApi({
         parseCastVoteRecordReportDirectoryName(basename(path))?.timestamp ||
         fileStat.mtime;
 
-      if (input.cvrImportFormat === 'cdf') {
+      if (cvrImportFormat === 'cdf') {
         const addCastVoteRecordReportResult = await addCastVoteRecordReport({
           store,
           reportDirectoryPath: path,
