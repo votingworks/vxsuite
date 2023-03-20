@@ -58,4 +58,5 @@ export interface InsertedSmartCardAuthConfig {
  */
 export interface InsertedSmartCardAuthMachineState {
   electionHash?: string;
+  jurisdiction?: string;
 }

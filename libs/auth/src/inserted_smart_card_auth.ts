@@ -21,14 +21,13 @@ import {
   Optional,
   PrecinctId,
   safeParseJson,
-  UserWithCard,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
-import { Card, CardStatus, CheckPinResponse } from './card';
+import { Card, CardDetails, CardStatus, CheckPinResponse } from './card';
 import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthConfig,
@@ -334,10 +333,14 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
             return { status: 'logged_out', reason: 'card_error' };
           }
           case 'ready': {
-            const { user } = action.cardStatus;
-            const validationResult = this.validateCardUser(machineState, user);
+            const { cardDetails } = action.cardStatus;
+            const validationResult = this.validateCard(
+              machineState,
+              cardDetails
+            );
             if (validationResult.isOk()) {
-              assert(user);
+              assert(cardDetails !== undefined);
+              const { user } = cardDetails;
               if (currentAuthStatus.status === 'logged_out') {
                 if (user.role === 'system_administrator') {
                   return isFeatureFlagEnabled(
@@ -360,7 +363,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
             return {
               status: 'logged_out',
               reason: validationResult.err(),
-              cardUserRole: user?.role,
+              cardUserRole: cardDetails?.user.role,
             };
           }
           /* istanbul ignore next: Compile-time check for completeness */
@@ -405,11 +408,20 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     }
   }
 
-  private validateCardUser(
+  private validateCard(
     machineState: InsertedSmartCardAuthMachineState,
-    user?: UserWithCard
+    cardDetails?: CardDetails
   ): Result<void, InsertedSmartCardAuthTypes.LoggedOut['reason']> {
-    if (!user) {
+    if (!cardDetails) {
+      return err('invalid_user_on_card');
+    }
+
+    const { jurisdiction, user } = cardDetails;
+
+    if (
+      machineState.jurisdiction &&
+      machineState.jurisdiction !== jurisdiction
+    ) {
       return err('invalid_user_on_card');
     }
 
