@@ -208,7 +208,7 @@ function buildInterpretedHmpbPageMetadata(
   electionDefinition: ElectionDefinition,
   options: InterpretOptions,
   frontMetadata: BallotPageMetadataFront,
-  isFrontPage: boolean
+  side: 'front' | 'back'
 ): HmpbBallotPageMetadata {
   const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
   const ballotStyle = getBallotStyle({
@@ -225,7 +225,7 @@ function buildInterpretedHmpbPageMetadata(
     electionHash: electionDefinition.electionHash,
     isTestMode: options.isTestMode,
     locales: { primary: 'en-US' },
-    pageNumber: isFrontPage ? 1 : 2,
+    pageNumber: side === 'front' ? 1 : 2,
   };
 }
 
@@ -233,13 +233,14 @@ function convertNextInterpretedBallotPage(
   electionDefinition: ElectionDefinition,
   options: InterpretOptions,
   nextInterpretedBallotCard: InterpretedBallotCard,
-  nextInterpretation: InterpretedBallotPage
+  side: 'front' | 'back'
 ): current.InterpretFileResult {
   /* istanbul ignore next */
   const markThresholds =
     options.markThresholds ?? electionDefinition.election.markThresholds;
   assert(markThresholds, 'markThresholds must be defined');
 
+  const nextInterpretation = nextInterpretedBallotCard[side];
   return {
     interpretation: {
       type: 'InterpretedHmpbPage',
@@ -248,7 +249,7 @@ function convertNextInterpretedBallotPage(
         options,
         nextInterpretedBallotCard.front.grid
           .metadata as BallotPageMetadataFront,
-        nextInterpretation === nextInterpretedBallotCard.front
+        side
       ),
       markInfo: convertMarksToMarkInfo(
         electionDefinition.election.contests,
@@ -284,19 +285,18 @@ function convertNextInterpretResult(
   }
 
   const ballotCard = nextResult.ok();
-  const { front, back } = ballotCard;
   const currentResult: OkType<InterpretResult> = [
     convertNextInterpretedBallotPage(
       electionDefinition,
       options,
       ballotCard,
-      front
+      'front'
     ),
     convertNextInterpretedBallotPage(
       electionDefinition,
       options,
       ballotCard,
-      back
+      'back'
     ),
   ];
   return ok(currentResult);
