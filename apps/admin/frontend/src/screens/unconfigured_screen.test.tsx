@@ -29,7 +29,8 @@ test('renders a button to load setup package', async () => {
   await screen.findByText('Select Existing Setup Package Zip File');
 });
 
-test('handles an uploaded file', async () => {
+/* eslint-disable jest/no-focused-tests */
+test.only('handles an uploaded file', async () => {
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
 
   apiMock.expectConfigure(electionDefinition.electionData);

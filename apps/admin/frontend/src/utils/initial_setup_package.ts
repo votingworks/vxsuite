@@ -21,15 +21,28 @@ export interface InitialAdminSetupPackage {
 async function readInitialAdminSetupPackageFromBuffer(
   source: Buffer
 ): Promise<InitialAdminSetupPackage> {
+  console.log('readInitialAdminSetupPackageFromBuffer opening zip');
   const zipfile = await openZip(source);
   const entries = getEntries(zipfile);
+
+  console.log('Opened zip, reading election');
 
   const electionEntry = getFileByName(entries, 'election.json');
   const electionString = await readTextEntry(electionEntry);
 
+  /**
+   * Observe when running the test:
+   * ```
+   *  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "Done reading election, reading system settings".
+    ```
+   */
+
+  console.log('Done reading election, reading system settings');
   const systemSettingsEntry = getFileByName(entries, 'systemSettings.json');
   const systemSettingsString = await readTextEntry(systemSettingsEntry);
 
+  console.log('Returning setup package');
   return {
     electionString,
     systemSettingsString,

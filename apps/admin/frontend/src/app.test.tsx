@@ -9,6 +9,7 @@ import {
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleFixtures,
   electionWithMsEitherNeitherDefinition,
+  systemSettings,
 } from '@votingworks/fixtures';
 import { typedAs } from '@votingworks/basics';
 import {
@@ -20,6 +21,7 @@ import {
   fakePrinterInfo,
   fakeUsbDrive,
   hasTextAcrossElements,
+  zipFile,
 } from '@votingworks/test-utils';
 import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
@@ -1397,4 +1399,32 @@ test('usb formatting flows', async () => {
   // Removing USB resets modal
   mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
   modal = await findModal('No USB Drive Detected');
+});
+
+/* eslint-disable jest/no-focused-tests */
+test.only('loading an initial setup package', async () => {
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectConfigure(electionDefinition.electionData);
+  apiMock.expectSetSystemSettings(systemSettings.asText());
+
+  const { findByText } = renderApp();
+
+  const pkg = await zipFile({
+    'election.json': electionDefinition.electionData,
+    'systemSettings.json': systemSettings.asText(),
+  });
+  const file = new File([pkg], 'filepath.zip');
+
+  await apiMock.authenticateAsSystemAdministrator();
+  const zipInput = await screen.findByLabelText(
+    'Select Existing Setup Package Zip File'
+  );
+  userEvent.upload(zipInput, file);
+
+  await findByText('Loading');
+  await findByText('Select Existing Setup Package Zip File');
 });
