@@ -25,10 +25,9 @@ import {
 } from '@votingworks/types';
 import { ballotAdjudicationReasons } from '@votingworks/utils';
 
-type Resolved<T> = T extends PromiseLike<infer U> ? U : T;
 type OkType<T> = T extends Ok<infer U> ? U : never;
 
-type CurrentInterpretResult = Resolved<ReturnType<typeof current.interpret>>;
+type CurrentInterpretResult = Awaited<ReturnType<typeof current.interpret>>;
 type CurrentInterpretOptions = Parameters<typeof current.interpret>[2];
 
 function convertMarksToAdjudicationInfo(
