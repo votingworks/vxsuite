@@ -310,13 +310,13 @@ export class Store {
   }
 
   /**
-   * Adds a CVR file record and returns its ID. If a CVR file with the same
+   * @deprecated Adds a CVR file record and returns its ID. If a CVR file with the same
    * contents has already been added, returns the ID of that record instead.
    *
    * Call with `analyzeOnly` set to `true` to only analyze the file and not add
    * it to the database.
    */
-  async addCastVoteRecordFile({
+  async addLegacyCastVoteRecordFile({
     electionId,
     filePath,
     originalFilename,

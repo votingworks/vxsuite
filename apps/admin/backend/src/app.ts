@@ -327,7 +327,7 @@ function buildApi({
         parseCastVoteRecordReportDirectoryName(basename(path))?.timestamp ||
         fileStat.mtime;
 
-      const addFileResult = await store.addCastVoteRecordFile({
+      const addFileResult = await store.addLegacyCastVoteRecordFile({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         filePath: path,
         originalFilename: basename(path),
