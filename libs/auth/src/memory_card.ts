@@ -195,7 +195,6 @@ export class MemoryCard implements Card {
       }
       case 'poll_worker': {
         assert('electionHash' in input.user);
-        assert('pin' in input);
         const cardData: PollWorkerCardData = {
           t: 'poll_worker',
           h: input.user.electionHash,
