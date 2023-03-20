@@ -23,15 +23,17 @@ function getSelect(testId: string): HTMLSelectElement {
   return screen.getByTestId(testId);
 }
 
-const aDate = DateTime.fromObject({
-  year: 2021,
-  month: 3,
-  day: 31,
-  hour: 19,
-  minute: 34,
-  second: 56,
-  zone: 'America/Los_Angeles',
-});
+const aDate = DateTime.fromObject(
+  {
+    year: 2021,
+    month: 3,
+    day: 31,
+    hour: 19,
+    minute: 34,
+    second: 56,
+  },
+  { zone: 'America/Los_Angeles' }
+);
 
 describe('PickDateTimeModal', () => {
   test('shows pickers for the datetime parts of the given time', () => {
@@ -141,15 +143,17 @@ describe('PickDateTimeModal', () => {
     // Expect a changed timezone
     expect(onSave).toHaveBeenNthCalledWith(
       3,
-      DateTime.fromObject({
-        year: aDate.year,
-        month: aDate.month,
-        day: changedDay,
-        hour: aDate.hour,
-        minute: aDate.minute,
-        second: 0,
-        zone: 'America/Chicago',
-      })
+      DateTime.fromObject(
+        {
+          year: aDate.year,
+          month: aDate.month,
+          day: changedDay,
+          hour: aDate.hour,
+          minute: aDate.minute,
+          second: 0,
+        },
+        { zone: 'America/Chicago' }
+      )
     );
   });
 

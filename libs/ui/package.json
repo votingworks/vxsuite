@@ -80,7 +80,7 @@
     "@types/history": "4",
     "@types/jest": "^27.0.3",
     "@types/kiosk-browser": "workspace:*",
-    "@types/luxon": "^1.26.5",
+    "@types/luxon": "^3.0.0",
     "@types/node": "16.11.29",
     "@types/pluralize": "^0.0.29",
     "@types/react": "17.0.39",

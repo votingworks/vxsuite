@@ -1,4 +1,4 @@
-import { DateTime } from 'luxon';
+import { DateTime, HourNumbers } from 'luxon';
 import React, { useCallback, useState } from 'react';
 
 import {
@@ -28,6 +28,15 @@ export interface PickDateAndTimeProps {
   value: DateTime;
 }
 
+function asHour(hour: number): HourNumbers {
+  /* istanbul ignore next */
+  if (hour < 0 || hour > 23) {
+    throw new Error(`Invalid hour: ${hour}`);
+  }
+
+  return hour as HourNumbers;
+}
+
 export function PickDateTimeModal({
   disabled = false,
   onCancel,
@@ -42,20 +51,20 @@ export function PickDateTimeModal({
     const { name, value: stringValue } = event.currentTarget;
     // eslint-disable-next-line vx/gts-safe-number-parse
     const partValue = parseInt(stringValue, 10);
-    let { hour } = newValue;
+    let hour = asHour(newValue.hour);
     if (name === 'hour') {
       if (systemMeridian === 'AM') {
-        hour = partValue % 12;
+        hour = asHour(partValue % 12);
       } else {
-        hour = (partValue % 12) + 12;
+        hour = asHour((partValue % 12) + 12);
       }
     }
     if (name === 'meridian') {
       if (stringValue === 'AM' && newValue.hour >= 12) {
-        hour = newValue.hour - 12;
+        hour = asHour(newValue.hour - 12);
       }
       if (stringValue === 'PM' && newValue.hour < 12) {
-        hour = newValue.hour + 12;
+        hour = asHour(newValue.hour + 12);
       }
     }
     const year = name === 'year' ? partValue : newValue.year;
@@ -64,28 +73,32 @@ export function PickDateTimeModal({
     const lastDayOfMonth = daysInMonth[daysInMonth.length - 1].day;
     const day = name === 'day' ? partValue : newValue.day;
     setNewValue(
-      DateTime.fromObject({
-        year,
-        month,
-        day: lastDayOfMonth && day > lastDayOfMonth ? lastDayOfMonth : day,
-        hour,
-        minute: name === 'minute' ? partValue : newValue.minute,
-        zone: newValue.zone,
-      })
+      DateTime.fromObject(
+        {
+          year,
+          month,
+          day: lastDayOfMonth && day > lastDayOfMonth ? lastDayOfMonth : day,
+          hour,
+          minute: name === 'minute' ? partValue : newValue.minute,
+        },
+        { zone: newValue.zone }
+      )
     );
   };
   const updateTimeZone: SelectChangeEventFunction = useCallback(
     (event) => {
       setNewValue(
-        DateTime.fromObject({
-          year: newValue.year,
-          month: newValue.month,
-          day: newValue.day,
-          hour: newValue.hour,
-          minute: newValue.minute,
-          second: newValue.second,
-          zone: event.currentTarget.value,
-        })
+        DateTime.fromObject(
+          {
+            year: newValue.year,
+            month: newValue.month,
+            day: newValue.day,
+            hour: newValue.hour,
+            minute: newValue.minute,
+            second: newValue.second,
+          },
+          { zone: event.currentTarget.value }
+        )
       );
     },
     [newValue, setNewValue]
