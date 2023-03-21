@@ -17,6 +17,7 @@ import {
   Election,
   FullElectionTally,
   getBallotStyle,
+  MarkStatus,
   MarkThresholds,
   Optional,
   PartyId,
@@ -661,13 +662,28 @@ export function castVoteRecordHasWriteIns(cvr: CastVoteRecord): boolean {
   return false;
 }
 
+export function getMarkStatus(
+  markScore: BallotTargetMark['score'],
+  markThresholds: MarkThresholds
+): MarkStatus {
+  if (markScore >= markThresholds.definite) {
+    return MarkStatus.Marked;
+  }
+
+  if (markScore >= markThresholds.marginal) {
+    return MarkStatus.Marginal;
+  }
+
+  return MarkStatus.Unmarked;
+}
+
 function markToCandidateVotes(
   contest: CandidateContest,
   markThresholds: MarkThresholds,
   mark: BallotTargetMark
 ): CandidateVote {
   assert(mark.type === 'candidate');
-  if (mark.score < markThresholds.definite) {
+  if (getMarkStatus(mark.score, markThresholds) !== MarkStatus.Marked) {
     return [];
   }
 
@@ -701,7 +717,9 @@ function markToYesNoVotes(
   mark: BallotTargetMark
 ): YesNoVote {
   assert(mark.type === 'yesno');
-  return mark.score >= markThresholds.definite ? [mark.optionId] : [];
+  return getMarkStatus(mark.score, markThresholds) === MarkStatus.Marked
+    ? [mark.optionId]
+    : [];
 }
 
 /**

@@ -1,4 +1,4 @@
-import { Result, ok, err, find, iter } from '@votingworks/basics';
+import { err, find, iter, ok, Result } from '@votingworks/basics';
 import { writeImageData } from '@votingworks/image-utils';
 import {
   MarkThresholds,
