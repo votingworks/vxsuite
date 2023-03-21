@@ -4,8 +4,13 @@ import { sha256 } from 'js-sha256';
 import waitForExpect from 'wait-for-expect';
 import { assert } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { mockOf } from '@votingworks/test-utils';
-import { Byte, UserWithCard } from '@votingworks/types';
+import {
+  fakeElectionManagerUser,
+  fakePollWorkerUser,
+  fakeSystemAdministratorUser,
+  mockOf,
+} from '@votingworks/test-utils';
+import { Byte } from '@votingworks/types';
 
 import {
   getTestFilePath,
@@ -22,7 +27,7 @@ import {
 } from './apdu';
 import { Card, CardDetails, CheckPinResponse } from './card';
 import { CardReader } from './card_reader';
-import { DEV_JURISDICTION } from './certs';
+import { CardType, DEV_JURISDICTION } from './certs';
 import {
   CARD_VX_ADMIN_CERT,
   CARD_VX_CERT,
@@ -83,6 +88,9 @@ afterEach(() => {
 
 const { electionData, electionHash } =
   electionFamousNames2021Fixtures.electionDefinition;
+const systemAdministratorUser = fakeSystemAdministratorUser();
+const electionManagerUser = fakeElectionManagerUser({ electionHash });
+const pollWorkerUser = fakePollWorkerUser({ electionHash });
 
 const mockChallenge = 'VotingWorks';
 function customChallengeGenerator(): string {
@@ -324,7 +332,7 @@ test('Non-ready card statuses', async () => {
 
 test.each<{
   description: string;
-  userRole: UserWithCard['role'];
+  cardType: CardType;
   vxCertAuthorityCert: TestFileSetId;
   cardVxCert: TestFileSetId;
   cardVxAdminCert?: TestFileSetId;
@@ -338,8 +346,8 @@ test.each<{
   expectedCardDetails?: CardDetails;
 }>([
   {
-    description: 'system administrator happy path',
-    userRole: 'system_administrator',
+    description: 'system administrator card happy path',
+    cardType: 'system-administrator',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardVxAdminCert: '1',
@@ -351,12 +359,12 @@ test.each<{
     isCardVxAdminPrivateKeySignatureRequestExpected: false,
     expectedCardDetails: {
       jurisdiction: DEV_JURISDICTION,
-      user: { role: 'system_administrator' },
+      user: systemAdministratorUser,
     },
   },
   {
-    description: 'election manager happy path',
-    userRole: 'election_manager',
+    description: 'election manager card happy path',
+    cardType: 'election-manager',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardVxAdminCert: '1',
@@ -368,12 +376,12 @@ test.each<{
     isCardVxAdminPrivateKeySignatureRequestExpected: false,
     expectedCardDetails: {
       jurisdiction: DEV_JURISDICTION,
-      user: { role: 'election_manager', electionHash },
+      user: electionManagerUser,
     },
   },
   {
-    description: 'poll worker happy path',
-    userRole: 'poll_worker',
+    description: 'poll worker card happy path',
+    cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardVxAdminCert: '1',
@@ -386,12 +394,12 @@ test.each<{
     isCardVxAdminPrivateKeySignatureRequestExpected: true,
     expectedCardDetails: {
       jurisdiction: DEV_JURISDICTION,
-      user: { role: 'poll_worker', electionHash },
+      user: pollWorkerUser,
     },
   },
   {
     description: 'card VotingWorks cert was not signed by VotingWorks',
-    userRole: 'poll_worker',
+    cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '2',
     isCardVxAdminCertRetrievalRequestExpected: false,
@@ -402,7 +410,7 @@ test.each<{
   },
   {
     description: 'card VxAdmin cert was not signed by VxAdmin',
-    userRole: 'poll_worker',
+    cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardVxAdminCert: '2',
@@ -415,7 +423,7 @@ test.each<{
   },
   {
     description: 'VxAdmin cert authority cert was not signed by VotingWorks',
-    userRole: 'poll_worker',
+    cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardVxAdminCert: '2',
@@ -430,7 +438,7 @@ test.each<{
     description:
       'card does not have a private key that corresponds to ' +
       'the public key in the card VotingWorks cert',
-    userRole: 'poll_worker',
+    cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardVxAdminCert: '1',
@@ -446,7 +454,7 @@ test.each<{
     description:
       'card does not have a private key that corresponds to ' +
       'the public key in the card VxAdmin cert',
-    userRole: 'poll_worker',
+    cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardVxAdminCert: '1',
@@ -462,7 +470,7 @@ test.each<{
 ])(
   'Reading user - $description',
   async ({
-    userRole,
+    cardType,
     vxCertAuthorityCert,
     cardVxCert,
     cardVxAdminCert,
@@ -489,7 +497,7 @@ test.each<{
       getTestFilePath({
         setId: cardVxCert,
         fileType: 'card-vx-cert.der',
-        userRole,
+        cardType,
       })
     );
     if (isCardVxAdminCertRetrievalRequestExpected) {
@@ -499,7 +507,7 @@ test.each<{
         getTestFilePath({
           setId: cardVxAdminCert,
           fileType: 'card-vx-admin-cert.der',
-          userRole,
+          cardType,
         })
       );
     }
@@ -520,7 +528,7 @@ test.each<{
         getTestFilePath({
           setId: cardVxPrivateKey,
           fileType: 'card-vx-private-key.pem',
-          userRole,
+          cardType,
         })
       );
     }
@@ -532,7 +540,7 @@ test.each<{
         getTestFilePath({
           setId: cardVxAdminPrivateKey,
           fileType: 'card-vx-admin-private-key.pem',
-          userRole,
+          cardType,
         })
       );
     }
@@ -589,7 +597,7 @@ test.each<{
       CARD_VX_ADMIN_CERT.OBJECT_ID,
       getTestFilePath({
         fileType: 'card-vx-admin-cert.der',
-        userRole: 'system_administrator',
+        cardType: 'system-administrator',
       })
     );
     mockCardPinVerificationRequest('123456', cardPinVerificationRequestError);
@@ -598,7 +606,7 @@ test.each<{
         CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
         getTestFilePath({
           fileType: 'card-vx-admin-private-key.pem',
-          userRole: 'system_administrator',
+          cardType: 'system-administrator',
         }),
         cardSignatureRequestError
       );
@@ -617,15 +625,17 @@ test.each<{
 test.each<{
   description: string;
   programInput: Parameters<Card['program']>[0];
+  expectedCardType: CardType;
   expectedCertSubject: string;
   isElectionDataWriteExpected?: boolean;
 }>([
   {
     description: 'system administrator card',
     programInput: {
-      user: { role: 'system_administrator' },
+      user: systemAdministratorUser,
       pin: '123456',
     },
+    expectedCardType: 'system-administrator',
     expectedCertSubject:
       '/C=US/ST=CA/O=VotingWorks' +
       '/1.3.6.1.4.1.59817.1=card' +
@@ -635,10 +645,11 @@ test.each<{
   {
     description: 'election manager card',
     programInput: {
-      user: { role: 'election_manager', electionHash },
+      user: electionManagerUser,
       pin: '123456',
       electionData,
     },
+    expectedCardType: 'election-manager',
     expectedCertSubject:
       '/C=US/ST=CA/O=VotingWorks' +
       '/1.3.6.1.4.1.59817.1=card' +
@@ -650,8 +661,9 @@ test.each<{
   {
     description: 'poll worker card',
     programInput: {
-      user: { role: 'poll_worker', electionHash },
+      user: pollWorkerUser,
     },
+    expectedCardType: 'poll-worker',
     expectedCertSubject:
       '/C=US/ST=CA/O=VotingWorks' +
       '/1.3.6.1.4.1.59817.1=card' +
@@ -663,6 +675,7 @@ test.each<{
   'Programming - $description',
   async ({
     programInput,
+    expectedCardType,
     expectedCertSubject,
     isElectionDataWriteExpected,
   }) => {
@@ -676,12 +689,12 @@ test.each<{
       CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
       getTestFilePath({
         fileType: 'card-vx-admin-public-key.der',
-        userRole: programInput.user.role,
+        cardType: expectedCardType,
       })
     );
     const cardVxAdminCertPath = getTestFilePath({
       fileType: 'card-vx-admin-cert.der',
-      userRole: programInput.user.role,
+      cardType: expectedCardType,
     });
     mockOf(createCert).mockImplementationOnce(() =>
       certDerToPem(fs.readFileSync(cardVxAdminCertPath))
@@ -716,7 +729,7 @@ test.each<{
         fs.readFileSync(
           getTestFilePath({
             fileType: 'card-vx-admin-public-key.der',
-            userRole: programInput.user.role,
+            cardType: expectedCardType,
           })
         )
       ),
@@ -753,7 +766,7 @@ test('Attempting programming and unprogramming when cardProgrammingConfig is und
   const javaCard = new JavaCard(config);
 
   await expect(
-    javaCard.program({ user: { role: 'system_administrator' }, pin: '123456' })
+    javaCard.program({ user: systemAdministratorUser, pin: '123456' })
   ).rejects.toThrow('cardProgrammingConfig must be defined');
   await expect(javaCard.unprogram()).rejects.toThrow(
     'cardProgrammingConfig must be defined'
@@ -896,12 +909,12 @@ test('createAndStoreCardVxCert', async () => {
     CARD_VX_CERT.PRIVATE_KEY_ID,
     getTestFilePath({
       fileType: 'card-vx-public-key.der',
-      userRole: 'system_administrator',
+      cardType: 'system-administrator',
     })
   );
   const cardVxCertPath = getTestFilePath({
     fileType: 'card-vx-cert.der',
-    userRole: 'system_administrator',
+    cardType: 'system-administrator',
   });
   mockOf(createCert).mockImplementationOnce(() =>
     certDerToPem(fs.readFileSync(cardVxCertPath))
@@ -923,7 +936,7 @@ test('createAndStoreCardVxCert', async () => {
       fs.readFileSync(
         getTestFilePath({
           fileType: 'card-vx-public-key.der',
-          userRole: 'system_administrator',
+          cardType: 'system-administrator',
         })
       )
     ),

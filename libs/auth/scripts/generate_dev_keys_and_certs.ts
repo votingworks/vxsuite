@@ -3,9 +3,10 @@ import { Buffer } from 'buffer';
 import { promises as fs } from 'fs';
 import yargs from 'yargs/yargs';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { UserWithCard } from '@votingworks/types';
 
+import { CardDetails } from '../src/card';
 import {
+  CardType,
   CERT_EXPIRY_IN_DAYS,
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
@@ -175,19 +176,38 @@ async function generateDevKeysAndCerts({
     );
 
     const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
-    const users: UserWithCard[] = [
-      { role: 'system_administrator' },
-      { role: 'election_manager', electionHash },
-      { role: 'poll_worker', electionHash },
-    ];
-    for (const user of users) {
-      const prefix = user.role.replace('_', '-');
-      const cardVxPrivateKeyPath = `${outputDir}/${prefix}-card-vx-private-key.pem`;
-      const cardVxPublicKeyPath = `${outputDir}/${prefix}-card-vx-public-key.der`;
-      const cardVxCertPath = `${outputDir}/${prefix}-card-vx-cert.der`;
-      const cardVxAdminPrivateKeyPath = `${outputDir}/${prefix}-card-vx-admin-private-key.pem`;
-      const cardVxAdminPublicKeyPath = `${outputDir}/${prefix}-card-vx-admin-public-key.der`;
-      const cardVxAdminCertPath = `${outputDir}/${prefix}-card-vx-admin-cert.der`;
+    const cardConfigs: Array<{ cardType: CardType; cardDetails: CardDetails }> =
+      [
+        {
+          cardType: 'system-administrator',
+          cardDetails: {
+            jurisdiction: DEV_JURISDICTION,
+            user: { role: 'system_administrator' },
+          },
+        },
+        {
+          cardType: 'election-manager',
+          cardDetails: {
+            jurisdiction: DEV_JURISDICTION,
+            user: { role: 'election_manager', electionHash },
+          },
+        },
+        {
+          cardType: 'poll-worker',
+          cardDetails: {
+            jurisdiction: DEV_JURISDICTION,
+            user: { role: 'poll_worker', electionHash },
+          },
+        },
+      ];
+    for (const { cardType, cardDetails } of cardConfigs) {
+      runCommand(['mkdir', '-p', `${outputDir}/${cardType}`]);
+      const cardVxPrivateKeyPath = `${outputDir}/${cardType}/card-vx-private-key.pem`;
+      const cardVxPublicKeyPath = `${outputDir}/${cardType}/card-vx-public-key.der`;
+      const cardVxCertPath = `${outputDir}/${cardType}/card-vx-cert.der`;
+      const cardVxAdminPrivateKeyPath = `${outputDir}/${cardType}/card-vx-admin-private-key.pem`;
+      const cardVxAdminPublicKeyPath = `${outputDir}/${cardType}/card-vx-admin-public-key.der`;
+      const cardVxAdminCertPath = `${outputDir}/${cardType}/card-vx-admin-cert.der`;
 
       // Generate card VotingWorks key pair and cert
       const cardVxPrivateKey = await generateDevPrivateKey();
@@ -221,10 +241,7 @@ async function generateDevKeysAndCerts({
         await publicKeyPemToDer(cardVxAdminPublicKey)
       );
       const cardVxAdminCert = await createCert({
-        certSubject: constructCardCertSubject({
-          jurisdiction: DEV_JURISDICTION,
-          user,
-        }),
+        certSubject: constructCardCertSubject(cardDetails),
         expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
         opensslConfig: OPENSSL_CONFIG_PATH,
         publicKeyToSign: cardVxAdminPublicKey,
