@@ -151,15 +151,6 @@ async function mockCardSignatureRequest(
   error?: Error
 ): Promise<void> {
   const challengeHash = Buffer.from(sha256(mockChallenge), 'hex');
-  const challengeSignature = await openssl([
-    'dgst',
-    '-sha256',
-    '-sign',
-    privateKeyPath,
-    '-passin',
-    `pass:${DEV_PRIVATE_KEY_PASSWORD}`,
-    Buffer.from(mockChallenge, 'utf-8'),
-  ]);
   const command = new CardCommand({
     ins: GENERAL_AUTHENTICATE.INS,
     p1: CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256,
@@ -176,6 +167,15 @@ async function mockCardSignatureRequest(
     mockCardReader.transmit.expectCallWith(command).throws(error);
     return;
   }
+  const challengeSignature = await openssl([
+    'dgst',
+    '-sha256',
+    '-sign',
+    privateKeyPath,
+    '-passin',
+    `pass:${DEV_PRIVATE_KEY_PASSWORD}`,
+    Buffer.from(mockChallenge, 'utf-8'),
+  ]);
   const responseData = constructTlv(
     GENERAL_AUTHENTICATE.DYNAMIC_AUTHENTICATION_TEMPLATE_TAG,
     Buffer.concat([
@@ -215,9 +215,6 @@ function mockCardKeyPairGenerationRequest(
   privateKeyId: Byte,
   publicKeyPath: string
 ): void {
-  const publicKeyRawData = fs
-    .readFileSync(publicKeyPath)
-    .subarray(PUBLIC_KEY_IN_DER_FORMAT_HEADER.length);
   const command = new CardCommand({
     ins: GENERATE_ASYMMETRIC_KEY_PAIR.INS,
     p1: GENERATE_ASYMMETRIC_KEY_PAIR.P1,
@@ -230,6 +227,9 @@ function mockCardKeyPairGenerationRequest(
       )
     ),
   });
+  const publicKeyRawData = fs
+    .readFileSync(publicKeyPath)
+    .subarray(PUBLIC_KEY_IN_DER_FORMAT_HEADER.length);
   const responseData = constructTlv(
     GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_TAG,
     constructTlv(
