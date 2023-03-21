@@ -199,6 +199,7 @@ function buildInterpretedHmpbPageMetadata(
     ballotStyleId,
   });
   assert(ballotStyle, `ballot style ${ballotStyleId} not found`);
+  assert(ballotStyle.precincts.length === 1, 'expected exactly one precinct');
 
   return {
     ballotStyleId,
