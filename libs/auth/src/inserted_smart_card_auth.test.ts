@@ -69,7 +69,7 @@ const otherJurisdiction = 'st.other-jurisdiction';
 const { election, electionData, electionHash } = electionSampleDefinition;
 const otherElectionHash = electionSample2Definition.electionHash;
 const defaultConfig: InsertedSmartCardAuthConfig = {};
-const machineState: InsertedSmartCardAuthMachineState = {
+const defaultMachineState: InsertedSmartCardAuthMachineState = {
   electionHash,
   jurisdiction,
 };
@@ -90,13 +90,13 @@ async function logInAsElectionManager(auth: InsertedSmartCardAuth) {
       user: electionManagerUser,
     },
   });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
   });
   mockCard.checkPin.expectCallWith(pin).resolves({ response: 'correct' });
-  await auth.checkPin(machineState, { pin });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  await auth.checkPin(defaultMachineState, { pin });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
   });
@@ -111,7 +111,7 @@ async function logInAsPollWorker(auth: InsertedSmartCardAuth) {
       user: pollWorkerUser,
     },
   });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
   });
@@ -181,13 +181,15 @@ test.each<{
     });
 
     mockCardStatus({ status: 'no_card' });
-    expect(await auth.getAuthStatus(machineState)).toEqual({
+    expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
       status: 'logged_out',
       reason: 'no_card',
     });
 
     mockCardStatus(cardStatus);
-    expect(await auth.getAuthStatus(machineState)).toEqual(expectedAuthStatus);
+    expect(await auth.getAuthStatus(defaultMachineState)).toEqual(
+      expectedAuthStatus
+    );
     if (expectedLogOnInsertion) {
       expect(mockLogger.log).toHaveBeenCalledTimes(1);
       expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -197,7 +199,7 @@ test.each<{
     }
 
     mockCardStatus({ status: 'no_card' });
-    expect(await auth.getAuthStatus(machineState)).toEqual({
+    expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
       status: 'logged_out',
       reason: 'no_card',
     });
@@ -235,7 +237,7 @@ test.each<{
     status: 'ready',
     cardDetails: { jurisdiction, user },
   });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'checking_pin',
     user,
   });
@@ -243,8 +245,8 @@ test.each<{
   mockCard.checkPin
     .expectCallWith(wrongPin)
     .resolves({ response: 'incorrect', numRemainingAttempts: Infinity });
-  await auth.checkPin(machineState, { pin: wrongPin });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  await auth.checkPin(defaultMachineState, { pin: wrongPin });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'checking_pin',
     user,
     wrongPinEnteredAt: expect.any(Date),
@@ -261,8 +263,8 @@ test.each<{
   );
 
   mockCard.checkPin.expectCallWith(pin).resolves({ response: 'correct' });
-  await auth.checkPin(machineState, { pin });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  await auth.checkPin(defaultMachineState, { pin });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user,
   });
@@ -287,7 +289,7 @@ test.each<{
   );
 
   mockCardStatus({ status: 'no_card' });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_out',
     reason: 'no_card',
   });
@@ -317,7 +319,7 @@ test('Login and logout for users without PINs', async () => {
       user: pollWorkerUser,
     },
   });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
   });
@@ -333,7 +335,7 @@ test('Login and logout for users without PINs', async () => {
   );
 
   mockCardStatus({ status: 'no_card' });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_out',
     reason: 'no_card',
   });
@@ -360,7 +362,7 @@ test.each<{
   {
     description: 'invalid user on card',
     config: defaultConfig,
-    machineState,
+    machineState: defaultMachineState,
     cardDetails: undefined,
     expectedAuthStatus: {
       status: 'logged_out',
@@ -379,7 +381,7 @@ test.each<{
   {
     description: 'invalid user on card, wrong jurisdiction',
     config: defaultConfig,
-    machineState: { ...machineState, jurisdiction: otherJurisdiction },
+    machineState: { ...defaultMachineState, jurisdiction: otherJurisdiction },
     cardDetails: {
       jurisdiction,
       user: systemAdministratorUser,
@@ -402,7 +404,7 @@ test.each<{
   {
     description: 'skips jurisdiction validation if no machine jurisdiction',
     config: defaultConfig,
-    machineState: { ...machineState, jurisdiction: undefined },
+    machineState: { ...defaultMachineState, jurisdiction: undefined },
     cardDetails: {
       jurisdiction,
       user: systemAdministratorUser,
@@ -415,7 +417,7 @@ test.each<{
   {
     description: 'election manager can access unconfigured machine',
     config: defaultConfig,
-    machineState: { ...machineState, electionHash: undefined },
+    machineState: { ...defaultMachineState, electionHash: undefined },
     cardDetails: {
       jurisdiction,
       user: electionManagerUser,
@@ -428,7 +430,7 @@ test.each<{
   {
     description: 'poll worker cannot access unconfigured machine',
     config: defaultConfig,
-    machineState: { ...machineState, electionHash: undefined },
+    machineState: { ...defaultMachineState, electionHash: undefined },
     cardDetails: {
       jurisdiction,
       user: pollWorkerUser,
@@ -451,7 +453,7 @@ test.each<{
   {
     description: 'election manager mismatched election hash',
     config: defaultConfig,
-    machineState: { ...machineState, electionHash: otherElectionHash },
+    machineState: { ...defaultMachineState, electionHash: otherElectionHash },
     cardDetails: {
       jurisdiction,
       user: electionManagerUser,
@@ -479,7 +481,7 @@ test.each<{
       ...defaultConfig,
       allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,
     },
-    machineState: { ...machineState, electionHash: otherElectionHash },
+    machineState: { ...defaultMachineState, electionHash: otherElectionHash },
     cardDetails: {
       jurisdiction,
       user: electionManagerUser,
@@ -492,7 +494,7 @@ test.each<{
   {
     description: 'poll worker mismatched election hash',
     config: defaultConfig,
-    machineState: { ...machineState, electionHash: otherElectionHash },
+    machineState: { ...defaultMachineState, electionHash: otherElectionHash },
     cardDetails: {
       jurisdiction,
       user: pollWorkerUser,
@@ -516,7 +518,7 @@ test.each<{
   'User validation - $description',
   async ({
     config,
-    machineState: testCaseMachineState,
+    machineState,
     cardDetails,
     expectedAuthStatus,
     expectedLog,
@@ -528,9 +530,7 @@ test.each<{
     });
 
     mockCardStatus({ status: 'ready', cardDetails });
-    expect(await auth.getAuthStatus(testCaseMachineState)).toEqual(
-      expectedAuthStatus
-    );
+    expect(await auth.getAuthStatus(machineState)).toEqual(expectedAuthStatus);
     if (expectedLog) {
       expect(mockLogger.log).toHaveBeenCalledTimes(1);
       expect(mockLogger.log).toHaveBeenNthCalledWith(1, ...expectedLog);
@@ -548,11 +548,11 @@ test('Cardless voter sessions - ending preemptively', async () => {
   await logInAsPollWorker(auth);
 
   // Start cardless voter session
-  await auth.startCardlessVoterSession(machineState, {
+  await auth.startCardlessVoterSession(defaultMachineState, {
     ballotStyleId: cardlessVoterUser.ballotStyleId,
     precinctId: cardlessVoterUser.precinctId,
   });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
     cardlessVoterUser,
@@ -570,7 +570,7 @@ test('Cardless voter sessions - ending preemptively', async () => {
 
   // End cardless voter session before removing poll worker card
   await auth.endCardlessVoterSession();
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
   });
@@ -596,11 +596,11 @@ test('Cardless voter sessions - end-to-end', async () => {
   await logInAsPollWorker(auth);
 
   // Start cardless voter session
-  await auth.startCardlessVoterSession(machineState, {
+  await auth.startCardlessVoterSession(defaultMachineState, {
     ballotStyleId: cardlessVoterUser.ballotStyleId,
     precinctId: cardlessVoterUser.precinctId,
   });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
     cardlessVoterUser,
@@ -618,7 +618,7 @@ test('Cardless voter sessions - end-to-end', async () => {
 
   // Remove poll worker card, granting control to cardless voter
   mockCardStatus({ status: 'no_card' });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: cardlessVoterUser,
   });
@@ -641,7 +641,7 @@ test('Cardless voter sessions - end-to-end', async () => {
       user: pollWorkerUser,
     },
   });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
     cardlessVoterUser,
@@ -659,7 +659,7 @@ test('Cardless voter sessions - end-to-end', async () => {
 
   // Re-remove poll worker card, granting control back to cardless voter
   mockCardStatus({ status: 'no_card' });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: cardlessVoterUser,
   });
@@ -676,7 +676,7 @@ test('Cardless voter sessions - end-to-end', async () => {
 
   // End cardless voter session
   await auth.endCardlessVoterSession();
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_out',
     reason: 'no_card',
   });
@@ -703,7 +703,7 @@ test('Reading card data', async () => {
     .expectCallWith()
     .resolves(Buffer.from(electionData, 'utf-8'));
   expect(
-    await auth.readCardData(machineState, { schema: ElectionSchema })
+    await auth.readCardData(defaultMachineState, { schema: ElectionSchema })
   ).toEqual(ok(election));
 
   mockCard.readData
@@ -721,7 +721,7 @@ test('Reading card data as string', async () => {
 
   mockCard.readData.expectCallWith().resolves(Buffer.from([]));
   expect(
-    await auth.readCardData(machineState, { schema: ElectionSchema })
+    await auth.readCardData(defaultMachineState, { schema: ElectionSchema })
   ).toEqual(ok(undefined));
 
   mockCard.readData.expectCallWith().resolves(Buffer.from([]));
@@ -742,7 +742,7 @@ test('Writing card data', async () => {
     .expectCallWith()
     .resolves(Buffer.from(JSON.stringify(election), 'utf-8'));
   expect(
-    await auth.writeCardData(machineState, {
+    await auth.writeCardData(defaultMachineState, {
       data: election,
       schema: ElectionSchema,
     })
@@ -774,14 +774,14 @@ test('Checking PIN error handling', async () => {
       user: electionManagerUser,
     },
   });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
   });
 
   mockCard.checkPin.expectCallWith(pin).throws(new Error('Whoa!'));
-  await auth.checkPin(machineState, { pin });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  await auth.checkPin(defaultMachineState, { pin });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
     error: true,
@@ -801,8 +801,8 @@ test('Checking PIN error handling', async () => {
   mockCard.checkPin
     .expectCallWith(wrongPin)
     .resolves({ response: 'incorrect', numRemainingAttempts: Infinity });
-  await auth.checkPin(machineState, { pin: wrongPin });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  await auth.checkPin(defaultMachineState, { pin: wrongPin });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
     wrongPinEnteredAt: expect.any(Date),
@@ -820,8 +820,8 @@ test('Checking PIN error handling', async () => {
 
   // Check that wrong PIN entry state is maintained after an error
   mockCard.checkPin.expectCallWith(pin).throws(new Error('Whoa!'));
-  await auth.checkPin(machineState, { pin });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  await auth.checkPin(defaultMachineState, { pin });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
     error: true,
@@ -839,8 +839,8 @@ test('Checking PIN error handling', async () => {
   );
 
   mockCard.checkPin.expectCallWith(pin).resolves({ response: 'correct' });
-  await auth.checkPin(machineState, { pin });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  await auth.checkPin(defaultMachineState, { pin });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
   });
@@ -860,8 +860,8 @@ test(
     mockCard.checkPin
       .expectCallWith(pin)
       .throws(new Error('Whoa! Card no longer in reader'));
-    await auth.checkPin(machineState, { pin });
-    expect(await auth.getAuthStatus(machineState)).toEqual({
+    await auth.checkPin(defaultMachineState, { pin });
+    expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
       status: 'logged_out',
       reason: 'no_card',
     });
@@ -886,16 +886,16 @@ test('Attempting to start a cardless voter session when logged out', async () =>
   });
 
   mockCardStatus({ status: 'no_card' });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_out',
     reason: 'no_card',
   });
 
-  await auth.startCardlessVoterSession(machineState, {
+  await auth.startCardlessVoterSession(defaultMachineState, {
     ballotStyleId: cardlessVoterUser.ballotStyleId,
     precinctId: cardlessVoterUser.precinctId,
   });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_out',
     reason: 'no_card',
   });
@@ -910,11 +910,11 @@ test('Attempting to start a cardless voter session when not a poll worker', asyn
 
   await logInAsElectionManager(auth);
 
-  await auth.startCardlessVoterSession(machineState, {
+  await auth.startCardlessVoterSession(defaultMachineState, {
     ballotStyleId: cardlessVoterUser.ballotStyleId,
     precinctId: cardlessVoterUser.precinctId,
   });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
   });
@@ -930,7 +930,7 @@ test('Attempting to start a cardless voter session when not allowed by config', 
   await logInAsPollWorker(auth);
 
   await expect(
-    auth.startCardlessVoterSession(machineState, {
+    auth.startCardlessVoterSession(defaultMachineState, {
       ballotStyleId: cardlessVoterUser.ballotStyleId,
       precinctId: cardlessVoterUser.precinctId,
     })
@@ -947,7 +947,7 @@ test('Reading card data error handling', async () => {
 
   mockCard.readData.expectCallWith().throws(new Error('Whoa!'));
   expect(
-    await auth.readCardData(machineState, { schema: ElectionSchema })
+    await auth.readCardData(defaultMachineState, { schema: ElectionSchema })
   ).toEqual(err(new Error('Whoa!')));
 });
 
@@ -962,7 +962,7 @@ test('Reading card data as string error handling', async () => {
     .expectCallWith()
     .resolves(Buffer.from(JSON.stringify({}), 'utf-8'));
   expect(
-    await auth.readCardData(machineState, { schema: ElectionSchema })
+    await auth.readCardData(defaultMachineState, { schema: ElectionSchema })
   ).toEqual(err(expect.any(z.ZodError)));
 
   mockCard.readData.expectCallWith().throws(new Error('Whoa!'));
@@ -980,7 +980,7 @@ test('Writing card data error handling', async () => {
     .expectCallWith(Buffer.from(JSON.stringify(election), 'utf-8'))
     .throws(new Error('Whoa!'));
   expect(
-    await auth.writeCardData(machineState, {
+    await auth.writeCardData(defaultMachineState, {
       data: election,
       schema: ElectionSchema,
     })
@@ -991,7 +991,7 @@ test('Writing card data error handling', async () => {
     .resolves();
   mockCard.readData.expectCallWith().throws(new Error('Whoa!'));
   expect(
-    await auth.writeCardData(machineState, {
+    await auth.writeCardData(defaultMachineState, {
       data: election,
       schema: ElectionSchema,
     })
@@ -1032,7 +1032,7 @@ test.each<{ description: string; user: UserWithCard }>([
     status: 'ready',
     cardDetails: { jurisdiction, user },
   });
-  expect(await auth.getAuthStatus(machineState)).toEqual({
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user,
   });

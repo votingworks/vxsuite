@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+rm -r ./certs/test
+
+echo -n 'Generating keys and certs in ./certs/test/set-1... '
+./scripts/generate-dev-keys-and-certs --for-tests --output-dir ./certs/test/set-1
+
+echo -n 'Generating keys and certs in ./certs/test/set-2... '
+./scripts/generate-dev-keys-and-certs --for-tests --output-dir ./certs/test/set-2

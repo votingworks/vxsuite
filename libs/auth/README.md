@@ -114,3 +114,9 @@ so this script is mostly just a way to document how the certs were created.
 ```
 ./scripts/generate-dev-keys-and-certs
 ```
+
+The following command generates keys and certs for tests:
+
+```
+./scripts/generate-test-keys-and-certs
+```

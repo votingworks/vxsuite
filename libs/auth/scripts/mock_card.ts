@@ -18,7 +18,13 @@ const CARD_TYPES = [
 ] as const;
 type CardType = typeof CARD_TYPES[number];
 
-async function mockCardGivenEnvVars() {
+interface MockCardInput {
+  cardType: CardType;
+  electionData?: string;
+  electionHash?: string;
+}
+
+async function parseCommandLineArgs(): Promise<MockCardInput> {
   const argParser = yargs()
     .options({
       'card-type': {
@@ -63,7 +69,7 @@ async function mockCardGivenEnvVars() {
 
   if (args.help || process.argv.length === 2) {
     console.log(helpMessage);
-    return;
+    process.exit(0);
   }
 
   if (!args.cardType) {
@@ -87,7 +93,19 @@ async function mockCardGivenEnvVars() {
     electionHash = sha256(electionData);
   }
 
-  switch (args.cardType) {
+  return {
+    cardType: args.cardType,
+    electionData,
+    electionHash,
+  };
+}
+
+function mockCardWrapper({
+  cardType,
+  electionData,
+  electionHash,
+}: MockCardInput) {
+  switch (cardType) {
     case 'system-administrator': {
       mockCard({
         cardStatus: {
@@ -102,7 +120,8 @@ async function mockCardGivenEnvVars() {
       break;
     }
     case 'election-manager': {
-      assert(electionHash !== undefined && electionData !== undefined);
+      assert(electionHash !== undefined);
+      assert(electionData !== undefined);
       mockCard({
         cardStatus: {
           status: 'ready',
@@ -148,17 +167,18 @@ async function mockCardGivenEnvVars() {
     }
     /* istanbul ignore next: Compile-time check for completeness */
     default: {
-      throwIllegalValue(args.cardType);
+      throwIllegalValue(cardType);
     }
   }
 }
 
 /**
- * A script for mocking cards during local development
+ * A script for mocking cards during local development. Run with --help for further guidance.
  */
 export async function main(): Promise<void> {
   try {
-    await mockCardGivenEnvVars();
+    const mockCardInput = await parseCommandLineArgs();
+    mockCardWrapper(mockCardInput);
   } catch (error) {
     console.error(error instanceof Error ? `❌ ${error.message}` : error);
     process.exit(1);

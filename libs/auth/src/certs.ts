@@ -34,12 +34,20 @@ export const STANDARD_CERT_FIELDS = [
 ] as const;
 
 /**
+ * Valid values for cert card type field
+ */
+export type CardType =
+  | 'system-administrator'
+  | 'election-manager'
+  | 'poll-worker';
+
+/**
  * Parsed custom cert fields
  */
 export interface CustomCertFields {
   component: 'card' | 'admin' | 'central-scan' | 'mark' | 'scan';
   jurisdiction: string;
-  cardType?: 'system-administrator' | 'election-manager' | 'poll-worker';
+  cardType?: CardType;
   electionHash?: string;
 }
 

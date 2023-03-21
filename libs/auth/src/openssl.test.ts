@@ -36,7 +36,7 @@ beforeEach(() => {
   mockUuid = 0;
   mockOf(uuid).mockImplementation(() => {
     mockUuid += 1;
-    return `random-file-name-${mockUuid}`;
+    return `${mockUuid}`;
   });
 });
 
@@ -49,10 +49,7 @@ const fileBuffers = [
   Buffer.from('file1Contents', 'utf-8'),
   Buffer.from('file2contents', 'utf-8'),
 ] as const;
-const tempFilePaths = [
-  '/tmp/openssl/random-file-name-1',
-  '/tmp/openssl/random-file-name-2',
-] as const;
+const tempFilePaths = ['/tmp/openssl/1', '/tmp/openssl/2'] as const;
 const responseChunks = [
   Buffer.from('Hey!', 'utf-8'),
   Buffer.from(' ', 'utf-8'),
@@ -145,7 +142,7 @@ test('openssl - error creating working directory', async () => {
     Promise.reject(new Error('Whoa!'))
   );
 
-  await expect(openssl([fileBuffers[0]])).rejects.toThrow();
+  await expect(openssl([fileBuffers[0]])).rejects.toThrow('Whoa!');
 });
 
 test('openssl - error writing temp file', async () => {
@@ -153,7 +150,7 @@ test('openssl - error writing temp file', async () => {
     Promise.reject(new Error('Whoa!'))
   );
 
-  await expect(openssl([fileBuffers[0]])).rejects.toThrow();
+  await expect(openssl([fileBuffers[0]])).rejects.toThrow('Whoa!');
 });
 
 test('openssl - error cleaning up temp files', async () => {
@@ -164,7 +161,7 @@ test('openssl - error cleaning up temp files', async () => {
     mockChildProcess.emit('close', 0);
   });
 
-  await expect(openssl([fileBuffers[0]])).rejects.toThrow();
+  await expect(openssl([fileBuffers[0]])).rejects.toThrow('Whoa!');
 });
 
 test('openssl - process exits with a non-success status code', async () => {
@@ -176,6 +173,22 @@ test('openssl - process exits with a non-success status code', async () => {
   });
 
   await expect(openssl([fileBuffers[0]])).rejects.toThrow('Uh oh!');
+});
+
+test('openssl - provides both stderr and stdout on error', async () => {
+  setTimeout(() => {
+    errorChunks.forEach((errorChunk) => {
+      mockChildProcess.stderr.emit('data', errorChunk);
+    });
+    responseChunks.forEach((responseChunk) => {
+      mockChildProcess.stdout.emit('data', responseChunk);
+    });
+    mockChildProcess.emit('close', 1);
+  });
+
+  await expect(openssl([fileBuffers[0]])).rejects.toThrow(
+    'Uh oh!\nHey! How is it going?'
+  );
 });
 
 test.each<{
@@ -197,7 +210,7 @@ test.each<{
       `pass:1234`,
       '-CAcreateserial',
       '-in',
-      '/tmp/openssl/random-file-name-1',
+      tempFilePaths[0],
       '-force_pubkey',
       '/path/to/public-key.pem',
       '-days',
@@ -218,7 +231,7 @@ test.each<{
       `pass:1234`,
       '-CAcreateserial',
       '-in',
-      '/tmp/openssl/random-file-name-1',
+      tempFilePaths[0],
       '-force_pubkey',
       '/path/to/public-key.pem',
       '-days',

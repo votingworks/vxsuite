@@ -1905,6 +1905,7 @@ importers:
       ts-jest: ^27.0.7
       typescript: 4.6.3
       uuid: ^9.0.0
+      wait-for-expect: ^3.0.2
       yargs: ^17.7.1
       zod: 3.14.4
     dependencies:
@@ -1946,6 +1947,7 @@ importers:
       sort-package-json: 1.53.1
       ts-jest: 27.1.5_miun3tdovw5ikc4yk3gyspvj3a
       typescript: 4.6.3
+      wait-for-expect: 3.0.2
 
   libs/backend:
     specifiers:

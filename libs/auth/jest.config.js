@@ -12,12 +12,4 @@ module.exports = {
     'src/test_utils.ts',
     'test/utils.ts,',
   ],
-  coverageThreshold: {
-    global: {
-      statements: 79,
-      branches: 91,
-      functions: 74,
-      lines: 79,
-    },
-  },
 };

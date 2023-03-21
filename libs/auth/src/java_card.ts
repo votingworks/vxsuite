@@ -120,7 +120,7 @@ const MAX_DATA_OBJECT_SIZE_BYTES = 32763;
  * Identified this limit through manual testing and intentionally left some breathing room (~10%).
  * Hitting card capacity results in an OS-error status word (0x6f 0x00).
  */
-const GENERIC_STORAGE_SPACE_CAPACITY_BYTES = 90000;
+export const GENERIC_STORAGE_SPACE_CAPACITY_BYTES = 90000;
 
 /**
  * The card's generic storage space for non-auth data. We use multiple data objects under the hood
@@ -143,11 +143,13 @@ export class JavaCard implements Card {
   private readonly cardProgrammingConfig?: JavaCardConfig['cardProgrammingConfig'];
   private readonly cardReader: CardReader;
   private cardStatus: CardStatus;
+  private readonly customChallengeGenerator?: () => string;
   private readonly vxCertAuthorityCertPath: string;
 
   constructor(input: JavaCardConfig) {
     this.cardProgrammingConfig = input.cardProgrammingConfig;
     this.cardStatus = { status: 'no_card' };
+    this.customChallengeGenerator = input.customChallengeGenerator;
     this.vxCertAuthorityCertPath = input.vxCertAuthorityCertPath;
 
     this.cardReader = new CardReader({
@@ -171,6 +173,7 @@ export class JavaCard implements Card {
             this.cardStatus = { status: 'ready', cardDetails };
             return;
           }
+          /* istanbul ignore next: Compile-time check for completeness */
           default: {
             throwIllegalValue(readerStatus);
           }
@@ -220,7 +223,10 @@ export class JavaCard implements Card {
       | { user: ElectionManagerUser; pin: string; electionData: string }
       | { user: PollWorkerUser }
   ): Promise<void> {
-    assert(this.cardProgrammingConfig !== undefined);
+    assert(
+      this.cardProgrammingConfig !== undefined,
+      'cardProgrammingConfig must be defined'
+    );
     const {
       vxAdminCertAuthorityCertPath,
       vxAdminOpensslConfigPath,
@@ -263,6 +269,10 @@ export class JavaCard implements Card {
   }
 
   async unprogram(): Promise<void> {
+    assert(
+      this.cardProgrammingConfig !== undefined,
+      'cardProgrammingConfig must be defined'
+    );
     await this.selectApplet();
     await this.resetPinAndInvalidateCard(DEFAULT_PIN);
     await this.clearCert(CARD_VX_ADMIN_CERT.OBJECT_ID);
@@ -318,7 +328,7 @@ export class JavaCard implements Card {
   }
 
   async clearData(): Promise<void> {
-    await this.selectApplet();
+    // No need to explicitly call this.selectApplet here since this.writeData does so internally
     await this.writeData(Buffer.from([]));
   }
 
@@ -377,10 +387,10 @@ export class JavaCard implements Card {
     // VotingWorks cert
     await this.verifyCardPrivateKey(CARD_VX_CERT.PRIVATE_KEY_ID, cardVxCert);
 
-    const { jurisdiction, user } = await parseCardDetailsFromCert(
-      cardVxAdminCert
+    const cardDetails = await parseCardDetailsFromCert(cardVxAdminCert);
+    assert(
+      cardDetails.jurisdiction === vxAdminCertAuthorityCertDetails.jurisdiction
     );
-    assert(jurisdiction === vxAdminCertAuthorityCertDetails.jurisdiction);
 
     /**
      * If the user doesn't have a PIN:
@@ -391,7 +401,7 @@ export class JavaCard implements Card {
      * Perform this verification later in checkPin because operations with this private key are
      * PIN-gated
      */
-    if (user?.role === 'poll_worker') {
+    if (cardDetails.user.role === 'poll_worker') {
       await this.verifyCardPrivateKey(
         CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
         cardVxAdminCert,
@@ -399,7 +409,7 @@ export class JavaCard implements Card {
       );
     }
 
-    return { jurisdiction, user };
+    return cardDetails;
   }
 
   /**
@@ -470,7 +480,9 @@ export class JavaCard implements Card {
     }
 
     // Have the private key sign a "challenge"
-    const challenge = `VotingWorks/${new Date().toISOString()}/${uuid()}`;
+    const challenge = this.customChallengeGenerator
+      ? this.customChallengeGenerator()
+      : /* istanbul ignore next */ `VotingWorks/${new Date().toISOString()}/${uuid()}`;
     const challengeHash = Buffer.from(sha256(challenge), 'hex');
     const generalAuthenticateResponse = await this.cardReader.transmit(
       new CardCommand({
@@ -558,13 +570,13 @@ export class JavaCard implements Card {
    * key that corresponds to the public key in the card VxAdmin cert, and the card will need to be
    * reprogrammed.
    */
-  private async resetPinAndInvalidateCard(pin: string): Promise<void> {
+  private async resetPinAndInvalidateCard(newPin: string): Promise<void> {
     await this.cardReader.transmit(
       new CardCommand({
         ins: RESET_RETRY_COUNTER.INS,
         p1: RESET_RETRY_COUNTER.P1,
         p2: RESET_RETRY_COUNTER.P2,
-        data: Buffer.concat([PUK, construct8BytePinBuffer(pin)]),
+        data: Buffer.concat([PUK, construct8BytePinBuffer(newPin)]),
       })
     );
   }
