@@ -323,7 +323,7 @@ export class JavaCard implements Card {
   }
 
   /**
-   * We wrap readCardDetails to create safeReadCardDetails because readCardDetails:
+   * We wrap this.readCardDetails to create this.safeReadCardDetails because this.readCardDetails:
    * 1. Intentionally throws errors if any verification fails
    * 2. Can throw errors due to external actions like preemptively removing the card from the card
    *    reader
@@ -377,7 +377,7 @@ export class JavaCard implements Card {
     // VotingWorks cert
     await this.verifyCardPrivateKey(CARD_VX_CERT.PRIVATE_KEY_ID, cardVxCert);
 
-    const { user, jurisdiction } = await parseCardDetailsFromCert(
+    const { jurisdiction, user } = await parseCardDetailsFromCert(
       cardVxAdminCert
     );
     assert(jurisdiction === vxAdminCertAuthorityCertDetails.jurisdiction);

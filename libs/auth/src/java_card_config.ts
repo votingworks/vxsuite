@@ -31,14 +31,17 @@ function constructDevCardProgrammingConfig(
 /**
  * Constructs a dev Java Card config
  */
-export function constructDevJavaCardConfig(input: {
+export function constructDevJavaCardConfig({
+  includeCardProgrammingConfig,
+  pathToAuthLibRoot,
+}: {
   includeCardProgrammingConfig?: boolean;
   pathToAuthLibRoot: string;
 }): JavaCardConfig {
   return {
-    cardProgrammingConfig: input.includeCardProgrammingConfig
-      ? constructDevCardProgrammingConfig(input.pathToAuthLibRoot)
+    cardProgrammingConfig: includeCardProgrammingConfig
+      ? constructDevCardProgrammingConfig(pathToAuthLibRoot)
       : undefined,
-    vxCertAuthorityCertPath: `${input.pathToAuthLibRoot}/certs/dev/vx-cert-authority-cert.pem`,
+    vxCertAuthorityCertPath: `${pathToAuthLibRoot}/certs/dev/vx-cert-authority-cert.pem`,
   };
 }
