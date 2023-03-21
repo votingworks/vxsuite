@@ -15,7 +15,10 @@ test('interpret with bad election data', () => {
   };
 
   expect(interpret(electionDefinition, ['a', 'b'])).toEqual(
-    err(expect.stringContaining('Failed to parse election JSON'))
+    err({
+      type: 'unknown',
+      message: expect.stringContaining('Failed to parse election JSON'),
+    })
   );
 });
 

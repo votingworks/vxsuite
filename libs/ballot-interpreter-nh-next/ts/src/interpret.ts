@@ -29,9 +29,16 @@ export function interpret(
     pathB,
     debug
   );
-  const value = result.json
-    ? safeParseJson(result.value as string).assertOk('extension set json=true')
-    : result.value;
+  const parseJsonResult = safeParseJson(result.value);
+
+  if (parseJsonResult.isErr()) {
+    return err({
+      type: 'unknown',
+      message: parseJsonResult.err().message,
+    });
+  }
+
+  const value = parseJsonResult.ok();
 
   return result.success
     ? ok(value as InterpretedBallotCard)
