@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { getHardware } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ErrorBoundary, Text } from '@votingworks/ui';
+import { CenteredLargeProse, ErrorBoundary, Text } from '@votingworks/ui';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import {
   ApiClient,
@@ -13,7 +13,6 @@ import {
   createQueryClient,
 } from './api';
 import { TimesCircle } from './components/graphics';
-import { CenteredLargeProse } from './components/layout';
 import { ScanAppBase } from './scan_app_base';
 
 export interface AppProps {

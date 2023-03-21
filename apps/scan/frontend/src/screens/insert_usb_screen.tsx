@@ -1,8 +1,6 @@
+import { CenteredLargeProse } from '@votingworks/ui';
 import React from 'react';
-import {
-  ScreenMainCenterChild,
-  CenteredLargeProse,
-} from '../components/layout';
+import { ScreenMainCenterChild } from '../components/layout';
 
 export function InsertUsbScreen(): JSX.Element {
   return (

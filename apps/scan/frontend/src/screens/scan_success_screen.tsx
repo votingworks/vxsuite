@@ -1,11 +1,9 @@
 import React from 'react';
+import { CenteredLargeProse } from '@votingworks/ui';
 import { CircleCheck } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
+import { ScreenMainCenterChild } from '../components/layout';
 
 interface Props {
   scannedBallotCount: number;

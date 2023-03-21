@@ -1,10 +1,7 @@
 import React from 'react';
 
-import { Text } from '@votingworks/ui';
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
+import { CenteredLargeProse, Text } from '@votingworks/ui';
+import { ScreenMainCenterChild } from '../components/layout';
 import { TimesCircle } from '../components/graphics';
 
 export function InvalidCardScreen(): JSX.Element {

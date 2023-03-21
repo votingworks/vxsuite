@@ -1,6 +1,7 @@
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
+  ConfigurationError,
   CastVoteRecord,
   MarkThresholds,
   PollsState,
@@ -40,11 +41,7 @@ import { PrecinctScannerInterpreter } from './interpret';
 import { PrecinctScannerStateMachine } from './state_machine';
 import { Workspace } from './util/workspace';
 import { Usb } from './util/usb';
-import {
-  ConfigurationError,
-  PrecinctScannerConfig,
-  PrecinctScannerStatus,
-} from './types';
+import { PrecinctScannerConfig, PrecinctScannerStatus } from './types';
 import { getMachineConfig } from './machine_config';
 import { CVR_EXPORT_FORMAT } from './globals';
 import { DefaultMarkThresholds } from './store';

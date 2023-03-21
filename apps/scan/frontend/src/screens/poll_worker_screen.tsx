@@ -10,6 +10,8 @@ import {
   printElement,
   getSignedQuickResultsReportingUrl,
   PrecinctScannerBallotCountReport,
+  CenteredLargeProse,
+  IndeterminateProgressBar,
 } from '@votingworks/ui';
 import {
   BallotCountDetails,
@@ -48,14 +50,11 @@ import {
   Logger,
 } from '@votingworks/logging';
 import { assert, Result, sleep, throwIllegalValue } from '@votingworks/basics';
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
+import { ScreenMainCenterChild } from '../components/layout';
 
 import { LiveCheckModal } from '../components/live_check_modal';
 
-import { IndeterminateProgressBar, TimesCircle } from '../components/graphics';
+import { TimesCircle } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { rootDebug } from '../utils/debug';
 import {

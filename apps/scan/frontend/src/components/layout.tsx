@@ -2,8 +2,6 @@ import React from 'react';
 import {
   Screen,
   Main,
-  Prose,
-  fontSizeTheme,
   ElectionInfoBar,
   InfoBarMode,
   TestMode,
@@ -49,19 +47,5 @@ export function ScreenMainCenterChild({
         />
       )}
     </Screen>
-  );
-}
-
-interface CenteredLargeProseProps {
-  children: React.ReactNode;
-}
-
-export function CenteredLargeProse({
-  children,
-}: CenteredLargeProseProps): JSX.Element {
-  return (
-    <Prose textCenter maxWidth={false} themeDeprecated={fontSizeTheme.large}>
-      {children}
-    </Prose>
   );
 }

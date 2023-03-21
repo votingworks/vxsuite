@@ -1,8 +1,6 @@
 import React from 'react';
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
+import { CenteredLargeProse } from '@votingworks/ui';
+import { ScreenMainCenterChild } from '../components/layout';
 import { QuestionCircle } from '../components/graphics';
 
 export function UnconfiguredPrecinctScreen(): JSX.Element {
