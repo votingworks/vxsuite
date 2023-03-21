@@ -375,7 +375,6 @@ function buildOriginalSnapshot({
               ],
               HasIndication:
                 getMarkStatus(mark.score, {
-                  marginal: definiteMarkThreshold,
                   definite: definiteMarkThreshold,
                 }) === MarkStatus.Marked
                   ? CVR.IndicationStatus.Yes

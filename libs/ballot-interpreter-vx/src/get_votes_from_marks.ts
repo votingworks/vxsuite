@@ -13,10 +13,7 @@ export function getVotesFromMarks(
 ): VotesDict {
   return convertMarksToVotesDict(
     election.contests,
-    {
-      marginal: markScoreVoteThreshold,
-      definite: markScoreVoteThreshold,
-    },
+    { definite: markScoreVoteThreshold },
     marks
   );
 }

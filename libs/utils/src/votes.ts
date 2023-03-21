@@ -662,15 +662,29 @@ export function castVoteRecordHasWriteIns(cvr: CastVoteRecord): boolean {
   return false;
 }
 
+type MarkThresholdsOptionalMarginal = Omit<MarkThresholds, 'marginal'> &
+  Partial<Pick<MarkThresholds, 'marginal'>>;
+
 export function getMarkStatus(
   markScore: BallotTargetMark['score'],
   markThresholds: MarkThresholds
+): MarkStatus;
+export function getMarkStatus(
+  markScore: BallotTargetMark['score'],
+  markThresholds: Omit<MarkThresholds, 'marginal'>
+): Exclude<MarkStatus, MarkStatus.Marginal>;
+export function getMarkStatus(
+  markScore: BallotTargetMark['score'],
+  markThresholds: MarkThresholdsOptionalMarginal
 ): MarkStatus {
   if (markScore >= markThresholds.definite) {
     return MarkStatus.Marked;
   }
 
-  if (markScore >= markThresholds.marginal) {
+  if (
+    typeof markThresholds.marginal === 'number' &&
+    markScore >= markThresholds.marginal
+  ) {
     return MarkStatus.Marginal;
   }
 
@@ -679,7 +693,7 @@ export function getMarkStatus(
 
 function markToCandidateVotes(
   contest: CandidateContest,
-  markThresholds: MarkThresholds,
+  markThresholds: Pick<MarkThresholds, 'definite'>,
   mark: BallotTargetMark
 ): CandidateVote {
   assert(mark.type === 'candidate');
@@ -713,7 +727,7 @@ function markToCandidateVotes(
 }
 
 function markToYesNoVotes(
-  markThresholds: MarkThresholds,
+  markThresholds: Pick<MarkThresholds, 'definite'>,
   mark: BallotTargetMark
 ): YesNoVote {
   assert(mark.type === 'yesno');
@@ -727,7 +741,7 @@ function markToYesNoVotes(
  */
 export function convertMarksToVotesDict(
   contests: Contests,
-  markThresholds: MarkThresholds,
+  markThresholds: MarkThresholdsOptionalMarginal,
   marks: Iterable<BallotTargetMark>
 ): VotesDict {
   const votesDict: VotesDict = {};
