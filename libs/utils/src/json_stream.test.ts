@@ -2,105 +2,116 @@ import { integers } from '@votingworks/basics';
 import * as fc from 'fast-check';
 import { jsonStream, JsonStreamInput, JsonStreamOptions } from './json_stream';
 
-function asString<T>(input: JsonStreamInput<T>, options?: JsonStreamOptions) {
+async function asString<T>(
+  input: JsonStreamInput<T>,
+  options?: JsonStreamOptions
+) {
   const output = [];
-  for (const chunk of jsonStream<T>(input, options)) {
+  for await (const chunk of jsonStream<T>(input, options)) {
     output.push(chunk);
   }
   return output.join('');
 }
 
-test('number', () => {
-  expect(asString(1)).toEqual('1');
+test('number', async () => {
+  expect(await asString(1)).toEqual('1');
 });
 
-test('string', () => {
-  expect(asString('hello')).toEqual('"hello"');
+test('string', async () => {
+  expect(await asString('hello')).toEqual('"hello"');
 });
 
-test('null', () => {
-  expect(asString(null)).toEqual('null');
+test('null', async () => {
+  expect(await asString(null)).toEqual('null');
 });
 
-test('boolean', () => {
-  expect(asString(true)).toEqual('true');
+test('boolean', async () => {
+  expect(await asString(true)).toEqual('true');
 });
 
-test('array', () => {
-  expect(asString([])).toEqual('[]');
-  expect(asString([1, 2, 3])).toEqual('[1,2,3]');
-  expect(asString([1, 2, 3], { compact: false })).toEqual(
+test('array', async () => {
+  expect(await asString([])).toEqual('[]');
+  expect(await asString([1, 2, 3])).toEqual('[1,2,3]');
+  expect(await asString([1, 2, 3], { compact: false })).toEqual(
     '[\n  1,\n  2,\n  3\n]'
   );
 });
 
-test('object', () => {
-  expect(asString({})).toEqual('{}');
-  expect(asString({ a: 1, b: 2 })).toEqual('{"a":1,"b":2}');
-  expect(asString({ a: 1, b: 2 }, { compact: false })).toEqual(
+test('object', async () => {
+  expect(await asString({})).toEqual('{}');
+  expect(await asString({ a: 1, b: 2 })).toEqual('{"a":1,"b":2}');
+  expect(await asString({ a: 1, b: 2 }, { compact: false })).toEqual(
     '{\n  "a": 1,\n  "b": 2\n}'
   );
 });
 
-test('undefined object properties', () => {
-  expect(asString({ a: 1, b: undefined })).toEqual('{"a":1}');
-  expect(asString({ a: undefined, b: 1 })).toEqual('{"b":1}');
-  expect(asString({ a: undefined, b: undefined })).toEqual('{}');
-  expect(asString({ a: 1, b: undefined }, { compact: false })).toEqual(
+test('undefined object properties', async () => {
+  expect(await asString({ a: 1, b: undefined })).toEqual('{"a":1}');
+  expect(await asString({ a: undefined, b: 1 })).toEqual('{"b":1}');
+  expect(await asString({ a: undefined, b: undefined })).toEqual('{}');
+  expect(await asString({ a: 1, b: undefined }, { compact: false })).toEqual(
     '{\n  "a": 1\n}'
   );
 });
 
-test('nested', () => {
-  expect(asString({ a: 1, b: [2, 3] })).toEqual('{"a":1,"b":[2,3]}');
-  expect(asString({ a: 1, b: [2, 3] }, { compact: false })).toEqual(
+test('nested', async () => {
+  expect(await asString({ a: 1, b: [2, 3] })).toEqual('{"a":1,"b":[2,3]}');
+  expect(await asString({ a: 1, b: [2, 3] }, { compact: false })).toEqual(
     '{\n  "a": 1,\n  "b": [\n    2,\n    3\n  ]\n}'
   );
 });
 
-test('nested object', () => {
-  expect(asString({ a: 1, b: { c: 2 } })).toEqual('{"a":1,"b":{"c":2}}');
-  expect(asString({ a: 1, b: { c: 2 } }, { compact: false })).toEqual(
+test('nested object', async () => {
+  expect(await asString({ a: 1, b: { c: 2 } })).toEqual('{"a":1,"b":{"c":2}}');
+  expect(await asString({ a: 1, b: { c: 2 } }, { compact: false })).toEqual(
     '{\n  "a": 1,\n  "b": {\n    "c": 2\n  }\n}'
   );
 });
 
-test('iterable', () => {
-  expect(asString(new Set([1, 2, 3]))).toEqual('[1,2,3]');
-  expect(asString(integers({ from: 1, through: 3 }))).toEqual('[1,2,3]');
+test('iterable', async () => {
+  expect(await asString(new Set([1, 2, 3]))).toEqual('[1,2,3]');
+  expect(await asString(integers({ from: 1, through: 3 }))).toEqual('[1,2,3]');
   expect(
-    asString(integers({ from: 1, through: 3 }), { compact: false })
+    await asString(integers({ from: 1, through: 3 }), { compact: false })
   ).toEqual('[\n  1,\n  2,\n  3\n]');
 });
 
-test('fails with circular references', () => {
+test('async iterable', async () => {
+  expect(await asString(integers({ from: 1, through: 3 }).async())).toEqual(
+    '[1,2,3]'
+  );
+});
+
+test('fails with circular references', async () => {
   const obj: { a: number; b?: unknown } = { a: 1 };
   obj.b = obj;
-  expect(() => asString(obj)).toThrowError();
+  await expect(asString(obj)).rejects.toThrowError();
 
   const arr: unknown[] = [];
   arr.push(arr);
-  expect(() => asString(arr)).toThrowError();
+  await expect(asString(arr)).rejects.toThrowError();
 });
 
-test('fails with non-serializable objects', () => {
-  expect(() => asString({ a: 1, b: () => 2 })).toThrowError(
+test('fails with non-serializable objects', async () => {
+  await expect(asString({ a: 1, b: () => 2 })).rejects.toThrowError(
     `cannot serialize type 'function'`
   );
-  expect(() => asString([undefined])).toThrowError(
+  await expect(asString([undefined])).rejects.toThrowError(
     `cannot serialize type 'undefined'`
   );
 });
 
-test('generates correct JSON', () => {
-  fc.assert(
-    fc.property(
+test('generates correct JSON', async () => {
+  await fc.assert(
+    fc.asyncProperty(
       // filter out -0 because JSON.stringify() converts it to 0
       fc.jsonObject().filter((v) => !Object.is(v, -0)),
       fc.boolean(),
-      (input, compact) => {
+      async (input, compact) => {
         expect(
-          JSON.parse(asString(input as JsonStreamInput<unknown>, { compact }))
+          JSON.parse(
+            await asString(input as JsonStreamInput<unknown>, { compact })
+          )
         ).toEqual(input);
       }
     )
