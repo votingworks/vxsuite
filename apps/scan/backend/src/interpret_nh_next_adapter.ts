@@ -11,24 +11,84 @@ import {
 } from '@votingworks/basics';
 import {
   AdjudicationInfo,
+  BallotTargetMark,
   BallotType,
-  Candidate,
+  Contests,
   ElectionDefinition,
   getBallotStyle,
-  GridPosition,
   HmpbBallotPageMetadata,
   MarkInfo,
   MarkStatus,
+  MarkThresholds,
   Rect,
-  Vote,
   VotesDict,
 } from '@votingworks/types';
-import { ballotAdjudicationReasons } from '@votingworks/utils';
+import {
+  allContestOptions,
+  ballotAdjudicationReasons,
+  convertMarksToVotesDict,
+} from '@votingworks/utils';
 
 type OkType<T> = T extends Ok<infer U> ? U : never;
 
 type CurrentInterpretResult = Awaited<ReturnType<typeof current.interpret>>;
 type CurrentInterpretOptions = Parameters<typeof current.interpret>[2];
+
+function convertNewHampshireNextMarkToSharedMark(
+  contests: Contests,
+  [gridPosition, scoredMark]: next.ScoredOvalMarks[number]
+): BallotTargetMark {
+  assert(scoredMark, 'scoredMark must be defined');
+
+  const contest = find(contests, (c) => c.id === gridPosition.contestId);
+  const option = iter(allContestOptions(contest)).find((o) =>
+    gridPosition.type === 'option'
+      ? o.id === gridPosition.optionId
+      : o.type === 'candidate' && o.writeInIndex === gridPosition.writeInIndex
+  );
+  assert(
+    option,
+    `option not found for mark ${gridPosition.contestId}/${
+      gridPosition.type === 'option'
+        ? gridPosition.optionId
+        : `write-in-${gridPosition.writeInIndex}`
+    }: all options=${JSON.stringify(
+      Array.from(allContestOptions(contest)),
+      null,
+      2
+    )}`
+  );
+
+  const bounds: Rect = {
+    x: scoredMark.matchedBounds.left,
+    y: scoredMark.matchedBounds.top,
+    width: scoredMark.matchedBounds.width,
+    height: scoredMark.matchedBounds.height,
+  };
+
+  if (option.type === 'candidate' || option.type === 'yesno') {
+    const ballotTargetMarkBase: Omit<BallotTargetMark, 'type' | 'optionId'> = {
+      contestId: option.contestId,
+      score: scoredMark.fillScore,
+      bounds,
+      scoredOffset: {
+        x: scoredMark.matchedBounds.left - scoredMark.expectedBounds.left,
+        y: scoredMark.matchedBounds.top - scoredMark.expectedBounds.top,
+      },
+      target: {
+        inner: bounds,
+        bounds,
+      },
+    };
+
+    // `{ type: option.type, … }` would be better but TS doesn't like that.
+    return option.type === 'candidate'
+      ? { type: 'candidate', optionId: option.id, ...ballotTargetMarkBase }
+      : { type: 'yesno', optionId: option.id, ...ballotTargetMarkBase };
+  }
+
+  throwIllegalValue(option);
+}
 
 function convertMarksToAdjudicationInfo(
   electionDefinition: ElectionDefinition,
@@ -100,98 +160,32 @@ function convertMarksToAdjudicationInfo(
 }
 
 function convertMarksToMarkInfo(
+  contests: Contests,
   geometry: next.Geometry,
   marks: next.ScoredOvalMarks
 ): MarkInfo {
-  return {
+  const markInfo: MarkInfo = {
     ballotSize: geometry.canvasSize,
-    marks: marks
-      .filter((mark): mark is [GridPosition, next.ScoredOvalMark] => !!mark[1])
-      .map(([gridPosition, scoredMark]) => {
-        const matchedBounds: Rect = {
-          x: scoredMark.matchedBounds.left,
-          y: scoredMark.matchedBounds.top,
-          width: scoredMark.matchedBounds.width,
-          height: scoredMark.matchedBounds.height,
-        };
-        return {
-          type: 'candidate',
-          contestId: gridPosition.contestId,
-          optionId:
-            gridPosition.type === 'option'
-              ? gridPosition.optionId
-              : `write-in-${gridPosition.writeInIndex}`,
-          score: scoredMark.fillScore,
-          bounds: matchedBounds,
-          scoredOffset: {
-            x: scoredMark.matchedBounds.left - scoredMark.expectedBounds.left,
-            y: scoredMark.matchedBounds.top - scoredMark.expectedBounds.top,
-          },
-          // FIXME: Use real data here.
-          target: {
-            bounds: matchedBounds,
-            inner: matchedBounds,
-          },
-        };
-      }),
+    marks: marks.map((mark) =>
+      convertNewHampshireNextMarkToSharedMark(contests, mark)
+    ),
   };
+
+  return markInfo;
 }
 
 function convertMarksToVotes(
-  electionDefinition: ElectionDefinition,
-  options: CurrentInterpretOptions,
+  contests: Contests,
+  markThresholds: MarkThresholds,
   marks: next.ScoredOvalMarks
 ): VotesDict {
-  const { contests } = electionDefinition.election;
-  const markThresholds =
-    options.markThresholds ?? electionDefinition.election.markThresholds;
-  assert(markThresholds, 'markThresholds must be defined');
-  const votes: VotesDict = {};
-
-  for (const [gridPosition, scoredMark] of marks) {
-    if (!scoredMark) {
-      continue;
-    }
-
-    const { contestId } = gridPosition;
-    const contest = find(contests, (c) => c.id === contestId);
-
-    let vote: Vote;
-
-    if (contest.type === 'candidate') {
-      const candidate: Candidate =
-        gridPosition.type === 'option'
-          ? find(contest.candidates, (c) => c.id === gridPosition.optionId)
-          : {
-              id: `write-in-${gridPosition.writeInIndex}`,
-              name: `Write-In #${gridPosition.writeInIndex + 1}`,
-              isWriteIn: true,
-            };
-      vote = [candidate];
-    } else if (contest.type === 'yesno') {
-      assert(gridPosition.type === 'option');
-      vote = [gridPosition.optionId] as Vote;
-    } else {
-      throwIllegalValue(contest, 'type');
-    }
-
-    if (scoredMark.fillScore < markThresholds.marginal) {
-      continue;
-    }
-
-    if (scoredMark.fillScore < markThresholds.definite) {
-      continue;
-    }
-
-    if (!votes[contestId]) {
-      votes[contestId] = vote;
-    } else {
-      const existing = votes[contestId] as Vote;
-      votes[contestId] = [...existing, ...vote] as Vote;
-    }
-  }
-
-  return votes;
+  return convertMarksToVotesDict(
+    contests,
+    markThresholds,
+    iter(marks).map((scoredOvalMark) =>
+      convertNewHampshireNextMarkToSharedMark(contests, scoredOvalMark)
+    )
+  );
 }
 
 function buildInterpretedHmpbPageMetadata(
@@ -223,6 +217,10 @@ function convertNextInterpretedBallotPage(
   nextInterpretedBallotCard: next.InterpretedBallotCard,
   nextInterpretation: next.InterpretedBallotPage
 ): current.InterpretFileResult {
+  const markThresholds =
+    options.markThresholds ?? electionDefinition.election.markThresholds;
+  assert(markThresholds, 'markThresholds must be defined');
+
   return {
     interpretation: {
       type: 'InterpretedHmpbPage',
@@ -233,6 +231,7 @@ function convertNextInterpretedBallotPage(
           .metadata as next.BallotPageMetadataFront
       ),
       markInfo: convertMarksToMarkInfo(
+        electionDefinition.election.contests,
         nextInterpretation.grid.geometry,
         nextInterpretation.marks
       ),
@@ -242,8 +241,8 @@ function convertNextInterpretedBallotPage(
         nextInterpretation.marks
       ),
       votes: convertMarksToVotes(
-        electionDefinition,
-        options,
+        electionDefinition.election.contests,
+        markThresholds,
         nextInterpretation.marks
       ),
     },
