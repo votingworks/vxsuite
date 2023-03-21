@@ -1,9 +1,4 @@
-import {
-  BallotType,
-  BlankPage,
-  SheetOf,
-  UninterpretedHmpbPage,
-} from '@votingworks/types';
+import { BallotType, BlankPage, SheetOf } from '@votingworks/types';
 import { typedAs } from '@votingworks/basics';
 import {
   describeSheetValidationError,
@@ -21,28 +16,8 @@ const blankPage: BlankPage = {
   type: 'BlankPage',
 };
 
-const uninterpretedHmpbPage: UninterpretedHmpbPage = {
-  type: 'UninterpretedHmpbPage',
-  metadata: interpretedHmpbPage1.metadata,
-};
-
 const filenames: SheetOf<string> = ['sideOne', 'sideTwo'];
 const filenamesReversed: SheetOf<string> = ['sideTwo', 'sideOne'];
-
-test('Invalid page type', () => {
-  const error = canonicalizeSheet(
-    [uninterpretedHmpbPage, uninterpretedHmpbPage],
-    filenames
-  ).err();
-  expect(error).toMatchObject({
-    type: 'InvalidPageType',
-    pageTypes: ['UninterpretedHmpbPage', 'UninterpretedHmpbPage'],
-  });
-
-  expect(describeSheetValidationError(error!)).toEqual(
-    `unable to export sheet which contains at least one invalid page type: UninterpretedHmpbPage, UninterpretedHmpbPage`
-  );
-});
 
 test('BMD ballot', () => {
   expect(

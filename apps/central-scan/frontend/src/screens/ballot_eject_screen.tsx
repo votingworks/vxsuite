@@ -65,7 +65,6 @@ type EjectState = 'removeBallot' | 'acceptBallot';
 const SHEET_ADJUDICATION_ERRORS: ReadonlyArray<PageInterpretation['type']> = [
   'InvalidTestModePage',
   'InvalidElectionHashPage',
-  'UninterpretedHmpbPage',
   'UnreadablePage',
   'BlankPage',
 ];

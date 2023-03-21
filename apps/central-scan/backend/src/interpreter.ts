@@ -70,7 +70,6 @@ export function sheetRequiresAdjudication([
   const [frontRequiresAdjudicationNonBlank, backRequiresAdjudicationNonBlank] =
     [front, back].map(
       (pi) =>
-        pi.type === 'UninterpretedHmpbPage' ||
         pi.type === 'UnreadablePage' ||
         pi.type === 'InvalidTestModePage' ||
         pi.type === 'InvalidElectionHashPage' ||
@@ -335,8 +334,8 @@ export class Interpreter {
       timer.end();
       return {
         interpretation: {
-          type: 'UninterpretedHmpbPage',
-          metadata,
+          type: 'UnreadablePage',
+          reason: 'Could not interpret HMPB',
         },
       };
     } catch (error) {

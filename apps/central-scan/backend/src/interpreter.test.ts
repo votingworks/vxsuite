@@ -10,7 +10,6 @@ import {
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
-  UninterpretedHmpbPage,
   UnreadablePage,
   unsafeParse,
 } from '@votingworks/types';
@@ -1030,7 +1029,7 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
         ballotImagePath,
         detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
       })
-    ).interpretation as UninterpretedHmpbPage
+    ).interpretation as UnreadablePage
   ).toMatchInlineSnapshot(`
     Object {
       "adjudicationInfo": Object {
@@ -2106,7 +2105,6 @@ function withPageNumber(
       return page;
 
     case 'InterpretedHmpbPage':
-    case 'UninterpretedHmpbPage':
       return { ...page, metadata: { ...page.metadata, pageNumber } };
 
     case 'InvalidPrecinctPage':

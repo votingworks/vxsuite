@@ -22,20 +22,9 @@ const EMPTY_PAGE_TYPES: ReadonlyArray<PageInterpretation['type']> = [
 ];
 
 /**
- * Sheets with page interpretations of types outside this list can be excluded
- * immediately because they are either uninterpreted or already invalid.
- */
-const VALID_PAGE_TYPES: ReadonlyArray<PageInterpretation['type']> = [
-  ...EMPTY_PAGE_TYPES,
-  'InterpretedBmdPage',
-  'InterpretedHmpbPage',
-];
-
-/**
  * Enumeration representing possible sheet validation errors
  */
 export enum SheetValidationErrorType {
-  InvalidPageType = 'InvalidPageType',
   InvalidFrontBackPageTypes = 'InvalidFrontBackPageTypes',
   MismatchedBallotStyle = 'MismatchedBallotStyle',
   MismatchedBallotType = 'MismatchedBallotType',
@@ -76,10 +65,6 @@ export type SheetValidationError =
   | {
       type: SheetValidationErrorType.MismatchedPrecinct;
       precinctIds: SheetOf<Precinct['id']>;
-    }
-  | {
-      type: SheetValidationErrorType.InvalidPageType;
-      pageTypes: Array<PageInterpretation['type']>;
     };
 
 /**
@@ -110,16 +95,6 @@ export function canonicalizeSheet(
   [front, back]: SheetOf<PageInterpretation>,
   [frontFilename, backFilename]: SheetOf<string>
 ): Result<CanonicalizedSheet, SheetValidationError> {
-  if (
-    !VALID_PAGE_TYPES.includes(front.type) ||
-    !VALID_PAGE_TYPES.includes(back.type)
-  ) {
-    return err({
-      type: SheetValidationErrorType.InvalidPageType,
-      pageTypes: [front.type, back.type],
-    });
-  }
-
   // Valid and correctly oriented BMD sheet
   if (
     front.type === 'InterpretedBmdPage' &&
@@ -273,12 +248,6 @@ export function describeSheetValidationError(
     case SheetValidationErrorType.NonConsecutivePages: {
       const [front, back] = validationError.pageNumbers;
       return `expected a sheet to have consecutive page numbers, but got front=${front} back=${back}`;
-    }
-
-    case SheetValidationErrorType.InvalidPageType: {
-      return `unable to export sheet which contains at least one invalid page type: ${validationError.pageTypes.join(
-        ', '
-      )}`;
     }
 
     // istanbul ignore next

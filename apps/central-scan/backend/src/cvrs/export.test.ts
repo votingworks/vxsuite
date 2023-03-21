@@ -95,22 +95,44 @@ test('exportCvrs', async () => {
       originalFilename: '/tmp/front-page.png',
       normalizedFilename: frontNormalizedFilePath,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 1,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
     {
       originalFilename: '/tmp/back-page.png',
       normalizedFilename: backNormalizedFilePath,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 2,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
   ]);
@@ -210,22 +232,44 @@ test('exportCvrs without write-ins does not load ballot images', async () => {
       originalFilename: '/tmp/front-page.png',
       normalizedFilename: frontNormalizedFilePath,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 2,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
     {
       originalFilename: '/tmp/back-page.png',
       normalizedFilename: backNormalizedFilePath,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 1,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
   ]);
@@ -319,22 +363,44 @@ test('exportCvrs does not export ballot images when feature flag turned off', as
       originalFilename: '/tmp/front-page.png',
       normalizedFilename: frontNormalizedFilePath,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 1,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
     {
       originalFilename: '/tmp/back-page.png',
       normalizedFilename: backNormalizedFilePath,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 2,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
   ]);
@@ -408,22 +474,44 @@ test('exportCvrs does not export ballot images when skipImages is true', async (
       originalFilename: '/tmp/front-page.png',
       normalizedFilename: frontNormalizedFile.name,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 1,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
     {
       originalFilename: '/tmp/back-page.png',
       normalizedFilename: backNormalizedFile.name,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 2,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
   ]);

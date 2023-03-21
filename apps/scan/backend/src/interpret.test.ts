@@ -2,7 +2,7 @@ import { typedAs } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
   HmpbBallotPageMetadata,
-  HmpbPageInterpretation,
+  InterpretedHmpbPage,
 } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import * as fs from 'fs/promises';
@@ -75,7 +75,7 @@ test.each([true, false])(
     for (const page of sheet.pages) {
       expect(page.interpretation).toEqual(
         expect.objectContaining(
-          typedAs<Partial<HmpbPageInterpretation>>({
+          typedAs<Partial<InterpretedHmpbPage>>({
             type: 'InterpretedHmpbPage',
             metadata: expect.objectContaining(
               typedAs<Partial<HmpbBallotPageMetadata>>({

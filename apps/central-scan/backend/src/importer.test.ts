@@ -111,19 +111,6 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
     scanner,
   });
 
-  const frontMetadata: BallotPageMetadata = {
-    locales: { primary: 'en-US' },
-    electionHash: electionDefinition.electionHash,
-    ballotType: BallotType.Standard,
-    ballotStyleId: election.ballotStyles[0].id,
-    precinctId: election.precincts[0].id,
-    isTestMode: false,
-    pageNumber: 1,
-  };
-  const backMetadata: BallotPageMetadata = {
-    ...frontMetadata,
-    pageNumber: 2,
-  };
   importer.configure(electionDefinition);
   const batchId = workspace.store.addBatch();
   workspace.store.addSheet(uuid(), batchId, [
@@ -131,16 +118,14 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
       originalFilename: '/tmp/front-page.png',
       normalizedFilename: '/tmp/front-normalized-page.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: frontMetadata,
+        type: 'UnreadablePage',
       },
     },
     {
       originalFilename: '/tmp/back-page.png',
       normalizedFilename: '/tmp/back-normalized-page.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: backMetadata,
+        type: 'UnreadablePage',
       },
     },
   ]);
@@ -255,8 +240,7 @@ test('manually importing files', async () => {
         if (input.imagePath === frontImagePath) {
           return {
             interpretation: {
-              type: 'UninterpretedHmpbPage',
-              metadata: frontMetadata,
+              type: 'UnreadablePage',
             },
             originalFilename: '/tmp/front.png',
             normalizedFilename: '/tmp/front-normalized.png',
@@ -265,8 +249,7 @@ test('manually importing files', async () => {
         if (input.imagePath === backImagePath) {
           return {
             interpretation: {
-              type: 'UninterpretedHmpbPage',
-              metadata: backMetadata,
+              type: 'UnreadablePage',
             },
             originalFilename: '/tmp/back.png',
             normalizedFilename: '/tmp/back-normalized.png',
