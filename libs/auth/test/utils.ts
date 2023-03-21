@@ -24,10 +24,9 @@ export function numericArray(input: {
 export class MockCardReader implements Pick<CardReader, 'transmit'> {
   private readonly onReaderStatusChange: OnReaderStatusChange;
 
-  constructor(...params: ConstructorParameters<typeof CardReader>) {
-    this.onReaderStatusChange = params[0].onReaderStatusChange;
+  constructor(input: ConstructorParameters<typeof CardReader>[0]) {
+    this.onReaderStatusChange = input.onReaderStatusChange;
   }
-
   setReaderStatus(readerStatus: ReaderStatus): void {
     this.onReaderStatusChange(readerStatus);
   }
