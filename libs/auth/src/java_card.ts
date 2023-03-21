@@ -328,6 +328,7 @@ export class JavaCard implements Card {
   }
 
   async clearData(): Promise<void> {
+    // No need to explicitly call this.selectApplet here since this.writeData does so internally
     await this.writeData(Buffer.from([]));
   }
 
