@@ -44,6 +44,7 @@ export interface DippedSmartCardAuthConfig {
  * Machine state that the consumer is responsible for providing
  */
 export interface DippedSmartCardAuthMachineState {
+  arePollWorkerCardPinsEnabled?: boolean;
   electionHash?: string;
   jurisdiction?: string;
 }

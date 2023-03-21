@@ -18,7 +18,13 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
-import { Card, CardDetails, CardStatus, CheckPinResponse } from './card';
+import {
+  arePollWorkerCardDetails,
+  Card,
+  CardDetails,
+  CardStatus,
+  CheckPinResponse,
+} from './card';
 import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthConfig,
@@ -50,8 +56,14 @@ function cardStatusToProgrammableCard(
         programmedUser:
           // If one jurisdiction somehow attains a card from another jurisdiction, treat it as
           // unprogrammed
-          machineState.jurisdiction &&
-          machineState.jurisdiction !== cardDetails?.jurisdiction
+          cardDetails?.jurisdiction !== machineState.jurisdiction ||
+          // If a poll worker card doesn't have a PIN but poll worker card PINs are enabled, treat
+          // the card as unprogrammed. And vice versa. If a poll worker card does have a PIN but
+          // poll worker card PINs are not enabled, also treat the card as unprogrammed.
+          (cardDetails &&
+            arePollWorkerCardDetails(cardDetails) &&
+            cardDetails.hasPin !==
+              Boolean(machineState.arePollWorkerCardPinsEnabled))
             ? undefined
             : user,
       };
@@ -313,7 +325,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       throw new Error('User is not a system administrator');
     }
 
-    const { electionHash } = machineState;
+    const { arePollWorkerCardPinsEnabled, electionHash } = machineState;
     const pin = generatePin();
     switch (input.userRole) {
       case 'system_administrator': {
@@ -336,8 +348,9 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         assert(electionHash !== undefined);
         await this.card.program({
           user: { role: 'poll_worker', electionHash },
+          pin: arePollWorkerCardPinsEnabled ? pin : undefined,
         });
-        return undefined;
+        return arePollWorkerCardPinsEnabled ? pin : undefined;
       }
       /* istanbul ignore next: Compile-time check for completeness */
       default: {
@@ -528,7 +541,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
 
     if (
       machineState.jurisdiction &&
-      machineState.jurisdiction !== jurisdiction
+      jurisdiction !== machineState.jurisdiction
     ) {
       return err('invalid_user_on_card');
     }
