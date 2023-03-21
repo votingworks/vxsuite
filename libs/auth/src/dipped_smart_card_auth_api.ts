@@ -45,4 +45,5 @@ export interface DippedSmartCardAuthConfig {
  */
 export interface DippedSmartCardAuthMachineState {
   electionHash?: string;
+  jurisdiction?: string;
 }

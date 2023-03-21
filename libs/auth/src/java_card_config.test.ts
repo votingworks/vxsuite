@@ -1,6 +1,5 @@
 import {
   constructDevJavaCardConfig,
-  DEV_JURISDICTION,
   DEV_PRIVATE_KEY_PASSWORD,
   JavaCardConfig,
 } from './java_card_config';
@@ -14,7 +13,6 @@ test.each<{
       pathToAuthLibRoot: '../../../libs/auth',
     },
     expectedOutput: {
-      jurisdiction: DEV_JURISDICTION,
       vxCertAuthorityCertPath:
         '../../../libs/auth/certs/dev/vx-cert-authority-cert.pem',
     },
@@ -32,7 +30,6 @@ test.each<{
         vxAdminPrivateKeyPassword: DEV_PRIVATE_KEY_PASSWORD,
         vxAdminPrivateKeyPath: './certs/dev/vx-admin-private-key.pem',
       },
-      jurisdiction: DEV_JURISDICTION,
       vxCertAuthorityCertPath: './certs/dev/vx-cert-authority-cert.pem',
     },
   },

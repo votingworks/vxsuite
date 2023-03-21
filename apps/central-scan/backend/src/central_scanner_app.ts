@@ -1,5 +1,6 @@
 import { Scan } from '@votingworks/api';
 import {
+  DEV_JURISDICTION,
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
@@ -17,8 +18,10 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 import {
+  BooleanEnvironmentVariableName,
   generateElectionBasedSubfolderName,
   generateFilenameForScanningResults,
+  isFeatureFlagEnabled,
   readBallotPackageFromBuffer,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
@@ -48,30 +51,33 @@ export interface AppOptions {
   workspace: Workspace;
 }
 
-function constructDippedSmartCardAuthMachineState(
+function constructAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
-  return { electionHash: electionDefinition?.electionHash };
+  return {
+    electionHash: electionDefinition?.electionHash,
+    // TODO: Persist jurisdiction in store and pull from there
+    jurisdiction: isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS
+    )
+      ? /* istanbul ignore next */ DEV_JURISDICTION
+      : undefined,
+  };
 }
 
 function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {
   return grout.createApi({
     getAuthStatus() {
-      return auth.getAuthStatus(
-        constructDippedSmartCardAuthMachineState(workspace)
-      );
+      return auth.getAuthStatus(constructAuthMachineState(workspace));
     },
 
     checkPin(input: { pin: string }) {
-      return auth.checkPin(
-        constructDippedSmartCardAuthMachineState(workspace),
-        input
-      );
+      return auth.checkPin(constructAuthMachineState(workspace), input);
     },
 
     logOut() {
-      return auth.logOut(constructDippedSmartCardAuthMachineState(workspace));
+      return auth.logOut(constructAuthMachineState(workspace));
     },
   });
 }

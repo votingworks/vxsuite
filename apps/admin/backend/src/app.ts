@@ -23,11 +23,16 @@ import express, { Application } from 'express';
 import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
+  DEV_JURISDICTION,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { promises as fs, Stats } from 'fs';
 import { basename } from 'path';
-import { parseCvrFileInfoFromFilename } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+  parseCvrFileInfoFromFilename,
+} from '@votingworks/utils';
 import {
   AddCastVoteRecordFileResult,
   ConfigureResult,
@@ -49,12 +54,18 @@ function getCurrentElectionDefinition(
   return mostRecentlyCreatedElection?.electionDefinition;
 }
 
-function constructDippedSmartCardAuthMachineState(
+function constructAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
   const currentElectionDefinition = getCurrentElectionDefinition(workspace);
   return {
     electionHash: currentElectionDefinition?.electionHash,
+    // TODO: Pull jurisdiction from VxAdmin cert authority cert
+    jurisdiction: isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS
+    )
+      ? /* istanbul ignore next */ DEV_JURISDICTION
+      : undefined,
   };
 }
 
@@ -77,7 +88,7 @@ function buildApi({
 
   async function getUserRole() {
     const authStatus = await auth.getAuthStatus(
-      constructDippedSmartCardAuthMachineState(workspace)
+      constructAuthMachineState(workspace)
     );
     if (authStatus.status === 'logged_in') {
       return authStatus.user.role;
@@ -89,44 +100,37 @@ function buildApi({
     getMachineConfig,
 
     getAuthStatus() {
-      return auth.getAuthStatus(
-        constructDippedSmartCardAuthMachineState(workspace)
-      );
+      return auth.getAuthStatus(constructAuthMachineState(workspace));
     },
 
     checkPin(input: { pin: string }) {
-      return auth.checkPin(
-        constructDippedSmartCardAuthMachineState(workspace),
-        input
-      );
+      return auth.checkPin(constructAuthMachineState(workspace), input);
     },
 
     logOut() {
-      return auth.logOut(constructDippedSmartCardAuthMachineState(workspace));
+      return auth.logOut(constructAuthMachineState(workspace));
     },
 
-    programCard({
-      userRole,
-    }: {
+    programCard(input: {
       userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
     }) {
-      const electionDefinition = getCurrentElectionDefinition(workspace);
-      assert(electionDefinition !== undefined);
-      const { electionData, electionHash } = electionDefinition;
-
-      if (userRole === 'election_manager') {
-        return auth.programCard(
-          { electionHash },
-          { userRole: 'election_manager', electionData }
-        );
+      const machineState = constructAuthMachineState(workspace);
+      if (input.userRole === 'election_manager') {
+        const electionDefinition = getCurrentElectionDefinition(workspace);
+        assert(electionDefinition !== undefined);
+        const { electionData } = electionDefinition;
+        return auth.programCard(machineState, {
+          userRole: 'election_manager',
+          electionData,
+        });
       }
-      return auth.programCard({ electionHash }, { userRole });
+      return auth.programCard(machineState, {
+        userRole: input.userRole,
+      });
     },
 
     unprogramCard() {
-      return auth.unprogramCard(
-        constructDippedSmartCardAuthMachineState(workspace)
-      );
+      return auth.unprogramCard(constructAuthMachineState(workspace));
     },
 
     async setSystemSettings(input: {

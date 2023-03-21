@@ -1,6 +1,10 @@
 import express, { Application } from 'express';
 import { z } from 'zod';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import {
+  DEV_JURISDICTION,
+  InsertedSmartCardAuthApi,
+  InsertedSmartCardAuthMachineState,
+} from '@votingworks/auth';
 import { err, ok, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
@@ -10,9 +14,31 @@ import {
   PrecinctId,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { ScannerReportData, ScannerReportDataSchema } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+  ScannerReportData,
+  ScannerReportDataSchema,
+} from '@votingworks/utils';
 
 import { getMachineConfig } from './machine_config';
+
+function constructAuthMachineState({
+  electionHash,
+}: {
+  electionHash?: string;
+}): InsertedSmartCardAuthMachineState {
+  return {
+    // TODO: Persist election definition in store and pull from there
+    electionHash,
+    // TODO: Persist jurisdiction in store and pull from there
+    jurisdiction: isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS
+    )
+      ? /* istanbul ignore next */ DEV_JURISDICTION
+      : undefined,
+  };
+}
 
 function buildApi(auth: InsertedSmartCardAuthApi) {
   return grout.createApi({
@@ -20,39 +46,36 @@ function buildApi(auth: InsertedSmartCardAuthApi) {
 
     // TODO: Once election definition has been moved to the backend, no longer require the frontend
     // to provide election hash to this and other methods that use the auth lib
-    getAuthStatus({ electionHash }: { electionHash?: string }) {
-      return auth.getAuthStatus({ electionHash });
+    getAuthStatus(input: { electionHash?: string }) {
+      return auth.getAuthStatus(constructAuthMachineState(input));
     },
 
-    checkPin({ electionHash, pin }: { electionHash?: string; pin: string }) {
-      return auth.checkPin({ electionHash }, { pin });
+    checkPin(input: { electionHash?: string; pin: string }) {
+      return auth.checkPin(constructAuthMachineState(input), {
+        pin: input.pin,
+      });
     },
 
-    startCardlessVoterSession({
-      electionHash,
-      ballotStyleId,
-      precinctId,
-    }: {
+    startCardlessVoterSession(input: {
       electionHash?: string;
       ballotStyleId: BallotStyleId;
       precinctId: PrecinctId;
     }) {
-      return auth.startCardlessVoterSession(
-        { electionHash },
-        { ballotStyleId, precinctId }
-      );
+      return auth.startCardlessVoterSession(constructAuthMachineState(input), {
+        ballotStyleId: input.ballotStyleId,
+        precinctId: input.precinctId,
+      });
     },
 
-    endCardlessVoterSession({ electionHash }: { electionHash?: string }) {
-      return auth.endCardlessVoterSession({ electionHash });
+    endCardlessVoterSession(input: { electionHash?: string }) {
+      return auth.endCardlessVoterSession(constructAuthMachineState(input));
     },
 
-    async readElectionDefinitionFromCard({
-      electionHash,
-    }: {
+    async readElectionDefinitionFromCard(input: {
       electionHash?: string;
     }): Promise<Result<ElectionDefinition, Error>> {
-      const authStatus = await auth.getAuthStatus({ electionHash });
+      const machineState = constructAuthMachineState(input);
+      const authStatus = await auth.getAuthStatus(machineState);
       if (authStatus.status !== 'logged_in') {
         return err(new Error('User is not logged in'));
       }
@@ -60,7 +83,7 @@ function buildApi(auth: InsertedSmartCardAuthApi) {
         return err(new Error('User is not an election manager'));
       }
 
-      const result = await auth.readCardDataAsString({ electionHash });
+      const result = await auth.readCardDataAsString(machineState);
       const electionData = result.ok();
       const electionDefinition = electionData
         ? safeParseElectionDefinition(electionData).ok()
@@ -74,14 +97,13 @@ function buildApi(auth: InsertedSmartCardAuthApi) {
       return ok(electionDefinition);
     },
 
-    async readScannerReportDataFromCard({
-      electionHash,
-    }: {
+    async readScannerReportDataFromCard(input: {
       electionHash?: string;
     }): Promise<
       Result<Optional<ScannerReportData>, SyntaxError | z.ZodError | Error>
     > {
-      const authStatus = await auth.getAuthStatus({ electionHash });
+      const machineState = constructAuthMachineState(input);
+      const authStatus = await auth.getAuthStatus(machineState);
       if (authStatus.status !== 'logged_in') {
         return err(new Error('User is not logged in'));
       }
@@ -89,18 +111,16 @@ function buildApi(auth: InsertedSmartCardAuthApi) {
         return err(new Error('User is not a poll worker'));
       }
 
-      return await auth.readCardData(
-        { electionHash },
-        { schema: ScannerReportDataSchema }
-      );
+      return await auth.readCardData(machineState, {
+        schema: ScannerReportDataSchema,
+      });
     },
 
-    async clearScannerReportDataFromCard({
-      electionHash,
-    }: {
+    async clearScannerReportDataFromCard(input: {
       electionHash?: string;
     }): Promise<Result<void, Error>> {
-      const authStatus = await auth.getAuthStatus({ electionHash });
+      const machineState = constructAuthMachineState(input);
+      const authStatus = await auth.getAuthStatus(machineState);
       if (authStatus.status !== 'logged_in') {
         return err(new Error('User is not logged in'));
       }
@@ -108,7 +128,7 @@ function buildApi(auth: InsertedSmartCardAuthApi) {
         return err(new Error('User is not a poll worker'));
       }
 
-      return await auth.clearCardData({ electionHash });
+      return await auth.clearCardData(machineState);
     },
   });
 }

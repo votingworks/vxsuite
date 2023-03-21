@@ -13,6 +13,7 @@ import {
 } from '@votingworks/types';
 
 import { Card, CardStatus, CheckPinResponse } from './card';
+import { DEV_JURISDICTION } from './certs';
 import * as Legacy from './legacy';
 
 interface CardData {
@@ -134,13 +135,16 @@ export class MemoryCard implements Card {
 
   async getCardStatus(): Promise<CardStatus> {
     const cardSummary = await this.card.readSummary();
+    if (cardSummary.status !== 'ready') {
+      return {
+        status:
+          cardSummary.status === 'error' ? 'card_error' : cardSummary.status,
+      };
+    }
+    const { user } = parseUserDataFromCardSummary(cardSummary);
     return {
-      status:
-        cardSummary.status === 'error' ? 'card_error' : cardSummary.status,
-      user:
-        cardSummary.status === 'ready'
-          ? parseUserDataFromCardSummary(cardSummary).user
-          : undefined,
+      status: 'ready',
+      cardDetails: user ? { jurisdiction: DEV_JURISDICTION, user } : undefined,
     };
   }
 
@@ -191,7 +195,6 @@ export class MemoryCard implements Card {
       }
       case 'poll_worker': {
         assert('electionHash' in input.user);
-        assert('pin' in input);
         const cardData: PollWorkerCardData = {
           t: 'poll_worker',
           h: input.user.electionHash,

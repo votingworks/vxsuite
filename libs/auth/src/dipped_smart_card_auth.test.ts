@@ -26,7 +26,7 @@ import {
 } from '@votingworks/utils';
 
 import { buildMockCard, MockCard, mockCardAssertComplete } from '../test/utils';
-import { Card, CardStatus } from './card';
+import { Card, CardDetails, CardStatus } from './card';
 import { DippedSmartCardAuth } from './dipped_smart_card_auth';
 import {
   DippedSmartCardAuthConfig,
@@ -60,10 +60,15 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
+const jurisdiction = 'st.jurisdiction';
+const otherJurisdiction = 'st.other-jurisdiction';
 const { electionData, electionHash } = electionSampleDefinition;
 const otherElectionHash = electionSample2Definition.electionHash;
 const defaultConfig: DippedSmartCardAuthConfig = {};
-const machineState: DippedSmartCardAuthMachineState = { electionHash };
+const machineState: DippedSmartCardAuthMachineState = {
+  electionHash,
+  jurisdiction,
+};
 const systemAdministratorUser = fakeSystemAdministratorUser();
 const electionManagerUser = fakeElectionManagerUser({ electionHash });
 const pollWorkerUser = fakePollWorkerUser({ electionHash });
@@ -73,7 +78,13 @@ function mockCardStatus(cardStatus: CardStatus) {
 }
 
 async function logInAsSystemAdministrator(auth: DippedSmartCardAuth) {
-  mockCardStatus({ status: 'ready', user: systemAdministratorUser });
+  mockCardStatus({
+    status: 'ready',
+    cardDetails: {
+      jurisdiction,
+      user: systemAdministratorUser,
+    },
+  });
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: systemAdministratorUser,
@@ -94,7 +105,13 @@ async function logInAsSystemAdministrator(auth: DippedSmartCardAuth) {
 }
 
 async function logInAsElectionManager(auth: DippedSmartCardAuth) {
-  mockCardStatus({ status: 'ready', user: electionManagerUser });
+  mockCardStatus({
+    status: 'ready',
+    cardDetails: {
+      jurisdiction,
+      user: electionManagerUser,
+    },
+  });
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
@@ -113,120 +130,99 @@ async function logInAsElectionManager(auth: DippedSmartCardAuth) {
   mockOf(mockLogger.log).mockClear();
 }
 
-test('Card insertions and removals', async () => {
-  const auth = new DippedSmartCardAuth({
-    card: mockCard,
-    config: defaultConfig,
-    logger: mockLogger,
-  });
-
-  const testSequence: Array<{
-    cardStatus: CardStatus;
-    expectedAuthStatus: DippedSmartCardAuthTypes.AuthStatus;
-    expectedLog?: Parameters<Logger['log']>;
-  }> = [
-    {
-      cardStatus: { status: 'no_card' },
-      expectedAuthStatus: { status: 'logged_out', reason: 'machine_locked' },
-    },
-    {
-      cardStatus: { status: 'unknown_error' },
-      expectedAuthStatus: { status: 'logged_out', reason: 'machine_locked' },
-    },
-    {
-      cardStatus: { status: 'no_card' },
-      expectedAuthStatus: { status: 'logged_out', reason: 'machine_locked' },
-    },
-    {
-      cardStatus: { status: 'card_error' },
-      expectedAuthStatus: { status: 'logged_out', reason: 'card_error' },
-      expectedLog: [
-        LogEventId.AuthLogin,
-        'unknown',
-        {
-          disposition: LogDispositionStandardTypes.Failure,
-          message: 'User failed login.',
-          reason: 'card_error',
-        },
-      ],
-    },
-    {
-      cardStatus: { status: 'no_card' },
-      expectedAuthStatus: { status: 'logged_out', reason: 'machine_locked' },
-    },
-    {
-      cardStatus: { status: 'ready', user: undefined },
-      expectedAuthStatus: {
-        status: 'logged_out',
-        reason: 'invalid_user_on_card',
+test.each<{
+  description: string;
+  cardStatus: CardStatus;
+  expectedAuthStatus: DippedSmartCardAuthTypes.AuthStatus;
+  expectedLogOnInsertion?: Parameters<Logger['log']>;
+  expectedLogOnRemoval?: Parameters<Logger['log']>;
+}>([
+  {
+    description: 'unknown error',
+    cardStatus: { status: 'unknown_error' },
+    expectedAuthStatus: { status: 'logged_out', reason: 'machine_locked' },
+  },
+  {
+    description: 'card error',
+    cardStatus: { status: 'card_error' },
+    expectedAuthStatus: { status: 'logged_out', reason: 'card_error' },
+    expectedLogOnInsertion: [
+      LogEventId.AuthLogin,
+      'unknown',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'card_error',
       },
-      expectedLog: [
-        LogEventId.AuthLogin,
-        'unknown',
-        {
-          disposition: LogDispositionStandardTypes.Failure,
-          message: 'User failed login.',
-          reason: 'invalid_user_on_card',
-        },
-      ],
-    },
-    {
-      cardStatus: { status: 'no_card' },
-      expectedAuthStatus: { status: 'logged_out', reason: 'machine_locked' },
-    },
-    {
-      cardStatus: { status: 'ready', user: pollWorkerUser },
-      expectedAuthStatus: {
-        status: 'logged_out',
-        reason: 'user_role_not_allowed',
-        cardUserRole: 'poll_worker',
-      },
-      expectedLog: [
-        LogEventId.AuthLogin,
-        'poll_worker',
-        {
-          disposition: LogDispositionStandardTypes.Failure,
-          message: 'User failed login.',
-          reason: 'user_role_not_allowed',
-        },
-      ],
-    },
-    {
-      cardStatus: { status: 'no_card' },
-      expectedAuthStatus: { status: 'logged_out', reason: 'machine_locked' },
-    },
-    {
-      cardStatus: { status: 'ready', user: systemAdministratorUser },
-      expectedAuthStatus: {
-        status: 'checking_pin',
+    ],
+  },
+  {
+    description: 'canceling PIN entry',
+    cardStatus: {
+      status: 'ready',
+      cardDetails: {
+        jurisdiction,
         user: systemAdministratorUser,
       },
     },
-    {
-      cardStatus: { status: 'no_card' },
-      expectedAuthStatus: { status: 'logged_out', reason: 'machine_locked' },
-      expectedLog: [
-        LogEventId.AuthPinEntry,
-        'system_administrator',
-        {
-          disposition: LogDispositionStandardTypes.Failure,
-          message: 'User canceled PIN entry.',
-        },
-      ],
+    expectedAuthStatus: {
+      status: 'checking_pin',
+      user: systemAdministratorUser,
     },
-  ];
+    expectedLogOnRemoval: [
+      LogEventId.AuthPinEntry,
+      'system_administrator',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User canceled PIN entry.',
+      },
+    ],
+  },
+])(
+  'Card insertions and removals - $description',
+  async ({
+    cardStatus,
+    expectedAuthStatus,
+    expectedLogOnInsertion,
+    expectedLogOnRemoval,
+  }) => {
+    const auth = new DippedSmartCardAuth({
+      card: mockCard,
+      config: defaultConfig,
+      logger: mockLogger,
+    });
 
-  let logIndex = 1;
-  for (const { cardStatus, expectedAuthStatus, expectedLog } of testSequence) {
+    mockCardStatus({ status: 'no_card' });
+    expect(await auth.getAuthStatus(machineState)).toEqual({
+      status: 'logged_out',
+      reason: 'machine_locked',
+    });
+
     mockCardStatus(cardStatus);
     expect(await auth.getAuthStatus(machineState)).toEqual(expectedAuthStatus);
-    if (expectedLog) {
-      expect(mockLogger.log).toHaveBeenNthCalledWith(logIndex, ...expectedLog);
-      logIndex += 1;
+    if (expectedLogOnInsertion) {
+      expect(mockLogger.log).toHaveBeenCalledTimes(1);
+      expect(mockLogger.log).toHaveBeenNthCalledWith(
+        1,
+        ...expectedLogOnInsertion
+      );
+    }
+
+    mockCardStatus({ status: 'no_card' });
+    expect(await auth.getAuthStatus(machineState)).toEqual({
+      status: 'logged_out',
+      reason: 'machine_locked',
+    });
+    if (expectedLogOnRemoval) {
+      const logIndex = expectedLogOnInsertion ? 2 : 1;
+      expect(mockLogger.log).toHaveBeenCalledTimes(logIndex);
+      expect(mockLogger.log).toHaveBeenNthCalledWith(
+        logIndex,
+        ...expectedLogOnRemoval
+      );
     }
   }
-  expect(mockLogger.log).toHaveBeenCalledTimes(4);
-});
+);
 
 test.each<{
   description: string;
@@ -259,7 +255,10 @@ test.each<{
       logger: mockLogger,
     });
 
-    mockCardStatus({ status: 'ready', user });
+    mockCardStatus({
+      status: 'ready',
+      cardDetails: { jurisdiction, user },
+    });
     expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'checking_pin',
       user,
@@ -338,14 +337,97 @@ test.each<{
 test.each<{
   description: string;
   config: DippedSmartCardAuthConfig;
-  machineElectionHash?: string;
+  machineState: DippedSmartCardAuthMachineState;
+  cardDetails?: CardDetails;
   expectedAuthStatus: DippedSmartCardAuthTypes.AuthStatus;
   expectedLog?: Parameters<Logger['log']>;
 }>([
   {
+    description: 'invalid user on card',
+    config: defaultConfig,
+    machineState,
+    cardDetails: undefined,
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'invalid_user_on_card',
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'unknown',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'invalid_user_on_card',
+      },
+    ],
+  },
+  {
+    description: 'invalid user on card, wrong jurisdiction',
+    config: defaultConfig,
+    machineState: { ...machineState, jurisdiction: otherJurisdiction },
+    cardDetails: {
+      jurisdiction,
+      user: systemAdministratorUser,
+    },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'invalid_user_on_card',
+      cardUserRole: 'system_administrator',
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'system_administrator',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'invalid_user_on_card',
+      },
+    ],
+  },
+  {
+    description: 'skips jurisdiction validation if no machine jurisdiction',
+    config: defaultConfig,
+    machineState: { ...machineState, jurisdiction: undefined },
+    cardDetails: {
+      jurisdiction,
+      user: systemAdministratorUser,
+    },
+    expectedAuthStatus: {
+      status: 'checking_pin',
+      user: systemAdministratorUser,
+    },
+  },
+  {
+    description: 'user role not allowed',
+    config: defaultConfig,
+    machineState,
+    cardDetails: {
+      jurisdiction,
+      user: pollWorkerUser,
+    },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'user_role_not_allowed',
+      cardUserRole: 'poll_worker',
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'poll_worker',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'user_role_not_allowed',
+      },
+    ],
+  },
+  {
     description: 'unconfigured machine',
     config: defaultConfig,
-    machineElectionHash: undefined,
+    machineState: { ...machineState, electionHash: undefined },
+    cardDetails: {
+      jurisdiction,
+      user: electionManagerUser,
+    },
     expectedAuthStatus: {
       status: 'logged_out',
       reason: 'machine_not_configured',
@@ -362,9 +444,30 @@ test.each<{
     ],
   },
   {
+    description:
+      'unconfigured machine, allowElectionManagersToAccessUnconfiguredMachines = true',
+    config: {
+      ...defaultConfig,
+      allowElectionManagersToAccessUnconfiguredMachines: true,
+    },
+    machineState: { ...machineState, electionHash: undefined },
+    cardDetails: {
+      jurisdiction,
+      user: electionManagerUser,
+    },
+    expectedAuthStatus: {
+      status: 'checking_pin',
+      user: electionManagerUser,
+    },
+  },
+  {
     description: 'mismatched election hash',
     config: defaultConfig,
-    machineElectionHash: otherElectionHash,
+    machineState: { ...machineState, electionHash: otherElectionHash },
+    cardDetails: {
+      jurisdiction,
+      user: electionManagerUser,
+    },
     expectedAuthStatus: {
       status: 'logged_out',
       reason: 'election_manager_wrong_election',
@@ -380,32 +483,25 @@ test.each<{
       },
     ],
   },
-  {
-    description:
-      'unconfigured machine, allowElectionManagersToAccessUnconfiguredMachines = true',
-    config: {
-      ...defaultConfig,
-      allowElectionManagersToAccessUnconfiguredMachines: true,
-    },
-    machineElectionHash: undefined,
-    expectedAuthStatus: {
-      status: 'checking_pin',
-      user: electionManagerUser,
-    },
-  },
 ])(
-  'Election checks - $description',
-  async ({ config, machineElectionHash, expectedAuthStatus, expectedLog }) => {
+  'User validation - $description',
+  async ({
+    config,
+    machineState: testCaseMachineState,
+    cardDetails,
+    expectedAuthStatus,
+    expectedLog,
+  }) => {
     const auth = new DippedSmartCardAuth({
       card: mockCard,
       config,
       logger: mockLogger,
     });
 
-    mockCardStatus({ status: 'ready', user: electionManagerUser });
-    expect(
-      await auth.getAuthStatus({ electionHash: machineElectionHash })
-    ).toEqual(expectedAuthStatus);
+    mockCardStatus({ status: 'ready', cardDetails });
+    expect(await auth.getAuthStatus(testCaseMachineState)).toEqual(
+      expectedAuthStatus
+    );
     if (expectedLog) {
       expect(mockLogger.log).toHaveBeenCalledTimes(1);
       expect(mockLogger.log).toHaveBeenNthCalledWith(1, ...expectedLog);
@@ -459,7 +555,7 @@ test.each<{
 
     await logInAsSystemAdministrator(auth);
 
-    mockCardStatus({ status: 'ready', user: undefined });
+    mockCardStatus({ status: 'ready', cardDetails: undefined });
     expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'logged_in',
       user: systemAdministratorUser,
@@ -492,7 +588,13 @@ test.each<{
     );
 
     const programmedUser = expectedCardProgramInput.user;
-    mockCardStatus({ status: 'ready', user: programmedUser });
+    mockCardStatus({
+      status: 'ready',
+      cardDetails: {
+        jurisdiction,
+        user: programmedUser,
+      },
+    });
     expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'logged_in',
       user: systemAdministratorUser,
@@ -522,7 +624,7 @@ test.each<{
       }
     );
 
-    mockCardStatus({ status: 'ready', user: undefined });
+    mockCardStatus({ status: 'ready', cardDetails: undefined });
     expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'logged_in',
       user: systemAdministratorUser,
@@ -531,6 +633,29 @@ test.each<{
   }
 );
 
+test('Treating a card from another jurisdiction as unprogrammed in the context of card programming', async () => {
+  const auth = new DippedSmartCardAuth({
+    card: mockCard,
+    config: defaultConfig,
+    logger: mockLogger,
+  });
+
+  await logInAsSystemAdministrator(auth);
+
+  mockCardStatus({
+    status: 'ready',
+    cardDetails: {
+      jurisdiction: otherJurisdiction,
+      user: electionManagerUser,
+    },
+  });
+  expect(await auth.getAuthStatus(machineState)).toEqual({
+    status: 'logged_in',
+    user: systemAdministratorUser,
+    programmableCard: { status: 'ready', programmedUser: undefined },
+  });
+});
+
 test('Checking PIN error handling', async () => {
   const auth = new DippedSmartCardAuth({
     card: mockCard,
@@ -538,7 +663,13 @@ test('Checking PIN error handling', async () => {
     logger: mockLogger,
   });
 
-  mockCardStatus({ status: 'ready', user: electionManagerUser });
+  mockCardStatus({
+    status: 'ready',
+    cardDetails: {
+      jurisdiction,
+      user: electionManagerUser,
+    },
+  });
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
@@ -666,7 +797,7 @@ test('Card programming error handling', async () => {
     programmableCard: { status: 'unknown_error' },
   });
 
-  mockCardStatus({ status: 'ready', user: undefined });
+  mockCardStatus({ status: 'ready', cardDetails: undefined });
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'logged_in',
     user: systemAdministratorUser,
@@ -710,7 +841,13 @@ test('Card unprogramming error handling', async () => {
 
   await logInAsSystemAdministrator(auth);
 
-  mockCardStatus({ status: 'ready', user: pollWorkerUser });
+  mockCardStatus({
+    status: 'ready',
+    cardDetails: {
+      jurisdiction,
+      user: pollWorkerUser,
+    },
+  });
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'logged_in',
     user: systemAdministratorUser,
@@ -875,7 +1012,13 @@ test('SKIP_PIN_ENTRY feature flag', async () => {
     logger: mockLogger,
   });
 
-  mockCardStatus({ status: 'ready', user: electionManagerUser });
+  mockCardStatus({
+    status: 'ready',
+    cardDetails: {
+      jurisdiction,
+      user: electionManagerUser,
+    },
+  });
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'remove_card',
     user: electionManagerUser,

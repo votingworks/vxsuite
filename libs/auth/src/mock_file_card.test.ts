@@ -6,6 +6,7 @@ import {
   SystemAdministratorUser,
 } from '@votingworks/types';
 
+import { DEV_JURISDICTION } from './certs';
 import {
   deserializeMockFileContents,
   mockCard,
@@ -37,17 +38,35 @@ test.each<MockFileContents>([
     pin: undefined,
   },
   {
-    cardStatus: { status: 'ready', user: systemAdministratorUser },
+    cardStatus: {
+      status: 'ready',
+      cardDetails: {
+        jurisdiction: DEV_JURISDICTION,
+        user: systemAdministratorUser,
+      },
+    },
     data: undefined,
     pin: '123456',
   },
   {
-    cardStatus: { status: 'ready', user: electionManagerUser },
+    cardStatus: {
+      status: 'ready',
+      cardDetails: {
+        jurisdiction: DEV_JURISDICTION,
+        user: electionManagerUser,
+      },
+    },
     data: Buffer.from(electionData, 'utf-8'),
     pin: '123456',
   },
   {
-    cardStatus: { status: 'ready', user: pollWorkerUser },
+    cardStatus: {
+      status: 'ready',
+      cardDetails: {
+        jurisdiction: DEV_JURISDICTION,
+        user: pollWorkerUser,
+      },
+    },
     data: undefined,
     pin: undefined,
   },
@@ -67,37 +86,55 @@ test('MockFileCard basic mocking', async () => {
   mockCard({
     cardStatus: {
       status: 'ready',
-      user: systemAdministratorUser,
+      cardDetails: {
+        jurisdiction: DEV_JURISDICTION,
+        user: systemAdministratorUser,
+      },
     },
     pin,
   });
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
-    user: systemAdministratorUser,
+    cardDetails: {
+      jurisdiction: DEV_JURISDICTION,
+      user: systemAdministratorUser,
+    },
   });
 
   mockCard({
     cardStatus: {
       status: 'ready',
-      user: electionManagerUser,
+      cardDetails: {
+        jurisdiction: DEV_JURISDICTION,
+        user: electionManagerUser,
+      },
     },
     data: Buffer.from(electionData, 'utf-8'),
     pin,
   });
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
-    user: electionManagerUser,
+    cardDetails: {
+      jurisdiction: DEV_JURISDICTION,
+      user: electionManagerUser,
+    },
   });
 
   mockCard({
     cardStatus: {
       status: 'ready',
-      user: pollWorkerUser,
+      cardDetails: {
+        jurisdiction: DEV_JURISDICTION,
+        user: pollWorkerUser,
+      },
     },
   });
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
-    user: pollWorkerUser,
+    cardDetails: {
+      jurisdiction: DEV_JURISDICTION,
+      user: pollWorkerUser,
+    },
   });
 
   mockCard({
@@ -115,7 +152,10 @@ test('MockFileCard PIN checking', async () => {
   mockCard({
     cardStatus: {
       status: 'ready',
-      user: systemAdministratorUser,
+      cardDetails: {
+        jurisdiction: DEV_JURISDICTION,
+        user: systemAdministratorUser,
+      },
     },
     pin,
   });
@@ -134,27 +174,33 @@ test('MockFileCard programming', async () => {
   mockCard({
     cardStatus: {
       status: 'ready',
-      user: undefined,
+      cardDetails: undefined,
     },
   });
 
   await card.program({ user: systemAdministratorUser, pin });
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
-    user: systemAdministratorUser,
+    cardDetails: {
+      jurisdiction: DEV_JURISDICTION,
+      user: systemAdministratorUser,
+    },
   });
   expect(await card.checkPin(pin)).toEqual({ response: 'correct' });
 
   await card.unprogram();
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
-    user: undefined,
+    cardDetails: undefined,
   });
 
   await card.program({ user: electionManagerUser, pin, electionData });
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
-    user: electionManagerUser,
+    cardDetails: {
+      jurisdiction: DEV_JURISDICTION,
+      user: electionManagerUser,
+    },
   });
   expect(await card.checkPin(pin)).toEqual({ response: 'correct' });
   expect((await card.readData()).toString('utf-8')).toEqual(electionData);
@@ -162,14 +208,17 @@ test('MockFileCard programming', async () => {
   await card.unprogram();
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
-    user: undefined,
+    cardDetails: undefined,
   });
   expect(await card.readData()).toEqual(Buffer.from([]));
 
   await card.program({ user: pollWorkerUser });
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
-    user: pollWorkerUser,
+    cardDetails: {
+      jurisdiction: DEV_JURISDICTION,
+      user: pollWorkerUser,
+    },
   });
 });
 
@@ -178,7 +227,10 @@ test('MockFileCard data reading and writing', async () => {
   mockCard({
     cardStatus: {
       status: 'ready',
-      user: pollWorkerUser,
+      cardDetails: {
+        jurisdiction: DEV_JURISDICTION,
+        user: pollWorkerUser,
+      },
     },
   });
 

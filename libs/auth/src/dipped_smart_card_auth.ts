@@ -11,17 +11,14 @@ import {
   LogEventId,
   Logger,
 } from '@votingworks/logging';
-import {
-  DippedSmartCardAuth as DippedSmartCardAuthTypes,
-  UserWithCard,
-} from '@votingworks/types';
+import { DippedSmartCardAuth as DippedSmartCardAuthTypes } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   generatePin,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
-import { Card, CardStatus, CheckPinResponse } from './card';
+import { Card, CardDetails, CardStatus, CheckPinResponse } from './card';
 import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthConfig,
@@ -36,6 +33,7 @@ type AuthAction =
   | { type: 'log_out' };
 
 function cardStatusToProgrammableCard(
+  machineState: DippedSmartCardAuthMachineState,
   cardStatus: CardStatus
 ): DippedSmartCardAuthTypes.ProgrammableCard {
   switch (cardStatus.status) {
@@ -45,7 +43,18 @@ function cardStatusToProgrammableCard(
       return { status: cardStatus.status };
     }
     case 'ready': {
-      return { status: 'ready', programmedUser: cardStatus.user };
+      const { cardDetails } = cardStatus;
+      const user = cardDetails?.user;
+      return {
+        status: 'ready',
+        programmedUser:
+          // If one jurisdiction somehow attains a card from another jurisdiction, treat it as
+          // unprogrammed
+          machineState.jurisdiction &&
+          machineState.jurisdiction !== cardDetails?.jurisdiction
+            ? undefined
+            : user,
+      };
     }
     /* istanbul ignore next: Compile-time check for completeness */
     default: {
@@ -394,16 +403,17 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                 return { status: 'logged_out', reason: 'card_error' };
               }
               case 'ready': {
-                const { user } = action.cardStatus;
-                const validationResult = this.validateCardUser(
+                const { cardDetails } = action.cardStatus;
+                const validationResult = this.validateCard(
                   machineState,
-                  user
+                  cardDetails
                 );
                 if (validationResult.isOk()) {
+                  assert(cardDetails !== undefined);
+                  const { user } = cardDetails;
                   assert(
-                    user &&
-                      (user.role === 'system_administrator' ||
-                        user.role === 'election_manager')
+                    user.role === 'system_administrator' ||
+                      user.role === 'election_manager'
                   );
                   return isFeatureFlagEnabled(
                     BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
@@ -414,7 +424,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                 return {
                   status: 'logged_out',
                   reason: validationResult.err(),
-                  cardUserRole: user?.role,
+                  cardUserRole: cardDetails?.user.role,
                 };
               }
               /* istanbul ignore next: Compile-time check for completeness */
@@ -439,6 +449,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                   status: 'logged_in',
                   user,
                   programmableCard: cardStatusToProgrammableCard(
+                    machineState,
                     action.cardStatus
                   ),
                 };
@@ -454,6 +465,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
               return {
                 ...currentAuthStatus,
                 programmableCard: cardStatusToProgrammableCard(
+                  machineState,
                   action.cardStatus
                 ),
               };
@@ -504,11 +516,20 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     }
   }
 
-  private validateCardUser(
+  private validateCard(
     machineState: DippedSmartCardAuthMachineState,
-    user?: UserWithCard
+    cardDetails?: CardDetails
   ): Result<void, DippedSmartCardAuthTypes.LoggedOut['reason']> {
-    if (!user) {
+    if (!cardDetails) {
+      return err('invalid_user_on_card');
+    }
+
+    const { jurisdiction, user } = cardDetails;
+
+    if (
+      machineState.jurisdiction &&
+      machineState.jurisdiction !== jurisdiction
+    ) {
       return err('invalid_user_on_card');
     }
 

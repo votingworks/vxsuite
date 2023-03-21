@@ -9,6 +9,8 @@ import {
 } from '@votingworks/types';
 import {
   BALLOT_PACKAGE_FOLDER,
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
   readBallotPackageFromBuffer,
   ScannerReportData,
   ScannerReportDataSchema,
@@ -25,6 +27,7 @@ import path from 'path';
 import { existsSync } from 'fs';
 import { assert, err, ok, Result } from '@votingworks/basics';
 import {
+  DEV_JURISDICTION,
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
@@ -46,11 +49,19 @@ import { getMachineConfig } from './machine_config';
 import { CVR_EXPORT_FORMAT } from './globals';
 import { DefaultMarkThresholds } from './store';
 
-function constructInsertedSmartCardAuthMachineState(
+function constructAuthMachineState(
   workspace: Workspace
 ): InsertedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
-  return { electionHash: electionDefinition?.electionHash };
+  return {
+    electionHash: electionDefinition?.electionHash,
+    // TODO: Persist jurisdiction in store and pull from there
+    jurisdiction: isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS
+    )
+      ? /* istanbul ignore next */ DEV_JURISDICTION
+      : undefined,
+  };
 }
 
 function buildApi(
@@ -67,16 +78,11 @@ function buildApi(
     getMachineConfig,
 
     getAuthStatus() {
-      return auth.getAuthStatus(
-        constructInsertedSmartCardAuthMachineState(workspace)
-      );
+      return auth.getAuthStatus(constructAuthMachineState(workspace));
     },
 
     checkPin(input: { pin: string }) {
-      return auth.checkPin(
-        constructInsertedSmartCardAuthMachineState(workspace),
-        input
-      );
+      return auth.checkPin(constructAuthMachineState(workspace), input);
     },
 
     async configureFromBallotPackageOnUsbDrive(): Promise<
@@ -351,13 +357,10 @@ function buildApi(
       return result?.isOk() ?? false;
     },
 
-    async saveScannerReportDataToCard({
-      scannerReportData,
-    }: {
+    async saveScannerReportDataToCard(input: {
       scannerReportData: ScannerReportData;
     }): Promise<Result<void, Error>> {
-      const machineState =
-        constructInsertedSmartCardAuthMachineState(workspace);
+      const machineState = constructAuthMachineState(workspace);
       const authStatus = await auth.getAuthStatus(machineState);
       if (authStatus.status !== 'logged_in') {
         return err(new Error('User is not logged in'));
@@ -367,7 +370,7 @@ function buildApi(
       }
 
       return await auth.writeCardData(machineState, {
-        data: scannerReportData,
+        data: input.scannerReportData,
         schema: ScannerReportDataSchema,
       });
     },

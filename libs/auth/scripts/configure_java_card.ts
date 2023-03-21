@@ -264,10 +264,7 @@ function runAppletConfigurationCommands(): void {
 
 async function createAndStoreCardVxCert(): Promise<void> {
   sectionLog('🔏', 'Creating and storing card VotingWorks cert...');
-  const card = new JavaCard({
-    jurisdiction: '',
-    vxCertAuthorityCertPath,
-  });
+  const card = new JavaCard({ vxCertAuthorityCertPath });
   await waitForReadyCardStatus(card);
   await card.createAndStoreCardVxCert({
     vxOpensslConfigPath,
