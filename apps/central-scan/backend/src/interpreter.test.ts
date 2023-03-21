@@ -962,7 +962,7 @@ test('interprets marks in ballots', async () => {
           Object {
             "id": "write-in-0",
             "isWriteIn": true,
-            "name": "Write-In",
+            "name": "Write-In #1",
           },
         ],
       }
@@ -2028,7 +2028,7 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
           Object {
             "id": "write-in-2",
             "isWriteIn": true,
-            "name": "Write-In",
+            "name": "Write-In #3",
           },
         ],
       },
