@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import { Buffer } from 'buffer';
 import { promises as fs } from 'fs';
+import yargs from 'yargs/yargs';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { UserWithCard } from '@votingworks/types';
-import { asBoolean } from '@votingworks/utils';
 
 import {
   CERT_EXPIRY_IN_DAYS,
@@ -79,13 +79,62 @@ async function generateDevVxCertAuthorityCert(
   ]);
 }
 
-async function generateDevVxAndVxAdminKeysAndCerts({
+interface GenerateDevKeysAndCertsInput {
+  forTests: boolean;
+  outputDir: string;
+}
+
+async function parseCommandLineArgs() {
+  const argParser = yargs()
+    .options({
+      'for-tests': {
+        description: 'Whether to generate keys and certs for tests',
+        type: 'boolean',
+        default: false,
+      },
+      'output-dir': {
+        description: 'The directory to output generated keys and certs to',
+        type: 'string',
+        default: './certs/dev',
+      },
+    })
+    .hide('help')
+    .version(false)
+    .example('$ ./scripts/generate-dev-keys-and-certs --help', '')
+    .example('$ ./scripts/generate-dev-keys-and-certs', '')
+    .example(
+      '$ ./scripts/generate-dev-keys-and-certs \\\n' +
+        '--for-tests --output-dir ./certs/test/set-1',
+      ''
+    )
+    .strict();
+
+  const helpMessage = await argParser.getHelp();
+  argParser.fail((errorMessage: string) => {
+    throw new Error(`${errorMessage}\n\n${helpMessage}`);
+  });
+
+  const args = argParser.parse(process.argv.slice(2)) as {
+    forTests: boolean;
+    help?: boolean;
+    outputDir: string;
+  };
+
+  if (args.help) {
+    console.log(helpMessage);
+    process.exit(0);
+  }
+
+  return {
+    forTests: args.forTests,
+    outputDir: args.outputDir,
+  };
+}
+
+async function generateDevKeysAndCerts({
   forTests,
   outputDir,
-}: {
-  forTests?: boolean;
-  outputDir: string;
-}): Promise<void> {
+}: GenerateDevKeysAndCertsInput): Promise<void> {
   runCommand(['mkdir', '-p', outputDir]);
   const vxPrivateKeyPath = `${outputDir}/vx-private-key.pem`;
   const vxCertAuthorityCertPath = `${outputDir}/vx-cert-authority-cert.pem`;
@@ -198,7 +247,7 @@ async function generateDevVxAndVxAdminKeysAndCerts({
  * - VxAdmin private key
  * - VxAdmin cert authority cert
  *
- * If the FOR_TESTS env var is set, the script will additionally:
+ * If run with --for-tests, the script will additionally:
  * - Save the VxAdmin cert authority cert in DER format
  *
  * And generate for each of a system administrator, election manager, and poll worker:
@@ -208,13 +257,13 @@ async function generateDevVxAndVxAdminKeysAndCerts({
  *   authority cert
  * - A card VxAdmin cert by signing the second key pair's public key with the VxAdmin cert
  *   authority cert
+ *
+ * Run with --help for further guidance.
  */
 export async function main(): Promise<void> {
   try {
-    await generateDevVxAndVxAdminKeysAndCerts({
-      forTests: asBoolean(process.env['FOR_TESTS']),
-      outputDir: process.env['OUTPUT_DIR'] ?? './certs/dev',
-    });
+    const generateDevKeysAndCertsInput = await parseCommandLineArgs();
+    await generateDevKeysAndCerts(generateDevKeysAndCertsInput);
   } catch (error) {
     console.error(error instanceof Error ? `❌ ${error.message}` : error);
     process.exit(1);
