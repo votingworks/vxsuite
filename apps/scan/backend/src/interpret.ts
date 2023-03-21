@@ -155,16 +155,6 @@ function combinePageInterpretationsForSheet(
     };
   }
 
-  if (
-    frontType === 'UninterpretedHmpbPage' ||
-    backType === 'UninterpretedHmpbPage'
-  ) {
-    return {
-      type: 'InvalidSheet',
-      reason: 'unknown',
-    };
-  }
-
   return {
     type: 'InvalidSheet',
     reason: 'unknown',

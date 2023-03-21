@@ -5,7 +5,7 @@ import {
   BallotIdSchema,
   BallotPageLayout,
   CastVoteRecord,
-  HmpbPageInterpretation,
+  InterpretedHmpbPage,
   InlineBallotImage,
   mapSheet,
   PageInterpretation,
@@ -32,16 +32,13 @@ import {
 
 function isHmpbPage(
   interpretation: PageInterpretation
-): interpretation is HmpbPageInterpretation {
-  return (
-    interpretation.type === 'InterpretedHmpbPage' ||
-    interpretation.type === 'UninterpretedHmpbPage'
-  );
+): interpretation is InterpretedHmpbPage {
+  return interpretation.type === 'InterpretedHmpbPage';
 }
 
 function isHmpbSheet(
   interpretations: SheetOf<PageInterpretation>
-): interpretations is SheetOf<HmpbPageInterpretation> {
+): interpretations is SheetOf<InterpretedHmpbPage> {
   return isHmpbPage(interpretations[0]) && isHmpbPage(interpretations[1]);
 }
 

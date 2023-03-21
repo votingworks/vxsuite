@@ -19,7 +19,6 @@ import {
   InterpretedHmpbPage,
   mapSheet,
   SheetOf,
-  UninterpretedHmpbPage,
   VotesDict,
 } from '@votingworks/types';
 import { allContestOptions } from '@votingworks/utils';
@@ -180,9 +179,7 @@ function buildCastVoteRecordFromHmpbPage(
   batchId: string,
   batchLabel: string,
   election: Election,
-  [front, back]: SheetOf<
-    BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
-  >,
+  [front, back]: SheetOf<BuildCastVoteRecordInput<InterpretedHmpbPage>>,
   ballotLayouts?: SheetOf<BallotPageLayout>
 ): CastVoteRecord {
   if (
@@ -315,19 +312,14 @@ export function buildCastVoteRecord(
     );
   }
 
-  if (
-    front.interpretation.type === 'InterpretedHmpbPage' ||
-    front.interpretation.type === 'UninterpretedHmpbPage'
-  ) {
+  if (front.interpretation.type === 'InterpretedHmpbPage') {
     return buildCastVoteRecordFromHmpbPage(
       sheetId,
       ballotId,
       batchId,
       batchLabel,
       election,
-      [front, back] as SheetOf<
-        BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
-      >,
+      [front, back] as SheetOf<BuildCastVoteRecordInput<InterpretedHmpbPage>>,
       ballotLayouts
     );
   }

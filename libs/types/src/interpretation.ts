@@ -96,16 +96,6 @@ export const InvalidPrecinctPageSchema: z.ZodSchema<InvalidPrecinctPage> =
     metadata: z.union([BallotMetadataSchema, HmpbBallotPageMetadataSchema]),
   });
 
-export interface UninterpretedHmpbPage {
-  type: 'UninterpretedHmpbPage';
-  metadata: HmpbBallotPageMetadata;
-}
-export const UninterpretedHmpbPageSchema: z.ZodSchema<UninterpretedHmpbPage> =
-  z.object({
-    type: z.literal('UninterpretedHmpbPage'),
-    metadata: HmpbBallotPageMetadataSchema,
-  });
-
 export interface UnreadablePage {
   type: 'UnreadablePage';
   reason?: string;
@@ -129,7 +119,6 @@ export type PageInterpretation =
   | InvalidElectionHashPage
   | InvalidTestModePage
   | InvalidPrecinctPage
-  | UninterpretedHmpbPage
   | UnreadablePage;
 export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> =
   z.union([
@@ -139,15 +128,8 @@ export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> =
     InvalidElectionHashPageSchema,
     InvalidTestModePageSchema,
     InvalidPrecinctPageSchema,
-    UninterpretedHmpbPageSchema,
     UnreadablePageSchema,
   ]);
-
-export type HmpbPageInterpretation =
-  | InterpretedHmpbPage
-  | UninterpretedHmpbPage;
-export const HmpbPageInterpretationSchema: z.ZodSchema<HmpbPageInterpretation> =
-  z.union([InterpretedHmpbPageSchema, UninterpretedHmpbPageSchema]);
 
 export interface PageInterpretationWithFiles {
   originalFilename: string;

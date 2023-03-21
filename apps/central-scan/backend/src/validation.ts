@@ -75,14 +75,8 @@ export function validateSheetInterpretation([
         });
   }
 
-  if (
-    front.type === 'InterpretedHmpbPage' ||
-    front.type === 'UninterpretedHmpbPage'
-  ) {
-    if (
-      back.type !== 'InterpretedHmpbPage' &&
-      back.type !== 'UninterpretedHmpbPage'
-    ) {
+  if (front.type === 'InterpretedHmpbPage') {
+    if (back.type !== 'InterpretedHmpbPage') {
       return err({
         type: ValidationErrorType.InvalidFrontBackPageTypes,
         types: [front.type, back.type],

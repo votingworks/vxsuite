@@ -112,31 +112,52 @@ test('exportCvrs', async () => {
 
   // Create CVRs, confirm that they are exported should work
   const batchId = store.addBatch();
-  const sheetId = store.addSheet(uuid(), batchId, [
+  store.addSheet(uuid(), batchId, [
     {
       originalFilename: '/tmp/front-page.png',
       normalizedFilename: frontNormalizedFilePath,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 1,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
     {
       originalFilename: '/tmp/back-page.png',
       normalizedFilename: backNormalizedFilePath,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 2,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
   ]);
-  store.adjudicateSheet(sheetId);
 
   stream = new streams.WritableStream();
   await pipeline(exportCastVoteRecordsAsNdJson({ store }), stream);
@@ -213,31 +234,52 @@ test('exportCvrs without write-ins does not load ballot images', async () => {
 
   // Create CVRs, confirm that they are exported should work
   const batchId = store.addBatch();
-  const sheetId = store.addSheet(uuid(), batchId, [
+  store.addSheet(uuid(), batchId, [
     {
       originalFilename: '/tmp/front-page.png',
       normalizedFilename: frontNormalizedFilePath,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 2,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
     {
       originalFilename: '/tmp/back-page.png',
       normalizedFilename: backNormalizedFilePath,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 1,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
   ]);
-  store.adjudicateSheet(sheetId);
 
   stream = new streams.WritableStream();
   await pipeline(exportCastVoteRecordsAsNdJson({ store }), stream);
@@ -308,31 +350,52 @@ test('exportCvrs does not export ballot images when feature flag turned off', as
 
   // Create CVRs, confirm that they are exported should work
   const batchId = store.addBatch();
-  const sheetId = store.addSheet(uuid(), batchId, [
+  store.addSheet(uuid(), batchId, [
     {
       originalFilename: '/tmp/front-page.png',
       normalizedFilename: frontNormalizedFilePath,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 1,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
     {
       originalFilename: '/tmp/back-page.png',
       normalizedFilename: backNormalizedFilePath,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 2,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
   ]);
-  store.adjudicateSheet(sheetId);
 
   stream = new streams.WritableStream();
   await pipeline(exportCastVoteRecordsAsNdJson({ store }), stream);
@@ -383,31 +446,52 @@ test('exportCvrs does not export ballot images when skipImages is true', async (
 
   // Create CVRs, confirm that they are exported should work
   const batchId = store.addBatch();
-  const sheetId = store.addSheet(uuid(), batchId, [
+  store.addSheet(uuid(), batchId, [
     {
       originalFilename: '/tmp/front-page.png',
       normalizedFilename: frontNormalizedFile.name,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 1,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
     {
       originalFilename: '/tmp/back-page.png',
       normalizedFilename: backNormalizedFile.name,
       interpretation: {
-        type: 'UninterpretedHmpbPage',
+        type: 'InterpretedHmpbPage',
         metadata: {
           ...metadata,
           pageNumber: 2,
         },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        markInfo: {
+          marks: [],
+          ballotSize: { width: 1, height: 1 },
+        },
+        votes: {},
       },
     },
   ]);
-  store.adjudicateSheet(sheetId);
 
   stream = new streams.WritableStream();
   await pipeline(
@@ -453,26 +537,47 @@ test('exportCvrs orders by sheet ID', async () => {
         originalFilename: `/tmp/front-page-${sheetId}.png`,
         normalizedFilename: frontNormalizedFile.name,
         interpretation: {
-          type: 'UninterpretedHmpbPage',
+          type: 'InterpretedHmpbPage',
           metadata: {
             ...metadata,
             pageNumber: 1,
           },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasons: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+          },
+          markInfo: {
+            marks: [],
+            ballotSize: { width: 1, height: 1 },
+          },
+          votes: {},
         },
       },
       {
         originalFilename: `/tmp/back-page-${sheetId}.png`,
         normalizedFilename: backNormalizedFile.name,
         interpretation: {
-          type: 'UninterpretedHmpbPage',
+          type: 'InterpretedHmpbPage',
           metadata: {
             ...metadata,
             pageNumber: 2,
           },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasons: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+          },
+          markInfo: {
+            marks: [],
+            ballotSize: { width: 1, height: 1 },
+          },
+          votes: {},
         },
       },
     ]);
-    store.adjudicateSheet(sheetId);
   }
 
   const stream = new streams.WritableStream();

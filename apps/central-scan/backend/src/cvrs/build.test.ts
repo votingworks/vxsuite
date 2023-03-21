@@ -555,7 +555,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
       },
       {
         interpretation: {
-          type: 'UninterpretedHmpbPage',
+          type: 'InterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
             electionHash: electionDefinition.electionHash,
@@ -565,6 +565,17 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
             isTestMode: false,
             pageNumber: 1,
           },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasons: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+          },
+          markInfo: {
+            marks: [],
+            ballotSize: { width: 1, height: 1 },
+          },
+          votes: {},
         },
       },
     ])
@@ -610,7 +621,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
       },
       {
         interpretation: {
-          type: 'UninterpretedHmpbPage',
+          type: 'InterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
             electionHash: electionDefinition.electionHash,
@@ -620,6 +631,17 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
             isTestMode: false,
             pageNumber: 3,
           },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasons: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+          },
+          markInfo: {
+            marks: [],
+            ballotSize: { width: 1, height: 1 },
+          },
+          votes: {},
         },
       },
     ])
@@ -664,7 +686,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
       },
       {
         interpretation: {
-          type: 'UninterpretedHmpbPage',
+          type: 'InterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
             electionHash: electionDefinition.electionHash,
@@ -674,6 +696,17 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
             isTestMode: false,
             pageNumber: 2,
           },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasons: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+          },
+          markInfo: {
+            marks: [],
+            ballotSize: { width: 1, height: 1 },
+          },
+          votes: {},
         },
       },
     ])
@@ -718,7 +751,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
       },
       {
         interpretation: {
-          type: 'UninterpretedHmpbPage',
+          type: 'InterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
             electionHash: electionDefinition.electionHash,
@@ -728,6 +761,17 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
             isTestMode: false,
             pageNumber: 2,
           },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasons: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+          },
+          markInfo: {
+            marks: [],
+            ballotSize: { width: 1, height: 1 },
+          },
+          votes: {},
         },
       },
     ])

@@ -1,8 +1,9 @@
+import { ResultSheet } from '@votingworks/backend';
+import { sleep, typedAs } from '@votingworks/basics';
 import {
   AdjudicationReason,
   BallotMetadata,
   BallotPageLayout,
-  BallotPageMetadata,
   BallotType,
   CandidateContest,
   InterpretedHmpbPage,
@@ -18,16 +19,14 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
-import * as tmp from 'tmp';
-import * as fs from 'fs/promises';
-import { v4 as uuid } from 'uuid';
 import { readFileSync } from 'fs';
-import { sleep, typedAs } from '@votingworks/basics';
-import { ResultSheet } from '@votingworks/backend';
+import * as fs from 'fs/promises';
+import * as tmp from 'tmp';
+import { v4 as uuid } from 'uuid';
+import { ballotPdf, electionDefinition } from '../test/fixtures/2020-choctaw';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
-import { ballotPdf, electionDefinition } from '../test/fixtures/2020-choctaw';
 
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
@@ -393,20 +392,6 @@ test('batch cleanup works correctly', async () => {
 test('batchStatus', () => {
   const store = Store.memoryStore();
 
-  const frontMetadata: BallotPageMetadata = {
-    locales: { primary: 'en-US' },
-    electionHash: '',
-    ballotType: BallotType.Standard,
-    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
-    precinctId: stateOfHamilton.election.precincts[0].id,
-    isTestMode: false,
-    pageNumber: 1,
-  };
-  const backMetadata: BallotPageMetadata = {
-    ...frontMetadata,
-    pageNumber: 2,
-  };
-
   // Create a batch and add a sheet to it
   const batchId = store.addBatch();
   const sheetId = store.addSheet(uuid(), batchId, [
@@ -414,16 +399,14 @@ test('batchStatus', () => {
       originalFilename: '/tmp/front-page.png',
       normalizedFilename: '/tmp/front-normalized-page.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: frontMetadata,
+        type: 'UnreadablePage',
       },
     },
     {
       originalFilename: '/tmp/back-page.png',
       normalizedFilename: '/tmp/back-normalized-page.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: backMetadata,
+        type: 'UnreadablePage',
       },
     },
   ]);
@@ -434,16 +417,14 @@ test('batchStatus', () => {
       originalFilename: '/tmp/front-page2.png',
       normalizedFilename: '/tmp/front-normalized-page2.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: frontMetadata,
+        type: 'UnreadablePage',
       },
     },
     {
       originalFilename: '/tmp/back-page2.png',
       normalizedFilename: '/tmp/back-normalized-page2.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: backMetadata,
+        type: 'UnreadablePage',
       },
     },
   ]);
@@ -484,20 +465,6 @@ test('canUnconfigure not in test mode', async () => {
   store.setElection(stateOfHamilton.electionDefinition.electionData);
   store.setTestMode(false);
 
-  const frontMetadata: BallotPageMetadata = {
-    locales: { primary: 'en-US' },
-    electionHash: '',
-    ballotType: BallotType.Standard,
-    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
-    precinctId: stateOfHamilton.election.precincts[0].id,
-    isTestMode: false,
-    pageNumber: 1,
-  };
-  const backMetadata: BallotPageMetadata = {
-    ...frontMetadata,
-    pageNumber: 2,
-  };
-
   // Can unconfigure if no batches added
   expect(store.getCanUnconfigure()).toEqual(true);
 
@@ -513,16 +480,14 @@ test('canUnconfigure not in test mode', async () => {
       originalFilename: '/tmp/front-page.png',
       normalizedFilename: '/tmp/front-normalized-page.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: frontMetadata,
+        type: 'UnreadablePage',
       },
     },
     {
       originalFilename: '/tmp/back-page.png',
       normalizedFilename: '/tmp/back-normalized-page.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: backMetadata,
+        type: 'UnreadablePage',
       },
     },
   ]);
@@ -538,16 +503,14 @@ test('canUnconfigure not in test mode', async () => {
       originalFilename: '/tmp/front-page2.png',
       normalizedFilename: '/tmp/front-normalized-page2.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: frontMetadata,
+        type: 'UnreadablePage',
       },
     },
     {
       originalFilename: '/tmp/back-page2.png',
       normalizedFilename: '/tmp/back-normalized-page2.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: backMetadata,
+        type: 'UnreadablePage',
       },
     },
   ]);
@@ -563,16 +526,14 @@ test('canUnconfigure not in test mode', async () => {
       originalFilename: '/tmp/front-page3.png',
       normalizedFilename: '/tmp/front-normalized-page3.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: frontMetadata,
+        type: 'UnreadablePage',
       },
     },
     {
       originalFilename: '/tmp/back-page3.png',
       normalizedFilename: '/tmp/back-normalized-page3.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: backMetadata,
+        type: 'UnreadablePage',
       },
     },
   ]);
@@ -917,20 +878,6 @@ test('resetElectionSession', async () => {
 test('getBallotsCounted', () => {
   const store = Store.memoryStore();
 
-  const frontMetadata: BallotPageMetadata = {
-    locales: { primary: 'en-US' },
-    electionHash: '',
-    ballotType: BallotType.Standard,
-    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
-    precinctId: stateOfHamilton.election.precincts[0].id,
-    isTestMode: false,
-    pageNumber: 1,
-  };
-  const backMetadata: BallotPageMetadata = {
-    ...frontMetadata,
-    pageNumber: 2,
-  };
-
   expect(store.getBallotsCounted()).toEqual(0);
 
   // Create a batch and add a sheet to it
@@ -940,16 +887,14 @@ test('getBallotsCounted', () => {
       originalFilename: '/tmp/front-page.png',
       normalizedFilename: '/tmp/front-normalized-page.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: frontMetadata,
+        type: 'UnreadablePage',
       },
     },
     {
       originalFilename: '/tmp/back-page.png',
       normalizedFilename: '/tmp/back-normalized-page.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: backMetadata,
+        type: 'UnreadablePage',
       },
     },
   ]);
@@ -965,16 +910,14 @@ test('getBallotsCounted', () => {
       originalFilename: '/tmp/front-page2.png',
       normalizedFilename: '/tmp/front-normalized-page2.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: frontMetadata,
+        type: 'UnreadablePage',
       },
     },
     {
       originalFilename: '/tmp/back-page2.png',
       normalizedFilename: '/tmp/back-normalized-page2.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: backMetadata,
+        type: 'UnreadablePage',
       },
     },
   ]);
@@ -986,16 +929,14 @@ test('getBallotsCounted', () => {
       originalFilename: '/tmp/front-page3.png',
       normalizedFilename: '/tmp/front-normalized-page3.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: frontMetadata,
+        type: 'UnreadablePage',
       },
     },
     {
       originalFilename: '/tmp/back-page3.png',
       normalizedFilename: '/tmp/back-normalized-page3.png',
       interpretation: {
-        type: 'UninterpretedHmpbPage',
-        metadata: backMetadata,
+        type: 'UnreadablePage',
       },
     },
   ]);
