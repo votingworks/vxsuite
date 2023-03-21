@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import { z } from 'zod';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
-import { CardDetails } from './card';
+import { arePollWorkerCardDetails, CardDetails } from './card';
 import { openssl } from './openssl';
 
 /**
@@ -18,7 +18,7 @@ const VX_CUSTOM_CERT_FIELD = {
   COMPONENT: `${VX_IANA_ENTERPRISE_OID}.1`,
   /** Format: {state-2-letter-abbreviation}.{county-or-town} (e.g. ms.warren or ca.los-angeles) */
   JURISDICTION: `${VX_IANA_ENTERPRISE_OID}.2`,
-  /** One of: system-administrator, election-manager, poll-worker */
+  /** One of: system-administrator, election-manager, poll-worker, poll-worker-with-pin */
   CARD_TYPE: `${VX_IANA_ENTERPRISE_OID}.3`,
   /** The SHA-256 hash of the election definition  */
   ELECTION_HASH: `${VX_IANA_ENTERPRISE_OID}.4`,
@@ -39,7 +39,8 @@ export const STANDARD_CERT_FIELDS = [
 export type CardType =
   | 'system-administrator'
   | 'election-manager'
-  | 'poll-worker';
+  | 'poll-worker'
+  | 'poll-worker-with-pin';
 
 /**
  * Parsed custom cert fields
@@ -58,7 +59,12 @@ const CustomCertFieldsSchema: z.ZodSchema<CustomCertFields> = z.object({
   component: z.enum(['card', 'admin', 'central-scan', 'mark', 'scan']),
   jurisdiction: z.string(),
   cardType: z.optional(
-    z.enum(['system-administrator', 'election-manager', 'poll-worker'])
+    z.enum([
+      'system-administrator',
+      'election-manager',
+      'poll-worker',
+      'poll-worker-with-pin',
+    ])
   ),
   electionHash: z.optional(z.string()),
 });
@@ -139,6 +145,15 @@ export async function parseCardDetailsFromCert(
       return {
         jurisdiction,
         user: { role: 'poll_worker', electionHash },
+        hasPin: false,
+      };
+    }
+    case 'poll-worker-with-pin': {
+      assert(electionHash !== undefined);
+      return {
+        jurisdiction,
+        user: { role: 'poll_worker', electionHash },
+        hasPin: true,
       };
     }
     /* istanbul ignore next: Compile-time check for completeness */
@@ -168,7 +183,8 @@ export function constructCardCertSubject(cardDetails: CardDetails): string {
       break;
     }
     case 'poll_worker': {
-      cardType = 'poll-worker';
+      assert(arePollWorkerCardDetails(cardDetails));
+      cardType = cardDetails.hasPin ? 'poll-worker-with-pin' : 'poll-worker';
       electionHash = user.electionHash;
       break;
     }
