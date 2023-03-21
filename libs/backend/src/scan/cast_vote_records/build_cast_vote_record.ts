@@ -16,12 +16,14 @@ import {
   getContests,
   InterpretedBmdPage,
   InterpretedHmpbPage,
+  MarkStatus,
   safeParseInt,
   SheetOf,
   VotesDict,
   YesNoContest,
   YesNoVote,
 } from '@votingworks/types';
+import { getMarkStatus } from '@votingworks/utils';
 
 import {
   BallotPageLayoutsLookup,
@@ -372,7 +374,9 @@ function buildOriginalSnapshot({
                 (Math.floor(mark.score * 100) / 100).toString(),
               ],
               HasIndication:
-                mark.score >= definiteMarkThreshold
+                getMarkStatus(mark.score, {
+                  definite: definiteMarkThreshold,
+                }) === MarkStatus.Marked
                   ? CVR.IndicationStatus.Yes
                   : CVR.IndicationStatus.No,
             },

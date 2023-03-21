@@ -6,7 +6,7 @@ import {
   MarkThresholds,
 } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
-import { getMarkStatus } from '../types';
+import { getMarkStatus } from '@votingworks/utils';
 
 /**
  * state of the mark for a given contest and option
@@ -29,13 +29,13 @@ export function optionMarkStatus({
     switch (mark.type) {
       case 'candidate':
         if (mark.optionId === optionId) {
-          return getMarkStatus(mark, markThresholds);
+          return getMarkStatus(mark.score, markThresholds);
         }
         break;
 
       case 'yesno':
         if (mark.optionId === optionId) {
-          return getMarkStatus(mark, markThresholds);
+          return getMarkStatus(mark.score, markThresholds);
         }
         break;
 

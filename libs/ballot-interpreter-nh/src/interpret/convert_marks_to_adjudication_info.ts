@@ -7,7 +7,7 @@ import {
   MarkStatus,
   MarkThresholds,
 } from '@votingworks/types';
-import { ballotAdjudicationReasons } from '@votingworks/utils';
+import { ballotAdjudicationReasons, getMarkStatus } from '@votingworks/utils';
 import { InterpretedOvalMark } from '../types';
 
 /**
@@ -56,12 +56,14 @@ export function convertMarksToAdjudicationInfo({
         let fallbackStatus = MarkStatus.Unmarked;
 
         for (const mark of marks) {
-          if (mark.score >= markThresholds.definite) {
-            return MarkStatus.Marked;
+          const markStatus = getMarkStatus(mark.score, markThresholds);
+
+          if (markStatus === MarkStatus.Marked) {
+            return markStatus;
           }
 
-          if (mark.score >= markThresholds.marginal) {
-            fallbackStatus = MarkStatus.Marginal;
+          if (markStatus === MarkStatus.Marginal) {
+            fallbackStatus = markStatus;
           }
         }
 

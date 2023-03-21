@@ -1,4 +1,6 @@
 import {
+  electionFamousNames2021Fixtures,
+  electionGridLayoutNewHampshireAmherstFixtures,
   electionMultiPartyPrimaryFixtures,
   electionPrimaryNonpartisanContestsFixtures,
   electionSample,
@@ -8,6 +10,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   BallotIdSchema,
+  BallotTargetMark,
   CandidateContest,
   CastVoteRecord,
   Election,
@@ -20,10 +23,11 @@ import {
   TallyCategory,
   unsafeParse,
   VotingMethod,
+  WriteInCandidate,
   writeInCandidate,
   YesNoContest,
 } from '@votingworks/types';
-import { assert, find } from '@votingworks/basics';
+import { assert, find, typedAs } from '@votingworks/basics';
 import {
   ALL_PARTY_FILTER,
   buildVoteFromCvr,
@@ -38,6 +42,7 @@ import {
   getEmptyTally,
   getPartyIdForCvr,
   getSingleYesNoVote,
+  convertMarksToVotesDict,
   NONPARTISAN_FILTER,
   normalizeWriteInId,
   tallyVotesByContest,
@@ -1265,4 +1270,160 @@ test('castVoteRecordHasWriteIns with write-in votes', () => {
       council: ['donald', 'write-in-0'],
     })
   ).toEqual(true);
+});
+
+const ballotTargetMarkBase: Pick<
+  BallotTargetMark,
+  'bounds' | 'scoredOffset' | 'target'
+> = {
+  bounds: { x: 0, y: 0, width: 0, height: 0 },
+  scoredOffset: { x: 0, y: 0 },
+  target: {
+    inner: { x: 0, y: 0, width: 0, height: 0 },
+    bounds: { x: 0, y: 0, width: 0, height: 0 },
+  },
+};
+
+test('markInfoToVotesDict candidate', () => {
+  const { election } = electionFamousNames2021Fixtures;
+  const sherlockForMayorMark: BallotTargetMark = {
+    type: 'candidate',
+    contestId: 'mayor',
+    optionId: 'sherlock-holmes',
+    score: 0.5,
+    ...ballotTargetMarkBase,
+  };
+  const edisonForMayorMark: BallotTargetMark = {
+    type: 'candidate',
+    contestId: 'mayor',
+    optionId: 'thomas-edison',
+    score: 0.5,
+    ...ballotTargetMarkBase,
+  };
+  const writeInCandidateForMayorMark: BallotTargetMark = {
+    type: 'candidate',
+    contestId: 'mayor',
+    optionId: 'write-in',
+    score: 0.5,
+    ...ballotTargetMarkBase,
+  };
+  const indexedWriteInCandidateForMayorMark: BallotTargetMark = {
+    ...writeInCandidateForMayorMark,
+    optionId: 'write-in-0',
+  };
+  const mayorContest = find(
+    election.contests,
+    (c): c is CandidateContest =>
+      c.id === sherlockForMayorMark.contestId && c.type === 'candidate'
+  );
+  const sherlockCandidate = find(
+    mayorContest.candidates,
+    (c) => c.id === sherlockForMayorMark.optionId
+  );
+  const edisonCandidate = find(
+    mayorContest.candidates,
+    (c) => c.id === edisonForMayorMark.optionId
+  );
+  expect(
+    convertMarksToVotesDict(
+      election.contests,
+      { marginal: 0.04, definite: 0.1 },
+      [sherlockForMayorMark]
+    )
+  ).toEqual({ [mayorContest.id]: [sherlockCandidate] });
+  expect(
+    convertMarksToVotesDict(
+      election.contests,
+      { marginal: 0.5, definite: 0.8 },
+      [sherlockForMayorMark]
+    )
+  ).toEqual({});
+  expect(
+    convertMarksToVotesDict(
+      election.contests,
+      { marginal: 0.04, definite: 0.1 },
+      [sherlockForMayorMark, edisonForMayorMark]
+    )
+  ).toEqual({
+    [mayorContest.id]: [sherlockCandidate, edisonCandidate],
+  });
+  expect(
+    convertMarksToVotesDict(
+      election.contests,
+      { marginal: 0.04, definite: 0.1 },
+      [writeInCandidateForMayorMark]
+    )
+  ).toEqual({
+    [mayorContest.id]: [writeInCandidate],
+  });
+  expect(
+    convertMarksToVotesDict(
+      election.contests,
+      { marginal: 0.04, definite: 0.1 },
+      [indexedWriteInCandidateForMayorMark]
+    )
+  ).toEqual({
+    [mayorContest.id]: [
+      typedAs<WriteInCandidate>({
+        id: 'write-in-0',
+        name: 'Write-In #1',
+        isWriteIn: true,
+      }),
+    ],
+  });
+});
+
+test('markInfoToVotesDict yesno', () => {
+  const { election } = electionGridLayoutNewHampshireAmherstFixtures;
+  const yesnoContest = find(
+    election.contests,
+    (c): c is YesNoContest => c.type === 'yesno'
+  );
+  const yesMark: BallotTargetMark = {
+    type: 'yesno',
+    contestId: yesnoContest.id,
+    optionId: 'yes',
+    score: 0.5,
+    bounds: { x: 0, y: 0, width: 0, height: 0 },
+    scoredOffset: { x: 0, y: 0 },
+    target: {
+      inner: { x: 0, y: 0, width: 0, height: 0 },
+      bounds: { x: 0, y: 0, width: 0, height: 0 },
+    },
+  };
+  const noMark: BallotTargetMark = {
+    type: 'yesno',
+    contestId: yesnoContest.id,
+    optionId: 'no',
+    score: 0.5,
+    bounds: { x: 0, y: 0, width: 0, height: 0 },
+    scoredOffset: { x: 0, y: 0 },
+    target: {
+      inner: { x: 0, y: 0, width: 0, height: 0 },
+      bounds: { x: 0, y: 0, width: 0, height: 0 },
+    },
+  };
+  expect(
+    convertMarksToVotesDict(
+      election.contests,
+      { marginal: 0.04, definite: 0.1 },
+      [yesMark]
+    )
+  ).toEqual({ [yesnoContest.id]: ['yes'] });
+  expect(
+    convertMarksToVotesDict(
+      election.contests,
+      { marginal: 0.5, definite: 0.8 },
+      [yesMark]
+    )
+  ).toEqual({});
+  expect(
+    convertMarksToVotesDict(
+      election.contests,
+      { marginal: 0.04, definite: 0.1 },
+      [yesMark, noMark]
+    )
+  ).toEqual({
+    [yesnoContest.id]: ['yes', 'no'],
+  });
 });

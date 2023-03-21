@@ -1,16 +1,58 @@
+import { assert, find, iter, throwIllegalValue } from '@votingworks/basics';
 import {
-  Candidate,
-  ContestOptionId,
+  BallotTargetMark,
   Contests,
   MarkThresholds,
-  Vote,
   VotesDict,
 } from '@votingworks/types';
-import { assert, find, throwIllegalValue } from '@votingworks/basics';
-import makeDebug from 'debug';
+import { convertMarksToVotesDict } from '@votingworks/utils';
 import { InterpretedOvalMark } from '../types';
 
-const log = makeDebug('ballot-interpreter-nh:interpret');
+function convertNewHampshireMarkToSharedMark(
+  contests: Contests,
+  mark: InterpretedOvalMark
+): BallotTargetMark {
+  const contest = find(contests, (c) => c.id === mark.gridPosition.contestId);
+  if (contest.type === 'candidate') {
+    return {
+      type: 'candidate',
+      contestId: contest.id,
+      optionId:
+        mark.gridPosition.type === 'option'
+          ? mark.gridPosition.optionId
+          : `write-in-${mark.gridPosition.writeInIndex}`,
+      score: mark.score,
+      bounds: mark.bounds,
+      scoredOffset: mark.scoredOffset,
+      target: {
+        inner: mark.bounds,
+        bounds: mark.bounds,
+      },
+    };
+  }
+
+  if (contest.type === 'yesno') {
+    assert(mark.gridPosition.type === 'option');
+    assert(
+      mark.gridPosition.optionId === 'yes' ||
+        mark.gridPosition.optionId === 'no'
+    );
+    return {
+      type: 'yesno',
+      contestId: contest.id,
+      optionId: mark.gridPosition.optionId,
+      score: mark.score,
+      bounds: mark.bounds,
+      scoredOffset: mark.scoredOffset,
+      target: {
+        inner: mark.bounds,
+        bounds: mark.bounds,
+      },
+    };
+  }
+
+  throwIllegalValue(contest, 'type');
+}
 
 /**
  * Convert a series of oval marks into a list of candidate votes.
@@ -18,74 +60,11 @@ const log = makeDebug('ballot-interpreter-nh:interpret');
 export function convertMarksToVotes(
   contests: Contests,
   markThresholds: MarkThresholds,
-  ovalMarks: readonly InterpretedOvalMark[]
+  ovalMarks: Iterable<InterpretedOvalMark>
 ): VotesDict {
-  const votes: VotesDict = {};
-
-  for (const mark of ovalMarks) {
-    const { gridPosition } = mark;
-    const { contestId } = gridPosition;
-    const contest = find(contests, (c) => c.id === contestId);
-
-    let vote: Vote;
-    let optionId: ContestOptionId;
-
-    if (contest.type === 'candidate') {
-      const candidate: Candidate =
-        gridPosition.type === 'option'
-          ? find(contest.candidates, (c) => c.id === gridPosition.optionId)
-          : {
-              id: `write-in-${gridPosition.writeInIndex}`,
-              name: `Write-In #${gridPosition.writeInIndex + 1}`,
-              isWriteIn: true,
-            };
-      vote = [candidate];
-      optionId = candidate.id;
-    } else if (contest.type === 'yesno') {
-      assert(gridPosition.type === 'option');
-      vote = [gridPosition.optionId] as Vote;
-      optionId = gridPosition.optionId;
-    } else {
-      throwIllegalValue(contest, 'type');
-    }
-
-    if (mark.score < markThresholds.marginal) {
-      log(
-        `Mark for contest '%s' option '%s' will be ignored, score is too low: %d < %d (marginal threshold)`,
-        contestId,
-        optionId,
-        mark.score,
-        markThresholds.marginal
-      );
-      continue;
-    }
-
-    if (mark.score < markThresholds.definite) {
-      log(
-        `Mark for contest '%s' option '%s' is marginal, score is too low: %d < %d (definite threshold)`,
-        contestId,
-        optionId,
-        mark.score,
-        markThresholds.definite
-      );
-      continue;
-    }
-
-    log(
-      `Mark for contest '%s' option '%s' will be counted, score is high enough: %d (definite threshold) ≤ %d`,
-      contestId,
-      optionId,
-      markThresholds.definite,
-      mark.score
-    );
-
-    if (!votes[contestId]) {
-      votes[contestId] = vote;
-    } else {
-      const existing = votes[contestId] as Vote;
-      votes[contestId] = [...existing, ...vote] as Vote;
-    }
-  }
-
-  return votes;
+  return convertMarksToVotesDict(
+    contests,
+    markThresholds,
+    iter(ovalMarks).map((m) => convertNewHampshireMarkToSharedMark(contests, m))
+  );
 }

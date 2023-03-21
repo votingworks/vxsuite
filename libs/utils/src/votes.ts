@@ -1,4 +1,6 @@
+import { assert, find, throwIllegalValue, typedAs } from '@votingworks/basics';
 import {
+  BallotTargetMark,
   BatchTally,
   Candidate,
   CandidateContest,
@@ -8,26 +10,32 @@ import {
   ContestId,
   ContestOptionId,
   ContestOptionTally,
+  Contests,
   ContestTally,
   ContestTallyMeta,
   Dictionary,
   Election,
   FullElectionTally,
   getBallotStyle,
+  MarkStatus,
+  MarkThresholds,
   Optional,
   PartyId,
   PrecinctId,
+  safeParse,
+  safeParseInt,
   Tally,
   TallyCategory,
+  Vote,
   VotesDict,
   VotingMethod,
   writeInCandidate,
+  WriteInIdSchema,
   YesNoContest,
   YesNoVote,
   YesNoVoteId,
   YesOrNo,
 } from '@votingworks/types';
-import { assert, throwIllegalValue, find, typedAs } from '@votingworks/basics';
 
 const MISSING_BATCH_ID = 'missing-batch-id';
 
@@ -652,4 +660,105 @@ export function castVoteRecordHasWriteIns(cvr: CastVoteRecord): boolean {
     }
   }
   return false;
+}
+
+type MarkThresholdsOptionalMarginal = Omit<MarkThresholds, 'marginal'> &
+  Partial<Pick<MarkThresholds, 'marginal'>>;
+
+export function getMarkStatus(
+  markScore: BallotTargetMark['score'],
+  markThresholds: MarkThresholds
+): MarkStatus;
+export function getMarkStatus(
+  markScore: BallotTargetMark['score'],
+  markThresholds: Omit<MarkThresholds, 'marginal'>
+): Exclude<MarkStatus, MarkStatus.Marginal>;
+export function getMarkStatus(
+  markScore: BallotTargetMark['score'],
+  markThresholds: MarkThresholdsOptionalMarginal
+): MarkStatus {
+  if (markScore >= markThresholds.definite) {
+    return MarkStatus.Marked;
+  }
+
+  if (
+    typeof markThresholds.marginal === 'number' &&
+    markScore >= markThresholds.marginal
+  ) {
+    return MarkStatus.Marginal;
+  }
+
+  return MarkStatus.Unmarked;
+}
+
+function markToCandidateVotes(
+  contest: CandidateContest,
+  markThresholds: Pick<MarkThresholds, 'definite'>,
+  mark: BallotTargetMark
+): CandidateVote {
+  assert(mark.type === 'candidate');
+  if (getMarkStatus(mark.score, markThresholds) !== MarkStatus.Marked) {
+    return [];
+  }
+
+  if (safeParse(WriteInIdSchema, mark.optionId).isOk()) {
+    const indexedWriteInMatch = mark.optionId.match(/^write-in-(\d+)$/);
+
+    if (!indexedWriteInMatch) {
+      return [writeInCandidate];
+    }
+
+    const writeInIndex = safeParseInt(indexedWriteInMatch[1]).assertOk(
+      '\\d+ ensures this is an integer'
+    );
+
+    return [
+      {
+        id: mark.optionId,
+        name: `Write-In #${writeInIndex + 1}`,
+        isWriteIn: true,
+      },
+    ];
+  }
+
+  const candidate = contest.candidates.find((c) => c.id === mark.optionId);
+  assert(candidate, `Candidate not found: ${mark.contestId}/${mark.optionId}`);
+  return [candidate];
+}
+
+function markToYesNoVotes(
+  markThresholds: Pick<MarkThresholds, 'definite'>,
+  mark: BallotTargetMark
+): YesNoVote {
+  assert(mark.type === 'yesno');
+  return getMarkStatus(mark.score, markThresholds) === MarkStatus.Marked
+    ? [mark.optionId]
+    : [];
+}
+
+/**
+ * Convert {@link BallotTargetMark}s to {@link VotesDict}.
+ */
+export function convertMarksToVotesDict(
+  contests: Contests,
+  markThresholds: MarkThresholdsOptionalMarginal,
+  marks: Iterable<BallotTargetMark>
+): VotesDict {
+  const votesDict: VotesDict = {};
+  for (const mark of marks) {
+    const contest = contests.find((c) => c.id === mark.contestId);
+    assert(contest, `Contest not found: ${mark.contestId}`);
+    const existingVotes = votesDict[mark.contestId] ?? [];
+    const newVotes =
+      contest.type === 'candidate'
+        ? markToCandidateVotes(contest, markThresholds, mark)
+        : contest.type === 'yesno'
+        ? markToYesNoVotes(markThresholds, mark)
+        : /* istanbul ignore next */ throwIllegalValue(contest, 'type');
+
+    if (newVotes.length > 0) {
+      votesDict[mark.contestId] = [...existingVotes, ...newVotes] as Vote;
+    }
+  }
+  return votesDict;
 }
