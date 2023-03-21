@@ -1,8 +1,7 @@
-import { assert, find, iter } from '@votingworks/basics';
+import { assert, iter } from '@votingworks/basics';
 import {
   AdjudicationInfo,
   AdjudicationReason,
-  AdjudicationReasonInfo,
   Contests,
   MarkStatus,
   MarkThresholds,
@@ -32,7 +31,6 @@ export function convertMarksToAdjudicationInfo({
   const adjudicationReasonInfos = Array.from(
     ballotAdjudicationReasons(contests, {
       optionMarkStatus: (option) => {
-        const contest = find(contests, (c) => c.id === option.contestId);
         const marks = ovalMarks.filter(({ gridPosition }) => {
           if (gridPosition.contestId !== option.contestId) {
             return false;
@@ -43,10 +41,8 @@ export function convertMarksToAdjudicationInfo({
           }
 
           if (gridPosition.type === 'write-in') {
-            const expectedWriteInIndex =
-              option.optionIndex -
-              (contest.type === 'candidate' ? contest.candidates.length : 0);
-            return gridPosition.writeInIndex === expectedWriteInIndex;
+            assert(option.type === 'candidate');
+            return gridPosition.writeInIndex === option.writeInIndex;
           }
 
           return false;

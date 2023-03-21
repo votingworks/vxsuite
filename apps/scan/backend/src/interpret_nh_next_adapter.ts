@@ -49,7 +49,6 @@ function convertMarksToAdjudicationInfo(
   const adjudicationReasonInfos = Array.from(
     ballotAdjudicationReasons(contests, {
       optionMarkStatus: (option) => {
-        const contest = find(contests, (c) => c.id === option.contestId);
         const contestMarks = marks.filter(([gridPosition]) => {
           if (gridPosition.contestId !== option.contestId) {
             return false;
@@ -60,10 +59,8 @@ function convertMarksToAdjudicationInfo(
           }
 
           if (gridPosition.type === 'write-in') {
-            const expectedWriteInIndex =
-              option.optionIndex -
-              (contest.type === 'candidate' ? contest.candidates.length : 0);
-            return gridPosition.writeInIndex === expectedWriteInIndex;
+            assert(option.type === 'candidate');
+            return gridPosition.writeInIndex === option.writeInIndex;
           }
 
           return false;

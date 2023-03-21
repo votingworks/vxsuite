@@ -22,6 +22,7 @@ test('candidate contest with no write-ins', () => {
           expect(option.name).toEqual(contest.candidates[i]?.name);
           expect(option.isWriteIn).toEqual(false);
           expect(option.optionIndex).toEqual(i);
+          expect(option.writeInIndex).toBeUndefined();
         }
       }
     )
@@ -47,6 +48,11 @@ test('candidate contest with write-ins', () => {
           );
           expect(option.isWriteIn).toEqual(i >= contest.candidates.length);
           expect(option.optionIndex).toEqual(i);
+          expect(option.writeInIndex).toEqual(
+            i >= contest.candidates.length
+              ? i - contest.candidates.length
+              : undefined
+          );
         }
       }
     )
@@ -88,6 +94,11 @@ test('candidate contest with provided write-in IDs', () => {
           );
           expect(option.isWriteIn).toEqual(i >= contest.candidates.length);
           expect(option.optionIndex).toEqual(i);
+          expect(option.writeInIndex).toEqual(
+            i >= contest.candidates.length
+              ? i - contest.candidates.length
+              : undefined
+          );
         }
       }
     )
