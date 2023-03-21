@@ -1,7 +1,7 @@
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
-  ConfigurationError,
+  BallotPackageConfigurationError,
   CastVoteRecord,
   MarkThresholds,
   PollsState,
@@ -83,7 +83,7 @@ function buildApi(
     },
 
     async configureFromBallotPackageOnUsbDrive(): Promise<
-      Result<void, ConfigurationError>
+      Result<void, BallotPackageConfigurationError>
     > {
       assert(!store.getElectionDefinition(), 'Already configured');
       const [usbDrive] = await usb.getUsbDrives();

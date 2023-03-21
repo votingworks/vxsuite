@@ -1,5 +1,5 @@
 import React from 'react';
-import { ConfigurationError } from '@votingworks/types';
+import { BallotPackageConfigurationError } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import { UsbDriveStatus } from './hooks/use_usb_drive';
 import { IndeterminateProgressBar } from './graphics';
@@ -7,7 +7,7 @@ import { CenteredLargeProse } from './centered_large_prose';
 
 interface Props {
   usbDriveStatus: UsbDriveStatus;
-  backendConfigError?: ConfigurationError;
+  backendConfigError?: BallotPackageConfigurationError;
 }
 
 export function UnconfiguredElectionScreen({
