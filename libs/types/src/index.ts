@@ -9,6 +9,7 @@ export * from './converter_client';
 export * from './dom';
 export * from './election';
 export * from './election_utils';
+export * from './errors';
 export * from './generic';
 export * from './geometry';
 export * from './image';

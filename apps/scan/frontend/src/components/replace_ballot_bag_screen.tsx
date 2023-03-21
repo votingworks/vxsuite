@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
-import { Button, Text, useExternalStateChangeListener } from '@votingworks/ui';
+import {
+  Button,
+  CenteredLargeProse,
+  Text,
+  useExternalStateChangeListener,
+} from '@votingworks/ui';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { ScannedBallotCount } from './scanned_ballot_count';
-import { CenteredLargeProse, ScreenMainCenterChild } from './layout';
+import { ScreenMainCenterChild } from './layout';
 import { BALLOT_BAG_CAPACITY } from '../config/globals';
 import { ExclamationTriangle } from './graphics';
 import { recordBallotBagReplaced } from '../api';

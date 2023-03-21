@@ -1,9 +1,6 @@
 import React from 'react';
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
-import { IndeterminateProgressBar } from '../components/graphics';
+import { CenteredLargeProse, IndeterminateProgressBar } from '@votingworks/ui';
+import { ScreenMainCenterChild } from '../components/layout';
 
 export function LoadingConfigurationScreen(): JSX.Element {
   return (

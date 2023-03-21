@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Graphic } from '@votingworks/ui';
 
 export const PlaceholderGraphic = styled.div`
   margin: 0 auto 1rem;
@@ -7,11 +8,6 @@ export const PlaceholderGraphic = styled.div`
   background: #6638b6;
   width: 250px;
   height: 250px;
-`;
-
-export const Graphic = styled.img`
-  margin: 0 auto 1rem;
-  width: 250px;
 `;
 
 export function QuestionCircle(): JSX.Element {
@@ -64,17 +60,6 @@ export function InsertBallot(): JSX.Element {
       alt="insert-ballot"
       aria-hidden
       style={{ width: '600px' }}
-    />
-  );
-}
-
-export function IndeterminateProgressBar(): JSX.Element {
-  return (
-    <Graphic
-      src="/assets/indeterminate-progress-bar.svg"
-      alt="indeterminate-progress-bar"
-      aria-hidden
-      style={{ width: '400px' }}
     />
   );
 }

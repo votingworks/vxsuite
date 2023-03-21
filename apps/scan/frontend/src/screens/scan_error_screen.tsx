@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from '@votingworks/ui';
+import { CenteredLargeProse, Text } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type {
@@ -7,10 +7,7 @@ import type {
   PrecinctScannerErrorType,
 } from '@votingworks/scan-backend';
 import { TimesCircle } from '../components/graphics';
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
+import { ScreenMainCenterChild } from '../components/layout';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
 export interface Props {

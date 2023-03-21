@@ -1,9 +1,7 @@
 import React from 'react';
 
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
+import { CenteredLargeProse } from '@votingworks/ui';
+import { ScreenMainCenterChild } from '../components/layout';
 import { RotateCard } from '../components/graphics';
 
 export function CardErrorScreen(): JSX.Element {

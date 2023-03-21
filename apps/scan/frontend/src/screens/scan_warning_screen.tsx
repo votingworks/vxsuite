@@ -10,6 +10,7 @@ import {
 } from '@votingworks/types';
 import {
   Button,
+  CenteredLargeProse,
   fontSizeTheme,
   Modal,
   ModalWidth,
@@ -25,10 +26,7 @@ import pluralize from 'pluralize';
 import styled from 'styled-components';
 
 import { ExclamationTriangle } from '../components/graphics';
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
+import { ScreenMainCenterChild } from '../components/layout';
 
 import { toSentence } from '../utils/to_sentence';
 import { acceptBallot, returnBallot } from '../api';

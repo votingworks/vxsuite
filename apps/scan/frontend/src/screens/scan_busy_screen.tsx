@@ -1,10 +1,7 @@
 import React from 'react';
-import { Text } from '@votingworks/ui';
+import { CenteredLargeProse, Text } from '@votingworks/ui';
 import { ExclamationTriangle } from '../components/graphics';
-import {
-  CenteredLargeProse,
-  ScreenMainCenterChild,
-} from '../components/layout';
+import { ScreenMainCenterChild } from '../components/layout';
 
 export function ScanBusyScreen(): JSX.Element {
   return (

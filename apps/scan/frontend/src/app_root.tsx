@@ -16,7 +16,6 @@ import {
 import { Logger } from '@votingworks/logging';
 
 import { assert } from '@votingworks/basics';
-import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
@@ -32,6 +31,7 @@ import {
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
 } from './config/globals';
 import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
+import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper';
 import {
   checkPin,
   getAuthStatus,
@@ -159,7 +159,9 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
   }
 
   if (!electionDefinition) {
-    return <UnconfiguredElectionScreen usbDriveStatus={usbDrive.status} />;
+    return (
+      <UnconfiguredElectionScreenWrapper usbDriveStatus={usbDrive.status} />
+    );
   }
 
   if (authStatus.status === 'checking_pin') {

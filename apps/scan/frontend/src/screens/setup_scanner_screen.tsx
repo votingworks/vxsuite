@@ -1,9 +1,6 @@
 import React from 'react';
-import { Text } from '@votingworks/ui';
-import {
-  ScreenMainCenterChild,
-  CenteredLargeProse,
-} from '../components/layout';
+import { CenteredLargeProse, Text } from '@votingworks/ui';
+import { ScreenMainCenterChild } from '../components/layout';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
 interface Props {
