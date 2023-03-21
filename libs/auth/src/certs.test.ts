@@ -1,6 +1,5 @@
 import { Buffer } from 'buffer';
 import { mockOf } from '@votingworks/test-utils';
-import { UserWithCard } from '@votingworks/types';
 
 import { CardDetails } from './card';
 import {
@@ -136,6 +135,20 @@ test.each<{
     expectedCardDetails: {
       jurisdiction,
       user: { role: 'poll_worker', electionHash },
+      hasPin: false,
+    },
+  },
+  {
+    subject:
+      'subject=C = US, ST = CA, O = VotingWorks, ' +
+      '1.3.6.1.4.1.59817.1 = card, ' +
+      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
+      '1.3.6.1.4.1.59817.3 = poll-worker-with-pin, ' +
+      `1.3.6.1.4.1.59817.4 = ${electionHash}`,
+    expectedCardDetails: {
+      jurisdiction,
+      user: { role: 'poll_worker', electionHash },
+      hasPin: true,
     },
   },
 ])('parseUserDataFromCert', async ({ subject, expectedCardDetails }) => {
@@ -176,12 +189,13 @@ test.each<{ description: string; subject: string }>([
 });
 
 test.each<{
-  user: UserWithCard;
+  cardDetails: CardDetails;
   expectedSubject: string;
 }>([
   {
-    user: {
-      role: 'system_administrator',
+    cardDetails: {
+      jurisdiction,
+      user: { role: 'system_administrator' },
     },
     expectedSubject:
       '/C=US/ST=CA/O=VotingWorks' +
@@ -190,9 +204,9 @@ test.each<{
       '/1.3.6.1.4.1.59817.3=system-administrator/',
   },
   {
-    user: {
-      role: 'election_manager',
-      electionHash,
+    cardDetails: {
+      jurisdiction,
+      user: { role: 'election_manager', electionHash },
     },
     expectedSubject:
       '/C=US/ST=CA/O=VotingWorks' +
@@ -202,9 +216,10 @@ test.each<{
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
   },
   {
-    user: {
-      role: 'poll_worker',
-      electionHash,
+    cardDetails: {
+      jurisdiction,
+      user: { role: 'poll_worker', electionHash },
+      hasPin: false,
     },
     expectedSubject:
       '/C=US/ST=CA/O=VotingWorks' +
@@ -213,10 +228,21 @@ test.each<{
       '/1.3.6.1.4.1.59817.3=poll-worker' +
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
   },
-])('constructCardCertSubject', ({ user, expectedSubject }) => {
-  expect(constructCardCertSubject({ jurisdiction, user })).toEqual(
-    expectedSubject
-  );
+  {
+    cardDetails: {
+      jurisdiction,
+      user: { role: 'poll_worker', electionHash },
+      hasPin: true,
+    },
+    expectedSubject:
+      '/C=US/ST=CA/O=VotingWorks' +
+      '/1.3.6.1.4.1.59817.1=card' +
+      `/1.3.6.1.4.1.59817.2=${jurisdiction}` +
+      '/1.3.6.1.4.1.59817.3=poll-worker-with-pin' +
+      `/1.3.6.1.4.1.59817.4=${electionHash}/`,
+  },
+])('constructCardCertSubject', ({ cardDetails, expectedSubject }) => {
+  expect(constructCardCertSubject(cardDetails)).toEqual(expectedSubject);
 });
 
 test('constructCardCertSubjectWithoutJurisdictionAndCardType', () => {
