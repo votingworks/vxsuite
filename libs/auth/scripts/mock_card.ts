@@ -13,6 +13,7 @@ const CARD_TYPES = [
   'system-administrator',
   'election-manager',
   'poll-worker',
+  'poll-worker-with-pin',
   'unprogrammed',
   'no-card',
 ] as const;
@@ -43,13 +44,18 @@ async function parseCommandLineArgs(): Promise<MockCardInput> {
     .example('$ ./scripts/mock-card --help', '')
     .example('$ ./scripts/mock-card --card-type system-administrator', '')
     .example(
-      '$ ./scripts/mock-card --card-type election-manager --election-definition \\\n' +
-        '../fixtures/data/electionFamousNames2021/election.json',
+      '$ ./scripts/mock-card --card-type election-manager \\\n' +
+        '--election-definition ../fixtures/data/electionFamousNames2021/election.json',
       ''
     )
     .example(
-      '$ ./scripts/mock-card --card-type poll-worker --election-definition \\\n' +
-        '../fixtures/data/electionSample.json',
+      '$ ./scripts/mock-card --card-type poll-worker \\\n' +
+        '--election-definition ../fixtures/data/electionSample.json',
+      ''
+    )
+    .example(
+      '$ ./scripts/mock-card --card-type poll-worker-with-pin \\\n' +
+        '--election-definition ../fixtures/data/electionSample.json',
       ''
     )
     .example('$ ./scripts/mock-card --card-type unprogrammed', '')
@@ -143,8 +149,24 @@ function mockCardWrapper({
           cardDetails: {
             jurisdiction: DEV_JURISDICTION,
             user: { role: 'poll_worker', electionHash },
+            hasPin: false,
           },
         },
+      });
+      break;
+    }
+    case 'poll-worker-with-pin': {
+      assert(electionHash !== undefined);
+      mockCard({
+        cardStatus: {
+          status: 'ready',
+          cardDetails: {
+            jurisdiction: DEV_JURISDICTION,
+            user: { role: 'poll_worker', electionHash },
+            hasPin: true,
+          },
+        },
+        pin: '000000',
       });
       break;
     }
