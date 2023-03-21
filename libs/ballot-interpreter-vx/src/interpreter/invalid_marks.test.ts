@@ -43,7 +43,7 @@ test('invalid marks', async () => {
         Object {
           "id": "write-in-1",
           "isWriteIn": true,
-          "name": "Write-In",
+          "name": "Write-In #2",
         },
       ],
       "dallas-county-commissioners-court-pct-3": Array [

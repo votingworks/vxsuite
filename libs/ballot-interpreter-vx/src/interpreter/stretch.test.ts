@@ -55,7 +55,7 @@ test('stretched precinct scanner ballot', async () => {
         Object {
           "id": "write-in-0",
           "isWriteIn": true,
-          "name": "Write-In",
+          "name": "Write-In #1",
         },
       ],
     }

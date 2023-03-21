@@ -1,16 +1,5 @@
-import {
-  BallotMark,
-  CandidateContest,
-  Election,
-  unsafeParse,
-  VotesDict,
-  WriteInCandidateSchema,
-} from '@votingworks/types';
-import { find, throwIllegalValue } from '@votingworks/basics';
-import makeDebug from 'debug';
-import { addVote } from './hmpb/votes';
-
-const debug = makeDebug('ballot-interpreter-vx:getVotesFromMarks');
+import { BallotMark, Election, VotesDict } from '@votingworks/types';
+import { convertMarksToVotesDict } from '@votingworks/utils';
 
 /**
  * Gets the votes where the given marks have a high enough score to count, where
@@ -22,63 +11,12 @@ export function getVotesFromMarks(
   marks: readonly BallotMark[],
   { markScoreVoteThreshold }: { markScoreVoteThreshold: number }
 ): VotesDict {
-  const votes: VotesDict = {};
-
-  for (const mark of marks) {
-    switch (mark.type) {
-      case 'candidate':
-        if (mark.score >= markScoreVoteThreshold) {
-          debug(
-            `'%s' contest '%s' mark score (%d) for '%s' meets vote threshold (%d)`,
-            mark.type,
-            mark.contestId,
-            mark.score,
-            mark.optionId,
-            markScoreVoteThreshold
-          );
-          const contest = find(
-            election.contests,
-            (c): c is CandidateContest => c.id === mark.contestId
-          );
-          const option = contest.candidates.find((c) => c.id === mark.optionId);
-          if (!option || option.isWriteIn) {
-            addVote(
-              election,
-              votes,
-              mark.contestId,
-              unsafeParse(
-                WriteInCandidateSchema,
-                option ?? {
-                  id: mark.optionId,
-                  name: 'Write-In',
-                  isWriteIn: true,
-                }
-              )
-            );
-          } else {
-            addVote(election, votes, mark.contestId, mark.optionId);
-          }
-        }
-        break;
-
-      case 'yesno':
-        if (mark.score >= markScoreVoteThreshold) {
-          debug(
-            `'%s' contest '%s' mark score (%d) for '%s' meets vote threshold (%d)`,
-            mark.type,
-            mark.contestId,
-            mark.score,
-            mark.optionId,
-            markScoreVoteThreshold
-          );
-          addVote(election, votes, mark.contestId, mark.optionId);
-        }
-        break;
-
-      default:
-        throwIllegalValue(mark, 'type');
-    }
-  }
-
-  return votes;
+  return convertMarksToVotesDict(
+    election.contests,
+    {
+      marginal: markScoreVoteThreshold,
+      definite: markScoreVoteThreshold,
+    },
+    marks
+  );
 }

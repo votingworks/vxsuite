@@ -46,7 +46,7 @@ test('upside-down ballot', async () => {
         Object {
           "id": "write-in-0",
           "isWriteIn": true,
-          "name": "Write-In",
+          "name": "Write-In #1",
         },
       ],
       "texas-sc-judge-place-6": Array [
