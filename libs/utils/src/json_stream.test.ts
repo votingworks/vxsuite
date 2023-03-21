@@ -74,11 +74,11 @@ test('iterable', () => {
 });
 
 test('fails with circular references', () => {
-  const obj: any = { a: 1 };
+  const obj: { a: number; b?: unknown } = { a: 1 };
   obj.b = obj;
   expect(() => asString(obj)).toThrowError();
 
-  const arr: any[] = [];
+  const arr: unknown[] = [];
   arr.push(arr);
   expect(() => asString(arr)).toThrowError();
 });
@@ -94,10 +94,15 @@ test('fails with non-serializable objects', () => {
 
 test('generates correct JSON', () => {
   fc.assert(
-    fc.property(fc.jsonObject(), fc.boolean(), (input, compact) => {
-      expect(
-        JSON.parse(asString(input as JsonStreamInput<unknown>, { compact }))
-      ).toEqual(input);
-    })
+    fc.property(
+      // filter out -0 because JSON.stringify() converts it to 0
+      fc.jsonObject().filter((v) => !Object.is(v, -0)),
+      fc.boolean(),
+      (input, compact) => {
+        expect(
+          JSON.parse(asString(input as JsonStreamInput<unknown>, { compact }))
+        ).toEqual(input);
+      }
+    )
   );
 });
