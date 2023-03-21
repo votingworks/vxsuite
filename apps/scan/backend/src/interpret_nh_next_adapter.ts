@@ -52,11 +52,7 @@ function convertNewHampshireNextMarkToSharedMark(
       gridPosition.type === 'option'
         ? gridPosition.optionId
         : `write-in-${gridPosition.writeInIndex}`
-    }: all options=${JSON.stringify(
-      Array.from(allContestOptions(contest)),
-      null,
-      2
-    )}`
+    }`
   );
 
   const bounds: Rect = {
