@@ -23,12 +23,14 @@ import {
 
 import { getMachineConfig } from './machine_config';
 
-function constructAuthMachineState(input: {
+function constructAuthMachineState({
+  electionHash,
+}: {
   electionHash?: string;
 }): InsertedSmartCardAuthMachineState {
   return {
     // TODO: Persist election definition in store and pull from there
-    electionHash: input.electionHash,
+    electionHash,
     // TODO: Persist jurisdiction in store and pull from there
     jurisdiction: isFeatureFlagEnabled(
       BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS
