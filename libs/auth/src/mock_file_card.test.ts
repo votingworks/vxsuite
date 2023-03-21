@@ -46,7 +46,7 @@ test.each<MockFileContents>([
       },
     },
     data: undefined,
-    pin: '123456',
+    pin,
   },
   {
     cardStatus: {
@@ -57,7 +57,7 @@ test.each<MockFileContents>([
       },
     },
     data: Buffer.from(electionData, 'utf-8'),
-    pin: '123456',
+    pin,
   },
   {
     cardStatus: {
@@ -65,10 +65,23 @@ test.each<MockFileContents>([
       cardDetails: {
         jurisdiction: DEV_JURISDICTION,
         user: pollWorkerUser,
+        hasPin: false,
       },
     },
     data: undefined,
     pin: undefined,
+  },
+  {
+    cardStatus: {
+      status: 'ready',
+      cardDetails: {
+        jurisdiction: DEV_JURISDICTION,
+        user: pollWorkerUser,
+        hasPin: true,
+      },
+    },
+    data: undefined,
+    pin,
   },
 ])('MockFileCard serialization and deserialization', (input) => {
   expect(deserializeMockFileContents(serializeMockFileContents(input))).toEqual(
@@ -126,6 +139,7 @@ test('MockFileCard basic mocking', async () => {
       cardDetails: {
         jurisdiction: DEV_JURISDICTION,
         user: pollWorkerUser,
+        hasPin: false,
       },
     },
   });
@@ -134,6 +148,27 @@ test('MockFileCard basic mocking', async () => {
     cardDetails: {
       jurisdiction: DEV_JURISDICTION,
       user: pollWorkerUser,
+      hasPin: false,
+    },
+  });
+
+  mockCard({
+    cardStatus: {
+      status: 'ready',
+      cardDetails: {
+        jurisdiction: DEV_JURISDICTION,
+        user: pollWorkerUser,
+        hasPin: true,
+      },
+    },
+    pin,
+  });
+  expect(await card.getCardStatus()).toEqual({
+    status: 'ready',
+    cardDetails: {
+      jurisdiction: DEV_JURISDICTION,
+      user: pollWorkerUser,
+      hasPin: true,
     },
   });
 
@@ -218,6 +253,17 @@ test('MockFileCard programming', async () => {
     cardDetails: {
       jurisdiction: DEV_JURISDICTION,
       user: pollWorkerUser,
+      hasPin: false,
+    },
+  });
+
+  await card.program({ user: pollWorkerUser, pin });
+  expect(await card.getCardStatus()).toEqual({
+    status: 'ready',
+    cardDetails: {
+      jurisdiction: DEV_JURISDICTION,
+      user: pollWorkerUser,
+      hasPin: true,
     },
   });
 });
@@ -230,6 +276,7 @@ test('MockFileCard data reading and writing', async () => {
       cardDetails: {
         jurisdiction: DEV_JURISDICTION,
         user: pollWorkerUser,
+        hasPin: false,
       },
     },
   });
