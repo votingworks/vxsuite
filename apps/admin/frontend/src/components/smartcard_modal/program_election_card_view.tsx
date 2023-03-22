@@ -65,6 +65,7 @@ export function ProgramElectionCardView({
         onSuccess: (result) => {
           setActionStatus({
             action: 'Program',
+            newPin: result.ok()?.pin,
             role: 'poll_worker',
             status: result.isOk() ? 'Success' : 'Error',
           });
