@@ -18,8 +18,39 @@ import { InterpretedBallotCard, InterpretError } from './types';
 
 function usage(out: NodeJS.WritableStream): void {
   out.write(
-    `Usage: interpret <election.json> <ballot-side-a.jpeg> <ballot-side-b.jpeg>\n` +
-      `       interpret <scan-workspace> [<sheet-id> …]\n`
+    `${chalk.bold(
+      'Usage:'
+    )} interpret [options] <election-definition-path> <image-path> <image-path>\n`
+  );
+  out.write(
+    `       interpret [options] <scan-workspace-path> [<sheet-id> …]\n`
+  );
+  out.write(`\n`);
+  out.write(chalk.bold(`Options:\n`));
+  out.write('  -h, --help   Show this help text.\n');
+  out.write(`  -j, --json   Output JSON instead of human-readable text.\n`);
+  out.write(
+    `  -d, --debug  Output debug information (images alongside inputs).\n`
+  );
+  out.write(`\n`);
+  out.write(chalk.bold('Examples:\n'));
+  out.write(chalk.dim(`  # Interpret a single ballot\n`));
+  out.write(
+    `  interpret election.json ballot-side-a.jpeg ballot-side-b.jpeg\n`
+  );
+  out.write(`\n`);
+  out.write(chalk.dim(`  # Interpret all ballots in a scan workspace\n`));
+  out.write(`  interpret path/to/workspace\n`);
+  out.write(`\n`);
+  out.write(chalk.dim(`  # Interpret specific sheets in a scan workspace\n`));
+  out.write(`  interpret path/to/workspace d34d-b33f\n`);
+  out.write(`\n`);
+  out.write(chalk.dim(`  # Write debug images alongside input images\n`));
+  out.write(
+    chalk.dim(`  # (i.e. ballot-side-a_debug_scored_oval_marks.png)\n`)
+  );
+  out.write(
+    `  interpret -d election.json ballot-side-a.jpeg ballot-side-b.jpeg\n`
   );
 }
 
