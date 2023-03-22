@@ -10,7 +10,7 @@ use crate::{
     ballot_card::BallotSide,
     debug::{self, ImageDebugWriter},
     election::{GridLayout, GridLocation, GridPosition, UnitIntervalValue},
-    geometry::{PixelPosition, Point, Rect},
+    geometry::{PixelPosition, PixelUnit, Point, Rect, SubPixelUnit},
     image_utils::{diff, ratio, BLACK, WHITE},
     timing_marks::TimingMarkGrid,
 };
@@ -149,22 +149,33 @@ pub fn score_oval_marks_from_grid_layout(
 }
 
 /// Scores an oval mark within a scanned ballot image.
+///
+/// Compares the source image to the oval template image at every pixel location
+/// within `maximum_search_distance` pixels of `expected_oval_center` in all
+/// directions. This comparison produces a match score in the unit interval for
+/// each location. The highest match score is used to determine the bounds of
+/// the oval mark in the source image. The best matching bounds is also where
+/// we compute a fill score for the oval.
+///
+/// We look for the highest match score in the vicinity of where we expect
+/// because the oval mark may not be exactly where we expect in the scanned
+/// image due to stretching or other distortions.
 pub fn score_oval_mark(
     img: &GrayImage,
     oval_template: &GrayImage,
-    expected_oval_center: Point<f32>,
+    expected_oval_center: Point<SubPixelUnit>,
     location: &GridLocation,
-    maximum_search_distance: u32,
+    maximum_search_distance: PixelUnit,
     threshold: u8,
 ) -> Option<ScoredOvalMark> {
-    let center_x = expected_oval_center.x.round() as u32;
-    let center_y = expected_oval_center.y.round() as u32;
+    let center_x = expected_oval_center.x.round() as PixelUnit;
+    let center_y = expected_oval_center.y.round() as PixelUnit;
     let left = center_x - oval_template.width() / 2;
     let top = center_y - oval_template.height() / 2;
     let width = oval_template.width();
     let height = oval_template.height();
     let expected_bounds = Rect::new(left as PixelPosition, top as PixelPosition, width, height);
-    let mut best_match_score = OvalMarkScore(f32::NEG_INFINITY);
+    let mut best_match_score = OvalMarkScore(UnitIntervalValue::NEG_INFINITY);
     let mut best_match_bounds: Option<Rect> = None;
     let mut best_match_diff: Option<GrayImage> = None;
 
@@ -184,7 +195,9 @@ pub fn score_oval_mark(
                 continue;
             }
 
-            let cropped = img.view(x as u32, y as u32, width, height).to_image();
+            let cropped = img
+                .view(x as PixelUnit, y as PixelUnit, width, height)
+                .to_image();
             let cropped_and_thresholded = imageproc::contrast::threshold(&cropped, threshold);
 
             let match_diff = diff(&cropped_and_thresholded, oval_template);
@@ -203,8 +216,8 @@ pub fn score_oval_mark(
 
     let source_image = img
         .view(
-            best_match_bounds.left() as u32,
-            best_match_bounds.top() as u32,
+            best_match_bounds.left() as PixelUnit,
+            best_match_bounds.top() as PixelUnit,
             best_match_bounds.width(),
             best_match_bounds.height(),
         )
