@@ -1,7 +1,7 @@
 import { assert, err, ok } from '@votingworks/basics';
 import { ElectionDefinition, safeParseJson, SheetOf } from '@votingworks/types';
-// eslint-disable-next-line import/no-unresolved -- `./addon` is a native module
-import { interpret as interpretImpl } from './addon';
+// eslint-disable-next-line import/no-unresolved -- `./rust-addon` is a native module
+import { interpret as interpretImpl } from './rust-addon';
 import {
   InterpretedBallotCard,
   InterpretError,

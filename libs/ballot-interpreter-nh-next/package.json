@@ -6,18 +6,18 @@
   "types": "./build/index.d.ts",
   "scripts": {
     "type-check": "tsc --build",
-    "build": "pnpm build:addon && pnpm build:ts",
-    "build:addon": "cargo-cp-artifact -nc build/addon.node -- cargo build --message-format=json-render-diagnostics --release",
+    "build": "pnpm build:rust-addon && pnpm build:ts",
+    "build:rust-addon": "cargo-cp-artifact -nc build/rust-addon.node -- cargo build --message-format=json-render-diagnostics --release",
     "build:ts": "tsc --build tsconfig.build.json",
     "clean": "cargo clean && rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
-    "install": "pnpm build:addon",
-    "test:addon": "cargo test",
+    "install": "pnpm build:rust-addon",
+    "test:rust-addon": "cargo test",
     "test:ts": "is-ci test:ts:coverage test:ts:watch",
     "test:ts:coverage": "jest --coverage",
     "test:ts:watch": "jest --watch",
-    "test": "pnpm test:addon && pnpm test:ts"
+    "test": "pnpm test:rust-addon && pnpm test:ts"
   },
   "author": "VotingWorks Eng <eng@voting.works>",
   "license": "AGPL-3.0",
