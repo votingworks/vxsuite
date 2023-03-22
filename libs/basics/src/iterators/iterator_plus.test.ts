@@ -312,3 +312,21 @@ test('partition', () => {
     new Set([1, 3]),
   ]);
 });
+
+test('windows', () => {
+  expect(() => iter([]).windows(0)).toThrowError();
+  expect(iter([]).windows(2).toArray()).toEqual([]);
+  expect(iter([1]).windows(2).toArray()).toEqual([]);
+  expect(iter([1, 2]).windows(2).toArray()).toEqual([[1, 2]]);
+  expect(iter([1, 2, 3]).windows(2).toArray()).toEqual([
+    [1, 2],
+    [2, 3],
+  ]);
+  expect(iter([1, 2, 3]).windows(3).toArray()).toEqual([[1, 2, 3]]);
+  expect(iter([1, 2, 3]).windows(4).toArray()).toEqual([]);
+  expect(iter('rust').windows(2).toArray()).toEqual([
+    ['r', 'u'],
+    ['u', 's'],
+    ['s', 't'],
+  ]);
+});

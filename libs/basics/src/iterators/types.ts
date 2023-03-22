@@ -174,6 +174,41 @@ export interface IteratorPlus<T> extends Iterable<T> {
   toSet(): Set<T>;
 
   /**
+   * Throws an error because `groupSize` must be greater than 0.
+   */
+  windows(groupSize: 0): never;
+
+  /**
+   * Yields elements from `this` as 1-element tuples.
+   */
+  windows(groupSize: 1): IteratorPlus<[T]>;
+
+  /**
+   * Yields tuples of two elements at a time.
+   */
+  windows(groupSize: 2): IteratorPlus<[T, T]>;
+
+  /**
+   * Yields tuples of three elements at a time.
+   */
+  windows(groupSize: 3): IteratorPlus<[T, T, T]>;
+
+  /**
+   * Yields tuples of four elements at a time.
+   */
+  windows(groupSize: 4): IteratorPlus<[T, T, T, T]>;
+
+  /**
+   * Yields tuples of five elements at a time.
+   */
+  windows(groupSize: 5): IteratorPlus<[T, T, T, T, T]>;
+
+  /**
+   * Yields tuples of elements at a time.
+   */
+  windows(groupSize: number): IteratorPlus<T[]>;
+
+  /**
    * Yields elements of `this` as 1-element tuples.
    */
   zip(): IteratorPlus<[T]>;
@@ -443,6 +478,41 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * iterable.
    */
   toSet(): Promise<Set<T>>;
+
+  /**
+   * Throws an error because `groupSize` must be greater than 0.
+   */
+  windows(groupSize: 0): never;
+
+  /**
+   * Yields elements from `this` as 1-element tuples.
+   */
+  windows(groupSize: 1): AsyncIteratorPlus<[T]>;
+
+  /**
+   * Yields tuples of two elements at a time.
+   */
+  windows(groupSize: 2): AsyncIteratorPlus<[T, T]>;
+
+  /**
+   * Yields tuples of three elements at a time.
+   */
+  windows(groupSize: 3): AsyncIteratorPlus<[T, T, T]>;
+
+  /**
+   * Yields tuples of four elements at a time.
+   */
+  windows(groupSize: 4): AsyncIteratorPlus<[T, T, T, T]>;
+
+  /**
+   * Yields tuples of five elements at a time.
+   */
+  windows(groupSize: 5): AsyncIteratorPlus<[T, T, T, T, T]>;
+
+  /**
+   * Yields tuples of elements at a time.
+   */
+  windows(groupSize: number): AsyncIteratorPlus<T[]>;
 
   /**
    * Yields elements of `this` as 1-element tuples.

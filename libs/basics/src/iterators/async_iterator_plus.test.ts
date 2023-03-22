@@ -456,3 +456,23 @@ test('partition', async () => {
       .partition((a) => a % 2 === 0)
   ).toEqual([new Set([2]), new Set([1, 3])]);
 });
+
+test('windows', async () => {
+  expect(() => iter([]).async().windows(0)).toThrowError();
+  expect(await iter([]).async().windows(2).toArray()).toEqual([]);
+  expect(await iter([1]).async().windows(2).toArray()).toEqual([]);
+  expect(await iter([1, 2]).async().windows(2).toArray()).toEqual([[1, 2]]);
+  expect(await iter([1, 2, 3]).async().windows(2).toArray()).toEqual([
+    [1, 2],
+    [2, 3],
+  ]);
+  expect(await iter([1, 2, 3]).async().windows(3).toArray()).toEqual([
+    [1, 2, 3],
+  ]);
+  expect(await iter([1, 2, 3]).async().windows(4).toArray()).toEqual([]);
+  expect(await iter('rust').async().windows(2).toArray()).toEqual([
+    ['r', 'u'],
+    ['u', 's'],
+    ['s', 't'],
+  ]);
+});
