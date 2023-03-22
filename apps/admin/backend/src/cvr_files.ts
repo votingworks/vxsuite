@@ -408,7 +408,7 @@ export function convertCastVoteRecordToLegacyFormat({
 }
 
 /**
- *
+ * Possible errors when importing a cast vote record reports.
  */
 export type AddCastVoteRecordReportError =
   | {
@@ -438,7 +438,7 @@ export type AddCastVoteRecordReportError =
     };
 
 /**
- *
+ * Result of an attempt to import a cast vote record report.
  */
 export type AddCastVoteRecordReportResult = Result<
   Admin.CvrFileImportInfo,
@@ -446,8 +446,7 @@ export type AddCastVoteRecordReportResult = Result<
 >;
 
 /**
- *
- * @param param0
+ * Attempts to add a cast vote record report.
  */
 export async function addCastVoteRecordReport({
   store,
