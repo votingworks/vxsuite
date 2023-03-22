@@ -3,7 +3,6 @@
 //
 
 import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
-import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { Client as DbClient } from '@votingworks/db';
 import { pdfToImages } from '@votingworks/image-utils';
 import {
@@ -1103,18 +1102,12 @@ export class Store {
     const loadedLayouts: BallotPageLayoutWithImage[] = [];
 
     for (const [pdf, layouts] of templates) {
-      let contestOffset = 0;
       for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
         const ballotPageLayout = layouts[pageNumber - 1];
-        loadedLayouts.push(
-          await interpretTemplate({
-            electionDefinition,
-            imageData: page,
-            metadata: ballotPageLayout.metadata,
-            contestOffset,
-          })
-        );
-        contestOffset += ballotPageLayout.contests.length;
+        loadedLayouts.push({
+          ballotPageLayout,
+          imageData: page,
+        });
       }
     }
 

@@ -3,7 +3,6 @@
 //
 
 import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
-import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { Client as DbClient } from '@votingworks/db';
 import { pdfToImages } from '@votingworks/image-utils';
 import {
@@ -1099,21 +1098,15 @@ export class Store {
       // While the PDFs only use O(100KB) of memory, each page image uses
       // O(10MB) of memory, so we should be careful to only load one page of one
       // pdf at a time.
-      let contestOffset = 0;
       for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
         const ballotPageLayout = find(
           layouts,
           (l) => l.metadata.pageNumber === pageNumber
         );
-        loadedLayouts.push(
-          await interpretTemplate({
-            electionDefinition,
-            imageData: page,
-            metadata: ballotPageLayout.metadata,
-            contestOffset,
-          })
-        );
-        contestOffset += ballotPageLayout.contests.length;
+        loadedLayouts.push({
+          ballotPageLayout,
+          imageData: page,
+        });
       }
     }
 
