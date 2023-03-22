@@ -57,8 +57,10 @@ function getCurrentElectionDefinition(
 function constructAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
+  const systemSettings = workspace.store.getSystemSettings();
   const currentElectionDefinition = getCurrentElectionDefinition(workspace);
   return {
+    arePollWorkerCardPinsEnabled: systemSettings?.arePollWorkerCardPinsEnabled,
     electionHash: currentElectionDefinition?.electionHash,
     // TODO: Pull jurisdiction from VxAdmin cert authority cert
     jurisdiction: isFeatureFlagEnabled(
