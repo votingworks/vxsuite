@@ -349,7 +349,7 @@ function cvrBallotTypeToLegacyBallotType(
  * dictionary of contest ids to contest selection ids that VxAdmin uses
  * internally as a basis for tallying votes.
  *
- * This method assumes that if a contest selection is present, then it an
+ * This method assumes that if a contest selection is present, then it is an
  * indication. It ignores the possibility that there are multiple selection
  * positions within the contest selection (only applicable to ranked choice and
  * other forms of voting) or that the selection position has no indication.
