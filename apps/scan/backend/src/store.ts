@@ -1100,6 +1100,7 @@ export class Store {
       // While the PDFs only use O(100KB) of memory, each page image uses
       // O(10MB) of memory, so we should be careful to only load one page of one
       // pdf at a time.
+      let contestOffset = 0;
       for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
         const ballotPageLayout = find(
           layouts,
@@ -1110,8 +1111,10 @@ export class Store {
             electionDefinition,
             imageData: page,
             metadata: ballotPageLayout.metadata,
+            contestOffset,
           })
         );
+        contestOffset += ballotPageLayout.contests.length;
       }
     }
 
