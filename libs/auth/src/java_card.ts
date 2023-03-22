@@ -293,6 +293,8 @@ export class JavaCard implements Card {
     if ('electionData' in input) {
       await this.writeData(Buffer.from(input.electionData, 'utf-8'));
     }
+
+    this.cardStatus = { status: 'ready', cardDetails };
   }
 
   async unprogram(): Promise<void> {
@@ -305,6 +307,7 @@ export class JavaCard implements Card {
     await this.clearCert(CARD_VX_ADMIN_CERT.OBJECT_ID);
     await this.clearCert(VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID);
     await this.clearData();
+    this.cardStatus = { status: 'ready', cardDetails: undefined };
   }
 
   async readData(): Promise<Buffer> {
