@@ -159,7 +159,8 @@ test('configuring with a CDF election', async () => {
   );
 });
 
-test('cast vote records - happy path election flow', async () => {
+// TODO: remove once we've moved to CDF
+test('cast vote records - happy path election flow (with legacy files)', async () => {
   const { apiClient, auth, mockUsb, logger } = buildTestEnvironment();
 
   const { electionDefinition, standardCvrFile, standardLiveCvrFile } =

@@ -36,7 +36,8 @@ export type SetSystemSettingsResult = Result<
  */
 export type AddCastVoteRecordFileError =
   | { type: 'invalid-file'; userFriendlyMessage: string }
-  | ({ type: 'invalid-record' } & AddCastVoteRecordError);
+  | ({ type: 'invalid-record' } & AddCastVoteRecordError)
+  | { type: 'invalid-cdf-report'; userFriendlyMessage: string };
 
 /**
  * Result of attempt to load a cast vote record file from a path

@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { CVR, safeParse } from '@votingworks/types';
-import { ok, err, Result } from '@votingworks/basics';
+import { ok, err, Result, AsyncIteratorPlus, iter } from '@votingworks/basics';
 import { chain } from 'stream-chain';
 import { parser } from 'stream-json';
 import { pick } from 'stream-json/filters/Pick';
@@ -30,7 +30,7 @@ export type CastVoteRecordReportImport = Omit<
   CVR.CastVoteRecordReport,
   'CVR'
 > & {
-  CVR: AsyncGenerator<unknown>;
+  CVR: AsyncIteratorPlus<unknown>;
 };
 
 /**
@@ -81,7 +81,7 @@ export async function getCastVoteRecordReportImport(
 
   return ok({
     ...metadataParseResult.ok(),
-    CVR: castVoteRecordGenerator(),
+    CVR: iter(castVoteRecordGenerator()),
   });
 }
 

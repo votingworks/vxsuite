@@ -70,7 +70,7 @@ test('add a CVR file', async () => {
     electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
   expect(
     (
-      await store.addCastVoteRecordFile({
+      await store.addLegacyCastVoteRecordFile({
         electionId,
         filePath: cvrFile,
         originalFilename: 'cvrs.jsonl',
@@ -117,7 +117,7 @@ test('add a CVR file with empty lines', async () => {
 
   expect(
     (
-      await store.addCastVoteRecordFile({
+      await store.addLegacyCastVoteRecordFile({
         electionId,
         filePath: cvrFile,
         originalFilename: 'cvrs.jsonl',
@@ -159,7 +159,7 @@ test('add a duplicate CVR file', async () => {
   const cvrFile =
     electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
   const originalResult = (
-    await store.addCastVoteRecordFile({
+    await store.addLegacyCastVoteRecordFile({
       electionId,
       filePath: cvrFile,
       originalFilename: 'cvrs.jsonl',
@@ -177,7 +177,7 @@ test('add a duplicate CVR file', async () => {
     scannerIds: expect.arrayContaining(['scanner-1', 'scanner-2']),
   });
   const duplicateResult = (
-    await store.addCastVoteRecordFile({
+    await store.addLegacyCastVoteRecordFile({
       electionId,
       filePath: cvrFile,
       originalFilename: 'cvrs.jsonl',
@@ -206,7 +206,7 @@ test('partially duplicate CVR files', async () => {
   const partial2CvrFile =
     electionMinimalExhaustiveSampleFixtures.partial2CvrFile.asFilePath();
   const addPartial1Result = (
-    await store.addCastVoteRecordFile({
+    await store.addLegacyCastVoteRecordFile({
       electionId,
       filePath: partial1CvrFile,
       originalFilename: 'cvrs.jsonl',
@@ -224,7 +224,7 @@ test('partially duplicate CVR files', async () => {
     scannerIds: expect.arrayContaining(['scanner-1', 'scanner-2']),
   });
   const addPartial2Result = (
-    await store.addCastVoteRecordFile({
+    await store.addLegacyCastVoteRecordFile({
       electionId,
       filePath: partial2CvrFile,
       originalFilename: 'cvrs-2.jsonl',
@@ -260,7 +260,7 @@ test('analyze a CVR file', async () => {
     electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath();
   expect(
     (
-      await store.addCastVoteRecordFile({
+      await store.addLegacyCastVoteRecordFile({
         electionId,
         filePath: cvrFile,
         analyzeOnly: true,
@@ -297,7 +297,7 @@ test('adding a CVR file if adding an entry fails', async () => {
 
   await expect(async () =>
     (
-      await store.addCastVoteRecordFile({
+      await store.addLegacyCastVoteRecordFile({
         electionId,
         filePath: cvrFile,
         originalFilename: 'cvrs.jsonl',
@@ -321,7 +321,7 @@ test('add a CVR file entry without a ballot ID', async () => {
     cvrData.replaceAll('_ballotId', '_notBallotId')
   );
 
-  const result = await store.addCastVoteRecordFile({
+  const result = await store.addLegacyCastVoteRecordFile({
     electionId,
     originalFilename: 'cvrs.jsonl',
     filePath: tmpfile.name,
@@ -340,7 +340,7 @@ test('add a CVR file entry matching an existing ballot ID with different data', 
   const store = Store.memoryStore();
   const electionId = store.addElection(electionDefinition.electionData);
 
-  await store.addCastVoteRecordFile({
+  await store.addLegacyCastVoteRecordFile({
     electionId,
     filePath: standardCvrFile.asFilePath(),
     originalFilename: 'cvrs.jsonl',
@@ -354,7 +354,7 @@ test('add a CVR file entry matching an existing ballot ID with different data', 
     standardCvrFile.asText().replaceAll('zebra', 'write-in striped horse')
   );
 
-  const result = await store.addCastVoteRecordFile({
+  const result = await store.addLegacyCastVoteRecordFile({
     electionId,
     filePath: tmpFile.name,
     originalFilename: 'cvrs.jsonl',
@@ -375,7 +375,7 @@ test('add a live CVR file after adding a test CVR file', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(electionDefinition.electionData);
 
-  await store.addCastVoteRecordFile({
+  await store.addLegacyCastVoteRecordFile({
     electionId,
     filePath: standardCvrFile.asFilePath(),
     originalFilename: 'test-cvrs.jsonl',
@@ -394,7 +394,7 @@ test('add a live CVR file after adding a test CVR file', async () => {
   };
   const tmpFile = fileSync();
   await fs.writeFile(tmpFile.name, JSON.stringify(liveCvr));
-  const result = await store.addCastVoteRecordFile({
+  const result = await store.addLegacyCastVoteRecordFile({
     electionId,
     filePath: tmpFile.name,
     originalFilename: 'live-cvrs.jsonl',
@@ -415,7 +415,7 @@ test('add a test CVR file after adding a live CVR file', async () => {
   const store = Store.memoryStore();
   const electionId = store.addElection(electionDefinition.electionData);
 
-  await store.addCastVoteRecordFile({
+  await store.addLegacyCastVoteRecordFile({
     electionId,
     filePath: standardLiveCvrFile.asFilePath(),
     originalFilename: 'live-cvrs.jsonl',
@@ -434,7 +434,7 @@ test('add a test CVR file after adding a live CVR file', async () => {
   };
   const tmpFile = fileSync();
   await fs.writeFile(tmpFile.name, JSON.stringify(testCvr));
-  const result = await store.addCastVoteRecordFile({
+  const result = await store.addLegacyCastVoteRecordFile({
     electionId,
     filePath: tmpFile.name,
     originalFilename: 'test-cvrs.jsonl',
@@ -463,7 +463,7 @@ test('add a CVR file with mixed live and test CVRs', async () => {
     cvrData.replace('"_testBallot":true', '"_testBallot":false')
   );
 
-  const result = await store.addCastVoteRecordFile({
+  const result = await store.addLegacyCastVoteRecordFile({
     electionId,
     filePath: tmpFile.name,
     originalFilename: 'mixed-cvrs.jsonl',
@@ -486,7 +486,7 @@ test('add a CVR file with an invalid election id', async () => {
 
   const { cvrFile } = primaryElectionSampleFixtures;
 
-  const result = await store.addCastVoteRecordFile({
+  const result = await store.addLegacyCastVoteRecordFile({
     electionId: 'not-a-real-election-id',
     filePath: cvrFile.asFilePath(),
     originalFilename: 'cvrs.jsonl',
@@ -504,7 +504,7 @@ test('add a CVR file with mismatched election details', async () => {
 
   const { cvrFile } = primaryElectionSampleFixtures;
 
-  const result = await store.addCastVoteRecordFile({
+  const result = await store.addLegacyCastVoteRecordFile({
     electionId,
     filePath: cvrFile.asFilePath(),
     originalFilename: 'cvrs.jsonl',
@@ -531,7 +531,7 @@ test('add a CVR file with an invalid vote', async () => {
     standardCvrFile.asText().replaceAll('yes', 'absolutely')
   );
 
-  const result = await store.addCastVoteRecordFile({
+  const result = await store.addLegacyCastVoteRecordFile({
     electionId,
     filePath: tmpFile.name,
     originalFilename: 'cvrs.jsonl',
@@ -560,7 +560,7 @@ test('add a CVR file with unhandled validation errors', async () => {
       .replaceAll('"_testBallot":true', '"_testBallot":"yep"')
   );
 
-  const result = await store.addCastVoteRecordFile({
+  const result = await store.addLegacyCastVoteRecordFile({
     electionId,
     filePath: tmpFile.name,
     originalFilename: 'cvrs.jsonl',
@@ -620,7 +620,7 @@ test('getCvrFiles', async () => {
   );
 
   const { id: IdFileWithCvrs1And2 } = (
-    await store.addCastVoteRecordFile({
+    await store.addLegacyCastVoteRecordFile({
       electionId,
       filePath: fileWithCvrs1And2.name,
       originalFilename: 'fileWithCvrs1And2.jsonl',
@@ -645,7 +645,7 @@ test('getCvrFiles', async () => {
   ]);
 
   const { id: IdFileWithCvrs2And3 } = (
-    await store.addCastVoteRecordFile({
+    await store.addLegacyCastVoteRecordFile({
       electionId,
       filePath: fileWithCvrs2And3.name,
       originalFilename: 'fileWithCvrs2And3.jsonl',
@@ -701,7 +701,7 @@ test('getCvrFileMode returns "test" if test CVRs previously imported', async () 
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
   );
 
-  await store.addCastVoteRecordFile({
+  await store.addLegacyCastVoteRecordFile({
     electionId,
     filePath:
       electionMinimalExhaustiveSampleFixtures.standardCvrFile.asFilePath(),
@@ -720,7 +720,7 @@ test('getCvrFileMode returns "live" if official CVRs previously imported', async
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
   );
 
-  await store.addCastVoteRecordFile({
+  await store.addLegacyCastVoteRecordFile({
     electionId,
     filePath:
       electionMinimalExhaustiveSampleFixtures.standardLiveCvrFile.asFilePath(),
@@ -746,7 +746,7 @@ test('get write-in adjudication records', async () => {
   );
 
   (
-    await store.addCastVoteRecordFile({
+    await store.addLegacyCastVoteRecordFile({
       electionId,
       originalFilename: 'cvrs.jsonl',
       // add the first two CVRs, which do not have write-ins
@@ -858,7 +858,7 @@ test('write-in adjudication lifecycle', async () => {
   );
 
   (
-    await store.addCastVoteRecordFile({
+    await store.addLegacyCastVoteRecordFile({
       electionId,
       originalFilename: 'cvrs.jsonl',
       filePath: tmpfile.name,

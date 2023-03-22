@@ -4,8 +4,11 @@ import {
   ElectionDefinition,
   MachineId,
   maybeParse,
+  Optional,
+  safeParseNumber,
 } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
+import { basename } from 'path';
 
 const SECTION_SEPARATOR = '__';
 const SUBSECTION_SEPARATOR = '_';
@@ -26,7 +29,7 @@ export interface ElectionData {
   timestamp: Date;
 }
 
-export interface CvrFileData {
+export interface CastVoteRecordReportListing {
   machineId: string;
   numberOfBallots: number;
   isTestModeResults: boolean;
@@ -135,14 +138,20 @@ export function generateCastVoteRecordReportDirectoryName(
   return isTestMode ? `TEST${SECTION_SEPARATOR}${filename}` : filename;
 }
 
-/* Extract information about a CVR file from the filename */
-// Expected filename format with human-readable separators is:
-// [TEST__]machine_{machineId}__{numberOfBallots}_ballots__YYYY-MM-DD_HH-mm-ss.jsonl
-// This format is current as of 2023-02-22 and may be out of date if separator constants have changed
-export function parseCvrFileInfoFromFilename(
+/**
+ * Extract information about a CVR file from the filename. Expected filename
+ * format with human-readable separators is:
+ * [TEST__]machine_{machineId}__{numberOfBallots}_ballots__YYYY-MM-DD_HH-mm-ss.jsonl
+ * This format is current as of 2023-02-22 and may be out of date if separator constants have changed
+ *
+ * If the the parsing is unsuccessful, returns `undefined`.
+ */
+export function parseCastVoteRecordReportDirectoryName(
   filename: string
-): CvrFileData | undefined {
-  const segments = filename.split(SECTION_SEPARATOR);
+): Optional<CastVoteRecordReportListing> {
+  // TODO: no need to ignore extension once we don't accept .jsonl
+  const fileBasename = basename(filename);
+  const segments = fileBasename.split(SECTION_SEPARATOR);
   const isTestModeResults = segments.length === 4 && segments[0] === 'TEST';
 
   const postTestPrefixSegments = isTestModeResults
@@ -151,7 +160,7 @@ export function parseCvrFileInfoFromFilename(
   if (postTestPrefixSegments.length !== 3) {
     return;
   }
-
+  // extract machine id
   assert(typeof postTestPrefixSegments[0] !== 'undefined');
   const machineSegments = postTestPrefixSegments[0].split(SUBSECTION_SEPARATOR);
   if (machineSegments.length !== 2 || machineSegments[0] !== 'machine') {
@@ -160,20 +169,24 @@ export function parseCvrFileInfoFromFilename(
   const machineId = machineSegments[1];
   assert(typeof machineId !== 'undefined');
 
+  // extract number of ballots
   assert(typeof postTestPrefixSegments[1] !== 'undefined');
   const ballotSegments = postTestPrefixSegments[1].split(SUBSECTION_SEPARATOR);
   if (ballotSegments.length !== 2 || ballotSegments[1] !== 'ballots') {
     return;
   }
-  // eslint-disable-next-line vx/gts-safe-number-parse
-  const numberOfBallots = Number(ballotSegments[0]);
+  const numberOfBallotsParseResult = safeParseNumber(ballotSegments[0]);
+  if (numberOfBallotsParseResult.isErr()) return;
 
-  const parsedTime = moment(postTestPrefixSegments[2], TIME_FORMAT_STRING);
+  // extract timestamp
+  const timestampMoment = moment(postTestPrefixSegments[2], TIME_FORMAT_STRING);
+  if (!timestampMoment.isValid()) return;
+
   return {
     machineId,
-    numberOfBallots,
+    numberOfBallots: numberOfBallotsParseResult.ok(),
     isTestModeResults,
-    timestamp: parsedTime.toDate(),
+    timestamp: timestampMoment.toDate(),
   };
 }
 

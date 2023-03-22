@@ -11,6 +11,8 @@ import { assert } from '@votingworks/basics';
 import { main } from './main';
 import { BATCH_ID } from '../../utils';
 
+jest.setTimeout(30_000);
+
 function reportFromFile(directory: string) {
   const filename = join(directory, CAST_VOTE_RECORD_REPORT_FILENAME);
   const reportParseResult = safeParseJson(

@@ -29,7 +29,8 @@ import { createWorkspace } from '../src/util/workspace';
 import { buildApp } from '../src/app';
 import { Usb } from '../src/util/usb';
 
-type MockFileTree = MockFile | MockDirectory;
+type ActualDirectory = string;
+type MockFileTree = MockFile | MockDirectory | ActualDirectory;
 type MockFile = Buffer;
 interface MockDirectory {
   [name: string]: MockFileTree;
@@ -38,6 +39,8 @@ interface MockDirectory {
 function writeMockFileTree(destinationPath: string, tree: MockFileTree): void {
   if (Buffer.isBuffer(tree)) {
     fs.writeFileSync(destinationPath, tree);
+  } else if (typeof tree === 'string') {
+    fs.cpSync(tree, destinationPath, { recursive: true });
   } else {
     if (!fs.existsSync(destinationPath)) fs.mkdirSync(destinationPath);
     for (const [name, child] of Object.entries(tree)) {

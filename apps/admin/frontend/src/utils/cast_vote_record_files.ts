@@ -1,9 +1,12 @@
 import { assert } from '@votingworks/basics';
 import { CastVoteRecord, Election } from '@votingworks/types';
-import { parseCvrFileInfoFromFilename, parseCvrs } from '@votingworks/utils';
+import {
+  parseCastVoteRecordReportDirectoryName,
+  parseCvrs,
+  readFileAsyncAsString,
+} from '@votingworks/utils';
 import arrayUnique from 'array-unique';
 import { sha256 } from 'js-sha256';
-import { readFileAsyncAsString } from '@votingworks/utils';
 import {
   CastVoteRecordFile,
   CastVoteRecordFilePreprocessedData,
@@ -184,7 +187,7 @@ export class CastVoteRecordFiles {
    * the CVRs they contain.
    *
    * TODO: After a few rounds of refactoring, this is now mostly just a proxy to
-   * {@link parseCvrFileInfoFromFilename} - should consolidate at some point.
+   * {@link parseCastVoteRecordReportDirectoryName} - should consolidate at some point.
    */
   static parseAllFromFileSystemEntries(
     files: KioskBrowser.FileSystemEntry[]
@@ -192,7 +195,9 @@ export class CastVoteRecordFiles {
     const results: CastVoteRecordFilePreprocessedData[] = [];
     for (const file of files) {
       try {
-        const parsedFileInfo = parseCvrFileInfoFromFilename(file.name);
+        const parsedFileInfo = parseCastVoteRecordReportDirectoryName(
+          file.name
+        );
         if (parsedFileInfo) {
           results.push({
             exportTimestamp: parsedFileInfo.timestamp,
@@ -220,7 +225,7 @@ export class CastVoteRecordFiles {
   async add(file: File, election: Election): Promise<CastVoteRecordFiles> {
     try {
       const fileContent = await readFileAsyncAsString(file);
-      const parsedFileInfo = parseCvrFileInfoFromFilename(file.name);
+      const parsedFileInfo = parseCastVoteRecordReportDirectoryName(file.name);
       const result = this.addFromFileContent(
         fileContent,
         file.name,

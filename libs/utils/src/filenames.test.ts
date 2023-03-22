@@ -10,16 +10,16 @@ import {
   generateElectionBasedSubfolderName,
   generateFilenameForScanningResults,
   generateFilenameForBallotExportPackage,
-  parseCvrFileInfoFromFilename,
   generateFinalExportDefaultFilename,
-  CvrFileData,
   ElectionData,
   generateFilenameForBallotExportPackageFromElectionData,
   generateBatchResultsDefaultFilename,
   generateLogFilename,
   LogFileType,
   generateSemsFinalExportDefaultFilename,
+  CastVoteRecordReportListing,
   generateCastVoteRecordReportDirectoryName,
+  parseCastVoteRecordReportDirectoryName,
 } from './filenames';
 
 describe('parseBallotExportPackageInfoFromFilename', () => {
@@ -352,10 +352,116 @@ describe('generateFinalExportDefaultFilename', () => {
   });
 });
 
-describe('parseCvrFileInfoFromFilename', () => {
+describe('parseCastVoteRecordReportDirectoryName', () => {
+  test('parses a basic name not in test mode properly', () => {
+    const name = 'machine_5__1_ballots__2020-12-08_10-42-02';
+    const results = parseCastVoteRecordReportDirectoryName(name);
+    expect(results).toEqual({
+      isTestModeResults: false,
+      machineId: '5',
+      numberOfBallots: 1,
+      timestamp: new Date(2020, 11, 8, 10, 42, 2),
+    });
+  });
+
+  test('parses a basic name in test mode properly', () => {
+    const name = 'TEST__machine_0002__54_ballots__2020-12-08_10-42-02';
+    const results = parseCastVoteRecordReportDirectoryName(name);
+    expect(results).toEqual({
+      isTestModeResults: true,
+      machineId: '0002',
+      numberOfBallots: 54,
+      timestamp: new Date(2020, 11, 8, 10, 42, 2),
+    });
+  });
+
+  test('undefined when the format of the filename is unexpected', () => {
+    expect(
+      parseCastVoteRecordReportDirectoryName(
+        'INVALID__machine_0002__54_ballots__2020-12-08_10-42-02'
+      )
+    ).toBeUndefined();
+    expect(
+      parseCastVoteRecordReportDirectoryName(
+        '__machine_0002__54_ballots__2020-12-08_10-42-02'
+      )
+    ).toBeUndefined();
+    expect(
+      parseCastVoteRecordReportDirectoryName(
+        'TEST__machine_0002__54_ballots__bad_timestamp'
+      )
+    ).toBeUndefined();
+    expect(
+      parseCastVoteRecordReportDirectoryName(
+        'TEST__machine_0002__blah_ballots__2020-12-08_10-42-02'
+      )
+    ).toBeUndefined();
+    expect(
+      parseCastVoteRecordReportDirectoryName(
+        'machine_0002__54_ballots__2020-12-08__10-42-02'
+      )
+    ).toBeUndefined();
+    expect(
+      parseCastVoteRecordReportDirectoryName(
+        'TEST__something__machine_0002__54_ballots__2020-12-08_10-42-02'
+      )
+    ).toBeUndefined();
+    expect(
+      parseCastVoteRecordReportDirectoryName(
+        'TEST__unicorn_0002__54_ballots__2020-12-08_10-42-02'
+      )
+    ).toBeUndefined();
+    expect(
+      parseCastVoteRecordReportDirectoryName(
+        'TEST__machine_0002__54_puppies__2020-12-08_10-42-02'
+      )
+    ).toBeUndefined();
+    expect(
+      parseCastVoteRecordReportDirectoryName(
+        'TEST__machine_0002__54__2020-12-08_10-42-02'
+      )
+    ).toBeUndefined();
+    expect(
+      parseCastVoteRecordReportDirectoryName(
+        'TEST__0002__54_ballots__2020-12-08_10-42-02'
+      )
+    ).toBeUndefined();
+  });
+
+  test('works end to end with generating the filename', () => {
+    const time = new Date(2020, 3, 14);
+    const generatedName = generateCastVoteRecordReportDirectoryName(
+      'machine',
+      1234,
+      true,
+      time
+    );
+    expect(parseCastVoteRecordReportDirectoryName(generatedName)).toEqual({
+      machineId: 'machine',
+      numberOfBallots: 1234,
+      isTestModeResults: true,
+      timestamp: time,
+    });
+    const generatedName2 = generateCastVoteRecordReportDirectoryName(
+      '0004',
+      0,
+      false,
+      time
+    );
+    expect(parseCastVoteRecordReportDirectoryName(generatedName2)).toEqual({
+      machineId: '0004',
+      numberOfBallots: 0,
+      isTestModeResults: false,
+      timestamp: time,
+    });
+  });
+});
+
+// TODO: remove once no longer importing .jsonl
+describe('parseCastVoteRecordReportDirectoryName for legacy files', () => {
   test('parses a basic name not in test mode properly', () => {
     const name = 'machine_5__1_ballots__2020-12-08_10-42-02.jsonl';
-    const results = parseCvrFileInfoFromFilename(name);
+    const results = parseCastVoteRecordReportDirectoryName(name);
     expect(results).toEqual({
       isTestModeResults: false,
       machineId: '5',
@@ -366,7 +472,7 @@ describe('parseCvrFileInfoFromFilename', () => {
 
   test('parses a basic name in test mode properly', () => {
     const name = 'TEST__machine_0002__54_ballots__2020-12-08_10-42-02.jsonl';
-    const results = parseCvrFileInfoFromFilename(name);
+    const results = parseCastVoteRecordReportDirectoryName(name);
     expect(results).toEqual({
       isTestModeResults: true,
       machineId: '0002',
@@ -375,77 +481,60 @@ describe('parseCvrFileInfoFromFilename', () => {
     });
   });
 
-  test('returns illegal date when the timestamp cant be parsed', () => {
-    const results = parseCvrFileInfoFromFilename(
-      'TEST__machine_0002__54_ballots__notatimestamp.jsonl'
-    );
-    expect(results!.toString()).toEqual(
-      {
-        isTestModeResults: true,
-        machineId: '0002',
-        numberOfBallots: 54,
-        timestamp: new Date(NaN),
-      }.toString()
-    );
-  });
-
-  test('parses as much of the date as possible', () => {
-    const results = parseCvrFileInfoFromFilename(
-      'TEST__machine_0002__54_ballots__2020-12-08.jsonl'
-    );
-    expect(results).toEqual({
-      isTestModeResults: true,
-      machineId: '0002',
-      numberOfBallots: 54,
-      timestamp: new Date(2020, 11, 8),
-    });
-  });
-
-  test('fails when the format of the filename is unexpected', () => {
+  test('undefined when the format of the filename is unexpected', () => {
     expect(
-      parseCvrFileInfoFromFilename(
+      parseCastVoteRecordReportDirectoryName(
         'INVALID__machine_0002__54_ballots__2020-12-08_10-42-02.jsonl'
       )
     ).toBeUndefined();
     expect(
-      parseCvrFileInfoFromFilename(
+      parseCastVoteRecordReportDirectoryName(
         '__machine_0002__54_ballots__2020-12-08_10-42-02.jsonl'
       )
     ).toBeUndefined();
     expect(
-      parseCvrFileInfoFromFilename(
+      parseCastVoteRecordReportDirectoryName(
+        'TEST__machine_0002__54_ballots__bad_timestamp.jsonl'
+      )
+    ).toBeUndefined();
+    expect(
+      parseCastVoteRecordReportDirectoryName(
+        'TEST__machine_0002__blah_ballots__2020-12-08_10-42-02.jsonl'
+      )
+    ).toBeUndefined();
+    expect(
+      parseCastVoteRecordReportDirectoryName(
         'machine_0002__54_ballots__2020-12-08__10-42-02.jsonl'
       )
     ).toBeUndefined();
-
     expect(
-      parseCvrFileInfoFromFilename(
+      parseCastVoteRecordReportDirectoryName(
         'TEST__something__machine_0002__54_ballots__2020-12-08_10-42-02.jsonl'
       )
     ).toBeUndefined();
     expect(
-      parseCvrFileInfoFromFilename(
+      parseCastVoteRecordReportDirectoryName(
         'TEST__unicorn_0002__54_ballots__2020-12-08_10-42-02.jsonl'
       )
     ).toBeUndefined();
     expect(
-      parseCvrFileInfoFromFilename(
+      parseCastVoteRecordReportDirectoryName(
         'TEST__machine_0002__54_puppies__2020-12-08_10-42-02.jsonl'
       )
     ).toBeUndefined();
     expect(
-      parseCvrFileInfoFromFilename(
+      parseCastVoteRecordReportDirectoryName(
         'TEST__machine_0002__54__2020-12-08_10-42-02.jsonl'
       )
     ).toBeUndefined();
     expect(
-      parseCvrFileInfoFromFilename(
+      parseCastVoteRecordReportDirectoryName(
         'TEST__0002__54_ballots__2020-12-08_10-42-02.jsonl'
       )
     ).toBeUndefined();
   });
 
-  test('works end to end with generating CVR name', () => {
+  test('works end to end with generating the filename', () => {
     const time = new Date(2020, 3, 14);
     const generatedName = generateFilenameForScanningResults(
       'machine',
@@ -453,7 +542,7 @@ describe('parseCvrFileInfoFromFilename', () => {
       true,
       time
     );
-    expect(parseCvrFileInfoFromFilename(generatedName)).toEqual({
+    expect(parseCastVoteRecordReportDirectoryName(generatedName)).toEqual({
       machineId: 'machine',
       numberOfBallots: 1234,
       isTestModeResults: true,
@@ -465,7 +554,7 @@ describe('parseCvrFileInfoFromFilename', () => {
       false,
       time
     );
-    expect(parseCvrFileInfoFromFilename(generatedName2)).toEqual({
+    expect(parseCastVoteRecordReportDirectoryName(generatedName2)).toEqual({
       machineId: '0004',
       numberOfBallots: 0,
       isTestModeResults: false,
@@ -494,7 +583,7 @@ function arbitraryTimestampDate(): fc.Arbitrary<Date> {
   );
 }
 
-function arbitraryCvrFileData(): fc.Arbitrary<CvrFileData> {
+function arbitraryCastVoteRecordReportListing(): fc.Arbitrary<CastVoteRecordReportListing> {
   return fc.record({
     machineId: arbitraryMachineId(),
     numberOfBallots: fc.nat(),
@@ -505,18 +594,21 @@ function arbitraryCvrFileData(): fc.Arbitrary<CvrFileData> {
 
 test('generate/parse CVR file fuzzing', () => {
   fc.assert(
-    fc.property(arbitraryCvrFileData(), (cvrFileData) => {
-      expect(
-        parseCvrFileInfoFromFilename(
-          generateFilenameForScanningResults(
-            cvrFileData.machineId,
-            cvrFileData.numberOfBallots,
-            cvrFileData.isTestModeResults,
-            cvrFileData.timestamp
+    fc.property(
+      arbitraryCastVoteRecordReportListing(),
+      (castVoteRecordReportListing) => {
+        expect(
+          parseCastVoteRecordReportDirectoryName(
+            generateFilenameForScanningResults(
+              castVoteRecordReportListing.machineId,
+              castVoteRecordReportListing.numberOfBallots,
+              castVoteRecordReportListing.isTestModeResults,
+              castVoteRecordReportListing.timestamp
+            )
           )
-        )
-      ).toEqual(cvrFileData);
-    })
+        ).toEqual(castVoteRecordReportListing);
+      }
+    )
   );
 });
 

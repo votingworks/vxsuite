@@ -1,8 +1,12 @@
 import { Optional } from '@votingworks/types';
 
-function isIterable(value: unknown): value is Iterable<unknown> {
+function isIterable(
+  value: unknown
+): value is Iterable<unknown> | AsyncIterable<unknown> {
   return (
-    typeof value === 'object' && value !== null && Symbol.iterator in value
+    typeof value === 'object' &&
+    value !== null &&
+    (Symbol.iterator in value || Symbol.asyncIterator in value)
   );
 }
 
@@ -52,16 +56,16 @@ export type JsonStreamInput<T> =
  * }
  * ```
  */
-export function* jsonStream<T>(
+export async function* jsonStream<T>(
   input: JsonStreamInput<T>,
   { compact = true }: JsonStreamOptions = {}
-): Generator<string> {
+): AsyncGenerator<string> {
   const visitedObjects = new WeakSet();
 
-  function* jsonStreamInternal(
+  async function* jsonStreamInternal(
     value: unknown,
     indentLevel = 0
-  ): Generator<string> {
+  ): AsyncGenerator<string> {
     if (value === null) {
       yield 'null';
     } else if (
@@ -81,7 +85,7 @@ export function* jsonStream<T>(
       const nextIndentString = compact ? '' : `\n${' '.repeat(nextLevel * 2)}`;
       yield '[';
       let hasEntries = false;
-      for (const entry of value) {
+      for await (const entry of value) {
         if (hasEntries) {
           yield ',';
         } else {

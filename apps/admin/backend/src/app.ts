@@ -31,7 +31,7 @@ import { basename } from 'path';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
-  parseCvrFileInfoFromFilename,
+  parseCastVoteRecordReportDirectoryName,
 } from '@votingworks/utils';
 import {
   AddCastVoteRecordFileResult,
@@ -39,9 +39,13 @@ import {
   SetSystemSettingsResult,
 } from './types';
 import { Workspace } from './util/workspace';
-import { listCastVoteRecordFilesOnUsb } from './cvr_files';
+import {
+  addCastVoteRecordReport,
+  listCastVoteRecordFilesOnUsb,
+} from './cvr_files';
 import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
+import { CvrImportFormat, CVR_IMPORT_FORMAT } from './globals';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -256,11 +260,18 @@ function buildApi({
       );
     },
 
-    listCastVoteRecordFilesOnUsb() {
+    listCastVoteRecordFilesOnUsb(
+      input: { cvrImportFormat?: CvrImportFormat } = {}
+    ) {
       const electionDefinition = getCurrentElectionDefinition(workspace);
       assert(electionDefinition);
 
-      return listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger);
+      return listCastVoteRecordFilesOnUsb(
+        electionDefinition,
+        usb,
+        logger,
+        input.cvrImportFormat || CVR_IMPORT_FORMAT
+      );
     },
 
     getCastVoteRecordFiles(): Admin.CastVoteRecordFileRecord[] {
@@ -290,9 +301,16 @@ function buildApi({
         }));
     },
 
+    /**
+     * TODO: Currently this supports CDF and VXF cast vote record files. Move
+     * to only supporting CDF files and clean up the error message handling.
+     */
     async addCastVoteRecordFile(input: {
       path: string;
+      cvrImportFormatFromParams?: CvrImportFormat;
     }): Promise<AddCastVoteRecordFileResult> {
+      const cvrImportFormat =
+        input.cvrImportFormatFromParams || CVR_IMPORT_FORMAT;
       const { path } = input;
       const userRole = assertDefined(await getUserRole());
       const filename = basename(path);
@@ -314,18 +332,56 @@ function buildApi({
         });
       }
 
-      // try to get the exported timestamp from the filename
-      let exportedTimestamp: Date = fileStat.mtime;
-      try {
-        const parsedFileInfo = parseCvrFileInfoFromFilename(basename(path));
-        if (parsedFileInfo) {
-          exportedTimestamp = parsedFileInfo.timestamp;
+      // try to get the exported timestamp from the filename, otherwise use file last modified
+      const exportedTimestamp =
+        parseCastVoteRecordReportDirectoryName(basename(path))?.timestamp ||
+        fileStat.mtime;
+
+      if (cvrImportFormat === 'cdf') {
+        const addCastVoteRecordReportResult = await addCastVoteRecordReport({
+          store,
+          reportDirectoryPath: path,
+          exportedTimestamp: exportedTimestamp.toISOString(),
+        });
+
+        if (addCastVoteRecordReportResult.isErr()) {
+          const errorType = addCastVoteRecordReportResult.err().type;
+          const userFriendlyMessage = errorType;
+          await logger.log(LogEventId.CvrLoaded, userRole, {
+            message: `Failed to load CVR file: ${errorType}`,
+            disposition: 'failure',
+            filename,
+            error: errorType,
+            result: 'File not loaded, error shown to user.',
+          });
+          return err({ type: 'invalid-cdf-report', userFriendlyMessage });
         }
-      } catch {
-        // file name was not in standard format, we'll try to import anyway
+
+        if (addCastVoteRecordReportResult.ok().wasExistingFile) {
+          // log failure if the file was a duplicate
+          await logger.log(LogEventId.CvrLoaded, userRole, {
+            message:
+              'CVR file was not loaded as it is a duplicate of a previously loaded file.',
+            disposition: 'failure',
+            filename,
+            result: 'File not loaded, error shown to user.',
+          });
+        } else {
+          // log success otherwise
+          await logger.log(LogEventId.CvrLoaded, userRole, {
+            message: 'CVR file successfully loaded.',
+            disposition: 'success',
+            filename,
+            numberOfBallotsImported:
+              addCastVoteRecordReportResult.ok().newlyAdded,
+            duplicateBallotsIgnored:
+              addCastVoteRecordReportResult.ok().alreadyPresent,
+          });
+        }
+        return addCastVoteRecordReportResult;
       }
 
-      const addFileResult = await store.addCastVoteRecordFile({
+      const addFileResult = await store.addLegacyCastVoteRecordFile({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         filePath: path,
         originalFilename: basename(path),
