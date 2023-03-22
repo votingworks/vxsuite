@@ -3,7 +3,6 @@ use std::{
     ops::{Add, AddAssign, Sub},
 };
 
-use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::Serialize;
 
 /// A unit of length in timing mark grid, i.e. 1 `GridUnit` is the logical
@@ -293,54 +292,43 @@ pub fn normalize_angle(angle: Radians) -> Radians {
     angle
 }
 
-pub fn find_best_line_through_items(
+/// Finds the largest subset of rectangles such that a line can be drawn through
+/// all of them for any line within the given tolerance of the given angle.
+pub fn find_largest_subset_intersecting_line(
     rects: &Vec<Rect>,
     angle: Radians,
     tolerance: Radians,
 ) -> Vec<Rect> {
-    if rects.is_empty() {
-        return vec![];
-    }
+    rects
+        .iter()
+        // Get all pairs of rectangles.
+        .flat_map(|rect| rects.iter().map(move |other_rect| (rect, other_rect)))
+        // Map to lists of rectangles in line with each pair.
+        .filter_map(|(rect, other_rect)| {
+            let line_angle = (other_rect.center().y - rect.center().y)
+                .atan2(other_rect.center().x - rect.center().x);
+            if angle_diff(line_angle, angle) > tolerance {
+                // The line between the two rectangles is not within the
+                // tolerance of the desired angle, so skip this pair.
+                return None;
+            }
 
-    let best_rects: Vec<&Rect> = rects
-        .par_iter()
-        .fold_with(vec![], |best_rects, rect| {
-            let mut best_rects = best_rects;
-
-            for other_rect in rects.iter() {
-                let rect_center = rect.center();
-                let other_rect_center = other_rect.center();
-                let line_angle = (other_rect_center.y - rect_center.y)
-                    .atan2(other_rect_center.x - rect_center.x);
-
-                if angle_diff(line_angle, angle) > tolerance {
-                    continue;
-                }
-
-                let rects_intersecting_line = rects
+            // Find all rectangles in line with the pair of rectangles.
+            let segment = Segment::new(rect.center(), other_rect.center());
+            Some(
+                rects
                     .iter()
-                    .filter(|r| {
-                        rect_intersects_line(r, &Segment::new(rect_center, other_rect_center))
-                    })
-                    .collect::<Vec<&Rect>>();
-
-                if rects_intersecting_line.len() > best_rects.len() {
-                    best_rects = rects_intersecting_line;
-                }
-            }
-
-            best_rects
+                    .filter(|r| rect_intersects_line(r, &segment))
+                    .collect::<Vec<_>>(),
+            )
         })
-        .reduce_with(|best_rects, other_best_rects| {
-            if other_best_rects.len() > best_rects.len() {
-                other_best_rects
-            } else {
-                best_rects
-            }
-        })
-        .expect("at least one result because we have at least one rect");
-
-    return best_rects.iter().map(|r| **r).collect();
+        // Pick the list of rectangles that is the longest.
+        .max_by_key(Vec::len)
+        .unwrap_or(vec![])
+        // Dereference the pointers.
+        .iter()
+        .map(|r| **r)
+        .collect()
 }
 
 #[cfg(test)]

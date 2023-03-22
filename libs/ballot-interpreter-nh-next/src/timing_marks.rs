@@ -15,8 +15,8 @@ use crate::{
     debug,
     debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
     geometry::{
-        find_best_line_through_items, intersection_of_lines, GridUnit, PixelPosition, Point, Rect,
-        Segment, Size, SubPixelUnit,
+        find_largest_subset_intersecting_line, intersection_of_lines, GridUnit, PixelPosition,
+        Point, Rect, Segment, Size, SubPixelUnit,
     },
     image_utils::{expand_image, Inset, WHITE},
     interpret::Error,
@@ -471,22 +471,22 @@ pub fn find_partial_timing_marks_from_candidate_rects(
         .filter(|r| r.left() >= half_height)
         .copied()
         .collect::<Vec<Rect>>();
-    let mut top_line = find_best_line_through_items(
+    let mut top_line = find_largest_subset_intersecting_line(
         &top_half_rects,
         HORIZONTAL_ANGLE_DEGREES.to_radians(),
         MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
     );
-    let mut bottom_line = find_best_line_through_items(
+    let mut bottom_line = find_largest_subset_intersecting_line(
         &bottom_half_rects,
         HORIZONTAL_ANGLE_DEGREES.to_radians(),
         MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
     );
-    let mut left_line = find_best_line_through_items(
+    let mut left_line = find_largest_subset_intersecting_line(
         &left_half_rects,
         VERTICAL_ANGLE_DEGREES.to_radians(),
         MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
     );
-    let mut right_line = find_best_line_through_items(
+    let mut right_line = find_largest_subset_intersecting_line(
         &right_half_rects,
         VERTICAL_ANGLE_DEGREES.to_radians(),
         MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
