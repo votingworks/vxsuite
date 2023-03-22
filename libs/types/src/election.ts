@@ -1,3 +1,4 @@
+import { Optional } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import * as z from 'zod';
 import {
@@ -9,7 +10,6 @@ import {
   Iso8601Timestamp,
   Iso8601TimestampSchema,
   NewType,
-  Optional,
 } from './generic';
 import {
   Offset,

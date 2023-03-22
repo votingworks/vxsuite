@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import { Optional } from '@votingworks/basics';
 import { CastVoteRecord } from './cast_vote_record';
 import { Candidate, AnyContest } from './election';
-import { Dictionary, Optional } from './generic';
+import { Dictionary } from './generic';
 
 export type YesNoVoteId = 'yes' | 'no';
 export type YesNoVoteOption = ['yes'] | ['no'] | [];
