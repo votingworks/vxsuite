@@ -1,6 +1,7 @@
 import {
   Debugger,
   noDebug,
+  PdfPage,
   pdfToImages,
   rotate180,
 } from '@votingworks/image-utils';
@@ -15,6 +16,7 @@ import {
 import { assert, iter } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { Buffer } from 'buffer';
+import { ImageData } from 'canvas';
 import { ContestShape, findContests } from './hmpb/find_contests';
 import { findContestOptions } from './hmpb/find_contest_options';
 import { findTargets } from './hmpb/find_targets';
@@ -180,7 +182,45 @@ export async function interpretTemplate({
   };
 }
 
-export async function interpretMultiPagePdfTemplate({
+/**
+ * Interprets rendered PDF pages as templates, returning the layout information
+ * read from the images. The template images should be images of blank ballots,
+ * i.e. rendered as images from a PDF.
+ */
+export async function* interpretMultiPageTemplate({
+  electionDefinition,
+  pages,
+  metadata,
+}: {
+  electionDefinition: ElectionDefinition;
+  pages: AsyncIterable<PdfPage>;
+  metadata?: BallotMetadata;
+}): AsyncGenerator<BallotPageLayoutWithImage> {
+  let contestOffset = 0;
+  for await (const { page, pageNumber } of pages) {
+    const layoutWithImage = await interpretTemplate({
+      electionDefinition,
+      imageData: page,
+      contestOffset,
+      metadata: metadata ? { ...metadata, pageNumber } : undefined,
+    });
+
+    contestOffset += layoutWithImage.ballotPageLayout.contests.length;
+    yield {
+      ...layoutWithImage,
+      ballotPageLayout: {
+        ...layoutWithImage.ballotPageLayout,
+        metadata: {
+          ...layoutWithImage.ballotPageLayout.metadata,
+          ...(metadata ?? {}),
+          pageNumber,
+        },
+      },
+    };
+  }
+}
+
+export async function* interpretMultiPagePdfTemplate({
   electionDefinition,
   ballotPdfData,
   metadata,
@@ -190,25 +230,10 @@ export async function interpretMultiPagePdfTemplate({
   ballotPdfData: Buffer;
   metadata: BallotMetadata;
   scale?: number;
-}): Promise<BallotPageLayoutWithImage[]> {
-  const layoutsWithImages: BallotPageLayoutWithImage[] = [];
-  let contestOffset = 0;
-  for await (const { page, pageNumber } of pdfToImages(ballotPdfData, {
-    scale,
-  })) {
-    const layoutWithImage = await interpretTemplate({
-      electionDefinition,
-      imageData: page,
-      metadata: {
-        ...metadata,
-        pageNumber,
-      },
-      contestOffset,
-    });
-
-    layoutsWithImages.push(layoutWithImage);
-    contestOffset += layoutWithImage.ballotPageLayout.contests.length;
-  }
-
-  return layoutsWithImages;
+}): AsyncGenerator<BallotPageLayoutWithImage> {
+  yield* interpretMultiPageTemplate({
+    electionDefinition,
+    pages: pdfToImages(ballotPdfData, { scale }),
+    metadata,
+  });
 }
