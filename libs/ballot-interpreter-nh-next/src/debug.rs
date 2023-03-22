@@ -16,7 +16,8 @@ use crate::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RAINBOW, RED,
         WHITE_RGB,
     },
-    timing_marks::{Partial, ScoredOvalMark, TimingMarkGrid},
+    scoring::ScoredOvalMark,
+    timing_marks::{Partial, TimingMarkGrid},
 };
 
 pub fn draw_contours_debug_image_mut(canvas: &mut RgbImage, contour_rects: &[Rect]) {

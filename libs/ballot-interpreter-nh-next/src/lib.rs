@@ -10,6 +10,7 @@ mod geometry;
 mod image_utils;
 mod interpret;
 mod metadata;
+mod scoring;
 mod timing_marks;
 mod types;
 

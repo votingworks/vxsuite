@@ -20,8 +20,10 @@ use crate::image_utils::maybe_resize_image_to_fit;
 use crate::image_utils::Inset;
 use crate::metadata::BallotPageMetadata;
 use crate::metadata::BallotPageMetadataError;
+use crate::scoring::score_oval_marks_from_grid_layout;
+use crate::scoring::ScoredOvalMarks;
 use crate::timing_marks::find_timing_mark_grid;
-use crate::timing_marks::{score_oval_marks_from_grid_layout, ScoredOvalMarks, TimingMarkGrid};
+use crate::timing_marks::TimingMarkGrid;
 
 #[derive(Debug, Clone)]
 pub struct Options {
