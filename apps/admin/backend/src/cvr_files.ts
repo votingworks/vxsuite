@@ -459,14 +459,10 @@ export async function addCastVoteRecordReport({
   exportedTimestamp: Iso8601Timestamp;
 }): Promise<AddCastVoteRecordReportResult> {
   const electionId = store.getCurrentElectionId();
-  if (!electionId) {
-    throw new Error('no current election id');
-  }
+  assert(electionId !== undefined);
 
   const electionDefinition = store.getElection(electionId)?.electionDefinition;
-  if (!electionDefinition) {
-    throw new Error('no election associated with the current election id');
-  }
+  assert(electionDefinition);
 
   // Check whether this directory looks like a valid report directory
   const directoryValidationResult =
