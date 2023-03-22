@@ -205,6 +205,19 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return min;
   }
 
+  partition(predicate: (item: T) => boolean): [Set<T>, Set<T>] {
+    const left = new Set<T>();
+    const right = new Set<T>();
+    for (const value of this.iterable) {
+      if (predicate(value)) {
+        left.add(value);
+      } else {
+        right.add(value);
+      }
+    }
+    return [left, right];
+  }
+
   rev(): IteratorPlus<T> {
     const { iterable } = this;
     return new IteratorPlusImpl(

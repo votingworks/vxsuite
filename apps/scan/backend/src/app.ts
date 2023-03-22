@@ -43,7 +43,7 @@ import { Workspace } from './util/workspace';
 import { Usb } from './util/usb';
 import { PrecinctScannerConfig, PrecinctScannerStatus } from './types';
 import { getMachineConfig } from './machine_config';
-import { CVR_EXPORT_FORMAT } from './globals';
+import { CVR_EXPORT_FORMAT, USE_NH_NEXT } from './globals';
 import { DefaultMarkThresholds } from './store';
 
 function constructAuthMachineState(
@@ -333,6 +333,7 @@ function buildApi(
         testMode: store.getTestMode(),
         markThresholdOverrides: store.getMarkThresholdOverrides(),
         ballotImagesPath: workspace.ballotImagesPath,
+        useNhNext: USE_NH_NEXT,
       });
       machine.scan();
     },

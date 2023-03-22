@@ -31,6 +31,7 @@ export function* allContestOptions(
             name: 'Write-In',
             isWriteIn: true,
             optionIndex: contest.candidates.length + writeInIndex,
+            writeInIndex,
           };
         }
       } else {
@@ -42,6 +43,7 @@ export function* allContestOptions(
             name: 'Write-In',
             isWriteIn: true,
             optionIndex: contest.candidates.length + i,
+            writeInIndex: i,
           };
         }
       }

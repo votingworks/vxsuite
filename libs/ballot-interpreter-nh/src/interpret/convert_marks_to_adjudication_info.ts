@@ -1,8 +1,7 @@
-import { assert, find } from '@votingworks/basics';
+import { assert, iter } from '@votingworks/basics';
 import {
   AdjudicationInfo,
   AdjudicationReason,
-  AdjudicationReasonInfo,
   Contests,
   MarkStatus,
   MarkThresholds,
@@ -32,7 +31,6 @@ export function convertMarksToAdjudicationInfo({
   const adjudicationReasonInfos = Array.from(
     ballotAdjudicationReasons(contests, {
       optionMarkStatus: (option) => {
-        const contest = find(contests, (c) => c.id === option.contestId);
         const marks = ovalMarks.filter(({ gridPosition }) => {
           if (gridPosition.contestId !== option.contestId) {
             return false;
@@ -43,10 +41,8 @@ export function convertMarksToAdjudicationInfo({
           }
 
           if (gridPosition.type === 'write-in') {
-            const expectedWriteInIndex =
-              option.optionIndex -
-              (contest.type === 'candidate' ? contest.candidates.length : 0);
-            return gridPosition.writeInIndex === expectedWriteInIndex;
+            assert(option.type === 'candidate');
+            return gridPosition.writeInIndex === option.writeInIndex;
           }
 
           return false;
@@ -72,21 +68,14 @@ export function convertMarksToAdjudicationInfo({
     })
   );
 
-  const enabledReasonInfos: AdjudicationReasonInfo[] = [];
-  const ignoredReasonInfos: AdjudicationReasonInfo[] = [];
-
-  for (const reasonInfo of adjudicationReasonInfos) {
-    if (enabledReasons.includes(reasonInfo.type)) {
-      enabledReasonInfos.push(reasonInfo);
-    } else {
-      ignoredReasonInfos.push(reasonInfo);
-    }
-  }
+  const [enabledReasonInfos, ignoredReasonInfos] = iter(
+    adjudicationReasonInfos
+  ).partition((reasonInfo) => enabledReasons.includes(reasonInfo.type));
 
   return {
-    requiresAdjudication: enabledReasonInfos.length > 0,
-    enabledReasonInfos,
+    requiresAdjudication: enabledReasonInfos.size > 0,
+    enabledReasonInfos: [...enabledReasonInfos],
     enabledReasons,
-    ignoredReasonInfos,
+    ignoredReasonInfos: [...ignoredReasonInfos],
   };
 }

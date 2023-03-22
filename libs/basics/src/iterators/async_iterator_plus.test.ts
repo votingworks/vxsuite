@@ -433,3 +433,26 @@ test('sum', async () => {
     })
   );
 });
+
+test('partition', async () => {
+  expect(
+    await iter([])
+      .async()
+      .partition(() => true)
+  ).toEqual([new Set(), new Set()]);
+  expect(
+    await iter([1])
+      .async()
+      .partition(() => true)
+  ).toEqual([new Set([1]), new Set()]);
+  expect(
+    await iter([1, 2, 3])
+      .async()
+      .partition(() => true)
+  ).toEqual([new Set([1, 2, 3]), new Set()]);
+  expect(
+    await iter([1, 2, 3])
+      .async()
+      .partition((a) => a % 2 === 0)
+  ).toEqual([new Set([2]), new Set([1, 3])]);
+});

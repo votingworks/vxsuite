@@ -690,6 +690,7 @@ export interface CandidateContestOption {
   name: Candidate['name'];
   isWriteIn: boolean;
   optionIndex: number;
+  writeInIndex?: number;
 }
 export const CandidateContestOptionSchema: z.ZodSchema<CandidateContestOption> =
   z.object({
@@ -699,6 +700,7 @@ export const CandidateContestOptionSchema: z.ZodSchema<CandidateContestOption> =
     name: z.string(),
     isWriteIn: z.boolean(),
     optionIndex: z.number().nonnegative(),
+    writeInIndex: z.number().nonnegative().optional(),
   });
 
 export type YesNoContestOptionId = Exclude<

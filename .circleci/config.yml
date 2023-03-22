@@ -397,6 +397,28 @@ jobs:
       - store_test_results:
           path: libs/ballot-interpreter-nh/reports/
 
+  test-libs-ballot-interpreter-nh-next:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ballot-interpreter-nh-next build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ballot-interpreter-nh-next lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ballot-interpreter-nh-next test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ballot-interpreter-nh-next/reports/
+
   test-libs-ballot-interpreter-vx:
     executor: nodejs
     resource_class: xlarge
@@ -910,6 +932,7 @@ workflows:
       - test-libs-auth
       - test-libs-ballot-encoder
       - test-libs-ballot-interpreter-nh
+      - test-libs-ballot-interpreter-nh-next
       - test-libs-ballot-interpreter-vx
       - test-libs-basics
       - test-libs-cdf-schema-builder
@@ -938,6 +961,12 @@ commands:
   checkout-and-install:
     description: Get the code and install dependencies.
     steps:
+      # TODO: move this to our own docker image
+      - run:
+          name: Install Rust
+          command: |
+            curl https://sh.rustup.rs -sSf | sh -s -- -y
+            echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> $BASH_ENV
       - checkout
       # Edit this comment somehow in order to invalidate the CircleCI cache.
       # Since the contents of this file affect the cache key, editing only a

@@ -4,7 +4,6 @@ import {
   BallotPageContestLayout,
   BallotPageContestOptionLayout,
   BallotPageLayout,
-  CandidateContest,
   Election,
 } from '@votingworks/types';
 import { allContestOptions } from '@votingworks/utils';
@@ -232,12 +231,26 @@ export function generateBallotPageLayouts(
       for (const gridPosition of Array.from(gridPositions)) {
         const contestOptionDefinition = find(
           contestOptionDefinitions,
-          (optionDefinition) =>
-            gridPosition.type === 'option'
-              ? optionDefinition.id === gridPosition.optionId
-              : optionDefinition.optionIndex ===
-                gridPosition.writeInIndex +
-                  (contest as CandidateContest).candidates.length
+          (optionDefinition) => {
+            if (
+              gridPosition.type === 'write-in' &&
+              optionDefinition.type === 'candidate'
+            ) {
+              return (
+                gridPosition.writeInIndex === optionDefinition.writeInIndex
+              );
+            }
+
+            if (gridPosition.type === 'option') {
+              return gridPosition.optionId === optionDefinition.id;
+            }
+
+            /* istanbul ignore next */
+            assert(
+              false,
+              `unexpected grid position/option definition type pair: ${gridPosition.type}/${optionDefinition.type}`
+            );
+          }
         );
 
         const optionTopLeft = timingMarkGrid.rows[
