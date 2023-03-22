@@ -1,5 +1,11 @@
-import { Debugger, noDebug, rotate180 } from '@votingworks/image-utils';
 import {
+  Debugger,
+  noDebug,
+  pdfToImages,
+  rotate180,
+} from '@votingworks/image-utils';
+import {
+  BallotMetadata,
   BallotPageLayoutWithImage,
   BallotPageMetadata,
   ElectionDefinition,
@@ -8,6 +14,7 @@ import {
 } from '@votingworks/types';
 import { assert, iter } from '@votingworks/basics';
 import makeDebug from 'debug';
+import { Buffer } from 'buffer';
 import { ContestShape, findContests } from './hmpb/find_contests';
 import { findContestOptions } from './hmpb/find_contest_options';
 import { findTargets } from './hmpb/find_targets';
@@ -171,4 +178,37 @@ export async function interpretTemplate({
       contests,
     },
   };
+}
+
+export async function interpretMultiPagePdfTemplate({
+  electionDefinition,
+  ballotPdfData,
+  metadata,
+  scale = 2,
+}: {
+  electionDefinition: ElectionDefinition;
+  ballotPdfData: Buffer;
+  metadata: BallotMetadata;
+  scale?: number;
+}): Promise<BallotPageLayoutWithImage[]> {
+  const layoutsWithImages: BallotPageLayoutWithImage[] = [];
+  let contestOffset = 0;
+  for await (const { page, pageNumber } of pdfToImages(ballotPdfData, {
+    scale,
+  })) {
+    const layoutWithImage = await interpretTemplate({
+      electionDefinition,
+      imageData: page,
+      metadata: {
+        ...metadata,
+        pageNumber,
+      },
+      contestOffset,
+    });
+
+    layoutsWithImages.push(layoutWithImage);
+    contestOffset += layoutWithImage.ballotPageLayout.contests.length;
+  }
+
+  return layoutsWithImages;
 }
