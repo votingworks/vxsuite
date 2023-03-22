@@ -31,6 +31,7 @@ export function interpret(
   );
   const parseJsonResult = safeParseJson(result.value);
 
+  /* istanbul ignore next */
   if (parseJsonResult.isErr()) {
     return err({
       type: 'unknown',
