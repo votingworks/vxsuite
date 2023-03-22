@@ -302,6 +302,33 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return new Set(this.iterable);
   }
 
+  windows(groupSize: 0): never;
+  windows(groupSize: 1): IteratorPlus<[T]>;
+  windows(groupSize: 2): IteratorPlus<[T, T]>;
+  windows(groupSize: 3): IteratorPlus<[T, T, T]>;
+  windows(groupSize: 4): IteratorPlus<[T, T, T, T]>;
+  windows(groupSize: 5): IteratorPlus<[T, T, T, T, T]>;
+  windows(groupSize: number): IteratorPlus<T[]>;
+  windows(groupSize: number): IteratorPlus<T[]> {
+    if (groupSize <= 0) {
+      throw new Error('groupSize must be greater than 0');
+    }
+
+    const { iterable } = this;
+    return new IteratorPlusImpl(
+      (function* gen() {
+        const window: T[] = [];
+        for (const value of iterable) {
+          window.push(value);
+          if (window.length === groupSize) {
+            yield window.slice();
+            window.shift();
+          }
+        }
+      })()
+    );
+  }
+
   zip(): IteratorPlus<[T]>;
   zip<U>(other: Iterable<U>): IteratorPlus<[T, U]>;
   zip<U, V>(other1: Iterable<U>, other2: Iterable<V>): IteratorPlus<[T, U, V]>;
