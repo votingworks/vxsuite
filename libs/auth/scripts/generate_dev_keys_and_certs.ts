@@ -197,6 +197,15 @@ async function generateDevKeysAndCerts({
           cardDetails: {
             jurisdiction: DEV_JURISDICTION,
             user: { role: 'poll_worker', electionHash },
+            hasPin: false,
+          },
+        },
+        {
+          cardType: 'poll-worker-with-pin',
+          cardDetails: {
+            jurisdiction: DEV_JURISDICTION,
+            user: { role: 'poll_worker', electionHash },
+            hasPin: true,
           },
         },
       ];
@@ -267,7 +276,8 @@ async function generateDevKeysAndCerts({
  * If run with --for-tests, the script will additionally:
  * - Save the VxAdmin cert authority cert in DER format
  *
- * And generate for each of a system administrator, election manager, and poll worker:
+ * And generate for each of a system administrator, election manager, poll worker, and poll worker
+ * with a PIN:
  * - A first card key pair
  * - A second card key pair
  * - A card VotingWorks cert by signing the first key pair's public key with the VotingWorks cert
