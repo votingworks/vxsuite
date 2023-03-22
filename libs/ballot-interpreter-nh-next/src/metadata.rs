@@ -28,7 +28,7 @@ fn print_boolean_slice_as_binary(slice: &[bool]) -> String {
 }
 
 /// Metadata encoded by the bottom row of the front of a ballot card.
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct BallotPageMetadataFront {
     /// Raw bits 0-31 in LSB-MSB order (right to left).
@@ -73,7 +73,7 @@ impl Debug for BallotPageMetadataFront {
 }
 
 /// Represents a single capital letter from A-Z represented by a u8 index.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct IndexedCapitalLetter(u8);
 
 impl From<u8> for IndexedCapitalLetter {
@@ -98,7 +98,7 @@ impl Serialize for IndexedCapitalLetter {
 }
 
 /// Metadata encoded by the bottom row of the back of a ballot card.
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct BallotPageMetadataBack {
     /// Raw bits 0-31 in LSB-MSB order (right-to-left).
@@ -145,14 +145,14 @@ impl Debug for BallotPageMetadataBack {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, PartialEq)]
 #[serde(tag = "side", rename_all = "camelCase")]
 pub enum BallotPageMetadata {
     Front(BallotPageMetadataFront),
     Back(BallotPageMetadataBack),
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, PartialEq)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum BallotPageMetadataError {
     ValueOutOfRange {
@@ -352,5 +352,50 @@ pub fn decode_metadata_from_timing_marks(
         (Ok(front_metadata), Err(_)) => Ok(BallotPageMetadata::Front(front_metadata)),
         (Err(_), Ok(back_metadata)) => Ok(BallotPageMetadata::Back(back_metadata)),
         (Err(front_metadata_error), Err(_)) => Err(front_metadata_error),
+    }
+}
+
+#[cfg(test)]
+mod metadata_tests {
+    use pretty_assertions::assert_eq;
+
+    fn parse_bit_string(s: &str) -> [bool; super::METADATA_BITS] {
+        assert!(s.len() == super::METADATA_BITS);
+        let mut bits = [false; super::METADATA_BITS];
+        for (i, c) in s.chars().enumerate() {
+            bits[i] = c == '1';
+        }
+        bits
+    }
+
+    #[test]
+    fn test_decode() {
+        let front_bits = parse_bit_string("01000000000000010000000000000001");
+        assert_eq!(
+            super::decode_front_metadata_from_bits(&front_bits),
+            Ok(super::BallotPageMetadataFront {
+                bits: front_bits,
+                mod_4_checksum: 2,
+                computed_mod_4_checksum: 2,
+                batch_or_precinct_number: 0,
+                card_number: 1,
+                sequence_number: 0,
+                start_bit: 1,
+            })
+        );
+
+        let back_bits = parse_bit_string("10010101011101001100101111011110");
+        assert_eq!(
+            super::decode_back_metadata_from_bits(&back_bits),
+            Ok(super::BallotPageMetadataBack {
+                bits: back_bits,
+                election_day: 9,
+                election_month: 5,
+                election_year: 23,
+                election_type: super::IndexedCapitalLetter(19), // T
+                ender_code: super::ENDER_CODE,
+                expected_ender_code: super::ENDER_CODE,
+            })
+        )
     }
 }
