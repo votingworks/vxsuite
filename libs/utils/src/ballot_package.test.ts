@@ -1,9 +1,11 @@
-import { electionSample } from '@votingworks/fixtures';
+import {
+  electionSample,
+  electionFamousNames2021Fixtures,
+} from '@votingworks/fixtures';
 import { fakeKiosk, zipFile } from '@votingworks/test-utils';
 import { BallotPageLayout, BallotType } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import { promises as fs } from 'fs';
-import { join } from 'path';
 import { typedAs } from '@votingworks/basics';
 import {
   BallotPackageEntry,
@@ -15,12 +17,8 @@ import {
 
 test('readBallotPackageFromFile finds all expected ballots', async () => {
   const file = new File(
-    [
-      await fs.readFile(
-        join(__dirname, 'data/ballot-package-state-of-hamilton.zip')
-      ),
-    ],
-    'ballot-package-state-of-hamilton.zip'
+    [electionFamousNames2021Fixtures.ballotPackage.asBuffer()],
+    'ballot-package.zip'
   );
   const {
     ballots,
@@ -28,9 +26,9 @@ test('readBallotPackageFromFile finds all expected ballots', async () => {
   } = await readBallotPackageFromFile(file);
   const ballotStyleIds = election.ballotStyles.map(({ id }) => id);
   const precinctIds = election.precincts.map(({ id }) => id);
-  expect(election.title).toEqual('General Election');
+  expect(election.title).toEqual('Lincoln Municipal General Election');
   expect(election.state).toEqual('State of Hamilton');
-  expect(ballots.length).toEqual(16);
+  expect(ballots.length).toEqual(8);
 
   for (const { ballotConfig, pdf } of ballots) {
     expect(ballotStyleIds).toContain(ballotConfig.ballotStyleId);
@@ -40,18 +38,17 @@ test('readBallotPackageFromFile finds all expected ballots', async () => {
 });
 
 test('readBallotPackageFromBuffer finds all expected ballots', async () => {
-  const buffer = await fs.readFile(
-    join(__dirname, 'data/ballot-package-state-of-hamilton.zip')
-  );
   const {
     ballots,
     electionDefinition: { election },
-  } = await readBallotPackageFromBuffer(buffer);
+  } = await readBallotPackageFromBuffer(
+    electionFamousNames2021Fixtures.ballotPackage.asBuffer()
+  );
   const ballotStyleIds = election.ballotStyles.map(({ id }) => id);
   const precinctIds = election.precincts.map(({ id }) => id);
-  expect(election.title).toEqual('General Election');
+  expect(election.title).toEqual('Lincoln Municipal General Election');
   expect(election.state).toEqual('State of Hamilton');
-  expect(ballots.length).toEqual(16);
+  expect(ballots.length).toEqual(8);
 
   for (const { ballotConfig, pdf } of ballots) {
     expect(ballotStyleIds).toContain(ballotConfig.ballotStyleId);
@@ -61,10 +58,7 @@ test('readBallotPackageFromBuffer finds all expected ballots', async () => {
 });
 
 test('readBallotPackageFromFilePointer finds all expected ballots', async () => {
-  const pathToFile = join(
-    __dirname,
-    'data/ballot-package-state-of-hamilton.zip'
-  );
+  const pathToFile = electionFamousNames2021Fixtures.ballotPackage.asFilePath();
   const fileName = 'ballot-package-state-of-hamilton.zip';
 
   const mockKiosk = fakeKiosk();
@@ -83,9 +77,9 @@ test('readBallotPackageFromFilePointer finds all expected ballots', async () => 
   } as unknown as KioskBrowser.FileSystemEntry);
   const ballotStyleIds = election.ballotStyles.map(({ id }) => id);
   const precinctIds = election.precincts.map(({ id }) => id);
-  expect(election.title).toEqual('General Election');
+  expect(election.title).toEqual('Lincoln Municipal General Election');
   expect(election.state).toEqual('State of Hamilton');
-  expect(ballots.length).toEqual(16);
+  expect(ballots.length).toEqual(8);
 
   for (const { ballotConfig, pdf } of ballots) {
     expect(ballotStyleIds).toContain(ballotConfig.ballotStyleId);
