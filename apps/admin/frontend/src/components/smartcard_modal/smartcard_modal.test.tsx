@@ -1,26 +1,26 @@
 import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
+import { err, throwIllegalValue, typedAs } from '@votingworks/basics';
 import {
-  ElectionManagerUser,
-  PollWorkerUser,
-  SystemAdministratorUser,
-  UserWithCard,
-} from '@votingworks/types';
-import {
-  electionSampleDefinition,
   electionSample2Definition,
+  electionSampleDefinition,
 } from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
   fakePollWorkerUser,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { err, throwIllegalValue, typedAs } from '@votingworks/basics';
-import { screen, waitFor, within } from '../../../test/react_testing_library';
+import {
+  ElectionManagerUser,
+  PollWorkerUser,
+  SystemAdministratorUser,
+  UserWithCard,
+} from '@votingworks/types';
 
 import { ApiMock, createApiMock } from '../../../test/helpers/api_mock';
-import { VxFiles } from '../../lib/converters';
 import { buildApp } from '../../../test/helpers/build_app';
+import { screen, waitFor, within } from '../../../test/react_testing_library';
+import { VxFiles } from '../../lib/converters';
 
 const electionDefinition = electionSampleDefinition;
 const { electionHash } = electionDefinition;
@@ -30,12 +30,12 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
-  // Set default auth status to logged out.
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'machine_locked',
   });
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetCastVoteRecords([]);
 
   fetchMock.reset();
   fetchMock.get(
@@ -50,8 +50,8 @@ afterEach(() => {
 
 test('Smartcard modal displays card details', async () => {
   const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetCastVoteRecords([]);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
@@ -161,8 +161,8 @@ test('Smartcard modal displays card details', async () => {
 
 test('Smartcard modal displays card details when no election definition on machine', async () => {
   const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata(null);
-  apiMock.expectGetCastVoteRecords([]);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
@@ -260,28 +260,38 @@ test('Smartcard modal displays card details when no election definition on machi
 
 test('Programming election manager and poll worker smartcards', async () => {
   const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetCastVoteRecords([]);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
   const testCases: Array<{
     role: ElectionManagerUser['role'] | PollWorkerUser['role'];
     programmedUser: ElectionManagerUser | PollWorkerUser;
+    newPin?: string;
     expectedHeadingAfterProgramming: string;
     expectedSuccessText: Array<string | RegExp>;
   }> = [
     {
       role: 'election_manager',
       programmedUser: fakeElectionManagerUser({ electionHash }),
+      newPin: '123456',
       expectedHeadingAfterProgramming: 'Election Manager Card',
       expectedSuccessText: [/New card PIN is /, '123-456'],
     },
     {
       role: 'poll_worker',
       programmedUser: fakePollWorkerUser({ electionHash }),
+      newPin: undefined, // Poll worker card PINs are not enabled
       expectedHeadingAfterProgramming: 'Poll Worker Card',
       expectedSuccessText: ['New card created.'],
+    },
+    {
+      role: 'poll_worker',
+      programmedUser: fakePollWorkerUser({ electionHash }),
+      newPin: '123456', // Poll worker card PINs are enabled
+      expectedHeadingAfterProgramming: 'Poll Worker Card',
+      expectedSuccessText: [/New card PIN is /, '123-456'],
     },
   ];
 
@@ -292,6 +302,7 @@ test('Programming election manager and poll worker smartcards', async () => {
     const {
       role,
       programmedUser,
+      newPin,
       expectedHeadingAfterProgramming,
       expectedSuccessText,
     } = testCase;
@@ -312,7 +323,7 @@ test('Programming election manager and poll worker smartcards', async () => {
       name: 'Poll Worker Card',
     });
     within(modal).getByText('Remove card to cancel.');
-    apiMock.expectProgramCard(role);
+    apiMock.expectProgramCard(role, newPin);
     switch (role) {
       case 'election_manager': {
         userEvent.click(electionManagerCardButton);
@@ -357,8 +368,8 @@ test('Programming election manager and poll worker smartcards', async () => {
 
 test('Programming system administrator smartcards', async () => {
   const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetCastVoteRecords([]);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
@@ -385,7 +396,7 @@ test('Programming system administrator smartcards', async () => {
     name: 'Create System Administrator Card',
   });
   within(modal).getByText('Remove card to cancel.');
-  apiMock.expectProgramCard('system_administrator');
+  apiMock.expectProgramCard('system_administrator', '123456');
   userEvent.click(systemAdministratorCardButton);
   await screen.findByText(/Programming card/);
   apiMock.setAuthStatus({
@@ -419,7 +430,6 @@ test('Programming system administrator smartcards', async () => {
 test('Programming smartcards when no election definition on machine', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata(null);
-  apiMock.expectGetCastVoteRecords([]);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
@@ -456,13 +466,16 @@ test('Programming smartcards when no election definition on machine', async () =
 
 test('Resetting smartcard PINs', async () => {
   const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetSystemSettings({ arePollWorkerCardPinsEnabled: true });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetCastVoteRecords([]);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
   const testCases: Array<{
-    programmedUser: SystemAdministratorUser | ElectionManagerUser;
+    programmedUser:
+      | SystemAdministratorUser
+      | ElectionManagerUser
+      | PollWorkerUser;
     expectedHeading: string;
   }> = [
     {
@@ -472,6 +485,10 @@ test('Resetting smartcard PINs', async () => {
     {
       programmedUser: fakeElectionManagerUser({ electionHash }),
       expectedHeading: 'Election Manager Card',
+    },
+    {
+      programmedUser: fakePollWorkerUser({ electionHash }),
+      expectedHeading: 'Poll Worker Card',
     },
   ];
 
@@ -489,7 +506,7 @@ test('Resetting smartcard PINs', async () => {
 
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByRole('heading', { name: expectedHeading });
-    apiMock.expectProgramCard(programmedUser.role);
+    apiMock.expectProgramCard(programmedUser.role, '123456');
     userEvent.click(
       within(modal).getByRole('button', { name: 'Reset Card PIN' })
     );
@@ -514,8 +531,8 @@ test('Resetting smartcard PINs', async () => {
 
 test('Resetting system administrator smartcard PINs when no election definition on machine', async () => {
   const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata(null);
-  apiMock.expectGetCastVoteRecords([]);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
@@ -532,7 +549,7 @@ test('Resetting system administrator smartcard PINs when no election definition 
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'System Administrator Card' });
-  apiMock.expectProgramCard('system_administrator');
+  apiMock.expectProgramCard('system_administrator', '123456');
   userEvent.click(
     within(modal).getByRole('button', { name: 'Reset Card PIN' })
   );
@@ -556,8 +573,8 @@ test('Resetting system administrator smartcard PINs when no election definition 
 
 test('Unprogramming smartcards', async () => {
   const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetCastVoteRecords([]);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
@@ -629,8 +646,8 @@ test('Unprogramming smartcards', async () => {
 
 test('Error handling', async () => {
   const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetCastVoteRecords([]);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
@@ -749,7 +766,6 @@ test('Error handling', async () => {
 test('Backwards card handling', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetCastVoteRecords([]);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 

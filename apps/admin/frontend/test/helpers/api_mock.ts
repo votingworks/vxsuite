@@ -15,6 +15,7 @@ import {
   CastVoteRecord,
   DippedSmartCardAuth,
   ElectionDefinition,
+  SystemSettings,
 } from '@votingworks/types';
 
 export type MockApiClient = MockClient<Api>;
@@ -83,11 +84,12 @@ export function createApiMock(
     },
 
     expectProgramCard(
-      userRole: 'system_administrator' | 'election_manager' | 'poll_worker'
+      userRole: 'system_administrator' | 'election_manager' | 'poll_worker',
+      newPin?: string
     ) {
       apiClient.programCard
         .expectCallWith({ userRole })
-        .resolves(ok({ pin: '123456' }));
+        .resolves(ok({ pin: newPin }));
     },
 
     expectUnprogramCard() {
@@ -143,10 +145,13 @@ export function createApiMock(
         .resolves(ok({}));
     },
 
-    expectGetSystemSettings() {
-      apiClient.getSystemSettings.expectCallWith().resolves({
+    expectGetSystemSettings(systemSettings?: SystemSettings) {
+      const defaultSystemSettings: SystemSettings = {
         arePollWorkerCardPinsEnabled: false,
-      });
+      };
+      apiClient.getSystemSettings
+        .expectCallWith()
+        .resolves(systemSettings ?? defaultSystemSettings);
     },
 
     expectGetCastVoteRecordFileMode(fileMode: Admin.CvrFileMode) {
