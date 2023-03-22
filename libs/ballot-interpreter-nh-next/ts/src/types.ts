@@ -1,6 +1,12 @@
 import { BallotPaperSize, GridPosition, Optional } from '@votingworks/types';
 import { Result } from '@votingworks/basics';
 
+/*
+ * Many of these types are from the Rust code.
+ *
+ * IF YOU CHANGE ANYTHING HERE, YOU MUST ALSO CHANGE IT THERE.
+ */
+
 /** Rust u8 mapped to TypeScript. */
 export type u8 = number;
 
@@ -60,12 +66,6 @@ export type SubPixelUnit = f32;
  * with the same underlying representation is not used.
  */
 export type Radians = f32;
-
-/*
- * These types are from the Rust code.
- *
- * IF YOU CHANGE ANYTHING HERE, YOU MUST ALSO CHANGE IT THERE.
- */
 
 /** An inset is a set of pixel offsets from the edges of an image. */
 export interface Inset {
