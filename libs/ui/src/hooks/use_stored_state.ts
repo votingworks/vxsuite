@@ -1,4 +1,4 @@
-import { Optional, unsafeParse } from '@votingworks/types';
+import { unsafeParse } from '@votingworks/types';
 import { Storage } from '@votingworks/utils';
 import {
   Dispatch,
@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import { z } from 'zod';
+import { Optional } from '@votingworks/basics';
 import { useCancelablePromise } from './use_cancelable_promise';
 
 /**

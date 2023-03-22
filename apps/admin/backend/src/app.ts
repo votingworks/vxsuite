@@ -10,7 +10,6 @@ import {
   getBallotStyle,
   getContests,
   InlineBallotImage,
-  Optional,
   Rect,
   safeParseElectionDefinition,
   safeParseJson,
@@ -18,7 +17,14 @@ import {
   SystemSettings,
   SystemSettingsSchema,
 } from '@votingworks/types';
-import { assert, assertDefined, err, ok, iter } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  ok,
+  iter,
+  Optional,
+} from '@votingworks/basics';
 import express, { Application } from 'express';
 import {
   DippedSmartCardAuthApi,

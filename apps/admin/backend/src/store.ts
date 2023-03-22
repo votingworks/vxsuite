@@ -5,6 +5,7 @@
 import { Admin } from '@votingworks/api';
 import {
   assert,
+  Optional,
   Result,
   err,
   ok,
@@ -20,7 +21,6 @@ import {
   ContestOptionId,
   Id,
   Iso8601Timestamp,
-  Optional,
   PrecinctId,
   safeParse,
   safeParseElectionDefinition,

@@ -5,6 +5,7 @@ import {
   err,
   extractErrorMessage,
   ok,
+  Optional,
   Result,
   throwIllegalValue,
   wrapException,
@@ -18,7 +19,6 @@ import {
   BallotStyleId,
   CardlessVoterUser,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
-  Optional,
   PrecinctId,
   safeParseJson,
 } from '@votingworks/types';

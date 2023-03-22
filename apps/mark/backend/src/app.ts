@@ -5,12 +5,11 @@ import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, Optional, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   BallotStyleId,
   ElectionDefinition,
-  Optional,
   PrecinctId,
   safeParseElectionDefinition,
 } from '@votingworks/types';

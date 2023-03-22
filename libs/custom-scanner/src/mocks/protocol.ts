@@ -1,6 +1,5 @@
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, Optional, Result } from '@votingworks/basics';
 import { Coder } from '@votingworks/message-coder';
-import { Optional } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import { inspect } from 'util';
 import { debug } from '../debug';

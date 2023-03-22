@@ -2,11 +2,10 @@ import { Buffer } from 'buffer';
 import { promises as fs } from 'fs';
 import { sha256 } from 'js-sha256';
 import { v4 as uuid } from 'uuid';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
 import {
   Byte,
   ElectionManagerUser,
-  Optional,
   PollWorkerUser,
   SystemAdministratorUser,
 } from '@votingworks/types';

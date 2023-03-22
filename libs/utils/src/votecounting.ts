@@ -8,7 +8,6 @@ import {
   getBallotStyle,
   getContests,
   Dictionary,
-  Optional,
   FullElectionTally,
   TallyCategory,
   BatchTally,
@@ -19,7 +18,13 @@ import {
   ContestId,
 } from '@votingworks/types';
 
-import { assert, throwIllegalValue, find, typedAs } from '@votingworks/basics';
+import {
+  assert,
+  Optional,
+  throwIllegalValue,
+  find,
+  typedAs,
+} from '@votingworks/basics';
 import {
   CastVoteRecordFilters,
   computeTallyWithPrecomputedCategories,

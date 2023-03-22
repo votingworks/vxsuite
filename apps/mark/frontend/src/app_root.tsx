@@ -6,7 +6,6 @@ import {
   VotesDict,
   getBallotStyle,
   getContests,
-  Optional,
   ContestId,
   PrecinctId,
   BallotStyleId,
@@ -40,7 +39,7 @@ import {
   UnlockMachineScreen,
 } from '@votingworks/ui';
 
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
 import {
   checkPin,
   endCardlessVoterSession,

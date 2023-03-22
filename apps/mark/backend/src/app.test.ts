@@ -1,11 +1,11 @@
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, Optional, Result } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
   fakePollWorkerUser,
   mockOf,
 } from '@votingworks/test-utils';
-import { ElectionDefinition, Optional } from '@votingworks/types';
+import { ElectionDefinition } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   ReportSourceMachineType,

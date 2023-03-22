@@ -22,11 +22,11 @@ import {
   err,
   isResult,
   ok,
+  Optional,
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { Buffer } from 'buffer';
-import { Optional } from '@votingworks/types';
 import { debug as baseDebug } from './debug';
 import {
   AckResponse,

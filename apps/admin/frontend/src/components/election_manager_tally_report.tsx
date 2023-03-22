@@ -20,7 +20,6 @@ import {
   Tally,
   unsafeParse,
   VotingMethod,
-  Optional,
   PartyId,
   getPartyIdsWithContests,
   getPartySpecificElectionTitle,
@@ -32,7 +31,7 @@ import {
 } from '@votingworks/utils';
 import React from 'react';
 
-import { find } from '@votingworks/basics';
+import { find, Optional } from '@votingworks/basics';
 import { filterExternalTalliesByParams } from '../utils/external_tallies';
 import { mergeWriteIns } from '../utils/write_ins';
 

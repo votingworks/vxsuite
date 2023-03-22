@@ -4,10 +4,9 @@ import {
   ElectionDefinition,
   MachineId,
   maybeParse,
-  Optional,
   safeParseNumber,
 } from '@votingworks/types';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
 import { basename } from 'path';
 
 const SECTION_SEPARATOR = '__';

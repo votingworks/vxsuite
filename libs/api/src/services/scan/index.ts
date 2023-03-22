@@ -1,4 +1,4 @@
-import { Result } from '@votingworks/basics';
+import { Optional, Result } from '@votingworks/basics';
 import {
   AdjudicationStatus,
   AdjudicationStatusSchema,
@@ -15,7 +15,6 @@ import {
   IdSchema,
   MarkThresholds,
   MarkThresholdsSchema,
-  Optional,
   PollsState,
   PollsStateSchema,
   PrecinctSelection,

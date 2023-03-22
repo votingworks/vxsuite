@@ -24,7 +24,6 @@ import {
   Iso8601Timestamp,
   mapSheet,
   MarkThresholds,
-  Optional,
   PageInterpretationSchema,
   PageInterpretationWithFiles,
   PollsState as PollsStateType,
@@ -37,7 +36,7 @@ import {
   SheetOf,
   Side,
 } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { assert, Optional } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fs from 'fs-extra';

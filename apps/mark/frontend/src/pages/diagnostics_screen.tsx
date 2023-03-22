@@ -10,12 +10,11 @@ import {
   Text,
   useCancelablePromise,
 } from '@votingworks/ui';
-import { Optional } from '@votingworks/types';
 import { formatTime, Hardware } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import { useHistory, Switch, Route } from 'react-router-dom';
 import styled from 'styled-components';
-import { assert } from '@votingworks/basics';
+import { assert, Optional } from '@votingworks/basics';
 import {
   AccessibleControllerDiagnosticScreen,
   AccessibleControllerDiagnosticResults,

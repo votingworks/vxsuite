@@ -1,8 +1,8 @@
 import { fromByteArray, toByteArray } from 'base64-js';
 import fetch from 'node-fetch';
 import { z } from 'zod';
-import { ok, Result } from '@votingworks/basics';
-import { Optional, safeParseJson, unsafeParse } from '@votingworks/types';
+import { ok, Optional, Result } from '@votingworks/basics';
+import { safeParseJson, unsafeParse } from '@votingworks/types';
 import { fetchJson } from '@votingworks/utils';
 
 import {

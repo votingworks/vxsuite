@@ -6,7 +6,6 @@ import {
   ElectionDefinition,
   Id,
   MarkThresholds,
-  Optional,
   PageInterpretationWithFiles,
   PrecinctSelection,
   mapSheet,
@@ -17,7 +16,7 @@ import {
   normalizeSheetOutput,
 } from '@votingworks/ballot-interpreter-vx';
 import { time } from '@votingworks/utils';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, Optional, Result } from '@votingworks/basics';
 import { interpret as interpretNhNext } from './interpret_nh_next_adapter';
 import { Interpreter as VxInterpreter } from './vx_interpreter';
 import { saveSheetImages } from './util/save_images';

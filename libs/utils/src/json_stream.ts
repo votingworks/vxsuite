@@ -1,4 +1,4 @@
-import { Optional } from '@votingworks/types';
+import { Optional } from '@votingworks/basics';
 
 function isIterable(
   value: unknown

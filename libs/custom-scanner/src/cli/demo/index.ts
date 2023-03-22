@@ -1,6 +1,5 @@
 import chalk from 'chalk';
-import { sleep } from '@votingworks/basics';
-import { Optional } from '@votingworks/types';
+import { Optional, sleep } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { writeFile } from 'fs/promises';
 import * as readline from 'readline';

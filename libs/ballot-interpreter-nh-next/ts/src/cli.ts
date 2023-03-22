@@ -1,8 +1,15 @@
-import { assert, err, find, iter, ok, Result } from '@votingworks/basics';
+import {
+  assert,
+  err,
+  find,
+  iter,
+  ok,
+  Optional,
+  Result,
+} from '@votingworks/basics';
 import {
   ElectionDefinition,
   mapSheet,
-  Optional,
   safeParseElectionDefinition,
   safeParseJson,
   SheetOf,

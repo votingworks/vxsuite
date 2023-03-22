@@ -8,7 +8,6 @@ import {
   BallotStyleId,
   ElectionDefinition,
   InsertedSmartCardAuth,
-  Optional,
   PrecinctId,
 } from '@votingworks/types';
 import {
@@ -17,7 +16,7 @@ import {
   fakePollWorkerUser,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { ok, Result } from '@votingworks/basics';
+import { ok, Optional, Result } from '@votingworks/basics';
 import { ScannerReportData } from '@votingworks/utils';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';

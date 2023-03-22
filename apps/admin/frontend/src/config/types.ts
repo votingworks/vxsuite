@@ -4,13 +4,12 @@ import {
   CastVoteRecord,
   ContestTallyMeta,
   Dictionary,
-  Optional,
   PartyId,
   PrecinctId,
   PromiseOr,
   VotingMethod,
 } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/basics';
+import { Optional, throwIllegalValue } from '@votingworks/basics';
 import { z } from 'zod';
 
 // Events
