@@ -395,6 +395,26 @@ test.each<{
     expectedCardDetails: {
       jurisdiction: DEV_JURISDICTION,
       user: pollWorkerUser,
+      hasPin: false,
+    },
+  },
+  {
+    description: 'poll worker card with PIN happy path',
+    cardType: 'poll-worker-with-pin',
+    vxCertAuthorityCert: '1',
+    cardVxCert: '1',
+    cardVxAdminCert: '1',
+    vxAdminCertAuthorityCert: '1',
+    cardVxPrivateKey: '1',
+    cardVxAdminPrivateKey: '1',
+    isCardVxAdminCertRetrievalRequestExpected: true,
+    isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
+    isCardVxPrivateKeySignatureRequestExpected: true,
+    isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    expectedCardDetails: {
+      jurisdiction: DEV_JURISDICTION,
+      user: pollWorkerUser,
+      hasPin: true,
     },
   },
   {
@@ -671,6 +691,20 @@ test.each<{
       '/1.3.6.1.4.1.59817.3=poll-worker' +
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
   },
+  {
+    description: 'poll worker card with PIN',
+    programInput: {
+      user: pollWorkerUser,
+      pin: '123456',
+    },
+    expectedCardType: 'poll-worker-with-pin',
+    expectedCertSubject:
+      '/C=US/ST=CA/O=VotingWorks' +
+      '/1.3.6.1.4.1.59817.1=card' +
+      `/1.3.6.1.4.1.59817.2=${DEV_JURISDICTION}` +
+      '/1.3.6.1.4.1.59817.3=poll-worker-with-pin' +
+      `/1.3.6.1.4.1.59817.4=${electionHash}/`,
+  },
 ])(
   'Programming - $description',
   async ({
@@ -681,7 +715,7 @@ test.each<{
   }) => {
     const javaCard = new JavaCard(configWithCardProgrammingConfig);
 
-    const pin = 'pin' in programInput ? programInput.pin : DEFAULT_PIN;
+    const pin = ('pin' in programInput && programInput.pin) || DEFAULT_PIN;
     mockCardAppletSelectionRequest();
     mockCardPinResetRequest(pin);
     mockCardPinVerificationRequest(pin);
