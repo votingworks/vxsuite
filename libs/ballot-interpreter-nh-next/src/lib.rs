@@ -65,8 +65,7 @@ impl InterpretError {
 ///
 /// The return value is an object with the following properties:
 /// 1. `success`: a boolean indicating whether the interpretation succeeded.
-/// 2. `json`: a boolean indicating whether the `value` property is a JSON string.
-/// 3. `value`: the result of the interpretation, or an error message.
+/// 3. `value`: the JSON-encoded result of the interpretation.
 fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     let election_json = cx.argument::<JsString>(0)?.value(&mut cx);
     let side_a_path = cx.argument::<JsString>(1)?.value(&mut cx);
