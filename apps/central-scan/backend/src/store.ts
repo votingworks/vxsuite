@@ -1103,6 +1103,7 @@ export class Store {
     const loadedLayouts: BallotPageLayoutWithImage[] = [];
 
     for (const [pdf, layouts] of templates) {
+      let contestOffset = 0;
       for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
         const ballotPageLayout = layouts[pageNumber - 1];
         loadedLayouts.push(
@@ -1110,8 +1111,10 @@ export class Store {
             electionDefinition,
             imageData: page,
             metadata: ballotPageLayout.metadata,
+            contestOffset,
           })
         );
+        contestOffset += ballotPageLayout.contests.length;
       }
     }
 
