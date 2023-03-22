@@ -512,132 +512,128 @@ export async function addCastVoteRecordReport({
     });
   }
 
-  return await store.withTransaction(
-    async () => {
-      const existingFileId = store.getCastVoteRecordFileByHash(
-        electionId,
-        sha256Hash
-      );
+  return await store.withTransaction(async () => {
+    const existingFileId = store.getCastVoteRecordFileByHash(
+      electionId,
+      sha256Hash
+    );
 
-      if (existingFileId) {
-        return ok({
-          id: existingFileId,
-          alreadyPresent: store.getCastVoteRecordCountByFileId(existingFileId),
-          exportedTimestamp,
-          fileMode: currentFileMode,
-          fileName: filename,
-          newlyAdded: 0,
-          // TODO: Get scannerIds from the existing file OR remove it entirely
-          // because it is not being used in the frontend.
-          scannerIds: [],
-          wasExistingFile: true,
-        });
-      }
-
-      // Add a file record which the cast vote records will link to
-      const fileId = uuid();
-      store.addInitialCastVoteRecordFileRecord({
-        id: fileId,
-        electionId,
-        filename,
-        exportedTimestamp,
-        sha256Hash,
-      });
-
-      // Iterate through all the cast vote records
-      let castVoteRecordIndex = 0;
-      const precinctIds = new Set<string>();
-      const scannerIds = new Set<string>();
-      let newlyAdded = 0;
-      let alreadyPresent = 0;
-      for await (const unparsedCastVoteRecord of unparsedCastVoteRecords) {
-        // Parse the text data
-        const parseResult = safeParse(CVR.CVRSchema, unparsedCastVoteRecord);
-        if (parseResult.isErr()) {
-          return err({
-            type: 'malformed-cast-vote-record',
-            index: castVoteRecordIndex,
-            error: parseResult.err(),
-          });
-        }
-        const cvr = parseResult.ok();
-
-        // Validate the resulting cast vote record
-        const validationResult = validateCastVoteRecord({
-          cvr,
-          electionDefinition,
-          reportBatchIds: reportMetadata.vxBatch.map((batch) => batch['@id']),
-          reportBallotImageLocations: relativeBallotImagePaths.map(
-            (relativePath) =>
-              `file:./${join(CVR_BALLOT_IMAGES_SUBDIRECTORY, relativePath)}`
-          ),
-        });
-        if (validationResult.isErr()) {
-          return err({
-            type: 'invalid-cast-vote-record',
-            index: castVoteRecordIndex,
-            error: validationResult.err(),
-          });
-        }
-
-        // Convert the cast vote record to the format our store and tally logic use
-        const legacyCastVoteRecord = convertCastVoteRecordToLegacyFormat({
-          cvr,
-          isTestReport: reportFileMode === Admin.CvrFileMode.Test,
-          batchLabel: find(
-            reportMetadata.vxBatch,
-            (batch) => batch['@id'] === cvr.BatchId
-          ).BatchLabel,
-        });
-
-        // Add the cast vote record to the store
-        const cvrData = JSON.stringify(legacyCastVoteRecord);
-        const addCastVoteRecordResult = store.addCastVoteRecordFileEntry(
-          electionId,
-          fileId,
-          cvr.UniqueId as BallotId,
-          cvrData
-        );
-        if (addCastVoteRecordResult.isErr()) {
-          return err({ type: 'ballot-id-already-exists-with-different-data' });
-        }
-        const { isNew: cvrIsNew } = addCastVoteRecordResult.ok();
-
-        // Update our ongoing data about the file relevant to the result
-        if (cvrIsNew) {
-          newlyAdded += 1;
-        } else {
-          alreadyPresent += 1;
-        }
-        precinctIds.add(cvr.BallotStyleUnitId);
-        scannerIds.add(cvr.CreatingDeviceId);
-
-        castVoteRecordIndex += 1;
-      }
-
-      // Update the cast vote file record with information we learned by
-      // iterating through the records.
-      //
-      // TODO: we should have the precinct and scanner list at the top-level of
-      // the report, which would allow this data to be stored up front
-      store.updateCastVoteRecordFileRecord({
-        id: fileId,
-        precinctIds,
-        scannerIds,
-      });
-
+    if (existingFileId) {
       return ok({
-        id: fileId,
-        alreadyPresent,
+        id: existingFileId,
+        alreadyPresent: store.getCastVoteRecordCountByFileId(existingFileId),
         exportedTimestamp,
-        fileMode: reportFileMode,
+        fileMode: currentFileMode,
         fileName: filename,
-        newlyAdded,
-        scannerIds: [...scannerIds],
-        wasExistingFile: false,
+        newlyAdded: 0,
+        // TODO: Get scannerIds from the existing file OR remove it entirely
+        // because it is not being used in the frontend.
+        scannerIds: [],
+        wasExistingFile: true,
       });
-    },
-    // Only commit the transaction if there were no errors
-    (result) => result.isOk()
-  );
+    }
+
+    // Add a file record which the cast vote records will link to
+    const fileId = uuid();
+    store.addInitialCastVoteRecordFileRecord({
+      id: fileId,
+      electionId,
+      filename,
+      exportedTimestamp,
+      sha256Hash,
+    });
+
+    // Iterate through all the cast vote records
+    let castVoteRecordIndex = 0;
+    const precinctIds = new Set<string>();
+    const scannerIds = new Set<string>();
+    let newlyAdded = 0;
+    let alreadyPresent = 0;
+    for await (const unparsedCastVoteRecord of unparsedCastVoteRecords) {
+      // Parse the text data
+      const parseResult = safeParse(CVR.CVRSchema, unparsedCastVoteRecord);
+      if (parseResult.isErr()) {
+        return err({
+          type: 'malformed-cast-vote-record',
+          index: castVoteRecordIndex,
+          error: parseResult.err(),
+        });
+      }
+      const cvr = parseResult.ok();
+
+      // Validate the resulting cast vote record
+      const validationResult = validateCastVoteRecord({
+        cvr,
+        electionDefinition,
+        reportBatchIds: reportMetadata.vxBatch.map((batch) => batch['@id']),
+        reportBallotImageLocations: relativeBallotImagePaths.map(
+          (relativePath) =>
+            `file:./${join(CVR_BALLOT_IMAGES_SUBDIRECTORY, relativePath)}`
+        ),
+      });
+      if (validationResult.isErr()) {
+        return err({
+          type: 'invalid-cast-vote-record',
+          index: castVoteRecordIndex,
+          error: validationResult.err(),
+        });
+      }
+
+      // Convert the cast vote record to the format our store and tally logic use
+      const legacyCastVoteRecord = convertCastVoteRecordToLegacyFormat({
+        cvr,
+        isTestReport: reportFileMode === Admin.CvrFileMode.Test,
+        batchLabel: find(
+          reportMetadata.vxBatch,
+          (batch) => batch['@id'] === cvr.BatchId
+        ).BatchLabel,
+      });
+
+      // Add the cast vote record to the store
+      const cvrData = JSON.stringify(legacyCastVoteRecord);
+      const addCastVoteRecordResult = store.addCastVoteRecordFileEntry(
+        electionId,
+        fileId,
+        cvr.UniqueId as BallotId,
+        cvrData
+      );
+      if (addCastVoteRecordResult.isErr()) {
+        return err({ type: 'ballot-id-already-exists-with-different-data' });
+      }
+      const { isNew: cvrIsNew } = addCastVoteRecordResult.ok();
+
+      // Update our ongoing data about the file relevant to the result
+      if (cvrIsNew) {
+        newlyAdded += 1;
+      } else {
+        alreadyPresent += 1;
+      }
+      precinctIds.add(cvr.BallotStyleUnitId);
+      scannerIds.add(cvr.CreatingDeviceId);
+
+      castVoteRecordIndex += 1;
+    }
+
+    // Update the cast vote file record with information we learned by
+    // iterating through the records.
+    //
+    // TODO: we should have the precinct and scanner list at the top-level of
+    // the report, which would allow this data to be stored up front
+    store.updateCastVoteRecordFileRecord({
+      id: fileId,
+      precinctIds,
+      scannerIds,
+    });
+
+    return ok({
+      id: fileId,
+      alreadyPresent,
+      exportedTimestamp,
+      fileMode: reportFileMode,
+      fileName: filename,
+      newlyAdded,
+      scannerIds: [...scannerIds],
+      wasExistingFile: false,
+    });
+  });
 }

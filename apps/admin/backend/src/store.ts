@@ -3,7 +3,14 @@
 //
 
 import { Admin } from '@votingworks/api';
-import { assert, Result, err, ok, typedAs } from '@votingworks/basics';
+import {
+  assert,
+  Result,
+  err,
+  ok,
+  typedAs,
+  isResult,
+} from '@votingworks/basics';
 import { Bindable, Client as DbClient } from '@votingworks/db';
 import {
   BallotId,
@@ -109,16 +116,20 @@ export class Store {
    * Runs the given function in a transaction. If the function throws an error,
    * the transaction is rolled back. Otherwise, the transaction is committed.
    *
-   * You can also control rollback by including a `shouldCommit` callback.
+   * If the function returns a `Result` type, the transaction will only be be
+   * rolled back if the returned `Result` is an error.
    *
    * Returns the result of the function.
    */
-  withTransaction<T>(
-    fn: () => Promise<T>,
-    shouldCommit?: (result: T) => boolean
-  ): Promise<T>;
-  withTransaction<T>(fn: () => T, shouldCommit?: (result: T) => boolean): T {
-    return this.client.transaction(() => fn(), shouldCommit);
+  withTransaction<T>(fn: () => Promise<T>): Promise<T>;
+  withTransaction<T>(fn: () => T): T {
+    return this.client.transaction(fn, (result: T) => {
+      if (isResult(result)) {
+        return result.isOk();
+      }
+
+      return true;
+    });
   }
 
   /**
