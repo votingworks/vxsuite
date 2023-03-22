@@ -12,10 +12,11 @@ use crate::ballot_card::Geometry;
 use crate::debug::ImageDebugWriter;
 use crate::election::BallotStyleId;
 use crate::election::Election;
+use crate::geometry::PixelUnit;
 use crate::geometry::Rect;
 use crate::geometry::Size;
 use crate::image_utils::find_scanned_document_inset;
-use crate::image_utils::size_image_to_fit;
+use crate::image_utils::maybe_resize_image_to_fit;
 use crate::image_utils::Inset;
 use crate::metadata::BallotPageMetadata;
 use crate::metadata::BallotPageMetadataError;
@@ -31,6 +32,7 @@ pub struct Options {
 
 pub struct LoadedBallotImage {
     image: GrayImage,
+    threshold: u8,
     border_inset: Inset,
 }
 pub struct LoadedBallotPage {
@@ -95,7 +97,7 @@ pub enum Error {
     },
     UnexpectedDimensions {
         path: String,
-        dimensions: Size<u32>,
+        dimensions: Size<PixelUnit>,
     },
 }
 
@@ -106,8 +108,8 @@ fn load_ballot_card_images(
     side_b_path: &Path,
 ) -> core::result::Result<LoadedBallotCard, Error> {
     let (side_a_result, side_b_result) = rayon::join(
-        || load_ballot_page_image(side_a_path),
-        || load_ballot_page_image(side_b_path),
+        || load_and_prepare_ballot_page_image(side_a_path),
+        || load_and_prepare_ballot_page_image(side_b_path),
     );
 
     let LoadedBallotPage {
@@ -141,24 +143,24 @@ fn load_ballot_card_images(
     })
 }
 
+/// Loads a ballot page image from disk as grayscale.
 #[time]
-pub fn load_ballot_page_image(image_path: &Path) -> core::result::Result<LoadedBallotPage, Error> {
-    let mut image = match image::open(image_path) {
-        Ok(image) => image.into_luma8(),
+pub fn load_ballot_page_image(image_path: &Path) -> core::result::Result<GrayImage, Error> {
+    match image::open(image_path) {
+        Ok(image) => Ok(image.into_luma8()),
         Err(_) => {
             return Err(Error::ImageOpenFailure {
                 path: image_path.to_str().unwrap_or_default().to_string(),
             })
         }
-    };
+    }
+}
 
+/// Return the image with the black border cropped off.
+#[time]
+pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<LoadedBallotImage> {
     let threshold = otsu_level(&image);
-    let Some(border_inset) = find_scanned_document_inset(&image, threshold) else {
-        return Err(Error::BorderInsetNotFound {
-            path: image_path.to_str().unwrap_or_default().to_string(),
-        });
-    };
-
+    let border_inset = find_scanned_document_inset(&image, threshold)?;
     let image = image
         .sub_image(
             border_inset.left,
@@ -168,6 +170,31 @@ pub fn load_ballot_page_image(image_path: &Path) -> core::result::Result<LoadedB
         )
         .to_image();
 
+    Some(LoadedBallotImage {
+        image,
+        threshold,
+        border_inset,
+    })
+}
+
+/// Load a ballot page image from disk, crop the black border, and maybe resize
+/// it to the expected dimensions.
+#[time]
+pub fn load_and_prepare_ballot_page_image(
+    image_path: &Path,
+) -> core::result::Result<LoadedBallotPage, Error> {
+    let image = load_ballot_page_image(image_path)?;
+
+    let Some(LoadedBallotImage {
+        image,
+        threshold,
+        border_inset,
+    }) = crop_ballot_page_image_borders(image) else {
+        return Err(Error::BorderInsetNotFound {
+            path: image_path.to_str().unwrap_or_default().to_string(),
+        });
+    };
+
     let Some(geometry) = get_scanned_ballot_card_geometry(image.dimensions()) else {
         let (width, height) = image.dimensions();
         return Err(Error::UnexpectedDimensions {
@@ -176,37 +203,12 @@ pub fn load_ballot_page_image(image_path: &Path) -> core::result::Result<LoadedB
         });
     };
 
-    let (width, height) = image.dimensions();
-    let x_scale = geometry.canvas_size.width as f32 / width as f32;
-    let y_scale = geometry.canvas_size.height as f32 / height as f32;
-    let allowed_error = 0.05;
-    let x_error = (1.0 - x_scale).abs();
-    let y_error = (1.0 - y_scale).abs();
-
-    if x_error > allowed_error || y_error > allowed_error {
-        eprintln!(
-            "WARNING: image dimensions do not match expected dimensions: {}x{} vs {}x{}, resizing",
-            width, height, geometry.canvas_size.width, geometry.canvas_size.height
-        );
-
-        let image = size_image_to_fit(
-            &image,
-            geometry.canvas_size.width,
-            geometry.canvas_size.height,
-        );
-
-        return Ok(LoadedBallotPage {
-            ballot_image: LoadedBallotImage {
-                image,
-                border_inset,
-            },
-            geometry,
-        });
-    }
+    let image = maybe_resize_image_to_fit(image, geometry.canvas_size);
 
     Ok(LoadedBallotPage {
         ballot_image: LoadedBallotImage {
             image,
+            threshold,
             border_inset,
         },
         geometry,

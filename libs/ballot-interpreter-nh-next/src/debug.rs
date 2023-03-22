@@ -11,7 +11,7 @@ use rusttype::{Font, Scale};
 use crate::{
     ballot_card::Geometry,
     election::GridPosition,
-    geometry::{segment_with_length, Rect, Segment},
+    geometry::{PixelPosition, PixelUnit, Rect, Segment, SubPixelUnit},
     image_utils::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RAINBOW, RED,
         WHITE_RGB,
@@ -133,8 +133,8 @@ pub fn draw_timing_mark_debug_image_mut(
         draw_text_mut(
             canvas,
             DARK_GREEN,
-            (center.x - text_width as f32 / 2.0) as i32,
-            (rect.bottom() as f32 + text_height as f32 / 4.0) as i32,
+            (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
+            (rect.bottom() as SubPixelUnit + text_height as SubPixelUnit / 4.0) as PixelPosition,
             scale,
             font,
             text.as_str(),
@@ -149,8 +149,8 @@ pub fn draw_timing_mark_debug_image_mut(
         draw_text_mut(
             canvas,
             DARK_BLUE,
-            (center.x - text_width as f32 / 2.0) as i32,
-            (rect.top() as f32 - text_height as f32 * 5.0 / 4.0) as i32,
+            (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
+            (rect.top() as SubPixelUnit - text_height as SubPixelUnit * 5.0 / 4.0) as PixelPosition,
             scale,
             font,
             text.as_str(),
@@ -165,8 +165,8 @@ pub fn draw_timing_mark_debug_image_mut(
         draw_text_mut(
             canvas,
             DARK_RED,
-            (rect.right() as f32 + text_height as f32 / 4.0) as i32,
-            (center.y - text_height as f32 / 2.0) as i32,
+            (rect.right() as SubPixelUnit + text_height as SubPixelUnit / 4.0) as PixelPosition,
+            (center.y - text_height as SubPixelUnit / 2.0) as PixelPosition,
             scale,
             font,
             text.as_str(),
@@ -181,8 +181,10 @@ pub fn draw_timing_mark_debug_image_mut(
         draw_text_mut(
             canvas,
             DARK_CYAN,
-            (rect.left() as f32 - text_width as f32 - text_height as f32 / 4.0) as i32,
-            (center.y - text_height as f32 / 2.0) as i32,
+            (rect.left() as SubPixelUnit
+                - text_width as SubPixelUnit
+                - text_height as SubPixelUnit / 4.0) as PixelPosition,
+            (center.y - text_height as SubPixelUnit / 2.0) as PixelPosition,
             scale,
             font,
             text.as_str(),
@@ -208,29 +210,29 @@ pub fn draw_timing_mark_debug_image_mut(
     draw_cross_mut(
         canvas,
         WHITE_RGB,
-        partial_timing_marks.top_left_corner.x.round() as i32,
-        partial_timing_marks.top_left_corner.y.round() as i32,
+        partial_timing_marks.top_left_corner.x.round() as PixelPosition,
+        partial_timing_marks.top_left_corner.y.round() as PixelPosition,
     );
 
     draw_cross_mut(
         canvas,
         WHITE_RGB,
-        partial_timing_marks.top_right_corner.x.round() as i32,
-        partial_timing_marks.top_right_corner.y.round() as i32,
+        partial_timing_marks.top_right_corner.x.round() as PixelPosition,
+        partial_timing_marks.top_right_corner.y.round() as PixelPosition,
     );
 
     draw_cross_mut(
         canvas,
         WHITE_RGB,
-        partial_timing_marks.bottom_left_corner.x.round() as i32,
-        partial_timing_marks.bottom_left_corner.y.round() as i32,
+        partial_timing_marks.bottom_left_corner.x.round() as PixelPosition,
+        partial_timing_marks.bottom_left_corner.y.round() as PixelPosition,
     );
 
     draw_cross_mut(
         canvas,
         WHITE_RGB,
-        partial_timing_marks.bottom_right_corner.x.round() as i32,
-        partial_timing_marks.bottom_right_corner.y.round() as i32,
+        partial_timing_marks.bottom_right_corner.x.round() as PixelPosition,
+        partial_timing_marks.bottom_right_corner.y.round() as PixelPosition,
     );
 
     let top_line_distance = Segment::new(
@@ -244,36 +246,32 @@ pub fn draw_timing_mark_debug_image_mut(
     )
     .length();
     for i in 0..geometry.grid_size.width {
-        let expected_top_timing_mark_center = segment_with_length(
-            &Segment::new(
-                partial_timing_marks.top_left_corner,
-                partial_timing_marks.top_right_corner,
-            ),
-            top_line_distance * (i as f32),
+        let expected_top_timing_mark_center = Segment::new(
+            partial_timing_marks.top_left_corner,
+            partial_timing_marks.top_right_corner,
         )
+        .with_length(top_line_distance * (i as SubPixelUnit))
         .end;
 
         draw_cross_mut(
             canvas,
             DARK_GREEN,
-            expected_top_timing_mark_center.x.round() as i32,
-            expected_top_timing_mark_center.y.round() as i32,
+            expected_top_timing_mark_center.x.round() as PixelPosition,
+            expected_top_timing_mark_center.y.round() as PixelPosition,
         );
 
-        let expected_bottom_timing_mark_center = segment_with_length(
-            &Segment::new(
-                partial_timing_marks.bottom_left_corner,
-                partial_timing_marks.bottom_right_corner,
-            ),
-            bottom_line_distance * (i as f32),
+        let expected_bottom_timing_mark_center = Segment::new(
+            partial_timing_marks.bottom_left_corner,
+            partial_timing_marks.bottom_right_corner,
         )
+        .with_length(bottom_line_distance * (i as SubPixelUnit))
         .end;
 
         draw_cross_mut(
             canvas,
             DARK_BLUE,
-            expected_bottom_timing_mark_center.x.round() as i32,
-            expected_bottom_timing_mark_center.y.round() as i32,
+            expected_bottom_timing_mark_center.x.round() as PixelPosition,
+            expected_bottom_timing_mark_center.y.round() as PixelPosition,
         );
     }
 
@@ -283,45 +281,41 @@ pub fn draw_timing_mark_debug_image_mut(
     )
     .length();
     let left_line_distance_per_segment =
-        left_line_distance / ((geometry.grid_size.height - 1) as f32);
+        left_line_distance / ((geometry.grid_size.height - 1) as SubPixelUnit);
     let right_line_distance = Segment::new(
         partial_timing_marks.top_right_corner,
         partial_timing_marks.bottom_right_corner,
     )
     .length();
     let right_line_distance_per_segment =
-        right_line_distance / ((geometry.grid_size.height - 1) as f32);
+        right_line_distance / ((geometry.grid_size.height - 1) as SubPixelUnit);
     for i in 0..geometry.grid_size.height {
-        let expected_left_timing_mark_center = segment_with_length(
-            &Segment::new(
-                partial_timing_marks.top_left_corner,
-                partial_timing_marks.bottom_left_corner,
-            ),
-            left_line_distance_per_segment * (i as f32),
+        let expected_left_timing_mark_center = Segment::new(
+            partial_timing_marks.top_left_corner,
+            partial_timing_marks.bottom_left_corner,
         )
+        .with_length(left_line_distance_per_segment * (i as SubPixelUnit))
         .end;
 
         draw_cross_mut(
             canvas,
             DARK_RED,
-            expected_left_timing_mark_center.x.round() as i32,
-            expected_left_timing_mark_center.y.round() as i32,
+            expected_left_timing_mark_center.x.round() as PixelPosition,
+            expected_left_timing_mark_center.y.round() as PixelPosition,
         );
 
-        let expected_right_timing_mark_center = segment_with_length(
-            &Segment::new(
-                partial_timing_marks.top_right_corner,
-                partial_timing_marks.bottom_right_corner,
-            ),
-            right_line_distance_per_segment * (i as f32),
+        let expected_right_timing_mark_center = Segment::new(
+            partial_timing_marks.top_right_corner,
+            partial_timing_marks.bottom_right_corner,
         )
+        .with_length(right_line_distance_per_segment * (i as SubPixelUnit))
         .end;
 
         draw_cross_mut(
             canvas,
             DARK_CYAN,
-            expected_right_timing_mark_center.x.round() as i32,
-            expected_right_timing_mark_center.y.round() as i32,
+            expected_right_timing_mark_center.x.round() as PixelPosition,
+            expected_right_timing_mark_center.y.round() as PixelPosition,
         );
     }
 }
@@ -337,7 +331,12 @@ pub fn draw_timing_mark_grid_debug_image_mut(
             let point = timing_mark_grid
                 .point_for_location(column, row)
                 .expect("grid point is defined");
-            draw_cross_mut(canvas, PINK, point.x.round() as i32, point.y.round() as i32);
+            draw_cross_mut(
+                canvas,
+                PINK,
+                point.x.round() as PixelPosition,
+                point.y.round() as PixelPosition,
+            );
         }
     }
 }
@@ -483,8 +482,8 @@ pub fn draw_scored_oval_marks_debug_image_mut(
 fn draw_text_with_background_mut(
     canvas: &mut RgbImage,
     text: &str,
-    x: i32,
-    y: i32,
+    x: PixelPosition,
+    y: PixelPosition,
     scale: Scale,
     font: &Font,
     text_color: Rgb<u8>,
@@ -494,7 +493,7 @@ fn draw_text_with_background_mut(
 
     draw_filled_rect_mut(
         canvas,
-        imageproc::rect::Rect::at(x, y).of_size(text_width as u32, text_height as u32),
+        imageproc::rect::Rect::at(x, y).of_size(text_width as PixelUnit, text_height as PixelUnit),
         background_color,
     );
     draw_text_mut(canvas, text_color, x, y, scale, font, text);

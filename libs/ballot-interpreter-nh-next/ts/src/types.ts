@@ -1,10 +1,6 @@
 import { BallotPaperSize, GridPosition, Optional } from '@votingworks/types';
 import { Result } from '@votingworks/basics';
 
-/// ////////////////////////////////////////
-/// These types are from the Rust code. ///
-/// ////////////////////////////////////////
-
 /** Rust u8 mapped to TypeScript. */
 export type u8 = number;
 
@@ -23,19 +19,67 @@ export type i32 = number;
 /** Rust f32 mapped to TypeScript. */
 export type f32 = number;
 
+/**
+ * A unit of length in timing mark grid, i.e. 1 `GridUnit` is the logical
+ * distance from one timing mark to the next. This does not map directly to
+ * pixels.
+ *
+ * Because this is just a type alias it does not enforce that another type
+ * with the same underlying representation is not used.
+ */
+export type GridUnit = u32;
+
+/**
+ * An x or y coordinate in pixels.
+ *
+ * Because this is just a type alias it does not enforce that another type
+ * with the same underlying representation is not used.
+ */
+export type PixelPosition = i32;
+
+/**
+ * A width or height in pixels.
+ *
+ * Because this is just a type alias it does not enforce that another type
+ * with the same underlying representation is not used.
+ */
+export type PixelUnit = u32;
+
+/**
+ * A sub-pixel coordinate or distance of pixels.
+ *
+ * Because this is just a type alias it does not enforce that another type
+ * with the same underlying representation is not used.
+ */
+export type SubPixelUnit = f32;
+
+/**
+ * Angle in radians.
+ *
+ * Because this is just a type alias it does not enforce that another type
+ * with the same underlying representation is not used.
+ */
+export type Radians = f32;
+
+/*
+ * These types are from the Rust code.
+ *
+ * IF YOU CHANGE ANYTHING HERE, YOU MUST ALSO CHANGE IT THERE.
+ */
+
 /** An inset is a set of pixel offsets from the edges of an image. */
 export interface Inset {
   /** The number of pixels to remove from the top of the image. */
-  top: u32;
+  top: PixelUnit;
 
   /** The number of pixels to remove from the bottom of the image. */
-  bottom: u32;
+  bottom: PixelUnit;
 
   /** The number of pixels to remove from the left of the image. */
-  left: u32;
+  left: PixelUnit;
 
   /** The number of pixels to remove from the right of the image. */
-  right: u32;
+  right: PixelUnit;
 }
 
 /** Top-level result of interpretation. */
@@ -79,7 +123,7 @@ export interface TimingMarkGrid {
   borderInset: Inset;
 
   /** The size of the image after scaling. */
-  scaledSize: Size<u32>;
+  scaledSize: Size<PixelUnit>;
 
   /** Timing marks found by examining the image. */
   partialTimingMarks: PartialTimingMarks;
@@ -164,10 +208,10 @@ export type IndexedCapitalLetter = u8;
 /** Represents partial timing marks found in a ballot card. */
 export interface PartialTimingMarks {
   geometry: Geometry;
-  topLeftCorner: Point<f32>;
-  topRightCorner: Point<f32>;
-  bottomLeftCorner: Point<f32>;
-  bottomRightCorner: Point<f32>;
+  topLeftCorner: Point<SubPixelUnit>;
+  topRightCorner: Point<SubPixelUnit>;
+  bottomLeftCorner: Point<SubPixelUnit>;
+  bottomRightCorner: Point<SubPixelUnit>;
   topRects: Rect[];
   bottomRects: Rect[];
   leftRects: Rect[];
@@ -181,10 +225,10 @@ export interface PartialTimingMarks {
 /** Represents complete, possibly inferred timing marks found in a ballot card. */
 export interface CompleteTimingMarks {
   geometry: Geometry;
-  topLeftCorner: Point<f32>;
-  topRightCorner: Point<f32>;
-  bottomLeftCorner: Point<f32>;
-  bottomRightCorner: Point<f32>;
+  topLeftCorner: Point<SubPixelUnit>;
+  topRightCorner: Point<SubPixelUnit>;
+  bottomLeftCorner: Point<SubPixelUnit>;
+  bottomRightCorner: Point<SubPixelUnit>;
   topRects: Rect[];
   bottomRects: Rect[];
   leftRects: Rect[];
@@ -228,14 +272,22 @@ export interface ScoredOvalMark {
   matchedBounds: Rect;
 }
 
+/**
+ * A value between 0 and 1, inclusive.
+ *
+ * Because this is just a type alias it does not enforce that another type
+ * with the same underlying representation is not used.
+ */
+export type UnitIntervalValue = f32;
+
 /** Alias used for an oval mark's score values. */
-export type OvalMarkScore = f32;
+export type OvalMarkScore = UnitIntervalValue;
 
 /** Coordinates specifying a timing mark intersection on the ballot card. */
 export interface GridLocation {
   side: BallotSide;
-  column: u32;
-  row: u32;
+  column: GridUnit;
+  row: GridUnit;
 }
 
 /**
@@ -253,12 +305,12 @@ export enum BallotSide {
  */
 export interface Geometry {
   ballotPaperSize: BallotPaperSize;
-  pixelsPerInch: u32;
-  canvasSize: Size<u32>;
+  pixelsPerInch: PixelUnit;
+  canvasSize: Size<PixelUnit>;
   contentArea: Rect;
-  ovalSize: Size<u32>;
-  timingMarkSize: Size<f32>;
-  gridSize: Size<u32>;
+  ovalSize: Size<PixelUnit>;
+  timingMarkSize: Size<SubPixelUnit>;
+  gridSize: Size<GridUnit>;
   frontUsableArea: Rect;
   backUsableArea: Rect;
 }
@@ -280,10 +332,10 @@ export interface Point<T> {
 
 /** A rectangle in a grid. Units are typically either pixels or timing marks. */
 export interface Rect {
-  left: i32;
-  top: i32;
-  width: u32;
-  height: u32;
+  left: PixelPosition;
+  top: PixelPosition;
+  width: PixelUnit;
+  height: PixelUnit;
 }
 
 /** A size in a grid. Units are typically either pixels or timing marks. */
@@ -315,7 +367,8 @@ export type InterpretError =
       back: BallotPageMetadata;
     }
   | { type: 'missingTimingMarks'; rects: Rect[] }
-  | { type: 'unexpectedDimensions'; path: string; dimensions: Size<u32> };
+  | { type: 'unexpectedDimensions'; path: string; dimensions: Size<PixelUnit> }
+  | { type: 'unknown'; message: string };
 
 /**
  * Information about a ballot page that has failed to be interpreted.

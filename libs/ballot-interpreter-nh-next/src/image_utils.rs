@@ -5,6 +5,8 @@ use image::{
 use logging_timer::time;
 use serde::Serialize;
 
+use crate::geometry::{PixelUnit, Size, SubPixelUnit};
+
 pub const WHITE: Luma<u8> = Luma([255]);
 pub const BLACK: Luma<u8> = Luma([0]);
 pub const WHITE_RGB: Rgb<u8> = Rgb([255, 255, 255]);
@@ -27,16 +29,16 @@ pub const RAINBOW: [Rgb<u8>; 7] = [RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIO
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct Inset {
     /// The number of pixels to remove from the top of the image.
-    pub top: u32,
+    pub top: PixelUnit,
 
     /// The number of pixels to remove from the bottom of the image.
-    pub bottom: u32,
+    pub bottom: PixelUnit,
 
     /// The number of pixels to remove from the left of the image.
-    pub left: u32,
+    pub left: PixelUnit,
 
     /// The number of pixels to remove from the right of the image.
-    pub right: u32,
+    pub right: PixelUnit,
 }
 
 /// Bleed the given luma value outwards from any pixels that match it.
@@ -101,8 +103,8 @@ pub fn diff(base: &GrayImage, compare: &GrayImage) -> GrayImage {
 }
 
 /// Determines the number of pixels in an image that match the given luma.
-pub fn count_pixels(img: &GrayImage, luma: Luma<u8>) -> u32 {
-    img.pixels().filter(|p| **p == luma).count() as u32
+pub fn count_pixels(img: &GrayImage, luma: Luma<u8>) -> usize {
+    img.pixels().filter(|p| **p == luma).count()
 }
 
 /// Determines the ratio of pixels in an image that match the given luma.
@@ -114,26 +116,54 @@ pub fn ratio(img: &GrayImage, luma: Luma<u8>) -> f32 {
 /// Resizes an image to fit within the given dimensions while maintaining the
 /// aspect ratio.
 #[time]
-pub fn size_image_to_fit(img: &GrayImage, max_width: u32, max_height: u32) -> GrayImage {
+pub fn size_image_to_fit(
+    img: &GrayImage,
+    max_width: PixelUnit,
+    max_height: PixelUnit,
+) -> GrayImage {
     let aspect_ratio = img.width() as f32 / img.height() as f32;
     let new_width = if aspect_ratio > 1.0 {
         max_width
     } else {
-        (max_height as f32 * aspect_ratio).ceil() as u32
+        (max_height as f32 * aspect_ratio).ceil() as PixelUnit
     };
     let new_height = if aspect_ratio > 1.0 {
-        (max_width as f32 / aspect_ratio).ceil() as u32
+        (max_width as f32 / aspect_ratio).ceil() as PixelUnit
     } else {
         max_height
     };
     resize(img, new_width, new_height, Lanczos3)
 }
 
+/// Resizes an image to fit within the given dimensions while maintaining the
+/// aspect ratio. If the image is already within the given dimensions, it is
+/// returned as-is.
+#[time]
+pub fn maybe_resize_image_to_fit(image: GrayImage, max_size: Size<PixelUnit>) -> GrayImage {
+    let (width, height) = image.dimensions();
+    let x_scale = max_size.width as SubPixelUnit / width as SubPixelUnit;
+    let y_scale = max_size.height as SubPixelUnit / height as SubPixelUnit;
+    let allowed_error = 0.05;
+    let x_error = (1.0 - x_scale).abs();
+    let y_error = (1.0 - y_scale).abs();
+
+    if x_error <= allowed_error && y_error <= allowed_error {
+        image
+    } else {
+        eprintln!(
+            "WARNING: image dimensions do not match expected dimensions: {}x{} vs {}x{}, resizing",
+            width, height, max_size.width, max_size.height
+        );
+
+        size_image_to_fit(&image, max_size.width, max_size.height)
+    }
+}
+
 /// Expands an image by the given number of pixels on all sides.
 #[time]
 pub fn expand_image(
     img: &GrayImage,
-    border_size: u32,
+    border_size: PixelUnit,
     background_color: Luma<u8>,
 ) -> Result<GrayImage, ImageError> {
     let mut out = GrayImage::new(

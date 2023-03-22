@@ -2,14 +2,19 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{ballot_card::BallotSide, types::idtype};
-
-// import idtype macro from types.rs
+use crate::{ballot_card::BallotSide, geometry::GridUnit, types::idtype};
 
 idtype!(ContestId);
 idtype!(OptionId);
 idtype!(BallotStyleId);
 idtype!(PrecinctId);
+
+// NOTE: This is a subset of the full election definition. We only need the
+// parts that are relevant to interpreting a ballot card. Some of these types
+// are defined in the `@votingworks/types` package, some are defined here and
+// mirrored in `ts/src/types.ts` within this package.
+//
+// IF YOU CHANGE ANYTHING HERE, YOU MUST ALSO CHANGE IT THERE.
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -24,8 +29,8 @@ pub struct Election {
 pub struct GridLayout {
     pub precinct_id: PrecinctId,
     pub ballot_style_id: BallotStyleId,
-    pub columns: u32,
-    pub rows: u32,
+    pub columns: GridUnit,
+    pub rows: GridUnit,
     pub grid_positions: Vec<GridPosition>,
 }
 
@@ -38,8 +43,8 @@ pub enum GridPosition {
     #[serde(rename_all = "camelCase", rename = "option")]
     Option {
         side: BallotSide,
-        column: u32,
-        row: u32,
+        column: GridUnit,
+        row: GridUnit,
         contest_id: ContestId,
         option_id: OptionId,
     },
@@ -48,8 +53,8 @@ pub enum GridPosition {
     #[serde(rename_all = "camelCase", rename = "write-in")]
     WriteIn {
         side: BallotSide,
-        column: u32,
-        row: u32,
+        column: GridUnit,
+        row: GridUnit,
         contest_id: ContestId,
         write_in_index: u32,
     },
@@ -83,21 +88,27 @@ impl GridPosition {
 #[derive(Debug, Clone, Copy, Serialize)]
 pub struct GridLocation {
     pub side: BallotSide,
-    pub column: u32,
-    pub row: u32,
+    pub column: GridUnit,
+    pub row: GridUnit,
 }
 
 impl GridLocation {
-    pub const fn new(side: BallotSide, column: u32, row: u32) -> Self {
+    pub const fn new(side: BallotSide, column: GridUnit, row: GridUnit) -> Self {
         Self { side, column, row }
     }
 }
 
+/// A value between 0 and 1, inclusive.
+///
+/// Because this is just a type alias it does not enforce that another type
+/// with the same underlying representation is not used.
+pub type UnitIntervalValue = f32;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MarkThresholds {
-    pub definite: f32,
-    pub marginal: f32,
+    pub definite: UnitIntervalValue,
+    pub marginal: UnitIntervalValue,
 }
 
 #[cfg(test)]

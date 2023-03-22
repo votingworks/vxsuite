@@ -211,11 +211,13 @@ pub fn compute_bits_from_bottom_timing_marks(
         .iter()
         .skip(1)
         .take(METADATA_BITS)
-        .map(|timing_mark| timing_mark.is_some())
+        .map(Option::is_some)
         .rev()
         .collect();
 
     let bit_count = bits.len();
+
+    // try to convert the bits into a fixed-size array
     bits.try_into()
         .map_err(|_| BallotPageMetadataError::InvalidTimingMarkCount {
             expected: METADATA_BITS,

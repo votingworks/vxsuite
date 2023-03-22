@@ -6,6 +6,38 @@ use std::{
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::Serialize;
 
+/// A unit of length in timing mark grid, i.e. 1 `GridUnit` is the logical
+/// distance from one timing mark to the next. This does not map directly to
+/// pixels.
+///
+/// Because this is just a type alias it does not enforce that another type
+/// with the same underlying representation is not used.
+pub type GridUnit = u32;
+
+/// An x or y coordinate in pixels.
+///
+/// Because this is just a type alias it does not enforce that another type
+/// with the same underlying representation is not used.
+pub type PixelPosition = i32;
+
+/// A width or height in pixels.
+///
+/// Because this is just a type alias it does not enforce that another type
+/// with the same underlying representation is not used.
+pub type PixelUnit = u32;
+
+/// A sub-pixel coordinate or distance of pixels.
+///
+/// Because this is just a type alias it does not enforce that another type
+/// with the same underlying representation is not used.
+pub type SubPixelUnit = f32;
+
+/// Angle in radians.
+///
+/// Because this is just a type alias it does not enforce that another type
+/// with the same underlying representation is not used.
+pub type Radians = f32;
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct Point<T: Sub<Output = T>> {
     pub x: T,
@@ -33,16 +65,22 @@ impl<T: Sub<Output = T> + AddAssign + Copy> AddAssign for Point<T> {
     }
 }
 
+/// A rectangle area of pixels within an image.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct Rect {
-    left: i32,
-    top: i32,
-    width: u32,
-    height: u32,
+    left: PixelPosition,
+    top: PixelPosition,
+    width: PixelUnit,
+    height: PixelUnit,
 }
 
 impl Rect {
-    pub const fn new(left: i32, top: i32, width: u32, height: u32) -> Self {
+    pub const fn new(
+        left: PixelPosition,
+        top: PixelPosition,
+        width: PixelUnit,
+        height: PixelUnit,
+    ) -> Self {
         Self {
             left,
             top,
@@ -51,55 +89,60 @@ impl Rect {
         }
     }
 
-    pub const fn from_points(top_left: Point<i32>, bottom_right: Point<i32>) -> Self {
+    pub const fn from_points(
+        top_left: Point<PixelPosition>,
+        bottom_right: Point<PixelPosition>,
+    ) -> Self {
         Self::new(
             top_left.x,
             top_left.y,
-            (bottom_right.x - top_left.x + 1) as u32,
-            (bottom_right.y - top_left.y + 1) as u32,
+            (bottom_right.x - top_left.x + 1) as PixelUnit,
+            (bottom_right.y - top_left.y + 1) as PixelUnit,
         )
     }
 
-    pub const fn left(&self) -> i32 {
+    pub const fn left(&self) -> PixelPosition {
         self.left
     }
 
-    pub const fn top(&self) -> i32 {
+    pub const fn top(&self) -> PixelPosition {
         self.top
     }
 
-    pub const fn width(&self) -> u32 {
+    pub const fn width(&self) -> PixelUnit {
         self.width
     }
 
-    pub const fn height(&self) -> u32 {
+    pub const fn height(&self) -> PixelUnit {
         self.height
     }
 
-    pub const fn right(&self) -> i32 {
-        self.left + self.width as i32 - 1
+    pub const fn right(&self) -> PixelPosition {
+        self.left + self.width as PixelPosition - 1
     }
 
-    pub const fn bottom(&self) -> i32 {
-        self.top + self.height as i32 - 1
+    pub const fn bottom(&self) -> PixelPosition {
+        self.top + self.height as PixelPosition - 1
     }
 
-    pub const fn offset(&self, dx: i32, dy: i32) -> Self {
+    pub const fn offset(&self, dx: PixelPosition, dy: PixelPosition) -> Self {
         Self::new(self.left + dx, self.top + dy, self.width, self.height)
     }
 
-    pub const fn top_left(&self) -> Point<i32> {
+    pub const fn top_left(&self) -> Point<PixelPosition> {
         Point::new(self.left, self.top)
     }
 
-    pub const fn bottom_right(&self) -> Point<i32> {
+    pub const fn bottom_right(&self) -> Point<PixelPosition> {
         Point::new(self.right(), self.bottom())
     }
 
-    pub fn center(&self) -> Point<f32> {
+    pub fn center(&self) -> Point<SubPixelUnit> {
         Point::new(
-            self.left() as f32 + (self.right() as f32 - self.left() as f32) / 2.0,
-            self.top() as f32 + (self.bottom() as f32 - self.top() as f32) / 2.0,
+            self.left() as SubPixelUnit
+                + (self.right() as SubPixelUnit - self.left() as SubPixelUnit) / 2.0,
+            self.top() as SubPixelUnit
+                + (self.bottom() as SubPixelUnit - self.top() as SubPixelUnit) / 2.0,
         )
     }
 
@@ -112,8 +155,8 @@ impl Rect {
             Some(Self::new(
                 left,
                 top,
-                (right - left + 1) as u32,
-                (bottom - top + 1) as u32,
+                (right - left + 1) as PixelUnit,
+                (bottom - top + 1) as PixelUnit,
             ))
         } else {
             None
@@ -135,18 +178,18 @@ pub struct Size<T> {
 
 /// A line segment from `start` to `end`.
 pub struct Segment {
-    pub start: Point<f32>,
-    pub end: Point<f32>,
+    pub start: Point<SubPixelUnit>,
+    pub end: Point<SubPixelUnit>,
 }
 
 impl Segment {
     /// Creates a new line segment from `start` to `end`.
-    pub const fn new(start: Point<f32>, end: Point<f32>) -> Self {
+    pub const fn new(start: Point<SubPixelUnit>, end: Point<SubPixelUnit>) -> Self {
         Self { start, end }
     }
 
     /// Computes the length of the segment.
-    pub fn length(&self) -> f32 {
+    pub fn length(&self) -> SubPixelUnit {
         let dx = self.end.x - self.start.x;
         let dy = self.end.y - self.start.y;
         dx.hypot(dy)
@@ -157,7 +200,7 @@ impl Segment {
     /// given segment, but the end point will be the given length away from
     /// the start point. The angle of the new segment will be the same as
     /// the given segment.
-    pub fn with_length(&self, length: f32) -> Self {
+    pub fn with_length(&self, length: SubPixelUnit) -> Self {
         let dx = self.end.x - self.start.x;
         let dy = self.end.y - self.start.y;
         let angle = dy.atan2(dx);
@@ -169,7 +212,7 @@ impl Segment {
     }
 
     /// Computes a vector from the start point to the end point.
-    pub fn vector(&self) -> Point<f32> {
+    pub fn vector(&self) -> Point<SubPixelUnit> {
         let dx = self.end.x - self.start.x;
         let dy = self.end.y - self.start.y;
         Point::new(dx, dy)
@@ -184,7 +227,7 @@ pub fn intersection_of_lines(
     segment1: &Segment,
     segment2: &Segment,
     bounded: bool,
-) -> Option<Point<f32>> {
+) -> Option<Point<SubPixelUnit>> {
     let p1 = segment1.start;
     let p2 = segment1.end;
     let p3 = segment2.start;
@@ -211,10 +254,10 @@ pub fn segments_intersect(line1: &Segment, line2: &Segment) -> bool {
 
 /// Determines whether a line segment intersects a rectangle.
 pub fn rect_intersects_line(rect: &Rect, line: &Segment) -> bool {
-    let top_left = Point::new(rect.left() as f32, rect.top() as f32);
-    let top_right = Point::new(rect.right() as f32, rect.top() as f32);
-    let bottom_left = Point::new(rect.left() as f32, rect.bottom() as f32);
-    let bottom_right = Point::new(rect.right() as f32, rect.bottom() as f32);
+    let top_left = Point::new(rect.left() as SubPixelUnit, rect.top() as SubPixelUnit);
+    let top_right = Point::new(rect.right() as SubPixelUnit, rect.top() as SubPixelUnit);
+    let bottom_left = Point::new(rect.left() as SubPixelUnit, rect.bottom() as SubPixelUnit);
+    let bottom_right = Point::new(rect.right() as SubPixelUnit, rect.bottom() as SubPixelUnit);
     let top_line = Segment::new(top_left, top_right);
     let right_line = Segment::new(top_right, bottom_right);
     let bottom_line = Segment::new(bottom_left, bottom_right);
@@ -227,7 +270,7 @@ pub fn rect_intersects_line(rect: &Rect, line: &Segment) -> bool {
 }
 
 /// Returns the angle between two angles in radians.
-pub fn angle_diff(a: f32, b: f32) -> f32 {
+pub fn angle_diff(a: Radians, b: Radians) -> Radians {
     let diff = normalize_angle(a - b);
     diff.min(PI - diff)
 }
@@ -235,7 +278,7 @@ pub fn angle_diff(a: f32, b: f32) -> f32 {
 /// Normalize angle to [0, PI). This means that two angles that are
 /// equivalent modulo PI will be equal, e.g. 90° and 270°, even though
 /// they are not equal in the mathematical sense.
-pub fn normalize_angle(angle: f32) -> f32 {
+pub fn normalize_angle(angle: Radians) -> Radians {
     if angle.is_infinite() || angle.is_nan() {
         return angle;
     }
@@ -250,20 +293,54 @@ pub fn normalize_angle(angle: f32) -> f32 {
     angle
 }
 
-/// Generates a new segment based on the given segment, but with the
-/// given length. The new segment will have the same start point as the
-/// given segment, but the end point will be the given length away from
-/// the start point. The angle of the new segment will be the same as
-/// the given segment.
-pub fn segment_with_length(segment: &Segment, length: f32) -> Segment {
-    let p1 = segment.start;
-    let p2 = segment.end;
-    let angle = (p2.y - p1.y).atan2(p2.x - p1.x);
-    let p3 = Point::new(
-        length.mul_add(angle.cos(), p1.x),
-        length.mul_add(angle.sin(), p1.y),
-    );
-    Segment::new(p1, p3)
+pub fn find_best_line_through_items(
+    rects: &Vec<Rect>,
+    angle: Radians,
+    tolerance: Radians,
+) -> Vec<Rect> {
+    if rects.is_empty() {
+        return vec![];
+    }
+
+    let best_rects: Vec<&Rect> = rects
+        .par_iter()
+        .fold_with(vec![], |best_rects, rect| {
+            let mut best_rects = best_rects;
+
+            for other_rect in rects.iter() {
+                let rect_center = rect.center();
+                let other_rect_center = other_rect.center();
+                let line_angle = (other_rect_center.y - rect_center.y)
+                    .atan2(other_rect_center.x - rect_center.x);
+
+                if angle_diff(line_angle, angle) > tolerance {
+                    continue;
+                }
+
+                let rects_intersecting_line = rects
+                    .iter()
+                    .filter(|r| {
+                        rect_intersects_line(r, &Segment::new(rect_center, other_rect_center))
+                    })
+                    .collect::<Vec<&Rect>>();
+
+                if rects_intersecting_line.len() > best_rects.len() {
+                    best_rects = rects_intersecting_line;
+                }
+            }
+
+            best_rects
+        })
+        .reduce_with(|best_rects, other_best_rects| {
+            if other_best_rects.len() > best_rects.len() {
+                other_best_rects
+            } else {
+                best_rects
+            }
+        })
+        .expect("at least one result because we have at least one rect");
+
+    return best_rects.iter().map(|r| **r).collect();
 }
 
 #[cfg(test)]
@@ -272,7 +349,9 @@ mod normalize_angle_tests {
 
     use proptest::prelude::*;
 
-    const ANGLE_RANGE: Range<f32> = -(10.0 * PI)..(10.0 * PI);
+    use super::Radians;
+
+    const ANGLE_RANGE: Range<Radians> = -(10.0 * PI)..(10.0 * PI);
 
     macro_rules! assert_nearly_eq {
         ($a:expr, $b:expr) => {
@@ -295,8 +374,11 @@ mod normalize_angle_tests {
 
     #[test]
     fn test_normalize_infinity() {
-        assert_eq!(super::normalize_angle(f32::INFINITY), f32::INFINITY);
-        assert_eq!(super::normalize_angle(f32::NEG_INFINITY), f32::NEG_INFINITY);
+        assert_eq!(super::normalize_angle(Radians::INFINITY), Radians::INFINITY);
+        assert_eq!(
+            super::normalize_angle(Radians::NEG_INFINITY),
+            Radians::NEG_INFINITY
+        );
     }
 
     proptest! {
@@ -324,6 +406,7 @@ mod normalize_angle_tests {
 
 #[cfg(test)]
 mod normalize_center_of_rect {
+    use super::*;
     use proptest::prelude::*;
 
     #[test]
@@ -347,56 +430,10 @@ mod normalize_center_of_rect {
         fn prop_center_of_rect_is_in_rect(x in 0i32..100i32, y in 0i32..100i32, width in 1u32..100u32, height in 1u32..100u32) {
             let rect = super::Rect::new(x, y, width, height);
             let center = rect.center();
-            prop_assert!((rect.left() as f32) <= center.x);
-            prop_assert!(center.x <= (rect.right() as f32));
-            prop_assert!((rect.top() as f32) <= center.y);
-            prop_assert!(center.y <= (rect.bottom() as f32));
+            prop_assert!((rect.left() as SubPixelUnit) <= center.x);
+            prop_assert!(center.x <= (rect.right() as SubPixelUnit));
+            prop_assert!((rect.top() as SubPixelUnit) <= center.y);
+            prop_assert!(center.y <= (rect.bottom() as SubPixelUnit));
         }
     }
-}
-
-pub fn find_best_line_through_items(rects: &Vec<Rect>, angle: f32, tolerance: f32) -> Vec<Rect> {
-    if rects.is_empty() {
-        return vec![];
-    }
-
-    let best_rects: Vec<&Rect> = rects
-        .par_iter()
-        .fold_with(vec![], |best_rects, rect| {
-            let mut best_rects = best_rects;
-
-            for other_rect in rects.iter() {
-                let rect_center = rect.center();
-                let other_rect_center = other_rect.center();
-                let line_angle = (other_rect_center.y - rect_center.y)
-                    .atan2(other_rect_center.x - rect_center.x);
-
-                if angle_diff(line_angle, angle) > tolerance {
-                    continue;
-                }
-
-                let rects_intsersecting_line = rects
-                    .iter()
-                    .filter(|r| {
-                        rect_intersects_line(r, &Segment::new(rect_center, other_rect_center))
-                    })
-                    .collect::<Vec<&Rect>>();
-
-                if rects_intsersecting_line.len() > best_rects.len() {
-                    best_rects = rects_intsersecting_line;
-                }
-            }
-
-            best_rects
-        })
-        .reduce_with(|best_rects, other_best_rects| {
-            if other_best_rects.len() > best_rects.len() {
-                other_best_rects
-            } else {
-                best_rects
-            }
-        })
-        .expect("at least one result because we have at least one rect");
-
-    return best_rects.iter().map(|r| **r).collect();
 }

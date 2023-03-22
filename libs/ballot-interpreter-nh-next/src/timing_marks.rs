@@ -1,5 +1,4 @@
 use std::{
-    f32::consts::PI,
     fmt::{Display, Formatter},
     path::Path,
 };
@@ -18,8 +17,11 @@ use crate::{
     ballot_card::{BallotSide, Geometry, Orientation},
     debug,
     debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
-    election::{GridLayout, GridLocation, GridPosition},
-    geometry::{find_best_line_through_items, intersection_of_lines, Point, Rect, Segment, Size},
+    election::{GridLayout, GridLocation, GridPosition, UnitIntervalValue},
+    geometry::{
+        find_best_line_through_items, intersection_of_lines, GridUnit, PixelPosition, Point, Rect,
+        Segment, Size, SubPixelUnit,
+    },
     image_utils::{diff, expand_image, ratio, Inset, BLACK, WHITE},
     interpret::Error,
     metadata::{decode_metadata_from_timing_marks, BallotPageMetadata},
@@ -152,7 +154,12 @@ impl TimingMarkGrid {
     ///   - (33, 50) is the bottom right corner of the grid
     ///   - (c, r) where 0 < c < 33 and 0 < r < 50 is the oval at column c and
     ///     row r
-    pub fn point_for_location(&self, column: u32, row: u32) -> Option<Point<f32>> {
+    ///
+    /// The point location is determined by finding the left and right timing
+    /// marks for the given row, correcting their position to account for
+    /// the marks being cropped during scanning or border removal, and
+    /// interpolating between the two based on the column.
+    pub fn point_for_location(&self, column: GridUnit, row: GridUnit) -> Option<Point<f32>> {
         if column >= self.geometry.grid_size.width || row >= self.geometry.grid_size.height {
             return None;
         }
@@ -160,16 +167,20 @@ impl TimingMarkGrid {
         let timing_mark_width = self.geometry.timing_mark_size.width.round() as u32;
         let left = self.complete_timing_marks.left_rects.get(row as usize)?;
         let right = self.complete_timing_marks.right_rects.get(row as usize)?;
+
+        // account for marks being cropped during scanning or border removal
         let corrected_left = Rect::new(
-            left.right() - timing_mark_width as i32,
+            left.right() - timing_mark_width as PixelPosition,
             left.top(),
             timing_mark_width,
             left.height(),
         );
         let corrected_right =
             Rect::new(right.left(), right.top(), timing_mark_width, right.height());
+
         let horizontal_segment = Segment::new(corrected_left.center(), corrected_right.center());
-        let distance_percentage = column as f32 / (self.geometry.grid_size.width - 1) as f32;
+        let distance_percentage =
+            column as SubPixelUnit / (self.geometry.grid_size.width - 1) as SubPixelUnit;
         let Segment {
             start: _,
             end: expected_timing_mark_center,
@@ -189,8 +200,12 @@ pub fn find_timing_mark_grid(
     debug: &mut ImageDebugWriter,
 ) -> Result<(TimingMarkGrid, Option<GrayImage>), Error> {
     let threshold = otsu_level(img);
+    // Find shapes that look like timing marks but may not be.
     let candidate_timing_marks = find_timing_mark_shapes(geometry, img, threshold, debug);
 
+    // Find timing marks along the border of the image from the candidate
+    // shapes. This step may not find all the timing marks, but it should find
+    // enough to determine the borders and orientation of the ballot card.
     let Some(partial_timing_marks) = find_partial_timing_marks_from_candidate_rects(
         geometry,
         &candidate_timing_marks,
@@ -201,6 +216,9 @@ pub fn find_timing_mark_grid(
         })
     };
 
+    // Assumes that we will find most of the timing marks and that there will be
+    // more missing on the bottom than the top. If that's not the case, then
+    // we'll need to rotate the image.
     let orientation =
         if partial_timing_marks.top_rects.len() >= partial_timing_marks.bottom_rects.len() {
             Orientation::Portrait
@@ -208,6 +226,7 @@ pub fn find_timing_mark_grid(
             Orientation::PortraitReversed
         };
 
+    // Handle rotating the image and our partial timing marks if necessary.
     let (partial_timing_marks, normalized_img, border_inset) =
         if orientation == Orientation::Portrait {
             (partial_timing_marks, None, border_inset)
@@ -243,10 +262,7 @@ pub fn find_timing_mark_grid(
 
     let filled_bottom_timing_marks = find_actual_bottom_timing_marks(
         &complete_timing_marks,
-        match normalized_img {
-            Some(ref img) => img,
-            None => img,
-        },
+        normalized_img.as_ref().unwrap_or(img),
         threshold,
     );
 
@@ -338,7 +354,7 @@ fn is_contour_rectangular(contour: &Contour<u32>) -> bool {
                 .min(rect.bottom() as u32 - p.y)
         })
         .sum::<u32>();
-    let rectangular_score = error_value as f32 / contour.points.len() as f32;
+    let rectangular_score = error_value as SubPixelUnit / contour.points.len() as SubPixelUnit;
     rectangular_score < 1.0
 }
 
@@ -350,8 +366,8 @@ fn get_contour_bounding_rect(contour: &Contour<u32>) -> Rect {
     let min_y = contour.points.iter().map(|p| p.y).min().unwrap_or(0);
     let max_y = contour.points.iter().map(|p| p.y).max().unwrap_or(0);
     Rect::new(
-        min_x as i32,
-        min_y as i32,
+        min_x as PixelPosition,
+        min_y as PixelPosition,
         max_x - min_x + 1,
         max_y - min_y + 1,
     )
@@ -390,8 +406,10 @@ pub fn find_timing_mark_shapes(
         .enumerate()
         .filter_map(|(i, contour)| {
             if contour.border_type == BorderType::Hole {
-                let contour_bounds = get_contour_bounding_rect(contour)
-                    .offset(-i32::from(BORDER_SIZE), -i32::from(BORDER_SIZE));
+                let contour_bounds = get_contour_bounding_rect(contour).offset(
+                    -PixelPosition::from(BORDER_SIZE),
+                    -PixelPosition::from(BORDER_SIZE),
+                );
                 if rect_could_be_timing_mark(geometry, &contour_bounds)
                     && is_contour_rectangular(contour)
                     && contours.iter().all(|c| c.parent != Some(i))
@@ -409,8 +427,10 @@ pub fn find_timing_mark_shapes(
             &contours
                 .iter()
                 .map(|c| {
-                    get_contour_bounding_rect(c)
-                        .offset(-i32::from(BORDER_SIZE), -i32::from(BORDER_SIZE))
+                    get_contour_bounding_rect(c).offset(
+                        -PixelPosition::from(BORDER_SIZE),
+                        -PixelPosition::from(BORDER_SIZE),
+                    )
                 })
                 .collect::<Vec<_>>(),
             &candidate_timing_marks,
@@ -420,13 +440,21 @@ pub fn find_timing_mark_shapes(
     candidate_timing_marks
 }
 
+const MAX_BEST_FIT_LINE_ERROR_DEGREES: f32 = 5.0;
+const HORIZONTAL_ANGLE_DEGREES: f32 = 0.0;
+const VERTICAL_ANGLE_DEGREES: f32 = 90.0;
+
+/// Finds timing marks along the border of the image based on the rectangles
+/// found by some other method. This algorithm focuses on finding timing marks
+/// that intersect a line approximately aligned with the edges of the image,
+/// i.e. along the borders.
 #[time]
 pub fn find_partial_timing_marks_from_candidate_rects(
     geometry: &Geometry,
     rects: &[Rect],
     debug: &ImageDebugWriter,
 ) -> Option<Partial> {
-    let half_height = (geometry.canvas_size.height / 2) as i32;
+    let half_height = (geometry.canvas_size.height / 2) as PixelPosition;
     let top_half_rects = rects
         .iter()
         .filter(|r| r.top() < half_height)
@@ -447,13 +475,26 @@ pub fn find_partial_timing_marks_from_candidate_rects(
         .filter(|r| r.left() >= half_height)
         .copied()
         .collect::<Vec<Rect>>();
-    let mut top_line = find_best_line_through_items(&top_half_rects, 0.0, 5.0_f32.to_radians());
-    let mut bottom_line =
-        find_best_line_through_items(&bottom_half_rects, 0.0, 5.0_f32.to_radians());
-    let mut left_line =
-        find_best_line_through_items(&left_half_rects, PI / 2.0, 5.0_f32.to_radians());
-    let mut right_line =
-        find_best_line_through_items(&right_half_rects, PI / 2.0, 5.0_f32.to_radians());
+    let mut top_line = find_best_line_through_items(
+        &top_half_rects,
+        HORIZONTAL_ANGLE_DEGREES.to_radians(),
+        MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
+    );
+    let mut bottom_line = find_best_line_through_items(
+        &bottom_half_rects,
+        HORIZONTAL_ANGLE_DEGREES.to_radians(),
+        MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
+    );
+    let mut left_line = find_best_line_through_items(
+        &left_half_rects,
+        VERTICAL_ANGLE_DEGREES.to_radians(),
+        MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
+    );
+    let mut right_line = find_best_line_through_items(
+        &right_half_rects,
+        VERTICAL_ANGLE_DEGREES.to_radians(),
+        MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
+    );
 
     top_line.sort_by_key(Rect::left);
     bottom_line.sort_by_key(Rect::left);
@@ -551,24 +592,27 @@ impl Rotator180 {
         }
     }
 
-    pub fn rotate_rect(&self, rect: &Rect) -> Rect {
+    pub const fn rotate_rect(&self, rect: &Rect) -> Rect {
         Rect::from_points(
-            self.rotate_point_i32(rect.bottom_right()),
-            self.rotate_point_i32(rect.top_left()),
+            self.rotate_point_around_pixel_position(rect.bottom_right()),
+            self.rotate_point_around_pixel_position(rect.top_left()),
         )
     }
 
-    pub const fn rotate_point_i32(&self, point: Point<i32>) -> Point<i32> {
+    pub const fn rotate_point_around_pixel_position(
+        &self,
+        point: Point<PixelPosition>,
+    ) -> Point<PixelPosition> {
         Point::new(
-            self.canvas_area.width() as i32 - 1 - point.x,
-            self.canvas_area.height() as i32 - 1 - point.y,
+            self.canvas_area.width() as PixelPosition - 1 - point.x,
+            self.canvas_area.height() as PixelPosition - 1 - point.y,
         )
     }
 
-    pub fn rotate_point_f32(&self, point: Point<f32>) -> Point<f32> {
+    pub fn rotate_point_around_subpixel_position(&self, point: Point<f32>) -> Point<f32> {
         Point::new(
-            (self.canvas_area.width() as i32 - 1) as f32 - point.x,
-            (self.canvas_area.height() as i32 - 1) as f32 - point.y,
+            (self.canvas_area.width() as PixelPosition - 1) as SubPixelUnit - point.x,
+            (self.canvas_area.height() as PixelPosition - 1) as SubPixelUnit - point.y,
         )
     }
 }
@@ -597,10 +641,10 @@ pub fn rotate_partial_timing_marks(
     let rotator = Rotator180::new(*image_size);
 
     let (top_left_corner, top_right_corner, bottom_left_corner, bottom_right_corner) = (
-        rotator.rotate_point_f32(bottom_right_corner),
-        rotator.rotate_point_f32(bottom_left_corner),
-        rotator.rotate_point_f32(top_right_corner),
-        rotator.rotate_point_f32(top_left_corner),
+        rotator.rotate_point_around_subpixel_position(bottom_right_corner),
+        rotator.rotate_point_around_subpixel_position(bottom_left_corner),
+        rotator.rotate_point_around_subpixel_position(top_right_corner),
+        rotator.rotate_point_around_subpixel_position(top_left_corner),
     );
 
     let (top_left_rect, top_right_rect, bottom_left_rect, bottom_right_rect) = (
@@ -759,7 +803,7 @@ fn infer_missing_timing_marks_on_segment(
     timing_marks: &[Rect],
     segment: &Segment,
     expected_distance: f32,
-    expected_count: u32,
+    expected_count: GridUnit,
     geometry: &Geometry,
 ) -> Vec<Rect> {
     if timing_marks.is_empty() {
@@ -796,9 +840,9 @@ fn infer_missing_timing_marks_on_segment(
             // otherwise, we need to fill in a point
             inferred_timing_marks.push(Rect::new(
                 (current_timing_mark_center.x - geometry.timing_mark_size.width / 2.0).round()
-                    as i32,
+                    as PixelPosition,
                 (current_timing_mark_center.y - geometry.timing_mark_size.height / 2.0).round()
-                    as i32,
+                    as PixelPosition,
                 geometry.timing_mark_size.width.round() as u32,
                 geometry.timing_mark_size.height.round() as u32,
             ));
@@ -824,14 +868,14 @@ pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
 pub fn distances_between_rects(rects: &[Rect]) -> Vec<f32> {
     let mut distances = rects
         .windows(2)
-        .map(|w| Segment::new((&w[1]).center(), (&w[0]).center()).length())
+        .map(|w| Segment::new(w[1].center(), w[0].center()).length())
         .collect::<Vec<f32>>();
     distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
     distances
 }
 
 #[derive(Clone, Serialize)]
-pub struct OvalMarkScore(pub f32);
+pub struct OvalMarkScore(pub UnitIntervalValue);
 
 impl Display for OvalMarkScore {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
@@ -978,19 +1022,23 @@ pub fn score_oval_mark(
     let top = center_y - oval_template.height() / 2;
     let width = oval_template.width();
     let height = oval_template.height();
-    let expected_bounds = Rect::new(left as i32, top as i32, width, height);
+    let expected_bounds = Rect::new(left as PixelPosition, top as PixelPosition, width, height);
     let mut best_match_score = OvalMarkScore(f32::NEG_INFINITY);
     let mut best_match_bounds: Option<Rect> = None;
     let mut best_match_diff: Option<GrayImage> = None;
 
-    for offset_x in -(maximum_search_distance as i32)..(maximum_search_distance as i32) {
-        let x = left as i32 + offset_x;
+    for offset_x in
+        -(maximum_search_distance as PixelPosition)..(maximum_search_distance as PixelPosition)
+    {
+        let x = left as PixelPosition + offset_x;
         if x < 0 {
             continue;
         }
 
-        for offset_y in -(maximum_search_distance as i32)..(maximum_search_distance as i32) {
-            let y = top as i32 + offset_y;
+        for offset_y in
+            -(maximum_search_distance as PixelPosition)..(maximum_search_distance as PixelPosition)
+        {
+            let y = top as PixelPosition + offset_y;
             if y < 0 {
                 continue;
             }

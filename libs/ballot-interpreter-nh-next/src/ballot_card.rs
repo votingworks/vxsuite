@@ -6,7 +6,7 @@ use logging_timer::time;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    geometry::{Rect, Size},
+    geometry::{GridUnit, PixelUnit, Rect, Size, SubPixelUnit},
     image_utils::bleed,
 };
 
@@ -34,12 +34,12 @@ pub enum Orientation {
 #[serde(rename_all = "camelCase")]
 pub struct Geometry {
     pub ballot_paper_size: BallotPaperSize,
-    pub pixels_per_inch: u32,
-    pub canvas_size: Size<u32>,
+    pub pixels_per_inch: PixelUnit,
+    pub canvas_size: Size<PixelUnit>,
     pub content_area: Rect,
-    pub oval_size: Size<u32>,
-    pub timing_mark_size: Size<f32>,
-    pub grid_size: Size<u32>,
+    pub oval_size: Size<PixelUnit>,
+    pub timing_mark_size: Size<SubPixelUnit>,
+    pub grid_size: Size<GridUnit>,
     pub front_usable_area: Rect,
     pub back_usable_area: Rect,
 }
@@ -104,15 +104,15 @@ pub const fn get_scanned_ballot_card_geometry_8pt5x14() -> Geometry {
     }
 }
 
-pub fn get_scanned_ballot_card_geometry(size: (u32, u32)) -> Option<Geometry> {
+pub fn get_scanned_ballot_card_geometry(size: (PixelUnit, PixelUnit)) -> Option<Geometry> {
     let (width, height) = size;
-    let aspect_ratio = width as f32 / height as f32;
+    let aspect_ratio = width as SubPixelUnit / height as SubPixelUnit;
     let letter_size = get_scanned_ballot_card_geometry_8pt5x11();
-    let letter_aspect_ratio =
-        letter_size.canvas_size.width as f32 / letter_size.canvas_size.height as f32;
+    let letter_aspect_ratio = letter_size.canvas_size.width as SubPixelUnit
+        / letter_size.canvas_size.height as SubPixelUnit;
     let legal_size = get_scanned_ballot_card_geometry_8pt5x14();
-    let legal_aspect_ratio =
-        legal_size.canvas_size.width as f32 / legal_size.canvas_size.height as f32;
+    let legal_aspect_ratio = legal_size.canvas_size.width as SubPixelUnit
+        / legal_size.canvas_size.height as SubPixelUnit;
 
     if (aspect_ratio - letter_aspect_ratio).abs() < 0.05 {
         Some(letter_size)
