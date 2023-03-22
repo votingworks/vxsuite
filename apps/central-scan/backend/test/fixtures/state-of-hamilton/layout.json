@@ -18,6 +18,7 @@
     },
     "contests": [
       {
+        "contestId": "president",
         "bounds": {
           "x": 429,
           "y": 43,
@@ -178,6 +179,7 @@
         ]
       },
       {
+        "contestId": "senator",
         "bounds": {
           "x": 429,
           "y": 784,
@@ -360,6 +362,7 @@
         ]
       },
       {
+        "contestId": "representative-district-6",
         "bounds": {
           "x": 816,
           "y": 43,
@@ -518,6 +521,7 @@
     },
     "contests": [
       {
+        "contestId": "governor",
         "bounds": {
           "x": 43,
           "y": 43,
@@ -898,6 +902,7 @@
         ]
       },
       {
+        "contestId": "lieutenant-governor",
         "bounds": {
           "x": 429,
           "y": 44,
@@ -1124,6 +1129,7 @@
         ]
       },
       {
+        "contestId": "secretary-of-state",
         "bounds": {
           "x": 429,
           "y": 844,
@@ -1196,6 +1202,7 @@
         ]
       },
       {
+        "contestId": "state-senator-district-31",
         "bounds": {
           "x": 816,
           "y": 44,
@@ -1246,6 +1253,7 @@
         ]
       },
       {
+        "contestId": "state-assembly-district-54",
         "bounds": {
           "x": 816,
           "y": 283,
@@ -1360,6 +1368,7 @@
     },
     "contests": [
       {
+        "contestId": "county-commissioners",
         "bounds": {
           "x": 43,
           "y": 43,
@@ -1718,6 +1727,7 @@
         ]
       },
       {
+        "contestId": "county-registrar-of-wills",
         "bounds": {
           "x": 429,
           "y": 44,
@@ -1790,6 +1800,7 @@
         ]
       },
       {
+        "contestId": "city-mayor",
         "bounds": {
           "x": 429,
           "y": 349,
@@ -1884,6 +1895,7 @@
         ]
       },
       {
+        "contestId": "city-council",
         "bounds": {
           "x": 816,
           "y": 44,
@@ -2130,6 +2142,7 @@
     },
     "contests": [
       {
+        "contestId": "judicial-robert-demergue",
         "bounds": {
           "x": 43,
           "y": 43,
@@ -2202,6 +2215,7 @@
         ]
       },
       {
+        "contestId": "judicial-elmer-hull",
         "bounds": {
           "x": 43,
           "y": 438,
@@ -2274,6 +2288,7 @@
         ]
       },
       {
+        "contestId": "question-a",
         "bounds": {
           "x": 43,
           "y": 804,
@@ -2346,6 +2361,7 @@
         ]
       },
       {
+        "contestId": "question-b",
         "bounds": {
           "x": 622,
           "y": 44,
@@ -2418,6 +2434,7 @@
         ]
       },
       {
+        "contestId": "question-c",
         "bounds": {
           "x": 622,
           "y": 798,
@@ -2510,6 +2527,7 @@
     },
     "contests": [
       {
+        "contestId": "proposition-1",
         "bounds": {
           "x": 43,
           "y": 43,
@@ -2582,6 +2600,7 @@
         ]
       },
       {
+        "contestId": "measure-101",
         "bounds": {
           "x": 43,
           "y": 667,
@@ -2654,6 +2673,7 @@
         ]
       },
       {
+        "contestId": "101",
         "bounds": {
           "x": 622,
           "y": 44,
