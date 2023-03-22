@@ -11,20 +11,23 @@ import {
  */
 export function findContestOptions(
   contests: ReadonlyArray<{
+    contestId: string;
     bounds: Rect;
     corners: Corners;
     targets: readonly TargetShape[];
   }>,
   { topMarginPercent = 3 } = {}
 ): readonly BallotPageContestLayout[] {
-  return contests.map(({ bounds, corners, targets }) =>
+  return contests.map(({ bounds, corners, targets, contestId }) =>
     targets.length === 1
       ? {
+          contestId,
           bounds,
           corners,
           options: [{ bounds, target: targets[0] }],
         }
       : {
+          contestId,
           bounds,
           corners,
           options: targets.map((target, i) => {
