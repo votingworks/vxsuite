@@ -28,7 +28,7 @@ test('interpretMultiPagePdfTemplate', async () => {
     layoutsWithImages[0].ballotPageLayout.contests.map(
       (contest) => contest.contestId
     )
-  ).toMatchObject([
+  ).toEqual([
     '775020896',
     '775020897',
     '775020892',
@@ -40,5 +40,5 @@ test('interpretMultiPagePdfTemplate', async () => {
     layoutsWithImages[1].ballotPageLayout.contests.map(
       (contest) => contest.contestId
     )
-  ).toMatchObject(['750000261', '750000262', '750000263']);
+  ).toEqual(['750000261', '750000262', '750000263']);
 });
