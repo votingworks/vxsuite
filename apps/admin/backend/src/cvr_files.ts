@@ -348,11 +348,6 @@ function cvrBallotTypeToLegacyBallotType(
  * Converts the vote data in the CDF cast vote record into the simple
  * dictionary of contest ids to contest selection ids that VxAdmin uses
  * internally as a basis for tallying votes.
- *
- * This method assumes that if a contest selection is present, then it is an
- * indication. It ignores the possibility that there are multiple selection
- * positions within the contest selection (only applicable to ranked choice and
- * other forms of voting) or that the selection position has no indication.
  */
 function convertCastVoteRecordVotesToLegacyVotes(
   cvrSnapshot: CVR.CVRSnapshot
@@ -365,9 +360,18 @@ function convertCastVoteRecordVotesToLegacyVotes(
 
     const contestSelectionIds: string[] = [];
     for (const cvrContestSelection of cvrContest.CVRContestSelection) {
-      if (!cvrContestSelection.ContestSelectionId) continue;
+      // We assume every contest selection has only one selection position,
+      // which is true for standard voting but is not be true for ranked choice
+      assert(cvrContestSelection.SelectionPosition.length === 1);
+      const selectionPosition = cvrContestSelection.SelectionPosition[0];
+      assert(selectionPosition);
 
-      contestSelectionIds.push(cvrContestSelection.ContestSelectionId);
+      if (
+        cvrContestSelection.ContestSelectionId &&
+        selectionPosition.HasIndication === CVR.IndicationStatus.Yes
+      ) {
+        contestSelectionIds.push(cvrContestSelection.ContestSelectionId);
+      }
     }
 
     votes[cvrContest.ContestId] = contestSelectionIds;
