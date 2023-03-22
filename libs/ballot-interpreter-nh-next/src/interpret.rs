@@ -299,7 +299,6 @@ pub fn interpret_ballot_card(side_a_path: &Path, side_b_path: &Path, options: &O
         BallotPageMetadata::Back(_) => unreachable!(),
     };
 
-    // TODO: discover this from the ballot card metadata
     let Some(grid_layout) = options
         .election
         .grid_layouts
