@@ -29,6 +29,7 @@ test('interpret three-column template with instructions', async () => {
           "x": 447,
           "y": 45,
         },
+        "contestId": "us-senate",
         "corners": Array [
           Object {
             "x": 447,
@@ -189,6 +190,7 @@ test('interpret three-column template with instructions', async () => {
           "x": 447,
           "y": 667,
         },
+        "contestId": "us-house-district-30",
         "corners": Array [
           Object {
             "x": 447,
@@ -261,6 +263,7 @@ test('interpret three-column template with instructions', async () => {
           "x": 447,
           "y": 1009,
         },
+        "contestId": "texas-sc-judge-place-6",
         "corners": Array [
           Object {
             "x": 447,
@@ -333,6 +336,7 @@ test('interpret three-column template with instructions', async () => {
           "x": 850,
           "y": 45,
         },
+        "contestId": "texas-house-district-111",
         "corners": Array [
           Object {
             "x": 850,
@@ -405,6 +409,7 @@ test('interpret three-column template with instructions', async () => {
           "x": 850,
           "y": 392,
         },
+        "contestId": "dallas-county-tax-assessor",
         "corners": Array [
           Object {
             "x": 850,
@@ -477,6 +482,7 @@ test('interpret three-column template with instructions', async () => {
           "x": 850,
           "y": 706,
         },
+        "contestId": "dallas-county-sheriff",
         "corners": Array [
           Object {
             "x": 850,

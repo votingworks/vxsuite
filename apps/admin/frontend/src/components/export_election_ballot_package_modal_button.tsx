@@ -143,6 +143,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       );
 
       const layouts: BallotPageLayout[] = [];
+      let contestOffset = 0;
       for await (const { page, pageNumber } of pdfToImages(ballotPdfData, {
         scale: 2,
       })) {
@@ -159,8 +160,10 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
           electionDefinition,
           imageData: page,
           metadata,
+          contestOffset,
         });
         layouts.push(ballotPageLayout);
+        contestOffset += ballotPageLayout.contests.length;
       }
 
       await archive.file(layoutFilename, JSON.stringify(layouts, undefined, 2));

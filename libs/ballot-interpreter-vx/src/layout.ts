@@ -3,8 +3,10 @@ import {
   BallotPageLayoutWithImage,
   BallotPageMetadata,
   ElectionDefinition,
+  getBallotStyle,
+  getContests,
 } from '@votingworks/types';
-import { iter } from '@votingworks/basics';
+import { assert, iter } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { ContestShape, findContests } from './hmpb/find_contests';
 import { findContestOptions } from './hmpb/find_contest_options';
@@ -95,10 +97,12 @@ export async function interpretTemplate({
   electionDefinition,
   imageData,
   metadata,
+  contestOffset,
   imdebug = noDebug(),
 }: {
   electionDefinition: ElectionDefinition;
   imageData: ImageData;
+  contestOffset: number;
   metadata?: BallotPageMetadata;
   imdebug?: Debugger;
 }): Promise<BallotPageLayoutWithImage> {
@@ -115,9 +119,30 @@ export async function interpretTemplate({
 
   debug('using metadata for template: %O', normalized.metadata);
 
+  const contestShapes = findContestsWithUnknownColumnLayout(
+    normalized.imageData
+  ).contests;
+
+  // determine the sequence of contest ids that the discovered contest shapes
+  // will belong to
+  const { election } = electionDefinition;
+  const ballotStyle = getBallotStyle({
+    ballotStyleId: normalized.metadata.ballotStyleId,
+    election,
+  });
+  assert(ballotStyle);
+  const contestIds = getContests({
+    ballotStyle,
+    election,
+  })
+    .map((contest) => contest.id)
+    .slice(contestOffset, contestOffset + contestShapes.length);
+
   const contests = findContestOptions(
-    iter(findContestsWithUnknownColumnLayout(normalized.imageData).contests)
-      .map(({ bounds, corners }) => ({
+    iter(contestShapes)
+      .zip(contestIds)
+      .map(([{ bounds, corners }, contestId]) => ({
+        contestId,
         bounds,
         corners,
         targets: imdebug.capture('targets', () =>

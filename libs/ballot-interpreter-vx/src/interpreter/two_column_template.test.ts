@@ -37,6 +37,7 @@ test('interpret two-column template', async () => {
             "x": 429,
             "y": 43,
           },
+          "contestId": "mayor",
           "corners": Array [
             Object {
               "x": 429,
@@ -131,6 +132,7 @@ test('interpret two-column template', async () => {
             "x": 429,
             "y": 393,
           },
+          "contestId": "controller",
           "corners": Array [
             Object {
               "x": 429,
@@ -247,6 +249,7 @@ test('interpret two-column template', async () => {
             "x": 429,
             "y": 811,
           },
+          "contestId": "attorney",
           "corners": Array [
             Object {
               "x": 429,
@@ -341,6 +344,7 @@ test('interpret two-column template', async () => {
             "x": 816,
             "y": 43,
           },
+          "contestId": "public-works-director",
           "corners": Array [
             Object {
               "x": 816,
@@ -457,6 +461,7 @@ test('interpret two-column template', async () => {
             "x": 816,
             "y": 462,
           },
+          "contestId": "chief-of-police",
           "corners": Array [
             Object {
               "x": 816,
@@ -624,6 +629,7 @@ test('interpret two-column template', async () => {
             "x": 43,
             "y": 43,
           },
+          "contestId": "mayor",
           "corners": Array [
             Object {
               "x": 43,
@@ -762,6 +768,7 @@ test('interpret two-column template', async () => {
             "x": 429,
             "y": 43,
           },
+          "contestId": "controller",
           "corners": Array [
             Object {
               "x": 429,
@@ -1010,6 +1017,7 @@ test('interpret two-column template', async () => {
             "x": 816,
             "y": 43,
           },
+          "contestId": "attorney",
           "corners": Array [
             Object {
               "x": 816,

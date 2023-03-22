@@ -176,6 +176,10 @@ export class Interpreter {
       imageData,
       metadata,
       imdebug,
+      // the below is incorrect and may mean that contest ids are not accurate
+      // for this method. currently this method is only being used in tests and
+      // the CLI
+      contestOffset: 0,
     });
   }
 
@@ -294,6 +298,15 @@ export class Interpreter {
       );
     }
 
+    const { locales, ballotStyleId, precinctId, pageNumber } = metadata;
+    const matchedTemplate = defined(
+      this.getTemplate({ locales, ballotStyleId, precinctId, pageNumber })
+    );
+    const contestDefinitions = this.getContestsForTemplate(
+      matchedTemplate.ballotPageLayout
+    );
+    const contestIds = contestDefinitions.map((contest) => contest.id);
+
     const { contests } = findContestsWithUnknownColumnLayout(imageData, {
       imdebug,
     });
@@ -305,11 +318,15 @@ export class Interpreter {
           height: imageData.height,
         },
         metadata,
-        contests: contests.map(({ bounds, corners }) => ({
-          bounds,
-          corners,
-          options: [],
-        })),
+        contests: iter(contests)
+          .zip(contestIds)
+          .map(([{ bounds, corners }, contestId]) => ({
+            contestId,
+            bounds,
+            corners,
+            options: [],
+          }))
+          .toArray(),
       },
     };
     debug(
@@ -317,15 +334,11 @@ export class Interpreter {
       ballotLayout.ballotPageLayout.contests.map(({ bounds }) => bounds)
     );
 
-    const { locales, ballotStyleId, precinctId, pageNumber } = metadata;
-    const matchedTemplate = defined(
-      this.getTemplate({ locales, ballotStyleId, precinctId, pageNumber })
-    );
     const [mappedBallot, marks] = imdebug.capture('getMarksForBallot', () =>
       this.getMarksForBallot(
         ballotLayout,
         matchedTemplate,
-        this.getContestsForTemplate(matchedTemplate.ballotPageLayout),
+        contestDefinitions,
         {
           imdebug,
           maximumCorrectionPixelsX,
