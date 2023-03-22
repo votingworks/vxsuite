@@ -221,7 +221,7 @@ test.each<{
   cardDetails: CardDetails;
 }>([
   {
-    description: 'system administrator',
+    description: 'system administrator card',
     machineState: defaultMachineState,
     cardDetails: {
       jurisdiction,
@@ -229,7 +229,7 @@ test.each<{
     },
   },
   {
-    description: 'election manager',
+    description: 'election manager card',
     machineState: defaultMachineState,
     cardDetails: {
       jurisdiction,
@@ -237,7 +237,7 @@ test.each<{
     },
   },
   {
-    description: 'poll worker with PIN',
+    description: 'poll worker card with PIN',
     machineState: {
       ...defaultMachineState,
       arePollWorkerCardPinsEnabled: true,
@@ -249,7 +249,7 @@ test.each<{
     },
   },
 ])(
-  'Login and logout for users with PINs - $description',
+  'Login and logout using card with PIN - $description',
   async ({ machineState, cardDetails }) => {
     const auth = new InsertedSmartCardAuth({
       card: mockCard,
@@ -328,7 +328,7 @@ test.each<{
   }
 );
 
-test('Login and logout for users without PINs', async () => {
+test('Login and logout using card without PIN', async () => {
   const auth = new InsertedSmartCardAuth({
     card: mockCard,
     config: defaultConfig,
@@ -1095,7 +1095,7 @@ test.each<{
   cardDetails: CardDetails;
 }>([
   {
-    description: 'system administrator',
+    description: 'system administrator card',
     machineState: defaultMachineState,
     cardDetails: {
       jurisdiction,
@@ -1103,7 +1103,7 @@ test.each<{
     },
   },
   {
-    description: 'election manager',
+    description: 'election manager card',
     machineState: defaultMachineState,
     cardDetails: {
       jurisdiction,
@@ -1111,7 +1111,7 @@ test.each<{
     },
   },
   {
-    description: 'poll worker with PIN',
+    description: 'poll worker card with PIN',
     machineState: {
       ...defaultMachineState,
       arePollWorkerCardPinsEnabled: true,
