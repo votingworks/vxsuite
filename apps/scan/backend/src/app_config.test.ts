@@ -302,7 +302,6 @@ test('export CVRs to USB in deprecated VotingWorks format', async () => {
 
 test('setPrecinctSelection will reset polls to closed and update auth instance', async () => {
   const { apiClient, mockUsb, workspace, mockAuth } = await createApp();
-  // mockElectionManager(mockAuth, electionFamousNames2021Fixtures.electionDefinition);
   await configureApp(apiClient, mockUsb, { mockAuth });
 
   workspace.store.setPollsState('polls_open');
@@ -315,7 +314,6 @@ test('setPrecinctSelection will reset polls to closed and update auth instance',
 test('ballot batching', async () => {
   const { apiClient, mockPlustek, logger, workspace, mockUsb, mockAuth } =
     await createApp();
-  // mockElectionManager(mockAuth, electionFamousNames2021Fixtures.electionDefinition);
   await configureApp(apiClient, mockUsb, { mockAuth });
 
   // Scan two ballots, which should have the same batch

@@ -2,6 +2,10 @@ import React from 'react';
 
 import { Main, Screen, CenteredLargeProse } from '@votingworks/ui';
 
+/**
+ * LoginPromptScreen prompts the user to log in when the machine is unconfigured
+ * @returns JSX.Element
+ */
 export function LoginPromptScreen(): JSX.Element {
   return (
     <Screen>
