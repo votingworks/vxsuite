@@ -99,9 +99,12 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
     return <SetupCardReaderPage />;
   }
 
-  console.log(authStatus);
-  // User has not attempted auth yet
-  if (authStatus.status === 'logged_out' && authStatus.reason === 'no_card') {
+  // Unconfigured machine, user has not yet attempted auth
+  if (
+    !electionDefinition &&
+    authStatus.status === 'logged_out' &&
+    authStatus.reason === 'no_card'
+  ) {
     return <LoginPromptScreen />;
   }
 
