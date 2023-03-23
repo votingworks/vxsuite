@@ -22,6 +22,18 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** The user has unconfigured current machine to remove the current election definition, and all other data.  
 **Machines:** All
+### ballot-package-config-attempted-before-auth
+**Type:** [application-action](#application-action)  
+**Description:** Ballot package configuration was attempted before auth. The frontend should prevent this.  
+**Machines:** All
+### ballot-package-config-attempted-by-non-election-manager
+**Type:** [application-action](#application-action)  
+**Description:** Ballot package configuration was attempted by a non-election manager user. The frontend should prevent this.  
+**Machines:** All
+### ballot-package-config-election-hash-mismatch
+**Type:** [user-action](#user-action)  
+**Description:** The election hash for the authorized user and most recent ballot package on the USB drive did not match.  
+**Machines:** All
 ### machine-boot-init
 **Type:** [system-action](#system-action)  
 **Description:** The machine is beginning the boot process.  

@@ -39,7 +39,8 @@ test.each([
   {
     description: 'authorized card is for a role other than election manager',
     errorString: 'user_role_not_allowed',
-    expectedErrorMessage: 'Only election managers can configure VxScan.',
+    expectedErrorMessage:
+      'Insert an election manager card before loading a ballot package.',
   },
   {
     description:
