@@ -42,6 +42,7 @@ import {
   unconfigureElection,
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
+import { LoginPromptScreen } from './screens/login_prompt_screen';
 
 export interface Props {
   hardware: Hardware;
@@ -96,6 +97,12 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
 
   if (!cardReader) {
     return <SetupCardReaderPage />;
+  }
+
+  console.log(authStatus);
+  // User has not attempted auth yet
+  if (authStatus.status === 'logged_out' && authStatus.reason === 'no_card') {
+    return <LoginPromptScreen />;
   }
 
   if (
@@ -158,18 +165,18 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
     );
   }
 
-  if (!electionDefinition) {
-    return (
-      <UnconfiguredElectionScreenWrapper usbDriveStatus={usbDrive.status} />
-    );
-  }
-
   if (authStatus.status === 'checking_pin') {
     return (
       <UnlockMachineScreen
         auth={authStatus}
         checkPin={(pin: string) => checkPinMutation.mutate({ pin })}
       />
+    );
+  }
+
+  if (!electionDefinition) {
+    return (
+      <UnconfiguredElectionScreenWrapper usbDriveStatus={usbDrive.status} />
     );
   }
 

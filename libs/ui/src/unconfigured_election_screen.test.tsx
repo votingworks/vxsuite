@@ -1,3 +1,4 @@
+import { BallotPackageConfigurationError } from '@votingworks/types';
 import React from 'react';
 import { render, screen } from '../test/react_testing_library';
 
@@ -16,13 +17,41 @@ test('UnconfiguredElectionScreen shows a loading screen when USB drive is mounte
   await screen.findByText('Configuring VxScan from USB drive…');
 });
 
-test('UnconfiguredElectionScreen shows a backend config error message', async () => {
-  render(
-    <UnconfiguredElectionScreen
-      usbDriveStatus="mounted"
-      backendConfigError="no_ballot_package_on_usb_drive"
-    />
-  );
+test.each([
+  {
+    description: 'no USB drive is detected',
+    errorString: 'no_ballot_package_on_usb_drive',
+    expectedErrorMessage: 'No ballot package found on the inserted USB drive.',
+  },
+  {
+    description: 'ballot package loading is attempted before authorization',
+    errorString: 'auth_required_before_ballot_package_load',
+    expectedErrorMessage:
+      'Insert an election manager card before loading a ballot package.',
+  },
+  {
+    description: 'authorized card is for a role other than election manager',
+    errorString: 'user_role_not_allowed',
+    expectedErrorMessage:
+      'Insert an election manager card before loading a ballot package.',
+  },
+  {
+    description:
+      'election hash on authorized card does not match that on the most recent ballot package',
+    errorString: 'election_hash_mismatch',
+    expectedErrorMessage:
+      'The most recent ballot package found is for a different election.',
+  },
+])(
+  'UnconfiguredElectionScreen shows an error when $description',
+  async ({ errorString, expectedErrorMessage }) => {
+    render(
+      <UnconfiguredElectionScreen
+        usbDriveStatus="mounted"
+        backendConfigError={errorString as BallotPackageConfigurationError}
+      />
+    );
 
-  await screen.findByText('No ballot package found on the inserted USB drive.');
-});
+    await screen.findByText(expectedErrorMessage);
+  }
+);

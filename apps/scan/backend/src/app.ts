@@ -89,6 +89,17 @@ function buildApi(
       const [usbDrive] = await usb.getUsbDrives();
       assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
 
+      const authStatus = await auth.getAuthStatus(
+        constructAuthMachineState(workspace)
+      );
+      if (authStatus.status !== 'logged_in') {
+        return err('auth_required_before_ballot_package_load');
+      }
+
+      if (authStatus.user.role !== 'election_manager') {
+        return err('user_role_not_allowed');
+      }
+
       const directoryPath = path.join(
         usbDrive.mountPoint,
         BALLOT_PACKAGE_FOLDER
@@ -127,7 +138,10 @@ function buildApi(
 
       const { electionDefinition, ballots } = ballotPackage;
 
-      // If the election has only one precinct, set it automatically
+      if (authStatus.user.electionHash !== electionDefinition.electionHash) {
+        return err('election_hash_mismatch');
+      }
+
       let precinctSelection: SinglePrecinctSelection | undefined;
       if (electionDefinition.election.precincts.length === 1) {
         precinctSelection = singlePrecinctSelectionFor(

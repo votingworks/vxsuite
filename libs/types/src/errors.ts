@@ -1,4 +1,8 @@
 /**
- * Possible errors that can occur during configuration (currently there's only one).
+ * Possible errors that can occur during ballot package configuration
  */
-export type BallotPackageConfigurationError = 'no_ballot_package_on_usb_drive';
+export type BallotPackageConfigurationError =
+  | 'no_ballot_package_on_usb_drive'
+  | 'auth_required_before_ballot_package_load'
+  | 'user_role_not_allowed'
+  | 'election_hash_mismatch';
