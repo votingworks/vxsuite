@@ -121,6 +121,9 @@ test('shows insert USB Drive screen when there is no card reader', async () => {
 });
 
 test('app can load and configure from a usb stick', async () => {
+  apiMock.authenticateAsElectionManager(electionSampleDefinition);
+  apiMock.expectCheckCalibrationSupported(true);
+
   apiMock.expectGetConfig({
     electionDefinition: undefined,
   });
@@ -151,6 +154,17 @@ test('app can load and configure from a usb stick', async () => {
     .resolves(ok());
   apiMock.expectGetConfig({ electionDefinition: electionSampleDefinition });
   await screen.findByText('Configuring VxScan from USB drive…');
+
+  // Select precinct
+  await screen.findByText('Election Manager Settings');
+  screen.getByText(SELECT_PRECINCT_TEXT);
+  apiMock.expectSetPrecinct(singlePrecinctSelectionFor('23'));
+  apiMock.expectGetConfig({
+    precinctSelection: singlePrecinctSelectionFor('23'),
+  });
+  userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '23');
+  apiMock.removeCard();
+
   await screen.findByText('Polls Closed');
 });
 
