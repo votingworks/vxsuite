@@ -15,10 +15,7 @@ import {
   fakeSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
-import {
-  DippedSmartCardAuth as DippedSmartCardAuthTypes,
-  UserWithCard,
-} from '@votingworks/types';
+import { DippedSmartCardAuth as DippedSmartCardAuthTypes } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   generatePin,
@@ -228,12 +225,15 @@ test.each<{
 
 test.each<{
   description: string;
-  user: UserWithCard;
+  cardDetails: CardDetails;
   expectedLoggedInAuthStatus: DippedSmartCardAuthTypes.LoggedIn;
 }>([
   {
     description: 'system administrator',
-    user: systemAdministratorUser,
+    cardDetails: {
+      jurisdiction,
+      user: systemAdministratorUser,
+    },
     expectedLoggedInAuthStatus: {
       status: 'logged_in',
       user: systemAdministratorUser,
@@ -242,7 +242,10 @@ test.each<{
   },
   {
     description: 'election manager',
-    user: electionManagerUser,
+    cardDetails: {
+      jurisdiction,
+      user: electionManagerUser,
+    },
     expectedLoggedInAuthStatus: {
       status: 'logged_in',
       user: electionManagerUser,
@@ -250,17 +253,15 @@ test.each<{
   },
 ])(
   'Login and logout - $description',
-  async ({ user, expectedLoggedInAuthStatus }) => {
+  async ({ cardDetails, expectedLoggedInAuthStatus }) => {
     const auth = new DippedSmartCardAuth({
       card: mockCard,
       config: defaultConfig,
       logger: mockLogger,
     });
+    const { user } = cardDetails;
 
-    mockCardStatus({
-      status: 'ready',
-      cardDetails: { jurisdiction, user },
-    });
+    mockCardStatus({ status: 'ready', cardDetails });
     expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
       status: 'checking_pin',
       user,
@@ -364,11 +365,11 @@ test.each<{
     ],
   },
   {
-    description: 'invalid user on card, wrong jurisdiction',
+    description: 'wrong jurisdiction',
     config: defaultConfig,
-    machineState: { ...defaultMachineState, jurisdiction: otherJurisdiction },
+    machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction,
+      jurisdiction: otherJurisdiction,
       user: systemAdministratorUser,
     },
     expectedAuthStatus: {
@@ -406,6 +407,7 @@ test.each<{
     cardDetails: {
       jurisdiction,
       user: pollWorkerUser,
+      hasPin: false,
     },
     expectedAuthStatus: {
       status: 'logged_out',
@@ -465,10 +467,10 @@ test.each<{
   {
     description: 'mismatched election hash',
     config: defaultConfig,
-    machineState: { ...defaultMachineState, electionHash: otherElectionHash },
+    machineState: defaultMachineState,
     cardDetails: {
       jurisdiction,
-      user: electionManagerUser,
+      user: { ...electionManagerUser, electionHash: otherElectionHash },
     },
     expectedAuthStatus: {
       status: 'logged_out',
@@ -486,7 +488,7 @@ test.each<{
     ],
   },
 ])(
-  'User validation - $description',
+  'Card validation - $description',
   async ({
     config,
     machineState,
@@ -511,23 +513,31 @@ test.each<{
 
 test.each<{
   description: string;
+  machineState: DippedSmartCardAuthMachineState;
   input: Parameters<DippedSmartCardAuth['programCard']>[1];
   expectedCardProgramInput: Parameters<Card['program']>[0];
   expectedProgramResult: Awaited<
     ReturnType<DippedSmartCardAuth['programCard']>
   >;
+  cardDetailsAfterProgramming: CardDetails;
 }>([
   {
     description: 'system administrator cards',
+    machineState: defaultMachineState,
     input: { userRole: 'system_administrator' },
     expectedCardProgramInput: {
       user: { role: 'system_administrator' },
       pin,
     },
     expectedProgramResult: ok({ pin }),
+    cardDetailsAfterProgramming: {
+      jurisdiction,
+      user: { role: 'system_administrator' },
+    },
   },
   {
     description: 'election manager cards',
+    machineState: defaultMachineState,
     input: { userRole: 'election_manager', electionData },
     expectedCardProgramInput: {
       user: { role: 'election_manager', electionHash },
@@ -535,18 +545,52 @@ test.each<{
       electionData,
     },
     expectedProgramResult: ok({ pin }),
+    cardDetailsAfterProgramming: {
+      jurisdiction,
+      user: { role: 'election_manager', electionHash },
+    },
   },
   {
     description: 'poll worker cards',
+    machineState: defaultMachineState,
     input: { userRole: 'poll_worker' },
     expectedCardProgramInput: {
       user: { role: 'poll_worker', electionHash },
     },
-    expectedProgramResult: ok({}),
+    expectedProgramResult: ok({ pin: undefined }),
+    cardDetailsAfterProgramming: {
+      jurisdiction,
+      user: { role: 'poll_worker', electionHash },
+      hasPin: false,
+    },
+  },
+  {
+    description: 'poll worker cards with PINs',
+    machineState: {
+      ...defaultMachineState,
+      arePollWorkerCardPinsEnabled: true,
+    },
+    input: { userRole: 'poll_worker' },
+    expectedCardProgramInput: {
+      user: { role: 'poll_worker', electionHash },
+      pin,
+    },
+    expectedProgramResult: ok({ pin }),
+    cardDetailsAfterProgramming: {
+      jurisdiction,
+      user: { role: 'poll_worker', electionHash },
+      hasPin: true,
+    },
   },
 ])(
   'Card programming and unprogramming - $description',
-  async ({ input, expectedCardProgramInput, expectedProgramResult }) => {
+  async ({
+    machineState,
+    input,
+    expectedCardProgramInput,
+    expectedProgramResult,
+    cardDetailsAfterProgramming,
+  }) => {
     const auth = new DippedSmartCardAuth({
       card: mockCard,
       config: defaultConfig,
@@ -556,14 +600,14 @@ test.each<{
     await logInAsSystemAdministrator(auth);
 
     mockCardStatus({ status: 'ready', cardDetails: undefined });
-    expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'logged_in',
       user: systemAdministratorUser,
       programmableCard: { status: 'ready', programmedUser: undefined },
     });
 
     mockCard.program.expectCallWith(expectedCardProgramInput).resolves();
-    expect(await auth.programCard(defaultMachineState, input)).toEqual(
+    expect(await auth.programCard(machineState, input)).toEqual(
       expectedProgramResult
     );
     expect(mockLogger.log).toHaveBeenCalledTimes(2);
@@ -590,19 +634,16 @@ test.each<{
     const programmedUser = expectedCardProgramInput.user;
     mockCardStatus({
       status: 'ready',
-      cardDetails: {
-        jurisdiction,
-        user: programmedUser,
-      },
+      cardDetails: cardDetailsAfterProgramming,
     });
-    expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'logged_in',
       user: systemAdministratorUser,
       programmableCard: { status: 'ready', programmedUser },
     });
 
     mockCard.unprogram.expectCallWith().resolves();
-    expect(await auth.unprogramCard(defaultMachineState)).toEqual(ok());
+    expect(await auth.unprogramCard(machineState)).toEqual(ok());
     expect(mockLogger.log).toHaveBeenCalledTimes(4);
     expect(mockLogger.log).toHaveBeenNthCalledWith(
       3,
@@ -633,28 +674,61 @@ test.each<{
   }
 );
 
-test('Treating a card from another jurisdiction as unprogrammed in the context of card programming', async () => {
-  const auth = new DippedSmartCardAuth({
-    card: mockCard,
-    config: defaultConfig,
-    logger: mockLogger,
-  });
-
-  await logInAsSystemAdministrator(auth);
-
-  mockCardStatus({
-    status: 'ready',
+test.each<{
+  description: string;
+  machineState: DippedSmartCardAuthMachineState;
+  cardDetails: CardDetails;
+}>([
+  {
+    description: 'treating card from another jurisdiction as unprogrammed',
+    machineState: defaultMachineState,
     cardDetails: {
       jurisdiction: otherJurisdiction,
       user: electionManagerUser,
     },
-  });
-  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
-    status: 'logged_in',
-    user: systemAdministratorUser,
-    programmableCard: { status: 'ready', programmedUser: undefined },
-  });
-});
+  },
+  {
+    description:
+      'treating poll worker card without a PIN as unprogrammed if poll worker card PINs are enabled',
+    machineState: {
+      ...defaultMachineState,
+      arePollWorkerCardPinsEnabled: true,
+    },
+    cardDetails: {
+      jurisdiction: otherJurisdiction,
+      user: pollWorkerUser,
+      hasPin: false,
+    },
+  },
+  {
+    description:
+      'treating poll worker card with a PIN as unprogrammed if poll worker card PINs are not enabled',
+    machineState: defaultMachineState,
+    cardDetails: {
+      jurisdiction: otherJurisdiction,
+      user: pollWorkerUser,
+      hasPin: true,
+    },
+  },
+])(
+  'Card programming edge cases - $description',
+  async ({ machineState, cardDetails }) => {
+    const auth = new DippedSmartCardAuth({
+      card: mockCard,
+      config: defaultConfig,
+      logger: mockLogger,
+    });
+
+    await logInAsSystemAdministrator(auth);
+
+    mockCardStatus({ status: 'ready', cardDetails });
+    expect(await auth.getAuthStatus(machineState)).toEqual({
+      status: 'logged_in',
+      user: systemAdministratorUser,
+      programmableCard: { status: 'ready', programmedUser: undefined },
+    });
+  }
+);
 
 test('Checking PIN error handling', async () => {
   const auth = new DippedSmartCardAuth({
@@ -805,7 +879,9 @@ test('Card programming error handling', async () => {
   });
 
   mockCard.program
-    .expectCallWith({ user: { role: 'poll_worker', electionHash } })
+    .expectCallWith({
+      user: { role: 'poll_worker', electionHash },
+    })
     .throws(new Error('Whoa!'));
   expect(
     await auth.programCard(defaultMachineState, { userRole: 'poll_worker' })
@@ -846,6 +922,7 @@ test('Card unprogramming error handling', async () => {
     cardDetails: {
       jurisdiction,
       user: pollWorkerUser,
+      hasPin: false,
     },
   });
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({

@@ -102,25 +102,24 @@ export class MockFileCard implements Card {
     input:
       | { user: SystemAdministratorUser; pin: string }
       | { user: ElectionManagerUser; pin: string; electionData: string }
-      | { user: PollWorkerUser }
+      | { user: PollWorkerUser; pin?: string }
   ): Promise<void> {
     const jurisdiction = DEV_JURISDICTION;
-    const { user } = input;
+    const { user, pin } = input;
+    const hasPin = pin !== undefined;
 
     switch (user.role) {
       case 'system_administrator': {
-        assert('pin' in input);
         writeToMockFile({
           cardStatus: {
             status: 'ready',
             cardDetails: { jurisdiction, user },
           },
-          pin: input.pin,
+          pin,
         });
         break;
       }
       case 'election_manager': {
-        assert('pin' in input);
         assert('electionData' in input);
         writeToMockFile({
           cardStatus: {
@@ -128,7 +127,7 @@ export class MockFileCard implements Card {
             cardDetails: { jurisdiction, user },
           },
           data: Buffer.from(input.electionData, 'utf-8'),
-          pin: input.pin,
+          pin,
         });
         break;
       }
@@ -136,8 +135,9 @@ export class MockFileCard implements Card {
         writeToMockFile({
           cardStatus: {
             status: 'ready',
-            cardDetails: { jurisdiction, user },
+            cardDetails: { jurisdiction, user, hasPin },
           },
+          pin,
         });
         break;
       }

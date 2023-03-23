@@ -10,7 +10,11 @@ import {
   Text,
 } from '@votingworks/ui';
 
-import { programCard, unprogramCard as unprogramCardBase } from '../../api';
+import {
+  getSystemSettings,
+  programCard,
+  unprogramCard as unprogramCardBase,
+} from '../../api';
 import { AppContext } from '../../contexts/app_context';
 import { electionToDisplayString } from './elections';
 import {
@@ -46,10 +50,13 @@ export function CardDetailsView({
   setActionStatus,
 }: Props): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
+  const systemSettingsQuery = getSystemSettings.useQuery();
   const programCardMutation = programCard.useMutation();
   const unprogramCardMutation = unprogramCardBase.useMutation();
 
   const { role } = programmedUser;
+  const arePollWorkerCardPinsEnabled =
+    systemSettingsQuery.data?.arePollWorkerCardPinsEnabled;
   const doesCardElectionHashMatchMachineElectionHash =
     electionDefinition &&
     checkDoesCardElectionHashMatchMachineElectionHash(
@@ -58,7 +65,7 @@ export function CardDetailsView({
     );
 
   function resetCardPin() {
-    assert(role === 'system_administrator' || role === 'election_manager');
+    assert(role !== 'cardless_voter');
 
     setActionStatus({
       action: 'PinReset',
@@ -104,11 +111,13 @@ export function CardDetailsView({
   const possibleActions = new Set<SmartcardAction>();
   if (
     role === 'system_administrator' ||
-    (role === 'election_manager' &&
-      // We can support PIN resets on cards from other elections once we update PIN resetting to
-      // change only PINs and leave other card data, like election definitions, intact. As of
-      // 8/4/22, PIN resetting reprograms cards entirely
-      doesCardElectionHashMatchMachineElectionHash)
+    // Because PIN resetting completely reprograms the card under the hood, we also need the
+    // relevant election definition to be loaded for election manager and poll worker cards, so
+    // that we can write the proper election hash (and for election manager cards, full election
+    // definition)
+    (doesCardElectionHashMatchMachineElectionHash &&
+      (role === 'election_manager' ||
+        (arePollWorkerCardPinsEnabled && role === 'poll_worker')))
   ) {
     possibleActions.add('PinReset');
   }

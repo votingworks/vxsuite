@@ -3,16 +3,62 @@ import {
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
-  UserWithCard,
 } from '@votingworks/types';
+
+interface SystemAdministratorCardDetails {
+  jurisdiction: string;
+  user: SystemAdministratorUser;
+}
+
+interface ElectionManagerCardDetails {
+  jurisdiction: string;
+  user: ElectionManagerUser;
+}
+
+interface PollWorkerCardDetails {
+  jurisdiction: string;
+  user: PollWorkerUser;
+  /**
+   * Unlike system administrator and election manager cards, which always have PINs, poll worker
+   * cards by default don't have PINs but can if the relevant system setting is enabled.
+   */
+  hasPin: boolean;
+}
+
+/**
+ * A CardDetails type guard
+ */
+export function areSystemAdministratorCardDetails(
+  cardDetails: CardDetails
+): cardDetails is SystemAdministratorCardDetails {
+  return cardDetails.user.role === 'system_administrator';
+}
+
+/**
+ * A CardDetails type guard
+ */
+export function areElectionManagerCardDetails(
+  cardDetails: CardDetails
+): cardDetails is ElectionManagerCardDetails {
+  return cardDetails.user.role === 'election_manager';
+}
+
+/**
+ * A CardDetails type guard
+ */
+export function arePollWorkerCardDetails(
+  cardDetails: CardDetails
+): cardDetails is PollWorkerCardDetails {
+  return cardDetails.user.role === 'poll_worker';
+}
 
 /**
  * Details about a programmed card
  */
-export interface CardDetails {
-  jurisdiction: string;
-  user: UserWithCard;
-}
+export type CardDetails =
+  | SystemAdministratorCardDetails
+  | ElectionManagerCardDetails
+  | PollWorkerCardDetails;
 
 interface CardStatusReady {
   status: 'ready';
@@ -56,7 +102,7 @@ export interface Card {
     input:
       | { user: SystemAdministratorUser; pin: string }
       | { user: ElectionManagerUser; pin: string; electionData: string }
-      | { user: PollWorkerUser }
+      | { user: PollWorkerUser; pin?: string }
   ): Promise<void>;
   unprogram(): Promise<void>;
 

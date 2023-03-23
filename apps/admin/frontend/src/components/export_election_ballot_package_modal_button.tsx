@@ -1,6 +1,5 @@
 import { Buffer } from 'buffer';
 import React, { useContext, useEffect, useState } from 'react';
-import { UseQueryResult } from '@tanstack/react-query';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
 import { join } from 'path';
@@ -11,7 +10,6 @@ import {
   getElectionLocales,
   getPrecinctById,
   HmpbBallotPageMetadata,
-  SystemSettings,
 } from '@votingworks/types';
 
 import { Admin } from '@votingworks/api';
@@ -54,8 +52,7 @@ const UsbImage = styled.img`
 export function ExportElectionBallotPackageModalButton(): JSX.Element {
   const { electionDefinition, usbDrive, auth, logger } = useContext(AppContext);
   assert(electionDefinition);
-  const systemSettingsQuery =
-    getSystemSettings.useQuery() as UseQueryResult<SystemSettings>;
+  const systemSettingsQuery = getSystemSettings.useQuery();
   const systemSettings = systemSettingsQuery.isSuccess
     ? systemSettingsQuery.data
     : undefined;

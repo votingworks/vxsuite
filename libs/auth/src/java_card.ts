@@ -18,7 +18,13 @@ import {
   SELECT,
   STATUS_WORD,
 } from './apdu';
-import { Card, CardDetails, CardStatus, CheckPinResponse } from './card';
+import {
+  arePollWorkerCardDetails,
+  Card,
+  CardDetails,
+  CardStatus,
+  CheckPinResponse,
+} from './card';
 import { CardReader } from './card_reader';
 import {
   constructCardCertSubject,
@@ -220,7 +226,7 @@ export class JavaCard implements Card {
     input:
       | { user: SystemAdministratorUser; pin: string }
       | { user: ElectionManagerUser; pin: string; electionData: string }
-      | { user: PollWorkerUser }
+      | { user: PollWorkerUser; pin?: string }
   ): Promise<void> {
     assert(
       this.cardProgrammingConfig !== undefined,
@@ -232,7 +238,9 @@ export class JavaCard implements Card {
       vxAdminPrivateKeyPassword,
       vxAdminPrivateKeyPath,
     } = this.cardProgrammingConfig;
-    const pin = 'pin' in input ? input.pin : DEFAULT_PIN;
+    const { user } = input;
+    const hasPin = input.pin !== undefined;
+    const pin = input.pin ?? DEFAULT_PIN;
     await this.selectApplet();
 
     await this.resetPinAndInvalidateCard(pin);
@@ -244,8 +252,27 @@ export class JavaCard implements Card {
     const { jurisdiction } = await parseCert(
       await fs.readFile(vxAdminCertAuthorityCertPath)
     );
+    let cardDetails: CardDetails;
+    switch (user.role) {
+      case 'system_administrator': {
+        cardDetails = { jurisdiction, user };
+        break;
+      }
+      case 'election_manager': {
+        cardDetails = { jurisdiction, user };
+        break;
+      }
+      case 'poll_worker': {
+        cardDetails = { jurisdiction, user, hasPin };
+        break;
+      }
+      /* istanbul ignore next: Compile-time check for completeness */
+      default: {
+        throwIllegalValue(user, 'role');
+      }
+    }
     const cardVxAdminCert = await createCert({
-      certSubject: constructCardCertSubject({ jurisdiction, user: input.user }),
+      certSubject: constructCardCertSubject(cardDetails),
       opensslConfig: vxAdminOpensslConfigPath,
       publicKeyToSign: publicKey,
       signingCertAuthorityCert: vxAdminCertAuthorityCertPath,
@@ -265,6 +292,8 @@ export class JavaCard implements Card {
     if ('electionData' in input) {
       await this.writeData(Buffer.from(input.electionData, 'utf-8'));
     }
+
+    this.cardStatus = { status: 'ready', cardDetails };
   }
 
   async unprogram(): Promise<void> {
@@ -277,6 +306,7 @@ export class JavaCard implements Card {
     await this.clearCert(CARD_VX_ADMIN_CERT.OBJECT_ID);
     await this.clearCert(VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID);
     await this.clearData();
+    this.cardStatus = { status: 'ready', cardDetails: undefined };
   }
 
   async readData(): Promise<Buffer> {
@@ -392,15 +422,17 @@ export class JavaCard implements Card {
     );
 
     /**
-     * If the user doesn't have a PIN:
+     * If the card doesn't have a PIN:
      * Verify that the card has a private key that corresponds to the public key in the card
      * VxAdmin cert
      *
-     * If the user does have a PIN:
+     * If the card does have a PIN:
      * Perform this verification later in checkPin because operations with this private key are
      * PIN-gated
      */
-    if (cardDetails.user.role === 'poll_worker') {
+    const cardDoesNotHavePin =
+      arePollWorkerCardDetails(cardDetails) && !cardDetails.hasPin;
+    if (cardDoesNotHavePin) {
       await this.verifyCardPrivateKey(
         CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
         cardVxAdminCert,

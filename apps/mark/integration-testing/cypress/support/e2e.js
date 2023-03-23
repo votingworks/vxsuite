@@ -59,6 +59,7 @@ function insertPollWorkerCard() {
           role: 'poll_worker',
           electionHash,
         },
+        hasPin: false,
       },
     },
   });

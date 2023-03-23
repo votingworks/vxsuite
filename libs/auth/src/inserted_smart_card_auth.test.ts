@@ -21,7 +21,6 @@ import {
 import {
   ElectionSchema,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
-  UserWithCard,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -31,6 +30,7 @@ import {
 
 import { buildMockCard, MockCard, mockCardAssertComplete } from '../test/utils';
 import { CardDetails, CardStatus } from './card';
+import { DippedSmartCardAuthMachineState } from './dipped_smart_card_auth_api';
 import { InsertedSmartCardAuth } from './inserted_smart_card_auth';
 import {
   InsertedSmartCardAuthConfig,
@@ -109,6 +109,7 @@ async function logInAsPollWorker(auth: InsertedSmartCardAuth) {
     cardDetails: {
       jurisdiction,
       user: pollWorkerUser,
+      hasPin: false,
     },
   });
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
@@ -216,96 +217,118 @@ test.each<{
 
 test.each<{
   description: string;
-  user: UserWithCard;
+  machineState: DippedSmartCardAuthMachineState;
+  cardDetails: CardDetails;
 }>([
   {
-    description: 'system administrator',
-    user: systemAdministratorUser,
+    description: 'system administrator card',
+    machineState: defaultMachineState,
+    cardDetails: {
+      jurisdiction,
+      user: systemAdministratorUser,
+    },
   },
   {
-    description: 'election manager',
-    user: electionManagerUser,
+    description: 'election manager card',
+    machineState: defaultMachineState,
+    cardDetails: {
+      jurisdiction,
+      user: electionManagerUser,
+    },
   },
-])('Login and logout for users with PINs - $description', async ({ user }) => {
-  const auth = new InsertedSmartCardAuth({
-    card: mockCard,
-    config: defaultConfig,
-    logger: mockLogger,
-  });
+  {
+    description: 'poll worker card with PIN',
+    machineState: {
+      ...defaultMachineState,
+      arePollWorkerCardPinsEnabled: true,
+    },
+    cardDetails: {
+      jurisdiction,
+      user: pollWorkerUser,
+      hasPin: true,
+    },
+  },
+])(
+  'Login and logout using card with PIN - $description',
+  async ({ machineState, cardDetails }) => {
+    const auth = new InsertedSmartCardAuth({
+      card: mockCard,
+      config: defaultConfig,
+      logger: mockLogger,
+    });
+    const { user } = cardDetails;
 
-  mockCardStatus({
-    status: 'ready',
-    cardDetails: { jurisdiction, user },
-  });
-  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
-    status: 'checking_pin',
-    user,
-  });
+    mockCardStatus({ status: 'ready', cardDetails });
+    expect(await auth.getAuthStatus(machineState)).toEqual({
+      status: 'checking_pin',
+      user,
+    });
 
-  mockCard.checkPin
-    .expectCallWith(wrongPin)
-    .resolves({ response: 'incorrect', numRemainingAttempts: Infinity });
-  await auth.checkPin(defaultMachineState, { pin: wrongPin });
-  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
-    status: 'checking_pin',
-    user,
-    wrongPinEnteredAt: expect.any(Date),
-  });
-  expect(mockLogger.log).toHaveBeenCalledTimes(1);
-  expect(mockLogger.log).toHaveBeenNthCalledWith(
-    1,
-    LogEventId.AuthPinEntry,
-    user.role,
-    {
-      disposition: LogDispositionStandardTypes.Failure,
-      message: 'User entered incorrect PIN.',
-    }
-  );
+    mockCard.checkPin
+      .expectCallWith(wrongPin)
+      .resolves({ response: 'incorrect', numRemainingAttempts: Infinity });
+    await auth.checkPin(machineState, { pin: wrongPin });
+    expect(await auth.getAuthStatus(machineState)).toEqual({
+      status: 'checking_pin',
+      user,
+      wrongPinEnteredAt: expect.any(Date),
+    });
+    expect(mockLogger.log).toHaveBeenCalledTimes(1);
+    expect(mockLogger.log).toHaveBeenNthCalledWith(
+      1,
+      LogEventId.AuthPinEntry,
+      user.role,
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User entered incorrect PIN.',
+      }
+    );
 
-  mockCard.checkPin.expectCallWith(pin).resolves({ response: 'correct' });
-  await auth.checkPin(defaultMachineState, { pin });
-  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
-    status: 'logged_in',
-    user,
-  });
-  expect(mockLogger.log).toHaveBeenCalledTimes(3);
-  expect(mockLogger.log).toHaveBeenNthCalledWith(
-    2,
-    LogEventId.AuthPinEntry,
-    user.role,
-    {
-      disposition: LogDispositionStandardTypes.Success,
-      message: 'User entered correct PIN.',
-    }
-  );
-  expect(mockLogger.log).toHaveBeenNthCalledWith(
-    3,
-    LogEventId.AuthLogin,
-    user.role,
-    {
-      disposition: LogDispositionStandardTypes.Success,
-      message: 'User logged in.',
-    }
-  );
+    mockCard.checkPin.expectCallWith(pin).resolves({ response: 'correct' });
+    await auth.checkPin(machineState, { pin });
+    expect(await auth.getAuthStatus(machineState)).toEqual({
+      status: 'logged_in',
+      user,
+    });
+    expect(mockLogger.log).toHaveBeenCalledTimes(3);
+    expect(mockLogger.log).toHaveBeenNthCalledWith(
+      2,
+      LogEventId.AuthPinEntry,
+      user.role,
+      {
+        disposition: LogDispositionStandardTypes.Success,
+        message: 'User entered correct PIN.',
+      }
+    );
+    expect(mockLogger.log).toHaveBeenNthCalledWith(
+      3,
+      LogEventId.AuthLogin,
+      user.role,
+      {
+        disposition: LogDispositionStandardTypes.Success,
+        message: 'User logged in.',
+      }
+    );
 
-  mockCardStatus({ status: 'no_card' });
-  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
-    status: 'logged_out',
-    reason: 'no_card',
-  });
-  expect(mockLogger.log).toHaveBeenCalledTimes(4);
-  expect(mockLogger.log).toHaveBeenNthCalledWith(
-    4,
-    LogEventId.AuthLogout,
-    user.role,
-    {
-      disposition: LogDispositionStandardTypes.Success,
-      message: 'User logged out.',
-    }
-  );
-});
+    mockCardStatus({ status: 'no_card' });
+    expect(await auth.getAuthStatus(machineState)).toEqual({
+      status: 'logged_out',
+      reason: 'no_card',
+    });
+    expect(mockLogger.log).toHaveBeenCalledTimes(4);
+    expect(mockLogger.log).toHaveBeenNthCalledWith(
+      4,
+      LogEventId.AuthLogout,
+      user.role,
+      {
+        disposition: LogDispositionStandardTypes.Success,
+        message: 'User logged out.',
+      }
+    );
+  }
+);
 
-test('Login and logout for users without PINs', async () => {
+test('Login and logout using card without PIN', async () => {
   const auth = new InsertedSmartCardAuth({
     card: mockCard,
     config: defaultConfig,
@@ -317,6 +340,7 @@ test('Login and logout for users without PINs', async () => {
     cardDetails: {
       jurisdiction,
       user: pollWorkerUser,
+      hasPin: false,
     },
   });
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
@@ -379,11 +403,11 @@ test.each<{
     ],
   },
   {
-    description: 'invalid user on card, wrong jurisdiction',
+    description: 'wrong jurisdiction',
     config: defaultConfig,
-    machineState: { ...defaultMachineState, jurisdiction: otherJurisdiction },
+    machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction,
+      jurisdiction: otherJurisdiction,
       user: systemAdministratorUser,
     },
     expectedAuthStatus: {
@@ -434,6 +458,7 @@ test.each<{
     cardDetails: {
       jurisdiction,
       user: pollWorkerUser,
+      hasPin: false,
     },
     expectedAuthStatus: {
       status: 'logged_out',
@@ -451,12 +476,12 @@ test.each<{
     ],
   },
   {
-    description: 'election manager mismatched election hash',
+    description: 'election manager card with mismatched election hash',
     config: defaultConfig,
-    machineState: { ...defaultMachineState, electionHash: otherElectionHash },
+    machineState: defaultMachineState,
     cardDetails: {
       jurisdiction,
-      user: electionManagerUser,
+      user: { ...electionManagerUser, electionHash: otherElectionHash },
     },
     expectedAuthStatus: {
       status: 'logged_out',
@@ -475,29 +500,30 @@ test.each<{
   },
   {
     description:
-      'election manager mismatched election hash, ' +
+      'election manager card with mismatched election hash, ' +
       'allowElectionManagersToAccessMachinesConfiguredForOtherElections = true',
     config: {
       ...defaultConfig,
       allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,
     },
-    machineState: { ...defaultMachineState, electionHash: otherElectionHash },
+    machineState: defaultMachineState,
     cardDetails: {
       jurisdiction,
-      user: electionManagerUser,
+      user: { ...electionManagerUser, electionHash: otherElectionHash },
     },
     expectedAuthStatus: {
       status: 'checking_pin',
-      user: electionManagerUser,
+      user: { ...electionManagerUser, electionHash: otherElectionHash },
     },
   },
   {
-    description: 'poll worker mismatched election hash',
+    description: 'poll worker card with mismatched election hash',
     config: defaultConfig,
-    machineState: { ...defaultMachineState, electionHash: otherElectionHash },
+    machineState: defaultMachineState,
     cardDetails: {
       jurisdiction,
-      user: pollWorkerUser,
+      user: { ...pollWorkerUser, electionHash: otherElectionHash },
+      hasPin: false,
     },
     expectedAuthStatus: {
       status: 'logged_out',
@@ -514,8 +540,61 @@ test.each<{
       },
     ],
   },
+  {
+    description:
+      'poll worker card without PIN when poll worker card PINs are enabled',
+    config: defaultConfig,
+    machineState: {
+      ...defaultMachineState,
+      arePollWorkerCardPinsEnabled: true,
+    },
+    cardDetails: {
+      jurisdiction,
+      user: pollWorkerUser,
+      hasPin: false,
+    },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'invalid_user_on_card',
+      cardUserRole: 'poll_worker',
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'poll_worker',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'invalid_user_on_card',
+      },
+    ],
+  },
+  {
+    description:
+      'poll worker card with PIN when poll worker card PINs are not enabled',
+    config: defaultConfig,
+    machineState: defaultMachineState,
+    cardDetails: {
+      jurisdiction,
+      user: pollWorkerUser,
+      hasPin: true,
+    },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'invalid_user_on_card',
+      cardUserRole: 'poll_worker',
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'poll_worker',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'invalid_user_on_card',
+      },
+    ],
+  },
 ])(
-  'User validation - $description',
+  'Card validation - $description',
   async ({
     config,
     machineState,
@@ -639,6 +718,7 @@ test('Cardless voter sessions - end-to-end', async () => {
     cardDetails: {
       jurisdiction,
       user: pollWorkerUser,
+      hasPin: false,
     },
   });
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
@@ -1009,31 +1089,56 @@ test('Clearing card data error handling', async () => {
   expect(await auth.clearCardData()).toEqual(err(new Error('Whoa!')));
 });
 
-test.each<{ description: string; user: UserWithCard }>([
+test.each<{
+  description: string;
+  machineState: DippedSmartCardAuthMachineState;
+  cardDetails: CardDetails;
+}>([
   {
-    description: 'system administrator',
-    user: systemAdministratorUser,
+    description: 'system administrator card',
+    machineState: defaultMachineState,
+    cardDetails: {
+      jurisdiction,
+      user: systemAdministratorUser,
+    },
   },
   {
-    description: 'election manager',
-    user: electionManagerUser,
+    description: 'election manager card',
+    machineState: defaultMachineState,
+    cardDetails: {
+      jurisdiction,
+      user: electionManagerUser,
+    },
   },
-])('SKIP_PIN_ENTRY feature flag - $description', async ({ user }) => {
-  mockOf(isFeatureFlagEnabled).mockImplementation(
-    (flag) => flag === BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
-  );
-  const auth = new InsertedSmartCardAuth({
-    card: mockCard,
-    config: defaultConfig,
-    logger: mockLogger,
-  });
+  {
+    description: 'poll worker card with PIN',
+    machineState: {
+      ...defaultMachineState,
+      arePollWorkerCardPinsEnabled: true,
+    },
+    cardDetails: {
+      jurisdiction,
+      user: pollWorkerUser,
+      hasPin: true,
+    },
+  },
+])(
+  'SKIP_PIN_ENTRY feature flag - $description',
+  async ({ machineState, cardDetails }) => {
+    mockOf(isFeatureFlagEnabled).mockImplementation(
+      (flag) => flag === BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
+    );
+    const auth = new InsertedSmartCardAuth({
+      card: mockCard,
+      config: defaultConfig,
+      logger: mockLogger,
+    });
+    const { user } = cardDetails;
 
-  mockCardStatus({
-    status: 'ready',
-    cardDetails: { jurisdiction, user },
-  });
-  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
-    status: 'logged_in',
-    user,
-  });
-});
+    mockCardStatus({ status: 'ready', cardDetails });
+    expect(await auth.getAuthStatus(machineState)).toEqual({
+      status: 'logged_in',
+      user,
+    });
+  }
+);

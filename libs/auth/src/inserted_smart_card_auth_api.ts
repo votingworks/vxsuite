@@ -56,6 +56,7 @@ export interface InsertedSmartCardAuthConfig {
  * Machine state that the consumer is responsible for providing
  */
 export interface InsertedSmartCardAuthMachineState {
+  arePollWorkerCardPinsEnabled?: boolean;
   electionHash?: string;
   jurisdiction?: string;
 }

@@ -27,7 +27,13 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
-import { Card, CardDetails, CardStatus, CheckPinResponse } from './card';
+import {
+  arePollWorkerCardDetails,
+  Card,
+  CardDetails,
+  CardStatus,
+  CheckPinResponse,
+} from './card';
 import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthConfig,
@@ -342,21 +348,33 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
               assert(cardDetails !== undefined);
               const { user } = cardDetails;
               if (currentAuthStatus.status === 'logged_out') {
-                if (user.role === 'system_administrator') {
-                  return isFeatureFlagEnabled(
-                    BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
-                  )
-                    ? { status: 'logged_in', user }
-                    : { status: 'checking_pin', user };
+                const skipPinEntry = isFeatureFlagEnabled(
+                  BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
+                );
+                switch (user.role) {
+                  case 'system_administrator': {
+                    return skipPinEntry
+                      ? { status: 'logged_in', user }
+                      : { status: 'checking_pin', user };
+                  }
+                  case 'election_manager': {
+                    return skipPinEntry
+                      ? { status: 'logged_in', user }
+                      : { status: 'checking_pin', user };
+                  }
+                  case 'poll_worker': {
+                    if (skipPinEntry) {
+                      return { status: 'logged_in', user };
+                    }
+                    return machineState.arePollWorkerCardPinsEnabled
+                      ? { status: 'checking_pin', user }
+                      : { status: 'logged_in', user };
+                  }
+                  /* istanbul ignore next: Compile-time check for completeness */
+                  default: {
+                    throwIllegalValue(user, 'role');
+                  }
                 }
-                if (user.role === 'election_manager') {
-                  return isFeatureFlagEnabled(
-                    BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
-                  )
-                    ? { status: 'logged_in', user }
-                    : { status: 'checking_pin', user };
-                }
-                return { status: 'logged_in', user };
               }
               return currentAuthStatus;
             }
@@ -380,6 +398,9 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
         switch (action.checkPinResponse.response) {
           case 'correct': {
             if (currentAuthStatus.user.role === 'system_administrator') {
+              return { status: 'logged_in', user: currentAuthStatus.user };
+            }
+            if (currentAuthStatus.user.role === 'election_manager') {
               return { status: 'logged_in', user: currentAuthStatus.user };
             }
             return { status: 'logged_in', user: currentAuthStatus.user };
@@ -420,7 +441,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
 
     if (
       machineState.jurisdiction &&
-      machineState.jurisdiction !== jurisdiction
+      jurisdiction !== machineState.jurisdiction
     ) {
       return err('invalid_user_on_card');
     }
@@ -444,6 +465,16 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       }
       if (user.electionHash !== machineState.electionHash) {
         return err('poll_worker_wrong_election');
+      }
+      // If a poll worker card doesn't have a PIN but poll worker card PINs are enabled, treat the
+      // card as unprogrammed. And vice versa. If a poll worker card does have a PIN but poll
+      // worker card PINs are not enabled, also treat the card as unprogrammed.
+      assert(arePollWorkerCardDetails(cardDetails));
+      if (
+        cardDetails.hasPin !==
+        Boolean(machineState.arePollWorkerCardPinsEnabled)
+      ) {
+        return err('invalid_user_on_card');
       }
     }
 

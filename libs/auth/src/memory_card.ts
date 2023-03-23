@@ -12,7 +12,7 @@ import {
   UserWithCard,
 } from '@votingworks/types';
 
-import { Card, CardStatus, CheckPinResponse } from './card';
+import { Card, CardDetails, CardStatus, CheckPinResponse } from './card';
 import { DEV_JURISDICTION } from './certs';
 import * as Legacy from './legacy';
 
@@ -67,12 +67,15 @@ interface PollWorkerCardData extends CardData {
   readonly t: 'poll_worker';
   /** Election hash */
   readonly h: string;
+  /** PIN */
+  readonly p?: string;
 }
 
 const PollWorkerCardDataSchema: z.ZodSchema<PollWorkerCardData> =
   CardDataSchema.extend({
     t: z.literal('poll_worker'),
     h: ElectionHash,
+    p: z.optional(z.string()),
   });
 
 type AnyCardData =
@@ -116,6 +119,7 @@ function parseUserDataFromCardSummary(cardSummary: Legacy.CardSummaryReady): {
     case 'poll_worker':
       return {
         user: { role: 'poll_worker', electionHash: cardData.h },
+        pin: cardData.p,
       };
     /* istanbul ignore next: Compile-time check for completeness */
     default:
@@ -141,11 +145,43 @@ export class MemoryCard implements Card {
           cardSummary.status === 'error' ? 'card_error' : cardSummary.status,
       };
     }
-    const { user } = parseUserDataFromCardSummary(cardSummary);
-    return {
-      status: 'ready',
-      cardDetails: user ? { jurisdiction: DEV_JURISDICTION, user } : undefined,
-    };
+    const { user, pin } = parseUserDataFromCardSummary(cardSummary);
+    if (!user) {
+      return {
+        status: 'ready',
+        cardDetails: undefined,
+      };
+    }
+    let cardDetails: CardDetails;
+    switch (user.role) {
+      case 'system_administrator': {
+        cardDetails = {
+          jurisdiction: DEV_JURISDICTION,
+          user,
+        };
+        break;
+      }
+      case 'election_manager': {
+        cardDetails = {
+          jurisdiction: DEV_JURISDICTION,
+          user,
+        };
+        break;
+      }
+      case 'poll_worker': {
+        cardDetails = {
+          jurisdiction: DEV_JURISDICTION,
+          user,
+          hasPin: pin !== undefined,
+        };
+        break;
+      }
+      /* istanbul ignore next: Compile-time check for completeness */
+      default: {
+        throwIllegalValue(user, 'role');
+      }
+    }
+    return { status: 'ready', cardDetails };
   }
 
   async checkPin(pin: string): Promise<CheckPinResponse> {
@@ -163,28 +199,27 @@ export class MemoryCard implements Card {
     input:
       | { user: SystemAdministratorUser; pin: string }
       | { user: ElectionManagerUser; pin: string; electionData: string }
-      | { user: PollWorkerUser }
+      | { user: PollWorkerUser; pin?: string }
   ): Promise<void> {
-    const { user } = input;
+    const { pin, user } = input;
     switch (user.role) {
       case 'system_administrator': {
-        assert('pin' in input);
+        assert(pin !== undefined);
         const cardData: SystemAdministratorCardData = {
           t: 'system_administrator',
-          p: input.pin,
+          p: pin,
         };
         await this.card.overrideWriteProtection();
         await this.card.writeShortValue(JSON.stringify(cardData));
         break;
       }
       case 'election_manager': {
-        assert('electionHash' in input.user);
-        assert('pin' in input);
+        assert(pin !== undefined);
         assert('electionData' in input);
         const cardData: ElectionManagerCardData = {
           t: 'election_manager',
-          h: input.user.electionHash,
-          p: input.pin,
+          h: user.electionHash,
+          p: pin,
         };
         await this.card.overrideWriteProtection();
         await this.card.writeShortAndLongValues({
@@ -194,10 +229,10 @@ export class MemoryCard implements Card {
         break;
       }
       case 'poll_worker': {
-        assert('electionHash' in input.user);
         const cardData: PollWorkerCardData = {
           t: 'poll_worker',
-          h: input.user.electionHash,
+          h: user.electionHash,
+          p: pin,
         };
         await this.card.overrideWriteProtection();
         await this.card.writeShortValue(JSON.stringify(cardData));
