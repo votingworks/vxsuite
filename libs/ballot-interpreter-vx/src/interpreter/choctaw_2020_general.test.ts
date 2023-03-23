@@ -1,23 +1,13 @@
 import * as choctaw2020 from '../../test/fixtures/election-7c61368c3b-choctaw-general-2020';
-import { Interpreter } from '.';
+import { buildInterpreterWithFixtures } from '../../test/helpers/fixtures_to_templates';
 
 test('choctaw 2020 general', async () => {
   const { electionDefinition } = choctaw2020;
-  const interpreter = new Interpreter({ electionDefinition });
-
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(
-      await choctaw2020.blankPage1.imageData(),
-      await choctaw2020.blankPage1.metadata()
-    )
-  );
-
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(
-      await choctaw2020.blankPage2.imageData(),
-      await choctaw2020.blankPage2.metadata()
-    )
-  );
+  const { interpreter } = await buildInterpreterWithFixtures({
+    electionDefinition,
+    fixtures: [choctaw2020.blankPage1, choctaw2020.blankPage2],
+    useFixtureMetadata: true,
+  });
 
   const p1Interpreted = await interpreter.interpretBallot(
     await choctaw2020.filledInPage1.imageData(),

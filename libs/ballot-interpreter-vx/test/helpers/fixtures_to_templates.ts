@@ -15,7 +15,7 @@ export async function* fixturesToTemplates({
   electionDefinition: ElectionDefinition;
   fixtures: readonly [Fixture, ...Fixture[]];
   useFixtureMetadata?: boolean;
-}): AsyncGenerator<BallotPageLayoutWithImage> {
+}): AsyncIterable<BallotPageLayoutWithImage> {
   yield* interpretMultiPageTemplate({
     electionDefinition,
     pages: iter(fixtures)
@@ -34,18 +34,24 @@ export async function buildInterpreterWithFixtures({
   electionDefinition,
   fixtures,
   useFixtureMetadata = true,
+  testMode = false,
 }: {
   electionDefinition: ElectionDefinition;
   fixtures: readonly [Fixture, ...Fixture[]];
   useFixtureMetadata?: boolean;
-}): Promise<Interpreter> {
-  const interpreter = new Interpreter({ electionDefinition });
+  testMode?: boolean;
+}): Promise<{
+  interpreter: Interpreter;
+  templates: BallotPageLayoutWithImage[];
+}> {
+  const interpreter = new Interpreter({ electionDefinition, testMode });
+  const templates: BallotPageLayoutWithImage[] = [];
   for await (const template of fixturesToTemplates({
     electionDefinition,
     fixtures,
     useFixtureMetadata,
   })) {
-    interpreter.addTemplate(template);
+    templates.push(interpreter.addTemplate(template));
   }
-  return interpreter;
+  return { interpreter, templates };
 }

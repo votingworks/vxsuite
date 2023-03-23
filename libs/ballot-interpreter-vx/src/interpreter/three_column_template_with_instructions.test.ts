@@ -1,12 +1,14 @@
 import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
-import { Interpreter } from '.';
+import { interpretTemplate } from '../layout';
 
 test('interpret three-column template with instructions', async () => {
   const fixtures = oaklawn;
   const { electionDefinition } = fixtures;
-  const interpreter = new Interpreter({ electionDefinition });
-  const imageData = await fixtures.blankPage1.imageData();
-  const template = await interpreter.interpretTemplate(imageData);
+  const template = await interpretTemplate({
+    electionDefinition,
+    imageData: await fixtures.blankPage1.imageData(),
+    contestOffset: 0,
+  });
 
   expect(template.ballotPageLayout.metadata).toMatchObject({
     ballotStyleId: '77',

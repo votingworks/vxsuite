@@ -10,7 +10,7 @@ import { buildInterpreterWithFixtures } from '../../test/helpers/fixtures_to_tem
  */
 test.skip('handles lines connecting contest boxes', async () => {
   const { electionDefinition } = hamilton;
-  const interpreter = await buildInterpreterWithFixtures({
+  const { interpreter } = await buildInterpreterWithFixtures({
     electionDefinition,
     fixtures: [hamilton.blankPage1, hamilton.blankPage2, hamilton.blankPage3],
   });

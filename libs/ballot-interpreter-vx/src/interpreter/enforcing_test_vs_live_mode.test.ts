@@ -24,7 +24,7 @@ test('enforcing test vs live mode', async () => {
         electionDefinition,
         fixtures: [fixtures.blankPage1, fixtures.blankPage2],
       })
-    ).interpretBallot(
+    ).interpreter.interpretBallot(
       await fixtures.blankPage1.imageData(),
       await fixtures.blankPage1.metadata({ isTestMode: true })
     )

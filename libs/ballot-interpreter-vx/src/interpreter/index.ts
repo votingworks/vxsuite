@@ -162,6 +162,14 @@ export class Interpreter {
   }
 
   /**
+   * @deprecated In order to generate a layout that includes proper contest
+   * IDs, the templates of a multi-page ballot must be interpreted together,
+   * in sequence. This method does not do that, so it has been deprecated.
+   * The only place it is being used is the CLI.
+   *
+   * In production, use {@link interpretMultiPagePdfTemplate} to generate layouts.
+   * In tests, you can use the helper {@link buildInterpreterWithFixtures}.
+   *
    * Interprets an image as a template, returning the layout information read
    * from the image. The template image should be an image of a blank ballot,
    * either scanned or otherwise rendered as an image.
@@ -177,8 +185,7 @@ export class Interpreter {
       metadata,
       imdebug,
       // the below is incorrect and may mean that contest ids are not accurate
-      // for this method. currently this method is only being used in tests and
-      // the CLI
+      // for this method. currently this method is only being used in the CLI
       contestOffset: 0,
     });
   }

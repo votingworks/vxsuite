@@ -1,4 +1,3 @@
-import { Interpreter } from '.';
 import {
   electionDefinition,
   blankPage1,
@@ -6,18 +5,16 @@ import {
   filledInPage1,
   filledInPage2,
 } from '../../test/fixtures/right-side-target-mark-position';
+import { buildInterpreterWithFixtures } from '../../test/helpers/fixtures_to_templates';
 
 // TODO Skipping for now, since we're relying on an outdated election fixture
 // that includes an either-neither contest
 test.skip('interprets ballots with right-side ballot target mark position', async () => {
-  const interpreter = new Interpreter({ electionDefinition, testMode: true });
-
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(await blankPage1.imageData())
-  );
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(await blankPage2.imageData())
-  );
+  const { interpreter } = await buildInterpreterWithFixtures({
+    electionDefinition,
+    fixtures: [blankPage1, blankPage2],
+    testMode: true,
+  });
 
   expect(
     (await interpreter.interpretBallot(await filledInPage1.imageData())).ballot

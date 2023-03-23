@@ -1,17 +1,16 @@
 import * as choctaw2020LegalSize from '../../test/fixtures/choctaw-county-2020-general-election';
-import { Interpreter } from '.';
+import { buildInterpreterWithFixtures } from '../../test/helpers/fixtures_to_templates';
 
 // disabling this test as we've disabled jsQR for now
 test.skip('regression: overvote on choctaw county p1-05', async () => {
   const fixtures = choctaw2020LegalSize;
   const { electionDefinition } = fixtures;
-  const interpreter = new Interpreter({ electionDefinition, testMode: true });
+  const { interpreter } = await buildInterpreterWithFixtures({
+    electionDefinition,
+    fixtures: [fixtures.district5BlankPage1],
+    testMode: true,
+  });
 
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(
-      await fixtures.district5BlankPage1.imageData()
-    )
-  );
   const interpretation = await interpreter.interpretBallot(
     await fixtures.p1BestCaseScenario.imageData()
   );

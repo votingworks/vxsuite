@@ -1,3 +1,4 @@
+import { iter } from '@votingworks/basics';
 import { BallotMetadata, BallotType } from '@votingworks/types';
 import * as fs from 'fs';
 import * as choctaw2020General from '../test/fixtures/choctaw-county-2020-general-election';
@@ -17,11 +18,13 @@ test('interpretMultiPagePdfTemplate', async () => {
     isTestMode: true,
   };
 
-  const layoutsWithImages = await interpretMultiPagePdfTemplate({
-    electionDefinition,
-    ballotPdfData,
-    metadata,
-  });
+  const layoutsWithImages = await iter(
+    interpretMultiPagePdfTemplate({
+      electionDefinition,
+      ballotPdfData,
+      metadata,
+    })
+  ).toArray();
 
   expect(layoutsWithImages).toHaveLength(2);
   expect(

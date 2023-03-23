@@ -1,22 +1,13 @@
 import * as choctaw2019 from '../../test/fixtures/election-98f5203139-choctaw-general-2019';
-import { Interpreter } from '.';
+import { buildInterpreterWithFixtures } from '../../test/helpers/fixtures_to_templates';
 
 test('choctaw general 2019', async () => {
   const { electionDefinition } = choctaw2019;
-  const interpreter = new Interpreter({ electionDefinition });
-
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(
-      await choctaw2019.blankPage1.imageData(),
-      await choctaw2019.blankPage1.metadata()
-    )
-  );
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(
-      await choctaw2019.blankPage2.imageData(),
-      await choctaw2019.blankPage2.metadata()
-    )
-  );
+  const { interpreter } = await buildInterpreterWithFixtures({
+    electionDefinition,
+    fixtures: [choctaw2019.blankPage1, choctaw2019.blankPage2],
+    useFixtureMetadata: true,
+  });
 
   expect(
     (
@@ -144,28 +135,15 @@ test('choctaw general 2019', async () => {
 
 test('determining layout of a ballot with borders', async () => {
   const { electionDefinition } = choctaw2019;
-  const interpreter = new Interpreter({ electionDefinition });
-
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(
-      await choctaw2019.blankPage1.imageData(),
-      await choctaw2019.blankPage1.metadata()
-    )
-  );
-
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(
-      await choctaw2019.blankPage2.imageData(),
-      await choctaw2019.blankPage2.metadata()
-    )
-  );
-
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(
-      await choctaw2019.blankPage3.imageData(),
-      await choctaw2019.blankPage3.metadata()
-    )
-  );
+  const { interpreter } = await buildInterpreterWithFixtures({
+    electionDefinition,
+    fixtures: [
+      choctaw2019.blankPage1,
+      choctaw2019.blankPage2,
+      choctaw2019.blankPage3,
+    ],
+    useFixtureMetadata: true,
+  });
 
   expect(
     (

@@ -21,7 +21,7 @@ import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, iter, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
   Monospace,
@@ -146,12 +146,13 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         locales,
         isTestMode: !isLiveMode,
       };
-
-      const layoutsWithImages = await interpretMultiPagePdfTemplate({
-        electionDefinition,
-        ballotPdfData,
-        metadata,
-      });
+      const layoutsWithImages = await iter(
+        interpretMultiPagePdfTemplate({
+          electionDefinition,
+          ballotPdfData,
+          metadata,
+        })
+      ).toArray();
       const layouts = layoutsWithImages.map(
         (layoutWithImage) => layoutWithImage.ballotPageLayout
       );

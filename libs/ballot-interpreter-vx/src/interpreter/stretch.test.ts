@@ -1,17 +1,18 @@
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { Interpreter } from '.';
+import { buildInterpreterWithFixtures } from '../../test/helpers/fixtures_to_templates';
+import { Fixture } from '../../test/fixtures';
 
 test('stretched precinct scanner ballot', async () => {
   const fixtures = electionFamousNames2021Fixtures;
   const { electionDefinition } = fixtures;
-  const interpreter = new Interpreter({ electionDefinition });
-
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(await fixtures.blankPage1.asImageData())
-  );
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(await fixtures.blankPage2.asImageData())
-  );
+  const { interpreter } = await buildInterpreterWithFixtures({
+    electionDefinition,
+    fixtures: [
+      new Fixture(fixtures.blankPage1.asFilePath()),
+      new Fixture(fixtures.blankPage2.asFilePath()),
+    ],
+    useFixtureMetadata: false,
+  });
 
   expect(
     (

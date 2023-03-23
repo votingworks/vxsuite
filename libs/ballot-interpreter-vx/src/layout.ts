@@ -195,7 +195,7 @@ export async function* interpretMultiPageTemplate({
   electionDefinition: ElectionDefinition;
   pages: AsyncIterable<PdfPage>;
   metadata?: BallotMetadata;
-}): AsyncGenerator<BallotPageLayoutWithImage> {
+}): AsyncIterable<BallotPageLayoutWithImage> {
   let contestOffset = 0;
   for await (const { page, pageNumber } of pages) {
     const layoutWithImage = await interpretTemplate({
@@ -230,7 +230,7 @@ export async function* interpretMultiPagePdfTemplate({
   ballotPdfData: Buffer;
   metadata: BallotMetadata;
   scale?: number;
-}): AsyncGenerator<BallotPageLayoutWithImage> {
+}): AsyncIterable<BallotPageLayoutWithImage> {
   yield* interpretMultiPageTemplate({
     electionDefinition,
     pages: pdfToImages(ballotPdfData, { scale }),
