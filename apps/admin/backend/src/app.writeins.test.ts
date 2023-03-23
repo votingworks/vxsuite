@@ -549,5 +549,5 @@ test('getWriteInImage', async () => {
   const castVoteRecord = JSON.parse(
     oneBallotCastVoteRecordFile.asText()
   ) as CastVoteRecord;
-  expect(image).toEqual(castVoteRecord._ballotImages![0].normalized);
+  expect(image).toEqual(castVoteRecord._ballotImages![0]!.normalized);
 });
