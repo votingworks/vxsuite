@@ -1,10 +1,6 @@
 import { render, RenderResult, waitFor } from '@testing-library/react';
-import {
-  ElementWithCallback,
-  Optional,
-  PrintOptions,
-} from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { ElementWithCallback, PrintOptions } from '@votingworks/types';
+import { assert, Optional } from '@votingworks/basics';
 
 export class ExpectPrintError extends Error {}
 

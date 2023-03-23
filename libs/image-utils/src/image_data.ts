@@ -1,5 +1,5 @@
-import { err, ok, Result } from '@votingworks/basics';
-import { Optional, safeParseInt } from '@votingworks/types';
+import { err, ok, Optional, Result } from '@votingworks/basics';
+import { safeParseInt } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import {
   createCanvas,

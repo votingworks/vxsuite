@@ -3,8 +3,8 @@ import { Buffer } from 'buffer';
 import * as fs from 'fs';
 import { sha256 } from 'js-sha256';
 import yargs from 'yargs/yargs';
-import { assert, throwIllegalValue } from '@votingworks/basics';
-import { Optional, safeParseElection } from '@votingworks/types';
+import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
+import { safeParseElection } from '@votingworks/types';
 
 import { DEV_JURISDICTION } from '../src/certs';
 import { mockCard } from '../src/mock_file_card';

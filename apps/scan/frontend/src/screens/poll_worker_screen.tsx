@@ -40,7 +40,6 @@ import {
   getPartyIdsInBallotStyles,
   PollsState,
   PollsTransition,
-  Optional,
   ElectionDefinition,
   PrecinctSelection,
 } from '@votingworks/types';
@@ -49,7 +48,13 @@ import {
   LogEventId,
   Logger,
 } from '@votingworks/logging';
-import { assert, Result, sleep, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  Optional,
+  Result,
+  sleep,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { ScreenMainCenterChild } from '../components/layout';
 
 import { LiveCheckModal } from '../components/live_check_modal';

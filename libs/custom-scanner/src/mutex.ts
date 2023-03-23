@@ -1,5 +1,4 @@
-import { Optional } from '@votingworks/types';
-import { deferred } from '@votingworks/basics';
+import { deferred, Optional } from '@votingworks/basics';
 
 interface LockResult<T> {
   value: T;

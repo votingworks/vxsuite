@@ -1,4 +1,10 @@
-import { assert, find, throwIllegalValue, typedAs } from '@votingworks/basics';
+import {
+  assert,
+  find,
+  Optional,
+  throwIllegalValue,
+  typedAs,
+} from '@votingworks/basics';
 import {
   BallotTargetMark,
   BatchTally,
@@ -19,7 +25,6 @@ import {
   getBallotStyle,
   MarkStatus,
   MarkThresholds,
-  Optional,
   PartyId,
   PrecinctId,
   safeParse,

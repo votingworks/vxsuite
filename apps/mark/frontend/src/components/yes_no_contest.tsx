@@ -9,7 +9,6 @@ import {
   YesNoVote,
   OptionalYesNoVote,
   YesNoContest as YesNoContestInterface,
-  Optional,
   YesOrNo,
   getContestDistrictName,
 } from '@votingworks/types';
@@ -24,7 +23,7 @@ import {
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
-import { assert } from '@votingworks/basics';
+import { assert, Optional } from '@votingworks/basics';
 import { ScrollDirections, UpdateVoteFunction } from '../config/types';
 
 import { BallotContext } from '../contexts/ballot_context';

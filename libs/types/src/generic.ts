@@ -1,6 +1,6 @@
 import check8601 from '@antongolub/iso8601';
 import { z } from 'zod';
-import { err, ok, Result, wrapException } from '@votingworks/basics';
+import { err, ok, Optional, Result, wrapException } from '@votingworks/basics';
 
 export interface DefinedDictionary<T> {
   [key: string]: T;
@@ -8,7 +8,6 @@ export interface DefinedDictionary<T> {
 export interface Dictionary<T> {
   [key: string]: Optional<T>;
 }
-export type Optional<T> = T | undefined;
 export interface Provider<T> {
   get(): Promise<T>;
 }

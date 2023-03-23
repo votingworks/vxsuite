@@ -1,5 +1,5 @@
-import { BallotPaperSize, GridPosition, Optional } from '@votingworks/types';
-import { Result } from '@votingworks/basics';
+import { BallotPaperSize, GridPosition } from '@votingworks/types';
+import { Optional, Result } from '@votingworks/basics';
 
 /*
  * Many of these types are from the Rust code.

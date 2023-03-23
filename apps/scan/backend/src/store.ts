@@ -24,7 +24,6 @@ import {
   Iso8601Timestamp,
   mapSheet,
   MarkThresholds,
-  Optional,
   PageInterpretationSchema,
   PageInterpretationWithFiles,
   PollsState as PollsStateType,
@@ -38,7 +37,7 @@ import {
   Side,
 } from '@votingworks/types';
 import { BallotPackageEntry } from '@votingworks/utils';
-import { assert, find } from '@votingworks/basics';
+import { assert, find, Optional } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';

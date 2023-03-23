@@ -1,9 +1,8 @@
 import { z } from 'zod';
-import { Result } from '@votingworks/basics';
+import { Optional, Result } from '@votingworks/basics';
 import {
   BallotStyleId,
   InsertedSmartCardAuth,
-  Optional,
   PrecinctId,
 } from '@votingworks/types';
 

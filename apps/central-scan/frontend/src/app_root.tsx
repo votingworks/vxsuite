@@ -3,7 +3,6 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import {
   ElectionDefinition,
   MarkThresholds,
-  Optional,
   safeParseJson,
 } from '@votingworks/types';
 import styled from 'styled-components';
@@ -33,7 +32,7 @@ import {
   Button,
 } from '@votingworks/ui';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { assert, Result, ok, err } from '@votingworks/basics';
+import { assert, Optional, Result, ok, err } from '@votingworks/basics';
 import { MachineConfig } from './config/types';
 import { AppContext, AppContextInterface } from './contexts/app_context';
 

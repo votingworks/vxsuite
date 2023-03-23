@@ -6,12 +6,11 @@ import {
   Election,
   ElectionDefinition,
   Id,
-  Optional,
   PageInterpretation,
   SheetOf,
   unsafeParse,
 } from '@votingworks/types';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, Optional, Result } from '@votingworks/basics';
 import { Readable } from 'stream';
 import {
   CAST_VOTE_RECORD_REPORT_FILENAME,
