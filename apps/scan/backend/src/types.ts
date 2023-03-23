@@ -1,3 +1,4 @@
+import { Result } from '@votingworks/basics';
 import {
   AdjudicationReasonInfo,
   ElectionDefinition,
@@ -11,6 +12,11 @@ export interface MachineConfig {
   machineId: string;
   codeVersion: string;
 }
+
+/**
+ * Possible errors that can occur during configuration (currently there's only one).
+ */
+export type ConfigurationError = 'no_ballot_package_on_usb_drive';
 
 export interface PageInterpretationWithAdjudication<
   T extends PageInterpretation = PageInterpretation
@@ -35,6 +41,7 @@ export type PrecinctScannerState =
   | 'accepted'
   | 'needs_review'
   | 'accepting_after_review'
+  | 'returning_to_rescan'
   | 'returning'
   | 'returned'
   | 'rejecting'
@@ -71,11 +78,12 @@ export type PrecinctScannerErrorType =
   | 'both_sides_have_paper'
   | 'paper_in_back_after_accept'
   | 'paper_in_front_after_reconnect'
+  | 'paper_in_both_sides_after_reconnect'
   | 'paper_in_back_after_reconnect'
   | 'unexpected_paper_status'
   | 'unexpected_event'
   | 'calibration_failed'
-  | 'plustek_error';
+  | 'client_error';
 export interface PrecinctScannerMachineStatus {
   state: PrecinctScannerState;
   interpretation?: SheetInterpretation;
@@ -97,4 +105,23 @@ export interface PrecinctScannerConfig {
   isTestMode: boolean;
   pollsState: PollsState;
   ballotCountWhenBallotBagLastReplaced: number;
+}
+
+/**
+ * The precinct scanner state machine can:
+ * - return its status
+ * - accept scanning commands * - calibrate
+ */
+export interface PrecinctScannerStateMachine {
+  status: () => PrecinctScannerMachineStatus;
+  // The commands are non-blocking and do not return a result. They just send an
+  // event to the machine. The effects of the event (or any error) will show up
+  // in the status.
+  scan: () => void;
+  accept: () => void;
+  return: () => void;
+  stop: () => void;
+  // Calibrate is the exception, which blocks until calibration is finished and
+  // returns a result.
+  calibrate?: () => Promise<Result<void, string>>;
 }

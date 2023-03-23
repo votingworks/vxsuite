@@ -46,12 +46,13 @@ export function ScanErrorScreen({
       case 'paper_in_front_after_reconnect':
       case 'paper_in_back_after_reconnect':
       case 'paper_in_back_after_accept':
+      case 'paper_in_both_sides_after_reconnect':
         return 'Remove ballot to continue.';
       case 'paper_status_timed_out':
       case 'scanning_timed_out':
       case 'unexpected_paper_status':
       case 'unexpected_event':
-      case 'plustek_error':
+      case 'client_error':
         // These cases require restart, so we don't need to show an error
         // message, since that's handled below.
         return undefined;
@@ -189,11 +190,11 @@ export function BallotNotDroppedAfterAcceptPreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function UnexpectedPlustekErrorPreview(): JSX.Element {
+export function UnexpectedClientErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      error="plustek_error"
+      error="client_error"
       scannedBallotCount={42}
     />
   );

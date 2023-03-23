@@ -32,6 +32,7 @@ export async function getUsbDrives(): Promise<UsbDrive[]> {
     USB_REGEXP.test(name)
   );
 
+  console.log('devicesById', devicesById);
   // follow the symlinks
   const devices = await Promise.all(
     devicesById.map(async (deviceId) =>
@@ -41,6 +42,7 @@ export async function getUsbDrives(): Promise<UsbDrive[]> {
       )
     )
   );
+  console.log('devices', devices);
 
   // get the block device info, including mount point
   const usbDrives = await Promise.all(
@@ -54,6 +56,7 @@ export async function getUsbDrives(): Promise<UsbDrive[]> {
       };
     })
   );
+  console.log('usbDrives', usbDrives);
 
   return usbDrives;
 }

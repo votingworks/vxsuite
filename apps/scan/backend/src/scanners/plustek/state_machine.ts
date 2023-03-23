@@ -9,13 +9,7 @@ import {
 } from '@votingworks/plustek-scanner';
 import { v4 as uuid } from 'uuid';
 import { Id, SheetOf } from '@votingworks/types';
-import {
-  assert,
-  throwIllegalValue,
-  err,
-  ok,
-  Result,
-} from '@votingworks/basics';
+import { assert, throwIllegalValue, err, ok } from '@votingworks/basics';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import {
   assign as xassign,
@@ -34,15 +28,16 @@ import { LogEventId, Logger, LogLine } from '@votingworks/logging';
 import {
   SheetInterpretationWithPages,
   PrecinctScannerInterpreter,
-} from './interpret';
-import { Store } from './store';
-import { Workspace } from './util/workspace';
-import { rootDebug } from './util/debug';
+} from '../../interpret';
+import { Store } from '../../store';
+import { Workspace } from '../../util/workspace';
+import { rootDebug } from '../../util/debug';
 import {
   PrecinctScannerErrorType,
   PrecinctScannerMachineStatus,
+  PrecinctScannerStateMachine,
   SheetInterpretation,
-} from './types';
+} from '../../types';
 
 const debug = rootDebug.extend('state-machine');
 const debugPaperStatus = debug.extend('paper-status');
@@ -982,25 +977,6 @@ function setupLogging(
 
 function errorToString(error: NonNullable<Context['error']>) {
   return error instanceof PrecinctScannerError ? error.type : 'client_error';
-}
-
-/**
- * The precinct scanner state machine can:
- * - return its status
- * - accept scanning commands
- * - calibrate
- */
-export interface PrecinctScannerStateMachine {
-  status: () => PrecinctScannerMachineStatus;
-  // The commands are non-blocking and do not return a result. They just send an
-  // event to the machine. The effects of the event (or any error) will show up
-  // in the status.
-  scan: () => void;
-  accept: () => void;
-  return: () => void;
-  // Calibrate is the exception, which blocks until calibration is finished and
-  // returns a result.
-  calibrate?: () => Promise<Result<void, string>>;
 }
 
 /**

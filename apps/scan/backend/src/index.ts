@@ -3,11 +3,15 @@ import { createClient } from '@votingworks/plustek-scanner';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
 import fs from 'fs';
-import { NODE_ENV, SCAN_WORKSPACE } from './globals';
+import { throwIllegalValue } from '@votingworks/basics';
+import { openScanner } from '@votingworks/custom-scanner';
+import { NODE_ENV, SCANNER_MODEL, SCAN_WORKSPACE } from './globals';
 import { createInterpreter, PrecinctScannerInterpreter } from './interpret';
-import * as plustekStateMachine from './state_machine';
+import * as plustekStateMachine from './scanners/plustek/state_machine';
+import * as customStateMachine from './scanners/custom/state_machine';
 import * as server from './server';
 import { createWorkspace, Workspace } from './util/workspace';
+import { PrecinctScannerStateMachine } from './types';
 
 export type { Api } from './app';
 export * from './types';
@@ -22,8 +26,8 @@ const dotenvFiles: string[] = [
   NODE_ENV !== 'test' ? `${dotenvPath}.local` : '',
   `${dotenvPath}.${NODE_ENV}`,
   dotenvPath,
-  NODE_ENV !== 'test' ? `../../../${dotenvPath}.local` : '',
-  `../../../${dotenvPath}`,
+  NODE_ENV !== 'test' ? `../../${dotenvPath}.local` : '',
+  `../../${dotenvPath}`,
 ].filter(Boolean);
 
 // Load environment variables from .env* files. Suppress warnings using silent
@@ -57,13 +61,28 @@ async function resolveWorkspace(): Promise<Workspace> {
 function createPrecinctScannerStateMachine(
   workspace: Workspace,
   interpreter: PrecinctScannerInterpreter
-): plustekStateMachine.PrecinctScannerStateMachine {
-  return plustekStateMachine.createPrecinctScannerStateMachine({
-    createPlustekClient: createClient,
-    workspace,
-    interpreter,
-    logger,
-  });
+): PrecinctScannerStateMachine {
+  switch (SCANNER_MODEL) {
+    case 'custom':
+      return customStateMachine.createPrecinctScannerStateMachine({
+        createCustomClient: openScanner,
+        workspace,
+        interpreter,
+        logger,
+      });
+
+    case 'plustek':
+      return plustekStateMachine.createPrecinctScannerStateMachine({
+        createPlustekClient: createClient,
+        workspace,
+        interpreter,
+        logger,
+      });
+
+    /* istanbul ignore next */
+    default:
+      throwIllegalValue(SCANNER_MODEL);
+  }
 }
 
 async function main(): Promise<number> {

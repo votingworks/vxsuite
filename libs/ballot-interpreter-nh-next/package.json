@@ -41,7 +41,7 @@
     "cargo-cp-artifact": "^0.1",
     "esbuild": "^0.17.11",
     "esbuild-runner": "^2.2.2",
-    "eslint": "^8.23.1",
+    "eslint": "8.23.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-node": "^0.3.6",
     "eslint-plugin-import": "^2.26.0",
