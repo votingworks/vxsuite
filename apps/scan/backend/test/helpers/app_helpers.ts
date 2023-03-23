@@ -263,6 +263,15 @@ const electionFamousNames2021WithoutTemplatesBallotPackageBuffer =
     electionFamousNames2021Fixtures.electionDefinition
   );
 
+/**
+ * configureApp is a testing convenience function that handles some common configuration of the VxScan app.
+ * @param apiClient - a VxScan API client
+ * @param mockUsb - a mock USB
+ * @param options - an object containing optional arguments
+ * @param options.mockAuth - a mock InsertedSmartCardAuthApi. Passing this will automatically
+ *                           create a mock that auths the user as an election manager of the same
+ *                           election defined in the ballot package.
+ */
 export async function configureApp(
   apiClient: grout.Client<Api>,
   mockUsb: MockUsb,
