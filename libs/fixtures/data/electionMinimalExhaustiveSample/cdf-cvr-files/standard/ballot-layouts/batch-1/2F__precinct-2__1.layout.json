@@ -16,6 +16,7 @@
   },
   "contests": [
     {
+      "contestId": "best-animal-fish",
       "bounds": {
         "x": 429,
         "y": 43,
@@ -88,6 +89,7 @@
       ]
     },
     {
+      "contestId": "aquarium-council-fish",
       "bounds": {
         "x": 429,
         "y": 327,
