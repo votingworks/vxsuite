@@ -161,6 +161,20 @@ impl Rect {
             None
         }
     }
+
+    // Returns the smallest rectangle that contains both `self` and `other`.
+    pub fn union(&self, other: &Self) -> Self {
+        let left = self.left.min(other.left);
+        let top = self.top.min(other.top);
+        let right = self.right().max(other.right());
+        let bottom = self.bottom().max(other.bottom());
+        Self::new(
+            left,
+            top,
+            (right - left + 1) as PixelUnit,
+            (bottom - top + 1) as PixelUnit,
+        )
+    }
 }
 
 impl From<Rect> for imageproc::rect::Rect {

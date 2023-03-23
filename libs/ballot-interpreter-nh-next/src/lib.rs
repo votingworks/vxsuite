@@ -9,6 +9,7 @@ mod election;
 mod geometry;
 mod image_utils;
 mod interpret;
+mod layout;
 mod metadata;
 mod scoring;
 mod timing_marks;

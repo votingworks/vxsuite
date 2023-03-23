@@ -96,6 +96,7 @@ export interface InterpretedBallotPage {
   grid: TimingMarkGrid;
   marks: ScoredOvalMarks;
   normalizedImage: NormalizedImageBuffer;
+  contestLayouts: InterpretedContestLayout[];
 }
 
 /** Image data for the normalized ballot image produced during interpetation. */
@@ -103,6 +104,19 @@ export interface NormalizedImageBuffer {
   width: u32;
   height: u32;
   data: number[];
+}
+
+/** The pixel bounds outlining a contest option in the normalized ballot image. */
+export interface InterpretedContestOptionLayout {
+  optionId: string;
+  bounds: Rect;
+}
+
+/** The pixel bounds outlining a contest in the normalized ballot image. */
+export interface InterpretedContestLayout {
+  contestId: string;
+  bounds: Rect;
+  options: InterpretedContestOptionLayout[];
 }
 
 /** An array of optional marks and their corresponding grid positions. */

@@ -11,9 +11,13 @@ import {
 import {
   AdjudicationInfo,
   AdjudicationReason,
+  AnyContest,
+  BallotPageContestLayout,
+  BallotPageContestOptionLayout,
   BallotTargetMark,
   BallotType,
   Contests,
+  Corners,
   ElectionDefinition,
   getBallotStyle,
   HmpbBallotPageMetadata,
@@ -35,9 +39,11 @@ import {
   BallotPageMetadataFront,
   Geometry,
   InterpretedBallotCard,
-  InterpretedBallotPage,
   InterpretResult as NextInterpretResult,
   ScoredOvalMarks,
+  Rect as NextRect,
+  InterpretedContestLayout,
+  InterpretedContestOptionLayout,
 } from './types';
 
 type OkType<T> = T extends Ok<infer U> ? U : never;
@@ -229,6 +235,64 @@ function buildInterpretedHmpbPageMetadata(
   };
 }
 
+function convertContestLayouts(
+  contests: Contests,
+  contestLayouts: InterpretedContestLayout[]
+): BallotPageContestLayout[] {
+  function convertRect(rect: NextRect): Rect {
+    return {
+      x: rect.left,
+      y: rect.top,
+      width: rect.width,
+      height: rect.height,
+    };
+  }
+
+  function rectToCorners(rect: NextRect): Corners {
+    return [
+      // Top left
+      { x: rect.left, y: rect.top },
+      // Top right
+      { x: rect.left + rect.width, y: rect.top },
+      // Bottom left
+      { x: rect.left, y: rect.top + rect.height },
+      // Bottom right
+      { x: rect.left + rect.width, y: rect.top + rect.height },
+    ];
+  }
+
+  function convertContestOptionLayout(
+    contest: AnyContest,
+    { bounds, optionId }: InterpretedContestOptionLayout
+  ): BallotPageContestOptionLayout {
+    const option = iter(allContestOptions(contest)).find(
+      (o) => o.id === optionId
+    );
+    assert(option, `option ${optionId} not found`);
+    return {
+      definition: option,
+      bounds: convertRect(bounds),
+      // TODO is this needed? Filled with a dummy value for now
+      target: {
+        bounds: { x: 0, y: 0, width: 1, height: 1 },
+        inner: { x: 0, y: 0, width: 1, height: 1 },
+      },
+    };
+  }
+
+  return contestLayouts.map(({ contestId, bounds, options }) => {
+    const contest = find(contests, (c) => c.id === contestId);
+    return {
+      contestId,
+      bounds: convertRect(bounds),
+      corners: rectToCorners(bounds),
+      options: options.map((option) =>
+        convertContestOptionLayout(contest, option)
+      ),
+    };
+  });
+}
+
 function convertNextInterpretedBallotPage(
   electionDefinition: ElectionDefinition,
   options: InterpretOptions,
@@ -240,17 +304,18 @@ function convertNextInterpretedBallotPage(
     options.markThresholds ?? electionDefinition.election.markThresholds;
   assert(markThresholds, 'markThresholds must be defined');
 
+  const metadata = buildInterpretedHmpbPageMetadata(
+    electionDefinition,
+    options,
+    nextInterpretedBallotCard.front.grid.metadata as BallotPageMetadataFront,
+    side
+  );
+
   const nextInterpretation = nextInterpretedBallotCard[side];
   return {
     interpretation: {
       type: 'InterpretedHmpbPage',
-      metadata: buildInterpretedHmpbPageMetadata(
-        electionDefinition,
-        options,
-        nextInterpretedBallotCard.front.grid
-          .metadata as BallotPageMetadataFront,
-        side
-      ),
+      metadata,
       markInfo: convertMarksToMarkInfo(
         electionDefinition.election.contests,
         nextInterpretation.grid.geometry,
@@ -266,6 +331,14 @@ function convertNextInterpretedBallotPage(
         markThresholds,
         nextInterpretation.marks
       ),
+      layout: {
+        pageSize: nextInterpretation.grid.geometry.canvasSize,
+        metadata,
+        contests: convertContestLayouts(
+          electionDefinition.election.contests,
+          nextInterpretation.contestLayouts
+        ),
+      },
     },
     normalizedImage: {
       ...nextInterpretation.normalizedImage,
