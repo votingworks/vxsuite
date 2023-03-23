@@ -8,14 +8,19 @@ import * as fs from 'fs';
 import { CVR_BALLOT_LAYOUTS_SUBDIRECTORY } from '@votingworks/backend';
 import { vxBallotType } from '@votingworks/types/src/cdf/cast-vote-records';
 import {
+  castVoteRecordHasWriteIns,
+  castVoteRecordVoteIsWriteIn,
+} from '@votingworks/utils';
+import {
   buildTestEnvironment,
   configureMachine,
   mockCastVoteRecordFileTree,
   mockElectionManagerAuth,
 } from '../test/app';
 import { modifyCastVoteRecordReport } from '../test/utils';
+import { getWriteInsFromCastVoteRecord } from './util/cvrs';
 
-jest.setTimeout(30_000);
+jest.setTimeout(60_000);
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -116,6 +121,9 @@ test('happy path - mock election flow', async () => {
       scannerIds: ['scanner'],
     }),
   ]);
+  expect(await apiClient.getCastVoteRecordFileMode()).toEqual(
+    Admin.CvrFileMode.Test
+  );
 
   // check cast vote record count and a single record. a record with the
   // specified votes should exist given the size of the cast vote record
@@ -137,8 +145,48 @@ test('happy path - mock election flow', async () => {
     ])
   );
 
-  expect(await apiClient.getCastVoteRecordFileMode()).toEqual(
-    Admin.CvrFileMode.Test
+  // check that cast vote records with write-ins have ballot images and layouts
+  const expectedWriteInRecords: Array<{ contestId: string; optionId: string }> =
+    [];
+  for (const castVoteRecord of await apiClient.getCastVoteRecords()) {
+    if (castVoteRecordHasWriteIns(castVoteRecord)) {
+      expect(castVoteRecord._layouts).toBeTruthy();
+      for (const [contestId, vote] of getWriteInsFromCastVoteRecord(
+        castVoteRecord
+      ).entries()) {
+        for (const voteOption of vote) {
+          if (castVoteRecordVoteIsWriteIn(voteOption)) {
+            expectedWriteInRecords.push({
+              contestId,
+              optionId: voteOption,
+            });
+          }
+        }
+      }
+    } else {
+      expect(castVoteRecord._layouts).toBeFalsy();
+    }
+  }
+
+  // check write-in records were correctly created
+  expect(await apiClient.getWriteIns()).toHaveLength(
+    expectedWriteInRecords.length
+  );
+  expect(
+    (await apiClient.getWriteIns()).sort(
+      (a, b) =>
+        a.contestId.localeCompare(b.contestId) ||
+        a.optionId.localeCompare(b.optionId)
+    )
+  ).toMatchObject(
+    expectedWriteInRecords
+      .slice()
+      .sort(
+        (a, b) =>
+          a.contestId.localeCompare(b.contestId) ||
+          a.optionId.localeCompare(b.optionId)
+      )
+      .map((partialRecord) => expect.objectContaining(partialRecord))
   );
 
   // remove CVR files, expect clear state
@@ -514,4 +562,40 @@ test('error if cast vote records from different files share same ballot id but h
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(3000);
+});
+
+test('error if a layout is invalid', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+  const reportDirectoryPath = standardCdfCvrReport.asDirectoryPath();
+
+  // Overwrite a layout file with an invalid layout
+  const layoutsDirectoryPath = join(
+    reportDirectoryPath,
+    CVR_BALLOT_LAYOUTS_SUBDIRECTORY
+  );
+  const batchDirectoryPath = join(
+    layoutsDirectoryPath,
+    fs.readdirSync(layoutsDirectoryPath)[0]!
+  );
+  fs.writeFileSync(
+    join(batchDirectoryPath, fs.readdirSync(batchDirectoryPath)[0]!),
+    '{}'
+  );
+
+  const result = await apiClient.addCastVoteRecordFile({
+    path: reportDirectoryPath,
+    cvrImportFormatFromParams: 'cdf',
+  });
+
+  expect(result.err()).toMatchObject({
+    type: 'invalid-cdf-report',
+    userFriendlyMessage: 'invalid-layout',
+  });
+
+  expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
+  expect(await apiClient.getCastVoteRecords()).toHaveLength(0);
 });
