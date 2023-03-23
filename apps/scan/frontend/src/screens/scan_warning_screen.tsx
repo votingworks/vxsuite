@@ -226,7 +226,7 @@ function UndervoteWarningScreen({
             Return Ballot
           </Button>{' '}
           or{' '}
-          <Button variant="primary" onPress={() => setConfirmTabulate(true)}>
+          <Button onPress={() => setConfirmTabulate(true)}>
             Cast Ballot As Is
           </Button>
         </ResponsiveButtonParagraph>
