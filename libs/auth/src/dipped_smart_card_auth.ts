@@ -346,11 +346,17 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       }
       case 'poll_worker': {
         assert(electionHash !== undefined);
+        if (arePollWorkerCardPinsEnabled) {
+          await this.card.program({
+            user: { role: 'poll_worker', electionHash },
+            pin,
+          });
+          return pin;
+        }
         await this.card.program({
           user: { role: 'poll_worker', electionHash },
-          pin: arePollWorkerCardPinsEnabled ? pin : undefined,
         });
-        return arePollWorkerCardPinsEnabled ? pin : undefined;
+        return undefined;
       }
       /* istanbul ignore next: Compile-time check for completeness */
       default: {

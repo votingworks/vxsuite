@@ -556,9 +556,8 @@ test.each<{
     input: { userRole: 'poll_worker' },
     expectedCardProgramInput: {
       user: { role: 'poll_worker', electionHash },
-      pin: undefined,
     },
-    expectedProgramResult: ok({}),
+    expectedProgramResult: ok({ pin: undefined }),
     cardDetailsAfterProgramming: {
       jurisdiction,
       user: { role: 'poll_worker', electionHash },
@@ -882,7 +881,6 @@ test('Card programming error handling', async () => {
   mockCard.program
     .expectCallWith({
       user: { role: 'poll_worker', electionHash },
-      pin: undefined,
     })
     .throws(new Error('Whoa!'));
   expect(
