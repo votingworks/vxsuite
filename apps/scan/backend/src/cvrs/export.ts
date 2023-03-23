@@ -1,6 +1,5 @@
 import { assert, iter, ok, Result } from '@votingworks/basics';
-import { ExportDataError } from '@votingworks/backend';
-import { loadImage, toDataUrl, toImageData } from '@votingworks/image-utils';
+import { ExportDataError, loadBallotImageBase64 } from '@votingworks/backend';
 import {
   BallotIdSchema,
   BallotPageLayout,
@@ -40,22 +39,6 @@ function isHmpbSheet(
   interpretations: SheetOf<PageInterpretation>
 ): interpretations is SheetOf<InterpretedHmpbPage> {
   return isHmpbPage(interpretations[0]) && isHmpbPage(interpretations[1]);
-}
-
-const CvrBallotImageScale = 0.5;
-
-async function loadImagePathShrinkBase64(
-  path: string,
-  factor: number
-): Promise<string> {
-  const image = await loadImage(path);
-  const newImageData = toImageData(image, {
-    maxWidth: image.width * factor,
-    maxHeight: image.height * factor,
-  });
-  return toDataUrl(newImageData, 'image/jpeg').slice(
-    'data:image/jpeg;base64,'.length
-  );
 }
 
 export async function* exportCastVoteRecords({
@@ -138,9 +121,8 @@ export async function* exportCastVoteRecords({
         if (frontHasWriteIns) {
           const frontFilenames = store.getBallotFilenames(id, 'front');
           if (frontFilenames) {
-            frontImage.normalized = await loadImagePathShrinkBase64(
-              frontFilenames.normalized,
-              CvrBallotImageScale
+            frontImage.normalized = await loadBallotImageBase64(
+              frontFilenames.normalized
             );
           }
         }
@@ -148,9 +130,8 @@ export async function* exportCastVoteRecords({
         if (backHasWriteIns) {
           const backFilenames = store.getBallotFilenames(id, 'back');
           if (backFilenames) {
-            backImage.normalized = await loadImagePathShrinkBase64(
-              backFilenames.normalized,
-              CvrBallotImageScale
+            backImage.normalized = await loadBallotImageBase64(
+              backFilenames.normalized
             );
           }
 
