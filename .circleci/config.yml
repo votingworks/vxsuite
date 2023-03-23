@@ -6,13 +6,13 @@ orbs:
 executors:
   nodejs-browsers:
     docker:
-      - image: votingworks/cimg-debian11-browsers:2.0.0
+      - image: votingworks/cimg-debian11-browsers:2.0.2
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
   nodejs:
     docker:
-      - image: votingworks/cimg-debian11:2.0.0
+      - image: votingworks/cimg-debian11:2.0.2
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
@@ -961,12 +961,12 @@ commands:
   checkout-and-install:
     description: Get the code and install dependencies.
     steps:
-      # TODO: move this to our own docker image
       - run:
-          name: Install Rust
+          name: Ensure rust config env and path is correct
           command: |
-            curl https://sh.rustup.rs -sSf | sh -s -- -y
-            echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> $BASH_ENV
+            echo 'export PATH="/usr/local/cargo/bin:$PATH"' >> $BASH_ENV
+            echo 'export RUSTUP_HOME="/usr/local/rustup"' >> $BASH_ENV
+            echo 'export CARGO_HOME="/root/.cargo"' >> $BASH_ENV
       - checkout
       # Edit this comment somehow in order to invalidate the CircleCI cache.
       # Since the contents of this file affect the cache key, editing only a
@@ -986,6 +986,7 @@ commands:
           paths:
             - /root/.local/share/pnpm/store/v3
             - /root/.cache/Cypress
+            - /root/.cargo
   install-cypress-browser:
     description: Installs a browser for Cypress tests.
     steps:
