@@ -93,10 +93,18 @@ function buildApi(
         constructAuthMachineState(workspace)
       );
       if (authStatus.status !== 'logged_in') {
+        await logger.log(
+          LogEventId.BallotPackageConfigAttemptedBeforeAuth,
+          'system'
+        );
         return err('auth_required_before_ballot_package_load');
       }
 
       if (authStatus.user.role !== 'election_manager') {
+        await logger.log(
+          LogEventId.BallotPackageConfigAttemptedByNonElectionManager,
+          authStatus.user.role
+        );
         return err('user_role_not_allowed');
       }
 
@@ -139,6 +147,10 @@ function buildApi(
       const { electionDefinition, ballots } = ballotPackage;
 
       if (authStatus.user.electionHash !== electionDefinition.electionHash) {
+        await logger.log(
+          LogEventId.BallotPackageConfigElectionHashMismatch,
+          authStatus.user.role
+        );
         return err('election_hash_mismatch');
       }
 
