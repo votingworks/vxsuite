@@ -73,6 +73,23 @@ impl Display for GridPosition {
 }
 
 impl GridPosition {
+    pub fn contest_id(&self) -> ContestId {
+        match self {
+            Self::Option { contest_id, .. } | Self::WriteIn { contest_id, .. } => {
+                contest_id.clone()
+            }
+        }
+    }
+
+    pub fn option_id(&self) -> OptionId {
+        match self {
+            Self::Option { option_id, .. } => option_id.clone(),
+            Self::WriteIn { write_in_index, .. } => {
+                OptionId::from(format!("write-in-{}", write_in_index))
+            }
+        }
+    }
+
     pub const fn location(&self) -> GridLocation {
         match self {
             Self::Option {

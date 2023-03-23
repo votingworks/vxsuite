@@ -56,6 +56,7 @@ dependencies = [
  "clap",
  "image",
  "imageproc",
+ "itertools",
  "log",
  "logging_timer",
  "neon",
