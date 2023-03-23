@@ -1749,6 +1749,7 @@ importers:
       '@types/node': 16.11.29
       '@typescript-eslint/eslint-plugin': ^5.21.0
       '@typescript-eslint/parser': ^5.21.0
+      '@votingworks/basics': workspace:*
       '@votingworks/utils': workspace:*
       esbuild: ^0.17.6
       esbuild-esm-loader: ^0.2.3
@@ -1763,6 +1764,7 @@ importers:
       tsx: ^3.12.6
       typescript: ^4.3.5
     dependencies:
+      '@votingworks/basics': link:../libs/basics
       '@votingworks/utils': link:../libs/utils
       esbuild: 0.17.6
       esbuild-esm-loader: 0.2.3_esbuild@0.17.6

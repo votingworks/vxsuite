@@ -15,6 +15,7 @@
     "esbuild": "^0.17.6",
     "esbuild-esm-loader": "^0.2.3",
     "ts-morph": "^12.2.0",
+    "@votingworks/basics": "workspace:*",
     "@votingworks/utils": "workspace:*"
   },
   "devDependencies": {
