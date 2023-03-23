@@ -1,27 +1,35 @@
 /**
- * Moves symbols from one TypeScript package to another.
+ * Updates references to symbols from one TypeScript package to another.
  *
  * Run it like this:
  *
- *   bin/codemod-move-symbols --dir path/to/project MOVEMENT [MOVEMENT ...]
+ *   codemods/bin/codemod-move-symbols --all MOVEMENT [MOVEMENT ...]
  *
  * A `MOVEMENT` is a string of the form `SYMBOL:SOURCE:TARGET` where `SYMBOL` is
  * the name of the symbol to move, `SOURCE` is the name of the package to move
  * it from, and `TARGET` is the name of the package to move it to.
  *
- * For example, to move the `Optional` symbol from `@votingworks/types` to
- * `@votingworks/basics`:
+ * For example, to update references to the `Optional` symbol from
+ * `@votingworks/types` to `@votingworks/basics` everywhere:
  *
- *   bin/codemod-move-symbols --dir path/to/project Optional:@votingworks/types:@votingworks/basics
+ *   codemods/bin/codemod-move-symbols --all Optional:types:basics
  *
- * Or, using shorthand for the packages:
+ * Or just within `libs/auth`:
  *
- *   bin/codemod-move-symbols --dir path/to/project Optional:types:basics
+ *   codemods/bin/codemod-move-symbols --dir libs/auth Optional:types:basics
+ *
+ * Using longhand for source and target:
+ *
+ *   codemods/bin/codemod-move-symbols --dir libs/auth Optional:@votingworks/types:@votingworks/basics
  */
 
 import { constants, promises as fs } from 'fs';
 import { join, relative } from 'path';
 import { Project } from 'ts-morph';
+import { formatDurationNs } from '@votingworks/utils';
+import { getWorkspacePackageInfo } from '../pnpm';
+
+const VOTINGWORKS_PACKAGE_NAMESPACE = '@votingworks';
 
 async function canReadWrite(filePath: string): Promise<boolean> {
   try {
@@ -40,7 +48,9 @@ async function getTsConfigFilePath(cwd: string): Promise<string | undefined> {
 }
 
 function fullyQualifiedPackageName(name: string): string {
-  return name.startsWith('@votingworks') ? name : `@votingworks/${name}`;
+  return name.startsWith(VOTINGWORKS_PACKAGE_NAMESPACE)
+    ? name
+    : `${VOTINGWORKS_PACKAGE_NAMESPACE}/${name}`;
 }
 
 interface Movement {
@@ -50,8 +60,9 @@ interface Movement {
 }
 
 export async function main(args: readonly string[]): Promise<number> {
+  const monorepoRoot = join(__dirname, '../../..');
   const movements: Movement[] = [];
-  let root = process.cwd();
+  const packages: string[] = [];
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i] as string;
@@ -59,10 +70,17 @@ export async function main(args: readonly string[]): Promise<number> {
       const value = args[i + 1];
       i += 1;
       if (value && !value.startsWith('-')) {
-        root = value;
+        packages.push(value);
       } else {
         process.stderr.write(`error: missing value for --dir\n`);
         return 1;
+      }
+    } else if (arg === '--all') {
+      const workspacePackageInfo = await getWorkspacePackageInfo(monorepoRoot);
+      for (const pkg of workspacePackageInfo.values()) {
+        if (pkg.name.startsWith(`${VOTINGWORKS_PACKAGE_NAMESPACE}/`)) {
+          packages.push(pkg.path);
+        }
       }
     } else if (arg.startsWith('-')) {
       process.stderr.write(`error: unknown option ${arg}\n`);
@@ -84,88 +102,99 @@ export async function main(args: readonly string[]): Promise<number> {
     }
   }
 
-  const tsConfigFilePath = await getTsConfigFilePath(root);
+  for (const packageRoot of packages) {
+    const relativePackagePath = relative(monorepoRoot, packageRoot);
+    const start = process.hrtime.bigint();
+    const tsConfigFilePath = await getTsConfigFilePath(packageRoot);
 
-  if (!tsConfigFilePath) {
-    process.stderr.write(
-      'error: could not locate a tsconfig.json file to use\n'
-    );
-    return 1;
-  }
-
-  const project = new Project({ tsConfigFilePath });
-
-  for (const sourceFile of project.getSourceFiles()) {
-    const filePath = sourceFile.getFilePath();
-    const relativeFilePath = relative(root, filePath);
-
-    if (relativeFilePath.startsWith('../')) {
-      continue;
+    if (!tsConfigFilePath) {
+      process.stderr.write(
+        `${relativePackagePath}: could not locate a tsconfig.json file to use\n`
+      );
+      return 1;
     }
 
-    for (const { symbol, source, target } of movements) {
-      const importDeclarationForSource = sourceFile.getImportDeclaration(
-        (importDeclaration) => {
-          const moduleSpecifier = importDeclaration.getModuleSpecifierValue();
-          return (
-            moduleSpecifier === source &&
-            importDeclaration
-              .getNamedImports()
-              .some((namedImport) => namedImport.getName() === symbol)
-          );
-        }
-      );
+    const project = new Project({ tsConfigFilePath });
 
-      if (!importDeclarationForSource) {
+    for (const sourceFile of project.getSourceFiles()) {
+      const filePath = sourceFile.getFilePath();
+      const relativeFilePath = relative(packageRoot, filePath);
+
+      if (relativeFilePath.startsWith('../')) {
         continue;
       }
 
-      const importDeclarationFromTarget = sourceFile.getImportDeclaration(
-        (importDeclaration) => {
-          const moduleSpecifier = importDeclaration.getModuleSpecifierValue();
-          return moduleSpecifier === target;
-        }
-      );
-
-      if (importDeclarationFromTarget) {
-        const existingNamedImports =
-          importDeclarationFromTarget.getNamedImports();
-        const insertionIndex = existingNamedImports.findIndex(
-          (namedImport) =>
-            namedImport
-              .getName()
-              .toLocaleLowerCase()
-              .localeCompare(symbol.toLocaleLowerCase()) > 0
+      for (const { symbol, source, target } of movements) {
+        const importDeclarationForSource = sourceFile.getImportDeclaration(
+          (importDeclaration) => {
+            const moduleSpecifier = importDeclaration.getModuleSpecifierValue();
+            return (
+              moduleSpecifier === source &&
+              importDeclaration
+                .getNamedImports()
+                .some((namedImport) => namedImport.getName() === symbol)
+            );
+          }
         );
 
-        importDeclarationFromTarget.insertNamedImport(
-          insertionIndex === -1 ? existingNamedImports.length : insertionIndex,
-          symbol
-        );
-      } else {
-        sourceFile.addImportDeclaration({
-          namedImports: [symbol],
-          moduleSpecifier: target,
-        });
-      }
-
-      for (const namedImport of importDeclarationForSource.getNamedImports()) {
-        if (namedImport.getName() === symbol) {
-          namedImport.remove();
+        if (!importDeclarationForSource) {
+          continue;
         }
-      }
 
-      if (importDeclarationForSource.getNamedImports().length === 0) {
-        importDeclarationForSource.remove();
-      }
+        const importDeclarationFromTarget = sourceFile.getImportDeclaration(
+          (importDeclaration) => {
+            const moduleSpecifier = importDeclaration.getModuleSpecifierValue();
+            return moduleSpecifier === target;
+          }
+        );
 
-      process.stdout.write(
-        `${relativeFilePath}: ${symbol}: ${source} → ${target}\n`
-      );
+        if (importDeclarationFromTarget) {
+          const existingNamedImports =
+            importDeclarationFromTarget.getNamedImports();
+          const insertionIndex = existingNamedImports.findIndex(
+            (namedImport) =>
+              namedImport
+                .getName()
+                .toLocaleLowerCase()
+                .localeCompare(symbol.toLocaleLowerCase()) > 0
+          );
+
+          importDeclarationFromTarget.insertNamedImport(
+            insertionIndex === -1
+              ? existingNamedImports.length
+              : insertionIndex,
+            symbol
+          );
+        } else {
+          sourceFile.addImportDeclaration({
+            namedImports: [symbol],
+            moduleSpecifier: target,
+          });
+        }
+
+        for (const namedImport of importDeclarationForSource.getNamedImports()) {
+          if (namedImport.getName() === symbol) {
+            namedImport.remove();
+          }
+        }
+
+        if (importDeclarationForSource.getNamedImports().length === 0) {
+          importDeclarationForSource.remove();
+        }
+
+        process.stdout.write(
+          `${relativePackagePath}: ${relativeFilePath}: ${symbol}: ${source} → ${target}\n`
+        );
+      }
     }
-  }
 
-  await project.save();
+    await project.save();
+    process.stdout.write(
+      `${relativePackagePath}: ✅ ${formatDurationNs(
+        process.hrtime.bigint() - start
+      )}\n`
+    );
+  }
 
   return 0;
 }

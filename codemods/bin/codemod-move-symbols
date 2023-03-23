@@ -4,6 +4,4 @@ set -euo pipefail
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-TARGET="$PWD"
-
-exec "${DIR}/../node_modules/.bin/tsx" "${DIR}/../src/codemod-move-symbols/main.ts" --dir "${TARGET}" "$@"
+exec "${DIR}/../node_modules/.bin/tsx" "${DIR}/../src/codemod-move-symbols/main.ts" "$@"
