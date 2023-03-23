@@ -179,7 +179,10 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
 
   if (!electionDefinition) {
     return (
-      <UnconfiguredElectionScreenWrapper usbDriveStatus={usbDrive.status} />
+      <UnconfiguredElectionScreenWrapper
+        usbDriveStatus={usbDrive.status}
+        isElectionManagerAuth={isElectionManagerAuth(authStatus)}
+      />
     );
   }
 

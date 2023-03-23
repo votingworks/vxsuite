@@ -5,14 +5,21 @@ import { render, screen } from '../test/react_testing_library';
 import { UnconfiguredElectionScreen } from './unconfigured_election_screen';
 
 test('UnconfiguredElectionScreen shows an error message when no USB drive is inserted', async () => {
-  render(<UnconfiguredElectionScreen usbDriveStatus="absent" />);
+  render(
+    <UnconfiguredElectionScreen usbDriveStatus="absent" isElectionManagerAuth />
+  );
 
   await screen.findByText('VxScan is not configured');
   await screen.findByText('Insert a USB drive containing a ballot package.');
 });
 
 test('UnconfiguredElectionScreen shows a loading screen when USB drive is mounted and no error message exists', async () => {
-  render(<UnconfiguredElectionScreen usbDriveStatus="mounted" />);
+  render(
+    <UnconfiguredElectionScreen
+      usbDriveStatus="mounted"
+      isElectionManagerAuth
+    />
+  );
 
   await screen.findByText('Configuring VxScan from USB drive…');
 });
@@ -32,8 +39,7 @@ test.each([
   {
     description: 'authorized card is for a role other than election manager',
     errorString: 'user_role_not_allowed',
-    expectedErrorMessage:
-      'Insert an election manager card before loading a ballot package.',
+    expectedErrorMessage: 'Only election managers can configure VxScan.',
   },
   {
     description:
@@ -49,9 +55,21 @@ test.each([
       <UnconfiguredElectionScreen
         usbDriveStatus="mounted"
         backendConfigError={errorString as BallotPackageConfigurationError}
+        isElectionManagerAuth
       />
     );
 
     await screen.findByText(expectedErrorMessage);
   }
 );
+
+test('UnconfiguredElectionScreen shows an error when not authed as election manager', async () => {
+  render(
+    <UnconfiguredElectionScreen
+      usbDriveStatus="mounted"
+      isElectionManagerAuth={false}
+    />
+  );
+
+  await screen.findByText('Only election managers can configure VxScan.');
+});

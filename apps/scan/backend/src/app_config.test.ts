@@ -249,7 +249,6 @@ test('configures using the most recently created ballot package on the usb drive
 test('export CVRs to USB in deprecated VotingWorks format', async () => {
   const { apiClient, workspace, mockPlustek, mockUsb, mockAuth } =
     await createApp();
-  // mockElectionManager(mockAuth, electionFamousNames2021Fixtures.electionDefinition);
   await configureApp(apiClient, mockUsb, { mockAuth });
   await scanBallot(mockPlustek, apiClient, 0);
   expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());

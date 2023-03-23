@@ -7,15 +7,24 @@ import { CenteredLargeProse } from './centered_large_prose';
 
 interface Props {
   usbDriveStatus: UsbDriveStatus;
+  isElectionManagerAuth: boolean;
   backendConfigError?: BallotPackageConfigurationError;
 }
 
 export function UnconfiguredElectionScreen({
   usbDriveStatus,
+  isElectionManagerAuth,
   backendConfigError,
 }: Props): JSX.Element {
   const errorMessage = (() => {
-    // TODO make user role checks here and return a better error message
+    // VxScan backend auth requires election config before authorizing pollworkers,
+    // but the frontend is somehow aware of the user type. So we can check auth status
+    // in the frontend and handle it here, but we can't rely on the backend to return a
+    // BallotPackageConfigurationError for this particular case
+    if (!isElectionManagerAuth) {
+      return 'Only election managers can configure VxScan.';
+    }
+
     if (usbDriveStatus !== 'mounted') {
       return 'Insert a USB drive containing a ballot package.';
     }
@@ -27,10 +36,10 @@ export function UnconfiguredElectionScreen({
     switch (backendConfigError) {
       case 'no_ballot_package_on_usb_drive':
         return 'No ballot package found on the inserted USB drive.';
+      // The frontend should prevent auth_required_before_ballot_package_load and
+      // user_role_not_allowed, but we enforce them for redundancy
       case 'auth_required_before_ballot_package_load':
       case 'user_role_not_allowed':
-        // TODO make these auth checks before prompting for USB drive. This may require
-        // a separate backend handler
         return 'Insert an election manager card before loading a ballot package.';
       case 'election_hash_mismatch':
         return 'The most recent ballot package found is for a different election.';
