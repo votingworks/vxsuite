@@ -1,22 +1,15 @@
 import * as m14Mock from '../../test/fixtures/election-60bfbea106-m14-mock';
 import { Interpreter } from '.';
+import { buildInterpreterWithFixtures } from '../../test/helpers/fixtures_to_templates';
 
 test('does not bail out with 7x7 jiggle', async () => {
   const fixtures = m14Mock;
   const { electionDefinition } = fixtures;
-  const interpreter = new Interpreter({ electionDefinition });
-
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(
-      await fixtures.templatePage1.imageData()
-    )
-  );
-
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(
-      await fixtures.templatePage2.imageData()
-    )
-  );
+  const interpreter = await buildInterpreterWithFixtures({
+    electionDefinition,
+    fixtures: [fixtures.templatePage1, fixtures.templatePage2],
+    useFixtureMetadata: false,
+  });
 
   const { ballot } = await interpreter.interpretBallot(
     await fixtures.page1.imageData()
