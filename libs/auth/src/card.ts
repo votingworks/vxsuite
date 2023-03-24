@@ -7,17 +7,21 @@ import {
 
 interface SystemAdministratorCardDetails {
   jurisdiction: string;
+  numIncorrectPinAttempts?: number;
   user: SystemAdministratorUser;
 }
 
 interface ElectionManagerCardDetails {
   jurisdiction: string;
+  numIncorrectPinAttempts?: number;
   user: ElectionManagerUser;
 }
 
 interface PollWorkerCardDetails {
   jurisdiction: string;
+  numIncorrectPinAttempts?: number;
   user: PollWorkerUser;
+
   /**
    * Unlike system administrator and election manager cards, which always have PINs, poll worker
    * cards by default don't have PINs but can if the relevant system setting is enabled.
@@ -80,7 +84,7 @@ interface CheckPinResponseCorrect {
 
 interface CheckPinResponseIncorrect {
   response: 'incorrect';
-  numRemainingAttempts: number;
+  numIncorrectPinAttempts: number;
 }
 
 /**
