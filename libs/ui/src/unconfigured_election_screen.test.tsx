@@ -6,7 +6,11 @@ import { UnconfiguredElectionScreen } from './unconfigured_election_screen';
 
 test('UnconfiguredElectionScreen shows an error message when no USB drive is inserted', async () => {
   render(
-    <UnconfiguredElectionScreen usbDriveStatus="absent" isElectionManagerAuth />
+    <UnconfiguredElectionScreen
+      usbDriveStatus="absent"
+      machineName="VxScan"
+      isElectionManagerAuth
+    />
   );
 
   await screen.findByText('VxScan is not configured');
@@ -18,6 +22,7 @@ test('UnconfiguredElectionScreen shows a loading screen when USB drive is mounte
     <UnconfiguredElectionScreen
       usbDriveStatus="mounted"
       isElectionManagerAuth
+      machineName="VxScan"
     />
   );
 
@@ -51,6 +56,7 @@ test.each([
         usbDriveStatus="mounted"
         backendConfigError={errorString as BallotPackageConfigurationError}
         isElectionManagerAuth
+        machineName="VxScan"
       />
     );
 
@@ -63,6 +69,7 @@ test('UnconfiguredElectionScreen shows an error when not authed as election mana
     <UnconfiguredElectionScreen
       usbDriveStatus="mounted"
       isElectionManagerAuth={false}
+      machineName="VxScan"
     />
   );
 

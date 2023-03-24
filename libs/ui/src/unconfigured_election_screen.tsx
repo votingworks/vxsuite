@@ -9,16 +9,18 @@ interface Props {
   usbDriveStatus: UsbDriveStatus;
   isElectionManagerAuth: boolean;
   backendConfigError?: BallotPackageConfigurationError;
+  machineName: 'VxScan' | 'VxMark' | 'VxCentralScan';
 }
 
 export function UnconfiguredElectionScreen({
   usbDriveStatus,
   isElectionManagerAuth,
   backendConfigError,
+  machineName,
 }: Props): JSX.Element {
   const errorMessage = (() => {
     if (!isElectionManagerAuth) {
-      return 'Only election managers can configure VxScan.';
+      return `Only election managers can configure ${machineName}.`;
     }
 
     if (usbDriveStatus !== 'mounted') {
@@ -47,7 +49,7 @@ export function UnconfiguredElectionScreen({
   if (errorMessage) {
     return (
       <CenteredLargeProse>
-        <h1>VxScan is not configured</h1>
+        <h1>{machineName} is not configured</h1>
         <p>{errorMessage}</p>
       </CenteredLargeProse>
     );
@@ -55,7 +57,7 @@ export function UnconfiguredElectionScreen({
 
   return (
     <CenteredLargeProse>
-      <h1>Configuring VxScan from USB drive…</h1>
+      <h1>Configuring {machineName} from USB drive…</h1>
       <IndeterminateProgressBar />
     </CenteredLargeProse>
   );
