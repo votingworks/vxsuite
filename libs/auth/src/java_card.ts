@@ -50,7 +50,7 @@ import {
   GENERATE_ASYMMETRIC_KEY_PAIR,
   GET_DATA,
   isIncorrectPinStatusWord,
-  numRemainingAttemptsFromIncorrectPinStatusWord,
+  numRemainingPinAttemptsFromIncorrectPinStatusWord,
   pivDataObjectId,
   PUT_DATA,
   RESET_RETRY_COUNTER,
@@ -77,10 +77,10 @@ export const PUK = Buffer.from([
 ]);
 
 /**
- * The max number of invalid PIN attempts before the card is completely locked and needs to be
+ * The max number of incorrect PIN attempts before the card is completely locked and needs to be
  * reprogrammed. 15 is the max value supported by OpenFIPS201.
  */
-export const MAX_INVALID_PIN_ATTEMPTS = 15;
+export const MAX_NUM_INCORRECT_PIN_ATTEMPTS = 15;
 
 /**
  * The card's VotingWorks-issued cert
@@ -210,14 +210,33 @@ export class JavaCard implements Card {
         error instanceof ResponseApduError &&
         isIncorrectPinStatusWord(error.statusWord())
       ) {
+        const numIncorrectPinAttempts =
+          MAX_NUM_INCORRECT_PIN_ATTEMPTS -
+          numRemainingPinAttemptsFromIncorrectPinStatusWord(error.statusWord());
+        if (this.cardStatus.status === 'ready' && this.cardStatus.cardDetails) {
+          this.cardStatus = {
+            status: 'ready',
+            cardDetails: {
+              ...this.cardStatus.cardDetails,
+              numIncorrectPinAttempts,
+            },
+          };
+        }
         return {
           response: 'incorrect',
-          numRemainingAttempts: numRemainingAttemptsFromIncorrectPinStatusWord(
-            error.statusWord()
-          ),
+          numIncorrectPinAttempts,
         };
       }
       throw error;
+    }
+    if (this.cardStatus.status === 'ready' && this.cardStatus.cardDetails) {
+      this.cardStatus = {
+        status: 'ready',
+        cardDetails: {
+          ...this.cardStatus.cardDetails,
+          numIncorrectPinAttempts: undefined,
+        },
+      };
     }
     return { response: 'correct' };
   }
@@ -440,7 +459,10 @@ export class JavaCard implements Card {
       );
     }
 
-    return cardDetails;
+    const numIncorrectPinAttempts = cardDoesNotHavePin
+      ? undefined
+      : (await this.getNumIncorrectPinAttempts()) || undefined;
+    return { ...cardDetails, numIncorrectPinAttempts };
   }
 
   /**
@@ -590,6 +612,37 @@ export class JavaCard implements Card {
         data: construct8BytePinBuffer(pin),
       })
     );
+  }
+
+  /**
+   * Gets the number of incorrect PIN attempts since the last successful PIN entry (without
+   * spending another attempt). Under the hood, gets the number of remaining PIN attempts and
+   * converts from that to the number of incorrect PIN attempts.
+   */
+  private async getNumIncorrectPinAttempts(): Promise<number> {
+    try {
+      await this.cardReader.transmit(
+        new CardCommand({
+          ins: VERIFY.INS,
+          p1: VERIFY.P1_VERIFY,
+          p2: VERIFY.P2_PIN,
+        })
+      );
+    } catch (error) {
+      // The data is returned in what would typically be considered an error
+      if (
+        error instanceof ResponseApduError &&
+        isIncorrectPinStatusWord(error.statusWord())
+      ) {
+        return (
+          MAX_NUM_INCORRECT_PIN_ATTEMPTS -
+          numRemainingPinAttemptsFromIncorrectPinStatusWord(error.statusWord())
+        );
+      }
+      throw error;
+    }
+    /* istanbul ignore next */
+    throw new Error('Error retrieving number of incorrect PIN attempts');
   }
 
   /**
