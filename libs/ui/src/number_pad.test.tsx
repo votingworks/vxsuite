@@ -140,3 +140,32 @@ test('keyboard interaction when onEnter is defined', () => {
   expect(onBackspace).toHaveBeenCalledTimes(1);
   expect(onPress).toHaveBeenCalledTimes(10);
 });
+
+test('disabled state', () => {
+  const onBackspace = jest.fn();
+  const onButtonPress = jest.fn();
+  const onClear = jest.fn();
+  const onEnter = jest.fn();
+  const { container } = render(
+    <NumberPad
+      disabled
+      onBackspace={onBackspace}
+      onButtonPress={onButtonPress}
+      onClear={onClear}
+      onEnter={onEnter}
+    />
+  );
+  container.focus();
+
+  for (let digit = 0; digit <= 9; digit += 1) {
+    sendKey(`${digit}`);
+  }
+  sendKey('Backspace');
+  sendKey('x');
+  sendKey('Enter');
+
+  expect(onBackspace).not.toHaveBeenCalled();
+  expect(onButtonPress).not.toHaveBeenCalled();
+  expect(onClear).not.toHaveBeenCalled();
+  expect(onEnter).not.toHaveBeenCalled();
+});
