@@ -392,10 +392,7 @@ test('unconfiguring machine', async () => {
   expect(workspace.reset).toHaveBeenCalledTimes(1);
 });
 
-test('auth', async () => {
-  // const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
-  // const { apiClient, mockAuth, mockUsb } = await createApp();
-  // await configureApp(apiClient, mockUsb);
+test('auth before configuration passes empty machine state', async () => {
   const { apiClient, mockAuth } = await createApp();
 
   await apiClient.getAuthStatus();
@@ -403,18 +400,43 @@ test('auth', async () => {
 
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
-    // electionHash,
     electionHash: undefined,
     jurisdiction: undefined,
   });
   expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
   expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
     1,
-    // { electionHash },
     {
       electionHash: undefined,
       jurisdiction: undefined,
     },
+    { pin: '123456' }
+  );
+});
+
+test('auth after configuration passes populated machine state', async () => {
+  const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
+  const { apiClient, mockAuth, mockUsb } = await createApp();
+  await configureApp(apiClient, mockUsb, { mockAuth });
+
+  await apiClient.getAuthStatus();
+  await apiClient.checkPin({ pin: '123456' });
+
+  expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(2);
+  // First call happens in configureApp -> configureFromBallotPackageOnUsbDrive
+  expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    electionHash: undefined,
+    jurisdiction: undefined,
+  });
+  // After configuration is done we expect susequent auth calls to have populated electionHash
+  expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(2, {
+    electionHash,
+  });
+
+  expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
+  expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
+    1,
+    { electionHash },
     { pin: '123456' }
   );
 });
