@@ -128,6 +128,8 @@ function parseUserDataFromCardSummary(cardSummary: Legacy.CardSummaryReady): {
 }
 
 /**
+ * @deprecated
+ *
  * An implementation of the card API that uses a memory card. Wraps around the legacy card API.
  */
 export class MemoryCard implements Card {
@@ -192,7 +194,9 @@ export class MemoryCard implements Card {
     const { pin: correctPin } = parseUserDataFromCardSummary(cardSummary);
     return pin === correctPin
       ? { response: 'correct' }
-      : { response: 'incorrect', numRemainingAttempts: Infinity };
+      : // Since this implementation is deprecated, don't bother with incorrect PIN attempt tracking
+        // and by extension support for card lockout
+        { response: 'incorrect', numIncorrectPinAttempts: 0 };
   }
 
   async program(
