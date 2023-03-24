@@ -14,7 +14,13 @@ import {
 import { assert, err, find, ok, unique } from '@votingworks/basics';
 import fs from 'fs';
 import { join } from 'path';
-import { generateCvr } from '@votingworks/test-utils';
+import {
+  fakeElectionManagerUser,
+  generateCvr,
+  mockOf,
+} from '@votingworks/test-utils';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { ElectionDefinition } from '@votingworks/types';
 import {
   ballotImages,
   configureApp,
@@ -72,6 +78,24 @@ async function scanBallot(
   });
 }
 
+function mockElectionManager(
+  mockAuth: InsertedSmartCardAuthApi,
+  electionDefinition: ElectionDefinition
+) {
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: fakeElectionManagerUser(electionDefinition),
+    })
+  );
+}
+
+function mockLoggedOut(mockAuth: InsertedSmartCardAuthApi) {
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({ status: 'logged_out', reason: 'no_card' })
+  );
+}
+
 test('uses machine config from env', async () => {
   const originalEnv = process.env;
   process.env = {
@@ -98,7 +122,8 @@ test('uses default machine config if not set', async () => {
 });
 
 test("fails to configure if there's no ballot package on the usb drive", async () => {
-  const { apiClient, mockUsb } = await createApp();
+  const { apiClient, mockAuth, mockUsb } = await createApp();
+  mockElectionManager(mockAuth, electionSampleDefinition);
   mockUsb.insertUsbDrive({});
   expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
     err('no_ballot_package_on_usb_drive')
@@ -110,8 +135,45 @@ test("fails to configure if there's no ballot package on the usb drive", async (
   );
 });
 
+test('fails to configure ballot package if logged out', async () => {
+  const { apiClient, mockUsb, mockAuth } = await createApp();
+  mockLoggedOut(mockAuth);
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'test-ballot-package.zip': createBallotPackageWithoutTemplates(
+        electionSampleDefinition
+      ),
+    },
+  });
+  expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
+    err('auth_required_before_ballot_package_load')
+  );
+});
+
+test('fails to configure ballot package if election definition on card does not match that of the ballot package', async () => {
+  const { apiClient, mockUsb, mockAuth } = await createApp();
+  mockElectionManager(
+    mockAuth,
+    electionFamousNames2021Fixtures.electionDefinition
+  );
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'test-ballot-package.zip': createBallotPackageWithoutTemplates(
+        electionSampleDefinition
+      ),
+    },
+  });
+  expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
+    err('election_hash_mismatch')
+  );
+});
+
 test("if there's only one precinct in the election, it's selected automatically on configure", async () => {
-  const { apiClient, mockUsb } = await createApp();
+  const { apiClient, mockUsb, mockAuth } = await createApp();
+  mockElectionManager(
+    mockAuth,
+    electionMinimalExhaustiveSampleSinglePrecinctDefinition
+  );
   mockUsb.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': createBallotPackageWithoutTemplates(
@@ -128,7 +190,8 @@ test("if there's only one precinct in the election, it's selected automatically 
 });
 
 test('configures using the most recently created ballot package on the usb drive', async () => {
-  const { apiClient, mockUsb } = await createApp();
+  const { apiClient, mockUsb, mockAuth } = await createApp();
+  mockElectionManager(mockAuth, electionSampleDefinition);
 
   mockUsb.insertUsbDrive({
     'ballot-packages': {
@@ -163,8 +226,9 @@ test('configures using the most recently created ballot package on the usb drive
 });
 
 test('export CVRs to USB in deprecated VotingWorks format', async () => {
-  const { apiClient, workspace, mockPlustek, mockUsb } = await createApp();
-  await configureApp(apiClient, mockUsb);
+  const { apiClient, workspace, mockPlustek, mockUsb, mockAuth } =
+    await createApp();
+  await configureApp(apiClient, mockUsb, { mockAuth });
   await scanBallot(mockPlustek, apiClient, 0);
   expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 
@@ -216,8 +280,8 @@ test('export CVRs to USB in deprecated VotingWorks format', async () => {
 });
 
 test('setPrecinctSelection will reset polls to closed and update auth instance', async () => {
-  const { apiClient, mockUsb, workspace } = await createApp();
-  await configureApp(apiClient, mockUsb);
+  const { apiClient, mockUsb, workspace, mockAuth } = await createApp();
+  await configureApp(apiClient, mockUsb, { mockAuth });
 
   workspace.store.setPollsState('polls_open');
   await apiClient.setPrecinctSelection({
@@ -227,9 +291,9 @@ test('setPrecinctSelection will reset polls to closed and update auth instance',
 });
 
 test('ballot batching', async () => {
-  const { apiClient, mockPlustek, logger, workspace, mockUsb } =
+  const { apiClient, mockPlustek, logger, workspace, mockUsb, mockAuth } =
     await createApp();
-  await configureApp(apiClient, mockUsb);
+  await configureApp(apiClient, mockUsb, { mockAuth });
 
   // Scan two ballots, which should have the same batch
   await scanBallot(mockPlustek, apiClient, 0);
@@ -315,8 +379,9 @@ test('ballot batching', async () => {
 });
 
 test('unconfiguring machine', async () => {
-  const { apiClient, mockUsb, interpreter, workspace } = await createApp();
-  await configureApp(apiClient, mockUsb);
+  const { apiClient, mockUsb, interpreter, workspace, mockAuth } =
+    await createApp();
+  await configureApp(apiClient, mockUsb, { mockAuth });
 
   jest.spyOn(interpreter, 'unconfigure');
   jest.spyOn(workspace, 'reset');
@@ -327,18 +392,47 @@ test('unconfiguring machine', async () => {
   expect(workspace.reset).toHaveBeenCalledTimes(1);
 });
 
-test('auth', async () => {
-  const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
-  const { apiClient, mockAuth, mockUsb } = await createApp();
-  await configureApp(apiClient, mockUsb);
+test('auth before configuration passes empty machine state', async () => {
+  const { apiClient, mockAuth } = await createApp();
 
   await apiClient.getAuthStatus();
   await apiClient.checkPin({ pin: '123456' });
 
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    electionHash: undefined,
+    jurisdiction: undefined,
+  });
+  expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
+  expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
+    1,
+    {
+      electionHash: undefined,
+      jurisdiction: undefined,
+    },
+    { pin: '123456' }
+  );
+});
+
+test('auth after configuration passes populated machine state', async () => {
+  const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
+  const { apiClient, mockAuth, mockUsb } = await createApp();
+  await configureApp(apiClient, mockUsb, { mockAuth });
+
+  await apiClient.getAuthStatus();
+  await apiClient.checkPin({ pin: '123456' });
+
+  expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(2);
+  // First call happens in configureApp -> configureFromBallotPackageOnUsbDrive
+  expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    electionHash: undefined,
+    jurisdiction: undefined,
+  });
+  // After configuration is done we expect susequent auth calls to have populated electionHash
+  expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(2, {
     electionHash,
   });
+
   expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
   expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
     1,

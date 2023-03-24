@@ -1,5 +1,4 @@
 import React from 'react';
-
 import {
   UnconfiguredElectionScreen,
   UsbDriveStatus,
@@ -10,6 +9,7 @@ import { configureFromBallotPackageOnUsbDrive } from '../api';
 
 interface Props {
   usbDriveStatus: UsbDriveStatus;
+  isElectionManagerAuth: boolean;
 }
 
 /**
@@ -17,7 +17,7 @@ interface Props {
  * with VxScan-specific logic (primarily calls to the VxScan API)
  */
 export function UnconfiguredElectionScreenWrapper(props: Props): JSX.Element {
-  const { usbDriveStatus } = props;
+  const { usbDriveStatus, isElectionManagerAuth } = props;
 
   const configureMutation = configureFromBallotPackageOnUsbDrive.useMutation();
   useExternalStateChangeListener(usbDriveStatus, (newUsbDriveStatus) => {
@@ -31,7 +31,9 @@ export function UnconfiguredElectionScreenWrapper(props: Props): JSX.Element {
     <ScreenMainCenterChild infoBar={false}>
       <UnconfiguredElectionScreen
         usbDriveStatus={usbDriveStatus}
+        isElectionManagerAuth={isElectionManagerAuth}
         backendConfigError={error}
+        machineName="VxScan"
       />
     </ScreenMainCenterChild>
   );
@@ -39,5 +41,10 @@ export function UnconfiguredElectionScreenWrapper(props: Props): JSX.Element {
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
-  return <UnconfiguredElectionScreenWrapper usbDriveStatus="absent" />;
+  return (
+    <UnconfiguredElectionScreenWrapper
+      usbDriveStatus="absent"
+      isElectionManagerAuth
+    />
+  );
 }

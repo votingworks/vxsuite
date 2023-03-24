@@ -83,7 +83,6 @@ export enum LogEventId {
   SavedScanImageBackup = 'saved-scan-image-backup',
   ConfigureFromBallotPackageInit = 'configure-from-ballot-package-init',
   BallotPackageFilesReadFromUsb = 'ballot-package-files-read-from-usb',
-  BallotPackagedLoadedFromUsb = 'ballot-package-load-from-usb-complete',
   BallotConfiguredOnMachine = 'ballot-configure-machine-complete',
   ScannerConfigured = 'scanner-configure-complete',
   SaveCvrInit = 'save-cvr-init',
@@ -108,6 +107,9 @@ export enum LogEventId {
   PrepareBootFromUsbInit = 'prepare-boot-from-usb-init',
   PrepareBootFromUsbComplete = 'prepare-boot-from-usb-complete',
   RebootMachine = 'reboot-machine',
+  // VxScan/VxCentralScan logs
+  BallotPackagedLoadedFromUsb = 'ballot-package-load-from-usb-complete',
+
   // Precinct Machine (VxMark + VxScan) State
   PollsOpened = 'polls-opened',
   VotingPaused = 'voting-paused',

@@ -89,6 +89,24 @@ function buildApi(
       const [usbDrive] = await usb.getUsbDrives();
       assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
 
+      const authStatus = await auth.getAuthStatus(
+        constructAuthMachineState(workspace)
+      );
+
+      // The frontend tries to prevent ballot package configuration attempts until an election
+      // manager has authed. But we may reach this state if a user removes their card immediately
+      // after inserting it, but after the ballot package configuration attempt has started
+      if (authStatus.status !== 'logged_in') {
+        await logger.log(LogEventId.BallotPackagedLoadedFromUsb, 'system', {
+          disposition: 'failure',
+          message: 'Ballot package configuration was attempted before auth.',
+        });
+        return err('auth_required_before_ballot_package_load');
+      }
+
+      // The frontend prevents other roles from configuring ballot packages
+      assert(authStatus.user.role === 'election_manager');
+
       const directoryPath = path.join(
         usbDrive.mountPoint,
         BALLOT_PACKAGE_FOLDER
@@ -127,7 +145,15 @@ function buildApi(
 
       const { electionDefinition, ballots } = ballotPackage;
 
-      // If the election has only one precinct, set it automatically
+      if (authStatus.user.electionHash !== electionDefinition.electionHash) {
+        await logger.log(LogEventId.BallotPackagedLoadedFromUsb, 'system', {
+          disposition: 'failure',
+          message:
+            'The election hash for the authorized user and most recent ballot package on the USB drive did not match.',
+        });
+        return err('election_hash_mismatch');
+      }
+
       let precinctSelection: SinglePrecinctSelection | undefined;
       if (electionDefinition.election.precincts.length === 1) {
         precinctSelection = singlePrecinctSelectionFor(

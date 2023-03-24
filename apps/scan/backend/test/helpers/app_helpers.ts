@@ -2,6 +2,7 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import { fakeElectionManagerUser, mockOf } from '@votingworks/test-utils';
 import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { Buffer } from 'buffer';
@@ -262,19 +263,41 @@ const electionFamousNames2021WithoutTemplatesBallotPackageBuffer =
     electionFamousNames2021Fixtures.electionDefinition
   );
 
+/**
+ * configureApp is a testing convenience function that handles some common configuration of the VxScan app.
+ * @param apiClient - a VxScan API client
+ * @param mockUsb - a mock USB
+ * @param options - an object containing optional arguments
+ * @param options.mockAuth - a mock InsertedSmartCardAuthApi. Passing this will automatically
+ *                           create a mock that auths the user as an election manager of the same
+ *                           election defined in the ballot package.
+ */
 export async function configureApp(
   apiClient: grout.Client<Api>,
   mockUsb: MockUsb,
   {
     addTemplates = false,
     precinctId,
+    mockAuth,
   }: {
     addTemplates?: boolean;
     precinctId?: PrecinctId;
+    mockAuth?: InsertedSmartCardAuthApi;
   } = {
     addTemplates: false,
   }
 ): Promise<void> {
+  if (mockAuth) {
+    mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+      Promise.resolve({
+        status: 'logged_in',
+        user: fakeElectionManagerUser(
+          electionFamousNames2021Fixtures.electionDefinition
+        ),
+      })
+    );
+  }
+
   const ballotPackageBuffer = addTemplates
     ? electionFamousNames2021Fixtures.ballotPackage.asBuffer()
     : electionFamousNames2021WithoutTemplatesBallotPackageBuffer;
@@ -283,6 +306,7 @@ export async function configureApp(
       'test-ballot-package.zip': ballotPackageBuffer,
     },
   });
+
   expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(ok());
 
   await apiClient.setPrecinctSelection({
