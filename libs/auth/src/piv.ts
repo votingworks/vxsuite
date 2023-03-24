@@ -109,7 +109,7 @@ export function isIncorrectPinStatusWord(statusWord: [Byte, Byte]): boolean {
 /**
  * See isIncorrectPinStatusWord().
  */
-export function numRemainingAttemptsFromIncorrectPinStatusWord(
+export function numRemainingPinAttemptsFromIncorrectPinStatusWord(
   statusWord: [Byte, Byte]
 ): number {
   assert(isIncorrectPinStatusWord(statusWord));

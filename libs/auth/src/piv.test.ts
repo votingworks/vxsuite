@@ -4,7 +4,7 @@ import { Byte } from '@votingworks/types';
 import {
   construct8BytePinBuffer,
   isIncorrectPinStatusWord,
-  numRemainingAttemptsFromIncorrectPinStatusWord,
+  numRemainingPinAttemptsFromIncorrectPinStatusWord,
   pivDataObjectId,
 } from './piv';
 
@@ -49,34 +49,34 @@ test('isIncorrectPinStatusWord', () => {
   expect(isIncorrectPinStatusWord([0x63, 0xd0])).toEqual(false);
 });
 
-test.each<{ sw2: Byte; expectedNumRemainingAttempts: number }>([
-  { sw2: 0xc0, expectedNumRemainingAttempts: 0 },
-  { sw2: 0xc1, expectedNumRemainingAttempts: 1 },
-  { sw2: 0xc2, expectedNumRemainingAttempts: 2 },
-  { sw2: 0xc3, expectedNumRemainingAttempts: 3 },
-  { sw2: 0xc4, expectedNumRemainingAttempts: 4 },
-  { sw2: 0xc5, expectedNumRemainingAttempts: 5 },
-  { sw2: 0xc6, expectedNumRemainingAttempts: 6 },
-  { sw2: 0xc7, expectedNumRemainingAttempts: 7 },
-  { sw2: 0xc8, expectedNumRemainingAttempts: 8 },
-  { sw2: 0xc9, expectedNumRemainingAttempts: 9 },
-  { sw2: 0xca, expectedNumRemainingAttempts: 10 },
-  { sw2: 0xcb, expectedNumRemainingAttempts: 11 },
-  { sw2: 0xcc, expectedNumRemainingAttempts: 12 },
-  { sw2: 0xcd, expectedNumRemainingAttempts: 13 },
-  { sw2: 0xce, expectedNumRemainingAttempts: 14 },
-  { sw2: 0xcf, expectedNumRemainingAttempts: 15 },
+test.each<{ sw2: Byte; expectedNumRemainingPinAttempts: number }>([
+  { sw2: 0xc0, expectedNumRemainingPinAttempts: 0 },
+  { sw2: 0xc1, expectedNumRemainingPinAttempts: 1 },
+  { sw2: 0xc2, expectedNumRemainingPinAttempts: 2 },
+  { sw2: 0xc3, expectedNumRemainingPinAttempts: 3 },
+  { sw2: 0xc4, expectedNumRemainingPinAttempts: 4 },
+  { sw2: 0xc5, expectedNumRemainingPinAttempts: 5 },
+  { sw2: 0xc6, expectedNumRemainingPinAttempts: 6 },
+  { sw2: 0xc7, expectedNumRemainingPinAttempts: 7 },
+  { sw2: 0xc8, expectedNumRemainingPinAttempts: 8 },
+  { sw2: 0xc9, expectedNumRemainingPinAttempts: 9 },
+  { sw2: 0xca, expectedNumRemainingPinAttempts: 10 },
+  { sw2: 0xcb, expectedNumRemainingPinAttempts: 11 },
+  { sw2: 0xcc, expectedNumRemainingPinAttempts: 12 },
+  { sw2: 0xcd, expectedNumRemainingPinAttempts: 13 },
+  { sw2: 0xce, expectedNumRemainingPinAttempts: 14 },
+  { sw2: 0xcf, expectedNumRemainingPinAttempts: 15 },
 ])(
-  'numRemainingAttemptsFromIncorrectPinStatusWord',
-  ({ sw2, expectedNumRemainingAttempts }) => {
-    expect(numRemainingAttemptsFromIncorrectPinStatusWord([0x63, sw2])).toEqual(
-      expectedNumRemainingAttempts
-    );
+  'numRemainingPinAttemptsFromIncorrectPinStatusWord',
+  ({ sw2, expectedNumRemainingPinAttempts }) => {
+    expect(
+      numRemainingPinAttemptsFromIncorrectPinStatusWord([0x63, sw2])
+    ).toEqual(expectedNumRemainingPinAttempts);
   }
 );
 
-test('numRemainingAttemptsFromIncorrectPinStatusWord validation', () => {
+test('numRemainingPinAttemptsFromIncorrectPinStatusWord validation', () => {
   expect(() =>
-    numRemainingAttemptsFromIncorrectPinStatusWord([0x90, 0x00])
+    numRemainingPinAttemptsFromIncorrectPinStatusWord([0x90, 0x00])
   ).toThrow();
 });
