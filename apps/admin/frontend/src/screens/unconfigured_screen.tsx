@@ -242,11 +242,25 @@ export function UnconfiguredScreen(): JSX.Element {
         return;
       }
 
-      setInputConversionFiles(files.inputFiles);
+      if (
+        inputConversionFiles.length !== files.inputFiles.length ||
+        files.inputFiles.some(
+          (inputFile, index) =>
+            inputFile.path !== inputConversionFiles[index].path
+        )
+      ) {
+        setInputConversionFiles(files.inputFiles);
+      }
     } catch (error) {
       console.log('failed updateStatus()', error); // eslint-disable-line no-console
     }
-  }, [client, getOutputFile, isMounted, processInputFiles]);
+  }, [
+    client,
+    getOutputFile,
+    inputConversionFiles,
+    isMounted,
+    processInputFiles,
+  ]);
 
   async function submitFile({ file, name }: InputFile) {
     try {
@@ -330,7 +344,7 @@ export function UnconfiguredScreen(): JSX.Element {
           <HorizontalRule />
           <p>
             <Button small onPress={resetUploadFilesAndGoBack}>
-              back
+              Back
             </Button>
           </p>
         </Prose>
