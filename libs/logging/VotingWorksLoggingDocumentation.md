@@ -22,18 +22,6 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** The user has unconfigured current machine to remove the current election definition, and all other data.  
 **Machines:** All
-### ballot-package-config-attempted-before-auth
-**Type:** [application-action](#application-action)  
-**Description:** Ballot package configuration was attempted before auth. The frontend should prevent this.  
-**Machines:** All
-### ballot-package-config-attempted-by-non-election-manager
-**Type:** [application-action](#application-action)  
-**Description:** Ballot package configuration was attempted by a non-election manager user. The frontend should prevent this.  
-**Machines:** All
-### ballot-package-config-election-hash-mismatch
-**Type:** [user-action](#user-action)  
-**Description:** The election hash for the authorized user and most recent ballot package on the USB drive did not match.  
-**Machines:** All
 ### machine-boot-init
 **Type:** [system-action](#system-action)  
 **Description:** The machine is beginning the boot process.  
@@ -274,10 +262,6 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** List of ballot packages read from usb and displayed to user to load to machine.  
 **Machines:** vx-central-scan-frontend, vx-scan-frontend
-### ballot-package-load-from-usb-complete
-**Type:** [user-action](#user-action)  
-**Description:** The ballot package has been read from the USB drive. Success or failure indicated by disposition.  
-**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### ballot-configure-machine-complete
 **Type:** [user-action](#user-action)  
 **Description:** The specified ballot has been configured on the machine. Success or failure indicated by disposition. `ballotStyleId`, `precinctId` and `isLiveMode` keys specify details on the ballot configured.  
@@ -374,6 +358,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User has triggered a reboot of the machine.  
 **Machines:** All
+### ballot-package-load-from-usb-complete
+**Type:** [user-action](#user-action)  
+**Description:** The ballot package has been read from the USB drive. Success or failure indicated by disposition.  
+**Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### polls-opened
 **Type:** [user-action](#user-action)  
 **Description:** User has opened the polls.  

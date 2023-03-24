@@ -34,7 +34,7 @@ test.each([
     description: 'ballot package loading is attempted before authorization',
     errorString: 'auth_required_before_ballot_package_load',
     expectedErrorMessage:
-      'Insert an election manager card before loading a ballot package.',
+      'Please insert an election manager card before configuring.',
   },
   {
     description:
