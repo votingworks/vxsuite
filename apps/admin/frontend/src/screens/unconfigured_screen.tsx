@@ -330,7 +330,7 @@ export function UnconfiguredScreen(): JSX.Element {
           <HorizontalRule />
           <p>
             <Button small onPress={resetUploadFilesAndGoBack}>
-              Back
+              back
             </Button>
           </p>
         </Prose>
