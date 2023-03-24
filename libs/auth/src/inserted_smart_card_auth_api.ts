@@ -59,4 +59,6 @@ export interface InsertedSmartCardAuthMachineState {
   arePollWorkerCardPinsEnabled?: boolean;
   electionHash?: string;
   jurisdiction?: string;
+  numIncorrectPinAttemptsAllowedBeforeCardLockout?: number;
+  startingCardLockoutDurationSeconds?: number;
 }

@@ -20,6 +20,7 @@ const MOCK_FILE_PATH = '/tmp/mock-file-card.json';
 export interface MockFileContents {
   cardStatus: CardStatus;
   data?: Buffer;
+  numIncorrectPinAttempts?: number;
   pin?: string;
 }
 
@@ -29,11 +30,12 @@ export interface MockFileContents {
 export function serializeMockFileContents(
   mockFileContents: MockFileContents
 ): Buffer {
-  const { cardStatus, data, pin } = mockFileContents;
+  const { cardStatus, data, numIncorrectPinAttempts, pin } = mockFileContents;
   return Buffer.from(
     JSON.stringify({
       cardStatus,
       data: data ? data.toString('hex') : undefined,
+      numIncorrectPinAttempts,
       pin,
     }),
     'utf-8'
@@ -44,10 +46,13 @@ export function serializeMockFileContents(
  * Convert a Buffer created by serializeMockFileContents back into a MockFileContents object
  */
 export function deserializeMockFileContents(file: Buffer): MockFileContents {
-  const { cardStatus, data, pin } = JSON.parse(file.toString('utf-8'));
+  const { cardStatus, data, numIncorrectPinAttempts, pin } = JSON.parse(
+    file.toString('utf-8')
+  );
   return {
     cardStatus,
     data: data ? Buffer.from(data, 'hex') : undefined,
+    numIncorrectPinAttempts,
     pin,
   };
 }
@@ -90,12 +95,21 @@ export class MockFileCard implements Card {
   }
 
   checkPin(pin: string): Promise<CheckPinResponse> {
-    const { pin: actualPin } = readFromMockFile();
-    return Promise.resolve(
-      pin === actualPin
-        ? { response: 'correct' }
-        : { response: 'incorrect', numRemainingAttempts: Infinity }
-    );
+    const mockFileContents = readFromMockFile();
+    if (pin === mockFileContents.pin) {
+      writeToMockFile({
+        ...mockFileContents,
+        numIncorrectPinAttempts: undefined,
+      });
+      return Promise.resolve({ response: 'correct' });
+    }
+    const numIncorrectPinAttempts =
+      (mockFileContents.numIncorrectPinAttempts ?? 0) + 1;
+    writeToMockFile({
+      ...mockFileContents,
+      numIncorrectPinAttempts,
+    });
+    return Promise.resolve({ response: 'incorrect', numIncorrectPinAttempts });
   }
 
   program(

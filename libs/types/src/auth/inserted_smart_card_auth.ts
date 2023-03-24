@@ -22,7 +22,10 @@ export interface CheckingPin {
   readonly status: 'checking_pin';
   readonly user: SystemAdministratorUser | ElectionManagerUser | PollWorkerUser;
   readonly error?: true;
-  readonly wrongPinEnteredAt?: Date;
+  /** A Unix timestamp in milliseconds for easy serialization */
+  readonly lockedOutUntil?: number;
+  /** A Unix timestamp in milliseconds for easy serialization */
+  readonly wrongPinEnteredAt?: number;
 }
 
 export interface SystemAdministratorLoggedIn {

@@ -30,6 +30,7 @@ import {
   DippedSmartCardAuthConfig,
   DippedSmartCardAuthMachineState,
 } from './dipped_smart_card_auth_api';
+import { computeCardLockoutEndTime } from './lockout';
 
 type CheckPinResponseExtended = CheckPinResponse | { response: 'error' };
 
@@ -199,6 +200,10 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     input: { pin: string }
   ): Promise<void> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
+    if (this.isLockedOut()) {
+      return;
+    }
+
     let checkPinResponse: CheckPinResponseExtended;
     try {
       checkPinResponse = await this.card.checkPin(input.pin);
@@ -434,11 +439,16 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                     user.role === 'system_administrator' ||
                       user.role === 'election_manager'
                   );
-                  return isFeatureFlagEnabled(
+                  const skipPinEntry = isFeatureFlagEnabled(
                     BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
-                  )
+                  );
+                  const lockedOutUntil = computeCardLockoutEndTime(
+                    machineState,
+                    cardDetails.numIncorrectPinAttempts
+                  )?.getTime();
+                  return skipPinEntry
                     ? { status: 'remove_card', user }
-                    : { status: 'checking_pin', user };
+                    : { status: 'checking_pin', user, lockedOutUntil };
                 }
                 return {
                   status: 'logged_out',
@@ -511,7 +521,11 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
             return {
               ...currentAuthStatus,
               error: undefined,
-              wrongPinEnteredAt: new Date(),
+              lockedOutUntil: computeCardLockoutEndTime(
+                machineState,
+                action.checkPinResponse.numIncorrectPinAttempts
+              )?.getTime(),
+              wrongPinEnteredAt: new Date().getTime(),
             };
           }
           case 'error': {
@@ -568,5 +582,13 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     }
 
     return ok();
+  }
+
+  private isLockedOut(): boolean {
+    return Boolean(
+      this.authStatus.status === 'checking_pin' &&
+        this.authStatus.lockedOutUntil &&
+        new Date().getTime() < this.authStatus.lockedOutUntil
+    );
   }
 }

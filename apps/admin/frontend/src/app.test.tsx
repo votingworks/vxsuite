@@ -207,9 +207,9 @@ test('authentication works', async () => {
     user: fakeElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
-    wrongPinEnteredAt: new Date(),
+    wrongPinEnteredAt: new Date().getTime(),
   });
-  await screen.findByText('Invalid PIN. Please try again.');
+  await screen.findByText('Incorrect PIN. Please try again.');
 
   // Remove card and insert an invalid card, e.g. a pollworker card.
   await apiMock.logOut();

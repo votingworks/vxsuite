@@ -53,6 +53,7 @@ export * from './tally_report_summary';
 export * from './test_mode';
 export * from './text';
 export * from './themes';
+export * from './timer';
 export * from './typography';
 export * from './usbcontroller_button';
 export * from './remove_card_screen';

@@ -266,12 +266,12 @@ test.each<{
 
     mockCard.checkPin
       .expectCallWith(wrongPin)
-      .resolves({ response: 'incorrect', numRemainingAttempts: Infinity });
+      .resolves({ response: 'incorrect', numIncorrectPinAttempts: 1 });
     await auth.checkPin(machineState, { pin: wrongPin });
     expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'checking_pin',
       user,
-      wrongPinEnteredAt: expect.any(Date),
+      wrongPinEnteredAt: expect.any(Number),
     });
     expect(mockLogger.log).toHaveBeenCalledTimes(1);
     expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -373,6 +373,67 @@ test('Login and logout using card without PIN', async () => {
       message: 'User logged out.',
     }
   );
+});
+
+test('Card lockout', async () => {
+  const auth = new InsertedSmartCardAuth({
+    card: mockCard,
+    config: defaultConfig,
+    logger: mockLogger,
+  });
+
+  mockCardStatus({
+    status: 'ready',
+    cardDetails: {
+      jurisdiction,
+      numIncorrectPinAttempts: 4,
+      user: electionManagerUser,
+    },
+  });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'checking_pin',
+    user: electionManagerUser,
+  });
+
+  mockCard.checkPin
+    .expectCallWith(wrongPin)
+    .resolves({ response: 'incorrect', numIncorrectPinAttempts: 5 });
+  await auth.checkPin(defaultMachineState, { pin: wrongPin });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'checking_pin',
+    user: electionManagerUser,
+    lockedOutUntil: expect.any(Number),
+    wrongPinEnteredAt: expect.any(Number),
+  });
+
+  mockCardStatus({ status: 'no_card' });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_out',
+    reason: 'no_card',
+  });
+
+  // Re-insert locked card
+  mockCardStatus({
+    status: 'ready',
+    cardDetails: {
+      jurisdiction,
+      numIncorrectPinAttempts: 5,
+      user: electionManagerUser,
+    },
+  });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'checking_pin',
+    user: electionManagerUser,
+    lockedOutUntil: expect.any(Number),
+  });
+
+  // Expect checkPin call to be ignored when locked out
+  await auth.checkPin(defaultMachineState, { pin });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'checking_pin',
+    user: electionManagerUser,
+    lockedOutUntil: expect.any(Number),
+  });
 });
 
 test.each<{
@@ -880,12 +941,12 @@ test('Checking PIN error handling', async () => {
   // Check that "successfully" entering an incorrect PIN clears the error state
   mockCard.checkPin
     .expectCallWith(wrongPin)
-    .resolves({ response: 'incorrect', numRemainingAttempts: Infinity });
+    .resolves({ response: 'incorrect', numIncorrectPinAttempts: 1 });
   await auth.checkPin(defaultMachineState, { pin: wrongPin });
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    wrongPinEnteredAt: expect.any(Date),
+    wrongPinEnteredAt: expect.any(Number),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(2);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -905,7 +966,7 @@ test('Checking PIN error handling', async () => {
     status: 'checking_pin',
     user: electionManagerUser,
     error: true,
-    wrongPinEnteredAt: expect.any(Date),
+    wrongPinEnteredAt: expect.any(Number),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(3);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -927,7 +988,7 @@ test('Checking PIN error handling', async () => {
 });
 
 test(
-  'Checking PIN when not in PIN checking state, ' +
+  'Attempting to check a PIN when not in PIN checking state, ' +
     'e.g. because someone removed their card right after entering their PIN',
   async () => {
     const auth = new InsertedSmartCardAuth({

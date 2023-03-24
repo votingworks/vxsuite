@@ -200,7 +200,11 @@ test('MockFileCard PIN checking', async () => {
   });
   expect(await card.checkPin(wrongPin)).toEqual({
     response: 'incorrect',
-    numRemainingAttempts: Infinity,
+    numIncorrectPinAttempts: 1,
+  });
+  expect(await card.checkPin(wrongPin)).toEqual({
+    response: 'incorrect',
+    numIncorrectPinAttempts: 2,
   });
 });
 

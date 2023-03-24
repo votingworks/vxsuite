@@ -95,9 +95,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatus({
     status: 'checking_pin',
     user: fakeElectionManagerUser({ electionHash }),
-    wrongPinEnteredAt: new Date(),
+    wrongPinEnteredAt: new Date().getTime(),
   });
-  await screen.findByText('Invalid PIN. Please try again.');
+  await screen.findByText('Incorrect PIN. Please try again.');
 
   // Enter correct PIN
   apiMock.mockApiClient.checkPin
