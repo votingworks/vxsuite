@@ -147,7 +147,8 @@ export const GENERIC_STORAGE_SPACE = {
 export class JavaCard implements Card {
   private readonly cardProgrammingConfig?: JavaCardConfig['cardProgrammingConfig'];
   private readonly cardReader: CardReader;
-  private cardStatus: CardStatus;
+  // See TestJavaCard in test/utils.ts to understand why this is protected instead of private
+  protected cardStatus: CardStatus;
   private readonly customChallengeGenerator?: () => string;
   private readonly vxCertAuthorityCertPath: string;
 

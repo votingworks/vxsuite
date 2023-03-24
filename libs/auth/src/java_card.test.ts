@@ -17,6 +17,7 @@ import {
   MockCardReader,
   numericArray,
   TestFileSetId,
+  TestJavaCard,
 } from '../test/utils';
 import {
   CardCommand,
@@ -35,6 +36,7 @@ import {
   GENERIC_STORAGE_SPACE,
   GENERIC_STORAGE_SPACE_CAPACITY_BYTES,
   JavaCard,
+  MAX_NUM_INCORRECT_PIN_ATTEMPTS,
   OPEN_FIPS_201_AID,
   PUK,
   VX_ADMIN_CERT_AUTHORITY_CERT,
@@ -208,6 +210,30 @@ function mockCardPinVerificationRequest(pin: string, error?: Error): void {
   mockCardReader.transmit.expectCallWith(command).resolves(responseData);
 }
 
+function mockCardGetNumRemainingPinAttemptsRequest(
+  numRemainingPinAttemptsOrError: number | Error
+): void {
+  const command = new CardCommand({
+    ins: VERIFY.INS,
+    p1: VERIFY.P1_VERIFY,
+    p2: VERIFY.P2_PIN,
+  });
+  if (numRemainingPinAttemptsOrError instanceof Error) {
+    mockCardReader.transmit
+      .expectCallWith(command)
+      .throws(numRemainingPinAttemptsOrError);
+    return;
+  }
+  // The data is returned in what would typically be considered an error
+  const responseData = new ResponseApduError([
+    STATUS_WORD.VERIFY_FAIL.SW1,
+    (0xc0 +
+      (numRemainingPinAttemptsOrError ??
+        MAX_NUM_INCORRECT_PIN_ATTEMPTS)) as Byte,
+  ]);
+  mockCardReader.transmit.expectCallWith(command).throws(responseData);
+}
+
 function mockCardPinResetRequest(newPin: string): void {
   const command = new CardCommand({
     ins: RESET_RETRY_COUNTER.INS,
@@ -339,10 +365,12 @@ test.each<{
   vxAdminCertAuthorityCert?: TestFileSetId;
   cardVxPrivateKey?: TestFileSetId;
   cardVxAdminPrivateKey?: TestFileSetId;
+  numRemainingPinAttempts?: number | Error;
   isCardVxAdminCertRetrievalRequestExpected: boolean;
   isVxAdminCertAuthorityCertRetrievalRequestExpected: boolean;
   isCardVxPrivateKeySignatureRequestExpected: boolean;
   isCardVxAdminPrivateKeySignatureRequestExpected: boolean;
+  isCardGetNumRemainingPinAttemptsRequestExpected: boolean;
   expectedCardDetails?: CardDetails;
 }>([
   {
@@ -353,10 +381,12 @@ test.each<{
     cardVxAdminCert: '1',
     vxAdminCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
+    numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
     isCardVxAdminCertRetrievalRequestExpected: true,
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: true,
     isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardGetNumRemainingPinAttemptsRequestExpected: true,
     expectedCardDetails: {
       jurisdiction: DEV_JURISDICTION,
       user: systemAdministratorUser,
@@ -370,10 +400,12 @@ test.each<{
     cardVxAdminCert: '1',
     vxAdminCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
+    numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
     isCardVxAdminCertRetrievalRequestExpected: true,
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: true,
     isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardGetNumRemainingPinAttemptsRequestExpected: true,
     expectedCardDetails: {
       jurisdiction: DEV_JURISDICTION,
       user: electionManagerUser,
@@ -392,6 +424,7 @@ test.each<{
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: true,
     isCardVxAdminPrivateKeySignatureRequestExpected: true,
+    isCardGetNumRemainingPinAttemptsRequestExpected: false,
     expectedCardDetails: {
       jurisdiction: DEV_JURISDICTION,
       user: pollWorkerUser,
@@ -407,10 +440,12 @@ test.each<{
     vxAdminCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
     cardVxAdminPrivateKey: '1',
+    numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
     isCardVxAdminCertRetrievalRequestExpected: true,
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: true,
     isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardGetNumRemainingPinAttemptsRequestExpected: true,
     expectedCardDetails: {
       jurisdiction: DEV_JURISDICTION,
       user: pollWorkerUser,
@@ -426,6 +461,7 @@ test.each<{
     isVxAdminCertAuthorityCertRetrievalRequestExpected: false,
     isCardVxPrivateKeySignatureRequestExpected: false,
     isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardGetNumRemainingPinAttemptsRequestExpected: false,
     expectedCardDetails: undefined,
   },
   {
@@ -439,6 +475,7 @@ test.each<{
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: false,
     isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardGetNumRemainingPinAttemptsRequestExpected: false,
     expectedCardDetails: undefined,
   },
   {
@@ -452,6 +489,7 @@ test.each<{
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: false,
     isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardGetNumRemainingPinAttemptsRequestExpected: false,
     expectedCardDetails: undefined,
   },
   {
@@ -468,6 +506,7 @@ test.each<{
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: true,
     isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardGetNumRemainingPinAttemptsRequestExpected: false,
     expectedCardDetails: undefined,
   },
   {
@@ -485,10 +524,47 @@ test.each<{
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: true,
     isCardVxAdminPrivateKeySignatureRequestExpected: true,
+    isCardGetNumRemainingPinAttemptsRequestExpected: false,
+    expectedCardDetails: undefined,
+  },
+  {
+    description: 'card with incorrect PIN attempts',
+    cardType: 'election-manager',
+    vxCertAuthorityCert: '1',
+    cardVxCert: '1',
+    cardVxAdminCert: '1',
+    vxAdminCertAuthorityCert: '1',
+    cardVxPrivateKey: '1',
+    numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS - 5,
+    isCardVxAdminCertRetrievalRequestExpected: true,
+    isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
+    isCardVxPrivateKeySignatureRequestExpected: true,
+    isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardGetNumRemainingPinAttemptsRequestExpected: true,
+    expectedCardDetails: {
+      jurisdiction: DEV_JURISDICTION,
+      numIncorrectPinAttempts: 5,
+      user: electionManagerUser,
+    },
+  },
+  {
+    description: 'error retrieving num remaining PIN attempts',
+    cardType: 'election-manager',
+    vxCertAuthorityCert: '1',
+    cardVxCert: '1',
+    cardVxAdminCert: '1',
+    vxAdminCertAuthorityCert: '1',
+    cardVxPrivateKey: '1',
+    numRemainingPinAttempts: new Error('Whoa!'),
+    isCardVxAdminCertRetrievalRequestExpected: true,
+    isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
+    isCardVxPrivateKeySignatureRequestExpected: true,
+    isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardGetNumRemainingPinAttemptsRequestExpected: true,
     expectedCardDetails: undefined,
   },
 ])(
-  'Reading user - $description',
+  'Reading card details - $description',
   async ({
     cardType,
     vxCertAuthorityCert,
@@ -497,10 +573,12 @@ test.each<{
     vxAdminCertAuthorityCert,
     cardVxPrivateKey,
     cardVxAdminPrivateKey,
+    numRemainingPinAttempts,
     isCardVxAdminCertRetrievalRequestExpected,
     isVxAdminCertAuthorityCertRetrievalRequestExpected,
     isCardVxPrivateKeySignatureRequestExpected,
     isCardVxAdminPrivateKeySignatureRequestExpected,
+    isCardGetNumRemainingPinAttemptsRequestExpected,
     expectedCardDetails,
   }) => {
     const javaCard = new JavaCard({
@@ -564,6 +642,10 @@ test.each<{
         })
       );
     }
+    if (isCardGetNumRemainingPinAttemptsRequestExpected) {
+      assert(numRemainingPinAttempts !== undefined);
+      mockCardGetNumRemainingPinAttemptsRequest(numRemainingPinAttempts);
+    }
 
     mockCardReader.setReaderStatus('ready');
     await waitForExpect(async () => {
@@ -591,7 +673,7 @@ test.each<{
       STATUS_WORD.VERIFY_FAIL.SW1,
       0xc5,
     ]),
-    expectedResponse: { response: 'incorrect', numRemainingAttempts: 5 },
+    expectedResponse: { response: 'incorrect', numIncorrectPinAttempts: 10 },
   },
   {
     description: 'unexpected PIN verification request error',
@@ -610,7 +692,14 @@ test.each<{
     cardSignatureRequestError,
     expectedResponse,
   }) => {
-    const javaCard = new JavaCard(config);
+    const javaCard = new TestJavaCard(config);
+    javaCard.setCardStatus({
+      status: 'ready',
+      cardDetails: {
+        jurisdiction: DEV_JURISDICTION,
+        user: electionManagerUser,
+      },
+    });
 
     mockCardAppletSelectionRequest();
     mockCardCertRetrievalRequest(
