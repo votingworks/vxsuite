@@ -16,7 +16,6 @@ import fs from 'fs';
 import { join } from 'path';
 import {
   fakeElectionManagerUser,
-  fakePollWorkerUser,
   generateCvr,
   mockOf,
 } from '@votingworks/test-utils';
@@ -148,26 +147,6 @@ test('fails to configure ballot package if logged out', async () => {
   });
   expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
     err('auth_required_before_ballot_package_load')
-  );
-});
-
-test('fails to configure ballot package if non-election manager is logged in', async () => {
-  const { apiClient, mockUsb, mockAuth } = await createApp();
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-    Promise.resolve({
-      status: 'logged_in',
-      user: fakePollWorkerUser(electionSampleDefinition),
-    })
-  );
-  mockUsb.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip': createBallotPackageWithoutTemplates(
-        electionSampleDefinition
-      ),
-    },
-  });
-  expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
-    err('user_role_not_allowed')
   );
 });
 

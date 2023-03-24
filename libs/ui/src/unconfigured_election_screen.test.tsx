@@ -37,12 +37,6 @@ test.each([
       'Insert an election manager card before loading a ballot package.',
   },
   {
-    description: 'authorized card is for a role other than election manager',
-    errorString: 'user_role_not_allowed',
-    expectedErrorMessage:
-      'Insert an election manager card before loading a ballot package.',
-  },
-  {
     description:
       'election hash on authorized card does not match that on the most recent ballot package',
     errorString: 'election_hash_mismatch',

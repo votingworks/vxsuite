@@ -100,13 +100,8 @@ function buildApi(
         return err('auth_required_before_ballot_package_load');
       }
 
-      if (authStatus.user.role !== 'election_manager') {
-        await logger.log(
-          LogEventId.BallotPackageConfigAttemptedByNonElectionManager,
-          authStatus.user.role
-        );
-        return err('user_role_not_allowed');
-      }
+      // The frontend prevents other roles from configuring ballot packages
+      assert(authStatus.user.role === 'election_manager');
 
       const directoryPath = path.join(
         usbDrive.mountPoint,

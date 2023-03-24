@@ -4,5 +4,4 @@
 export type BallotPackageConfigurationError =
   | 'no_ballot_package_on_usb_drive'
   | 'auth_required_before_ballot_package_load'
-  | 'user_role_not_allowed'
   | 'election_hash_mismatch';
