@@ -47,4 +47,6 @@ export interface DippedSmartCardAuthMachineState {
   arePollWorkerCardPinsEnabled?: boolean;
   electionHash?: string;
   jurisdiction?: string;
+  numIncorrectPinAttemptsAllowedBeforeCardLockout?: number;
+  startingCardLockoutDurationSeconds?: number;
 }

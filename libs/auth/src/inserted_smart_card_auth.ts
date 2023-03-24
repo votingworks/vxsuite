@@ -39,6 +39,7 @@ import {
   InsertedSmartCardAuthConfig,
   InsertedSmartCardAuthMachineState,
 } from './inserted_smart_card_auth_api';
+import { computeCardLockoutEndTime } from './lockout';
 
 type CheckPinResponseExtended = CheckPinResponse | { response: 'error' };
 
@@ -196,6 +197,10 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     input: { pin: string }
   ): Promise<void> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
+    if (this.isLockedOut()) {
+      return;
+    }
+
     let checkPinResponse: CheckPinResponseExtended;
     try {
       checkPinResponse = await this.card.checkPin(input.pin);
@@ -351,23 +356,27 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
                 const skipPinEntry = isFeatureFlagEnabled(
                   BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
                 );
+                const lockedOutUntil = computeCardLockoutEndTime(
+                  machineState,
+                  cardDetails.numIncorrectPinAttempts
+                )?.getTime();
                 switch (user.role) {
                   case 'system_administrator': {
                     return skipPinEntry
                       ? { status: 'logged_in', user }
-                      : { status: 'checking_pin', user };
+                      : { status: 'checking_pin', user, lockedOutUntil };
                   }
                   case 'election_manager': {
                     return skipPinEntry
                       ? { status: 'logged_in', user }
-                      : { status: 'checking_pin', user };
+                      : { status: 'checking_pin', user, lockedOutUntil };
                   }
                   case 'poll_worker': {
                     if (skipPinEntry) {
                       return { status: 'logged_in', user };
                     }
                     return machineState.arePollWorkerCardPinsEnabled
-                      ? { status: 'checking_pin', user }
+                      ? { status: 'checking_pin', user, lockedOutUntil }
                       : { status: 'logged_in', user };
                   }
                   /* istanbul ignore next: Compile-time check for completeness */
@@ -409,7 +418,11 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
             return {
               ...currentAuthStatus,
               error: undefined,
-              wrongPinEnteredAt: new Date(),
+              lockedOutUntil: computeCardLockoutEndTime(
+                machineState,
+                action.checkPinResponse.numIncorrectPinAttempts
+              )?.getTime(),
+              wrongPinEnteredAt: new Date().getTime(),
             };
           }
           case 'error': {
@@ -479,5 +492,13 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     }
 
     return ok();
+  }
+
+  private isLockedOut(): boolean {
+    return Boolean(
+      this.authStatus.status === 'checking_pin' &&
+        this.authStatus.lockedOutUntil &&
+        new Date().getTime() < this.authStatus.lockedOutUntil
+    );
   }
 }
