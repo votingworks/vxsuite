@@ -139,33 +139,9 @@ export function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctSca
   };
 }
 
-export async function withApp(
-  options: {
-    precinctScannerMachine?: PrecinctScannerStateMachine;
-    preconfiguredWorkspace?: Workspace;
-    mockAuth?: InsertedSmartCardAuthApi;
-    mockUsb?: MockUsb;
-    logger?: Logger;
-    interpreter?: PrecinctScannerInterpreter;
-  },
-  callback: (parameter: {
-    apiClient: grout.Client<Api>;
-    app: Application;
-    mockAuth: InsertedSmartCardAuthApi;
-    workspace: Workspace;
-    mockUsb: MockUsb;
-    logger: Logger;
-    interpreter: PrecinctScannerInterpreter;
-  }) => Promise<void>
-): Promise<void> {
-  const { stopApp, ...rest } = await createApp(options);
-  try {
-    await callback(rest);
-  } finally {
-    stopApp();
-  }
-}
-
+/**
+ * @deprecated use `withApp` instead
+ */
 export async function createApp({
   precinctScannerMachine = createPrecinctScannerStateMachineMock(),
   preconfiguredWorkspace,
@@ -216,6 +192,33 @@ export async function createApp({
     interpreter,
     stopApp: () => server.close(),
   };
+}
+
+export async function withApp(
+  options: {
+    precinctScannerMachine?: PrecinctScannerStateMachine;
+    preconfiguredWorkspace?: Workspace;
+    mockAuth?: InsertedSmartCardAuthApi;
+    mockUsb?: MockUsb;
+    logger?: Logger;
+    interpreter?: PrecinctScannerInterpreter;
+  },
+  callback: (parameter: {
+    apiClient: grout.Client<Api>;
+    app: Application;
+    mockAuth: InsertedSmartCardAuthApi;
+    workspace: Workspace;
+    mockUsb: MockUsb;
+    logger: Logger;
+    interpreter: PrecinctScannerInterpreter;
+  }) => Promise<void>
+): Promise<void> {
+  const { stopApp, ...rest } = await createApp(options);
+  try {
+    await callback(rest);
+  } finally {
+    stopApp();
+  }
 }
 
 // Loading of HMPB templates is slow, so in some tests we want to skip it by

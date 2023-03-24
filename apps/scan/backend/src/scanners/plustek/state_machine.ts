@@ -1126,5 +1126,9 @@ export function createPrecinctScannerStateMachine({
       const { error } = machineService.state.context;
       return error ? err(errorToString(error)) : ok();
     },
+
+    stop: () => {
+      machineService.stop();
+    },
   };
 }

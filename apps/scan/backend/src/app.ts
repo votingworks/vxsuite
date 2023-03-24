@@ -38,10 +38,13 @@ import {
   exportCastVoteRecordsToUsbDrive,
 } from './cvrs/export';
 import { PrecinctScannerInterpreter } from './interpret';
-import { PrecinctScannerStateMachine } from './state_machine';
 import { Workspace } from './util/workspace';
 import { Usb } from './util/usb';
-import { PrecinctScannerConfig, PrecinctScannerStatus } from './types';
+import {
+  PrecinctScannerConfig,
+  PrecinctScannerStateMachine,
+  PrecinctScannerStatus,
+} from './types';
 import { getMachineConfig } from './machine_config';
 import { CVR_EXPORT_FORMAT, USE_NH_NEXT } from './globals';
 import { DefaultMarkThresholds } from './store';

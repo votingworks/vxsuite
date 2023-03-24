@@ -97,11 +97,7 @@ type ScannerStatusEvent =
   | { type: 'SCANNER_JAM_CLEARED' }
   | { type: 'SCANNER_DISCONNECTED' };
 
-type CommandEvent =
-  | { type: 'SCAN' }
-  | { type: 'ACCEPT' }
-  | { type: 'RETURN' }
-  | { type: 'STOP' };
+type CommandEvent = { type: 'SCAN' } | { type: 'ACCEPT' } | { type: 'RETURN' };
 
 export type Event = ScannerStatusEvent | CommandEvent;
 
@@ -601,9 +597,6 @@ function buildMachine({
         SCAN: doNothing,
         ACCEPT: doNothing,
         RETURN: doNothing,
-        STOP: {
-          target: 'stopped',
-        },
         // On events that are not handled by a specified transition (e.g. unhandled
         // paper status), return an error so we can figure out what happened
         '*': {
@@ -1087,10 +1080,6 @@ function buildMachine({
             },
           },
         },
-        stopped: {
-          id: 'stopped',
-          type: 'final',
-        },
       },
     },
     { delays: { ...delays } }
@@ -1315,7 +1304,7 @@ export function createPrecinctScannerStateMachine({
     },
 
     stop: () => {
-      machineService.send('STOP');
+      machineService.stop();
     },
   };
 }
