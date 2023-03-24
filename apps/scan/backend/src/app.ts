@@ -92,6 +92,10 @@ function buildApi(
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
+
+      // The frontend tries to prevent ballot package configuration attempts until an election
+      // manager has authed. But we may reach this state if a user removes their card immediately
+      // after inserting it, but after the ballot package configuration attempt has started
       if (authStatus.status !== 'logged_in') {
         await logger.log(LogEventId.BallotPackagedLoadedFromUsb, 'system', {
           disposition: 'failure',
