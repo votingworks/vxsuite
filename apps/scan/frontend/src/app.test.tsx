@@ -905,6 +905,15 @@ test('system administrator allowed to log in on unconfigured machine', async () 
   await screen.findByText('Enter the card PIN to unlock.');
 });
 
+test('system administrator sees system administrator screen after logging in to unconfigured machine', async () => {
+  apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.authenticateAsSystemAdministrator();
+  renderApp();
+
+  await screen.findByRole('button', { name: 'Reboot from USB' });
+});
+
 test('system administrator can reset polls to paused', async () => {
   apiMock.expectGetConfig({
     pollsState: 'polls_closed_final',
