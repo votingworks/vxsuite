@@ -93,10 +93,10 @@ function buildApi(
         constructAuthMachineState(workspace)
       );
       if (authStatus.status !== 'logged_in') {
-        await logger.log(
-          LogEventId.BallotPackageConfigAttemptedBeforeAuth,
-          'system'
-        );
+        await logger.log(LogEventId.BallotPackagedLoadedFromUsb, 'system', {
+          disposition: 'failure',
+          message: 'Ballot package configuration was attempted before auth.',
+        });
         return err('auth_required_before_ballot_package_load');
       }
 
@@ -142,10 +142,11 @@ function buildApi(
       const { electionDefinition, ballots } = ballotPackage;
 
       if (authStatus.user.electionHash !== electionDefinition.electionHash) {
-        await logger.log(
-          LogEventId.BallotPackageConfigElectionHashMismatch,
-          authStatus.user.role
-        );
+        await logger.log(LogEventId.BallotPackagedLoadedFromUsb, 'system', {
+          disposition: 'failure',
+          message:
+            'The election hash for the authorized user and most recent ballot package on the USB drive did not match.',
+        });
         return err('election_hash_mismatch');
       }
 

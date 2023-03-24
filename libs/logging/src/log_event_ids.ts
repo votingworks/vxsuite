@@ -15,9 +15,6 @@ export enum LogEventId {
   // Election configuration logs
   ElectionConfigured = 'election-configured',
   ElectionUnconfigured = 'election-unconfigured',
-  BallotPackageConfigAttemptedBeforeAuth = 'ballot-package-config-attempted-before-auth',
-  BallotPackageConfigAttemptedByNonElectionManager = 'ballot-package-config-attempted-by-non-election-manager',
-  BallotPackageConfigElectionHashMismatch = 'ballot-package-config-election-hash-mismatch',
   // System level logs
   MachineBootInit = 'machine-boot-init',
   MachineBootComplete = 'machine-boot-complete',
@@ -86,7 +83,6 @@ export enum LogEventId {
   SavedScanImageBackup = 'saved-scan-image-backup',
   ConfigureFromBallotPackageInit = 'configure-from-ballot-package-init',
   BallotPackageFilesReadFromUsb = 'ballot-package-files-read-from-usb',
-  BallotPackagedLoadedFromUsb = 'ballot-package-load-from-usb-complete',
   BallotConfiguredOnMachine = 'ballot-configure-machine-complete',
   ScannerConfigured = 'scanner-configure-complete',
   SaveCvrInit = 'save-cvr-init',
@@ -111,6 +107,9 @@ export enum LogEventId {
   PrepareBootFromUsbInit = 'prepare-boot-from-usb-init',
   PrepareBootFromUsbComplete = 'prepare-boot-from-usb-complete',
   RebootMachine = 'reboot-machine',
+  // VxScan/VxCentralScan logs
+  BallotPackagedLoadedFromUsb = 'ballot-package-load-from-usb-complete',
+
   // Precinct Machine (VxMark + VxScan) State
   PollsOpened = 'polls-opened',
   VotingPaused = 'voting-paused',
@@ -150,33 +149,6 @@ const ElectionUnconfiguredEvent: LogDetails = {
     'Application has been unconfigured from the previous election.',
   documentationMessage:
     'The user has unconfigured current machine to remove the current election definition, and all other data.',
-};
-
-const BallotPackageConfigAttemptedBeforeAuth: LogDetails = {
-  eventId: LogEventId.BallotPackageConfigAttemptedBeforeAuth,
-  eventType: LogEventType.ApplicationAction,
-  defaultMessage:
-    'Application attempted to configure ballot package before user auth.',
-  documentationMessage:
-    'Ballot package configuration was attempted before auth. The frontend should prevent this.',
-};
-
-const BallotPackageConfigAttemptedByNonElectionManager: LogDetails = {
-  eventId: LogEventId.BallotPackageConfigAttemptedByNonElectionManager,
-  eventType: LogEventType.ApplicationAction,
-  defaultMessage:
-    'Application attempted to configure ballot for a non-election manager user.',
-  documentationMessage:
-    'Ballot package configuration was attempted by a non-election manager user. The frontend should prevent this.',
-};
-
-const BallotPackageConfigElectionHashMismatch: LogDetails = {
-  eventId: LogEventId.BallotPackageConfigElectionHashMismatch,
-  eventType: LogEventType.UserAction,
-  defaultMessage:
-    'Election hashes on user auth and ballot package did not match.',
-  documentationMessage:
-    'The election hash for the authorized user and most recent ballot package on the USB drive did not match.',
 };
 
 const MachineBootInitEvent: LogDetails = {
@@ -1128,12 +1100,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SystemSettingsSaved;
     case LogEventId.SystemSettingsRetrieved:
       return SystemSettingsRetrieved;
-    case LogEventId.BallotPackageConfigAttemptedBeforeAuth:
-      return BallotPackageConfigAttemptedBeforeAuth;
-    case LogEventId.BallotPackageConfigAttemptedByNonElectionManager:
-      return BallotPackageConfigAttemptedByNonElectionManager;
-    case LogEventId.BallotPackageConfigElectionHashMismatch:
-      return BallotPackageConfigElectionHashMismatch;
 
     /* istanbul ignore next - compile time check for completeness */
     default:
