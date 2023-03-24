@@ -242,25 +242,11 @@ export function UnconfiguredScreen(): JSX.Element {
         return;
       }
 
-      if (
-        inputConversionFiles.length !== files.inputFiles.length ||
-        files.inputFiles.some(
-          (inputFile, index) =>
-            inputFile.path !== inputConversionFiles[index].path
-        )
-      ) {
-        setInputConversionFiles(files.inputFiles);
-      }
+      setInputConversionFiles(files.inputFiles);
     } catch (error) {
       console.log('failed updateStatus()', error); // eslint-disable-line no-console
     }
-  }, [
-    client,
-    getOutputFile,
-    inputConversionFiles,
-    isMounted,
-    processInputFiles,
-  ]);
+  }, [client, getOutputFile, isMounted, processInputFiles]);
 
   async function submitFile({ file, name }: InputFile) {
     try {
