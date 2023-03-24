@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
+import { assert } from '@votingworks/basics';
 
 import { Screen } from './screen';
 import { Main } from './main';
@@ -8,8 +9,9 @@ import { Text } from './text';
 import { Prose } from './prose';
 import { fontSizeTheme } from './themes';
 import { NumberPad } from './number_pad';
-
 import { SECURITY_PIN_LENGTH } from './globals';
+import { useNow } from './hooks/use_now';
+import { Timer } from './timer';
 
 const NumberPadWrapper = styled.div`
   display: flex;
@@ -48,6 +50,7 @@ export function UnlockMachineScreen({
   grayBackground,
 }: Props): JSX.Element {
   const [currentPin, setCurrentPin] = useState('');
+  const now = useNow().toJSDate();
 
   const handleNumberEntry = useCallback(
     (digit: number) => {
@@ -75,11 +78,23 @@ export function UnlockMachineScreen({
     .split('')
     .join(' ');
 
+  const isLockedOut = Boolean(
+    auth.lockedOutUntil && now < new Date(auth.lockedOutUntil)
+  );
+
   let primarySentence: JSX.Element = <p>Enter the card PIN to unlock.</p>;
   if (auth.error) {
     primarySentence = <Text error>Error checking PIN. Please try again.</Text>;
+  } else if (isLockedOut) {
+    assert(auth.lockedOutUntil !== undefined);
+    primarySentence = (
+      <Text warning>
+        Card locked. Please try again in{' '}
+        <Timer countDownTo={new Date(auth.lockedOutUntil)} />
+      </Text>
+    );
   } else if (auth.wrongPinEnteredAt) {
-    primarySentence = <Text warning>Invalid PIN. Please try again.</Text>;
+    primarySentence = <Text warning>Incorrect PIN. Please try again.</Text>;
   }
 
   return (
@@ -94,6 +109,7 @@ export function UnlockMachineScreen({
           <EnteredCode>{currentPinDisplayString}</EnteredCode>
           <NumberPadWrapper>
             <NumberPad
+              disabled={isLockedOut}
               onButtonPress={handleNumberEntry}
               onBackspace={handleBackspace}
               onClear={handleClear}

@@ -17,6 +17,7 @@ export const NumberPadContainer = styled.div`
 
 const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 export interface NumberPadProps {
+  disabled?: boolean;
   onButtonPress: (buttonValue: number) => void;
   onBackspace: () => void;
   onClear: () => void;
@@ -24,6 +25,7 @@ export interface NumberPadProps {
 }
 
 export function NumberPad({
+  disabled,
   onButtonPress,
   onBackspace,
   onClear,
@@ -32,6 +34,9 @@ export function NumberPad({
   const container = useRef<HTMLDivElement>(null);
   const onKeyPress: React.KeyboardEventHandler = useCallback(
     (event) => {
+      if (disabled) {
+        return;
+      }
       if (DIGITS.includes(event.key)) {
         // eslint-disable-next-line vx/gts-safe-number-parse
         onButtonPress(Number(event.key));
@@ -41,15 +46,18 @@ export function NumberPad({
         onEnter();
       }
     },
-    [onButtonPress, onClear, onEnter]
+    [disabled, onButtonPress, onClear, onEnter]
   );
   const onKeyDown: React.KeyboardEventHandler = useCallback(
     (event) => {
+      if (disabled) {
+        return;
+      }
       if (event.key === 'Backspace') {
         onBackspace();
       }
     },
-    [onBackspace]
+    [disabled, onBackspace]
   );
 
   useEffect(() => {
@@ -65,17 +73,22 @@ export function NumberPad({
       onKeyDown={onKeyDown}
     >
       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (
-        <Button key={digit} onPress={onButtonPress} value={digit}>
+        <Button
+          disabled={disabled}
+          key={digit}
+          onPress={onButtonPress}
+          value={digit}
+        >
           {digit}
         </Button>
       ))}
-      <Button onPress={onClear} aria-label="clear">
+      <Button disabled={disabled} onPress={onClear} aria-label="clear">
         <Icons.X />
       </Button>
-      <Button onPress={onButtonPress} value={0}>
+      <Button disabled={disabled} onPress={onButtonPress} value={0}>
         0
       </Button>
-      <Button onPress={onBackspace} aria-label="backspace">
+      <Button disabled={disabled} onPress={onBackspace} aria-label="backspace">
         <Icons.Backspace />
       </Button>
     </NumberPadContainer>
