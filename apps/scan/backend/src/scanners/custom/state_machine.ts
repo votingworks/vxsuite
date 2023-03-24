@@ -91,6 +91,7 @@ function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
 type ScannerStatusEvent =
   | { type: 'SCANNER_NO_PAPER' }
   | { type: 'SCANNER_READY_TO_SCAN' }
+  | { type: 'SCANNER_LOADED_READY_TO_SCAN' }
   | { type: 'SCANNER_READY_TO_EJECT' }
   | { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' }
   | { type: 'SCANNER_JAM' }
@@ -199,7 +200,26 @@ function scannerStatusToEvent(
     return { type: 'SCANNER_NO_PAPER' };
   }
 
+  const backHasAnyPaper =
+    scannerStatus.sensorOutputLeftLeft === SensorStatus.PaperPresent ||
+    scannerStatus.sensorOutputCenterLeft === SensorStatus.PaperPresent ||
+    scannerStatus.sensorOutputCenterRight === SensorStatus.PaperPresent ||
+    scannerStatus.sensorOutputRightRight === SensorStatus.PaperPresent;
+
+  const frontHasAnyPaper =
+    scannerStatus.sensorInputLeftLeft === SensorStatus.PaperPresent ||
+    scannerStatus.sensorInputCenterLeft === SensorStatus.PaperPresent ||
+    scannerStatus.sensorInputCenterRight === SensorStatus.PaperPresent ||
+    scannerStatus.sensorInputRightRight === SensorStatus.PaperPresent;
+
+  if (frontHasAnyPaper && backHasAnyPaper) {
+    return { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' };
+  }
+
   if (frontHasPaper && !backHasPaper) {
+    if (scannerStatus.isTicketLoaded) {
+      return { type: 'SCANNER_LOADED_READY_TO_SCAN' };
+    }
     return { type: 'SCANNER_READY_TO_SCAN' };
   }
 
@@ -496,6 +516,7 @@ function buildMachine({
           // dropped but somebody quickly inserted a new ballot in front, so we
           // should count the first ballot as accepted.
           SCANNER_READY_TO_SCAN: 'stop_accept',
+          SCANNER_LOADED_READY_TO_SCAN: 'stop_accept',
           // Sometimes the accept command will complete successfully even though
           // the ballot hasn't been dropped yet (e.g. if it's stuck), so we wait
           // a bit to see if it gets dropped.
@@ -556,6 +577,7 @@ function buildMachine({
           on: {
             // Our expected end state is that the ballot is returned to the
             // voter and held in front, i.e. "ready to scan".
+            SCANNER_LOADED_READY_TO_SCAN: onDoneState,
             SCANNER_READY_TO_SCAN: onDoneState,
 
             // If the voter pulls the paper out before we get to the expected
@@ -665,6 +687,14 @@ function buildMachine({
                 ),
               }),
             },
+            SCANNER_LOADED_READY_TO_SCAN: {
+              target: 'rejected',
+              actions: assign({
+                error: new PrecinctScannerError(
+                  'paper_in_front_after_reconnect'
+                ),
+              }),
+            },
             SCANNER_READY_TO_EJECT: {
               target: 'rejecting',
               actions: assign({
@@ -689,6 +719,7 @@ function buildMachine({
             },
             // We can automatically start scanning the next ballot
             SCANNER_READY_TO_SCAN: 'ready_to_scan',
+            SCANNER_LOADED_READY_TO_SCAN: 'returning_to_rescan',
           },
         },
         no_paper: {
@@ -709,12 +740,35 @@ function buildMachine({
             SCAN: 'scanning',
             SCANNER_NO_PAPER: 'no_paper',
             SCANNER_READY_TO_SCAN: doNothing,
+            SCANNER_LOADED_READY_TO_SCAN: doNothing,
+          },
+        },
+        prepare_scanning: {
+          invoke: {
+            src: stopAccept,
+            onDone: 'returning_to_rescan',
+            onError: '#error',
           },
         },
         scanning: {
           entry: assign({ failedScanAttempts: 0 }),
           initial: 'starting_scan',
           states: {
+            load_paper: {
+              entry: [clearError, clearLastScan],
+              invoke: {
+                src: stopAccept,
+                onDone: 'retract_paper',
+                onError: '#error',
+              },
+            },
+            retract_paper: {
+              invoke: {
+                src: reject,
+                onDone: 'starting_scan',
+                onError: '#error',
+              },
+            },
             starting_scan: {
               entry: [clearError, clearLastScan],
               invoke: {
@@ -764,6 +818,7 @@ function buildMachine({
                 SCANNER_READY_TO_EJECT: '#interpreting',
                 SCANNER_NO_PAPER: 'waiting_to_retry',
                 SCANNER_READY_TO_SCAN: 'waiting_to_retry',
+                SCANNER_LOADED_READY_TO_SCAN: 'waiting_to_retry',
               },
             },
             waiting_to_retry: {
@@ -868,6 +923,7 @@ function buildMachine({
           states: {
             scanning_paused: {
               on: {
+                SCANNER_LOADED_READY_TO_SCAN: doNothing,
                 SCANNER_READY_TO_SCAN: doNothing,
                 SCANNER_BOTH_SIDES_HAVE_PAPER: doNothing,
                 SCANNER_JAM: doNothing,
@@ -903,6 +959,7 @@ function buildMachine({
           id: 'returned',
           invoke: pollPaperStatus,
           on: {
+            SCANNER_LOADED_READY_TO_SCAN: doNothing,
             SCANNER_READY_TO_SCAN: doNothing,
             SCANNER_NO_PAPER: 'no_paper',
           },
@@ -916,6 +973,7 @@ function buildMachine({
           id: 'rejected',
           invoke: pollPaperStatus,
           on: {
+            SCANNER_LOADED_READY_TO_SCAN: doNothing,
             SCANNER_READY_TO_SCAN: doNothing,
             SCANNER_NO_PAPER: 'no_paper',
           },
@@ -930,6 +988,7 @@ function buildMachine({
             SCANNER_JAM: doNothing,
             SCANNER_JAM_CLEARED: 'jam_cleared',
             SCANNER_READY_TO_SCAN: doNothing,
+            SCANNER_LOADED_READY_TO_SCAN: doNothing,
             SCANNER_READY_TO_EJECT: doNothing,
           },
         },
@@ -956,6 +1015,7 @@ function buildMachine({
                 SCANNER_BOTH_SIDES_HAVE_PAPER: doNothing,
                 SCANNER_JAM: doNothing,
                 SCANNER_READY_TO_SCAN: '#ready_to_scan',
+                SCANNER_LOADED_READY_TO_SCAN: '#ready_to_scan',
               },
               after: {
                 DELAY_WAIT_FOR_JAM_CLEARED: '#internal_jam',
