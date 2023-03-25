@@ -1,6 +1,12 @@
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { mockOf } from '@votingworks/test-utils';
-import { BallotIdSchema, BallotType, unsafeParse } from '@votingworks/types';
+import {
+  BallotIdSchema,
+  BallotType,
+  CVR,
+  safeParseJson,
+  unsafeParse,
+} from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import Database from 'better-sqlite3';
 import { Buffer } from 'buffer';
@@ -11,6 +17,7 @@ import { WritableStream } from 'memory-streams';
 import { basename } from 'path';
 import { fileSync, tmpNameSync } from 'tmp';
 import ZipStream from 'zip-stream';
+import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
 import { election, electionDefinition } from '../test/fixtures/2020-choctaw';
 import { backup, Backup } from './backup';
 import { Store } from './store';
@@ -178,7 +185,7 @@ test('has all files referenced in the database', async () => {
           fileName !== 'election.json' &&
           fileName !== 'ballots.db' &&
           fileName !== 'ballots.db.digest' &&
-          fileName !== 'cvrs.jsonl'
+          fileName !== CAST_VOTE_RECORD_REPORT_FILENAME
       )
       .sort()
   ).toEqual(
@@ -253,12 +260,22 @@ test('has cvrs.jsonl', async () => {
 
   const zipfile = await openZip(result.toBuffer());
   const entries = getEntries(zipfile);
-  expect(entries.map(({ name }) => name)).toContain('cvrs.jsonl');
-
-  const cvrsEntry = entries.find(({ name }) => name === 'cvrs.jsonl')!;
-  expect(await readTextEntry(cvrsEntry)).toEqual(
-    `{"1":[],"2":[],"3":[],"4":[],"_ballotId":"abc","_ballotStyleId":"1","_ballotType":"standard","_batchId":"${batchId}","_batchLabel":"Batch 1","_precinctId":"6522","_scannerId":"000","_testBallot":false,"initiative-65":[],"initiative-65-a":[],"flag-question":["yes"],"runoffs-question":[]}\n`
+  expect(entries.map(({ name }) => name)).toContain(
+    CAST_VOTE_RECORD_REPORT_FILENAME
   );
+
+  const cvrsEntry = entries.find(
+    ({ name }) => name === CAST_VOTE_RECORD_REPORT_FILENAME
+  )!;
+  const exportedReport = unsafeParse(
+    CVR.CastVoteRecordReportSchema,
+    safeParseJson(await readTextEntry(cvrsEntry)).unsafeUnwrap()
+  );
+  expect(exportedReport.CVR).toHaveLength(1);
+  const exportedCvr = exportedReport.CVR![0]!;
+  expect(exportedCvr.UniqueId).toEqual('abc');
+  expect(exportedCvr.BatchId).toEqual(batchId);
+  expect(exportedCvr.BatchSequenceId).toBeUndefined();
 });
 
 test('does not have vx-logs.log if file does not exist', async () => {
@@ -390,7 +407,7 @@ test.each(spaceOptimizedBackupTestCases)(
             fileName !== 'election.json' &&
             fileName !== 'ballots.db' &&
             fileName !== 'ballots.db.digest' &&
-            fileName !== 'cvrs.jsonl'
+            fileName !== CAST_VOTE_RECORD_REPORT_FILENAME
         )
         .sort()
     ).toEqual(

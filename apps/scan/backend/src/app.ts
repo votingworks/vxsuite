@@ -20,17 +20,14 @@ import {
   ExportCastVoteRecordReportToUsbDriveError,
   readBallotPackageFromUsb,
 } from '@votingworks/backend';
-import { assert, err, ok, Result } from '@votingworks/basics';
+import { assert, err, iter, ok, Result } from '@votingworks/basics';
 import {
   DEV_JURISDICTION,
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
 import { backupToUsbDrive } from './backup';
-import {
-  exportCastVoteRecords,
-  exportCastVoteRecordsToUsbDrive,
-} from './cvrs/export';
+import { exportCastVoteRecords } from './tally-cvrs/export';
 import { PrecinctScannerInterpreter } from './interpret';
 import {
   PrecinctScannerStateMachine,
@@ -40,7 +37,6 @@ import {
 import { Workspace } from './util/workspace';
 import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
-import { CVR_EXPORT_FORMAT } from './globals';
 import { DefaultMarkThresholds } from './store';
 
 function constructAuthMachineState(
@@ -243,14 +239,11 @@ function buildApi(
     async exportCastVoteRecordsToUsbDrive(): Promise<
       Result<void, ExportCastVoteRecordReportToUsbDriveError>
     > {
-      if (CVR_EXPORT_FORMAT === 'cdf') {
-        const electionDefinition = store.getElectionDefinition();
-        assert(
-          electionDefinition,
-          'Cannot export CVRs without election definition'
-        );
+      const electionDefinition = store.getElectionDefinition();
+      assert(electionDefinition);
 
-        const exportResult = await exportCastVoteRecordReportToUsbDrive({
+      const exportResult = await exportCastVoteRecordReportToUsbDrive(
+        {
           electionDefinition,
           isTestMode: store.getTestMode(),
           ballotsCounted: store.getBallotsCounted(),
@@ -260,35 +253,27 @@ function buildApi(
           definiteMarkThreshold:
             store.getCurrentMarkThresholds()?.definite ??
             DefaultMarkThresholds.definite,
-        });
+        },
+        usb.getUsbDrives
+      );
 
-        if (exportResult.isOk()) {
-          store.setCvrsBackedUp();
-        }
-
-        return exportResult;
+      if (exportResult.isOk()) {
+        store.setCvrsBackedUp();
       }
 
-      return await exportCastVoteRecordsToUsbDrive(
-        store,
-        usb,
-        getMachineConfig().machineId
-      );
+      return exportResult;
     },
 
     /**
      * @deprecated We want to eventually build the tally in the backend,
      * but for now that logic still lives in the frontend.
      */
-    async getCastVoteRecordsForTally(): Promise<CastVoteRecord[]> {
-      const castVoteRecords: CastVoteRecord[] = [];
-      for await (const castVoteRecord of exportCastVoteRecords({
-        store,
-        skipImages: true,
-      })) {
-        castVoteRecords.push(castVoteRecord);
-      }
-      return castVoteRecords;
+    getCastVoteRecordsForTally(): CastVoteRecord[] {
+      return iter(
+        exportCastVoteRecords({
+          store,
+        })
+      ).toArray();
     },
 
     getScannerStatus(): PrecinctScannerStatus {

@@ -9,6 +9,7 @@ import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
 import {
+  CAST_VOTE_RECORD_REPORT_FILENAME,
   safeParseSystemSettings,
   SCANNER_RESULTS_FOLDER,
   singlePrecinctSelectionFor,
@@ -19,15 +20,21 @@ import { join } from 'path';
 import {
   fakeElectionManagerUser,
   fakeSessionExpiresAt,
-  generateCvr,
   mockOf,
 } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
+  CVR,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
+  unsafeParse,
 } from '@votingworks/types';
-import { createBallotPackageWithoutTemplates } from '@votingworks/backend';
+import {
+  convertCastVoteRecordVotesToLegacyVotes,
+  createBallotPackageWithoutTemplates,
+  getCastVoteRecordReportImport,
+  validateCastVoteRecordReportDirectoryStructure,
+} from '@votingworks/backend';
 import {
   configureApp,
   waitForStatus,
@@ -186,7 +193,7 @@ test('configures using the most recently created ballot package on the usb drive
   });
 });
 
-test('export CVRs to USB in deprecated VotingWorks format', async () => {
+test('export CVRs to USB', async () => {
   await withApp(
     {},
     async ({ apiClient, mockPlustek, mockUsb, mockAuth, workspace }) => {
@@ -200,44 +207,54 @@ test('export CVRs to USB in deprecated VotingWorks format', async () => {
       const electionDirs = fs.readdirSync(resultsDirPath);
       expect(electionDirs).toHaveLength(1);
       const electionDirPath = join(resultsDirPath, electionDirs[0]);
-      const cvrFiles = fs.readdirSync(electionDirPath);
-      expect(cvrFiles).toHaveLength(1);
-      expect(cvrFiles[0]).toMatch(/machine_0000__1_ballots__.*.jsonl/);
-      const cvrFilePath = join(electionDirPath, cvrFiles[0]);
-      const cvr = JSON.parse(fs.readFileSync(cvrFilePath).toString());
-      const expectedCvr = generateCvr(
-        electionFamousNames2021Fixtures.election,
-        {
-          attorney: ['john-snow'],
-          'board-of-alderman': [
-            'helen-keller',
-            'steve-jobs',
-            'nikola-tesla',
-            'vincent-van-gogh',
-          ],
-          'chief-of-police': ['natalie-portman'],
-          'city-council': [
-            'marie-curie',
-            'indiana-jones',
-            'mona-lisa',
-            'jackie-chan',
-          ],
-          controller: ['winston-churchill'],
-          mayor: ['sherlock-holmes'],
-          'parks-and-recreation-director': ['charles-darwin'],
-          'public-works-director': ['benjamin-franklin'],
-        },
-        {
-          scannerId: '000',
-        }
+      const cvrReportDirectories = fs.readdirSync(electionDirPath);
+      expect(cvrReportDirectories).toHaveLength(1);
+      expect(cvrReportDirectories[0]).toMatch(/machine_000__1_ballot__*/);
+      const cvrReportDirectoryPath = join(
+        electionDirPath,
+        cvrReportDirectories[0]
       );
 
-      expect(cvr).toEqual({
-        ...expectedCvr,
-        _ballotId: expect.any(String),
-        _batchId: expect.any(String),
-      });
+      // Confirm we've exported a valid CVR report in the form of a directory
+      const directoryValidationResult =
+        await validateCastVoteRecordReportDirectoryStructure(
+          cvrReportDirectoryPath
+        );
+      expect(directoryValidationResult.isOk()).toBeTruthy();
+      const castVoteRecordReportImportResult =
+        await getCastVoteRecordReportImport(
+          join(cvrReportDirectoryPath, CAST_VOTE_RECORD_REPORT_FILENAME)
+        );
+      const cvrs = await castVoteRecordReportImportResult
+        .assertOk('test')
+        .CVR.toArray();
 
+      const cvr = cvrs[0];
+      expect(cvrs.length).toEqual(1);
+      expect(
+        convertCastVoteRecordVotesToLegacyVotes(
+          unsafeParse(CVR.CVRSchema, cvr).CVRSnapshot[0]
+        )
+      ).toMatchObject({
+        attorney: ['john-snow'],
+        'board-of-alderman': [
+          'helen-keller',
+          'steve-jobs',
+          'nikola-tesla',
+          'vincent-van-gogh',
+        ],
+        'chief-of-police': ['natalie-portman'],
+        'city-council': [
+          'marie-curie',
+          'indiana-jones',
+          'mona-lisa',
+          'jackie-chan',
+        ],
+        controller: ['winston-churchill'],
+        mayor: ['sherlock-holmes'],
+        'parks-and-recreation-director': ['charles-darwin'],
+        'public-works-director': ['benjamin-franklin'],
+      });
       expect(workspace.store.getCvrsBackupTimestamp()).toBeDefined();
     }
   );
