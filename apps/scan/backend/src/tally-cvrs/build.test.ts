@@ -311,7 +311,6 @@ test('generates a CVR from a completed HMPB page', () => {
       "_ballotType": "standard",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
-      "_layouts": undefined,
       "_pageNumbers": Array [
         1,
         2,
@@ -407,7 +406,6 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
       "_ballotType": "standard",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
-      "_layouts": undefined,
       "_pageNumbers": Array [
         1,
         2,
@@ -502,7 +500,6 @@ test('generates a CVR from a completed absentee HMPB page', () => {
       "_ballotType": "absentee",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
-      "_layouts": undefined,
       "_pageNumbers": Array [
         1,
         2,

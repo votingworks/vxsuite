@@ -1,3 +1,5 @@
+/* eslint-disable vx/gts-identifiers */
+
 import { assert } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { unsafeParse, CVR } from '@votingworks/types';
@@ -5,6 +7,7 @@ import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
 import { rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import {
+  convertCastVoteRecordVotesToLegacyVotes,
   getCastVoteRecordReportImport,
   validateCastVoteRecordReportDirectoryStructure,
 } from './cast_vote_record_report_import';
@@ -160,5 +163,86 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
       await validateCastVoteRecordReportDirectoryStructure(directoryPath);
     expect(validationResult.isErr()).toBeTruthy();
     expect(validationResult.err()).toMatchObject({ type: 'invalid-directory' });
+  });
+});
+
+describe('convertCastVoteRecordVotesToLegacyVotes', () => {
+  test('snapshot without contests', () => {
+    expect(
+      convertCastVoteRecordVotesToLegacyVotes({
+        '@id': 'test',
+        '@type': 'CVR.CVRSnapshot',
+        Type: CVR.CVRType.Modified,
+      })
+    ).toMatchObject({});
+  });
+
+  test('converts snapshot', () => {
+    expect(
+      convertCastVoteRecordVotesToLegacyVotes({
+        '@id': 'test',
+        '@type': 'CVR.CVRSnapshot',
+        Type: CVR.CVRType.Modified,
+        CVRContest: [
+          {
+            '@type': 'CVR.CVRContest',
+            ContestId: 'null',
+            // should be ignored because no contest selections
+          },
+          {
+            '@type': 'CVR.CVRContest',
+            ContestId: 'mayor',
+            CVRContestSelection: [
+              {
+                '@type': 'CVR.CVRContestSelection',
+                ContestSelectionId: 'frodo',
+                SelectionPosition: [
+                  {
+                    '@type': 'CVR.SelectionPosition',
+                    HasIndication: CVR.IndicationStatus.Yes,
+                    NumberVotes: 1,
+                  },
+                ],
+              },
+              {
+                '@type': 'CVR.CVRContestSelection',
+                ContestSelectionId: 'gandalf',
+                SelectionPosition: [
+                  {
+                    '@type': 'CVR.SelectionPosition',
+                    HasIndication: CVR.IndicationStatus.Yes,
+                    NumberVotes: 1,
+                  },
+                ],
+              },
+              {
+                '@type': 'CVR.CVRContestSelection',
+                ContestSelectionId: 'sam',
+                SelectionPosition: [
+                  {
+                    '@type': 'CVR.SelectionPosition',
+                    // should be ignored because not indicated
+                    HasIndication: CVR.IndicationStatus.No,
+                    NumberVotes: 1,
+                  },
+                ],
+              },
+              {
+                '@type': 'CVR.CVRContestSelection',
+                // should be ignored because no contest selection id
+                SelectionPosition: [
+                  {
+                    '@type': 'CVR.SelectionPosition',
+
+                    HasIndication: CVR.IndicationStatus.Yes,
+                    NumberVotes: 1,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      })
+    ).toMatchObject({ mayor: ['frodo', 'gandalf'] });
   });
 });

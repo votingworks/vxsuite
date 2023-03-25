@@ -2,7 +2,6 @@ import {
   AnyContest,
   BallotId,
   BallotMetadata,
-  BallotPageLayout,
   BallotStyleId,
   BallotType,
   CandidateVote,
@@ -14,7 +13,6 @@ import {
   getBallotStyle,
   getContests,
   getContestsFromIds,
-  InlineBallotImage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   mapSheet,
@@ -28,7 +26,7 @@ import { PageInterpretationWithAdjudication as BuildCastVoteRecordInput } from '
 import {
   describeValidationError,
   validateSheetInterpretation,
-} from '../validation';
+} from './validation';
 
 export function getCvrBallotType(
   ballotType: BallotType
@@ -179,8 +177,7 @@ function buildCastVoteRecordFromHmpbPage(
   batchId: string,
   batchLabel: string,
   election: Election,
-  [front, back]: SheetOf<BuildCastVoteRecordInput<InterpretedHmpbPage>>,
-  ballotLayouts?: SheetOf<BallotPageLayout>
+  [front, back]: SheetOf<BuildCastVoteRecordInput<InterpretedHmpbPage>>
 ): CastVoteRecord {
   if (
     front.interpretation.metadata.pageNumber >
@@ -192,8 +189,7 @@ function buildCastVoteRecordFromHmpbPage(
       batchId,
       batchLabel,
       election,
-      [back, front],
-      ballotLayouts
+      [back, front]
     );
   }
 
@@ -236,36 +232,7 @@ function buildCastVoteRecordFromHmpbPage(
       back.interpretation.metadata.pageNumber,
     ],
     ...votesEntries,
-    _layouts: ballotLayouts,
   };
-}
-
-export function addBallotImagesToCvr(
-  cvr: CastVoteRecord,
-  ballotImages: SheetOf<InlineBallotImage>
-): CastVoteRecord {
-  return {
-    ...cvr,
-    _ballotImages: ballotImages,
-  };
-}
-
-// returns booleans for front and back --> for now can only do true,true or false,false
-export function cvrHasWriteIns(
-  election: Election,
-  cvr: CastVoteRecord
-): SheetOf<boolean> {
-  const potentialWriteIns: string[] = election.contests
-    .filter((c) => c.type === 'candidate' && c.allowWriteIns)
-    .map((c) => c.id);
-  for (const contestId of potentialWriteIns) {
-    const votes = cvr[contestId] as string[];
-    if (votes?.find((vote: string) => vote.startsWith('write-in-'))) {
-      return [true, true];
-    }
-  }
-
-  return [false, false];
 }
 
 export function buildCastVoteRecord(
@@ -274,8 +241,7 @@ export function buildCastVoteRecord(
   batchLabel: string,
   ballotId: BallotId,
   election: Election,
-  [front, back]: SheetOf<BuildCastVoteRecordInput>,
-  ballotLayouts?: SheetOf<BallotPageLayout>
+  [front, back]: SheetOf<BuildCastVoteRecordInput>
 ): CastVoteRecord | undefined {
   const validationResult = validateSheetInterpretation([
     front.interpretation,
@@ -319,8 +285,7 @@ export function buildCastVoteRecord(
       batchId,
       batchLabel,
       election,
-      [front, back] as SheetOf<BuildCastVoteRecordInput<InterpretedHmpbPage>>,
-      ballotLayouts
+      [front, back] as SheetOf<BuildCastVoteRecordInput<InterpretedHmpbPage>>
     );
   }
 }

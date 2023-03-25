@@ -15,12 +15,10 @@ import { createReadStream, existsSync } from 'fs-extra';
 import { basename } from 'path';
 import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
-import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { Store } from './store';
 import { rootDebug } from './util/debug';
 import { buildExporter } from './util/exporter';
 import { Usb } from './util/usb';
-import { CVR_EXPORT_FORMAT } from './globals';
 
 const debug = rootDebug.extend('backup');
 
@@ -103,26 +101,19 @@ export class Backup {
     debug('added election.json to backup');
 
     debug('adding CVRs to backup...');
-    if (CVR_EXPORT_FORMAT === 'vxf') {
-      await this.addEntry(
-        'cvrs.jsonl',
-        exportCastVoteRecordsAsNdJson({ store: this.store })
-      );
-    } else {
-      await this.addEntry(
-        CAST_VOTE_RECORD_REPORT_FILENAME,
-        getCastVoteRecordReportStream({
-          electionDefinition,
-          definiteMarkThreshold:
-            this.store.getCurrentMarkThresholds()?.definite ?? 0.12,
-          isTestMode: this.store.getTestMode(),
-          ballotPageLayoutsLookup: this.store.getBallotPageLayoutsLookup(),
-          resultSheetGenerator: this.store.forEachResultSheet(),
-          batchInfo: this.store.batchStatus(),
-          reportContext: 'backup',
-        })
-      );
-    }
+    await this.addEntry(
+      CAST_VOTE_RECORD_REPORT_FILENAME,
+      getCastVoteRecordReportStream({
+        electionDefinition,
+        definiteMarkThreshold:
+          this.store.getCurrentMarkThresholds()?.definite ?? 0.12,
+        isTestMode: this.store.getTestMode(),
+        ballotPageLayoutsLookup: this.store.getBallotPageLayoutsLookup(),
+        resultSheetGenerator: this.store.forEachResultSheet(),
+        batchInfo: this.store.batchStatus(),
+        reportContext: 'backup',
+      })
+    );
 
     debug('added CVRs to backup');
 
