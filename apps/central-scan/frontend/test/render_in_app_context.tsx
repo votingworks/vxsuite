@@ -2,7 +2,6 @@ import { electionSampleDefinition as testElectionDefinition } from '@votingworks
 import { LogSource, Logger } from '@votingworks/logging';
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
-import { MemoryStorage, Storage } from '@votingworks/utils';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
@@ -19,7 +18,6 @@ interface RenderInAppContextParams {
   machineId?: string;
   usbDriveStatus?: UsbDriveStatus;
   usbDriveEject?: () => void;
-  storage?: Storage;
   auth?: DippedSmartCardAuth.AuthStatus;
   logger?: Logger;
   apiClient?: ApiClient;
@@ -34,7 +32,6 @@ export function makeAppContext({
   },
   usbDriveStatus = 'absent',
   usbDriveEject = jest.fn(),
-  storage = new MemoryStorage(),
   auth = {
     status: 'logged_in',
     user: fakeElectionManagerUser({
@@ -48,7 +45,6 @@ export function makeAppContext({
     machineConfig,
     usbDriveStatus,
     usbDriveEject,
-    storage,
     auth,
     logger,
   };
@@ -63,7 +59,6 @@ export function wrapInAppContext(
     machineId = '0000',
     usbDriveStatus,
     usbDriveEject,
-    storage,
     auth,
     logger,
     apiClient,
@@ -79,7 +74,6 @@ export function wrapInAppContext(
             machineConfig: { machineId, codeVersion: 'TEST' },
             usbDriveStatus,
             usbDriveEject,
-            storage,
             auth,
             logger,
           })}

@@ -8,12 +8,7 @@ import {
 import styled from 'styled-components';
 
 import { Scan } from '@votingworks/api';
-import {
-  KioskStorage,
-  LocalStorage,
-  Hardware,
-  isSystemAdministratorAuth,
-} from '@votingworks/utils';
+import { Hardware, isSystemAdministratorAuth } from '@votingworks/utils';
 import {
   ElectionInfoBar,
   Main,
@@ -498,10 +493,6 @@ export function AppRoot({
     }
   }, [electionJustLoaded, usbDrive.status]);
 
-  const storage = window.kiosk
-    ? new KioskStorage(window.kiosk)
-    : new LocalStorage();
-
   if (!authStatusQuery.isSuccess) {
     return null;
   }
@@ -515,7 +506,6 @@ export function AppRoot({
     usbDriveEject: usbDrive.eject,
     electionDefinition,
     machineConfig,
-    storage,
     logger,
     auth: authStatus,
   };
