@@ -6,7 +6,7 @@ import {
   fakeKiosk,
   fakeUsbDrive,
 } from '@votingworks/test-utils';
-import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
+import { MemoryHardware } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
 
@@ -31,7 +31,6 @@ function renderApp(props: Partial<AppProps> = {}) {
     connectPrecinctScanner: true,
   });
   const logger = fakeLogger();
-  const storage = new MemoryStorage();
   render(
     <App
       hardware={hardware}
@@ -40,7 +39,7 @@ function renderApp(props: Partial<AppProps> = {}) {
       {...props}
     />
   );
-  return { hardware, logger, storage };
+  return { hardware, logger };
 }
 
 beforeEach(() => {
