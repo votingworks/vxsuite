@@ -14,6 +14,8 @@ import { useCancelablePromise } from './use_cancelable_promise';
 /**
  * Store a value in `storage` by `key`, validating it using `schema` without
  * an initial default value.
+ *
+ * @deprecated app backends should manage their own storage.
  */
 export function useStoredState<S>(
   storage: Storage,
@@ -23,6 +25,8 @@ export function useStoredState<S>(
 /**
  * Store a value in `storage` by `key`, validating it using `schema`, using
  * `initialValue` if the value is absent from `storage`.
+ *
+ * @deprecated app backends should manage their own storage.
  */
 export function useStoredState<S>(
   storage: Storage,

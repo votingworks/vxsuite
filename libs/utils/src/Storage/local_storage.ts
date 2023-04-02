@@ -5,6 +5,8 @@ import { Storage } from '../types';
 
 /**
  * Implements the storage API using `localStorage` as the backing store.
+ *
+ * @deprecated app backends should manage their own storage.
  */
 export class LocalStorage implements Storage {
   /**

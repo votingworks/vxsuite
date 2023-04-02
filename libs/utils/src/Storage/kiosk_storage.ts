@@ -3,6 +3,8 @@ import { Storage } from '../types';
 
 /**
  * Implements the storage API using Kiosk Storage as the backing store.
+ *
+ * @deprecated app backends should manage their own storage.
  */
 export class KioskStorage implements Storage {
   constructor(private readonly kiosk: KioskBrowser.Kiosk) {

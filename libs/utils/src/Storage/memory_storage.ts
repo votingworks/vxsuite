@@ -5,6 +5,8 @@ import { Storage } from '../types';
 /**
  * Implements the storage API for storing objects in memory. Data stored in
  * this object only lasts as long as the program runs.
+ *
+ * @deprecated app backends should manage their own storage.
  */
 export class MemoryStorage implements Storage {
   private readonly data = new Map<string, string>();
