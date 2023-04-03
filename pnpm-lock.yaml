@@ -2104,6 +2104,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
+      '@votingworks/custom-scanner':
+        specifier: workspace:*
+        version: link:../../../libs/custom-scanner
       '@votingworks/db':
         specifier: workspace:*
         version: link:../../../libs/db
