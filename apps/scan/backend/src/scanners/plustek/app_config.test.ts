@@ -3,11 +3,13 @@ import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   electionSampleDefinition,
+  systemSettings,
 } from '@votingworks/fixtures';
 import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
 import {
+  safeParseSystemSettings,
   SCANNER_RESULTS_FOLDER,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
@@ -469,6 +471,31 @@ test('auth after configuration passes populated machine state', async () => {
       1,
       { electionHash },
       { pin: '123456' }
+    );
+  });
+});
+
+test('getConfig() returns system settings if they exist', async () => {
+  await withApp({}, async ({ apiClient, mockUsb, mockAuth }) => {
+    const systemSettingsString = systemSettings.asText();
+    mockElectionManager(
+      mockAuth,
+      electionMinimalExhaustiveSampleSinglePrecinctDefinition
+    );
+    mockUsb.insertUsbDrive({
+      'ballot-packages': {
+        'test-ballot-package.zip': createBallotPackageWithoutTemplates(
+          electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+          systemSettingsString
+        ),
+      },
+    });
+    expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
+      ok()
+    );
+    const config = await apiClient.getConfig();
+    expect(config.systemSettings).toMatchObject(
+      safeParseSystemSettings(systemSettingsString).unsafeUnwrap()
     );
   });
 });
