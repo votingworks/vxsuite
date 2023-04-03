@@ -104,7 +104,7 @@ export class GroutError extends Error {}
  * human-readable while still supporting richer types than plain JSON.
  *
  * Unexpected exceptions will return a 500 status code with a plain JSON
- * response containing the error mesage. This will cause the client to throw an
+ * response containing the error message. This will cause the client to throw an
  * exception.
  *
  * You should NOT throw exceptions from your RPC methods for known errors (e.g.
