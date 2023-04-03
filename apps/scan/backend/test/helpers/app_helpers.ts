@@ -28,6 +28,7 @@ import {
   buildMockInsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
 } from '@votingworks/auth';
+import { Server } from 'http';
 import { buildApp, Api } from '../../src/app';
 import {
   createPrecinctScannerStateMachine,
@@ -39,7 +40,11 @@ import {
 } from '../../src/interpret';
 import { createWorkspace, Workspace } from '../../src/util/workspace';
 import { Usb } from '../../src/util/usb';
-import { PrecinctScannerState, PrecinctScannerStatus } from '../../src/types';
+import {
+  PrecinctScannerState,
+  PrecinctScannerStatus,
+  SheetInterpretation,
+} from '../../src/types';
 
 type MockFileTree = MockFile | MockDirectory;
 type MockFile = Buffer;
@@ -134,24 +139,28 @@ export async function waitForStatus(
   }, 1_000);
 }
 
-export async function createApp({
-  delays = {},
-  mockPlustekOptions = {},
-  preconfiguredWorkspace,
-}: {
-  delays?: Partial<Delays>;
-  mockPlustekOptions?: Partial<MockScannerClientOptions>;
-  preconfiguredWorkspace?: Workspace;
-} = {}): Promise<{
-  apiClient: grout.Client<Api>;
-  app: Application;
-  mockAuth: InsertedSmartCardAuthApi;
-  mockPlustek: MockScannerClient;
-  workspace: Workspace;
-  mockUsb: MockUsb;
-  logger: Logger;
-  interpreter: PrecinctScannerInterpreter;
-}> {
+export async function withApp(
+  {
+    delays = {},
+    mockPlustekOptions = {},
+    preconfiguredWorkspace,
+  }: {
+    delays?: Partial<Delays>;
+    mockPlustekOptions?: Partial<MockScannerClientOptions>;
+    preconfiguredWorkspace?: Workspace;
+  },
+  fn: (context: {
+    apiClient: grout.Client<Api>;
+    app: Application;
+    mockAuth: InsertedSmartCardAuthApi;
+    mockPlustek: MockScannerClient;
+    workspace: Workspace;
+    mockUsb: MockUsb;
+    logger: Logger;
+    interpreter: PrecinctScannerInterpreter;
+    server: Server;
+  }) => Promise<void>
+): Promise<void> {
   const mockAuth = buildMockInsertedSmartCardAuth();
   const logger = fakeLogger();
   const workspace =
@@ -200,16 +209,26 @@ export async function createApp({
   await expectStatus(apiClient, { state: 'connecting' });
   deferredConnect.resolve();
   await waitForStatus(apiClient, { state: 'no_paper' });
-  return {
-    apiClient,
-    app,
-    mockAuth,
-    mockPlustek,
-    workspace,
-    mockUsb,
-    logger,
-    interpreter,
-  };
+
+  try {
+    await fn({
+      apiClient,
+      app,
+      mockAuth,
+      mockPlustek,
+      workspace,
+      mockUsb,
+      logger,
+      interpreter,
+      server,
+    });
+  } finally {
+    const { promise, resolve, reject } = deferred<void>();
+    server.close((error) => (error ? reject(error) : resolve()));
+    await promise;
+    void mockPlustek.stop();
+    workspace.reset();
+  }
 }
 
 export const ballotImages = {
@@ -316,4 +335,41 @@ export async function configureApp(
   });
   await apiClient.setTestMode({ isTestMode: false });
   await apiClient.setPollsState({ pollsState: 'polls_open' });
+}
+
+/**
+ * Interpretation is generally the slowest part of tests in this file. To speed
+ * up a test, you can use this function to mock interpretation. It should only
+ * be used when:
+ * - The test isn't meant to check that interpretation works correctly. There
+ *   should already be another test that covers the same interpretation case.
+ * - The test doesn't check the CVR export at the end. The interpreter stores
+ *   the ballot images which are used in the CVR, and mocking will forgo that
+ *   logic.
+ * - The test doesn't depend on the actual page interpretations. This function
+ *   adds fake page interpretations that don't actually match the passed in
+ *   ballot interpretation (because the state machine doesn't actually use those
+ *   page interpretations, they are just stored for the CVR).
+ */
+export function mockInterpretation(
+  interpreter: PrecinctScannerInterpreter,
+  interpretation: SheetInterpretation
+): void {
+  jest.spyOn(interpreter, 'interpret').mockResolvedValue(
+    ok({
+      ...interpretation,
+      pages: [
+        {
+          interpretation: { type: 'BlankPage' },
+          originalFilename: 'fake_original_filename',
+          normalizedFilename: 'fake_normalized_filename',
+        },
+        {
+          interpretation: { type: 'BlankPage' },
+          originalFilename: 'fake_original_filename',
+          normalizedFilename: 'fake_normalized_filename',
+        },
+      ],
+    })
+  );
 }
