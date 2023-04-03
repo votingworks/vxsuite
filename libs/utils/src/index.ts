@@ -27,3 +27,4 @@ export * from './types';
 export * from './votes';
 export * from './votecounting';
 export * as usbstick from './usbstick';
+export * from './system_settings';

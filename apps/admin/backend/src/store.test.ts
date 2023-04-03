@@ -9,12 +9,8 @@ import {
   arbitraryBallotStyleId,
   arbitraryPrecinctId,
 } from '@votingworks/test-utils';
-import {
-  BallotId,
-  CastVoteRecord,
-  SystemSettingsSchema,
-  safeParseJson,
-} from '@votingworks/types';
+import { BallotId, CastVoteRecord } from '@votingworks/types';
+import { safeParseSystemSettings } from '@votingworks/utils';
 import { typedAs } from '@votingworks/basics';
 import fc from 'fast-check';
 import { promises as fs } from 'fs';
@@ -1259,11 +1255,8 @@ test('current election id', () => {
  * System settings tests
  */
 function makeSystemSettings() {
-  const systemSettingsString =
-    electionMinimalExhaustiveSampleFixtures.systemSettings.asText();
-  return safeParseJson(
-    systemSettingsString,
-    SystemSettingsSchema
+  return safeParseSystemSettings(
+    electionMinimalExhaustiveSampleFixtures.systemSettings.asText()
   ).unsafeUnwrap();
 }
 
