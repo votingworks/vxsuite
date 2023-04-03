@@ -1,50 +1,27 @@
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { assert, ok } from '@votingworks/basics';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import * as grout from '@votingworks/grout';
+import { fakeElectionManagerUser, mockOf } from '@votingworks/test-utils';
+import { ElectionDefinition, PrecinctId } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { fakeElectionManagerUser, mockOf } from '@votingworks/test-utils';
-import * as grout from '@votingworks/grout';
-import { Application } from 'express';
 import { Buffer } from 'buffer';
-import { ElectionDefinition, PrecinctId } from '@votingworks/types';
-import waitForExpect from 'wait-for-expect';
-import { fakeLogger, Logger } from '@votingworks/logging';
-import {
-  MockScannerClient,
-  MockScannerClientOptions,
-  ScannerClient,
-} from '@votingworks/plustek-scanner';
-import tmp from 'tmp';
-import {
-  electionFamousNames2021Fixtures,
-  sampleBallotImages,
-} from '@votingworks/fixtures';
-import { join } from 'path';
-import { AddressInfo } from 'net';
-import fs from 'fs';
 import { execSync } from 'child_process';
-import { assert, deferred, ok, Result } from '@votingworks/basics';
-import {
-  buildMockInsertedSmartCardAuth,
-  InsertedSmartCardAuthApi,
-} from '@votingworks/auth';
-import { Server } from 'http';
-import { buildApp, Api } from '../../src/app';
-import {
-  createPrecinctScannerStateMachine,
-  Delays,
-} from '../../src/state_machine';
-import {
-  createInterpreter,
-  PrecinctScannerInterpreter,
-} from '../../src/interpret';
-import { createWorkspace, Workspace } from '../../src/util/workspace';
-import { Usb } from '../../src/util/usb';
+import fs from 'fs';
+import { join } from 'path';
+import tmp from 'tmp';
+import waitForExpect from 'wait-for-expect';
+import { Api } from '../../src/app';
+import { PrecinctScannerInterpreter } from '../../src/interpret';
 import {
   PrecinctScannerState,
   PrecinctScannerStatus,
   SheetInterpretation,
 } from '../../src/types';
+import { Usb } from '../../src/util/usb';
 
 type MockFileTree = MockFile | MockDirectory;
 type MockFile = Buffer;
@@ -138,126 +115,6 @@ export async function waitForStatus(
     await expectStatus(apiClient, status);
   }, 1_000);
 }
-
-export async function withApp(
-  {
-    delays = {},
-    mockPlustekOptions = {},
-    preconfiguredWorkspace,
-  }: {
-    delays?: Partial<Delays>;
-    mockPlustekOptions?: Partial<MockScannerClientOptions>;
-    preconfiguredWorkspace?: Workspace;
-  },
-  fn: (context: {
-    apiClient: grout.Client<Api>;
-    app: Application;
-    mockAuth: InsertedSmartCardAuthApi;
-    mockPlustek: MockScannerClient;
-    workspace: Workspace;
-    mockUsb: MockUsb;
-    logger: Logger;
-    interpreter: PrecinctScannerInterpreter;
-    server: Server;
-  }) => Promise<void>
-): Promise<void> {
-  const mockAuth = buildMockInsertedSmartCardAuth();
-  const logger = fakeLogger();
-  const workspace =
-    preconfiguredWorkspace ?? (await createWorkspace(tmp.dirSync().name));
-  const mockPlustek = new MockScannerClient({
-    toggleHoldDuration: 100,
-    passthroughDuration: 100,
-    ...mockPlustekOptions,
-  });
-  const deferredConnect = deferred<void>();
-  async function createPlustekClient(): Promise<Result<ScannerClient, Error>> {
-    await mockPlustek.connect();
-    await deferredConnect.promise;
-    return ok(mockPlustek);
-  }
-  const interpreter = createInterpreter();
-  const precinctScannerMachine = createPrecinctScannerStateMachine({
-    createPlustekClient,
-    workspace,
-    interpreter,
-    logger,
-    delays: {
-      DELAY_RECONNECT: 100,
-      DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 100,
-      DELAY_ACCEPTED_RESET_TO_NO_PAPER: 200,
-      DELAY_PAPER_STATUS_POLLING_INTERVAL: 50,
-      ...delays,
-    },
-  });
-  const mockUsb = createMockUsb();
-  const app = buildApp(
-    mockAuth,
-    precinctScannerMachine,
-    interpreter,
-    workspace,
-    mockUsb.mock,
-    logger
-  );
-
-  const server = app.listen();
-  const { port } = server.address() as AddressInfo;
-  const baseUrl = `http://localhost:${port}/api`;
-
-  const apiClient = grout.createClient<Api>({ baseUrl });
-
-  await expectStatus(apiClient, { state: 'connecting' });
-  deferredConnect.resolve();
-  await waitForStatus(apiClient, { state: 'no_paper' });
-
-  try {
-    await fn({
-      apiClient,
-      app,
-      mockAuth,
-      mockPlustek,
-      workspace,
-      mockUsb,
-      logger,
-      interpreter,
-      server,
-    });
-  } finally {
-    const { promise, resolve, reject } = deferred<void>();
-    server.close((error) => (error ? reject(error) : resolve()));
-    await promise;
-    void mockPlustek.stop();
-    workspace.reset();
-  }
-}
-
-export const ballotImages = {
-  completeHmpb: [
-    electionFamousNames2021Fixtures.handMarkedBallotCompletePage1.asFilePath(),
-    electionFamousNames2021Fixtures.handMarkedBallotCompletePage2.asFilePath(),
-  ],
-  completeBmd: [
-    electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-  ],
-  unmarkedHmpb: [
-    electionFamousNames2021Fixtures.handMarkedBallotUnmarkedPage1.asFilePath(),
-    electionFamousNames2021Fixtures.handMarkedBallotUnmarkedPage2.asFilePath(),
-  ],
-  wrongElection: [
-    // A BMD ballot front from a different election
-    sampleBallotImages.sampleBatch1Ballot1.asFilePath(),
-    // Blank BMD ballot back
-    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-  ],
-  // The interpreter expects two different image files, so we use two
-  // different blank page images
-  blankSheet: [
-    sampleBallotImages.blankPage.asFilePath(),
-    // Blank BMD ballot back
-    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-  ],
-} as const;
 
 // Loading of HMPB templates is slow, so in some tests we want to skip it by
 // removing the templates from the ballot package.

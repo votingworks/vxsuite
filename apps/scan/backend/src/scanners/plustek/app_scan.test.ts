@@ -16,14 +16,13 @@ import {
 import { Logger } from '@votingworks/logging';
 import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
 import {
-  ballotImages,
   configureApp,
   expectStatus,
   mockInterpretation,
   waitForStatus,
-  withApp,
-} from '../test/helpers/app_helpers';
-import { SheetInterpretation } from './types';
+} from '../../../test/helpers/shared_helpers';
+import { SheetInterpretation } from '../../types';
+import { ballotImages, withApp } from '../../../test/helpers/plustek_helpers';
 
 jest.setTimeout(20_000);
 jest.mock('@votingworks/ballot-encoder', () => {
@@ -434,7 +433,7 @@ test('scan fails due to plustek returning only one file instead of two', async (
       mockPlustek.simulateScanError('only_one_file_returned');
       await waitForStatus(apiClient, {
         state: 'unrecoverable_error',
-        error: 'plustek_error',
+        error: 'client_error',
       });
 
       // Make sure the underlying error got logged correctly

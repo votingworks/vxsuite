@@ -22,14 +22,13 @@ import {
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { ElectionDefinition } from '@votingworks/types';
 import {
-  ballotImages,
   configureApp,
   createBallotPackageWithoutTemplates,
   waitForStatus,
-  withApp,
-} from '../test/helpers/app_helpers';
-import { Api } from './app';
-import { SheetInterpretation } from './types';
+} from '../../../test/helpers/shared_helpers';
+import { Api } from '../../app';
+import { SheetInterpretation } from '../../types';
+import { ballotImages, withApp } from '../../../test/helpers/plustek_helpers';
 
 jest.setTimeout(20_000);
 jest.mock('@votingworks/ballot-encoder', () => {

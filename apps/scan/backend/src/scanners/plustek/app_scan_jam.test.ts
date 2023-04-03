@@ -1,13 +1,12 @@
 import { AdjudicationReason } from '@votingworks/types';
 import {
-  ballotImages,
   configureApp,
   expectStatus,
   mockInterpretation,
   waitForStatus,
-  withApp,
-} from '../test/helpers/app_helpers';
-import { SheetInterpretation } from './types';
+} from '../../../test/helpers/shared_helpers';
+import { SheetInterpretation } from '../../types';
+import { ballotImages, withApp } from '../../../test/helpers/plustek_helpers';
 
 jest.setTimeout(20_000);
 jest.mock('@votingworks/ballot-encoder', () => {
@@ -44,7 +43,7 @@ test('jam on scan', async () => {
       await apiClient.scanBallot();
       await waitForStatus(apiClient, {
         state: 'recovering_from_error',
-        error: 'plustek_error',
+        error: 'client_error',
       });
       await waitForStatus(apiClient, { state: 'no_paper' });
     }
