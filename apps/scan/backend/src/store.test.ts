@@ -17,12 +17,14 @@ import {
   BallotConfig,
   BallotPackageEntry,
   singlePrecinctSelectionFor,
+  safeParseSystemSettings,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { readFileSync } from 'fs';
 import * as fs from 'fs/promises';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
+import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { ballotPdf, electionDefinition } from '../test/fixtures/2020-choctaw';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
@@ -45,6 +47,18 @@ test('get/set election', () => {
 
   store.setElection(undefined);
   expect(store.getElectionDefinition()).toBeUndefined();
+});
+
+test('get/set system settings', () => {
+  const store = Store.memoryStore();
+
+  expect(store.getSystemSettings()).toBeUndefined();
+  const systemSettings = safeParseSystemSettings(
+    electionMinimalExhaustiveSampleFixtures.systemSettings.asText()
+  ).unsafeUnwrap();
+
+  store.setSystemSettings(systemSettings);
+  expect(store.getSystemSettings()).toEqual(systemSettings);
 });
 
 test('get/set test mode', () => {

@@ -8,11 +8,13 @@ import {
   PrecinctId,
   safeParseElectionDefinition,
   safeParseJson,
+  SystemSettings,
 } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import 'fast-text-encoding';
 import { z } from 'zod';
 import { assert } from '@votingworks/basics';
+import { safeParseSystemSettings } from './system_settings';
 import {
   getFileByName,
   readFile,
@@ -25,6 +27,8 @@ import {
 
 export interface BallotPackage {
   electionDefinition: ElectionDefinition;
+  // TODO(kevin) once all machines support system settings, make systemSettings required
+  systemSettings?: SystemSettings;
   ballots: BallotPackageEntry[];
 }
 
@@ -60,8 +64,14 @@ export async function readBallotPackageFromBuffer(
   const entries = getEntries(zipfile);
   const electionEntry = getFileByName(entries, 'election.json', zipName);
   const manifestEntry = getFileByName(entries, 'manifest.json', zipName);
+  const systemSettingsEntry = getFileByName(
+    entries,
+    'systemSettings.json',
+    zipName
+  );
 
   const electionData = await readTextEntry(electionEntry);
+  const systemSettingsData = await readTextEntry(systemSettingsEntry);
   const manifest = (await readJsonEntry(
     manifestEntry
   )) as BallotPackageManifest;
@@ -94,6 +104,7 @@ export async function readBallotPackageFromBuffer(
   return {
     electionDefinition:
       safeParseElectionDefinition(electionData).unsafeUnwrap(),
+    systemSettings: safeParseSystemSettings(systemSettingsData).unsafeUnwrap(),
     ballots,
   };
 }

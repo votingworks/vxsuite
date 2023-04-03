@@ -35,6 +35,8 @@ import {
   safeParseJson,
   SheetOf,
   Side,
+  SystemSettings,
+  SystemSettingsDbRow,
 } from '@votingworks/types';
 import { BallotPackageEntry } from '@votingworks/utils';
 import { assert, find, Optional } from '@votingworks/basics';
@@ -1254,5 +1256,36 @@ export class Store {
     throw new Error(
       `unable to find page with pageNumber=${metadata.pageNumber}`
     );
+  }
+
+  /**
+   * Creates a system settings record and returns its ID.
+   */
+  setSystemSettings(systemSettings: SystemSettings): void {
+    this.client.run(
+      'insert into system_settings (are_poll_worker_card_pins_enabled) values (?)',
+      systemSettings.arePollWorkerCardPinsEnabled ? 1 : 0 // No booleans in sqlite3
+    );
+  }
+
+  /**
+   * Gets a specific system settings record.
+   */
+  getSystemSettings(): SystemSettings | undefined {
+    const result = this.client.one(
+      `
+      select
+        are_poll_worker_card_pins_enabled as arePollWorkerCardPinsEnabled
+      from system_settings
+    `
+    ) as SystemSettingsDbRow | undefined;
+
+    if (!result) {
+      return undefined;
+    }
+
+    return {
+      arePollWorkerCardPinsEnabled: result.arePollWorkerCardPinsEnabled === 1,
+    };
   }
 }

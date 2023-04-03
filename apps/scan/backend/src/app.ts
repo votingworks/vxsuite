@@ -146,7 +146,8 @@ function buildApi(
         await fs.readFile(mostRecentBallotPackageFile.filePath)
       );
 
-      const { electionDefinition, ballots } = ballotPackage;
+      const { electionDefinition, systemSettings, ballots } = ballotPackage;
+      assert(systemSettings);
 
       if (authStatus.user.electionHash !== electionDefinition.electionHash) {
         await logger.log(LogEventId.BallotPackagedLoadedFromUsb, 'system', {
@@ -169,6 +170,7 @@ function buildApi(
         if (precinctSelection) {
           store.setPrecinctSelection(precinctSelection);
         }
+        store.setSystemSettings(systemSettings);
         await store.setHmpbTemplates(ballots);
       });
 
@@ -178,6 +180,7 @@ function buildApi(
     getConfig(): PrecinctScannerConfig {
       return {
         electionDefinition: store.getElectionDefinition(),
+        systemSettings: store.getSystemSettings(),
         precinctSelection: store.getPrecinctSelection(),
         markThresholdOverrides: store.getMarkThresholdOverrides(),
         isSoundMuted: store.getIsSoundMuted(),
