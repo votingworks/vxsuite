@@ -24,6 +24,8 @@ export const currentElectionIdStorageKey = 'currentElectionId';
  *
  * Note that some of this is still using local storage, but that will be
  * replaced with the `admin` service.
+ *
+ * @deprecated these should be moved to `api.ts` as react-query hooks
  */
 export class ElectionManagerStoreAdminBackend
   implements ElectionManagerStoreBackend

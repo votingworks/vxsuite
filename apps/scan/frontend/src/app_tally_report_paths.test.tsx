@@ -23,7 +23,6 @@ import {
   singlePrecinctSelectionFor,
   ReportSourceMachineType,
   MemoryHardware,
-  MemoryStorage,
 } from '@votingworks/utils';
 import {
   CastVoteRecord,
@@ -92,7 +91,6 @@ function renderApp({ connectPrinter }: { connectPrinter: boolean }) {
     connectPrecinctScanner: true,
   });
   const logger = fakeLogger();
-  const storage = new MemoryStorage();
   render(
     <App
       hardware={hardware}
@@ -100,7 +98,7 @@ function renderApp({ connectPrinter }: { connectPrinter: boolean }) {
       apiClient={apiMock.mockApiClient}
     />
   );
-  return { hardware, logger, storage };
+  return { hardware, logger };
 }
 
 beforeEach(() => {

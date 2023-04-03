@@ -99,6 +99,8 @@ export const ScannerReportDataSchema: z.ZodSchema<ScannerReportData> = z.union([
 /**
  * Describes the API for application-level persistent storage. Values must be
  * objects that can be persisted via JSON.stringify and JSON.parse.
+ *
+ * @deprecated app backends should manage their own storage.
  */
 export interface Storage {
   /**
