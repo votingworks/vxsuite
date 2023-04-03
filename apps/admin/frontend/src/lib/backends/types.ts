@@ -10,6 +10,9 @@ export interface AddCastVoteRecordFileResult {
   readonly alreadyPresent: number;
 }
 
+/**
+ * @deprecated these should be moved to `api.ts` as react-query hooks
+ */
 export interface ElectionManagerStoreBackend {
   /**
    * Loads the existing external tallies.
