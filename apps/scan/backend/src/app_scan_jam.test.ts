@@ -1,4 +1,3 @@
-import { Logger } from '@votingworks/logging';
 import { AdjudicationReason } from '@votingworks/types';
 import {
   ballotImages,
@@ -20,38 +19,6 @@ jest.mock('@votingworks/ballot-encoder', () => {
     sliceElectionHash: () => 'da81438d51136692b43c',
   };
 });
-
-// Basic checks for logging. We don't try to be exhaustive here because paper
-// status polling can be a bit non-deterministic, so logs can vary between runs.
-export function checkLogs(logger: Logger): void {
-  // Make sure we got a transition
-  expect(logger.log).toHaveBeenCalledWith(
-    'scanner-state-machine-transition',
-    'system',
-    { message: 'Transitioned to: "checking_initial_paper_status"' },
-    expect.any(Function)
-  );
-  // Make sure we got an event
-  expect(logger.log).toHaveBeenCalledWith(
-    'scanner-state-machine-event',
-    'system',
-    { message: 'Event: SCANNER_NO_PAPER' },
-    expect.any(Function)
-  );
-  // Make sure we got a context update. And make sure we didn't log the votes in
-  // the interpretation, just the type, to protect voter privacy.
-  expect(logger.log).toHaveBeenCalledWith(
-    'scanner-state-machine-transition',
-    'system',
-    {
-      message: 'Context updated',
-      changedFields: expect.stringMatching(
-        /{"interpretation":"(ValidSheet|InvalidSheet|NeedsReviewSheet)"}/
-      ),
-    },
-    expect.any(Function)
-  );
-}
 
 const needsReviewInterpretation: SheetInterpretation = {
   type: 'NeedsReviewSheet',

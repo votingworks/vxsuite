@@ -1,6 +1,5 @@
 import { AdjudicationReason } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
-import { Logger } from '@votingworks/logging';
 import { err, ok, Result } from '@votingworks/basics';
 import {
   fakeElectionManagerUser,
@@ -14,12 +13,13 @@ import {
   ScannerReportData,
   ScannerReportDataSchema,
 } from '@votingworks/utils';
+import { Logger } from '@votingworks/logging';
 import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
-import { PrecinctScannerInterpreter } from './interpret';
 import {
   ballotImages,
   configureApp,
   expectStatus,
+  mockInterpretation,
   waitForStatus,
   withApp,
 } from '../test/helpers/app_helpers';
@@ -36,9 +36,11 @@ jest.mock('@votingworks/ballot-encoder', () => {
   };
 });
 
-// Basic checks for logging. We don't try to be exhaustive here because paper
-// status polling can be a bit non-deterministic, so logs can vary between runs.
-export function checkLogs(logger: Logger): void {
+/**
+ * Basic checks for logging. We don't try to be exhaustive here because paper
+ * status polling can be a bit non-deterministic, so logs can vary between runs.
+ */
+function checkLogs(logger: Logger): void {
   // Make sure we got a transition
   expect(logger.log).toHaveBeenCalledWith(
     'scanner-state-machine-transition',
@@ -65,43 +67,6 @@ export function checkLogs(logger: Logger): void {
       ),
     },
     expect.any(Function)
-  );
-}
-
-/**
- * Interpretation is generally the slowest part of tests in this file. To speed
- * up a test, you can use this function to mock interpretation. It should only
- * be used when:
- * - The test isn't meant to check that interpretation works correctly. There
- *   should already be another test that covers the same interpretation case.
- * - The test doesn't check the CVR export at the end. The interpreter stores
- *   the ballot images which are used in the CVR, and mocking will forgo that
- *   logic.
- * - The test doesn't depend on the actual page interpretations. This function
- *   adds fake page interpretations that don't actually match the passed in
- *   ballot interpretation (because the state machine doesn't actually use those
- *   page interpretations, they are just stored for the CVR).
- */
-function mockInterpretation(
-  interpreter: PrecinctScannerInterpreter,
-  interpretation: SheetInterpretation
-) {
-  jest.spyOn(interpreter, 'interpret').mockResolvedValue(
-    ok({
-      ...interpretation,
-      pages: [
-        {
-          interpretation: { type: 'BlankPage' },
-          originalFilename: 'fake_original_filename',
-          normalizedFilename: 'fake_normalized_filename',
-        },
-        {
-          interpretation: { type: 'BlankPage' },
-          originalFilename: 'fake_original_filename',
-          normalizedFilename: 'fake_normalized_filename',
-        },
-      ],
-    })
   );
 }
 
