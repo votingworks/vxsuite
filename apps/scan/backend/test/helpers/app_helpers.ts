@@ -39,7 +39,11 @@ import {
 } from '../../src/interpret';
 import { createWorkspace, Workspace } from '../../src/util/workspace';
 import { Usb } from '../../src/util/usb';
-import { PrecinctScannerState, PrecinctScannerStatus } from '../../src/types';
+import {
+  PrecinctScannerState,
+  PrecinctScannerStatus,
+  SheetInterpretation,
+} from '../../src/types';
 
 type MockFileTree = MockFile | MockDirectory;
 type MockFile = Buffer;
@@ -316,4 +320,41 @@ export async function configureApp(
   });
   await apiClient.setTestMode({ isTestMode: false });
   await apiClient.setPollsState({ pollsState: 'polls_open' });
+}
+
+/**
+ * Interpretation is generally the slowest part of tests in this file. To speed
+ * up a test, you can use this function to mock interpretation. It should only
+ * be used when:
+ * - The test isn't meant to check that interpretation works correctly. There
+ *   should already be another test that covers the same interpretation case.
+ * - The test doesn't check the CVR export at the end. The interpreter stores
+ *   the ballot images which are used in the CVR, and mocking will forgo that
+ *   logic.
+ * - The test doesn't depend on the actual page interpretations. This function
+ *   adds fake page interpretations that don't actually match the passed in
+ *   ballot interpretation (because the state machine doesn't actually use those
+ *   page interpretations, they are just stored for the CVR).
+ */
+export function mockInterpretation(
+  interpreter: PrecinctScannerInterpreter,
+  interpretation: SheetInterpretation
+): void {
+  jest.spyOn(interpreter, 'interpret').mockResolvedValue(
+    ok({
+      ...interpretation,
+      pages: [
+        {
+          interpretation: { type: 'BlankPage' },
+          originalFilename: 'fake_original_filename',
+          normalizedFilename: 'fake_normalized_filename',
+        },
+        {
+          interpretation: { type: 'BlankPage' },
+          originalFilename: 'fake_original_filename',
+          normalizedFilename: 'fake_normalized_filename',
+        },
+      ],
+    })
+  );
 }
