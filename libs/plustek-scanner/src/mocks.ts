@@ -809,4 +809,13 @@ export class MockScannerClient implements ScannerClient {
     this.machine.start();
     return ok();
   }
+
+  /**
+   * Stops the internal state machine.
+   */
+  stop(): Result<void, ClientError> {
+    debug('stop');
+    this.machine.stop();
+    return ok();
+  }
 }

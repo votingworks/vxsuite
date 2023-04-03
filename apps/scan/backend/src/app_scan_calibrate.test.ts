@@ -2,9 +2,9 @@ import { Logger } from '@votingworks/logging';
 import {
   ballotImages,
   configureApp,
-  createApp,
   expectStatus,
   waitForStatus,
+  withApp,
 } from '../test/helpers/app_helpers';
 
 jest.setTimeout(20_000);
@@ -51,38 +51,47 @@ export function checkLogs(logger: Logger): void {
 }
 
 test('calibrate', async () => {
-  const { apiClient, mockPlustek, mockUsb, mockAuth } = await createApp();
-  await configureApp(apiClient, mockUsb, { mockAuth });
+  await withApp({}, async ({ apiClient, mockPlustek, mockUsb, mockAuth }) => {
+    await configureApp(apiClient, mockUsb, { mockAuth });
 
-  (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'ready_to_scan' });
+    (
+      await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)
+    ).unsafeUnwrap();
+    await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const calibratePromise = apiClient.calibrate();
-  await waitForStatus(apiClient, { state: 'calibrating' });
-  expect(await calibratePromise).toEqual(true);
-  await expectStatus(apiClient, { state: 'no_paper' });
+    const calibratePromise = apiClient.calibrate();
+    await waitForStatus(apiClient, { state: 'calibrating' });
+    expect(await calibratePromise).toEqual(true);
+    await expectStatus(apiClient, { state: 'no_paper' });
+  });
 });
 
 test('calibrate not supported', async () => {
-  const { apiClient, mockPlustek, mockUsb, mockAuth } = await createApp();
-  await configureApp(apiClient, mockUsb, { mockAuth });
+  await withApp({}, async ({ apiClient, mockPlustek, mockUsb, mockAuth }) => {
+    await configureApp(apiClient, mockUsb, { mockAuth });
 
-  (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'ready_to_scan' });
+    (
+      await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)
+    ).unsafeUnwrap();
+    await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  mockPlustek.simulateCalibrateNotSupported();
-  const calibrateResult = await apiClient.calibrate();
-  expect(calibrateResult).toEqual(false);
+    mockPlustek.simulateCalibrateNotSupported();
+    const calibrateResult = await apiClient.calibrate();
+    expect(calibrateResult).toEqual(false);
+  });
 });
 
 test('jam on calibrate', async () => {
-  const { apiClient, mockPlustek, mockUsb, mockAuth } = await createApp();
-  await configureApp(apiClient, mockUsb, { mockAuth });
+  await withApp({}, async ({ apiClient, mockPlustek, mockUsb, mockAuth }) => {
+    await configureApp(apiClient, mockUsb, { mockAuth });
 
-  (await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'ready_to_scan' });
+    (
+      await mockPlustek.simulateLoadSheet(ballotImages.blankSheet)
+    ).unsafeUnwrap();
+    await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  mockPlustek.simulateJamOnNextOperation();
-  expect(await apiClient.calibrate()).toEqual(false);
-  await expectStatus(apiClient, { state: 'jammed' });
+    mockPlustek.simulateJamOnNextOperation();
+    expect(await apiClient.calibrate()).toEqual(false);
+    await expectStatus(apiClient, { state: 'jammed' });
+  });
 });

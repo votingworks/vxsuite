@@ -28,6 +28,7 @@ import {
   buildMockInsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
 } from '@votingworks/auth';
+import { Server } from 'http';
 import { buildApp, Api } from '../../src/app';
 import {
   createPrecinctScannerStateMachine,
@@ -138,24 +139,28 @@ export async function waitForStatus(
   }, 1_000);
 }
 
-export async function createApp({
-  delays = {},
-  mockPlustekOptions = {},
-  preconfiguredWorkspace,
-}: {
-  delays?: Partial<Delays>;
-  mockPlustekOptions?: Partial<MockScannerClientOptions>;
-  preconfiguredWorkspace?: Workspace;
-} = {}): Promise<{
-  apiClient: grout.Client<Api>;
-  app: Application;
-  mockAuth: InsertedSmartCardAuthApi;
-  mockPlustek: MockScannerClient;
-  workspace: Workspace;
-  mockUsb: MockUsb;
-  logger: Logger;
-  interpreter: PrecinctScannerInterpreter;
-}> {
+export async function withApp(
+  {
+    delays = {},
+    mockPlustekOptions = {},
+    preconfiguredWorkspace,
+  }: {
+    delays?: Partial<Delays>;
+    mockPlustekOptions?: Partial<MockScannerClientOptions>;
+    preconfiguredWorkspace?: Workspace;
+  },
+  fn: (context: {
+    apiClient: grout.Client<Api>;
+    app: Application;
+    mockAuth: InsertedSmartCardAuthApi;
+    mockPlustek: MockScannerClient;
+    workspace: Workspace;
+    mockUsb: MockUsb;
+    logger: Logger;
+    interpreter: PrecinctScannerInterpreter;
+    server: Server;
+  }) => Promise<void>
+): Promise<void> {
   const mockAuth = buildMockInsertedSmartCardAuth();
   const logger = fakeLogger();
   const workspace =
@@ -204,16 +209,26 @@ export async function createApp({
   await expectStatus(apiClient, { state: 'connecting' });
   deferredConnect.resolve();
   await waitForStatus(apiClient, { state: 'no_paper' });
-  return {
-    apiClient,
-    app,
-    mockAuth,
-    mockPlustek,
-    workspace,
-    mockUsb,
-    logger,
-    interpreter,
-  };
+
+  try {
+    await fn({
+      apiClient,
+      app,
+      mockAuth,
+      mockPlustek,
+      workspace,
+      mockUsb,
+      logger,
+      interpreter,
+      server,
+    });
+  } finally {
+    const { promise, resolve, reject } = deferred<void>();
+    server.close((error) => (error ? reject(error) : resolve()));
+    await promise;
+    void mockPlustek.stop();
+    workspace.reset();
+  }
 }
 
 export const ballotImages = {

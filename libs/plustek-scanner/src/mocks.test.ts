@@ -490,3 +490,16 @@ test('operation timing', async () => {
   jest.advanceTimersByTime(1000);
   await scanPromise;
 });
+
+test('stop', async () => {
+  // prevent console.warn from being called
+  const warn = jest.spyOn(console, 'warn').mockReturnValue();
+
+  try {
+    const mock = new MockScannerClient();
+    mock.stop().assertOk('stop failed');
+    await expect(mock.connect()).rejects.toThrow();
+  } finally {
+    warn.mockRestore();
+  }
+});

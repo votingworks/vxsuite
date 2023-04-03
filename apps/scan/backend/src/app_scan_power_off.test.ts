@@ -3,10 +3,10 @@ import { AdjudicationReason } from '@votingworks/types';
 import {
   ballotImages,
   configureApp,
-  createApp,
   expectStatus,
   mockInterpretation,
   waitForStatus,
+  withApp,
 } from '../test/helpers/app_helpers';
 import { SheetInterpretation } from './types';
 
@@ -59,199 +59,222 @@ const needsReviewInterpretation: SheetInterpretation = {
 };
 
 test('scanner powered off while waiting for paper', async () => {
-  const { apiClient, mockPlustek, mockUsb, mockAuth } = await createApp();
-  await configureApp(apiClient, mockUsb, { mockAuth });
+  await withApp({}, async ({ apiClient, mockPlustek, mockUsb, mockAuth }) => {
+    await configureApp(apiClient, mockUsb, { mockAuth });
 
-  mockPlustek.simulatePowerOff();
-  await waitForStatus(apiClient, { state: 'disconnected' });
+    mockPlustek.simulatePowerOff();
+    await waitForStatus(apiClient, { state: 'disconnected' });
 
-  mockPlustek.simulatePowerOn();
-  await waitForStatus(apiClient, { state: 'no_paper' });
+    mockPlustek.simulatePowerOn();
+    await waitForStatus(apiClient, { state: 'no_paper' });
+  });
 });
 
 test('scanner powered off while scanning', async () => {
-  const { apiClient, mockPlustek, mockUsb, mockAuth } = await createApp();
-  await configureApp(apiClient, mockUsb, { mockAuth });
+  await withApp({}, async ({ apiClient, mockPlustek, mockUsb, mockAuth }) => {
+    await configureApp(apiClient, mockUsb, { mockAuth });
 
-  (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
-  ).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'ready_to_scan' });
+    (
+      await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    ).unsafeUnwrap();
+    await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  await apiClient.scanBallot();
-  await expectStatus(apiClient, { state: 'scanning' });
-  mockPlustek.simulatePowerOff();
-  await waitForStatus(apiClient, { state: 'disconnected' });
+    await apiClient.scanBallot();
+    await expectStatus(apiClient, { state: 'scanning' });
+    mockPlustek.simulatePowerOff();
+    await waitForStatus(apiClient, { state: 'disconnected' });
 
-  mockPlustek.simulatePowerOn('jam');
-  await waitForStatus(apiClient, { state: 'jammed' });
+    mockPlustek.simulatePowerOn('jam');
+    await waitForStatus(apiClient, { state: 'jammed' });
+  });
 });
 
 test('scanner powered off while accepting', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb, mockAuth } =
-    await createApp();
-  await configureApp(apiClient, mockUsb, { mockAuth });
+  await withApp(
+    {},
+    async ({ apiClient, mockPlustek, interpreter, mockUsb, mockAuth }) => {
+      await configureApp(apiClient, mockUsb, { mockAuth });
 
-  (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
-  ).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'ready_to_scan' });
+      (
+        await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+      ).unsafeUnwrap();
+      await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: SheetInterpretation = {
-    type: 'ValidSheet',
-  };
-  mockInterpretation(interpreter, interpretation);
+      const interpretation: SheetInterpretation = {
+        type: 'ValidSheet',
+      };
+      mockInterpretation(interpreter, interpretation);
 
-  await apiClient.scanBallot();
-  await expectStatus(apiClient, { state: 'scanning' });
-  await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
-  mockPlustek.simulatePowerOff();
-  await apiClient.acceptBallot();
-  await waitForStatus(apiClient, { state: 'disconnected' });
+      await apiClient.scanBallot();
+      await expectStatus(apiClient, { state: 'scanning' });
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
+      mockPlustek.simulatePowerOff();
+      await apiClient.acceptBallot();
+      await waitForStatus(apiClient, { state: 'disconnected' });
 
-  mockPlustek.simulatePowerOn('ready_to_eject');
-  await waitForStatus(apiClient, {
-    state: 'rejecting',
-    error: 'paper_in_back_after_reconnect',
-  });
-  await waitForStatus(apiClient, {
-    state: 'rejected',
-    error: 'paper_in_back_after_reconnect',
-  });
+      mockPlustek.simulatePowerOn('ready_to_eject');
+      await waitForStatus(apiClient, {
+        state: 'rejecting',
+        error: 'paper_in_back_after_reconnect',
+      });
+      await waitForStatus(apiClient, {
+        state: 'rejected',
+        error: 'paper_in_back_after_reconnect',
+      });
+    }
+  );
 });
 
 test('scanner powered off after accepting', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb, mockAuth } =
-    await createApp();
-  await configureApp(apiClient, mockUsb, { mockAuth });
+  await withApp(
+    {},
+    async ({ apiClient, mockPlustek, interpreter, mockUsb, mockAuth }) => {
+      await configureApp(apiClient, mockUsb, { mockAuth });
 
-  (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
-  ).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'ready_to_scan' });
+      (
+        await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+      ).unsafeUnwrap();
+      await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: SheetInterpretation = {
-    type: 'ValidSheet',
-  };
-  mockInterpretation(interpreter, interpretation);
+      const interpretation: SheetInterpretation = {
+        type: 'ValidSheet',
+      };
+      mockInterpretation(interpreter, interpretation);
 
-  await apiClient.scanBallot();
-  await expectStatus(apiClient, { state: 'scanning' });
-  await waitForStatus(apiClient, { state: 'ready_to_accept', interpretation });
-  await apiClient.acceptBallot();
-  await waitForStatus(apiClient, {
-    state: 'accepting',
-    interpretation,
-  });
-  await waitForStatus(apiClient, {
-    state: 'accepted',
-    interpretation,
-    ballotsCounted: 1,
-  });
+      await apiClient.scanBallot();
+      await expectStatus(apiClient, { state: 'scanning' });
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
+      await apiClient.acceptBallot();
+      await waitForStatus(apiClient, {
+        state: 'accepting',
+        interpretation,
+      });
+      await waitForStatus(apiClient, {
+        state: 'accepted',
+        interpretation,
+        ballotsCounted: 1,
+      });
 
-  mockPlustek.simulatePowerOff();
-  await waitForStatus(apiClient, {
-    state: 'disconnected',
-    ballotsCounted: 1,
-  });
+      mockPlustek.simulatePowerOff();
+      await waitForStatus(apiClient, {
+        state: 'disconnected',
+        ballotsCounted: 1,
+      });
 
-  mockPlustek.simulatePowerOn('no_paper');
-  await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
+      mockPlustek.simulatePowerOn('no_paper');
+      await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
+    }
+  );
 });
 
 test('scanner powered off while rejecting', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb, mockAuth } =
-    await createApp();
-  await configureApp(apiClient, mockUsb, { mockAuth });
+  await withApp(
+    {},
+    async ({ apiClient, mockPlustek, interpreter, mockUsb, mockAuth }) => {
+      await configureApp(apiClient, mockUsb, { mockAuth });
 
-  (
-    await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
-  ).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'ready_to_scan' });
+      (
+        await mockPlustek.simulateLoadSheet(ballotImages.wrongElection)
+      ).unsafeUnwrap();
+      await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: SheetInterpretation = {
-    type: 'InvalidSheet',
-    reason: 'invalid_election_hash',
-  };
-  mockInterpretation(interpreter, interpretation);
+      const interpretation: SheetInterpretation = {
+        type: 'InvalidSheet',
+        reason: 'invalid_election_hash',
+      };
+      mockInterpretation(interpreter, interpretation);
 
-  await apiClient.scanBallot();
-  await expectStatus(apiClient, { state: 'scanning' });
-  await waitForStatus(apiClient, {
-    state: 'rejecting',
-    interpretation,
-  });
+      await apiClient.scanBallot();
+      await expectStatus(apiClient, { state: 'scanning' });
+      await waitForStatus(apiClient, {
+        state: 'rejecting',
+        interpretation,
+      });
 
-  mockPlustek.simulatePowerOff();
-  await waitForStatus(apiClient, { state: 'disconnected' });
+      mockPlustek.simulatePowerOff();
+      await waitForStatus(apiClient, { state: 'disconnected' });
 
-  mockPlustek.simulatePowerOn('jam');
-  await waitForStatus(apiClient, { state: 'jammed' });
+      mockPlustek.simulatePowerOn('jam');
+      await waitForStatus(apiClient, { state: 'jammed' });
+    }
+  );
 });
 
 test('scanner powered off while returning', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb, mockAuth } =
-    await createApp();
-  await configureApp(apiClient, mockUsb, { mockAuth });
+  await withApp(
+    {},
+    async ({ apiClient, mockPlustek, interpreter, mockUsb, mockAuth }) => {
+      await configureApp(apiClient, mockUsb, { mockAuth });
 
-  (
-    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
-  ).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'ready_to_scan' });
+      (
+        await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+      ).unsafeUnwrap();
+      await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation = needsReviewInterpretation;
-  mockInterpretation(interpreter, interpretation);
+      const interpretation = needsReviewInterpretation;
+      mockInterpretation(interpreter, interpretation);
 
-  await apiClient.scanBallot();
-  await expectStatus(apiClient, { state: 'scanning' });
-  await waitForStatus(apiClient, { state: 'needs_review', interpretation });
+      await apiClient.scanBallot();
+      await expectStatus(apiClient, { state: 'scanning' });
+      await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
-  await apiClient.returnBallot();
-  await waitForStatus(apiClient, {
-    state: 'returning',
-    interpretation,
-  });
+      await apiClient.returnBallot();
+      await waitForStatus(apiClient, {
+        state: 'returning',
+        interpretation,
+      });
 
-  mockPlustek.simulatePowerOff();
-  await waitForStatus(apiClient, { state: 'disconnected' });
+      mockPlustek.simulatePowerOff();
+      await waitForStatus(apiClient, { state: 'disconnected' });
 
-  mockPlustek.simulatePowerOn('jam');
-  await waitForStatus(apiClient, { state: 'jammed' });
+      mockPlustek.simulatePowerOn('jam');
+      await waitForStatus(apiClient, { state: 'jammed' });
+    }
+  );
 });
 
 test('scanner powered off after returning', async () => {
-  const { apiClient, mockPlustek, interpreter, mockUsb, mockAuth } =
-    await createApp();
-  await configureApp(apiClient, mockUsb, { mockAuth });
+  await withApp(
+    {},
+    async ({ apiClient, mockPlustek, interpreter, mockUsb, mockAuth }) => {
+      await configureApp(apiClient, mockUsb, { mockAuth });
 
-  (
-    await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
-  ).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'ready_to_scan' });
+      (
+        await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb)
+      ).unsafeUnwrap();
+      await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation = needsReviewInterpretation;
-  mockInterpretation(interpreter, interpretation);
+      const interpretation = needsReviewInterpretation;
+      mockInterpretation(interpreter, interpretation);
 
-  await apiClient.scanBallot();
-  await expectStatus(apiClient, { state: 'scanning' });
-  await waitForStatus(apiClient, { state: 'needs_review', interpretation });
+      await apiClient.scanBallot();
+      await expectStatus(apiClient, { state: 'scanning' });
+      await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
-  await apiClient.returnBallot();
-  await waitForStatus(apiClient, {
-    state: 'returning',
-    interpretation,
-  });
-  await waitForStatus(apiClient, {
-    state: 'returned',
-    interpretation,
-  });
+      await apiClient.returnBallot();
+      await waitForStatus(apiClient, {
+        state: 'returning',
+        interpretation,
+      });
+      await waitForStatus(apiClient, {
+        state: 'returned',
+        interpretation,
+      });
 
-  mockPlustek.simulatePowerOff();
-  await waitForStatus(apiClient, { state: 'disconnected' });
+      mockPlustek.simulatePowerOff();
+      await waitForStatus(apiClient, { state: 'disconnected' });
 
-  mockPlustek.simulatePowerOn('ready_to_scan');
-  await waitForStatus(apiClient, {
-    state: 'rejected',
-    error: 'paper_in_front_after_reconnect',
-  });
+      mockPlustek.simulatePowerOn('ready_to_scan');
+      await waitForStatus(apiClient, {
+        state: 'rejected',
+        error: 'paper_in_front_after_reconnect',
+      });
+    }
+  );
 });

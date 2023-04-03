@@ -2,9 +2,9 @@ import { Logger } from '@votingworks/logging';
 import {
   ballotImages,
   configureApp,
-  createApp,
   expectStatus,
   waitForStatus,
+  withApp,
 } from '../test/helpers/app_helpers';
 import { SheetInterpretation } from './types';
 
@@ -52,113 +52,117 @@ export function checkLogs(logger: Logger): void {
 }
 
 test('bmd ballot is rejected when scanned for wrong precinct', async () => {
-  const { apiClient, mockPlustek, mockUsb, mockAuth } = await createApp();
-  await configureApp(apiClient, mockUsb, { precinctId: '22', mockAuth });
-  // Ballot should be rejected when configured for the wrong precinct
+  await withApp({}, async ({ apiClient, mockPlustek, mockUsb, mockAuth }) => {
+    await configureApp(apiClient, mockUsb, { precinctId: '22', mockAuth });
+    // Ballot should be rejected when configured for the wrong precinct
 
-  (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
-  ).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'ready_to_scan' });
+    (
+      await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    ).unsafeUnwrap();
+    await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  const interpretation: SheetInterpretation = {
-    type: 'InvalidSheet',
-    reason: 'invalid_precinct',
-  };
+    const interpretation: SheetInterpretation = {
+      type: 'InvalidSheet',
+      reason: 'invalid_precinct',
+    };
 
-  await apiClient.scanBallot();
-  await expectStatus(apiClient, { state: 'scanning' });
-  await waitForStatus(apiClient, {
-    state: 'rejecting',
-    interpretation,
+    await apiClient.scanBallot();
+    await expectStatus(apiClient, { state: 'scanning' });
+    await waitForStatus(apiClient, {
+      state: 'rejecting',
+      interpretation,
+    });
+    await waitForStatus(apiClient, {
+      state: 'rejected',
+      interpretation,
+    });
+
+    (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+    await waitForStatus(apiClient, { state: 'no_paper' });
   });
-  await waitForStatus(apiClient, {
-    state: 'rejected',
-    interpretation,
-  });
-
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('bmd ballot is accepted if precinct is set for the right precinct', async () => {
-  const { apiClient, mockPlustek, mockUsb, mockAuth } = await createApp();
-  await configureApp(apiClient, mockUsb, { precinctId: '23', mockAuth });
-  // Configure for the proper precinct and verify the ballot scans
+  await withApp({}, async ({ apiClient, mockPlustek, mockUsb, mockAuth }) => {
+    await configureApp(apiClient, mockUsb, { precinctId: '23', mockAuth });
+    // Configure for the proper precinct and verify the ballot scans
 
-  const validInterpretation: SheetInterpretation = {
-    type: 'ValidSheet',
-  };
+    const validInterpretation: SheetInterpretation = {
+      type: 'ValidSheet',
+    };
 
-  (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
-  ).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'ready_to_scan' });
+    (
+      await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
+    ).unsafeUnwrap();
+    await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  await apiClient.scanBallot();
-  await expectStatus(apiClient, { state: 'scanning' });
-  await waitForStatus(apiClient, {
-    state: 'ready_to_accept',
-    interpretation: validInterpretation,
+    await apiClient.scanBallot();
+    await expectStatus(apiClient, { state: 'scanning' });
+    await waitForStatus(apiClient, {
+      state: 'ready_to_accept',
+      interpretation: validInterpretation,
+    });
   });
 });
 
 test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
-  const { apiClient, mockPlustek, mockUsb, mockAuth } = await createApp();
-  await configureApp(apiClient, mockUsb, {
-    addTemplates: true,
-    precinctId: '22',
-    mockAuth,
+  await withApp({}, async ({ apiClient, mockPlustek, mockUsb, mockAuth }) => {
+    await configureApp(apiClient, mockUsb, {
+      addTemplates: true,
+      precinctId: '22',
+      mockAuth,
+    });
+    // Ballot should be rejected when configured for the wrong precinct
+
+    (
+      await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb)
+    ).unsafeUnwrap();
+    await waitForStatus(apiClient, { state: 'ready_to_scan' });
+
+    const interpretation: SheetInterpretation = {
+      type: 'InvalidSheet',
+      reason: 'invalid_precinct',
+    };
+
+    await apiClient.scanBallot();
+    await expectStatus(apiClient, { state: 'scanning' });
+    await waitForStatus(apiClient, {
+      state: 'rejecting',
+      interpretation,
+    });
+    await waitForStatus(apiClient, {
+      state: 'rejected',
+      interpretation,
+    });
+
+    (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
+    await waitForStatus(apiClient, { state: 'no_paper' });
   });
-  // Ballot should be rejected when configured for the wrong precinct
-
-  (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb)
-  ).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
-  const interpretation: SheetInterpretation = {
-    type: 'InvalidSheet',
-    reason: 'invalid_precinct',
-  };
-
-  await apiClient.scanBallot();
-  await expectStatus(apiClient, { state: 'scanning' });
-  await waitForStatus(apiClient, {
-    state: 'rejecting',
-    interpretation,
-  });
-  await waitForStatus(apiClient, {
-    state: 'rejected',
-    interpretation,
-  });
-
-  (await mockPlustek.simulateRemoveSheet()).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'no_paper' });
 });
 
 test('hmpb ballot is accepted if precinct is set for the right precinct', async () => {
-  const { apiClient, mockPlustek, mockUsb, mockAuth } = await createApp();
-  await configureApp(apiClient, mockUsb, {
-    addTemplates: true,
-    precinctId: '21',
-    mockAuth,
-  });
-  // Configure for the proper precinct and verify the ballot scans
+  await withApp({}, async ({ apiClient, mockPlustek, mockUsb, mockAuth }) => {
+    await configureApp(apiClient, mockUsb, {
+      addTemplates: true,
+      precinctId: '21',
+      mockAuth,
+    });
+    // Configure for the proper precinct and verify the ballot scans
 
-  const validInterpretation: SheetInterpretation = {
-    type: 'ValidSheet',
-  };
+    const validInterpretation: SheetInterpretation = {
+      type: 'ValidSheet',
+    };
 
-  (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb)
-  ).unsafeUnwrap();
-  await waitForStatus(apiClient, { state: 'ready_to_scan' });
+    (
+      await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb)
+    ).unsafeUnwrap();
+    await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-  await apiClient.scanBallot();
-  await expectStatus(apiClient, { state: 'scanning' });
-  await waitForStatus(apiClient, {
-    state: 'ready_to_accept',
-    interpretation: validInterpretation,
+    await apiClient.scanBallot();
+    await expectStatus(apiClient, { state: 'scanning' });
+    await waitForStatus(apiClient, {
+      state: 'ready_to_accept',
+      interpretation: validInterpretation,
+    });
   });
 });
