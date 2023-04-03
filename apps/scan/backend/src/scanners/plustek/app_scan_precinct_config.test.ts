@@ -1,11 +1,10 @@
 import {
-  ballotImages,
   configureApp,
   expectStatus,
   waitForStatus,
-  withApp,
-} from '../test/helpers/app_helpers';
-import { SheetInterpretation } from './types';
+} from '../../../test/helpers/shared_helpers';
+import { ballotImages, withApp } from '../../../test/helpers/plustek_helpers';
+import { SheetInterpretation } from '../../types';
 
 jest.setTimeout(20_000);
 jest.mock('@votingworks/ballot-encoder', () => {

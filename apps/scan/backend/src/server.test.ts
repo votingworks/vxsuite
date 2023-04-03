@@ -5,7 +5,7 @@ import { buildApp } from './app';
 import { PORT } from './globals';
 import { createInterpreter } from './interpret';
 import { start } from './server';
-import { PrecinctScannerStateMachine } from './state_machine';
+import { PrecinctScannerStateMachine } from './types';
 import { createWorkspace, Workspace } from './util/workspace';
 
 jest.mock('./app');

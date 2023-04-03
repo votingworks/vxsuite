@@ -15,7 +15,7 @@ import {
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { PrecinctScannerInterpreter } from './interpret';
-import { PrecinctScannerStateMachine } from './state_machine';
+import { PrecinctScannerStateMachine } from './types';
 import { Usb } from './util/usb';
 import { Workspace } from './util/workspace';
 
