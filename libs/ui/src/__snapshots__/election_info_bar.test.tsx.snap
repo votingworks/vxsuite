@@ -176,8 +176,9 @@ exports[`Renders ElectionInfoBar with appropriate information 1`] = `
 }
 
 .c1 {
-  min-width: 56px;
   max-width: 250px;
+  position: relative;
+  width: 100%;
 }
 
 .c0 {
