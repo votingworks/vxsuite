@@ -1,9 +1,13 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { assert, ok } from '@votingworks/basics';
-import { electionFamousNames2021Fixtures, systemSettings } from '@votingworks/fixtures';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
 import { fakeElectionManagerUser, mockOf } from '@votingworks/test-utils';
-import { ElectionDefinition, PrecinctId } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  ElectionDefinition,
+  PrecinctId,
+} from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -117,23 +121,22 @@ export async function waitForStatus(
   }, 1_000);
 }
 
-// Loading of HMPB templates is slow, so in some tests we want to skip it by
-// removing the templates from the ballot package.
-export function createBallotPackageWithoutTemplates(
-  electionDefinition: ElectionDefinition,
-  systemSettingsString?: string
-): Buffer {
-  const dirPath = tmp.dirSync().name;
-  const zipPath = `${dirPath}.zip`;
-  fs.writeFileSync(
-    join(dirPath, 'election.json'),
-    electionDefinition.electionData
-  );
-  fs.writeFileSync(
-    join(dirPath, 'manifest.json'),
-    JSON.stringify({ ballots: [] })
-  );
+interface MockSystemSettingOptions {
+  // omitSystemSettings is needed to test behavior when ballot packages don't have systemSettings.json
+  omitSystemSettings?: boolean;
+  systemSettingsString?: string;
+}
 
+function parseAndWriteSystemSettings(
+  dirPath: string,
+  systemSettingsOptions: MockSystemSettingOptions
+) {
+  const { systemSettingsString, omitSystemSettings } = systemSettingsOptions;
+  if (omitSystemSettings) {
+    return;
+  }
+
+  assert(systemSettingsString !== undefined);
   // For convenience the system settings param is a string, not object, because it's imported in tests as string.
   // But we validate the input before attempting to write. Doing validation first lets us return a human-readable error
   // instead of letting ZodSchema throw.
@@ -148,8 +151,31 @@ export function createBallotPackageWithoutTemplates(
 
   fs.writeFileSync(
     join(dirPath, 'systemSettings.json'),
-    systemSettingsString || systemSettings.asText()
+    systemSettingsString || JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
   );
+}
+
+// Loading of HMPB templates is slow, so in some tests we want to skip it by
+// removing the templates from the ballot package.
+export function createBallotPackageWithoutTemplates(
+  electionDefinition: ElectionDefinition,
+  systemSettingsOptions: MockSystemSettingOptions = {
+    systemSettingsString: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    omitSystemSettings: false,
+  }
+): Buffer {
+  const dirPath = tmp.dirSync().name;
+  const zipPath = `${dirPath}.zip`;
+  fs.writeFileSync(
+    join(dirPath, 'election.json'),
+    electionDefinition.electionData
+  );
+  fs.writeFileSync(
+    join(dirPath, 'manifest.json'),
+    JSON.stringify({ ballots: [] })
+  );
+
+  parseAndWriteSystemSettings(dirPath, systemSettingsOptions);
   execSync(`zip -j ${zipPath} ${dirPath}/*`);
   return fs.readFileSync(zipPath);
 }

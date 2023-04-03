@@ -22,7 +22,10 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { ElectionDefinition } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  ElectionDefinition,
+} from '@votingworks/types';
 import {
   configureApp,
   createBallotPackageWithoutTemplates,
@@ -486,7 +489,7 @@ test('getConfig() returns system settings if they exist', async () => {
       'ballot-packages': {
         'test-ballot-package.zip': createBallotPackageWithoutTemplates(
           electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-          systemSettingsString
+          { systemSettingsString }
         ),
       },
     });
@@ -496,6 +499,32 @@ test('getConfig() returns system settings if they exist', async () => {
     const config = await apiClient.getConfig();
     expect(config.systemSettings).toMatchObject(
       safeParseSystemSettings(systemSettingsString).unsafeUnwrap()
+    );
+  });
+});
+
+test("getConfig() returns default system settings when the file doesn't exist", async () => {
+  await withApp({}, async ({ apiClient, mockUsb, mockAuth }) => {
+    mockElectionManager(
+      mockAuth,
+      electionMinimalExhaustiveSampleSinglePrecinctDefinition
+    );
+    mockUsb.insertUsbDrive({
+      'ballot-packages': {
+        'test-ballot-package.zip': createBallotPackageWithoutTemplates(
+          electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+          { omitSystemSettings: true }
+        ),
+      },
+    });
+    expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
+      ok()
+    );
+    const config = await apiClient.getConfig();
+    expect(config.systemSettings).toMatchObject(
+      safeParseSystemSettings(
+        JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
+      ).unsafeUnwrap()
     );
   });
 });

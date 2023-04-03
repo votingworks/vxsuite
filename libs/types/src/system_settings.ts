@@ -13,6 +13,10 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   arePollWorkerCardPinsEnabled: z.boolean(),
 });
 
+export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
+  arePollWorkerCardPinsEnabled: false,
+};
+
 /**
  * System settings as used by the db.
  */

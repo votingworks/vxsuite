@@ -78,3 +78,10 @@ export function getFileByName(
 
   return result;
 }
+
+export function maybeGetFileByName(
+  entries: JSZipObject[],
+  name: string
+): JSZipObject | undefined {
+  return entries.find((entry) => entry.name === name);
+}

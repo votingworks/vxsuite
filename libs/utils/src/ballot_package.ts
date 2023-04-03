@@ -4,6 +4,7 @@ import {
   BallotPageLayoutSchema,
   BallotStyleId,
   ContestId,
+  DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   PrecinctId,
   safeParseElectionDefinition,
@@ -17,6 +18,7 @@ import { assert } from '@votingworks/basics';
 import { safeParseSystemSettings } from './system_settings';
 import {
   getFileByName,
+  maybeGetFileByName,
   readFile,
   openZip,
   getEntries,
@@ -64,14 +66,18 @@ export async function readBallotPackageFromBuffer(
   const entries = getEntries(zipfile);
   const electionEntry = getFileByName(entries, 'election.json', zipName);
   const manifestEntry = getFileByName(entries, 'manifest.json', zipName);
-  const systemSettingsEntry = getFileByName(
+
+  let systemSettingsData = JSON.stringify(DEFAULT_SYSTEM_SETTINGS);
+
+  const systemSettingsEntry = maybeGetFileByName(
     entries,
-    'systemSettings.json',
-    zipName
+    'systemSettings.json'
   );
+  if (systemSettingsEntry) {
+    systemSettingsData = await readTextEntry(systemSettingsEntry);
+  }
 
   const electionData = await readTextEntry(electionEntry);
-  const systemSettingsData = await readTextEntry(systemSettingsEntry);
   const manifest = (await readJsonEntry(
     manifestEntry
   )) as BallotPackageManifest;
