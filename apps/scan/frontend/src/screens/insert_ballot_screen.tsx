@@ -1,6 +1,5 @@
 import React from 'react';
-import { CenteredLargeProse, Text } from '@votingworks/ui';
-import { InsertBallot } from '../components/graphics';
+import { CenteredLargeProse, InsertBallotImage, Text } from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
@@ -17,7 +16,7 @@ export function InsertBallotScreen({
 }: Props): JSX.Element {
   return (
     <ScreenMainCenterChild isLiveMode={isLiveMode}>
-      <InsertBallot />
+      <InsertBallotImage />
       <CenteredLargeProse>
         <h1>Insert Your Ballot Below</h1>
         <p>Scan one ballot sheet at a time.</p>

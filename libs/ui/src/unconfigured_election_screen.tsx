@@ -2,10 +2,10 @@ import React from 'react';
 import { BallotPackageConfigurationError } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import { UsbDriveStatus } from './hooks/use_usb_drive';
-import { IndeterminateProgressBar } from './graphics';
 import { CenteredLargeProse } from './centered_large_prose';
+import { LoadingAnimation } from './loading_animation';
 
-interface Props {
+export interface UnconfiguredElectionScreenProps {
   usbDriveStatus: UsbDriveStatus;
   isElectionManagerAuth: boolean;
   backendConfigError?: BallotPackageConfigurationError;
@@ -17,7 +17,7 @@ export function UnconfiguredElectionScreen({
   isElectionManagerAuth,
   backendConfigError,
   machineName,
-}: Props): JSX.Element {
+}: UnconfiguredElectionScreenProps): JSX.Element {
   const errorMessage = (() => {
     if (!isElectionManagerAuth) {
       return `Only election managers can configure ${machineName}.`;
@@ -58,7 +58,7 @@ export function UnconfiguredElectionScreen({
   return (
     <CenteredLargeProse>
       <h1>Configuring {machineName} from USB drive…</h1>
-      <IndeterminateProgressBar />
+      <LoadingAnimation />
     </CenteredLargeProse>
   );
 }

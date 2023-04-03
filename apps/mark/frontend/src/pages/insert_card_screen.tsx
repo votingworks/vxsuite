@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
 import {
   ElectionDefinition,
   PollsState,
@@ -12,15 +11,11 @@ import {
   TestMode,
   Text,
   ElectionInfoBar,
+  InsertCardImage,
 } from '@votingworks/ui';
 
 import { throwIllegalValue } from '@votingworks/basics';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
-
-const InsertCardImage = styled.img`
-  margin: 0 auto -1rem;
-  height: 30vw;
-`;
 
 interface Props {
   appPrecinct: PrecinctSelection;
@@ -84,11 +79,7 @@ export function InsertCardScreen({
             </Text>
           )}
           <p>
-            <InsertCardImage
-              aria-hidden
-              src="/images/insert-card.svg"
-              alt="Insert Card Diagram"
-            />
+            <InsertCardImage />
           </p>
           {mainText}
           {showNoAccessibleControllerWarning && (

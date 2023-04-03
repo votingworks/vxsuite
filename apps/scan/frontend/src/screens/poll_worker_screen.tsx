@@ -11,7 +11,7 @@ import {
   getSignedQuickResultsReportingUrl,
   PrecinctScannerBallotCountReport,
   CenteredLargeProse,
-  IndeterminateProgressBar,
+  LoadingAnimation,
 } from '@votingworks/ui';
 import {
   BallotCountDetails,
@@ -540,7 +540,7 @@ export function PollWorkerScreen({
 
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
-        <IndeterminateProgressBar />
+        <LoadingAnimation />
         <CenteredLargeProse>
           <h1>{pollsTransitionProcessingText}</h1>
         </CenteredLargeProse>
@@ -591,7 +591,7 @@ export function PollWorkerScreen({
   if (pollWorkerFlowState === 'reprinting_report') {
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
-        <IndeterminateProgressBar />
+        <LoadingAnimation />
         <CenteredLargeProse>
           <h1>Printing Report…</h1>
         </CenteredLargeProse>

@@ -1,16 +1,11 @@
 import React from 'react';
-import styled from 'styled-components';
 import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
 
 import { fontSizeTheme } from './themes';
 import { Main } from './main';
 import { Prose } from './prose';
 import { Screen } from './screen';
-
-const RotateCardImage = styled.img`
-  margin-bottom: 1rem;
-  width: 300px;
-`;
+import { RotateCardImage } from './rotate_card_image';
 
 type LoggedOutReason =
   | DippedSmartCardAuth.LoggedOut['reason']
@@ -32,12 +27,7 @@ export function InvalidCardScreen({
     'Please insert a valid Election Manager or System Administrator card.';
 
   if (reason === 'card_error') {
-    graphic = (
-      <RotateCardImage
-        alt="" // Technically a decorative image given other text on the page
-        src="/assets/rotate-card.svg"
-      />
-    );
+    graphic = <RotateCardImage />;
     // The only cause we currently know of for a card error
     heading = 'Card is Backwards';
     recommendedAction = 'Remove the card, turn it around, and insert it again.';

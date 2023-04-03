@@ -52,25 +52,3 @@ export function ExclamationTriangle(): JSX.Element {
     />
   );
 }
-
-export function InsertBallot(): JSX.Element {
-  return (
-    <Graphic
-      src="/assets/insert-ballot.svg"
-      alt="insert-ballot"
-      aria-hidden
-      style={{ width: '600px' }}
-    />
-  );
-}
-
-export function RotateCard(): JSX.Element {
-  return (
-    <Graphic
-      src="/assets/rotate-card.svg"
-      alt="rotate-card"
-      aria-hidden
-      style={{ width: '300px' }}
-    />
-  );
-}
