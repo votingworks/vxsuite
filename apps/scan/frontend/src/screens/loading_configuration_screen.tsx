@@ -1,11 +1,11 @@
 import React from 'react';
-import { CenteredLargeProse, IndeterminateProgressBar } from '@votingworks/ui';
+import { CenteredLargeProse, LoadingAnimation } from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 
 export function LoadingConfigurationScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild infoBar={false}>
-      <IndeterminateProgressBar />
+      <LoadingAnimation />
       <CenteredLargeProse>
         <h1>Loading Configuration…</h1>
       </CenteredLargeProse>

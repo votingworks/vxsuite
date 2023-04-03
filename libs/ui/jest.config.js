@@ -7,7 +7,16 @@ module.exports = {
   ...shared,
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-  coveragePathIgnorePatterns: ['.*\\.stories\\.ts', '.*\\.stories\\.tsx'],
+  coveragePathIgnorePatterns: [
+    '.*\\.stories\\.ts',
+    '.*\\.stories\\.tsx',
+    // Purely presentational components:
+    'src/insert_ballot_image.tsx',
+    'src/insert_card_image.tsx',
+    'src/loading_animation.tsx',
+    'src/rotate_card_image.tsx',
+    'src/svg.tsx'
+  ],
   transform: {
     '^.+\\.css$': '<rootDir>/config/jest/cssTransform.js',
   },
