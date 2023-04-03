@@ -15,6 +15,9 @@ async function asString<T>(
 
 test('number', async () => {
   expect(await asString(1)).toEqual('1');
+  expect(await asString(NaN)).toEqual('null');
+  expect(await asString(0)).toEqual('0');
+  expect(await asString(-0)).toEqual('0');
 });
 
 test('string', async () => {
@@ -103,17 +106,12 @@ test('fails with non-serializable objects', async () => {
 
 test('generates correct JSON', async () => {
   await fc.assert(
-    fc.asyncProperty(
-      // filter out -0 because JSON.stringify() converts it to 0
-      fc.jsonObject().filter((v) => !Object.is(v, -0)),
-      fc.boolean(),
-      async (input, compact) => {
-        expect(
-          JSON.parse(
-            await asString(input as JsonStreamInput<unknown>, { compact })
-          )
-        ).toEqual(input);
-      }
-    )
+    fc.asyncProperty(fc.jsonObject(), fc.boolean(), async (input, compact) => {
+      expect(
+        JSON.parse(
+          await asString(input as JsonStreamInput<unknown>, { compact })
+        )
+      ).toEqual(JSON.parse(JSON.stringify(input)));
+    })
   );
 });
