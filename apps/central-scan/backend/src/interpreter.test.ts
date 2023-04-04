@@ -5,12 +5,15 @@ import {
 import {
   AdjudicationReason,
   BallotIdSchema,
+  BallotMetadataSchema,
+  BallotType,
   BlankPage,
   ElectionDefinition,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
   UnreadablePage,
+  safeParseJson,
   unsafeParse,
 } from '@votingworks/types';
 import {
@@ -19,8 +22,10 @@ import {
 } from '@votingworks/utils';
 import { readFile, emptyDirSync } from 'fs-extra';
 import { join } from 'path';
-import { pdfToImages } from '@votingworks/image-utils';
-import { detectQrcodeInFilePath } from '@votingworks/ballot-interpreter-vx';
+import {
+  detectQrcodeInFilePath,
+  interpretMultiPagePdfTemplate,
+} from '@votingworks/ballot-interpreter-vx';
 import { throwIllegalValue } from '@votingworks/basics';
 import * as choctaw2020Fixtures from '../test/fixtures/2020-choctaw';
 import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
@@ -206,13 +211,18 @@ test('interprets marks on a HMPB', async () => {
     skipElectionHashCheck: true,
   });
 
-  for await (const { page, pageNumber } of pdfToImages(
-    await readFile(stateOfHamiltonFixtures.ballotPdf),
-    { scale: 2 }
-  )) {
-    interpreter.addHmpbTemplate(await interpreter.interpretHmpbTemplate(page));
+  const layouts = interpretMultiPagePdfTemplate({
+    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
+    ballotPdfData: await readFile(stateOfHamiltonFixtures.ballotPdf),
+    metadata: safeParseJson(
+      await readFile(stateOfHamiltonFixtures.filledInPage1Metadata, 'utf8'),
+      BallotMetadataSchema
+    ).unsafeUnwrap(),
+  });
+  for await (const layout of layouts) {
+    interpreter.addHmpbTemplate(layout);
 
-    if (pageNumber === 1) {
+    if (layout.ballotPageLayout.metadata.pageNumber === 1) {
       break;
     }
   }
@@ -269,13 +279,18 @@ test('interprets marks on an upside-down HMPB', async () => {
     skipElectionHashCheck: true,
   });
 
-  for await (const { page, pageNumber } of pdfToImages(
-    await readFile(stateOfHamiltonFixtures.ballotPdf),
-    { scale: 2 }
-  )) {
-    interpreter.addHmpbTemplate(await interpreter.interpretHmpbTemplate(page));
+  const layouts = interpretMultiPagePdfTemplate({
+    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
+    ballotPdfData: await readFile(stateOfHamiltonFixtures.ballotPdf),
+    metadata: safeParseJson(
+      await readFile(stateOfHamiltonFixtures.filledInPage1Metadata, 'utf8'),
+      BallotMetadataSchema
+    ).unsafeUnwrap(),
+  });
+  for await (const layout of layouts) {
+    interpreter.addHmpbTemplate(layout);
 
-    if (pageNumber === 1) {
+    if (layout.ballotPageLayout.metadata.pageNumber === 1) {
       break;
     }
   }
@@ -911,25 +926,30 @@ test('interprets marks in ballots', async () => {
     skipElectionHashCheck: true,
   });
 
-  for await (const { page } of pdfToImages(
-    await readFile(choctaw2020Fixtures.ballotPdf),
-    { scale: 2 }
-  )) {
-    interpreter.addHmpbTemplate(await interpreter.interpretHmpbTemplate(page));
+  const layouts = interpretMultiPagePdfTemplate({
+    electionDefinition: choctaw2020Fixtures.electionDefinition,
+    ballotPdfData: await readFile(choctaw2020Fixtures.ballotPdf),
+    metadata: {
+      ballotStyleId: '1',
+      precinctId: '6526',
+      locales: { primary: 'en-US' },
+      ballotType: BallotType.Standard,
+      electionHash: choctaw2020Fixtures.electionDefinition.electionHash,
+      isTestMode: false,
+    },
+  });
+  for await (const layout of layouts) {
+    interpreter.addHmpbTemplate(layout);
   }
 
   {
     const ballotImagePath = choctaw2020Fixtures.filledInPage1;
-    expect(
-      (
-        (
-          await interpreter.interpretFile({
-            ballotImagePath,
-            detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-          })
-        ).interpretation as InterpretedHmpbPage
-      ).votes
-    ).toMatchInlineSnapshot(`
+    const interpreted = await interpreter.interpretFile({
+      ballotImagePath,
+      detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+    });
+    expect((interpreted.interpretation as InterpretedHmpbPage).votes)
+      .toMatchInlineSnapshot(`
       Object {
         "1": Array [
           Object {
@@ -1011,13 +1031,18 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
     skipElectionHashCheck: true,
   });
 
-  for await (const { page, pageNumber } of pdfToImages(
-    await readFile(stateOfHamiltonFixtures.ballotPdf),
-    { scale: 2 }
-  )) {
-    interpreter.addHmpbTemplate(await interpreter.interpretHmpbTemplate(page));
+  const layouts = interpretMultiPagePdfTemplate({
+    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
+    ballotPdfData: await readFile(stateOfHamiltonFixtures.ballotPdf),
+    metadata: safeParseJson(
+      await readFile(stateOfHamiltonFixtures.filledInPage1Metadata, 'utf8'),
+      BallotMetadataSchema
+    ).unsafeUnwrap(),
+  });
+  for await (const layout of layouts) {
+    interpreter.addHmpbTemplate(layout);
 
-    if (pageNumber === 3) {
+    if (layout.ballotPageLayout.metadata.pageNumber === 3) {
       break;
     }
   }

@@ -220,6 +220,10 @@ export async function* interpretMultiPageTemplate({
   }
 }
 
+/**
+ * Interprets a PDF as a series of templates, returning the layout information
+ * read from the images.
+ */
 export async function* interpretMultiPagePdfTemplate({
   electionDefinition,
   ballotPdfData,

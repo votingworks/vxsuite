@@ -44,10 +44,7 @@ import {
 } from '../debug';
 import { getVotesFromMarks } from '../get_votes_from_marks';
 import { findBallotLayoutCorrespondence } from '../hmpb/find_contests';
-import {
-  findContestsWithUnknownColumnLayout,
-  interpretTemplate,
-} from '../layout';
+import { findContestsWithUnknownColumnLayout } from '../layout';
 import { detect } from '../metadata';
 import { FindMarksResult, Interpreted } from '../types';
 import { binarize, PIXEL_BLACK, PIXEL_WHITE } from '../utils/binarize';
@@ -159,35 +156,6 @@ export class Interpreter {
       [locales, ballotStyleId, precinctId, pageNumber],
       template
     );
-  }
-
-  /**
-   * @deprecated In order to generate a layout that includes proper contest
-   * IDs, the templates of a multi-page ballot must be interpreted together,
-   * in sequence. This method does not do that, so it has been deprecated.
-   * The only place it is being used is the CLI.
-   *
-   * In production, use {@link interpretMultiPagePdfTemplate} to generate layouts.
-   * In tests, you can use the helper {@link buildInterpreterWithFixtures}.
-   *
-   * Interprets an image as a template, returning the layout information read
-   * from the image. The template image should be an image of a blank ballot,
-   * either scanned or otherwise rendered as an image.
-   */
-  async interpretTemplate(
-    imageData: ImageData,
-    metadata?: BallotPageMetadata,
-    { imdebug = noDebug() }: { imdebug?: Debugger } = {}
-  ): Promise<BallotPageLayoutWithImage> {
-    return interpretTemplate({
-      electionDefinition: this.electionDefinition,
-      imageData,
-      metadata,
-      imdebug,
-      // the below is incorrect and may mean that contest ids are not accurate
-      // for this method. currently this method is only being used in the CLI
-      contestOffset: 0,
-    });
   }
 
   /**

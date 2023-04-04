@@ -146,16 +146,15 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         locales,
         isTestMode: !isLiveMode,
       };
-      const layoutsWithImages = await iter(
+      const layouts = await iter(
         interpretMultiPagePdfTemplate({
           electionDefinition,
           ballotPdfData,
           metadata,
         })
-      ).toArray();
-      const layouts = layoutsWithImages.map(
-        (layoutWithImage) => layoutWithImage.ballotPageLayout
-      );
+      )
+        .map(({ ballotPageLayout }) => ballotPageLayout)
+        .toArray();
 
       await archive.file(layoutFilename, JSON.stringify(layouts, undefined, 2));
       await archive.file(filename, ballotPdfData);
