@@ -6,6 +6,7 @@ import {
   LinkButton,
   Main,
   Screen,
+  SessionTimeLimitTimer,
   UsbControllerButton,
 } from '@votingworks/ui';
 import {
@@ -100,6 +101,7 @@ export function NavigationScreen({
         }
         secondaryNav={
           <React.Fragment>
+            <SessionTimeLimitTimer authStatus={auth} />
             {isSystemAdministratorAuth(auth) && (
               <React.Fragment>
                 <LinkButton small to={routerPaths.settings}>
