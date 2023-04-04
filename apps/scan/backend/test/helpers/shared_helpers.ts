@@ -2,7 +2,11 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { assert, ok } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
-import { fakeElectionManagerUser, mockOf } from '@votingworks/test-utils';
+import {
+  fakeElectionManagerUser,
+  fakeSessionExpiresAt,
+  mockOf,
+} from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
@@ -215,6 +219,7 @@ export async function configureApp(
         user: fakeElectionManagerUser(
           electionFamousNames2021Fixtures.electionDefinition
         ),
+        sessionExpiresAt: fakeSessionExpiresAt(),
       })
     );
   }

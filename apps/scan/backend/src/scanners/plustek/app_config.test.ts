@@ -18,6 +18,7 @@ import fs from 'fs';
 import { join } from 'path';
 import {
   fakeElectionManagerUser,
+  fakeSessionExpiresAt,
   generateCvr,
   mockOf,
 } from '@votingworks/test-utils';
@@ -90,6 +91,7 @@ function mockElectionManager(
     Promise.resolve({
       status: 'logged_in',
       user: fakeElectionManagerUser(electionDefinition),
+      sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
 }
@@ -431,21 +433,25 @@ test('unconfiguring machine', async () => {
 test('auth before configuration passes empty machine state', async () => {
   await withApp({}, async ({ apiClient, mockAuth }) => {
     await apiClient.getAuthStatus();
-    await apiClient.checkPin({ pin: '123456' });
-
     expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
-    expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
-      electionHash: undefined,
-      jurisdiction: undefined,
-    });
+    expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {});
+
+    await apiClient.checkPin({ pin: '123456' });
     expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
-    expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
+    expect(mockAuth.checkPin).toHaveBeenNthCalledWith(1, {}, { pin: '123456' });
+
+    await apiClient.logOut();
+    expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
+    expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {});
+
+    await apiClient.updateSessionExpiry({
+      sessionExpiresAt: new Date().getTime(),
+    });
+    expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
+    expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
       1,
-      {
-        electionHash: undefined,
-        jurisdiction: undefined,
-      },
-      { pin: '123456' }
+      {},
+      { sessionExpiresAt: expect.any(Number) }
     );
   });
 });
@@ -454,26 +460,38 @@ test('auth after configuration passes populated machine state', async () => {
   const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
   await withApp({}, async ({ apiClient, mockAuth, mockUsb }) => {
     await configureApp(apiClient, mockUsb, { mockAuth });
+    expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
+    expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {});
+
+    // After configuration is done, we expect subsequent auth calls to have a populated election
+    // hash
 
     await apiClient.getAuthStatus();
-    await apiClient.checkPin({ pin: '123456' });
-
     expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(2);
-    // First call happens in configureApp -> configureFromBallotPackageOnUsbDrive
-    expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
-      electionHash: undefined,
-      jurisdiction: undefined,
-    });
-    // After configuration is done we expect susequent auth calls to have populated electionHash
     expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(2, {
       electionHash,
     });
 
+    await apiClient.checkPin({ pin: '123456' });
     expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
     expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
       1,
       { electionHash },
       { pin: '123456' }
+    );
+
+    await apiClient.logOut();
+    expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
+    expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
+
+    await apiClient.updateSessionExpiry({
+      sessionExpiresAt: new Date().getTime(),
+    });
+    expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
+    expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
+      1,
+      { electionHash },
+      { sessionExpiresAt: expect.any(Number) }
     );
   });
 });

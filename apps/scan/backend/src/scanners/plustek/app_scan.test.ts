@@ -4,6 +4,7 @@ import { err, ok, Result } from '@votingworks/basics';
 import {
   fakeElectionManagerUser,
   fakePollWorkerUser,
+  fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
@@ -594,6 +595,7 @@ test('write scanner report data to card', async () => {
       Promise.resolve({
         status: 'logged_in',
         user: fakeElectionManagerUser(electionDefinition),
+        sessionExpiresAt: fakeSessionExpiresAt(),
       })
     );
     result = await apiClient.saveScannerReportDataToCard({ scannerReportData });
@@ -603,6 +605,7 @@ test('write scanner report data to card', async () => {
       Promise.resolve({
         status: 'logged_in',
         user: fakePollWorkerUser(electionDefinition),
+        sessionExpiresAt: fakeSessionExpiresAt(),
       })
     );
     result = await apiClient.saveScannerReportDataToCard({ scannerReportData });

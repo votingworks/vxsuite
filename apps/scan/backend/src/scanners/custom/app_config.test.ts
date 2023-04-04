@@ -15,6 +15,7 @@ import fs from 'fs';
 import { join } from 'path';
 import {
   fakeElectionManagerUser,
+  fakeSessionExpiresAt,
   generateCvr,
   mockOf,
 } from '@votingworks/test-utils';
@@ -86,6 +87,7 @@ function mockElectionManager(
     Promise.resolve({
       status: 'logged_in',
       user: fakeElectionManagerUser(electionDefinition),
+      sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
 }
