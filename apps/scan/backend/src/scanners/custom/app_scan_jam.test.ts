@@ -81,7 +81,6 @@ test('jam on accept', async () => {
 
       await apiClient.acceptBallot();
       await waitForStatus(apiClient, { state: 'accepting', interpretation });
-      // mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_INTERNAL_JAM));
       // The paper can't get permanently jammed on accept - it just stays held in
       // the back and we can reject at that point
       await waitForStatus(apiClient, {
