@@ -111,8 +111,8 @@ export interface Delays {
   DELAY_WAIT_FOR_HOLD_AFTER_REJECT: number;
   DELAY_RECONNECT: number;
   DELAY_RECONNECT_ON_UNEXPECTED_ERROR: number;
-  DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: number;
   DELAY_RETRY_SCANNING: number;
+  DELAY_WAIT_FOR_JAM_CLEARED: number;
 }
 
 const defaultDelays: Delays = {
@@ -146,13 +146,12 @@ const defaultDelays: Delays = {
   // order to let the scanner to finish whatever it's doing (yes, even after
   // disconnecting, the scanner might keep scanning).
   DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 3_000,
-  // When attempting to disconnect from the scanner after an unexpected error,
-  // how long to wait before giving up on disconnecting the "nice" way and
-  // just sending a kill signal.
-  DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 1_000,
   // When retrying scanning after a failed attempt, brief pause to avoid any possible,
   // race conditions if the paper has been removed
   DELAY_RETRY_SCANNING: 500,
+  // When we decide we're jammed, how long to wait before we transition to
+  // `internal_jam`.
+  DELAY_WAIT_FOR_JAM_CLEARED: 500,
 };
 
 function connectToCustom(createCustomClient: CreateCustomClient) {
@@ -959,7 +958,7 @@ function buildMachine({
                 SCANNER_READY_TO_SCAN: '#ready_to_scan',
               },
               after: {
-                DELAY_RETRY_SCANNING: '#internal_jam',
+                DELAY_WAIT_FOR_JAM_CLEARED: '#internal_jam',
               },
             },
           },
