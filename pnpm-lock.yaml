@@ -5013,6 +5013,9 @@ importers:
       react-dom:
         specifier: ^17.0.1
         version: 17.0.1(react@17.0.1)
+      react-idle-timer:
+        specifier: ^5.5.3
+        version: 5.5.3(react-dom@17.0.1)(react@17.0.1)
       react-modal:
         specifier: ^3.14.4
         version: 3.14.4(react-dom@17.0.1)(react@17.0.1)
@@ -30561,6 +30564,18 @@ packages:
       prop-types: ^15.x.x
       react: ^16.x.x
       react-dom: ^16.x.x
+    dependencies:
+      '@types/react': 17.0.40
+      prop-types: 15.8.1
+      react: 17.0.1
+      react-dom: 17.0.1(react@17.0.1)
+    dev: false
+
+  /react-idle-timer@5.5.3(react-dom@17.0.1)(react@17.0.1):
+    resolution: {integrity: sha512-fn2kNPz4BVEN/U05IzBQGPIfFlkjk0ekj8uKQaHAH/uBbATJDFmyxK0k36hv4kmzN8oFr8pe+C4zU5NJDBnfBQ==}
+    peerDependencies:
+      react: '>=16'
+      react-dom: '>=16'
     dependencies:
       '@types/react': 17.0.40
       prop-types: 15.8.1
