@@ -1,6 +1,10 @@
 import userEvent from '@testing-library/user-event';
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
-import { fakeKiosk } from '@votingworks/test-utils';
+import {
+  fakeElectionManagerUser,
+  fakeKiosk,
+  fakeSessionExpiresAt,
+} from '@votingworks/test-utils';
 import { err, ok, deferred } from '@votingworks/basics';
 import MockDate from 'mockdate';
 import React from 'react';
@@ -16,12 +20,23 @@ import {
   AdminActionScreenProps,
   AdminActionsScreen,
 } from './admin_actions_screen';
-import { createMockApiClient, MockApiClient } from '../../test/api';
+import {
+  createMockApiClient,
+  MockApiClient,
+  setAuthStatus,
+} from '../../test/api';
 
 let mockApiClient: MockApiClient;
 
 beforeEach(() => {
   mockApiClient = createMockApiClient();
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeElectionManagerUser({
+      electionHash: testElectionDefinition.electionHash,
+    }),
+    sessionExpiresAt: fakeSessionExpiresAt(),
+  });
 });
 
 afterEach(() => {
