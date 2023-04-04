@@ -54,3 +54,23 @@ export const { PLUSTEKCTL_PATH } = process.env;
  */
 export const USE_NH_NEXT =
   process.env.USE_NH_NEXT === '1' || process.env.USE_NH_NEXT === 'true';
+
+const ScannerModelSchema = z.union([z.literal('custom'), z.literal('plustek')]);
+
+/**
+ * Scanner models we support.
+ */
+export type ScannerModel = z.infer<typeof ScannerModelSchema>;
+
+/**
+ * Which scanner model is the default?
+ */
+export const DEFAULT_SCANNER_MODEL: ScannerModel = 'custom';
+
+/**
+ * Which scanner model are we using?
+ */
+export const SCANNER_MODEL = unsafeParse(
+  ScannerModelSchema,
+  process.env.SCANNER_MODEL ?? DEFAULT_SCANNER_MODEL
+);

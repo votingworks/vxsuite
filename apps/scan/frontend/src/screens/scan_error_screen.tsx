@@ -46,6 +46,7 @@ export function ScanErrorScreen({
       case 'paper_in_front_after_reconnect':
       case 'paper_in_back_after_reconnect':
       case 'paper_in_back_after_accept':
+      case 'paper_in_both_sides_after_reconnect':
         return 'Remove ballot to continue.';
       case 'paper_status_timed_out':
       case 'scanning_timed_out':

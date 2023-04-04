@@ -29,6 +29,12 @@ interface MockDirectory {
   [name: string]: MockFileTree;
 }
 
+export interface MockUsb {
+  insertUsbDrive(contents: MockFileTree): void;
+  removeUsbDrive(): void;
+  mock: jest.Mocked<Usb>;
+}
+
 function writeMockFileTree(destinationPath: string, tree: MockFileTree): void {
   if (Buffer.isBuffer(tree)) {
     fs.writeFileSync(destinationPath, tree);
@@ -40,12 +46,6 @@ function writeMockFileTree(destinationPath: string, tree: MockFileTree): void {
       writeMockFileTree(join(destinationPath, name), child);
     }
   }
-}
-
-interface MockUsb {
-  insertUsbDrive(contents: MockFileTree): void;
-  removeUsbDrive(): void;
-  mock: jest.Mocked<Usb>;
 }
 
 /**
