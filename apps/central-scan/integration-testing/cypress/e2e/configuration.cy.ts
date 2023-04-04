@@ -104,10 +104,6 @@ describe('BSD and services/Scan', () => {
     cy.contains('No ballots have been scanned', { timeout: 30000 });
     cy.contains('Scan New Batch').click();
 
-    // The ballot package is currently out of sync with the image fixtures
-    // TODO: fix this, probably once our ballot package format changes
-    cy.contains('Wrong Election');
-
     /*
      * Disabling these lines because with manual export removed from the
      * product it requires a USB drive which we have not developed mocking for.
