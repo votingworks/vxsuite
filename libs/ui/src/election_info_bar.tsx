@@ -25,7 +25,7 @@ const Bar = styled.div`
 
 export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
 
-interface Props {
+export interface ElectionInfoBarProps {
   mode?: InfoBarMode;
   electionDefinition: ElectionDefinition;
   codeVersion?: string;
@@ -38,7 +38,7 @@ export function ElectionInfoBar({
   codeVersion,
   machineId,
   precinctSelection,
-}: Props): JSX.Element {
+}: ElectionInfoBarProps): JSX.Element {
   const {
     election: { precincts, date, title, county, state, seal, sealUrl },
   } = electionDefinition;
