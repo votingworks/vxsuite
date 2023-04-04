@@ -7,6 +7,7 @@ import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import {
   BallotPageLayout,
   BallotType,
+  DEFAULT_SYSTEM_SETTINGS,
   getElectionLocales,
   getPrecinctById,
   HmpbBallotPageMetadata,
@@ -198,7 +199,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       await state.archive.file('election.json', electionData);
       await state.archive.file(
         'systemSettings.json',
-        JSON.stringify(systemSettings || {}, null, 2)
+        JSON.stringify(systemSettings || DEFAULT_SYSTEM_SETTINGS, null, 2)
       );
       await state.archive.file(
         'manifest.json',
