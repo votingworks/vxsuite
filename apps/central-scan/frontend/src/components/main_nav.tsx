@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { SessionTimeLimitTimer } from '@votingworks/ui';
+import { getAuthStatus } from '../api';
 
 interface NavProps {
   isTestMode?: boolean;
@@ -57,11 +59,17 @@ const TestMode = styled.span`
   text-align: center;
 `;
 
+const SessionTimeLimitTimerWrapper = styled.span`
+  color: #ffffff;
+`;
+
 interface Props extends NavProps {
   children?: React.ReactNode;
 }
 
 export function MainNav({ children, isTestMode = false }: Props): JSX.Element {
+  const authStatusQuery = getAuthStatus.useQuery();
+
   return (
     <NavWrapper isTestMode={isTestMode}>
       <Nav isTestMode={isTestMode}>
@@ -72,7 +80,12 @@ export function MainNav({ children, isTestMode = false }: Props): JSX.Element {
           <ModelName>VxCentralScan</ModelName>
         </Brand>
         {isTestMode && <TestMode>Machine is in Test Ballot Mode</TestMode>}
-        <NavButtons>{children}</NavButtons>
+        <NavButtons>
+          <SessionTimeLimitTimerWrapper>
+            <SessionTimeLimitTimer authStatus={authStatusQuery.data} />
+          </SessionTimeLimitTimerWrapper>
+          {children}
+        </NavButtons>
       </Nav>
     </NavWrapper>
   );

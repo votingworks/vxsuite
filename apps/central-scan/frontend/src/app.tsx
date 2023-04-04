@@ -12,6 +12,7 @@ import {
   createApiClient,
   createQueryClient,
 } from './api';
+import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 
 export interface Props {
   hardware?: AppRootProps['hardware'];
@@ -49,6 +50,7 @@ export function App({
               legacyBaseFontSizePx={baseFontSizePx}
             >
               <AppRoot hardware={hardware} logger={logger} />
+              <SessionTimeLimitTracker />
             </AppBase>
           </QueryClientProvider>
         </ApiClientContext.Provider>
