@@ -2,11 +2,6 @@ import { assert } from '@votingworks/basics';
 
 import { CardLockoutConfig, computeCardLockoutEndTime } from './lockout';
 
-const customCardLockoutConfig: CardLockoutConfig = {
-  numIncorrectPinAttemptsAllowedBeforeCardLockout: 3,
-  startingCardLockoutDurationSeconds: 1,
-};
-
 test.each<{
   numIncorrectPinAttempts: number;
   expectedCardLockoutDurationSeconds?: number;
@@ -70,6 +65,10 @@ test.each<{
 ])(
   'computeCardLockoutEndTime with custom config',
   ({ numIncorrectPinAttempts, expectedCardLockoutDurationSeconds }) => {
+    const customCardLockoutConfig: CardLockoutConfig = {
+      numIncorrectPinAttemptsAllowedBeforeCardLockout: 3,
+      startingCardLockoutDurationSeconds: 1,
+    };
     const startTime = new Date();
     const endTime = computeCardLockoutEndTime(
       customCardLockoutConfig,
