@@ -11,7 +11,10 @@ import {
   LogEventId,
   Logger,
 } from '@votingworks/logging';
-import { DippedSmartCardAuth as DippedSmartCardAuthTypes } from '@votingworks/types';
+import {
+  DippedSmartCardAuth as DippedSmartCardAuthTypes,
+  UnixTimestampInMilliseconds,
+} from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   generatePin,
@@ -31,13 +34,18 @@ import {
   DippedSmartCardAuthMachineState,
 } from './dipped_smart_card_auth_api';
 import { computeCardLockoutEndTime } from './lockout';
+import { computeSessionEndTime } from './sessions';
 
 type CheckPinResponseExtended = CheckPinResponse | { response: 'error' };
 
 type AuthAction =
   | { type: 'check_card_reader'; cardStatus: CardStatus }
   | { type: 'check_pin'; checkPinResponse: CheckPinResponseExtended }
-  | { type: 'log_out' };
+  | { type: 'log_out' }
+  | {
+      type: 'update_session_expiry';
+      sessionExpiresAt: UnixTimestampInMilliseconds;
+    };
 
 function cardStatusToProgrammableCard(
   machineState: DippedSmartCardAuthMachineState,
@@ -226,6 +234,17 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     await this.updateAuthStatus(machineState, { type: 'log_out' });
   }
 
+  async updateSessionExpiry(
+    machineState: DippedSmartCardAuthMachineState,
+    input: { sessionExpiresAt: UnixTimestampInMilliseconds }
+  ): Promise<void> {
+    await this.checkCardReaderAndUpdateAuthStatus(machineState);
+    await this.updateAuthStatus(machineState, {
+      type: 'update_session_expiry',
+      sessionExpiresAt: input.sessionExpiresAt,
+    });
+  }
+
   async programCard(
     machineState: DippedSmartCardAuthMachineState,
     input:
@@ -411,7 +430,11 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     machineState: DippedSmartCardAuthMachineState,
     action: AuthAction
   ): DippedSmartCardAuthTypes.AuthStatus {
-    const currentAuthStatus = this.authStatus;
+    const currentAuthStatus: DippedSmartCardAuthTypes.AuthStatus =
+      this.authStatus.status === 'logged_in' &&
+      new Date().getTime() >= this.authStatus.sessionExpiresAt
+        ? { status: 'logged_out', reason: 'machine_locked' }
+        : this.authStatus;
 
     switch (action.type) {
       case 'check_card_reader': {
@@ -447,7 +470,12 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                     cardDetails.numIncorrectPinAttempts
                   )?.getTime();
                   return skipPinEntry
-                    ? { status: 'remove_card', user }
+                    ? {
+                        status: 'remove_card',
+                        user,
+                        sessionExpiresAt:
+                          computeSessionEndTime(machineState).getTime(),
+                      }
                     : { status: 'checking_pin', user, lockedOutUntil };
                 }
                 return {
@@ -472,18 +500,19 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
 
           case 'remove_card': {
             if (action.cardStatus.status === 'no_card') {
-              const { user } = currentAuthStatus;
+              const { user, sessionExpiresAt } = currentAuthStatus;
               if (user.role === 'system_administrator') {
                 return {
                   status: 'logged_in',
                   user,
+                  sessionExpiresAt,
                   programmableCard: cardStatusToProgrammableCard(
                     machineState,
                     action.cardStatus
                   ),
                 };
               }
-              return { status: 'logged_in', user };
+              return { status: 'logged_in', user, sessionExpiresAt };
             }
             return currentAuthStatus;
           }
@@ -515,7 +544,11 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         }
         switch (action.checkPinResponse.response) {
           case 'correct': {
-            return { status: 'remove_card', user: currentAuthStatus.user };
+            return {
+              status: 'remove_card',
+              user: currentAuthStatus.user,
+              sessionExpiresAt: computeSessionEndTime(machineState).getTime(),
+            };
           }
           case 'incorrect': {
             return {
@@ -540,6 +573,19 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
 
       case 'log_out': {
         return { status: 'logged_out', reason: 'machine_locked' };
+      }
+
+      case 'update_session_expiry': {
+        if (
+          currentAuthStatus.status !== 'remove_card' &&
+          currentAuthStatus.status !== 'logged_in'
+        ) {
+          return currentAuthStatus;
+        }
+        return {
+          ...currentAuthStatus,
+          sessionExpiresAt: action.sessionExpiresAt,
+        };
       }
 
       /* istanbul ignore next: Compile-time check for completeness */
