@@ -12,12 +12,14 @@ import {
 } from '@votingworks/fixtures';
 import { typedAs } from '@votingworks/basics';
 import {
+  advanceTimers,
   advanceTimersAndPromises,
   expectPrint,
   expectPrintToMatchSnapshot,
   fakeElectionManagerUser,
   fakeKiosk,
   fakePrinterInfo,
+  fakeSessionExpiresAt,
   fakeUsbDrive,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
@@ -106,7 +108,6 @@ beforeEach(() => {
 
 afterEach(() => {
   delete window.kiosk;
-  MockDate.reset();
   apiMock.assertComplete();
 });
 
@@ -242,6 +243,7 @@ test('authentication works', async () => {
     user: fakeElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
+    sessionExpiresAt: fakeSessionExpiresAt(),
   });
   await screen.findByText('Remove card to continue.');
 
@@ -251,6 +253,7 @@ test('authentication works', async () => {
     user: fakeElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
+    sessionExpiresAt: fakeSessionExpiresAt(),
   });
   await screen.findByText('Lock Machine');
   await screen.findByText('Ballots');
@@ -292,7 +295,7 @@ test('L&A (logic and accuracy) flow', async () => {
       expect.anything()
     )
   );
-  jest.advanceTimersByTime(5000);
+  advanceTimers(5);
 
   // L&A package: BMD test deck
   await screen.findByText('Printing L&A Package for District 5', {
@@ -313,7 +316,7 @@ test('L&A (logic and accuracy) flow', async () => {
       message: expect.stringContaining('BMD paper ballot test deck'),
     })
   );
-  jest.advanceTimersByTime(30000);
+  advanceTimers(30);
 
   // L&A package: HMPB test deck
   await screen.findByText('Printing L&A Package for District 5', {
@@ -520,7 +523,7 @@ test('tabulating CVRs', async () => {
   fireEvent.click(getByText('Show Results by Batch and Scanner'));
   getByText('Batch Name');
   fireEvent.click(getByText('Save Batch Results as CSV'));
-  jest.advanceTimersByTime(2000);
+  advanceTimers(2);
   await screen.findByText('Save Batch Results');
   await screen.findByText(
     'votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
@@ -528,7 +531,7 @@ test('tabulating CVRs', async () => {
 
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText(/Saving/));
-  jest.advanceTimersByTime(2000);
+  advanceTimers(2);
   await waitFor(() => getByText(/Batch Results Saved/));
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
@@ -581,14 +584,14 @@ test('tabulating CVRs', async () => {
   fireEvent.click(getByText('Reports'));
   await waitFor(() => getByText('Save SEMS Results'));
   fireEvent.click(getByText('Save SEMS Results'));
-  jest.advanceTimersByTime(2000);
+  advanceTimers(2);
   getByText(
     'votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.txt'
   );
 
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText(/Saving/));
-  jest.advanceTimersByTime(2000);
+  advanceTimers(2);
   await waitFor(() => getByText(/Results Saved/));
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(2);

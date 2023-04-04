@@ -6,6 +6,7 @@ import {
 } from '@votingworks/auth';
 import {
   fakeElectionManagerUser,
+  fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
@@ -130,6 +131,7 @@ export function mockSystemAdministratorAuth(
   mockAuthStatus(auth, {
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
+    sessionExpiresAt: fakeSessionExpiresAt(),
     programmableCard: { status: 'no_card' },
   });
 }
@@ -141,6 +143,7 @@ export function mockElectionManagerAuth(
   mockAuthStatus(auth, {
     status: 'logged_in',
     user: fakeElectionManagerUser({ electionHash }),
+    sessionExpiresAt: fakeSessionExpiresAt(),
   });
 }
 

@@ -469,22 +469,33 @@ test('auth', async () => {
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
 
   await apiClient.getAuthStatus();
-  await apiClient.checkPin({ pin: '123456' });
-  await apiClient.logOut();
-  void (await apiClient.programCard({ userRole: 'system_administrator' }));
-  void (await apiClient.programCard({ userRole: 'election_manager' }));
-  void (await apiClient.unprogramCard());
-
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(2);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(2, { electionHash });
+
+  await apiClient.checkPin({ pin: '123456' });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
     { electionHash },
     { pin: '123456' }
   );
+
+  await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
+
+  await apiClient.updateSessionExpiry({
+    sessionExpiresAt: new Date().getTime(),
+  });
+  expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
+  expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
+    1,
+    { electionHash },
+    { sessionExpiresAt: expect.any(Number) }
+  );
+
+  void (await apiClient.programCard({ userRole: 'system_administrator' }));
+  void (await apiClient.programCard({ userRole: 'election_manager' }));
   expect(auth.programCard).toHaveBeenCalledTimes(2);
   expect(auth.programCard).toHaveBeenNthCalledWith(
     1,
@@ -496,6 +507,8 @@ test('auth', async () => {
     { electionHash },
     { userRole: 'election_manager', electionData }
   );
+
+  void (await apiClient.unprogramCard());
   expect(auth.unprogramCard).toHaveBeenCalledTimes(1);
   expect(auth.unprogramCard).toHaveBeenNthCalledWith(1, { electionHash });
 });
@@ -504,23 +517,26 @@ test('auth before election definition has been configured', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
   await apiClient.getAuthStatus();
-  await apiClient.checkPin({ pin: '123456' });
-  await apiClient.logOut();
-
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
-    electionHash: undefined,
-  });
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {});
+
+  await apiClient.checkPin({ pin: '123456' });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
-  expect(auth.checkPin).toHaveBeenNthCalledWith(
-    1,
-    { electionHash: undefined },
-    { pin: '123456' }
-  );
+  expect(auth.checkPin).toHaveBeenNthCalledWith(1, {}, { pin: '123456' });
+
+  await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, {
-    electionHash: undefined,
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, {});
+
+  await apiClient.updateSessionExpiry({
+    sessionExpiresAt: new Date().getTime(),
   });
+  expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
+  expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
+    1,
+    {},
+    { sessionExpiresAt: expect.any(Number) }
+  );
 });
 
 test('setSystemSettings happy path', async () => {

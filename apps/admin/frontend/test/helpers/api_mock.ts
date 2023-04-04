@@ -9,6 +9,7 @@ import { ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
   fakeElectionManagerUser,
+  fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
@@ -47,6 +48,7 @@ export function createApiMock(
       this.setAuthStatus({
         status: 'logged_in',
         user: fakeSystemAdministratorUser(),
+        sessionExpiresAt: fakeSessionExpiresAt(),
         programmableCard: { status: 'no_card' },
       });
       await screen.findByText('Lock Machine');
@@ -63,6 +65,7 @@ export function createApiMock(
         user: fakeElectionManagerUser({
           electionHash: electionDefinition.electionHash,
         }),
+        sessionExpiresAt: fakeSessionExpiresAt(),
       });
       await screen.findByText('Lock Machine');
     },
