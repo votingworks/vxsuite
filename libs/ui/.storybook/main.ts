@@ -41,8 +41,16 @@ const config: StorybookConfig = {
           //
           // The trailing slash is important, otherwise it will be resolved as a
           // built-in NodeJS module.
+          { find: 'assert', replacement: require.resolve('assert/') },
           { find: 'buffer', replacement: require.resolve('buffer/'), },
+          { find: 'events', replacement: require.resolve('events/') },
+          { find: 'fs', replacement: path.join(__dirname, '../src/stubs/fs.ts') },
+          { find: 'jsdom', replacement: path.join(__dirname, '../src/stubs/jsdom.ts') },
+          { find: 'os', replacement: path.join(__dirname, '../src/stubs/os.ts') },
           { find: 'path', replacement: require.resolve('path/'), },
+          { find: 'stream', replacement: require.resolve('stream-browserify') },
+          { find: 'util', replacement: require.resolve('util/') },
+          { find: 'zlib', replacement: require.resolve('browserify-zlib') },
 
           // Create aliases for all workspace packages, i.e.
           //
