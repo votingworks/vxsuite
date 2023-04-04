@@ -2,6 +2,7 @@ import {
   fakeCardlessVoterUser,
   fakeElectionManagerUser,
   fakePollWorkerUser,
+  fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
@@ -20,11 +21,13 @@ const systemAdministratorAuthStatus: {
   dipped: {
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
+    sessionExpiresAt: fakeSessionExpiresAt(),
     programmableCard: { status: 'no_card' },
   },
   inserted: {
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
+    sessionExpiresAt: fakeSessionExpiresAt(),
   },
 };
 
@@ -35,10 +38,12 @@ const electionManagerAuthStatus: {
   dipped: {
     status: 'logged_in',
     user: fakeElectionManagerUser(),
+    sessionExpiresAt: fakeSessionExpiresAt(),
   },
   inserted: {
     status: 'logged_in',
     user: fakeElectionManagerUser(),
+    sessionExpiresAt: fakeSessionExpiresAt(),
   },
 };
 
@@ -49,10 +54,12 @@ const pollWorkerAuthStatus: {
   basic: {
     status: 'logged_in',
     user: fakePollWorkerUser(),
+    sessionExpiresAt: fakeSessionExpiresAt(),
   },
   withCardlessVoter: {
     status: 'logged_in',
     user: fakePollWorkerUser(),
+    sessionExpiresAt: fakeSessionExpiresAt(),
     cardlessVoterUser: fakeCardlessVoterUser(),
   },
 };
@@ -63,6 +70,7 @@ const cardlessVoterAuthStatus: {
   basic: {
     status: 'logged_in',
     user: fakeCardlessVoterUser(),
+    sessionExpiresAt: fakeSessionExpiresAt(),
   },
 };
 
