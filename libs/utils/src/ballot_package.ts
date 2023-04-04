@@ -4,17 +4,21 @@ import {
   BallotPageLayoutSchema,
   BallotStyleId,
   ContestId,
+  DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   PrecinctId,
   safeParseElectionDefinition,
   safeParseJson,
+  SystemSettings,
 } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import 'fast-text-encoding';
 import { z } from 'zod';
 import { assert } from '@votingworks/basics';
+import { safeParseSystemSettings } from './system_settings';
 import {
   getFileByName,
+  maybeGetFileByName,
   readFile,
   openZip,
   getEntries,
@@ -25,6 +29,8 @@ import {
 
 export interface BallotPackage {
   electionDefinition: ElectionDefinition;
+  // TODO(kevin) once all machines support system settings, make systemSettings required
+  systemSettings?: SystemSettings;
   ballots: BallotPackageEntry[];
 }
 
@@ -61,6 +67,16 @@ export async function readBallotPackageFromBuffer(
   const electionEntry = getFileByName(entries, 'election.json', zipName);
   const manifestEntry = getFileByName(entries, 'manifest.json', zipName);
 
+  let systemSettingsData = JSON.stringify(DEFAULT_SYSTEM_SETTINGS);
+
+  const systemSettingsEntry = maybeGetFileByName(
+    entries,
+    'systemSettings.json'
+  );
+  if (systemSettingsEntry) {
+    systemSettingsData = await readTextEntry(systemSettingsEntry);
+  }
+
   const electionData = await readTextEntry(electionEntry);
   const manifest = (await readJsonEntry(
     manifestEntry
@@ -94,6 +110,7 @@ export async function readBallotPackageFromBuffer(
   return {
     electionDefinition:
       safeParseElectionDefinition(electionData).unsafeUnwrap(),
+    systemSettings: safeParseSystemSettings(systemSettingsData).unsafeUnwrap(),
     ballots,
   };
 }

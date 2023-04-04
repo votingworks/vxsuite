@@ -1,4 +1,4 @@
-import { electionSample } from '@votingworks/fixtures';
+import { electionSample, systemSettings } from '@votingworks/fixtures';
 import { fakeKiosk, zipFile } from '@votingworks/test-utils';
 import { BallotPageLayout, BallotType } from '@votingworks/types';
 import { Buffer } from 'buffer';
@@ -128,6 +128,7 @@ test('readBallotPackageFromFilePointer finds all expected ballots with layouts',
   const pkg = await zipFile({
     'election.json': JSON.stringify(electionSample),
     'manifest.json': JSON.stringify(manifest),
+    'systemSettings.json': systemSettings.asText(),
     'election-deadbeef-whatever.pdf': Buffer.from('%PDF'),
     'election-deadbeef-whatever-layout.json': JSON.stringify(layouts),
   });
@@ -185,6 +186,7 @@ test('readBallotPackageFromFile throws when the manifest does not match ballots'
   const pkg = await zipFile({
     'election.json': JSON.stringify(electionSample),
     'manifest.json': JSON.stringify(manifest),
+    'systemSettings.json': systemSettings.asText(),
   });
 
   await expect(

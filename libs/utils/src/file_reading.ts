@@ -59,7 +59,6 @@ export async function readJsonEntry(entry: JSZipObject): Promise<unknown> {
 }
 
 /**
- *
  * @param entries - represents the entries of a zip file
  * @param name - the target file to find in the entries
  * @param [zipName] - human-readable name zip file for use in error handling
@@ -77,4 +76,16 @@ export function getFileByName(
   }
 
   return result;
+}
+
+/**
+ * @param entries - represents the entries of a zip file
+ * @param name - the target file to find in the entries
+ * @returns a JSZipObject representing the file or undefined if no file exists in the zip
+ */
+export function maybeGetFileByName(
+  entries: JSZipObject[],
+  name: string
+): JSZipObject | undefined {
+  return entries.find((entry) => entry.name === name);
 }

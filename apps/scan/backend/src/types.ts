@@ -6,6 +6,7 @@ import {
   PageInterpretation,
   PollsState,
   PrecinctSelection,
+  SystemSettings,
 } from '@votingworks/types';
 
 export interface MachineConfig {
@@ -91,6 +92,7 @@ export interface PrecinctScannerStatus extends PrecinctScannerMachineStatus {
 export interface PrecinctScannerConfig {
   // Config that persists across switching modes
   electionDefinition?: ElectionDefinition;
+  systemSettings?: SystemSettings;
   precinctSelection?: PrecinctSelection;
   markThresholdOverrides?: MarkThresholds;
   isSoundMuted: boolean;
