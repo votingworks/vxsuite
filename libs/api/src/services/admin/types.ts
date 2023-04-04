@@ -577,6 +577,9 @@ export const BallotModeSchema = z.nativeEnum(BallotMode);
 export interface PrintedBallot {
   readonly ballotStyleId: BallotStyleId;
   readonly precinctId: PrecinctId;
+  /**
+   * @deprecated to be replaced (https://github.com/votingworks/roadmap/issues/15)
+   */
   readonly locales: BallotLocale;
   readonly ballotType: PrintableBallotType;
   readonly ballotMode: BallotMode;

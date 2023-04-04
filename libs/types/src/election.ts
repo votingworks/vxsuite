@@ -344,10 +344,16 @@ export const CountySchema: z.ZodSchema<County> = z.object({
   name: z.string().nonempty(),
 });
 
+/**
+ * @deprecated to be replaced (https://github.com/votingworks/roadmap/issues/15)
+ */
 export interface BallotLocale {
   readonly primary: string;
   readonly secondary?: string;
 }
+/**
+ * @deprecated to be replaced (https://github.com/votingworks/roadmap/issues/15)
+ */
 export const BallotLocaleSchema: z.ZodSchema<BallotLocale> = z.object({
   primary: z.string(),
   secondary: z.string().optional(),
@@ -829,6 +835,9 @@ export interface HmpbBallotPageMetadata {
   electionHash: string; // a hexadecimal string
   precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
+  /**
+   * @deprecated to be replaced (https://github.com/votingworks/roadmap/issues/15)
+   */
   locales: BallotLocale;
   pageNumber: number;
   isTestMode: boolean;
