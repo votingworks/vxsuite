@@ -7,6 +7,7 @@ import {
   PollsState,
   PrecinctSelection,
   SinglePrecinctSelection,
+  UnixTimestampInMilliseconds,
 } from '@votingworks/types';
 import {
   BALLOT_PACKAGE_FOLDER,
@@ -83,6 +84,19 @@ function buildApi(
 
     checkPin(input: { pin: string }) {
       return auth.checkPin(constructAuthMachineState(workspace), input);
+    },
+
+    logOut() {
+      return auth.logOut(constructAuthMachineState(workspace));
+    },
+
+    updateSessionExpiry(input: {
+      sessionExpiresAt: UnixTimestampInMilliseconds;
+    }) {
+      return auth.updateSessionExpiry(
+        constructAuthMachineState(workspace),
+        input
+      );
     },
 
     async configureFromBallotPackageOnUsbDrive(): Promise<
