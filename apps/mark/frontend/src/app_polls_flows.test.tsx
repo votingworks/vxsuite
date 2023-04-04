@@ -1,4 +1,5 @@
 import {
+  advanceTimers,
   advanceTimersAndPromises,
   expectPrint,
   getZeroCompressedTally,
@@ -105,7 +106,7 @@ async function printPollsClosedReport() {
 
   // check that print starts and finishes
   await screen.findByText('Printing polls closed report');
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  advanceTimers(REPORT_PRINTING_TIMEOUT_SECONDS);
   await waitForElementToBeRemoved(() =>
     screen.queryByText('Printing polls closed report')
   );
@@ -176,7 +177,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
   userEvent.click(screen.getByText('Open Polls and Print Report'));
   await screen.findByText('Printing polls opened report');
   await expectPrint(checkPollsOpenedReport);
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  advanceTimers(REPORT_PRINTING_TIMEOUT_SECONDS);
   await screen.findByText('Polls Opened Report Printed');
   screen.getByText(
     'The polls are now open. If needed, you may print additional copies of the polls opened report.'
@@ -202,7 +203,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
   userEvent.click(screen.getByText('Print Additional Report'));
   await screen.findByText('Printing polls opened report');
   await expectPrint(checkPollsOpenedReport);
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  advanceTimers(REPORT_PRINTING_TIMEOUT_SECONDS);
   await screen.findByText('Polls Opened Report Printed');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.TallyReportPrinted,
@@ -258,7 +259,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
     );
   }
   await expectPrint(checkVotingPausedReport);
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  advanceTimers(REPORT_PRINTING_TIMEOUT_SECONDS);
   await screen.findByText('Voting Paused Report Printed');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.VotingPaused,
@@ -281,7 +282,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
   userEvent.click(screen.getByText('Print Additional Report'));
   await screen.findByText('Printing voting paused report');
   await expectPrint(checkVotingPausedReport);
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  advanceTimers(REPORT_PRINTING_TIMEOUT_SECONDS);
   await screen.findByText('Voting Paused Report Printed');
   userEvent.click(screen.getByText('Continue'));
   screen.getByText(hasTextAcrossElements('Polls: Paused'));
@@ -329,7 +330,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
     );
   }
   await expectPrint(checkVotingResumedReport);
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  advanceTimers(REPORT_PRINTING_TIMEOUT_SECONDS);
   await screen.findByText('Voting Resumed Report Printed');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.VotingResumed,
@@ -352,7 +353,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
   userEvent.click(screen.getByText('Print Additional Report'));
   await screen.findByText('Printing voting resumed report');
   await expectPrint(checkVotingResumedReport);
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  advanceTimers(REPORT_PRINTING_TIMEOUT_SECONDS);
   await screen.findByText('Voting Resumed Report Printed');
   userEvent.click(screen.getByText('Continue'));
   screen.getByText(hasTextAcrossElements('Polls: Open'));
@@ -429,7 +430,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
     expectEmptyContestResultsInReport(generalReport, 'governor');
   }
   await expectPrint(checkPollsClosedReport);
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  advanceTimers(REPORT_PRINTING_TIMEOUT_SECONDS);
   await screen.findByText('Polls Closed Report Printed');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PollsClosed,
@@ -452,7 +453,7 @@ test('full polls flow with tally reports - general, single precinct', async () =
   userEvent.click(screen.getByText('Print Additional Report'));
   await screen.findByText('Printing polls closed report');
   await expectPrint(checkPollsClosedReport);
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  advanceTimers(REPORT_PRINTING_TIMEOUT_SECONDS);
   await screen.findByText('Polls Closed Report Printed');
   userEvent.click(screen.getByText('Continue'));
   screen.getByText(hasTextAcrossElements('Polls: Closed'));
@@ -1524,12 +1525,12 @@ test('tally report: will print but not update polls state appropriate', async ()
     .resolves(ok(undefined));
   userEvent.click(screen.getByText('Print Report'));
   await expectPrint(checkPollsOpenedReport);
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  advanceTimers(REPORT_PRINTING_TIMEOUT_SECONDS);
   await screen.findByText('Polls Opened Report Printed');
   userEvent.click(screen.getByText('Print Additional Report'));
   await screen.findByText('Printing polls opened report');
   await expectPrint(checkPollsOpenedReport);
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  advanceTimers(REPORT_PRINTING_TIMEOUT_SECONDS);
   await screen.findByText('Polls Opened Report Printed');
   screen.getByText(
     'If needed, you may print additional copies of the polls opened report.'
@@ -1802,7 +1803,7 @@ test('error clearing report from card does not affect printing and is logged', a
   userEvent.click(screen.getByText('Open Polls and Print Report'));
   await screen.findByText('Printing polls opened report');
   await expectPrint(checkPollsOpenedReport);
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  advanceTimers(REPORT_PRINTING_TIMEOUT_SECONDS);
   await screen.findByText('Polls Opened Report Printed');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.TallyReportClearedFromCard,

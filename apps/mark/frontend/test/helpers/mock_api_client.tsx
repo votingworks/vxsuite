@@ -14,6 +14,7 @@ import {
   fakeCardlessVoterUser,
   fakeElectionManagerUser,
   fakePollWorkerUser,
+  fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { ok, Optional, Result } from '@votingworks/basics';
@@ -65,6 +66,7 @@ export function createApiMock() {
       setAuthStatus({
         status: 'logged_in',
         user: fakeSystemAdministratorUser(),
+        sessionExpiresAt: fakeSessionExpiresAt(),
       });
     },
 
@@ -76,6 +78,7 @@ export function createApiMock() {
         user: fakeElectionManagerUser({
           electionHash: electionDefinition.electionHash,
         }),
+        sessionExpiresAt: fakeSessionExpiresAt(),
       });
     },
 
@@ -106,6 +109,7 @@ export function createApiMock() {
       setAuthStatus({
         status: 'logged_in',
         user: fakePollWorkerUser({ electionHash }),
+        sessionExpiresAt: fakeSessionExpiresAt(),
         cardlessVoterUser: cardlessVoterUserParams
           ? fakeCardlessVoterUser(cardlessVoterUserParams)
           : undefined,
@@ -118,6 +122,7 @@ export function createApiMock() {
       setAuthStatus({
         status: 'logged_in',
         user: fakeCardlessVoterUser(cardlessVoterUserParams),
+        sessionExpiresAt: fakeSessionExpiresAt(),
       });
     },
 

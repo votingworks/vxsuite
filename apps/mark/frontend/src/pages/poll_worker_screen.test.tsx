@@ -9,6 +9,7 @@ import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
 import { singlePrecinctSelectionFor, MemoryHardware } from '@votingworks/utils';
 import {
   fakePollWorkerUser,
+  fakeSessionExpiresAt,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
@@ -49,6 +50,7 @@ function fakePollWorkerAuth(
   return {
     status: 'logged_in',
     user: fakePollWorkerUser({ electionHash: electionDefinition.electionHash }),
+    sessionExpiresAt: fakeSessionExpiresAt(),
   };
 }
 

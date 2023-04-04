@@ -3,6 +3,7 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
   fakePollWorkerUser,
+  fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
 import { ElectionDefinition } from '@votingworks/types';
@@ -49,30 +50,47 @@ test('auth', async () => {
   const { apiClient, mockAuth } = createApp();
 
   await apiClient.getAuthStatus({ electionHash });
-  await apiClient.checkPin({ electionHash, pin: '123456' });
-  await apiClient.startCardlessVoterSession({
-    electionHash,
-    ballotStyleId: 'b1',
-    precinctId: 'p1',
-  });
-  await apiClient.endCardlessVoterSession({ electionHash });
-
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
     electionHash,
   });
+
+  await apiClient.checkPin({ electionHash, pin: '123456' });
   expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
   expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
     1,
     { electionHash },
     { pin: '123456' }
   );
+
+  await apiClient.logOut({ electionHash });
+  expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
+  expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
+
+  await apiClient.updateSessionExpiry({
+    electionHash,
+    sessionExpiresAt: new Date().getTime(),
+  });
+  expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
+  expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
+    1,
+    { electionHash },
+    { sessionExpiresAt: expect.any(Number) }
+  );
+
+  await apiClient.startCardlessVoterSession({
+    electionHash,
+    ballotStyleId: 'b1',
+    precinctId: 'p1',
+  });
   expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.startCardlessVoterSession).toHaveBeenNthCalledWith(
     1,
     { electionHash },
     { ballotStyleId: 'b1', precinctId: 'p1' }
   );
+
+  await apiClient.endCardlessVoterSession({ electionHash });
   expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(1, {
     electionHash,
@@ -100,6 +118,7 @@ test('read election definition from card', async () => {
     Promise.resolve({
       status: 'logged_in',
       user: fakePollWorkerUser(electionDefinition),
+      sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
   result = await apiClient.readElectionDefinitionFromCard({ electionHash });
@@ -109,6 +128,7 @@ test('read election definition from card', async () => {
     Promise.resolve({
       status: 'logged_in',
       user: fakeElectionManagerUser(electionDefinition),
+      sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
   result = await apiClient.readElectionDefinitionFromCard({ electionHash });
@@ -164,6 +184,7 @@ test('read scanner report data from card', async () => {
     Promise.resolve({
       status: 'logged_in',
       user: fakeElectionManagerUser(electionDefinition),
+      sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
   result = await apiClient.readScannerReportDataFromCard({ electionHash });
@@ -173,6 +194,7 @@ test('read scanner report data from card', async () => {
     Promise.resolve({
       status: 'logged_in',
       user: fakePollWorkerUser(electionDefinition),
+      sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
   result = await apiClient.readScannerReportDataFromCard({ electionHash });
@@ -206,6 +228,7 @@ test('clear scanner report data from card', async () => {
     Promise.resolve({
       status: 'logged_in',
       user: fakeElectionManagerUser(electionDefinition),
+      sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
   result = await apiClient.clearScannerReportDataFromCard({ electionHash });
@@ -215,6 +238,7 @@ test('clear scanner report data from card', async () => {
     Promise.resolve({
       status: 'logged_in',
       user: fakePollWorkerUser(electionDefinition),
+      sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
   result = await apiClient.clearScannerReportDataFromCard({ electionHash });
