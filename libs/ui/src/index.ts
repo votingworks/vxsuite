@@ -54,6 +54,7 @@ export * from './themes/render_with_themes';
 export * from './screen';
 export * from './seal';
 export * from './select';
+export * from './session_time_limit_tracker';
 export * from './setup_card_reader_page';
 export * from './set_clock';
 export * from './table';
