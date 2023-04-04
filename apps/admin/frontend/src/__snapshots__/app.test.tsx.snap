@@ -247,10 +247,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 }
 
 @media print {
-
-}
-
-@media print {
   .c7 {
     border-top: 1px solid rgb(194,200,203);
   }
@@ -1862,10 +1858,6 @@ exports[`L&A (logic and accuracy) flow 2`] = `
 
 }
 
-@media print {
-
-}
-
 @media screen {
   .c0 {
     display: none;
@@ -3146,10 +3138,6 @@ exports[`L&A (logic and accuracy) flow 3`] = `
 
 }
 
-@media print {
-
-}
-
 @media screen {
 
 }
@@ -3609,10 +3597,6 @@ exports[`tabulating CVRs 1`] = `
   margin: 0;
   background: rgb(194,200,203);
   padding: 0.25rem 0.5rem;
-}
-
-@media print {
-
 }
 
 @media print {

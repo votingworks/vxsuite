@@ -1,3 +1,4 @@
+/* stylelint-disable order/properties-order, value-keyword-case, order/order */
 import React from 'react';
 
 import {
@@ -8,19 +9,43 @@ import {
 import { formatShortDate, getPrecinctSelectionName } from '@votingworks/utils';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
-import { Prose } from './prose';
-import { Text, NoWrap } from './text';
-import { contrastTheme } from './themes';
 import { Seal } from './seal';
+import { Caption, Font } from './typography';
+import { LabelledText } from './labelled_text';
 
 const Bar = styled.div`
+  align-content: flex-end;
+  align-items: center;
+  border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.foreground};
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  padding: 0.25rem 0.25rem;
+`;
+
+const ElectionInfoContainer = styled.div`
+  align-items: center;
+  display: flex;
+  gap: 0.25rem;
+  justify-content: start;
+`;
+
+const SealContainer = styled.div`
+  flex-shrink: 0;
+  height: 2.25rem;
+  width: 2.25rem;
+`;
+
+const SystemInfoContainer = styled.div`
+  align-content: flex-end;
   display: flex;
   flex-direction: row;
-  align-items: end;
-  background: ${contrastTheme.dark.background};
-  padding: 0.5rem 0.75rem;
-  color: ${contrastTheme.dark.color};
-  gap: 1rem;
+  flex-grow: 1;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: end;
+  text-align: right;
 `;
 
 export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
@@ -44,44 +69,66 @@ export function ElectionInfoBar({
   } = electionDefinition;
   const electionDate = formatShortDate(DateTime.fromISO(date));
 
+  const electionInfoLabel = (
+    <React.Fragment>
+      {precinctSelection && (
+        <React.Fragment>
+          <Font noWrap>
+            {getPrecinctSelectionName(precincts, precinctSelection)},
+          </Font>{' '}
+        </React.Fragment>
+      )}
+      <Font noWrap>{county.name},</Font> <Font noWrap>{state}</Font>
+    </React.Fragment>
+  );
+
+  const electionInfo = (
+    <Caption weight="regular">
+      <LabelledText labelPosition="bottom" label={electionInfoLabel}>
+        <Font weight="bold">{title}</Font> — <Font noWrap>{electionDate}</Font>
+      </LabelledText>
+    </Caption>
+  );
+
+  const codeVersionInfo =
+    mode !== 'voter' && codeVersion ? (
+      <Caption noWrap weight="bold">
+        <LabelledText label="Software Version">
+          <Font weight="bold">{codeVersion}</Font>
+        </LabelledText>
+      </Caption>
+    ) : null;
+
+  const machineIdInfo =
+    mode !== 'voter' && machineId ? (
+      <Caption noWrap>
+        <LabelledText label="Machine ID">
+          <Font weight="bold">{machineId}</Font>
+        </LabelledText>
+      </Caption>
+    ) : null;
+
+  const electionIdInfo = (
+    <Caption noWrap>
+      <LabelledText label="Election ID">
+        <Font weight="bold">{getDisplayElectionHash(electionDefinition)}</Font>
+      </LabelledText>
+    </Caption>
+  );
+
   return (
     <Bar data-testid="electionInfoBar">
-      {(seal || sealUrl) && <Seal seal={seal} sealUrl={sealUrl} />}
-      <Prose maxWidth={false} compact style={{ flex: 1 }}>
-        <strong>{title}</strong> — <NoWrap>{electionDate}</NoWrap>
-        <Text as="div" small>
-          {precinctSelection && (
-            <React.Fragment>
-              <NoWrap>
-                {getPrecinctSelectionName(precincts, precinctSelection)},
-              </NoWrap>{' '}
-            </React.Fragment>
-          )}
-          <NoWrap>{county.name},</NoWrap> <NoWrap>{state}</NoWrap>
-        </Text>
-      </Prose>
-      {mode !== 'voter' && codeVersion && (
-        <Prose maxWidth={false} compact textRight>
-          <Text as="div" small noWrap>
-            Software Version
-          </Text>
-          <strong>{codeVersion}</strong>
-        </Prose>
-      )}
-      {mode !== 'voter' && machineId && (
-        <Prose maxWidth={false} compact textRight>
-          <Text as="div" small noWrap>
-            Machine ID
-          </Text>
-          <strong>{machineId}</strong>
-        </Prose>
-      )}
-      <Prose maxWidth={false} compact textRight>
-        <Text as="div" small>
-          Election ID
-        </Text>
-        <strong>{getDisplayElectionHash(electionDefinition)}</strong>
-      </Prose>
+      <ElectionInfoContainer>
+        <SealContainer>
+          {(seal || sealUrl) && <Seal seal={seal} sealUrl={sealUrl} />}
+        </SealContainer>
+        {electionInfo}
+      </ElectionInfoContainer>
+      <SystemInfoContainer>
+        {codeVersionInfo}
+        {machineIdInfo}
+        {electionIdInfo}
+      </SystemInfoContainer>
     </Bar>
   );
 }
