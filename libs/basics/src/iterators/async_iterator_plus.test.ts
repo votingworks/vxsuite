@@ -81,12 +81,12 @@ test('chain', async () => {
 });
 
 test('zip', async () => {
-  expect(await iter([]).async().zip(iter([]).async()).toArray()).toEqual([]);
+  expect(await iter([]).async().zip(iter([])).toArray()).toEqual([]);
   expect(await iter([1]).async().zip().toArray()).toEqual([[1]]);
   expect(
     await iter([1])
       .async()
-      .zip(iter([2]).async())
+      .zip(iter([2]))
       .toArray()
   ).toEqual([[1, 2]]);
   expect(
@@ -306,6 +306,30 @@ test('first', async () => {
   expect(await iter([]).async().first()).toEqual(undefined);
   expect(await iter([1]).async().first()).toEqual(1);
   expect(await iter([1, 2, 3]).async().first()).toEqual(1);
+});
+
+test('flatMap', async () => {
+  expect(
+    await iter([])
+      .async()
+      .flatMap(() => [])
+      .toArray()
+  ).toEqual([]);
+  expect(
+    await iter([1, 2, 3])
+      .async()
+      .flatMap((a) => [a, a])
+      .toArray()
+  ).toEqual([1, 1, 2, 2, 3, 3]);
+  expect(
+    await iter([1, 2, 3])
+      .async()
+      .flatMap(async function* double(a) {
+        yield await Promise.resolve(a);
+        yield a;
+      })
+      .toArray()
+  ).toEqual([1, 1, 2, 2, 3, 3]);
 });
 
 test('last', async () => {

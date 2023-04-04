@@ -80,6 +80,11 @@ export interface IteratorPlus<T> extends Iterable<T> {
   first(): T | undefined;
 
   /**
+   * Maps elements to an iterable of `U` and flattens the result.
+   */
+  flatMap<U>(fn: (value: T, index: number) => Iterable<U>): IteratorPlus<U>;
+
+  /**
    * Returns the last element of `this` or `undefined` if `this` is empty.
    * Consumes the entire contained iterable.
    */
@@ -396,6 +401,13 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
   first(): Promise<T | undefined>;
 
   /**
+   * Maps elements to an async iterable of `U` and flattens the result.
+   */
+  flatMap<U>(
+    fn: (value: T, index: number) => Iterable<U> | AsyncIterable<U>
+  ): AsyncIteratorPlus<U>;
+
+  /**
    * Returns the last element of `this` or `undefined` if `this` is empty.
    * Consumes the entire contained iterable.
    */
@@ -524,7 +536,7 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    *
    * @throws if not all iterables are the same length
    */
-  zip<U>(other: AsyncIterable<U>): AsyncIteratorPlus<[T, U]>;
+  zip<U>(other: Iterable<U> | AsyncIterable<U>): AsyncIteratorPlus<[T, U]>;
 
   /**
    * Yields tuples of size 3 with elements from `this`, `other1`, and `other2`.
@@ -532,8 +544,8 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * @throws if not all iterables are the same length
    */
   zip<U, V>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>
   ): AsyncIteratorPlus<[T, U, V]>;
 
   /**
@@ -543,9 +555,9 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * @throws if not all iterables are the same length
    */
   zip<U, V, W>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>,
-    other3: AsyncIterable<W>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>,
+    other3: Iterable<W> | AsyncIterable<W>
   ): AsyncIteratorPlus<[T, U, V, W]>;
 
   /**
@@ -555,10 +567,10 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * @throws if not all iterables are the same length
    */
   zip<U, V, W, X>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>,
-    other3: AsyncIterable<W>,
-    other4: AsyncIterable<X>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>,
+    other3: Iterable<W> | AsyncIterable<W>,
+    other4: Iterable<X> | AsyncIterable<X>
   ): AsyncIteratorPlus<[T, U, V, W, X]>;
 
   /**
@@ -568,11 +580,11 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * @throws if not all iterables are the same length
    */
   zip<U, V, W, X, Y>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>,
-    other3: AsyncIterable<W>,
-    other4: AsyncIterable<X>,
-    other5: AsyncIterable<Y>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>,
+    other3: Iterable<W> | AsyncIterable<W>,
+    other4: Iterable<X> | AsyncIterable<X>,
+    other5: Iterable<Y> | AsyncIterable<Y>
   ): AsyncIteratorPlus<[T, U, V, W, X, Y]>;
 
   /**
@@ -584,15 +596,15 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * Yields tuples of size 2 with elements from `this` and `other` until one
    * iterable is exhausted.
    */
-  zipMin<U>(other: AsyncIterable<U>): AsyncIteratorPlus<[T, U]>;
+  zipMin<U>(other: Iterable<U> | AsyncIterable<U>): AsyncIteratorPlus<[T, U]>;
 
   /**
    * Yields tuples of size 3 with elements from `this`, `other1`, and `other2`
    * until one iterable is exhausted.
    */
   zipMin<U, V>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>
   ): AsyncIteratorPlus<[T, U, V]>;
 
   /**
@@ -600,9 +612,9 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * `other3` until one iterable is exhausted.
    */
   zipMin<U, V, W>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>,
-    other3: AsyncIterable<W>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>,
+    other3: Iterable<W> | AsyncIterable<W>
   ): AsyncIteratorPlus<[T, U, V, W]>;
 
   /**
@@ -610,10 +622,10 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * `other3`, and `other4` until one iterable is exhausted.
    */
   zipMin<U, V, W, X>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>,
-    other3: AsyncIterable<W>,
-    other4: AsyncIterable<X>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>,
+    other3: Iterable<W> | AsyncIterable<W>,
+    other4: Iterable<X> | AsyncIterable<X>
   ): AsyncIteratorPlus<[T, U, V, W, X]>;
 
   /**
@@ -621,10 +633,10 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * `other3`, `other4`, and `other5` until one iterable is exhausted.
    */
   zipMin<U, V, W, X, Y>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>,
-    other3: AsyncIterable<W>,
-    other4: AsyncIterable<X>,
-    other5: AsyncIterable<Y>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>,
+    other3: Iterable<W> | AsyncIterable<W>,
+    other4: Iterable<X> | AsyncIterable<X>,
+    other5: Iterable<Y> | AsyncIterable<Y>
   ): AsyncIteratorPlus<[T, U, V, W, X, Y]>;
 }

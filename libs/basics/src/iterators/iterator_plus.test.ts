@@ -227,6 +227,27 @@ test('first', () => {
   expect(iter([1, 2, 3]).first()).toEqual(1);
 });
 
+test('flatMap', () => {
+  expect(
+    iter([])
+      .flatMap(() => [])
+      .toArray()
+  ).toEqual([]);
+  expect(
+    iter([1, 2, 3])
+      .flatMap((a) => [a, a])
+      .toArray()
+  ).toEqual([1, 1, 2, 2, 3, 3]);
+  expect(
+    iter([1, 2, 3])
+      .flatMap(function* double(a) {
+        yield a;
+        yield a;
+      })
+      .toArray()
+  ).toEqual([1, 1, 2, 2, 3, 3]);
+});
+
 test('last', () => {
   expect(iter([]).last()).toEqual(undefined);
   expect(iter([1]).last()).toEqual(1);

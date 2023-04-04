@@ -162,6 +162,19 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return iterable[Symbol.iterator]().next().value;
   }
 
+  flatMap<U>(fn: (value: T, index: number) => Iterable<U>): IteratorPlus<U> {
+    const { iterable } = this;
+    return new IteratorPlusImpl(
+      (function* gen() {
+        let index = 0;
+        for (const value of iterable) {
+          yield* fn(value, index);
+          index += 1;
+        }
+      })()
+    );
+  }
+
   last(): T | undefined {
     let lastElement: T | undefined;
     for (const it of this.iterable) {
