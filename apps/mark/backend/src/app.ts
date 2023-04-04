@@ -11,6 +11,7 @@ import {
   BallotStyleId,
   ElectionDefinition,
   PrecinctId,
+  UnixTimestampInMilliseconds,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import {
@@ -52,6 +53,19 @@ function buildApi(auth: InsertedSmartCardAuthApi) {
     checkPin(input: { electionHash?: string; pin: string }) {
       return auth.checkPin(constructAuthMachineState(input), {
         pin: input.pin,
+      });
+    },
+
+    logOut(input: { electionHash?: string }) {
+      return auth.logOut(constructAuthMachineState(input));
+    },
+
+    updateSessionExpiry(input: {
+      electionHash?: string;
+      sessionExpiresAt: UnixTimestampInMilliseconds;
+    }) {
+      return auth.updateSessionExpiry(constructAuthMachineState(input), {
+        sessionExpiresAt: input.sessionExpiresAt,
       });
     },
 
