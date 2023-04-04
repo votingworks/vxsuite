@@ -342,7 +342,7 @@ test('ballot batching', async () => {
         );
       });
 
-      // Reopen polls, which should stop the current batch
+      // Reopen polls, which should start a new batch
       await apiClient.setPollsState({ pollsState: 'polls_open' });
       await waitForExpect(() => {
         expect(logger.log).toHaveBeenCalledWith(
