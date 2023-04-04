@@ -7,7 +7,6 @@ import {
 import { z } from 'zod';
 
 /**
- *
  * Parses `value` as JSON `SystemSettings` or returns an error if input is malformed
  */
 export function safeParseSystemSettings(
