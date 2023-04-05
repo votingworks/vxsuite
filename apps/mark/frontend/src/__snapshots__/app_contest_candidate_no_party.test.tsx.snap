@@ -188,16 +188,16 @@ exports[`Single Seat Contest 1`] = `
   tabindex="-1"
 >
   <div
-    class="sc-giYgFv jxDALN"
+    class="sc-cTApHj iSLYgx"
   >
     <div
       class="c1"
     >
       <div
-        class="sc-hKwCoD gmiWky"
+        class="sc-fotPbf hvTglz"
       >
         <p
-          class="sc-bdvvaa iybVtA"
+          class="sc-bqiQRQ jKCqve"
         >
           This is the
            
@@ -213,14 +213,14 @@ exports[`Single Seat Contest 1`] = `
       </div>
     </div>
     <main
-      class="sc-ezbkgU jVInCL"
+      class="sc-jObXwK jYtfDo"
     >
       <div
         class="c2"
         id="contest-header"
       >
         <div
-          class="sc-hKwCoD gmiWky"
+          class="sc-fotPbf hvTglz"
           id="audiofocus"
         >
           <h1
@@ -235,7 +235,7 @@ exports[`Single Seat Contest 1`] = `
           </h1>
           <p>
             <span
-              class="sc-bdvvaa NLRzK"
+              class="sc-bqiQRQ bIFmdQ"
             >
               Vote for 
               1
@@ -274,13 +274,13 @@ exports[`Single Seat Contest 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Joseph Barchi and Joseph Hallaren
@@ -300,13 +300,13 @@ exports[`Single Seat Contest 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Adam Cramer and Greg Vuocolo
@@ -326,13 +326,13 @@ exports[`Single Seat Contest 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Daniel Court and Amy Blumhardt
@@ -352,13 +352,13 @@ exports[`Single Seat Contest 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Alvin Boone and James Lian
@@ -378,13 +378,13 @@ exports[`Single Seat Contest 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Ashley Hildebrand-McDougall and James Garritty
@@ -404,13 +404,13 @@ exports[`Single Seat Contest 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Martin Patterson and Clay Lariviere
@@ -430,12 +430,12 @@ exports[`Single Seat Contest 1`] = `
     >
       <button
         aria-label="next contest"
-        class="sc-bqiQRQ jGTagp"
+        class="sc-llYToB gQOtdJ"
         id="next"
         type="button"
       >
         <span
-          class="sc-hBURRC gusydx"
+          class="sc-giYgFv hVfOtt"
         >
           <span
             class="c10"
@@ -446,12 +446,12 @@ exports[`Single Seat Contest 1`] = `
       </button>
       <button
         aria-label="previous contest"
-        class="sc-bqiQRQ jGTagp"
+        class="sc-llYToB gQOtdJ"
         id="previous"
         type="button"
       >
         <span
-          class="sc-hBURRC gusydx"
+          class="sc-giYgFv hVfOtt"
         >
           <span
             class="c11"
@@ -462,11 +462,11 @@ exports[`Single Seat Contest 1`] = `
       </button>
       <button
         aria-label="Change Settings"
-        class="sc-bqiQRQ jGTagp"
+        class="sc-llYToB gQOtdJ"
         type="button"
       >
         <span
-          class="sc-hBURRC gusydx"
+          class="sc-giYgFv hVfOtt"
         >
           Settings
         </span>

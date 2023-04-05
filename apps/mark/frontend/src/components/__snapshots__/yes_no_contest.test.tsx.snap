@@ -124,14 +124,14 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 
 <div>
   <main
-    class="sc-ezbkgU jVInCL"
+    class="sc-jObXwK jYtfDo"
   >
     <div
       class="c0"
       id="contest-header"
     >
       <div
-        class="sc-hKwCoD gmiWky"
+        class="sc-fotPbf hvTglz"
         id="audiofocus"
       >
         <h1
@@ -176,10 +176,10 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
             class="c5"
           >
             <div
-              class="sc-hKwCoD gmiWky"
+              class="sc-fotPbf hvTglz"
             >
               <p
-                class="sc-bdvvaa NLRzK"
+                class="sc-bqiQRQ bIFmdQ"
               >
                 <span>
                   Should fishing be banned in all city owned lakes and rivers?
@@ -208,14 +208,14 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           type="button"
         >
           <span
-            class="sc-hBURRC gusydx"
+            class="sc-giYgFv hVfOtt"
           >
             <div
-              class="sc-hKwCoD gmiWky"
+              class="sc-fotPbf hvTglz"
             >
               <p
                 aria-label=" Yes on Ballot Measure 3"
-                class="sc-bdvvaa eSpfPW"
+                class="sc-bqiQRQ eyxUBE"
               >
                 Yes
               </p>
@@ -231,14 +231,14 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           type="button"
         >
           <span
-            class="sc-hBURRC gusydx"
+            class="sc-giYgFv hVfOtt"
           >
             <div
-              class="sc-hKwCoD gmiWky"
+              class="sc-fotPbf hvTglz"
             >
               <p
                 aria-label=" No on Ballot Measure 3"
-                class="sc-bdvvaa eSpfPW"
+                class="sc-bqiQRQ eyxUBE"
               >
                 No
               </p>
@@ -423,14 +423,14 @@ exports[`supports yes/no contest displays warning when attempting to change vote
 
 <div>
   <main
-    class="sc-ezbkgU jVInCL"
+    class="sc-jObXwK jYtfDo"
   >
     <div
       class="c0"
       id="contest-header"
     >
       <div
-        class="sc-hKwCoD gmiWky"
+        class="sc-fotPbf hvTglz"
         id="audiofocus"
       >
         <h1
@@ -475,10 +475,10 @@ exports[`supports yes/no contest displays warning when attempting to change vote
             class="c5"
           >
             <div
-              class="sc-hKwCoD gmiWky"
+              class="sc-fotPbf hvTglz"
             >
               <p
-                class="sc-bdvvaa NLRzK"
+                class="sc-bqiQRQ bIFmdQ"
               >
                 <span>
                   Should fishing be banned in all city owned lakes and rivers?
@@ -507,14 +507,14 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           type="button"
         >
           <span
-            class="sc-hBURRC gusydx"
+            class="sc-giYgFv hVfOtt"
           >
             <div
-              class="sc-hKwCoD gmiWky"
+              class="sc-fotPbf hvTglz"
             >
               <p
                 aria-label="Selected, Yes on Ballot Measure 3"
-                class="sc-bdvvaa eSpfPW"
+                class="sc-bqiQRQ eyxUBE"
               >
                 Yes
               </p>
@@ -530,14 +530,14 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           type="button"
         >
           <span
-            class="sc-hBURRC gusydx"
+            class="sc-giYgFv hVfOtt"
           >
             <div
-              class="sc-hKwCoD gmiWky"
+              class="sc-fotPbf hvTglz"
             >
               <p
                 aria-label=" No on Ballot Measure 3"
-                class="sc-bdvvaa eSpfPW"
+                class="sc-bqiQRQ eyxUBE"
               >
                 No
               </p>

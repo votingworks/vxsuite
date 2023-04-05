@@ -2,13 +2,13 @@
 
 exports[`renders NotFoundPage 1`] = `
 <div
-  class="sc-giYgFv jxDALN"
+  class="sc-cTApHj iSLYgx"
 >
   <main
-    class="sc-ezbkgU jjwGyL"
+    class="sc-jObXwK hbqLlw"
   >
     <div
-      class="sc-hKwCoD dOmxmu"
+      class="sc-fotPbf kgCzfn"
     >
       <h1>
         Page Not Found.
@@ -22,11 +22,11 @@ exports[`renders NotFoundPage 1`] = `
       </p>
       <p>
         <button
-          class="sc-bqiQRQ cvycME"
+          class="sc-llYToB iUIsHk"
           type="button"
         >
           <span
-            class="sc-hBURRC gusydx"
+            class="sc-giYgFv hVfOtt"
           >
             Start Over
           </span>

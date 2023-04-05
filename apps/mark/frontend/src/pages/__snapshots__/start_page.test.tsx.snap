@@ -103,10 +103,10 @@ exports[`renders StartPage 1`] = `
 }
 
 <div
-  class="sc-giYgFv jxDALN"
+  class="sc-cTApHj iSLYgx"
 >
   <main
-    class="sc-ezbkgU gOgoiU"
+    class="sc-jObXwK iwmPPL"
   >
     <div
       aria-hidden="false"
@@ -123,7 +123,7 @@ exports[`renders StartPage 1`] = `
         />
       </div>
       <div
-        class="sc-hKwCoD dOmxmu"
+        class="sc-fotPbf kgCzfn"
       >
         <h1
           aria-label="Democratic Primary Election."
@@ -141,13 +141,13 @@ exports[`renders StartPage 1`] = `
           <br />
           <strong>
             <span
-              class="sc-gsDJrp fUIxJs"
+              class="sc-ksdxAp gMaEyZ"
             >
               Center Springfield
             </span>
              
             <span
-              class="sc-gsDJrp fUIxJs"
+              class="sc-ksdxAp gMaEyZ"
             >
               (
               12D
@@ -176,19 +176,19 @@ exports[`renders StartPage 1`] = `
     class="c3"
   >
     <div
-      class="sc-hKwCoD dOmxmu"
+      class="sc-fotPbf kgCzfn"
     >
       <p
         class="c4"
       >
         <button
           aria-label="Press the right button to advance to the first contest."
-          class="sc-bqiQRQ ihuxhx"
+          class="sc-llYToB fUiwSl"
           id="next"
           type="button"
         >
           <span
-            class="sc-hBURRC gusydx"
+            class="sc-giYgFv hVfOtt"
           >
             Start Voting
           </span>
@@ -208,38 +208,38 @@ exports[`renders StartPage 1`] = `
             Text Size
           </label>
           <span
-            class="sc-fotPbf c7"
+            class="sc-ezbkgU c7"
             data-testid="change-text-size-buttons"
           >
             <button
               aria-label=" Text Size: Small"
-              class="sc-bqiQRQ DAAqi"
+              class="sc-llYToB cpKJaq"
               type="button"
             >
               <span
-                class="sc-hBURRC gusydx"
+                class="sc-giYgFv hVfOtt"
               >
                 A
               </span>
             </button>
             <button
               aria-label="Selected Text Size: Medium"
-              class="sc-bqiQRQ dJzIjO"
+              class="sc-llYToB jNKTye"
               type="button"
             >
               <span
-                class="sc-hBURRC gusydx"
+                class="sc-giYgFv hVfOtt"
               >
                 A
               </span>
             </button>
             <button
               aria-label=" Text Size: Large"
-              class="sc-bqiQRQ DAAqi"
+              class="sc-llYToB cpKJaq"
               type="button"
             >
               <span
-                class="sc-hBURRC gusydx"
+                class="sc-giYgFv hVfOtt"
               >
                 A
               </span>
@@ -351,10 +351,10 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 <div
-  class="sc-giYgFv jxDALN"
+  class="sc-cTApHj iSLYgx"
 >
   <main
-    class="sc-ezbkgU gOgoiU"
+    class="sc-jObXwK iwmPPL"
   >
     <div
       aria-hidden="false"
@@ -529,7 +529,7 @@ exports[`renders StartPage with inline SVG 1`] = `
         </svg>
       </div>
       <div
-        class="sc-hKwCoD dOmxmu"
+        class="sc-fotPbf kgCzfn"
       >
         <h1
           aria-label=" General Election."
@@ -547,13 +547,13 @@ exports[`renders StartPage with inline SVG 1`] = `
           <br />
           <strong>
             <span
-              class="sc-gsDJrp fUIxJs"
+              class="sc-ksdxAp gMaEyZ"
             >
               Center Springfield
             </span>
              
             <span
-              class="sc-gsDJrp fUIxJs"
+              class="sc-ksdxAp gMaEyZ"
             >
               (
               12
@@ -582,19 +582,19 @@ exports[`renders StartPage with inline SVG 1`] = `
     class="c2"
   >
     <div
-      class="sc-hKwCoD dOmxmu"
+      class="sc-fotPbf kgCzfn"
     >
       <p
         class="c3"
       >
         <button
           aria-label="Press the right button to advance to the first contest."
-          class="sc-bqiQRQ ihuxhx"
+          class="sc-llYToB fUiwSl"
           id="next"
           type="button"
         >
           <span
-            class="sc-hBURRC gusydx"
+            class="sc-giYgFv hVfOtt"
           >
             Start Voting
           </span>
@@ -614,38 +614,38 @@ exports[`renders StartPage with inline SVG 1`] = `
             Text Size
           </label>
           <span
-            class="sc-fotPbf c6"
+            class="sc-ezbkgU c6"
             data-testid="change-text-size-buttons"
           >
             <button
               aria-label=" Text Size: Small"
-              class="sc-bqiQRQ DAAqi"
+              class="sc-llYToB cpKJaq"
               type="button"
             >
               <span
-                class="sc-hBURRC gusydx"
+                class="sc-giYgFv hVfOtt"
               >
                 A
               </span>
             </button>
             <button
               aria-label="Selected Text Size: Medium"
-              class="sc-bqiQRQ dJzIjO"
+              class="sc-llYToB jNKTye"
               type="button"
             >
               <span
-                class="sc-hBURRC gusydx"
+                class="sc-giYgFv hVfOtt"
               >
                 A
               </span>
             </button>
             <button
               aria-label=" Text Size: Large"
-              class="sc-bqiQRQ DAAqi"
+              class="sc-llYToB cpKJaq"
               type="button"
             >
               <span
-                class="sc-hBURRC gusydx"
+                class="sc-giYgFv hVfOtt"
               >
                 A
               </span>
@@ -757,10 +757,10 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 <div
-  class="sc-giYgFv jxDALN"
+  class="sc-cTApHj iSLYgx"
 >
   <main
-    class="sc-ezbkgU gOgoiU"
+    class="sc-jObXwK iwmPPL"
   >
     <div
       aria-hidden="false"
@@ -771,7 +771,7 @@ exports[`renders StartPage with no seal 1`] = `
         class="c1"
       />
       <div
-        class="sc-hKwCoD dOmxmu"
+        class="sc-fotPbf kgCzfn"
       >
         <h1
           aria-label=" General Election."
@@ -789,13 +789,13 @@ exports[`renders StartPage with no seal 1`] = `
           <br />
           <strong>
             <span
-              class="sc-gsDJrp fUIxJs"
+              class="sc-ksdxAp gMaEyZ"
             >
               Center Springfield
             </span>
              
             <span
-              class="sc-gsDJrp fUIxJs"
+              class="sc-ksdxAp gMaEyZ"
             >
               (
               12
@@ -824,19 +824,19 @@ exports[`renders StartPage with no seal 1`] = `
     class="c2"
   >
     <div
-      class="sc-hKwCoD dOmxmu"
+      class="sc-fotPbf kgCzfn"
     >
       <p
         class="c3"
       >
         <button
           aria-label="Press the right button to advance to the first contest."
-          class="sc-bqiQRQ ihuxhx"
+          class="sc-llYToB fUiwSl"
           id="next"
           type="button"
         >
           <span
-            class="sc-hBURRC gusydx"
+            class="sc-giYgFv hVfOtt"
           >
             Start Voting
           </span>
@@ -856,38 +856,38 @@ exports[`renders StartPage with no seal 1`] = `
             Text Size
           </label>
           <span
-            class="sc-fotPbf c6"
+            class="sc-ezbkgU c6"
             data-testid="change-text-size-buttons"
           >
             <button
               aria-label=" Text Size: Small"
-              class="sc-bqiQRQ DAAqi"
+              class="sc-llYToB cpKJaq"
               type="button"
             >
               <span
-                class="sc-hBURRC gusydx"
+                class="sc-giYgFv hVfOtt"
               >
                 A
               </span>
             </button>
             <button
               aria-label="Selected Text Size: Medium"
-              class="sc-bqiQRQ dJzIjO"
+              class="sc-llYToB jNKTye"
               type="button"
             >
               <span
-                class="sc-hBURRC gusydx"
+                class="sc-giYgFv hVfOtt"
               >
                 A
               </span>
             </button>
             <button
               aria-label=" Text Size: Large"
-              class="sc-bqiQRQ DAAqi"
+              class="sc-llYToB cpKJaq"
               type="button"
             >
               <span
-                class="sc-hBURRC gusydx"
+                class="sc-giYgFv hVfOtt"
               >
                 A
               </span>

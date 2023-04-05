@@ -177,16 +177,16 @@ exports[`Renders ContestPage 1`] = `
 
 <div>
   <div
-    class="sc-giYgFv jxDALN"
+    class="sc-cTApHj iSLYgx"
   >
     <div
       class="c0"
     >
       <div
-        class="sc-hKwCoD gmiWky"
+        class="sc-fotPbf hvTglz"
       >
         <p
-          class="sc-bdvvaa iybVtA"
+          class="sc-bqiQRQ jKCqve"
         >
           This is the
            
@@ -202,14 +202,14 @@ exports[`Renders ContestPage 1`] = `
       </div>
     </div>
     <main
-      class="sc-ezbkgU jVInCL"
+      class="sc-jObXwK jYtfDo"
     >
       <div
         class="c1"
         id="contest-header"
       >
         <div
-          class="sc-hKwCoD gmiWky"
+          class="sc-fotPbf hvTglz"
           id="audiofocus"
         >
           <h1
@@ -224,7 +224,7 @@ exports[`Renders ContestPage 1`] = `
           </h1>
           <p>
             <span
-              class="sc-bdvvaa NLRzK"
+              class="sc-bqiQRQ bIFmdQ"
             >
               Vote for 
               1
@@ -263,13 +263,13 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Joseph Barchi and Joseph Hallaren
@@ -290,13 +290,13 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Adam Cramer and Greg Vuocolo
@@ -317,13 +317,13 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Daniel Court and Amy Blumhardt
@@ -344,13 +344,13 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Alvin Boone and James Lian
@@ -371,13 +371,13 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Ashley Hildebrand-McDougall and James Garritty
@@ -398,13 +398,13 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Martin Patterson and Clay Lariviere
@@ -425,12 +425,12 @@ exports[`Renders ContestPage 1`] = `
     >
       <button
         aria-label="next contest"
-        class="sc-bqiQRQ jGTagp"
+        class="sc-llYToB gQOtdJ"
         id="next"
         type="button"
       >
         <span
-          class="sc-hBURRC gusydx"
+          class="sc-giYgFv hVfOtt"
         >
           <span
             class="c9"
@@ -441,12 +441,12 @@ exports[`Renders ContestPage 1`] = `
       </button>
       <button
         aria-label="previous contest"
-        class="sc-bqiQRQ jGTagp"
+        class="sc-llYToB gQOtdJ"
         id="previous"
         type="button"
       >
         <span
-          class="sc-hBURRC gusydx"
+          class="sc-giYgFv hVfOtt"
         >
           <span
             class="c10"
@@ -457,11 +457,11 @@ exports[`Renders ContestPage 1`] = `
       </button>
       <button
         aria-label="Change Settings"
-        class="sc-bqiQRQ jGTagp"
+        class="sc-llYToB gQOtdJ"
         type="button"
       >
         <span
-          class="sc-hBURRC gusydx"
+          class="sc-giYgFv hVfOtt"
         >
           Settings
         </span>
@@ -701,17 +701,17 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 
 <div>
   <div
-    class="sc-giYgFv keeSrJ"
+    class="sc-cTApHj dKgrkB"
   >
     <main
-      class="sc-ezbkgU jVInCL"
+      class="sc-jObXwK jYtfDo"
     >
       <div
         class="c0"
         id="contest-header"
       >
         <div
-          class="sc-hKwCoD gmiWky"
+          class="sc-fotPbf hvTglz"
           id="audiofocus"
         >
           <h1
@@ -726,7 +726,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
           </h1>
           <p>
             <span
-              class="sc-bdvvaa NLRzK"
+              class="sc-bqiQRQ bIFmdQ"
             >
               Vote for 
               1
@@ -765,13 +765,13 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Joseph Barchi and Joseph Hallaren
@@ -792,13 +792,13 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Adam Cramer and Greg Vuocolo
@@ -819,13 +819,13 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Daniel Court and Amy Blumhardt
@@ -846,13 +846,13 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Alvin Boone and James Lian
@@ -873,13 +873,13 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Ashley Hildebrand-McDougall and James Garritty
@@ -900,13 +900,13 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-hBURRC gusydx"
+                  class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-hKwCoD gmiWky"
+                    class="sc-fotPbf hvTglz"
                   >
                     <p
-                      class="sc-bdvvaa eSpfPW"
+                      class="sc-bqiQRQ eyxUBE"
                     >
                       <strong>
                         Martin Patterson and Clay Lariviere
@@ -929,10 +929,10 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
         class="c8"
       >
         <div
-          class="sc-hKwCoD gmiWky"
+          class="sc-fotPbf hvTglz"
         >
           <p
-            class="sc-bdvvaa cFJatN"
+            class="sc-bqiQRQ boCaWT"
           >
             This is the 
             <strong>
@@ -946,12 +946,12 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
           <p>
             <button
               aria-label="next contest"
-              class="sc-bqiQRQ jGTagp"
+              class="sc-llYToB gQOtdJ"
               id="next"
               type="button"
             >
               <span
-                class="sc-hBURRC gusydx"
+                class="sc-giYgFv hVfOtt"
               >
                 <span
                   class="c9"
@@ -964,12 +964,12 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
           <p>
             <button
               aria-label="previous contest"
-              class="sc-bqiQRQ DAAqi"
+              class="sc-llYToB cpKJaq"
               id="previous"
               type="button"
             >
               <span
-                class="sc-hBURRC gusydx"
+                class="sc-giYgFv hVfOtt"
               >
                 <span
                   class="c10"
@@ -989,11 +989,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
         >
           <button
             aria-label="Change Settings"
-            class="sc-bqiQRQ cvycME"
+            class="sc-llYToB iUIsHk"
             type="button"
           >
             <span
-              class="sc-hBURRC gusydx"
+              class="sc-giYgFv hVfOtt"
             >
               Settings
             </span>
@@ -1012,7 +1012,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               class="c15"
             />
             <div
-              class="sc-hKwCoD eDCLhO"
+              class="sc-fotPbf dfNDJL"
             >
               <h5
                 aria-label=" General Election."
@@ -1020,34 +1020,34 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                  General Election
               </h5>
               <p
-                class="sc-bdvvaa iybVtA"
+                class="sc-bqiQRQ jKCqve"
               >
                 November 3, 2020
                 <br />
                 <span
-                  class="sc-gsDJrp fUIxJs"
+                  class="sc-ksdxAp gMaEyZ"
                 >
                   Franklin County
                   ,
                 </span>
                  
                 <span
-                  class="sc-gsDJrp fUIxJs"
+                  class="sc-ksdxAp gMaEyZ"
                 >
                   State of Hamilton
                 </span>
               </p>
               <p
-                class="sc-bdvvaa kKHwYn"
+                class="sc-bqiQRQ lpjhJV"
               >
                 <span
-                  class="sc-gsDJrp fUIxJs"
+                  class="sc-ksdxAp gMaEyZ"
                 >
                   Center Springfield
                   , 
                 </span>
                 <span
-                  class="sc-gsDJrp fUIxJs"
+                  class="sc-ksdxAp gMaEyZ"
                 >
                   ballot style 
                   12
