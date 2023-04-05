@@ -13,8 +13,5 @@ export const MachineConfigSchema: z.ZodSchema<MachineConfig> = z.object({
 export type MachineConfigResponse = MachineConfig;
 export const MachineConfigResponseSchema = MachineConfigSchema;
 
-// Events
-export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void;
-
 // Election
 export type SetElectionDefinition = (value: ElectionDefinition) => void;

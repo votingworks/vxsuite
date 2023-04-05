@@ -3,11 +3,6 @@ import { Buffer } from 'buffer';
 import { DuplexChannel, ErrorCode, MaybePromise } from '../types';
 
 /**
- * Interactive listener for write data.
- */
-export type WriteListener = (writeData: Buffer) => MaybePromise<void>;
-
-/**
  * Listeners for actions on a {@link DuplexChannel}.
  */
 export interface DuplexChannelListeners {

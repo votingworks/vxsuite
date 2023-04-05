@@ -4,7 +4,3 @@ export function defined<T>(value?: T | null): T {
   }
   return value;
 }
-
-export function isDefined<T>(value?: T | null): value is T {
-  return value !== null && value !== undefined;
-}

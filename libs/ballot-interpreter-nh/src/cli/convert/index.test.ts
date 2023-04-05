@@ -11,7 +11,6 @@ jest.mock('../../convert');
 jest.mock('../../images', (): typeof import('../../images') => ({
   matchTemplate: jest.fn(),
   matchTemplateImage: jest.fn(),
-  scoreTemplateMatch: jest.fn(),
 }));
 jest.mock(
   '@votingworks/image-utils',

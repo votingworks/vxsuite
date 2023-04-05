@@ -7,11 +7,6 @@ import { Buffer } from 'buffer';
 export type MaybePromise<T> = T | Promise<T>;
 
 /**
- * The value of a `Promise` or the value itself.
- */
-export type Resolved<T> = T extends PromiseLike<infer U> ? U : T;
-
-/**
  * Types of releases for which the Custom scanner can return values.
  */
 export enum ReleaseType {
