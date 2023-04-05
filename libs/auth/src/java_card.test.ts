@@ -736,6 +736,7 @@ test.each<{
   programInput: Parameters<Card['program']>[0];
   expectedCardType: CardType;
   expectedCertSubject: string;
+  expectedExpiryInDays: number;
   isElectionDataWriteExpected: boolean;
   expectedCardDetailsAfterProgramming: CardDetails;
 }>([
@@ -751,6 +752,7 @@ test.each<{
       '/1.3.6.1.4.1.59817.1=card' +
       `/1.3.6.1.4.1.59817.2=${DEV_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=system-administrator/',
+    expectedExpiryInDays: 365 * 5,
     isElectionDataWriteExpected: false,
     expectedCardDetailsAfterProgramming: {
       jurisdiction: DEV_JURISDICTION,
@@ -771,6 +773,7 @@ test.each<{
       `/1.3.6.1.4.1.59817.2=${DEV_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=election-manager' +
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
+    expectedExpiryInDays: Math.round(365 * 0.5),
     isElectionDataWriteExpected: true,
     expectedCardDetailsAfterProgramming: {
       jurisdiction: DEV_JURISDICTION,
@@ -789,6 +792,7 @@ test.each<{
       `/1.3.6.1.4.1.59817.2=${DEV_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=poll-worker' +
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
+    expectedExpiryInDays: Math.round(365 * 0.5),
     isElectionDataWriteExpected: false,
     expectedCardDetailsAfterProgramming: {
       jurisdiction: DEV_JURISDICTION,
@@ -809,6 +813,7 @@ test.each<{
       `/1.3.6.1.4.1.59817.2=${DEV_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=poll-worker-with-pin' +
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
+    expectedExpiryInDays: Math.round(365 * 0.5),
     isElectionDataWriteExpected: false,
     expectedCardDetailsAfterProgramming: {
       jurisdiction: DEV_JURISDICTION,
@@ -822,6 +827,7 @@ test.each<{
     programInput,
     expectedCardType,
     expectedCertSubject,
+    expectedExpiryInDays,
     isElectionDataWriteExpected,
     expectedCardDetailsAfterProgramming,
   }) => {
@@ -870,6 +876,7 @@ test.each<{
     expect(createCert).toHaveBeenCalledTimes(1);
     expect(createCert).toHaveBeenNthCalledWith(1, {
       certSubject: expectedCertSubject,
+      expiryInDays: expectedExpiryInDays,
       opensslConfig: './certs/openssl.cnf',
       publicKeyToSign: await publicKeyDerToPem(
         fs.readFileSync(
@@ -1087,6 +1094,7 @@ test('createAndStoreCardVxCert', async () => {
   expect(createCert).toHaveBeenCalledTimes(1);
   expect(createCert).toHaveBeenNthCalledWith(1, {
     certSubject: '/C=US/ST=CA/O=VotingWorks/1.3.6.1.4.1.59817.1=card/',
+    expiryInDays: 365 * 100,
     opensslConfig: './certs/openssl.cnf',
     publicKeyToSign: await publicKeyDerToPem(
       fs.readFileSync(

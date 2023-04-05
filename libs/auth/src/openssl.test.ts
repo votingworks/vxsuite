@@ -193,13 +193,13 @@ test('openssl - provides both stderr and stdout on error', async () => {
 
 test.each<{
   certType?: 'standard' | 'certAuthorityCert';
-  expiryInDays?: number;
-  expectedSecondOpensslCallParams: string[];
+  expiryInDays: number;
+  expectedOpensslCertCreationRequestParams: string[];
 }>([
   {
     certType: undefined,
-    expiryInDays: undefined,
-    expectedSecondOpensslCallParams: [
+    expiryInDays: 1000,
+    expectedOpensslCertCreationRequestParams: [
       'x509',
       '-req',
       '-CA',
@@ -207,20 +207,20 @@ test.each<{
       '-CAkey',
       '/path/to/private-key.pem',
       '-passin',
-      `pass:1234`,
+      'pass:1234',
       '-CAcreateserial',
       '-in',
-      tempFilePaths[0],
+      tempFilePaths[1],
       '-force_pubkey',
       '/path/to/public-key.pem',
       '-days',
-      '365',
+      '1000',
     ],
   },
   {
     certType: 'certAuthorityCert',
     expiryInDays: 1000,
-    expectedSecondOpensslCallParams: [
+    expectedOpensslCertCreationRequestParams: [
       'x509',
       '-req',
       '-CA',
@@ -228,10 +228,10 @@ test.each<{
       '-CAkey',
       '/path/to/private-key.pem',
       '-passin',
-      `pass:1234`,
+      'pass:1234',
       '-CAcreateserial',
       '-in',
-      tempFilePaths[0],
+      tempFilePaths[1],
       '-force_pubkey',
       '/path/to/public-key.pem',
       '-days',
@@ -244,7 +244,14 @@ test.each<{
   },
 ])(
   'createCert - certType = $certType, expiryInDays = $expiryInDays',
-  async ({ certType, expiryInDays, expectedSecondOpensslCallParams }) => {
+  async ({
+    certType,
+    expiryInDays,
+    expectedOpensslCertCreationRequestParams,
+  }) => {
+    setTimeout(() => {
+      mockChildProcess.emit('close', 0);
+    });
     setTimeout(() => {
       mockChildProcess.emit('close', 0);
     });
@@ -263,23 +270,28 @@ test.each<{
       signingPrivateKeyPassword: '1234',
     });
 
-    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledTimes(3);
     expect(spawn).toHaveBeenNthCalledWith(1, 'openssl', [
+      'ecparam',
+      '-genkey',
+      '-name',
+      'prime256v1',
+      '-noout',
+    ]);
+    expect(spawn).toHaveBeenNthCalledWith(2, 'openssl', [
       'req',
       '-new',
       '-config',
       '/path/to/openssl.cnf',
       '-key',
-      '/path/to/private-key.pem',
-      '-passin',
-      'pass:1234',
+      tempFilePaths[0],
       '-subj',
       '//',
     ]);
     expect(spawn).toHaveBeenNthCalledWith(
-      2,
+      3,
       'openssl',
-      expectedSecondOpensslCallParams
+      expectedOpensslCertCreationRequestParams
     );
   }
 );
