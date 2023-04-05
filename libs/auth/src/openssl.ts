@@ -208,15 +208,23 @@ export async function createCert({
   signingPrivateKey: FilePathOrBuffer;
   signingPrivateKeyPassword: string;
 }): Promise<Buffer> {
+  // TODO: Instead of using a throwaway private key to generate the cert signing request and
+  // injecting the public key we want using -force_pubkey, have the relevant HSM (Java Card, TPM,
+  // etc.) generate the cert signing request
+  const throwawayPrivateKey = await openssl([
+    'ecparam',
+    '-genkey',
+    '-name',
+    'prime256v1',
+    '-noout',
+  ]);
   const certSigningRequest = await openssl([
     'req',
     '-new',
     '-config',
     opensslConfig,
     '-key',
-    signingPrivateKey,
-    '-passin',
-    `pass:${signingPrivateKeyPassword}`,
+    throwawayPrivateKey,
     '-subj',
     certSubject,
   ]);
