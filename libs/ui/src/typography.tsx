@@ -70,7 +70,6 @@ const StyledCaption = styled.span<FontProps>`
   ${fontStyles}
 
   font-size: 0.75rem;
-  margin-bottom: 0.35em;
 `;
 
 const StyledP = styled.p<FontProps>`

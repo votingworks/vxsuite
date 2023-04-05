@@ -23,6 +23,8 @@ const darkModeSealStyles = css`
 `;
 
 const SealContainer = styled.div`
+  height: 100%;
+  max-height: ${sealMaxWidth};
   max-width: ${sealMaxWidth};
   position: relative;
   width: 100%;
