@@ -3,7 +3,6 @@ import { CenteredLargeProse, Text } from '@votingworks/ui';
 import { PollsState } from '@votingworks/types';
 import { DoNotEnter } from '../components/graphics';
 import { ScreenMainCenterChild } from '../components/layout';
-import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
 export interface PollsNotOpenScreenProps {
   isLiveMode: boolean;
@@ -19,7 +18,11 @@ export function PollsNotOpenScreen({
   scannedBallotCount,
 }: PollsNotOpenScreenProps): JSX.Element {
   return (
-    <ScreenMainCenterChild isLiveMode={isLiveMode} infoBarMode="pollworker">
+    <ScreenMainCenterChild
+      isLiveMode={isLiveMode}
+      infoBarMode="pollworker"
+      ballotCountOverride={scannedBallotCount}
+    >
       <DoNotEnter />
       <CenteredLargeProse>
         <h1>
@@ -37,7 +40,6 @@ export function PollsNotOpenScreen({
           </Text>
         )}
       </CenteredLargeProse>
-      <ScannedBallotCount count={scannedBallotCount} />
     </ScreenMainCenterChild>
   );
 }

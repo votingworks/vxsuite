@@ -6,9 +6,11 @@ import {
   InfoBarMode,
   TestMode,
 } from '@votingworks/ui';
-import { getConfig, getMachineConfig } from '../api';
+import { getConfig, getMachineConfig, getScannerStatus } from '../api';
+import { ScannedBallotCount } from './scanned_ballot_count';
 
 interface CenteredScreenProps {
+  ballotCountOverride?: number;
   children: React.ReactNode;
   infoBar?: boolean;
   isLiveMode?: boolean;
@@ -16,6 +18,7 @@ interface CenteredScreenProps {
 }
 
 export function ScreenMainCenterChild({
+  ballotCountOverride,
   children,
   infoBar = true,
   infoBarMode,
@@ -23,6 +26,7 @@ export function ScreenMainCenterChild({
 }: CenteredScreenProps): JSX.Element | null {
   const machineConfigQuery = getMachineConfig.useQuery();
   const configQuery = getConfig.useQuery();
+  const scannerStatusQuery = getScannerStatus.useQuery();
 
   if (!(machineConfigQuery.isSuccess && configQuery.isSuccess)) {
     return null;
@@ -30,10 +34,13 @@ export function ScreenMainCenterChild({
 
   const { codeVersion, machineId } = machineConfigQuery.data;
   const { electionDefinition, precinctSelection } = configQuery.data;
+  const ballotCount =
+    ballotCountOverride ?? scannerStatusQuery.data?.ballotsCounted;
 
   return (
     <Screen>
       {!isLiveMode && <TestMode />}
+      {ballotCount !== undefined && <ScannedBallotCount count={ballotCount} />}
       <Main padded centerChild style={{ position: 'relative' }}>
         {children}
       </Main>

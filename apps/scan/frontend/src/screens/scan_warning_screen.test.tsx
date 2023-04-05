@@ -14,6 +14,7 @@ import {
   ApiMock,
   createApiMock,
   provideApi,
+  statusNoPaper,
 } from '../../test/helpers/mock_api_client';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
@@ -29,6 +30,7 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig();
+  apiMock.expectGetScannerStatus(statusNoPaper);
 });
 
 afterEach(() => {

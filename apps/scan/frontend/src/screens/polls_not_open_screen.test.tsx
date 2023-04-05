@@ -10,6 +10,7 @@ import {
   createApiMock,
   machineConfig,
   provideApi,
+  statusNoPaper,
 } from '../../test/helpers/mock_api_client';
 
 const TEST_BALLOT_COUNT = 50;
@@ -22,6 +23,7 @@ beforeEach(() => {
   apiMock.expectGetConfig({
     precinctSelection: singlePrecinctSelectionFor('23'),
   });
+  apiMock.expectGetScannerStatus(statusNoPaper);
 });
 
 afterEach(() => {

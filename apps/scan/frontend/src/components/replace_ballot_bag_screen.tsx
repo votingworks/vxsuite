@@ -6,7 +6,6 @@ import {
   useExternalStateChangeListener,
 } from '@votingworks/ui';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import { ScannedBallotCount } from './scanned_ballot_count';
 import { ScreenMainCenterChild } from './layout';
 import { BALLOT_BAG_CAPACITY } from '../config/globals';
 import { ExclamationTriangle } from './graphics';
@@ -92,8 +91,10 @@ export function ReplaceBallotBagScreen({
   })();
 
   return (
-    <ScreenMainCenterChild infoBar={false}>
-      <ScannedBallotCount count={scannedBallotCount} />
+    <ScreenMainCenterChild
+      infoBar={false}
+      ballotCountOverride={scannedBallotCount}
+    >
       {mainContent}
     </ScreenMainCenterChild>
   );

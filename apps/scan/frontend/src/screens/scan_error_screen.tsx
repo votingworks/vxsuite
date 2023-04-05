@@ -8,7 +8,6 @@ import type {
 } from '@votingworks/scan-backend';
 import { TimesCircle } from '../components/graphics';
 import { ScreenMainCenterChild } from '../components/layout';
-import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
 export interface Props {
   error?: InvalidInterpretationReason | PrecinctScannerErrorType;
@@ -60,7 +59,11 @@ export function ScanErrorScreen({
     }
   })();
   return (
-    <ScreenMainCenterChild isLiveMode={!isTestMode} infoBar={false}>
+    <ScreenMainCenterChild
+      isLiveMode={!isTestMode}
+      infoBar={false}
+      ballotCountOverride={scannedBallotCount}
+    >
       <TimesCircle />
       <CenteredLargeProse>
         <h1>Ballot Not Counted</h1>
@@ -73,7 +76,6 @@ export function ScanErrorScreen({
           </Text>
         )}
       </CenteredLargeProse>
-      <ScannedBallotCount count={scannedBallotCount} />
     </ScreenMainCenterChild>
   );
 }

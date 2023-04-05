@@ -1,7 +1,6 @@
 import React from 'react';
 import { CenteredLargeProse, InsertBallotImage, Text } from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
-import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
 interface Props {
   isLiveMode: boolean;
@@ -15,7 +14,10 @@ export function InsertBallotScreen({
   showNoChargerWarning,
 }: Props): JSX.Element {
   return (
-    <ScreenMainCenterChild isLiveMode={isLiveMode}>
+    <ScreenMainCenterChild
+      isLiveMode={isLiveMode}
+      ballotCountOverride={scannedBallotCount}
+    >
       <InsertBallotImage />
       <CenteredLargeProse>
         <h1>Insert Your Ballot Below</h1>
@@ -27,7 +29,6 @@ export function InsertBallotScreen({
           </Text>
         )}
       </CenteredLargeProse>
-      <ScannedBallotCount count={scannedBallotCount} />
     </ScreenMainCenterChild>
   );
 }

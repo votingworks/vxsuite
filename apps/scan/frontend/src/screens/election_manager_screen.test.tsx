@@ -37,6 +37,7 @@ beforeEach(() => {
   window.kiosk = fakeKiosk();
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetScannerStatus(statusNoPaper);
 });
 
 afterEach(() => {

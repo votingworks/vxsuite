@@ -60,7 +60,6 @@ import { ScreenMainCenterChild } from '../components/layout';
 import { LiveCheckModal } from '../components/live_check_modal';
 
 import { TimesCircle } from '../components/graphics';
-import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { rootDebug } from '../utils/debug';
 import {
   exportCastVoteRecordsToUsbDrive,
@@ -665,7 +664,6 @@ export function PollWorkerScreen({
           </p>
         )}
       </Prose>
-      <ScannedBallotCount count={scannedBallotCount} />
       {isShowingLiveCheck && (
         <LiveCheckModal
           machineConfig={machineConfig}

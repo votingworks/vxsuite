@@ -5,6 +5,7 @@ import {
   ApiMock,
   createApiMock,
   provideApi,
+  statusNoPaper,
 } from '../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -13,6 +14,7 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig();
+  apiMock.expectGetScannerStatus(statusNoPaper);
 });
 
 afterEach(() => {
