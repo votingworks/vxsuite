@@ -1,5 +1,7 @@
+import { throwIllegalValue } from '@votingworks/basics';
 import { SetScanParametersRequestData } from './protocol';
 import {
+  DoubleSheetDetectOpt,
   ImageResolution,
   ScanParameters,
   UltrasonicSensorLevelInternal,
@@ -35,6 +37,28 @@ const resolutionPropsMap: Record<number, ResolutionProps> = {
 };
 
 /**
+ * Converts the high-level double sheet detection parameter to the specific internal ultrasonic level desired
+ */
+function convertToUltrasonicSensorLevelInternal(
+  option: DoubleSheetDetectOpt
+): UltrasonicSensorLevelInternal {
+  switch (option) {
+    case DoubleSheetDetectOpt.Level1:
+    case DoubleSheetDetectOpt.DetectOff:
+      return UltrasonicSensorLevelInternal.Level1;
+    case DoubleSheetDetectOpt.Level2:
+      return UltrasonicSensorLevelInternal.Level2;
+    case DoubleSheetDetectOpt.Level3:
+      return UltrasonicSensorLevelInternal.Level3;
+    case DoubleSheetDetectOpt.Level4:
+      return UltrasonicSensorLevelInternal.Level4;
+    // istanbul ignore next
+    default:
+      throwIllegalValue(option);
+  }
+}
+
+/**
  * Converts the high-level scan parameters to the low-level internal scan parameters.
  */
 export function convertToInternalScanParameters(
@@ -63,8 +87,11 @@ export function convertToInternalScanParameters(
     acquireLampOff: false,
     acquireNoPaperSensor: true,
     acquireMotorOff: false,
-    ultrasonicSensorLevel: UltrasonicSensorLevelInternal.Level1,
-    disableUltrasonicSensor: false,
+    ultrasonicSensorLevel: convertToUltrasonicSensorLevelInternal(
+      scanParameters.doubleSheetDetection
+    ),
+    disableUltrasonicSensor:
+      scanParameters.doubleSheetDetection === DoubleSheetDetectOpt.DetectOff,
     disableHardwareDeskew: true,
     formStandingAfterScan: scanParameters.formStandingAfterScan,
     wantedScanSide: scanParameters.wantedScanSide,
