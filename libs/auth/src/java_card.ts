@@ -27,6 +27,7 @@ import {
 } from './card';
 import { CardReader } from './card_reader';
 import {
+  CERT_EXPIRY_IN_DAYS,
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
   parseCardDetailsFromCert,
@@ -293,6 +294,10 @@ export class JavaCard implements Card {
     }
     const cardVxAdminCert = await createCert({
       certSubject: constructCardCertSubject(cardDetails),
+      expiryInDays:
+        user.role === 'system_administrator'
+          ? CERT_EXPIRY_IN_DAYS.SYSTEM_ADMINISTRATOR_CARD_VX_ADMIN_CERT
+          : CERT_EXPIRY_IN_DAYS.ELECTION_CARD_VX_ADMIN_CERT,
       opensslConfig: vxAdminOpensslConfigPath,
       publicKeyToSign: publicKey,
       signingCertAuthorityCert: vxAdminCertAuthorityCertPath,
@@ -709,6 +714,7 @@ export class JavaCard implements Card {
     );
     const cardVxCert = await createCert({
       certSubject: constructCardCertSubjectWithoutJurisdictionAndCardType(),
+      expiryInDays: CERT_EXPIRY_IN_DAYS.CARD_VX_CERT,
       opensslConfig: input.vxOpensslConfigPath,
       publicKeyToSign: publicKey,
       signingCertAuthorityCert: this.vxCertAuthorityCertPath,

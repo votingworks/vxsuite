@@ -192,7 +192,7 @@ export async function verifySignature({
 export async function createCert({
   certSubject,
   certType = 'standard',
-  expiryInDays = 365,
+  expiryInDays,
   opensslConfig,
   publicKeyToSign,
   signingCertAuthorityCert,
@@ -201,7 +201,7 @@ export async function createCert({
 }: {
   certSubject: string;
   certType?: 'standard' | 'certAuthorityCert';
-  expiryInDays?: number;
+  expiryInDays: number;
   opensslConfig: FilePathOrBuffer;
   publicKeyToSign: FilePathOrBuffer;
   signingCertAuthorityCert: FilePathOrBuffer;

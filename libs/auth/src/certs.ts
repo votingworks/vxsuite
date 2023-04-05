@@ -70,10 +70,15 @@ const CustomCertFieldsSchema: z.ZodSchema<CustomCertFields> = z.object({
 });
 
 /**
- * Cert expiries in days
+ * Cert expiries in days. Must be integers.
  */
 export const CERT_EXPIRY_IN_DAYS = {
-  DEV: 36500, // ~100 years
+  CARD_VX_CERT: 365 * 100, // 100 years
+  SYSTEM_ADMINISTRATOR_CARD_VX_ADMIN_CERT: 365 * 5, // 5 years
+  ELECTION_CARD_VX_ADMIN_CERT: Math.round(365 * 0.5), // 6 months
+
+  /** Used by dev/test cert-generation scripts */
+  DEV: 365 * 100, // 100 years
 } as const;
 
 /**
