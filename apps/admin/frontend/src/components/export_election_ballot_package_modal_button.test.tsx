@@ -1,6 +1,11 @@
 import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { fakeKiosk, fakeUsbDrive, mockOf } from '@votingworks/test-utils';
+import {
+  fakeFileWriter,
+  fakeKiosk,
+  fakeUsbDrive,
+  mockOf,
+} from '@votingworks/test-utils';
 import React from 'react';
 import { BallotPageLayoutWithImage, BallotType } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
@@ -12,7 +17,6 @@ import {
   waitFor,
   within,
 } from '../../test/react_testing_library';
-import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import {
   eitherNeitherElectionDefinition,
   renderInAppContext,

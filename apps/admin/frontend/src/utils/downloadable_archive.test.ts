@@ -1,5 +1,4 @@
-import { fakeKiosk } from '@votingworks/test-utils';
-import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
+import { fakeFileWriter, fakeKiosk } from '@votingworks/test-utils';
 import { DownloadableArchive } from './downloadable_archive';
 
 // https://en.wikipedia.org/wiki/List_of_file_signatures

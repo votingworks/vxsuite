@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { BallotPaperSize, Printer } from '@votingworks/types';
 import {
   expectPrint,
+  fakeFileWriter,
   fakeKiosk,
   fakePrinter,
   fakePrinterInfo,
@@ -16,7 +17,6 @@ import {
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { screen, waitFor } from '../../test/react_testing_library';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
-import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 
 import {
   LAST_PRINT_JOB_SLEEP_MS,
