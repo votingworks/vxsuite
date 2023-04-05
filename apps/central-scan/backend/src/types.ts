@@ -15,6 +15,9 @@ export interface BallotPageQrcode {
 
 export interface BallotConfig extends BallotStyleData {
   filename: string;
+  /**
+   * @deprecated to be replaced (https://github.com/votingworks/roadmap/issues/15)
+   */
   locales: BallotLocale;
   isLiveMode: boolean;
 }

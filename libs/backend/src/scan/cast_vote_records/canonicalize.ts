@@ -29,6 +29,9 @@ export enum SheetValidationErrorType {
   MismatchedBallotStyle = 'MismatchedBallotStyle',
   MismatchedBallotType = 'MismatchedBallotType',
   MismatchedElectionHash = 'MismatchedElectionHash',
+  /**
+   * @deprecated to be replaced (https://github.com/votingworks/roadmap/issues/15)
+   */
   MismatchedLocales = 'MismatchedLocales',
   MismatchedPrecinct = 'MismatchedPrecinct',
   NonConsecutivePages = 'NonConsecutivePages',

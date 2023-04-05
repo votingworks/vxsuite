@@ -150,6 +150,9 @@ export interface BallotConfig {
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   isTestMode: boolean;
+  /**
+   * @deprecated to be replaced (https://github.com/votingworks/roadmap/issues/15)
+   */
   locales?: BallotLocale;
   pageNumber?: number;
   precinctId: PrecinctId;

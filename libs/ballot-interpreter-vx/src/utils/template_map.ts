@@ -6,6 +6,9 @@ import {
 import { KeyedMap } from './keyed_map';
 
 export type TemplateMapKey = [
+  /**
+   * @deprecated to be replaced (https://github.com/votingworks/roadmap/issues/15)
+   */
   locales: BallotLocale | undefined,
   ballotStyleId: BallotPageMetadata['ballotStyleId'],
   precinctId: BallotPageMetadata['precinctId'],
