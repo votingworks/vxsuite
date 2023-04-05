@@ -44,7 +44,7 @@ export function BigMetric(props: BigMetricProps): JSX.Element {
 
   return (
     <StyledContainer>
-      <LabelledText aria-hidden label={label}>
+      <LabelledText label={<span aria-hidden>{label}</span>}>
         <StyledValue
           aria-label={formattedLabel}
           data-testid={valueElementTestId}
