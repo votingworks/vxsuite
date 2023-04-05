@@ -44,7 +44,7 @@ function typeIsBoolean(type: ts.Type): boolean {
 
 const rule: TSESLint.RuleModule<
   'assertStringOrNumber' | 'assertObject',
-  Array<{ objects: boolean; asserts: string[] }>
+  Options[]
 > = createRule({
   name: 'no-assert-truthiness',
   meta: {
