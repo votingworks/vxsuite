@@ -1,23 +1,82 @@
 {
   "title": "2019 Primary",
   "state": "State of Mississippi",
-  "county": { "id": "10", "name": "Choctaw County" },
+  "county": {
+    "id": "10",
+    "name": "Choctaw County"
+  },
   "date": "8/6/2019",
   "parties": [
-    { "id": "2", "name": "Democrat", "abbrev": "D" },
-    { "id": "3", "name": "Republican", "abbrev": "R" },
-    { "id": "4", "name": "Libertarian", "abbrev": "L" },
-    { "id": "5", "name": "Reform", "abbrev": "REF" },
-    { "id": "6", "name": "Natural Law", "abbrev": "N" },
-    { "id": "8", "name": "Constitution", "abbrev": "C" },
-    { "id": "9", "name": "Green", "abbrev": "G" },
-    { "id": "10", "name": "America First", "abbrev": "A" },
-    { "id": "11", "name": "Independent", "abbrev": "I" },
-    { "id": "12", "name": "Nonpartisan", "abbrev": "NP" },
-    { "id": "575000001", "name": "Justice", "abbrev": "JUS" },
-    { "id": "575000002", "name": "Prohibition", "abbrev": "PRO" },
-    { "id": "575000003", "name": "American Delta", "abbrev": "ADP" },
-    { "id": "575000004", "name": "Veterans", "abbrev": "VET" }
+    {
+      "id": "2",
+      "name": "Democrat",
+      "abbrev": "D"
+    },
+    {
+      "id": "3",
+      "name": "Republican",
+      "abbrev": "R"
+    },
+    {
+      "id": "4",
+      "name": "Libertarian",
+      "abbrev": "L"
+    },
+    {
+      "id": "5",
+      "name": "Reform",
+      "abbrev": "REF"
+    },
+    {
+      "id": "6",
+      "name": "Natural Law",
+      "abbrev": "N"
+    },
+    {
+      "id": "8",
+      "name": "Constitution",
+      "abbrev": "C"
+    },
+    {
+      "id": "9",
+      "name": "Green",
+      "abbrev": "G"
+    },
+    {
+      "id": "10",
+      "name": "America First",
+      "abbrev": "A"
+    },
+    {
+      "id": "11",
+      "name": "Independent",
+      "abbrev": "I"
+    },
+    {
+      "id": "12",
+      "name": "Nonpartisan",
+      "abbrev": "NP"
+    },
+    {
+      "id": "575000001",
+      "name": "Justice",
+      "abbrev": "JUS"
+    },
+    {
+      "id": "575000002",
+      "name": "Prohibition",
+      "abbrev": "PRO"
+    },
+    {
+      "id": "575000003",
+      "name": "American Delta",
+      "abbrev": "ADP"
+    },
+    {
+      "id": "575000004",
+      "name": "Veterans",
+      "abbrev": "VET"
+    }
   ],
   "contests": [
     {
@@ -30,18 +89,46 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "575030386", "name": "Michael Brown", "partyId": "2" },
+        {
+          "id": "575030386",
+          "name": "Michael Brown",
+          "partyIds": ["2"]
+        },
         {
           "id": "575030387",
           "name": "William Bond Compton Jr.",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
-        { "id": "575030388", "name": "Jim Hood", "partyId": "2" },
-        { "id": "575030389", "name": "Robert J. Ray", "partyId": "2" },
-        { "id": "575030390", "name": "Robert Shuler Smith", "partyId": "2" },
-        { "id": "575030391", "name": "Gregory Wash", "partyId": "2" },
-        { "id": "575030396", "name": "Velesha P. Williams", "partyId": "2" },
-        { "id": "575030394", "name": "Albert Wilson", "partyId": "2" }
+        {
+          "id": "575030388",
+          "name": "Jim Hood",
+          "partyIds": ["2"]
+        },
+        {
+          "id": "575030389",
+          "name": "Robert J. Ray",
+          "partyIds": ["2"]
+        },
+        {
+          "id": "575030390",
+          "name": "Robert Shuler Smith",
+          "partyIds": ["2"]
+        },
+        {
+          "id": "575030391",
+          "name": "Gregory Wash",
+          "partyIds": ["2"]
+        },
+        {
+          "id": "575030396",
+          "name": "Velesha P. Williams",
+          "partyIds": ["2"]
+        },
+        {
+          "id": "575030394",
+          "name": "Albert Wilson",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -54,7 +141,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "575030432", "name": "Jay Hughes", "partyId": "2" }
+        {
+          "id": "575030432",
+          "name": "Jay Hughes",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -67,8 +158,16 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "575030397", "name": "Johnny DuPree", "partyId": "2" },
-        { "id": "575030399", "name": "Maryra Hodges Hunt", "partyId": "2" }
+        {
+          "id": "575030397",
+          "name": "Johnny DuPree",
+          "partyIds": ["2"]
+        },
+        {
+          "id": "575030399",
+          "name": "Maryra Hodges Hunt",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -81,7 +180,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "575030435", "name": "Jennifer Riley Collins", "partyId": "2" }
+        {
+          "id": "575030435",
+          "name": "Jennifer Riley Collins",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -94,7 +197,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "575030433", "name": "Addie Lee Green", "partyId": "2" }
+        {
+          "id": "575030433",
+          "name": "Addie Lee Green",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -107,7 +214,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029339", "name": "Rickey L. Cole", "partyId": "2" }
+        {
+          "id": "775029339",
+          "name": "Rickey L. Cole",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -120,7 +231,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "575030434", "name": "Robert E. Amos", "partyId": "2" }
+        {
+          "id": "575030434",
+          "name": "Robert E. Amos",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -133,7 +248,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "575030437", "name": "Brandon Presley", "partyId": "2" }
+        {
+          "id": "575030437",
+          "name": "Brandon Presley",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -146,7 +265,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "575030438", "name": "Joe T. 'Joey' Grist", "partyId": "2" }
+        {
+          "id": "575030438",
+          "name": "Joe T. 'Joey' Grist",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -159,7 +282,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "575030419", "name": "Doug Evans", "partyId": "2" }
+        {
+          "id": "575030419",
+          "name": "Doug Evans",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -172,7 +299,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029734", "name": "Steve Montgomery", "partyId": "2" }
+        {
+          "id": "775029734",
+          "name": "Steve Montgomery",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -185,7 +316,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029871", "name": "Keith Coleman", "partyId": "2" }
+        {
+          "id": "775029871",
+          "name": "Keith Coleman",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -198,8 +333,16 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029873", "name": "Brandon Busby", "partyId": "2" },
-        { "id": "775029872", "name": "Doug McHan", "partyId": "2" }
+        {
+          "id": "775029873",
+          "name": "Brandon Busby",
+          "partyIds": ["2"]
+        },
+        {
+          "id": "775029872",
+          "name": "Doug McHan",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -212,7 +355,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029890", "name": "Lori Power Kerr", "partyId": "2" }
+        {
+          "id": "775029890",
+          "name": "Lori Power Kerr",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -225,8 +372,16 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029898", "name": "Larry Jobe", "partyId": "2" },
-        { "id": "775029912", "name": "Joey Stephenson", "partyId": "2" }
+        {
+          "id": "775029898",
+          "name": "Larry Jobe",
+          "partyIds": ["2"]
+        },
+        {
+          "id": "775029912",
+          "name": "Joey Stephenson",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -239,8 +394,16 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029924", "name": "Robert 'Bobby' Bright", "partyId": "2" },
-        { "id": "775029926", "name": "Henry L. Brown", "partyId": "2" }
+        {
+          "id": "775029924",
+          "name": "Robert 'Bobby' Bright",
+          "partyIds": ["2"]
+        },
+        {
+          "id": "775029926",
+          "name": "Henry L. Brown",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -253,7 +416,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029932", "name": "Mitch Weeks", "partyId": "2" }
+        {
+          "id": "775029932",
+          "name": "Mitch Weeks",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -269,10 +436,18 @@
         {
           "id": "775029940",
           "name": "Antonius 'Tony' Kimbrough",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
-        { "id": "775029941", "name": "John Avery Shumaker", "partyId": "2" },
-        { "id": "775029943", "name": "Ryan Hunter Vowell", "partyId": "2" }
+        {
+          "id": "775029941",
+          "name": "John Avery Shumaker",
+          "partyIds": ["2"]
+        },
+        {
+          "id": "775029943",
+          "name": "Ryan Hunter Vowell",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -285,8 +460,16 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029959", "name": "Charlie B. Edwards", "partyId": "2" },
-        { "id": "775029962", "name": "William D. 'Bill' Peden", "partyId": "2" }
+        {
+          "id": "775029959",
+          "name": "Charlie B. Edwards",
+          "partyIds": ["2"]
+        },
+        {
+          "id": "775029962",
+          "name": "William D. 'Bill' Peden",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -302,7 +485,7 @@
         {
           "id": "775029970",
           "name": "William A. 'Andy' Stephenson",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -316,8 +499,16 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029972", "name": "Jan Hutchinson", "partyId": "2" },
-        { "id": "775029974", "name": "Teresa Weeks", "partyId": "2" }
+        {
+          "id": "775029972",
+          "name": "Jan Hutchinson",
+          "partyIds": ["2"]
+        },
+        {
+          "id": "775029974",
+          "name": "Teresa Weeks",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -330,8 +521,16 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029992", "name": "Roy Dun Carter", "partyId": "2" },
-        { "id": "775029994", "name": "Christopher R. Coleman", "partyId": "2" }
+        {
+          "id": "775029992",
+          "name": "Roy Dun Carter",
+          "partyIds": ["2"]
+        },
+        {
+          "id": "775029994",
+          "name": "Christopher R. Coleman",
+          "partyIds": ["2"]
+        }
       ]
     },
     {
@@ -344,9 +543,21 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029042", "name": "Robert Foster", "partyId": "3" },
-        { "id": "775029043", "name": "Tate Reeves", "partyId": "3" },
-        { "id": "775029044", "name": "Bill Waller Jr.", "partyId": "3" }
+        {
+          "id": "775029042",
+          "name": "Robert Foster",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "775029043",
+          "name": "Tate Reeves",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "775029044",
+          "name": "Bill Waller Jr.",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -359,8 +570,16 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029045", "name": "Delbert Hosemann", "partyId": "3" },
-        { "id": "775029046", "name": "Shane Quick", "partyId": "3" }
+        {
+          "id": "775029045",
+          "name": "Delbert Hosemann",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "775029046",
+          "name": "Shane Quick",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -373,8 +592,16 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029047", "name": "Sam Britton", "partyId": "3" },
-        { "id": "775029048", "name": "Michael Watson", "partyId": "3" }
+        {
+          "id": "775029047",
+          "name": "Sam Britton",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "775029048",
+          "name": "Michael Watson",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -387,9 +614,21 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029049", "name": "Mark Baker", "partyId": "3" },
-        { "id": "775029050", "name": "Lynn Fitch", "partyId": "3" },
-        { "id": "775029051", "name": "Andy Taggart", "partyId": "3" }
+        {
+          "id": "775029049",
+          "name": "Mark Baker",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "775029050",
+          "name": "Lynn Fitch",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "775029051",
+          "name": "Andy Taggart",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -402,7 +641,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029054", "name": "Shad White", "partyId": "3" }
+        {
+          "id": "775029054",
+          "name": "Shad White",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -418,9 +661,13 @@
         {
           "id": "775029052",
           "name": "Eugene S. 'Buck' Clarke",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
-        { "id": "775029053", "name": "David McRae", "partyId": "3" }
+        {
+          "id": "775029053",
+          "name": "David McRae",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -433,7 +680,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029055", "name": "Andy Gipson", "partyId": "3" }
+        {
+          "id": "775029055",
+          "name": "Andy Gipson",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -446,7 +697,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "575030363", "name": "Mike Chaney", "partyId": "3" }
+        {
+          "id": "575030363",
+          "name": "Mike Chaney",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -459,11 +714,31 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "575030364", "name": "Trey Bowman", "partyId": "3" },
-        { "id": "575030365", "name": "John Caldwell", "partyId": "3" },
-        { "id": "575030368", "name": "E. A. Hathcock", "partyId": "3" },
-        { "id": "575030366", "name": "Jeremy A. Martin", "partyId": "3" },
-        { "id": "575030367", "name": "Geoffrey O. Yoste", "partyId": "3" }
+        {
+          "id": "575030364",
+          "name": "Trey Bowman",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "575030365",
+          "name": "John Caldwell",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "575030368",
+          "name": "E. A. Hathcock",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "575030366",
+          "name": "Jeremy A. Martin",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "575030367",
+          "name": "Geoffrey O. Yoste",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -476,7 +751,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775028891", "name": "Gary Jackson", "partyId": "3" }
+        {
+          "id": "775028891",
+          "name": "Gary Jackson",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -489,8 +768,16 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775028957", "name": "Joey Hood", "partyId": "3" },
-        { "id": "775028958", "name": "William 'Billy' Tabb", "partyId": "3" }
+        {
+          "id": "775028957",
+          "name": "Joey Hood",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "775028958",
+          "name": "William 'Billy' Tabb",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -503,7 +790,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029868", "name": "Kenny King", "partyId": "3" }
+        {
+          "id": "775029868",
+          "name": "Kenny King",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -516,7 +807,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029869", "name": "Amy Burdine", "partyId": "3" }
+        {
+          "id": "775029869",
+          "name": "Amy Burdine",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -529,7 +824,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029881", "name": "Kevin Connell", "partyId": "3" }
+        {
+          "id": "775029881",
+          "name": "Kevin Connell",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -542,7 +841,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029896", "name": "Warren Miles", "partyId": "3" }
+        {
+          "id": "775029896",
+          "name": "Warren Miles",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -555,9 +858,21 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029914", "name": "Greg Fondren", "partyId": "3" },
-        { "id": "775029917", "name": "Paul 'Stacey' Johnson", "partyId": "3" },
-        { "id": "775029922", "name": "Robin U. Woods", "partyId": "3" }
+        {
+          "id": "775029914",
+          "name": "Greg Fondren",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "775029917",
+          "name": "Paul 'Stacey' Johnson",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "775029922",
+          "name": "Robin U. Woods",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -570,7 +885,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029927", "name": "Chris McIntire", "partyId": "3" }
+        {
+          "id": "775029927",
+          "name": "Chris McIntire",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -583,7 +902,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029947", "name": "Bobby Burton", "partyId": "3" }
+        {
+          "id": "775029947",
+          "name": "Bobby Burton",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -596,8 +919,16 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029965", "name": "Mark Bruce", "partyId": "3" },
-        { "id": "775029966", "name": "Eric B. Chambers", "partyId": "3" }
+        {
+          "id": "775029965",
+          "name": "Mark Bruce",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "775029966",
+          "name": "Eric B. Chambers",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -610,7 +941,11 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029968", "name": "Phillip Smith", "partyId": "3" }
+        {
+          "id": "775029968",
+          "name": "Phillip Smith",
+          "partyIds": ["3"]
+        }
       ]
     },
     {
@@ -623,43 +958,138 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775029986", "name": "Justin L. Gates", "partyId": "3" },
-        { "id": "775029988", "name": "Thomas Harold Raybourn", "partyId": "3" }
+        {
+          "id": "775029986",
+          "name": "Justin L. Gates",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "775029988",
+          "name": "Thomas Harold Raybourn",
+          "partyIds": ["3"]
+        }
       ]
     }
   ],
   "districts": [
-    { "id": "100000275", "name": "State Of Mississippi" },
-    { "id": "575001705", "name": "Public Service Commissioner" },
-    { "id": "575001697", "name": "Transportation Commissioner" },
-    { "id": "100000362", "name": "District Attorney 05" },
-    { "id": "100000234", "name": "State Senate 15" },
-    { "id": "100000085", "name": "State House Of Rep 35" },
-    { "id": "100000285", "name": "Choctaw" },
-    { "id": "575000496", "name": "Supervisor 01" },
-    { "id": "575000497", "name": "Supervisor 02" },
-    { "id": "575000498", "name": "Supervisor 03" },
-    { "id": "575000499", "name": "Supervisor 04" },
-    { "id": "575000500", "name": "Supervisor 05" },
-    { "id": "575000506", "name": "Justice Court Judge Post 1" },
-    { "id": "575000507", "name": "Justice Court Judge Post 2" },
-    { "id": "575000508", "name": "Constable Post 01" },
-    { "id": "575000509", "name": "Constable Post 02" }
+    {
+      "id": "100000275",
+      "name": "State Of Mississippi"
+    },
+    {
+      "id": "575001705",
+      "name": "Public Service Commissioner"
+    },
+    {
+      "id": "575001697",
+      "name": "Transportation Commissioner"
+    },
+    {
+      "id": "100000362",
+      "name": "District Attorney 05"
+    },
+    {
+      "id": "100000234",
+      "name": "State Senate 15"
+    },
+    {
+      "id": "100000085",
+      "name": "State House Of Rep 35"
+    },
+    {
+      "id": "100000285",
+      "name": "Choctaw"
+    },
+    {
+      "id": "575000496",
+      "name": "Supervisor 01"
+    },
+    {
+      "id": "575000497",
+      "name": "Supervisor 02"
+    },
+    {
+      "id": "575000498",
+      "name": "Supervisor 03"
+    },
+    {
+      "id": "575000499",
+      "name": "Supervisor 04"
+    },
+    {
+      "id": "575000500",
+      "name": "Supervisor 05"
+    },
+    {
+      "id": "575000506",
+      "name": "Justice Court Judge Post 1"
+    },
+    {
+      "id": "575000507",
+      "name": "Justice Court Judge Post 2"
+    },
+    {
+      "id": "575000508",
+      "name": "Constable Post 01"
+    },
+    {
+      "id": "575000509",
+      "name": "Constable Post 02"
+    }
   ],
   "precincts": [
-    { "id": "6522", "name": "District 5" },
-    { "id": "6524", "name": "Chester" },
-    { "id": "6525", "name": "East Weir" },
-    { "id": "6526", "name": "French Camp" },
-    { "id": "6527", "name": "Fentress" },
-    { "id": "6528", "name": "Hebron" },
-    { "id": "6529", "name": "Kenego" },
-    { "id": "6532", "name": "Panhandle" },
-    { "id": "6534", "name": "Reform" },
-    { "id": "6536", "name": "Sherwood" },
-    { "id": "6537", "name": "Southwest Ackerman" },
-    { "id": "6538", "name": "Bywy" },
-    { "id": "6539", "name": "West Weir" }
+    {
+      "id": "6522",
+      "name": "District 5"
+    },
+    {
+      "id": "6524",
+      "name": "Chester"
+    },
+    {
+      "id": "6525",
+      "name": "East Weir"
+    },
+    {
+      "id": "6526",
+      "name": "French Camp"
+    },
+    {
+      "id": "6527",
+      "name": "Fentress"
+    },
+    {
+      "id": "6528",
+      "name": "Hebron"
+    },
+    {
+      "id": "6529",
+      "name": "Kenego"
+    },
+    {
+      "id": "6532",
+      "name": "Panhandle"
+    },
+    {
+      "id": "6534",
+      "name": "Reform"
+    },
+    {
+      "id": "6536",
+      "name": "Sherwood"
+    },
+    {
+      "id": "6537",
+      "name": "Southwest Ackerman"
+    },
+    {
+      "id": "6538",
+      "name": "Bywy"
+    },
+    {
+      "id": "6539",
+      "name": "West Weir"
+    }
   ],
   "ballotStyles": [
     {

@@ -49,7 +49,6 @@ export interface Party {
   readonly abbrev: string;
 }
 export const PartySchema: z.ZodSchema<Party> = z.object({
-  _lang: TranslationsSchema.optional(),
   id: PartyIdSchema,
   name: z.string().nonempty(),
   fullName: z.string().nonempty(),
@@ -76,7 +75,6 @@ export interface District {
   readonly name: string;
 }
 export const DistrictSchema: z.ZodSchema<District> = z.object({
-  _lang: TranslationsSchema.optional(),
   id: DistrictIdSchema,
   name: z.string().nonempty(),
 });
@@ -116,7 +114,6 @@ export interface Candidate {
 }
 export const CandidateSchema: z.ZodSchema<Candidate> = z
   .object({
-    _lang: TranslationsSchema.optional(),
     id: CandidateIdSchema,
     name: z.string().nonempty(),
     partyIds: z.array(PartyIdSchema).optional(),
@@ -133,11 +130,9 @@ export interface WriteInCandidate {
   readonly name: string;
   readonly isWriteIn: true;
   readonly writeInIndex?: number;
-  readonly partyId?: PartyId;
   readonly partyIds?: readonly PartyId[];
 }
 export const WriteInCandidateSchema: z.ZodSchema<WriteInCandidate> = z.object({
-  _lang: TranslationsSchema.optional(),
   id: WriteInIdSchema,
   name: z.string().nonempty(),
   isWriteIn: z.literal(true),
@@ -169,7 +164,6 @@ export interface Contest {
   readonly type: ContestTypes;
 }
 const ContestInternalSchema = z.object({
-  _lang: TranslationsSchema.optional(),
   id: ContestIdSchema,
   districtId: DistrictIdSchema,
   title: z.string().nonempty(),
@@ -287,7 +281,6 @@ export interface Precinct {
   readonly name: string;
 }
 export const PrecinctSchema: z.ZodSchema<Precinct> = z.object({
-  _lang: TranslationsSchema.optional(),
   id: PrecinctIdSchema,
   name: z.string().nonempty(),
 });
@@ -313,7 +306,6 @@ export interface BallotStyle {
   readonly partyId?: PartyId;
 }
 export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
-  _lang: TranslationsSchema.optional(),
   id: BallotStyleIdSchema,
   precincts: z.array(PrecinctIdSchema),
   districts: z.array(DistrictIdSchema),
@@ -339,7 +331,6 @@ export interface County {
   readonly name: string;
 }
 export const CountySchema: z.ZodSchema<County> = z.object({
-  _lang: TranslationsSchema.optional(),
   id: IdSchema,
   name: z.string().nonempty(),
 });
@@ -479,7 +470,6 @@ export const GridLayoutSchema: z.ZodSchema<GridLayout> = z.object({
 });
 
 export interface Election {
-  readonly _lang?: Translations;
   readonly ballotLayout?: BallotLayout;
   readonly ballotStrings?: BallotStrings;
   readonly ballotStyles: readonly BallotStyle[];
@@ -501,7 +491,6 @@ export interface Election {
 }
 export const ElectionSchema: z.ZodSchema<Election> = z
   .object({
-    _lang: TranslationsSchema.optional(),
     ballotLayout: BallotLayoutSchema.optional(),
     ballotStrings: z
       .record(z.union([z.string(), TranslationsSchema]))

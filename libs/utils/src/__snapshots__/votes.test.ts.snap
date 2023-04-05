@@ -1172,11 +1172,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1238,11 +1233,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1321,11 +1311,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1387,11 +1372,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1453,11 +1433,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1519,11 +1494,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1585,11 +1555,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1651,11 +1616,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1717,11 +1677,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1783,11 +1738,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1849,11 +1799,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1915,11 +1860,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1981,11 +1921,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2081,11 +2016,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2147,11 +2077,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2213,11 +2138,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2279,11 +2199,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2345,11 +2260,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2411,11 +2321,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2494,11 +2399,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2611,12 +2511,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -2645,12 +2539,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -2679,11 +2567,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2762,11 +2645,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2845,11 +2723,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2928,11 +2801,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2994,11 +2862,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3082,11 +2945,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3148,11 +3006,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3231,11 +3084,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3297,11 +3145,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3363,11 +3206,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3429,11 +3267,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3495,11 +3328,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3561,11 +3389,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3627,11 +3450,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3693,11 +3511,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3759,11 +3572,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3825,11 +3633,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3891,11 +3694,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3991,11 +3789,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -4057,11 +3850,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -4123,11 +3911,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -4189,11 +3972,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -4255,11 +4033,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -4321,11 +4094,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -4404,11 +4172,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -4521,12 +4284,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -4555,12 +4312,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -4589,11 +4340,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -4672,11 +4418,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -4755,11 +4496,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -4838,11 +4574,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -4904,11 +4635,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -4992,11 +4718,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -5058,11 +4779,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -5141,11 +4857,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -5207,11 +4918,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -5273,11 +4979,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -5339,11 +5040,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -5405,11 +5101,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -5471,11 +5162,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -5537,11 +5223,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -5603,11 +5284,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -5669,11 +5345,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -5735,11 +5406,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -5801,11 +5467,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -5901,11 +5562,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -5967,11 +5623,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -6033,11 +5684,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -6099,11 +5745,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -6165,11 +5806,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -6231,11 +5867,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -6314,11 +5945,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -6431,12 +6057,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -6465,12 +6085,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -6499,11 +6113,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -6582,11 +6191,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -6665,11 +6269,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -6748,11 +6347,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -6814,11 +6408,6 @@ exports[`filterTalliesByParams in a typical election can filter by precinct: fil
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -6902,11 +6491,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -6968,11 +6552,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -7051,11 +6630,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -7117,11 +6691,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -7183,11 +6752,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -7249,11 +6813,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -7315,11 +6874,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -7381,11 +6935,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -7447,11 +6996,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -7513,11 +7057,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -7579,11 +7118,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -7645,11 +7179,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -7711,11 +7240,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -7811,11 +7335,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -7877,11 +7396,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -7943,11 +7457,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -8009,11 +7518,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -8075,11 +7579,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -8141,11 +7640,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -8224,11 +7718,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -8341,12 +7830,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -8375,12 +7858,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -8409,11 +7886,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -8492,11 +7964,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -8575,11 +8042,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -8658,11 +8120,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -8724,11 +8181,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -8812,11 +8264,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -8878,11 +8325,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -8961,11 +8403,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9027,11 +8464,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9093,11 +8525,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9159,11 +8586,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9225,11 +8647,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9291,11 +8708,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9357,11 +8769,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9423,11 +8830,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9489,11 +8891,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9555,11 +8952,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9621,11 +9013,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9721,11 +9108,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9787,11 +9169,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9853,11 +9230,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9919,11 +9291,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -9985,11 +9352,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -10051,11 +9413,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -10134,11 +9491,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -10251,12 +9603,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -10285,12 +9631,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -10319,11 +9659,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -10402,11 +9737,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -10485,11 +9815,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -10568,11 +9893,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -10634,11 +9954,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -10722,11 +10037,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -10788,11 +10098,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -10871,11 +10176,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -10937,11 +10237,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11003,11 +10298,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11069,11 +10359,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11135,11 +10420,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11201,11 +10481,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11267,11 +10542,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11333,11 +10603,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11399,11 +10664,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11465,11 +10725,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11531,11 +10786,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11631,11 +10881,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11697,11 +10942,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11763,11 +11003,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11829,11 +11064,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11895,11 +11125,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -11961,11 +11186,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -12044,11 +11264,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -12161,12 +11376,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -12195,12 +11404,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -12229,11 +11432,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -12312,11 +11510,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -12395,11 +11588,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -12478,11 +11666,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -12544,11 +11727,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -12632,11 +11810,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -12698,11 +11871,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -12781,11 +11949,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -12847,11 +12010,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -12913,11 +12071,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -12979,11 +12132,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -13045,11 +12193,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -13111,11 +12254,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -13177,11 +12315,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -13243,11 +12376,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -13309,11 +12437,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -13375,11 +12498,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -13441,11 +12559,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -13541,11 +12654,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -13607,11 +12715,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -13673,11 +12776,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -13739,11 +12837,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -13805,11 +12898,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -13871,11 +12959,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -13954,11 +13037,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -14071,12 +13149,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -14105,12 +13177,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -14139,11 +13205,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -14222,11 +13283,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -14305,11 +13361,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -14388,11 +13439,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -14454,11 +13500,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -14542,11 +13583,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -14608,11 +13644,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -14691,11 +13722,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -14757,11 +13783,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -14823,11 +13844,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -14889,11 +13905,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -14955,11 +13966,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -15021,11 +14027,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -15087,11 +14088,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -15153,11 +14149,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -15219,11 +14210,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -15285,11 +14271,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -15351,11 +14332,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -15451,11 +14427,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -15517,11 +14488,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -15583,11 +14549,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -15649,11 +14610,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -15715,11 +14671,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -15781,11 +14732,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -15864,11 +14810,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -15981,12 +14922,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -16015,12 +14950,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -16049,11 +14978,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -16132,11 +15056,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -16215,11 +15134,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -16298,11 +15212,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -16364,11 +15273,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -16452,11 +15356,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -16518,11 +15417,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -16601,11 +15495,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -16667,11 +15556,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -16733,11 +15617,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -16799,11 +15678,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -16865,11 +15739,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -16931,11 +15800,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -16997,11 +15861,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -17063,11 +15922,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -17129,11 +15983,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -17195,11 +16044,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -17261,11 +16105,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -17361,11 +16200,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -17427,11 +16261,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -17493,11 +16322,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -17559,11 +16383,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -17625,11 +16444,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -17691,11 +16505,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -17774,11 +16583,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -17891,12 +16695,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -17925,12 +16723,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -17959,11 +16751,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -18042,11 +16829,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -18125,11 +16907,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -18208,11 +16985,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -18274,11 +17046,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -18362,11 +17129,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -18428,11 +17190,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -18511,11 +17268,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -18577,11 +17329,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -18643,11 +17390,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -18709,11 +17451,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -18775,11 +17512,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -18841,11 +17573,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -18907,11 +17634,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -18973,11 +17695,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -19039,11 +17756,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -19105,11 +17817,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -19171,11 +17878,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -19271,11 +17973,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -19337,11 +18034,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -19403,11 +18095,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -19469,11 +18156,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -19535,11 +18217,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -19601,11 +18278,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -19684,11 +18356,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -19801,12 +18468,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -19835,12 +18496,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -19869,11 +18524,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -19952,11 +18602,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -20035,11 +18680,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -20118,11 +18758,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -20184,11 +18819,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -20272,11 +18902,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -20338,11 +18963,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -20421,11 +19041,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -20487,11 +19102,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -20553,11 +19163,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -20619,11 +19224,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -20685,11 +19285,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -20751,11 +19346,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -20817,11 +19407,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -20883,11 +19468,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -20949,11 +19529,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -21015,11 +19590,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -21081,11 +19651,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -21181,11 +19746,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -21247,11 +19807,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -21313,11 +19868,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -21379,11 +19929,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -21445,11 +19990,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -21511,11 +20051,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -21594,11 +20129,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -21711,12 +20241,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -21745,12 +20269,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -21779,11 +20297,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -21862,11 +20375,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -21945,11 +20453,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22028,11 +20531,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22094,11 +20592,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22182,11 +20675,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22248,11 +20736,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22331,11 +20814,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22397,11 +20875,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22463,11 +20936,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22529,11 +20997,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22595,11 +21058,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22661,11 +21119,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22727,11 +21180,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22793,11 +21241,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22859,11 +21302,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22925,11 +21363,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -22991,11 +21424,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -23091,11 +21519,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -23157,11 +21580,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -23223,11 +21641,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -23289,11 +21702,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -23355,11 +21763,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -23421,11 +21824,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -23504,11 +21902,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -23621,12 +22014,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -23655,12 +22042,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -23689,11 +22070,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -23772,11 +22148,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -23855,11 +22226,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -23938,11 +22304,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -24004,11 +22365,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -24092,11 +22448,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -24158,11 +22509,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -24241,11 +22587,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -24307,11 +22648,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -24373,11 +22709,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -24439,11 +22770,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -24505,11 +22831,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -24571,11 +22892,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -24637,11 +22953,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -24703,11 +23014,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -24769,11 +23075,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -24835,11 +23136,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -24901,11 +23197,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -25001,11 +23292,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -25067,11 +23353,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -25133,11 +23414,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -25199,11 +23475,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -25265,11 +23536,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -25331,11 +23597,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -25414,11 +23675,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -25531,12 +23787,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -25565,12 +23815,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -25599,11 +23843,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -25682,11 +23921,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -25765,11 +23999,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -25848,11 +24077,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -25914,11 +24138,6 @@ exports[`filterTalliesByParams in a typical election can filter by scanner: filt
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26002,11 +24221,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26068,11 +24282,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26151,11 +24360,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26217,11 +24421,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26283,11 +24482,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26349,11 +24543,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26415,11 +24604,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26481,11 +24665,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26547,11 +24726,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26613,11 +24787,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26679,11 +24848,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26745,11 +24909,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26811,11 +24970,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26911,11 +25065,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -26977,11 +25126,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -27043,11 +25187,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -27109,11 +25248,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -27175,11 +25309,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -27241,11 +25370,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -27324,11 +25448,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -27441,12 +25560,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -27475,12 +25588,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -27509,11 +25616,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -27592,11 +25694,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -27675,11 +25772,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -27758,11 +25850,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -27824,11 +25911,6 @@ exports[`filterTalliesByParams in a typical election can filtere by precinct and
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {

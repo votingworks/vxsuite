@@ -251,7 +251,6 @@ export function PrintAllBallotsButton(): JSX.Element {
               ballotCopies={ballotCopies * ballotStyles.length}
               ballotMode={ballotMode}
               isAbsentee={isAbsentee}
-              election={election}
             />
           </Button>
           <Button onPress={closeModal}>Cancel</Button>

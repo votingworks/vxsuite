@@ -4,11 +4,6 @@ exports[`overvote report 1`] = `
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -56,11 +51,6 @@ exports[`overvote report 1`] = `
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -153,11 +143,6 @@ exports[`overvote report 1`] = `
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -205,11 +190,6 @@ exports[`overvote report 1`] = `
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -257,11 +237,6 @@ exports[`overvote report 1`] = `
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -309,11 +284,6 @@ exports[`overvote report 1`] = `
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -361,11 +331,6 @@ exports[`overvote report 1`] = `
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -413,11 +378,6 @@ exports[`overvote report 1`] = `
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -465,11 +425,6 @@ exports[`overvote report 1`] = `
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -517,11 +472,6 @@ exports[`overvote report 1`] = `
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -569,11 +519,6 @@ exports[`overvote report 1`] = `
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -621,11 +566,6 @@ exports[`overvote report 1`] = `
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -673,11 +613,6 @@ exports[`overvote report 1`] = `
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -834,11 +769,6 @@ exports[`overvote report 1`] = `
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -886,11 +816,6 @@ exports[`overvote report 1`] = `
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -938,11 +863,6 @@ exports[`overvote report 1`] = `
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -990,11 +910,6 @@ exports[`overvote report 1`] = `
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1042,11 +957,6 @@ exports[`overvote report 1`] = `
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1094,11 +1004,6 @@ exports[`overvote report 1`] = `
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1191,11 +1096,6 @@ exports[`overvote report 1`] = `
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1435,11 +1335,6 @@ exports[`overvote report 1`] = `
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1532,11 +1427,6 @@ exports[`overvote report 1`] = `
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1629,11 +1519,6 @@ exports[`overvote report 1`] = `
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1726,11 +1611,6 @@ exports[`overvote report 1`] = `
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1778,11 +1658,6 @@ exports[`overvote report 1`] = `
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1842,11 +1717,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
 {
   "Chief-Justice-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1908,11 +1778,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "District-judge-11": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -1991,11 +1856,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "District-judge-125": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2057,11 +1917,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "District-judge-127": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2123,11 +1978,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "District-judge-129": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2189,11 +2039,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "District-judge-61": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2255,11 +2100,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "District-judge-80": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2321,11 +2161,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "Justice-1-4": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2387,11 +2222,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "Justice-14-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2453,11 +2283,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "Justice-14-9": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2519,11 +2344,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "Justice-peace-1-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2585,11 +2405,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "comm-ag": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2651,11 +2466,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "comptroller": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2751,11 +2561,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "constable-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2817,11 +2622,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "county-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2883,11 +2683,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "county-tax-assessor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -2949,11 +2744,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "district-attorney": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3015,11 +2805,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3081,11 +2866,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "lieutenant-governor": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3164,11 +2944,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "president": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Presidente",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3281,12 +3056,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "prop-1": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
-          "title": "Proposición 1",
-        },
-      },
       "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
       "districtId": "district-2",
       "id": "prop-1",
@@ -3315,12 +3084,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "prop-2": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
-          "title": "Proposición 2",
-        },
-      },
       "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
       "districtId": "district-1",
       "id": "prop-2",
@@ -3349,11 +3112,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "representative-district-18": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3432,11 +3190,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "senator": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Senador",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3515,11 +3268,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "sheriff": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3598,11 +3346,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "ss-justic-3": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {
@@ -3664,11 +3407,6 @@ exports[`tabulating a set of CVRs gives expected output 1`] = `
   },
   "ss-justic-5": {
     "contest": {
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5",
-        },
-      },
       "allowWriteIns": true,
       "candidates": [
         {

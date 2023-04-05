@@ -20,7 +20,6 @@ import {
   PartyId,
   Precinct,
   PrecinctId,
-  Translations,
   Vote,
   VotesDict,
 } from './election';
@@ -384,80 +383,6 @@ export function vote(
 
 export function isVotePresent(v?: Vote): boolean {
   return !!v && v.length > 0;
-}
-
-/**
- * Helper function to get array of locale codes used in election definition.
- */
-export function getElectionLocales(
-  election: Election,
-  baseLocale = 'en-US'
-): string[] {
-  // eslint-disable-next-line no-underscore-dangle
-  return election._lang
-    ? // eslint-disable-next-line no-underscore-dangle
-      [baseLocale, ...Object.keys(election._lang)]
-    : [baseLocale];
-}
-
-function copyWithLocale<T>(value: T, locale: string): T;
-function copyWithLocale<T>(value: readonly T[], locale: string): readonly T[];
-function copyWithLocale<T>(
-  value: T | readonly T[],
-  locale: string
-): T | readonly T[] {
-  if (Array.isArray(value)) {
-    return value.map(
-      (element) => copyWithLocale(element, locale) as unknown as T
-    );
-  }
-
-  if (typeof value === 'undefined') {
-    return value;
-  }
-
-  if (typeof value === 'object') {
-    const record = value as Record<string, unknown>;
-    const lang = '_lang' in record && (record['_lang'] as Translations);
-
-    if (!lang) {
-      return value;
-    }
-
-    const stringsEntry = Object.entries(lang).find(
-      ([key]) => key.toLowerCase() === locale.toLowerCase()
-    );
-
-    if (!stringsEntry || !stringsEntry[1]) {
-      return value;
-    }
-
-    const strings = stringsEntry[1];
-    const result: Record<string, unknown> = {};
-
-    for (const [key, val] of Object.entries(record)) {
-      if (key === '_lang') {
-        continue;
-      }
-
-      if (key in strings) {
-        result[key] = strings[key];
-      } else {
-        result[key] = copyWithLocale(val, locale);
-      }
-    }
-
-    return result as T;
-  }
-
-  return value;
-}
-
-/**
- * Copies an election definition preferring strings from the matching locale.
- */
-export function withLocale(election: Election, locale: string): Election {
-  return copyWithLocale(election, locale);
 }
 
 /**

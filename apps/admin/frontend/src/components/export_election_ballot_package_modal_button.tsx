@@ -8,7 +8,6 @@ import {
   BallotPageLayout,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
-  getElectionLocales,
   getPrecinctById,
   HmpbBallotPageMetadata,
 } from '@votingworks/types';
@@ -60,7 +59,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
   const { election, electionData, electionHash } = electionDefinition;
-  const electionLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE);
+  const electionLocaleCodes = [DEFAULT_LOCALE];
 
   const [state, setState] = useState<workflow.State>(
     workflow.init(electionDefinition, electionLocaleCodes)
