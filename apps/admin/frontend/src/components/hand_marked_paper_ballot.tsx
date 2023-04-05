@@ -11,24 +11,19 @@ import { TFunction, StringMap } from 'i18next';
 import { useTranslation, Trans } from 'react-i18next';
 import { Admin } from '@votingworks/api';
 import {
-  AnyContest,
   BallotLocale,
   BallotType,
   Candidate,
   CandidateContest,
   CandidateVote,
-  Dictionary,
   Election,
   HmpbBallotPageMetadata,
-  OptionalElection,
   Vote,
   VotesDict,
-  YesNoContest,
   getBallotStyle,
   getContests,
   getPartyFullNameFromBallotStyle,
   getPrecinctById,
-  withLocale,
   safeParseElection,
   ContestOption,
   BallotStyleId,
@@ -38,7 +33,6 @@ import {
   getCandidatePartiesDescription,
   BallotStyle,
   getContestDistrictName,
-  District,
 } from '@votingworks/types';
 import { QrCode, HandMarkedPaperBallotProse, Text } from '@votingworks/ui';
 
@@ -597,30 +591,14 @@ export function HandMarkedPaperBallot({
 
   const { t, i18n } = useTranslation();
   const { county, date, seal, sealUrl, state, title } = election;
-  const localeElection: OptionalElection = locales.secondary
-    ? withLocale(election, locales.secondary)
-    : undefined;
   i18n.addResources(locales.primary, 'translation', election.ballotStrings);
-  if (localeElection && locales.secondary) {
-    i18n.addResources(
-      locales.secondary,
-      'translation',
-      localeElection.ballotStrings
-    );
-  }
   const primaryPartyName = !isSuperBallotStyle(ballotStyleId)
     ? getPartyFullNameFromBallotStyle({
         ballotStyleId,
         election,
       })
     : undefined;
-  const localePrimaryPartyName =
-    !isSuperBallotStyle(ballotStyleId) && localeElection
-      ? getPartyFullNameFromBallotStyle({
-          ballotStyleId,
-          election: localeElection,
-        })
-      : undefined;
+  const localePrimaryPartyName = undefined;
   let ballotStyle: BallotStyle | undefined;
   if (isSuperBallotStyle(ballotStyleId)) {
     ballotStyle = undefined;
@@ -633,28 +611,6 @@ export function HandMarkedPaperBallot({
     : election.contests;
   const candidateContests = contests.filter((c) => c.type === 'candidate');
   const otherContests = contests.filter((c) => c.type !== 'candidate');
-  const localeContestsById =
-    ballotStyle &&
-    localeElection &&
-    getContests({ ballotStyle, election: localeElection }).reduce<
-      Dictionary<AnyContest>
-    >(
-      (prev, curr) => ({
-        ...prev,
-        [curr.id]: curr,
-      }),
-      {}
-    );
-  const localeDistrictsById =
-    ballotStyle &&
-    localeElection &&
-    localeElection.districts.reduce<Dictionary<District>>(
-      (prev, curr) => ({
-        ...prev,
-        [curr.id]: curr,
-      }),
-      {}
-    );
   const precinct = isSuperBallotStyle(ballotStyleId)
     ? { id: precinctId, name: 'All' }
     : getPrecinctById({ election, precinctId });
@@ -787,30 +743,13 @@ export function HandMarkedPaperBallot({
                     {ballotStyle?.partyId &&
                     primaryPartyName &&
                     localePrimaryPartyName
-                      ? dualPhraseWithBreak(
-                          `${
-                            ballotStyle?.partyId && primaryPartyName
-                          } ${title}`,
-                          localeElection &&
-                            t('{{primaryPartyName}} {{electionTitle}}', {
-                              lng: locales.secondary,
-                              primaryPartyName: localePrimaryPartyName,
-                              electionTitle: localeElection.title,
-                            })
-                        )
-                      : dualPhraseWithBreak(
-                          election.title,
-                          localeElection?.title
-                        )}
+                      ? `${ballotStyle?.partyId && primaryPartyName} ${title}`
+                      : election.title}
                   </Text>
                 </div>
                 <div>
                   <Text small center as="div">
-                    {dualPhraseWithBreak(
-                      `${county.name}, ${state}`,
-                      localeElection &&
-                        `${localeElection.county.name}, ${localeElection.state}`
-                    )}
+                    {county.name}, {state}
                   </Text>
                 </div>
                 <div>
@@ -907,31 +846,6 @@ export function HandMarkedPaperBallot({
                     <br />
                     {localeDateLong(date, locales.primary)}
                   </p>
-                  {localeElection && locales.secondary && (
-                    <p>
-                      <strong>
-                        {t(ballotModeToBallotTitle(ballotMode), {
-                          lng: locales.secondary,
-                        })}
-                      </strong>
-                      <br />
-                      <strong>
-                        {ballotStyle?.partyId && primaryPartyName
-                          ? t('{{primaryPartyName}} {{electionTitle}}', {
-                              lng: locales.secondary,
-                              primaryPartyName: localePrimaryPartyName,
-                              electionTitle: localeElection.title,
-                            })
-                          : localeElection.title}
-                      </strong>
-                      <br />
-                      {localeElection.state}
-                      <br />
-                      {localeElection.county.name}
-                      <br />
-                      {localeDateLong(date, locales.secondary)}
-                    </p>
-                  )}
                 </HandMarkedPaperBallotProse>
               </BallotHeader>
               <Instructions>
@@ -1012,16 +926,8 @@ export function HandMarkedPaperBallot({
               <Contest
                 key={contest.id}
                 density={layoutDensity}
-                districtName={dualPhraseWithSlash(
-                  getContestDistrictName(election, contest),
-                  localeDistrictsById?.[contest.districtId]?.name,
-                  { normal: true }
-                )}
-                title={dualPhraseWithSlash(
-                  contest.title,
-                  localeContestsById?.[contest.id]?.title,
-                  { normal: true }
-                )}
+                districtName={getContestDistrictName(election, contest)}
+                title={contest.title}
               >
                 {contest.type === 'candidate' && (
                   <React.Fragment>
@@ -1058,16 +964,8 @@ export function HandMarkedPaperBallot({
                   key={contest.id}
                   data-contest
                   data-contest-title={contest.title}
-                  districtName={dualPhraseWithSlash(
-                    getContestDistrictName(election, contest),
-                    localeDistrictsById?.[contest.districtId]?.name,
-                    { normal: true }
-                  )}
-                  title={dualPhraseWithSlash(
-                    contest.title,
-                    localeContestsById?.[contest.id]?.title,
-                    { normal: true }
-                  )}
+                  districtName={getContestDistrictName(election, contest)}
+                  title={contest.title}
                 >
                   {contest.type === 'yesno' && (
                     <React.Fragment>
@@ -1104,18 +1002,7 @@ export function HandMarkedPaperBallot({
                           __html: DomPurify.sanitize(contest.description),
                         }}
                       />
-                      {localeContestsById && (
-                        <Text
-                          small
-                          preLine
-                          dangerouslySetInnerHTML={{
-                            __html: DomPurify.sanitize(
-                              (localeContestsById[contest.id] as YesNoContest)
-                                .description
-                            ),
-                          }}
-                        />
-                      )}
+
                       <Text bold>
                         <BubbleMark
                           position={election.ballotLayout?.targetMarkPosition}

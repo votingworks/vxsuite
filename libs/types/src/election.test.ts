@@ -11,7 +11,6 @@ import {
   getContestsFromIds,
   getDisplayElectionHash,
   getDistrictIdsForPartyId,
-  getElectionLocales,
   getPartyAbbreviationByPartyId,
   getPartyFullNameFromBallotStyle,
   getPartyIdsInBallotStyles,
@@ -25,7 +24,6 @@ import {
   safeParseElectionDefinition,
   validateVotes,
   vote,
-  withLocale,
 } from './election_utils';
 import {
   election,
@@ -40,7 +38,6 @@ import {
   ElectionDefinitionSchema,
   PartyId,
   PartyIdSchema,
-  PartySchema,
   WriteInIdSchema,
   YesNoContest,
 } from './election';
@@ -366,91 +363,6 @@ test('validates votes by checking that contests are present in a given ballot st
   ).toThrowError(
     'found a vote with contest id "nope", but no such contest exists in ballot style 1'
   );
-});
-
-test('list locales in election definition', () => {
-  expect(getElectionLocales(election)).toEqual(['en-US']);
-  expect(getElectionLocales(election, 'zh-CN')).toEqual(['zh-CN']);
-  expect(getElectionLocales({ ...election, _lang: { 'es-US': {} } })).toEqual([
-    'en-US',
-    'es-US',
-  ]);
-});
-
-test('pulls translation keys from the top level object', () => {
-  expect(
-    withLocale(
-      { ...election, _lang: { 'es-US': { title: 'Eleccion General' } } },
-      'es-US'
-    ).title
-  ).toEqual('Eleccion General');
-});
-
-test('withLocale ignores undefined keys', () => {
-  withLocale(
-    {
-      ...election,
-      ballotStyles: election.ballotStyles.map((bs) => ({
-        ...bs,
-        partyId: undefined,
-        _lang: { 'es-US': {} },
-      })),
-      _lang: { 'es-US': {} },
-    },
-    'es-US'
-  );
-});
-
-test('withLocale ignores missing strings for the locale', () => {
-  withLocale(
-    {
-      ...election,
-      ballotStyles: election.ballotStyles.map((bs) => ({
-        ...bs,
-        partyId: undefined,
-        _lang: {},
-      })),
-      _lang: { 'es-US': {} },
-    },
-    'es-US'
-  );
-});
-
-test('pulls translation keys from nested objects', () => {
-  expect(
-    withLocale(
-      {
-        ...election,
-        parties: [
-          unsafeParse(PartySchema, {
-            id: 'FED',
-            name: 'Federalist',
-            abbrev: 'FED',
-            fullName: 'Federalist',
-            _lang: { 'es-US': { name: 'Federalista' } },
-          }),
-        ],
-        _lang: { 'es-US': {} },
-      },
-      'es-US'
-    ).parties[0].name
-  ).toEqual('Federalista');
-});
-
-test('treats locale identifier as case-insensitive', () => {
-  expect(withLocale(election, 'es-US')).toEqual(withLocale(election, 'eS-Us'));
-});
-
-test('passes undefined values through', () => {
-  expect(withLocale({ ...election, seal: undefined }, 'es-US')).toHaveProperty(
-    'seal',
-    undefined
-  );
-});
-
-test('uses the defaults for anything without a translation', () => {
-  expect(withLocale(election, 'en-US').title).toEqual(election.title);
-  expect(withLocale(election, 'fr-FR').title).toEqual(election.title);
 });
 
 test('candidate schema', () => {

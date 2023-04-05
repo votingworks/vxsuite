@@ -3,20 +3,9 @@
   "state": "State of Hamilton",
   "county": {
     "id": "franklin",
-    "name": "Franklin County",
-    "_lang": {
-      "es-US": {
-        "name": "Condado de Franklin"
-      }
-    }
+    "name": "Franklin County"
   },
   "date": "2020-11-03T00:00:00-08:00",
-  "_lang": {
-    "es-US": {
-      "title": "Eleccion General",
-      "state": "Estado de Hamilton"
-    }
-  },
   "districts": [
     {
       "id": "district-1",
@@ -40,49 +29,25 @@
       "id": "0",
       "name": "Democrat",
       "fullName": "Democratic Party",
-      "abbrev": "D",
-      "_lang": {
-        "es-US": {
-          "name": "Democratico",
-          "fullName": "Partido Democratico"
-        }
-      }
+      "abbrev": "D"
     },
     {
       "id": "1",
       "name": "Republican",
       "fullName": "Republican Party",
-      "abbrev": "R",
-      "_lang": {
-        "es-US": {
-          "name": "Republicano",
-          "fullName": "Partido Republicano"
-        }
-      }
+      "abbrev": "R"
     },
     {
       "id": "2",
       "name": "Liberty",
       "fullName": "Liberty Party",
-      "abbrev": "Li",
-      "_lang": {
-        "es-US": {
-          "name": "Libertad",
-          "fullName": "Partido Libertad"
-        }
-      }
+      "abbrev": "Li"
     },
     {
       "id": "3",
       "name": "Green",
       "fullName": "Green Party",
-      "abbrev": "G",
-      "_lang": {
-        "es-US": {
-          "name": "Verde",
-          "fullName": "Partido Verde"
-        }
-      }
+      "abbrev": "G"
     }
   ],
   "contests": [
@@ -119,12 +84,7 @@
           "partyIds": ["2"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Presidente"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "senator",
@@ -149,12 +109,7 @@
           "partyIds": ["3"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Senador"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "representative-district-18",
@@ -179,12 +134,7 @@
           "partyIds": ["3"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 18"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "governor",
@@ -204,12 +154,7 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "lieutenant-governor",
@@ -234,12 +179,7 @@
           "partyIds": ["3"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "ss-justic-3",
@@ -259,12 +199,7 @@
           "partyIds": ["3"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 3"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "ss-justic-5",
@@ -289,12 +224,7 @@
           "partyIds": ["3"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, Corte Suprema, Lugar 5"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "comptroller",
@@ -324,12 +254,7 @@
           "partyIds": ["3"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Contralor Estatal"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "comm-ag",
@@ -349,12 +274,7 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Comisionado de Agricultura"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "Chief-Justice-1",
@@ -374,12 +294,7 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "Justice-1-4",
@@ -399,12 +314,7 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "Justice-14-2",
@@ -424,12 +334,7 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "Justice-14-9",
@@ -449,12 +354,7 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "District-judge-11",
@@ -479,12 +379,7 @@
           "partyIds": ["2"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, Distrito Judicial 11"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "District-judge-61",
@@ -504,12 +399,7 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 61° Distrito Judicial"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "District-judge-80",
@@ -529,12 +419,7 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 80º Distrito Judicial"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "District-judge-125",
@@ -554,12 +439,7 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 125º Distrito Judicial"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "District-judge-127",
@@ -579,12 +459,7 @@
           "partyIds": ["3"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 127º Distrito Judicial"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "District-judge-129",
@@ -604,12 +479,7 @@
           "partyIds": ["3"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Distrito, 129° Distrito Judicial"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "district-attorney",
@@ -629,12 +499,7 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Fiscal de Distrito"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "county-attorney",
@@ -654,12 +519,7 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Abogado del Condado"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "sheriff",
@@ -684,12 +544,7 @@
           "partyIds": ["3"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "county-tax-assessor",
@@ -709,12 +564,7 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Asesor-Recaudador de Impuestos del País"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "Justice-peace-1-1",
@@ -734,12 +584,7 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Juez de Paz, Precinto 1, Lugar 1"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "constable-1",
@@ -759,38 +604,21 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Alguacil, distrito 1"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "prop-1",
       "districtId": "district-2",
       "type": "yesno",
       "title": "Proposition 1",
-      "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
-      "_lang": {
-        "es-US": {
-          "title": "Proposición 1",
-          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?"
-        }
-      }
+      "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?"
     },
     {
       "id": "prop-2",
       "districtId": "district-1",
       "type": "yesno",
       "title": "Proposition 2",
-      "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
-      "_lang": {
-        "es-US": {
-          "title": "Proposición 2",
-          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?"
-        }
-      }
+      "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?"
     }
   ],
   "precincts": [

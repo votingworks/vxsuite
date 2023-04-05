@@ -117,12 +117,12 @@
         {
           "id": "775034032",
           "name": "Keshia Stewart Ford",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "775034034",
           "name": "Denise Allen Poole",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -138,27 +138,27 @@
         {
           "id": "775034035",
           "name": "Frances Lewis Bailey",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "775034038",
           "name": "William 'Will' Carter",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "775034042",
           "name": "Louis M. D'Aquila",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "775034081",
           "name": "Gene Lofton",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "775034115",
           "name": "Octavia 'Sheena' Vaughn",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     }

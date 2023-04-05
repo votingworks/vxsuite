@@ -117,12 +117,12 @@
         {
           "id": "775037081",
           "name": "Jerry Kerner",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "775037080",
           "name": "Bennie G. Thompson",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -138,22 +138,22 @@
         {
           "id": "775037066",
           "name": "Michael Carson",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "775037068",
           "name": "Ronald Eller",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "775037067",
           "name": "Brian Flowers",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "775037070",
           "name": "Stanford Johnson",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     }

@@ -11,7 +11,6 @@ import {
   getBallotStyle,
   getContests,
   getPrecinctById,
-  getElectionLocales,
   BallotStyle,
 } from '@votingworks/types';
 import pluralize from 'pluralize';
@@ -93,7 +92,7 @@ export function BallotScreen(): JSX.Element {
   const userRole = auth.user.role;
   assert(electionDefinition);
   const { election, electionHash } = electionDefinition;
-  const availableLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE);
+  const availableLocaleCodes = [DEFAULT_LOCALE];
   const locales = useMemo<BallotLocale>(
     () => ({
       primary: DEFAULT_LOCALE,
@@ -316,8 +315,6 @@ export function BallotScreen(): JSX.Element {
                 ballotCopies={ballotCopies}
                 ballotMode={ballotMode}
                 isAbsentee={isAbsentee}
-                election={election}
-                localeCode={currentLocaleCode}
               />
             </PrintButton>
             {window.kiosk && (

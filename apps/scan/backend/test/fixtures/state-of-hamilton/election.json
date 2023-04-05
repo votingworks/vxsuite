@@ -3,20 +3,9 @@
   "state": "State of Hamilton",
   "county": {
     "id": "franklin",
-    "name": "Franklin County",
-    "_lang": {
-      "es-US": {
-        "name": "Condado de Franklin"
-      }
-    }
+    "name": "Franklin County"
   },
   "date": "2020-11-03",
-  "_lang": {
-    "es-US": {
-      "title": "Eleccion General",
-      "state": "Estado de Hamilton"
-    }
-  },
   "districts": [
     {
       "id": "district-1",
@@ -40,118 +29,55 @@
       "id": "0",
       "name": "Federalist",
       "fullName": "Federalist Party",
-      "abbrev": "F",
-      "_lang": {
-        "es-US": {
-          "name": "Federalista",
-          "fullName": "Partido Federalista",
-          "abbrev": "F"
-        }
-      }
+      "abbrev": "F"
     },
     {
       "id": "1",
       "name": "People’s",
       "fullName": "People’s Party",
-      "abbrev": "P",
-      "_lang": {
-        "es-US": {
-          "name": "La Gente",
-          "fullName": "Partido de la Gente",
-          "abbrev": "G"
-        }
-      }
+      "abbrev": "P"
     },
     {
       "id": "2",
       "name": "Liberty",
       "fullName": "Liberty Party",
-      "abbrev": "Li",
-      "_lang": {
-        "es-US": {
-          "name": "Libertad",
-          "fullName": "Partido de la Libertad",
-          "abbrev": "Li"
-        }
-      }
+      "abbrev": "Li"
     },
     {
       "id": "3",
       "name": "Constitution",
       "fullName": "Constitution Party",
-      "abbrev": "C",
-      "_lang": {
-        "es-US": {
-          "name": "Constitución",
-          "fullName": "Partido de la Constitución",
-          "abbrev": "C"
-        }
-      }
+      "abbrev": "C"
     },
     {
       "id": "4",
       "name": "Whig",
       "fullName": "Whig Party",
-      "abbrev": "W",
-      "_lang": {
-        "es-US": {
-          "name": "Whig",
-          "fullName": "Partido Whig",
-          "abbrev": "W"
-        }
-      }
+      "abbrev": "W"
     },
     {
       "id": "5",
       "name": "Labor",
       "fullName": "Labor Party",
-      "abbrev": "La",
-      "_lang": {
-        "es-US": {
-          "name": "Trabajo",
-          "fullName": "Partido del Trabajo",
-          "abbrev": "PT"
-        }
-      }
+      "abbrev": "La"
     },
     {
       "id": "6",
       "name": "Independent",
       "fullName": "Independent Party",
-      "abbrev": "I",
-      "_lang": {
-        "es-US": {
-          "name": "Independiente",
-          "fullName": "Partido Independiente",
-          "abbrev": "I"
-        }
-      }
+      "abbrev": "I"
     },
     {
       "id": "7",
       "name": "Democrat",
       "fullName": "Democratic Party",
-      "abbrev": "D",
-      "_lang": {
-        "es": {
-          "name": "Demócrata",
-          "fullName": "Partido Democrático",
-          "abbrev": "D"
-        }
-      }
+      "abbrev": "D"
     },
     {
       "id": "8",
       "name": "Republican",
       "fullName": "Republican Party",
-      "abbrev": "R",
-      "_lang": {
-        "es": {
-          "name": "Republicano",
-          "fullName": "Partido Republicano",
-          "abbrev": "R"
-        }
-      }
+      "abbrev": "R"
     }
   ],
   "contests": [
@@ -165,40 +91,35 @@
         {
           "id": "barchi-hallaren",
           "name": "Joseph Barchi and Joseph Hallaren",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "cramer-vuocolo",
           "name": "Adam Cramer and Greg Vuocolo",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "court-blumhardt",
           "name": "Daniel Court and Amy Blumhardt",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "boone-lian",
           "name": "Alvin Boone and James Lian",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "hildebrand-garritty",
           "name": "Ashley Hildebrand-McDougall and James Garritty",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "patterson-lariviere",
           "name": "Martin Patterson and Clay Lariviere",
-          "partyId": "5"
+          "partyIds": ["5"]
         }
       ],
-      "allowWriteIns": false,
-      "_lang": {
-        "es-US": {
-          "title": "Presidente y Vicepresidente"
-        }
-      }
+      "allowWriteIns": false
     },
     {
       "id": "senator",
@@ -210,45 +131,40 @@
         {
           "id": "weiford",
           "name": "Dennis Weiford",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "garriss",
           "name": "Lloyd Garriss",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "wentworthfarthington",
           "name": "Sylvia Wentworth-Farthington",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "hewetson",
           "name": "Heather Hewetson",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "martinez",
           "name": "Victor Martinez",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "brown",
           "name": "David Brown",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "pound",
           "name": "David Pound",
-          "partyId": "6"
+          "partyIds": ["6"]
         }
       ],
-      "allowWriteIns": false,
-      "_lang": {
-        "es-US": {
-          "title": "Senador"
-        }
-      }
+      "allowWriteIns": false
     },
     {
       "id": "representative-district-6",
@@ -260,35 +176,30 @@
         {
           "id": "plunkard",
           "name": "Brad Plunkard",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "reeder",
           "name": "Bruce Reeder",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "schott",
           "name": "Brad Schott",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "tawney",
           "name": "Glen Tawney",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "forrest",
           "name": "Carroll Forrest",
-          "partyId": "4"
+          "partyIds": ["4"]
         }
       ],
-      "allowWriteIns": false,
-      "_lang": {
-        "es-US": {
-          "title": "Representante, Distrito 6"
-        }
-      }
+      "allowWriteIns": false
     },
     {
       "id": "governor",
@@ -300,90 +211,85 @@
         {
           "id": "franz",
           "name": "Charlene Franz",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "harris",
           "name": "Gerald Harris",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "bargmann",
           "name": "Linda Bargmann",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "abcock",
           "name": "Barbara Adcock",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "steelloy",
           "name": "Carrie Steel-Loy",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "sharp",
           "name": "Frederick Sharp",
-          "partyId": "5"
+          "partyIds": ["5"]
         },
         {
           "id": "wallace",
           "name": "Alex Wallace",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "williams",
           "name": "Barbara Williams",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "sharp-althea",
           "name": "Althea Sharp",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "alpern",
           "name": "Douglas Alpern",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "windbeck",
           "name": "Ann Windbeck",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "greher",
           "name": "Mike Greher",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "alexander",
           "name": "Patricia Alexander",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "mitchell",
           "name": "Kenneth Mitchell",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "lee",
           "name": "Stan Lee",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "ash",
           "name": "Henry Ash",
-          "partyId": "6"
+          "partyIds": ["6"]
         }
       ],
-      "allowWriteIns": false,
-      "_lang": {
-        "es-US": {
-          "title": "Gobernador"
-        }
-      }
+      "allowWriteIns": false
     },
     {
       "id": "lieutenant-governor",
@@ -395,55 +301,50 @@
         {
           "id": "norberg",
           "name": "Chris Norberg",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "parks",
           "name": "Anthony Parks",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "garcia",
           "name": "Luis Jorges Garcia",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "qualey",
           "name": "Charles Qualey",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "hovis",
           "name": "George Hovis",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "zirkle",
           "name": "Burt Zirkle",
-          "partyId": "5"
+          "partyIds": ["5"]
         },
         {
           "id": "davis",
           "name": "Brenda Davis",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "freeman",
           "name": "Edward Freeman",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "swan",
           "name": "Paul Swan",
-          "partyId": "6"
+          "partyIds": ["6"]
         }
       ],
-      "allowWriteIns": false,
-      "_lang": {
-        "es-US": {
-          "title": "Vicegobernador"
-        }
-      }
+      "allowWriteIns": false
     },
     {
       "id": "secretary-of-state",
@@ -455,20 +356,15 @@
         {
           "id": "shamsi",
           "name": "Laila Shamsi",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "talarico",
           "name": "Marty Talarico",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": false,
-      "_lang": {
-        "es-US": {
-          "title": "Secretario de Estado"
-        }
-      }
+      "allowWriteIns": false
     },
     {
       "id": "state-senator-district-31",
@@ -480,15 +376,10 @@
         {
           "id": "shiplett",
           "name": "Edward Shiplett",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
-      "allowWriteIns": false,
-      "_lang": {
-        "es-US": {
-          "title": "Senador, Distrito 31"
-        }
-      }
+      "allowWriteIns": false
     },
     {
       "id": "state-assembly-district-54",
@@ -500,25 +391,20 @@
         {
           "id": "solis",
           "name": "Andrea Solis",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "keller",
           "name": "Amos Keller",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "rangel",
           "name": "Davitra Rangel",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ],
-      "allowWriteIns": false,
-      "_lang": {
-        "es-US": {
-          "title": "Miembro de la Asamblea, Distrito 54"
-        }
-      }
+      "allowWriteIns": false
     },
     {
       "id": "county-commissioners",
@@ -530,65 +416,60 @@
         {
           "id": "argent",
           "name": "Camille Argent",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "witherspoonsmithson",
           "name": "Chloe Witherspoon-Smithson",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "bainbridge",
           "name": "Clayton Bainbridge",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "hennessey",
           "name": "Charlene Hennessey",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "savoy",
           "name": "Eric Savoy",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "tawa",
           "name": "Susan Tawa",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "tawa-mary",
           "name": "Mary Tawa",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "rangel",
           "name": "Damian Rangel",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "altman",
           "name": "Valarie Altman",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "moore",
           "name": "Helen Moore",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "schreiner",
           "name": "Martin Schreiner",
-          "partyId": "6"
+          "partyIds": ["6"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Comisionados del Condado"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "county-registrar-of-wills",
@@ -600,15 +481,10 @@
         {
           "id": "ramachandrani",
           "name": "Rhadka Ramachandrani",
-          "partyId": "6"
+          "partyIds": ["6"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Registrador de Testamentos"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "primary-constitution-head-of-party",
@@ -622,18 +498,13 @@
         {
           "id": "alice",
           "name": "Alice Jones",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "bob",
           "name": "Bob Smith"
         }
-      ],
-      "_lang": {
-        "es-US": {
-          "title": "Jefe del Partido de la Constitución"
-        }
-      }
+      ]
     },
     {
       "id": "city-mayor",
@@ -645,20 +516,15 @@
         {
           "id": "white",
           "name": "Orville White",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "seldon",
           "name": "Gregory Seldon",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Alcalde"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "city-council",
@@ -670,144 +536,91 @@
         {
           "id": "eagle",
           "name": "Harvey Eagle",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "rupp",
           "name": "Randall Rupp",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "shry",
           "name": "Carroll Shry",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "barker",
           "name": "Beverly Barker",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "davis",
           "name": "Donald Davis",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "smith",
           "name": "Hugo Smith",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true,
-      "_lang": {
-        "es-US": {
-          "title": "Ayuntamiento"
-        }
-      }
+      "allowWriteIns": true
     },
     {
       "id": "judicial-robert-demergue",
       "districtId": "district-1",
       "type": "yesno",
       "title": "Retain Robert Demergue as Chief Justice?",
-      "description": "Shall Robert Demergue be retained as Chief Justice of the Hamilton Court of Appeals?",
-      "_lang": {
-        "es-US": {
-          "title": "¿Retener a Robert Demergue como presidente del Tribunal Supremo?",
-          "description": "¿Deberá Robert Demergue ser retenido como Presidente del Tribunal de Apelaciones de Hamilton?"
-        }
-      }
+      "description": "Shall Robert Demergue be retained as Chief Justice of the Hamilton Court of Appeals?"
     },
     {
       "id": "judicial-elmer-hull",
       "districtId": "district-2",
       "type": "yesno",
       "title": "Retain Elmer Hull as Associate Justice?",
-      "description": "Shall Elmer Hull be retained as Associate Justice of the Hamilton Court of Appeals?",
-      "_lang": {
-        "es-US": {
-          "title": "¿Retener a Elmer Hull como juez asociado?",
-          "description": "¿Se retendrá a Elmer Hull como Juez Asociado de la Corte de Apelaciones de Hamilton?"
-        }
-      }
+      "description": "Shall Elmer Hull be retained as Associate Justice of the Hamilton Court of Appeals?"
     },
     {
       "id": "question-a",
       "districtId": "district-1",
       "type": "yesno",
       "title": "Question A: Recovery of Property Damages",
-      "description": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?",
-      "_lang": {
-        "es-US": {
-          "title": "Pregunta A: Recuperación de daños a la propiedad",
-          "description": "¿Deberá haber una enmienda a la constitución del Estado con respecto a la recuperación de daños relacionados con la construcción de mejoras de bienes inmuebles y, en relación con esto, prohibir las leyes que limitan o menoscaban el derecho del propietario a recuperar los daños causados ​​por la falta de una mejora en un de manera buena y profesional?"
-        }
-      }
+      "description": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?"
     },
     {
       "id": "question-b",
       "districtId": "district-1",
       "type": "yesno",
       "title": "Question B: Separation of Powers",
-      "description": "Shall there be amendments to the State constitution intended to have the collective effect of ensuring the separation of governmental power among the three branches of state government: the legislative branch, the executive branch and the judicial branch? \n\na. Article III, Section 6 of the Constitution shall be amended to read as follows: \n\nSection 6. Holding of offices under other governments \n\nSenators and representatives not to hold other appointed offices under state government.",
-      "_lang": {
-        "es-US": {
-          "title": "Pregunta B: Separación de poderes",
-          "description": "¿Habrá enmiendas a la constitución del Estado destinadas a tener el efecto colectivo de asegurar la separación del poder gubernamental entre las tres ramas del gobierno estatal: la rama legislativa, la rama ejecutiva y la rama judicial? \n\na. El Artículo III, Sección 6 de la Constitución se enmendará para que lea como sigue: \n\n Sección 6. Ocupación de cargos bajo otros gobiernos \n\nSenadores y representantes para no ocupar otros cargos designados bajo el gobierno del estado."
-        }
-      }
+      "description": "Shall there be amendments to the State constitution intended to have the collective effect of ensuring the separation of governmental power among the three branches of state government: the legislative branch, the executive branch and the judicial branch? \n\na. Article III, Section 6 of the Constitution shall be amended to read as follows: \n\nSection 6. Holding of offices under other governments \n\nSenators and representatives not to hold other appointed offices under state government."
     },
     {
       "id": "question-c",
       "districtId": "district-2",
       "type": "yesno",
       "title": "Question C: Limits to Damages for Non-Economic Loss",
-      "description": "Shall there be an amendment to the State constitution allowing the State legislature to enact laws limiting the amount of damages for non-economic loss that could be awarded for injury or death caused by a health care provider?",
-      "_lang": {
-        "es-US": {
-          "title": "Pregunta C: Límites a los daños por pérdidas no económicas",
-          "description": "¿Deberá haber una enmienda a la constitución estatal que permita a la legislatura estatal promulgar leyes que limiten la cantidad de daños por pérdidas no económicas que podrían otorgarse por lesiones o muerte causadas por un proveedor de atención médica?"
-        }
-      }
+      "description": "Shall there be an amendment to the State constitution allowing the State legislature to enact laws limiting the amount of damages for non-economic loss that could be awarded for injury or death caused by a health care provider?"
     },
     {
       "id": "proposition-1",
       "districtId": "district-1",
       "type": "yesno",
       "title": "Proposition 1: Gambling in Franklin and Fromwit Counties",
-      "description": "Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities (thoroughbred and harness racing, greyhound racing, and jai alai) that have conducted live racing or games in that county during each of the last two calendar years before effective date of this amendment? Requires implementing legislation.",
-      "_lang": {
-        "es-US": {
-          "title": "Proposición 1: Juegos de azar en los condados de Franklin y Fromwit",
-          "description": "¿Deberá haber una enmienda a la constitución estatal que autorice a los condados de Franklin y Fromwit a celebrar referéndums sobre si autorizar máquinas tragamonedas en instalaciones existentes, con licencia de parmutuel (carreras de pura sangre y arnés, carreras de galgos y jai alai) que han realizado carreras en vivo o juegos en ese condado durante cada uno de los últimos dos años calendario antes de la fecha de vigencia de esta enmienda? Requiere legislación de implementación."
-        }
-      }
+      "description": "Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities (thoroughbred and harness racing, greyhound racing, and jai alai) that have conducted live racing or games in that county during each of the last two calendar years before effective date of this amendment? Requires implementing legislation."
     },
     {
       "id": "measure-101",
       "districtId": "district-2",
       "type": "yesno",
       "title": "Measure 101: College District",
-      "description": "To upgrade educational facilities at Diablo Valley, and Franklin, Colleges, and the San Brentwood center, and help prepare students for jobs and college transfer by modernizing classrooms and labs, building facilities for health, medical, science, and technology training, and implementing infrastructure improvements, shall the Franklin Community College District issue $450 million of bonds at legal interest rates with independent oversight, audits, and all funds spent on local sites?",
-      "_lang": {
-        "es-US": {
-          "title": "Medida 101: Distrito universitario",
-          "description": "Mejorar las instalaciones educativas en Diablo Valley y Franklin, Colleges y el centro de San Brentwood, y ayudar a preparar a los estudiantes para trabajos y transferencias universitarias modernizando las aulas y laboratorios, construyendo instalaciones para capacitación en salud, medicina, ciencia y tecnología e implementando infraestructura mejoras, el Franklin Community College District emitirá $ 450 millones en bonos a tasas de interés legales con supervisión independiente, auditorías y todos los fondos gastados en sitios locales?"
-        }
-      }
+      "description": "To upgrade educational facilities at Diablo Valley, and Franklin, Colleges, and the San Brentwood center, and help prepare students for jobs and college transfer by modernizing classrooms and labs, building facilities for health, medical, science, and technology training, and implementing infrastructure improvements, shall the Franklin Community College District issue $450 million of bonds at legal interest rates with independent oversight, audits, and all funds spent on local sites?"
     },
     {
       "id": "102",
       "districtId": "district-1",
       "type": "yesno",
       "title": "Measure 102: Vehicle Abatement Program",
-      "description": "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?",
-      "_lang": {
-        "es-US": {
-          "title": "Medida 102: Programa de reducción de vehículos",
-          "description": "Si el Programa de reducción de vehículos del condado de Franklin y las tarifas de registro de vehículos (un dólar por vehículo y dos dólares adicionales para ciertos vehículos comerciales pagaderos al registrar un vehículo) se renueven por un período de diez años a partir del 1 de julio de 2021, para la reducción y retiro de vehículos abandonados, destrozados, desmantelados o inoperantes?"
-        }
-      }
+      "description": "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?"
     },
     {
       "id": "measure-666",
@@ -817,12 +630,7 @@
       "title": "Measure 666: Party not associated with any ballot styles",
       "allowWriteIns": true,
       "seats": 1,
-      "candidates": [],
-      "_lang": {
-        "es-US": {
-          "title": "Medida 666: La pregunta a la que nadie llega"
-        }
-      }
+      "candidates": []
     }
   ],
   "precincts": [
@@ -879,32 +687,10 @@
     "To correct a mistake": "To correct a mistake",
     "To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.": "To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.",
     "Thank you for voting.": "Thank you for voting.",
-    "You have reached the end of the ballot. Please review your ballot selections.": "You have reached the end of the ballot. Please review your ballot selections.",
-    "_lang": {
-      "es-US": {
-        "Official Ballot": "Boleta Oficial",
-        "TEST BALLOT": "BOLETA DE PRUEBA",
-        "Yes": "Sí",
-        "No": "No",
-        "Precinct": "Recinto",
-        "Style": "Estilo",
-        "Page": "Página",
-        "Pages": "Paginas",
-        "{{primaryPartyName}} {{electionTitle}}": "{{electionTitle}} del {{primaryPartyName}}",
-        "write-in": "voto por",
-        "Vote for 1": "Voto por 1",
-        "Vote for not more than {{ seats }}": "Voto por no más de {{ seats }}",
-        "voteYesOrNo": "Voto <strong>Sí</strong> o <strong>No</strong>",
-        "Instructions": "Instrucciones",
-        "To vote, use a black pen to completely fill in the oval to the left of your choice.": "Para votar, use un bolígrafo negro para rellenar completamente el óvalo a la izquierda de su selección.",
-        "To Vote for a Write-In": "Para asignar un voto",
-        "To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.": "Para votar para una persona que no figura en la boleta electoral, rellena completamente el óvalo a la izquierda de la línea de “voto por” y escriba el nombre de la persona en la línea.",
-        "To correct a mistake": "Para corregir un error",
-        "To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.": "Para hacer una corrección, solicite una boleta nueva. Cualquier marca que no sea óvalos llenos puede hacer que su boleta no se cuente.",
-        "Thank you for voting.": "Gracias por votar.",
-        "You have reached the end of the ballot. Please review your ballot selections.": "Ha llegado al final de la votación. Por favor revise las opciones seleccionadas en su boleta."
-      }
-    }
+    "You have reached the end of the ballot. Please review your ballot selections.": "You have reached the end of the ballot. Please review your ballot selections."
   },
-  "markThresholds": { "definite": 0.17, "marginal": 0.12 }
+  "markThresholds": {
+    "definite": 0.17,
+    "marginal": 0.12
+  }
 }

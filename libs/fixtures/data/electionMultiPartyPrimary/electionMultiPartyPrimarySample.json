@@ -3,22 +3,11 @@
   "state": "State of Sample",
   "county": {
     "id": "sample-county",
-    "name": "Sample County",
-    "_lang": {
-      "es-US": {
-        "name": "Condado de Muestra"
-      }
-    }
+    "name": "Sample County"
   },
   "date": "2020-11-03T00:00:00-08:00",
   "ballotLayout": {
     "paperSize": "letter"
-  },
-  "_lang": {
-    "es-US": {
-      "title": "Eleccion General",
-      "state": "Estado de Muestra"
-    }
   },
   "districts": [
     {
@@ -43,92 +32,43 @@
       "id": "0",
       "name": "Liberty",
       "fullName": "Liberty Party",
-      "abbrev": "Li",
-      "_lang": {
-        "es-US": {
-          "name": "Libertad",
-          "fullName": "Partido de la Libertad",
-          "abbrev": "Li"
-        }
-      }
+      "abbrev": "Li"
     },
     {
       "id": "1",
       "name": "Democrat",
       "fullName": "Democratic Party",
-      "abbrev": "D",
-      "_lang": {
-        "es-US": {
-          "name": "Demócrata",
-          "fullName": "Partido Democrático",
-          "abbrev": "D"
-        }
-      }
+      "abbrev": "D"
     },
     {
       "id": "2",
       "name": "Republican",
       "fullName": "Republican Party",
-      "abbrev": "R",
-      "_lang": {
-        "es-US": {
-          "name": "Republicano",
-          "fullName": "Partido Republicano",
-          "abbrev": "R"
-        }
-      }
+      "abbrev": "R"
     },
     {
       "id": "3",
       "name": "Constitution",
       "fullName": "Constitution Party",
-      "abbrev": "C",
-      "_lang": {
-        "es-US": {
-          "name": "Constitución",
-          "fullName": "Partido de la Constitución",
-          "abbrev": "C"
-        }
-      }
+      "abbrev": "C"
     },
     {
       "id": "4",
       "name": "Federalist",
       "fullName": "Federalist Party",
-      "abbrev": "F",
-      "_lang": {
-        "es-US": {
-          "name": "Federalista",
-          "fullName": "Partido Federalista",
-          "abbrev": "F"
-        }
-      }
+      "abbrev": "F"
     },
     {
       "id": "5",
       "name": "Labor",
       "fullName": "Labor Party",
-      "abbrev": "La",
-      "_lang": {
-        "es-US": {
-          "name": "Trabajo",
-          "fullName": "Partido del Trabajo",
-          "abbrev": "PT"
-        }
-      }
+      "abbrev": "La"
     },
     {
       "id": "6",
       "name": "Independent",
       "fullName": "Independent Party",
-      "abbrev": "I",
-      "_lang": {
-        "es-US": {
-          "name": "Independiente",
-          "fullName": "Partido Independiente",
-          "abbrev": "I"
-        }
-      }
+      "abbrev": "I"
     }
   ],
   "contests": [

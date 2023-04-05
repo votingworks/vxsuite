@@ -42,17 +42,17 @@
         {
           "id": "1",
           "name": "Ellen Corby",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "2",
           "name": "Willem Defoe",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "3",
           "name": "August Derleth",
-          "partyId": "0"
+          "partyIds": ["0"]
         }
       ]
     }
