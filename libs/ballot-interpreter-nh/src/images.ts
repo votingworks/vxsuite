@@ -1,5 +1,4 @@
 import { getImageChannelCount } from '@votingworks/image-utils';
-import { assert } from '@votingworks/basics';
 import { createImageData } from 'canvas';
 import { Point } from './types';
 
@@ -99,35 +98,6 @@ export function matchTemplate(
 
     if (cutoff < 1 && diff / maxDiff > cutoff) {
       return -1;
-    }
-  }
-
-  return 1 - diff / maxDiff;
-}
-
-/**
- * Scores a template match result image by measuring the total luminosity of the
- * image compared to a mask.
- */
-export function scoreTemplateMatch(image: ImageData, mask: ImageData): number {
-  const imageChannels = getImageChannelCount(image);
-  const maskChannels = getImageChannelCount(mask);
-
-  assert(image.width === mask.width, 'expected same width');
-  assert(image.height === mask.height, 'expected same height');
-
-  let maxDiff = 0;
-  let diff = 0;
-
-  for (
-    let offset = 0, maskOffset = 0;
-    offset < image.data.length;
-    offset += imageChannels, maskOffset += maskChannels
-  ) {
-    const lum = image.data[offset] as number;
-    if (mask.data[maskOffset] === 255) {
-      diff += Math.abs(lum - 255);
-      maxDiff += 255;
     }
   }
 

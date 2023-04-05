@@ -631,11 +631,6 @@ export const ExportFileErrorSchema: z.ZodSchema<ExportFileError> =
   ]);
 
 /**
- * Result of exporting a file to the file system.
- */
-export type ExportFileResult = Result<string[], ExportFileError>;
-
-/**
  * Possible errors when backing up the scan service.
  */
 export type BackupError =

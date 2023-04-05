@@ -17,15 +17,6 @@ import {
   MsEitherNeitherContest,
 } from '../utils/ms_either_neither_contests';
 
-// Events
-export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void;
-export type InputChangeEventFunction =
-  React.ChangeEventHandler<HTMLInputElement>;
-export type TextareaChangeEventFunction =
-  React.ChangeEventHandler<HTMLTextAreaElement>;
-export type SelectChangeEventFunction =
-  React.ChangeEventHandler<HTMLSelectElement>;
-
 // Ballot
 export type UpdateVoteFunction = (
   contestId: ContestId,

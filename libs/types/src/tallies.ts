@@ -8,10 +8,6 @@ export type YesNoVoteId = 'yes' | 'no';
 export type YesNoVoteOption = ['yes'] | ['no'] | [];
 export type ContestVoteOption = Candidate | YesNoVoteOption;
 
-export interface YesNoContestOptionTally {
-  readonly option: YesNoVoteOption;
-  readonly tally: number;
-}
 export interface ContestOptionTally {
   readonly option: ContestVoteOption;
   readonly tally: number;
@@ -28,7 +24,6 @@ export interface ContestTallyMeta {
   readonly undervotes: number;
   readonly ballots: number;
 }
-export type ContestTallyMetaDictionary = Dictionary<ContestTallyMeta>;
 
 export interface Tally {
   readonly numberOfBallotsCounted: number;
@@ -91,7 +86,6 @@ export type FullElectionExternalTallies = ReadonlyMap<
 >;
 
 export type OptionalExternalTally = Optional<ExternalTally>;
-export type OptionalFullElectionTally = Optional<FullElectionTally>;
 export type OptionalFullElectionExternalTally =
   Optional<FullElectionExternalTally>;
 

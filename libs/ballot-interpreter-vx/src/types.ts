@@ -1,5 +1,4 @@
 import {
-  BallotImage,
   BallotMark,
   BallotPageLayoutWithImage,
   BallotPageMetadata,
@@ -7,10 +6,6 @@ import {
   ImageData,
 } from '@votingworks/types';
 import { Buffer } from 'buffer';
-
-export interface GetBallotOptions {
-  markScoreVoteThreshold: number;
-}
 
 export interface Interpreted {
   matchedTemplate: BallotPageLayoutWithImage;
@@ -27,11 +22,6 @@ export interface FindMarksResult {
   marks: BallotMark[];
 }
 
-export interface UninterpretedBallot {
-  ballotImage: BallotImage;
-  reason: string | Error;
-}
-
 export interface Input {
   id(): string;
   imageData(): Promise<ImageData>;
@@ -43,8 +33,4 @@ export interface DetectQrCodeResult {
   data: Buffer;
   position: 'top' | 'bottom';
   detector: string;
-}
-
-export interface DetectQrCode {
-  (imageData: ImageData): Promise<DetectQrCodeResult | undefined>;
 }

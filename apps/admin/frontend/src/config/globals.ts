@@ -1,6 +1,5 @@
 import { Dictionary } from '@votingworks/types';
 
-export const CHECK_ICON = '✓';
 export const DEFAULT_LOCALE = 'en-US';
 export const LANGUAGES: Dictionary<string> = {
   en: 'English',

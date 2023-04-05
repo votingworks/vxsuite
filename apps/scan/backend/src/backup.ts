@@ -6,6 +6,7 @@ import { FULL_LOG_PATH } from '@votingworks/logging';
 import { assert, ok, Result } from '@votingworks/basics';
 import {
   CAST_VOTE_RECORD_REPORT_FILENAME,
+  SCANNER_BACKUPS_FOLDER,
   generateElectionBasedSubfolderName,
 } from '@votingworks/utils';
 import Database from 'better-sqlite3';
@@ -252,7 +253,7 @@ export async function backupToUsbDrive(
 
   const exporter = buildExporter(usb);
   const result = await exporter.exportDataToUsbDrive(
-    'scanner-backups',
+    SCANNER_BACKUPS_FOLDER,
     `${generateElectionBasedSubfolderName(
       electionDefinition.election,
       electionDefinition.electionHash

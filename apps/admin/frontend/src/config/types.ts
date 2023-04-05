@@ -13,15 +13,11 @@ import { Optional, throwIllegalValue } from '@votingworks/basics';
 import { z } from 'zod';
 
 // Events
-export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void;
 export type InputEventFunction = (
   event: React.FormEvent<HTMLInputElement>
 ) => PromiseOr<void>;
 export type TextareaEventFunction = (
   event: React.FormEvent<HTMLTextAreaElement>
-) => PromiseOr<void>;
-export type ButtonEventFunction = (
-  event: React.MouseEvent<HTMLButtonElement>
 ) => PromiseOr<void>;
 
 export const PrintableBallotType = {

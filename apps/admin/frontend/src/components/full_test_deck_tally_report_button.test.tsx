@@ -3,13 +3,17 @@ import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleDefinition,
 } from '@votingworks/fixtures';
-import { expectPrint, fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
+import {
+  expectPrint,
+  fakeFileWriter,
+  fakeKiosk,
+  fakeUsbDrive,
+} from '@votingworks/test-utils';
 import React from 'react';
 import { screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { FullTestDeckTallyReportButton } from './full_test_deck_tally_report_button';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
-import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 
 beforeEach(() => {
   const mockKiosk = fakeKiosk();
