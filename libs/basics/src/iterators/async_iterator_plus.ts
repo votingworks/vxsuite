@@ -153,6 +153,21 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return (await iterable[Symbol.asyncIterator]().next()).value;
   }
 
+  flatMap<U>(
+    fn: (value: T, index: number) => Iterable<U> | AsyncIterable<U>
+  ): AsyncIteratorPlus<U> {
+    const { iterable } = this;
+    return new AsyncIteratorPlusImpl(
+      (async function* gen() {
+        let index = 0;
+        for await (const value of iterable) {
+          yield* fn(value, index);
+          index += 1;
+        }
+      })()
+    ) as AsyncIteratorPlus<U>;
+  }
+
   async last(): Promise<T | undefined> {
     let lastElement: T | undefined;
     for await (const it of this.iterable) {
@@ -335,35 +350,41 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   }
 
   zip(): AsyncIteratorPlus<[T]>;
-  zip<U>(other: AsyncIterable<U>): AsyncIteratorPlus<[T, U]>;
+  zip<U>(other: Iterable<U> | AsyncIterable<U>): AsyncIteratorPlus<[T, U]>;
   zip<U, V>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>
   ): AsyncIteratorPlus<[T, U, V]>;
   zip<U, V, W>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>,
-    other3: AsyncIterable<W>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>,
+    other3: Iterable<W> | AsyncIterable<W>
   ): AsyncIteratorPlus<[T, U, V, W]>;
   zip<U, V, W, X>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>,
-    other3: AsyncIterable<W>,
-    other4: AsyncIterable<X>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>,
+    other3: Iterable<W> | AsyncIterable<W>,
+    other4: Iterable<X> | AsyncIterable<X>
   ): AsyncIteratorPlus<[T, U, V, W, X]>;
   zip<U, V, W, X, Y>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>,
-    other3: AsyncIterable<W>,
-    other4: AsyncIterable<X>,
-    other5: AsyncIterable<Y>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>,
+    other3: Iterable<W> | AsyncIterable<W>,
+    other4: Iterable<X> | AsyncIterable<X>,
+    other5: Iterable<Y> | AsyncIterable<Y>
   ): AsyncIteratorPlus<[T, U, V, W, X, Y]>;
-  zip(...others: Array<AsyncIterable<unknown>>): AsyncIteratorPlus<unknown[]> {
+  zip(
+    ...others: Array<Iterable<unknown> | AsyncIterable<unknown>>
+  ): AsyncIteratorPlus<unknown[]> {
     const { iterable } = this;
     return new AsyncIteratorPlusImpl(
       (async function* gen() {
-        const iterators = [iterable, ...others].map((it) =>
-          it[Symbol.asyncIterator]()
+        const iterators = [iterable, ...others].map(
+          (it) =>
+            /* istanbul ignore next */
+            (it as AsyncIterable<unknown>)[Symbol.asyncIterator]?.() ??
+            /* istanbul ignore next */
+            (it as Iterable<unknown>)[Symbol.iterator]?.()
         );
 
         while (true) {
@@ -385,28 +406,28 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   }
 
   zipMin(): AsyncIteratorPlus<[T]>;
-  zipMin<U>(other: AsyncIterable<U>): AsyncIteratorPlus<[T, U]>;
+  zipMin<U>(other: Iterable<U> | AsyncIterable<U>): AsyncIteratorPlus<[T, U]>;
   zipMin<U, V>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>
   ): AsyncIteratorPlus<[T, U, V]>;
   zipMin<U, V, W>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>,
-    other3: AsyncIterable<W>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>,
+    other3: Iterable<W> | AsyncIterable<W>
   ): AsyncIteratorPlus<[T, U, V, W]>;
   zipMin<U, V, W, X>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>,
-    other3: AsyncIterable<W>,
-    other4: AsyncIterable<X>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>,
+    other3: Iterable<W> | AsyncIterable<W>,
+    other4: Iterable<X> | AsyncIterable<X>
   ): AsyncIteratorPlus<[T, U, V, W, X]>;
   zipMin<U, V, W, X, Y>(
-    other1: AsyncIterable<U>,
-    other2: AsyncIterable<V>,
-    other3: AsyncIterable<W>,
-    other4: AsyncIterable<X>,
-    other5: AsyncIterable<Y>
+    other1: Iterable<U> | AsyncIterable<U>,
+    other2: Iterable<V> | AsyncIterable<V>,
+    other3: Iterable<W> | AsyncIterable<W>,
+    other4: Iterable<X> | AsyncIterable<X>,
+    other5: Iterable<Y> | AsyncIterable<Y>
   ): AsyncIteratorPlus<[T, U, V, W, X, Y]>;
   zipMin(
     ...others: Array<AsyncIterable<unknown>>
