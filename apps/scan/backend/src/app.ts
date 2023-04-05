@@ -379,7 +379,7 @@ function buildApi(
     },
 
     supportsCalibration(): boolean {
-      return true;
+      return typeof machine.calibrate === 'function';
     },
 
     async calibrate(): Promise<boolean> {

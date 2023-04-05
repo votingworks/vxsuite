@@ -1,15 +1,12 @@
-import { MockScannerClient } from '@votingworks/plustek-scanner';
 import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   electionSampleDefinition,
-  systemSettings,
 } from '@votingworks/fixtures';
 import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
 import {
-  safeParseSystemSettings,
   SCANNER_RESULTS_FOLDER,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
@@ -22,10 +19,8 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import {
-  DEFAULT_SYSTEM_SETTINGS,
-  ElectionDefinition,
-} from '@votingworks/types';
+import { ElectionDefinition } from '@votingworks/types';
+import { CustomScanner, mocks } from '@votingworks/custom-scanner';
 import {
   configureApp,
   createBallotPackageWithoutTemplates,
@@ -33,7 +28,7 @@ import {
 } from '../../../test/helpers/shared_helpers';
 import { Api } from '../../app';
 import { SheetInterpretation } from '../../types';
-import { ballotImages, withApp } from '../../../test/helpers/plustek_helpers';
+import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
 jest.mock('@votingworks/ballot-encoder', () => {
@@ -46,13 +41,11 @@ jest.mock('@votingworks/ballot-encoder', () => {
 });
 
 async function scanBallot(
-  mockPlustek: MockScannerClient,
+  mockScanner: jest.Mocked<CustomScanner>,
   apiClient: grout.Client<Api>,
   initialBallotsCounted: number
 ) {
-  (
-    await mockPlustek.simulateLoadSheet(ballotImages.completeBmd)
-  ).unsafeUnwrap();
+  mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
   await waitForStatus(apiClient, {
     state: 'ready_to_scan',
     ballotsCounted: initialBallotsCounted,
@@ -62,13 +55,16 @@ async function scanBallot(
     type: 'ValidSheet',
   };
 
+  mockScanner.scan.mockResolvedValueOnce(ok(await ballotImages.completeBmd()));
   await apiClient.scanBallot();
+  mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
   await waitForStatus(apiClient, {
     state: 'ready_to_accept',
     interpretation,
     ballotsCounted: initialBallotsCounted,
   });
   await apiClient.acceptBallot();
+  mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
   await waitForStatus(apiClient, {
     ballotsCounted: initialBallotsCounted + 1,
     state: 'accepted',
@@ -243,9 +239,9 @@ test('configures using the most recently created ballot package on the usb drive
 test('export CVRs to USB in deprecated VotingWorks format', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockPlustek, mockUsb, mockAuth, workspace }) => {
+    async ({ apiClient, mockScanner, mockUsb, mockAuth, workspace }) => {
       await configureApp(apiClient, mockUsb, { mockAuth });
-      await scanBallot(mockPlustek, apiClient, 0);
+      await scanBallot(mockScanner, apiClient, 0);
       expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 
       const [usbDrive] = await mockUsb.mock.getUsbDrives();
@@ -314,7 +310,7 @@ test('ballot batching', async () => {
     {},
     async ({
       apiClient,
-      mockPlustek,
+      mockScanner,
       logger,
       workspace,
       mockUsb,
@@ -323,8 +319,8 @@ test('ballot batching', async () => {
       await configureApp(apiClient, mockUsb, { mockAuth });
 
       // Scan two ballots, which should have the same batch
-      await scanBallot(mockPlustek, apiClient, 0);
-      await scanBallot(mockPlustek, apiClient, 1);
+      await scanBallot(mockScanner, apiClient, 0);
+      await scanBallot(mockScanner, apiClient, 1);
       let cvrs = await apiClient.getCastVoteRecordsForTally();
       let batchIds = unique(cvrs.map((cvr) => cvr._batchId));
       expect(cvrs).toHaveLength(2);
@@ -362,8 +358,8 @@ test('ballot batching', async () => {
       });
 
       // Confirm there is a new, second batch distinct from the first
-      await scanBallot(mockPlustek, apiClient, 2);
-      await scanBallot(mockPlustek, apiClient, 3);
+      await scanBallot(mockScanner, apiClient, 2);
+      await scanBallot(mockScanner, apiClient, 3);
       cvrs = await apiClient.getCastVoteRecordsForTally();
       batchIds = unique(cvrs.map((cvr) => cvr._batchId));
       expect(cvrs).toHaveLength(4);
@@ -401,8 +397,8 @@ test('ballot batching', async () => {
       });
 
       // Confirm there is a third batch, distinct from the second
-      await scanBallot(mockPlustek, apiClient, 4);
-      await scanBallot(mockPlustek, apiClient, 5);
+      await scanBallot(mockScanner, apiClient, 4);
+      await scanBallot(mockScanner, apiClient, 5);
       cvrs = await apiClient.getCastVoteRecordsForTally();
       batchIds = unique(cvrs.map((cvr) => cvr._batchId));
       expect(cvrs).toHaveLength(6);
@@ -474,57 +470,6 @@ test('auth after configuration passes populated machine state', async () => {
       1,
       { electionHash },
       { pin: '123456' }
-    );
-  });
-});
-
-test('getConfig() returns system settings if they exist', async () => {
-  await withApp({}, async ({ apiClient, mockUsb, mockAuth }) => {
-    const systemSettingsString = systemSettings.asText();
-    mockElectionManager(
-      mockAuth,
-      electionMinimalExhaustiveSampleSinglePrecinctDefinition
-    );
-    mockUsb.insertUsbDrive({
-      'ballot-packages': {
-        'test-ballot-package.zip': createBallotPackageWithoutTemplates(
-          electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-          { systemSettingsString }
-        ),
-      },
-    });
-    expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
-      ok()
-    );
-    const config = await apiClient.getConfig();
-    expect(config.systemSettings).toMatchObject(
-      safeParseSystemSettings(systemSettingsString).unsafeUnwrap()
-    );
-  });
-});
-
-test("getConfig() returns default system settings when the file doesn't exist", async () => {
-  await withApp({}, async ({ apiClient, mockUsb, mockAuth }) => {
-    mockElectionManager(
-      mockAuth,
-      electionMinimalExhaustiveSampleSinglePrecinctDefinition
-    );
-    mockUsb.insertUsbDrive({
-      'ballot-packages': {
-        'test-ballot-package.zip': createBallotPackageWithoutTemplates(
-          electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-          { omitSystemSettings: true }
-        ),
-      },
-    });
-    expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
-      ok()
-    );
-    const config = await apiClient.getConfig();
-    expect(config.systemSettings).toMatchObject(
-      safeParseSystemSettings(
-        JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
-      ).unsafeUnwrap()
     );
   });
 });
