@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
-import IdleTimer from 'react-idle-timer';
+import { IdleTimerProvider } from 'react-idle-timer';
 
 import { ContestPage } from '../pages/contest_page';
 import { IdlePage } from '../pages/idle_page';
@@ -44,7 +44,7 @@ export function Ballot(): JSX.Element {
   }
 
   return (
-    <IdleTimer
+    <IdleTimerProvider
       element={document}
       onActive={onActive}
       onIdle={onIdle}
@@ -75,6 +75,6 @@ export function Ballot(): JSX.Element {
           {showSettingsModal && <VoterSettingsModal />}
         </React.Fragment>
       )}
-    </IdleTimer>
+    </IdleTimerProvider>
   );
 }

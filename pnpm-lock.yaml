@@ -1776,8 +1776,8 @@ importers:
         specifier: ^1.0.3
         version: 1.0.3(react@17.0.1)
       react-idle-timer:
-        specifier: 4.2.12
-        version: 4.2.12(prop-types@15.8.1)(react-dom@17.0.1)(react@17.0.1)
+        specifier: ^5.5.3
+        version: 5.5.3(react-dom@17.0.1)(react@17.0.1)
       react-refresh:
         specifier: ^0.8.3
         version: 0.8.3
@@ -8042,6 +8042,16 @@ packages:
       '@babel/helper-plugin-utils': 7.20.2
     dev: true
 
+  /@babel/plugin-transform-typeof-symbol@7.18.9(@babel/core@7.12.3):
+    resolution: {integrity: sha512-SRfwTtF11G2aemAZWivL7PD+C9z52v9EvMqH9BuYbabyPuKUvSWks3oCg6041pT925L4zVFqaVBeECwsmlguEw==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.12.3
+      '@babel/helper-plugin-utils': 7.20.2
+    dev: true
+
   /@babel/plugin-transform-typeof-symbol@7.18.9(@babel/core@7.20.12):
     resolution: {integrity: sha512-SRfwTtF11G2aemAZWivL7PD+C9z52v9EvMqH9BuYbabyPuKUvSWks3oCg6041pT925L4zVFqaVBeECwsmlguEw==}
     engines: {node: '>=6.9.0'}
@@ -11070,7 +11080,7 @@ packages:
       react: '>=16'
     dependencies:
       '@types/mdx': 2.0.3
-      '@types/react': 17.0.40
+      '@types/react': 17.0.39
       react: 17.0.2
     dev: true
 
@@ -12807,7 +12817,7 @@ packages:
   /@types/hoist-non-react-statics@3.3.1:
     resolution: {integrity: sha512-iMIqiko6ooLrTh1joXodJK5X9xeEALT1kM5G3ZLhD3hszxBdIEd5C75U834D9mLcINgD4OyZf5uQXjkuYydWvA==}
     dependencies:
-      '@types/react': 17.0.40
+      '@types/react': 17.0.39
       hoist-non-react-statics: 3.3.2
 
   /@types/html-minifier-terser@5.1.1:
@@ -13129,7 +13139,7 @@ packages:
     resolution: {integrity: sha512-z3UlMG/x91SFEVmmvykk9FLTliDvfdIUky4k2rCfXWQ0NKbrP8o9BTCaCTPuYsB8gDkUnUmkcA2vYlm2DR+HAA==}
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 17.0.40
+      '@types/react': 17.0.39
 
   /@types/react-test-renderer@18.0.0:
     resolution: {integrity: sha512-C7/5FBJ3g3sqUahguGi03O79b8afNeSD6T8/GU50oQrJCU0bVCCGQHaGKUbg2Ce8VQEEqTw8/HiS6lXHHdgkdQ==}
@@ -30558,26 +30568,13 @@ packages:
       react: 17.0.1
     dev: false
 
-  /react-idle-timer@4.2.12(prop-types@15.8.1)(react-dom@17.0.1)(react@17.0.1):
-    resolution: {integrity: sha512-YD/2Oe4PU5uRv/TH6zTxykKMHpRHWHPEWCUohda81o/jzsrlgyUrklfy46fd8WjgYhlNkJKsiX/GXJAQQC1hcQ==}
-    peerDependencies:
-      prop-types: ^15.x.x
-      react: ^16.x.x
-      react-dom: ^16.x.x
-    dependencies:
-      '@types/react': 17.0.40
-      prop-types: 15.8.1
-      react: 17.0.1
-      react-dom: 17.0.1(react@17.0.1)
-    dev: false
-
   /react-idle-timer@5.5.3(react-dom@17.0.1)(react@17.0.1):
     resolution: {integrity: sha512-fn2kNPz4BVEN/U05IzBQGPIfFlkjk0ekj8uKQaHAH/uBbATJDFmyxK0k36hv4kmzN8oFr8pe+C4zU5NJDBnfBQ==}
     peerDependencies:
       react: '>=16'
       react-dom: '>=16'
     dependencies:
-      '@types/react': 17.0.40
+      '@types/react': 17.0.39
       prop-types: 15.8.1
       react: 17.0.1
       react-dom: 17.0.1(react@17.0.1)

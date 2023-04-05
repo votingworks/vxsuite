@@ -16,7 +16,7 @@ import {
 
 import Gamepad from 'react-gamepad';
 import { useHistory } from 'react-router-dom';
-import IdleTimer from 'react-idle-timer';
+import { IdleTimerProvider } from 'react-idle-timer';
 import {
   Storage,
   Hardware,
@@ -792,7 +792,7 @@ export function AppRoot({
     }
 
     return (
-      <IdleTimer
+      <IdleTimerProvider
         onIdle={() => /* istanbul ignore next */ window.kiosk?.quit()}
         timeout={GLOBALS.QUIT_KIOSK_IDLE_SECONDS * 1000}
       >
@@ -804,7 +804,7 @@ export function AppRoot({
           isLiveMode={isLiveMode}
           pollsState={pollsState}
         />
-      </IdleTimer>
+      </IdleTimerProvider>
     );
   }
   return (

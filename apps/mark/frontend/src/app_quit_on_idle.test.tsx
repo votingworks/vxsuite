@@ -4,6 +4,7 @@ import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
+import { createMocks as createReactIdleTimerMocks } from 'react-idle-timer';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { App } from './app';
 
@@ -25,6 +26,7 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers();
+  createReactIdleTimerMocks();
   window.location.href = '/';
   window.kiosk = fakeKiosk();
   apiMock = createApiMock();
