@@ -17,7 +17,6 @@ import { Logger, LogSource } from '@votingworks/logging';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
-import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { ScreenMainCenterChild } from '../components/layout';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import {
@@ -97,7 +96,10 @@ export function ElectionManagerScreen({
   }
 
   return (
-    <ScreenMainCenterChild infoBarMode="admin">
+    <ScreenMainCenterChild
+      infoBarMode="admin"
+      ballotCountOverride={scannerStatus.ballotsCounted}
+    >
       <Prose textCenter>
         <h1>Election Manager Settings</h1>
         {election.precincts.length > 1 && (
@@ -208,7 +210,6 @@ export function ElectionManagerScreen({
           </p>
         )}
       </Prose>
-      <ScannedBallotCount count={scannerStatus.ballotsCounted} />
       {isMarkThresholdModalOpen && (
         <SetMarkThresholdsModal
           markThresholds={electionDefinition.election.markThresholds}

@@ -1,30 +1,24 @@
 import React from 'react';
-import { Prose } from '@votingworks/ui';
-import { format } from '@votingworks/utils';
+import { BigMetric } from '@votingworks/ui';
 import styled from 'styled-components';
-import { Absolute } from './absolute';
 
 interface Props {
   count: number;
 }
 
 const BallotsScannedContainer = styled.div`
-  padding: 0.5rem 0.75rem;
+  display: inline-block;
+  padding: 0.125rem 0.25rem;
 `;
 
 export function ScannedBallotCount({ count }: Props): JSX.Element {
   return (
-    <Absolute top left>
-      <BallotsScannedContainer>
-        <Prose themeDeprecated={{ fontSize: '1.25rem' }}>
-          <p>Ballots Scanned</p>
-        </Prose>
-        <Prose themeDeprecated={{ fontSize: '3.5rem' }}>
-          <p>
-            <strong data-testid="ballot-count">{format.count(count)}</strong>
-          </p>
-        </Prose>
-      </BallotsScannedContainer>
-    </Absolute>
+    <BallotsScannedContainer>
+      <BigMetric
+        label="Ballots Scanned"
+        value={count}
+        valueElementTestId="ballot-count"
+      />
+    </BallotsScannedContainer>
   );
 }

@@ -1,6 +1,7 @@
 /* istanbul ignore file */
 export * from './app_base';
 export * from './auth';
+export * from './big_metric';
 export * from './bmd_paper_ballot';
 export * from './button';
 export * from './button_bar';
@@ -30,6 +31,7 @@ export * from './icons';
 export * from './input_group';
 export * from './insert_ballot_image';
 export * from './insert_card_image';
+export * from './labelled_text';
 export * from './link_button';
 export * from './loading';
 export * from './loading_animation';

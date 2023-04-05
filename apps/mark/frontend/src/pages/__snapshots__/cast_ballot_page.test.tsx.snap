@@ -38,13 +38,13 @@ exports[`renders CastBallotPage 1`] = `
 }
 
 <div
-  class="sc-giYgFv iAOAuC"
+  class="sc-cTApHj bvoLMG"
 >
   <main
-    class="sc-ezbkgU jjwGyL"
+    class="sc-jObXwK hbqLlw"
   >
     <div
-      class="sc-hKwCoD NKPqV"
+      class="sc-fotPbf cxKIyQ"
       id="audiofocus"
     >
       <h1
@@ -67,7 +67,7 @@ exports[`renders CastBallotPage 1`] = `
             style="left: -0.75em;"
           />
           <p
-            class="sc-bdvvaa NLRzK"
+            class="sc-bqiQRQ bIFmdQ"
           >
             1. Verify your official ballot.
           </p>
@@ -80,7 +80,7 @@ exports[`renders CastBallotPage 1`] = `
             src="/images/instructions-2-scan.svg"
           />
           <p
-            class="sc-bdvvaa NLRzK"
+            class="sc-bqiQRQ bIFmdQ"
           >
             2. Scan your official ballot.
           </p>
@@ -97,11 +97,11 @@ exports[`renders CastBallotPage 1`] = `
       class="c2"
     >
       <button
-        class="sc-bqiQRQ cvycME"
+        class="sc-llYToB iUIsHk"
         type="button"
       >
         <span
-          class="sc-hBURRC gusydx"
+          class="sc-giYgFv hVfOtt"
         >
           Done
         </span>

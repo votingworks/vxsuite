@@ -2,7 +2,6 @@ import React from 'react';
 import { CenteredLargeProse, Text } from '@votingworks/ui';
 import { TimesCircle } from '../components/graphics';
 import { ScreenMainCenterChild } from '../components/layout';
-import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
 interface Props {
   scannedBallotCount: number;
@@ -10,7 +9,10 @@ interface Props {
 
 export function ScanJamScreen({ scannedBallotCount }: Props): JSX.Element {
   return (
-    <ScreenMainCenterChild infoBar={false}>
+    <ScreenMainCenterChild
+      infoBar={false}
+      ballotCountOverride={scannedBallotCount}
+    >
       <TimesCircle />
       <CenteredLargeProse>
         <h1>Ballot Not Counted</h1>
@@ -19,7 +21,6 @@ export function ScanJamScreen({ scannedBallotCount }: Props): JSX.Element {
           Ask a poll worker for help.
         </Text>
       </CenteredLargeProse>
-      <ScannedBallotCount count={scannedBallotCount} />
     </ScreenMainCenterChild>
   );
 }

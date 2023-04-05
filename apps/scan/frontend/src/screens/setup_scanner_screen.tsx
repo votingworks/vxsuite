@@ -1,7 +1,6 @@
 import React from 'react';
 import { CenteredLargeProse, Text } from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
-import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
 interface Props {
   batteryIsCharging: boolean;
@@ -16,7 +15,10 @@ export function SetupScannerScreen({
   // internal wiring issue. Otherwise if we can't detect the scanner, the power
   // cord is likely not plugged in.
   return (
-    <ScreenMainCenterChild infoBar={false}>
+    <ScreenMainCenterChild
+      infoBar={false}
+      ballotCountOverride={scannedBallotCount}
+    >
       {batteryIsCharging ? (
         <CenteredLargeProse>
           <h1>Internal Connection Problem</h1>
@@ -29,9 +31,6 @@ export function SetupScannerScreen({
             Please ask a poll worker to plug in the power cord.
           </Text>
         </CenteredLargeProse>
-      )}
-      {scannedBallotCount !== undefined && (
-        <ScannedBallotCount count={scannedBallotCount} />
       )}
     </ScreenMainCenterChild>
   );
