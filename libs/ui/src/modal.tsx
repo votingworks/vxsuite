@@ -1,7 +1,10 @@
-import { assert } from '@votingworks/basics';
+/* stylelint-disable order/properties-order, value-keyword-case, order/order */
 import React, { ReactNode } from 'react';
 import ReactModal from 'react-modal';
 import styled from 'styled-components';
+import { rgba } from 'polished';
+
+import { assert } from '@votingworks/basics';
 
 import { Theme } from './themes';
 import { ButtonBar } from './button_bar';
@@ -29,14 +32,16 @@ const ReactModalContent = styled('div')<ReactModalContentInterface>`
   left: 0;
   margin: auto;
   outline: none;
-  background: #ffffff;
+  background: ${(p) => p.theme.colors.background};
+  border: ${(p) => p.theme.sizes.bordersRem.medium}rem solid
+    ${(p) => p.theme.colors.foreground};
   width: 100%;
   overflow: auto;
   font-size: ${({ themeDeprecated }) => themeDeprecated?.fontSize};
   -webkit-overflow-scrolling: touch;
   @media (min-width: 480px) {
     position: static;
-    border-radius: ${({ fullscreen }) => (fullscreen ? '0' : '0.25rem')};
+    border-radius: ${({ fullscreen }) => (fullscreen ? '0' : '0.5rem')};
     max-width: ${({ fullscreen, modalWidth = ModalWidth.Standard }) =>
       fullscreen ? '100%' : modalWidth};
     height: ${({ fullscreen }) => (fullscreen ? '100%' : 'auto')};
@@ -57,7 +62,7 @@ const ReactModalOverlay = styled('div')<ReactModalOverlayInterface>`
   bottom: 0;
   left: 0;
   z-index: 999; /* Should be above all default UI */
-  background: rgba(0, 0, 0, 0.75);
+  background: ${(p) => rgba(p.theme.colors.foreground, 0.75)};
   @media (min-width: 480px) {
     padding: ${({ fullscreen }) => (fullscreen ? '0' : '0.5rem')};
   }
@@ -80,10 +85,11 @@ const ModalContent = styled('div')<ModalContentInterface>`
   justify-content: ${({ centerContent = false }) =>
     centerContent ? 'center' : undefined};
   overflow: auto;
-  padding: ${({ fullscreen }) => !fullscreen && '2rem'};
+  padding: ${({ fullscreen }) => !fullscreen && '1rem'};
 `;
 
-interface Props {
+/** Props for {@link Modal}. */
+export interface ModalProps {
   ariaLabel?: string;
   // If a Modal is created and destroyed too quickly it can screw up the aria
   // focus elements. In that case use ariaHideApp=true to disable the default
@@ -147,7 +153,7 @@ export function Modal({
   onOverlayClick,
   modalWidth,
   themeDeprecated,
-}: Props): JSX.Element {
+}: ModalProps): JSX.Element {
   /* istanbul ignore next - can't get document.getElementById working in test */
   const appElement =
     document.getElementById('root') ??

@@ -16,7 +16,8 @@ exports[`Modal can configure a wider max width 1`] = `
   left: 0;
   margin: auto;
   outline: none;
-  background: #ffffff;
+  background: #edeff0;
+  border: 0.15rem solid #263238;
   width: 100%;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
@@ -34,13 +35,13 @@ exports[`Modal can configure a wider max width 1`] = `
   -ms-flex-direction: column;
   flex-direction: column;
   overflow: auto;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 @media (min-width:480px) {
   .c0 {
     position: static;
-    border-radius: 0.25rem;
+    border-radius: 0.5rem;
     max-width: 55rem;
     height: auto;
   }
@@ -104,7 +105,8 @@ exports[`Modal can configure fullscreen 1`] = `
   left: 0;
   margin: auto;
   outline: none;
-  background: #ffffff;
+  background: #edeff0;
+  border: 0.15rem solid #263238;
   width: 100%;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
