@@ -1,7 +1,16 @@
 import { Buffer } from 'buffer';
 import { spawn } from 'child_process';
 import { existsSync, promises as fs } from 'fs';
+import path from 'path';
 import { v4 as uuid } from 'uuid';
+
+/**
+ * The path to the openssl config file
+ */
+export const OPENSSL_CONFIG_FILE_PATH = path.join(
+  __dirname,
+  '../certs/openssl.cnf'
+);
 
 /**
  * The static header for a public key in DER format
@@ -193,7 +202,6 @@ export async function createCert({
   certSubject,
   certType = 'standard',
   expiryInDays,
-  opensslConfig,
   publicKeyToSign,
   signingCertAuthorityCert,
   signingPrivateKey,
@@ -202,7 +210,6 @@ export async function createCert({
   certSubject: string;
   certType?: 'standard' | 'certAuthorityCert';
   expiryInDays: number;
-  opensslConfig: FilePathOrBuffer;
   publicKeyToSign: FilePathOrBuffer;
   signingCertAuthorityCert: FilePathOrBuffer;
   signingPrivateKey: FilePathOrBuffer;
@@ -222,7 +229,7 @@ export async function createCert({
     'req',
     '-new',
     '-config',
-    opensslConfig,
+    OPENSSL_CONFIG_FILE_PATH,
     '-key',
     throwawayPrivateKey,
     '-subj',
@@ -245,7 +252,7 @@ export async function createCert({
     '-days',
     `${expiryInDays}`,
     ...(certType === 'certAuthorityCert'
-      ? ['-extensions', 'v3_ca', '-extfile', opensslConfig]
+      ? ['-extensions', 'v3_ca', '-extfile', OPENSSL_CONFIG_FILE_PATH]
       : []),
   ]);
   return cert;
