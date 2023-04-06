@@ -262,7 +262,7 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0, // Browser default.
     lineHeight: 1.2,
-    minTouchAreaSeparationPx: 0,
+    minTouchAreaSeparationPx: VVSG_MIN_TOUCH_AREA_SEPARATION_PX,
     minTouchAreaSizePx: 0,
   },
 };

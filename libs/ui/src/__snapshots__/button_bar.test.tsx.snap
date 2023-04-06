@@ -13,20 +13,20 @@ exports[`renders ButtonBar 1`] = `
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  border-bottom: 1px solid rgb(169,169,169);
-  background: rgba(0,0,0,0.05);
-  padding: 0.25rem;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  border-top: 0.05rem solid #263238;
+  padding: 0.75rem;
+  gap: 7.2px;
 }
 
 .c0 > *:first-child {
   -webkit-order: 2;
   -ms-flex-order: 2;
   order: 2;
-  min-width: 50%;
+  min-width: 40%;
 }
 
 .c0 > * {
@@ -34,7 +34,6 @@ exports[`renders ButtonBar 1`] = `
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
   flex-grow: 1;
-  margin: 0.25rem;
 }
 
 @media print {
@@ -60,9 +59,9 @@ exports[`renders ButtonBar 1`] = `
   }
 }
 
-<nav
+<div
   class="c0"
 >
   foo
-</nav>
+</div>
 `;
