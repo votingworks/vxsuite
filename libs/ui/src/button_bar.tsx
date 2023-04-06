@@ -1,22 +1,22 @@
 import styled from 'styled-components';
 
-export const ButtonBar = styled('nav')`
+export const ButtonBar = styled('div')`
   display: flex;
   flex-wrap: wrap-reverse;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgb(169, 169, 169);
-  background: rgba(0, 0, 0, 0.05);
-  padding: 0.25rem;
+  justify-content: center;
+  border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.foreground};
+  padding: 0.75rem;
+  gap: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
 
   & > *:first-child {
     order: 2;
-    min-width: 50%;
+    min-width: 40%;
   }
 
   & > * {
     flex-grow: 1;
-    margin: 0.25rem;
   }
   & > *:only-child {
     @media (min-width: 480px) {
