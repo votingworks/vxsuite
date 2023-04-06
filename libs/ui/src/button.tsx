@@ -32,6 +32,7 @@ export interface StyledButtonProps {
   className?: string;
   disabled?: boolean;
   id?: string;
+  role?: string;
   variant?: ButtonVariant;
 
   /** @deprecated Place the button within a flex or grid container instead. */
@@ -160,7 +161,7 @@ function getBorderColor(p: ThemedStyledButtonProps): Color | undefined {
 
 const sizeThemeStyles = css<StyledButtonProps>`
   align-items: center;
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
   justify-content: center;
   font-family: inherit;
@@ -348,7 +349,7 @@ export class Button<T = undefined> extends PureComponent<
   }
 }
 
-export const SegmentedButton = styled.span`
+export const SegmentedButtonDeprecated = styled.span`
   display: inline-flex;
   white-space: nowrap;
   & > button {

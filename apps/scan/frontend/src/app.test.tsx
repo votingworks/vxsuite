@@ -227,14 +227,22 @@ test('election manager and poll worker configuration', async () => {
   // Change mode as Election Manager
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectSetTestMode(false);
-  config = { ...config, isTestMode: true };
+  config = { ...config, isTestMode: false };
 
   await hackActuallyCleanUpReactModal();
 
   apiMock.expectGetConfig(config);
-  userEvent.click(await screen.findButton('Official Ballot Mode'));
+  userEvent.click(
+    await screen.findByRole('option', {
+      name: 'Official Ballot Mode',
+      selected: false,
+    })
+  );
   await waitFor(() =>
-    expect(screen.getButton('Official Ballot Mode')).toBeDisabled()
+    screen.findByRole('option', {
+      name: 'Official Ballot Mode',
+      selected: true,
+    })
   );
 
   // Change precinct as Election Manager

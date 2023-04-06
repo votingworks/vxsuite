@@ -127,22 +127,16 @@ export function ElectionManagerScreen({
           />
         )}
         <p>
-          <SegmentedButton>
-            <Button
-              large
-              onPress={handleTogglingTestMode}
-              disabled={isTestMode || setTestModeMutation.isLoading}
-            >
-              Test Ballot Mode
-            </Button>
-            <Button
-              large
-              onPress={handleTogglingTestMode}
-              disabled={!isTestMode || setTestModeMutation.isLoading}
-            >
-              Official Ballot Mode
-            </Button>
-          </SegmentedButton>
+          <SegmentedButton
+            disabled={setTestModeMutation.isLoading}
+            label="Ballot Mode:"
+            onChange={handleTogglingTestMode}
+            options={[
+              { id: 'test', label: 'Test Ballot Mode' },
+              { id: 'official', label: 'Official Ballot Mode' },
+            ]}
+            selectedOptionId={isTestMode ? 'test' : 'official'}
+          />
         </p>
         <p>
           <SetClockButton large>

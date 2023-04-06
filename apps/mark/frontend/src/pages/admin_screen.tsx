@@ -132,22 +132,16 @@ export function AdminScreen({
               </p>
               <h2>Test Ballot Mode</h2>
               <p>
-                <SegmentedButton>
-                  <Button
-                    onPress={toggleLiveMode}
-                    variant={isLiveMode ? 'regular' : 'primary'}
-                    disabled={!isLiveMode}
-                  >
-                    Test Ballot Mode
-                  </Button>
-                  <Button
-                    onPress={toggleLiveMode}
-                    variant={isLiveMode ? 'primary' : 'regular'}
-                    disabled={isLiveMode}
-                  >
-                    Official Ballot Mode
-                  </Button>
-                </SegmentedButton>
+                <SegmentedButton
+                  label="Test Ballot Mode"
+                  hideLabel
+                  onChange={toggleLiveMode}
+                  options={[
+                    { id: 'test', label: 'Test Ballot Mode' },
+                    { id: 'official', label: 'Official Ballot Mode' },
+                  ]}
+                  selectedOptionId={isLiveMode ? 'official' : 'test'}
+                />
                 <br />
                 <Text small italic as="span">
                   Switching the mode will reset the Ballots Printed count.

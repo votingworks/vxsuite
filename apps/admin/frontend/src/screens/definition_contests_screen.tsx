@@ -14,7 +14,12 @@ import {
   ContestId,
 } from '@votingworks/types';
 
-import { Button, SegmentedButton, Prose, Text } from '@votingworks/ui';
+import {
+  Button,
+  SegmentedButtonDeprecated as SegmentedButton,
+  Prose,
+  Text,
+} from '@votingworks/ui';
 import { readFileAsyncAsString } from '@votingworks/utils';
 import { InputEventFunction, TextareaEventFunction } from '../config/types';
 
