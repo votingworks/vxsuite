@@ -124,7 +124,7 @@ export function getBooleanEnvVarConfig(
     case BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS:
       return {
         name,
-        allowInProduction: false,
+        allowInProduction: true,
         autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.USE_MOCK_CARDS:
