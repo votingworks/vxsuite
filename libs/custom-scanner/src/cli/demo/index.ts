@@ -15,8 +15,10 @@ import {
   ReleaseType,
   ScanParameters,
   ScanSide,
+  SensorStatus,
 } from '../../types';
 import { CustomScanner } from '../../types/custom_scanner';
+import { watchStatus } from '../../utils/status_watcher';
 
 function readlines(prompt = '> '): AsyncIterableIterator<string> {
   const rl = readline.createInterface({
@@ -88,6 +90,7 @@ export async function main(): Promise<number> {
     'eject - Ejects the paper forward',
     'retract - Retracts the paper',
     'load - Loads paper',
+    'autoscan - Continously watch for paper and scan and eject everything',
     '',
     chalk.bold('Enter a command: '),
   ].join('\n');
@@ -161,6 +164,71 @@ export async function main(): Promise<number> {
               sideB.imageBuffer,
             ])
           );
+        }
+        break;
+      }
+
+      case 'autoscan': {
+        let ballotsScanned = 0;
+        writeOutput('Waiting for paper...');
+        const watcher = watchStatus(scanner);
+        for await (const statusResult of watcher) {
+          if (!statusResult.isOk()) {
+            continue;
+          }
+          const scannerStatus = statusResult.ok();
+          const frontHasPaper =
+            scannerStatus.sensorInputLeftLeft === SensorStatus.PaperPresent &&
+            scannerStatus.sensorInputCenterLeft === SensorStatus.PaperPresent &&
+            scannerStatus.sensorInputCenterRight ===
+              SensorStatus.PaperPresent &&
+            scannerStatus.sensorInputRightRight === SensorStatus.PaperPresent;
+          const backHasPaper =
+            scannerStatus.sensorOutputLeftLeft === SensorStatus.PaperPresent &&
+            scannerStatus.sensorOutputCenterLeft ===
+              SensorStatus.PaperPresent &&
+            scannerStatus.sensorOutputCenterRight ===
+              SensorStatus.PaperPresent &&
+            scannerStatus.sensorOutputRightRight === SensorStatus.PaperPresent;
+          if (frontHasPaper && !backHasPaper) {
+            const scanParameters: ScanParameters = {
+              wantedScanSide: ScanSide.A_AND_B,
+              formStandingAfterScan: FormStanding.HOLD_TICKET,
+              resolution: ImageResolution.RESOLUTION_200_DPI,
+              imageColorDepth: ImageColorDepthType.Grey8bpp,
+              doubleSheetDetection: DoubleSheetDetectOpt.DetectOff,
+            };
+            const scanResult = await scanner.scan(scanParameters);
+
+            if (scanResult.isErr()) {
+              writeOutput(`Scan failed: ${inspect(scanResult.err())}`, stderr);
+            } else {
+              const [sideA, sideB] = scanResult.ok();
+
+              await writeFile(
+                'sideA.pgm',
+                Buffer.concat([
+                  Buffer.from('P5\n'),
+                  Buffer.from(`${sideA.imageWidth} ${sideA.imageHeight}\n`),
+                  Buffer.from('255\n'),
+                  sideA.imageBuffer,
+                ])
+              );
+
+              await writeFile(
+                'sideB.pgm',
+                Buffer.concat([
+                  Buffer.from('P5\n'),
+                  Buffer.from(`${sideB.imageWidth} ${sideB.imageHeight}\n`),
+                  Buffer.from('255\n'),
+                  sideA.imageBuffer,
+                ])
+              );
+              void (await scanner.move(FormMovement.EJECT_PAPER_FORWARD));
+              ballotsScanned += 1;
+              writeOutput(`Number of ballots scanned: ${ballotsScanned}`);
+            }
+          }
         }
         break;
       }
