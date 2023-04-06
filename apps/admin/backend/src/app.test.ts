@@ -480,12 +480,8 @@ test('auth', async () => {
     { pin: '123456' }
   );
 
-  await apiClient.logOut();
-  expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
-
   await apiClient.updateSessionExpiry({
-    sessionExpiresAt: new Date().getTime(),
+    sessionExpiresAt: new Date().getTime() + 60 * 1000,
   });
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
@@ -493,6 +489,10 @@ test('auth', async () => {
     { electionHash },
     { sessionExpiresAt: expect.any(Number) }
   );
+
+  await apiClient.logOut();
+  expect(auth.logOut).toHaveBeenCalledTimes(1);
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
 
   void (await apiClient.programCard({ userRole: 'system_administrator' }));
   void (await apiClient.programCard({ userRole: 'election_manager' }));
@@ -524,12 +524,8 @@ test('auth before election definition has been configured', async () => {
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(1, {}, { pin: '123456' });
 
-  await apiClient.logOut();
-  expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, {});
-
   await apiClient.updateSessionExpiry({
-    sessionExpiresAt: new Date().getTime(),
+    sessionExpiresAt: new Date().getTime() + 60 * 1000,
   });
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
@@ -537,6 +533,10 @@ test('auth before election definition has been configured', async () => {
     {},
     { sessionExpiresAt: expect.any(Number) }
   );
+
+  await apiClient.logOut();
+  expect(auth.logOut).toHaveBeenCalledTimes(1);
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, {});
 });
 
 test('setSystemSettings happy path', async () => {

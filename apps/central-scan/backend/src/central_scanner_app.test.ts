@@ -820,12 +820,8 @@ test('auth', async () => {
     { pin: '123456' }
   );
 
-  await apiClient.logOut();
-  expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
-
   await apiClient.updateSessionExpiry({
-    sessionExpiresAt: new Date().getTime(),
+    sessionExpiresAt: new Date().getTime() + 60 * 1000,
   });
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
@@ -833,4 +829,8 @@ test('auth', async () => {
     { electionHash },
     { sessionExpiresAt: expect.any(Number) }
   );
+
+  await apiClient.logOut();
+  expect(auth.logOut).toHaveBeenCalledTimes(1);
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
 });

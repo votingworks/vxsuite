@@ -63,13 +63,9 @@ test('auth', async () => {
     { pin: '123456' }
   );
 
-  await apiClient.logOut({ electionHash });
-  expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
-  expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
-
   await apiClient.updateSessionExpiry({
     electionHash,
-    sessionExpiresAt: new Date().getTime(),
+    sessionExpiresAt: new Date().getTime() + 60 * 1000,
   });
   expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
@@ -77,6 +73,10 @@ test('auth', async () => {
     { electionHash },
     { sessionExpiresAt: expect.any(Number) }
   );
+
+  await apiClient.logOut({ electionHash });
+  expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
+  expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
 
   await apiClient.startCardlessVoterSession({
     electionHash,

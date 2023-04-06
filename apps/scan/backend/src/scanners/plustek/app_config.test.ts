@@ -440,12 +440,8 @@ test('auth before configuration passes empty machine state', async () => {
     expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
     expect(mockAuth.checkPin).toHaveBeenNthCalledWith(1, {}, { pin: '123456' });
 
-    await apiClient.logOut();
-    expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
-    expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {});
-
     await apiClient.updateSessionExpiry({
-      sessionExpiresAt: new Date().getTime(),
+      sessionExpiresAt: new Date().getTime() + 60 * 1000,
     });
     expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
     expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
@@ -453,6 +449,10 @@ test('auth before configuration passes empty machine state', async () => {
       {},
       { sessionExpiresAt: expect.any(Number) }
     );
+
+    await apiClient.logOut();
+    expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
+    expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {});
   });
 });
 
@@ -480,12 +480,8 @@ test('auth after configuration passes populated machine state', async () => {
       { pin: '123456' }
     );
 
-    await apiClient.logOut();
-    expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
-    expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
-
     await apiClient.updateSessionExpiry({
-      sessionExpiresAt: new Date().getTime(),
+      sessionExpiresAt: new Date().getTime() + 60 * 1000,
     });
     expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
     expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
@@ -493,6 +489,10 @@ test('auth after configuration passes populated machine state', async () => {
       { electionHash },
       { sessionExpiresAt: expect.any(Number) }
     );
+
+    await apiClient.logOut();
+    expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
+    expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
   });
 });
 
