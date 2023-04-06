@@ -70,7 +70,6 @@ const PUT_DATA_ADMIN = {
 } as const;
 
 const vxCertAuthorityCertPath = getEnvVar('VX_CERT_AUTHORITY_CERT_PATH');
-const vxOpensslConfigPath = getEnvVar('VX_OPENSSL_CONFIG_PATH');
 const vxPrivateKeyPassword = getEnvVar('VX_PRIVATE_KEY_PASSWORD');
 const vxPrivateKeyPath = getEnvVar('VX_PRIVATE_KEY_PATH');
 
@@ -267,7 +266,6 @@ async function createAndStoreCardVxCert(): Promise<void> {
   const card = new JavaCard({ vxCertAuthorityCertPath });
   await waitForReadyCardStatus(card);
   await card.createAndStoreCardVxCert({
-    vxOpensslConfigPath,
     vxPrivateKeyPassword,
     vxPrivateKeyPath,
   });

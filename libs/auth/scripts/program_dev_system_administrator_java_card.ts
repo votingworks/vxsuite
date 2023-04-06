@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { JavaCard } from '../src/java_card';
-import { constructDevJavaCardConfig } from '../src/java_card_config';
+import { constructJavaCardConfig } from '../src/java_card_config';
 import { waitForReadyCardStatus } from './utils';
 
 const initialJavaCardConfigurationScriptReminder = `
@@ -11,10 +11,7 @@ Run that and then retry.
 
 async function programDevSystemAdministratorJavaCard(): Promise<void> {
   const card = new JavaCard(
-    constructDevJavaCardConfig({
-      includeCardProgrammingConfig: true,
-      pathToAuthLibRoot: '.',
-    })
+    constructJavaCardConfig({ includeCardProgrammingConfig: true })
   );
   await waitForReadyCardStatus(card);
   try {
