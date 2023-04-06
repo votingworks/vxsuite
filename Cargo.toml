@@ -1,5 +1,6 @@
 [workspace]
 
 members = [
-    "libs/ballot-interpreter-nh-next"
+    "libs/ballot-interpreter-nh-next",
+    "script/packages/csv2ed",
 ]
