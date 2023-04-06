@@ -77,6 +77,7 @@ export interface SizeTheme {
   };
   readonly letterSpacingEm: number;
   readonly lineHeight: number;
+  readonly minTouchAreaSeparationPx: number;
   readonly minTouchAreaSizePx: number;
 }
 

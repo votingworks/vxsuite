@@ -18,7 +18,7 @@ import pluralize from 'pluralize';
 import { LogEventId } from '@votingworks/logging';
 import {
   Button,
-  SegmentedButton,
+  SegmentedButtonDeprecated as SegmentedButton,
   Monospace,
   Prose,
   useStoredState,

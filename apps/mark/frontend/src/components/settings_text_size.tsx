@@ -1,7 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button, SegmentedButton } from '@votingworks/ui';
+import {
+  Button,
+  SegmentedButtonDeprecated as SegmentedButton,
+} from '@votingworks/ui';
 
 import {
   SetUserSettings,

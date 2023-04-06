@@ -123,6 +123,11 @@ function getFontSize(mode: SizeMode): number {
 const VVSG_MIN_TOUCH_AREA_SIZE_MM = 12.7;
 const VVSG_MIN_TOUCH_AREA_SIZE_PX = mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM);
 
+const VVSG_MIN_TOUCH_AREA_SEPARATION_MM = 2.54;
+const VVSG_MIN_TOUCH_AREA_SEPARATION_PX = mmToPx(
+  VVSG_MIN_TOUCH_AREA_SEPARATION_MM
+);
+
 const sizeThemes: Record<SizeMode, SizeTheme> = {
   s: {
     bordersRem: {
@@ -148,6 +153,7 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0.01,
     lineHeight: 1.3,
+    minTouchAreaSeparationPx: VVSG_MIN_TOUCH_AREA_SEPARATION_PX,
     minTouchAreaSizePx: VVSG_MIN_TOUCH_AREA_SIZE_PX,
   },
   m: {
@@ -174,6 +180,7 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0.01,
     lineHeight: 1.15,
+    minTouchAreaSeparationPx: VVSG_MIN_TOUCH_AREA_SEPARATION_PX,
     minTouchAreaSizePx: VVSG_MIN_TOUCH_AREA_SIZE_PX,
   },
   l: {
@@ -200,6 +207,7 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0.005,
     lineHeight: 1.1,
+    minTouchAreaSeparationPx: VVSG_MIN_TOUCH_AREA_SEPARATION_PX,
     minTouchAreaSizePx: VVSG_MIN_TOUCH_AREA_SIZE_PX,
   },
   xl: {
@@ -226,6 +234,7 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0.005,
     lineHeight: 1.1,
+    minTouchAreaSeparationPx: VVSG_MIN_TOUCH_AREA_SEPARATION_PX,
     minTouchAreaSizePx: VVSG_MIN_TOUCH_AREA_SIZE_PX,
   },
 
@@ -253,6 +262,7 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0, // Browser default.
     lineHeight: 1.2,
+    minTouchAreaSeparationPx: 0,
     minTouchAreaSizePx: 0,
   },
 };

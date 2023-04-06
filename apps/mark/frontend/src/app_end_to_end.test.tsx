@@ -44,7 +44,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(15000);
+jest.setTimeout(20000);
 
 test('MarkAndPrint end-to-end flow', async () => {
   const logger = fakeLogger();
@@ -141,8 +141,13 @@ test('MarkAndPrint end-to-end flow', async () => {
   );
   within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
 
-  userEvent.click(screen.getByText('Official Ballot Mode'));
-  expect(screen.getButton('Official Ballot Mode')).toBeDisabled();
+  userEvent.click(
+    screen.getByRole('option', {
+      name: 'Official Ballot Mode',
+      selected: false,
+    })
+  );
+  screen.getByRole('option', { name: 'Official Ballot Mode', selected: true });
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();

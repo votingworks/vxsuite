@@ -1,5 +1,8 @@
 import React from 'react';
-import { Button, SegmentedButton } from '@votingworks/ui';
+import {
+  Button,
+  SegmentedButtonDeprecated as SegmentedButton,
+} from '@votingworks/ui';
 import { Admin } from '@votingworks/api';
 
 interface Props {

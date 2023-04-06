@@ -5,7 +5,7 @@ import pluralize from 'pluralize';
 import { assert, find } from '@votingworks/basics';
 import {
   Button,
-  SegmentedButton,
+  SegmentedButtonDeprecated as SegmentedButton,
   NoWrap,
   Prose,
   Table,

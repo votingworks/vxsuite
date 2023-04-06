@@ -89,8 +89,13 @@ test('Cardless Voting Flow', async () => {
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
   within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
 
-  fireEvent.click(screen.getByText('Official Ballot Mode'));
-  expect(screen.getButton('Official Ballot Mode')).toBeDisabled();
+  fireEvent.click(
+    screen.getByRole('option', {
+      name: 'Official Ballot Mode',
+      selected: false,
+    })
+  );
+  screen.getByRole('option', { name: 'Official Ballot Mode', selected: true });
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
@@ -395,8 +400,16 @@ test('poll worker must select a precinct first', async () => {
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
   within(screen.getByTestId('electionInfoBar')).getByText(/All Precincts/);
 
-  fireEvent.click(screen.getByText('Official Ballot Mode'));
-  expect(screen.getButton('Official Ballot Mode')).toBeDisabled();
+  fireEvent.click(
+    screen.getByRole('option', {
+      name: 'Official Ballot Mode',
+      selected: false,
+    })
+  );
+  screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: true,
+  });
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();

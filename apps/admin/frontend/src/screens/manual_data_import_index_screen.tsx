@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import {
   Button,
-  SegmentedButton,
+  SegmentedButtonDeprecated as SegmentedButton,
   Prose,
   Table,
   TD,
