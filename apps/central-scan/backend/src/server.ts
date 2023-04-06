@@ -2,7 +2,7 @@ import { Exporter, getUsbDrives } from '@votingworks/backend';
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
 import {
-  constructDevJavaCardConfig,
+  constructJavaCardConfig,
   DippedSmartCardAuth,
   JavaCard,
   MemoryCard,
@@ -50,11 +50,7 @@ export async function start({
       isIntegrationTest()
         ? /* istanbul ignore next */ new MockFileCard()
         : isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS)
-        ? /* istanbul ignore next */ new JavaCard(
-            constructDevJavaCardConfig({
-              pathToAuthLibRoot: '../../../libs/auth',
-            })
-          )
+        ? /* istanbul ignore next */ new JavaCard(constructJavaCardConfig())
         : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
     config: {
       allowElectionManagersToAccessUnconfiguredMachines: true,
