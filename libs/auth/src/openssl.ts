@@ -192,7 +192,7 @@ export async function verifySignature({
 export async function createCert({
   certSubject,
   certType = 'standard',
-  expiryInDays = 365,
+  expiryInDays,
   opensslConfig,
   publicKeyToSign,
   signingCertAuthorityCert,
@@ -201,22 +201,30 @@ export async function createCert({
 }: {
   certSubject: string;
   certType?: 'standard' | 'certAuthorityCert';
-  expiryInDays?: number;
+  expiryInDays: number;
   opensslConfig: FilePathOrBuffer;
   publicKeyToSign: FilePathOrBuffer;
   signingCertAuthorityCert: FilePathOrBuffer;
   signingPrivateKey: FilePathOrBuffer;
   signingPrivateKeyPassword: string;
 }): Promise<Buffer> {
+  // TODO: Instead of using a throwaway private key to generate the cert signing request and
+  // injecting the public key we want using -force_pubkey, have the relevant HSM (Java Card, TPM,
+  // etc.) generate the cert signing request
+  const throwawayPrivateKey = await openssl([
+    'ecparam',
+    '-genkey',
+    '-name',
+    'prime256v1',
+    '-noout',
+  ]);
   const certSigningRequest = await openssl([
     'req',
     '-new',
     '-config',
     opensslConfig,
     '-key',
-    signingPrivateKey,
-    '-passin',
-    `pass:${signingPrivateKeyPassword}`,
+    throwawayPrivateKey,
     '-subj',
     certSubject,
   ]);

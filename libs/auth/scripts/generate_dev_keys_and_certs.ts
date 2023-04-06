@@ -26,22 +26,22 @@ import { runCommand } from './utils';
 const OPENSSL_CONFIG_PATH = './certs/openssl.cnf';
 
 async function generateDevPrivateKey(): Promise<Buffer> {
-  const privateKeyBase = await openssl([
+  const privateKey = await openssl([
     'ecparam',
     '-genkey',
     '-name',
     'prime256v1',
     '-noout',
   ]);
-  const privateKey = await openssl([
+  const encryptedPrivateKey = await openssl([
     'pkcs8',
     '-topk8',
     '-in',
-    privateKeyBase,
+    privateKey,
     '-passout',
     `pass:${DEV_PRIVATE_KEY_PASSWORD}`,
   ]);
-  return privateKey;
+  return encryptedPrivateKey;
 }
 
 async function extractPublicKeyFromDevPrivateKey(
