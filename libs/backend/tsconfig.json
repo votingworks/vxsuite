@@ -12,8 +12,7 @@
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "noPropertyAccessFromIndexSignature": false
+    "resolveJsonModule": true
   },
   "references": [
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },

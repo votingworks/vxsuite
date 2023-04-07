@@ -107,7 +107,6 @@ export enum LogEventId {
   PrepareBootFromUsbInit = 'prepare-boot-from-usb-init',
   PrepareBootFromUsbComplete = 'prepare-boot-from-usb-complete',
   RebootMachine = 'reboot-machine',
-  // VxScan/VxCentralScan logs
   BallotPackageLoadedFromUsb = 'ballot-package-load-from-usb-complete',
 
   // Precinct Machine (VxMark + VxScan) State
