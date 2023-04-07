@@ -50,45 +50,49 @@ function printLinesInBox(lines: string[], out: NodeJS.WritableStream) {
   out.write(chalk.dim(`${boxBottom}\n`));
 }
 
-beforeAll(() => {
-  capturedCallCountsByTest.clear();
-});
+if (typeof beforeAll === 'function' && typeof afterAll === 'function') {
+  beforeAll(() => {
+    capturedCallCountsByTest.clear();
+  });
 
-afterAll(() => {
-  const shouldPrintSummary = process.env['CI'] !== 'true';
+  afterAll(() => {
+    const shouldPrintSummary = process.env['CI'] !== 'true';
 
-  if (!shouldPrintSummary) {
-    return;
-  }
-
-  const allSummaries = Array.from(capturedCallCountsByTest).flatMap(
-    ([testName, capturedCallCounts]) => {
-      const summaries = Array.from(capturedCallCounts.entries())
-        .filter(([, { count }]) => count > 0)
-        .map(([name, { count }]) => `${count} ${name}${count > 1 ? 's' : ''}`);
-
-      return summaries.length > 0
-        ? [`${testName} (${summaries.join(', ')})`]
-        : [];
+    if (!shouldPrintSummary) {
+      return;
     }
-  );
 
-  if (allSummaries.length > 0) {
-    printLinesInBox(
-      [
-        '🤫 Some tests suppressed console output:',
-        '',
-        ...allSummaries,
-        '',
-        `Run with ${chalk.italic(
-          'SUPPRESS_CONSOLE_OUTPUT=false'
-        )} to see the output.`,
-      ],
-      process.stderr
+    const allSummaries = Array.from(capturedCallCountsByTest).flatMap(
+      ([testName, capturedCallCounts]) => {
+        const summaries = Array.from(capturedCallCounts.entries())
+          .filter(([, { count }]) => count > 0)
+          .map(
+            ([name, { count }]) => `${count} ${name}${count > 1 ? 's' : ''}`
+          );
+
+        return summaries.length > 0
+          ? [`${testName} (${summaries.join(', ')})`]
+          : [];
+      }
     );
-    process.stderr.write('\n');
-  }
-});
+
+    if (allSummaries.length > 0) {
+      printLinesInBox(
+        [
+          '🤫 Some tests suppressed console output:',
+          '',
+          ...allSummaries,
+          '',
+          `Run with ${chalk.italic(
+            'SUPPRESS_CONSOLE_OUTPUT=false'
+          )} to see the output.`,
+        ],
+        process.stderr
+      );
+      process.stderr.write('\n');
+    }
+  });
+}
 
 /**
  * Suppresses console output during the execution of a function. Resolves to the
