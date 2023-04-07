@@ -1,5 +1,5 @@
 import {
-  constructDevJavaCardConfig,
+  constructJavaCardConfig,
   InsertedSmartCardAuth,
   JavaCard,
   MemoryCard,
@@ -42,11 +42,7 @@ export function start({
       isIntegrationTest()
         ? /* istanbul ignore next */ new MockFileCard()
         : isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS)
-        ? /* istanbul ignore next */ new JavaCard(
-            constructDevJavaCardConfig({
-              pathToAuthLibRoot: '../../../libs/auth',
-            })
-          )
+        ? /* istanbul ignore next */ new JavaCard(constructJavaCardConfig())
         : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
     config: {},
     logger,

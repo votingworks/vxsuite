@@ -19,11 +19,10 @@ import {
   certPemToDer,
   createCert,
   openssl,
+  OPENSSL_CONFIG_FILE_PATH,
   publicKeyPemToDer,
 } from '../src/openssl';
 import { runCommand } from './utils';
-
-const OPENSSL_CONFIG_PATH = './certs/openssl.cnf';
 
 async function generateDevPrivateKey(): Promise<Buffer> {
   const privateKey = await openssl([
@@ -68,7 +67,7 @@ async function generateDevVxCertAuthorityCert(
     '-new',
     '-x509',
     '-config',
-    OPENSSL_CONFIG_PATH,
+    OPENSSL_CONFIG_FILE_PATH,
     '-key',
     vxPrivateKeyPath,
     '-passin',
@@ -160,7 +159,6 @@ async function generateDevKeysAndCerts({
     certSubject: constructMachineCertSubject('admin', DEV_JURISDICTION),
     certType: 'certAuthorityCert',
     expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
-    opensslConfig: OPENSSL_CONFIG_PATH,
     publicKeyToSign: vxAdminPublicKey,
     signingCertAuthorityCert: vxCertAuthorityCertPath,
     signingPrivateKey: vxPrivateKeyPath,
@@ -231,7 +229,6 @@ async function generateDevKeysAndCerts({
       const cardVxCert = await createCert({
         certSubject: constructCardCertSubjectWithoutJurisdictionAndCardType(),
         expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
-        opensslConfig: OPENSSL_CONFIG_PATH,
         publicKeyToSign: cardVxPublicKey,
         signingCertAuthorityCert: vxCertAuthorityCertPath,
         signingPrivateKey: vxPrivateKeyPath,
@@ -252,7 +249,6 @@ async function generateDevKeysAndCerts({
       const cardVxAdminCert = await createCert({
         certSubject: constructCardCertSubject(cardDetails),
         expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
-        opensslConfig: OPENSSL_CONFIG_PATH,
         publicKeyToSign: cardVxAdminPublicKey,
         signingCertAuthorityCert: vxAdminCertAuthorityCertPath,
         signingPrivateKey: vxAdminPrivateKeyPath,

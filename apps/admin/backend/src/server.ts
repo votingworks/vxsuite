@@ -4,7 +4,7 @@ import {
   DippedSmartCardAuth,
   MemoryCard,
   JavaCard,
-  constructDevJavaCardConfig,
+  constructJavaCardConfig,
   MockFileCard,
 } from '@votingworks/auth';
 import { getUsbDrives } from '@votingworks/backend';
@@ -45,10 +45,7 @@ export async function start({
         ? /* istanbul ignore next */ new MockFileCard()
         : isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS)
         ? /* istanbul ignore next */ new JavaCard(
-            constructDevJavaCardConfig({
-              includeCardProgrammingConfig: true,
-              pathToAuthLibRoot: '../../../libs/auth',
-            })
+            constructJavaCardConfig({ includeCardProgrammingConfig: true })
           )
         : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
     config: {

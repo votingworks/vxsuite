@@ -255,7 +255,6 @@ export class JavaCard implements Card {
     );
     const {
       vxAdminCertAuthorityCertPath,
-      vxAdminOpensslConfigPath,
       vxAdminPrivateKeyPassword,
       vxAdminPrivateKeyPath,
     } = this.cardProgrammingConfig;
@@ -298,7 +297,6 @@ export class JavaCard implements Card {
         user.role === 'system_administrator'
           ? CERT_EXPIRY_IN_DAYS.SYSTEM_ADMINISTRATOR_CARD_VX_ADMIN_CERT
           : CERT_EXPIRY_IN_DAYS.ELECTION_CARD_VX_ADMIN_CERT,
-      opensslConfig: vxAdminOpensslConfigPath,
       publicKeyToSign: publicKey,
       signingCertAuthorityCert: vxAdminCertAuthorityCertPath,
       signingPrivateKey: vxAdminPrivateKeyPath,
@@ -703,7 +701,6 @@ export class JavaCard implements Card {
    * configuration script.
    */
   async createAndStoreCardVxCert(input: {
-    vxOpensslConfigPath: string;
     vxPrivateKeyPassword: string;
     vxPrivateKeyPath: string;
   }): Promise<void> {
@@ -715,7 +712,6 @@ export class JavaCard implements Card {
     const cardVxCert = await createCert({
       certSubject: constructCardCertSubjectWithoutJurisdictionAndCardType(),
       expiryInDays: CERT_EXPIRY_IN_DAYS.CARD_VX_CERT,
-      opensslConfig: input.vxOpensslConfigPath,
       publicKeyToSign: publicKey,
       signingCertAuthorityCert: this.vxCertAuthorityCertPath,
       signingPrivateKey: input.vxPrivateKeyPath,

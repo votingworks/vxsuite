@@ -112,7 +112,6 @@ const configWithCardProgrammingConfig: JavaCardConfig = {
     vxAdminCertAuthorityCertPath: getTestFilePath({
       fileType: 'vx-admin-cert-authority-cert.pem',
     }),
-    vxAdminOpensslConfigPath: './certs/openssl.cnf',
     vxAdminPrivateKeyPassword: DEV_PRIVATE_KEY_PASSWORD,
     vxAdminPrivateKeyPath: getTestFilePath({
       fileType: 'vx-admin-private-key.pem',
@@ -877,7 +876,6 @@ test.each<{
     expect(createCert).toHaveBeenNthCalledWith(1, {
       certSubject: expectedCertSubject,
       expiryInDays: expectedExpiryInDays,
-      opensslConfig: './certs/openssl.cnf',
       publicKeyToSign: await publicKeyDerToPem(
         fs.readFileSync(
           getTestFilePath({
@@ -1085,7 +1083,6 @@ test('createAndStoreCardVxCert', async () => {
   mockCardCertStorageRequest(CARD_VX_CERT.OBJECT_ID, cardVxCertPath);
 
   await javaCard.createAndStoreCardVxCert({
-    vxOpensslConfigPath: './certs/openssl.cnf',
     vxPrivateKeyPassword: DEV_PRIVATE_KEY_PASSWORD,
     vxPrivateKeyPath: getTestFilePath({
       fileType: 'vx-private-key.pem',
@@ -1095,7 +1092,6 @@ test('createAndStoreCardVxCert', async () => {
   expect(createCert).toHaveBeenNthCalledWith(1, {
     certSubject: '/C=US/ST=CA/O=VotingWorks/1.3.6.1.4.1.59817.1=card/',
     expiryInDays: 365 * 100,
-    opensslConfig: './certs/openssl.cnf',
     publicKeyToSign: await publicKeyDerToPem(
       fs.readFileSync(
         getTestFilePath({
