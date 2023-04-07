@@ -3,7 +3,9 @@ import { Optional, Result } from '@votingworks/basics';
 import {
   BallotStyleId,
   InsertedSmartCardAuth,
+  OverallSessionTimeLimitHours,
   PrecinctId,
+  UnixTimestampInMilliseconds,
 } from '@votingworks/types';
 
 /**
@@ -18,6 +20,16 @@ export interface InsertedSmartCardAuthApi {
   checkPin(
     machineState: InsertedSmartCardAuthMachineState,
     input: { pin: string }
+  ): Promise<void>;
+  /**
+   * Though logout is typically accomplished by removing the inserted card when using inserted
+   * smart card auth, this method is still useful for clearing the session and re-requiring PIN
+   * entry, e.g. after the inactive session time limit has been hit.
+   */
+  logOut(machineState: InsertedSmartCardAuthMachineState): Promise<void>;
+  updateSessionExpiry(
+    machineState: InsertedSmartCardAuthMachineState,
+    input: { sessionExpiresAt: UnixTimestampInMilliseconds }
   ): Promise<void>;
 
   startCardlessVoterSession(
@@ -60,5 +72,6 @@ export interface InsertedSmartCardAuthMachineState {
   electionHash?: string;
   jurisdiction?: string;
   numIncorrectPinAttemptsAllowedBeforeCardLockout?: number;
+  overallSessionTimeLimitHours?: OverallSessionTimeLimitHours;
   startingCardLockoutDurationSeconds?: number;
 }

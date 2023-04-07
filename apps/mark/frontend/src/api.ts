@@ -18,6 +18,7 @@ import {
   BallotStyleId,
   ElectionDefinition,
   PrecinctId,
+  UnixTimestampInMilliseconds,
 } from '@votingworks/types';
 import { Result } from '@votingworks/basics';
 
@@ -111,6 +112,40 @@ export const checkPin = {
     return useMutation(
       (input: { pin: string }) =>
         apiClient.checkPin({ ...input, electionHash }),
+      {
+        async onSuccess() {
+          // Because we poll auth status with high frequency, this invalidation isn't strictly
+          // necessary
+          await queryClient.invalidateQueries(getAuthStatus.queryKey());
+        },
+      }
+    );
+  },
+} as const;
+
+/* istanbul ignore next */
+export const logOut = {
+  useMutation(electionHash?: string) {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(() => apiClient.logOut({ electionHash }), {
+      async onSuccess() {
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
+        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+/* istanbul ignore next */
+export const updateSessionExpiry = {
+  useMutation(electionHash?: string) {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(
+      (input: { sessionExpiresAt: UnixTimestampInMilliseconds }) =>
+        apiClient.updateSessionExpiry({ ...input, electionHash }),
       {
         async onSuccess() {
           // Because we poll auth status with high frequency, this invalidation isn't strictly

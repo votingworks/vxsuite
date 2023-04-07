@@ -21,6 +21,7 @@ import {
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
   PrecinctId,
   safeParseJson,
+  UnixTimestampInMilliseconds,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -40,12 +41,18 @@ import {
   InsertedSmartCardAuthMachineState,
 } from './inserted_smart_card_auth_api';
 import { computeCardLockoutEndTime } from './lockout';
+import { computeSessionEndTime } from './sessions';
 
 type CheckPinResponseExtended = CheckPinResponse | { response: 'error' };
 
 type AuthAction =
   | { type: 'check_card_reader'; cardStatus: CardStatus }
-  | { type: 'check_pin'; checkPinResponse: CheckPinResponseExtended };
+  | { type: 'check_pin'; checkPinResponse: CheckPinResponseExtended }
+  | { type: 'log_out' }
+  | {
+      type: 'update_session_expiry';
+      sessionExpiresAt: UnixTimestampInMilliseconds;
+    };
 
 /**
  * Given a previous auth status and a new auth status following an auth status transition, infers
@@ -186,6 +193,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       return {
         status: 'logged_in',
         user: this.cardlessVoterUser,
+        sessionExpiresAt: computeSessionEndTime(machineState).getTime(),
       };
     }
 
@@ -216,6 +224,21 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     await this.updateAuthStatus(machineState, {
       type: 'check_pin',
       checkPinResponse,
+    });
+  }
+
+  async logOut(machineState: InsertedSmartCardAuthMachineState): Promise<void> {
+    await this.updateAuthStatus(machineState, { type: 'log_out' });
+  }
+
+  async updateSessionExpiry(
+    machineState: InsertedSmartCardAuthMachineState,
+    input: { sessionExpiresAt: UnixTimestampInMilliseconds }
+  ): Promise<void> {
+    await this.checkCardReaderAndUpdateAuthStatus(machineState);
+    await this.updateAuthStatus(machineState, {
+      type: 'update_session_expiry',
+      sessionExpiresAt: input.sessionExpiresAt,
     });
   }
 
@@ -330,7 +353,11 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     machineState: InsertedSmartCardAuthMachineState,
     action: AuthAction
   ): InsertedSmartCardAuthTypes.AuthStatus {
-    const currentAuthStatus = this.authStatus;
+    const currentAuthStatus: InsertedSmartCardAuthTypes.AuthStatus =
+      this.authStatus.status === 'logged_in' &&
+      new Date().getTime() >= this.authStatus.sessionExpiresAt
+        ? { status: 'logged_out', reason: 'no_card' }
+        : this.authStatus;
 
     switch (action.type) {
       case 'check_card_reader': {
@@ -356,6 +383,8 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
                 const skipPinEntry = isFeatureFlagEnabled(
                   BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
                 );
+                const sessionExpiresAt =
+                  computeSessionEndTime(machineState).getTime();
                 const lockedOutUntil = computeCardLockoutEndTime(
                   machineState,
                   cardDetails.numIncorrectPinAttempts
@@ -363,21 +392,21 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
                 switch (user.role) {
                   case 'system_administrator': {
                     return skipPinEntry
-                      ? { status: 'logged_in', user }
+                      ? { status: 'logged_in', user, sessionExpiresAt }
                       : { status: 'checking_pin', user, lockedOutUntil };
                   }
                   case 'election_manager': {
                     return skipPinEntry
-                      ? { status: 'logged_in', user }
+                      ? { status: 'logged_in', user, sessionExpiresAt }
                       : { status: 'checking_pin', user, lockedOutUntil };
                   }
                   case 'poll_worker': {
                     if (skipPinEntry) {
-                      return { status: 'logged_in', user };
+                      return { status: 'logged_in', user, sessionExpiresAt };
                     }
                     return machineState.arePollWorkerCardPinsEnabled
                       ? { status: 'checking_pin', user, lockedOutUntil }
-                      : { status: 'logged_in', user };
+                      : { status: 'logged_in', user, sessionExpiresAt };
                   }
                   /* istanbul ignore next: Compile-time check for completeness */
                   default: {
@@ -406,13 +435,27 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
         }
         switch (action.checkPinResponse.response) {
           case 'correct': {
+            const sessionExpiresAt =
+              computeSessionEndTime(machineState).getTime();
             if (currentAuthStatus.user.role === 'system_administrator') {
-              return { status: 'logged_in', user: currentAuthStatus.user };
+              return {
+                status: 'logged_in',
+                user: currentAuthStatus.user,
+                sessionExpiresAt,
+              };
             }
             if (currentAuthStatus.user.role === 'election_manager') {
-              return { status: 'logged_in', user: currentAuthStatus.user };
+              return {
+                status: 'logged_in',
+                user: currentAuthStatus.user,
+                sessionExpiresAt,
+              };
             }
-            return { status: 'logged_in', user: currentAuthStatus.user };
+            return {
+              status: 'logged_in',
+              user: currentAuthStatus.user,
+              sessionExpiresAt,
+            };
           }
           case 'incorrect': {
             return {
@@ -433,6 +476,20 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
             return throwIllegalValue(action.checkPinResponse, 'response');
           }
         }
+      }
+
+      case 'log_out': {
+        return { status: 'logged_out', reason: 'no_card' };
+      }
+
+      case 'update_session_expiry': {
+        if (currentAuthStatus.status !== 'logged_in') {
+          return currentAuthStatus;
+        }
+        return {
+          ...currentAuthStatus,
+          sessionExpiresAt: action.sessionExpiresAt,
+        };
       }
 
       /* istanbul ignore next: Compile-time check for completeness */

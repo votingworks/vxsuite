@@ -16,7 +16,7 @@ import {
 
 import Gamepad from 'react-gamepad';
 import { useHistory } from 'react-router-dom';
-import IdleTimer from 'react-idle-timer';
+import { IdleTimerProvider } from 'react-idle-timer';
 import {
   Storage,
   Hardware,
@@ -69,6 +69,7 @@ import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { mergeMsEitherNeitherContests } from './utils/ms_either_neither_contests';
+import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 
 interface UserState {
   userSettings: UserSettings;
@@ -649,17 +650,23 @@ export function AppRoot({
   }
   if (isSystemAdministratorAuth(authStatus)) {
     return (
-      <SystemAdministratorScreen
-        logger={logger}
-        unconfigureMachine={unconfigure}
-        isMachineConfigured={Boolean(optionalElectionDefinition)}
-        resetPollsToPaused={
-          pollsState === 'polls_closed_final'
-            ? makeAsync(resetPollsToPaused)
-            : undefined
-        }
-        usbDriveStatus={usbDrive.status}
-      />
+      <React.Fragment>
+        <SystemAdministratorScreen
+          logger={logger}
+          unconfigureMachine={unconfigure}
+          isMachineConfigured={Boolean(optionalElectionDefinition)}
+          resetPollsToPaused={
+            pollsState === 'polls_closed_final'
+              ? makeAsync(resetPollsToPaused)
+              : undefined
+          }
+          usbDriveStatus={usbDrive.status}
+        />
+        {/* TODO: Replace all instances of SessionTimeLimitTracker in this file with a single
+          instance in app.tsx once the election definition has been moved to the backend and this
+          component no longer requires the election hash */}
+        <SessionTimeLimitTracker electionHash={electionHash} />
+      </React.Fragment>
     );
   }
   if (isElectionManagerAuth(authStatus)) {
@@ -668,32 +675,38 @@ export function AppRoot({
       authStatus.user.electionHash !== optionalElectionDefinition.electionHash
     ) {
       return (
-        <ReplaceElectionScreen
-          appPrecinct={appPrecinct}
-          ballotsPrintedCount={ballotsPrintedCount}
-          electionDefinition={optionalElectionDefinition}
-          machineConfig={machineConfig}
-          screenReader={screenReader}
-          unconfigure={unconfigure}
-        />
+        <React.Fragment>
+          <ReplaceElectionScreen
+            appPrecinct={appPrecinct}
+            ballotsPrintedCount={ballotsPrintedCount}
+            electionDefinition={optionalElectionDefinition}
+            machineConfig={machineConfig}
+            screenReader={screenReader}
+            unconfigure={unconfigure}
+          />
+          <SessionTimeLimitTracker electionHash={electionHash} />
+        </React.Fragment>
       );
     }
 
     return (
-      <AdminScreen
-        appPrecinct={appPrecinct}
-        ballotsPrintedCount={ballotsPrintedCount}
-        electionDefinition={optionalElectionDefinition}
-        updateElectionDefinition={updateElectionDefinition}
-        isLiveMode={isLiveMode}
-        updateAppPrecinct={updateAppPrecinct}
-        toggleLiveMode={toggleLiveMode}
-        unconfigure={unconfigure}
-        machineConfig={machineConfig}
-        screenReader={screenReader}
-        pollsState={pollsState}
-        logger={logger}
-      />
+      <React.Fragment>
+        <AdminScreen
+          appPrecinct={appPrecinct}
+          ballotsPrintedCount={ballotsPrintedCount}
+          electionDefinition={optionalElectionDefinition}
+          updateElectionDefinition={updateElectionDefinition}
+          isLiveMode={isLiveMode}
+          updateAppPrecinct={updateAppPrecinct}
+          toggleLiveMode={toggleLiveMode}
+          unconfigure={unconfigure}
+          machineConfig={machineConfig}
+          screenReader={screenReader}
+          pollsState={pollsState}
+          logger={logger}
+        />
+        <SessionTimeLimitTracker electionHash={electionHash} />
+      </React.Fragment>
     );
   }
   if (optionalElectionDefinition && appPrecinct) {
@@ -716,25 +729,28 @@ export function AppRoot({
     }
     if (isPollWorkerAuth(authStatus)) {
       return (
-        <PollWorkerScreen
-          pollWorkerAuth={authStatus}
-          activateCardlessVoterSession={activateCardlessBallot}
-          resetCardlessVoterSession={resetCardlessBallot}
-          appPrecinct={appPrecinct}
-          electionDefinition={optionalElectionDefinition}
-          enableLiveMode={enableLiveMode}
-          isLiveMode={isLiveMode}
-          pollsState={pollsState}
-          ballotsPrintedCount={ballotsPrintedCount}
-          machineConfig={machineConfig}
-          hardware={hardware}
-          devices={devices}
-          screenReader={screenReader}
-          updatePollsState={updatePollsState}
-          hasVotes={!!votes}
-          reload={reload}
-          logger={logger}
-        />
+        <React.Fragment>
+          <PollWorkerScreen
+            pollWorkerAuth={authStatus}
+            activateCardlessVoterSession={activateCardlessBallot}
+            resetCardlessVoterSession={resetCardlessBallot}
+            appPrecinct={appPrecinct}
+            electionDefinition={optionalElectionDefinition}
+            enableLiveMode={enableLiveMode}
+            isLiveMode={isLiveMode}
+            pollsState={pollsState}
+            ballotsPrintedCount={ballotsPrintedCount}
+            machineConfig={machineConfig}
+            hardware={hardware}
+            devices={devices}
+            screenReader={screenReader}
+            updatePollsState={updatePollsState}
+            hasVotes={!!votes}
+            reload={reload}
+            logger={logger}
+          />
+          <SessionTimeLimitTracker electionHash={electionHash} />
+        </React.Fragment>
       );
     }
     if (pollsState === 'polls_open' && showPostVotingInstructions) {
@@ -776,7 +792,7 @@ export function AppRoot({
     }
 
     return (
-      <IdleTimer
+      <IdleTimerProvider
         onIdle={() => /* istanbul ignore next */ window.kiosk?.quit()}
         timeout={GLOBALS.QUIT_KIOSK_IDLE_SECONDS * 1000}
       >
@@ -788,7 +804,7 @@ export function AppRoot({
           isLiveMode={isLiveMode}
           pollsState={pollsState}
         />
-      </IdleTimer>
+      </IdleTimerProvider>
     );
   }
   return (

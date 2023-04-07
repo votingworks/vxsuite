@@ -6,6 +6,7 @@ import {
   fakeFileWriter,
   fakeSystemAdministratorUser,
   fakeElectionManagerUser,
+  fakeSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { LogFileType } from '@votingworks/utils';
 
@@ -36,12 +37,14 @@ const systemAdministratorAuthStatus: DippedSmartCardAuth.SystemAdministratorLogg
   {
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
+    sessionExpiresAt: fakeSessionExpiresAt(),
     programmableCard: { status: 'no_card' },
   };
 
 const electionManagerAuthStatus: DippedSmartCardAuth.ElectionManagerLoggedIn = {
   status: 'logged_in',
   user: fakeElectionManagerUser(),
+  sessionExpiresAt: fakeSessionExpiresAt(),
 };
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', async () => {

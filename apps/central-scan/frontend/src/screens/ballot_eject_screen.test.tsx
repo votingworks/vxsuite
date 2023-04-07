@@ -6,9 +6,36 @@ import fetchMock from 'fetch-mock';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import userEvent from '@testing-library/user-event';
+import {
+  fakeElectionManagerUser,
+  fakeSessionExpiresAt,
+} from '@votingworks/test-utils';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import { screen, waitFor } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { BallotEjectScreen } from './ballot_eject_screen';
+import {
+  createMockApiClient,
+  MockApiClient,
+  setAuthStatus,
+} from '../../test/api';
+
+let mockApiClient: MockApiClient;
+
+beforeEach(() => {
+  mockApiClient = createMockApiClient();
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeElectionManagerUser({
+      electionHash: electionSampleDefinition.electionHash,
+    }),
+    sessionExpiresAt: fakeSessionExpiresAt(),
+  });
+});
+
+afterEach(() => {
+  mockApiClient.assertComplete();
+});
 
 test('says the sheet is unreadable if it is', async () => {
   fetchMock.getOnce(
@@ -35,7 +62,7 @@ test('says the sheet is unreadable if it is', async () => {
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
-    { logger }
+    { apiClient: mockApiClient, logger }
   );
 
   await act(async () => {
@@ -140,7 +167,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
-    { logger }
+    { apiClient: mockApiClient, logger }
   );
 
   await act(async () => {
@@ -251,7 +278,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
-    { logger }
+    { apiClient: mockApiClient, logger }
   );
 
   await act(async () => {
@@ -369,7 +396,7 @@ test('says the ballot sheet is blank if it is', async () => {
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
-    { logger }
+    { apiClient: mockApiClient, logger }
   );
 
   await act(async () => {
@@ -450,7 +477,7 @@ test('calls out official ballot sheets in test mode', async () => {
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
-    { logger }
+    { apiClient: mockApiClient, logger }
   );
 
   await act(async () => {
@@ -527,7 +554,7 @@ test('calls out test ballot sheets in live mode', async () => {
       continueScanning={continueScanning}
       isTestMode={false}
     />,
-    { logger }
+    { apiClient: mockApiClient, logger }
   );
 
   await act(async () => {
@@ -586,7 +613,7 @@ test('shows invalid election screen when appropriate', async () => {
       continueScanning={continueScanning}
       isTestMode={false}
     />,
-    { logger }
+    { apiClient: mockApiClient, logger }
   );
 
   await act(async () => {

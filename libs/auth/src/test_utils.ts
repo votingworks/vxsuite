@@ -9,6 +9,7 @@ export function buildMockDippedSmartCardAuth(): DippedSmartCardAuthApi {
     getAuthStatus: jest.fn(),
     checkPin: jest.fn(),
     logOut: jest.fn(),
+    updateSessionExpiry: jest.fn(),
     programCard: jest.fn(),
     unprogramCard: jest.fn(),
   };
@@ -21,6 +22,8 @@ export function buildMockInsertedSmartCardAuth(): InsertedSmartCardAuthApi {
   return {
     getAuthStatus: jest.fn(),
     checkPin: jest.fn(),
+    logOut: jest.fn(),
+    updateSessionExpiry: jest.fn(),
     startCardlessVoterSession: jest.fn(),
     endCardlessVoterSession: jest.fn(),
     readCardData: jest.fn(),

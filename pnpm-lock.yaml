@@ -1776,8 +1776,8 @@ importers:
         specifier: ^1.0.3
         version: 1.0.3(react@17.0.1)
       react-idle-timer:
-        specifier: 4.2.12
-        version: 4.2.12(prop-types@15.8.1)(react-dom@17.0.1)(react@17.0.1)
+        specifier: ^5.5.3
+        version: 5.5.3(react-dom@17.0.1)(react@17.0.1)
       react-refresh:
         specifier: ^0.8.3
         version: 0.8.3
@@ -5013,6 +5013,9 @@ importers:
       react-dom:
         specifier: ^17.0.1
         version: 17.0.1(react@17.0.1)
+      react-idle-timer:
+        specifier: ^5.5.3
+        version: 5.5.3(react-dom@17.0.1)(react@17.0.1)
       react-modal:
         specifier: ^3.14.4
         version: 3.14.4(react-dom@17.0.1)(react@17.0.1)
@@ -11067,7 +11070,7 @@ packages:
       react: '>=16'
     dependencies:
       '@types/mdx': 2.0.3
-      '@types/react': 17.0.40
+      '@types/react': 17.0.39
       react: 17.0.2
     dev: true
 
@@ -12669,7 +12672,7 @@ packages:
     resolution: {integrity: sha512-1zzPV9FDe1I/WHhRkf9SNgqtRJWZqrBWgu7JGveuHmmyR9CnAPCie2N/x+iHrgnpYBIcCJWHBoMRv2TRWktsvw==}
     deprecated: This is a stub types definition for chalk (https://github.com/chalk/chalk). chalk provides its own type definitions, so you don't need @types/chalk installed!
     dependencies:
-      chalk: 4.1.2
+      chalk: 5.2.0
     dev: true
 
   /@types/compression@1.7.2:
@@ -12804,7 +12807,7 @@ packages:
   /@types/hoist-non-react-statics@3.3.1:
     resolution: {integrity: sha512-iMIqiko6ooLrTh1joXodJK5X9xeEALT1kM5G3ZLhD3hszxBdIEd5C75U834D9mLcINgD4OyZf5uQXjkuYydWvA==}
     dependencies:
-      '@types/react': 17.0.40
+      '@types/react': 17.0.39
       hoist-non-react-statics: 3.3.2
 
   /@types/html-minifier-terser@5.1.1:
@@ -13126,7 +13129,7 @@ packages:
     resolution: {integrity: sha512-z3UlMG/x91SFEVmmvykk9FLTliDvfdIUky4k2rCfXWQ0NKbrP8o9BTCaCTPuYsB8gDkUnUmkcA2vYlm2DR+HAA==}
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 17.0.40
+      '@types/react': 17.0.39
 
   /@types/react-test-renderer@18.0.0:
     resolution: {integrity: sha512-C7/5FBJ3g3sqUahguGi03O79b8afNeSD6T8/GU50oQrJCU0bVCCGQHaGKUbg2Ce8VQEEqTw8/HiS6lXHHdgkdQ==}
@@ -30555,14 +30558,13 @@ packages:
       react: 17.0.1
     dev: false
 
-  /react-idle-timer@4.2.12(prop-types@15.8.1)(react-dom@17.0.1)(react@17.0.1):
-    resolution: {integrity: sha512-YD/2Oe4PU5uRv/TH6zTxykKMHpRHWHPEWCUohda81o/jzsrlgyUrklfy46fd8WjgYhlNkJKsiX/GXJAQQC1hcQ==}
+  /react-idle-timer@5.5.3(react-dom@17.0.1)(react@17.0.1):
+    resolution: {integrity: sha512-fn2kNPz4BVEN/U05IzBQGPIfFlkjk0ekj8uKQaHAH/uBbATJDFmyxK0k36hv4kmzN8oFr8pe+C4zU5NJDBnfBQ==}
     peerDependencies:
-      prop-types: ^15.x.x
-      react: ^16.x.x
-      react-dom: ^16.x.x
+      react: '>=16'
+      react-dom: '>=16'
     dependencies:
-      '@types/react': 17.0.40
+      '@types/react': 17.0.39
       prop-types: 15.8.1
       react: 17.0.1
       react-dom: 17.0.1(react@17.0.1)

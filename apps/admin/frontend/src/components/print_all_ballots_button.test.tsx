@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import {
+  advanceTimers,
   expectPrint,
   fakeKiosk,
   fakePrinter,
@@ -142,7 +143,7 @@ test('print sequence proceeds as expected', async () => {
         disposition: 'success',
       })
     );
-    jest.advanceTimersByTime(TWO_SIDED_PRINT_TIME + PRINTER_WARMUP_TIME);
+    advanceTimers((TWO_SIDED_PRINT_TIME + PRINTER_WARMUP_TIME) / 1000);
   }
 
   await waitFor(() => {
@@ -215,7 +216,7 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
   await expectPrint();
   act(() => hardware.setPrinterConnected(false));
   simulateErrorOnNextPrint();
-  jest.advanceTimersByTime(TWO_SIDED_PRINT_TIME + PRINTER_WARMUP_TIME);
+  advanceTimers((TWO_SIDED_PRINT_TIME + PRINTER_WARMUP_TIME) / 1000);
   await within(modal).findByText('Printer Disconnected');
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.BallotPrinted,

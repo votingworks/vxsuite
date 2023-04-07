@@ -8,6 +8,7 @@ import {
 import {
   fakeElectionManagerUser,
   fakeKiosk,
+  fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
   fakeUsbDrive,
   hasTextAcrossElements,
@@ -86,6 +87,7 @@ export async function authenticateAsSystemAdministrator(
   setAuthStatus(mockApiClient, {
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
+    sessionExpiresAt: fakeSessionExpiresAt(),
     programmableCard: { status: 'no_card' },
   });
   await screen.findByText('Lock Machine');
@@ -103,6 +105,7 @@ export async function authenticateAsElectionManager(
     user: fakeElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
+    sessionExpiresAt: fakeSessionExpiresAt(),
   });
   await screen.findByText('Lock Machine');
 }
@@ -489,6 +492,7 @@ test('authentication works', async () => {
   setAuthStatus(mockApiClient, {
     status: 'remove_card',
     user: fakeElectionManagerUser(electionSampleDefinition),
+    sessionExpiresAt: fakeSessionExpiresAt(),
   });
   await screen.findByText('Remove card to continue.');
   screen.getByText('VxCentralScan Unlocked');
@@ -497,6 +501,7 @@ test('authentication works', async () => {
   setAuthStatus(mockApiClient, {
     status: 'logged_in',
     user: fakeElectionManagerUser(electionSampleDefinition),
+    sessionExpiresAt: fakeSessionExpiresAt(),
   });
   await screen.findByText('No Scanner');
 

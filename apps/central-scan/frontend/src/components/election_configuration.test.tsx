@@ -1,6 +1,12 @@
 import React from 'react';
-import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
+import {
+  fakeElectionManagerUser,
+  fakeKiosk,
+  fakeSessionExpiresAt,
+  fakeUsbDrive,
+} from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/ui';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   fireEvent,
   waitFor,
@@ -8,12 +14,23 @@ import {
 } from '../../test/react_testing_library';
 import { ElectionConfiguration } from './election_configuration';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { createMockApiClient, MockApiClient } from '../../test/api';
+import {
+  createMockApiClient,
+  MockApiClient,
+  setAuthStatus,
+} from '../../test/api';
 
 let mockApiClient: MockApiClient;
 
 beforeEach(() => {
   mockApiClient = createMockApiClient();
+  setAuthStatus(mockApiClient, {
+    status: 'logged_in',
+    user: fakeElectionManagerUser({
+      electionHash: electionSampleDefinition.electionHash,
+    }),
+    sessionExpiresAt: fakeSessionExpiresAt(),
+  });
 });
 
 afterEach(() => {

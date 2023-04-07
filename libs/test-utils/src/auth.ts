@@ -1,5 +1,6 @@
 import {
   CardlessVoterUser,
+  DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
@@ -43,4 +44,11 @@ export function fakeCardlessVoterUser(
     precinctId: 'fake-precinct-id',
     ...props,
   };
+}
+
+export function fakeSessionExpiresAt(): number {
+  return (
+    new Date().getTime() +
+    DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS * 60 * 60 * 1000
+  );
 }

@@ -13,6 +13,7 @@ import {
 import {
   BallotPageLayout,
   BallotPageLayoutSchema,
+  UnixTimestampInMilliseconds,
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
@@ -78,6 +79,15 @@ function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {
 
     logOut() {
       return auth.logOut(constructAuthMachineState(workspace));
+    },
+
+    updateSessionExpiry(input: {
+      sessionExpiresAt: UnixTimestampInMilliseconds;
+    }) {
+      return auth.updateSessionExpiry(
+        constructAuthMachineState(workspace),
+        input
+      );
     },
   });
 }

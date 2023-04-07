@@ -6,7 +6,10 @@ import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fakeElectionManagerUser } from '@votingworks/test-utils';
+import {
+  fakeElectionManagerUser,
+  fakeSessionExpiresAt,
+} from '@votingworks/test-utils';
 import { render, RenderResult } from './react_testing_library';
 import { ApiClient, ApiClientContext, createQueryClient } from '../src/api';
 import { AppContext, AppContextInterface } from '../src/contexts/app_context';
@@ -37,6 +40,7 @@ export function makeAppContext({
     user: fakeElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
+    sessionExpiresAt: fakeSessionExpiresAt(),
   },
   logger = new Logger(LogSource.VxCentralScanFrontend),
 }: Partial<AppContextInterface> = {}): AppContextInterface {

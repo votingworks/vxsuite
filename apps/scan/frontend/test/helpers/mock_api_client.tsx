@@ -22,6 +22,7 @@ import { ok } from '@votingworks/basics';
 import {
   fakeElectionManagerUser,
   fakePollWorkerUser,
+  fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { ApiClientContext, createQueryClient } from '../../src/api';
@@ -84,6 +85,7 @@ export function createApiMock() {
       setAuthStatus({
         status: 'logged_in',
         user: fakeSystemAdministratorUser(),
+        sessionExpiresAt: fakeSessionExpiresAt(),
       });
     },
 
@@ -93,6 +95,7 @@ export function createApiMock() {
         user: fakeElectionManagerUser({
           electionHash: electionDefinition.electionHash,
         }),
+        sessionExpiresAt: fakeSessionExpiresAt(),
       });
     },
 
@@ -102,6 +105,7 @@ export function createApiMock() {
         user: fakePollWorkerUser({
           electionHash: electionDefinition.electionHash,
         }),
+        sessionExpiresAt: fakeSessionExpiresAt(),
       });
     },
 

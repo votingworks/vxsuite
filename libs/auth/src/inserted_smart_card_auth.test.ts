@@ -48,8 +48,13 @@ const wrongPin = '654321';
 
 let mockCard: MockCard;
 let mockLogger: Logger;
+let mockTime: Date;
 
 beforeEach(() => {
+  mockTime = new Date();
+  jest.useFakeTimers();
+  jest.setSystemTime(mockTime);
+
   mockOf(generatePin).mockImplementation(() => pin);
   mockOf(isFeatureFlagEnabled).mockImplementation(() => false);
 
@@ -82,7 +87,10 @@ function mockCardStatus(cardStatus: CardStatus) {
   mockCard.getCardStatus.expectRepeatedCallsWith().resolves(cardStatus);
 }
 
-async function logInAsElectionManager(auth: InsertedSmartCardAuth) {
+async function logInAsElectionManager(
+  auth: InsertedSmartCardAuth,
+  machineState: InsertedSmartCardAuthMachineState = defaultMachineState
+) {
   mockCardStatus({
     status: 'ready',
     cardDetails: {
@@ -90,20 +98,24 @@ async function logInAsElectionManager(auth: InsertedSmartCardAuth) {
       user: electionManagerUser,
     },
   });
-  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+  expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
   });
   mockCard.checkPin.expectCallWith(pin).resolves({ response: 'correct' });
-  await auth.checkPin(defaultMachineState, { pin });
-  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+  await auth.checkPin(machineState, { pin });
+  expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
+    sessionExpiresAt: expect.any(Number),
   });
   mockOf(mockLogger.log).mockClear();
 }
 
-async function logInAsPollWorker(auth: InsertedSmartCardAuth) {
+async function logInAsPollWorker(
+  auth: InsertedSmartCardAuth,
+  machineState: InsertedSmartCardAuthMachineState = defaultMachineState
+) {
   mockCardStatus({
     status: 'ready',
     cardDetails: {
@@ -112,9 +124,10 @@ async function logInAsPollWorker(auth: InsertedSmartCardAuth) {
       hasPin: false,
     },
   });
-  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+  expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
+    sessionExpiresAt: expect.any(Number),
   });
   mockOf(mockLogger.log).mockClear();
 }
@@ -289,6 +302,7 @@ test.each<{
     expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'logged_in',
       user,
+      sessionExpiresAt: expect.any(Number),
     });
     expect(mockLogger.log).toHaveBeenCalledTimes(3);
     expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -346,6 +360,7 @@ test('Login and logout using card without PIN', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
+    sessionExpiresAt: expect.any(Number),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(1);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -381,58 +396,157 @@ test('Card lockout', async () => {
     config: defaultConfig,
     logger: mockLogger,
   });
+  const machineState: DippedSmartCardAuthMachineState = {
+    ...defaultMachineState,
+    // Intentionally pick non-default values to verify that machine state is being properly used
+    numIncorrectPinAttemptsAllowedBeforeCardLockout: 3,
+    startingCardLockoutDurationSeconds: 30,
+  };
 
   mockCardStatus({
     status: 'ready',
     cardDetails: {
       jurisdiction,
-      numIncorrectPinAttempts: 4,
+      numIncorrectPinAttempts: 2,
       user: electionManagerUser,
     },
   });
-  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+  expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
   });
 
   mockCard.checkPin
     .expectCallWith(wrongPin)
-    .resolves({ response: 'incorrect', numIncorrectPinAttempts: 5 });
-  await auth.checkPin(defaultMachineState, { pin: wrongPin });
-  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    .resolves({ response: 'incorrect', numIncorrectPinAttempts: 3 });
+  await auth.checkPin(machineState, { pin: wrongPin });
+  expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    lockedOutUntil: expect.any(Number),
-    wrongPinEnteredAt: expect.any(Number),
+    lockedOutUntil: mockTime.getTime() + 30 * 1000,
+    wrongPinEnteredAt: mockTime.getTime(),
   });
 
   mockCardStatus({ status: 'no_card' });
-  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+  expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'logged_out',
     reason: 'no_card',
   });
 
-  // Re-insert locked card
+  mockTime = new Date(mockTime.getTime() + 5000);
+  jest.setSystemTime(mockTime);
+
+  // Expect timer to reset when locked card is re-inserted
   mockCardStatus({
     status: 'ready',
     cardDetails: {
       jurisdiction,
-      numIncorrectPinAttempts: 5,
+      numIncorrectPinAttempts: 3,
       user: electionManagerUser,
     },
   });
-  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+  expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    lockedOutUntil: expect.any(Number),
+    lockedOutUntil: mockTime.getTime() + 30 * 1000,
   });
 
   // Expect checkPin call to be ignored when locked out
-  await auth.checkPin(defaultMachineState, { pin });
+  await auth.checkPin(machineState, { pin });
+  expect(await auth.getAuthStatus(machineState)).toEqual({
+    status: 'checking_pin',
+    user: electionManagerUser,
+    lockedOutUntil: mockTime.getTime() + 30 * 1000,
+  });
+
+  mockTime = new Date(mockTime.getTime() + 30 * 1000);
+  jest.setSystemTime(mockTime);
+
+  // Expect checkPin call to go through after lockout ends and lockout time to double with
+  // subsequent incorrect PIN attempts
+  mockCard.checkPin
+    .expectCallWith(wrongPin)
+    .resolves({ response: 'incorrect', numIncorrectPinAttempts: 4 });
+  await auth.checkPin(machineState, { pin: wrongPin });
+  expect(await auth.getAuthStatus(machineState)).toEqual({
+    status: 'checking_pin',
+    user: electionManagerUser,
+    lockedOutUntil: mockTime.getTime() + 60 * 1000,
+    wrongPinEnteredAt: mockTime.getTime(),
+  });
+});
+
+test('Session expiry', async () => {
+  const auth = new InsertedSmartCardAuth({
+    card: mockCard,
+    config: defaultConfig,
+    logger: mockLogger,
+  });
+  const machineState: InsertedSmartCardAuthMachineState = {
+    ...defaultMachineState,
+    // Intentionally pick non-default value to verify that machine state is being properly used
+    overallSessionTimeLimitHours: 2,
+  };
+
+  await logInAsElectionManager(auth, machineState);
+
+  expect(await auth.getAuthStatus(machineState)).toEqual({
+    status: 'logged_in',
+    user: electionManagerUser,
+    sessionExpiresAt: mockTime.getTime() + 2 * 60 * 60 * 1000,
+  });
+
+  mockTime = new Date(mockTime.getTime() + 2 * 60 * 60 * 1000);
+  jest.setSystemTime(mockTime);
+
+  // Because the card is still inserted, we'll automatically transition back to the PIN checking
+  // state after session expiry
+  expect(await auth.getAuthStatus(machineState)).toEqual({
+    status: 'checking_pin',
+    user: electionManagerUser,
+  });
+});
+
+test('Updating session expiry', async () => {
+  const auth = new InsertedSmartCardAuth({
+    card: mockCard,
+    config: defaultConfig,
+    logger: mockLogger,
+  });
+
+  await logInAsElectionManager(auth, defaultMachineState);
+
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_in',
+    user: electionManagerUser,
+    sessionExpiresAt: mockTime.getTime() + 12 * 60 * 60 * 1000,
+  });
+
+  await auth.updateSessionExpiry(defaultMachineState, {
+    sessionExpiresAt: mockTime.getTime() + 60 * 1000,
+  });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_in',
+    user: electionManagerUser,
+    sessionExpiresAt: mockTime.getTime() + 60 * 1000,
+  });
+});
+
+test('Logout through logout method', async () => {
+  const auth = new InsertedSmartCardAuth({
+    card: mockCard,
+    config: defaultConfig,
+    logger: mockLogger,
+  });
+
+  await logInAsElectionManager(auth, defaultMachineState);
+
+  // Because the card is still inserted, we'll automatically transition back to the PIN checking
+  // state after logout
+  await auth.logOut(defaultMachineState);
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    lockedOutUntil: expect.any(Number),
   });
 });
 
@@ -695,6 +809,7 @@ test('Cardless voter sessions - ending preemptively', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
+    sessionExpiresAt: expect.any(Number),
     cardlessVoterUser,
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(1);
@@ -713,6 +828,7 @@ test('Cardless voter sessions - ending preemptively', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
+    sessionExpiresAt: expect.any(Number),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(2);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -743,6 +859,7 @@ test('Cardless voter sessions - end-to-end', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
+    sessionExpiresAt: expect.any(Number),
     cardlessVoterUser,
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(1);
@@ -761,6 +878,7 @@ test('Cardless voter sessions - end-to-end', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: cardlessVoterUser,
+    sessionExpiresAt: expect.any(Number),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(2);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -785,6 +903,7 @@ test('Cardless voter sessions - end-to-end', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
+    sessionExpiresAt: expect.any(Number),
     cardlessVoterUser,
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(3);
@@ -803,6 +922,7 @@ test('Cardless voter sessions - end-to-end', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: cardlessVoterUser,
+    sessionExpiresAt: expect.any(Number),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(4);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -984,6 +1104,7 @@ test('Checking PIN error handling', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
+    sessionExpiresAt: expect.any(Number),
   });
 });
 
@@ -1018,6 +1139,28 @@ test(
     );
   }
 );
+
+test('Attempting to update session expiry when not logged in', async () => {
+  const auth = new InsertedSmartCardAuth({
+    card: mockCard,
+    config: defaultConfig,
+    logger: mockLogger,
+  });
+
+  mockCardStatus({ status: 'no_card' });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_out',
+    reason: 'no_card',
+  });
+
+  await auth.updateSessionExpiry(defaultMachineState, {
+    sessionExpiresAt: new Date().getTime(),
+  });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_out',
+    reason: 'no_card',
+  });
+});
 
 test('Attempting to start a cardless voter session when logged out', async () => {
   const auth = new InsertedSmartCardAuth({
@@ -1058,6 +1201,7 @@ test('Attempting to start a cardless voter session when not a poll worker', asyn
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
+    sessionExpiresAt: expect.any(Number),
   });
 });
 
@@ -1200,6 +1344,7 @@ test.each<{
     expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'logged_in',
       user,
+      sessionExpiresAt: expect.any(Number),
     });
   }
 );

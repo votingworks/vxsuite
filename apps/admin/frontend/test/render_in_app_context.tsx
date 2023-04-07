@@ -25,6 +25,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { UsbDrive } from '@votingworks/ui';
 import {
   fakeElectionManagerUser,
+  fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
@@ -130,6 +131,7 @@ export function renderInAppContext(
       ? {
           status: 'logged_in',
           user: fakeSystemAdministratorUser(),
+          sessionExpiresAt: fakeSessionExpiresAt(),
           programmableCard: { status: 'no_card' },
         }
       : {
@@ -137,6 +139,7 @@ export function renderInAppContext(
           user: fakeElectionManagerUser({
             electionHash: electionDefinition.electionHash,
           }),
+          sessionExpiresAt: fakeSessionExpiresAt(),
         },
     machineConfig = {
       machineId: '0000',

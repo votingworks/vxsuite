@@ -2,8 +2,10 @@ import { Result } from '@votingworks/basics';
 import {
   DippedSmartCardAuth,
   ElectionManagerUser,
+  OverallSessionTimeLimitHours,
   PollWorkerUser,
   SystemAdministratorUser,
+  UnixTimestampInMilliseconds,
 } from '@votingworks/types';
 
 /**
@@ -20,6 +22,10 @@ export interface DippedSmartCardAuthApi {
     input: { pin: string }
   ): Promise<void>;
   logOut(machineState: DippedSmartCardAuthMachineState): Promise<void>;
+  updateSessionExpiry(
+    machineState: DippedSmartCardAuthMachineState,
+    input: { sessionExpiresAt: UnixTimestampInMilliseconds }
+  ): Promise<void>;
 
   programCard(
     machineState: DippedSmartCardAuthMachineState,
@@ -48,5 +54,6 @@ export interface DippedSmartCardAuthMachineState {
   electionHash?: string;
   jurisdiction?: string;
   numIncorrectPinAttemptsAllowedBeforeCardLockout?: number;
+  overallSessionTimeLimitHours?: OverallSessionTimeLimitHours;
   startingCardLockoutDurationSeconds?: number;
 }

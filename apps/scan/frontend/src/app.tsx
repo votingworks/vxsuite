@@ -14,6 +14,7 @@ import {
 } from './api';
 import { TimesCircle } from './components/graphics';
 import { ScanAppBase } from './scan_app_base';
+import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 
 export interface AppProps {
   hardware?: AppRootProps['hardware'];
@@ -45,6 +46,7 @@ export function App({
           <ApiClientContext.Provider value={apiClient}>
             <QueryClientProvider client={queryClient}>
               <AppRoot hardware={hardware} logger={logger} />
+              <SessionTimeLimitTracker />
             </QueryClientProvider>
           </ApiClientContext.Provider>
         </ErrorBoundary>
