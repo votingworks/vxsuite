@@ -25,6 +25,7 @@ test('readBallotPackageFromUsb can read a ballot package from usb', async () => 
     user: fakeElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
+    sessionExpiresAt: new Date().getTime() + 60 * 1000,
   };
 
   const mockUsb = createMockUsb();
@@ -60,6 +61,7 @@ test("readBallotPackageFromUsb uses default system settings when system settings
     user: fakeElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
+    sessionExpiresAt: new Date().getTime() + 60 * 1000,
   };
 
   const mockUsb = createMockUsb();
@@ -128,6 +130,7 @@ test('errors if election hash on provided auth is different than ballot package 
     user: fakeElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
+    sessionExpiresAt: new Date().getTime() + 60 * 1000,
   };
 
   const mockUsb = createMockUsb();
@@ -159,6 +162,7 @@ test('errors if there is no ballot package on usb drive', async () => {
     user: fakeElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
+    sessionExpiresAt: new Date().getTime() + 60 * 1000,
   };
 
   const mockUsb = createMockUsb();
@@ -183,6 +187,7 @@ test('errors if a user is authenticated but is not an election manager', async (
     user: fakePollWorkerUser({
       electionHash: electionDefinition.electionHash,
     }),
+    sessionExpiresAt: new Date().getTime() + 60 * 1000,
   };
 
   const mockUsb = createMockUsb();

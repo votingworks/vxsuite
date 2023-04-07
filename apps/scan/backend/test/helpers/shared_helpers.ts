@@ -11,9 +11,7 @@ import {
   fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
-import {
-  PrecinctId,
-} from '@votingworks/types';
+import { PrecinctId } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
