@@ -11,6 +11,7 @@ import {
   fakeSystemAdministratorUser,
   fakeUsbDrive,
   hasTextAcrossElements,
+  suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
 import { typedAs, sleep } from '@votingworks/basics';
@@ -592,9 +593,6 @@ test('election manager cannot auth onto machine with different election hash', a
 });
 
 test('error boundary', async () => {
-  // Avoid cluttering the test output
-  jest.spyOn(console, 'error').mockImplementation(() => undefined);
-
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
   const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
@@ -612,11 +610,13 @@ test('error boundary', async () => {
     });
 
   const hardware = MemoryHardware.buildStandard();
-  render(<App apiClient={mockApiClient} hardware={hardware} />);
+  await suppressingConsoleOutput(async () => {
+    render(<App apiClient={mockApiClient} hardware={hardware} />);
 
-  await authenticateAsElectionManager(electionSampleDefinition);
+    await authenticateAsElectionManager(electionSampleDefinition);
 
-  mockApiClient.logOut.expectCallWith().throws(new Error('Whoa!'));
-  userEvent.click(screen.getByText('Lock Machine'));
-  await screen.findByText('Something went wrong');
+    mockApiClient.logOut.expectCallWith().throws(new Error('Whoa!'));
+    userEvent.click(screen.getByText('Lock Machine'));
+    await screen.findByText('Something went wrong');
+  });
 });

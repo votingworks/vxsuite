@@ -65,7 +65,7 @@ afterAll(() => {
     ([testName, capturedCallCounts]) => {
       const summaries = Array.from(capturedCallCounts.entries())
         .filter(([, { count }]) => count > 0)
-        .map(([name, { count }]) => `${count} ${name}`);
+        .map(([name, { count }]) => `${count} ${name}${count > 1 ? 's' : ''}`);
 
       return summaries.length > 0
         ? [`${testName} (${summaries.join(', ')})`]

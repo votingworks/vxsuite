@@ -1,4 +1,5 @@
 import React from 'react';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { render, screen } from '../test/react_testing_library';
 import { ErrorBoundary } from './error_boundary';
 
@@ -6,13 +7,14 @@ test('renders error when there is an error', async () => {
   function ThrowError(): JSX.Element {
     throw new Error('error');
   }
-  jest.spyOn(console, 'error').mockReturnValue();
-  render(
-    <ErrorBoundary errorMessage="jellyfish">
-      <ThrowError />
-    </ErrorBoundary>
-  );
-  await screen.findByText('jellyfish');
+  await suppressingConsoleOutput(async () => {
+    render(
+      <ErrorBoundary errorMessage="jellyfish">
+        <ThrowError />
+      </ErrorBoundary>
+    );
+    await screen.findByText('jellyfish');
+  });
 });
 
 test('renders children when there is no error', async () => {
