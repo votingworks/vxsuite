@@ -82,7 +82,7 @@ export async function main(): Promise<number> {
     'firmware - Print the firmware version',
     'hardware - Print the hardware version ',
     'status - Print the current scanner status',
-    'scan - Scan a sheet',
+    'scan - Scan a sheet, double sheet prevention will be disabled optionally give a second parameter 1-4 to enable double sheet prevention at the given level',
     'reset - Reset the hardware, you will need to call reconnect after issuing this command.',
     'connect - Calls connect on the scanner',
     'disconnect - Calls disconnect on the scanner',
@@ -128,13 +128,28 @@ export async function main(): Promise<number> {
         break;
       }
 
+      case 'scan 0':
+      case 'scan 1':
+      case 'scan 2':
+      case 'scan 3':
+      case 'scan 4':
       case 'scan': {
+        let doubleSheetValue = DoubleSheetDetectOpt.DetectOff;
+        if (line === 'scan 1') {
+          doubleSheetValue = DoubleSheetDetectOpt.Level1;
+        } else if (line === 'scan 2') {
+          doubleSheetValue = DoubleSheetDetectOpt.Level2;
+        } else if (line === 'scan 3') {
+          doubleSheetValue = DoubleSheetDetectOpt.Level3;
+        } else if (line === 'scan 4') {
+          doubleSheetValue = DoubleSheetDetectOpt.Level4;
+        }
         const scanParameters: ScanParameters = {
           wantedScanSide: ScanSide.A_AND_B,
           formStandingAfterScan: FormStanding.HOLD_TICKET,
           resolution: ImageResolution.RESOLUTION_200_DPI,
           imageColorDepth: ImageColorDepthType.Grey8bpp,
-          doubleSheetDetection: DoubleSheetDetectOpt.DetectOff,
+          doubleSheetDetection: doubleSheetValue,
         };
         const scanResult = await scanner.scan(scanParameters);
 
