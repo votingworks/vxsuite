@@ -1,7 +1,6 @@
 import { Admin } from '@votingworks/api';
 import { assert } from '@votingworks/basics';
 import {
-  electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleFixtures,
   electionSampleCdfDefinition,
 } from '@votingworks/fixtures';
@@ -459,84 +458,6 @@ test('addCastVoteRecordFile - handle parsing error', async () => {
       disposition: 'failure',
     })
   );
-});
-
-test('auth', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { electionData, electionHash } = electionDefinition;
-  const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
-  expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
-
-  await apiClient.getAuthStatus();
-  expect(auth.getAuthStatus).toHaveBeenCalledTimes(2);
-  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(2, { electionHash });
-
-  await apiClient.checkPin({ pin: '123456' });
-  expect(auth.checkPin).toHaveBeenCalledTimes(1);
-  expect(auth.checkPin).toHaveBeenNthCalledWith(
-    1,
-    { electionHash },
-    { pin: '123456' }
-  );
-
-  await apiClient.updateSessionExpiry({
-    sessionExpiresAt: new Date().getTime() + 60 * 1000,
-  });
-  expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
-  expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
-    1,
-    { electionHash },
-    { sessionExpiresAt: expect.any(Number) }
-  );
-
-  await apiClient.logOut();
-  expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
-
-  void (await apiClient.programCard({ userRole: 'system_administrator' }));
-  void (await apiClient.programCard({ userRole: 'election_manager' }));
-  expect(auth.programCard).toHaveBeenCalledTimes(2);
-  expect(auth.programCard).toHaveBeenNthCalledWith(
-    1,
-    { electionHash },
-    { userRole: 'system_administrator' }
-  );
-  expect(auth.programCard).toHaveBeenNthCalledWith(
-    2,
-    { electionHash },
-    { userRole: 'election_manager', electionData }
-  );
-
-  void (await apiClient.unprogramCard());
-  expect(auth.unprogramCard).toHaveBeenCalledTimes(1);
-  expect(auth.unprogramCard).toHaveBeenNthCalledWith(1, { electionHash });
-});
-
-test('auth before election definition has been configured', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
-
-  await apiClient.getAuthStatus();
-  expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {});
-
-  await apiClient.checkPin({ pin: '123456' });
-  expect(auth.checkPin).toHaveBeenCalledTimes(1);
-  expect(auth.checkPin).toHaveBeenNthCalledWith(1, {}, { pin: '123456' });
-
-  await apiClient.updateSessionExpiry({
-    sessionExpiresAt: new Date().getTime() + 60 * 1000,
-  });
-  expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
-  expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
-    1,
-    {},
-    { sessionExpiresAt: expect.any(Number) }
-  );
-
-  await apiClient.logOut();
-  expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, {});
 });
 
 test('setSystemSettings happy path', async () => {

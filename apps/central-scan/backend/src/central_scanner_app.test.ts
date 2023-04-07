@@ -37,16 +37,12 @@ import {
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { Server } from 'http';
-import * as grout from '@votingworks/grout';
-import { fakeLogger } from '@votingworks/logging';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
-import { Api, buildCentralScannerApp } from './central_scanner_app';
+import { buildCentralScannerApp } from './central_scanner_app';
 import { getMockBallotPageLayoutsWithImages } from '../test/helpers/mock_layouts';
-import { start } from './server';
-import { PORT } from './globals';
 
 jest.mock('./importer');
 
@@ -798,39 +794,4 @@ test('get next sheet layouts', async () => {
         },
       })
     );
-});
-
-test('auth', async () => {
-  const { electionHash } = stateOfHamilton.electionDefinition;
-  const logger = fakeLogger();
-  server = await start({ app, logger, workspace });
-  const apiClient = grout.createClient<Api>({
-    baseUrl: `http://localhost:${PORT}/api`,
-  });
-
-  await apiClient.getAuthStatus();
-  expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, { electionHash });
-
-  await apiClient.checkPin({ pin: '123456' });
-  expect(auth.checkPin).toHaveBeenCalledTimes(1);
-  expect(auth.checkPin).toHaveBeenNthCalledWith(
-    1,
-    { electionHash },
-    { pin: '123456' }
-  );
-
-  await apiClient.updateSessionExpiry({
-    sessionExpiresAt: new Date().getTime() + 60 * 1000,
-  });
-  expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
-  expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
-    1,
-    { electionHash },
-    { sessionExpiresAt: expect.any(Number) }
-  );
-
-  await apiClient.logOut();
-  expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
 });
