@@ -34,6 +34,10 @@ let mockAuth: InsertedSmartCardAuthApi;
 let mockUsb: MockUsb;
 let server: Server;
 
+beforeEach(() => {
+  ({ apiClient, mockAuth, mockUsb, server } = createApp());
+});
+
 afterEach(() => {
   server?.close();
 });
@@ -47,7 +51,6 @@ test('uses machine config from env', async () => {
     VX_SCREEN_ORIENTATION: 'landscape',
   };
 
-  ({ apiClient, server } = createApp());
   expect(await apiClient.getMachineConfig()).toEqual({
     machineId: 'test-machine-id',
     codeVersion: 'test-code-version',
@@ -58,7 +61,6 @@ test('uses machine config from env', async () => {
 });
 
 test('uses default machine config if not set', async () => {
-  ({ apiClient, server } = createApp());
   expect(await apiClient.getMachineConfig()).toEqual({
     machineId: '0000',
     codeVersion: 'dev',
@@ -69,8 +71,6 @@ test('uses default machine config if not set', async () => {
 test('auth', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { electionHash } = electionDefinition;
-  ({ apiClient, mockAuth, server } = createApp());
-
   await apiClient.getAuthStatus({ electionHash });
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
@@ -122,7 +122,6 @@ test('auth', async () => {
 test('read election definition from card', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { electionData, electionHash } = electionDefinition;
-  ({ apiClient, mockAuth, server } = createApp());
 
   mockOf(mockAuth.readCardDataAsString).mockImplementation(() =>
     Promise.resolve(ok(electionData))
@@ -176,7 +175,6 @@ test('read election definition from card', async () => {
 test('read scanner report data from card', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { electionHash } = electionDefinition;
-  ({ apiClient, mockAuth, server } = createApp());
 
   const scannerReportData: ScannerReportData = {
     ballotCounts: {},
@@ -232,7 +230,6 @@ test('read scanner report data from card', async () => {
 test('clear scanner report data from card', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { electionHash } = electionDefinition;
-  ({ apiClient, mockAuth, server } = createApp());
 
   mockOf(mockAuth.clearCardData).mockImplementation(() =>
     Promise.resolve(ok())
@@ -272,7 +269,6 @@ test('clear scanner report data from card', async () => {
 });
 
 test('configureBallotPackageFromUsb reads to and writes from store', async () => {
-  ({ apiClient, mockAuth, mockUsb, server } = createApp());
   const { electionDefinition } = electionFamousNames2021Fixtures;
 
   // Mock election manager
@@ -305,7 +301,6 @@ test('configureBallotPackageFromUsb reads to and writes from store', async () =>
 });
 
 test('configureBallotPackageFromUsb throws when no USB drive mounted', async () => {
-  ({ apiClient, server } = createApp());
   const { electionDefinition } = electionFamousNames2021Fixtures;
 
   await expect(
@@ -316,7 +311,6 @@ test('configureBallotPackageFromUsb throws when no USB drive mounted', async () 
 });
 
 test('configureBallotPackageFromUsb returns an error if ballot package parsing fails', async () => {
-  ({ apiClient, mockAuth, mockUsb, server } = createApp());
   const { electionDefinition } = electionFamousNames2021Fixtures;
 
   // Lack of auth will cause ballot package reading to throw
