@@ -349,7 +349,7 @@ pub fn interpret_ballot_card(side_a_path: &Path, side_b_path: &Path, options: &O
 
 #[cfg(test)]
 mod test {
-    use std::{fs::File, io::BufReader};
+    use std::{fs::File, io::BufReader, path::PathBuf};
 
     use crate::ballot_card::load_oval_template;
 
@@ -357,12 +357,7 @@ mod test {
 
     #[test]
     fn test_interpret_ballot_card() {
-        let fixture_path = Path::new(file!())
-            .parent()
-            .unwrap()
-            .parent()
-            .unwrap()
-            .join("test/fixtures/ashland");
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/ashland");
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
