@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 import { unsafeParse } from '@votingworks/types';
+import { join } from 'path';
 import { z } from 'zod';
 
 /**
@@ -21,3 +22,12 @@ export const NODE_ENV = unsafeParse(
   NodeEnvSchema,
   process.env.NODE_ENV ?? 'development'
 );
+
+/**
+ * Where should the database and audio files go?
+ */
+export const MARK_WORKSPACE =
+  process.env.MARK_WORKSPACE ??
+  (NODE_ENV === 'development'
+    ? join(__dirname, '../dev-workspace')
+    : undefined);

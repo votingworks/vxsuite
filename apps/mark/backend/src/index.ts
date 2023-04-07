@@ -3,7 +3,8 @@ import fs from 'fs';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
 import * as server from './server';
-import { NODE_ENV } from './globals';
+import { MARK_WORKSPACE, NODE_ENV, PORT } from './globals';
+import { createWorkspace, Workspace } from './util/workspace';
 
 export type { Api } from './app';
 export * from './types';
@@ -35,20 +36,37 @@ for (const dotenvFile of dotenvFiles) {
 
 const logger = new Logger(LogSource.VxMarkBackend);
 
-function main(): number {
-  server.start({});
+async function resolveWorkspace(): Promise<Workspace> {
+  const workspacePath = MARK_WORKSPACE;
+  if (!workspacePath) {
+    await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
+      message:
+        'workspace path could not be determined; pass a workspace or run with MARK_WORKSPACE',
+      disposition: 'failure',
+    });
+    throw new Error(
+      'workspace path could not be determined; pass a workspace or run with MARK_WORKSPACE'
+    );
+  }
+  return createWorkspace(workspacePath);
+}
+
+async function main(): Promise<number> {
+  const workspace = await resolveWorkspace();
+  server.start({ port: PORT, logger, workspace });
   return 0;
 }
 
 if (require.main === module) {
-  try {
-    const code = main();
-    process.exitCode = code;
-  } catch (error) {
-    void logger.log(LogEventId.ApplicationStartup, 'system', {
-      message: `Error in starting VxMark backend: ${(error as Error).stack}`,
-      disposition: 'failure',
+  void main()
+    .catch((error) => {
+      void logger.log(LogEventId.ApplicationStartup, 'system', {
+        message: `Error in starting VxMark backend: ${(error as Error).stack}`,
+        disposition: 'failure',
+      });
+      return 1;
+    })
+    .then((code) => {
+      process.exitCode = code;
     });
-    process.exitCode = 1;
-  }
 }

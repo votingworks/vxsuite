@@ -6,28 +6,27 @@ import {
   MemoryCard,
   MockFileCard,
 } from '@votingworks/auth';
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
 
+import { getUsbDrives, Usb } from '@votingworks/backend';
 import { buildApp } from './app';
-import { PORT } from './globals';
+import { Workspace } from './util/workspace';
 
 export interface StartOptions {
   port: number | string;
   logger: Logger;
+  workspace: Workspace;
 }
 
 /**
  * Starts the server with all the default options.
  */
-export function start({
-  port = PORT,
-  logger = new Logger(LogSource.VxMarkBackend),
-}: Partial<StartOptions> = {}): Server {
+export function start({ port, logger, workspace }: StartOptions): Server {
   const auth = new InsertedSmartCardAuth({
     card:
       isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
@@ -43,7 +42,8 @@ export function start({
     logger,
   });
 
-  const app = buildApp(auth);
+  const usb: Usb = { getUsbDrives };
+  const app = buildApp(auth, logger, workspace, usb);
 
   return app.listen(
     port,
