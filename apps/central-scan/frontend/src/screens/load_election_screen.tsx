@@ -104,7 +104,7 @@ export function LoadElectionScreen({
     } else {
       try {
         const ballotPackage = await readBallotPackageFromFile(file);
-        await logger.log(LogEventId.BallotPackagedLoadedFromUsb, userRole, {
+        await logger.log(LogEventId.BallotPackageLoadedFromUsb, userRole, {
           message:
             'Ballot package successfully loaded from Usb, now configuring machine for ballot package...',
           disposition: 'success',
@@ -112,7 +112,7 @@ export function LoadElectionScreen({
         handleBallotLoading(ballotPackage);
       } catch (error) {
         assert(error instanceof Error);
-        await logger.log(LogEventId.BallotPackagedLoadedFromUsb, userRole, {
+        await logger.log(LogEventId.BallotPackageLoadedFromUsb, userRole, {
           message: 'Error reading ballot package from USB.',
           error: error.message,
           result:
@@ -128,7 +128,7 @@ export function LoadElectionScreen({
     // All automatic file imports will be on zip packages
     try {
       const ballotPackage = await readBallotPackageFromFilePointer(file);
-      await logger.log(LogEventId.BallotPackagedLoadedFromUsb, userRole, {
+      await logger.log(LogEventId.BallotPackageLoadedFromUsb, userRole, {
         message:
           'Ballot package successfully loaded from Usb, now configuring machine for ballot package...',
         disposition: 'success',
@@ -136,7 +136,7 @@ export function LoadElectionScreen({
       handleBallotLoading(ballotPackage);
     } catch (error) {
       assert(error instanceof Error);
-      await logger.log(LogEventId.BallotPackagedLoadedFromUsb, userRole, {
+      await logger.log(LogEventId.BallotPackageLoadedFromUsb, userRole, {
         message: 'Error reading ballot package from USB.',
         error: error.message,
         result: 'User shown error, machine not configured for ballot package.',
