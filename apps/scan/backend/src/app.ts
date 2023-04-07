@@ -10,23 +10,19 @@ import {
   UnixTimestampInMilliseconds,
 } from '@votingworks/types';
 import {
-  BALLOT_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
-  readBallotPackageFromBuffer,
   ScannerReportData,
   ScannerReportDataSchema,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import express, { Application } from 'express';
-import * as fs from 'fs/promises';
 import {
   ExportDataError,
   exportCastVoteRecordReportToUsbDrive,
   ExportCastVoteRecordReportToUsbDriveError,
+  readBallotPackageFromUsb,
 } from '@votingworks/backend';
-import path from 'path';
-import { existsSync } from 'fs';
 import { assert, err, ok, Result } from '@votingworks/basics';
 import {
   DEV_JURISDICTION,
@@ -110,67 +106,18 @@ function buildApi(
         constructAuthMachineState(workspace)
       );
 
-      // The frontend tries to prevent ballot package configuration attempts until an election
-      // manager has authed. But we may reach this state if a user removes their card immediately
-      // after inserting it, but after the ballot package configuration attempt has started
-      if (authStatus.status !== 'logged_in') {
-        await logger.log(LogEventId.BallotPackagedLoadedFromUsb, 'system', {
-          disposition: 'failure',
-          message: 'Ballot package configuration was attempted before auth.',
-        });
-        return err('auth_required_before_ballot_package_load');
+      const ballotPackageResult = await readBallotPackageFromUsb(
+        authStatus,
+        usbDrive,
+        logger
+      );
+      if (ballotPackageResult.isErr()) {
+        return ballotPackageResult;
       }
 
-      // The frontend prevents other roles from configuring ballot packages
-      assert(authStatus.user.role === 'election_manager');
-
-      const directoryPath = path.join(
-        usbDrive.mountPoint,
-        BALLOT_PACKAGE_FOLDER
-      );
-      if (!existsSync(directoryPath)) {
-        return err('no_ballot_package_on_usb_drive');
-      }
-
-      const files = await fs.readdir(directoryPath, { withFileTypes: true });
-      const ballotPackageFiles = files.filter(
-        (file) => file.isFile() && file.name.endsWith('.zip')
-      );
-      if (ballotPackageFiles.length === 0) {
-        return err('no_ballot_package_on_usb_drive');
-      }
-
-      const ballotPackageFilesWithStats = await Promise.all(
-        ballotPackageFiles.map(async (file) => {
-          const filePath = path.join(directoryPath, file.name);
-          return {
-            ...file,
-            filePath,
-            // Include file stats so we can sort by creation time
-            ...(await fs.lstat(filePath)),
-          };
-        })
-      );
-
-      const [mostRecentBallotPackageFile] = [
-        ...ballotPackageFilesWithStats,
-      ].sort((a, b) => b.ctime.getTime() - a.ctime.getTime());
-
-      const ballotPackage = await readBallotPackageFromBuffer(
-        await fs.readFile(mostRecentBallotPackageFile.filePath)
-      );
-
+      const ballotPackage = ballotPackageResult.ok();
       const { electionDefinition, systemSettings, ballots } = ballotPackage;
       assert(systemSettings);
-
-      if (authStatus.user.electionHash !== electionDefinition.electionHash) {
-        await logger.log(LogEventId.BallotPackagedLoadedFromUsb, 'system', {
-          disposition: 'failure',
-          message:
-            'The election hash for the authorized user and most recent ballot package on the USB drive did not match.',
-        });
-        return err('election_hash_mismatch');
-      }
 
       let precinctSelection: SinglePrecinctSelection | undefined;
       if (electionDefinition.election.precincts.length === 1) {

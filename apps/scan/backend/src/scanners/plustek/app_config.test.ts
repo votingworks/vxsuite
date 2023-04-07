@@ -13,7 +13,7 @@ import {
   SCANNER_RESULTS_FOLDER,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { assert, err, find, ok, unique } from '@votingworks/basics';
+import { assert, find, ok, unique } from '@votingworks/basics';
 import fs from 'fs';
 import { join } from 'path';
 import {
@@ -27,9 +27,9 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
 } from '@votingworks/types';
+import { createBallotPackageWithoutTemplates } from '@votingworks/backend';
 import {
   configureApp,
-  createBallotPackageWithoutTemplates,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import { Api } from '../../app';
@@ -96,12 +96,6 @@ function mockElectionManager(
   );
 }
 
-function mockLoggedOut(mockAuth: InsertedSmartCardAuthApi) {
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-    Promise.resolve({ status: 'logged_out', reason: 'no_card' })
-  );
-}
-
 test('uses machine config from env', async () => {
   const originalEnv = process.env;
   process.env = {
@@ -126,56 +120,6 @@ test('uses default machine config if not set', async () => {
       machineId: '0000',
       codeVersion: 'dev',
     });
-  });
-});
-
-test("fails to configure if there's no ballot package on the usb drive", async () => {
-  await withApp({}, async ({ apiClient, mockAuth, mockUsb }) => {
-    mockElectionManager(mockAuth, electionSampleDefinition);
-    mockUsb.insertUsbDrive({});
-    expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
-      err('no_ballot_package_on_usb_drive')
-    );
-    mockUsb.removeUsbDrive();
-    mockUsb.insertUsbDrive({ 'ballot-packages': {} });
-    expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
-      err('no_ballot_package_on_usb_drive')
-    );
-  });
-});
-
-test('fails to configure ballot package if logged out', async () => {
-  await withApp({}, async ({ apiClient, mockUsb, mockAuth }) => {
-    mockLoggedOut(mockAuth);
-    mockUsb.insertUsbDrive({
-      'ballot-packages': {
-        'test-ballot-package.zip': createBallotPackageWithoutTemplates(
-          electionSampleDefinition
-        ),
-      },
-    });
-    expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
-      err('auth_required_before_ballot_package_load')
-    );
-  });
-});
-
-test('fails to configure ballot package if election definition on card does not match that of the ballot package', async () => {
-  await withApp({}, async ({ apiClient, mockUsb, mockAuth }) => {
-    mockElectionManager(
-      mockAuth,
-      electionFamousNames2021Fixtures.electionDefinition
-    );
-    mockUsb.insertUsbDrive({
-      'ballot-packages': {
-        'test-ballot-package.zip': createBallotPackageWithoutTemplates(
-          electionSampleDefinition
-        ),
-      },
-    });
-    expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
-      err('election_hash_mismatch')
-    );
   });
 });
 
