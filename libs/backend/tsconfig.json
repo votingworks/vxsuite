@@ -12,12 +12,14 @@
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "noPropertyAccessFromIndexSignature": false
   },
   "references": [
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/test-utils/tsconfig.build.json" },
     { "path": "../../libs/fixtures/tsconfig.build.json" },
+    { "path": "../../libs/logging/tsconfig.build.json" },
     { "path": "../../libs/types/tsconfig.build.json" },
     { "path": "../../libs/utils/tsconfig.build.json" },
     { "path": "../../libs/image-utils/tsconfig.build.json" },

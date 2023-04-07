@@ -12,7 +12,8 @@
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "noPropertyAccessFromIndexSignature": false
   },
   "references": [
     { "path": "../basics/tsconfig.build.json" },
