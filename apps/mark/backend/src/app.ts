@@ -5,13 +5,15 @@ import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { err, ok, Optional, Result } from '@votingworks/basics';
+import { assert, err, ok, Optional, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
+  BallotPackageConfigurationError,
   BallotStyleId,
   ElectionDefinition,
   PrecinctId,
   UnixTimestampInMilliseconds,
+  SystemSettings,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import {
@@ -21,7 +23,10 @@ import {
   ScannerReportDataSchema,
 } from '@votingworks/utils';
 
+import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
+import { Logger } from '@votingworks/logging';
 import { getMachineConfig } from './machine_config';
+import { Workspace } from './util/workspace';
 
 function constructAuthMachineState({
   electionHash,
@@ -40,7 +45,12 @@ function constructAuthMachineState({
   };
 }
 
-function buildApi(auth: InsertedSmartCardAuthApi) {
+function buildApi(
+  auth: InsertedSmartCardAuthApi,
+  usb: Usb,
+  logger: Logger,
+  workspace: Workspace
+) {
   return grout.createApi({
     getMachineConfig,
 
@@ -82,6 +92,36 @@ function buildApi(auth: InsertedSmartCardAuthApi) {
 
     endCardlessVoterSession(input: { electionHash?: string }) {
       return auth.endCardlessVoterSession(constructAuthMachineState(input));
+    },
+
+    getSystemSettings(): SystemSettings | undefined {
+      return workspace.store.getSystemSettings();
+    },
+
+    async configureBallotPackageFromUsb(input: {
+      electionHash: string;
+    }): Promise<Result<void, BallotPackageConfigurationError>> {
+      const machineState = constructAuthMachineState(input);
+      const authStatus = await auth.getAuthStatus(machineState);
+
+      const [usbDrive] = await usb.getUsbDrives();
+      assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
+
+      const ballotPackageResult = await readBallotPackageFromUsb(
+        authStatus,
+        usbDrive,
+        logger
+      );
+
+      if (ballotPackageResult.isErr()) {
+        return ballotPackageResult;
+      }
+
+      const { electionDefinition, systemSettings } = ballotPackageResult.ok();
+      assert(systemSettings);
+      workspace.store.setElection(electionDefinition.electionData);
+      workspace.store.setSystemSettings(systemSettings);
+      return ok();
     },
 
     async readElectionDefinitionFromCard(input: {
@@ -148,9 +188,14 @@ function buildApi(auth: InsertedSmartCardAuthApi) {
 
 export type Api = ReturnType<typeof buildApi>;
 
-export function buildApp(auth: InsertedSmartCardAuthApi): Application {
+export function buildApp(
+  auth: InsertedSmartCardAuthApi,
+  logger: Logger,
+  workspace: Workspace,
+  usb: Usb
+): Application {
   const app: Application = express();
-  const api = buildApi(auth);
+  const api = buildApi(auth, usb, logger, workspace);
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }

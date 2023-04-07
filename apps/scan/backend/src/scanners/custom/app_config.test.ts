@@ -19,12 +19,12 @@ import {
   generateCvr,
   mockOf,
 } from '@votingworks/test-utils';
+import { createBallotPackageWithoutTemplates } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { ElectionDefinition } from '@votingworks/types';
 import { CustomScanner, mocks } from '@votingworks/custom-scanner';
 import {
   configureApp,
-  createBallotPackageWithoutTemplates,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import { Api } from '../../app';

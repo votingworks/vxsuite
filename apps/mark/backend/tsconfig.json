@@ -14,11 +14,14 @@
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "noUncheckedIndexedAccess": false
+    "noUncheckedIndexedAccess": false,
+    "noPropertyAccessFromIndexSignature": false
   },
   "references": [
     { "path": "../../../libs/auth/tsconfig.build.json" },
+    { "path": "../../../libs/backend/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },
+    { "path": "../../../libs/db/tsconfig.build.json" },
     { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../../libs/fixtures/tsconfig.build.json" },
     { "path": "../../../libs/grout/tsconfig.build.json" },

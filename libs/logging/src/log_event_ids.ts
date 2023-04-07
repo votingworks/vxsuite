@@ -107,8 +107,7 @@ export enum LogEventId {
   PrepareBootFromUsbInit = 'prepare-boot-from-usb-init',
   PrepareBootFromUsbComplete = 'prepare-boot-from-usb-complete',
   RebootMachine = 'reboot-machine',
-  // VxScan/VxCentralScan logs
-  BallotPackagedLoadedFromUsb = 'ballot-package-load-from-usb-complete',
+  BallotPackageLoadedFromUsb = 'ballot-package-load-from-usb-complete',
 
   // Precinct Machine (VxMark + VxScan) State
   PollsOpened = 'polls-opened',
@@ -562,8 +561,8 @@ const ConfigureFromBallotPackageInit: LogDetails = {
     LogSource.VxScanFrontend,
   ],
 };
-const BallotPackagedLoadedFromUsb: LogDetails = {
-  eventId: LogEventId.BallotPackagedLoadedFromUsb,
+const BallotPackageLoadedFromUsb: LogDetails = {
+  eventId: LogEventId.BallotPackageLoadedFromUsb,
   eventType: LogEventType.UserAction,
   documentationMessage:
     'The ballot package has been read from the USB drive. Success or failure indicated by disposition.',
@@ -1016,8 +1015,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SavedScanImageBackup;
     case LogEventId.ConfigureFromBallotPackageInit:
       return ConfigureFromBallotPackageInit;
-    case LogEventId.BallotPackagedLoadedFromUsb:
-      return BallotPackagedLoadedFromUsb;
+    case LogEventId.BallotPackageLoadedFromUsb:
+      return BallotPackageLoadedFromUsb;
     case LogEventId.BallotConfiguredOnMachine:
       return BallotConfiguredOnMachine;
     case LogEventId.ScannerConfigured:

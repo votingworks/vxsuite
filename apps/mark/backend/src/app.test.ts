@@ -1,5 +1,8 @@
-import { err, ok, Optional, Result } from '@votingworks/basics';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { assert, err, ok, Optional, Result } from '@votingworks/basics';
+import {
+  electionFamousNames2021Fixtures,
+  systemSettings,
+} from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
   fakePollWorkerUser,
@@ -7,14 +10,37 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 import { ElectionDefinition } from '@votingworks/types';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   ALL_PRECINCTS_SELECTION,
   ReportSourceMachineType,
+  safeParseSystemSettings,
   ScannerReportData,
   ScannerReportDataSchema,
 } from '@votingworks/utils';
 
+import { Buffer } from 'buffer';
+import {
+  createBallotPackageWithoutTemplates,
+  MockUsb,
+} from '@votingworks/backend';
+import { Server } from 'http';
+import * as grout from '@votingworks/grout';
 import { createApp } from '../test/app_helpers';
+import { Api } from './app';
+
+let apiClient: grout.Client<Api>;
+let mockAuth: InsertedSmartCardAuthApi;
+let mockUsb: MockUsb;
+let server: Server;
+
+beforeEach(() => {
+  ({ apiClient, mockAuth, mockUsb, server } = createApp());
+});
+
+afterEach(() => {
+  server?.close();
+});
 
 test('uses machine config from env', async () => {
   const originalEnv = process.env;
@@ -25,7 +51,6 @@ test('uses machine config from env', async () => {
     VX_SCREEN_ORIENTATION: 'landscape',
   };
 
-  const { apiClient } = createApp();
   expect(await apiClient.getMachineConfig()).toEqual({
     machineId: 'test-machine-id',
     codeVersion: 'test-code-version',
@@ -36,7 +61,6 @@ test('uses machine config from env', async () => {
 });
 
 test('uses default machine config if not set', async () => {
-  const { apiClient } = createApp();
   expect(await apiClient.getMachineConfig()).toEqual({
     machineId: '0000',
     codeVersion: 'dev',
@@ -47,8 +71,6 @@ test('uses default machine config if not set', async () => {
 test('auth', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { electionHash } = electionDefinition;
-  const { apiClient, mockAuth } = createApp();
-
   await apiClient.getAuthStatus({ electionHash });
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
@@ -100,7 +122,6 @@ test('auth', async () => {
 test('read election definition from card', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { electionData, electionHash } = electionDefinition;
-  const { apiClient, mockAuth } = createApp();
 
   mockOf(mockAuth.readCardDataAsString).mockImplementation(() =>
     Promise.resolve(ok(electionData))
@@ -154,7 +175,6 @@ test('read election definition from card', async () => {
 test('read scanner report data from card', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { electionHash } = electionDefinition;
-  const { apiClient, mockAuth } = createApp();
 
   const scannerReportData: ScannerReportData = {
     ballotCounts: {},
@@ -210,7 +230,6 @@ test('read scanner report data from card', async () => {
 test('clear scanner report data from card', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { electionHash } = electionDefinition;
-  const { apiClient, mockAuth } = createApp();
 
   mockOf(mockAuth.clearCardData).mockImplementation(() =>
     Promise.resolve(ok())
@@ -247,4 +266,70 @@ test('clear scanner report data from card', async () => {
   expect(mockAuth.clearCardData).toHaveBeenNthCalledWith(1, {
     electionHash,
   });
+});
+
+test('configureBallotPackageFromUsb reads to and writes from store', async () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+
+  // Mock election manager
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: fakeElectionManagerUser(electionDefinition),
+      sessionExpiresAt: new Date().getTime() + 60 * 1000,
+    })
+  );
+
+  const zipBuffer = createBallotPackageWithoutTemplates(electionDefinition, {
+    systemSettingsString: systemSettings.asText(),
+  });
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'test-ballot-package.zip': zipBuffer,
+    },
+  });
+
+  const writeResult = await apiClient.configureBallotPackageFromUsb({
+    electionHash: electionDefinition.electionHash,
+  });
+  assert(writeResult.isOk());
+
+  const readResult = await apiClient.getSystemSettings();
+  expect(readResult).toEqual(
+    safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
+  );
+});
+
+test('configureBallotPackageFromUsb throws when no USB drive mounted', async () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+
+  await expect(
+    apiClient.configureBallotPackageFromUsb({
+      electionHash: electionDefinition.electionHash,
+    })
+  ).rejects.toThrow('No USB drive mounted');
+});
+
+test('configureBallotPackageFromUsb returns an error if ballot package parsing fails', async () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+
+  // Lack of auth will cause ballot package reading to throw
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_out',
+      reason: 'no_card',
+    })
+  );
+
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'test-ballot-package.zip': Buffer.from("doesnk't matter"),
+    },
+  });
+
+  const result = await apiClient.configureBallotPackageFromUsb({
+    electionHash: electionDefinition.electionHash,
+  });
+  assert(result.isErr());
+  expect(result.err()).toEqual('auth_required_before_ballot_package_load');
 });

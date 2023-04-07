@@ -25,6 +25,7 @@ import { Application } from 'express';
 import { Server } from 'http';
 import { AddressInfo } from 'net';
 import tmp from 'tmp';
+import { MockUsb, createMockUsb } from '@votingworks/backend';
 import { Api, buildApp } from '../../src/app';
 import {
   PrecinctScannerInterpreter,
@@ -35,12 +36,7 @@ import {
   createPrecinctScannerStateMachine,
 } from '../../src/scanners/custom/state_machine';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
-import {
-  MockUsb,
-  createMockUsb,
-  expectStatus,
-  waitForStatus,
-} from './shared_helpers';
+import { expectStatus, waitForStatus } from './shared_helpers';
 
 export async function withApp(
   {
