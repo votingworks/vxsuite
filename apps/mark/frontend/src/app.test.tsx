@@ -1,4 +1,4 @@
-import { fakeKiosk } from '@votingworks/test-utils';
+import { fakeKiosk, suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
   MemoryHardware,
@@ -40,30 +40,29 @@ it('will throw an error when using default api', async () => {
     },
   });
   const hardware = MemoryHardware.buildStandard();
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  jest.spyOn(console, 'error').mockImplementation(() => {});
 
-  render(<App hardware={hardware} />);
-
-  await screen.findByText('Something went wrong');
+  await suppressingConsoleOutput(async () => {
+    render(<App hardware={hardware} />);
+    await screen.findByText('Something went wrong');
+  });
 });
 
 it('Displays error boundary if the api returns an unexpected error', async () => {
   apiMock.expectGetMachineConfigToError();
   const storage = new MemoryStorage();
   const hardware = MemoryHardware.buildStandard();
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  jest.spyOn(console, 'error').mockImplementation(() => {});
-  render(
-    <App
-      hardware={hardware}
-      storage={storage}
-      apiClient={apiMock.mockApiClient}
-      reload={jest.fn()}
-    />
-  );
-  await advanceTimersAndPromises();
-  screen.getByText('Something went wrong');
+  await suppressingConsoleOutput(async () => {
+    render(
+      <App
+        hardware={hardware}
+        storage={storage}
+        apiClient={apiMock.mockApiClient}
+        reload={jest.fn()}
+      />
+    );
+    await advanceTimersAndPromises();
+    screen.getByText('Something went wrong');
+  });
 });
 
 it('prevents context menus from appearing', async () => {

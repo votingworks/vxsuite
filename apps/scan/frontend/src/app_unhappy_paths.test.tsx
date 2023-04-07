@@ -5,6 +5,7 @@ import {
   advanceTimersAndPromises,
   fakeKiosk,
   fakeUsbDrive,
+  suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
 
@@ -54,25 +55,19 @@ afterEach(() => {
 });
 
 test('when backend does not respond shows error screen', async () => {
-  const originalConsoleError = console.error;
-  console.error = jest.fn();
-
   apiMock.mockApiClient.getConfig
     .expectCallWith()
     .throws(new ServerError('not responding'));
   apiMock.expectGetScannerStatus(statusNoPaper);
 
-  renderApp();
-  await screen.findByText('Something went wrong');
-  expect(console.error).toHaveBeenCalled();
-
-  console.error = originalConsoleError;
+  await suppressingConsoleOutput(async () => {
+    renderApp();
+    await screen.findByText('Something went wrong');
+    expect(console.error).toHaveBeenCalled();
+  });
 });
 
 test('backend fails to unconfigure', async () => {
-  const originalConsoleError = console.error;
-  console.error = jest.fn();
-
   apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus({ ...statusNoPaper, canUnconfigure: true });
@@ -83,15 +78,14 @@ test('backend fails to unconfigure', async () => {
   renderApp();
   apiMock.authenticateAsElectionManager(electionSampleDefinition);
 
-  userEvent.click(
-    await screen.findByText('Delete All Election Data from VxScan')
-  );
-  userEvent.click(await screen.findByText('Yes, Delete All'));
+  await suppressingConsoleOutput(async () => {
+    userEvent.click(
+      await screen.findByText('Delete All Election Data from VxScan')
+    );
+    userEvent.click(await screen.findByText('Yes, Delete All'));
 
-  await screen.findByText('Something went wrong');
-  expect(console.error).toHaveBeenCalled();
-
-  console.error = originalConsoleError;
+    await screen.findByText('Something went wrong');
+  });
 });
 
 test('Show invalid card screen when unsupported cards are given', async () => {
