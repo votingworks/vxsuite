@@ -19,11 +19,6 @@ export interface JavaCardConfig {
 }
 
 /**
- * Should be kept in sync with vxsuite-complete-system scripts
- */
-const PROD_CONFIG_DIRECTORY = '/vx/config';
-
-/**
  * The password for all dev private keys
  */
 export const DEV_PRIVATE_KEY_PASSWORD = '1234';
@@ -34,15 +29,16 @@ function shouldUseProdCerts(): boolean {
 
 function constructCardProgrammingConfig(): JavaCardConfig['cardProgrammingConfig'] {
   if (shouldUseProdCerts()) {
+    assert(process.env.CONFIG_DIRECTORY !== undefined);
     assert(process.env.VX_ADMIN_PRIVATE_KEY_PASSWORD !== undefined);
     return {
       vxAdminCertAuthorityCertPath: path.join(
-        PROD_CONFIG_DIRECTORY,
+        process.env.CONFIG_DIRECTORY,
         'vx-admin-cert-authority-cert.pem'
       ),
       vxAdminPrivateKeyPassword: process.env.VX_ADMIN_PRIVATE_KEY_PASSWORD,
       vxAdminPrivateKeyPath: path.join(
-        PROD_CONFIG_DIRECTORY,
+        process.env.CONFIG_DIRECTORY,
         'vx-admin-private-key.pem'
       ),
     };
@@ -73,7 +69,8 @@ export function constructJavaCardConfig({
       ? constructCardProgrammingConfig()
       : undefined,
     vxCertAuthorityCertPath: shouldUseProdCerts()
-      ? path.join(__dirname, '../certs/prod/vx-cert-authority-cert.pem')
+      ? // We can commit this prod cert to the codebase because it's 1) universal and 2) public
+        path.join(__dirname, '../certs/prod/vx-cert-authority-cert.pem')
       : path.join(__dirname, '../certs/dev/vx-cert-authority-cert.pem'),
   };
 }

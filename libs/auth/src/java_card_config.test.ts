@@ -13,6 +13,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
 }));
 
 beforeEach(() => {
+  process.env.CONFIG_DIRECTORY = '/vx/config';
   process.env.NODE_ENV = 'test';
   process.env.VX_ADMIN_PRIVATE_KEY_PASSWORD = '5678';
 
