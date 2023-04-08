@@ -12,6 +12,7 @@ pub struct Election {
     pub contests: Vec<Contest>,
     pub ballot_styles: Vec<BallotStyle>,
     pub precincts: Vec<Precinct>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub ballot_layout: Option<BallotLayout>,
     pub grid_layouts: Vec<GridLayout>,
     #[serde(skip_serializing_if = "Option::is_none")]

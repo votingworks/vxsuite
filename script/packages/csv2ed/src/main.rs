@@ -7,7 +7,7 @@ use base64::engine::{general_purpose::URL_SAFE_NO_PAD, Engine};
 use election::BallotSide;
 use serde::Deserialize;
 
-use crate::election::{County, Election, GridLayout};
+use crate::election::{County, Election};
 
 mod election;
 
@@ -182,7 +182,7 @@ fn main() {
                 })
                 .collect();
 
-            GridLayout {
+            election::GridLayout {
                 ballot_style_id: ballot.ballot_style_id.clone(),
                 precinct_id: ballot.precinct_id.clone(),
                 columns: 34,
