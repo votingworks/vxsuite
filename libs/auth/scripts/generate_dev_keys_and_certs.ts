@@ -179,30 +179,41 @@ async function generateDevKeysAndCerts({
         {
           cardType: 'system-administrator',
           cardDetails: {
-            jurisdiction: DEV_JURISDICTION,
-            user: { role: 'system_administrator' },
+            user: {
+              role: 'system_administrator',
+              jurisdiction: DEV_JURISDICTION,
+            },
           },
         },
         {
           cardType: 'election-manager',
           cardDetails: {
-            jurisdiction: DEV_JURISDICTION,
-            user: { role: 'election_manager', electionHash },
+            user: {
+              role: 'election_manager',
+              jurisdiction: DEV_JURISDICTION,
+              electionHash,
+            },
           },
         },
         {
           cardType: 'poll-worker',
           cardDetails: {
-            jurisdiction: DEV_JURISDICTION,
-            user: { role: 'poll_worker', electionHash },
+            user: {
+              role: 'poll_worker',
+              jurisdiction: DEV_JURISDICTION,
+              electionHash,
+            },
             hasPin: false,
           },
         },
         {
           cardType: 'poll-worker-with-pin',
           cardDetails: {
-            jurisdiction: DEV_JURISDICTION,
-            user: { role: 'poll_worker', electionHash },
+            user: {
+              role: 'poll_worker',
+              jurisdiction: DEV_JURISDICTION,
+              electionHash,
+            },
             hasPin: true,
           },
         },
