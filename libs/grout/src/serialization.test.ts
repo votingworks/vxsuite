@@ -44,6 +44,10 @@ test('JSON serialization/deserialization', () => {
   });
   expectToBePreservedExactly([1, [2, 3], [4, [5, 6]]]);
   expectToBePreservedExactly([{ a: 1 }, { b: [{ c: 2 }] }]);
+  // Dates
+  expectToBePreservedExactly(new Date('2020-01-01T00:00:00.000Z'));
+  expectToBePreservedExactly(new Date());
+  expectToBePreservedExactly({ a: new Date() });
   // Error
   expectToBePreservedExactly(new Error('some error'));
   // Result
@@ -77,8 +81,6 @@ test('JSON serialization/deserialization', () => {
   expectToBeRejected(-Infinity);
   expectToBeRejected(() => 1);
   expectToBeRejected({ method: () => 1 });
-  // We could build in support for Dates if we wanted to, but starting out safe by rejecting.
-  expectToBeRejected(new Date());
   // By default, JSON.stringify will call the toJSON method on objects when
   // serializing, but that's bad for us since we won't know how to deserialize
   // in those cases.
