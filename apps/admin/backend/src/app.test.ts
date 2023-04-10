@@ -191,7 +191,7 @@ test('cast vote records - happy path election flow (with legacy files)', async (
     expect.objectContaining({
       name: testFileName,
       cvrCount: 3000,
-      exportTimestamp: testExportTimestamp,
+      exportTimestamp: new Date(testExportTimestamp),
       isTestModeResults: true,
       scannerIds: ['0000'],
     }),
@@ -289,7 +289,7 @@ test('cast vote records - happy path election flow (with legacy files)', async (
     expect.objectContaining({
       name: officialFileName,
       cvrCount: 3000,
-      exportTimestamp: '2022-07-01T11:21:41.000Z',
+      exportTimestamp: new Date('2022-07-01T11:21:41.000Z'),
       isTestModeResults: false,
       scannerIds: ['0000'],
     }),

@@ -64,7 +64,7 @@ test('happy path - mock election flow', async () => {
     expect.objectContaining({
       name: testReportDirectoryName,
       cvrCount: 3000,
-      exportTimestamp: testExportTimestamp,
+      exportTimestamp: new Date(testExportTimestamp),
       isTestModeResults: true,
       scannerIds: ['0000'],
     }),
@@ -171,7 +171,7 @@ test('happy path - mock election flow', async () => {
     expect.objectContaining({
       name: officialReportDirectoryName,
       cvrCount: 3000,
-      exportTimestamp: officialExportTimestamp,
+      exportTimestamp: new Date(officialExportTimestamp),
       isTestModeResults: false,
       scannerIds: ['0000'],
     }),
