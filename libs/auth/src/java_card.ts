@@ -269,21 +269,22 @@ export class JavaCard implements Card {
       CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
       pin
     );
-    const { jurisdiction } = await parseCert(
+    const vxAdminCertAuthorityCertDetails = await parseCert(
       await fs.readFile(vxAdminCertAuthorityCertPath)
     );
+    assert(user.jurisdiction === vxAdminCertAuthorityCertDetails.jurisdiction);
     let cardDetails: CardDetails;
     switch (user.role) {
       case 'system_administrator': {
-        cardDetails = { jurisdiction, user };
+        cardDetails = { user };
         break;
       }
       case 'election_manager': {
-        cardDetails = { jurisdiction, user };
+        cardDetails = { user };
         break;
       }
       case 'poll_worker': {
-        cardDetails = { jurisdiction, user, hasPin };
+        cardDetails = { user, hasPin };
         break;
       }
       /* istanbul ignore next: Compile-time check for completeness */
@@ -425,7 +426,8 @@ export class JavaCard implements Card {
       vxAdminCertAuthorityCert
     );
 
-    // Verify that the VxAdmin cert authority cert is a valid VxAdmin cert, signed by VotingWorks
+    // Verify that the VxAdmin cert authority cert on the card is a valid VxAdmin cert, signed by
+    // VotingWorks
     const vxAdminCertAuthorityCertDetails = await parseCert(
       vxAdminCertAuthorityCert
     );
@@ -441,7 +443,8 @@ export class JavaCard implements Card {
 
     const cardDetails = await parseCardDetailsFromCert(cardVxAdminCert);
     assert(
-      cardDetails.jurisdiction === vxAdminCertAuthorityCertDetails.jurisdiction
+      cardDetails.user.jurisdiction ===
+        vxAdminCertAuthorityCertDetails.jurisdiction
     );
 
     /**
