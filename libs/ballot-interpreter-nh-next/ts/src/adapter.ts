@@ -207,7 +207,8 @@ function convertMarksToVotes(
 function buildInterpretedHmpbPageMetadata(
   electionDefinition: ElectionDefinition,
   options: InterpretOptions,
-  frontMetadata: BallotPageMetadataFront
+  frontMetadata: BallotPageMetadataFront,
+  isFrontPage: boolean
 ): HmpbBallotPageMetadata {
   const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
   const ballotStyle = getBallotStyle({
@@ -224,7 +225,7 @@ function buildInterpretedHmpbPageMetadata(
     electionHash: electionDefinition.electionHash,
     isTestMode: options.isTestMode,
     locales: { primary: 'en-US' },
-    pageNumber: 1,
+    pageNumber: isFrontPage ? 1 : 2,
   };
 }
 
@@ -245,7 +246,9 @@ function convertNextInterpretedBallotPage(
       metadata: buildInterpretedHmpbPageMetadata(
         electionDefinition,
         options,
-        nextInterpretedBallotCard.front.grid.metadata as BallotPageMetadataFront
+        nextInterpretedBallotCard.front.grid
+          .metadata as BallotPageMetadataFront,
+        nextInterpretation === nextInterpretedBallotCard.front
       ),
       markInfo: convertMarksToMarkInfo(
         electionDefinition.election.contests,
