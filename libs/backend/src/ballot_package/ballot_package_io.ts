@@ -51,9 +51,9 @@ export async function readBallotPackageFromUsb(
 
   const files = await fs.readdir(directoryPath, { withFileTypes: true });
   const ballotPackageFiles = files.filter(
-    // OsX hidden files prefixed with `._` are not valid zip files and will break zip parsing
     (file) =>
-      file.isFile() && !file.name.startsWith('._') && file.name.endsWith('.zip')
+      // Ignore hidden files that start with `.`
+      file.isFile() && !file.name.startsWith('.') && file.name.endsWith('.zip')
   );
   if (ballotPackageFiles.length === 0) {
     return err('no_ballot_package_on_usb_drive');

@@ -16,7 +16,7 @@ import {
 import { assert } from '@votingworks/basics';
 import { safeParseSystemSettings } from '@votingworks/utils';
 import { join } from 'path';
-import * as fsSync from 'fs';
+import * as fs from 'fs';
 import { Buffer } from 'buffer';
 import { createBallotPackageWithoutTemplates } from './test_utils';
 import { readBallotPackageFromUsb } from './ballot_package_io';
@@ -32,16 +32,14 @@ function assertFilesCreatedInOrder(
   // Ensure our mock actually created the files in the order we expect (the
   // order of the keys in the object above)
   const dirPath = join(usbDrive.mountPoint, 'ballot-packages');
-  const files = fsSync.readdirSync(dirPath);
+  const files = fs.readdirSync(dirPath);
   const filesWithStats = files.map((file) => ({
     file,
-    ...fsSync.statSync(join(dirPath, file)),
+    ...fs.statSync(join(dirPath, file)),
   }));
   assert(filesWithStats[0] !== undefined && filesWithStats[1] !== undefined);
   expect(filesWithStats[0].file).toContain(newerFileName);
   expect(filesWithStats[1].file).toContain(olderFileName);
-  // expect(filesWithStats[0].file).toContain('newer-ballot-package.zip');
-  // expect(filesWithStats[1].file).toContain('older-ballot-package.zip');
   expect(filesWithStats[0].ctime.getTime()).toBeGreaterThan(
     filesWithStats[1].ctime.getTime()
   );
@@ -272,7 +270,7 @@ test('configures using the most recently created ballot package on the usb drive
   );
 });
 
-test('ignores hidden `._`-prefixed files, even if they are newer', async () => {
+test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
