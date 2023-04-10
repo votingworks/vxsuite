@@ -49,9 +49,9 @@ export function fakeCardlessVoterUser(
   };
 }
 
-export function fakeSessionExpiresAt(): number {
-  return (
+export function fakeSessionExpiresAt(): Date {
+  return new Date(
     new Date().getTime() +
-    DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS * 60 * 60 * 1000
+      DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS * 60 * 60 * 1000
   );
 }

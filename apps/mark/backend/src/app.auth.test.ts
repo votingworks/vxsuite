@@ -46,13 +46,13 @@ test('updateSessionExpiry', async () => {
 
   await apiClient.updateSessionExpiry({
     electionHash,
-    sessionExpiresAt: new Date().getTime() + 60 * 1000,
+    sessionExpiresAt: new Date(new Date().getTime() + 60 * 1000),
   });
   expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
     { electionHash, jurisdiction },
-    { sessionExpiresAt: expect.any(Number) }
+    { sessionExpiresAt: expect.any(Date) }
   );
 });
 

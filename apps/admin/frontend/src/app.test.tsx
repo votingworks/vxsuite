@@ -208,7 +208,7 @@ test('authentication works', async () => {
     user: fakeElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
-    wrongPinEnteredAt: new Date().getTime(),
+    wrongPinEnteredAt: new Date(),
   });
   await screen.findByText('Incorrect PIN. Please try again.');
 

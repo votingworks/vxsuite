@@ -101,13 +101,13 @@ async function logInAsSystemAdministrator(
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'remove_card',
     user: systemAdministratorUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
   });
   mockCardStatus({ status: 'no_card' });
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'logged_in',
     user: systemAdministratorUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
     programmableCard: { status: 'no_card' },
   });
   mockOf(mockLogger.log).mockClear();
@@ -132,13 +132,13 @@ async function logInAsElectionManager(
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'remove_card',
     user: electionManagerUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
   });
   mockCardStatus({ status: 'no_card' });
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
   });
   mockOf(mockLogger.log).mockClear();
 }
@@ -251,7 +251,7 @@ test.each<{
     expectedLoggedInAuthStatus: {
       status: 'logged_in',
       user: systemAdministratorUser,
-      sessionExpiresAt: expect.any(Number),
+      sessionExpiresAt: expect.any(Date),
       programmableCard: { status: 'no_card' },
     },
   },
@@ -263,7 +263,7 @@ test.each<{
     expectedLoggedInAuthStatus: {
       status: 'logged_in',
       user: electionManagerUser,
-      sessionExpiresAt: expect.any(Number),
+      sessionExpiresAt: expect.any(Date),
     },
   },
 ])(
@@ -289,7 +289,7 @@ test.each<{
     expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
       status: 'checking_pin',
       user,
-      wrongPinEnteredAt: expect.any(Number),
+      wrongPinEnteredAt: expect.any(Date),
     });
     expect(mockLogger.log).toHaveBeenCalledTimes(1);
     expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -307,7 +307,7 @@ test.each<{
     expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
       status: 'remove_card',
       user,
-      sessionExpiresAt: expect.any(Number),
+      sessionExpiresAt: expect.any(Date),
     });
     expect(mockLogger.log).toHaveBeenCalledTimes(2);
     expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -385,8 +385,8 @@ test('Card lockout', async () => {
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    lockedOutUntil: mockTime.getTime() + 30 * 1000,
-    wrongPinEnteredAt: mockTime.getTime(),
+    lockedOutUntil: new Date(mockTime.getTime() + 30 * 1000),
+    wrongPinEnteredAt: mockTime,
   });
 
   mockCardStatus({ status: 'no_card' });
@@ -409,7 +409,7 @@ test('Card lockout', async () => {
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    lockedOutUntil: mockTime.getTime() + 30 * 1000,
+    lockedOutUntil: new Date(mockTime.getTime() + 30 * 1000),
   });
 
   // Expect checkPin call to be ignored when locked out
@@ -417,7 +417,7 @@ test('Card lockout', async () => {
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    lockedOutUntil: mockTime.getTime() + 30 * 1000,
+    lockedOutUntil: new Date(mockTime.getTime() + 30 * 1000),
   });
 
   mockTime = new Date(mockTime.getTime() + 30 * 1000);
@@ -432,8 +432,8 @@ test('Card lockout', async () => {
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    lockedOutUntil: mockTime.getTime() + 60 * 1000,
-    wrongPinEnteredAt: mockTime.getTime(),
+    lockedOutUntil: new Date(mockTime.getTime() + 60 * 1000),
+    wrongPinEnteredAt: mockTime,
   });
 });
 
@@ -454,7 +454,7 @@ test('Session expiry', async () => {
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
-    sessionExpiresAt: mockTime.getTime() + 2 * 60 * 60 * 1000,
+    sessionExpiresAt: new Date(mockTime.getTime() + 2 * 60 * 60 * 1000),
   });
 
   mockTime = new Date(mockTime.getTime() + 2 * 60 * 60 * 1000);
@@ -478,16 +478,16 @@ test('Updating session expiry', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
-    sessionExpiresAt: mockTime.getTime() + 12 * 60 * 60 * 1000,
+    sessionExpiresAt: new Date(mockTime.getTime() + 12 * 60 * 60 * 1000),
   });
 
   await auth.updateSessionExpiry(defaultMachineState, {
-    sessionExpiresAt: mockTime.getTime() + 60 * 1000,
+    sessionExpiresAt: new Date(mockTime.getTime() + 60 * 1000),
   });
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
-    sessionExpiresAt: mockTime.getTime() + 60 * 1000,
+    sessionExpiresAt: new Date(mockTime.getTime() + 60 * 1000),
   });
 });
 
@@ -747,7 +747,7 @@ test.each<{
     expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'logged_in',
       user: systemAdministratorUser,
-      sessionExpiresAt: expect.any(Number),
+      sessionExpiresAt: expect.any(Date),
       programmableCard: { status: 'ready', programmedUser: undefined },
     });
 
@@ -784,7 +784,7 @@ test.each<{
     expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'logged_in',
       user: systemAdministratorUser,
-      sessionExpiresAt: expect.any(Number),
+      sessionExpiresAt: expect.any(Date),
       programmableCard: { status: 'ready', programmedUser },
     });
 
@@ -815,7 +815,7 @@ test.each<{
     expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
       status: 'logged_in',
       user: systemAdministratorUser,
-      sessionExpiresAt: expect.any(Number),
+      sessionExpiresAt: expect.any(Date),
       programmableCard: { status: 'ready', programmedUser: undefined },
     });
   }
@@ -869,7 +869,7 @@ test.each<{
     expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'logged_in',
       user: systemAdministratorUser,
-      sessionExpiresAt: expect.any(Number),
+      sessionExpiresAt: expect.any(Date),
       programmableCard: { status: 'ready', programmedUser: undefined },
     });
   }
@@ -919,7 +919,7 @@ test('Checking PIN error handling', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    wrongPinEnteredAt: expect.any(Number),
+    wrongPinEnteredAt: expect.any(Date),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(2);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -939,7 +939,7 @@ test('Checking PIN error handling', async () => {
     status: 'checking_pin',
     user: electionManagerUser,
     error: true,
-    wrongPinEnteredAt: expect.any(Number),
+    wrongPinEnteredAt: expect.any(Date),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(3);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -957,7 +957,7 @@ test('Checking PIN error handling', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'remove_card',
     user: electionManagerUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
   });
 });
 
@@ -1007,7 +1007,7 @@ test('Attempting to update session expiry when not logged in', async () => {
   });
 
   await auth.updateSessionExpiry(defaultMachineState, {
-    sessionExpiresAt: new Date().getTime(),
+    sessionExpiresAt: new Date(),
   });
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_out',
@@ -1028,7 +1028,7 @@ test('Card programming error handling', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: systemAdministratorUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
     programmableCard: { status: 'card_error' },
   });
 
@@ -1036,7 +1036,7 @@ test('Card programming error handling', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: systemAdministratorUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
     programmableCard: { status: 'unknown_error' },
   });
 
@@ -1044,7 +1044,7 @@ test('Card programming error handling', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: systemAdministratorUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
     programmableCard: { status: 'ready', programmedUser: undefined },
   });
 
@@ -1097,7 +1097,7 @@ test('Card unprogramming error handling', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: systemAdministratorUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
     programmableCard: { status: 'ready', programmedUser: pollWorkerUser },
   });
 
@@ -1268,12 +1268,12 @@ test('SKIP_PIN_ENTRY feature flag', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'remove_card',
     user: electionManagerUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
   });
   mockCardStatus({ status: 'no_card' });
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
   });
 });

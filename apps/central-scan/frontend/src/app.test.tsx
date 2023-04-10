@@ -454,7 +454,7 @@ test('authentication works', async () => {
   setAuthStatus(mockApiClient, {
     status: 'checking_pin',
     user: fakeElectionManagerUser(electionSampleDefinition),
-    wrongPinEnteredAt: new Date().getTime(),
+    wrongPinEnteredAt: new Date(),
   });
   await screen.findByText('Incorrect PIN. Please try again.');
 

@@ -67,7 +67,7 @@ test('Incorrect PIN', () => {
     <UnlockMachineScreen
       auth={{
         ...checkingPinAuthStatus,
-        wrongPinEnteredAt: new Date().getTime(),
+        wrongPinEnteredAt: new Date(),
       }}
       checkPin={checkPin}
     />
@@ -99,10 +99,8 @@ test.each<{
       <UnlockMachineScreen
         auth={{
           ...checkingPinAuthStatus,
-          lockedOutUntil: new Date().getTime() + 60 * 1000,
-          wrongPinEnteredAt: isWrongPinEnteredAtSet
-            ? new Date().getTime()
-            : undefined,
+          lockedOutUntil: new Date(new Date().getTime() + 60 * 1000),
+          wrongPinEnteredAt: isWrongPinEnteredAtSet ? new Date() : undefined,
         }}
         checkPin={checkPin}
       />
@@ -140,7 +138,7 @@ test('Error checking PIN', () => {
       auth={{
         ...checkingPinAuthStatus,
         error: true,
-        wrongPinEnteredAt: new Date().getTime(),
+        wrongPinEnteredAt: new Date(),
       }}
       checkPin={checkPin}
     />
