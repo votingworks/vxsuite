@@ -7,7 +7,6 @@ import {
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   DippedSmartCardAuth,
   InsertedSmartCardAuth,
-  UnixTimestampInMilliseconds,
 } from '@votingworks/types';
 
 import { Button } from './button';
@@ -53,7 +52,7 @@ function shouldDisplayTimeLimitPrompt(
 interface SessionTimeLimitTrackerHelperProps {
   authStatus: AuthStatusWithSessionExpiry;
   logOut: () => void;
-  updateSessionExpiry: (sessionExpiresAt: UnixTimestampInMilliseconds) => void;
+  updateSessionExpiry: (sessionExpiresAt: Date) => void;
 }
 
 /**
@@ -85,8 +84,10 @@ function SessionTimeLimitTrackerHelper({
       setHasInactiveSessionTimeLimitBeenHit(true);
       // Have the backend log out in SECONDS_TO_WRAP_UP_AFTER_INACTIVE_SESSION_TIME_LIMIT
       updateSessionExpiry(
-        new Date().getTime() +
-          SECONDS_TO_WRAP_UP_AFTER_INACTIVE_SESSION_TIME_LIMIT * 1000
+        new Date(
+          new Date().getTime() +
+            SECONDS_TO_WRAP_UP_AFTER_INACTIVE_SESSION_TIME_LIMIT * 1000
+        )
       );
     },
     stopOnIdle: true,
@@ -145,7 +146,7 @@ interface SessionTimeLimitTrackerProps {
     | DippedSmartCardAuth.AuthStatus
     | InsertedSmartCardAuth.AuthStatus;
   logOut: () => void;
-  updateSessionExpiry: (sessionExpiresAt: UnixTimestampInMilliseconds) => void;
+  updateSessionExpiry: (sessionExpiresAt: Date) => void;
 }
 
 /**
