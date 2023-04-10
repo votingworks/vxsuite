@@ -1,4 +1,5 @@
 import { interpret as interpretNh } from '@votingworks/ballot-interpreter-nh';
+import { interpretCompatible as interpretNhNext } from '@votingworks/ballot-interpreter-nh-next';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
@@ -17,7 +18,6 @@ import {
 } from '@votingworks/ballot-interpreter-vx';
 import { time } from '@votingworks/utils';
 import { err, ok, Optional, Result } from '@votingworks/basics';
-import { interpret as interpretNhNext } from './interpret_nh_next_adapter';
 import { Interpreter as VxInterpreter } from './vx_interpreter';
 import { saveSheetImages } from './util/save_images';
 import { rootDebug } from './util/debug';
