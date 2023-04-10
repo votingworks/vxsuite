@@ -12,7 +12,6 @@ import {
   BallotStyleId,
   ElectionDefinition,
   PrecinctId,
-  UnixTimestampInMilliseconds,
   SystemSettings,
   safeParseElectionDefinition,
 } from '@votingworks/types';
@@ -63,7 +62,7 @@ function buildApi(
 
     updateSessionExpiry(input: {
       electionHash?: string;
-      sessionExpiresAt: UnixTimestampInMilliseconds;
+      sessionExpiresAt: Date;
     }) {
       return auth.updateSessionExpiry(constructAuthMachineState(input), {
         sessionExpiresAt: input.sessionExpiresAt,

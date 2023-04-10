@@ -16,7 +16,6 @@ import {
   safeParseNumber,
   SystemSettings,
   SystemSettingsSchema,
-  UnixTimestampInMilliseconds,
 } from '@votingworks/types';
 import {
   assert,
@@ -116,9 +115,7 @@ function buildApi({
       return auth.logOut(constructAuthMachineState(workspace));
     },
 
-    updateSessionExpiry(input: {
-      sessionExpiresAt: UnixTimestampInMilliseconds;
-    }) {
+    updateSessionExpiry(input: { sessionExpiresAt: Date }) {
       return auth.updateSessionExpiry(
         constructAuthMachineState(workspace),
         input
