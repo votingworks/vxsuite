@@ -1,4 +1,4 @@
-import { interpret } from '@votingworks/ballot-interpreter-nh';
+import { interpretCompatible as interpret } from '@votingworks/ballot-interpreter-nh-next';
 import {
   ElectionDefinition,
   PageInterpretationWithFiles,
@@ -52,7 +52,7 @@ export async function call(input: Input): Promise<Output> {
       }
 
       const adjudicationReasons =
-        electionDefinition.election.centralScanAdjudicationReasons;
+        electionDefinition.election.centralScanAdjudicationReasons ?? [];
       const result = await interpret(
         electionDefinition,
         [input.frontImagePath, input.backImagePath],

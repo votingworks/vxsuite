@@ -910,6 +910,9 @@ importers:
       '@votingworks/ballot-interpreter-nh':
         specifier: workspace:*
         version: link:../../../libs/ballot-interpreter-nh
+      '@votingworks/ballot-interpreter-nh-next':
+        specifier: workspace:*
+        version: link:../../../libs/ballot-interpreter-nh-next
       '@votingworks/ballot-interpreter-vx':
         specifier: workspace:*
         version: link:../../../libs/ballot-interpreter-vx
@@ -3252,6 +3255,9 @@ importers:
 
   libs/ballot-interpreter-nh-next:
     dependencies:
+      '@votingworks/ballot-interpreter-nh':
+        specifier: workspace:*
+        version: link:../ballot-interpreter-nh
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics

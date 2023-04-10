@@ -23,6 +23,7 @@
   "license": "AGPL-3.0",
   "packageManager": "pnpm@8.1.0",
   "dependencies": {
+    "@votingworks/ballot-interpreter-nh": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
