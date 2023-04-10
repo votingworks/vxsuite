@@ -155,6 +155,9 @@
     {
       "name": "services/smartcards",
       "path": "services/smartcards"
+    },
+    {
+      "path": "docs"
     }
   ],
   "settings": {
