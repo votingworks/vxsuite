@@ -211,7 +211,7 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
         </svg>
       </div>
       <div
-        class="sc-fotPbf dfNDJL"
+        class="sc-fotPbf hPPIJd"
       >
         <h5
           aria-label=" General Election."
@@ -462,7 +462,7 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
         </svg>
       </div>
       <div
-        class="sc-fotPbf dfNDJL"
+        class="sc-fotPbf hPPIJd"
       >
         <h5
           aria-label=" General Election."
@@ -690,7 +690,7 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
       </svg>
     </div>
     <div
-      class="sc-fotPbf kgCzfn"
+      class="sc-fotPbf jGmaPB"
     >
       <h1
         aria-label=" General Election."
@@ -908,7 +908,7 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
       </svg>
     </div>
     <div
-      class="sc-fotPbf kgCzfn"
+      class="sc-fotPbf jGmaPB"
     >
       <h1
         aria-label=" General Election."
