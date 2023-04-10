@@ -3,7 +3,6 @@ import {
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
-  UnixTimestampInMilliseconds,
   UserRole,
 } from './auth';
 
@@ -23,33 +22,33 @@ export interface CheckingPin {
   readonly status: 'checking_pin';
   readonly user: SystemAdministratorUser | ElectionManagerUser | PollWorkerUser;
   readonly error?: true;
-  readonly lockedOutUntil?: UnixTimestampInMilliseconds;
-  readonly wrongPinEnteredAt?: UnixTimestampInMilliseconds;
+  readonly lockedOutUntil?: Date;
+  readonly wrongPinEnteredAt?: Date;
 }
 
 export interface SystemAdministratorLoggedIn {
   readonly status: 'logged_in';
   readonly user: SystemAdministratorUser;
-  readonly sessionExpiresAt: UnixTimestampInMilliseconds;
+  readonly sessionExpiresAt: Date;
 }
 
 export interface ElectionManagerLoggedIn {
   readonly status: 'logged_in';
   readonly user: ElectionManagerUser;
-  readonly sessionExpiresAt: UnixTimestampInMilliseconds;
+  readonly sessionExpiresAt: Date;
 }
 
 export interface PollWorkerLoggedIn {
   readonly status: 'logged_in';
   readonly user: PollWorkerUser;
-  readonly sessionExpiresAt: UnixTimestampInMilliseconds;
+  readonly sessionExpiresAt: Date;
   readonly cardlessVoterUser?: CardlessVoterUser;
 }
 
 export interface CardlessVoterLoggedIn {
   readonly status: 'logged_in';
   readonly user: CardlessVoterUser;
-  readonly sessionExpiresAt: UnixTimestampInMilliseconds;
+  readonly sessionExpiresAt: Date;
 }
 
 export type LoggedIn =
