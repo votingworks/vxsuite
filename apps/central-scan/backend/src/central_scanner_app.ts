@@ -733,17 +733,6 @@ export async function buildCentralScannerApp({
     }
   );
 
-  deprecatedApiRouter.delete(
-    '/central-scanner/scan/batch/:batchId',
-    (request, response) => {
-      if (store.deleteBatch(request.params.batchId)) {
-        response.json({ status: 'ok' });
-      } else {
-        response.status(404).end();
-      }
-    }
-  );
-
   deprecatedApiRouter.get<NoParams, Scan.GetNextReviewSheetResponse>(
     '/central-scanner/scan/hmpb/review/next-sheet',
     (_request, response) => {
