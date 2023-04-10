@@ -67,6 +67,13 @@ const undefinedTagger: Tagger<undefined, 'undefined'> = {
   deserialize: () => undefined,
 };
 
+const dateTagger: Tagger<Date, string> = {
+  tag: 'Date',
+  shouldTag: (value): value is Date => value instanceof Date,
+  serialize: (value) => value.toISOString(),
+  deserialize: (value) => new Date(value),
+};
+
 const errorTagger: Tagger<Error, { message: string }> = {
   tag: 'Error',
   shouldTag: (value): value is Error => value instanceof Error,
@@ -94,6 +101,7 @@ const resultTagger: Tagger<
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const taggers: Array<Tagger<any, any>> = [
   undefinedTagger,
+  dateTagger,
   errorTagger,
   resultTagger,
 ];
@@ -123,7 +131,11 @@ function unserializableError(value: unknown) {
 }
 
 function throwIfUnserializable(value: unknown): void {
-  if (isObject(value) && isFunction(value['toJSON'])) {
+  if (
+    isObject(value) &&
+    !(value instanceof Date) &&
+    isFunction(value['toJSON'])
+  ) {
     throw unserializableError(value);
   }
   if (isNumber(value) && (isNaN(value) || !isFinite(value))) {
@@ -146,10 +158,21 @@ function throwIfUnserializable(value: unknown): void {
  */
 export function serialize(rootValue: unknown): string {
   throwIfUnserializable(rootValue);
-  return JSON.stringify(rootValue, (_key, value) => {
-    throwIfUnserializable(value);
-    return tagValueIfNeeded(value);
-  });
+
+  function replacer(
+    this: Record<string, unknown>,
+    key: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _valueAlreadyStringified: unknown
+  ) {
+    // The provided value in the JSON.stringify replacer function is already
+    // stringified. We want to transform the original unstringified value, which
+    // is accessible as `this[key]`.
+    const valueUnstringified = this[key];
+    throwIfUnserializable(valueUnstringified);
+    return tagValueIfNeeded(valueUnstringified);
+  }
+  return JSON.stringify(rootValue, replacer);
 }
 
 /**
