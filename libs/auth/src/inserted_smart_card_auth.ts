@@ -507,11 +507,11 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       return err('invalid_user_on_card');
     }
 
-    const { jurisdiction, user } = cardDetails;
+    const { user } = cardDetails;
 
     if (
       machineState.jurisdiction &&
-      jurisdiction !== machineState.jurisdiction
+      user.jurisdiction !== machineState.jurisdiction
     ) {
       return err('invalid_user_on_card');
     }
