@@ -1,5 +1,9 @@
 export { Interpreter } from './interpreter';
-export { interpretTemplate } from './layout';
+export {
+  interpretTemplate,
+  interpretMultiPagePdfTemplate,
+  interpretMultiPageTemplate,
+} from './layout';
 export {
   fromBytes as metadataFromBytes,
   fromString as metadataFromString,

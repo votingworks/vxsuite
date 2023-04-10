@@ -20,7 +20,6 @@ import {
   AdjudicationReason,
   AdjudicationReasonInfo,
   BallotPageLayoutWithImage,
-  BallotPageMetadata,
   BallotType,
   ElectionDefinition,
   getContestsFromIds,
@@ -187,14 +186,6 @@ export class Interpreter {
     }
 
     return layout;
-  }
-
-  async interpretHmpbTemplate(
-    imageData: ImageData,
-    metadata?: BallotPageMetadata
-  ): Promise<BallotPageLayoutWithImage> {
-    const interpreter = this.getHmpbInterpreter();
-    return await interpreter.interpretTemplate(imageData, metadata);
   }
 
   async interpretFile({

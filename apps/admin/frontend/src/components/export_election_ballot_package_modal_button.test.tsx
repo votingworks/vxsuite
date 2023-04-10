@@ -1,4 +1,3 @@
-import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import {
   fakeFileWriter,
@@ -7,10 +6,10 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 import React from 'react';
-import { BallotPageLayoutWithImage, BallotType } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
-import { iter } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
+import { iter } from '@votingworks/basics';
+import { interpretMultiPagePdfTemplate } from '@votingworks/ballot-interpreter-vx';
 import {
   fireEvent,
   screen,
@@ -22,13 +21,14 @@ import {
   renderInAppContext,
 } from '../../test/render_in_app_context';
 import { ExportElectionBallotPackageModalButton } from './export_election_ballot_package_modal_button';
-import { pdfToImages } from '../utils/pdf_to_images';
 import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
-jest.mock('@votingworks/ballot-interpreter-vx');
+jest.mock('@votingworks/ballot-interpreter-vx', () => ({
+  ...jest.requireActual('@votingworks/ballot-interpreter-vx'),
+  interpretMultiPagePdfTemplate: jest.fn(),
+}));
 jest.mock('../components/hand_marked_paper_ballot');
-jest.mock('../utils/pdf_to_images');
 
 let apiMock: ApiMock;
 
@@ -42,55 +42,8 @@ beforeEach(() => {
   mockKiosk.saveAs = jest.fn().mockResolvedValue(fileWriter);
   mockKiosk.writeFile = jest.fn().mockResolvedValue(fileWriter);
   window.kiosk = mockKiosk;
-
-  mockOf(pdfToImages).mockImplementation(() =>
-    iter([
-      {
-        page: {
-          data: Uint8ClampedArray.of(0, 0, 0, 0),
-          width: 1,
-          height: 1,
-        },
-        pageNumber: 1,
-        pageCount: 2,
-      },
-      {
-        page: {
-          data: Uint8ClampedArray.of(0, 0, 0, 0),
-          width: 1,
-          height: 1,
-        },
-        pageNumber: 2,
-        pageCount: 2,
-      },
-    ]).async()
-  );
-
-  mockOf(interpretTemplate).mockImplementation(
-    async ({
-      electionDefinition,
-      imageData,
-      metadata,
-      // eslint-disable-next-line @typescript-eslint/require-await
-    }): Promise<BallotPageLayoutWithImage> => ({
-      imageData,
-      ballotPageLayout: {
-        contests: [],
-        metadata: metadata ?? {
-          ballotType: BallotType.Standard,
-          ballotStyleId: '123',
-          precinctId: '123',
-          electionHash: electionDefinition.electionHash,
-          isTestMode: false,
-          locales: { primary: 'en-US' },
-          pageNumber: 1,
-        },
-        pageSize: {
-          width: imageData.width,
-          height: imageData.height,
-        },
-      },
-    })
+  mockOf(interpretMultiPagePdfTemplate).mockImplementation(() =>
+    iter([]).async()
   );
 });
 
@@ -159,9 +112,8 @@ test('Modal renders export confirmation screen when usb detected and manual link
   fireEvent.click(within(modal).getByText('Custom'));
   await within(modal).findByText('Ballot Package Saved');
   await waitFor(() => {
-    expect(interpretTemplate).toHaveBeenCalledTimes(
-      2 /* pages per ballot */ *
-        2 /* test & live */ *
+    expect(interpretMultiPagePdfTemplate).toHaveBeenCalledTimes(
+      2 /* test & live */ *
         eitherNeitherElectionDefinition.election.ballotStyles.reduce(
           (acc, bs) => acc + bs.precincts.length,
           0

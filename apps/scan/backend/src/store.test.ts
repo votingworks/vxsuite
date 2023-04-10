@@ -610,6 +610,7 @@ test('adjudication', async () => {
         },
         contests: [
           {
+            contestId: 'id-0',
             bounds: zeroRect,
             corners: [
               { x: 0, y: 0 },
@@ -628,6 +629,7 @@ test('adjudication', async () => {
             ],
           },
           {
+            contestId: 'id-1',
             bounds: zeroRect,
             corners: [
               { x: 0, y: 0 },

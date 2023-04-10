@@ -1,12 +1,14 @@
 import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
-import { Interpreter } from '.';
+import { interpretTemplate } from '../layout';
 
 test('interpret three-column template with instructions', async () => {
   const fixtures = oaklawn;
   const { electionDefinition } = fixtures;
-  const interpreter = new Interpreter({ electionDefinition });
-  const imageData = await fixtures.blankPage1.imageData();
-  const template = await interpreter.interpretTemplate(imageData);
+  const template = await interpretTemplate({
+    electionDefinition,
+    imageData: await fixtures.blankPage1.imageData(),
+    contestOffset: 0,
+  });
 
   expect(template.ballotPageLayout.metadata).toMatchObject({
     ballotStyleId: '77',
@@ -29,6 +31,7 @@ test('interpret three-column template with instructions', async () => {
           "x": 447,
           "y": 45,
         },
+        "contestId": "us-senate",
         "corners": Array [
           Object {
             "x": 447,
@@ -189,6 +192,7 @@ test('interpret three-column template with instructions', async () => {
           "x": 447,
           "y": 667,
         },
+        "contestId": "us-house-district-30",
         "corners": Array [
           Object {
             "x": 447,
@@ -261,6 +265,7 @@ test('interpret three-column template with instructions', async () => {
           "x": 447,
           "y": 1009,
         },
+        "contestId": "texas-sc-judge-place-6",
         "corners": Array [
           Object {
             "x": 447,
@@ -333,6 +338,7 @@ test('interpret three-column template with instructions', async () => {
           "x": 850,
           "y": 45,
         },
+        "contestId": "texas-house-district-111",
         "corners": Array [
           Object {
             "x": 850,
@@ -405,6 +411,7 @@ test('interpret three-column template with instructions', async () => {
           "x": 850,
           "y": 392,
         },
+        "contestId": "dallas-county-tax-assessor",
         "corners": Array [
           Object {
             "x": 850,
@@ -477,6 +484,7 @@ test('interpret three-column template with instructions', async () => {
           "x": 850,
           "y": 706,
         },
+        "contestId": "dallas-county-sheriff",
         "corners": Array [
           Object {
             "x": 850,

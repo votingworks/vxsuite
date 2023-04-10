@@ -65,3 +65,13 @@ export const district5BlankPage2 = new Fixture(
     'election-e5a8525177-precinct-district-5-id-6522-style-5-English-test-p2.jpeg'
   )
 );
+
+/**
+ * Template PDF for District 5.
+ */
+export const district5Pdf = new Fixture(
+  join(
+    __dirname,
+    'election-e5a8525177-precinct-district-5-id-6522-style-5-English-test.pdf'
+  )
+);

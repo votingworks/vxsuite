@@ -3,7 +3,6 @@
 //
 
 import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
-import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { Client as DbClient } from '@votingworks/db';
 import { pdfToImages } from '@votingworks/image-utils';
 import {
@@ -39,7 +38,7 @@ import {
   SystemSettingsDbRow,
 } from '@votingworks/types';
 import { BallotPackageEntry } from '@votingworks/utils';
-import { assert, find, Optional } from '@votingworks/basics';
+import { assert, iter, Optional } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
@@ -1094,30 +1093,20 @@ export class Store {
     if (this.cachedLayouts.length > 0) return this.cachedLayouts;
 
     const templates = this.getHmpbTemplates();
-    const loadedLayouts: BallotPageLayoutWithImage[] = [];
-
-    for (const [pdf, layouts] of templates) {
-      // While the PDFs only use O(100KB) of memory, each page image uses
-      // O(10MB) of memory, so we should be careful to only load one page of one
-      // pdf at a time.
-      for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
-        const ballotPageLayout = find(
-          layouts,
-          (l) => l.metadata.pageNumber === pageNumber
-        );
-        loadedLayouts.push(
-          await interpretTemplate({
-            electionDefinition,
-            imageData: page,
-            metadata: ballotPageLayout.metadata,
-          })
-        );
-      }
-    }
 
     // These computations are expensive so we cache the loaded layouts
-    this.cachedLayouts = loadedLayouts;
-    return loadedLayouts;
+    this.cachedLayouts = await iter(templates)
+      .async()
+      .flatMap(([pdf, layouts]) =>
+        iter(pdfToImages(pdf, { scale: 2 }))
+          .zip(layouts)
+          .map(([{ page: imageData }, ballotPageLayout]) => ({
+            ballotPageLayout,
+            imageData,
+          }))
+      )
+      .toArray();
+    return this.cachedLayouts;
   }
 
   /**

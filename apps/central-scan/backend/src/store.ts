@@ -3,7 +3,6 @@
 //
 
 import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
-import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { Client as DbClient } from '@votingworks/db';
 import { pdfToImages } from '@votingworks/image-utils';
 import {
@@ -36,7 +35,7 @@ import {
   SheetOf,
   Side,
 } from '@votingworks/types';
-import { assert, Optional } from '@votingworks/basics';
+import { assert, iter, Optional } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fs from 'fs-extra';
@@ -1099,24 +1098,20 @@ export class Store {
     if (this.cachedLayouts.length > 0) return this.cachedLayouts;
 
     const templates = this.getHmpbTemplates();
-    const loadedLayouts: BallotPageLayoutWithImage[] = [];
-
-    for (const [pdf, layouts] of templates) {
-      for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
-        const ballotPageLayout = layouts[pageNumber - 1];
-        loadedLayouts.push(
-          await interpretTemplate({
-            electionDefinition,
-            imageData: page,
-            metadata: ballotPageLayout.metadata,
-          })
-        );
-      }
-    }
 
     // These computations are expensive so we cache the loaded layouts
-    this.cachedLayouts = loadedLayouts;
-    return loadedLayouts;
+    this.cachedLayouts = await iter(templates)
+      .async()
+      .flatMap(([pdf, layouts]) =>
+        iter(pdfToImages(pdf, { scale: 2 }))
+          .zip(layouts)
+          .map(([{ page: imageData }, ballotPageLayout]) => ({
+            ballotPageLayout,
+            imageData,
+          }))
+      )
+      .toArray();
+    return this.cachedLayouts;
   }
 
   /**

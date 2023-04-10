@@ -1,16 +1,13 @@
 import * as hamilton from '../../test/fixtures/election-5c6e578acf-state-of-hamilton-2020';
-import { Interpreter } from '.';
+import { buildInterpreterWithFixtures } from '../../test/helpers/fixtures_to_templates';
 
 test('dual language ballot', async () => {
   const { electionDefinition } = hamilton;
-  const interpreter = new Interpreter({ electionDefinition });
-
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(
-      await hamilton.blankPage1.imageData(),
-      await hamilton.blankPage1.metadata()
-    )
-  );
+  const { interpreter } = await buildInterpreterWithFixtures({
+    electionDefinition,
+    fixtures: [hamilton.blankPage1],
+    useFixtureMetadata: true,
+  });
 
   const { ballot } = await interpreter.interpretBallot(
     await hamilton.filledInPage1.imageData()

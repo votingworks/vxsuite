@@ -3,13 +3,12 @@ import React, { useContext, useEffect, useState } from 'react';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
 import { join } from 'path';
-import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
+import { interpretMultiPagePdfTemplate } from '@votingworks/ballot-interpreter-vx';
 import {
-  BallotPageLayout,
+  BallotMetadata,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   getPrecinctById,
-  HmpbBallotPageMetadata,
 } from '@votingworks/types';
 
 import { Admin } from '@votingworks/api';
@@ -21,7 +20,7 @@ import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, iter, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
   Monospace,
@@ -34,7 +33,6 @@ import { LogEventId } from '@votingworks/logging';
 import { getSystemSettings } from '../api';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { getHumanBallotLanguageFormat } from '../utils/election';
-import { pdfToImages } from '../utils/pdf_to_images';
 
 import { AppContext } from '../contexts/app_context';
 import { HandMarkedPaperBallot } from './hand_marked_paper_ballot';
@@ -139,26 +137,23 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         })
       );
 
-      const layouts: BallotPageLayout[] = [];
-      for await (const { page, pageNumber } of pdfToImages(ballotPdfData, {
-        scale: 2,
-      })) {
-        const metadata: HmpbBallotPageMetadata = {
-          ballotStyleId,
-          electionHash: electionDefinition.electionHash,
-          ballotType: BallotType.Standard,
-          precinctId,
-          locales,
-          isTestMode: !isLiveMode,
-          pageNumber,
-        };
-        const { ballotPageLayout } = await interpretTemplate({
+      const metadata: BallotMetadata = {
+        ballotStyleId,
+        electionHash: electionDefinition.electionHash,
+        ballotType: BallotType.Standard,
+        precinctId,
+        locales,
+        isTestMode: !isLiveMode,
+      };
+      const layouts = await iter(
+        interpretMultiPagePdfTemplate({
           electionDefinition,
-          imageData: page,
+          ballotPdfData,
           metadata,
-        });
-        layouts.push(ballotPageLayout);
-      }
+        })
+      )
+        .map(({ ballotPageLayout }) => ballotPageLayout)
+        .toArray();
 
       await archive.file(layoutFilename, JSON.stringify(layouts, undefined, 2));
       await archive.file(filename, ballotPdfData);

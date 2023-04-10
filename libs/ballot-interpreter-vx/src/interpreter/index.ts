@@ -44,10 +44,7 @@ import {
 } from '../debug';
 import { getVotesFromMarks } from '../get_votes_from_marks';
 import { findBallotLayoutCorrespondence } from '../hmpb/find_contests';
-import {
-  findContestsWithUnknownColumnLayout,
-  interpretTemplate,
-} from '../layout';
+import { findContestsWithUnknownColumnLayout } from '../layout';
 import { detect } from '../metadata';
 import { FindMarksResult, Interpreted } from '../types';
 import { binarize, PIXEL_BLACK, PIXEL_WHITE } from '../utils/binarize';
@@ -159,24 +156,6 @@ export class Interpreter {
       [locales, ballotStyleId, precinctId, pageNumber],
       template
     );
-  }
-
-  /**
-   * Interprets an image as a template, returning the layout information read
-   * from the image. The template image should be an image of a blank ballot,
-   * either scanned or otherwise rendered as an image.
-   */
-  async interpretTemplate(
-    imageData: ImageData,
-    metadata?: BallotPageMetadata,
-    { imdebug = noDebug() }: { imdebug?: Debugger } = {}
-  ): Promise<BallotPageLayoutWithImage> {
-    return interpretTemplate({
-      electionDefinition: this.electionDefinition,
-      imageData,
-      metadata,
-      imdebug,
-    });
   }
 
   /**
@@ -294,6 +273,15 @@ export class Interpreter {
       );
     }
 
+    const { locales, ballotStyleId, precinctId, pageNumber } = metadata;
+    const matchedTemplate = defined(
+      this.getTemplate({ locales, ballotStyleId, precinctId, pageNumber })
+    );
+    const contestDefinitions = this.getContestsForTemplate(
+      matchedTemplate.ballotPageLayout
+    );
+    const contestIds = contestDefinitions.map((contest) => contest.id);
+
     const { contests } = findContestsWithUnknownColumnLayout(imageData, {
       imdebug,
     });
@@ -305,11 +293,15 @@ export class Interpreter {
           height: imageData.height,
         },
         metadata,
-        contests: contests.map(({ bounds, corners }) => ({
-          bounds,
-          corners,
-          options: [],
-        })),
+        contests: iter(contests)
+          .zip(contestIds)
+          .map(([{ bounds, corners }, contestId]) => ({
+            contestId,
+            bounds,
+            corners,
+            options: [],
+          }))
+          .toArray(),
       },
     };
     debug(
@@ -317,15 +309,11 @@ export class Interpreter {
       ballotLayout.ballotPageLayout.contests.map(({ bounds }) => bounds)
     );
 
-    const { locales, ballotStyleId, precinctId, pageNumber } = metadata;
-    const matchedTemplate = defined(
-      this.getTemplate({ locales, ballotStyleId, precinctId, pageNumber })
-    );
     const [mappedBallot, marks] = imdebug.capture('getMarksForBallot', () =>
       this.getMarksForBallot(
         ballotLayout,
         matchedTemplate,
-        this.getContestsForTemplate(matchedTemplate.ballotPageLayout),
+        contestDefinitions,
         {
           imdebug,
           maximumCorrectionPixelsX,

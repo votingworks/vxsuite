@@ -1,8 +1,13 @@
 {
   "ballotStyleId": "12",
   "isTestMode": false,
-  "locales": { "primary": "en-US", "secondary": "es-US" },
+  "locales": {
+    "primary": "en-US",
+    "secondary": "es-US"
+  },
   "pageCount": 6,
   "pageNumber": 2,
-  "precinctId": "23"
+  "precinctId": "23",
+  "ballotType": 0,
+  "electionHash": "7531ac2cdc"
 }

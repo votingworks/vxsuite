@@ -45,14 +45,14 @@ export const BallotPageContestOptionLayoutSchema: z.ZodSchema<BallotPageContestO
   });
 
 export interface BallotPageContestLayout {
-  contestId?: ContestId;
+  contestId: ContestId;
   bounds: Rect;
   corners: Corners;
   options: readonly BallotPageContestOptionLayout[];
 }
 export const BallotPageContestLayoutSchema: z.ZodSchema<BallotPageContestLayout> =
   z.object({
-    contestId: IdSchema.optional(),
+    contestId: IdSchema,
     bounds: RectSchema,
     corners: CornersSchema,
     options: z.array(BallotPageContestOptionLayoutSchema),

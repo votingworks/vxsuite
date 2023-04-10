@@ -1,32 +1,37 @@
 import {
+  detectQrcodeInFilePath,
+  interpretMultiPagePdfTemplate,
+} from '@votingworks/ballot-interpreter-vx';
+import { throwIllegalValue } from '@votingworks/basics';
+import {
   electionSampleDefinition,
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   BallotIdSchema,
+  BallotMetadataSchema,
+  BallotType,
   BlankPage,
   ElectionDefinition,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
   UnreadablePage,
+  safeParseJson,
   unsafeParse,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { readFile, emptyDirSync } from 'fs-extra';
+import { emptyDirSync, readFile } from 'fs-extra';
 import { join } from 'path';
-import { pdfToImages } from '@votingworks/image-utils';
-import { detectQrcodeInFilePath } from '@votingworks/ballot-interpreter-vx';
-import { throwIllegalValue } from '@votingworks/basics';
 import * as choctaw2020Fixtures from '../test/fixtures/2020-choctaw';
-import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
 import * as msDemoFixtures from '../test/fixtures/election-b0260b4e-mississippi-demo';
-import { Interpreter, sheetRequiresAdjudication } from './vx_interpreter';
+import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
 import { createInterpreter } from './interpret';
+import { Interpreter, sheetRequiresAdjudication } from './vx_interpreter';
 
 const interpreterOutputPath = join(__dirname, '..', 'test-output-dir/');
 emptyDirSync(interpreterOutputPath);
@@ -220,13 +225,18 @@ test('interprets marks on a HMPB', async () => {
     skipElectionHashCheck: true,
   });
 
-  for await (const { page, pageNumber } of pdfToImages(
-    await readFile(stateOfHamiltonFixtures.ballotPdf),
-    { scale: 2 }
-  )) {
-    interpreter.addHmpbTemplate(await interpreter.interpretHmpbTemplate(page));
+  const layouts = interpretMultiPagePdfTemplate({
+    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
+    ballotPdfData: await readFile(stateOfHamiltonFixtures.ballotPdf),
+    metadata: safeParseJson(
+      await readFile(stateOfHamiltonFixtures.filledInPage1Metadata, 'utf8'),
+      BallotMetadataSchema
+    ).unsafeUnwrap(),
+  });
+  for await (const layout of layouts) {
+    interpreter.addHmpbTemplate(layout);
 
-    if (pageNumber === 1) {
+    if (layout.ballotPageLayout.metadata.pageNumber === 1) {
       break;
     }
   }
@@ -281,13 +291,18 @@ test('interprets marks on an upside-down HMPB', async () => {
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
   });
 
-  for await (const { page, pageNumber } of pdfToImages(
-    await readFile(stateOfHamiltonFixtures.ballotPdf),
-    { scale: 2 }
-  )) {
-    interpreter.addHmpbTemplate(await interpreter.interpretHmpbTemplate(page));
+  const layouts = interpretMultiPagePdfTemplate({
+    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
+    ballotPdfData: await readFile(stateOfHamiltonFixtures.ballotPdf),
+    metadata: safeParseJson(
+      await readFile(stateOfHamiltonFixtures.filledInPage1Metadata, 'utf8'),
+      BallotMetadataSchema
+    ).unsafeUnwrap(),
+  });
+  for await (const layout of layouts) {
+    interpreter.addHmpbTemplate(layout);
 
-    if (pageNumber === 1) {
+    if (layout.ballotPageLayout.metadata.pageNumber === 1) {
       break;
     }
   }
@@ -327,11 +342,20 @@ test('interprets marks in ballots', async () => {
     skipElectionHashCheck: true,
   });
 
-  for await (const { page } of pdfToImages(
-    await readFile(choctaw2020Fixtures.ballotPdf),
-    { scale: 2 }
-  )) {
-    interpreter.addHmpbTemplate(await interpreter.interpretHmpbTemplate(page));
+  const layouts = interpretMultiPagePdfTemplate({
+    electionDefinition: choctaw2020Fixtures.electionDefinition,
+    ballotPdfData: await readFile(choctaw2020Fixtures.ballotPdf),
+    metadata: {
+      ballotStyleId: '1',
+      precinctId: '6526',
+      ballotType: BallotType.Standard,
+      locales: { primary: 'en-US' },
+      electionHash: 'a537900d7a',
+      isTestMode: false,
+    },
+  });
+  for await (const layout of layouts) {
+    interpreter.addHmpbTemplate(layout);
   }
 
   {

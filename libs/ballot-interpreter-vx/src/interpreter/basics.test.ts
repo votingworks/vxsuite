@@ -2,21 +2,7 @@ import { assert, fail } from '@votingworks/basics';
 import { Interpreter } from '.';
 import * as choctaw2020LegalSize from '../../test/fixtures/choctaw-county-2020-general-election';
 import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
-
-test('can interpret a template that is not in the same mode as the interpreter', async () => {
-  const fixtures = oaklawn;
-  const { electionDefinition } = fixtures;
-  const interpreter = new Interpreter({ electionDefinition, testMode: true });
-
-  expect(
-    (
-      await interpreter.interpretTemplate(
-        await fixtures.blankPage1.imageData(),
-        await fixtures.blankPage1.metadata({ isTestMode: false })
-      )
-    ).ballotPageLayout.metadata.isTestMode
-  ).toEqual(false);
-});
+import { buildInterpreterWithFixtures } from '../../test/helpers/fixtures_to_templates';
 
 test('takes the mark score vote threshold from the election definition if present', () => {
   const fixtures = oaklawn;
@@ -48,21 +34,13 @@ test('takes the mark score vote threshold from the election definition if presen
 // that includes an either-neither contest
 test.skip('rejects an incorrect-but-plausible contest layout', async () => {
   const fixtures = choctaw2020LegalSize;
-  const interpreter = new Interpreter({
+  const { interpreter, templates } = await buildInterpreterWithFixtures({
     electionDefinition: fixtures.electionDefinition,
+    fixtures: [fixtures.district5BlankPage1, fixtures.district5BlankPage2],
+    useFixtureMetadata: false,
     testMode: true,
   });
-
-  interpreter.addTemplate(
-    await interpreter.interpretTemplate(
-      await fixtures.district5BlankPage1.imageData()
-    )
-  );
-  const p2 = interpreter.addTemplate(
-    await interpreter.interpretTemplate(
-      await fixtures.district5BlankPage2.imageData()
-    )
-  );
+  const p2 = templates[1];
 
   try {
     await interpreter.interpretBallot(
