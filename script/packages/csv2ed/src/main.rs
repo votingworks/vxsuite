@@ -156,8 +156,9 @@ fn main() {
                     csv_contest
                         .candidates
                         .iter()
-                        .zip(&election_contest.candidates)
-                        .map(|(csv_candidate, election_candidate)| {
+                        .enumerate()
+                        .map(|(i, csv_candidate)| {
+                            let election_candidate = &election_contest.candidates.get(i);
                             if csv_candidate.name == "Write-In" {
                                 let write_in_index = next_write_in_index;
                                 next_write_in_index += 1;
@@ -174,7 +175,7 @@ fn main() {
                                     column: csv_candidate.column as u32,
                                     row: csv_candidate.row as u32,
                                     contest_id: contest_id.clone(),
-                                    option_id: election_candidate.id.clone(),
+                                    option_id: election_candidate.unwrap().id.clone(),
                                 }
                             }
                         })
