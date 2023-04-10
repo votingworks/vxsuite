@@ -1,6 +1,10 @@
 import path from 'path';
 import { assert } from '@votingworks/basics';
-import { isVxDev } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+  isVxDev,
+} from '@votingworks/utils';
 
 /**
  * Config params for the Java Card implementation of the card API
@@ -24,7 +28,11 @@ export interface JavaCardConfig {
 export const DEV_PRIVATE_KEY_PASSWORD = '1234';
 
 function shouldUseProdCerts(): boolean {
-  return process.env.NODE_ENV === 'production' && !isVxDev();
+  return isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.USE_DEV_CERTS_IN_PROD
+  )
+    ? /* istanbul ignore next */ false
+    : process.env.NODE_ENV === 'production' && !isVxDev();
 }
 
 function constructCardProgrammingConfig(): JavaCardConfig['cardProgrammingConfig'] {
