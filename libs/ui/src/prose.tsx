@@ -1,5 +1,6 @@
+/* stylelint-disable value-keyword-case */
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Theme } from './themes';
 
 // Prose!
@@ -27,11 +28,7 @@ export type ProseProps = React.HTMLAttributes<HTMLDivElement> & {
   textRight?: boolean;
 };
 
-const ProseContainer = styled('div')<ProseProps>`
-  margin: ${({ textCenter }) => (textCenter ? '0 auto' : undefined)};
-  max-width: ${({ maxWidth = true }) => (maxWidth ? '66ch' : undefined)};
-  text-align: ${({ textCenter, textRight }) =>
-    (textCenter && 'center') || (textRight && 'right')};
+const legacyStyles = css<ProseProps>`
   line-height: 1.2;
   color: ${({ themeDeprecated }) => themeDeprecated?.color};
   font-size: ${({ themeDeprecated }) => themeDeprecated?.fontSize};
@@ -98,6 +95,25 @@ const ProseContainer = styled('div')<ProseProps>`
   }
 `;
 
+const ProseContainer = styled('div')<ProseProps>`
+  margin: ${({ textCenter }) => (textCenter ? '0 auto' : undefined)};
+  max-width: ${({ maxWidth = true }) => (maxWidth ? '66ch' : undefined)};
+  text-align: ${({ textCenter, textRight }) =>
+    (textCenter && 'center') || (textRight && 'right')};
+
+  ${(p) =>
+    p.theme.colorMode === 'legacy' || p.theme.sizeMode === 'legacy'
+      ? legacyStyles
+      : undefined};
+`;
+
+/**
+ * @deprecated The sizing flexibility provided here is incompatible with our
+ * VVSG text size implementation - use the various semantic text components from
+ * `@votingworks/ui` instead (e.g. <H1>, <P>, <Caption>).
+ *
+ * See libs/ui/src/typography.tsx
+ */
 export function Prose(props: ProseProps): JSX.Element {
   return <ProseContainer {...props} />;
 }

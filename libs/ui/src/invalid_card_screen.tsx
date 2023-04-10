@@ -6,6 +6,7 @@ import { Main } from './main';
 import { Prose } from './prose';
 import { Screen } from './screen';
 import { RotateCardImage } from './rotate_card_image';
+import { H1, P } from './typography';
 
 type LoggedOutReason =
   | DippedSmartCardAuth.LoggedOut['reason']
@@ -49,10 +50,10 @@ export function InvalidCardScreen({
       <Main centerChild padded>
         {graphic}
         <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
-          <h1>{heading}</h1>
-          <p>
+          <H1>{heading}</H1>
+          <P>
             {errorDescription} {recommendedActionOverride || recommendedAction}
-          </p>
+          </P>
         </Prose>
       </Main>
     </Screen>

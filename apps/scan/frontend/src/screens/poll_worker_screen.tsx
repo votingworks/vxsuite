@@ -12,6 +12,8 @@ import {
   PrecinctScannerBallotCountReport,
   CenteredLargeProse,
   LoadingAnimation,
+  H1,
+  P,
 } from '@votingworks/ui';
 import {
   BallotCountDetails,
@@ -84,13 +86,13 @@ const BallotsAlreadyScannedScreen = (
   <ScreenMainCenterChild infoBarMode="pollworker">
     <TimesCircle />
     <CenteredLargeProse>
-      <h1>Ballots Already Scanned</h1>
-      <p>
+      <H1>Ballots Already Scanned</H1>
+      <P>
         Ballots were scanned on this machine before polls were opened. This may
         indicate an internal error or tampering. The polls can no longer be
         opened on this machine. Please report this issue to an election
         administrator.
-      </p>
+      </P>
     </CenteredLargeProse>
   </ScreenMainCenterChild>
 );
@@ -481,12 +483,12 @@ export function PollWorkerScreen({
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
-          <p>
+          <P>
             {pollsTransition === 'open_polls'
               ? 'Do you want to open the polls?'
               : 'Do you want to resume voting?'}
-          </p>
-          <p>
+          </P>
+          <P>
             <Button
               variant="primary"
               onPress={transitionPolls}
@@ -497,7 +499,7 @@ export function PollWorkerScreen({
                 : 'Yes, Resume Voting'}
             </Button>{' '}
             <Button onPress={showAllPollWorkerActions}>No</Button>
-          </p>
+          </P>
         </CenteredLargeProse>
       </ScreenMainCenterChild>
     );
@@ -507,13 +509,13 @@ export function PollWorkerScreen({
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
-          <p>Do you want to close the polls?</p>
-          <p>
+          <P>Do you want to close the polls?</P>
+          <P>
             <Button variant="primary" onPress={closePolls}>
               Yes, Close the Polls
             </Button>{' '}
             <Button onPress={showAllPollWorkerActions}>No</Button>
-          </p>
+          </P>
         </CenteredLargeProse>
       </ScreenMainCenterChild>
     );
@@ -541,7 +543,7 @@ export function PollWorkerScreen({
       <ScreenMainCenterChild infoBarMode="pollworker">
         <LoadingAnimation />
         <CenteredLargeProse>
-          <h1>{pollsTransitionProcessingText}</h1>
+          <H1>{pollsTransitionProcessingText}</H1>
         </CenteredLargeProse>
       </ScreenMainCenterChild>
     );
@@ -568,19 +570,21 @@ export function PollWorkerScreen({
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
-          <h1>{pollsTransitionCompleteText}</h1>
+          <H1>{pollsTransitionCompleteText}</H1>
           {hasPrinterAttached ? (
             <Prose themeDeprecated={fontSizeTheme.medium}>
-              <Button onPress={reprintReport}>
-                Print Additional {getPollsReportTitle(currentPollsTransition)}
-              </Button>
-              <p>
+              <P>
+                <Button onPress={reprintReport}>
+                  Print Additional {getPollsReportTitle(currentPollsTransition)}
+                </Button>
+              </P>
+              <P>
                 Remove the poll worker card if you have printed all necessary
                 reports.
-              </p>
+              </P>
             </Prose>
           ) : (
-            <p>Insert poll worker card into VxMark to print the report.</p>
+            <P>Insert poll worker card into VxMark to print the report.</P>
           )}
         </CenteredLargeProse>
       </ScreenMainCenterChild>
@@ -592,7 +596,7 @@ export function PollWorkerScreen({
       <ScreenMainCenterChild infoBarMode="pollworker">
         <LoadingAnimation />
         <CenteredLargeProse>
-          <h1>Printing Report…</h1>
+          <H1>Printing Report…</H1>
         </CenteredLargeProse>
       </ScreenMainCenterChild>
     );
@@ -603,48 +607,48 @@ export function PollWorkerScreen({
       case 'polls_closed_initial':
         return (
           <React.Fragment>
-            <p>The polls have not been opened.</p>
-            <p>
+            <P>The polls have not been opened.</P>
+            <P>
               <Button variant="primary" large onPress={openPolls}>
                 Open Polls
               </Button>
-            </p>
+            </P>
           </React.Fragment>
         );
       case 'polls_open':
         return (
           <React.Fragment>
-            <p>The polls are currently open.</p>
-            <p>
+            <P>The polls are currently open.</P>
+            <P>
               <Button variant="primary" large onPress={closePolls}>
                 Close Polls
               </Button>
-            </p>
-            <p>
+            </P>
+            <P>
               <Button large onPress={pauseVoting}>
                 Pause Voting
               </Button>
-            </p>
+            </P>
           </React.Fragment>
         );
       case 'polls_paused':
         return (
           <React.Fragment>
-            <p>Voting is currently paused.</p>
-            <p>
+            <P>Voting is currently paused.</P>
+            <P>
               <Button variant="primary" large onPress={resumeVoting}>
                 Resume Voting
               </Button>
-            </p>
-            <p>
+            </P>
+            <P>
               <Button large onPress={closePolls}>
                 Close Polls
               </Button>
-            </p>
+            </P>
           </React.Fragment>
         );
       case 'polls_closed_final':
-        return <p>Voting is complete and the polls cannot be reopened.</p>;
+        return <P>Voting is complete and the polls cannot be reopened.</P>;
       /* istanbul ignore next - compile-time check for completeness */
       default:
         throwIllegalValue(pollsState);
@@ -654,14 +658,14 @@ export function PollWorkerScreen({
   return (
     <ScreenMainCenterChild infoBarMode="pollworker">
       <Prose textCenter>
-        <h1>Poll Worker Actions</h1>
+        <H1>Poll Worker Actions</H1>
         {pollsTransitionActions}
         {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
-          <p>
+          <P>
             <Button onPress={() => setIsShowingLiveCheck(true)}>
               Live Check
             </Button>
-          </p>
+          </P>
         )}
       </Prose>
       {isShowingLiveCheck && (

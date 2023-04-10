@@ -1,8 +1,10 @@
 import { throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
+  H1,
   Loading,
   Modal,
+  P,
   Prose,
   UsbControllerButton,
   UsbDrive,
@@ -66,8 +68,8 @@ export function ExportBackupModal({
       <Modal
         content={
           <Prose>
-            <h1>Failed to Save Backup</h1>
-            <p>{errorMessage}</p>
+            <H1>Failed to Save Backup</H1>
+            <P>{errorMessage}</P>
           </Prose>
         }
         onOverlayClick={onClose}
@@ -82,8 +84,8 @@ export function ExportBackupModal({
         <Modal
           content={
             <Prose>
-              <h1>Backup Saved</h1>
-              <p>USB drive successfully ejected.</p>
+              <H1>Backup Saved</H1>
+              <P>USB drive successfully ejected.</P>
             </Prose>
           }
           onOverlayClick={onClose}
@@ -96,10 +98,10 @@ export function ExportBackupModal({
       <Modal
         content={
           <Prose>
-            <h1>Backup Saved</h1>
-            <p>
+            <H1>Backup Saved</H1>
+            <P>
               Backup file saved successfully! You may now eject the USB drive.
-            </p>
+            </P>
           </Prose>
         }
         onOverlayClick={onClose}
@@ -137,11 +139,11 @@ export function ExportBackupModal({
         <Modal
           content={
             <Prose>
-              <h1>No USB Drive Detected</h1>
-              <p>
+              <H1>No USB Drive Detected</H1>
+              <P>
                 Please insert a USB drive to save the backup.
                 <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              </p>
+              </P>
             </Prose>
           }
           onOverlayClick={onClose}
@@ -162,12 +164,12 @@ export function ExportBackupModal({
         <Modal
           content={
             <Prose>
-              <h1>Save Backup</h1>
+              <H1>Save Backup</H1>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              <p>
+              <P>
                 A ZIP file will automatically be saved to the default location
                 on the mounted USB drive.
-              </p>
+              </P>
             </Prose>
           }
           onOverlayClick={onClose}

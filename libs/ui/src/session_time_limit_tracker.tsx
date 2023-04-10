@@ -2,7 +2,6 @@
 import pluralize from 'pluralize';
 import React, { useState } from 'react';
 import { useIdleTimer } from 'react-idle-timer';
-import styled from 'styled-components';
 import {
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
@@ -16,6 +15,7 @@ import { useNow } from './hooks/use_now';
 import { Modal } from './modal';
 import { Prose } from './prose';
 import { Timer } from './timer';
+import { Caption, H1, P } from './typography';
 
 const SECONDS_TO_WRAP_UP_AFTER_INACTIVE_SESSION_TIME_LIMIT = 60;
 const SECONDS_AHEAD_OF_OVERALL_SESSION_TIME_LIMIT_TO_WARN = 15 * 60;
@@ -106,31 +106,31 @@ function SessionTimeLimitTrackerHelper({
         }
         content={
           <Prose textCenter>
-            <h1>Session Time Limit</h1>
+            <H1>Session Time Limit</H1>
             {hasInactiveSessionTimeLimitBeenHit ? (
               // Inactive session time limit
-              <p>
+              <P>
                 Your session has been inactive for{' '}
                 {pluralize('minutes', inactiveSessionTimeLimitMinutes, true)}.
                 <br />
                 The machine will automatically lock in{' '}
                 <Timer countDownTo={new Date(authStatus.sessionExpiresAt)} />.
-              </p>
+              </P>
             ) : (
               // Overall session time limit
-              <p>
+              <P>
                 You are approaching the session time limit of{' '}
                 {pluralize('hours', overallSessionTimeLimitHours, true)}.
                 <br />
                 The machine will automatically lock in{' '}
                 <Timer countDownTo={new Date(authStatus.sessionExpiresAt)} />.
-              </p>
+              </P>
             )}
-            <p>
+            <P>
               Lock the machine now and reauthenticate
               <br />
               with your smart card to continue working.
-            </p>
+            </P>
           </Prose>
         }
       />
@@ -172,10 +172,6 @@ export function SessionTimeLimitTracker({
   );
 }
 
-const Annotation = styled('span')`
-  font-size: 0.75em;
-`;
-
 interface SessionTimeLimitTimerProps {
   authStatus?:
     | DippedSmartCardAuth.AuthStatus
@@ -197,7 +193,7 @@ export function SessionTimeLimitTimer({
   if (shouldDisplayTimeLimitPrompt(authStatus, now)) {
     return (
       <span>
-        <Annotation>Machine will automatically lock in</Annotation>{' '}
+        <Caption>Machine will automatically lock in</Caption>{' '}
         <Timer countDownTo={new Date(authStatus.sessionExpiresAt)} />
       </span>
     );

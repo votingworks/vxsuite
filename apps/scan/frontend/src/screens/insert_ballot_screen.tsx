@@ -1,5 +1,13 @@
 import React from 'react';
-import { CenteredLargeProse, InsertBallotImage, Text } from '@votingworks/ui';
+import {
+  Caption,
+  CenteredLargeProse,
+  Font,
+  H1,
+  Icons,
+  InsertBallotImage,
+  P,
+} from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 
 interface Props {
@@ -20,13 +28,13 @@ export function InsertBallotScreen({
     >
       <InsertBallotImage />
       <CenteredLargeProse>
-        <h1>Insert Your Ballot Below</h1>
-        <p>Scan one ballot sheet at a time.</p>
+        <H1>Insert Your Ballot Below</H1>
+        <P>Scan one ballot sheet at a time.</P>
         {showNoChargerWarning && (
-          <Text warning small center>
-            <strong>No Power Detected.</strong> Please ask a poll worker to plug
-            in the power cord.
-          </Text>
+          <Caption color="warning">
+            <Icons.Warning /> <Font weight="bold">No Power Detected.</Font>{' '}
+            Please ask a poll worker to plug in the power cord.
+          </Caption>
         )}
       </CenteredLargeProse>
     </ScreenMainCenterChild>

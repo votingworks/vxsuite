@@ -1,4 +1,4 @@
-import { CenteredLargeProse } from '@votingworks/ui';
+import { CenteredLargeProse, H1, P } from '@votingworks/ui';
 import React from 'react';
 import { ScreenMainCenterChild } from '../components/layout';
 
@@ -6,8 +6,8 @@ export function InsertUsbScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild infoBar={false}>
       <CenteredLargeProse>
-        <h1>No USB Drive Detected</h1>
-        <p>Insert USB drive into the USB hub.</p>
+        <H1>No USB Drive Detected</H1>
+        <P>Insert USB drive into the USB hub.</P>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

@@ -16,6 +16,8 @@ import { Select } from './select';
 import { Button } from './button';
 import { Modal } from './modal';
 import { Prose } from './prose';
+import { Font, H1, P } from './typography';
+import { Icons } from './icons';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 export const ALL_PRECINCTS_OPTION_VALUE = 'ALL_PRECINCTS_OPTION_VALUE';
@@ -159,13 +161,15 @@ export function ChangePrecinctButton({
         <Modal
           content={
             <Prose>
-              <h1>Change Precinct</h1>
-              <p>
-                WARNING: The polls are open on this machine. Changing the
-                precinct will reset the polls to closed. To resume voting, the
-                polls must be opened again. Please select a precinct and confirm
-                below.
-              </p>
+              <H1>Change Precinct</H1>
+              <P>
+                <Font color="warning" weight="bold">
+                  <Icons.Warning /> WARNING:
+                </Font>{' '}
+                The polls are open on this machine. Changing the precinct will
+                reset the polls to closed. To resume voting, the polls must be
+                opened again. Please select a precinct and confirm below.
+              </P>
               <Prose textCenter>{precinctSelectDropdown}</Prose>
             </Prose>
           }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Prose, Modal, QrCode } from '@votingworks/ui';
+import { Button, Prose, Modal, QrCode, H1 } from '@votingworks/ui';
 import styled from 'styled-components';
 import { ElectionDefinition } from '@votingworks/types';
 import { MachineConfig } from '../config/types';
@@ -47,7 +47,7 @@ export function LiveCheckModal({
     <Modal
       content={
         <Prose textCenter>
-          <h1>Live Check</h1>
+          <H1>Live Check</H1>
           <QrCodeWrapper>
             <QrCode value={livecheckUrl} />
           </QrCodeWrapper>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CenteredLargeProse } from '@votingworks/ui';
+import { CenteredLargeProse, H1, P } from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 import { QuestionCircle } from '../components/graphics';
 
@@ -8,8 +8,8 @@ export function UnconfiguredPrecinctScreen(): JSX.Element {
     <ScreenMainCenterChild infoBar={false}>
       <QuestionCircle />
       <CenteredLargeProse>
-        <h1>No Precinct Selected</h1>
-        <p>Insert an Election Manager card to select a precinct.</p>
+        <H1>No Precinct Selected</H1>
+        <P>Insert an Election Manager card to select a precinct.</P>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

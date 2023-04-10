@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Button } from './button';
 import { Modal } from './modal';
 import { Prose } from './prose';
+import { H1, P } from './typography';
 
 interface Props {
   resetPollsToPausedText: string;
@@ -45,8 +46,8 @@ export function ResetPollsToPausedButton({
         <Modal
           content={
             <Prose>
-              <h1>Reset Polls to Paused</h1>
-              <p>{resetPollsToPausedText}</p>
+              <H1>Reset Polls to Paused</H1>
+              <P>{resetPollsToPausedText}</P>
             </Prose>
           }
           onOverlayClick={hideModal}

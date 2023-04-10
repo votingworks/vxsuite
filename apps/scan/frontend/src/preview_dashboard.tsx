@@ -4,7 +4,7 @@ import {
   ElectionDefinition,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { Prose, Select } from '@votingworks/ui';
+import { H1, H4, Prose, Select } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import React, { useRef, useState } from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
@@ -163,12 +163,12 @@ export function PreviewDashboard({
         <QueryClientProvider client={createQueryClient()}>
           <BrowserRouter>
             <Route path="/preview" exact>
-              <h1>Previews</h1>
+              <H1>Previews</H1>
               <PreviewColumns>
                 {previewables.map(({ componentName, previews }) => {
                   return (
                     <Prose key={componentName}>
-                      <h4>{componentName}</h4>
+                      <H4>{componentName}</H4>
                       <ul>
                         {previews.map((preview) => (
                           <li key={preview.previewName}>

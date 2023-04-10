@@ -1,5 +1,7 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { ThemeProvider } from 'styled-components';
+import { H2 } from './typography';
+import { makeTheme } from './themes/make_theme';
 
 const TestingModeContainer = styled.div`
   border-bottom: 4px solid #333333;
@@ -20,18 +22,29 @@ const TestingModeContainer = styled.div`
   & > div {
     margin: 0.5rem 0;
     background: #ff8c00;
-    padding: 0.25rem 2rem;
+    padding: 0.125rem;
     text-align: center;
     color: #333333;
-    font-size: 2rem;
-    font-weight: 900;
   }
 `;
 
 export function TestMode(): JSX.Element {
   return (
-    <TestingModeContainer>
-      <div>Machine is in Test Ballot Mode</div>
-    </TestingModeContainer>
+    // Lock the test mode banner to "small" mode to keep its size from getting
+    // out of had at larger text sizes.
+    <ThemeProvider
+      theme={(theme) =>
+        makeTheme({
+          colorMode: theme.colorMode,
+          sizeMode: theme.sizeMode === 'legacy' ? 'legacy' : 's',
+        })
+      }
+    >
+      <TestingModeContainer>
+        <div>
+          <H2 as="h1">Test Ballot Mode</H2>
+        </div>
+      </TestingModeContainer>
+    </ThemeProvider>
   );
 }

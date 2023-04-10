@@ -7,6 +7,7 @@ import { UsbDriveStatus } from './hooks/use_usb_drive';
 import { Loading } from './loading';
 import { Modal } from './modal';
 import { Prose } from './prose';
+import { H1, P } from './typography';
 
 enum State {
   CLOSED = 'closed',
@@ -145,11 +146,11 @@ export function RebootFromUsbButton({
       <Modal
         content={
           <Prose>
-            <h1>No USB Drive Detected</h1>
-            <p>
+            <H1>No USB Drive Detected</H1>
+            <P>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               Please insert a USB drive to boot from.
-            </p>
+            </P>
           </Prose>
         }
         onOverlayClick={onClose}

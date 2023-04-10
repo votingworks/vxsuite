@@ -1,5 +1,5 @@
 import React from 'react';
-import { CenteredLargeProse, Text } from '@votingworks/ui';
+import { Caption, CenteredLargeProse, H1, P } from '@votingworks/ui';
 import { TimesCircle } from '../components/graphics';
 import { ScreenMainCenterChild } from '../components/layout';
 
@@ -15,11 +15,9 @@ export function ScanJamScreen({ scannedBallotCount }: Props): JSX.Element {
     >
       <TimesCircle />
       <CenteredLargeProse>
-        <h1>Ballot Not Counted</h1>
-        <p>The ballot is jammed in the scanner.</p>
-        <Text small italic>
-          Ask a poll worker for help.
-        </Text>
+        <H1>Ballot Not Counted</H1>
+        <P>The ballot is jammed in the scanner.</P>
+        <Caption>Ask a poll worker for help.</Caption>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

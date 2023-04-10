@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { MarkThresholds } from '@votingworks/types';
-import { Button, Loading, Modal, Prose, Text } from '@votingworks/ui';
+import { Button, Caption, H1, Loading, Modal, P, Prose } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { setMarkThresholdOverrides } from '../api';
 
@@ -105,8 +105,8 @@ export function SetMarkThresholdsModal({
         <Modal
           content={
             <Prose>
-              <h1>Error</h1>
-              <p>{errorMessage}</p>
+              <H1>Error</H1>
+              <P>{errorMessage}</P>
             </Prose>
           }
           onOverlayClick={onClose}
@@ -118,12 +118,12 @@ export function SetMarkThresholdsModal({
         <Modal
           content={
             <Prose>
-              <h1>Override Mark Thresholds</h1>
-              <p>
+              <H1>Override Mark Thresholds</H1>
+              <P>
                 WARNING: Do not proceed unless you have been instructed to do so
                 by a member of VotingWorks staff. Changing mark thresholds will
                 impact the performance of your scanner.
-              </p>
+              </P>
             </Prose>
           }
           onOverlayClick={onClose}
@@ -148,8 +148,8 @@ export function SetMarkThresholdsModal({
         <Modal
           content={
             <Prose>
-              <h1>Override Mark Thresholds</h1>
-              <Text>Definite:</Text>
+              <H1>Override Mark Thresholds</H1>
+              <P>Definite:</P>
               <input
                 type="number"
                 step=".005"
@@ -159,7 +159,7 @@ export function SetMarkThresholdsModal({
                   setDefiniteThreshold(e.target.value)
                 }
               />
-              <Text>Marginal:</Text>
+              <P>Marginal:</P>
               <input
                 type="number"
                 step=".005"
@@ -193,24 +193,26 @@ export function SetMarkThresholdsModal({
         <Modal
           content={
             <Prose>
-              <h1>Reset Mark Thresholds</h1>
-              <p>Reset thresholds to the election defaults?</p>
+              <H1>Reset Mark Thresholds</H1>
+              <P>Reset thresholds to the election defaults?</P>
               <ThresholdColumns>
                 <div>
                   Current Thresholds
-                  <Text small>
-                    Definite: {markThresholdOverrides.definite}
-                    <br />
-                    Marginal: {markThresholdOverrides.marginal}
-                  </Text>
+                  <P>
+                    <Caption>
+                      Definite: {markThresholdOverrides.definite}
+                      <br />
+                      Marginal: {markThresholdOverrides.marginal}
+                    </Caption>
+                  </P>
                 </div>
                 <div>
                   Default Thresholds
-                  <Text small>
+                  <Caption>
                     Definite: {defaultMarkThresholds.definite}
                     <br />
                     Marginal: {defaultMarkThresholds.marginal}
-                  </Text>
+                  </Caption>
                 </div>
               </ThresholdColumns>
             </Prose>

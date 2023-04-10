@@ -1,5 +1,5 @@
 import React from 'react';
-import { CenteredLargeProse, Text } from '@votingworks/ui';
+import { Caption, CenteredLargeProse, H1, Icons, P } from '@votingworks/ui';
 import { PollsState } from '@votingworks/types';
 import { DoNotEnter } from '../components/graphics';
 import { ScreenMainCenterChild } from '../components/layout';
@@ -25,19 +25,19 @@ export function PollsNotOpenScreen({
     >
       <DoNotEnter />
       <CenteredLargeProse>
-        <h1>
+        <H1>
           {pollsState === 'polls_paused' ? 'Polls Paused' : 'Polls Closed'}
-        </h1>
+        </H1>
         {pollsState === 'polls_closed_final' ? (
-          <p>Voting is complete.</p>
+          <P>Voting is complete.</P>
         ) : (
-          <p>Insert a poll worker card to open polls.</p>
+          <P>Insert a poll worker card to open polls.</P>
         )}
         {showNoChargerWarning && (
-          <Text warning small center>
-            <strong>No Power Detected.</strong> Please ask a poll worker to plug
-            in the power cord.
-          </Text>
+          <Caption color="warning">
+            <Icons.Warning /> <strong>No Power Detected.</strong> Please ask a
+            poll worker to plug in the power cord.
+          </Caption>
         )}
       </CenteredLargeProse>
     </ScreenMainCenterChild>

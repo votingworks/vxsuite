@@ -5,7 +5,9 @@ import { Screen } from './screen';
 
 describe('renders Screen', () => {
   test('with defaults', () => {
-    const { container } = render(<Screen>Screen</Screen>);
+    const { container } = render(<Screen>Screen</Screen>, {
+      vxTheme: { colorMode: 'contrastMedium' },
+    });
     const screen = container.firstChild;
     expect(screen).toHaveStyleRule('flex-direction', 'column');
     expect(screen).toHaveStyleRule('height', '100%');
@@ -16,13 +18,17 @@ describe('renders Screen', () => {
   });
 
   test('with white background', () => {
-    const { container } = render(<Screen white>Screen</Screen>);
+    const { container } = render(<Screen white>Screen</Screen>, {
+      vxTheme: { colorMode: 'legacy' },
+    });
     const screen = container.firstChild;
     expect(screen).toHaveStyleRule('background-color', 'white');
   });
 
   test('with grey background', () => {
-    const { container } = render(<Screen grey>Screen</Screen>);
+    const { container } = render(<Screen grey>Screen</Screen>, {
+      vxTheme: { colorMode: 'legacy' },
+    });
     const screen = container.firstChild;
     expect(screen).toHaveStyleRule('background-color', '#edeff0');
   });

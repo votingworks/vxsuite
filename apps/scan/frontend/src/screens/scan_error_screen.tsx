@@ -1,5 +1,5 @@
 import React from 'react';
-import { CenteredLargeProse, Text } from '@votingworks/ui';
+import { Caption, CenteredLargeProse, H1, P } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type {
@@ -67,14 +67,12 @@ export function ScanErrorScreen({
     >
       <TimesCircle />
       <CenteredLargeProse>
-        <h1>Ballot Not Counted</h1>
-        <p>{errorMessage}</p>
+        <H1>Ballot Not Counted</H1>
+        <P>{errorMessage}</P>
         {restartRequired ? (
-          <Text>Ask a poll worker to restart the scanner.</Text>
+          <P>Ask a poll worker to restart the scanner.</P>
         ) : (
-          <Text small italic>
-            Ask a poll worker if you need help.
-          </Text>
+          <Caption>Ask a poll worker if you need help.</Caption>
         )}
       </CenteredLargeProse>
     </ScreenMainCenterChild>

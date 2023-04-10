@@ -1,5 +1,5 @@
 import React from 'react';
-import { CenteredLargeProse, LoadingAnimation } from '@votingworks/ui';
+import { CenteredLargeProse, H1, LoadingAnimation } from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 
 export function LoadingConfigurationScreen(): JSX.Element {
@@ -7,7 +7,7 @@ export function LoadingConfigurationScreen(): JSX.Element {
     <ScreenMainCenterChild infoBar={false}>
       <LoadingAnimation />
       <CenteredLargeProse>
-        <h1>Loading Configuration…</h1>
+        <H1>Loading Configuration…</H1>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );
