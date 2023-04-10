@@ -8,7 +8,6 @@ import {
 } from '@votingworks/types';
 
 import { Card, CardStatus, CheckPinResponse } from './card';
-import { DEV_JURISDICTION } from './certs';
 
 type WriteFileFn = (filePath: string, fileContents: Buffer) => void;
 
@@ -118,7 +117,6 @@ export class MockFileCard implements Card {
       | { user: ElectionManagerUser; pin: string; electionData: string }
       | { user: PollWorkerUser; pin?: string }
   ): Promise<void> {
-    const jurisdiction = DEV_JURISDICTION;
     const { user, pin } = input;
     const hasPin = pin !== undefined;
 
@@ -127,7 +125,7 @@ export class MockFileCard implements Card {
         writeToMockFile({
           cardStatus: {
             status: 'ready',
-            cardDetails: { jurisdiction, user },
+            cardDetails: { user },
           },
           pin,
         });
@@ -138,7 +136,7 @@ export class MockFileCard implements Card {
         writeToMockFile({
           cardStatus: {
             status: 'ready',
-            cardDetails: { jurisdiction, user },
+            cardDetails: { user },
           },
           data: Buffer.from(input.electionData, 'utf-8'),
           pin,
@@ -149,7 +147,7 @@ export class MockFileCard implements Card {
         writeToMockFile({
           cardStatus: {
             status: 'ready',
-            cardDetails: { jurisdiction, user, hasPin },
+            cardDetails: { user, hasPin },
           },
           pin,
         });

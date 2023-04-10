@@ -117,8 +117,10 @@ function mockCardWrapper({
         cardStatus: {
           status: 'ready',
           cardDetails: {
-            jurisdiction: DEV_JURISDICTION,
-            user: { role: 'system_administrator' },
+            user: {
+              role: 'system_administrator',
+              jurisdiction: DEV_JURISDICTION,
+            },
           },
         },
         pin: '000000',
@@ -132,8 +134,11 @@ function mockCardWrapper({
         cardStatus: {
           status: 'ready',
           cardDetails: {
-            jurisdiction: DEV_JURISDICTION,
-            user: { role: 'election_manager', electionHash },
+            user: {
+              role: 'election_manager',
+              jurisdiction: DEV_JURISDICTION,
+              electionHash,
+            },
           },
         },
         data: Buffer.from(electionData, 'utf-8'),
@@ -147,8 +152,11 @@ function mockCardWrapper({
         cardStatus: {
           status: 'ready',
           cardDetails: {
-            jurisdiction: DEV_JURISDICTION,
-            user: { role: 'poll_worker', electionHash },
+            user: {
+              role: 'poll_worker',
+              jurisdiction: DEV_JURISDICTION,
+              electionHash,
+            },
             hasPin: false,
           },
         },
@@ -161,8 +169,11 @@ function mockCardWrapper({
         cardStatus: {
           status: 'ready',
           cardDetails: {
-            jurisdiction: DEV_JURISDICTION,
-            user: { role: 'poll_worker', electionHash },
+            user: {
+              role: 'poll_worker',
+              jurisdiction: DEV_JURISDICTION,
+              electionHash,
+            },
             hasPin: true,
           },
         },
