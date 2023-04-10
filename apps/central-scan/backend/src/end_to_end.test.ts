@@ -22,6 +22,7 @@ import {
   advanceTo as setDateMock,
   clear as clearDateMock,
 } from 'jest-date-mock';
+import { fakeLogger, Logger } from '@votingworks/logging';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { buildCentralScannerApp } from './central_scanner_app';
 import { Importer } from './importer';
@@ -41,6 +42,7 @@ let auth: DippedSmartCardAuthApi;
 let importer: Importer;
 let workspace: Workspace;
 let scanner: MockScanner;
+let logger: Logger;
 
 beforeEach(async () => {
   auth = buildMockDippedSmartCardAuth();
@@ -50,7 +52,14 @@ beforeEach(async () => {
     workspace,
     scanner,
   });
-  app = await buildCentralScannerApp({ auth, exporter, importer, workspace });
+  logger = fakeLogger();
+  app = await buildCentralScannerApp({
+    auth,
+    exporter,
+    importer,
+    workspace,
+    logger,
+  });
 });
 
 afterEach(async () => {

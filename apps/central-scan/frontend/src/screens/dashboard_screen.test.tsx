@@ -1,10 +1,9 @@
-import userEvent from '@testing-library/user-event';
 import { Scan } from '@votingworks/api';
 import { AdjudicationStatus } from '@votingworks/types';
 import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
-import { act, render, screen, waitFor } from '../../test/react_testing_library';
+import { render } from '../../test/react_testing_library';
 import { DashboardScreen } from './dashboard_screen';
 
 const noneLeftAdjudicationStatus: AdjudicationStatus = {
@@ -13,7 +12,6 @@ const noneLeftAdjudicationStatus: AdjudicationStatus = {
 };
 
 test('null state', () => {
-  const deleteBatch = jest.fn();
   const status: Scan.GetScanStatusResponse = {
     canUnconfigure: false,
     batches: [],
@@ -21,11 +19,7 @@ test('null state', () => {
   };
   const component = render(
     <Router history={createMemoryHistory()}>
-      <DashboardScreen
-        deleteBatch={deleteBatch}
-        isScanning={false}
-        status={status}
-      />
+      <DashboardScreen isScanning={false} status={status} />
     </Router>
   );
 
@@ -35,7 +29,6 @@ test('null state', () => {
 });
 
 test('shows scanned ballot count', () => {
-  const deleteBatch = jest.fn();
   const status: Scan.GetScanStatusResponse = {
     canUnconfigure: false,
     batches: [
@@ -60,11 +53,7 @@ test('shows scanned ballot count', () => {
   };
   const component = render(
     <Router history={createMemoryHistory()}>
-      <DashboardScreen
-        deleteBatch={deleteBatch}
-        isScanning={false}
-        status={status}
-      />
+      <DashboardScreen isScanning={false} status={status} />
     </Router>
   );
 
@@ -74,7 +63,6 @@ test('shows scanned ballot count', () => {
 });
 
 test('shows whether a batch is scanning', () => {
-  const deleteBatch = jest.fn();
   const status: Scan.GetScanStatusResponse = {
     canUnconfigure: false,
     batches: [
@@ -90,94 +78,9 @@ test('shows whether a batch is scanning', () => {
   };
   const component = render(
     <Router history={createMemoryHistory()}>
-      <DashboardScreen deleteBatch={deleteBatch} isScanning status={status} />
+      <DashboardScreen isScanning status={status} />
     </Router>
   );
 
   expect(component.baseElement.textContent).toMatch(/Scanning…/);
-});
-
-test('allows deleting a batch', async () => {
-  const deleteBatch = jest.fn();
-  const status: Scan.GetScanStatusResponse = {
-    canUnconfigure: false,
-    batches: [
-      {
-        id: 'a',
-        batchNumber: 1,
-        label: 'Batch 1',
-        count: 1,
-        startedAt: new Date(0).toISOString(),
-        endedAt: new Date(0).toISOString(),
-      },
-      {
-        id: 'b',
-        batchNumber: 2,
-        label: 'Batch 2',
-        count: 3,
-        startedAt: new Date(0).toISOString(),
-        endedAt: new Date(0).toISOString(),
-      },
-    ],
-    adjudication: noneLeftAdjudicationStatus,
-  };
-  render(
-    <Router history={createMemoryHistory()}>
-      <DashboardScreen
-        deleteBatch={deleteBatch}
-        isScanning={false}
-        status={status}
-      />
-    </Router>
-  );
-
-  expect(deleteBatch).not.toHaveBeenCalled();
-  const [deleteBatch1Button, deleteBatch2Button] =
-    screen.getAllButtons('Delete');
-
-  let deleteBatch1Resolve!: VoidFunction;
-  let deleteBatch2Reject!: (error: unknown) => void;
-  let deleteBatch2Resolve!: VoidFunction;
-  deleteBatch
-    .mockResolvedValueOnce(
-      new Promise<void>((resolve) => {
-        deleteBatch1Resolve = resolve;
-      })
-    )
-    .mockResolvedValueOnce(
-      new Promise<void>((_resolve, reject) => {
-        deleteBatch2Reject = reject;
-      })
-    )
-    .mockResolvedValueOnce(
-      new Promise<void>((resolve) => {
-        deleteBatch2Resolve = resolve;
-      })
-    );
-
-  // Click delete & confirm.
-  userEvent.click(deleteBatch1Button);
-  userEvent.click(screen.getByText('Yes, Delete Batch'));
-  await screen.findByText('Deleting…');
-  expect(deleteBatch).toHaveBeenNthCalledWith(1, status.batches[0].id);
-  act(() => deleteBatch1Resolve());
-  await waitFor(() => !screen.getByText('Delete ‘Batch 1’?'));
-
-  // Click delete but cancel.
-  userEvent.click(deleteBatch2Button);
-  userEvent.click(screen.getByText('Cancel'));
-  expect(deleteBatch).not.toHaveBeenCalledWith(status.batches[1].id);
-
-  // Click delete & confirm but fail.
-  userEvent.click(deleteBatch2Button);
-  userEvent.click(screen.getByText('Yes, Delete Batch'));
-  await screen.findByText('Deleting…');
-  expect(deleteBatch).toHaveBeenNthCalledWith(2, status.batches[1].id);
-  act(() => deleteBatch2Reject(new Error('batch is a teapot')));
-  await screen.findByText('batch is a teapot');
-
-  // Try again.
-  userEvent.click(screen.getByText('Yes, Delete Batch'));
-  act(() => deleteBatch2Resolve());
-  await waitFor(() => !screen.getByText('Delete ‘Batch 2’?'));
 });

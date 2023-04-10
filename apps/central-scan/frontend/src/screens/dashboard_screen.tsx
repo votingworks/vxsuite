@@ -1,14 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import pluralize from 'pluralize';
 
 import { Scan } from '@votingworks/api';
 
-import { Button, Modal, Text } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
+import { Button } from '@votingworks/ui';
 import { BatchInfo } from '@votingworks/types';
 import { Prose } from '../components/prose';
 import { Table, TD } from '../components/table';
+import { DeleteBatchModal } from '../components/delete_batch_modal';
 
 pluralize.addIrregularRule('requires', 'require');
 pluralize.addIrregularRule('has', 'have');
@@ -31,69 +31,14 @@ function shortDateTime(iso8601Timestamp: string) {
 interface Props {
   isScanning: boolean;
   status: Scan.GetScanStatusResponse;
-  deleteBatch(batchId: string): Promise<void>;
 }
 
-export function DashboardScreen({
-  isScanning,
-  status,
-  deleteBatch,
-}: Props): JSX.Element {
+export function DashboardScreen({ isScanning, status }: Props): JSX.Element {
   const { batches } = status;
   const batchCount = batches.length;
   const ballotCount = batches.reduce((result, b) => result + b.count, 0);
 
-  const [pendingDeleteBatch, setPendingDeleteBatchId] = useState<BatchInfo>();
-  const [isDeletingBatch, setIsDeletingBatch] = useState(false);
-  const [deleteBatchError, setDeleteBatchError] = useState<string>();
-
-  const confirmDeleteBatch = useCallback(() => {
-    setIsDeletingBatch(true);
-  }, []);
-
-  const cancelDeleteBatch = useCallback(() => {
-    setPendingDeleteBatchId(undefined);
-    setDeleteBatchError(undefined);
-  }, []);
-
-  const onDeleteBatchSucceeded = useCallback(() => {
-    setIsDeletingBatch(false);
-    setPendingDeleteBatchId(undefined);
-  }, []);
-
-  const onDeleteBatchFailed = useCallback((error: Error) => {
-    setIsDeletingBatch(false);
-    setDeleteBatchError(error.message);
-  }, []);
-
-  useEffect(() => {
-    if (pendingDeleteBatch && isDeletingBatch) {
-      let isMounted = true;
-      void (async () => {
-        try {
-          await deleteBatch(pendingDeleteBatch.id);
-
-          if (isMounted) {
-            onDeleteBatchSucceeded();
-          }
-        } catch (error) {
-          assert(error instanceof Error);
-          if (isMounted) {
-            onDeleteBatchFailed(error);
-          }
-        }
-      })();
-      return () => {
-        isMounted = false;
-      };
-    }
-  }, [
-    pendingDeleteBatch,
-    isDeletingBatch,
-    deleteBatch,
-    onDeleteBatchSucceeded,
-    onDeleteBatchFailed,
-  ]);
+  const [pendingDeleteBatch, setPendingDeleteBatch] = useState<BatchInfo>();
 
   return (
     <React.Fragment>
@@ -144,7 +89,7 @@ export function DashboardScreen({
                     <TD narrow>
                       <Button
                         small
-                        onPress={() => setPendingDeleteBatchId(batch)}
+                        onPress={() => setPendingDeleteBatch(batch)}
                       >
                         Delete
                       </Button>
@@ -159,31 +104,10 @@ export function DashboardScreen({
         )}
       </Prose>
       {pendingDeleteBatch && (
-        <Modal
-          centerContent
-          onOverlayClick={isDeletingBatch ? undefined : cancelDeleteBatch}
-          content={
-            <Prose textCenter>
-              <h1>Delete ‘{pendingDeleteBatch.label}’?</h1>
-              <p>This action cannot be undone.</p>
-              {deleteBatchError && <Text error>{deleteBatchError}</Text>}
-            </Prose>
-          }
-          actions={
-            <React.Fragment>
-              <Button
-                variant="danger"
-                onPress={confirmDeleteBatch}
-                disabled={isDeletingBatch}
-                autoFocus
-              >
-                {isDeletingBatch ? 'Deleting…' : 'Yes, Delete Batch'}
-              </Button>
-              <Button onPress={cancelDeleteBatch} disabled={isDeletingBatch}>
-                Cancel
-              </Button>
-            </React.Fragment>
-          }
+        <DeleteBatchModal
+          batchId={pendingDeleteBatch.id}
+          batchLabel={pendingDeleteBatch.label}
+          onClose={() => setPendingDeleteBatch(undefined)}
         />
       )}
     </React.Fragment>

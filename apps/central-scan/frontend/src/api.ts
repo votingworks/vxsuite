@@ -78,8 +78,15 @@ export const logOut = {
 export const updateSessionExpiry = {
   useMutation() {
     const apiClient = useApiClient();
+    return useMutation(apiClient.updateSessionExpiry);
+  },
+} as const;
+
+export const deleteBatch = {
+  useMutation() {
+    const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.updateSessionExpiry, {
+    return useMutation(apiClient.deleteBatch, {
       async onSuccess() {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary

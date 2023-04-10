@@ -22,6 +22,7 @@ import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
+import { fakeLogger, Logger } from '@votingworks/logging';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { Importer } from './importer';
@@ -66,13 +67,21 @@ let workspace: Workspace;
 let scanner: MockScanner;
 let importer: Importer;
 let app: Application;
+let logger: Logger;
 
 beforeEach(async () => {
   auth = buildMockDippedSmartCardAuth();
   workspace = await createWorkspace(dirSync().name);
   scanner = makeMockScanner();
   importer = new Importer({ workspace, scanner });
-  app = await buildCentralScannerApp({ auth, exporter, importer, workspace });
+  logger = fakeLogger();
+  app = await buildCentralScannerApp({
+    auth,
+    exporter,
+    importer,
+    workspace,
+    logger,
+  });
 });
 
 afterEach(async () => {
