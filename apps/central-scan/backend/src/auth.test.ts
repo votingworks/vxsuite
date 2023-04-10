@@ -1,3 +1,4 @@
+import getPort from 'get-port';
 import { Server } from 'http';
 import { dirSync } from 'tmp';
 import {
@@ -6,12 +7,11 @@ import {
 } from '@votingworks/auth';
 import { Exporter } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
-import { fakeLogger } from '@votingworks/logging';
+import { fakeLogger, Logger } from '@votingworks/logging';
 
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMockScanner } from '../test/util/mocks';
 import { Api, buildCentralScannerApp } from './central_scanner_app';
-import { PORT } from './globals';
 import { Importer } from './importer';
 import { start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -23,12 +23,17 @@ let apiClient: grout.Client<Api>;
 let auth: DippedSmartCardAuthApi;
 let server: Server;
 let workspace: Workspace;
+let logger: Logger;
 
 beforeEach(async () => {
+  const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
   workspace = await createWorkspace(dirSync().name);
+  logger = fakeLogger();
 
-  apiClient = grout.createClient({ baseUrl: `http://localhost:${PORT}/api` });
+  apiClient = grout.createClient({
+    baseUrl: `http://localhost:${port}/api`,
+  });
   server = await start({
     app: await buildCentralScannerApp({
       auth,
@@ -38,9 +43,11 @@ beforeEach(async () => {
       }),
       importer: new Importer({ workspace, scanner: makeMockScanner() }),
       workspace,
+      logger,
     }),
-    logger: fakeLogger(),
+    logger,
     workspace,
+    port,
   });
 
   workspace.store.setElection(electionData);

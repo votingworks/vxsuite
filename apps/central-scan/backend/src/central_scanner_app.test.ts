@@ -37,6 +37,7 @@ import {
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { Server } from 'http';
+import { Logger, fakeLogger } from '@votingworks/logging';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
@@ -57,6 +58,7 @@ let auth: DippedSmartCardAuthApi;
 let importer: jest.Mocked<Importer>;
 let server: Server;
 let workspace: Workspace;
+let logger: Logger;
 
 beforeEach(async () => {
   mockGetUsbDrives.mockReset();
@@ -78,7 +80,14 @@ beforeEach(async () => {
     ballotMetadata,
     getMockBallotPageLayoutsWithImages(ballotMetadata, 2)
   );
-  app = await buildCentralScannerApp({ auth, exporter, importer, workspace });
+  logger = fakeLogger();
+  app = await buildCentralScannerApp({
+    auth,
+    exporter,
+    importer,
+    workspace,
+    logger,
+  });
 });
 
 afterEach(async () => {

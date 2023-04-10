@@ -35,6 +35,7 @@ import path from 'path';
 import { PassThrough } from 'stream';
 import { z } from 'zod';
 import * as grout from '@votingworks/grout';
+import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { backupToUsbDrive } from './backup';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
@@ -50,6 +51,7 @@ export interface AppOptions {
   exporter: Exporter;
   importer: Importer;
   workspace: Workspace;
+  logger: Logger;
 }
 
 function constructAuthMachineState(
@@ -67,7 +69,18 @@ function constructAuthMachineState(
   };
 }
 
-function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {
+function buildApi({
+  auth,
+  workspace,
+  logger,
+}: Pick<AppOptions, 'auth' | 'workspace' | 'logger'>) {
+  async function getUserRole(): Promise<LoggingUserRole> {
+    const authStatus = await auth.getAuthStatus(
+      constructAuthMachineState(workspace)
+    );
+    return authStatus.status === 'logged_in' ? authStatus.user.role : 'unknown';
+  }
+
   return grout.createApi({
     getAuthStatus() {
       return auth.getAuthStatus(constructAuthMachineState(workspace));
@@ -89,6 +102,38 @@ function buildApi(auth: DippedSmartCardAuthApi, workspace: Workspace) {
         input
       );
     },
+
+    async deleteBatch({ batchId }: { batchId: string }) {
+      const userRole = await getUserRole();
+      const numberOfBallotsInBatch = workspace.store
+        .batchStatus()
+        .find((batch) => batch.id === batchId)?.count;
+
+      await logger.log(LogEventId.DeleteScanBatchInit, userRole, {
+        message: `User deleting batch id ${batchId}...`,
+        numberOfBallotsInBatch,
+        batchId,
+      });
+
+      try {
+        workspace.store.deleteBatch(batchId);
+        await logger.log(LogEventId.DeleteScanBatchComplete, userRole, {
+          disposition: 'success',
+          message: `User successfully deleted batch id: ${batchId} containing ${numberOfBallotsInBatch} ballots.`,
+          numberOfBallotsInBatch,
+          batchId,
+        });
+      } catch (error) {
+        assert(error instanceof Error);
+        await logger.log(LogEventId.DeleteScanBatchComplete, userRole, {
+          disposition: 'failure',
+          message: `Error deleting batch id: ${batchId}.`,
+          error: error.message,
+          result: 'Batch not deleted.',
+        });
+        throw error;
+      }
+    },
   });
 }
 
@@ -106,11 +151,12 @@ export async function buildCentralScannerApp({
   exporter,
   importer,
   workspace,
+  logger,
 }: AppOptions): Promise<Application> {
   const { store } = workspace;
 
   const app: Application = express();
-  const api = buildApi(auth, workspace);
+  const api = buildApi({ auth, workspace, logger });
   app.use('/api', grout.buildRouter(api, express));
 
   const upload = multer({
@@ -681,17 +727,6 @@ export async function buildCentralScannerApp({
 
       if (filenames && version in filenames) {
         response.sendFile(filenames[version]);
-      } else {
-        response.status(404).end();
-      }
-    }
-  );
-
-  deprecatedApiRouter.delete(
-    '/central-scanner/scan/batch/:batchId',
-    (request, response) => {
-      if (store.deleteBatch(request.params.batchId)) {
-        response.json({ status: 'ok' });
       } else {
         response.status(404).end();
       }

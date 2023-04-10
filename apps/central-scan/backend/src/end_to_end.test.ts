@@ -1,7 +1,4 @@
-import {
-  buildMockDippedSmartCardAuth,
-  DippedSmartCardAuthApi,
-} from '@votingworks/auth';
+import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { Exporter } from '@votingworks/backend';
 import {
   asElectionDefinition,
@@ -22,6 +19,7 @@ import {
   advanceTo as setDateMock,
   clear as clearDateMock,
 } from 'jest-date-mock';
+import { fakeLogger, Logger } from '@votingworks/logging';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { buildCentralScannerApp } from './central_scanner_app';
 import { Importer } from './importer';
@@ -37,10 +35,11 @@ const exporter = new Exporter({
 });
 
 let app: Application;
-let auth: DippedSmartCardAuthApi;
+let auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
 let importer: Importer;
 let workspace: Workspace;
 let scanner: MockScanner;
+let logger: Logger;
 
 beforeEach(async () => {
   auth = buildMockDippedSmartCardAuth();
@@ -50,7 +49,14 @@ beforeEach(async () => {
     workspace,
     scanner,
   });
-  app = await buildCentralScannerApp({ auth, exporter, importer, workspace });
+  logger = fakeLogger();
+  app = await buildCentralScannerApp({
+    auth,
+    exporter,
+    importer,
+    workspace,
+    logger,
+  });
 });
 
 afterEach(async () => {
@@ -58,7 +64,20 @@ afterEach(async () => {
 });
 
 test('going through the whole process works', async () => {
-  setDateMock(new Date(2018, 5, 27, 0, 0, 0));
+  const now = new Date(2018, 5, 27, 0, 0, 0);
+
+  auth.getAuthStatus.mockResolvedValue({
+    status: 'logged_in',
+    user: {
+      role: 'election_manager',
+      electionHash: 'abc',
+    },
+    programmableCard: {
+      status: 'ready',
+    },
+    sessionExpiresAt: now.valueOf() + 1000,
+  });
+  setDateMock(now);
 
   // try export before configure
   await request(app)
@@ -176,15 +195,10 @@ test('going through the whole process works', async () => {
       .expect(200);
     for (const { id } of JSON.parse(status.text).batches) {
       await request(app)
-        .delete(`/central-scanner/scan/batch/${id}`)
+        .post(`/api/deleteBatch`)
+        .send({ batchId: id })
         .set('Accept', 'application/json')
         .expect(200);
-
-      // can't delete it again
-      await request(app)
-        .delete(`/central-scanner/scan/batch/${id}`)
-        .set('Accept', 'application/json')
-        .expect(404);
     }
   }
 

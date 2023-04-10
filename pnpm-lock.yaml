@@ -1088,6 +1088,9 @@ importers:
       fast-check:
         specifier: ^2.23.2
         version: 2.23.2
+      get-port:
+        specifier: '5'
+        version: 5.1.1
       is-ci-cli:
         specifier: ^2.1.2
         version: 2.2.0

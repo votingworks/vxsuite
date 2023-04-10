@@ -112,6 +112,7 @@ export async function start({
       exporter: resolvedExporter,
       importer: resolvedImporter,
       workspace: resolvedWorkspace,
+      logger,
     }));
 
   // cleanup incomplete batches from before

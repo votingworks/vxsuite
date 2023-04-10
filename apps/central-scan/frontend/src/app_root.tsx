@@ -441,39 +441,6 @@ export function AppRoot({
     [history, refreshConfig]
   );
 
-  const deleteBatch = useCallback(
-    async (id: string) => {
-      try {
-        const batch = status.batches.find((b) => b.id === id);
-        const numberOfBallotsInBatch = batch?.count ?? 0;
-        await logger.log(LogEventId.DeleteScanBatchInit, userRole, {
-          message: `User deleting batch id ${id}...`,
-          numberOfBallotsInBatch,
-          batchId: id,
-        });
-        await fetch(`/central-scanner/scan/batch/${id}`, {
-          method: 'DELETE',
-        });
-        await logger.log(LogEventId.DeleteScanBatchComplete, userRole, {
-          disposition: 'success',
-          message: `User successfully deleted batch id: ${id} containing ${numberOfBallotsInBatch} ballots.`,
-          numberOfBallotsInBatch,
-          batchId: id,
-        });
-      } catch (error) {
-        assert(error instanceof Error);
-        await logger.log(LogEventId.DeleteScanBatchComplete, userRole, {
-          disposition: 'failure',
-          message: `Error deleting batch id: ${id}.`,
-          error: error.message,
-          result: 'Batch not deleted, user shown error.',
-        });
-        throw error;
-      }
-    },
-    [logger, userRole, status.batches]
-  );
-
   useInterval(
     useCallback(async () => {
       if (electionDefinition) {
@@ -652,11 +619,7 @@ export function AppRoot({
           <Route path="/">
             <Screen>
               <Main padded>
-                <DashboardScreen
-                  isScanning={isScanning}
-                  status={status}
-                  deleteBatch={deleteBatch}
-                />
+                <DashboardScreen isScanning={isScanning} status={status} />
               </Main>
               <MainNav isTestMode={isTestMode}>
                 <UsbControllerButton
