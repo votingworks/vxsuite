@@ -71,9 +71,12 @@ const defaultMachineState: DippedSmartCardAuthMachineState = {
   electionHash,
   jurisdiction,
 };
-const systemAdministratorUser = fakeSystemAdministratorUser();
-const electionManagerUser = fakeElectionManagerUser({ electionHash });
-const pollWorkerUser = fakePollWorkerUser({ electionHash });
+const systemAdministratorUser = fakeSystemAdministratorUser({ jurisdiction });
+const electionManagerUser = fakeElectionManagerUser({
+  jurisdiction,
+  electionHash,
+});
+const pollWorkerUser = fakePollWorkerUser({ jurisdiction, electionHash });
 
 function mockCardStatus(cardStatus: CardStatus) {
   mockCard.getCardStatus.expectRepeatedCallsWith().resolves(cardStatus);
@@ -86,7 +89,6 @@ async function logInAsSystemAdministrator(
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      jurisdiction,
       user: systemAdministratorUser,
     },
   });
@@ -118,7 +120,6 @@ async function logInAsElectionManager(
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      jurisdiction,
       user: electionManagerUser,
     },
   });
@@ -173,7 +174,6 @@ test.each<{
     cardStatus: {
       status: 'ready',
       cardDetails: {
-        jurisdiction,
         user: systemAdministratorUser,
       },
     },
@@ -246,7 +246,6 @@ test.each<{
   {
     description: 'system administrator',
     cardDetails: {
-      jurisdiction,
       user: systemAdministratorUser,
     },
     expectedLoggedInAuthStatus: {
@@ -259,7 +258,6 @@ test.each<{
   {
     description: 'election manager',
     cardDetails: {
-      jurisdiction,
       user: electionManagerUser,
     },
     expectedLoggedInAuthStatus: {
@@ -371,7 +369,6 @@ test('Card lockout', async () => {
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      jurisdiction,
       numIncorrectPinAttempts: 2,
       user: electionManagerUser,
     },
@@ -405,7 +402,6 @@ test('Card lockout', async () => {
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      jurisdiction,
       numIncorrectPinAttempts: 3,
       user: electionManagerUser,
     },
@@ -527,8 +523,7 @@ test.each<{
     config: defaultConfig,
     machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction: otherJurisdiction,
-      user: systemAdministratorUser,
+      user: { ...systemAdministratorUser, jurisdiction: otherJurisdiction },
     },
     expectedAuthStatus: {
       status: 'logged_out',
@@ -550,7 +545,6 @@ test.each<{
     config: defaultConfig,
     machineState: { ...defaultMachineState, jurisdiction: undefined },
     cardDetails: {
-      jurisdiction,
       user: systemAdministratorUser,
     },
     expectedAuthStatus: {
@@ -563,7 +557,6 @@ test.each<{
     config: defaultConfig,
     machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction,
       user: pollWorkerUser,
       hasPin: false,
     },
@@ -587,7 +580,6 @@ test.each<{
     config: defaultConfig,
     machineState: { ...defaultMachineState, electionHash: undefined },
     cardDetails: {
-      jurisdiction,
       user: electionManagerUser,
     },
     expectedAuthStatus: {
@@ -614,7 +606,6 @@ test.each<{
     },
     machineState: { ...defaultMachineState, electionHash: undefined },
     cardDetails: {
-      jurisdiction,
       user: electionManagerUser,
     },
     expectedAuthStatus: {
@@ -627,7 +618,6 @@ test.each<{
     config: defaultConfig,
     machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction,
       user: { ...electionManagerUser, electionHash: otherElectionHash },
     },
     expectedAuthStatus: {
@@ -684,13 +674,12 @@ test.each<{
     machineState: defaultMachineState,
     input: { userRole: 'system_administrator' },
     expectedCardProgramInput: {
-      user: { role: 'system_administrator' },
+      user: { role: 'system_administrator', jurisdiction },
       pin,
     },
     expectedProgramResult: ok({ pin }),
     cardDetailsAfterProgramming: {
-      jurisdiction,
-      user: { role: 'system_administrator' },
+      user: { role: 'system_administrator', jurisdiction },
     },
   },
   {
@@ -698,14 +687,13 @@ test.each<{
     machineState: defaultMachineState,
     input: { userRole: 'election_manager', electionData },
     expectedCardProgramInput: {
-      user: { role: 'election_manager', electionHash },
+      user: { role: 'election_manager', jurisdiction, electionHash },
       pin,
       electionData,
     },
     expectedProgramResult: ok({ pin }),
     cardDetailsAfterProgramming: {
-      jurisdiction,
-      user: { role: 'election_manager', electionHash },
+      user: { role: 'election_manager', jurisdiction, electionHash },
     },
   },
   {
@@ -713,12 +701,11 @@ test.each<{
     machineState: defaultMachineState,
     input: { userRole: 'poll_worker' },
     expectedCardProgramInput: {
-      user: { role: 'poll_worker', electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionHash },
     },
     expectedProgramResult: ok({ pin: undefined }),
     cardDetailsAfterProgramming: {
-      jurisdiction,
-      user: { role: 'poll_worker', electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionHash },
       hasPin: false,
     },
   },
@@ -730,13 +717,12 @@ test.each<{
     },
     input: { userRole: 'poll_worker' },
     expectedCardProgramInput: {
-      user: { role: 'poll_worker', electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionHash },
       pin,
     },
     expectedProgramResult: ok({ pin }),
     cardDetailsAfterProgramming: {
-      jurisdiction,
-      user: { role: 'poll_worker', electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionHash },
       hasPin: true,
     },
   },
@@ -844,8 +830,7 @@ test.each<{
     description: 'treating card from another jurisdiction as unprogrammed',
     machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction: otherJurisdiction,
-      user: electionManagerUser,
+      user: { ...electionManagerUser, jurisdiction: otherJurisdiction },
     },
   },
   {
@@ -856,8 +841,7 @@ test.each<{
       arePollWorkerCardPinsEnabled: true,
     },
     cardDetails: {
-      jurisdiction: otherJurisdiction,
-      user: pollWorkerUser,
+      user: { ...pollWorkerUser, jurisdiction: otherJurisdiction },
       hasPin: false,
     },
   },
@@ -866,8 +850,7 @@ test.each<{
       'treating poll worker card with a PIN as unprogrammed if poll worker card PINs are not enabled',
     machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction: otherJurisdiction,
-      user: pollWorkerUser,
+      user: { ...pollWorkerUser, jurisdiction: otherJurisdiction },
       hasPin: true,
     },
   },
@@ -902,7 +885,6 @@ test('Checking PIN error handling', async () => {
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      jurisdiction,
       user: electionManagerUser,
     },
   });
@@ -1068,7 +1050,7 @@ test('Card programming error handling', async () => {
 
   mockCard.program
     .expectCallWith({
-      user: { role: 'poll_worker', electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionHash },
     })
     .throws(new Error('Whoa!'));
   expect(
@@ -1108,7 +1090,6 @@ test('Card unprogramming error handling', async () => {
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      jurisdiction,
       user: pollWorkerUser,
       hasPin: false,
     },
@@ -1281,7 +1262,6 @@ test('SKIP_PIN_ENTRY feature flag', async () => {
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      jurisdiction,
       user: electionManagerUser,
     },
   });

@@ -11,20 +11,16 @@ import {
   CardDetails,
 } from './card';
 
-const jurisdiction = 'st.jurisdiction';
 const systemAdministratorUser = fakeSystemAdministratorUser();
 const electionManagerUser = fakeElectionManagerUser();
 const pollWorkerUser = fakePollWorkerUser();
 const systemAdministratorCardDetails: CardDetails = {
-  jurisdiction,
   user: systemAdministratorUser,
 };
 const electionManagerCardDetails: CardDetails = {
-  jurisdiction,
   user: electionManagerUser,
 };
 const pollWorkerCardDetails: CardDetails = {
-  jurisdiction,
   user: pollWorkerUser,
   hasPin: false,
 };

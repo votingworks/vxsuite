@@ -109,8 +109,7 @@ test.each<{
       `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
       '1.3.6.1.4.1.59817.3 = system-administrator',
     expectedCardDetails: {
-      jurisdiction,
-      user: { role: 'system_administrator' },
+      user: { role: 'system_administrator', jurisdiction },
     },
   },
   {
@@ -121,8 +120,7 @@ test.each<{
       '1.3.6.1.4.1.59817.3 = election-manager, ' +
       `1.3.6.1.4.1.59817.4 = ${electionHash}`,
     expectedCardDetails: {
-      jurisdiction,
-      user: { role: 'election_manager', electionHash },
+      user: { role: 'election_manager', jurisdiction, electionHash },
     },
   },
   {
@@ -133,8 +131,7 @@ test.each<{
       '1.3.6.1.4.1.59817.3 = poll-worker, ' +
       `1.3.6.1.4.1.59817.4 = ${electionHash}`,
     expectedCardDetails: {
-      jurisdiction,
-      user: { role: 'poll_worker', electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionHash },
       hasPin: false,
     },
   },
@@ -146,8 +143,7 @@ test.each<{
       '1.3.6.1.4.1.59817.3 = poll-worker-with-pin, ' +
       `1.3.6.1.4.1.59817.4 = ${electionHash}`,
     expectedCardDetails: {
-      jurisdiction,
-      user: { role: 'poll_worker', electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionHash },
       hasPin: true,
     },
   },
@@ -194,8 +190,7 @@ test.each<{
 }>([
   {
     cardDetails: {
-      jurisdiction,
-      user: { role: 'system_administrator' },
+      user: { role: 'system_administrator', jurisdiction },
     },
     expectedSubject:
       '/C=US/ST=CA/O=VotingWorks' +
@@ -205,8 +200,7 @@ test.each<{
   },
   {
     cardDetails: {
-      jurisdiction,
-      user: { role: 'election_manager', electionHash },
+      user: { role: 'election_manager', jurisdiction, electionHash },
     },
     expectedSubject:
       '/C=US/ST=CA/O=VotingWorks' +
@@ -217,8 +211,7 @@ test.each<{
   },
   {
     cardDetails: {
-      jurisdiction,
-      user: { role: 'poll_worker', electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionHash },
       hasPin: false,
     },
     expectedSubject:
@@ -230,8 +223,7 @@ test.each<{
   },
   {
     cardDetails: {
-      jurisdiction,
-      user: { role: 'poll_worker', electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionHash },
       hasPin: true,
     },
     expectedSubject:

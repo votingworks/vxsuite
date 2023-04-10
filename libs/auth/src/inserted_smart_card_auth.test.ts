@@ -78,9 +78,12 @@ const defaultMachineState: InsertedSmartCardAuthMachineState = {
   electionHash,
   jurisdiction,
 };
-const systemAdministratorUser = fakeSystemAdministratorUser();
-const electionManagerUser = fakeElectionManagerUser({ electionHash });
-const pollWorkerUser = fakePollWorkerUser({ electionHash });
+const systemAdministratorUser = fakeSystemAdministratorUser({ jurisdiction });
+const electionManagerUser = fakeElectionManagerUser({
+  jurisdiction,
+  electionHash,
+});
+const pollWorkerUser = fakePollWorkerUser({ jurisdiction, electionHash });
 const cardlessVoterUser = fakeCardlessVoterUser();
 
 function mockCardStatus(cardStatus: CardStatus) {
@@ -94,7 +97,6 @@ async function logInAsElectionManager(
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      jurisdiction,
       user: electionManagerUser,
     },
   });
@@ -119,7 +121,6 @@ async function logInAsPollWorker(
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      jurisdiction,
       user: pollWorkerUser,
       hasPin: false,
     },
@@ -163,7 +164,6 @@ test.each<{
     cardStatus: {
       status: 'ready',
       cardDetails: {
-        jurisdiction,
         user: systemAdministratorUser,
       },
     },
@@ -237,7 +237,6 @@ test.each<{
     description: 'system administrator card',
     machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction,
       user: systemAdministratorUser,
     },
   },
@@ -245,7 +244,6 @@ test.each<{
     description: 'election manager card',
     machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction,
       user: electionManagerUser,
     },
   },
@@ -256,7 +254,6 @@ test.each<{
       arePollWorkerCardPinsEnabled: true,
     },
     cardDetails: {
-      jurisdiction,
       user: pollWorkerUser,
       hasPin: true,
     },
@@ -352,7 +349,6 @@ test('Login and logout using card without PIN', async () => {
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      jurisdiction,
       user: pollWorkerUser,
       hasPin: false,
     },
@@ -406,7 +402,6 @@ test('Card lockout', async () => {
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      jurisdiction,
       numIncorrectPinAttempts: 2,
       user: electionManagerUser,
     },
@@ -440,7 +435,6 @@ test('Card lockout', async () => {
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      jurisdiction,
       numIncorrectPinAttempts: 3,
       user: electionManagerUser,
     },
@@ -582,8 +576,7 @@ test.each<{
     config: defaultConfig,
     machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction: otherJurisdiction,
-      user: systemAdministratorUser,
+      user: { ...systemAdministratorUser, jurisdiction: otherJurisdiction },
     },
     expectedAuthStatus: {
       status: 'logged_out',
@@ -605,7 +598,6 @@ test.each<{
     config: defaultConfig,
     machineState: { ...defaultMachineState, jurisdiction: undefined },
     cardDetails: {
-      jurisdiction,
       user: systemAdministratorUser,
     },
     expectedAuthStatus: {
@@ -618,7 +610,6 @@ test.each<{
     config: defaultConfig,
     machineState: { ...defaultMachineState, electionHash: undefined },
     cardDetails: {
-      jurisdiction,
       user: electionManagerUser,
     },
     expectedAuthStatus: {
@@ -631,7 +622,6 @@ test.each<{
     config: defaultConfig,
     machineState: { ...defaultMachineState, electionHash: undefined },
     cardDetails: {
-      jurisdiction,
       user: pollWorkerUser,
       hasPin: false,
     },
@@ -655,7 +645,6 @@ test.each<{
     config: defaultConfig,
     machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction,
       user: { ...electionManagerUser, electionHash: otherElectionHash },
     },
     expectedAuthStatus: {
@@ -683,7 +672,6 @@ test.each<{
     },
     machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction,
       user: { ...electionManagerUser, electionHash: otherElectionHash },
     },
     expectedAuthStatus: {
@@ -696,7 +684,6 @@ test.each<{
     config: defaultConfig,
     machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction,
       user: { ...pollWorkerUser, electionHash: otherElectionHash },
       hasPin: false,
     },
@@ -724,7 +711,6 @@ test.each<{
       arePollWorkerCardPinsEnabled: true,
     },
     cardDetails: {
-      jurisdiction,
       user: pollWorkerUser,
       hasPin: false,
     },
@@ -749,7 +735,6 @@ test.each<{
     config: defaultConfig,
     machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction,
       user: pollWorkerUser,
       hasPin: true,
     },
@@ -895,7 +880,6 @@ test('Cardless voter sessions - end-to-end', async () => {
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      jurisdiction,
       user: pollWorkerUser,
       hasPin: false,
     },
@@ -1031,7 +1015,6 @@ test('Checking PIN error handling', async () => {
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      jurisdiction,
       user: electionManagerUser,
     },
   });
@@ -1303,7 +1286,6 @@ test.each<{
     description: 'system administrator card',
     machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction,
       user: systemAdministratorUser,
     },
   },
@@ -1311,7 +1293,6 @@ test.each<{
     description: 'election manager card',
     machineState: defaultMachineState,
     cardDetails: {
-      jurisdiction,
       user: electionManagerUser,
     },
   },
@@ -1322,7 +1303,6 @@ test.each<{
       arePollWorkerCardPinsEnabled: true,
     },
     cardDetails: {
-      jurisdiction,
       user: pollWorkerUser,
       hasPin: true,
     },

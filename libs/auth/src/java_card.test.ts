@@ -90,9 +90,17 @@ afterEach(() => {
 
 const { electionData, electionHash } =
   electionFamousNames2021Fixtures.electionDefinition;
-const systemAdministratorUser = fakeSystemAdministratorUser();
-const electionManagerUser = fakeElectionManagerUser({ electionHash });
-const pollWorkerUser = fakePollWorkerUser({ electionHash });
+const systemAdministratorUser = fakeSystemAdministratorUser({
+  jurisdiction: DEV_JURISDICTION,
+});
+const electionManagerUser = fakeElectionManagerUser({
+  jurisdiction: DEV_JURISDICTION,
+  electionHash,
+});
+const pollWorkerUser = fakePollWorkerUser({
+  jurisdiction: DEV_JURISDICTION,
+  electionHash,
+});
 
 const mockChallenge = 'VotingWorks';
 function customChallengeGenerator(): string {
@@ -387,7 +395,6 @@ test.each<{
     isCardVxAdminPrivateKeySignatureRequestExpected: false,
     isCardGetNumRemainingPinAttemptsRequestExpected: true,
     expectedCardDetails: {
-      jurisdiction: DEV_JURISDICTION,
       user: systemAdministratorUser,
     },
   },
@@ -406,7 +413,6 @@ test.each<{
     isCardVxAdminPrivateKeySignatureRequestExpected: false,
     isCardGetNumRemainingPinAttemptsRequestExpected: true,
     expectedCardDetails: {
-      jurisdiction: DEV_JURISDICTION,
       user: electionManagerUser,
     },
   },
@@ -425,7 +431,6 @@ test.each<{
     isCardVxAdminPrivateKeySignatureRequestExpected: true,
     isCardGetNumRemainingPinAttemptsRequestExpected: false,
     expectedCardDetails: {
-      jurisdiction: DEV_JURISDICTION,
       user: pollWorkerUser,
       hasPin: false,
     },
@@ -446,7 +451,6 @@ test.each<{
     isCardVxAdminPrivateKeySignatureRequestExpected: false,
     isCardGetNumRemainingPinAttemptsRequestExpected: true,
     expectedCardDetails: {
-      jurisdiction: DEV_JURISDICTION,
       user: pollWorkerUser,
       hasPin: true,
     },
@@ -541,7 +545,6 @@ test.each<{
     isCardVxAdminPrivateKeySignatureRequestExpected: false,
     isCardGetNumRemainingPinAttemptsRequestExpected: true,
     expectedCardDetails: {
-      jurisdiction: DEV_JURISDICTION,
       numIncorrectPinAttempts: 5,
       user: electionManagerUser,
     },
@@ -695,7 +698,6 @@ test.each<{
     javaCard.setCardStatus({
       status: 'ready',
       cardDetails: {
-        jurisdiction: DEV_JURISDICTION,
         user: electionManagerUser,
       },
     });
@@ -754,7 +756,6 @@ test.each<{
     expectedExpiryInDays: 365 * 5,
     isElectionDataWriteExpected: false,
     expectedCardDetailsAfterProgramming: {
-      jurisdiction: DEV_JURISDICTION,
       user: systemAdministratorUser,
     },
   },
@@ -775,7 +776,6 @@ test.each<{
     expectedExpiryInDays: Math.round(365 * 0.5),
     isElectionDataWriteExpected: true,
     expectedCardDetailsAfterProgramming: {
-      jurisdiction: DEV_JURISDICTION,
       user: electionManagerUser,
     },
   },
@@ -794,7 +794,6 @@ test.each<{
     expectedExpiryInDays: Math.round(365 * 0.5),
     isElectionDataWriteExpected: false,
     expectedCardDetailsAfterProgramming: {
-      jurisdiction: DEV_JURISDICTION,
       user: pollWorkerUser,
       hasPin: false,
     },
@@ -815,7 +814,6 @@ test.each<{
     expectedExpiryInDays: Math.round(365 * 0.5),
     isElectionDataWriteExpected: false,
     expectedCardDetailsAfterProgramming: {
-      jurisdiction: DEV_JURISDICTION,
       user: pollWorkerUser,
       hasPin: true,
     },
