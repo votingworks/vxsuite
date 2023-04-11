@@ -26,6 +26,8 @@ import {
 import {
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
+  CastVoteRecordReportMetadata,
+  TEST_OTHER_REPORT_TYPE,
 } from './scan';
 
 /**
@@ -33,10 +35,7 @@ import {
  * by an asynchronous generator that can be iterated through - and parsed - as
  * needed.
  */
-export type CastVoteRecordReportImport = Omit<
-  CVR.CastVoteRecordReport,
-  'CVR'
-> & {
+export type CastVoteRecordReportImport = CastVoteRecordReportMetadata & {
   CVR: AsyncIteratorPlus<unknown>;
 };
 
@@ -265,4 +264,23 @@ export function convertCastVoteRecordVotesToLegacyVotes(
   }
 
   return votes;
+}
+
+/**
+ * Determines whether a cast vote record report is a test report or not. A report
+ * is a test report if `CVR.ReportType` contains `ReportType.Other` and
+ * `CVR.OtherReportType`, as a comma-separated list of strings, contains
+ * {@link TEST_OTHER_REPORT_TYPE}.
+ */
+export function isTestReport(metadata: CastVoteRecordReportMetadata): boolean {
+  const containsOtherReportType = metadata.ReportType?.some(
+    (reportType) => reportType === CVR.ReportType.Other
+  );
+  if (!containsOtherReportType) return false;
+
+  const otherReportTypeContainsTest = metadata.OtherReportType?.split(
+    ','
+  ).includes(TEST_OTHER_REPORT_TYPE);
+
+  return Boolean(otherReportTypeContainsTest);
 }

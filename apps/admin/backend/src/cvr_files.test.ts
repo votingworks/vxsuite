@@ -534,7 +534,7 @@ describe('convertCastVoteRecordToLegacyFormat', () => {
     expect(
       convertCastVoteRecordToLegacyFormat({
         cvr: validCastVoteRecord,
-        isTestReport: true,
+        isTest: true,
         batchLabel: 'Batch 1',
       })
     ).toMatchObject({
@@ -561,7 +561,7 @@ describe('convertCastVoteRecordToLegacyFormat', () => {
           ...validCastVoteRecord,
           vxBallotType: CVR.vxBallotType.Precinct,
         },
-        isTestReport: true,
+        isTest: true,
         batchLabel: 'Batch 1',
       })
     ).toMatchObject({

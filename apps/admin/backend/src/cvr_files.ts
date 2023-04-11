@@ -9,6 +9,7 @@ import {
   loadBallotImageBase64,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
   convertCastVoteRecordVotesToLegacyVotes,
+  isTestReport,
 } from '@votingworks/backend';
 import {
   assert,
@@ -360,11 +361,11 @@ function cvrBallotTypeToLegacyBallotType(
  */
 export function convertCastVoteRecordToLegacyFormat({
   cvr,
-  isTestReport,
+  isTest,
   batchLabel,
 }: {
   cvr: CVR.CVR;
-  isTestReport: boolean;
+  isTest: boolean;
   batchLabel: string;
 }): CastVoteRecord {
   const currentSnapshot = find(
@@ -380,7 +381,7 @@ export function convertCastVoteRecordToLegacyFormat({
     _ballotStyleId: cvr.BallotStyleId,
     _ballotType: cvrBallotTypeToLegacyBallotType(cvr.vxBallotType),
     _scannerId: cvr.CreatingDeviceId,
-    _testBallot: isTestReport,
+    _testBallot: isTest,
     ...convertCastVoteRecordVotesToLegacyVotes(currentSnapshot),
   };
 }
@@ -479,10 +480,9 @@ export async function addCastVoteRecordReport({
     getCastVoteRecordReportImportResult.ok();
 
   // Ensure the report matches the file mode of previous imports
-  const reportFileMode =
-    reportMetadata.OtherReportType === 'test'
-      ? Admin.CvrFileMode.Test
-      : Admin.CvrFileMode.Official;
+  const reportFileMode = isTestReport(reportMetadata)
+    ? Admin.CvrFileMode.Test
+    : Admin.CvrFileMode.Official;
   const currentFileMode = store.getCurrentCvrFileModeForElection(electionId);
   if (
     currentFileMode !== Admin.CvrFileMode.Unlocked &&
@@ -564,7 +564,7 @@ export async function addCastVoteRecordReport({
       // Convert the cast vote record to the format our store and tally logic use
       let legacyCastVoteRecord = convertCastVoteRecordToLegacyFormat({
         cvr,
-        isTestReport: reportFileMode === Admin.CvrFileMode.Test,
+        isTest: reportFileMode === Admin.CvrFileMode.Test,
         batchLabel: find(
           reportMetadata.vxBatch,
           (batch) => batch['@id'] === cvr.BatchId

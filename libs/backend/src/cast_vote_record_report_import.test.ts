@@ -9,11 +9,13 @@ import { join } from 'path';
 import {
   convertCastVoteRecordVotesToLegacyVotes,
   getCastVoteRecordReportImport,
+  isTestReport,
   validateCastVoteRecordReportDirectoryStructure,
 } from './cast_vote_record_report_import';
 import {
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
+  TEST_OTHER_REPORT_TYPE,
 } from './scan';
 
 const cdfCvrReport =
@@ -244,5 +246,43 @@ describe('convertCastVoteRecordVotesToLegacyVotes', () => {
         ],
       })
     ).toMatchObject({ mayor: ['frodo', 'gandalf'] });
+  });
+});
+
+describe('isTestReport', () => {
+  test('when test', () => {
+    expect(
+      isTestReport({
+        '@type': 'CVR.CastVoteRecordReport',
+        ReportType: [
+          CVR.ReportType.OriginatingDeviceExport,
+          CVR.ReportType.Other,
+        ],
+        OtherReportType: TEST_OTHER_REPORT_TYPE,
+        GeneratedDate: Date.now().toString(),
+        GpUnit: [],
+        Election: [],
+        ReportGeneratingDeviceIds: [],
+        ReportingDevice: [],
+        Version: CVR.CastVoteRecordVersion.v1_0_0,
+        vxBatch: [],
+      })
+    ).toBeTruthy();
+  });
+
+  test('when not test', () => {
+    expect(
+      isTestReport({
+        '@type': 'CVR.CastVoteRecordReport',
+        ReportType: [CVR.ReportType.OriginatingDeviceExport],
+        GeneratedDate: Date.now().toString(),
+        GpUnit: [],
+        Election: [],
+        ReportGeneratingDeviceIds: [],
+        ReportingDevice: [],
+        Version: CVR.CastVoteRecordVersion.v1_0_0,
+        vxBatch: [],
+      })
+    ).toBeFalsy();
   });
 });
