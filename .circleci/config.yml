@@ -6,13 +6,13 @@ orbs:
 executors:
   nodejs-browsers:
     docker:
-      - image: votingworks/cimg-debian11-browsers:2.0.2
+      - image: votingworks/cimg-debian11-browsers:2.0.3
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
   nodejs:
     docker:
-      - image: votingworks/cimg-debian11:2.0.2
+      - image: votingworks/cimg-debian11:2.0.3
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
@@ -962,11 +962,9 @@ commands:
     description: Get the code and install dependencies.
     steps:
       - run:
-          name: Ensure rust config env and path is correct
+          name: Ensure rust is in the PATH variable
           command: |
-            echo 'export PATH="/usr/local/cargo/bin:$PATH"' >> $BASH_ENV
-            echo 'export RUSTUP_HOME="/usr/local/rustup"' >> $BASH_ENV
-            echo 'export CARGO_HOME="/root/.cargo"' >> $BASH_ENV
+            echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
       - checkout
       # Edit this comment somehow in order to invalidate the CircleCI cache.
       # Since the contents of this file affect the cache key, editing only a
