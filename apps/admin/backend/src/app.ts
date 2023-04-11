@@ -567,11 +567,10 @@ function buildApi({
         throw new Error('no ballot image associated with the ballot layout');
       }
 
-      // Identify the write-in option layout. Options are laid out from the
-      // bottom up, so we reverse write-ins to get the correct bounds.
-      const writeInOptions = contestLayout.options
-        .filter((option) => option.definition?.id.startsWith('write-in'))
-        .reverse();
+      // Identify the write-in option layout
+      const writeInOptions = contestLayout.options.filter((option) =>
+        option.definition?.id.startsWith('write-in')
+      );
       const writeInOptionIndex = safeParseNumber(
         optionId.slice('write-in-'.length)
       );

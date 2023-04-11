@@ -3494,7 +3494,7 @@ test('interpret marked', async () => {
                 "y": 1495,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-10",
+              "optionId": "write-in-0",
               "score": 0.15865384615384615,
               "scoredOffset": {
                 "x": 1,
@@ -3536,7 +3536,7 @@ test('interpret marked', async () => {
                 "y": 1593,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-9",
+              "optionId": "write-in-1",
               "score": 0.2403846153846154,
               "scoredOffset": {
                 "x": 0,
@@ -3578,7 +3578,7 @@ test('interpret marked', async () => {
                 "y": 1691,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-8",
+              "optionId": "write-in-2",
               "score": 0.26346153846153847,
               "scoredOffset": {
                 "x": 0,
@@ -3620,7 +3620,7 @@ test('interpret marked', async () => {
                 "y": 1789,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-7",
+              "optionId": "write-in-3",
               "score": 0.17307692307692307,
               "scoredOffset": {
                 "x": 1,
@@ -3662,7 +3662,7 @@ test('interpret marked', async () => {
                 "y": 1887,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-6",
+              "optionId": "write-in-4",
               "score": 0.24903846153846154,
               "scoredOffset": {
                 "x": 1,
@@ -3746,7 +3746,7 @@ test('interpret marked', async () => {
                 "y": 2083,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-4",
+              "optionId": "write-in-6",
               "score": 0.2951923076923077,
               "scoredOffset": {
                 "x": -1,
@@ -3788,7 +3788,7 @@ test('interpret marked', async () => {
                 "y": 2179,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-3",
+              "optionId": "write-in-7",
               "score": 0.27692307692307694,
               "scoredOffset": {
                 "x": -1,
@@ -3830,7 +3830,7 @@ test('interpret marked', async () => {
                 "y": 2277,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-2",
+              "optionId": "write-in-8",
               "score": 0.19903846153846153,
               "scoredOffset": {
                 "x": -2,
@@ -3872,7 +3872,7 @@ test('interpret marked', async () => {
                 "y": 2375,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-1",
+              "optionId": "write-in-9",
               "score": 0.2548076923076923,
               "scoredOffset": {
                 "x": 0,
@@ -3914,7 +3914,7 @@ test('interpret marked', async () => {
                 "y": 2471,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-0",
+              "optionId": "write-in-10",
               "score": 0.2673076923076923,
               "scoredOffset": {
                 "x": -2,
@@ -4143,49 +4143,9 @@ test('interpret marked', async () => {
               ],
             },
             {
-              "id": "write-in-10",
+              "id": "write-in-0",
               "isWriteIn": true,
-              "name": "Write-In #11",
-            },
-            {
-              "id": "write-in-9",
-              "isWriteIn": true,
-              "name": "Write-In #10",
-            },
-            {
-              "id": "write-in-8",
-              "isWriteIn": true,
-              "name": "Write-In #9",
-            },
-            {
-              "id": "write-in-7",
-              "isWriteIn": true,
-              "name": "Write-In #8",
-            },
-            {
-              "id": "write-in-6",
-              "isWriteIn": true,
-              "name": "Write-In #7",
-            },
-            {
-              "id": "write-in-5",
-              "isWriteIn": true,
-              "name": "Write-In #6",
-            },
-            {
-              "id": "write-in-4",
-              "isWriteIn": true,
-              "name": "Write-In #5",
-            },
-            {
-              "id": "write-in-3",
-              "isWriteIn": true,
-              "name": "Write-In #4",
-            },
-            {
-              "id": "write-in-2",
-              "isWriteIn": true,
-              "name": "Write-In #3",
+              "name": "Write-In #1",
             },
             {
               "id": "write-in-1",
@@ -4193,9 +4153,49 @@ test('interpret marked', async () => {
               "name": "Write-In #2",
             },
             {
-              "id": "write-in-0",
+              "id": "write-in-2",
               "isWriteIn": true,
-              "name": "Write-In #1",
+              "name": "Write-In #3",
+            },
+            {
+              "id": "write-in-3",
+              "isWriteIn": true,
+              "name": "Write-In #4",
+            },
+            {
+              "id": "write-in-4",
+              "isWriteIn": true,
+              "name": "Write-In #5",
+            },
+            {
+              "id": "write-in-5",
+              "isWriteIn": true,
+              "name": "Write-In #6",
+            },
+            {
+              "id": "write-in-6",
+              "isWriteIn": true,
+              "name": "Write-In #7",
+            },
+            {
+              "id": "write-in-7",
+              "isWriteIn": true,
+              "name": "Write-In #8",
+            },
+            {
+              "id": "write-in-8",
+              "isWriteIn": true,
+              "name": "Write-In #9",
+            },
+            {
+              "id": "write-in-9",
+              "isWriteIn": true,
+              "name": "Write-In #10",
+            },
+            {
+              "id": "write-in-10",
+              "isWriteIn": true,
+              "name": "Write-In #11",
             },
           ],
           "State-Senator-391381f8": [
@@ -7464,7 +7464,7 @@ test('interpret unmarked', async () => {
           "metadata": {
             "ballotStyleId": "card-number-54",
             "ballotType": 0,
-            "electionHash": "1dc2183c9bbc782945243a3552ee1f925af26b7c19014f29c9cd1db055652020",
+            "electionHash": "90a04b4f1f33fa471b5e92971c66f03383e4e9a2d94a81c2417386298de031a0",
             "isTestMode": false,
             "locales": {
               "primary": "unknown",
@@ -9343,7 +9343,7 @@ test('interpret unmarked', async () => {
                 "y": 1509,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-10",
+              "optionId": "write-in-0",
               "score": 0,
               "scoredOffset": {
                 "x": 0,
@@ -9385,7 +9385,7 @@ test('interpret unmarked', async () => {
                 "y": 1607,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-9",
+              "optionId": "write-in-1",
               "score": 0,
               "scoredOffset": {
                 "x": 0,
@@ -9427,7 +9427,7 @@ test('interpret unmarked', async () => {
                 "y": 1705,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-8",
+              "optionId": "write-in-2",
               "score": 0,
               "scoredOffset": {
                 "x": 1,
@@ -9469,7 +9469,7 @@ test('interpret unmarked', async () => {
                 "y": 1802,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-7",
+              "optionId": "write-in-3",
               "score": 0,
               "scoredOffset": {
                 "x": 0,
@@ -9511,7 +9511,7 @@ test('interpret unmarked', async () => {
                 "y": 1901,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-6",
+              "optionId": "write-in-4",
               "score": 0,
               "scoredOffset": {
                 "x": -1,
@@ -9595,7 +9595,7 @@ test('interpret unmarked', async () => {
                 "y": 2095,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-4",
+              "optionId": "write-in-6",
               "score": 0,
               "scoredOffset": {
                 "x": -2,
@@ -9637,7 +9637,7 @@ test('interpret unmarked', async () => {
                 "y": 2192,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-3",
+              "optionId": "write-in-7",
               "score": 0,
               "scoredOffset": {
                 "x": -1,
@@ -9679,7 +9679,7 @@ test('interpret unmarked', async () => {
                 "y": 2289,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-2",
+              "optionId": "write-in-8",
               "score": 0,
               "scoredOffset": {
                 "x": -1,
@@ -9721,7 +9721,7 @@ test('interpret unmarked', async () => {
                 "y": 2386,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-1",
+              "optionId": "write-in-9",
               "score": 0,
               "scoredOffset": {
                 "x": -2,
@@ -9763,7 +9763,7 @@ test('interpret unmarked', async () => {
                 "y": 2483,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-0",
+              "optionId": "write-in-10",
               "score": 0,
               "scoredOffset": {
                 "x": -2,
@@ -9798,7 +9798,7 @@ test('interpret unmarked', async () => {
         "metadata": {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "1dc2183c9bbc782945243a3552ee1f925af26b7c19014f29c9cd1db055652020",
+          "electionHash": "90a04b4f1f33fa471b5e92971c66f03383e4e9a2d94a81c2417386298de031a0",
           "isTestMode": false,
           "locales": {
             "primary": "unknown",
@@ -10482,7 +10482,7 @@ test('interpret unmarked', async () => {
           "metadata": {
             "ballotStyleId": "card-number-54",
             "ballotType": 0,
-            "electionHash": "1dc2183c9bbc782945243a3552ee1f925af26b7c19014f29c9cd1db055652020",
+            "electionHash": "90a04b4f1f33fa471b5e92971c66f03383e4e9a2d94a81c2417386298de031a0",
             "isTestMode": false,
             "locales": {
               "primary": "unknown",
@@ -11346,7 +11346,7 @@ test('interpret unmarked', async () => {
         "metadata": {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "1dc2183c9bbc782945243a3552ee1f925af26b7c19014f29c9cd1db055652020",
+          "electionHash": "90a04b4f1f33fa471b5e92971c66f03383e4e9a2d94a81c2417386298de031a0",
           "isTestMode": false,
           "locales": {
             "primary": "unknown",
