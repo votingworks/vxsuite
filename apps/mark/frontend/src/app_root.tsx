@@ -37,6 +37,7 @@ import {
   usePrevious,
   useUsbDrive,
   UnlockMachineScreen,
+  useQueryChangeListener,
 } from '@votingworks/ui';
 
 import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
@@ -44,8 +45,10 @@ import {
   checkPin,
   endCardlessVoterSession,
   getAuthStatus,
+  getElectionDefinition,
   getMachineConfig,
   startCardlessVoterSession,
+  unconfigureMachine,
 } from './api';
 
 import { Ballot } from './components/ballot';
@@ -70,6 +73,7 @@ import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { mergeMsEitherNeitherContests } from './utils/ms_either_neither_contests';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
+import { UnconfiguredElectionScreenWrapper } from './pages/unconfingured_election_screen_wrapper';
 
 interface UserState {
   userSettings: UserSettings;
@@ -307,6 +311,7 @@ export function AppRoot({
     startCardlessVoterSession.useMutation(electionHash);
   const endCardlessVoterSessionMutation =
     endCardlessVoterSession.useMutation(electionHash);
+  const unconfigureMachineMutation = unconfigureMachine.useMutation();
 
   const precinctId = isCardlessVoterAuth(authStatus)
     ? authStatus.user.precinctId
@@ -330,6 +335,26 @@ export function AppRoot({
           })
         )
       : [];
+
+  const updateElectionDefinition = useCallback(
+    (electionDefinition: ElectionDefinition) => {
+      dispatchAppState({
+        type: 'updateElectionDefinition',
+        electionDefinition,
+      });
+    },
+    []
+  );
+
+  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  useQueryChangeListener(
+    getElectionDefinitionQuery,
+    (newElectionDefinition) => {
+      if (newElectionDefinition) {
+        updateElectionDefinition(newElectionDefinition);
+      }
+    }
+  );
 
   // Handle Storing Election Locally
   useEffect(() => {
@@ -388,9 +413,10 @@ export function AppRoot({
 
   const unconfigure = useCallback(async () => {
     await storage.clear();
+    await unconfigureMachineMutation.mutateAsync();
     dispatchAppState({ type: 'unconfigure' });
     history.push('/');
-  }, [storage, history]);
+  }, [storage, history, unconfigureMachineMutation]);
 
   const updateVote = useCallback((contestId: ContestId, vote: OptionalVote) => {
     dispatchAppState({ type: 'updateVote', contestId, vote });
@@ -473,16 +499,6 @@ export function AppRoot({
   const updateTally = useCallback(() => {
     dispatchAppState({ type: 'updateTally' });
   }, []);
-
-  const updateElectionDefinition = useCallback(
-    (electionDefinition: ElectionDefinition) => {
-      dispatchAppState({
-        type: 'updateElectionDefinition',
-        electionDefinition,
-      });
-    },
-    []
-  );
 
   const activateCardlessBallot = useCallback(
     (sessionPrecinctId: PrecinctId, sessionBallotStyleId: BallotStyleId) => {
@@ -670,8 +686,19 @@ export function AppRoot({
     );
   }
   if (isElectionManagerAuth(authStatus)) {
+    if (!optionalElectionDefinition) {
+      return (
+        <UnconfiguredElectionScreenWrapper
+          usbDriveStatus={usbDrive.status}
+          updateElectionDefinition={updateElectionDefinition}
+        />
+      );
+    }
+
+    // We prevent mismatch in {ballot package, auth} election hash at configuration time,
+    // but mismatch may still occur if the user removes the matching card and inserts another
+    // card with a mismatched election hash
     if (
-      optionalElectionDefinition &&
       authStatus.user.electionHash !== optionalElectionDefinition.electionHash
     ) {
       return (
@@ -679,6 +706,7 @@ export function AppRoot({
           <ReplaceElectionScreen
             appPrecinct={appPrecinct}
             ballotsPrintedCount={ballotsPrintedCount}
+            authElectionHash={authStatus.user.electionHash}
             electionDefinition={optionalElectionDefinition}
             machineConfig={machineConfig}
             screenReader={screenReader}
@@ -695,7 +723,6 @@ export function AppRoot({
           appPrecinct={appPrecinct}
           ballotsPrintedCount={ballotsPrintedCount}
           electionDefinition={optionalElectionDefinition}
-          updateElectionDefinition={updateElectionDefinition}
           isLiveMode={isLiveMode}
           updateAppPrecinct={updateAppPrecinct}
           toggleLiveMode={toggleLiveMode}
