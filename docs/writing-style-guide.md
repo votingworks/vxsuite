@@ -7,7 +7,7 @@ possible.
 ## General Guidance
 
 - Instill confidence in the user with short, clear, and simple phrases.
-- Increase readability by using less words where possible.
+- Increase readability by using fewer words where possible.
 - Use consistent copy to avoid confusion.
 - Use more common/generic terms to avoid election jargon.
 
