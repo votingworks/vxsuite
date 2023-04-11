@@ -178,7 +178,7 @@ test('happy path - mock election flow', async () => {
         a.contestId.localeCompare(b.contestId) ||
         a.optionId.localeCompare(b.optionId)
     )
-  ).toMatchObject(
+  ).toEqual(
     expectedWriteInRecords
       .slice()
       .sort(
