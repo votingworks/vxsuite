@@ -34,3 +34,18 @@ test('varies theme based on selected modes', () => {
     darkThemeXl.sizes.fontDefault
   );
 });
+
+test('varies sizes based on screen type', () => {
+  const elo13ScreenTheme = makeTheme({
+    colorMode: 'contrastMedium',
+    screenType: 'elo13',
+    sizeMode: 's',
+  });
+  const elo15ScreenTheme = makeTheme({
+    colorMode: 'contrastMedium',
+    screenType: 'elo15',
+    sizeMode: 's',
+  });
+
+  expect(elo13ScreenTheme.sizes).not.toEqual(elo15ScreenTheme.sizes);
+});

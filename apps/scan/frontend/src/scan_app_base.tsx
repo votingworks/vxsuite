@@ -1,16 +1,15 @@
 import React from 'react';
 
 import { AppBase } from '@votingworks/ui';
+import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 
 export interface AppBaseProps {
   children: React.ReactNode;
 }
 
-// Copied from old App.css
-const BASE_FONT_SIZE_PX = 28;
-
-// TODO: Default to high contrast and vary based on user selection.
-const DEFAULT_COLOR_MODE = 'legacy';
+const DEFAULT_COLOR_MODE: ColorMode = 'contrastMedium';
+const DEFAULT_SCREEN_TYPE: ScreenType = 'elo15';
+const DEFAULT_SIZE_MODE: SizeMode = 'm';
 
 /**
  * Installs global styles and UI themes - should be rendered at the root of the
@@ -21,7 +20,8 @@ export function ScanAppBase({ children }: AppBaseProps): JSX.Element {
     <AppBase
       colorMode={DEFAULT_COLOR_MODE}
       isTouchscreen
-      legacyBaseFontSizePx={BASE_FONT_SIZE_PX}
+      screenType={DEFAULT_SCREEN_TYPE}
+      sizeMode={DEFAULT_SIZE_MODE}
     >
       {children}
     </AppBase>
