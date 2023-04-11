@@ -131,7 +131,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
       id="contest-header"
     >
       <div
-        class="sc-fotPbf hFPARF"
+        class="sc-fotPbf iwtRsQ"
         id="audiofocus"
       >
         <h1
@@ -176,7 +176,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
             class="c5"
           >
             <div
-              class="sc-fotPbf hFPARF"
+              class="sc-fotPbf iwtRsQ"
             >
               <p
                 class="sc-bqiQRQ bIFmdQ"
@@ -211,7 +211,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
             class="sc-giYgFv hVfOtt"
           >
             <div
-              class="sc-fotPbf hFPARF"
+              class="sc-fotPbf iwtRsQ"
             >
               <p
                 aria-label=" Yes on Ballot Measure 3"
@@ -234,7 +234,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
             class="sc-giYgFv hVfOtt"
           >
             <div
-              class="sc-fotPbf hFPARF"
+              class="sc-fotPbf iwtRsQ"
             >
               <p
                 aria-label=" No on Ballot Measure 3"
@@ -430,7 +430,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
       id="contest-header"
     >
       <div
-        class="sc-fotPbf hFPARF"
+        class="sc-fotPbf iwtRsQ"
         id="audiofocus"
       >
         <h1
@@ -475,7 +475,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
             class="c5"
           >
             <div
-              class="sc-fotPbf hFPARF"
+              class="sc-fotPbf iwtRsQ"
             >
               <p
                 class="sc-bqiQRQ bIFmdQ"
@@ -510,7 +510,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
             class="sc-giYgFv hVfOtt"
           >
             <div
-              class="sc-fotPbf hFPARF"
+              class="sc-fotPbf iwtRsQ"
             >
               <p
                 aria-label="Selected, Yes on Ballot Measure 3"
@@ -533,7 +533,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
             class="sc-giYgFv hVfOtt"
           >
             <div
-              class="sc-fotPbf hFPARF"
+              class="sc-fotPbf iwtRsQ"
             >
               <p
                 aria-label=" No on Ballot Measure 3"

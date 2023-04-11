@@ -28,6 +28,10 @@ exports[`Renders Loading with defaults 1`] = `
   line-height: 1.2;
 }
 
+.c0 p {
+  font-size: 1em;
+}
+
 .c0 h1 {
   margin: 2em 0 1em;
   line-height: 1.1;

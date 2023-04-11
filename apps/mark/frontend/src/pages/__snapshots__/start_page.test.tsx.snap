@@ -123,7 +123,7 @@ exports[`renders StartPage 1`] = `
         />
       </div>
       <div
-        class="sc-fotPbf jGmaPB"
+        class="sc-fotPbf ljYHag"
       >
         <h1
           aria-label="Democratic Primary Election."
@@ -176,7 +176,7 @@ exports[`renders StartPage 1`] = `
     class="c3"
   >
     <div
-      class="sc-fotPbf jGmaPB"
+      class="sc-fotPbf ljYHag"
     >
       <p
         class="c4"
@@ -529,7 +529,7 @@ exports[`renders StartPage with inline SVG 1`] = `
         </svg>
       </div>
       <div
-        class="sc-fotPbf jGmaPB"
+        class="sc-fotPbf ljYHag"
       >
         <h1
           aria-label=" General Election."
@@ -582,7 +582,7 @@ exports[`renders StartPage with inline SVG 1`] = `
     class="c2"
   >
     <div
-      class="sc-fotPbf jGmaPB"
+      class="sc-fotPbf ljYHag"
     >
       <p
         class="c3"
@@ -771,7 +771,7 @@ exports[`renders StartPage with no seal 1`] = `
         class="c1"
       />
       <div
-        class="sc-fotPbf jGmaPB"
+        class="sc-fotPbf ljYHag"
       >
         <h1
           aria-label=" General Election."
@@ -824,7 +824,7 @@ exports[`renders StartPage with no seal 1`] = `
     class="c2"
   >
     <div
-      class="sc-fotPbf jGmaPB"
+      class="sc-fotPbf ljYHag"
     >
       <p
         class="c3"

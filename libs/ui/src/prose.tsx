@@ -32,6 +32,9 @@ const legacyStyles = css<ProseProps>`
   line-height: 1.2;
   color: ${({ themeDeprecated }) => themeDeprecated?.color};
   font-size: ${({ themeDeprecated }) => themeDeprecated?.fontSize};
+  & p {
+    font-size: 1em;
+  }
   & h1 {
     margin: 2em 0 1em;
     line-height: 1.1;
