@@ -28,6 +28,10 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
   line-height: 1.2;
 }
 
+.c2 p {
+  font-size: 1em;
+}
+
 .c2 h1 {
   margin: 2em 0 1em;
   line-height: 1.1;
@@ -107,6 +111,10 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
 .c9 {
   max-width: 66ch;
   line-height: 1.2;
+}
+
+.c9 p {
+  font-size: 1em;
 }
 
 .c9 h1 {

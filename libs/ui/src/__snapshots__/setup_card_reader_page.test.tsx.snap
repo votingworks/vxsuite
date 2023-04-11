@@ -30,6 +30,10 @@ exports[`renders SetupCardReaderPage with no useEffect trigger as expected 1`] =
   font-size: 56px;
 }
 
+.c2 p {
+  font-size: 1em;
+}
+
 .c2 h1 {
   margin: 2em 0 1em;
   line-height: 1.1;
