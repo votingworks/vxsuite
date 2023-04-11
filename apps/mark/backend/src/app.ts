@@ -13,7 +13,6 @@ import {
   ElectionDefinition,
   PrecinctId,
   SystemSettings,
-  safeParseElectionDefinition,
 } from '@votingworks/types';
 import { ScannerReportData, ScannerReportDataSchema } from '@votingworks/utils';
 
@@ -84,13 +83,22 @@ function buildApi(
       return auth.endCardlessVoterSession(constructAuthMachineState(input));
     },
 
-    getSystemSettings(): SystemSettings | undefined {
-      return workspace.store.getSystemSettings();
+    getElectionDefinition(): ElectionDefinition | null {
+      return workspace.store.getElectionDefinition() ?? null;
+    },
+
+    getSystemSettings(): SystemSettings | null {
+      return workspace.store.getSystemSettings() ?? null;
+    },
+
+    unconfigureMachine() {
+      workspace.store.setElection(undefined);
+      workspace.store.deleteSystemSettings();
     },
 
     async configureBallotPackageFromUsb(input: {
-      electionHash: string;
-    }): Promise<Result<void, BallotPackageConfigurationError>> {
+      electionHash?: string;
+    }): Promise<Result<ElectionDefinition, BallotPackageConfigurationError>> {
       const machineState = constructAuthMachineState(input);
       const authStatus = await auth.getAuthStatus(machineState);
 
@@ -111,32 +119,6 @@ function buildApi(
       assert(systemSettings);
       workspace.store.setElection(electionDefinition.electionData);
       workspace.store.setSystemSettings(systemSettings);
-      return ok();
-    },
-
-    async readElectionDefinitionFromCard(input: {
-      electionHash?: string;
-    }): Promise<Result<ElectionDefinition, Error>> {
-      const machineState = constructAuthMachineState(input);
-      const authStatus = await auth.getAuthStatus(machineState);
-      if (authStatus.status !== 'logged_in') {
-        return err(new Error('User is not logged in'));
-      }
-      if (authStatus.user.role !== 'election_manager') {
-        return err(new Error('User is not an election manager'));
-      }
-
-      const result = await auth.readCardDataAsString(machineState);
-      const electionData = result.ok();
-      const electionDefinition = electionData
-        ? safeParseElectionDefinition(electionData).ok()
-        : undefined;
-
-      if (!electionDefinition) {
-        // While we could provide more specific error messages for different error cases, the
-        // frontend doesn't need that much detail
-        return err(new Error('Unable to read election definition from card'));
-      }
       return ok(electionDefinition);
     },
 

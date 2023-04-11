@@ -5,10 +5,12 @@ import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type { Api, MachineConfig } from '@votingworks/mark-backend';
 import { QueryClientProvider } from '@tanstack/react-query';
 import {
+  BallotPackageConfigurationError,
   BallotStyleId,
   ElectionDefinition,
   InsertedSmartCardAuth,
   PrecinctId,
+  SystemSettings,
 } from '@votingworks/types';
 import {
   fakeCardlessVoterUser,
@@ -133,6 +135,16 @@ export function createApiMock() {
       });
     },
 
+    expectGetElectionDefinition(electionDefinition: ElectionDefinition | null) {
+      mockApiClient.getElectionDefinition
+        .expectCallWith()
+        .resolves(electionDefinition);
+    },
+
+    expectGetSystemSettings(systemSettings: SystemSettings | null) {
+      mockApiClient.getSystemSettings.expectCallWith().resolves(systemSettings);
+    },
+
     expectGetMachineConfig(props: Partial<MachineConfig> = {}): void {
       mockApiClient.getMachineConfig
         .expectCallWith()
@@ -141,6 +153,22 @@ export function createApiMock() {
 
     expectGetMachineConfigToError(): void {
       mockApiClient.getMachineConfig.expectCallWith().throws('unexpected_err');
+    },
+
+    expectUnconfigureMachine(): void {
+      mockApiClient.unconfigureMachine.expectCallWith().resolves();
+    },
+
+    expectConfigureBallotPackageFromUsb(
+      electionDefinition: ElectionDefinition
+    ): void {
+      const result: Result<
+        ElectionDefinition,
+        BallotPackageConfigurationError
+      > = ok(electionDefinition);
+      mockApiClient.configureBallotPackageFromUsb
+        .expectCallWith({ electionHash: undefined })
+        .resolves(result);
     },
   };
 }
