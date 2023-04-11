@@ -124,9 +124,9 @@ export interface IteratorPlus<T> extends Iterable<T> {
   /**
    * Partitions elements into two groups. Elements that satisfy `predicate` are
    * placed in the first group, and the rest are placed in the second group.
-   * Consumes the entire contained iterable.
+   * Consumes the entire contained iterable. Element order is preserved.
    */
-  partition(predicate: (item: T) => boolean): [Set<T>, Set<T>];
+  partition(predicate: (item: T) => boolean): [T[], T[]];
 
   /**
    * Yields elements in reverse order. Consumes the entire contained iterable.
@@ -437,9 +437,9 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
   /**
    * Partitions elements into two groups. Elements that satisfy `predicate` are
    * placed in the first group, and the rest are placed in the second group.
-   * Consumes the entire contained iterable.
+   * Consumes the entire contained iterable. Element order is preserved.
    */
-  partition(predicate: (item: T) => boolean): Promise<[Set<T>, Set<T>]>;
+  partition(predicate: (item: T) => boolean): Promise<[T[], T[]]>;
 
   /**
    * Yields elements in reverse order. Consumes the entire contained iterable.
