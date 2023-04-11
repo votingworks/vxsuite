@@ -20,7 +20,12 @@ import {
   unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
-import { assert, iter, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  iter,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { decode as decodeHtmlEntities } from 'he';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
@@ -636,11 +641,16 @@ export function convertElectionDefinitionHeader(
         winnerNote?.match(/Vote for not more than (\d+)/)?.[1]
       ).ok() ?? 1;
 
-    let writeInIndex = 0;
+    const [writeInElements, candidateElements] = iter(
+      Array.from(contestElement.getElementsByTagName('CandidateName'))
+    ).partition(
+      (candidateElement) =>
+        candidateElement.getElementsByTagName('WriteIn')[0]?.textContent ===
+        'True'
+    );
+
     const candidates: Candidate[] = [];
-    for (const [i, candidateElement] of Array.from(
-      contestElement.getElementsByTagName('CandidateName')
-    ).entries()) {
+    for (const [i, candidateElement] of candidateElements.entries()) {
       const candidateName =
         candidateElement.getElementsByTagName('Name')[0]?.textContent;
       if (typeof candidateName !== 'string') {
@@ -673,58 +683,72 @@ export function convertElectionDefinitionHeader(
         }
       }
 
-      const isWriteIn =
-        candidateElement?.getElementsByTagName('WriteIn')[0]?.textContent ===
-        'True';
+      const candidateId = makeId(candidateName);
+      const existingCandidateIndex = candidates.findIndex(
+        (candidate) => candidate.id === candidateId
+      );
 
-      if (!isWriteIn) {
-        const candidateId = makeId(candidateName);
-        const existingCandidateIndex = candidates.findIndex(
-          (candidate) => candidate.id === candidateId
-        );
-
-        if (existingCandidateIndex >= 0) {
-          const existingPartyIds = candidates[existingCandidateIndex]?.partyIds;
-          if (!party || !existingPartyIds) {
-            return {
-              success: false,
-              issues: [
-                {
-                  kind: ConvertIssueKind.MissingDefinitionProperty,
-                  message: `Party is missing in candidate "${candidateName}" of office "${officeName}", required for multi-party endorsement`,
-                  property: 'AVSInterface > Candidates > CandidateName > Party',
-                },
-              ],
-            };
-          }
-
-          candidates[existingCandidateIndex] = {
-            id: candidateId,
-            name: candidateName,
-            partyIds: [...existingPartyIds, party.id],
+      if (existingCandidateIndex >= 0) {
+        const existingPartyIds = candidates[existingCandidateIndex]?.partyIds;
+        if (!party || !existingPartyIds) {
+          return {
+            success: false,
+            issues: [
+              {
+                kind: ConvertIssueKind.MissingDefinitionProperty,
+                message: `Party is missing in candidate "${candidateName}" of office "${officeName}", required for multi-party endorsement`,
+                property: 'AVSInterface > Candidates > CandidateName > Party',
+              },
+            ],
           };
-        } else {
-          const candidate: Candidate = {
-            id: candidateId,
-            name: candidateName,
-            ...(party ? { partyIds: [party.id] } : {}),
-          };
-          candidates.push(candidate);
         }
 
-        optionMetadataByCandidateElement.set(candidateElement, {
-          type: 'option',
-          contestId,
-          optionId: candidateId,
-        });
+        candidates[existingCandidateIndex] = {
+          id: candidateId,
+          name: candidateName,
+          partyIds: [...existingPartyIds, party.id],
+        };
       } else {
-        optionMetadataByCandidateElement.set(candidateElement, {
-          type: 'write-in',
-          contestId,
-          writeInIndex,
-        });
-        writeInIndex += 1;
+        const candidate: Candidate = {
+          id: candidateId,
+          name: candidateName,
+          ...(party ? { partyIds: [party.id] } : {}),
+        };
+        candidates.push(candidate);
       }
+
+      optionMetadataByCandidateElement.set(candidateElement, {
+        type: 'option',
+        contestId,
+        optionId: candidateId,
+      });
+    }
+
+    // From the XML we've seen, write-ins are listed in reverse of the order
+    // they appear on the ballot. Let's make sure.
+    // eslint-disable-next-line vx/gts-identifiers
+    const writeInYCoordinates = writeInElements.map((writeInElement) =>
+      safeParseNumber(
+        writeInElement.getElementsByTagName('OY')[0]?.textContent
+      ).assertOk('Write-in element has unparseable OY')
+    );
+    assert(
+      writeInYCoordinates.every(
+        (yCoordinate, i) =>
+          i === 0 || yCoordinate < assertDefined(writeInYCoordinates[i - 1])
+      ),
+      `Write-in OY coordinates are not in reverse ballot order: ${writeInYCoordinates.join(
+        ', '
+      )}`
+    );
+    // In order to make sure the write-in options we create have grid layout
+    // coordinates in ballot order, we reverse the write-ins here.
+    for (const [i, writeInElement] of writeInElements.reverse().entries()) {
+      optionMetadataByCandidateElement.set(writeInElement, {
+        type: 'write-in',
+        contestId,
+        writeInIndex: i,
+      });
     }
 
     contests.push({
@@ -733,7 +757,7 @@ export function convertElectionDefinitionHeader(
       title: officeName,
       districtId,
       seats,
-      allowWriteIns: writeInIndex > 0,
+      allowWriteIns: writeInElements.length > 0,
       candidates,
       // TODO: party ID?
     });
