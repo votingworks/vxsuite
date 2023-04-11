@@ -146,7 +146,6 @@ export function PrintAllBallotsButton(): JSX.Element {
       printedBallot: {
         ballotStyleId,
         precinctId,
-        locales: defaultBallotLocales,
         numCopies: ballotCopies,
         ballotType: isAbsentee
           ? PrintableBallotType.Absentee

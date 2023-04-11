@@ -1405,7 +1405,7 @@ export class Store {
           ballot_mode,
           num_copies
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,

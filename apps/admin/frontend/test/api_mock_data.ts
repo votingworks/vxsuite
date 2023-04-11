@@ -15,7 +15,6 @@ export const mockCastVoteRecordFileRecord: Admin.CastVoteRecordFileRecord = {
 export const mockPrintedBallot: Admin.PrintedBallot = {
   ballotStyleId: '4',
   precinctId: '6538',
-  locales: { primary: 'en-US', secondary: undefined },
   numCopies: 1,
   ballotType: 'absentee',
   ballotMode: Admin.BallotMode.Official,
@@ -24,7 +23,6 @@ export const mockPrintedBallot: Admin.PrintedBallot = {
 export const mockPrintedBallotRecord: Admin.PrintedBallotRecord = {
   ballotStyleId: '1M',
   precinctId: 'precinct-1',
-  locales: { primary: 'en-US', secondary: undefined },
   numCopies: 1,
   ballotType: 'absentee',
   ballotMode: Admin.BallotMode.Official,

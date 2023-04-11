@@ -202,7 +202,6 @@ export function BallotScreen(): JSX.Element {
         printedBallot: {
           ballotStyleId,
           precinctId,
-          locales,
           numCopies: ballotCopies,
           ballotType,
           ballotMode,
