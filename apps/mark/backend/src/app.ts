@@ -16,12 +16,7 @@ import {
   SystemSettings,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-  ScannerReportData,
-  ScannerReportDataSchema,
-} from '@votingworks/utils';
+import { ScannerReportData, ScannerReportDataSchema } from '@votingworks/utils';
 
 import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
@@ -37,11 +32,7 @@ function constructAuthMachineState({
     // TODO: Persist election definition in store and pull from there
     electionHash,
     // TODO: Persist jurisdiction in store and pull from there
-    jurisdiction: isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS
-    )
-      ? /* istanbul ignore next */ DEV_JURISDICTION
-      : undefined,
+    jurisdiction: DEV_JURISDICTION,
   };
 }
 

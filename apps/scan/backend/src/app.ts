@@ -10,8 +10,6 @@ import {
   UnixTimestampInMilliseconds,
 } from '@votingworks/types';
 import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
   ScannerReportData,
   ScannerReportDataSchema,
   singlePrecinctSelectionFor,
@@ -53,11 +51,7 @@ function constructAuthMachineState(
   return {
     electionHash: electionDefinition?.electionHash,
     // TODO: Persist jurisdiction in store and pull from there
-    jurisdiction: isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS
-    )
-      ? /* istanbul ignore next */ DEV_JURISDICTION
-      : undefined,
+    jurisdiction: DEV_JURISDICTION,
   };
 }
 
