@@ -5,6 +5,7 @@ import { Button } from './button';
 import { Loading } from './loading';
 import { Modal } from './modal';
 import { Prose } from './prose';
+import { H2, P } from './typography';
 
 interface Props {
   unconfigureMachine: () => Promise<void>;
@@ -72,11 +73,11 @@ export function UnconfigureMachineButton({
               <Loading>Deleting election data</Loading>
             ) : (
               <Prose textCenter>
-                <h1>Delete all election data?</h1>
-                <p>
+                <H2 as="h1">Delete all election data?</H2>
+                <P>
                   This will delete the election configuration and any
                   election-specific data on this machine.
-                </p>
+                </P>
               </Prose>
             )
           }

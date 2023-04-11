@@ -1,4 +1,4 @@
-import { CenteredLargeProse, LoadingAnimation } from '@votingworks/ui';
+import { CenteredLargeProse, H1, LoadingAnimation, P } from '@votingworks/ui';
 import React from 'react';
 import { ScreenMainCenterChild } from '../components/layout';
 
@@ -7,8 +7,8 @@ export function ScanProcessingScreen(): JSX.Element {
     <ScreenMainCenterChild infoBar={false}>
       <LoadingAnimation />
       <CenteredLargeProse>
-        <h1>Please wait…</h1>
-        <p>Scanning the marks on your ballot.</p>
+        <H1>Please wait…</H1>
+        <P>Scanning the marks on your ballot.</P>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

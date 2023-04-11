@@ -1,5 +1,5 @@
 import React from 'react';
-import { CenteredLargeProse } from '@votingworks/ui';
+import { CenteredLargeProse, H1, P } from '@votingworks/ui';
 import { CircleCheck } from '../components/graphics';
 
 import { ScreenMainCenterChild } from '../components/layout';
@@ -13,8 +13,8 @@ export function ScanSuccessScreen({ scannedBallotCount }: Props): JSX.Element {
     <ScreenMainCenterChild ballotCountOverride={scannedBallotCount}>
       <CircleCheck />
       <CenteredLargeProse>
-        <h1>Your ballot was counted!</h1>
-        <p>Thank you for voting.</p>
+        <H1>Your ballot was counted!</H1>
+        <P>Thank you for voting.</P>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

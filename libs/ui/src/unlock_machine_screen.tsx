@@ -5,13 +5,14 @@ import { assert } from '@votingworks/basics';
 
 import { Screen } from './screen';
 import { Main } from './main';
-import { Text } from './text';
 import { Prose } from './prose';
 import { fontSizeTheme } from './themes';
 import { NumberPad } from './number_pad';
 import { SECURITY_PIN_LENGTH } from './globals';
 import { useNow } from './hooks/use_now';
 import { Timer } from './timer';
+import { P } from './typography';
+import { Icons } from './icons';
 
 const NumberPadWrapper = styled.div`
   display: flex;
@@ -82,19 +83,27 @@ export function UnlockMachineScreen({
     auth.lockedOutUntil && now < new Date(auth.lockedOutUntil)
   );
 
-  let primarySentence: JSX.Element = <p>Enter the card PIN to unlock.</p>;
+  let primarySentence: JSX.Element = <P>Enter the card PIN to unlock.</P>;
   if (auth.error) {
-    primarySentence = <Text error>Error checking PIN. Please try again.</Text>;
+    primarySentence = (
+      <P color="danger">
+        <Icons.Danger /> Error checking PIN. Please try again.
+      </P>
+    );
   } else if (isLockedOut) {
     assert(auth.lockedOutUntil !== undefined);
     primarySentence = (
-      <Text warning>
-        Card locked. Please try again in{' '}
+      <P color="warning">
+        <Icons.Warning /> Card locked. Please try again in{' '}
         <Timer countDownTo={new Date(auth.lockedOutUntil)} />
-      </Text>
+      </P>
     );
   } else if (auth.wrongPinEnteredAt) {
-    primarySentence = <Text warning>Incorrect PIN. Please try again.</Text>;
+    primarySentence = (
+      <P color="warning">
+        <Icons.Warning /> Incorrect PIN. Please try again.
+      </P>
+    );
   }
 
   return (

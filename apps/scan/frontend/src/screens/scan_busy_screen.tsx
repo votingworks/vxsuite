@@ -1,5 +1,5 @@
 import React from 'react';
-import { CenteredLargeProse, Text } from '@votingworks/ui';
+import { Caption, CenteredLargeProse, H1, P } from '@votingworks/ui';
 import { ExclamationTriangle } from '../components/graphics';
 import { ScreenMainCenterChild } from '../components/layout';
 
@@ -8,11 +8,9 @@ export function ScanBusyScreen(): JSX.Element {
     <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
-        <h1>Remove Your Ballot</h1>
-        <p>Another ballot is being scanned.</p>
-        <Text small italic>
-          Ask a poll worker if you need help.
-        </Text>
+        <H1>Remove Your Ballot</H1>
+        <P>Another ballot is being scanned.</P>
+        <Caption>Ask a poll worker if you need help.</Caption>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

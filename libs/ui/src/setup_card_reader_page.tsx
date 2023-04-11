@@ -3,6 +3,7 @@ import { Main } from './main';
 import { Prose } from './prose';
 import { Screen } from './screen';
 import { fontSizeTheme } from './themes';
+import { H1, P } from './typography';
 
 function doNothing() {
   // do nothing
@@ -32,8 +33,8 @@ export function SetupCardReaderPage({
           maxWidth={false}
           themeDeprecated={fontSizeTheme.large}
         >
-          <h1>Card Reader Not Detected</h1>
-          <p>{connectMessage}</p>
+          <H1>Card Reader Not Detected</H1>
+          <P>{connectMessage}</P>
         </Prose>
       </Main>
     </Screen>

@@ -4,6 +4,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { UsbDriveStatus } from './hooks/use_usb_drive';
 import { CenteredLargeProse } from './centered_large_prose';
 import { LoadingAnimation } from './loading_animation';
+import { H1, P } from './typography';
 
 export interface UnconfiguredElectionScreenProps {
   usbDriveStatus: UsbDriveStatus;
@@ -49,15 +50,15 @@ export function UnconfiguredElectionScreen({
   if (errorMessage) {
     return (
       <CenteredLargeProse>
-        <h1>{machineName} is not configured</h1>
-        <p>{errorMessage}</p>
+        <H1>{machineName} is not configured</H1>
+        <P>{errorMessage}</P>
       </CenteredLargeProse>
     );
   }
 
   return (
     <CenteredLargeProse>
-      <h1>Configuring {machineName} from USB drive…</h1>
+      <H1>Configuring {machineName} from USB drive…</H1>
       <LoadingAnimation />
     </CenteredLargeProse>
   );

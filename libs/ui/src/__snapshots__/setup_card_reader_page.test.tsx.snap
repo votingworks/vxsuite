@@ -114,8 +114,40 @@ exports[`renders SetupCardReaderPage with no useEffect trigger as expected 1`] =
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  background-color: white;
   height: 100%;
+  background-color: white;
+}
+
+.c4 {
+  font-size: 1em;
+  line-height: 1.2;
+  margin: 0;
+  font-size: 1rem;
+  margin-bottom: 0.5em;
+}
+
+.c3 {
+  font-size: 1em;
+  line-height: 1.2;
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.08;
+  margin-bottom: 0.3em;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.c3:not(:first-child) {
+  margin-top: 1.25em;
+}
+
+.c3 + h1,
+.c3 + h2,
+.c3 + h3,
+.c3 + h4,
+.c3 + h5,
+.c3 + h6 {
+  margin-top: 0 !important;
 }
 
 @media print {
@@ -145,10 +177,14 @@ exports[`renders SetupCardReaderPage with no useEffect trigger as expected 1`] =
     <div
       class="c2"
     >
-      <h1>
+      <h1
+        class="c3"
+      >
         Card Reader Not Detected
       </h1>
-      <p>
+      <p
+        class="c4"
+      >
         Please ask a poll worker to connect card reader.
       </p>
     </div>

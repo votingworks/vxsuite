@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Modal, Prose } from '@votingworks/ui';
+import { Button, H1, Modal, P, Prose } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
@@ -39,8 +39,8 @@ export function CalibrateScannerModal({
         centerContent
         content={
           <Prose textCenter>
-            <h1>Calibration not supported</h1>
-            <p>This scanner does not support calibration.</p>
+            <H1>Calibration not supported</H1>
+            <P>This scanner does not support calibration.</P>
           </Prose>
         }
         actions={<Button onPress={onCancel}>Cancel</Button>}
@@ -53,12 +53,12 @@ export function CalibrateScannerModal({
       <Modal
         content={
           <Prose>
-            <h1>Calibrate Scanner</h1>
-            <p>
+            <H1>Calibrate Scanner</H1>
+            <P>
               Insert a <strong>blank sheet of white paper</strong> to calibrate
               the scanner. The sheet will not be returned out the front of the
               scanner.
-            </p>
+            </P>
           </Prose>
         }
         actions={
@@ -89,7 +89,7 @@ export function CalibrateScannerModal({
         centerContent
         content={
           <Prose textCenter>
-            <h1>Calibration succeeded!</h1>
+            <H1>Calibration succeeded!</H1>
           </Prose>
         }
         actions={<Button onPress={onCancel}>Close</Button>}
@@ -103,8 +103,8 @@ export function CalibrateScannerModal({
         centerContent
         content={
           <Prose textCenter>
-            <h1>Calibration failed!</h1>
-            <p>There was an error while calibrating.</p>
+            <H1>Calibration failed!</H1>
+            <P>There was an error while calibrating.</P>
           </Prose>
         }
         actions={
@@ -129,7 +129,7 @@ export function CalibrateScannerModal({
       centerContent
       content={
         <Prose textCenter>
-          <h1>Calibrating…</h1>
+          <H1>Calibrating…</H1>
         </Prose>
       }
     />

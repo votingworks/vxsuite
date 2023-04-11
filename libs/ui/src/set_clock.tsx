@@ -16,6 +16,7 @@ import { Modal } from './modal';
 import { InputGroup } from './input_group';
 import { Button, ButtonProps } from './button';
 import { useNow } from './hooks/use_now';
+import { H1, P } from './typography';
 
 export const MIN_YEAR = 2020;
 export const MAX_YEAR = 2030;
@@ -112,9 +113,9 @@ export function PickDateTimeModal({
       centerContent
       content={
         <Prose textCenter>
-          <h1>{formatFullDateTimeZone(newValue)}</h1>
+          <H1>{formatFullDateTimeZone(newValue)}</H1>
           <div>
-            <p>
+            <P>
               <InputGroup as="span">
                 <Select
                   data-testid="selectYear"
@@ -178,8 +179,8 @@ export function PickDateTimeModal({
                   )}
                 </Select>
               </InputGroup>
-            </p>
-            <p>
+            </P>
+            <P>
               <InputGroup as="span">
                 <Select
                   data-testid="selectHour"
@@ -239,8 +240,8 @@ export function PickDateTimeModal({
                   ))}
                 </Select>
               </InputGroup>
-            </p>
-            <p>
+            </P>
+            <P>
               <InputGroup as="span">
                 <Select
                   data-testid="selectTimezone"
@@ -262,7 +263,7 @@ export function PickDateTimeModal({
                   ))}
                 </Select>
               </InputGroup>
-            </p>
+            </P>
           </div>
         </Prose>
       }

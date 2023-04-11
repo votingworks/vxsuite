@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import {
   Button,
+  Caption,
   CenteredLargeProse,
-  Text,
+  H1,
+  P,
   useExternalStateChangeListener,
 } from '@votingworks/ui';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
@@ -48,14 +50,12 @@ export function ReplaceBallotBagScreen({
         <React.Fragment>
           <ExclamationTriangle />
           <CenteredLargeProse>
-            <h1>Ballot Bag Full</h1>
-            <p>
+            <H1>Ballot Bag Full</H1>
+            <P>
               A poll worker must replace the full ballot bag with a new empty
               ballot bag.
-            </p>
-            <Text small italic>
-              Insert a poll worker card to continue.
-            </Text>
+            </P>
+            <Caption>Insert a poll worker card to continue.</Caption>
           </CenteredLargeProse>
         </React.Fragment>
       );
@@ -64,28 +64,24 @@ export function ReplaceBallotBagScreen({
     if (!confirmed && pollWorkerAuthenticated) {
       return (
         <CenteredLargeProse>
-          <h1>Ballot Bag Replaced?</h1>
-          <p>
+          <H1>Ballot Bag Replaced?</H1>
+          <P>
             Has the full ballot bag been replaced with a new empty ballot bag?
-          </p>
-          <p>
+          </P>
+          <P>
             <Button variant="primary" onPress={() => setConfirmed(true)}>
               Yes, New Ballot Bag is Ready
             </Button>
-          </p>
-          <Text small italic>
-            Remove card to go back.
-          </Text>
+          </P>
+          <Caption>Remove card to go back.</Caption>
         </CenteredLargeProse>
       );
     }
 
     return (
       <CenteredLargeProse>
-        <h1>Resume Voting</h1>
-        <Text small italic>
-          Remove card to resume voting.
-        </Text>
+        <H1>Resume Voting</H1>
+        <Caption>Remove card to resume voting.</Caption>
       </CenteredLargeProse>
     );
   })();

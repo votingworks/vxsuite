@@ -8,6 +8,8 @@ import {
   Modal,
   UsbControllerButton,
   UsbDrive,
+  H1,
+  P,
 } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 import { exportCastVoteRecordsToUsbDrive } from '../api';
@@ -56,8 +58,8 @@ export function ExportResultsModal({
       <Modal
         content={
           <Prose>
-            <h1>Failed to Save CVRs</h1>
-            <p>{errorMessage}</p>
+            <H1>Failed to Save CVRs</H1>
+            <P>{errorMessage}</P>
           </Prose>
         }
         onOverlayClick={onClose}
@@ -72,8 +74,8 @@ export function ExportResultsModal({
         <Modal
           content={
             <Prose>
-              <h1>USB Drive Ejected</h1>
-              <p>You may now take the USB Drive to VxAdmin for tabulation.</p>
+              <H1>USB Drive Ejected</H1>
+              <P>You may now take the USB Drive to VxAdmin for tabulation.</P>
             </Prose>
           }
           onOverlayClick={onClose}
@@ -85,11 +87,11 @@ export function ExportResultsModal({
       <Modal
         content={
           <Prose>
-            <h1>CVRs Saved to USB Drive</h1>
-            <p>
+            <H1>CVRs Saved to USB Drive</H1>
+            <P>
               You may now eject the USB drive and take it to VxAdmin for
               tabulation.
-            </p>
+            </P>
           </Prose>
         }
         onOverlayClick={onClose}
@@ -132,11 +134,11 @@ export function ExportResultsModal({
         <Modal
           content={
             <Prose textCenter>
-              <h1>No USB Drive Detected</h1>
-              <p>
+              <H1>No USB Drive Detected</H1>
+              <P>
                 Please insert a USB drive in order to save CVRs.
                 <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              </p>
+              </P>
             </Prose>
           }
           onOverlayClick={onClose}
@@ -157,12 +159,12 @@ export function ExportResultsModal({
         <Modal
           content={
             <Prose>
-              <h1>Save CVRs</h1>
+              <H1>Save CVRs</H1>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              <p>
+              <P>
                 A CVR file will automatically be saved to the default location
                 on the mounted USB drive.
-              </p>
+              </P>
             </Prose>
           }
           onOverlayClick={onClose}

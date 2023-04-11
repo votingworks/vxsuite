@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { getHardware } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { CenteredLargeProse, ErrorBoundary, Text } from '@votingworks/ui';
+import { CenteredLargeProse, ErrorBoundary, H1, P } from '@votingworks/ui';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import {
   ApiClient,
@@ -37,8 +37,8 @@ export function App({
             <React.Fragment>
               <TimesCircle />
               <CenteredLargeProse>
-                <h1>Something went wrong</h1>
-                <Text>Ask a poll worker to restart the scanner.</Text>
+                <H1>Something went wrong</H1>
+                <P>Ask a poll worker to restart the scanner.</P>
               </CenteredLargeProse>
             </React.Fragment>
           }

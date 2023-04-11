@@ -177,13 +177,13 @@ exports[`Renders ContestPage 1`] = `
 
 <div>
   <div
-    class="sc-cTApHj iSLYgx"
+    class="sc-cTApHj liRJcz"
   >
     <div
       class="c0"
     >
       <div
-        class="sc-fotPbf hvTglz"
+        class="sc-fotPbf hFPARF"
       >
         <p
           class="sc-bqiQRQ jKCqve"
@@ -209,7 +209,7 @@ exports[`Renders ContestPage 1`] = `
         id="contest-header"
       >
         <div
-          class="sc-fotPbf hvTglz"
+          class="sc-fotPbf hFPARF"
           id="audiofocus"
         >
           <h1
@@ -266,7 +266,7 @@ exports[`Renders ContestPage 1`] = `
                   class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-fotPbf hvTglz"
+                    class="sc-fotPbf hFPARF"
                   >
                     <p
                       class="sc-bqiQRQ eyxUBE"
@@ -293,7 +293,7 @@ exports[`Renders ContestPage 1`] = `
                   class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-fotPbf hvTglz"
+                    class="sc-fotPbf hFPARF"
                   >
                     <p
                       class="sc-bqiQRQ eyxUBE"
@@ -320,7 +320,7 @@ exports[`Renders ContestPage 1`] = `
                   class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-fotPbf hvTglz"
+                    class="sc-fotPbf hFPARF"
                   >
                     <p
                       class="sc-bqiQRQ eyxUBE"
@@ -347,7 +347,7 @@ exports[`Renders ContestPage 1`] = `
                   class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-fotPbf hvTglz"
+                    class="sc-fotPbf hFPARF"
                   >
                     <p
                       class="sc-bqiQRQ eyxUBE"
@@ -374,7 +374,7 @@ exports[`Renders ContestPage 1`] = `
                   class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-fotPbf hvTglz"
+                    class="sc-fotPbf hFPARF"
                   >
                     <p
                       class="sc-bqiQRQ eyxUBE"
@@ -401,7 +401,7 @@ exports[`Renders ContestPage 1`] = `
                   class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-fotPbf hvTglz"
+                    class="sc-fotPbf hFPARF"
                   >
                     <p
                       class="sc-bqiQRQ eyxUBE"
@@ -701,7 +701,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 
 <div>
   <div
-    class="sc-cTApHj dKgrkB"
+    class="sc-cTApHj fHKFDz"
   >
     <main
       class="sc-jObXwK jYtfDo"
@@ -711,7 +711,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
         id="contest-header"
       >
         <div
-          class="sc-fotPbf hvTglz"
+          class="sc-fotPbf hFPARF"
           id="audiofocus"
         >
           <h1
@@ -768,7 +768,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                   class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-fotPbf hvTglz"
+                    class="sc-fotPbf hFPARF"
                   >
                     <p
                       class="sc-bqiQRQ eyxUBE"
@@ -795,7 +795,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                   class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-fotPbf hvTglz"
+                    class="sc-fotPbf hFPARF"
                   >
                     <p
                       class="sc-bqiQRQ eyxUBE"
@@ -822,7 +822,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                   class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-fotPbf hvTglz"
+                    class="sc-fotPbf hFPARF"
                   >
                     <p
                       class="sc-bqiQRQ eyxUBE"
@@ -849,7 +849,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                   class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-fotPbf hvTglz"
+                    class="sc-fotPbf hFPARF"
                   >
                     <p
                       class="sc-bqiQRQ eyxUBE"
@@ -876,7 +876,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                   class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-fotPbf hvTglz"
+                    class="sc-fotPbf hFPARF"
                   >
                     <p
                       class="sc-bqiQRQ eyxUBE"
@@ -903,7 +903,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                   class="sc-giYgFv hVfOtt"
                 >
                   <div
-                    class="sc-fotPbf hvTglz"
+                    class="sc-fotPbf hFPARF"
                   >
                     <p
                       class="sc-bqiQRQ eyxUBE"
@@ -929,7 +929,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
         class="c8"
       >
         <div
-          class="sc-fotPbf hvTglz"
+          class="sc-fotPbf hFPARF"
         >
           <p
             class="sc-bqiQRQ boCaWT"
@@ -1012,7 +1012,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               class="c15"
             />
             <div
-              class="sc-fotPbf dfNDJL"
+              class="sc-fotPbf hPPIJd"
             >
               <h5
                 aria-label=" General Election."

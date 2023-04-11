@@ -10,6 +10,7 @@ import { RebootToBiosButton } from './reboot_to_bios_button';
 import { UnconfigureMachineButton } from './unconfigure_machine_button';
 import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
 import { UsbDriveStatus } from './hooks/use_usb_drive';
+import { P } from './typography';
 
 interface Props {
   displayRemoveCardToLeavePrompt?: boolean;
@@ -39,38 +40,38 @@ export function SystemAdministratorScreenContents({
   return (
     <Main padded centerChild>
       <Prose textCenter>
-        <p>{primaryText}</p>
+        <P>{primaryText}</P>
         {displayRemoveCardToLeavePrompt && (
-          <p>Remove the System Administrator card to leave this screen.</p>
+          <P>Remove the System Administrator card to leave this screen.</P>
         )}
         {resetPollsToPausedText && (
-          <p>
+          <P>
             <ResetPollsToPausedButton
               resetPollsToPausedText={resetPollsToPausedText}
               resetPollsToPaused={resetPollsToPaused}
               logger={logger}
             />
-          </p>
+          </P>
         )}
-        <p>
+        <P>
           <RebootFromUsbButton
             usbDriveStatus={usbDriveStatus}
             logger={logger}
           />
-        </p>
-        <p>
+        </P>
+        <P>
           <RebootToBiosButton logger={logger} />
-        </p>
-        <p>
+        </P>
+        <P>
           <UnconfigureMachineButton
             unconfigureMachine={unconfigureMachine}
             isMachineConfigured={isMachineConfigured}
           />
-        </p>
+        </P>
         {isVxDev() && (
-          <p>
+          <P>
             <Button onPress={() => window.kiosk?.quit()}>Quit</Button>
-          </p>
+          </P>
         )}
       </Prose>
     </Main>

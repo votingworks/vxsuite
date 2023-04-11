@@ -116,7 +116,14 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
 
   :focus {
     outline: ${(p) =>
-      p.isTouchscreen ? 'rgb(77, 144, 254) dashed 0.25rem;' : 'none'};
+      p.isTouchscreen
+        ? `${
+            /* istanbul ignore next: no easy way to test focus styles in jest tests - ignoring for now  */
+            p.theme.colorMode === 'legacy'
+              ? p.theme.colors.accentSecondary
+              : p.theme.colors.accentPrimary
+          } dashed ${p.theme.sizes.bordersRem.medium}rem`
+        : 'none'};
   }
 
   select:disabled {

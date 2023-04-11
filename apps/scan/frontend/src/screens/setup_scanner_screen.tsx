@@ -1,5 +1,5 @@
 import React from 'react';
-import { CenteredLargeProse, Text } from '@votingworks/ui';
+import { CenteredLargeProse, H1, P } from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 
 interface Props {
@@ -21,15 +21,13 @@ export function SetupScannerScreen({
     >
       {batteryIsCharging ? (
         <CenteredLargeProse>
-          <h1>Internal Connection Problem</h1>
-          <Text italic>Please ask a poll worker for help.</Text>
+          <H1>Internal Connection Problem</H1>
+          <P>Please ask a poll worker for help.</P>
         </CenteredLargeProse>
       ) : (
         <CenteredLargeProse>
-          <h1>No Power Detected</h1>
-          <Text italic>
-            Please ask a poll worker to plug in the power cord.
-          </Text>
+          <H1>No Power Detected</H1>
+          <P>Please ask a poll worker to plug in the power cord.</P>
         </CenteredLargeProse>
       )}
     </ScreenMainCenterChild>

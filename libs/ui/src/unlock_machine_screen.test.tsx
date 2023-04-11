@@ -109,7 +109,7 @@ test.each<{
     );
 
     screen.getByText(
-      hasTextAcrossElements('Card locked. Please try again in 01m 00s')
+      hasTextAcrossElements(/Card locked. Please try again in 01m 00s$/)
     );
     screen.getByText('- - - - - -');
 
@@ -122,7 +122,7 @@ test.each<{
       jest.advanceTimersByTime(1000);
     });
     screen.getByText(
-      hasTextAcrossElements('Card locked. Please try again in 00m 59s')
+      hasTextAcrossElements(/Card locked. Please try again in 00m 59s$/)
     );
 
     MockDate.set('2000-01-01T00:01:00Z');

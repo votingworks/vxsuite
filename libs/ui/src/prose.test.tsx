@@ -39,7 +39,9 @@ const proseContent = (
 );
 describe('renders Prose', () => {
   test('with defaults', () => {
-    const { container } = render(<Prose>{proseContent}</Prose>);
+    const { container } = render(<Prose>{proseContent}</Prose>, {
+      vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
+    });
     expect(container.firstChild).toMatchSnapshot();
   });
 
@@ -47,7 +49,10 @@ describe('renders Prose', () => {
     const { container } = render(
       <Prose compact textCenter maxWidth={false}>
         {proseContent}
-      </Prose>
+      </Prose>,
+      {
+        vxTheme: { colorMode: 'contrastLow', sizeMode: 'm' },
+      }
     );
     expect(container.firstChild).toMatchSnapshot();
   });
@@ -66,7 +71,10 @@ describe('renders Prose', () => {
         }}
       >
         {proseContent}
-      </Prose>
+      </Prose>,
+      {
+        vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
+      }
     );
     expect(container.firstChild).toMatchSnapshot();
   });

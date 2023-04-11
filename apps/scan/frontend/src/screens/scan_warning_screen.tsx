@@ -10,12 +10,14 @@ import {
 } from '@votingworks/types';
 import {
   Button,
+  Caption,
   CenteredLargeProse,
   fontSizeTheme,
+  H1,
   Modal,
   ModalWidth,
+  P,
   Prose,
-  Text,
 } from '@votingworks/ui';
 import {
   isFeatureFlagEnabled,
@@ -114,12 +116,12 @@ function OvervoteWarningScreen({
     <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
-        <h1>Too Many Votes</h1>
-        <Text>
+        <H1>Too Many Votes</H1>
+        <P>
           There are too many votes marked in the{' '}
           {pluralize('contest', contestNames.length)}:{' '}
           {toSentence(contestNames)}.
-        </Text>
+        </P>
         <ResponsiveButtonParagraph>
           <Button
             variant="primary"
@@ -137,19 +139,17 @@ function OvervoteWarningScreen({
             </React.Fragment>
           )}
         </ResponsiveButtonParagraph>
-        <Text italic small>
-          Ask a poll worker if you need help.
-        </Text>
+        <Caption>Ask a poll worker if you need help.</Caption>
       </CenteredLargeProse>
       {confirmTabulate && (
         <ConfirmModal
           content={
             <Prose textCenter>
-              <h1>Are you sure?</h1>
-              <p>
+              <H1>Are you sure?</H1>
+              <P>
                 Your votes in {pluralize('contest', contestNames.length, true)}{' '}
                 will not be counted.
-              </p>
+              </P>
             </Prose>
           }
           onConfirm={() => acceptBallotMutation.mutate()}
@@ -203,20 +203,20 @@ function UndervoteWarningScreen({
     <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
-        <h1>Review Your Ballot</h1>
+        <H1>Review Your Ballot</H1>
         {blankContestNames.length > 0 && (
-          <p>
+          <P>
             No votes detected in{' '}
             {pluralize('contest', blankContestNames.length)}:{' '}
             {toSentence(truncateContestNames(blankContestNames))}.
-          </p>
+          </P>
         )}
         {partiallyVotedContestNames.length > 0 && (
-          <p>
+          <P>
             You may vote for more candidates in the{' '}
             {pluralize('contest', partiallyVotedContestNames.length)}:{' '}
             {toSentence(truncateContestNames(partiallyVotedContestNames))}.
-          </p>
+          </P>
         )}
         <ResponsiveButtonParagraph>
           <Button
@@ -230,18 +230,18 @@ function UndervoteWarningScreen({
             Cast Ballot As Is
           </Button>
         </ResponsiveButtonParagraph>
-        <Text italic small>
+        <Caption>
           Your votes will count, even if you leave some blank.
           <br />
           Ask a poll worker if you need help.
-        </Text>
+        </Caption>
       </CenteredLargeProse>
       {confirmTabulate && (
         <ConfirmModal
           content={
             <Prose textCenter>
-              <h1>Are you sure?</h1>
-              <p>
+              <H1>Are you sure?</H1>
+              <P>
                 {blankContestNames.length > 0 && (
                   <span>
                     You did not vote in{' '}
@@ -260,10 +260,10 @@ function UndervoteWarningScreen({
                     .
                   </span>
                 )}
-              </p>
-              <Text italic small>
+              </P>
+              <Caption>
                 Your votes will count, even if you leave some blank.
-              </Text>
+              </Caption>
             </Prose>
           }
           onConfirm={() => acceptBallotMutation.mutate()}
@@ -282,8 +282,8 @@ function BlankBallotWarningScreen(): JSX.Element {
     <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
-        <h1>Review Your Ballot</h1>
-        <p>No votes were found when scanning this ballot.</p>
+        <H1>Review Your Ballot</H1>
+        <P>No votes were found when scanning this ballot.</P>
         <ResponsiveButtonParagraph>
           <Button
             variant="primary"
@@ -296,18 +296,18 @@ function BlankBallotWarningScreen(): JSX.Element {
             Cast Ballot As Is
           </Button>
         </ResponsiveButtonParagraph>
-        <Text small italic>
+        <Caption>
           Your votes will count, even if you leave some blank.
           <br />
           Ask a poll worker if you need help.
-        </Text>
+        </Caption>
       </CenteredLargeProse>
       {confirmTabulate && (
         <ConfirmModal
           content={
             <Prose textCenter>
-              <h1>Are you sure?</h1>
-              <p>No votes will be counted from this ballot.</p>
+              <H1>Are you sure?</H1>
+              <P>No votes will be counted from this ballot.</P>
             </Prose>
           }
           onConfirm={() => acceptBallotMutation.mutate()}
@@ -326,8 +326,8 @@ function OtherReasonWarningScreen(): JSX.Element {
     <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
-        <h1>Scanning Failed</h1>
-        <p>There was a problem scanning this ballot.</p>
+        <H1>Scanning Failed</H1>
+        <P>There was a problem scanning this ballot.</P>
         <ResponsiveButtonParagraph>
           <Button
             variant="primary"
@@ -340,16 +340,14 @@ function OtherReasonWarningScreen(): JSX.Element {
             Cast Ballot As Is
           </Button>
         </ResponsiveButtonParagraph>
-        <Text small italic>
-          Ask a poll worker if you need help.
-        </Text>
+        <Caption>Ask a poll worker if you need help.</Caption>
       </CenteredLargeProse>
       {confirmTabulate && (
         <ConfirmModal
           content={
             <Prose textCenter>
-              <h1>Are you sure?</h1>
-              <p>No votes will be recorded for this ballot.</p>
+              <H1>Are you sure?</H1>
+              <P>No votes will be recorded for this ballot.</P>
             </Prose>
           }
           onConfirm={() => acceptBallotMutation.mutate()}
