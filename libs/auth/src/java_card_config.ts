@@ -37,16 +37,16 @@ function shouldUseProdCerts(): boolean {
 
 function constructCardProgrammingConfig(): JavaCardConfig['cardProgrammingConfig'] {
   if (shouldUseProdCerts()) {
-    assert(process.env.CONFIG_DIRECTORY !== undefined);
     assert(process.env.VX_ADMIN_PRIVATE_KEY_PASSWORD !== undefined);
+    assert(process.env.VX_CONFIG_ROOT !== undefined);
     return {
       vxAdminCertAuthorityCertPath: path.join(
-        process.env.CONFIG_DIRECTORY,
+        process.env.VX_CONFIG_ROOT,
         'vx-admin-cert-authority-cert.pem'
       ),
       vxAdminPrivateKeyPassword: process.env.VX_ADMIN_PRIVATE_KEY_PASSWORD,
       vxAdminPrivateKeyPath: path.join(
-        process.env.CONFIG_DIRECTORY,
+        process.env.VX_CONFIG_ROOT,
         'vx-admin-private-key.pem'
       ),
     };
