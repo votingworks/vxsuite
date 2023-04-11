@@ -4,6 +4,8 @@ import {
   getZeroCompressedTally,
   expectPrint,
   fakeElectionManagerUser,
+  fakeKiosk,
+  fakeUsbDrive,
 } from '@votingworks/test-utils';
 import {
   MemoryStorage,
@@ -33,11 +35,13 @@ import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
+let kiosk = fakeKiosk();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
+  kiosk = fakeKiosk();
 });
 
 afterEach(() => {
@@ -57,6 +61,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   });
   const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);
   const reload = jest.fn();
+  apiMock.expectGetElectionDefinition(null);
   render(
     <App
       hardware={hardware}
@@ -111,11 +116,12 @@ test('MarkAndPrint end-to-end flow', async () => {
   userEvent.click(screen.getByText('6'));
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
 
-  // Configure with Election Manager Card
-  apiMock.mockApiClient.readElectionDefinitionFromCard
-    .expectCallWith({ electionHash: undefined })
-    .resolves(ok(electionDefinition));
-  userEvent.click(await screen.findByText('Load Election Definition'));
+  // Configure with USB
+  apiMock.expectConfigureBallotPackageFromUsb(electionDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
+  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+  window.kiosk = kiosk;
+  // userEvent.click(await screen.findByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
   await screen.findByText('Election Definition is loaded.');
@@ -413,6 +419,12 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Unconfigure with Election Manager Card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   await screen.findByText('Election Definition is loaded.');
+  // Remove USB
+  kiosk.getUsbDriveInfo.mockResolvedValue([]);
+
+  // Unconfigure the machine
+  apiMock.expectUnconfigureMachine();
+  apiMock.expectGetElectionDefinition(null);
   userEvent.click(screen.getByText('Unconfigure Machine'));
   await advanceTimersAndPromises();
 
@@ -425,18 +437,19 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
   await screen.findByText('Reboot from USB');
   apiMock.setAuthStatusLoggedOut();
+  apiMock.expectGetElectionDefinition(null);
   await advanceTimersAndPromises();
 
   // ---------------
 
   // Configure with Election Manager card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  apiMock.mockApiClient.readElectionDefinitionFromCard
-    .expectCallWith({ electionHash: undefined })
-    .resolves(ok(electionDefinition));
-  userEvent.click(
-    await screen.findByRole('button', { name: 'Load Election Definition' })
-  );
+
+  // Configure with ballot package from USB
+  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+  apiMock.expectConfigureBallotPackageFromUsb(electionDefinition);
+  window.kiosk = kiosk;
+
   await screen.findByText('Election Definition is loaded.');
   apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
@@ -448,6 +461,9 @@ test('MarkAndPrint end-to-end flow', async () => {
     await screen.findByRole('button', { name: 'Unconfigure Machine' })
   );
   const modal = await screen.findByRole('alertdialog');
+  kiosk.getUsbDriveInfo.mockResolvedValue([]);
+  apiMock.expectUnconfigureMachine();
+  apiMock.expectGetElectionDefinition(null);
   userEvent.click(
     within(modal).getByRole('button', {
       name: 'Yes, Delete Election Data',
@@ -460,7 +476,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
   await screen.findByText('VxMark is Not Configured');
 
-  // Verify that machine was unconfigured
+  // Verify that machine was unconfigured even after election manager reauth
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  await screen.findByText('Election Definition is not loaded.');
+  await screen.findByText('VxMark is Not Configured');
 });
