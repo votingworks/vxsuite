@@ -5,12 +5,13 @@ import { sha256 } from 'js-sha256';
 // Importing all of @votingworks/auth causes Cypress tests to fail since Cypress doesn't seem to
 // interact well with PCSC Lite card reader code
 // eslint-disable-next-line vx/no-import-workspace-subfolders
+import { DEV_JURISDICTION } from '@votingworks/auth/src/certs';
+// eslint-disable-next-line vx/no-import-workspace-subfolders
 import {
   mockCard,
   MockFileContents,
 } from '@votingworks/auth/src/mock_file_card';
 
-const JURISDICTION = 'st.jurisdiction';
 const PIN = '000000';
 
 function mockCardCypress(mockFileContents: MockFileContents): void {
@@ -26,9 +27,9 @@ function mockElectionManagerCard() {
         cardStatus: {
           status: 'ready',
           cardDetails: {
-            jurisdiction: JURISDICTION,
             user: {
               role: 'election_manager',
+              jurisdiction: DEV_JURISDICTION,
               electionHash,
             },
           },
