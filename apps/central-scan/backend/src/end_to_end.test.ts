@@ -6,6 +6,7 @@ import {
   convertCastVoteRecordVotesToLegacyVotes,
   createMockUsb,
   getCastVoteRecordReportImport,
+  isTestReport,
   MockUsb,
   validateCastVoteRecordReportDirectoryStructure,
 } from '@votingworks/backend';
@@ -168,10 +169,12 @@ test('going through the whole process works', async () => {
       await getCastVoteRecordReportImport(
         path.join(cvrReportDirectoryPath, CAST_VOTE_RECORD_REPORT_FILENAME)
       );
-    const cvrs = await castVoteRecordReportImportResult
-      .assertOk('test')
-      .CVR.map((unparsed) => unsafeParse(CVR.CVRSchema, unparsed))
-      .toArray();
+    const castVoteRecordReportImport =
+      castVoteRecordReportImportResult.assertOk('test');
+    expect(isTestReport(castVoteRecordReportImport)).toBeTruthy();
+    const cvrs = await castVoteRecordReportImport.CVR.map((unparsed) =>
+      unsafeParse(CVR.CVRSchema, unparsed)
+    ).toArray();
     expect(
       cvrs.map((cvr) =>
         convertCastVoteRecordVotesToLegacyVotes(cvr.CVRSnapshot[0])

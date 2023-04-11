@@ -3,6 +3,7 @@ import {
   convertCastVoteRecordVotesToLegacyVotes,
   createMockUsb,
   getCastVoteRecordReportImport,
+  isTestReport,
   validateCastVoteRecordReportDirectoryStructure,
 } from '@votingworks/backend';
 import { asElectionDefinition } from '@votingworks/fixtures';
@@ -210,13 +211,14 @@ test('going through the whole process works', async () => {
         join(cvrReportDirectoryPath, CAST_VOTE_RECORD_REPORT_FILENAME)
       );
     expect(castVoteRecordReportImportResult.isOk()).toBeTruthy();
-
-    const cvrs = await castVoteRecordReportImportResult
-      .assertOk('test')
-      .CVR.map((unparsed) => unsafeParse(CVR.CVRSchema, unparsed))
-      .toArray();
+    const castVoteRecordReportImport =
+      castVoteRecordReportImportResult.assertOk('test');
+    const cvrs = await castVoteRecordReportImport.CVR.map((unparsed) =>
+      unsafeParse(CVR.CVRSchema, unparsed)
+    ).toArray();
     expect(cvrs).toHaveLength(1);
     const [cvr] = cvrs;
+    expect(isTestReport(castVoteRecordReportImport)).toBeFalsy();
     expect(cvr.BallotStyleId).toEqual('12');
     expect(cvr.BallotStyleUnitId).toEqual('23');
     expect(cvr.CreatingDeviceId).toEqual('000');
