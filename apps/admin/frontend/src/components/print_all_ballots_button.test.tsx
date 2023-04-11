@@ -114,7 +114,6 @@ test('print sequence proceeds as expected', async () => {
     apiMock.expectAddPrintedBallot({
       ballotStyleId: expectedBallotStyle[1],
       precinctId: expectedBallotStyle[2],
-      locales: { primary: 'en-US' },
       numCopies: 1,
       ballotType: 'absentee',
       ballotMode: Admin.BallotMode.Official,
@@ -200,7 +199,6 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
   apiMock.expectAddPrintedBallot({
     ballotStyleId: '1M',
     precinctId: 'precinct-1',
-    locales: { primary: 'en-US' },
     numCopies: 1,
     ballotType: 'absentee',
     ballotMode: Admin.BallotMode.Official,

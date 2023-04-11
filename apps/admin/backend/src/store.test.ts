@@ -5,7 +5,6 @@ import {
   primaryElectionSampleFixtures,
 } from '@votingworks/fixtures';
 import {
-  arbitraryBallotLocale,
   arbitraryBallotStyleId,
   arbitraryPrecinctId,
 } from '@votingworks/test-utils';
@@ -1193,7 +1192,6 @@ test('printed ballots', () => {
           'standard',
           'absentee'
         ),
-        locales: arbitraryBallotLocale(),
         numCopies: fc.integer({ min: 1, max: 10 }),
       }),
       (printedBallot) => {

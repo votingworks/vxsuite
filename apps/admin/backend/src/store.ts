@@ -1401,21 +1401,17 @@ export class Store {
           election_id,
           ballot_style_id,
           precinct_id,
-          primary_locale,
-          secondary_locale,
           ballot_type,
           ballot_mode,
           num_copies
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,
       electionId,
       printedBallot.ballotStyleId,
       printedBallot.precinctId,
-      printedBallot.locales.primary,
-      printedBallot.locales.secondary ?? null,
       printedBallot.ballotType,
       printedBallot.ballotMode,
       printedBallot.numCopies
@@ -1446,8 +1442,6 @@ export class Store {
           id,
           ballot_style_id as ballotStyleId,
           precinct_id as precinctId,
-          primary_locale as primaryLocale,
-          secondary_locale as secondaryLocale,
           ballot_type as ballotType,
           ballot_mode as ballotMode,
           num_copies as numCopies,
@@ -1460,8 +1454,6 @@ export class Store {
       id: Id;
       ballotStyleId: BallotStyleId;
       precinctId: PrecinctId;
-      primaryLocale: string;
-      secondaryLocale: string | null;
       ballotType: Admin.PrintableBallotType;
       ballotMode: Admin.BallotMode;
       numCopies: number;
@@ -1473,10 +1465,6 @@ export class Store {
       electionId,
       ballotStyleId: row.ballotStyleId,
       precinctId: row.precinctId,
-      locales: {
-        primary: row.primaryLocale,
-        secondary: row.secondaryLocale ?? undefined,
-      },
       ballotType: row.ballotType,
       ballotMode: row.ballotMode,
       numCopies: row.numCopies,
