@@ -1,3 +1,4 @@
+import { assert } from '@votingworks/basics';
 import { z } from 'zod';
 import {
   ContestId,
@@ -117,4 +118,12 @@ export function mapSheet<T, U>(
   }
 
   return [front, back];
+}
+
+/**
+ * Asserts that the array is of length two and returns it typed as a sheet.
+ */
+export function asSheet<T>(array: T[]): SheetOf<T> {
+  assert(array.length === 2);
+  return array as unknown as SheetOf<T>;
 }

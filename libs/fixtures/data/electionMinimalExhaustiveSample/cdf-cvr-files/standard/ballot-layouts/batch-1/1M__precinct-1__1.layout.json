@@ -16,6 +16,7 @@
   },
   "contests": [
     {
+      "contestId": "best-animal-mammal",
       "bounds": {
         "x": 429,
         "y": 43,
@@ -110,6 +111,7 @@
       ]
     },
     {
+      "contestId": "zoo-council-mammal",
       "bounds": {
         "x": 429,
         "y": 397,

@@ -1,30 +1,21 @@
 import { Admin } from '@votingworks/api';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
+  BallotPageContestLayout,
   BallotPageLayout,
   CandidateContest,
   CastVoteRecord,
   ContestId,
   ContestOptionId,
   ElectionDefinition,
-  getBallotStyle,
-  getContests,
   InlineBallotImage,
-  Rect,
   safeParseElectionDefinition,
   safeParseJson,
   safeParseNumber,
   SystemSettings,
   SystemSettingsSchema,
 } from '@votingworks/types';
-import {
-  assert,
-  assertDefined,
-  err,
-  ok,
-  iter,
-  Optional,
-} from '@votingworks/basics';
+import { assert, assertDefined, err, ok, Optional } from '@votingworks/basics';
 import express, { Application } from 'express';
 import {
   DippedSmartCardAuthApi,
@@ -547,92 +538,61 @@ function buildApi({
         input.writeInId
       );
       assert(castVoteRecordData);
-
-      const { contestId, optionId, electionId, cvr } = castVoteRecordData;
-
-      const electionRecord = store.getElection(electionId);
-      assert(electionRecord);
-
-      const { election } = electionRecord.electionDefinition;
-
-      const ballotStyle = getBallotStyle({
-        ballotStyleId: cvr._ballotStyleId,
-        election,
-      });
+      const { contestId, optionId, cvr } = castVoteRecordData;
       if (cvr._layouts === undefined || cvr._ballotImages === undefined) {
         return []; // The CVR does not have ballot images.
       }
-      if (!ballotStyle) {
-        throw new Error('unexpected types');
-      }
-      const allContestIdsForBallotStyle = getContests({
-        ballotStyle,
-        election,
-      }).map((c) => c.id);
-      const [layouts, ballotImages] = iter(cvr._layouts)
-        .zip(cvr._ballotImages)
-        .toArray()
-        .sort(([a], [b]) => a.metadata.pageNumber - b.metadata.pageNumber)
-        .reduce<[BallotPageLayout[], InlineBallotImage[]]>(
-          ([layoutsAcc, ballotImagesAcc], [layout, ballotImage]) => [
-            [...layoutsAcc, layout],
-            [...ballotImagesAcc, ballotImage],
-          ],
-          [[], []]
-        );
-      let contestIdx = allContestIdsForBallotStyle.indexOf(contestId);
-      let currentLayoutOptionIdx = 0;
-      let currentLayout = layouts[currentLayoutOptionIdx];
-      while (currentLayout && contestIdx >= currentLayout.contests.length) {
-        // move to the next page, past the contests of the current page
-        contestIdx -= currentLayout.contests.length;
 
-        currentLayoutOptionIdx += 1;
-        currentLayout = layouts[currentLayoutOptionIdx];
-        if (!currentLayout) {
-          throw new Error('unexpected types');
+      // Identify the page layout, contest layout, and associated image.
+      let pageLayout: Optional<BallotPageLayout>;
+      let contestLayout: Optional<BallotPageContestLayout>;
+      let ballotImage: InlineBallotImage | null | undefined;
+      for (const [index, layout] of cvr._layouts.entries()) {
+        if (layout === null) continue;
+
+        const foundContestLayout = layout.contests.find(
+          (contest) => contest.contestId === contestId
+        );
+        if (foundContestLayout) {
+          pageLayout = layout;
+          contestLayout = foundContestLayout;
+          ballotImage = cvr._ballotImages[index];
+          continue;
         }
       }
-      currentLayout = layouts[currentLayoutOptionIdx];
-      if (!currentLayout) {
-        throw new Error('unexpected types');
+      if (!pageLayout || !contestLayout) {
+        throw new Error('unable to find a layout for the specified contest');
       }
-      const contestLayout =
-        layouts[currentLayoutOptionIdx]?.contests[contestIdx];
+      if (!ballotImage) {
+        throw new Error('no ballot image associated with the ballot layout');
+      }
 
-      // Options are laid out from the bottom up, so we reverse write-ins to get the correct bounds
-      const writeInOptions = contestLayout?.options
+      // Identify the write-in option layout. Options are laid out from the
+      // bottom up, so we reverse write-ins to get the correct bounds.
+      const writeInOptions = contestLayout.options
         .filter((option) => option.definition?.id.startsWith('write-in'))
         .reverse();
-
       const writeInOptionIndex = safeParseNumber(
         optionId.slice('write-in-'.length)
       );
-      if (
-        writeInOptionIndex.isErr() ||
-        writeInOptions === undefined ||
-        contestLayout === undefined
-      ) {
-        throw new Error('unexpected types');
+      if (writeInOptionIndex.isErr() || writeInOptions === undefined) {
+        throw new Error('unable to interpret layout write-in options');
       }
       const writeInLayout = writeInOptions[writeInOptionIndex.ok()];
-      const currentBallotImage = ballotImages[currentLayoutOptionIdx];
-      if (writeInLayout === undefined || currentBallotImage === undefined) {
-        throw new Error('unexpected types');
+      if (writeInLayout === undefined) {
+        throw new Error('unexpected write-in option index');
       }
-      const writeInBounds = writeInLayout.bounds;
-      const contestBounds = contestLayout.bounds;
-      const fullBallotBounds: Rect = {
-        ...currentLayout.pageSize,
-        x: 0,
-        y: 0,
-      };
+
       return [
         {
-          image: currentBallotImage.normalized,
-          ballotCoordinates: fullBallotBounds,
-          contestCoordinates: contestBounds,
-          writeInCoordinates: writeInBounds,
+          image: ballotImage.normalized,
+          ballotCoordinates: {
+            ...pageLayout.pageSize,
+            x: 0,
+            y: 0,
+          },
+          contestCoordinates: contestLayout.bounds,
+          writeInCoordinates: writeInLayout.bounds,
         },
       ];
     },
