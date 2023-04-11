@@ -108,7 +108,6 @@ test('properly scans a BMD ballot with a phantom QR code on back', async () => {
     testMode: true,
     layouts: [],
     ballotImagesPath: interpreterOutputPath,
-    useNhNext: false,
   });
 
   const interpretation = (
