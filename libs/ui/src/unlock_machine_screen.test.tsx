@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import MockDate from 'mockdate';
 import React from 'react';
 import userEvent from '@testing-library/user-event';
@@ -6,8 +7,8 @@ import {
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
-
 import { act } from '@testing-library/react-hooks';
+
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { UnlockMachineScreen } from './unlock_machine_screen';
 
@@ -99,7 +100,7 @@ test.each<{
       <UnlockMachineScreen
         auth={{
           ...checkingPinAuthStatus,
-          lockedOutUntil: new Date(new Date().getTime() + 60 * 1000),
+          lockedOutUntil: DateTime.now().plus({ seconds: 60 }).toJSDate(),
           wrongPinEnteredAt: isWrongPinEnteredAtSet ? new Date() : undefined,
         }}
         checkPin={checkPin}

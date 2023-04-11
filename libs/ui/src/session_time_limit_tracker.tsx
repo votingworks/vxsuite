@@ -1,4 +1,5 @@
 /* istanbul ignore file */
+import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import React, { useState } from 'react';
 import { useIdleTimer } from 'react-idle-timer';
@@ -84,10 +85,11 @@ function SessionTimeLimitTrackerHelper({
       setHasInactiveSessionTimeLimitBeenHit(true);
       // Have the backend log out in SECONDS_TO_WRAP_UP_AFTER_INACTIVE_SESSION_TIME_LIMIT
       updateSessionExpiry(
-        new Date(
-          new Date().getTime() +
-            SECONDS_TO_WRAP_UP_AFTER_INACTIVE_SESSION_TIME_LIMIT * 1000
-        )
+        DateTime.now()
+          .plus({
+            seconds: SECONDS_TO_WRAP_UP_AFTER_INACTIVE_SESSION_TIME_LIMIT,
+          })
+          .toJSDate()
       );
     },
     stopOnIdle: true,

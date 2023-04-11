@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import {
   CardlessVoterUser,
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
@@ -50,8 +51,7 @@ export function fakeCardlessVoterUser(
 }
 
 export function fakeSessionExpiresAt(): Date {
-  return new Date(
-    new Date().getTime() +
-      DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS * 60 * 60 * 1000
-  );
+  return DateTime.now()
+    .plus({ hours: DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS })
+    .toJSDate();
 }
