@@ -12,6 +12,7 @@ declare namespace NodeJS {
     REACT_APP_VX_SKIP_PIN_ENTRY?: string;
     REACT_APP_VX_ENABLE_JAVA_CARDS?: string;
     REACT_APP_VX_USE_MOCK_CARDS?: string;
+    REACT_APP_VX_USE_DEV_CERTS_IN_PROD?: string;
     REACT_APP_VX_CONVERTER?: string;
   }
 }

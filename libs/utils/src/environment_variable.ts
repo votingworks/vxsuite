@@ -23,6 +23,9 @@ export enum BooleanEnvironmentVariableName {
   // Use mock cards instead of a real card reader. Meant for development and integration tests.
   // Real smart cards will not work when this flag is enabled.
   USE_MOCK_CARDS = 'REACT_APP_VX_USE_MOCK_CARDS',
+  // For NH pilot: Use dev certs in prod for Java Card auth. Only relevant if ENABLE_JAVA_CARDS is
+  // also true.
+  USE_DEV_CERTS_IN_PROD = 'REACT_APP_VX_USE_DEV_CERTS_IN_PROD',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -67,6 +70,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_ENABLE_JAVA_CARDS;
     case BooleanEnvironmentVariableName.USE_MOCK_CARDS:
       return process.env.REACT_APP_VX_USE_MOCK_CARDS;
+    case BooleanEnvironmentVariableName.USE_DEV_CERTS_IN_PROD:
+      return process.env.REACT_APP_VX_USE_DEV_CERTS_IN_PROD;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
     /* istanbul ignore next compile time check */
@@ -131,6 +136,12 @@ export function getBooleanEnvVarConfig(
       return {
         name,
         allowInProduction: false,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.USE_DEV_CERTS_IN_PROD:
+      return {
+        name,
+        allowInProduction: true,
         autoEnableInDevelopment: false,
       };
     /* istanbul ignore next compile time check */
