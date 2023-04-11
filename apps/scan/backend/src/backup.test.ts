@@ -219,7 +219,7 @@ test('has all files referenced in the database', async () => {
   });
 });
 
-test('has cvrs.jsonl', async () => {
+test('has cast vote record report', async () => {
   const store = Store.memoryStore();
   store.setElection(electionDefinition.electionData);
   const result = new WritableStream();
