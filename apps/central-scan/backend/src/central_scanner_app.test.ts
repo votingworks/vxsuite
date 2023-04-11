@@ -1,4 +1,8 @@
-import { Exporter } from '@votingworks/backend';
+import {
+  MockUsb,
+  createMockUsb,
+  getCastVoteRecordReportImport,
+} from '@votingworks/backend';
 import {
   electionSampleDefinition as testElectionDefinition,
   electionFamousNames2021Fixtures,
@@ -16,9 +20,8 @@ import {
 import { Scan } from '@votingworks/api';
 import {
   BallotConfig,
-  generateElectionBasedSubfolderName,
+  CAST_VOTE_RECORD_REPORT_FILENAME,
   readBallotPackageFromBuffer,
-  SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
@@ -27,10 +30,6 @@ import request from 'supertest';
 import { dirSync } from 'tmp';
 import { v4 as uuid } from 'uuid';
 import path from 'path';
-import {
-  advanceTo as setDateMock,
-  clear as clearDateMock,
-} from 'jest-date-mock';
 import { typedAs } from '@votingworks/basics';
 import {
   buildMockDippedSmartCardAuth,
@@ -44,14 +43,9 @@ import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './central_scanner_app';
 import { getMockBallotPageLayoutsWithImages } from '../test/helpers/mock_layouts';
+import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
 
 jest.mock('./importer');
-
-const mockGetUsbDrives = jest.fn();
-const exporter = new Exporter({
-  allowedExportPatterns: ['/tmp/**'],
-  getUsbDrives: mockGetUsbDrives,
-});
 
 let app: Application;
 let auth: DippedSmartCardAuthApi;
@@ -59,11 +53,13 @@ let importer: jest.Mocked<Importer>;
 let server: Server;
 let workspace: Workspace;
 let logger: Logger;
+let mockUsb: MockUsb;
 
 beforeEach(async () => {
-  mockGetUsbDrives.mockReset();
   auth = buildMockDippedSmartCardAuth();
   importer = makeMock(Importer);
+  mockUsb = createMockUsb();
+  logger = fakeLogger();
   workspace = await createWorkspace(dirSync().name);
   workspace.store.setElection(stateOfHamilton.electionDefinition.electionData);
   workspace.store.setTestMode(false);
@@ -80,10 +76,10 @@ beforeEach(async () => {
     ballotMetadata,
     getMockBallotPageLayoutsWithImages(ballotMetadata, 2)
   );
-  logger = fakeLogger();
   app = await buildCentralScannerApp({
     auth,
-    exporter,
+    usb: mockUsb.mock,
+    allowedExportPatterns: ['/tmp/**'],
     importer,
     workspace,
     logger,
@@ -456,42 +452,22 @@ test('POST /scan/scanBatch errors', async () => {
 });
 
 test('POST /scan/export-to-usb-drive', async () => {
-  setDateMock(new Date(2018, 5, 27, 0, 0, 0));
-  importer.doExport.mockImplementation((writeStream) => {
-    writeStream.write('cvr file contents\n');
-    return Promise.resolve();
-  });
-
-  const mockUsbMountPoint = path.join(workspace.path, 'mock-usb');
-  await fs.mkdir(mockUsbMountPoint, { recursive: true });
-  mockGetUsbDrives.mockResolvedValue([
-    { deviceName: 'mock-usb', mountPoint: mockUsbMountPoint },
-  ]);
+  mockUsb.insertUsbDrive({});
 
   await request(app)
     .post('/central-scanner/scan/export-to-usb-drive')
     .set('Accept', 'application/json')
     .expect(200);
 
-  const exportDirectoryPath = path.join(
-    workspace.path,
-    'mock-usb',
-    SCANNER_RESULTS_FOLDER,
-    generateElectionBasedSubfolderName(
-      stateOfHamilton.electionDefinition.election,
-      stateOfHamilton.electionDefinition.electionHash
-    )
+  const [usbDrive] = await mockUsb.mock.getUsbDrives();
+  const cvrReportDirectoryPath = getCastVoteRecordReportPaths(usbDrive)[0];
+  expect(cvrReportDirectoryPath).toContain('machine_000__0_ballots__');
+  const castVoteRecordReportImportResult = await getCastVoteRecordReportImport(
+    path.join(cvrReportDirectoryPath, CAST_VOTE_RECORD_REPORT_FILENAME)
   );
-  await expect(
-    fs.readFile(
-      path.join(
-        exportDirectoryPath,
-        'machine_000__0_ballots__2018-06-27_00-00-00.jsonl'
-      ),
-      'utf-8'
-    )
-  ).resolves.toEqual('cvr file contents\n');
-  clearDateMock();
+  expect(
+    await castVoteRecordReportImportResult.assertOk('test').CVR.count()
+  ).toEqual(0);
 });
 
 test('POST /scan/zero error', async () => {

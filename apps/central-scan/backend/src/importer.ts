@@ -19,10 +19,7 @@ import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
 import { join } from 'path';
-import { Writable } from 'stream';
-import { pipeline } from 'stream/promises';
 import { v4 as uuid } from 'uuid';
-import { exportCastVoteRecordsAsNdJson } from './cvrs/export';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { Castability, checkSheetCastability } from './util/castability';
 import { HmpbInterpretationError } from './util/hmpb_interpretation_error';
@@ -527,22 +524,6 @@ export class Importer {
 
     await sleep(200);
     return this.waitForEndOfBatchOrScanningPause();
-  }
-
-  /**
-   * Export the current CVRs to a string.
-   */
-  async doExport(writeStream: Writable): Promise<void> {
-    const election = this.workspace.store.getElectionDefinition();
-
-    if (!election) {
-      return;
-    }
-
-    await pipeline(
-      exportCastVoteRecordsAsNdJson({ store: this.workspace.store }),
-      writeStream
-    );
   }
 
   /**

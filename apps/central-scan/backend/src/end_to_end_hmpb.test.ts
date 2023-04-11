@@ -1,11 +1,15 @@
-import { Exporter } from '@votingworks/backend';
+import {
+  MockUsb,
+  convertCastVoteRecordVotesToLegacyVotes,
+  createMockUsb,
+  getCastVoteRecordReportImport,
+  validateCastVoteRecordReportDirectoryStructure,
+} from '@votingworks/backend';
 import { asElectionDefinition } from '@votingworks/fixtures';
-import { CastVoteRecord } from '@votingworks/types';
-import { typedAs } from '@votingworks/basics';
+import { CVR, unsafeParse } from '@votingworks/types';
 import {
   BallotPackageManifest,
-  generateElectionBasedSubfolderName,
-  SCANNER_RESULTS_FOLDER,
+  CAST_VOTE_RECORD_REPORT_FILENAME,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { EventEmitter } from 'events';
@@ -14,10 +18,6 @@ import * as fs from 'fs-extra';
 import { join } from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
-import {
-  advanceTo as setDateMock,
-  clear as clearDateMock,
-} from 'jest-date-mock';
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
@@ -28,6 +28,7 @@ import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './central_scanner_app';
+import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
 
 const electionFixturesRoot = join(
   __dirname,
@@ -56,15 +57,10 @@ jest.mock('./exec', () => ({
   },
 }));
 
-const mockGetUsbDrives = jest.fn();
-const exporter = new Exporter({
-  allowedExportPatterns: ['/tmp/**'],
-  getUsbDrives: mockGetUsbDrives,
-});
-
 let auth: DippedSmartCardAuthApi;
 let workspace: Workspace;
 let scanner: MockScanner;
+let mockUsb: MockUsb;
 let importer: Importer;
 let app: Application;
 let logger: Logger;
@@ -74,10 +70,12 @@ beforeEach(async () => {
   workspace = await createWorkspace(dirSync().name);
   scanner = makeMockScanner();
   importer = new Importer({ workspace, scanner });
+  mockUsb = createMockUsb();
   logger = fakeLogger();
   app = await buildCentralScannerApp({
     auth,
-    exporter,
+    usb: mockUsb.mock,
+    allowedExportPatterns: ['/tmp/**'],
     importer,
     workspace,
     logger,
@@ -90,8 +88,6 @@ afterEach(async () => {
 });
 
 test('going through the whole process works', async () => {
-  setDateMock(new Date(2018, 5, 27, 0, 0, 0));
-
   jest.setTimeout(25000);
 
   const { election } = stateOfHamilton;
@@ -189,44 +185,46 @@ test('going through the whole process works', async () => {
   {
     const mockUsbMountPoint = join(workspace.path, 'mock-usb');
     await fs.mkdir(mockUsbMountPoint, { recursive: true });
-    mockGetUsbDrives.mockResolvedValue([
-      { deviceName: 'mock-usb', mountPoint: mockUsbMountPoint },
-    ]);
+    mockUsb.insertUsbDrive({});
 
     await request(app)
       .post('/central-scanner/scan/export-to-usb-drive')
       .set('Accept', 'application/json')
       .expect(200);
 
-    const exportFileContents = fs.readFileSync(
-      join(
-        workspace.path,
-        'mock-usb',
-        SCANNER_RESULTS_FOLDER,
-        generateElectionBasedSubfolderName(
-          election,
-          asElectionDefinition(election).electionHash
-        ),
-        'machine_000__1_ballots__2018-06-27_00-00-00.jsonl'
-      ),
-      'utf-8'
-    );
-    const cvrs: CastVoteRecord[] = exportFileContents
-      .split('\n')
-      .filter(Boolean)
-      .map((line) => JSON.parse(line));
+    const [usbDrive] = await mockUsb.mock.getUsbDrives();
+    const cvrReportDirectoryPath = getCastVoteRecordReportPaths(usbDrive)[0];
+    expect(cvrReportDirectoryPath).toContain('machine_000__1_ballot__');
 
+    // exported report directory appears valid
+    expect(
+      (
+        await validateCastVoteRecordReportDirectoryStructure(
+          cvrReportDirectoryPath
+        )
+      ).isOk()
+    ).toBeTruthy();
+
+    const castVoteRecordReportImportResult =
+      await getCastVoteRecordReportImport(
+        join(cvrReportDirectoryPath, CAST_VOTE_RECORD_REPORT_FILENAME)
+      );
+    expect(castVoteRecordReportImportResult.isOk()).toBeTruthy();
+
+    const cvrs = await castVoteRecordReportImportResult
+      .assertOk('test')
+      .CVR.map((unparsed) => unsafeParse(CVR.CVRSchema, unparsed))
+      .toArray();
     expect(cvrs).toHaveLength(1);
     const [cvr] = cvrs;
+    expect(cvr.BallotStyleId).toEqual('12');
+    expect(cvr.BallotStyleUnitId).toEqual('23');
+    expect(cvr.CreatingDeviceId).toEqual('000');
+    expect(cvr.BallotSheetId).toEqual('1');
+    expect(cvr.vxBallotType).toEqual(CVR.vxBallotType.Precinct);
     expect(
-      typedAs<CastVoteRecord>({ ...cvr, _ballotId: undefined, _batchId: '' })
+      convertCastVoteRecordVotesToLegacyVotes(cvr.CVRSnapshot[0])
     ).toMatchObject({
-      _ballotStyleId: '12',
-      _ballotType: 'standard',
-      _pageNumbers: [1, 2],
-      _precinctId: '23',
-      _scannerId: '000',
-      _testBallot: false,
       governor: ['windbeck'],
       'lieutenant-governor': ['davis'],
       president: ['barchi-hallaren'],
@@ -237,6 +235,4 @@ test('going through the whole process works', async () => {
       'state-senator-district-31': [],
     });
   }
-
-  clearDateMock();
 });

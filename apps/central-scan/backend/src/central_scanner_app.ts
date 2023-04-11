@@ -8,7 +8,7 @@ import { assert } from '@votingworks/basics';
 import {
   exportCastVoteRecordReportToUsbDrive,
   Exporter,
-  VX_MACHINE_ID,
+  Usb,
 } from '@votingworks/backend';
 import {
   BallotPageLayout,
@@ -17,27 +17,20 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
-import {
-  generateElectionBasedSubfolderName,
-  generateFilenameForScanningResults,
-  readBallotPackageFromBuffer,
-  SCANNER_RESULTS_FOLDER,
-} from '@votingworks/utils';
+import { readBallotPackageFromBuffer } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
 import multer from 'multer';
-import path from 'path';
-import { PassThrough } from 'stream';
 import { z } from 'zod';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { backupToUsbDrive } from './backup';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
-import { CVR_EXPORT_FORMAT } from './globals';
 import { DefaultMarkThresholds } from './store';
+import { SCAN_ALLOWED_EXPORT_PATTERNS } from './globals';
 
 const debug = makeDebug('scan:central-scanner');
 
@@ -45,7 +38,8 @@ type NoParams = never;
 
 export interface AppOptions {
   auth: DippedSmartCardAuthApi;
-  exporter: Exporter;
+  usb: Usb;
+  allowedExportPatterns?: string[];
   importer: Importer;
   workspace: Workspace;
   logger: Logger;
@@ -139,7 +133,8 @@ export type Api = ReturnType<typeof buildApi>;
  */
 export async function buildCentralScannerApp({
   auth,
-  exporter,
+  usb,
+  allowedExportPatterns = SCAN_ALLOWED_EXPORT_PATTERNS,
   importer,
   workspace,
   logger,
@@ -602,46 +597,8 @@ export async function buildCentralScannerApp({
       return;
     }
 
-    if (CVR_EXPORT_FORMAT === 'vxf') {
-      const filename = generateFilenameForScanningResults(
-        VX_MACHINE_ID,
-        store.getBallotsCounted(),
-        store.getTestMode(),
-        new Date()
-      );
-
-      const exportStream = new PassThrough();
-      const exportResultPromise = exporter.exportDataToUsbDrive(
-        SCANNER_RESULTS_FOLDER,
-        path.join(
-          generateElectionBasedSubfolderName(
-            electionDefinition.election,
-            electionDefinition.electionHash
-          ),
-          filename
-        ),
-        exportStream
-      );
-
-      await importer.doExport(exportStream);
-      exportStream.end();
-
-      const exportResult = await exportResultPromise;
-      if (exportResult.isErr()) {
-        response.status(500).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'export-failed',
-              message: exportResult.err().message,
-            },
-          ],
-        });
-
-        return;
-      }
-    } else {
-      const exportResult = await exportCastVoteRecordReportToUsbDrive({
+    const exportResult = await exportCastVoteRecordReportToUsbDrive(
+      {
         electionDefinition,
         isTestMode: store.getTestMode(),
         ballotsCounted: store.getBallotsCounted(),
@@ -651,21 +608,22 @@ export async function buildCentralScannerApp({
         definiteMarkThreshold:
           store.getCurrentMarkThresholds()?.definite ??
           DefaultMarkThresholds.definite,
+      },
+      usb.getUsbDrives
+    );
+
+    if (exportResult.isErr()) {
+      response.status(500).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'export-failed',
+            message: exportResult.err().message,
+          },
+        ],
       });
 
-      if (exportResult.isErr()) {
-        response.status(500).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'export-failed',
-              message: exportResult.err().message,
-            },
-          ],
-        });
-
-        return;
-      }
+      return;
     }
 
     store.setCvrsBackedUp();
@@ -803,7 +761,13 @@ export async function buildCentralScannerApp({
     Scan.BackupToUsbResponse,
     Scan.BackupToUsbRequest
   >('/central-scanner/scan/backup-to-usb-drive', async (_request, response) => {
-    const result = await backupToUsbDrive(exporter, store);
+    const result = await backupToUsbDrive(
+      new Exporter({
+        allowedExportPatterns,
+        getUsbDrives: usb.getUsbDrives,
+      }),
+      store
+    );
 
     if (result.isErr()) {
       response.status(500).json({
