@@ -1,9 +1,11 @@
+import { DEV_JURISDICTION } from '@votingworks/auth';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 
 import { createApp } from '../test/app_helpers';
 
 const { electionDefinition } = electionFamousNames2021Fixtures;
 const { electionHash } = electionDefinition;
+const jurisdiction = DEV_JURISDICTION;
 
 test('getAuthStatus', async () => {
   const { apiClient, mockAuth } = createApp();
@@ -12,6 +14,7 @@ test('getAuthStatus', async () => {
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
     electionHash,
+    jurisdiction,
   });
 });
 
@@ -22,7 +25,7 @@ test('checkPin', async () => {
   expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
   expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { electionHash },
+    { electionHash, jurisdiction },
     { pin: '123456' }
   );
 });
@@ -32,7 +35,10 @@ test('logOut', async () => {
 
   await apiClient.logOut({ electionHash });
   expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
-  expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
+  expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {
+    electionHash,
+    jurisdiction,
+  });
 });
 
 test('updateSessionExpiry', async () => {
@@ -45,7 +51,7 @@ test('updateSessionExpiry', async () => {
   expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    { electionHash },
+    { electionHash, jurisdiction },
     { sessionExpiresAt: expect.any(Number) }
   );
 });
@@ -61,7 +67,7 @@ test('startCardlessVoterSession', async () => {
   expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.startCardlessVoterSession).toHaveBeenNthCalledWith(
     1,
-    { electionHash },
+    { electionHash, jurisdiction },
     { ballotStyleId: 'b1', precinctId: 'p1' }
   );
 });
@@ -73,5 +79,6 @@ test('endCardlessVoterSession', async () => {
   expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(1, {
     electionHash,
+    jurisdiction,
   });
 });
