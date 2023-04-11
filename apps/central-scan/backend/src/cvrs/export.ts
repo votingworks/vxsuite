@@ -94,11 +94,12 @@ export async function* exportCastVoteRecords({
       includeImages && isHmpbSheet(interpretation)
         ? mapSheet(
             interpretation,
-            ({ metadata }) =>
-              store.getBallotPageLayoutForMetadata(
+            ({ metadata, layout }) =>
+              layout ??
+              (store.getBallotPageLayoutForMetadata(
                 metadata,
                 electionDefinition
-              ) as BallotPageLayout
+              ) as BallotPageLayout)
           )
         : undefined
     );
