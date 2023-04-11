@@ -28,14 +28,14 @@ exports[`Renders ElectionInfoBar with appropriate information 1`] = `
   font-weight: 400;
   line-height: 1.2;
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 0.75em;
 }
 
 .c9 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 0.75em;
 }
 
 .c12 {
@@ -44,7 +44,7 @@ exports[`Renders ElectionInfoBar with appropriate information 1`] = `
   line-height: 1.2;
   margin: 0;
   white-space: nowrap;
-  font-size: 0.75rem;
+  font-size: 0.75em;
 }
 
 .c13 {
@@ -52,7 +52,7 @@ exports[`Renders ElectionInfoBar with appropriate information 1`] = `
   line-height: 1.2;
   margin: 0;
   white-space: nowrap;
-  font-size: 0.75rem;
+  font-size: 0.75em;
 }
 
 .c5 {
