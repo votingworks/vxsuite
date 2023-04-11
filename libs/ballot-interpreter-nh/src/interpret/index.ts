@@ -51,6 +51,8 @@ export interface InterpretFileResult {
 
 /**
  * Interpret a ballot scan sheet.
+ *
+ * @deprecated Use `@votingworks/ballot-interpreter-nh-next` instead.
  */
 export async function interpret(
   electionDefinition: ElectionDefinition,

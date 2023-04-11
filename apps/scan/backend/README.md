@@ -39,16 +39,6 @@ VxScan uses the Custom A4 scanner by default. To use the Plustek VTM-300, set
 SCANNER_MODEL=plustek pnpm start
 ```
 
-### `USE_NH_NEXT`
-
-VxScan uses the `@votingworks/ballot-interpreter-nh` package by default. To use
-the faster `@votingworks/ballot-interpreter-nh-next` package, set `USE_NH_NEXT`
-to `true`:
-
-```sh
-USE_NH_NEXT=true pnpm start
-```
-
 ## Testing
 
 ```sh

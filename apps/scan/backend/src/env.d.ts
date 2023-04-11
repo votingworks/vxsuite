@@ -9,7 +9,6 @@ declare namespace NodeJS {
     readonly VX_MACHINE_ID?: string;
     readonly VX_CODE_VERSION?: string;
     readonly CVR_EXPORT_FORMAT?: 'cdf' | 'vxf';
-    readonly USE_NH_NEXT?: string;
     readonly SCANNER_MODEL?: 'custom' | 'plustek';
   }
 }
