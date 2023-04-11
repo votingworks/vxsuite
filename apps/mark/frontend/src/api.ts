@@ -18,7 +18,6 @@ import {
   BallotStyleId,
   ElectionDefinition,
   PrecinctId,
-  UnixTimestampInMilliseconds,
 } from '@votingworks/types';
 import { Result } from '@votingworks/basics';
 
@@ -144,7 +143,7 @@ export const updateSessionExpiry = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(
-      (input: { sessionExpiresAt: UnixTimestampInMilliseconds }) =>
+      (input: { sessionExpiresAt: Date }) =>
         apiClient.updateSessionExpiry({ ...input, electionHash }),
       {
         async onSuccess() {

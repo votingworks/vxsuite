@@ -21,7 +21,6 @@ import {
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
   PrecinctId,
   safeParseJson,
-  UnixTimestampInMilliseconds,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -51,7 +50,7 @@ type AuthAction =
   | { type: 'log_out' }
   | {
       type: 'update_session_expiry';
-      sessionExpiresAt: UnixTimestampInMilliseconds;
+      sessionExpiresAt: Date;
     };
 
 /**
@@ -193,7 +192,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       return {
         status: 'logged_in',
         user: this.cardlessVoterUser,
-        sessionExpiresAt: computeSessionEndTime(machineState).getTime(),
+        sessionExpiresAt: computeSessionEndTime(machineState),
       };
     }
 
@@ -233,7 +232,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
 
   async updateSessionExpiry(
     machineState: InsertedSmartCardAuthMachineState,
-    input: { sessionExpiresAt: UnixTimestampInMilliseconds }
+    input: { sessionExpiresAt: Date }
   ): Promise<void> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
     await this.updateAuthStatus(machineState, {
@@ -355,7 +354,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   ): InsertedSmartCardAuthTypes.AuthStatus {
     const currentAuthStatus: InsertedSmartCardAuthTypes.AuthStatus =
       this.authStatus.status === 'logged_in' &&
-      new Date().getTime() >= this.authStatus.sessionExpiresAt
+      new Date() >= this.authStatus.sessionExpiresAt
         ? { status: 'logged_out', reason: 'no_card' }
         : this.authStatus;
 
@@ -383,12 +382,11 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
                 const skipPinEntry = isFeatureFlagEnabled(
                   BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
                 );
-                const sessionExpiresAt =
-                  computeSessionEndTime(machineState).getTime();
+                const sessionExpiresAt = computeSessionEndTime(machineState);
                 const lockedOutUntil = computeCardLockoutEndTime(
                   machineState,
                   cardDetails.numIncorrectPinAttempts
-                )?.getTime();
+                );
                 switch (user.role) {
                   case 'system_administrator': {
                     return skipPinEntry
@@ -435,8 +433,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
         }
         switch (action.checkPinResponse.response) {
           case 'correct': {
-            const sessionExpiresAt =
-              computeSessionEndTime(machineState).getTime();
+            const sessionExpiresAt = computeSessionEndTime(machineState);
             if (currentAuthStatus.user.role === 'system_administrator') {
               return {
                 status: 'logged_in',
@@ -464,8 +461,8 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
               lockedOutUntil: computeCardLockoutEndTime(
                 machineState,
                 action.checkPinResponse.numIncorrectPinAttempts
-              )?.getTime(),
-              wrongPinEnteredAt: new Date().getTime(),
+              ),
+              wrongPinEnteredAt: new Date(),
             };
           }
           case 'error': {
@@ -555,7 +552,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     return Boolean(
       this.authStatus.status === 'checking_pin' &&
         this.authStatus.lockedOutUntil &&
-        new Date().getTime() < this.authStatus.lockedOutUntil
+        new Date() < this.authStatus.lockedOutUntil
     );
   }
 }

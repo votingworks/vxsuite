@@ -7,7 +7,6 @@ import {
   PollsState,
   PrecinctSelection,
   SinglePrecinctSelection,
-  UnixTimestampInMilliseconds,
 } from '@votingworks/types';
 import {
   ScannerReportData,
@@ -80,9 +79,7 @@ function buildApi(
       return auth.logOut(constructAuthMachineState(workspace));
     },
 
-    updateSessionExpiry(input: {
-      sessionExpiresAt: UnixTimestampInMilliseconds;
-    }) {
+    updateSessionExpiry(input: { sessionExpiresAt: Date }) {
       return auth.updateSessionExpiry(
         constructAuthMachineState(workspace),
         input

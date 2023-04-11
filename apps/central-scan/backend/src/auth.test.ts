@@ -1,5 +1,6 @@
 import getPort from 'get-port';
 import { Server } from 'http';
+import { DateTime } from 'luxon';
 import { dirSync } from 'tmp';
 import {
   buildMockDippedSmartCardAuth,
@@ -89,13 +90,13 @@ test('logOut', async () => {
 
 test('updateSessionExpiry', async () => {
   await apiClient.updateSessionExpiry({
-    sessionExpiresAt: new Date().getTime() + 60 * 1000,
+    sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
   });
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
     { electionHash, jurisdiction },
-    { sessionExpiresAt: expect.any(Number) }
+    { sessionExpiresAt: expect.any(Date) }
   );
 });
 
@@ -131,12 +132,12 @@ test('updateSessionExpiry before election definition has been configured', async
   workspace.store.setElection(undefined);
 
   await apiClient.updateSessionExpiry({
-    sessionExpiresAt: new Date().getTime() + 60 * 1000,
+    sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
   });
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
     { jurisdiction },
-    { sessionExpiresAt: expect.any(Number) }
+    { sessionExpiresAt: expect.any(Date) }
   );
 });

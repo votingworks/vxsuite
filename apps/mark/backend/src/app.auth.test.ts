@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { DEV_JURISDICTION } from '@votingworks/auth';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 
@@ -46,13 +47,13 @@ test('updateSessionExpiry', async () => {
 
   await apiClient.updateSessionExpiry({
     electionHash,
-    sessionExpiresAt: new Date().getTime() + 60 * 1000,
+    sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
   });
   expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
     { electionHash, jurisdiction },
-    { sessionExpiresAt: expect.any(Number) }
+    { sessionExpiresAt: expect.any(Date) }
   );
 });
 

@@ -5,7 +5,6 @@ import {
   InsertedSmartCardAuth,
   OverallSessionTimeLimitHours,
   PrecinctId,
-  UnixTimestampInMilliseconds,
 } from '@votingworks/types';
 
 /**
@@ -29,7 +28,7 @@ export interface InsertedSmartCardAuthApi {
   logOut(machineState: InsertedSmartCardAuthMachineState): Promise<void>;
   updateSessionExpiry(
     machineState: InsertedSmartCardAuthMachineState,
-    input: { sessionExpiresAt: UnixTimestampInMilliseconds }
+    input: { sessionExpiresAt: Date }
   ): Promise<void>;
 
   startCardlessVoterSession(

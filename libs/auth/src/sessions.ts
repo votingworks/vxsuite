@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import {
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   OverallSessionTimeLimitHours,
@@ -21,7 +22,7 @@ export function computeSessionEndTime(
     overallSessionTimeLimitHours = DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   } = sessionConfig;
 
-  return new Date(
-    sessionStartTime.getTime() + overallSessionTimeLimitHours * 60 * 60 * 1000
-  );
+  return DateTime.fromJSDate(sessionStartTime)
+    .plus({ hours: overallSessionTimeLimitHours })
+    .toJSDate();
 }

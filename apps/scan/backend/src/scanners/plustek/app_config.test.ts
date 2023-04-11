@@ -243,7 +243,7 @@ test('export CVRs to USB in deprecated VotingWorks format', async () => {
   );
 });
 
-test('setPrecinctSelection will reset polls to closed and update auth instance', async () => {
+test('setPrecinctSelection will reset polls to closed', async () => {
   await withApp({}, async ({ apiClient, mockUsb, workspace, mockAuth }) => {
     await configureApp(apiClient, mockUsb, { mockAuth });
 

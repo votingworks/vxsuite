@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { DateTime } from 'luxon';
 import { z } from 'zod';
 import { err, ok } from '@votingworks/basics';
 import {
@@ -48,12 +49,12 @@ const wrongPin = '654321';
 
 let mockCard: MockCard;
 let mockLogger: Logger;
-let mockTime: Date;
+let mockTime: DateTime;
 
 beforeEach(() => {
-  mockTime = new Date();
+  mockTime = DateTime.now();
   jest.useFakeTimers();
-  jest.setSystemTime(mockTime);
+  jest.setSystemTime(mockTime.toJSDate());
 
   mockOf(generatePin).mockImplementation(() => pin);
   mockOf(isFeatureFlagEnabled).mockImplementation(() => false);
@@ -109,7 +110,7 @@ async function logInAsElectionManager(
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
   });
   mockOf(mockLogger.log).mockClear();
 }
@@ -128,7 +129,7 @@ async function logInAsPollWorker(
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
   });
   mockOf(mockLogger.log).mockClear();
 }
@@ -281,7 +282,7 @@ test.each<{
     expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'checking_pin',
       user,
-      wrongPinEnteredAt: expect.any(Number),
+      wrongPinEnteredAt: expect.any(Date),
     });
     expect(mockLogger.log).toHaveBeenCalledTimes(1);
     expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -299,7 +300,7 @@ test.each<{
     expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'logged_in',
       user,
-      sessionExpiresAt: expect.any(Number),
+      sessionExpiresAt: expect.any(Date),
     });
     expect(mockLogger.log).toHaveBeenCalledTimes(3);
     expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -356,7 +357,7 @@ test('Login and logout using card without PIN', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(1);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -418,8 +419,8 @@ test('Card lockout', async () => {
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    lockedOutUntil: mockTime.getTime() + 30 * 1000,
-    wrongPinEnteredAt: mockTime.getTime(),
+    lockedOutUntil: mockTime.plus({ seconds: 30 }).toJSDate(),
+    wrongPinEnteredAt: mockTime.toJSDate(),
   });
 
   mockCardStatus({ status: 'no_card' });
@@ -428,8 +429,8 @@ test('Card lockout', async () => {
     reason: 'no_card',
   });
 
-  mockTime = new Date(mockTime.getTime() + 5000);
-  jest.setSystemTime(mockTime);
+  mockTime = mockTime.plus({ seconds: 5 });
+  jest.setSystemTime(mockTime.toJSDate());
 
   // Expect timer to reset when locked card is re-inserted
   mockCardStatus({
@@ -442,7 +443,7 @@ test('Card lockout', async () => {
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    lockedOutUntil: mockTime.getTime() + 30 * 1000,
+    lockedOutUntil: mockTime.plus({ seconds: 30 }).toJSDate(),
   });
 
   // Expect checkPin call to be ignored when locked out
@@ -450,11 +451,11 @@ test('Card lockout', async () => {
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    lockedOutUntil: mockTime.getTime() + 30 * 1000,
+    lockedOutUntil: mockTime.plus({ seconds: 30 }).toJSDate(),
   });
 
-  mockTime = new Date(mockTime.getTime() + 30 * 1000);
-  jest.setSystemTime(mockTime);
+  mockTime = mockTime.plus({ seconds: 30 });
+  jest.setSystemTime(mockTime.toJSDate());
 
   // Expect checkPin call to go through after lockout ends and lockout time to double with
   // subsequent incorrect PIN attempts
@@ -465,8 +466,8 @@ test('Card lockout', async () => {
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    lockedOutUntil: mockTime.getTime() + 60 * 1000,
-    wrongPinEnteredAt: mockTime.getTime(),
+    lockedOutUntil: mockTime.plus({ seconds: 60 }).toJSDate(),
+    wrongPinEnteredAt: mockTime.toJSDate(),
   });
 });
 
@@ -487,11 +488,11 @@ test('Session expiry', async () => {
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
-    sessionExpiresAt: mockTime.getTime() + 2 * 60 * 60 * 1000,
+    sessionExpiresAt: mockTime.plus({ hours: 2 }).toJSDate(),
   });
 
-  mockTime = new Date(mockTime.getTime() + 2 * 60 * 60 * 1000);
-  jest.setSystemTime(mockTime);
+  mockTime = mockTime.plus({ hours: 2 });
+  jest.setSystemTime(mockTime.toJSDate());
 
   // Because the card is still inserted, we'll automatically transition back to the PIN checking
   // state after session expiry
@@ -513,16 +514,16 @@ test('Updating session expiry', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
-    sessionExpiresAt: mockTime.getTime() + 12 * 60 * 60 * 1000,
+    sessionExpiresAt: mockTime.plus({ hours: 12 }).toJSDate(),
   });
 
   await auth.updateSessionExpiry(defaultMachineState, {
-    sessionExpiresAt: mockTime.getTime() + 60 * 1000,
+    sessionExpiresAt: mockTime.plus({ seconds: 60 }).toJSDate(),
   });
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
-    sessionExpiresAt: mockTime.getTime() + 60 * 1000,
+    sessionExpiresAt: mockTime.plus({ seconds: 60 }).toJSDate(),
   });
 });
 
@@ -794,7 +795,7 @@ test('Cardless voter sessions - ending preemptively', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
     cardlessVoterUser,
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(1);
@@ -813,7 +814,7 @@ test('Cardless voter sessions - ending preemptively', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(2);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -844,7 +845,7 @@ test('Cardless voter sessions - end-to-end', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
     cardlessVoterUser,
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(1);
@@ -863,7 +864,7 @@ test('Cardless voter sessions - end-to-end', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: cardlessVoterUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(2);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -887,7 +888,7 @@ test('Cardless voter sessions - end-to-end', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
     cardlessVoterUser,
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(3);
@@ -906,7 +907,7 @@ test('Cardless voter sessions - end-to-end', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: cardlessVoterUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(4);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -1049,7 +1050,7 @@ test('Checking PIN error handling', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    wrongPinEnteredAt: expect.any(Number),
+    wrongPinEnteredAt: expect.any(Date),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(2);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -1069,7 +1070,7 @@ test('Checking PIN error handling', async () => {
     status: 'checking_pin',
     user: electionManagerUser,
     error: true,
-    wrongPinEnteredAt: expect.any(Number),
+    wrongPinEnteredAt: expect.any(Date),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(3);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -1087,7 +1088,7 @@ test('Checking PIN error handling', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
   });
 });
 
@@ -1137,7 +1138,7 @@ test('Attempting to update session expiry when not logged in', async () => {
   });
 
   await auth.updateSessionExpiry(defaultMachineState, {
-    sessionExpiresAt: new Date().getTime(),
+    sessionExpiresAt: new Date(),
   });
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_out',
@@ -1184,7 +1185,7 @@ test('Attempting to start a cardless voter session when not a poll worker', asyn
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: electionManagerUser,
-    sessionExpiresAt: expect.any(Number),
+    sessionExpiresAt: expect.any(Date),
   });
 });
 
@@ -1324,7 +1325,7 @@ test.each<{
     expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'logged_in',
       user,
-      sessionExpiresAt: expect.any(Number),
+      sessionExpiresAt: expect.any(Date),
     });
   }
 );

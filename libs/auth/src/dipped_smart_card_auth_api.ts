@@ -5,7 +5,6 @@ import {
   OverallSessionTimeLimitHours,
   PollWorkerUser,
   SystemAdministratorUser,
-  UnixTimestampInMilliseconds,
 } from '@votingworks/types';
 
 /**
@@ -24,7 +23,7 @@ export interface DippedSmartCardAuthApi {
   logOut(machineState: DippedSmartCardAuthMachineState): Promise<void>;
   updateSessionExpiry(
     machineState: DippedSmartCardAuthMachineState,
-    input: { sessionExpiresAt: UnixTimestampInMilliseconds }
+    input: { sessionExpiresAt: Date }
   ): Promise<void>;
 
   programCard(

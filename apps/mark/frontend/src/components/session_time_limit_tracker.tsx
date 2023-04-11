@@ -1,5 +1,4 @@
 import React from 'react';
-import { UnixTimestampInMilliseconds } from '@votingworks/types';
 import { SessionTimeLimitTracker as SessionTimeLimitTrackerBase } from '@votingworks/ui';
 
 import { getAuthStatus, logOut, updateSessionExpiry } from '../api';
@@ -19,9 +18,8 @@ export function SessionTimeLimitTracker({ electionHash }: Props): JSX.Element {
       authStatus={authStatusQuery.data}
       logOut={/* istanbul ignore next */ () => logOutMutation.mutate()}
       updateSessionExpiry={
-        /* istanbul ignore next */ (
-          sessionExpiresAt: UnixTimestampInMilliseconds
-        ) => updateSessionExpiryMutation.mutate({ sessionExpiresAt })
+        /* istanbul ignore next */ (sessionExpiresAt: Date) =>
+          updateSessionExpiryMutation.mutate({ sessionExpiresAt })
       }
     />
   );

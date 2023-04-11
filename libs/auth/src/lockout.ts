@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { Optional } from '@votingworks/basics';
 
 const DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT = 5;
@@ -54,8 +55,8 @@ export function computeCardLockoutEndTime(
     startingCardLockoutDurationSeconds *
     2 ** numIncorrectPinAttemptsPostCardLockout;
 
-  const cardLockoutEndTime = new Date(
-    cardLockoutStartTime.getTime() + cardLockoutDurationSeconds * 1000
-  );
+  const cardLockoutEndTime = DateTime.fromJSDate(cardLockoutStartTime)
+    .plus({ seconds: cardLockoutDurationSeconds })
+    .toJSDate();
   return cardLockoutEndTime;
 }

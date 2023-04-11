@@ -230,7 +230,7 @@ test('configureBallotPackageFromUsb reads to and writes from store', async () =>
     Promise.resolve({
       status: 'logged_in',
       user: fakeElectionManagerUser(electionDefinition),
-      sessionExpiresAt: new Date().getTime() + 60 * 1000,
+      sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
 

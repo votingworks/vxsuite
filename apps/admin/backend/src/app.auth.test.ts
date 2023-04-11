@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { DEV_JURISDICTION } from '@votingworks/auth';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 
@@ -52,13 +53,13 @@ test('updateSessionExpiry', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
 
   await apiClient.updateSessionExpiry({
-    sessionExpiresAt: new Date().getTime() + 60 * 1000,
+    sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
   });
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
     { electionHash, jurisdiction },
-    { sessionExpiresAt: expect.any(Number) }
+    { sessionExpiresAt: expect.any(Date) }
   );
 });
 
@@ -127,12 +128,12 @@ test('updateSessionExpiry before election definition has been configured', async
   const { apiClient, auth } = buildTestEnvironment();
 
   await apiClient.updateSessionExpiry({
-    sessionExpiresAt: new Date().getTime() + 60 * 1000,
+    sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
   });
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
     { jurisdiction },
-    { sessionExpiresAt: expect.any(Number) }
+    { sessionExpiresAt: expect.any(Date) }
   );
 });

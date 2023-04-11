@@ -1,4 +1,7 @@
-import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
+import {
+  DEV_JURISDICTION,
+  buildMockDippedSmartCardAuth,
+} from '@votingworks/auth';
 import { Exporter } from '@votingworks/backend';
 import {
   asElectionDefinition,
@@ -20,6 +23,7 @@ import {
   clear as clearDateMock,
 } from 'jest-date-mock';
 import { fakeLogger, Logger } from '@votingworks/logging';
+import { fakeSessionExpiresAt } from '@votingworks/test-utils';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { buildCentralScannerApp } from './central_scanner_app';
 import { Importer } from './importer';
@@ -63,6 +67,8 @@ afterEach(async () => {
   await fsExtra.remove(workspace.path);
 });
 
+const jurisdiction = DEV_JURISDICTION;
+
 test('going through the whole process works', async () => {
   const now = new Date(2018, 5, 27, 0, 0, 0);
 
@@ -70,12 +76,10 @@ test('going through the whole process works', async () => {
     status: 'logged_in',
     user: {
       role: 'election_manager',
+      jurisdiction,
       electionHash: 'abc',
     },
-    programmableCard: {
-      status: 'ready',
-    },
-    sessionExpiresAt: now.valueOf() + 1000,
+    sessionExpiresAt: fakeSessionExpiresAt(),
   });
   setDateMock(now);
 

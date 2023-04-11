@@ -13,7 +13,6 @@ import {
 import {
   BallotPageLayout,
   BallotPageLayoutSchema,
-  UnixTimestampInMilliseconds,
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
@@ -88,9 +87,7 @@ function buildApi({
       return auth.logOut(constructAuthMachineState(workspace));
     },
 
-    updateSessionExpiry(input: {
-      sessionExpiresAt: UnixTimestampInMilliseconds;
-    }) {
+    updateSessionExpiry(input: { sessionExpiresAt: Date }) {
       return auth.updateSessionExpiry(
         constructAuthMachineState(workspace),
         input

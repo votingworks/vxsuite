@@ -43,11 +43,6 @@ export const UserRoleSchema: z.ZodSchema<UserRole> = z.union([
 ]);
 
 /**
- * An alias for clarity
- */
-export type UnixTimestampInMilliseconds = number;
-
-/**
  * The inactive/idle session time limit, after which the user must reauthenticate - a VVSG2
  * requirement
  */

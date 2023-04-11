@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import MockDate from 'mockdate';
 import React from 'react';
 import userEvent from '@testing-library/user-event';
@@ -6,8 +7,8 @@ import {
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
-
 import { act } from '@testing-library/react-hooks';
+
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { UnlockMachineScreen } from './unlock_machine_screen';
 
@@ -67,7 +68,7 @@ test('Incorrect PIN', () => {
     <UnlockMachineScreen
       auth={{
         ...checkingPinAuthStatus,
-        wrongPinEnteredAt: new Date().getTime(),
+        wrongPinEnteredAt: new Date(),
       }}
       checkPin={checkPin}
     />
@@ -99,10 +100,8 @@ test.each<{
       <UnlockMachineScreen
         auth={{
           ...checkingPinAuthStatus,
-          lockedOutUntil: new Date().getTime() + 60 * 1000,
-          wrongPinEnteredAt: isWrongPinEnteredAtSet
-            ? new Date().getTime()
-            : undefined,
+          lockedOutUntil: DateTime.now().plus({ seconds: 60 }).toJSDate(),
+          wrongPinEnteredAt: isWrongPinEnteredAtSet ? new Date() : undefined,
         }}
         checkPin={checkPin}
       />
@@ -140,7 +139,7 @@ test('Error checking PIN', () => {
       auth={{
         ...checkingPinAuthStatus,
         error: true,
-        wrongPinEnteredAt: new Date().getTime(),
+        wrongPinEnteredAt: new Date(),
       }}
       checkPin={checkPin}
     />

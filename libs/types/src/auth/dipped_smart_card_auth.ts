@@ -1,7 +1,6 @@
 import {
   ElectionManagerUser,
   SystemAdministratorUser,
-  UnixTimestampInMilliseconds,
   UserRole,
   UserWithCard,
 } from './auth';
@@ -22,14 +21,14 @@ export interface CheckingPin {
   readonly status: 'checking_pin';
   readonly user: SystemAdministratorUser | ElectionManagerUser;
   readonly error?: true;
-  readonly lockedOutUntil?: UnixTimestampInMilliseconds;
-  readonly wrongPinEnteredAt?: UnixTimestampInMilliseconds;
+  readonly lockedOutUntil?: Date;
+  readonly wrongPinEnteredAt?: Date;
 }
 
 export interface RemoveCard {
   readonly status: 'remove_card';
   readonly user: SystemAdministratorUser | ElectionManagerUser;
-  readonly sessionExpiresAt: UnixTimestampInMilliseconds;
+  readonly sessionExpiresAt: Date;
 }
 
 interface ProgrammableCardReady {
@@ -46,14 +45,14 @@ export type ProgrammableCard = ProgrammableCardReady | ProgrammableCardNotReady;
 export interface SystemAdministratorLoggedIn {
   readonly status: 'logged_in';
   readonly user: SystemAdministratorUser;
-  readonly sessionExpiresAt: UnixTimestampInMilliseconds;
+  readonly sessionExpiresAt: Date;
   readonly programmableCard: ProgrammableCard;
 }
 
 export interface ElectionManagerLoggedIn {
   readonly status: 'logged_in';
   readonly user: ElectionManagerUser;
-  readonly sessionExpiresAt: UnixTimestampInMilliseconds;
+  readonly sessionExpiresAt: Date;
 }
 
 export type LoggedIn = SystemAdministratorLoggedIn | ElectionManagerLoggedIn;
