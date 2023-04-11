@@ -30,9 +30,9 @@ fn build_option_layout(
     // Option bounding box parameters
     // TODO make these configurable in the election definition
     let column_offset: i32 = -9;
-    let row_offset: i32 = -1;
+    let row_offset: i32 = 0;
     let width: GridUnit = 10;
-    let height: GridUnit = 2;
+    let height: GridUnit = 1;
 
     let clamp_row = |row: i32| -> GridUnit {
         return row.max(0).min(grid.geometry.grid_size.height as i32 - 1) as GridUnit;
@@ -95,11 +95,17 @@ pub fn build_interpreted_page_layout(
                 .map(|grid_position| build_option_layout(grid, grid_position))
                 .collect::<Option<Vec<_>>>()?;
 
+            // Use the union of the option bounds as an approximation of the contest bounds
+            let bounds = options
+                .iter()
+                .map(|option| option.bounds)
+                .reduce(|a, b| a.union(&b))
+                .expect("Contest must have options");
+
             Some(InterpretedContestLayout {
                 contest_id: (*contest_id).clone(),
-                // TODO compute contest bounds from union of option bounds
-                bounds: Rect::new(0, 0, 0, 0),
-                options: options,
+                bounds,
+                options,
             })
         })
         .collect::<Option<Vec<_>>>()
