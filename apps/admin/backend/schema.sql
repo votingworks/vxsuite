@@ -70,8 +70,6 @@ create table printed_ballots (
   election_id varchar(36) not null,
   ballot_style_id text not null,
   precinct_id text not null,
-  primary_locale text not null,
-  secondary_locale text,
   ballot_type text not null,
   ballot_mode text not null,
   num_copies integer not null,

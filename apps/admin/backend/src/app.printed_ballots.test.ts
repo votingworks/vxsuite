@@ -20,7 +20,6 @@ test('printed ballots', async () => {
   const mockPrintedBallot: Admin.PrintedBallot = {
     ballotStyleId: '12',
     precinctId: '23',
-    locales: { primary: 'en-US' },
     ballotMode: Admin.BallotMode.Official,
     ballotType: 'standard',
     numCopies: 4,

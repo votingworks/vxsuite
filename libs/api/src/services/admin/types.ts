@@ -1,6 +1,4 @@
 import {
-  BallotLocale,
-  BallotLocaleSchema,
   BallotStyleId,
   BallotStyleIdSchema,
   CastVoteRecord,
@@ -577,10 +575,6 @@ export const BallotModeSchema = z.nativeEnum(BallotMode);
 export interface PrintedBallot {
   readonly ballotStyleId: BallotStyleId;
   readonly precinctId: PrecinctId;
-  /**
-   * @deprecated to be replaced (https://github.com/votingworks/roadmap/issues/15)
-   */
-  readonly locales: BallotLocale;
   readonly ballotType: PrintableBallotType;
   readonly ballotMode: BallotMode;
   readonly numCopies: number;
@@ -592,7 +586,6 @@ export interface PrintedBallot {
 export const PrintedBallotSchema: z.ZodSchema<PrintedBallot> = z.object({
   ballotStyleId: BallotStyleIdSchema,
   precinctId: PrecinctIdSchema,
-  locales: BallotLocaleSchema,
   ballotType: PrintableBallotTypeSchema,
   ballotMode: BallotModeSchema,
   numCopies: z.number().int().nonnegative(),
@@ -616,7 +609,6 @@ export const PrintedBallotRecordSchema: z.ZodSchema<PrintedBallotRecord> = z
     electionId: IdSchema,
     ballotStyleId: BallotStyleIdSchema,
     precinctId: PrecinctIdSchema,
-    locales: BallotLocaleSchema,
     ballotType: PrintableBallotTypeSchema,
     ballotMode: BallotModeSchema,
     numCopies: z.number().int().min(1),
