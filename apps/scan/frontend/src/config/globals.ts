@@ -11,6 +11,6 @@ export const POLLING_INTERVAL_FOR_USB = 2000;
 export const CARD_POLLING_INTERVAL = 200;
 export const STATUS_POLLING_EXTRA_CHECKS = 2;
 
-export const BALLOT_BAG_CAPACITY = 700;
+export const BALLOT_BAG_CAPACITY = 7000;
 
 export const TEXT_SIZE = 1;
