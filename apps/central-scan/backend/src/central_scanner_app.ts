@@ -19,10 +19,8 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 import {
-  BooleanEnvironmentVariableName,
   generateElectionBasedSubfolderName,
   generateFilenameForScanningResults,
-  isFeatureFlagEnabled,
   readBallotPackageFromBuffer,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
@@ -61,11 +59,7 @@ function constructAuthMachineState(
   return {
     electionHash: electionDefinition?.electionHash,
     // TODO: Persist jurisdiction in store and pull from there
-    jurisdiction: isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS
-    )
-      ? /* istanbul ignore next */ DEV_JURISDICTION
-      : undefined,
+    jurisdiction: DEV_JURISDICTION,
   };
 }
 

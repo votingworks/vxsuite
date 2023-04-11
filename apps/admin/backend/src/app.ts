@@ -35,11 +35,7 @@ import {
 import * as grout from '@votingworks/grout';
 import { promises as fs, Stats } from 'fs';
 import { basename } from 'path';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-  parseCastVoteRecordReportDirectoryName,
-} from '@votingworks/utils';
+import { parseCastVoteRecordReportDirectoryName } from '@votingworks/utils';
 import {
   AddCastVoteRecordFileResult,
   ConfigureResult,
@@ -74,11 +70,7 @@ function constructAuthMachineState(
     arePollWorkerCardPinsEnabled: systemSettings?.arePollWorkerCardPinsEnabled,
     electionHash: currentElectionDefinition?.electionHash,
     // TODO: Pull jurisdiction from VxAdmin cert authority cert
-    jurisdiction: isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS
-    )
-      ? /* istanbul ignore next */ DEV_JURISDICTION
-      : undefined,
+    jurisdiction: DEV_JURISDICTION,
   };
 }
 

@@ -65,7 +65,7 @@ function cardStatusToProgrammableCard(
         programmedUser:
           // If one jurisdiction somehow attains a card from another jurisdiction, treat it as
           // unprogrammed
-          cardDetails?.jurisdiction !== machineState.jurisdiction ||
+          user?.jurisdiction !== machineState.jurisdiction ||
           // If a poll worker card doesn't have a PIN but poll worker card PINs are enabled, treat
           // the card as unprogrammed. And vice versa. If a poll worker card does have a PIN but
           // poll worker card PINs are not enabled, also treat the card as unprogrammed.
@@ -349,12 +349,14 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       throw new Error('User is not a system administrator');
     }
 
-    const { arePollWorkerCardPinsEnabled, electionHash } = machineState;
+    const { arePollWorkerCardPinsEnabled, electionHash, jurisdiction } =
+      machineState;
+    assert(jurisdiction !== undefined);
     const pin = generatePin();
     switch (input.userRole) {
       case 'system_administrator': {
         await this.card.program({
-          user: { role: 'system_administrator' },
+          user: { role: 'system_administrator', jurisdiction },
           pin,
         });
         return pin;
@@ -362,7 +364,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       case 'election_manager': {
         assert(electionHash !== undefined);
         await this.card.program({
-          user: { role: 'election_manager', electionHash },
+          user: { role: 'election_manager', jurisdiction, electionHash },
           pin,
           electionData: input.electionData,
         });
@@ -372,13 +374,13 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         assert(electionHash !== undefined);
         if (arePollWorkerCardPinsEnabled) {
           await this.card.program({
-            user: { role: 'poll_worker', electionHash },
+            user: { role: 'poll_worker', jurisdiction, electionHash },
             pin,
           });
           return pin;
         }
         await this.card.program({
-          user: { role: 'poll_worker', electionHash },
+          user: { role: 'poll_worker', jurisdiction, electionHash },
         });
         return undefined;
       }
@@ -603,11 +605,11 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       return err('invalid_user_on_card');
     }
 
-    const { jurisdiction, user } = cardDetails;
+    const { user } = cardDetails;
 
     if (
       machineState.jurisdiction &&
-      jurisdiction !== machineState.jurisdiction
+      user.jurisdiction !== machineState.jurisdiction
     ) {
       return err('invalid_user_on_card');
     }

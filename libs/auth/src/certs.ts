@@ -134,30 +134,26 @@ export async function parseCardDetailsFromCert(
   switch (cardType) {
     case 'system-administrator': {
       return {
-        jurisdiction,
-        user: { role: 'system_administrator' },
+        user: { role: 'system_administrator', jurisdiction },
       };
     }
     case 'election-manager': {
       assert(electionHash !== undefined);
       return {
-        jurisdiction,
-        user: { role: 'election_manager', electionHash },
+        user: { role: 'election_manager', jurisdiction, electionHash },
       };
     }
     case 'poll-worker': {
       assert(electionHash !== undefined);
       return {
-        jurisdiction,
-        user: { role: 'poll_worker', electionHash },
+        user: { role: 'poll_worker', jurisdiction, electionHash },
         hasPin: false,
       };
     }
     case 'poll-worker-with-pin': {
       assert(electionHash !== undefined);
       return {
-        jurisdiction,
-        user: { role: 'poll_worker', electionHash },
+        user: { role: 'poll_worker', jurisdiction, electionHash },
         hasPin: true,
       };
     }
@@ -172,7 +168,7 @@ export async function parseCardDetailsFromCert(
  * Constructs a VotingWorks card cert subject that can be passed to an openssl command
  */
 export function constructCardCertSubject(cardDetails: CardDetails): string {
-  const { jurisdiction, user } = cardDetails;
+  const { user } = cardDetails;
   const component: CustomCertFields['component'] = 'card';
 
   let cardType: CustomCertFields['cardType'];
@@ -202,7 +198,7 @@ export function constructCardCertSubject(cardDetails: CardDetails): string {
   const entries = [
     ...STANDARD_CERT_FIELDS,
     `${VX_CUSTOM_CERT_FIELD.COMPONENT}=${component}`,
-    `${VX_CUSTOM_CERT_FIELD.JURISDICTION}=${jurisdiction}`,
+    `${VX_CUSTOM_CERT_FIELD.JURISDICTION}=${user.jurisdiction}`,
     `${VX_CUSTOM_CERT_FIELD.CARD_TYPE}=${cardType}`,
   ];
   if (electionHash) {

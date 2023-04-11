@@ -21,13 +21,16 @@ const wrongPin = '234567';
 
 const systemAdministratorUser: SystemAdministratorUser = {
   role: 'system_administrator',
+  jurisdiction: DEV_JURISDICTION,
 };
 const electionManagerUser: ElectionManagerUser = {
   role: 'election_manager',
+  jurisdiction: DEV_JURISDICTION,
   electionHash,
 };
 const pollWorkerUser: PollWorkerUser = {
   role: 'poll_worker',
+  jurisdiction: DEV_JURISDICTION,
   electionHash,
 };
 
@@ -41,7 +44,6 @@ test.each<MockFileContents>([
     cardStatus: {
       status: 'ready',
       cardDetails: {
-        jurisdiction: DEV_JURISDICTION,
         user: systemAdministratorUser,
       },
     },
@@ -52,7 +54,6 @@ test.each<MockFileContents>([
     cardStatus: {
       status: 'ready',
       cardDetails: {
-        jurisdiction: DEV_JURISDICTION,
         user: electionManagerUser,
       },
     },
@@ -63,7 +64,6 @@ test.each<MockFileContents>([
     cardStatus: {
       status: 'ready',
       cardDetails: {
-        jurisdiction: DEV_JURISDICTION,
         user: pollWorkerUser,
         hasPin: false,
       },
@@ -75,7 +75,6 @@ test.each<MockFileContents>([
     cardStatus: {
       status: 'ready',
       cardDetails: {
-        jurisdiction: DEV_JURISDICTION,
         user: pollWorkerUser,
         hasPin: true,
       },
@@ -100,7 +99,6 @@ test('MockFileCard basic mocking', async () => {
     cardStatus: {
       status: 'ready',
       cardDetails: {
-        jurisdiction: DEV_JURISDICTION,
         user: systemAdministratorUser,
       },
     },
@@ -109,7 +107,6 @@ test('MockFileCard basic mocking', async () => {
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
     cardDetails: {
-      jurisdiction: DEV_JURISDICTION,
       user: systemAdministratorUser,
     },
   });
@@ -118,7 +115,6 @@ test('MockFileCard basic mocking', async () => {
     cardStatus: {
       status: 'ready',
       cardDetails: {
-        jurisdiction: DEV_JURISDICTION,
         user: electionManagerUser,
       },
     },
@@ -128,7 +124,6 @@ test('MockFileCard basic mocking', async () => {
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
     cardDetails: {
-      jurisdiction: DEV_JURISDICTION,
       user: electionManagerUser,
     },
   });
@@ -137,7 +132,6 @@ test('MockFileCard basic mocking', async () => {
     cardStatus: {
       status: 'ready',
       cardDetails: {
-        jurisdiction: DEV_JURISDICTION,
         user: pollWorkerUser,
         hasPin: false,
       },
@@ -146,7 +140,6 @@ test('MockFileCard basic mocking', async () => {
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
     cardDetails: {
-      jurisdiction: DEV_JURISDICTION,
       user: pollWorkerUser,
       hasPin: false,
     },
@@ -156,7 +149,6 @@ test('MockFileCard basic mocking', async () => {
     cardStatus: {
       status: 'ready',
       cardDetails: {
-        jurisdiction: DEV_JURISDICTION,
         user: pollWorkerUser,
         hasPin: true,
       },
@@ -166,7 +158,6 @@ test('MockFileCard basic mocking', async () => {
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
     cardDetails: {
-      jurisdiction: DEV_JURISDICTION,
       user: pollWorkerUser,
       hasPin: true,
     },
@@ -188,7 +179,6 @@ test('MockFileCard PIN checking', async () => {
     cardStatus: {
       status: 'ready',
       cardDetails: {
-        jurisdiction: DEV_JURISDICTION,
         user: systemAdministratorUser,
       },
     },
@@ -221,7 +211,6 @@ test('MockFileCard programming', async () => {
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
     cardDetails: {
-      jurisdiction: DEV_JURISDICTION,
       user: systemAdministratorUser,
     },
   });
@@ -237,7 +226,6 @@ test('MockFileCard programming', async () => {
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
     cardDetails: {
-      jurisdiction: DEV_JURISDICTION,
       user: electionManagerUser,
     },
   });
@@ -255,7 +243,6 @@ test('MockFileCard programming', async () => {
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
     cardDetails: {
-      jurisdiction: DEV_JURISDICTION,
       user: pollWorkerUser,
       hasPin: false,
     },
@@ -265,7 +252,6 @@ test('MockFileCard programming', async () => {
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
     cardDetails: {
-      jurisdiction: DEV_JURISDICTION,
       user: pollWorkerUser,
       hasPin: true,
     },
@@ -278,7 +264,6 @@ test('MockFileCard data reading and writing', async () => {
     cardStatus: {
       status: 'ready',
       cardDetails: {
-        jurisdiction: DEV_JURISDICTION,
         user: pollWorkerUser,
         hasPin: false,
       },

@@ -3,6 +3,7 @@ import { Server } from 'http';
 import { dirSync } from 'tmp';
 import {
   buildMockDippedSmartCardAuth,
+  DEV_JURISDICTION,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { Exporter } from '@votingworks/backend';
@@ -18,6 +19,7 @@ import { createWorkspace, Workspace } from './util/workspace';
 
 const { electionDefinition } = stateOfHamilton;
 const { electionData, electionHash } = electionDefinition;
+const jurisdiction = DEV_JURISDICTION;
 
 let apiClient: grout.Client<Api>;
 let auth: DippedSmartCardAuthApi;
@@ -60,7 +62,10 @@ afterEach(() => {
 test('getAuthStatus', async () => {
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, { electionHash });
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    electionHash,
+    jurisdiction,
+  });
 });
 
 test('checkPin', async () => {
@@ -68,7 +73,7 @@ test('checkPin', async () => {
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { electionHash },
+    { electionHash, jurisdiction },
     { pin: '123456' }
   );
 });
@@ -76,7 +81,10 @@ test('checkPin', async () => {
 test('logOut', async () => {
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, {
+    electionHash,
+    jurisdiction,
+  });
 });
 
 test('updateSessionExpiry', async () => {
@@ -86,7 +94,7 @@ test('updateSessionExpiry', async () => {
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    { electionHash },
+    { electionHash, jurisdiction },
     { sessionExpiresAt: expect.any(Number) }
   );
 });
@@ -96,7 +104,7 @@ test('getAuthStatus before election definition has been configured', async () =>
 
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {});
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, { jurisdiction });
 });
 
 test('checkPin before election definition has been configured', async () => {
@@ -104,7 +112,11 @@ test('checkPin before election definition has been configured', async () => {
 
   await apiClient.checkPin({ pin: '123456' });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
-  expect(auth.checkPin).toHaveBeenNthCalledWith(1, {}, { pin: '123456' });
+  expect(auth.checkPin).toHaveBeenNthCalledWith(
+    1,
+    { jurisdiction },
+    { pin: '123456' }
+  );
 });
 
 test('logOut before election definition has been configured', async () => {
@@ -112,7 +124,7 @@ test('logOut before election definition has been configured', async () => {
 
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, {});
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, { jurisdiction });
 });
 
 test('updateSessionExpiry before election definition has been configured', async () => {
@@ -124,7 +136,7 @@ test('updateSessionExpiry before election definition has been configured', async
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    {},
+    { jurisdiction },
     { sessionExpiresAt: expect.any(Number) }
   );
 });

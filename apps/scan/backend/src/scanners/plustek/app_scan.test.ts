@@ -15,6 +15,7 @@ import {
   ScannerReportDataSchema,
 } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
+import { DEV_JURISDICTION } from '@votingworks/auth';
 import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
 import {
   configureApp,
@@ -69,6 +70,8 @@ function checkLogs(logger: Logger): void {
     expect.any(Function)
   );
 }
+
+const jurisdiction = DEV_JURISDICTION;
 
 test('configure and scan hmpb', async () => {
   await withApp(
@@ -613,7 +616,7 @@ test('write scanner report data to card', async () => {
     expect(mockAuth.writeCardData).toHaveBeenCalledTimes(1);
     expect(mockAuth.writeCardData).toHaveBeenNthCalledWith(
       1,
-      { electionHash },
+      { electionHash, jurisdiction },
       { data: scannerReportData, schema: ScannerReportDataSchema }
     );
   });

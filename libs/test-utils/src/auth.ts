@@ -11,6 +11,7 @@ export function fakeSystemAdministratorUser(
 ): SystemAdministratorUser {
   return {
     role: 'system_administrator',
+    jurisdiction: 'jurisdiction',
     ...props,
   };
 }
@@ -20,6 +21,7 @@ export function fakeElectionManagerUser(
 ): ElectionManagerUser {
   return {
     role: 'election_manager',
+    jurisdiction: 'jurisdiction',
     electionHash: 'election-hash',
     ...props,
   };
@@ -30,6 +32,7 @@ export function fakePollWorkerUser(
 ): PollWorkerUser {
   return {
     role: 'poll_worker',
+    jurisdiction: 'jurisdiction',
     electionHash: 'election-hash',
     ...props,
   };
@@ -40,8 +43,8 @@ export function fakeCardlessVoterUser(
 ): CardlessVoterUser {
   return {
     role: 'cardless_voter',
-    ballotStyleId: 'fake-ballot-style-id',
-    precinctId: 'fake-precinct-id',
+    ballotStyleId: 'ballot-style-id',
+    precinctId: 'precinct-id',
     ...props,
   };
 }

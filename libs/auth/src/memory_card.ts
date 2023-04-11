@@ -108,17 +108,28 @@ function parseUserDataFromCardSummary(cardSummary: Legacy.CardSummaryReady): {
   switch (cardData.t) {
     case 'system_administrator':
       return {
-        user: { role: 'system_administrator' },
+        user: {
+          role: 'system_administrator',
+          jurisdiction: DEV_JURISDICTION,
+        },
         pin: cardData.p,
       };
     case 'election_manager':
       return {
-        user: { role: 'election_manager', electionHash: cardData.h },
+        user: {
+          role: 'election_manager',
+          jurisdiction: DEV_JURISDICTION,
+          electionHash: cardData.h,
+        },
         pin: cardData.p,
       };
     case 'poll_worker':
       return {
-        user: { role: 'poll_worker', electionHash: cardData.h },
+        user: {
+          role: 'poll_worker',
+          jurisdiction: DEV_JURISDICTION,
+          electionHash: cardData.h,
+        },
         pin: cardData.p,
       };
     /* istanbul ignore next: Compile-time check for completeness */
@@ -158,21 +169,18 @@ export class MemoryCard implements Card {
     switch (user.role) {
       case 'system_administrator': {
         cardDetails = {
-          jurisdiction: DEV_JURISDICTION,
           user,
         };
         break;
       }
       case 'election_manager': {
         cardDetails = {
-          jurisdiction: DEV_JURISDICTION,
           user,
         };
         break;
       }
       case 'poll_worker': {
         cardDetails = {
-          jurisdiction: DEV_JURISDICTION,
           user,
           hasPin: pin !== undefined,
         };

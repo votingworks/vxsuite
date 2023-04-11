@@ -4,15 +4,18 @@ import { BallotStyleId, PrecinctId } from '../election';
 
 export interface SystemAdministratorUser {
   readonly role: 'system_administrator';
+  readonly jurisdiction: string;
 }
 
 export interface ElectionManagerUser {
   readonly role: 'election_manager';
+  readonly jurisdiction: string;
   readonly electionHash: string;
 }
 
 export interface PollWorkerUser {
   readonly role: 'poll_worker';
+  readonly jurisdiction: string;
   readonly electionHash: string;
 }
 

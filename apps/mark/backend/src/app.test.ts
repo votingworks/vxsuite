@@ -10,7 +10,7 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 import { ElectionDefinition } from '@votingworks/types';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { DEV_JURISDICTION, InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   ALL_PRECINCTS_SELECTION,
   ReportSourceMachineType,
@@ -42,6 +42,8 @@ afterEach(() => {
   server?.close();
 });
 
+const jurisdiction = DEV_JURISDICTION;
+
 test('uses machine config from env', async () => {
   const originalEnv = process.env;
   process.env = {
@@ -65,57 +67,6 @@ test('uses default machine config if not set', async () => {
     machineId: '0000',
     codeVersion: 'dev',
     screenOrientation: 'portrait',
-  });
-});
-
-test('auth', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { electionHash } = electionDefinition;
-  await apiClient.getAuthStatus({ electionHash });
-  expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
-    electionHash,
-  });
-
-  await apiClient.checkPin({ electionHash, pin: '123456' });
-  expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
-  expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
-    1,
-    { electionHash },
-    { pin: '123456' }
-  );
-
-  await apiClient.updateSessionExpiry({
-    electionHash,
-    sessionExpiresAt: new Date().getTime() + 60 * 1000,
-  });
-  expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
-  expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
-    1,
-    { electionHash },
-    { sessionExpiresAt: expect.any(Number) }
-  );
-
-  await apiClient.logOut({ electionHash });
-  expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
-  expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
-
-  await apiClient.startCardlessVoterSession({
-    electionHash,
-    ballotStyleId: 'b1',
-    precinctId: 'p1',
-  });
-  expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledTimes(1);
-  expect(mockAuth.startCardlessVoterSession).toHaveBeenNthCalledWith(
-    1,
-    { electionHash },
-    { ballotStyleId: 'b1', precinctId: 'p1' }
-  );
-
-  await apiClient.endCardlessVoterSession({ electionHash });
-  expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(1);
-  expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(1, {
-    electionHash,
   });
 });
 
@@ -157,6 +108,7 @@ test('read election definition from card', async () => {
   expect(mockAuth.readCardDataAsString).toHaveBeenCalledTimes(1);
   expect(mockAuth.readCardDataAsString).toHaveBeenNthCalledWith(1, {
     electionHash,
+    jurisdiction,
   });
 
   mockOf(mockAuth.readCardDataAsString).mockImplementation(() =>
@@ -169,6 +121,7 @@ test('read election definition from card', async () => {
   expect(mockAuth.readCardDataAsString).toHaveBeenCalledTimes(2);
   expect(mockAuth.readCardDataAsString).toHaveBeenNthCalledWith(2, {
     electionHash,
+    jurisdiction,
   });
 });
 
@@ -222,7 +175,7 @@ test('read scanner report data from card', async () => {
   expect(mockAuth.readCardData).toHaveBeenCalledTimes(1);
   expect(mockAuth.readCardData).toHaveBeenNthCalledWith(
     1,
-    { electionHash },
+    { electionHash, jurisdiction },
     { schema: ScannerReportDataSchema }
   );
 });
@@ -265,6 +218,7 @@ test('clear scanner report data from card', async () => {
   expect(mockAuth.clearCardData).toHaveBeenCalledTimes(1);
   expect(mockAuth.clearCardData).toHaveBeenNthCalledWith(1, {
     electionHash,
+    jurisdiction,
   });
 });
 

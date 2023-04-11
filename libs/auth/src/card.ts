@@ -6,19 +6,16 @@ import {
 } from '@votingworks/types';
 
 interface SystemAdministratorCardDetails {
-  jurisdiction: string;
   numIncorrectPinAttempts?: number;
   user: SystemAdministratorUser;
 }
 
 interface ElectionManagerCardDetails {
-  jurisdiction: string;
   numIncorrectPinAttempts?: number;
   user: ElectionManagerUser;
 }
 
 interface PollWorkerCardDetails {
-  jurisdiction: string;
   numIncorrectPinAttempts?: number;
   user: PollWorkerUser;
 

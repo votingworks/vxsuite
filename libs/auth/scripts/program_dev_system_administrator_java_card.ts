@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { DEV_JURISDICTION } from '../src/certs';
 import { JavaCard } from '../src/java_card';
 import { constructJavaCardConfig } from '../src/java_card_config';
 import { waitForReadyCardStatus } from './utils';
@@ -16,7 +17,10 @@ async function programDevSystemAdministratorJavaCard(): Promise<void> {
   await waitForReadyCardStatus(card);
   try {
     await card.program({
-      user: { role: 'system_administrator' },
+      user: {
+        role: 'system_administrator',
+        jurisdiction: DEV_JURISDICTION,
+      },
       pin: '000000',
     });
   } catch (error) {
