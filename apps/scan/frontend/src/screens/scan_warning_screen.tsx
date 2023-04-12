@@ -13,7 +13,9 @@ import {
   Caption,
   CenteredLargeProse,
   fontSizeTheme,
+  FullScreenIconWrapper,
   H1,
+  Icons,
   Modal,
   ModalWidth,
   P,
@@ -27,7 +29,6 @@ import { assert, find, integers } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
 
-import { ExclamationTriangle } from '../components/graphics';
 import { ScreenMainCenterChild } from '../components/layout';
 
 import { toSentence } from '../utils/to_sentence';
@@ -114,7 +115,9 @@ function OvervoteWarningScreen({
 
   return (
     <ScreenMainCenterChild infoBar={false}>
-      <ExclamationTriangle />
+      <FullScreenIconWrapper color="warning">
+        <Icons.Warning />
+      </FullScreenIconWrapper>
       <CenteredLargeProse>
         <H1>Too Many Votes</H1>
         <P>
@@ -201,7 +204,9 @@ function UndervoteWarningScreen({
 
   return (
     <ScreenMainCenterChild infoBar={false}>
-      <ExclamationTriangle />
+      <FullScreenIconWrapper color="warning">
+        <Icons.Warning />
+      </FullScreenIconWrapper>
       <CenteredLargeProse>
         <H1>Review Your Ballot</H1>
         {blankContestNames.length > 0 && (
@@ -280,7 +285,9 @@ function BlankBallotWarningScreen(): JSX.Element {
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
     <ScreenMainCenterChild infoBar={false}>
-      <ExclamationTriangle />
+      <FullScreenIconWrapper color="warning">
+        <Icons.Warning />
+      </FullScreenIconWrapper>
       <CenteredLargeProse>
         <H1>Review Your Ballot</H1>
         <P>No votes were found when scanning this ballot.</P>
@@ -324,7 +331,9 @@ function OtherReasonWarningScreen(): JSX.Element {
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
     <ScreenMainCenterChild infoBar={false}>
-      <ExclamationTriangle />
+      <FullScreenIconWrapper color="warning">
+        <Icons.Warning />
+      </FullScreenIconWrapper>
       <CenteredLargeProse>
         <H1>Scanning Failed</H1>
         <P>There was a problem scanning this ballot.</P>

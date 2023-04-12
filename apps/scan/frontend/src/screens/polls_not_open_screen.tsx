@@ -1,7 +1,13 @@
 import React from 'react';
-import { Caption, CenteredLargeProse, H1, Icons, P } from '@votingworks/ui';
+import {
+  Caption,
+  CenteredLargeProse,
+  FullScreenIconWrapper,
+  H1,
+  Icons,
+  P,
+} from '@votingworks/ui';
 import { PollsState } from '@votingworks/types';
-import { DoNotEnter } from '../components/graphics';
 import { ScreenMainCenterChild } from '../components/layout';
 
 export interface PollsNotOpenScreenProps {
@@ -23,7 +29,9 @@ export function PollsNotOpenScreen({
       infoBarMode="pollworker"
       ballotCountOverride={scannedBallotCount}
     >
-      <DoNotEnter />
+      <FullScreenIconWrapper>
+        {pollsState === 'polls_paused' ? <Icons.Paused /> : <Icons.Closed />}
+      </FullScreenIconWrapper>
       <CenteredLargeProse>
         <H1>
           {pollsState === 'polls_paused' ? 'Polls Paused' : 'Polls Closed'}

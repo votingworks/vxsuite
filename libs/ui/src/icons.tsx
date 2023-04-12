@@ -4,18 +4,26 @@ import styled from 'styled-components';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faCheckCircle,
   faCircleLeft,
   faCircleRight,
   faDeleteLeft,
-  faPencil,
-  faCheckCircle,
-  faGear,
   faExclamationCircle,
   faExclamationTriangle,
+  faGear,
   faInfoCircle,
+  faMinusCircle,
+  faPencil,
   faTrashCan,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
+import {
+  faXmarkCircle,
+  faPauseCircle,
+} from '@fortawesome/free-regular-svg-icons';
+
+import { Font, FontProps } from './typography';
+import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info';
 
 interface InnerProps {
   type: IconDefinition;
@@ -57,8 +65,16 @@ export const Icons = {
     );
   },
 
+  Closed(): JSX.Element {
+    return <FaIcon type={faMinusCircle} />;
+  },
+
   Danger(): JSX.Element {
     return <FaIcon type={faExclamationCircle} />;
+  },
+
+  DangerX(): JSX.Element {
+    return <FaIcon type={faXmarkCircle} />;
   },
 
   Delete(): JSX.Element {
@@ -81,6 +97,10 @@ export const Icons = {
     return <FaIcon type={faCircleRight} />;
   },
 
+  Paused(): JSX.Element {
+    return <FaIcon type={faPauseCircle} />;
+  },
+
   Previous(): JSX.Element {
     return <FaIcon type={faCircleLeft} />;
   },
@@ -97,3 +117,37 @@ export const Icons = {
     return <FaIcon type={faXmark} />;
   },
 } as const;
+
+/** Props for {@link FullScreenIconWrapper}. */
+export type FullScreenIconWrapperProps = FontProps;
+
+type FullScreenIconContainerProps = FullScreenIconWrapperProps & {
+  screenInfo: ScreenInfo;
+};
+
+const FullScreenIconContainer = styled(Font)<FullScreenIconContainerProps>`
+  display: block;
+  font-size: ${(p) => (p.screenInfo.isPortrait ? '24vw' : '24vh')};
+`;
+
+/**
+ * Displays the provided child icon at an appropriate full-screen size,
+ * depending on screen orientation.
+ *
+ * Extends the `<Font>` component to support theme-aware accent coloring via the
+ * `color` prop.
+ *
+ * Sample Usage:
+ * ```
+ * <FullScreenIconWrapper color="success">
+ *   <Icons.Checkmark />
+ * </FullScreenIconWrapper>
+ * ```
+ */
+export function FullScreenIconWrapper(
+  props: FullScreenIconWrapperProps
+): JSX.Element {
+  const screenInfo = useScreenInfo();
+
+  return <FullScreenIconContainer {...props} screenInfo={screenInfo} />;
+}

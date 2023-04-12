@@ -3,14 +3,15 @@ import {
   Button,
   Caption,
   CenteredLargeProse,
+  FullScreenIconWrapper,
   H1,
+  Icons,
   P,
   useExternalStateChangeListener,
 } from '@votingworks/ui';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { ScreenMainCenterChild } from './layout';
 import { BALLOT_BAG_CAPACITY } from '../config/globals';
-import { ExclamationTriangle } from './graphics';
 import { recordBallotBagReplaced } from '../api';
 
 interface Props {
@@ -48,7 +49,9 @@ export function ReplaceBallotBagScreen({
     if (!confirmed && !pollWorkerAuthenticated) {
       return (
         <React.Fragment>
-          <ExclamationTriangle />
+          <FullScreenIconWrapper color="warning">
+            <Icons.Warning />
+          </FullScreenIconWrapper>
           <CenteredLargeProse>
             <H1>Ballot Bag Full</H1>
             <P>

@@ -1,6 +1,11 @@
 import React from 'react';
-import { CenteredLargeProse, H1, P } from '@votingworks/ui';
-import { CircleCheck } from '../components/graphics';
+import {
+  CenteredLargeProse,
+  FullScreenIconWrapper,
+  H1,
+  Icons,
+  P,
+} from '@votingworks/ui';
 
 import { ScreenMainCenterChild } from '../components/layout';
 
@@ -11,7 +16,9 @@ interface Props {
 export function ScanSuccessScreen({ scannedBallotCount }: Props): JSX.Element {
   return (
     <ScreenMainCenterChild ballotCountOverride={scannedBallotCount}>
-      <CircleCheck />
+      <FullScreenIconWrapper color="success">
+        <Icons.Done />
+      </FullScreenIconWrapper>
       <CenteredLargeProse>
         <H1>Your ballot was counted!</H1>
         <P>Thank you for voting.</P>

@@ -1,12 +1,20 @@
 import React from 'react';
-import { Caption, CenteredLargeProse, H1, P } from '@votingworks/ui';
-import { ExclamationTriangle } from '../components/graphics';
+import {
+  Caption,
+  CenteredLargeProse,
+  FullScreenIconWrapper,
+  H1,
+  Icons,
+  P,
+} from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 
 export function ScanBusyScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild infoBar={false}>
-      <ExclamationTriangle />
+      <FullScreenIconWrapper color="warning">
+        <Icons.Warning />
+      </FullScreenIconWrapper>
       <CenteredLargeProse>
         <H1>Remove Your Ballot</H1>
         <P>Another ballot is being scanned.</P>

@@ -1,6 +1,12 @@
 import React from 'react';
-import { Caption, CenteredLargeProse, H1, P } from '@votingworks/ui';
-import { TimesCircle } from '../components/graphics';
+import {
+  Caption,
+  CenteredLargeProse,
+  FullScreenIconWrapper,
+  H1,
+  Icons,
+  P,
+} from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 
 interface Props {
@@ -13,7 +19,9 @@ export function ScanJamScreen({ scannedBallotCount }: Props): JSX.Element {
       infoBar={false}
       ballotCountOverride={scannedBallotCount}
     >
-      <TimesCircle />
+      <FullScreenIconWrapper color="danger">
+        <Icons.DangerX />
+      </FullScreenIconWrapper>
       <CenteredLargeProse>
         <H1>Ballot Not Counted</H1>
         <P>The ballot is jammed in the scanner.</P>
