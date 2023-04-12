@@ -11,6 +11,7 @@ import { UnconfigureMachineButton } from './unconfigure_machine_button';
 import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
 import { UsbDriveStatus } from './hooks/use_usb_drive';
 import { P } from './typography';
+import { PowerDownButton } from './power_down_button';
 
 interface Props {
   displayRemoveCardToLeavePrompt?: boolean;
@@ -61,6 +62,9 @@ export function SystemAdministratorScreenContents({
         </P>
         <P>
           <RebootToBiosButton logger={logger} />
+        </P>
+        <P>
+          <PowerDownButton logger={logger} userRole="system_administrator" />
         </P>
         <P>
           <UnconfigureMachineButton

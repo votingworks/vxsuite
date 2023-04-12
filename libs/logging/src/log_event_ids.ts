@@ -107,6 +107,7 @@ export enum LogEventId {
   PrepareBootFromUsbInit = 'prepare-boot-from-usb-init',
   PrepareBootFromUsbComplete = 'prepare-boot-from-usb-complete',
   RebootMachine = 'reboot-machine',
+  PowerDown = 'power-down-machine',
   BallotPackageLoadedFromUsb = 'ballot-package-load-from-usb-complete',
 
   // Precinct Machine (VxMark + VxScan) State
@@ -765,6 +766,11 @@ const RebootMachine: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage: 'User has triggered a reboot of the machine.',
 };
+const PowerDown: LogDetails = {
+  eventId: LogEventId.PowerDown,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has triggered the machine to power down.',
+};
 
 const PollsOpened: LogDetails = {
   eventId: LogEventId.PollsOpened,
@@ -1067,6 +1073,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return PrepareBootFromUsbComplete;
     case LogEventId.RebootMachine:
       return RebootMachine;
+    case LogEventId.PowerDown:
+      return PowerDown;
     case LogEventId.PollsOpened:
       return PollsOpened;
     case LogEventId.VotingPaused:

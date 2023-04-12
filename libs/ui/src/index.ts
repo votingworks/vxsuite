@@ -80,3 +80,4 @@ export * from './export_logs_modal';
 export * from './graphics';
 export * from './types';
 export * from './unconfigured_election_screen';
+export * from './power_down_button';

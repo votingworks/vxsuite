@@ -279,7 +279,8 @@ test('no transitions from polls closed final', async () => {
   await screen.findByText(
     'Voting is complete and the polls cannot be reopened.'
   );
-  expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  // There should only be the power down button
+  expect(screen.queryAllByRole('button')).toHaveLength(1);
 });
 
 // confirm that we have an alert and logging that meet VVSG 2.0 1.1.3-B
