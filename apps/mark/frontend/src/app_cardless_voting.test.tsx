@@ -1,8 +1,7 @@
 import React from 'react';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
-import { expectPrint } from '@votingworks/test-utils';
+import { FakeKiosk, expectPrint, fakeKiosk } from '@votingworks/test-utils';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import {
   fireEvent,
@@ -20,19 +19,20 @@ import {
   setStateInStorage,
   voterContests,
 } from '../test/helpers/election';
-
 import { withMarkup } from '../test/helpers/with_markup';
-
 import { advanceTimersAndPromises } from '../test/helpers/timers';
-
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { configureFromUsbThenRemove } from '../test/helpers/ballot_package';
 
 let apiMock: ApiMock;
+let kiosk: FakeKiosk;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
+  kiosk = fakeKiosk();
+  window.kiosk = kiosk;
 });
 
 afterEach(() => {
@@ -47,6 +47,7 @@ test('Cardless Voting Flow', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionDefinition(null);
   render(
     <App
       hardware={hardware}
@@ -69,13 +70,10 @@ test('Cardless Voting Flow', async () => {
 
   // Configure with Election Manager Card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  apiMock.mockApiClient.readElectionDefinitionFromCard
-    .expectCallWith({ electionHash: undefined })
-    .resolves(ok(electionDefinition));
-  userEvent.click(await screen.findByText('Load Election Definition'));
 
-  await advanceTimersAndPromises();
-  screen.getByText('Election Definition is loaded.');
+  await configureFromUsbThenRemove(apiMock, kiosk, screen, electionDefinition);
+
+  await screen.findByText('Election Definition is loaded.');
   screen.getByLabelText('Precinct');
   screen.queryByText(`Election ID: ${electionHash.slice(0, 10)}`);
 
@@ -271,6 +269,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionDefinition(null);
 
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage);
@@ -361,6 +360,7 @@ test('poll worker must select a precinct first', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionDefinition(null);
   render(
     <App
       hardware={hardware}
@@ -380,15 +380,10 @@ test('poll worker must select a precinct first', async () => {
 
   // ---------------
 
-  // Configure with Election Manager Card
+  // Configure with Election Manager Card and USB
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  apiMock.mockApiClient.readElectionDefinitionFromCard
-    .expectCallWith({ electionHash: undefined })
-    .resolves(ok(electionDefinition));
-  userEvent.click(await screen.findByText('Load Election Definition'));
-
-  await advanceTimersAndPromises();
-  screen.getByText('Election Definition is loaded.');
+  await configureFromUsbThenRemove(apiMock, kiosk, screen, electionDefinition);
+  await screen.findByText('Election Definition is loaded.');
   screen.getByLabelText('Precinct');
   screen.queryByText(`Election ID: ${electionHash.slice(0, 10)}`);
 

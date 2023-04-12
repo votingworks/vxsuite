@@ -5,7 +5,6 @@ import {
   expectPrint,
   fakeElectionManagerUser,
   fakeKiosk,
-  fakeUsbDrive,
 } from '@votingworks/test-utils';
 import {
   MemoryStorage,
@@ -33,6 +32,7 @@ import {
 } from '../test/helpers/election';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { configureFromUsbThenRemove } from '../test/helpers/ballot_package';
 
 let apiMock: ApiMock;
 let kiosk = fakeKiosk();
@@ -42,6 +42,7 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   kiosk = fakeKiosk();
+  window.kiosk = kiosk;
 });
 
 afterEach(() => {
@@ -117,13 +118,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
 
   // Configure with USB
-  apiMock.expectConfigureBallotPackageFromUsb(electionDefinition);
-  apiMock.expectGetElectionDefinition(electionDefinition);
-  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
-  window.kiosk = kiosk;
-  // userEvent.click(await screen.findByText('Load Election Definition'));
-
-  await advanceTimersAndPromises();
+  await configureFromUsbThenRemove(apiMock, kiosk, screen, electionDefinition);
   await screen.findByText('Election Definition is loaded.');
 
   // Remove card and expect not configured because precinct not selected
@@ -419,12 +414,10 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Unconfigure with Election Manager Card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   await screen.findByText('Election Definition is loaded.');
-  // Remove USB
-  kiosk.getUsbDriveInfo.mockResolvedValue([]);
 
   // Unconfigure the machine
-  apiMock.expectUnconfigureMachine();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectUnconfigureMachine();
   userEvent.click(screen.getByText('Unconfigure Machine'));
   await advanceTimersAndPromises();
 
@@ -437,18 +430,13 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
   await screen.findByText('Reboot from USB');
   apiMock.setAuthStatusLoggedOut();
-  apiMock.expectGetElectionDefinition(null);
   await advanceTimersAndPromises();
 
   // ---------------
 
-  // Configure with Election Manager card
+  // Configure with Election Manager card and USB
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-
-  // Configure with ballot package from USB
-  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
-  apiMock.expectConfigureBallotPackageFromUsb(electionDefinition);
-  window.kiosk = kiosk;
+  await configureFromUsbThenRemove(apiMock, kiosk, screen, electionDefinition);
 
   await screen.findByText('Election Definition is loaded.');
   apiMock.setAuthStatusLoggedOut();
@@ -461,7 +449,6 @@ test('MarkAndPrint end-to-end flow', async () => {
     await screen.findByRole('button', { name: 'Unconfigure Machine' })
   );
   const modal = await screen.findByRole('alertdialog');
-  kiosk.getUsbDriveInfo.mockResolvedValue([]);
   apiMock.expectUnconfigureMachine();
   apiMock.expectGetElectionDefinition(null);
   userEvent.click(
