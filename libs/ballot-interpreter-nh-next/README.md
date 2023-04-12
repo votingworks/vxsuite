@@ -12,8 +12,11 @@ This library requires a
 [supported version of Node and Rust](https://github.com/neon-bindings/neon#platform-support).
 The easiest way to install Rust is via [rustup](https://rustup.rs/).
 
-This fully installs the project, including installing any dependencies and
-running the build.
+Then run:
+
+```sh
+$ pnpm install
+```
 
 ## Build
 
