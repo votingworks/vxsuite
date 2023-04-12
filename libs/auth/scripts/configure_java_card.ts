@@ -4,6 +4,7 @@ import { existsSync } from 'fs';
 import { Byte } from '@votingworks/types';
 
 import { CommandApdu, constructTlv } from '../src/apdu';
+import { getRequiredEnvVar } from '../src/env_vars';
 import {
   CARD_VX_ADMIN_CERT,
   CARD_VX_CERT,
@@ -19,12 +20,7 @@ import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
 } from '../src/piv';
-import {
-  errorContains,
-  getEnvVar,
-  runCommand,
-  waitForReadyCardStatus,
-} from './utils';
+import { errorContains, runCommand, waitForReadyCardStatus } from './utils';
 
 const APPLET_PATH = 'applets/OpenFIPS201-v1.10.2-with-vx-mods.cap';
 const GLOBAL_PLATFORM_PATH = 'scripts/gp.jar';
@@ -69,9 +65,11 @@ const PUT_DATA_ADMIN = {
   KEY_ATTRIBUTE_NONE: 0x00,
 } as const;
 
-const vxCertAuthorityCertPath = getEnvVar('VX_CERT_AUTHORITY_CERT_PATH');
-const vxPrivateKeyPassword = getEnvVar('VX_PRIVATE_KEY_PASSWORD');
-const vxPrivateKeyPath = getEnvVar('VX_PRIVATE_KEY_PATH');
+const vxCertAuthorityCertPath = getRequiredEnvVar(
+  'VX_CERT_AUTHORITY_CERT_PATH'
+);
+const vxPrivateKeyPassword = getRequiredEnvVar('VX_PRIVATE_KEY_PASSWORD');
+const vxPrivateKeyPath = getRequiredEnvVar('VX_PRIVATE_KEY_PATH');
 
 function sectionLog(symbol: string, message: string): void {
   console.log('-'.repeat(3 + message.length));
