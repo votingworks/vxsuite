@@ -3767,9 +3767,6 @@ importers:
       jest-watch-typeahead:
         specifier: 0.6.4
         version: 0.6.4(jest@29.4.3)
-      preact:
-        specifier: ^10.11.3
-        version: 10.13.1
       prettier:
         specifier: 2.6.2
         version: 2.6.2
@@ -28692,10 +28689,6 @@ packages:
       nanoid: 3.3.4
       picocolors: 1.0.0
       source-map-js: 1.0.2
-
-  /preact@10.13.1:
-    resolution: {integrity: sha512-KyoXVDU5OqTpG9LXlB3+y639JAGzl8JSBXLn1J9HTSB3gbKcuInga7bZnXLlxmK94ntTs1EFeZp0lrja2AuBYQ==}
-    dev: true
 
   /prebuild-install@7.1.0:
     resolution: {integrity: sha512-CNcMgI1xBypOyGqjp3wOc8AAo1nMhZS3Cwd3iHIxOdAUbb+YxdNuM4Z5iIrZ8RLvOsf3F3bl7b7xGq6DjQoNYA==}
