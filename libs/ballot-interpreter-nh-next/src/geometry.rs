@@ -64,6 +64,15 @@ impl<T: Sub<Output = T> + AddAssign + Copy> AddAssign for Point<T> {
     }
 }
 
+impl Point<SubPixelUnit> {
+    pub fn round(self) -> Point<PixelPosition> {
+        Point::new(
+            self.x.round() as PixelPosition,
+            self.y.round() as PixelPosition,
+        )
+    }
+}
+
 /// A rectangle area of pixels within an image.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct Rect {

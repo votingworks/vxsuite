@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::{
     ballot_card::BallotSide,
     election::{ContestId, GridLayout, GridPosition, OptionId},
-    geometry::{GridUnit, PixelPosition, Point, Rect},
+    geometry::{GridUnit, Point, Rect},
     timing_marks::TimingMarkGrid,
 };
 
@@ -52,26 +52,19 @@ fn build_option_layout(
         clamp_row(bubble_location.row as i32 + row_offset + height as i32),
     );
 
-    let top_left_subpixel_point = grid.point_for_location(
-        top_left_grid_point.x as GridUnit,
-        top_left_grid_point.y as GridUnit,
-    )?;
+    let top_left_subpixel_point =
+        grid.point_for_location(top_left_grid_point.x, top_left_grid_point.y)?;
     let bottom_right_subpixel_point = grid.point_for_location(
         bottom_right_grid_point.x as GridUnit,
         bottom_right_grid_point.y as GridUnit,
     )?;
-    let top_left_pixel_point = Point::new(
-        top_left_subpixel_point.x as PixelPosition,
-        top_left_subpixel_point.y as PixelPosition,
-    );
-    let bottom_right_pixel_point = Point::new(
-        bottom_right_subpixel_point.x as PixelPosition,
-        bottom_right_subpixel_point.y as PixelPosition,
-    );
 
     Some(InterpretedContestOptionLayout {
         option_id: grid_position.option_id(),
-        bounds: Rect::from_points(top_left_pixel_point, bottom_right_pixel_point),
+        bounds: Rect::from_points(
+            top_left_subpixel_point.round(),
+            bottom_right_subpixel_point.round(),
+        ),
     })
 }
 
