@@ -2,6 +2,7 @@ import {
   Color,
   ColorMode,
   ColorTheme,
+  ScreenType,
   SizeMode,
   SizeTheme,
   UiTheme,
@@ -96,47 +97,60 @@ const colorThemes: Record<ColorMode, ColorTheme> = {
 };
 
 const INCHES_PER_MM = 1 / 25.4;
-const PIXELS_PER_INCH = 72;
 
-function mmToPx(mm: number): number {
-  // TODO: This is just a stop-gap proxy - need to add device detection logic to
-  // determine what screen we're on (ELO/VSAP/laptop) and use pre-defined
-  // ratios, since we can measure physical display dimensions more accurately.
-  const { devicePixelRatio } = window;
+/** Standard resolution for web images/measurements: */
+const PIXELS_PER_INCH_WEB = 72;
 
-  return mm * INCHES_PER_MM * devicePixelRatio * PIXELS_PER_INCH;
+const SCREEN_WIDTH_PIXELS_ELO_15 = 1080;
+const SCREEN_WIDTH_INCHES_ELO_15 = 7.62;
+
+const SCREEN_WIDTH_PIXELS_ELO_13 = 1080;
+const SCREEN_WIDTH_INCHES_ELO_13 = 6.51;
+
+interface SizeThemeParams {
+  screenType: ScreenType;
+  sizeMode: SizeMode;
 }
 
-function getFontSize(mode: SizeMode): number {
+/** PPI calculation functions by screen type: */
+const devicePixelsPerInch: Record<ScreenType, () => number> = {
+  builtIn: () => window.devicePixelRatio * PIXELS_PER_INCH_WEB,
+  elo13: () => SCREEN_WIDTH_PIXELS_ELO_13 / SCREEN_WIDTH_INCHES_ELO_13,
+  elo15: () => SCREEN_WIDTH_PIXELS_ELO_15 / SCREEN_WIDTH_INCHES_ELO_15,
+};
+
+function mmToPx(mm: number, screenType: ScreenType): number {
+  const pixelsPerInch: number = devicePixelsPerInch[screenType]();
+
+  return mm * INCHES_PER_MM * pixelsPerInch;
+}
+
+function getFontSize({ screenType, sizeMode }: SizeThemeParams): number {
   // Use the average midpoint value of the relevant VVSG size range.
   const capitalLetterHeightMm =
-    (VVSG_CAPITAL_LETTER_HEIGHTS_MM[mode].min +
-      VVSG_CAPITAL_LETTER_HEIGHTS_MM[mode].max) /
+    (VVSG_CAPITAL_LETTER_HEIGHTS_MM[sizeMode].min +
+      VVSG_CAPITAL_LETTER_HEIGHTS_MM[sizeMode].max) /
     2;
 
   const fullFontHeightMm =
     capitalLetterHeightMm * CAPITAL_HEIGHT_TO_FULL_FONT_HEIGHT_RATIO;
 
-  return mmToPx(fullFontHeightMm);
+  return mmToPx(fullFontHeightMm, screenType);
 }
 
 const VVSG_MIN_TOUCH_AREA_SIZE_MM = 12.7;
-const VVSG_MIN_TOUCH_AREA_SIZE_PX = mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM);
 
 const VVSG_MIN_TOUCH_AREA_SEPARATION_MM = 2.54;
-const VVSG_MIN_TOUCH_AREA_SEPARATION_PX = mmToPx(
-  VVSG_MIN_TOUCH_AREA_SEPARATION_MM
-);
 
-const sizeThemes: Record<SizeMode, SizeTheme> = {
-  s: {
+const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
+  s: (p) => ({
     bordersRem: {
       hairline: 0.06,
       thin: 0.1,
       medium: 0.15,
       thick: 0.25,
     },
-    fontDefault: getFontSize('s'),
+    fontDefault: getFontSize(p),
     fontWeight: {
       bold: 600,
       light: 200,
@@ -153,17 +167,20 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0.01,
     lineHeight: 1.3,
-    minTouchAreaSeparationPx: VVSG_MIN_TOUCH_AREA_SEPARATION_PX,
-    minTouchAreaSizePx: VVSG_MIN_TOUCH_AREA_SIZE_PX,
-  },
-  m: {
+    minTouchAreaSeparationPx: mmToPx(
+      VVSG_MIN_TOUCH_AREA_SEPARATION_MM,
+      p.screenType
+    ),
+    minTouchAreaSizePx: mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM, p.screenType),
+  }),
+  m: (p) => ({
     bordersRem: {
       hairline: 0.055,
       thin: 0.1,
       medium: 0.15,
       thick: 0.25,
     },
-    fontDefault: getFontSize('m'),
+    fontDefault: getFontSize(p),
     fontWeight: {
       bold: 600,
       light: 200,
@@ -180,17 +197,20 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0.01,
     lineHeight: 1.15,
-    minTouchAreaSeparationPx: VVSG_MIN_TOUCH_AREA_SEPARATION_PX,
-    minTouchAreaSizePx: VVSG_MIN_TOUCH_AREA_SIZE_PX,
-  },
-  l: {
+    minTouchAreaSeparationPx: mmToPx(
+      VVSG_MIN_TOUCH_AREA_SEPARATION_MM,
+      p.screenType
+    ),
+    minTouchAreaSizePx: mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM, p.screenType),
+  }),
+  l: (p) => ({
     bordersRem: {
       hairline: 0.05,
       thin: 0.1,
       medium: 0.15,
       thick: 0.2,
     },
-    fontDefault: getFontSize('l'),
+    fontDefault: getFontSize(p),
     fontWeight: {
       bold: 600,
       light: 200,
@@ -198,34 +218,7 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
       semiBold: 400,
     },
     headingsRem: {
-      h1: 2,
-      h2: 1.5,
-      h3: 1.4,
-      h4: 1.2,
-      h5: 1.1,
-      h6: 1,
-    },
-    letterSpacingEm: 0.005,
-    lineHeight: 1.1,
-    minTouchAreaSeparationPx: VVSG_MIN_TOUCH_AREA_SEPARATION_PX,
-    minTouchAreaSizePx: VVSG_MIN_TOUCH_AREA_SIZE_PX,
-  },
-  xl: {
-    bordersRem: {
-      hairline: 0.05,
-      thin: 0.075,
-      medium: 0.125,
-      thick: 0.15,
-    },
-    fontDefault: getFontSize('xl'),
-    fontWeight: {
-      bold: 600,
-      light: 200,
-      regular: 300,
-      semiBold: 400,
-    },
-    headingsRem: {
-      h1: 1.75,
+      h1: 1.8,
       h2: 1.5,
       h3: 1.3,
       h4: 1.2,
@@ -234,11 +227,44 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0.005,
     lineHeight: 1.1,
-    minTouchAreaSeparationPx: VVSG_MIN_TOUCH_AREA_SEPARATION_PX,
-    minTouchAreaSizePx: VVSG_MIN_TOUCH_AREA_SIZE_PX,
-  },
+    minTouchAreaSeparationPx: mmToPx(
+      VVSG_MIN_TOUCH_AREA_SEPARATION_MM,
+      p.screenType
+    ),
+    minTouchAreaSizePx: mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM, p.screenType),
+  }),
+  xl: (p) => ({
+    bordersRem: {
+      hairline: 0.05,
+      thin: 0.075,
+      medium: 0.125,
+      thick: 0.15,
+    },
+    fontDefault: getFontSize(p),
+    fontWeight: {
+      bold: 600,
+      light: 200,
+      regular: 300,
+      semiBold: 400,
+    },
+    headingsRem: {
+      h1: 1.4,
+      h2: 1.25,
+      h3: 1.2,
+      h4: 1.15,
+      h5: 1.1,
+      h6: 1,
+    },
+    letterSpacingEm: 0.005,
+    lineHeight: 1.1,
+    minTouchAreaSeparationPx: mmToPx(
+      VVSG_MIN_TOUCH_AREA_SEPARATION_MM,
+      p.screenType
+    ),
+    minTouchAreaSizePx: mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM, p.screenType),
+  }),
 
-  legacy: {
+  legacy: (p) => ({
     bordersRem: {
       hairline: 0.05,
       thin: 0.1,
@@ -262,9 +288,12 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
     },
     letterSpacingEm: 0, // Browser default.
     lineHeight: 1.2,
-    minTouchAreaSeparationPx: VVSG_MIN_TOUCH_AREA_SEPARATION_PX,
+    minTouchAreaSeparationPx: mmToPx(
+      VVSG_MIN_TOUCH_AREA_SEPARATION_MM,
+      p.screenType
+    ),
     minTouchAreaSizePx: 0,
-  },
+  }),
 };
 
 /**
@@ -272,15 +301,18 @@ const sizeThemes: Record<SizeMode, SizeTheme> = {
  */
 export function makeTheme({
   colorMode = 'legacy',
+  screenType = 'builtIn',
   sizeMode = 'legacy',
 }: {
   colorMode?: ColorMode;
+  screenType?: ScreenType;
   sizeMode?: SizeMode;
 }): UiTheme {
   return {
     colorMode,
     colors: colorThemes[colorMode],
+    screenType,
     sizeMode,
-    sizes: sizeThemes[sizeMode],
+    sizes: sizeThemes[sizeMode]({ screenType, sizeMode }),
   };
 }

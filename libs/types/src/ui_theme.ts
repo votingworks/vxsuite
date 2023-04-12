@@ -1,3 +1,6 @@
+/** Supported screen types for VxSuite apps. */
+export type ScreenType = 'builtIn' | 'elo13' | 'elo15';
+
 /** Options for supported UI color themes. */
 export type ColorMode =
   | 'contrastHighDark'
@@ -85,6 +88,7 @@ export interface SizeTheme {
 export interface UiTheme {
   readonly colorMode: ColorMode;
   readonly colors: ColorTheme;
+  readonly screenType: ScreenType;
   readonly sizeMode: SizeMode;
   readonly sizes: SizeTheme;
 }

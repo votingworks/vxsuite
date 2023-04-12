@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { ThemeProvider } from 'styled-components';
 
-import { ColorMode, SizeMode, UiTheme } from '@votingworks/types';
+import { ColorMode, ScreenType, SizeMode, UiTheme } from '@votingworks/types';
 
 import { GlobalStyles } from './global_styles';
 import { makeTheme } from './themes/make_theme';
@@ -28,6 +28,7 @@ export interface AppBaseProps {
   isTouchscreen?: boolean;
   legacyBaseFontSizePx?: number;
   legacyPrintFontSizePx?: number;
+  screenType?: ScreenType;
   sizeMode?: SizeMode;
 }
 
@@ -42,12 +43,13 @@ export function AppBase(props: AppBaseProps): JSX.Element {
     isTouchscreen = false,
     legacyBaseFontSizePx,
     legacyPrintFontSizePx,
+    screenType = 'builtIn',
     sizeMode = 'legacy',
   } = props;
 
   const theme = useMemo(
-    () => makeTheme({ colorMode, sizeMode }),
-    [colorMode, sizeMode]
+    () => makeTheme({ colorMode, screenType, sizeMode }),
+    [colorMode, screenType, sizeMode]
   );
 
   return (
