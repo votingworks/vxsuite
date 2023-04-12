@@ -3,6 +3,8 @@ import React from 'react';
 import {
   UnconfiguredElectionScreen,
   UsbDriveStatus,
+  Main,
+  Screen,
   useExternalStateChangeListener,
 } from '@votingworks/ui';
 import { ElectionDefinition } from '@votingworks/types';
@@ -34,11 +36,15 @@ export function UnconfiguredElectionScreenWrapper(props: Props): JSX.Element {
 
   const backendError = configureMutation?.data?.err();
   return (
-    <UnconfiguredElectionScreen
-      usbDriveStatus={usbDriveStatus}
-      isElectionManagerAuth
-      backendConfigError={backendError}
-      machineName="VxMark"
-    />
+    <Screen>
+      <Main centerChild>
+        <UnconfiguredElectionScreen
+          usbDriveStatus={usbDriveStatus}
+          isElectionManagerAuth
+          backendConfigError={backendError}
+          machineName="VxMark"
+        />
+      </Main>
+    </Screen>
   );
 }
