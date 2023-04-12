@@ -63,18 +63,30 @@ relevant env vars for local development and then calls the base script:
 ./scripts/configure-dev-java-card
 ```
 
-This command needs to be run on all Java Cards before they can be used in any
-local development capacity, including before they can be programmed through
-VxAdmin. This same command can be used to unprogram a card. This can come in
-handy if you ever need to unprogram a system administrator card, the one type of
-card that can't be unprogrammed through VxAdmin.
+This script needs to be run on all Java Cards before they can be used in any
+capacity, including before they can be programmed through VxAdmin. This same
+script can be used to unprogram a card. This can come in handy if you ever need
+to unprogram a system administrator card, the one type of card that can't be
+unprogrammed through VxAdmin.
 
-### Dev System Administrator Java Card Programming Script
+### System Administrator Java Card Programming Script
 
-This script programs a dev system administrator Java Card to bootstrap local
-development with real smart cards. Once you have your first system administrator
+This script programs a first system administrator Java Card to bootstrap both
+real usage and local development. Once you have your first system administrator
 card, you can program all other cards, including additional system administrator
-cards, through VxAdmin.
+cards, through the VxAdmin UI.
+
+The script uses the `NODE_ENV` env var to determine whether to program a
+production or development card. Programming a production card requires
+additional production-machine-specific env vars.
+
+```
+# With the relevant env vars set, a card reader connected, and a Java Card in the card reader, run:
+./scripts/program-system-administrator-java-card
+```
+
+For local development, you can use the following command, which sets the
+relevant env vars for local development and then calls the base script:
 
 ```
 ./scripts/program-dev-system-administrator-java-card
