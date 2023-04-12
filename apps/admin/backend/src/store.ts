@@ -4,7 +4,6 @@
 
 import { Admin } from '@votingworks/api';
 import {
-  assert,
   Optional,
   Result,
   err,
@@ -28,13 +27,8 @@ import {
   SystemSettings,
   SystemSettingsDbRow,
 } from '@votingworks/types';
-import { ParseCastVoteRecordResult, parseCvrs } from '@votingworks/utils';
-import * as fs from 'fs';
 import { join } from 'path';
-import * as readline from 'readline';
 import { v4 as uuid } from 'uuid';
-import { getWriteInsFromCastVoteRecord } from './util/cvrs';
-import { sha256File } from './util/sha256_file';
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
@@ -84,8 +78,6 @@ export type AddCastVoteRecordError = {
       readonly kind: 'MixedLiveAndTestBallots';
     }
 );
-
-type AddCvrFileResult = Result<Admin.CvrFileImportInfo, AddCastVoteRecordError>;
 
 /**
  * Manages a data store for imported election data, cast vote records, and
@@ -297,241 +289,6 @@ export class Store {
     };
   }
 
-  private convertCvrParseErrorsToApiError(
-    cvrParseResult: ParseCastVoteRecordResult
-  ): AddCastVoteRecordError {
-    // Find errors for which we want surface specific messaging to
-    // the user:
-    // [TODO: there's room for simplification here - currently leveraging
-    // older validation code in `parseCvrs` as a first step.]
-    for (const errorMessage of cvrParseResult.errors) {
-      if (errorMessage.includes('not in the election definition')) {
-        return {
-          kind: 'MismatchedElectionDetails',
-          lineNumber: cvrParseResult.lineNumber,
-          userFriendlyMessage: errorMessage,
-        };
-      }
-
-      if (
-        errorMessage.includes('not a valid contest choice') ||
-        errorMessage.includes('not a valid candidate choice')
-      ) {
-        return {
-          kind: 'InvalidVote',
-          lineNumber: cvrParseResult.lineNumber,
-          userFriendlyMessage: errorMessage,
-        };
-      }
-    }
-
-    // Generic fallback error for unhandled validation errors:
-    return {
-      kind: 'InvalidCvr',
-      lineNumber: cvrParseResult.lineNumber,
-      errors: cvrParseResult.errors,
-      userFriendlyMessage:
-        `the CVR at line ${cvrParseResult.lineNumber} is invalid for ` +
-        `this election`,
-    };
-  }
-
-  /**
-   * @deprecated Adds a CVR file record and returns its ID. If a CVR file with the same
-   * contents has already been added, returns the ID of that record instead.
-   *
-   * Call with `analyzeOnly` set to `true` to only analyze the file and not add
-   * it to the database.
-   */
-  async addLegacyCastVoteRecordFile({
-    electionId,
-    filePath,
-    originalFilename,
-    analyzeOnly,
-    exportedTimestamp,
-  }: {
-    electionId: Id;
-    filePath: string;
-    originalFilename: string;
-    analyzeOnly?: boolean;
-    exportedTimestamp: Iso8601Timestamp;
-  }): Promise<AddCvrFileResult> {
-    const election = this.getElection(electionId)?.electionDefinition.election;
-    if (!election) {
-      return err({ kind: 'InvalidElectionId' });
-    }
-
-    const sha256Hash = await sha256File(filePath);
-
-    const transactionFn = async (): Promise<AddCvrFileResult> => {
-      let id = uuid();
-      let newlyAdded = 0;
-      let alreadyPresent = 0;
-
-      const currentCvrFileMode =
-        this.getCurrentCvrFileModeForElection(electionId);
-      let newCvrFileMode: Admin.CvrFileMode;
-      const precinctIds = new Set<string>();
-      const scannerIds = new Set<string>();
-
-      const existing = this.client.one(
-        `
-          select id
-          from cvr_files
-          where election_id = ?
-            and sha256_hash = ?
-        `,
-        electionId,
-        sha256Hash
-      ) as { id: Id } | undefined;
-
-      if (existing) {
-        alreadyPresent = (
-          this.client.one(
-            `
-              select count(cvr_id) as alreadyPresent
-              from cvr_file_entries
-              where cvr_file_id = ?
-            `,
-            existing.id
-          ) as { alreadyPresent: number }
-        ).alreadyPresent;
-        id = existing.id;
-        newCvrFileMode = currentCvrFileMode;
-      } else {
-        this.client.run(
-          `
-            insert into cvr_files (
-              id,
-              election_id,
-              filename,
-              export_timestamp,
-              precinct_ids,
-              scanner_ids,
-              sha256_hash
-            ) values (
-              ?, ?, ?, ?, ?, ?, ?
-            )
-          `,
-          id,
-          electionId,
-          originalFilename,
-          exportedTimestamp,
-          JSON.stringify([]),
-          JSON.stringify([]),
-          sha256Hash
-        );
-
-        const lines = readline.createInterface(fs.createReadStream(filePath));
-        let containsTestBallots = false;
-        let containsLiveBallots = false;
-
-        for await (const line of lines) {
-          if (line.trim() === '') {
-            continue;
-          }
-
-          const [cvrParseResult] = [...parseCvrs(line, election)];
-          assert(cvrParseResult);
-
-          if (cvrParseResult.errors.length > 0) {
-            return err(this.convertCvrParseErrorsToApiError(cvrParseResult));
-          }
-
-          const { cvr } = cvrParseResult;
-
-          if (!cvr._ballotId) {
-            return err({ kind: 'BallotIdRequired' });
-          }
-
-          containsTestBallots ||= cvr._testBallot;
-          containsLiveBallots ||= !cvr._testBallot;
-          if (containsTestBallots && containsLiveBallots) {
-            return err({
-              kind: 'MixedLiveAndTestBallots',
-              userFriendlyMessage:
-                'these CVRs cannot be tabulated together because ' +
-                'they mix live and test ballots',
-            });
-          }
-
-          const result = this.addCastVoteRecordFileEntry(
-            electionId,
-            id,
-            cvr._ballotId,
-            line
-          );
-
-          if (result.isErr()) {
-            return result;
-          }
-
-          precinctIds.add(cvr._precinctId);
-          scannerIds.add(cvr._scannerId);
-
-          this.addWriteInsFromCvr(result.ok().id, cvr);
-
-          if (result.ok().isNew) {
-            newlyAdded += 1;
-          } else {
-            alreadyPresent += 1;
-          }
-        }
-
-        this.client.run(
-          `
-            update cvr_files
-            set
-              precinct_ids = ?,
-              scanner_ids = ?
-            where id = ?
-          `,
-          JSON.stringify([...precinctIds]),
-          JSON.stringify([...scannerIds]),
-          id
-        );
-
-        newCvrFileMode = containsLiveBallots
-          ? Admin.CvrFileMode.Official
-          : Admin.CvrFileMode.Test;
-
-        // Ensure CVR mode matches previous file imports, if any:
-        if (
-          currentCvrFileMode !== Admin.CvrFileMode.Unlocked &&
-          newCvrFileMode !== currentCvrFileMode
-        ) {
-          return err({
-            kind: 'InvalidCvrFileMode',
-            userFriendlyMessage:
-              `this file contains ${newCvrFileMode} ballots, ` +
-              `but you are currently in ${currentCvrFileMode} mode`,
-          });
-        }
-      }
-
-      return ok({
-        id,
-        alreadyPresent,
-        exportedTimestamp,
-        fileMode: newCvrFileMode,
-        fileName: originalFilename,
-        newlyAdded,
-        scannerIds: [...scannerIds],
-        wasExistingFile: !!existing,
-      });
-    };
-
-    function shouldCommit(result: AddCvrFileResult): boolean {
-      if (analyzeOnly) {
-        return false;
-      }
-
-      return result.isOk();
-    }
-
-    return await this.client.transaction(transactionFn, shouldCommit);
-  }
-
   getCastVoteRecordFileByHash(
     electionId: Id,
     sha256Hash: string
@@ -738,18 +495,6 @@ export class Store {
     );
 
     return ok({ id, isNew: !existing });
-  }
-
-  private addWriteInsFromCvr(cvrId: string, cvr: CastVoteRecord): void {
-    for (const [contestId, writeInIds] of getWriteInsFromCastVoteRecord(cvr)) {
-      for (const optionId of writeInIds) {
-        this.addWriteIn({
-          castVoteRecordId: cvrId,
-          contestId,
-          optionId,
-        });
-      }
-    }
   }
 
   /**

@@ -38,7 +38,6 @@ import {
 } from './cvr_files';
 import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
-import { CvrImportFormat, CVR_IMPORT_FORMAT } from './globals';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -257,18 +256,11 @@ function buildApi({
       );
     },
 
-    listCastVoteRecordFilesOnUsb(
-      input: { cvrImportFormat?: CvrImportFormat } = {}
-    ) {
+    listCastVoteRecordFilesOnUsb() {
       const electionDefinition = getCurrentElectionDefinition(workspace);
       assert(electionDefinition);
 
-      return listCastVoteRecordFilesOnUsb(
-        electionDefinition,
-        usb,
-        logger,
-        input.cvrImportFormat || CVR_IMPORT_FORMAT
-      );
+      return listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger);
     },
 
     getCastVoteRecordFiles(): Admin.CastVoteRecordFileRecord[] {
@@ -298,16 +290,9 @@ function buildApi({
         }));
     },
 
-    /**
-     * TODO: Currently this supports CDF and VXF cast vote record files. Move
-     * to only supporting CDF files and clean up the error message handling.
-     */
     async addCastVoteRecordFile(input: {
       path: string;
-      cvrImportFormatFromParams?: CvrImportFormat;
     }): Promise<AddCastVoteRecordFileResult> {
-      const cvrImportFormat =
-        input.cvrImportFormatFromParams || CVR_IMPORT_FORMAT;
       const { path } = input;
       const userRole = assertDefined(await getUserRole());
       const filename = basename(path);
@@ -334,70 +319,26 @@ function buildApi({
         parseCastVoteRecordReportDirectoryName(basename(path))?.timestamp ||
         fileStat.mtime;
 
-      if (cvrImportFormat === 'cdf') {
-        const addCastVoteRecordReportResult = await addCastVoteRecordReport({
-          store,
-          reportDirectoryPath: path,
-          exportedTimestamp: exportedTimestamp.toISOString(),
-        });
-
-        if (addCastVoteRecordReportResult.isErr()) {
-          const errorType = addCastVoteRecordReportResult.err().type;
-          const userFriendlyMessage = errorType;
-          await logger.log(LogEventId.CvrLoaded, userRole, {
-            message: `Failed to load CVR file: ${errorType}`,
-            disposition: 'failure',
-            filename,
-            error: errorType,
-            result: 'File not loaded, error shown to user.',
-          });
-          return err({ type: 'invalid-cdf-report', userFriendlyMessage });
-        }
-
-        if (addCastVoteRecordReportResult.ok().wasExistingFile) {
-          // log failure if the file was a duplicate
-          await logger.log(LogEventId.CvrLoaded, userRole, {
-            message:
-              'CVR file was not loaded as it is a duplicate of a previously loaded file.',
-            disposition: 'failure',
-            filename,
-            result: 'File not loaded, error shown to user.',
-          });
-        } else {
-          // log success otherwise
-          await logger.log(LogEventId.CvrLoaded, userRole, {
-            message: 'CVR file successfully loaded.',
-            disposition: 'success',
-            filename,
-            numberOfBallotsImported:
-              addCastVoteRecordReportResult.ok().newlyAdded,
-            duplicateBallotsIgnored:
-              addCastVoteRecordReportResult.ok().alreadyPresent,
-          });
-        }
-        return addCastVoteRecordReportResult;
-      }
-
-      const addFileResult = await store.addLegacyCastVoteRecordFile({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        filePath: path,
-        originalFilename: basename(path),
+      const addCastVoteRecordReportResult = await addCastVoteRecordReport({
+        store,
+        reportDirectoryPath: path,
         exportedTimestamp: exportedTimestamp.toISOString(),
       });
 
-      if (addFileResult.isErr()) {
-        const errorMessage = addFileResult.err().userFriendlyMessage;
+      if (addCastVoteRecordReportResult.isErr()) {
+        const errorType = addCastVoteRecordReportResult.err().type;
+        const userFriendlyMessage = errorType;
         await logger.log(LogEventId.CvrLoaded, userRole, {
-          message: `Failed to load CVR file: ${errorMessage}`,
+          message: `Failed to load CVR file: ${errorType}`,
           disposition: 'failure',
           filename,
-          error: errorMessage,
+          error: errorType,
           result: 'File not loaded, error shown to user.',
         });
-        return err({ type: 'invalid-record', ...addFileResult.err() });
+        return err({ type: 'invalid-cdf-report', userFriendlyMessage });
       }
 
-      if (addFileResult.ok().wasExistingFile) {
+      if (addCastVoteRecordReportResult.ok().wasExistingFile) {
         // log failure if the file was a duplicate
         await logger.log(LogEventId.CvrLoaded, userRole, {
           message:
@@ -412,12 +353,13 @@ function buildApi({
           message: 'CVR file successfully loaded.',
           disposition: 'success',
           filename,
-          numberOfBallotsImported: addFileResult.ok().newlyAdded,
-          duplicateBallotsIgnored: addFileResult.ok().alreadyPresent,
+          numberOfBallotsImported:
+            addCastVoteRecordReportResult.ok().newlyAdded,
+          duplicateBallotsIgnored:
+            addCastVoteRecordReportResult.ok().alreadyPresent,
         });
       }
-
-      return addFileResult;
+      return addCastVoteRecordReportResult;
     },
 
     clearCastVoteRecordFiles(): void {

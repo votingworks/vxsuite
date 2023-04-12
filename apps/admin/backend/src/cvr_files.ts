@@ -50,7 +50,6 @@ import * as fs from 'fs/promises';
 import { basename, join } from 'path';
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
-import { CvrImportFormat } from './globals';
 import { Store } from './store';
 import { CastVoteRecordFileMetadata } from './types';
 import { sha256File } from './util/sha256_file';
@@ -65,8 +64,7 @@ import { getWriteInsFromCastVoteRecord } from './util/cvrs';
 export async function listCastVoteRecordFilesOnUsb(
   electionDefinition: ElectionDefinition,
   usb: Usb,
-  logger: Logger,
-  importFormat: CvrImportFormat = 'vxf'
+  logger: Logger
 ): Promise<CastVoteRecordFileMetadata[]> {
   const { election, electionHash } = electionDefinition;
   const fileSearchResult = await listDirectoryOnUsbDrive(
@@ -109,12 +107,7 @@ export async function listCastVoteRecordFilesOnUsb(
   const castVoteRecordFileMetadataList: CastVoteRecordFileMetadata[] = [];
 
   for (const entry of fileSearchResult.ok()) {
-    if (
-      (importFormat === 'vxf' &&
-        entry.type === FileSystemEntryType.File &&
-        entry.name.endsWith('.jsonl')) ||
-      (importFormat === 'cdf' && entry.type === FileSystemEntryType.Directory)
-    ) {
+    if (entry.type === FileSystemEntryType.Directory) {
       const parsedFileInfo = parseCastVoteRecordReportDirectoryName(entry.name);
       if (parsedFileInfo) {
         castVoteRecordFileMetadataList.push({
