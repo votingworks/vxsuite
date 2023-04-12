@@ -1,5 +1,6 @@
 import {
   BallotIdSchema,
+  BallotPageLayout,
   BallotPageMetadata,
   BatchInfo,
   CVR,
@@ -255,6 +256,7 @@ async function exportPageImageAndLayoutToUsbDrive({
   exporter,
   bucket,
   imageFilename,
+  computedLayout,
   ballotPageLayoutsLookup,
   ballotPageMetadata,
   election,
@@ -263,16 +265,19 @@ async function exportPageImageAndLayoutToUsbDrive({
   exporter: Exporter;
   bucket: string;
   imageFilename: string;
+  computedLayout?: BallotPageLayout;
   ballotPageLayoutsLookup: BallotPageLayoutsLookup;
   ballotPageMetadata: BallotPageMetadata;
   election: Election;
   batchId: string;
 }): Promise<Result<void, ExportDataError>> {
-  const layout = getBallotPageLayout({
-    ballotPageMetadata,
-    ballotPageLayoutsLookup,
-    election,
-  });
+  const layout =
+    computedLayout ??
+    getBallotPageLayout({
+      ballotPageMetadata,
+      ballotPageLayoutsLookup,
+      election,
+    });
   const exportImageResult = await exporter.exportDataToUsbDrive(
     bucket,
     join(CVR_BALLOT_IMAGES_SUBDIRECTORY, batchId, basename(imageFilename)),
@@ -413,6 +418,7 @@ export async function exportCastVoteRecordReportToUsbDrive({
           exporter,
           bucket: reportDirectory,
           imageFilename: frontFilename,
+          computedLayout: front.layout,
           ballotPageMetadata: front.metadata,
           ballotPageLayoutsLookup,
           election,
@@ -430,6 +436,7 @@ export async function exportCastVoteRecordReportToUsbDrive({
           exporter,
           bucket: reportDirectory,
           imageFilename: backFilename,
+          computedLayout: back.layout,
           ballotPageMetadata: back.metadata,
           ballotPageLayoutsLookup,
           election,
