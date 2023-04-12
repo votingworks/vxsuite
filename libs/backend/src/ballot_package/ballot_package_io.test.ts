@@ -15,9 +15,35 @@ import {
 } from '@votingworks/fixtures';
 import { assert } from '@votingworks/basics';
 import { safeParseSystemSettings } from '@votingworks/utils';
+import { join } from 'path';
+import * as fs from 'fs';
+import { Buffer } from 'buffer';
 import { createBallotPackageWithoutTemplates } from './test_utils';
 import { readBallotPackageFromUsb } from './ballot_package_io';
 import { createMockUsb } from '../mock_usb';
+import { UsbDrive } from '../get_usb_drives';
+
+function assertFilesCreatedInOrder(
+  usbDrive: UsbDrive,
+  olderFileName: string,
+  newerFileName: string
+) {
+  assert(usbDrive?.mountPoint !== undefined);
+  // Ensure our mock actually created the files in the order we expect (the
+  // order of the keys in the object above)
+  const dirPath = join(usbDrive.mountPoint, 'ballot-packages');
+  const files = fs.readdirSync(dirPath);
+  const filesWithStats = files.map((file) => ({
+    file,
+    ...fs.statSync(join(dirPath, file)),
+  }));
+  assert(filesWithStats[0] !== undefined && filesWithStats[1] !== undefined);
+  expect(filesWithStats[0].file).toContain(newerFileName);
+  expect(filesWithStats[1].file).toContain(olderFileName);
+  expect(filesWithStats[0].ctime.getTime()).toBeGreaterThan(
+    filesWithStats[1].ctime.getTime()
+  );
+}
 
 test('readBallotPackageFromUsb can read a ballot package from usb', async () => {
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
@@ -200,4 +226,87 @@ test('errors if a user is authenticated but is not an election manager', async (
   await expect(
     readBallotPackageFromUsb(authStatus, usbDrive, fakeLogger())
   ).rejects.toThrow('Only election managers may configure a ballot package.');
+});
+
+test('configures using the most recently created ballot package on the usb drive', async () => {
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const authStatus: InsertedSmartCardAuth.AuthStatus = {
+    status: 'logged_in',
+    user: fakeElectionManagerUser({
+      electionHash: electionDefinition.electionHash,
+    }),
+    sessionExpiresAt: fakeSessionExpiresAt(),
+  };
+
+  const mockUsb = createMockUsb();
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'older-ballot-package.zip':
+        electionFamousNames2021Fixtures.ballotPackage.asBuffer(),
+      'newer-ballot-package.zip': createBallotPackageWithoutTemplates(
+        electionDefinition,
+        { systemSettingsString: systemSettings.asText() }
+      ),
+    },
+  });
+  const [usbDrive] = await mockUsb.mock.getUsbDrives();
+  assert(usbDrive);
+  assertFilesCreatedInOrder(
+    usbDrive,
+    'older-ballot-package.zip',
+    'newer-ballot-package.zip'
+  );
+
+  const ballotPackageResult = await readBallotPackageFromUsb(
+    authStatus,
+    usbDrive,
+    fakeLogger()
+  );
+  assert(ballotPackageResult.isOk());
+  const ballotPackage = ballotPackageResult.ok();
+  expect(ballotPackage.electionDefinition).toEqual(electionDefinition);
+  expect(ballotPackage.systemSettings).toEqual(
+    safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
+  );
+});
+
+test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const authStatus: InsertedSmartCardAuth.AuthStatus = {
+    status: 'logged_in',
+    user: fakeElectionManagerUser({
+      electionHash: electionDefinition.electionHash,
+    }),
+    sessionExpiresAt: fakeSessionExpiresAt(),
+  };
+
+  const mockUsb = createMockUsb();
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'older-ballot-package.zip': createBallotPackageWithoutTemplates(
+        electionDefinition,
+        { systemSettingsString: systemSettings.asText() }
+      ),
+      '._newer-hidden-file-ballot-package.zip': Buffer.from('not a zip file'),
+    },
+  });
+  const [usbDrive] = await mockUsb.mock.getUsbDrives();
+  assert(usbDrive);
+  assertFilesCreatedInOrder(
+    usbDrive,
+    'older-ballot-package.zip',
+    '._newer-hidden-file-ballot-package.zip'
+  );
+
+  const ballotPackageResult = await readBallotPackageFromUsb(
+    authStatus,
+    usbDrive,
+    fakeLogger()
+  );
+  assert(ballotPackageResult.isOk());
+  const ballotPackage = ballotPackageResult.ok();
+  expect(ballotPackage.electionDefinition).toEqual(electionDefinition);
+  expect(ballotPackage.systemSettings).toEqual(
+    safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
+  );
 });
