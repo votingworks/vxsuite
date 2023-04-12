@@ -73,16 +73,23 @@ pub fn build_interpreted_page_layout(
     grid_layout: &GridLayout,
     side: BallotSide,
 ) -> Option<Vec<InterpretedContestLayout>> {
-    let grid_positions_by_contest = grid_layout
+    let contest_ids_in_grid_layout_order = grid_layout
         .grid_positions
         .iter()
         .filter(|grid_position| grid_position.location().side == side)
-        .map(|grid_position| (grid_position.contest_id(), grid_position))
-        .into_group_map();
+        .map(|grid_position| grid_position.contest_id())
+        .unique()
+        .collect::<Vec<_>>();
 
-    grid_positions_by_contest
+    contest_ids_in_grid_layout_order
         .iter()
-        .map(|(contest_id, grid_positions)| {
+        .map(|contest_id| {
+            let grid_positions = grid_layout
+                .grid_positions
+                .iter()
+                .filter(|grid_position| grid_position.contest_id() == *contest_id)
+                .collect::<Vec<_>>();
+
             let options = grid_positions
                 .iter()
                 .map(|grid_position| build_option_layout(grid, grid_position))
@@ -96,10 +103,10 @@ pub fn build_interpreted_page_layout(
                 .expect("Contest must have options");
 
             Some(InterpretedContestLayout {
-                contest_id: (*contest_id).clone(),
+                contest_id: contest_id.clone(),
                 bounds,
                 options,
             })
         })
-        .collect::<Option<Vec<_>>>()
+        .collect()
 }
