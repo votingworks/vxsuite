@@ -9,7 +9,7 @@ import { ApiMock } from './mock_api_client';
  * @param apiMock
  * @param kiosk
  * @param screen
- * @param electionDefinition The election definition to return from apiMock
+ * @param electionDefinition The election definition to return from apiMock.
  */
 export async function configureFromUsbThenRemove(
   apiMock: ApiMock,
@@ -19,8 +19,8 @@ export async function configureFromUsbThenRemove(
 ): Promise<void> {
   // Insert USB
   apiMock.expectConfigureBallotPackageFromUsb(electionDefinition);
-  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   apiMock.expectGetElectionDefinition(electionDefinition);
+  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   // Remove USB after configuration is done
   await screen.findByText('Configuring VxMark from USB drive…');

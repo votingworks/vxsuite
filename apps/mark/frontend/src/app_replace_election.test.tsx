@@ -4,8 +4,7 @@ import {
   electionSample2Definition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
-import { ok } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { FakeKiosk, fakeKiosk } from '@votingworks/test-utils';
 import { fireEvent, screen } from '../test/react_testing_library';
 import {
   setElectionInStorage,
@@ -13,15 +12,18 @@ import {
 } from '../test/helpers/election';
 import { render } from '../test/test_utils';
 import { App } from './app';
-import { advanceTimersAndPromises } from '../test/helpers/timers';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { configureFromUsbThenRemove } from '../test/helpers/ballot_package';
 
 let apiMock: ApiMock;
+let kiosk: FakeKiosk;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
+  kiosk = fakeKiosk();
+  window.kiosk = kiosk;
 });
 
 afterEach(() => {
@@ -30,10 +32,12 @@ afterEach(() => {
 
 jest.setTimeout(15000);
 
-test('replacing a loaded election with one from a card', async () => {
+test('replacing a loaded election with one from USB', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
+  // Set up an already-congfigured election
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
 
   // setup with typical election
   await setElectionInStorage(storage);
@@ -49,22 +53,21 @@ test('replacing a loaded election with one from a card', async () => {
   );
 
   // insert election manager card with different election
-  apiMock.mockApiClient.readElectionDefinitionFromCard
-    .expectCallWith({ electionHash: electionSampleDefinition.electionHash })
-    .resolves(ok(electionSample2Definition));
   apiMock.setAuthStatusElectionManagerLoggedIn(electionSample2Definition);
   await screen.findByText('This card is configured for a different election.');
 
   // unconfigure
+  apiMock.expectUnconfigureMachine();
+  apiMock.expectGetElectionDefinition(null);
   fireEvent.click(screen.getByText('Remove the Current Election and All Data'));
-  await advanceTimersAndPromises();
 
   // load new election
-  await screen.findByText('Election Manager Actions');
-  apiMock.mockApiClient.readElectionDefinitionFromCard
-    .expectCallWith({ electionHash: undefined })
-    .resolves(ok(electionSample2Definition));
-  userEvent.click(screen.getByText('Load Election Definition'));
-  await advanceTimersAndPromises();
-  screen.getByText(electionSample2Definition.election.title);
+  await screen.findByText('VxMark is not configured');
+  await configureFromUsbThenRemove(
+    apiMock,
+    kiosk,
+    screen,
+    electionSample2Definition
+  );
+  await screen.findByText(electionSample2Definition.election.title);
 });
