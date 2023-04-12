@@ -95,15 +95,8 @@ export interface InterpretedBallotCard {
 export interface InterpretedBallotPage {
   grid: TimingMarkGrid;
   marks: ScoredOvalMarks;
-  normalizedImage: NormalizedImageBuffer;
+  normalizedImage: ImageData;
   contestLayouts: InterpretedContestLayout[];
-}
-
-/** Image data for the normalized ballot image produced during interpetation. */
-export interface NormalizedImageBuffer {
-  width: u32;
-  height: u32;
-  data: number[];
 }
 
 /** The pixel bounds outlining a contest option in the normalized ballot image. */

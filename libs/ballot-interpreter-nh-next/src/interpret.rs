@@ -1,6 +1,5 @@
 use std::path::Path;
 
-use image::DynamicImage;
 use image::GenericImage;
 use image::GrayImage;
 use imageproc::contrast::otsu_level;
@@ -60,10 +59,11 @@ pub struct NormalizedImageBuffer {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterpretedBallotPage {
-    grid: TimingMarkGrid,
-    marks: ScoredOvalMarks,
-    normalized_image: NormalizedImageBuffer,
-    contest_layouts: Vec<InterpretedContestLayout>,
+    pub grid: TimingMarkGrid,
+    pub marks: ScoredOvalMarks,
+    #[serde(skip_serializing)] // `normalized_image` is returned separately.
+    pub normalized_image: GrayImage,
+    pub contest_layouts: Vec<InterpretedContestLayout>,
 }
 #[derive(Debug, Serialize)]
 pub struct InterpretedBallotCard {
@@ -233,17 +233,6 @@ pub fn load_and_prepare_ballot_page_image(
 }
 
 #[time]
-fn make_normalized_image_buffer(image: GrayImage) -> NormalizedImageBuffer {
-    let (width, height) = image.dimensions();
-    let rgba_image = DynamicImage::ImageLuma8(image).into_rgba8();
-    NormalizedImageBuffer {
-        width,
-        height,
-        data: rgba_image.into_raw(),
-    }
-}
-
-#[time]
 pub fn interpret_ballot_card(side_a_path: &Path, side_b_path: &Path, options: &Options) -> Result {
     let LoadedBallotCard {
         side_a,
@@ -378,13 +367,13 @@ pub fn interpret_ballot_card(side_a_path: &Path, side_b_path: &Path, options: &O
         front: InterpretedBallotPage {
             grid: front_grid,
             marks: front_scored_oval_marks,
-            normalized_image: make_normalized_image_buffer(front_image),
+            normalized_image: front_image,
             contest_layouts: front_contest_layouts,
         },
         back: InterpretedBallotPage {
             grid: back_grid,
             marks: back_scored_oval_marks,
-            normalized_image: make_normalized_image_buffer(back_image),
+            normalized_image: back_image,
             contest_layouts: back_contest_layouts,
         },
     })
