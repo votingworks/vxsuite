@@ -27,7 +27,7 @@ Run that and then retry.
 
 async function programSystemAdministratorJavaCard(): Promise<string> {
   const card = new JavaCard(
-    // Uses process.env.NODE_ENV to determine which config to use
+    // Uses NODE_ENV to determine which config to use
     constructJavaCardConfig({ includeCardProgrammingConfig: true })
   );
   await waitForReadyCardStatus(card);
@@ -53,8 +53,8 @@ async function programSystemAdministratorJavaCard(): Promise<string> {
 }
 
 /**
- * A script for programming a first system administrator Java Card to bootstrap both real usage and
- * local development.
+ * A script for programming a first system administrator Java Card to bootstrap both production
+ * machine usage and local development.
  *
  * Uses the NODE_ENV env var to determine whether to program a production or development card.
  * Programming a production card requires additional production-machine-specific env vars.

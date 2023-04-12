@@ -72,9 +72,9 @@ unprogrammed through VxAdmin.
 ### System Administrator Java Card Programming Script
 
 This script programs a first system administrator Java Card to bootstrap both
-real usage and local development. Once you have your first system administrator
-card, you can program all other cards, including additional system administrator
-cards, through the VxAdmin UI.
+production machine usage and local development. Once you have your first system
+administrator card, you can program all other cards, including additional system
+administrator cards, through the VxAdmin UI.
 
 The script uses the `NODE_ENV` env var to determine whether to program a
 production or development card. Programming a production card requires
