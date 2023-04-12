@@ -15,6 +15,8 @@ import {
   H1,
   P,
   PowerDownButton,
+  FullScreenIconWrapper,
+  Icons,
 } from '@votingworks/ui';
 import {
   BallotCountDetails,
@@ -62,7 +64,6 @@ import { ScreenMainCenterChild } from '../components/layout';
 
 import { LiveCheckModal } from '../components/live_check_modal';
 
-import { TimesCircle } from '../components/graphics';
 import { rootDebug } from '../utils/debug';
 import {
   exportCastVoteRecordsToUsbDrive,
@@ -85,7 +86,9 @@ const debug = rootDebug.extend('pollworker-screen');
 
 const BallotsAlreadyScannedScreen = (
   <ScreenMainCenterChild infoBarMode="pollworker">
-    <TimesCircle />
+    <FullScreenIconWrapper color="danger">
+      <Icons.DangerX />
+    </FullScreenIconWrapper>
     <CenteredLargeProse>
       <H1>Ballots Already Scanned</H1>
       <P>

@@ -1,12 +1,18 @@
 import React from 'react';
-import { Caption, CenteredLargeProse, H1, P } from '@votingworks/ui';
+import {
+  Caption,
+  CenteredLargeProse,
+  FullScreenIconWrapper,
+  H1,
+  Icons,
+  P,
+} from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type {
   InvalidInterpretationReason,
   PrecinctScannerErrorType,
 } from '@votingworks/scan-backend';
-import { TimesCircle } from '../components/graphics';
 import { ScreenMainCenterChild } from '../components/layout';
 
 export interface Props {
@@ -65,7 +71,9 @@ export function ScanErrorScreen({
       infoBar={false}
       ballotCountOverride={scannedBallotCount}
     >
-      <TimesCircle />
+      <FullScreenIconWrapper color="danger">
+        <Icons.DangerX />
+      </FullScreenIconWrapper>
       <CenteredLargeProse>
         <H1>Ballot Not Counted</H1>
         <P>{errorMessage}</P>

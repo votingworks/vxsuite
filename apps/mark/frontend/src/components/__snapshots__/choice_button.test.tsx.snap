@@ -57,7 +57,7 @@ exports[`renders ChoiceButton 1`] = `
   type="button"
 >
   <span
-    class="sc-giYgFv hVfOtt"
+    class="sc-ezbkgU gcJsOl"
   >
     foo
   </span>
