@@ -42,44 +42,6 @@ function convertSqliteTimestampToIso8601(
 }
 
 /**
- * Errors that can occur when adding a CVR file.
- */
-export type AddCastVoteRecordError = {
-  userFriendlyMessage?: string;
-} & (
-  | {
-      readonly kind: 'BallotIdRequired';
-    }
-  | {
-      readonly kind: 'BallotIdAlreadyExistsWithDifferentData';
-      readonly newData: string;
-      readonly existingData: string;
-    }
-  | {
-      readonly kind: 'InvalidCvr';
-      readonly lineNumber: number;
-      readonly errors: string[];
-    }
-  | {
-      readonly kind: 'InvalidCvrFileMode';
-    }
-  | {
-      readonly kind: 'InvalidElectionId';
-    }
-  | {
-      readonly kind: 'InvalidVote';
-      readonly lineNumber: number;
-    }
-  | {
-      readonly kind: 'MismatchedElectionDetails';
-      readonly lineNumber: number;
-    }
-  | {
-      readonly kind: 'MixedLiveAndTestBallots';
-    }
-);
-
-/**
  * Manages a data store for imported election data, cast vote records, and
  * transcribed and adjudicated write-ins.
  */

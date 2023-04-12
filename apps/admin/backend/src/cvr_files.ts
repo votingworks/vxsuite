@@ -384,6 +384,9 @@ export function convertCastVoteRecordToLegacyFormat({
  */
 export type AddCastVoteRecordReportError =
   | {
+      type: 'report-access-failure';
+    }
+  | {
       type: 'invalid-report-structure';
       error: CastVoteRecordReportDirectoryStructureValidationError;
     }
@@ -412,7 +415,71 @@ export type AddCastVoteRecordReportError =
     }
   | {
       type: 'ballot-id-already-exists-with-different-data';
+      index: number;
     };
+
+/**
+ * Convert a {@link AddCastVoteRecordReportError} to a human readable message
+ * for logging and presentation to the user.
+ */
+export function getAddCastVoteRecordReportErrorMessage(
+  error: AddCastVoteRecordReportError
+): string {
+  const errorType = error.type;
+  switch (errorType) {
+    case 'report-access-failure':
+      return 'Failed to access cast vote record report for import.';
+    case 'invalid-report-structure':
+      return 'Cast vote record report has invalid file structure.';
+    case 'malformed-report-metadata':
+    case 'malformed-cast-vote-record':
+      return 'Unable to parse cast vote record report, it may be malformed.';
+    case 'invalid-report-file-mode':
+      if (error.currentFileMode === Admin.CvrFileMode.Official) {
+        return `You are currently tabulating official results but the selected cast vote record report report contains test results.`;
+      }
+      return `You are currently tabulating test results but the selected cast vote record report contains official results.`;
+    case 'invalid-cast-vote-record': {
+      const messageBase = `Found an invalid cast vote record at index ${error.index} in the current report.`;
+      const messageDetail = (() => {
+        const subErrorType = error.error;
+        switch (subErrorType) {
+          case 'invalid-election':
+            return `The record references an election other than the current election.`;
+          case 'invalid-ballot-style':
+            return `The record references an non-existent ballot style.`;
+          case 'invalid-batch':
+            return `The record references a scanning batch not detailed in the report.`;
+          case 'invalid-precinct':
+            return `The record references an non-existent precinct.`;
+          case 'invalid-sheet-number':
+            return `The record references an invalid sheet number.`;
+          case 'invalid-ballot-image-location':
+          case 'invalid-write-in-image-location':
+            return `The record references a ballot image which is not included in the report`;
+          case 'no-current-snapshot':
+            return `The record does not contain a current snapshot of the interpreted results.`;
+          case 'invalid-contest':
+            return `The record references a contest which does not exist for its ballot style.`;
+          case 'invalid-contest-option':
+            return `The record references a contest option which does not exist for the contest.`;
+          // istanbul ignore next
+          default:
+            throwIllegalValue(subErrorType);
+        }
+      })();
+
+      return `${messageBase} ${messageDetail}`;
+    }
+    case 'invalid-layout':
+      return `Unable to parse a layout associated with a ballot image. Path: ${error.path}`;
+    case 'ballot-id-already-exists-with-different-data':
+      return `Found cast vote record at index ${error.index} that has the same ballot id as a previously imported cast vote record, but with different data.`;
+    // istanbul ignore next
+    default:
+      throwIllegalValue(errorType);
+  }
+}
 
 /**
  * Result of an attempt to import a cast vote record report.
@@ -626,7 +693,10 @@ export async function addCastVoteRecordReport({
         cvrData
       );
       if (addCastVoteRecordResult.isErr()) {
-        return err({ type: 'ballot-id-already-exists-with-different-data' });
+        return err({
+          type: 'ballot-id-already-exists-with-different-data',
+          index: castVoteRecordIndex,
+        });
       }
       const { id: cvrId, isNew: cvrIsNew } = addCastVoteRecordResult.ok();
 

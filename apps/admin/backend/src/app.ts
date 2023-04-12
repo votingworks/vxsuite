@@ -15,7 +15,14 @@ import {
   SystemSettings,
   SystemSettingsSchema,
 } from '@votingworks/types';
-import { assert, assertDefined, err, ok, Optional } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  ok,
+  Optional,
+  Result,
+} from '@votingworks/basics';
 import express, { Application } from 'express';
 import {
   DippedSmartCardAuthApi,
@@ -26,14 +33,12 @@ import * as grout from '@votingworks/grout';
 import { promises as fs, Stats } from 'fs';
 import { basename } from 'path';
 import { parseCastVoteRecordReportDirectoryName } from '@votingworks/utils';
-import {
-  AddCastVoteRecordFileResult,
-  ConfigureResult,
-  SetSystemSettingsResult,
-} from './types';
+import { ConfigureResult, SetSystemSettingsResult } from './types';
 import { Workspace } from './util/workspace';
 import {
+  AddCastVoteRecordReportError,
   addCastVoteRecordReport,
+  getAddCastVoteRecordReportErrorMessage,
   listCastVoteRecordFilesOnUsb,
 } from './cvr_files';
 import { Usb } from './util/usb';
@@ -292,7 +297,12 @@ function buildApi({
 
     async addCastVoteRecordFile(input: {
       path: string;
-    }): Promise<AddCastVoteRecordFileResult> {
+    }): Promise<
+      Result<
+        Admin.CvrFileImportInfo,
+        AddCastVoteRecordReportError & { message: string }
+      >
+    > {
       const { path } = input;
       const userRole = assertDefined(await getUserRole());
       const filename = basename(path);
@@ -300,17 +310,17 @@ function buildApi({
       try {
         fileStat = await fs.stat(path);
       } catch (error) {
+        const message = `Failed to access cast vote record report for import.`;
         await logger.log(LogEventId.CvrLoaded, userRole, {
-          message: `Failed to access cast vote record file for import.`,
+          message,
           disposition: 'failure',
           filename,
           error: (error as Error).message,
-          result: 'File not loaded, error shown to user.',
+          result: 'Report not loaded, error shown to user.',
         });
         return err({
-          type: 'invalid-file',
-          userFriendlyMessage:
-            'the selected file could not be opened by the system',
+          type: 'report-access-failure',
+          message,
         });
       }
 
@@ -326,31 +336,34 @@ function buildApi({
       });
 
       if (addCastVoteRecordReportResult.isErr()) {
-        const errorType = addCastVoteRecordReportResult.err().type;
-        const userFriendlyMessage = errorType;
+        const message = getAddCastVoteRecordReportErrorMessage(
+          addCastVoteRecordReportResult.err()
+        );
         await logger.log(LogEventId.CvrLoaded, userRole, {
-          message: `Failed to load CVR file: ${errorType}`,
+          message,
           disposition: 'failure',
           filename,
-          error: errorType,
-          result: 'File not loaded, error shown to user.',
+          result: 'Report not loaded, error shown to user.',
         });
-        return err({ type: 'invalid-cdf-report', userFriendlyMessage });
+        return err({
+          ...addCastVoteRecordReportResult.err(),
+          message,
+        });
       }
 
       if (addCastVoteRecordReportResult.ok().wasExistingFile) {
         // log failure if the file was a duplicate
         await logger.log(LogEventId.CvrLoaded, userRole, {
           message:
-            'CVR file was not loaded as it is a duplicate of a previously loaded file.',
+            'Cast vote record report was not loaded as it is a duplicate of a previously loaded file.',
           disposition: 'failure',
           filename,
-          result: 'File not loaded, error shown to user.',
+          result: 'Report not loaded, error shown to user.',
         });
       } else {
         // log success otherwise
         await logger.log(LogEventId.CvrLoaded, userRole, {
-          message: 'CVR file successfully loaded.',
+          message: 'Cast vote record report successfully loaded.',
           disposition: 'success',
           filename,
           numberOfBallotsImported:
