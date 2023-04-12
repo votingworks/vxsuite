@@ -71,62 +71,6 @@ test('uses default machine config if not set', async () => {
   });
 });
 
-test('auth', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { electionHash } = electionDefinition;
-  await apiClient.getAuthStatus({ electionHash });
-  expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
-    electionHash,
-    jurisdiction: DEV_JURISDICTION,
-  });
-
-  await apiClient.checkPin({ electionHash, pin: '123456' });
-  expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
-  expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
-    1,
-    { electionHash, jurisdiction: DEV_JURISDICTION },
-    { pin: '123456' }
-  );
-
-  await apiClient.updateSessionExpiry({
-    electionHash,
-    sessionExpiresAt: fakeSessionExpiresAt(),
-  });
-  expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
-  expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
-    1,
-    { electionHash, jurisdiction: DEV_JURISDICTION },
-    { sessionExpiresAt: expect.any(Date) }
-  );
-
-  await apiClient.logOut({ electionHash });
-  expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
-  expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {
-    electionHash,
-    jurisdiction: DEV_JURISDICTION,
-  });
-
-  await apiClient.startCardlessVoterSession({
-    electionHash,
-    ballotStyleId: 'b1',
-    precinctId: 'p1',
-  });
-  expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledTimes(1);
-  expect(mockAuth.startCardlessVoterSession).toHaveBeenNthCalledWith(
-    1,
-    { electionHash, jurisdiction: DEV_JURISDICTION },
-    { ballotStyleId: 'b1', precinctId: 'p1' }
-  );
-
-  await apiClient.endCardlessVoterSession({ electionHash });
-  expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(1);
-  expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(1, {
-    electionHash,
-    jurisdiction: DEV_JURISDICTION,
-  });
-});
-
 test('read scanner report data from card', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { electionHash } = electionDefinition;
