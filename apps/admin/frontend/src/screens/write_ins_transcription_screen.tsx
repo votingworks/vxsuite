@@ -115,6 +115,112 @@ function WriteInImage({
   );
 }
 
+const FocusedImageContainer = styled.div<{
+  focusBounds: Rect;
+  scaleRatio: number;
+}>`
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+`;
+
+const FocusedImg = styled.img<{
+  focusBounds: Rect;
+  scaleRatio: number;
+}>`
+  position: absolute;
+  top: calc(
+    50% -
+      ${(props) =>
+        (props.focusBounds.y + props.focusBounds.height / 2) *
+        props.scaleRatio}px
+  );
+  left: calc(
+    50% -
+      ${(props) =>
+        (props.focusBounds.x + props.focusBounds.width / 2) *
+        props.scaleRatio}px
+  );
+`;
+
+const FocusedOverlay = styled.div<{ width: number; height: number }>`
+  clip-path: polygon(
+    0% 0%,
+    0% 100%,
+    calc(50% - ${(props) => props.width / 2}px) 100%,
+    calc(50% - ${(props) => props.width / 2}px)
+      calc(50% - ${(props) => props.height / 2}px),
+    calc(50% + ${(props) => props.width / 2}px)
+      calc(50% - ${(props) => props.height / 2}px),
+    calc(50% + ${(props) => props.width / 2}px)
+      calc(50% + ${(props) => props.height / 2}px),
+    calc(50% - ${(props) => props.width / 2}px)
+      calc(50% + ${(props) => props.height / 2}px),
+    calc(50% - ${(props) => props.width / 2}px) 100%,
+    100% 100%,
+    100% 0%
+  );
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+`;
+
+const FocusedImageControls = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.5rem;
+  z-index: 2;
+`;
+
+function FocusedImage({
+  imageUrl,
+  imageBounds,
+  focusBounds,
+}: {
+  imageUrl: string;
+  imageBounds: Rect;
+  focusBounds: Rect;
+}) {
+  const [isShowingFullBallot, setIsShowingFullBallot] = useState(false);
+  const scaleRatio = isShowingFullBallot
+    ? IMAGE_SCALE
+    : (imageBounds.width / focusBounds.width) * IMAGE_SCALE;
+  return (
+    <FocusedImageContainer focusBounds={focusBounds} scaleRatio={scaleRatio}>
+      {!isShowingFullBallot && (
+        <FocusedOverlay
+          width={focusBounds.width * scaleRatio}
+          height={focusBounds.height * scaleRatio}
+        />
+      )}
+      {isShowingFullBallot ?
+      <img src={imageUrl}  /> :
+      <FocusedImg
+        src={imageUrl}
+        width={imageBounds.width * scaleRatio}
+        focusBounds={focusBounds}
+        scaleRatio={scaleRatio}
+      />}
+      <FocusedImageControls>
+        <Button
+          onPress={() =>
+            setIsShowingFullBallot(
+              (previousIsShowingFullBallot) => !previousIsShowingFullBallot
+            )
+          }
+        >
+          {isShowingFullBallot ? 'Zoom In to Write-In' : 'Zoom Out to Full Ballot'}
+        </Button>
+      </FocusedImageControls>
+    </FocusedImageContainer>
+  );
+}
+
 interface Props {
   contest: CandidateContest;
   election: Election;
@@ -239,27 +345,11 @@ export function WriteInsTranscriptionScreen({
         <BallotViews>
           {imageData && (
             <React.Fragment>
-              <WriteInImage
+              <FocusedImage
                 imageUrl={`data:image/png;base64,${imageData.image}`}
-                bounds={imageData.contestCoordinates}
-                margin={0.1}
+                imageBounds={imageData.ballotCoordinates}
+                focusBounds={imageData.writeInCoordinates}
               />
-              <div style={{ display: 'flex', paddingTop: '0.5rem' }}>
-                <div style={{ flex: 0.9 }}>
-                  <WriteInImage
-                    // eslint-disable-next-line
-                imageUrl={`data:image/png;base64,${imageData.image}`}
-                    bounds={imageData.ballotCoordinates}
-                  />
-                </div>
-                <div style={{ flex: 1, paddingLeft: '0.5rem' }}>
-                  <WriteInImage
-                    imageUrl={`data:image/png;base64,${imageData.image}`}
-                    bounds={imageData.writeInCoordinates}
-                    margin={0.2}
-                  />
-                </div>
-              </div>
             </React.Fragment>
           )}
         </BallotViews>
