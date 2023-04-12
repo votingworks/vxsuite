@@ -48,8 +48,9 @@ impl InterpretError {
     }
 
     fn to_json(&self) -> String {
-        serde_json::to_string(self)
-            .unwrap_or(r#"{"type": "unknown", "message": "Failed to serialize error"}"#.to_string())
+        serde_json::to_string(self).unwrap_or_else(|_| {
+            r#"{"type": "unknown", "message": "Failed to serialize error"}"#.to_string()
+        })
     }
 
     fn json(message: String) -> String {
@@ -89,7 +90,7 @@ fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         Path::new(side_b_path.as_str()),
         &Options {
             election,
-            oval_template: load_oval_template().unwrap(),
+            oval_template: load_oval_template().expect("Failed to load oval template"),
             debug,
         },
     );

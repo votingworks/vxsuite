@@ -35,10 +35,10 @@ fn build_option_layout(
     let height: GridUnit = 2;
 
     let clamp_row = |row: i32| -> GridUnit {
-        return row.max(0).min(grid.geometry.grid_size.height as i32 - 1) as GridUnit;
+        row.clamp(0, grid.geometry.grid_size.height as i32 - 1) as GridUnit
     };
     let clamp_column = |column: i32| -> GridUnit {
-        return column.max(0).min(grid.geometry.grid_size.width as i32 - 1) as GridUnit;
+        column.clamp(0, grid.geometry.grid_size.width as i32 - 1) as GridUnit
     };
 
     let bubble_location = grid_position.location();
@@ -69,10 +69,10 @@ fn build_option_layout(
         bottom_right_subpixel_point.y as PixelPosition,
     );
 
-    return Some(InterpretedContestOptionLayout {
-        option_id: grid_position.option_id().clone(),
+    Some(InterpretedContestOptionLayout {
+        option_id: grid_position.option_id(),
         bounds: Rect::from_points(top_left_pixel_point, bottom_right_pixel_point),
-    });
+    })
 }
 
 pub fn build_interpreted_page_layout(

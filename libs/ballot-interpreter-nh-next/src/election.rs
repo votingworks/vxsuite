@@ -85,7 +85,7 @@ impl GridPosition {
         match self {
             Self::Option { option_id, .. } => option_id.clone(),
             Self::WriteIn { write_in_index, .. } => {
-                OptionId::from(format!("write-in-{}", write_in_index))
+                OptionId::from(format!("write-in-{write_in_index}"))
             }
         }
     }

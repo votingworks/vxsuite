@@ -309,7 +309,7 @@ pub fn normalize_angle(angle: Radians) -> Radians {
 /// Finds the largest subset of rectangles such that a line can be drawn through
 /// all of them for any line within the given tolerance of the given angle.
 pub fn find_largest_subset_intersecting_line(
-    rects: &Vec<Rect>,
+    rects: &[Rect],
     angle: Radians,
     tolerance: Radians,
 ) -> Vec<Rect> {
@@ -338,7 +338,7 @@ pub fn find_largest_subset_intersecting_line(
         })
         // Pick the list of rectangles that is the longest.
         .max_by_key(Vec::len)
-        .unwrap_or(vec![])
+        .unwrap_or_default()
         // Dereference the pointers.
         .iter()
         .map(|r| **r)
