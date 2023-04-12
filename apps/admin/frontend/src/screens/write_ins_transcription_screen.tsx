@@ -14,9 +14,9 @@ import {
   Main,
   Screen,
   Text,
-  CroppedImage,
   Prose,
   HorizontalRule,
+  Icons,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
@@ -25,12 +25,10 @@ import { Navigation } from '../components/navigation';
 import { InlineForm, TextInput } from '../components/text_input';
 import { getWriteInImage } from '../api';
 
-const IMAGE_SCALE = 0.5; // The images are downscaled by 50% in the export, this is to adjust for that.
-
 const BallotViews = styled.div`
   flex: 3;
   background: #455a64;
-  padding-right: 0.5rem;
+  padding: 0 0.5rem;
 `;
 
 const TranscriptionControls = styled.div`
@@ -56,6 +54,7 @@ const TranscriptionPagination = styled.div`
   }
   p {
     flex: 2;
+    margin: 0;
   }
 `;
 
@@ -89,29 +88,136 @@ const TranscribedButtons = styled.div`
   }
 `;
 
-function WriteInImage({
+const BallotImageViewerContainer = styled.div`
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+`;
+
+const ZoomedBallotImage = styled.img<{
+  focusBounds: Rect;
+  scale: number;
+  zoom: number;
+}>`
+  position: absolute;
+  top: calc(
+    (
+        50% -
+          ${(props) =>
+            (props.focusBounds.y + props.focusBounds.height / 2) *
+            props.scale}px
+      ) * ${(props) => props.zoom}
+  );
+  left: calc(
+    (
+        50% -
+          ${(props) =>
+            (props.focusBounds.x + props.focusBounds.width / 2) * props.scale}px
+      ) * ${(props) => props.zoom}
+  );
+`;
+
+// We want to create a transparent overlay with a centered rectangle cut out of
+// it of the size of the write-in area. There's not a super easy way to do this
+// in CSS. Based on an idea from https://css-tricks.com/cutouts/, I used this
+// tool to design the clipping path, https://bennettfeely.com/clippy/, and then
+// parameterized it with the focus area width and height.
+const WriteInFocusOverlay = styled.div<{
+  focusWidth: number;
+  focusHeight: number;
+}>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0.5;
+  z-index: 1;
+  background: #000000;
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(
+    0% 0%,
+    0% 100%,
+    calc(50% - ${(props) => props.focusWidth / 2}px) 100%,
+    calc(50% - ${(props) => props.focusWidth / 2}px)
+      calc(50% - ${(props) => props.focusHeight / 2}px),
+    calc(50% + ${(props) => props.focusWidth / 2}px)
+      calc(50% - ${(props) => props.focusHeight / 2}px),
+    calc(50% + ${(props) => props.focusWidth / 2}px)
+      calc(50% + ${(props) => props.focusHeight / 2}px),
+    calc(50% - ${(props) => props.focusWidth / 2}px)
+      calc(50% + ${(props) => props.focusHeight / 2}px),
+    calc(50% - ${(props) => props.focusWidth / 2}px) 100%,
+    100% 100%,
+    100% 0%
+  );
+`;
+
+const BallotImageViewerControls = styled.div`
+  display: flex;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  padding: 0.5rem;
+  gap: 0.5rem;
+`;
+
+function BallotImageViewer({
   imageUrl,
-  bounds,
-  width,
-  margin = 0,
+  ballotBounds,
+  writeInBounds,
 }: {
   imageUrl: string;
-  bounds: Rect;
-  width?: string;
-  margin?: number;
+  ballotBounds: Rect;
+  writeInBounds: Rect;
 }) {
+  const [zoom, setZoom] = useState(1);
+
+  const MIN_ZOOM = 0;
+  const MAX_ZOOM = 1;
+  // For now, we only support zooming all the way in or out, since the current
+  // zooming algorithm isn't smart enough to keep the write-in area focused
+  // while zooming and also make sure that zooming out completely shows the
+  // whole ballot. I think it's kind of a hard problem and might be better
+  // solved by allowing zooming and panning.
+  const ZOOM_STEP = 1;
+
+  // The images are downscaled by 50% in the export, this is to adjust for that.
+  const IMAGE_SCALE = 0.5;
+  const MIN_SCALE = IMAGE_SCALE;
+  const MAX_SCALE = (ballotBounds.width / writeInBounds.width) * IMAGE_SCALE;
+  const scale = MIN_SCALE + (MAX_SCALE - MIN_SCALE) * zoom;
+
   return (
-    <CroppedImage
-      src={imageUrl}
-      alt="write-in area"
-      crop={{
-        x: bounds.x * IMAGE_SCALE,
-        y: IMAGE_SCALE * (bounds.y - bounds.height * margin),
-        width: bounds.width * IMAGE_SCALE,
-        height: bounds.height * IMAGE_SCALE * (1 + 2 * margin),
-      }}
-      style={{ width: width || '100%' }}
-    />
+    <BallotImageViewerContainer>
+      {zoom === 1 && (
+        <WriteInFocusOverlay
+          focusWidth={writeInBounds.width * scale}
+          focusHeight={writeInBounds.height * scale}
+        />
+      )}
+      <ZoomedBallotImage
+        src={imageUrl}
+        width={ballotBounds.width * scale}
+        focusBounds={writeInBounds}
+        scale={scale}
+        zoom={zoom}
+      />
+      <BallotImageViewerControls>
+        <Button
+          onPress={() => setZoom((prevZoom) => prevZoom - ZOOM_STEP)}
+          disabled={zoom - ZOOM_STEP < MIN_ZOOM}
+        >
+          <Icons.ZoomOut /> Zoom Out
+        </Button>
+        <Button
+          onPress={() => setZoom((prevZoom) => prevZoom + ZOOM_STEP)}
+          disabled={zoom + ZOOM_STEP > MAX_ZOOM}
+        >
+          <Icons.ZoomIn /> Zoom In
+        </Button>
+      </BallotImageViewerControls>
+    </BallotImageViewerContainer>
   );
 }
 
@@ -238,29 +344,11 @@ export function WriteInsTranscriptionScreen({
       <Main flexRow data-testid={`transcribe:${adjudicationId}`}>
         <BallotViews>
           {imageData && (
-            <React.Fragment>
-              <WriteInImage
-                imageUrl={`data:image/png;base64,${imageData.image}`}
-                bounds={imageData.contestCoordinates}
-                margin={0.1}
-              />
-              <div style={{ display: 'flex', paddingTop: '0.5rem' }}>
-                <div style={{ flex: 0.9 }}>
-                  <WriteInImage
-                    // eslint-disable-next-line
-                imageUrl={`data:image/png;base64,${imageData.image}`}
-                    bounds={imageData.ballotCoordinates}
-                  />
-                </div>
-                <div style={{ flex: 1, paddingLeft: '0.5rem' }}>
-                  <WriteInImage
-                    imageUrl={`data:image/png;base64,${imageData.image}`}
-                    bounds={imageData.writeInCoordinates}
-                    margin={0.2}
-                  />
-                </div>
-              </div>
-            </React.Fragment>
+            <BallotImageViewer
+              imageUrl={`data:image/png;base64,${imageData.image}`}
+              ballotBounds={imageData.ballotCoordinates}
+              writeInBounds={imageData.writeInCoordinates}
+            />
           )}
         </BallotViews>
         <TranscriptionControls>
