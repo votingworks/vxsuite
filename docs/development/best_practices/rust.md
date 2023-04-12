@@ -1,7 +1,7 @@
 # Rust Style Guide
 
 We follow the
-[Rust Style Guide](https://doc.rust-lang.org/1.0.0/style/style/README.html),
+[Rust Style Guide](https://github.com/rust-lang/style-team/blob/master/guide/guide.md),
 with most of it enforced by `rustfmt` and `clippy`.
 
 ## Basics
