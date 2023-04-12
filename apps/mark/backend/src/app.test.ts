@@ -10,7 +10,6 @@ import {
   fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
-import { ElectionDefinition } from '@votingworks/types';
 import { DEV_JURISDICTION, InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -72,60 +71,6 @@ test('uses default machine config if not set', async () => {
   });
 });
 
-<<<<<<< HEAD
-test('read election definition from card', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { electionData, electionHash } = electionDefinition;
-
-  mockOf(mockAuth.readCardDataAsString).mockImplementation(() =>
-    Promise.resolve(ok(electionData))
-  );
-
-  let result: Result<ElectionDefinition, Error>;
-
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-    Promise.resolve({ status: 'logged_out', reason: 'no_card' })
-  );
-  result = await apiClient.readElectionDefinitionFromCard({ electionHash });
-  expect(result).toEqual(err(new Error('User is not logged in')));
-
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-    Promise.resolve({
-      status: 'logged_in',
-      user: fakePollWorkerUser(electionDefinition),
-      sessionExpiresAt: fakeSessionExpiresAt(),
-    })
-  );
-  result = await apiClient.readElectionDefinitionFromCard({ electionHash });
-  expect(result).toEqual(err(new Error('User is not an election manager')));
-
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-    Promise.resolve({
-      status: 'logged_in',
-      user: fakeElectionManagerUser(electionDefinition),
-      sessionExpiresAt: fakeSessionExpiresAt(),
-    })
-  );
-  result = await apiClient.readElectionDefinitionFromCard({ electionHash });
-  expect(result).toEqual(ok(electionDefinition));
-  expect(mockAuth.readCardDataAsString).toHaveBeenCalledTimes(1);
-  expect(mockAuth.readCardDataAsString).toHaveBeenNthCalledWith(1, {
-    electionHash,
-    jurisdiction,
-  });
-
-  mockOf(mockAuth.readCardDataAsString).mockImplementation(() =>
-    Promise.resolve(ok(undefined))
-  );
-  result = await apiClient.readElectionDefinitionFromCard({ electionHash });
-  expect(result).toEqual(
-    err(new Error('Unable to read election definition from card'))
-  );
-  expect(mockAuth.readCardDataAsString).toHaveBeenCalledTimes(2);
-  expect(mockAuth.readCardDataAsString).toHaveBeenNthCalledWith(2, {
-    electionHash,
-    jurisdiction,
-=======
 test('auth', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { electionHash } = electionDefinition;
@@ -133,30 +78,34 @@ test('auth', async () => {
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
     electionHash,
+    jurisdiction: DEV_JURISDICTION,
   });
 
   await apiClient.checkPin({ electionHash, pin: '123456' });
   expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
   expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { electionHash },
+    { electionHash, jurisdiction: DEV_JURISDICTION },
     { pin: '123456' }
   );
 
   await apiClient.updateSessionExpiry({
     electionHash,
-    sessionExpiresAt: new Date().getTime() + 60 * 1000,
+    sessionExpiresAt: fakeSessionExpiresAt(),
   });
   expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    { electionHash },
-    { sessionExpiresAt: expect.any(Number) }
+    { electionHash, jurisdiction: DEV_JURISDICTION },
+    { sessionExpiresAt: expect.any(Date) }
   );
 
   await apiClient.logOut({ electionHash });
   expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
-  expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
+  expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {
+    electionHash,
+    jurisdiction: DEV_JURISDICTION,
+  });
 
   await apiClient.startCardlessVoterSession({
     electionHash,
@@ -166,7 +115,7 @@ test('auth', async () => {
   expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.startCardlessVoterSession).toHaveBeenNthCalledWith(
     1,
-    { electionHash },
+    { electionHash, jurisdiction: DEV_JURISDICTION },
     { ballotStyleId: 'b1', precinctId: 'p1' }
   );
 
@@ -174,7 +123,7 @@ test('auth', async () => {
   expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(1, {
     electionHash,
->>>>>>> 5db5c368f (update tests pt 4)
+    jurisdiction: DEV_JURISDICTION,
   });
 });
 
@@ -317,7 +266,7 @@ test('unconfigureMachine deletes system settings and election definition', async
     Promise.resolve({
       status: 'logged_in',
       user: fakeElectionManagerUser(electionDefinition),
-      sessionExpiresAt: new Date().getTime() + 60 * 1000,
+      sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
 

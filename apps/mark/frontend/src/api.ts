@@ -13,10 +13,7 @@ import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
-import {
-  BallotStyleId,
-  PrecinctId,
-} from '@votingworks/types';
+import { BallotStyleId, PrecinctId } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
