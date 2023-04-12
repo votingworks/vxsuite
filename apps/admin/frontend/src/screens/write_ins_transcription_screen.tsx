@@ -30,7 +30,6 @@ const IMAGE_SCALE = 0.5; // The images are downscaled by 50% in the export, this
 const BallotViews = styled.div`
   flex: 3;
   background: #455a64;
-  padding-right: 0.5rem;
 `;
 
 const TranscriptionControls = styled.div`
@@ -238,29 +237,34 @@ export function WriteInsTranscriptionScreen({
       <Main flexRow data-testid={`transcribe:${adjudicationId}`}>
         <BallotViews>
           {imageData && (
-            <React.Fragment>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                padding: '0.5rem',
+              }}
+            >
               <WriteInImage
                 imageUrl={`data:image/png;base64,${imageData.image}`}
-                bounds={imageData.contestCoordinates}
-                margin={0.1}
+                bounds={imageData.writeInCoordinates}
+                margin={0}
               />
-              <div style={{ display: 'flex', paddingTop: '0.5rem' }}>
+              <div style={{ display: 'flex', marginTop: '0.5rem' }}>
                 <div style={{ flex: 0.9 }}>
                   <WriteInImage
-                    // eslint-disable-next-line
-                imageUrl={`data:image/png;base64,${imageData.image}`}
+                    imageUrl={`data:image/png;base64,${imageData.image}`}
                     bounds={imageData.ballotCoordinates}
                   />
                 </div>
-                <div style={{ flex: 1, paddingLeft: '0.5rem' }}>
+                <div style={{ flex: 1, marginLeft: '0.5rem' }}>
                   <WriteInImage
                     imageUrl={`data:image/png;base64,${imageData.image}`}
-                    bounds={imageData.writeInCoordinates}
-                    margin={0.2}
+                    bounds={imageData.contestCoordinates}
+                    margin={0.1}
                   />
                 </div>
               </div>
-            </React.Fragment>
+            </div>
           )}
         </BallotViews>
         <TranscriptionControls>
