@@ -1,4 +1,5 @@
-#!/usr/bin/env node
+#!/usr/bin/env bash
 
-require('esbuild-runner/register');
-require('./program_dev_system_administrator_java_card').main();
+set -euo pipefail
+
+NODE_ENV=development ./scripts/program-system-administrator-java-card
