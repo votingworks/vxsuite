@@ -653,7 +653,7 @@
           "column": 32,
           "row": 23,
           "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-          "writeInIndex": 2
+          "writeInIndex": 0
         },
         {
           "type": "write-in",
@@ -669,7 +669,7 @@
           "column": 32,
           "row": 27,
           "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-          "writeInIndex": 0
+          "writeInIndex": 2
         },
         {
           "type": "write-in",

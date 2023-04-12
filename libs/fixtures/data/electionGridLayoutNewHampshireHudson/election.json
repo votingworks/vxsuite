@@ -880,7 +880,7 @@
           "column": 32,
           "row": 28,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 10
+          "writeInIndex": 0
         },
         {
           "type": "write-in",
@@ -888,7 +888,7 @@
           "column": 32,
           "row": 30,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 9
+          "writeInIndex": 1
         },
         {
           "type": "write-in",
@@ -896,7 +896,7 @@
           "column": 32,
           "row": 32,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 8
+          "writeInIndex": 2
         },
         {
           "type": "write-in",
@@ -904,7 +904,7 @@
           "column": 32,
           "row": 34,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 7
+          "writeInIndex": 3
         },
         {
           "type": "write-in",
@@ -912,7 +912,7 @@
           "column": 32,
           "row": 36,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 6
+          "writeInIndex": 4
         },
         {
           "type": "write-in",
@@ -928,7 +928,7 @@
           "column": 32,
           "row": 40,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 4
+          "writeInIndex": 6
         },
         {
           "type": "write-in",
@@ -936,7 +936,7 @@
           "column": 32,
           "row": 42,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 3
+          "writeInIndex": 7
         },
         {
           "type": "write-in",
@@ -944,7 +944,7 @@
           "column": 32,
           "row": 44,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 2
+          "writeInIndex": 8
         },
         {
           "type": "write-in",
@@ -952,7 +952,7 @@
           "column": 32,
           "row": 46,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 1
+          "writeInIndex": 9
         },
         {
           "type": "write-in",
@@ -960,7 +960,7 @@
           "column": 32,
           "row": 48,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 0
+          "writeInIndex": 10
         },
         {
           "type": "write-in",

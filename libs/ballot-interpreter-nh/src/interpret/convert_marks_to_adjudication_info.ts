@@ -73,7 +73,7 @@ export function convertMarksToAdjudicationInfo({
   ).partition((reasonInfo) => enabledReasons.includes(reasonInfo.type));
 
   return {
-    requiresAdjudication: enabledReasonInfos.size > 0,
+    requiresAdjudication: enabledReasonInfos.length > 0,
     enabledReasonInfos: [...enabledReasonInfos],
     enabledReasons,
     ignoredReasonInfos: [...ignoredReasonInfos],

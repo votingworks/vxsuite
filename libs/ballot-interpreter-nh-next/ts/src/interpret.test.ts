@@ -199,7 +199,7 @@ test('interpret with valid data', () => {
       },
       {
         "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-        "optionId": "write-in-2",
+        "optionId": "write-in-0",
         "score": 0,
       },
       {
@@ -209,7 +209,7 @@ test('interpret with valid data', () => {
       },
       {
         "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-        "optionId": "write-in-0",
+        "optionId": "write-in-2",
         "score": 0,
       },
       {

@@ -463,22 +463,22 @@ test('partition', async () => {
     await iter([])
       .async()
       .partition(() => true)
-  ).toEqual([new Set(), new Set()]);
+  ).toEqual([[], []]);
   expect(
     await iter([1])
       .async()
       .partition(() => true)
-  ).toEqual([new Set([1]), new Set()]);
+  ).toEqual([[1], []]);
   expect(
     await iter([1, 2, 3])
       .async()
       .partition(() => true)
-  ).toEqual([new Set([1, 2, 3]), new Set()]);
+  ).toEqual([[1, 2, 3], []]);
   expect(
     await iter([1, 2, 3])
       .async()
       .partition((a) => a % 2 === 0)
-  ).toEqual([new Set([2]), new Set([1, 3])]);
+  ).toEqual([[2], [1, 3]]);
 });
 
 test('windows', async () => {
