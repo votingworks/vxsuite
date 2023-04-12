@@ -1,6 +1,7 @@
 import { assert, err, ok, Optional, Result } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
+  electionSampleDefinition,
   systemSettings,
 } from '@votingworks/fixtures';
 import {
@@ -26,6 +27,7 @@ import {
 } from '@votingworks/backend';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 
@@ -70,6 +72,7 @@ test('uses default machine config if not set', async () => {
   });
 });
 
+<<<<<<< HEAD
 test('read election definition from card', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { electionData, electionHash } = electionDefinition;
@@ -122,6 +125,56 @@ test('read election definition from card', async () => {
   expect(mockAuth.readCardDataAsString).toHaveBeenNthCalledWith(2, {
     electionHash,
     jurisdiction,
+=======
+test('auth', async () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { electionHash } = electionDefinition;
+  await apiClient.getAuthStatus({ electionHash });
+  expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
+  expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    electionHash,
+  });
+
+  await apiClient.checkPin({ electionHash, pin: '123456' });
+  expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
+  expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
+    1,
+    { electionHash },
+    { pin: '123456' }
+  );
+
+  await apiClient.updateSessionExpiry({
+    electionHash,
+    sessionExpiresAt: new Date().getTime() + 60 * 1000,
+  });
+  expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
+  expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
+    1,
+    { electionHash },
+    { sessionExpiresAt: expect.any(Number) }
+  );
+
+  await apiClient.logOut({ electionHash });
+  expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
+  expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, { electionHash });
+
+  await apiClient.startCardlessVoterSession({
+    electionHash,
+    ballotStyleId: 'b1',
+    precinctId: 'p1',
+  });
+  expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledTimes(1);
+  expect(mockAuth.startCardlessVoterSession).toHaveBeenNthCalledWith(
+    1,
+    { electionHash },
+    { ballotStyleId: 'b1', precinctId: 'p1' }
+  );
+
+  await apiClient.endCardlessVoterSession({ electionHash });
+  expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(1);
+  expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(1, {
+    electionHash,
+>>>>>>> 5db5c368f (update tests pt 4)
   });
 });
 
@@ -252,6 +305,41 @@ test('configureBallotPackageFromUsb reads to and writes from store', async () =>
   expect(readResult).toEqual(
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
   );
+  const electionDefinitionResult = await apiClient.getElectionDefinition();
+  expect(electionDefinitionResult).toEqual(electionDefinition);
+});
+
+test('unconfigureMachine deletes system settings and election definition', async () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+
+  // Mock election manager
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: fakeElectionManagerUser(electionDefinition),
+      sessionExpiresAt: new Date().getTime() + 60 * 1000,
+    })
+  );
+
+  const zipBuffer = createBallotPackageWithoutTemplates(electionDefinition, {
+    systemSettingsString: systemSettings.asText(),
+  });
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'test-ballot-package.zip': zipBuffer,
+    },
+  });
+
+  const writeResult = await apiClient.configureBallotPackageFromUsb({
+    electionHash: electionDefinition.electionHash,
+  });
+  assert(writeResult.isOk());
+  await apiClient.unconfigureMachine();
+
+  const readResult = await apiClient.getSystemSettings();
+  expect(readResult).toBeNull();
+  const electionDefinitionResult = await apiClient.getElectionDefinition();
+  expect(electionDefinitionResult).toBeNull();
 });
 
 test('configureBallotPackageFromUsb throws when no USB drive mounted', async () => {
@@ -286,4 +374,14 @@ test('configureBallotPackageFromUsb returns an error if ballot package parsing f
   });
   assert(result.isErr());
   expect(result.err()).toEqual('auth_required_before_ballot_package_load');
+});
+
+test('configureSampleBallotPackage configures electionSampleDefinition and DEFAULT_SYSTEM_SETTINGS', async () => {
+  const writeResult = await apiClient.configureSampleBallotPackage();
+  assert(writeResult.isOk());
+
+  const readResult = await apiClient.getSystemSettings();
+  expect(readResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
+  const electionDefinitionResult = await apiClient.getElectionDefinition();
+  expect(electionDefinitionResult).toEqual(electionSampleDefinition);
 });

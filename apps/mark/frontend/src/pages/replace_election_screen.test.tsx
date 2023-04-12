@@ -46,12 +46,26 @@ function renderScreen(props: Partial<ReplaceElectionScreenProps> = {}) {
           machineConfig={fakeMachineConfig()}
           screenReader={screenReader}
           unconfigure={jest.fn()}
+          isLoading={false}
+          isError={false}
           {...props}
         />
       </QueryClientProvider>
     </ApiClientContext.Provider>
   );
 }
+
+test('loading state', () => {
+  renderScreen({ isLoading: true });
+
+  userEvent.click(screen.getByText('Unconfiguring election on machine…'));
+});
+
+test('error state', () => {
+  renderScreen({ isError: true });
+
+  userEvent.click(screen.getByText('Error unconfiguring the machine.'));
+});
 
 test('unconfiguring', async () => {
   const unconfigure = jest.fn();

@@ -688,10 +688,13 @@ export function AppRoot({
   if (isElectionManagerAuth(authStatus)) {
     if (!optionalElectionDefinition) {
       return (
-        <UnconfiguredElectionScreenWrapper
-          usbDriveStatus={usbDrive.status}
-          updateElectionDefinition={updateElectionDefinition}
-        />
+        <React.Fragment>
+          <UnconfiguredElectionScreenWrapper
+            usbDriveStatus={usbDrive.status}
+            updateElectionDefinition={updateElectionDefinition}
+          />
+          <SessionTimeLimitTracker electionHash={electionHash} />
+        </React.Fragment>
       );
     }
 
@@ -711,6 +714,8 @@ export function AppRoot({
             machineConfig={machineConfig}
             screenReader={screenReader}
             unconfigure={unconfigure}
+            isLoading={unconfigureMachineMutation.isLoading}
+            isError={unconfigureMachineMutation.isError}
           />
           <SessionTimeLimitTracker electionHash={electionHash} />
         </React.Fragment>

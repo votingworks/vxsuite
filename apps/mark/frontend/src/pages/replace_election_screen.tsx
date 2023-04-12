@@ -15,7 +15,6 @@ import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import React, { useEffect } from 'react';
 import { ScreenReader } from '../config/types';
-import { unconfigureMachine } from '../api';
 
 export interface ReplaceElectionScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -25,6 +24,8 @@ export interface ReplaceElectionScreenProps {
   machineConfig: MachineConfig;
   screenReader: ScreenReader;
   unconfigure(): Promise<void>;
+  isLoading: boolean;
+  isError: boolean;
 }
 
 export function ReplaceElectionScreen({
@@ -35,9 +36,10 @@ export function ReplaceElectionScreen({
   machineConfig,
   screenReader,
   unconfigure,
+  isLoading,
+  isError,
 }: ReplaceElectionScreenProps): JSX.Element {
   const { election, electionHash } = electionDefinition;
-  const unconfigureMachineMutation = unconfigureMachine.useMutation();
 
   useEffect(() => {
     const muted = screenReader.isMuted();
@@ -45,7 +47,7 @@ export function ReplaceElectionScreen({
     return () => screenReader.toggleMuted(muted);
   }, [screenReader]);
 
-  if (unconfigureMachineMutation.isLoading) {
+  if (isLoading) {
     return (
       <Screen>
         <Main padded centerChild>
@@ -57,7 +59,7 @@ export function ReplaceElectionScreen({
     );
   }
 
-  if (unconfigureMachineMutation.isError) {
+  if (isError) {
     return (
       <Screen>
         <Main padded centerChild>

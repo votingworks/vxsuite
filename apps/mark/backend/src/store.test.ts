@@ -27,7 +27,7 @@ test('get/set/has election', () => {
   expect(store.getElectionDefinition()).toBeUndefined();
 });
 
-test('get/set system settings', () => {
+test('get/set/delete system settings', () => {
   const store = Store.memoryStore();
 
   expect(store.getSystemSettings()).toBeUndefined();
@@ -37,6 +37,9 @@ test('get/set system settings', () => {
 
   store.setSystemSettings(systemSettings);
   expect(store.getSystemSettings()).toEqual(systemSettings);
+
+  store.deleteSystemSettings();
+  expect(store.getSystemSettings()).toBeUndefined();
 });
 
 test('setSystemSettings can handle boolean values in input', () => {
