@@ -358,6 +358,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User has triggered a reboot of the machine.  
 **Machines:** All
+### power-down-machine
+**Type:** [user-action](#user-action)  
+**Description:** User has triggered the machine to power down.  
+**Machines:** All
 ### ballot-package-load-from-usb-complete
 **Type:** [user-action](#user-action)  
 **Description:** The ballot package has been read from the USB drive. Success or failure indicated by disposition.  

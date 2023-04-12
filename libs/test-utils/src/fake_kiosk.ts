@@ -108,5 +108,6 @@ export function fakeKiosk({
     reboot: jest.fn(),
     rebootToBios: jest.fn(),
     prepareToBootFromUsb: jest.fn(),
+    powerDown: jest.fn(),
   };
 }

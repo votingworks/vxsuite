@@ -14,6 +14,7 @@ import {
   LoadingAnimation,
   H1,
   P,
+  PowerDownButton,
 } from '@votingworks/ui';
 import {
   BallotCountDetails,
@@ -660,6 +661,7 @@ export function PollWorkerScreen({
       <Prose textCenter>
         <H1>Poll Worker Actions</H1>
         {pollsTransitionActions}
+        <PowerDownButton logger={logger} userRole="poll_worker" />
         {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
           <P>
             <Button onPress={() => setIsShowingLiveCheck(true)}>
