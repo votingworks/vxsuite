@@ -726,8 +726,8 @@ export const RESPONSE_CODERS = {
 export type AnyRequest = {
   [K in keyof typeof REQUEST_CODERS]: {
     type: K;
-    value: CoderType<(typeof REQUEST_CODERS)[K]>;
-    coder: (typeof REQUEST_CODERS)[K];
+    value: CoderType<typeof REQUEST_CODERS[K]>;
+    coder: typeof REQUEST_CODERS[K];
   };
 }[keyof typeof REQUEST_CODERS];
 
@@ -737,8 +737,8 @@ export type AnyRequest = {
 export type AnyResponse = {
   [K in keyof typeof RESPONSE_CODERS]: {
     type: K;
-    value: CoderType<(typeof RESPONSE_CODERS)[K]>;
-    coder: (typeof RESPONSE_CODERS)[K];
+    value: CoderType<typeof RESPONSE_CODERS[K]>;
+    coder: typeof RESPONSE_CODERS[K];
   };
 }[keyof typeof RESPONSE_CODERS];
 

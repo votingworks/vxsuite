@@ -50,9 +50,9 @@
     "start-server-and-test": "^1.12.5"
   },
   "devDependencies": {
-    "@types/node": "^18.0.6",
-    "@typescript-eslint/eslint-plugin": "^5.37.0",
-    "@typescript-eslint/parser": "^5.37.0",
+    "@types/node": "16.18.23",
+    "@typescript-eslint/eslint-plugin": "5.37.0",
+    "@typescript-eslint/parser": "5.37.0",
     "concurrently": "^7.6.0",
     "eslint": "8.23.1",
     "eslint-config-airbnb-base": "^14.2.1",
@@ -67,7 +67,7 @@
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "^2.1.2",
     "lint-staged": "^11.0.0",
-    "prettier": "^2.6.2",
+    "prettier": "2.6.2",
     "sort-package-json": "^1.50.0",
     "typescript": "4.6.3"
   },

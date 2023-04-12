@@ -30,10 +30,10 @@
   "devDependencies": {
     "@types/jest": "^27.4.1",
     "@types/mime": "^2.0.3",
-    "@types/node": "16.11.29",
+    "@types/node": "16.18.23",
     "@types/tmp": "^0.2.3",
-    "@typescript-eslint/eslint-plugin": "^5.37.0",
-    "@typescript-eslint/parser": "^5.37.0",
+    "@typescript-eslint/eslint-plugin": "5.37.0",
+    "@typescript-eslint/parser": "5.37.0",
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "^0.14.27",
     "esbuild-runner": "^2.2.1",
