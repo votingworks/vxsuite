@@ -117,10 +117,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
-  // Using typical configureFromUsbThenRemove doesn't trigger the app state
-  // to update appPrecinct. Somehow this works? But is fragile and will probably
-  // break when we remove frontend election definition state
-  // apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetElectionDefinition(null);
 });
 
