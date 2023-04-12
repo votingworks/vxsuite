@@ -20,12 +20,7 @@ import {
   unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
-import {
-  assert,
-  assertDefined,
-  iter,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { assert, iter, throwIllegalValue } from '@votingworks/basics';
 import { decode as decodeHtmlEntities } from 'he';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
@@ -733,10 +728,9 @@ export function convertElectionDefinitionHeader(
       ).assertOk('Write-in element has unparseable OY')
     );
     assert(
-      writeInYCoordinates.every(
-        (yCoordinate, i) =>
-          i === 0 || yCoordinate < assertDefined(writeInYCoordinates[i - 1])
-      ),
+      iter(writeInYCoordinates)
+        .windows(2)
+        .every(([earlier, later]) => earlier > later),
       `Write-in OY coordinates are not in reverse ballot order: ${writeInYCoordinates.join(
         ', '
       )}`
