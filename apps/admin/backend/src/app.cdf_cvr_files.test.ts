@@ -64,7 +64,7 @@ test('happy path - mock election flow', async () => {
     })
   );
   const availableCastVoteRecordFiles =
-    await apiClient.listCastVoteRecordFilesOnUsb({ cvrImportFormat: 'cdf' });
+    await apiClient.listCastVoteRecordFilesOnUsb();
   expect(availableCastVoteRecordFiles).toMatchObject([
     expect.objectContaining({
       name: testReportDirectoryName,
@@ -86,7 +86,6 @@ test('happy path - mock election flow', async () => {
   // add a file
   const addTestFileResult = await apiClient.addCastVoteRecordFile({
     path: availableCastVoteRecordFiles[0]!.path,
-    cvrImportFormatFromParams: 'cdf',
   });
   assert(addTestFileResult.isOk());
   expect(addTestFileResult.ok()).toMatchObject({
@@ -214,7 +213,7 @@ test('happy path - mock election flow', async () => {
     })
   );
   const availableCastVoteRecordFiles2 =
-    await apiClient.listCastVoteRecordFilesOnUsb({ cvrImportFormat: 'cdf' });
+    await apiClient.listCastVoteRecordFilesOnUsb();
   expect(availableCastVoteRecordFiles2).toMatchObject([
     expect.objectContaining({
       name: officialReportDirectoryName,
@@ -235,7 +234,6 @@ test('happy path - mock election flow', async () => {
 
   const addLiveFileResult = await apiClient.addCastVoteRecordFile({
     path: availableCastVoteRecordFiles2[0]!.path,
-    cvrImportFormatFromParams: 'cdf',
   });
   assert(addLiveFileResult.isOk());
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -269,15 +267,13 @@ test('adding a duplicate file returns OK to client but logs an error', async () 
   const reportDirectoryPath = standardCdfCvrReport.asDirectoryPath();
 
   // add file once
-  await apiClient.addCastVoteRecordFile({
+  void (await apiClient.addCastVoteRecordFile({
     path: reportDirectoryPath,
-    cvrImportFormatFromParams: 'cdf',
-  });
+  }));
 
   // try adding duplicate file
   const addDuplicateFileResult = await apiClient.addCastVoteRecordFile({
     path: reportDirectoryPath,
-    cvrImportFormatFromParams: 'cdf',
   });
   assert(addDuplicateFileResult.isOk());
   expect(addDuplicateFileResult.ok()).toMatchObject({
@@ -309,10 +305,9 @@ test('handles file with previously added entries by adding only the new entries'
     ({ CVR }) => ({ CVR: CVR.take(10) })
   );
   // add file
-  await apiClient.addCastVoteRecordFile({
+  void (await apiClient.addCastVoteRecordFile({
     path: initialReportDirectoryPath,
-    cvrImportFormatFromParams: 'cdf',
-  });
+  }));
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(10);
 
@@ -323,7 +318,6 @@ test('handles file with previously added entries by adding only the new entries'
   );
   const addDuplicateEntriesResult = await apiClient.addCastVoteRecordFile({
     path: laterReportDirectoryPath,
-    cvrImportFormatFromParams: 'cdf',
   });
   assert(addDuplicateEntriesResult.isOk());
   expect(addDuplicateEntriesResult.ok()).toMatchObject({
@@ -345,10 +339,10 @@ test('error if path to report is not valid', async () => {
 
   const addNonExistentFileResult = await apiClient.addCastVoteRecordFile({
     path: '/tmp/does-not-exist',
-    cvrImportFormatFromParams: 'cdf',
   });
-  expect(addNonExistentFileResult.err()).toMatchObject({
-    type: 'invalid-file',
+  expect(addNonExistentFileResult.err()).toEqual({
+    type: 'report-access-failure',
+    message: 'Failed to access cast vote record report for import.',
   });
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.CvrLoaded,
@@ -377,12 +371,11 @@ test('error if report has invalid directory structure', async () => {
 
   const invalidReportStructureResult = await apiClient.addCastVoteRecordFile({
     path: reportDirectoryPath,
-    cvrImportFormatFromParams: 'cdf',
   });
 
   expect(invalidReportStructureResult.err()).toMatchObject({
-    type: 'invalid-cdf-report',
-    userFriendlyMessage: 'invalid-report-structure',
+    type: 'invalid-report-structure',
+    message: 'Cast vote record report has invalid file structure.',
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
@@ -404,12 +397,11 @@ test('error if report metadata is not parseable', async () => {
 
   const result = await apiClient.addCastVoteRecordFile({
     path: reportDirectoryPath,
-    cvrImportFormatFromParams: 'cdf',
   });
 
   expect(result.err()).toMatchObject({
-    type: 'invalid-cdf-report',
-    userFriendlyMessage: 'malformed-report-metadata',
+    type: 'malformed-report-metadata',
+    message: 'Unable to parse cast vote record report, it may be malformed.',
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
@@ -422,20 +414,19 @@ test('error if adding test report while in official mode', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  await apiClient.addCastVoteRecordFile({
+  void (await apiClient.addCastVoteRecordFile({
     path: await getOfficialReportPath(),
-    cvrImportFormatFromParams: 'cdf',
-  });
+  }));
 
   const addTestReportResult = await apiClient.addCastVoteRecordFile({
     path: standardCdfCvrReport.asDirectoryPath(),
-    cvrImportFormatFromParams: 'cdf',
   });
 
   expect(addTestReportResult.isErr()).toBeTruthy();
   expect(addTestReportResult.err()).toMatchObject({
-    type: 'invalid-cdf-report',
-    userFriendlyMessage: 'invalid-report-file-mode',
+    type: 'invalid-report-file-mode',
+    message:
+      'You are currently tabulating official results but the selected cast vote record report contains test results.',
   });
 });
 
@@ -444,20 +435,19 @@ test('error if adding official report while in test mode', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  await apiClient.addCastVoteRecordFile({
+  void (await apiClient.addCastVoteRecordFile({
     path: standardCdfCvrReport.asDirectoryPath(),
-    cvrImportFormatFromParams: 'cdf',
-  });
+  }));
 
   const addOfficialReportResult = await apiClient.addCastVoteRecordFile({
     path: await getOfficialReportPath(),
-    cvrImportFormatFromParams: 'cdf',
   });
 
   expect(addOfficialReportResult.isErr()).toBeTruthy();
   expect(addOfficialReportResult.err()).toMatchObject({
-    type: 'invalid-cdf-report',
-    userFriendlyMessage: 'invalid-report-file-mode',
+    type: 'invalid-report-file-mode',
+    message:
+      'You are currently tabulating test results but the selected cast vote record report contains official results.',
   });
 });
 
@@ -480,12 +470,11 @@ test('error if a cast vote record not parseable', async () => {
 
   const result = await apiClient.addCastVoteRecordFile({
     path: reportDirectoryPath,
-    cvrImportFormatFromParams: 'cdf',
   });
 
   expect(result.err()).toMatchObject({
-    type: 'invalid-cdf-report',
-    userFriendlyMessage: 'malformed-cast-vote-record',
+    type: 'malformed-cast-vote-record',
+    message: 'Unable to parse cast vote record report, it may be malformed.',
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
@@ -512,12 +501,12 @@ test('error if a cast vote record is somehow invalid', async () => {
 
   const result = await apiClient.addCastVoteRecordFile({
     path: reportDirectoryPath,
-    cvrImportFormatFromParams: 'cdf',
   });
 
   expect(result.err()).toMatchObject({
-    type: 'invalid-cdf-report',
-    userFriendlyMessage: 'invalid-cast-vote-record',
+    type: 'invalid-cast-vote-record',
+    message:
+      'Found an invalid cast vote record at index 0 in the current report. The record references an election other than the current election.',
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
@@ -530,10 +519,9 @@ test('error if cast vote records from different files share same ballot id but h
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  await apiClient.addCastVoteRecordFile({
+  void (await apiClient.addCastVoteRecordFile({
     path: standardCdfCvrReport.asDirectoryPath(),
-    cvrImportFormatFromParams: 'cdf',
-  });
+  }));
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(3000);
@@ -552,12 +540,12 @@ test('error if cast vote records from different files share same ballot id but h
 
   const result = await apiClient.addCastVoteRecordFile({
     path: reportDirectoryPath,
-    cvrImportFormatFromParams: 'cdf',
   });
 
   expect(result.err()).toMatchObject({
-    type: 'invalid-cdf-report',
-    userFriendlyMessage: 'ballot-id-already-exists-with-different-data',
+    type: 'ballot-id-already-exists-with-different-data',
+    message:
+      'Found cast vote record at index 0 that has the same ballot id as a previously imported cast vote record, but with different data.',
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
@@ -588,12 +576,11 @@ test('error if a layout is invalid', async () => {
 
   const result = await apiClient.addCastVoteRecordFile({
     path: reportDirectoryPath,
-    cvrImportFormatFromParams: 'cdf',
   });
 
   expect(result.err()).toMatchObject({
-    type: 'invalid-cdf-report',
-    userFriendlyMessage: 'invalid-layout',
+    type: 'invalid-layout',
+    message: /Unable to parse a layout associated with a ballot image. Path:/,
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);

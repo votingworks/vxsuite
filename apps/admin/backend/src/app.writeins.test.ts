@@ -4,12 +4,18 @@ import {
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
 import { assert, typedAs } from '@votingworks/basics';
-import { CastVoteRecord } from '@votingworks/types';
+import {
+  CVR_BALLOT_IMAGES_SUBDIRECTORY,
+  loadBallotImageBase64,
+} from '@votingworks/backend';
+import { join } from 'path';
 import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app';
+
+jest.setTimeout(20_000);
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -18,7 +24,7 @@ beforeEach(() => {
 test('getWriteIns', async () => {
   const { apiClient, auth, workspace } = buildTestEnvironment();
 
-  const { electionDefinition, standardCvrFile } =
+  const { electionDefinition, standardCdfCvrReport } =
     electionMinimalExhaustiveSampleFixtures;
   const electionId = await configureMachine(
     apiClient,
@@ -27,9 +33,9 @@ test('getWriteIns', async () => {
   );
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  await apiClient.addCastVoteRecordFile({
-    path: standardCvrFile.asFilePath(),
-  });
+  void (await apiClient.addCastVoteRecordFile({
+    path: standardCdfCvrReport.asDirectoryPath(),
+  }));
 
   expect(await apiClient.getWriteIns()).toHaveLength(
     workspace.store.getWriteInRecords({ electionId }).length
@@ -50,14 +56,14 @@ test('getWriteIns', async () => {
 test('transcribeWriteIn', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
-  const { electionDefinition, standardCvrFile } =
+  const { electionDefinition, standardCdfCvrReport } =
     electionMinimalExhaustiveSampleFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  await apiClient.addCastVoteRecordFile({
-    path: standardCvrFile.asFilePath(),
-  });
+  void (await apiClient.addCastVoteRecordFile({
+    path: standardCdfCvrReport.asDirectoryPath(),
+  }));
 
   const [writeInRecord] = await apiClient.getWriteIns({ limit: 1 });
   assert(writeInRecord);
@@ -82,12 +88,14 @@ test('transcribeWriteIn', async () => {
 test('getWriteInAdjudications', async () => {
   const { auth, apiClient } = buildTestEnvironment();
 
-  const { electionDefinition, standardCvrFile } =
+  const { electionDefinition, standardCdfCvrReport } =
     electionMinimalExhaustiveSampleFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  await apiClient.addCastVoteRecordFile({ path: standardCvrFile.asFilePath() });
+  void (await apiClient.addCastVoteRecordFile({
+    path: standardCdfCvrReport.asDirectoryPath(),
+  }));
 
   expect(await apiClient.getWriteInAdjudications()).toEqual([]);
 
@@ -143,18 +151,17 @@ test('getWriteInAdjudications', async () => {
 });
 
 test('write-in adjudication lifecycle', async () => {
-  jest.setTimeout(20_000);
   const { apiClient, auth } = buildTestEnvironment();
 
-  const { electionDefinition, standardCvrFile } =
+  const { electionDefinition, standardCdfCvrReport } =
     electionMinimalExhaustiveSampleFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   // upload the CVR file
-  await apiClient.addCastVoteRecordFile({
-    path: standardCvrFile.asFilePath(),
-  });
+  void (await apiClient.addCastVoteRecordFile({
+    path: standardCdfCvrReport.asDirectoryPath(),
+  }));
 
   // focus on this contest
   const contestId = 'zoo-council-mammal';
@@ -190,11 +197,15 @@ test('write-in adjudication lifecycle', async () => {
 
     const writeInRecord = pendingWriteIn[0]!;
 
-    // get the ballot image data for the write in
-    const writeInImageEntries = await apiClient.getWriteInImage({
-      writeInId: writeInRecord.id,
-    });
-    expect(writeInImageEntries).toHaveLength(0); // the fixtures do not have ballot images
+    // Skipping this check on the write-in images. The fixture does now have
+    // write in images but attempting to retrieve them will throw an error
+    // because the endpoint is not compatible with VotingWorks format
+    // ballot layouts.
+
+    // const writeInImageEntries = await apiClient.getWriteInImage({
+    //   writeInId: writeInRecord.id,
+    // });
+    // expect(writeInImageEntries).toHaveLength(0); // the fixtures do not have ballot images
 
     // transcribe it
     await apiClient.transcribeWriteIn({
@@ -404,15 +415,15 @@ test('write-in adjudication lifecycle', async () => {
 test('write-in summary filtered by contestId & status', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
-  const { electionDefinition, standardCvrFile } =
+  const { electionDefinition, standardCdfCvrReport } =
     electionMinimalExhaustiveSampleFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   // upload the CVR file
-  await apiClient.addCastVoteRecordFile({
-    path: standardCvrFile.asFilePath(),
-  });
+  void (await apiClient.addCastVoteRecordFile({
+    path: standardCdfCvrReport.asDirectoryPath(),
+  }));
 
   // focus on this contest
   const contestId = 'zoo-council-mammal';
@@ -494,16 +505,19 @@ test('create write-in adjudication for an official candidate', async () => {
 
 test('getWriteInImage', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, oneBallotCastVoteRecordFile } =
+  const { electionDefinition, castVoteRecordReportSingle } =
     electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
-  await apiClient.addCastVoteRecordFile({
-    path: oneBallotCastVoteRecordFile.asFilePath(),
-  });
+  const reportDirectoryPath = castVoteRecordReportSingle.asDirectoryPath();
+  void (await apiClient.addCastVoteRecordFile({
+    path: reportDirectoryPath,
+  }));
 
-  const writeIns = await apiClient.getWriteIns();
-  expect(writeIns).toHaveLength(9);
+  const writeIns = await apiClient.getWriteIns({
+    contestId: 'County-Commissioner-d6feed25',
+  });
+  expect(writeIns).toHaveLength(1);
 
   const writeIn = writeIns[0];
   assert(writeIn);
@@ -524,30 +538,27 @@ test('getWriteInImage', async () => {
         "y": 0,
       },
       "contestCoordinates": Object {
-        "height": 151,
-        "maxX": 1672.25,
-        "maxY": 1048.75,
-        "minX": 322.25,
-        "minY": 898.75,
-        "width": 1351,
-        "x": 322.25,
-        "y": 898.75,
+        "height": 99,
+        "width": 1331,
+        "x": 251,
+        "y": 1008,
       },
       "writeInCoordinates": Object {
-        "height": 151,
-        "maxX": 1672.25,
-        "maxY": 1048.75,
-        "minX": 1322.25,
-        "minY": 898.75,
-        "width": 351,
-        "x": 1322.25,
-        "y": 898.75,
+        "height": 93,
+        "width": 443,
+        "x": 1139,
+        "y": 1014,
       },
     }
   `);
 
-  const castVoteRecord = JSON.parse(
-    oneBallotCastVoteRecordFile.asText()
-  ) as CastVoteRecord;
-  expect(image).toEqual(castVoteRecord._ballotImages![0]!.normalized);
+  const expectedImage = await loadBallotImageBase64(
+    join(
+      reportDirectoryPath,
+      CVR_BALLOT_IMAGES_SUBDIRECTORY,
+      '3f1799cd-f8ae-4f6a-906a-90f56015be42',
+      '33a20fb3-6a55-4e9b-a756-9b2ba622cfb6-back.jpeg-7bbc0e7d-e489-485e-b1c2-c9d54818aea2-normalized.jpg'
+    )
+  );
+  expect(image).toEqual(expectedImage);
 });

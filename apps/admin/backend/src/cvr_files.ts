@@ -97,6 +97,7 @@ export async function listCastVoteRecordFilesOnUsb(
       case 'usb-drive-not-mounted':
         // we're just polling without a USB drive in these cases, no issue
         break;
+      /* istanbul ignore next: compile-time check for completeness */
       default:
         throwIllegalValue(errorType);
     }
@@ -343,6 +344,7 @@ function cvrBallotTypeToLegacyBallotType(
       return 'standard';
     case CVR.vxBallotType.Provisional:
       return 'provisional';
+    /* istanbul ignore next: compile-time check for completeness */
     default:
       throwIllegalValue(ballotType);
   }
@@ -436,13 +438,14 @@ export function getAddCastVoteRecordReportErrorMessage(
       return 'Unable to parse cast vote record report, it may be malformed.';
     case 'invalid-report-file-mode':
       if (error.currentFileMode === Admin.CvrFileMode.Official) {
-        return `You are currently tabulating official results but the selected cast vote record report report contains test results.`;
+        return `You are currently tabulating official results but the selected cast vote record report contains test results.`;
       }
       return `You are currently tabulating test results but the selected cast vote record report contains official results.`;
     case 'invalid-cast-vote-record': {
       const messageBase = `Found an invalid cast vote record at index ${error.index} in the current report.`;
       const messageDetail = (() => {
         const subErrorType = error.error;
+        /* istanbul ignore next  - write testing when error handling requirements and implementation harden */
         switch (subErrorType) {
           case 'invalid-election':
             return `The record references an election other than the current election.`;
@@ -463,7 +466,7 @@ export function getAddCastVoteRecordReportErrorMessage(
             return `The record references a contest which does not exist for its ballot style.`;
           case 'invalid-contest-option':
             return `The record references a contest option which does not exist for the contest.`;
-          // istanbul ignore next
+          /* istanbul ignore next: compile-time check for completeness */
           default:
             throwIllegalValue(subErrorType);
         }
@@ -475,7 +478,7 @@ export function getAddCastVoteRecordReportErrorMessage(
       return `Unable to parse a layout associated with a ballot image. Path: ${error.path}`;
     case 'ballot-id-already-exists-with-different-data':
       return `Found cast vote record at index ${error.index} that has the same ballot id as a previously imported cast vote record, but with different data.`;
-    // istanbul ignore next
+    /* istanbul ignore next: compile-time check for completeness */
     default:
       throwIllegalValue(errorType);
   }
