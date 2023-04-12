@@ -64,6 +64,15 @@ impl<T: Sub<Output = T> + AddAssign + Copy> AddAssign for Point<T> {
     }
 }
 
+impl Point<SubPixelUnit> {
+    pub fn round(self) -> Point<PixelPosition> {
+        Point::new(
+            self.x.round() as PixelPosition,
+            self.y.round() as PixelPosition,
+        )
+    }
+}
+
 /// A rectangle area of pixels within an image.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct Rect {
@@ -160,6 +169,20 @@ impl Rect {
         } else {
             None
         }
+    }
+
+    // Returns the smallest rectangle that contains both `self` and `other`.
+    pub fn union(&self, other: &Self) -> Self {
+        let left = self.left.min(other.left);
+        let top = self.top.min(other.top);
+        let right = self.right().max(other.right());
+        let bottom = self.bottom().max(other.bottom());
+        Self::new(
+            left,
+            top,
+            (right - left + 1) as PixelUnit,
+            (bottom - top + 1) as PixelUnit,
+        )
     }
 }
 
@@ -295,7 +318,7 @@ pub fn normalize_angle(angle: Radians) -> Radians {
 /// Finds the largest subset of rectangles such that a line can be drawn through
 /// all of them for any line within the given tolerance of the given angle.
 pub fn find_largest_subset_intersecting_line(
-    rects: &Vec<Rect>,
+    rects: &[Rect],
     angle: Radians,
     tolerance: Radians,
 ) -> Vec<Rect> {
@@ -324,7 +347,7 @@ pub fn find_largest_subset_intersecting_line(
         })
         // Pick the list of rectangles that is the longest.
         .max_by_key(Vec::len)
-        .unwrap_or(vec![])
+        .unwrap_or_default()
         // Dereference the pointers.
         .iter()
         .map(|r| **r)

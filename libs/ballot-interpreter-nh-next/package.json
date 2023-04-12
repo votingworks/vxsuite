@@ -25,10 +25,12 @@
   "dependencies": {
     "@votingworks/ballot-interpreter-nh": "workspace:*",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "better-sqlite3": "^8.2.0",
-    "chalk": "^4.1.2"
+    "chalk": "^4.1.2",
+    "tmp": "^0.2.1"
   },
   "devDependencies": {
     "@jest/types": "^29.5.0",
@@ -36,6 +38,7 @@
     "@types/chalk": "^2.2.0",
     "@types/jest": "^29.4.0",
     "@types/node": "16.18.23",
+    "@types/tmp": "^0.2.3",
     "@typescript-eslint/eslint-plugin": "5.37.0",
     "@typescript-eslint/parser": "5.37.0",
     "@votingworks/fixtures": "workspace:*",

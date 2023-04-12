@@ -141,6 +141,10 @@ test('interpret with valid data', async () => {
   const [front, back] = result.unsafeUnwrap();
   assert(front.interpretation.type === 'InterpretedHmpbPage');
   assert(back.interpretation.type === 'InterpretedHmpbPage');
+  expect(front.normalizedImage).toBeDefined();
+  expect(back.normalizedImage).toBeDefined();
+  expect(front.interpretation.layout).toMatchSnapshot();
+  expect(back.interpretation.layout).toMatchSnapshot();
   expect(
     [
       ...front.interpretation.markInfo.marks,

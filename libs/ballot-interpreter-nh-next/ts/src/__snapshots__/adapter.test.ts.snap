@@ -1,0 +1,2024 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`interpret with valid data 1`] = `
+{
+  "contests": [
+    {
+      "bounds": {
+        "height": 102,
+        "width": 1501,
+        "x": 172,
+        "y": 455,
+      },
+      "contestId": "Governor-061a401b",
+      "corners": [
+        {
+          "x": 172,
+          "y": 455,
+        },
+        {
+          "x": 1673,
+          "y": 455,
+        },
+        {
+          "x": 172,
+          "y": 557,
+        },
+        {
+          "x": 1673,
+          "y": 557,
+        },
+      ],
+      "options": [
+        {
+          "bounds": {
+            "height": 102,
+            "width": 502,
+            "x": 172,
+            "y": 455,
+          },
+          "definition": {
+            "contestId": "Governor-061a401b",
+            "id": "Josiah-Bartlett-1bb99985",
+            "isWriteIn": false,
+            "name": "Josiah Bartlett",
+            "optionIndex": 0,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 522,
+            "y": 455,
+          },
+          "definition": {
+            "contestId": "Governor-061a401b",
+            "id": "Hannah-Dustin-ab4ef7c8",
+            "isWriteIn": false,
+            "name": "Hannah Dustin",
+            "optionIndex": 1,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 872,
+            "y": 455,
+          },
+          "definition": {
+            "contestId": "Governor-061a401b",
+            "id": "John-Spencer-9ffb5970",
+            "isWriteIn": false,
+            "name": "John Spencer",
+            "optionIndex": 2,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 1172,
+            "y": 455,
+          },
+          "definition": {
+            "contestId": "Governor-061a401b",
+            "id": "write-in-0",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 3,
+            "type": "candidate",
+            "writeInIndex": 0,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+      ],
+    },
+    {
+      "bounds": {
+        "height": 102,
+        "width": 1500,
+        "x": 173,
+        "y": 606,
+      },
+      "contestId": "United-States-Senator-d3f1c75b",
+      "corners": [
+        {
+          "x": 173,
+          "y": 606,
+        },
+        {
+          "x": 1673,
+          "y": 606,
+        },
+        {
+          "x": 173,
+          "y": 708,
+        },
+        {
+          "x": 1673,
+          "y": 708,
+        },
+      ],
+      "options": [
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 173,
+            "y": 606,
+          },
+          "definition": {
+            "contestId": "United-States-Senator-d3f1c75b",
+            "id": "John-Langdon-5951c8e1",
+            "isWriteIn": false,
+            "name": "John Langdon",
+            "optionIndex": 0,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 500,
+            "x": 523,
+            "y": 606,
+          },
+          "definition": {
+            "contestId": "United-States-Senator-d3f1c75b",
+            "id": "William-Preston-3778fcd5",
+            "isWriteIn": false,
+            "name": "William Preston",
+            "optionIndex": 1,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 1172,
+            "y": 606,
+          },
+          "definition": {
+            "contestId": "United-States-Senator-d3f1c75b",
+            "id": "write-in-0",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 2,
+            "type": "candidate",
+            "writeInIndex": 0,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+      ],
+    },
+    {
+      "bounds": {
+        "height": 102,
+        "width": 1501,
+        "x": 173,
+        "y": 757,
+      },
+      "contestId": "Representative-in-Congress-24683b44",
+      "corners": [
+        {
+          "x": 173,
+          "y": 757,
+        },
+        {
+          "x": 1674,
+          "y": 757,
+        },
+        {
+          "x": 173,
+          "y": 859,
+        },
+        {
+          "x": 1674,
+          "y": 859,
+        },
+      ],
+      "options": [
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 173,
+            "y": 757,
+          },
+          "definition": {
+            "contestId": "Representative-in-Congress-24683b44",
+            "id": "Jeremiah-Smith-469560c9",
+            "isWriteIn": false,
+            "name": "Jeremiah Smith",
+            "optionIndex": 0,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 523,
+            "y": 757,
+          },
+          "definition": {
+            "contestId": "Representative-in-Congress-24683b44",
+            "id": "Nicholas-Gilman-1791aed7",
+            "isWriteIn": false,
+            "name": "Nicholas Gilman",
+            "optionIndex": 1,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 502,
+            "x": 872,
+            "y": 757,
+          },
+          "definition": {
+            "contestId": "Representative-in-Congress-24683b44",
+            "id": "Richard-Coote-b9095636",
+            "isWriteIn": false,
+            "name": "Richard Coote",
+            "optionIndex": 2,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 502,
+            "x": 1172,
+            "y": 757,
+          },
+          "definition": {
+            "contestId": "Representative-in-Congress-24683b44",
+            "id": "write-in-0",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 3,
+            "type": "candidate",
+            "writeInIndex": 0,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+      ],
+    },
+    {
+      "bounds": {
+        "height": 102,
+        "width": 1501,
+        "x": 173,
+        "y": 908,
+      },
+      "contestId": "Executive-Councilor-bb22557f",
+      "corners": [
+        {
+          "x": 173,
+          "y": 908,
+        },
+        {
+          "x": 1674,
+          "y": 908,
+        },
+        {
+          "x": 173,
+          "y": 1010,
+        },
+        {
+          "x": 1674,
+          "y": 1010,
+        },
+      ],
+      "options": [
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 173,
+            "y": 909,
+          },
+          "definition": {
+            "contestId": "Executive-Councilor-bb22557f",
+            "id": "Anne-Waldron-ee0cbc85",
+            "isWriteIn": false,
+            "name": "Anne Waldron",
+            "optionIndex": 0,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 523,
+            "y": 909,
+          },
+          "definition": {
+            "contestId": "Executive-Councilor-bb22557f",
+            "id": "Daniel-Webster-13f77b2d",
+            "isWriteIn": false,
+            "name": "Daniel Webster",
+            "optionIndex": 1,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 1173,
+            "y": 908,
+          },
+          "definition": {
+            "contestId": "Executive-Councilor-bb22557f",
+            "id": "write-in-0",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 2,
+            "type": "candidate",
+            "writeInIndex": 0,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+      ],
+    },
+    {
+      "bounds": {
+        "height": 102,
+        "width": 1501,
+        "x": 173,
+        "y": 1059,
+      },
+      "contestId": "State-Senator-391381f8",
+      "corners": [
+        {
+          "x": 173,
+          "y": 1059,
+        },
+        {
+          "x": 1674,
+          "y": 1059,
+        },
+        {
+          "x": 173,
+          "y": 1161,
+        },
+        {
+          "x": 1674,
+          "y": 1161,
+        },
+      ],
+      "options": [
+        {
+          "bounds": {
+            "height": 101,
+            "width": 502,
+            "x": 173,
+            "y": 1060,
+          },
+          "definition": {
+            "contestId": "State-Senator-391381f8",
+            "id": "James-Poole-db5ef4bd",
+            "isWriteIn": false,
+            "name": "James Poole",
+            "optionIndex": 0,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 523,
+            "y": 1059,
+          },
+          "definition": {
+            "contestId": "State-Senator-391381f8",
+            "id": "Matthew-Thornton-f66fec5e",
+            "isWriteIn": false,
+            "name": "Matthew Thornton",
+            "optionIndex": 1,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 1173,
+            "y": 1059,
+          },
+          "definition": {
+            "contestId": "State-Senator-391381f8",
+            "id": "write-in-0",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 2,
+            "type": "candidate",
+            "writeInIndex": 0,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+      ],
+    },
+    {
+      "bounds": {
+        "height": 354,
+        "width": 1501,
+        "x": 174,
+        "y": 1210,
+      },
+      "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+      "corners": [
+        {
+          "x": 174,
+          "y": 1210,
+        },
+        {
+          "x": 1675,
+          "y": 1210,
+        },
+        {
+          "x": 174,
+          "y": 1564,
+        },
+        {
+          "x": 1675,
+          "y": 1564,
+        },
+      ],
+      "options": [
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 174,
+            "y": 1262,
+          },
+          "definition": {
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "id": "Obadiah-Carrigan-5c95145a",
+            "isWriteIn": false,
+            "name": "Obadiah Carrigan",
+            "optionIndex": 0,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 174,
+            "y": 1362,
+          },
+          "definition": {
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "id": "Mary-Baker-Eddy-350785d5",
+            "isWriteIn": false,
+            "name": "Mary Baker Eddy",
+            "optionIndex": 1,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 502,
+            "x": 174,
+            "y": 1463,
+          },
+          "definition": {
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "id": "Samuel-Bell-17973275",
+            "isWriteIn": false,
+            "name": "Samuel Bell",
+            "optionIndex": 2,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 100,
+            "width": 501,
+            "x": 524,
+            "y": 1211,
+          },
+          "definition": {
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "id": "Samuel-Livermore-f927fef1",
+            "isWriteIn": false,
+            "name": "Samuel Livermore",
+            "optionIndex": 3,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 524,
+            "y": 1311,
+          },
+          "definition": {
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "id": "Elijah-Miller-a52e6988",
+            "isWriteIn": false,
+            "name": "Elijah Miller",
+            "optionIndex": 4,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 524,
+            "y": 1412,
+          },
+          "definition": {
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "id": "Isaac-Hill-d6c9deeb",
+            "isWriteIn": false,
+            "name": "Isaac Hill",
+            "optionIndex": 5,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 100,
+            "width": 502,
+            "x": 873,
+            "y": 1261,
+          },
+          "definition": {
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "id": "Abigail-Bartlett-4e46c9d4",
+            "isWriteIn": false,
+            "name": "Abigail Bartlett",
+            "optionIndex": 6,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 874,
+            "y": 1361,
+          },
+          "definition": {
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "id": "Jacob-Freese-b5146505",
+            "isWriteIn": false,
+            "name": "Jacob Freese",
+            "optionIndex": 7,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 502,
+            "x": 1173,
+            "y": 1210,
+          },
+          "definition": {
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "id": "write-in-0",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 8,
+            "type": "candidate",
+            "writeInIndex": 0,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 1174,
+            "y": 1310,
+          },
+          "definition": {
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "id": "write-in-1",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 9,
+            "type": "candidate",
+            "writeInIndex": 1,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 499,
+            "x": 1174,
+            "y": 1411,
+          },
+          "definition": {
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "id": "write-in-2",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 10,
+            "type": "candidate",
+            "writeInIndex": 2,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+      ],
+    },
+    {
+      "bounds": {
+        "height": 102,
+        "width": 1501,
+        "x": 175,
+        "y": 1662,
+      },
+      "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+      "corners": [
+        {
+          "x": 175,
+          "y": 1662,
+        },
+        {
+          "x": 1676,
+          "y": 1662,
+        },
+        {
+          "x": 175,
+          "y": 1764,
+        },
+        {
+          "x": 1676,
+          "y": 1764,
+        },
+      ],
+      "options": [
+        {
+          "bounds": {
+            "height": 99,
+            "width": 501,
+            "x": 175,
+            "y": 1665,
+          },
+          "definition": {
+            "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+            "id": "Abeil-Foster-ded38e36",
+            "isWriteIn": false,
+            "name": "Abeil Foster",
+            "optionIndex": 0,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 99,
+            "width": 501,
+            "x": 525,
+            "y": 1664,
+          },
+          "definition": {
+            "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+            "id": "Charles-H-Hersey-096286a4",
+            "isWriteIn": false,
+            "name": "Charles H. Hersey",
+            "optionIndex": 1,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 99,
+            "width": 502,
+            "x": 874,
+            "y": 1663,
+          },
+          "definition": {
+            "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+            "id": "William-Lovejoy-fde3c2df",
+            "isWriteIn": false,
+            "name": "William Lovejoy",
+            "optionIndex": 2,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 99,
+            "width": 502,
+            "x": 1174,
+            "y": 1662,
+          },
+          "definition": {
+            "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+            "id": "write-in-0",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 3,
+            "type": "candidate",
+            "writeInIndex": 0,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+      ],
+    },
+  ],
+  "metadata": {
+    "ballotStyleId": "card-number-3",
+    "ballotType": 0,
+    "electionHash": "87034971ecdd76161d159d4d77d75c276fe4166300aa4c8ea66c65f61a01c4e4",
+    "isTestMode": true,
+    "locales": {
+      "primary": "en-US",
+    },
+    "pageNumber": 1,
+    "precinctId": "town-id-00701-precinct-id-",
+  },
+  "pageSize": {
+    "height": 2200,
+    "width": 1696,
+  },
+}
+`;
+
+exports[`interpret with valid data 2`] = `
+{
+  "contests": [
+    {
+      "bounds": {
+        "height": 102,
+        "width": 1501,
+        "x": 182,
+        "y": 253,
+      },
+      "contestId": "Sheriff-4243fe0b",
+      "corners": [
+        {
+          "x": 182,
+          "y": 253,
+        },
+        {
+          "x": 1683,
+          "y": 253,
+        },
+        {
+          "x": 182,
+          "y": 355,
+        },
+        {
+          "x": 1683,
+          "y": 355,
+        },
+      ],
+      "options": [
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 182,
+            "y": 253,
+          },
+          "definition": {
+            "contestId": "Sheriff-4243fe0b",
+            "id": "Edward-Randolph-bf4c848a",
+            "isWriteIn": false,
+            "name": "Edward Randolph",
+            "optionIndex": 0,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 532,
+            "y": 253,
+          },
+          "definition": {
+            "contestId": "Sheriff-4243fe0b",
+            "id": "Edward-Randolph-bf4c848a",
+            "isWriteIn": false,
+            "name": "Edward Randolph",
+            "optionIndex": 0,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 1182,
+            "y": 253,
+          },
+          "definition": {
+            "contestId": "Sheriff-4243fe0b",
+            "id": "write-in-0",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 1,
+            "type": "candidate",
+            "writeInIndex": 0,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+      ],
+    },
+    {
+      "bounds": {
+        "height": 101,
+        "width": 1501,
+        "x": 182,
+        "y": 405,
+      },
+      "contestId": "County-Attorney-133f910f",
+      "corners": [
+        {
+          "x": 182,
+          "y": 405,
+        },
+        {
+          "x": 1683,
+          "y": 405,
+        },
+        {
+          "x": 182,
+          "y": 506,
+        },
+        {
+          "x": 1683,
+          "y": 506,
+        },
+      ],
+      "options": [
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 182,
+            "y": 405,
+          },
+          "definition": {
+            "contestId": "County-Attorney-133f910f",
+            "id": "Ezra-Bartlett-8f95223c",
+            "isWriteIn": false,
+            "name": "Ezra Bartlett",
+            "optionIndex": 0,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 532,
+            "y": 405,
+          },
+          "definition": {
+            "contestId": "County-Attorney-133f910f",
+            "id": "Mary-Woolson-dc0b854a",
+            "isWriteIn": false,
+            "name": "Mary Woolson",
+            "optionIndex": 1,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 1182,
+            "y": 405,
+          },
+          "definition": {
+            "contestId": "County-Attorney-133f910f",
+            "id": "write-in-0",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 2,
+            "type": "candidate",
+            "writeInIndex": 0,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+      ],
+    },
+    {
+      "bounds": {
+        "height": 103,
+        "width": 1502,
+        "x": 182,
+        "y": 555,
+      },
+      "contestId": "County-Treasurer-87d25a31",
+      "corners": [
+        {
+          "x": 182,
+          "y": 555,
+        },
+        {
+          "x": 1684,
+          "y": 555,
+        },
+        {
+          "x": 182,
+          "y": 658,
+        },
+        {
+          "x": 1684,
+          "y": 658,
+        },
+      ],
+      "options": [
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 182,
+            "y": 555,
+          },
+          "definition": {
+            "contestId": "County-Treasurer-87d25a31",
+            "id": "John-Smith-ef61a579",
+            "isWriteIn": false,
+            "name": "John Smith",
+            "optionIndex": 0,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 532,
+            "y": 555,
+          },
+          "definition": {
+            "contestId": "County-Treasurer-87d25a31",
+            "id": "Jane-Jones-9caa141f",
+            "isWriteIn": false,
+            "name": "Jane Jones",
+            "optionIndex": 1,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 502,
+            "x": 1182,
+            "y": 556,
+          },
+          "definition": {
+            "contestId": "County-Treasurer-87d25a31",
+            "id": "write-in-0",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 2,
+            "type": "candidate",
+            "writeInIndex": 0,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+      ],
+    },
+    {
+      "bounds": {
+        "height": 102,
+        "width": 1501,
+        "x": 182,
+        "y": 707,
+      },
+      "contestId": "Register-of-Deeds-a1278df2",
+      "corners": [
+        {
+          "x": 182,
+          "y": 707,
+        },
+        {
+          "x": 1683,
+          "y": 707,
+        },
+        {
+          "x": 182,
+          "y": 809,
+        },
+        {
+          "x": 1683,
+          "y": 809,
+        },
+      ],
+      "options": [
+        {
+          "bounds": {
+            "height": 101,
+            "width": 501,
+            "x": 182,
+            "y": 707,
+          },
+          "definition": {
+            "contestId": "Register-of-Deeds-a1278df2",
+            "id": "John-Mann-b56bbdd3",
+            "isWriteIn": false,
+            "name": "John Mann",
+            "optionIndex": 0,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 532,
+            "y": 707,
+          },
+          "definition": {
+            "contestId": "Register-of-Deeds-a1278df2",
+            "id": "Ellen-A-Stileman-14408737",
+            "isWriteIn": false,
+            "name": "Ellen A. Stileman",
+            "optionIndex": 1,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 1182,
+            "y": 707,
+          },
+          "definition": {
+            "contestId": "Register-of-Deeds-a1278df2",
+            "id": "write-in-0",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 2,
+            "type": "candidate",
+            "writeInIndex": 0,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+      ],
+    },
+    {
+      "bounds": {
+        "height": 103,
+        "width": 1500,
+        "x": 182,
+        "y": 857,
+      },
+      "contestId": "Register-of-Probate-a4117da8",
+      "corners": [
+        {
+          "x": 182,
+          "y": 857,
+        },
+        {
+          "x": 1682,
+          "y": 857,
+        },
+        {
+          "x": 182,
+          "y": 960,
+        },
+        {
+          "x": 1682,
+          "y": 960,
+        },
+      ],
+      "options": [
+        {
+          "bounds": {
+            "height": 102,
+            "width": 500,
+            "x": 182,
+            "y": 857,
+          },
+          "definition": {
+            "contestId": "Register-of-Probate-a4117da8",
+            "id": "Nathaniel-Parker-56a06c29",
+            "isWriteIn": false,
+            "name": "Nathaniel Parker",
+            "optionIndex": 0,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 500,
+            "x": 532,
+            "y": 857,
+          },
+          "definition": {
+            "contestId": "Register-of-Probate-a4117da8",
+            "id": "Claire-Cutts-07a436e7",
+            "isWriteIn": false,
+            "name": "Claire Cutts",
+            "optionIndex": 1,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 500,
+            "x": 1182,
+            "y": 858,
+          },
+          "definition": {
+            "contestId": "Register-of-Probate-a4117da8",
+            "id": "write-in-0",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 2,
+            "type": "candidate",
+            "writeInIndex": 0,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+      ],
+    },
+    {
+      "bounds": {
+        "height": 103,
+        "width": 1500,
+        "x": 182,
+        "y": 1008,
+      },
+      "contestId": "County-Commissioner-d6feed25",
+      "corners": [
+        {
+          "x": 182,
+          "y": 1008,
+        },
+        {
+          "x": 1682,
+          "y": 1008,
+        },
+        {
+          "x": 182,
+          "y": 1111,
+        },
+        {
+          "x": 1682,
+          "y": 1111,
+        },
+      ],
+      "options": [
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 182,
+            "y": 1008,
+          },
+          "definition": {
+            "contestId": "County-Commissioner-d6feed25",
+            "id": "Ichabod-Goodwin-55e8de1f",
+            "isWriteIn": false,
+            "name": "Ichabod Goodwin",
+            "optionIndex": 0,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 500,
+            "x": 532,
+            "y": 1008,
+          },
+          "definition": {
+            "contestId": "County-Commissioner-d6feed25",
+            "id": "Valbe-Cady-ba3af3af",
+            "isWriteIn": false,
+            "name": "Valbe Cady",
+            "optionIndex": 1,
+            "type": "candidate",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 102,
+            "width": 501,
+            "x": 1181,
+            "y": 1009,
+          },
+          "definition": {
+            "contestId": "County-Commissioner-d6feed25",
+            "id": "write-in-0",
+            "isWriteIn": true,
+            "name": "Write-In",
+            "optionIndex": 2,
+            "type": "candidate",
+            "writeInIndex": 0,
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+      ],
+    },
+    {
+      "bounds": {
+        "height": 103,
+        "width": 800,
+        "x": 881,
+        "y": 1260,
+      },
+      "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+      "corners": [
+        {
+          "x": 881,
+          "y": 1260,
+        },
+        {
+          "x": 1681,
+          "y": 1260,
+        },
+        {
+          "x": 881,
+          "y": 1363,
+        },
+        {
+          "x": 1681,
+          "y": 1363,
+        },
+      ],
+      "options": [
+        {
+          "bounds": {
+            "height": 103,
+            "width": 500,
+            "x": 881,
+            "y": 1260,
+          },
+          "definition": {
+            "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+            "id": "yes",
+            "name": "Yes",
+            "optionIndex": 0,
+            "type": "yesno",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+        {
+          "bounds": {
+            "height": 103,
+            "width": 500,
+            "x": 1181,
+            "y": 1260,
+          },
+          "definition": {
+            "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+            "id": "no",
+            "name": "No",
+            "optionIndex": 1,
+            "type": "yesno",
+          },
+          "target": {
+            "bounds": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+            "inner": {
+              "height": 1,
+              "width": 1,
+              "x": 0,
+              "y": 0,
+            },
+          },
+        },
+      ],
+    },
+  ],
+  "metadata": {
+    "ballotStyleId": "card-number-3",
+    "ballotType": 0,
+    "electionHash": "87034971ecdd76161d159d4d77d75c276fe4166300aa4c8ea66c65f61a01c4e4",
+    "isTestMode": true,
+    "locales": {
+      "primary": "en-US",
+    },
+    "pageNumber": 2,
+    "precinctId": "town-id-00701-precinct-id-",
+  },
+  "pageSize": {
+    "height": 2200,
+    "width": 1696,
+  },
+}
+`;

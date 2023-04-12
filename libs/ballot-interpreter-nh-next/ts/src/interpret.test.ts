@@ -1,4 +1,4 @@
-import { err, ok, typedAs } from '@votingworks/basics';
+import { assertDefined, err, ok, typedAs, unique } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { ElectionDefinition, SheetOf } from '@votingworks/types';
 import { interpret } from './interpret';
@@ -35,7 +35,7 @@ test('interpret with bad ballot image paths', () => {
   );
 });
 
-test('interpret with valid data', () => {
+test('interpret with valid data', async () => {
   const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
   const ballotImagePaths: SheetOf<string> = [
     electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath(),
@@ -46,6 +46,53 @@ test('interpret with valid data', () => {
   expect(result).toEqual(ok(expect.anything()));
 
   const { front, back } = result.unsafeUnwrap();
+
+  expect(front.normalizedImage).toBeDefined();
+  expect(back.normalizedImage).toBeDefined();
+  const frontImageData =
+    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asImageData();
+  const backImageData =
+    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asImageData();
+  // While we would usually expect a normalized image to differ from the
+  // original more significantly, in this case their dimensions are basically
+  // identical due to minimal cropping and no scaling, which makes for a basic test.
+  expect(front.normalizedImage.width).toEqual(frontImageData.width - 1);
+  expect(front.normalizedImage.height).toEqual(frontImageData.height);
+  expect(back.normalizedImage.width).toEqual(backImageData.width);
+  expect(back.normalizedImage.height).toEqual(backImageData.height);
+  expect(front.normalizedImage.data.length).toBeGreaterThan(0);
+  expect(back.normalizedImage.data.length).toBeGreaterThan(0);
+
+  const gridPositions = assertDefined(
+    electionDefinition.election.gridLayouts?.[0]?.gridPositions
+  );
+
+  // Layout should contain all the contests in order
+  expect(
+    [...front.contestLayouts, ...back.contestLayouts].map(
+      (layout) => layout.contestId
+    )
+  ).toEqual(unique(gridPositions.map((position) => position.contestId)));
+
+  // Each contest should contain all the options in order
+  for (const contestLayout of [
+    ...front.contestLayouts,
+    ...back.contestLayouts,
+  ]) {
+    expect(contestLayout.options.map((option) => option.optionId)).toEqual(
+      gridPositions
+        .filter((position) => position.contestId === contestLayout.contestId)
+        .map((position) =>
+          position.type === 'option'
+            ? position.optionId
+            : `write-in-${position.writeInIndex}`
+        )
+    );
+  }
+
+  expect(front.contestLayouts).toMatchSnapshot();
+  expect(back.contestLayouts).toMatchSnapshot();
+
   expect(
     [...front.marks, ...back.marks].map(([position, mark]) => ({
       contestId: position.contestId,

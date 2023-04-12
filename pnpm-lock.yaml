@@ -3282,6 +3282,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../image-utils
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
@@ -3294,6 +3297,9 @@ importers:
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
+      tmp:
+        specifier: ^0.2.1
+        version: 0.2.1
     devDependencies:
       '@jest/types':
         specifier: ^29.5.0
@@ -3310,6 +3316,9 @@ importers:
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
+      '@types/tmp':
+        specifier: ^0.2.3
+        version: 0.2.3
       '@typescript-eslint/eslint-plugin':
         specifier: 5.37.0
         version: 5.37.0(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)(typescript@4.6.3)

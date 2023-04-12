@@ -155,7 +155,11 @@ impl TimingMarkGrid {
     /// marks for the given row, correcting their position to account for
     /// the marks being cropped during scanning or border removal, and
     /// interpolating between the two based on the column.
-    pub fn point_for_location(&self, column: GridUnit, row: GridUnit) -> Option<Point<f32>> {
+    pub fn point_for_location(
+        &self,
+        column: GridUnit,
+        row: GridUnit,
+    ) -> Option<Point<SubPixelUnit>> {
         if column >= self.geometry.grid_size.width || row >= self.geometry.grid_size.height {
             return None;
         }

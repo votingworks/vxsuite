@@ -1,10 +1,17 @@
 /**
  * The result of calling `interpret`.
  */
-export interface BridgeInterpretResult {
-  success: boolean;
-  value: string;
-}
+export type BridgeInterpretResult =
+  | {
+      success: false;
+      value: string;
+    }
+  | {
+      success: true;
+      value: string;
+      frontNormalizedImage: ImageData;
+      backNormalizedImage: ImageData;
+    };
 
 /**
  * Type of the Rust `interpret` implementation. Under normal circumstances,

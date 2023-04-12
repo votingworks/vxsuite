@@ -18,6 +18,8 @@ use crate::geometry::Size;
 use crate::image_utils::find_scanned_document_inset;
 use crate::image_utils::maybe_resize_image_to_fit;
 use crate::image_utils::Inset;
+use crate::layout::build_interpreted_page_layout;
+use crate::layout::InterpretedContestLayout;
 use crate::metadata::BallotPageMetadata;
 use crate::metadata::BallotPageMetadataError;
 use crate::scoring::score_oval_marks_from_grid_layout;
@@ -48,10 +50,20 @@ pub struct LoadedBallotCard {
 }
 
 #[derive(Debug, Serialize)]
+pub struct NormalizedImageBuffer {
+    width: u32,
+    height: u32,
+    data: Vec<u8>,
+}
+
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterpretedBallotPage {
-    grid: TimingMarkGrid,
-    marks: ScoredOvalMarks,
+    pub grid: TimingMarkGrid,
+    pub marks: ScoredOvalMarks,
+    #[serde(skip_serializing)] // `normalized_image` is returned separately.
+    pub normalized_image: GrayImage,
+    pub contest_layouts: Vec<InterpretedContestLayout>,
 }
 #[derive(Debug, Serialize)]
 pub struct InterpretedBallotCard {
@@ -100,6 +112,9 @@ pub enum Error {
     UnexpectedDimensions {
         path: String,
         dimensions: Size<PixelUnit>,
+    },
+    CouldNotComputeLayout {
+        side: BallotSide,
     },
 }
 
@@ -335,14 +350,31 @@ pub fn interpret_ballot_card(side_a_path: &Path, side_b_path: &Path, options: &O
         },
     );
 
+    let front_contest_layouts =
+        build_interpreted_page_layout(&front_grid, grid_layout, BallotSide::Front).ok_or(
+            Error::CouldNotComputeLayout {
+                side: BallotSide::Front,
+            },
+        )?;
+    let back_contest_layouts =
+        build_interpreted_page_layout(&back_grid, grid_layout, BallotSide::Back).ok_or(
+            Error::CouldNotComputeLayout {
+                side: BallotSide::Back,
+            },
+        )?;
+
     Ok(InterpretedBallotCard {
         front: InterpretedBallotPage {
             grid: front_grid,
             marks: front_scored_oval_marks,
+            normalized_image: front_image,
+            contest_layouts: front_contest_layouts,
         },
         back: InterpretedBallotPage {
             grid: back_grid,
             marks: back_scored_oval_marks,
+            normalized_image: back_image,
+            contest_layouts: back_contest_layouts,
         },
     })
 }

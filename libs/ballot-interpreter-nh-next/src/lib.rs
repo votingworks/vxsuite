@@ -1,7 +1,8 @@
 use ballot_card::load_oval_template;
-use neon::prelude::*;
+use image::{DynamicImage, GrayImage};
+use neon::{prelude::*, types::buffer::TypedArray};
 use serde::Serialize;
-use std::path::Path;
+use std::{borrow::BorrowMut, path::Path};
 
 mod ballot_card;
 mod debug;
@@ -9,6 +10,7 @@ mod election;
 mod geometry;
 mod image_utils;
 mod interpret;
+mod layout;
 mod metadata;
 mod scoring;
 mod timing_marks;
@@ -47,8 +49,9 @@ impl InterpretError {
     }
 
     fn to_json(&self) -> String {
-        serde_json::to_string(self)
-            .unwrap_or(r#"{"type": "unknown", "message": "Failed to serialize error"}"#.to_string())
+        serde_json::to_string(self).unwrap_or_else(|_| {
+            r#"{"type": "unknown", "message": "Failed to serialize error"}"#.to_string()
+        })
     }
 
     fn json(message: String) -> String {
@@ -88,7 +91,7 @@ fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         Path::new(side_b_path.as_str()),
         &Options {
             election,
-            oval_template: load_oval_template().unwrap(),
+            oval_template: load_oval_template().expect("Failed to load oval template"),
             debug,
         },
     );
@@ -109,7 +112,7 @@ fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         }
     };
 
-    let json = match serde_json::to_string_pretty(&card) {
+    let json = match serde_json::to_string(&card) {
         Ok(json) => json,
         Err(err) => {
             let error = Err(cx.string(InterpretError::json(format!(
@@ -120,7 +123,39 @@ fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     };
 
     let value = Ok(cx.string(json));
-    make_interpret_result(&mut cx, value)
+    let result_object = make_interpret_result(&mut cx, value)?;
+
+    let front_js_normalized_image_obj =
+        make_js_image_data_object(&mut cx, card.front.normalized_image)?;
+    let back_js_normalized_image_obj =
+        make_js_image_data_object(&mut cx, card.back.normalized_image)?;
+    result_object.set(
+        &mut cx,
+        "frontNormalizedImage",
+        front_js_normalized_image_obj,
+    )?;
+    result_object.set(&mut cx, "backNormalizedImage", back_js_normalized_image_obj)?;
+
+    Ok(result_object)
+}
+
+/// Creates a JavaScript object compatible with the `ImageData` interface.
+fn make_js_image_data_object<'a>(
+    cx: &mut FunctionContext<'a>,
+    image: GrayImage,
+) -> JsResult<'a, JsObject> {
+    let js_object = cx.empty_object();
+    let rgba_image = DynamicImage::ImageLuma8(image).into_rgba8();
+    let mut data = cx.buffer(rgba_image.len())?;
+    data.borrow_mut()
+        .as_mut_slice(cx)
+        .copy_from_slice(rgba_image.as_ref());
+    let (width, height) = rgba_image.dimensions();
+    let (width, height) = (cx.number(f64::from(width)), cx.number(f64::from(height)));
+    js_object.set(cx, "data", data)?;
+    js_object.set(cx, "width", width)?;
+    js_object.set(cx, "height", height)?;
+    Ok(js_object)
 }
 
 #[neon::main]

@@ -41,7 +41,19 @@ export function interpret(
 
   const value = parseJsonResult.ok();
 
-  return result.success
-    ? ok(value as InterpretedBallotCard)
-    : err(value as InterpretError);
+  if (!result.success) {
+    return err(value as InterpretError);
+  }
+
+  const interpretedBallotCard = value as InterpretedBallotCard;
+
+  // The normalized images are not included in the JSON string for performance
+  // reasons. Instead, they are transferred as `ImageData`-compatible objects
+  // which transfers the pixel data as a fast memory copy. As a result, we need
+  // to add them back in here.
+  const { frontNormalizedImage, backNormalizedImage } = result;
+  interpretedBallotCard.front.normalizedImage = frontNormalizedImage;
+  interpretedBallotCard.back.normalizedImage = backNormalizedImage;
+
+  return ok(interpretedBallotCard);
 }
