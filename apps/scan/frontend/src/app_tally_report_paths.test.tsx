@@ -353,7 +353,7 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
   renderApp({ connectPrinter: true });
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
 
   // Close the polls
   await closePolls({
@@ -583,7 +583,7 @@ test('saving to card: polls closed, primary election, all precincts', async () =
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
   renderApp({ connectPrinter: false });
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
 
   // Close the polls
   await closePolls({
@@ -708,7 +708,7 @@ test('printing: polls closed, primary election, single precinct + check addition
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
   renderApp({ connectPrinter: true });
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
 
   // Close the polls
   await closePolls({
@@ -856,7 +856,7 @@ test('saving to card: polls closed, primary election, single precinct', async ()
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
   renderApp({ connectPrinter: false });
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
 
   // Close the polls
   await closePolls({
@@ -938,7 +938,7 @@ test('printing: polls closed, general election, all precincts', async () => {
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: true });
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
 
   // Close the polls
   await closePolls({
@@ -1026,7 +1026,7 @@ test('saving to card: polls closed, general election, all precincts', async () =
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: false });
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
 
   // Close the polls
   await closePolls({
@@ -1115,7 +1115,7 @@ test('printing: polls closed, general election, single precinct', async () => {
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: true });
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
 
   // Close the polls
   await closePolls({
@@ -1180,7 +1180,7 @@ test('saving to card: polls closed, general election, single precinct', async ()
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: false });
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
 
   // Close the polls
   await closePolls({
@@ -1284,7 +1284,7 @@ test('printing: polls closed, general election with non-partisan contests, all p
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 4 });
   renderApp({ connectPrinter: true });
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
 
   await closePolls({
     electionDefinition,
@@ -1368,7 +1368,7 @@ test('saving to card: polls closed, general election with non-partisan contests,
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 4 });
   renderApp({ connectPrinter: false });
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
 
   // Close the polls
   await closePolls({
@@ -1452,7 +1452,7 @@ test('printing: polls paused', async () => {
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: true });
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
 
   // Pause the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
@@ -1492,7 +1492,7 @@ test('saving to card: polls paused', async () => {
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: false });
-  await screen.findByText('Insert Your Ballot Below');
+  await screen.findByText('Insert Your Ballot Above');
 
   // Pause the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);

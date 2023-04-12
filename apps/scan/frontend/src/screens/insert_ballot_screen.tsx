@@ -26,9 +26,9 @@ export function InsertBallotScreen({
       isLiveMode={isLiveMode}
       ballotCountOverride={scannedBallotCount}
     >
-      <InsertBallotImage />
+      <InsertBallotImage ballotFeedLocation="top" />
       <CenteredLargeProse>
-        <H1>Insert Your Ballot Below</H1>
+        <H1>Insert Your Ballot Above</H1>
         <P>Scan one ballot sheet at a time.</P>
         {showNoChargerWarning && (
           <Caption color="warning">
