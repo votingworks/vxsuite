@@ -124,7 +124,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 
 <div>
   <main
-    class="sc-jObXwK jYtfDo"
+    class="sc-dPiKHq iTRmFc"
   >
     <div
       class="c0"
@@ -208,7 +208,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           type="button"
         >
           <span
-            class="sc-giYgFv hVfOtt"
+            class="sc-ezbkgU gcJsOl"
           >
             <div
               class="sc-fotPbf iwtRsQ"
@@ -231,7 +231,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           type="button"
         >
           <span
-            class="sc-giYgFv hVfOtt"
+            class="sc-ezbkgU gcJsOl"
           >
             <div
               class="sc-fotPbf iwtRsQ"
@@ -423,7 +423,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
 
 <div>
   <main
-    class="sc-jObXwK jYtfDo"
+    class="sc-dPiKHq iTRmFc"
   >
     <div
       class="c0"
@@ -507,7 +507,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           type="button"
         >
           <span
-            class="sc-giYgFv hVfOtt"
+            class="sc-ezbkgU gcJsOl"
           >
             <div
               class="sc-fotPbf iwtRsQ"
@@ -530,7 +530,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           type="button"
         >
           <span
-            class="sc-giYgFv hVfOtt"
+            class="sc-ezbkgU gcJsOl"
           >
             <div
               class="sc-fotPbf iwtRsQ"

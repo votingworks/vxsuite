@@ -188,7 +188,7 @@ exports[`Single Seat Contest with Write In 1`] = `
   tabindex="-1"
 >
   <div
-    class="sc-cTApHj liRJcz"
+    class="sc-jObXwK fVjSuM"
   >
     <div
       class="c1"
@@ -213,7 +213,7 @@ exports[`Single Seat Contest with Write In 1`] = `
       </div>
     </div>
     <main
-      class="sc-jObXwK jYtfDo"
+      class="sc-dPiKHq iTRmFc"
     >
       <div
         class="c2"
@@ -274,7 +274,7 @@ exports[`Single Seat Contest with Write In 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-giYgFv hVfOtt"
+                  class="sc-ezbkgU gcJsOl"
                 >
                   <div
                     class="sc-fotPbf iwtRsQ"
@@ -300,7 +300,7 @@ exports[`Single Seat Contest with Write In 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-giYgFv hVfOtt"
+                  class="sc-ezbkgU gcJsOl"
                 >
                   <div
                     class="sc-fotPbf iwtRsQ"
@@ -325,12 +325,12 @@ exports[`Single Seat Contest with Write In 1`] = `
     >
       <button
         aria-label="next contest"
-        class="sc-llYToB gQOtdJ"
+        class="sc-iJKOzS gmzpar"
         id="next"
         type="button"
       >
         <span
-          class="sc-giYgFv hVfOtt"
+          class="sc-ezbkgU gcJsOl"
         >
           <span
             class="c10"
@@ -341,12 +341,12 @@ exports[`Single Seat Contest with Write In 1`] = `
       </button>
       <button
         aria-label="previous contest"
-        class="sc-llYToB gQOtdJ"
+        class="sc-iJKOzS gmzpar"
         id="previous"
         type="button"
       >
         <span
-          class="sc-giYgFv hVfOtt"
+          class="sc-ezbkgU gcJsOl"
         >
           <span
             class="c11"
@@ -357,11 +357,11 @@ exports[`Single Seat Contest with Write In 1`] = `
       </button>
       <button
         aria-label="Change Settings"
-        class="sc-llYToB gQOtdJ"
+        class="sc-iJKOzS gmzpar"
         type="button"
       >
         <span
-          class="sc-giYgFv hVfOtt"
+          class="sc-ezbkgU gcJsOl"
         >
           Settings
         </span>

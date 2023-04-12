@@ -177,7 +177,7 @@ exports[`Renders ContestPage 1`] = `
 
 <div>
   <div
-    class="sc-cTApHj liRJcz"
+    class="sc-jObXwK fVjSuM"
   >
     <div
       class="c0"
@@ -202,7 +202,7 @@ exports[`Renders ContestPage 1`] = `
       </div>
     </div>
     <main
-      class="sc-jObXwK jYtfDo"
+      class="sc-dPiKHq iTRmFc"
     >
       <div
         class="c1"
@@ -263,7 +263,7 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-giYgFv hVfOtt"
+                  class="sc-ezbkgU gcJsOl"
                 >
                   <div
                     class="sc-fotPbf iwtRsQ"
@@ -290,7 +290,7 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-giYgFv hVfOtt"
+                  class="sc-ezbkgU gcJsOl"
                 >
                   <div
                     class="sc-fotPbf iwtRsQ"
@@ -317,7 +317,7 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-giYgFv hVfOtt"
+                  class="sc-ezbkgU gcJsOl"
                 >
                   <div
                     class="sc-fotPbf iwtRsQ"
@@ -344,7 +344,7 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-giYgFv hVfOtt"
+                  class="sc-ezbkgU gcJsOl"
                 >
                   <div
                     class="sc-fotPbf iwtRsQ"
@@ -371,7 +371,7 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-giYgFv hVfOtt"
+                  class="sc-ezbkgU gcJsOl"
                 >
                   <div
                     class="sc-fotPbf iwtRsQ"
@@ -398,7 +398,7 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-giYgFv hVfOtt"
+                  class="sc-ezbkgU gcJsOl"
                 >
                   <div
                     class="sc-fotPbf iwtRsQ"
@@ -425,12 +425,12 @@ exports[`Renders ContestPage 1`] = `
     >
       <button
         aria-label="next contest"
-        class="sc-llYToB gQOtdJ"
+        class="sc-iJKOzS gmzpar"
         id="next"
         type="button"
       >
         <span
-          class="sc-giYgFv hVfOtt"
+          class="sc-ezbkgU gcJsOl"
         >
           <span
             class="c9"
@@ -441,12 +441,12 @@ exports[`Renders ContestPage 1`] = `
       </button>
       <button
         aria-label="previous contest"
-        class="sc-llYToB gQOtdJ"
+        class="sc-iJKOzS gmzpar"
         id="previous"
         type="button"
       >
         <span
-          class="sc-giYgFv hVfOtt"
+          class="sc-ezbkgU gcJsOl"
         >
           <span
             class="c10"
@@ -457,11 +457,11 @@ exports[`Renders ContestPage 1`] = `
       </button>
       <button
         aria-label="Change Settings"
-        class="sc-llYToB gQOtdJ"
+        class="sc-iJKOzS gmzpar"
         type="button"
       >
         <span
-          class="sc-giYgFv hVfOtt"
+          class="sc-ezbkgU gcJsOl"
         >
           Settings
         </span>
@@ -701,10 +701,10 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 
 <div>
   <div
-    class="sc-cTApHj fHKFDz"
+    class="sc-jObXwK fzGfcs"
   >
     <main
-      class="sc-jObXwK jYtfDo"
+      class="sc-dPiKHq iTRmFc"
     >
       <div
         class="c0"
@@ -765,7 +765,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-giYgFv hVfOtt"
+                  class="sc-ezbkgU gcJsOl"
                 >
                   <div
                     class="sc-fotPbf iwtRsQ"
@@ -792,7 +792,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-giYgFv hVfOtt"
+                  class="sc-ezbkgU gcJsOl"
                 >
                   <div
                     class="sc-fotPbf iwtRsQ"
@@ -819,7 +819,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-giYgFv hVfOtt"
+                  class="sc-ezbkgU gcJsOl"
                 >
                   <div
                     class="sc-fotPbf iwtRsQ"
@@ -846,7 +846,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-giYgFv hVfOtt"
+                  class="sc-ezbkgU gcJsOl"
                 >
                   <div
                     class="sc-fotPbf iwtRsQ"
@@ -873,7 +873,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-giYgFv hVfOtt"
+                  class="sc-ezbkgU gcJsOl"
                 >
                   <div
                     class="sc-fotPbf iwtRsQ"
@@ -900,7 +900,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-giYgFv hVfOtt"
+                  class="sc-ezbkgU gcJsOl"
                 >
                   <div
                     class="sc-fotPbf iwtRsQ"
@@ -946,12 +946,12 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
           <p>
             <button
               aria-label="next contest"
-              class="sc-llYToB gQOtdJ"
+              class="sc-iJKOzS gmzpar"
               id="next"
               type="button"
             >
               <span
-                class="sc-giYgFv hVfOtt"
+                class="sc-ezbkgU gcJsOl"
               >
                 <span
                   class="c9"
@@ -964,12 +964,12 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
           <p>
             <button
               aria-label="previous contest"
-              class="sc-llYToB cpKJaq"
+              class="sc-iJKOzS fssKts"
               id="previous"
               type="button"
             >
               <span
-                class="sc-giYgFv hVfOtt"
+                class="sc-ezbkgU gcJsOl"
               >
                 <span
                   class="c10"
@@ -989,11 +989,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
         >
           <button
             aria-label="Change Settings"
-            class="sc-llYToB iUIsHk"
+            class="sc-iJKOzS ebzhGa"
             type="button"
           >
             <span
-              class="sc-giYgFv hVfOtt"
+              class="sc-ezbkgU gcJsOl"
             >
               Settings
             </span>

@@ -38,10 +38,10 @@ exports[`renders CastBallotPage 1`] = `
 }
 
 <div
-  class="sc-cTApHj fWTtBk"
+  class="sc-jObXwK fsbztL"
 >
   <main
-    class="sc-jObXwK hbqLlw"
+    class="sc-dPiKHq iNXixc"
   >
     <div
       class="sc-fotPbf iNBQun"
@@ -97,11 +97,11 @@ exports[`renders CastBallotPage 1`] = `
       class="c2"
     >
       <button
-        class="sc-llYToB iUIsHk"
+        class="sc-iJKOzS ebzhGa"
         type="button"
       >
         <span
-          class="sc-giYgFv hVfOtt"
+          class="sc-ezbkgU gcJsOl"
         >
           Done
         </span>
