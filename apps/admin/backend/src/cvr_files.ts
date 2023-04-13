@@ -665,7 +665,7 @@ export async function addCastVoteRecordReport({
               CVR_BALLOT_IMAGES_SUBDIRECTORY,
               CVR_BALLOT_LAYOUTS_SUBDIRECTORY
             )
-            .replace(/jpg|jpeg/, 'layout.json');
+            .replace(/(jpg|jpeg)$/, 'layout.json');
           const parseLayoutResult = safeParseJson(
             await fs.readFile(layoutPath, 'utf8'),
             BallotPageLayoutSchema
