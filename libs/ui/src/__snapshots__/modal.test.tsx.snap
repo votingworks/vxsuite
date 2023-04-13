@@ -106,7 +106,7 @@ exports[`Modal can configure fullscreen 1`] = `
   margin: auto;
   outline: none;
   background: #edeff0;
-  border: 0.15rem solid #263238;
+  border: 0 solid #263238;
   width: 100%;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
