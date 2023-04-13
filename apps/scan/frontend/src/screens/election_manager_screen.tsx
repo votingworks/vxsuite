@@ -9,8 +9,9 @@ import {
   SetClockButton,
   UsbDrive,
   ChangePrecinctButton,
-  H1,
   P,
+  H2,
+  Caption,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 // eslint-disable-next-line vx/gts-no-import-export-type
@@ -103,7 +104,7 @@ export function ElectionManagerScreen({
       ballotCountOverride={scannerStatus.ballotsCounted}
     >
       <Prose textCenter>
-        <H1>Election Manager Settings</H1>
+        <H2 as="h1">Election Manager Settings</H2>
         {election.precincts.length > 1 && (
           <P>
             <ChangePrecinctButton
@@ -197,13 +198,14 @@ export function ElectionManagerScreen({
           >
             Delete All Election Data from VxScan
           </Button>
+          <br />
+          {!scannerStatus.canUnconfigure && (
+            <Caption>
+              You must “Save Backup” before you can delete election data from
+              VxScan.
+            </Caption>
+          )}
         </P>
-        {!scannerStatus.canUnconfigure && (
-          <P>
-            You must “Save Backup” before you can delete election data from
-            VxScan.
-          </P>
-        )}
       </Prose>
       {isMarkThresholdModalOpen && (
         <SetMarkThresholdsModal

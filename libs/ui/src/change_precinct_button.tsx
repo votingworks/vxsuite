@@ -115,7 +115,6 @@ export function ChangePrecinctButton({
       value={dropdownCurrentValue}
       onBlur={handlePrecinctSelectionChange}
       onChange={handlePrecinctSelectionChange}
-      large
       disabled={mode === 'disabled'}
     >
       {mode === 'default' && (
