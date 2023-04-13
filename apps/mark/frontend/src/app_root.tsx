@@ -346,7 +346,7 @@ export function AppRoot({
     []
   );
 
-  // Any time election definition is changed in the backend, update the redux store too.
+  // Any time election definition is changed in the backend, update the frontend store too.
   const getElectionDefinitionQuery = getElectionDefinition.useQuery();
   useQueryChangeListener(
     getElectionDefinitionQuery,
