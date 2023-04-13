@@ -2,6 +2,7 @@
 import { assert } from '@votingworks/basics';
 import { generatePin, hyphenatePin } from '@votingworks/utils';
 
+import { ResponseApduError } from '../src/apdu';
 import { DEV_JURISDICTION } from '../src/certs';
 import { getRequiredEnvVar } from '../src/env_vars';
 import { JavaCard } from '../src/java_card';
@@ -44,10 +45,13 @@ async function programSystemAdministratorJavaCard(): Promise<string> {
       pin,
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : '';
-    throw new Error(
-      `${errorMessage}\n${initialJavaCardConfigurationScriptReminder}`
-    );
+    if (error instanceof ResponseApduError) {
+      const errorMessage = error instanceof Error ? error.message : '';
+      throw new Error(
+        `${errorMessage}\n${initialJavaCardConfigurationScriptReminder}`
+      );
+    }
+    throw error;
   }
   return pin;
 }
