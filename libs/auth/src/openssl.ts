@@ -5,7 +5,7 @@ import path from 'path';
 import { v4 as uuid } from 'uuid';
 
 /**
- * The path to the openssl config file
+ * The path to the OpenSSL config file
  */
 export const OPENSSL_CONFIG_FILE_PATH = path.join(
   __dirname,
@@ -23,12 +23,12 @@ export const PUBLIC_KEY_IN_DER_FORMAT_HEADER = Buffer.from([
 type OpensslParam = string | Buffer;
 
 /**
- * A convenience function for openssl shell commands. For file params, accepts Buffers containing
+ * A convenience function for OpenSSL shell commands. For file params, accepts Buffers containing
  * the file's contents. Writes these Buffers to temporary files in the specified (or default)
- * working directory and deletes these files after completion of the openssl command.
+ * working directory and deletes these files after completion of the OpenSSL command.
  *
  * The returned promise resolves if the shell command's exit status is 0 and rejects otherwise
- * (openssl cert and signature verification commands return non-zero exit statuses when
+ * (OpenSSL cert and signature verification commands return non-zero exit statuses when
  * verification fails). The promise also rejects if cleanup of temporary files fails.
  *
  * Sample usage:

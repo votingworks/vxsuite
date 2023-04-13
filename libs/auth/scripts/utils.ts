@@ -11,17 +11,6 @@ export function errorContains(error: unknown, message: string): boolean {
 }
 
 /**
- * Gets an env var and throws an error if it's not set
- */
-export function getEnvVar(envVarName: string, required = true): string {
-  const value = process.env[envVarName];
-  if (required) {
-    assert(value !== undefined, `Missing required ${envVarName} env var`);
-  }
-  return value || '';
-}
-
-/**
  * Runs the provided shell command, returning the standard output. Throws an error if the process
  * exits with a non-success status code.
  */

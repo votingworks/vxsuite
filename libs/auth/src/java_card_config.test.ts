@@ -14,8 +14,8 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
 
 beforeEach(() => {
   process.env.NODE_ENV = 'test';
-  process.env.VX_ADMIN_PRIVATE_KEY_PASSWORD = '5678';
   process.env.VX_CONFIG_ROOT = '/vx/config';
+  process.env.VX_MACHINE_PRIVATE_KEY_PASSWORD = '5678';
 
   mockOf(isVxDev).mockImplementation(() => false);
 });

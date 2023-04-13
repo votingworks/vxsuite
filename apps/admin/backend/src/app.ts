@@ -59,8 +59,7 @@ function constructAuthMachineState(
   return {
     arePollWorkerCardPinsEnabled: systemSettings?.arePollWorkerCardPinsEnabled,
     electionHash: currentElectionDefinition?.electionHash,
-    // TODO: Pull jurisdiction from VxAdmin cert authority cert
-    jurisdiction: DEV_JURISDICTION,
+    jurisdiction: process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION,
   };
 }
 

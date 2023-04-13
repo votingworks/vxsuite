@@ -1,10 +1,11 @@
 import path from 'path';
-import { assert } from '@votingworks/basics';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
   isVxDev,
 } from '@votingworks/utils';
+
+import { getRequiredEnvVar } from './env_vars';
 
 /**
  * Config params for the Java Card implementation of the card API
@@ -37,16 +38,18 @@ function shouldUseProdCerts(): boolean {
 
 function constructCardProgrammingConfig(): JavaCardConfig['cardProgrammingConfig'] {
   if (shouldUseProdCerts()) {
-    assert(process.env.VX_ADMIN_PRIVATE_KEY_PASSWORD !== undefined);
-    assert(process.env.VX_CONFIG_ROOT !== undefined);
+    const vxConfigRoot = getRequiredEnvVar('VX_CONFIG_ROOT');
+    const vxMachinePrivateKeyPassword = getRequiredEnvVar(
+      'VX_MACHINE_PRIVATE_KEY_PASSWORD'
+    );
     return {
       vxAdminCertAuthorityCertPath: path.join(
-        process.env.VX_CONFIG_ROOT,
+        vxConfigRoot,
         'vx-admin-cert-authority-cert.pem'
       ),
-      vxAdminPrivateKeyPassword: process.env.VX_ADMIN_PRIVATE_KEY_PASSWORD,
+      vxAdminPrivateKeyPassword: vxMachinePrivateKeyPassword,
       vxAdminPrivateKeyPath: path.join(
-        process.env.VX_CONFIG_ROOT,
+        vxConfigRoot,
         'vx-admin-private-key.pem'
       ),
     };
