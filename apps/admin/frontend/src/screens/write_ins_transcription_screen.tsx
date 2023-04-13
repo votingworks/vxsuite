@@ -94,6 +94,13 @@ const BallotImageViewerContainer = styled.div`
   overflow: hidden;
 `;
 
+// The image is scaled via the `width` attribute (applied where this component
+// is rendered.)
+//
+// With this CSS, we move the image to either center the write-in area
+// on screen (if zoomed in) or make sure the whole image fits on screen (if
+// zoomed out). In mid-zoom, we try to position the image somewhere in between
+// those two extremes.
 const ZoomedBallotImage = styled.img<{
   focusBounds: Rect;
   scale: number;
@@ -171,8 +178,8 @@ function BallotImageViewer({
   ballotBounds: Rect;
   writeInBounds: Rect;
 }) {
-  const [zoom, setZoom] = useState(1);
-
+  // Zoom is a value between 0 and 1, where 0 is zoomed out all the way and 1 is
+  // zoomed in all the way.
   const MIN_ZOOM = 0;
   const MAX_ZOOM = 1;
   // For now, we only support zooming all the way in or out, since the current
@@ -181,9 +188,12 @@ function BallotImageViewer({
   // whole ballot. I think it's kind of a hard problem and might be better
   // solved by allowing zooming and panning.
   const ZOOM_STEP = 1;
+  const [zoom, setZoom] = useState(MAX_ZOOM);
 
-  // The images are downscaled by 50% in the export, this is to adjust for that.
-  const IMAGE_SCALE = 0.5;
+  // Scale is the factor to scale the image (or coordinates within it) based on
+  // the current zoom level. It's basically the zoom setting applied to the
+  // image size.
+  const IMAGE_SCALE = 0.5; // The images are downscaled by 50% during CVR export, this is to adjust for that.
   const MIN_SCALE = IMAGE_SCALE;
   const MAX_SCALE = (ballotBounds.width / writeInBounds.width) * IMAGE_SCALE;
   const scale = MIN_SCALE + (MAX_SCALE - MIN_SCALE) * zoom;
