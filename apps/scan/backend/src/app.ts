@@ -137,6 +137,8 @@ function buildApi(
         markThresholdOverrides: store.getMarkThresholdOverrides(),
         isSoundMuted: store.getIsSoundMuted(),
         isTestMode: store.getTestMode(),
+        isUltrasonicDisabled:
+          !machine.supportsUltrasonic() || store.getIsUltrasonicDisabled(),
         pollsState: store.getPollsState(),
         ballotCountWhenBallotBagLastReplaced:
           store.getBallotCountWhenBallotBagLastReplaced(),
@@ -171,6 +173,10 @@ function buildApi(
 
     setIsSoundMuted(input: { isSoundMuted: boolean }): void {
       store.setIsSoundMuted(input.isSoundMuted);
+    },
+
+    setIsUltrasonicDisabled(input: { isUltrasonicDisabled: boolean }): void {
+      store.setIsUltrasonicDisabled(input.isUltrasonicDisabled);
     },
 
     setTestMode(input: { isTestMode: boolean }): void {
@@ -336,6 +342,10 @@ function buildApi(
     async calibrate(): Promise<boolean> {
       const result = await machine.calibrate?.();
       return result?.isOk() ?? false;
+    },
+
+    supportsUltrasonic(): boolean {
+      return machine.supportsUltrasonic();
     },
 
     async saveScannerReportDataToCard(input: {

@@ -95,6 +95,7 @@ type ScannerStatusEvent =
   | { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' }
   | { type: 'SCANNER_JAM' }
   | { type: 'SCANNER_JAM_CLEARED' }
+  | { type: 'SCANNER_JAM_DOUBLE_SHEET' }
   | { type: 'SCANNER_DISCONNECTED' };
 
 type CommandEvent = { type: 'SCAN' } | { type: 'ACCEPT' } | { type: 'RETURN' };
@@ -192,6 +193,10 @@ function scannerStatusToEvent(
     if (!frontHasPaper && !backHasPaper) {
       return { type: 'SCANNER_JAM_CLEARED' };
     }
+
+    if (scannerStatus.isDoubleSheet) {
+      return { type: 'SCANNER_JAM_DOUBLE_SHEET' };
+    }
     return { type: 'SCANNER_JAM' };
   }
 
@@ -270,13 +275,16 @@ async function reset({ client }: Context): Promise<void> {
 async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   assert(client);
   debug('Scanning');
+  const isUltrasonicDisabled = workspace.store.getIsUltrasonicDisabled();
   const scanResult = await client.scan({
     wantedScanSide: ScanSide.A_AND_B,
     resolution: ImageResolution.RESOLUTION_200_DPI,
     imageColorDepth: ImageColorDepthType.Grey8bpp,
     formStandingAfterScan: FormStanding.HOLD_TICKET,
     // The A4 scanner does not support double sheet detection.
-    doubleSheetDetection: DoubleSheetDetectOpt.DetectOff,
+    doubleSheetDetection: isUltrasonicDisabled
+      ? DoubleSheetDetectOpt.DetectOff
+      : DoubleSheetDetectOpt.Level1,
   });
   debug('Scan result: %o', scanResult);
   const images = scanResult.unsafeUnwrap();
@@ -529,6 +537,53 @@ function buildMachine({
     },
   };
 
+  function jamClearedState(): StateNodeConfig<
+    Context,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any,
+    Event,
+    BaseActionObject
+  > {
+    return {
+      entry: [clearError, clearLastScan],
+      initial: 'resetting',
+      states: {
+        resetting: {
+          invoke: {
+            src: reset,
+            onDone: {
+              target: 'disconnect_after_reset',
+            },
+            onError: {
+              target: 'disconnect_after_reset',
+            },
+          },
+        },
+        disconnect_after_reset: {
+          initial: 'waiting_to_retry_connecting',
+          states: {
+            waiting_to_retry_connecting: {
+              after: { DELAY_RECONNECT: 'reconnecting' },
+            },
+            reconnecting: {
+              invoke: {
+                src: connectToCustom(createCustomClient),
+                onDone: {
+                  target: '#checking_initial_paper_status',
+                  actions: assign({
+                    client: (_context, event) => event.data,
+                    error: undefined,
+                  }),
+                },
+                onError: 'waiting_to_retry_connecting',
+              },
+            },
+          },
+        },
+      },
+    };
+  }
+
   function rejectingState(onDoneState: string): StateNodeConfig<
     Context,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -586,6 +641,7 @@ function buildMachine({
       on: {
         SCANNER_DISCONNECTED: 'disconnected',
         SCANNER_BOTH_SIDES_HAVE_PAPER: 'both_sides_have_paper_while_scanning',
+        SCANNER_JAM_DOUBLE_SHEET: 'double_sheet',
         SCANNER_JAM: 'internal_jam',
         SCANNER_JAM_CLEARED: 'jam_cleared',
         // On unhandled commands, do nothing. This guards against any race
@@ -736,6 +792,14 @@ function buildMachine({
                       error: event.data,
                     })),
                   },
+                  {
+                    cond: (_context, event) =>
+                      event.data === ErrorCode.PaperJam,
+                    target: 'handle_paper_jam',
+                    actions: assign((_context, event) => ({
+                      error: event.data,
+                    })),
+                  },
                   // Otherwise, treat it as an unexpected error
                   {
                     target: '#error',
@@ -764,6 +828,13 @@ function buildMachine({
                 SCANNER_READY_TO_EJECT: '#interpreting',
                 SCANNER_NO_PAPER: 'waiting_to_retry',
                 SCANNER_READY_TO_SCAN: 'waiting_to_retry',
+              },
+            },
+            handle_paper_jam: {
+              invoke: pollPaperStatus,
+              on: {
+                SCANNER_JAM: '#internal_jam',
+                SCANNER_JAM_DOUBLE_SHEET: '#double_sheet',
               },
             },
             waiting_to_retry: {
@@ -928,7 +999,20 @@ function buildMachine({
           on: {
             SCANNER_NO_PAPER: 'no_paper',
             SCANNER_JAM: doNothing,
+            SCANNER_JAM_DOUBLE_SHEET: 'double_sheet',
             SCANNER_JAM_CLEARED: 'jam_cleared',
+            SCANNER_READY_TO_SCAN: doNothing,
+            SCANNER_READY_TO_EJECT: doNothing,
+          },
+        },
+        double_sheet: {
+          id: 'double_sheet',
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_NO_PAPER: 'no_paper',
+            SCANNER_JAM: doNothing,
+            SCANNER_JAM_DOUBLE_SHEET: doNothing,
+            SCANNER_JAM_CLEARED: 'double_sheet_jam_cleared',
             SCANNER_READY_TO_SCAN: doNothing,
             SCANNER_READY_TO_EJECT: doNothing,
           },
@@ -965,42 +1049,11 @@ function buildMachine({
         },
         jam_cleared: {
           id: 'jam_cleared',
-          entry: [clearError, clearLastScan],
-          initial: 'resetting',
-          states: {
-            resetting: {
-              invoke: {
-                src: reset,
-                onDone: {
-                  target: 'disconnect_after_reset',
-                },
-                onError: {
-                  target: 'disconnect_after_reset',
-                },
-              },
-            },
-            disconnect_after_reset: {
-              initial: 'waiting_to_retry_connecting',
-              states: {
-                waiting_to_retry_connecting: {
-                  after: { DELAY_RECONNECT: 'reconnecting' },
-                },
-                reconnecting: {
-                  invoke: {
-                    src: connectToCustom(createCustomClient),
-                    onDone: {
-                      target: '#checking_initial_paper_status',
-                      actions: assign({
-                        client: (_context, event) => event.data,
-                        error: undefined,
-                      }),
-                    },
-                    onError: 'waiting_to_retry_connecting',
-                  },
-                },
-              },
-            },
-          },
+          ...jamClearedState(),
+        },
+        double_sheet_jam_cleared: {
+          id: 'double_sheet_jam_cleared',
+          ...jamClearedState(),
         },
         both_sides_have_paper_while_scanning: {
           entry: clearError,
@@ -1236,6 +1289,10 @@ export function createPrecinctScannerStateMachine({
             return 'rejecting';
           case state.matches('rejected'):
             return 'rejected';
+          case state.matches('double_sheet_jam_cleared'):
+            return 'double_sheet_jammed';
+          case state.matches('double_sheet'):
+            return 'double_sheet_jammed';
           case state.matches('internal_jam'):
             return 'jammed';
           case state.matches('jam_cleared'):
@@ -1297,6 +1354,10 @@ export function createPrecinctScannerStateMachine({
 
     return: () => {
       machineService.send('RETURN');
+    },
+
+    supportsUltrasonic: () => {
+      return true;
     },
   };
 }

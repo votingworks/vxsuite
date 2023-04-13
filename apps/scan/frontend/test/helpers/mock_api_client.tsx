@@ -34,6 +34,7 @@ export const machineConfig: MachineConfig = {
 
 const defaultConfig: PrecinctScannerConfig = {
   isSoundMuted: false,
+  isUltrasonicDisabled: false,
   isTestMode: true,
   pollsState: 'polls_closed_initial',
   ballotCountWhenBallotBagLastReplaced: 0,
@@ -169,6 +170,12 @@ export function createApiMock() {
       mockApiClient.supportsCalibration
         .expectCallWith()
         .resolves(supportsCalibration);
+    },
+
+    expectCheckUltrasonicSupported(supportsUltrasonic: boolean): void {
+      mockApiClient.supportsUltrasonic
+        .expectCallWith()
+        .resolves(supportsUltrasonic);
     },
   };
 }

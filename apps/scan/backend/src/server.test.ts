@@ -31,6 +31,7 @@ function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctScannerSta
     accept: jest.fn(),
     return: jest.fn(),
     calibrate: jest.fn(),
+    supportsUltrasonic: jest.fn(),
   };
 }
 

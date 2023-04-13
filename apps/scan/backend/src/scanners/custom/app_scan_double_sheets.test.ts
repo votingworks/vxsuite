@@ -1,6 +1,7 @@
 import { AdjudicationReason } from '@votingworks/types';
 import { ok } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
+import waitForExpect from 'wait-for-expect';
 import {
   configureApp,
   expectStatus,
@@ -149,6 +150,36 @@ test('insert second ballot while first ballot needs review', async () => {
         interpretation,
         ballotsCounted: 1,
       });
+    }
+  );
+});
+
+test('double sheet on scan', async () => {
+  await withApp(
+    {
+      delays: {
+        DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+      },
+    },
+    async ({ apiClient, mockScanner, mockUsb, mockAuth }) => {
+      await configureApp(apiClient, mockUsb, { mockAuth });
+
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+      await waitForStatus(apiClient, { state: 'ready_to_scan' });
+
+      await apiClient.scanBallot();
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_DOUBLE_SHEET));
+      await waitForStatus(apiClient, {
+        state: 'double_sheet_jammed',
+      });
+
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_JAM_CLEARED));
+      await waitForStatus(apiClient, { state: 'double_sheet_jammed' });
+      await waitForExpect(() => {
+        expect(mockScanner.resetHardware).toHaveBeenCalled();
+      }, 1_000);
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
+      await waitForStatus(apiClient, { state: 'no_paper' });
     }
   );
 });

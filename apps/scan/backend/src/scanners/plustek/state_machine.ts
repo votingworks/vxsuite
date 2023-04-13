@@ -1122,6 +1122,10 @@ export function createPrecinctScannerStateMachine({
       machineService.send('RETURN');
     },
 
+    supportsUltrasonic: () => {
+      return false;
+    },
+
     calibrate: async () => {
       machineService.send('CALIBRATE');
       await waitFor(machineService, (state) => !state.matches('calibrating'), {

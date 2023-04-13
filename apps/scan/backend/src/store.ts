@@ -261,7 +261,23 @@ export class Store {
   }
 
   /**
-   * Sets whether to check the election hash.
+   * Gets whether ultrasonic is disabled.
+   */
+  getIsUltrasonicDisabled(): boolean {
+    const electionRow = this.client.one(
+      'select is_ultrasonic_disabled as isUltrasonicDisabled from election'
+    ) as { isUltrasonicDisabled: number } | undefined;
+
+    if (!electionRow) {
+      // we will not mute sounds by default once an election is defined
+      return false;
+    }
+
+    return Boolean(electionRow.isUltrasonicDisabled);
+  }
+
+  /**
+   * Sets whether or not to mute sounds.
    */
   setIsSoundMuted(isSoundMuted: boolean): void {
     if (!this.hasElection()) {
@@ -271,6 +287,20 @@ export class Store {
     this.client.run(
       'update election set is_sound_muted = ?',
       isSoundMuted ? 1 : 0
+    );
+  }
+
+  /**
+   * Sets whether or not to enable ultrasonic, if supported.
+   */
+  setIsUltrasonicDisabled(isUltrasonicDisabled: boolean): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot toggle ultrasonic without an election.');
+    }
+
+    this.client.run(
+      'update election set is_ultrasonic_disabled = ?',
+      isUltrasonicDisabled ? 1 : 0
     );
   }
 

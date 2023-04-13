@@ -13,6 +13,7 @@ import { ScanProcessingScreen } from './scan_processing_screen';
 import { ScanReturnedBallotScreen } from './scan_returned_ballot_screen';
 import { ScanSuccessScreen } from './scan_success_screen';
 import { ScanWarningScreen } from './scan_warning_screen';
+import { ScanDoubleSheetScreen } from './scan_double_sheet_screen';
 
 interface VoterScreenProps {
   electionDefinition: ElectionDefinition;
@@ -63,6 +64,7 @@ export function VoterScreen({
       }
       case 'rejecting':
       case 'jammed':
+      case 'double_sheet_jammed':
       case 'unrecoverable_error': {
         playError();
         break;
@@ -128,6 +130,12 @@ export function VoterScreen({
     case 'jammed':
       return (
         <ScanJamScreen scannedBallotCount={scannerStatus.ballotsCounted} />
+      );
+    case 'double_sheet_jammed':
+      return (
+        <ScanDoubleSheetScreen
+          scannedBallotCount={scannerStatus.ballotsCounted}
+        />
       );
     case 'both_sides_have_paper':
       return <ScanBusyScreen />;
