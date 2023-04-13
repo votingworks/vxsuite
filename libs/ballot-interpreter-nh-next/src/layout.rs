@@ -29,9 +29,9 @@ fn build_option_layout(
 ) -> Option<InterpretedContestOptionLayout> {
     // Option bounding box parameters
     // TODO make these configurable in the election definition
-    let column_offset: i32 = -9;
+    let column_offset: i32 = -10;
     let row_offset: i32 = -1;
-    let width: GridUnit = 10;
+    let width: GridUnit = 11;
     let height: GridUnit = 2;
 
     let clamp_row = |row: i32| -> GridUnit {
