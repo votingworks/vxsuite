@@ -100,24 +100,6 @@ export function generateElectionBasedSubfolderName(
 }
 
 /**
- * @deprecated Generate the filename for the scanning results CVR file
- */
-export function generateFilenameForScanningResults(
-  machineId: string,
-  numBallotsScanned: number,
-  isTestMode: boolean,
-  time: Date = new Date()
-): string {
-  const machineString = `machine${SUBSECTION_SEPARATOR}${
-    maybeParse(MachineId, machineId) ?? sanitizeString(machineId)
-  }`;
-  const ballotString = `${numBallotsScanned}${SUBSECTION_SEPARATOR}ballots`;
-  const timeInformation = moment(time).format(TIME_FORMAT_STRING);
-  const filename = `${machineString}${SECTION_SEPARATOR}${ballotString}${SECTION_SEPARATOR}${timeInformation}.jsonl`;
-  return isTestMode ? `TEST${SECTION_SEPARATOR}${filename}` : filename;
-}
-
-/**
  * Generate the directory name for the cast vote record report.
  */
 export function generateCastVoteRecordReportDirectoryName(
@@ -171,7 +153,10 @@ export function parseCastVoteRecordReportDirectoryName(
   // extract number of ballots
   assert(typeof postTestPrefixSegments[1] !== 'undefined');
   const ballotSegments = postTestPrefixSegments[1].split(SUBSECTION_SEPARATOR);
-  if (ballotSegments.length !== 2 || ballotSegments[1] !== 'ballots') {
+  if (
+    ballotSegments.length !== 2 ||
+    (ballotSegments[1] !== 'ballots' && ballotSegments[1] !== 'ballot')
+  ) {
     return;
   }
   const numberOfBallotsParseResult = safeParseNumber(ballotSegments[0]);
