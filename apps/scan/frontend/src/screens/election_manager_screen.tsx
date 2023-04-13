@@ -134,6 +134,7 @@ export function ElectionManagerScreen({
           <SegmentedButton
             disabled={setTestModeMutation.isLoading}
             label="Ballot Mode:"
+            hideLabel
             onChange={handleTogglingTestMode}
             options={[
               { id: 'test', label: 'Test Ballot Mode' },
