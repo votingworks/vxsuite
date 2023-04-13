@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { MarkThresholds } from '@votingworks/types';
-import { Button, Caption, H1, Loading, Modal, P, Prose } from '@votingworks/ui';
+import { Button, Caption, Loading, Modal, P, Prose } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { setMarkThresholdOverrides } from '../api';
 
@@ -103,9 +103,9 @@ export function SetMarkThresholdsModal({
     case ModalState.ERROR:
       return (
         <Modal
+          title="Error"
           content={
             <Prose>
-              <H1>Error</H1>
               <P>{errorMessage}</P>
             </Prose>
           }
@@ -116,9 +116,9 @@ export function SetMarkThresholdsModal({
     case ModalState.CONFIRM_INTENT:
       return (
         <Modal
+          title="Override Mark Thresholds"
           content={
             <Prose>
-              <H1>Override Mark Thresholds</H1>
               <P>
                 WARNING: Do not proceed unless you have been instructed to do so
                 by a member of VotingWorks staff. Changing mark thresholds will
@@ -146,9 +146,9 @@ export function SetMarkThresholdsModal({
     case ModalState.SET_THRESHOLDS:
       return (
         <Modal
+          title="Override Mark Thresholds"
           content={
             <Prose>
-              <H1>Override Mark Thresholds</H1>
               <P>Definite:</P>
               <input
                 type="number"
@@ -191,9 +191,9 @@ export function SetMarkThresholdsModal({
       assert(markThresholdOverrides);
       return (
         <Modal
+          title="Reset Mark Thresholds"
           content={
             <Prose>
-              <H1>Reset Mark Thresholds</H1>
               <P>Reset thresholds to the election defaults?</P>
               <ThresholdColumns>
                 <div>

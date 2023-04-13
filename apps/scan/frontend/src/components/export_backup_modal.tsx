@@ -1,7 +1,6 @@
 import { throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
-  H1,
   Loading,
   Modal,
   P,
@@ -66,9 +65,9 @@ export function ExportBackupModal({
   if (currentState === ModalState.ERROR) {
     return (
       <Modal
+        title="Failed to Save Backup"
         content={
           <Prose>
-            <H1>Failed to Save Backup</H1>
             <P>{errorMessage}</P>
           </Prose>
         }
@@ -82,9 +81,9 @@ export function ExportBackupModal({
     if (usbDrive.status === 'ejected') {
       return (
         <Modal
+          title="Backup Saved"
           content={
             <Prose>
-              <H1>Backup Saved</H1>
               <P>USB drive successfully ejected.</P>
             </Prose>
           }
@@ -96,9 +95,9 @@ export function ExportBackupModal({
 
     return (
       <Modal
+        title="Backup Saved"
         content={
           <Prose>
-            <H1>Backup Saved</H1>
             <P>
               Backup file saved successfully! You may now eject the USB drive.
             </P>
@@ -137,9 +136,9 @@ export function ExportBackupModal({
       // on the machine for internal debugging use
       return (
         <Modal
+          title="No USB Drive Detected"
           content={
             <Prose>
-              <H1>No USB Drive Detected</H1>
               <P>
                 Please insert a USB drive to save the backup.
                 <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
@@ -162,9 +161,9 @@ export function ExportBackupModal({
     case 'mounted':
       return (
         <Modal
+          title="Save Backup"
           content={
             <Prose>
-              <H1>Save Backup</H1>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               <P>
                 A ZIP file will automatically be saved to the default location
