@@ -94,34 +94,31 @@ const BallotImageViewerContainer = styled.div`
   overflow: hidden;
 `;
 
-// The image is scaled via the `width` attribute (applied where this component
-// is rendered.)
-//
-// With this CSS, we move the image to either center the write-in area
-// on screen (if zoomed in) or make sure the whole image fits on screen (if
-// zoomed out). In mid-zoom, we try to position the image somewhere in between
-// those two extremes.
-const ZoomedBallotImage = styled.img<{
-  focusBounds: Rect;
+// We zoom in by scaling (setting the width) and then translating to center the
+// write-in on the screen (setting the top/left position).
+const ZoomedInBallotImage = styled.img<{
+  ballotBounds: Rect;
+  writeInBounds: Rect;
   scale: number;
-  zoom: number;
 }>`
   position: absolute;
   top: calc(
     (
-        50% -
-          ${(props) =>
-            (props.focusBounds.y + props.focusBounds.height / 2) *
-            props.scale}px
-      ) * ${(props) => props.zoom}
+      50% -
+        ${(props) =>
+          (props.writeInBounds.y + props.writeInBounds.height / 2) *
+          props.scale}px
+    )
   );
   left: calc(
     (
-        50% -
-          ${(props) =>
-            (props.focusBounds.x + props.focusBounds.width / 2) * props.scale}px
-      ) * ${(props) => props.zoom}
+      50% -
+        ${(props) =>
+          (props.writeInBounds.x + props.writeInBounds.width / 2) *
+          props.scale}px
+    )
   );
+  width: ${(props) => props.ballotBounds.width * props.scale}px;
 `;
 
 // We want to create a transparent overlay with a centered rectangle cut out of
@@ -136,9 +133,8 @@ const WriteInFocusOverlay = styled.div<{
   position: absolute;
   top: 0;
   left: 0;
-  opacity: 0.5;
   z-index: 1;
-  background: #000000;
+  background: rgba(0, 0, 0, 0.5);
   width: 100%;
   height: 100%;
   clip-path: polygon(
@@ -159,12 +155,23 @@ const WriteInFocusOverlay = styled.div<{
   );
 `;
 
-const BallotImageViewerControls = styled.div`
+// Full-width image with vertical scrolling.
+const ZoomedOutBallotImageContainer = styled.div`
+  height: 100%;
+  overflow-y: scroll;
+  img {
+    width: 100%;
+  }
+`;
+
+const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
   display: flex;
+  justify-content: flex-end;
   position: absolute;
   top: 0;
-  right: 0;
   z-index: 2;
+  background: ${(props) => (!props.isZoomedIn ? 'rgba(0, 0, 0, 0.5)' : 'none')};
+  width: 100%;
   padding: 0.5rem;
   gap: 0.5rem;
 `;
@@ -178,55 +185,41 @@ function BallotImageViewer({
   ballotBounds: Rect;
   writeInBounds: Rect;
 }) {
-  // Zoom is a value between 0 and 1, where 0 is zoomed out all the way and 1 is
-  // zoomed in all the way.
-  const MIN_ZOOM = 0;
-  const MAX_ZOOM = 1;
-  // For now, we only support zooming all the way in or out, since the current
-  // zooming algorithm isn't smart enough to keep the write-in area focused
-  // while zooming and also make sure that zooming out completely shows the
-  // whole ballot. I think it's kind of a hard problem and might be better
-  // solved by allowing zooming and panning.
-  const ZOOM_STEP = 1;
-  const [zoom, setZoom] = useState(MAX_ZOOM);
+  const [isZoomedIn, setIsZoomedIn] = useState(true);
 
-  // Scale is the factor to scale the image (or coordinates within it) based on
-  // the current zoom level. It's basically the zoom setting applied to the
-  // image size.
   const IMAGE_SCALE = 0.5; // The images are downscaled by 50% during CVR export, this is to adjust for that.
-  const MIN_SCALE = IMAGE_SCALE;
-  const MAX_SCALE = (ballotBounds.width / writeInBounds.width) * IMAGE_SCALE;
-  const scale = MIN_SCALE + (MAX_SCALE - MIN_SCALE) * zoom;
+  const zoomedInScale =
+    (ballotBounds.width / writeInBounds.width) * IMAGE_SCALE;
 
   return (
     <BallotImageViewerContainer>
-      {zoom === 1 && (
-        <WriteInFocusOverlay
-          focusWidth={writeInBounds.width * scale}
-          focusHeight={writeInBounds.height * scale}
-        />
-      )}
-      <ZoomedBallotImage
-        src={imageUrl}
-        width={ballotBounds.width * scale}
-        focusBounds={writeInBounds}
-        scale={scale}
-        zoom={zoom}
-      />
-      <BallotImageViewerControls>
-        <Button
-          onPress={() => setZoom((prevZoom) => prevZoom - ZOOM_STEP)}
-          disabled={zoom - ZOOM_STEP < MIN_ZOOM}
-        >
+      <BallotImageViewerControls isZoomedIn={isZoomedIn}>
+        <Button onPress={() => setIsZoomedIn(false)} disabled={!isZoomedIn}>
           <Icons.ZoomOut /> Zoom Out
         </Button>
-        <Button
-          onPress={() => setZoom((prevZoom) => prevZoom + ZOOM_STEP)}
-          disabled={zoom + ZOOM_STEP > MAX_ZOOM}
-        >
+        <Button onPress={() => setIsZoomedIn(true)} disabled={isZoomedIn}>
           <Icons.ZoomIn /> Zoom In
         </Button>
       </BallotImageViewerControls>
+      {isZoomedIn ? (
+        <React.Fragment>
+          <WriteInFocusOverlay
+            focusWidth={writeInBounds.width * zoomedInScale}
+            focusHeight={writeInBounds.height * zoomedInScale}
+          />
+          <ZoomedInBallotImage
+            src={imageUrl}
+            alt="Ballot with write-in highlighted"
+            ballotBounds={ballotBounds}
+            writeInBounds={writeInBounds}
+            scale={zoomedInScale}
+          />
+        </React.Fragment>
+      ) : (
+        <ZoomedOutBallotImageContainer>
+          <img src={imageUrl} alt="Full ballot" />
+        </ZoomedOutBallotImageContainer>
+      )}
     </BallotImageViewerContainer>
   );
 }
@@ -355,6 +348,7 @@ export function WriteInsTranscriptionScreen({
         <BallotViews>
           {imageData && (
             <BallotImageViewer
+              key={adjudicationId} // Reset zoom state for each write-in
               imageUrl={`data:image/png;base64,${imageData.image}`}
               ballotBounds={imageData.ballotCoordinates}
               writeInBounds={imageData.writeInCoordinates}

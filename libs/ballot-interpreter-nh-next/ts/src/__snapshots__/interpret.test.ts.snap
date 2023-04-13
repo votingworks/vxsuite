@@ -5,45 +5,45 @@ exports[`interpret with valid data 1`] = `
   {
     "bounds": {
       "height": 102,
-      "left": 172,
+      "left": 122,
       "top": 455,
-      "width": 1501,
+      "width": 1551,
     },
     "contestId": "Governor-061a401b",
     "options": [
       {
         "bounds": {
           "height": 102,
-          "left": 172,
+          "left": 122,
           "top": 455,
-          "width": 502,
+          "width": 552,
         },
         "optionId": "Josiah-Bartlett-1bb99985",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 522,
+          "left": 472,
           "top": 455,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "Hannah-Dustin-ab4ef7c8",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 872,
+          "left": 822,
           "top": 455,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "John-Spencer-9ffb5970",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 1172,
+          "left": 1122,
           "top": 455,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "write-in-0",
       },
@@ -52,36 +52,36 @@ exports[`interpret with valid data 1`] = `
   {
     "bounds": {
       "height": 102,
-      "left": 173,
+      "left": 123,
       "top": 606,
-      "width": 1500,
+      "width": 1550,
     },
     "contestId": "United-States-Senator-d3f1c75b",
     "options": [
       {
         "bounds": {
           "height": 102,
-          "left": 173,
+          "left": 123,
           "top": 606,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "John-Langdon-5951c8e1",
       },
       {
         "bounds": {
-          "height": 101,
-          "left": 523,
+          "height": 102,
+          "left": 473,
           "top": 606,
-          "width": 500,
+          "width": 550,
         },
         "optionId": "William-Preston-3778fcd5",
       },
       {
         "bounds": {
           "height": 101,
-          "left": 1172,
+          "left": 1122,
           "top": 606,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "write-in-0",
       },
@@ -89,46 +89,46 @@ exports[`interpret with valid data 1`] = `
   },
   {
     "bounds": {
-      "height": 102,
-      "left": 173,
+      "height": 103,
+      "left": 123,
       "top": 757,
-      "width": 1501,
+      "width": 1551,
     },
     "contestId": "Representative-in-Congress-24683b44",
     "options": [
       {
         "bounds": {
-          "height": 102,
-          "left": 173,
+          "height": 103,
+          "left": 123,
           "top": 757,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "Jeremiah-Smith-469560c9",
       },
       {
         "bounds": {
-          "height": 102,
-          "left": 523,
+          "height": 103,
+          "left": 473,
           "top": 757,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "Nicholas-Gilman-1791aed7",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 872,
+          "left": 823,
           "top": 757,
-          "width": 502,
+          "width": 551,
         },
         "optionId": "Richard-Coote-b9095636",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 1172,
+          "left": 1122,
           "top": 757,
-          "width": 502,
+          "width": 552,
         },
         "optionId": "write-in-0",
       },
@@ -137,36 +137,36 @@ exports[`interpret with valid data 1`] = `
   {
     "bounds": {
       "height": 102,
-      "left": 173,
+      "left": 123,
       "top": 908,
-      "width": 1501,
+      "width": 1551,
     },
     "contestId": "Executive-Councilor-bb22557f",
     "options": [
       {
         "bounds": {
           "height": 101,
-          "left": 173,
+          "left": 123,
           "top": 909,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "Anne-Waldron-ee0cbc85",
       },
       {
         "bounds": {
-          "height": 101,
-          "left": 523,
-          "top": 909,
-          "width": 501,
+          "height": 102,
+          "left": 473,
+          "top": 908,
+          "width": 551,
         },
         "optionId": "Daniel-Webster-13f77b2d",
       },
       {
         "bounds": {
-          "height": 101,
-          "left": 1173,
+          "height": 102,
+          "left": 1123,
           "top": 908,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "write-in-0",
       },
@@ -174,37 +174,37 @@ exports[`interpret with valid data 1`] = `
   },
   {
     "bounds": {
-      "height": 102,
-      "left": 173,
-      "top": 1059,
-      "width": 1501,
+      "height": 104,
+      "left": 123,
+      "top": 1058,
+      "width": 1551,
     },
     "contestId": "State-Senator-391381f8",
     "options": [
       {
         "bounds": {
-          "height": 101,
-          "left": 173,
-          "top": 1060,
-          "width": 502,
+          "height": 103,
+          "left": 123,
+          "top": 1059,
+          "width": 552,
         },
         "optionId": "James-Poole-db5ef4bd",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 523,
+          "left": 473,
           "top": 1059,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "Matthew-Thornton-f66fec5e",
       },
       {
         "bounds": {
-          "height": 101,
-          "left": 1173,
-          "top": 1059,
-          "width": 501,
+          "height": 103,
+          "left": 1123,
+          "top": 1058,
+          "width": 551,
         },
         "optionId": "write-in-0",
       },
@@ -212,109 +212,109 @@ exports[`interpret with valid data 1`] = `
   },
   {
     "bounds": {
-      "height": 354,
-      "left": 174,
-      "top": 1210,
-      "width": 1501,
+      "height": 356,
+      "left": 124,
+      "top": 1209,
+      "width": 1551,
     },
     "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
     "options": [
       {
         "bounds": {
-          "height": 101,
-          "left": 174,
-          "top": 1262,
-          "width": 501,
+          "height": 102,
+          "left": 124,
+          "top": 1261,
+          "width": 551,
         },
         "optionId": "Obadiah-Carrigan-5c95145a",
       },
       {
         "bounds": {
-          "height": 101,
-          "left": 174,
+          "height": 102,
+          "left": 124,
           "top": 1362,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "Mary-Baker-Eddy-350785d5",
       },
       {
         "bounds": {
-          "height": 101,
-          "left": 174,
-          "top": 1463,
-          "width": 502,
+          "height": 103,
+          "left": 124,
+          "top": 1462,
+          "width": 552,
         },
         "optionId": "Samuel-Bell-17973275",
       },
       {
         "bounds": {
-          "height": 100,
-          "left": 524,
-          "top": 1211,
-          "width": 501,
+          "height": 102,
+          "left": 474,
+          "top": 1210,
+          "width": 551,
         },
         "optionId": "Samuel-Livermore-f927fef1",
       },
       {
         "bounds": {
-          "height": 101,
-          "left": 524,
-          "top": 1311,
-          "width": 501,
+          "height": 103,
+          "left": 474,
+          "top": 1310,
+          "width": 551,
         },
         "optionId": "Elijah-Miller-a52e6988",
       },
       {
         "bounds": {
-          "height": 101,
-          "left": 524,
-          "top": 1412,
-          "width": 501,
+          "height": 103,
+          "left": 474,
+          "top": 1411,
+          "width": 551,
         },
         "optionId": "Isaac-Hill-d6c9deeb",
       },
       {
         "bounds": {
-          "height": 100,
-          "left": 873,
-          "top": 1261,
-          "width": 502,
+          "height": 102,
+          "left": 824,
+          "top": 1260,
+          "width": 551,
         },
         "optionId": "Abigail-Bartlett-4e46c9d4",
       },
       {
         "bounds": {
-          "height": 101,
-          "left": 874,
-          "top": 1361,
-          "width": 501,
+          "height": 103,
+          "left": 824,
+          "top": 1360,
+          "width": 551,
         },
         "optionId": "Jacob-Freese-b5146505",
       },
       {
         "bounds": {
-          "height": 101,
-          "left": 1173,
-          "top": 1210,
-          "width": 502,
+          "height": 102,
+          "left": 1123,
+          "top": 1209,
+          "width": 552,
         },
         "optionId": "write-in-0",
       },
       {
         "bounds": {
-          "height": 101,
-          "left": 1174,
+          "height": 102,
+          "left": 1124,
           "top": 1310,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "write-in-1",
       },
       {
         "bounds": {
-          "height": 101,
-          "left": 1174,
-          "top": 1411,
-          "width": 499,
+          "height": 103,
+          "left": 1124,
+          "top": 1410,
+          "width": 551,
         },
         "optionId": "write-in-2",
       },
@@ -322,46 +322,46 @@ exports[`interpret with valid data 1`] = `
   },
   {
     "bounds": {
-      "height": 102,
-      "left": 175,
-      "top": 1662,
-      "width": 1501,
+      "height": 104,
+      "left": 125,
+      "top": 1661,
+      "width": 1551,
     },
     "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
     "options": [
       {
         "bounds": {
-          "height": 99,
-          "left": 175,
-          "top": 1665,
-          "width": 501,
+          "height": 102,
+          "left": 125,
+          "top": 1663,
+          "width": 551,
         },
         "optionId": "Abeil-Foster-ded38e36",
       },
       {
         "bounds": {
-          "height": 99,
-          "left": 525,
-          "top": 1664,
-          "width": 501,
+          "height": 102,
+          "left": 475,
+          "top": 1662,
+          "width": 551,
         },
         "optionId": "Charles-H-Hersey-096286a4",
       },
       {
         "bounds": {
-          "height": 99,
-          "left": 874,
-          "top": 1663,
-          "width": 502,
+          "height": 102,
+          "left": 825,
+          "top": 1661,
+          "width": 551,
         },
         "optionId": "William-Lovejoy-fde3c2df",
       },
       {
         "bounds": {
-          "height": 99,
-          "left": 1174,
-          "top": 1662,
-          "width": 502,
+          "height": 102,
+          "left": 1124,
+          "top": 1661,
+          "width": 552,
         },
         "optionId": "write-in-0",
       },
@@ -375,36 +375,36 @@ exports[`interpret with valid data 2`] = `
   {
     "bounds": {
       "height": 102,
-      "left": 182,
+      "left": 132,
       "top": 253,
-      "width": 1501,
+      "width": 1551,
     },
     "contestId": "Sheriff-4243fe0b",
     "options": [
       {
         "bounds": {
           "height": 102,
-          "left": 182,
+          "left": 132,
           "top": 253,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "Edward-Randolph-bf4c848a",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 532,
+          "left": 482,
           "top": 253,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "Edward-Randolph-bf4c848a",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 1182,
+          "left": 1132,
           "top": 253,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "write-in-0",
       },
@@ -413,36 +413,36 @@ exports[`interpret with valid data 2`] = `
   {
     "bounds": {
       "height": 101,
-      "left": 182,
+      "left": 132,
       "top": 405,
-      "width": 1501,
+      "width": 1551,
     },
     "contestId": "County-Attorney-133f910f",
     "options": [
       {
         "bounds": {
           "height": 101,
-          "left": 182,
+          "left": 132,
           "top": 405,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "Ezra-Bartlett-8f95223c",
       },
       {
         "bounds": {
           "height": 101,
-          "left": 532,
+          "left": 482,
           "top": 405,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "Mary-Woolson-dc0b854a",
       },
       {
         "bounds": {
           "height": 101,
-          "left": 1182,
+          "left": 1132,
           "top": 405,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "write-in-0",
       },
@@ -451,36 +451,36 @@ exports[`interpret with valid data 2`] = `
   {
     "bounds": {
       "height": 103,
-      "left": 182,
+      "left": 132,
       "top": 555,
-      "width": 1502,
+      "width": 1552,
     },
     "contestId": "County-Treasurer-87d25a31",
     "options": [
       {
         "bounds": {
           "height": 102,
-          "left": 182,
+          "left": 132,
           "top": 555,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "John-Smith-ef61a579",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 532,
+          "left": 482,
           "top": 555,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "Jane-Jones-9caa141f",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 1182,
+          "left": 1132,
           "top": 556,
-          "width": 502,
+          "width": 552,
         },
         "optionId": "write-in-0",
       },
@@ -489,36 +489,36 @@ exports[`interpret with valid data 2`] = `
   {
     "bounds": {
       "height": 102,
-      "left": 182,
+      "left": 132,
       "top": 707,
-      "width": 1501,
+      "width": 1551,
     },
     "contestId": "Register-of-Deeds-a1278df2",
     "options": [
       {
         "bounds": {
           "height": 101,
-          "left": 182,
+          "left": 132,
           "top": 707,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "John-Mann-b56bbdd3",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 532,
+          "left": 482,
           "top": 707,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "Ellen-A-Stileman-14408737",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 1182,
+          "left": 1132,
           "top": 707,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "write-in-0",
       },
@@ -527,36 +527,36 @@ exports[`interpret with valid data 2`] = `
   {
     "bounds": {
       "height": 103,
-      "left": 182,
+      "left": 131,
       "top": 857,
-      "width": 1500,
+      "width": 1552,
     },
     "contestId": "Register-of-Probate-a4117da8",
     "options": [
       {
         "bounds": {
           "height": 102,
-          "left": 182,
+          "left": 131,
           "top": 857,
-          "width": 500,
+          "width": 552,
         },
         "optionId": "Nathaniel-Parker-56a06c29",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 532,
+          "left": 481,
           "top": 857,
-          "width": 500,
+          "width": 552,
         },
         "optionId": "Claire-Cutts-07a436e7",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 1182,
+          "left": 1131,
           "top": 858,
-          "width": 500,
+          "width": 552,
         },
         "optionId": "write-in-0",
       },
@@ -565,36 +565,36 @@ exports[`interpret with valid data 2`] = `
   {
     "bounds": {
       "height": 103,
-      "left": 182,
+      "left": 132,
       "top": 1008,
-      "width": 1500,
+      "width": 1550,
     },
     "contestId": "County-Commissioner-d6feed25",
     "options": [
       {
         "bounds": {
           "height": 102,
-          "left": 182,
+          "left": 132,
           "top": 1008,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "Ichabod-Goodwin-55e8de1f",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 532,
+          "left": 482,
           "top": 1008,
-          "width": 500,
+          "width": 550,
         },
         "optionId": "Valbe-Cady-ba3af3af",
       },
       {
         "bounds": {
           "height": 102,
-          "left": 1181,
+          "left": 1131,
           "top": 1009,
-          "width": 501,
+          "width": 551,
         },
         "optionId": "write-in-0",
       },
@@ -603,27 +603,27 @@ exports[`interpret with valid data 2`] = `
   {
     "bounds": {
       "height": 103,
-      "left": 881,
+      "left": 831,
       "top": 1260,
-      "width": 800,
+      "width": 851,
     },
     "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
     "options": [
       {
         "bounds": {
           "height": 103,
-          "left": 881,
+          "left": 831,
           "top": 1260,
-          "width": 500,
+          "width": 551,
         },
         "optionId": "yes",
       },
       {
         "bounds": {
           "height": 103,
-          "left": 1181,
+          "left": 1130,
           "top": 1260,
-          "width": 500,
+          "width": 552,
         },
         "optionId": "no",
       },

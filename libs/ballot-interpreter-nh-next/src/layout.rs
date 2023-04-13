@@ -29,9 +29,9 @@ fn build_option_layout(
 ) -> Option<InterpretedContestOptionLayout> {
     // Option bounding box parameters
     // TODO make these configurable in the election definition
-    let column_offset: i32 = -9;
+    let column_offset: i32 = -10;
     let row_offset: i32 = -1;
-    let width: GridUnit = 10;
+    let width: GridUnit = 11;
     let height: GridUnit = 2;
 
     let clamp_row = |row: i32| -> GridUnit {
@@ -43,28 +43,43 @@ fn build_option_layout(
 
     let bubble_location = grid_position.location();
 
-    let top_left_grid_point: Point<GridUnit> = Point::new(
+    let top_left_location: Point<GridUnit> = Point::new(
         clamp_column(bubble_location.column as i32 + column_offset),
         clamp_row(bubble_location.row as i32 + row_offset),
     );
-    let bottom_right_grid_point: Point<GridUnit> = Point::new(
+    let bottom_left_location: Point<GridUnit> = Point::new(
+        clamp_column(bubble_location.column as i32 + column_offset),
+        clamp_row(bubble_location.row as i32 + row_offset + height as i32),
+    );
+    let top_right_location: Point<GridUnit> = Point::new(
+        clamp_column(bubble_location.column as i32 + column_offset + width as i32),
+        clamp_row(bubble_location.row as i32 + row_offset),
+    );
+    let bottom_right_location: Point<GridUnit> = Point::new(
         clamp_column(bubble_location.column as i32 + column_offset + width as i32),
         clamp_row(bubble_location.row as i32 + row_offset + height as i32),
     );
 
-    let top_left_subpixel_point =
-        grid.point_for_location(top_left_grid_point.x, top_left_grid_point.y)?;
-    let bottom_right_subpixel_point = grid.point_for_location(
-        bottom_right_grid_point.x as GridUnit,
-        bottom_right_grid_point.y as GridUnit,
-    )?;
+    let top_left_point = grid.point_for_location(top_left_location.x, top_left_location.y)?;
+    let bottom_left_point =
+        grid.point_for_location(bottom_left_location.x, bottom_left_location.y)?;
+    let top_right_point = grid.point_for_location(top_right_location.x, top_right_location.y)?;
+    let bottom_right_point =
+        grid.point_for_location(bottom_right_location.x, bottom_right_location.y)?;
+
+    // We use the furthest points to determine the bounding box so we enclose
+    // content that may have moved further away when skewed.
+    let furthest_left = top_left_point.x.min(bottom_left_point.x);
+    let furthest_right = top_right_point.x.max(bottom_right_point.x);
+    let furthest_top = top_left_point.y.min(top_right_point.y);
+    let furthest_bottom = bottom_left_point.y.max(bottom_right_point.y);
+
+    let furthest_top_left_point = Point::new(furthest_left, furthest_top).round();
+    let furthest_bottom_right_point = Point::new(furthest_right, furthest_bottom).round();
 
     Some(InterpretedContestOptionLayout {
         option_id: grid_position.option_id(),
-        bounds: Rect::from_points(
-            top_left_subpixel_point.round(),
-            bottom_right_subpixel_point.round(),
-        ),
+        bounds: Rect::from_points(furthest_top_left_point, furthest_bottom_right_point),
     })
 }
 
