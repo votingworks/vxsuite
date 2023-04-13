@@ -6,14 +6,14 @@ exports[`interpret with valid data 1`] = `
     {
       "bounds": {
         "height": 102,
-        "width": 1501,
-        "x": 172,
+        "width": 1551,
+        "x": 122,
         "y": 455,
       },
       "contestId": "Governor-061a401b",
       "corners": [
         {
-          "x": 172,
+          "x": 122,
           "y": 455,
         },
         {
@@ -21,7 +21,7 @@ exports[`interpret with valid data 1`] = `
           "y": 455,
         },
         {
-          "x": 172,
+          "x": 122,
           "y": 557,
         },
         {
@@ -33,8 +33,8 @@ exports[`interpret with valid data 1`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 502,
-            "x": 172,
+            "width": 552,
+            "x": 122,
             "y": 455,
           },
           "definition": {
@@ -63,8 +63,8 @@ exports[`interpret with valid data 1`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 501,
-            "x": 522,
+            "width": 551,
+            "x": 472,
             "y": 455,
           },
           "definition": {
@@ -93,8 +93,8 @@ exports[`interpret with valid data 1`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 501,
-            "x": 872,
+            "width": 551,
+            "x": 822,
             "y": 455,
           },
           "definition": {
@@ -123,8 +123,8 @@ exports[`interpret with valid data 1`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 501,
-            "x": 1172,
+            "width": 551,
+            "x": 1122,
             "y": 455,
           },
           "definition": {
@@ -156,14 +156,14 @@ exports[`interpret with valid data 1`] = `
     {
       "bounds": {
         "height": 102,
-        "width": 1500,
-        "x": 173,
+        "width": 1550,
+        "x": 123,
         "y": 606,
       },
       "contestId": "United-States-Senator-d3f1c75b",
       "corners": [
         {
-          "x": 173,
+          "x": 123,
           "y": 606,
         },
         {
@@ -171,7 +171,7 @@ exports[`interpret with valid data 1`] = `
           "y": 606,
         },
         {
-          "x": 173,
+          "x": 123,
           "y": 708,
         },
         {
@@ -183,8 +183,8 @@ exports[`interpret with valid data 1`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 501,
-            "x": 173,
+            "width": 551,
+            "x": 123,
             "y": 606,
           },
           "definition": {
@@ -212,9 +212,9 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 101,
-            "width": 500,
-            "x": 523,
+            "height": 102,
+            "width": 550,
+            "x": 473,
             "y": 606,
           },
           "definition": {
@@ -243,8 +243,8 @@ exports[`interpret with valid data 1`] = `
         {
           "bounds": {
             "height": 101,
-            "width": 501,
-            "x": 1172,
+            "width": 551,
+            "x": 1122,
             "y": 606,
           },
           "definition": {
@@ -275,15 +275,15 @@ exports[`interpret with valid data 1`] = `
     },
     {
       "bounds": {
-        "height": 102,
-        "width": 1501,
-        "x": 173,
+        "height": 103,
+        "width": 1551,
+        "x": 123,
         "y": 757,
       },
       "contestId": "Representative-in-Congress-24683b44",
       "corners": [
         {
-          "x": 173,
+          "x": 123,
           "y": 757,
         },
         {
@@ -291,20 +291,20 @@ exports[`interpret with valid data 1`] = `
           "y": 757,
         },
         {
-          "x": 173,
-          "y": 859,
+          "x": 123,
+          "y": 860,
         },
         {
           "x": 1674,
-          "y": 859,
+          "y": 860,
         },
       ],
       "options": [
         {
           "bounds": {
-            "height": 102,
-            "width": 501,
-            "x": 173,
+            "height": 103,
+            "width": 551,
+            "x": 123,
             "y": 757,
           },
           "definition": {
@@ -332,9 +332,9 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 102,
-            "width": 501,
-            "x": 523,
+            "height": 103,
+            "width": 551,
+            "x": 473,
             "y": 757,
           },
           "definition": {
@@ -363,8 +363,8 @@ exports[`interpret with valid data 1`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 502,
-            "x": 872,
+            "width": 551,
+            "x": 823,
             "y": 757,
           },
           "definition": {
@@ -393,8 +393,8 @@ exports[`interpret with valid data 1`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 502,
-            "x": 1172,
+            "width": 552,
+            "x": 1122,
             "y": 757,
           },
           "definition": {
@@ -426,14 +426,14 @@ exports[`interpret with valid data 1`] = `
     {
       "bounds": {
         "height": 102,
-        "width": 1501,
-        "x": 173,
+        "width": 1551,
+        "x": 123,
         "y": 908,
       },
       "contestId": "Executive-Councilor-bb22557f",
       "corners": [
         {
-          "x": 173,
+          "x": 123,
           "y": 908,
         },
         {
@@ -441,7 +441,7 @@ exports[`interpret with valid data 1`] = `
           "y": 908,
         },
         {
-          "x": 173,
+          "x": 123,
           "y": 1010,
         },
         {
@@ -453,8 +453,8 @@ exports[`interpret with valid data 1`] = `
         {
           "bounds": {
             "height": 101,
-            "width": 501,
-            "x": 173,
+            "width": 551,
+            "x": 123,
             "y": 909,
           },
           "definition": {
@@ -482,10 +482,10 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 101,
-            "width": 501,
-            "x": 523,
-            "y": 909,
+            "height": 102,
+            "width": 551,
+            "x": 473,
+            "y": 908,
           },
           "definition": {
             "contestId": "Executive-Councilor-bb22557f",
@@ -512,9 +512,9 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 101,
-            "width": 501,
-            "x": 1173,
+            "height": 102,
+            "width": 551,
+            "x": 1123,
             "y": 908,
           },
           "definition": {
@@ -545,37 +545,37 @@ exports[`interpret with valid data 1`] = `
     },
     {
       "bounds": {
-        "height": 102,
-        "width": 1501,
-        "x": 173,
-        "y": 1059,
+        "height": 104,
+        "width": 1551,
+        "x": 123,
+        "y": 1058,
       },
       "contestId": "State-Senator-391381f8",
       "corners": [
         {
-          "x": 173,
-          "y": 1059,
+          "x": 123,
+          "y": 1058,
         },
         {
           "x": 1674,
-          "y": 1059,
+          "y": 1058,
         },
         {
-          "x": 173,
-          "y": 1161,
+          "x": 123,
+          "y": 1162,
         },
         {
           "x": 1674,
-          "y": 1161,
+          "y": 1162,
         },
       ],
       "options": [
         {
           "bounds": {
-            "height": 101,
-            "width": 502,
-            "x": 173,
-            "y": 1060,
+            "height": 103,
+            "width": 552,
+            "x": 123,
+            "y": 1059,
           },
           "definition": {
             "contestId": "State-Senator-391381f8",
@@ -603,8 +603,8 @@ exports[`interpret with valid data 1`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 501,
-            "x": 523,
+            "width": 551,
+            "x": 473,
             "y": 1059,
           },
           "definition": {
@@ -632,10 +632,10 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 101,
-            "width": 501,
-            "x": 1173,
-            "y": 1059,
+            "height": 103,
+            "width": 551,
+            "x": 1123,
+            "y": 1058,
           },
           "definition": {
             "contestId": "State-Senator-391381f8",
@@ -665,37 +665,37 @@ exports[`interpret with valid data 1`] = `
     },
     {
       "bounds": {
-        "height": 354,
-        "width": 1501,
-        "x": 174,
-        "y": 1210,
+        "height": 356,
+        "width": 1551,
+        "x": 124,
+        "y": 1209,
       },
       "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
       "corners": [
         {
-          "x": 174,
-          "y": 1210,
+          "x": 124,
+          "y": 1209,
         },
         {
           "x": 1675,
-          "y": 1210,
+          "y": 1209,
         },
         {
-          "x": 174,
-          "y": 1564,
+          "x": 124,
+          "y": 1565,
         },
         {
           "x": 1675,
-          "y": 1564,
+          "y": 1565,
         },
       ],
       "options": [
         {
           "bounds": {
-            "height": 101,
-            "width": 501,
-            "x": 174,
-            "y": 1262,
+            "height": 102,
+            "width": 551,
+            "x": 124,
+            "y": 1261,
           },
           "definition": {
             "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
@@ -722,9 +722,9 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 101,
-            "width": 501,
-            "x": 174,
+            "height": 102,
+            "width": 551,
+            "x": 124,
             "y": 1362,
           },
           "definition": {
@@ -752,10 +752,10 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 101,
-            "width": 502,
-            "x": 174,
-            "y": 1463,
+            "height": 103,
+            "width": 552,
+            "x": 124,
+            "y": 1462,
           },
           "definition": {
             "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
@@ -782,10 +782,10 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 100,
-            "width": 501,
-            "x": 524,
-            "y": 1211,
+            "height": 102,
+            "width": 551,
+            "x": 474,
+            "y": 1210,
           },
           "definition": {
             "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
@@ -812,10 +812,10 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 101,
-            "width": 501,
-            "x": 524,
-            "y": 1311,
+            "height": 103,
+            "width": 551,
+            "x": 474,
+            "y": 1310,
           },
           "definition": {
             "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
@@ -842,10 +842,10 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 101,
-            "width": 501,
-            "x": 524,
-            "y": 1412,
+            "height": 103,
+            "width": 551,
+            "x": 474,
+            "y": 1411,
           },
           "definition": {
             "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
@@ -872,10 +872,10 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 100,
-            "width": 502,
-            "x": 873,
-            "y": 1261,
+            "height": 102,
+            "width": 551,
+            "x": 824,
+            "y": 1260,
           },
           "definition": {
             "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
@@ -902,10 +902,10 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 101,
-            "width": 501,
-            "x": 874,
-            "y": 1361,
+            "height": 103,
+            "width": 551,
+            "x": 824,
+            "y": 1360,
           },
           "definition": {
             "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
@@ -932,10 +932,10 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 101,
-            "width": 502,
-            "x": 1173,
-            "y": 1210,
+            "height": 102,
+            "width": 552,
+            "x": 1123,
+            "y": 1209,
           },
           "definition": {
             "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
@@ -963,9 +963,9 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 101,
-            "width": 501,
-            "x": 1174,
+            "height": 102,
+            "width": 551,
+            "x": 1124,
             "y": 1310,
           },
           "definition": {
@@ -994,10 +994,10 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 101,
-            "width": 499,
-            "x": 1174,
-            "y": 1411,
+            "height": 103,
+            "width": 551,
+            "x": 1124,
+            "y": 1410,
           },
           "definition": {
             "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
@@ -1027,37 +1027,37 @@ exports[`interpret with valid data 1`] = `
     },
     {
       "bounds": {
-        "height": 102,
-        "width": 1501,
-        "x": 175,
-        "y": 1662,
+        "height": 104,
+        "width": 1551,
+        "x": 125,
+        "y": 1661,
       },
       "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
       "corners": [
         {
-          "x": 175,
-          "y": 1662,
+          "x": 125,
+          "y": 1661,
         },
         {
           "x": 1676,
-          "y": 1662,
+          "y": 1661,
         },
         {
-          "x": 175,
-          "y": 1764,
+          "x": 125,
+          "y": 1765,
         },
         {
           "x": 1676,
-          "y": 1764,
+          "y": 1765,
         },
       ],
       "options": [
         {
           "bounds": {
-            "height": 99,
-            "width": 501,
-            "x": 175,
-            "y": 1665,
+            "height": 102,
+            "width": 551,
+            "x": 125,
+            "y": 1663,
           },
           "definition": {
             "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
@@ -1084,10 +1084,10 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 99,
-            "width": 501,
-            "x": 525,
-            "y": 1664,
+            "height": 102,
+            "width": 551,
+            "x": 475,
+            "y": 1662,
           },
           "definition": {
             "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
@@ -1114,10 +1114,10 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 99,
-            "width": 502,
-            "x": 874,
-            "y": 1663,
+            "height": 102,
+            "width": 551,
+            "x": 825,
+            "y": 1661,
           },
           "definition": {
             "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
@@ -1144,10 +1144,10 @@ exports[`interpret with valid data 1`] = `
         },
         {
           "bounds": {
-            "height": 99,
-            "width": 502,
-            "x": 1174,
-            "y": 1662,
+            "height": 102,
+            "width": 552,
+            "x": 1124,
+            "y": 1661,
           },
           "definition": {
             "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
@@ -1200,14 +1200,14 @@ exports[`interpret with valid data 2`] = `
     {
       "bounds": {
         "height": 102,
-        "width": 1501,
-        "x": 182,
+        "width": 1551,
+        "x": 132,
         "y": 253,
       },
       "contestId": "Sheriff-4243fe0b",
       "corners": [
         {
-          "x": 182,
+          "x": 132,
           "y": 253,
         },
         {
@@ -1215,7 +1215,7 @@ exports[`interpret with valid data 2`] = `
           "y": 253,
         },
         {
-          "x": 182,
+          "x": 132,
           "y": 355,
         },
         {
@@ -1227,8 +1227,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 501,
-            "x": 182,
+            "width": 551,
+            "x": 132,
             "y": 253,
           },
           "definition": {
@@ -1257,8 +1257,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 501,
-            "x": 532,
+            "width": 551,
+            "x": 482,
             "y": 253,
           },
           "definition": {
@@ -1287,8 +1287,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 501,
-            "x": 1182,
+            "width": 551,
+            "x": 1132,
             "y": 253,
           },
           "definition": {
@@ -1320,14 +1320,14 @@ exports[`interpret with valid data 2`] = `
     {
       "bounds": {
         "height": 101,
-        "width": 1501,
-        "x": 182,
+        "width": 1551,
+        "x": 132,
         "y": 405,
       },
       "contestId": "County-Attorney-133f910f",
       "corners": [
         {
-          "x": 182,
+          "x": 132,
           "y": 405,
         },
         {
@@ -1335,7 +1335,7 @@ exports[`interpret with valid data 2`] = `
           "y": 405,
         },
         {
-          "x": 182,
+          "x": 132,
           "y": 506,
         },
         {
@@ -1347,8 +1347,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 101,
-            "width": 501,
-            "x": 182,
+            "width": 551,
+            "x": 132,
             "y": 405,
           },
           "definition": {
@@ -1377,8 +1377,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 101,
-            "width": 501,
-            "x": 532,
+            "width": 551,
+            "x": 482,
             "y": 405,
           },
           "definition": {
@@ -1407,8 +1407,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 101,
-            "width": 501,
-            "x": 1182,
+            "width": 551,
+            "x": 1132,
             "y": 405,
           },
           "definition": {
@@ -1440,14 +1440,14 @@ exports[`interpret with valid data 2`] = `
     {
       "bounds": {
         "height": 103,
-        "width": 1502,
-        "x": 182,
+        "width": 1552,
+        "x": 132,
         "y": 555,
       },
       "contestId": "County-Treasurer-87d25a31",
       "corners": [
         {
-          "x": 182,
+          "x": 132,
           "y": 555,
         },
         {
@@ -1455,7 +1455,7 @@ exports[`interpret with valid data 2`] = `
           "y": 555,
         },
         {
-          "x": 182,
+          "x": 132,
           "y": 658,
         },
         {
@@ -1467,8 +1467,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 501,
-            "x": 182,
+            "width": 551,
+            "x": 132,
             "y": 555,
           },
           "definition": {
@@ -1497,8 +1497,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 501,
-            "x": 532,
+            "width": 551,
+            "x": 482,
             "y": 555,
           },
           "definition": {
@@ -1527,8 +1527,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 502,
-            "x": 1182,
+            "width": 552,
+            "x": 1132,
             "y": 556,
           },
           "definition": {
@@ -1560,14 +1560,14 @@ exports[`interpret with valid data 2`] = `
     {
       "bounds": {
         "height": 102,
-        "width": 1501,
-        "x": 182,
+        "width": 1551,
+        "x": 132,
         "y": 707,
       },
       "contestId": "Register-of-Deeds-a1278df2",
       "corners": [
         {
-          "x": 182,
+          "x": 132,
           "y": 707,
         },
         {
@@ -1575,7 +1575,7 @@ exports[`interpret with valid data 2`] = `
           "y": 707,
         },
         {
-          "x": 182,
+          "x": 132,
           "y": 809,
         },
         {
@@ -1587,8 +1587,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 101,
-            "width": 501,
-            "x": 182,
+            "width": 551,
+            "x": 132,
             "y": 707,
           },
           "definition": {
@@ -1617,8 +1617,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 501,
-            "x": 532,
+            "width": 551,
+            "x": 482,
             "y": 707,
           },
           "definition": {
@@ -1647,8 +1647,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 501,
-            "x": 1182,
+            "width": 551,
+            "x": 1132,
             "y": 707,
           },
           "definition": {
@@ -1680,26 +1680,26 @@ exports[`interpret with valid data 2`] = `
     {
       "bounds": {
         "height": 103,
-        "width": 1500,
-        "x": 182,
+        "width": 1552,
+        "x": 131,
         "y": 857,
       },
       "contestId": "Register-of-Probate-a4117da8",
       "corners": [
         {
-          "x": 182,
+          "x": 131,
           "y": 857,
         },
         {
-          "x": 1682,
+          "x": 1683,
           "y": 857,
         },
         {
-          "x": 182,
+          "x": 131,
           "y": 960,
         },
         {
-          "x": 1682,
+          "x": 1683,
           "y": 960,
         },
       ],
@@ -1707,8 +1707,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 500,
-            "x": 182,
+            "width": 552,
+            "x": 131,
             "y": 857,
           },
           "definition": {
@@ -1737,8 +1737,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 500,
-            "x": 532,
+            "width": 552,
+            "x": 481,
             "y": 857,
           },
           "definition": {
@@ -1767,8 +1767,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 500,
-            "x": 1182,
+            "width": 552,
+            "x": 1131,
             "y": 858,
           },
           "definition": {
@@ -1800,14 +1800,14 @@ exports[`interpret with valid data 2`] = `
     {
       "bounds": {
         "height": 103,
-        "width": 1500,
-        "x": 182,
+        "width": 1550,
+        "x": 132,
         "y": 1008,
       },
       "contestId": "County-Commissioner-d6feed25",
       "corners": [
         {
-          "x": 182,
+          "x": 132,
           "y": 1008,
         },
         {
@@ -1815,7 +1815,7 @@ exports[`interpret with valid data 2`] = `
           "y": 1008,
         },
         {
-          "x": 182,
+          "x": 132,
           "y": 1111,
         },
         {
@@ -1827,8 +1827,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 501,
-            "x": 182,
+            "width": 551,
+            "x": 132,
             "y": 1008,
           },
           "definition": {
@@ -1857,8 +1857,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 500,
-            "x": 532,
+            "width": 550,
+            "x": 482,
             "y": 1008,
           },
           "definition": {
@@ -1887,8 +1887,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 102,
-            "width": 501,
-            "x": 1181,
+            "width": 551,
+            "x": 1131,
             "y": 1009,
           },
           "definition": {
@@ -1920,26 +1920,26 @@ exports[`interpret with valid data 2`] = `
     {
       "bounds": {
         "height": 103,
-        "width": 800,
-        "x": 881,
+        "width": 851,
+        "x": 831,
         "y": 1260,
       },
       "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
       "corners": [
         {
-          "x": 881,
+          "x": 831,
           "y": 1260,
         },
         {
-          "x": 1681,
+          "x": 1682,
           "y": 1260,
         },
         {
-          "x": 881,
+          "x": 831,
           "y": 1363,
         },
         {
-          "x": 1681,
+          "x": 1682,
           "y": 1363,
         },
       ],
@@ -1947,8 +1947,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 103,
-            "width": 500,
-            "x": 881,
+            "width": 551,
+            "x": 831,
             "y": 1260,
           },
           "definition": {
@@ -1976,8 +1976,8 @@ exports[`interpret with valid data 2`] = `
         {
           "bounds": {
             "height": 103,
-            "width": 500,
-            "x": 1181,
+            "width": 552,
+            "x": 1130,
             "y": 1260,
           },
           "definition": {
