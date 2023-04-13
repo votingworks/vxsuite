@@ -69,6 +69,19 @@ export const MOCK_INTERNAL_JAM: ScannerStatus = {
 };
 
 /**
+ * Mock ScannerStatus object for when the custom scanner is experiencing a double sheet situation.
+ */
+export const MOCK_DOUBLE_SHEET: ScannerStatus = {
+  ...MOCK_NO_PAPER,
+  sensorOutputLeftLeft: SensorStatus.PaperPresent,
+  sensorOutputCenterLeft: SensorStatus.PaperPresent,
+  sensorOutputCenterRight: SensorStatus.PaperPresent,
+  sensorOutputRightRight: SensorStatus.PaperPresent,
+  isPaperJam: true,
+  isDoubleSheet: true,
+};
+
+/**
  * Mock ScannerStatus object for when the custom scanner is sees paper on both sides.
  */
 export const MOCK_BOTH_SIDES_HAVE_PAPER: ScannerStatus = {
@@ -89,6 +102,15 @@ export const MOCK_BOTH_SIDES_HAVE_PAPER: ScannerStatus = {
 export const MOCK_JAM_CLEARED: ScannerStatus = {
   ...MOCK_NO_PAPER,
   isPaperJam: true,
+};
+
+/**
+ * Mock ScannerStatus object for when the custom scanner thinks there is a jam but the paper has been cleared.
+ */
+export const MOCK_DOUBLE_SHEET_CLEARED: ScannerStatus = {
+  ...MOCK_NO_PAPER,
+  isPaperJam: true,
+  isDoubleSheet: true,
 };
 
 /**

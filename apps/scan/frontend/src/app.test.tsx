@@ -121,6 +121,7 @@ test('shows insert USB Drive screen when there is no card reader', async () => {
 test('app can load and configure from a usb stick', async () => {
   apiMock.authenticateAsElectionManager(electionSampleDefinition);
   apiMock.expectCheckCalibrationSupported(true);
+  apiMock.expectCheckUltrasonicSupported(false);
 
   apiMock.expectGetConfig({
     electionDefinition: undefined,
@@ -168,6 +169,7 @@ test('app can load and configure from a usb stick', async () => {
 
 test('election manager must set precinct', async () => {
   apiMock.expectCheckCalibrationSupported(true);
+  apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig({
     precinctSelection: undefined,
   });
@@ -205,6 +207,7 @@ test('election manager and poll worker configuration', async () => {
   const electionDefinition = electionSampleDefinition;
   let config: Partial<PrecinctScannerConfig> = { electionDefinition };
   apiMock.expectCheckCalibrationSupported(true);
+  apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig(config);
   apiMock.expectGetScannerStatus(statusNoPaper);
   const { logger } = renderApp();
@@ -401,6 +404,7 @@ async function scanBallot() {
 
 test('voter can cast a ballot that scans successfully ', async () => {
   apiMock.expectCheckCalibrationSupported(true);
+  apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig({
     pollsState: 'polls_open',
   });

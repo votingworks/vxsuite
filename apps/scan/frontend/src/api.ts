@@ -172,6 +172,18 @@ export const setIsSoundMuted = {
   },
 } as const;
 
+export const setIsUltrasonicDisabled = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setIsUltrasonicDisabled, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getConfig.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const setTestMode = {
   useMutation() {
     const apiClient = useApiClient();
@@ -280,6 +292,16 @@ export const supportsCalibration = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.supportsCalibration());
+  },
+} as const;
+
+export const supportsUltrasonic = {
+  queryKey(): QueryKey {
+    return ['supportsUltrasonic'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.supportsUltrasonic());
   },
 } as const;
 

@@ -118,6 +118,25 @@ test('get/set is sounds muted mode', () => {
   expect(store.getIsSoundMuted()).toEqual(false);
 });
 
+test('get/set is ultrasonic disabled mode', () => {
+  const store = Store.memoryStore();
+
+  // Before setting an election
+  expect(store.getIsUltrasonicDisabled()).toEqual(false);
+  expect(() => store.setIsUltrasonicDisabled(true)).toThrowError();
+
+  store.setElection(stateOfHamilton.electionDefinition.electionData);
+
+  // After setting an election
+  expect(store.getIsUltrasonicDisabled()).toEqual(false);
+
+  store.setIsUltrasonicDisabled(true);
+  expect(store.getIsUltrasonicDisabled()).toEqual(true);
+
+  store.setIsUltrasonicDisabled(false);
+  expect(store.getIsUltrasonicDisabled()).toEqual(false);
+});
+
 test('get/set ballot count when ballot bag last replaced', () => {
   const store = Store.memoryStore();
 

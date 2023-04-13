@@ -25,9 +25,11 @@ import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal'
 import {
   getConfig,
   setIsSoundMuted,
+  setIsUltrasonicDisabled,
   setPrecinctSelection,
   setTestMode,
   supportsCalibration,
+  supportsUltrasonic,
   unconfigureElection,
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
@@ -50,10 +52,12 @@ export function ElectionManagerScreen({
   logger,
 }: ElectionManagerScreenProps): JSX.Element | null {
   const supportsCalibrationQuery = supportsCalibration.useQuery();
+  const supportsUltrasonicQuery = supportsUltrasonic.useQuery();
   const configQuery = getConfig.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
+  const setIsUltrasonicDisabledMutation = setIsUltrasonicDisabled.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
 
   const [
@@ -77,6 +81,7 @@ export function ElectionManagerScreen({
     precinctSelection,
     isTestMode,
     isSoundMuted,
+    isUltrasonicDisabled,
     markThresholdOverrides,
     pollsState,
   } = configQuery.data;
@@ -166,17 +171,25 @@ export function ElectionManagerScreen({
           </Button>
         </P>
         <P>
-          <Button
-            disabled={supportsCalibrationQuery.data === false}
-            onPress={() => setIsCalibratingScanner(true)}
-            nonAccessibleTitle={
-              !supportsCalibrationQuery.data
-                ? 'This scanner does not support calibration.'
-                : undefined
-            }
-          >
-            Calibrate Scanner
-          </Button>
+          {supportsCalibrationQuery.data === true && (
+            <Button onPress={() => setIsCalibratingScanner(true)}>
+              Calibrate Scanner
+            </Button>
+          )}
+
+          {supportsUltrasonicQuery.data === true && (
+            <Button
+              onPress={() =>
+                setIsUltrasonicDisabledMutation.mutate({
+                  isUltrasonicDisabled: !isUltrasonicDisabled,
+                })
+              }
+            >
+              {isUltrasonicDisabled
+                ? 'Enable Double Sheet Detection'
+                : 'Disable Double Sheet Detection'}
+            </Button>
+          )}
         </P>
         <P>
           <Button
