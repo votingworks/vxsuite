@@ -16,6 +16,8 @@ import {
   faPencil,
   faTrashCan,
   faXmark,
+  faMagnifyingGlassPlus,
+  faMagnifyingGlassMinus,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -115,6 +117,14 @@ export const Icons = {
 
   X(): JSX.Element {
     return <FaIcon type={faXmark} />;
+  },
+
+  ZoomIn(): JSX.Element {
+    return <FaIcon type={faMagnifyingGlassPlus} />;
+  },
+
+  ZoomOut(): JSX.Element {
+    return <FaIcon type={faMagnifyingGlassMinus} />;
   },
 } as const;
 
