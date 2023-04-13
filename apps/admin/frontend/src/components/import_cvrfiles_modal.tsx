@@ -376,6 +376,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
             <FileInputButton
               data-testid="manual-input"
               onChange={processCastVoteRecordFileFromFilePicker}
+              accept=".json"
             >
               Select File Manually…
             </FileInputButton>

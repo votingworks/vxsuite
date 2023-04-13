@@ -31,8 +31,11 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { promises as fs, Stats } from 'fs';
-import { basename } from 'path';
-import { parseCastVoteRecordReportDirectoryName } from '@votingworks/utils';
+import { basename, dirname } from 'path';
+import {
+  CAST_VOTE_RECORD_REPORT_FILENAME,
+  parseCastVoteRecordReportDirectoryName,
+} from '@votingworks/utils';
 import { ConfigureResult, SetSystemSettingsResult } from './types';
 import { Workspace } from './util/workspace';
 import {
@@ -303,8 +306,15 @@ function buildApi({
         AddCastVoteRecordReportError & { message: string }
       >
     > {
-      const { path } = input;
       const userRole = assertDefined(await getUserRole());
+      const { path: inputPath } = input;
+      // the path passed to the backend may be for the report directory or the
+      // contained .json report, so we resolve to the report directory path
+      const path =
+        basename(inputPath) === CAST_VOTE_RECORD_REPORT_FILENAME
+          ? dirname(inputPath)
+          : inputPath;
+
       const filename = basename(path);
       let fileStat: Stats;
       try {
