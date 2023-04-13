@@ -4,7 +4,7 @@ import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
 
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { ok } from '@votingworks/basics';
+import { FakeKiosk, fakeKiosk } from '@votingworks/test-utils';
 import { render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
@@ -15,13 +15,17 @@ import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import { voterContests } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { configureFromUsbThenRemove } from '../test/helpers/ballot_package';
 
 let apiMock: ApiMock;
+let kiosk: FakeKiosk;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
+  kiosk = fakeKiosk();
+  window.kiosk = kiosk;
 });
 
 afterEach(() => {
@@ -40,6 +44,7 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
     screenOrientation: 'landscape',
   });
   const reload = jest.fn();
+  apiMock.expectGetElectionDefinition(null);
   render(
     <App
       hardware={hardware}
@@ -58,13 +63,9 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
 
   // Configure with Election Manager Card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  apiMock.mockApiClient.readElectionDefinitionFromCard
-    .expectCallWith({ electionHash: undefined })
-    .resolves(ok(electionDefinition));
-  userEvent.click(await screen.findByText('Load Election Definition'));
+  await configureFromUsbThenRemove(apiMock, kiosk, screen, electionDefinition);
 
-  await advanceTimersAndPromises();
-  screen.getByText('Election Definition is loaded.');
+  await screen.findByText('Election Definition is loaded.');
   userEvent.selectOptions(
     screen.getByLabelText('Precinct'),
     screen.getByText('Center Springfield')

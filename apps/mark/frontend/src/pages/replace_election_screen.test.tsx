@@ -1,10 +1,9 @@
+import React from 'react';
 import {
   electionSampleDefinition,
   primaryElectionSampleDefinition,
 } from '@votingworks/fixtures';
-import React from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { err, ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
@@ -19,8 +18,10 @@ import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { ApiClientContext, createQueryClient } from '../api';
 
 const machineElectionDefinition = electionSampleDefinition;
-const { electionHash: machineElectionHash } = machineElectionDefinition;
-const cardElectionDefinition = primaryElectionSampleDefinition;
+const authElectionHash = primaryElectionSampleDefinition.electionHash.slice(
+  0,
+  10
+);
 const screenReader = new AriaScreenReader(fakeTts());
 
 let apiMock: ApiMock;
@@ -39,10 +40,14 @@ function renderScreen(props: Partial<ReplaceElectionScreenProps> = {}) {
       <QueryClientProvider client={createQueryClient()}>
         <ReplaceElectionScreen
           ballotsPrintedCount={0}
+          // Election hashes must differ for this screen to be rendered
+          authElectionHash={authElectionHash}
           electionDefinition={machineElectionDefinition}
           machineConfig={fakeMachineConfig()}
           screenReader={screenReader}
           unconfigure={jest.fn()}
+          isLoading={false}
+          isError={false}
           {...props}
         />
       </QueryClientProvider>
@@ -50,65 +55,41 @@ function renderScreen(props: Partial<ReplaceElectionScreenProps> = {}) {
   );
 }
 
-test('reading election definition from card', async () => {
-  apiMock.mockApiClient.readElectionDefinitionFromCard
-    .expectCallWith({ electionHash: machineElectionHash })
-    .resolves(ok(cardElectionDefinition));
-  const unconfigure = jest.fn();
+test('loading state', () => {
+  renderScreen({ isLoading: true });
 
-  renderScreen({ unconfigure });
+  userEvent.click(screen.getByText('Unconfiguring election on machine…'));
+});
 
-  await screen.findByText(cardElectionDefinition.election.title);
-  expect(unconfigure).not.toHaveBeenCalled();
+test('error state', () => {
+  renderScreen({ isError: true });
+
+  userEvent.click(screen.getByText('Error unconfiguring the machine.'));
 });
 
 test('unconfiguring', async () => {
-  apiMock.mockApiClient.readElectionDefinitionFromCard
-    .expectCallWith({ electionHash: machineElectionHash })
-    .resolves(ok(cardElectionDefinition));
   const unconfigure = jest.fn();
-
   renderScreen({ unconfigure });
 
-  await screen.findByText(cardElectionDefinition.election.title);
+  await screen.findByText(authElectionHash);
   userEvent.click(screen.getByText('Remove the Current Election and All Data'));
   expect(unconfigure).toHaveBeenCalled();
 });
 
 test('showing count of ballots printed: 0 ballots', async () => {
-  apiMock.mockApiClient.readElectionDefinitionFromCard
-    .expectCallWith({ electionHash: machineElectionHash })
-    .resolves(ok(cardElectionDefinition));
-
   renderScreen();
 
-  await screen.findByText(cardElectionDefinition.election.title);
+  await screen.findByText(authElectionHash);
   screen.getByText(
     'This machine has not printed any ballots for the current election.'
   );
 });
 
 test('showing count of ballots printed: >0 ballots', async () => {
-  apiMock.mockApiClient.readElectionDefinitionFromCard
-    .expectCallWith({ electionHash: machineElectionHash })
-    .resolves(ok(cardElectionDefinition));
-
   renderScreen({ ballotsPrintedCount: 129 });
 
-  await screen.findByText(cardElectionDefinition.election.title);
+  await screen.findByText(authElectionHash);
   expect(screen.getByText('129 ballots').parentElement?.textContent).toEqual(
     'This machine has printed 129 ballots for the current election.'
-  );
-});
-
-test('error reading election definition from card', async () => {
-  apiMock.mockApiClient.readElectionDefinitionFromCard
-    .expectCallWith({ electionHash: machineElectionHash })
-    .resolves(err(new Error('Unable to read election definition from card')));
-
-  renderScreen();
-
-  await screen.findByText(
-    'Error reading the election definition from Election Manager card.'
   );
 });

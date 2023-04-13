@@ -17,6 +17,7 @@ beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
+  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {

@@ -1,20 +1,23 @@
 import React from 'react';
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
 import { electionMinimalExhaustiveSampleSinglePrecinctDefinition } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
 import { getDisplayElectionHash } from '@votingworks/types';
-import { ok } from '@votingworks/basics';
+import { FakeKiosk, fakeKiosk } from '@votingworks/test-utils';
 import { screen } from '../test/react_testing_library';
 import { render } from '../test/test_utils';
 import { App } from './app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { configureFromUsbThenRemove } from '../test/helpers/ballot_package';
 
 let apiMock: ApiMock;
+let kiosk: FakeKiosk;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
+  kiosk = fakeKiosk();
+  window.kiosk = kiosk;
 });
 
 afterEach(() => {
@@ -29,6 +32,7 @@ test('loading election with a single precinct automatically sets precinct', asyn
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionDefinition(null);
 
   render(
     <App
@@ -42,15 +46,14 @@ test('loading election with a single precinct automatically sets precinct', asyn
   await screen.findByText('VxMark is Not Configured');
 
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  apiMock.mockApiClient.readElectionDefinitionFromCard
-    .expectCallWith({ electionHash: undefined })
-    .resolves(ok(electionDefinition));
-  userEvent.click(await screen.findByText('Load Election Definition'));
+
+  // Insert a USB with a ballot package
+  await configureFromUsbThenRemove(apiMock, kiosk, screen, electionDefinition);
   await screen.findByText(getDisplayElectionHash(electionDefinition));
   // Should not be able to select a precinct
   expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
   screen.getByText(
-    'Precinct can not be changed because there is only one precinct configured for this election.'
+    'Precinct cannot be changed because there is only one precinct configured for this election.'
   );
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Precinct 1');

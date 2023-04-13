@@ -22,15 +22,12 @@ import {
 import { Logger } from '@votingworks/logging';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/mark-backend';
-import { assert } from '@votingworks/basics';
 import { ScreenReader } from '../config/types';
-import { getElectionDefinitionFromCard } from '../api';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
-  electionDefinition?: ElectionDefinition;
-  updateElectionDefinition: (electionDefinition: ElectionDefinition) => void;
+  electionDefinition: ElectionDefinition;
   isLiveMode: boolean;
   updateAppPrecinct: (appPrecinct: PrecinctSelection) => void;
   toggleLiveMode: VoidFunction;
@@ -45,7 +42,6 @@ export function AdminScreen({
   appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
-  updateElectionDefinition,
   isLiveMode,
   updateAppPrecinct,
   toggleLiveMode,
@@ -55,25 +51,7 @@ export function AdminScreen({
   pollsState,
   logger,
 }: AdminScreenProps): JSX.Element {
-  const election = electionDefinition?.election;
-  const electionHash = electionDefinition?.electionHash;
-
-  const electionDefinitionFromCardQuery =
-    getElectionDefinitionFromCard.useQuery(electionHash, {
-      // Disable automatic fetching and only allow manual fetching through .refetch()
-      enabled: false,
-    });
-
-  async function loadElection() {
-    const { data } = await electionDefinitionFromCardQuery.refetch();
-    assert(data !== undefined);
-    const electionDefinitionFromCard = data.ok();
-    // TODO: Handle case that electionDefinitionFromCard is undefined, e.g. because it couldn't be
-    // parsed
-    if (electionDefinitionFromCard) {
-      updateElectionDefinition(electionDefinitionFromCard);
-    }
-  }
+  const { election } = electionDefinition;
 
   // Disable the audiotrack when in admin mode
   useEffect(() => {
@@ -124,7 +102,7 @@ export function AdminScreen({
                   <React.Fragment>
                     <br />
                     <Text small italic as="span">
-                      Precinct can not be changed because there is only one
+                      Precinct cannot be changed because there is only one
                       precinct configured for this election.
                     </Text>
                   </React.Fragment>
@@ -157,25 +135,14 @@ export function AdminScreen({
             <SetClockButton>Update Date and Time</SetClockButton>
           </p>
           <h2>Configuration</h2>
-          {election ? (
-            <p>
-              <Text as="span" voteIcon>
-                Election Definition is loaded.
-              </Text>{' '}
-              <Button variant="danger" small onPress={unconfigure}>
-                Unconfigure Machine
-              </Button>
-            </p>
-          ) : electionDefinitionFromCardQuery.isFetching ? (
-            <p>Loading Election Definition from Election Manager card…</p>
-          ) : (
-            <React.Fragment>
-              <Text warningIcon>Election Definition is not loaded.</Text>
-              <p>
-                <Button onPress={loadElection}>Load Election Definition</Button>
-              </p>
-            </React.Fragment>
-          )}
+          <p>
+            <Text as="span" voteIcon>
+              Election Definition is loaded.
+            </Text>{' '}
+            <Button variant="danger" small onPress={unconfigure}>
+              Unconfigure Machine
+            </Button>
+          </p>
         </Prose>
       </Main>
       {election && (

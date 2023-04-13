@@ -78,8 +78,13 @@ function endCardlessVoterSession() {
   cy.request('POST', methodUrl('endCardlessVoterSession', 'http://localhost:3000/api'), {});
 }
 
+function configureWithSampleDefinitionAndSystemSettings() {
+  cy.request('POST', methodUrl('configureSampleBallotPackage', 'http://localhost:3000/api'), {});
+}
+
 beforeEach(() => {
   endCardlessVoterSession();
+  configureWithSampleDefinitionAndSystemSettings();
 
   insertElectionManagerCard();
   cy.visit('/');
@@ -89,8 +94,6 @@ beforeEach(() => {
     cy.contains(digit).click();
   }
 
-  // Load election
-  cy.contains('Load Election Definition').click();
   cy.get('#selectPrecinct').select('All Precincts');
   removeCard();
 

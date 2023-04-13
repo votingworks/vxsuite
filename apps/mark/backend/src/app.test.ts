@@ -1,6 +1,7 @@
 import { assert, err, ok, Optional, Result } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
+  electionSampleDefinition,
   systemSettings,
 } from '@votingworks/fixtures';
 import {
@@ -9,7 +10,6 @@ import {
   fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
-import { ElectionDefinition } from '@votingworks/types';
 import { DEV_JURISDICTION, InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -26,6 +26,7 @@ import {
 } from '@votingworks/backend';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 
@@ -67,61 +68,6 @@ test('uses default machine config if not set', async () => {
     machineId: '0000',
     codeVersion: 'dev',
     screenOrientation: 'portrait',
-  });
-});
-
-test('read election definition from card', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { electionData, electionHash } = electionDefinition;
-
-  mockOf(mockAuth.readCardDataAsString).mockImplementation(() =>
-    Promise.resolve(ok(electionData))
-  );
-
-  let result: Result<ElectionDefinition, Error>;
-
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-    Promise.resolve({ status: 'logged_out', reason: 'no_card' })
-  );
-  result = await apiClient.readElectionDefinitionFromCard({ electionHash });
-  expect(result).toEqual(err(new Error('User is not logged in')));
-
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-    Promise.resolve({
-      status: 'logged_in',
-      user: fakePollWorkerUser(electionDefinition),
-      sessionExpiresAt: fakeSessionExpiresAt(),
-    })
-  );
-  result = await apiClient.readElectionDefinitionFromCard({ electionHash });
-  expect(result).toEqual(err(new Error('User is not an election manager')));
-
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-    Promise.resolve({
-      status: 'logged_in',
-      user: fakeElectionManagerUser(electionDefinition),
-      sessionExpiresAt: fakeSessionExpiresAt(),
-    })
-  );
-  result = await apiClient.readElectionDefinitionFromCard({ electionHash });
-  expect(result).toEqual(ok(electionDefinition));
-  expect(mockAuth.readCardDataAsString).toHaveBeenCalledTimes(1);
-  expect(mockAuth.readCardDataAsString).toHaveBeenNthCalledWith(1, {
-    electionHash,
-    jurisdiction,
-  });
-
-  mockOf(mockAuth.readCardDataAsString).mockImplementation(() =>
-    Promise.resolve(ok(undefined))
-  );
-  result = await apiClient.readElectionDefinitionFromCard({ electionHash });
-  expect(result).toEqual(
-    err(new Error('Unable to read election definition from card'))
-  );
-  expect(mockAuth.readCardDataAsString).toHaveBeenCalledTimes(2);
-  expect(mockAuth.readCardDataAsString).toHaveBeenNthCalledWith(2, {
-    electionHash,
-    jurisdiction,
   });
 });
 
@@ -243,30 +189,55 @@ test('configureBallotPackageFromUsb reads to and writes from store', async () =>
     },
   });
 
-  const writeResult = await apiClient.configureBallotPackageFromUsb({
-    electionHash: electionDefinition.electionHash,
-  });
+  const writeResult = await apiClient.configureBallotPackageFromUsb();
   assert(writeResult.isOk());
 
   const readResult = await apiClient.getSystemSettings();
   expect(readResult).toEqual(
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
   );
+  const electionDefinitionResult = await apiClient.getElectionDefinition();
+  expect(electionDefinitionResult).toEqual(electionDefinition);
+});
+
+test('unconfigureMachine deletes system settings and election definition', async () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+
+  // Mock election manager
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: fakeElectionManagerUser(electionDefinition),
+      sessionExpiresAt: fakeSessionExpiresAt(),
+    })
+  );
+
+  const zipBuffer = createBallotPackageWithoutTemplates(electionDefinition, {
+    systemSettingsString: systemSettings.asText(),
+  });
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'test-ballot-package.zip': zipBuffer,
+    },
+  });
+
+  const writeResult = await apiClient.configureBallotPackageFromUsb();
+  assert(writeResult.isOk());
+  await apiClient.unconfigureMachine();
+
+  const readResult = await apiClient.getSystemSettings();
+  expect(readResult).toBeNull();
+  const electionDefinitionResult = await apiClient.getElectionDefinition();
+  expect(electionDefinitionResult).toBeNull();
 });
 
 test('configureBallotPackageFromUsb throws when no USB drive mounted', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-
-  await expect(
-    apiClient.configureBallotPackageFromUsb({
-      electionHash: electionDefinition.electionHash,
-    })
-  ).rejects.toThrow('No USB drive mounted');
+  await expect(apiClient.configureBallotPackageFromUsb()).rejects.toThrow(
+    'No USB drive mounted'
+  );
 });
 
 test('configureBallotPackageFromUsb returns an error if ballot package parsing fails', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-
   // Lack of auth will cause ballot package reading to throw
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
@@ -281,9 +252,17 @@ test('configureBallotPackageFromUsb returns an error if ballot package parsing f
     },
   });
 
-  const result = await apiClient.configureBallotPackageFromUsb({
-    electionHash: electionDefinition.electionHash,
-  });
+  const result = await apiClient.configureBallotPackageFromUsb();
   assert(result.isErr());
   expect(result.err()).toEqual('auth_required_before_ballot_package_load');
+});
+
+test('configureSampleBallotPackage configures electionSampleDefinition and DEFAULT_SYSTEM_SETTINGS', async () => {
+  const writeResult = await apiClient.configureSampleBallotPackage();
+  assert(writeResult.isOk());
+
+  const readResult = await apiClient.getSystemSettings();
+  expect(readResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
+  const electionDefinitionResult = await apiClient.getElectionDefinition();
+  expect(electionDefinitionResult).toEqual(electionSampleDefinition);
 });

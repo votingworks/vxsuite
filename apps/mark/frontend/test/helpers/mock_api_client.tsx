@@ -5,10 +5,12 @@ import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type { Api, MachineConfig } from '@votingworks/mark-backend';
 import { QueryClientProvider } from '@tanstack/react-query';
 import {
+  BallotPackageConfigurationError,
   BallotStyleId,
   ElectionDefinition,
   InsertedSmartCardAuth,
   PrecinctId,
+  SystemSettings,
 } from '@votingworks/types';
 import {
   fakeCardlessVoterUser,
@@ -17,7 +19,7 @@ import {
   fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { ok, Optional, Result } from '@votingworks/basics';
+import { err, ok, Optional, Result } from '@votingworks/basics';
 import { ScannerReportData } from '@votingworks/utils';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';
@@ -133,6 +135,16 @@ export function createApiMock() {
       });
     },
 
+    expectGetElectionDefinition(electionDefinition: ElectionDefinition | null) {
+      mockApiClient.getElectionDefinition
+        .expectCallWith()
+        .resolves(electionDefinition);
+    },
+
+    expectGetSystemSettings(systemSettings: SystemSettings | null) {
+      mockApiClient.getSystemSettings.expectCallWith().resolves(systemSettings);
+    },
+
     expectGetMachineConfig(props: Partial<MachineConfig> = {}): void {
       mockApiClient.getMachineConfig
         .expectCallWith()
@@ -141,6 +153,34 @@ export function createApiMock() {
 
     expectGetMachineConfigToError(): void {
       mockApiClient.getMachineConfig.expectCallWith().throws('unexpected_err');
+    },
+
+    expectUnconfigureMachine(): void {
+      mockApiClient.unconfigureMachine.expectCallWith().resolves();
+    },
+
+    expectConfigureBallotPackageFromUsb(
+      electionDefinition: ElectionDefinition
+    ): void {
+      const result: Result<
+        ElectionDefinition,
+        BallotPackageConfigurationError
+      > = ok(electionDefinition);
+      mockApiClient.configureBallotPackageFromUsb
+        .expectCallWith()
+        .resolves(result);
+    },
+
+    expectConfigureBallotPackageFromUsbError(
+      error: BallotPackageConfigurationError
+    ): void {
+      const result: Result<
+        ElectionDefinition,
+        BallotPackageConfigurationError
+      > = err(error);
+      mockApiClient.configureBallotPackageFromUsb
+        .expectCallWith()
+        .resolves(result);
     },
   };
 }

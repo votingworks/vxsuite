@@ -117,6 +117,7 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -1546,6 +1547,7 @@ test('tally report: will print but not update polls state appropriate', async ()
 test('full polls flow without tally reports', async () => {
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionDefinition(null);
   const { renderApp, storage, logger } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });

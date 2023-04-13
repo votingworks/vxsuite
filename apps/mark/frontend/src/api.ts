@@ -8,18 +8,12 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
-  UseQueryOptions,
 } from '@tanstack/react-query';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
-import {
-  BallotStyleId,
-  ElectionDefinition,
-  PrecinctId,
-} from '@votingworks/types';
-import { Result } from '@votingworks/basics';
+import { BallotStyleId, PrecinctId } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -53,6 +47,27 @@ export const getMachineConfig = {
   },
 } as const;
 
+export const getElectionDefinition = {
+  queryKey(): QueryKey {
+    return ['getElectionDefinition'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getElectionDefinition());
+  },
+} as const;
+
+/* istanbul ignore next */
+export const getSystemSettings = {
+  queryKey(): QueryKey {
+    return ['getSystemSettings'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getSystemSettings());
+  },
+} as const;
+
 export const getAuthStatus = {
   queryKey(): QueryKey {
     return ['getAuthStatus'];
@@ -65,25 +80,6 @@ export const getAuthStatus = {
       this.queryKey(),
       () => apiClient.getAuthStatus({ electionHash }),
       { refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS }
-    );
-  },
-} as const;
-
-export const getElectionDefinitionFromCard = {
-  queryKey(): QueryKey {
-    return ['getElectionDefinitionFromCard'];
-  },
-  useQuery(
-    electionHash?: string,
-    options: UseQueryOptions<Result<ElectionDefinition, Error>> = {}
-  ) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.readElectionDefinitionFromCard({ electionHash }),
-      // Don't cache this since caching would require invalidation in response to external
-      // circumstances, like card removal
-      { cacheTime: 0, staleTime: 0, ...options }
     );
   },
 } as const;
@@ -207,5 +203,31 @@ export const clearScannerReportDataFromCard = {
         },
       }
     );
+  },
+} as const;
+
+export const configureBallotPackageFromUsb = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(() => apiClient.configureBallotPackageFromUsb(), {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getElectionDefinition.queryKey());
+        await queryClient.invalidateQueries(getSystemSettings.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const unconfigureMachine = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(() => apiClient.unconfigureMachine(), {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getElectionDefinition.queryKey());
+        await queryClient.invalidateQueries(getSystemSettings.queryKey());
+      },
+    });
   },
 } as const;

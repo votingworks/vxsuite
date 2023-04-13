@@ -48,6 +48,7 @@ it('will throw an error when using default api', async () => {
 });
 
 it('Displays error boundary if the api returns an unexpected error', async () => {
+  apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetMachineConfigToError();
   const storage = new MemoryStorage();
   const hardware = MemoryHardware.buildStandard();
@@ -67,6 +68,7 @@ it('Displays error boundary if the api returns an unexpected error', async () =>
 
 it('prevents context menus from appearing', async () => {
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionDefinition(null);
   render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
 
   const { oncontextmenu } = window;
@@ -86,6 +88,7 @@ it('prevents context menus from appearing', async () => {
 it('uses kiosk storage when in kiosk-browser', async () => {
   const kiosk = fakeKiosk();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionDefinition(null);
   window.kiosk = kiosk;
   render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
   await advanceTimersAndPromises();
@@ -96,6 +99,7 @@ it('uses kiosk storage when in kiosk-browser', async () => {
 it('changes screen reader settings based on keyboard inputs', async () => {
   const mockTts = fakeTts();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionDefinition(null);
   const screenReader = new AriaScreenReader(mockTts);
   jest.spyOn(screenReader, 'toggle');
   jest.spyOn(screenReader, 'changeVolume');
@@ -126,6 +130,7 @@ it('uses window.location.reload by default', async () => {
   // enough for general `window.location` use.
   const reload = jest.fn();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionDefinition(null);
   jest.spyOn(window, 'location', 'get').mockReturnValue({
     ...window.location,
     reload,

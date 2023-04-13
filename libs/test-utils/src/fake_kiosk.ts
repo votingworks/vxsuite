@@ -58,6 +58,11 @@ export function fakePrinterInfo(
   };
 }
 
+export type FakeKiosk = jest.Mocked<KioskBrowser.Kiosk> & {
+  devices: BehaviorSubject<Set<KioskBrowser.Device>>;
+  printers: BehaviorSubject<Set<KioskBrowser.PrinterInfo>>;
+};
+
 /**
  * Builds a `Kiosk` instance with mock methods.
  */
@@ -67,10 +72,7 @@ export function fakeKiosk({
 }: {
   battery?: Partial<KioskBrowser.BatteryInfo>;
   printers?: Array<Partial<KioskBrowser.PrinterInfo>>;
-} = {}): jest.Mocked<KioskBrowser.Kiosk> & {
-  devices: BehaviorSubject<Set<KioskBrowser.Device>>;
-  printers: BehaviorSubject<Set<KioskBrowser.PrinterInfo>>;
-} {
+} = {}): FakeKiosk {
   return {
     print: jest.fn().mockResolvedValue(undefined),
     // TODO: Rename to `printToPdf` in kiosk-browser, then update here.
