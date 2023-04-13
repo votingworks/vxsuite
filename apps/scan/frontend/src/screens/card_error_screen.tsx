@@ -5,7 +5,7 @@ import { ScreenMainCenterChild } from '../components/layout';
 
 export function CardErrorScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild infoBar={false}>
+    <ScreenMainCenterChild>
       <RotateCardImage />
       <CenteredLargeProse>
         <H1>Card is Backwards</H1>

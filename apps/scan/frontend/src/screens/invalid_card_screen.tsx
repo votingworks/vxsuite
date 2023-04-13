@@ -5,7 +5,7 @@ import { ScreenMainCenterChild } from '../components/layout';
 
 export function InvalidCardScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild infoBar={false}>
+    <ScreenMainCenterChild infoBarMode="pollworker">
       <SharedInvalidCardScreen
         reason="invalid_user_on_card"
         recommendedAction="Remove the card to continue."

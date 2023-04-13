@@ -4,7 +4,7 @@ import { ScreenMainCenterChild } from '../components/layout';
 
 export function LoadingConfigurationScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild infoBar={false}>
+    <ScreenMainCenterChild>
       <LoadingAnimation />
       <CenteredLargeProse>
         <H1>Loading Configuration…</H1>

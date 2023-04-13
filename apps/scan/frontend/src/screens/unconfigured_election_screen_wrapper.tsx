@@ -28,7 +28,7 @@ export function UnconfiguredElectionScreenWrapper(props: Props): JSX.Element {
   const error = configureMutation.data?.err();
 
   return (
-    <ScreenMainCenterChild infoBar={false}>
+    <ScreenMainCenterChild>
       <UnconfiguredElectionScreen
         usbDriveStatus={usbDriveStatus}
         isElectionManagerAuth={isElectionManagerAuth}
