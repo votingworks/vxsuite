@@ -189,9 +189,7 @@ test('configureBallotPackageFromUsb reads to and writes from store', async () =>
     },
   });
 
-  const writeResult = await apiClient.configureBallotPackageFromUsb({
-    electionHash: electionDefinition.electionHash,
-  });
+  const writeResult = await apiClient.configureBallotPackageFromUsb();
   assert(writeResult.isOk());
 
   const readResult = await apiClient.getSystemSettings();
@@ -223,9 +221,7 @@ test('unconfigureMachine deletes system settings and election definition', async
     },
   });
 
-  const writeResult = await apiClient.configureBallotPackageFromUsb({
-    electionHash: electionDefinition.electionHash,
-  });
+  const writeResult = await apiClient.configureBallotPackageFromUsb();
   assert(writeResult.isOk());
   await apiClient.unconfigureMachine();
 
@@ -236,18 +232,12 @@ test('unconfigureMachine deletes system settings and election definition', async
 });
 
 test('configureBallotPackageFromUsb throws when no USB drive mounted', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-
-  await expect(
-    apiClient.configureBallotPackageFromUsb({
-      electionHash: electionDefinition.electionHash,
-    })
-  ).rejects.toThrow('No USB drive mounted');
+  await expect(apiClient.configureBallotPackageFromUsb()).rejects.toThrow(
+    'No USB drive mounted'
+  );
 });
 
 test('configureBallotPackageFromUsb returns an error if ballot package parsing fails', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-
   // Lack of auth will cause ballot package reading to throw
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
@@ -262,9 +252,7 @@ test('configureBallotPackageFromUsb returns an error if ballot package parsing f
     },
   });
 
-  const result = await apiClient.configureBallotPackageFromUsb({
-    electionHash: electionDefinition.electionHash,
-  });
+  const result = await apiClient.configureBallotPackageFromUsb();
   assert(result.isErr());
   expect(result.err()).toEqual('auth_required_before_ballot_package_load');
 });

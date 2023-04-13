@@ -167,7 +167,7 @@ export function createApiMock() {
         BallotPackageConfigurationError
       > = ok(electionDefinition);
       mockApiClient.configureBallotPackageFromUsb
-        .expectCallWith({ electionHash: undefined })
+        .expectCallWith()
         .resolves(result);
     },
 
@@ -179,7 +179,7 @@ export function createApiMock() {
         BallotPackageConfigurationError
       > = err(error);
       mockApiClient.configureBallotPackageFromUsb
-        .expectCallWith({ electionHash: undefined })
+        .expectCallWith()
         .resolves(result);
     },
   };

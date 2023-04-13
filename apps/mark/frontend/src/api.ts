@@ -207,18 +207,15 @@ export const clearScannerReportDataFromCard = {
 } as const;
 
 export const configureBallotPackageFromUsb = {
-  useMutation(electionHash?: string) {
+  useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      () => apiClient.configureBallotPackageFromUsb({ electionHash }),
-      {
-        async onSuccess() {
-          await queryClient.invalidateQueries(getElectionDefinition.queryKey());
-          await queryClient.invalidateQueries(getSystemSettings.queryKey());
-        },
-      }
-    );
+    return useMutation(() => apiClient.configureBallotPackageFromUsb(), {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getElectionDefinition.queryKey());
+        await queryClient.invalidateQueries(getSystemSettings.queryKey());
+      },
+    });
   },
 } as const;
 

@@ -109,10 +109,13 @@ function buildApi(
       return ok(electionDefinition);
     },
 
-    async configureBallotPackageFromUsb(input: {
-      electionHash?: string;
-    }): Promise<Result<ElectionDefinition, BallotPackageConfigurationError>> {
-      const machineState = constructAuthMachineState(input);
+    async configureBallotPackageFromUsb(): Promise<
+      Result<ElectionDefinition, BallotPackageConfigurationError>
+    > {
+      // Explicitly pass undefined electionHash because we haven't yet loaded the ballot package.
+      const machineState = constructAuthMachineState({
+        electionHash: undefined,
+      });
       const authStatus = await auth.getAuthStatus(machineState);
 
       const [usbDrive] = await usb.getUsbDrives();
