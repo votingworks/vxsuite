@@ -299,10 +299,8 @@ test('disables ultrasonic properly', async () => {
     .expectCallWith({ isUltrasonicDisabled: true })
     .resolves();
   apiMock.expectGetConfig({ isUltrasonicDisabled: true });
-  userEvent.click(
-    screen.getByRole('button', { name: 'Disable Double Sheet Detection' })
-  );
-  await screen.findByRole('button', { name: 'Enable Double Sheet Detection' });
+  userEvent.click(await screen.findButton('Disable Double Sheet Detection'));
+  await screen.findButton('Enable Double Sheet Detection');
 
   expect(screen.queryByText('Calibrate Scanner')).toBeNull();
   await screen.findByText('Enable Double Sheet Detection');

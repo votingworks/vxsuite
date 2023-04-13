@@ -170,14 +170,7 @@ export function ElectionManagerScreen({
         </P>
         <P>
           {supportsCalibrationQuery.data === true && (
-            <Button
-              onPress={() => setIsCalibratingScanner(true)}
-              nonAccessibleTitle={
-                !supportsCalibrationQuery.data
-                  ? 'This scanner does not support calibration.'
-                  : undefined
-              }
-            >
+            <Button onPress={() => setIsCalibratingScanner(true)}>
               Calibrate Scanner
             </Button>
           )}

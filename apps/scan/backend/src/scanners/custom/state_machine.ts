@@ -281,7 +281,6 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
     resolution: ImageResolution.RESOLUTION_200_DPI,
     imageColorDepth: ImageColorDepthType.Grey8bpp,
     formStandingAfterScan: FormStanding.HOLD_TICKET,
-    // The A4 scanner does not support double sheet detection.
     doubleSheetDetection: isUltrasonicDisabled
       ? DoubleSheetDetectOpt.DetectOff
       : DoubleSheetDetectOpt.Level1,

@@ -269,7 +269,7 @@ export class Store {
     ) as { isUltrasonicDisabled: number } | undefined;
 
     if (!electionRow) {
-      // we will not mute sounds by default once an election is defined
+      // we will not disable ultrasonic by default once an election is defined
       return false;
     }
 
