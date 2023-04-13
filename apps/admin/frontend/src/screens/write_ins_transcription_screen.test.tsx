@@ -1,6 +1,6 @@
 import React from 'react';
 import { electionMinimalExhaustiveSampleDefinition as electionDefinition } from '@votingworks/fixtures';
-import { CandidateContest, safeParseNumber } from '@votingworks/types';
+import { CandidateContest } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
@@ -122,20 +122,12 @@ test('zoomable ballot image', async () => {
     'data:image/png;base64,fake-image-data-174'
   );
 
-  function getWidth(element: HTMLElement) {
-    return safeParseNumber(element.getAttribute('width')!).assertOk(
-      'Width should be number'
-    );
-  }
-
   // Initially zoomed in to show the write-in area
   const expectedZoomedInWidth =
     100 * // Starting ballot image width
     (100 / 60) * // Scaled based on write-in area size
     0.5; // Scaled based on exported image resizing
-  expect(getWidth(ballotImage).toPrecision(5)).toEqual(
-    expectedZoomedInWidth.toPrecision(5)
-  );
+  expect(ballotImage).toHaveStyle({ width: `${expectedZoomedInWidth}px` });
   let zoomInButton = screen.getButton(/Zoom In/);
   let zoomOutButton = screen.getButton(/Zoom Out/);
   expect(zoomInButton).toBeDisabled();
@@ -143,35 +135,44 @@ test('zoomable ballot image', async () => {
 
   // Zoom out to show the entire ballot
   userEvent.click(zoomOutButton);
-  const expectedZoomedOutWidth = 100 * 0.5; // Scaled to show the entire ballot
-  expect(getWidth(ballotImage).toPrecision(5)).toEqual(
-    expectedZoomedOutWidth.toPrecision(5)
-  );
+  ballotImage = screen.getByRole('img');
+  expect(ballotImage).toHaveStyle({ width: '100%' });
   expect(zoomInButton).toBeEnabled();
   expect(zoomOutButton).toBeDisabled();
 
   // Zoom back in
   userEvent.click(zoomInButton);
-  expect(getWidth(ballotImage).toPrecision(5)).toEqual(
-    expectedZoomedInWidth.toPrecision(5)
-  );
+  ballotImage = screen.getByRole('img');
+  expect(ballotImage).toHaveStyle({ width: `${expectedZoomedInWidth}px` });
 
-  // When switching to next transcription, the zoom level is reset
+  // Zoom back out
   userEvent.click(zoomOutButton);
-  expect(zoomOutButton).toBeDisabled();
+  ballotImage = screen.getByRole('img');
+  expect(ballotImage).toHaveStyle({ width: '100%' });
+
+  // When switching to next transcription, resets to zoomed in
   userEvent.click(screen.getButton(/Next/));
   await screen.findByTestId('transcribe:id-175');
 
-  ballotImage = screen.getByRole('img');
+  ballotImage = await screen.findByRole('img');
   expect(ballotImage).toHaveAttribute(
     'src',
     'data:image/png;base64,fake-image-data-175'
   );
-  expect(getWidth(ballotImage).toPrecision(5)).toEqual(
-    expectedZoomedInWidth.toPrecision(5)
-  );
+  expect(ballotImage).toHaveStyle({ width: `${expectedZoomedInWidth}px` });
   zoomInButton = screen.getButton(/Zoom In/);
   zoomOutButton = screen.getButton(/Zoom Out/);
   expect(zoomInButton).toBeDisabled();
   expect(zoomOutButton).toBeEnabled();
+
+  // Zoom out
+  userEvent.click(zoomOutButton);
+  ballotImage = screen.getByRole('img');
+  expect(ballotImage).toHaveStyle({ width: '100%' });
+
+  // When switching to previous transcription, resets to zoomed in
+  userEvent.click(screen.getButton(/Previous/));
+  await screen.findByTestId('transcribe:id-174');
+  ballotImage = await screen.findByRole('img');
+  expect(ballotImage).toHaveStyle({ width: `${expectedZoomedInWidth}px` });
 });
