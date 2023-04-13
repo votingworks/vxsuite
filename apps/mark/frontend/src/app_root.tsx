@@ -73,7 +73,7 @@ import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { mergeMsEitherNeitherContests } from './utils/ms_either_neither_contests';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
-import { UnconfiguredElectionScreenWrapper } from './pages/unconfingured_election_screen_wrapper';
+import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
 
 interface UserState {
   userSettings: UserSettings;
@@ -336,6 +336,7 @@ export function AppRoot({
         )
       : [];
 
+  /** @deprecated Use backend state instead: configureBallotPackageFromUsb.useMutation() and getElectionDefinition.useQuery() */
   const updateElectionDefinition = useCallback(
     (electionDefinition: ElectionDefinition) => {
       dispatchAppState({

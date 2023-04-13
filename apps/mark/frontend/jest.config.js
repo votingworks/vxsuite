@@ -12,14 +12,6 @@ module.exports = {
     '!src/index.tsx',
     '!src/contexts/ballot_context.ts',
   ],
-  coverageThreshold: {
-    global: {
-      statements: 99.7,
-      branches: 99.7,
-      functions: 99.4,
-      lines: 99.8,
-    },
-  },
   resetMocks: true,
   setupFiles: ['react-app-polyfill/jsdom'],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.tsx'],

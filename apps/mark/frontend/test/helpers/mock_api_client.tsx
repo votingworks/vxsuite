@@ -19,7 +19,7 @@ import {
   fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { ok, Optional, Result } from '@votingworks/basics';
+import { err, ok, Optional, Result } from '@votingworks/basics';
 import { ScannerReportData } from '@votingworks/utils';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';
@@ -166,6 +166,18 @@ export function createApiMock() {
         ElectionDefinition,
         BallotPackageConfigurationError
       > = ok(electionDefinition);
+      mockApiClient.configureBallotPackageFromUsb
+        .expectCallWith({ electionHash: undefined })
+        .resolves(result);
+    },
+
+    expectConfigureBallotPackageFromUsbError(
+      error: BallotPackageConfigurationError
+    ): void {
+      const result: Result<
+        ElectionDefinition,
+        BallotPackageConfigurationError
+      > = err(error);
       mockApiClient.configureBallotPackageFromUsb
         .expectCallWith({ electionHash: undefined })
         .resolves(result);

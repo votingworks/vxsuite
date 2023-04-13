@@ -34,7 +34,7 @@ export function UnconfiguredElectionScreenWrapper(props: Props): JSX.Element {
     }
   });
 
-  const backendError = configureMutation?.data?.err();
+  const backendError = configureMutation.data?.err();
   return (
     <Screen>
       <Main centerChild>

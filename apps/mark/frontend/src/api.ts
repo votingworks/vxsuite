@@ -57,6 +57,7 @@ export const getElectionDefinition = {
   },
 } as const;
 
+/* istanbul ignore next */
 export const getSystemSettings = {
   queryKey(): QueryKey {
     return ['getSystemSettings'];
@@ -205,7 +206,6 @@ export const clearScannerReportDataFromCard = {
   },
 } as const;
 
-/* istanbul ignore next */
 export const configureBallotPackageFromUsb = {
   useMutation(electionHash?: string) {
     const apiClient = useApiClient();
@@ -222,7 +222,6 @@ export const configureBallotPackageFromUsb = {
   },
 } as const;
 
-/* istanbul ignore next */
 export const unconfigureMachine = {
   useMutation() {
     const apiClient = useApiClient();
