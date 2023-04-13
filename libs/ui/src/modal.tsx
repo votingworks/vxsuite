@@ -33,8 +33,9 @@ const ReactModalContent = styled('div')<ReactModalContentInterface>`
   margin: auto;
   outline: none;
   background: ${(p) => p.theme.colors.background};
-  border: ${(p) => p.theme.sizes.bordersRem.medium}rem solid
-    ${(p) => p.theme.colors.foreground};
+  border: ${(p) =>
+      p.fullscreen ? '0' : `${p.theme.sizes.bordersRem.medium}rem`}
+    solid ${(p) => p.theme.colors.foreground};
   width: 100%;
   overflow: auto;
   font-size: ${({ themeDeprecated }) => themeDeprecated?.fontSize};
