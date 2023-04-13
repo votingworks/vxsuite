@@ -114,7 +114,7 @@ function OvervoteWarningScreen({
     .map((c) => c.title);
 
   return (
-    <ScreenMainCenterChild infoBar={false}>
+    <ScreenMainCenterChild>
       <FullScreenIconWrapper color="warning">
         <Icons.Warning />
       </FullScreenIconWrapper>
@@ -203,7 +203,7 @@ function UndervoteWarningScreen({
   }
 
   return (
-    <ScreenMainCenterChild infoBar={false}>
+    <ScreenMainCenterChild>
       <FullScreenIconWrapper color="warning">
         <Icons.Warning />
       </FullScreenIconWrapper>
@@ -284,7 +284,7 @@ function BlankBallotWarningScreen(): JSX.Element {
   const acceptBallotMutation = acceptBallot.useMutation();
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
-    <ScreenMainCenterChild infoBar={false}>
+    <ScreenMainCenterChild>
       <FullScreenIconWrapper color="warning">
         <Icons.Warning />
       </FullScreenIconWrapper>
@@ -330,7 +330,7 @@ function OtherReasonWarningScreen(): JSX.Element {
   const acceptBallotMutation = acceptBallot.useMutation();
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
-    <ScreenMainCenterChild infoBar={false}>
+    <ScreenMainCenterChild>
       <FullScreenIconWrapper color="warning">
         <Icons.Warning />
       </FullScreenIconWrapper>

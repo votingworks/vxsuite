@@ -15,10 +15,7 @@ interface Props {
 
 export function ScanJamScreen({ scannedBallotCount }: Props): JSX.Element {
   return (
-    <ScreenMainCenterChild
-      infoBar={false}
-      ballotCountOverride={scannedBallotCount}
-    >
+    <ScreenMainCenterChild ballotCountOverride={scannedBallotCount}>
       <FullScreenIconWrapper color="danger">
         <Icons.DangerX />
       </FullScreenIconWrapper>

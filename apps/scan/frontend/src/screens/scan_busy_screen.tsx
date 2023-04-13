@@ -11,7 +11,7 @@ import { ScreenMainCenterChild } from '../components/layout';
 
 export function ScanBusyScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild infoBar={false}>
+    <ScreenMainCenterChild>
       <FullScreenIconWrapper color="warning">
         <Icons.Warning />
       </FullScreenIconWrapper>

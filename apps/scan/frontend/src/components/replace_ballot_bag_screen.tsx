@@ -90,10 +90,7 @@ export function ReplaceBallotBagScreen({
   })();
 
   return (
-    <ScreenMainCenterChild
-      infoBar={false}
-      ballotCountOverride={scannedBallotCount}
-    >
+    <ScreenMainCenterChild ballotCountOverride={scannedBallotCount}>
       {mainContent}
     </ScreenMainCenterChild>
   );

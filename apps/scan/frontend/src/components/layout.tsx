@@ -12,7 +12,6 @@ import { ScannedBallotCount } from './scanned_ballot_count';
 interface CenteredScreenProps {
   ballotCountOverride?: number;
   children: React.ReactNode;
-  infoBar?: boolean;
   isLiveMode?: boolean;
   infoBarMode?: InfoBarMode;
 }
@@ -20,7 +19,6 @@ interface CenteredScreenProps {
 export function ScreenMainCenterChild({
   ballotCountOverride,
   children,
-  infoBar = true,
   infoBarMode,
   isLiveMode = true,
 }: CenteredScreenProps): JSX.Element | null {
@@ -44,7 +42,7 @@ export function ScreenMainCenterChild({
       <Main padded centerChild style={{ position: 'relative' }}>
         {children}
       </Main>
-      {infoBar && electionDefinition && (
+      {electionDefinition && (
         <ElectionInfoBar
           mode={infoBarMode}
           precinctSelection={precinctSelection}

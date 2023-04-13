@@ -68,7 +68,6 @@ export function ScanErrorScreen({
   return (
     <ScreenMainCenterChild
       isLiveMode={!isTestMode}
-      infoBar={false}
       ballotCountOverride={scannedBallotCount}
     >
       <FullScreenIconWrapper color="danger">

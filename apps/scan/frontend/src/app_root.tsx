@@ -129,7 +129,7 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
 
   if (isSystemAdministratorAuth(authStatus)) {
     return (
-      <ScreenMainCenterChild infoBar>
+      <ScreenMainCenterChild>
         <SystemAdministratorScreenContents
           displayRemoveCardToLeavePrompt
           logger={logger}

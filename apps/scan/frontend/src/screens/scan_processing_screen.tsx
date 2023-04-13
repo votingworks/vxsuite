@@ -4,7 +4,7 @@ import { ScreenMainCenterChild } from '../components/layout';
 
 export function ScanProcessingScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild infoBar={false}>
+    <ScreenMainCenterChild>
       <LoadingAnimation />
       <CenteredLargeProse>
         <H1>Please wait…</H1>
