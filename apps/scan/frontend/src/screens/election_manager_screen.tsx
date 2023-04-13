@@ -214,9 +214,9 @@ export function ElectionManagerScreen({
       )}
       {isShowingToggleTestModeWarningModal && (
         <Modal
+          title="Save Backup to switch to Test Ballot Mode"
           content={
             <Prose>
-              <H1>Save Backup to switch to Test Ballot Mode</H1>
               <P>
                 You must &quot;Save Backup&quot; before you may switch to Test
                 Ballot Mode.
@@ -246,12 +246,12 @@ export function ElectionManagerScreen({
       )}
       {confirmUnconfigure && (
         <Modal
+          title={isUnconfiguring ? undefined : 'Delete All Election Data?'}
           content={
             isUnconfiguring ? (
               <Loading />
             ) : (
               <Prose>
-                <H1>Delete All Election Data?</H1>
                 <P>
                   Do you want to remove all election information and data from
                   this machine?

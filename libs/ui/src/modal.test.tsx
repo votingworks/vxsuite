@@ -10,6 +10,7 @@ describe('Modal', () => {
   it('renders a modal with content and actions', () => {
     render(
       <Modal
+        title="Are you sure?"
         content={<div>Do you want to do the thing?</div>}
         actions={
           <React.Fragment>
@@ -21,6 +22,7 @@ describe('Modal', () => {
     );
 
     const modal = screen.getByRole('alertdialog');
+    within(modal).getByRole('heading', { name: 'Are you sure?' });
     within(modal).getByText('Do you want to do the thing?');
     within(modal).getByRole('button', { name: 'Cancel' });
     within(modal).getByRole('button', { name: 'Confirm' });

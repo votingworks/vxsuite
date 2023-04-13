@@ -8,7 +8,6 @@ import {
   Modal,
   UsbControllerButton,
   UsbDrive,
-  H1,
   P,
 } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
@@ -56,9 +55,9 @@ export function ExportResultsModal({
   if (currentState === ModalState.ERROR) {
     return (
       <Modal
+        title="Failed to Save CVRs"
         content={
           <Prose>
-            <H1>Failed to Save CVRs</H1>
             <P>{errorMessage}</P>
           </Prose>
         }
@@ -72,9 +71,9 @@ export function ExportResultsModal({
     if (usbDrive.status === 'ejected') {
       return (
         <Modal
+          title="USB Drive Ejected"
           content={
             <Prose>
-              <H1>USB Drive Ejected</H1>
               <P>You may now take the USB Drive to VxAdmin for tabulation.</P>
             </Prose>
           }
@@ -85,9 +84,9 @@ export function ExportResultsModal({
     }
     return (
       <Modal
+        title="CVRs Saved to USB Drive"
         content={
           <Prose>
-            <H1>CVRs Saved to USB Drive</H1>
             <P>
               You may now eject the USB drive and take it to VxAdmin for
               tabulation.
@@ -132,9 +131,10 @@ export function ExportResultsModal({
       // on the machine for internal debugging use
       return (
         <Modal
+          centerContent
+          title="No USB Drive Detected"
           content={
             <Prose textCenter>
-              <H1>No USB Drive Detected</H1>
               <P>
                 Please insert a USB drive in order to save CVRs.
                 <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
@@ -157,9 +157,9 @@ export function ExportResultsModal({
     case 'mounted':
       return (
         <Modal
+          title="Save CVRs"
           content={
             <Prose>
-              <H1>Save CVRs</H1>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               <P>
                 A CVR file will automatically be saved to the default location

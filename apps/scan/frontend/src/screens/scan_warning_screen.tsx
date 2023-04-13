@@ -62,6 +62,8 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
     <Modal
       themeDeprecated={fontSizeTheme.large}
       modalWidth={ModalWidth.Wide}
+      title="Are you sure?"
+      centerContent
       content={content}
       actions={
         <React.Fragment>
@@ -148,7 +150,6 @@ function OvervoteWarningScreen({
         <ConfirmModal
           content={
             <Prose textCenter>
-              <H1>Are you sure?</H1>
               <P>
                 Your votes in {pluralize('contest', contestNames.length, true)}{' '}
                 will not be counted.
@@ -245,7 +246,6 @@ function UndervoteWarningScreen({
         <ConfirmModal
           content={
             <Prose textCenter>
-              <H1>Are you sure?</H1>
               <P>
                 {blankContestNames.length > 0 && (
                   <span>
@@ -313,7 +313,6 @@ function BlankBallotWarningScreen(): JSX.Element {
         <ConfirmModal
           content={
             <Prose textCenter>
-              <H1>Are you sure?</H1>
               <P>No votes will be counted from this ballot.</P>
             </Prose>
           }

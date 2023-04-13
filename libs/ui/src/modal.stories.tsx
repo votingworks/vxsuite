@@ -3,11 +3,16 @@ import { Meta } from '@storybook/react';
 
 import { Modal as Component, ModalProps } from './modal';
 import { Button } from './button';
-import { H2, P } from './typography';
+
+const initialProps: ModalProps = {
+  title: 'Confirm Save',
+  content: 'Would you like to save your changes?',
+};
 
 const meta: Meta<typeof Component> = {
   title: 'libs-ui/Modal',
   component: Component,
+  args: initialProps,
 };
 
 export default meta;
@@ -31,12 +36,6 @@ export function Modal(props: ModalProps): JSX.Element {
                 Cancel
               </Button>
             </React.Fragment>
-          }
-          content={
-            <div>
-              <H2 as="h1">Confirm Save</H2>
-              <P>Would you like to save your changes?</P>
-            </div>
           }
           {...props}
         />

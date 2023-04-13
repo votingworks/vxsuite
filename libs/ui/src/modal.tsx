@@ -8,6 +8,7 @@ import { assert } from '@votingworks/basics';
 
 import { Theme } from './themes';
 import { ButtonBar } from './button_bar';
+import { H2 } from './typography';
 
 /**
  * Controls the maximum width the modal can expand to.
@@ -62,7 +63,7 @@ const ReactModalOverlay = styled('div')<ReactModalOverlayInterface>`
   bottom: 0;
   left: 0;
   z-index: 999; /* Should be above all default UI */
-  background: ${(p) => rgba(p.theme.colors.foreground, 0.75)};
+  background: ${(p) => rgba(p.theme.colors.foreground, 0.9)};
   @media (min-width: 480px) {
     padding: ${({ fullscreen }) => (fullscreen ? '0' : '0.5rem')};
   }
@@ -117,6 +118,7 @@ export interface ModalProps {
   fullscreen?: boolean;
   modalWidth?: ModalWidth;
   themeDeprecated?: Theme;
+  title?: string;
 }
 
 /* istanbul ignore next - unclear why this isn't covered */
@@ -153,6 +155,7 @@ export function Modal({
   onOverlayClick,
   modalWidth,
   themeDeprecated,
+  title,
 }: ModalProps): JSX.Element {
   /* istanbul ignore next - can't get document.getElementById working in test */
   const appElement =
@@ -194,6 +197,7 @@ export function Modal({
       overlayClassName="_"
     >
       <ModalContent centerContent={centerContent} fullscreen={fullscreen}>
+        {title && <H2 as="h1">{title}</H2>}
         {content}
       </ModalContent>
       {actions && <ButtonBar as="div">{actions}</ButtonBar>}

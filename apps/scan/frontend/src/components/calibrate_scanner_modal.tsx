@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, H1, Modal, P, Prose } from '@votingworks/ui';
+import { Button, Modal, P, Prose } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
@@ -37,9 +37,9 @@ export function CalibrateScannerModal({
     return (
       <Modal
         centerContent
+        title="Calibration not supported"
         content={
           <Prose textCenter>
-            <H1>Calibration not supported</H1>
             <P>This scanner does not support calibration.</P>
           </Prose>
         }
@@ -51,9 +51,9 @@ export function CalibrateScannerModal({
   if (calibrationState === 'ready') {
     return (
       <Modal
+        title="Calibrate Scanner"
         content={
           <Prose>
-            <H1>Calibrate Scanner</H1>
             <P>
               Insert a <strong>blank sheet of white paper</strong> to calibrate
               the scanner. The sheet will not be returned out the front of the
@@ -87,11 +87,7 @@ export function CalibrateScannerModal({
     return (
       <Modal
         centerContent
-        content={
-          <Prose textCenter>
-            <H1>Calibration succeeded!</H1>
-          </Prose>
-        }
+        title="Calibration succeeded!"
         actions={<Button onPress={onCancel}>Close</Button>}
       />
     );
@@ -101,9 +97,9 @@ export function CalibrateScannerModal({
     return (
       <Modal
         centerContent
+        title="Calibration failed!"
         content={
           <Prose textCenter>
-            <H1>Calibration failed!</H1>
             <P>There was an error while calibrating.</P>
           </Prose>
         }
@@ -124,14 +120,5 @@ export function CalibrateScannerModal({
   }
 
   assert(calibrationState === 'calibrating');
-  return (
-    <Modal
-      centerContent
-      content={
-        <Prose textCenter>
-          <H1>Calibrating…</H1>
-        </Prose>
-      }
-    />
-  );
+  return <Modal centerContent title="Calibrating…" />;
 }
