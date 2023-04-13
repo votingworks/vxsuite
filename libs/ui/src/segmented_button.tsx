@@ -9,6 +9,10 @@ import { Caption } from './typography';
 export interface SegmentedButtonProps<T extends SegmentedButtonOptionId> {
   disabled?: boolean;
   hideLabel?: boolean;
+  /**
+   * Required for a11y - use {@link hideLabel} to visually hide the label, while
+   * still allowing it to be assigned to the control for screen readers.
+   */
   label: string;
   onChange: (newId: T) => void;
   options: ReadonlyArray<SegmentedButtonOption<T>>;
