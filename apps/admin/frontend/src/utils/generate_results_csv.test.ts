@@ -15,10 +15,10 @@ function parseCvrsAndAssertSuccess(
 
 describe('generateResultsCSV', () => {
   it('conversion of full tally matches snapshot', () => {
-    const { electionDefinition, cvrData, finalCsvData } =
+    const { electionDefinition, legacyCvrData, finalCsvData } =
       electionMinimalExhaustiveSampleFixtures;
     const { election } = electionDefinition;
-    const castVoteRecords = parseCvrsAndAssertSuccess(cvrData, election);
+    const castVoteRecords = parseCvrsAndAssertSuccess(legacyCvrData, election);
     const fullTally = computeFullElectionTally(
       election,
       new Set(castVoteRecords)

@@ -26,12 +26,12 @@ beforeEach(() => {
   jest.restoreAllMocks();
 });
 
-const { electionDefinition, standardCdfCvrReport } =
+const { electionDefinition, castVoteRecordReport } =
   electionMinimalExhaustiveSampleFixtures;
 
 async function getOfficialReportPath(): Promise<string> {
   return await modifyCastVoteRecordReport(
-    standardCdfCvrReport.asDirectoryPath(),
+    castVoteRecordReport.asDirectoryPath(),
     ({ CVR }) => ({
       ReportType: [CVRType.ReportType.OriginatingDeviceExport],
       OtherReportType: undefined,
@@ -60,7 +60,7 @@ test('happy path - mock election flow', async () => {
   const testExportTimestamp = '2022-07-01T11:21:41.000Z';
   insertUsbDrive(
     mockCastVoteRecordFileTree(electionDefinition, {
-      [testReportDirectoryName]: standardCdfCvrReport.asDirectoryPath(),
+      [testReportDirectoryName]: castVoteRecordReport.asDirectoryPath(),
     })
   );
   const availableCastVoteRecordFiles =
@@ -200,7 +200,7 @@ test('happy path - mock election flow', async () => {
     'machine_0000__3000_ballots__2022-07-01_11-21-41';
   const officialExportTimestamp = '2022-07-01T11:21:41.000Z';
   const officialReportDirectoryPath = await modifyCastVoteRecordReport(
-    standardCdfCvrReport.asDirectoryPath(),
+    castVoteRecordReport.asDirectoryPath(),
     () => ({
       ReportType: [CVRType.ReportType.OriginatingDeviceExport],
       OtherReportType: undefined,
@@ -263,7 +263,7 @@ test('adding a duplicate file returns OK to client but logs an error', async () 
   // initially, no files
   expect(await apiClient.getCastVoteRecordFiles()).toEqual([]);
 
-  const reportDirectoryPath = standardCdfCvrReport.asDirectoryPath();
+  const reportDirectoryPath = castVoteRecordReport.asDirectoryPath();
 
   // add file once
   void (await apiClient.addCastVoteRecordFile({
@@ -300,7 +300,7 @@ test('handles file with previously added entries by adding only the new entries'
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const initialReportDirectoryPath = await modifyCastVoteRecordReport(
-    standardCdfCvrReport.asDirectoryPath(),
+    castVoteRecordReport.asDirectoryPath(),
     ({ CVR }) => ({ CVR: CVR.take(10) })
   );
   // add file
@@ -312,7 +312,7 @@ test('handles file with previously added entries by adding only the new entries'
 
   // create file that is duplicate but with new entries
   const laterReportDirectoryPath = await modifyCastVoteRecordReport(
-    standardCdfCvrReport.asDirectoryPath(),
+    castVoteRecordReport.asDirectoryPath(),
     ({ CVR }) => ({ CVR: CVR.take(20) })
   );
   const addDuplicateEntriesResult = await apiClient.addCastVoteRecordFile({
@@ -362,7 +362,7 @@ test('error if report has invalid directory structure', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  const reportDirectoryPath = standardCdfCvrReport.asDirectoryPath();
+  const reportDirectoryPath = castVoteRecordReport.asDirectoryPath();
   fs.rmSync(join(reportDirectoryPath, CVR_BALLOT_LAYOUTS_SUBDIRECTORY), {
     recursive: true,
     force: true,
@@ -388,7 +388,7 @@ test('error if report metadata is not parseable', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const reportDirectoryPath = await modifyCastVoteRecordReport(
-    standardCdfCvrReport.asDirectoryPath(),
+    castVoteRecordReport.asDirectoryPath(),
     () => ({
       ReportType: ['not-a-report-type'] as unknown as CVRType.ReportType[],
     })
@@ -418,7 +418,7 @@ test('error if adding test report while in official mode', async () => {
   }));
 
   const addTestReportResult = await apiClient.addCastVoteRecordFile({
-    path: standardCdfCvrReport.asDirectoryPath(),
+    path: castVoteRecordReport.asDirectoryPath(),
   });
 
   expect(addTestReportResult.isErr()).toBeTruthy();
@@ -435,7 +435,7 @@ test('error if adding official report while in test mode', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   void (await apiClient.addCastVoteRecordFile({
-    path: standardCdfCvrReport.asDirectoryPath(),
+    path: castVoteRecordReport.asDirectoryPath(),
   }));
 
   const addOfficialReportResult = await apiClient.addCastVoteRecordFile({
@@ -461,7 +461,7 @@ test('error if a cast vote record not parseable', async () => {
   }
 
   const reportDirectoryPath = await modifyCastVoteRecordReport(
-    standardCdfCvrReport.asDirectoryPath(),
+    castVoteRecordReport.asDirectoryPath(),
     ({ CVR }) => ({
       CVR: CVR.take(10).chain(badCastVoteRecordGenerator()),
     })
@@ -487,7 +487,7 @@ test('error if a cast vote record is somehow invalid', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const reportDirectoryPath = await modifyCastVoteRecordReport(
-    standardCdfCvrReport.asDirectoryPath(),
+    castVoteRecordReport.asDirectoryPath(),
     ({ CVR }) => ({
       CVR: CVR.take(10).map((unparsed) => {
         return {
@@ -519,14 +519,14 @@ test('error if cast vote records from different files share same ballot id but h
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   void (await apiClient.addCastVoteRecordFile({
-    path: standardCdfCvrReport.asDirectoryPath(),
+    path: castVoteRecordReport.asDirectoryPath(),
   }));
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(3000);
 
   const reportDirectoryPath = await modifyCastVoteRecordReport(
-    standardCdfCvrReport.asDirectoryPath(),
+    castVoteRecordReport.asDirectoryPath(),
     ({ CVR }) => ({
       CVR: CVR.take(10).map((unparsed) => {
         return {
@@ -557,7 +557,7 @@ test('error if a layout is invalid', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  const reportDirectoryPath = standardCdfCvrReport.asDirectoryPath();
+  const reportDirectoryPath = castVoteRecordReport.asDirectoryPath();
 
   // Overwrite a layout file with an invalid layout
   const layoutsDirectoryPath = join(

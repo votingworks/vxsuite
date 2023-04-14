@@ -24,7 +24,7 @@ beforeEach(() => {
 test('getWriteIns', async () => {
   const { apiClient, auth, workspace } = buildTestEnvironment();
 
-  const { electionDefinition, standardCdfCvrReport } =
+  const { electionDefinition, castVoteRecordReport } =
     electionMinimalExhaustiveSampleFixtures;
   const electionId = await configureMachine(
     apiClient,
@@ -34,7 +34,7 @@ test('getWriteIns', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   void (await apiClient.addCastVoteRecordFile({
-    path: standardCdfCvrReport.asDirectoryPath(),
+    path: castVoteRecordReport.asDirectoryPath(),
   }));
 
   expect(await apiClient.getWriteIns()).toHaveLength(
@@ -56,13 +56,13 @@ test('getWriteIns', async () => {
 test('transcribeWriteIn', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
-  const { electionDefinition, standardCdfCvrReport } =
+  const { electionDefinition, castVoteRecordReport } =
     electionMinimalExhaustiveSampleFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   void (await apiClient.addCastVoteRecordFile({
-    path: standardCdfCvrReport.asDirectoryPath(),
+    path: castVoteRecordReport.asDirectoryPath(),
   }));
 
   const [writeInRecord] = await apiClient.getWriteIns({ limit: 1 });
@@ -88,13 +88,13 @@ test('transcribeWriteIn', async () => {
 test('getWriteInAdjudications', async () => {
   const { auth, apiClient } = buildTestEnvironment();
 
-  const { electionDefinition, standardCdfCvrReport } =
+  const { electionDefinition, castVoteRecordReport } =
     electionMinimalExhaustiveSampleFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   void (await apiClient.addCastVoteRecordFile({
-    path: standardCdfCvrReport.asDirectoryPath(),
+    path: castVoteRecordReport.asDirectoryPath(),
   }));
 
   expect(await apiClient.getWriteInAdjudications()).toEqual([]);
@@ -153,14 +153,14 @@ test('getWriteInAdjudications', async () => {
 test('write-in adjudication lifecycle', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
-  const { electionDefinition, standardCdfCvrReport } =
+  const { electionDefinition, castVoteRecordReport } =
     electionMinimalExhaustiveSampleFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   // upload the CVR file
   void (await apiClient.addCastVoteRecordFile({
-    path: standardCdfCvrReport.asDirectoryPath(),
+    path: castVoteRecordReport.asDirectoryPath(),
   }));
 
   // focus on this contest
@@ -415,14 +415,14 @@ test('write-in adjudication lifecycle', async () => {
 test('write-in summary filtered by contestId & status', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
-  const { electionDefinition, standardCdfCvrReport } =
+  const { electionDefinition, castVoteRecordReport } =
     electionMinimalExhaustiveSampleFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   // upload the CVR file
   void (await apiClient.addCastVoteRecordFile({
-    path: standardCdfCvrReport.asDirectoryPath(),
+    path: castVoteRecordReport.asDirectoryPath(),
   }));
 
   // focus on this contest

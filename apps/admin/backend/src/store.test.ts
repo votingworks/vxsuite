@@ -53,7 +53,7 @@ test('assert election exists', () => {
 });
 
 test('get write-in adjudication records', async () => {
-  const { standardCdfCvrReport } = electionMinimalExhaustiveSampleFixtures;
+  const { castVoteRecordReport } = electionMinimalExhaustiveSampleFixtures;
 
   const store = Store.memoryStore();
   const electionId = store.addElection(
@@ -65,7 +65,7 @@ test('get write-in adjudication records', async () => {
   await addCastVoteRecordReport({
     store,
     reportDirectoryPath: await modifyCastVoteRecordReport(
-      standardCdfCvrReport.asDirectoryPath(),
+      castVoteRecordReport.asDirectoryPath(),
       ({ CVR }) => ({ CVR: CVR.take(2) })
     ),
     exportedTimestamp: '2021-09-02T22:27:58.327Z',
@@ -160,7 +160,7 @@ test('get write-in adjudication records', async () => {
 });
 
 test('write-in adjudication lifecycle', async () => {
-  const { standardCdfCvrReport } = electionMinimalExhaustiveSampleFixtures;
+  const { castVoteRecordReport } = electionMinimalExhaustiveSampleFixtures;
 
   const store = Store.memoryStore();
   const electionId = store.addElection(
@@ -172,7 +172,7 @@ test('write-in adjudication lifecycle', async () => {
   await addCastVoteRecordReport({
     store,
     reportDirectoryPath: await modifyCastVoteRecordReport(
-      standardCdfCvrReport.asDirectoryPath(),
+      castVoteRecordReport.asDirectoryPath(),
       ({ CVR }) => ({ CVR: CVR.take(2) })
     ),
     exportedTimestamp: '2021-09-02T22:27:58.327Z',

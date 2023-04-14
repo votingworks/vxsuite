@@ -1,0 +1,253 @@
+{
+  "pageSize": {
+    "width": 1224,
+    "height": 1584
+  },
+  "metadata": {
+    "electionHash": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+    "precinctId": "precinct-2",
+    "ballotStyleId": "2F",
+    "locales": {
+      "primary": "en-US"
+    },
+    "pageNumber": 1,
+    "isTestMode": true,
+    "ballotType": 0
+  },
+  "contests": [
+    {
+      "contestId": "best-animal-fish",
+      "bounds": {
+        "x": 429,
+        "y": 43,
+        "width": 366,
+        "height": 263
+      },
+      "corners": [
+        {
+          "x": 429,
+          "y": 43
+        },
+        {
+          "x": 794,
+          "y": 43
+        },
+        {
+          "x": 429,
+          "y": 305
+        },
+        {
+          "x": 794,
+          "y": 305
+        }
+      ],
+      "options": [
+        {
+          "bounds": {
+            "x": 429,
+            "y": 163,
+            "width": 366,
+            "height": 69
+          },
+          "target": {
+            "bounds": {
+              "x": 454,
+              "y": 165,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 456,
+              "y": 167,
+              "width": 28,
+              "height": 17
+            }
+          }
+        },
+        {
+          "bounds": {
+            "x": 429,
+            "y": 232,
+            "width": 366,
+            "height": 72
+          },
+          "target": {
+            "bounds": {
+              "x": 454,
+              "y": 234,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 456,
+              "y": 236,
+              "width": 28,
+              "height": 17
+            }
+          }
+        }
+      ]
+    },
+    {
+      "contestId": "aquarium-council-fish",
+      "bounds": {
+        "x": 429,
+        "y": 327,
+        "width": 366,
+        "height": 524
+      },
+      "corners": [
+        {
+          "x": 429,
+          "y": 327
+        },
+        {
+          "x": 794,
+          "y": 327
+        },
+        {
+          "x": 429,
+          "y": 850
+        },
+        {
+          "x": 794,
+          "y": 850
+        }
+      ],
+      "options": [
+        {
+          "bounds": {
+            "x": 429,
+            "y": 446,
+            "width": 366,
+            "height": 71
+          },
+          "target": {
+            "bounds": {
+              "x": 454,
+              "y": 448,
+              "width": 32,
+              "height": 22
+            },
+            "inner": {
+              "x": 456,
+              "y": 450,
+              "width": 28,
+              "height": 18
+            }
+          }
+        },
+        {
+          "bounds": {
+            "x": 429,
+            "y": 517,
+            "width": 366,
+            "height": 69
+          },
+          "target": {
+            "bounds": {
+              "x": 454,
+              "y": 519,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 456,
+              "y": 521,
+              "width": 28,
+              "height": 17
+            }
+          }
+        },
+        {
+          "bounds": {
+            "x": 429,
+            "y": 586,
+            "width": 366,
+            "height": 70
+          },
+          "target": {
+            "bounds": {
+              "x": 454,
+              "y": 588,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 456,
+              "y": 590,
+              "width": 28,
+              "height": 17
+            }
+          }
+        },
+        {
+          "bounds": {
+            "x": 429,
+            "y": 656,
+            "width": 366,
+            "height": 71
+          },
+          "target": {
+            "bounds": {
+              "x": 454,
+              "y": 658,
+              "width": 32,
+              "height": 22
+            },
+            "inner": {
+              "x": 456,
+              "y": 660,
+              "width": 28,
+              "height": 18
+            }
+          }
+        },
+        {
+          "bounds": {
+            "x": 429,
+            "y": 727,
+            "width": 366,
+            "height": 55
+          },
+          "target": {
+            "bounds": {
+              "x": 454,
+              "y": 729,
+              "width": 32,
+              "height": 21
+            },
+            "inner": {
+              "x": 456,
+              "y": 731,
+              "width": 28,
+              "height": 17
+            }
+          }
+        },
+        {
+          "bounds": {
+            "x": 429,
+            "y": 782,
+            "width": 366,
+            "height": 67
+          },
+          "target": {
+            "bounds": {
+              "x": 454,
+              "y": 784,
+              "width": 32,
+              "height": 22
+            },
+            "inner": {
+              "x": 456,
+              "y": 786,
+              "width": 28,
+              "height": 18
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

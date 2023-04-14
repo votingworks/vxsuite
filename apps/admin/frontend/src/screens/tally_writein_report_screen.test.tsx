@@ -17,12 +17,13 @@ let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let logger: Logger;
 let apiMock: ApiMock;
 
-const { electionDefinition, cvrData } = electionMinimalExhaustiveSampleFixtures;
+const { electionDefinition, legacyCvrData } =
+  electionMinimalExhaustiveSampleFixtures;
 
 async function getFullElectionTally() {
   return computeFullElectionTally(
     electionDefinition.election,
-    new Set(await fileDataToCastVoteRecords(cvrData, electionDefinition))
+    new Set(await fileDataToCastVoteRecords(legacyCvrData, electionDefinition))
   );
 }
 

@@ -16,7 +16,7 @@ const { election } = electionMinimalExhaustiveSampleFixtures.electionDefinition;
 const fullElectionTally = computeTallyWithPrecomputedCategories(
   election,
   new Set(
-    parseCvrsFileContents(electionMinimalExhaustiveSampleFixtures.cvrData)
+    parseCvrsFileContents(electionMinimalExhaustiveSampleFixtures.legacyCvrData)
   ),
   [TallyCategory.Party]
 );

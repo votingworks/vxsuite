@@ -1,16 +1,16 @@
-import { asText as standardCvrsAsText } from './cvrFiles/standard.jsonl';
-import { asText as standardLiveCvrsAsText } from './cvrFiles/standard.live.jsonl';
+import { asText as standardCvrsAsText } from './legacy-cvr-files/standard.jsonl';
+import { asText as standardLiveCvrsAsText } from './legacy-cvr-files/standard.live.jsonl';
 import { asText as batchResultsCsvAsText } from './csvFiles/batchResults.csv';
 import { asText as finalResultsCsvAsText } from './csvFiles/finalResults.csv';
 
-export * as standardCvrFile from './cvrFiles/standard.jsonl';
-export * as standardLiveCvrFile from './cvrFiles/standard.live.jsonl';
-export * as partial1CvrFile from './cvrFiles/partial1.jsonl';
-export * as partial2CvrFile from './cvrFiles/partial2.jsonl';
-export * as standardCdfCvrReport from './cdf-cvr-files/standard';
+export * as legacyStandardCvrFile from './legacy-cvr-files/standard.jsonl';
+export * as legacyStandardLiveCvrFile from './legacy-cvr-files/standard.live.jsonl';
+export * as legacyPartial1CvrFile from './legacy-cvr-files/partial1.jsonl';
+export * as legacyPartial2CvrFile from './legacy-cvr-files/partial2.jsonl';
+export * as castVoteRecordReport from './cvr-files/standard';
 
-export const cvrData = standardCvrsAsText();
-export const liveCvrsData = standardLiveCvrsAsText();
+export const legacyCvrData = standardCvrsAsText();
+export const legacyLiveCvrsData = standardLiveCvrsAsText();
 export const batchCsvData = batchResultsCsvAsText();
 export const finalCsvData = finalResultsCsvAsText();
 

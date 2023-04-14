@@ -1,6 +1,6 @@
-import { asText as standardCvrAsText } from './cvrFiles/standard.jsonl';
+import { asText as standardCvrAsText } from './legacy-cvr-files/standard.jsonl';
 
-export * as cvrFile from './cvrFiles/standard.jsonl';
-export const cvrData = standardCvrAsText();
+export * as legacyCvrFile from './legacy-cvr-files/standard.jsonl';
+export const legacyCvrData = standardCvrAsText();
 
 export { election, electionDefinition } from './election.json';

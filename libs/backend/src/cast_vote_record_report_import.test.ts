@@ -19,7 +19,7 @@ import {
 } from './scan';
 
 const cdfCvrReport =
-  electionMinimalExhaustiveSampleFixtures.standardCdfCvrReport;
+  electionMinimalExhaustiveSampleFixtures.castVoteRecordReport;
 
 describe('getCastVoteRecordReportImport', () => {
   test('imports a valid cast vote record report', async () => {
