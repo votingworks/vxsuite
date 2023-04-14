@@ -165,7 +165,7 @@ describe('buildCVRContestsFromVotes', () => {
       Undervotes: 0,
       CVRContestSelection: expect.anything(),
     });
-    for (const contestSelection of cvrContest!.CVRContestSelection!) {
+    for (const contestSelection of cvrContest!.CVRContestSelection) {
       expect(contestSelection).toMatchObject({
         SelectionPosition: [
           expect.objectContaining({

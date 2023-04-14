@@ -175,6 +175,7 @@ describe('convertCastVoteRecordVotesToLegacyVotes', () => {
         '@id': 'test',
         '@type': 'CVR.CVRSnapshot',
         Type: CVR.CVRType.Modified,
+        CVRContest: [],
       })
     ).toMatchObject({});
   });
@@ -186,11 +187,6 @@ describe('convertCastVoteRecordVotesToLegacyVotes', () => {
         '@type': 'CVR.CVRSnapshot',
         Type: CVR.CVRType.Modified,
         CVRContest: [
-          {
-            '@type': 'CVR.CVRContest',
-            ContestId: 'null',
-            // should be ignored because no contest selections
-          },
           {
             '@type': 'CVR.CVRContest',
             ContestId: 'mayor',
@@ -229,23 +225,11 @@ describe('convertCastVoteRecordVotesToLegacyVotes', () => {
                   },
                 ],
               },
-              {
-                '@type': 'CVR.CVRContestSelection',
-                // should be ignored because no contest selection id
-                SelectionPosition: [
-                  {
-                    '@type': 'CVR.SelectionPosition',
-
-                    HasIndication: CVR.IndicationStatus.Yes,
-                    NumberVotes: 1,
-                  },
-                ],
-              },
             ],
           },
         ],
       })
-    ).toMatchObject({ mayor: ['frodo', 'gandalf'] });
+    ).toEqual({ mayor: ['frodo', 'gandalf'] });
   });
 });
 

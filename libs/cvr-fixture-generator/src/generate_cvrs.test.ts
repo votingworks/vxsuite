@@ -200,9 +200,9 @@ test('can include ballot image references for write-ins', async () => {
     ballotPackage: await mockBallotPackage(),
   })) {
     let cvrHasWriteIn = false;
-    const selectionPositions = cvr.CVRSnapshot[0]!.CVRContest!.flatMap(
-      (cvrContest) => cvrContest.CVRContestSelection!
-    )?.flatMap((cvrContestSelection) => cvrContestSelection.SelectionPosition);
+    const selectionPositions = cvr.CVRSnapshot[0]!.CVRContest.flatMap(
+      (cvrContest) => cvrContest.CVRContestSelection
+    ).flatMap((cvrContestSelection) => cvrContestSelection.SelectionPosition);
 
     for (const selectionPosition of selectionPositions) {
       if (selectionPosition.CVRWriteIn) {

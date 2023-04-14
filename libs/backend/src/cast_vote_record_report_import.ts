@@ -239,11 +239,7 @@ export function convertCastVoteRecordVotesToLegacyVotes(
   cvrSnapshot: CVR.CVRSnapshot
 ): Record<string, string[]> {
   const votes: Record<string, string[]> = {};
-  if (!cvrSnapshot.CVRContest) return votes;
-
   for (const cvrContest of cvrSnapshot.CVRContest) {
-    if (!cvrContest.CVRContestSelection) continue;
-
     const contestSelectionIds: string[] = [];
     for (const cvrContestSelection of cvrContest.CVRContestSelection) {
       // We assume every contest selection has only one selection position,
@@ -252,10 +248,7 @@ export function convertCastVoteRecordVotesToLegacyVotes(
       const selectionPosition = cvrContestSelection.SelectionPosition[0];
       assert(selectionPosition);
 
-      if (
-        cvrContestSelection.ContestSelectionId &&
-        selectionPosition.HasIndication === CVR.IndicationStatus.Yes
-      ) {
+      if (selectionPosition.HasIndication === CVR.IndicationStatus.Yes) {
         contestSelectionIds.push(cvrContestSelection.ContestSelectionId);
       }
     }

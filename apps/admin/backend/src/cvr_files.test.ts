@@ -349,7 +349,13 @@ describe('validateCastVoteRecord', () => {
         CVRSnapshot: [
           {
             ...validCastVoteRecordSnapshot,
-            CVRContest: [{ '@type': 'CVR.CVRContest', ContestId: 'wrong' }],
+            CVRContest: [
+              {
+                '@type': 'CVR.CVRContest',
+                ContestId: 'wrong',
+                CVRContestSelection: [],
+              },
+            ],
           },
         ],
       },

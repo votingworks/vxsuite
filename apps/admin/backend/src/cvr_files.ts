@@ -157,22 +157,13 @@ function snapshotHasValidContestReferences(
   snapshot: CVR.CVRSnapshot,
   electionContests: Contests
 ): Result<void, ContestReferenceError> {
-  // TODO: this field should probably be required
-  if (!snapshot.CVRContest) return ok();
-
   for (const cvrContest of snapshot.CVRContest) {
     const electionContest = electionContests.find(
       (contest) => contest.id === cvrContest.ContestId
     );
     if (!electionContest) return err('invalid-contest');
 
-    const cvrContestSelections = cvrContest.CVRContestSelection;
-
-    if (!cvrContestSelections) return ok();
-
-    for (const cvrContestSelection of cvrContestSelections) {
-      // TODO: this field should probably be required
-      if (!cvrContestSelection.ContestSelectionId) return ok();
+    for (const cvrContestSelection of cvrContest.CVRContestSelection) {
       if (
         !getValidContestOptions(electionContest).includes(
           cvrContestSelection.ContestSelectionId
@@ -200,14 +191,7 @@ function cvrHasValidWriteInImageReferences(cvr: CVR.CVR) {
   const writeInImageReferences = cvr.CVRSnapshot.flatMap(
     (snapshot) => snapshot.CVRContest
   )
-    .filter(
-      (cvrContest): cvrContest is CVR.CVRContest => cvrContest !== undefined
-    )
     .flatMap((cvrContest) => cvrContest.CVRContestSelection)
-    .filter(
-      (cvrContestSelection): cvrContestSelection is CVR.CVRContestSelection =>
-        cvrContestSelection !== undefined
-    )
     .flatMap((cvrContestSelection) => cvrContestSelection.SelectionPosition)
     .filter(
       (selectionPosition): selectionPosition is CVR.SelectionPosition =>
