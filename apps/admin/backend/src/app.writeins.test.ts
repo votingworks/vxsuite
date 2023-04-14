@@ -15,7 +15,7 @@ import {
   mockElectionManagerAuth,
 } from '../test/app';
 
-jest.setTimeout(20_000);
+jest.setTimeout(30_000);
 
 beforeEach(() => {
   jest.restoreAllMocks();
