@@ -550,15 +550,12 @@ export async function addCastVoteRecordReport({
     if (existingFileId) {
       return ok({
         id: existingFileId,
-        alreadyPresent: store.getCastVoteRecordCountByFileId(existingFileId),
         exportedTimestamp,
         fileMode: currentFileMode,
         fileName: filename,
-        newlyAdded: 0,
-        // TODO: Get scannerIds from the existing file OR remove it entirely
-        // because it is not being used in the frontend.
-        scannerIds: [],
         wasExistingFile: true,
+        newlyAdded: 0,
+        alreadyPresent: store.getCastVoteRecordCountByFileId(existingFileId),
       });
     }
 
@@ -730,7 +727,6 @@ export async function addCastVoteRecordReport({
       fileMode: reportFileMode,
       fileName: filename,
       newlyAdded,
-      scannerIds: [...scannerIds],
       wasExistingFile: false,
     });
   });

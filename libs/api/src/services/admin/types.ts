@@ -50,7 +50,6 @@ export type CvrFileImportInfo = {
   fileMode: CvrFileMode;
   fileName: string;
   newlyAdded: number;
-  scannerIds: string[];
   wasExistingFile: boolean;
 };
 

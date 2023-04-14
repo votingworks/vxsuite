@@ -93,7 +93,6 @@ test('happy path - mock election flow', async () => {
     exportedTimestamp: testExportTimestamp,
     alreadyPresent: 0,
     newlyAdded: 3000,
-    scannerIds: ['scanner'],
     fileMode: 'test',
     fileName: testReportDirectoryName,
   });
