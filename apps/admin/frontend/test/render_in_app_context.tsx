@@ -30,6 +30,7 @@ import {
 } from '@votingworks/test-utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/admin-backend';
+import { mockUsbDrive } from '@votingworks/ui';
 import { render as testRender, RenderResult } from './react_testing_library';
 import { AppContext } from '../src/contexts/app_context';
 import { Iso8601Timestamp, ExportableTallies } from '../src/config/types';
@@ -38,7 +39,6 @@ import {
   ElectionManagerStoreBackend,
   ElectionManagerStoreMemoryBackend,
 } from '../src/lib/backends';
-import { mockUsbDrive } from './helpers/mock_usb_drive';
 import { ApiClient, ApiClientContext, createQueryClient } from '../src/api';
 import { ApiMock } from './helpers/api_mock';
 

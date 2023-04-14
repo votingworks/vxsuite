@@ -672,6 +672,7 @@ export function AppRoot({
       />
     );
   }
+
   if (isSystemAdministratorAuth(authStatus)) {
     return (
       <React.Fragment>
@@ -744,6 +745,7 @@ export function AppRoot({
           screenReader={screenReader}
           pollsState={pollsState}
           logger={logger}
+          usbDrive={usbDrive}
         />
         <SessionTimeLimitTracker electionHash={electionHash} />
       </React.Fragment>

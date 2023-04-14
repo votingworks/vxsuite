@@ -12,6 +12,7 @@ import {
 } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { mockUsbDrive } from '@votingworks/ui';
 import {
   act,
   fireEvent,
@@ -66,6 +67,7 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
           screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
           pollsState="polls_open"
           logger={fakeLogger()}
+          usbDrive={mockUsbDrive('mounted')}
           {...props}
         />
       </QueryClientProvider>
@@ -139,4 +141,12 @@ test('precinct selection disabled if single precinct election', async () => {
   screen.getByText(
     'Precinct cannot be changed because there is only one precinct configured for this election.'
   );
+});
+
+test('renders a USB controller button', async () => {
+  renderScreen({ usbDrive: mockUsbDrive('absent') });
+  await screen.findByText('No USB');
+
+  renderScreen({ usbDrive: mockUsbDrive('mounted') });
+  await screen.findByText('Eject USB');
 });

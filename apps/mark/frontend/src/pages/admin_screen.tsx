@@ -18,6 +18,8 @@ import {
   SetClockButton,
   TestMode,
   Text,
+  UsbControllerButton,
+  UsbDrive,
 } from '@votingworks/ui';
 import { Logger } from '@votingworks/logging';
 // eslint-disable-next-line vx/gts-no-import-export-type
@@ -36,6 +38,7 @@ export interface AdminScreenProps {
   screenReader: ScreenReader;
   pollsState: PollsState;
   logger: Logger;
+  usbDrive: UsbDrive;
 }
 
 export function AdminScreen({
@@ -50,6 +53,7 @@ export function AdminScreen({
   screenReader,
   pollsState,
   logger,
+  usbDrive,
 }: AdminScreenProps): JSX.Element {
   const { election } = electionDefinition;
 
@@ -143,6 +147,13 @@ export function AdminScreen({
               Unconfigure Machine
             </Button>
           </p>
+          <h2>USB</h2>
+          <UsbControllerButton
+            small={false}
+            primary
+            usbDriveStatus={usbDrive.status}
+            usbDriveEject={() => usbDrive.eject('election_manager')}
+          />
         </Prose>
       </Main>
       {election && (

@@ -36,6 +36,7 @@ export * from './loading';
 export * from './loading_animation';
 export * from './logo_mark';
 export * from './main';
+export * from './mock_usb_drive';
 export * from './modal';
 export * from './number_pad';
 export * from './precinct_scanner_tally_report';

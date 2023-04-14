@@ -5,10 +5,10 @@ import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { UsbDriveStatus } from '@votingworks/ui';
+import { mockUsbDrive } from '@votingworks/ui';
 import { fireEvent, waitFor } from '../../test/react_testing_library';
 import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
   const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
