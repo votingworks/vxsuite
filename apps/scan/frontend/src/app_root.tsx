@@ -115,6 +115,10 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
     return <CardErrorScreen />;
   }
 
+  if (authStatus.status === 'logged_out' && authStatus.reason !== 'no_card') {
+    return <InvalidCardScreen />;
+  }
+
   if (
     authStatus.status === 'checking_pin' &&
     authStatus.user.role === 'system_administrator'
@@ -229,10 +233,6 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
         logger={logger}
       />
     );
-  }
-
-  if (authStatus.status === 'logged_out' && authStatus.reason !== 'no_card') {
-    return <InvalidCardScreen />;
   }
 
   // When no card is inserted, we're in "voter" mode
