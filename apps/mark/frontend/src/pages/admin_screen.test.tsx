@@ -13,6 +13,7 @@ import {
 import { fakeLogger } from '@votingworks/logging';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { mockUsbDrive } from '@votingworks/ui';
+import userEvent from '@testing-library/user-event';
 import {
   act,
   fireEvent,
@@ -149,4 +150,13 @@ test('renders a USB controller button', async () => {
 
   renderScreen({ usbDrive: mockUsbDrive('mounted') });
   await screen.findByText('Eject USB');
+});
+
+test('USB button calls eject', async () => {
+  const usbDrive = mockUsbDrive('mounted');
+
+  renderScreen({ usbDrive });
+  const ejectButton = await screen.findByText('Eject USB');
+  userEvent.click(ejectButton);
+  expect(usbDrive.eject).toHaveBeenCalledTimes(1);
 });
