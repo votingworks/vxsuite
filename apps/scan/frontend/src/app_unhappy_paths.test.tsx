@@ -14,6 +14,8 @@ import userEvent from '@testing-library/user-event';
 import { ServerError } from '@votingworks/grout';
 import { fakeLogger } from '@votingworks/logging';
 import { deferred } from '@votingworks/basics';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { PrecinctScannerConfig } from '@votingworks/scan-backend';
 import { act, render, screen, waitFor } from '../test/react_testing_library';
 import { scannerStatus } from '../test/helpers/helpers';
 import {
@@ -89,35 +91,58 @@ test('backend fails to unconfigure', async () => {
   });
 });
 
-test('Show invalid card screen when unsupported cards are given', async () => {
-  apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus(statusNoPaper);
+test.each<{
+  description: string;
+  defaultConfigOverrides: Partial<PrecinctScannerConfig>;
+  expectedHeadingWhenNoCard: string;
+}>([
+  {
+    description: 'machine is configured',
+    defaultConfigOverrides: {},
+    expectedHeadingWhenNoCard: 'Polls Closed',
+  },
+  {
+    description: 'machine is unconfigured',
+    defaultConfigOverrides: {
+      electionDefinition: undefined,
+      precinctSelection: undefined,
+    },
+    expectedHeadingWhenNoCard: 'VxScan is not configured',
+  },
+])(
+  'shows invalid card screen when invalid cards are inserted - $description',
+  async ({ defaultConfigOverrides, expectedHeadingWhenNoCard }) => {
+    apiMock.expectGetConfig(defaultConfigOverrides);
+    apiMock.expectGetScannerStatus(statusNoPaper);
+    renderApp();
 
-  renderApp();
-  await screen.findByText('Polls Closed');
+    await screen.findByText(expectedHeadingWhenNoCard);
 
-  // Insert an invalid card
-  apiMock.setAuthStatus({
-    status: 'logged_out',
-    reason: 'invalid_user_on_card',
-  });
-  await screen.findByText('Invalid Card');
+    apiMock.setAuthStatus({
+      status: 'logged_out',
+      reason: 'invalid_user_on_card',
+    });
+    await screen.findByText('Invalid Card');
 
-  // Remove card
-  apiMock.removeCard();
-  await screen.findByText('Polls Closed');
+    apiMock.removeCard();
+    await screen.findByText(expectedHeadingWhenNoCard);
 
-  // Insert a poll worker card which is invalid
-  apiMock.setAuthStatus({
-    status: 'logged_out',
-    reason: 'poll_worker_wrong_election',
-  });
-  await screen.findByText('Invalid Card');
+    apiMock.setAuthStatus({
+      status: 'logged_out',
+      reason: 'election_manager_wrong_election',
+    });
+    await screen.findByText('Invalid Card');
 
-  // Remove card
-  apiMock.removeCard();
-  await screen.findByText('Polls Closed');
-});
+    apiMock.setAuthStatus({
+      status: 'logged_out',
+      reason: 'poll_worker_wrong_election',
+    });
+    await screen.findByText('Invalid Card');
+
+    apiMock.removeCard();
+    await screen.findByText(expectedHeadingWhenNoCard);
+  }
+);
 
 test('show card backwards screen when card connection error occurs', async () => {
   apiMock.expectGetConfig();
