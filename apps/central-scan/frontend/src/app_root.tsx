@@ -500,7 +500,13 @@ export function AppRoot({
     return (
       <UnlockMachineScreen
         auth={authStatus}
-        checkPin={(pin) => checkPinMutation.mutate({ pin })}
+        checkPin={async (pin) => {
+          try {
+            await checkPinMutation.mutateAsync({ pin });
+          } catch {
+            // Handled by default query client error handling
+          }
+        }}
       />
     );
   }

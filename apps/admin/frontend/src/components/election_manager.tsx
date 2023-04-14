@@ -53,7 +53,13 @@ export function ElectionManager(): JSX.Element {
     return (
       <UnlockMachineScreen
         auth={auth}
-        checkPin={(pin) => checkPinMutation.mutate({ pin })}
+        checkPin={async (pin) => {
+          try {
+            await checkPinMutation.mutateAsync({ pin });
+          } catch {
+            // Handled by default query client error handling
+          }
+        }}
       />
     );
   }
