@@ -38,7 +38,9 @@ export function ScreenMainCenterChild({
   return (
     <Screen>
       {!isLiveMode && <TestMode />}
-      {ballotCount !== undefined && <ScannedBallotCount count={ballotCount} />}
+      {ballotCount !== undefined && electionDefinition && (
+        <ScannedBallotCount count={ballotCount} />
+      )}
       <Main padded centerChild style={{ position: 'relative' }}>
         {children}
       </Main>
