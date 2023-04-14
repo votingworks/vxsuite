@@ -159,6 +159,7 @@ test('double sheet on scan', async () => {
     {
       delays: {
         DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+        DELAY_JAM_WHEN_SCANNING: 50,
       },
     },
     async ({ apiClient, mockScanner, mockUsb, mockAuth }) => {

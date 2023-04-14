@@ -114,6 +114,7 @@ export interface Delays {
   DELAY_RECONNECT_ON_UNEXPECTED_ERROR: number;
   DELAY_RETRY_SCANNING: number;
   DELAY_WAIT_FOR_JAM_CLEARED: number;
+  DELAY_JAM_WHEN_SCANNING: number;
 }
 
 const defaultDelays: Delays = {
@@ -153,6 +154,9 @@ const defaultDelays: Delays = {
   // When we decide we're jammed, how long to wait before we transition to
   // `internal_jam`.
   DELAY_WAIT_FOR_JAM_CLEARED: 500,
+  // When scanning fails with a jam error the jam state may take a moment to stablize,
+  // delay before deciding what type of jam to proceed with.
+  DELAY_JAM_WHEN_SCANNING: 500,
 };
 
 function connectToCustom(createCustomClient: CreateCustomClient) {
@@ -830,6 +834,9 @@ function buildMachine({
               },
             },
             handle_paper_jam: {
+              after: { DELAY_JAM_WHEN_SCANNING: 'route_paper_jam' },
+            },
+            route_paper_jam: {
               invoke: pollPaperStatus,
               on: {
                 SCANNER_JAM: '#internal_jam',
