@@ -154,7 +154,7 @@ export function PollWorkerScreen({
         scannerReportData,
       });
     } catch {
-      // Handled by query client's default error handling
+      // Handled by default query client error handling
       return false;
     }
     return result.isOk();

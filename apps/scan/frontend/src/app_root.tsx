@@ -126,7 +126,13 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
     return (
       <UnlockMachineScreen
         auth={authStatus}
-        checkPin={(pin: string) => checkPinMutation.mutate({ pin })}
+        checkPin={async (pin) => {
+          try {
+            await checkPinMutation.mutateAsync({ pin });
+          } catch {
+            // Handled by default query client error handling
+          }
+        }}
       />
     );
   }
@@ -176,7 +182,13 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
     return (
       <UnlockMachineScreen
         auth={authStatus}
-        checkPin={(pin: string) => checkPinMutation.mutate({ pin })}
+        checkPin={async (pin) => {
+          try {
+            await checkPinMutation.mutateAsync({ pin });
+          } catch {
+            // Handled by default query client error handling
+          }
+        }}
       />
     );
   }

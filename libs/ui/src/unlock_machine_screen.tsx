@@ -41,7 +41,7 @@ type CheckingPinAuth =
 
 interface Props {
   auth: CheckingPinAuth;
-  checkPin: (pin: string) => void;
+  checkPin: (pin: string) => Promise<void>;
   grayBackground?: boolean;
 }
 
@@ -51,15 +51,18 @@ export function UnlockMachineScreen({
   grayBackground,
 }: Props): JSX.Element {
   const [currentPin, setCurrentPin] = useState('');
+  const [isCheckingPin, setIsCheckingPin] = useState(false);
   const now = useNow().toJSDate();
 
   const handleNumberEntry = useCallback(
-    (digit: number) => {
+    async (digit: number) => {
       const pin = `${currentPin}${digit}`.slice(0, SECURITY_PIN_LENGTH);
       setCurrentPin(pin);
       if (pin.length === SECURITY_PIN_LENGTH) {
-        checkPin(pin);
+        setIsCheckingPin(true);
+        await checkPin(pin);
         setCurrentPin('');
+        setIsCheckingPin(false);
       }
     },
     [checkPin, currentPin]
@@ -118,7 +121,7 @@ export function UnlockMachineScreen({
           <EnteredCode>{currentPinDisplayString}</EnteredCode>
           <NumberPadWrapper>
             <NumberPad
-              disabled={isLockedOut}
+              disabled={isCheckingPin || isLockedOut}
               onButtonPress={handleNumberEntry}
               onBackspace={handleBackspace}
               onClear={handleClear}
