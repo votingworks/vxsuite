@@ -245,6 +245,8 @@ export async function createCert({
     '-passin',
     `pass:${signingPrivateKeyPassword}`,
     '-CAcreateserial',
+    '-CAserial',
+    '/tmp/serial.txt',
     '-in',
     certSigningRequest,
     '-force_pubkey',
