@@ -11,9 +11,9 @@ import {
   OmniKeyCardReaderVendorId,
   FujitsuScannerVendorId,
   FujitsuFi7160ScannerProductId,
-  PlustekScannerVendorId,
-  PlustekVtm300ScannerProductId,
   isPrinter,
+  CustomScannerVendorId,
+  CustomA4ScannerProductId,
 } from './utils';
 
 const DEFAULT_BATTERY_STATUS: KioskBrowser.BatteryInfo = {
@@ -92,9 +92,9 @@ export class MemoryHardware implements Hardware {
     deviceAddress: 0,
     deviceName: 'Sheetfed Scanner',
     locationId: 0,
-    manufacturer: 'Plustek Inc.',
-    vendorId: PlustekScannerVendorId,
-    productId: PlustekVtm300ScannerProductId,
+    manufacturer: 'Custom',
+    vendorId: CustomScannerVendorId,
+    productId: CustomA4ScannerProductId,
     serialNumber: '',
   };
 

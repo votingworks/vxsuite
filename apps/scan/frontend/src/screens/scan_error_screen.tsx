@@ -197,7 +197,7 @@ export function BallotNotDroppedAfterAcceptPreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function UnexpectedPlustekErrorPreview(): JSX.Element {
+export function UnexpectedScannerErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}

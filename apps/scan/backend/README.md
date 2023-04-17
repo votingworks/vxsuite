@@ -1,6 +1,7 @@
 # VxScan Backend
 
-Backend server for the VxScan precinct scanner app.
+Backend server for the VxScan precinct scanner app. You'll need the Custom A4
+scanner to use this app with a real scanner.
 
 ## Setup
 
@@ -28,15 +29,6 @@ choose another location, set `SCAN_WORKSPACE` to the path to another folder:
 
 ```sh
 SCAN_WORKSPACE=/path/to/workspace pnpm start
-```
-
-### `SCANNER_MODEL`
-
-VxScan uses the Custom A4 scanner by default. To use the Plustek VTM-300, set
-`SCANNER_MODEL` to `plustek`:
-
-```sh
-SCANNER_MODEL=plustek pnpm start
 ```
 
 ## Testing

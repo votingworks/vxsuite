@@ -11,10 +11,10 @@ import {
   OmniKeyCardReaderProductId,
   OmniKeyCardReaderVendorId,
   FujitsuScannerVendorId,
-  PlustekScannerVendorId,
-  PlustekVtm300ScannerProductId,
   isBatchScanner,
   isPrecinctScanner,
+  CustomScannerVendorId,
+  CustomA4ScannerProductId,
 } from './utils';
 
 it('getHardware returns KioskHardware when window.kiosk is set', () => {
@@ -107,8 +107,8 @@ it('isPrecinctScanner matches a device with the right vendor and product id', ()
   expect(
     isPrecinctScanner(
       fakeDevice({
-        vendorId: PlustekScannerVendorId,
-        productId: PlustekVtm300ScannerProductId,
+        vendorId: CustomScannerVendorId,
+        productId: CustomA4ScannerProductId,
       })
     )
   ).toEqual(true);

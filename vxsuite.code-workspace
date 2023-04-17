@@ -121,10 +121,6 @@
       "path": "libs/custom-scanner"
     },
     {
-      "name": "libs/plustek-scanner",
-      "path": "libs/plustek-scanner"
-    },
-    {
       "name": "libs/res-to-ts",
       "path": "libs/res-to-ts"
     },
