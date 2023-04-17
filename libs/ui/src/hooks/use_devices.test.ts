@@ -4,6 +4,8 @@ import { fakeMarkerInfo, mockOf } from '@votingworks/test-utils';
 import {
   AccessibleControllerProductId,
   AccessibleControllerVendorId,
+  CustomA4ScannerProductId,
+  CustomScannerVendorId,
   FujitsuFi7160ScannerProductId,
   FujitsuScannerVendorId,
   isFeatureFlagEnabled,
@@ -12,8 +14,6 @@ import {
   OmniKeyCardReaderManufacturer,
   OmniKeyCardReaderProductId,
   OmniKeyCardReaderVendorId,
-  PlustekScannerVendorId,
-  PlustekVtm300ScannerProductId,
 } from '@votingworks/utils';
 import { BATTERY_POLLING_INTERVAL, Devices, useDevices } from './use_devices';
 
@@ -269,14 +269,14 @@ test('can connect batch scanner as expected', async () => {
 });
 
 test('can connect precinct scanner as expected', async () => {
-  const plustekDevice: KioskBrowser.Device = {
-    productId: PlustekVtm300ScannerProductId,
-    vendorId: PlustekScannerVendorId,
+  const customDevice: KioskBrowser.Device = {
+    productId: CustomA4ScannerProductId,
+    vendorId: CustomScannerVendorId,
     locationId: 0,
     deviceAddress: 0,
     deviceName: 'Sheetfed Scanner',
     serialNumber: '',
-    manufacturer: 'Plustek',
+    manufacturer: 'Custom',
   };
   const hardware = new MemoryHardware();
   const logger = fakeLogger();
@@ -286,9 +286,9 @@ test('can connect precinct scanner as expected', async () => {
   expect(result.current).toEqual(emptyDevices);
   expect(logger.log).toHaveBeenCalledTimes(0);
 
-  act(() => hardware.addDevice(plustekDevice));
+  act(() => hardware.addDevice(customDevice));
   rerender();
-  expect(result.current.precinctScanner).toEqual(plustekDevice);
+  expect(result.current.precinctScanner).toEqual(customDevice);
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DeviceAttached,
@@ -297,12 +297,12 @@ test('can connect precinct scanner as expected', async () => {
       message: expect.stringContaining(
         'New Precinct Scanner (Sheetfed Scanner)'
       ),
-      productId: PlustekVtm300ScannerProductId,
-      vendorId: PlustekScannerVendorId,
+      productId: CustomA4ScannerProductId,
+      vendorId: CustomScannerVendorId,
     })
   );
 
-  act(() => hardware.removeDevice(plustekDevice));
+  act(() => hardware.removeDevice(customDevice));
   rerender();
   expect(result.current.batchScanner).toBeUndefined();
   expect(logger.log).toHaveBeenCalledTimes(2);
@@ -311,8 +311,8 @@ test('can connect precinct scanner as expected', async () => {
     'system',
     expect.objectContaining({
       message: expect.stringContaining('Precinct Scanner (Sheetfed Scanner)'),
-      productId: PlustekVtm300ScannerProductId,
-      vendorId: PlustekScannerVendorId,
+      productId: CustomA4ScannerProductId,
+      vendorId: CustomScannerVendorId,
     })
   );
 

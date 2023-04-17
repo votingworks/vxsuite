@@ -47,11 +47,11 @@ export function isBatchScanner(device: KioskBrowser.Device): boolean {
   return device.vendorId === FujitsuScannerVendorId;
 }
 
-export const PlustekScannerVendorId = 0x7b3;
-export const PlustekVtm300ScannerProductId = 0xe37;
+export const CustomScannerVendorId = 0x0dd4;
+export const CustomA4ScannerProductId = 0x4103;
 export function isPrecinctScanner(device: KioskBrowser.Device): boolean {
   return (
-    device.vendorId === PlustekScannerVendorId &&
-    device.productId === PlustekVtm300ScannerProductId
+    device.vendorId === CustomScannerVendorId &&
+    device.productId === CustomA4ScannerProductId
   );
 }

@@ -1,13 +1,10 @@
 import * as customScanner from '@votingworks/custom-scanner';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import * as plustekScanner from '@votingworks/plustek-scanner';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
 import fs from 'fs';
-import { throwIllegalValue } from '@votingworks/basics';
-import { NODE_ENV, SCAN_WORKSPACE, SCANNER_MODEL } from './globals';
+import { NODE_ENV, SCAN_WORKSPACE } from './globals';
 import { createInterpreter, PrecinctScannerInterpreter } from './interpret';
-import * as plustekStateMachine from './scanners/plustek/state_machine';
 import * as customStateMachine from './scanners/custom/state_machine';
 import * as server from './server';
 import { PrecinctScannerStateMachine } from './types';
@@ -62,27 +59,12 @@ function createPrecinctScannerStateMachine(
   workspace: Workspace,
   interpreter: PrecinctScannerInterpreter
 ): PrecinctScannerStateMachine {
-  switch (SCANNER_MODEL) {
-    case 'custom':
-      return customStateMachine.createPrecinctScannerStateMachine({
-        createCustomClient: customScanner.openScanner,
-        workspace,
-        interpreter,
-        logger,
-      });
-
-    case 'plustek':
-      return plustekStateMachine.createPrecinctScannerStateMachine({
-        createPlustekClient: plustekScanner.createClient,
-        workspace,
-        interpreter,
-        logger,
-      });
-
-    /* istanbul ignore next */
-    default:
-      throwIllegalValue(SCANNER_MODEL);
-  }
+  return customStateMachine.createPrecinctScannerStateMachine({
+    createCustomClient: customScanner.openScanner,
+    workspace,
+    interpreter,
+    logger,
+  });
 }
 
 async function main(): Promise<number> {

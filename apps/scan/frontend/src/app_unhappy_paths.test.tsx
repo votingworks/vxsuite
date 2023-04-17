@@ -161,7 +161,7 @@ test('show card backwards screen when card connection error occurs', async () =>
   await screen.findByText('Polls Closed');
 });
 
-test('shows internal wiring message when there is no plustek scanner, but tablet is plugged in', async () => {
+test('shows internal wiring message when there is no scanner, but tablet is plugged in', async () => {
   apiMock.expectGetConfig();
   const hardware = MemoryHardware.buildStandard();
   hardware.setPrecinctScannerConnected(false);
@@ -175,7 +175,7 @@ test('shows internal wiring message when there is no plustek scanner, but tablet
   screen.getByText('Please ask a poll worker for help.');
 });
 
-test('shows power cable message when there is no plustek scanner and tablet is not plugged in', async () => {
+test('shows power cable message when there is no scanner and tablet is not plugged in', async () => {
   apiMock.expectGetConfig();
   const hardware = MemoryHardware.buildStandard();
   hardware.setPrecinctScannerConnected(false);
@@ -193,7 +193,7 @@ test('shows power cable message when there is no plustek scanner and tablet is n
   await screen.findByRole('heading', { name: 'Polls Closed' });
 });
 
-test('shows instructions to restart when the plustek crashed', async () => {
+test('shows instructions to restart when the scanner client crashed', async () => {
   apiMock.expectGetConfig({ pollsState: 'polls_open' });
   const hardware = MemoryHardware.buildStandard();
   hardware.setPrecinctScannerConnected(false);
