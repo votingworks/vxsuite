@@ -2,7 +2,6 @@ import { ok } from '@votingworks/basics';
 import {
   election,
   electionMinimalExhaustive,
-  electionPrimaryNonpartisanContests,
   primaryElection,
 } from '../../../test/election';
 import { Election } from '../../election';
@@ -90,12 +89,7 @@ function normalizeVxf(vxfElection: Election) {
   };
 }
 
-const elections = [
-  election,
-  primaryElection,
-  electionMinimalExhaustive,
-  electionPrimaryNonpartisanContests,
-];
+const elections = [election, primaryElection, electionMinimalExhaustive];
 
 for (const vxf of elections) {
   test(`round trip conversion for election fixture: ${vxf.title}`, () => {

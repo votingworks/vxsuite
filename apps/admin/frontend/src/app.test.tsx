@@ -5,7 +5,6 @@ import {
   electionWithMsEitherNeitherFixtures,
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
-  electionPrimaryNonpartisanContestsFixtures,
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleFixtures,
   electionWithMsEitherNeitherDefinition,
@@ -1237,9 +1236,9 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   screen.getByText(/Ballot Package Filename/);
 });
 
-test('primary election with nonpartisan contests', async () => {
+test('primary election flow', async () => {
   const { electionDefinition, legacyCvrData } =
-    electionPrimaryNonpartisanContestsFixtures;
+    electionMinimalExhaustiveSampleFixtures;
   const { renderApp } = buildApp(apiMock);
 
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
@@ -1260,7 +1259,7 @@ test('primary election with nonpartisan contests', async () => {
   userEvent.click(screen.getByText('Ballots'));
   userEvent.click(screen.getAllByText('View Ballot')[0]);
   screen.getByText(
-    hasTextAcrossElements('Ballot Style 1M for Precinct 1 has 6 contests')
+    hasTextAcrossElements('Ballot Style 1M for Precinct 1 has 5 contests')
   );
 
   // Confirm "L&A" page prints separate test deck tally reports for non-partisan contests
@@ -1294,7 +1293,7 @@ test('primary election with nonpartisan contests', async () => {
   );
   within(
     within(pages[2]).getByText('Total Ballots Cast').closest('tr')!
-  ).getByText('5,000');
+  ).getByText('3,000');
 
   // Check that nonpartisan races are broken out in party-specific reports
   userEvent.click(screen.getByText('Reports'));
@@ -1309,7 +1308,7 @@ test('primary election with nonpartisan contests', async () => {
   );
   within(
     within(partyReportPages[1]).getByText('Total Ballots Cast').closest('tr')!
-  ).getByText('2,525');
+  ).getByText('1,510');
 });
 
 test('usb formatting flows', async () => {

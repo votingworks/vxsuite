@@ -1,8 +1,8 @@
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireAmherstFixtures,
+  electionMinimalExhaustiveSampleFixtures,
   electionMultiPartyPrimaryFixtures,
-  electionPrimaryNonpartisanContestsFixtures,
   electionSample,
   electionSample2,
   electionSample2Fixtures,
@@ -1020,11 +1020,10 @@ describe('filterTalliesByParams in a primary election', () => {
 });
 
 test('filterTalliesByParams in a primary election with nonpartisan contests', () => {
-  const { election } = electionPrimaryNonpartisanContestsFixtures;
+  const { election, legacyCvrData } = electionMinimalExhaustiveSampleFixtures;
 
   // get the CVRs
-  const cvrsFileContents =
-    electionPrimaryNonpartisanContestsFixtures.legacyCvrData;
+  const cvrsFileContents = legacyCvrData;
   const castVoteRecords = parseCvrs(cvrsFileContents);
 
   const electionTally = computeTallyWithPrecomputedCategories(
@@ -1144,11 +1143,10 @@ describe('filterTallyContestsByParty', () => {
   });
 
   test('can filter by nonpartisan contests as expected', () => {
-    const { election } = electionPrimaryNonpartisanContestsFixtures;
+    const { election, legacyCvrData } = electionMinimalExhaustiveSampleFixtures;
 
     // get the CVRs
-    const cvrsFileContents =
-      electionPrimaryNonpartisanContestsFixtures.legacyCvrData;
+    const cvrsFileContents = legacyCvrData;
     const castVoteRecords = parseCvrs(cvrsFileContents);
 
     // tabulate it
@@ -1171,7 +1169,6 @@ describe('filterTallyContestsByParty', () => {
       'new-zoo-either',
       'new-zoo-pick',
       'fishing',
-      'kingdom',
     ]);
     expect(filteredTally.ballotCountsByVotingMethod).toStrictEqual(
       electionTally.ballotCountsByVotingMethod
