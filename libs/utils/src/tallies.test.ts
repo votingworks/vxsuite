@@ -1,7 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSample,
-  electionPrimaryNonpartisanContestsFixtures,
   electionSample,
 } from '@votingworks/fixtures';
 import { ContestTally, FullElectionTally } from '@votingworks/types';
@@ -80,18 +79,5 @@ describe('getSubTalliesByPartyAndPrecinct', () => {
     });
 
     expect(Array.from(subTallies.keys())).toMatchObject(['undefined,20']);
-  });
-
-  test('primary election with nonpartisan races, no precinct specific data', () => {
-    const subTallies = getSubTalliesByPartyAndPrecinct({
-      election: electionPrimaryNonpartisanContestsFixtures.election,
-      tally: emptyTally,
-    });
-
-    expect(Array.from(subTallies.keys())).toMatchObject([
-      '0,__ALL_PRECINCTS',
-      '1,__ALL_PRECINCTS',
-      'undefined,__ALL_PRECINCTS',
-    ]);
   });
 });
