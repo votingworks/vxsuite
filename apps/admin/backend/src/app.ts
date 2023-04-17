@@ -320,12 +320,14 @@ function buildApi({
       try {
         fileStat = await fs.stat(path);
       } catch (error) {
-        const message = `Failed to access cast vote record report for import.`;
+        const message = getAddCastVoteRecordReportErrorMessage({
+          type: 'report-access-failure',
+        });
         await logger.log(LogEventId.CvrLoaded, userRole, {
           message,
           disposition: 'failure',
           filename,
-          error: (error as Error).message,
+          error: message,
           result: 'Report not loaded, error shown to user.',
         });
         return err({
