@@ -398,7 +398,7 @@ describe('parseCastVoteRecordReportDirectoryName', () => {
     ).toBeUndefined();
   });
 
-  test('works end to end with generating the filename', () => {
+  test('works end to end with generating the report directory name', () => {
     const time = new Date(2020, 3, 14);
     const generatedName = generateCastVoteRecordReportDirectoryName(
       'machine',
@@ -412,6 +412,7 @@ describe('parseCastVoteRecordReportDirectoryName', () => {
       isTestModeResults: true,
       timestamp: time,
     });
+
     const generatedName2 = generateCastVoteRecordReportDirectoryName(
       '0004',
       0,
@@ -421,6 +422,19 @@ describe('parseCastVoteRecordReportDirectoryName', () => {
     expect(parseCastVoteRecordReportDirectoryName(generatedName2)).toEqual({
       machineId: '0004',
       numberOfBallots: 0,
+      isTestModeResults: false,
+      timestamp: time,
+    });
+
+    const generatedName3 = generateCastVoteRecordReportDirectoryName(
+      '0004',
+      1,
+      false,
+      time
+    );
+    expect(parseCastVoteRecordReportDirectoryName(generatedName3)).toEqual({
+      machineId: '0004',
+      numberOfBallots: 1,
       isTestModeResults: false,
       timestamp: time,
     });
