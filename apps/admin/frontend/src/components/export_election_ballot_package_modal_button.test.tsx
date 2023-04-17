@@ -10,6 +10,7 @@ import { UsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { iter } from '@votingworks/basics';
 import { interpretMultiPagePdfTemplate } from '@votingworks/ballot-interpreter-vx';
+import { mockUsbDrive } from '@votingworks/ui';
 import {
   fireEvent,
   screen,
@@ -21,7 +22,6 @@ import {
   renderInAppContext,
 } from '../../test/render_in_app_context';
 import { ExportElectionBallotPackageModalButton } from './export_election_ballot_package_modal_button';
-import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 jest.mock('@votingworks/ballot-interpreter-vx', () => ({

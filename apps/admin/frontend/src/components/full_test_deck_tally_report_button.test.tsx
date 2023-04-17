@@ -10,10 +10,10 @@ import {
   fakeUsbDrive,
 } from '@votingworks/test-utils';
 import React from 'react';
+import { mockUsbDrive } from '@votingworks/ui';
 import { screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { FullTestDeckTallyReportButton } from './full_test_deck_tally_report_button';
-import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 
 beforeEach(() => {
   const mockKiosk = fakeKiosk();

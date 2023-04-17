@@ -3,6 +3,7 @@ import React from 'react';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/ui';
 import { err } from '@votingworks/basics';
+import { mockUsbDrive } from '@votingworks/ui';
 import { fireEvent, render, waitFor } from '../../test/react_testing_library';
 import {
   ExportResultsModal,
@@ -14,7 +15,6 @@ import {
   createApiMock,
   provideApi,
 } from '../../test/helpers/mock_api_client';
-import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 
 let apiMock: ApiMock;
 

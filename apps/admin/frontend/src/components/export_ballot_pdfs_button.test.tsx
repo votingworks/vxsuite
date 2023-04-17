@@ -10,8 +10,8 @@ import { getDisplayElectionHash } from '@votingworks/types';
 import { UsbDriveStatus } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import React from 'react';
+import { mockUsbDrive } from '@votingworks/ui';
 import { screen, waitFor, within } from '../../test/react_testing_library';
-import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ExportBallotPdfsButton } from './export_ballot_pdfs_button';
 

@@ -12,11 +12,11 @@ import { fakeLogger, LogEventId, Logger } from '@votingworks/logging';
 import { screen, waitFor, within } from '@testing-library/react';
 
 import { Admin } from '@votingworks/api';
+import { mockUsbDrive } from '@votingworks/ui';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 import { PrintedBallotsReportScreen } from './printed_ballots_report_screen';
 import { mockPrintedBallotRecord } from '../../test/api_mock_data';
-import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 
 jest.mock('../components/hand_marked_paper_ballot');
 

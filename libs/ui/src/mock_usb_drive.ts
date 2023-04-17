@@ -1,4 +1,4 @@
-import { UsbDrive, UsbDriveStatus } from '@votingworks/ui';
+import { UsbDrive, UsbDriveStatus } from './hooks/use_usb_drive';
 
 export function mockUsbDrive(status: UsbDriveStatus = 'absent'): UsbDrive {
   return {

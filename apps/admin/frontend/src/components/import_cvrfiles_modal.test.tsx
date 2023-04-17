@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { CastVoteRecordFileMetadata } from '@votingworks/admin-backend';
+import { mockUsbDrive } from '@votingworks/ui';
 import {
   waitFor,
   fireEvent,
@@ -16,7 +17,6 @@ import {
 } from '../../test/react_testing_library';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 import { mockCastVoteRecordFileRecord } from '../../test/api_mock_data';
 

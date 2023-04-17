@@ -16,8 +16,8 @@ import {
   fakeUsbDrive,
 } from '@votingworks/test-utils';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { mockUsbDrive } from '@votingworks/ui';
 import { screen, waitFor } from '../../test/react_testing_library';
-import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 
 import {
   LAST_PRINT_JOB_SLEEP_MS,

@@ -3,13 +3,13 @@ import userEvent from '@testing-library/user-event';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { err, ok } from '@votingworks/basics';
 import { UsbDriveStatus } from '@votingworks/ui';
+import { mockUsbDrive } from '@votingworks/ui';
 import { render, screen } from '../../test/react_testing_library';
 import {
   ApiMock,
   createApiMock,
   provideApi,
 } from '../../test/helpers/mock_api_client';
-import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import {
   ExportBackupModal,
   ExportBackupModalProps,

@@ -8,6 +8,7 @@ import { fakeKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
+import { mockUsbDrive } from '@votingworks/ui';
 import {
   act,
   render,
@@ -22,7 +23,6 @@ import {
   provideApi,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client';
-import { mockUsbDrive } from '../../test/helpers/mock_usb_drive';
 import {
   ElectionManagerScreen,
   ElectionManagerScreenProps,
