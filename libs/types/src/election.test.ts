@@ -28,7 +28,6 @@ import {
 import {
   election,
   electionMinimalExhaustive,
-  electionPrimaryNonpartisanContests,
   primaryElection,
 } from '../test/election';
 import {
@@ -239,32 +238,6 @@ test('getContests', () => {
       election: electionMinimalExhaustive,
     }).map((c) => c.id)
   ).toEqual(['best-animal-fish', 'aquarium-council-fish', 'fishing']);
-
-  // primary ballots with non-partisan races
-  expect(
-    getContests({
-      ballotStyle: getBallotStyle({
-        ballotStyleId: '1M',
-        election: electionPrimaryNonpartisanContests,
-      })!,
-      election: electionPrimaryNonpartisanContests,
-    }).map((c) => c.id)
-  ).toEqual(['best-animal-mammal', 'zoo-council-mammal', 'fishing', 'kingdom']);
-
-  expect(
-    getContests({
-      ballotStyle: getBallotStyle({
-        ballotStyleId: '2F',
-        election: electionPrimaryNonpartisanContests,
-      })!,
-      election: electionPrimaryNonpartisanContests,
-    }).map((c) => c.id)
-  ).toEqual([
-    'best-animal-fish',
-    'aquarium-council-fish',
-    'fishing',
-    'kingdom',
-  ]);
 });
 
 test('getContestsFromIds', () => {
@@ -300,10 +273,8 @@ test('getPartyIdsWithContests', () => {
   expect(getPartyIdsWithContests(electionMinimalExhaustive)).toMatchObject([
     '0',
     '1',
+    undefined,
   ]);
-  expect(
-    getPartyIdsWithContests(electionPrimaryNonpartisanContests)
-  ).toMatchObject(['0', '1', undefined]);
 });
 
 test('getPartySpecificElectionTitle', () => {
@@ -311,14 +282,13 @@ test('getPartySpecificElectionTitle', () => {
     'ELECTION'
   );
   expect(
-    getPartySpecificElectionTitle(
-      electionPrimaryNonpartisanContests,
-      '0' as PartyId
-    )
-  ).toEqual('Mammal Party Example Primary Election');
+    getPartySpecificElectionTitle(electionMinimalExhaustive, '0' as PartyId)
+  ).toEqual('Mammal Party Example Primary Election - Minimal Exhaustive');
   expect(
-    getPartySpecificElectionTitle(electionPrimaryNonpartisanContests, undefined)
-  ).toEqual('Example Primary Election Nonpartisan Contests');
+    getPartySpecificElectionTitle(electionMinimalExhaustive, undefined)
+  ).toEqual(
+    'Example Primary Election - Minimal Exhaustive Nonpartisan Contests'
+  );
 });
 
 test('getContestDistrictName', () => {
