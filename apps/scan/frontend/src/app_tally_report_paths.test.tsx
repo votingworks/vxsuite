@@ -4,7 +4,6 @@ import {
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleWithReportingUrl,
   electionMinimalExhaustiveSampleWithReportingUrlDefinition,
-  electionPrimaryNonpartisanContestsFixtures,
   electionSample2,
   electionSample2Definition,
 } from '@votingworks/fixtures';
@@ -509,6 +508,7 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
     const precinct1NonpartisanReport = printedElement.getByTestId(
       'tally-report-undefined-precinct-1'
     );
+    expectBallotCountsInReport(precinct1NonpartisanReport, 1, 0, 1);
     expectContestResultsInReport(
       precinct1NonpartisanReport,
       'new-zoo-either',
@@ -544,6 +544,7 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
     const precinct2NonpartisanReport = printedElement.getByTestId(
       'tally-report-undefined-precinct-2'
     );
+    expectBallotCountsInReport(precinct2NonpartisanReport, 1, 1, 2);
     expectContestResultsInReport(
       precinct2NonpartisanReport,
       'new-zoo-either',
@@ -574,6 +575,46 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
         no: 1,
       }
     );
+
+    // Check that the non-partisan pages contain no partisan races
+    const partisanContestIds = election.contests
+      .filter((c) => c.type === 'candidate' && c.partyId)
+      .map((c) => c.id);
+    for (const contestId of partisanContestIds) {
+      expect(
+        within(precinct1NonpartisanReport).queryByTestId(
+          `results-table-${contestId}`
+        )
+      ).toBeFalsy();
+      expect(
+        within(precinct2NonpartisanReport).queryByTestId(
+          `results-table-${contestId}`
+        )
+      ).toBeFalsy();
+    }
+
+    // Check that partisan pages do not contain no nonpartisan races
+    const nonpartisanContestIds = election.contests.find(
+      (c) => c.type !== 'candidate' || !c.partyId
+    )!.id;
+    for (const contestId of nonpartisanContestIds) {
+      expect(
+        within(precinct1MammalReport).queryByTestId(
+          `results-table-${contestId}`
+        )
+      ).toBeFalsy();
+      expect(
+        within(precinct2MammalReport).queryByTestId(
+          `results-table-${contestId}`
+        )
+      ).toBeFalsy();
+      expect(
+        within(precinct1FishReport).queryByTestId(`results-table-${contestId}`)
+      ).toBeFalsy();
+      expect(
+        within(precinct2FishReport).queryByTestId(`results-table-${contestId}`)
+      ).toBeFalsy();
+    }
   });
 });
 
@@ -1214,226 +1255,6 @@ test('saving to card: polls closed, general election, single precinct', async ()
       timePollsTransitioned: expect.anything(),
       timeSaved: expect.anything(),
       precinctSelection: singlePrecinctSelectionFor('23'),
-      tally: expectedCombinedTally,
-      talliesByPrecinct: expectedTalliesByPrecinct,
-      ballotCounts: expectedBallotCounts,
-      pollsTransition: 'close_polls',
-    }),
-  });
-});
-
-const PRIMARY_NONPARTISAN_CONTESTS_CVR = [
-  generateCvr(
-    electionPrimaryNonpartisanContestsFixtures.election,
-    {
-      'best-animal-mammal': ['horse'],
-      kingdom: ['yes'],
-    },
-    {
-      precinctId: 'precinct-1',
-      ballotStyleId: '1M',
-      ballotType: VotingMethod.Precinct,
-    }
-  ),
-  generateCvr(
-    electionPrimaryNonpartisanContestsFixtures.election,
-    {
-      'best-animal-fish': ['seahorse'],
-      kingdom: ['no'],
-    },
-    {
-      precinctId: 'precinct-2',
-      ballotStyleId: '2F',
-      ballotType: VotingMethod.Precinct,
-    }
-  ),
-  generateCvr(
-    electionPrimaryNonpartisanContestsFixtures.election,
-    {
-      'best-animal-mammal': ['horse'],
-      kingdom: ['yes'],
-    },
-    {
-      precinctId: 'precinct-2',
-      ballotStyleId: '1M',
-      ballotType: VotingMethod.Precinct,
-    }
-  ),
-  generateCvr(
-    electionPrimaryNonpartisanContestsFixtures.election,
-    {
-      'best-animal-fish': ['seahorse'],
-      kingdom: ['no'],
-    },
-    {
-      precinctId: 'precinct-1',
-      ballotStyleId: '2F',
-      ballotType: VotingMethod.Precinct,
-    }
-  ),
-];
-
-test('printing: polls closed, general election with non-partisan contests, all precincts', async () => {
-  const { electionDefinition, election } =
-    electionPrimaryNonpartisanContestsFixtures;
-  const precinctSelection = ALL_PRECINCTS_SELECTION;
-  apiMock.expectGetConfig({
-    electionDefinition,
-    precinctSelection,
-    pollsState: 'polls_open',
-  });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 4 });
-  renderApp({ connectPrinter: true });
-  await screen.findByText('Insert Your Ballot Above');
-
-  await closePolls({
-    electionDefinition,
-    castVoteRecords: PRIMARY_NONPARTISAN_CONTESTS_CVR,
-    precinctSelection,
-  });
-
-  await expectPrint((printedElement) => {
-    expect(
-      printedElement.getAllByText('TEST Polls Closed Report for Precinct 1')
-    ).toHaveLength(election.parties.length + 1);
-    expect(
-      printedElement.getAllByText('TEST Polls Closed Report for Precinct 2')
-    ).toHaveLength(election.parties.length + 1);
-
-    expect(
-      printedElement.getAllByText('Mammal Party Example Primary Election:')
-    ).toHaveLength(election.precincts.length);
-    expect(
-      printedElement.getAllByText('Fish Party Example Primary Election:')
-    ).toHaveLength(election.precincts.length);
-    expect(
-      printedElement.getAllByText(
-        'Example Primary Election Nonpartisan Contests:'
-      )
-    ).toHaveLength(election.precincts.length);
-
-    // Check for expected results on nonpartisan page for precinct 1
-    const nonpartisanPrecinct1Report = printedElement.getByTestId(
-      'tally-report-undefined-precinct-1'
-    );
-    expectBallotCountsInReport(nonpartisanPrecinct1Report, 2, 0, 2);
-    expectContestResultsInReport(
-      nonpartisanPrecinct1Report,
-      'kingdom',
-      2,
-      0,
-      0,
-      {
-        yes: 1,
-        no: 1,
-      }
-    );
-
-    // Check that partisan races do not appear on nonpartisan page
-    const partisanContestIds = election.contests
-      .filter((c) => c.type === 'candidate' && c.partyId)
-      .map((c) => c.id);
-    for (const contestId of partisanContestIds) {
-      expect(
-        within(nonpartisanPrecinct1Report).queryByTestId(
-          `results-table-${contestId}`
-        )
-      ).toBeFalsy();
-    }
-
-    // Check that nonpartisan races do not appear on partisan pages
-    const nonpartisanContestId = election.contests.find(
-      (c) => c.type !== 'candidate' || !c.partyId
-    )!.id;
-    expect(
-      within(
-        printedElement.getByTestId('tally-report-0-precinct-1')
-      ).queryByTestId(`results-table-${nonpartisanContestId}`)
-    ).toBeFalsy();
-    expect(
-      within(
-        printedElement.getByTestId('tally-report-1-precinct-1')
-      ).queryByTestId(`results-table-${nonpartisanContestId}`)
-    ).toBeFalsy();
-  });
-});
-
-test('saving to card: polls closed, general election with non-partisan contests, all precincts', async () => {
-  const { electionDefinition } = electionPrimaryNonpartisanContestsFixtures;
-  const precinctSelection = ALL_PRECINCTS_SELECTION;
-  apiMock.expectGetConfig({
-    electionDefinition,
-    precinctSelection,
-    pollsState: 'polls_open',
-  });
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 4 });
-  renderApp({ connectPrinter: false });
-  await screen.findByText('Insert Your Ballot Above');
-
-  // Close the polls
-  await closePolls({
-    electionDefinition,
-    castVoteRecords: PRIMARY_NONPARTISAN_CONTESTS_CVR,
-    precinctSelection,
-  });
-
-  const expectedCombinedTally = [
-    [0, 0, 2, 2, 0, 0, 0], // best animal mammal
-    [0, 0, 2, 2, 0, 0], // best animal fish
-    expect.anything(),
-    expect.anything(),
-    expect.anything(),
-    expect.anything(),
-    expect.anything(),
-    [0, 0, 4, 2, 2], // kingdom preference
-  ];
-
-  const expectedTalliesByPrecinct: Dictionary<CompressedTally> = {
-    'precinct-1': [
-      [0, 0, 1, 1, 0, 0, 0], // best animal mammal
-      [0, 0, 1, 1, 0, 0], // best animal fish
-      expect.anything(),
-      expect.anything(),
-      expect.anything(),
-      expect.anything(),
-      expect.anything(),
-      [0, 0, 2, 1, 1], // kingdom preference
-    ],
-    'precinct-2': [
-      [0, 0, 1, 1, 0, 0, 0], // best animal mammal
-      [0, 0, 1, 1, 0, 0], // best animal fish
-      expect.anything(),
-      expect.anything(),
-      expect.anything(),
-      expect.anything(),
-      expect.anything(),
-      [0, 0, 2, 1, 1], // kingdom preference
-    ],
-  };
-  const expectedBallotCounts: Dictionary<BallotCountDetails> = {
-    '0,precinct-1': [1, 0],
-    '0,precinct-2': [1, 0],
-    '1,precinct-1': [1, 0],
-    '1,precinct-2': [1, 0],
-    'undefined,precinct-1': [2, 0],
-    'undefined,precinct-2': [2, 0],
-    '0,__ALL_PRECINCTS': [2, 0],
-    '1,__ALL_PRECINCTS': [2, 0],
-  };
-  expect(
-    apiMock.mockApiClient.saveScannerReportDataToCard
-  ).toHaveBeenCalledTimes(1);
-  expect(
-    apiMock.mockApiClient.saveScannerReportDataToCard
-  ).toHaveBeenCalledWith({
-    scannerReportData: expect.objectContaining({
-      isLiveMode: false,
-      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
-      totalBallotsScanned: 4,
-      machineId: '0002',
-      timePollsTransitioned: expect.anything(),
-      timeSaved: expect.anything(),
-      precinctSelection,
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
