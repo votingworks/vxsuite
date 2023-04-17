@@ -266,9 +266,11 @@ test('adding a duplicate file returns OK to client but logs an error', async () 
   const reportDirectoryPath = castVoteRecordReport.asDirectoryPath();
 
   // add file once
-  void (await apiClient.addCastVoteRecordFile({
-    path: reportDirectoryPath,
-  }));
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: reportDirectoryPath,
+    })
+  ).assertOk('expected to load cast vote record report successfully');
 
   // try adding duplicate file
   const addDuplicateFileResult = await apiClient.addCastVoteRecordFile({
@@ -304,9 +306,11 @@ test('handles file with previously added entries by adding only the new entries'
     ({ CVR }) => ({ CVR: CVR.take(10) })
   );
   // add file
-  void (await apiClient.addCastVoteRecordFile({
-    path: initialReportDirectoryPath,
-  }));
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: initialReportDirectoryPath,
+    })
+  ).assertOk('expected to load cast vote record report successfully');
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(10);
 
@@ -413,9 +417,11 @@ test('error if adding test report while in official mode', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  void (await apiClient.addCastVoteRecordFile({
-    path: await getOfficialReportPath(),
-  }));
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: await getOfficialReportPath(),
+    })
+  ).assertOk('expected to load cast vote record report successfully');
 
   const addTestReportResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordReport.asDirectoryPath(),
@@ -434,9 +440,11 @@ test('error if adding official report while in test mode', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  void (await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
-  }));
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordReport.asDirectoryPath(),
+    })
+  ).assertOk('expected to load cast vote record report successfully');
 
   const addOfficialReportResult = await apiClient.addCastVoteRecordFile({
     path: await getOfficialReportPath(),
@@ -518,9 +526,11 @@ test('error if cast vote records from different files share same ballot id but h
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  void (await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
-  }));
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordReport.asDirectoryPath(),
+    })
+  ).assertOk('expected to load cast vote record report successfully');
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(3000);

@@ -33,9 +33,11 @@ test('getWriteIns', async () => {
   );
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  void (await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
-  }));
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordReport.asDirectoryPath(),
+    })
+  ).assertOk('expected to load cast vote record report successfully');
 
   expect(await apiClient.getWriteIns()).toHaveLength(
     workspace.store.getWriteInRecords({ electionId }).length
@@ -61,9 +63,11 @@ test('transcribeWriteIn', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  void (await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
-  }));
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordReport.asDirectoryPath(),
+    })
+  ).assertOk('expected to load cast vote record report successfully');
 
   const [writeInRecord] = await apiClient.getWriteIns({ limit: 1 });
   assert(writeInRecord);
@@ -93,9 +97,11 @@ test('getWriteInAdjudications', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  void (await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
-  }));
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordReport.asDirectoryPath(),
+    })
+  ).assertOk('expected to load cast vote record report successfully');
 
   expect(await apiClient.getWriteInAdjudications()).toEqual([]);
 
@@ -159,9 +165,11 @@ test('write-in adjudication lifecycle', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   // upload the CVR file
-  void (await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
-  }));
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordReport.asDirectoryPath(),
+    })
+  ).assertOk('expected to load cast vote record report successfully');
 
   // focus on this contest
   const contestId = 'zoo-council-mammal';
@@ -421,9 +429,11 @@ test('write-in summary filtered by contestId & status', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   // upload the CVR file
-  void (await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
-  }));
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordReport.asDirectoryPath(),
+    })
+  ).assertOk('expected to load cast vote record report successfully');
 
   // focus on this contest
   const contestId = 'zoo-council-mammal';
@@ -510,9 +520,11 @@ test('getWriteInImage', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
 
   const reportDirectoryPath = castVoteRecordReportSingle.asDirectoryPath();
-  void (await apiClient.addCastVoteRecordFile({
-    path: reportDirectoryPath,
-  }));
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: reportDirectoryPath,
+    })
+  ).assertOk('expected to load cast vote record report successfully');
 
   const writeIns = await apiClient.getWriteIns({
     contestId: 'County-Commissioner-d6feed25',
