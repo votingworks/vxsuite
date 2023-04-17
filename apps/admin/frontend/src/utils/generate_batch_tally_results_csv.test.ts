@@ -151,10 +151,10 @@ describe('generateBatchTallyResultsCSV', () => {
   });
 
   it('conversion of full tally matches snapshot', () => {
-    const { electionDefinition, cvrData, csvData } =
+    const { electionDefinition, legacyCvrData, csvData } =
       electionMultiPartyPrimaryFixtures;
     const { election } = electionDefinition;
-    const castVoteRecords = parseCvrsAndAssertSuccess(cvrData, election);
+    const castVoteRecords = parseCvrsAndAssertSuccess(legacyCvrData, election);
     const fullTally = computeFullElectionTally(
       election,
       new Set(castVoteRecords)
@@ -167,10 +167,10 @@ describe('generateBatchTallyResultsCSV', () => {
   });
 
   it('conversion of full tally matches snapshot - 2', () => {
-    const { electionDefinition, cvrData, batchCsvData } =
+    const { electionDefinition, legacyCvrData, batchCsvData } =
       electionMinimalExhaustiveSampleFixtures;
     const { election } = electionDefinition;
-    const castVoteRecords = parseCvrsAndAssertSuccess(cvrData, election);
+    const castVoteRecords = parseCvrsAndAssertSuccess(legacyCvrData, election);
     const fullTally = computeFullElectionTally(
       election,
       new Set(castVoteRecords)

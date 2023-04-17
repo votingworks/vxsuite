@@ -728,7 +728,7 @@ export interface CVRContest {
   /**
    * Used to include information about a contest selection in the contest, including the associated indication(s).
    */
-  readonly CVRContestSelection?: readonly CVRContestSelection[];
+  readonly CVRContestSelection: readonly CVRContestSelection[];
 
   /**
    * Used to link to an instance of Contest specific to the contest at hand, for the purpose of specifying information about the contest such as its contest identifier.
@@ -771,7 +771,7 @@ export interface CVRContest {
  */
 export const CVRContestSchema: z.ZodSchema<CVRContest> = z.object({
   '@type': z.literal('CVR.CVRContest'),
-  CVRContestSelection: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CVRContestSelectionSchema))),
+  CVRContestSelection: z.array(z.lazy(/* istanbul ignore next */ () => CVRContestSelectionSchema)),
   ContestId: z.string(),
   OtherStatus: z.optional(z.string()),
   Overvotes: z.optional(integerSchema),
@@ -790,7 +790,7 @@ export interface CVRContestSelection {
   /**
    * Used to link to an instance of a contest selection that was previously included by Contest.
    */
-  readonly ContestSelectionId?: string;
+  readonly ContestSelectionId: string;
 
   /**
    * Used to include the ordinal position of the contest option as it appeared on the ballot.
@@ -833,7 +833,7 @@ export interface CVRContestSelection {
  */
 export const CVRContestSelectionSchema: z.ZodSchema<CVRContestSelection> = z.object({
   '@type': z.literal('CVR.CVRContestSelection'),
-  ContestSelectionId: z.optional(z.string()),
+  ContestSelectionId: z.string(),
   OptionPosition: z.optional(integerSchema),
   OtherStatus: z.optional(z.string()),
   Rank: z.optional(integerSchema),
@@ -859,7 +859,7 @@ export interface CVRSnapshot {
   /**
    * Identifies the contests in the CVR.
    */
-  readonly CVRContest?: readonly CVRContest[];
+  readonly CVRContest: readonly CVRContest[];
 
   /**
    * When Status is 'other', contains the ballot status.
@@ -889,7 +889,7 @@ export const CVRSnapshotSchema: z.ZodSchema<CVRSnapshot> = z.object({
   '@id': z.string(),
   '@type': z.literal('CVR.CVRSnapshot'),
   Annotation: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotationSchema))),
-  CVRContest: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CVRContestSchema))),
+  CVRContest: z.array(z.lazy(/* istanbul ignore next */ () => CVRContestSchema)),
   OtherStatus: z.optional(z.string()),
   Status: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CVRStatusSchema))),
   Type: z.lazy(/* istanbul ignore next */ () => CVRTypeSchema),

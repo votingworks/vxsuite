@@ -7,6 +7,20 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 
+/**
+ * If the report is a test report, this value will be included in the
+ * {@link CVR.OtherReportType} string within a comma-separated list.
+ */
+export const TEST_OTHER_REPORT_TYPE = 'test';
+
+/**
+ * The metadata is the cast vote record report without the cast vote records themselves.
+ */
+export type CastVoteRecordReportMetadata = Omit<
+  CVR.CastVoteRecordReport,
+  'CVR'
+>;
+
 function buildWriteInCandidateSelections(
   contest: CandidateContest
 ): CVR.CandidateSelection[] {
@@ -155,10 +169,7 @@ export function buildCastVoteRecordReportMetadata({
   reportTypes,
   isTestMode,
   batchInfo,
-}: BuildCastVoteRecordReportMetadataParams): Omit<
-  CVR.CastVoteRecordReport,
-  'CVR'
-> {
+}: BuildCastVoteRecordReportMetadataParams): CastVoteRecordReportMetadata {
   // TODO: pull from ballot definition once it exists. For now, the scope
   // is just the current state
   const electionScopeId = 'election-state';
@@ -169,7 +180,7 @@ export function buildCastVoteRecordReportMetadata({
     ReportType: isTestMode
       ? [...reportTypes, CVR.ReportType.Other]
       : reportTypes,
-    OtherReportType: isTestMode ? 'test' : undefined,
+    OtherReportType: isTestMode ? TEST_OTHER_REPORT_TYPE : undefined,
     GeneratedDate: new Date().toISOString(),
     // VVSG 2.0 1.1.5-G.1 requires identification of the creating device
     ReportGeneratingDeviceIds: [generatingDeviceId],

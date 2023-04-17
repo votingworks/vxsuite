@@ -249,7 +249,7 @@ describe('getCombinedExportableContestTally', () => {
 describe('getExportableTallies', () => {
   it('builds expected tally object for election with either neither with just internal data', () => {
     const castVoteRecords = parseCvrsAndAssertSuccess(
-      electionWithMsEitherNeitherFixtures.cvrData,
+      electionWithMsEitherNeitherFixtures.legacyCvrData,
       electionWithMsEitherNeither
     );
     const fullInternalTally = computeFullElectionTally(
@@ -266,7 +266,7 @@ describe('getExportableTallies', () => {
 
   it('builds expected tally object for election with either neither with external and internal data', () => {
     const castVoteRecords = parseCvrsAndAssertSuccess(
-      electionWithMsEitherNeitherFixtures.cvrData,
+      electionWithMsEitherNeitherFixtures.legacyCvrData,
       electionWithMsEitherNeither
     );
     const fullInternalTally = computeFullElectionTally(
@@ -300,7 +300,7 @@ describe('getExportableTallies', () => {
 
   it('builds expected tally object for primary election with just internal data', () => {
     const castVoteRecords = parseCvrsAndAssertSuccess(
-      electionMultiPartyPrimaryFixtures.cvrData,
+      electionMultiPartyPrimaryFixtures.legacyCvrData,
       multiPartyPrimaryElection
     );
     const fullInternalTally = computeFullElectionTally(
@@ -317,7 +317,7 @@ describe('getExportableTallies', () => {
 
   it('builds expected tally object for primary election with external and internal data', () => {
     const castVoteRecords = parseCvrsAndAssertSuccess(
-      electionMultiPartyPrimaryFixtures.cvrData,
+      electionMultiPartyPrimaryFixtures.legacyCvrData,
       multiPartyPrimaryElection
     );
     const fullInternalTally = computeFullElectionTally(

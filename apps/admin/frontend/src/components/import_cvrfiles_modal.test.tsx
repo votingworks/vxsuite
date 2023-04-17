@@ -32,7 +32,6 @@ const mockCastVoteRecordImportInfo: Admin.CvrFileImportInfo = {
   fileMode: Admin.CvrFileMode.Test,
   fileName: 'cvrs.jsonl',
   id: 'cvr-file-1',
-  scannerIds: ['scanner-2', 'scanner-3'],
 };
 
 const mockCastVoteRecordFileMetadata: CastVoteRecordFileMetadata[] = [

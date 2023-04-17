@@ -8,6 +8,8 @@ import {
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
   loadBallotImageBase64,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
+  convertCastVoteRecordVotesToLegacyVotes,
+  isTestReport,
 } from '@votingworks/backend';
 import {
   assert,
@@ -48,7 +50,6 @@ import * as fs from 'fs/promises';
 import { basename, join } from 'path';
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
-import { CvrImportFormat } from './globals';
 import { Store } from './store';
 import { CastVoteRecordFileMetadata } from './types';
 import { sha256File } from './util/sha256_file';
@@ -63,8 +64,7 @@ import { getWriteInsFromCastVoteRecord } from './util/cvrs';
 export async function listCastVoteRecordFilesOnUsb(
   electionDefinition: ElectionDefinition,
   usb: Usb,
-  logger: Logger,
-  importFormat: CvrImportFormat = 'vxf'
+  logger: Logger
 ): Promise<CastVoteRecordFileMetadata[]> {
   const { election, electionHash } = electionDefinition;
   const fileSearchResult = await listDirectoryOnUsbDrive(
@@ -97,6 +97,7 @@ export async function listCastVoteRecordFilesOnUsb(
       case 'usb-drive-not-mounted':
         // we're just polling without a USB drive in these cases, no issue
         break;
+      /* istanbul ignore next: compile-time check for completeness */
       default:
         throwIllegalValue(errorType);
     }
@@ -107,12 +108,7 @@ export async function listCastVoteRecordFilesOnUsb(
   const castVoteRecordFileMetadataList: CastVoteRecordFileMetadata[] = [];
 
   for (const entry of fileSearchResult.ok()) {
-    if (
-      (importFormat === 'vxf' &&
-        entry.type === FileSystemEntryType.File &&
-        entry.name.endsWith('.jsonl')) ||
-      (importFormat === 'cdf' && entry.type === FileSystemEntryType.Directory)
-    ) {
+    if (entry.type === FileSystemEntryType.Directory) {
       const parsedFileInfo = parseCastVoteRecordReportDirectoryName(entry.name);
       if (parsedFileInfo) {
         castVoteRecordFileMetadataList.push({
@@ -161,22 +157,13 @@ function snapshotHasValidContestReferences(
   snapshot: CVR.CVRSnapshot,
   electionContests: Contests
 ): Result<void, ContestReferenceError> {
-  // TODO: this field should probably be required
-  if (!snapshot.CVRContest) return ok();
-
   for (const cvrContest of snapshot.CVRContest) {
     const electionContest = electionContests.find(
       (contest) => contest.id === cvrContest.ContestId
     );
     if (!electionContest) return err('invalid-contest');
 
-    const cvrContestSelections = cvrContest.CVRContestSelection;
-
-    if (!cvrContestSelections) return ok();
-
-    for (const cvrContestSelection of cvrContestSelections) {
-      // TODO: this field should probably be required
-      if (!cvrContestSelection.ContestSelectionId) return ok();
+    for (const cvrContestSelection of cvrContest.CVRContestSelection) {
       if (
         !getValidContestOptions(electionContest).includes(
           cvrContestSelection.ContestSelectionId
@@ -204,14 +191,7 @@ function cvrHasValidWriteInImageReferences(cvr: CVR.CVR) {
   const writeInImageReferences = cvr.CVRSnapshot.flatMap(
     (snapshot) => snapshot.CVRContest
   )
-    .filter(
-      (cvrContest): cvrContest is CVR.CVRContest => cvrContest !== undefined
-    )
     .flatMap((cvrContest) => cvrContest.CVRContestSelection)
-    .filter(
-      (cvrContestSelection): cvrContestSelection is CVR.CVRContestSelection =>
-        cvrContestSelection !== undefined
-    )
     .flatMap((cvrContestSelection) => cvrContestSelection.SelectionPosition)
     .filter(
       (selectionPosition): selectionPosition is CVR.SelectionPosition =>
@@ -348,45 +328,10 @@ function cvrBallotTypeToLegacyBallotType(
       return 'standard';
     case CVR.vxBallotType.Provisional:
       return 'provisional';
+    /* istanbul ignore next: compile-time check for completeness */
     default:
       throwIllegalValue(ballotType);
   }
-}
-
-/**
- * Converts the vote data in the CDF cast vote record into the simple
- * dictionary of contest ids to contest selection ids that VxAdmin uses
- * internally as a basis for tallying votes.
- */
-function convertCastVoteRecordVotesToLegacyVotes(
-  cvrSnapshot: CVR.CVRSnapshot
-): Record<string, string[]> {
-  const votes: Record<string, string[]> = {};
-  if (!cvrSnapshot.CVRContest) return votes;
-
-  for (const cvrContest of cvrSnapshot.CVRContest) {
-    if (!cvrContest.CVRContestSelection) continue;
-
-    const contestSelectionIds: string[] = [];
-    for (const cvrContestSelection of cvrContest.CVRContestSelection) {
-      // We assume every contest selection has only one selection position,
-      // which is true for standard voting but is not be true for ranked choice
-      assert(cvrContestSelection.SelectionPosition.length === 1);
-      const selectionPosition = cvrContestSelection.SelectionPosition[0];
-      assert(selectionPosition);
-
-      if (
-        cvrContestSelection.ContestSelectionId &&
-        selectionPosition.HasIndication === CVR.IndicationStatus.Yes
-      ) {
-        contestSelectionIds.push(cvrContestSelection.ContestSelectionId);
-      }
-    }
-
-    votes[cvrContest.ContestId] = contestSelectionIds;
-  }
-
-  return votes;
 }
 
 /**
@@ -395,11 +340,11 @@ function convertCastVoteRecordVotesToLegacyVotes(
  */
 export function convertCastVoteRecordToLegacyFormat({
   cvr,
-  isTestReport,
+  isTest,
   batchLabel,
 }: {
   cvr: CVR.CVR;
-  isTestReport: boolean;
+  isTest: boolean;
   batchLabel: string;
 }): CastVoteRecord {
   const currentSnapshot = find(
@@ -415,7 +360,7 @@ export function convertCastVoteRecordToLegacyFormat({
     _ballotStyleId: cvr.BallotStyleId,
     _ballotType: cvrBallotTypeToLegacyBallotType(cvr.vxBallotType),
     _scannerId: cvr.CreatingDeviceId,
-    _testBallot: isTestReport,
+    _testBallot: isTest,
     ...convertCastVoteRecordVotesToLegacyVotes(currentSnapshot),
   };
 }
@@ -424,6 +369,9 @@ export function convertCastVoteRecordToLegacyFormat({
  * Possible errors when importing a cast vote record reports.
  */
 export type AddCastVoteRecordReportError =
+  | {
+      type: 'report-access-failure';
+    }
   | {
       type: 'invalid-report-structure';
       error: CastVoteRecordReportDirectoryStructureValidationError;
@@ -453,7 +401,72 @@ export type AddCastVoteRecordReportError =
     }
   | {
       type: 'ballot-id-already-exists-with-different-data';
+      index: number;
     };
+
+/**
+ * Convert a {@link AddCastVoteRecordReportError} to a human readable message
+ * for logging and presentation to the user.
+ */
+export function getAddCastVoteRecordReportErrorMessage(
+  error: AddCastVoteRecordReportError
+): string {
+  const errorType = error.type;
+  switch (errorType) {
+    case 'report-access-failure':
+      return 'Failed to access cast vote record report for import.';
+    case 'invalid-report-structure':
+      return 'Cast vote record report has invalid file structure.';
+    case 'malformed-report-metadata':
+    case 'malformed-cast-vote-record':
+      return 'Unable to parse cast vote record report, it may be malformed.';
+    case 'invalid-report-file-mode':
+      if (error.currentFileMode === Admin.CvrFileMode.Official) {
+        return `You are currently tabulating official results but the selected cast vote record report contains test results.`;
+      }
+      return `You are currently tabulating test results but the selected cast vote record report contains official results.`;
+    case 'invalid-cast-vote-record': {
+      const messageBase = `Found an invalid cast vote record at index ${error.index} in the current report.`;
+      const messageDetail = (() => {
+        const subErrorType = error.error;
+        /* istanbul ignore next  - write testing when error handling requirements and implementation harden */
+        switch (subErrorType) {
+          case 'invalid-election':
+            return `The record references an election other than the current election.`;
+          case 'invalid-ballot-style':
+            return `The record references an non-existent ballot style.`;
+          case 'invalid-batch':
+            return `The record references a scanning batch not detailed in the report.`;
+          case 'invalid-precinct':
+            return `The record references an non-existent precinct.`;
+          case 'invalid-sheet-number':
+            return `The record references an invalid sheet number.`;
+          case 'invalid-ballot-image-location':
+          case 'invalid-write-in-image-location':
+            return `The record references a ballot image which is not included in the report`;
+          case 'no-current-snapshot':
+            return `The record does not contain a current snapshot of the interpreted results.`;
+          case 'invalid-contest':
+            return `The record references a contest which does not exist for its ballot style.`;
+          case 'invalid-contest-option':
+            return `The record references a contest option which does not exist for the contest.`;
+          /* istanbul ignore next: compile-time check for completeness */
+          default:
+            throwIllegalValue(subErrorType);
+        }
+      })();
+
+      return `${messageBase} ${messageDetail}`;
+    }
+    case 'invalid-layout':
+      return `Unable to parse a layout associated with a ballot image. Path: ${error.path}`;
+    case 'ballot-id-already-exists-with-different-data':
+      return `Found cast vote record at index ${error.index} that has the same ballot id as a previously imported cast vote record, but with different data.`;
+    /* istanbul ignore next: compile-time check for completeness */
+    default:
+      throwIllegalValue(errorType);
+  }
+}
 
 /**
  * Result of an attempt to import a cast vote record report.
@@ -514,10 +527,9 @@ export async function addCastVoteRecordReport({
     getCastVoteRecordReportImportResult.ok();
 
   // Ensure the report matches the file mode of previous imports
-  const reportFileMode =
-    reportMetadata.OtherReportType === 'test'
-      ? Admin.CvrFileMode.Test
-      : Admin.CvrFileMode.Official;
+  const reportFileMode = isTestReport(reportMetadata)
+    ? Admin.CvrFileMode.Test
+    : Admin.CvrFileMode.Official;
   const currentFileMode = store.getCurrentCvrFileModeForElection(electionId);
   if (
     currentFileMode !== Admin.CvrFileMode.Unlocked &&
@@ -538,15 +550,12 @@ export async function addCastVoteRecordReport({
     if (existingFileId) {
       return ok({
         id: existingFileId,
-        alreadyPresent: store.getCastVoteRecordCountByFileId(existingFileId),
         exportedTimestamp,
         fileMode: currentFileMode,
         fileName: filename,
-        newlyAdded: 0,
-        // TODO: Get scannerIds from the existing file OR remove it entirely
-        // because it is not being used in the frontend.
-        scannerIds: [],
         wasExistingFile: true,
+        newlyAdded: 0,
+        alreadyPresent: store.getCastVoteRecordCountByFileId(existingFileId),
       });
     }
 
@@ -599,7 +608,7 @@ export async function addCastVoteRecordReport({
       // Convert the cast vote record to the format our store and tally logic use
       let legacyCastVoteRecord = convertCastVoteRecordToLegacyFormat({
         cvr,
-        isTestReport: reportFileMode === Admin.CvrFileMode.Test,
+        isTest: reportFileMode === Admin.CvrFileMode.Test,
         batchLabel: find(
           reportMetadata.vxBatch,
           (batch) => batch['@id'] === cvr.BatchId
@@ -637,7 +646,7 @@ export async function addCastVoteRecordReport({
               CVR_BALLOT_IMAGES_SUBDIRECTORY,
               CVR_BALLOT_LAYOUTS_SUBDIRECTORY
             )
-            .replace(/jpg|jpeg/, 'layout.json');
+            .replace(/(jpg|jpeg)$/, 'layout.json');
           const parseLayoutResult = safeParseJson(
             await fs.readFile(layoutPath, 'utf8'),
             BallotPageLayoutSchema
@@ -668,7 +677,10 @@ export async function addCastVoteRecordReport({
         cvrData
       );
       if (addCastVoteRecordResult.isErr()) {
-        return err({ type: 'ballot-id-already-exists-with-different-data' });
+        return err({
+          type: 'ballot-id-already-exists-with-different-data',
+          index: castVoteRecordIndex,
+        });
       }
       const { id: cvrId, isNew: cvrIsNew } = addCastVoteRecordResult.ok();
 
@@ -715,7 +727,6 @@ export async function addCastVoteRecordReport({
       fileMode: reportFileMode,
       fileName: filename,
       newlyAdded,
-      scannerIds: [...scannerIds],
       wasExistingFile: false,
     });
   });

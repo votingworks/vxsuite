@@ -7,7 +7,7 @@ import {
   DEV_JURISDICTION,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
-import { Exporter } from '@votingworks/backend';
+import { createMockUsb } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { fakeLogger, Logger } from '@votingworks/logging';
 
@@ -40,10 +40,7 @@ beforeEach(async () => {
   server = await start({
     app: await buildCentralScannerApp({
       auth,
-      exporter: new Exporter({
-        allowedExportPatterns: [],
-        getUsbDrives: jest.fn(),
-      }),
+      usb: createMockUsb().mock,
       importer: new Importer({ workspace, scanner: makeMockScanner() }),
       workspace,
       logger,

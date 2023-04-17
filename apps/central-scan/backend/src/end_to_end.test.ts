@@ -2,45 +2,41 @@ import {
   DEV_JURISDICTION,
   buildMockDippedSmartCardAuth,
 } from '@votingworks/auth';
-import { Exporter } from '@votingworks/backend';
+import {
+  convertCastVoteRecordVotesToLegacyVotes,
+  createMockUsb,
+  getCastVoteRecordReportImport,
+  isTestReport,
+  MockUsb,
+  validateCastVoteRecordReportDirectoryStructure,
+} from '@votingworks/backend';
 import {
   asElectionDefinition,
   electionSample as election,
   sampleBallotImages,
 } from '@votingworks/fixtures';
-import { CastVoteRecord } from '@votingworks/types';
-import {
-  generateElectionBasedSubfolderName,
-  SCANNER_RESULTS_FOLDER,
-} from '@votingworks/utils';
+import { CVR, unsafeParse } from '@votingworks/types';
+import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
 import { Application } from 'express';
 import * as fsExtra from 'fs-extra';
 import * as path from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
-import {
-  advanceTo as setDateMock,
-  clear as clearDateMock,
-} from 'jest-date-mock';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { fakeSessionExpiresAt } from '@votingworks/test-utils';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { buildCentralScannerApp } from './central_scanner_app';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
+import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
 
 // we need more time for ballot interpretation
 jest.setTimeout(20000);
 
-const mockGetUsbDrives = jest.fn();
-const exporter = new Exporter({
-  allowedExportPatterns: ['/tmp/**'],
-  getUsbDrives: mockGetUsbDrives,
-});
-
 let app: Application;
 let auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
 let importer: Importer;
+let mockUsb: MockUsb;
 let workspace: Workspace;
 let scanner: MockScanner;
 let logger: Logger;
@@ -54,9 +50,11 @@ beforeEach(async () => {
     scanner,
   });
   logger = fakeLogger();
+  mockUsb = createMockUsb();
   app = await buildCentralScannerApp({
     auth,
-    exporter,
+    usb: mockUsb.mock,
+    allowedExportPatterns: ['/tmp/**'],
     importer,
     workspace,
     logger,
@@ -70,8 +68,6 @@ afterEach(async () => {
 const jurisdiction = DEV_JURISDICTION;
 
 test('going through the whole process works', async () => {
-  const now = new Date(2018, 5, 27, 0, 0, 0);
-
   auth.getAuthStatus.mockResolvedValue({
     status: 'logged_in',
     user: {
@@ -81,7 +77,6 @@ test('going through the whole process works', async () => {
     },
     sessionExpiresAt: fakeSessionExpiresAt(),
   });
-  setDateMock(now);
 
   // try export before configure
   await request(app)
@@ -150,41 +145,47 @@ test('going through the whole process works', async () => {
   }
 
   {
-    const mockUsbMountPoint = path.join(workspace.path, 'mock-usb');
-    await fsExtra.mkdir(mockUsbMountPoint, { recursive: true });
-    mockGetUsbDrives.mockResolvedValue([
-      { deviceName: 'mock-usb', mountPoint: mockUsbMountPoint },
-    ]);
+    mockUsb.insertUsbDrive({});
 
     await request(app)
       .post('/central-scanner/scan/export-to-usb-drive')
       .set('Accept', 'application/json')
       .expect(200);
 
-    const exportFileContents = fsExtra.readFileSync(
-      path.join(
-        workspace.path,
-        'mock-usb',
-        SCANNER_RESULTS_FOLDER,
-        generateElectionBasedSubfolderName(
-          election,
-          asElectionDefinition(election).electionHash
-        ),
-        'TEST__machine_000__3_ballots__2018-06-27_00-00-00.jsonl'
-      ),
-      'utf-8'
-    );
-    const cvrs: CastVoteRecord[] = exportFileContents
-      .split('\n')
-      .filter(Boolean)
-      .map((line) => JSON.parse(line));
-    expect(cvrs).toEqual([
+    const [usbDrive] = await mockUsb.mock.getUsbDrives();
+    const cvrReportDirectoryPath = getCastVoteRecordReportPaths(usbDrive)[0];
+    expect(cvrReportDirectoryPath).toContain('TEST__machine_000__3_ballots__');
+
+    // check that exported report directory appears valid
+    expect(
+      (
+        await validateCastVoteRecordReportDirectoryStructure(
+          cvrReportDirectoryPath
+        )
+      ).isOk()
+    ).toBeTruthy();
+
+    const castVoteRecordReportImportResult =
+      await getCastVoteRecordReportImport(
+        path.join(cvrReportDirectoryPath, CAST_VOTE_RECORD_REPORT_FILENAME)
+      );
+    const castVoteRecordReportImport =
+      castVoteRecordReportImportResult.assertOk('test');
+    expect(isTestReport(castVoteRecordReportImport)).toBeTruthy();
+    const cvrs = await castVoteRecordReportImport.CVR.map((unparsed) =>
+      unsafeParse(CVR.CVRSchema, unparsed)
+    ).toArray();
+    expect(
+      cvrs.map((cvr) =>
+        convertCastVoteRecordVotesToLegacyVotes(cvr.CVRSnapshot[0])
+      )
+    ).toEqual([
       // sample-batch-1-ballot-1.png
       expect.objectContaining({ president: ['cramer-vuocolo'] }),
       // sample-batch-1-ballot-2.png
       expect.objectContaining({
         president: ['boone-lian'],
-        'county-commissioners': ['argent', 'bainbridge', 'write-in-BOB SMITH'],
+        'county-commissioners': ['argent', 'bainbridge', 'write-in-0'],
       }),
       // sample-batch-1-ballot-3.png
       expect.objectContaining({ president: ['barchi-hallaren'] }),
@@ -215,36 +216,25 @@ test('going through the whole process works', async () => {
     expect(JSON.parse(status.text).batches).toEqual([]);
   }
 
-  // no CVRs!
-  setDateMock(new Date(2018, 5, 28, 0, 0, 0));
-  const mockUsbMountPoint = path.join(workspace.path, 'mock-usb');
-  await fsExtra.mkdir(mockUsbMountPoint, { recursive: true });
-  mockGetUsbDrives.mockResolvedValue([
-    { deviceName: 'mock-usb', mountPoint: mockUsbMountPoint },
-  ]);
+  // re-export with no CVRs
   await request(app)
     .post('/central-scanner/scan/export-to-usb-drive')
     .set('Accept', 'application/json')
     .expect(200);
 
+  const [usbDrive] = await mockUsb.mock.getUsbDrives();
+  const cvrReportDirectoryPaths = getCastVoteRecordReportPaths(usbDrive);
+  expect(cvrReportDirectoryPaths).toHaveLength(2);
+  const cvrReportDirectoryPath = cvrReportDirectoryPaths[0];
+  const castVoteRecordReportImportResult = await getCastVoteRecordReportImport(
+    path.join(cvrReportDirectoryPath, CAST_VOTE_RECORD_REPORT_FILENAME)
+  );
+
+  // there should be no CVRs in the file.
   expect(
-    fsExtra
-      .readFileSync(
-        path.join(
-          workspace.path,
-          'mock-usb',
-          SCANNER_RESULTS_FOLDER,
-          generateElectionBasedSubfolderName(
-            election,
-            asElectionDefinition(election).electionHash
-          ),
-          'TEST__machine_000__0_ballots__2018-06-28_00-00-00.jsonl'
-        )
-      )
-      .toString()
-  ).toEqual('');
+    await castVoteRecordReportImportResult.assertOk('test').CVR.count()
+  ).toEqual(0);
 
   // clean up
   await request(app).delete('/central-scanner/config/election');
-  clearDateMock();
 });

@@ -91,8 +91,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
           if (addCastVoteRecordFileResult.isErr()) {
             setCurrentState({
               state: 'error',
-              errorMessage:
-                addCastVoteRecordFileResult.err().userFriendlyMessage,
+              errorMessage: addCastVoteRecordFileResult.err().message,
               filename,
             });
           } else if (addCastVoteRecordFileResult.ok().wasExistingFile) {
@@ -377,6 +376,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
             <FileInputButton
               data-testid="manual-input"
               onChange={processCastVoteRecordFileFromFilePicker}
+              accept=".json"
             >
               Select File Manually…
             </FileInputButton>

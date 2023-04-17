@@ -326,7 +326,8 @@ describe('readCompressTally', () => {
 });
 
 test('primary tally can compress and be read back and end with the original tally', () => {
-  const castVoteRecordsContent = electionMultiPartyPrimaryFixtures.cvrData;
+  const castVoteRecordsContent =
+    electionMultiPartyPrimaryFixtures.legacyCvrData;
   const lines = castVoteRecordsContent.split('\n');
   const castVoteRecords = lines.flatMap((line) =>
     line.length > 0 ? (JSON.parse(line) as CastVoteRecord) : []

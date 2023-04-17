@@ -230,7 +230,7 @@ describe('filterTalliesByParams fallback to empty tally when the proper category
     election = electionMultiPartyPrimaryFixtures.electionDefinition.election;
 
     // get the CVRs
-    const cvrsFileContents = electionMultiPartyPrimaryFixtures.cvrData;
+    const cvrsFileContents = electionMultiPartyPrimaryFixtures.legacyCvrData;
     const castVoteRecords = parseCvrs(cvrsFileContents);
 
     // tabulate it
@@ -293,7 +293,7 @@ describe('filterTalliesByParams in a typical election', () => {
     election = electionSample2;
 
     // get the CVRs
-    const cvrsFileContents = electionSample2Fixtures.cvrDataStandard1;
+    const cvrsFileContents = electionSample2Fixtures.legacyCvrDataStandard1;
     const castVoteRecords = parseCvrs(cvrsFileContents);
 
     // tabulate it
@@ -634,7 +634,7 @@ describe('filterTalliesByParams in a primary election', () => {
 
   beforeEach(() => {
     // get the CVRs
-    const cvrsFileContents = electionMultiPartyPrimaryFixtures.cvrData;
+    const cvrsFileContents = electionMultiPartyPrimaryFixtures.legacyCvrData;
     const castVoteRecords = parseCvrs(cvrsFileContents);
 
     // tabulate it
@@ -1023,7 +1023,8 @@ test('filterTalliesByParams in a primary election with nonpartisan contests', ()
   const { election } = electionPrimaryNonpartisanContestsFixtures;
 
   // get the CVRs
-  const cvrsFileContents = electionPrimaryNonpartisanContestsFixtures.cvrData;
+  const cvrsFileContents =
+    electionPrimaryNonpartisanContestsFixtures.legacyCvrData;
   const castVoteRecords = parseCvrs(cvrsFileContents);
 
   const electionTally = computeTallyWithPrecomputedCategories(
@@ -1088,7 +1089,7 @@ describe('filterTallyContestsByParty', () => {
     const election = electionSample2;
 
     // get the CVRs
-    const cvrsFileContents = electionSample2Fixtures.cvrDataStandard1;
+    const cvrsFileContents = electionSample2Fixtures.legacyCvrDataStandard1;
     const castVoteRecords = parseCvrs(cvrsFileContents);
 
     // tabulate it
@@ -1105,7 +1106,7 @@ describe('filterTallyContestsByParty', () => {
   test('can filter by party as expected', () => {
     const { election } = electionMultiPartyPrimaryFixtures.electionDefinition;
     // get the CVRs
-    const cvrsFileContents = electionMultiPartyPrimaryFixtures.cvrData;
+    const cvrsFileContents = electionMultiPartyPrimaryFixtures.legacyCvrData;
     const castVoteRecords = parseCvrs(cvrsFileContents);
 
     const party = election.parties.find((p) => p.id === '0');
@@ -1146,7 +1147,8 @@ describe('filterTallyContestsByParty', () => {
     const { election } = electionPrimaryNonpartisanContestsFixtures;
 
     // get the CVRs
-    const cvrsFileContents = electionPrimaryNonpartisanContestsFixtures.cvrData;
+    const cvrsFileContents =
+      electionPrimaryNonpartisanContestsFixtures.legacyCvrData;
     const castVoteRecords = parseCvrs(cvrsFileContents);
 
     // tabulate it

@@ -48,7 +48,8 @@ import {
 } from '../test/api_mock_data';
 import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
 
-const EITHER_NEITHER_CVR_DATA = electionWithMsEitherNeitherFixtures.cvrData;
+const EITHER_NEITHER_CVR_DATA =
+  electionWithMsEitherNeitherFixtures.legacyCvrData;
 
 jest.mock('./components/hand_marked_paper_ballot');
 jest.mock('./utils/pdf_to_images');
@@ -788,11 +789,11 @@ test('tabulating CVRs with manual data', async () => {
 });
 
 test('reports screen shows appropriate summary data about ballot counts and printed ballots', async () => {
-  const { electionDefinition, cvrData } =
+  const { electionDefinition, legacyCvrData } =
     electionMinimalExhaustiveSampleFixtures;
   const { renderApp, backend } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords(
-    await fileDataToCastVoteRecords(cvrData, electionDefinition)
+    await fileDataToCastVoteRecords(legacyCvrData, electionDefinition)
   );
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetSystemSettings();
@@ -1237,14 +1238,14 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
 });
 
 test('primary election with nonpartisan contests', async () => {
-  const { electionDefinition, cvrData } =
+  const { electionDefinition, legacyCvrData } =
     electionPrimaryNonpartisanContestsFixtures;
   const { renderApp } = buildApp(apiMock);
 
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecords(
-    await fileDataToCastVoteRecords(cvrData, electionDefinition)
+    await fileDataToCastVoteRecords(legacyCvrData, electionDefinition)
   );
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
   apiMock.expectGetOfficialPrintedBallots([]);

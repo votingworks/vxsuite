@@ -40,7 +40,7 @@ test('tabulating a set of CVRs gives expected output', () => {
   const election = electionSample2;
 
   // get the CVRs
-  const cvrsFileContents = electionSample2Fixtures.cvrDataStandard1;
+  const cvrsFileContents = electionSample2Fixtures.legacyCvrDataStandard1;
   const castVoteRecords = parseCvrsAndAssertSuccess(cvrsFileContents, election);
 
   // tabulate it
@@ -323,7 +323,7 @@ test('overvote report', () => {
   const election = electionSample2;
 
   // get the CVRs
-  const cvrsFileContents = electionSample2Fixtures.cvrDataStandard1;
+  const cvrsFileContents = electionSample2Fixtures.legacyCvrDataStandard1;
   const castVoteRecords = parseCvrsAndAssertSuccess(cvrsFileContents, election);
 
   const pairTallies = getOvervotePairTallies({ election, castVoteRecords });
@@ -719,7 +719,7 @@ describe('filterTalliesByParams in a primary election', () => {
 
   beforeEach(() => {
     // get the CVRs
-    const cvrsFileContents = electionMultiPartyPrimaryFixtures.cvrData;
+    const cvrsFileContents = electionMultiPartyPrimaryFixtures.legacyCvrData;
     const castVoteRecords = parseCvrsAndAssertSuccess(
       cvrsFileContents,
       electionMultiPartyPrimaryFixtures.electionDefinition.election

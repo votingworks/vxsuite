@@ -57,14 +57,14 @@ afterEach(() => {
 });
 
 test('manual write-in data end-to-end test', async () => {
-  const { electionDefinition, partial1CvrFile } =
+  const { electionDefinition, legacyPartial1CvrFile } =
     electionMinimalExhaustiveSampleFixtures;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(
-      partial1CvrFile.asText(),
+      legacyPartial1CvrFile.asText(),
       electionDefinition
     )
   );

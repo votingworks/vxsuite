@@ -36,9 +36,6 @@ export const SCAN_WORKSPACE =
     ? join(__dirname, '../dev-workspace')
     : undefined);
 
-export const CVR_EXPORT_FORMAT: 'vxf' | 'cdf' =
-  process.env.CVR_EXPORT_FORMAT ?? 'vxf';
-
 /**
  * Where are exported files allowed to be written to?
  */

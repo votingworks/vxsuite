@@ -1,7 +1,5 @@
-import { Admin } from '@votingworks/api';
 import { Result } from '@votingworks/basics';
 import { Id } from '@votingworks/types';
-import { AddCastVoteRecordError } from './store';
 
 /**
  * Environment variables that identify the machine and its software. Set at the
@@ -29,22 +27,6 @@ export type SetSystemSettingsResult = Result<
     type: 'parsing' | 'database';
     message: string;
   }
->;
-
-/**
- * Errors that may occur when loading a cast vote record file from a path
- */
-export type AddCastVoteRecordFileError =
-  | { type: 'invalid-file'; userFriendlyMessage: string }
-  | ({ type: 'invalid-record' } & AddCastVoteRecordError)
-  | { type: 'invalid-cdf-report'; userFriendlyMessage: string };
-
-/**
- * Result of attempt to load a cast vote record file from a path
- */
-export type AddCastVoteRecordFileResult = Result<
-  Admin.CvrFileImportInfo,
-  AddCastVoteRecordFileError
 >;
 
 /**

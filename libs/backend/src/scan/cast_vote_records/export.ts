@@ -28,7 +28,10 @@ import {
 } from './canonicalize';
 import { buildCastVoteRecord, hasWriteIns } from './build_cast_vote_record';
 import { ExportDataError, Exporter } from '../../exporter';
-import { getUsbDrives } from '../../get_usb_drives';
+import {
+  UsbDrive,
+  getUsbDrives as defaultGetUsbDrives,
+} from '../../get_usb_drives';
 import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../globals';
 import { BallotPageLayoutsLookup, getBallotPageLayout } from './page_layouts';
 import { buildCastVoteRecordReportMetadata } from './build_report_metadata';
@@ -321,17 +324,18 @@ export type ExportCastVoteRecordReportToUsbDriveError =
  * Exports a complete cast vote record report to an inserted and mounted USB
  * drive, including ballot images and layouts.
  */
-export async function exportCastVoteRecordReportToUsbDrive({
-  electionDefinition,
-  isTestMode,
-  ballotsCounted,
-  getResultSheetGenerator,
-  ballotPageLayoutsLookup,
-  definiteMarkThreshold,
-  batchInfo,
-}: ExportCastVoteRecordReportToUsbDriveParams): Promise<
-  Result<void, ExportCastVoteRecordReportToUsbDriveError>
-> {
+export async function exportCastVoteRecordReportToUsbDrive(
+  {
+    electionDefinition,
+    isTestMode,
+    ballotsCounted,
+    getResultSheetGenerator,
+    ballotPageLayoutsLookup,
+    definiteMarkThreshold,
+    batchInfo,
+  }: ExportCastVoteRecordReportToUsbDriveParams,
+  getUsbDrives: () => Promise<UsbDrive[]> = defaultGetUsbDrives
+): Promise<Result<void, ExportCastVoteRecordReportToUsbDriveError>> {
   const { electionHash, election } = electionDefinition;
   const exporter = new Exporter({
     allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
