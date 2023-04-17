@@ -205,16 +205,6 @@ test('write-in adjudication lifecycle', async () => {
 
     const writeInRecord = pendingWriteIn[0]!;
 
-    // Skipping this check on the write-in images. The fixture does now have
-    // write in images but attempting to retrieve them will throw an error
-    // because the endpoint is not compatible with VotingWorks format
-    // ballot layouts.
-
-    // const writeInImageEntries = await apiClient.getWriteInImage({
-    //   writeInId: writeInRecord.id,
-    // });
-    // expect(writeInImageEntries).toHaveLength(0); // the fixtures do not have ballot images
-
     // transcribe it
     await apiClient.transcribeWriteIn({
       writeInId: writeInRecord.id,
