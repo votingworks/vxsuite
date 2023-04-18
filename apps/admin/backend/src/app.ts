@@ -15,7 +15,14 @@ import {
   SystemSettings,
   SystemSettingsSchema,
 } from '@votingworks/types';
-import { assert, assertDefined, err, ok, Optional } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  iter,
+  ok,
+  Optional,
+} from '@votingworks/basics';
 import express, { Application } from 'express';
 import {
   DippedSmartCardAuthApi,
@@ -285,8 +292,11 @@ function buildApi({
         return [];
       }
 
-      return store
-        .getCastVoteRecordEntries(currentElectionId)
+      const castVoteRecordEntryIter = iter(
+        store.getCastVoteRecordEntries(currentElectionId)
+      );
+
+      return castVoteRecordEntryIter
         .map(
           (entry) => safeParseJson(entry.data).unsafeUnwrap() as CastVoteRecord
         )
@@ -295,7 +305,8 @@ function buildApi({
           // Strip out ballot images to keep the response size low, since
           // they're not needed client-side.
           _ballotImages: undefined,
-        }));
+        }))
+        .toArray();
     },
 
     /**
