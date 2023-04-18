@@ -1,8 +1,14 @@
 # Rust Style Guide
 
 We follow the
-[Rust Style Guide](https://github.com/rust-lang/style-team/blob/master/guide/guide.md),
+[Rust Style Guide](https://github.com/rust-lang/style-team/blob/02f3c00c06c6609e3e0add3f2f15f448e12b709a/guide/guide.md),
 with most of it enforced by `rustfmt` and `clippy`.
+
+<!--
+  NOTE: we pinned the revision of the Rust Style Guide above to clarify expectations
+  when certifying. There's no reason we can't update it, but it should remain pinned to
+  a specific revision.
+-->
 
 ## Basics
 
