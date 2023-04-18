@@ -62,8 +62,7 @@ export class Importer {
     if (!this.interpreterReadyPromise) {
       this.interpreterState = 'configuring';
       this.interpreterReadyPromise = Promise.resolve().then(async () => {
-        await interpretNhWorker.configure(this.workspace.store.getDbPath());
-        await interpretVxWorker.configure(this.workspace.store.getDbPath());
+        await interpretVxWorker.configure(this.workspace.store);
         this.interpreterState = 'ready';
       });
     }
@@ -253,6 +252,7 @@ export class Importer {
     // for now.
     if (electionDefinition.election.gridLayouts) {
       return await interpretNhWorker.interpret(
+        this.workspace.store,
         sheetId,
         [frontImagePath, backImagePath],
         this.workspace.ballotImagesPath

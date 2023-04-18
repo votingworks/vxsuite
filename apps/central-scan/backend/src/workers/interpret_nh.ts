@@ -1,57 +1,26 @@
 import { interpretCompatible } from '@votingworks/ballot-interpreter-nh-next';
-import {
-  ElectionDefinition,
-  Id,
-  PageInterpretationWithFiles,
-  SheetOf,
-} from '@votingworks/types';
-import { throwIllegalValue, Result, err, ok } from '@votingworks/basics';
+import { Result, assert, ok } from '@votingworks/basics';
+import { Id, PageInterpretationWithFiles, SheetOf } from '@votingworks/types';
 import { Store } from '../store';
 import { saveSheetImages } from '../util/save_images';
 
-export type Input =
-  | { action: 'configure'; dbPath: string }
-  | {
-      action: 'interpret';
-      interpreter: 'nh';
-      sheetId: string;
-      frontImagePath: string;
-      backImagePath: string;
-      ballotImagesPath: string;
-    };
-
-export type InterpretOutput = Result<
-  SheetOf<PageInterpretationWithFiles>,
-  Error
->;
-
-export type Output = InterpretOutput | void;
-
-let electionDefinition: ElectionDefinition | undefined;
-let isTestMode: boolean | undefined;
-
-export async function configure(dbPath: string): Promise<void> {
-  const store = await Store.fileStore(dbPath);
-  electionDefinition = store.getElectionDefinition();
-  isTestMode = store.getTestMode();
-}
-
 export async function interpret(
+  store: Store,
   sheetId: Id,
   sheetPaths: SheetOf<string>,
   ballotImagesPath: string
-): Promise<InterpretOutput> {
-  if (!electionDefinition || isTestMode === undefined) {
-    return err(
-      new Error('cannot interpret ballot with no configured election')
-    );
-  }
+): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
+  const electionDefinition = store.getElectionDefinition();
+  const isTestMode = store.getTestMode();
 
-  if (!electionDefinition.election.gridLayouts) {
-    return err(
-      new Error('cannot interpret ballot with no configured grid layouts')
-    );
-  }
+  assert(
+    electionDefinition,
+    'cannot interpret ballot with no configured election'
+  );
+  assert(
+    electionDefinition.election.gridLayouts,
+    'cannot interpret ballot with no configured grid layouts'
+  );
 
   const adjudicationReasons =
     electionDefinition.election.centralScanAdjudicationReasons ?? [];
@@ -95,24 +64,4 @@ export async function interpret(
     frontPageInterpretationWithFiles,
     backPageInterpretationWithFiles,
   ]);
-}
-
-export async function call(input: Input): Promise<Output> {
-  switch (input.action) {
-    case 'configure': {
-      await configure(input.dbPath);
-      return;
-    }
-
-    case 'interpret': {
-      return interpret(
-        input.sheetId,
-        [input.frontImagePath, input.backImagePath],
-        input.ballotImagesPath
-      );
-    }
-
-    default:
-      throwIllegalValue(input, 'action');
-  }
 }
