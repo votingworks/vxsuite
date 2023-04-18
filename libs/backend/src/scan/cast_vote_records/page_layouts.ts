@@ -39,7 +39,11 @@ function getBallotPageLayouts({
   ballotPageLayoutsLookup: BallotPageLayoutsLookup;
   election: Election;
 }): BallotPageLayout[] {
-  let ballotPageLayouts = ballotPageLayoutsLookup.find(
+  if (election.gridLayouts) {
+    return generateBallotPageLayouts(election, ballotMetadata).unsafeUnwrap();
+  }
+
+  const ballotPageLayouts = ballotPageLayoutsLookup.find(
     ({ ballotMetadata: lookupMetadata }) =>
       lookupMetadata.locales.primary === ballotMetadata.locales.primary &&
       lookupMetadata.locales.secondary === ballotMetadata.locales.secondary &&
@@ -49,14 +53,7 @@ function getBallotPageLayouts({
   )?.ballotPageLayouts;
 
   if (!ballotPageLayouts) {
-    if (election.gridLayouts) {
-      ballotPageLayouts = generateBallotPageLayouts(
-        election,
-        ballotMetadata
-      ).unsafeUnwrap();
-    } else {
-      throw new Error('unable to find template layout for the current ballot');
-    }
+    throw new Error('unable to find template layout for the current ballot');
   }
 
   return ballotPageLayouts;
