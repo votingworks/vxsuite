@@ -41,7 +41,7 @@
   "Election": [
     {
       "@type": "CVR.Election",
-      "@id": "98850f8cc9ac5546c6356d3e2fa33d98e652c0ccd1a2ae3a73850aa82e5d3a70",
+      "@id": "8ff3a04cc0712e5f135c1618262dac5b07c581f8c3a225e1ee693be193893224",
       "Name": "General Election",
       "Candidate": [
         {
@@ -691,7 +691,7 @@
       "BallotStyleId": "card-number-3",
       "BallotStyleUnitId": "town-id-00701-precinct-id-",
       "CreatingDeviceId": "000",
-      "ElectionId": "98850f8cc9ac5546c6356d3e2fa33d98e652c0ccd1a2ae3a73850aa82e5d3a70",
+      "ElectionId": "8ff3a04cc0712e5f135c1618262dac5b07c581f8c3a225e1ee693be193893224",
       "BatchId": "3f1799cd-f8ae-4f6a-906a-90f56015be42",
       "UniqueId": "7bbc0e7d-e489-485e-b1c2-c9d54818aea2",
       "vxBallotType": "precinct",

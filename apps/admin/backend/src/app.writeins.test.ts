@@ -514,7 +514,7 @@ test('getWriteInImage', async () => {
     await apiClient.addCastVoteRecordFile({
       path: reportDirectoryPath,
     })
-  ).assertOk('expected to load cast vote record report successfully');
+  ).unsafeUnwrap();
 
   const writeIns = await apiClient.getWriteIns({
     contestId: 'County-Commissioner-d6feed25',
