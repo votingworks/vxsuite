@@ -327,10 +327,10 @@
       "columns": 34,
       "rows": 53,
       "optionBoundsFromTargetMark": {
-        "x": -5,
-        "y": -1,
-        "width": 7,
-        "height": 3
+        "left": 5,
+        "top": 1,
+        "right": 1,
+        "bottom": 1
       },
       "gridPositions": [
         {

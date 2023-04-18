@@ -851,10 +851,10 @@ export function convertElectionDefinitionHeader(
         rows: geometry.gridSize.height,
         // hardcoded for NH state elections
         optionBoundsFromTargetMark: {
-          x: -5,
-          y: -1,
-          width: 7,
-          height: 3,
+          left: 5,
+          top: 1,
+          right: 1,
+          bottom: 1,
         },
         gridPositions: definitionGrid.map(({ element, column, row }) => {
           const metadata = optionMetadataByCandidateElement.get(element);
