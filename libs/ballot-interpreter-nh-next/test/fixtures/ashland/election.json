@@ -384,6 +384,12 @@
       "ballotStyleId": "card-number-5",
       "columns": 34,
       "rows": 53,
+      "optionBoundsFromTargetMark": {
+        "x": -10,
+        "y": -1,
+        "width": 11,
+        "height": 2
+      },
       "gridPositions": [
         {
           "type": "option",

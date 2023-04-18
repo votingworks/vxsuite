@@ -849,6 +849,13 @@ export function convertElectionDefinitionHeader(
         ballotStyleId: 'default',
         columns: geometry.gridSize.width,
         rows: geometry.gridSize.height,
+        // hardcoded for NH state elections
+        optionBoundsFromTargetMark: {
+          x: -5,
+          y: -1,
+          width: 7,
+          height: 3,
+        },
         gridPositions: definitionGrid.map(({ element, column, row }) => {
           const metadata = optionMetadataByCandidateElement.get(element);
           assert(metadata, `metadata missing for column=${column} row=${row}`);

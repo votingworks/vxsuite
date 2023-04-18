@@ -17,6 +17,14 @@ idtype!(PrecinctId);
 // IF YOU CHANGE ANYTHING HERE, YOU MUST ALSO CHANGE IT THERE.
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Rect {
+    pub x: i32,
+    pub y: i32,
+    pub width: u32,
+    pub height: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Election {
     pub title: String,
@@ -31,6 +39,7 @@ pub struct GridLayout {
     pub ballot_style_id: BallotStyleId,
     pub columns: GridUnit,
     pub rows: GridUnit,
+    pub option_bounds_from_target_mark: Rect,
     pub grid_positions: Vec<GridPosition>,
 }
 
