@@ -42,6 +42,7 @@ import {
   InsertedSmartcardAuth,
   Printer,
 } from '@votingworks/types';
+import { ReplaceBallotBagScreen } from '../components/replace_ballot_bag_screen';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
@@ -99,6 +100,7 @@ interface Props {
   printer: Printer;
   hasPrinterAttached: boolean;
   usbDrive: UsbDrive;
+  onReplaceBallotBag?: () => void;
 }
 
 export function PollWorkerScreen({
@@ -109,6 +111,7 @@ export function PollWorkerScreen({
   hasPrinterAttached: printerFromProps,
   printer,
   usbDrive,
+  onReplaceBallotBag,
 }: Props): JSX.Element {
   const { electionDefinition, precinctSelection, machineConfig, auth } =
     useContext(AppContext);
@@ -121,6 +124,7 @@ export function PollWorkerScreen({
   >(new Map());
   const [isExportingResults, setIsExportingResults] = useState(false);
   const [isShowingLiveCheck, setIsShowingLiveCheck] = useState(false);
+  const [isReplacingBallotBag, setIsReplacingBallotBag] = useState(false);
   const [pollsToggledTime, setPollsToggledTime] = useState<number>();
   const hasPrinterAttached = printerFromProps || !window.kiosk;
   const { election } = electionDefinition;
@@ -523,6 +527,23 @@ export function PollWorkerScreen({
       </React.Fragment>
     );
   }
+
+  // we don't need to ever set isReplacingBallotBag to false
+  // because we depend on unmounting for that to happen.
+  if (isReplacingBallotBag) {
+    return (
+      <ReplaceBallotBagScreen
+        scannedBallotCount={scannedBallotCount}
+        pollWorkerAuthenticated
+        onComplete={() => {
+          if (onReplaceBallotBag) {
+            onReplaceBallotBag();
+          }
+        }}
+      />
+    );
+  }
+
   return (
     <React.Fragment>
       <ScreenMainCenterChild infoBarMode="pollworker">
@@ -543,6 +564,13 @@ export function PollWorkerScreen({
             <p>
               <Button onPress={() => setIsExportingResults(true)}>
                 Save Results to USB Drive
+              </Button>
+            </p>
+          )}
+          {isPollsOpen && (
+            <p>
+              <Button onPress={() => setIsReplacingBallotBag(true)}>
+                Replace Ballot Bag
               </Button>
             </p>
           )}

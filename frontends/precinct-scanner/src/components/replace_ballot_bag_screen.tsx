@@ -17,12 +17,14 @@ export function ReplaceBallotBagScreen({
   onComplete,
 }: Props): JSX.Element {
   const [confirmed, setConfirmed] = useState(false);
+  const [onCompleteCalled, setOnCompleteCalled] = useState(false);
 
   useEffect(() => {
-    if (confirmed && !pollWorkerAuthenticated) {
+    if (confirmed && !onCompleteCalled) {
       onComplete();
+      setOnCompleteCalled(true);
     }
-  }, [confirmed, pollWorkerAuthenticated, onComplete]);
+  }, [confirmed, onCompleteCalled, setOnCompleteCalled, onComplete]);
 
   const mainContent = (() => {
     if (!confirmed && !pollWorkerAuthenticated) {
