@@ -1,10 +1,8 @@
 import { err, ok } from '@votingworks/basics';
-import { Buffer } from 'buffer';
 import { EventEmitter } from 'events';
 import { makeMockWorkerOps } from '../../test/util/mocks';
-import { workerPath } from './echo';
 import * as json from './json_serialization';
-import { childProcessPool, WorkerPool } from './pool';
+import { WorkerPool } from './pool';
 import { WorkerOps } from './pool/types';
 
 test('starts new workers when starting the pool', () => {
@@ -243,86 +241,4 @@ test('releasing a non-owned worker is not allowed', () => {
   expect(() => pool['releaseWorker'](anotherWorker, 'test')).toThrowError(
     'worker is not owned by this instance'
   );
-});
-
-test('child process workers work', async () => {
-  const pool = childProcessPool(workerPath, 1);
-  pool.start();
-  try {
-    expect(await pool.call('hello child process')).toEqual(
-      'hello child process'
-    );
-  } finally {
-    pool.stop();
-  }
-});
-
-test('child process workers can send objects', async () => {
-  const pool = childProcessPool(workerPath, 1);
-  pool.start();
-  try {
-    expect(await pool.call({ a: 1, b: { c: 2 } })).toEqual({
-      a: 1,
-      b: { c: 2 },
-    });
-  } finally {
-    pool.stop();
-  }
-});
-
-test('child process workers can send arrays', async () => {
-  const pool = childProcessPool(workerPath, 1);
-  pool.start();
-  try {
-    expect(await pool.call([1, '2', null, undefined])).toEqual([
-      1,
-      '2',
-      null,
-      undefined,
-    ]);
-  } finally {
-    pool.stop();
-  }
-});
-
-test('child process workers can send Buffers', async () => {
-  const pool = childProcessPool(workerPath, 1);
-  pool.start();
-  try {
-    expect(await pool.call(Buffer.of(1, 2, 3))).toEqual(Buffer.of(1, 2, 3));
-  } finally {
-    pool.stop();
-  }
-});
-
-test('child process workers can send Uint8Arrays', async () => {
-  const pool = childProcessPool(workerPath, 1);
-  pool.start();
-  try {
-    expect(await pool.call(Uint8Array.of(1, 2, 3))).toEqual(
-      Uint8Array.of(1, 2, 3)
-    );
-  } finally {
-    pool.stop();
-  }
-});
-
-test('child process workers cannot send functions', async () => {
-  const pool = childProcessPool(workerPath, 1);
-  pool.start();
-  try {
-    await expect(
-      pool.call({
-        a: {
-          fn(): void {
-            // noop
-          },
-        },
-      })
-    ).rejects.toThrow(
-      `cannot serialize function in message at key path 'a.fn'`
-    );
-  } finally {
-    pool.stop();
-  }
 });

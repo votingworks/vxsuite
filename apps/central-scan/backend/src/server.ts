@@ -19,7 +19,7 @@ import { Importer } from './importer';
 import { FujitsuScanner, BatchScanner, ScannerMode } from './fujitsu_scanner';
 import { createWorkspace, Workspace } from './util/workspace';
 import * as workers from './workers/combined';
-import { childProcessPool, WorkerPool } from './workers/pool';
+import { inlinePool, WorkerPool } from './workers/pool';
 import { buildCentralScannerApp } from './central_scanner_app';
 
 export interface StartOptions {
@@ -85,10 +85,7 @@ export async function start({
   let workerPool: WorkerPool<workers.Input, workers.Output> | undefined;
 
   function workerPoolProvider(): WorkerPool<workers.Input, workers.Output> {
-    workerPool ??= childProcessPool(
-      workers.workerPath,
-      2 /* front and back */
-    ) as WorkerPool<workers.Input, workers.Output>;
+    workerPool ??= inlinePool(workers.call);
     return workerPool;
   }
   const resolvedImporter =

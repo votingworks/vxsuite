@@ -1,7 +1,5 @@
-import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { cpus } from 'os';
-import { ChildProcessWorkerOps } from './child_process_worker_ops';
 import { InlineWorkerOps } from './inline_worker_ops';
 import { WorkerOps } from './types';
 import { WorkerPool } from './worker_pool';
@@ -20,11 +18,4 @@ export function inlinePool<I, O>(
   call: (input: I) => Promise<O>
 ): WorkerPool<I, O, EventEmitter> {
   return create(new InlineWorkerOps<I, O>(call), 1);
-}
-
-export function childProcessPool(
-  main: string,
-  size?: number
-): WorkerPool<unknown, unknown, ChildProcess> {
-  return create(new ChildProcessWorkerOps(main), size);
 }
