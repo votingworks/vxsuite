@@ -27,8 +27,8 @@ import {
   describeValidationError,
   validateSheetInterpretation,
 } from './validation';
-import * as interpretNhWorker from './workers/interpret_nh';
-import * as interpretVxWorker from './workers/interpret_vx';
+import * as nhInterpreter from './interpreters/nh';
+import * as vxInterpreter from './interpreters/vx';
 
 const debug = makeDebug('scan:importer');
 
@@ -58,11 +58,11 @@ export class Importer {
     this.interpreterState = 'init';
   }
 
-  private async interpreterReady(): Promise<void> {
+  private async configureInterpreter(): Promise<void> {
     if (!this.interpreterReadyPromise) {
       this.interpreterState = 'configuring';
       this.interpreterReadyPromise = Promise.resolve().then(async () => {
-        await interpretVxWorker.configure(this.workspace.store);
+        await vxInterpreter.configure(this.workspace.store);
         this.interpreterState = 'ready';
       });
     }
@@ -101,7 +101,7 @@ export class Importer {
    * Tell the importer that we have all the templates
    */
   async doneHmpbTemplates(): Promise<void> {
-    await this.interpreterReady();
+    await this.configureInterpreter();
   }
 
   /**
@@ -141,7 +141,7 @@ export class Importer {
    */
   async restoreConfig(): Promise<void> {
     this.invalidateInterpreterConfig();
-    await this.interpreterReady();
+    await this.configureInterpreter();
   }
 
   private async sheetAdded(
@@ -251,7 +251,7 @@ export class Importer {
     // Carve-out for NH ballots, which are the only ones that use `gridLayouts`
     // for now.
     if (electionDefinition.election.gridLayouts) {
-      return await interpretNhWorker.interpret(
+      return await nhInterpreter.interpret(
         this.workspace.store,
         sheetId,
         [frontImagePath, backImagePath],
@@ -266,13 +266,13 @@ export class Importer {
         await frontDetectQrcodePromise,
         await backDetectQrcodePromise,
       ]);
-    const frontInterpretPromise = interpretVxWorker.interpret(
+    const frontInterpretPromise = vxInterpreter.interpret(
       frontImagePath,
       sheetId,
       this.workspace.ballotImagesPath,
       frontDetectQrcodeOutput
     );
-    const backInterpretPromise = interpretVxWorker.interpret(
+    const backInterpretPromise = vxInterpreter.interpret(
       backImagePath,
       sheetId,
       this.workspace.ballotImagesPath,

@@ -3,7 +3,7 @@ import { readdir } from 'fs/promises';
 import { join } from 'path';
 import { dirSync, fileSync } from 'tmp';
 import { Store } from '../store';
-import * as interpretNh from './interpret_nh';
+import * as interpretNh from './nh';
 
 test('interpret', async () => {
   const dbPath = fileSync().name;

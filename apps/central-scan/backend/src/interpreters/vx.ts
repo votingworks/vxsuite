@@ -10,9 +10,7 @@ import { Interpreter } from '../interpreter';
 import { Store } from '../store';
 import { saveSheetImages } from '../util/save_images';
 
-const debug = makeDebug('scan:worker:interpret');
-
-export const workerPath = __filename;
+const debug = makeDebug('scan:vx:interpret');
 
 let interpreter: Interpreter | undefined;
 
