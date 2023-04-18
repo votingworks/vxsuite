@@ -5,6 +5,7 @@ import {
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -191,10 +192,12 @@ test('setSystemSettings throws error when store.saveSystemSettings fails', async
   });
 
   mockSystemAdministratorAuth(auth);
-  // https://jestjs.io/docs/expect#rejects
-  await expect(
-    apiClient.setSystemSettings({ systemSettings: systemSettings.asText() })
-  ).rejects.toThrow(errorString);
+
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      apiClient.setSystemSettings({ systemSettings: systemSettings.asText() })
+    ).rejects.toThrow(errorString);
+  });
 
   // Logger call 1 is made by configureMachine when loading the election definition
   expect(logger.log).toHaveBeenNthCalledWith(
