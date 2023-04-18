@@ -7,7 +7,7 @@ import {
   DEV_JURISDICTION,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
-import { createMockUsb, MockUsb } from '@votingworks/backend';
+import { createMockUsb } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { fakeLogger, Logger } from '@votingworks/logging';
 

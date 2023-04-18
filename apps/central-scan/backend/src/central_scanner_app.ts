@@ -10,7 +10,6 @@ import {
   Exporter,
   Usb,
   readBallotPackageFromUsb,
-  VX_MACHINE_ID,
 } from '@votingworks/backend';
 import {
   BallotPackageConfigurationError,
