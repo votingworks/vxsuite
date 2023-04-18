@@ -1,9 +1,9 @@
 import { Scan } from '@votingworks/api';
 import {
+  detectQrcodeInFilePath,
   normalizeSheetOutput,
-  QrCodePageResult,
 } from '@votingworks/ballot-interpreter-vx';
-import { err, find, ok, Result, sleep } from '@votingworks/basics';
+import { Result, assert, find, ok, sleep } from '@votingworks/basics';
 import { pdfToImages } from '@votingworks/image-utils';
 import {
   BallotPageLayout,
@@ -22,23 +22,19 @@ import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { Castability, checkSheetCastability } from './util/castability';
-import { HmpbInterpretationError } from './util/hmpb_interpretation_error';
 import { Workspace } from './util/workspace';
 import {
   describeValidationError,
   validateSheetInterpretation,
 } from './validation';
-import * as workers from './workers/combined';
 import * as interpretNhWorker from './workers/interpret_nh';
 import * as interpretVxWorker from './workers/interpret_vx';
-import { inlinePool, WorkerPool } from './workers/pool';
 
 const debug = makeDebug('scan:importer');
 
 export interface Options {
   workspace: Workspace;
   scanner: BatchScanner;
-  workerPoolProvider?: () => WorkerPool<workers.Input, workers.Output>;
 }
 
 /**
@@ -49,57 +45,37 @@ export class Importer {
   private readonly scanner: BatchScanner;
   private sheetGenerator?: BatchControl;
   private batchId?: string;
-  private workerPool?: WorkerPool<workers.Input, workers.Output>;
-  private readonly workerPoolProvider: () => WorkerPool<
-    workers.Input,
-    workers.Output
-  >;
-  private interpreterReady = true;
+  private interpreterState: 'init' | 'configuring' | 'ready' = 'init';
+  private interpreterReadyPromise?: Promise<void>;
 
-  constructor({
-    workspace,
-    scanner,
-    workerPoolProvider = (): WorkerPool<workers.Input, workers.Output> =>
-      inlinePool<workers.Input, workers.Output>(workers.call),
-  }: Options) {
+  constructor({ workspace, scanner }: Options) {
     this.workspace = workspace;
     this.scanner = scanner;
-    this.workerPoolProvider = workerPoolProvider;
   }
 
   private invalidateInterpreterConfig(): void {
-    this.interpreterReady = false;
-    this.workerPool?.stop();
-    this.workerPool = undefined;
+    this.interpreterReadyPromise = undefined;
+    this.interpreterState = 'init';
   }
 
-  private async getWorkerPool(): Promise<
-    WorkerPool<workers.Input, workers.Output>
-  > {
-    if (!this.workerPool) {
-      this.workerPool = this.workerPoolProvider();
-      this.workerPool.start();
-      await this.workerPool.callAll({
-        action: 'configure',
-        dbPath: this.workspace.store.getDbPath(),
+  private async interpreterReady(): Promise<void> {
+    if (!this.interpreterReadyPromise) {
+      this.interpreterState = 'configuring';
+      this.interpreterReadyPromise = Promise.resolve().then(async () => {
+        await interpretNhWorker.configure(this.workspace.store.getDbPath());
+        await interpretVxWorker.configure(this.workspace.store.getDbPath());
+        this.interpreterState = 'ready';
       });
-      this.interpreterReady = true;
     }
-    return this.workerPool;
+    return this.interpreterReadyPromise;
   }
 
   async addHmpbTemplates(
     pdf: Buffer,
     layouts: readonly BallotPageLayout[]
   ): Promise<BallotPageLayoutWithImage[]> {
-    const electionDefinition = this.workspace.store.getElectionDefinition();
+    this.getElectionDefinition(); // ensure election definition is loaded
     const result: BallotPageLayoutWithImage[] = [];
-
-    if (!electionDefinition) {
-      throw new HmpbInterpretationError(
-        `cannot add a HMPB template without a configured election`
-      );
-    }
 
     for await (const { page, pageNumber } of pdfToImages(pdf, {
       scale: 2,
@@ -126,7 +102,7 @@ export class Importer {
    * Tell the importer that we have all the templates
    */
   async doneHmpbTemplates(): Promise<void> {
-    await this.getWorkerPool();
+    await this.interpreterReady();
   }
 
   /**
@@ -166,7 +142,7 @@ export class Importer {
    */
   async restoreConfig(): Promise<void> {
     this.invalidateInterpreterConfig();
-    await this.getWorkerPool();
+    await this.interpreterReady();
   }
 
   private async sheetAdded(
@@ -194,10 +170,6 @@ export class Importer {
     backImagePath: string
   ): Promise<string> {
     let sheetId = uuid();
-    const electionDefinition = this.workspace.store.getElectionDefinition();
-    if (!electionDefinition) {
-      throw new Error('missing election definition');
-    }
     const interpretResult = await this.interpretSheet(sheetId, [
       frontImagePath,
       backImagePath,
@@ -275,62 +247,39 @@ export class Importer {
     sheetId: string,
     [frontImagePath, backImagePath]: SheetOf<string>
   ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
-    const workerPool = await this.getWorkerPool();
-    const electionDefinition = this.workspace.store.getElectionDefinition();
-
-    if (!electionDefinition) {
-      return err(new Error('missing election definition'));
-    }
+    const electionDefinition = this.getElectionDefinition();
 
     // Carve-out for NH ballots, which are the only ones that use `gridLayouts`
     // for now.
     if (electionDefinition.election.gridLayouts) {
-      const nhInterpretPromise = workerPool.call({
-        action: 'interpret',
-        interpreter: 'nh',
-        frontImagePath,
-        backImagePath,
+      return await interpretNhWorker.interpret(
         sheetId,
-        ballotImagesPath: this.workspace.ballotImagesPath,
-      });
-
-      return (await nhInterpretPromise) as interpretNhWorker.InterpretOutput;
+        [frontImagePath, backImagePath],
+        this.workspace.ballotImagesPath
+      );
     }
 
-    const frontDetectQrcodePromise = workerPool.call({
-      action: 'detect-qrcode',
-      imagePath: frontImagePath,
-    });
-    const backDetectQrcodePromise = workerPool.call({
-      action: 'detect-qrcode',
-      imagePath: backImagePath,
-    });
+    const frontDetectQrcodePromise = detectQrcodeInFilePath(frontImagePath);
+    const backDetectQrcodePromise = detectQrcodeInFilePath(backImagePath);
     const [frontDetectQrcodeOutput, backDetectQrcodeOutput] =
       normalizeSheetOutput(electionDefinition, [
-        (await frontDetectQrcodePromise) as QrCodePageResult,
-        (await backDetectQrcodePromise) as QrCodePageResult,
+        await frontDetectQrcodePromise,
+        await backDetectQrcodePromise,
       ]);
-    const frontInterpretPromise = workerPool.call({
-      action: 'interpret',
-      interpreter: 'vx',
-      imagePath: frontImagePath,
+    const frontInterpretPromise = interpretVxWorker.interpret(
+      frontImagePath,
       sheetId,
-      ballotImagesPath: this.workspace.ballotImagesPath,
-      detectQrcodeResult: frontDetectQrcodeOutput,
-    });
-    const backInterpretPromise = workerPool.call({
-      action: 'interpret',
-      interpreter: 'vx',
-      imagePath: backImagePath,
+      this.workspace.ballotImagesPath,
+      frontDetectQrcodeOutput
+    );
+    const backInterpretPromise = interpretVxWorker.interpret(
+      backImagePath,
       sheetId,
-      ballotImagesPath: this.workspace.ballotImagesPath,
-      detectQrcodeResult: backDetectQrcodeOutput,
-    });
+      this.workspace.ballotImagesPath,
+      backDetectQrcodeOutput
+    );
 
-    return ok([
-      (await frontInterpretPromise) as interpretVxWorker.InterpretOutput,
-      (await backInterpretPromise) as interpretVxWorker.InterpretOutput,
-    ]);
+    return ok([await frontInterpretPromise, await backInterpretPromise]);
   }
 
   /**
@@ -399,9 +348,10 @@ export class Importer {
    * Scan a single sheet and see how it looks
    */
   private async scanOneSheet(): Promise<void> {
-    if (!this.sheetGenerator || !this.batchId) {
-      return;
-    }
+    assert(
+      typeof this.sheetGenerator !== 'undefined' &&
+        typeof this.batchId !== 'undefined'
+    );
 
     const sheet = await this.sheetGenerator.scanSheet();
 
@@ -446,17 +396,13 @@ export class Importer {
    * Create a new batch and begin the scanning process
    */
   async startImport(): Promise<string> {
-    const election = this.workspace.store.getElectionDefinition();
-
-    if (!election) {
-      throw new Error('no election configuration');
-    }
+    this.getElectionDefinition(); // ensure election definition is loaded
 
     if (this.sheetGenerator) {
       throw new Error('scanning already in progress');
     }
 
-    if (!this.interpreterReady) {
+    if (this.interpreterState !== 'ready') {
       throw new Error('interpreter still loading');
     }
 
@@ -537,7 +483,7 @@ export class Importer {
    * Get the imported batches and current election info, if any.
    */
   getStatus(): Scan.ScanStatus {
-    const electionDefinition = this.workspace.store.getElectionDefinition();
+    const electionDefinition = this.getElectionDefinition();
     const canUnconfigure = this.workspace.store.getCanUnconfigure();
     const batches = this.workspace.store.batchStatus();
     const adjudication = this.workspace.store.adjudicationStatus();
@@ -557,5 +503,15 @@ export class Importer {
     this.invalidateInterpreterConfig();
     this.doZero();
     this.workspace.store.reset(); // destroy all data
+  }
+
+  private getElectionDefinition(): ElectionDefinition {
+    const electionDefinition = this.workspace.store.getElectionDefinition();
+
+    if (!electionDefinition) {
+      throw new Error('no election configuration');
+    }
+
+    return electionDefinition;
   }
 }

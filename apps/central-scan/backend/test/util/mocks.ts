@@ -12,7 +12,6 @@ import { EventEmitter } from 'events';
 import { fileSync } from 'tmp';
 import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing';
 import { BatchControl, BatchScanner } from '../../src/fujitsu_scanner';
-import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool';
 
 export function makeMock<T>(Cls: new (...args: never[]) => T): MaybeMocked<T> {
   if (!jest.isMockFunction(Cls)) {
@@ -21,21 +20,6 @@ export function makeMock<T>(Cls: new (...args: never[]) => T): MaybeMocked<T> {
     );
   }
   return mocked(new Cls());
-}
-
-export function mockWorkerPoolProvider<I, O>(
-  call: (input: I) => Promise<O>
-): () => WorkerPool<I, O> {
-  return (): WorkerPool<I, O> => inlinePool(call);
-}
-
-export function makeMockWorkerOps(): jest.Mocked<WorkerOps<unknown>> {
-  return {
-    start: jest.fn(),
-    stop: jest.fn(),
-    send: jest.fn(),
-    describe: jest.fn(),
-  };
 }
 
 type ScanSessionStep =

@@ -36,9 +36,10 @@ export let interpreter: Interpreter | undefined;
 /**
  * Reads election configuration from the database.
  */
-export async function configure(store: Store): Promise<void> {
+export async function configure(dbPath: string): Promise<void> {
   interpreter = undefined;
 
+  const store = await Store.fileStore(dbPath);
   debug('configuring from %s', store.getDbPath());
 
   const electionDefinition = store.getElectionDefinition();
@@ -119,8 +120,7 @@ export async function interpret(
 export async function call(input: Input): Promise<Output> {
   switch (input.action) {
     case 'configure': {
-      const store = await Store.fileStore(input.dbPath);
-      return await configure(store);
+      return await configure(input.dbPath);
     }
 
     case 'interpret':
