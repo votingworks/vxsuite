@@ -102,7 +102,7 @@ export class Store {
   }
 
   /**
-   * Creates a system settings record and returns its ID.
+   * Creates a system settings record
    */
   setSystemSettings(systemSettings: SystemSettings): void {
     this.client.run('delete from system_settings');
@@ -113,7 +113,7 @@ export class Store {
   }
 
   /**
-   * Gets a specific system settings record.
+   * Gets system settings or undefined if they aren't loaded yet
    */
   getSystemSettings(): SystemSettings | undefined {
     const result = this.client.one(

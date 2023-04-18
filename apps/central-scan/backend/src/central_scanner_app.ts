@@ -4,15 +4,20 @@ import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { assert } from '@votingworks/basics';
+import { Result, assert, ok } from '@votingworks/basics';
 import {
   exportCastVoteRecordReportToUsbDrive,
   Exporter,
   Usb,
+  readBallotPackageFromUsb,
+  VX_MACHINE_ID,
 } from '@votingworks/backend';
 import {
+  BallotPackageConfigurationError,
   BallotPageLayout,
   BallotPageLayoutSchema,
+  ElectionDefinition,
+  SystemSettings,
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
@@ -38,11 +43,11 @@ type NoParams = never;
 
 export interface AppOptions {
   auth: DippedSmartCardAuthApi;
-  usb: Usb;
   allowedExportPatterns?: string[];
   importer: Importer;
   workspace: Workspace;
   logger: Logger;
+  usb: Usb;
 }
 
 function constructAuthMachineState(
@@ -60,7 +65,11 @@ function buildApi({
   auth,
   workspace,
   logger,
-}: Pick<AppOptions, 'auth' | 'workspace' | 'logger'>) {
+  usb,
+  importer,
+}: Pick<AppOptions, 'auth' | 'workspace' | 'logger' | 'usb' | 'importer'>) {
+  const { store } = workspace;
+
   async function getUserRole(): Promise<LoggingUserRole> {
     const authStatus = await auth.getAuthStatus(
       constructAuthMachineState(workspace)
@@ -119,6 +128,43 @@ function buildApi({
         throw error;
       }
     },
+
+    async configureFromBallotPackageOnUsbDrive(): Promise<
+      Result<ElectionDefinition, BallotPackageConfigurationError>
+    > {
+      assert(!store.getElectionDefinition(), 'Already configured');
+      const [usbDrive] = await usb.getUsbDrives();
+      assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
+
+      const authStatus = await auth.getAuthStatus(
+        constructAuthMachineState(workspace)
+      );
+
+      const ballotPackageResult = await readBallotPackageFromUsb(
+        authStatus,
+        usbDrive,
+        logger
+      );
+      if (ballotPackageResult.isErr()) {
+        return ballotPackageResult;
+      }
+
+      const ballotPackage = ballotPackageResult.ok();
+      const { electionDefinition, systemSettings, ballots } = ballotPackage;
+      assert(systemSettings);
+      store.setElection(electionDefinition.electionData);
+      store.setSystemSettings(systemSettings);
+      for (const ballot of ballots) {
+        await importer.addHmpbTemplates(ballot.pdf, ballot.layout);
+      }
+      await importer.doneHmpbTemplates();
+
+      return ok(electionDefinition);
+    },
+
+    getSystemSettings(): SystemSettings | null {
+      return workspace.store.getSystemSettings() ?? null;
+    },
   });
 }
 
@@ -133,16 +179,16 @@ export type Api = ReturnType<typeof buildApi>;
  */
 export async function buildCentralScannerApp({
   auth,
-  usb,
   allowedExportPatterns = SCAN_ALLOWED_EXPORT_PATTERNS,
   importer,
   workspace,
   logger,
+  usb,
 }: AppOptions): Promise<Application> {
   const { store } = workspace;
 
   const app: Application = express();
-  const api = buildApi({ auth, workspace, logger });
+  const api = buildApi({ auth, workspace, logger, usb, importer });
   app.use('/api', grout.buildRouter(api, express));
 
   const upload = multer({

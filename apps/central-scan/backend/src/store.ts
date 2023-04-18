@@ -34,6 +34,8 @@ import {
   safeParseJson,
   SheetOf,
   Side,
+  SystemSettings,
+  SystemSettingsDbRow,
 } from '@votingworks/types';
 import { assert, iter, Optional } from '@votingworks/basics';
 import { Buffer } from 'buffer';
@@ -167,6 +169,45 @@ export class Store {
         electionData
       );
     }
+  }
+
+  /**
+   * Deletes system settings
+   */
+  deleteSystemSettings(): void {
+    this.client.run('delete from system_settings');
+  }
+
+  /**
+   * Creates a system settings record
+   */
+  setSystemSettings(systemSettings: SystemSettings): void {
+    this.client.run('delete from system_settings');
+    this.client.run(
+      'insert into system_settings (are_poll_worker_card_pins_enabled) values (?)',
+      systemSettings.arePollWorkerCardPinsEnabled ? 1 : 0 // No booleans in sqlite3
+    );
+  }
+
+  /**
+   * Gets system settings or undefined if they aren't loaded yet
+   */
+  getSystemSettings(): SystemSettings | undefined {
+    const result = this.client.one(
+      `
+      select
+        are_poll_worker_card_pins_enabled as arePollWorkerCardPinsEnabled
+      from system_settings
+    `
+    ) as SystemSettingsDbRow | undefined;
+
+    if (!result) {
+      return undefined;
+    }
+
+    return {
+      arePollWorkerCardPinsEnabled: result.arePollWorkerCardPinsEnabled === 1,
+    };
   }
 
   /**

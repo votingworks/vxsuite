@@ -57,7 +57,6 @@ export async function start({
     },
     logger,
   });
-
   let resolvedWorkspace: Workspace;
 
   if (workspace) {
