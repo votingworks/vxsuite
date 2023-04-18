@@ -3,16 +3,7 @@ import { readdir } from 'fs/promises';
 import { join } from 'path';
 import { dirSync, fileSync } from 'tmp';
 import { Store } from '../store';
-import { call, InterpretOutput } from './interpret_nh';
-
-if (process.env.CI) {
-  jest.setTimeout(20000);
-}
-
-test('configure', async () => {
-  const dbPath = fileSync().name;
-  await expect(call({ action: 'configure', dbPath })).resolves.not.toThrow();
-});
+import * as interpretNh from './nh';
 
 test('interpret', async () => {
   const dbPath = fileSync().name;
@@ -21,18 +12,16 @@ test('interpret', async () => {
 
   const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
   store.setElection(electionDefinition.electionData);
-  await call({ action: 'configure', dbPath });
 
-  const result = (await call({
-    action: 'interpret',
-    frontImagePath:
+  const result = await interpretNh.interpret(
+    store,
+    'test-sheet',
+    [
       electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath(),
-    backImagePath:
       electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath(),
-    ballotImagesPath,
-    interpreter: 'nh',
-    sheetId: 'test-sheet',
-  })) as InterpretOutput;
+    ],
+    ballotImagesPath
+  );
 
   const [frontResult, backResult] = result.unsafeUnwrap();
 

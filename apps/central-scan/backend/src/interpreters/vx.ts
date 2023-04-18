@@ -1,37 +1,18 @@
 import { QrCodePageResult } from '@votingworks/ballot-interpreter-vx';
 import { pdfToImages } from '@votingworks/image-utils';
-import { AdjudicationReason, PageInterpretation } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/basics';
+import {
+  AdjudicationReason,
+  PageInterpretationWithFiles,
+} from '@votingworks/types';
 import makeDebug from 'debug';
+import { assert } from '@votingworks/basics';
 import { Interpreter } from '../interpreter';
 import { Store } from '../store';
 import { saveSheetImages } from '../util/save_images';
 
-const debug = makeDebug('scan:worker:interpret');
+const debug = makeDebug('scan:vx:interpret');
 
-export const workerPath = __filename;
-
-export type Input =
-  | { action: 'configure'; dbPath: string }
-  | {
-      action: 'interpret';
-      interpreter: 'vx';
-      sheetId: string;
-      imagePath: string;
-      ballotImagesPath: string;
-      detectQrcodeResult: QrCodePageResult;
-    };
-
-export interface InterpretOutput {
-  interpretation: PageInterpretation;
-  originalFilename: string;
-  normalizedFilename: string;
-}
-
-export type Output = InterpretOutput | void;
-
-// eslint-disable-next-line import/no-mutable-exports
-export let interpreter: Interpreter | undefined;
+let interpreter: Interpreter | undefined;
 
 /**
  * Reads election configuration from the database.
@@ -88,11 +69,9 @@ export async function interpret(
   sheetId: string,
   ballotImagesPath: string,
   detectQrcodeResult: QrCodePageResult
-): Promise<InterpretOutput> {
+): Promise<PageInterpretationWithFiles> {
   debug('interpret ballot image: %s', ballotImagePath);
-  if (!interpreter) {
-    throw new Error('cannot interpret ballot with no configured election');
-  }
+  assert(interpreter, 'interpreter not configured');
 
   const result = await interpreter.interpretFile({
     ballotImagePath,
@@ -114,24 +93,4 @@ export async function interpret(
     originalFilename: images.original,
     normalizedFilename: images.normalized,
   };
-}
-
-export async function call(input: Input): Promise<Output> {
-  switch (input.action) {
-    case 'configure': {
-      const store = await Store.fileStore(input.dbPath);
-      return await configure(store);
-    }
-
-    case 'interpret':
-      return await interpret(
-        input.imagePath,
-        input.sheetId,
-        input.ballotImagesPath,
-        input.detectQrcodeResult
-      );
-
-    default:
-      throwIllegalValue(input);
-  }
 }

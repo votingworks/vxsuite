@@ -18,8 +18,6 @@ import { PORT, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, BatchScanner, ScannerMode } from './fujitsu_scanner';
 import { createWorkspace, Workspace } from './util/workspace';
-import * as workers from './workers/combined';
-import { childProcessPool, WorkerPool } from './workers/pool';
 import { buildCentralScannerApp } from './central_scanner_app';
 
 export interface StartOptions {
@@ -82,21 +80,12 @@ export async function start({
 
   const resolvedBatchScanner =
     batchScanner ?? new FujitsuScanner({ mode: ScannerMode.Gray, logger });
-  let workerPool: WorkerPool<workers.Input, workers.Output> | undefined;
 
-  function workerPoolProvider(): WorkerPool<workers.Input, workers.Output> {
-    workerPool ??= childProcessPool(
-      workers.workerPath,
-      2 /* front and back */
-    ) as WorkerPool<workers.Input, workers.Output>;
-    return workerPool;
-  }
   const resolvedImporter =
     importer ??
     new Importer({
       workspace: resolvedWorkspace,
       scanner: resolvedBatchScanner,
-      workerPoolProvider,
     });
   const resolvedUsb = usb ?? {
     getUsbDrives,
