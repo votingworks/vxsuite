@@ -31,6 +31,20 @@ export const RectSchema: z.ZodSchema<Rect> = z.object({
   height: z.number(),
 });
 
+export interface Outset<T extends number = number> {
+  readonly top: T;
+  readonly right: T;
+  readonly bottom: T;
+  readonly left: T;
+}
+
+export const OutsetSchema: z.ZodSchema<Outset> = z.object({
+  top: z.number(),
+  right: z.number(),
+  bottom: z.number(),
+  left: z.number(),
+});
+
 export type Corners = readonly [
   topLeft: Point,
   topRight: Point,
