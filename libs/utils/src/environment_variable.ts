@@ -26,6 +26,9 @@ export enum BooleanEnvironmentVariableName {
   // For NH pilot: Use dev certs in prod for Java Card auth. Only relevant if ENABLE_JAVA_CARDS is
   // also true.
   USE_DEV_CERTS_IN_PROD = 'REACT_APP_VX_USE_DEV_CERTS_IN_PROD',
+  // Skips election hash checks in various apps to allow using old fixtures in
+  // development even as their respective election definitions change
+  SKIP_ELECTION_HASH_CHECK = 'REACT_APP_VX_SKIP_ELECTION_HASH_CHECK',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -72,6 +75,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_USE_MOCK_CARDS;
     case BooleanEnvironmentVariableName.USE_DEV_CERTS_IN_PROD:
       return process.env.REACT_APP_VX_USE_DEV_CERTS_IN_PROD;
+    case BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK:
+      return process.env.REACT_APP_VX_SKIP_ELECTION_HASH_CHECK;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
     /* istanbul ignore next compile time check */
@@ -142,6 +147,12 @@ export function getBooleanEnvVarConfig(
       return {
         name,
         allowInProduction: true,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK:
+      return {
+        name,
+        allowInProduction: false,
         autoEnableInDevelopment: false,
       };
     /* istanbul ignore next compile time check */
