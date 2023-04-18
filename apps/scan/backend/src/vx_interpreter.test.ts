@@ -23,6 +23,8 @@ import {
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { emptyDirSync, readFile } from 'fs-extra';
@@ -36,14 +38,19 @@ import { Interpreter, sheetRequiresAdjudication } from './vx_interpreter';
 const interpreterOutputPath = join(__dirname, '..', 'test-output-dir/');
 emptyDirSync(interpreterOutputPath);
 
-jest.mock('@votingworks/ballot-encoder', () => {
+// mock SKIP_ELECTION_HASH_CHECK to allow us to use old ballot image fixtures
+const featureFlagMock = getFeatureFlagMock();
+jest.mock('@votingworks/utils', () => {
   return {
-    ...jest.requireActual('@votingworks/ballot-encoder'),
-    // to allow changing election definitions without changing the image fixtures
-    // TODO: generate image fixtures from election definitions more easily
-    // this election hash is for the MS demo fixture images
-    sliceElectionHash: () => 'b0260b4e9d492dab3813',
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+      featureFlagMock.isEnabled(flag),
   };
+});
+beforeEach(() => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+  );
 });
 
 test('extracts votes encoded in a QR code', async () => {
@@ -60,8 +67,6 @@ test('extracts votes encoded in a QR code', async () => {
         },
         precinctSelection: ALL_PRECINCTS_SELECTION,
         testMode: true,
-        // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
-        skipElectionHashCheck: true,
         adjudicationReasons:
           electionSampleDefinition.election.centralScanAdjudicationReasons ??
           [],
@@ -132,8 +137,6 @@ test('properly detects test ballot in live mode', async () => {
     },
     precinctSelection: ALL_PRECINCTS_SELECTION,
     testMode: false, // this is the test mode
-    // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
-    skipElectionHashCheck: true,
     adjudicationReasons:
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
   }).interpretFile({
@@ -157,8 +160,6 @@ test('properly detects bmd ballot with wrong precinct', async () => {
       },
     },
     testMode: true,
-    // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
-    skipElectionHashCheck: true,
     precinctSelection: singlePrecinctSelectionFor('20'),
     adjudicationReasons:
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
@@ -183,8 +184,6 @@ test('properly detects bmd ballot with correct precinct', async () => {
       },
     },
     testMode: true,
-    // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
-    skipElectionHashCheck: true,
     precinctSelection: singlePrecinctSelectionFor('23'),
     adjudicationReasons:
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
@@ -220,8 +219,6 @@ test('interprets marks on a HMPB', async () => {
     testMode: false,
     adjudicationReasons:
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
-    // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
-    skipElectionHashCheck: true,
   });
 
   const layouts = interpretMultiPagePdfTemplate({
@@ -315,9 +312,7 @@ test('interprets marks on an upside-down HMPB', async () => {
       })
     ).interpretation as InterpretedHmpbPage
   ).toMatchObject({
-    actualElectionHash: '602c9b551d08a348c3e1',
-    expectedElectionHash: expect.anything(),
-    type: 'InvalidElectionHashPage',
+    type: 'InterpretedHmpbPage',
   });
 });
 
@@ -337,8 +332,6 @@ test('interprets marks in ballots', async () => {
     testMode: false,
     adjudicationReasons:
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
-    // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
-    skipElectionHashCheck: true,
   });
 
   const layouts = interpretMultiPagePdfTemplate({
@@ -657,4 +650,45 @@ test('sheetRequiresAdjudication is happy with a BMD ballot', () => {
   expect(sheetRequiresAdjudication([unreadable, bmd])).toEqual(false);
   expect(sheetRequiresAdjudication([bmd, blank])).toEqual(false);
   expect(sheetRequiresAdjudication([blank, bmd])).toEqual(false);
+});
+
+test('rejects on invalid election hash', async () => {
+  featureFlagMock.disableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+  );
+  const interpreter = new Interpreter({
+    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    testMode: false,
+    adjudicationReasons:
+      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
+  });
+
+  const layouts = interpretMultiPagePdfTemplate({
+    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
+    ballotPdfData: await readFile(stateOfHamiltonFixtures.ballotPdf),
+    metadata: safeParseJson(
+      await readFile(stateOfHamiltonFixtures.filledInPage1Metadata, 'utf8'),
+      BallotMetadataSchema
+    ).unsafeUnwrap(),
+  });
+  for await (const layout of layouts) {
+    interpreter.addHmpbTemplate(layout);
+
+    if (layout.ballotPageLayout.metadata.pageNumber === 1) {
+      break;
+    }
+  }
+
+  const ballotImagePath = stateOfHamiltonFixtures.filledInPage1Flipped;
+  expect(
+    (
+      await interpreter.interpretFile({
+        ballotImagePath,
+        detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+      })
+    ).interpretation as InterpretedHmpbPage
+  ).toMatchObject({
+    type: 'InvalidElectionHashPage',
+  });
 });
