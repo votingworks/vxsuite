@@ -65,7 +65,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
 
   const loaded = systemSettingsQuery.isSuccess;
 
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   /**
    * Execute side effects for the current state and, when ready, transition to
