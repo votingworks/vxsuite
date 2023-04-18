@@ -56,11 +56,19 @@ describe('getBallotPageLayout', () => {
     ).toThrow();
   });
 
-  test('generates layout if layout not found and is gridLayouts election', () => {
+  test('ignores ballot page layouts if using a gridLayouts election', () => {
     expect(
       getBallotPageLayout({
         ballotPageMetadata,
-        ballotPageLayoutsLookup: [],
+        ballotPageLayoutsLookup: [
+          {
+            ballotMetadata: ballotPageMetadata,
+            ballotPageLayouts: mockBallotPageLayouts.map((layout) => ({
+              ...layout,
+              name: 'ignore me',
+            })),
+          },
+        ],
         election: {
           ...election,
           gridLayouts: [],
