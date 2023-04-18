@@ -1,4 +1,6 @@
+use std::fmt::Display;
 use std::path::Path;
+use std::path::PathBuf;
 
 use image::GenericImage;
 use image::GrayImage;
@@ -29,27 +31,30 @@ use crate::timing_marks::TimingMarkGrid;
 
 #[derive(Debug, Clone)]
 pub struct Options {
-    pub debug: bool,
+    pub debug_side_a_base: Option<PathBuf>,
+    pub debug_side_b_base: Option<PathBuf>,
     pub oval_template: GrayImage,
     pub election: Election,
 }
 
-pub struct LoadedBallotImage {
+pub struct BallotImage {
     image: GrayImage,
     threshold: u8,
     border_inset: Inset,
 }
-pub struct LoadedBallotPage {
-    ballot_image: LoadedBallotImage,
+pub struct BallotPage {
+    ballot_image: BallotImage,
     geometry: Geometry,
 }
-pub struct LoadedBallotCard {
-    side_a: LoadedBallotImage,
-    side_b: LoadedBallotImage,
+
+pub struct BallotCard {
+    side_a: BallotImage,
+    side_b: BallotImage,
     geometry: Geometry,
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct NormalizedImageBuffer {
     width: u32,
     height: u32,
@@ -66,6 +71,7 @@ pub struct InterpretedBallotPage {
     pub contest_layouts: Vec<InterpretedContestLayout>,
 }
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct InterpretedBallotCard {
     pub front: InterpretedBallotPage,
     pub back: InterpretedBallotPage,
@@ -73,8 +79,9 @@ pub struct InterpretedBallotCard {
 pub type Result = core::result::Result<InterpretedBallotCard, Error>;
 
 #[derive(Debug, Serialize)]
-pub struct BallotPagePathAndGeometry {
-    pub path: String,
+#[serde(rename_all = "camelCase")]
+pub struct BallotPageAndGeometry {
+    pub label: String,
     pub border_inset: Inset,
     pub geometry: Geometry,
 }
@@ -86,7 +93,7 @@ pub enum Error {
         path: String,
     },
     BorderInsetNotFound {
-        path: String,
+        label: String,
     },
     #[serde(rename_all = "camelCase")]
     InvalidCardMetadata {
@@ -94,13 +101,13 @@ pub enum Error {
         side_b: BallotPageMetadata,
     },
     InvalidMetadata {
-        path: String,
+        label: String,
         error: BallotPageMetadataError,
     },
     #[serde(rename_all = "camelCase")]
     MismatchedBallotCardGeometries {
-        side_a: BallotPagePathAndGeometry,
-        side_b: BallotPagePathAndGeometry,
+        side_a: BallotPageAndGeometry,
+        side_b: BallotPageAndGeometry,
     },
     MissingGridLayout {
         front: BallotPageMetadata,
@@ -110,7 +117,7 @@ pub enum Error {
         rects: Vec<Rect>,
     },
     UnexpectedDimensions {
-        path: String,
+        label: String,
         dimensions: Size<PixelUnit>,
     },
     CouldNotComputeLayout {
@@ -118,42 +125,103 @@ pub enum Error {
     },
 }
 
+impl Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Error::ImageOpenFailure { path } => write!(f, "Could not open image at {}", path),
+            Error::BorderInsetNotFound { label } => {
+                write!(f, "Could not find border inset for {}", label)
+            }
+            Error::InvalidCardMetadata { side_a, side_b } => write!(
+                f,
+                "Invalid card metadata: side A: {:?}, side B: {:?}",
+                side_a, side_b
+            ),
+            Error::InvalidMetadata { label, error } => {
+                write!(f, "Invalid metadata for {}: {:?}", label, error)
+            }
+            Error::MismatchedBallotCardGeometries { side_a, side_b } => write!(
+                f,
+                "Mismatched ballot card geometries: side A: {:?}, side B: {:?}",
+                side_a, side_b
+            ),
+            Error::MissingGridLayout { front, back } => write!(
+                f,
+                "Missing grid layout: front: {:?}, back: {:?}",
+                front, back
+            ),
+            Error::MissingTimingMarks { rects } => write!(
+                f,
+                "Missing timing marks: {:?}",
+                rects
+                    .iter()
+                    .map(|rect| format!("({:?}, {:?})", rect.left(), rect.top()))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
+            Error::UnexpectedDimensions { label, dimensions } => {
+                write!(f, "Unexpected dimensions for {}: {:?}", label, dimensions)
+            }
+            Error::CouldNotComputeLayout { side } => {
+                write!(f, "Could not compute layout for {:?}", side)
+            }
+        }
+    }
+}
+
+/// Loads images for both sides of a ballot card and returns them.
 #[time]
-/// Load both sides of a ballot card image and return the ballot card.
-fn load_ballot_card_images(
+pub fn load_ballot_card_images(
     side_a_path: &Path,
     side_b_path: &Path,
-) -> core::result::Result<LoadedBallotCard, Error> {
+) -> core::result::Result<(GrayImage, GrayImage), Error> {
     let (side_a_result, side_b_result) = rayon::join(
-        || load_and_prepare_ballot_page_image(side_a_path),
-        || load_and_prepare_ballot_page_image(side_b_path),
+        || load_ballot_page_image(side_a_path),
+        || load_ballot_page_image(side_b_path),
     );
 
-    let LoadedBallotPage {
+    let side_a_image = side_a_result?;
+    let side_b_image = side_b_result?;
+
+    Ok((side_a_image, side_b_image))
+}
+
+/// Load both sides of a ballot card image and return the ballot card.
+#[time]
+fn prepare_ballot_card_images(
+    side_a_image: GrayImage,
+    side_b_image: GrayImage,
+) -> core::result::Result<BallotCard, Error> {
+    let (side_a_result, side_b_result) = rayon::join(
+        || prepare_ballot_page_image("side A", side_a_image),
+        || prepare_ballot_page_image("side B", side_b_image),
+    );
+
+    let BallotPage {
         ballot_image: side_a_image,
         geometry: side_a_geometry,
     } = side_a_result?;
-    let LoadedBallotPage {
+    let BallotPage {
         ballot_image: side_b_image,
         geometry: side_b_geometry,
     } = side_b_result?;
 
     if side_a_geometry != side_b_geometry {
         return Err(Error::MismatchedBallotCardGeometries {
-            side_a: BallotPagePathAndGeometry {
-                path: side_a_path.to_str().unwrap_or_default().to_string(),
+            side_a: BallotPageAndGeometry {
+                label: "side A".to_string(),
                 border_inset: side_a_image.border_inset,
                 geometry: side_a_geometry,
             },
-            side_b: BallotPagePathAndGeometry {
-                path: side_b_path.to_str().unwrap_or_default().to_string(),
+            side_b: BallotPageAndGeometry {
+                label: "side B".to_string(),
                 border_inset: side_b_image.border_inset,
                 geometry: side_b_geometry,
             },
         });
     }
 
-    Ok(LoadedBallotCard {
+    Ok(BallotCard {
         side_a: side_a_image,
         side_b: side_b_image,
         geometry: side_a_geometry,
@@ -175,7 +243,7 @@ pub fn load_ballot_page_image(image_path: &Path) -> core::result::Result<GrayIma
 
 /// Return the image with the black border cropped off.
 #[time]
-pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<LoadedBallotImage> {
+pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<BallotImage> {
     let threshold = otsu_level(&image);
     let border_inset = find_scanned_document_inset(&image, threshold)?;
     let image = image
@@ -187,43 +255,42 @@ pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<LoadedBall
         )
         .to_image();
 
-    Some(LoadedBallotImage {
+    Some(BallotImage {
         image,
         threshold,
         border_inset,
     })
 }
 
-/// Load a ballot page image from disk, crop the black border, and maybe resize
-/// it to the expected dimensions.
+/// Prepare a ballot page image for interpretation: crop the black border, and
+/// maybe resize it to the expected dimensions.
 #[time]
-pub fn load_and_prepare_ballot_page_image(
-    image_path: &Path,
-) -> core::result::Result<LoadedBallotPage, Error> {
-    let image = load_ballot_page_image(image_path)?;
-
-    let Some(LoadedBallotImage {
+fn prepare_ballot_page_image(
+    label: &str,
+    image: GrayImage,
+) -> core::result::Result<BallotPage, Error> {
+    let Some(BallotImage {
         image,
         threshold,
         border_inset,
     }) = crop_ballot_page_image_borders(image) else {
         return Err(Error::BorderInsetNotFound {
-            path: image_path.to_str().unwrap_or_default().to_string(),
+            label: label.to_string(),
         });
     };
 
     let Some(geometry) = get_scanned_ballot_card_geometry(image.dimensions()) else {
         let (width, height) = image.dimensions();
         return Err(Error::UnexpectedDimensions {
-            path: image_path.to_str().unwrap_or_default().to_string(),
+            label: label.to_string(),
             dimensions: Size { width, height },
         });
     };
 
     let image = maybe_resize_image_to_fit(image, geometry.canvas_size);
 
-    Ok(LoadedBallotPage {
-        ballot_image: LoadedBallotImage {
+    Ok(BallotPage {
+        ballot_image: BallotImage {
             image,
             threshold,
             border_inset,
@@ -233,28 +300,30 @@ pub fn load_and_prepare_ballot_page_image(
 }
 
 #[time]
-pub fn interpret_ballot_card(side_a_path: &Path, side_b_path: &Path, options: &Options) -> Result {
-    let LoadedBallotCard {
+pub fn interpret_ballot_card(
+    side_a_image: GrayImage,
+    side_b_image: GrayImage,
+    options: &Options,
+) -> Result {
+    let BallotCard {
         side_a,
         side_b,
         geometry,
-    } = load_ballot_card_images(side_a_path, side_b_path)?;
+    } = prepare_ballot_card_images(side_a_image, side_b_image)?;
 
-    let mut side_a_debug = if options.debug {
-        ImageDebugWriter::new(side_a_path.to_path_buf(), side_a.image.clone())
-    } else {
-        ImageDebugWriter::disabled()
+    let mut side_a_debug = match &options.debug_side_a_base {
+        Some(base) => ImageDebugWriter::new(base.to_path_buf(), side_a.image.clone()),
+        None => ImageDebugWriter::disabled(),
     };
-    let mut side_b_debug = if options.debug {
-        ImageDebugWriter::new(side_b_path.to_path_buf(), side_b.image.clone())
-    } else {
-        ImageDebugWriter::disabled()
+    let mut side_b_debug = match &options.debug_side_b_base {
+        Some(base) => ImageDebugWriter::new(base.to_path_buf(), side_b.image.clone()),
+        None => ImageDebugWriter::disabled(),
     };
 
     let (side_a_result, side_b_result) = rayon::join(
         || {
             find_timing_mark_grid(
-                side_a_path,
+                "side A",
                 &geometry,
                 &side_a.image,
                 side_a.border_inset,
@@ -263,7 +332,7 @@ pub fn interpret_ballot_card(side_a_path: &Path, side_b_path: &Path, options: &O
         },
         || {
             find_timing_mark_grid(
-                side_b_path,
+                "side B",
                 &geometry,
                 &side_b.image,
                 side_b.border_inset,
@@ -400,11 +469,14 @@ mod test {
         ] {
             let side_a_path = fixture_path.join(side_a_name);
             let side_b_path = fixture_path.join(side_b_name);
+            let (side_a_image, side_b_image) =
+                load_ballot_card_images(&side_a_path, &side_b_path).unwrap();
             interpret_ballot_card(
-                side_a_path.as_path(),
-                side_b_path.as_path(),
+                side_a_image,
+                side_b_image,
                 &Options {
-                    debug: false,
+                    debug_side_a_base: None,
+                    debug_side_b_base: None,
                     oval_template: oval_template.clone(),
                     election: election.clone(),
                 },

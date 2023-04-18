@@ -1,5 +1,6 @@
 use ballot_card::load_oval_template;
 use image::{DynamicImage, GrayImage};
+use interpret::load_ballot_card_images;
 use neon::{prelude::*, types::buffer::TypedArray};
 use serde::Serialize;
 use std::{borrow::BorrowMut, path::Path};
@@ -86,13 +87,34 @@ fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         }
     };
 
-    let interpret_result = interpret_ballot_card(
+    let (side_a_image, side_b_image) = match load_ballot_card_images(
         Path::new(side_a_path.as_str()),
         Path::new(side_b_path.as_str()),
+    ) {
+        Ok(images) => images,
+        Err(err) => {
+            let error = Err(cx.string(InterpretError::json(format!(
+                "Failed to load ballot card images: {err}"
+            ))));
+            return make_interpret_result(&mut cx, error);
+        }
+    };
+    let interpret_result = interpret_ballot_card(
+        side_a_image,
+        side_b_image,
         &Options {
             election,
             oval_template: load_oval_template().expect("Failed to load oval template"),
-            debug,
+            debug_side_a_base: if debug {
+                Some(Path::new(side_a_path.as_str()).to_path_buf())
+            } else {
+                None
+            },
+            debug_side_b_base: if debug {
+                Some(Path::new(side_b_path.as_str()).to_path_buf())
+            } else {
+                None
+            },
         },
     );
 
