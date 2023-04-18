@@ -8,8 +8,10 @@ import * as fs from 'fs';
 import { CVR_BALLOT_LAYOUTS_SUBDIRECTORY } from '@votingworks/backend';
 import { vxBallotType } from '@votingworks/types/src/cdf/cast-vote-records';
 import {
+  BooleanEnvironmentVariableName,
   castVoteRecordHasWriteIns,
   castVoteRecordVoteIsWriteIn,
+  getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
   buildTestEnvironment,
@@ -22,8 +24,25 @@ import { getWriteInsFromCastVoteRecord } from './util/cvrs';
 
 jest.setTimeout(60_000);
 
+// mock SKIP_ELECTION_HASH_CHECK to allow us to use old cvr fixtures
+const featureFlagMock = getFeatureFlagMock();
+jest.mock('@votingworks/utils', () => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+      featureFlagMock.isEnabled(flag),
+  };
+});
+
 beforeEach(() => {
   jest.restoreAllMocks();
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+  );
+});
+
+afterEach(() => {
+  featureFlagMock.resetFeatureFlag();
 });
 
 const { electionDefinition, castVoteRecordReport } =
@@ -489,6 +508,9 @@ test('error if a cast vote record not parseable', async () => {
 });
 
 test('error if a cast vote record is somehow invalid', async () => {
+  featureFlagMock.disableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+  );
   const { apiClient, auth } = buildTestEnvironment();
 
   await configureMachine(apiClient, auth, electionDefinition);
