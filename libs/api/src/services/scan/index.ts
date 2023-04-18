@@ -367,38 +367,6 @@ export const PatchMarkThresholdOverridesConfigResponseSchema: z.ZodSchema<PatchM
   z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
- * @url /config/skipElectionHashCheck
- * @method PATCH
- */
-export interface PatchSkipElectionHashCheckConfigRequest {
-  skipElectionHashCheck: boolean;
-}
-
-/**
- * @url /config/skipElectionHashCheck
- * @method PATCH
- */
-export const PatchSkipElectionHashCheckConfigRequestSchema: z.ZodSchema<PatchSkipElectionHashCheckConfigRequest> =
-  z.object({
-    skipElectionHashCheck: z.boolean(),
-  });
-
-/**
- * @url /config/skipElectionHashCheck
- * @method PATCH
- */
-export type PatchSkipElectionHashCheckConfigResponse =
-  | OkResponse
-  | ErrorsResponse;
-
-/**
- * @url /config/skipElectionHashCheck
- * @method PATCH
- */
-export const PatchSkipElectionHashCheckConfigResponseSchema: z.ZodSchema<PatchSkipElectionHashCheckConfigResponse> =
-  z.union([OkResponseSchema, ErrorsResponseSchema]);
-
-/**
  * @url /scan/scanBatch
  * @method POST
  */

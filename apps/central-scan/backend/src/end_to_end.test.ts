@@ -16,7 +16,11 @@ import {
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import { CVR, unsafeParse } from '@votingworks/types';
-import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  CAST_VOTE_RECORD_REPORT_FILENAME,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
 import { Application } from 'express';
 import * as fsExtra from 'fs-extra';
 import * as path from 'path';
@@ -32,6 +36,16 @@ import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
 
 // we need more time for ballot interpretation
 jest.setTimeout(20000);
+
+// mock SKIP_ELECTION_HASH_CHECK to allow us to use old ballot image fixtures
+const featureFlagMock = getFeatureFlagMock();
+jest.mock('@votingworks/utils', () => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+      featureFlagMock.isEnabled(flag),
+  };
+});
 
 let app: Application;
 let auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
@@ -63,6 +77,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await fsExtra.remove(workspace.path);
+  featureFlagMock.resetFeatureFlag();
 });
 
 const jurisdiction = DEV_JURISDICTION;
@@ -92,12 +107,9 @@ test('going through the whole process works', async () => {
     .expect(200, { status: 'ok' });
 
   // sample ballot election hash does not match election hash for this test
-  await request(app)
-    .patch('/central-scanner/config/skipElectionHashCheck')
-    .send({ skipElectionHashCheck: true })
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' });
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+  );
 
   await request(app)
     .patch('/central-scanner/config/testMode')

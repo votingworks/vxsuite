@@ -370,31 +370,6 @@ export async function buildCentralScannerApp({
     }
   );
 
-  deprecatedApiRouter.patch<
-    NoParams,
-    Scan.PatchSkipElectionHashCheckConfigResponse,
-    Scan.PatchSkipElectionHashCheckConfigRequest
-  >('/central-scanner/config/skipElectionHashCheck', (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchSkipElectionHashCheckConfigRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    importer.setSkipElectionHashCheck(
-      bodyParseResult.ok().skipElectionHashCheck
-    );
-    response.json({ status: 'ok' });
-  });
-
   deprecatedApiRouter.post<
     NoParams,
     Scan.ScanBatchResponse,

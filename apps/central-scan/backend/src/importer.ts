@@ -120,14 +120,6 @@ export class Importer {
     await this.restoreConfig();
   }
 
-  setSkipElectionHashCheck(skipElectionHashCheck: boolean): void {
-    debug(
-      'setting skip check election hash setting to %s',
-      skipElectionHashCheck
-    );
-    this.workspace.store.setSkipElectionHashCheck(skipElectionHashCheck);
-  }
-
   async setMarkThresholdOverrides(
     markThresholds?: MarkThresholds
   ): Promise<void> {

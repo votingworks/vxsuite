@@ -197,38 +197,6 @@ export class Store {
   }
 
   /**
-   * Gets whether to skip election hash checks.
-   */
-  getSkipElectionHashCheck(): boolean {
-    const electionRow = this.client.one(
-      'select skip_election_hash_check as skipElectionHashCheck from election'
-    ) as { skipElectionHashCheck: number } | undefined;
-
-    if (!electionRow) {
-      // we will not skip the check by default once an election is defined
-      return false;
-    }
-
-    return Boolean(electionRow.skipElectionHashCheck);
-  }
-
-  /**
-   * Sets whether to check the election hash.
-   */
-  setSkipElectionHashCheck(skipElectionHashCheck: boolean): void {
-    if (!this.hasElection()) {
-      throw new Error(
-        'Cannot set to skip election hash check without an election.'
-      );
-    }
-
-    this.client.run(
-      'update election set skip_election_hash_check = ?',
-      skipElectionHashCheck ? 1 : 0
-    );
-  }
-
-  /**
    * Gets whether sound is muted.
    */
   getIsSoundMuted(): boolean {

@@ -10,7 +10,9 @@ import { asElectionDefinition } from '@votingworks/fixtures';
 import { CVR, unsafeParse } from '@votingworks/types';
 import {
   BallotPackageManifest,
+  BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
+  getFeatureFlagMock,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { EventEmitter } from 'events';
@@ -36,6 +38,16 @@ const electionFixturesRoot = join(
   '..',
   'test/fixtures/state-of-hamilton'
 );
+
+// mock SKIP_ELECTION_HASH_CHECK to allow us to use old ballot image fixtures
+const featureFlagMock = getFeatureFlagMock();
+jest.mock('@votingworks/utils', () => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+      featureFlagMock.isEnabled(flag),
+  };
+});
 
 jest.mock('./exec', () => ({
   __esModule: true,
@@ -86,6 +98,7 @@ beforeEach(async () => {
 afterEach(async () => {
   importer.unconfigure();
   await fs.remove(workspace.path);
+  featureFlagMock.resetFeatureFlag();
 });
 
 test('going through the whole process works', async () => {
@@ -102,12 +115,9 @@ test('going through the whole process works', async () => {
     .expect(200, { status: 'ok' });
 
   // sample ballot election hash does not match election hash for this test
-  await request(app)
-    .patch('/central-scanner/config/skipElectionHashCheck')
-    .send({ skipElectionHashCheck: true })
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' });
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+  );
 
   // need to turn off test mode after election is loaded
   await request(app)

@@ -52,6 +52,9 @@ beforeEach(() => {
     BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
   );
 });
+afterEach(() => {
+  featureFlagMock.resetFeatureFlag();
+});
 
 test('extracts votes encoded in a QR code', async () => {
   const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
