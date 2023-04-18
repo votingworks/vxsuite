@@ -175,3 +175,29 @@ describe('shows Livecheck button only when enabled', () => {
     expect(screen.queryByText('Live Check')).toBeFalsy();
   });
 });
+
+describe('shows ballot bag replacement when tapped', () => {
+  test('tap replace ballot bag', async () => {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    await act(async () => {
+      renderScreen({
+        scannedBallotCount: 5,
+        isPollsOpen: true,
+      });
+      jest.advanceTimersByTime(2000);
+    });
+
+    // don't close the polls
+    fireEvent.click(screen.queryAllByText('No')[0]);
+
+    expect(screen.queryByText('Replace Ballot Bag')).toBeTruthy();
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    await act(async () => {
+      fireEvent.click(screen.getByText('Replace Ballot Bag'));
+    });
+    screen.getByText(
+      'Has the full ballot bag been replaced with an empty ballot bag?'
+    );
+  });
+});

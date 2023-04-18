@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer } from 'react';
+import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import 'normalize.css';
 import makeDebug from 'debug';
 
@@ -238,6 +238,8 @@ export function AppRoot({
   machineConfig: machineConfigProvider,
   logger,
 }: Props): JSX.Element | null {
+  const [showReplaceBallotBagScreen, setShowReplaceBallotBagScreen] =
+    useState(false);
   const [appState, dispatchAppState] = useReducer(appReducer, initialState);
   const {
     electionDefinition,
@@ -544,17 +546,29 @@ export function AppRoot({
     return <InsertUsbScreen />;
   }
 
-  if (needsToReplaceBallotBag && scannerStatus.state !== 'accepted') {
+  // when we remove the poll worker card
+  if (showReplaceBallotBagScreen && !isPollWorkerAuth(auth)) {
+    setShowReplaceBallotBagScreen(false);
+  }
+
+  if (
+    (needsToReplaceBallotBag && scannerStatus.state !== 'accepted') ||
+    showReplaceBallotBagScreen
+  ) {
     return (
       <ReplaceBallotBagScreen
         scannedBallotCount={scannerStatus.ballotsCounted}
         pollWorkerAuthenticated={isPollWorkerAuth(auth)}
-        onComplete={() =>
+        onComplete={() => {
+          // pin the state to be in "replacing ballot bag" mode
+          // so that, when we update the state, we don't immediately
+          // unmount this component.
+          setShowReplaceBallotBagScreen(true);
           dispatchAppState({
             type: 'ballotBagReplaced',
             currentBallotCount: scannerStatus.ballotsCounted,
-          })
-        }
+          });
+        }}
       />
     );
   }
@@ -579,6 +593,12 @@ export function AppRoot({
           hasPrinterAttached={!!printerInfo}
           isLiveMode={!isTestMode}
           usbDrive={usbDrive}
+          onReplaceBallotBag={() =>
+            dispatchAppState({
+              type: 'ballotBagReplaced',
+              currentBallotCount: scannerStatus.ballotsCounted,
+            })
+          }
         />
       </AppContext.Provider>
     );
