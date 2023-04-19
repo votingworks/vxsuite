@@ -24,7 +24,7 @@ import { getWriteInsFromCastVoteRecord } from './util/cvrs';
 
 jest.setTimeout(60_000);
 
-// mock SKIP_ELECTION_HASH_CHECK to allow us to use old cvr fixtures
+// mock SKIP_CVR_ELECTION_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
 jest.mock('@votingworks/utils', () => {
   return {
@@ -37,7 +37,7 @@ jest.mock('@votingworks/utils', () => {
 beforeEach(() => {
   jest.restoreAllMocks();
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+    BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
   );
 });
 
@@ -509,7 +509,7 @@ test('error if a cast vote record not parseable', async () => {
 
 test('error if a cast vote record is somehow invalid', async () => {
   featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+    BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
   );
   const { apiClient, auth } = buildTestEnvironment();
 

@@ -209,7 +209,7 @@ export class Interpreter {
 
     if (
       !isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+        BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
       )
     ) {
       const actualElectionHash =

@@ -38,7 +38,7 @@ import { Interpreter, sheetRequiresAdjudication } from './vx_interpreter';
 const interpreterOutputPath = join(__dirname, '..', 'test-output-dir/');
 emptyDirSync(interpreterOutputPath);
 
-// mock SKIP_ELECTION_HASH_CHECK to allow us to use old ballot image fixtures
+// mock SKIP_SCAN_ELECTION_HASH_CHECK to allow us to use old ballot image fixtures
 const featureFlagMock = getFeatureFlagMock();
 jest.mock('@votingworks/utils', () => {
   return {
@@ -49,7 +49,7 @@ jest.mock('@votingworks/utils', () => {
 });
 beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+    BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
   );
 });
 afterEach(() => {
@@ -657,7 +657,7 @@ test('sheetRequiresAdjudication is happy with a BMD ballot', () => {
 
 test('rejects on invalid election hash', async () => {
   featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+    BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
   );
   const interpreter = new Interpreter({
     electionDefinition: stateOfHamiltonFixtures.electionDefinition,

@@ -34,7 +34,7 @@ import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
 import * as msDemoFixtures from '../test/fixtures/election-b0260b4e-mississippi-demo';
 import { Interpreter, sheetRequiresAdjudication } from './interpreter';
 
-// mock SKIP_ELECTION_HASH_CHECK to allow us to use old ballot image fixtures
+// mock SKIP_SCAN_ELECTION_HASH_CHECK to allow us to use old ballot image fixtures
 const featureFlagMock = getFeatureFlagMock();
 jest.mock('@votingworks/utils', () => {
   return {
@@ -45,7 +45,7 @@ jest.mock('@votingworks/utils', () => {
 });
 beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+    BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
   );
 });
 afterEach(() => {
@@ -199,7 +199,7 @@ test('properly detects bmd ballot with correct precinct', async () => {
 
 test('properly detects a ballot with incorrect election hash', async () => {
   featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+    BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
   );
   const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
   const interpretationResult = await new Interpreter({

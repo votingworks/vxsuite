@@ -37,7 +37,7 @@ import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
 // we need more time for ballot interpretation
 jest.setTimeout(20000);
 
-// mock SKIP_ELECTION_HASH_CHECK to allow us to use old ballot image fixtures
+// mock SKIP_SCAN_ELECTION_HASH_CHECK to allow us to use old ballot image fixtures
 const featureFlagMock = getFeatureFlagMock();
 jest.mock('@votingworks/utils', () => {
   return {
@@ -108,7 +108,7 @@ test('going through the whole process works', async () => {
 
   // sample ballot election hash does not match election hash for this test
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+    BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
   );
 
   await request(app)

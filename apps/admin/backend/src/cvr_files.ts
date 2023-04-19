@@ -247,7 +247,7 @@ export function validateCastVoteRecord({
   if (
     cvr.ElectionId !== electionHash &&
     !isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.SKIP_ELECTION_HASH_CHECK
+      BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
     )
   ) {
     return err('invalid-election');
