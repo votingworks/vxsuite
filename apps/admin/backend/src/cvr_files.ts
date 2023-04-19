@@ -660,11 +660,20 @@ export async function addCastVoteRecordReport({
 
       // Add write-in records to the store
       for (const castVoteRecordWriteIn of getWriteInsFromCastVoteRecord(cvr)) {
-        store.addWriteIn({
-          castVoteRecordId: cvrId,
-          contestId: castVoteRecordWriteIn.contestId,
-          optionId: castVoteRecordWriteIn.optionId,
-        });
+        if (castVoteRecordWriteIn.side) {
+          const ballotImageId =
+            castVoteRecordWriteIn.side === 'front'
+              ? ballotImageIds[0]
+              : ballotImageIds[1];
+          // `side` existing implies that the ballot image exists
+          assert(ballotImageId !== undefined);
+          store.addWriteIn({
+            castVoteRecordId: cvrId,
+            ballotImageId,
+            contestId: castVoteRecordWriteIn.contestId,
+            optionId: castVoteRecordWriteIn.optionId,
+          });
+        }
       }
 
       // Update our ongoing data about the file relevant to the result

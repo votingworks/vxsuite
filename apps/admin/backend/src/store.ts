@@ -534,10 +534,12 @@ export class Store {
    */
   addWriteIn({
     castVoteRecordId,
+    ballotImageId,
     contestId,
     optionId,
   }: {
     castVoteRecordId: Id;
+    ballotImageId: Id;
     contestId: Id;
     optionId: Id;
   }): Id {
@@ -548,14 +550,16 @@ export class Store {
         insert or ignore into write_ins (
           id,
           cvr_id,
+          ballot_image_id,
           contest_id,
           option_id
         ) values (
-          ?, ?, ?, ?
+          ?, ?, ?, ?, ?
         )
       `,
       id,
       castVoteRecordId,
+      ballotImageId,
       contestId,
       optionId
     );
