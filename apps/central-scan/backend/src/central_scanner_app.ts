@@ -15,6 +15,7 @@ import {
   BallotPackageConfigurationError,
   BallotPageLayout,
   BallotPageLayoutSchema,
+  DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   SystemSettings,
   safeParse,
@@ -126,6 +127,23 @@ function buildApi({
         });
         throw error;
       }
+    },
+
+    async configureWithSampleBallotPackageForIntegrationTest(): Promise<void> {
+      const fileContents = await fs.readFile(
+        '../../cypress/fixtures/ballot-package.zip'
+      );
+      const ballotPackage = await readBallotPackageFromBuffer(fileContents);
+      const { electionDefinition, ballots } = ballotPackage;
+      const systemSettings = DEFAULT_SYSTEM_SETTINGS;
+
+      store.setElection(electionDefinition.electionData);
+      store.setSystemSettings(systemSettings);
+
+      for (const ballot of ballots) {
+        await importer.addHmpbTemplates(ballot.pdf, ballot.layout);
+      }
+      await importer.doneHmpbTemplates();
     },
 
     async configureFromBallotPackageOnUsbDrive(): Promise<
