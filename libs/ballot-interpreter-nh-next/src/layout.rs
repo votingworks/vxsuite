@@ -96,7 +96,7 @@ pub fn build_interpreted_page_layout(
         .grid_positions
         .iter()
         .filter(|grid_position| grid_position.location().side == side)
-        .map(|grid_position| grid_position.contest_id())
+        .map(GridPosition::contest_id)
         .unique()
         .collect::<Vec<_>>();
 

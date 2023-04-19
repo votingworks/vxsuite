@@ -8,27 +8,95 @@ import {
   InterpretResult,
 } from './types';
 
+function assertImageData(imageData: unknown): asserts imageData is ImageData {
+  assert(
+    typeof imageData === 'object' &&
+      imageData !== null &&
+      typeof (imageData as ImageData).width === 'number' &&
+      typeof (imageData as ImageData).height === 'number' &&
+      typeof (imageData as ImageData).data === 'object',
+    'imageData is not an ImageData'
+  );
+}
+
+function checkImageSource(imageSource: string | ImageData): void {
+  switch (typeof imageSource) {
+    case 'string':
+      break;
+
+    case 'object':
+      assertImageData(imageSource);
+      break;
+
+    /* istanbul ignore next */
+    default:
+      assert(false, `unknown imageSource type: ${typeof imageSource}`);
+  }
+}
+
+function normalizeArgumentsForBridge(
+  electionDefinition: ElectionDefinition,
+  ballotImageSources: SheetOf<string> | SheetOf<ImageData>,
+  options: { debug?: boolean } | { debugBasePaths?: SheetOf<string> }
+): Parameters<typeof interpretImpl> {
+  assert(typeof electionDefinition.electionData === 'string');
+  assert(ballotImageSources.length === 2);
+  checkImageSource(ballotImageSources[0]);
+  checkImageSource(ballotImageSources[1]);
+
+  let debugBasePathSideA: string | undefined;
+  let debugBasePathSideB: string | undefined;
+
+  if ('debugBasePaths' in options) {
+    [debugBasePathSideA, debugBasePathSideB] = options.debugBasePaths ?? [];
+  } else if (
+    'debug' in options &&
+    options.debug &&
+    typeof ballotImageSources[0] === 'string' &&
+    typeof ballotImageSources[1] === 'string'
+  ) {
+    [debugBasePathSideA, debugBasePathSideB] =
+      ballotImageSources as SheetOf<string>;
+  }
+
+  return [
+    electionDefinition.electionData,
+    ...ballotImageSources,
+    debugBasePathSideA,
+    debugBasePathSideB,
+  ];
+}
+
 /**
  * Interprets a scanned ballot.
  */
 export function interpret(
   electionDefinition: ElectionDefinition,
   ballotImagePaths: SheetOf<string>,
-  { debug = false } = {}
+  options?: { debug?: boolean }
+): InterpretResult;
+/**
+ * Interprets a scanned ballot.
+ */
+export function interpret(
+  electionDefinition: ElectionDefinition,
+  ballotImages: SheetOf<ImageData>,
+  options?: { debugBasePaths?: SheetOf<string> }
+): InterpretResult;
+/**
+ * Interprets a scanned ballot.
+ */
+export function interpret(
+  electionDefinition: ElectionDefinition,
+  ballotImageSources: SheetOf<string> | SheetOf<ImageData>,
+  options: { debug?: boolean } | { debugBasePaths?: SheetOf<string> } = {}
 ): InterpretResult {
-  assert(typeof electionDefinition.electionData === 'string');
-  assert(ballotImagePaths.length === 2);
-  const [pathA, pathB] = ballotImagePaths;
-  assert(typeof pathA === 'string');
-  assert(typeof pathB === 'string');
-  assert(typeof debug === 'boolean');
-
-  const result = interpretImpl(
-    electionDefinition.electionData,
-    pathA,
-    pathB,
-    debug
+  const args = normalizeArgumentsForBridge(
+    electionDefinition,
+    ballotImageSources,
+    options
   );
+  const result = interpretImpl(...args);
   const parseJsonResult = safeParseJson(result.value);
 
   /* istanbul ignore next */
