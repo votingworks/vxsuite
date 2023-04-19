@@ -878,35 +878,30 @@ export class Store {
   /**
    * Gets all CVR entries for an election.
    */
-  getCastVoteRecordEntries(
+  *getCastVoteRecordEntries(
     electionId: Id
-  ): Admin.CastVoteRecordFileEntryRecord[] {
-    const entries = this.client.all(
-      `
-        select
-          id,
-          ballot_id as ballotId,
-          data,
-          datetime(created_at, 'localtime') as createdAt
-        from cvrs
-        where election_id = ?
-        order by created_at asc
-      `,
-      electionId
-    ) as Array<{
+  ): Generator<Admin.CastVoteRecordFileEntryRecord> {
+    const sql = `
+    select
+      id,
+      data,
+      datetime(created_at, 'localtime') as createdAt
+    from cvrs
+    where election_id = ?
+    order by created_at asc
+  `;
+    for (const row of this.client.each(sql, electionId) as Iterable<{
       id: Id;
-      ballotId: string;
       data: string;
       createdAt: Iso8601Timestamp;
-    }>;
-
-    return entries.map((entry) => ({
-      id: entry.id,
-      ballotId: entry.ballotId,
-      electionId,
-      data: entry.data,
-      createdAt: convertSqliteTimestampToIso8601(entry.createdAt),
-    }));
+    }>) {
+      yield {
+        id: row.id,
+        electionId,
+        data: row.data,
+        createdAt: convertSqliteTimestampToIso8601(row.createdAt),
+      };
+    }
   }
 
   /**

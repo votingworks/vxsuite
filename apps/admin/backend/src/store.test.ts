@@ -275,7 +275,9 @@ test('analyze a CVR file', async () => {
   });
 
   // analyzing does not add to the store
-  expect(store.getCastVoteRecordEntries(electionId)).toHaveLength(0);
+  expect(Array.from(store.getCastVoteRecordEntries(electionId))).toHaveLength(
+    0
+  );
 });
 
 test('adding a CVR file if adding an entry fails', async () => {
@@ -301,7 +303,9 @@ test('adding a CVR file if adding an entry fails', async () => {
     ).unsafeUnwrap()
   ).rejects.toThrowError('oops');
 
-  expect(store.getCastVoteRecordEntries(electionId)).toHaveLength(0);
+  expect(Array.from(store.getCastVoteRecordEntries(electionId))).toHaveLength(
+    0
+  );
 });
 
 test('add a CVR file entry without a ballot ID', async () => {
@@ -750,7 +754,9 @@ test('get write-in adjudication records', async () => {
     })
   ).unsafeUnwrap();
 
-  const castVoteRecordId = store.getCastVoteRecordEntries(electionId)[0]!.id;
+  const castVoteRecordId = Array.from(
+    store.getCastVoteRecordEntries(electionId)
+  )[0]!.id;
   const writeInAdjudicationRecords = store.getWriteInRecords({
     electionId,
   });
@@ -861,7 +867,9 @@ test('write-in adjudication lifecycle', async () => {
     })
   ).unsafeUnwrap();
 
-  const castVoteRecordId = store.getCastVoteRecordEntries(electionId)[0]!.id;
+  const castVoteRecordId = Array.from(
+    store.getCastVoteRecordEntries(electionId)
+  )[0]!.id;
   const writeInId = store.addWriteIn({
     castVoteRecordId,
     contestId: 'zoo-council-mammal',
