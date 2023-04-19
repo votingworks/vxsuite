@@ -1,6 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   renderWithThemes,
   vxTestingLibraryScreen,
@@ -11,14 +12,16 @@ import { makeTheme } from './make_theme';
 import { Button } from '../button';
 
 test('renders theme-dependent component successfully', () => {
-  expect(() =>
-    render(
-      <div>
-        <H1>This component requires a styled-components theme context.</H1>
-        <P>So does this one.</P>
-      </div>
-    )
-  ).toThrow();
+  suppressingConsoleOutput(() =>
+    expect(() =>
+      render(
+        <div>
+          <H1>This component requires a styled-components theme context.</H1>
+          <P>So does this one.</P>
+        </div>
+      )
+    ).toThrow()
+  );
 
   expect(() =>
     renderWithThemes(
