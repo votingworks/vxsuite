@@ -22,7 +22,7 @@ import { methodUrl } from '@votingworks/grout';
 // Importing all of @votingworks/auth causes Cypress tests to fail since Cypress doesn't seem to
 // interact well with PCSC Lite card reader code
 // eslint-disable-next-line vx/no-import-workspace-subfolders
-import { DEV_JURISDICTION } from '@votingworks/auth/src/certs';
+import { DEV_JURISDICTION } from '@votingworks/auth/src/constants';
 // eslint-disable-next-line vx/no-import-workspace-subfolders
 import { mockCard } from '@votingworks/auth/src/mock_file_card';
 
@@ -75,11 +75,19 @@ function removeCard() {
 }
 
 function endCardlessVoterSession() {
-  cy.request('POST', methodUrl('endCardlessVoterSession', 'http://localhost:3000/api'), {});
+  cy.request(
+    'POST',
+    methodUrl('endCardlessVoterSession', 'http://localhost:3000/api'),
+    {}
+  );
 }
 
 function configureWithSampleDefinitionAndSystemSettings() {
-  cy.request('POST', methodUrl('configureSampleBallotPackage', 'http://localhost:3000/api'), {});
+  cy.request(
+    'POST',
+    methodUrl('configureSampleBallotPackage', 'http://localhost:3000/api'),
+    {}
+  );
 }
 
 beforeEach(() => {

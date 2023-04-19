@@ -6,11 +6,11 @@ import {
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
   constructMachineCertSubject,
-  CustomCertFields,
   parseCardDetailsFromCert,
   parseCert,
 } from './certs';
 import { openssl } from './openssl';
+import { CustomCertFields } from './types';
 
 jest.mock('./openssl');
 

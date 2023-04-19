@@ -28,7 +28,8 @@ import {
 } from './apdu';
 import { Card, CardDetails, CheckPinResponse } from './card';
 import { CardReader } from './card_reader';
-import { CardType, DEV_JURISDICTION } from './certs';
+import { DEV_JURISDICTION } from './constants';
+import { CardType } from './types';
 import {
   CARD_VX_ADMIN_CERT,
   CARD_VX_CERT,
