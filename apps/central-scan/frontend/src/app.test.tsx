@@ -251,7 +251,6 @@ test('clicking Scan Batch will scan a batch', async () => {
 test('clicking "Save CVRs" shows modal and makes a request to export', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
@@ -291,21 +290,14 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
       body: { status: 'ok' },
     });
 
-  expectConfigureFromBallotPackageOnUsbDrive();
-
   const hardware = MemoryHardware.buildStandard();
 
   render(<App apiClient={mockApiClient} hardware={hardware} />);
   await authenticateAsElectionManager(electionSampleDefinition);
-  await screen.findByText('You may now eject the USB drive.');
-  // Opts out of ejecting USB
-  const closeButton = await screen.findByText('Close');
-  userEvent.click(closeButton);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   await act(async () => {
     // wait for the config to load
-    // Waiting 1000ms or longer will trigger a polling status check
-    // and change your fetchMock expectations.
     await sleep(500);
 
     userEvent.click(screen.getByText('Save CVRs'));
