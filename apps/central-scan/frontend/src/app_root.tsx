@@ -30,7 +30,6 @@ import {
   LinkButton,
   Button,
   UnconfiguredElectionScreen,
-  useExternalStateChangeListener,
 } from '@votingworks/ui';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { assert, Optional, Result, ok, err } from '@votingworks/basics';
@@ -134,24 +133,18 @@ export function AppRoot({
     });
   }, [logger, userRole]);
 
-  function updateElectionDefinition(e: ElectionDefinition) {
-    setElectionDefinition(e);
-    void logger.log(LogEventId.ElectionConfigured, userRole, {
-      message: `Machine configured for election with hash: ${e.electionHash}`,
-      disposition: 'success',
-      electionHash: e.electionHash,
-    });
-    setElectionJustLoaded(true);
-  }
-
-  useExternalStateChangeListener(usbDrive.status, async (newUsbDriveStatus) => {
-    if (newUsbDriveStatus === 'mounted') {
-      const result = await configureMutation.mutateAsync();
-      const electionDefinitionFromResult = result.ok();
-      assert(electionDefinitionFromResult !== undefined);
-      updateElectionDefinition(electionDefinitionFromResult);
-    }
-  });
+  const updateElectionDefinition = useCallback(
+    (e: ElectionDefinition) => {
+      setElectionDefinition(e);
+      void logger.log(LogEventId.ElectionConfigured, userRole, {
+        message: `Machine configured for election with hash: ${e.electionHash}`,
+        disposition: 'success',
+        electionHash: e.electionHash,
+      });
+      setElectionJustLoaded(true);
+    },
+    [setElectionJustLoaded, setElectionDefinition, logger, userRole]
+  );
 
   useEffect(() => {
     async function initialize() {
@@ -480,10 +473,41 @@ export function AppRoot({
     }
   }, [electionJustLoaded, usbDrive.status]);
 
+  const authStatus = authStatusQuery.data;
+
+  useEffect(() => {
+    async function configure() {
+      if (
+        !configureMutation.isLoading &&
+        !electionDefinition &&
+        authStatus &&
+        isElectionManagerAuth(authStatus) &&
+        usbDrive.status === 'mounted'
+      ) {
+        const result = await configureMutation.mutateAsync();
+        const electionDefinitionFromResult = result.ok();
+        assert(electionDefinitionFromResult !== undefined);
+        updateElectionDefinition(electionDefinitionFromResult);
+      }
+    }
+
+    void configure();
+  }, [
+    configureMutation,
+    authStatus,
+    electionDefinition,
+    updateElectionDefinition,
+    usbDrive,
+  ]);
+
+  // The `configure` useEffect hook above depends on `authStatus`. Since hooks can't
+  // be rendered conditionally, we need to short circuit on authStatusQuery after the
+  // hook is defined.
   if (!authStatusQuery.isSuccess) {
     return null;
   }
-  const authStatus = authStatusQuery.data;
+  // assert authStatus so TypeScript knows it's not undefined
+  assert(authStatus);
 
   if (!cardReader) {
     return <SetupCardReaderPage usePollWorkerLanguage={false} />;
@@ -697,12 +721,21 @@ export function AppRoot({
   // election definition is loaded
   if (isConfigLoaded) {
     return (
-      <UnconfiguredElectionScreen
-        usbDriveStatus={usbDrive.status}
-        isElectionManagerAuth={isElectionManagerAuth(authStatus)}
-        backendConfigError={configureMutation.data?.err()}
-        machineName="VxCentralScan"
-      />
+      <Screen>
+        <MainNav>
+          <Button small onPress={() => logOutMutation.mutate()}>
+            Lock Machine
+          </Button>
+        </MainNav>
+        <Main centerChild>
+          <UnconfiguredElectionScreen
+            usbDriveStatus={usbDrive.status}
+            isElectionManagerAuth={isElectionManagerAuth(authStatus)}
+            backendConfigError={configureMutation.data?.err()}
+            machineName="VxCentralScan"
+          />
+        </Main>
+      </Screen>
     );
   }
 

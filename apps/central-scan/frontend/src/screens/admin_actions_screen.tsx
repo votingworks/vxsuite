@@ -49,7 +49,7 @@ export function AdminActionsScreen({
   markThresholds,
   electionDefinition,
 }: AdminActionScreenProps): JSX.Element {
-  const { logger, auth, usbDriveStatus, machineConfig } =
+  const { logger, auth, usbDriveStatus, usbDriveEject, machineConfig } =
     useContext(AppContext);
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
@@ -105,6 +105,7 @@ export function AdminActionsScreen({
     if (isFactoryResetting) {
       let isMounted = true;
       void (async () => {
+        usbDriveEject(userRole);
         await unconfigureServer();
         if (isMounted) {
           setIsFactoryResetting(false);
@@ -114,7 +115,7 @@ export function AdminActionsScreen({
         isMounted = false;
       };
     }
-  }, [isFactoryResetting, unconfigureServer]);
+  }, [isFactoryResetting, unconfigureServer, usbDriveEject, userRole]);
 
   return (
     <React.Fragment>
@@ -229,6 +230,9 @@ export function AdminActionsScreen({
                 This will delete the election configuration and all the scanned
                 ballot data from VxCentralScan.
               </p>
+              {usbDriveStatus === 'mounted' && (
+                <p>It will also eject the USB drive.</p>
+              )}
             </Prose>
           }
           actions={
