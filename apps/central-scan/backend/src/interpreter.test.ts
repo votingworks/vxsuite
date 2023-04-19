@@ -49,7 +49,7 @@ beforeEach(() => {
   );
 });
 afterEach(() => {
-  featureFlagMock.resetFeatureFlag();
+  featureFlagMock.resetFeatureFlags();
 });
 
 const interpreterOutputPath = join(__dirname, '..', 'test-output-dir/');

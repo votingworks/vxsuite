@@ -42,7 +42,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  featureFlagMock.resetFeatureFlag();
+  featureFlagMock.resetFeatureFlags();
 });
 
 const { electionDefinition, castVoteRecordReport } =

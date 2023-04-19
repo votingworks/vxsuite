@@ -6,7 +6,7 @@ interface FeatureFlagMock {
   isEnabled: typeof isFeatureFlagEnabled;
   enableFeatureFlag: (flag: BooleanEnvironmentVariableName) => void;
   disableFeatureFlag: (flag: BooleanEnvironmentVariableName) => void;
-  resetFeatureFlag: (flag?: BooleanEnvironmentVariableName) => void;
+  resetFeatureFlags: () => void;
 }
 
 /**
@@ -26,12 +26,8 @@ export function getFeatureFlagMock(): FeatureFlagMock {
     disableFeatureFlag: (flag: BooleanEnvironmentVariableName) => {
       mockedFlags[flag] = false;
     },
-    resetFeatureFlag: (flag?: BooleanEnvironmentVariableName) => {
-      if (flag) {
-        delete mockedFlags[flag];
-      } else {
-        mockedFlags = {};
-      }
+    resetFeatureFlags: () => {
+      mockedFlags = {};
     },
   };
 }

@@ -22,12 +22,6 @@ test('getFeatureFlagMock allows mocking a flag', () => {
   featureFlagMock.disableFeatureFlag(testFlag);
   expect(isFeatureFlagEnabledMock(testFlag)).toEqual(false);
 
-  // reset
-  featureFlagMock.enableFeatureFlag(testFlag);
-  expect(isFeatureFlagEnabledMock(testFlag)).toEqual(true);
-  featureFlagMock.resetFeatureFlag(testFlag);
-  expect(isFeatureFlagEnabledMock(testFlag)).toEqual(false);
-
   // test that mocks are independent, allowing different behavior across test suites
   const featureFlagMock2 = getFeatureFlagMock();
   const isFeatureFlagEnabledMock2 = featureFlagMock2.isEnabled;
@@ -36,7 +30,7 @@ test('getFeatureFlagMock allows mocking a flag', () => {
   expect(isFeatureFlagEnabledMock2(testFlag)).toEqual(false);
 });
 
-test('getFeatureFlagMock can reset all flags at once', () => {
+test('resetFeatureFlags can reset all flags at once', () => {
   const featureFlagMock = getFeatureFlagMock();
   const isFeatureFlagEnabledMock = featureFlagMock.isEnabled;
 
@@ -51,7 +45,7 @@ test('getFeatureFlagMock can reset all flags at once', () => {
   expect(isFeatureFlagEnabledMock(testFlag1)).toEqual(true);
   expect(isFeatureFlagEnabledMock(testFlag2)).toEqual(true);
 
-  featureFlagMock.resetFeatureFlag();
+  featureFlagMock.resetFeatureFlags();
   expect(isFeatureFlagEnabledMock(testFlag1)).toEqual(false);
   expect(isFeatureFlagEnabledMock(testFlag2)).toEqual(false);
 });

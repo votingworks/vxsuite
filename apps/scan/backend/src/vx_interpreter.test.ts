@@ -53,7 +53,7 @@ beforeEach(() => {
   );
 });
 afterEach(() => {
-  featureFlagMock.resetFeatureFlag();
+  featureFlagMock.resetFeatureFlags();
 });
 
 test('extracts votes encoded in a QR code', async () => {

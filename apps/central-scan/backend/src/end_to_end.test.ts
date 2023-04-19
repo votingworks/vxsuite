@@ -77,7 +77,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await fsExtra.remove(workspace.path);
-  featureFlagMock.resetFeatureFlag();
+  featureFlagMock.resetFeatureFlags();
 });
 
 const jurisdiction = DEV_JURISDICTION;

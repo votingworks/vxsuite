@@ -98,7 +98,7 @@ beforeEach(async () => {
 afterEach(async () => {
   importer.unconfigure();
   await fs.remove(workspace.path);
-  featureFlagMock.resetFeatureFlag();
+  featureFlagMock.resetFeatureFlags();
 });
 
 test('going through the whole process works', async () => {

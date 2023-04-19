@@ -39,7 +39,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  featureFlagMock.resetFeatureFlag();
+  featureFlagMock.resetFeatureFlags();
 });
 
 test('getWriteIns', async () => {
