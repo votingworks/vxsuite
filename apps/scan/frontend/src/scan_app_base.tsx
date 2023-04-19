@@ -18,10 +18,10 @@ const DEFAULT_SIZE_MODE: SizeMode = 'm';
 export function ScanAppBase({ children }: AppBaseProps): JSX.Element {
   return (
     <AppBase
-      colorMode={DEFAULT_COLOR_MODE}
+      defaultColorMode={DEFAULT_COLOR_MODE}
+      defaultSizeMode={DEFAULT_SIZE_MODE}
       isTouchscreen
       screenType={DEFAULT_SCREEN_TYPE}
-      sizeMode={DEFAULT_SIZE_MODE}
     >
       {children}
     </AppBase>

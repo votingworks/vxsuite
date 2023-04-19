@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { ThemeProvider } from 'styled-components';
 
 import { ColorMode, ScreenType, SizeMode, UiTheme } from '@votingworks/types';
 
 import { GlobalStyles } from './global_styles';
 import { makeTheme } from './themes/make_theme';
+import { ThemeManagerContext } from './theme_manager_context';
 
 declare module 'styled-components' {
   /**
@@ -23,13 +24,13 @@ declare module 'styled-components' {
  */
 export interface AppBaseProps {
   children: React.ReactNode;
-  colorMode?: ColorMode;
+  defaultColorMode?: ColorMode;
+  defaultSizeMode?: SizeMode;
   enableScroll?: boolean;
   isTouchscreen?: boolean;
   legacyBaseFontSizePx?: number;
   legacyPrintFontSizePx?: number;
   screenType?: ScreenType;
-  sizeMode?: SizeMode;
 }
 
 /**
@@ -38,14 +39,22 @@ export interface AppBaseProps {
 export function AppBase(props: AppBaseProps): JSX.Element {
   const {
     children,
-    colorMode = 'legacy',
+    defaultColorMode = 'legacy',
+    defaultSizeMode = 'legacy',
     enableScroll = false,
     isTouchscreen = false,
     legacyBaseFontSizePx,
     legacyPrintFontSizePx,
     screenType = 'builtIn',
-    sizeMode = 'legacy',
   } = props;
+
+  const [colorMode, setColorMode] = React.useState<ColorMode>(defaultColorMode);
+  const [sizeMode, setSizeMode] = React.useState<SizeMode>(defaultSizeMode);
+
+  const resetThemes = useCallback(() => {
+    setColorMode(defaultColorMode);
+    setSizeMode(defaultSizeMode);
+  }, [defaultColorMode, defaultSizeMode]);
 
   const theme = useMemo(
     () => makeTheme({ colorMode, screenType, sizeMode }),
@@ -53,14 +62,22 @@ export function AppBase(props: AppBaseProps): JSX.Element {
   );
 
   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyles
-        enableScroll={enableScroll}
-        isTouchscreen={isTouchscreen}
-        legacyBaseFontSizePx={legacyBaseFontSizePx}
-        legacyPrintFontSizePx={legacyPrintFontSizePx}
-      />
-      {children}
-    </ThemeProvider>
+    <ThemeManagerContext.Provider
+      value={{
+        resetThemes,
+        setColorMode,
+        setSizeMode,
+      }}
+    >
+      <ThemeProvider theme={theme}>
+        <GlobalStyles
+          enableScroll={enableScroll}
+          isTouchscreen={isTouchscreen}
+          legacyBaseFontSizePx={legacyBaseFontSizePx}
+          legacyPrintFontSizePx={legacyPrintFontSizePx}
+        />
+        {children}
+      </ThemeProvider>
+    </ThemeManagerContext.Provider>
   );
 }

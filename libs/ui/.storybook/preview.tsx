@@ -1,7 +1,12 @@
 import React from 'react';
-import { DecoratorFunction, GlobalTypes, InputType, Parameters } from '@storybook/types';
+import {
+  DecoratorFunction,
+  GlobalTypes,
+  Parameters,
+  StoryContext,
+} from '@storybook/types';
 
-import { AppBase } from '../src';
+import { AppBase, ThemeManagerContext } from '../src';
 import { ColorMode, SizeMode } from '@votingworks/types';
 
 // TODO: Find the storybook.js type declaration for this. Doesn't seem to be in
@@ -79,6 +84,31 @@ export const parameters: Parameters = {
   },
 };
 
+/**
+ * Pass-through wrapper for stories that updates the UI theme when the defaults
+ * are changed via the storybook toolbar.
+ */
+function StoryWrapper(props: {
+  children: React.ReactNode;
+  context: StoryContext;
+}): JSX.Element {
+  const { children, context } = props;
+
+  const { setColorMode, setSizeMode } = React.useContext(
+    ThemeManagerContext
+  );
+
+  React.useEffect(() => {
+    setColorMode(context.globals.colorMode);
+  }, [context.globals.colorMode]);
+
+  React.useEffect(() => {
+    setSizeMode(context.globals.sizeMode);
+  }, [context.globals.sizeMode]);
+
+  return <React.Fragment>{children}</React.Fragment>;
+}
+
 // Decorators allow us to wrap stories in custom components, provide context
 // data, or modify the existing story context, if needed, to enable proper
 // rendering, or to add any desired visual scaffolding.
@@ -89,13 +119,14 @@ export const decorators: DecoratorFunction[] = [
   ) => {
     return (
       <AppBase
-        colorMode={context.globals.colorMode}
+        defaultColorMode={context.globals.colorMode}
+        defaultSizeMode={context.globals.sizeMode}
         enableScroll
-        sizeMode={context.globals.sizeMode}
       >
-        <Story />
+        <StoryWrapper context={context}>
+          <Story />
+        </StoryWrapper>
       </AppBase>
     );
   },
 ];
-

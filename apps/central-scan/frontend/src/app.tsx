@@ -46,7 +46,7 @@ export function App({
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={queryClient}>
             <AppBase
-              colorMode={colorMode}
+              defaultColorMode={colorMode}
               legacyBaseFontSizePx={baseFontSizePx}
             >
               <AppRoot hardware={hardware} logger={logger} />
