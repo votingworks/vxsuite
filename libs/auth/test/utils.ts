@@ -7,7 +7,7 @@ import {
   OnReaderStatusChange,
   ReaderStatus,
 } from '../src/card_reader';
-import { CardType } from '../src/certs';
+import { CardType } from '../src/types';
 import { JavaCard } from '../src/java_card';
 
 /**

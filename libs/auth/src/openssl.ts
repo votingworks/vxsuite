@@ -1,8 +1,8 @@
 import { Buffer } from 'buffer';
 import { spawn } from 'child_process';
-import { existsSync, promises as fs } from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
-import { v4 as uuid } from 'uuid';
+import { FileResult, fileSync } from 'tmp';
 
 /**
  * The path to the OpenSSL config file
@@ -34,23 +34,15 @@ type OpensslParam = string | Buffer;
  * Sample usage:
  * await openssl(['verify', '-CAfile', '/path/to/cert/authority/cert.pem', certToVerifyAsBuffer ]);
  */
-export async function openssl(
-  params: OpensslParam[],
-  workingDirectory = '/tmp/openssl'
-): Promise<Buffer> {
+export async function openssl(params: OpensslParam[]): Promise<Buffer> {
   const processedParams: string[] = [];
-  const tempFilePaths: string[] = [];
+  const tempFileResults: FileResult[] = [];
   for (const param of params) {
     if (Buffer.isBuffer(param)) {
-      // fs/promises doesn't include an `exists` function
-      if (!existsSync(workingDirectory)) {
-        await fs.mkdir(workingDirectory);
-      }
-      const tempFileName = uuid();
-      const tempFilePath = `${workingDirectory}/${tempFileName}`;
-      await fs.writeFile(tempFilePath, param);
-      processedParams.push(tempFilePath);
-      tempFilePaths.push(tempFilePath);
+      const tempFile = fileSync();
+      await fs.writeFile(tempFile.name, param);
+      processedParams.push(tempFile.name);
+      tempFileResults.push(tempFile);
     } else {
       processedParams.push(param);
     }
@@ -73,7 +65,7 @@ export async function openssl(
       let cleanupError: unknown;
       try {
         await Promise.all(
-          tempFilePaths.map((tempFilePath) => fs.unlink(tempFilePath))
+          tempFileResults.map((tempFile) => tempFile.removeCallback())
         );
       } catch (error) {
         cleanupError = error;

@@ -6,7 +6,7 @@ import {
   SystemAdministratorUser,
 } from '@votingworks/types';
 
-import { DEV_JURISDICTION } from './certs';
+import { DEV_JURISDICTION } from './constants';
 import {
   deserializeMockFileContents,
   mockCard,

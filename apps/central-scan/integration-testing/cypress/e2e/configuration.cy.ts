@@ -5,7 +5,7 @@ import { sha256 } from 'js-sha256';
 // Importing all of @votingworks/auth causes Cypress tests to fail since Cypress doesn't seem to
 // interact well with PCSC Lite card reader code
 // eslint-disable-next-line vx/no-import-workspace-subfolders
-import { DEV_JURISDICTION } from '@votingworks/auth/src/certs';
+import { DEV_JURISDICTION } from '@votingworks/auth/src/constants';
 // eslint-disable-next-line vx/no-import-workspace-subfolders
 import {
   mockCard,

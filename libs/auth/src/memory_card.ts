@@ -13,7 +13,7 @@ import {
 } from '@votingworks/types';
 
 import { Card, CardDetails, CardStatus, CheckPinResponse } from './card';
-import { DEV_JURISDICTION } from './certs';
+import { DEV_JURISDICTION } from './constants';
 import * as Legacy from './legacy';
 
 interface CardData {

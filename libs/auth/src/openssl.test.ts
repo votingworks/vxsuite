@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { spawn } from 'child_process';
-import { existsSync, promises as fs } from 'fs';
-import { v4 as uuid } from 'uuid';
+import { promises as fs } from 'fs';
+import { fileSync } from 'tmp';
 import {
   fakeChildProcess as newMockChildProcess,
   FakeChildProcess as MockChildProcess,
@@ -11,33 +11,28 @@ import {
 import { createCert, openssl } from './openssl';
 
 jest.mock('child_process');
-jest.mock('fs', () => ({
-  existsSync: jest.fn(),
-  promises: {
-    mkdir: jest.fn(),
-    unlink: jest.fn(),
-    writeFile: jest.fn(),
-  },
-}));
-jest.mock('uuid');
+jest.mock('tmp');
 
 let mockChildProcess: MockChildProcess;
-let mockUuid = 0;
+let nextTempFileName = 0;
+const tempFileRemoveCallbacks: jest.Mock[] = [];
 
 beforeEach(() => {
   mockChildProcess = newMockChildProcess();
   mockOf(spawn).mockImplementation(() => mockChildProcess);
 
-  mockOf(existsSync).mockImplementation(() => true);
-  mockOf(fs.mkdir).mockImplementation(() => Promise.resolve(undefined));
-  mockOf(fs.unlink).mockImplementation(() => Promise.resolve());
-  mockOf(fs.writeFile).mockImplementation(() => Promise.resolve());
-
-  mockUuid = 0;
-  mockOf(uuid).mockImplementation(() => {
-    mockUuid += 1;
-    return `${mockUuid}`;
+  nextTempFileName = 0;
+  mockOf(fileSync).mockImplementation(() => {
+    nextTempFileName += 1;
+    const removeCallback = jest.fn();
+    tempFileRemoveCallbacks.push(removeCallback);
+    return {
+      fd: nextTempFileName,
+      name: `/tmp/openssl/${nextTempFileName}`,
+      removeCallback,
+    };
   });
+  jest.spyOn(fs, 'writeFile').mockResolvedValue();
 });
 
 afterEach(() => {
@@ -61,7 +56,6 @@ const errorChunks = [
 ] as const;
 
 test('openssl', async () => {
-  mockOf(existsSync).mockImplementationOnce(() => false);
   setTimeout(() => {
     responseChunks.forEach((responseChunk) => {
       mockChildProcess.stdout.emit('data', responseChunk);
@@ -78,23 +72,7 @@ test('openssl', async () => {
   ]);
   expect(response.toString('utf-8')).toEqual('Hey! How is it going?');
 
-  expect(existsSync).toHaveBeenCalledTimes(2);
-  expect(existsSync).toHaveBeenNthCalledWith(1, '/tmp/openssl');
-  expect(existsSync).toHaveBeenNthCalledWith(2, '/tmp/openssl');
-  expect(fs.mkdir).toHaveBeenCalledTimes(1);
-  expect(fs.mkdir).toHaveBeenNthCalledWith(1, '/tmp/openssl');
-  expect(uuid).toHaveBeenCalledTimes(2);
-  expect(fs.writeFile).toHaveBeenCalledTimes(2);
-  expect(fs.writeFile).toHaveBeenNthCalledWith(
-    1,
-    tempFilePaths[0],
-    fileBuffers[0]
-  );
-  expect(fs.writeFile).toHaveBeenNthCalledWith(
-    2,
-    tempFilePaths[1],
-    fileBuffers[1]
-  );
+  expect(fileSync).toHaveBeenCalledTimes(2);
   expect(spawn).toHaveBeenCalledTimes(1);
   expect(spawn).toHaveBeenNthCalledWith(1, 'openssl', [
     'some',
@@ -102,9 +80,9 @@ test('openssl', async () => {
     'command',
     tempFilePaths[1],
   ]);
-  expect(fs.unlink).toHaveBeenCalledTimes(2);
-  expect(fs.unlink).toHaveBeenNthCalledWith(1, tempFilePaths[0]);
-  expect(fs.unlink).toHaveBeenNthCalledWith(2, tempFilePaths[1]);
+  for (const tempFileRemoveCallback of tempFileRemoveCallbacks) {
+    expect(tempFileRemoveCallback).toHaveBeenCalledTimes(1);
+  }
 });
 
 test('openssl - no Buffer params', async () => {
@@ -118,13 +96,9 @@ test('openssl - no Buffer params', async () => {
   const response = await openssl(['some', 'command']);
   expect(response.toString('utf-8')).toEqual('Hey! How is it going?');
 
-  expect(existsSync).toHaveBeenCalledTimes(0);
-  expect(fs.mkdir).toHaveBeenCalledTimes(0);
-  expect(uuid).toHaveBeenCalledTimes(0);
-  expect(fs.writeFile).toHaveBeenCalledTimes(0);
+  expect(fileSync).toHaveBeenCalledTimes(0);
   expect(spawn).toHaveBeenCalledTimes(1);
   expect(spawn).toHaveBeenNthCalledWith(1, 'openssl', ['some', 'command']);
-  expect(fs.unlink).toHaveBeenCalledTimes(0);
 });
 
 test('openssl - no standard output', async () => {
@@ -136,11 +110,10 @@ test('openssl - no standard output', async () => {
   expect(response).toEqual(Buffer.from([]));
 });
 
-test('openssl - error creating working directory', async () => {
-  mockOf(existsSync).mockImplementationOnce(() => false);
-  mockOf(fs.mkdir).mockImplementationOnce(() =>
-    Promise.reject(new Error('Whoa!'))
-  );
+test('openssl - error creating temporary file', async () => {
+  mockOf(fileSync).mockImplementationOnce(() => {
+    throw new Error('Whoa!');
+  });
 
   await expect(openssl([fileBuffers[0]])).rejects.toThrow('Whoa!');
 });
@@ -154,10 +127,10 @@ test('openssl - error writing temp file', async () => {
 });
 
 test('openssl - error cleaning up temp files', async () => {
-  mockOf(fs.unlink).mockImplementationOnce(() =>
-    Promise.reject(new Error('Whoa!'))
-  );
   setTimeout(() => {
+    for (const tempFileRemoveCallback of tempFileRemoveCallbacks) {
+      tempFileRemoveCallback.mockRejectedValueOnce(new Error('Whoa!'));
+    }
     mockChildProcess.emit('close', 0);
   });
 

@@ -6,7 +6,7 @@ import yargs from 'yargs/yargs';
 import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
 import { safeParseElection } from '@votingworks/types';
 
-import { DEV_JURISDICTION } from '../src/certs';
+import { DEV_JURISDICTION } from '../src/constants';
 import { mockCard } from '../src/mock_file_card';
 
 const CARD_TYPES = [

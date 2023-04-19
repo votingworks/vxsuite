@@ -6,13 +6,9 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 
 import { CardDetails } from '../src/card';
 import {
-  CardType,
-  CERT_EXPIRY_IN_DAYS,
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
   constructMachineCertSubject,
-  DEV_JURISDICTION,
-  STANDARD_CERT_FIELDS,
 } from '../src/certs';
 import { DEV_PRIVATE_KEY_PASSWORD } from '../src/java_card_config';
 import {
@@ -23,6 +19,12 @@ import {
   publicKeyPemToDer,
 } from '../src/openssl';
 import { runCommand } from './utils';
+import {
+  CERT_EXPIRY_IN_DAYS,
+  DEV_JURISDICTION,
+  STANDARD_CERT_FIELDS,
+} from '../src/constants';
+import { CardType } from '../src/types';
 
 async function generateDevPrivateKey(): Promise<Buffer> {
   const privateKey = await openssl([
