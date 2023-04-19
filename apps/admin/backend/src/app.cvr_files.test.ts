@@ -20,7 +20,7 @@ import {
   mockElectionManagerAuth,
 } from '../test/app';
 import { modifyCastVoteRecordReport } from '../test/utils';
-import { getWriteInsFromCastVoteRecord } from './util/cvrs';
+import { deprecatedGetWriteInsFromCastVoteRecord } from './util/cvrs';
 
 jest.setTimeout(60_000);
 
@@ -168,7 +168,7 @@ test('happy path - mock election flow', async () => {
   for (const castVoteRecord of await apiClient.getCastVoteRecords()) {
     if (castVoteRecordHasWriteIns(castVoteRecord)) {
       expect(castVoteRecord._layouts).toBeTruthy();
-      for (const [contestId, vote] of getWriteInsFromCastVoteRecord(
+      for (const [contestId, vote] of deprecatedGetWriteInsFromCastVoteRecord(
         castVoteRecord
       ).entries()) {
         for (const voteOption of vote) {

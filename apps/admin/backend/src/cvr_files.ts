@@ -9,6 +9,8 @@ import {
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
   convertCastVoteRecordVotesToLegacyVotes,
   isTestReport,
+  getCurrentSnapshot,
+  getWriteInsFromCastVoteRecord,
 } from '@votingworks/backend';
 import {
   assert,
@@ -54,7 +56,6 @@ import { Store } from './store';
 import { CastVoteRecordFileMetadata } from './types';
 import { sha256File } from './util/sha256_file';
 import { Usb } from './util/usb';
-import { getWriteInsFromCastVoteRecord } from './util/cvrs';
 
 /**
  * Gets the metadata, including the path, of cast vote record files found in
@@ -178,36 +179,13 @@ function snapshotHasValidContestReferences(
 }
 
 /**
- * Checks whether any images referenced by particular write-ins are included at
- * the top-level and are referenced by `CVR.BallotImage`
+ * Checks whether any of the write-ins in the cast vote record are invalid
+ * due to not referencing a top-level ballot image.
  */
 function cvrHasValidWriteInImageReferences(cvr: CVR.CVR) {
-  const ballotImageReferences = cvr.BallotImage?.map(
-    (imageData) => imageData.Location
-  ).filter((location): location is string => location !== undefined);
-
-  if (!ballotImageReferences) return true;
-
-  const writeInImageReferences = cvr.CVRSnapshot.flatMap(
-    (snapshot) => snapshot.CVRContest
-  )
-    .flatMap((cvrContest) => cvrContest.CVRContestSelection)
-    .flatMap((cvrContestSelection) => cvrContestSelection.SelectionPosition)
-    .filter(
-      (selectionPosition): selectionPosition is CVR.SelectionPosition =>
-        selectionPosition !== undefined
-    )
-    .map(
-      (selectionPosition) =>
-        selectionPosition.CVRWriteIn?.WriteInImage?.Location
-    )
-    .filter((location): location is string => location !== undefined);
-
-  for (const writeInImageReference of writeInImageReferences) {
-    if (!ballotImageReferences.includes(writeInImageReference)) return false;
-  }
-
-  return true;
+  return !getWriteInsFromCastVoteRecord(cvr).some(
+    ({ side, text }) => !side && !text
+  );
 }
 
 type CastVoteRecordValidationError =
@@ -312,11 +290,7 @@ export function validateCastVoteRecord({
     return err('invalid-write-in-image-location');
   }
 
-  if (
-    !cvr.CVRSnapshot.find(
-      (snapshot) => snapshot['@id'] === cvr.CurrentSnapshotId
-    )
-  ) {
+  if (!getCurrentSnapshot(cvr)) {
     return err('no-current-snapshot');
   }
 
@@ -352,10 +326,8 @@ export function convertCastVoteRecordToLegacyFormat({
   isTest: boolean;
   batchLabel: string;
 }): CastVoteRecord {
-  const currentSnapshot = find(
-    cvr.CVRSnapshot,
-    (snapshot) => snapshot['@id'] === cvr.CurrentSnapshotId
-  );
+  const currentSnapshot = getCurrentSnapshot(cvr);
+  assert(currentSnapshot);
 
   return {
     _ballotId: cvr.UniqueId as BallotId,
@@ -687,16 +659,12 @@ export async function addCastVoteRecordReport({
       }
 
       // Add write-in records to the store
-      for (const [contestId, writeInIds] of getWriteInsFromCastVoteRecord(
-        legacyCastVoteRecord
-      )) {
-        for (const optionId of writeInIds) {
-          store.addWriteIn({
-            castVoteRecordId: cvrId,
-            contestId,
-            optionId,
-          });
-        }
+      for (const castVoteRecordWriteIn of getWriteInsFromCastVoteRecord(cvr)) {
+        store.addWriteIn({
+          castVoteRecordId: cvrId,
+          contestId: castVoteRecordWriteIn.contestId,
+          optionId: castVoteRecordWriteIn.optionId,
+        });
       }
 
       // Update our ongoing data about the file relevant to the result
