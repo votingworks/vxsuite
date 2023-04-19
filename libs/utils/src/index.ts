@@ -9,6 +9,7 @@ export * from './elections';
 export * from './environment_variable';
 export * as format from './format';
 export * from './features';
+export * from './features_mock';
 export * from './fetch_json';
 export * from './filenames';
 export * from './file_reading';

@@ -41,8 +41,10 @@ import {
   safeParseNumber,
 } from '@votingworks/types';
 import {
+  BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
   generateElectionBasedSubfolderName,
+  isFeatureFlagEnabled,
   parseCastVoteRecordReportDirectoryName,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
@@ -242,7 +244,12 @@ export function validateCastVoteRecord({
 }): Result<void, CastVoteRecordValidationError> {
   const { election, electionHash } = electionDefinition;
 
-  if (cvr.ElectionId !== electionHash) {
+  if (
+    cvr.ElectionId !== electionHash &&
+    !isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
+    )
+  ) {
     return err('invalid-election');
   }
 

@@ -32,6 +32,8 @@ import {
 import {
   adjudicationReasonDescription,
   ballotAdjudicationReasons,
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
   time,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
@@ -119,7 +121,6 @@ export interface InterpreterOptions {
   precinctSelection: PrecinctSelection;
   testMode: boolean;
   markThresholdOverrides?: MarkThresholds;
-  skipElectionHashCheck?: boolean;
   adjudicationReasons: readonly AdjudicationReason[];
 }
 
@@ -129,7 +130,6 @@ export class Interpreter {
   private readonly precinctSelection: PrecinctSelection;
   private readonly testMode: boolean;
   private readonly markThresholds: MarkThresholds;
-  private readonly skipElectionHashCheck?: boolean;
   private readonly adjudicationReasons: readonly AdjudicationReason[];
 
   constructor({
@@ -137,7 +137,6 @@ export class Interpreter {
     testMode,
     markThresholdOverrides,
     precinctSelection,
-    skipElectionHashCheck,
     adjudicationReasons,
   }: InterpreterOptions) {
     this.electionDefinition = electionDefinition;
@@ -152,7 +151,6 @@ export class Interpreter {
     }
 
     this.markThresholds = markThresholds;
-    this.skipElectionHashCheck = skipElectionHashCheck;
     this.adjudicationReasons = adjudicationReasons;
   }
 
@@ -209,7 +207,11 @@ export class Interpreter {
 
     const ballotImageData = await loadImageData(ballotImagePath);
 
-    if (!this.skipElectionHashCheck) {
+    if (
+      !isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
+      )
+    ) {
       const actualElectionHash =
         decodeElectionHash(detectQrcodeResult.qrcode.data) ?? 'not found';
       const expectedElectionHash = this.electionDefinition.electionHash.slice(

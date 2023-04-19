@@ -10,6 +10,10 @@ import {
 } from '@votingworks/backend';
 import { join } from 'path';
 import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
@@ -17,8 +21,25 @@ import {
 
 jest.setTimeout(30_000);
 
+// mock SKIP_CVR_ELECTION_HASH_CHECK to allow us to use old cvr fixtures
+const featureFlagMock = getFeatureFlagMock();
+jest.mock('@votingworks/utils', () => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+      featureFlagMock.isEnabled(flag),
+  };
+});
+
 beforeEach(() => {
   jest.restoreAllMocks();
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
+  );
+});
+
+afterEach(() => {
+  featureFlagMock.resetFeatureFlags();
 });
 
 test('getWriteIns', async () => {

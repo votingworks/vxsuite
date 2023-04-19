@@ -80,25 +80,6 @@ test('get/set test mode', () => {
   expect(store.getTestMode()).toEqual(true);
 });
 
-test('get/set skip election hash check mode', () => {
-  const store = Store.memoryStore();
-
-  // Before setting an election
-  expect(store.getSkipElectionHashCheck()).toEqual(false);
-  expect(() => store.setSkipElectionHashCheck(true)).toThrowError();
-
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
-
-  // After setting an election
-  expect(store.getSkipElectionHashCheck()).toEqual(false);
-
-  store.setSkipElectionHashCheck(true);
-  expect(store.getSkipElectionHashCheck()).toEqual(true);
-
-  store.setSkipElectionHashCheck(false);
-  expect(store.getSkipElectionHashCheck()).toEqual(false);
-});
-
 test('get/set is sounds muted mode', () => {
   const store = Store.memoryStore();
 

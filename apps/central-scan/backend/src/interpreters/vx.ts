@@ -42,7 +42,6 @@ export async function configure(store: Store): Promise<void> {
   interpreter = new Interpreter({
     electionDefinition,
     precinctSelection,
-    skipElectionHashCheck: store.getSkipElectionHashCheck(),
     testMode: store.getTestMode(),
     markThresholdOverrides: store.getMarkThresholdOverrides(),
     adjudicationReasons: electionDefinition.election
