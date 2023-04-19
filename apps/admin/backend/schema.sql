@@ -65,6 +65,16 @@ create table cvr_file_entries (
     on delete cascade
 );
 
+create table ballot_images (
+  id varchar(36) primary key,
+  cvr_id varchar(36) not null,
+  is_back boolean not null,
+  image blob not null,
+  layout text not null,
+  foreign key (cvr_id) references cvrs(id)
+    on delete cascade
+)
+
 create table printed_ballots (
   id varchar(36) primary key,
   election_id varchar(36) not null,

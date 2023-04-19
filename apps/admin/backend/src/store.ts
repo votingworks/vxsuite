@@ -14,6 +14,7 @@ import {
 import { Bindable, Client as DbClient } from '@votingworks/db';
 import {
   BallotId,
+  BallotPageLayout,
   BallotStyleId,
   CastVoteRecord,
   ContestId,
@@ -24,10 +25,12 @@ import {
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
+  Side,
   SystemSettings,
   SystemSettingsDbRow,
 } from '@votingworks/types';
 import { join } from 'path';
+import { Buffer } from 'buffer';
 import { v4 as uuid } from 'uuid';
 
 /**
@@ -393,14 +396,14 @@ export class Store {
     ballotId: BallotId,
     data: string
   ): Result<
-    { id: Id; isNew: boolean },
+    { cvrId: Id; isNew: boolean },
     {
       kind: 'BallotIdAlreadyExistsWithDifferentData';
       newData: string;
       existingData: string;
     }
   > {
-    const existing = this.client.one(
+    const existingCvr = this.client.one(
       `
         select
           id,
@@ -414,17 +417,20 @@ export class Store {
       ballotId
     ) as { id: Id; data: string } | undefined;
 
-    const id = existing?.id ?? uuid();
+    const cvrId = existingCvr?.id ?? uuid();
 
-    if (existing) {
-      if (existing.data !== data) {
+    if (existingCvr) {
+      // Existing cast vote records are expected, but existing cast vote records
+      // with new data indicate a bad or inappropriately manipulated file
+      if (existingCvr.data !== data) {
         return err({
           kind: 'BallotIdAlreadyExistsWithDifferentData',
           newData: data,
-          existingData: existing.data,
+          existingData: existingCvr.data,
         });
       }
     } else {
+      // Insert new cast vote record metadata and votes
       this.client.run(
         `
         insert into cvrs (
@@ -436,13 +442,14 @@ export class Store {
           ?, ?, ?, ?
         )
       `,
-        id,
+        cvrId,
         electionId,
         ballotId,
         data
       );
     }
 
+    // Whether the cast vote record itself is new or not, associate it with the new file.
     this.client.run(
       `
         insert or ignore into cvr_file_entries (
@@ -453,10 +460,45 @@ export class Store {
         )
       `,
       cvrFileId,
-      id
+      cvrId
     );
 
-    return ok({ id, isNew: !existing });
+    return ok({ cvrId, isNew: !existingCvr });
+  }
+
+  addBallotImage({
+    cvrId,
+    imageData,
+    pageLayout,
+    side,
+  }: {
+    cvrId: Id;
+    imageData: Buffer;
+    pageLayout: BallotPageLayout;
+    side: Side;
+  }): Id {
+    const ballotImageId = uuid();
+
+    this.client.run(
+      `
+      insert into ballot_images (
+        id,
+        cvr_id,
+        is_back,
+        image,
+        layout
+      ) values (
+        ?, ?, ?, ?
+      )
+    `,
+      ballotImageId,
+      cvrId,
+      side === 'front' ? 0 : 1,
+      imageData,
+      JSON.stringify(pageLayout)
+    );
+
+    return ballotImageId;
   }
 
   /**

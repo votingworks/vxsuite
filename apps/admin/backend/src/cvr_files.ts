@@ -6,7 +6,6 @@ import {
   validateCastVoteRecordReportDirectoryStructure,
   CastVoteRecordReportDirectoryStructureValidationError,
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
-  loadBallotImageBase64,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
   convertCastVoteRecordVotesToLegacyVotes,
   isTestReport,
@@ -19,13 +18,12 @@ import {
   Result,
   throwIllegalValue,
   find,
+  Optional,
 } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   AnyContest,
-  asSheet,
   BallotId,
-  BallotPageLayout,
   BallotPageLayoutSchema,
   CastVoteRecord,
   CastVoteRecordBallotType,
@@ -34,7 +32,7 @@ import {
   ElectionDefinition,
   getBallotStyle,
   getContests,
-  InlineBallotImage,
+  Id,
   Iso8601Timestamp,
   safeParse,
   safeParseJson,
@@ -612,8 +610,8 @@ export async function addCastVoteRecordReport({
         });
       }
 
-      // Convert the cast vote record to the format our store and tally logic use
-      let legacyCastVoteRecord = convertCastVoteRecordToLegacyFormat({
+      // Convert the CDF cast vote record to the format our store and tally logic use
+      const legacyCastVoteRecord = convertCastVoteRecordToLegacyFormat({
         cvr,
         isTest: reportFileMode === Admin.CvrFileMode.Test,
         batchLabel: find(
@@ -622,32 +620,44 @@ export async function addCastVoteRecordReport({
         ).BatchLabel,
       });
 
-      // Add referenced images and layouts to the cast vote record
+      // Add the cast vote record to the store
+      const cvrData = JSON.stringify(legacyCastVoteRecord);
+      const addCastVoteRecordResult = store.addCastVoteRecordFileEntry(
+        electionId,
+        fileId,
+        cvr.UniqueId as BallotId,
+        cvrData
+      );
+      if (addCastVoteRecordResult.isErr()) {
+        return err({
+          type: 'ballot-id-already-exists-with-different-data',
+          index: castVoteRecordIndex,
+        });
+      }
+      const { cvrId, isNew: cvrIsNew } = addCastVoteRecordResult.ok();
+
+      // Add images to the store
+      const ballotImageIds: Array<Optional<Id>> = [undefined, undefined];
       if (cvr.BallotImage) {
         // Convention is that we always have two entries in the BallotImage
         // array, allowing us to indicate front and back via array index.
         assert(cvr.BallotImage.length === 2);
-        const ballotImages: Array<InlineBallotImage | null> = [];
-        const ballotLayouts: Array<BallotPageLayout | null> = [];
 
-        for (const cvrImageData of cvr.BallotImage) {
+        for (const [pageIndex, cvrImageData] of cvr.BallotImage.entries()) {
+          // There may be no image data for the current page
           if (!cvrImageData.Location) {
-            ballotImages.push(null);
-            ballotLayouts.push(null);
             continue;
           }
 
-          // Add image from file in base 64 format.
+          // Get image data
           assert(cvrImageData.Location.startsWith('file:'));
           const imagePath = join(
             reportDirectoryPath,
             cvrImageData.Location.slice('file:'.length)
           );
-          ballotImages.push({
-            normalized: await loadBallotImageBase64(imagePath),
-          });
+          const imageData = await fs.readFile(imagePath);
 
-          // Add layout from file
+          // Get and verify layout data
           const layoutPath = imagePath
             .replace(
               CVR_BALLOT_IMAGES_SUBDIRECTORY,
@@ -665,42 +675,18 @@ export async function addCastVoteRecordReport({
               path: layoutPath,
             });
           }
-          ballotLayouts.push(parseLayoutResult.ok());
+
+          // Add image data to store
+          ballotImageIds[pageIndex] = store.addBallotImage({
+            cvrId,
+            imageData,
+            pageLayout: parseLayoutResult.ok(),
+            side: pageIndex === 0 ? 'front' : 'back',
+          });
         }
-
-        legacyCastVoteRecord = {
-          ...legacyCastVoteRecord,
-          _ballotImages: asSheet(ballotImages),
-          _layouts: asSheet(ballotLayouts),
-        };
       }
 
-      // Add the cast vote record to the store
-      const cvrData = JSON.stringify(legacyCastVoteRecord);
-      const addCastVoteRecordResult = store.addCastVoteRecordFileEntry(
-        electionId,
-        fileId,
-        cvr.UniqueId as BallotId,
-        cvrData
-      );
-      if (addCastVoteRecordResult.isErr()) {
-        return err({
-          type: 'ballot-id-already-exists-with-different-data',
-          index: castVoteRecordIndex,
-        });
-      }
-      const { id: cvrId, isNew: cvrIsNew } = addCastVoteRecordResult.ok();
-
-      // Update our ongoing data about the file relevant to the result
-      if (cvrIsNew) {
-        newlyAdded += 1;
-      } else {
-        alreadyPresent += 1;
-      }
-      precinctIds.add(cvr.BallotStyleUnitId);
-      scannerIds.add(cvr.CreatingDeviceId);
-
-      // Add the write-in records to the store
+      // Add write-in records to the store
       for (const [contestId, writeInIds] of getWriteInsFromCastVoteRecord(
         legacyCastVoteRecord
       )) {
@@ -712,6 +698,15 @@ export async function addCastVoteRecordReport({
           });
         }
       }
+
+      // Update our ongoing data about the file relevant to the result
+      if (cvrIsNew) {
+        newlyAdded += 1;
+      } else {
+        alreadyPresent += 1;
+      }
+      precinctIds.add(cvr.BallotStyleUnitId);
+      scannerIds.add(cvr.CreatingDeviceId);
 
       castVoteRecordIndex += 1;
     }
