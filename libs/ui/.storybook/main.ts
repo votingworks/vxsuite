@@ -5,7 +5,7 @@ import { StorybookConfig } from '@storybook/react-vite';
 import { getWorkspacePackageInfo } from '../../../script/src/validate-monorepo/pnpm';
 
 const config: StorybookConfig = {
-  stories: ['../src/*.stories.@(ts|tsx)'],
+  stories: ['../src/**/*.stories.@(ts|tsx)'],
   addons: [
     '@storybook/addon-links',
     '@storybook/addon-essentials',
