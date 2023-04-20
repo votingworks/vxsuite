@@ -16,9 +16,8 @@ pnpm start
 The server will be available at http://localhost:3000/.
 
 To set the election configuration you will either need to scan a smartcard (you
-can use the mockCardReader script in
-[services/smartcards](../../../services/smartcards) for this), load an
-election.json file, or load a ballot package from
+can use `./scripts/mock-card` in [`libs/auth`](../../../libs/auth) for this),
+load an election.json file, or load a ballot package from
 [election-manager](../election-manager). You should load a ballot package if you
 intend to test hand-marked paper ballots (HMPBs).
 

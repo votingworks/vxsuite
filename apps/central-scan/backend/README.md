@@ -60,13 +60,13 @@ sqlite3 dev-workspace/ballots.db 'update sheets set requires_adjudication = 1;'
 
 #### Letter-sized ballots
 
-First init `services/smartcards` with:
+First from `libs/auth` run:
 
 ```
-./mockCardReader.py enable --admin ../scan/test/fixtures/choctaw-2020-09-22-f30480cc99/election.json
+./scripts/mock-card --card-type election-manager --election-definition ../../libs/ballot-interpreter-vx/test/fixtures/choctaw-2020-09-22-f30480cc99/election.json
 ```
 
-Init `services/scan` with:
+Then init `services/scan` with:
 
 ```
 MOCK_SCANNER_FILES=test/fixtures/choctaw-2020-09-22-f30480cc99/blank-p1.png,test/fixtures/choctaw-2020-09-22-f30480cc99/blank-p2.png pnpm start
@@ -74,13 +74,13 @@ MOCK_SCANNER_FILES=test/fixtures/choctaw-2020-09-22-f30480cc99/blank-p1.png,test
 
 #### Legal-sized ballots
 
-First init `services/smartcards` with:
+First from `libs/auth` run:
 
 ```
-./mockCardReader.py enable --admin ../../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/election.json
+./scripts/mock-card --card-type election-manager --election-definition ../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/election.json
 ```
 
-Init `services/scan` with:
+Then init `services/scan` with:
 
 ```
 MOCK_SCANNER_FILES=../../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/filled-in-p1-03.png,../../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/filled-in-p2-03.png pnpm start
