@@ -4,6 +4,7 @@ import ReactDom from 'react-dom';
 import './i18n';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { DevDock } from '@votingworks/dev-dock-frontend';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -42,17 +43,18 @@ ReactDom.render(
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={queryClient}>
             <App />
+            {isFeatureFlagEnabled(
+              BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
+            ) && (
+              <div className="no-print">
+                <ReactQueryDevtools initialIsOpen={false} position="top-left" />
+              </div>
+            )}
           </QueryClientProvider>
         </ApiClientContext.Provider>
       </ServicesContext.Provider>
     </ErrorBoundary>
-    {isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
-    ) && (
-      <div className="no-print">
-        <ReactQueryDevtools initialIsOpen={false} position="top-left" />
-      </div>
-    )}
+    <DevDock />
   </React.StrictMode>,
   document.getElementById('root')
 );
