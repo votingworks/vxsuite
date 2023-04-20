@@ -7,7 +7,7 @@ import Database = require('better-sqlite3');
 
 type Database = Database.Database;
 
-const debug = makeDebug('scan:db-client');
+const debug = makeDebug('db-client');
 
 const MEMORY_DB_PATH = ':memory:';
 
