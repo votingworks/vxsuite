@@ -531,7 +531,7 @@ export class Store {
   /**
    * Returns the data necessary to display a single write-in.
    */
-  getWriteInImage(writeInId: Id): Optional<{
+  getWriteInWithImage(writeInId: Id): Optional<{
     writeInId: Id;
     contestId: ContestId;
     optionId: ContestOptionId;

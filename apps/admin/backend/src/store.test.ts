@@ -298,7 +298,7 @@ test('write-in adjudication lifecycle', async () => {
     },
   ]);
 
-  expect(store.getWriteInImage(writeInId)).toMatchObject({
+  expect(store.getWriteInWithImage(writeInId)).toMatchObject({
     writeInId,
     contestId: 'zoo-council-mammal',
     optionId: 'write-in-0',
@@ -306,7 +306,7 @@ test('write-in adjudication lifecycle', async () => {
     layout: mockPageLayout,
   });
 
-  expect(store.getWriteInImage('not-an-id')).toEqual(undefined);
+  expect(store.getWriteInWithImage('not-an-id')).toEqual(undefined);
 
   const firstWriteInAdjudicationId = store.createWriteInAdjudication({
     electionId,

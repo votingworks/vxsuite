@@ -499,11 +499,11 @@ function buildApi({
 
     async getWriteInImage(input: {
       writeInId: string;
-    }): Promise<Admin.WriteInImageEntry[]> {
-      const writeInData = store.getWriteInImage(input.writeInId);
+    }): Promise<Admin.WriteInImageView[]> {
+      const writeInWithImage = store.getWriteInWithImage(input.writeInId);
 
-      assert(writeInData);
-      const { contestId, optionId, layout, image } = writeInData;
+      assert(writeInWithImage);
+      const { contestId, optionId, layout, image } = writeInWithImage;
 
       // Identify the contest layout
       const contestLayout = layout.contests.find(

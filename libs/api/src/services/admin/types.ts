@@ -15,7 +15,6 @@ import {
   PrecinctId,
   PrecinctIdSchema,
   Rect,
-  RectSchema,
 } from '@votingworks/types';
 import * as z from 'zod';
 
@@ -485,24 +484,12 @@ export const WriteInSummaryEntryNonPendingSchema: z.ZodSchema<WriteInSummaryEntr
 /**
  * Write-in image information.
  */
-export interface WriteInImageEntry {
+export interface WriteInImageView {
   readonly image: string;
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
   readonly writeInCoordinates: Rect;
 }
-
-/**
- * Schema for {@link WriteInImageEntry}.
- */
-export const WriteInImageEntrySchema: z.ZodSchema<WriteInImageEntry> = z.object(
-  {
-    image: z.string().nonempty(),
-    ballotCoordinates: RectSchema,
-    contestCoordinates: RectSchema,
-    writeInCoordinates: RectSchema,
-  }
-);
 
 /**
  * Cast vote record data for a given write in option.
