@@ -18,6 +18,7 @@ import {
   faXmark,
   faMagnifyingGlassPlus,
   faMagnifyingGlassMinus,
+  faBan,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -81,6 +82,10 @@ export const Icons = {
 
   Delete(): JSX.Element {
     return <FaIcon type={faTrashCan} />;
+  },
+
+  Disabled(): JSX.Element {
+    return <FaIcon type={faBan} />;
   },
 
   Done(): JSX.Element {
