@@ -117,7 +117,7 @@ test('ballot pagination', async () => {
 
   const pageCount = 3;
   for (const mockWriteInRecord of mockWriteInRecords) {
-    apiMock.expectGetWriteInImage(mockWriteInRecord.id);
+    apiMock.expectGetWriteInImageView(mockWriteInRecord.id);
   }
 
   userEvent.click(await screen.findByText(`Transcribe ${pageCount}`));
@@ -153,8 +153,8 @@ test('adjudication', async () => {
   });
 
   // transcribe
-  apiMock.expectGetWriteInImage(mockWriteInRecords[0].id);
-  apiMock.expectGetWriteInImage(mockWriteInRecords[1].id); // prefetch
+  apiMock.expectGetWriteInImageView(mockWriteInRecords[0].id);
+  apiMock.expectGetWriteInImageView(mockWriteInRecords[1].id); // prefetch
   userEvent.click(await screen.findByText('Transcribe 3'));
   userEvent.type(
     await screen.findByPlaceholderText('transcribed write-in'),

@@ -542,14 +542,12 @@ test('getWriteInImage', async () => {
 
   const writeIn = writeIns[0];
   assert(writeIn);
-  const writeInImageViews = await apiClient.getWriteInImage({
+  const writeInImageView = await apiClient.getWriteInImageView({
     writeInId: writeIn.id,
   });
-  expect(writeInImageViews).toHaveLength(1);
-
-  const writeInImageView = writeInImageViews[0];
   assert(writeInImageView);
-  const { image: actualImageBase64, ...coordinates } = writeInImageView;
+
+  const { imageUrl: actualImageUrl, ...coordinates } = writeInImageView;
   expect(coordinates).toMatchInlineSnapshot(`
     Object {
       "ballotCoordinates": Object {
@@ -581,13 +579,13 @@ test('getWriteInImage', async () => {
       '33a20fb3-6a55-4e9b-a756-9b2ba622cfb6-back.jpeg-7bbc0e7d-e489-485e-b1c2-c9d54818aea2-normalized.jpg'
     )
   );
-  const expectedImageBase64 = toDataUrl(
+  const expectedImageUrl = toDataUrl(
     toImageData(expectedImage, {
       maxWidth: expectedImage.width,
       maxHeight: expectedImage.height,
     }),
     'image/jpeg'
-  ).slice('data:image/jpeg;base64,'.length);
+  );
 
-  expect(actualImageBase64).toEqual(expectedImageBase64);
+  expect(actualImageUrl).toEqual(expectedImageUrl);
 });

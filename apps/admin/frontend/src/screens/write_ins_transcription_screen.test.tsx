@@ -22,8 +22,8 @@ afterEach(() => {
 });
 
 test('clicking a previously-saved value', async () => {
-  apiMock.expectGetWriteInImage('id-174');
-  apiMock.expectGetWriteInImage('id-175');
+  apiMock.expectGetWriteInImageView('id-174');
+  apiMock.expectGetWriteInImageView('id-175');
   renderInAppContext(
     <WriteInsTranscriptionScreen
       election={electionDefinition.election}
@@ -64,7 +64,7 @@ test('clicking a previously-saved value', async () => {
 test('zoomable ballot image', async () => {
   function fakeWriteInImage(id: string) {
     return {
-      image: `fake-image-data-${id}`,
+      imageUrl: `fake-image-data-${id}`,
       ballotCoordinates: {
         x: 0,
         y: 0,
@@ -85,12 +85,12 @@ test('zoomable ballot image', async () => {
       },
     };
   }
-  apiMock.apiClient.getWriteInImage
+  apiMock.apiClient.getWriteInImageView
     .expectCallWith({ writeInId: 'id-174' })
-    .resolves([fakeWriteInImage('174')]);
-  apiMock.apiClient.getWriteInImage
+    .resolves(fakeWriteInImage('174'));
+  apiMock.apiClient.getWriteInImageView
     .expectCallWith({ writeInId: 'id-175' })
-    .resolves([fakeWriteInImage('175')]);
+    .resolves(fakeWriteInImage('175'));
 
   renderInAppContext(
     <WriteInsTranscriptionScreen
@@ -117,10 +117,7 @@ test('zoomable ballot image', async () => {
 
   await screen.findByTestId('transcribe:id-174');
   let ballotImage = await screen.findByRole('img');
-  expect(ballotImage).toHaveAttribute(
-    'src',
-    'data:image/png;base64,fake-image-data-174'
-  );
+  expect(ballotImage).toHaveAttribute('src', 'fake-image-data-174');
 
   // Initially zoomed in to show the write-in area
   const expectedZoomedInWidth =
@@ -155,10 +152,7 @@ test('zoomable ballot image', async () => {
   await screen.findByTestId('transcribe:id-175');
 
   ballotImage = await screen.findByRole('img');
-  expect(ballotImage).toHaveAttribute(
-    'src',
-    'data:image/png;base64,fake-image-data-175'
-  );
+  expect(ballotImage).toHaveAttribute('src', 'fake-image-data-175');
   expect(ballotImage).toHaveStyle({ width: `${expectedZoomedInWidth}px` });
   zoomInButton = screen.getButton(/Zoom In/);
   zoomOutButton = screen.getButton(/Zoom Out/);

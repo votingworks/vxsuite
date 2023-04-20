@@ -232,8 +232,7 @@ function buildApi({
       );
     },
 
-    // use null instead of undefined because React Query does not allow
-    // undefined as a query result
+    // use null because React Query does not allow undefined as a query result
     getCurrentElectionMetadata(): Admin.ElectionRecord | null {
       const currentElectionId = store.getCurrentElectionId();
       if (currentElectionId) {
@@ -497,9 +496,10 @@ function buildApi({
       );
     },
 
-    async getWriteInImage(input: {
+    // use null because React Query does not allow undefined as a query result
+    async getWriteInImageView(input: {
       writeInId: string;
-    }): Promise<Admin.WriteInImageView[]> {
+    }): Promise<Admin.WriteInImageView | null> {
       const writeInWithImage = store.getWriteInWithImage(input.writeInId);
 
       assert(writeInWithImage);
@@ -528,20 +528,16 @@ function buildApi({
         throw new Error('unexpected write-in option index');
       }
 
-      return [
-        {
-          image: toDataUrl(await loadImageData(image), 'image/jpeg').slice(
-            'data:image/jpeg;base64,'.length
-          ),
-          ballotCoordinates: {
-            ...layout.pageSize,
-            x: 0,
-            y: 0,
-          },
-          contestCoordinates: contestLayout.bounds,
-          writeInCoordinates: writeInLayout.bounds,
+      return {
+        imageUrl: toDataUrl(await loadImageData(image), 'image/jpeg'),
+        ballotCoordinates: {
+          ...layout.pageSize,
+          x: 0,
+          y: 0,
         },
-      ];
+        contestCoordinates: contestLayout.bounds,
+        writeInCoordinates: writeInLayout.bounds,
+      };
     },
 
     getPrintedBallots(

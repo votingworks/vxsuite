@@ -24,7 +24,7 @@ import pluralize from 'pluralize';
 import { useQueryClient } from '@tanstack/react-query';
 import { Navigation } from '../components/navigation';
 import { InlineForm, TextInput } from '../components/text_input';
-import { getWriteInImage, useApiClient } from '../api';
+import { getWriteInImageView, useApiClient } from '../api';
 
 const BallotViews = styled.div`
   flex: 3;
@@ -301,10 +301,12 @@ export function WriteInsTranscriptionScreen({
       setShowNewTranscriptionForm(false);
     }
   }
-  const imageDataQuery = getWriteInImage.useQuery({
+  const writeInImageViewQuery = getWriteInImageView.useQuery({
     writeInId: currentAdjudication.id,
   });
-  const imageData = imageDataQuery.data ? imageDataQuery.data[0] : undefined;
+  const writeInImageView = writeInImageViewQuery.data
+    ? writeInImageViewQuery.data
+    : undefined;
 
   // prefetch the next write-in image
   const queryClient = useQueryClient();
@@ -313,9 +315,11 @@ export function WriteInsTranscriptionScreen({
     const nextAdjudication = adjudications[offset + 1];
     if (nextAdjudication) {
       void queryClient.prefetchQuery({
-        queryKey: getWriteInImage.queryKey({ writeInId: nextAdjudication.id }),
+        queryKey: getWriteInImageView.queryKey({
+          writeInId: nextAdjudication.id,
+        }),
         queryFn: () =>
-          getWriteInImage.queryFn(
+          getWriteInImageView.queryFn(
             { writeInId: nextAdjudication.id },
             apiClient
           ),
@@ -364,12 +368,12 @@ export function WriteInsTranscriptionScreen({
       />
       <Main flexRow data-testid={`transcribe:${adjudicationId}`}>
         <BallotViews>
-          {imageData && (
+          {writeInImageView && (
             <BallotImageViewer
               key={adjudicationId} // Reset zoom state for each write-in
-              imageUrl={`data:image/png;base64,${imageData.image}`}
-              ballotBounds={imageData.ballotCoordinates}
-              writeInBounds={imageData.writeInCoordinates}
+              imageUrl={writeInImageView.imageUrl}
+              ballotBounds={writeInImageView.ballotCoordinates}
+              writeInBounds={writeInImageView.writeInCoordinates}
             />
           )}
         </BallotViews>

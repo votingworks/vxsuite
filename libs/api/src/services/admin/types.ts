@@ -482,10 +482,12 @@ export const WriteInSummaryEntryNonPendingSchema: z.ZodSchema<WriteInSummaryEntr
   ]);
 
 /**
- * Write-in image information.
+ * Data required to view a write-in image in our transcription interface,
+ * including an image URL and the coordinates of the ballot, relevant contest,
+ * and relevant contest option.
  */
 export interface WriteInImageView {
-  readonly image: string;
+  readonly imageUrl: string;
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
   readonly writeInCoordinates: Rect;
