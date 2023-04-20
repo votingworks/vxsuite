@@ -3,6 +3,7 @@ import { CVR } from '@votingworks/types';
 import {
   getCurrentSnapshot,
   getWriteInsFromCastVoteRecord,
+  isBmdWriteIn,
 } from './cast_vote_record_helpers';
 
 const mockCastVoteRecord: CVR.CVR = {
@@ -294,4 +295,17 @@ describe('getWriteInsFromCastVoteRecord', () => {
       })
     ).toEqual([{ contestId: 'animals', optionId: 'write-in-0', text: 'Dog' }]);
   });
+});
+
+test('isBmdWriteIn', () => {
+  expect(isBmdWriteIn({ '@type': 'CVR.CVRWriteIn', Text: 'Greg' })).toEqual(
+    true
+  );
+
+  expect(
+    isBmdWriteIn({
+      '@type': 'CVR.CVRWriteIn',
+      WriteInImage: { '@type': 'CVR.ImageData', Location: 'file:' },
+    })
+  ).toEqual(false);
 });

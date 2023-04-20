@@ -12,6 +12,14 @@ export function getCurrentSnapshot(cvr: CVR.CVR): Optional<CVR.CVRSnapshot> {
 }
 
 /**
+ * Our BMD write-ins use the CDF `Text` field on the {@link CVR.CVRWriteIn},
+ * so it is our test for whether a write-in came from a BMD or HMPB.
+ */
+export function isBmdWriteIn(cvrWriteIn: CVR.CVRWriteIn): boolean {
+  return Boolean(cvrWriteIn.Text);
+}
+
+/**
  * Information about a write in entry found in a cast vote record. `text`
  * indicates the text of the write-in which only applies to machine-marked
  * ballots. `side` indicates the side of the sheet for the corresponding
@@ -46,8 +54,7 @@ export function getWriteInsFromCastVoteRecord(
           selectionPosition.HasIndication === CVR.IndicationStatus.Yes &&
           cvrWriteIn
         ) {
-          // Check for a BMD write-in
-          if (cvrWriteIn.Text) {
+          if (isBmdWriteIn(cvrWriteIn)) {
             castVoteRecordWriteIns.push({
               contestId: cvrContest.ContestId,
               optionId: cvrContestSelection.ContestSelectionId,
