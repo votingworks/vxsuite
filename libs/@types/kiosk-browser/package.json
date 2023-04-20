@@ -4,5 +4,8 @@
   "types": "kiosk-browser",
   "dependencies": {
     "rxjs": "^6.6.6"
+  },
+  "devDependencies": {
+    "electron": "17"
   }
 }

@@ -111,5 +111,7 @@ export function fakeKiosk({
     rebootToBios: jest.fn(),
     prepareToBootFromUsb: jest.fn(),
     powerDown: jest.fn(),
+    captureScreenshot: jest.fn().mockResolvedValue(Buffer.of()),
+    showOpenDialog: jest.fn(),
   };
 }
