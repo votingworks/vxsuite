@@ -20,7 +20,8 @@ export type BridgeInterpretResult =
  */
 export function interpret(
   electionJson: string,
-  ballotImagePath1: string,
-  ballotImagePath2: string,
-  debug: boolean
+  ballotImageSourceSideA: string | ImageData,
+  ballotImageSourceSideB: string | ImageData,
+  debugBasePathSideA?: string,
+  debugBasePathSideB?: string
 ): BridgeInterpretResult;

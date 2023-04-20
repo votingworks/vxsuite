@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use image::{imageops::rotate180, GenericImageView, GrayImage};
 use imageproc::{
     contours::{find_contours_with_threshold, BorderType, Contour},
@@ -193,7 +191,7 @@ impl TimingMarkGrid {
 /// marks, i.e. the locations of all the possible ovals.
 #[time]
 pub fn find_timing_mark_grid(
-    image_path: &Path,
+    label: &str,
     geometry: &Geometry,
     img: &GrayImage,
     border_inset: Inset,
@@ -270,7 +268,7 @@ pub fn find_timing_mark_grid(
         Ok(metadata) => metadata,
         Err(error) => {
             return Err(Error::InvalidMetadata {
-                path: image_path.to_str().unwrap_or_default().to_string(),
+                label: label.to_string(),
                 error,
             })
         }
