@@ -22,7 +22,6 @@ import {
 import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { UsbDrive } from '@votingworks/ui';
 import {
   fakeElectionManagerUser,
   fakeSessionExpiresAt,
@@ -30,7 +29,7 @@ import {
 } from '@votingworks/test-utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/admin-backend';
-import { mockUsbDrive } from '@votingworks/ui';
+import { UsbDrive, mockUsbDrive } from '@votingworks/ui';
 import { render as testRender, RenderResult } from './react_testing_library';
 import { AppContext } from '../src/contexts/app_context';
 import { Iso8601Timestamp, ExportableTallies } from '../src/config/types';

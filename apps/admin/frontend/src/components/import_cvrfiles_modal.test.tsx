@@ -2,12 +2,11 @@ import React from 'react';
 import { fakeKiosk } from '@votingworks/test-utils';
 
 import { Admin } from '@votingworks/api';
-import { ElectronFile, UsbDriveStatus } from '@votingworks/ui';
+import { ElectronFile, UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { CastVoteRecordFileMetadata } from '@votingworks/admin-backend';
-import { mockUsbDrive } from '@votingworks/ui';
 import {
   waitFor,
   fireEvent,
