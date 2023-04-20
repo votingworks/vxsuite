@@ -8,7 +8,11 @@ import {
 import styled from 'styled-components';
 
 import { Scan } from '@votingworks/api';
-import { Hardware, isSystemAdministratorAuth } from '@votingworks/utils';
+import {
+  Hardware,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 import {
   ElectionInfoBar,
   Main,
@@ -25,6 +29,7 @@ import {
   useUsbDrive,
   LinkButton,
   Button,
+  UnconfiguredElectionScreen,
 } from '@votingworks/ui';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { assert, Optional, Result, ok, err } from '@votingworks/basics';
@@ -34,7 +39,6 @@ import { AppContext, AppContextInterface } from './contexts/app_context';
 import { ScanButton } from './components/scan_button';
 import { useInterval } from './hooks/use_interval';
 
-import { LoadElectionScreen } from './screens/load_election_screen';
 import { DashboardScreen } from './screens/dashboard_screen';
 import { BallotEjectScreen } from './screens/ballot_eject_screen';
 import { AdminActionsScreen } from './screens/admin_actions_screen';
@@ -45,7 +49,12 @@ import { MainNav } from './components/main_nav';
 import { ExportResultsModal } from './components/export_results_modal';
 import { machineConfigProvider } from './util/machine_config';
 import { MachineLockedScreen } from './screens/machine_locked_screen';
-import { checkPin, getAuthStatus, logOut } from './api';
+import {
+  checkPin,
+  configureFromBallotPackageOnUsbDrive,
+  getAuthStatus,
+  logOut,
+} from './api';
 
 const Buttons = styled.div`
   padding: 10px 0;
@@ -111,6 +120,7 @@ export function AppRoot({
   const [currentScanningBatchId, setCurrentScanningBatchId] =
     useState<string>();
   const [lastScannedSheetIdx, setLastScannedSheetIdx] = useState(0);
+  const configureMutation = configureFromBallotPackageOnUsbDrive.useMutation();
 
   const refreshConfig = useCallback(async () => {
     setElectionDefinition(await config.getElectionDefinition());
@@ -123,15 +133,18 @@ export function AppRoot({
     });
   }, [logger, userRole]);
 
-  function updateElectionDefinition(e: ElectionDefinition) {
-    setElectionDefinition(e);
-    void logger.log(LogEventId.ElectionConfigured, userRole, {
-      message: `Machine configured for election with hash: ${e.electionHash}`,
-      disposition: 'success',
-      electionHash: e.electionHash,
-    });
-    setElectionJustLoaded(true);
-  }
+  const updateElectionDefinition = useCallback(
+    (e: ElectionDefinition) => {
+      setElectionDefinition(e);
+      void logger.log(LogEventId.ElectionConfigured, userRole, {
+        message: `Machine configured for election with hash: ${e.electionHash}`,
+        disposition: 'success',
+        electionHash: e.electionHash,
+      });
+      setElectionJustLoaded(true);
+    },
+    [setElectionJustLoaded, setElectionDefinition, logger, userRole]
+  );
 
   useEffect(() => {
     async function initialize() {
@@ -460,6 +473,31 @@ export function AppRoot({
     }
   }, [electionJustLoaded, usbDrive.status]);
 
+  useEffect(() => {
+    async function configure() {
+      if (
+        !configureMutation.isLoading &&
+        !electionDefinition &&
+        authStatusQuery.data &&
+        isElectionManagerAuth(authStatusQuery.data) &&
+        usbDrive.status === 'mounted'
+      ) {
+        const result = await configureMutation.mutateAsync();
+        const electionDefinitionFromResult = result.ok();
+        assert(electionDefinitionFromResult !== undefined);
+        updateElectionDefinition(electionDefinitionFromResult);
+      }
+    }
+
+    void configure();
+  }, [
+    configureMutation,
+    authStatusQuery.data,
+    electionDefinition,
+    updateElectionDefinition,
+    usbDrive,
+  ]);
+
   if (!authStatusQuery.isSuccess) {
     return null;
   }
@@ -673,11 +711,25 @@ export function AppRoot({
     );
   }
 
+  // isConfigLoaded just indicates that `initialize` has been run; it doesn't guarantee
+  // election definition is loaded
   if (isConfigLoaded) {
     return (
-      <AppContext.Provider value={currentContext}>
-        <LoadElectionScreen setElectionDefinition={updateElectionDefinition} />
-      </AppContext.Provider>
+      <Screen>
+        <MainNav>
+          <Button small onPress={() => logOutMutation.mutate()}>
+            Lock Machine
+          </Button>
+        </MainNav>
+        <Main centerChild>
+          <UnconfiguredElectionScreen
+            usbDriveStatus={usbDrive.status}
+            isElectionManagerAuth={isElectionManagerAuth(authStatus)}
+            backendConfigError={configureMutation.data?.err()}
+            machineName="VxCentralScan"
+          />
+        </Main>
+      </Screen>
     );
   }
 

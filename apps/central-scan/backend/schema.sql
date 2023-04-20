@@ -63,3 +63,9 @@ create table hmpb_templates (
   layouts_json text not null,
   created_at datetime default current_timestamp not null
 );
+
+create table system_settings (
+  -- enforce singleton table
+  id integer primary key check (id = 1),
+  are_poll_worker_card_pins_enabled boolean not null default false
+);

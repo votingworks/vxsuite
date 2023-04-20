@@ -4,6 +4,7 @@ import {
   BallotPageLayout,
   BallotType,
   CandidateContest,
+  DEFAULT_SYSTEM_SETTINGS,
   InterpretedHmpbPage,
   mapSheet,
   PageInterpretationWithFiles,
@@ -1017,4 +1018,14 @@ test('getBallotPageLayoutsLookup', () => {
       ),
     },
   ]);
+});
+
+test('systemSettings can set/get/delete', () => {
+  const store = Store.memoryStore();
+  const systemSettings = DEFAULT_SYSTEM_SETTINGS;
+  store.setSystemSettings(systemSettings);
+  const systemSettingsInStore = store.getSystemSettings();
+  expect(systemSettingsInStore).toEqual(DEFAULT_SYSTEM_SETTINGS);
+  store.deleteSystemSettings();
+  expect(store.getSystemSettings()).toBeUndefined();
 });

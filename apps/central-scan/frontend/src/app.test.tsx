@@ -1,10 +1,7 @@
 import fetchMock from 'fetch-mock';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import {
-  electionSample,
-  electionSampleDefinition,
-} from '@votingworks/fixtures';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
   fakeKiosk,
@@ -15,7 +12,7 @@ import {
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
-import { typedAs, sleep } from '@votingworks/basics';
+import { typedAs, sleep, ok } from '@votingworks/basics';
 import { Scan } from '@votingworks/api';
 import { ElectionDefinition } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
@@ -78,6 +75,12 @@ afterEach(() => {
   expect(fetchMock.calls('unmatched')).toEqual([]);
 });
 
+function expectConfigureFromBallotPackageOnUsbDrive() {
+  mockApiClient.configureFromBallotPackageOnUsbDrive
+    .expectCallWith()
+    .resolves(ok(electionSampleDefinition));
+}
+
 export async function authenticateAsSystemAdministrator(
   lockScreenText = 'VxCentralScan is Locked'
 ): Promise<void> {
@@ -95,7 +98,8 @@ export async function authenticateAsSystemAdministrator(
 
 export async function authenticateAsElectionManager(
   electionDefinition: ElectionDefinition,
-  lockScreenText = 'VxCentralScan is Locked'
+  lockScreenText = 'VxCentralScan is Locked',
+  postAuthText = 'Lock Machine'
 ): Promise<void> {
   // First verify that we're logged out
   await screen.findByText(lockScreenText);
@@ -107,7 +111,7 @@ export async function authenticateAsElectionManager(
     }),
     sessionExpiresAt: fakeSessionExpiresAt(),
   });
-  await screen.findByText('Lock Machine');
+  await screen.findByText(postAuthText);
 }
 
 test('renders without crashing', async () => {
@@ -247,7 +251,6 @@ test('clicking Scan Batch will scan a batch', async () => {
 test('clicking "Save CVRs" shows modal and makes a request to export', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
@@ -291,6 +294,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
 
   render(<App apiClient={mockApiClient} hardware={hardware} />);
   await authenticateAsElectionManager(electionSampleDefinition);
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   await act(async () => {
     // wait for the config to load
@@ -333,23 +337,22 @@ test('configuring election from usb ballot package works end to end', async () =
       status: 200,
     });
 
+  const mockKiosk = fakeKiosk();
+  window.kiosk = mockKiosk;
+
   const hardware = MemoryHardware.buildStandard();
-  const { getByText, getByTestId } = render(
+  const { getByText } = render(
     <App apiClient={mockApiClient} hardware={hardware} />
   );
   await authenticateAsElectionManager(
     electionSampleDefinition,
+    'VxCentralScan is Not Configured',
     'VxCentralScan is Not Configured'
   );
 
-  const mockKiosk = fakeKiosk();
-  window.kiosk = mockKiosk;
-
-  await act(async () => {
-    // wait for the config to load
-    await sleep(500);
-    getByText('Load Election Configuration');
-  });
+  // Insert USB drive
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+  expectConfigureFromBallotPackageOnUsbDrive();
 
   fetchMock
     .get('/central-scanner/config/election', electionSampleDefinition, {
@@ -360,12 +363,6 @@ test('configuring election from usb ballot package works end to end', async () =
       { status: 'ok', testMode: true },
       { overwriteRoutes: true }
     );
-
-  fireEvent.change(getByTestId('manual-upload-input'), {
-    target: {
-      files: [new File([JSON.stringify(electionSample)], 'file.json')],
-    },
-  });
 
   await act(async () => {
     await sleep(500);
@@ -385,10 +382,20 @@ test('configuring election from usb ballot package works end to end', async () =
     .getOnce('/central-scanner/config/election', JSON.stringify(null), {
       overwriteRoutes: true,
     })
+    .getOnce(
+      '/central-scanner/config/testMode',
+      { body: getTestModeConfigResponse },
+      {
+        overwriteRoutes: true,
+      }
+    )
     .deleteOnce('/central-scanner/config/election', {
       body: '{"status": "ok"}',
       status: 200,
     });
+  // Remove USB drive
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
+
   fireEvent.click(getByText('Admin'));
   getByText('Admin Actions');
   fireEvent.click(getByText('Delete Election Data from VxCentralScan'));
@@ -398,8 +405,8 @@ test('configuring election from usb ballot package works end to end', async () =
   fireEvent.click(getByText('I am sure. Delete all election data.'));
   getByText('Deleting election data');
   await act(async () => {
-    await sleep(2000);
-    getByText('Load Election Configuration');
+    await sleep(1000);
+    getByText('Insert a USB drive containing a ballot package.');
   });
 });
 

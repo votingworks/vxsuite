@@ -47,6 +47,16 @@ export const getAuthStatus = {
   },
 } as const;
 
+export const getSystemSettings = {
+  queryKey(): QueryKey {
+    return ['getSystemSettings'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getSystemSettings());
+  },
+} as const;
+
 export const checkPin = {
   useMutation() {
     const apiClient = useApiClient();
@@ -91,6 +101,18 @@ export const deleteBatch = {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const configureFromBallotPackageOnUsbDrive = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.configureFromBallotPackageOnUsbDrive, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getSystemSettings.queryKey());
       },
     });
   },

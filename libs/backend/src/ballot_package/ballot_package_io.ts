@@ -7,41 +7,15 @@ import {
 } from '@votingworks/utils';
 import * as fs from 'fs/promises';
 import * as fsSync from 'fs';
-import { AuthStatus } from '@votingworks/types/src/auth/inserted_smart_card_auth';
+import { AuthStatus as InsertedCardAuthStatus } from '@votingworks/types/src/auth/inserted_smart_card_auth';
+import { AuthStatus as DippedCardAuthStatus } from '@votingworks/types/src/auth/dipped_smart_card_auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { BallotPackageConfigurationError } from '@votingworks/types';
 import { UsbDrive } from '../get_usb_drives';
 
-/**
- * readBallotPackageFromUsb validates desired auth and USB state and returns the ballot package
- * from a USB drive if possible, or an error if not possible.
- * @param authStatus AuthStatus representing an inserted card
- * @param usbDrive UsbDrive representing status of an inserted USB drive
- * @param logger an instance of Logger
- * @returns Result<BallotPackage, BallotPackageConfigurationError> intended to be consumed by an API handler
- */
-export async function readBallotPackageFromUsb(
-  authStatus: AuthStatus,
-  usbDrive: UsbDrive,
-  logger: Logger
-): Promise<Result<BallotPackage, BallotPackageConfigurationError>> {
-  // The frontend tries to prevent ballot package configuration attempts until an election
-  // manager has authed. But we may reach this state if a user removes their card immediately
-  // after inserting it, but after the ballot package configuration attempt has started
-  if (authStatus.status !== 'logged_in') {
-    await logger.log(LogEventId.BallotPackageLoadedFromUsb, 'system', {
-      disposition: 'failure',
-      message: 'Ballot package configuration was attempted before auth.',
-    });
-    return err('auth_required_before_ballot_package_load');
-  }
-
-  // The frontend should prevent these 2 edge cases, so we are fine
-  // a simple assert to enforce
-  assert(
-    authStatus.user.role === 'election_manager',
-    'Only election managers may configure a ballot package.'
-  );
+async function getMostRecentBallotPackageFilepath(
+  usbDrive: UsbDrive
+): Promise<Result<string, BallotPackageConfigurationError>> {
   assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
 
   const directoryPath = path.join(usbDrive.mountPoint, BALLOT_PACKAGE_FOLDER);
@@ -76,8 +50,46 @@ export async function readBallotPackageFromUsb(
   );
   assert(mostRecentBallotPackageFile);
 
+  return ok(mostRecentBallotPackageFile.filePath);
+}
+
+/**
+ * readBallotPackageFromUsb validates desired auth and USB state and returns the ballot package
+ * from a USB drive if possible, or an error if not possible.
+ * @param authStatus AuthStatus representing an inserted card
+ * @param usbDrive UsbDrive representing status of an inserted USB drive
+ * @param logger an instance of Logger
+ * @returns Result<BallotPackage, BallotPackageConfigurationError> intended to be consumed by an API handler
+ */
+export async function readBallotPackageFromUsb(
+  authStatus: InsertedCardAuthStatus | DippedCardAuthStatus,
+  usbDrive: UsbDrive,
+  logger: Logger
+): Promise<Result<BallotPackage, BallotPackageConfigurationError>> {
+  // The frontend tries to prevent ballot package configuration attempts until an election
+  // manager has authed. But we may reach this state if a user removes their card immediately
+  // after inserting it, but after the ballot package configuration attempt has started
+  if (authStatus.status !== 'logged_in') {
+    await logger.log(LogEventId.BallotPackageLoadedFromUsb, 'system', {
+      disposition: 'failure',
+      message: 'Ballot package configuration was attempted before auth.',
+    });
+    return err('auth_required_before_ballot_package_load');
+  }
+
+  // The frontend should prevent non-election manager auth, so we are fine
+  // a simple assert to enforce
+  assert(
+    authStatus.user.role === 'election_manager',
+    'Only election managers may configure a ballot package.'
+  );
+
+  const filepathResult = await getMostRecentBallotPackageFilepath(usbDrive);
+  if (filepathResult.isErr()) {
+    return filepathResult;
+  }
   const ballotPackage = await readBallotPackageFromBuffer(
-    await fs.readFile(mostRecentBallotPackageFile.filePath)
+    await fs.readFile(filepathResult.ok())
   );
 
   const { electionDefinition } = ballotPackage;
