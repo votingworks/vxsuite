@@ -12,7 +12,7 @@ for (const Component of [Caption, Font, P, Pre]) {
       sizeMode: 'm',
     });
     render(
-      <AppBase colorMode="contrastHighDark" sizeMode="m">
+      <AppBase defaultColorMode="contrastHighDark" defaultSizeMode="m">
         <Component>regular text</Component>
         <Component weight="bold">bold text</Component>
         <Component italic weight="light">
@@ -55,7 +55,7 @@ for (const Heading of [H1, H2, H3, H4, H5, H6]) {
       sizeMode: 'xl',
     });
     render(
-      <AppBase colorMode="contrastHighLight" sizeMode="xl">
+      <AppBase defaultColorMode="contrastHighLight" defaultSizeMode="xl">
         <Heading>regular heading</Heading>
         <Heading as="h1">heading with modified semantics</Heading>
         <Heading italic>italic heading</Heading>
@@ -114,7 +114,7 @@ for (const Component of [Caption, Font, P, Pre, H1, H2, H3, H4, H5, H6]) {
       sizeMode: 'l',
     });
     render(
-      <AppBase colorMode="contrastMedium" sizeMode="l">
+      <AppBase defaultColorMode="contrastMedium" defaultSizeMode="l">
         <Component color="danger">danger color text</Component>
         <Component color="default">default color text</Component>
         <Component color="success">success color text</Component>

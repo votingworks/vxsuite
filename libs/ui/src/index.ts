@@ -63,6 +63,7 @@ export * from './tally_report_metadata';
 export * from './tally_report_summary';
 export * from './test_mode';
 export * from './text';
+export * from './theme_manager_context';
 export * from './themes';
 export * from './timer';
 export * from './typography';

@@ -29,7 +29,7 @@ export function App({
   return (
     <BrowserRouter>
       <AppBase
-        colorMode={colorMode}
+        defaultColorMode={colorMode}
         legacyBaseFontSizePx={baseFontSizePx}
         legacyPrintFontSizePx={printFontSizePx}
       >

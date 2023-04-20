@@ -50,8 +50,8 @@ export function renderWithThemes(
   function wrapper(props: { children: React.ReactNode }): JSX.Element {
     return (
       <AppBase
-        colorMode={vxTheme.colorMode}
-        sizeMode={vxTheme.sizeMode}
+        defaultColorMode={vxTheme.colorMode}
+        defaultSizeMode={vxTheme.sizeMode}
         {...props}
       />
     );
