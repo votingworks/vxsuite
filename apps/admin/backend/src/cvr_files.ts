@@ -601,10 +601,17 @@ export async function addCastVoteRecordReport({
         cvrData
       );
       if (addCastVoteRecordResult.isErr()) {
-        return err({
-          type: 'ballot-id-already-exists-with-different-data',
-          index: castVoteRecordIndex,
-        });
+        const errorKind = addCastVoteRecordResult.err().kind;
+        switch (errorKind) {
+          case 'BallotIdAlreadyExistsWithDifferentData':
+            return err({
+              type: 'ballot-id-already-exists-with-different-data',
+              index: castVoteRecordIndex,
+            });
+          /* istanbul ignore next */
+          default:
+            throwIllegalValue(errorKind);
+        }
       }
       const { cvrId, isNew: cvrIsNew } = addCastVoteRecordResult.ok();
 
