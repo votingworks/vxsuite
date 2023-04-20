@@ -1,5 +1,4 @@
 APP := ..
-SMARTCARDS := ../../../services/smartcards
 SEMS := ../../../services/converter-ms-sems
 export ADMIN_WORKSPACE=/tmp/admin-integration-testing
 export PIPENV_VENV_IN_PROJECT=1
@@ -20,17 +19,12 @@ build-converter-ms-sems:
 	make -C $(SEMS) install-dev-dependencies; \
 	make -C $(SEMS) build;
 
-build-smartcards:
-	make -C $(SMARTCARDS) install-smartcard; \
-	make -C $(SMARTCARDS) build;
-
-build: build-frontend build-backend build-converter-ms-sems build-smartcards
+build: build-frontend build-backend build-converter-ms-sems
 
 run:
 	rm -rf $(ADMIN_WORKSPACE)
 	mkdir $(ADMIN_WORKSPACE)
-	NODE_ENV=production IS_INTEGRATION_TEST=true ./node_modules/.bin/concurrently -n smartcards,sems,frontend,backend --kill-others \
-		"make -C ${SMARTCARDS} run" \
+	NODE_ENV=production IS_INTEGRATION_TEST=true ./node_modules/.bin/concurrently -n sems,frontend,backend --kill-others \
 		"make -C $(SEMS) run" \
 		"make -C $(APP)/frontend run" \
 		"make -C $(APP)/backend run"

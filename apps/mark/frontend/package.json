@@ -190,7 +190,6 @@
   "vx": {
     "isBundled": true,
     "services": [
-      "../../../services/smartcards",
       "../backend"
     ]
   }

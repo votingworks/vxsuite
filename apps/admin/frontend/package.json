@@ -229,7 +229,6 @@
     "isBundled": true,
     "services": [
       "../../../services/converter-ms-sems",
-      "../../../services/smartcards",
       "../backend"
     ]
   }
