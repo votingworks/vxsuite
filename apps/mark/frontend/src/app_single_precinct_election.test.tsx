@@ -43,7 +43,7 @@ test('loading election with a single precinct automatically sets precinct', asyn
     />
   );
 
-  await screen.findByText('VxMark is Not Configured');
+  await screen.findByText('VxMark is not configured');
 
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
 

@@ -79,7 +79,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
 
   // Default Unconfigured
-  screen.getByText('VxMark is Not Configured');
+  screen.getByText('VxMark is not configured');
 
   // ---------------
 
@@ -124,7 +124,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Remove card and expect not configured because precinct not selected
   apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  await screen.findByText('VxMark is Not Configured');
+  await screen.findByText('VxMark is not configured');
 
   // ---------------
 
@@ -424,7 +424,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Default Unconfigured
   apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  await screen.findByText('VxMark is Not Configured');
+  await screen.findByText('VxMark is not configured');
 
   // Insert System Administrator card works when unconfigured
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
@@ -461,9 +461,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   );
   apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
-  await screen.findByText('VxMark is Not Configured');
+  await screen.findByText('VxMark is not configured');
 
   // Verify that machine was unconfigured even after election manager reauth
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  await screen.findByText('VxMark is Not Configured');
+  await screen.findByText('VxMark is not configured');
 });
