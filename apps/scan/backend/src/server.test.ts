@@ -1,6 +1,7 @@
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
 import { dirSync } from 'tmp';
+import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { createInterpreter } from './interpret';
@@ -43,10 +44,11 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
   start({
-    precinctScannerStateMachine,
-    precinctScannerInterpreter,
-    workspace,
+    auth: buildMockInsertedSmartCardAuth(),
     logger,
+    precinctScannerInterpreter,
+    precinctScannerStateMachine,
+    workspace,
   });
 
   expect(buildAppMock).toHaveBeenCalledWith(
@@ -82,7 +84,12 @@ test('start uses its own logger if none is provided', async () => {
   const listen = jest.fn();
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  start({ precinctScannerStateMachine, precinctScannerInterpreter, workspace });
+  start({
+    auth: buildMockInsertedSmartCardAuth(),
+    precinctScannerStateMachine,
+    precinctScannerInterpreter,
+    workspace,
+  });
 
   expect(buildAppMock).toHaveBeenCalledWith(
     expect.anything(), // auth
