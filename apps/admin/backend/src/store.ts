@@ -15,6 +15,7 @@ import { Bindable, Client as DbClient } from '@votingworks/db';
 import {
   BallotId,
   BallotPageLayout,
+  BallotPageLayoutSchema,
   BallotStyleId,
   CastVoteRecord,
   ContestId,
@@ -28,6 +29,7 @@ import {
   Side,
   SystemSettings,
   SystemSettingsDbRow,
+  unsafeParse,
 } from '@votingworks/types';
 import { join } from 'path';
 import { Buffer } from 'buffer';
@@ -345,46 +347,6 @@ export class Store {
     );
   }
 
-  getCastVoteRecordForWriteIn(
-    writeInId: Id
-  ): Admin.CastVoteRecordData | undefined {
-    const result = this.client.one(
-      `
-      select
-        write_ins.id as writeInId,
-        write_ins.contest_id as contestId,
-        write_ins.option_id as optionId,
-        cvrs.election_id as electionId,
-        cvrs.data as cvrData
-      from write_ins
-      inner join
-        cvrs on cvrs.id = write_ins.cvr_id
-      where write_ins.id = ?
-    `,
-      writeInId
-    ) as
-      | {
-          writeInId: Id;
-          contestId: ContestId;
-          optionId: ContestOptionId;
-          electionId: Id;
-          cvrData: string;
-        }
-      | undefined;
-
-    if (!result) {
-      return undefined;
-    }
-
-    return {
-      cvr: safeParseJson(result.cvrData).unsafeUnwrap() as CastVoteRecord,
-      writeInId: result.writeInId,
-      contestId: result.contestId,
-      optionId: result.optionId,
-      electionId: result.electionId,
-    };
-  }
-
   /**
    * Adds a CVR file entry record and returns its ID. If a CVR file entry with
    * the same contents has already been added, returns the ID of that record and
@@ -565,6 +527,48 @@ export class Store {
     );
 
     return id;
+  }
+
+  /**
+   * Returns the data necessary to display a single write-in.
+   */
+  getWriteInImage(writeInId: Id): Optional<{
+    writeInId: Id;
+    contestId: ContestId;
+    optionId: ContestOptionId;
+    image: Buffer;
+    layout: BallotPageLayout;
+  }> {
+    const result = this.client.one(
+      `
+        select
+          write_ins.id as writeInId,
+          write_ins.contest_id as contestId,
+          write_ins.option_id as optionId,
+          ballot_images.image as image,
+          ballot_images.layout as layout,
+        from write_ins
+        inner join
+          ballot_images on ballot_images.id = write_ins.ballot_image_id
+        where write_ins.id = ?
+      `,
+      writeInId
+    ) as
+      | {
+          writeInId: Id;
+          contestId: ContestId;
+          optionId: ContestOptionId;
+          image: Buffer;
+          layout: string;
+        }
+      | undefined;
+
+    if (!result) return result;
+
+    return {
+      ...result,
+      layout: unsafeParse(BallotPageLayoutSchema, result.layout),
+    };
   }
 
   getCvrFiles(electionId: Id): Admin.CastVoteRecordFileRecord[] {

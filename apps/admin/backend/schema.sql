@@ -76,7 +76,7 @@ create table ballot_images (
   foreign key (cvr_id) references cvrs(id)
     on delete cascade,
   unique(cvr_id, is_back)
-)
+);
 
 create table printed_ballots (
   id varchar(36) primary key,

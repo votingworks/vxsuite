@@ -1,14 +1,11 @@
 import { Admin } from '@votingworks/api';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
-  BallotPageContestLayout,
-  BallotPageLayout,
   CandidateContest,
   CastVoteRecord,
   ContestId,
   ContestOptionId,
   ElectionDefinition,
-  InlineBallotImage,
   safeParseElectionDefinition,
   safeParseJson,
   safeParseNumber,
@@ -36,6 +33,7 @@ import {
   CAST_VOTE_RECORD_REPORT_FILENAME,
   parseCastVoteRecordReportDirectoryName,
 } from '@votingworks/utils';
+import { loadImageData, toDataUrl } from '@votingworks/image-utils';
 import { ConfigureResult, SetSystemSettingsResult } from './types';
 import { Workspace } from './util/workspace';
 import {
@@ -499,38 +497,20 @@ function buildApi({
       );
     },
 
-    getWriteInImage(input: { writeInId: string }): Admin.WriteInImageEntry[] {
-      const castVoteRecordData = store.getCastVoteRecordForWriteIn(
-        input.writeInId
-      );
+    async getWriteInImage(input: {
+      writeInId: string;
+    }): Promise<Admin.WriteInImageEntry[]> {
+      const castVoteRecordData = store.getWriteInImage(input.writeInId);
+
       assert(castVoteRecordData);
-      const { contestId, optionId, cvr } = castVoteRecordData;
-      if (cvr._layouts === undefined || cvr._ballotImages === undefined) {
-        return []; // The CVR does not have ballot images.
-      }
+      const { contestId, optionId, layout, image } = castVoteRecordData;
 
-      // Identify the page layout, contest layout, and associated image.
-      let pageLayout: Optional<BallotPageLayout>;
-      let contestLayout: Optional<BallotPageContestLayout>;
-      let ballotImage: InlineBallotImage | null | undefined;
-      for (const [index, layout] of cvr._layouts.entries()) {
-        if (layout === null) continue;
-
-        const foundContestLayout = layout.contests.find(
-          (contest) => contest.contestId === contestId
-        );
-        if (foundContestLayout) {
-          pageLayout = layout;
-          contestLayout = foundContestLayout;
-          ballotImage = cvr._ballotImages[index];
-          continue;
-        }
-      }
-      if (!pageLayout || !contestLayout) {
+      // Identify the contest layout
+      const contestLayout = layout.contests.find(
+        (contest) => contest.contestId === contestId
+      );
+      if (!contestLayout) {
         throw new Error('unable to find a layout for the specified contest');
-      }
-      if (!ballotImage) {
-        throw new Error('no ballot image associated with the ballot layout');
       }
 
       // Identify the write-in option layout
@@ -550,9 +530,11 @@ function buildApi({
 
       return [
         {
-          image: ballotImage.normalized,
+          image: toDataUrl(await loadImageData(image), 'image/jpeg').slice(
+            'data:image/jpeg;base64,'.length
+          ),
           ballotCoordinates: {
-            ...pageLayout.pageSize,
+            ...layout.pageSize,
             x: 0,
             y: 0,
           },
