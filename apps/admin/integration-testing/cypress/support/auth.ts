@@ -1,14 +1,13 @@
 import { methodUrl } from '@votingworks/grout';
 
-// Importing all of @votingworks/auth causes Cypress tests to fail since Cypress doesn't seem to
-// interact well with PCSC Lite card reader code
-// eslint-disable-next-line vx/no-import-workspace-subfolders
-import { DEV_JURISDICTION } from '@votingworks/auth/src/constants';
+// Importing all of @votingworks/auth causes Cypress tests to fail since @votingworks/auth contains
+// code that isn't browser-safe
 // eslint-disable-next-line vx/no-import-workspace-subfolders
 import {
+  DEV_JURISDICTION,
   mockCard,
   MockFileContents,
-} from '@votingworks/auth/src/mock_file_card';
+} from '@votingworks/auth/src/cypress';
 
 const PIN = '000000';
 

@@ -1,6 +1,6 @@
+import { mockOf } from '@votingworks/test-utils';
 import { isVxDev } from '@votingworks/utils';
 
-import { mockOf } from '@votingworks/test-utils';
 import {
   constructJavaCardConfig,
   DEV_PRIVATE_KEY_PASSWORD,
