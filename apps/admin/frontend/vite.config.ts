@@ -95,7 +95,7 @@ export default defineConfig(async (env) => {
     plugins: [
       react(),
 
-      // Setup the proxy to local services, e.g. `smartcards`.
+      // Setup the proxy to local services.
       {
         name: 'development-proxy',
         configureServer: (app) => {

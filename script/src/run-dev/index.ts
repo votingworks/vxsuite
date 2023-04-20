@@ -80,10 +80,7 @@ export async function main(
   { stdout, stderr }: IO
 ): Promise<number> {
   const [, programName, ...args] = argv;
-  const logger = new Logger({
-    // `smartcards` service is noisy, so we don't want to show its output.
-    hide: ['smartcards:run'],
-  });
+  const logger = new Logger({});
 
   let coreOnly = false;
   let frontend: string | undefined;
