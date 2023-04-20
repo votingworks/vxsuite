@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src"],
+  "exclude": ["**/*.test.ts"],
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "build",
+    "declaration": true,
+    "declarationMap": true
+  },
+  "references": [
+    { "path": "../../../libs/auth/tsconfig.build.json" },
+    { "path": "../../../libs/basics/tsconfig.build.json" },
+    { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../../../libs/grout/tsconfig.build.json" },
+    { "path": "../../../libs/types/tsconfig.build.json" },
+    { "path": "../../../libs/utils/tsconfig.build.json" }
+  ]
+}

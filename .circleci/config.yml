@@ -573,6 +573,50 @@ jobs:
       - store_test_results:
           path: libs/db/reports/
 
+  test-libs-dev-dock-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/dev-dock/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/dev-dock/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/dev-dock/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/dev-dock/backend/reports/
+
+  test-libs-dev-dock-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/dev-dock/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/dev-dock/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/dev-dock/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/dev-dock/frontend/reports/
+
   test-libs-eslint-plugin-vx:
     executor: nodejs-browsers
     resource_class: xlarge
@@ -893,6 +937,8 @@ workflows:
       - test-libs-custom-scanner
       - test-libs-cvr-fixture-generator
       - test-libs-backend
+      - test-libs-dev-dock-backend
+      - test-libs-dev-dock-frontend
       - test-libs-db
       - test-libs-eslint-plugin-vx
       - test-libs-fixtures

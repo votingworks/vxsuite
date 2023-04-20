@@ -16,6 +16,7 @@ packages:
   - 'libs/*'
   - 'libs/@types/*'
   - 'libs/grout/*'
+  - 'libs/dev-dock/*'
 
   # include all integration tests
   - 'integration-testing/*'
