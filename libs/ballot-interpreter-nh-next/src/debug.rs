@@ -123,7 +123,7 @@ pub fn draw_timing_mark_debug_image_mut(
     );
 
     let font = &monospace_font();
-    let font_scale = 15.0;
+    let font_scale = 0.0088 * canvas.width() as SubPixelUnit;
     let scale = Scale::uniform(font_scale);
 
     for (i, rect) in partial_timing_marks.top_rects.iter().enumerate() {
@@ -358,7 +358,7 @@ pub fn draw_scored_oval_marks_debug_image_mut(
     let match_score_color = ORANGE;
     let fill_score_color = DARK_CYAN;
     let font = &monospace_font();
-    let font_scale = 20.0;
+    let font_scale = 0.012 * canvas.width() as SubPixelUnit;
     let scale = Scale::uniform(font_scale);
 
     draw_legend(
@@ -502,7 +502,7 @@ fn draw_text_with_background_mut(
 
 fn draw_legend(canvas: &mut RgbImage, colored_labels: &Vec<(Rgb<u8>, &str)>) {
     let font = &monospace_font();
-    let font_scale = 12.0;
+    let font_scale = 0.007 * canvas.width() as SubPixelUnit;
     let scale = Scale::uniform(font_scale);
 
     let padding = 10;
