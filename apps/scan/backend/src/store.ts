@@ -657,16 +657,6 @@ export class Store {
     return scannerBackedUpAt >= DateTime.max(...cvrsLastUpdatedDates);
   }
 
-  addBallotCard(batchId: string): string {
-    const id = uuid();
-    this.client.run(
-      'insert into ballot_cards (id, batch_id) values (?, ?)',
-      id,
-      batchId
-    );
-    return id;
-  }
-
   /**
    * Adds a sheet to an existing batch.
    */
