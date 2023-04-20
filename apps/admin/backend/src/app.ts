@@ -500,10 +500,10 @@ function buildApi({
     async getWriteInImage(input: {
       writeInId: string;
     }): Promise<Admin.WriteInImageEntry[]> {
-      const castVoteRecordData = store.getWriteInImage(input.writeInId);
+      const writeInData = store.getWriteInImage(input.writeInId);
 
-      assert(castVoteRecordData);
-      const { contestId, optionId, layout, image } = castVoteRecordData;
+      assert(writeInData);
+      const { contestId, optionId, layout, image } = writeInData;
 
       // Identify the contest layout
       const contestLayout = layout.contests.find(

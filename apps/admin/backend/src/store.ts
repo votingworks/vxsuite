@@ -29,7 +29,6 @@ import {
   Side,
   SystemSettings,
   SystemSettingsDbRow,
-  unsafeParse,
 } from '@votingworks/types';
 import { join } from 'path';
 import { Buffer } from 'buffer';
@@ -450,7 +449,7 @@ export class Store {
         image,
         layout
       ) values (
-        ?, ?, ?, ?
+        ?, ?, ?, ?, ?
       )
     `,
       ballotImageId,
@@ -546,7 +545,7 @@ export class Store {
           write_ins.contest_id as contestId,
           write_ins.option_id as optionId,
           ballot_images.image as image,
-          ballot_images.layout as layout,
+          ballot_images.layout as layout
         from write_ins
         inner join
           ballot_images on ballot_images.id = write_ins.ballot_image_id
@@ -567,7 +566,10 @@ export class Store {
 
     return {
       ...result,
-      layout: unsafeParse(BallotPageLayoutSchema, result.layout),
+      layout: safeParseJson(
+        result.layout,
+        BallotPageLayoutSchema
+      ).unsafeUnwrap(),
     };
   }
 
