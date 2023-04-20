@@ -239,6 +239,9 @@ export const getWriteInImage = {
   queryKey(input?: GetWriteInImageInput): QueryKey {
     return input ? ['getWriteInImage', input] : ['getWriteInImage'];
   },
+  queryFn(input: GetWriteInImageInput, apiClient: ApiClient) {
+    return apiClient.getWriteInImage(input);
+  },
   useQuery(input: GetWriteInImageInput) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(input), () =>

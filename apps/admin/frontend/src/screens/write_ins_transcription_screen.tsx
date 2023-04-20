@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -21,9 +21,10 @@ import {
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import pluralize from 'pluralize';
+import { useQueryClient } from '@tanstack/react-query';
 import { Navigation } from '../components/navigation';
 import { InlineForm, TextInput } from '../components/text_input';
-import { getWriteInImage } from '../api';
+import { getWriteInImage, useApiClient } from '../api';
 
 const BallotViews = styled.div`
   flex: 3;
@@ -304,6 +305,23 @@ export function WriteInsTranscriptionScreen({
     writeInId: currentAdjudication.id,
   });
   const imageData = imageDataQuery.data ? imageDataQuery.data[0] : undefined;
+
+  // prefetch the next write-in image
+  const queryClient = useQueryClient();
+  const apiClient = useApiClient();
+  useEffect(() => {
+    const nextAdjudication = adjudications[offset + 1];
+    if (nextAdjudication) {
+      void queryClient.prefetchQuery({
+        queryKey: getWriteInImage.queryKey({ writeInId: nextAdjudication.id }),
+        queryFn: () =>
+          getWriteInImage.queryFn(
+            { writeInId: nextAdjudication.id },
+            apiClient
+          ),
+      });
+    }
+  }, [adjudications, apiClient, offset, queryClient]);
 
   function onSave() {
     const val = transcribedValueInput.current?.value || '';
