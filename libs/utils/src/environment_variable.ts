@@ -16,6 +16,8 @@ export enum BooleanEnvironmentVariableName {
   DISALLOW_CASTING_OVERVOTES = 'REACT_APP_VX_DISALLOW_CASTING_OVERVOTES',
   // Enables the React Query Devtools in development.
   ENABLE_REACT_QUERY_DEVTOOLS = 'REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS',
+  // Enables the VxSuite Dev Dock in development. See libs/dev-dock.
+  ENABLE_DEV_DOCK = 'REACT_APP_VX_ENABLE_DEV_DOCK',
   // Skips PIN entry during authentication
   SKIP_PIN_ENTRY = 'REACT_APP_VX_SKIP_PIN_ENTRY',
   // Use mock cards instead of a real card reader. Meant for development and integration tests.
@@ -65,6 +67,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_DISALLOW_CASTING_OVERVOTES;
     case BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS:
       return process.env.REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS;
+    case BooleanEnvironmentVariableName.ENABLE_DEV_DOCK:
+      return process.env.REACT_APP_VX_ENABLE_DEV_DOCK;
     case BooleanEnvironmentVariableName.SKIP_PIN_ENTRY:
       return process.env.REACT_APP_VX_SKIP_PIN_ENTRY;
     case BooleanEnvironmentVariableName.USE_MOCK_CARDS:
@@ -120,6 +124,12 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: false,
         autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.ENABLE_DEV_DOCK:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: true,
       };
     case BooleanEnvironmentVariableName.SKIP_PIN_ENTRY:
       return {
