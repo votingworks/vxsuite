@@ -6,11 +6,11 @@ use logging_timer::time;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    geometry::{GridUnit, PixelUnit, Rect, Size, SubPixelUnit},
+    geometry::{GridUnit, PixelUnit, Point, Rect, Size, SubPixelUnit},
     image_utils::bleed,
 };
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum BallotPaperSize {
     #[serde(rename = "letter")]
     Letter,
@@ -19,7 +19,7 @@ pub enum BallotPaperSize {
 }
 
 /// Ballot card orientation.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Orientation {
     /// The ballot card is portrait and right-side up.
     #[serde(rename = "portrait")]
@@ -30,9 +30,10 @@ pub enum Orientation {
     PortraitReversed,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Geometry {
+    pub ballot_image_type: BallotImageType,
     pub ballot_paper_size: BallotPaperSize,
     pub pixels_per_inch: PixelUnit,
     pub canvas_size: Size<PixelUnit>,
@@ -44,7 +45,13 @@ pub struct Geometry {
     pub back_usable_area: Rect,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BallotImageType {
+    Template,
+    Scan,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BallotSide {
     #[serde(rename = "front")]
     Front,
@@ -52,8 +59,143 @@ pub enum BallotSide {
     Back,
 }
 
+/// Template margins for the front and back of the ballot card in inches.
+fn get_ballot_card_template_margins() -> Size<f32> {
+    Size {
+        width: 0.5,
+        height: 0.5,
+    }
+}
+
+/// Ballot geometry information for an 8.5" x 11" template ballot card. Assumes
+/// that the ballot card has a border of timing marks on all sides, plus a footer
+/// on the bottom of the ballot card front that makes that section unusable for
+/// ovals.
+pub fn get_template_ballot_card_geometry_8pt5x11() -> Geometry {
+    let ballot_card_template_margins = get_ballot_card_template_margins();
+
+    Geometry {
+        ballot_image_type: BallotImageType::Template,
+        ballot_paper_size: BallotPaperSize::Letter,
+        pixels_per_inch: 72,
+        canvas_size: Size {
+            width: 684,
+            height: 864,
+        },
+        content_area: Rect::from_points(
+            Point::new(
+                (72.0 * ballot_card_template_margins.width).round() as i32, // 0.5" from the left edge
+                (72.0 * ballot_card_template_margins.height).round() as i32, // 0.5" from the top edge
+            ),
+            Point::new(
+                684 - 1 - (72.0 * ballot_card_template_margins.width).round() as i32, // 0.5" from the right edge
+                864 - 1 - (72.0 * ballot_card_template_margins.height).round() as i32, // 0.5" from the bottom edge
+            ),
+        ),
+        oval_size: Size {
+            width: 15,
+            height: 10,
+        },
+        /* Converted from the documented size in inches: 3/16" x 1/16" */
+        timing_mark_size: Size {
+            width: 13.5,
+            height: 4.5,
+        },
+        grid_size: Size {
+            width: 34,
+            height: 41,
+        },
+        front_usable_area: Rect::from_points(
+            Point::new(
+                0 /* index of left column */ + 1, /* left timing mark column */
+                0 /* index of top column */ + 1,  /* top timing mark row */
+            ),
+            Point::new(
+                33 /* index of right column */ - 1, /* right timing mark column */
+                40 /* index of bottom row */ - 1 /* timing mark row */ - 2, /* footer */
+            ),
+        ),
+        back_usable_area: Rect::from_points(
+            Point::new(
+                0 /* index of left column */ + 1, /* left timing mark column */
+                0 /* index of top column */ + 1,  /* top timing mark row */
+            ),
+            Point::new(
+                33 /* index of right column */ - 1, /* right timing mark column */
+                40 /* index of bottom row */ - 1,   /* timing mark row */
+            ),
+        ),
+    }
+}
+
+/// Ballot geometry information for an 8.5" x 14" template ballot card. Assumes
+/// that the ballot card has a border of timing marks on all sides, plus a footer
+/// on the bottom of the ballot card front that makes that section unusable for
+/// ovals.
+pub fn get_template_ballot_card_geometry_8pt5x14() -> Geometry {
+    let ballot_card_template_margins = get_ballot_card_template_margins();
+
+    Geometry {
+        ballot_image_type: BallotImageType::Template,
+        ballot_paper_size: BallotPaperSize::Legal,
+        pixels_per_inch: 72,
+        canvas_size: Size {
+            width: 684,
+            height: 1080,
+        },
+        content_area: Rect::from_points(
+            Point::new(
+                (72.0 * ballot_card_template_margins.width).round() as i32, // 0.5" from the left edge
+                (72.0 * ballot_card_template_margins.height).round() as i32, // 0.5" from the top edge
+            ),
+            Point::new(
+                684 - 1 - (72.0 * ballot_card_template_margins.width).round() as i32, // 0.5" from the right edge
+                1080 - 1 - (72.0 * ballot_card_template_margins.height).round() as i32, // 0.5" from the bottom edge
+            ),
+        ),
+        oval_size: Size {
+            width: 15,
+            height: 10,
+        },
+        /* Converted from the documented size in inches: 3/16" x 1/16" */
+        timing_mark_size: Size {
+            width: 13.5,
+            height: 4.5,
+        },
+        grid_size: Size {
+            width: 34,
+            height: 53,
+        },
+        front_usable_area: Rect::from_points(
+            Point::new(
+                0 /* index of left column */ + 1, /* left timing mark column */
+                0 /* index of top column */ + 1,  /* top timing mark row */
+            ),
+            Point::new(
+                33 /* index of right column */ - 1, /* right timing mark column */
+                52 /* index of bottom row */ - 1 /* timing mark row */ - 2, /* footer */
+            ),
+        ),
+        back_usable_area: Rect::from_points(
+            Point::new(
+                0 /* index of left column */ + 1, /* left timing mark column */
+                0 /* index of top column */ + 1,  /* top timing mark row */
+            ),
+            Point::new(
+                33 /* index of right column */ - 1, /* right timing mark column */
+                52 /* index of bottom row */ - 1,   /* timing mark row */
+            ),
+        ),
+    }
+}
+
+/// Ballot geometry information for an 8.5" x 11" scanned ballot card. Assumes
+/// that the ballot card has a border of timing marks on all sides, plus a
+/// footer on the bottom of the ballot card front that makes that section
+/// unusable for ovals.
 pub const fn get_scanned_ballot_card_geometry_8pt5x11() -> Geometry {
     Geometry {
+        ballot_image_type: BallotImageType::Scan,
         ballot_paper_size: BallotPaperSize::Letter,
         pixels_per_inch: 200,
         canvas_size: Size {
@@ -78,8 +220,13 @@ pub const fn get_scanned_ballot_card_geometry_8pt5x11() -> Geometry {
     }
 }
 
+/// Ballot geometry information for an 8.5" x 14" scanned ballot card. Assumes
+/// that the ballot card has a border of timing marks on all sides, plus a
+/// footer on the bottom of the ballot card front that makes that section
+/// unusable for ovals.
 pub const fn get_scanned_ballot_card_geometry_8pt5x14() -> Geometry {
     Geometry {
+        ballot_image_type: BallotImageType::Scan,
         ballot_paper_size: BallotPaperSize::Legal,
         pixels_per_inch: 200,
         canvas_size: Size {
@@ -123,6 +270,25 @@ pub fn get_scanned_ballot_card_geometry(size: (PixelUnit, PixelUnit)) -> Option<
     }
 }
 
+pub fn get_template_ballot_card_geometry(size: (PixelUnit, PixelUnit)) -> Option<Geometry> {
+    let (width, height) = size;
+    let aspect_ratio = width as SubPixelUnit / height as SubPixelUnit;
+    let letter_size = get_template_ballot_card_geometry_8pt5x11();
+    let letter_aspect_ratio = letter_size.canvas_size.width as SubPixelUnit
+        / letter_size.canvas_size.height as SubPixelUnit;
+    let legal_size = get_template_ballot_card_geometry_8pt5x14();
+    let legal_aspect_ratio = legal_size.canvas_size.width as SubPixelUnit
+        / legal_size.canvas_size.height as SubPixelUnit;
+
+    if (aspect_ratio - letter_aspect_ratio).abs() < 0.05 {
+        Some(letter_size)
+    } else if (aspect_ratio - legal_aspect_ratio).abs() < 0.05 {
+        Some(legal_size)
+    } else {
+        None
+    }
+}
+
 #[time]
 pub fn load_oval_template() -> Option<GrayImage> {
     let oval_scan_bytes = include_bytes!("../data/oval_scan.png");
@@ -152,6 +318,19 @@ mod tests {
             Some(get_scanned_ballot_card_geometry_8pt5x14())
         );
         assert_eq!(get_scanned_ballot_card_geometry((1500, 1500)), None);
+    }
+
+    #[test]
+    fn test_get_template_ballot_card_geometry() {
+        assert_eq!(
+            get_template_ballot_card_geometry((684, 864)),
+            Some(get_template_ballot_card_geometry_8pt5x11())
+        );
+        assert_eq!(
+            get_template_ballot_card_geometry((684, 1080)),
+            Some(get_template_ballot_card_geometry_8pt5x14())
+        );
+        assert_eq!(get_template_ballot_card_geometry((900, 900)), None);
     }
 
     #[test]
