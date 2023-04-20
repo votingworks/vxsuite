@@ -473,15 +473,13 @@ export function AppRoot({
     }
   }, [electionJustLoaded, usbDrive.status]);
 
-  const authStatus = authStatusQuery.data;
-
   useEffect(() => {
     async function configure() {
       if (
         !configureMutation.isLoading &&
         !electionDefinition &&
-        authStatus &&
-        isElectionManagerAuth(authStatus) &&
+        authStatusQuery.data &&
+        isElectionManagerAuth(authStatusQuery.data) &&
         usbDrive.status === 'mounted'
       ) {
         const result = await configureMutation.mutateAsync();
@@ -494,20 +492,16 @@ export function AppRoot({
     void configure();
   }, [
     configureMutation,
-    authStatus,
+    authStatusQuery.data,
     electionDefinition,
     updateElectionDefinition,
     usbDrive,
   ]);
 
-  // The `configure` useEffect hook above depends on `authStatus`. Since hooks can't
-  // be rendered conditionally, we need to short circuit on authStatusQuery after the
-  // hook is defined.
   if (!authStatusQuery.isSuccess) {
     return null;
   }
-  // assert authStatus so TypeScript knows it's not undefined
-  assert(authStatus);
+  const authStatus = authStatusQuery.data;
 
   if (!cardReader) {
     return <SetupCardReaderPage usePollWorkerLanguage={false} />;
