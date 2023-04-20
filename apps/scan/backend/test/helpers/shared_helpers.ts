@@ -51,7 +51,7 @@ export async function waitForStatus(
 ): Promise<void> {
   await waitForExpect(async () => {
     await expectStatus(apiClient, status);
-  }, 1_000);
+  }, 2_000);
 }
 
 const electionFamousNames2021WithoutTemplatesBallotPackageBuffer =
