@@ -131,13 +131,14 @@ function buildApi({
 
     async configureWithSampleBallotPackageForIntegrationTest(): Promise<void> {
       const fileContents = await fs.readFile(
-        '../../cypress/fixtures/ballot-package.zip'
+        '../integration-testing/cypress/fixtures/ballot-package.zip'
       );
       const ballotPackage = await readBallotPackageFromBuffer(fileContents);
       const { electionDefinition, ballots } = ballotPackage;
       const systemSettings = DEFAULT_SYSTEM_SETTINGS;
 
       store.setElection(electionDefinition.electionData);
+      importer.configure(electionDefinition);
       store.setSystemSettings(systemSettings);
 
       for (const ballot of ballots) {
@@ -172,6 +173,7 @@ function buildApi({
       const { electionDefinition, systemSettings, ballots } = ballotPackage;
       assert(systemSettings);
       store.setElection(electionDefinition.electionData);
+      importer.configure(electionDefinition);
       store.setSystemSettings(systemSettings);
       for (const ballot of ballots) {
         await importer.addHmpbTemplates(ballot.pdf, ballot.layout);

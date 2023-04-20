@@ -68,10 +68,8 @@ describe('BSD and services/Scan', () => {
     cy.visit('/');
     enterPin();
     removeCard();
-    cy.contains('Load Election Configuration', { timeout: 10000 });
-  });
 
-  it('BSD can be configured with services/scan with a ZIP ballot package and can configure advanced options', () => {
+    // TODO replace with UI interaction when mock USB is supported
     cy.request(
       'POST',
       methodUrl(
@@ -80,7 +78,10 @@ describe('BSD and services/Scan', () => {
       ),
       {}
     );
+    cy.reload();
+  });
 
+  it('BSD can be configured with services/scan with a ZIP ballot package and can configure advanced options', () => {
     cy.contains('Admin').click();
     cy.contains('Toggle to Official Ballot Mode').click();
     cy.get('button[data-testid="confirm-toggle"]')
