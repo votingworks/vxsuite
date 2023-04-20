@@ -857,30 +857,6 @@ jobs:
       #     command: |
       #       make -C services/converter-ms-sems typecheck
 
-  test-services-smartcards:
-    executor: nodejs
-    resource_class: medium
-    steps:
-      - checkout
-      - run:
-          name: Dependencies
-          command: |
-            sudo apt update -y
-            make -C services/smartcards install-smartcard
-            make -C services/smartcards build-dev
-      - run:
-          name: Test
-          command: |
-            make -C services/smartcards coverage
-      - run:
-          name: Typecheck
-          command: |
-            make -C services/smartcards typecheck
-      - run:
-          name: Check Format
-          command: |
-            make -C services/smartcards check-format
-
   validate-monorepo:
     executor: nodejs
     resource_class: xlarge
@@ -931,7 +907,6 @@ workflows:
       - test-libs-ui
       - test-libs-utils
       - test-services-converter-ms-sems
-      - test-services-smartcards
       - validate-monorepo
 
 commands:
