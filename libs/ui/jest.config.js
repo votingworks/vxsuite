@@ -11,6 +11,8 @@ module.exports = {
     '.*\\.stories\\.ts',
     '.*\\.stories\\.tsx',
     // Purely presentational components:
+    'src/display_settings/theme_label.tsx',
+    'src/display_settings/theme_preview.tsx',
     'src/insert_ballot_image.tsx',
     'src/insert_card_image.tsx',
     'src/loading_animation.tsx',
