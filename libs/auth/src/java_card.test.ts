@@ -28,8 +28,7 @@ import {
 } from './apdu';
 import { Card, CardDetails, CheckPinResponse } from './card';
 import { CardReader } from './card_reader';
-import { DEV_JURISDICTION } from './constants';
-import { CardType } from './types';
+import { CardType } from './certs';
 import {
   CARD_VX_ADMIN_CERT,
   CARD_VX_CERT,
@@ -43,6 +42,7 @@ import {
   VX_ADMIN_CERT_AUTHORITY_CERT,
 } from './java_card';
 import { DEV_PRIVATE_KEY_PASSWORD, JavaCardConfig } from './java_card_config';
+import { DEV_JURISDICTION } from './jurisdictions';
 import {
   certDerToPem,
   createCert,

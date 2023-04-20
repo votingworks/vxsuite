@@ -27,6 +27,7 @@ import {
 } from './card';
 import { CardReader } from './card_reader';
 import {
+  CERT_EXPIRY_IN_DAYS,
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
   parseCardDetailsFromCert,
@@ -56,7 +57,6 @@ import {
   RESET_RETRY_COUNTER,
   VERIFY,
 } from './piv';
-import { CERT_EXPIRY_IN_DAYS } from './constants';
 
 /**
  * The OpenFIPS201 applet ID
