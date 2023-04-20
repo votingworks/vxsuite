@@ -722,7 +722,6 @@ export function AppRoot({
             electionDefinition={optionalElectionDefinition}
             machineConfig={machineConfig}
             screenReader={screenReader}
-            unconfigure={unconfigure}
             isLoading={unconfigureMachineMutation.isLoading}
             isError={unconfigureMachineMutation.isError}
           />
