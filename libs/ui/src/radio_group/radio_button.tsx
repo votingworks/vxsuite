@@ -15,6 +15,7 @@ const Container = styled.label<OptionContainerProps>`
   border-radius: 0.125rem;
   border-width: ${(p) => p.theme.sizes.bordersRem.hairline}rem;
   display: flex;
+  flex-wrap: nowrap;
   justify-content: start;
   min-height: 2.5rem;
   text-align: left;
