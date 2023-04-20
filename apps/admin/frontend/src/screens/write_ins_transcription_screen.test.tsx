@@ -23,6 +23,7 @@ afterEach(() => {
 
 test('clicking a previously-saved value', async () => {
   apiMock.expectGetWriteInImage('id-174');
+  apiMock.expectGetWriteInImage('id-175');
   renderInAppContext(
     <WriteInsTranscriptionScreen
       election={electionDefinition.election}
@@ -51,7 +52,6 @@ test('clicking a previously-saved value', async () => {
   expect(saveTranscribedValue).toHaveBeenCalledWith('id-174', 'Mickey Mouse');
 
   await screen.findByTestId('transcribe:id-174');
-  apiMock.expectGetWriteInImage('id-175');
   userEvent.click(await screen.findByText('Next'));
   await screen.findByTestId('transcribe:id-175');
   userEvent.click(await screen.findByText('Previous'));

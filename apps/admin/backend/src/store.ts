@@ -508,7 +508,7 @@ export class Store {
 
     this.client.run(
       `
-        insert or ignore into write_ins (
+        insert into write_ins (
           id,
           cvr_id,
           ballot_image_id,

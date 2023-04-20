@@ -167,7 +167,6 @@ test('happy path - mock election flow', async () => {
     [];
   for (const castVoteRecord of await apiClient.getCastVoteRecords()) {
     if (castVoteRecordHasWriteIns(castVoteRecord)) {
-      expect(castVoteRecord._layouts).toBeTruthy();
       for (const [contestId, vote] of deprecatedGetWriteInsFromCastVoteRecord(
         castVoteRecord
       ).entries()) {
@@ -180,8 +179,6 @@ test('happy path - mock election flow', async () => {
           }
         }
       }
-    } else {
-      expect(castVoteRecord._layouts).toBeFalsy();
     }
   }
 

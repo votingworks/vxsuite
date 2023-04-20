@@ -8,11 +8,31 @@ import { safeParseSystemSettings } from '@votingworks/utils';
 import { typedAs } from '@votingworks/basics';
 import fc from 'fast-check';
 import { promises as fs } from 'fs';
+import { Buffer } from 'buffer';
 import { join } from 'path';
 import { tmpNameSync } from 'tmp';
+import { BallotPageLayout, BallotType } from '@votingworks/types';
 import { Store } from './store';
 import { addCastVoteRecordReport } from './cvr_files';
 import { modifyCastVoteRecordReport } from '../test/utils';
+
+const mockImageData = Buffer.from([1, 2, 3, 4]);
+const mockPageLayout: BallotPageLayout = {
+  pageSize: {
+    width: 0,
+    height: 0,
+  },
+  metadata: {
+    electionHash: '0000000000',
+    precinctId: 'precinct-1',
+    ballotStyleId: '1M',
+    pageNumber: 1,
+    isTestMode: true,
+    ballotType: BallotType.Standard,
+    locales: { primary: 'en-US' },
+  },
+  contests: [],
+};
 
 test('create a file store', async () => {
   const tmpDir = tmpNameSync();
@@ -77,8 +97,16 @@ test('get write-in adjudication records', async () => {
   });
   expect(writeInAdjudicationRecords).toHaveLength(0);
 
+  const ballotImageId = store.addBallotImage({
+    cvrId: castVoteRecordId,
+    imageData: mockImageData,
+    side: 'front',
+    pageLayout: mockPageLayout,
+  });
+
   const zooCouncilMammalWriteInAdjudicationId = store.addWriteIn({
     castVoteRecordId,
+    ballotImageId,
     contestId: 'zoo-council-mammal',
     optionId: 'write-in-0',
   });
@@ -133,8 +161,16 @@ test('get write-in adjudication records', async () => {
     })
   ).toHaveLength(1);
 
+  const ballotImageId2 = store.addBallotImage({
+    cvrId: castVoteRecordId,
+    imageData: mockImageData,
+    side: 'back',
+    pageLayout: mockPageLayout,
+  });
+
   const aquariumCouncilFishWriteInAdjudicationId = store.addWriteIn({
     castVoteRecordId,
+    ballotImageId: ballotImageId2,
     contestId: 'aquarium-council-fish',
     optionId: 'write-in-0',
   });
@@ -179,8 +215,16 @@ test('write-in adjudication lifecycle', async () => {
   });
 
   const castVoteRecordId = store.getCastVoteRecordEntries(electionId)[0]!.id;
+  const ballotImageId = store.addBallotImage({
+    cvrId: castVoteRecordId,
+    imageData: mockImageData,
+    side: 'back',
+    pageLayout: mockPageLayout,
+  });
+
   const writeInId = store.addWriteIn({
     castVoteRecordId,
+    ballotImageId,
     contestId: 'zoo-council-mammal',
     optionId: 'write-in-0',
   });
@@ -258,9 +302,8 @@ test('write-in adjudication lifecycle', async () => {
     writeInId,
     contestId: 'zoo-council-mammal',
     optionId: 'write-in-0',
-    cvr: expect.objectContaining({
-      _ballotId: '0',
-    }),
+    image: mockImageData,
+    layout: mockPageLayout,
   });
 
   expect(store.getWriteInImage('not-an-id')).toEqual(undefined);
@@ -429,6 +472,7 @@ test('write-in adjudication lifecycle', async () => {
 
   expect(store.getDebugSummary()).toMatchInlineSnapshot(`
     Map {
+      "ballot_images" => 1,
       "cvr_file_entries" => 2,
       "cvr_files" => 1,
       "cvrs" => 2,
@@ -445,6 +489,7 @@ test('write-in adjudication lifecycle', async () => {
 
   expect(store.getDebugSummary()).toMatchInlineSnapshot(`
     Map {
+      "ballot_images" => 0,
       "cvr_file_entries" => 0,
       "cvr_files" => 0,
       "cvrs" => 0,

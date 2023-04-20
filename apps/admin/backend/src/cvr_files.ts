@@ -264,6 +264,10 @@ export function validateCastVoteRecord({
     }
   }
 
+  if (!getCurrentSnapshot(cvr)) {
+    return err('no-current-snapshot');
+  }
+
   for (const snapshot of cvr.CVRSnapshot) {
     const contestValidation = snapshotHasValidContestReferences(
       snapshot,
@@ -288,10 +292,6 @@ export function validateCastVoteRecord({
 
   if (!cvrHasValidWriteInImageReferences(cvr)) {
     return err('invalid-write-in-image-location');
-  }
-
-  if (!getCurrentSnapshot(cvr)) {
-    return err('no-current-snapshot');
   }
 
   return ok();
@@ -608,71 +608,75 @@ export async function addCastVoteRecordReport({
       }
       const { cvrId, isNew: cvrIsNew } = addCastVoteRecordResult.ok();
 
-      // Add images to the store
-      const ballotImageIds: Array<Optional<Id>> = [undefined, undefined];
-      if (cvr.BallotImage) {
-        // Convention is that we always have two entries in the BallotImage
-        // array, allowing us to indicate front and back via array index.
-        assert(cvr.BallotImage.length === 2);
+      if (cvrIsNew) {
+        // Add images to the store
+        const ballotImageIds: Array<Optional<Id>> = [undefined, undefined];
+        if (cvr.BallotImage) {
+          // Convention is that we always have two entries in the BallotImage
+          // array, allowing us to indicate front and back via array index.
+          assert(cvr.BallotImage.length === 2);
 
-        for (const [pageIndex, cvrImageData] of cvr.BallotImage.entries()) {
-          // There may be no image data for the current page
-          if (!cvrImageData.Location) {
-            continue;
-          }
+          for (const [pageIndex, cvrImageData] of cvr.BallotImage.entries()) {
+            // There may be no image data for the current page
+            if (!cvrImageData.Location) {
+              continue;
+            }
 
-          // Get image data
-          assert(cvrImageData.Location.startsWith('file:'));
-          const imagePath = join(
-            reportDirectoryPath,
-            cvrImageData.Location.slice('file:'.length)
-          );
-          const imageData = await fs.readFile(imagePath);
+            // Load image data
+            assert(cvrImageData.Location.startsWith('file:'));
+            const imagePath = join(
+              reportDirectoryPath,
+              cvrImageData.Location.slice('file:'.length)
+            );
+            const imageData = await fs.readFile(imagePath);
 
-          // Get and verify layout data
-          const layoutPath = imagePath
-            .replace(
-              CVR_BALLOT_IMAGES_SUBDIRECTORY,
-              CVR_BALLOT_LAYOUTS_SUBDIRECTORY
-            )
-            .replace(/(jpg|jpeg)$/, 'layout.json');
-          const parseLayoutResult = safeParseJson(
-            await fs.readFile(layoutPath, 'utf8'),
-            BallotPageLayoutSchema
-          );
-          if (parseLayoutResult.isErr()) {
-            return err({
-              type: 'invalid-layout',
-              error: parseLayoutResult.err(),
-              path: layoutPath,
+            // Load and verify layout data
+            const layoutPath = imagePath
+              .replace(
+                CVR_BALLOT_IMAGES_SUBDIRECTORY,
+                CVR_BALLOT_LAYOUTS_SUBDIRECTORY
+              )
+              .replace(/(jpg|jpeg)$/, 'layout.json');
+            const parseLayoutResult = safeParseJson(
+              await fs.readFile(layoutPath, 'utf8'),
+              BallotPageLayoutSchema
+            );
+            if (parseLayoutResult.isErr()) {
+              return err({
+                type: 'invalid-layout',
+                error: parseLayoutResult.err(),
+                path: layoutPath,
+              });
+            }
+
+            // Add ballot image to store
+            ballotImageIds[pageIndex] = store.addBallotImage({
+              cvrId,
+              imageData,
+              pageLayout: parseLayoutResult.ok(),
+              side: pageIndex === 0 ? 'front' : 'back',
             });
           }
-
-          // Add image data to store
-          ballotImageIds[pageIndex] = store.addBallotImage({
-            cvrId,
-            imageData,
-            pageLayout: parseLayoutResult.ok(),
-            side: pageIndex === 0 ? 'front' : 'back',
-          });
         }
-      }
 
-      // Add write-in records to the store
-      for (const castVoteRecordWriteIn of getWriteInsFromCastVoteRecord(cvr)) {
-        if (castVoteRecordWriteIn.side) {
-          const ballotImageId =
-            castVoteRecordWriteIn.side === 'front'
-              ? ballotImageIds[0]
-              : ballotImageIds[1];
-          // `side` existing implies that the ballot image exists
-          assert(ballotImageId !== undefined);
-          store.addWriteIn({
-            castVoteRecordId: cvrId,
-            ballotImageId,
-            contestId: castVoteRecordWriteIn.contestId,
-            optionId: castVoteRecordWriteIn.optionId,
-          });
+        // Add write-ins to the store
+        for (const castVoteRecordWriteIn of getWriteInsFromCastVoteRecord(
+          cvr
+        )) {
+          if (castVoteRecordWriteIn.side) {
+            const ballotImageId =
+              castVoteRecordWriteIn.side === 'front'
+                ? ballotImageIds[0]
+                : ballotImageIds[1];
+            // `side` existing implies that the ballot image exists
+            assert(ballotImageId !== undefined);
+            store.addWriteIn({
+              castVoteRecordId: cvrId,
+              ballotImageId,
+              contestId: castVoteRecordWriteIn.contestId,
+              optionId: castVoteRecordWriteIn.optionId,
+            });
+          }
         }
       }
 
