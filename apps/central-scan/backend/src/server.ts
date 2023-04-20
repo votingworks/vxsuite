@@ -5,7 +5,6 @@ import {
   constructJavaCardConfig,
   DippedSmartCardAuth,
   JavaCard,
-  MemoryCard,
   MockFileCard,
 } from '@votingworks/auth';
 import { Server } from 'http';
@@ -42,24 +41,9 @@ export async function start({
   logger = new Logger(LogSource.VxScanService),
   workspace,
 }: Partial<StartOptions> = {}): Promise<Server> {
-  const auth = new DippedSmartCardAuth({
-    card:
-      isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
-      isIntegrationTest()
-        ? /* istanbul ignore next */ new MockFileCard()
-        : isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS)
-        ? /* istanbul ignore next */ new JavaCard(constructJavaCardConfig())
-        : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
-    config: {
-      allowElectionManagersToAccessUnconfiguredMachines: true,
-    },
-    logger,
-  });
-  let resolvedWorkspace: Workspace;
-
-  if (workspace) {
-    resolvedWorkspace = workspace;
-  } else {
+  let resolvedWorkspace = workspace;
+  /* istanbul ignore next */
+  if (!resolvedWorkspace) {
     const workspacePath = SCAN_WORKSPACE;
     if (!workspacePath) {
       await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
@@ -74,34 +58,45 @@ export async function start({
     resolvedWorkspace = await createWorkspace(workspacePath);
   }
 
-  // clear any cached data
+  // Clear any cached data
   resolvedWorkspace.clearUploads();
-
-  const resolvedBatchScanner =
-    batchScanner ?? new FujitsuScanner({ mode: ScannerMode.Gray, logger });
-
-  const resolvedImporter =
-    importer ??
-    new Importer({
-      workspace: resolvedWorkspace,
-      scanner: resolvedBatchScanner,
-    });
-  const resolvedUsb = usb ?? {
-    getUsbDrives,
-  };
-
-  const resolvedApp =
-    app ??
-    (await buildCentralScannerApp({
-      auth,
-      usb: resolvedUsb,
-      importer: resolvedImporter,
-      workspace: resolvedWorkspace,
-      logger,
-    }));
-
-  // cleanup incomplete batches from before
   resolvedWorkspace.store.cleanupIncompleteBatches();
+
+  let resolvedApp = app;
+  /* istanbul ignore next */
+  if (!resolvedApp) {
+    const auth = new DippedSmartCardAuth({
+      card:
+        isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
+        isIntegrationTest()
+          ? new MockFileCard()
+          : new JavaCard(constructJavaCardConfig()),
+      config: {
+        allowElectionManagersToAccessUnconfiguredMachines: true,
+      },
+      logger,
+    });
+
+    const resolvedBatchScanner =
+      batchScanner ?? new FujitsuScanner({ mode: ScannerMode.Gray, logger });
+
+    const resolvedImporter =
+      importer ??
+      new Importer({
+        scanner: resolvedBatchScanner,
+        workspace: resolvedWorkspace,
+      });
+
+    const resolvedUsb = usb ?? { getUsbDrives };
+
+    resolvedApp = await buildCentralScannerApp({
+      auth,
+      importer: resolvedImporter,
+      logger,
+      usb: resolvedUsb,
+      workspace: resolvedWorkspace,
+    });
+  }
 
   return resolvedApp.listen(port, async () => {
     await logger.log(LogEventId.ApplicationStartup, 'system', {
