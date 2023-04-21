@@ -129,7 +129,7 @@ test('app can load and configure from a usb stick', async () => {
   kiosk.getUsbDriveInfo.mockResolvedValue([]);
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
-  await screen.findByText('VxScan is not configured');
+  await screen.findByText('VxScan is Not Configured');
   await screen.findByText('Insert a USB drive containing a ballot package.');
 
   // Insert a USB with no ballot package
@@ -370,7 +370,7 @@ test('election manager and poll worker configuration', async () => {
   );
   userEvent.click(await screen.findByText('Yes, Delete All'));
   await screen.findByText('Loading');
-  await screen.findByText('VxScan is not configured');
+  await screen.findByText('VxScan is Not Configured');
   expect(kiosk.unmountUsbDrive).toHaveBeenCalledTimes(1);
 });
 

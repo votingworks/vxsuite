@@ -13,7 +13,7 @@ test('UnconfiguredElectionScreen shows an error message when no USB drive is ins
     />
   );
 
-  await screen.findByText('VxScan is not configured');
+  await screen.findByText('VxScan is Not Configured');
   await screen.findByText('Insert a USB drive containing a ballot package.');
 });
 

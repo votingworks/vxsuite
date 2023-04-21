@@ -64,7 +64,7 @@ test('Cardless Voting Flow', async () => {
   await advanceTimersAndPromises();
 
   // Default Unconfigured
-  screen.getByText('VxMark is not configured');
+  screen.getByText('VxMark is Not Configured');
 
   // ---------------
 
@@ -376,7 +376,7 @@ test('poll worker must select a precinct first', async () => {
   await advanceTimersAndPromises();
 
   // Default Unconfigured
-  screen.getByText('VxMark is not configured');
+  screen.getByText('VxMark is Not Configured');
 
   // ---------------
 

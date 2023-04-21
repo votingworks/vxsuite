@@ -50,7 +50,7 @@ export function UnconfiguredElectionScreen({
   if (errorMessage) {
     return (
       <CenteredLargeProse>
-        <H1>{machineName} is not configured</H1>
+        <H1>{machineName} is Not Configured</H1>
         <P>{errorMessage}</P>
       </CenteredLargeProse>
     );
