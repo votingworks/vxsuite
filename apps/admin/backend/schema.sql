@@ -47,6 +47,7 @@ create table cvrs (
 create table cvr_files (
   id varchar(36) primary key,
   election_id varchar(36) not null,
+  is_test_mode boolean not null,
   filename text not null,
   export_timestamp timestamp not null,
   precinct_ids text not null,
