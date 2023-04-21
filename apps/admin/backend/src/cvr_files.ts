@@ -571,7 +571,7 @@ export async function addCastVoteRecordReport({
         reportBatchIds: reportMetadata.vxBatch.map((batch) => batch['@id']),
         reportBallotImageLocations: relativeBallotImagePaths.map(
           (relativePath) =>
-            `file:./${join(CVR_BALLOT_IMAGES_SUBDIRECTORY, relativePath)}`
+            `file:${join(CVR_BALLOT_IMAGES_SUBDIRECTORY, relativePath)}`
         ),
       });
       if (validationResult.isErr()) {

@@ -352,7 +352,7 @@ describe('buildCVRContestsFromVotes', () => {
       },
       options: {
         ballotMarkingMode: 'hand',
-        imageFileUri: 'file:./ballot-images/image',
+        imageFileUri: 'file:ballot-images/image',
       },
     });
 
@@ -375,7 +375,7 @@ describe('buildCVRContestsFromVotes', () => {
               CVRWriteIn: expect.objectContaining({
                 Text: undefined,
                 WriteInImage: expect.objectContaining({
-                  Location: 'file:./ballot-images/image',
+                  Location: 'file:ballot-images/image',
                 }),
               }),
             }),
@@ -714,7 +714,7 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
     pages: [
       {
         interpretation: interpretedHmpbPage1WithWriteIn,
-        imageFileUri: 'file:./ballot-images/front.jpg',
+        imageFileUri: 'file:ballot-images/front.jpg',
       },
       {
         interpretation: interpretedHmpbPage2,
@@ -729,7 +729,7 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
     Array [
       Object {
         "@type": "CVR.ImageData",
-        "Location": "file:./ballot-images/front.jpg",
+        "Location": "file:ballot-images/front.jpg",
       },
       Object {
         "@type": "CVR.ImageData",

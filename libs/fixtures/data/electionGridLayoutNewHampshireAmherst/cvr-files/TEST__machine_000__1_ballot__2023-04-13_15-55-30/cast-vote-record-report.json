@@ -1,15 +1,10 @@
 {
   "@type": "CVR.CastVoteRecordReport",
   "Version": "1.0.0",
-  "ReportType": [
-    "originating-device-export",
-    "other"
-  ],
+  "ReportType": ["originating-device-export", "other"],
   "OtherReportType": "test",
   "GeneratedDate": "2023-04-13T22:55:30.809Z",
-  "ReportGeneratingDeviceIds": [
-    "000"
-  ],
+  "ReportGeneratingDeviceIds": ["000"],
   "ReportingDevice": [
     {
       "@type": "CVR.ReportingDevice",
@@ -225,23 +220,17 @@
             {
               "@id": "Josiah-Bartlett-1bb99985",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Josiah-Bartlett-1bb99985"
-              ]
+              "CandidateIds": ["Josiah-Bartlett-1bb99985"]
             },
             {
               "@id": "Hannah-Dustin-ab4ef7c8",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Hannah-Dustin-ab4ef7c8"
-              ]
+              "CandidateIds": ["Hannah-Dustin-ab4ef7c8"]
             },
             {
               "@id": "John-Spencer-9ffb5970",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "John-Spencer-9ffb5970"
-              ]
+              "CandidateIds": ["John-Spencer-9ffb5970"]
             },
             {
               "@type": "CVR.CandidateSelection",
@@ -259,16 +248,12 @@
             {
               "@id": "John-Langdon-5951c8e1",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "John-Langdon-5951c8e1"
-              ]
+              "CandidateIds": ["John-Langdon-5951c8e1"]
             },
             {
               "@id": "William-Preston-3778fcd5",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "William-Preston-3778fcd5"
-              ]
+              "CandidateIds": ["William-Preston-3778fcd5"]
             },
             {
               "@type": "CVR.CandidateSelection",
@@ -286,23 +271,17 @@
             {
               "@id": "Jeremiah-Smith-469560c9",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Jeremiah-Smith-469560c9"
-              ]
+              "CandidateIds": ["Jeremiah-Smith-469560c9"]
             },
             {
               "@id": "Nicholas-Gilman-1791aed7",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Nicholas-Gilman-1791aed7"
-              ]
+              "CandidateIds": ["Nicholas-Gilman-1791aed7"]
             },
             {
               "@id": "Richard-Coote-b9095636",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Richard-Coote-b9095636"
-              ]
+              "CandidateIds": ["Richard-Coote-b9095636"]
             },
             {
               "@type": "CVR.CandidateSelection",
@@ -320,16 +299,12 @@
             {
               "@id": "Anne-Waldron-ee0cbc85",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Anne-Waldron-ee0cbc85"
-              ]
+              "CandidateIds": ["Anne-Waldron-ee0cbc85"]
             },
             {
               "@id": "Daniel-Webster-13f77b2d",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Daniel-Webster-13f77b2d"
-              ]
+              "CandidateIds": ["Daniel-Webster-13f77b2d"]
             },
             {
               "@type": "CVR.CandidateSelection",
@@ -347,16 +322,12 @@
             {
               "@id": "James-Poole-db5ef4bd",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "James-Poole-db5ef4bd"
-              ]
+              "CandidateIds": ["James-Poole-db5ef4bd"]
             },
             {
               "@id": "Matthew-Thornton-f66fec5e",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Matthew-Thornton-f66fec5e"
-              ]
+              "CandidateIds": ["Matthew-Thornton-f66fec5e"]
             },
             {
               "@type": "CVR.CandidateSelection",
@@ -374,58 +345,42 @@
             {
               "@id": "Obadiah-Carrigan-5c95145a",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Obadiah-Carrigan-5c95145a"
-              ]
+              "CandidateIds": ["Obadiah-Carrigan-5c95145a"]
             },
             {
               "@id": "Mary-Baker-Eddy-350785d5",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Mary-Baker-Eddy-350785d5"
-              ]
+              "CandidateIds": ["Mary-Baker-Eddy-350785d5"]
             },
             {
               "@id": "Samuel-Bell-17973275",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Samuel-Bell-17973275"
-              ]
+              "CandidateIds": ["Samuel-Bell-17973275"]
             },
             {
               "@id": "Samuel-Livermore-f927fef1",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Samuel-Livermore-f927fef1"
-              ]
+              "CandidateIds": ["Samuel-Livermore-f927fef1"]
             },
             {
               "@id": "Elijah-Miller-a52e6988",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Elijah-Miller-a52e6988"
-              ]
+              "CandidateIds": ["Elijah-Miller-a52e6988"]
             },
             {
               "@id": "Isaac-Hill-d6c9deeb",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Isaac-Hill-d6c9deeb"
-              ]
+              "CandidateIds": ["Isaac-Hill-d6c9deeb"]
             },
             {
               "@id": "Abigail-Bartlett-4e46c9d4",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Abigail-Bartlett-4e46c9d4"
-              ]
+              "CandidateIds": ["Abigail-Bartlett-4e46c9d4"]
             },
             {
               "@id": "Jacob-Freese-b5146505",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Jacob-Freese-b5146505"
-              ]
+              "CandidateIds": ["Jacob-Freese-b5146505"]
             },
             {
               "@type": "CVR.CandidateSelection",
@@ -453,23 +408,17 @@
             {
               "@id": "Abeil-Foster-ded38e36",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Abeil-Foster-ded38e36"
-              ]
+              "CandidateIds": ["Abeil-Foster-ded38e36"]
             },
             {
               "@id": "Charles-H-Hersey-096286a4",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Charles-H-Hersey-096286a4"
-              ]
+              "CandidateIds": ["Charles-H-Hersey-096286a4"]
             },
             {
               "@id": "William-Lovejoy-fde3c2df",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "William-Lovejoy-fde3c2df"
-              ]
+              "CandidateIds": ["William-Lovejoy-fde3c2df"]
             },
             {
               "@type": "CVR.CandidateSelection",
@@ -487,9 +436,7 @@
             {
               "@id": "Edward-Randolph-bf4c848a",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Edward-Randolph-bf4c848a"
-              ]
+              "CandidateIds": ["Edward-Randolph-bf4c848a"]
             },
             {
               "@type": "CVR.CandidateSelection",
@@ -507,16 +454,12 @@
             {
               "@id": "Ezra-Bartlett-8f95223c",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Ezra-Bartlett-8f95223c"
-              ]
+              "CandidateIds": ["Ezra-Bartlett-8f95223c"]
             },
             {
               "@id": "Mary-Woolson-dc0b854a",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Mary-Woolson-dc0b854a"
-              ]
+              "CandidateIds": ["Mary-Woolson-dc0b854a"]
             },
             {
               "@type": "CVR.CandidateSelection",
@@ -534,16 +477,12 @@
             {
               "@id": "John-Smith-ef61a579",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "John-Smith-ef61a579"
-              ]
+              "CandidateIds": ["John-Smith-ef61a579"]
             },
             {
               "@id": "Jane-Jones-9caa141f",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Jane-Jones-9caa141f"
-              ]
+              "CandidateIds": ["Jane-Jones-9caa141f"]
             },
             {
               "@type": "CVR.CandidateSelection",
@@ -561,16 +500,12 @@
             {
               "@id": "John-Mann-b56bbdd3",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "John-Mann-b56bbdd3"
-              ]
+              "CandidateIds": ["John-Mann-b56bbdd3"]
             },
             {
               "@id": "Ellen-A-Stileman-14408737",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Ellen-A-Stileman-14408737"
-              ]
+              "CandidateIds": ["Ellen-A-Stileman-14408737"]
             },
             {
               "@type": "CVR.CandidateSelection",
@@ -588,16 +523,12 @@
             {
               "@id": "Nathaniel-Parker-56a06c29",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Nathaniel-Parker-56a06c29"
-              ]
+              "CandidateIds": ["Nathaniel-Parker-56a06c29"]
             },
             {
               "@id": "Claire-Cutts-07a436e7",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Claire-Cutts-07a436e7"
-              ]
+              "CandidateIds": ["Claire-Cutts-07a436e7"]
             },
             {
               "@type": "CVR.CandidateSelection",
@@ -615,16 +546,12 @@
             {
               "@id": "Ichabod-Goodwin-55e8de1f",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Ichabod-Goodwin-55e8de1f"
-              ]
+              "CandidateIds": ["Ichabod-Goodwin-55e8de1f"]
             },
             {
               "@id": "Valbe-Cady-ba3af3af",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": [
-                "Valbe-Cady-ba3af3af"
-              ]
+              "CandidateIds": ["Valbe-Cady-ba3af3af"]
             },
             {
               "@type": "CVR.CandidateSelection",
@@ -802,9 +729,7 @@
                   "@type": "CVR.CVRContestSelection",
                   "ContestSelectionId": "write-in-0",
                   "OptionPosition": 2,
-                  "Status": [
-                    "needs-adjudication"
-                  ],
+                  "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
                       "@type": "CVR.SelectionPosition",
@@ -815,7 +740,7 @@
                         "@type": "CVR.CVRWriteIn",
                         "WriteInImage": {
                           "@type": "CVR.ImageData",
-                          "Location": "file:./ballot-images/3f1799cd-f8ae-4f6a-906a-90f56015be42/33a20fb3-6a55-4e9b-a756-9b2ba622cfb6-front.jpeg-7bbc0e7d-e489-485e-b1c2-c9d54818aea2-normalized.jpg"
+                          "Location": "file:ballot-images/3f1799cd-f8ae-4f6a-906a-90f56015be42/33a20fb3-6a55-4e9b-a756-9b2ba622cfb6-front.jpeg-7bbc0e7d-e489-485e-b1c2-c9d54818aea2-normalized.jpg"
                         }
                       }
                     }
@@ -829,10 +754,7 @@
               "Overvotes": 0,
               "Undervotes": 3,
               "WriteIns": 0,
-              "Status": [
-                "not-indicated",
-                "undervoted"
-              ],
+              "Status": ["not-indicated", "undervoted"],
               "CVRContestSelection": []
             },
             {
@@ -841,10 +763,7 @@
               "Overvotes": 0,
               "Undervotes": 1,
               "WriteIns": 0,
-              "Status": [
-                "not-indicated",
-                "undervoted"
-              ],
+              "Status": ["not-indicated", "undervoted"],
               "CVRContestSelection": []
             },
             {
@@ -902,9 +821,7 @@
                   "@type": "CVR.CVRContestSelection",
                   "ContestSelectionId": "write-in-0",
                   "OptionPosition": 2,
-                  "Status": [
-                    "needs-adjudication"
-                  ],
+                  "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
                       "@type": "CVR.SelectionPosition",
@@ -915,7 +832,7 @@
                         "@type": "CVR.CVRWriteIn",
                         "WriteInImage": {
                           "@type": "CVR.ImageData",
-                          "Location": "file:./ballot-images/3f1799cd-f8ae-4f6a-906a-90f56015be42/33a20fb3-6a55-4e9b-a756-9b2ba622cfb6-back.jpeg-7bbc0e7d-e489-485e-b1c2-c9d54818aea2-normalized.jpg"
+                          "Location": "file:ballot-images/3f1799cd-f8ae-4f6a-906a-90f56015be42/33a20fb3-6a55-4e9b-a756-9b2ba622cfb6-back.jpeg-7bbc0e7d-e489-485e-b1c2-c9d54818aea2-normalized.jpg"
                         }
                       }
                     }
@@ -978,9 +895,7 @@
                   "@type": "CVR.CVRContestSelection",
                   "ContestSelectionId": "write-in-0",
                   "OptionPosition": 2,
-                  "Status": [
-                    "needs-adjudication"
-                  ],
+                  "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
                       "@type": "CVR.SelectionPosition",
@@ -991,7 +906,7 @@
                         "@type": "CVR.CVRWriteIn",
                         "WriteInImage": {
                           "@type": "CVR.ImageData",
-                          "Location": "file:./ballot-images/3f1799cd-f8ae-4f6a-906a-90f56015be42/33a20fb3-6a55-4e9b-a756-9b2ba622cfb6-back.jpeg-7bbc0e7d-e489-485e-b1c2-c9d54818aea2-normalized.jpg"
+                          "Location": "file:ballot-images/3f1799cd-f8ae-4f6a-906a-90f56015be42/33a20fb3-6a55-4e9b-a756-9b2ba622cfb6-back.jpeg-7bbc0e7d-e489-485e-b1c2-c9d54818aea2-normalized.jpg"
                         }
                       }
                     }
@@ -1019,9 +934,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.52"
-                      ],
+                      "MarkMetricValue": ["0.52"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1034,9 +947,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1049,9 +960,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1064,9 +973,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1085,9 +992,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1100,9 +1005,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.54"
-                      ],
+                      "MarkMetricValue": ["0.54"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1115,9 +1018,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.02"
-                      ],
+                      "MarkMetricValue": ["0.02"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1136,9 +1037,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.5"
-                      ],
+                      "MarkMetricValue": ["0.5"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1151,9 +1050,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1166,9 +1063,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1181,9 +1076,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.02"
-                      ],
+                      "MarkMetricValue": ["0.02"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1202,9 +1095,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1217,9 +1108,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.49"
-                      ],
+                      "MarkMetricValue": ["0.49"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1232,9 +1121,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1253,9 +1140,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1268,9 +1153,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1283,9 +1166,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.43"
-                      ],
+                      "MarkMetricValue": ["0.43"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1304,9 +1185,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.56"
-                      ],
+                      "MarkMetricValue": ["0.56"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1319,9 +1198,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.02"
-                      ],
+                      "MarkMetricValue": ["0.02"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1334,9 +1211,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.49"
-                      ],
+                      "MarkMetricValue": ["0.49"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1349,9 +1224,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1364,9 +1237,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.49"
-                      ],
+                      "MarkMetricValue": ["0.49"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1379,9 +1250,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1394,9 +1263,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1409,9 +1276,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1424,9 +1289,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1439,9 +1302,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.02"
-                      ],
+                      "MarkMetricValue": ["0.02"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1454,9 +1315,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1475,9 +1334,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1490,9 +1347,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1505,9 +1360,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1520,9 +1373,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.44"
-                      ],
+                      "MarkMetricValue": ["0.44"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1541,9 +1392,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.5"
-                      ],
+                      "MarkMetricValue": ["0.5"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1556,9 +1405,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1571,9 +1418,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1592,9 +1437,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1607,9 +1450,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.47"
-                      ],
+                      "MarkMetricValue": ["0.47"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1622,9 +1463,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1643,9 +1482,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1658,9 +1495,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1673,9 +1508,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.49"
-                      ],
+                      "MarkMetricValue": ["0.49"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1694,9 +1527,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.48"
-                      ],
+                      "MarkMetricValue": ["0.48"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1709,9 +1540,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1724,9 +1553,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1745,9 +1572,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1760,9 +1585,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.52"
-                      ],
+                      "MarkMetricValue": ["0.52"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1775,9 +1598,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.04"
-                      ],
+                      "MarkMetricValue": ["0.04"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1796,9 +1617,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1811,9 +1630,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1826,9 +1643,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.47"
-                      ],
+                      "MarkMetricValue": ["0.47"],
                       "HasIndication": "yes"
                     }
                   ]
@@ -1847,9 +1662,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1862,9 +1675,7 @@
                     {
                       "@type": "CVR.SelectionPosition",
                       "NumberVotes": 1,
-                      "MarkMetricValue": [
-                        "0.03"
-                      ],
+                      "MarkMetricValue": ["0.03"],
                       "HasIndication": "no"
                     }
                   ]
@@ -1877,11 +1688,11 @@
       "BallotImage": [
         {
           "@type": "CVR.ImageData",
-          "Location": "file:./ballot-images/3f1799cd-f8ae-4f6a-906a-90f56015be42/33a20fb3-6a55-4e9b-a756-9b2ba622cfb6-front.jpeg-7bbc0e7d-e489-485e-b1c2-c9d54818aea2-normalized.jpg"
+          "Location": "file:ballot-images/3f1799cd-f8ae-4f6a-906a-90f56015be42/33a20fb3-6a55-4e9b-a756-9b2ba622cfb6-front.jpeg-7bbc0e7d-e489-485e-b1c2-c9d54818aea2-normalized.jpg"
         },
         {
           "@type": "CVR.ImageData",
-          "Location": "file:./ballot-images/3f1799cd-f8ae-4f6a-906a-90f56015be42/33a20fb3-6a55-4e9b-a756-9b2ba622cfb6-back.jpeg-7bbc0e7d-e489-485e-b1c2-c9d54818aea2-normalized.jpg"
+          "Location": "file:ballot-images/3f1799cd-f8ae-4f6a-906a-90f56015be42/33a20fb3-6a55-4e9b-a756-9b2ba622cfb6-back.jpeg-7bbc0e7d-e489-485e-b1c2-c9d54818aea2-normalized.jpg"
         }
       ]
     }

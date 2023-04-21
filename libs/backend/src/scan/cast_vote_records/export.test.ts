@@ -189,11 +189,11 @@ test('getCastVoteRecordReportStream can include file uris in backup format', asy
   // check that file URIs appears at the top level of the CVR
   expect(report).toHaveProperty(
     ['CVR', 0, 'BallotImage', 0, 'Location'],
-    'file:./front.jpg'
+    'file:front.jpg'
   );
   expect(report).toHaveProperty(
     ['CVR', 0, 'BallotImage', 1, 'Location'],
-    'file:./back.jpg'
+    'file:back.jpg'
   );
 
   // check that relevant file URI appears adjacent to the write-in
@@ -213,7 +213,7 @@ test('getCastVoteRecordReportStream can include file uris in backup format', asy
       'WriteInImage',
       'Location',
     ],
-    'file:./front.jpg'
+    'file:front.jpg'
   );
 });
 
@@ -305,7 +305,7 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
   // check that file URI appears at top-level of CVR for front page
   expect(report).toHaveProperty(
     ['CVR', 0, 'BallotImage', 0, 'Location'],
-    'file:./ballot-images/batch-1/front.jpg'
+    'file:ballot-images/batch-1/front.jpg'
   );
 
   // check that file URI does not appear at top-level of CVR for back page
@@ -331,7 +331,7 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
       'WriteInImage',
       'Location',
     ],
-    'file:./ballot-images/batch-1/front.jpg'
+    'file:ballot-images/batch-1/front.jpg'
   );
 });
 
