@@ -15,6 +15,7 @@ import { assert } from '@votingworks/basics';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { ConfigureResult } from '@votingworks/admin-backend';
 import { readFileAsyncAsString } from '@votingworks/utils';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { readInitialAdminSetupPackageFromFile } from '../utils/initial_setup_package';
 import {
   getElectionDefinitionConverterClient,
@@ -103,8 +104,25 @@ export function UnconfiguredScreen(): JSX.Element {
     [converter]
   );
 
+  const saveSystemSettingsToBackend = useCallback(
+    (fileContent: string) => {
+      setSystemSettingsMutation.mutate(
+        { systemSettings: fileContent },
+        {
+          onSuccess: (result) => {
+            if (result.isErr()) {
+              setSystemSettingsFileIsInvalid(true);
+            }
+          },
+        }
+      );
+    },
+    [setSystemSettingsMutation]
+  );
+
   async function loadDemoElection() {
     await configureMutateAsync(demoElection);
+    saveSystemSettingsToBackend(JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
     history.push(routerPaths.electionDefinition);
   }
 
@@ -123,22 +141,6 @@ export function UnconfiguredScreen(): JSX.Element {
     [configureMutateAsync]
   );
 
-  const saveSystemSettingsToBackend = useCallback(
-    (fileContent: string) => {
-      setSystemSettingsMutation.mutate(
-        { systemSettings: fileContent },
-        {
-          onSuccess: (result) => {
-            if (result.isErr()) {
-              setSystemSettingsFileIsInvalid(true);
-            }
-          },
-        }
-      );
-    },
-    [setSystemSettingsMutation]
-  );
-
   const handleVxElectionFile: InputEventFunction = async (event) => {
     setIsUploading(true);
     const input = event.currentTarget;
@@ -149,6 +151,7 @@ export function UnconfiguredScreen(): JSX.Element {
       // TODO: read file content from backend
       const fileContent = await readFileAsyncAsString(file);
       await saveElectionToBackend(fileContent);
+      saveSystemSettingsToBackend(JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
     }
     setIsUploading(false);
   };
@@ -371,6 +374,7 @@ export function UnconfiguredScreen(): JSX.Element {
             Select Existing Election Definition File
           </FileInputButton>
         </p>
+        <HorizontalRule>or</HorizontalRule>
         <p>
           <FileInputButton
             accept=".zip,application/zip"
