@@ -244,10 +244,10 @@ test('including ballot images', async () => {
   // files referenced from the report
   expect(Array.from(imageFileUris)).toMatchInlineSnapshot(`
     Array [
-      "file:./ballot-images/batch-1/1M__precinct-1__1.jpg",
-      "file:./ballot-images/batch-1/1M__precinct-2__1.jpg",
-      "file:./ballot-images/batch-1/2F__precinct-1__1.jpg",
-      "file:./ballot-images/batch-1/2F__precinct-2__1.jpg",
+      "file:ballot-images/batch-1/1M__precinct-1__1.jpg",
+      "file:ballot-images/batch-1/1M__precinct-2__1.jpg",
+      "file:ballot-images/batch-1/2F__precinct-1__1.jpg",
+      "file:ballot-images/batch-1/2F__precinct-2__1.jpg",
     ]
   `);
 

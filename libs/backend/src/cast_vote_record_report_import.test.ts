@@ -1,5 +1,3 @@
-/* eslint-disable vx/gts-identifiers */
-
 import { assert } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { unsafeParse, CVR } from '@votingworks/types';

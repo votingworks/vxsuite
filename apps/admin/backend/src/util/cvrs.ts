@@ -10,9 +10,9 @@ export function getWriteInVotes(
 }
 
 /**
- * Gets all the write-in options from a CVR.
+ * @deprecated Gets all the write-in options from a legacy CVR.
  */
-export function getWriteInsFromCastVoteRecord(
+export function deprecatedGetWriteInsFromCastVoteRecord(
   cvr: CastVoteRecord
 ): Map<ContestId, ContestOptionId[]> {
   const result = new Map<ContestId, ContestOptionId[]>();

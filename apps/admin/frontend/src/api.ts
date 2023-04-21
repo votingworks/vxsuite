@@ -234,15 +234,18 @@ export const getWriteInAdjudicationTable = {
   },
 } as const;
 
-type GetWriteInImageInput = QueryInput<'getWriteInImage'>;
-export const getWriteInImage = {
-  queryKey(input?: GetWriteInImageInput): QueryKey {
-    return input ? ['getWriteInImage', input] : ['getWriteInImage'];
+type getWriteInImageViewInput = QueryInput<'getWriteInImageView'>;
+export const getWriteInImageView = {
+  queryKey(input?: getWriteInImageViewInput): QueryKey {
+    return input ? ['getWriteInImageView', input] : ['getWriteInImageView'];
   },
-  useQuery(input: GetWriteInImageInput) {
+  queryFn(input: getWriteInImageViewInput, apiClient: ApiClient) {
+    return apiClient.getWriteInImageView(input);
+  },
+  useQuery(input: getWriteInImageViewInput) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(input), () =>
-      apiClient.getWriteInImage(input)
+      apiClient.getWriteInImageView(input)
     );
   },
 } as const;
@@ -348,7 +351,7 @@ export const clearCastVoteRecordFiles = {
         return Promise.all([
           invalidateCastVoteRecordQueries(queryClient),
           invalidateWriteInQueries(queryClient),
-          queryClient.invalidateQueries(getWriteInImage.queryKey()),
+          queryClient.invalidateQueries(getWriteInImageView.queryKey()),
           queryClient.invalidateQueries(getCurrentElectionMetadata.queryKey()),
         ]);
       },

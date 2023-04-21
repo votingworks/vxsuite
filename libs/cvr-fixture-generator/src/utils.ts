@@ -1,5 +1,3 @@
-/* eslint-disable vx/gts-identifiers */
-
 import {
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
@@ -147,7 +145,7 @@ export function filterVotesByContests(
  * Format of the image URIs used in generated fixtures.
  */
 export const IMAGE_URI_REGEX = new RegExp(
-  String.raw`file:\.\/${CVR_BALLOT_IMAGES_SUBDIRECTORY}\/${BATCH_ID}\/(.+)__(.+)__(.+)\.jpg`
+  String.raw`file:${CVR_BALLOT_IMAGES_SUBDIRECTORY}\/${BATCH_ID}\/(.+)__(.+)__(.+)\.jpg`
 );
 
 /**
@@ -165,7 +163,7 @@ export function generateBallotAssetPath({
   pageNumber: number;
   assetType: 'image' | 'layout';
 }): string {
-  return `./${
+  return `${
     assetType === 'image'
       ? CVR_BALLOT_IMAGES_SUBDIRECTORY
       : CVR_BALLOT_LAYOUTS_SUBDIRECTORY

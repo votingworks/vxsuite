@@ -82,11 +82,11 @@ function getImageFileUri({
   filename: string;
 }): Optional<string> {
   if (reportContext === 'backup') {
-    return `file:./${basename(filename)}`;
+    return `file:${basename(filename)}`;
   }
 
   if (pageHasWriteIns) {
-    return `file:./${CVR_BALLOT_IMAGES_SUBDIRECTORY}/${batchId}/${basename(
+    return `file:${CVR_BALLOT_IMAGES_SUBDIRECTORY}/${batchId}/${basename(
       filename
     )}`;
   }

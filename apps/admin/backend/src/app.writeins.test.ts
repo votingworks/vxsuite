@@ -4,10 +4,8 @@ import {
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
 import { assert, typedAs } from '@votingworks/basics';
-import {
-  CVR_BALLOT_IMAGES_SUBDIRECTORY,
-  loadBallotImageBase64,
-} from '@votingworks/backend';
+import { CVR_BALLOT_IMAGES_SUBDIRECTORY } from '@votingworks/backend';
+import { toDataUrl, loadImage, toImageData } from '@votingworks/image-utils';
 import { join } from 'path';
 import {
   BooleanEnvironmentVariableName,
@@ -544,14 +542,12 @@ test('getWriteInImage', async () => {
 
   const writeIn = writeIns[0];
   assert(writeIn);
-  const writeInImageEntries = await apiClient.getWriteInImage({
+  const writeInImageView = await apiClient.getWriteInImageView({
     writeInId: writeIn.id,
   });
-  expect(writeInImageEntries).toHaveLength(1);
+  assert(writeInImageView);
 
-  const writeInImageEntry = writeInImageEntries[0];
-  assert(writeInImageEntry);
-  const { image, ...coordinates } = writeInImageEntry;
+  const { imageUrl: actualImageUrl, ...coordinates } = writeInImageView;
   expect(coordinates).toMatchInlineSnapshot(`
     Object {
       "ballotCoordinates": Object {
@@ -575,7 +571,7 @@ test('getWriteInImage', async () => {
     }
   `);
 
-  const expectedImage = await loadBallotImageBase64(
+  const expectedImage = await loadImage(
     join(
       reportDirectoryPath,
       CVR_BALLOT_IMAGES_SUBDIRECTORY,
@@ -583,5 +579,13 @@ test('getWriteInImage', async () => {
       '33a20fb3-6a55-4e9b-a756-9b2ba622cfb6-back.jpeg-7bbc0e7d-e489-485e-b1c2-c9d54818aea2-normalized.jpg'
     )
   );
-  expect(image).toEqual(expectedImage);
+  const expectedImageUrl = toDataUrl(
+    toImageData(expectedImage, {
+      maxWidth: expectedImage.width,
+      maxHeight: expectedImage.height,
+    }),
+    'image/jpeg'
+  );
+
+  expect(actualImageUrl).toEqual(expectedImageUrl);
 });

@@ -1,5 +1,3 @@
-/* eslint-disable vx/gts-identifiers */
-
 import { assert, find, iter, throwIllegalValue } from '@votingworks/basics';
 import {
   AnyContest,

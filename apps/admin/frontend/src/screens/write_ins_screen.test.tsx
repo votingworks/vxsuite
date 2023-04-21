@@ -116,13 +116,13 @@ test('ballot pagination', async () => {
   });
 
   const pageCount = 3;
-  apiMock.expectGetWriteInImage(mockWriteInRecords[0].id);
+  for (const mockWriteInRecord of mockWriteInRecords) {
+    apiMock.expectGetWriteInImageView(mockWriteInRecord.id);
+  }
+
   userEvent.click(await screen.findByText(`Transcribe ${pageCount}`));
 
   for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
-    if (pageNumber > 1) {
-      apiMock.expectGetWriteInImage(mockWriteInRecords[pageNumber - 1].id);
-    }
     await screen.findByText(new RegExp(`${pageNumber} of ${pageCount}`));
     const previousButton = await screen.findButton('Previous');
     if (pageNumber === 1) {
@@ -153,7 +153,8 @@ test('adjudication', async () => {
   });
 
   // transcribe
-  apiMock.expectGetWriteInImage(mockWriteInRecords[0].id);
+  apiMock.expectGetWriteInImageView(mockWriteInRecords[0].id);
+  apiMock.expectGetWriteInImageView(mockWriteInRecords[1].id); // prefetch
   userEvent.click(await screen.findByText('Transcribe 3'));
   userEvent.type(
     await screen.findByPlaceholderText('transcribed write-in'),

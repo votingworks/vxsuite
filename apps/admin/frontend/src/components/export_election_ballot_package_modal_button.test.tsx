@@ -6,11 +6,10 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 import React from 'react';
-import { UsbDriveStatus } from '@votingworks/ui';
+import { UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { iter } from '@votingworks/basics';
 import { interpretMultiPagePdfTemplate } from '@votingworks/ballot-interpreter-vx';
-import { mockUsbDrive } from '@votingworks/ui';
 import {
   fireEvent,
   screen,

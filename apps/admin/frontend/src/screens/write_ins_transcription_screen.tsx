@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -21,9 +21,10 @@ import {
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import pluralize from 'pluralize';
+import { useQueryClient } from '@tanstack/react-query';
 import { Navigation } from '../components/navigation';
 import { InlineForm, TextInput } from '../components/text_input';
-import { getWriteInImage } from '../api';
+import { getWriteInImageView, useApiClient } from '../api';
 
 const BallotViews = styled.div`
   flex: 3;
@@ -300,10 +301,31 @@ export function WriteInsTranscriptionScreen({
       setShowNewTranscriptionForm(false);
     }
   }
-  const imageDataQuery = getWriteInImage.useQuery({
+  const writeInImageViewQuery = getWriteInImageView.useQuery({
     writeInId: currentAdjudication.id,
   });
-  const imageData = imageDataQuery.data ? imageDataQuery.data[0] : undefined;
+  const writeInImageView = writeInImageViewQuery.data
+    ? writeInImageViewQuery.data
+    : undefined;
+
+  // prefetch the next write-in image
+  const queryClient = useQueryClient();
+  const apiClient = useApiClient();
+  useEffect(() => {
+    const nextAdjudication = adjudications[offset + 1];
+    if (nextAdjudication) {
+      void queryClient.prefetchQuery({
+        queryKey: getWriteInImageView.queryKey({
+          writeInId: nextAdjudication.id,
+        }),
+        queryFn: () =>
+          getWriteInImageView.queryFn(
+            { writeInId: nextAdjudication.id },
+            apiClient
+          ),
+      });
+    }
+  }, [adjudications, apiClient, offset, queryClient]);
 
   function onSave() {
     const val = transcribedValueInput.current?.value || '';
@@ -346,12 +368,12 @@ export function WriteInsTranscriptionScreen({
       />
       <Main flexRow data-testid={`transcribe:${adjudicationId}`}>
         <BallotViews>
-          {imageData && (
+          {writeInImageView && (
             <BallotImageViewer
               key={adjudicationId} // Reset zoom state for each write-in
-              imageUrl={`data:image/png;base64,${imageData.image}`}
-              ballotBounds={imageData.ballotCoordinates}
-              writeInBounds={imageData.writeInCoordinates}
+              imageUrl={writeInImageView.imageUrl}
+              ballotBounds={writeInImageView.ballotCoordinates}
+              writeInBounds={writeInImageView.writeInCoordinates}
             />
           )}
         </BallotViews>

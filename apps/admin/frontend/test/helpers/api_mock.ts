@@ -197,8 +197,10 @@ export function createApiMock(
       apiClient.getWriteIns.expectCallWith().resolves(writeInRecords);
     },
 
-    expectGetWriteInImage(writeInId: string) {
-      apiClient.getWriteInImage.expectCallWith({ writeInId }).resolves([]);
+    expectGetWriteInImageView(writeInId: string) {
+      apiClient.getWriteInImageView
+        .expectCallWith({ writeInId })
+        .resolves(null);
     },
 
     expectMarkResultsOfficial() {

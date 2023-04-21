@@ -1,4 +1,3 @@
-/* eslint-disable vx/gts-identifiers */
 import { Buffer } from 'buffer';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
@@ -137,7 +136,7 @@ describe('list cast vote record files on USB drive', () => {
   });
 });
 
-const ballotImageLocation = 'file:./ballot-images/batch-1/test';
+const ballotImageLocation = 'file:ballot-images/batch-1/test';
 const validCastVoteRecord: CVR.CVR = {
   '@type': 'CVR.CVR',
   BallotStyleId: '1M',

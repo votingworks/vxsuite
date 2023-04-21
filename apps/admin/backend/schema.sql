@@ -22,6 +22,7 @@ create table write_in_adjudications (
 create table write_ins (
   id varchar(36) primary key,
   cvr_id varchar(36) not null,
+  side text not null check (side = 'front' or side = 'back'),
   contest_id text not null,
   option_id text not null,
   transcribed_value text,
@@ -29,6 +30,7 @@ create table write_ins (
   created_at timestamp not null default current_timestamp,
   foreign key (cvr_id) references cvrs(id)
     on delete cascade,
+  foreign key (cvr_id, side) references ballot_images(cvr_id, side),
   unique (cvr_id, contest_id, option_id)
 );
 
@@ -61,6 +63,16 @@ create table cvr_file_entries (
   primary key (cvr_file_id, cvr_id),
   foreign key (cvr_file_id) references cvr_files(id)
     on delete cascade,
+  foreign key (cvr_id) references cvrs(id)
+    on delete cascade
+);
+
+create table ballot_images (
+  cvr_id varchar(36) not null,
+  side text not null check (side = 'front' or side = 'back'),
+  image blob not null,
+  layout text not null,
+  primary key (cvr_id, side),
   foreign key (cvr_id) references cvrs(id)
     on delete cascade
 );

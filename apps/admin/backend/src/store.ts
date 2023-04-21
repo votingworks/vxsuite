@@ -14,6 +14,8 @@ import {
 import { Bindable, Client as DbClient } from '@votingworks/db';
 import {
   BallotId,
+  BallotPageLayout,
+  BallotPageLayoutSchema,
   BallotStyleId,
   CastVoteRecord,
   ContestId,
@@ -24,10 +26,12 @@ import {
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
+  Side,
   SystemSettings,
   SystemSettingsDbRow,
 } from '@votingworks/types';
 import { join } from 'path';
+import { Buffer } from 'buffer';
 import { v4 as uuid } from 'uuid';
 
 /**
@@ -342,46 +346,6 @@ export class Store {
     );
   }
 
-  getCastVoteRecordForWriteIn(
-    writeInId: Id
-  ): Admin.CastVoteRecordData | undefined {
-    const result = this.client.one(
-      `
-      select
-        write_ins.id as writeInId,
-        write_ins.contest_id as contestId,
-        write_ins.option_id as optionId,
-        cvrs.election_id as electionId,
-        cvrs.data as cvrData
-      from write_ins
-      inner join
-        cvrs on cvrs.id = write_ins.cvr_id
-      where write_ins.id = ?
-    `,
-      writeInId
-    ) as
-      | {
-          writeInId: Id;
-          contestId: ContestId;
-          optionId: ContestOptionId;
-          electionId: Id;
-          cvrData: string;
-        }
-      | undefined;
-
-    if (!result) {
-      return undefined;
-    }
-
-    return {
-      cvr: safeParseJson(result.cvrData).unsafeUnwrap() as CastVoteRecord,
-      writeInId: result.writeInId,
-      contestId: result.contestId,
-      optionId: result.optionId,
-      electionId: result.electionId,
-    };
-  }
-
   /**
    * Adds a CVR file entry record and returns its ID. If a CVR file entry with
    * the same contents has already been added, returns the ID of that record and
@@ -393,14 +357,14 @@ export class Store {
     ballotId: BallotId,
     data: string
   ): Result<
-    { id: Id; isNew: boolean },
+    { cvrId: Id; isNew: boolean },
     {
       kind: 'BallotIdAlreadyExistsWithDifferentData';
       newData: string;
       existingData: string;
     }
   > {
-    const existing = this.client.one(
+    const existingCvr = this.client.one(
       `
         select
           id,
@@ -414,17 +378,20 @@ export class Store {
       ballotId
     ) as { id: Id; data: string } | undefined;
 
-    const id = existing?.id ?? uuid();
+    const cvrId = existingCvr?.id ?? uuid();
 
-    if (existing) {
-      if (existing.data !== data) {
+    if (existingCvr) {
+      // Existing cast vote records are expected, but existing cast vote records
+      // with new data indicate a bad or inappropriately manipulated file
+      if (existingCvr.data !== data) {
         return err({
           kind: 'BallotIdAlreadyExistsWithDifferentData',
           newData: data,
-          existingData: existing.data,
+          existingData: existingCvr.data,
         });
       }
     } else {
+      // Insert new cast vote record metadata and votes
       this.client.run(
         `
         insert into cvrs (
@@ -436,13 +403,14 @@ export class Store {
           ?, ?, ?, ?
         )
       `,
-        id,
+        cvrId,
         electionId,
         ballotId,
         data
       );
     }
 
+    // Whether the cast vote record itself is new or not, associate it with the new file.
     this.client.run(
       `
         insert or ignore into cvr_file_entries (
@@ -453,10 +421,39 @@ export class Store {
         )
       `,
       cvrFileId,
-      id
+      cvrId
     );
 
-    return ok({ id, isNew: !existing });
+    return ok({ cvrId, isNew: !existingCvr });
+  }
+
+  addBallotImage({
+    cvrId,
+    imageData,
+    pageLayout,
+    side,
+  }: {
+    cvrId: Id;
+    imageData: Buffer;
+    pageLayout: BallotPageLayout;
+    side: Side;
+  }): void {
+    this.client.run(
+      `
+      insert into ballot_images (
+        cvr_id,
+        side,
+        image,
+        layout
+      ) values (
+        ?, ?, ?, ?
+      )
+    `,
+      cvrId,
+      side,
+      imageData,
+      JSON.stringify(pageLayout)
+    );
   }
 
   /**
@@ -492,10 +489,12 @@ export class Store {
    */
   addWriteIn({
     castVoteRecordId,
+    side,
     contestId,
     optionId,
   }: {
     castVoteRecordId: Id;
+    side: Side;
     contestId: Id;
     optionId: Id;
   }): Id {
@@ -503,22 +502,71 @@ export class Store {
 
     this.client.run(
       `
-        insert or ignore into write_ins (
+        insert into write_ins (
           id,
           cvr_id,
+          side,
           contest_id,
           option_id
         ) values (
-          ?, ?, ?, ?
+          ?, ?, ?, ?, ?
         )
       `,
       id,
       castVoteRecordId,
+      side,
       contestId,
       optionId
     );
 
     return id;
+  }
+
+  /**
+   * Returns the data necessary to display a single write-in.
+   */
+  getWriteInWithImage(writeInId: Id): Optional<{
+    writeInId: Id;
+    contestId: ContestId;
+    optionId: ContestOptionId;
+    image: Buffer;
+    layout: BallotPageLayout;
+  }> {
+    const result = this.client.one(
+      `
+        select
+          write_ins.id as writeInId,
+          write_ins.contest_id as contestId,
+          write_ins.option_id as optionId,
+          ballot_images.image as image,
+          ballot_images.layout as layout
+        from write_ins
+        inner join
+          ballot_images on 
+            write_ins.cvr_id = ballot_images.cvr_id and 
+            write_ins.side = ballot_images.side
+        where write_ins.id = ?
+      `,
+      writeInId
+    ) as
+      | {
+          writeInId: Id;
+          contestId: ContestId;
+          optionId: ContestOptionId;
+          image: Buffer;
+          layout: string;
+        }
+      | undefined;
+
+    if (!result) return result;
+
+    return {
+      ...result,
+      layout: safeParseJson(
+        result.layout,
+        BallotPageLayoutSchema
+      ).unsafeUnwrap(),
+    };
   }
 
   getCvrFiles(electionId: Id): Admin.CastVoteRecordFileRecord[] {
