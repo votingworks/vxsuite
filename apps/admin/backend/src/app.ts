@@ -286,13 +286,7 @@ function buildApi({
         .getCastVoteRecordEntries(currentElectionId)
         .map(
           (entry) => safeParseJson(entry.data).unsafeUnwrap() as CastVoteRecord
-        )
-        .map((cvr) => ({
-          ...cvr,
-          // Strip out ballot images to keep the response size low, since
-          // they're not needed client-side.
-          _ballotImages: undefined,
-        }));
+        );
     },
 
     async addCastVoteRecordFile(input: {
