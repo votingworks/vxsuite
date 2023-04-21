@@ -619,7 +619,6 @@ export function filterTalliesByParams(
  *     _scannerId: 'scanner-id',
  *     _batchId: 'batch-id',
  *     _batchLabel: 'batch-label',
- *     _pageNumbers: [1, 2],
  *     mayor: ['seldon'],
  *     'city-council': ['hugo', 'golan'],
  *     'measure-1': ['yes'],

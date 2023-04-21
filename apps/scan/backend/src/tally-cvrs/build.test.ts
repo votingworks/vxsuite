@@ -311,10 +311,6 @@ test('generates a CVR from a completed HMPB page', () => {
       "_ballotType": "standard",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
-      "_pageNumbers": Array [
-        1,
-        2,
-      ],
       "_precinctId": "6522",
       "_scannerId": "000",
       "_testBallot": false,
@@ -406,10 +402,6 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
       "_ballotType": "standard",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
-      "_pageNumbers": Array [
-        1,
-        2,
-      ],
       "_precinctId": "6522",
       "_scannerId": "000",
       "_testBallot": false,
@@ -500,10 +492,6 @@ test('generates a CVR from a completed absentee HMPB page', () => {
       "_ballotType": "absentee",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
-      "_pageNumbers": Array [
-        1,
-        2,
-      ],
       "_precinctId": "6522",
       "_scannerId": "000",
       "_testBallot": false,
