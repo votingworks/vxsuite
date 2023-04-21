@@ -10,5 +10,8 @@
         "@typescript-eslint/prefer-readonly": "off"
       }
     }
-  ]
+  ],
+  "rules": {
+    "vx/gts-identifiers": ["error", { "allowedNames": ["/CVR.*/"] }]
+  }
 }

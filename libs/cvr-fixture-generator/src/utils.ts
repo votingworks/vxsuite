@@ -1,5 +1,3 @@
-/* eslint-disable vx/gts-identifiers */
-
 import {
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,

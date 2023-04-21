@@ -1,4 +1,3 @@
-/* eslint-disable vx/gts-identifiers */
 import { buildCVRContestsFromVotes, hasWriteIns } from '@votingworks/backend';
 import { find, throwIllegalValue } from '@votingworks/basics';
 import {

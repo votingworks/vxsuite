@@ -1,4 +1,3 @@
-/* eslint-disable vx/gts-identifiers */
 import { CVR } from '@votingworks/types';
 import {
   getCurrentSnapshot,

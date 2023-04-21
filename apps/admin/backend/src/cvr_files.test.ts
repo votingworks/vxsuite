@@ -1,4 +1,3 @@
-/* eslint-disable vx/gts-identifiers */
 import { Buffer } from 'buffer';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
