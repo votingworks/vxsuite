@@ -2,7 +2,7 @@ import { BallotId, BallotStyleId, PrecinctId } from './election';
 import { Dictionary } from './generic';
 
 /**
- * Note that this legacy type is slightly different than the CDF type
+ * Legacy type, slightly different than the CDF ballot type.
  */
 export type CastVoteRecordBallotType = 'absentee' | 'provisional' | 'standard';
 

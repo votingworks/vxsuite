@@ -38,7 +38,16 @@ create table cvrs (
   id varchar(36) primary key,
   election_id varchar(36) not null,
   ballot_id varchar(36) not null,
-  data text not null,
+  ballot_style_id text not null,
+  ballot_type text not null 
+    check (ballot_type = 'absentee' or ballot_type = 'precinct' or ballot_type = 'provisional'),
+  batch_id text not null,
+  batch_label text not null,
+  party_id text,
+  precinct_id text not null,
+  scanner_id text not null,
+  sheet_number integer not null check (sheet_number > 0),
+  votes text not null,
   created_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)
     on delete cascade

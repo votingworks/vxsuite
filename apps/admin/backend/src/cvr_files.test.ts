@@ -4,7 +4,6 @@ import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { CVR, getDisplayElectionHash } from '@votingworks/types';
 import { createMockUsb } from '../test/app';
 import {
-  convertCastVoteRecordToLegacyFormat,
   listCastVoteRecordFilesOnUsb,
   validateCastVoteRecord,
 } from './cvr_files';
@@ -475,46 +474,5 @@ describe('validateCastVoteRecord', () => {
     });
 
     expect(result.err()).toEqual('no-current-snapshot');
-  });
-});
-
-describe('convertCastVoteRecordToLegacyFormat', () => {
-  test('general conversion ', () => {
-    expect(
-      convertCastVoteRecordToLegacyFormat({
-        cvr: validCastVoteRecord,
-        isTest: true,
-        batchLabel: 'Batch 1',
-      })
-    ).toMatchObject({
-      _ballotId: '0',
-      _ballotStyleId: '1M',
-      _ballotType: CVR.vxBallotType.Absentee,
-      _batchId: 'batch-1',
-      _batchLabel: 'Batch 1',
-      _precinctId: 'precinct-1',
-      _scannerId: 'scanner',
-      _testBallot: true,
-      'best-animal-mammal': [],
-      fishing: ['yes'],
-      'new-zoo-either': ['yes'],
-      'new-zoo-pick': ['yes'],
-      'zoo-council-mammal': [],
-    });
-  });
-
-  test('precinct ballot type', () => {
-    expect(
-      convertCastVoteRecordToLegacyFormat({
-        cvr: {
-          ...validCastVoteRecord,
-          vxBallotType: CVR.vxBallotType.Precinct,
-        },
-        isTest: true,
-        batchLabel: 'Batch 1',
-      })
-    ).toMatchObject({
-      _ballotType: 'standard',
-    });
   });
 });
