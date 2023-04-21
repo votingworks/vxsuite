@@ -183,8 +183,8 @@ function snapshotHasValidContestReferences(
  * due to not referencing a top-level ballot image.
  */
 function cvrHasValidWriteInImageReferences(cvr: CVR.CVR) {
-  return !getWriteInsFromCastVoteRecord(cvr).some(
-    ({ side, text }) => !side && !text
+  return getWriteInsFromCastVoteRecord(cvr).every(
+    ({ side, text }) => side || text
   );
 }
 
