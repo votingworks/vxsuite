@@ -1,26 +1,16 @@
-import {
-  BallotId,
-  BallotLocale,
-  BallotStyleId,
-  InlineBallotImage,
-  PrecinctId,
-} from './election';
-import { BallotPageLayout, SheetOf } from './hmpb';
+import { BallotId, BallotStyleId, PrecinctId } from './election';
 import { Dictionary } from './generic';
 
+/**
+ * Note that this legacy type is slightly different than the CDF type
+ */
 export type CastVoteRecordBallotType = 'absentee' | 'provisional' | 'standard';
 
+/**
+ * Legacy cast vote record type, currently used by tally code.
+ */
 export interface CastVoteRecord
-  extends Dictionary<
-    | string
-    | readonly string[]
-    | boolean
-    | number
-    | readonly number[]
-    | BallotLocale
-    | SheetOf<InlineBallotImage | null>
-    | SheetOf<BallotPageLayout | null>
-  > {
+  extends Dictionary<string | readonly string[] | boolean> {
   readonly _precinctId: PrecinctId;
   readonly _ballotId?: BallotId;
   readonly _ballotStyleId: BallotStyleId;
