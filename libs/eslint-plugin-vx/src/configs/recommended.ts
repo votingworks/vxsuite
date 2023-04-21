@@ -122,8 +122,6 @@ export = {
           '_scannerId',
           '_pageNumber',
           '_pageNumbers',
-          '_ballotImages',
-          '_layouts',
         ],
       },
     ],

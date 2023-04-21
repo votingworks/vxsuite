@@ -23,7 +23,6 @@ export interface CastVoteRecord
   > {
   readonly _precinctId: PrecinctId;
   readonly _ballotId?: BallotId;
-  readonly _ballotImages?: SheetOf<InlineBallotImage | null>;
   readonly _ballotStyleId: BallotStyleId;
   readonly _ballotType: CastVoteRecordBallotType;
   readonly _batchId: string;
@@ -32,5 +31,4 @@ export interface CastVoteRecord
   readonly _scannerId: string;
   readonly _pageNumber?: number;
   readonly _pageNumbers?: SheetOf<number>;
-  readonly _layouts?: SheetOf<BallotPageLayout | null>;
 }
