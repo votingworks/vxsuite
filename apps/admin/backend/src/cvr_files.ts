@@ -49,7 +49,7 @@ import {
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 import * as fs from 'fs/promises';
-import { basename, join } from 'path';
+import { basename, join, normalize, parse } from 'path';
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
 import { Store } from './store';
@@ -454,6 +454,44 @@ export type AddCastVoteRecordReportResult = Result<
 >;
 
 /**
+ * Generates the expected absolute paths to the image and layout for a ballot
+ * image specified in a CVR file. Only returns paths within the report
+ * directory and will throw an error if the file reference points to a file
+ * outside the report directory.
+ *
+ * @param cvrImageDataLocation File URI from the CVR file, e.g.
+ *     `file:ballot-image/batch-1/something.jpg`
+ * @param reportDirectoryPath Path to the root of the report
+ */
+function resolveImageAndLayoutPaths(
+  cvrImageDataLocation: string,
+  reportDirectoryPath: string
+): {
+  imagePath: string;
+  layoutPath: string;
+} {
+  assert(cvrImageDataLocation.startsWith('file:'));
+  const relativeImagePath = normalize(
+    cvrImageDataLocation.slice('file:'.length)
+  );
+  assert(relativeImagePath.startsWith(`${CVR_BALLOT_IMAGES_SUBDIRECTORY}/`));
+  const parsedBallotImagePath = parse(
+    relativeImagePath.slice(`${CVR_BALLOT_IMAGES_SUBDIRECTORY}/`.length)
+  );
+  const imagePath = join(reportDirectoryPath, relativeImagePath);
+
+  // Load layout data
+  const layoutPath = join(
+    reportDirectoryPath,
+    CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
+    parsedBallotImagePath.dir,
+    `${parsedBallotImagePath.name}.layout.json`
+  );
+
+  return { imagePath, layoutPath };
+}
+
+/**
  * Attempts to add a cast vote record report.
  */
 export async function addCastVoteRecordReport({
@@ -629,21 +667,15 @@ export async function addCastVoteRecordReport({
               continue;
             }
 
-            // Load image data
-            assert(cvrImageData.Location.startsWith('file:'));
-            const imagePath = join(
-              reportDirectoryPath,
-              cvrImageData.Location.slice('file:'.length)
+            const { imagePath, layoutPath } = resolveImageAndLayoutPaths(
+              cvrImageData.Location,
+              reportDirectoryPath
             );
+
+            // Load image data
             const imageData = await fs.readFile(imagePath);
 
             // Load and verify layout data
-            const layoutPath = imagePath
-              .replace(
-                CVR_BALLOT_IMAGES_SUBDIRECTORY,
-                CVR_BALLOT_LAYOUTS_SUBDIRECTORY
-              )
-              .replace(/(jpg|jpeg)$/, 'layout.json');
             const parseLayoutResult = safeParseJson(
               await fs.readFile(layoutPath, 'utf8'),
               BallotPageLayoutSchema
