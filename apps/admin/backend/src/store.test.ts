@@ -97,7 +97,7 @@ test('get write-in adjudication records', async () => {
   });
   expect(writeInAdjudicationRecords).toHaveLength(0);
 
-  const ballotImageId = store.addBallotImage({
+  store.addBallotImage({
     cvrId: castVoteRecordId,
     imageData: mockImageData,
     side: 'front',
@@ -106,7 +106,7 @@ test('get write-in adjudication records', async () => {
 
   const zooCouncilMammalWriteInAdjudicationId = store.addWriteIn({
     castVoteRecordId,
-    ballotImageId,
+    side: 'front',
     contestId: 'zoo-council-mammal',
     optionId: 'write-in-0',
   });
@@ -161,7 +161,7 @@ test('get write-in adjudication records', async () => {
     })
   ).toHaveLength(1);
 
-  const ballotImageId2 = store.addBallotImage({
+  store.addBallotImage({
     cvrId: castVoteRecordId,
     imageData: mockImageData,
     side: 'back',
@@ -170,7 +170,7 @@ test('get write-in adjudication records', async () => {
 
   const aquariumCouncilFishWriteInAdjudicationId = store.addWriteIn({
     castVoteRecordId,
-    ballotImageId: ballotImageId2,
+    side: 'back',
     contestId: 'aquarium-council-fish',
     optionId: 'write-in-0',
   });
@@ -215,7 +215,7 @@ test('write-in adjudication lifecycle', async () => {
   });
 
   const castVoteRecordId = store.getCastVoteRecordEntries(electionId)[0]!.id;
-  const ballotImageId = store.addBallotImage({
+  store.addBallotImage({
     cvrId: castVoteRecordId,
     imageData: mockImageData,
     side: 'back',
@@ -224,7 +224,7 @@ test('write-in adjudication lifecycle', async () => {
 
   const writeInId = store.addWriteIn({
     castVoteRecordId,
-    ballotImageId,
+    side: 'back',
     contestId: 'zoo-council-mammal',
     optionId: 'write-in-0',
   });

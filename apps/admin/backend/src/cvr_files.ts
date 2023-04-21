@@ -20,7 +20,6 @@ import {
   Result,
   throwIllegalValue,
   find,
-  Optional,
 } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
@@ -34,7 +33,6 @@ import {
   ElectionDefinition,
   getBallotStyle,
   getContests,
-  Id,
   Iso8601Timestamp,
   safeParse,
   safeParseJson,
@@ -655,7 +653,6 @@ export async function addCastVoteRecordReport({
 
       if (cvrIsNew) {
         // Add images to the store
-        const ballotImageIds: Array<Optional<Id>> = [undefined, undefined];
         if (cvr.BallotImage) {
           // Convention is that we always have two entries in the BallotImage
           // array, allowing us to indicate front and back via array index.
@@ -689,7 +686,7 @@ export async function addCastVoteRecordReport({
             }
 
             // Add ballot image to store
-            ballotImageIds[pageIndex] = store.addBallotImage({
+            store.addBallotImage({
               cvrId,
               imageData,
               pageLayout: parseLayoutResult.ok(),
@@ -702,16 +699,12 @@ export async function addCastVoteRecordReport({
         for (const castVoteRecordWriteIn of getWriteInsFromCastVoteRecord(
           cvr
         )) {
+          // `side` existing implies that the ballot image exists, based
+          // on previous validation
           if (castVoteRecordWriteIn.side) {
-            const ballotImageId =
-              castVoteRecordWriteIn.side === 'front'
-                ? ballotImageIds[0]
-                : ballotImageIds[1];
-            // `side` existing implies that the ballot image exists
-            assert(ballotImageId !== undefined);
             store.addWriteIn({
               castVoteRecordId: cvrId,
-              ballotImageId,
+              side: castVoteRecordWriteIn.side,
               contestId: castVoteRecordWriteIn.contestId,
               optionId: castVoteRecordWriteIn.optionId,
             });

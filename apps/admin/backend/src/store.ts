@@ -437,29 +437,23 @@ export class Store {
     imageData: Buffer;
     pageLayout: BallotPageLayout;
     side: Side;
-  }): Id {
-    const ballotImageId = uuid();
-
+  }): void {
     this.client.run(
       `
       insert into ballot_images (
-        id,
         cvr_id,
-        is_back,
+        side,
         image,
         layout
       ) values (
-        ?, ?, ?, ?, ?
+        ?, ?, ?, ?
       )
     `,
-      ballotImageId,
       cvrId,
-      side === 'front' ? 0 : 1,
+      side,
       imageData,
       JSON.stringify(pageLayout)
     );
-
-    return ballotImageId;
   }
 
   /**
@@ -495,12 +489,12 @@ export class Store {
    */
   addWriteIn({
     castVoteRecordId,
-    ballotImageId,
+    side,
     contestId,
     optionId,
   }: {
     castVoteRecordId: Id;
-    ballotImageId: Id;
+    side: Side;
     contestId: Id;
     optionId: Id;
   }): Id {
@@ -511,7 +505,7 @@ export class Store {
         insert into write_ins (
           id,
           cvr_id,
-          ballot_image_id,
+          side,
           contest_id,
           option_id
         ) values (
@@ -520,7 +514,7 @@ export class Store {
       `,
       id,
       castVoteRecordId,
-      ballotImageId,
+      side,
       contestId,
       optionId
     );
@@ -548,7 +542,9 @@ export class Store {
           ballot_images.layout as layout
         from write_ins
         inner join
-          ballot_images on ballot_images.id = write_ins.ballot_image_id
+          ballot_images on 
+            write_ins.cvr_id = ballot_images.cvr_id and 
+            write_ins.side = ballot_images.side
         where write_ins.id = ?
       `,
       writeInId
