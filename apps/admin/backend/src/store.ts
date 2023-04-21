@@ -16,8 +16,10 @@ import {
   BallotId,
   BallotPageLayout,
   BallotPageLayoutSchema,
+  CastVoteRecord,
   ContestId,
   ContestOptionId,
+  CVR,
   Id,
   Iso8601Timestamp,
   safeParse,
@@ -30,6 +32,11 @@ import {
 import { join } from 'path';
 import { Buffer } from 'buffer';
 import { v4 as uuid } from 'uuid';
+import { CastVoteRecordMetadata } from './types';
+import {
+  areCastVoteRecordMetadataEqual,
+  cvrBallotTypeToLegacyBallotType,
+} from './util/cvrs';
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
@@ -351,26 +358,38 @@ export class Store {
   /**
    * Adds a CVR file entry record and returns its ID. If a CVR file entry with
    * the same contents has already been added, returns the ID of that record and
-   * associates `cvrFileId` with it.
+   * merely associates `cvrFileId` with it.
    */
-  addCastVoteRecordFileEntry(
-    electionId: Id,
-    cvrFileId: Id,
-    ballotId: BallotId,
-    data: string
-  ): Result<
+  addCastVoteRecordFileEntry({
+    electionId,
+    cvrFileId,
+    ballotId,
+    metadata,
+    votes,
+  }: {
+    electionId: Id;
+    cvrFileId: Id;
+    ballotId: BallotId;
+    metadata: CastVoteRecordMetadata;
+    votes: string;
+  }): Result<
     { cvrId: Id; isNew: boolean },
     {
-      kind: 'BallotIdAlreadyExistsWithDifferentData';
-      newData: string;
-      existingData: string;
+      type: 'ballot-id-already-exists-with-different-data';
     }
   > {
     const existingCvr = this.client.one(
       `
         select
           id,
-          data
+          ballot_style_id as ballotStyleId,
+          ballot_type as ballotType,
+          batch_id as batchId,
+          batch_label as batchLabel,
+          precinct_id as precinctId,
+          scanner_id as scannerId,
+          sheet_number as sheetNumber,
+          votes as votes
         from cvrs
         where
           election_id = ? and
@@ -378,18 +397,41 @@ export class Store {
       `,
       electionId,
       ballotId
-    ) as { id: Id; data: string } | undefined;
+    ) as
+      | {
+          id: Id;
+          ballotStyleId: string;
+          ballotType: string;
+          batchId: string;
+          batchLabel: string;
+          precinctId: string;
+          scannerId: string;
+          sheetNumber: number | null;
+          votes: string;
+        }
+      | undefined;
 
     const cvrId = existingCvr?.id ?? uuid();
 
     if (existingCvr) {
+      const existingCvrMetadata: CastVoteRecordMetadata = {
+        ballotStyleId: existingCvr.ballotStyleId,
+        ballotType: existingCvr.ballotType as CVR.vxBallotType,
+        batchId: existingCvr.batchId,
+        batchLabel: existingCvr.batchLabel,
+        precinctId: existingCvr.precinctId,
+        scannerId: existingCvr.scannerId,
+        sheetNumber: existingCvr.sheetNumber || undefined,
+      };
+
       // Existing cast vote records are expected, but existing cast vote records
       // with new data indicate a bad or inappropriately manipulated file
-      if (existingCvr.data !== data) {
+      if (
+        !areCastVoteRecordMetadataEqual(metadata, existingCvrMetadata) ||
+        votes !== existingCvr.votes
+      ) {
         return err({
-          kind: 'BallotIdAlreadyExistsWithDifferentData',
-          newData: data,
-          existingData: existingCvr.data,
+          type: 'ballot-id-already-exists-with-different-data',
         });
       }
     } else {
@@ -400,15 +442,29 @@ export class Store {
           id,
           election_id,
           ballot_id,
-          data
+          ballot_style_id,
+          ballot_type,
+          batch_id,
+          batch_label,
+          precinct_id,
+          scanner_id,
+          sheet_number,
+          votes
         ) values (
-          ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
         cvrId,
         electionId,
         ballotId,
-        data
+        metadata.ballotStyleId,
+        metadata.ballotType,
+        metadata.batchId,
+        metadata.batchLabel,
+        metadata.precinctId,
+        metadata.scannerId,
+        metadata.sheetNumber || null,
+        votes
       );
     }
 
@@ -639,7 +695,14 @@ export class Store {
         select
           id,
           ballot_id as ballotId,
-          data,
+          ballot_style_id as ballotStyleId,
+          ballot_type as ballotType,
+          batch_id as batchId,
+          batch_label as batchLabel,
+          precinct_id as precinctId,
+          scanner_id as scannerId,
+          sheet_number as sheetNumber,
+          votes as votes,
           datetime(created_at, 'localtime') as createdAt
         from cvrs
         where election_id = ?
@@ -649,17 +712,44 @@ export class Store {
     ) as Array<{
       id: Id;
       ballotId: string;
-      data: string;
+      ballotStyleId: string;
+      ballotType: string;
+      batchId: string;
+      batchLabel: string;
+      precinctId: string;
+      scannerId: string;
+      sheetNumber: number | null;
+      votes: string;
       createdAt: Iso8601Timestamp;
     }>;
 
-    return entries.map((entry) => ({
-      id: entry.id,
-      ballotId: entry.ballotId,
-      electionId,
-      data: entry.data,
-      createdAt: convertSqliteTimestampToIso8601(entry.createdAt),
-    }));
+    const fileMode = this.getCurrentCvrFileModeForElection(electionId);
+    if (fileMode === Admin.CvrFileMode.Unlocked) return [];
+    const isTestMode = fileMode === Admin.CvrFileMode.Test;
+
+    return entries.map((entry) => {
+      const castVoteRecordLegacyMetadata: CastVoteRecord = {
+        _precinctId: entry.precinctId,
+        _scannerId: entry.scannerId,
+        _batchId: entry.batchId,
+        _batchLabel: entry.batchLabel,
+        _ballotStyleId: entry.ballotStyleId,
+        _ballotType: cvrBallotTypeToLegacyBallotType(
+          entry.ballotType as CVR.vxBallotType
+        ),
+        _testBallot: isTestMode,
+      };
+      return {
+        id: entry.id,
+        ballotId: entry.ballotId,
+        electionId,
+        data: JSON.stringify({
+          ...castVoteRecordLegacyMetadata,
+          ...JSON.parse(entry.votes),
+        }),
+        createdAt: convertSqliteTimestampToIso8601(entry.createdAt),
+      };
+    });
   }
 
   /**

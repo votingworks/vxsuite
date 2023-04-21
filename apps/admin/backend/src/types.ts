@@ -1,5 +1,5 @@
 import { Result } from '@votingworks/basics';
-import { Id } from '@votingworks/types';
+import { CVR, Dictionary, Id } from '@votingworks/types';
 
 /**
  * Environment variables that identify the machine and its software. Set at the
@@ -39,4 +39,23 @@ export interface CastVoteRecordFileMetadata {
   readonly scannerIds: readonly string[];
   readonly exportTimestamp: Date;
   readonly isTestModeResults: boolean;
+}
+
+/**
+ * Representation of votes in the VxAdmin store. Simple dictionary of
+ * contest id's to a list of contest option ids.
+ */
+export type CastVoteRecordVotes = Dictionary<readonly string[]>;
+
+/**
+ * Representation of a cast vote record's metadata. Does not include ballot ID.
+ */
+export interface CastVoteRecordMetadata {
+  precinctId: string;
+  ballotStyleId: string;
+  scannerId: string;
+  ballotType: CVR.vxBallotType;
+  batchId: string;
+  batchLabel: string;
+  sheetNumber?: number;
 }
