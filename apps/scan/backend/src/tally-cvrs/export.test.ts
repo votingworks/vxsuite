@@ -79,7 +79,6 @@ test('exportCvrs', async () => {
     _precinctId: '23',
     _scannerId: '000',
     _testBallot: false,
-    _pageNumbers: [1, 2],
     'county-commissioners': ['write-in-1'],
   };
 

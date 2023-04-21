@@ -120,8 +120,6 @@ export = {
           '_batchLabel',
           '_testBallot',
           '_scannerId',
-          '_pageNumber',
-          '_pageNumbers',
         ],
       },
     ],

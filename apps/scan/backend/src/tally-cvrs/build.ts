@@ -227,10 +227,6 @@ function buildCastVoteRecordFromHmpbPage(
       batchLabel,
       front.interpretation.metadata
     ),
-    _pageNumbers: [
-      front.interpretation.metadata.pageNumber,
-      back.interpretation.metadata.pageNumber,
-    ],
     ...votesEntries,
   };
 }

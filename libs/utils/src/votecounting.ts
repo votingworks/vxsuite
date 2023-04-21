@@ -72,8 +72,6 @@ export function* parseCvrs(
         _precinctId,
         _testBallot,
         _scannerId,
-        _pageNumber,
-        _pageNumbers,
         ...votes
       } = cvr;
 
@@ -136,34 +134,6 @@ export function* parseCvrs(
       if (typeof _testBallot !== 'boolean') {
         errors.push(
           `CVR test ballot flag must be true or false, got '${_testBallot}' (${typeof _testBallot}, not boolean)`
-        );
-      }
-
-      if (
-        typeof _pageNumber !== 'undefined' &&
-        typeof _pageNumbers !== 'undefined'
-      ) {
-        errors.push(
-          'Page number in CVR must be either _pageNumber, or _pageNumbers, but cannot be both.'
-        );
-      }
-
-      if (
-        typeof _pageNumber !== 'undefined' &&
-        typeof _pageNumber !== 'number'
-      ) {
-        errors.push(
-          `Page number in CVR must be a number if it is set, got '${_pageNumber}' (${typeof _pageNumber}, not number)`
-        );
-      }
-
-      if (
-        typeof _pageNumbers !== 'undefined' &&
-        (!Array.isArray(_pageNumbers) ||
-          !_pageNumbers.every((pn) => typeof pn === 'number'))
-      ) {
-        errors.push(
-          `Page numbers in CVR must be an array of number if it is set, got '${_pageNumbers}' (${typeof _pageNumbers}, not an array of numbers)`
         );
       }
 
@@ -336,8 +306,6 @@ function processCastVoteRecord({
     _batchLabel: castVoteRecord._batchLabel,
     _testBallot: castVoteRecord._testBallot,
     _scannerId: castVoteRecord._scannerId,
-    _pageNumber: castVoteRecord._pageNumber,
-    _pageNumbers: castVoteRecord._pageNumbers,
   };
   for (const key of contestIds) {
     if (castVoteRecord[key]) newCvr[key] = castVoteRecord[key];

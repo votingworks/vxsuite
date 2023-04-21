@@ -139,7 +139,6 @@ test('buildVoteFromCvr', () => {
     _batchLabel: 'Batch 1',
     _testBallot: false,
     _scannerId: 'scanner-6',
-    _pageNumber: 1,
   };
   expect(
     buildVoteFromCvr({

@@ -29,6 +29,4 @@ export interface CastVoteRecord
   readonly _batchLabel: string;
   readonly _testBallot: boolean;
   readonly _scannerId: string;
-  readonly _pageNumber?: number;
-  readonly _pageNumbers?: SheetOf<number>;
 }

@@ -17,8 +17,8 @@ module.exports = {
     // Moved from frontends/election-manager with pre-existing low coverage:
     'src/votecounting.ts': {
       statements: 78,
-      branches: 80,
-      functions: 90,
+      branches: 77,
+      functions: 89,
       lines: 78,
     },
   },
