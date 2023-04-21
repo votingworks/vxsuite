@@ -6,8 +6,8 @@ macro_rules! idtype {
 
         impl $name {
             #[allow(dead_code)]
-            pub const fn from(s: String) -> Self {
-                Self(s)
+            pub fn from<S: Into<String>>(s: S) -> Self {
+                Self(s.into())
             }
         }
 

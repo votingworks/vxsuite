@@ -6,10 +6,10 @@ use imageproc::{
 use logging_timer::time;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{
-    ballot_card::{Geometry, Orientation},
+    ballot_card::{BallotImageType, Geometry, Orientation},
     debug,
     debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
     geometry::{
@@ -22,7 +22,7 @@ use crate::{
 };
 
 /// Represents partial timing marks found in a ballot card.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Partial {
     pub geometry: Geometry,
@@ -60,7 +60,7 @@ impl From<Complete> for Partial {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Complete {
     pub geometry: Geometry,
@@ -85,7 +85,7 @@ pub struct Complete {
 ///   1. rotate 180 degrees if `orientation` is `PortraitReversed`.
 ///   2. crop the image edges by `border_inset`.
 ///   3. scale the image to `scaled_size`.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TimingMarkGrid {
     /// The geometry of the ballot card.
@@ -852,14 +852,37 @@ fn infer_missing_timing_marks_on_segment(
 
 /// Determines whether a rect could be a timing mark based on its size.
 pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
-    let min_timing_mark_width = (geometry.timing_mark_size.width * 1.0 / 4.0).floor() as u32;
-    let max_timing_mark_width = (geometry.timing_mark_size.width * 3.0 / 2.0).ceil() as u32;
-    let min_timing_mark_height = (geometry.timing_mark_size.height * 2.0 / 3.0).floor() as u32;
-    let max_timing_mark_height = (geometry.timing_mark_size.height * 3.0 / 2.0).ceil() as u32;
-    rect.width() >= min_timing_mark_width
+    let min_width_ratio = if geometry.ballot_image_type == BallotImageType::Template {
+        0.8
+    } else {
+        0.25
+    };
+    let max_width_ratio = if geometry.ballot_image_type == BallotImageType::Template {
+        1.2
+    } else {
+        1.5
+    };
+    let min_height_ratio = if geometry.ballot_image_type == BallotImageType::Template {
+        0.8
+    } else {
+        2.0 / 3.0
+    };
+    let max_height_ratio = if geometry.ballot_image_type == BallotImageType::Template {
+        1.2
+    } else {
+        1.5
+    };
+    let min_timing_mark_width = (geometry.timing_mark_size.width * min_width_ratio).floor() as u32;
+    let max_timing_mark_width = (geometry.timing_mark_size.width * max_width_ratio).ceil() as u32;
+    let min_timing_mark_height =
+        (geometry.timing_mark_size.height * min_height_ratio).floor() as u32;
+    let max_timing_mark_height =
+        (geometry.timing_mark_size.height * max_height_ratio).ceil() as u32;
+    let could_be_timing_mark = rect.width() >= min_timing_mark_width
         && rect.width() <= max_timing_mark_width
         && rect.height() >= min_timing_mark_height
-        && rect.height() <= max_timing_mark_height
+        && rect.height() <= max_timing_mark_height;
+    could_be_timing_mark
 }
 
 /// Gets all the distances between adjacent rects in a list of rects.

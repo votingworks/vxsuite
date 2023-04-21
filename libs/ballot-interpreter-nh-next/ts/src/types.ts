@@ -160,6 +160,8 @@ export type BallotPageMetadata =
 
 /** Metadata encoded on the front side of a ballot card. */
 export interface BallotPageMetadataFront {
+  side: 'front';
+
   /** Raw bits 0-31 in LSB-MSB order (right to left). */
   bits: boolean[];
 
@@ -191,6 +193,8 @@ export interface BallotPageMetadataFront {
 
 /** Metadata encoded on the front side of a ballot card. */
 export interface BallotPageMetadataBack {
+  side: 'back';
+
   /** Raw bits 0-31 in LSB-MSB order (right-to-left). */
   bits: boolean[];
 

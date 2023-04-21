@@ -3,7 +3,7 @@ use std::{
     fmt::{Debug, Formatter},
 };
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{ballot_card::Geometry, geometry::Rect};
 
@@ -28,7 +28,7 @@ fn print_boolean_slice_as_binary(slice: &[bool]) -> String {
 }
 
 /// Metadata encoded by the bottom row of the front of a ballot card.
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BallotPageMetadataFront {
     /// Raw bits 0-31 in LSB-MSB order (right to left).
@@ -73,7 +73,7 @@ impl Debug for BallotPageMetadataFront {
 }
 
 /// Represents a single capital letter from A-Z represented by a u8 index.
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct IndexedCapitalLetter(u8);
 
 impl From<u8> for IndexedCapitalLetter {
@@ -82,9 +82,21 @@ impl From<u8> for IndexedCapitalLetter {
     }
 }
 
-impl IndexedCapitalLetter {
-    pub fn to_char(&self) -> char {
-        char::from(b'A' + self.0)
+impl From<IndexedCapitalLetter> for u8 {
+    fn from(value: IndexedCapitalLetter) -> Self {
+        value.0
+    }
+}
+
+impl From<IndexedCapitalLetter> for char {
+    fn from(value: IndexedCapitalLetter) -> Self {
+        Self::from(b'A' + value.0)
+    }
+}
+
+impl From<char> for IndexedCapitalLetter {
+    fn from(value: char) -> Self {
+        Self(value as u8 - b'A')
     }
 }
 
@@ -93,12 +105,22 @@ impl Serialize for IndexedCapitalLetter {
     where
         S: serde::Serializer,
     {
-        serializer.serialize_char(self.to_char())
+        serializer.serialize_char((*self).into())
+    }
+}
+
+impl<'de> Deserialize<'de> for IndexedCapitalLetter {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = char::deserialize(deserializer)?;
+        Ok(value.into())
     }
 }
 
 /// Metadata encoded by the bottom row of the back of a ballot card.
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BallotPageMetadataBack {
     /// Raw bits 0-31 in LSB-MSB order (right-to-left).
@@ -145,10 +167,12 @@ impl Debug for BallotPageMetadataBack {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "side", rename_all = "camelCase")]
 pub enum BallotPageMetadata {
+    #[serde(rename = "front")]
     Front(BallotPageMetadataFront),
+    #[serde(rename = "back")]
     Back(BallotPageMetadataBack),
 }
 

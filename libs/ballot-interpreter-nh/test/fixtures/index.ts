@@ -1,6 +1,6 @@
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { toImageData } from '@votingworks/image-utils';
 import { BallotPaperSize } from '@votingworks/types';
-import { assert, throwIllegalValue } from '@votingworks/basics';
 import { DOMParser } from '@xmldom/xmldom';
 import { Image } from 'canvas';
 import { BallotCardTemplateMargins } from '../../src/accuvote';
@@ -10,7 +10,6 @@ import {
   CompleteTimingMarks,
   Rect,
   Size,
-  ThirtyTwoBits,
 } from '../../src/types';
 import { makeRect } from '../../src/utils';
 
@@ -269,26 +268,6 @@ export function generateTemplateTimingMarkRects(): GeneratedTimingMarks {
     timingMarkGapSize: TimingMarkGapSize,
   });
 }
-
-/**
- * The bit data represented as missing/present timing marks on the Hudson ballot
- * card front. The bits are in LSB to MSB order, the opposite of the order of
- * the timing marks on a right-side up card.
- */
-export const Hudson03Nov2020FrontPageBottomTimingMarkBits: ThirtyTwoBits = [
-  1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 1,
-];
-
-/**
- * The bit data represented as missing/present timing marks on the Hudson ballot
- * card back. The bits are in LSB to MSB order, the opposite of the order of
- * the timing marks on a right-side up card.
- */
-export const Hudson03Nov2020BackPageBottomTimingMarkBits: ThirtyTwoBits = [
-  1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1,
-  0, 1, 1, 1, 1, 0,
-];
 
 /**
  * Returns a parsed XML document for the given fixture data.

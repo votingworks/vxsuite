@@ -3,7 +3,7 @@ use image::{
     GenericImage, GrayImage, ImageError, Luma, Rgb,
 };
 use logging_timer::time;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::geometry::{PixelUnit, Size, SubPixelUnit};
 
@@ -26,7 +26,7 @@ pub const PINK: Rgb<u8> = Rgb([255, 0, 255]);
 pub const RAINBOW: [Rgb<u8>; 7] = [RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET];
 
 /// An inset is a set of pixel offsets from the edges of an image.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Inset {
     /// The number of pixels to remove from the top of the image.
     pub top: PixelUnit,

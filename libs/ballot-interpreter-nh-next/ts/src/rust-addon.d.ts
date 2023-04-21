@@ -25,3 +25,28 @@ export function interpret(
   debugBasePathSideA?: string,
   debugBasePathSideB?: string
 ): BridgeInterpretResult;
+
+/**
+ * Finds the grid layout within a ballot image, returning both the grid layout
+ * and a normalized image.
+ */
+export function findGrid(
+  ballotImage: string | ImageData,
+  isTemplate: boolean,
+  debugPath?: string
+): {
+  gridJson: string;
+  normalizedImage: ImageData;
+};
+
+/**
+ * Finds the ovals within a ballot template image.
+ */
+export function findTargetOvalsInTemplate(
+  ballotImage: string | ImageData,
+  ovalTemplateImage: string | ImageData,
+  gridJson: string,
+  ovalMatchThreshold: number
+): {
+  targetOvalsJson: string;
+};

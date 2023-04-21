@@ -1,3 +1,4 @@
+use image::{DynamicImage, GrayImage};
 use neon::types::JsObject;
 use neon::{prelude::*, result::Throw};
 use std::path::PathBuf;
@@ -21,26 +22,44 @@ impl ImageSource {
             Self::ImageData(_) => default.into(),
         }
     }
+
+    /// Converts to a `GrayImage` if possible.
+    pub fn to_luma8(self) -> Option<GrayImage> {
+        match self {
+            Self::Path(path) => image::open(path).ok().map(DynamicImage::into_luma8),
+            Self::ImageData(image_data) => Some(DynamicImage::from(image_data).to_luma8()),
+        }
+    }
 }
 
-/// Gets an `ImageSource` from the argument at the given index.
-pub fn get_image_data_or_path_from_arg(
+/// Gets an `ImageData` from the argument at the given index.
+pub fn get_image_data_from_arg(
     cx: &mut FunctionContext,
     argument: i32,
-) -> Result<ImageSource, Throw> {
+) -> Result<ImageData, Throw> {
     let argument = cx.argument::<JsValue>(argument)?;
-    if argument.is_a::<JsString, _>(cx) {
-        let path = argument
-            .downcast::<JsString, _>(cx)
-            .unwrap()
-            .value(&mut *cx);
-        Ok(ImageSource::Path(PathBuf::from(path)))
-    } else if argument.is_a::<JsObject, _>(cx) {
+    if argument.is_a::<JsObject, _>(cx) {
         let image_data = argument.downcast::<JsObject, _>(cx).unwrap();
         ImageData::from_js_object(cx, image_data).map_or_else(
             || cx.throw_type_error("unable to read argument as ImageData"),
-            |image| Ok(ImageSource::ImageData(image)),
+            |image| Ok(image),
         )
+    } else {
+        cx.throw_type_error("unable to read argument as ImageData")
+    }
+}
+
+/// Gets an `ImageSource` from the argument at the given index.
+pub fn get_image_source_from_arg(
+    cx: &mut FunctionContext,
+    argument: i32,
+) -> Result<ImageSource, Throw> {
+    let arg = cx.argument::<JsValue>(argument)?;
+    if arg.is_a::<JsString, _>(cx) {
+        let path = arg.downcast::<JsString, _>(cx).unwrap().value(&mut *cx);
+        Ok(ImageSource::Path(PathBuf::from(path)))
+    } else if arg.is_a::<JsObject, _>(cx) {
+        get_image_data_from_arg(cx, argument).map(|image| ImageSource::ImageData(image))
     } else {
         cx.throw_type_error("expected image data or path")
     }

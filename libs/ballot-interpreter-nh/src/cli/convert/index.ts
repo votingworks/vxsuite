@@ -1,17 +1,12 @@
-import {
-  loadImage,
-  toImageData,
-  imageDebugger,
-} from '@votingworks/image-utils';
-import { err, ok, Result } from '@votingworks/basics';
+import { Result, err, ok } from '@votingworks/basics';
+import { loadImage, toImageData } from '@votingworks/image-utils';
 import { DOMParser } from '@xmldom/xmldom';
 import { enable as enableDebug } from 'debug';
 import { promises as fs } from 'fs';
-import { basename } from 'path';
 import { RealIo, Stdio } from '..';
 import {
-  convertElectionDefinition,
   NewHampshireBallotCardDefinition,
+  convertElectionDefinition,
 } from '../../convert';
 import * as templates from '../../data/templates';
 
@@ -160,13 +155,6 @@ export async function main(
 
   const convertResult = convertElectionDefinition(cardDefinition, {
     ovalTemplate: await templates.getOvalTemplate(),
-    debug: imageDebugger(
-      outputPath ??
-        `convert-front=${basename(frontBallotPath)}-back=${basename(
-          backBallotPath
-        )}`,
-      { width: frontBallotImage.width, height: frontBallotImage.height }
-    ),
   });
 
   if (convertResult.issues.length > 0) {

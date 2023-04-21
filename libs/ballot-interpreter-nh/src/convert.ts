@@ -1,4 +1,11 @@
-import { Debugger, noDebug } from '@votingworks/image-utils';
+import {
+  BallotPageMetadataFront,
+  PartialTimingMarks,
+  findGrid,
+  findTargetOvalsInTemplate,
+} from '@votingworks/ballot-interpreter-nh-next';
+import { assert, iter, throwIllegalValue } from '@votingworks/basics';
+import { Debugger } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   BallotPaperSize,
@@ -8,41 +15,43 @@ import {
   Contests,
   DistrictIdSchema,
   Election,
-  getContests,
   GridPosition,
   GridPositionOption,
   GridPositionWriteIn,
+  MarkThresholds,
   Party,
   PartyIdSchema,
+  YesNoContest,
+  getContests,
   safeParse,
   safeParseElection,
   safeParseNumber,
   unsafeParse,
-  YesNoContest,
 } from '@votingworks/types';
-import { assert, iter, throwIllegalValue } from '@votingworks/basics';
+import makeDebug from 'debug';
 import { decode as decodeHtmlEntities } from 'he';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { ZodError } from 'zod';
-import makeDebug from 'debug';
 import {
-  findTemplateOvals,
   getTemplateBallotCardGeometry,
   getTemplateBallotPaperSize,
-  TemplateOval,
 } from './accuvote';
-import { DefaultMarkThresholds } from './interpret';
-import { interpretBallotCardLayout } from './interpret/interpret_ballot_card_layout';
-import { Bit, FrontMarksMetadata, PartialTimingMarks, Size } from './types';
 import {
   ParseConstitutionalQuestionError,
   parseConstitutionalQuestions,
 } from './convert/parse_constitutional_questions';
-
-export { interpret } from './interpret';
+import { Size } from './types';
 
 const debug = makeDebug('ballot-interpreter-nh:convert');
+
+/**
+ * Default thresholds for interpreting marks on a ballot as votes.
+ */
+export const DefaultMarkThresholds: MarkThresholds = {
+  definite: 0.08,
+  marginal: 0.05,
+};
 
 function makeId(text: string): string {
   const hash = sha256(text);
@@ -197,8 +206,8 @@ export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
 function matchContestOptionsOnGrid(
   contests: Contests,
   gridPositions: readonly GridPosition[],
-  ovalGrid: readonly TemplateOvalGridEntry[]
-): PairColumnEntriesResult<GridPosition, TemplateOvalGridEntry> {
+  ovalGrid: readonly GridEntry[]
+): PairColumnEntriesResult<GridPosition, GridEntry> {
   const pairResult = pairColumnEntries(gridPositions, ovalGrid);
 
   if (pairResult.success || pairResult.issues.length !== 2 /* YES/NO */) {
@@ -338,11 +347,6 @@ export enum ConvertIssueKind {
 }
 
 /**
- * A grid entry for a specific template oval.
- */
-export type TemplateOvalGridEntry = TemplateOval & { side: 'front' | 'back' };
-
-/**
  * Issues that can occur when converting a ballot card definition.
  */
 export type ConvertIssue =
@@ -379,16 +383,13 @@ export type ConvertIssue =
       message: string;
       side: 'front' | 'back';
       timingMarks: PartialTimingMarks;
-      timingMarkBits: readonly Bit[];
+      timingMarkBits: readonly boolean[];
       validationError?: ZodError;
     }
   | {
       kind: ConvertIssueKind.MismatchedOvalGrids;
       message: string;
-      pairColumnEntriesIssue: PairColumnEntriesIssue<
-        GridPosition,
-        TemplateOvalGridEntry
-      >;
+      pairColumnEntriesIssue: PairColumnEntriesIssue<GridPosition, GridEntry>;
     }
   | {
       kind: ConvertIssueKind.MissingDefinitionProperty;
@@ -917,10 +918,7 @@ export function convertElectionDefinitionHeader(
  */
 export function convertElectionDefinition(
   cardDefinition: NewHampshireBallotCardDefinition,
-  {
-    ovalTemplate,
-    debug: imdebug = noDebug(),
-  }: { ovalTemplate: ImageData; debug?: Debugger }
+  { ovalTemplate }: { ovalTemplate: ImageData; debug?: Debugger }
 ): ConvertResult {
   const convertHeaderResult = convertElectionDefinitionHeader(
     cardDefinition.definition
@@ -969,50 +967,43 @@ export function convertElectionDefinition(
   }
 
   assert(paperSize, 'paperSize should always be set');
-  const expectedCardGeometry = getTemplateBallotCardGeometry(paperSize);
 
-  const frontLayout = imdebug.capture('front', () => {
-    imdebug.imageData(0, 0, cardDefinition.front);
-    return interpretBallotCardLayout(cardDefinition.front, {
-      geometry: expectedCardGeometry,
-      debug: imdebug,
-    });
+  const { grid: frontGrid } = findGrid(cardDefinition.front, {
+    template: true,
   });
 
-  if (!frontLayout) {
-    success = false;
-    issues.push({
-      kind: ConvertIssueKind.TimingMarkDetectionFailed,
-      message: 'no timing marks found on front',
-      side: 'front',
-    });
-  }
+  // TODO: `findGrid` throws on error right now
+  // if (!frontLayout) {
+  //   success = false;
+  //   issues.push({
+  //     kind: ConvertIssueKind.TimingMarkDetectionFailed,
+  //     message: 'no timing marks found on front',
+  //     side: 'front',
+  //   });
+  // }
 
-  const backLayout = imdebug.capture('back', () => {
-    imdebug.imageData(0, 0, cardDefinition.back);
-    return interpretBallotCardLayout(cardDefinition.back, {
-      geometry: expectedCardGeometry,
-      debug: imdebug,
-    });
+  const { grid: backGrid } = findGrid(cardDefinition.back, {
+    template: true,
   });
 
-  if (!backLayout) {
-    success = false;
-    issues.push({
-      kind: ConvertIssueKind.TimingMarkDetectionFailed,
-      message: 'no timing marks found on back',
-      side: 'back',
-    });
-  }
+  // TODO: `findGrid` throws on error right now
+  // if (!backLayout) {
+  //   success = false;
+  //   issues.push({
+  //     kind: ConvertIssueKind.TimingMarkDetectionFailed,
+  //     message: 'no timing marks found on back',
+  //     side: 'back',
+  //   });
+  // }
 
-  if (frontLayout.side !== 'front') {
+  if (frontGrid.metadata.side !== 'front') {
     success = false;
     issues.push({
       kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-      message: `front page timing mark metadata is invalid: side=${frontLayout.side}`,
+      message: `front page timing mark metadata is invalid: side=${frontGrid.metadata.side}`,
       side: 'front',
-      timingMarkBits: frontLayout.metadata.bits,
-      timingMarks: frontLayout.partialTimingMarks,
+      timingMarkBits: frontGrid.metadata.bits,
+      timingMarks: frontGrid.partialTimingMarks,
     });
   }
 
@@ -1024,24 +1015,18 @@ export function convertElectionDefinition(
     };
   }
 
-  const frontMetadata = frontLayout.metadata as FrontMarksMetadata;
+  const frontMetadata = frontGrid.metadata as BallotPageMetadataFront;
   const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
 
-  const frontTemplateOvals = imdebug.capture('front ovals', () =>
-    findTemplateOvals(
-      cardDefinition.front,
-      ovalTemplate,
-      frontLayout.completeTimingMarks,
-      { usableArea: expectedCardGeometry.frontUsableArea, debug: imdebug }
-    )
+  const frontTemplateOvals = findTargetOvalsInTemplate(
+    cardDefinition.front,
+    ovalTemplate,
+    frontGrid
   );
-  const backTemplateOvals = imdebug.capture('back ovals', () =>
-    findTemplateOvals(
-      cardDefinition.back,
-      ovalTemplate,
-      backLayout.completeTimingMarks,
-      { usableArea: expectedCardGeometry.backUsableArea, debug: imdebug }
-    )
+  const backTemplateOvals = findTargetOvalsInTemplate(
+    cardDefinition.back,
+    ovalTemplate,
+    backGrid
   );
 
   const gridLayout = election.gridLayouts?.[0];
@@ -1050,22 +1035,11 @@ export function convertElectionDefinition(
   const ballotStyle = election.ballotStyles[0];
   assert(ballotStyle, 'ballot style missing');
 
-  const ovalGrid = [
-    ...frontTemplateOvals.map<TemplateOvalGridEntry>((oval) => ({
-      ...oval,
-      side: 'front',
-    })),
-    ...backTemplateOvals.map<TemplateOvalGridEntry>((oval) => ({
-      ...oval,
-      side: 'back',
-    })),
-  ];
+  const ovalGrid = [...frontTemplateOvals, ...backTemplateOvals];
 
   const pairColumnEntriesResult = matchContestOptionsOnGrid(
     getContests({ ballotStyle, election }),
-    gridLayout.gridPositions.map<GridPosition>((gridPosition) => ({
-      ...gridPosition,
-    })),
+    gridLayout.gridPositions,
     ovalGrid
   );
 

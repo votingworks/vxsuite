@@ -42,6 +42,12 @@ impl PartialOrd for OvalMarkScore {
     }
 }
 
+impl From<UnitIntervalValue> for OvalMarkScore {
+    fn from(value: UnitIntervalValue) -> Self {
+        Self(value)
+    }
+}
+
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScoredOvalMark {

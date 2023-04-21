@@ -8,10 +8,6 @@ import { Stdio } from '..';
 import { convertElectionDefinition, ConvertIssueKind } from '../../convert';
 
 jest.mock('../../convert');
-jest.mock('../../images', (): typeof import('../../images') => ({
-  matchTemplate: jest.fn(),
-  matchTemplateImage: jest.fn(),
-}));
 jest.mock(
   '@votingworks/image-utils',
   (): Partial<typeof import('@votingworks/image-utils')> => ({

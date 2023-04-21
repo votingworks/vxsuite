@@ -37,13 +37,13 @@ pub struct Options {
 }
 
 pub struct BallotImage {
-    image: GrayImage,
-    threshold: u8,
-    border_inset: Inset,
+    pub image: GrayImage,
+    pub threshold: u8,
+    pub border_inset: Inset,
 }
 pub struct BallotPage {
-    ballot_image: BallotImage,
-    geometry: Geometry,
+    pub ballot_image: BallotImage,
+    pub geometry: Geometry,
 }
 
 pub struct BallotCard {
@@ -171,8 +171,8 @@ fn prepare_ballot_card_images(
     side_b_image: GrayImage,
 ) -> core::result::Result<BallotCard, Error> {
     let (side_a_result, side_b_result) = rayon::join(
-        || prepare_ballot_page_image(SIDE_A_LABEL, side_a_image),
-        || prepare_ballot_page_image(SIDE_B_LABEL, side_b_image),
+        || prepare_ballot_scan_image(SIDE_A_LABEL, side_a_image),
+        || prepare_ballot_scan_image(SIDE_B_LABEL, side_b_image),
     );
 
     let BallotPage {
@@ -230,7 +230,7 @@ pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<BallotImag
 /// Prepare a ballot page image for interpretation: crop the black border, and
 /// maybe resize it to the expected dimensions.
 #[time]
-fn prepare_ballot_page_image(
+pub fn prepare_ballot_scan_image(
     label: &str,
     image: GrayImage,
 ) -> core::result::Result<BallotPage, Error> {

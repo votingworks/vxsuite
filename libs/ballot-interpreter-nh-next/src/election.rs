@@ -35,7 +35,7 @@ pub struct GridLayout {
     pub grid_positions: Vec<GridPosition>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Outset<T> {
     pub top: T,
     pub right: T,
@@ -111,7 +111,7 @@ impl GridPosition {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct GridLocation {
     pub side: BallotSide,
     pub column: GridUnit,

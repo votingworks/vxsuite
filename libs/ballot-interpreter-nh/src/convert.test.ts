@@ -1,3 +1,4 @@
+import { typedAs } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
@@ -9,25 +10,24 @@ import {
   DistrictIdSchema,
   GridPosition,
   PartyIdSchema,
-  unsafeParse,
   YesNoContest,
+  unsafeParse,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/basics';
 import {
   readFixtureBallotCardDefinition,
   readFixtureDefinition,
 } from '../test/fixtures';
-import { asciiOvalGrid, testImageDebugger } from '../test/utils';
+import { asciiOvalGrid } from '../test/utils';
 import {
   TemplateBallotCardGeometry8pt5x11,
   TemplateBallotCardGeometry8pt5x14,
 } from './accuvote';
 import {
-  convertElectionDefinition,
-  convertElectionDefinitionHeader,
   ConvertIssue,
   ConvertIssueKind,
   ConvertResult,
+  convertElectionDefinition,
+  convertElectionDefinitionHeader,
   readGridFromElectionDefinition,
 } from './convert';
 import * as templates from './data/templates';
@@ -39,10 +39,8 @@ test('converting the Hudson ballot', async () => {
     await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImage(),
     TemplateBallotCardGeometry8pt5x14
   );
-  const debug = testImageDebugger(hudsonBallotCardDefinition.front);
   const convertResult = convertElectionDefinition(hudsonBallotCardDefinition, {
     ovalTemplate: await templates.getOvalTemplate(),
-    debug,
   });
 
   // uncomment this to update the fixture
@@ -401,10 +399,8 @@ test('default adjudication reasons', async () => {
     await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImage(),
     TemplateBallotCardGeometry8pt5x14
   );
-  const debug = testImageDebugger(hudsonBallotCardDefinition.front);
   const convertResult = convertElectionDefinition(hudsonBallotCardDefinition, {
     ovalTemplate: await templates.getOvalTemplate(),
-    debug,
   });
   expect(convertResult.election?.centralScanAdjudicationReasons).toEqual(
     typedAs<AdjudicationReason[]>([

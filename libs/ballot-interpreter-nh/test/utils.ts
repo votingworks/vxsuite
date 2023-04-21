@@ -41,14 +41,6 @@ function getCurrentTestPath(): string {
 }
 
 /**
- * Gets a file name for the current test.
- */
-export function getDebugImageForCurrentTest(): string {
-  const fileNameRoot = getCurrentTestPath();
-  return `${fileNameRoot}.png`;
-}
-
-/**
  * Returns an image debugger for the current test.
  */
 export function testImageDebugger(baseImage: ImageData): Debugger;

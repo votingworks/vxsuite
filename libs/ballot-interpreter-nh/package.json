@@ -21,6 +21,7 @@
   },
   "packageManager": "pnpm@8.1.0",
   "dependencies": {
+    "@votingworks/ballot-interpreter-nh-next": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",

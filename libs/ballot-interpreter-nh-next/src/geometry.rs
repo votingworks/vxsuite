@@ -3,7 +3,7 @@ use std::{
     ops::{Add, AddAssign, Sub},
 };
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// A unit of length in timing mark grid, i.e. 1 `GridUnit` is the logical
 /// distance from one timing mark to the next. This does not map directly to
@@ -37,7 +37,7 @@ pub type SubPixelUnit = f32;
 /// with the same underlying representation is not used.
 pub type Radians = f32;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Point<T: Sub<Output = T>> {
     pub x: T,
     pub y: T,
@@ -74,7 +74,7 @@ impl Point<SubPixelUnit> {
 }
 
 /// A rectangle area of pixels within an image.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Rect {
     left: PixelPosition,
     top: PixelPosition,
@@ -192,7 +192,7 @@ impl From<Rect> for imageproc::rect::Rect {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Size<T> {
     pub width: T,
     pub height: T,

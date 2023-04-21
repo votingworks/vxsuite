@@ -16,7 +16,7 @@ require('esbuild-runner').install({
   type: 'transform',
 });
 
-require('../ts/src/cli/interpret')
+require('../ts/src/cli/find_grid')
   .main(process.argv.slice(2))
   .then(
     (code) => {
