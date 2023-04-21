@@ -16,7 +16,6 @@ import {
   BallotId,
   BallotPageLayout,
   BallotPageLayoutSchema,
-  CastVoteRecord,
   ContestId,
   ContestOptionId,
   Id,
@@ -288,12 +287,14 @@ export class Store {
   addInitialCastVoteRecordFileRecord({
     id,
     electionId,
+    isTestMode,
     filename,
     exportedTimestamp,
     sha256Hash,
   }: {
     id: Id;
     electionId: Id;
+    isTestMode: boolean;
     filename: string;
     exportedTimestamp: Iso8601Timestamp;
     sha256Hash: string;
@@ -303,17 +304,19 @@ export class Store {
         insert into cvr_files (
           id,
           election_id,
+          is_test_mode,
           filename,
           export_timestamp,
           precinct_ids,
           scanner_ids,
           sha256_hash
         ) values (
-          ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,
       electionId,
+      isTestMode ? 1 : 0,
       filename,
       exportedTimestamp,
       JSON.stringify([]),
@@ -459,26 +462,22 @@ export class Store {
    * Returns the current CVR file mode for the current election.
    */
   getCurrentCvrFileModeForElection(electionId: Id): Admin.CvrFileMode {
-    const sampleCvr = this.client.one(
+    const sampleCastVoteRecordFile = this.client.one(
       `
         select
-          data
-        from cvrs
+          is_test_mode as isTestMode
+        from cvr_files
         where
           election_id = ?
       `,
       electionId
-    ) as { data: string } | undefined;
+    ) as { isTestMode: number } | undefined;
 
-    if (!sampleCvr) {
+    if (!sampleCastVoteRecordFile) {
       return Admin.CvrFileMode.Unlocked;
     }
 
-    const parsedCvr = safeParseJson(
-      sampleCvr.data
-    ).unsafeUnwrap() as CastVoteRecord;
-
-    return parsedCvr._testBallot
+    return sampleCastVoteRecordFile.isTestMode
       ? Admin.CvrFileMode.Test
       : Admin.CvrFileMode.Official;
   }

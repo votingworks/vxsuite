@@ -577,6 +577,7 @@ export async function addCastVoteRecordReport({
     store.addInitialCastVoteRecordFileRecord({
       id: fileId,
       electionId,
+      isTestMode: isTestReport(reportMetadata),
       filename,
       exportedTimestamp,
       sha256Hash,
