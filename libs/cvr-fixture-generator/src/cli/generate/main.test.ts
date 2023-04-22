@@ -133,6 +133,8 @@ test('generate with custom number of records above the suggested number', async 
       outputDirectory.name,
       '--numBallots',
       '3000',
+      '--ballotIdPrefix',
+      'pre',
     ])
   ).toEqual({
     exitCode: 0,
@@ -149,7 +151,7 @@ test('generate with custom number of records above the suggested number', async 
   let cvrCount = 0;
   for await (const unparsedCastVoteRecord of castVoteRecordReportImport.CVR) {
     const castVoteRecord = unsafeParse(CVR.CVRSchema, unparsedCastVoteRecord);
-    expect(castVoteRecord.UniqueId).toEqual(`${cvrCount}`);
+    expect(castVoteRecord.UniqueId).toEqual(`pre-${cvrCount}`);
     cvrCount += 1;
   }
 

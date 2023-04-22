@@ -105,6 +105,7 @@ interface GenerateCvrsParams {
   scannerNames: readonly string[];
   ballotPackage: BallotPackage;
   includeBallotImages: boolean;
+  ballotIdPrefix?: string;
 }
 
 /**
@@ -119,6 +120,7 @@ export function* generateCvrs({
   scannerNames,
   ballotPackage,
   includeBallotImages,
+  ballotIdPrefix,
 }: GenerateCvrsParams): Iterable<CVR.CVR> {
   const { electionDefinition } = ballotPackage;
   const { election } = electionDefinition;
@@ -218,7 +220,9 @@ export function* generateCvrs({
                 vxBallotType: ballotType,
                 BallotSheetId: (sheetIndex + 1).toString(),
                 CurrentSnapshotId: `${castVoteRecordId}-modified`,
-                UniqueId: castVoteRecordId.toString(),
+                UniqueId: ballotIdPrefix
+                  ? `${ballotIdPrefix}-${castVoteRecordId.toString()}`
+                  : castVoteRecordId.toString(),
                 CVRSnapshot: [
                   {
                     '@type': 'CVR.CVRSnapshot',

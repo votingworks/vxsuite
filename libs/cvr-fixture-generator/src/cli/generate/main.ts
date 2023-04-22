@@ -40,6 +40,7 @@ interface GenerateCvrFileArguments {
   scannerNames?: Array<string | number>;
   officialBallots: boolean;
   includeBallotImages: boolean;
+  ballotIdPrefix?: string;
   help?: boolean;
   [x: string]: unknown;
 }
@@ -92,6 +93,11 @@ export async function main(
         description:
           'Whether to include ballot images with write-in ballots in the output.',
       },
+      ballotIdPrefix: {
+        type: 'string',
+        description:
+          'If included, applies a prefix to the ballot ids. E.g. "p-456" instead of "456"',
+      },
     })
     .alias('-h', '--help')
     .help(false)
@@ -131,6 +137,7 @@ export async function main(
     outputPath,
     includeBallotImages,
     ballotPackage: ballotPackagePath,
+    ballotIdPrefix,
   } = args;
   const scannerNames = (args.scannerNames ?? ['scanner']).map((s) => `${s}`);
   const testMode = !args.officialBallots;
@@ -146,6 +153,7 @@ export async function main(
       includeBallotImages,
       testMode,
       scannerNames,
+      ballotIdPrefix,
     })
   ).toArray();
 
@@ -171,7 +179,10 @@ export async function main(
     assert(castVoteRecord);
 
     // we need each cast vote record to have a unique id
-    const newCastVoteRecord = replaceUniqueId(castVoteRecord, `${ballotId}`);
+    const newCastVoteRecord = replaceUniqueId(
+      castVoteRecord,
+      ballotIdPrefix ? `${ballotIdPrefix}-${ballotId}` : ballotId.toString()
+    );
 
     // clone deep so jsonStream util will not detect circular references
     castVoteRecords.push(cloneDeep(newCastVoteRecord));
