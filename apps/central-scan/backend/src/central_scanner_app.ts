@@ -22,7 +22,10 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
-import { readBallotPackageFromBuffer } from '@votingworks/utils';
+import {
+  isElectionManagerAuth,
+  readBallotPackageFromBuffer,
+} from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import express, { Application } from 'express';
@@ -56,8 +59,7 @@ function constructAuthMachineState(
   const electionDefinition = workspace.store.getElectionDefinition();
   return {
     electionHash: electionDefinition?.electionHash,
-    // TODO: Persist jurisdiction in store and pull from there
-    jurisdiction: DEV_JURISDICTION,
+    jurisdiction: workspace.store.getJurisdiction(),
   };
 }
 
@@ -137,10 +139,9 @@ function buildApi({
       const { electionDefinition, ballots } = ballotPackage;
       const systemSettings = DEFAULT_SYSTEM_SETTINGS;
 
-      store.setElection(electionDefinition.electionData);
+      store.setJurisdiction(DEV_JURISDICTION);
       importer.configure(electionDefinition);
       store.setSystemSettings(systemSettings);
-
       for (const ballot of ballots) {
         await importer.addHmpbTemplates(ballot.pdf, ballot.layout);
       }
@@ -168,11 +169,12 @@ function buildApi({
       if (ballotPackageResult.isErr()) {
         return ballotPackageResult;
       }
-
+      assert(isElectionManagerAuth(authStatus));
       const ballotPackage = ballotPackageResult.ok();
       const { electionDefinition, systemSettings, ballots } = ballotPackage;
       assert(systemSettings);
-      store.setElection(electionDefinition.electionData);
+
+      store.setJurisdiction(authStatus.user.jurisdiction);
       importer.configure(electionDefinition);
       store.setSystemSettings(systemSettings);
       for (const ballot of ballots) {

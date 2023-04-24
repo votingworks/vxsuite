@@ -69,3 +69,9 @@ create table system_settings (
   id integer primary key check (id = 1),
   are_poll_worker_card_pins_enabled boolean not null default false
 );
+
+create table jurisdiction (
+  -- enforce singleton table
+  id integer primary key check (id = 1),
+  jurisdiction text not null
+);

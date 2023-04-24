@@ -1260,4 +1260,19 @@ export class Store {
       `unable to find page with pageNumber=${metadata.pageNumber}`
     );
   }
+
+  getJurisdiction(): string | undefined {
+    const result = this.client.one('select jurisdiction from jurisdiction') as
+      | { jurisdiction: string }
+      | undefined;
+    return result?.jurisdiction;
+  }
+
+  setJurisdiction(jurisdiction: string): void {
+    this.client.run('delete from jurisdiction');
+    this.client.run(
+      'insert into jurisdiction (jurisdiction) values (?)',
+      jurisdiction
+    );
+  }
 }
