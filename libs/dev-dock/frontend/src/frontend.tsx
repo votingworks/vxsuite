@@ -175,6 +175,23 @@ function SmartCardControl({
   );
 }
 
+const SmartCardMocksDisabledMessage = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  > p {
+    padding: 15px;
+    background: #cccccc;
+    text-align: center;
+  }
+`;
+
 const ROLES = [
   'system_administrator',
   'election_manager',
@@ -210,15 +227,31 @@ function SmartCardMockControls() {
     }
   }
 
+  const areSmartCardMocksEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.USE_MOCK_CARDS
+  );
+
   return (
-    <Row>
+    <Row style={{ position: 'relative' }}>
+      {!areSmartCardMocksEnabled && (
+        <SmartCardMocksDisabledMessage>
+          <p>
+            Smart card mocks disabled
+            <br />
+            <code>USE_MOCK_CARDS=FALSE</code>
+          </p>
+        </SmartCardMocksDisabledMessage>
+      )}
       {ROLES.map((role) => (
         <SmartCardControl
           key={role}
           isInserted={insertedCardRole === role}
           role={role}
           onClick={() => onCardClick(role)}
-          disabled={insertedCardRole !== undefined && insertedCardRole !== role}
+          disabled={
+            !areSmartCardMocksEnabled ||
+            (insertedCardRole !== undefined && insertedCardRole !== role)
+          }
         />
       ))}
     </Row>
