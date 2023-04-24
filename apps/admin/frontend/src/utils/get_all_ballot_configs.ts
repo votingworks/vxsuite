@@ -9,6 +9,12 @@ export function getAllBallotConfigs(
   localeCodes: readonly string[]
 ): BallotConfig[] {
   const { election } = electionDefinition;
+
+  if (election.gridLayouts) {
+    // don't generate ballots for election with grid layouts
+    return [];
+  }
+
   const ballotStyles = getBallotStylesDataByStyle(election);
   const allLocaleConfigs = localeCodes.map<BallotLocale>((localeCode) => ({
     primary: DEFAULT_LOCALE,

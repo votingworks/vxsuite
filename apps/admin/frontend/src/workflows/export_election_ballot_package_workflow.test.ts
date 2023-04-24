@@ -1,4 +1,7 @@
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import {
+  electionGridLayoutNewHampshireAmherstFixtures,
+  electionSampleDefinition,
+} from '@votingworks/fixtures';
 import { fakeKiosk } from '@votingworks/test-utils';
 import * as workflow from './export_election_ballot_package_workflow';
 import { DownloadableArchive } from '../utils/downloadable_archive';
@@ -100,6 +103,23 @@ test('advances to the next ballot config if there is one', () => {
         locales: { primary: 'en-US' },
       },
       ballotConfigsCount: 2,
+    })
+  );
+});
+
+test('skips RenderBallot if there are no ballot configs', () => {
+  expect(
+    workflow.next({
+      type: 'ArchiveBegin',
+      electionDefinition:
+        electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+      archive: new DownloadableArchive(),
+      ballotConfigs: [],
+    })
+  ).toEqual(
+    expect.objectContaining({
+      type: 'ArchiveEnd',
+      ballotConfigsCount: 0,
     })
   );
 });

@@ -76,6 +76,14 @@ export function next(state: State): State {
       const [currentBallotConfig, ...remainingBallotConfigs] =
         state.ballotConfigs;
 
+      if (!currentBallotConfig) {
+        return {
+          type: 'ArchiveEnd',
+          archive: state.archive,
+          ballotConfigsCount: state.ballotConfigs.length,
+        };
+      }
+
       return {
         type: 'RenderBallot',
         electionDefinition: state.electionDefinition,
