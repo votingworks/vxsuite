@@ -23,6 +23,14 @@ Optional flags:
   required, the default number is determined as the number of possible variants
   of ballot style, precinct, ballot type (absentee or precinct), scanner, and
   vote variations.
+- `--ballotIdPrefix` - a prefix to prepend to every ballot id (or `UniqueId` in
+  the CDF). Since ballot ids are incrementing numbers starting from 1, they will
+  have id collisions in VxAdmin if they are not distinguished by a prefix.
+- `--bmdBallots` - use this flag to generate BMD ballots instead of HMPB
+  ballots. BMD ballots have no images, their write-ins include a `Text` field
+  instead of an image reference, and all the contests are in one CVR rather than
+  one CVR per sheet. Note that if you use this option, `--includeBallotImages`
+  will do nothing.
 
 ## Vote Variations
 
