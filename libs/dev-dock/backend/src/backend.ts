@@ -22,6 +22,7 @@ export interface DevDockElectionInfo {
   path: string;
 }
 
+// Convert paths relative to the VxSuite root to absolute paths
 function electionPathToAbsolute(path: string) {
   return isAbsolute(path) ? path : join(__dirname, '../../../..', path);
 }
