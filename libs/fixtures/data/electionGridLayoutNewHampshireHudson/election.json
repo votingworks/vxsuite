@@ -10,7 +10,7 @@
       "districts": ["town-id-12101-precinct-id-"]
     }
   ],
-  "centralScanAdjudicationReasons": ["UninterpretableBallot", "Overvote"],
+  "centralScanAdjudicationReasons": ["Overvote"],
   "contests": [
     {
       "id": "President-and-Vice-President-of-the-United-States-18d1a55a",
@@ -410,10 +410,10 @@
       "columns": 34,
       "rows": 53,
       "optionBoundsFromTargetMark": {
-        "left": 5,
         "top": 1,
         "right": 1,
-        "bottom": 1
+        "bottom": 1,
+        "left": 5
       },
       "gridPositions": [
         {
@@ -1054,7 +1054,7 @@
       "abbrev": "OC"
     }
   ],
-  "precinctScanAdjudicationReasons": ["UninterpretableBallot", "Overvote"],
+  "precinctScanAdjudicationReasons": ["Overvote"],
   "precincts": [
     {
       "id": "town-id-12101-precinct-id-",

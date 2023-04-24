@@ -1179,7 +1179,7 @@ exports[`interpret with valid data 1`] = `
   "metadata": {
     "ballotStyleId": "card-number-3",
     "ballotType": 0,
-    "electionHash": "8ff3a04cc0712e5f135c1618262dac5b07c581f8c3a225e1ee693be193893224",
+    "electionHash": "5b299ec5e5cb05e400b9503495380c6a2d40e065033e22b31bc34c5a9f742c95",
     "isTestMode": true,
     "locales": {
       "primary": "en-US",
@@ -2008,7 +2008,7 @@ exports[`interpret with valid data 2`] = `
   "metadata": {
     "ballotStyleId": "card-number-3",
     "ballotType": 0,
-    "electionHash": "8ff3a04cc0712e5f135c1618262dac5b07c581f8c3a225e1ee693be193893224",
+    "electionHash": "5b299ec5e5cb05e400b9503495380c6a2d40e065033e22b31bc34c5a9f742c95",
     "isTestMode": true,
     "locales": {
       "primary": "en-US",
