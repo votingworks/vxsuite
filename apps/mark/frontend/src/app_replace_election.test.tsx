@@ -5,7 +5,7 @@ import {
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import { FakeKiosk, fakeKiosk } from '@votingworks/test-utils';
-import { fireEvent, screen } from '../test/react_testing_library';
+import { screen } from '../test/react_testing_library';
 import {
   setElectionInStorage,
   setStateInStorage,
@@ -13,7 +13,6 @@ import {
 import { render } from '../test/test_utils';
 import { App } from './app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
-import { configureFromUsbThenRemove } from '../test/helpers/ballot_package';
 
 let apiMock: ApiMock;
 let kiosk: FakeKiosk;
@@ -30,9 +29,9 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(15000);
+jest.setTimeout(2000);
 
-test('replacing a loaded election with one from USB', async () => {
+test('app renders a notice when election hash on card does not match that of machine config', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
@@ -55,19 +54,4 @@ test('replacing a loaded election with one from USB', async () => {
   // insert election manager card with different election
   apiMock.setAuthStatusElectionManagerLoggedIn(electionSample2Definition);
   await screen.findByText('This card is configured for a different election.');
-
-  // unconfigure
-  apiMock.expectUnconfigureMachine();
-  apiMock.expectGetElectionDefinition(null);
-  fireEvent.click(screen.getByText('Remove the Current Election and All Data'));
-
-  // load new election
-  await screen.findByText('VxMark is not configured');
-  await configureFromUsbThenRemove(
-    apiMock,
-    kiosk,
-    screen,
-    electionSample2Definition
-  );
-  await screen.findByText(electionSample2Definition.election.title);
 });

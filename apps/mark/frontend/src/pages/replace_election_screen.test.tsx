@@ -45,7 +45,6 @@ function renderScreen(props: Partial<ReplaceElectionScreenProps> = {}) {
           electionDefinition={machineElectionDefinition}
           machineConfig={fakeMachineConfig()}
           screenReader={screenReader}
-          unconfigure={jest.fn()}
           isLoading={false}
           isError={false}
           {...props}
@@ -65,15 +64,6 @@ test('error state', () => {
   renderScreen({ isError: true });
 
   userEvent.click(screen.getByText('Error unconfiguring the machine.'));
-});
-
-test('unconfiguring', async () => {
-  const unconfigure = jest.fn();
-  renderScreen({ unconfigure });
-
-  await screen.findByText(authElectionHash);
-  userEvent.click(screen.getByText('Remove the Current Election and All Data'));
-  expect(unconfigure).toHaveBeenCalled();
 });
 
 test('showing count of ballots printed: 0 ballots', async () => {

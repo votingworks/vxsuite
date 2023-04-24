@@ -11,7 +11,7 @@ export function LoginPromptScreen(): JSX.Element {
     <Screen>
       <Main centerChild>
         <CenteredLargeProse>
-          <H1>VxScan is not configured</H1>
+          <H1>VxScan is Not Configured</H1>
           <P>Insert Election Manager card to load an election definition.</P>
         </CenteredLargeProse>
       </Main>

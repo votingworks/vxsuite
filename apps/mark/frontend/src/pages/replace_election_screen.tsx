@@ -1,6 +1,5 @@
 import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
 import {
-  Button,
   ElectionInfoBar,
   Main,
   Prose,
@@ -23,7 +22,6 @@ export interface ReplaceElectionScreenProps {
   electionDefinition: ElectionDefinition;
   machineConfig: MachineConfig;
   screenReader: ScreenReader;
-  unconfigure(): Promise<void>;
   isLoading: boolean;
   isError: boolean;
 }
@@ -35,7 +33,6 @@ export function ReplaceElectionScreen({
   electionDefinition,
   machineConfig,
   screenReader,
-  unconfigure,
   isLoading,
   isError,
 }: ReplaceElectionScreenProps): JSX.Element {
@@ -125,19 +122,6 @@ export function ReplaceElectionScreen({
           )}
           <h2>Cancel and Go Back</h2>
           <p>Remove the inserted card to cancel.</p>
-          <h2>Remove the Current Election</h2>
-          <p>
-            You may remove the current election on this machine and then attempt
-            to configure from USB.
-          </p>
-          <p>
-            Removing the current election will replace all data on this machine.
-          </p>
-          <p>
-            <Button variant="danger" small onPress={unconfigure}>
-              Remove the Current Election and All Data
-            </Button>
-          </p>
         </Prose>
       </Main>
       {election && (
