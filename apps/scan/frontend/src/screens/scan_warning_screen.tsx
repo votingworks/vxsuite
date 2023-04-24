@@ -556,17 +556,3 @@ export function BlankBallotPreview(): JSX.Element {
     />
   );
 }
-
-/* istanbul ignore next */
-export function UninterpretableBallotPreview(): JSX.Element {
-  const { electionDefinition } = usePreviewContext();
-
-  return (
-    <ScanWarningScreen
-      electionDefinition={electionDefinition}
-      adjudicationReasonInfo={[
-        { type: AdjudicationReason.UninterpretableBallot },
-      ]}
-    />
-  );
-}

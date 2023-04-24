@@ -407,16 +407,10 @@ test('default adjudication reasons', async () => {
     debug,
   });
   expect(convertResult.election?.centralScanAdjudicationReasons).toEqual(
-    typedAs<AdjudicationReason[]>([
-      AdjudicationReason.UninterpretableBallot,
-      AdjudicationReason.Overvote,
-    ])
+    typedAs<AdjudicationReason[]>([AdjudicationReason.Overvote])
   );
   expect(convertResult.election?.precinctScanAdjudicationReasons).toEqual(
-    typedAs<AdjudicationReason[]>([
-      AdjudicationReason.UninterpretableBallot,
-      AdjudicationReason.Overvote,
-    ])
+    typedAs<AdjudicationReason[]>([AdjudicationReason.Overvote])
   );
 });
 

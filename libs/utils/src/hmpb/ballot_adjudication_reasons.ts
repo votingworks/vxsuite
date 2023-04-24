@@ -20,14 +20,10 @@ export interface Options {
  * option in the contests given.
  */
 export function* ballotAdjudicationReasons(
-  contests: Contests | undefined,
+  contests: Contests,
   { optionMarkStatus }: Options
 ): Generator<AdjudicationReasonInfo> {
-  if (!contests) {
-    yield {
-      type: AdjudicationReason.UninterpretableBallot,
-    };
-  } else if (contests.length === 0) {
+  if (contests.length === 0) {
     // This page is intentionally blank.
   } else {
     let isBlankBallot = true;
@@ -124,9 +120,6 @@ export function adjudicationReasonDescription(
   reason: AdjudicationReasonInfo
 ): string {
   switch (reason.type) {
-    case AdjudicationReason.UninterpretableBallot:
-      return 'The ballot could not be interpreted at all, possibly due to a bad scan.';
-
     case AdjudicationReason.MarginalMark:
       return `Contest '${reason.contestId}' has a marginal mark for option '${reason.optionId}'.`;
 

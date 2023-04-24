@@ -392,6 +392,10 @@ export const BallotLayoutSchema: z.ZodSchema<BallotLayout> = z.object({
 
 // Hand-marked paper & adjudication
 export enum AdjudicationReason {
+  /**
+   * @deprecated - this is no longer used, but is here to keep compatibility
+   * with existing elections
+   */
   UninterpretableBallot = 'UninterpretableBallot',
   MarginalMark = 'MarginalMark',
   Overvote = 'Overvote',
@@ -743,14 +747,6 @@ export const ContestOptionIdSchema: z.ZodSchema<ContestOptionId> = z.union([
   YesNoOptionIdSchema,
 ]);
 
-export interface UninterpretableBallotAdjudicationReasonInfo {
-  type: AdjudicationReason.UninterpretableBallot;
-}
-export const UninterpretableBallotAdjudicationReasonInfoSchema: z.ZodSchema<UninterpretableBallotAdjudicationReasonInfo> =
-  z.object({
-    type: z.literal(AdjudicationReason.UninterpretableBallot),
-  });
-
 export interface MarginalMarkAdjudicationReasonInfo {
   type: AdjudicationReason.MarginalMark;
   contestId: ContestId;
@@ -806,14 +802,12 @@ export const BlankBallotAdjudicationReasonInfoSchema: z.ZodSchema<BlankBallotAdj
   });
 
 export type AdjudicationReasonInfo =
-  | UninterpretableBallotAdjudicationReasonInfo
   | MarginalMarkAdjudicationReasonInfo
   | OvervoteAdjudicationReasonInfo
   | UndervoteAdjudicationReasonInfo
   | BlankBallotAdjudicationReasonInfo;
 export const AdjudicationReasonInfoSchema: z.ZodSchema<AdjudicationReasonInfo> =
   z.union([
-    UninterpretableBallotAdjudicationReasonInfoSchema,
     MarginalMarkAdjudicationReasonInfoSchema,
     OvervoteAdjudicationReasonInfoSchema,
     UndervoteAdjudicationReasonInfoSchema,
