@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { err, isResult, ok, Result } from '@votingworks/basics';
 import {
   isArray,
@@ -98,12 +99,20 @@ const resultTagger: Tagger<
   },
 };
 
+const bufferTagger: Tagger<Buffer, string> = {
+  tag: 'Buffer',
+  shouldTag: (value): value is Buffer => Buffer.isBuffer(value),
+  serialize: (value) => value.toString('base64'),
+  deserialize: (value) => Buffer.from(value, 'base64'),
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const taggers: Array<Tagger<any, any>> = [
   undefinedTagger,
   dateTagger,
   errorTagger,
   resultTagger,
+  bufferTagger,
 ];
 
 function tagValueIfNeeded(value: unknown): TaggedValue | unknown {
@@ -131,20 +140,16 @@ function unserializableError(value: unknown) {
 }
 
 function throwIfUnserializable(value: unknown): void {
-  if (
-    isObject(value) &&
-    !(value instanceof Date) &&
-    isFunction(value['toJSON'])
-  ) {
+  if (taggers.some((tagger) => tagger.shouldTag(value))) {
+    return;
+  }
+  if (isObject(value) && isFunction(value['toJSON'])) {
     throw unserializableError(value);
   }
   if (isNumber(value) && (isNaN(value) || !isFinite(value))) {
     throw unserializableError(value);
   }
   if (isJsonBuiltInValueShallow(value)) {
-    return;
-  }
-  if (taggers.some((tagger) => tagger.shouldTag(value))) {
     return;
   }
   throw unserializableError(value);

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Buffer } from 'buffer';
 import { err, ok } from '@votingworks/basics';
 import { deserialize, serialize } from './serialization';
 
@@ -48,6 +49,10 @@ test('JSON serialization/deserialization', () => {
   expectToBePreservedExactly(new Date('2020-01-01T00:00:00.000Z'));
   expectToBePreservedExactly(new Date());
   expectToBePreservedExactly({ a: new Date() });
+  // Buffer
+  expectToBePreservedExactly(Buffer.from('some string'));
+  expectToBePreservedExactly({ a: Buffer.from('some string') });
+  expectToBePreservedExactly(Buffer.of(1, 2, 3));
   // Error
   expectToBePreservedExactly(new Error('some error'));
   // Result
