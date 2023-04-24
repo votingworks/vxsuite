@@ -1,6 +1,6 @@
 {
   "extends": "../../../tsconfig.shared.json",
-  "include": ["src"],
+  "include": ["src", "test"],
   "exclude": [],
   "compilerOptions": {
     "module": "commonjs",
@@ -12,11 +12,13 @@
     "skipLibCheck": true
   },
   "references": [
-    { "path": "../../../libs/dev-dock/backend/tsconfig.build.json" },
-    { "path": "../../../libs/basics/tsconfig.build.json" },
-    { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../../../libs/grout/tsconfig.build.json" },
-    { "path": "../../../libs/types/tsconfig.build.json" },
-    { "path": "../../../libs/utils/tsconfig.build.json" }
+    { "path": "../../dev-dock/backend/tsconfig.build.json" },
+    { "path": "../../basics/tsconfig.build.json" },
+    { "path": "../../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../../grout/tsconfig.build.json" },
+    { "path": "../../grout/test-utils/tsconfig.build.json" },
+    { "path": "../../test-utils/tsconfig.build.json" },
+    { "path": "../../types/tsconfig.build.json" },
+    { "path": "../../utils/tsconfig.build.json" }
   ]
 }

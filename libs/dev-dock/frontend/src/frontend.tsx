@@ -26,7 +26,19 @@ import {
 import { UsbDriveIcon } from './usb_drive_icon';
 import { Colors } from './colors';
 
-const apiClient = grout.createClient<Api>({ baseUrl: '/dock' });
+export type ApiClient = grout.Client<Api>;
+
+export const ApiClientContext = React.createContext<ApiClient | undefined>(
+  undefined
+);
+
+export function useApiClient(): ApiClient {
+  const apiClient = React.useContext(ApiClientContext);
+  if (!apiClient) {
+    throw new Error('ApiClientContext.Provider not found');
+  }
+  return apiClient;
+}
 
 const Row = styled.div`
   display: flex;
@@ -75,6 +87,7 @@ const ELECTIONS = [
 
 function ElectionControl(): JSX.Element | null {
   const queryClient = useQueryClient();
+  const apiClient = useApiClient();
   const getElectionQuery = useQuery(
     ['getElection'],
     async () => (await apiClient.getElection()) ?? null
@@ -200,6 +213,7 @@ const ROLES = [
 
 function SmartCardMockControls() {
   const queryClient = useQueryClient();
+  const apiClient = useApiClient();
   const getCardStatusQuery = useQuery(
     ['getCardStatus'],
     async () => (await apiClient.getCardStatus()) ?? null
@@ -213,9 +227,9 @@ function SmartCardMockControls() {
       await queryClient.invalidateQueries(['getCardStatus']),
   });
 
-  const cardStatus = getCardStatusQuery.data ?? { status: 'no_card' };
+  const cardStatus = getCardStatusQuery.data;
   const insertedCardRole =
-    cardStatus.status === 'ready'
+    cardStatus?.status === 'ready'
       ? cardStatus.cardDetails?.user.role
       : undefined;
 
@@ -250,6 +264,7 @@ function SmartCardMockControls() {
           onClick={() => onCardClick(role)}
           disabled={
             !areSmartCardMocksEnabled ||
+            !getCardStatusQuery.isSuccess ||
             (insertedCardRole !== undefined && insertedCardRole !== role)
           }
         />
@@ -289,6 +304,7 @@ const UsbDriveClearButton = styled.button`
 
 function UsbDriveMockControls() {
   const queryClient = useQueryClient();
+  const apiClient = useApiClient();
   const getUsbDriveStatusQuery = useQuery(['getUsbDriveStatus'], () =>
     apiClient.getUsbDriveStatus()
   );
@@ -322,7 +338,11 @@ function UsbDriveMockControls() {
   const isInserted = status === 'inserted';
   return (
     <Column>
-      <UsbDriveControl onClick={onUsbDriveClick} isInserted={isInserted}>
+      <UsbDriveControl
+        onClick={onUsbDriveClick}
+        isInserted={isInserted}
+        aria-label="USB Drive"
+      >
         {status && <UsbDriveIcon isInserted={isInserted} />}
       </UsbDriveControl>
       <UsbDriveClearButton onClick={onClearUsbDriveClick}>
@@ -382,7 +402,11 @@ function ScreenshotControls({
   }
 
   return (
-    <ScreenshotButton onClick={captureScreenshot} disabled={!window.kiosk}>
+    <ScreenshotButton
+      onClick={captureScreenshot}
+      disabled={!window.kiosk}
+      aria-label="Capture Screenshot"
+    >
       <FontAwesomeIcon icon={faCamera} size="2x" />
     </ScreenshotButton>
   );
@@ -447,25 +471,27 @@ const Handle = styled.button`
   top: -2px;
 `;
 
-const dockQueryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      networkMode: 'always',
-      staleTime: Infinity,
-      onError: (error) => {
-        // eslint-disable-next-line no-console
-        console.error('Dev Dock error:', error);
+function createQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        networkMode: 'always',
+        staleTime: Infinity,
+        onError: (error) => {
+          // eslint-disable-next-line no-console
+          console.error('Dev Dock error:', error);
+        },
+      },
+      mutations: {
+        networkMode: 'always',
+        onError: (error) => {
+          // eslint-disable-next-line no-console
+          console.error('Dev Dock error:', error);
+        },
       },
     },
-    mutations: {
-      networkMode: 'always',
-      onError: (error) => {
-        // eslint-disable-next-line no-console
-        console.error('Dev Dock error:', error);
-      },
-    },
-  },
-});
+  });
+}
 
 function DevDock() {
   const [isOpen, setIsOpen] = useState(true);
@@ -486,32 +512,29 @@ function DevDock() {
   }, []);
 
   return (
-    <QueryClientProvider client={dockQueryClient}>
-      <Container ref={containerRef} className={isOpen ? '' : 'closed'}>
-        <Content>
-          <Row>
-            <ElectionControl />
-          </Row>
-          <Row>
-            <Column>
-              <Row>
-                <SmartCardMockControls />
-              </Row>
-            </Column>
-            <Column>
-              <UsbDriveMockControls />
-            </Column>
-            <Column>
-              <ScreenshotControls containerRef={containerRef} />
-            </Column>
-          </Row>
-        </Content>
-        <Handle id="handle" onClick={() => setIsOpen(!isOpen)}>
-          <FontAwesomeIcon icon={isOpen ? faCaretUp : faCaretDown} size="lg" />
-        </Handle>
-      </Container>
-      {false && <ReactQueryDevtools initialIsOpen={false} />}
-    </QueryClientProvider>
+    <Container ref={containerRef} className={isOpen ? '' : 'closed'}>
+      <Content>
+        <Row>
+          <ElectionControl />
+        </Row>
+        <Row>
+          <Column>
+            <Row>
+              <SmartCardMockControls />
+            </Row>
+          </Column>
+          <Column>
+            <UsbDriveMockControls />
+          </Column>
+          <Column>
+            <ScreenshotControls containerRef={containerRef} />
+          </Column>
+        </Row>
+      </Content>
+      <Handle id="handle" onClick={() => setIsOpen(!isOpen)}>
+        <FontAwesomeIcon icon={isOpen ? faCaretUp : faCaretDown} size="lg" />
+      </Handle>
+    </Container>
   );
 }
 
@@ -521,14 +544,23 @@ function DevDock() {
  * The dock will only be rendered if the ENABLE_DEV_DOCK feature flag is turned
  * on.
  */
-function DevDockWrapper(): JSX.Element | null {
+function DevDockWrapper({
+  apiClient = grout.createClient<Api>({ baseUrl: '/dock' }),
+}: {
+  apiClient?: ApiClient;
+}): JSX.Element | null {
   // We use a wrapper component to make sure that not only is the dock not
   // inserted into the DOM, but its keyboard listeners are not registered
   // either.
   return isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
   ) ? (
-    <DevDock />
+    <QueryClientProvider client={createQueryClient()}>
+      <ApiClientContext.Provider value={apiClient}>
+        <DevDock />
+        {false && <ReactQueryDevtools initialIsOpen={false} />}
+      </ApiClientContext.Provider>
+    </QueryClientProvider>
   ) : null;
 }
 
