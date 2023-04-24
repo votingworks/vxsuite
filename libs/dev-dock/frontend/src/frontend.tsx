@@ -109,8 +109,10 @@ function ElectionControl(): JSX.Element | null {
         properties: ['openFile'],
       });
       if (dialogResult.canceled) return;
-
-      setElectionMutation.mutate({ path: dialogResult.filePaths[0] });
+      const selectedPath = dialogResult.filePaths[0];
+      if (selectedPath) {
+        setElectionMutation.mutate({ path: selectedPath });
+      }
     } else {
       setElectionMutation.mutate({ path });
     }

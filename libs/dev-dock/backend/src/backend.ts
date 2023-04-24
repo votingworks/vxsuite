@@ -24,7 +24,10 @@ export interface DevDockElectionInfo {
 
 // Convert paths relative to the VxSuite root to absolute paths
 function electionPathToAbsolute(path: string) {
-  return isAbsolute(path) ? path : join(__dirname, '../../../..', path);
+  return isAbsolute(path)
+    ? /* istanbul ignore next */
+      path
+    : join(__dirname, '../../../..', path);
 }
 
 const MOCK_CARD_SCRIPT_PATH = join(
@@ -51,119 +54,119 @@ async function clearUsbDrive(): Promise<void> {
   ]);
 }
 
-const DEV_DOCK_FILE_PATH = '/tmp/dev-dock.json';
+export const DEV_DOCK_FILE_PATH = '/tmp/dev-dock.json';
 interface DevDockFileContents {
   electionInfo?: DevDockElectionInfo;
 }
 
-function writeDevDockFileContents(fileContents: DevDockFileContents): void {
-  return fs.writeFileSync(DEV_DOCK_FILE_PATH, JSON.stringify(fileContents));
+function writeDevDockFileContents(
+  devDockFilePath: string,
+  fileContents: DevDockFileContents
+): void {
+  return fs.writeFileSync(devDockFilePath, JSON.stringify(fileContents));
 }
 
-function readDevDockFileContents(): DevDockFileContents {
+function readDevDockFileContents(devDockFilePath: string): DevDockFileContents {
   return JSON.parse(
-    fs.readFileSync(DEV_DOCK_FILE_PATH, { encoding: 'utf-8' })
+    fs.readFileSync(devDockFilePath, { encoding: 'utf-8' })
   ) as DevDockFileContents;
 }
 
-const api = grout.createApi({
-  setElection(input: { path?: string }): void {
-    if (!input.path) {
-      return writeDevDockFileContents({
-        ...readDevDockFileContents(),
-        electionInfo: undefined,
+function buildApi(devDockFilePath: string) {
+  return grout.createApi({
+    setElection(input: { path: string }): void {
+      const electionData = fs.readFileSync(
+        electionPathToAbsolute(input.path),
+        'utf-8'
+      );
+      const parseResult = safeParseElectionDefinition(electionData);
+      assert(parseResult.isOk());
+      const electionInfo: DevDockElectionInfo = {
+        path: input.path,
+        title: parseResult.ok().election.title,
+      };
+
+      writeDevDockFileContents(devDockFilePath, {
+        electionInfo,
       });
-    }
+    },
 
-    const electionData = fs.readFileSync(
-      electionPathToAbsolute(input.path),
-      'utf-8'
-    );
-    const parseResult = safeParseElectionDefinition(electionData);
-    assert(parseResult.isOk());
-    const electionInfo: DevDockElectionInfo = {
-      path: input.path,
-      title: parseResult.ok().election.title,
-    };
+    getElection(): Optional<DevDockElectionInfo> {
+      return readDevDockFileContents(devDockFilePath).electionInfo;
+    },
 
-    writeDevDockFileContents({
-      electionInfo,
-    });
-  },
+    getCardStatus(): CardStatus {
+      return readFromCardMockFile().cardStatus;
+    },
 
-  getElection(): Optional<DevDockElectionInfo> {
-    return readDevDockFileContents().electionInfo;
-  },
+    async insertCard(input: { role: DevDockUserRole }): Promise<void> {
+      const { electionInfo } = readDevDockFileContents(devDockFilePath);
+      assert(electionInfo !== undefined);
 
-  getCardStatus(): CardStatus {
-    return readFromCardMockFile().cardStatus;
-  },
+      await execFile(MOCK_CARD_SCRIPT_PATH, [
+        '--card-type',
+        input.role.replace('_', '-'),
+        '--electionDefinition',
+        electionPathToAbsolute(electionInfo.path),
+      ]);
+    },
 
-  async insertCard(input: { role: DevDockUserRole }): Promise<void> {
-    const electionDefinitionPath = readDevDockFileContents().electionInfo?.path;
-    if (!electionDefinitionPath) {
-      return;
-    }
+    async removeCard(): Promise<void> {
+      await execFile(MOCK_CARD_SCRIPT_PATH, ['--card-type', 'no-card']);
+    },
 
-    await execFile(MOCK_CARD_SCRIPT_PATH, [
-      '--card-type',
-      input.role.replace('_', '-'),
-      '--electionDefinition',
-      electionPathToAbsolute(electionDefinitionPath),
-    ]);
-  },
+    getUsbDriveStatus(): DevDockUsbDriveStatus {
+      return getUsbDriveStatus();
+    },
 
-  async removeCard(): Promise<void> {
-    await execFile(MOCK_CARD_SCRIPT_PATH, ['--card-type', 'no-card']);
-  },
+    async insertUsbDrive(): Promise<void> {
+      if (getUsbDriveStatus() === 'removed') {
+        await insertUsbDrive();
+      }
+    },
 
-  getUsbDriveStatus(): DevDockUsbDriveStatus {
-    return getUsbDriveStatus();
-  },
+    async removeUsbDrive(): Promise<void> {
+      if (getUsbDriveStatus() === 'inserted') {
+        await removeUsbDrive();
+      }
+    },
 
-  async insertUsbDrive(): Promise<void> {
-    if (getUsbDriveStatus() === 'removed') {
-      await insertUsbDrive();
-    }
-  },
-
-  async removeUsbDrive(): Promise<void> {
-    if (getUsbDriveStatus() === 'inserted') {
-      await removeUsbDrive();
-    }
-  },
-
-  async clearUsbDrive(): Promise<void> {
-    if (getUsbDriveStatus() === 'inserted') {
-      await removeUsbDrive();
-      await clearUsbDrive();
-      await insertUsbDrive();
-    } else {
-      await clearUsbDrive();
-    }
-  },
-});
+    async clearUsbDrive(): Promise<void> {
+      if (getUsbDriveStatus() === 'inserted') {
+        await removeUsbDrive();
+        await clearUsbDrive();
+        await insertUsbDrive();
+      } else {
+        await clearUsbDrive();
+      }
+    },
+  });
+}
 
 /**
  * A type to be used by the frontend to create a Grout API client
  */
-export type Api = typeof api;
+export type Api = ReturnType<typeof buildApi>;
 
 /**
  * Mounts the Dev Dock API endpoints at /dock.
  */
 export function useDevDockRouter(
   app: Express.Application,
-  express: typeof Express
+  express: typeof Express,
+  /* istanbul ignore next */
+  devDockFilePath: string = DEV_DOCK_FILE_PATH
 ): void {
   if (!isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)) {
     return;
   }
 
   // Create dev dock file if it doesn't exist so we can always read from it
-  if (!fs.existsSync(DEV_DOCK_FILE_PATH)) {
-    fs.writeFileSync(DEV_DOCK_FILE_PATH, '{}');
+  if (!fs.existsSync(devDockFilePath)) {
+    fs.writeFileSync(devDockFilePath, '{}');
   }
+
+  const api = buildApi(devDockFilePath);
 
   // Set a default election if one is not already set
   if (!api.getElection()) {
