@@ -149,10 +149,6 @@
       "path": "services/converter-ms-sems"
     },
     {
-      "name": "services/smartcards",
-      "path": "services/smartcards"
-    },
-    {
       "path": "docs"
     }
   ],

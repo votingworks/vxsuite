@@ -1,5 +1,4 @@
 APP := ..
-SMARTCARDS := ../../../services/smartcards
 export PIPENV_VENV_IN_PROJECT=1
 export MARK_WORKSPACE=/tmp/mark-integration-testing
 
@@ -14,16 +13,11 @@ build-backend:
 	make -C $(APP)/backend install; \
 	make -C $(APP)/backend build; \
 
-build-smartcards:
-	make -C $(SMARTCARDS) install-smartcard; \
-	make -C $(SMARTCARDS) build;
-
-build: build-frontend build-backend build-smartcards
+build: build-frontend build-backend
 
 run:
 	rm -rf $(MARK_WORKSPACE)
 	mkdir $(MARK_WORKSPACE)
-	NODE_ENV=production IS_INTEGRATION_TEST=true ./node_modules/.bin/concurrently -n smartcards,frontend,backend --kill-others \
-		"make -C ${SMARTCARDS} run" \
+	NODE_ENV=production IS_INTEGRATION_TEST=true ./node_modules/.bin/concurrently -n frontend,backend --kill-others \
 		"make -C $(APP)/frontend run" \
 		"make -C $(APP)/backend run"

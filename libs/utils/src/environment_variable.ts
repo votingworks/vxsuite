@@ -18,14 +18,9 @@ export enum BooleanEnvironmentVariableName {
   ENABLE_REACT_QUERY_DEVTOOLS = 'REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS',
   // Skips PIN entry during authentication
   SKIP_PIN_ENTRY = 'REACT_APP_VX_SKIP_PIN_ENTRY',
-  // Enable auth with Java Cards (as opposed to our existing memory cards)
-  ENABLE_JAVA_CARDS = 'REACT_APP_VX_ENABLE_JAVA_CARDS',
   // Use mock cards instead of a real card reader. Meant for development and integration tests.
   // Real smart cards will not work when this flag is enabled.
   USE_MOCK_CARDS = 'REACT_APP_VX_USE_MOCK_CARDS',
-  // For NH pilot: Use dev certs in prod for Java Card auth. Only relevant if ENABLE_JAVA_CARDS is
-  // also true.
-  USE_DEV_CERTS_IN_PROD = 'REACT_APP_VX_USE_DEV_CERTS_IN_PROD',
   // Skips election hash checks when importing CVRs to allow using old fixtures
   // in development even as their respective election definitions change.
   SKIP_CVR_ELECTION_HASH_CHECK = 'REACT_APP_VX_SKIP_CVR_ELECTION_HASH_CHECK',
@@ -72,12 +67,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS;
     case BooleanEnvironmentVariableName.SKIP_PIN_ENTRY:
       return process.env.REACT_APP_VX_SKIP_PIN_ENTRY;
-    case BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS:
-      return process.env.REACT_APP_VX_ENABLE_JAVA_CARDS;
     case BooleanEnvironmentVariableName.USE_MOCK_CARDS:
       return process.env.REACT_APP_VX_USE_MOCK_CARDS;
-    case BooleanEnvironmentVariableName.USE_DEV_CERTS_IN_PROD:
-      return process.env.REACT_APP_VX_USE_DEV_CERTS_IN_PROD;
     case BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK:
       return process.env.REACT_APP_VX_SKIP_CVR_ELECTION_HASH_CHECK;
     case BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK:
@@ -136,22 +127,10 @@ export function getBooleanEnvVarConfig(
         allowInProduction: false,
         autoEnableInDevelopment: false,
       };
-    case BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS:
-      return {
-        name,
-        allowInProduction: true,
-        autoEnableInDevelopment: false,
-      };
     case BooleanEnvironmentVariableName.USE_MOCK_CARDS:
       return {
         name,
         allowInProduction: false,
-        autoEnableInDevelopment: false,
-      };
-    case BooleanEnvironmentVariableName.USE_DEV_CERTS_IN_PROD:
-      return {
-        name,
-        allowInProduction: true,
         autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK:

@@ -2,8 +2,8 @@ import { Server } from 'http';
 import {
   constructJavaCardConfig,
   InsertedSmartCardAuth,
+  InsertedSmartCardAuthApi,
   JavaCard,
-  MemoryCard,
   MockFileCard,
 } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -18,32 +18,35 @@ import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 
 export interface StartOptions {
-  port: number | string;
+  auth?: InsertedSmartCardAuthApi;
   logger: Logger;
+  port: number | string;
   workspace: Workspace;
 }
 
 /**
  * Starts the server with all the default options.
  */
-export function start({ port, logger, workspace }: StartOptions): Server {
-  const auth = new InsertedSmartCardAuth({
-    card:
-      isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
-      isIntegrationTest()
-        ? /* istanbul ignore next */ new MockFileCard()
-        : isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS)
-        ? /* istanbul ignore next */ new JavaCard(constructJavaCardConfig())
-        : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
-    config: {
-      allowCardlessVoterSessions: true,
-      allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,
-    },
-    logger,
-  });
+export function start({ auth, logger, port, workspace }: StartOptions): Server {
+  /* istanbul ignore next */
+  const resolvedAuth =
+    auth ??
+    new InsertedSmartCardAuth({
+      card:
+        isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
+        isIntegrationTest()
+          ? new MockFileCard()
+          : new JavaCard(constructJavaCardConfig()),
+      config: {
+        allowCardlessVoterSessions: true,
+        allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,
+      },
+      logger,
+    });
 
   const usb: Usb = { getUsbDrives };
-  const app = buildApp(auth, logger, workspace, usb);
+
+  const app = buildApp(resolvedAuth, logger, workspace, usb);
 
   return app.listen(
     port,

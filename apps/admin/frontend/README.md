@@ -33,13 +33,6 @@ with `REACT_APP_VX_CONVERTER` set to the appropriate value:
 You may set this value in `.env.local` to make the value persistent on your
 machine.
 
-### Optional prerequisites
-
-- If you want to program smartcards, start
-  [`services/smartcards`](../../../services/smartcards)
-- If you will need to convert SEMS files, start
-  [`services/converter-ms-sems`](../../../services/converter-ms-sems)
-
 ## Testing
 
 ```sh

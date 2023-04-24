@@ -2,7 +2,6 @@ import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
 import {
   DippedSmartCardAuth,
-  MemoryCard,
   JavaCard,
   constructJavaCardConfig,
   MockFileCard,
@@ -38,27 +37,9 @@ export async function start({
   port = PORT,
   workspace,
 }: Partial<StartOptions>): Promise<Server> {
-  const auth = new DippedSmartCardAuth({
-    card:
-      isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
-      isIntegrationTest()
-        ? /* istanbul ignore next */ new MockFileCard()
-        : isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS)
-        ? /* istanbul ignore next */ new JavaCard(
-            constructJavaCardConfig({ includeCardProgrammingConfig: true })
-          )
-        : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
-    config: {
-      allowElectionManagersToAccessUnconfiguredMachines: false,
-    },
-    logger,
-  });
-
   let resolvedWorkspace = workspace;
-
-  if (workspace) {
-    resolvedWorkspace = workspace;
-  } else {
+  /* istanbul ignore next */
+  if (!resolvedWorkspace) {
     const workspacePath = ADMIN_WORKSPACE;
     if (!workspacePath) {
       await logger.log(LogEventId.AdminServiceConfigurationMessage, 'system', {
@@ -70,24 +51,38 @@ export async function start({
         'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE'
       );
     }
-    /* istanbul ignore next */
     resolvedWorkspace = createWorkspace(workspacePath);
   }
 
-  // clear any cached data
+  // Clear any cached data
   resolvedWorkspace.clearUploads();
 
-  const usb: Usb = { getUsbDrives };
-
+  let resolvedApp = app;
   /* istanbul ignore next */
-  const resolvedApp =
-    app ??
-    buildApp({
+  if (!resolvedApp) {
+    const auth = new DippedSmartCardAuth({
+      card:
+        isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
+        isIntegrationTest()
+          ? new MockFileCard()
+          : new JavaCard(
+              constructJavaCardConfig({ includeCardProgrammingConfig: true })
+            ),
+      config: {
+        allowElectionManagersToAccessUnconfiguredMachines: false,
+      },
+      logger,
+    });
+
+    const usb: Usb = { getUsbDrives };
+
+    resolvedApp = buildApp({
       auth,
-      workspace: resolvedWorkspace,
       logger,
       usb,
+      workspace: resolvedWorkspace,
     });
+  }
 
   const server = resolvedApp.listen(port, async () => {
     await logger.log(LogEventId.ApplicationStartup, 'system', {

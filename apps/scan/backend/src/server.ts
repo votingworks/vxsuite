@@ -1,8 +1,8 @@
 import {
   constructJavaCardConfig,
   InsertedSmartCardAuth,
+  InsertedSmartCardAuthApi,
   JavaCard,
-  MemoryCard,
   MockFileCard,
 } from '@votingworks/auth';
 import { getUsbDrives } from '@votingworks/backend';
@@ -20,41 +20,44 @@ import { Usb } from './util/usb';
 import { Workspace } from './util/workspace';
 
 export interface StartOptions {
-  precinctScannerStateMachine: PrecinctScannerStateMachine;
-  precinctScannerInterpreter: PrecinctScannerInterpreter;
-  workspace: Workspace;
-  port?: number | string;
+  auth?: InsertedSmartCardAuthApi;
   logger?: Logger;
+  port?: number | string;
+  precinctScannerInterpreter: PrecinctScannerInterpreter;
+  precinctScannerStateMachine: PrecinctScannerStateMachine;
+  workspace: Workspace;
 }
 
 /**
  * Starts the server.
  */
 export function start({
-  precinctScannerStateMachine,
-  precinctScannerInterpreter,
-  workspace,
+  auth,
   logger = new Logger(LogSource.VxScanBackend),
+  precinctScannerInterpreter,
+  precinctScannerStateMachine,
+  workspace,
 }: StartOptions): void {
-  const auth = new InsertedSmartCardAuth({
-    card:
-      isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
-      isIntegrationTest()
-        ? /* istanbul ignore next */ new MockFileCard()
-        : isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_JAVA_CARDS)
-        ? /* istanbul ignore next */ new JavaCard(constructJavaCardConfig())
-        : new MemoryCard({ baseUrl: 'http://localhost:3001' }),
-    config: {},
-    logger,
-  });
+  /* istanbul ignore next */
+  const resolvedAuth =
+    auth ??
+    new InsertedSmartCardAuth({
+      card:
+        isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
+        isIntegrationTest()
+          ? new MockFileCard()
+          : new JavaCard(constructJavaCardConfig()),
+      config: {},
+      logger,
+    });
+
+  const usb: Usb = { getUsbDrives };
 
   // Clear any cached data
   workspace.clearUploads();
 
-  const usb: Usb = { getUsbDrives };
-
   const app = buildApp(
-    auth,
+    resolvedAuth,
     precinctScannerStateMachine,
     precinctScannerInterpreter,
     workspace,
