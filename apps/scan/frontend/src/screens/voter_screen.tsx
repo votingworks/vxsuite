@@ -50,30 +50,34 @@ export function VoterScreen({
   const playSuccess = useSound('success');
   const playWarning = useSound('warning');
   const playError = useSound('error');
-  useQueryChangeListener(scannerStatusQuery, (newScannerStatus) => {
-    if (isSoundMuted) return;
-    switch (newScannerStatus.state) {
-      case 'accepted': {
-        playSuccess();
-        break;
-      }
-      case 'needs_review':
-      case 'both_sides_have_paper': {
-        playWarning();
-        break;
-      }
-      case 'rejecting':
-      case 'jammed':
-      case 'double_sheet_jammed':
-      case 'unrecoverable_error': {
-        playError();
-        break;
-      }
-      default: {
-        // No sound
+  useQueryChangeListener(
+    scannerStatusQuery,
+    (newScannerStatus, previousScannerStatus) => {
+      if (isSoundMuted) return;
+      if (newScannerStatus.state === previousScannerStatus?.state) return;
+      switch (newScannerStatus.state) {
+        case 'accepted': {
+          playSuccess();
+          break;
+        }
+        case 'needs_review':
+        case 'both_sides_have_paper': {
+          playWarning();
+          break;
+        }
+        case 'rejecting':
+        case 'jammed':
+        case 'double_sheet_jammed':
+        case 'unrecoverable_error': {
+          playError();
+          break;
+        }
+        default: {
+          // No sound
+        }
       }
     }
-  });
+  );
 
   if (!scannerStatusQuery.isSuccess) {
     return null;
