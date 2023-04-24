@@ -143,11 +143,7 @@ function throwIfUnserializable(value: unknown): void {
   if (taggers.some((tagger) => tagger.shouldTag(value))) {
     return;
   }
-  if (
-    isObject(value) &&
-    !(value instanceof Date) &&
-    isFunction(value['toJSON'])
-  ) {
+  if (isObject(value) && isFunction(value['toJSON'])) {
     throw unserializableError(value);
   }
   if (isNumber(value) && (isNaN(value) || !isFinite(value))) {
