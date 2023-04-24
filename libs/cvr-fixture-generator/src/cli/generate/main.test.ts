@@ -6,7 +6,10 @@ import fs from 'fs/promises';
 import { join, resolve } from 'path';
 import { dirSync } from 'tmp';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
-import { getCastVoteRecordReportImport } from '@votingworks/backend';
+import {
+  getCastVoteRecordReportImport,
+  isBmdWriteIn,
+} from '@votingworks/backend';
 import { assert } from '@votingworks/basics';
 import { main } from './main';
 import { BATCH_ID } from '../../utils';
@@ -276,4 +279,39 @@ test('including ballot images', async () => {
       "2F__precinct-2__1.layout.json",
     ]
   `);
+});
+
+test('generating as BMD ballots', async () => {
+  const ballotPackagePath =
+    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
+  const outputDirectory = dirSync();
+
+  expect(
+    await run([
+      '--ballotPackage',
+      ballotPackagePath,
+      '--outputPath',
+      outputDirectory.name,
+      '--bmdBallots',
+    ])
+  ).toEqual({
+    exitCode: 0,
+    stdout: `Wrote 112 cast vote records to ${outputDirectory.name}\n`,
+    stderr: '',
+  });
+
+  const report = reportFromFile(outputDirectory.name);
+  assert(report.CVR);
+  for (const cvr of report.CVR) {
+    expect(cvr.BallotImage).toBeUndefined();
+    const writeIns = cvr.CVRSnapshot[0]!.CVRContest.flatMap(
+      (contest) => contest.CVRContestSelection
+    )
+      .flatMap((contestSelection) => contestSelection.SelectionPosition)
+      .map((selectionPosition) => selectionPosition.CVRWriteIn)
+      .filter(
+        (cvrWriteIn): cvrWriteIn is CVR.CVRWriteIn => cvrWriteIn !== undefined
+      );
+    expect(writeIns.every((writeIn) => isBmdWriteIn(writeIn))).toEqual(true);
+  }
 });

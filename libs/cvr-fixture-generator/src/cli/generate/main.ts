@@ -41,6 +41,7 @@ interface GenerateCvrFileArguments {
   officialBallots: boolean;
   includeBallotImages: boolean;
   ballotIdPrefix?: string;
+  bmdBallots: boolean;
   help?: boolean;
   [x: string]: unknown;
 }
@@ -98,6 +99,11 @@ export async function main(
         description:
           'If included, applies a prefix to the ballot ids. E.g. "p-456" instead of "456"',
       },
+      bmdBallots: {
+        type: 'boolean',
+        description:
+          'Create BMD ballots when specified. By default HMPB ballots are created. Note that this will create ballots without images, regardless of the "includeBallotImages" argument',
+      },
     })
     .alias('-h', '--help')
     .help(false)
@@ -138,6 +144,7 @@ export async function main(
     includeBallotImages,
     ballotPackage: ballotPackagePath,
     ballotIdPrefix,
+    bmdBallots,
   } = args;
   const scannerNames = (args.scannerNames ?? ['scanner']).map((s) => `${s}`);
   const testMode = !args.officialBallots;
@@ -154,6 +161,7 @@ export async function main(
       testMode,
       scannerNames,
       ballotIdPrefix,
+      bmdBallots,
     })
   ).toArray();
 
