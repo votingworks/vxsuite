@@ -228,6 +228,7 @@ export class Store {
    * `settings` are local to VxAdmin
    */
   saveSystemSettings(systemSettings: SystemSettings): void {
+    this.client.run('delete from system_settings');
     this.client.run(
       'insert into system_settings (are_poll_worker_card_pins_enabled) values (?)',
       systemSettings.arePollWorkerCardPinsEnabled ? 1 : 0 // No booleans in sqlite3
