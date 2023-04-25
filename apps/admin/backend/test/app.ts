@@ -163,10 +163,10 @@ export async function configureMachine(
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function buildTestEnvironment() {
+export function buildTestEnvironment(workspaceRoot = tmp.dirSync().name) {
   const logger = fakeLogger();
   const auth = buildMockDippedSmartCardAuth();
-  const workspace = createWorkspace(tmp.dirSync().name);
+  const workspace = createWorkspace(workspaceRoot);
   const mockUsb = createMockUsb();
   const app = buildApp({ auth, workspace, logger, usb: mockUsb.usb });
   // port 0 will bind to a random, free port assigned by the OS
