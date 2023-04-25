@@ -7,6 +7,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
   within,
 } from '../test/react_testing_library';
 import { App } from './app';
@@ -26,6 +27,22 @@ import {
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
+
+/**
+ * HACK: The modal library we're using applies an `aria-hidden` attribute
+ * to the root element when a modal is open and removes it when the modal
+ * is closed, but this isn't happening in the jest environment, for some
+ * reason. Works as expected in production.
+ * We're removing the attribute here to make sure our getByRole queries work
+ * properly.
+ */
+async function hackActuallyCleanUpReactModal() {
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+
+  window.document.body.firstElementChild?.removeAttribute('aria-hidden');
+}
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -117,9 +134,10 @@ it('Single Seat Contest with Write In', async () => {
   fireEvent.click(getWithinKeyboard('A').closest('button')!);
   fireEvent.click(getWithinKeyboard('L').closest('button')!);
   fireEvent.click(screen.getByText('Accept'));
-  expect(
-    screen.getByText('SAL').closest('button')!.dataset['selected']
-  ).toEqual('true');
+
+  await hackActuallyCleanUpReactModal();
+
+  screen.getByRole('option', { name: /SAL/, selected: true });
 
   // Try to Select Other Candidate when max candidates are selected.
   fireEvent.click(

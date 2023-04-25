@@ -14,11 +14,11 @@ import {
 } from '@votingworks/types';
 import {
   Button,
+  ContestChoiceButton,
   DisplayTextForYesOrNo,
   Main,
   Modal,
   Prose,
-  Text,
   TextWithLineBreaks,
 } from '@votingworks/ui';
 
@@ -29,7 +29,6 @@ import { ScrollDirections, UpdateVoteFunction } from '../config/types';
 import { BallotContext } from '../contexts/ballot_context';
 
 import { FONT_SIZES } from '../config/globals';
-import { ChoiceButton } from './choice_button';
 
 import {
   ContentHeader,
@@ -228,23 +227,16 @@ export function YesNoContest({
                 prefixAudioText = 'Deselected,';
               }
               return (
-                <ChoiceButton
+                <ContestChoiceButton
                   key={answer.vote}
                   choice={answer.vote}
                   isSelected={isChecked}
                   onPress={
                     isDisabled ? handleDisabledClick : handleUpdateSelection
                   }
-                >
-                  <Prose>
-                    <Text
-                      aria-label={`${prefixAudioText} ${answer.label} on ${contest.title}`}
-                      wordBreak
-                    >
-                      {answer.label}
-                    </Text>
-                  </Prose>
-                </ChoiceButton>
+                  ariaLabel={`${prefixAudioText} ${answer.label} on ${contest.title}`}
+                  label={answer.label}
+                />
               );
             })}
           </ChoicesGrid>

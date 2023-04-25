@@ -15,7 +15,15 @@ import {
   getCandidatePartiesDescription,
   getContestDistrictName,
 } from '@votingworks/types';
-import { Button, Main, Modal, Prose, Text } from '@votingworks/ui';
+import {
+  Button,
+  ContestChoiceButton,
+  Icons,
+  Main,
+  Modal,
+  Prose,
+  Text,
+} from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
 import { stripQuotes } from '../utils/strip_quotes';
@@ -26,7 +34,6 @@ import { BallotContext } from '../contexts/ballot_context';
 
 import { Blink } from './animations';
 import { FONT_SIZES, WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
-import { ChoiceButton } from './choice_button';
 import { VirtualKeyboard } from './virtual_keyboard';
 import {
   ContentHeader,
@@ -341,31 +348,21 @@ export function CandidateContest({
                     prefixAudioText = 'Deselected,';
                   }
                   return (
-                    <ChoiceButton
+                    <ContestChoiceButton
                       key={candidate.id}
                       isSelected={isChecked}
                       onPress={
                         isDisabled ? handleDisabledClick : handleUpdateSelection
                       }
                       choice={candidate.id}
-                      aria-label={`${prefixAudioText} ${stripQuotes(
+                      ariaLabel={`${prefixAudioText} ${stripQuotes(
                         candidate.name
                       )}${
                         partiesDescription ? `, ${partiesDescription}` : ''
                       }.`}
-                    >
-                      <Prose>
-                        <Text wordBreak>
-                          <strong>{candidate.name}</strong>
-                          {partiesDescription && (
-                            <React.Fragment>
-                              <br />
-                              {partiesDescription}
-                            </React.Fragment>
-                          )}
-                        </Text>
-                      </Prose>
-                    </ChoiceButton>
+                      label={candidate.name}
+                      caption={partiesDescription}
+                    />
                   );
                 })}
                 {contest.allowWriteIns &&
@@ -373,24 +370,19 @@ export function CandidateContest({
                     .filter((c) => c.isWriteIn)
                     .map((candidate) => {
                       return (
-                        <ChoiceButton
+                        <ContestChoiceButton
                           key={candidate.id}
                           isSelected
                           choice={candidate.id}
                           onPress={handleUpdateSelection}
-                        >
-                          <Prose>
-                            <p
-                              aria-label={`Selected, write-in: ${candidate.name}.`}
-                            >
-                              <strong>{candidate.name}</strong>
-                            </p>
-                          </Prose>
-                        </ChoiceButton>
+                          ariaLabel={`Selected, write-in: ${candidate.name}.`}
+                          label={candidate.name}
+                          caption="Write-In"
+                        />
                       );
                     })}
                 {contest.allowWriteIns && (
-                  <ChoiceButton
+                  <ContestChoiceButton
                     choice="write-in"
                     isSelected={false}
                     onPress={
@@ -398,13 +390,12 @@ export function CandidateContest({
                         ? handleDisabledAddWriteInClick
                         : initWriteInCandidate
                     }
-                  >
-                    <Prose>
-                      <p aria-label="add write-in candidate.">
-                        <em>add write-in candidate</em>
-                      </p>
-                    </Prose>
-                  </ChoiceButton>
+                    label={
+                      <span>
+                        <Icons.Edit /> add write-in candidate
+                      </span>
+                    }
+                  />
                 )}
               </ChoicesGrid>
             </ScrollableContentWrapper>

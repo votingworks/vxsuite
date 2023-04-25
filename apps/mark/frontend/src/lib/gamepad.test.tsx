@@ -70,37 +70,44 @@ it('gamepad controls work', async () => {
 
   // Test navigation by gamepad
   handleGamepadButtonDown('DPadDown');
-  expect(getActiveElement().dataset['choice']).toEqual(contest0candidate0.id);
+  expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
   handleGamepadButtonDown('DPadDown');
-  expect(getActiveElement().dataset['choice']).toEqual(contest0candidate1.id);
+  expect(getActiveElement()).toHaveTextContent(contest0candidate1.name);
   handleGamepadButtonDown('DPadUp');
-  expect(getActiveElement().dataset['choice']).toEqual(contest0candidate0.id);
+  expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
 
   // test the edge case of rolling over
   handleGamepadButtonDown('DPadUp');
   expect(document.activeElement!.textContent).toEqual('Settings');
   handleGamepadButtonDown('DPadDown');
-  expect(getActiveElement().dataset['choice']).toEqual(contest0candidate0.id);
+  expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
 
   handleGamepadButtonDown('DPadRight');
   await advanceTimersAndPromises();
+
   // go up first without focus, then down once, should be same as down once.
   handleGamepadButtonDown('DPadUp');
   handleGamepadButtonDown('DPadDown');
-  expect(getActiveElement().dataset['choice']).toEqual(contest1candidate0.id);
+  expect(getActiveElement()).toHaveTextContent(contest1candidate0.name);
   handleGamepadButtonDown('DPadLeft');
   await advanceTimersAndPromises();
   // B is same as down
   handleGamepadButtonDown('B');
-  expect(getActiveElement().dataset['choice']).toEqual(contest0candidate0.id);
+  expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
 
   // select and unselect
   handleGamepadButtonDown('A');
   await advanceTimersAndPromises();
-  expect(getActiveElement().dataset['selected']).toEqual('true');
+  screen.getByRole('option', {
+    name: new RegExp(contest0candidate0.name),
+    selected: true,
+  });
   handleGamepadButtonDown('A');
   await advanceTimersAndPromises();
-  expect(getActiveElement().dataset['selected']).toEqual('false');
+  screen.getByRole('option', {
+    name: new RegExp(contest0candidate0.name),
+    selected: false,
+  });
 
   // Confirm 'Okay' is only active element on page. Modal is "true" modal.
   fireEvent.click(screen.getByText(contest0candidate0.name));

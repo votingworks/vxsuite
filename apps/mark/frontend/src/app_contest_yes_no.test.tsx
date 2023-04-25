@@ -81,41 +81,33 @@ it('Single Seat Contest', async () => {
 
   // Select Yes
   fireEvent.click(contestChoices.getByText('Yes'));
-  expect(
-    contestChoices.getByText('Yes').closest('button')!.dataset['selected']
-  ).toEqual('true');
+  contestChoices.getByRole('option', { name: /Selected.+Yes/, selected: true });
 
   // Unselect Yes
   fireEvent.click(contestChoices.getByText('Yes'));
-  expect(
-    contestChoices.getByText('Yes').closest('button')!.dataset['selected']
-  ).toEqual('false');
 
   // Check that the aria label was updated to be deselected properly and is then removed
-  expect(contestChoices.getByText('Yes').getAttribute('aria-label')).toContain(
-    'Deselected,'
-  );
-  expect(
-    contestChoices.getByText('No').getAttribute('aria-label')
-  ).not.toContain('Deselected,');
+  contestChoices.getByRole('option', {
+    name: /Deselected.+Yes/,
+    selected: false,
+  });
+  contestChoices.getByRole('option', { name: /^No/, selected: false });
   act(() => {
     jest.advanceTimersByTime(101);
   });
-  expect(
-    contestChoices.getByText('Yes').getAttribute('aria-label')
-  ).not.toContain('Deselected,');
+  contestChoices.getByRole('option', { name: /^Yes/, selected: false });
 
   // Select Yes
   fireEvent.click(contestChoices.getByText('Yes'));
-  expect(
-    contestChoices.getByText('Yes').closest('button')!.dataset['selected']
-  ).toEqual('true');
+  contestChoices.getByRole('option', { name: /Yes/, selected: true });
 
   // Select No
   fireEvent.click(contestChoices.getByText('No'));
-  expect(
-    contestChoices.getByText('No').closest('button')!.dataset['selected']
-  ).toEqual('false');
+  contestChoices.getByRole('option', {
+    name: /^No/,
+    hidden: true, // Hidden by overvote modal.
+    selected: false,
+  });
 
   // Overvote modal is displayed
   getByTextWithMarkup(
