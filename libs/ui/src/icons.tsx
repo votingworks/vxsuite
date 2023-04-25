@@ -5,6 +5,7 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheckCircle,
+  faCircleHalfStroke,
   faCircleLeft,
   faCircleRight,
   faDeleteLeft,
@@ -18,6 +19,7 @@ import {
   faXmark,
   faMagnifyingGlassPlus,
   faMagnifyingGlassMinus,
+  faTextHeight,
   faBan,
 } from '@fortawesome/free-solid-svg-icons';
 import {
@@ -72,6 +74,10 @@ export const Icons = {
     return <FaIcon type={faMinusCircle} />;
   },
 
+  Contrast(): JSX.Element {
+    return <FaIcon type={faCircleHalfStroke} />;
+  },
+
   Danger(): JSX.Element {
     return <FaIcon type={faExclamationCircle} />;
   },
@@ -114,6 +120,10 @@ export const Icons = {
 
   Settings(): JSX.Element {
     return <FaIcon type={faGear} />;
+  },
+
+  TextSize(): JSX.Element {
+    return <FaIcon type={faTextHeight} />;
   },
 
   Warning(): JSX.Element {
