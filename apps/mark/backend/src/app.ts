@@ -43,8 +43,6 @@ function buildApi(
   return grout.createApi({
     getMachineConfig,
 
-    // TODO: Once election definition has been moved to the backend, no longer require the frontend
-    // to provide election hash to this and other methods that use the auth lib
     getAuthStatus() {
       return auth.getAuthStatus(constructAuthMachineState(workspace));
     },
