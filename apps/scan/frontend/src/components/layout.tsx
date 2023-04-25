@@ -1,3 +1,4 @@
+/* stylelint-disable order/properties-order */
 import React from 'react';
 import {
   Screen,
@@ -7,7 +8,7 @@ import {
   TestMode,
 } from '@votingworks/ui';
 import { getConfig, getMachineConfig, getScannerStatus } from '../api';
-import { ScannedBallotCount } from './scanned_ballot_count';
+import { ScreenHeader } from './screen_header';
 
 interface CenteredScreenProps {
   ballotCountOverride?: number;
@@ -38,9 +39,9 @@ export function ScreenMainCenterChild({
   return (
     <Screen>
       {!isLiveMode && <TestMode />}
-      {ballotCount !== undefined && electionDefinition && (
-        <ScannedBallotCount count={ballotCount} />
-      )}
+      <ScreenHeader
+        ballotCount={electionDefinition ? ballotCount : undefined}
+      />
       <Main padded centerChild style={{ position: 'relative' }}>
         {children}
       </Main>

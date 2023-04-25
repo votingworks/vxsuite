@@ -11,6 +11,8 @@ import { BrowserRouter, Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ApiClientContext, createApiClient, createQueryClient } from './api';
+import { Paths } from './constants';
+import { DisplaySettingsScreen } from './screens/display_settings_screen';
 
 interface PreviewContextValues {
   electionDefinition: ElectionDefinition;
@@ -162,6 +164,9 @@ export function PreviewDashboard({
       <ApiClientContext.Provider value={createApiClient()}>
         <QueryClientProvider client={createQueryClient()}>
           <BrowserRouter>
+            <Route path={Paths.DISPLAY_SETTINGS} exact>
+              <DisplaySettingsScreen />
+            </Route>
             <Route path="/preview" exact>
               <H1>Previews</H1>
               <PreviewColumns>
