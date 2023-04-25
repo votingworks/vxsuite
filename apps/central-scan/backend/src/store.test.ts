@@ -654,10 +654,7 @@ test('adjudication', () => {
         },
         adjudicationInfo: {
           requiresAdjudication: true,
-          enabledReasons: [
-            AdjudicationReason.UninterpretableBallot,
-            AdjudicationReason.MarginalMark,
-          ],
+          enabledReasons: [AdjudicationReason.MarginalMark],
           enabledReasonInfos: [
             {
               type: AdjudicationReason.MarginalMark,

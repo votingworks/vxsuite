@@ -879,14 +879,8 @@ export function convertElectionDefinitionHeader(
         }),
       },
     ],
-    centralScanAdjudicationReasons: [
-      AdjudicationReason.UninterpretableBallot,
-      AdjudicationReason.Overvote,
-    ],
-    precinctScanAdjudicationReasons: [
-      AdjudicationReason.UninterpretableBallot,
-      AdjudicationReason.Overvote,
-    ],
+    centralScanAdjudicationReasons: [AdjudicationReason.Overvote],
+    precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
     sealUrl: '/seals/Seal_of_New_Hampshire.svg',
   };
 

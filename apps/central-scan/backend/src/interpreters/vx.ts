@@ -45,10 +45,7 @@ export async function configure(store: Store): Promise<void> {
     testMode: store.getTestMode(),
     markThresholdOverrides: store.getMarkThresholdOverrides(),
     adjudicationReasons: electionDefinition.election
-      .centralScanAdjudicationReasons ?? [
-      AdjudicationReason.UninterpretableBallot,
-      AdjudicationReason.MarginalMark,
-    ],
+      .centralScanAdjudicationReasons ?? [AdjudicationReason.MarginalMark],
   });
 
   debug('hand-marked paper ballot templates: %d', templates.length);

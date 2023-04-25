@@ -250,10 +250,7 @@ test('allows valid adjudication reasons', () => {
 
   t.safeParseVxfElection({
     ...electionSample,
-    adjudicationReasons: [
-      t.AdjudicationReason.MarginalMark,
-      t.AdjudicationReason.UninterpretableBallot,
-    ],
+    adjudicationReasons: [t.AdjudicationReason.MarginalMark],
   }).unsafeUnwrap();
 });
 

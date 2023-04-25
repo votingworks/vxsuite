@@ -40,26 +40,6 @@ const ballotMeasure3 =
     ({ id }) => id === 'fishing'
   ) as YesNoContest;
 
-test('an uninterpretable ballot', () => {
-  expect([
-    ...ballotAdjudicationReasons(undefined, {
-      optionMarkStatus: () => MarkStatus.Unmarked,
-    }),
-  ]).toEqual(
-    typedAs<AdjudicationReasonInfo[]>([
-      { type: AdjudicationReason.UninterpretableBallot },
-    ])
-  );
-
-  expect(
-    adjudicationReasonDescription({
-      type: AdjudicationReason.UninterpretableBallot,
-    })
-  ).toEqual(
-    'The ballot could not be interpreted at all, possibly due to a bad scan.'
-  );
-});
-
 test('a ballot with no adjudication reasons', () => {
   expect([
     ...ballotAdjudicationReasons([bestAnimalMammal], {

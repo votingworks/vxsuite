@@ -1188,7 +1188,6 @@ snapshots['test_election_and_tallies_process 1'] = {
         }
     ],
     'centralScanAdjudicationReasons': [
-        'UninterpretableBallot',
         'Overvote',
         'BlankBallot'
     ],
@@ -2516,7 +2515,6 @@ snapshots['test_election_and_tallies_process 1'] = {
         }
     ],
     'precinctScanAdjudicationReasons': [
-        'UninterpretableBallot',
         'Overvote',
         'Undervote',
         'BlankBallot'

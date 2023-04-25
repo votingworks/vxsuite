@@ -967,12 +967,10 @@ snapshots['test_general_conversion 1'] = '''{
     "officialInitials": "Initialing Manager"
   },
   "centralScanAdjudicationReasons": [
-    "UninterpretableBallot",
     "Overvote",
     "BlankBallot"
   ],
   "precinctScanAdjudicationReasons": [
-    "UninterpretableBallot",
     "Overvote",
     "Undervote",
     "BlankBallot"
@@ -1395,12 +1393,10 @@ snapshots['test_general_conversion 2'] = '''{
     "officialInitials": "Initialing Manager"
   },
   "centralScanAdjudicationReasons": [
-    "UninterpretableBallot",
     "Overvote",
     "BlankBallot"
   ],
   "precinctScanAdjudicationReasons": [
-    "UninterpretableBallot",
     "Overvote",
     "Undervote",
     "BlankBallot"
@@ -1621,12 +1617,10 @@ snapshots['test_general_conversion 3'] = '''{
     "officialInitials": "Initialing Manager"
   },
   "centralScanAdjudicationReasons": [
-    "UninterpretableBallot",
     "Overvote",
     "BlankBallot"
   ],
   "precinctScanAdjudicationReasons": [
-    "UninterpretableBallot",
     "Overvote",
     "Undervote",
     "BlankBallot"
@@ -2179,12 +2173,10 @@ snapshots['test_general_conversion 4'] = '''{
     "officialInitials": "Initialing Manager"
   },
   "centralScanAdjudicationReasons": [
-    "UninterpretableBallot",
     "Overvote",
     "BlankBallot"
   ],
   "precinctScanAdjudicationReasons": [
-    "UninterpretableBallot",
     "Overvote",
     "Undervote",
     "BlankBallot"

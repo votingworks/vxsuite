@@ -226,20 +226,3 @@ test('multiple undervotes', async () => {
     screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
   );
 });
-
-test('unreadable', async () => {
-  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
-  renderScreen({
-    adjudicationReasonInfo: [
-      { type: AdjudicationReason.UninterpretableBallot },
-    ],
-  });
-
-  await screen.findByRole('heading', { name: 'Scanning Failed' });
-  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
-  const confirmButton = screen.getByRole('button', {
-    name: 'Yes, Cast Ballot As Is',
-  });
-  userEvent.click(confirmButton);
-  expect(confirmButton).toBeDisabled();
-});

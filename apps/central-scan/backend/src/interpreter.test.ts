@@ -2233,10 +2233,7 @@ test('sheetRequiresAdjudication triggers for HMPB/blank page', () => {
     ...pageInterpretationBoilerplate,
     adjudicationInfo: {
       requiresAdjudication: true,
-      enabledReasons: [
-        AdjudicationReason.BlankBallot,
-        AdjudicationReason.UninterpretableBallot,
-      ],
+      enabledReasons: [AdjudicationReason.BlankBallot],
       enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
       ignoredReasonInfos: [],
     },

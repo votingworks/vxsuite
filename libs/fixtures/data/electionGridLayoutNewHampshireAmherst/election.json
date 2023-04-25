@@ -10,7 +10,7 @@
       "districts": ["town-id-00701-precinct-id-"]
     }
   ],
-  "centralScanAdjudicationReasons": ["UninterpretableBallot", "Overvote"],
+  "centralScanAdjudicationReasons": ["Overvote"],
   "contests": [
     {
       "id": "Governor-061a401b",
@@ -327,10 +327,10 @@
       "columns": 34,
       "rows": 53,
       "optionBoundsFromTargetMark": {
-        "left": 5,
         "top": 1,
         "right": 1,
-        "bottom": 1
+        "bottom": 1,
+        "left": 5
       },
       "gridPositions": [
         {
@@ -787,7 +787,7 @@
       "abbrev": "OC"
     }
   ],
-  "precinctScanAdjudicationReasons": ["UninterpretableBallot", "Overvote"],
+  "precinctScanAdjudicationReasons": ["Overvote"],
   "precincts": [
     {
       "id": "town-id-00701-precinct-id-",
