@@ -56,7 +56,10 @@ export function deserializeMockFileContents(file: Buffer): MockFileContents {
   };
 }
 
-function readFromMockFile(): MockFileContents {
+/**
+ * Read and parse the contents of the mock file for the current MockFileCard
+ */
+export function readFromMockFile(): MockFileContents {
   const file = fs.readFileSync(MOCK_FILE_PATH);
   return deserializeMockFileContents(file);
 }

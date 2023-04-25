@@ -89,6 +89,14 @@
       "path": "libs/db"
     },
     {
+      "name": "libs/dev-dock/backend",
+      "path": "libs/dev-dock/backend"
+    },
+    {
+      "name": "libs/dev-dock/frontend",
+      "path": "libs/dev-dock/frontend"
+    },
+    {
       "name": "libs/eslint-plugin-vx",
       "path": "libs/eslint-plugin-vx"
     },

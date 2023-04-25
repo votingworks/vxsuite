@@ -111,6 +111,33 @@ declare namespace KioskBrowser {
     filters?: FileFilter[];
   }
 
+  // Copied from Electron.OpenDialogOptions
+  export interface OpenDialogOptions {
+    title?: string;
+    defaultPath?: string;
+    /**
+     * Custom label for the confirmation button, when left empty the default label will
+     * be used.
+     */
+    buttonLabel?: string;
+    filters?: FileFilter[];
+    /**
+     * Contains which features the dialog should use. The following values are
+     * supported:
+     */
+    properties?: Array<
+      | 'openFile'
+      | 'openDirectory'
+      | 'multiSelections'
+      | 'showHiddenFiles'
+      | 'createDirectory'
+      | 'promptToCreate'
+      | 'noResolveAliases'
+      | 'treatPackageAsDirectory'
+      | 'dontAddToRecent'
+    >;
+  }
+
   export interface MakeDirectoryOptions {
     recursive?: boolean;
     mode?: number;
@@ -263,6 +290,13 @@ declare namespace KioskBrowser {
     powerDown(): Promise<void>;
 
     prepareToBootFromUsb(): Promise<boolean>;
+
+    showOpenDialog(options?: OpenDialogOptions): Promise<{
+      canceled: boolean;
+      filePaths: string[];
+    }>;
+
+    captureScreenshot(): Promise<Buffer>;
   }
 }
 

@@ -46,6 +46,7 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/custom-scanner": "workspace:*",
     "@votingworks/db": "workspace:*",
+    "@votingworks/dev-dock-backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/image-utils": "workspace:*",

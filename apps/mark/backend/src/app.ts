@@ -20,6 +20,7 @@ import { ScannerReportData, ScannerReportDataSchema } from '@votingworks/utils';
 import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { electionSampleDefinition } from '@votingworks/fixtures';
+import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 
@@ -185,5 +186,6 @@ export function buildApp(
   const app: Application = express();
   const api = buildApi(auth, usb, logger, workspace);
   app.use('/api', grout.buildRouter(api, express));
+  useDevDockRouter(app, express);
   return app;
 }

@@ -61,6 +61,7 @@
     "@votingworks/api": "workspace:*",
     "@votingworks/ballot-interpreter-vx": "workspace:*",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/dev-dock-frontend": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",

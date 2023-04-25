@@ -27,6 +27,7 @@ import {
   DEV_JURISDICTION,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
+import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { promises as fs, Stats } from 'fs';
 import { basename, dirname } from 'path';
 import {
@@ -579,5 +580,6 @@ export function buildApp({
   const app: Application = express();
   const api = buildApi({ auth, workspace, logger, usb });
   app.use('/api', grout.buildRouter(api, express));
+  useDevDockRouter(app, express);
   return app;
 }

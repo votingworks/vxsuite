@@ -31,6 +31,7 @@ import multer from 'multer';
 import { z } from 'zod';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
+import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { backupToUsbDrive } from './backup';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
@@ -211,6 +212,7 @@ export async function buildCentralScannerApp({
   const app: Application = express();
   const api = buildApi({ auth, workspace, logger, usb, importer });
   app.use('/api', grout.buildRouter(api, express));
+  useDevDockRouter(app, express);
 
   const upload = multer({
     storage: multer.diskStorage({

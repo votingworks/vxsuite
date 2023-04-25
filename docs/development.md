@@ -255,7 +255,7 @@ This file can live either at the root of vxsuite or in the project you want that
 flag to apply to. Flag values set in project files will override those set at
 the root. `.env.local` file will also override a default `.env` file at either a
 project or root level. To generate a `.env.local` file properly run the
-`pnpm configure-dev` command. If you are using VxDev you can run the
+`pnpm configure-env` command. If you are using VxDev you can run the
 `pnpm configure-vxdev-env` command BEFORE running the update code program.
 
 ### Use `zod` for validating/parsing JSON data

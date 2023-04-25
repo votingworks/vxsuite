@@ -73,6 +73,7 @@
     "@types/styled-components": "^5.1.7",
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/dev-dock-frontend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/logging": "workspace:*",

@@ -1,6 +1,7 @@
 import './polyfills';
 import React from 'react';
 import ReactDom from 'react-dom';
+import { DevDock } from '@votingworks/dev-dock-frontend';
 import { App } from './app';
 
 import {
@@ -29,6 +30,9 @@ if (readerEnabled) {
 }
 
 ReactDom.render(
-  <App screenReader={screenReader} />,
+  <React.Fragment>
+    <App screenReader={screenReader} />
+    <DevDock />
+  </React.Fragment>,
   document.getElementById('root') as HTMLElement
 );
