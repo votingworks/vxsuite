@@ -2,27 +2,32 @@ import { DateTime } from 'luxon';
 import { DEV_JURISDICTION } from '@votingworks/auth';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 
-import { createApp } from '../test/app_helpers';
+import { configureApp, createApp } from '../test/app_helpers';
 
 const { electionDefinition } = electionFamousNames2021Fixtures;
 const { electionHash } = electionDefinition;
 const jurisdiction = DEV_JURISDICTION;
 
 test('getAuthStatus', async () => {
-  const { apiClient, mockAuth } = createApp();
+  const { apiClient, mockAuth, mockUsb } = createApp();
+  await configureApp(apiClient, mockAuth, mockUsb);
 
-  await apiClient.getAuthStatus({ electionHash });
+  // Gets called once during configuration
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+
+  await apiClient.getAuthStatus();
+  expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(2);
+  expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(2, {
     electionHash,
     jurisdiction,
   });
 });
 
 test('checkPin', async () => {
-  const { apiClient, mockAuth } = createApp();
+  const { apiClient, mockAuth, mockUsb } = createApp();
+  await configureApp(apiClient, mockAuth, mockUsb);
 
-  await apiClient.checkPin({ electionHash, pin: '123456' });
+  await apiClient.checkPin({ pin: '123456' });
   expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
   expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
     1,
@@ -32,9 +37,10 @@ test('checkPin', async () => {
 });
 
 test('logOut', async () => {
-  const { apiClient, mockAuth } = createApp();
+  const { apiClient, mockAuth, mockUsb } = createApp();
+  await configureApp(apiClient, mockAuth, mockUsb);
 
-  await apiClient.logOut({ electionHash });
+  await apiClient.logOut();
   expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
   expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {
     electionHash,
@@ -43,10 +49,10 @@ test('logOut', async () => {
 });
 
 test('updateSessionExpiry', async () => {
-  const { apiClient, mockAuth } = createApp();
+  const { apiClient, mockAuth, mockUsb } = createApp();
+  await configureApp(apiClient, mockAuth, mockUsb);
 
   await apiClient.updateSessionExpiry({
-    electionHash,
     sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
   });
   expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
@@ -58,10 +64,10 @@ test('updateSessionExpiry', async () => {
 });
 
 test('startCardlessVoterSession', async () => {
-  const { apiClient, mockAuth } = createApp();
+  const { apiClient, mockAuth, mockUsb } = createApp();
+  await configureApp(apiClient, mockAuth, mockUsb);
 
   await apiClient.startCardlessVoterSession({
-    electionHash,
     ballotStyleId: 'b1',
     precinctId: 'p1',
   });
@@ -74,12 +80,84 @@ test('startCardlessVoterSession', async () => {
 });
 
 test('endCardlessVoterSession', async () => {
-  const { apiClient, mockAuth } = createApp();
+  const { apiClient, mockAuth, mockUsb } = createApp();
+  await configureApp(apiClient, mockAuth, mockUsb);
 
-  await apiClient.endCardlessVoterSession({ electionHash });
+  await apiClient.endCardlessVoterSession();
   expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(1, {
     electionHash,
+    jurisdiction,
+  });
+});
+
+test('getAuthStatus before election definition has been configured', async () => {
+  const { apiClient, mockAuth } = createApp();
+
+  await apiClient.getAuthStatus();
+  expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
+  expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    jurisdiction,
+  });
+});
+
+test('checkPin before election definition has been configured', async () => {
+  const { apiClient, mockAuth } = createApp();
+
+  await apiClient.checkPin({ pin: '123456' });
+  expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
+  expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
+    1,
+    { jurisdiction },
+    { pin: '123456' }
+  );
+});
+
+test('logOut before election definition has been configured', async () => {
+  const { apiClient, mockAuth } = createApp();
+
+  await apiClient.logOut();
+  expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
+  expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {
+    jurisdiction,
+  });
+});
+
+test('updateSessionExpiry before election definition has been configured', async () => {
+  const { apiClient, mockAuth } = createApp();
+
+  await apiClient.updateSessionExpiry({
+    sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
+  });
+  expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
+  expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
+    1,
+    { jurisdiction },
+    { sessionExpiresAt: expect.any(Date) }
+  );
+});
+
+test('startCardlessVoterSession before election definition has been configured', async () => {
+  const { apiClient, mockAuth } = createApp();
+
+  await apiClient.startCardlessVoterSession({
+    ballotStyleId: 'b1',
+    precinctId: 'p1',
+  });
+  expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledTimes(1);
+  expect(mockAuth.startCardlessVoterSession).toHaveBeenNthCalledWith(
+    1,
+    { jurisdiction },
+    { ballotStyleId: 'b1', precinctId: 'p1' }
+  );
+});
+
+test('endCardlessVoterSession before election definition has been configured', async () => {
+  const { apiClient, mockAuth } = createApp();
+
+  await apiClient.endCardlessVoterSession();
+  expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(1);
+  expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(1, {
     jurisdiction,
   });
 });

@@ -9,6 +9,12 @@ import { fakeLogger } from '@votingworks/logging';
 import tmp from 'tmp';
 import { MockUsb, createMockUsb } from '@votingworks/backend';
 import { Server } from 'http';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  fakeElectionManagerUser,
+  fakeSessionExpiresAt,
+  mockOf,
+} from '@votingworks/test-utils';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace } from '../src/util/workspace';
 
@@ -41,4 +47,32 @@ export function createApp(): MockAppContents {
     mockUsb,
     server,
   };
+}
+
+export async function configureApp(
+  apiClient: grout.Client<Api>,
+  mockAuth: InsertedSmartCardAuthApi,
+  mockUsb: MockUsb
+): Promise<void> {
+  const { ballotPackage, electionDefinition } = electionFamousNames2021Fixtures;
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: fakeElectionManagerUser(electionDefinition),
+      sessionExpiresAt: fakeSessionExpiresAt(),
+    })
+  );
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'test-ballot-package.zip': ballotPackage.asBuffer(),
+    },
+  });
+  const result = await apiClient.configureBallotPackageFromUsb();
+  expect(result.isOk()).toEqual(true);
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_out',
+      reason: 'no_card',
+    })
+  );
 }
