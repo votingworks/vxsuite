@@ -104,7 +104,7 @@ export function createApiMock() {
 
       if (isScannerReportDataReadExpected) {
         mockApiClient.readScannerReportDataFromCard
-          .expectCallWith({ electionHash })
+          .expectCallWith()
           .resolves(scannerReportDataReadResult);
       }
 
