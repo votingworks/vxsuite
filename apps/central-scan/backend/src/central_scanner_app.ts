@@ -149,15 +149,11 @@ function buildApi({
     async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<ElectionDefinition, BallotPackageConfigurationError>
     > {
-      if (store.getElectionDefinition()) {
-        store.setElectionAndJurisdiction(undefined);
-      }
-      const [usbDrive] = await usb.getUsbDrives();
-      assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
-
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
+      const [usbDrive] = await usb.getUsbDrives();
+      assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
 
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
