@@ -3,6 +3,7 @@ import { cpSync, emptyDirSync, ensureDirSync, existsSync } from 'fs-extra';
 import { join } from 'path';
 import tmp from 'tmp';
 import { Workspace } from '../src/util/workspace';
+import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup';
 
 export const WORKSPACE_BACKUPS_DIR = join(__dirname, '..', 'workspace-backups');
 
@@ -34,8 +35,10 @@ export function takeBackup({
  * Return a path to a temporary copy of a backup, specified by id.
  */
 export function getBackupPath(backupName: string): string {
-  const tmpBackupPath = tmp.dirSync().name;
   const backupPath = join(WORKSPACE_BACKUPS_DIR, backupName);
+  const tmpBackupPath = tmp.dirSync().name;
+
   cpSync(backupPath, tmpBackupPath, { recursive: true });
+  deleteTmpFileAfterTestSuiteCompletes(tmpBackupPath);
   return tmpBackupPath;
 }
