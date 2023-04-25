@@ -209,6 +209,8 @@ export function* generateCvrs({
                   },
                 ],
               };
+
+              castVoteRecordId += 1;
             } else {
               // Since this is HMPB, we generate a CVR for each sheet (not fully supported yet)
               const contestsBySheet = arrangeContestsBySheet(

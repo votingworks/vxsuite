@@ -8,6 +8,7 @@ import { dirSync } from 'tmp';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
 import {
   getCastVoteRecordReportImport,
+  getWriteInsFromCastVoteRecord,
   isBmdWriteIn,
 } from '@votingworks/backend';
 import { assert } from '@votingworks/basics';
@@ -302,8 +303,14 @@ test('generating as BMD ballots', async () => {
 
   const report = reportFromFile(outputDirectory.name);
   assert(report.CVR);
-  for (const cvr of report.CVR) {
+  for (const [index, cvr] of report.CVR.entries()) {
     expect(cvr.BallotImage).toBeUndefined();
+    expect(cvr.UniqueId).toEqual(index.toString());
+    expect(
+      getWriteInsFromCastVoteRecord(cvr).every((castVoteRecordWriteIn) =>
+        Boolean(castVoteRecordWriteIn.text)
+      )
+    ).toEqual(true);
     const writeIns = cvr.CVRSnapshot[0]!.CVRContest.flatMap(
       (contest) => contest.CVRContestSelection
     )
