@@ -155,7 +155,7 @@ function ScannerReportModal({
   );
 
   const clearScannerReportDataFromCardMutation =
-    clearScannerReportDataFromCard.useMutation(electionDefinition.electionHash);
+    clearScannerReportDataFromCard.useMutation();
 
   async function printReport(copies: number) {
     const report = await (async () => {
@@ -478,12 +478,12 @@ export function PollWorkerScreen({
   reload,
   logger,
 }: PollworkerScreenProps): JSX.Element {
-  const { election, electionHash } = electionDefinition;
+  const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
 
   const scannerReportDataFromCardQuery =
-    getScannerReportDataFromCard.useQuery(electionHash);
+    getScannerReportDataFromCard.useQuery();
   const [scannerReportDataToBePrinted, setScannerReportDataToBePrinted] =
     useState<ScannerReportData>();
 

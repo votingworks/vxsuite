@@ -13,7 +13,6 @@ import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
-import { BallotStyleId, PrecinctId } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -72,15 +71,11 @@ export const getAuthStatus = {
   queryKey(): QueryKey {
     return ['getAuthStatus'];
   },
-  // TODO: Once election definition has been moved to the backend, no longer require election hash
-  // to be provided here and in other auth/card queries/mutations
-  useQuery(electionHash?: string) {
+  useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.getAuthStatus({ electionHash }),
-      { refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS }
-    );
+    return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
+      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+    });
   },
 } as const;
 
@@ -88,11 +83,11 @@ export const getScannerReportDataFromCard = {
   queryKey(): QueryKey {
     return ['getScannerReportDataFromCard'];
   },
-  useQuery(electionHash?: string) {
+  useQuery() {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(),
-      () => apiClient.readScannerReportDataFromCard({ electionHash }),
+      () => apiClient.readScannerReportDataFromCard(),
       // Don't cache this since caching would require invalidation in response to external
       // circumstances, like card removal
       { cacheTime: 0, staleTime: 0 }
@@ -101,29 +96,25 @@ export const getScannerReportDataFromCard = {
 } as const;
 
 export const checkPin = {
-  useMutation(electionHash?: string) {
+  useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (input: { pin: string }) =>
-        apiClient.checkPin({ ...input, electionHash }),
-      {
-        async onSuccess() {
-          // Because we poll auth status with high frequency, this invalidation isn't strictly
-          // necessary
-          await queryClient.invalidateQueries(getAuthStatus.queryKey());
-        },
-      }
-    );
+    return useMutation(apiClient.checkPin, {
+      async onSuccess() {
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
+        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+      },
+    });
   },
 } as const;
 
 /* istanbul ignore next */
 export const logOut = {
-  useMutation(electionHash?: string) {
+  useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(() => apiClient.logOut({ electionHash }), {
+    return useMutation(apiClient.logOut, {
       async onSuccess() {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
@@ -135,74 +126,60 @@ export const logOut = {
 
 /* istanbul ignore next */
 export const updateSessionExpiry = {
-  useMutation(electionHash?: string) {
+  useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (input: { sessionExpiresAt: Date }) =>
-        apiClient.updateSessionExpiry({ ...input, electionHash }),
-      {
-        async onSuccess() {
-          // Because we poll auth status with high frequency, this invalidation isn't strictly
-          // necessary
-          await queryClient.invalidateQueries(getAuthStatus.queryKey());
-        },
-      }
-    );
+    return useMutation(apiClient.updateSessionExpiry, {
+      async onSuccess() {
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
+        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+      },
+    });
   },
 } as const;
 
 export const startCardlessVoterSession = {
-  useMutation(electionHash?: string) {
+  useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (input: { ballotStyleId: BallotStyleId; precinctId: PrecinctId }) =>
-        apiClient.startCardlessVoterSession({ ...input, electionHash }),
-      {
-        async onSuccess() {
-          // Because we poll auth status with high frequency, this invalidation isn't strictly
-          // necessary
-          await queryClient.invalidateQueries(getAuthStatus.queryKey());
-        },
-      }
-    );
+    return useMutation(apiClient.startCardlessVoterSession, {
+      async onSuccess() {
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
+        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+      },
+    });
   },
 } as const;
 
 export const endCardlessVoterSession = {
-  useMutation(electionHash?: string) {
+  useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      () => apiClient.endCardlessVoterSession({ electionHash }),
-      {
-        async onSuccess() {
-          // Because we poll auth status with high frequency, this invalidation isn't strictly
-          // necessary
-          await queryClient.invalidateQueries(getAuthStatus.queryKey());
-        },
-      }
-    );
+    return useMutation(apiClient.endCardlessVoterSession, {
+      async onSuccess() {
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
+        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+      },
+    });
   },
 } as const;
 
 export const clearScannerReportDataFromCard = {
-  useMutation(electionHash?: string) {
+  useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      () => apiClient.clearScannerReportDataFromCard({ electionHash }),
-      {
-        async onSuccess() {
-          // Because we don't cache scanner report data from cards, this invalidation isn't
-          // strictly necessary
-          await queryClient.invalidateQueries(
-            getScannerReportDataFromCard.queryKey()
-          );
-        },
-      }
-    );
+    return useMutation(apiClient.clearScannerReportDataFromCard, {
+      async onSuccess() {
+        // Because we don't cache scanner report data from cards, this invalidation isn't
+        // strictly necessary
+        await queryClient.invalidateQueries(
+          getScannerReportDataFromCard.queryKey()
+        );
+      },
+    });
   },
 } as const;
 
