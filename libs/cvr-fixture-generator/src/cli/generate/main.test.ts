@@ -6,7 +6,11 @@ import fs from 'fs/promises';
 import { join, resolve } from 'path';
 import { dirSync } from 'tmp';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
-import { getCastVoteRecordReportImport } from '@votingworks/backend';
+import {
+  getCastVoteRecordReportImport,
+  getWriteInsFromCastVoteRecord,
+  isBmdWriteIn,
+} from '@votingworks/backend';
 import { assert } from '@votingworks/basics';
 import { main } from './main';
 import { BATCH_ID } from '../../utils';
@@ -133,6 +137,8 @@ test('generate with custom number of records above the suggested number', async 
       outputDirectory.name,
       '--numBallots',
       '3000',
+      '--ballotIdPrefix',
+      'pre',
     ])
   ).toEqual({
     exitCode: 0,
@@ -149,7 +155,7 @@ test('generate with custom number of records above the suggested number', async 
   let cvrCount = 0;
   for await (const unparsedCastVoteRecord of castVoteRecordReportImport.CVR) {
     const castVoteRecord = unsafeParse(CVR.CVRSchema, unparsedCastVoteRecord);
-    expect(castVoteRecord.UniqueId).toEqual(`${cvrCount}`);
+    expect(castVoteRecord.UniqueId).toEqual(`pre-${cvrCount}`);
     cvrCount += 1;
   }
 
@@ -274,4 +280,45 @@ test('including ballot images', async () => {
       "2F__precinct-2__1.layout.json",
     ]
   `);
+});
+
+test('generating as BMD ballots', async () => {
+  const ballotPackagePath =
+    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
+  const outputDirectory = dirSync();
+
+  expect(
+    await run([
+      '--ballotPackage',
+      ballotPackagePath,
+      '--outputPath',
+      outputDirectory.name,
+      '--bmdBallots',
+    ])
+  ).toEqual({
+    exitCode: 0,
+    stdout: `Wrote 112 cast vote records to ${outputDirectory.name}\n`,
+    stderr: '',
+  });
+
+  const report = reportFromFile(outputDirectory.name);
+  assert(report.CVR);
+  for (const [index, cvr] of report.CVR.entries()) {
+    expect(cvr.BallotImage).toBeUndefined();
+    expect(cvr.UniqueId).toEqual(index.toString());
+    expect(
+      getWriteInsFromCastVoteRecord(cvr).every((castVoteRecordWriteIn) =>
+        Boolean(castVoteRecordWriteIn.text)
+      )
+    ).toEqual(true);
+    const writeIns = cvr.CVRSnapshot[0]!.CVRContest.flatMap(
+      (contest) => contest.CVRContestSelection
+    )
+      .flatMap((contestSelection) => contestSelection.SelectionPosition)
+      .map((selectionPosition) => selectionPosition.CVRWriteIn)
+      .filter(
+        (cvrWriteIn): cvrWriteIn is CVR.CVRWriteIn => cvrWriteIn !== undefined
+      );
+    expect(writeIns.every((writeIn) => isBmdWriteIn(writeIn))).toEqual(true);
+  }
 });
