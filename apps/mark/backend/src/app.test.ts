@@ -259,8 +259,9 @@ test('configureBallotPackageFromUsb returns an error if ballot package parsing f
   expect(result.err()).toEqual('auth_required_before_ballot_package_load');
 });
 
-test('configureSampleBallotPackage configures electionSampleDefinition and DEFAULT_SYSTEM_SETTINGS', async () => {
-  const writeResult = await apiClient.configureSampleBallotPackage();
+test('configureWithSampleBallotPackageForIntegrationTest configures electionSampleDefinition and DEFAULT_SYSTEM_SETTINGS', async () => {
+  const writeResult =
+    await apiClient.configureWithSampleBallotPackageForIntegrationTest();
   assert(writeResult.isOk());
 
   const readResult = await apiClient.getSystemSettings();

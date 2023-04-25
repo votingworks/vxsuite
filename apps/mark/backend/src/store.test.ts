@@ -1,10 +1,13 @@
 import { safeParseSystemSettings } from '@votingworks/utils';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { SystemSettings } from '@votingworks/types';
+import { DEV_JURISDICTION } from '@votingworks/auth';
 import { Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
+
+const jurisdiction = DEV_JURISDICTION;
 
 test('getDbPath', () => {
   const store = Store.memoryStore();
@@ -19,11 +22,14 @@ test('get/set/has election', () => {
   expect(store.getElectionDefinition()).toBeUndefined();
   expect(store.hasElection()).toBeFalsy();
 
-  store.setElection(electionDefinition.electionData);
+  store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction,
+  });
   expect(store.getElectionDefinition()?.election).toEqual(election);
   expect(store.hasElection()).toBeTruthy();
 
-  store.setElection(undefined);
+  store.setElectionAndJurisdiction(undefined);
   expect(store.getElectionDefinition()).toBeUndefined();
 });
 
@@ -64,7 +70,10 @@ test('setSystemSettings can handle boolean values in input', () => {
 
 test('errors when election definition cannot be parsed', () => {
   const store = Store.memoryStore();
-  store.setElection('{malformed json');
+  store.setElectionAndJurisdiction({
+    electionData: '{malformed json',
+    jurisdiction,
+  });
   expect(() => store.getElectionDefinition()).toThrow(
     'Unable to parse stored election data.'
   );
@@ -74,7 +83,10 @@ test('reset clears the database', () => {
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const store = Store.memoryStore();
 
-  store.setElection(electionDefinition.electionData);
+  store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction,
+  });
   expect(store.hasElection()).toBeTruthy();
   store.reset();
   expect(store.hasElection()).toBeFalsy();

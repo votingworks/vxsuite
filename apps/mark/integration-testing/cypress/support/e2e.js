@@ -86,7 +86,7 @@ function endCardlessVoterSession() {
 function configureWithSampleDefinitionAndSystemSettings() {
   cy.request(
     'POST',
-    methodUrl('configureSampleBallotPackage', 'http://localhost:3000/api'),
+    methodUrl('configureWithSampleBallotPackageForIntegrationTest', 'http://localhost:3000/api'),
     {}
   );
 }
