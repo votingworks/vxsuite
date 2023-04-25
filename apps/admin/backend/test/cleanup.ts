@@ -1,5 +1,3 @@
-/* eslint-disable vx/gts-jsdoc */
-
 import { error } from 'console';
 import { rmSync } from 'fs-extra';
 import { resolve } from 'path';

@@ -1,5 +1,3 @@
-/* eslint-disable vx/gts-jsdoc */
-
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,

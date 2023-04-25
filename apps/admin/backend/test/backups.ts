@@ -1,4 +1,3 @@
-/* eslint-disable vx/gts-jsdoc */
 import { cpSync, emptyDirSync, ensureDirSync, existsSync } from 'fs-extra';
 import { join } from 'path';
 import tmp from 'tmp';
