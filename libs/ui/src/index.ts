@@ -10,6 +10,7 @@ export * from './card';
 export * from './centered_large_prose';
 export * from './contest_tally';
 export * from './contest_writein_tally';
+export * from './display_settings';
 export * from './error_boundary';
 export * from './election_info_bar';
 export * from './global_styles';

@@ -20,9 +20,9 @@ const DEFAULT_COLOR_MODES: ColorMode[] = [
 
 const ORDERED_COLOR_MODE_LABELS: Record<ColorMode, string> = {
   contrastHighDark: 'White text on black background',
-  contrastHighLight: 'Black text on white background',
   contrastLow: 'Gray text on dark background',
   contrastMedium: 'Dark text on light background',
+  contrastHighLight: 'Black text on white background',
   legacy: 'DEV ONLY: Pre-VVSG styling',
 };
 
