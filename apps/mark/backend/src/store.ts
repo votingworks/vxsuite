@@ -82,14 +82,28 @@ export class Store {
   }
 
   /**
-   * Sets the current election definition.
+   * Gets the current jurisdiction.
    */
-  setElection(electionData?: string): void {
+  getJurisdiction(): string | undefined {
+    const electionRow = this.client.one('select jurisdiction from election') as
+      | { jurisdiction: string }
+      | undefined;
+    return electionRow?.jurisdiction;
+  }
+
+  /**
+   * Sets the current election definition and jurisdiction.
+   */
+  setElectionAndJurisdiction(input?: {
+    electionData: string;
+    jurisdiction: string;
+  }): void {
     this.client.run('delete from election');
-    if (electionData) {
+    if (input) {
       this.client.run(
-        'insert into election (election_data) values (?)',
-        electionData
+        'insert into election (election_data, jurisdiction) values (?, ?)',
+        input.electionData,
+        input.jurisdiction
       );
     }
   }
