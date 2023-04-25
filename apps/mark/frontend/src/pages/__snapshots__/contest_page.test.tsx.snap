@@ -177,7 +177,7 @@ exports[`Renders ContestPage 1`] = `
 
 <div>
   <div
-    class="sc-jObXwK fVjSuM"
+    class="sc-clIAKW iOFdCU"
   >
     <div
       class="c0"
@@ -202,7 +202,7 @@ exports[`Renders ContestPage 1`] = `
       </div>
     </div>
     <main
-      class="sc-dPiKHq iTRmFc"
+      class="sc-faUofl iEqEvY"
     >
       <div
         class="c1"
@@ -701,10 +701,10 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 
 <div>
   <div
-    class="sc-jObXwK fzGfcs"
+    class="sc-clIAKW gtMbaI"
   >
     <main
-      class="sc-dPiKHq iTRmFc"
+      class="sc-faUofl iEqEvY"
     >
       <div
         class="c0"
