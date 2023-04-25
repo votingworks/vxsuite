@@ -23,14 +23,12 @@ import { electionSampleDefinition } from '@votingworks/fixtures';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 
-function constructAuthMachineState({
-  electionHash,
-}: {
-  electionHash?: string;
-}): InsertedSmartCardAuthMachineState {
+function constructAuthMachineState(
+  workspace: Workspace
+): InsertedSmartCardAuthMachineState {
+  const electionDefinition = workspace.store.getElectionDefinition();
   return {
-    // TODO: Persist election definition in store and pull from there
-    electionHash,
+    electionHash: electionDefinition?.electionHash,
     // TODO: Persist jurisdiction in store and pull from there
     jurisdiction: DEV_JURISDICTION,
   };
@@ -47,42 +45,41 @@ function buildApi(
 
     // TODO: Once election definition has been moved to the backend, no longer require the frontend
     // to provide election hash to this and other methods that use the auth lib
-    getAuthStatus(input: { electionHash?: string }) {
-      return auth.getAuthStatus(constructAuthMachineState(input));
+    getAuthStatus() {
+      return auth.getAuthStatus(constructAuthMachineState(workspace));
     },
 
-    checkPin(input: { electionHash?: string; pin: string }) {
-      return auth.checkPin(constructAuthMachineState(input), {
+    checkPin(input: { pin: string }) {
+      return auth.checkPin(constructAuthMachineState(workspace), {
         pin: input.pin,
       });
     },
 
-    logOut(input: { electionHash?: string }) {
-      return auth.logOut(constructAuthMachineState(input));
+    logOut() {
+      return auth.logOut(constructAuthMachineState(workspace));
     },
 
-    updateSessionExpiry(input: {
-      electionHash?: string;
-      sessionExpiresAt: Date;
-    }) {
-      return auth.updateSessionExpiry(constructAuthMachineState(input), {
+    updateSessionExpiry(input: { sessionExpiresAt: Date }) {
+      return auth.updateSessionExpiry(constructAuthMachineState(workspace), {
         sessionExpiresAt: input.sessionExpiresAt,
       });
     },
 
     startCardlessVoterSession(input: {
-      electionHash?: string;
       ballotStyleId: BallotStyleId;
       precinctId: PrecinctId;
     }) {
-      return auth.startCardlessVoterSession(constructAuthMachineState(input), {
-        ballotStyleId: input.ballotStyleId,
-        precinctId: input.precinctId,
-      });
+      return auth.startCardlessVoterSession(
+        constructAuthMachineState(workspace),
+        {
+          ballotStyleId: input.ballotStyleId,
+          precinctId: input.precinctId,
+        }
+      );
     },
 
-    endCardlessVoterSession(input: { electionHash?: string }) {
-      return auth.endCardlessVoterSession(constructAuthMachineState(input));
+    endCardlessVoterSession() {
+      return auth.endCardlessVoterSession(constructAuthMachineState(workspace));
     },
 
     getElectionDefinition(): ElectionDefinition | null {
@@ -112,11 +109,9 @@ function buildApi(
     async configureBallotPackageFromUsb(): Promise<
       Result<ElectionDefinition, BallotPackageConfigurationError>
     > {
-      // Explicitly pass undefined electionHash because we haven't yet loaded the ballot package.
-      const machineState = constructAuthMachineState({
-        electionHash: undefined,
-      });
-      const authStatus = await auth.getAuthStatus(machineState);
+      const authStatus = await auth.getAuthStatus(
+        constructAuthMachineState(workspace)
+      );
 
       const [usbDrive] = await usb.getUsbDrives();
       assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
@@ -138,12 +133,10 @@ function buildApi(
       return ok(electionDefinition);
     },
 
-    async readScannerReportDataFromCard(input: {
-      electionHash?: string;
-    }): Promise<
+    async readScannerReportDataFromCard(): Promise<
       Result<Optional<ScannerReportData>, SyntaxError | z.ZodError | Error>
     > {
-      const machineState = constructAuthMachineState(input);
+      const machineState = constructAuthMachineState(workspace);
       const authStatus = await auth.getAuthStatus(machineState);
       if (authStatus.status !== 'logged_in') {
         return err(new Error('User is not logged in'));
@@ -157,10 +150,8 @@ function buildApi(
       });
     },
 
-    async clearScannerReportDataFromCard(input: {
-      electionHash?: string;
-    }): Promise<Result<void, Error>> {
-      const machineState = constructAuthMachineState(input);
+    async clearScannerReportDataFromCard(): Promise<Result<void, Error>> {
+      const machineState = constructAuthMachineState(workspace);
       const authStatus = await auth.getAuthStatus(machineState);
       if (authStatus.status !== 'logged_in') {
         return err(new Error('User is not logged in'));
