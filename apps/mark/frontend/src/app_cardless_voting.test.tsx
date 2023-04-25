@@ -121,7 +121,7 @@ test('Cardless Voting Flow', async () => {
   await advanceTimersAndPromises();
   await screen.findByText('Select Voter’s Ballot Style');
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -134,9 +134,7 @@ test('Cardless Voting Flow', async () => {
   screen.getByText(/(12)/);
 
   // Poll Worker deactivates ballot style
-  apiMock.mockApiClient.endCardlessVoterSession
-    .expectCallWith({ electionHash })
-    .resolves();
+  apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   userEvent.click(await screen.findByText('Deactivate Voting Session'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     isScannerReportDataReadExpected: false,
@@ -145,7 +143,7 @@ test('Cardless Voting Flow', async () => {
 
   // Poll Worker reactivates ballot style
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -183,9 +181,7 @@ test('Cardless Voting Flow', async () => {
   await screen.findByText('Ballot Contains Votes');
 
   // Poll Worker resets ballot to remove votes
-  apiMock.mockApiClient.endCardlessVoterSession
-    .expectCallWith({ electionHash })
-    .resolves();
+  apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   fireEvent.click(screen.getByText('Reset Ballot'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     isScannerReportDataReadExpected: false,
@@ -196,7 +192,7 @@ test('Cardless Voting Flow', async () => {
 
   // Activates Ballot Style again
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -253,9 +249,7 @@ test('Cardless Voting Flow', async () => {
   ).toBeFalsy();
 
   // Wait for timeout to return to Insert Card screen
-  apiMock.mockApiClient.endCardlessVoterSession
-    .expectCallWith({ electionHash })
-    .resolves();
+  apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
@@ -265,7 +259,6 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const electionDefinition = electionSampleDefinition;
-  const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
@@ -293,7 +286,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await advanceTimersAndPromises();
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   userEvent.click(
     within(await screen.findByTestId('ballot-styles')).getByText('12')
@@ -346,9 +339,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   expect(screen.queryByText('3. Return the card.')).toBeFalsy();
 
   // Click "Done" to get back to Insert Card screen
-  apiMock.mockApiClient.endCardlessVoterSession
-    .expectCallWith({ electionHash })
-    .resolves();
+  apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   fireEvent.click(screen.getByText('Done'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
@@ -436,7 +427,7 @@ test('poll worker must select a precinct first', async () => {
   );
   screen.getByText('2. Select Voter’s Ballot Style');
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -449,9 +440,7 @@ test('poll worker must select a precinct first', async () => {
   await screen.findByText('Voting Session Active: 12 at Center Springfield');
 
   // Poll Worker deactivates ballot style
-  apiMock.mockApiClient.endCardlessVoterSession
-    .expectCallWith({ electionHash })
-    .resolves();
+  apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   fireEvent.click(screen.getByText('Deactivate Voting Session'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     isScannerReportDataReadExpected: false,
@@ -463,7 +452,7 @@ test('poll worker must select a precinct first', async () => {
     within(screen.getByTestId('precincts')).getByText('Center Springfield')
   );
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -501,9 +490,7 @@ test('poll worker must select a precinct first', async () => {
   await screen.findByText('Ballot Contains Votes');
 
   // Poll Worker resets ballot to remove votes
-  apiMock.mockApiClient.endCardlessVoterSession
-    .expectCallWith({ electionHash })
-    .resolves();
+  apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   fireEvent.click(screen.getByText('Reset Ballot'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     isScannerReportDataReadExpected: false,
@@ -518,7 +505,7 @@ test('poll worker must select a precinct first', async () => {
   );
   screen.getByText('2. Select Voter’s Ballot Style');
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -576,9 +563,7 @@ test('poll worker must select a precinct first', async () => {
   ).toBeFalsy();
 
   // Wait for timeout to return to Insert Card screen
-  apiMock.mockApiClient.endCardlessVoterSession
-    .expectCallWith({ electionHash })
-    .resolves();
+  apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');

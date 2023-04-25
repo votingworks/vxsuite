@@ -37,7 +37,6 @@ jest.setTimeout(15000);
 test('MarkAndPrint: voter settings in landscape orientation', async () => {
   const logger = fakeLogger();
   const electionDefinition = electionSampleDefinition;
-  const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig({
@@ -95,7 +94,7 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await advanceTimersAndPromises();
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   userEvent.click(await screen.findByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {

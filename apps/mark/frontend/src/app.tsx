@@ -28,6 +28,7 @@ import {
   createApiClient,
   createQueryClient,
 } from './api';
+import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault();
@@ -156,6 +157,7 @@ export function App({
                   reload={reload}
                   logger={logger}
                 />
+                <SessionTimeLimitTracker />
               </AppBase>
             </QueryClientProvider>
           </ApiClientContext.Provider>

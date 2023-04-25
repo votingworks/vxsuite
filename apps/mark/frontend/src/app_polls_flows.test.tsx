@@ -136,7 +136,6 @@ function checkPollsOpenedReport(printedElement: PrintRenderResult) {
 }
 
 test('full polls flow with tally reports - general, single precinct', async () => {
-  const { electionHash } = electionSampleDefinition;
   const { renderApp, storage, logger } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
@@ -169,10 +168,10 @@ test('full polls flow with tally reports - general, single precinct', async () =
   screen.getByText(/contains a polls opened report/);
   screen.getByText(/the polls will be open on VxMark/);
   apiMock.mockApiClient.clearScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok());
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   userEvent.click(screen.getByText('Open Polls and Print Report'));
   await screen.findByText('Printing polls opened report');
@@ -238,10 +237,10 @@ test('full polls flow with tally reports - general, single precinct', async () =
   screen.getByText(/contains a voting paused report/);
   screen.getByText(/the polls will be paused on VxMark/);
   apiMock.mockApiClient.clearScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok());
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   userEvent.click(screen.getByText('Pause Voting and Print Report'));
   await screen.findByText('Printing voting paused report');
@@ -309,10 +308,10 @@ test('full polls flow with tally reports - general, single precinct', async () =
   screen.getByText(/contains a voting resumed report/);
   screen.getByText(/the polls will be open on VxMark/);
   apiMock.mockApiClient.clearScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok());
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   userEvent.click(screen.getByText('Resume Voting and Print Report'));
   await screen.findByText('Printing voting resumed report');
@@ -394,10 +393,10 @@ test('full polls flow with tally reports - general, single precinct', async () =
   screen.getByText(/contains a polls closed report/);
   screen.getByText(/the polls will be closed on VxMark/);
   apiMock.mockApiClient.clearScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok());
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   userEvent.click(screen.getByText('Close Polls and Print Report'));
   await screen.findByText('Printing polls closed report');
@@ -463,7 +462,6 @@ test('full polls flow with tally reports - general, single precinct', async () =
 });
 
 test('tally report: as expected with all precinct combined data for general election', async () => {
-  const { electionHash } = electionSampleDefinition;
   const existingTally = getZeroCompressedTally(electionSample);
   // add tallies to the president contest
   existingTally[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>([
@@ -494,10 +492,10 @@ test('tally report: as expected with all precinct combined data for general elec
   });
 
   apiMock.mockApiClient.clearScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok());
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   await printPollsClosedReport();
 
@@ -529,7 +527,6 @@ test('tally report: as expected with all precinct combined data for general elec
 });
 
 test('tally report: as expected with all precinct specific data for general election', async () => {
-  const { electionHash } = electionSampleDefinition;
   const centerSpringfield = getZeroCompressedTally(electionSample);
   const northSpringfield = getZeroCompressedTally(electionSample);
   const southSpringfield = getZeroCompressedTally(electionSample);
@@ -590,10 +587,10 @@ test('tally report: as expected with all precinct specific data for general elec
   });
 
   apiMock.mockApiClient.clearScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok());
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   await printPollsClosedReport();
 
@@ -811,7 +808,6 @@ function checkPrimaryElectionOverallTallyReports(
 
 test('tally report: as expected with a single precinct for primary election', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
-  const { electionHash } = electionDefinition;
 
   const tallyOnCard: ScannerTallyReportData = {
     tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
@@ -844,10 +840,10 @@ test('tally report: as expected with a single precinct for primary election', as
   });
 
   apiMock.mockApiClient.clearScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok());
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   await printPollsClosedReport();
 
@@ -856,7 +852,6 @@ test('tally report: as expected with a single precinct for primary election', as
 
 test('tally report: as expected with all precinct combined data for primary election', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
-  const { electionHash } = electionDefinition;
 
   const tallyOnCard: ScannerTallyReportData = {
     tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
@@ -891,10 +886,10 @@ test('tally report: as expected with all precinct combined data for primary elec
   });
 
   apiMock.mockApiClient.clearScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok());
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   await printPollsClosedReport();
 
@@ -904,7 +899,7 @@ test('tally report: as expected with all precinct combined data for primary elec
 test('tally report: as expected with all precinct specific data for primary election + VxQR', async () => {
   const electionDefinition =
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
-  const { electionHash, election } = electionDefinition;
+  const { election } = electionDefinition;
 
   const talliesByPrecinct: Dictionary<CompressedTally> = {
     'precinct-1': [
@@ -1022,10 +1017,10 @@ test('tally report: as expected with all precinct specific data for primary elec
   });
 
   apiMock.mockApiClient.clearScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok());
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   await printPollsClosedReport();
 
@@ -1287,7 +1282,6 @@ test('tally report: as expected with all precinct specific data for primary elec
 });
 
 test('tally report: will print but not update polls state appropriate', async () => {
-  const { electionHash } = electionSampleDefinition;
   const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   // The polls have already been closed
@@ -1322,10 +1316,10 @@ test('tally report: will print but not update polls state appropriate', async ()
     'This poll worker card contains a polls opened report. After printing, the report will be cleared from the card.'
   );
   apiMock.mockApiClient.clearScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok());
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   userEvent.click(screen.getByText('Print Report'));
   await expectPrint(checkPollsOpenedReport);
@@ -1572,7 +1566,6 @@ test('cannot close polls from closed report on card if polls have not been opene
 });
 
 test('error clearing report from card does not affect printing and is logged', async () => {
-  const { electionHash } = electionSampleDefinition;
   const { logger, renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
@@ -1600,10 +1593,10 @@ test('error clearing report from card does not affect printing and is logged', a
   await screen.findByText('Polls Opened Report on Card');
 
   apiMock.mockApiClient.clearScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(err(new Error('Error clearing report from card')));
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok(pollsOpenedReport));
   userEvent.click(screen.getByText('Open Polls and Print Report'));
   await screen.findByText('Printing polls opened report');

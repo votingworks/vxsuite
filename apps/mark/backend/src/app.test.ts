@@ -27,7 +27,7 @@ import {
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { createApp } from '../test/app_helpers';
+import { configureApp, createApp } from '../test/app_helpers';
 import { Api } from './app';
 
 let apiClient: grout.Client<Api>;
@@ -74,6 +74,7 @@ test('uses default machine config if not set', async () => {
 test('read scanner report data from card', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { electionHash } = electionDefinition;
+  await configureApp(apiClient, mockAuth, mockUsb);
 
   const scannerReportData: ScannerReportData = {
     ballotCounts: {},
@@ -96,7 +97,7 @@ test('read scanner report data from card', async () => {
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
   );
-  result = await apiClient.readScannerReportDataFromCard({ electionHash });
+  result = await apiClient.readScannerReportDataFromCard();
   expect(result).toEqual(err(new Error('User is not logged in')));
 
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
@@ -106,7 +107,7 @@ test('read scanner report data from card', async () => {
       sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
-  result = await apiClient.readScannerReportDataFromCard({ electionHash });
+  result = await apiClient.readScannerReportDataFromCard();
   expect(result).toEqual(err(new Error('User is not a poll worker')));
 
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
@@ -116,7 +117,7 @@ test('read scanner report data from card', async () => {
       sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
-  result = await apiClient.readScannerReportDataFromCard({ electionHash });
+  result = await apiClient.readScannerReportDataFromCard();
   expect(result).toEqual(ok(scannerReportData));
   expect(mockAuth.readCardData).toHaveBeenCalledTimes(1);
   expect(mockAuth.readCardData).toHaveBeenNthCalledWith(
@@ -129,6 +130,7 @@ test('read scanner report data from card', async () => {
 test('clear scanner report data from card', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { electionHash } = electionDefinition;
+  await configureApp(apiClient, mockAuth, mockUsb);
 
   mockOf(mockAuth.clearCardData).mockImplementation(() =>
     Promise.resolve(ok())
@@ -139,7 +141,7 @@ test('clear scanner report data from card', async () => {
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
   );
-  result = await apiClient.clearScannerReportDataFromCard({ electionHash });
+  result = await apiClient.clearScannerReportDataFromCard();
   expect(result).toEqual(err(new Error('User is not logged in')));
 
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
@@ -149,7 +151,7 @@ test('clear scanner report data from card', async () => {
       sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
-  result = await apiClient.clearScannerReportDataFromCard({ electionHash });
+  result = await apiClient.clearScannerReportDataFromCard();
   expect(result).toEqual(err(new Error('User is not a poll worker')));
 
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
@@ -159,7 +161,7 @@ test('clear scanner report data from card', async () => {
       sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
-  result = await apiClient.clearScannerReportDataFromCard({ electionHash });
+  result = await apiClient.clearScannerReportDataFromCard();
   expect(result).toEqual(ok());
   expect(mockAuth.clearCardData).toHaveBeenCalledTimes(1);
   expect(mockAuth.clearCardData).toHaveBeenNthCalledWith(1, {

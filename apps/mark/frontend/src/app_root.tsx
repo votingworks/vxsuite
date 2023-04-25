@@ -72,7 +72,6 @@ import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { mergeMsEitherNeitherContests } from './utils/ms_either_neither_contests';
-import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
 
 interface UserState {
@@ -284,7 +283,6 @@ export function AppRoot({
     userSettings,
     votes,
   } = appState;
-  const electionHash = optionalElectionDefinition?.electionHash;
 
   const history = useHistory();
 
@@ -301,16 +299,15 @@ export function AppRoot({
   const hasPrinterAttached = printerInfo !== undefined;
   const previousHasPrinterAttached = usePrevious(hasPrinterAttached);
 
-  const authStatusQuery = getAuthStatus.useQuery(electionHash);
+  const authStatusQuery = getAuthStatus.useQuery();
   const authStatus = authStatusQuery.isSuccess
     ? authStatusQuery.data
     : InsertedSmartCardAuth.DEFAULT_AUTH_STATUS;
 
-  const checkPinMutation = checkPin.useMutation(electionHash);
+  const checkPinMutation = checkPin.useMutation();
   const startCardlessVoterSessionMutation =
-    startCardlessVoterSession.useMutation(electionHash);
-  const endCardlessVoterSessionMutation =
-    endCardlessVoterSession.useMutation(electionHash);
+    startCardlessVoterSession.useMutation();
+  const endCardlessVoterSessionMutation = endCardlessVoterSession.useMutation();
   const unconfigureMachineMutation = unconfigureMachine.useMutation();
 
   const precinctId = isCardlessVoterAuth(authStatus)
@@ -675,35 +672,26 @@ export function AppRoot({
 
   if (isSystemAdministratorAuth(authStatus)) {
     return (
-      <React.Fragment>
-        <SystemAdministratorScreen
-          logger={logger}
-          unconfigureMachine={unconfigure}
-          isMachineConfigured={Boolean(optionalElectionDefinition)}
-          resetPollsToPaused={
-            pollsState === 'polls_closed_final'
-              ? makeAsync(resetPollsToPaused)
-              : undefined
-          }
-          usbDriveStatus={usbDrive.status}
-        />
-        {/* TODO: Replace all instances of SessionTimeLimitTracker in this file with a single
-          instance in app.tsx once the election definition has been moved to the backend and this
-          component no longer requires the election hash */}
-        <SessionTimeLimitTracker electionHash={electionHash} />
-      </React.Fragment>
+      <SystemAdministratorScreen
+        logger={logger}
+        unconfigureMachine={unconfigure}
+        isMachineConfigured={Boolean(optionalElectionDefinition)}
+        resetPollsToPaused={
+          pollsState === 'polls_closed_final'
+            ? makeAsync(resetPollsToPaused)
+            : undefined
+        }
+        usbDriveStatus={usbDrive.status}
+      />
     );
   }
   if (isElectionManagerAuth(authStatus)) {
     if (!optionalElectionDefinition) {
       return (
-        <React.Fragment>
-          <UnconfiguredElectionScreenWrapper
-            usbDriveStatus={usbDrive.status}
-            updateElectionDefinition={updateElectionDefinition}
-          />
-          <SessionTimeLimitTracker electionHash={electionHash} />
-        </React.Fragment>
+        <UnconfiguredElectionScreenWrapper
+          usbDriveStatus={usbDrive.status}
+          updateElectionDefinition={updateElectionDefinition}
+        />
       );
     }
 
@@ -714,40 +702,34 @@ export function AppRoot({
       authStatus.user.electionHash !== optionalElectionDefinition.electionHash
     ) {
       return (
-        <React.Fragment>
-          <ReplaceElectionScreen
-            appPrecinct={appPrecinct}
-            ballotsPrintedCount={ballotsPrintedCount}
-            authElectionHash={authStatus.user.electionHash}
-            electionDefinition={optionalElectionDefinition}
-            machineConfig={machineConfig}
-            screenReader={screenReader}
-            isLoading={unconfigureMachineMutation.isLoading}
-            isError={unconfigureMachineMutation.isError}
-          />
-          <SessionTimeLimitTracker electionHash={electionHash} />
-        </React.Fragment>
+        <ReplaceElectionScreen
+          appPrecinct={appPrecinct}
+          ballotsPrintedCount={ballotsPrintedCount}
+          authElectionHash={authStatus.user.electionHash}
+          electionDefinition={optionalElectionDefinition}
+          machineConfig={machineConfig}
+          screenReader={screenReader}
+          isLoading={unconfigureMachineMutation.isLoading}
+          isError={unconfigureMachineMutation.isError}
+        />
       );
     }
 
     return (
-      <React.Fragment>
-        <AdminScreen
-          appPrecinct={appPrecinct}
-          ballotsPrintedCount={ballotsPrintedCount}
-          electionDefinition={optionalElectionDefinition}
-          isLiveMode={isLiveMode}
-          updateAppPrecinct={updateAppPrecinct}
-          toggleLiveMode={toggleLiveMode}
-          unconfigure={unconfigure}
-          machineConfig={machineConfig}
-          screenReader={screenReader}
-          pollsState={pollsState}
-          logger={logger}
-          usbDrive={usbDrive}
-        />
-        <SessionTimeLimitTracker electionHash={electionHash} />
-      </React.Fragment>
+      <AdminScreen
+        appPrecinct={appPrecinct}
+        ballotsPrintedCount={ballotsPrintedCount}
+        electionDefinition={optionalElectionDefinition}
+        isLiveMode={isLiveMode}
+        updateAppPrecinct={updateAppPrecinct}
+        toggleLiveMode={toggleLiveMode}
+        unconfigure={unconfigure}
+        machineConfig={machineConfig}
+        screenReader={screenReader}
+        pollsState={pollsState}
+        logger={logger}
+        usbDrive={usbDrive}
+      />
     );
   }
   if (optionalElectionDefinition && appPrecinct) {
@@ -770,28 +752,25 @@ export function AppRoot({
     }
     if (isPollWorkerAuth(authStatus)) {
       return (
-        <React.Fragment>
-          <PollWorkerScreen
-            pollWorkerAuth={authStatus}
-            activateCardlessVoterSession={activateCardlessBallot}
-            resetCardlessVoterSession={resetCardlessBallot}
-            appPrecinct={appPrecinct}
-            electionDefinition={optionalElectionDefinition}
-            enableLiveMode={enableLiveMode}
-            isLiveMode={isLiveMode}
-            pollsState={pollsState}
-            ballotsPrintedCount={ballotsPrintedCount}
-            machineConfig={machineConfig}
-            hardware={hardware}
-            devices={devices}
-            screenReader={screenReader}
-            updatePollsState={updatePollsState}
-            hasVotes={!!votes}
-            reload={reload}
-            logger={logger}
-          />
-          <SessionTimeLimitTracker electionHash={electionHash} />
-        </React.Fragment>
+        <PollWorkerScreen
+          pollWorkerAuth={authStatus}
+          activateCardlessVoterSession={activateCardlessBallot}
+          resetCardlessVoterSession={resetCardlessBallot}
+          appPrecinct={appPrecinct}
+          electionDefinition={optionalElectionDefinition}
+          enableLiveMode={enableLiveMode}
+          isLiveMode={isLiveMode}
+          pollsState={pollsState}
+          ballotsPrintedCount={ballotsPrintedCount}
+          machineConfig={machineConfig}
+          hardware={hardware}
+          devices={devices}
+          screenReader={screenReader}
+          updatePollsState={updatePollsState}
+          hasVotes={!!votes}
+          reload={reload}
+          logger={logger}
+        />
       );
     }
     if (pollsState === 'polls_open' && showPostVotingInstructions) {

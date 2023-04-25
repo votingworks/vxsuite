@@ -91,7 +91,7 @@ function renderScreen(
 
 test('renders PollWorkerScreen in MarkAndPrint app mode', () => {
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash: electionSampleDefinition.electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   renderScreen(undefined, undefined, undefined);
   screen.getByText('Poll Worker Actions');
@@ -102,7 +102,7 @@ test('renders PollWorkerScreen in MarkAndPrint app mode', () => {
 
 test('renders PollWorkerScreen', () => {
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash: electionSampleDefinition.electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   renderScreen();
   screen.getByText('Poll Worker Actions');
@@ -114,7 +114,7 @@ test('switching out of test mode on election day', () => {
     date: new Date().toISOString(),
   });
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash: electionDefinition.electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   const enableLiveMode = jest.fn();
   renderScreen({
@@ -136,7 +136,7 @@ test('keeping test mode on election day', () => {
     date: new Date().toISOString(),
   });
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash: electionDefinition.electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   const enableLiveMode = jest.fn();
   renderScreen({ electionDefinition, enableLiveMode });
@@ -150,7 +150,7 @@ test('keeping test mode on election day', () => {
 
 test('live mode on election day', () => {
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash: electionSampleDefinition.electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   renderScreen({ isLiveMode: true });
   expect(
@@ -162,7 +162,7 @@ test('live mode on election day', () => {
 
 test('navigates to System Diagnostics screen', () => {
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash: electionSampleDefinition.electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   const { unmount } = renderScreen();
 
@@ -182,7 +182,7 @@ test('navigates to System Diagnostics screen', () => {
 
 test('requires confirmation to open polls if no report on card', () => {
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash: electionSampleDefinition.electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   const updatePollsState = jest.fn();
   renderScreen({
@@ -208,7 +208,7 @@ test('requires confirmation to open polls if no report on card', () => {
 
 test('can toggle between vote activation and "other actions" during polls open', async () => {
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash: electionSampleDefinition.electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   renderScreen({
     pollsState: 'polls_open',

@@ -89,9 +89,7 @@ test('MarkAndPrint end-to-end flow', async () => {
     user: fakeElectionManagerUser(electionDefinition),
   });
   await screen.findByText('Enter the card PIN to unlock.');
-  apiMock.mockApiClient.checkPin
-    .expectCallWith({ electionHash: undefined, pin: '111111' })
-    .resolves();
+  apiMock.mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
   userEvent.click(screen.getByText('1'));
   userEvent.click(screen.getByText('1'));
   userEvent.click(screen.getByText('1'));
@@ -106,9 +104,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   await screen.findByText('Incorrect PIN. Please try again.');
 
   // Enter correct PIN
-  apiMock.mockApiClient.checkPin
-    .expectCallWith({ electionHash: undefined, pin: '123456' })
-    .resolves();
+  apiMock.mockApiClient.checkPin.expectCallWith({ pin: '123456' }).resolves();
   userEvent.click(screen.getByText('1'));
   userEvent.click(screen.getByText('2'));
   userEvent.click(screen.getByText('3'));
@@ -197,7 +193,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await advanceTimersAndPromises();
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ electionHash, ballotStyleId: '12', precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   userEvent.click(await screen.findByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -341,9 +337,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
 
   screen.getByText('You’re Almost Done');
-  apiMock.mockApiClient.endCardlessVoterSession
-    .expectCallWith({ electionHash })
-    .resolves();
+  apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   userEvent.click(screen.getByText('Done'));
   apiMock.setAuthStatusLoggedOut();
 
@@ -388,10 +382,10 @@ test('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
   await screen.findByText('Polls Closed Report on Card');
   apiMock.mockApiClient.clearScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok());
   apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith({ electionHash })
+    .expectCallWith()
     .resolves(ok(undefined));
   userEvent.click(screen.getByText('Print Report'));
   await advanceTimersAndPromises();
