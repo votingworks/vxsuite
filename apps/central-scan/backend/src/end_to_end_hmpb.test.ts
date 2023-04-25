@@ -1,3 +1,4 @@
+import getPort from 'get-port';
 import {
   MockUsb,
   convertCastVoteRecordVotesToLegacyVotes,
@@ -6,10 +7,9 @@ import {
   isTestReport,
   validateCastVoteRecordReportDirectoryStructure,
 } from '@votingworks/backend';
-import { asElectionDefinition } from '@votingworks/fixtures';
 import { CVR, unsafeParse } from '@votingworks/types';
+import * as grout from '@votingworks/grout';
 import {
-  BallotPackageManifest,
   BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
   getFeatureFlagMock,
@@ -24,15 +24,17 @@ import { dirSync } from 'tmp';
 import {
   buildMockDippedSmartCardAuth,
   DEV_JURISDICTION,
-  DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { fakeLogger, Logger } from '@votingworks/logging';
+import { Server } from 'http';
+import { fakeSessionExpiresAt } from '@votingworks/test-utils';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
-import { buildCentralScannerApp } from './central_scanner_app';
+import { Api, buildCentralScannerApp } from './central_scanner_app';
 import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
+import { start } from './server';
 
 const electionFixturesRoot = join(
   __dirname,
@@ -71,15 +73,18 @@ jest.mock('./exec', () => ({
   },
 }));
 
-let auth: DippedSmartCardAuthApi;
+let auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
 let workspace: Workspace;
 let scanner: MockScanner;
 let mockUsb: MockUsb;
 let importer: Importer;
 let app: Application;
 let logger: Logger;
+let apiClient: grout.Client<Api>;
+let server: Server;
 
 beforeEach(async () => {
+  const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
   workspace = await createWorkspace(dirSync().name);
   scanner = makeMockScanner();
@@ -94,12 +99,24 @@ beforeEach(async () => {
     workspace,
     logger,
   });
+  const baseUrl = `http://localhost:${port}/api`;
+  apiClient = grout.createClient({
+    baseUrl,
+  });
+
+  server = await start({
+    app,
+    logger,
+    workspace,
+    port,
+  });
 });
 
 afterEach(async () => {
   importer.unconfigure();
   await fs.remove(workspace.path);
   featureFlagMock.resetFeatureFlags();
+  server.close();
 });
 
 const jurisdiction = DEV_JURISDICTION;
@@ -107,16 +124,39 @@ const jurisdiction = DEV_JURISDICTION;
 // TODO: Update this test to use configureFromBallotPackageOnUsbDrive for configuration
 test('going through the whole process works', async () => {
   jest.setTimeout(25000);
+  const { electionDefinition } = stateOfHamilton;
 
-  const { election } = stateOfHamilton;
+  auth.getAuthStatus.mockResolvedValue({
+    status: 'logged_in',
+    user: {
+      role: 'election_manager',
+      jurisdiction,
+      electionHash: electionDefinition.electionHash,
+    },
+    sessionExpiresAt: fakeSessionExpiresAt(),
+  });
+
   await importer.restoreConfig();
 
-  importer.configure(asElectionDefinition(election), jurisdiction);
+  importer.configure(electionDefinition, jurisdiction);
 
   // sample ballot election hash does not match election hash for this test
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
   );
+
+  const fileContents = await fs.readFile(stateOfHamilton.ballotPackage);
+
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'ballot-package.zip': Buffer.from(fileContents),
+    },
+  });
+  const configureResult =
+    await apiClient.configureFromBallotPackageOnUsbDrive();
+  expect(configureResult.err()).toBeUndefined();
+  expect(configureResult.isOk()).toEqual(true);
+  expect(configureResult.ok()).toEqual(stateOfHamilton.electionDefinition);
 
   // need to turn off test mode after election is loaded
   await request(app)
@@ -126,38 +166,7 @@ test('going through the whole process works', async () => {
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
 
-  const manifest: BallotPackageManifest = JSON.parse(
-    await fs.readFile(join(electionFixturesRoot, 'manifest.json'), 'utf8')
-  );
-
-  const addTemplatesRequest = request(app).post(
-    '/central-scanner/scan/hmpb/addTemplates'
-  );
-
-  for (const config of manifest.ballots) {
-    void addTemplatesRequest
-      .attach('ballots', join(electionFixturesRoot, config.filename))
-      .attach(
-        'metadatas',
-        Buffer.from(new TextEncoder().encode(JSON.stringify(config))),
-        { filename: 'config.json', contentType: 'application/json' }
-      )
-      .attach('layouts', join(electionFixturesRoot, config.layoutFilename));
-  }
-
-  await addTemplatesRequest.expect(200, { status: 'ok' });
-
-  await request(app)
-    .post('/central-scanner/scan/scanBatch')
-    .expect(200)
-    .then((response) => {
-      expect(response.body).toEqual({
-        status: 'error',
-        errors: [{ type: 'scan-error', message: 'interpreter still loading' }],
-      });
-    });
-
-  await request(app).post('/central-scanner/scan/hmpb/doneTemplates');
+  mockUsb.removeUsbDrive();
 
   {
     // define the next scanner session
