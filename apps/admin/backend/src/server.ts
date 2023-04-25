@@ -54,9 +54,6 @@ export async function start({
     resolvedWorkspace = createWorkspace(workspacePath);
   }
 
-  // Clear any cached data
-  resolvedWorkspace.clearUploads();
-
   let resolvedApp = app;
   /* istanbul ignore next */
   if (!resolvedApp) {
