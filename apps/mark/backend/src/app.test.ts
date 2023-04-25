@@ -248,7 +248,7 @@ test('configureBallotPackageFromUsb returns an error if ballot package parsing f
 
   mockUsb.insertUsbDrive({
     'ballot-packages': {
-      'test-ballot-package.zip': Buffer.from("doesnk't matter"),
+      'test-ballot-package.zip': Buffer.from("doesn't matter"),
     },
   });
 

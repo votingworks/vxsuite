@@ -8,6 +8,7 @@ export const electionDefinition =
 export const { election } = electionDefinition;
 export const root = __dirname;
 export const ballotPdf = join(__dirname, 'ballot.pdf');
+export const ballotPackage = join(__dirname, 'ballot-package.zip');
 export const filledInPage1Flipped = join(
   __dirname,
   'filled-in-dual-language-p1-flipped.jpg'
