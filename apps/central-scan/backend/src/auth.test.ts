@@ -18,10 +18,6 @@ import { Importer } from './importer';
 import { start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 
-const { electionDefinition } = stateOfHamilton;
-const { electionData, electionHash } = electionDefinition;
-const jurisdiction = DEV_JURISDICTION;
-
 let apiClient: grout.Client<Api>;
 let auth: DippedSmartCardAuthApi;
 let server: Server;
@@ -55,9 +51,12 @@ afterEach(() => {
   server.close();
 });
 
+const { electionDefinition } = stateOfHamilton;
+const { electionData, electionHash } = electionDefinition;
+const jurisdiction = DEV_JURISDICTION;
+
 function configureMachine(): void {
-  workspace.store.setJurisdiction(jurisdiction);
-  workspace.store.setElection(electionData);
+  workspace.store.setElectionAndJurisdiction({ electionData, jurisdiction });
 }
 
 test('getAuthStatus', async () => {

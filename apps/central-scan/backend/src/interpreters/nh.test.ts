@@ -2,8 +2,11 @@ import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixt
 import { readdir } from 'fs/promises';
 import { join } from 'path';
 import { dirSync, fileSync } from 'tmp';
+import { DEV_JURISDICTION } from '@votingworks/auth';
 import { Store } from '../store';
 import * as interpretNh from './nh';
+
+const jurisdiction = DEV_JURISDICTION;
 
 test('interpret', async () => {
   const dbPath = fileSync().name;
@@ -11,7 +14,10 @@ test('interpret', async () => {
   const store = await Store.fileStore(dbPath);
 
   const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
-  store.setElection(electionDefinition.electionData);
+  store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction,
+  });
 
   const result = await interpretNh.interpret(
     store,

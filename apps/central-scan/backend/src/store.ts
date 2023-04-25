@@ -159,14 +159,28 @@ export class Store {
   }
 
   /**
+   * Gets the current jurisdiction.
+   */
+  getJurisdiction(): string | undefined {
+    const electionRow = this.client.one('select jurisdiction from election') as
+      | { jurisdiction: string }
+      | undefined;
+    return electionRow?.jurisdiction;
+  }
+
+  /**
    * Sets the current election definition.
    */
-  setElection(electionData?: string): void {
+  setElectionAndJurisdiction(input?: {
+    electionData: string;
+    jurisdiction: string;
+  }): void {
     this.client.run('delete from election');
-    if (electionData) {
+    if (input) {
       this.client.run(
-        'insert into election (election_data) values (?)',
-        electionData
+        'insert into election (election_data, jurisdiction) values (?, ?)',
+        input.electionData,
+        input.jurisdiction
       );
     }
   }
@@ -1258,21 +1272,6 @@ export class Store {
 
     throw new Error(
       `unable to find page with pageNumber=${metadata.pageNumber}`
-    );
-  }
-
-  getJurisdiction(): string | undefined {
-    const result = this.client.one('select jurisdiction from jurisdiction') as
-      | { jurisdiction: string }
-      | undefined;
-    return result?.jurisdiction;
-  }
-
-  setJurisdiction(jurisdiction: string): void {
-    this.client.run('delete from jurisdiction');
-    this.client.run(
-      'insert into jurisdiction (jurisdiction) values (?)',
-      jurisdiction
     );
   }
 }

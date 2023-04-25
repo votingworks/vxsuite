@@ -19,14 +19,12 @@ import {
   ElectionDefinition,
   SystemSettings,
   safeParse,
-  safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
 import {
   isElectionManagerAuth,
   readBallotPackageFromBuffer,
 } from '@votingworks/utils';
-import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
@@ -57,9 +55,10 @@ function constructAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
+  const jurisdiction = workspace.store.getJurisdiction();
   return {
     electionHash: electionDefinition?.electionHash,
-    jurisdiction: workspace.store.getJurisdiction(),
+    jurisdiction,
   };
 }
 
@@ -139,8 +138,7 @@ function buildApi({
       const { electionDefinition, ballots } = ballotPackage;
       const systemSettings = DEFAULT_SYSTEM_SETTINGS;
 
-      store.setJurisdiction(DEV_JURISDICTION);
-      importer.configure(electionDefinition);
+      importer.configure(electionDefinition, DEV_JURISDICTION);
       store.setSystemSettings(systemSettings);
       for (const ballot of ballots) {
         await importer.addHmpbTemplates(ballot.pdf, ballot.layout);
@@ -152,7 +150,7 @@ function buildApi({
       Result<ElectionDefinition, BallotPackageConfigurationError>
     > {
       if (store.getElectionDefinition()) {
-        store.setElection(undefined);
+        store.setElectionAndJurisdiction(undefined);
       }
       const [usbDrive] = await usb.getUsbDrives();
       assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
@@ -174,8 +172,7 @@ function buildApi({
       const { electionDefinition, systemSettings, ballots } = ballotPackage;
       assert(systemSettings);
 
-      store.setJurisdiction(authStatus.user.jurisdiction);
-      importer.configure(electionDefinition);
+      importer.configure(electionDefinition, authStatus.user.jurisdiction);
       store.setSystemSettings(systemSettings);
       for (const ballot of ballots) {
         await importer.addHmpbTemplates(ballot.pdf, ballot.layout);
@@ -246,51 +243,6 @@ export async function buildCentralScannerApp({
     }
   );
 
-  deprecatedApiRouter.patch<
-    NoParams,
-    Scan.PatchElectionConfigResponse,
-    Scan.PatchElectionConfigRequest
-  >('/central-scanner/config/election', (request, response) => {
-    const { body } = request;
-
-    if (!Buffer.isBuffer(body)) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'invalid-value',
-            message: `expected content type to be application/octet-stream, got ${request.header(
-              'content-type'
-            )}`,
-          },
-        ],
-      });
-      return;
-    }
-
-    const bodyParseResult = safeParseElectionDefinition(
-      new TextDecoder('utf-8', { fatal: false }).decode(body)
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: error.name,
-            message: error.message,
-          },
-        ],
-      });
-      return;
-    }
-
-    const electionDefinition = bodyParseResult.ok();
-    importer.configure(electionDefinition);
-    response.json({ status: 'ok' });
-  });
-
   deprecatedApiRouter.delete<NoParams, Scan.DeleteElectionConfigResponse>(
     '/central-scanner/config/election',
     (request, response) => {
@@ -313,51 +265,6 @@ export async function buildCentralScannerApp({
 
       importer.unconfigure();
       response.json({ status: 'ok' });
-    }
-  );
-
-  deprecatedApiRouter.put<
-    '/central-scanner/config/package',
-    NoParams,
-    Scan.PutConfigPackageResponse,
-    Scan.PutConfigPackageRequest
-  >(
-    '/central-scanner/config/package',
-    upload.fields([{ name: 'package', maxCount: 1 }]),
-    async (request, response) => {
-      const file = !Array.isArray(request.files)
-        ? request.files?.['package']?.[0]
-        : undefined;
-
-      try {
-        if (!file) {
-          response.status(400).json({
-            status: 'error',
-            errors: [
-              {
-                type: 'invalid-value',
-                message: 'expected file field to be named "package"',
-              },
-            ],
-          });
-          return;
-        }
-
-        const pkg = await readBallotPackageFromBuffer(
-          await fs.readFile(file.path)
-        );
-
-        importer.configure(pkg.electionDefinition);
-        for (const { pdf, layout } of pkg.ballots) {
-          await importer.addHmpbTemplates(pdf, layout);
-        }
-
-        response.json({ status: 'ok' });
-      } finally {
-        if (file) {
-          await fs.unlink(file.path);
-        }
-      }
     }
   );
 
@@ -493,6 +400,8 @@ export async function buildCentralScannerApp({
     }
   });
 
+  // TODO: Update end_to_end_hmpb.test.ts to use configureFromBallotPackageOnUsbDrive and then
+  // remove this, as it's no longer used by the frontend
   deprecatedApiRouter.post<
     NoParams,
     Scan.AddTemplatesResponse,
@@ -614,6 +523,8 @@ export async function buildCentralScannerApp({
     }
   );
 
+  // TODO: Update end_to_end_hmpb.test.ts to use configureFromBallotPackageOnUsbDrive and then
+  // remove this, as it's no longer used by the frontend
   deprecatedApiRouter.post(
     '/central-scanner/scan/hmpb/doneTemplates',
     async (_request, response) => {

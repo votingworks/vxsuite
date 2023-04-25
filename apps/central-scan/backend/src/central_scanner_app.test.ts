@@ -3,10 +3,7 @@ import {
   createMockUsb,
   getCastVoteRecordReportImport,
 } from '@votingworks/backend';
-import {
-  electionSampleDefinition as testElectionDefinition,
-  electionFamousNames2021Fixtures,
-} from '@votingworks/fixtures';
+import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   BallotMetadata,
@@ -21,7 +18,6 @@ import { Scan } from '@votingworks/api';
 import {
   BallotConfig,
   CAST_VOTE_RECORD_REPORT_FILENAME,
-  readBallotPackageFromBuffer,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
@@ -33,6 +29,7 @@ import path from 'path';
 import { typedAs } from '@votingworks/basics';
 import {
   buildMockDippedSmartCardAuth,
+  DEV_JURISDICTION,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { Server } from 'http';
@@ -46,6 +43,8 @@ import { getMockBallotPageLayoutsWithImages } from '../test/helpers/mock_layouts
 import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
 
 jest.mock('./importer');
+
+const jurisdiction = DEV_JURISDICTION;
 
 let app: Application;
 let auth: DippedSmartCardAuthApi;
@@ -61,7 +60,10 @@ beforeEach(async () => {
   mockUsb = createMockUsb();
   logger = fakeLogger();
   workspace = await createWorkspace(dirSync().name);
-  workspace.store.setElection(stateOfHamilton.electionDefinition.electionData);
+  workspace.store.setElectionAndJurisdiction({
+    electionData: stateOfHamilton.electionDefinition.electionData,
+    jurisdiction,
+  });
   workspace.store.setTestMode(false);
   const ballotMetadata: BallotMetadata = {
     locales: { primary: 'en-US' },
@@ -161,7 +163,10 @@ test('reloads configuration from the store', () => {
 });
 
 test('GET /config/election (application/octet-stream)', async () => {
-  workspace.store.setElection(testElectionDefinition.electionData);
+  workspace.store.setElectionAndJurisdiction({
+    electionData: testElectionDefinition.electionData,
+    jurisdiction,
+  });
   workspace.store.setTestMode(true);
   workspace.store.setMarkThresholdOverrides(undefined);
   const response = await request(app)
@@ -172,7 +177,7 @@ test('GET /config/election (application/octet-stream)', async () => {
     testElectionDefinition.electionData
   );
 
-  workspace.store.setElection(undefined);
+  workspace.store.setElectionAndJurisdiction(undefined);
   await request(app)
     .get('/central-scanner/config/election')
     .accept('application/octet-stream')
@@ -180,7 +185,10 @@ test('GET /config/election (application/octet-stream)', async () => {
 });
 
 test('GET /config/election (application/json)', async () => {
-  workspace.store.setElection(testElectionDefinition.electionData);
+  workspace.store.setElectionAndJurisdiction({
+    electionData: testElectionDefinition.electionData,
+    jurisdiction,
+  });
   workspace.store.setTestMode(true);
   workspace.store.setMarkThresholdOverrides(undefined);
   const response = await request(app)
@@ -199,7 +207,7 @@ test('GET /config/election (application/json)', async () => {
     })
   );
 
-  workspace.store.setElection(undefined);
+  workspace.store.setElectionAndJurisdiction(undefined);
   await request(app)
     .get('/central-scanner/config/election')
     .accept('application/json')
@@ -207,7 +215,10 @@ test('GET /config/election (application/json)', async () => {
 });
 
 test('GET /config/testMode', async () => {
-  workspace.store.setElection(testElectionDefinition.electionData);
+  workspace.store.setElectionAndJurisdiction({
+    electionData: testElectionDefinition.electionData,
+    jurisdiction,
+  });
   workspace.store.setTestMode(true);
   workspace.store.setMarkThresholdOverrides(undefined);
   const response = await request(app)
@@ -220,7 +231,10 @@ test('GET /config/testMode', async () => {
 });
 
 test('GET /config/markThresholdOverrides', async () => {
-  workspace.store.setElection(testElectionDefinition.electionData);
+  workspace.store.setElectionAndJurisdiction({
+    electionData: testElectionDefinition.electionData,
+    jurisdiction,
+  });
   workspace.store.setTestMode(true);
   workspace.store.setMarkThresholdOverrides({
     definite: 0.5,
@@ -234,55 +248,6 @@ test('GET /config/markThresholdOverrides', async () => {
     status: 'ok',
     markThresholdOverrides: { definite: 0.5, marginal: 0.4 },
   });
-});
-
-test('PATCH /config/election', async () => {
-  await request(app)
-    .patch('/central-scanner/config/election')
-    .send(testElectionDefinition.electionData)
-    .set('Content-Type', 'application/octet-stream')
-    .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' });
-  expect(importer.configure).toBeCalledWith(
-    expect.objectContaining({
-      election: expect.objectContaining({
-        title: testElectionDefinition.election.title,
-      }),
-    })
-  );
-
-  // bad content type
-  await request(app)
-    .patch('/central-scanner/config/election')
-    .send('gibberish')
-    .set('Content-Type', 'text/plain')
-    .set('Accept', 'application/json')
-    .expect(400, {
-      status: 'error',
-      errors: [
-        {
-          type: 'invalid-value',
-          message:
-            'expected content type to be application/octet-stream, got text/plain',
-        },
-      ],
-    });
-
-  // bad JSON
-  await request(app)
-    .patch('/central-scanner/config/election')
-    .send('gibberish')
-    .set('Content-Type', 'application/octet-stream')
-    .set('Accept', 'application/json')
-    .expect(400, {
-      status: 'error',
-      errors: [
-        {
-          type: 'SyntaxError',
-          message: 'Unexpected token g in JSON at position 0',
-        },
-      ],
-    });
 });
 
 test('DELETE /config/election no-backup error', async () => {
@@ -332,43 +297,6 @@ test('DELETE /config/election ignores lack of backup when ?ignoreBackupRequireme
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
   expect(importer.unconfigure).toBeCalled();
-});
-
-test('PUT /config/package', async () => {
-  importer.configure.mockReturnValue();
-  importer.addHmpbTemplates.mockResolvedValue([]);
-
-  await request(app)
-    .put('/central-scanner/config/package')
-    .set('Accept', 'application/json')
-    .attach(
-      'package',
-      electionFamousNames2021Fixtures.ballotPackage.asBuffer(),
-      'ballot-package.zip'
-    )
-    .expect(200, { status: 'ok' });
-
-  const ballotPackage = await readBallotPackageFromBuffer(
-    electionFamousNames2021Fixtures.ballotPackage.asBuffer()
-  );
-
-  expect(importer.configure).toBeCalledWith(
-    expect.objectContaining(ballotPackage.electionDefinition)
-  );
-  expect(importer.addHmpbTemplates).toHaveBeenCalledTimes(
-    2 /* test & live */ *
-      electionFamousNames2021Fixtures.election.ballotStyles.reduce(
-        (acc, bs) => acc + bs.precincts.length,
-        0
-      )
-  );
-});
-
-test('PUT /config/package missing package', async () => {
-  await request(app)
-    .put('/central-scanner/config/package')
-    .set('Accept', 'application/json')
-    .expect(400);
 });
 
 test('PATCH /config/testMode', async () => {

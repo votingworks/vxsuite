@@ -6,6 +6,7 @@ import { tmpNameSync } from 'tmp';
 import { BallotMetadata, BallotType } from '@votingworks/types';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { loadImageData } from '@votingworks/image-utils';
+import { DEV_JURISDICTION } from '@votingworks/auth';
 import { Store } from '../store';
 import {
   election,
@@ -13,6 +14,8 @@ import {
 } from '../../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import { main } from './render_pages';
 import { getMockBallotPageLayoutsWithImages } from '../../test/helpers/mock_layouts';
+
+const jurisdiction = DEV_JURISDICTION;
 
 function fakeOutput(): WritableStream & NodeJS.WriteStream {
   return new WritableStream() as WritableStream & NodeJS.WriteStream;
@@ -165,7 +168,10 @@ test('render from db', async () => {
   const tmpDbPath = join(tmpDir, 'ballots.db');
   const store = await Store.fileStore(tmpDbPath);
   const electionDefinition = asElectionDefinition(election);
-  store.setElection(electionDefinition.electionData);
+  store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction,
+  });
   const metadata: BallotMetadata = {
     ballotStyleId: '1',
     ballotType: BallotType.Standard,

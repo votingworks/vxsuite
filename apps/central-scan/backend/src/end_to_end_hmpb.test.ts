@@ -23,6 +23,7 @@ import request from 'supertest';
 import { dirSync } from 'tmp';
 import {
   buildMockDippedSmartCardAuth,
+  DEV_JURISDICTION,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { fakeLogger, Logger } from '@votingworks/logging';
@@ -101,18 +102,16 @@ afterEach(async () => {
   featureFlagMock.resetFeatureFlags();
 });
 
+const jurisdiction = DEV_JURISDICTION;
+
+// TODO: Update this test to use configureFromBallotPackageOnUsbDrive for configuration
 test('going through the whole process works', async () => {
   jest.setTimeout(25000);
 
   const { election } = stateOfHamilton;
   await importer.restoreConfig();
 
-  await request(app)
-    .patch('/central-scanner/config/election')
-    .send(asElectionDefinition(election).electionData)
-    .set('Content-Type', 'application/octet-stream')
-    .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' });
+  importer.configure(asElectionDefinition(election), jurisdiction);
 
   // sample ballot election hash does not match election hash for this test
   featureFlagMock.enableFeatureFlag(

@@ -2,6 +2,7 @@ create table election (
   -- enforce singleton table
   id integer primary key check (id = 1),
   election_data text not null,
+  jurisdiction text not null,
   precinct_selection text,
   is_test_mode boolean not null default true,
   polls_state text not null default "polls_closed_initial",
@@ -68,10 +69,4 @@ create table system_settings (
   -- enforce singleton table
   id integer primary key check (id = 1),
   are_poll_worker_card_pins_enabled boolean not null default false
-);
-
-create table jurisdiction (
-  -- enforce singleton table
-  id integer primary key check (id = 1),
-  jurisdiction text not null
 );

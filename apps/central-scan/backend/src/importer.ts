@@ -107,8 +107,14 @@ export class Importer {
   /**
    * Sets the election information used to encode and decode ballots.
    */
-  configure(electionDefinition: ElectionDefinition): void {
-    this.workspace.store.setElection(electionDefinition.electionData);
+  configure(
+    electionDefinition: ElectionDefinition,
+    jurisdiction: string
+  ): void {
+    this.workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction,
+    });
     // Central scanner only uses all precinct mode, set on every configure
     this.workspace.store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
   }
