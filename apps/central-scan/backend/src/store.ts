@@ -169,7 +169,7 @@ export class Store {
   }
 
   /**
-   * Sets the current election definition.
+   * Sets the current election definition and jurisdiction.
    */
   setElectionAndJurisdiction(input?: {
     electionData: string;
