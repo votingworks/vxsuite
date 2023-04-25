@@ -1,0 +1,22 @@
+{
+  "name": "@votingworks/usb-mocking",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "USB drive mocking scripts",
+  "keywords": [],
+  "author": "VotingWorks Eng <eng@voting.works>",
+  "scripts": {
+    "usb-initialize": "tsx ./src/initialize.ts",
+    "usb-insert": "tsx ./src/insert.ts",
+    "usb-mount": "tsx ./src/mount.ts",
+    "usb-remove": "tsx ./src/remove.ts"
+  },
+  "license": "GPL-3.0",
+  "dependencies": {
+    "tsx": "^3.12.6",
+    "zx": "^7.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "16.18.23"
+  }
+}

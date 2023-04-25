@@ -1,0 +1,9 @@
+{
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true
+  }
+}
