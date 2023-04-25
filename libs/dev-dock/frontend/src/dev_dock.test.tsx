@@ -16,7 +16,7 @@ import {
   fakeFileWriter,
 } from '@votingworks/test-utils';
 import { CardStatus } from '@votingworks/auth';
-import { DevDock } from './frontend';
+import { DevDock } from './dev_dock';
 
 const noCardStatus: CardStatus = {
   status: 'no_card',

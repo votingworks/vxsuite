@@ -1,2 +1,2 @@
 /* istanbul ignore file */
-export * from './frontend';
+export * from './dev_dock';

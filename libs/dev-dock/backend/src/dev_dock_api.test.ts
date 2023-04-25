@@ -18,7 +18,7 @@ import {
   electionSample,
 } from '@votingworks/fixtures';
 import { Server } from 'http';
-import { Api, useDevDockRouter } from './backend';
+import { Api, useDevDockRouter } from './dev_dock_api';
 
 const TEST_DEV_DOCK_FILE_PATH = '/tmp/dev-dock.test.json';
 
