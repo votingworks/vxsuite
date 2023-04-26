@@ -1,47 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Single Seat Contest 1`] = `
-.c8 {
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  background: #FFFFFF;
-  cursor: pointer;
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-  text-align: left;
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-.c8::before {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-right: 1px solid;
-  border-color: rgb(211,211,211);
-  border-radius: 0.125rem 0 0 0.125rem;
-  background: #ffffff;
-  width: 3rem;
-  text-align: center;
-  color: #028099;
-  font-size: 2rem;
-  font-weight: 700;
-  content: '';
-}
-
 .c2 {
   margin: 0 auto;
   width: 100%;
@@ -106,11 +65,11 @@ exports[`Single Seat Contest 1`] = `
   margin-bottom: 40px;
 }
 
-.c10 {
+.c9 {
   white-space: nowrap;
 }
 
-.c10::after {
+.c9::after {
   display: inline-block;
   margin-left: 0.5rem;
   background: url('/images/arrow-right-open-black.svg') no-repeat;
@@ -120,11 +79,11 @@ exports[`Single Seat Contest 1`] = `
   content: '';
 }
 
-.c11 {
+.c10 {
   white-space: nowrap;
 }
 
-.c11::before {
+.c10::before {
   display: inline-block;
   margin-right: 0.5rem;
   background: url('/images/arrow-left-open-black.svg') no-repeat;
@@ -134,7 +93,7 @@ exports[`Single Seat Contest 1`] = `
   content: '';
 }
 
-.c9 {
+.c8 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -145,13 +104,13 @@ exports[`Single Seat Contest 1`] = `
   gap: 20px;
 }
 
-.c9 > * {
+.c8 > * {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c9 > *:first-child {
+.c8 > *:first-child {
   -webkit-flex: 2 1;
   -ms-flex: 2 1;
   flex: 2 1;
@@ -160,7 +119,7 @@ exports[`Single Seat Contest 1`] = `
   order: 1;
 }
 
-.c9 button {
+.c8 button {
   padding-right: 10px;
   padding-left: 10px;
 }
@@ -177,18 +136,12 @@ exports[`Single Seat Contest 1`] = `
   padding: 30px 30px 0;
 }
 
-@media (min-width:480px) {
-  .c8 {
-    padding: 1rem 1rem 1rem 4rem;
-  }
-}
-
 <div
   class="c0"
   tabindex="-1"
 >
   <div
-    class="sc-clIAKW iOFdCU"
+    class="sc-jIkYaL gQaCwX"
   >
     <div
       class="c1"
@@ -213,7 +166,7 @@ exports[`Single Seat Contest 1`] = `
       </div>
     </div>
     <main
-      class="sc-faUofl iEqEvY"
+      class="sc-ZOsLE fjQwTk"
     >
       <div
         class="c2"
@@ -267,157 +220,277 @@ exports[`Single Seat Contest 1`] = `
               <button
                 aria-label=" Joseph Barchi and Joseph Hallaren."
                 aria-selected="false"
-                class="c8"
-                data-choice="barchi-hallaren"
-                data-selected="false"
+                class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
                 role="option"
                 type="button"
               >
                 <span
                   class="sc-ezbkgU gcJsOl"
                 >
-                  <div
-                    class="sc-fotPbf iwtRsQ"
+                  <span
+                    class="sc-caiKgP SOLan"
                   >
-                    <p
-                      class="sc-bqiQRQ eyxUBE"
+                    <span
+                      class="sc-iUKrWq hYcNmD"
                     >
-                      <strong>
+                      <span
+                        class="sc-cidCJl bYFEFC"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="sc-iwjezw daAwbp"
+                          height="100"
+                          role="img"
+                          viewBox="0 0 100 100"
+                          width="100"
+                        >
+                          <path
+                            d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
+                          />
+                        </svg>
+                      </span>
+                    </span>
+                    <span
+                      class="sc-iAKVOt gyainp"
+                    >
+                      <p
+                        class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                      >
                         Joseph Barchi and Joseph Hallaren
-                      </strong>
+                      </p>
                       
-                    </p>
-                  </div>
+                    </span>
+                  </span>
                 </span>
               </button>
               <button
                 aria-label=" Adam Cramer and Greg Vuocolo."
                 aria-selected="false"
-                class="c8"
-                data-choice="cramer-vuocolo"
-                data-selected="false"
+                class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
                 role="option"
                 type="button"
               >
                 <span
                   class="sc-ezbkgU gcJsOl"
                 >
-                  <div
-                    class="sc-fotPbf iwtRsQ"
+                  <span
+                    class="sc-caiKgP SOLan"
                   >
-                    <p
-                      class="sc-bqiQRQ eyxUBE"
+                    <span
+                      class="sc-iUKrWq hYcNmD"
                     >
-                      <strong>
+                      <span
+                        class="sc-cidCJl bYFEFC"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="sc-iwjezw daAwbp"
+                          height="100"
+                          role="img"
+                          viewBox="0 0 100 100"
+                          width="100"
+                        >
+                          <path
+                            d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
+                          />
+                        </svg>
+                      </span>
+                    </span>
+                    <span
+                      class="sc-iAKVOt gyainp"
+                    >
+                      <p
+                        class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                      >
                         Adam Cramer and Greg Vuocolo
-                      </strong>
+                      </p>
                       
-                    </p>
-                  </div>
+                    </span>
+                  </span>
                 </span>
               </button>
               <button
                 aria-label=" Daniel Court and Amy Blumhardt."
                 aria-selected="false"
-                class="c8"
-                data-choice="court-blumhardt"
-                data-selected="false"
+                class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
                 role="option"
                 type="button"
               >
                 <span
                   class="sc-ezbkgU gcJsOl"
                 >
-                  <div
-                    class="sc-fotPbf iwtRsQ"
+                  <span
+                    class="sc-caiKgP SOLan"
                   >
-                    <p
-                      class="sc-bqiQRQ eyxUBE"
+                    <span
+                      class="sc-iUKrWq hYcNmD"
                     >
-                      <strong>
+                      <span
+                        class="sc-cidCJl bYFEFC"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="sc-iwjezw daAwbp"
+                          height="100"
+                          role="img"
+                          viewBox="0 0 100 100"
+                          width="100"
+                        >
+                          <path
+                            d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
+                          />
+                        </svg>
+                      </span>
+                    </span>
+                    <span
+                      class="sc-iAKVOt gyainp"
+                    >
+                      <p
+                        class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                      >
                         Daniel Court and Amy Blumhardt
-                      </strong>
+                      </p>
                       
-                    </p>
-                  </div>
+                    </span>
+                  </span>
                 </span>
               </button>
               <button
                 aria-label=" Alvin Boone and James Lian."
                 aria-selected="false"
-                class="c8"
-                data-choice="boone-lian"
-                data-selected="false"
+                class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
                 role="option"
                 type="button"
               >
                 <span
                   class="sc-ezbkgU gcJsOl"
                 >
-                  <div
-                    class="sc-fotPbf iwtRsQ"
+                  <span
+                    class="sc-caiKgP SOLan"
                   >
-                    <p
-                      class="sc-bqiQRQ eyxUBE"
+                    <span
+                      class="sc-iUKrWq hYcNmD"
                     >
-                      <strong>
+                      <span
+                        class="sc-cidCJl bYFEFC"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="sc-iwjezw daAwbp"
+                          height="100"
+                          role="img"
+                          viewBox="0 0 100 100"
+                          width="100"
+                        >
+                          <path
+                            d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
+                          />
+                        </svg>
+                      </span>
+                    </span>
+                    <span
+                      class="sc-iAKVOt gyainp"
+                    >
+                      <p
+                        class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                      >
                         Alvin Boone and James Lian
-                      </strong>
+                      </p>
                       
-                    </p>
-                  </div>
+                    </span>
+                  </span>
                 </span>
               </button>
               <button
                 aria-label=" Ashley Hildebrand-McDougall and James Garritty."
                 aria-selected="false"
-                class="c8"
-                data-choice="hildebrand-garritty"
-                data-selected="false"
+                class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
                 role="option"
                 type="button"
               >
                 <span
                   class="sc-ezbkgU gcJsOl"
                 >
-                  <div
-                    class="sc-fotPbf iwtRsQ"
+                  <span
+                    class="sc-caiKgP SOLan"
                   >
-                    <p
-                      class="sc-bqiQRQ eyxUBE"
+                    <span
+                      class="sc-iUKrWq hYcNmD"
                     >
-                      <strong>
+                      <span
+                        class="sc-cidCJl bYFEFC"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="sc-iwjezw daAwbp"
+                          height="100"
+                          role="img"
+                          viewBox="0 0 100 100"
+                          width="100"
+                        >
+                          <path
+                            d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
+                          />
+                        </svg>
+                      </span>
+                    </span>
+                    <span
+                      class="sc-iAKVOt gyainp"
+                    >
+                      <p
+                        class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                      >
                         Ashley Hildebrand-McDougall and James Garritty
-                      </strong>
+                      </p>
                       
-                    </p>
-                  </div>
+                    </span>
+                  </span>
                 </span>
               </button>
               <button
                 aria-label=" Martin Patterson and Clay Lariviere."
                 aria-selected="false"
-                class="c8"
-                data-choice="patterson-lariviere"
-                data-selected="false"
+                class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
                 role="option"
                 type="button"
               >
                 <span
                   class="sc-ezbkgU gcJsOl"
                 >
-                  <div
-                    class="sc-fotPbf iwtRsQ"
+                  <span
+                    class="sc-caiKgP SOLan"
                   >
-                    <p
-                      class="sc-bqiQRQ eyxUBE"
+                    <span
+                      class="sc-iUKrWq hYcNmD"
                     >
-                      <strong>
+                      <span
+                        class="sc-cidCJl bYFEFC"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="sc-iwjezw daAwbp"
+                          height="100"
+                          role="img"
+                          viewBox="0 0 100 100"
+                          width="100"
+                        >
+                          <path
+                            d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
+                          />
+                        </svg>
+                      </span>
+                    </span>
+                    <span
+                      class="sc-iAKVOt gyainp"
+                    >
+                      <p
+                        class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                      >
                         Martin Patterson and Clay Lariviere
-                      </strong>
+                      </p>
                       
-                    </p>
-                  </div>
+                    </span>
+                  </span>
                 </span>
               </button>
             </div>
@@ -426,7 +499,7 @@ exports[`Single Seat Contest 1`] = `
       </div>
     </main>
     <nav
-      class="c9"
+      class="c8"
     >
       <button
         aria-label="next contest"
@@ -438,7 +511,7 @@ exports[`Single Seat Contest 1`] = `
           class="sc-ezbkgU gcJsOl"
         >
           <span
-            class="c10"
+            class="c9"
           >
             Next
           </span>
@@ -454,7 +527,7 @@ exports[`Single Seat Contest 1`] = `
           class="sc-ezbkgU gcJsOl"
         >
           <span
-            class="c11"
+            class="c10"
           >
             Back
           </span>
