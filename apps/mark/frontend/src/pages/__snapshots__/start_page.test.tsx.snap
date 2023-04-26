@@ -103,10 +103,10 @@ exports[`renders StartPage 1`] = `
 }
 
 <div
-  class="sc-jObXwK fVjSuM"
+  class="sc-clIAKW iOFdCU"
 >
   <main
-    class="sc-dPiKHq oFCMn"
+    class="sc-faUofl bPNoEL"
   >
     <div
       aria-hidden="false"
@@ -351,10 +351,10 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 <div
-  class="sc-jObXwK fVjSuM"
+  class="sc-clIAKW iOFdCU"
 >
   <main
-    class="sc-dPiKHq oFCMn"
+    class="sc-faUofl bPNoEL"
   >
     <div
       aria-hidden="false"
@@ -757,10 +757,10 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 <div
-  class="sc-jObXwK fVjSuM"
+  class="sc-clIAKW iOFdCU"
 >
   <main
-    class="sc-dPiKHq oFCMn"
+    class="sc-faUofl bPNoEL"
   >
     <div
       aria-hidden="false"
