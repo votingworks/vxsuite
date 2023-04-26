@@ -166,7 +166,7 @@ export function buildTestEnvironment(workspaceRoot?: string) {
   const logger = fakeLogger();
   const auth = buildMockDippedSmartCardAuth();
   const resolvedWorkspaceRoot =
-    workspaceRoot ??
+    workspaceRoot ||
     (() => {
       const defaultWorkspaceRoot = tmp.dirSync().name;
       deleteTmpFileAfterTestSuiteCompletes(defaultWorkspaceRoot);
