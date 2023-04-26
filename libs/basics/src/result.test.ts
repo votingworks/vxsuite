@@ -1,5 +1,15 @@
 import { inspect } from 'util';
-import { err, isResult, ok, wrapException } from './result';
+import {
+  Result,
+  asyncResultBlock,
+  err,
+  isResult,
+  ok,
+  resultBlock,
+  wrapException,
+} from './result';
+import { Optional } from './types';
+import { assert } from './assert';
 
 test('ok is Ok', () => {
   expect(ok(0).isOk()).toEqual(true);
@@ -113,4 +123,145 @@ test('err inspect', () => {
 test('wrapException', () => {
   expect(wrapException(new Error('err')).err()).toEqual(new Error('err'));
   expect(wrapException(0).err()).toEqual(new Error('0'));
+});
+
+test('resultBlock trivial', () => {
+  expect(
+    resultBlock(() => {
+      // do nothing
+    })
+  ).toEqual(ok());
+});
+
+test('resultBlock ok', () => {
+  expect(
+    resultBlock(() => {
+      return 0;
+    })
+  ).toEqual(ok(0));
+});
+
+test('resultBlock ok result', () => {
+  expect(
+    resultBlock(() => {
+      return ok(0);
+    })
+  ).toEqual(ok(0));
+});
+
+test('resultBlock thrown error', () => {
+  expect(() =>
+    resultBlock(() => {
+      throw new Error('err');
+    })
+  ).toThrowError('err');
+});
+
+test('resultBlock early return', () => {
+  expect(
+    resultBlock((ret) => {
+      err('early return').or(ret);
+    })
+  ).toEqual(err('early return'));
+});
+
+test('resultBlock complete example', () => {
+  function div(numerator: number, denominator: number): Result<number, string> {
+    if (denominator === 0) {
+      return err('division by zero');
+    }
+
+    return ok(numerator / denominator);
+  }
+
+  let half: Optional<number>;
+  let quarter: Optional<number>;
+  let eighth: Optional<number>;
+
+  const result = resultBlock((ret) => {
+    half = div(1, 2).or(ret);
+    quarter = div(half, 2).or(ret);
+    eighth = div(quarter, 2).or(ret);
+
+    div(eighth, 0).or(ret);
+    assert(false, 'unreachable');
+  });
+
+  expect({ half, quarter, eighth }).toEqual({
+    half: 0.5,
+    quarter: 0.25,
+    eighth: 0.125,
+  });
+  expect(result).toEqual(err('division by zero'));
+});
+
+test('asyncResultBlock trivial', async () => {
+  expect(
+    await asyncResultBlock(async () => {
+      // do nothing
+    })
+  ).toEqual(ok());
+});
+
+test('asyncResultBlock ok', async () => {
+  expect(
+    await asyncResultBlock(async () => {
+      return await Promise.resolve(0);
+    })
+  ).toEqual(ok(0));
+});
+
+test('asyncResultBlock ok result', async () => {
+  expect(
+    await asyncResultBlock(async () => {
+      return await Promise.resolve(ok(0));
+    })
+  ).toEqual(ok(0));
+});
+
+test('asyncResultBlock thrown error', async () => {
+  await expect(() =>
+    asyncResultBlock(() => Promise.reject(new Error('err')))
+  ).rejects.toThrowError('err');
+});
+
+test('asyncResultBlock early return', async () => {
+  expect(
+    await asyncResultBlock(async (ret) => {
+      err(await Promise.resolve('early return')).or(ret);
+    })
+  ).toEqual(err('early return'));
+});
+
+test('asyncResultBlock complete example', async () => {
+  async function div(
+    numerator: number,
+    denominator: number
+  ): Promise<Result<number, string>> {
+    if (denominator === 0) {
+      return err('division by zero');
+    }
+
+    return await Promise.resolve(ok(numerator / denominator));
+  }
+
+  let half: Optional<number>;
+  let quarter: Optional<number>;
+  let eighth: Optional<number>;
+
+  const result = await asyncResultBlock(async (ret) => {
+    half = (await div(1, 2)).or(ret);
+    quarter = (await div(half, 2)).or(ret);
+    eighth = (await div(quarter, 2)).or(ret);
+
+    (await div(eighth, 0)).or(ret);
+    assert(false, 'unreachable');
+  });
+
+  expect({ half, quarter, eighth }).toEqual({
+    half: 0.5,
+    quarter: 0.25,
+    eighth: 0.125,
+  });
+  expect(result).toEqual(err('division by zero'));
 });
