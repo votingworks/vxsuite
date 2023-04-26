@@ -7,5 +7,11 @@ echo "Generating $NUM_REPORTS cast vote record reports with $RECORDS_PER_REPORT 
 
 for REPORT_IDX in $( seq 0 $((NUM_REPORTS - 1)) )
 do
-    ./bin/generate --ballotPackage ../fixtures/data/electionMinimalExhaustiveSample/ballot-package.zip --numBallots $RECORDS_PER_REPORT --outputPath ../../apps/admin/backend/perf-fixtures/$RECORDS_PER_REPORT/$REPORT_IDX --scannerNames scanner-$REPORT_IDX --ballotIdPrefix $REPORT_IDX --bmdBallots
+    ./bin/generate \
+        --ballotPackage ../fixtures/data/electionMinimalExhaustiveSample/ballot-package.zip \
+        --outputPath ../../apps/admin/backend/perf/fixtures/$RECORDS_PER_REPORT/$REPORT_IDX \
+        --ballotIdPrefix $REPORT_IDX \
+        --numBallots $RECORDS_PER_REPORT \
+        --scannerNames scanner-$REPORT_IDX \
+        --bmdBallots
 done

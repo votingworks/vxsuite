@@ -1,7 +1,7 @@
 node_modules
 dev-workspace/
 workspace-backups/
-perf-fixtures/
+perf/fixtures/
 *~
 *.log
 coverage/
