@@ -1,3 +1,4 @@
+import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleDefinition,
@@ -5,9 +6,7 @@ import {
 } from '@votingworks/fixtures';
 import { CVR, getBallotStyle, getContests } from '@votingworks/types';
 import { BallotPackage, readBallotPackageFromBuffer } from '@votingworks/utils';
-import { assert, find, iter, throwIllegalValue } from '@votingworks/basics';
 import { generateCvrs } from './generate_cvrs';
-import { IMAGE_URI_REGEX } from './utils';
 
 async function mockBallotPackage(): Promise<BallotPackage> {
   return await readBallotPackageFromBuffer(
@@ -15,41 +14,13 @@ async function mockBallotPackage(): Promise<BallotPackage> {
   );
 }
 
-async function mockMultiSheetBallotPackage(): Promise<BallotPackage> {
-  const singleSheetBallotPackage = await mockBallotPackage();
-
-  return {
-    ...singleSheetBallotPackage,
-    ballots: singleSheetBallotPackage.ballots.map((ballot) => ({
-      ...ballot,
-      layout: [...ballot.layout, ...ballot.layout],
-    })),
-  };
-}
-
-test('fails on ballot package with more than one sheet', async () => {
-  await expect(async () =>
-    iter(
-      generateCvrs({
-        ballotPackage: await mockMultiSheetBallotPackage(),
-        scannerNames: ['scanner-1'],
-        testMode: true,
-        includeBallotImages: false,
-      })
-    ).toArray()
-  ).rejects.toThrowError('only single-sheet ballots are supported');
-});
-
 test('produces well-formed cast vote records with all contests', async () => {
   const { election } = electionMinimalExhaustiveSampleDefinition;
   for await (const cvr of generateCvrs({
     ballotPackage: await mockBallotPackage(),
     scannerNames: ['scanner-1'],
-    testMode: true,
-    includeBallotImages: false,
   })) {
     expect(cvr.CVRSnapshot).toHaveLength(1);
-    expect(cvr.BallotSheetId).toEqual('1');
     const ballotStyleId = cvr.BallotStyleId;
     expect(
       cvr.CVRSnapshot[0]!.CVRContest?.map((cvrContest) => cvrContest.ContestId)
@@ -72,9 +43,7 @@ test('has absentee and standard ballot types', async () => {
   let seenStandard = false;
 
   for await (const cvr of generateCvrs({
-    testMode: false,
     scannerNames: ['scanner-1'],
-    includeBallotImages: false,
     ballotPackage: await mockBallotPackage(),
   })) {
     switch (cvr.vxBallotType) {
@@ -107,9 +76,7 @@ test('uses all the scanners given', async () => {
   const scanners = new Set<string>();
 
   for await (const cvr of generateCvrs({
-    testMode: false,
     scannerNames: ['scanner-1', 'scanner-2'],
-    includeBallotImages: false,
     ballotPackage: await mockBallotPackage(),
   })) {
     expect(cvr.CreatingDeviceId).toBeDefined();
@@ -128,9 +95,7 @@ test('adds write-ins for contests that allow them', async () => {
   let seenWriteIn = false;
 
   for await (const cvr of generateCvrs({
-    testMode: false,
     scannerNames: ['scanner-1'],
-    includeBallotImages: false,
     ballotPackage: await mockBallotPackage(),
   })) {
     const cvrContests = cvr.CVRSnapshot[0]?.CVRContest;
@@ -164,8 +129,6 @@ test('adds write-ins for contests that have 1 seat', async () => {
 
   for await (const cvr of generateCvrs({
     scannerNames: ['scanner-1'],
-    testMode: false,
-    includeBallotImages: false,
     ballotPackage: await readBallotPackageFromBuffer(
       electionFamousNames2021Fixtures.ballotPackage.asBuffer()
     ),
@@ -188,50 +151,4 @@ test('adds write-ins for contests that have 1 seat', async () => {
   }
 
   expect(seenWriteIn).toEqual(true);
-});
-
-// current fixture only has write-ins on the front
-test('can include ballot image references for write-ins', async () => {
-  let reportHasWriteIn = false;
-  for await (const cvr of generateCvrs({
-    testMode: false,
-    scannerNames: ['scanner-1'],
-    includeBallotImages: true,
-    ballotPackage: await mockBallotPackage(),
-  })) {
-    let cvrHasWriteIn = false;
-    const selectionPositions = cvr.CVRSnapshot[0]!.CVRContest.flatMap(
-      (cvrContest) => cvrContest.CVRContestSelection
-    ).flatMap((cvrContestSelection) => cvrContestSelection.SelectionPosition);
-
-    for (const selectionPosition of selectionPositions) {
-      if (selectionPosition.CVRWriteIn) {
-        reportHasWriteIn = true;
-        cvrHasWriteIn = true;
-
-        expect(selectionPosition.CVRWriteIn).toMatchObject({
-          '@type': 'CVR.CVRWriteIn',
-          WriteInImage: {
-            Location: expect.stringMatching(IMAGE_URI_REGEX),
-          },
-        });
-      }
-    }
-
-    if (cvrHasWriteIn) {
-      expect(cvr.BallotImage).toMatchObject([
-        {
-          '@type': 'CVR.ImageData',
-          Location: expect.stringMatching(IMAGE_URI_REGEX),
-        },
-        {
-          '@type': 'CVR.ImageData',
-        },
-      ]);
-    } else {
-      expect(cvr.BallotImage).toBeUndefined();
-    }
-  }
-
-  expect(reportHasWriteIn).toBeTruthy();
 });

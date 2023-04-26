@@ -2,7 +2,6 @@ import { interpretCompatible as interpretNh } from '@votingworks/ballot-interpre
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
-  BallotPageLayoutWithImage,
   ElectionDefinition,
   Id,
   MarkThresholds,
@@ -25,7 +24,6 @@ import { SheetInterpretation } from './types';
 export interface InterpreterConfig {
   readonly electionDefinition: ElectionDefinition;
   readonly precinctSelection: PrecinctSelection;
-  readonly layouts: readonly BallotPageLayoutWithImage[];
   readonly ballotImagesPath: string;
   readonly markThresholdOverrides?: MarkThresholds;
   readonly testMode: boolean;
@@ -224,7 +222,6 @@ async function vxInterpret(
   const {
     electionDefinition,
     ballotImagesPath,
-    layouts,
     markThresholdOverrides,
     precinctSelection,
     testMode,
@@ -239,10 +236,6 @@ async function vxInterpret(
     adjudicationReasons:
       electionDefinition.election.precinctScanAdjudicationReasons ?? [],
   });
-
-  for (const layout of layouts) {
-    vxInterpreter.addHmpbTemplate(layout);
-  }
 
   const [frontQrcodeOutput, backQrcodeOutput] = normalizeSheetOutput(
     electionDefinition,
@@ -261,7 +254,7 @@ async function vxInterpret(
       ballotImagePath,
       detectQrcodeResult,
     ]): Promise<PageInterpretationWithFiles> => {
-      const result = await vxInterpreter.interpretFile({
+      const result = vxInterpreter.interpretFile({
         ballotImagePath,
         detectQrcodeResult,
       });

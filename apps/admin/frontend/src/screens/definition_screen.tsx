@@ -1,14 +1,12 @@
-import React, { useContext, useState } from 'react';
 import { Contest, getContestDistrictName } from '@votingworks/types';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 
-import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
+import { format } from '@votingworks/utils';
 
-import { Button, LinkButton, Prose, Text } from '@votingworks/ui';
+import { Button, Prose, Text } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
-
-import { routerPaths } from '../router_paths';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { RemoveElectionModal } from '../components/remove_election_modal';
@@ -77,29 +75,15 @@ export function DefinitionScreen(): JSX.Element {
           {electionsByDistrict.map((district) => (
             <React.Fragment key={district.name}>
               <h3>{district.name}</h3>
-              <p>
+              <ul>
                 {district.contests.map((contest) => (
-                  <ButtonListItem key={contest.id}>
-                    <LinkButton
-                      small
-                      to={routerPaths.definitionContest({
-                        contestId: contest.id,
-                      })}
-                    >
-                      {contest.title}
-                    </LinkButton>
-                  </ButtonListItem>
+                  <li key={contest.id}>{contest.title}</li>
                 ))}
-              </p>
+              </ul>
             </React.Fragment>
           ))}
           <h1>Advanced Features</h1>
           <p>
-            <ButtonListItem>
-              <LinkButton to={routerPaths.definitionEditor}>
-                View Definition JSON
-              </LinkButton>
-            </ButtonListItem>
             <ButtonListItem>
               <Button
                 variant="danger"

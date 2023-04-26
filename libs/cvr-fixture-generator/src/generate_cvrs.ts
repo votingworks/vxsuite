@@ -1,25 +1,18 @@
-import { buildCVRContestsFromVotes, hasWriteIns } from '@votingworks/backend';
-import { find, throwIllegalValue } from '@votingworks/basics';
+import { buildCVRContestsFromVotes } from '@votingworks/backend';
+import { throwIllegalValue } from '@votingworks/basics';
 import {
+  CVR,
   Candidate,
   CandidateContest,
   CandidateVote,
   ContestId,
-  CVR,
-  getContests,
   Vote,
   VotesDict,
   YesNoVote,
+  getContests,
 } from '@votingworks/types';
 import { BallotPackage } from '@votingworks/utils';
-import {
-  arrangeContestsBySheet,
-  BATCH_ID,
-  filterVotesByContests,
-  generateBallotAssetPath,
-  generateCombinations,
-  splitContestsByPage,
-} from './utils';
+import { BATCH_ID, generateCombinations } from './utils';
 
 /**
  *  All valid contest choice options for a yes no contest.
@@ -101,12 +94,9 @@ function getVoteConfigurations(
 }
 
 interface GenerateCvrsParams {
-  testMode: boolean;
   scannerNames: readonly string[];
   ballotPackage: BallotPackage;
-  includeBallotImages: boolean;
   ballotIdPrefix?: string;
-  bmdBallots?: boolean;
 }
 
 /**
@@ -117,12 +107,9 @@ interface GenerateCvrsParams {
  * @returns Array of generated {@link CVR.CVR}
  */
 export function* generateCvrs({
-  testMode,
   scannerNames,
   ballotPackage,
-  includeBallotImages,
   ballotIdPrefix,
-  bmdBallots,
 }: GenerateCvrsParams): Iterable<CVR.CVR> {
   const { electionDefinition } = ballotPackage;
   const { election } = electionDefinition;
@@ -141,19 +128,6 @@ export function* generateCvrs({
       CVR.vxBallotType.Precinct,
     ]) {
       for (const precinctId of precinctIds) {
-        // Find the layout, which we'll use to determine which contests are
-        // on which page for HMPBs
-        const ballotPageLayouts = find(
-          ballotPackage.ballots,
-          (ballot) =>
-            ballot.ballotConfig.ballotStyleId === ballotStyleId &&
-            ballot.ballotConfig.precinctId === precinctId &&
-            ballot.ballotConfig.isLiveMode === !testMode
-        ).layout;
-        if (ballotPageLayouts.length > 2) {
-          throw new Error('only single-sheet ballots are supported');
-        }
-
         for (const scanner of scannerNames) {
           const optionsForEachContest = new Map<string, readonly Vote[]>();
           for (const contest of contests) {
@@ -180,138 +154,36 @@ export function* generateCvrs({
 
           // Add the generated vote combinations as CVRs
           for (const votes of voteConfigurations) {
-            if (bmdBallots) {
-              yield {
-                '@type': 'CVR.CVR',
-                BallotStyleId: ballotStyleId,
-                BallotStyleUnitId: precinctId,
-                PartyIds: partyId ? [partyId] : undefined,
-                CreatingDeviceId: scanner,
-                ElectionId: electionDefinition.electionHash,
-                BatchId: BATCH_ID,
-                vxBallotType: ballotType,
-                CurrentSnapshotId: `${castVoteRecordId}-modified`,
-                UniqueId: ballotIdPrefix
-                  ? `${ballotIdPrefix}-${castVoteRecordId.toString()}`
-                  : castVoteRecordId.toString(),
-                CVRSnapshot: [
-                  {
-                    '@type': 'CVR.CVRSnapshot',
-                    '@id': `${castVoteRecordId}-modified`,
-                    Type: CVR.CVRType.Modified,
-                    CVRContest: buildCVRContestsFromVotes({
-                      contests,
-                      votes,
-                      options: {
-                        ballotMarkingMode: 'machine',
-                      },
-                    }),
-                  },
-                ],
-              };
-
-              castVoteRecordId += 1;
-            } else {
-              // Since this is HMPB, we generate a CVR for each sheet (not fully supported yet)
-              const contestsBySheet = arrangeContestsBySheet(
-                splitContestsByPage({
-                  allVotes: votes,
-                  ballotPageLayouts,
-                  election,
-                })
-              );
-
-              for (const [
-                sheetIndex,
-                sheetContests,
-              ] of contestsBySheet.entries()) {
-                const [frontContests, backContests] = sheetContests;
-                const frontHasWriteIns = hasWriteIns(
-                  filterVotesByContests(votes, frontContests)
-                );
-                const backHasWriteIns = hasWriteIns(
-                  filterVotesByContests(votes, backContests)
-                );
-                const sheetHasWriteIns = frontHasWriteIns || backHasWriteIns;
-
-                const frontImageFileUri = `file:${generateBallotAssetPath({
-                  ballotStyleId: ballotStyle.id,
-                  precinctId,
-                  assetType: 'image',
-                  pageNumber: sheetIndex * 2 + 1,
-                })}`;
-                const backImageFileUri = `file:${generateBallotAssetPath({
-                  ballotStyleId: ballotStyle.id,
-                  precinctId,
-                  assetType: 'image',
-                  pageNumber: sheetIndex * 2 + 2,
-                })}`;
-
-                yield {
-                  '@type': 'CVR.CVR',
-                  BallotStyleId: ballotStyleId,
-                  BallotStyleUnitId: precinctId,
-                  PartyIds: partyId ? [partyId] : undefined,
-                  CreatingDeviceId: scanner,
-                  ElectionId: electionDefinition.electionHash,
-                  BatchId: BATCH_ID,
-                  vxBallotType: ballotType,
-                  CurrentSnapshotId: `${castVoteRecordId}-modified`,
-                  UniqueId: ballotIdPrefix
-                    ? `${ballotIdPrefix}-${castVoteRecordId.toString()}`
-                    : castVoteRecordId.toString(),
-                  BallotSheetId: (sheetIndex + 1).toString(),
-                  CVRSnapshot: [
-                    {
-                      '@type': 'CVR.CVRSnapshot',
-                      '@id': `${castVoteRecordId}-modified`,
-                      Type: CVR.CVRType.Modified,
-                      CVRContest: [
-                        ...buildCVRContestsFromVotes({
-                          contests: frontContests,
-                          votes,
-                          options: {
-                            ballotMarkingMode: 'hand',
-                            imageFileUri: includeBallotImages
-                              ? frontImageFileUri
-                              : undefined,
-                          },
-                        }),
-                        ...buildCVRContestsFromVotes({
-                          contests: backContests,
-                          votes,
-                          options: {
-                            ballotMarkingMode: 'hand',
-                            imageFileUri: includeBallotImages
-                              ? backImageFileUri
-                              : undefined,
-                          },
-                        }),
-                      ],
+            yield {
+              '@type': 'CVR.CVR',
+              BallotStyleId: ballotStyleId,
+              BallotStyleUnitId: precinctId,
+              PartyIds: partyId ? [partyId] : undefined,
+              CreatingDeviceId: scanner,
+              ElectionId: electionDefinition.electionHash,
+              BatchId: BATCH_ID,
+              vxBallotType: ballotType,
+              CurrentSnapshotId: `${castVoteRecordId}-modified`,
+              UniqueId: ballotIdPrefix
+                ? `${ballotIdPrefix}-${castVoteRecordId.toString()}`
+                : castVoteRecordId.toString(),
+              CVRSnapshot: [
+                {
+                  '@type': 'CVR.CVRSnapshot',
+                  '@id': `${castVoteRecordId}-modified`,
+                  Type: CVR.CVRType.Modified,
+                  CVRContest: buildCVRContestsFromVotes({
+                    contests,
+                    votes,
+                    options: {
+                      ballotMarkingMode: 'machine',
                     },
-                  ],
-                  BallotImage:
-                    includeBallotImages && sheetHasWriteIns
-                      ? [
-                          {
-                            '@type': 'CVR.ImageData',
-                            Location: frontHasWriteIns
-                              ? frontImageFileUri
-                              : undefined,
-                          },
-                          {
-                            '@type': 'CVR.ImageData',
-                            Location: backHasWriteIns
-                              ? backImageFileUri
-                              : undefined,
-                          },
-                        ]
-                      : undefined,
-                };
+                  }),
+                },
+              ],
+            };
 
-                castVoteRecordId += 1;
-              }
-            }
+            castVoteRecordId += 1;
           }
         }
       }

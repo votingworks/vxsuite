@@ -1,45 +1,24 @@
-import { Buffer } from 'buffer';
-import React, { useContext, useEffect, useState } from 'react';
-import pluralize from 'pluralize';
-import styled from 'styled-components';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { join } from 'path';
-import { interpretMultiPagePdfTemplate } from '@votingworks/ballot-interpreter-vx';
-import {
-  BallotMetadata,
-  BallotType,
-  DEFAULT_SYSTEM_SETTINGS,
-  getPrecinctById,
-} from '@votingworks/types';
+import React, { useContext, useEffect, useState } from 'react';
+import styled from 'styled-components';
 
-import { Admin } from '@votingworks/api';
+import { assert, throwIllegalValue } from '@votingworks/basics';
+import { LogEventId } from '@votingworks/logging';
+import { Button, Modal, Prose, UsbControllerButton } from '@votingworks/ui';
 import {
-  generateFilenameForBallotExportPackage,
   BALLOT_PACKAGE_FOLDER,
-  usbstick,
-  BallotConfig,
+  generateFilenameForBallotExportPackage,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
+  usbstick,
 } from '@votingworks/utils';
-import { assert, iter, throwIllegalValue } from '@votingworks/basics';
-import {
-  Button,
-  Monospace,
-  Modal,
-  Prose,
-  UsbControllerButton,
-  printElementToPdfWhenReady,
-} from '@votingworks/ui';
-import { LogEventId } from '@votingworks/logging';
 import { getSystemSettings } from '../api';
-import { DEFAULT_LOCALE } from '../config/globals';
-import { getHumanBallotLanguageFormat } from '../utils/election';
 
 import { AppContext } from '../contexts/app_context';
-import { HandMarkedPaperBallot } from './hand_marked_paper_ballot';
 import { Loading } from './loading';
 
 import * as workflow from '../workflows/export_election_ballot_package_workflow';
-import { DownloadableArchive } from '../utils/downloadable_archive';
 
 const UsbImage = styled.img`
   margin-right: auto;
@@ -57,10 +36,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
   const { election, electionData, electionHash } = electionDefinition;
-  const electionLocaleCodes = [DEFAULT_LOCALE];
 
   const [state, setState] = useState<workflow.State>(
-    workflow.init(electionDefinition, electionLocaleCodes)
+    workflow.init(electionDefinition)
   );
 
   const loaded = systemSettingsQuery.isSuccess;
@@ -96,75 +74,10 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     })();
   }, [state, election, electionData, electionHash, logger, userRole]);
 
-  /**
-   * Renders all ballot configs to PDFs, generates their layout files,
-   * and add the PDFs and layouts to the specified archive. Advances
-   * workflow state after each ballot config to update UI.
-   */
-  async function archiveBallots(
-    ballotConfigs: readonly BallotConfig[],
-    archive: DownloadableArchive
-  ) {
-    assert(window.kiosk);
-    assert(electionDefinition);
-    for (const ballotConfig of ballotConfigs) {
-      const {
-        ballotStyleId,
-        precinctId,
-        locales,
-        isLiveMode,
-        isAbsentee,
-        filename,
-        layoutFilename,
-      } = ballotConfig;
-      assert(typeof layoutFilename === 'string');
-      const ballotPdfData = Buffer.from(
-        await printElementToPdfWhenReady((onRendered) => {
-          return (
-            <HandMarkedPaperBallot
-              ballotStyleId={ballotStyleId}
-              election={election}
-              electionHash={electionHash}
-              ballotMode={
-                isLiveMode ? Admin.BallotMode.Official : Admin.BallotMode.Test
-              }
-              isAbsentee={isAbsentee}
-              precinctId={precinctId}
-              onRendered={onRendered}
-              locales={locales}
-            />
-          );
-        })
-      );
-
-      const metadata: BallotMetadata = {
-        ballotStyleId,
-        electionHash: electionDefinition.electionHash,
-        ballotType: BallotType.Standard,
-        precinctId,
-        locales,
-        isTestMode: !isLiveMode,
-      };
-      const layouts = await iter(
-        interpretMultiPagePdfTemplate({
-          electionDefinition,
-          ballotPdfData,
-          metadata,
-        })
-      )
-        .map(({ ballotPageLayout }) => ballotPageLayout)
-        .toArray();
-
-      await archive.file(layoutFilename, JSON.stringify(layouts, undefined, 2));
-      await archive.file(filename, ballotPdfData);
-      setState(workflow.next);
-    }
-  }
-
   function closeModal() {
     setIsModalOpen(false);
     assert(electionDefinition);
-    setState(workflow.init(electionDefinition, electionLocaleCodes));
+    setState(workflow.init(electionDefinition));
   }
 
   const now = new Date();
@@ -195,12 +108,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         'systemSettings.json',
         JSON.stringify(systemSettings || DEFAULT_SYSTEM_SETTINGS, null, 2)
       );
-      await state.archive.file(
-        'manifest.json',
-        JSON.stringify({ ballots: state.ballotConfigs }, undefined, 2)
-      );
       setState(workflow.next);
-      await archiveBallots(state.ballotConfigs, state.archive);
     } catch (error) {
       assert(error instanceof Error);
       setState(workflow.error(state, error));
@@ -290,49 +198,6 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       }
       break;
 
-    case 'RenderBallot': {
-      actions = (
-        <Button onPress={closeModal} disabled>
-          Cancel
-        </Button>
-      );
-      const { ballotStyleId, precinctId, contestIds, locales } =
-        state.currentBallotConfig;
-      const precinct = getPrecinctById({ election, precinctId });
-      assert(precinct);
-      const precinctName = precinct.name;
-
-      mainContent = (
-        <Prose>
-          <h1>
-            Generating Ballot{' '}
-            {state.ballotConfigsCount - state.remainingBallotConfigs.length} of{' '}
-            {state.ballotConfigsCount}…
-          </h1>
-          <ul>
-            <li>
-              Ballot Style: <strong>{ballotStyleId}</strong>
-            </li>
-            <li>
-              Precinct: <strong>{precinctName}</strong>
-            </li>
-            <li>
-              Contest count: <strong>{contestIds.length}</strong>
-            </li>
-            <li>
-              Language format:{' '}
-              <strong>{getHumanBallotLanguageFormat(locales)}</strong>
-            </li>
-            <li>
-              Filename:{' '}
-              <Monospace>{state.currentBallotConfig.filename}</Monospace>
-            </li>
-          </ul>
-        </Prose>
-      );
-      break;
-    }
-
     case 'ArchiveEnd': {
       actions = (
         <Button onPress={closeModal} disabled>
@@ -342,10 +207,6 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       mainContent = (
         <Prose>
           <h1>Saving…</h1>
-          <p>
-            Rendered {pluralize('ballot', state.ballotConfigsCount, true)},
-            closing zip file.
-          </p>
         </Prose>
       );
       break;

@@ -52,7 +52,7 @@ async function resolveWorkspace(): Promise<Workspace> {
       'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE'
     );
   }
-  return await createWorkspace(workspacePath);
+  return createWorkspace(workspacePath);
 }
 
 function createPrecinctScannerStateMachine(

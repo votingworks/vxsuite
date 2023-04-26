@@ -1,37 +1,31 @@
+import { assert } from '@votingworks/basics';
 import {
   BallotLocale,
   BallotPageLayout,
-  BallotPageLayoutSchema,
   BallotStyleId,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   PrecinctId,
   safeParseElectionDefinition,
-  safeParseJson,
   SystemSettings,
 } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import 'fast-text-encoding';
-import { z } from 'zod';
-import { assert } from '@votingworks/basics';
-import { safeParseSystemSettings } from './system_settings';
 import {
+  getEntries,
   getFileByName,
   maybeGetFileByName,
-  readFile,
   openZip,
-  getEntries,
-  readEntry,
+  readFile,
   readTextEntry,
-  readJsonEntry,
 } from './file_reading';
+import { safeParseSystemSettings } from './system_settings';
 
 export interface BallotPackage {
   electionDefinition: ElectionDefinition;
   // TODO(kevin) once all machines support system settings, make systemSettings required
   systemSettings?: SystemSettings;
-  ballots: BallotPackageEntry[];
 }
 
 export interface BallotPackageEntry {
@@ -65,7 +59,6 @@ export async function readBallotPackageFromBuffer(
   const zipName = 'ballot package';
   const entries = getEntries(zipfile);
   const electionEntry = getFileByName(entries, 'election.json', zipName);
-  const manifestEntry = getFileByName(entries, 'manifest.json', zipName);
 
   let systemSettingsData = JSON.stringify(DEFAULT_SYSTEM_SETTINGS);
 
@@ -78,40 +71,11 @@ export async function readBallotPackageFromBuffer(
   }
 
   const electionData = await readTextEntry(electionEntry);
-  const manifest = (await readJsonEntry(
-    manifestEntry
-  )) as BallotPackageManifest;
-  const ballots = await Promise.all(
-    manifest.ballots.map<Promise<BallotPackageEntry>>(async (ballotConfig) => {
-      const ballotEntry = getFileByName(
-        entries,
-        ballotConfig.filename,
-        zipName
-      );
-      const layoutEntry = getFileByName(
-        entries,
-        ballotConfig.layoutFilename,
-        zipName
-      );
-
-      const pdf = await readEntry(ballotEntry);
-      const layout = safeParseJson(
-        await readTextEntry(layoutEntry),
-        z.array(BallotPageLayoutSchema)
-      ).unsafeUnwrap();
-      return {
-        pdf,
-        layout,
-        ballotConfig,
-      };
-    })
-  );
 
   return {
     electionDefinition:
       safeParseElectionDefinition(electionData).unsafeUnwrap(),
     systemSettings: safeParseSystemSettings(systemSettingsData).unsafeUnwrap(),
-    ballots,
   };
 }
 

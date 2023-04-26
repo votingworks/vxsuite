@@ -1,31 +1,23 @@
 import { ResultSheet } from '@votingworks/backend';
 import { sleep, typedAs } from '@votingworks/basics';
+import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
-  BallotMetadata,
-  BallotPageLayout,
   BallotType,
   CandidateContest,
   InterpretedHmpbPage,
-  mapSheet,
   PageInterpretationWithFiles,
   SheetOf,
   YesNoContest,
+  mapSheet,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
-  BallotConfig,
-  BallotPackageEntry,
-  singlePrecinctSelectionFor,
   safeParseSystemSettings,
+  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { Buffer } from 'buffer';
-import { readFileSync } from 'fs';
-import * as fs from 'fs/promises';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import { ballotPdf, electionDefinition } from '../test/fixtures/2020-choctaw';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
@@ -232,142 +224,9 @@ test('get/set cvrs as backed up', () => {
   expect(store.getCvrsBackupTimestamp()).toBeFalsy();
 });
 
-const metadata: BallotMetadata = {
-  electionHash: electionDefinition.electionHash,
-  locales: { primary: 'en-US' },
-  ballotStyleId: '12',
-  precinctId: '23',
-  isTestMode: false,
-  ballotType: BallotType.Standard,
-};
-
-const ballotConfig: BallotConfig = {
-  filename: 'test-filename',
-  layoutFilename: 'test-layout-filename',
-  locales: { primary: 'en-US' },
-  isLiveMode: true,
-  isAbsentee: false,
-  ballotStyleId: '12',
-  precinctId: '23',
-  contestIds: [],
-};
-
-const ballotPdfBuffer = readFileSync(ballotPdf);
-
-const ballotTemplates: BallotPackageEntry[] = [
-  {
-    pdf: ballotPdfBuffer,
-    layout: [
-      {
-        pageSize: { width: 1, height: 1 },
-        metadata: { ...metadata, pageNumber: 1 },
-        contests: [],
-      },
-      {
-        pageSize: { width: 1, height: 1 },
-        metadata: { ...metadata, pageNumber: 2 },
-        contests: [],
-      },
-    ],
-    ballotConfig,
-  },
-];
-
-test('HMPB template handling', async () => {
-  const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
-
-  expect(store.getHmpbTemplates()).toEqual([]);
-
-  await store.setHmpbTemplates(ballotTemplates);
-
-  expect(store.getHmpbTemplates()).toEqual(
-    typedAs<Array<[Buffer, BallotPageLayout[]]>>([
-      [
-        ballotPdfBuffer,
-        [
-          {
-            pageSize: { width: 1, height: 1 },
-            metadata: {
-              electionHash: electionDefinition.electionHash,
-              ballotType: BallotType.Standard,
-              locales: { primary: 'en-US' },
-              ballotStyleId: '12',
-              precinctId: '23',
-              isTestMode: false,
-              pageNumber: 1,
-            },
-            contests: [],
-          },
-          {
-            pageSize: { width: 1, height: 1 },
-            metadata: {
-              electionHash: electionDefinition.electionHash,
-              ballotType: BallotType.Standard,
-              locales: { primary: 'en-US' },
-              ballotStyleId: '12',
-              precinctId: '23',
-              isTestMode: false,
-              pageNumber: 2,
-            },
-            contests: [],
-          },
-        ],
-      ],
-    ])
-  );
-});
-
-test('layout caching', async () => {
+test('batch cleanup works correctly', () => {
   const dbFile = tmp.fileSync();
-  const initialStore = await Store.fileStore(dbFile.name);
-  initialStore.setElection(stateOfHamilton.electionDefinition.electionData);
-
-  await initialStore.setHmpbTemplates(ballotTemplates);
-
-  const expectedLayouts = [
-    {
-      imageData: expect.anything(),
-      ballotPageLayout: {
-        metadata: {
-          ...metadata,
-          pageNumber: 1,
-        },
-      },
-    },
-    {
-      imageData: expect.anything(),
-      ballotPageLayout: {
-        metadata: {
-          ...metadata,
-          pageNumber: 2,
-        },
-      },
-    },
-  ];
-
-  // The layouts should be cached after adding, and we should not be retrieving
-  // templates from the DB.
-  let getHmpbTemplatesSpy = jest.spyOn(initialStore, 'getHmpbTemplates');
-  let layouts = await initialStore.loadLayouts();
-  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
-  expect(layouts).toMatchObject(expectedLayouts);
-
-  // If we reload the store from the DB, it caches on reload and use cache
-  const loadedStore = await Store.fileStore(dbFile.name);
-  getHmpbTemplatesSpy = jest.spyOn(loadedStore, 'getHmpbTemplates');
-  layouts = await loadedStore.loadLayouts();
-  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
-
-  // if we reset and reload templates, the cache should be clear
-  loadedStore.reset();
-  loadedStore.setElection(stateOfHamilton.electionDefinition.electionData);
-  expect(await loadedStore.loadLayouts()).toMatchObject([]);
-});
-
-test('batch cleanup works correctly', async () => {
-  const dbFile = tmp.fileSync();
-  const store = await Store.fileStore(dbFile.name);
+  const store = Store.fileStore(dbFile.name);
 
   store.reset();
 
@@ -580,7 +439,7 @@ test('canUnconfigure not in test mode', async () => {
   expect(store.getCanUnconfigure()).toEqual(true);
 });
 
-test('adjudication', async () => {
+test('adjudication', () => {
   const candidateContests = stateOfHamilton.election.contests.filter(
     (contest): contest is CandidateContest => contest.type === 'candidate'
   );
@@ -590,68 +449,7 @@ test('adjudication', async () => {
   const yesnoOption = 'yes';
 
   const store = Store.memoryStore();
-  const ballotMetadata: BallotMetadata = {
-    electionHash: stateOfHamilton.electionDefinition.electionHash,
-    ballotStyleId: '12',
-    precinctId: '23',
-    isTestMode: false,
-    locales: { primary: 'en-US' },
-    ballotType: BallotType.Standard,
-  };
   store.setElection(stateOfHamilton.electionDefinition.electionData);
-  await store.setHmpbTemplates([
-    {
-      pdf: await fs.readFile(ballotPdf),
-      layout: [1, 2].map((pageNumber) => ({
-        pageSize: { width: 1, height: 1 },
-        metadata: {
-          ...ballotMetadata,
-          pageNumber,
-        },
-        contests: [
-          {
-            contestId: 'id-0',
-            bounds: zeroRect,
-            corners: [
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-            ],
-            options: [
-              {
-                bounds: zeroRect,
-                target: {
-                  bounds: zeroRect,
-                  inner: zeroRect,
-                },
-              },
-            ],
-          },
-          {
-            contestId: 'id-1',
-            bounds: zeroRect,
-            corners: [
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-            ],
-            options: [
-              {
-                bounds: zeroRect,
-                target: {
-                  bounds: zeroRect,
-                  inner: zeroRect,
-                },
-              },
-            ],
-          },
-        ],
-      })),
-      ballotConfig,
-    },
-  ]);
   function fakePage(i: 0 | 1): PageInterpretationWithFiles {
     return {
       originalFilename: i === 0 ? '/front-original.png' : '/back-original.png',
@@ -848,9 +646,9 @@ test('iterating over all result sheets', () => {
   expect(Array.from(store.forEachResultSheet())).toEqual([]);
 });
 
-test('resetElectionSession', async () => {
+test('resetElectionSession', () => {
   const dbFile = tmp.fileSync();
-  const store = await Store.fileStore(dbFile.name);
+  const store = Store.fileStore(dbFile.name);
   store.setElection(stateOfHamilton.electionDefinition.electionData);
 
   store.setPollsState('polls_open');
@@ -965,16 +763,4 @@ test('getBallotsCounted', () => {
   // Delete one of the batches
   store.deleteBatch(batchId);
   expect(store.getBallotsCounted()).toEqual(1);
-});
-
-test('getBallotPageLayoutsLookup', async () => {
-  const store = Store.memoryStore();
-  expect(store.getBallotPageLayoutsLookup()).toMatchObject([]);
-  await store.setHmpbTemplates(ballotTemplates);
-  expect(store.getBallotPageLayoutsLookup()).toMatchObject([
-    {
-      ballotMetadata: metadata,
-      ballotPageLayouts: ballotTemplates[0].layout,
-    },
-  ]);
 });

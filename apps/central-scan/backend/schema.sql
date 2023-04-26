@@ -54,16 +54,6 @@ create table sheets (
     on delete cascade
 );
 
-create table hmpb_templates (
-  id varchar(36) primary key,
-  pdf blob not null,
-  -- @type {BallotMetadata}
-  metadata_json text not null,
-  -- @type {BallotPageLayout[]}
-  layouts_json text not null,
-  created_at datetime default current_timestamp not null
-);
-
 create table system_settings (
   -- enforce singleton table
   id integer primary key check (id = 1),

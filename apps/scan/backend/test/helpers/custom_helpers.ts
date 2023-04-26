@@ -15,6 +15,7 @@ import {
 } from '@votingworks/custom-scanner';
 import {
   electionFamousNames2021Fixtures,
+  electionGridLayoutNewHampshireAmherstFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
@@ -61,7 +62,7 @@ export async function withApp(
   const mockAuth = buildMockInsertedSmartCardAuth();
   const logger = fakeLogger();
   const workspace =
-    preconfiguredWorkspace ?? (await createWorkspace(tmp.dirSync().name));
+    preconfiguredWorkspace ?? createWorkspace(tmp.dirSync().name);
   const mockScanner = mocks.fakeCustomScanner();
   const deferredConnect = deferred<void>();
   async function createCustomClient(): Promise<
@@ -153,8 +154,8 @@ function customSheetOfImagesFromScannerFromBallotImageData(
 export const ballotImages = {
   completeHmpb: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([
-      await electionFamousNames2021Fixtures.handMarkedBallotCompletePage1.asImageData(),
-      await electionFamousNames2021Fixtures.handMarkedBallotCompletePage2.asImageData(),
+      await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asImageData(),
+      await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asImageData(),
     ]),
   completeBmd: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([
@@ -163,8 +164,13 @@ export const ballotImages = {
     ]),
   unmarkedHmpb: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([
-      await electionFamousNames2021Fixtures.handMarkedBallotUnmarkedPage1.asImageData(),
-      await electionFamousNames2021Fixtures.handMarkedBallotUnmarkedPage2.asImageData(),
+      await electionGridLayoutNewHampshireAmherstFixtures.scanUnmarkedFront.asImageData(),
+      await electionGridLayoutNewHampshireAmherstFixtures.scanUnmarkedBack.asImageData(),
+    ]),
+  overvoteHmpb: async () =>
+    customSheetOfImagesFromScannerFromBallotImageData([
+      await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedOvervoteFront.asImageData(),
+      await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedOvervoteBack.asImageData(),
     ]),
   wrongElection: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([

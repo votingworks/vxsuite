@@ -69,10 +69,6 @@ export function createBallotPackageWithoutTemplates(
     join(dirPath, 'election.json'),
     electionDefinition.electionData
   );
-  fsSync.writeFileSync(
-    join(dirPath, 'manifest.json'),
-    JSON.stringify({ ballots: [] })
-  );
 
   parseAndWriteSystemSettings(dirPath, systemSettingsOptions);
   execSync(`zip -j ${zipPath} ${dirPath}/*`);

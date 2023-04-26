@@ -1,5 +1,4 @@
 import { QrCodePageResult } from '@votingworks/ballot-interpreter-vx';
-import { pdfToImages } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   PageInterpretationWithFiles,
@@ -17,7 +16,7 @@ let interpreter: Interpreter | undefined;
 /**
  * Reads election configuration from the database.
  */
-export async function configure(store: Store): Promise<void> {
+export function configure(store: Store): void {
   interpreter = undefined;
 
   debug('configuring from %s', store.getDbPath());
@@ -36,8 +35,6 @@ export async function configure(store: Store): Promise<void> {
   }
   debug('precinctSelection: %o', precinctSelection);
 
-  const templates = store.getHmpbTemplates();
-
   debug('creating a new interpreter');
   interpreter = new Interpreter({
     electionDefinition,
@@ -47,17 +44,6 @@ export async function configure(store: Store): Promise<void> {
     adjudicationReasons: electionDefinition.election
       .centralScanAdjudicationReasons ?? [AdjudicationReason.MarginalMark],
   });
-
-  debug('hand-marked paper ballot templates: %d', templates.length);
-  for (const [pdf, layouts] of templates) {
-    for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
-      const ballotPageLayout = layouts[pageNumber - 1];
-      interpreter.addHmpbTemplate({
-        ballotPageLayout,
-        imageData: page,
-      });
-    }
-  }
 }
 
 export async function interpret(
@@ -69,7 +55,7 @@ export async function interpret(
   debug('interpret ballot image: %s', ballotImagePath);
   assert(interpreter, 'interpreter not configured');
 
-  const result = await interpreter.interpretFile({
+  const result = interpreter.interpretFile({
     ballotImagePath,
     detectQrcodeResult,
   });

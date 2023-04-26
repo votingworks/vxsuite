@@ -429,68 +429,6 @@ export const ScanContinueResponseSchema: z.ZodSchema<ScanContinueResponse> =
   z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
- * This is `never` because the request is not JSON, but multipart/form-data,
- * so none of the actual data ends up in `request.body`.
- *
- * @url /scan/hmpb/addTemplates
- * @method POST
- */
-export type AddTemplatesRequest = never;
-
-/**
- * This is `never` because the request is not JSON, but multipart/form-data,
- * so none of the actual data ends up in `request.body`.
- *
- * @url /scan/hmpb/addTemplates
- * @method POST
- */
-export const AddTemplatesRequestSchema: z.ZodSchema<AddTemplatesRequest> =
-  z.never();
-
-/**
- * @url /scan/hmpb/addTemplates
- * @method POST
- */
-export type AddTemplatesResponse = OkResponse | ErrorsResponse;
-
-/**
- * @url /scan/hmpb/addTemplates
- * @method POST
- */
-export const AddTemplatesResponseSchema: z.ZodSchema<AddTemplatesResponse> =
-  z.union([OkResponseSchema, ErrorsResponseSchema]);
-
-/**
- * This is `never` because there is no request data.
- *
- * @url /scan/hmpb/doneTemplates
- * @method POST
- */
-export type DoneTemplatesRequest = never;
-
-/**
- * This is `never` because there is no request data.
- *
- * @url /scan/hmpb/doneTemplates
- * @method POST
- */
-export const DoneTemplatesRequestSchema: z.ZodSchema<DoneTemplatesRequest> =
-  z.never();
-
-/**
- * @url /scan/hmpb/doneTemplates
- * @method POST
- */
-export type DoneTemplatesResponse = OkResponse;
-
-/**
- * @url /scan/hmpb/doneTemplates
- * @method POST
- */
-export const DoneTemplatesResponseSchema: z.ZodSchema<DoneTemplatesResponse> =
-  OkResponseSchema;
-
-/**
  * @url /scan/export-to-usb-drive
  * @method POST
  */

@@ -7,31 +7,29 @@ import {
   Optional,
   Result,
   err,
+  isResult,
   ok,
   typedAs,
-  isResult,
 } from '@votingworks/basics';
 import { Bindable, Client as DbClient } from '@votingworks/db';
 import {
   BallotId,
   BallotPageLayout,
   BallotPageLayoutSchema,
-  BallotStyleId,
   CastVoteRecord,
   ContestId,
   ContestOptionId,
   Id,
   Iso8601Timestamp,
-  PrecinctId,
-  safeParse,
-  safeParseElectionDefinition,
-  safeParseJson,
   Side,
   SystemSettings,
   SystemSettingsDbRow,
+  safeParse,
+  safeParseElectionDefinition,
+  safeParseJson,
 } from '@votingworks/types';
-import { join } from 'path';
 import { Buffer } from 'buffer';
+import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 
 /**
@@ -1140,103 +1138,6 @@ export class Store {
         where id = ?
       `,
       isOfficialResults ? 1 : 0,
-      electionId
-    );
-  }
-
-  /**
-   * Adds new printed ballots to the database.
-   */
-  addPrintedBallot(electionId: Id, printedBallot: Admin.PrintedBallot): Id {
-    const id = uuid();
-
-    this.client.run(
-      `
-        insert into printed_ballots (
-          id,
-          election_id,
-          ballot_style_id,
-          precinct_id,
-          ballot_type,
-          ballot_mode,
-          num_copies
-        ) values (
-          ?, ?, ?, ?, ?, ?, ?
-        )
-      `,
-      id,
-      electionId,
-      printedBallot.ballotStyleId,
-      printedBallot.precinctId,
-      printedBallot.ballotType,
-      printedBallot.ballotMode,
-      printedBallot.numCopies
-    );
-
-    return id;
-  }
-
-  /**
-   * Gets all the printed ballot records for an election, optionally filtered by
-   * the given options.
-   */
-  getPrintedBallots(
-    electionId: Id,
-    { ballotMode }: { ballotMode?: Admin.BallotMode } = {}
-  ): Admin.PrintedBallotRecord[] {
-    const whereParts: string[] = ['election_id = ?'];
-    const params: Bindable[] = [electionId];
-
-    if (ballotMode) {
-      whereParts.push('ballot_mode = ?');
-      params.push(ballotMode);
-    }
-
-    const printedBallotRows = this.client.all(
-      `
-        select
-          id,
-          ballot_style_id as ballotStyleId,
-          precinct_id as precinctId,
-          ballot_type as ballotType,
-          ballot_mode as ballotMode,
-          num_copies as numCopies,
-          datetime(created_at, 'localtime') as createdAt
-        from printed_ballots
-        where ${whereParts.join(' and ')}
-      `,
-      ...params
-    ) as Array<{
-      id: Id;
-      ballotStyleId: BallotStyleId;
-      precinctId: PrecinctId;
-      ballotType: Admin.PrintableBallotType;
-      ballotMode: Admin.BallotMode;
-      numCopies: number;
-      createdAt: string;
-    }>;
-
-    return printedBallotRows.map((row) => ({
-      id: row.id,
-      electionId,
-      ballotStyleId: row.ballotStyleId,
-      precinctId: row.precinctId,
-      ballotType: row.ballotType,
-      ballotMode: row.ballotMode,
-      numCopies: row.numCopies,
-      createdAt: convertSqliteTimestampToIso8601(row.createdAt),
-    }));
-  }
-
-  /**
-   * Clears all the printed ballot records for an election.
-   */
-  clearPrintedBallots(electionId: Id): void {
-    this.client.run(
-      `
-        delete from printed_ballots
-        where election_id = ?
-      `,
       electionId
     );
   }

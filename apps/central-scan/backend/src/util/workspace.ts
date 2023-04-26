@@ -54,7 +54,7 @@ export async function createWorkspace(root: string): Promise<Workspace> {
   ensureDirSync(scannedImagesPath);
 
   const dbPath = join(resolvedRoot, 'ballots.db');
-  const store = await Store.fileStore(dbPath);
+  const store = Store.fileStore(dbPath);
 
   return {
     path: resolvedRoot,

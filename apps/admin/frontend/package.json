@@ -73,7 +73,6 @@
     "@votingworks/api": "workspace:*",
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/ballot-interpreter-nh": "workspace:*",
-    "@votingworks/ballot-interpreter-vx": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/dev-dock-frontend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",

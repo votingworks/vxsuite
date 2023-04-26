@@ -3,11 +3,8 @@ import {
   detectQrcodeInFilePath,
   normalizeSheetOutput,
 } from '@votingworks/ballot-interpreter-vx';
-import { Result, assert, find, ok, sleep } from '@votingworks/basics';
-import { pdfToImages } from '@votingworks/image-utils';
+import { Result, assert, ok, sleep } from '@votingworks/basics';
 import {
-  BallotPageLayout,
-  BallotPageLayoutWithImage,
   ElectionDefinition,
   MarkThresholds,
   PageInterpretation,
@@ -15,20 +12,19 @@ import {
   SheetOf,
 } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
+import * as nhInterpreter from './interpreters/nh';
+import * as vxInterpreter from './interpreters/vx';
 import { Castability, checkSheetCastability } from './util/castability';
 import { Workspace } from './util/workspace';
 import {
   describeValidationError,
   validateSheetInterpretation,
 } from './validation';
-import * as nhInterpreter from './interpreters/nh';
-import * as vxInterpreter from './interpreters/vx';
 
 const debug = makeDebug('scan:importer');
 
@@ -61,47 +57,12 @@ export class Importer {
   private async configureInterpreter(): Promise<void> {
     if (!this.interpreterReadyPromise) {
       this.interpreterState = 'configuring';
-      this.interpreterReadyPromise = Promise.resolve().then(async () => {
-        await vxInterpreter.configure(this.workspace.store);
+      this.interpreterReadyPromise = Promise.resolve().then(() => {
+        vxInterpreter.configure(this.workspace.store);
         this.interpreterState = 'ready';
       });
     }
     return this.interpreterReadyPromise;
-  }
-
-  async addHmpbTemplates(
-    pdf: Buffer,
-    layouts: readonly BallotPageLayout[]
-  ): Promise<BallotPageLayoutWithImage[]> {
-    this.getElectionDefinition(); // ensure election definition is loaded
-    const result: BallotPageLayoutWithImage[] = [];
-
-    for await (const { page, pageNumber } of pdfToImages(pdf, {
-      scale: 2,
-    })) {
-      const ballotPageLayout = find(
-        layouts,
-        (l) => l.metadata.pageNumber === pageNumber
-      );
-      result.push({ ballotPageLayout, imageData: page });
-    }
-
-    this.workspace.store.addHmpbTemplate(
-      pdf,
-      result[0].ballotPageLayout.metadata,
-      result
-    );
-
-    this.invalidateInterpreterConfig();
-
-    return result;
-  }
-
-  /**
-   * Tell the importer that we have all the templates
-   */
-  async doneHmpbTemplates(): Promise<void> {
-    await this.configureInterpreter();
   }
 
   /**

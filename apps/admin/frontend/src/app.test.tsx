@@ -1,57 +1,49 @@
-import MockDate from 'mockdate';
 import userEvent from '@testing-library/user-event';
-import fetchMock from 'fetch-mock';
+import { Admin } from '@votingworks/api';
+import { typedAs } from '@votingworks/basics';
 import {
-  electionWithMsEitherNeitherFixtures,
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleFixtures,
   electionWithMsEitherNeitherDefinition,
+  electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
-import { typedAs } from '@votingworks/basics';
+import { LogEventId } from '@votingworks/logging';
 import {
   advanceTimers,
   advanceTimersAndPromises,
-  expectPrint,
   expectPrintToMatchSnapshot,
   fakeElectionManagerUser,
   fakeKiosk,
   fakePrinterInfo,
   fakeSessionExpiresAt,
   fakeUsbDrive,
-  hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
-import { LogEventId } from '@votingworks/logging';
-import { Admin } from '@votingworks/api';
+import fetchMock from 'fetch-mock';
+import MockDate from 'mockdate';
 import {
+  act,
+  getByTestId as domGetByTestId,
+  getByText as domGetByText,
   fireEvent,
   screen,
   waitFor,
-  getByTestId as domGetByTestId,
-  getByText as domGetByText,
-  act,
   within,
-  waitForElementToBeRemoved,
 } from '../test/react_testing_library';
 
-import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
-import { convertTalliesByPrecinctToFullExternalTally } from './utils/external_tallies';
-import { VxFiles } from './lib/converters';
-import { buildApp } from '../test/helpers/build_app';
+import { mockCastVoteRecordFileRecord } from '../test/api_mock_data';
 import { ApiMock, createApiMock } from '../test/helpers/api_mock';
-import {
-  mockCastVoteRecordFileRecord,
-  mockPrintedBallotRecord,
-} from '../test/api_mock_data';
+import { buildApp } from '../test/helpers/build_app';
+import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
 import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
+import { VxFiles } from './lib/converters';
+import { convertTalliesByPrecinctToFullExternalTally } from './utils/external_tallies';
 
 const EITHER_NEITHER_CVR_DATA =
   electionWithMsEitherNeitherFixtures.legacyCvrData;
 
-jest.mock('./components/hand_marked_paper_ballot');
-jest.mock('./utils/pdf_to_images');
 jest.mock('@votingworks/ballot-encoder', () => {
   return {
     ...jest.requireActual('@votingworks/ballot-encoder'),
@@ -117,7 +109,7 @@ test('configuring with a demo election definition', async () => {
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
 
-  const { getByText, queryAllByText, getByTestId } = renderApp();
+  const { getByText } = renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
   await screen.findByText('Load Demo Election Definition');
@@ -129,11 +121,7 @@ test('configuring with a demo election definition', async () => {
 
   await screen.findByText('Election Definition');
 
-  await screen.findByText('Ballots');
   fireEvent.click(await screen.findByText('Ballots'));
-  await waitFor(() => {
-    fireEvent.click(screen.getAllByText('View Ballot')[0]);
-  });
 
   // You can view the Logs screen and save log files when there is an election.
   fireEvent.click(screen.getByText('Logs'));
@@ -145,16 +133,11 @@ test('configuring with a demo election definition', async () => {
 
   fireEvent.click(getByText('Definition'));
 
-  // Verify editing an election is disabled
-  fireEvent.click(getByText('View Definition JSON'));
-  expect(queryAllByText('Reset').length).toEqual(0);
-  expect(getByTestId('json-input').hasAttribute('disabled')).toEqual(true);
-
   // remove the election
   apiMock.expectUnconfigure();
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
-  fireEvent.click(getByText('Remove'));
+  fireEvent.click(getByText('Remove Election'));
   fireEvent.click(getByText('Remove Election Definition'));
 
   await screen.findByText('Configure VxAdmin');
@@ -256,189 +239,11 @@ test('authentication works', async () => {
     sessionExpiresAt: fakeSessionExpiresAt(),
   });
   await screen.findByText('Lock Machine');
-  await screen.findByText('Ballots');
 
   // Lock the machine
   apiMock.expectLogOut();
   fireEvent.click(screen.getByText('Lock Machine'));
   await apiMock.logOut();
-});
-
-test('L&A (logic and accuracy) flow', async () => {
-  const electionDefinition = eitherNeitherElectionDefinition;
-  const { renderApp, logger } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
-  apiMock.expectGetCurrentElectionMetadata({
-    electionDefinition,
-  });
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
-  apiMock.expectGetSystemSettings();
-
-  renderApp();
-  await apiMock.authenticateAsElectionManager(electionDefinition);
-
-  userEvent.click(screen.getByText('L&A'));
-
-  // Test printing L&A package
-  userEvent.click(await screen.findButton('List Precinct L&A Packages'));
-  userEvent.click(await screen.findButton('Print District 5'));
-
-  // L&A package: Tally report
-  await screen.findByText('Printing L&A Package for District 5', {
-    exact: false,
-  });
-  await expectPrintToMatchSnapshot();
-  await waitFor(() =>
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.TestDeckTallyReportPrinted,
-      expect.any(String),
-      expect.anything()
-    )
-  );
-  advanceTimers(5);
-
-  // L&A package: BMD test deck
-  await screen.findByText('Printing L&A Package for District 5', {
-    exact: false,
-  });
-  await expectPrintToMatchSnapshot();
-  await waitFor(() =>
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.TestDeckPrinted,
-      expect.any(String),
-      expect.anything()
-    )
-  );
-  expect(logger.log).toHaveBeenCalledWith(
-    expect.any(String),
-    expect.any(String),
-    expect.objectContaining({
-      message: expect.stringContaining('BMD paper ballot test deck'),
-    })
-  );
-  advanceTimers(30);
-
-  // L&A package: HMPB test deck
-  await screen.findByText('Printing L&A Package for District 5', {
-    exact: false,
-  });
-  await expectPrintToMatchSnapshot();
-  await waitFor(() =>
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.TestDeckPrinted,
-      expect.any(String),
-      expect.anything()
-    )
-  );
-  expect(logger.log).toHaveBeenCalledWith(
-    expect.any(String),
-    expect.any(String),
-    expect.objectContaining({
-      message: expect.stringContaining('Hand-marked paper ballot test deck'),
-    })
-  );
-
-  // Test printing full test deck tally
-  userEvent.click(screen.getByText('L&A'));
-  userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));
-
-  await screen.findByText('Printing');
-  const expectedTallies: { [tally: string]: number } = {
-    '104': 10,
-    '52': 12,
-    '24': 6,
-    '12': 4,
-    '8': 3,
-    '4': 2,
-  };
-  await expectPrint((printedElement, printOptions) => {
-    printedElement.getByText(
-      'Test Deck Mock General Election Choctaw 2020 Tally Report'
-    );
-    for (const [tally, times] of Object.entries(expectedTallies)) {
-      expect(printedElement.getAllByText(tally).length).toEqual(times);
-    }
-    expect(printOptions).toMatchObject({ sides: 'one-sided' });
-  });
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.TestDeckTallyReportPrinted,
-    expect.any(String),
-    expect.anything()
-  );
-});
-
-test('printing ballots', async () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
-  const mockPrintedBallot: Admin.PrintedBallot = {
-    ballotStyleId: '1M',
-    precinctId: 'precinct-1',
-    numCopies: 1,
-    ballotType: 'absentee',
-    ballotMode: Admin.BallotMode.Official,
-  };
-
-  const { renderApp, hardware, logger } = buildApp(apiMock);
-  hardware.setPrinterConnected(false);
-  apiMock.expectGetCastVoteRecords([]);
-  apiMock.expectGetSystemSettings();
-  apiMock.expectGetCurrentElectionMetadata({
-    electionDefinition,
-  });
-  const { getByText, getAllByText } = renderApp();
-  await apiMock.authenticateAsElectionManager(electionDefinition);
-
-  fireEvent.click(getByText('Ballots'));
-  fireEvent.click(getAllByText('View Ballot')[0]);
-  fireEvent.click(getByText('Precinct'));
-  fireEvent.click(getByText('Absentee'));
-  fireEvent.click(getByText('Test'));
-  fireEvent.click(getByText('Official'));
-  apiMock.expectAddPrintedBallot(mockPrintedBallot);
-  fireEvent.click(getByText('Print 1', { exact: false }));
-
-  // PrintButton flow where printer is not connected
-  await screen.findByText('The printer is not connected.');
-  expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
-  act(() => {
-    hardware.setPrinterConnected(true);
-  });
-  await waitFor(() => {
-    expect(screen.getByRole('button', { name: 'Continue' })).not.toBeDisabled();
-  });
-  userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-
-  // Printing should now continue normally
-  await screen.findByText('Printing');
-  await expectPrint((printedElement, printOptions) => {
-    printedElement.getByText('Mocked HMPB');
-    printedElement.getByText('Ballot Mode: live');
-    printedElement.getByText('Absentee: true');
-    expect(printOptions).toMatchObject({
-      sides: 'two-sided-long-edge',
-      copies: 1,
-    });
-  });
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.BallotPrinted,
-    expect.any(String),
-    expect.anything()
-  );
-  await waitForElementToBeRemoved(() => screen.queryByText('Printing'));
-  apiMock.expectAddPrintedBallot(mockPrintedBallot);
-  fireEvent.click(getByText('Print 1', { exact: false }));
-  await screen.findByText('Printing');
-  await expectPrint();
-  await waitForElementToBeRemoved(() => screen.queryByText('Printing'));
-  fireEvent.click(getByText('Precinct'));
-  apiMock.expectAddPrintedBallot({
-    ...mockPrintedBallot,
-    ballotType: Admin.PrintableBallotType.Precinct,
-  });
-
-  fireEvent.click(getByText('Print 1', { exact: false }));
-  await screen.findByText('Printing');
-  await expectPrint();
-  await waitForElementToBeRemoved(() => screen.queryByText('Printing'));
 });
 
 test('marking results as official', async () => {
@@ -449,7 +254,6 @@ test('marking results as official', async () => {
     electionDefinition,
   });
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetOfficialPrintedBallots([]);
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
   apiMock.expectGetWriteInSummaryAdjudicated([]);
   renderApp();
@@ -487,7 +291,6 @@ test('tabulating CVRs', async () => {
     electionDefinition,
     isOfficialResults: true,
   });
-  apiMock.expectGetOfficialPrintedBallots([]);
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
   apiMock.expectGetWriteInSummaryAdjudicated([]);
   const { getByText, getAllByText, getByTestId } = renderApp();
@@ -629,7 +432,6 @@ test('tabulating CVRs with manual data', async () => {
   ]);
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
   apiMock.expectGetWriteInSummaryAdjudicated([]);
-  apiMock.expectGetOfficialPrintedBallots([]);
 
   const { getByText, getByTestId, getAllByText, queryAllByText } = renderApp();
 
@@ -787,7 +589,7 @@ test('tabulating CVRs with manual data', async () => {
   });
 });
 
-test('reports screen shows appropriate summary data about ballot counts and printed ballots', async () => {
+test('reports screen shows appropriate summary data about ballot counts', async () => {
   const { electionDefinition, legacyCvrData } =
     electionMinimalExhaustiveSampleFixtures;
   const { renderApp, backend } = buildApp(apiMock);
@@ -796,10 +598,6 @@ test('reports screen shows appropriate summary data about ballot counts and prin
   );
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetOfficialPrintedBallots([
-    mockPrintedBallotRecord,
-    mockPrintedBallotRecord,
-  ]);
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
 
   const manualTally = convertTalliesByPrecinctToFullExternalTally(
@@ -825,12 +623,6 @@ test('reports screen shows appropriate summary data about ballot counts and prin
     expect(screen.getAllByTestId('total-ballot-count')[0].textContent).toEqual(
       '3,100'
     )
-  );
-
-  // printed ballot count matches what is passed by API
-  await screen.findAllByText('2 ballots');
-  expect(screen.getByTestId('printed-ballots-summary')).toHaveTextContent(
-    '2 ballots have been printed.'
   );
 });
 
@@ -989,12 +781,8 @@ test('election manager UI has expected nav', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
   apiMock.expectGetCastVoteRecordFiles([]);
-  apiMock.expectGetOfficialPrintedBallots([]);
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
-
-  userEvent.click(screen.getByText('Ballots'));
-  await screen.findAllByText('View Ballot');
 
   userEvent.click(screen.getByText('L&A'));
   await screen.findByRole('heading', { name: 'L&A Testing Documents' });
@@ -1023,8 +811,6 @@ test('system administrator UI has expected nav', async () => {
 
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Election Definition' });
-  userEvent.click(screen.getByText('Ballots'));
-  await screen.findAllByText('View Ballot');
   userEvent.click(screen.getByText('Smartcards'));
   await screen.findByRole('heading', { name: 'Election Cards' });
   userEvent.click(screen.getByText('Settings'));
@@ -1150,92 +936,6 @@ test('election manager cannot auth onto machine with different election hash', a
   );
 });
 
-test('system administrator Ballots tab and election manager Ballots tab have expected differences', async () => {
-  const electionDefinition = eitherNeitherElectionDefinition;
-  const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
-  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetSystemSettings();
-  renderApp();
-
-  await apiMock.authenticateAsSystemAdministrator();
-
-  const numPrecinctBallots = 13;
-
-  userEvent.click(screen.getByText('Ballots'));
-  let viewBallotButtons = await screen.findAllByText('View Ballot');
-  expect(viewBallotButtons).toHaveLength(
-    numPrecinctBallots + 1 // Super ballot
-  );
-  screen.getByText('Print All');
-  expect(screen.queryByText('Save PDFs')).not.toBeInTheDocument();
-  expect(screen.queryByText('Save Ballot Package')).not.toBeInTheDocument();
-
-  // View super ballot
-  userEvent.click(viewBallotButtons[0]);
-  await screen.findByRole('heading', {
-    name: 'Ballot Style All has 14 contests',
-  });
-  screen.getByRole('button', { name: 'Absentee' });
-  screen.getByRole('button', { name: 'Precinct' });
-  expect(
-    screen.queryByRole('button', { name: 'Official' })
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: 'Test' })
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: 'Sample' })
-  ).not.toBeInTheDocument();
-  screen.getByRole('button', { name: 'Print 1 Sample Absentee Ballot' });
-  expect(screen.queryByText(/Ballot Package Filename/)).not.toBeInTheDocument();
-
-  // View precinct ballot
-  userEvent.click(screen.getByText('Back to List Ballots'));
-  viewBallotButtons = await screen.findAllByText('View Ballot');
-  userEvent.click(viewBallotButtons[1]);
-  await screen.findByRole('heading', {
-    name: 'Ballot Style 4 for Bywy has 9 contests',
-  });
-  screen.getByRole('button', { name: 'Absentee' });
-  screen.getByRole('button', { name: 'Precinct' });
-  expect(
-    screen.queryByRole('button', { name: 'Official' })
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: 'Test' })
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: 'Sample' })
-  ).not.toBeInTheDocument();
-  screen.getByRole('button', { name: 'Print 1 Sample Absentee Ballot' });
-  screen.getByRole('button', { name: 'Save Ballot as PDF' });
-  expect(screen.queryByText(/Ballot Package Filename/)).not.toBeInTheDocument();
-
-  await apiMock.logOut();
-  await apiMock.authenticateAsElectionManager(electionDefinition);
-
-  userEvent.click(screen.getByText('Ballots'));
-  viewBallotButtons = await screen.findAllByText('View Ballot');
-  expect(viewBallotButtons).toHaveLength(numPrecinctBallots);
-  screen.getByText('Print All');
-  screen.getByText('Save PDFs');
-  screen.getByText('Save Ballot Package');
-
-  userEvent.click(viewBallotButtons[0]);
-  await screen.findByRole('heading', {
-    name: 'Ballot Style 4 for Bywy has 9 contests',
-  });
-  screen.getByRole('button', { name: 'Absentee' });
-  screen.getByRole('button', { name: 'Precinct' });
-  screen.getByRole('button', { name: 'Official' });
-  screen.getByRole('button', { name: 'Test' });
-  screen.getByRole('button', { name: 'Sample' });
-  screen.getByRole('button', { name: 'Print 1 Official Absentee Ballot' });
-  screen.getByRole('button', { name: 'Save Ballot as PDF' });
-  screen.getByText(/Ballot Package Filename/);
-});
-
 test('primary election flow', async () => {
   const { electionDefinition, legacyCvrData } =
     electionMinimalExhaustiveSampleFixtures;
@@ -1247,35 +947,10 @@ test('primary election flow', async () => {
     await fileDataToCastVoteRecords(legacyCvrData, electionDefinition)
   );
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
-  apiMock.expectGetOfficialPrintedBallots([]);
   apiMock.expectGetWriteInSummaryAdjudicated([]);
 
   renderApp();
   await apiMock.authenticateAsElectionManager(electionDefinition);
-
-  // Check "Ballots" page has correct contests count.
-  // TODO: Confirm ballot contents. Not possible currently because we don't
-  // render ballots in tests, only mocks.
-  userEvent.click(screen.getByText('Ballots'));
-  userEvent.click(screen.getAllByText('View Ballot')[0]);
-  screen.getByText(
-    hasTextAcrossElements('Ballot Style 1M for Precinct 1 has 5 contests')
-  );
-
-  // Confirm "L&A" page prints separate test deck tally reports for non-partisan contests
-  userEvent.click(screen.getByText('L&A'));
-  userEvent.click(await screen.findByText('Print Full Test Deck Tally Report'));
-  await expectPrint((printedElement) => {
-    printedElement.getByText(
-      'Test Deck Mammal Party Example Primary Election Tally Report'
-    );
-    printedElement.getByText(
-      'Test Deck Fish Party Example Primary Election Tally Report'
-    );
-    printedElement.getByText(
-      'Test Deck Example Primary Election Nonpartisan Contests Tally Report'
-    );
-  });
 
   // Check that nonpartisan races are separated in non party-specific reports
   userEvent.click(screen.getByText('Reports'));

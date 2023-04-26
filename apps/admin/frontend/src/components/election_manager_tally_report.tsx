@@ -35,7 +35,7 @@ import { find, Optional } from '@votingworks/basics';
 import { filterExternalTalliesByParams } from '../utils/external_tallies';
 import { mergeWriteIns } from '../utils/write_ins';
 
-export type TallyReportType = 'Official' | 'Unofficial' | 'Test Deck';
+export type TallyReportType = 'Official' | 'Unofficial';
 
 export interface Props {
   batchId?: string;

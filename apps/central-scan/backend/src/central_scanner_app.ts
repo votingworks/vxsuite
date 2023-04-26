@@ -4,41 +4,35 @@ import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { Result, assert, ok } from '@votingworks/basics';
 import {
-  exportCastVoteRecordReportToUsbDrive,
   Exporter,
   Usb,
+  exportCastVoteRecordReportToUsbDrive,
   readBallotPackageFromUsb,
 } from '@votingworks/backend';
+import { Result, assert, ok } from '@votingworks/basics';
+import { useDevDockRouter } from '@votingworks/dev-dock-backend';
+import * as grout from '@votingworks/grout';
+import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import {
   BallotPackageConfigurationError,
   BallotPageLayout,
-  BallotPageLayoutSchema,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   SystemSettings,
   safeParse,
   safeParseElectionDefinition,
-  safeParseJson,
 } from '@votingworks/types';
 import { readBallotPackageFromBuffer } from '@votingworks/utils';
 import { Buffer } from 'buffer';
-import makeDebug from 'debug';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
 import multer from 'multer';
-import { z } from 'zod';
-import * as grout from '@votingworks/grout';
-import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
-import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { backupToUsbDrive } from './backup';
-import { Importer } from './importer';
-import { Workspace } from './util/workspace';
-import { DefaultMarkThresholds } from './store';
 import { SCAN_ALLOWED_EXPORT_PATTERNS } from './globals';
-
-const debug = makeDebug('scan:central-scanner');
+import { Importer } from './importer';
+import { DefaultMarkThresholds } from './store';
+import { Workspace } from './util/workspace';
 
 type NoParams = never;
 
@@ -135,17 +129,12 @@ function buildApi({
         '../integration-testing/cypress/fixtures/ballot-package.zip'
       );
       const ballotPackage = await readBallotPackageFromBuffer(fileContents);
-      const { electionDefinition, ballots } = ballotPackage;
+      const { electionDefinition } = ballotPackage;
       const systemSettings = DEFAULT_SYSTEM_SETTINGS;
 
       store.setElection(electionDefinition.electionData);
       importer.configure(electionDefinition);
       store.setSystemSettings(systemSettings);
-
-      for (const ballot of ballots) {
-        await importer.addHmpbTemplates(ballot.pdf, ballot.layout);
-      }
-      await importer.doneHmpbTemplates();
     },
 
     async configureFromBallotPackageOnUsbDrive(): Promise<
@@ -171,15 +160,11 @@ function buildApi({
       }
 
       const ballotPackage = ballotPackageResult.ok();
-      const { electionDefinition, systemSettings, ballots } = ballotPackage;
+      const { electionDefinition, systemSettings } = ballotPackage;
       assert(systemSettings);
       store.setElection(electionDefinition.electionData);
       importer.configure(electionDefinition);
       store.setSystemSettings(systemSettings);
-      for (const ballot of ballots) {
-        await importer.addHmpbTemplates(ballot.pdf, ballot.layout);
-      }
-      await importer.doneHmpbTemplates();
 
       return ok(electionDefinition);
     },
@@ -348,9 +333,6 @@ export async function buildCentralScannerApp({
         );
 
         importer.configure(pkg.electionDefinition);
-        for (const { pdf, layout } of pkg.ballots) {
-          await importer.addHmpbTemplates(pdf, layout);
-        }
 
         response.json({ status: 'ok' });
       } finally {
@@ -492,135 +474,6 @@ export async function buildCentralScannerApp({
       });
     }
   });
-
-  deprecatedApiRouter.post<
-    NoParams,
-    Scan.AddTemplatesResponse,
-    Scan.AddTemplatesRequest
-  >(
-    '/central-scanner/scan/hmpb/addTemplates',
-    upload.fields([
-      { name: 'ballots' },
-      { name: 'metadatas' },
-      { name: 'layouts' },
-    ]),
-    async (request, response) => {
-      /* istanbul ignore next */
-      if (Array.isArray(request.files) || request.files === undefined) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'missing-ballot-files',
-              message: `expected ballot files in "ballots", "metadatas", and "layouts" fields, but no files were found`,
-            },
-          ],
-        });
-        return;
-      }
-
-      const { ballots = [], metadatas = [], layouts = [] } = request.files;
-
-      try {
-        if (ballots.length === 0) {
-          response.status(400).json({
-            status: 'error',
-            errors: [
-              {
-                type: 'missing-ballot-files',
-                message: `expected ballot files in "ballots", "metadatas", and "layouts" fields, but no files were found`,
-              },
-            ],
-          });
-          return;
-        }
-
-        const electionDefinition = store.getElectionDefinition();
-        assert(electionDefinition);
-
-        for (let i = 0; i < ballots.length; i += 1) {
-          const ballotFile = ballots[i];
-          const metadataFile = metadatas[i];
-          const layoutFile = layouts[i];
-
-          if (ballotFile?.mimetype !== 'application/pdf') {
-            response.status(400).json({
-              status: 'error',
-              errors: [
-                {
-                  type: 'invalid-ballot-type',
-                  message: `expected ballot files to be application/pdf, but got ${ballotFile?.mimetype}`,
-                },
-              ],
-            });
-            return;
-          }
-
-          if (metadataFile?.mimetype !== 'application/json') {
-            response.status(400).json({
-              status: 'error',
-              errors: [
-                {
-                  type: 'invalid-metadata-type',
-                  message: `expected ballot metadata to be application/json, but got ${metadataFile?.mimetype}`,
-                },
-              ],
-            });
-            return;
-          }
-
-          if (layoutFile.mimetype !== 'application/json') {
-            response.status(400).json({
-              status: 'error',
-              errors: [
-                {
-                  type: 'invalid-layout-type',
-                  message: `expected ballot layout to be application/json, but got ${layoutFile?.mimetype}`,
-                },
-              ],
-            });
-            return;
-          }
-
-          const layout = safeParseJson(
-            await fs.readFile(layoutFile.path, 'utf8'),
-            z.array(BallotPageLayoutSchema)
-          ).unsafeUnwrap();
-
-          await importer.addHmpbTemplates(
-            await fs.readFile(ballotFile.path),
-            layout
-          );
-        }
-
-        response.json({ status: 'ok' });
-      } catch (error) {
-        assert(error instanceof Error);
-        debug('error adding templates: %s', error.stack);
-        response.status(500).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'internal-server-error',
-              message: error.message,
-            },
-          ],
-        });
-      } finally {
-        for (const file of [...ballots, ...metadatas, ...layouts]) {
-          await fs.unlink(file.path);
-        }
-      }
-    }
-  );
-
-  deprecatedApiRouter.post(
-    '/central-scanner/scan/hmpb/doneTemplates',
-    async (_request, response) => {
-      await importer.doneHmpbTemplates();
-      response.json({ status: 'ok' });
-    }
-  );
 
   deprecatedApiRouter.post<
     NoParams,

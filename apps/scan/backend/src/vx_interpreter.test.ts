@@ -1,24 +1,18 @@
-import {
-  detectQrcodeInFilePath,
-  interpretMultiPagePdfTemplate,
-} from '@votingworks/ballot-interpreter-vx';
+import { detectQrcodeInFilePath } from '@votingworks/ballot-interpreter-vx';
 import { throwIllegalValue } from '@votingworks/basics';
 import {
+  electionGridLayoutNewHampshireAmherstFixtures,
   electionSampleDefinition,
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   BallotIdSchema,
-  BallotMetadataSchema,
-  BallotType,
   BlankPage,
-  ElectionDefinition,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
   UnreadablePage,
-  safeParseJson,
   unsafeParse,
 } from '@votingworks/types';
 import {
@@ -27,9 +21,8 @@ import {
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { emptyDirSync, readFile } from 'fs-extra';
+import { emptyDirSync } from 'fs-extra';
 import { join } from 'path';
-import * as choctaw2020Fixtures from '../test/fixtures/2020-choctaw';
 import * as msDemoFixtures from '../test/fixtures/election-b0260b4e-mississippi-demo';
 import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
 import { createInterpreter } from './interpret';
@@ -59,25 +52,22 @@ afterEach(() => {
 test('extracts votes encoded in a QR code', async () => {
   const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
   expect(
-    (
-      await new Interpreter({
-        electionDefinition: {
-          ...electionSampleDefinition,
-          election: {
-            ...electionSampleDefinition.election,
-            markThresholds: { definite: 0.2, marginal: 0.17 },
-          },
+    new Interpreter({
+      electionDefinition: {
+        ...electionSampleDefinition,
+        election: {
+          ...electionSampleDefinition.election,
+          markThresholds: { definite: 0.2, marginal: 0.17 },
         },
-        precinctSelection: ALL_PRECINCTS_SELECTION,
-        testMode: true,
-        adjudicationReasons:
-          electionSampleDefinition.election.centralScanAdjudicationReasons ??
-          [],
-      }).interpretFile({
-        ballotImagePath,
-        detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-      })
-    ).interpretation
+      },
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      testMode: true,
+      adjudicationReasons:
+        electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
+    }).interpretFile({
+      ballotImagePath,
+      detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+    }).interpretation
   ).toMatchInlineSnapshot(`
     Object {
       "ballotId": undefined,
@@ -114,7 +104,6 @@ test('properly scans a BMD ballot with a phantom QR code on back', async () => {
     electionDefinition,
     precinctSelection: ALL_PRECINCTS_SELECTION,
     testMode: true,
-    layouts: [],
     ballotImagesPath: interpreterOutputPath,
   });
 
@@ -130,7 +119,7 @@ test('properly scans a BMD ballot with a phantom QR code on back', async () => {
 
 test('properly detects test ballot in live mode', async () => {
   const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
-  const interpretationResult = await new Interpreter({
+  const interpretationResult = new Interpreter({
     electionDefinition: {
       ...electionSampleDefinition,
       election: {
@@ -154,7 +143,7 @@ test('properly detects test ballot in live mode', async () => {
 
 test('properly detects bmd ballot with wrong precinct', async () => {
   const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
-  const interpretationResult = await new Interpreter({
+  const interpretationResult = new Interpreter({
     electionDefinition: {
       ...electionSampleDefinition,
       election: {
@@ -178,7 +167,7 @@ test('properly detects bmd ballot with wrong precinct', async () => {
 
 test('properly detects bmd ballot with correct precinct', async () => {
   const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
-  const interpretationResult = await new Interpreter({
+  const interpretationResult = new Interpreter({
     electionDefinition: {
       ...electionSampleDefinition,
       election: {
@@ -202,8 +191,9 @@ test('properly detects bmd ballot with correct precinct', async () => {
 
 test('detects a blank page', async () => {
   const ballotImagePath = sampleBallotImages.blankPage.asFilePath();
-  const interpretationResult = await new Interpreter({
-    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
+  const interpretationResult = new Interpreter({
+    electionDefinition:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
     precinctSelection: ALL_PRECINCTS_SELECTION,
     testMode: true,
     adjudicationReasons: [],
@@ -213,226 +203,6 @@ test('detects a blank page', async () => {
   });
 
   expect(interpretationResult.interpretation.type).toEqual('BlankPage');
-});
-
-test('interprets marks on a HMPB', async () => {
-  const interpreter = new Interpreter({
-    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-    testMode: false,
-    adjudicationReasons:
-      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
-  });
-
-  const layouts = interpretMultiPagePdfTemplate({
-    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
-    ballotPdfData: await readFile(stateOfHamiltonFixtures.ballotPdf),
-    metadata: safeParseJson(
-      await readFile(stateOfHamiltonFixtures.filledInPage1Metadata, 'utf8'),
-      BallotMetadataSchema
-    ).unsafeUnwrap(),
-  });
-  for await (const layout of layouts) {
-    interpreter.addHmpbTemplate(layout);
-
-    if (layout.ballotPageLayout.metadata.pageNumber === 1) {
-      break;
-    }
-  }
-
-  const ballotImagePath = stateOfHamiltonFixtures.filledInPage1;
-  const { votes } = (
-    await interpreter.interpretFile({
-      ballotImagePath,
-      detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-    })
-  ).interpretation as InterpretedHmpbPage;
-
-  expect(votes).toMatchInlineSnapshot(`
-    Object {
-      "president": Array [
-        Object {
-          "id": "barchi-hallaren",
-          "name": "Joseph Barchi and Joseph Hallaren",
-          "partyIds": Array [
-            "0",
-          ],
-        },
-      ],
-      "representative-district-6": Array [
-        Object {
-          "id": "schott",
-          "name": "Brad Schott",
-          "partyIds": Array [
-            "2",
-          ],
-        },
-      ],
-      "senator": Array [
-        Object {
-          "id": "brown",
-          "name": "David Brown",
-          "partyIds": Array [
-            "6",
-          ],
-        },
-      ],
-    }
-  `);
-});
-
-test('interprets marks on an upside-down HMPB', async () => {
-  const interpreter = new Interpreter({
-    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-    testMode: false,
-    adjudicationReasons:
-      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
-  });
-
-  const layouts = interpretMultiPagePdfTemplate({
-    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
-    ballotPdfData: await readFile(stateOfHamiltonFixtures.ballotPdf),
-    metadata: safeParseJson(
-      await readFile(stateOfHamiltonFixtures.filledInPage1Metadata, 'utf8'),
-      BallotMetadataSchema
-    ).unsafeUnwrap(),
-  });
-  for await (const layout of layouts) {
-    interpreter.addHmpbTemplate(layout);
-
-    if (layout.ballotPageLayout.metadata.pageNumber === 1) {
-      break;
-    }
-  }
-
-  const ballotImagePath = stateOfHamiltonFixtures.filledInPage1Flipped;
-  expect(
-    (
-      await interpreter.interpretFile({
-        ballotImagePath,
-        detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-      })
-    ).interpretation as InterpretedHmpbPage
-  ).toMatchObject({
-    type: 'InterpretedHmpbPage',
-  });
-});
-
-test('interprets marks in ballots', async () => {
-  jest.setTimeout(15000);
-
-  const electionDefinition: ElectionDefinition = {
-    ...choctaw2020Fixtures.electionDefinition,
-    election: {
-      markThresholds: { definite: 0.2, marginal: 0.12 },
-      ...choctaw2020Fixtures.election,
-    },
-  };
-  const interpreter = new Interpreter({
-    electionDefinition,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-    testMode: false,
-    adjudicationReasons:
-      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
-  });
-
-  const layouts = interpretMultiPagePdfTemplate({
-    electionDefinition: choctaw2020Fixtures.electionDefinition,
-    ballotPdfData: await readFile(choctaw2020Fixtures.ballotPdf),
-    metadata: {
-      ballotStyleId: '1',
-      precinctId: '6526',
-      ballotType: BallotType.Standard,
-      locales: { primary: 'en-US' },
-      electionHash: 'a537900d7a',
-      isTestMode: false,
-    },
-  });
-  for await (const layout of layouts) {
-    interpreter.addHmpbTemplate(layout);
-  }
-
-  {
-    const ballotImagePath = choctaw2020Fixtures.filledInPage1;
-    expect(
-      (
-        (
-          await interpreter.interpretFile({
-            ballotImagePath,
-            detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-          })
-        ).interpretation as InterpretedHmpbPage
-      ).votes
-    ).toMatchInlineSnapshot(`
-      Object {
-        "1": Array [
-          Object {
-            "id": "1",
-            "name": "Joe Biden",
-            "partyIds": Array [
-              "2",
-            ],
-          },
-        ],
-        "2": Array [
-          Object {
-            "id": "23",
-            "name": "Jimmy Edwards",
-            "partyIds": Array [
-              "4",
-            ],
-          },
-        ],
-        "3": Array [
-          Object {
-            "id": "32",
-            "name": "Trent Kelly",
-            "partyIds": Array [
-              "3",
-            ],
-          },
-        ],
-        "4": Array [
-          Object {
-            "id": "write-in-0",
-            "isWriteIn": true,
-            "name": "Write-In #1",
-          },
-        ],
-      }
-    `);
-  }
-
-  {
-    const ballotImagePath = choctaw2020Fixtures.filledInPage2;
-    expect(
-      (
-        (
-          await interpreter.interpretFile({
-            ballotImagePath,
-            detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-          })
-        ).interpretation as InterpretedHmpbPage
-      ).votes
-    ).toMatchInlineSnapshot(`
-      Object {
-        "flag-question": Array [
-          "yes",
-        ],
-        "initiative-65": Array [
-          "yes",
-          "no",
-        ],
-        "initiative-65-a": Array [
-          "yes",
-        ],
-        "runoffs-question": Array [
-          "no",
-        ],
-      }
-    `);
-  }
 });
 
 const pageInterpretationBoilerplate: InterpretedHmpbPage = {
@@ -650,45 +420,4 @@ test('sheetRequiresAdjudication is happy with a BMD ballot', () => {
   expect(sheetRequiresAdjudication([unreadable, bmd])).toEqual(false);
   expect(sheetRequiresAdjudication([bmd, blank])).toEqual(false);
   expect(sheetRequiresAdjudication([blank, bmd])).toEqual(false);
-});
-
-test('rejects on invalid election hash', async () => {
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
-  );
-  const interpreter = new Interpreter({
-    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-    testMode: false,
-    adjudicationReasons:
-      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
-  });
-
-  const layouts = interpretMultiPagePdfTemplate({
-    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
-    ballotPdfData: await readFile(stateOfHamiltonFixtures.ballotPdf),
-    metadata: safeParseJson(
-      await readFile(stateOfHamiltonFixtures.filledInPage1Metadata, 'utf8'),
-      BallotMetadataSchema
-    ).unsafeUnwrap(),
-  });
-  for await (const layout of layouts) {
-    interpreter.addHmpbTemplate(layout);
-
-    if (layout.ballotPageLayout.metadata.pageNumber === 1) {
-      break;
-    }
-  }
-
-  const ballotImagePath = stateOfHamiltonFixtures.filledInPage1Flipped;
-  expect(
-    (
-      await interpreter.interpretFile({
-        ballotImagePath,
-        detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-      })
-    ).interpretation as InterpretedHmpbPage
-  ).toMatchObject({
-    type: 'InvalidElectionHashPage',
-  });
 });

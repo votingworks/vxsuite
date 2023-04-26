@@ -1,28 +1,18 @@
+import { buildCastVoteRecordReportMetadata } from '@votingworks/backend';
+import { assert, iter } from '@votingworks/basics';
 import { CVR } from '@votingworks/types';
-import { assert, find, iter } from '@votingworks/basics';
-import {
-  buildCastVoteRecordReportMetadata,
-  CVR_BALLOT_IMAGES_SUBDIRECTORY,
-  CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
-} from '@votingworks/backend';
-import * as fs from 'fs';
-import yargs from 'yargs/yargs';
 import {
   CAST_VOTE_RECORD_REPORT_FILENAME,
   jsonStream,
   readBallotPackageFromBuffer,
 } from '@votingworks/utils';
-import { pdfToImages, writeImageData } from '@votingworks/image-utils';
-import { pipeline } from 'stream/promises';
-import { join } from 'path';
+import * as fs from 'fs';
 import cloneDeep from 'lodash.clonedeep';
+import { join } from 'path';
+import { pipeline } from 'stream/promises';
+import yargs from 'yargs/yargs';
 import { generateCvrs } from '../../generate_cvrs';
-import {
-  generateBallotAssetPath,
-  replaceUniqueId,
-  BATCH_ID,
-  IMAGE_URI_REGEX,
-} from '../../utils';
+import { replaceUniqueId } from '../../utils';
 
 /**
  * Script to generate a cast vote record file for a given election.
@@ -39,9 +29,7 @@ interface GenerateCvrFileArguments {
   numBallots?: number;
   scannerNames?: Array<string | number>;
   officialBallots: boolean;
-  includeBallotImages: boolean;
   ballotIdPrefix?: string;
-  bmdBallots: boolean;
   help?: boolean;
   [x: string]: unknown;
 }
@@ -89,20 +77,10 @@ export async function main(
         type: 'array',
         description: 'Creates ballots for each scanner name specified.',
       },
-      includeBallotImages: {
-        type: 'boolean',
-        description:
-          'Whether to include ballot images with write-in ballots in the output.',
-      },
       ballotIdPrefix: {
         type: 'string',
         description:
           'If included, applies a prefix to the ballot ids. E.g. "p-456" instead of "456"',
-      },
-      bmdBallots: {
-        type: 'boolean',
-        description:
-          'Create BMD ballots when specified. By default HMPB ballots are created. Note that this will create ballots without images, regardless of the "includeBallotImages" argument',
       },
     })
     .alias('-h', '--help')
@@ -139,13 +117,7 @@ export async function main(
     return 1;
   }
 
-  const {
-    outputPath,
-    includeBallotImages,
-    ballotPackage: ballotPackagePath,
-    ballotIdPrefix,
-    bmdBallots,
-  } = args;
+  const { outputPath, ballotPackage: ballotPackagePath, ballotIdPrefix } = args;
   const scannerNames = (args.scannerNames ?? ['scanner']).map((s) => `${s}`);
   const testMode = !args.officialBallots;
 
@@ -157,11 +129,8 @@ export async function main(
   const castVoteRecords = iter(
     generateCvrs({
       ballotPackage,
-      includeBallotImages,
-      testMode,
       scannerNames,
       ballotIdPrefix,
-      bmdBallots,
     })
   ).toArray();
 
@@ -229,91 +198,6 @@ export async function main(
     reportStream,
     fs.createWriteStream(join(outputPath, CAST_VOTE_RECORD_REPORT_FILENAME))
   );
-
-  if (includeBallotImages) {
-    // create directories for assets
-    fs.mkdirSync(
-      join(outputPath, `./${CVR_BALLOT_IMAGES_SUBDIRECTORY}/${BATCH_ID}`),
-      { recursive: true }
-    );
-    fs.mkdirSync(
-      join(outputPath, `./${CVR_BALLOT_LAYOUTS_SUBDIRECTORY}/${BATCH_ID}`),
-      { recursive: true }
-    );
-
-    // determine the images referenced in the report
-    const imageUris = new Set<string>();
-    for (const castVoteRecord of castVoteRecords) {
-      const ballotImages = castVoteRecord.BallotImage;
-      if (ballotImages) {
-        if (ballotImages[0]?.Location) {
-          imageUris.add(ballotImages[0]?.Location);
-        }
-        if (ballotImages[1]?.Location) {
-          imageUris.add(ballotImages[1]?.Location);
-        }
-      }
-    }
-
-    // export information from the relevant ballot package entries
-    for (const imageUri of imageUris) {
-      const regexMatch = imageUri.match(IMAGE_URI_REGEX);
-      // istanbul ignore next
-      if (regexMatch === null) {
-        throw new Error('unexpected file URI format');
-      }
-      const [, ballotStyleId, precinctId, pageNumberString] = regexMatch;
-      assert(ballotStyleId !== undefined);
-      assert(precinctId !== undefined);
-      assert(pageNumberString !== undefined);
-      // eslint-disable-next-line vx/gts-safe-number-parse
-      const pageNumber = Number(pageNumberString);
-
-      const ballotPackageEntry = find(
-        ballotPackage.ballots,
-        (ballot) =>
-          ballot.ballotConfig.ballotStyleId === ballotStyleId &&
-          ballot.ballotConfig.precinctId === precinctId &&
-          ballot.ballotConfig.isLiveMode === !testMode
-      );
-
-      // write the image
-      for await (const { page, pageNumber: pdfPageNumber } of pdfToImages(
-        ballotPackageEntry.pdf
-      )) {
-        if (pdfPageNumber === pageNumber) {
-          await writeImageData(
-            join(
-              outputPath,
-              generateBallotAssetPath({
-                ballotStyleId,
-                precinctId,
-                pageNumber,
-                assetType: 'image',
-              })
-            ),
-            page
-          );
-        }
-      }
-
-      // write the layout
-      const layout = ballotPackageEntry.layout[pageNumber - 1];
-      assert(layout);
-      fs.writeFileSync(
-        join(
-          outputPath,
-          generateBallotAssetPath({
-            ballotStyleId,
-            precinctId,
-            pageNumber,
-            assetType: 'layout',
-          })
-        ),
-        `${JSON.stringify(layout, undefined, 2)}\n`
-      );
-    }
-  }
 
   stdout.write(
     `Wrote ${castVoteRecords.length} cast vote records to ${outputPath}\n`

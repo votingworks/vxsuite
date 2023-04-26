@@ -1,43 +1,38 @@
-import React, { useContext } from 'react';
-import { Switch, Route, Redirect } from 'react-router-dom';
 import {
-  SetupCardReaderPage,
   InvalidCardScreen,
-  UnlockMachineScreen,
   RemoveCardScreen,
+  SetupCardReaderPage,
+  UnlockMachineScreen,
 } from '@votingworks/ui';
+import React, { useContext } from 'react';
+import { Redirect, Route, Switch } from 'react-router-dom';
 
+import { PartyId } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
-import { PartyId } from '@votingworks/types';
+import { checkPin } from '../api';
+import { SmartcardTypeRegExPattern } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
-import { DefinitionScreen } from '../screens/definition_screen';
 import { BallotListScreen } from '../screens/ballot_list_screen';
-import { BallotScreen } from '../screens/ballot_screen';
-import { PrintTestDeckScreen } from '../screens/print_test_deck_screen';
-import { UnconfiguredScreen } from '../screens/unconfigured_screen';
-import { TallyScreen } from '../screens/tally_screen';
-import { TallyReportScreen } from '../screens/tally_report_screen';
-import { TallyWriteInReportScreen } from '../screens/tally_writein_report_screen';
-import { DefinitionEditorScreen } from '../screens/definition_editor_screen';
-import { DefinitionContestsScreen } from '../screens/definition_contests_screen';
-import { PrintedBallotsReportScreen } from '../screens/printed_ballots_report_screen';
+import { DefinitionScreen } from '../screens/definition_screen';
+import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
+import { LogsScreen } from '../screens/logs_screen';
+import { MachineLockedScreen } from '../screens/machine_locked_screen';
 import { ManualDataImportIndexScreen } from '../screens/manual_data_import_index_screen';
 import { ManualDataImportPrecinctScreen } from '../screens/manual_data_import_precinct_screen';
-import { SmartcardsScreen } from '../screens/smartcards_screen';
-import { MachineLockedScreen } from '../screens/machine_locked_screen';
-import { WriteInsScreen } from '../screens/write_ins_screen';
-import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
-import { SettingsScreen } from '../screens/settings_screen';
-import { LogsScreen } from '../screens/logs_screen';
 import { ReportsScreen } from '../screens/reports_screen';
-import { SmartcardTypeRegExPattern } from '../config/types';
+import { SettingsScreen } from '../screens/settings_screen';
+import { SmartcardsScreen } from '../screens/smartcards_screen';
+import { TallyReportScreen } from '../screens/tally_report_screen';
+import { TallyScreen } from '../screens/tally_screen';
+import { TallyWriteInReportScreen } from '../screens/tally_writein_report_screen';
+import { UnconfiguredScreen } from '../screens/unconfigured_screen';
+import { WriteInsScreen } from '../screens/write_ins_screen';
 import { SmartcardModal } from './smartcard_modal';
-import { checkPin } from '../api';
 
 export function ElectionManager(): JSX.Element {
   const { electionDefinition, configuredAt, auth, hasCardReaderAttached } =
@@ -110,33 +105,8 @@ export function ElectionManager(): JSX.Element {
           <Route exact path={routerPaths.electionDefinition}>
             <DefinitionScreen />
           </Route>
-          <Route exact path={routerPaths.definitionEditor}>
-            <DefinitionEditorScreen allowEditing={false} />
-          </Route>
-          <Route
-            exact
-            path={routerPaths.definitionContest({ contestId: ':contestId' })}
-          >
-            <DefinitionContestsScreen allowEditing={false} />
-          </Route>
           <Route exact path={routerPaths.ballotsList}>
             <BallotListScreen />
-          </Route>
-          <Route
-            exact
-            path={[
-              routerPaths.ballotsViewLanguage({
-                ballotStyleId: ':ballotStyleId',
-                precinctId: ':precinctId',
-                localeCode: ':localeCode',
-              }),
-              routerPaths.ballotsView({
-                ballotStyleId: ':ballotStyleId',
-                precinctId: ':precinctId',
-              }),
-            ]}
-          >
-            <BallotScreen />
           </Route>
           <Route exact path={routerPaths.smartcards}>
             <Redirect
@@ -170,9 +140,6 @@ export function ElectionManager(): JSX.Element {
       <Route exact path={routerPaths.ballotsList}>
         <BallotListScreen />
       </Route>
-      <Route exact path={routerPaths.printedBallotsReport}>
-        <PrintedBallotsReportScreen />
-      </Route>
       <Route exact path={routerPaths.manualDataImport}>
         <ManualDataImportIndexScreen />
       </Route>
@@ -190,22 +157,6 @@ export function ElectionManager(): JSX.Element {
         })}
       >
         <ManualDataImportPrecinctScreen />
-      </Route>
-      <Route
-        exact
-        path={[
-          routerPaths.ballotsViewLanguage({
-            ballotStyleId: ':ballotStyleId',
-            precinctId: ':precinctId',
-            localeCode: ':localeCode',
-          }),
-          routerPaths.ballotsView({
-            ballotStyleId: ':ballotStyleId',
-            precinctId: ':precinctId',
-          }),
-        ]}
-      >
-        <BallotScreen />
       </Route>
       <Route exact path={routerPaths.tally}>
         <TallyScreen />
@@ -265,9 +216,6 @@ export function ElectionManager(): JSX.Element {
       </Route>
       <Route exact path={routerPaths.logicAndAccuracy}>
         <LogicAndAccuracyScreen />
-      </Route>
-      <Route exact path={[routerPaths.testDecks]}>
-        <PrintTestDeckScreen />
       </Route>
       <Redirect to={routerPaths.ballotsList} />
     </Switch>

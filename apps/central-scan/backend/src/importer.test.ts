@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer';
 import { dirSync } from 'tmp';
 import { typedAs } from '@votingworks/basics';
 import { MarkThresholds } from '@votingworks/types';
@@ -14,10 +13,6 @@ test('no election is configured', async () => {
     workspace,
     scanner,
   });
-
-  await expect(importer.addHmpbTemplates(Buffer.of(), [])).rejects.toThrowError(
-    'no election configuration'
-  );
 
   await expect(importer.startImport()).rejects.toThrowError(
     'no election configuration'

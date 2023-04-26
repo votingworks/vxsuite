@@ -6,7 +6,6 @@ import { crop, loadImageData } from '@votingworks/image-utils';
 import { Rect, Size } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
-// import jsQr from 'jsqr';
 import { QRCode } from 'node-quirc';
 import { DetectQrCodeResult } from '../types';
 import { stats, Stats } from './luminosity';

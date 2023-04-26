@@ -362,9 +362,6 @@ importers:
       '@votingworks/ballot-interpreter-nh':
         specifier: workspace:*
         version: link:../../../libs/ballot-interpreter-nh
-      '@votingworks/ballot-interpreter-vx':
-        specifier: workspace:*
-        version: link:../../../libs/ballot-interpreter-vx
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -2701,8 +2698,6 @@ importers:
 
   libs/@types/deep-eql: {}
 
-  libs/@types/jsfeat: {}
-
   libs/@types/kiosk-browser:
     dependencies:
       rxjs:
@@ -3433,12 +3428,6 @@ importers:
       debug:
         specifier: ^4.2.0
         version: 4.3.1
-      jsfeat:
-        specifier: ^0.0.8
-        version: 0.0.8
-      jsqr:
-        specifier: ^1.3.1
-        version: 1.3.1
       node-quirc:
         specifier: ^2.2.1
         version: 2.3.0
@@ -3458,9 +3447,6 @@ importers:
       '@types/jest':
         specifier: ^27.0.3
         version: 27.0.3
-      '@types/jsfeat':
-        specifier: workspace:*
-        version: link:../@types/jsfeat
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
@@ -11167,7 +11153,7 @@ packages:
       '@storybook/csf-plugin': 7.0.0-beta.31
       '@storybook/csf-tools': 7.0.0-beta.31
       '@storybook/global': 5.0.0
-      '@storybook/mdx2-csf': 1.0.0-next.8
+      '@storybook/mdx2-csf': 1.1.0-next.0
       '@storybook/node-logger': 7.0.0-beta.31
       '@storybook/postinstall': 7.0.0-beta.31
       '@storybook/preview-api': 7.0.0-beta.31
@@ -11465,7 +11451,7 @@ packages:
       '@storybook/client-logger': 7.0.0-beta.31
       '@storybook/core-common': 7.0.0-beta.31
       '@storybook/csf-plugin': 7.0.0-beta.31
-      '@storybook/mdx2-csf': 1.0.0-next.8
+      '@storybook/mdx2-csf': 1.1.0-next.0
       '@storybook/node-logger': 7.0.0-beta.31
       '@storybook/preview': 7.0.0-beta.31
       '@storybook/preview-api': 7.0.0-beta.31
@@ -11806,8 +11792,8 @@ packages:
     resolution: {integrity: sha512-cNkJEds7542Dj6k/oxm3jx0ZddyxUVz/2qQ2sQjz/qy4a6K+vFfMMLHuJEKKTl+26nqqCgia+sfFyCtzUzXr8g==}
     dev: true
 
-  /@storybook/mdx2-csf@1.0.0-next.8:
-    resolution: {integrity: sha512-t2O5s/HHTH5evZVHgVtCWTZgMZ/CaqDu3xVGgjVbKeTvpPAbi0Waab5SSX8T9PG5jNDei/x+jpAVCcNMOHoWzg==}
+  /@storybook/mdx2-csf@1.1.0-next.0:
+    resolution: {integrity: sha512-DeXEULA683XaoNJpAwqJU4lKnpCAACdIiSDqCuAfKzhHYAv11snQ8VjPrtR1I0WcWG4ATi+TawT1dWFnsYhhAQ==}
     dev: true
 
   /@storybook/node-logger@7.0.0-beta.31:
@@ -24984,10 +24970,6 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
 
-  /jsfeat@0.0.8:
-    resolution: {integrity: sha1-ese1mwneExSNnqybul7bPvWh6GI=}
-    dev: false
-
   /json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
 
@@ -25064,10 +25046,6 @@ packages:
       extsprintf: 1.3.0
       json-schema: 0.4.0
       verror: 1.10.0
-    dev: false
-
-  /jsqr@1.3.1:
-    resolution: {integrity: sha512-zCTP6Qd/WwjrpuHFkJuXc5opRdKprUr7eI7+JCCtcetThJt45qptu82MWQ+eET+FtDrMo7+BYjo3iD0XIq1L9Q==}
     dev: false
 
   /jsx-ast-utils@3.3.3:

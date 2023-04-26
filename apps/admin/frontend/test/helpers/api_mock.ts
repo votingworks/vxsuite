@@ -167,22 +167,6 @@ export function createApiMock(
       apiClient.getCastVoteRecordFiles.expectCallWith().resolves(fileRecords);
     },
 
-    expectGetOfficialPrintedBallots(
-      printedBallotRecords: Admin.PrintedBallotRecord[]
-    ) {
-      apiClient.getPrintedBallots
-        .expectCallWith({ ballotMode: Admin.BallotMode.Official })
-        .resolves(printedBallotRecords);
-    },
-
-    expectAddPrintedBallot(printedBallot: Admin.PrintedBallot) {
-      apiClient.addPrintedBallots
-        .expectCallWith({
-          printedBallot,
-        })
-        .resolves('id');
-    },
-
     expectGetWriteInSummaryAdjudicated(
       writeInSummaryRecords: Admin.WriteInSummaryEntryAdjudicated[]
     ) {

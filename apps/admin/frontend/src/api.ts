@@ -250,19 +250,6 @@ export const getWriteInImageView = {
   },
 } as const;
 
-type GetPrintedBallotsInput = QueryInput<'getPrintedBallots'>;
-export const getPrintedBallots = {
-  queryKey(input?: GetPrintedBallotsInput): QueryKey {
-    return input ? ['getPrintedBallots', input] : ['getPrintedBallots'];
-  },
-  useQuery(input?: GetPrintedBallotsInput) {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () =>
-      apiClient.getPrintedBallots(input)
-    );
-  },
-} as const;
-
 export const getSystemSettings = {
   queryKey(): QueryKey {
     return ['getSystemSettings'];
@@ -415,18 +402,6 @@ export const deleteWriteInAdjudication = {
     return useMutation(apiClient.deleteWriteInAdjudication, {
       async onSuccess() {
         await invalidateWriteInQueries(queryClient);
-      },
-    });
-  },
-} as const;
-
-export const addPrintedBallots = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.addPrintedBallots, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getPrintedBallots.queryKey());
       },
     });
   },

@@ -1,13 +1,16 @@
-import { AdjudicationReason } from '@votingworks/types';
+import { AdjudicationReason, AdjudicationReasonInfo } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
-import { err, ok, Result, sleep } from '@votingworks/basics';
+import { err, ok, Result, sleep, typedAs } from '@votingworks/basics';
 import {
   fakeElectionManagerUser,
   fakePollWorkerUser,
   fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionGridLayoutNewHampshireAmherstFixtures,
+} from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
   ReportSourceMachineType,
@@ -78,7 +81,13 @@ test('configure and scan hmpb', async () => {
   await withApp(
     {},
     async ({ apiClient, mockScanner, mockUsb, logger, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { addTemplates: true, mockAuth });
+      await configureApp(apiClient, mockUsb, {
+        mockAuth,
+        electionDefinition:
+          electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+        ballotPackage:
+          electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asBuffer(),
+      });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -87,7 +96,7 @@ test('configure and scan hmpb', async () => {
         type: 'ValidSheet',
       };
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeBmd()));
+      mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeHmpb()));
       await apiClient.scanBallot();
       await expectStatus(apiClient, { state: 'scanning' });
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
@@ -172,7 +181,13 @@ test('configure and scan bmd ballot', async () => {
 
 const needsReviewInterpretation: SheetInterpretation = {
   type: 'NeedsReviewSheet',
-  reasons: [{ type: AdjudicationReason.BlankBallot }],
+  reasons: [
+    expect.objectContaining(
+      typedAs<Partial<AdjudicationReasonInfo>>({
+        type: AdjudicationReason.Overvote,
+      })
+    ),
+  ],
 };
 
 test('ballot needs review - return', async () => {
@@ -186,14 +201,20 @@ test('ballot needs review - return', async () => {
       logger,
       mockAuth,
     }) => {
-      await configureApp(apiClient, mockUsb, { addTemplates: true, mockAuth });
+      await configureApp(apiClient, mockUsb, {
+        mockAuth,
+        electionDefinition:
+          electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+        ballotPackage:
+          electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asBuffer(),
+      });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
       const interpretation = needsReviewInterpretation;
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.unmarkedHmpb()));
+      mockScanner.scan.mockResolvedValue(ok(await ballotImages.overvoteHmpb()));
       await apiClient.scanBallot();
       await expectStatus(apiClient, { state: 'scanning' });
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
@@ -231,14 +252,20 @@ test('ballot needs review - accept', async () => {
   await withApp(
     {},
     async ({ apiClient, mockScanner, mockUsb, logger, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { addTemplates: true, mockAuth });
+      await configureApp(apiClient, mockUsb, {
+        mockAuth,
+        electionDefinition:
+          electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+        ballotPackage:
+          electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asBuffer(),
+      });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
       const interpretation = needsReviewInterpretation;
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.unmarkedHmpb()));
+      mockScanner.scan.mockResolvedValue(ok(await ballotImages.overvoteHmpb()));
       await apiClient.scanBallot();
       await expectStatus(apiClient, { state: 'scanning' });
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));

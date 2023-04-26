@@ -1,77 +1,29 @@
 import { decodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
-import {
-  BallotLocale,
-  BallotPageMetadata,
-  BallotType,
-  ElectionDefinition,
-} from '@votingworks/types';
+import { Optional } from '@votingworks/basics';
+import { BallotPageMetadata, ElectionDefinition } from '@votingworks/types';
 import { Buffer } from 'buffer';
-import { defined } from './utils/defined';
-import { detect as detectQrCode } from './utils/qrcode';
-
-export interface DetectResult {
-  metadata: BallotPageMetadata;
-  flipped: boolean;
-}
 
 export class MetadataDecodeError extends Error {}
 
-export function decodeSearchParams(
-  electionDefinition: ElectionDefinition,
-  searchParams: URLSearchParams
-): BallotPageMetadata {
-  const type = defined(searchParams.get('t'));
-  const precinctId = defined(searchParams.get('pr'));
-  const ballotStyleId = defined(searchParams.get('bs'));
-  const pageInfo = defined(searchParams.get('p'));
-
-  const primaryLocaleCode = searchParams.get('l1') ?? undefined;
-  const secondaryLocaleCode = searchParams.get('l2') ?? undefined;
-  let locales: BallotLocale | undefined;
-
-  if (primaryLocaleCode) {
-    if (secondaryLocaleCode) {
-      locales = { primary: primaryLocaleCode, secondary: secondaryLocaleCode };
-    } else {
-      locales = { primary: primaryLocaleCode };
-    }
-  } else {
-    locales = { primary: 'en-US' };
-  }
-
-  const [typeTestMode] = type.split('', 2);
-  const [pageInfoNumber] = pageInfo.split('-', 2);
-  const isTestMode = typeTestMode === 't';
-  // eslint-disable-next-line vx/gts-safe-number-parse
-  const pageNumber = parseInt(pageInfoNumber, 10);
-
-  return {
-    electionHash: electionDefinition.electionHash,
-    ballotType: BallotType.Standard,
-    locales,
-    ballotStyleId,
-    precinctId,
-    isTestMode,
-    pageNumber,
-  };
+function tryBufferFromBase64(string: string): Optional<Buffer> {
+  const buffer = Buffer.from(string, 'base64');
+  return buffer.toString('base64') === string ? buffer : undefined;
 }
 
-function isBase64(string: string): boolean {
-  return Buffer.from(string, 'base64').toString('base64') === string;
-}
-
-export function fromString(
+function fromString(
   electionDefinition: ElectionDefinition,
   text: string
 ): BallotPageMetadata {
-  if (isBase64(text)) {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    return fromBytes(electionDefinition, Buffer.from(text, 'base64'));
+  const buffer = tryBufferFromBase64(text);
+  if (!buffer) {
+    throw new MetadataDecodeError('Metadata is not base64 encoded');
   }
-  return decodeSearchParams(electionDefinition, new URL(text).searchParams);
+
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+  return fromBytes(electionDefinition, Buffer.from(text, 'base64'));
 }
 
-export function fromBytes(
+function fromBytes(
   electionDefinition: ElectionDefinition,
   data: Buffer
 ): BallotPageMetadata {
@@ -91,20 +43,4 @@ export function tryFromBytes(
   } catch {
     return undefined;
   }
-}
-
-export async function detect(
-  electionDefinition: ElectionDefinition,
-  imageData: ImageData
-): Promise<DetectResult> {
-  const result = await detectQrCode(imageData);
-
-  if (!result) {
-    throw new MetadataDecodeError('Expected QR code not found.');
-  }
-
-  return {
-    metadata: fromBytes(electionDefinition, result.data),
-    flipped: result.position === 'top',
-  };
 }

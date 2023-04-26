@@ -2,55 +2,48 @@
 // The durable datastore for CVRs and configuration info.
 //
 
+import { BallotPageLayoutsLookup, ResultSheet } from '@votingworks/backend';
 import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
+import { Optional, assert } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
-import { pdfToImages } from '@votingworks/image-utils';
 import {
   AdjudicationStatus,
   AnyContest,
   BallotMetadata,
-  BallotMetadataSchema,
   BallotPageLayout,
-  BallotPageLayoutSchema,
   BallotPageLayoutWithImage,
   BallotPageMetadata,
   BallotPaperSize,
   BallotSheetInfo,
   BatchInfo,
   ElectionDefinition,
-  getBallotStyle,
-  getContests,
   Iso8601Timestamp,
-  mapSheet,
   MarkThresholds,
   PageInterpretationSchema,
   PageInterpretationWithFiles,
-  PollsState as PollsStateType,
   PollsStateSchema,
-  PrecinctSelection as PrecinctSelectionType,
+  PollsState as PollsStateType,
   PrecinctSelectionSchema,
-  safeParse,
-  safeParseElectionDefinition,
-  safeParseJson,
+  PrecinctSelection as PrecinctSelectionType,
   SheetOf,
   Side,
   SystemSettings,
   SystemSettingsDbRow,
+  getBallotStyle,
+  getContests,
+  mapSheet,
+  safeParse,
+  safeParseElectionDefinition,
+  safeParseJson,
 } from '@votingworks/types';
-import { BallotPackageEntry } from '@votingworks/utils';
-import { assert, iter, Optional } from '@votingworks/basics';
-import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
-import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
-import { z } from 'zod';
-import { BallotPageLayoutsLookup, ResultSheet } from '@votingworks/backend';
-import { sheetRequiresAdjudication } from './vx_interpreter';
 import { rootDebug } from './util/debug';
 import { normalizeAndJoin } from './util/path';
+import { sheetRequiresAdjudication } from './vx_interpreter';
 
 const debug = rootDebug.extend('store');
 
@@ -97,13 +90,8 @@ export class Store {
   /**
    * Builds and returns a new store at `dbPath`.
    */
-  static async fileStore(dbPath: string): Promise<Store> {
-    const newStore = new Store(DbClient.fileClient(dbPath, SchemaPath));
-
-    // If there are already templates, force caching of the layouts with image
-    await newStore.loadLayouts();
-
-    return newStore;
+  static fileStore(dbPath: string): Store {
+    return new Store(DbClient.fileClient(dbPath, SchemaPath));
   }
 
   // TODO(jonah): Make this the only way to access the store so that we always
@@ -115,6 +103,7 @@ export class Store {
    * Returns the result of the function.
    */
   withTransaction<T>(fn: () => Promise<T>): Promise<T>;
+  withTransaction<T>(fn: () => T): T;
   withTransaction<T>(fn: () => T): T {
     return this.client.transaction(() => fn());
   }
@@ -1003,127 +992,12 @@ export class Store {
     }
   }
 
-  async setHmpbTemplates(ballotTemplates: BallotPackageEntry[]): Promise<void> {
-    this.client.run(`delete from hmpb_templates`);
-
-    for await (const ballotTemplate of ballotTemplates) {
-      const id = uuid();
-      this.client.run(
-        `
-        insert into hmpb_templates (
-          id,
-          pdf,
-          metadata_json,
-          layouts_json
-        ) values (
-          ?, ?, ?, ?
-        )
-        `,
-        id,
-        ballotTemplate.pdf,
-        JSON.stringify(ballotTemplate.layout[0].metadata),
-        JSON.stringify(ballotTemplate.layout)
-      );
-
-      // Load the layouts immediately to warm the cache.
-      await this.loadLayouts();
-    }
-  }
-
-  getHmpbTemplates(): Array<[Buffer, BallotPageLayout[]]> {
-    const rows = this.client.all(
-      `
-        select
-          id,
-          pdf,
-          metadata_json as metadataJson,
-          layouts_json as layoutsJson
-        from hmpb_templates
-        order by created_at asc
-      `
-    ) as Array<{
-      id: string;
-      pdf: Buffer;
-      layoutsJson: string;
-      metadataJson: string;
-    }>;
-    const results: Array<[Buffer, BallotPageLayout[]]> = [];
-
-    for (const { id, pdf, metadataJson, layoutsJson } of rows) {
-      const metadata = safeParseJson(
-        metadataJson,
-        BallotMetadataSchema
-      ).unsafeUnwrap();
-      debug('loading stored HMPB template id=%s: %O', id, metadata);
-      const layouts: BallotPageLayout[] = safeParseJson(
-        layoutsJson,
-        z.array(BallotPageLayoutSchema)
-      ).unsafeUnwrap();
-      results.push([
-        pdf,
-        layouts.map((layout, i) => ({
-          ...layout,
-          metadata: {
-            ...metadata,
-            pageNumber: i + 1,
-          },
-        })),
-      ]);
-    }
-
-    return results;
-  }
-
-  async loadLayouts(): Promise<BallotPageLayoutWithImage[] | undefined> {
-    const electionDefinition = this.getElectionDefinition();
-    if (!electionDefinition) return;
-
-    if (this.cachedLayouts.length > 0) return this.cachedLayouts;
-
-    const templates = this.getHmpbTemplates();
-
-    // These computations are expensive so we cache the loaded layouts
-    this.cachedLayouts = await iter(templates)
-      .async()
-      .flatMap(([pdf, layouts]) =>
-        iter(pdfToImages(pdf, { scale: 2 }))
-          .zip(layouts)
-          .map(([{ page: imageData }, ballotPageLayout]) => ({
-            ballotPageLayout,
-            imageData,
-          }))
-      )
-      .toArray();
-    return this.cachedLayouts;
-  }
-
   /**
    * Gets all ballot page layouts listed by metadata. Will return an empty
    * array if it is a `gridLayouts` election.
    */
   getBallotPageLayoutsLookup(): BallotPageLayoutsLookup {
-    const rows = this.client.all(
-      `
-        select
-          layouts_json as layoutsJson,
-          metadata_json as metadataJson
-        from hmpb_templates
-      `
-    ) as Array<{
-      layoutsJson: string;
-      metadataJson: string;
-    }>;
-
-    return rows.map(({ layoutsJson, metadataJson }) => ({
-      ballotMetadata: safeParseJson(
-        metadataJson,
-        BallotMetadataSchema
-      ).unsafeUnwrap(),
-      ballotPageLayouts: safeParseJson(
-        layoutsJson,
-        z.array(BallotPageLayoutSchema)
-      ).unsafeUnwrap(),
-    }));
+    return [];
   }
 
   /**
@@ -1159,41 +1033,7 @@ export class Store {
       ).unsafeUnwrap();
     }
 
-    const rows = this.client.all(
-      `
-        select
-          layouts_json as layoutsJson,
-          metadata_json as metadataJson
-        from hmpb_templates
-      `
-    ) as Array<{
-      layoutsJson: string;
-      metadataJson: string;
-    }>;
-
-    for (const row of rows) {
-      const { locales, ballotStyleId, precinctId, isTestMode } = safeParseJson(
-        row.metadataJson,
-        BallotMetadataSchema
-      ).unsafeUnwrap();
-
-      if (
-        metadata.locales.primary === locales.primary &&
-        metadata.locales.secondary === locales.secondary &&
-        metadata.ballotStyleId === ballotStyleId &&
-        metadata.precinctId === precinctId &&
-        metadata.isTestMode === isTestMode
-      ) {
-        return safeParseJson(
-          row.layoutsJson,
-          z.array(BallotPageLayoutSchema)
-        ).unsafeUnwrap();
-      }
-    }
-
-    throw new Error(
-      `no ballot layouts found matching metadata: ${inspect(metadata)}`
-    );
+    throw new Error('this election does not use grid layouts; replace it');
   }
 
   getContestIdsForMetadata(

@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { ok } from '@votingworks/basics';
 import {
@@ -11,7 +12,7 @@ import {
   fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
-import { PrecinctId } from '@votingworks/types';
+import { ElectionDefinition, PrecinctId } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -72,32 +73,28 @@ export async function configureApp(
   apiClient: grout.Client<Api>,
   mockUsb: MockUsb,
   {
-    addTemplates = false,
     precinctId,
     mockAuth,
+    electionDefinition = electionFamousNames2021Fixtures.electionDefinition,
+    ballotPackage = electionFamousNames2021WithoutTemplatesBallotPackageBuffer,
   }: {
-    addTemplates?: boolean;
     precinctId?: PrecinctId;
     mockAuth?: InsertedSmartCardAuthApi;
-  } = {
-    addTemplates: false,
-  }
+    electionDefinition?: ElectionDefinition;
+    ballotPackage?: Buffer;
+  } = {}
 ): Promise<void> {
   if (mockAuth) {
     mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
       Promise.resolve({
         status: 'logged_in',
-        user: fakeElectionManagerUser(
-          electionFamousNames2021Fixtures.electionDefinition
-        ),
+        user: fakeElectionManagerUser(electionDefinition),
         sessionExpiresAt: fakeSessionExpiresAt(),
       })
     );
   }
 
-  const ballotPackageBuffer = addTemplates
-    ? electionFamousNames2021Fixtures.ballotPackage.asBuffer()
-    : electionFamousNames2021WithoutTemplatesBallotPackageBuffer;
+  const ballotPackageBuffer = ballotPackage;
   mockUsb.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': ballotPackageBuffer,

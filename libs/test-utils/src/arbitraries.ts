@@ -433,24 +433,6 @@ export function arbitraryBallotLocale(): fc.Arbitrary<BallotLocale> {
 
 /**
  * Build an entire valid election definition.
- *
- * @example
- *
- *   test('rendering ballots does not crash', () => {
- *     fc.assert(
- *       fc.property(
- *         arbitraryElectionDefinition(),
- *         (electionDefinition) => {
- *           render(
- *             <HandMarkedPaperBallot
- *               electionDefinition={electionDefinition}
- *             />
- *           )
- *           screen.getByText(electionDefinition.election.title)
- *         }
- *       )
- *     )
- *   })
  */
 export function arbitraryElectionDefinition(): fc.Arbitrary<ElectionDefinition> {
   return arbitraryElection()

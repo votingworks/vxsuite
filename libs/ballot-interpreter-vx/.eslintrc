@@ -2,7 +2,6 @@
   "extends": ["plugin:vx/recommended"],
   "rules": {
     "camelcase": ["error", { "allow": ["matrix_t", "^.+_\\d+"] }],
-    "new-cap": ["error", { "newIsCapExceptionPattern": "^jsfeat\\.." }],
     "no-bitwise": "off",
 
     "vx/gts-identifiers": ["error", { "allowedNames": ["$0"] }],
