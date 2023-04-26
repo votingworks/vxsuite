@@ -181,7 +181,9 @@ Grout supports the following data types:
 - `Array`
 - `Object` (plain objects)
 - `Error`
+- `Date`
 - `Result` (from @votingworks/basics)
+- `Buffer`
 
 Data can compose and nest as much as you like using the above types.
 
