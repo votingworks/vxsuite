@@ -9,6 +9,7 @@ interface StyledProps {
 interface Props extends StyledProps {
   children?: React.ReactNode;
   position?: BallotTargetMarkPosition;
+  density?: number;
 }
 
 export const Bubble = styled.span<StyledProps>`
@@ -29,7 +30,7 @@ const Container = styled.span<Props>`
   text-align: ${({ position }) =>
     position === BallotTargetMarkPosition.Right ? 'right' : 'left'};
   & > span:first-child {
-    margin-top: 0.15em;
+    margin-top: ${({ density }) => (density === 2 ? '0' : '0.15em')};
     margin-right: ${({ position }) =>
       position === BallotTargetMarkPosition.Right ? 'auto' : '0.3em'};
     margin-left: ${({ position }) =>
@@ -46,10 +47,11 @@ const Content = styled.span`
 export function BubbleMark({
   checked = false,
   position = BallotTargetMarkPosition.Left,
+  density = 0,
   children,
 }: Props): JSX.Element {
   return (
-    <Container position={position}>
+    <Container position={position} density={density}>
       <Bubble checked={checked} data-mark />
       <Content>{children}</Content>
     </Container>
