@@ -20,6 +20,7 @@
     "test:ci": "TZ=UTC jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=7",
     "test:coverage": "TZ=UTC jest --coverage",
     "test:debug": "TZ=UTC node --inspect-brk $(which jest) --runInBand --no-cache",
+    "test:perf": "TZ=UTC jest --coverage=false --roots '<rootDir>/perf' --testMatch '<rootDir>/perf/**/*.test.ts'",
     "test:watch": "TZ=UTC jest --watch",
     "type-check": "tsc --build"
   },

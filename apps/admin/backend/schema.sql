@@ -44,6 +44,9 @@ create table cvrs (
     on delete cascade
 );
 
+create index idx_cvrs_election_id on cvrs(election_id);
+create index idx_cvrs_ballot_id on cvrs(ballot_id);
+
 create table cvr_files (
   id varchar(36) primary key,
   election_id varchar(36) not null,

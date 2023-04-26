@@ -1,6 +1,6 @@
 {
   "extends": "../../../tsconfig.shared.json",
-  "include": ["src", "test"],
+  "include": ["src", "test", "perf"],
   "exclude": [],
   "compilerOptions": {
     "allowJs": true,

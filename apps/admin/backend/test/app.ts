@@ -1,5 +1,3 @@
-/* eslint-disable vx/gts-jsdoc */
-
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
@@ -29,6 +27,7 @@ import { Api } from '../src';
 import { createWorkspace } from '../src/util/workspace';
 import { buildApp } from '../src/app';
 import { Usb } from '../src/util/usb';
+import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup';
 
 type ActualDirectory = string;
 type MockFileTree = MockFile | MockDirectory | ActualDirectory;
@@ -163,10 +162,17 @@ export async function configureMachine(
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function buildTestEnvironment() {
+export function buildTestEnvironment(workspaceRoot?: string) {
   const logger = fakeLogger();
   const auth = buildMockDippedSmartCardAuth();
-  const workspace = createWorkspace(tmp.dirSync().name);
+  const resolvedWorkspaceRoot =
+    workspaceRoot ||
+    (() => {
+      const defaultWorkspaceRoot = tmp.dirSync().name;
+      deleteTmpFileAfterTestSuiteCompletes(defaultWorkspaceRoot);
+      return defaultWorkspaceRoot;
+    })();
+  const workspace = createWorkspace(resolvedWorkspaceRoot);
   const mockUsb = createMockUsb();
   const app = buildApp({ auth, workspace, logger, usb: mockUsb.usb });
   // port 0 will bind to a random, free port assigned by the OS
