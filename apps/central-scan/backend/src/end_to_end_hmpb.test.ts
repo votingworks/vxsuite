@@ -121,7 +121,6 @@ afterEach(async () => {
 
 const jurisdiction = DEV_JURISDICTION;
 
-// TODO: Update this test to use configureFromBallotPackageOnUsbDrive for configuration
 test('going through the whole process works', async () => {
   jest.setTimeout(25000);
   const { electionDefinition } = stateOfHamilton;
