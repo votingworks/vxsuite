@@ -10,7 +10,9 @@ exports[`renders NotFoundPage 1`] = `
     <div
       class="sc-fotPbf ljYHag"
     >
-      <h1>
+      <h1
+        class="sc-eCImvq cmseZU"
+      >
         Page Not Found.
       </h1>
       <p>

@@ -49,6 +49,7 @@ exports[`renders CastBallotPage 1`] = `
     >
       <h1
         aria-label="You’re almost done."
+        class="sc-eCImvq cmseZU"
       >
         You’re Almost Done
       </h1>
@@ -86,7 +87,9 @@ exports[`renders CastBallotPage 1`] = `
           </p>
         </li>
       </ol>
-      <h3>
+      <h3
+        class="sc-gKckTs lQVQK"
+      >
         <strong>
           Need help?
         </strong>
