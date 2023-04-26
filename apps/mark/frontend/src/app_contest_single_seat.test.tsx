@@ -85,31 +85,33 @@ it('Single Seat Contest', async () => {
   await advanceTimersAndPromises();
 
   // First candidate is selected
-  expect(
-    screen.getByText(candidate0).closest('button')!.dataset['selected']
-  ).toEqual('true');
+  screen.getByRole('option', { name: new RegExp(candidate0), selected: true });
 
   // Second candidate is NOT selected
-  expect(
-    screen.getByText(candidate1).closest('button')!.dataset['selected']
-  ).toEqual('false');
+  screen.getByRole('option', { name: new RegExp(candidate1), selected: false });
 
   // Deselect the first candidate
   fireEvent.click(screen.getByText(candidate0));
 
   // Check that the aria label was updated to be include 'deselected' and is then updated back to the original state
-  expect(
-    screen.getByText(candidate0).closest('button')?.getAttribute('aria-label')
-  ).toContain('Deselected,');
-  expect(
-    screen.getByText(candidate1).closest('button')?.getAttribute('aria-label')
-  ).not.toContain('Deselected,');
+  screen.getByRole('option', {
+    name: new RegExp(`Deselected.+${candidate0}`),
+    selected: false,
+  });
+  screen.getByRole('option', {
+    name: new RegExp(`^${candidate1}`),
+    selected: false,
+  });
   act(() => {
     jest.advanceTimersByTime(101);
   });
   expect(
     screen.getByText(candidate0).closest('button')?.getAttribute('aria-label')
   ).not.toContain('Deselected,');
+  screen.getByRole('option', {
+    name: new RegExp(`^${candidate0}`),
+    selected: false,
+  });
 
   await advanceTimersAndPromises();
 });

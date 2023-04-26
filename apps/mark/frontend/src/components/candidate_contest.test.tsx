@@ -77,10 +77,10 @@ describe('supports single-seat contest', () => {
       }
     );
 
-    expect(
-      screen.getByText(candidateContest.candidates[0].name).closest('button')!
-        .dataset['selected']
-    ).toEqual('true');
+    screen.getByRole('option', {
+      name: new RegExp(candidateContest.candidates[0].name),
+      selected: true,
+    });
 
     fireEvent.click(
       screen.getByText(candidateContest.candidates[1].name).closest('button')!
@@ -118,21 +118,18 @@ describe('supports multi-seat contests', () => {
       }
     );
 
-    expect(
-      screen
-        .getByText(candidateContestWithMultipleSeats.candidates[0].name)
-        .closest('button')!.dataset['selected']
-    ).toEqual('true');
-    expect(
-      screen
-        .getByText(candidateContestWithMultipleSeats.candidates[1].name)
-        .closest('button')!.dataset['selected']
-    ).toEqual('false');
-    expect(
-      screen
-        .getByText(candidateContestWithMultipleSeats.candidates[2].name)
-        .closest('button')!.dataset['selected']
-    ).toEqual('false');
+    screen.getByRole('option', {
+      name: new RegExp(candidateContestWithMultipleSeats.candidates[0].name),
+      selected: true,
+    });
+    screen.getByRole('option', {
+      name: new RegExp(candidateContestWithMultipleSeats.candidates[1].name),
+      selected: false,
+    });
+    screen.getByRole('option', {
+      name: new RegExp(candidateContestWithMultipleSeats.candidates[2].name),
+      selected: false,
+    });
 
     fireEvent.click(
       screen

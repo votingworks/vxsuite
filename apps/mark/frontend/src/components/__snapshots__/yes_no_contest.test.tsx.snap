@@ -1,47 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`supports yes/no contest allows voting for both yes and no 1`] = `
-.c8 {
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  background: #FFFFFF;
-  cursor: pointer;
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-  text-align: left;
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-.c8::before {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-right: 1px solid;
-  border-color: rgb(211,211,211);
-  border-radius: 0.125rem 0 0 0.125rem;
-  background: #ffffff;
-  width: 3rem;
-  text-align: center;
-  color: #028099;
-  font-size: 2rem;
-  font-weight: 700;
-  content: '';
-}
-
 .c0 {
   margin: 0 auto;
   width: 100%;
@@ -116,15 +75,9 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   margin-bottom: 40px;
 }
 
-@media (min-width:480px) {
-  .c8 {
-    padding: 1rem 1rem 1rem 4rem;
-  }
-}
-
 <div>
   <main
-    class="sc-faUofl iEqEvY"
+    class="sc-ZOsLE fjQwTk"
   >
     <div
       class="c0"
@@ -200,49 +153,93 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
         role="listbox"
       >
         <button
+          aria-label=" Yes on Ballot Measure 3"
           aria-selected="false"
-          class="c8"
-          data-choice="yes"
-          data-selected="false"
+          class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
           role="option"
           type="button"
         >
           <span
             class="sc-ezbkgU gcJsOl"
           >
-            <div
-              class="sc-fotPbf iwtRsQ"
+            <span
+              class="sc-caiKgP SOLan"
             >
-              <p
-                aria-label=" Yes on Ballot Measure 3"
-                class="sc-bqiQRQ eyxUBE"
+              <span
+                class="sc-iUKrWq hYcNmD"
               >
-                Yes
-              </p>
-            </div>
+                <span
+                  class="sc-cidCJl bYFEFC"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="sc-iwjezw daAwbp"
+                    height="100"
+                    role="img"
+                    viewBox="0 0 100 100"
+                    width="100"
+                  >
+                    <path
+                      d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
+                    />
+                  </svg>
+                </span>
+              </span>
+              <span
+                class="sc-iAKVOt gyainp"
+              >
+                <p
+                  class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                >
+                  Yes
+                </p>
+              </span>
+            </span>
           </span>
         </button>
         <button
+          aria-label=" No on Ballot Measure 3"
           aria-selected="false"
-          class="c8"
-          data-choice="no"
-          data-selected="false"
+          class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
           role="option"
           type="button"
         >
           <span
             class="sc-ezbkgU gcJsOl"
           >
-            <div
-              class="sc-fotPbf iwtRsQ"
+            <span
+              class="sc-caiKgP SOLan"
             >
-              <p
-                aria-label=" No on Ballot Measure 3"
-                class="sc-bqiQRQ eyxUBE"
+              <span
+                class="sc-iUKrWq hYcNmD"
               >
-                No
-              </p>
-            </div>
+                <span
+                  class="sc-cidCJl bYFEFC"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="sc-iwjezw daAwbp"
+                    height="100"
+                    role="img"
+                    viewBox="0 0 100 100"
+                    width="100"
+                  >
+                    <path
+                      d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
+                    />
+                  </svg>
+                </span>
+              </span>
+              <span
+                class="sc-iAKVOt gyainp"
+              >
+                <p
+                  class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                >
+                  No
+                </p>
+              </span>
+            </span>
           </span>
         </button>
       </div>
@@ -252,89 +249,6 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 `;
 
 exports[`supports yes/no contest displays warning when attempting to change vote 1`] = `
-.c9 {
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  background: #FFFFFF;
-  cursor: pointer;
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-  text-align: left;
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-.c9::before {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-right: 1px solid;
-  border-color: rgb(211,211,211);
-  border-radius: 0.125rem 0 0 0.125rem;
-  background: #ffffff;
-  width: 3rem;
-  text-align: center;
-  color: #028099;
-  font-size: 2rem;
-  font-weight: 700;
-  content: '';
-}
-
-.c8 {
-  position: relative;
-  border-radius: 0.125rem;
-  box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
-  background: #028099;
-  cursor: pointer;
-  padding: 0.5rem 0.5rem 0.5rem 4rem;
-  text-align: left;
-  color: #FFFFFF;
-  -webkit-transition: background 0.25s,color 0.25s;
-  transition: background 0.25s,color 0.25s;
-}
-
-.c8::before {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-right: 1px solid;
-  border-color: #028099;
-  border-radius: 0.125rem 0 0 0.125rem;
-  background: #ffffff;
-  width: 3rem;
-  text-align: center;
-  color: #028099;
-  font-size: 2rem;
-  font-weight: 700;
-  content: '✓';
-}
-
 .c0 {
   margin: 0 auto;
   width: 100%;
@@ -409,21 +323,9 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   margin-bottom: 40px;
 }
 
-@media (min-width:480px) {
-  .c9 {
-    padding: 1rem 1rem 1rem 4rem;
-  }
-}
-
-@media (min-width:480px) {
-  .c8 {
-    padding: 1rem 1rem 1rem 4rem;
-  }
-}
-
 <div>
   <main
-    class="sc-faUofl iEqEvY"
+    class="sc-ZOsLE fjQwTk"
   >
     <div
       class="c0"
@@ -499,49 +401,93 @@ exports[`supports yes/no contest displays warning when attempting to change vote
         role="listbox"
       >
         <button
+          aria-label="Selected, Yes on Ballot Measure 3"
           aria-selected="true"
-          class="c8"
-          data-choice="yes"
-          data-selected="true"
+          class="sc-iJKOzS jNwvxi sc-jcFkyM bpoIao"
           role="option"
           type="button"
         >
           <span
             class="sc-ezbkgU gcJsOl"
           >
-            <div
-              class="sc-fotPbf iwtRsQ"
+            <span
+              class="sc-caiKgP SOLan"
             >
-              <p
-                aria-label="Selected, Yes on Ballot Measure 3"
-                class="sc-bqiQRQ eyxUBE"
+              <span
+                class="sc-iUKrWq hYcNmD"
               >
-                Yes
-              </p>
-            </div>
+                <span
+                  class="sc-cidCJl bdaONb"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="sc-iwjezw daAwbp"
+                    height="100"
+                    role="img"
+                    viewBox="0 0 100 100"
+                    width="100"
+                  >
+                    <path
+                      d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
+                    />
+                  </svg>
+                </span>
+              </span>
+              <span
+                class="sc-iAKVOt gyainp"
+              >
+                <p
+                  class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                >
+                  Yes
+                </p>
+              </span>
+            </span>
           </span>
         </button>
         <button
+          aria-label=" No on Ballot Measure 3"
           aria-selected="false"
-          class="c9"
-          data-choice="no"
-          data-selected="false"
+          class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
           role="option"
           type="button"
         >
           <span
             class="sc-ezbkgU gcJsOl"
           >
-            <div
-              class="sc-fotPbf iwtRsQ"
+            <span
+              class="sc-caiKgP SOLan"
             >
-              <p
-                aria-label=" No on Ballot Measure 3"
-                class="sc-bqiQRQ eyxUBE"
+              <span
+                class="sc-iUKrWq hYcNmD"
               >
-                No
-              </p>
-            </div>
+                <span
+                  class="sc-cidCJl bYFEFC"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="sc-iwjezw daAwbp"
+                    height="100"
+                    role="img"
+                    viewBox="0 0 100 100"
+                    width="100"
+                  >
+                    <path
+                      d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
+                    />
+                  </svg>
+                </span>
+              </span>
+              <span
+                class="sc-iAKVOt gyainp"
+              >
+                <p
+                  class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                >
+                  No
+                </p>
+              </span>
+            </span>
           </span>
         </button>
       </div>

@@ -8,6 +8,7 @@ export * from './button_bar';
 export * from './button_list';
 export * from './card';
 export * from './centered_large_prose';
+export * from './contest_choice_button';
 export * from './contest_tally';
 export * from './contest_writein_tally';
 export * from './display_settings';

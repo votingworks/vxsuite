@@ -9,7 +9,14 @@ import React, {
 import styled from 'styled-components';
 
 import { YesNoVote, OptionalYesNoVote } from '@votingworks/types';
-import { Button, Main, Prose, Text, TextWithLineBreaks } from '@votingworks/ui';
+import {
+  Button,
+  ContestChoiceButton,
+  Main,
+  Prose,
+  Text,
+  TextWithLineBreaks,
+} from '@votingworks/ui';
 
 import { ScrollDirections, UpdateVoteFunction } from '../config/types';
 import {
@@ -17,7 +24,6 @@ import {
   MsEitherNeitherContest as MsEitherNeitherContestInterface,
 } from '../utils/ms_either_neither_contests';
 import { FONT_SIZES } from '../config/globals';
-import { ChoiceButton } from './choice_button';
 import {
   ContentHeader,
   DistrictName,
@@ -300,50 +306,34 @@ export function MsEitherNeitherContest({
             </Text>
           </Prose>
         </GridLabel>
-        <ChoiceButton
+        <ContestChoiceButton
           choice="yes"
           isSelected={eitherSelected}
           onPress={handleUpdateEitherNeither}
-          style={{
-            gridArea: 'either-option',
-          }}
-        >
-          <Prose>
-            <Text
-              aria-label={`${
-                eitherSelected
-                  ? 'Selected, '
-                  : deselectedOption === 'either'
-                  ? 'Deselected, '
-                  : ''
-              }${contest.eitherOption.label}`}
-            >
-              {contest.eitherOption.label}
-            </Text>
-          </Prose>
-        </ChoiceButton>
-        <ChoiceButton
+          gridArea="either-option"
+          ariaLabel={`${
+            eitherSelected
+              ? 'Selected, '
+              : deselectedOption === 'either'
+              ? 'Deselected, '
+              : ''
+          }${contest.eitherOption.label}`}
+          label={contest.eitherOption.label}
+        />
+        <ContestChoiceButton
           choice="no"
           isSelected={neitherSelected}
           onPress={handleUpdateEitherNeither}
-          style={{
-            gridArea: 'neither-option',
-          }}
-        >
-          <Prose>
-            <Text
-              aria-label={`${
-                neitherSelected
-                  ? 'Selected, '
-                  : deselectedOption === 'neither'
-                  ? 'Deselected, '
-                  : ''
-              }${contest.neitherOption.label}`}
-            >
-              {contest.neitherOption.label}
-            </Text>
-          </Prose>
-        </ChoiceButton>
+          gridArea="neither-option"
+          ariaLabel={`${
+            neitherSelected
+              ? 'Selected, '
+              : deselectedOption === 'neither'
+              ? 'Deselected, '
+              : ''
+          }${contest.neitherOption.label}`}
+          label={contest.neitherOption.label}
+        />
         <GridLabel
           style={{
             gridArea: 'pick-one-label',
@@ -361,50 +351,34 @@ export function MsEitherNeitherContest({
             </Text>
           </Prose>
         </GridLabel>
-        <ChoiceButton
+        <ContestChoiceButton
           choice="yes"
           isSelected={firstSelected}
           onPress={handleUpdatePickOne}
-          style={{
-            gridArea: 'first-option',
-          }}
-        >
-          <Prose>
-            <Text
-              aria-label={`${
-                firstSelected
-                  ? 'Selected, '
-                  : deselectedOption === 'first'
-                  ? 'Deselected, '
-                  : ''
-              }${contest.firstOption.label}`}
-            >
-              {contest.firstOption.label}
-            </Text>
-          </Prose>
-        </ChoiceButton>
-        <ChoiceButton
+          gridArea="first-option"
+          ariaLabel={`${
+            firstSelected
+              ? 'Selected, '
+              : deselectedOption === 'first'
+              ? 'Deselected, '
+              : ''
+          }${contest.firstOption.label}`}
+          label={contest.firstOption.label}
+        />
+        <ContestChoiceButton
           choice="no"
           isSelected={secondSelected}
           onPress={handleUpdatePickOne}
-          style={{
-            gridArea: 'second-option',
-          }}
-        >
-          <Prose>
-            <Text
-              aria-label={`${
-                secondSelected
-                  ? 'Selected, '
-                  : deselectedOption === 'second'
-                  ? 'Deselected, '
-                  : ''
-              }${contest.secondOption.label}`}
-            >
-              {contest.secondOption.label}
-            </Text>
-          </Prose>
-        </ChoiceButton>
+          gridArea="second-option"
+          ariaLabel={`${
+            secondSelected
+              ? 'Selected, '
+              : deselectedOption === 'second'
+              ? 'Deselected, '
+              : ''
+          }${contest.secondOption.label}`}
+          label={contest.secondOption.label}
+        />
         <Divider />
       </ChoicesGrid>
     </Main>
