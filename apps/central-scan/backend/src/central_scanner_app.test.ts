@@ -8,17 +8,13 @@ import {
   AdjudicationReason,
   BallotMetadata,
   BallotPageLayout,
-  BallotPageLayoutWithImage,
   BallotType,
   InterpretedHmpbPage,
   PageInterpretationWithFiles,
   SheetOf,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
-import {
-  BallotConfig,
-  CAST_VOTE_RECORD_REPORT_FILENAME,
-} from '@votingworks/utils';
+import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
 import * as fs from 'fs/promises';
@@ -478,107 +474,6 @@ test('GET /scan/hmpb/ballot/:sheetId/image 404', async () => {
 
 test('GET /', async () => {
   await request(app).get('/').expect(404);
-});
-
-test('POST /scan/hmpb/addTemplates bad template', async () => {
-  const response = await request(app)
-    .post('/central-scanner/scan/hmpb/addTemplates')
-    .attach('ballots', Buffer.of(), {
-      filename: 'README.txt',
-      contentType: 'text/plain',
-    })
-    .expect(400);
-  expect(JSON.parse(response.text)).toEqual({
-    status: 'error',
-    errors: [
-      {
-        type: 'invalid-ballot-type',
-        message:
-          'expected ballot files to be application/pdf, but got text/plain',
-      },
-    ],
-  });
-});
-
-test('POST /scan/hmpb/addTemplates bad metadata', async () => {
-  const response = await request(app)
-    .post('/central-scanner/scan/hmpb/addTemplates')
-    .attach('ballots', Buffer.of(), {
-      filename: 'ballot.pdf',
-      contentType: 'application/pdf',
-    })
-    .expect(400);
-  expect(JSON.parse(response.text)).toEqual({
-    status: 'error',
-    errors: [
-      {
-        type: 'invalid-metadata-type',
-        message:
-          'expected ballot metadata to be application/json, but got undefined',
-      },
-    ],
-  });
-});
-
-test('POST /scan/hmpb/addTemplates', async () => {
-  const ballotConfig: BallotConfig = {
-    ballotStyleId: '77',
-    precinctId: '42',
-    isLiveMode: true,
-    isAbsentee: false,
-    contestIds: [],
-    locales: { primary: 'en-US' },
-    filename: 'ballot.pdf',
-    layoutFilename: 'layout.json',
-  };
-  const ballotPageLayoutWithImage: BallotPageLayoutWithImage = {
-    imageData: {
-      data: Uint8ClampedArray.of(0, 0, 0, 0),
-      width: 1,
-      height: 1,
-    },
-    ballotPageLayout: {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        locales: { primary: 'en-US' },
-        electionHash: stateOfHamilton.electionDefinition.electionHash,
-        ballotType: BallotType.Standard,
-        ballotStyleId: '77',
-        precinctId: '42',
-        isTestMode: false,
-        pageNumber: 1,
-      },
-      contests: [],
-    },
-  };
-  importer.addHmpbTemplates.mockResolvedValueOnce([ballotPageLayoutWithImage]);
-
-  const response = await request(app)
-    .post('/central-scanner/scan/hmpb/addTemplates')
-    .attach('ballots', Buffer.from('%PDF'), {
-      filename: 'ballot.pdf',
-      contentType: 'application/pdf',
-    })
-    .attach(
-      'metadatas',
-      Buffer.from(new TextEncoder().encode(JSON.stringify(ballotConfig))),
-      { filename: 'metadata.json', contentType: 'application/json' }
-    )
-    .attach(
-      'layouts',
-      Buffer.from(
-        new TextEncoder().encode(
-          JSON.stringify([ballotPageLayoutWithImage.ballotPageLayout])
-        )
-      ),
-      { filename: 'layout.json', contentType: 'application/json' }
-    )
-    .expect(200);
-
-  expect(JSON.parse(response.text)).toEqual({ status: 'ok' });
-  expect(importer.addHmpbTemplates).toHaveBeenCalledWith(Buffer.from('%PDF'), [
-    ballotPageLayoutWithImage.ballotPageLayout,
-  ]);
 });
 
 test('get next sheet', async () => {
