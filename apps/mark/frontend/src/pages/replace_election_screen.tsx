@@ -1,6 +1,7 @@
 import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
 import {
   ElectionInfoBar,
+  H2,
   Main,
   Prose,
   Screen,
@@ -120,7 +121,7 @@ export function ReplaceElectionScreen({
               for the current election.
             </p>
           )}
-          <h2>Cancel and Go Back</h2>
+          <H2>Cancel and Go Back</H2>
           <p>Remove the inserted card to cancel.</p>
         </Prose>
       </Main>

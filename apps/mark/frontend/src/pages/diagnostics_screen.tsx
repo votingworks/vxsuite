@@ -3,6 +3,8 @@ import {
   Button,
   ComputerStatus as ComputerStatusType,
   Devices,
+  H1,
+  H2,
   LinkButton,
   Main,
   Prose,
@@ -284,20 +286,20 @@ export function DiagnosticsScreen({
                   Back to Poll Worker Actions
                 </Button>
               </p>
-              <h1>System Diagnostics</h1>
+              <H1>System Diagnostics</H1>
               <span className="screen-reader-only">
                 To navigate through the available actions, use the down arrow.
               </span>
               <section>
-                <h2>Computer</h2>
+                <H2>Computer</H2>
                 <ComputerStatus computer={devices.computer} />
               </section>
               <section>
-                <h2>Printer</h2>
+                <H2>Printer</H2>
                 <PrinterStatus hardware={hardware} />
               </section>
               <section>
-                <h2>Accessible Controller</h2>
+                <H2>Accessible Controller</H2>
                 <AccessibleControllerStatus
                   accessibleController={devices.accessibleController}
                   diagnosticResults={accessibleControllerDiagnosticResults}

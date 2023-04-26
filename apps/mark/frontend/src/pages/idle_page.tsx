@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import pluralize from 'pluralize';
 import useInterval from 'use-interval';
 
-import { Button, Loading, Main, Prose, Screen } from '@votingworks/ui';
+import { Button, H1, Loading, Main, Prose, Screen } from '@votingworks/ui';
 
 import {
   IDLE_RESET_TIMEOUT_SECONDS,
@@ -42,7 +42,7 @@ export function IdlePage(): JSX.Element {
           <Loading>Clearing ballot</Loading>
         ) : (
           <Prose textCenter>
-            <h1 aria-label="Are you still voting?">Are you still voting?</h1>
+            <H1 aria-label="Are you still voting?">Are you still voting?</H1>
             <p>
               This voting station has been inactive for more than{' '}
               {pluralize('minute', IDLE_TIMEOUT_SECONDS / 60, true)}.

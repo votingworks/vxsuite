@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
-import { Main, Screen, Prose, Button } from '@votingworks/ui';
+import { Main, Screen, Prose, Button, H1 } from '@votingworks/ui';
 
 import pluralize from 'pluralize';
 import { assert } from '@votingworks/basics';
@@ -80,7 +80,7 @@ export function StartPage(): JSX.Element {
 
   const settingsContainer = (
     <React.Fragment>
-      <h1>Voter Settings</h1>
+      <H1>Voter Settings</H1>
       <SettingsContainer>
         <SettingsTextSize
           userSettings={userSettings}
@@ -118,9 +118,9 @@ export function StartPage(): JSX.Element {
           />
         ) : (
           <Prose textCenter>
-            <h1 aria-label={`${partyPrimaryAdjective} ${title}.`}>
+            <H1 aria-label={`${partyPrimaryAdjective} ${title}.`}>
               {partyPrimaryAdjective} {title}
-            </h1>
+            </H1>
             <hr />
             <p>
               <span>

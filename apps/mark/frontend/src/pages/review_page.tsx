@@ -17,6 +17,8 @@ import {
   Button,
   DecoyButton,
   DisplayTextForYesOrNo,
+  H1,
+  H2,
   LinkButton,
   Main,
   NoWrap,
@@ -421,7 +423,7 @@ export function ReviewPage(): JSX.Element {
       <Main flexColumn>
         <ContentHeader>
           <Prose id="audiofocus">
-            <h1>
+            <H1>
               <span aria-label="Review Your Votes.">Review Your Votes</span>
               <span className="screen-reader-only">
                 To review your votes, advance through the ballot contests using
@@ -430,7 +432,7 @@ export function ReviewPage(): JSX.Element {
                 finished making your ballot selections and ready to print your
                 ballot, use the right button to print your ballot.
               </span>
-            </h1>
+            </H1>
           </Prose>
         </ContentHeader>
         <VariableContentContainer
@@ -450,7 +452,7 @@ export function ReviewPage(): JSX.Element {
                   to={`/contests/${i}#review`}
                 >
                   <ContestProse compact>
-                    <h2
+                    <H2
                       aria-label={`${getContestDistrictName(
                         election,
                         contest
@@ -460,7 +462,7 @@ export function ReviewPage(): JSX.Element {
                         {getContestDistrictName(election, contest)}
                       </DistrictName>
                       {contest.title}
-                    </h2>
+                    </H2>
 
                     {contest.type === 'candidate' && (
                       <CandidateContestResult
@@ -547,7 +549,7 @@ export function ReviewPage(): JSX.Element {
         >
           <SidebarSpacer />
           <Prose>
-            <h2 aria-hidden>Review Votes</h2>
+            <H2 aria-hidden>Review Votes</H2>
             <p>Confirm your votes are correct.</p>
             <p>{printMyBallotButton}</p>
           </Prose>

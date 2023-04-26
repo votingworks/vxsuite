@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 
-import { Button, Prose, Modal } from '@votingworks/ui';
+import { Button, Prose, Modal, H1 } from '@votingworks/ui';
 import { BallotContext } from '../contexts/ballot_context';
 import { SettingsTextSize } from '../components/settings_text_size';
 import { handleGamepadKeyboardEvent } from '../lib/gamepad';
@@ -37,7 +37,7 @@ export function VoterSettingsModal(): JSX.Element {
     <Modal
       content={
         <Prose textCenter maxWidth={false} id="modalaudiofocus">
-          <h1>Voter Settings</h1>
+          <H1>Voter Settings</H1>
           <span aria-label="Navigate through the settings using the up and down buttons. Use the select button to select a setting. When you are done, use the right or left arrow to close settings." />
           <SettingsTextSize
             userSettings={userSettings}

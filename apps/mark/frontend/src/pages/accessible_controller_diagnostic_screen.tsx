@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Main, Prose, Screen, Text } from '@votingworks/ui';
+import { Button, H1, Main, Prose, Screen, Text } from '@votingworks/ui';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
 import { ScreenReader } from '../config/types';
@@ -154,7 +154,7 @@ function AccessibleControllerButtonDiagnostic({
   return (
     <StepInnerContainer>
       <div>
-        <h1>Press the {buttonName.toLowerCase()} button.</h1>
+        <H1>Press the {buttonName.toLowerCase()} button.</H1>
         <Button
           onPress={() => onFailure(`${buttonName} button is not working.`)}
         >
@@ -203,7 +203,7 @@ function AccessibleControllerSoundDiagnostic({
   return (
     <StepInnerContainer>
       <div>
-        <h1>Confirm sound is working.</h1>
+        <H1>Confirm sound is working.</H1>
         <ol>
           <li>Plug in headphones.</li>
           <li>Press the right button to play sound.</li>

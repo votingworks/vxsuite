@@ -9,7 +9,7 @@ import {
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AppBase, ErrorBoundary, Prose, Text } from '@votingworks/ui';
+import { AppBase, ErrorBoundary, H1, Prose, Text } from '@votingworks/ui';
 import { ColorMode } from '@votingworks/types';
 import { memoize } from './utils/memoize';
 import {
@@ -132,7 +132,7 @@ export function App({
       <ErrorBoundary
         errorMessage={
           <Prose textCenter>
-            <h1>Something went wrong</h1>
+            <H1>Something went wrong</H1>
             <Text>Ask a poll worker to restart the ballot marking device.</Text>
           </Prose>
         }

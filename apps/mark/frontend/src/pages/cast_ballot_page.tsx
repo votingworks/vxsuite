@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button, Main, Screen, Prose, Text } from '@votingworks/ui';
+import { Button, Main, Screen, Prose, Text, H1, H3 } from '@votingworks/ui';
 
 const SingleGraphic = styled.img`
   margin: 0 auto 1em;
@@ -42,7 +42,7 @@ export function CastBallotPage({
     <Screen white>
       <Main centerChild>
         <Prose textCenter maxWidth={false} id="audiofocus">
-          <h1 aria-label="You’re almost done.">You’re Almost Done</h1>
+          <H1 aria-label="You’re almost done.">You’re Almost Done</H1>
           <p>Your official ballot is printing. To finish voting you need to…</p>
           <Instructions>
             <li>
@@ -63,9 +63,9 @@ export function CastBallotPage({
               <Text>2. Scan your official ballot.</Text>
             </li>
           </Instructions>
-          <h3>
+          <H3>
             <strong>Need help?</strong> Ask a poll worker.
-          </h3>
+          </H3>
         </Prose>
         <Done>
           <Button onPress={hidePostVotingInstructions}>Done</Button>

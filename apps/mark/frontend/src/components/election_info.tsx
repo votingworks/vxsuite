@@ -9,7 +9,7 @@ import {
 } from '@votingworks/types';
 import { getPrecinctSelectionName, format } from '@votingworks/utils';
 
-import { Prose, Text, NoWrap } from '@votingworks/ui';
+import { Prose, Text, NoWrap, H1, H5 } from '@votingworks/ui';
 import pluralize from 'pluralize';
 import { Seal } from './seal';
 
@@ -73,7 +73,7 @@ export function ElectionInfo({
         <HorizontalContainer>
           <Seal seal={seal} sealUrl={sealUrl} />
           <Prose compact>
-            <h5 aria-label={`${title}.`}>{title}</h5>
+            <H5 aria-label={`${title}.`}>{title}</H5>
             <Text small>
               {electionDate}
               <br />
@@ -97,7 +97,7 @@ export function ElectionInfo({
     <VerticalContainer aria-hidden={ariaHidden}>
       <Seal seal={seal} sealUrl={sealUrl} />
       <Prose textCenter>
-        <h1 aria-label={`${title}.`}>{title}</h1>
+        <H1 aria-label={`${title}.`}>{title}</H1>
         <p
           aria-label={`${electionDate}. ${state}, ${county.name}. ${precinctName}.`}
         >

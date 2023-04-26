@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { Button, Main, Screen, Prose } from '@votingworks/ui';
+import { Button, Main, Screen, Prose, H1 } from '@votingworks/ui';
 import { BallotContext } from '../contexts/ballot_context';
 
 export function NotFoundPage(): JSX.Element {
@@ -14,7 +14,7 @@ export function NotFoundPage(): JSX.Element {
     <Screen>
       <Main centerChild>
         <Prose textCenter>
-          <h1>Page Not Found.</h1>
+          <H1>Page Not Found.</H1>
           <p>
             No page exists at <code>{pathname}</code>.
           </p>
