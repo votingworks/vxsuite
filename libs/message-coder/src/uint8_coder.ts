@@ -1,3 +1,4 @@
+import { resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { MAX_UINT8, MIN_UINT8 } from './constants';
 import {
@@ -6,7 +7,6 @@ import {
   Coder,
   DecodeResult,
   EncodeResult,
-  mapResult,
   Uint8,
 } from './types';
 import { UintCoder } from './uint_coder';
@@ -23,11 +23,13 @@ export class Uint8Coder extends UintCoder {
   protected maxValue = MAX_UINT8;
 
   encodeInto(value: Uint8, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
-    return mapResult(this.validateValue(value), () =>
-      this.encodeUsing(buffer, bitOffset, (byteOffset) =>
+    return resultBlock((ret) => {
+      this.validateValue(value).or(ret);
+
+      return this.encodeUsing(buffer, bitOffset, (byteOffset) =>
         buffer.writeUInt8(value, byteOffset)
-      )
-    );
+      );
+    });
   }
 
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<Uint8> {

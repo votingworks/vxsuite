@@ -1,4 +1,4 @@
-import { isResult, ok, Result } from '@votingworks/basics';
+import { Result } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 
 /**
@@ -104,41 +104,6 @@ export interface Coder<T> {
    * @returns the decoded value and the bit offset after the decoded value
    */
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<T>;
-}
-
-/**
- * Maps a `Result` to a new `Result` by applying a function to a contained `Ok`
- * value, leaving an `Err` value untouched.
- */
-export function mapResult<T, U, E>(
-  result: Result<T, CoderError>,
-  fn: (value: T) => Result<U, E>
-): Result<U, CoderError | E>;
-
-/**
- * Maps a `Result` to a new `Result` by applying a function to a contained `Ok`
- * value and wrapping the result in an `Ok`, leaving an `Err` value untouched.
- */
-export function mapResult<T, U>(
-  result: Result<T, CoderError>,
-  fn: (value: T) => U
-): Result<U, CoderError>;
-
-/**
- * Maps a `Result` to a new `Result` by applying a function to a contained `Ok`
- * value and optionally wrapping the result in an `Ok`, leaving an `Err` value
- * untouched.
- */
-export function mapResult<T, U, E>(
-  result: Result<T, CoderError>,
-  fn: (value: T) => Result<U, E> | U
-): Result<U, CoderError | E> {
-  if (result.isErr()) {
-    return result;
-  }
-
-  const mapped = fn(result.ok());
-  return isResult(mapped) ? mapped : ok(mapped);
 }
 
 /**

@@ -1,8 +1,8 @@
-import { err, ok } from '@votingworks/basics';
+import { err, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { BaseCoder } from './base_coder';
 import { toBitLength, toByteOffset } from './bits';
-import { BitOffset, DecodeResult, EncodeResult, mapResult } from './types';
+import { BitOffset, DecodeResult, EncodeResult } from './types';
 
 /**
  * A literal value in a message.
@@ -32,24 +32,26 @@ export class LiteralCoder extends BaseCoder<void> {
   }
 
   encodeInto(_value: void, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
-    const { value } = this;
-    return mapResult(toByteOffset(bitOffset), (byteOffset) => {
+    return resultBlock((ret) => {
+      const { value } = this;
+      const byteOffset = toByteOffset(bitOffset).or(ret);
       buffer.set(value, byteOffset);
       return toBitLength(byteOffset + value.byteLength);
     });
   }
 
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<void> {
-    const { value } = this;
-    return mapResult(toByteOffset(bitOffset), (byteOffset) => {
+    return resultBlock((ret) => {
+      const { value } = this;
+      const byteOffset = toByteOffset(bitOffset).or(ret);
       const data = buffer.slice(byteOffset, byteOffset + value.byteLength);
       if (!data.equals(value)) {
         return err('InvalidValue');
       }
-      return ok({
+      return {
         value: undefined,
         bitOffset: toBitLength(byteOffset + value.byteLength),
-      });
+      };
     });
   }
 }

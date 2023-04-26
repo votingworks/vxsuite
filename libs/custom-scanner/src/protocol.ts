@@ -1,4 +1,13 @@
 import {
+  asyncResultBlock,
+  err,
+  ok,
+  Optional,
+  Result,
+  resultBlock,
+  throwIllegalValue,
+} from '@votingworks/basics';
+import {
   BaseCoder,
   BitLength,
   Coder,
@@ -18,32 +27,24 @@ import {
   uint8,
   unboundedString,
 } from '@votingworks/message-coder';
-import {
-  err,
-  isResult,
-  ok,
-  Optional,
-  Result,
-  throwIllegalValue,
-} from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { debug as baseDebug } from './debug';
 import {
   AckResponse,
-  CheckAnswerResult,
   BitType,
+  CheckAnswerResult,
   ColorMode,
   DataResponse,
   DuplexChannel,
   ErrorCode,
   ErrorResponse,
   FormMovement,
+  FormStanding,
   ImageResolution,
   ReleaseType,
   ResponseErrorCode,
   ScanSide,
   UltrasonicSensorLevelInternal,
-  FormStanding,
 } from './types';
 
 const debug = baseDebug.extend('protocol');
@@ -650,26 +651,21 @@ class GetImageDataRequestScanSideCoder extends BaseCoder<ScanSide> {
   }
 
   decodeFrom(buffer: Buffer, bitOffset: number): DecodeResult<ScanSide> {
-    const decodeResult = this.internalCoder.decodeFrom(buffer, bitOffset);
+    return resultBlock((ret) => {
+      const decoded = this.internalCoder.decodeFrom(buffer, bitOffset).or(ret);
 
-    /* istanbul ignore next */
-    if (decodeResult.isErr()) {
-      return decodeResult;
-    }
+      switch (decoded.value) {
+        case GetImageDataRequestScanSideCoder.SideA:
+          return { value: ScanSide.A, bitOffset: decoded.bitOffset };
 
-    const decoded = decodeResult.ok();
+        case GetImageDataRequestScanSideCoder.SideB:
+          return { value: ScanSide.B, bitOffset: decoded.bitOffset };
 
-    switch (decoded.value) {
-      case GetImageDataRequestScanSideCoder.SideA:
-        return ok({ value: ScanSide.A, bitOffset: decoded.bitOffset });
-
-      case GetImageDataRequestScanSideCoder.SideB:
-        return ok({ value: ScanSide.B, bitOffset: decoded.bitOffset });
-
-      /* istanbul ignore next */
-      default:
-        return err('InvalidValue');
-    }
+        /* istanbul ignore next */
+        default:
+          return err('InvalidValue');
+      }
+    });
   }
 }
 
@@ -860,48 +856,23 @@ function mapCoderError<T>(result: Result<T, CoderError>): Result<T, ErrorCode> {
   }
 }
 
-function mapResult<T, U>(
-  result: Result<T, ErrorCode>,
-  f: (value: T) => Result<U, ErrorCode>
-): Result<U, ErrorCode>;
-function mapResult<T, U>(
-  result: Result<T, ErrorCode>,
-  f: (value: T) => U
-): Result<U, ErrorCode>;
-function mapResult<T, U>(
-  result: Result<T, ErrorCode>,
-  f: (value: T) => Result<U, ErrorCode> | U
-): Result<U, ErrorCode> {
-  if (result.isErr()) {
-    return result;
-  }
-
-  const value = result.ok();
-  const mapped = f(value);
-  return isResult(mapped) ? mapped : ok(mapped);
-}
-
 /**
  * Encodes and sends a request to the channel.
  */
-export async function sendRequest<T>(
+export function sendRequest<T>(
   channel: DuplexChannel,
   requestCoder: Coder<T>,
   value: T
 ): Promise<Result<void, ErrorCode>> {
-  const encoded = mapCoderError(requestCoder.encode(value));
-
-  if (encoded.isErr()) {
-    return encoded;
-  }
-
-  return await channel.write(encoded.ok());
+  return asyncResultBlock((ret) =>
+    channel.write(mapCoderError(requestCoder.encode(value)).or(ret))
+  );
 }
 
 /**
  * Encodes and sends a request to the channel, then decodes the response.
  */
-export async function sendRequestAndReadResponse<
+export function sendRequestAndReadResponse<
   T extends object | void,
   R extends CheckAnswerResult['type']
 >(
@@ -911,28 +882,21 @@ export async function sendRequestAndReadResponse<
   maxLength: number,
   expectedResponseType: R
 ): Promise<Result<Extract<CheckAnswerResult, { type: R }>, ErrorCode>> {
-  const writeResult = await sendRequest(channel, requestCoder, value);
+  return asyncResultBlock(async (ret) => {
+    (await sendRequest(channel, requestCoder, value)).or(ret);
 
-  if (writeResult.isErr()) {
-    return writeResult;
-  }
+    const response = checkAnswer((await channel.read(maxLength)).or(ret));
 
-  const readResult = await channel.read(maxLength);
-  if (readResult.isErr()) {
-    return readResult;
-  }
+    if (response.type === expectedResponseType) {
+      return response as Extract<CheckAnswerResult, { type: R }>;
+    }
 
-  const response = checkAnswer(readResult.ok());
-
-  if (response.type === expectedResponseType) {
-    return ok(response as Extract<CheckAnswerResult, { type: R }>);
-  }
-
-  return err(
-    response.type === 'error'
-      ? response.errorCode
-      : ErrorCode.DeviceAnswerUnknown
-  );
+    return err(
+      response.type === 'error'
+        ? response.errorCode
+        : ErrorCode.DeviceAnswerUnknown
+    );
+  });
 }
 
 const MAX_GET_RELEASE_VERSION_RESPONSE_LENGTH = 100;
@@ -940,24 +904,26 @@ const MAX_GET_RELEASE_VERSION_RESPONSE_LENGTH = 100;
 /**
  * Gets the release version of the specified type.
  */
-export async function getReleaseVersion(
+export function getReleaseVersion(
   channel: DuplexChannel,
   releaseType: ReleaseType
 ): Promise<Result<string, ErrorCode>> {
-  debug(
-    'getReleaseVersion releaseType=%s (%x)',
-    ReleaseType[releaseType],
-    releaseType
-  );
-  const result = await sendRequestAndReadResponse(
-    channel,
-    ReleaseVersionRequest,
-    { releaseType },
-    MAX_GET_RELEASE_VERSION_RESPONSE_LENGTH,
-    'data'
-  );
-
-  return mapResult(result, ({ data }) => data);
+  return asyncResultBlock(async (ret) => {
+    debug(
+      'getReleaseVersion releaseType=%s (%x)',
+      ReleaseType[releaseType],
+      releaseType
+    );
+    return (
+      await sendRequestAndReadResponse(
+        channel,
+        ReleaseVersionRequest,
+        { releaseType },
+        MAX_GET_RELEASE_VERSION_RESPONSE_LENGTH,
+        'data'
+      )
+    ).or(ret).data;
+  });
 }
 
 const MAX_GET_STATUS_INTERNAL_RESPONSE_LENGTH = 0x30;
@@ -965,20 +931,22 @@ const MAX_GET_STATUS_INTERNAL_RESPONSE_LENGTH = 0x30;
 /**
  * Gets the internal status of the scanner.
  */
-export async function getStatusInternal(
+export function getStatusInternal(
   channel: DuplexChannel,
   jobId: number
 ): Promise<Result<StatusInternalMessage, ErrorCode>> {
-  debug('getStatusInternal jobId=%x', jobId);
-  const result = await sendRequestAndReadResponse(
-    channel,
-    StatusInternalRequest,
-    { jobId },
-    MAX_GET_STATUS_INTERNAL_RESPONSE_LENGTH,
-    'other'
-  );
+  return asyncResultBlock(async (ret) => {
+    debug('getStatusInternal jobId=%x', jobId);
+    const { buffer } = (
+      await sendRequestAndReadResponse(
+        channel,
+        StatusInternalRequest,
+        { jobId },
+        MAX_GET_STATUS_INTERNAL_RESPONSE_LENGTH,
+        'other'
+      )
+    ).or(ret);
 
-  return mapResult(result, ({ buffer }) => {
     return mapCoderError(StatusInternalMessage.decode(buffer));
   });
 }
@@ -986,165 +954,166 @@ export async function getStatusInternal(
 /**
  * Create a new job.
  */
-export async function createJob(
+export function createJob(
   channel: DuplexChannel
 ): Promise<Result<number, ErrorCode>> {
-  debug('createJob');
-  const result = await sendRequestAndReadResponse(
-    channel,
-    JobCreateRequest,
-    undefined,
-    DEFAULT_MAX_READ_LENGTH,
-    'ack'
-  );
-
-  return mapResult(result, ({ jobId }) => jobId);
+  return asyncResultBlock(async (ret) => {
+    debug('createJob');
+    return (
+      await sendRequestAndReadResponse(
+        channel,
+        JobCreateRequest,
+        undefined,
+        DEFAULT_MAX_READ_LENGTH,
+        'ack'
+      )
+    ).or(ret).jobId;
+  });
 }
 
 /**
  * End a job.
  */
-export async function endJob(
+export function endJob(
   channel: DuplexChannel,
   jobId: number
 ): Promise<Result<void, ErrorCode>> {
-  debug('endJob jobId=%x', jobId);
-  const result = await sendRequestAndReadResponse(
-    channel,
-    JobEndRequest,
-    { jobId },
-    DEFAULT_MAX_READ_LENGTH,
-    'ack'
-  );
-
-  // drop the `jobId` from the response
-  return mapResult(result, () => undefined);
+  return asyncResultBlock(async (ret) => {
+    debug('endJob jobId=%x', jobId);
+    (
+      await sendRequestAndReadResponse(
+        channel,
+        JobEndRequest,
+        { jobId },
+        DEFAULT_MAX_READ_LENGTH,
+        'ack'
+      )
+    ).or(ret);
+  });
 }
 
 /**
  * Move the form.
  */
-export async function formMove(
+export function formMove(
   channel: DuplexChannel,
   jobId: number,
   movement: FormMovement
 ): Promise<Result<void, ErrorCode>> {
-  debug(
-    'formMove jobId=%x movement=%s (%x)',
-    jobId,
-    FormMovement[movement],
-    movement
-  );
-  const result = await sendRequestAndReadResponse(
-    channel,
-    FormMovementRequest,
-    { jobId, movement },
-    DEFAULT_MAX_READ_LENGTH,
-    'ack'
-  );
-
-  // drop the `jobId` from the response
-  return mapResult(result, () => undefined);
+  return asyncResultBlock(async (ret) => {
+    debug(
+      'formMove jobId=%x movement=%s (%x)',
+      jobId,
+      FormMovement[movement],
+      movement
+    );
+    (
+      await sendRequestAndReadResponse(
+        channel,
+        FormMovementRequest,
+        { jobId, movement },
+        DEFAULT_MAX_READ_LENGTH,
+        'ack'
+      )
+    ).or(ret);
+  });
 }
 
 /**
  * Set the scan parameters.
  */
-export async function setScanParameters(
+export function setScanParameters(
   channel: DuplexChannel,
   jobId: Uint8,
   scanParameters: SetScanParametersRequestData
 ): Promise<Result<void, ErrorCode>> {
-  debug('setScanParameters');
-  const setScanParametersResult = await sendRequest(
-    channel,
-    SetScanParametersRequest,
-    { jobId }
-  );
-
-  if (setScanParametersResult.isErr()) {
-    return setScanParametersResult;
-  }
-
-  const setScanParametersDataResult = await sendRequestAndReadResponse(
-    channel,
-    SetScanParametersRequestData,
-    scanParameters,
-    DEFAULT_MAX_READ_LENGTH,
-    'ack'
-  );
-
-  // drop the `jobId` from the response
-  return mapResult(setScanParametersDataResult, () => undefined);
+  return asyncResultBlock(async (ret) => {
+    debug('setScanParameters');
+    (await sendRequest(channel, SetScanParametersRequest, { jobId })).or(ret);
+    (
+      await sendRequestAndReadResponse(
+        channel,
+        SetScanParametersRequestData,
+        scanParameters,
+        DEFAULT_MAX_READ_LENGTH,
+        'ack'
+      )
+    ).or(ret);
+  });
 }
 
 /**
  * Send start scan command.
  */
-export async function startScan(
+export function startScan(
   channel: DuplexChannel,
   jobId: number
 ): Promise<Result<void, ErrorCode>> {
-  debug('startScan jobId=%x', jobId);
-  const result = await sendRequestAndReadResponse(
-    channel,
-    StartScanRequest,
-    { jobId },
-    DEFAULT_MAX_READ_LENGTH,
-    'ack'
-  );
-
-  // drop the `jobId` from the response
-  return mapResult(result, () => undefined);
+  return asyncResultBlock(async (ret) => {
+    debug('startScan jobId=%x', jobId);
+    (
+      await sendRequestAndReadResponse(
+        channel,
+        StartScanRequest,
+        { jobId },
+        DEFAULT_MAX_READ_LENGTH,
+        'ack'
+      )
+    ).or(ret);
+  });
 }
 
 /**
  * Send stop scan command.
  */
-export async function stopScan(
+export function stopScan(
   channel: DuplexChannel,
   jobId: number
 ): Promise<Result<void, ErrorCode>> {
-  debug('stopScan jobId=%x', jobId);
-  const result = await sendRequestAndReadResponse(
-    channel,
-    StopScanRequest,
-    { jobId },
-    DEFAULT_MAX_READ_LENGTH,
-    'ack'
-  );
-
-  // drop the `jobId` from the response
-  return mapResult(result, () => undefined);
+  return asyncResultBlock(async (ret) => {
+    debug('stopScan jobId=%x', jobId);
+    (
+      await sendRequestAndReadResponse(
+        channel,
+        StopScanRequest,
+        { jobId },
+        DEFAULT_MAX_READ_LENGTH,
+        'ack'
+      )
+    ).or(ret);
+  });
 }
 
 /**
  * Send hardware reset command.
  */
-export async function resetHardware(
+export function resetHardware(
   channel: DuplexChannel,
   jobId: number
 ): Promise<Result<void, ErrorCode>> {
-  debug('resetHardware jobId=%x', jobId);
-  try {
-    const result = await sendRequestAndReadResponse(
-      channel,
-      HardwareResetRequest,
-      { jobId },
-      DEFAULT_MAX_READ_LENGTH,
-      'ack'
-    );
-
-    // drop the `jobId` from the response
-    return mapResult(result, () => undefined);
-  } catch (error) {
-    // we can ignore clearHalt exceptions here and assume the reset worked.
-    if (error instanceof Error && error.message.includes('clearHalt error')) {
+  return asyncResultBlock(async (ret) => {
+    debug('resetHardware jobId=%x', jobId);
+    try {
+      (
+        await sendRequestAndReadResponse(
+          channel,
+          HardwareResetRequest,
+          { jobId },
+          DEFAULT_MAX_READ_LENGTH,
+          'ack'
+        )
+      ).or(ret);
+    } catch (error) {
+      // we can ignore clearHalt exceptions here and assume the reset worked.
+      if (
+        !(error instanceof Error) ||
+        !error.message.includes('clearHalt error')
+      ) {
+        throw error;
+      }
       debug('ignoring clearHalt error after reset');
-      return ok();
     }
-    throw error;
-  }
+  });
 }
 
 /**

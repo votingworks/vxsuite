@@ -1,4 +1,11 @@
-import { err, ok, Result, sleep, throwIllegalValue } from '@votingworks/basics';
+import {
+  asyncResultBlock,
+  err,
+  ok,
+  Result,
+  sleep,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { MAX_UINT24 } from '@votingworks/message-coder';
 import { SheetOf } from '@votingworks/types';
 import { time } from '@votingworks/utils';
@@ -126,14 +133,11 @@ export class CustomA4Scanner implements CustomScanner {
   /**
    * Gets information about the scanner's current status.
    */
-  async getStatus(): Promise<Result<ScannerStatus, ErrorCode>> {
-    const internalStatusResult = await this.getStatusRaw();
-
-    if (internalStatusResult.isErr()) {
-      return internalStatusResult;
-    }
-
-    return ok(convertFromInternalStatus(internalStatusResult.ok()).status);
+  getStatus(): Promise<Result<ScannerStatus, ErrorCode>> {
+    return asyncResultBlock(
+      async (ret) =>
+        convertFromInternalStatus((await this.getStatusRaw()).or(ret)).status
+    );
   }
 
   /**
@@ -235,22 +239,21 @@ export class CustomA4Scanner implements CustomScanner {
   /**
    * Moves a sheet of paper as directed.
    */
-  async move(movement: FormMovement): Promise<Result<void, ErrorCode>> {
-    debug('moving %o', movement);
-    const result = await this.publicApiMutex.withLock(() =>
-      this.withRetries(async () => {
-        const createJobResult = await this.createJobInternal();
-        if (createJobResult.isErr()) {
-          return createJobResult;
-        }
+  move(movement: FormMovement): Promise<Result<void, ErrorCode>> {
+    return asyncResultBlock(async (ret) => {
+      debug('moving %o', movement);
+      const result = await this.publicApiMutex.withLock(() =>
+        this.withRetries(async () => {
+          (await this.createJobInternal()).or(ret);
 
-        return await this.channelMutex.withLock((channel) =>
-          formMove(channel, ONLY_VALID_JOB_ID, movement)
-        );
-      })
-    );
-    debug('move result: %o', result);
-    return result;
+          return await this.channelMutex.withLock((channel) =>
+            formMove(channel, ONLY_VALID_JOB_ID, movement)
+          );
+        })
+      );
+      debug('move result: %o', result);
+      return result;
+    });
   }
 
   /**
@@ -259,7 +262,7 @@ export class CustomA4Scanner implements CustomScanner {
    * scanner only scanned one side of the paper. The image buffer for the side
    * that was not scanned will be empty.
    */
-  async scan(
+  scan(
     scanParameters: ScanParameters,
     {
       /* istanbul ignore next */
@@ -268,257 +271,232 @@ export class CustomA4Scanner implements CustomScanner {
       maxRetries = 3,
     }: { maxTimeoutNoMoveNoScan?: number; maxRetries?: number } = {}
   ): Promise<Result<SheetOf<ImageFromScanner>, ErrorCode>> {
-    const timer = time(debug, 'scan');
+    return asyncResultBlock(async (ret) => {
+      const timer = time(debug, 'scan');
 
-    timer.checkpoint('requesting lock');
-    const { unlock } = await this.publicApiMutex.asyncLock();
-    timer.checkpoint('got lock');
+      timer.checkpoint('requesting lock');
+      const { unlock } = await this.publicApiMutex.asyncLock();
+      timer.checkpoint('got lock');
 
-    const { wantedScanSide: scanSide } = scanParameters;
-    const scannerImageA: ImageFromScanner = {
-      imageBuffer: Buffer.alloc(0),
-      imageWidth: 0,
-      imageHeight: 0,
-      imageDepth: scanParameters.imageColorDepth,
-      imageFormat: ImageFileFormat.Jpeg,
-      scanSide: ScanSide.A,
-      imageResolution: scanParameters.resolution,
-    };
-    const scannerImageB: ImageFromScanner = {
-      imageBuffer: Buffer.alloc(0),
-      imageWidth: 0,
-      imageHeight: 0,
-      imageDepth: scanParameters.imageColorDepth,
-      imageFormat: ImageFileFormat.Jpeg,
-      scanSide: ScanSide.B,
-      imageResolution: scanParameters.resolution,
-    };
+      const { wantedScanSide: scanSide } = scanParameters;
+      const scannerImageA: ImageFromScanner = {
+        imageBuffer: Buffer.alloc(0),
+        imageWidth: 0,
+        imageHeight: 0,
+        imageDepth: scanParameters.imageColorDepth,
+        imageFormat: ImageFileFormat.Jpeg,
+        scanSide: ScanSide.A,
+        imageResolution: scanParameters.resolution,
+      };
+      const scannerImageB: ImageFromScanner = {
+        imageBuffer: Buffer.alloc(0),
+        imageWidth: 0,
+        imageHeight: 0,
+        imageDepth: scanParameters.imageColorDepth,
+        imageFormat: ImageFileFormat.Jpeg,
+        scanSide: ScanSide.B,
+        imageResolution: scanParameters.resolution,
+      };
 
-    timer.checkpoint('set scan parameters');
-    let setScanParametersResult = await this.setScanParametersInternal(
-      scanParameters
-    );
-
-    if (setScanParametersResult.isErr()) {
-      if (setScanParametersResult.err() === ErrorCode.JobNotValid) {
-        debug('job not valid, recreating job');
-        const createJobResult = await this.createJobInternal();
-
-        if (createJobResult.isErr()) {
-          return createJobResult;
-        }
-
-        setScanParametersResult = await this.setScanParametersInternal(
-          scanParameters
-        );
-      }
+      timer.checkpoint('set scan parameters');
+      const setScanParametersResult = await this.setScanParametersInternal(
+        scanParameters
+      );
 
       if (setScanParametersResult.isErr()) {
-        return setScanParametersResult;
-      }
-    }
-
-    // scan loop state
-    let errorCount = 0;
-    let startNoMoveNoScan = 0;
-
-    const processImageData = async (
-      currentSide: ScanSide,
-      {
-        pageSize,
-        imageWidth,
-        imageHeight,
-      }: { pageSize: number; imageWidth: number; imageHeight: number }
-    ): Promise<Result<void, ErrorCode>> => {
-      if (pageSize === 0 || imageWidth === 0) {
-        return ok();
+        if (setScanParametersResult.err() === ErrorCode.JobNotValid) {
+          debug('job not valid, recreating job');
+          (await this.createJobInternal()).or(ret);
+          (await this.setScanParametersInternal(scanParameters)).or(ret);
+        }
       }
 
-      debug(
-        'side %s has data: pageSize=%d, imageWidth=%d, imageHeight=%d',
-        ScanSide[currentSide],
-        pageSize,
-        imageWidth,
-        imageHeight
-      );
+      // scan loop state
+      let errorCount = 0;
+      let startNoMoveNoScan = 0;
 
-      let readImageDataErrorCount = 0;
-      const scannerImage =
-        currentSide === ScanSide.A ? scannerImageA : scannerImageB;
-      for (;;) {
-        const getImagePortionBySideResult =
-          await this.getImagePortionBySideInternal(currentSide, pageSize);
+      const processImageData = async (
+        currentSide: ScanSide,
+        {
+          pageSize,
+          imageWidth,
+          imageHeight,
+        }: { pageSize: number; imageWidth: number; imageHeight: number }
+      ): Promise<Result<void, ErrorCode>> => {
+        if (pageSize === 0 || imageWidth === 0) {
+          return ok();
+        }
 
-        /* istanbul ignore next */
-        if (getImagePortionBySideResult.isErr()) {
-          readImageDataErrorCount += 1;
-          if (readImageDataErrorCount < maxRetries) {
-            await sleep(10);
-            continue;
+        debug(
+          'side %s has data: pageSize=%d, imageWidth=%d, imageHeight=%d',
+          ScanSide[currentSide],
+          pageSize,
+          imageWidth,
+          imageHeight
+        );
+
+        let readImageDataErrorCount = 0;
+        const scannerImage =
+          currentSide === ScanSide.A ? scannerImageA : scannerImageB;
+        for (;;) {
+          const getImagePortionBySideResult =
+            await this.getImagePortionBySideInternal(currentSide, pageSize);
+
+          /* istanbul ignore next */
+          if (getImagePortionBySideResult.isErr()) {
+            readImageDataErrorCount += 1;
+            if (readImageDataErrorCount < maxRetries) {
+              await sleep(10);
+              continue;
+            }
+
+            return getImagePortionBySideResult;
           }
 
-          return getImagePortionBySideResult;
+          scannerImage.imageBuffer = Buffer.concat([
+            scannerImage.imageBuffer,
+            getImagePortionBySideResult.ok(),
+          ]);
+          scannerImage.imageWidth = imageWidth;
+          scannerImage.imageHeight = imageHeight;
+
+          return ok();
+        }
+      };
+
+      const scanLoopTick = async (): Promise<
+        Result<'continue' | 'break', ErrorCode>
+      > => {
+        debug('scan: getting status');
+        const getStatusInternalResult = await this.getStatusInternal();
+
+        if (getStatusInternalResult.isErr()) {
+          errorCount += 1;
+          if (errorCount < maxRetries) {
+            await sleep(1);
+            return ok('continue');
+          }
+
+          return getStatusInternalResult;
         }
 
-        scannerImage.imageBuffer = Buffer.concat([
-          scannerImage.imageBuffer,
-          getImagePortionBySideResult.ok(),
-        ]);
-        scannerImage.imageWidth = imageWidth;
-        scannerImage.imageHeight = imageHeight;
+        const { status, a4Status } = convertFromInternalStatus(
+          getStatusInternalResult.ok()
+        );
+        debug('status: %O', status);
+        debug('a4Status: %O', a4Status);
 
-        return ok();
-      }
-    };
-
-    const scanLoopTick = async (): Promise<
-      Result<'continue' | 'break', ErrorCode>
-    > => {
-      debug('scan: getting status');
-      const getStatusInternalResult = await this.getStatusInternal();
-
-      if (getStatusInternalResult.isErr()) {
-        errorCount += 1;
-        if (errorCount < maxRetries) {
-          await sleep(1);
-          return ok('continue');
+        if (status.isScanCanceled) {
+          debug('scan canceled');
+          return err(ErrorCode.NoDocumentToBeScanned);
         }
 
-        return getStatusInternalResult;
-      }
-
-      const { status, a4Status } = convertFromInternalStatus(
-        getStatusInternalResult.ok()
-      );
-      debug('status: %O', status);
-      debug('a4Status: %O', a4Status);
-
-      if (status.isScanCanceled) {
-        debug('scan canceled');
-        return err(ErrorCode.NoDocumentToBeScanned);
-      }
-
-      if (status.isJamPaperHeldBack) {
-        debug('jam paper held back');
-        void (await this.stopScanInternal());
-        return err(ErrorCode.PaperHeldBack);
-      }
-
-      if (status.isPaperJam) {
-        debug('paper jam');
-        void (await this.stopScanInternal());
-        return err(ErrorCode.PaperJam);
-      }
-
-      if (!status.isMotorOn && !status.isScanInProgress) {
-        // The motor is off and the scan is not in progress, maybe an error?
-
-        if (startNoMoveNoScan === 0) {
-          debug('starting to wait for motor on and scan in progress');
-          startNoMoveNoScan = Date.now();
-        } else if (Date.now() - startNoMoveNoScan > maxTimeoutNoMoveNoScan) {
-          debug('waiting for motor on and scan in progress timed out');
+        if (status.isJamPaperHeldBack) {
+          debug('jam paper held back');
           void (await this.stopScanInternal());
-          return err(ErrorCode.ScannerError);
+          return err(ErrorCode.PaperHeldBack);
+        }
+
+        if (status.isPaperJam) {
+          debug('paper jam');
+          void (await this.stopScanInternal());
+          return err(ErrorCode.PaperJam);
+        }
+
+        if (!status.isMotorOn && !status.isScanInProgress) {
+          // The motor is off and the scan is not in progress, maybe an error?
+
+          if (startNoMoveNoScan === 0) {
+            debug('starting to wait for motor on and scan in progress');
+            startNoMoveNoScan = Date.now();
+          } else if (Date.now() - startNoMoveNoScan > maxTimeoutNoMoveNoScan) {
+            debug('waiting for motor on and scan in progress timed out');
+            void (await this.stopScanInternal());
+            return err(ErrorCode.ScannerError);
+          } else {
+            debug('still waiting for motor on and scan in progress');
+          }
         } else {
-          debug('still waiting for motor on and scan in progress');
+          startNoMoveNoScan = 0;
         }
-      } else {
-        startNoMoveNoScan = 0;
-      }
 
-      if (
-        ((scanSide & ScanSide.A) !== ScanSide.A || a4Status.endScanSideA) &&
-        ((scanSide & ScanSide.B) !== ScanSide.B || a4Status.endScanSideB)
-      ) {
-        if (a4Status.imageWidthSideA !== 0) {
-          scannerImageA.imageWidth = a4Status.imageWidthSideA;
+        if (
+          ((scanSide & ScanSide.A) !== ScanSide.A || a4Status.endScanSideA) &&
+          ((scanSide & ScanSide.B) !== ScanSide.B || a4Status.endScanSideB)
+        ) {
+          if (a4Status.imageWidthSideA !== 0) {
+            scannerImageA.imageWidth = a4Status.imageWidthSideA;
+          }
+          if (a4Status.imageWidthSideB !== 0) {
+            scannerImageB.imageWidth = a4Status.imageWidthSideB;
+          }
+          if (a4Status.imageHeightSideA !== 0) {
+            scannerImageA.imageHeight = a4Status.imageHeightSideA;
+          }
+          if (a4Status.imageHeightSideB !== 0) {
+            scannerImageB.imageHeight = a4Status.imageHeightSideB;
+          }
+          return ok('break');
         }
-        if (a4Status.imageWidthSideB !== 0) {
-          scannerImageB.imageWidth = a4Status.imageWidthSideB;
-        }
-        if (a4Status.imageHeightSideA !== 0) {
-          scannerImageA.imageHeight = a4Status.imageHeightSideA;
-        }
-        if (a4Status.imageHeightSideB !== 0) {
-          scannerImageB.imageHeight = a4Status.imageHeightSideB;
-        }
-        return ok('break');
-      }
 
-      if ((scanSide & ScanSide.A) === ScanSide.A && !a4Status.endScanSideA) {
-        const processImageDataResult = await processImageData(ScanSide.A, {
-          pageSize: a4Status.pageSizeSideA,
-          imageWidth: a4Status.imageWidthSideA,
-          imageHeight: a4Status.imageHeightSideA,
-        });
+        if ((scanSide & ScanSide.A) === ScanSide.A && !a4Status.endScanSideA) {
+          (
+            await processImageData(ScanSide.A, {
+              pageSize: a4Status.pageSizeSideA,
+              imageWidth: a4Status.imageWidthSideA,
+              imageHeight: a4Status.imageHeightSideA,
+            })
+          ).or(ret);
+        }
+
+        if ((scanSide & ScanSide.B) === ScanSide.B && !a4Status.endScanSideB) {
+          (
+            await processImageData(ScanSide.B, {
+              pageSize: a4Status.pageSizeSideB,
+              imageWidth: a4Status.imageWidthSideB,
+              imageHeight: a4Status.imageHeightSideB,
+            })
+          ).or(ret);
+        }
 
         /* istanbul ignore next */
-        if (processImageDataResult.isErr()) {
-          return processImageDataResult;
-        }
-      }
-
-      if ((scanSide & ScanSide.B) === ScanSide.B && !a4Status.endScanSideB) {
-        const processImageDataResult = await processImageData(ScanSide.B, {
-          pageSize: a4Status.pageSizeSideB,
-          imageWidth: a4Status.imageWidthSideB,
-          imageHeight: a4Status.imageHeightSideB,
-        });
-
-        /* istanbul ignore next */
-        if (processImageDataResult.isErr()) {
-          return processImageDataResult;
-        }
-      }
-
-      /* istanbul ignore next */
-      if (
-        status.isScanInProgress &&
-        a4Status.pageSizeSideA === 0 &&
-        a4Status.pageSizeSideB === 0
-      ) {
-        debug('scan in progress but no data available');
-      }
-
-      return ok('continue');
-    };
-
-    try {
-      timer.checkpoint('start scan');
-      const startScanResult = await this.startScanInternal();
-
-      if (startScanResult.isErr()) {
-        return startScanResult;
-      }
-
-      for (;;) {
-        const result = await scanLoopTick();
-
-        if (result.isErr()) {
-          return result;
+        if (
+          status.isScanInProgress &&
+          a4Status.pageSizeSideA === 0 &&
+          a4Status.pageSizeSideB === 0
+        ) {
+          debug('scan in progress but no data available');
         }
 
-        const action = result.ok();
+        return ok('continue');
+      };
 
-        /* istanbul ignore else */
-        if (action === 'continue') {
-          continue;
-        } else if (action === 'break') {
-          break;
-        } else {
-          throwIllegalValue(action);
+      try {
+        timer.checkpoint('start scan');
+        (await this.startScanInternal()).or(ret);
+
+        for (;;) {
+          const action = (await scanLoopTick()).or(ret);
+
+          /* istanbul ignore else */
+          if (action === 'continue') {
+            continue;
+          } else if (action === 'break') {
+            break;
+          } else {
+            throwIllegalValue(action);
+          }
         }
+      } finally {
+        unlock();
       }
-    } finally {
-      unlock();
-    }
 
-    timer.checkpoint('stop scan');
-    void (await this.stopScanInternal());
+      timer.checkpoint('stop scan');
+      void (await this.stopScanInternal());
 
-    timer.end();
-    return ok([scannerImageA, scannerImageB]);
+      timer.end();
+      return [scannerImageA, scannerImageB];
+    });
   }
 
   /**

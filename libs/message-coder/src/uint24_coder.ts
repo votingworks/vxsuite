@@ -1,13 +1,7 @@
+import { resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { MAX_UINT24, MIN_UINT24 } from './constants';
-import {
-  BitOffset,
-  Coder,
-  DecodeResult,
-  EncodeResult,
-  mapResult,
-  Uint24,
-} from './types';
+import { BitOffset, Coder, DecodeResult, EncodeResult, Uint24 } from './types';
 import { UintCoder } from './uint_coder';
 
 /**
@@ -27,12 +21,14 @@ export class Uint24Coder extends UintCoder {
     buffer: Buffer,
     bitOffset: BitOffset
   ): EncodeResult {
-    return mapResult(this.validateValue(value), () =>
-      this.encodeUsing(buffer, bitOffset, (byteOffset) => {
+    return resultBlock((ret) => {
+      this.validateValue(value).or(ret);
+
+      return this.encodeUsing(buffer, bitOffset, (byteOffset) => {
         const nextOffset = buffer.writeUInt16LE(value & 0xffff, byteOffset);
         return buffer.writeUInt8((value >> 16) & 0xff, nextOffset);
-      })
-    );
+      });
+    });
   }
 
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<Uint24> {

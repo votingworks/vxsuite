@@ -1,4 +1,4 @@
-import { err, ok } from '@votingworks/basics';
+import { err, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { BaseCoder } from './base_coder';
 import { BITS_PER_BYTE, toByteOffset } from './bits';
@@ -8,7 +8,6 @@ import {
   Coder,
   DecodeResult,
   EncodeResult,
-  mapResult,
   Uint2,
 } from './types';
 import { defaultEnumValue, validateEnumValue } from './uint_coder';
@@ -33,54 +32,53 @@ class Uint2Coder extends BaseCoder<Uint2> {
   protected maxValue = 0b11;
 
   encodeInto(value: Uint2, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
-    const validationResult = validateEnumValue(this.enumeration, value);
+    return resultBlock((ret) => {
+      const validatedValue = validateEnumValue(this.enumeration, value).or(ret);
 
-    if (validationResult.isErr()) {
-      return validationResult;
-    }
+      if (validatedValue < this.minValue || validatedValue > this.maxValue) {
+        return err('InvalidValue');
+      }
 
-    const validatedValue = validationResult.ok();
+      const remainder = bitOffset % BITS_PER_BYTE;
 
-    if (validatedValue < this.minValue || validatedValue > this.maxValue) {
-      return err('InvalidValue');
-    }
+      if (remainder + 1 >= BITS_PER_BYTE) {
+        return err('UnsupportedOffset');
+      }
 
-    const remainder = bitOffset % BITS_PER_BYTE;
+      const shift = BITS_PER_BYTE - remainder - this.bitLength();
+      const mask = (1 << (shift + 1)) | (1 << shift);
+      const byteOffset = toByteOffset(bitOffset - remainder).assertOk(
+        'subtracting remainder, which was checked above, should yield a valid byte offset'
+      );
 
-    if (remainder + 1 >= BITS_PER_BYTE) {
-      return err('UnsupportedOffset');
-    }
-
-    const shift = BITS_PER_BYTE - remainder - this.bitLength();
-    const mask = (1 << (shift + 1)) | (1 << shift);
-    const byteOffset = toByteOffset(bitOffset - remainder).assertOk(
-      'subtracting remainder, which was checked above, should yield a valid byte offset'
-    );
-
-    const byte = buffer.readUInt8(byteOffset);
-    const nextByte = (byte & ~mask) | ((validatedValue << shift) & mask);
-    buffer.writeUInt8(nextByte, byteOffset);
-    return ok(bitOffset + this.bitLength());
+      const byte = buffer.readUInt8(byteOffset);
+      const nextByte = (byte & ~mask) | ((validatedValue << shift) & mask);
+      buffer.writeUInt8(nextByte, byteOffset);
+      return bitOffset + this.bitLength();
+    });
   }
 
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<Uint2> {
-    const remainder = bitOffset % BITS_PER_BYTE;
+    return resultBlock((ret) => {
+      const remainder = bitOffset % BITS_PER_BYTE;
 
-    if (remainder + 1 >= BITS_PER_BYTE) {
-      return err('UnsupportedOffset');
-    }
+      if (remainder + 1 >= BITS_PER_BYTE) {
+        return err('UnsupportedOffset');
+      }
 
-    const shift = BITS_PER_BYTE - remainder - this.bitLength();
-    const mask = (1 << (shift + 1)) | (1 << shift);
-    const byteOffset = toByteOffset(bitOffset - remainder).assertOk(
-      'subtracting remainder, which was checked above, should yield a valid byte offset'
-    );
+      const shift = BITS_PER_BYTE - remainder - this.bitLength();
+      const mask = (1 << (shift + 1)) | (1 << shift);
+      const byteOffset = toByteOffset(bitOffset - remainder).assertOk(
+        'subtracting remainder, which was checked above, should yield a valid byte offset'
+      );
 
-    const byte = buffer.readUInt8(byteOffset);
-    return mapResult(
-      validateEnumValue(this.enumeration, (byte & mask) >> shift),
-      (value) => ({ value, bitOffset: bitOffset + this.bitLength() })
-    );
+      const byte = buffer.readUInt8(byteOffset);
+      const value = validateEnumValue(
+        this.enumeration,
+        (byte & mask) >> shift
+      ).or(ret);
+      return { value, bitOffset: bitOffset + this.bitLength() };
+    });
   }
 }
 

@@ -1,4 +1,4 @@
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, Result, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import {
   bufferContainsBitOffset,
@@ -14,7 +14,6 @@ import {
   CoderError,
   DecodeResult,
   EncodeResult,
-  mapResult,
 } from './types';
 
 /**
@@ -58,7 +57,8 @@ export class FixedStringCoder implements Coder<string> {
     // reverse because it's easier to allocate a buffer from a string using
     // `Buffer.byteLength` and `Buffer#write` in `encode` and to reuse that work
     // here.
-    return mapResult(this.encode(value), (bytes) => {
+    return resultBlock((ret) => {
+      const bytes = this.encode(value).or(ret);
       if (
         !bufferContainsBitOffset(
           buffer,
@@ -69,10 +69,8 @@ export class FixedStringCoder implements Coder<string> {
         return err('SmallBuffer');
       }
 
-      return mapResult(
-        toByteOffset(bitOffset),
-        (byteOffset) => bitOffset + toBitOffset(bytes.copy(buffer, byteOffset))
-      );
+      const byteOffset = toByteOffset(bitOffset).or(ret);
+      return bitOffset + toBitOffset(bytes.copy(buffer, byteOffset));
     });
   }
 
@@ -90,11 +88,12 @@ export class FixedStringCoder implements Coder<string> {
   }
 
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<string> {
-    if (!bufferContainsBitOffset(buffer, 0, toBitLength(this.byteLength))) {
-      return err('SmallBuffer');
-    }
+    return resultBlock((ret) => {
+      if (!bufferContainsBitOffset(buffer, 0, toBitLength(this.byteLength))) {
+        return err('SmallBuffer');
+      }
 
-    return mapResult(toByteOffset(bitOffset), (byteOffset) => {
+      const byteOffset = toByteOffset(bitOffset).or(ret);
       const string = buffer.toString(
         'utf8',
         byteOffset,

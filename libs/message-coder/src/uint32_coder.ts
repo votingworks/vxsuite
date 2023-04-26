@@ -1,3 +1,4 @@
+import { resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { MAX_UINT32, MIN_UINT32 } from './constants';
 import {
@@ -6,7 +7,6 @@ import {
   Coder,
   DecodeResult,
   EncodeResult,
-  mapResult,
   Uint32,
 } from './types';
 import { UintCoder } from './uint_coder';
@@ -28,11 +28,13 @@ export class Uint32Coder extends UintCoder {
     buffer: Buffer,
     bitOffset: BitOffset
   ): EncodeResult {
-    return mapResult(this.validateValue(value), () =>
-      this.encodeUsing(buffer, bitOffset, (byteOffset) =>
+    return resultBlock((ret) => {
+      this.validateValue(value).or(ret);
+
+      return this.encodeUsing(buffer, bitOffset, (byteOffset) =>
         buffer.writeUInt32LE(value, byteOffset)
-      )
-    );
+      );
+    });
   }
 
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<Uint32> {

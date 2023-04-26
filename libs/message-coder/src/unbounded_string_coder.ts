@@ -1,4 +1,4 @@
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, Result, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import {
   bufferContainsBitOffset,
@@ -13,7 +13,6 @@ import {
   CoderError,
   DecodeResult,
   EncodeResult,
-  mapResult,
 } from './types';
 
 /**
@@ -38,17 +37,21 @@ export class UnboundedStringCoder implements Coder<string> {
     buffer: Buffer,
     bitOffset: BitOffset
   ): EncodeResult {
-    const bytes = Buffer.from(value);
+    return resultBlock((ret) => {
+      const bytes = Buffer.from(value);
 
-    if (
-      !bufferContainsBitOffset(buffer, bitOffset, toBitLength(bytes.byteLength))
-    ) {
-      return err('SmallBuffer');
-    }
+      if (
+        !bufferContainsBitOffset(
+          buffer,
+          bitOffset,
+          toBitLength(bytes.byteLength)
+        )
+      ) {
+        return err('SmallBuffer');
+      }
 
-    return mapResult(toByteOffset(bitOffset), (byteOffset) =>
-      toBitOffset(bytes.copy(buffer, byteOffset))
-    );
+      return toBitOffset(bytes.copy(buffer, toByteOffset(bitOffset).or(ret)));
+    });
   }
 
   decode(buffer: Buffer): Result<string, CoderError> {
@@ -56,14 +59,16 @@ export class UnboundedStringCoder implements Coder<string> {
   }
 
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<string> {
-    if (!bufferContainsBitOffset(buffer, bitOffset)) {
-      return err('SmallBuffer');
-    }
+    return resultBlock((ret) => {
+      if (!bufferContainsBitOffset(buffer, bitOffset)) {
+        return err('SmallBuffer');
+      }
 
-    return mapResult(toByteOffset(bitOffset), (byteOffset) => ({
-      value: buffer.toString('utf8', byteOffset),
-      bitOffset: toBitLength(buffer.byteLength),
-    }));
+      return {
+        value: buffer.toString('utf8', toByteOffset(bitOffset).or(ret)),
+        bitOffset: toBitLength(buffer.byteLength),
+      };
+    });
   }
 }
 
