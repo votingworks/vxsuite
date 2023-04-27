@@ -53,7 +53,6 @@ export type CastVoteRecordVotes = Dictionary<readonly string[]>;
 export interface CastVoteRecordMetadata {
   precinctId: string;
   ballotStyleId: string;
-  scannerId: string;
   ballotType: CVR.vxBallotType;
   batchId: string;
   sheetNumber?: number;

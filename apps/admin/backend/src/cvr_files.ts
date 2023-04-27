@@ -595,7 +595,6 @@ export async function addCastVoteRecordReport({
           ballotType: cvr.vxBallotType,
           batchId: cvr.BatchId,
           precinctId: cvr.BallotStyleUnitId,
-          scannerId: cvr.CreatingDeviceId,
           // sheet number was previously validated
           sheetNumber: cvr.BallotSheetId
             ? safeParseNumber(cvr.BallotSheetId).unsafeUnwrap()

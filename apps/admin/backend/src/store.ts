@@ -10,7 +10,6 @@ import {
   ok,
   typedAs,
   isResult,
-  assertDefined,
 } from '@votingworks/basics';
 import { Bindable, Client as DbClient } from '@votingworks/db';
 import {
@@ -21,7 +20,6 @@ import {
   ContestId,
   ContestOptionId,
   CVR,
-  Dictionary,
   Id,
   Iso8601Timestamp,
   safeParse,
@@ -388,7 +386,6 @@ export class Store {
           ballot_type as ballotType,
           batch_id as batchId,
           precinct_id as precinctId,
-          scanner_id as scannerId,
           sheet_number as sheetNumber,
           votes as votes
         from cvrs
@@ -405,7 +402,6 @@ export class Store {
           ballotType: string;
           batchId: string;
           precinctId: string;
-          scannerId: string;
           sheetNumber: number | null;
           votes: string;
         }
@@ -418,7 +414,6 @@ export class Store {
         ballotType: existingCvr.ballotType as CVR.vxBallotType,
         batchId: existingCvr.batchId,
         precinctId: existingCvr.precinctId,
-        scannerId: existingCvr.scannerId,
         sheetNumber: existingCvr.sheetNumber || undefined,
       };
 
@@ -444,11 +439,10 @@ export class Store {
           ballot_type,
           batch_id,
           precinct_id,
-          scanner_id,
           sheet_number,
           votes
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
         cvrId,
@@ -458,7 +452,6 @@ export class Store {
         metadata.ballotType,
         metadata.batchId,
         metadata.precinctId,
-        metadata.scannerId,
         metadata.sheetNumber || null,
         votes
       );
@@ -514,7 +507,7 @@ export class Store {
     this.client.run(
       `
       insert or ignore into scanner_batches (
-        batch_id,
+        id,
         label,
         scanner_id,
         election_id
@@ -533,7 +526,7 @@ export class Store {
     return this.client.all(
       `
         select
-          batch_id as batchId,
+          id as batchId,
           label as label,
           scanner_id as scannerId,
           election_id as electionId
@@ -551,9 +544,7 @@ export class Store {
         delete from scanner_batches
         where election_id = ?
           and not exists (
-          select 1 from cvrs
-          where id = cvrs.batch_id
-            and scanner_id = cvrs.scanner_id
+          select 1 from cvrs where id = cvrs.batch_id
         )
       `,
       electionId
@@ -743,19 +734,21 @@ export class Store {
     const entries = this.client.all(
       `
         select
-          id,
-          ballot_id as ballotId,
-          ballot_style_id as ballotStyleId,
-          ballot_type as ballotType,
-          batch_id as batchId,
-          precinct_id as precinctId,
-          scanner_id as scannerId,
-          sheet_number as sheetNumber,
-          votes as votes,
-          datetime(created_at, 'localtime') as createdAt
-        from cvrs
-        where election_id = ?
-        order by created_at asc
+          cvrs.id as id,
+          cvrs.ballot_id as ballotId,
+          cvrs.ballot_style_id as ballotStyleId,
+          cvrs.ballot_type as ballotType,
+          cvrs.batch_id as batchId,
+          scanner_batches.label as batchLabel,
+          scanner_batches.scanner_id as scannerId,
+          cvrs.precinct_id as precinctId,
+          cvrs.sheet_number as sheetNumber,
+          cvrs.votes as votes,
+          datetime(cvrs.created_at, 'localtime') as createdAt
+        from
+          cvrs inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+        where cvrs.election_id = ?
+        order by cvrs.created_at asc
       `,
       electionId
     ) as Array<{
@@ -764,6 +757,7 @@ export class Store {
       ballotStyleId: string;
       ballotType: string;
       batchId: string;
+      batchLabel: string;
       precinctId: string;
       scannerId: string;
       sheetNumber: number | null;
@@ -771,21 +765,12 @@ export class Store {
       createdAt: Iso8601Timestamp;
     }>;
 
-    const scannerBatchLabelLookup: Dictionary<string> = this.getScannerBatches(
-      electionId
-    ).reduce((lookup: Dictionary<string>, scannerBatch: ScannerBatch) => {
-      return {
-        ...lookup,
-        [scannerBatch.batchId]: scannerBatch.label,
-      };
-    }, {});
-
     return entries.map((entry) => {
       const castVoteRecordLegacyMetadata: CastVoteRecord = {
         _precinctId: entry.precinctId,
         _scannerId: entry.scannerId,
         _batchId: entry.batchId,
-        _batchLabel: assertDefined(scannerBatchLabelLookup[entry.batchId]),
+        _batchLabel: entry.batchLabel,
         _ballotStyleId: entry.ballotStyleId,
         _ballotType: cvrBallotTypeToLegacyBallotType(
           entry.ballotType as CVR.vxBallotType
