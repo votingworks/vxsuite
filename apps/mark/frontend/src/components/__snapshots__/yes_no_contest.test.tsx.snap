@@ -98,7 +98,9 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           </div>
           Ballot Measure 3
         </h1>
-        <p>
+        <p
+          class="sc-dkPtyc XGKAk"
+        >
           Vote 
           <strong>
             Yes
@@ -347,7 +349,9 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           </div>
           Ballot Measure 3
         </h1>
-        <p>
+        <p
+          class="sc-dkPtyc XGKAk"
+        >
           Vote 
           <strong>
             Yes

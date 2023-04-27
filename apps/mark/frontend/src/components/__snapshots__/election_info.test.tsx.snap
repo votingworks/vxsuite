@@ -702,6 +702,7 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
       </h1>
       <p
         aria-label="November 3, 2020. State of Hamilton, Franklin County. Center Springfield."
+        class="sc-dkPtyc XGKAk"
       >
         November 3, 2020
         <br />
@@ -921,6 +922,7 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
       </h1>
       <p
         aria-label="November 3, 2020. State of Hamilton, Franklin County. Center Springfield."
+        class="sc-dkPtyc XGKAk"
       >
         November 3, 2020
         <br />

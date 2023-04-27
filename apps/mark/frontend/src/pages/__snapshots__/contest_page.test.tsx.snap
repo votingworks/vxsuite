@@ -176,7 +176,9 @@ exports[`Renders ContestPage 1`] = `
             </div>
             President and Vice-President
           </h1>
-          <p>
+          <p
+            class="sc-dkPtyc XGKAk"
+          >
             <span
               class="sc-bqiQRQ bIFmdQ"
             >
@@ -770,7 +772,9 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
             </div>
             President and Vice-President
           </h1>
-          <p>
+          <p
+            class="sc-dkPtyc XGKAk"
+          >
             <span
               class="sc-bqiQRQ bIFmdQ"
             >
@@ -1127,7 +1131,9 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
             21 contests
             .
           </p>
-          <p>
+          <p
+            class="sc-dkPtyc XGKAk"
+          >
             <button
               aria-label="next contest"
               class="sc-iJKOzS gmzpar"
@@ -1145,7 +1151,9 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               </span>
             </button>
           </p>
-          <p>
+          <p
+            class="sc-dkPtyc XGKAk"
+          >
             <button
               aria-label="previous contest"
               class="sc-iJKOzS fssKts"

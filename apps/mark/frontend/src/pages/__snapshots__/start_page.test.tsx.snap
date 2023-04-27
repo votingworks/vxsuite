@@ -133,6 +133,7 @@ exports[`renders StartPage 1`] = `
         </h1>
         <p
           aria-label="November 3, 2020. State of Hamilton, Franklin County. Center Springfield."
+          class="sc-dkPtyc XGKAk"
         >
           November 3, 2020
           <br />
@@ -157,7 +158,9 @@ exports[`renders StartPage 1`] = `
           </strong>
         </p>
         <hr />
-        <p>
+        <p
+          class="sc-dkPtyc XGKAk"
+        >
           Your ballot has
            
           <strong>
@@ -168,7 +171,7 @@ exports[`renders StartPage 1`] = `
       </div>
     </div>
     <p
-      class="screen-reader-only"
+      class="sc-dkPtyc XGKAk screen-reader-only"
     >
       When voting with the text-to-speech audio, use the accessible controller to navigate your ballot. To navigate through the contests, use the left and right buttons. To navigate through contest choices, use the up and down buttons. To select or unselect a contest choice as your vote, use the select button.
     </p>
@@ -203,7 +206,9 @@ exports[`renders StartPage 1`] = `
       <div
         class="c5"
       >
-        <p>
+        <p
+          class="sc-dkPtyc XGKAk"
+        >
           <label
             aria-hidden="true"
             class="c6"
@@ -542,6 +547,7 @@ exports[`renders StartPage with inline SVG 1`] = `
         </h1>
         <p
           aria-label="November 3, 2020. State of Hamilton, Franklin County. Center Springfield."
+          class="sc-dkPtyc XGKAk"
         >
           November 3, 2020
           <br />
@@ -566,7 +572,9 @@ exports[`renders StartPage with inline SVG 1`] = `
           </strong>
         </p>
         <hr />
-        <p>
+        <p
+          class="sc-dkPtyc XGKAk"
+        >
           Your ballot has
            
           <strong>
@@ -577,7 +585,7 @@ exports[`renders StartPage with inline SVG 1`] = `
       </div>
     </div>
     <p
-      class="screen-reader-only"
+      class="sc-dkPtyc XGKAk screen-reader-only"
     >
       When voting with the text-to-speech audio, use the accessible controller to navigate your ballot. To navigate through the contests, use the left and right buttons. To navigate through contest choices, use the up and down buttons. To select or unselect a contest choice as your vote, use the select button.
     </p>
@@ -612,7 +620,9 @@ exports[`renders StartPage with inline SVG 1`] = `
       <div
         class="c4"
       >
-        <p>
+        <p
+          class="sc-dkPtyc XGKAk"
+        >
           <label
             aria-hidden="true"
             class="c5"
@@ -787,6 +797,7 @@ exports[`renders StartPage with no seal 1`] = `
         </h1>
         <p
           aria-label="November 3, 2020. State of Hamilton, Franklin County. Center Springfield."
+          class="sc-dkPtyc XGKAk"
         >
           November 3, 2020
           <br />
@@ -811,7 +822,9 @@ exports[`renders StartPage with no seal 1`] = `
           </strong>
         </p>
         <hr />
-        <p>
+        <p
+          class="sc-dkPtyc XGKAk"
+        >
           Your ballot has
            
           <strong>
@@ -822,7 +835,7 @@ exports[`renders StartPage with no seal 1`] = `
       </div>
     </div>
     <p
-      class="screen-reader-only"
+      class="sc-dkPtyc XGKAk screen-reader-only"
     >
       When voting with the text-to-speech audio, use the accessible controller to navigate your ballot. To navigate through the contests, use the left and right buttons. To navigate through contest choices, use the up and down buttons. To select or unselect a contest choice as your vote, use the select button.
     </p>
@@ -857,7 +870,9 @@ exports[`renders StartPage with no seal 1`] = `
       <div
         class="c4"
       >
-        <p>
+        <p
+          class="sc-dkPtyc XGKAk"
+        >
           <label
             aria-hidden="true"
             class="c5"
