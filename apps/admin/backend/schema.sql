@@ -42,7 +42,6 @@ create table cvrs (
   ballot_type text not null 
     check (ballot_type = 'absentee' or ballot_type = 'precinct' or ballot_type = 'provisional'),
   batch_id text not null,
-  party_id text,
   precinct_id text not null,
   scanner_id text not null,
   sheet_number integer check (sheet_number is null or sheet_number > 0),
