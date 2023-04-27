@@ -53,6 +53,14 @@ class Ok<T> {
    * Returns the contained value.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  okOrElse<E>(fn: (error: E) => void): T {
+    return this.value;
+  }
+
+  /**
+   * Returns the contained value.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   assertOk(message: string): T {
     return this.value;
   }
@@ -128,6 +136,15 @@ class Err<E> {
    */
   unsafeUnwrapErr(): E {
     return this.error;
+  }
+
+  /**
+   * Calls the given callback with the contained error.
+   */
+  okOrElse(fn: (error: E) => never): never;
+  okOrElse<T>(fn: (error: E) => T): T;
+  okOrElse<T>(fn: (error: E) => T): T {
+    return fn(this.error);
   }
 
   /**
@@ -214,4 +231,88 @@ export type Result<T, E> = Ok<T> | Err<E>;
  */
 export function isResult(value: unknown): value is Result<unknown, unknown> {
   return value instanceof Ok || value instanceof Err;
+}
+
+class ResultBlockError<E> {
+  constructor(private readonly error: E) {}
+
+  err(): E {
+    return this.error;
+  }
+}
+
+/**
+ * Provides an early-return mechanism for functions that return `Result`s,
+ * similar to Rust's `?` operator. This is useful for avoiding `if` statements
+ * that check for errors and return early.
+ *
+ * Note that errors thrown are not caught by this function, so you should use
+ * standard try/catch blocks to catch thrown errors.
+ *
+ * @example
+ *
+ * ```ts
+ * function doSomething(): Result<string, Error> {
+ *   return resultBlock((ret) => {
+ *     const value = doSomethingThatMightFail().or(ret);
+ *     const value2 = doSomethingElseThatMightFail(value).or(ret);
+ *     return anotherThingThatMightFail(value2);
+ *   });
+ * }
+ * ```
+ */
+export function resultBlock<T, E>(
+  fn: (ret: (error: E) => never) => T | Result<T, E>
+): Result<T, E> {
+  function ret(error: E): never {
+    throw new ResultBlockError(error);
+  }
+
+  try {
+    const returnValue = fn(ret);
+    return isResult(returnValue) ? returnValue : ok(returnValue);
+  } catch (error) {
+    if (error instanceof ResultBlockError) {
+      return err(error.err());
+    }
+    throw error;
+  }
+}
+
+/**
+ * Provides an early-return mechanism for async functions that return `Result`s,
+ * similar to Rust's `?` operator. This is useful for avoiding `if` statements
+ * that check for errors and return early.
+ *
+ * Note that errors thrown are not caught by this function, so you should use
+ * standard try/catch blocks to catch thrown errors.
+ *
+ * @example
+ *
+ * ```ts
+ * function doSomething(): Promise<Result<string, Error>> {
+ *   return asyncResultBlock(async (ret) => {
+ *     const value = (await doSomethingThatMightFail()).or(ret);
+ *     const value2 = (await doSomethingElseThatMightFail(value)).or(ret);
+ *     return anotherThingThatMightFail(value2);
+ *   });
+ * }
+ * ```
+ */
+export async function asyncResultBlock<T, E>(
+  fn: (ret: (error: E) => never) => Promise<T | Result<T, E>>
+): Promise<Result<T, E>> {
+  function ret(error: E): never {
+    throw new ResultBlockError(error);
+  }
+
+  try {
+    const returnValue = await fn(ret);
+    return isResult(returnValue) ? returnValue : ok(returnValue);
+  } catch (error) {
+    if (error instanceof ResultBlockError) {
+      return err(error.err());
+    }
+    throw error;
+  }
 }

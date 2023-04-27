@@ -1,4 +1,4 @@
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, Result, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { toByteLength } from './bits';
 import {
@@ -7,7 +7,6 @@ import {
   CoderError,
   DecodeResult,
   EncodeResult,
-  mapResult,
 } from './types';
 
 /**
@@ -30,12 +29,12 @@ export abstract class BaseCoder<T> implements Coder<T> {
   }
 
   decode(buffer: Buffer): Result<T, CoderError> {
-    return mapResult(this.decodeFrom(buffer, 0), ({ bitOffset, value }) => {
+    return resultBlock((fail) => {
+      const { bitOffset, value } = this.decodeFrom(buffer, 0).okOrElse(fail);
       if (toByteLength(bitOffset) !== buffer.byteLength) {
         return err('TrailingData');
       }
-
-      return ok(value);
+      return value;
     });
   }
 }

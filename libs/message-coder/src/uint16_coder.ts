@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { resultBlock } from '@votingworks/basics';
 import { MAX_UINT16, MIN_UINT16 } from './constants';
 import {
   BitLength,
@@ -6,7 +7,6 @@ import {
   Coder,
   DecodeResult,
   EncodeResult,
-  mapResult,
   Uint16,
 } from './types';
 import { UintCoder } from './uint_coder';
@@ -28,11 +28,13 @@ export class Uint16Coder extends UintCoder {
     buffer: Buffer,
     bitOffset: BitOffset
   ): EncodeResult {
-    return mapResult(this.validateValue(value), () =>
-      this.encodeUsing(buffer, bitOffset, (byteOffset) =>
+    return resultBlock((fail) => {
+      this.validateValue(value).okOrElse(fail);
+
+      return this.encodeUsing(buffer, bitOffset, (byteOffset) =>
         buffer.writeUInt16LE(value, byteOffset)
-      )
-    );
+      );
+    });
   }
 
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<Uint16> {

@@ -1,5 +1,5 @@
+import { err, ok, Result, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
-import { err, ok, Result } from '@votingworks/basics';
 import { BaseCoder } from './base_coder';
 import { bufferContainsBitOffset, toByteOffset } from './bits';
 import {
@@ -9,7 +9,6 @@ import {
   CoderError,
   DecodeResult,
   EncodeResult,
-  mapResult,
 } from './types';
 
 /**
@@ -70,11 +69,12 @@ export abstract class UintCoder extends BaseCoder<number> {
     buffer: Buffer,
     bitOffset: BitOffset
   ): Result<number, CoderError> {
-    return mapResult(toByteOffset(bitOffset), (byteOffset) =>
-      bufferContainsBitOffset(buffer, bitOffset, this.bitLength())
+    return resultBlock((fail) => {
+      const byteOffset = toByteOffset(bitOffset).okOrElse(fail);
+      return bufferContainsBitOffset(buffer, bitOffset, this.bitLength())
         ? ok(byteOffset)
-        : err('SmallBuffer')
-    );
+        : err('SmallBuffer');
+    });
   }
 
   protected encodeUsing(
@@ -82,13 +82,11 @@ export abstract class UintCoder extends BaseCoder<number> {
     bitOffset: BitOffset,
     fn: (byteOffset: ByteOffset) => void
   ): EncodeResult {
-    return mapResult(
-      this.getByteOffset(buffer, bitOffset),
-      (byteOffset): Result<BitOffset, CoderError> => {
-        fn(byteOffset);
-        return ok(bitOffset + this.bitLength());
-      }
-    );
+    return resultBlock((fail) => {
+      const byteOffset = this.getByteOffset(buffer, bitOffset).okOrElse(fail);
+      fn(byteOffset);
+      return bitOffset + this.bitLength();
+    });
   }
 
   protected decodeUsing(
@@ -96,26 +94,23 @@ export abstract class UintCoder extends BaseCoder<number> {
     bitOffset: BitOffset,
     fn: (byteOffset: ByteOffset) => Result<number, CoderError>
   ): DecodeResult<number> {
-    return mapResult(
-      mapResult(this.getByteOffset(buffer, bitOffset), (byteOffset) =>
-        fn(byteOffset)
-      ),
-      (value) => ({ value, bitOffset: bitOffset + this.bitLength() })
-    );
+    return resultBlock((fail) => {
+      const byteOffset = this.getByteOffset(buffer, bitOffset).okOrElse(fail);
+      const value = fn(byteOffset).okOrElse(fail);
+      return { value, bitOffset: bitOffset + this.bitLength() };
+    });
   }
 
   protected validateValue(value: number): Result<number, CoderError> {
-    const enumValidationResult = validateEnumValue(this.enumeration, value);
+    return resultBlock((fail) => {
+      validateEnumValue(this.enumeration, value).okOrElse(fail);
 
-    if (enumValidationResult.isErr()) {
-      return enumValidationResult;
-    }
+      if (value < this.minValue || value > this.maxValue) {
+        return err('InvalidValue');
+      }
 
-    if (value < this.minValue || value > this.maxValue) {
-      return err('InvalidValue');
-    }
-
-    return ok(value);
+      return value;
+    });
   }
 
   abstract encodeInto(

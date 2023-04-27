@@ -1,4 +1,4 @@
-import { ok } from '@votingworks/basics';
+import { resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { BaseCoder } from './base_coder';
 import { LiteralCoder } from './literal_coder';
@@ -101,49 +101,47 @@ class MessageCoder<P extends MessageCoderParts<object>>
     buffer: Buffer,
     initialBitOffset: BitOffset
   ): EncodeResult {
-    let bitOffset = initialBitOffset;
+    return resultBlock((fail) => {
+      let bitOffset = initialBitOffset;
 
-    for (const [k, v] of Object.entries(this.parts)) {
-      const coder = v as Coder<ObjectFromParts<P>[keyof ObjectFromParts<P>]>;
-      const encoded =
-        coder instanceof LiteralCoder || coder instanceof PaddingCoder
-          ? coder.encodeInto(undefined, buffer, bitOffset)
-          : coder.encodeInto(value[k], buffer, bitOffset);
-      if (encoded.isErr()) {
-        return encoded;
+      for (const [k, v] of Object.entries(this.parts)) {
+        const coder = v as Coder<ObjectFromParts<P>[keyof ObjectFromParts<P>]>;
+        bitOffset = (
+          coder instanceof LiteralCoder || coder instanceof PaddingCoder
+            ? coder.encodeInto(undefined, buffer, bitOffset)
+            : coder.encodeInto(value[k], buffer, bitOffset)
+        ).okOrElse(fail);
       }
-      bitOffset = encoded.ok();
-    }
 
-    return ok(bitOffset);
+      return bitOffset;
+    });
   }
 
   decodeFrom(
     buffer: Buffer,
     initialBitOffset: BitOffset
   ): DecodeResult<ObjectFromParts<P>> {
-    let bitOffset = initialBitOffset;
-    const result: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(this.parts)) {
-      const coder = v as Coder<ObjectFromParts<P>[keyof ObjectFromParts<P>]>;
-      const decodeResult = coder.decodeFrom(buffer, bitOffset);
-      if (decodeResult.isErr()) {
-        return decodeResult;
+    return resultBlock((fail) => {
+      let bitOffset = initialBitOffset;
+      const result: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(this.parts)) {
+        const coder = v as Coder<ObjectFromParts<P>[keyof ObjectFromParts<P>]>;
+        const { value, bitOffset: nextOffset } = coder
+          .decodeFrom(buffer, bitOffset)
+          .okOrElse(fail);
+
+        if (
+          !(coder instanceof LiteralCoder) &&
+          !(coder instanceof PaddingCoder)
+        ) {
+          result[k] = value;
+        }
+
+        bitOffset = nextOffset;
       }
 
-      const { value, bitOffset: nextOffset } = decodeResult.ok();
-
-      if (
-        !(coder instanceof LiteralCoder) &&
-        !(coder instanceof PaddingCoder)
-      ) {
-        result[k] = value;
-      }
-
-      bitOffset = nextOffset;
-    }
-
-    return ok({ value: result as ObjectFromParts<P>, bitOffset });
+      return { value: result as ObjectFromParts<P>, bitOffset };
+    });
   }
 }
 
