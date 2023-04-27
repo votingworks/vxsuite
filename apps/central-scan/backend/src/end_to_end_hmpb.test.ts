@@ -137,8 +137,6 @@ test('going through the whole process works', async () => {
 
   await importer.restoreConfig();
 
-  importer.configure(electionDefinition, jurisdiction);
-
   // sample ballot election hash does not match election hash for this test
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
