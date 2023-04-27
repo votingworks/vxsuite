@@ -17,7 +17,8 @@ module.exports = {
     'src/insert_card_image.tsx',
     'src/loading_animation.tsx',
     'src/rotate_card_image.tsx',
-    'src/svg.tsx'
+    'src/svg.tsx',
+    'src/voter_contest_summary.tsx',
   ],
   transform: {
     '^.+\\.css$': '<rootDir>/config/jest/cssTransform.js',

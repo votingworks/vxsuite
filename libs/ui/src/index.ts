@@ -85,3 +85,4 @@ export * from './graphics';
 export * from './types';
 export * from './unconfigured_election_screen';
 export * from './power_down_button';
+export * from './voter_contest_summary';
