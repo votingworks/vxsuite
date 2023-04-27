@@ -736,6 +736,10 @@ export class Store {
   getCastVoteRecordEntries(
     electionId: Id
   ): Admin.CastVoteRecordFileEntryRecord[] {
+    const fileMode = this.getCurrentCvrFileModeForElection(electionId);
+    if (fileMode === Admin.CvrFileMode.Unlocked) return [];
+    const isTestMode = fileMode === Admin.CvrFileMode.Test;
+
     const entries = this.client.all(
       `
         select
@@ -767,9 +771,6 @@ export class Store {
       createdAt: Iso8601Timestamp;
     }>;
 
-    const fileMode = this.getCurrentCvrFileModeForElection(electionId);
-    if (fileMode === Admin.CvrFileMode.Unlocked) return [];
-    const isTestMode = fileMode === Admin.CvrFileMode.Test;
     const scannerBatchLabelLookup: Dictionary<string> = this.getScannerBatches(
       electionId
     ).reduce((lookup: Dictionary<string>, scannerBatch: ScannerBatch) => {
