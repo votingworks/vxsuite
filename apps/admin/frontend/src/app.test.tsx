@@ -13,7 +13,6 @@ import { typedAs } from '@votingworks/basics';
 import {
   advanceTimers,
   advanceTimersAndPromises,
-  expectPrint,
   expectPrintToMatchSnapshot,
   fakeElectionManagerUser,
   fakeKiosk,
@@ -258,109 +257,6 @@ test('authentication works', async () => {
   apiMock.expectLogOut();
   fireEvent.click(screen.getByText('Lock Machine'));
   await apiMock.logOut();
-});
-
-test('L&A (logic and accuracy) flow', async () => {
-  const electionDefinition = eitherNeitherElectionDefinition;
-  const { renderApp, logger } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
-  apiMock.expectGetCurrentElectionMetadata({
-    electionDefinition,
-  });
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
-  apiMock.expectGetSystemSettings();
-
-  renderApp();
-  await apiMock.authenticateAsElectionManager(electionDefinition);
-
-  userEvent.click(screen.getByText('L&A'));
-
-  // Test printing L&A package
-  userEvent.click(await screen.findButton('List Precinct L&A Packages'));
-  userEvent.click(await screen.findButton('Print District 5'));
-
-  // L&A package: Tally report
-  await screen.findByText('Printing L&A Package for District 5', {
-    exact: false,
-  });
-  await expectPrintToMatchSnapshot();
-  await waitFor(() =>
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.TestDeckTallyReportPrinted,
-      expect.any(String),
-      expect.anything()
-    )
-  );
-  advanceTimers(5);
-
-  // L&A package: BMD test deck
-  await screen.findByText('Printing L&A Package for District 5', {
-    exact: false,
-  });
-  await expectPrintToMatchSnapshot();
-  await waitFor(() =>
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.TestDeckPrinted,
-      expect.any(String),
-      expect.anything()
-    )
-  );
-  expect(logger.log).toHaveBeenCalledWith(
-    expect.any(String),
-    expect.any(String),
-    expect.objectContaining({
-      message: expect.stringContaining('BMD paper ballot test deck'),
-    })
-  );
-  advanceTimers(30);
-
-  // L&A package: HMPB test deck
-  await screen.findByText('Printing L&A Package for District 5', {
-    exact: false,
-  });
-  await expectPrintToMatchSnapshot();
-  await waitFor(() =>
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.TestDeckPrinted,
-      expect.any(String),
-      expect.anything()
-    )
-  );
-  expect(logger.log).toHaveBeenCalledWith(
-    expect.any(String),
-    expect.any(String),
-    expect.objectContaining({
-      message: expect.stringContaining('Hand-marked paper ballot test deck'),
-    })
-  );
-
-  // Test printing full test deck tally
-  userEvent.click(screen.getByText('L&A'));
-  userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));
-
-  await screen.findByText('Printing');
-  const expectedTallies: { [tally: string]: number } = {
-    '104': 10,
-    '52': 12,
-    '24': 6,
-    '12': 4,
-    '8': 3,
-    '4': 2,
-  };
-  await expectPrint((printedElement, printOptions) => {
-    printedElement.getByText(
-      'Test Deck Mock General Election Choctaw 2020 Tally Report'
-    );
-    for (const [tally, times] of Object.entries(expectedTallies)) {
-      expect(printedElement.getAllByText(tally).length).toEqual(times);
-    }
-    expect(printOptions).toMatchObject({ sides: 'one-sided' });
-  });
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.TestDeckTallyReportPrinted,
-    expect.any(String),
-    expect.anything()
-  );
 });
 
 test('marking results as official', async () => {
@@ -1068,8 +964,6 @@ test('primary election flow', async () => {
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(legacyCvrData, electionDefinition)
   );
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
 
   renderApp();
   await apiMock.authenticateAsElectionManager(electionDefinition);
@@ -1083,22 +977,9 @@ test('primary election flow', async () => {
     hasTextAcrossElements('Ballot Style 1M for Precinct 1 has 5 contests')
   );
 
-  // Confirm "L&A" page prints separate test deck tally reports for non-partisan contests
-  userEvent.click(screen.getByText('L&A'));
-  userEvent.click(await screen.findByText('Print Full Test Deck Tally Report'));
-  await expectPrint((printedElement) => {
-    printedElement.getByText(
-      'Test Deck Mammal Party Example Primary Election Tally Report'
-    );
-    printedElement.getByText(
-      'Test Deck Fish Party Example Primary Election Tally Report'
-    );
-    printedElement.getByText(
-      'Test Deck Example Primary Election Nonpartisan Contests Tally Report'
-    );
-  });
-
   // Check that nonpartisan races are separated in non party-specific reports
+  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
+  apiMock.expectGetWriteInSummaryAdjudicated([]);
   userEvent.click(screen.getByText('Reports'));
   userEvent.click(screen.getByText('Unofficial Full Election Tally Report'));
   const pages = screen.getAllByTestId('election-full-tally-report');

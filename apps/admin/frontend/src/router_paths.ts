@@ -51,7 +51,6 @@ export const routerPaths = {
   tallyFullReport: '/reports/tally-reports/full',
   tallyWriteInReport: '/reports/tally-reports/writein',
   logicAndAccuracy: '/logic-and-accuracy',
-  testDecks: '/logic-and-accuracy/test-decks',
   writeIns: '/write-ins',
   settings: '/settings',
   logs: '/logs',

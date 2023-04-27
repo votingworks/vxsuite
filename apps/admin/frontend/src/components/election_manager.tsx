@@ -18,7 +18,6 @@ import { routerPaths } from '../router_paths';
 import { DefinitionScreen } from '../screens/definition_screen';
 import { BallotListScreen } from '../screens/ballot_list_screen';
 import { BallotScreen } from '../screens/ballot_screen';
-import { PrintTestDeckScreen } from '../screens/print_test_deck_screen';
 import { UnconfiguredScreen } from '../screens/unconfigured_screen';
 import { TallyScreen } from '../screens/tally_screen';
 import { TallyReportScreen } from '../screens/tally_report_screen';
@@ -261,9 +260,6 @@ export function ElectionManager(): JSX.Element {
       </Route>
       <Route exact path={routerPaths.logicAndAccuracy}>
         <LogicAndAccuracyScreen />
-      </Route>
-      <Route exact path={[routerPaths.testDecks]}>
-        <PrintTestDeckScreen />
       </Route>
       <Redirect to={routerPaths.ballotsList} />
     </Switch>
