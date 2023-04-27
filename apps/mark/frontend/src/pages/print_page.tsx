@@ -11,6 +11,7 @@ import {
   Prose,
   Screen,
   useLock,
+  P,
 } from '@votingworks/ui';
 
 import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
@@ -94,13 +95,13 @@ export function PrintPage(): JSX.Element {
     <Screen white>
       <Main centerChild>
         <Prose textCenter id="audiofocus">
-          <p>
+          <P>
             <Graphic
               src="/images/printing-ballot.svg"
               alt="Printing Ballot"
               aria-hidden
             />
-          </p>
+          </P>
           <H1>
             <ProgressEllipsis aria-label="Printing your official ballot.">
               Printing Your Official Ballot

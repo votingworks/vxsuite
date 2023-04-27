@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
-import { LinkButton, Screen, Prose, Text } from '@votingworks/ui';
+import { LinkButton, Screen, Prose, Text, P } from '@votingworks/ui';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import React, { useContext, useEffect, useState } from 'react';
@@ -215,11 +215,11 @@ export function ContestPage(): JSX.Element {
               {pluralize('contest', contests.length, true)}.
             </Text>
             {isReviewMode ? (
-              <p>{reviewScreenButton}</p>
+              <P>{reviewScreenButton}</P>
             ) : (
               <React.Fragment>
-                <p>{nextContestButton}</p>
-                <p>{previousContestButton}</p>
+                <P>{nextContestButton}</P>
+                <P>{previousContestButton}</P>
               </React.Fragment>
             )}
           </Prose>

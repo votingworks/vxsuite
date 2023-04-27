@@ -35,6 +35,7 @@ import {
   useQueryChangeListener,
   H1,
   H2,
+  P,
 } from '@votingworks/ui';
 
 import {
@@ -275,16 +276,16 @@ function ScannerReportModal({
         <Prose id="modalaudiofocus">
           <H1>{reportTitle} on Card</H1>
           {willUpdatePollsToMatchScanner ? (
-            <p>
+            <P>
               This poll worker card contains a {reportTitle.toLowerCase()}.
               After printing, the report will be cleared from the card and the
               polls will be {newPollsStateName.toLowerCase()} on VxMark.
-            </p>
+            </P>
           ) : (
-            <p>
+            <P>
               This poll worker card contains a {reportTitle.toLowerCase()}.
               After printing, the report will be cleared from the card.
-            </p>
+            </P>
           )}
         </Prose>
       );
@@ -311,15 +312,15 @@ function ScannerReportModal({
         <Prose id="modalaudiofocus">
           <H1>{reportTitle} Printed</H1>
           {willUpdatePollsToMatchScanner ? (
-            <p>
+            <P>
               The polls are now {newPollsStateName.toLowerCase()}. If needed,
               you may print additional copies of the polls opened report.
-            </p>
+            </P>
           ) : (
-            <p>
+            <P>
               If needed, you may print additional copies of the polls opened
               report.
-            </p>
+            </P>
           )}
         </Prose>
       );
@@ -420,7 +421,7 @@ function UpdatePollsDirectlyButton({
           content={
             <Prose textCenter id="modalaudiofocus">
               <H1>No {reportTitle} on Card</H1>
-              <p>{suggestVxScanText}</p>
+              <P>{suggestVxScanText}</P>
             </Prose>
           }
           actions={
@@ -565,14 +566,14 @@ export function PollWorkerScreen({
             >
               Ballot Contains Votes
             </H1>
-            <p>
+            <P>
               Remove card to allow voter to continue voting, or reset ballot.
-            </p>
-            <p>
+            </P>
+            <P>
               <Button variant="danger" onPress={resetCardlessVoterSession}>
                 Reset Ballot
               </Button>
-            </p>
+            </P>
           </Prose>
         </Main>
       </Screen>
@@ -718,18 +719,18 @@ export function PollWorkerScreen({
                 <div /> {/* Enforces css margin from the following P tag. */}
                 {canSelectBallotStyle && (
                   <React.Fragment>
-                    <p>
+                    <P>
                       <Button
                         variant="primary"
                         onPress={() => setIsHidingSelectBallotStyle(false)}
                       >
                         Back to Ballot Style Selection
                       </Button>
-                    </p>
+                    </P>
                     <H1>More Actions</H1>
                   </React.Fragment>
                 )}
-                <p>
+                <P>
                   {getPollTransitionsFromState(pollsState).map(
                     (pollsTransition, index) => {
                       return (
@@ -745,15 +746,15 @@ export function PollWorkerScreen({
                       );
                     }
                   )}
-                </p>
-                <p>
+                </P>
+                <P>
                   <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
                     System Diagnostics
                   </Button>
-                </p>
-                <p>
+                </P>
+                <P>
                   <Button onPress={reload}>Reset Accessible Controller</Button>
-                </p>
+                </P>
               </React.Fragment>
             )}
           </Prose>
@@ -767,12 +768,12 @@ export function PollWorkerScreen({
                   Switch to Official Ballot Mode and reset the Ballots Printed
                   count?
                 </H1>
-                <p>
+                <P>
                   Today is election day and this machine is in{' '}
                   <strong>
                     <NoWrap>Test Ballot Mode.</NoWrap>
                   </strong>
-                </p>
+                </P>
                 <Text small italic>
                   Note: Switching back to Test Ballot Mode requires an{' '}
                   <NoWrap>Election Manager Card.</NoWrap>

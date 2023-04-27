@@ -11,6 +11,7 @@ import {
   Screen,
   Text,
   useCancelablePromise,
+  P,
 } from '@votingworks/ui';
 import { formatTime, Hardware } from '@votingworks/utils';
 import { DateTime } from 'luxon';
@@ -281,11 +282,11 @@ export function DiagnosticsScreen({
         <Screen>
           <Main padded>
             <Prose compact maxWidth={false}>
-              <p>
+              <P>
                 <Button variant="primary" onPress={onBackButtonPress}>
                   Back to Poll Worker Actions
                 </Button>
-              </p>
+              </P>
               <H1>System Diagnostics</H1>
               <span className="screen-reader-only">
                 To navigate through the available actions, use the down arrow.

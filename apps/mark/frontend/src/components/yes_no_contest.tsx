@@ -21,6 +21,7 @@ import {
   Modal,
   Prose,
   TextWithLineBreaks,
+  P,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -155,14 +156,14 @@ export function YesNoContest({
               <DistrictName>{districtName}</DistrictName>
               {contest.title}
             </H1>
-            <p>
+            <P>
               Vote <strong>Yes</strong> or <strong>No</strong>.
               <span className="screen-reader-only">
                 {contest.description}
                 To navigate through the contest choices, use the down button. To
                 move to the next contest, use the right button.
               </span>
-            </p>
+            </P>
           </Prose>
         </ContentHeader>
         <VariableContentContainer
@@ -249,7 +250,7 @@ export function YesNoContest({
           content={
             <Prose>
               {overvoteSelection && (
-                <p id="modalaudiofocus">
+                <P id="modalaudiofocus">
                   Do you want to change your vote to{' '}
                   <strong>{DisplayTextForYesOrNo[overvoteSelection]}</strong>?
                   To change your vote, first unselect your vote for{' '}
@@ -262,7 +263,7 @@ export function YesNoContest({
                     }
                   </strong>
                   .
-                </p>
+                </P>
               )}
             </Prose>
           }

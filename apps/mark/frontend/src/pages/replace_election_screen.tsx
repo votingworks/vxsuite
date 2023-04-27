@@ -7,6 +7,7 @@ import {
   Screen,
   Table,
   Text,
+  P,
 } from '@votingworks/ui';
 import { formatLongDate } from '@votingworks/utils';
 // eslint-disable-next-line vx/gts-no-import-export-type
@@ -50,7 +51,7 @@ export function ReplaceElectionScreen({
       <Screen>
         <Main padded centerChild>
           <Prose textCenter>
-            <p>Unconfiguring election on machine…</p>
+            <P>Unconfiguring election on machine…</P>
           </Prose>
         </Main>
       </Screen>
@@ -62,8 +63,8 @@ export function ReplaceElectionScreen({
       <Screen>
         <Main padded centerChild>
           <Prose textCenter>
-            <p>Error unconfiguring the machine.</p>
-            <p>Remove card to continue.</p>
+            <P>Error unconfiguring the machine.</P>
+            <P>Remove card to continue.</P>
           </Prose>
         </Main>
       </Screen>
@@ -111,18 +112,18 @@ export function ReplaceElectionScreen({
             </tbody>
           </Table>
           {ballotsPrintedCount === 0 ? (
-            <p>
+            <P>
               This machine has not printed any ballots for the current election.
-            </p>
+            </P>
           ) : (
-            <p>
+            <P>
               This machine has printed{' '}
               <strong>{pluralize('ballot', ballotsPrintedCount, true)}</strong>{' '}
               for the current election.
-            </p>
+            </P>
           )}
           <H2>Cancel and Go Back</H2>
-          <p>Remove the inserted card to cancel.</p>
+          <P>Remove the inserted card to cancel.</P>
         </Prose>
       </Main>
       {election && (

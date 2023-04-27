@@ -25,6 +25,7 @@ import {
   Modal,
   Prose,
   Text,
+  P,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -304,7 +305,7 @@ export function CandidateContest({
               <DistrictName>{districtName}</DistrictName>
               {contest.title}
             </H1>
-            <p>
+            <P>
               <Text as="span">Vote for {contest.seats}.</Text>{' '}
               {vote.length === contest.seats && (
                 <Text as="span" bold>
@@ -320,7 +321,7 @@ export function CandidateContest({
                 To navigate through the contest choices, use the down button. To
                 move to the next contest, use the right button.
               </span>
-            </p>
+            </P>
           </Prose>
         </ContentHeader>
         <VariableContentContainer
