@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { Main, NoWrap, Screen, Prose } from '@votingworks/ui';
+import { Main, NoWrap, Screen, Prose, H1 } from '@votingworks/ui';
 
 interface Props {
   useEffectToggleLargeDisplay: () => void;
@@ -16,9 +16,9 @@ export function SetupPowerPage({
     <Screen white>
       <Main padded centerChild>
         <Prose textCenter>
-          <h1>
+          <H1>
             No Power Detected <NoWrap>and Battery is Low</NoWrap>
-          </h1>
+          </H1>
           <p>
             Please ask a poll worker to plug-in the power cord for this machine.
           </p>

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import {
   BmdPaperBallot,
+  H1,
   Main,
   printElement,
   ProgressEllipsis,
@@ -100,11 +101,11 @@ export function PrintPage(): JSX.Element {
               aria-hidden
             />
           </p>
-          <h1>
+          <H1>
             <ProgressEllipsis aria-label="Printing your official ballot.">
               Printing Your Official Ballot
             </ProgressEllipsis>
-          </h1>
+          </H1>
         </Prose>
       </Main>
     </Screen>

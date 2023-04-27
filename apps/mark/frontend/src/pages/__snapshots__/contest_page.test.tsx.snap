@@ -167,6 +167,7 @@ exports[`Renders ContestPage 1`] = `
         >
           <h1
             aria-label="District 1 President and Vice-President."
+            class="sc-eCImvq cmseZU"
           >
             <div
               class="c2"
@@ -760,6 +761,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
         >
           <h1
             aria-label="District 1 President and Vice-President."
+            class="sc-eCImvq cmseZU"
           >
             <div
               class="c1"
@@ -1198,6 +1200,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
             >
               <h5
                 aria-label=" General Election."
+                class="sc-furvIG fvCtYG"
               >
                  General Election
               </h5>

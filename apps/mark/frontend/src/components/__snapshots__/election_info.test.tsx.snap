@@ -215,6 +215,7 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
       >
         <h5
           aria-label=" General Election."
+          class="sc-furvIG fvCtYG"
         >
            General Election
         </h5>
@@ -466,6 +467,7 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
       >
         <h5
           aria-label=" General Election."
+          class="sc-furvIG fvCtYG"
         >
            General Election
         </h5>
@@ -694,6 +696,7 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
     >
       <h1
         aria-label=" General Election."
+        class="sc-eCImvq cmseZU"
       >
          General Election
       </h1>
@@ -912,6 +915,7 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
     >
       <h1
         aria-label=" General Election."
+        class="sc-eCImvq cmseZU"
       >
          General Election
       </h1>

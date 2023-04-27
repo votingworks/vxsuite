@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { Main, Screen, Prose, RotateCardImage } from '@votingworks/ui';
+import { Main, Screen, Prose, RotateCardImage, H1 } from '@votingworks/ui';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 
 interface Props {
@@ -20,7 +20,7 @@ export function CardErrorScreen({
         <div>
           <RotateCardImage />
           <Prose textCenter id="audiofocus">
-            <h1>Card is Backwards</h1>
+            <H1>Card is Backwards</H1>
             <p>Remove the card, turn it around, and insert it again.</p>
           </Prose>
         </div>

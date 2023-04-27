@@ -12,6 +12,7 @@ import { YesNoVote, OptionalYesNoVote } from '@votingworks/types';
 import {
   Button,
   ContestChoiceButton,
+  H1,
   Main,
   Prose,
   Text,
@@ -202,10 +203,10 @@ export function MsEitherNeitherContest({
     <Main flexColumn>
       <ContentHeader>
         <Prose>
-          <h1 aria-label={`${districtName} ${contest.title}.`}>
+          <H1 aria-label={`${districtName} ${contest.title}.`}>
             <DistrictName>{districtName}</DistrictName>
             {contest.title}
-          </h1>
+          </H1>
           <p>
             {eitherNeitherVote && pickOneVote ? (
               <span>

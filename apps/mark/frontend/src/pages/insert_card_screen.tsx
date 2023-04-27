@@ -12,6 +12,7 @@ import {
   Text,
   ElectionInfoBar,
   InsertCardImage,
+  H1,
 } from '@votingworks/ui';
 
 import { throwIllegalValue } from '@votingworks/basics';
@@ -41,23 +42,23 @@ export function InsertCardScreen({
       case 'polls_closed_initial':
         return (
           <React.Fragment>
-            <h1>Polls Closed</h1>
+            <H1>Polls Closed</H1>
             <p>Insert Poll Worker card to open.</p>
           </React.Fragment>
         );
       case 'polls_open':
-        return <h1>Insert Card</h1>;
+        return <H1>Insert Card</H1>;
       case 'polls_paused':
         return (
           <React.Fragment>
-            <h1>Voting Paused</h1>
+            <H1>Voting Paused</H1>
             <p>Insert Poll Worker card to resume voting.</p>
           </React.Fragment>
         );
       case 'polls_closed_final':
         return (
           <React.Fragment>
-            <h1>Polls Closed</h1>
+            <H1>Polls Closed</H1>
             <p>Voting is complete.</p>
           </React.Fragment>
         );

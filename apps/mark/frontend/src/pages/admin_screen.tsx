@@ -11,6 +11,8 @@ import {
   ChangePrecinctButton,
   CurrentDateAndTime,
   ElectionInfoBar,
+  H1,
+  H2,
   Main,
   Prose,
   Screen,
@@ -69,22 +71,22 @@ export function AdminScreen({
       {election && !isLiveMode && <TestMode />}
       <Main padded>
         <Prose>
-          <h1>
+          <H1>
             VxMark{' '}
             <Text as="span" light noWrap>
               Election Manager Actions
             </Text>
-          </h1>
+          </H1>
           <Text italic>Remove card when finished.</Text>
           {election && (
             <React.Fragment>
-              <h2>Stats</h2>
+              <H2>Stats</H2>
               <p>
                 Ballots Printed: <strong>{ballotsPrintedCount}</strong>
               </p>
-              <h2>
+              <H2>
                 <label htmlFor="selectPrecinct">Precinct</label>
-              </h2>
+              </H2>
               <p>
                 <ChangePrecinctButton
                   appPrecinctSelection={appPrecinct}
@@ -112,7 +114,7 @@ export function AdminScreen({
                   </React.Fragment>
                 )}
               </p>
-              <h2>Test Ballot Mode</h2>
+              <H2>Test Ballot Mode</H2>
               <p>
                 <SegmentedButton
                   label="Test Ballot Mode"
@@ -131,14 +133,14 @@ export function AdminScreen({
               </p>
             </React.Fragment>
           )}
-          <h2>Current Date and Time</h2>
+          <H2>Current Date and Time</H2>
           <p>
             <CurrentDateAndTime />
           </p>
           <p>
             <SetClockButton>Update Date and Time</SetClockButton>
           </p>
-          <h2>Configuration</h2>
+          <H2>Configuration</H2>
           <p>
             <Text as="span" voteIcon>
               Election Definition is loaded.
@@ -147,7 +149,7 @@ export function AdminScreen({
               Unconfigure Machine
             </Button>
           </p>
-          <h2>USB</h2>
+          <H2>USB</H2>
           <UsbControllerButton
             small={false}
             primary

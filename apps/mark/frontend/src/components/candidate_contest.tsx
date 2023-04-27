@@ -18,6 +18,8 @@ import {
 import {
   Button,
   ContestChoiceButton,
+  H1,
+  H3,
   Icons,
   Main,
   Modal,
@@ -298,10 +300,10 @@ export function CandidateContest({
       <Main flexColumn>
         <ContentHeader id="contest-header">
           <Prose id="audiofocus">
-            <h1 aria-label={`${districtName} ${contest.title}.`}>
+            <H1 aria-label={`${districtName} ${contest.title}.`}>
               <DistrictName>{districtName}</DistrictName>
               {contest.title}
-            </h1>
+            </H1>
             <p>
               <Text as="span">Vote for {contest.seats}.</Text>{' '}
               {vote.length === contest.seats && (
@@ -488,7 +490,7 @@ export function CandidateContest({
           content={
             <WriteInModalContent>
               <Prose id="modalaudiofocus" maxWidth={false}>
-                <h1 aria-label="Write-In Candidate.">Write-In Candidate</h1>
+                <H1 aria-label="Write-In Candidate.">Write-In Candidate</H1>
                 <Text aria-label="Enter the name of a person who is not on the ballot. Use the up and down buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
                   Enter the name of a person who is <strong>not</strong> on the
                   ballot.
@@ -505,7 +507,7 @@ export function CandidateContest({
               <WriteInCandidateForm>
                 <WriteInCandidateFieldSet>
                   <Prose>
-                    <h3>{contest.title} (write-in)</h3>
+                    <H3>{contest.title} (write-in)</H3>
                   </Prose>
                   <WriteInCandidateName>
                     {writeInCandidateName}

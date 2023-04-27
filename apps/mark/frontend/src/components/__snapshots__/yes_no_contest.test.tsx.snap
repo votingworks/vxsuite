@@ -89,6 +89,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
       >
         <h1
           aria-label="District 1 Ballot Measure 3."
+          class="sc-eCImvq cmseZU"
         >
           <div
             class="c1"
@@ -337,6 +338,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
       >
         <h1
           aria-label="District 1 Ballot Measure 3."
+          class="sc-eCImvq cmseZU"
         >
           <div
             class="c1"

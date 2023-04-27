@@ -16,6 +16,7 @@ import {
   Button,
   ContestChoiceButton,
   DisplayTextForYesOrNo,
+  H1,
   Main,
   Modal,
   Prose,
@@ -150,10 +151,10 @@ export function YesNoContest({
       <Main flexColumn>
         <ContentHeader id="contest-header">
           <Prose id="audiofocus">
-            <h1 aria-label={`${districtName} ${contest.title}.`}>
+            <H1 aria-label={`${districtName} ${contest.title}.`}>
               <DistrictName>{districtName}</DistrictName>
               {contest.title}
-            </h1>
+            </H1>
             <p>
               Vote <strong>Yes</strong> or <strong>No</strong>.
               <span className="screen-reader-only">
