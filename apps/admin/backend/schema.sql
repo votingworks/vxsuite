@@ -52,6 +52,9 @@ create table cvrs (
   foreign key (batch_id, scanner_id) references scanner_batches(batch_id, scanner_id)
 );
 
+create index idx_cvrs_election_id on cvrs(election_id);
+create index idx_cvrs_ballot_id on cvrs(ballot_id);
+
 create table scanner_batches (
   batch_id text not null,
   label text not null,
@@ -61,9 +64,6 @@ create table scanner_batches (
   foreign key (election_id) references elections(id)
     on delete cascade
 );
-
-create index idx_cvrs_election_id on cvrs(election_id);
-create index idx_cvrs_ballot_id on cvrs(ballot_id);
 
 create table cvr_files (
   id varchar(36) primary key,
