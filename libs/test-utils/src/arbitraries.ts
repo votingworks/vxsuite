@@ -486,9 +486,6 @@ export function arbitraryCastVoteRecord({
       _batchLabel: fc.string({ minLength: 1 }),
       _testBallot: testBallot,
       _scannerId: arbitraryId(),
-      _pageNumbers: fc
-        .integer({ min: 0, max: 3 })
-        .map((index) => [index * 2 + 1, index * 2 + 2]),
     })
   );
 }

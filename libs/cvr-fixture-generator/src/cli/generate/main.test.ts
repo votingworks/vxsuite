@@ -12,8 +12,8 @@ import {
   isBmdWriteIn,
 } from '@votingworks/backend';
 import { assert } from '@votingworks/basics';
-import { main } from './main';
-import { BATCH_ID } from '../../utils';
+import { DEFAULT_SCANNER_ID, main } from './main';
+import { getBatchIdForScannerId } from '../../utils';
 
 jest.setTimeout(30_000);
 
@@ -199,7 +199,7 @@ test('generate test mode CVRs', async () => {
   expect(report.OtherReportType?.split(',')).toContain('test');
 });
 
-test('specifying scanner names', async () => {
+test('specifying scanner ids', async () => {
   const ballotPackagePath =
     electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
   const outputDirectory = dirSync();
@@ -209,7 +209,7 @@ test('specifying scanner names', async () => {
     ballotPackagePath,
     '--outputPath',
     outputDirectory.name,
-    '--scannerNames',
+    '--scannerIds',
     'scanner1,scanner2',
   ]);
 
@@ -247,19 +247,21 @@ test('including ballot images', async () => {
     }
   }
 
+  const defaultBatchId = getBatchIdForScannerId(DEFAULT_SCANNER_ID);
+
   // files referenced from the report
-  expect(Array.from(imageFileUris)).toMatchInlineSnapshot(`
-    Array [
-      "file:ballot-images/batch-1/1M__precinct-1__1.jpg",
-      "file:ballot-images/batch-1/1M__precinct-2__1.jpg",
-      "file:ballot-images/batch-1/2F__precinct-1__1.jpg",
-      "file:ballot-images/batch-1/2F__precinct-2__1.jpg",
-    ]
-  `);
+  expect(Array.from(imageFileUris)).toMatchObject([
+    `file:ballot-images/${defaultBatchId}/1M__precinct-1__1.jpg`,
+    `file:ballot-images/${defaultBatchId}/1M__precinct-2__1.jpg`,
+    `file:ballot-images/${defaultBatchId}/2F__precinct-1__1.jpg`,
+    `file:ballot-images/${defaultBatchId}/2F__precinct-2__1.jpg`,
+  ]);
 
   // images exported
   expect(
-    await fs.readdir(join(outputDirectory.name, 'ballot-images', BATCH_ID))
+    await fs.readdir(
+      join(outputDirectory.name, 'ballot-images', defaultBatchId)
+    )
   ).toMatchInlineSnapshot(`
     Array [
       "1M__precinct-1__1.jpg",
@@ -271,7 +273,9 @@ test('including ballot images', async () => {
 
   // layouts exported
   expect(
-    await fs.readdir(join(outputDirectory.name, 'ballot-layouts', BATCH_ID))
+    await fs.readdir(
+      join(outputDirectory.name, 'ballot-layouts', defaultBatchId)
+    )
   ).toMatchInlineSnapshot(`
     Array [
       "1M__precinct-1__1.layout.json",

@@ -128,14 +128,6 @@ test('arbitraryElectionDefinition makes valid election definitions', () => {
 });
 
 test('arbitraryCastVoteRecord(s) makes valid CVRs', () => {
-  fc.assert(
-    fc.property(arbitraryCastVoteRecord(), (cvr) => {
-      const [frontPage, backPage] = cvr._pageNumbers!;
-      assert(typeof frontPage === 'number' && typeof backPage === 'number');
-      expect(backPage - frontPage).toEqual(1);
-    })
-  );
-
   // specify whether it's a test ballot
   fc.assert(
     fc.property(

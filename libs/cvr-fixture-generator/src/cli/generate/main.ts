@@ -1,5 +1,5 @@
 import { CVR } from '@votingworks/types';
-import { assert, find, iter } from '@votingworks/basics';
+import { assert, assertDefined, find, iter } from '@votingworks/basics';
 import {
   buildCastVoteRecordReportMetadata,
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
@@ -20,8 +20,8 @@ import { generateCvrs } from '../../generate_cvrs';
 import {
   generateBallotAssetPath,
   replaceUniqueId,
-  BATCH_ID,
   IMAGE_URI_REGEX,
+  getBatchIdForScannerId,
 } from '../../utils';
 
 /**
@@ -33,11 +33,13 @@ import {
  * To see more information and all possible arguments.
  */
 
+export const DEFAULT_SCANNER_ID = 'VX-00-000';
+
 interface GenerateCvrFileArguments {
   ballotPackage?: string;
   outputPath?: string;
   numBallots?: number;
-  scannerNames?: Array<string | number>;
+  scannerIds?: Array<string | number>;
   officialBallots: boolean;
   includeBallotImages: boolean;
   ballotIdPrefix?: string;
@@ -85,9 +87,9 @@ export async function main(
         description:
           'Create live mode ballots when specified, by default test mode ballots are created.',
       },
-      scannerNames: {
+      scannerIds: {
         type: 'array',
-        description: 'Creates ballots for each scanner name specified.',
+        description: 'Creates ballots for each scanner id specified.',
       },
       includeBallotImages: {
         type: 'boolean',
@@ -139,6 +141,13 @@ export async function main(
     return 1;
   }
 
+  if (args.scannerIds && args.scannerIds.length < 1) {
+    stderr.write(
+      'Must specify at least one scanner id with --scannerIds option\n'
+    );
+    return 1;
+  }
+
   const {
     outputPath,
     includeBallotImages,
@@ -146,8 +155,11 @@ export async function main(
     ballotIdPrefix,
     bmdBallots,
   } = args;
-  const scannerNames = (args.scannerNames ?? ['scanner']).map((s) => `${s}`);
   const testMode = !args.officialBallots;
+
+  const scannerIds = (args.scannerIds ?? [DEFAULT_SCANNER_ID]).map(
+    (s) => `${s}`
+  );
 
   const ballotPackage = await readBallotPackageFromBuffer(
     fs.readFileSync(ballotPackagePath)
@@ -159,7 +171,7 @@ export async function main(
       ballotPackage,
       includeBallotImages,
       testMode,
-      scannerNames,
+      scannerIds,
       ballotIdPrefix,
       bmdBallots,
     })
@@ -201,19 +213,17 @@ export async function main(
   const reportMetadata = buildCastVoteRecordReportMetadata({
     election,
     electionId: electionHash,
-    generatingDeviceId: scannerNames?.[0] || 'scanner',
-    scannerIds: scannerNames || ['scanner'],
+    generatingDeviceId: assertDefined(scannerIds[0]),
+    scannerIds,
     reportTypes: [CVR.ReportType.OriginatingDeviceExport],
     isTestMode: testMode,
-    batchInfo: [
-      {
-        id: 'batch-1',
-        batchNumber: 1,
-        label: 'Batch 1',
-        startedAt: new Date().toISOString(),
-        count: castVoteRecords.length,
-      },
-    ],
+    batchInfo: scannerIds.map((scannerId) => ({
+      id: getBatchIdForScannerId(scannerId),
+      batchNumber: 1,
+      label: getBatchIdForScannerId(scannerId),
+      startedAt: new Date().toISOString(),
+      count: castVoteRecords.length / scannerIds.length,
+    })),
   });
 
   // make the parent folder if it does not exist
@@ -231,16 +241,6 @@ export async function main(
   );
 
   if (includeBallotImages) {
-    // create directories for assets
-    fs.mkdirSync(
-      join(outputPath, `./${CVR_BALLOT_IMAGES_SUBDIRECTORY}/${BATCH_ID}`),
-      { recursive: true }
-    );
-    fs.mkdirSync(
-      join(outputPath, `./${CVR_BALLOT_LAYOUTS_SUBDIRECTORY}/${BATCH_ID}`),
-      { recursive: true }
-    );
-
     // determine the images referenced in the report
     const imageUris = new Set<string>();
     for (const castVoteRecord of castVoteRecords) {
@@ -262,7 +262,9 @@ export async function main(
       if (regexMatch === null) {
         throw new Error('unexpected file URI format');
       }
-      const [, ballotStyleId, precinctId, pageNumberString] = regexMatch;
+      const [, batchId, ballotStyleId, precinctId, pageNumberString] =
+        regexMatch;
+      assert(batchId !== undefined);
       assert(ballotStyleId !== undefined);
       assert(precinctId !== undefined);
       assert(pageNumberString !== undefined);
@@ -277,6 +279,16 @@ export async function main(
           ballot.ballotConfig.isLiveMode === !testMode
       );
 
+      // create directories for assets
+      fs.mkdirSync(
+        join(outputPath, `${CVR_BALLOT_IMAGES_SUBDIRECTORY}/${batchId}`),
+        { recursive: true }
+      );
+      fs.mkdirSync(
+        join(outputPath, `${CVR_BALLOT_LAYOUTS_SUBDIRECTORY}/${batchId}`),
+        { recursive: true }
+      );
+
       // write the image
       for await (const { page, pageNumber: pdfPageNumber } of pdfToImages(
         ballotPackageEntry.pdf
@@ -287,6 +299,7 @@ export async function main(
               outputPath,
               generateBallotAssetPath({
                 ballotStyleId,
+                batchId,
                 precinctId,
                 pageNumber,
                 assetType: 'image',
@@ -305,6 +318,7 @@ export async function main(
           outputPath,
           generateBallotAssetPath({
             ballotStyleId,
+            batchId,
             precinctId,
             pageNumber,
             assetType: 'layout',

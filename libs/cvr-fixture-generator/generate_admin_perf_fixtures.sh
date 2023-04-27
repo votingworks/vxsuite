@@ -12,6 +12,6 @@ do
         --outputPath ../../apps/admin/backend/perf/fixtures/$RECORDS_PER_REPORT/$REPORT_IDX \
         --ballotIdPrefix $REPORT_IDX \
         --numBallots $RECORDS_PER_REPORT \
-        --scannerNames scanner-$REPORT_IDX \
+        --scannerIds scanner-$REPORT_IDX \
         --bmdBallots
 done

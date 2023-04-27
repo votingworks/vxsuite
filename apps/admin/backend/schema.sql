@@ -38,18 +38,36 @@ create table cvrs (
   id varchar(36) primary key,
   election_id varchar(36) not null,
   ballot_id varchar(36) not null,
-  data text not null,
+  ballot_style_id text not null,
+  ballot_type text not null 
+    check (ballot_type = 'absentee' or ballot_type = 'precinct' or ballot_type = 'provisional'),
+  batch_id text not null,
+  precinct_id text not null,
+  sheet_number integer check (sheet_number is null or sheet_number > 0),
+  votes text not null,
   created_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)
-    on delete cascade
+    on delete cascade,
+  foreign key (batch_id) references scanner_batches(id)
 );
 
 create index idx_cvrs_election_id on cvrs(election_id);
 create index idx_cvrs_ballot_id on cvrs(ballot_id);
 
+create table scanner_batches (
+  id text not null,
+  label text not null,
+  scanner_id text not null,
+  election_id varchar(36) not null,
+  primary key (id),
+  foreign key (election_id) references elections(id)
+    on delete cascade
+);
+
 create table cvr_files (
   id varchar(36) primary key,
   election_id varchar(36) not null,
+  is_test_mode boolean not null,
   filename text not null,
   export_timestamp timestamp not null,
   precinct_ids text not null,

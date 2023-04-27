@@ -1,4 +1,12 @@
-import { CastVoteRecord, ContestId, ContestOptionId } from '@votingworks/types';
+import {
+  CVR,
+  CastVoteRecord,
+  CastVoteRecordBallotType,
+  ContestId,
+  ContestOptionId,
+} from '@votingworks/types';
+import { throwIllegalValue } from '@votingworks/basics';
+import { CastVoteRecordMetadata } from '../types';
 
 /**
  * Gets all the write-in options from a list.
@@ -28,4 +36,40 @@ export function deprecatedGetWriteInsFromCastVoteRecord(
   }
 
   return result;
+}
+
+/**
+ * Determines whether two cast vote records have identical metadata.
+ */
+export function areCastVoteRecordMetadataEqual(
+  a: CastVoteRecordMetadata,
+  b: CastVoteRecordMetadata
+): boolean {
+  return (
+    a.ballotStyleId === b.ballotStyleId &&
+    a.ballotType === b.ballotType &&
+    a.batchId === b.batchId &&
+    a.precinctId === b.precinctId &&
+    a.sheetNumber === b.sheetNumber
+  );
+}
+
+/**
+ * Converts the CDF ballot type into the legacy ballot type for tally code
+ * consumers.
+ */
+export function cvrBallotTypeToLegacyBallotType(
+  ballotType: CVR.vxBallotType
+): CastVoteRecordBallotType {
+  switch (ballotType) {
+    case CVR.vxBallotType.Absentee:
+      return 'absentee';
+    case CVR.vxBallotType.Precinct:
+      return 'standard';
+    case CVR.vxBallotType.Provisional:
+      return 'provisional';
+    /* istanbul ignore next: compile-time check for completeness */
+    default:
+      throwIllegalValue(ballotType);
+  }
 }

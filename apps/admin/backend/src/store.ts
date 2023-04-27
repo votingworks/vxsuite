@@ -19,6 +19,7 @@ import {
   CastVoteRecord,
   ContestId,
   ContestOptionId,
+  CVR,
   Id,
   Iso8601Timestamp,
   safeParse,
@@ -31,6 +32,11 @@ import {
 import { join } from 'path';
 import { Buffer } from 'buffer';
 import { v4 as uuid } from 'uuid';
+import { CastVoteRecordMetadata, ScannerBatch } from './types';
+import {
+  areCastVoteRecordMetadataEqual,
+  cvrBallotTypeToLegacyBallotType,
+} from './util/cvrs';
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
@@ -288,12 +294,14 @@ export class Store {
   addInitialCastVoteRecordFileRecord({
     id,
     electionId,
+    isTestMode,
     filename,
     exportedTimestamp,
     sha256Hash,
   }: {
     id: Id;
     electionId: Id;
+    isTestMode: boolean;
     filename: string;
     exportedTimestamp: Iso8601Timestamp;
     sha256Hash: string;
@@ -303,17 +311,19 @@ export class Store {
         insert into cvr_files (
           id,
           election_id,
+          is_test_mode,
           filename,
           export_timestamp,
           precinct_ids,
           scanner_ids,
           sha256_hash
         ) values (
-          ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,
       electionId,
+      isTestMode ? 1 : 0,
       filename,
       exportedTimestamp,
       JSON.stringify([]),
@@ -348,26 +358,36 @@ export class Store {
   /**
    * Adds a CVR file entry record and returns its ID. If a CVR file entry with
    * the same contents has already been added, returns the ID of that record and
-   * associates `cvrFileId` with it.
+   * merely associates `cvrFileId` with it.
    */
-  addCastVoteRecordFileEntry(
-    electionId: Id,
-    cvrFileId: Id,
-    ballotId: BallotId,
-    data: string
-  ): Result<
+  addCastVoteRecordFileEntry({
+    electionId,
+    cvrFileId,
+    ballotId,
+    metadata,
+    votes,
+  }: {
+    electionId: Id;
+    cvrFileId: Id;
+    ballotId: BallotId;
+    metadata: CastVoteRecordMetadata;
+    votes: string;
+  }): Result<
     { cvrId: Id; isNew: boolean },
     {
-      kind: 'BallotIdAlreadyExistsWithDifferentData';
-      newData: string;
-      existingData: string;
+      type: 'ballot-id-already-exists-with-different-data';
     }
   > {
     const existingCvr = this.client.one(
       `
         select
           id,
-          data
+          ballot_style_id as ballotStyleId,
+          ballot_type as ballotType,
+          batch_id as batchId,
+          precinct_id as precinctId,
+          sheet_number as sheetNumber,
+          votes as votes
         from cvrs
         where
           election_id = ? and
@@ -375,18 +395,36 @@ export class Store {
       `,
       electionId,
       ballotId
-    ) as { id: Id; data: string } | undefined;
+    ) as
+      | {
+          id: Id;
+          ballotStyleId: string;
+          ballotType: string;
+          batchId: string;
+          precinctId: string;
+          sheetNumber: number | null;
+          votes: string;
+        }
+      | undefined;
 
     const cvrId = existingCvr?.id ?? uuid();
-
     if (existingCvr) {
+      const existingCvrMetadata: CastVoteRecordMetadata = {
+        ballotStyleId: existingCvr.ballotStyleId,
+        ballotType: existingCvr.ballotType as CVR.vxBallotType,
+        batchId: existingCvr.batchId,
+        precinctId: existingCvr.precinctId,
+        sheetNumber: existingCvr.sheetNumber || undefined,
+      };
+
       // Existing cast vote records are expected, but existing cast vote records
       // with new data indicate a bad or inappropriately manipulated file
-      if (existingCvr.data !== data) {
+      if (
+        !areCastVoteRecordMetadataEqual(metadata, existingCvrMetadata) ||
+        votes !== existingCvr.votes
+      ) {
         return err({
-          kind: 'BallotIdAlreadyExistsWithDifferentData',
-          newData: data,
-          existingData: existingCvr.data,
+          type: 'ballot-id-already-exists-with-different-data',
         });
       }
     } else {
@@ -397,15 +435,25 @@ export class Store {
           id,
           election_id,
           ballot_id,
-          data
+          ballot_style_id,
+          ballot_type,
+          batch_id,
+          precinct_id,
+          sheet_number,
+          votes
         ) values (
-          ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
         cvrId,
         electionId,
         ballotId,
-        data
+        metadata.ballotStyleId,
+        metadata.ballotType,
+        metadata.batchId,
+        metadata.precinctId,
+        metadata.sheetNumber || null,
+        votes
       );
     }
 
@@ -455,30 +503,74 @@ export class Store {
     );
   }
 
-  /**
-   * Returns the current CVR file mode for the current election.
-   */
-  getCurrentCvrFileModeForElection(electionId: Id): Admin.CvrFileMode {
-    const sampleCvr = this.client.one(
+  addScannerBatch(scannerBatch: ScannerBatch): void {
+    this.client.run(
+      `
+      insert or ignore into scanner_batches (
+        id,
+        label,
+        scanner_id,
+        election_id
+      ) values (
+        ?, ?, ?, ?
+      )
+    `,
+      scannerBatch.batchId,
+      scannerBatch.label,
+      scannerBatch.scannerId,
+      scannerBatch.electionId
+    );
+  }
+
+  getScannerBatches(electionId: string): ScannerBatch[] {
+    return this.client.all(
       `
         select
-          data
-        from cvrs
+          id as batchId,
+          label as label,
+          scanner_id as scannerId,
+          election_id as electionId
+        from scanner_batches
         where
           election_id = ?
       `,
       electionId
-    ) as { data: string } | undefined;
+    ) as ScannerBatch[];
+  }
 
-    if (!sampleCvr) {
+  deleteEmptyScannerBatches(electionId: string): void {
+    this.client.run(
+      `
+        delete from scanner_batches
+        where election_id = ?
+          and not exists (
+          select 1 from cvrs where id = cvrs.batch_id
+        )
+      `,
+      electionId
+    );
+  }
+
+  /**
+   * Returns the current CVR file mode for the current election.
+   */
+  getCurrentCvrFileModeForElection(electionId: Id): Admin.CvrFileMode {
+    const sampleCastVoteRecordFile = this.client.one(
+      `
+        select
+          is_test_mode as isTestMode
+        from cvr_files
+        where
+          election_id = ?
+      `,
+      electionId
+    ) as { isTestMode: number } | undefined;
+
+    if (!sampleCastVoteRecordFile) {
       return Admin.CvrFileMode.Unlocked;
     }
 
-    const parsedCvr = safeParseJson(
-      sampleCvr.data
-    ).unsafeUnwrap() as CastVoteRecord;
-
-    return parsedCvr._testBallot
+    return sampleCastVoteRecordFile.isTestMode
       ? Admin.CvrFileMode.Test
       : Admin.CvrFileMode.Official;
   }
@@ -635,32 +727,67 @@ export class Store {
   getCastVoteRecordEntries(
     electionId: Id
   ): Admin.CastVoteRecordFileEntryRecord[] {
+    const fileMode = this.getCurrentCvrFileModeForElection(electionId);
+    if (fileMode === Admin.CvrFileMode.Unlocked) return [];
+    const isTestMode = fileMode === Admin.CvrFileMode.Test;
+
     const entries = this.client.all(
       `
         select
-          id,
-          ballot_id as ballotId,
-          data,
-          datetime(created_at, 'localtime') as createdAt
-        from cvrs
-        where election_id = ?
-        order by created_at asc
+          cvrs.id as id,
+          cvrs.ballot_id as ballotId,
+          cvrs.ballot_style_id as ballotStyleId,
+          cvrs.ballot_type as ballotType,
+          cvrs.batch_id as batchId,
+          scanner_batches.label as batchLabel,
+          scanner_batches.scanner_id as scannerId,
+          cvrs.precinct_id as precinctId,
+          cvrs.sheet_number as sheetNumber,
+          cvrs.votes as votes,
+          datetime(cvrs.created_at, 'localtime') as createdAt
+        from
+          cvrs inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+        where cvrs.election_id = ?
+        order by cvrs.created_at asc
       `,
       electionId
     ) as Array<{
       id: Id;
       ballotId: string;
-      data: string;
+      ballotStyleId: string;
+      ballotType: string;
+      batchId: string;
+      batchLabel: string;
+      precinctId: string;
+      scannerId: string;
+      sheetNumber: number | null;
+      votes: string;
       createdAt: Iso8601Timestamp;
     }>;
 
-    return entries.map((entry) => ({
-      id: entry.id,
-      ballotId: entry.ballotId,
-      electionId,
-      data: entry.data,
-      createdAt: convertSqliteTimestampToIso8601(entry.createdAt),
-    }));
+    return entries.map((entry) => {
+      const castVoteRecordLegacyMetadata: CastVoteRecord = {
+        _precinctId: entry.precinctId,
+        _scannerId: entry.scannerId,
+        _batchId: entry.batchId,
+        _batchLabel: entry.batchLabel,
+        _ballotStyleId: entry.ballotStyleId,
+        _ballotType: cvrBallotTypeToLegacyBallotType(
+          entry.ballotType as CVR.vxBallotType
+        ),
+        _testBallot: isTestMode,
+      };
+      return {
+        id: entry.id,
+        ballotId: entry.ballotId,
+        electionId,
+        data: JSON.stringify({
+          ...castVoteRecordLegacyMetadata,
+          ...JSON.parse(entry.votes),
+        }),
+        createdAt: convertSqliteTimestampToIso8601(entry.createdAt),
+      };
+    });
   }
 
   /**
@@ -699,6 +826,7 @@ export class Store {
         `,
         electionId
       );
+      this.deleteEmptyScannerBatches(electionId);
     });
   }
 

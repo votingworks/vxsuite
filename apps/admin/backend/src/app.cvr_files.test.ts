@@ -135,7 +135,7 @@ test('happy path - mock election flow', async () => {
       filename: testReportDirectoryName,
       numCvrsImported: 3000,
       precinctIds: ['precinct-1', 'precinct-2'],
-      scannerIds: ['scanner'],
+      scannerIds: ['VX-00-000'],
     }),
   ]);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual(
@@ -152,7 +152,9 @@ test('happy path - mock election flow', async () => {
         _precinctId: 'precinct-1',
         _ballotStyleId: '1M',
         _testBallot: true,
-        _scannerId: 'scanner',
+        _scannerId: 'VX-00-000',
+        _batchId: '9822c71014',
+        _batchLabel: '9822c71014',
         'best-animal-mammal': [],
         'zoo-council-mammal': [],
         'new-zoo-either': ['yes'],

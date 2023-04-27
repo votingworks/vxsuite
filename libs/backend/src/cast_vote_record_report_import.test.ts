@@ -73,10 +73,10 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
     expect(validationResult.isOk()).toBeTruthy();
     expect(validationResult.ok()).toMatchInlineSnapshot(`
       Array [
-        "batch-1/1M__precinct-1__1.jpg",
-        "batch-1/1M__precinct-2__1.jpg",
-        "batch-1/2F__precinct-1__1.jpg",
-        "batch-1/2F__precinct-2__1.jpg",
+        "9822c71014/1M__precinct-1__1.jpg",
+        "9822c71014/1M__precinct-2__1.jpg",
+        "9822c71014/2F__precinct-1__1.jpg",
+        "9822c71014/2F__precinct-2__1.jpg",
       ]
     `);
   });
@@ -99,7 +99,7 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
       join(
         directoryPath,
         CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
-        'batch-1',
+        '9822c71014',
         '1M__precinct-1__1.layout.json'
       )
     );

@@ -16,7 +16,7 @@ Optional flags:
   records with write-ins
 - `--officialBallots` - whether to export a report for official ballots. By
   default the report is for test ballots.
-- `--scannerNames` - if provided with a comma-separated list of scanners, there
+- `--scannerIds` - if provided with a comma-separated list of scanner ids, there
   will be cast vote records for each of the listed scanners. Otherwise, all
   records will appear to come from a single `scanner`.
 - `--numBallots` - number of records to include in the fixture. If no number is

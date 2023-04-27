@@ -19,15 +19,12 @@ import {
   integers,
   Result,
   throwIllegalValue,
-  find,
 } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   AnyContest,
   BallotId,
   BallotPageLayoutSchema,
-  CastVoteRecord,
-  CastVoteRecordBallotType,
   Contests,
   CVR,
   ElectionDefinition,
@@ -295,51 +292,6 @@ export function validateCastVoteRecord({
   return ok();
 }
 
-function cvrBallotTypeToLegacyBallotType(
-  ballotType: CVR.vxBallotType
-): CastVoteRecordBallotType {
-  switch (ballotType) {
-    case CVR.vxBallotType.Absentee:
-      return 'absentee';
-    case CVR.vxBallotType.Precinct:
-      return 'standard';
-    case CVR.vxBallotType.Provisional:
-      return 'provisional';
-    /* istanbul ignore next: compile-time check for completeness */
-    default:
-      throwIllegalValue(ballotType);
-  }
-}
-
-/**
- * Converts a cast vote record in CDF format ({@link CVR.CVR}) into the legacy
- * format still used for storage and tallying.
- */
-export function convertCastVoteRecordToLegacyFormat({
-  cvr,
-  isTest,
-  batchLabel,
-}: {
-  cvr: CVR.CVR;
-  isTest: boolean;
-  batchLabel: string;
-}): CastVoteRecord {
-  const currentSnapshot = getCurrentSnapshot(cvr);
-  assert(currentSnapshot);
-
-  return {
-    _ballotId: cvr.UniqueId as BallotId,
-    _precinctId: cvr.BallotStyleUnitId,
-    _batchId: cvr.BatchId,
-    _batchLabel: batchLabel,
-    _ballotStyleId: cvr.BallotStyleId,
-    _ballotType: cvrBallotTypeToLegacyBallotType(cvr.vxBallotType),
-    _scannerId: cvr.CreatingDeviceId,
-    _testBallot: isTest,
-    ...convertCastVoteRecordVotesToLegacyVotes(currentSnapshot),
-  };
-}
-
 /**
  * Possible errors when importing a cast vote record reports.
  */
@@ -577,10 +529,20 @@ export async function addCastVoteRecordReport({
     store.addInitialCastVoteRecordFileRecord({
       id: fileId,
       electionId,
+      isTestMode: isTestReport(reportMetadata),
       filename,
       exportedTimestamp,
       sha256Hash,
     });
+
+    for (const vxBatch of reportMetadata.vxBatch) {
+      store.addScannerBatch({
+        batchId: vxBatch['@id'],
+        label: vxBatch.BatchLabel,
+        scannerId: vxBatch.CreatingDeviceId,
+        electionId,
+      });
+    }
 
     // Iterate through all the cast vote records
     let castVoteRecordIndex = 0;
@@ -618,35 +580,39 @@ export async function addCastVoteRecordReport({
         });
       }
 
-      // Convert the CDF cast vote record to the format our store and tally logic use
-      const legacyCastVoteRecord = convertCastVoteRecordToLegacyFormat({
-        cvr,
-        isTest: reportFileMode === Admin.CvrFileMode.Test,
-        batchLabel: find(
-          reportMetadata.vxBatch,
-          (batch) => batch['@id'] === cvr.BatchId
-        ).BatchLabel,
-      });
-
       // Add the cast vote record to the store
-      const cvrData = JSON.stringify(legacyCastVoteRecord);
-      const addCastVoteRecordResult = store.addCastVoteRecordFileEntry(
-        electionId,
-        fileId,
-        cvr.UniqueId as BallotId,
-        cvrData
+      const currentSnapshot = getCurrentSnapshot(cvr);
+      assert(currentSnapshot);
+      const votes = JSON.stringify(
+        convertCastVoteRecordVotesToLegacyVotes(currentSnapshot)
       );
+      const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
+        electionId,
+        cvrFileId: fileId,
+        ballotId: cvr.UniqueId as BallotId,
+        metadata: {
+          ballotStyleId: cvr.BallotStyleId,
+          ballotType: cvr.vxBallotType,
+          batchId: cvr.BatchId,
+          precinctId: cvr.BallotStyleUnitId,
+          // sheet number was previously validated
+          sheetNumber: cvr.BallotSheetId
+            ? safeParseNumber(cvr.BallotSheetId).unsafeUnwrap()
+            : undefined,
+        },
+        votes,
+      });
       if (addCastVoteRecordResult.isErr()) {
-        const errorKind = addCastVoteRecordResult.err().kind;
-        switch (errorKind) {
-          case 'BallotIdAlreadyExistsWithDifferentData':
+        const errorType = addCastVoteRecordResult.err().type;
+        switch (errorType) {
+          case 'ballot-id-already-exists-with-different-data':
             return err({
               type: 'ballot-id-already-exists-with-different-data',
               index: castVoteRecordIndex,
             });
           /* istanbul ignore next */
           default:
-            throwIllegalValue(errorKind);
+            throwIllegalValue(errorType);
         }
       }
       const { cvrId, isNew: cvrIsNew } = addCastVoteRecordResult.ok();
