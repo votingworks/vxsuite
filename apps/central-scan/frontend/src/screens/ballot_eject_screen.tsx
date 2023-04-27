@@ -16,7 +16,7 @@ import {
   Text,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { fetchNextBallotSheetToReview } from '../api/hmpb';
 import { BallotSheetImage } from '../components/ballot_sheet_image';
@@ -53,8 +53,6 @@ const RectoVerso = styled.div`
   }
 `;
 
-const HIGHLIGHTER_COLOR = '#fbff0066';
-
 interface Props {
   continueScanning: (request: Scan.ScanContinueRequest) => Promise<void>;
   isTestMode: boolean;
@@ -90,24 +88,15 @@ export function BallotEjectScreen({
     })();
   }, []);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const contestIdsWithIssues = new Set<Contest['id']>();
-
-  const styleForContest = useCallback(
-    (contestId: Contest['id']): React.CSSProperties =>
-      contestIdsWithIssues.has(contestId)
-        ? { backgroundColor: HIGHLIGHTER_COLOR }
-        : {},
-    [contestIdsWithIssues]
-  );
 
   let isFrontAdjudicationDone = false;
   let isBackAdjudicationDone = false;
 
   // with new reviewInfo, mark each side done if nothing to actually adjudicate
   if (reviewInfo) {
-    const frontInterpretation = reviewInfo.interpreted.front.interpretation;
-    const backInterpretation = reviewInfo.interpreted.back.interpretation;
+    const frontInterpretation = reviewInfo.front.interpretation;
+    const backInterpretation = reviewInfo.back.interpretation;
 
     const errorInterpretations = SHEET_ADJUDICATION_ERRORS.filter(
       (e) => e === frontInterpretation.type || e === backInterpretation.type
@@ -195,11 +184,9 @@ export function BallotEjectScreen({
   useEffect(() => {
     void (async () => {
       const frontAdjudicationComplete =
-        isFrontAdjudicationDone ||
-        !!reviewInfo?.interpreted.front.adjudicationFinishedAt;
+        isFrontAdjudicationDone || !!reviewInfo?.front.adjudicationFinishedAt;
       const backAdjudicationComplete =
-        isBackAdjudicationDone ||
-        !!reviewInfo?.interpreted.back.adjudicationFinishedAt;
+        isBackAdjudicationDone || !!reviewInfo?.back.adjudicationFinishedAt;
       if (frontAdjudicationComplete && backAdjudicationComplete) {
         await logger.log(LogEventId.ScanAdjudicationInfo, userRole, {
           message:
@@ -214,8 +201,8 @@ export function BallotEjectScreen({
     isBackAdjudicationDone,
     continueScanning,
     isFrontAdjudicationDone,
-    reviewInfo?.interpreted.back.adjudicationFinishedAt,
-    reviewInfo?.interpreted.front.adjudicationFinishedAt,
+    reviewInfo?.back.adjudicationFinishedAt,
+    reviewInfo?.front.adjudicationFinishedAt,
     logger,
     userRole,
   ]);
@@ -237,21 +224,15 @@ export function BallotEjectScreen({
   for (const reviewPageInfo of [
     {
       side: 'front' as Side,
-      imageUrl: reviewInfo.interpreted.front.image.url,
-      interpretation: reviewInfo.interpreted.front.interpretation,
-      layout: reviewInfo.layouts.front,
-      contestIds: reviewInfo.definitions.front?.contestIds,
-      adjudicationFinishedAt:
-        reviewInfo.interpreted.front.adjudicationFinishedAt,
+      imageUrl: reviewInfo.front.image.url,
+      interpretation: reviewInfo.front.interpretation,
+      adjudicationFinishedAt: reviewInfo.front.adjudicationFinishedAt,
     },
     {
       side: 'back' as Side,
-      imageUrl: reviewInfo.interpreted.back.image.url,
-      interpretation: reviewInfo.interpreted.back.interpretation,
-      layout: reviewInfo.layouts.back,
-      contestIds: reviewInfo.definitions.back?.contestIds,
-      adjudicationFinishedAt:
-        reviewInfo.interpreted.back.adjudicationFinishedAt,
+      imageUrl: reviewInfo.back.image.url,
+      interpretation: reviewInfo.back.interpretation,
+      adjudicationFinishedAt: reviewInfo.back.adjudicationFinishedAt,
     },
   ]) {
     if (
@@ -300,7 +281,7 @@ export function BallotEjectScreen({
     !isInvalidElectionHashSheet &&
     !isUnreadableSheet;
 
-  const backInterpretation = reviewInfo.interpreted.back.interpretation;
+  const backInterpretation = reviewInfo.back.interpretation;
   const isBackIntentionallyLeftBlank =
     backInterpretation.type === 'InterpretedHmpbPage' &&
     backInterpretation.markInfo.marks.length === 0;
@@ -413,18 +394,8 @@ export function BallotEjectScreen({
               )}
             </Prose>
             <RectoVerso>
-              <BallotSheetImage
-                imageUrl={reviewInfo.interpreted.front.image.url}
-                layout={reviewInfo.layouts.front}
-                contestIds={reviewInfo.definitions.front?.contestIds}
-                styleForContest={styleForContest}
-              />
-              <BallotSheetImage
-                imageUrl={reviewInfo.interpreted.back.image.url}
-                layout={reviewInfo.layouts.back}
-                contestIds={reviewInfo.definitions.back?.contestIds}
-                styleForContest={styleForContest}
-              />
+              <BallotSheetImage imageUrl={reviewInfo.front.image.url} />
+              <BallotSheetImage imageUrl={reviewInfo.back.image.url} />
             </RectoVerso>
           </MainChildFlexRow>
         </Main>

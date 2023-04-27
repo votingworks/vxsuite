@@ -41,19 +41,15 @@ test('says the sheet is unreadable if it is', async () => {
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: { type: 'BlankPage' },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: { type: 'BlankPage' },
-        },
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: { type: 'BlankPage' },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        image: { url: '/back/url' },
+        interpretation: { type: 'BlankPage' },
+      },
     })
   );
 
@@ -94,71 +90,67 @@ test('says the ballot sheet is overvoted if it is', async () => {
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
-            metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
-              pageNumber: 1,
-            },
-            adjudicationInfo: {
-              requiresAdjudication: true,
-              enabledReasonInfos: [
-                {
-                  type: AdjudicationReason.Overvote,
-                  contestId: '1',
-                  optionIds: ['1', '2'],
-                  optionIndexes: [0, 1],
-                  expected: 1,
-                },
-              ],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Overvote],
-            },
-            votes: {},
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
           },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
-            metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
-              pageNumber: 2,
-            },
-            adjudicationInfo: {
-              requiresAdjudication: false,
-              enabledReasonInfos: [],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Overvote],
-            },
-            votes: {},
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: 'abcde',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 1,
           },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [
+              {
+                type: AdjudicationReason.Overvote,
+                contestId: '1',
+                optionIds: ['1', '2'],
+                optionIndexes: [0, 1],
+                expected: 1,
+              },
+            ],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
         },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: 'abcde',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 2,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
+        },
+      },
     })
   );
 
@@ -205,71 +197,67 @@ test('says the ballot sheet is undervoted if it is', async () => {
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
-            metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
-              pageNumber: 1,
-            },
-            adjudicationInfo: {
-              requiresAdjudication: true,
-              enabledReasonInfos: [
-                {
-                  type: AdjudicationReason.Undervote,
-                  contestId: '1',
-                  optionIds: [],
-                  optionIndexes: [],
-                  expected: 1,
-                },
-              ],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Undervote],
-            },
-            votes: {},
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
           },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
-            metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
-              pageNumber: 2,
-            },
-            adjudicationInfo: {
-              requiresAdjudication: false,
-              enabledReasonInfos: [],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Overvote],
-            },
-            votes: {},
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: 'abcde',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 1,
           },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [
+              {
+                type: AdjudicationReason.Undervote,
+                contestId: '1',
+                optionIds: [],
+                optionIndexes: [],
+                expected: 1,
+              },
+            ],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Undervote],
+          },
+          votes: {},
         },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: 'abcde',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 2,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
+        },
+      },
     })
   );
 
@@ -316,78 +304,74 @@ test('says the ballot sheet is blank if it is', async () => {
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
-            metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
-              pageNumber: 1,
-            },
-            adjudicationInfo: {
-              requiresAdjudication: true,
-              enabledReasonInfos: [
-                {
-                  type: AdjudicationReason.Undervote,
-                  contestId: '1',
-                  expected: 1,
-                  optionIds: [],
-                  optionIndexes: [],
-                },
-                { type: AdjudicationReason.BlankBallot },
-              ],
-              ignoredReasonInfos: [],
-              enabledReasons: [
-                AdjudicationReason.BlankBallot,
-                AdjudicationReason.Undervote,
-              ],
-            },
-            votes: {},
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
           },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
-            metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
-              pageNumber: 2,
-            },
-            adjudicationInfo: {
-              requiresAdjudication: true,
-              enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
-              ignoredReasonInfos: [],
-              enabledReasons: [
-                AdjudicationReason.BlankBallot,
-                AdjudicationReason.Undervote,
-              ],
-            },
-            votes: {},
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: 'abcde',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 1,
           },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [
+              {
+                type: AdjudicationReason.Undervote,
+                contestId: '1',
+                expected: 1,
+                optionIds: [],
+                optionIndexes: [],
+              },
+              { type: AdjudicationReason.BlankBallot },
+            ],
+            ignoredReasonInfos: [],
+            enabledReasons: [
+              AdjudicationReason.BlankBallot,
+              AdjudicationReason.Undervote,
+            ],
+          },
+          votes: {},
         },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: 'abcde',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 2,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
+            ignoredReasonInfos: [],
+            enabledReasons: [
+              AdjudicationReason.BlankBallot,
+              AdjudicationReason.Undervote,
+            ],
+          },
+          votes: {},
+        },
+      },
     })
   );
 
@@ -434,41 +418,37 @@ test('calls out official ballot sheets in test mode', async () => {
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
-              pageNumber: 1,
-            },
-          },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
-              pageNumber: 2,
-            },
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: 'abcde',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 1,
           },
         },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: 'abcde',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 2,
+          },
+        },
+      },
     })
   );
 
@@ -508,41 +488,37 @@ test('calls out test ballot sheets in live mode', async () => {
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
-              pageNumber: 1,
-            },
-          },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
-              pageNumber: 2,
-            },
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: 'abcde',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 1,
           },
         },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ballotStyleId: '1',
+            precinctId: '1',
+            ballotType: BallotType.Standard,
+            electionHash: 'abcde',
+            isTestMode: false,
+            locales: { primary: 'en-US' },
+            pageNumber: 2,
+          },
+        },
+      },
     })
   );
 
@@ -585,23 +561,19 @@ test('shows invalid election screen when appropriate', async () => {
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InvalidElectionHashPage',
-            actualElectionHash: 'this-is-a-hash-hooray',
-            expectedElectionHash: 'something',
-          },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: { type: 'BlankPage' },
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InvalidElectionHashPage',
+          actualElectionHash: 'this-is-a-hash-hooray',
+          expectedElectionHash: 'something',
         },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        image: { url: '/back/url' },
+        interpretation: { type: 'BlankPage' },
+      },
     })
   );
 

@@ -16,7 +16,6 @@ import * as grout from '@votingworks/grout';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import {
   BallotPackageConfigurationError,
-  BallotPageLayout,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   SystemSettings,
@@ -585,46 +584,7 @@ export async function buildCentralScannerApp({
       const sheet = store.getNextAdjudicationSheet();
 
       if (sheet) {
-        let frontLayout: BallotPageLayout | undefined;
-        let backLayout: BallotPageLayout | undefined;
-        let frontDefinition:
-          | Scan.GetNextReviewSheetResponse['definitions']['front']
-          | undefined;
-        let backDefinition:
-          | Scan.GetNextReviewSheetResponse['definitions']['back']
-          | undefined;
-
-        if (sheet.front.interpretation.type === 'InterpretedHmpbPage') {
-          const front = sheet.front.interpretation;
-          const layouts = store.getBallotPageLayoutsForMetadata(front.metadata);
-          const contestIds = store.getContestIdsForMetadata(front.metadata);
-          frontLayout = layouts.find(
-            ({ metadata }) => metadata.pageNumber === front.metadata.pageNumber
-          );
-          frontDefinition = { contestIds };
-        }
-
-        if (sheet.back.interpretation.type === 'InterpretedHmpbPage') {
-          const back = sheet.back.interpretation;
-          const layouts = store.getBallotPageLayoutsForMetadata(back.metadata);
-          const contestIds = store.getContestIdsForMetadata(back.metadata);
-          backLayout = layouts.find(
-            ({ metadata }) => metadata.pageNumber === back.metadata.pageNumber
-          );
-          backDefinition = { contestIds };
-        }
-
-        response.json({
-          interpreted: sheet,
-          layouts: {
-            front: frontLayout,
-            back: backLayout,
-          },
-          definitions: {
-            front: frontDefinition,
-            back: backDefinition,
-          },
-        });
+        response.json(sheet);
       } else {
         response.status(404).end();
       }

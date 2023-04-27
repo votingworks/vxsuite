@@ -11,6 +11,7 @@ import {
 import { typedAs } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
+  electionGridLayoutNewHampshireAmherstFixtures,
   electionSampleDefinition as testElectionDefinition,
 } from '@votingworks/fixtures';
 import { Logger, fakeLogger } from '@votingworks/logging';
@@ -56,7 +57,10 @@ beforeEach(async () => {
   mockUsb = createMockUsb();
   logger = fakeLogger();
   workspace = await createWorkspace(dirSync().name);
-  workspace.store.setElection(stateOfHamilton.electionDefinition.electionData);
+  workspace.store.setElection(
+    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+      .electionData
+  );
   workspace.store.setTestMode(false);
   app = await buildCentralScannerApp({
     auth,
@@ -76,10 +80,12 @@ afterEach(async () => {
   server?.close();
 });
 
-const frontOriginal = stateOfHamilton.filledInPage1Flipped;
-const frontNormalized = stateOfHamilton.filledInPage1;
-const backOriginal = stateOfHamilton.filledInPage2;
-const backNormalized = stateOfHamilton.filledInPage2;
+const frontOriginal =
+  electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath();
+const frontNormalized = frontOriginal;
+const backOriginal =
+  electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath();
+const backNormalized = backOriginal;
 const sheet: SheetOf<PageInterpretationWithFiles> = [
   {
     originalFilename: frontOriginal,
@@ -90,8 +96,8 @@ const sheet: SheetOf<PageInterpretationWithFiles> = [
         locales: { primary: 'en-US' },
         electionHash: stateOfHamilton.electionDefinition.electionHash,
         ballotType: BallotType.Standard,
-        ballotStyleId: '12',
-        precinctId: '23',
+        ballotStyleId: 'card-number-3',
+        precinctId: 'town-id-00701-precinct-id-',
         isTestMode: false,
         pageNumber: 1,
       },
@@ -117,8 +123,8 @@ const sheet: SheetOf<PageInterpretationWithFiles> = [
         locales: { primary: 'en-US' },
         electionHash: stateOfHamilton.electionDefinition.electionHash,
         ballotType: BallotType.Standard,
-        ballotStyleId: '12',
-        precinctId: '23',
+        ballotStyleId: 'card-number-3',
+        precinctId: 'town-id-00701-precinct-id-',
         isTestMode: false,
         pageNumber: 2,
       },
@@ -544,19 +550,15 @@ test('get next sheet', async () => {
     .expect(
       200,
       typedAs<Scan.GetNextReviewSheetResponse>({
-        interpreted: {
-          id: 'mock-review-sheet',
-          front: {
-            image: { url: '/url/front' },
-            interpretation: { type: 'BlankPage' },
-          },
-          back: {
-            image: { url: '/url/back' },
-            interpretation: { type: 'BlankPage' },
-          },
+        id: 'mock-review-sheet',
+        front: {
+          image: { url: '/url/front' },
+          interpretation: { type: 'BlankPage' },
         },
-        layouts: {},
-        definitions: {},
+        back: {
+          image: { url: '/url/back' },
+          interpretation: { type: 'BlankPage' },
+        },
       })
     );
 });
@@ -631,24 +633,14 @@ test('get next sheet layouts', async () => {
     .expect(
       200,
       typedAs<Scan.GetNextReviewSheetResponse>({
-        interpreted: {
-          id: 'mock-review-sheet',
-          front: {
-            image: { url: '/url/front' },
-            interpretation: frontInterpretation,
-          },
-          back: {
-            image: { url: '/url/back' },
-            interpretation: backInterpretation,
-          },
+        id: 'mock-review-sheet',
+        front: {
+          image: { url: '/url/front' },
+          interpretation: frontInterpretation,
         },
-        layouts: {
-          front: frontLayout,
-          back: backLayout,
-        },
-        definitions: {
-          front: { contestIds: [] },
-          back: { contestIds: [] },
+        back: {
+          image: { url: '/url/back' },
+          interpretation: backInterpretation,
         },
       })
     );

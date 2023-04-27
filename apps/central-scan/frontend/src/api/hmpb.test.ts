@@ -6,19 +6,15 @@ jest.mock('./config');
 
 test('can fetch the next ballot sheet needing review', async () => {
   const response: Scan.GetNextReviewSheetResponse = {
-    interpreted: {
-      id: 'test-sheet',
-      front: {
-        image: { url: '/' },
-        interpretation: { type: 'UnreadablePage' },
-      },
-      back: {
-        image: { url: '/' },
-        interpretation: { type: 'UnreadablePage' },
-      },
+    id: 'test-sheet',
+    front: {
+      image: { url: '/' },
+      interpretation: { type: 'UnreadablePage' },
     },
-    layouts: {},
-    definitions: {},
+    back: {
+      image: { url: '/' },
+      interpretation: { type: 'UnreadablePage' },
+    },
   };
   fetchMock.getOnce('/central-scanner/scan/hmpb/review/next-sheet', {
     status: 200,
