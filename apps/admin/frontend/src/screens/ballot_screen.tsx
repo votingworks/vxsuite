@@ -15,21 +15,19 @@ import {
 } from '@votingworks/types';
 import pluralize from 'pluralize';
 
-import { LogEventId } from '@votingworks/logging';
 import {
   Button,
   SegmentedButtonDeprecated as SegmentedButton,
   Monospace,
   Prose,
   useStoredState,
-  printElementWhenReady,
   printElementToPdfWhenReady,
   LinkButton,
 } from '@votingworks/ui';
 import { Admin } from '@votingworks/api';
 import { z } from 'zod';
 import { assert } from '@votingworks/basics';
-import { BallotScreenProps, PrintableBallotType } from '../config/types';
+import { BallotScreenProps } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 
 import { HandMarkedPaperBallot } from '../components/hand_marked_paper_ballot';
@@ -46,10 +44,7 @@ import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { BallotCopiesInput } from '../components/ballot_copies_input';
 import { BallotModeToggle } from '../components/ballot_mode_toggle';
 import { BallotTypeToggle } from '../components/ballot_type_toggle';
-import { PrintBallotButtonText } from '../components/print_ballot_button_text';
 import { ServicesContext } from '../contexts/services_context';
-import { PrintButton } from '../components/print_button';
-import { addPrintedBallots } from '../api';
 
 const BallotPreviewHeader = styled.div`
   margin-top: 1rem;
@@ -85,11 +80,9 @@ export function BallotScreen(): JSX.Element {
     ballotStyleId,
     localeCode: currentLocaleCode,
   } = useParams<BallotScreenProps>();
-  const { electionDefinition, logger, auth } = useContext(AppContext);
+  const { electionDefinition, auth } = useContext(AppContext);
   const { storage } = useContext(ServicesContext);
-  const addPrintedBallotMutation = addPrintedBallots.useMutation();
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
-  const userRole = auth.user.role;
   assert(electionDefinition);
   const { election, electionHash } = electionDefinition;
   const availableLocaleCodes = [DEFAULT_LOCALE];
@@ -185,59 +178,6 @@ export function BallotScreen(): JSX.Element {
     ]
   );
 
-  const printBallot = useCallback(async () => {
-    // TODO(auth) check permissions for viewing ballots
-    try {
-      await printElementWhenReady(ballotWithCallback, {
-        sides: 'two-sided-long-edge',
-        copies: ballotCopies,
-      });
-
-      const ballotType = isAbsentee
-        ? PrintableBallotType.Absentee
-        : PrintableBallotType.Precinct;
-
-      // Update the printed ballot count
-      addPrintedBallotMutation.mutate({
-        printedBallot: {
-          ballotStyleId,
-          precinctId,
-          numCopies: ballotCopies,
-          ballotType,
-          ballotMode,
-        },
-      });
-
-      await logger.log(LogEventId.BallotPrinted, userRole, {
-        message: `${ballotCopies} ${ballotMode} ${ballotType} ballots printed. Precinct: ${precinctId}, ballot style: ${ballotStyleId}`,
-        disposition: 'success',
-        ballotStyleId,
-        precinctId,
-        locales: getHumanBallotLanguageFormat(locales),
-        ballotType,
-        ballotMode,
-        ballotCopies,
-      });
-    } catch (error) {
-      assert(error instanceof Error);
-      void logger.log(LogEventId.BallotPrinted, userRole, {
-        message: `Error attempting to print ballot: ${error.message}`,
-        disposition: 'failure',
-      });
-    }
-  }, [
-    addPrintedBallotMutation,
-    ballotCopies,
-    ballotMode,
-    ballotStyleId,
-    ballotWithCallback,
-    isAbsentee,
-    locales,
-    logger,
-    precinctId,
-    userRole,
-  ]);
-
   const printBallotToPdf = useCallback(() => {
     return printElementToPdfWhenReady(ballotWithCallback);
   }, [ballotWithCallback]);
@@ -308,26 +248,16 @@ export function BallotScreen(): JSX.Element {
               </React.Fragment>
             )}
           </p>
-          <p>
-            <PrintButton variant="primary" print={printBallot}>
-              <PrintBallotButtonText
-                ballotCopies={ballotCopies}
-                ballotMode={ballotMode}
-                isAbsentee={isAbsentee}
-              />
-            </PrintButton>
-            {window.kiosk && (
-              <React.Fragment>
-                {' '}
-                <Button
-                  onPress={() => setIsSaveModalOpen(true)}
-                  disabled={ballotPages === 0}
-                >
-                  Save Ballot as PDF
-                </Button>
-              </React.Fragment>
-            )}
-          </p>
+          {window.kiosk && (
+            <p>
+              <Button
+                onPress={() => setIsSaveModalOpen(true)}
+                disabled={ballotPages === 0}
+              >
+                Save Ballot as PDF
+              </Button>
+            </p>
+          )}
           <p>
             <LinkButton small to={routerPaths.ballotsList}>
               Back to List Ballots

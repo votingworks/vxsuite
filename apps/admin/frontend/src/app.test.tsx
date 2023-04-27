@@ -33,7 +33,6 @@ import {
   getByText as domGetByText,
   act,
   within,
-  waitForElementToBeRemoved,
 } from '../test/react_testing_library';
 
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
@@ -41,10 +40,7 @@ import { convertTalliesByPrecinctToFullExternalTally } from './utils/external_ta
 import { VxFiles } from './lib/converters';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/api_mock';
-import {
-  mockCastVoteRecordFileRecord,
-  mockPrintedBallotRecord,
-} from '../test/api_mock_data';
+import { mockCastVoteRecordFileRecord } from '../test/api_mock_data';
 import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
 
 const EITHER_NEITHER_CVR_DATA =
@@ -367,80 +363,6 @@ test('L&A (logic and accuracy) flow', async () => {
   );
 });
 
-test('printing ballots', async () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
-  const mockPrintedBallot: Admin.PrintedBallot = {
-    ballotStyleId: '1M',
-    precinctId: 'precinct-1',
-    numCopies: 1,
-    ballotType: 'absentee',
-    ballotMode: Admin.BallotMode.Official,
-  };
-
-  const { renderApp, hardware, logger } = buildApp(apiMock);
-  hardware.setPrinterConnected(false);
-  apiMock.expectGetCastVoteRecords([]);
-  apiMock.expectGetSystemSettings();
-  apiMock.expectGetCurrentElectionMetadata({
-    electionDefinition,
-  });
-  const { getByText, getAllByText } = renderApp();
-  await apiMock.authenticateAsElectionManager(electionDefinition);
-
-  fireEvent.click(getByText('Ballots'));
-  fireEvent.click(getAllByText('View Ballot')[0]);
-  fireEvent.click(getByText('Precinct'));
-  fireEvent.click(getByText('Absentee'));
-  fireEvent.click(getByText('Test'));
-  fireEvent.click(getByText('Official'));
-  apiMock.expectAddPrintedBallot(mockPrintedBallot);
-  fireEvent.click(getByText('Print 1', { exact: false }));
-
-  // PrintButton flow where printer is not connected
-  await screen.findByText('The printer is not connected.');
-  expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
-  act(() => {
-    hardware.setPrinterConnected(true);
-  });
-  await waitFor(() => {
-    expect(screen.getByRole('button', { name: 'Continue' })).not.toBeDisabled();
-  });
-  userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-
-  // Printing should now continue normally
-  await screen.findByText('Printing');
-  await expectPrint((printedElement, printOptions) => {
-    printedElement.getByText('Mocked HMPB');
-    printedElement.getByText('Ballot Mode: live');
-    printedElement.getByText('Absentee: true');
-    expect(printOptions).toMatchObject({
-      sides: 'two-sided-long-edge',
-      copies: 1,
-    });
-  });
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.BallotPrinted,
-    expect.any(String),
-    expect.anything()
-  );
-  await waitForElementToBeRemoved(() => screen.queryByText('Printing'));
-  apiMock.expectAddPrintedBallot(mockPrintedBallot);
-  fireEvent.click(getByText('Print 1', { exact: false }));
-  await screen.findByText('Printing');
-  await expectPrint();
-  await waitForElementToBeRemoved(() => screen.queryByText('Printing'));
-  fireEvent.click(getByText('Precinct'));
-  apiMock.expectAddPrintedBallot({
-    ...mockPrintedBallot,
-    ballotType: Admin.PrintableBallotType.Precinct,
-  });
-
-  fireEvent.click(getByText('Print 1', { exact: false }));
-  await screen.findByText('Printing');
-  await expectPrint();
-  await waitForElementToBeRemoved(() => screen.queryByText('Printing'));
-});
-
 test('marking results as official', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
   const { renderApp } = buildApp(apiMock);
@@ -449,7 +371,6 @@ test('marking results as official', async () => {
     electionDefinition,
   });
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetOfficialPrintedBallots([]);
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
   apiMock.expectGetWriteInSummaryAdjudicated([]);
   renderApp();
@@ -487,7 +408,6 @@ test('tabulating CVRs', async () => {
     electionDefinition,
     isOfficialResults: true,
   });
-  apiMock.expectGetOfficialPrintedBallots([]);
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
   apiMock.expectGetWriteInSummaryAdjudicated([]);
   const { getByText, getAllByText, getByTestId } = renderApp();
@@ -629,7 +549,6 @@ test('tabulating CVRs with manual data', async () => {
   ]);
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
   apiMock.expectGetWriteInSummaryAdjudicated([]);
-  apiMock.expectGetOfficialPrintedBallots([]);
 
   const { getByText, getByTestId, getAllByText, queryAllByText } = renderApp();
 
@@ -787,7 +706,7 @@ test('tabulating CVRs with manual data', async () => {
   });
 });
 
-test('reports screen shows appropriate summary data about ballot counts and printed ballots', async () => {
+test('reports screen shows appropriate summary data about ballot counts', async () => {
   const { electionDefinition, legacyCvrData } =
     electionMinimalExhaustiveSampleFixtures;
   const { renderApp, backend } = buildApp(apiMock);
@@ -796,10 +715,6 @@ test('reports screen shows appropriate summary data about ballot counts and prin
   );
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetOfficialPrintedBallots([
-    mockPrintedBallotRecord,
-    mockPrintedBallotRecord,
-  ]);
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
 
   const manualTally = convertTalliesByPrecinctToFullExternalTally(
@@ -825,12 +740,6 @@ test('reports screen shows appropriate summary data about ballot counts and prin
     expect(screen.getAllByTestId('total-ballot-count')[0].textContent).toEqual(
       '3,100'
     )
-  );
-
-  // printed ballot count matches what is passed by API
-  await screen.findAllByText('2 ballots');
-  expect(screen.getByTestId('printed-ballots-summary')).toHaveTextContent(
-    '2 ballots have been printed.'
   );
 });
 
@@ -989,7 +898,6 @@ test('election manager UI has expected nav', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
   apiMock.expectGetCastVoteRecordFiles([]);
-  apiMock.expectGetOfficialPrintedBallots([]);
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
@@ -1150,92 +1058,6 @@ test('election manager cannot auth onto machine with different election hash', a
   );
 });
 
-test('system administrator Ballots tab and election manager Ballots tab have expected differences', async () => {
-  const electionDefinition = eitherNeitherElectionDefinition;
-  const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
-  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetSystemSettings();
-  renderApp();
-
-  await apiMock.authenticateAsSystemAdministrator();
-
-  const numPrecinctBallots = 13;
-
-  userEvent.click(screen.getByText('Ballots'));
-  let viewBallotButtons = await screen.findAllByText('View Ballot');
-  expect(viewBallotButtons).toHaveLength(
-    numPrecinctBallots + 1 // Super ballot
-  );
-  screen.getByText('Print All');
-  expect(screen.queryByText('Save PDFs')).not.toBeInTheDocument();
-  expect(screen.queryByText('Save Ballot Package')).not.toBeInTheDocument();
-
-  // View super ballot
-  userEvent.click(viewBallotButtons[0]);
-  await screen.findByRole('heading', {
-    name: 'Ballot Style All has 14 contests',
-  });
-  screen.getByRole('button', { name: 'Absentee' });
-  screen.getByRole('button', { name: 'Precinct' });
-  expect(
-    screen.queryByRole('button', { name: 'Official' })
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: 'Test' })
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: 'Sample' })
-  ).not.toBeInTheDocument();
-  screen.getByRole('button', { name: 'Print 1 Sample Absentee Ballot' });
-  expect(screen.queryByText(/Ballot Package Filename/)).not.toBeInTheDocument();
-
-  // View precinct ballot
-  userEvent.click(screen.getByText('Back to List Ballots'));
-  viewBallotButtons = await screen.findAllByText('View Ballot');
-  userEvent.click(viewBallotButtons[1]);
-  await screen.findByRole('heading', {
-    name: 'Ballot Style 4 for Bywy has 9 contests',
-  });
-  screen.getByRole('button', { name: 'Absentee' });
-  screen.getByRole('button', { name: 'Precinct' });
-  expect(
-    screen.queryByRole('button', { name: 'Official' })
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: 'Test' })
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: 'Sample' })
-  ).not.toBeInTheDocument();
-  screen.getByRole('button', { name: 'Print 1 Sample Absentee Ballot' });
-  screen.getByRole('button', { name: 'Save Ballot as PDF' });
-  expect(screen.queryByText(/Ballot Package Filename/)).not.toBeInTheDocument();
-
-  await apiMock.logOut();
-  await apiMock.authenticateAsElectionManager(electionDefinition);
-
-  userEvent.click(screen.getByText('Ballots'));
-  viewBallotButtons = await screen.findAllByText('View Ballot');
-  expect(viewBallotButtons).toHaveLength(numPrecinctBallots);
-  screen.getByText('Print All');
-  screen.getByText('Save PDFs');
-  screen.getByText('Save Ballot Package');
-
-  userEvent.click(viewBallotButtons[0]);
-  await screen.findByRole('heading', {
-    name: 'Ballot Style 4 for Bywy has 9 contests',
-  });
-  screen.getByRole('button', { name: 'Absentee' });
-  screen.getByRole('button', { name: 'Precinct' });
-  screen.getByRole('button', { name: 'Official' });
-  screen.getByRole('button', { name: 'Test' });
-  screen.getByRole('button', { name: 'Sample' });
-  screen.getByRole('button', { name: 'Print 1 Official Absentee Ballot' });
-  screen.getByRole('button', { name: 'Save Ballot as PDF' });
-  screen.getByText(/Ballot Package Filename/);
-});
-
 test('primary election flow', async () => {
   const { electionDefinition, legacyCvrData } =
     electionMinimalExhaustiveSampleFixtures;
@@ -1247,7 +1069,6 @@ test('primary election flow', async () => {
     await fileDataToCastVoteRecords(legacyCvrData, electionDefinition)
   );
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
-  apiMock.expectGetOfficialPrintedBallots([]);
   apiMock.expectGetWriteInSummaryAdjudicated([]);
 
   renderApp();

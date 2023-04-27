@@ -540,21 +540,6 @@ function buildApi({
         writeInCoordinates: writeInLayout.bounds,
       };
     },
-
-    getPrintedBallots(
-      input: { ballotMode?: Admin.BallotMode } = {}
-    ): Admin.PrintedBallotRecord[] {
-      return store.getPrintedBallots(loadCurrentElectionIdOrThrow(workspace), {
-        ...input,
-      });
-    },
-
-    addPrintedBallots(input: { printedBallot: Admin.PrintedBallot }): string {
-      return store.addPrintedBallot(
-        loadCurrentElectionIdOrThrow(workspace),
-        input.printedBallot
-      );
-    },
   });
 }
 

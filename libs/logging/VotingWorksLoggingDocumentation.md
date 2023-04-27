@@ -130,14 +130,6 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** Saving the ballot package completed, success or failure is indicated by the disposition.  
 **Machines:** vx-admin-frontend
-### ballot-printed
-**Type:** [user-action](#user-action)  
-**Description:** One or more copies of a ballot were printed. Success or failure indicated by the disposition. Precinct, ballot style, ballot type, number of copies and other details included in log data.  
-**Machines:** vx-admin-frontend
-### printed-ballot-report-printed
-**Type:** [user-action](#user-action)  
-**Description:** Report of all printed ballots was printed. Success or failure indicated by the disposition.  
-**Machines:** vx-admin-frontend
 ### smart-card-program-init
 **Type:** [user-action](#user-action)  
 **Description:** A smart card is being programmed. The new smart card user role is indicated by the programmedUserRole key.  

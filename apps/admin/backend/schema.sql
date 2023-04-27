@@ -80,19 +80,6 @@ create table ballot_images (
     on delete cascade
 );
 
-create table printed_ballots (
-  id varchar(36) primary key,
-  election_id varchar(36) not null,
-  ballot_style_id text not null,
-  precinct_id text not null,
-  ballot_type text not null,
-  ballot_mode text not null,
-  num_copies integer not null,
-  created_at timestamp not null default current_timestamp,
-  foreign key (election_id) references elections(id)
-    on delete cascade
-);
-
 create table system_settings (
   -- enforce singleton table
   id integer primary key check (id = 1),
