@@ -32,7 +32,7 @@ test('fails on ballot package with more than one sheet', async () => {
     iter(
       generateCvrs({
         ballotPackage: await mockMultiSheetBallotPackage(),
-        scannerNames: ['scanner-1'],
+        scannerIds: ['scanner-1'],
         testMode: true,
         includeBallotImages: false,
       })
@@ -44,7 +44,7 @@ test('produces well-formed cast vote records with all contests', async () => {
   const { election } = electionMinimalExhaustiveSampleDefinition;
   for await (const cvr of generateCvrs({
     ballotPackage: await mockBallotPackage(),
-    scannerNames: ['scanner-1'],
+    scannerIds: ['scanner-1'],
     testMode: true,
     includeBallotImages: false,
   })) {
@@ -73,7 +73,7 @@ test('has absentee and standard ballot types', async () => {
 
   for await (const cvr of generateCvrs({
     testMode: false,
-    scannerNames: ['scanner-1'],
+    scannerIds: ['scanner-1'],
     includeBallotImages: false,
     ballotPackage: await mockBallotPackage(),
   })) {
@@ -108,7 +108,7 @@ test('uses all the scanners given', async () => {
 
   for await (const cvr of generateCvrs({
     testMode: false,
-    scannerNames: ['scanner-1', 'scanner-2'],
+    scannerIds: ['scanner-1', 'scanner-2'],
     includeBallotImages: false,
     ballotPackage: await mockBallotPackage(),
   })) {
@@ -129,7 +129,7 @@ test('adds write-ins for contests that allow them', async () => {
 
   for await (const cvr of generateCvrs({
     testMode: false,
-    scannerNames: ['scanner-1'],
+    scannerIds: ['scanner-1'],
     includeBallotImages: false,
     ballotPackage: await mockBallotPackage(),
   })) {
@@ -163,7 +163,7 @@ test('adds write-ins for contests that have 1 seat', async () => {
   let seenWriteIn = false;
 
   for await (const cvr of generateCvrs({
-    scannerNames: ['scanner-1'],
+    scannerIds: ['scanner-1'],
     testMode: false,
     includeBallotImages: false,
     ballotPackage: await readBallotPackageFromBuffer(
@@ -195,7 +195,7 @@ test('can include ballot image references for write-ins', async () => {
   let reportHasWriteIn = false;
   for await (const cvr of generateCvrs({
     testMode: false,
-    scannerNames: ['scanner-1'],
+    scannerIds: ['scanner-1'],
     includeBallotImages: true,
     ballotPackage: await mockBallotPackage(),
   })) {

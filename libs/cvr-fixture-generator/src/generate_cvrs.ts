@@ -14,10 +14,10 @@ import {
 import { BallotPackage } from '@votingworks/utils';
 import {
   arrangeContestsBySheet,
-  BATCH_ID,
   filterVotesByContests,
   generateBallotAssetPath,
   generateCombinations,
+  getBatchIdForScannerId,
   splitContestsByPage,
 } from './utils';
 
@@ -102,7 +102,7 @@ function getVoteConfigurations(
 
 interface GenerateCvrsParams {
   testMode: boolean;
-  scannerNames: readonly string[];
+  scannerIds: readonly string[];
   ballotPackage: BallotPackage;
   includeBallotImages: boolean;
   ballotIdPrefix?: string;
@@ -112,13 +112,13 @@ interface GenerateCvrsParams {
 /**
  * Generates a base set of CVRs for a given election that obtains maximum coverage of all the ballot metadata (precincts, scanners, etc.) and all possible votes on each contest.
  * @param options.ballotPackage Ballot package containing the election data to generate CVRs for
- * @param options.scannerNames Scanners to include in the output CVRs
+ * @param options.scannerIds Scanners to include in the output CVRs
  * @param options.testMode Generate CVRs for test ballots or live ballots
  * @returns Array of generated {@link CVR.CVR}
  */
 export function* generateCvrs({
   testMode,
-  scannerNames,
+  scannerIds,
   ballotPackage,
   includeBallotImages,
   ballotIdPrefix,
@@ -153,8 +153,9 @@ export function* generateCvrs({
         if (ballotPageLayouts.length > 2) {
           throw new Error('only single-sheet ballots are supported');
         }
+        for (const scannerId of scannerIds) {
+          const batchId = getBatchIdForScannerId(scannerId);
 
-        for (const scanner of scannerNames) {
           const optionsForEachContest = new Map<string, readonly Vote[]>();
           for (const contest of contests) {
             switch (contest.type) {
@@ -186,9 +187,9 @@ export function* generateCvrs({
                 BallotStyleId: ballotStyleId,
                 BallotStyleUnitId: precinctId,
                 PartyIds: partyId ? [partyId] : undefined,
-                CreatingDeviceId: scanner,
+                CreatingDeviceId: scannerId,
                 ElectionId: electionDefinition.electionHash,
-                BatchId: BATCH_ID,
+                BatchId: batchId,
                 vxBallotType: ballotType,
                 CurrentSnapshotId: `${castVoteRecordId}-modified`,
                 UniqueId: ballotIdPrefix
@@ -237,12 +238,14 @@ export function* generateCvrs({
                 const frontImageFileUri = `file:${generateBallotAssetPath({
                   ballotStyleId: ballotStyle.id,
                   precinctId,
+                  batchId,
                   assetType: 'image',
                   pageNumber: sheetIndex * 2 + 1,
                 })}`;
                 const backImageFileUri = `file:${generateBallotAssetPath({
                   ballotStyleId: ballotStyle.id,
                   precinctId,
+                  batchId,
                   assetType: 'image',
                   pageNumber: sheetIndex * 2 + 2,
                 })}`;
@@ -252,9 +255,9 @@ export function* generateCvrs({
                   BallotStyleId: ballotStyleId,
                   BallotStyleUnitId: precinctId,
                   PartyIds: partyId ? [partyId] : undefined,
-                  CreatingDeviceId: scanner,
+                  CreatingDeviceId: scannerId,
                   ElectionId: electionDefinition.electionHash,
-                  BatchId: BATCH_ID,
+                  BatchId: batchId,
                   vxBallotType: ballotType,
                   CurrentSnapshotId: `${castVoteRecordId}-modified`,
                   UniqueId: ballotIdPrefix

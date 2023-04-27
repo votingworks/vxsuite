@@ -3,6 +3,7 @@ import {
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
 } from '@votingworks/backend';
 import { assert, assertDefined } from '@votingworks/basics';
+import { sha256 } from 'js-sha256';
 import {
   BallotPageLayout,
   Contests,
@@ -13,12 +14,6 @@ import {
   SheetOf,
   VotesDict,
 } from '@votingworks/types';
-
-/**
- * All generated cast vote records are in the same batch per scanner, with
- * this ID.
- */
-export const BATCH_ID = 'batch-1';
 
 /**
  * Generate all combinations of an array.
@@ -145,7 +140,7 @@ export function filterVotesByContests(
  * Format of the image URIs used in generated fixtures.
  */
 export const IMAGE_URI_REGEX = new RegExp(
-  String.raw`file:${CVR_BALLOT_IMAGES_SUBDIRECTORY}\/${BATCH_ID}\/(.+)__(.+)__(.+)\.jpg`
+  String.raw`file:${CVR_BALLOT_IMAGES_SUBDIRECTORY}\/(.+)\/(.+)__(.+)__(.+)\.jpg`
 );
 
 /**
@@ -155,10 +150,12 @@ export const IMAGE_URI_REGEX = new RegExp(
 export function generateBallotAssetPath({
   ballotStyleId,
   precinctId,
+  batchId,
   pageNumber,
   assetType,
 }: {
   ballotStyleId: string;
+  batchId: string;
   precinctId: string;
   pageNumber: number;
   assetType: 'image' | 'layout';
@@ -167,7 +164,7 @@ export function generateBallotAssetPath({
     assetType === 'image'
       ? CVR_BALLOT_IMAGES_SUBDIRECTORY
       : CVR_BALLOT_LAYOUTS_SUBDIRECTORY
-  }/${BATCH_ID}/${ballotStyleId}__${precinctId}__${pageNumber}.${
+  }/${batchId}/${ballotStyleId}__${precinctId}__${pageNumber}.${
     assetType === 'image' ? 'jpg' : 'layout.json'
   }`;
 }
@@ -193,4 +190,18 @@ export function replaceUniqueId(
       },
     ],
   };
+}
+
+/**
+ * Length in characters of all fixture batch ids.
+ */
+export const BATCH_ID_LENGTH = 10;
+
+/**
+ * Returns a `batchId` for a given `scannerId` simply by hashing the `scannerId`.
+ * Useful for keeping `batchId`s unique while avoiding randomly re-generating
+ * them whenever a fixture needs to be refreshed.
+ */
+export function getBatchIdForScannerId(scannerId: string): string {
+  return sha256(scannerId).slice(0, BATCH_ID_LENGTH);
 }
