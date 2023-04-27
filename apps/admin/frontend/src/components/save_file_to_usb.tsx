@@ -24,7 +24,6 @@ export const UsbImage = styled.img`
 
 export enum FileType {
   TallyReport = 'TallyReport',
-  PrintedBallotsReport = 'PrintedBallotReport',
   LogicAndAccuracyPackage = 'LogicAndAccuracyPackage',
   TestDeckTallyReport = 'TestDeckTallyReport',
   Ballot = 'Ballot',
@@ -71,10 +70,6 @@ export function SaveFileToUsb({
     case FileType.TallyReport:
       title = `${isOfficialResults ? 'Official' : 'Unofficial'} Tally Report`;
       fileName = 'tally report';
-      break;
-    case FileType.PrintedBallotsReport:
-      title = 'Printed Ballots Report';
-      fileName = 'printed ballots report';
       break;
     case FileType.LogicAndAccuracyPackage:
       title = 'Logic & Accuracy Package';

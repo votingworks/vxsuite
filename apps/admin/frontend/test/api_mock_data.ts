@@ -11,22 +11,3 @@ export const mockCastVoteRecordFileRecord: Admin.CastVoteRecordFileRecord = {
   sha256Hash: '',
   createdAt: '',
 };
-
-export const mockPrintedBallot: Admin.PrintedBallot = {
-  ballotStyleId: '4',
-  precinctId: '6538',
-  numCopies: 1,
-  ballotType: 'absentee',
-  ballotMode: Admin.BallotMode.Official,
-};
-
-export const mockPrintedBallotRecord: Admin.PrintedBallotRecord = {
-  ballotStyleId: '1M',
-  precinctId: 'precinct-1',
-  numCopies: 1,
-  ballotType: 'absentee',
-  ballotMode: Admin.BallotMode.Official,
-  id: 'id',
-  electionId: 'id',
-  createdAt: new Date().toISOString(),
-};

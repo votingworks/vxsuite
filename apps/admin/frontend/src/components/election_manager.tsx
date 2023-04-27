@@ -25,7 +25,6 @@ import { TallyReportScreen } from '../screens/tally_report_screen';
 import { TallyWriteInReportScreen } from '../screens/tally_writein_report_screen';
 import { DefinitionEditorScreen } from '../screens/definition_editor_screen';
 import { DefinitionContestsScreen } from '../screens/definition_contests_screen';
-import { PrintedBallotsReportScreen } from '../screens/printed_ballots_report_screen';
 import { ManualDataImportIndexScreen } from '../screens/manual_data_import_index_screen';
 import { ManualDataImportPrecinctScreen } from '../screens/manual_data_import_precinct_screen';
 import { SmartcardsScreen } from '../screens/smartcards_screen';
@@ -169,9 +168,6 @@ export function ElectionManager(): JSX.Element {
     <Switch>
       <Route exact path={routerPaths.ballotsList}>
         <BallotListScreen />
-      </Route>
-      <Route exact path={routerPaths.printedBallotsReport}>
-        <PrintedBallotsReportScreen />
       </Route>
       <Route exact path={routerPaths.manualDataImport}>
         <ManualDataImportIndexScreen />

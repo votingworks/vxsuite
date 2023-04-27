@@ -29,7 +29,7 @@ import { getPartiesWithPrimaryElections } from '../utils/election';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { getTallyConverterClient } from '../lib/converters';
 import { SaveResultsButton } from '../components/save_results_button';
-import { getCastVoteRecordFileMode, getPrintedBallots } from '../api';
+import { getCastVoteRecordFileMode } from '../api';
 
 export function ReportsScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
@@ -47,10 +47,6 @@ export function ReportsScreen(): JSX.Element {
     auth,
   } = useContext(AppContext);
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
-  const printedBallotsQuery = getPrintedBallots.useQuery({
-    ballotMode: Admin.BallotMode.Official,
-  });
-  const printedBallots = printedBallotsQuery.data ?? [];
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
   assert(electionDefinition && typeof configuredAt === 'string');
@@ -177,11 +173,6 @@ export function ReportsScreen(): JSX.Element {
     </p>
   );
 
-  const totalBallotsPrinted = printedBallots.reduce(
-    (count, ballot) => count + ballot.numCopies,
-    0
-  );
-
   // saving results is enabled once a cast vote record file is loaded
   const canSaveResults =
     castVoteRecordFileModeQuery.isSuccess &&
@@ -208,25 +199,6 @@ export function ReportsScreen(): JSX.Element {
               </React.Fragment>
             )}
             <SaveResultsButton disabled={!canSaveResults} />
-          </p>
-          <p>
-            <LinkButton to={routerPaths.printedBallotsReport}>
-              Printed Ballots Report
-            </LinkButton>
-            {printedBallotsQuery.isSuccess && (
-              <span
-                style={{ marginLeft: '1em' }}
-                data-testid="printed-ballots-summary"
-              >
-                <strong>
-                  {pluralize(
-                    `${format.count(totalBallotsPrinted)} ballots`,
-                    totalBallotsPrinted
-                  )}
-                </strong>{' '}
-                {`${pluralize('have', totalBallotsPrinted)} been printed`}.
-              </span>
-            )}
           </p>
           <p>
             <LinkButton to={routerPaths.tallyWriteInReport}>

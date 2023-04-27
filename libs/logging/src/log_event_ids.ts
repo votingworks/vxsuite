@@ -49,8 +49,6 @@ export enum LogEventId {
   // VxAdmin specific user action logs
   SaveBallotPackageInit = 'save-ballot-package-init',
   SaveBallotPackageComplete = 'save-ballot-package-complete',
-  BallotPrinted = 'ballot-printed',
-  PrintedBallotReportPrinted = 'printed-ballot-report-printed',
   SmartCardProgramInit = 'smart-card-program-init',
   SmartCardProgramComplete = 'smart-card-program-complete',
   SmartCardUnprogramInit = 'smart-card-unprogram-init',
@@ -327,21 +325,6 @@ const SaveBallotPackageComplete: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'Saving the ballot package completed, success or failure is indicated by the disposition.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
-};
-
-const BallotPrinted: LogDetails = {
-  eventId: LogEventId.BallotPrinted,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'One or more copies of a ballot were printed. Success or failure indicated by the disposition. Precinct, ballot style, ballot type, number of copies and other details included in log data.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
-};
-const PrintedBallotReportPrinted: LogDetails = {
-  eventId: LogEventId.PrintedBallotReportPrinted,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Report of all printed ballots was printed. Success or failure indicated by the disposition.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 
@@ -963,10 +946,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SaveBallotPackageInit;
     case LogEventId.SaveBallotPackageComplete:
       return SaveBallotPackageComplete;
-    case LogEventId.BallotPrinted:
-      return BallotPrinted;
-    case LogEventId.PrintedBallotReportPrinted:
-      return PrintedBallotReportPrinted;
     case LogEventId.FileSaved:
       return FileSaved;
     case LogEventId.SmartCardProgramInit:

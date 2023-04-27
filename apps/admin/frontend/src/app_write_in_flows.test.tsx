@@ -70,7 +70,6 @@ test('manual write-in data end-to-end test', async () => {
   );
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
-  apiMock.expectGetOfficialPrintedBallots([]);
   renderApp();
 
   // Navigate to manual data entry

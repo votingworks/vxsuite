@@ -1,6 +1,4 @@
 import {
-  BallotStyleId,
-  BallotStyleIdSchema,
   CastVoteRecord,
   ContestId,
   ContestIdSchema,
@@ -12,8 +10,6 @@ import {
   IdSchema,
   Iso8601Timestamp,
   Iso8601TimestampSchema,
-  PrecinctId,
-  PrecinctIdSchema,
   Rect,
 } from '@votingworks/types';
 import * as z from 'zod';
@@ -556,50 +552,3 @@ export enum CvrFileMode {
  * Schema for {@link BallotMode}.
  */
 export const BallotModeSchema = z.nativeEnum(BallotMode);
-
-/**
- * Information about printed ballots.
- */
-export interface PrintedBallot {
-  readonly ballotStyleId: BallotStyleId;
-  readonly precinctId: PrecinctId;
-  readonly ballotType: PrintableBallotType;
-  readonly ballotMode: BallotMode;
-  readonly numCopies: number;
-}
-
-/**
- * Schema for {@link PrintedBallot}.
- */
-export const PrintedBallotSchema: z.ZodSchema<PrintedBallot> = z.object({
-  ballotStyleId: BallotStyleIdSchema,
-  precinctId: PrecinctIdSchema,
-  ballotType: PrintableBallotTypeSchema,
-  ballotMode: BallotModeSchema,
-  numCopies: z.number().int().nonnegative(),
-});
-
-/**
- * Database record for a printed ballot.
- */
-export interface PrintedBallotRecord extends PrintedBallot {
-  readonly id: Id;
-  readonly electionId: Id;
-  readonly createdAt: Iso8601Timestamp;
-}
-
-/**
- * Schema for {@link PrintedBallotRecord}.
- */
-export const PrintedBallotRecordSchema: z.ZodSchema<PrintedBallotRecord> = z
-  .object({
-    id: IdSchema,
-    electionId: IdSchema,
-    ballotStyleId: BallotStyleIdSchema,
-    precinctId: PrecinctIdSchema,
-    ballotType: PrintableBallotTypeSchema,
-    ballotMode: BallotModeSchema,
-    numCopies: z.number().int().min(1),
-    createdAt: Iso8601TimestampSchema,
-  })
-  .strict();

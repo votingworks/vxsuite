@@ -29,7 +29,6 @@ import {
 import { NavigationScreen } from '../components/navigation_screen';
 import { ExportElectionBallotPackageModalButton } from '../components/export_election_ballot_package_modal_button';
 import { ExportBallotPdfsButton } from '../components/export_ballot_pdfs_button';
-import { PrintAllBallotsButton } from '../components/print_all_ballots_button';
 import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
 
 const Header = styled.div`
@@ -117,7 +116,6 @@ export function BallotListScreen(): JSX.Element {
 
         <Prose maxWidth={false}>
           <p>
-            <PrintAllBallotsButton />{' '}
             {isElectionManagerAuth(auth) && (
               <React.Fragment>
                 <ExportBallotPdfsButton />{' '}

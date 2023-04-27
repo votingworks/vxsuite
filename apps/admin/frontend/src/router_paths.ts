@@ -34,7 +34,6 @@ export const routerPaths = {
     precinctId,
   }: ManualDataPrecinctScreenProps): string =>
     `/tally/manual-data-import/precinct/${precinctId}`,
-  printedBallotsReport: '/reports/printed-ballots-report',
   reports: '/reports',
   tally: '/tally',
   tallyPrecinctReport: ({ precinctId }: PrecinctReportScreenProps): string =>
