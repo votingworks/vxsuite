@@ -859,6 +859,28 @@ jobs:
       - store_test_results:
           path: libs/ui/reports/
 
+  test-libs-usb-drive:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/usb-drive build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/usb-drive lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/usb-drive test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/usb-drive/reports/
+
   test-libs-utils:
     executor: nodejs-browsers
     resource_class: xlarge
@@ -951,6 +973,7 @@ workflows:
       - test-libs-test-utils
       - test-libs-types
       - test-libs-ui
+      - test-libs-usb-drive
       - test-libs-utils
       - test-services-converter-ms-sems
       - validate-monorepo

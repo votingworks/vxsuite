@@ -145,6 +145,10 @@
       "path": "libs/ui"
     },
     {
+      "name": "libs/usb-drive",
+      "path": "libs/usb-drive"
+    },
+    {
       "name": "libs/usb-mocking",
       "path": "libs/usb-mocking"
     },
