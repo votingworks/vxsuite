@@ -96,9 +96,7 @@ test('getAuthStatus before election definition has been configured', async () =>
 
   await apiClient.getAuthStatus();
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
-    jurisdiction,
-  });
+  expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {});
 });
 
 test('checkPin before election definition has been configured', async () => {
@@ -106,11 +104,7 @@ test('checkPin before election definition has been configured', async () => {
 
   await apiClient.checkPin({ pin: '123456' });
   expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
-  expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
-    1,
-    { jurisdiction },
-    { pin: '123456' }
-  );
+  expect(mockAuth.checkPin).toHaveBeenNthCalledWith(1, {}, { pin: '123456' });
 });
 
 test('logOut before election definition has been configured', async () => {
@@ -118,9 +112,7 @@ test('logOut before election definition has been configured', async () => {
 
   await apiClient.logOut();
   expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
-  expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {
-    jurisdiction,
-  });
+  expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {});
 });
 
 test('updateSessionExpiry before election definition has been configured', async () => {
@@ -132,7 +124,7 @@ test('updateSessionExpiry before election definition has been configured', async
   expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    { jurisdiction },
+    {},
     { sessionExpiresAt: expect.any(Date) }
   );
 });
@@ -147,7 +139,7 @@ test('startCardlessVoterSession before election definition has been configured',
   expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.startCardlessVoterSession).toHaveBeenNthCalledWith(
     1,
-    { jurisdiction },
+    {},
     { ballotStyleId: 'b1', precinctId: 'p1' }
   );
 });
@@ -157,7 +149,5 @@ test('endCardlessVoterSession before election definition has been configured', a
 
   await apiClient.endCardlessVoterSession();
   expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(1);
-  expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(1, {
-    jurisdiction,
-  });
+  expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(1, {});
 });

@@ -15,7 +15,11 @@ import {
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
-import { ScannerReportData, ScannerReportDataSchema } from '@votingworks/utils';
+import {
+  ScannerReportData,
+  ScannerReportDataSchema,
+  isElectionManagerAuth,
+} from '@votingworks/utils';
 
 import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
@@ -28,10 +32,10 @@ function constructAuthMachineState(
   workspace: Workspace
 ): InsertedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
+  const jurisdiction = workspace.store.getJurisdiction();
   return {
     electionHash: electionDefinition?.electionHash,
-    // TODO: Persist jurisdiction in store and pull from there
-    jurisdiction: DEV_JURISDICTION,
+    jurisdiction,
   };
 }
 
@@ -90,17 +94,20 @@ function buildApi(
     },
 
     unconfigureMachine() {
-      workspace.store.setElection(undefined);
+      workspace.store.setElectionAndJurisdiction(undefined);
       workspace.store.deleteSystemSettings();
     },
 
-    configureSampleBallotPackage(): Result<
+    configureWithSampleBallotPackageForIntegrationTest(): Result<
       ElectionDefinition,
       BallotPackageConfigurationError
     > {
       const electionDefinition = electionSampleDefinition;
       const systemSettings = DEFAULT_SYSTEM_SETTINGS;
-      workspace.store.setElection(electionDefinition.electionData);
+      workspace.store.setElectionAndJurisdiction({
+        electionData: electionDefinition.electionData,
+        jurisdiction: DEV_JURISDICTION,
+      });
       workspace.store.setSystemSettings(systemSettings);
       return ok(electionDefinition);
     },
@@ -111,7 +118,6 @@ function buildApi(
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
-
       const [usbDrive] = await usb.getUsbDrives();
       assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
 
@@ -120,15 +126,19 @@ function buildApi(
         usbDrive,
         logger
       );
-
       if (ballotPackageResult.isErr()) {
         return ballotPackageResult;
       }
-
+      assert(isElectionManagerAuth(authStatus));
       const { electionDefinition, systemSettings } = ballotPackageResult.ok();
       assert(systemSettings);
-      workspace.store.setElection(electionDefinition.electionData);
+
+      workspace.store.setElectionAndJurisdiction({
+        electionData: electionDefinition.electionData,
+        jurisdiction: authStatus.user.jurisdiction,
+      });
       workspace.store.setSystemSettings(systemSettings);
+
       return ok(electionDefinition);
     },
 
