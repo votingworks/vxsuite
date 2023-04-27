@@ -124,20 +124,17 @@ function buildApi({
       }
     },
 
+    /* istanbul ignore next - only used by Cypress */
     async configureWithSampleBallotPackageForIntegrationTest(): Promise<void> {
       const fileContents = await fs.readFile(
         '../integration-testing/cypress/fixtures/ballot-package.zip'
       );
       const ballotPackage = await readBallotPackageFromBuffer(fileContents);
-      const { electionDefinition, ballots } = ballotPackage;
+      const { electionDefinition } = ballotPackage;
       const systemSettings = DEFAULT_SYSTEM_SETTINGS;
 
       importer.configure(electionDefinition, DEV_JURISDICTION);
       store.setSystemSettings(systemSettings);
-      for (const ballot of ballots) {
-        await importer.addHmpbTemplates(ballot.pdf, ballot.layout);
-      }
-      await importer.doneHmpbTemplates();
     },
 
     async configureFromBallotPackageOnUsbDrive(): Promise<
@@ -159,15 +156,11 @@ function buildApi({
       }
       assert(isElectionManagerAuth(authStatus));
       const ballotPackage = ballotPackageResult.ok();
-      const { electionDefinition, systemSettings, ballots } = ballotPackage;
+      const { electionDefinition, systemSettings } = ballotPackage;
       assert(systemSettings);
 
       importer.configure(electionDefinition, authStatus.user.jurisdiction);
       store.setSystemSettings(systemSettings);
-      for (const ballot of ballots) {
-        await importer.addHmpbTemplates(ballot.pdf, ballot.layout);
-      }
-      await importer.doneHmpbTemplates();
 
       return ok(electionDefinition);
     },
@@ -187,14 +180,14 @@ export type Api = ReturnType<typeof buildApi>;
  * Builds an express application, using `store` and `importer` to do the heavy
  * lifting.
  */
-export async function buildCentralScannerApp({
+export function buildCentralScannerApp({
   auth,
   allowedExportPatterns = SCAN_ALLOWED_EXPORT_PATTERNS,
   importer,
   workspace,
   logger,
   usb,
-}: AppOptions): Promise<Application> {
+}: AppOptions): Application {
   const { store } = workspace;
 
   const app: Application = express();
@@ -265,7 +258,7 @@ export async function buildCentralScannerApp({
     NoParams,
     Scan.PatchTestModeConfigResponse,
     Scan.PatchTestModeConfigRequest
-  >('/central-scanner/config/testMode', async (request, response) => {
+  >('/central-scanner/config/testMode', (request, response) => {
     const bodyParseResult = safeParse(
       Scan.PatchTestModeConfigRequestSchema,
       request.body
@@ -280,7 +273,7 @@ export async function buildCentralScannerApp({
       return;
     }
 
-    await importer.setTestMode(bodyParseResult.ok().testMode);
+    importer.setTestMode(bodyParseResult.ok().testMode);
     response.json({ status: 'ok' });
   });
 
@@ -295,41 +288,35 @@ export async function buildCentralScannerApp({
   deprecatedApiRouter.delete<
     NoParams,
     Scan.DeleteMarkThresholdOverridesConfigResponse
-  >(
-    '/central-scanner/config/markThresholdOverrides',
-    async (_request, response) => {
-      await importer.setMarkThresholdOverrides(undefined);
-      response.json({ status: 'ok' });
-    }
-  );
+  >('/central-scanner/config/markThresholdOverrides', (_request, response) => {
+    importer.setMarkThresholdOverrides(undefined);
+    response.json({ status: 'ok' });
+  });
 
   deprecatedApiRouter.patch<
     NoParams,
     Scan.PatchMarkThresholdOverridesConfigResponse,
     Scan.PatchMarkThresholdOverridesConfigRequest
-  >(
-    '/central-scanner/config/markThresholdOverrides',
-    async (request, response) => {
-      const bodyParseResult = safeParse(
-        Scan.PatchMarkThresholdOverridesConfigRequestSchema,
-        request.body
-      );
+  >('/central-scanner/config/markThresholdOverrides', (request, response) => {
+    const bodyParseResult = safeParse(
+      Scan.PatchMarkThresholdOverridesConfigRequestSchema,
+      request.body
+    );
 
-      if (bodyParseResult.isErr()) {
-        const error = bodyParseResult.err();
-        response.status(400).json({
-          status: 'error',
-          errors: [{ type: error.name, message: error.message }],
-        });
-        return;
-      }
-
-      await importer.setMarkThresholdOverrides(
-        bodyParseResult.ok().markThresholdOverrides
-      );
-      response.json({ status: 'ok' });
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err();
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      });
+      return;
     }
-  );
+
+    importer.setMarkThresholdOverrides(
+      bodyParseResult.ok().markThresholdOverrides
+    );
+    response.json({ status: 'ok' });
+  });
 
   deprecatedApiRouter.post<
     NoParams,
@@ -594,7 +581,7 @@ export async function buildCentralScannerApp({
   // return a "status: notready" or something like it.
   //
   // but for now, this seems to be fine, the front-end just waits.
-  await importer.restoreConfig();
+  importer.restoreConfig();
 
   return app;
 }

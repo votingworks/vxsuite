@@ -10,13 +10,14 @@ import {
   PrecinctSelection,
   mapSheet,
   SheetOf,
+  PageInterpretation,
 } from '@votingworks/types';
 import {
   detectQrcodeInFilePath,
   normalizeSheetOutput,
 } from '@votingworks/ballot-interpreter-vx';
 import { time } from '@votingworks/utils';
-import { err, ok, Optional, Result } from '@votingworks/basics';
+import { err, ok, Optional, Result, typedAs } from '@votingworks/basics';
 import { Interpreter as VxInterpreter } from './vx_interpreter';
 import { saveSheetImages } from './util/save_images';
 import { rootDebug } from './util/debug';
@@ -182,7 +183,25 @@ async function nhInterpret(
     return result;
   }
 
-  const [frontResult, backResult] = result.ok();
+  const [frontResult, backResult] = mapSheet(result.ok(), (pageResult) => {
+    if (config.precinctSelection.kind !== 'AllPrecincts') {
+      if (
+        'metadata' in pageResult.interpretation &&
+        pageResult.interpretation.metadata.precinctId !==
+          config.precinctSelection.precinctId
+      ) {
+        return {
+          ...pageResult,
+          interpretation: typedAs<PageInterpretation>({
+            type: 'InvalidPrecinctPage',
+            metadata: pageResult.interpretation.metadata,
+          }),
+        };
+      }
+    }
+
+    return pageResult;
+  });
 
   const frontImages = await saveSheetImages(
     sheetId,

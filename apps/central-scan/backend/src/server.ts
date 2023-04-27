@@ -89,7 +89,7 @@ export async function start({
 
     const resolvedUsb = usb ?? { getUsbDrives };
 
-    resolvedApp = await buildCentralScannerApp({
+    resolvedApp = buildCentralScannerApp({
       auth,
       importer: resolvedImporter,
       logger,

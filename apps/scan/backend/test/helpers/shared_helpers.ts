@@ -1,9 +1,7 @@
+import { Buffer } from 'buffer';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { ok } from '@votingworks/basics';
-import {
-  MockUsb,
-  createBallotPackageWithoutTemplates,
-} from '@votingworks/backend';
+import { MockUsb } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
 import {
@@ -11,7 +9,7 @@ import {
   fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
-import { PrecinctId } from '@votingworks/types';
+import { ElectionDefinition, PrecinctId } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -54,11 +52,6 @@ export async function waitForStatus(
   }, 2_000);
 }
 
-const electionFamousNames2021WithoutTemplatesBallotPackageBuffer =
-  createBallotPackageWithoutTemplates(
-    electionFamousNames2021Fixtures.electionDefinition
-  );
-
 /**
  * configureApp is a testing convenience function that handles some common configuration of the VxScan app.
  * @param apiClient - a VxScan API client
@@ -72,35 +65,30 @@ export async function configureApp(
   apiClient: grout.Client<Api>,
   mockUsb: MockUsb,
   {
-    addTemplates = false,
+    electionDefinition = electionFamousNames2021Fixtures.electionDefinition,
+    ballotPackage = electionFamousNames2021Fixtures.ballotPackage.asBuffer(),
     precinctId,
     mockAuth,
   }: {
-    addTemplates?: boolean;
+    electionDefinition?: ElectionDefinition;
+    ballotPackage?: Buffer;
     precinctId?: PrecinctId;
     mockAuth?: InsertedSmartCardAuthApi;
-  } = {
-    addTemplates: false,
-  }
+  } = {}
 ): Promise<void> {
   if (mockAuth) {
     mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
       Promise.resolve({
         status: 'logged_in',
-        user: fakeElectionManagerUser(
-          electionFamousNames2021Fixtures.electionDefinition
-        ),
+        user: fakeElectionManagerUser(electionDefinition),
         sessionExpiresAt: fakeSessionExpiresAt(),
       })
     );
   }
 
-  const ballotPackageBuffer = addTemplates
-    ? electionFamousNames2021Fixtures.ballotPackage.asBuffer()
-    : electionFamousNames2021WithoutTemplatesBallotPackageBuffer;
   mockUsb.insertUsbDrive({
     'ballot-packages': {
-      'test-ballot-package.zip': ballotPackageBuffer,
+      'test-ballot-package.zip': ballotPackage,
     },
   });
 

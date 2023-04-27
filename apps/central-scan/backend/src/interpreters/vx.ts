@@ -1,5 +1,4 @@
 import { QrCodePageResult } from '@votingworks/ballot-interpreter-vx';
-import { pdfToImages } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   PageInterpretationWithFiles,
@@ -12,81 +11,71 @@ import { saveSheetImages } from '../util/save_images';
 
 const debug = makeDebug('scan:vx:interpret');
 
-let interpreter: Interpreter | undefined;
+export class VxInterpreter {
+  private interpreter?: Interpreter;
 
-/**
- * Reads election configuration from the database.
- */
-export async function configure(store: Store): Promise<void> {
-  interpreter = undefined;
+  configure(store: Store): void {
+    this.interpreter = undefined;
 
-  debug('configuring from %s', store.getDbPath());
+    debug('configuring from %s', store.getDbPath());
 
-  const electionDefinition = store.getElectionDefinition();
-  if (!electionDefinition) {
-    debug('no election configured');
-    return;
-  }
-  debug('election: %s', electionDefinition.election.title);
-
-  const precinctSelection = store.getPrecinctSelection();
-  if (!precinctSelection) {
-    debug('no precinct selected');
-    return;
-  }
-  debug('precinctSelection: %o', precinctSelection);
-
-  const templates = store.getHmpbTemplates();
-
-  debug('creating a new interpreter');
-  interpreter = new Interpreter({
-    electionDefinition,
-    precinctSelection,
-    testMode: store.getTestMode(),
-    markThresholdOverrides: store.getMarkThresholdOverrides(),
-    adjudicationReasons: electionDefinition.election
-      .centralScanAdjudicationReasons ?? [AdjudicationReason.MarginalMark],
-  });
-
-  debug('hand-marked paper ballot templates: %d', templates.length);
-  for (const [pdf, layouts] of templates) {
-    for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
-      const ballotPageLayout = layouts[pageNumber - 1];
-      interpreter.addHmpbTemplate({
-        ballotPageLayout,
-        imageData: page,
-      });
+    const electionDefinition = store.getElectionDefinition();
+    if (!electionDefinition) {
+      debug('no election configured');
+      return;
     }
+    debug('election: %s', electionDefinition.election.title);
+
+    const precinctSelection = store.getPrecinctSelection();
+    if (!precinctSelection) {
+      debug('no precinct selected');
+      return;
+    }
+    debug('precinctSelection: %o', precinctSelection);
+
+    debug('creating a new interpreter');
+    this.interpreter = new Interpreter({
+      electionDefinition,
+      precinctSelection,
+      testMode: store.getTestMode(),
+      markThresholdOverrides: store.getMarkThresholdOverrides(),
+      adjudicationReasons: electionDefinition.election
+        .centralScanAdjudicationReasons ?? [AdjudicationReason.MarginalMark],
+    });
   }
-}
 
-export async function interpret(
-  ballotImagePath: string,
-  sheetId: string,
-  ballotImagesPath: string,
-  detectQrcodeResult: QrCodePageResult
-): Promise<PageInterpretationWithFiles> {
-  debug('interpret ballot image: %s', ballotImagePath);
-  assert(interpreter, 'interpreter not configured');
+  unconfigure(): void {
+    this.interpreter = undefined;
+  }
 
-  const result = await interpreter.interpretFile({
-    ballotImagePath,
-    detectQrcodeResult,
-  });
-  debug(
-    'interpreted ballot image as %s: %s',
-    result.interpretation.type,
-    ballotImagePath
-  );
-  const images = await saveSheetImages(
-    sheetId,
-    ballotImagesPath,
-    ballotImagePath,
-    result.normalizedImage
-  );
-  return {
-    interpretation: result.interpretation,
-    originalFilename: images.original,
-    normalizedFilename: images.normalized,
-  };
+  async interpret(
+    ballotImagePath: string,
+    sheetId: string,
+    ballotImagesPath: string,
+    detectQrcodeResult: QrCodePageResult
+  ): Promise<PageInterpretationWithFiles> {
+    debug('interpret ballot image: %s', ballotImagePath);
+    assert(this.interpreter, 'interpreter not configured');
+
+    const result = await this.interpreter.interpretFile({
+      ballotImagePath,
+      detectQrcodeResult,
+    });
+    debug(
+      'interpreted ballot image as %s: %s',
+      result.interpretation.type,
+      ballotImagePath
+    );
+    const images = await saveSheetImages(
+      sheetId,
+      ballotImagesPath,
+      ballotImagePath,
+      result.normalizedImage
+    );
+    return {
+      interpretation: result.interpretation,
+      originalFilename: images.original,
+      normalizedFilename: images.normalized,
+    };
+  }
 }

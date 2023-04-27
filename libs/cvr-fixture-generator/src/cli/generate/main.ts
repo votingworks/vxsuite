@@ -1,4 +1,4 @@
-import { CVR } from '@votingworks/types';
+import { BallotPaperSize, BallotType, CVR } from '@votingworks/types';
 import { assert, assertDefined, find, iter } from '@votingworks/basics';
 import {
   buildCastVoteRecordReportMetadata,
@@ -12,10 +12,11 @@ import {
   jsonStream,
   readBallotPackageFromBuffer,
 } from '@votingworks/utils';
-import { pdfToImages, writeImageData } from '@votingworks/image-utils';
+import { writeImageData, createImageData } from '@votingworks/image-utils';
 import { pipeline } from 'stream/promises';
 import { join } from 'path';
 import cloneDeep from 'lodash.clonedeep';
+import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
 import { generateCvrs } from '../../generate_cvrs';
 import {
   generateBallotAssetPath,
@@ -271,13 +272,24 @@ export async function main(
       // eslint-disable-next-line vx/gts-safe-number-parse
       const pageNumber = Number(pageNumberString);
 
-      const ballotPackageEntry = find(
-        ballotPackage.ballots,
-        (ballot) =>
-          ballot.ballotConfig.ballotStyleId === ballotStyleId &&
-          ballot.ballotConfig.precinctId === precinctId &&
-          ballot.ballotConfig.isLiveMode === !testMode
-      );
+      const pageDpi = 200;
+      const pageWidthInches = 8.5;
+      let pageHeightInches: number;
+
+      switch (election.ballotLayout?.paperSize) {
+        case BallotPaperSize.Legal:
+          pageHeightInches = 14;
+          break;
+
+        case BallotPaperSize.Custom8Point5X17:
+          pageHeightInches = 17;
+          break;
+
+        case BallotPaperSize.Letter:
+        default:
+          pageHeightInches = 11;
+          break;
+      }
 
       // create directories for assets
       fs.mkdirSync(
@@ -290,29 +302,38 @@ export async function main(
       );
 
       // write the image
-      for await (const { page, pageNumber: pdfPageNumber } of pdfToImages(
-        ballotPackageEntry.pdf
-      )) {
-        if (pdfPageNumber === pageNumber) {
-          await writeImageData(
-            join(
-              outputPath,
-              generateBallotAssetPath({
-                ballotStyleId,
-                batchId,
-                precinctId,
-                pageNumber,
-                assetType: 'image',
-              })
-            ),
-            page
-          );
-        }
-      }
+      await writeImageData(
+        join(
+          outputPath,
+          generateBallotAssetPath({
+            ballotStyleId,
+            batchId,
+            precinctId,
+            pageNumber,
+            assetType: 'image',
+          })
+        ),
+        createImageData(
+          new Uint8ClampedArray(
+            pageWidthInches * pageDpi * (pageHeightInches * pageDpi) * 4
+          ),
+          pageWidthInches * pageDpi,
+          pageHeightInches * pageDpi
+        )
+      );
 
       // write the layout
-      const layout = ballotPackageEntry.layout[pageNumber - 1];
-      assert(layout);
+      const layout = find(
+        generateBallotPageLayouts(election, {
+          ballotStyleId,
+          precinctId,
+          electionHash,
+          ballotType: BallotType.Standard,
+          locales: { primary: 'en-US' },
+          isTestMode: testMode,
+        }).unsafeUnwrap(),
+        (l) => l.metadata.pageNumber === pageNumber
+      );
       fs.writeFileSync(
         join(
           outputPath,

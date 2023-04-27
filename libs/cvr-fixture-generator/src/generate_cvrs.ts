@@ -1,6 +1,7 @@
 import { buildCVRContestsFromVotes, hasWriteIns } from '@votingworks/backend';
-import { find, throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue } from '@votingworks/basics';
 import {
+  BallotType,
   Candidate,
   CandidateContest,
   CandidateVote,
@@ -12,6 +13,7 @@ import {
   YesNoVote,
 } from '@votingworks/types';
 import { BallotPackage } from '@votingworks/utils';
+import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
 import {
   arrangeContestsBySheet,
   filterVotesByContests,
@@ -141,15 +143,27 @@ export function* generateCvrs({
       CVR.vxBallotType.Precinct,
     ]) {
       for (const precinctId of precinctIds) {
+        const allBallotPageLayouts = bmdBallots
+          ? []
+          : generateBallotPageLayouts(election, {
+              ballotStyleId,
+              precinctId,
+              electionHash: electionDefinition.electionHash,
+              ballotType:
+                ballotType === CVR.vxBallotType.Absentee
+                  ? BallotType.Absentee
+                  : BallotType.Standard,
+              locales: { primary: 'en-US' },
+              isTestMode: testMode,
+            }).unsafeUnwrap();
         // Find the layout, which we'll use to determine which contests are
         // on which page for HMPBs
-        const ballotPageLayouts = find(
-          ballotPackage.ballots,
-          (ballot) =>
-            ballot.ballotConfig.ballotStyleId === ballotStyleId &&
-            ballot.ballotConfig.precinctId === precinctId &&
-            ballot.ballotConfig.isLiveMode === !testMode
-        ).layout;
+        const ballotPageLayouts = allBallotPageLayouts.filter(
+          (layout) =>
+            layout.metadata.ballotStyleId === ballotStyleId &&
+            layout.metadata.precinctId === precinctId &&
+            layout.metadata.isTestMode === testMode
+        );
         if (ballotPageLayouts.length > 2) {
           throw new Error('only single-sheet ballots are supported');
         }

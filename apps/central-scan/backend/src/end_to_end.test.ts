@@ -65,7 +65,7 @@ beforeEach(async () => {
   });
   logger = fakeLogger();
   mockUsb = createMockUsb();
-  app = await buildCentralScannerApp({
+  app = buildCentralScannerApp({
     auth,
     usb: mockUsb.mock,
     allowedExportPatterns: ['/tmp/**'],

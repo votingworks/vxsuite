@@ -15,6 +15,7 @@ import {
 } from '@votingworks/custom-scanner';
 import {
   electionFamousNames2021Fixtures,
+  electionGridLayoutNewHampshireAmherstFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
@@ -153,18 +154,23 @@ function customSheetOfImagesFromScannerFromBallotImageData(
 export const ballotImages = {
   completeHmpb: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([
-      await electionFamousNames2021Fixtures.handMarkedBallotCompletePage1.asImageData(),
-      await electionFamousNames2021Fixtures.handMarkedBallotCompletePage2.asImageData(),
+      await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asImageData(),
+      await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asImageData(),
     ]),
   completeBmd: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([
       await electionFamousNames2021Fixtures.machineMarkedBallotPage1.asImageData(),
       await electionFamousNames2021Fixtures.machineMarkedBallotPage2.asImageData(),
     ]),
+  overvoteHmpb: async () =>
+    customSheetOfImagesFromScannerFromBallotImageData([
+      await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedOvervoteFront.asImageData(),
+      await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedOvervoteBack.asImageData(),
+    ]),
   unmarkedHmpb: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([
-      await electionFamousNames2021Fixtures.handMarkedBallotUnmarkedPage1.asImageData(),
-      await electionFamousNames2021Fixtures.handMarkedBallotUnmarkedPage2.asImageData(),
+      await electionGridLayoutNewHampshireAmherstFixtures.scanUnmarkedFront.asImageData(),
+      await electionGridLayoutNewHampshireAmherstFixtures.scanUnmarkedBack.asImageData(),
     ]),
   wrongElection: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([
