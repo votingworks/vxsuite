@@ -522,6 +522,7 @@ export function CandidateContestChoices({
           <BubbleMark
             position={targetMarkPosition}
             checked={hasVote(vote, candidate.id)}
+            density={density}
           >
             <CandidateDescription isSmall>
               <strong data-candidate-name={candidate.name}>
@@ -953,7 +954,7 @@ export function HandMarkedPaperBallot({
                     { lng: locales.primary }
                   )}
                 </Text>
-                <h4>{t('To correct a mistake', { lng: locales.primary })}</h4>
+                <h4>{t('To Correct a Mistake', { lng: locales.primary })}</h4>
                 <Text small>
                   {t(
                     'To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.',
@@ -1113,6 +1114,7 @@ export function HandMarkedPaperBallot({
                       <BubbleMark
                         position={election.ballotLayout?.targetMarkPosition}
                         checked={hasVote(votes?.[contest.id], 'yes')}
+                        density={layoutDensity}
                       >
                         <span>
                           {dualLanguageWithSlash(
@@ -1125,6 +1127,7 @@ export function HandMarkedPaperBallot({
                       <BubbleMark
                         position={election.ballotLayout?.targetMarkPosition}
                         checked={hasVote(votes?.[contest.id], 'no')}
+                        density={layoutDensity}
                       >
                         <span>
                           {dualLanguageWithSlash(
@@ -1164,6 +1167,7 @@ export function HandMarkedPaperBallot({
                           votes?.[contest.eitherNeitherContestId],
                           'yes'
                         )}
+                        density={layoutDensity}
                       >
                         <span>
                           {dualLanguageWithSlash(contest.eitherOption.label)}
@@ -1177,6 +1181,7 @@ export function HandMarkedPaperBallot({
                           votes?.[contest.eitherNeitherContestId],
                           'no'
                         )}
+                        density={layoutDensity}
                       >
                         <span>
                           {dualLanguageWithSlash(contest.neitherOption.label)}
@@ -1191,6 +1196,7 @@ export function HandMarkedPaperBallot({
                           votes?.[contest.pickOneContestId],
                           'yes'
                         )}
+                        density={layoutDensity}
                       >
                         <span>
                           {dualLanguageWithSlash(contest.firstOption.label)}
@@ -1204,6 +1210,7 @@ export function HandMarkedPaperBallot({
                           votes?.[contest.pickOneContestId],
                           'no'
                         )}
+                        density={layoutDensity}
                       >
                         <span>
                           {dualLanguageWithSlash(contest.secondOption.label)}
