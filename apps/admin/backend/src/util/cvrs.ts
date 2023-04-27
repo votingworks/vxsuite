@@ -49,7 +49,6 @@ export function areCastVoteRecordMetadataEqual(
     a.ballotStyleId === b.ballotStyleId &&
     a.ballotType === b.ballotType &&
     a.batchId === b.batchId &&
-    a.batchLabel === b.batchLabel &&
     a.precinctId === b.precinctId &&
     a.scannerId === b.scannerId &&
     a.sheetNumber === b.sheetNumber

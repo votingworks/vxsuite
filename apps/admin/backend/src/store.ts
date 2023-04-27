@@ -10,6 +10,7 @@ import {
   ok,
   typedAs,
   isResult,
+  assertDefined,
 } from '@votingworks/basics';
 import { Bindable, Client as DbClient } from '@votingworks/db';
 import {
@@ -20,6 +21,7 @@ import {
   ContestId,
   ContestOptionId,
   CVR,
+  Dictionary,
   Id,
   Iso8601Timestamp,
   safeParse,
@@ -32,7 +34,7 @@ import {
 import { join } from 'path';
 import { Buffer } from 'buffer';
 import { v4 as uuid } from 'uuid';
-import { CastVoteRecordMetadata } from './types';
+import { CastVoteRecordMetadata, ScannerBatch } from './types';
 import {
   areCastVoteRecordMetadataEqual,
   cvrBallotTypeToLegacyBallotType,
@@ -385,7 +387,6 @@ export class Store {
           ballot_style_id as ballotStyleId,
           ballot_type as ballotType,
           batch_id as batchId,
-          batch_label as batchLabel,
           precinct_id as precinctId,
           scanner_id as scannerId,
           sheet_number as sheetNumber,
@@ -403,7 +404,6 @@ export class Store {
           ballotStyleId: string;
           ballotType: string;
           batchId: string;
-          batchLabel: string;
           precinctId: string;
           scannerId: string;
           sheetNumber: number | null;
@@ -412,13 +412,11 @@ export class Store {
       | undefined;
 
     const cvrId = existingCvr?.id ?? uuid();
-
     if (existingCvr) {
       const existingCvrMetadata: CastVoteRecordMetadata = {
         ballotStyleId: existingCvr.ballotStyleId,
         ballotType: existingCvr.ballotType as CVR.vxBallotType,
         batchId: existingCvr.batchId,
-        batchLabel: existingCvr.batchLabel,
         precinctId: existingCvr.precinctId,
         scannerId: existingCvr.scannerId,
         sheetNumber: existingCvr.sheetNumber || undefined,
@@ -445,13 +443,12 @@ export class Store {
           ballot_style_id,
           ballot_type,
           batch_id,
-          batch_label,
           precinct_id,
           scanner_id,
           sheet_number,
           votes
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
         cvrId,
@@ -460,7 +457,6 @@ export class Store {
         metadata.ballotStyleId,
         metadata.ballotType,
         metadata.batchId,
-        metadata.batchLabel,
         metadata.precinctId,
         metadata.scannerId,
         metadata.sheetNumber || null,
@@ -511,6 +507,56 @@ export class Store {
       side,
       imageData,
       JSON.stringify(pageLayout)
+    );
+  }
+
+  addScannerBatch(scannerBatch: ScannerBatch): void {
+    this.client.run(
+      `
+      insert or ignore into scanner_batches (
+        batch_id,
+        label,
+        scanner_id,
+        election_id
+      ) values (
+        ?, ?, ?, ?
+      )
+    `,
+      scannerBatch.batchId,
+      scannerBatch.label,
+      scannerBatch.scannerId,
+      scannerBatch.electionId
+    );
+  }
+
+  getScannerBatches(electionId: string): ScannerBatch[] {
+    return this.client.all(
+      `
+        select
+          batch_id as batchId,
+          label as label,
+          scanner_id as scannerId,
+          election_id as electionId
+        from scanner_batches
+        where
+          election_id = ?
+      `,
+      electionId
+    ) as ScannerBatch[];
+  }
+
+  deleteEmptyScannerBatches(electionId: string): void {
+    this.client.run(
+      `
+        delete from scanner_batches
+        where election_id = ?
+          and not exists (
+          select 1 from cvrs
+          where id = cvrs.batch_id
+            and scanner_id = cvrs.scanner_id
+        )
+      `,
+      electionId
     );
   }
 
@@ -698,7 +744,6 @@ export class Store {
           ballot_style_id as ballotStyleId,
           ballot_type as ballotType,
           batch_id as batchId,
-          batch_label as batchLabel,
           precinct_id as precinctId,
           scanner_id as scannerId,
           sheet_number as sheetNumber,
@@ -715,7 +760,6 @@ export class Store {
       ballotStyleId: string;
       ballotType: string;
       batchId: string;
-      batchLabel: string;
       precinctId: string;
       scannerId: string;
       sheetNumber: number | null;
@@ -726,13 +770,21 @@ export class Store {
     const fileMode = this.getCurrentCvrFileModeForElection(electionId);
     if (fileMode === Admin.CvrFileMode.Unlocked) return [];
     const isTestMode = fileMode === Admin.CvrFileMode.Test;
+    const scannerBatchLabelLookup: Dictionary<string> = this.getScannerBatches(
+      electionId
+    ).reduce((lookup: Dictionary<string>, scannerBatch: ScannerBatch) => {
+      return {
+        ...lookup,
+        [scannerBatch.batchId]: scannerBatch.label,
+      };
+    }, {});
 
     return entries.map((entry) => {
       const castVoteRecordLegacyMetadata: CastVoteRecord = {
         _precinctId: entry.precinctId,
         _scannerId: entry.scannerId,
         _batchId: entry.batchId,
-        _batchLabel: entry.batchLabel,
+        _batchLabel: assertDefined(scannerBatchLabelLookup[entry.batchId]),
         _ballotStyleId: entry.ballotStyleId,
         _ballotType: cvrBallotTypeToLegacyBallotType(
           entry.ballotType as CVR.vxBallotType
@@ -788,6 +840,7 @@ export class Store {
         `,
         electionId
       );
+      this.deleteEmptyScannerBatches(electionId);
     });
   }
 

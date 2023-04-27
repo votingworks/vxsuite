@@ -10,6 +10,7 @@ import { BallotPageLayout, BallotType } from '@votingworks/types';
 import { Store } from './store';
 import { addCastVoteRecordReport } from './cvr_files';
 import { modifyCastVoteRecordReport } from '../test/utils';
+import { ScannerBatch } from './types';
 
 const mockImageData = Buffer.from([1, 2, 3, 4]);
 const mockPageLayout: BallotPageLayout = {
@@ -472,6 +473,7 @@ test('write-in adjudication lifecycle', async () => {
       "cvr_files" => 1,
       "cvrs" => 2,
       "elections" => 1,
+      "scanner_batches" => 1,
       "settings" => 1,
       "system_settings" => 0,
       "write_in_adjudications" => 1,
@@ -488,6 +490,7 @@ test('write-in adjudication lifecycle', async () => {
       "cvr_files" => 0,
       "cvrs" => 0,
       "elections" => 1,
+      "scanner_batches" => 0,
       "settings" => 1,
       "system_settings" => 0,
       "write_in_adjudications" => 0,
@@ -569,4 +572,24 @@ test('getSystemSettings returns undefined when no system settings exist', () => 
   const store = Store.memoryStore();
   const retrievedSystemSettings = store.getSystemSettings();
   expect(retrievedSystemSettings).toBeUndefined();
+});
+
+test('scanner batches', () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+  expect(store.getScannerBatches(electionId)).toEqual([]);
+
+  const scannerBatch: ScannerBatch = {
+    electionId,
+    batchId: 'batch-1',
+    label: 'Batch 1',
+    scannerId: 'VX-00-001',
+  };
+  store.addScannerBatch(scannerBatch);
+  expect(store.getScannerBatches(electionId)).toEqual([scannerBatch]);
+
+  store.deleteEmptyScannerBatches(electionId);
+  expect(store.getScannerBatches(electionId)).toEqual([]);
 });

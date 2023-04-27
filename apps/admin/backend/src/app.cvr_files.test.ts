@@ -153,6 +153,8 @@ test('happy path - mock election flow', async () => {
         _ballotStyleId: '1M',
         _testBallot: true,
         _scannerId: 'scanner',
+        _batchId: 'batch-1',
+        _batchLabel: 'Batch 1',
         'best-animal-mammal': [],
         'zoo-council-mammal': [],
         'new-zoo-either': ['yes'],

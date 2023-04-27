@@ -19,7 +19,6 @@ import {
   integers,
   Result,
   throwIllegalValue,
-  find,
 } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
@@ -536,6 +535,15 @@ export async function addCastVoteRecordReport({
       sha256Hash,
     });
 
+    for (const vxBatch of reportMetadata.vxBatch) {
+      store.addScannerBatch({
+        batchId: vxBatch['@id'],
+        label: vxBatch.BatchLabel,
+        scannerId: vxBatch.CreatingDeviceId,
+        electionId,
+      });
+    }
+
     // Iterate through all the cast vote records
     let castVoteRecordIndex = 0;
     const precinctIds = new Set<string>();
@@ -586,11 +594,6 @@ export async function addCastVoteRecordReport({
           ballotStyleId: cvr.BallotStyleId,
           ballotType: cvr.vxBallotType,
           batchId: cvr.BatchId,
-          // existence of batch was previously validated
-          batchLabel: find(
-            reportMetadata.vxBatch,
-            (batch) => batch['@id'] === cvr.BatchId
-          ).BatchLabel,
           precinctId: cvr.BallotStyleUnitId,
           scannerId: cvr.CreatingDeviceId,
           // sheet number was previously validated

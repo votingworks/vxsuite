@@ -56,6 +56,15 @@ export interface CastVoteRecordMetadata {
   scannerId: string;
   ballotType: CVR.vxBallotType;
   batchId: string;
-  batchLabel: string;
   sheetNumber?: number;
+}
+
+/**
+ * Most basic information about a scanner batch.
+ */
+export interface ScannerBatch {
+  batchId: string;
+  label: string;
+  scannerId: string;
+  electionId: string;
 }
