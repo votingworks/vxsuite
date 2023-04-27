@@ -11,6 +11,7 @@
       },
       "extends": ["plugin:cypress/recommended"],
       "rules": {
+        // Allow for default exports which is safe in testing code.
         "vx/gts-no-default-exports": "off"
       }
     }

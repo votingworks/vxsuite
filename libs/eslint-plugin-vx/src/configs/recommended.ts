@@ -35,6 +35,8 @@ export = {
   },
   reportUnusedDisableDirectives: true,
   rules: {
+    // Enforce various custom lint rules to follow the recommendations of the google TS style guide.
+    // See libs/eslint-plugin-vx/docs for more documentation on individual rules.
     'vx/gts-array-type-style': 'error',
     'vx/gts-constants': 'error',
     'vx/gts-direct-module-export-access-only': 'error',
@@ -60,23 +62,39 @@ export = {
     'vx/gts-type-parameters': 'error',
     'vx/gts-unicode-escapes': 'error',
     'vx/gts-use-optionals': 'error',
+
+    // Enable various quality of life custom rules that increase readability and prevent bugs.
+    // See libs/eslint-plugin-vx/docs for more documentation on individual rules.
     'vx/no-array-sort-mutation': 'error',
     'vx/no-assert-truthiness': 'error',
     'vx/no-floating-results': ['error', { ignoreVoid: true }],
     'vx/no-import-workspace-subfolders': 'error',
     'vx/no-jest-to-be': 'error',
 
+    // Disallow awaiting a value that is not Thenable which often indicates an error.
     '@typescript-eslint/await-thenable': 'error',
+    // Enforce using interface as object type definition as recommended by google TS style guide.
     '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
+    // Enforce explicit return types on exports for readability
     '@typescript-eslint/explicit-module-boundary-types': 'error',
+    // Overridden by vx/gts-no-array-constructor
     '@typescript-eslint/no-array-constructor': 'off',
+    // Allow extra semi-colons as recommended by the google TS style guide
     '@typescript-eslint/no-extra-semi': 'off',
+    // Enforce handling promises appropriately to avoid potential bugs
     '@typescript-eslint/no-floating-promises': 'error',
+    // Disallows the non-null assertion ! operator as recommended by the google TS guide.
     '@typescript-eslint/no-non-null-assertion': 'error',
+    // Disallows unnecessary type assertions as recommended by the google TS guide.
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+    // Disallows unused variables to prevent bugs
     '@typescript-eslint/no-unused-vars': 'error',
+    // Enforce private properties are readonly as recommended by the google TS guide.
     '@typescript-eslint/prefer-readonly': 'error',
+    // Disallows async functions with no await to prevent bugs and confusion
     '@typescript-eslint/require-await': 'error',
+
+    // Configure default rules as recommened by google TS guide
     'class-methods-use-this': 'off',
     'consistent-return': 'off',
     'dot-notation': 'off',
@@ -131,7 +149,7 @@ export = {
     'nonblock-statement-body-position': ['error', 'beside'],
     'prefer-arrow-callback': 'error',
 
-    // replace some built-in rules that don't play well with TypeScript
+    // replace some built-in rules that don't play well with TypeScript, with Typescript versions
     '@typescript-eslint/no-shadow': 'error',
     'no-shadow': 'off',
     '@typescript-eslint/no-use-before-define': 'error',

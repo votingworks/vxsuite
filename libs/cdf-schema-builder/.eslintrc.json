@@ -4,7 +4,11 @@
     {
       "files": ["**/*.test.ts"],
       "rules": {
-        "vx/gts-identifiers": ["error", { "allowedNames": ["$schema", "$id", "$ref"] }]
+        // Allow for specific necessary variable names.
+        "vx/gts-identifiers": [
+          "error",
+          { "allowedNames": ["$schema", "$id", "$ref"] }
+        ]
       }
     }
   ]
