@@ -255,7 +255,7 @@ export function AppRoot({
   const unconfigureServer = useCallback(
     async (options: { ignoreBackupRequirement?: boolean } = {}) => {
       try {
-        await config.setElection(undefined, options);
+        await config.deleteElection(options);
         await refreshConfig();
         await logger.log(LogEventId.ElectionUnconfigured, userRole, {
           disposition: 'success',

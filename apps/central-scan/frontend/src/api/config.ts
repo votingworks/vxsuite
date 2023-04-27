@@ -67,22 +67,14 @@ export async function getElectionDefinition(): Promise<
   );
 }
 
-export async function setElection(
-  electionData?: string,
-  { ignoreBackupRequirement }: { ignoreBackupRequirement?: boolean } = {}
-): Promise<void> {
-  if (typeof electionData === 'undefined') {
-    let deletionUrl = '/central-scanner/config/election';
-    if (ignoreBackupRequirement) {
-      deletionUrl += '?ignoreBackupRequirement=true';
-    }
-    await del(deletionUrl);
-  } else {
-    await patch<Scan.PatchElectionConfigRequest>(
-      '/central-scanner/config/election',
-      new TextEncoder().encode(electionData)
-    );
+export async function deleteElection({
+  ignoreBackupRequirement,
+}: { ignoreBackupRequirement?: boolean } = {}): Promise<void> {
+  let deletionUrl = '/central-scanner/config/election';
+  if (ignoreBackupRequirement) {
+    deletionUrl += '?ignoreBackupRequirement=true';
   }
+  await del(deletionUrl);
 }
 
 export async function getTestMode(): Promise<boolean> {

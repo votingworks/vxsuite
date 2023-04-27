@@ -21,6 +21,7 @@ import * as fs from 'fs/promises';
 import { v4 as uuid } from 'uuid';
 import { sleep, typedAs } from '@votingworks/basics';
 import { ResultSheet } from '@votingworks/backend';
+import { DEV_JURISDICTION } from '@votingworks/auth';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import {
@@ -33,19 +34,21 @@ import { ballotPdf } from '../test/fixtures/2020-choctaw';
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
 
+const jurisdiction = DEV_JURISDICTION;
+const { electionDefinition } = stateOfHamilton;
+const { election, electionData, electionHash } = electionDefinition;
+
 test('get/set election', () => {
   const store = Store.memoryStore();
 
   expect(store.getElectionDefinition()).toBeUndefined();
   expect(store.hasElection()).toBeFalsy();
 
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
-  expect(store.getElectionDefinition()?.election).toEqual(
-    stateOfHamilton.election
-  );
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
+  expect(store.getElectionDefinition()?.election).toEqual(election);
   expect(store.hasElection()).toBeTruthy();
 
-  store.setElection(undefined);
+  store.setElectionAndJurisdiction(undefined);
   expect(store.getElectionDefinition()).toBeUndefined();
 });
 
@@ -56,7 +59,7 @@ test('get/set test mode', () => {
   expect(store.getTestMode()).toEqual(true);
   expect(() => store.setTestMode(false)).toThrowError();
 
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
 
   // After setting an election
   expect(store.getTestMode()).toEqual(true);
@@ -75,7 +78,7 @@ test('get/set is sounds muted mode', () => {
   expect(store.getIsSoundMuted()).toEqual(false);
   expect(() => store.setIsSoundMuted(true)).toThrowError();
 
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
 
   // After setting an election
   expect(store.getIsSoundMuted()).toEqual(false);
@@ -96,7 +99,7 @@ test('get/set ballot count when ballot bag last replaced', () => {
     store.setBallotCountWhenBallotBagLastReplaced(1500)
   ).toThrowError();
 
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
 
   // After setting an election
   expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
@@ -114,7 +117,7 @@ test('get/set precinct selection', () => {
     store.setPrecinctSelection(ALL_PRECINCTS_SELECTION)
   ).toThrowError();
 
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
 
   // After setting an election
   expect(store.getPrecinctSelection()).toEqual(undefined);
@@ -134,7 +137,7 @@ test('get/set mark threshold overrides', () => {
   expect(store.getMarkThresholdOverrides()).toEqual(undefined);
   expect(() => store.setMarkThresholdOverrides()).toThrowError();
 
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
 
   store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
   expect(store.getMarkThresholdOverrides()).toStrictEqual({
@@ -148,7 +151,7 @@ test('get/set mark threshold overrides', () => {
 
 test('get current mark thresholds falls back to election definition defaults', () => {
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
   expect(store.getCurrentMarkThresholds()).toStrictEqual({
     definite: 0.17,
     marginal: 0.12,
@@ -174,7 +177,7 @@ test('get/set polls state', () => {
   expect(store.getPollsState()).toEqual('polls_closed_initial');
   expect(() => store.setPollsState('polls_open')).toThrowError();
 
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
 
   // After setting an election
   store.setPollsState('polls_open');
@@ -183,7 +186,7 @@ test('get/set polls state', () => {
 
 test('get/set scanner as backed up', () => {
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
   expect(store.getScannerBackupTimestamp()).toBeFalsy();
   store.setScannerBackedUp();
   expect(store.getScannerBackupTimestamp()).toBeTruthy();
@@ -193,7 +196,7 @@ test('get/set scanner as backed up', () => {
 
 test('get/set cvrs as backed up', () => {
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
   expect(store.getCvrsBackupTimestamp()).toBeFalsy();
   store.setCvrsBackedUp();
   expect(store.getCvrsBackupTimestamp()).toBeTruthy();
@@ -203,7 +206,7 @@ test('get/set cvrs as backed up', () => {
 
 test('HMPB template handling', () => {
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
   const metadata: BallotMetadata = {
     electionHash: 'd34db33f',
     locales: { primary: 'en-US' },
@@ -261,7 +264,7 @@ test('HMPB template handling', () => {
 test('layout caching', async () => {
   const dbFile = tmp.fileSync();
   const initialStore = await Store.fileStore(dbFile.name);
-  initialStore.setElection(stateOfHamilton.electionDefinition.electionData);
+  initialStore.setElectionAndJurisdiction({ electionData, jurisdiction });
 
   const metadata: BallotMetadata = {
     electionHash: 'd34db33f',
@@ -314,7 +317,7 @@ test('layout caching', async () => {
 
   // if we reset and reload templates, the cache should be clear
   loadedStore.reset();
-  loadedStore.setElection(stateOfHamilton.electionDefinition.electionData);
+  loadedStore.setElectionAndJurisdiction({ electionData, jurisdiction });
   expect(await loadedStore.loadLayouts()).toMatchObject([]);
 });
 
@@ -419,7 +422,7 @@ test('batchStatus', () => {
 
 test('canUnconfigure in test mode', () => {
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
   store.setTestMode(true);
 
   // With an unexported batch, we should be able to unconfigure the machine in test mode
@@ -429,7 +432,7 @@ test('canUnconfigure in test mode', () => {
 
 test('canUnconfigure not in test mode', async () => {
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
   store.setTestMode(false);
 
   // Can unconfigure if no batches added
@@ -534,24 +537,24 @@ test('canUnconfigure not in test mode', async () => {
 });
 
 test('adjudication', () => {
-  const candidateContests = stateOfHamilton.election.contests.filter(
+  const candidateContests = election.contests.filter(
     (contest): contest is CandidateContest => contest.type === 'candidate'
   );
-  const yesnoContests = stateOfHamilton.election.contests.filter(
+  const yesnoContests = election.contests.filter(
     (contest): contest is YesNoContest => contest.type === 'yesno'
   );
   const yesnoOption = 'yes';
 
   const store = Store.memoryStore();
   const metadata: BallotMetadata = {
-    electionHash: stateOfHamilton.electionDefinition.electionHash,
+    electionHash,
     ballotStyleId: '12',
     precinctId: '23',
     isTestMode: false,
     locales: { primary: 'en-US' },
     ballotType: BallotType.Standard,
   };
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
   store.addHmpbTemplate(
     Buffer.of(),
     metadata,
@@ -644,7 +647,7 @@ test('adjudication', () => {
           ],
         },
         metadata: {
-          electionHash: stateOfHamilton.electionDefinition.electionHash,
+          electionHash,
           ballotStyleId: '12',
           precinctId: '23',
           isTestMode: false,
@@ -700,7 +703,7 @@ const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
         marks: [],
       },
       metadata: {
-        electionHash: stateOfHamilton.electionDefinition.electionHash,
+        electionHash,
         ballotStyleId: '12',
         precinctId: '23',
         isTestMode: false,
@@ -727,7 +730,7 @@ const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
         marks: [],
       },
       metadata: {
-        electionHash: stateOfHamilton.electionDefinition.electionHash,
+        electionHash,
         ballotStyleId: '12',
         precinctId: '23',
         isTestMode: false,
@@ -747,7 +750,7 @@ const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
 
 test('iterating over all result sheets', () => {
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
 
   // starts empty
   expect(Array.from(store.forEachResultSheet())).toEqual([]);
@@ -806,7 +809,7 @@ test('iterating over all result sheets', () => {
 
 test('iterating over each result sheet includes correct batch sequence id', () => {
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
 
   // the filenames must be unique in the database so, to insert multiple sheets
   // for this test we must include random filenames with the fixture
@@ -868,7 +871,7 @@ test('iterating over each result sheet includes correct batch sequence id', () =
 test('resetElectionSession', async () => {
   const dbFile = tmp.fileSync();
   const store = await Store.fileStore(dbFile.name);
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({ electionData, jurisdiction });
 
   store.setPollsState('polls_open');
   store.setBallotCountWhenBallotBagLastReplaced(1500);
@@ -989,7 +992,7 @@ test('getBallotPageLayoutsLookup', () => {
   expect(store.getBallotPageLayoutsLookup()).toMatchObject([]);
 
   const metadata: BallotMetadata = {
-    electionHash: stateOfHamilton.electionDefinition.electionHash,
+    electionHash,
     ballotStyleId: '12',
     precinctId: '23',
     isTestMode: false,

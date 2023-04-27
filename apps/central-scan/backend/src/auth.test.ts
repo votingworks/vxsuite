@@ -18,10 +18,6 @@ import { Importer } from './importer';
 import { start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 
-const { electionDefinition } = stateOfHamilton;
-const { electionData, electionHash } = electionDefinition;
-const jurisdiction = DEV_JURISDICTION;
-
 let apiClient: grout.Client<Api>;
 let auth: DippedSmartCardAuthApi;
 let server: Server;
@@ -49,15 +45,23 @@ beforeEach(async () => {
     workspace,
     port,
   });
-
-  workspace.store.setElection(electionData);
 });
 
 afterEach(() => {
   server.close();
 });
 
+const { electionDefinition } = stateOfHamilton;
+const { electionData, electionHash } = electionDefinition;
+const jurisdiction = DEV_JURISDICTION;
+
+function configureMachine(): void {
+  workspace.store.setElectionAndJurisdiction({ electionData, jurisdiction });
+}
+
 test('getAuthStatus', async () => {
+  configureMachine();
+
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
@@ -67,6 +71,8 @@ test('getAuthStatus', async () => {
 });
 
 test('checkPin', async () => {
+  configureMachine();
+
   await apiClient.checkPin({ pin: '123456' });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
@@ -77,6 +83,8 @@ test('checkPin', async () => {
 });
 
 test('logOut', async () => {
+  configureMachine();
+
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
@@ -86,6 +94,8 @@ test('logOut', async () => {
 });
 
 test('updateSessionExpiry', async () => {
+  configureMachine();
+
   await apiClient.updateSessionExpiry({
     sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
   });
@@ -98,43 +108,31 @@ test('updateSessionExpiry', async () => {
 });
 
 test('getAuthStatus before election definition has been configured', async () => {
-  workspace.store.setElection(undefined);
-
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, { jurisdiction });
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {});
 });
 
 test('checkPin before election definition has been configured', async () => {
-  workspace.store.setElection(undefined);
-
   await apiClient.checkPin({ pin: '123456' });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
-  expect(auth.checkPin).toHaveBeenNthCalledWith(
-    1,
-    { jurisdiction },
-    { pin: '123456' }
-  );
+  expect(auth.checkPin).toHaveBeenNthCalledWith(1, {}, { pin: '123456' });
 });
 
 test('logOut before election definition has been configured', async () => {
-  workspace.store.setElection(undefined);
-
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, { jurisdiction });
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, {});
 });
 
 test('updateSessionExpiry before election definition has been configured', async () => {
-  workspace.store.setElection(undefined);
-
   await apiClient.updateSessionExpiry({
     sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
   });
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    { jurisdiction },
+    {},
     { sessionExpiresAt: expect.any(Date) }
   );
 });

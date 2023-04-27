@@ -99,12 +99,7 @@ test('going through the whole process works', async () => {
     .set('Accept', 'application/json')
     .expect(400);
 
-  await request(app)
-    .patch('/central-scanner/config/election')
-    .send(asElectionDefinition(election).electionData)
-    .set('Content-Type', 'application/octet-stream')
-    .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' });
+  importer.configure(asElectionDefinition(election), jurisdiction);
 
   // sample ballot election hash does not match election hash for this test
   featureFlagMock.enableFeatureFlag(
