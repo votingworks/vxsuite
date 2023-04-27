@@ -32,18 +32,18 @@ export class LiteralCoder extends BaseCoder<void> {
   }
 
   encodeInto(_value: void, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
-    return resultBlock((ret) => {
+    return resultBlock((fail) => {
       const { value } = this;
-      const byteOffset = toByteOffset(bitOffset).or(ret);
+      const byteOffset = toByteOffset(bitOffset).okOrElse(fail);
       buffer.set(value, byteOffset);
       return toBitLength(byteOffset + value.byteLength);
     });
   }
 
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<void> {
-    return resultBlock((ret) => {
+    return resultBlock((fail) => {
       const { value } = this;
-      const byteOffset = toByteOffset(bitOffset).or(ret);
+      const byteOffset = toByteOffset(bitOffset).okOrElse(fail);
       const data = buffer.slice(byteOffset, byteOffset + value.byteLength);
       if (!data.equals(value)) {
         return err('InvalidValue');

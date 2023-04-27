@@ -23,8 +23,8 @@ export class Uint8Coder extends UintCoder {
   protected maxValue = MAX_UINT8;
 
   encodeInto(value: Uint8, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
-    return resultBlock((ret) => {
-      this.validateValue(value).or(ret);
+    return resultBlock((fail) => {
+      this.validateValue(value).okOrElse(fail);
 
       return this.encodeUsing(buffer, bitOffset, (byteOffset) =>
         buffer.writeUInt8(value, byteOffset)

@@ -69,8 +69,8 @@ export abstract class UintCoder extends BaseCoder<number> {
     buffer: Buffer,
     bitOffset: BitOffset
   ): Result<number, CoderError> {
-    return resultBlock((ret) => {
-      const byteOffset = toByteOffset(bitOffset).or(ret);
+    return resultBlock((fail) => {
+      const byteOffset = toByteOffset(bitOffset).okOrElse(fail);
       return bufferContainsBitOffset(buffer, bitOffset, this.bitLength())
         ? ok(byteOffset)
         : err('SmallBuffer');
@@ -82,8 +82,8 @@ export abstract class UintCoder extends BaseCoder<number> {
     bitOffset: BitOffset,
     fn: (byteOffset: ByteOffset) => void
   ): EncodeResult {
-    return resultBlock((ret) => {
-      const byteOffset = this.getByteOffset(buffer, bitOffset).or(ret);
+    return resultBlock((fail) => {
+      const byteOffset = this.getByteOffset(buffer, bitOffset).okOrElse(fail);
       fn(byteOffset);
       return bitOffset + this.bitLength();
     });
@@ -94,16 +94,16 @@ export abstract class UintCoder extends BaseCoder<number> {
     bitOffset: BitOffset,
     fn: (byteOffset: ByteOffset) => Result<number, CoderError>
   ): DecodeResult<number> {
-    return resultBlock((ret) => {
-      const byteOffset = this.getByteOffset(buffer, bitOffset).or(ret);
-      const value = fn(byteOffset).or(ret);
+    return resultBlock((fail) => {
+      const byteOffset = this.getByteOffset(buffer, bitOffset).okOrElse(fail);
+      const value = fn(byteOffset).okOrElse(fail);
       return { value, bitOffset: bitOffset + this.bitLength() };
     });
   }
 
   protected validateValue(value: number): Result<number, CoderError> {
-    return resultBlock((ret) => {
-      validateEnumValue(this.enumeration, value).or(ret);
+    return resultBlock((fail) => {
+      validateEnumValue(this.enumeration, value).okOrElse(fail);
 
       if (value < this.minValue || value > this.maxValue) {
         return err('InvalidValue');

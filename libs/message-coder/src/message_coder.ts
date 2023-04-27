@@ -101,7 +101,7 @@ class MessageCoder<P extends MessageCoderParts<object>>
     buffer: Buffer,
     initialBitOffset: BitOffset
   ): EncodeResult {
-    return resultBlock((ret) => {
+    return resultBlock((fail) => {
       let bitOffset = initialBitOffset;
 
       for (const [k, v] of Object.entries(this.parts)) {
@@ -110,7 +110,7 @@ class MessageCoder<P extends MessageCoderParts<object>>
           coder instanceof LiteralCoder || coder instanceof PaddingCoder
             ? coder.encodeInto(undefined, buffer, bitOffset)
             : coder.encodeInto(value[k], buffer, bitOffset)
-        ).or(ret);
+        ).okOrElse(fail);
       }
 
       return bitOffset;
@@ -121,14 +121,14 @@ class MessageCoder<P extends MessageCoderParts<object>>
     buffer: Buffer,
     initialBitOffset: BitOffset
   ): DecodeResult<ObjectFromParts<P>> {
-    return resultBlock((ret) => {
+    return resultBlock((fail) => {
       let bitOffset = initialBitOffset;
       const result: Record<string, unknown> = {};
       for (const [k, v] of Object.entries(this.parts)) {
         const coder = v as Coder<ObjectFromParts<P>[keyof ObjectFromParts<P>]>;
         const { value, bitOffset: nextOffset } = coder
           .decodeFrom(buffer, bitOffset)
-          .or(ret);
+          .okOrElse(fail);
 
         if (
           !(coder instanceof LiteralCoder) &&

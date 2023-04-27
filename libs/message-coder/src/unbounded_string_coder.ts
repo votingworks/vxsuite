@@ -37,7 +37,7 @@ export class UnboundedStringCoder implements Coder<string> {
     buffer: Buffer,
     bitOffset: BitOffset
   ): EncodeResult {
-    return resultBlock((ret) => {
+    return resultBlock((fail) => {
       const bytes = Buffer.from(value);
 
       if (
@@ -50,7 +50,9 @@ export class UnboundedStringCoder implements Coder<string> {
         return err('SmallBuffer');
       }
 
-      return toBitOffset(bytes.copy(buffer, toByteOffset(bitOffset).or(ret)));
+      return toBitOffset(
+        bytes.copy(buffer, toByteOffset(bitOffset).okOrElse(fail))
+      );
     });
   }
 
@@ -59,13 +61,13 @@ export class UnboundedStringCoder implements Coder<string> {
   }
 
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<string> {
-    return resultBlock((ret) => {
+    return resultBlock((fail) => {
       if (!bufferContainsBitOffset(buffer, bitOffset)) {
         return err('SmallBuffer');
       }
 
       return {
-        value: buffer.toString('utf8', toByteOffset(bitOffset).or(ret)),
+        value: buffer.toString('utf8', toByteOffset(bitOffset).okOrElse(fail)),
         bitOffset: toBitLength(buffer.byteLength),
       };
     });

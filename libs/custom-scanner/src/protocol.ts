@@ -651,8 +651,10 @@ class GetImageDataRequestScanSideCoder extends BaseCoder<ScanSide> {
   }
 
   decodeFrom(buffer: Buffer, bitOffset: number): DecodeResult<ScanSide> {
-    return resultBlock((ret) => {
-      const decoded = this.internalCoder.decodeFrom(buffer, bitOffset).or(ret);
+    return resultBlock((fail) => {
+      const decoded = this.internalCoder
+        .decodeFrom(buffer, bitOffset)
+        .okOrElse(fail);
 
       switch (decoded.value) {
         case GetImageDataRequestScanSideCoder.SideA:
@@ -864,8 +866,8 @@ export function sendRequest<T>(
   requestCoder: Coder<T>,
   value: T
 ): Promise<Result<void, ErrorCode>> {
-  return asyncResultBlock((ret) =>
-    channel.write(mapCoderError(requestCoder.encode(value)).or(ret))
+  return asyncResultBlock((fail) =>
+    channel.write(mapCoderError(requestCoder.encode(value)).okOrElse(fail))
   );
 }
 
@@ -882,10 +884,12 @@ export function sendRequestAndReadResponse<
   maxLength: number,
   expectedResponseType: R
 ): Promise<Result<Extract<CheckAnswerResult, { type: R }>, ErrorCode>> {
-  return asyncResultBlock(async (ret) => {
-    (await sendRequest(channel, requestCoder, value)).or(ret);
+  return asyncResultBlock(async (fail) => {
+    (await sendRequest(channel, requestCoder, value)).okOrElse(fail);
 
-    const response = checkAnswer((await channel.read(maxLength)).or(ret));
+    const response = checkAnswer(
+      (await channel.read(maxLength)).okOrElse(fail)
+    );
 
     if (response.type === expectedResponseType) {
       return response as Extract<CheckAnswerResult, { type: R }>;
@@ -908,7 +912,7 @@ export function getReleaseVersion(
   channel: DuplexChannel,
   releaseType: ReleaseType
 ): Promise<Result<string, ErrorCode>> {
-  return asyncResultBlock(async (ret) => {
+  return asyncResultBlock(async (fail) => {
     debug(
       'getReleaseVersion releaseType=%s (%x)',
       ReleaseType[releaseType],
@@ -922,7 +926,7 @@ export function getReleaseVersion(
         MAX_GET_RELEASE_VERSION_RESPONSE_LENGTH,
         'data'
       )
-    ).or(ret).data;
+    ).okOrElse(fail).data;
   });
 }
 
@@ -935,7 +939,7 @@ export function getStatusInternal(
   channel: DuplexChannel,
   jobId: number
 ): Promise<Result<StatusInternalMessage, ErrorCode>> {
-  return asyncResultBlock(async (ret) => {
+  return asyncResultBlock(async (fail) => {
     debug('getStatusInternal jobId=%x', jobId);
     const { buffer } = (
       await sendRequestAndReadResponse(
@@ -945,7 +949,7 @@ export function getStatusInternal(
         MAX_GET_STATUS_INTERNAL_RESPONSE_LENGTH,
         'other'
       )
-    ).or(ret);
+    ).okOrElse(fail);
 
     return mapCoderError(StatusInternalMessage.decode(buffer));
   });
@@ -957,7 +961,7 @@ export function getStatusInternal(
 export function createJob(
   channel: DuplexChannel
 ): Promise<Result<number, ErrorCode>> {
-  return asyncResultBlock(async (ret) => {
+  return asyncResultBlock(async (fail) => {
     debug('createJob');
     return (
       await sendRequestAndReadResponse(
@@ -967,7 +971,7 @@ export function createJob(
         DEFAULT_MAX_READ_LENGTH,
         'ack'
       )
-    ).or(ret).jobId;
+    ).okOrElse(fail).jobId;
   });
 }
 
@@ -978,7 +982,7 @@ export function endJob(
   channel: DuplexChannel,
   jobId: number
 ): Promise<Result<void, ErrorCode>> {
-  return asyncResultBlock(async (ret) => {
+  return asyncResultBlock(async (fail) => {
     debug('endJob jobId=%x', jobId);
     (
       await sendRequestAndReadResponse(
@@ -988,7 +992,7 @@ export function endJob(
         DEFAULT_MAX_READ_LENGTH,
         'ack'
       )
-    ).or(ret);
+    ).okOrElse(fail);
   });
 }
 
@@ -1000,7 +1004,7 @@ export function formMove(
   jobId: number,
   movement: FormMovement
 ): Promise<Result<void, ErrorCode>> {
-  return asyncResultBlock(async (ret) => {
+  return asyncResultBlock(async (fail) => {
     debug(
       'formMove jobId=%x movement=%s (%x)',
       jobId,
@@ -1015,7 +1019,7 @@ export function formMove(
         DEFAULT_MAX_READ_LENGTH,
         'ack'
       )
-    ).or(ret);
+    ).okOrElse(fail);
   });
 }
 
@@ -1027,9 +1031,11 @@ export function setScanParameters(
   jobId: Uint8,
   scanParameters: SetScanParametersRequestData
 ): Promise<Result<void, ErrorCode>> {
-  return asyncResultBlock(async (ret) => {
+  return asyncResultBlock(async (fail) => {
     debug('setScanParameters');
-    (await sendRequest(channel, SetScanParametersRequest, { jobId })).or(ret);
+    (await sendRequest(channel, SetScanParametersRequest, { jobId })).okOrElse(
+      fail
+    );
     (
       await sendRequestAndReadResponse(
         channel,
@@ -1038,7 +1044,7 @@ export function setScanParameters(
         DEFAULT_MAX_READ_LENGTH,
         'ack'
       )
-    ).or(ret);
+    ).okOrElse(fail);
   });
 }
 
@@ -1049,7 +1055,7 @@ export function startScan(
   channel: DuplexChannel,
   jobId: number
 ): Promise<Result<void, ErrorCode>> {
-  return asyncResultBlock(async (ret) => {
+  return asyncResultBlock(async (fail) => {
     debug('startScan jobId=%x', jobId);
     (
       await sendRequestAndReadResponse(
@@ -1059,7 +1065,7 @@ export function startScan(
         DEFAULT_MAX_READ_LENGTH,
         'ack'
       )
-    ).or(ret);
+    ).okOrElse(fail);
   });
 }
 
@@ -1070,7 +1076,7 @@ export function stopScan(
   channel: DuplexChannel,
   jobId: number
 ): Promise<Result<void, ErrorCode>> {
-  return asyncResultBlock(async (ret) => {
+  return asyncResultBlock(async (fail) => {
     debug('stopScan jobId=%x', jobId);
     (
       await sendRequestAndReadResponse(
@@ -1080,7 +1086,7 @@ export function stopScan(
         DEFAULT_MAX_READ_LENGTH,
         'ack'
       )
-    ).or(ret);
+    ).okOrElse(fail);
   });
 }
 
@@ -1091,7 +1097,7 @@ export function resetHardware(
   channel: DuplexChannel,
   jobId: number
 ): Promise<Result<void, ErrorCode>> {
-  return asyncResultBlock(async (ret) => {
+  return asyncResultBlock(async (fail) => {
     debug('resetHardware jobId=%x', jobId);
     try {
       (
@@ -1102,7 +1108,7 @@ export function resetHardware(
           DEFAULT_MAX_READ_LENGTH,
           'ack'
         )
-      ).or(ret);
+      ).okOrElse(fail);
     } catch (error) {
       // we can ignore clearHalt exceptions here and assume the reset worked.
       if (

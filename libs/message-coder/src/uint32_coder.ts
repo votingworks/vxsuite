@@ -28,8 +28,8 @@ export class Uint32Coder extends UintCoder {
     buffer: Buffer,
     bitOffset: BitOffset
   ): EncodeResult {
-    return resultBlock((ret) => {
-      this.validateValue(value).or(ret);
+    return resultBlock((fail) => {
+      this.validateValue(value).okOrElse(fail);
 
       return this.encodeUsing(buffer, bitOffset, (byteOffset) =>
         buffer.writeUInt32LE(value, byteOffset)

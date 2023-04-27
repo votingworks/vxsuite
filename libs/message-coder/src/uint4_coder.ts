@@ -32,8 +32,11 @@ export class Uint4Coder extends BaseCoder<Uint4> {
   protected maxValue = 0b1111;
 
   encodeInto(value: Uint4, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
-    return resultBlock((ret) => {
-      const validatedValue = validateEnumValue(this.enumeration, value).or(ret);
+    return resultBlock((fail) => {
+      const validatedValue = validateEnumValue(
+        this.enumeration,
+        value
+      ).okOrElse(fail);
 
       if (validatedValue < this.minValue || validatedValue > this.maxValue) {
         return err('InvalidValue');
@@ -60,7 +63,7 @@ export class Uint4Coder extends BaseCoder<Uint4> {
   }
 
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<Uint4> {
-    return resultBlock((ret) => {
+    return resultBlock((fail) => {
       const remainder = bitOffset % BITS_PER_BYTE;
       const isHigh = remainder === 0;
       const isLow = remainder === 4;
@@ -77,7 +80,7 @@ export class Uint4Coder extends BaseCoder<Uint4> {
       const value = validateEnumValue(
         this.enumeration,
         (byte >> shift) & 0xf
-      ).or(ret);
+      ).okOrElse(fail);
       return { value, bitOffset: bitOffset + this.bitLength() };
     });
   }

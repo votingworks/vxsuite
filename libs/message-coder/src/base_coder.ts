@@ -29,8 +29,8 @@ export abstract class BaseCoder<T> implements Coder<T> {
   }
 
   decode(buffer: Buffer): Result<T, CoderError> {
-    return resultBlock((ret) => {
-      const { bitOffset, value } = this.decodeFrom(buffer, 0).or(ret);
+    return resultBlock((fail) => {
+      const { bitOffset, value } = this.decodeFrom(buffer, 0).okOrElse(fail);
       if (toByteLength(bitOffset) !== buffer.byteLength) {
         return err('TrailingData');
       }

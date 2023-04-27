@@ -40,6 +40,10 @@ test('ok unsafeUnwrapErr', () => {
   expect(() => ok('value').unsafeUnwrapErr()).toThrowError();
 });
 
+test('ok okOrElse', () => {
+  expect(ok(0).okOrElse(() => 99)).toEqual(0);
+});
+
 test('ok assertOk', () => {
   expect(ok(0).assertOk('a value')).toEqual(0);
 });
@@ -87,6 +91,10 @@ test('err unsafeUnwrap', () => {
 
 test('err unsafeUnwrapErr', () => {
   expect(err('error').unsafeUnwrapErr()).toEqual('error');
+});
+
+test('err okOrElse', () => {
+  expect(err('error').okOrElse(() => 0)).toEqual(0);
 });
 
 test('err assertOk', () => {
@@ -159,8 +167,8 @@ test('resultBlock thrown error', () => {
 
 test('resultBlock early return', () => {
   expect(
-    resultBlock((ret) => {
-      err('early return').or(ret);
+    resultBlock((fail) => {
+      err('early return').okOrElse(fail);
     })
   ).toEqual(err('early return'));
 });
@@ -178,12 +186,12 @@ test('resultBlock complete example', () => {
   let quarter: Optional<number>;
   let eighth: Optional<number>;
 
-  const result = resultBlock((ret) => {
-    half = div(1, 2).or(ret);
-    quarter = div(half, 2).or(ret);
-    eighth = div(quarter, 2).or(ret);
+  const result: Result<number, string> = resultBlock((fail) => {
+    half = div(1, 2).okOrElse(fail);
+    quarter = div(half, 2).okOrElse(fail);
+    eighth = div(quarter, 2).okOrElse(fail);
 
-    div(eighth, 0).or(ret);
+    div(eighth, 0).okOrElse(fail);
     assert(false, 'unreachable');
   });
 
@@ -227,8 +235,8 @@ test('asyncResultBlock thrown error', async () => {
 
 test('asyncResultBlock early return', async () => {
   expect(
-    await asyncResultBlock(async (ret) => {
-      err(await Promise.resolve('early return')).or(ret);
+    await asyncResultBlock(async (fail) => {
+      err(await Promise.resolve('early return')).okOrElse(fail);
     })
   ).toEqual(err('early return'));
 });
@@ -249,14 +257,16 @@ test('asyncResultBlock complete example', async () => {
   let quarter: Optional<number>;
   let eighth: Optional<number>;
 
-  const result = await asyncResultBlock(async (ret) => {
-    half = (await div(1, 2)).or(ret);
-    quarter = (await div(half, 2)).or(ret);
-    eighth = (await div(quarter, 2)).or(ret);
+  const result: Result<number, string> = await asyncResultBlock(
+    async (fail) => {
+      half = (await div(1, 2)).okOrElse(fail);
+      quarter = (await div(half, 2)).okOrElse(fail);
+      eighth = (await div(quarter, 2)).okOrElse(fail);
 
-    (await div(eighth, 0)).or(ret);
-    assert(false, 'unreachable');
-  });
+      (await div(eighth, 0)).okOrElse(fail);
+      assert(false, 'unreachable');
+    }
+  );
 
   expect({ half, quarter, eighth }).toEqual({
     half: 0.5,

@@ -135,8 +135,9 @@ export class CustomA4Scanner implements CustomScanner {
    */
   getStatus(): Promise<Result<ScannerStatus, ErrorCode>> {
     return asyncResultBlock(
-      async (ret) =>
-        convertFromInternalStatus((await this.getStatusRaw()).or(ret)).status
+      async (fail) =>
+        convertFromInternalStatus((await this.getStatusRaw()).okOrElse(fail))
+          .status
     );
   }
 
@@ -240,11 +241,11 @@ export class CustomA4Scanner implements CustomScanner {
    * Moves a sheet of paper as directed.
    */
   move(movement: FormMovement): Promise<Result<void, ErrorCode>> {
-    return asyncResultBlock(async (ret) => {
+    return asyncResultBlock(async (fail) => {
       debug('moving %o', movement);
       const result = await this.publicApiMutex.withLock(() =>
         this.withRetries(async () => {
-          (await this.createJobInternal()).or(ret);
+          (await this.createJobInternal()).okOrElse(fail);
 
           return await this.channelMutex.withLock((channel) =>
             formMove(channel, ONLY_VALID_JOB_ID, movement)
@@ -271,7 +272,7 @@ export class CustomA4Scanner implements CustomScanner {
       maxRetries = 3,
     }: { maxTimeoutNoMoveNoScan?: number; maxRetries?: number } = {}
   ): Promise<Result<SheetOf<ImageFromScanner>, ErrorCode>> {
-    return asyncResultBlock(async (ret) => {
+    return asyncResultBlock(async (fail) => {
       const timer = time(debug, 'scan');
 
       timer.checkpoint('requesting lock');
@@ -306,8 +307,8 @@ export class CustomA4Scanner implements CustomScanner {
       if (setScanParametersResult.isErr()) {
         if (setScanParametersResult.err() === ErrorCode.JobNotValid) {
           debug('job not valid, recreating job');
-          (await this.createJobInternal()).or(ret);
-          (await this.setScanParametersInternal(scanParameters)).or(ret);
+          (await this.createJobInternal()).okOrElse(fail);
+          (await this.setScanParametersInternal(scanParameters)).okOrElse(fail);
         }
       }
 
@@ -446,7 +447,7 @@ export class CustomA4Scanner implements CustomScanner {
               imageWidth: a4Status.imageWidthSideA,
               imageHeight: a4Status.imageHeightSideA,
             })
-          ).or(ret);
+          ).okOrElse(fail);
         }
 
         if ((scanSide & ScanSide.B) === ScanSide.B && !a4Status.endScanSideB) {
@@ -456,7 +457,7 @@ export class CustomA4Scanner implements CustomScanner {
               imageWidth: a4Status.imageWidthSideB,
               imageHeight: a4Status.imageHeightSideB,
             })
-          ).or(ret);
+          ).okOrElse(fail);
         }
 
         /* istanbul ignore next */
@@ -473,10 +474,10 @@ export class CustomA4Scanner implements CustomScanner {
 
       try {
         timer.checkpoint('start scan');
-        (await this.startScanInternal()).or(ret);
+        (await this.startScanInternal()).okOrElse(fail);
 
         for (;;) {
-          const action = (await scanLoopTick()).or(ret);
+          const action = (await scanLoopTick()).okOrElse(fail);
 
           /* istanbul ignore else */
           if (action === 'continue') {

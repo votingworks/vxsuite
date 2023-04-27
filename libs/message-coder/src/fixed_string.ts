@@ -57,8 +57,8 @@ export class FixedStringCoder implements Coder<string> {
     // reverse because it's easier to allocate a buffer from a string using
     // `Buffer.byteLength` and `Buffer#write` in `encode` and to reuse that work
     // here.
-    return resultBlock((ret) => {
-      const bytes = this.encode(value).or(ret);
+    return resultBlock((fail) => {
+      const bytes = this.encode(value).okOrElse(fail);
       if (
         !bufferContainsBitOffset(
           buffer,
@@ -69,7 +69,7 @@ export class FixedStringCoder implements Coder<string> {
         return err('SmallBuffer');
       }
 
-      const byteOffset = toByteOffset(bitOffset).or(ret);
+      const byteOffset = toByteOffset(bitOffset).okOrElse(fail);
       return bitOffset + toBitOffset(bytes.copy(buffer, byteOffset));
     });
   }
@@ -88,12 +88,12 @@ export class FixedStringCoder implements Coder<string> {
   }
 
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<string> {
-    return resultBlock((ret) => {
+    return resultBlock((fail) => {
       if (!bufferContainsBitOffset(buffer, 0, toBitLength(this.byteLength))) {
         return err('SmallBuffer');
       }
 
-      const byteOffset = toByteOffset(bitOffset).or(ret);
+      const byteOffset = toByteOffset(bitOffset).okOrElse(fail);
       const string = buffer.toString(
         'utf8',
         byteOffset,

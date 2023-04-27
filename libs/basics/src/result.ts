@@ -50,11 +50,10 @@ class Ok<T> {
   }
 
   /**
-   * Returns the contained value. For use with `resultBlock` or
-   * `asyncResultBlock`.
+   * Returns the contained value.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  or<E>(ret: (error: E) => void): T {
+  okOrElse<E>(fn: (error: E) => void): T {
     return this.value;
   }
 
@@ -140,11 +139,12 @@ class Err<E> {
   }
 
   /**
-   * Calls `ret` with the contained error. For use with `resultBlock` or
-   * `asyncResultBlock`.
+   * Calls the given callback with the contained error.
    */
-  or(ret: (error: E) => never): never {
-    ret(this.error);
+  okOrElse(fn: (error: E) => never): never;
+  okOrElse<T>(fn: (error: E) => T): T;
+  okOrElse<T>(fn: (error: E) => T): T {
+    return fn(this.error);
   }
 
   /**
