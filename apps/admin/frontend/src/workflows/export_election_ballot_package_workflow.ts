@@ -1,36 +1,19 @@
 import { ElectionDefinition } from '@votingworks/types';
-import { BallotConfig } from '@votingworks/utils';
 import { DownloadableArchive } from '../utils/downloadable_archive';
-import { getAllBallotConfigs } from '../utils/get_all_ballot_configs';
 
-export type State =
-  | Init
-  | ArchiveBegin
-  | RenderBallot
-  | ArchiveEnd
-  | Done
-  | Failed;
+export type State = Init | ArchiveBegin | ArchiveEnd | Done | Failed;
 
 export interface Init {
   type: 'Init';
   electionDefinition: ElectionDefinition;
-  ballotConfigs: readonly BallotConfig[];
+  ballotConfigs: readonly [];
 }
 
 export interface ArchiveBegin {
   type: 'ArchiveBegin';
   electionDefinition: ElectionDefinition;
-  ballotConfigs: readonly BallotConfig[];
+  ballotConfigs: readonly [];
   archive: DownloadableArchive;
-}
-
-export interface RenderBallot {
-  type: 'RenderBallot';
-  electionDefinition: ElectionDefinition;
-  archive: DownloadableArchive;
-  ballotConfigsCount: number;
-  remainingBallotConfigs: readonly BallotConfig[];
-  currentBallotConfig: BallotConfig;
 }
 
 export interface ArchiveEnd {
@@ -49,16 +32,11 @@ export interface Failed {
   message: string;
 }
 
-export function init(
-  electionDefinition: ElectionDefinition,
-  localeCodes: readonly string[]
-): Init {
+export function init(electionDefinition: ElectionDefinition): Init {
   return {
     type: 'Init',
     electionDefinition,
-    ballotConfigs: getAllBallotConfigs(electionDefinition, localeCodes).filter(
-      ({ isAbsentee }) => !isAbsentee
-    ),
+    ballotConfigs: [],
   };
 }
 
@@ -73,46 +51,10 @@ export function next(state: State): State {
       };
 
     case 'ArchiveBegin': {
-      const [currentBallotConfig, ...remainingBallotConfigs] =
-        state.ballotConfigs;
-
-      if (!currentBallotConfig) {
-        return {
-          type: 'ArchiveEnd',
-          archive: state.archive,
-          ballotConfigsCount: state.ballotConfigs.length,
-        };
-      }
-
       return {
-        type: 'RenderBallot',
-        electionDefinition: state.electionDefinition,
+        type: 'ArchiveEnd',
         archive: state.archive,
         ballotConfigsCount: state.ballotConfigs.length,
-        currentBallotConfig,
-        remainingBallotConfigs,
-      };
-    }
-
-    case 'RenderBallot': {
-      const [currentBallotConfig, ...remainingBallotConfigs] =
-        state.remainingBallotConfigs;
-
-      if (!currentBallotConfig) {
-        return {
-          type: 'ArchiveEnd',
-          archive: state.archive,
-          ballotConfigsCount: state.ballotConfigsCount,
-        };
-      }
-
-      return {
-        type: 'RenderBallot',
-        electionDefinition: state.electionDefinition,
-        archive: state.archive,
-        ballotConfigsCount: state.ballotConfigsCount,
-        currentBallotConfig,
-        remainingBallotConfigs,
       };
     }
 

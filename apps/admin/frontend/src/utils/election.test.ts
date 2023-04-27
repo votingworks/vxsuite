@@ -1,8 +1,4 @@
-import { Admin } from '@votingworks/api';
-import {
-  electionSample,
-  electionSampleDefinition,
-} from '@votingworks/fixtures';
+import { electionSample } from '@votingworks/fixtures';
 import {
   BallotStyle,
   CandidateContest,
@@ -11,35 +7,16 @@ import {
   Election,
   getBallotStyle,
   getContests,
-  getDisplayElectionHash,
   YesNoVote,
 } from '@votingworks/types';
 import arrayUnique from 'array-unique';
 import {
-  getBallotPath,
   generateOvervoteBallot,
   generateTestDeckWriteIn,
   numBallotPositions,
   getTestDeckCandidateAtIndex,
   generateTestDeckBallots,
 } from './election';
-
-test('getBallotPath allows digits in file names', () => {
-  expect(
-    getBallotPath({
-      electionDefinition: electionSampleDefinition,
-      ballotStyleId: '77',
-      precinctId: '21',
-      locales: { primary: 'en-US' },
-      ballotMode: Admin.BallotMode.Official,
-      isAbsentee: true,
-    })
-  ).toEqual(
-    `election-${getDisplayElectionHash(
-      electionSampleDefinition
-    )}-precinct-north-springfield-id-21-style-77-English-live-absentee.pdf`
-  );
-});
 
 describe('generateOvervoteBallot', () => {
   const precinctId = electionSample.precincts[0].id;

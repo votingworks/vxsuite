@@ -15,8 +15,6 @@ import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 import { TallyReportScreen } from './tally_report_screen';
 import { routerPaths } from '../router_paths';
 
-jest.mock('../components/hand_marked_paper_ballot');
-
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let logger: Logger;
 let apiMock: ApiMock;

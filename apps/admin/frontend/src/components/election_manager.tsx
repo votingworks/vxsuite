@@ -17,7 +17,6 @@ import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { DefinitionScreen } from '../screens/definition_screen';
 import { BallotListScreen } from '../screens/ballot_list_screen';
-import { BallotScreen } from '../screens/ballot_screen';
 import { PrintTestDeckScreen } from '../screens/print_test_deck_screen';
 import { UnconfiguredScreen } from '../screens/unconfigured_screen';
 import { TallyScreen } from '../screens/tally_screen';
@@ -116,26 +115,10 @@ export function ElectionManager(): JSX.Element {
             exact
             path={routerPaths.definitionContest({ contestId: ':contestId' })}
           >
-            <DefinitionContestsScreen allowEditing={false} />
+            <DefinitionContestsScreen />
           </Route>
           <Route exact path={routerPaths.ballotsList}>
             <BallotListScreen />
-          </Route>
-          <Route
-            exact
-            path={[
-              routerPaths.ballotsViewLanguage({
-                ballotStyleId: ':ballotStyleId',
-                precinctId: ':precinctId',
-                localeCode: ':localeCode',
-              }),
-              routerPaths.ballotsView({
-                ballotStyleId: ':ballotStyleId',
-                precinctId: ':precinctId',
-              }),
-            ]}
-          >
-            <BallotScreen />
           </Route>
           <Route exact path={routerPaths.smartcards}>
             <Redirect
@@ -186,22 +169,6 @@ export function ElectionManager(): JSX.Element {
         })}
       >
         <ManualDataImportPrecinctScreen />
-      </Route>
-      <Route
-        exact
-        path={[
-          routerPaths.ballotsViewLanguage({
-            ballotStyleId: ':ballotStyleId',
-            precinctId: ':precinctId',
-            localeCode: ':localeCode',
-          }),
-          routerPaths.ballotsView({
-            ballotStyleId: ':ballotStyleId',
-            precinctId: ':precinctId',
-          }),
-        ]}
-      >
-        <BallotScreen />
       </Route>
       <Route exact path={routerPaths.tally}>
         <TallyScreen />
