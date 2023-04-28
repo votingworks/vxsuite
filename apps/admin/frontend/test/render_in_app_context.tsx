@@ -7,7 +7,6 @@ import {
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
-  FullElectionExternalTallies,
   Printer,
   VotingMethod,
   DippedSmartCardAuth,
@@ -62,7 +61,7 @@ interface RenderInAppContextParams {
   ) => Promise<void>;
   manualTallyVotingMethod?: VotingMethod;
   setManualTallyVotingMethod?: (votingMethod: VotingMethod) => void;
-  fullElectionExternalTallies?: FullElectionExternalTallies;
+  fullElectionExternalTally?: FullElectionExternalTally;
   generateExportableTallies?: () => ExportableTallies;
   auth?: DippedSmartCardAuth.AuthStatus;
   machineConfig?: MachineConfig;
@@ -124,7 +123,7 @@ export function renderInAppContext(
     updateExternalTally = jest.fn(),
     manualTallyVotingMethod = VotingMethod.Precinct,
     setManualTallyVotingMethod = jest.fn(),
-    fullElectionExternalTallies = new Map(),
+    fullElectionExternalTally = undefined,
     generateExportableTallies = jest.fn(),
     auth = electionDefinition === 'NONE'
       ? {
@@ -169,7 +168,7 @@ export function renderInAppContext(
         updateExternalTally,
         manualTallyVotingMethod,
         setManualTallyVotingMethod,
-        fullElectionExternalTallies,
+        fullElectionExternalTally,
         generateExportableTallies,
         auth,
         machineConfig,
