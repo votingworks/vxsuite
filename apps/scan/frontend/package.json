@@ -104,6 +104,7 @@
     "@votingworks/grout-test-utils": "workspace:*",
     "@votingworks/scan-backend": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
+    "@votingworks/usb-drive": "workspace:*",
     "eslint": "8.23.1",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.5.0",

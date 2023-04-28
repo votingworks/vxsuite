@@ -7,11 +7,16 @@ import {
   Loading,
   Modal,
   UsbControllerButton,
-  UsbDrive,
   P,
 } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
-import { exportCastVoteRecordsToUsbDrive } from '../api';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import {
+  ejectUsbDrive,
+  exportCastVoteRecordsToUsbDrive,
+  legacyUsbDriveStatus,
+} from '../api';
 
 const UsbImage = styled.img`
   margin: 0 auto;
@@ -20,7 +25,7 @@ const UsbImage = styled.img`
 
 export interface ExportResultsModalProps {
   onClose: () => void;
-  usbDrive: UsbDrive;
+  usbDrive: UsbDriveStatus;
 }
 
 enum ModalState {
@@ -35,6 +40,7 @@ export function ExportResultsModal({
   usbDrive,
 }: ExportResultsModalProps): JSX.Element {
   const exportMutation = exportCastVoteRecordsToUsbDrive.useMutation();
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -96,13 +102,14 @@ export function ExportResultsModal({
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            <Button onPress={onClose}>Cancel</Button>
             <UsbControllerButton
               small={false}
               primary
-              usbDriveStatus={usbDrive.status}
-              usbDriveEject={() => usbDrive.eject('election_manager')}
+              usbDriveStatus={legacyUsbDriveStatus(usbDrive)}
+              usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+              disabled={ejectUsbDriveMutation.isLoading}
             />
+            <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
         }
       />
@@ -124,11 +131,9 @@ export function ExportResultsModal({
   }
 
   switch (usbDrive.status) {
-    case 'absent':
+    case 'no_drive':
     case 'ejected':
-    case 'bad_format':
-      // When run not through kiosk mode let the user download the file
-      // on the machine for internal debugging use
+    case 'error':
       return (
         <Modal
           centerContent
@@ -141,15 +146,6 @@ export function ExportResultsModal({
               </P>
             </Prose>
           }
-          onOverlayClick={onClose}
-          actions={<Button onPress={onClose}>Cancel</Button>}
-        />
-      );
-    case 'ejecting':
-    case 'mounting':
-      return (
-        <Modal
-          content={<Loading />}
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Cancel</Button>}
         />
@@ -180,6 +176,6 @@ export function ExportResultsModal({
       );
     /* istanbul ignore next - compile time check */
     default:
-      throwIllegalValue(usbDrive.status);
+      throwIllegalValue(usbDrive, 'status');
   }
 }

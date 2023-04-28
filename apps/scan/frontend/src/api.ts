@@ -13,7 +13,11 @@ import { CastVoteRecord } from '@votingworks/types';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
+  UsbDriveStatus as LegacyUsbDriveStatus,
 } from '@votingworks/ui';
+import { typedAs } from '@votingworks/basics';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -108,6 +112,42 @@ export const getConfig = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getConfig());
+  },
+} as const;
+
+export const getUsbDriveStatus = {
+  queryKey(): QueryKey {
+    return ['getUsbDriveStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
+      refetchInterval: 500,
+    });
+  },
+} as const;
+
+// TODO remove this once libs/ui is converted to using libs/usb-drive's UsbDriveStatus
+export function legacyUsbDriveStatus(
+  usbDrive: UsbDriveStatus
+): LegacyUsbDriveStatus {
+  return typedAs<Record<UsbDriveStatus['status'], LegacyUsbDriveStatus>>({
+    no_drive: 'absent',
+    mounted: 'mounted',
+    ejected: 'ejected',
+    error: 'bad_format',
+  })[usbDrive.status];
+}
+
+export const ejectUsbDrive = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.ejectUsbDrive, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
+      },
+    });
   },
 } as const;
 

@@ -6,12 +6,12 @@ import {
   P,
   Prose,
   UsbControllerButton,
-  UsbDrive,
 } from '@votingworks/ui';
-import { usbstick } from '@votingworks/utils';
+// eslint-disable-next-line vx/gts-no-import-export-type
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { backupToUsbDrive } from '../api';
+import { backupToUsbDrive, ejectUsbDrive, legacyUsbDriveStatus } from '../api';
 
 const UsbImage = styled.img`
   margin: 0 auto;
@@ -20,7 +20,7 @@ const UsbImage = styled.img`
 
 export interface ExportBackupModalProps {
   onClose: () => void;
-  usbDrive: UsbDrive;
+  usbDrive: UsbDriveStatus;
 }
 
 enum ModalState {
@@ -37,19 +37,12 @@ export function ExportBackupModal({
   usbDrive,
 }: ExportBackupModalProps): JSX.Element {
   const backupToUsbDriveMutation = backupToUsbDrive.useMutation();
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
-  async function exportBackup() {
+  function exportBackup() {
     setCurrentState(ModalState.SAVING);
-
-    const usbPath = await usbstick.getPath();
-    if (!usbPath) {
-      setErrorMessage('No USB drive found.');
-      setCurrentState(ModalState.ERROR);
-      return;
-    }
-
     backupToUsbDriveMutation.mutate(undefined, {
       onSuccess: (result) => {
         if (result.isErr()) {
@@ -109,8 +102,9 @@ export function ExportBackupModal({
             <UsbControllerButton
               small={false}
               primary
-              usbDriveStatus={usbDrive.status}
-              usbDriveEject={() => usbDrive.eject('election_manager')}
+              usbDriveStatus={legacyUsbDriveStatus(usbDrive)}
+              usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+              disabled={ejectUsbDriveMutation.isLoading}
             />
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
@@ -129,11 +123,9 @@ export function ExportBackupModal({
   }
 
   switch (usbDrive.status) {
-    case 'absent':
+    case 'no_drive':
     case 'ejected':
-    case 'bad_format':
-      // When run not through kiosk mode let the user save the file
-      // on the machine for internal debugging use
+    case 'error':
       return (
         <Modal
           title="No USB Drive Detected"
@@ -145,15 +137,6 @@ export function ExportBackupModal({
               </P>
             </Prose>
           }
-          onOverlayClick={onClose}
-          actions={<Button onPress={onClose}>Cancel</Button>}
-        />
-      );
-    case 'ejecting':
-    case 'mounting':
-      return (
-        <Modal
-          content={<Loading />}
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Cancel</Button>}
         />
@@ -183,6 +166,6 @@ export function ExportBackupModal({
         />
       );
     default:
-      throwIllegalValue(usbDrive.status);
+      throwIllegalValue(usbDrive, 'status');
   }
 }

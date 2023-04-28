@@ -2173,6 +2173,9 @@ importers:
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../../libs/usb-drive
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
@@ -2499,6 +2502,9 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../../libs/usb-drive
       eslint:
         specifier: 8.23.1
         version: 8.23.1

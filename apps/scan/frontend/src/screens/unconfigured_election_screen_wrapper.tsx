@@ -1,14 +1,16 @@
 import React from 'react';
 import {
   UnconfiguredElectionScreen,
-  UsbDriveStatus,
-  useExternalStateChangeListener,
+  useQueryChangeListener,
 } from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
-import { configureFromBallotPackageOnUsbDrive } from '../api';
+import {
+  configureFromBallotPackageOnUsbDrive,
+  getUsbDriveStatus,
+  legacyUsbDriveStatus,
+} from '../api';
 
 interface Props {
-  usbDriveStatus: UsbDriveStatus;
   isElectionManagerAuth: boolean;
 }
 
@@ -16,21 +18,27 @@ interface Props {
  * UnconfiguredElectionScreenWrapper wraps the shared UnconfiguredElectionScreen component
  * with VxScan-specific logic (primarily calls to the VxScan API)
  */
-export function UnconfiguredElectionScreenWrapper(props: Props): JSX.Element {
-  const { usbDriveStatus, isElectionManagerAuth } = props;
+export function UnconfiguredElectionScreenWrapper(
+  props: Props
+): JSX.Element | null {
+  const { isElectionManagerAuth } = props;
 
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const configureMutation = configureFromBallotPackageOnUsbDrive.useMutation();
-  useExternalStateChangeListener(usbDriveStatus, (newUsbDriveStatus) => {
-    if (newUsbDriveStatus === 'mounted') {
+  // TODO move watching for USB drive to configure to the backend
+  useQueryChangeListener(usbDriveStatusQuery, (newUsbDriveStatus) => {
+    if (newUsbDriveStatus.status === 'mounted') {
       configureMutation.mutate();
     }
   });
   const error = configureMutation.data?.err();
 
+  if (!usbDriveStatusQuery.isSuccess) return null;
+
   return (
     <ScreenMainCenterChild>
       <UnconfiguredElectionScreen
-        usbDriveStatus={usbDriveStatus}
+        usbDriveStatus={legacyUsbDriveStatus(usbDriveStatusQuery.data)}
         isElectionManagerAuth={isElectionManagerAuth}
         backendConfigError={error}
         machineName="VxScan"
@@ -41,10 +49,5 @@ export function UnconfiguredElectionScreenWrapper(props: Props): JSX.Element {
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
-  return (
-    <UnconfiguredElectionScreenWrapper
-      usbDriveStatus="absent"
-      isElectionManagerAuth
-    />
-  );
+  return <UnconfiguredElectionScreenWrapper isElectionManagerAuth />;
 }

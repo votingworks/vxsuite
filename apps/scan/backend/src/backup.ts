@@ -15,10 +15,10 @@ import { createReadStream, existsSync } from 'fs-extra';
 import { basename } from 'path';
 import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
+import { UsbDrive } from '@votingworks/usb-drive';
 import { Store } from './store';
 import { rootDebug } from './util/debug';
 import { buildExporter } from './util/exporter';
-import { Usb } from './util/usb';
 
 const debug = rootDebug.extend('backup');
 
@@ -235,13 +235,13 @@ export function backup(
  */
 export async function backupToUsbDrive(
   store: Store,
-  usb: Usb,
+  usbDrive: UsbDrive,
   options: BackupOptions = {}
 ): Promise<Result<void, ExportDataError>> {
   const electionDefinition = store.getElectionDefinition();
   assert(electionDefinition, 'Cannot backup without election configuration');
 
-  const exporter = buildExporter(usb);
+  const exporter = buildExporter(usbDrive);
   const result = await exporter.exportDataToUsbDrive(
     SCANNER_BACKUPS_FOLDER,
     `${generateElectionBasedSubfolderName(

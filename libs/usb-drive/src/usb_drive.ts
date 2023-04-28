@@ -90,7 +90,9 @@ const VX_MOUNT_POINT = '/media/vx/usb-drive';
 async function mountUsbDrive(devicePath: string): Promise<void> {
   debug(`Mounting USB drive ${devicePath} at ${VX_MOUNT_POINT}`);
   await fs.mkdir(VX_MOUNT_POINT, { recursive: true });
-  await exec('mount', [
+  await exec('sudo', [
+    '-n',
+    'mount',
     '-w',
     '-o',
     'umask=000,nosuid,nodev,noexec',
@@ -101,7 +103,7 @@ async function mountUsbDrive(devicePath: string): Promise<void> {
 
 async function unmountUsbDrive(mountPoint: string): Promise<void> {
   debug(`Unmounting USB drive at ${mountPoint}`);
-  await exec('umount', [mountPoint]);
+  await exec('sudo', ['-n', 'umount', mountPoint]);
 }
 
 // TODO check format?
