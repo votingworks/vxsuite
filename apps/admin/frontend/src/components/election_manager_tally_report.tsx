@@ -31,7 +31,7 @@ import {
 import React from 'react';
 
 import { find, Optional } from '@votingworks/basics';
-import { filterManualTalliesByParams } from '../utils/external_tallies';
+import { filterManualTalliesByParams } from '../utils/manual_tallies';
 import { mergeWriteIns } from '../utils/write_ins';
 
 export type TallyReportType = 'Official' | 'Unofficial' | 'Test Deck';

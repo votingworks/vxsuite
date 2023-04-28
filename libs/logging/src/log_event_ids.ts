@@ -410,7 +410,7 @@ const RemovedTallyFile: LogDetails = {
   eventId: LogEventId.RemovedTallyFile,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'The user removed Cvr, External Tally data, manually entered tally data, or all tally data. The type of file removed specified by the filetype key.',
+    'The user removed CVR file(s), manually entered tally data, or all tally data. The type of file removed specified by the filetype key.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 const TallyReportPrinted: LogDetails = {

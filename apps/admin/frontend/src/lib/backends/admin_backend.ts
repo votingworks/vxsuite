@@ -6,10 +6,10 @@ import { z } from 'zod';
 import {
   convertManualTallyToStorageString,
   convertStorageStringToManualTally,
-} from '../../utils/external_tallies';
+} from '../../utils/manual_tallies';
 import { ElectionManagerStoreBackend } from './types';
 
-const externalVoteTallyFileStorageKey = 'externalVoteTally';
+const manualVoteTallyFileStorageKey = 'manualVoteTally';
 
 /** @visibleForTesting */
 export const currentElectionIdStorageKey = 'currentElectionId';
@@ -48,7 +48,7 @@ export class ElectionManagerStoreAdminBackend
   > {
     const serializedManualTally = safeParse(
       z.string().optional(),
-      await this.storage.get(externalVoteTallyFileStorageKey)
+      await this.storage.get(manualVoteTallyFileStorageKey)
     ).ok();
 
     if (serializedManualTally) {
@@ -68,7 +68,7 @@ export class ElectionManagerStoreAdminBackend
     newFullElectionManualTally: FullElectionManualTally
   ): Promise<void> {
     await this.setStorageKeyAndLog(
-      externalVoteTallyFileStorageKey,
+      manualVoteTallyFileStorageKey,
       convertManualTallyToStorageString(newFullElectionManualTally),
       `Added or updated manual tally.`
     );
@@ -76,7 +76,7 @@ export class ElectionManagerStoreAdminBackend
 
   async removeFullElectionManualTally(): Promise<void> {
     await this.removeStorageKeyAndLog(
-      externalVoteTallyFileStorageKey,
+      manualVoteTallyFileStorageKey,
       'Cleared manual tally.'
     );
   }

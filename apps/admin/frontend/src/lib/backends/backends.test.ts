@@ -3,7 +3,7 @@ import { fakeLogger } from '@votingworks/logging';
 import { VotingMethod } from '@votingworks/types';
 import { MemoryStorage } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
-import { convertTalliesByPrecinctToFullManualTally } from '../../utils/external_tallies';
+import { convertTalliesByPrecinctToFullManualTally } from '../../utils/manual_tallies';
 import { ElectionManagerStoreAdminBackend } from './admin_backend';
 import { ElectionManagerStoreMemoryBackend } from './memory_backend';
 

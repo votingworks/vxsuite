@@ -25,31 +25,31 @@ const scannedTally = fullElectionTally.resultsByCategory.get(
 )?.['1'];
 assert(scannedTally);
 
-const candidateContestWithExternalDataId = 'best-animal-fish';
-const candidateContestWithExternalData = election.contests.find(
-  (c) => c.id === candidateContestWithExternalDataId
+const candidateContestWithManualDataId = 'best-animal-fish';
+const candidateContestWithManualData = election.contests.find(
+  (c) => c.id === candidateContestWithManualDataId
 );
-assert(candidateContestWithExternalData);
-assert(candidateContestWithExternalData.type === 'candidate');
+assert(candidateContestWithManualData);
+assert(candidateContestWithManualData.type === 'candidate');
 
-const yesNoContestWithExternalDataId = 'fishing';
-const yesNoContestWithExternalData = election.contests.find(
-  (c) => c.id === yesNoContestWithExternalDataId
+const yesNoContestWithManualDataId = 'fishing';
+const yesNoContestWithManualData = election.contests.find(
+  (c) => c.id === yesNoContestWithManualDataId
 );
-assert(yesNoContestWithExternalData);
-assert(yesNoContestWithExternalData.type === 'yesno');
+assert(yesNoContestWithManualData);
+assert(yesNoContestWithManualData.type === 'yesno');
 
 const manualTally: ManualTally = {
   contestTallies: {
-    [candidateContestWithExternalDataId]: {
-      contest: candidateContestWithExternalData,
+    [candidateContestWithManualDataId]: {
+      contest: candidateContestWithManualData,
       tallies: {
         salmon: {
-          option: candidateContestWithExternalData.candidates[0],
+          option: candidateContestWithManualData.candidates[0],
           tally: 1,
         },
         seahorse: {
-          option: candidateContestWithExternalData.candidates[1],
+          option: candidateContestWithManualData.candidates[1],
           tally: 1,
         },
       },
@@ -59,8 +59,8 @@ const manualTally: ManualTally = {
         ballots: 4,
       },
     },
-    [yesNoContestWithExternalDataId]: {
-      contest: yesNoContestWithExternalData,
+    [yesNoContestWithManualDataId]: {
+      contest: yesNoContestWithManualData,
       tallies: {
         yes: {
           option: ['yes'],

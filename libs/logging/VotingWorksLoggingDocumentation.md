@@ -172,7 +172,7 @@ IDs are logged with each log to identify the log being written.
 **Machines:** vx-admin-frontend
 ### removed-tally-file
 **Type:** [user-action](#user-action)  
-**Description:** The user removed Cvr, External Tally data, manually entered tally data, or all tally data. The type of file removed specified by the filetype key.  
+**Description:** The user removed CVR file(s), manually entered tally data, or all tally data. The type of file removed specified by the filetype key.  
 **Machines:** vx-admin-frontend
 ### tally-report-previewed
 **Type:** [user-action](#user-action)  

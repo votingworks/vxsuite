@@ -36,7 +36,7 @@ import {
 } from '../test/react_testing_library';
 
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
-import { convertTalliesByPrecinctToFullManualTally } from './utils/external_tallies';
+import { convertTalliesByPrecinctToFullManualTally } from './utils/manual_tallies';
 import { VxFiles } from './lib/converters';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/api_mock';
@@ -698,9 +698,7 @@ test('tabulating CVRs with manual data', async () => {
   fireEvent.click(within(modal).getByText('Remove Manual Data'));
   await waitFor(() => {
     expect(getByTestId('total-cvr-count').textContent).toEqual('100');
-    expect(
-      queryAllByText('External Results (Manually Added Data)').length
-    ).toEqual(0);
+    expect(queryAllByText('Manually Added Results').length).toEqual(0);
   });
 });
 

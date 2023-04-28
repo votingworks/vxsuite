@@ -25,9 +25,9 @@ import { renderInAppContext } from '../../test/render_in_app_context';
 import {
   getEmptyManualTalliesByPrecinct,
   getEmptyManualTally,
-} from '../utils/external_tallies';
+} from '../utils/manual_tallies';
 import { ManualDataImportPrecinctScreen } from './manual_data_import_precinct_screen';
-import { buildManualTally } from '../../test/helpers/build_external_tally';
+import { buildManualTally } from '../../test/helpers/build_manual_tally';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 let apiMock: ApiMock;

@@ -44,7 +44,7 @@ import {
   convertTalliesByPrecinctToFullManualTally,
   getEmptyManualTalliesByPrecinct,
   getTotalNumberOfBallots,
-} from '../utils/external_tallies';
+} from '../utils/manual_tallies';
 import {
   getAdjudicatedWriteInCandidate,
   isManuallyAdjudicatedWriteInCandidate,
@@ -225,8 +225,8 @@ function convertContestTallies(
   return convertedContestTallies;
 }
 
-// Re-calculates the total number of ballots in each contest to create an
-// external tally from contest tallies
+// Re-calculates the total number of ballots in each contest to create a
+// manual tally from contest tallies
 export function getManualTallyFromContestTallies(
   contestTallies: Dictionary<TempContestTally>,
   election: Election
@@ -491,7 +491,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     );
   }
 
-  // Modifies the external tally in place and returns the same object
+  // Modifies the manual tally in place and returns the same object
   function addWriteInCandidateToManualTally(
     manualTally: TempManualTally,
     contestId: ContestId,
@@ -509,7 +509,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     return manualTally;
   }
 
-  // modifies the external tally in place and returns the same object
+  // modifies the manual tally in place and returns the same object
   const removeCandidateFromTempManualTally = useCallback(
     (
       manualTally: TempManualTally,

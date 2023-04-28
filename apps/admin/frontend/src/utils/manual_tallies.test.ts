@@ -17,7 +17,7 @@ import {
   PartyIdSchema,
 } from '@votingworks/types';
 import { combineContestTallies } from '@votingworks/utils';
-import { buildManualTally } from '../../test/helpers/build_external_tally';
+import { buildManualTally } from '../../test/helpers/build_manual_tally';
 import { buildCandidateTallies } from '../../test/util/build_candidate_tallies';
 
 import {
@@ -29,7 +29,7 @@ import {
   getEmptyManualTally,
   getPrecinctIdsInManualTally,
   getTotalNumberOfBallots,
-} from './external_tallies';
+} from './manual_tallies';
 
 const yesnocontest = electionSample.contests.find(
   (c) => c.id === 'question-a'
@@ -246,7 +246,7 @@ describe('getEmptyManualTalliesByPrecinct', () => {
 });
 
 describe('convertManualTallyToStorageString, convertStorageStringToManualTally', () => {
-  it('can convert to storage string and back to external tallies', () => {
+  it('can convert to storage string and back to manual tally', () => {
     const singleVotes = buildManualTally(electionWithMsEitherNeither, 1, [
       '775020876',
       '750000017',

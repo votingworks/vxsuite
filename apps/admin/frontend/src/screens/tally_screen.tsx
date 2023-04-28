@@ -8,7 +8,7 @@ import { Button, Prose, Table, TD, Text, LinkButton } from '@votingworks/ui';
 import { ResultsFileType } from '../config/types';
 
 import { AppContext } from '../contexts/app_context';
-import { getPrecinctIdsInManualTally } from '../utils/external_tallies';
+import { getPrecinctIdsInManualTally } from '../utils/manual_tallies';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
@@ -69,7 +69,7 @@ export function TallyScreen(): JSX.Element | null {
   const castVoteRecordFileList = castVoteRecordFilesQuery.data;
   const hasAnyFiles =
     castVoteRecordFileList.length > 0 || fullElectionManualTally;
-  const hasExternalManualData = !!fullElectionManualTally;
+  const hasManualData = !!fullElectionManualTally;
 
   const fileMode = castVoteRecordFileModeQuery.data;
   const fileModeText =
@@ -210,12 +210,12 @@ export function TallyScreen(): JSX.Element | null {
               to={routerPaths.manualDataImport}
               disabled={isOfficialResults}
             >
-              {hasExternalManualData
+              {hasManualData
                 ? 'Edit Manually Entered Results'
                 : 'Add Manually Entered Results'}
             </LinkButton>{' '}
             <Button
-              disabled={!hasExternalManualData || isOfficialResults}
+              disabled={!hasManualData || isOfficialResults}
               onPress={() => beginConfirmRemoveFiles(ResultsFileType.Manual)}
             >
               Remove Manual Data

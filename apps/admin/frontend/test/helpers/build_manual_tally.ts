@@ -8,7 +8,7 @@ import { assert } from '@votingworks/basics';
 import {
   getEmptyContestTallies,
   getTotalNumberOfBallots,
-} from '../../src/utils/external_tallies';
+} from '../../src/utils/manual_tallies';
 
 // Note this helper uses 'getEmptyContestTallies' and 'getTotalNumberOfBallots' util functions so should not be used to test those implementations.
 export function buildManualTally(

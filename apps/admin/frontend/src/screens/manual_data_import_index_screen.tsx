@@ -20,7 +20,7 @@ import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
-import { convertTalliesByPrecinctToFullManualTally } from '../utils/external_tallies';
+import { convertTalliesByPrecinctToFullManualTally } from '../utils/manual_tallies';
 import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_modal';
 
 const SummaryInfo = styled.div`

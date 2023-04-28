@@ -23,7 +23,7 @@ import { ResultsFileType } from '../config/types';
 import {
   getEmptyManualTalliesByPrecinct,
   getEmptyManualTally,
-} from '../utils/external_tallies';
+} from '../utils/manual_tallies';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 let apiMock: ApiMock;

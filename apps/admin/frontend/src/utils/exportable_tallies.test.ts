@@ -262,7 +262,7 @@ describe('getExportableTallies', () => {
     expect(tally).toMatchSnapshot();
   });
 
-  it('builds expected tally object for election with either neither with external and internal data', () => {
+  it('builds expected tally object for election with either neither with internal and manual data', () => {
     const castVoteRecords = parseCvrsAndAssertSuccess(
       electionWithMsEitherNeitherFixtures.legacyCvrData,
       electionWithMsEitherNeither
@@ -282,7 +282,7 @@ describe('getExportableTallies', () => {
       fullInternalTally,
       electionWithMsEitherNeither
     );
-    // Get tally with CVR and external data
+    // Get tally with CVR and manual data
     const doubleTally = getExportableTallies(
       fullInternalTally,
       electionWithMsEitherNeither,
@@ -309,7 +309,7 @@ describe('getExportableTallies', () => {
     expect(tally).toMatchSnapshot();
   });
 
-  it('builds expected tally object for primary election with external and internal data', () => {
+  it('builds expected tally object for primary election with internal and manual data', () => {
     const castVoteRecords = parseCvrsAndAssertSuccess(
       electionMultiPartyPrimaryFixtures.legacyCvrData,
       multiPartyPrimaryElection
@@ -329,7 +329,7 @@ describe('getExportableTallies', () => {
       fullInternalTally,
       multiPartyPrimaryElection
     );
-    // Get tally with CVR and external data
+    // Get tally with CVR and manual data
     const doubleTally = getExportableTallies(
       fullInternalTally,
       multiPartyPrimaryElection,

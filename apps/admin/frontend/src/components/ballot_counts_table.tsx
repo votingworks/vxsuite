@@ -41,14 +41,14 @@ export function BallotCountsTable({
 
   const totalBallotCountInternal =
     fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0;
-  const totalBallotCountExternal =
+  const totalBallotCountManual =
     fullElectionManualTally?.overallTally.numberOfBallotsCounted ?? 0;
 
   switch (breakdownCategory) {
     case TallyCategory.Precinct: {
       const resultsByPrecinct =
         fullElectionTally?.resultsByCategory.get(TallyCategory.Precinct) || {};
-      const externalResultsByPrecinct =
+      const manualResultsByPrecinct =
         fullElectionManualTally?.resultsByCategory.get(
           TallyCategory.Precinct
         ) || {};
@@ -71,8 +71,8 @@ export function BallotCountsTable({
               .map((precinct) => {
                 const precinctBallotsCount =
                   resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0;
-                const externalPrecinctBallotsCount =
-                  externalResultsByPrecinct[precinct.id]
+                const manualPrecinctBallotsCount =
+                  manualResultsByPrecinct[precinct.id]
                     ?.numberOfBallotsCounted ?? 0;
                 return (
                   <tr key={precinct.id} data-testid="table-row">
@@ -81,7 +81,7 @@ export function BallotCountsTable({
                     </TD>
                     <TD>
                       {format.count(
-                        precinctBallotsCount + externalPrecinctBallotsCount
+                        precinctBallotsCount + manualPrecinctBallotsCount
                       )}
                     </TD>
                     <TD>
@@ -104,7 +104,7 @@ export function BallotCountsTable({
               <TD>
                 <strong data-testid="total-ballot-count">
                   {format.count(
-                    totalBallotCountInternal + totalBallotCountExternal
+                    totalBallotCountInternal + totalBallotCountManual
                   )}
                 </strong>
               </TD>
@@ -189,7 +189,7 @@ export function BallotCountsTable({
               <TD>
                 <strong>
                   {format.count(
-                    totalBallotCountInternal + totalBallotCountExternal
+                    totalBallotCountInternal + totalBallotCountManual
                   )}
                 </strong>
               </TD>
@@ -202,7 +202,7 @@ export function BallotCountsTable({
     case TallyCategory.Party: {
       const resultsByParty =
         fullElectionTally?.resultsByCategory.get(TallyCategory.Party) || {};
-      const externalResultsByParty =
+      const manualResultsByParty =
         fullElectionManualTally?.resultsByCategory.get(TallyCategory.Party) ||
         {};
       const partiesForPrimaries = getPartiesWithPrimaryElections(election);
@@ -229,8 +229,8 @@ export function BallotCountsTable({
               .map((party) => {
                 const partyBallotsCount =
                   resultsByParty[party.id]?.numberOfBallotsCounted ?? 0;
-                const externalPartyBallotsCount =
-                  externalResultsByParty[party.id]?.numberOfBallotsCounted ?? 0;
+                const manualPartyBallotsCount =
+                  manualResultsByParty[party.id]?.numberOfBallotsCounted ?? 0;
                 return (
                   <tr data-testid="table-row" key={party.id}>
                     <TD narrow nowrap>
@@ -238,7 +238,7 @@ export function BallotCountsTable({
                     </TD>
                     <TD>
                       {format.count(
-                        partyBallotsCount + externalPartyBallotsCount
+                        partyBallotsCount + manualPartyBallotsCount
                       )}
                     </TD>
                     <TD>
@@ -261,7 +261,7 @@ export function BallotCountsTable({
               <TD>
                 <strong data-testid="total-ballot-count">
                   {format.count(
-                    totalBallotCountInternal + totalBallotCountExternal
+                    totalBallotCountInternal + totalBallotCountManual
                   )}
                 </strong>
               </TD>
@@ -289,13 +289,13 @@ export function BallotCountsTable({
               const internalVotingMethodBallotsCount =
                 resultsByVotingMethod[votingMethod]?.numberOfBallotsCounted ??
                 0;
-              const externalVotingMethodBallotsCount =
+              const manualVotingMethodBallotsCount =
                 votingMethod === fullElectionManualTally?.votingMethod
                   ? fullElectionManualTally.overallTally.numberOfBallotsCounted
                   : 0;
               const votingMethodBallotsCount =
                 internalVotingMethodBallotsCount +
-                externalVotingMethodBallotsCount;
+                manualVotingMethodBallotsCount;
               if (
                 votingMethod === VotingMethod.Unknown &&
                 votingMethodBallotsCount === 0
@@ -329,7 +329,7 @@ export function BallotCountsTable({
               <TD>
                 <strong>
                   {format.count(
-                    totalBallotCountInternal + totalBallotCountExternal
+                    totalBallotCountInternal + totalBallotCountManual
                   )}
                 </strong>
               </TD>
@@ -382,7 +382,7 @@ export function BallotCountsTable({
             })}
             {fullElectionManualTally ? (
               <tr data-testid="table-row" key="manual-data">
-                <TD narrow nowrap data-testid="batch-external">
+                <TD narrow nowrap data-testid="batch-manual">
                   Manually Added Results
                 </TD>
                 <TD />
@@ -402,7 +402,7 @@ export function BallotCountsTable({
               <TD>
                 <strong>
                   {format.count(
-                    totalBallotCountInternal + totalBallotCountExternal
+                    totalBallotCountInternal + totalBallotCountManual
                   )}
                 </strong>
               </TD>

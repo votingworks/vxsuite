@@ -55,7 +55,7 @@ export function getCombinedExportableContestTally(
 export function getExportableTallies(
   internalElectionTally: FullElectionTally,
   election: Election,
-  externalElectionTally?: FullElectionManualTally
+  manualElectionTally?: FullElectionManualTally
 ): ExportableTallies {
   const talliesByPrecinct = internalElectionTally.resultsByCategory.get(
     TallyCategory.Precinct
@@ -64,7 +64,7 @@ export function getExportableTallies(
     return getEmptyExportableTallies();
   }
 
-  const manualTallyByPrecinct = externalElectionTally?.resultsByCategory.get(
+  const manualTallyByPrecinct = manualElectionTally?.resultsByCategory.get(
     TallyCategory.Precinct
   );
 

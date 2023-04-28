@@ -7,19 +7,19 @@ import { ServicesContext } from '../contexts/services_context';
 
 export interface ElectionManagerStore {
   /**
-   * Tallies from external sources, e.g. manually entered tallies.
+   * Manually entered tally.
    */
   readonly fullElectionManualTally?: FullElectionManualTally;
 
   /**
-   * Updates the external tally for a given source.
+   * Adds or updates the manual tally.
    */
   updateFullElectionManualTally(
     newFullElectionManualTally: FullElectionManualTally
   ): Promise<void>;
 
   /**
-   * Removes the external tally for a given source.
+   * Removes the manual tally.
    */
   removeFullElectionManualTally(): Promise<void>;
 
@@ -29,7 +29,7 @@ export interface ElectionManagerStore {
   setCurrentUserRole(newCurrentUserRole: LoggingUserRole): void;
 }
 
-export const externalVoteTallyFileStorageKey = 'externalVoteTallies';
+export const manualVoteTallyFileStorageKey = 'manualVoteTallies';
 
 /**
  * Manages the stored data for VxAdmin.
@@ -39,14 +39,14 @@ export function useElectionManagerStore(): ElectionManagerStore {
   const queryClient = useQueryClient();
   const currentUserRoleRef = useRef<LoggingUserRole>('unknown');
 
-  const getExternalElectionTalliesQuery =
+  const getManualElectionTalliesQuery =
     useQuery<FullElectionManualTally | null>(
-      [externalVoteTallyFileStorageKey],
+      [manualVoteTallyFileStorageKey],
       async () => {
         return (await backend.loadFullElectionManualTally()) ?? null;
       }
     );
-  const fullElectionManualTally = getExternalElectionTalliesQuery.data;
+  const fullElectionManualTally = getManualElectionTalliesQuery.data;
 
   const updateFullElectionManualTallyMutation = useMutation(
     async (newFullElectionManualTally: FullElectionManualTally) => {
@@ -54,7 +54,7 @@ export function useElectionManagerStore(): ElectionManagerStore {
     },
     {
       onSuccess() {
-        void queryClient.invalidateQueries([externalVoteTallyFileStorageKey]);
+        void queryClient.invalidateQueries([manualVoteTallyFileStorageKey]);
       },
     }
   );
@@ -74,7 +74,7 @@ export function useElectionManagerStore(): ElectionManagerStore {
     },
     {
       onSuccess() {
-        void queryClient.invalidateQueries([externalVoteTallyFileStorageKey]);
+        void queryClient.invalidateQueries([manualVoteTallyFileStorageKey]);
       },
     }
   );

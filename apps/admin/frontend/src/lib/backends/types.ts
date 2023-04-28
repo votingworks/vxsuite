@@ -11,19 +11,19 @@ export interface AddCastVoteRecordFileResult {
  */
 export interface ElectionManagerStoreBackend {
   /**
-   * Loads the existing external tallies.
+   * Loads the existing manual tallies.
    */
   loadFullElectionManualTally(): Promise<FullElectionManualTally | undefined>;
 
   /**
-   * Updates the external tally for a given source.
+   * Updates the manual tally for a given source.
    */
   updateFullElectionManualTally(
     newFullElectionManualTally: FullElectionManualTally
   ): Promise<void>;
 
   /**
-   * Removes the external tally for a given source.
+   * Removes the manual tally for a given source.
    */
   removeFullElectionManualTally(): Promise<void>;
 }
