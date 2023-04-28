@@ -5,7 +5,6 @@ import { Admin } from '@votingworks/api';
 import { format, isElectionManagerAuth } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
 import { Button, Prose, Table, TD, Text, LinkButton } from '@votingworks/ui';
-import { ExternalTallySourceType } from '@votingworks/types';
 import { ResultsFileType } from '../config/types';
 
 import { AppContext } from '../contexts/app_context';
@@ -22,7 +21,7 @@ export function TallyScreen(): JSX.Element | null {
   const {
     electionDefinition,
     isOfficialResults,
-    fullElectionExternalTallies,
+    fullElectionExternalTally,
     resetFiles,
     auth,
   } = useContext(AppContext);
@@ -69,10 +68,8 @@ export function TallyScreen(): JSX.Element | null {
 
   const castVoteRecordFileList = castVoteRecordFilesQuery.data;
   const hasAnyFiles =
-    castVoteRecordFileList.length > 0 || fullElectionExternalTallies.size > 0;
-  const hasExternalManualData = fullElectionExternalTallies.has(
-    ExternalTallySourceType.Manual
-  );
+    castVoteRecordFileList.length > 0 || fullElectionExternalTally;
+  const hasExternalManualData = !!fullElectionExternalTally;
 
   const fileMode = castVoteRecordFileModeQuery.data;
   const fileModeText =
@@ -81,30 +78,6 @@ export function TallyScreen(): JSX.Element | null {
       : fileMode === Admin.CvrFileMode.Official
       ? 'Currently tallying official ballots.'
       : '';
-
-  const externalTallyRows = Array.from(
-    fullElectionExternalTallies.values()
-  ).map((t) => {
-    const precinctsInExternalFile = getPrecinctIdsInExternalTally(t);
-    return (
-      <tr key={t.inputSourceName}>
-        <TD narrow nowrap>
-          {moment(t.timestampCreated).format(TIME_FORMAT)}
-        </TD>
-        <TD narrow>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
-        <TD narrow nowrap>
-          External Results ({t.inputSourceName})
-        </TD>
-        <TD>{getPrecinctNames(precinctsInExternalFile)}</TD>
-      </tr>
-    );
-  });
-  const externalFileBallotCount = Array.from(
-    fullElectionExternalTallies.values()
-  ).reduce(
-    (prev, tally) => prev + tally.overallTally.numberOfBallotsCounted,
-    0
-  );
 
   return (
     <React.Fragment>
@@ -181,7 +154,31 @@ export function TallyScreen(): JSX.Element | null {
                       </tr>
                     )
                   )}
-                  {externalTallyRows}
+                  {fullElectionExternalTally ? (
+                    <tr key="manual-data">
+                      <TD narrow nowrap>
+                        {moment(
+                          fullElectionExternalTally.timestampCreated
+                        ).format(TIME_FORMAT)}
+                      </TD>
+                      <TD narrow>
+                        {format.count(
+                          fullElectionExternalTally.overallTally
+                            .numberOfBallotsCounted
+                        )}
+                      </TD>
+                      <TD narrow nowrap>
+                        Manually Added Data
+                      </TD>
+                      <TD>
+                        {getPrecinctNames(
+                          getPrecinctIdsInExternalTally(
+                            fullElectionExternalTally
+                          )
+                        )}
+                      </TD>
+                    </tr>
+                  ) : null}
                   <tr>
                     <TD as="th" narrow nowrap>
                       Total CVRs Count
@@ -191,7 +188,9 @@ export function TallyScreen(): JSX.Element | null {
                         castVoteRecordFileList.reduce(
                           (prev, curr) => prev + curr.numCvrsImported,
                           0
-                        ) + externalFileBallotCount
+                        ) +
+                          (fullElectionExternalTally?.overallTally
+                            .numberOfBallotsCounted ?? 0)
                       )}
                     </TD>
                     <TD />
