@@ -94,7 +94,7 @@ export = {
     // Disallows async functions with no await to prevent bugs and confusion
     '@typescript-eslint/require-await': 'error',
 
-    // Configure default rules as recommened by google TS guide
+    // Configure default rules as recommened by Google TypeScript Style Guide.
     'class-methods-use-this': 'off',
     'consistent-return': 'off',
     'dot-notation': 'off',
