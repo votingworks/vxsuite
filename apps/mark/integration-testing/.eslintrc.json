@@ -11,7 +11,7 @@
       },
       "extends": ["plugin:cypress/recommended"],
       "rules": {
-        // Allow for default exports which is safe in testing code.
+        // Cypress requires `cypress.config.ts` to use a default export.
         "vx/gts-no-default-exports": "off"
       }
     }
