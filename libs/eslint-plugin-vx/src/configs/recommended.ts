@@ -85,7 +85,7 @@ export = {
     '@typescript-eslint/no-floating-promises': 'error',
     // Disallows the non-null assertion ! operator as recommended by the Google TypeScript Style Guide.
     '@typescript-eslint/no-non-null-assertion': 'error',
-    // Disallows unnecessary type assertions as recommended by the google TS guide.
+    // Disallows unnecessary type assertions as recommended by the Google TypeScript Style Guide.
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
     // Disallows unused variables to prevent bugs
     '@typescript-eslint/no-unused-vars': 'error',
