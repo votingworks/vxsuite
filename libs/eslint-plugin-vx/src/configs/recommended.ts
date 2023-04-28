@@ -73,7 +73,7 @@ export = {
 
     // Disallow awaiting a value that is not Thenable which often indicates an error.
     '@typescript-eslint/await-thenable': 'error',
-    // Enforce using interface as object type definition as recommended by google TS style guide.
+    // Enforce using interface as object type definition as recommended by Google TS Style Guide.
     '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
     // Enforce explicit return types on exports for readability
     '@typescript-eslint/explicit-module-boundary-types': 'error',
