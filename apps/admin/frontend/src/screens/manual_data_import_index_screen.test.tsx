@@ -11,7 +11,6 @@ import {
   ContestOptionTally,
   ContestTally,
   ExternalTally,
-  ExternalTallySourceType,
   FullElectionExternalTally,
   TallyCategory,
   VotingMethod,
@@ -81,8 +80,6 @@ test('toggling ballot types before data after been added does does update tallie
       [TallyCategory.Precinct, { precinct: getEmptyExternalTally() }],
     ]),
     votingMethod: VotingMethod.Absentee,
-    inputSourceName: 'Doesnt matter',
-    source: ExternalTallySourceType.Manual,
     timestampCreated: new Date(),
   };
   const { getByText, getByTestId } = renderInAppContext(
@@ -95,9 +92,7 @@ test('toggling ballot types before data after been added does does update tallie
       manualTallyVotingMethod: VotingMethod.Absentee,
       setManualTallyVotingMethod,
       updateExternalTally,
-      fullElectionExternalTallies: new Map([
-        [ExternalTallySourceType.Manual, manualFullElectionExternalTally],
-      ]),
+      fullElectionExternalTally: manualFullElectionExternalTally,
       apiMock,
     }
   );
@@ -117,7 +112,6 @@ test('toggling ballot types before data after been added does does update tallie
   );
   expect(updateExternalTally).toHaveBeenCalledWith(
     expect.objectContaining({
-      source: ExternalTallySourceType.Manual,
       votingMethod: VotingMethod.Precinct,
     })
   );
@@ -241,8 +235,6 @@ test('loads preexisting manual data to edit', async () => {
     overallTally,
     resultsByCategory,
     votingMethod: VotingMethod.Absentee,
-    inputSourceName: 'Doesnt matter',
-    source: ExternalTallySourceType.Manual,
     timestampCreated: new Date(),
   };
   const resetFiles = jest.fn();
@@ -256,9 +248,7 @@ test('loads preexisting manual data to edit', async () => {
       electionDefinition: electionSampleDefinition,
       resetFiles,
       manualTallyVotingMethod: VotingMethod.Absentee,
-      fullElectionExternalTallies: new Map([
-        [externalTally.source, externalTally],
-      ]),
+      fullElectionExternalTally: externalTally,
       apiMock,
     }
   );

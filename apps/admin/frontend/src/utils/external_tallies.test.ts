@@ -10,7 +10,6 @@ import {
   YesNoContest,
   ContestTally,
   ExternalTally,
-  ExternalTallySourceType,
   FullElectionExternalTally,
   TallyCategory,
   VotingMethod,
@@ -22,8 +21,8 @@ import { buildExternalTally } from '../../test/helpers/build_external_tally';
 import { buildCandidateTallies } from '../../test/util/build_candidate_tallies';
 
 import {
-  convertExternalTalliesToStorageString,
-  convertStorageStringToExternalTallies,
+  convertExternalTallyToStorageString,
+  convertStorageStringToExternalTally,
   convertTalliesByPrecinctToFullExternalTally,
   filterExternalTalliesByParams,
   getEmptyExternalTalliesByPrecinct,
@@ -248,7 +247,7 @@ describe('getEmptyExternalTalliesByPrecinct', () => {
   });
 });
 
-describe('convertExternalTalliesToStorageString, convertStorageStringToExternalTallies', () => {
+describe('convertExternalTallyToStorageString, convertStorageStringToExternalTally', () => {
   it('can convert to storage string and back to external tallies', () => {
     const singleVotes = buildExternalTally(electionWithMsEitherNeither, 1, [
       '775020876',
@@ -267,17 +266,12 @@ describe('convertExternalTalliesToStorageString, convertStorageStringToExternalT
       overallTally: doubleVotes,
       resultsByCategory,
       votingMethod: VotingMethod.Absentee,
-      source: ExternalTallySourceType.Manual,
-      inputSourceName: 'the-heartbreak-prince',
       timestampCreated: new Date(1989, 11, 13),
     }; // Have information both in the main tally and results by category
 
-    const storageString = convertExternalTalliesToStorageString(
-      new Map([[fullTally1.source, fullTally1]])
-    );
-    const recreatedTallies =
-      convertStorageStringToExternalTallies(storageString);
-    expect(recreatedTallies).toStrictEqual([fullTally1]);
+    const storageString = convertExternalTallyToStorageString(fullTally1);
+    const recreatedTallies = convertStorageStringToExternalTally(storageString);
+    expect(recreatedTallies).toStrictEqual(fullTally1);
   });
 });
 
@@ -287,8 +281,6 @@ describe('getPrecinctIdsInExternalTally', () => {
       overallTally: getEmptyExternalTally(),
       resultsByCategory: new Map(),
       votingMethod: VotingMethod.Precinct,
-      source: ExternalTallySourceType.Manual,
-      inputSourceName: 'call-it-what-you-want',
       timestampCreated: new Date(1989, 11, 13),
     };
     expect(getPrecinctIdsInExternalTally(emptyFullExternalTally)).toStrictEqual(
@@ -313,8 +305,6 @@ describe('getPrecinctIdsInExternalTally', () => {
       overallTally: getEmptyExternalTally(),
       resultsByCategory,
       votingMethod: VotingMethod.Precinct,
-      source: ExternalTallySourceType.Manual,
-      inputSourceName: 'call-it-what-you-want',
       timestampCreated: new Date(1989, 11, 13),
     };
     // Precincts with 0 votes explicitly specified or just missing in the dictionary are not included
@@ -351,8 +341,6 @@ describe('filterExternalTalliesByParams', () => {
     overallTally: doubleVotesEitherNeither,
     resultsByCategory: sharedResultsByCategory,
     votingMethod: VotingMethod.Absentee,
-    source: ExternalTallySourceType.Manual,
-    inputSourceName: 'the-heartbreak-prince',
     timestampCreated: new Date(1989, 11, 13),
   };
   it('returns undefined when the inputted tally is undefined', () => {
@@ -456,8 +444,6 @@ describe('filterExternalTalliesByParams', () => {
       overallTally: singleVotesPrimary,
       resultsByCategory: new Map(),
       votingMethod: VotingMethod.Absentee,
-      source: ExternalTallySourceType.Manual,
-      inputSourceName: 'the-heartbreak-prince',
       timestampCreated: new Date(1989, 11, 13),
     };
     const libertyResults = filterExternalTalliesByParams(
@@ -559,8 +545,6 @@ describe('filterExternalTalliesByParams', () => {
       overallTally: doubleVotesPrimary,
       resultsByCategory,
       votingMethod: VotingMethod.Precinct,
-      source: ExternalTallySourceType.Manual,
-      inputSourceName: 'the-heartbreak-prince',
       timestampCreated: new Date(1989, 11, 13),
     };
     const precinct1Liberty = filterExternalTalliesByParams(
@@ -624,16 +608,12 @@ describe('convertTalliesByPrecinctToFullExternalTally', () => {
       resultsByPrecinct,
       multiPartyPrimaryElection,
       VotingMethod.Absentee,
-      ExternalTallySourceType.Manual,
-      'one-single-thread-of-gold',
       new Date(2020, 3, 1)
     );
     expect(results.overallTally).toStrictEqual(
       buildExternalTally(multiPartyPrimaryElection, 6, contestIds)
     );
     expect(results.votingMethod).toEqual(VotingMethod.Absentee);
-    expect(results.source).toEqual(ExternalTallySourceType.Manual);
-    expect(results.inputSourceName).toEqual('one-single-thread-of-gold');
     expect(results.timestampCreated).toStrictEqual(new Date(2020, 3, 1));
     expect([...results.resultsByCategory.keys()]).toStrictEqual([
       TallyCategory.Precinct,

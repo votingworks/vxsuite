@@ -7,7 +7,6 @@ import {
 import { Route } from 'react-router-dom';
 
 import {
-  ExternalTallySourceType,
   FullElectionExternalTally,
   TallyCategory,
   VotingMethod,
@@ -488,8 +487,6 @@ test('loads preexisting manual data to edit', async () => {
     overallTally: getEmptyExternalTally(),
     resultsByCategory,
     votingMethod: VotingMethod.Absentee,
-    inputSourceName: `Doesn't matter`,
-    source: ExternalTallySourceType.Manual,
     timestampCreated: new Date(),
   };
 
@@ -503,9 +500,7 @@ test('loads preexisting manual data to edit', async () => {
       updateExternalTally,
       manualTallyVotingMethod: VotingMethod.Precinct,
       electionDefinition: electionSampleDefinition,
-      fullElectionExternalTallies: new Map([
-        [externalTally.source, externalTally],
-      ]),
+      fullElectionExternalTally: externalTally,
       apiMock,
     }
   );

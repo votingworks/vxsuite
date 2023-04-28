@@ -8,7 +8,6 @@ import {
   Dictionary,
   BatchTally,
   ExternalTally,
-  ExternalTallySourceType,
   Tally,
   TallyCategory,
   VotingMethod,
@@ -86,8 +85,6 @@ describe('Ballot Counts by Precinct', () => {
     }),
     resultsByCategory: externalResultsByCategory,
     votingMethod: VotingMethod.Precinct,
-    source: ExternalTallySourceType.Manual,
-    inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
 
@@ -160,9 +157,7 @@ describe('Ballot Counts by Precinct', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />,
       {
         fullElectionTally,
-        fullElectionExternalTallies: new Map([
-          [fullElectionExternalTally.source, fullElectionExternalTally],
-        ]),
+        fullElectionExternalTally,
         apiMock,
       }
     );
@@ -223,8 +218,6 @@ describe('Ballot Counts by Scanner', () => {
     }),
     votingMethod: VotingMethod.Precinct,
     resultsByCategory: new Map(),
-    source: ExternalTallySourceType.Manual,
-    inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
 
@@ -286,9 +279,7 @@ describe('Ballot Counts by Scanner', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />,
       {
         fullElectionTally,
-        fullElectionExternalTallies: new Map([
-          [fullElectionExternalTally.source, fullElectionExternalTally],
-        ]),
+        fullElectionExternalTally,
         apiMock,
       }
     );
@@ -372,8 +363,6 @@ describe('Ballots Counts by Party', () => {
     }),
     resultsByCategory: externalResultsByCategory,
     votingMethod: VotingMethod.Precinct,
-    source: ExternalTallySourceType.Manual,
-    inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
 
@@ -479,9 +468,7 @@ describe('Ballots Counts by Party', () => {
           electionData: '',
         },
         fullElectionTally,
-        fullElectionExternalTallies: new Map([
-          [fullElectionExternalTally.source, fullElectionExternalTally],
-        ]),
+        fullElectionExternalTally,
         apiMock,
       }
     );
@@ -542,8 +529,6 @@ describe('Ballots Counts by VotingMethod', () => {
     }),
     resultsByCategory: new Map(),
     votingMethod: VotingMethod.Precinct,
-    source: ExternalTallySourceType.Manual,
-    inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
 
@@ -626,9 +611,7 @@ describe('Ballots Counts by VotingMethod', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />,
       {
         fullElectionTally,
-        fullElectionExternalTallies: new Map([
-          [fullElectionExternalTally.source, fullElectionExternalTally],
-        ]),
+        fullElectionExternalTally,
         apiMock,
       }
     );
@@ -716,8 +699,6 @@ describe('Ballots Counts by Batch', () => {
     }),
     resultsByCategory: new Map(),
     votingMethod: VotingMethod.Precinct,
-    source: ExternalTallySourceType.Manual,
-    inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
 
@@ -817,9 +798,7 @@ describe('Ballots Counts by Batch', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.Batch} />,
       {
         fullElectionTally,
-        fullElectionExternalTallies: new Map([
-          [fullElectionExternalTally.source, fullElectionExternalTally],
-        ]),
+        fullElectionExternalTally,
         apiMock,
       }
     );

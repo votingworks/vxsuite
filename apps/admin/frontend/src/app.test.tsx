@@ -22,7 +22,7 @@ import {
   fakeUsbDrive,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
-import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
+import { VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 import { Admin } from '@votingworks/api';
 import {
@@ -721,14 +721,9 @@ test('reports screen shows appropriate summary data about ballot counts', async 
     { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
     eitherNeitherElectionDefinition.election,
     VotingMethod.Absentee,
-    ExternalTallySourceType.Manual,
-    'Manually Added Data',
     new Date()
   );
-  await backend.updateFullElectionExternalTally(
-    manualTally.source,
-    manualTally
-  );
+  await backend.updateFullElectionExternalTally(manualTally);
 
   renderApp();
   await apiMock.authenticateAsElectionManager(electionDefinition);
@@ -754,14 +749,9 @@ test('removing election resets cvr and manual data files', async () => {
     { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
     eitherNeitherElectionDefinition.election,
     VotingMethod.Absentee,
-    ExternalTallySourceType.Manual,
-    'Manually Added Data',
     new Date()
   );
-  await backend.updateFullElectionExternalTally(
-    manualTally.source,
-    manualTally
-  );
+  await backend.updateFullElectionExternalTally(manualTally);
 
   const { getByText } = renderApp();
 
@@ -771,8 +761,8 @@ test('removing election resets cvr and manual data files', async () => {
   await apiMock.authenticateAsSystemAdministrator();
 
   // check manual tally present before unconfigure
-  const externalTalliesBefore = await backend.loadFullElectionExternalTallies();
-  expect(externalTalliesBefore?.size).toEqual(1);
+  const externalTallyBefore = await backend.loadFullElectionExternalTally();
+  expect(externalTallyBefore).toBeDefined();
 
   apiMock.expectUnconfigure();
   apiMock.expectGetCurrentElectionMetadata(null);
@@ -785,9 +775,8 @@ test('removing election resets cvr and manual data files', async () => {
 
   // check manual data removed
   await waitFor(async () => {
-    const externalTalliesAfter =
-      await backend.loadFullElectionExternalTallies();
-    expect(externalTalliesAfter?.size).toEqual(0);
+    const externalTallyAfter = await backend.loadFullElectionExternalTally();
+    expect(externalTallyAfter).toBeUndefined();
   });
 });
 
@@ -809,21 +798,16 @@ test('clearing results', async () => {
     { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
     eitherNeitherElectionDefinition.election,
     VotingMethod.Absentee,
-    ExternalTallySourceType.Manual,
-    'Manually Added Data',
     new Date()
   );
-  await backend.updateFullElectionExternalTally(
-    manualTally.source,
-    manualTally
-  );
+  await backend.updateFullElectionExternalTally(manualTally);
 
   const { getByText, queryByText } = renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
   // check manual tally present before removing all files
-  const externalTalliesBefore = await backend.loadFullElectionExternalTallies();
-  expect(externalTalliesBefore?.size).toEqual(1);
+  const externalTallyBefore = await backend.loadFullElectionExternalTally();
+  expect(externalTallyBefore).toBeDefined();
 
   fireEvent.click(getByText('Tally'));
   expect(
@@ -862,8 +846,8 @@ test('clearing results', async () => {
 
   getByText('No CVR files loaded.');
 
-  const externalTalliesAfter = await backend.loadFullElectionExternalTallies();
-  expect(externalTalliesAfter?.size).toEqual(0);
+  const externalTallyAfter = await backend.loadFullElectionExternalTally();
+  expect(externalTallyAfter).toBeDefined();
 });
 
 test('Can not view or print ballots when using an election with gridlayouts (like NH)', async () => {
