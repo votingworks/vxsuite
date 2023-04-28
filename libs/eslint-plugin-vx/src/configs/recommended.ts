@@ -35,7 +35,7 @@ export = {
   },
   reportUnusedDisableDirectives: true,
   rules: {
-    // Enforce various custom lint rules to follow the recommendations of the google TS style guide.
+    // Enforce various custom lint rules to follow the recommendations of the Google TypeScript Style Guide.
     // See libs/eslint-plugin-vx/docs for more documentation on individual rules.
     'vx/gts-array-type-style': 'error',
     'vx/gts-constants': 'error',
