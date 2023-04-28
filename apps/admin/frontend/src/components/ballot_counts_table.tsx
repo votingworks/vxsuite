@@ -27,7 +27,7 @@ export function BallotCountsTable({
     electionDefinition,
     isTabulationRunning,
     fullElectionTally,
-    fullElectionExternalTallies,
+    fullElectionExternalTally,
     isOfficialResults,
   } = useContext(AppContext);
   assert(electionDefinition);
@@ -41,20 +41,17 @@ export function BallotCountsTable({
 
   const totalBallotCountInternal =
     fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0;
-  const totalBallotCountExternal = Array.from(
-    fullElectionExternalTallies.values()
-  ).reduce(
-    (prev, tally) => prev + tally.overallTally.numberOfBallotsCounted,
-    0
-  );
+  const totalBallotCountExternal =
+    fullElectionExternalTally?.overallTally.numberOfBallotsCounted ?? 0;
 
   switch (breakdownCategory) {
     case TallyCategory.Precinct: {
       const resultsByPrecinct =
         fullElectionTally?.resultsByCategory.get(TallyCategory.Precinct) || {};
-      const externalResultsByPrecinct = Array.from(
-        fullElectionExternalTallies.values()
-      ).map((t) => t.resultsByCategory.get(TallyCategory.Precinct) || {});
+      const externalResultsByPrecinct =
+        fullElectionExternalTally?.resultsByCategory.get(
+          TallyCategory.Precinct
+        ) || {};
       return (
         <Table>
           <tbody>
@@ -75,16 +72,8 @@ export function BallotCountsTable({
                 const precinctBallotsCount =
                   resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0;
                 const externalPrecinctBallotsCount =
-                  externalResultsByPrecinct.reduce(
-                    (prev, talliesByPrecinct) => {
-                      return (
-                        prev +
-                        (talliesByPrecinct[precinct.id]
-                          ?.numberOfBallotsCounted ?? 0)
-                      );
-                    },
-                    0
-                  );
+                  externalResultsByPrecinct[precinct.id]
+                    ?.numberOfBallotsCounted ?? 0;
                 return (
                   <tr key={precinct.id} data-testid="table-row">
                     <TD narrow nowrap>
@@ -180,15 +169,20 @@ export function BallotCountsTable({
                   </tr>
                 );
               })}
-            {Array.from(fullElectionExternalTallies.values()).map((t) => (
-              <tr data-testid="table-row" key={t.inputSourceName}>
+            {fullElectionExternalTally ? (
+              <tr data-testid="table-row" key="manual-data">
                 <TD narrow nowrap>
-                  External Results ({t.inputSourceName})
+                  Manually Added Results
                 </TD>
-                <TD>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
+                <TD>
+                  {format.count(
+                    fullElectionExternalTally.overallTally
+                      .numberOfBallotsCounted
+                  )}
+                </TD>
                 <TD />
               </tr>
-            ))}
+            ) : null}
             <tr data-testid="table-row">
               <TD narrow nowrap>
                 <strong>Total Ballot Count</strong>
@@ -209,9 +203,9 @@ export function BallotCountsTable({
     case TallyCategory.Party: {
       const resultsByParty =
         fullElectionTally?.resultsByCategory.get(TallyCategory.Party) || {};
-      const externalResultsByParty = Array.from(
-        fullElectionExternalTallies.values()
-      ).map((t) => t.resultsByCategory.get(TallyCategory.Party) || {});
+      const externalResultsByParty =
+        fullElectionExternalTally?.resultsByCategory.get(TallyCategory.Party) ||
+        {};
       const partiesForPrimaries = getPartiesWithPrimaryElections(election);
       if (partiesForPrimaries.length === 0) {
         return null;
@@ -236,12 +230,8 @@ export function BallotCountsTable({
               .map((party) => {
                 const partyBallotsCount =
                   resultsByParty[party.id]?.numberOfBallotsCounted ?? 0;
-                const externalPartyBallotsCount = externalResultsByParty.reduce(
-                  (prev, talliesByParty) =>
-                    prev +
-                    (talliesByParty[party.id]?.numberOfBallotsCounted ?? 0),
-                  0
-                );
+                const externalPartyBallotsCount =
+                  externalResultsByParty[party.id]?.numberOfBallotsCounted ?? 0;
                 return (
                   <tr data-testid="table-row" key={party.id}>
                     <TD narrow nowrap>
@@ -297,18 +287,17 @@ export function BallotCountsTable({
               <TD as="th">Report</TD>
             </tr>
             {Object.values(VotingMethod).map((votingMethod) => {
-              const initialBallotsCountedByVotingMethod =
+              const internalVotingMethodBallotsCount =
                 resultsByVotingMethod[votingMethod]?.numberOfBallotsCounted ??
                 0;
+              const externalVotingMethodBallotsCount =
+                votingMethod === fullElectionExternalTally?.votingMethod
+                  ? fullElectionExternalTally.overallTally
+                      .numberOfBallotsCounted
+                  : 0;
               const votingMethodBallotsCount =
-                // Include external results as appropriate
-                Array.from(fullElectionExternalTallies.values())
-                  .filter((t) => t.votingMethod === votingMethod)
-                  .reduce(
-                    (prev, t) => prev + t.overallTally.numberOfBallotsCounted,
-                    initialBallotsCountedByVotingMethod
-                  );
-
+                internalVotingMethodBallotsCount +
+                externalVotingMethodBallotsCount;
               if (
                 votingMethod === VotingMethod.Unknown &&
                 votingMethodBallotsCount === 0
@@ -393,16 +382,21 @@ export function BallotCountsTable({
                 </tr>
               );
             })}
-            {Array.from(fullElectionExternalTallies.values()).map((t) => (
-              <tr data-testid="table-row" key={t.inputSourceName}>
+            {fullElectionExternalTally ? (
+              <tr data-testid="table-row" key="manual-data">
                 <TD narrow nowrap data-testid="batch-external">
-                  External Results ({t.inputSourceName})
+                  Manually Added Results
                 </TD>
                 <TD />
-                <TD>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
+                <TD>
+                  {format.count(
+                    fullElectionExternalTally.overallTally
+                      .numberOfBallotsCounted
+                  )}
+                </TD>
                 <TD />
               </tr>
-            ))}
+            ) : null}
             <tr data-testid="table-row">
               <TD narrow nowrap>
                 <strong>Total Ballot Count</strong>
