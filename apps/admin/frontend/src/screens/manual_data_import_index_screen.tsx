@@ -13,11 +13,7 @@ import {
   LinkButton,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import {
-  ExternalTallySourceType,
-  TallyCategory,
-  VotingMethod,
-} from '@votingworks/types';
+import { TallyCategory, VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 import { ResultsFileType } from '../config/types';
 import { routerPaths } from '../router_paths';
@@ -26,8 +22,6 @@ import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 import { convertTalliesByPrecinctToFullExternalTally } from '../utils/external_tallies';
 import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_modal';
-
-const MANUAL_DATA_NAME = 'Manually Added Data';
 
 const SummaryInfo = styled.div`
   align-self: flex-start;
@@ -45,7 +39,7 @@ const PrecinctRowText = styled(Text)`
 export function ManualDataImportIndexScreen(): JSX.Element {
   const {
     electionDefinition,
-    fullElectionExternalTallies,
+    fullElectionExternalTally: existingManualData,
     updateExternalTally,
     manualTallyVotingMethod,
     setManualTallyVotingMethod,
@@ -59,9 +53,6 @@ export function ManualDataImportIndexScreen(): JSX.Element {
   const { election } = electionDefinition;
   const history = useHistory();
 
-  const existingManualData = fullElectionExternalTallies.get(
-    ExternalTallySourceType.Manual
-  );
   const existingTalliesByPrecinct = existingManualData?.resultsByCategory.get(
     TallyCategory.Precinct
   );
@@ -82,8 +73,6 @@ export function ManualDataImportIndexScreen(): JSX.Element {
         existingTalliesByPrecinct,
         election,
         newBallotType,
-        ExternalTallySourceType.Manual,
-        MANUAL_DATA_NAME,
         new Date()
       );
       await updateExternalTally(externalTally);

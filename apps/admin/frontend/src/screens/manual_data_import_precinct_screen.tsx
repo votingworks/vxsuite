@@ -10,7 +10,6 @@ import {
   ContestOptionTally,
   ContestTally,
   ExternalTally,
-  ExternalTallySourceType,
   TallyCategory,
   VotingMethod,
   ContestId,
@@ -51,8 +50,6 @@ import {
   isManuallyAdjudicatedWriteInCandidate,
 } from '../utils/write_ins';
 import { getWriteInSummary } from '../api';
-
-const MANUAL_DATA_NAME = 'Manually Added Data';
 
 const TallyInput = styled(TextInput)`
   width: 4em;
@@ -300,7 +297,7 @@ export function getCandidateNamesFromContestTally(
 export function ManualDataImportPrecinctScreen(): JSX.Element {
   const {
     electionDefinition,
-    fullElectionExternalTallies,
+    fullElectionExternalTally: existingManualData,
     updateExternalTally,
     manualTallyVotingMethod,
     auth,
@@ -315,9 +312,6 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     useParams<ManualDataPrecinctScreenProps>();
   const history = useHistory();
 
-  const existingManualData = fullElectionExternalTallies.get(
-    ExternalTallySourceType.Manual
-  );
   const ballotType =
     existingManualData?.votingMethod ?? manualTallyVotingMethod;
   const existingTalliesByPrecinct: Dictionary<TempExternalTally> | undefined =
@@ -398,8 +392,6 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
       convertedTalliesByPrecinct,
       election,
       ballotType,
-      ExternalTallySourceType.Manual,
-      MANUAL_DATA_NAME,
       new Date()
     );
     await logger.log(LogEventId.ManualTallyDataEdited, userRole, {
