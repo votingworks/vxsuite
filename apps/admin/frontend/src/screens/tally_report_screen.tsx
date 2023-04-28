@@ -63,7 +63,7 @@ export function TallyReportScreen(): JSX.Element {
     electionDefinition,
     isOfficialResults,
     fullElectionTally,
-    fullElectionExternalTallies,
+    fullElectionExternalTally,
     isTabulationRunning,
     auth,
     logger,
@@ -171,7 +171,7 @@ export function TallyReportScreen(): JSX.Element {
       batchId={batchId}
       batchLabel={batchLabel}
       election={election}
-      fullElectionExternalTallies={fullElectionExternalTallies}
+      fullElectionExternalTally={fullElectionExternalTally}
       fullElectionTally={fullElectionTally}
       officialCandidateWriteIns={
         screenAdjudicatedOfficialCandidateWriteInCounts
