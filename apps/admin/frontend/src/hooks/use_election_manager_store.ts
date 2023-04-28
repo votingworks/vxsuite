@@ -1,45 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { assert, typedAs } from '@votingworks/basics';
+import { typedAs } from '@votingworks/basics';
 import { LoggingUserRole } from '@votingworks/logging';
-import {
-  ElectionDefinition,
-  ExternalTallySourceType,
-  FullElectionExternalTallies,
-  FullElectionExternalTally,
-} from '@votingworks/types';
+import { FullElectionExternalTally } from '@votingworks/types';
 import { useCallback, useContext, useMemo, useRef } from 'react';
 import { ServicesContext } from '../contexts/services_context';
 
 export interface ElectionManagerStore {
   /**
-   * The currently configured election definition.
-   */
-  readonly electionDefinition?: ElectionDefinition;
-
-  /**
    * Tallies from external sources, e.g. manually entered tallies.
    */
-  readonly fullElectionExternalTallies: FullElectionExternalTallies;
+  readonly fullElectionExternalTally?: FullElectionExternalTally;
 
   /**
    * Updates the external tally for a given source.
    */
   updateFullElectionExternalTally(
-    sourceType: ExternalTallySourceType,
     newFullElectionExternalTally: FullElectionExternalTally
   ): Promise<void>;
 
   /**
    * Removes the external tally for a given source.
    */
-  removeFullElectionExternalTally(
-    sourceType: ExternalTallySourceType
-  ): Promise<void>;
-
-  /**
-   * Clears all external tallies.
-   */
-  clearFullElectionExternalTallies(): Promise<void>;
+  removeFullElectionExternalTally(): Promise<void>;
 
   /**
    * Sets the current user's role, i.e. the person taking action.
@@ -47,7 +29,7 @@ export interface ElectionManagerStore {
   setCurrentUserRole(newCurrentUserRole: LoggingUserRole): void;
 }
 
-export const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
+export const externalVoteTallyFileStorageKey = 'externalVoteTallies';
 
 /**
  * Manages the stored data for VxAdmin.
@@ -57,34 +39,30 @@ export function useElectionManagerStore(): ElectionManagerStore {
   const queryClient = useQueryClient();
   const currentUserRoleRef = useRef<LoggingUserRole>('unknown');
 
-  const getExternalElectionTalliesQuery = useQuery<FullElectionExternalTallies>(
-    [externalVoteTalliesFileStorageKey],
-    async () => {
-      return (await backend.loadFullElectionExternalTallies()) ?? new Map();
-    }
-  );
-  const fullElectionExternalTallies = getExternalElectionTalliesQuery.data;
+  const getExternalElectionTalliesQuery =
+    useQuery<FullElectionExternalTally | null>(
+      [externalVoteTallyFileStorageKey],
+      async () => {
+        return (await backend.loadFullElectionExternalTally()) ?? null;
+      }
+    );
+  const fullElectionExternalTally = getExternalElectionTalliesQuery.data;
 
   const updateFullElectionExternalTallyMutation = useMutation(
     async (newFullElectionExternalTally: FullElectionExternalTally) => {
       await backend.updateFullElectionExternalTally(
-        newFullElectionExternalTally.source,
         newFullElectionExternalTally
       );
     },
     {
       onSuccess() {
-        void queryClient.invalidateQueries([externalVoteTalliesFileStorageKey]);
+        void queryClient.invalidateQueries([externalVoteTallyFileStorageKey]);
       },
     }
   );
 
   const updateFullElectionExternalTally = useCallback(
-    async (
-      sourceType: ExternalTallySourceType,
-      newFullElectionExternalTally: FullElectionExternalTally
-    ) => {
-      assert(newFullElectionExternalTally.source === sourceType);
+    async (newFullElectionExternalTally: FullElectionExternalTally) => {
       await updateFullElectionExternalTallyMutation.mutateAsync(
         newFullElectionExternalTally
       );
@@ -93,37 +71,19 @@ export function useElectionManagerStore(): ElectionManagerStore {
   );
 
   const removeFullElectionExternalTallyMutation = useMutation(
-    async (sourceType: ExternalTallySourceType) => {
-      await backend.removeFullElectionExternalTally(sourceType);
-    },
-    {
-      onSuccess() {
-        void queryClient.invalidateQueries([externalVoteTalliesFileStorageKey]);
-      },
-    }
-  );
-
-  const removeFullElectionExternalTally = useCallback(
-    async (sourceType: ExternalTallySourceType) => {
-      await removeFullElectionExternalTallyMutation.mutateAsync(sourceType);
-    },
-    [removeFullElectionExternalTallyMutation]
-  );
-
-  const clearFullElectionExternalTalliesMutation = useMutation(
     async () => {
-      await backend.clearFullElectionExternalTallies();
+      await backend.removeFullElectionExternalTally();
     },
     {
       onSuccess() {
-        void queryClient.invalidateQueries([externalVoteTalliesFileStorageKey]);
+        void queryClient.invalidateQueries([externalVoteTallyFileStorageKey]);
       },
     }
   );
 
-  const clearFullElectionExternalTallies = useCallback(async () => {
-    await clearFullElectionExternalTalliesMutation.mutateAsync();
-  }, [clearFullElectionExternalTalliesMutation]);
+  const removeFullElectionExternalTally = useCallback(async () => {
+    await removeFullElectionExternalTallyMutation.mutateAsync();
+  }, [removeFullElectionExternalTallyMutation]);
 
   const setCurrentUserRole = useCallback((newCurrentUserRole) => {
     currentUserRoleRef.current = newCurrentUserRole;
@@ -132,15 +92,13 @@ export function useElectionManagerStore(): ElectionManagerStore {
   return useMemo(
     () =>
       typedAs<ElectionManagerStore>({
-        fullElectionExternalTallies: fullElectionExternalTallies ?? new Map(),
-        clearFullElectionExternalTallies,
+        fullElectionExternalTally: fullElectionExternalTally || undefined,
         setCurrentUserRole,
         updateFullElectionExternalTally,
         removeFullElectionExternalTally,
       }),
     [
-      clearFullElectionExternalTallies,
-      fullElectionExternalTallies,
+      fullElectionExternalTally,
       removeFullElectionExternalTally,
       setCurrentUserRole,
       updateFullElectionExternalTally,
