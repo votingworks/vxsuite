@@ -149,7 +149,7 @@ export = {
     'nonblock-statement-body-position': ['error', 'beside'],
     'prefer-arrow-callback': 'error',
 
-    // replace some built-in rules that don't play well with TypeScript, with Typescript versions
+    // replace some built-in rules that don't play well with TypeScript, with Typescript-aware versions
     '@typescript-eslint/no-shadow': 'error',
     'no-shadow': 'off',
     '@typescript-eslint/no-use-before-define': 'error',
