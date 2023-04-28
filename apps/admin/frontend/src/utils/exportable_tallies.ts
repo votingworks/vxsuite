@@ -3,10 +3,9 @@ import {
   Election,
   getContests,
   ContestTally,
-  ExternalTally,
   FullElectionTally,
   TallyCategory,
-  FullElectionExternalTallies,
+  FullElectionExternalTally,
 } from '@votingworks/types';
 import {
   ExportableContestTally,
@@ -55,19 +54,20 @@ export function getCombinedExportableContestTally(
 
 export function getExportableTallies(
   internalElectionTally: FullElectionTally,
-  externalElectionTallies: FullElectionExternalTallies,
-  election: Election
+  election: Election,
+  externalElectionTally?: FullElectionExternalTally
 ): ExportableTallies {
   const talliesByPrecinct = internalElectionTally.resultsByCategory.get(
     TallyCategory.Precinct
   );
-  const externalTalliesByPrecinct = Array.from(externalElectionTallies.values())
-    .map((t) => t.resultsByCategory.get(TallyCategory.Precinct))
-    .filter((t): t is Dictionary<ExternalTally> => !!t);
-
   if (talliesByPrecinct === undefined) {
     return getEmptyExportableTallies();
   }
+
+  const externalTallyByPrecinct = externalElectionTally?.resultsByCategory.get(
+    TallyCategory.Precinct
+  );
+
   const exportableTalliesByPrecinct: Dictionary<ExportableTally> = {};
   for (const precinct of election.precincts) {
     const ballotStylesForPrecinct = election.ballotStyles.filter((bs) =>
@@ -79,9 +79,7 @@ export function getExportableTallies(
       )
     );
     const tallyForPrecinct = talliesByPrecinct[precinct.id];
-    const externalTalliesForPrecinct = externalTalliesByPrecinct
-      .map((t) => t[precinct.id])
-      .filter((t): t is ExternalTally => !!t);
+    const externalTallyForPrecinct = externalTallyByPrecinct?.[precinct.id];
     const exportableTallyForPrecinct: ExportableTally = {};
     for (const contest of ballotStyleContests) {
       let exportableContestTally: ExportableContestTally = {
@@ -90,7 +88,7 @@ export function getExportableTallies(
       };
       const contestTalliesToCombine = [
         tallyForPrecinct?.contestTallies[contest.id],
-        ...externalTalliesForPrecinct.map((t) => t.contestTallies[contest.id]),
+        externalTallyForPrecinct?.contestTallies[contest.id],
       ].filter((t): t is ContestTally => !!t);
       for (const contestTallyToCombine of contestTalliesToCombine) {
         exportableContestTally = getCombinedExportableContestTally(

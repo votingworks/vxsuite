@@ -119,8 +119,8 @@ export function AppRoot({
     assert(electionDefinition);
     return getExportableTallies(
       fullElectionTally,
-      store.fullElectionExternalTally,
-      electionDefinition.election
+      electionDefinition.election,
+      store.fullElectionExternalTally
     );
   }, [electionDefinition, store, fullElectionTally]);
 

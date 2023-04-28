@@ -7,7 +7,6 @@ import {
   CastVoteRecord,
   ContestTally,
   Election,
-  ExternalTallySourceType,
   FullElectionExternalTally,
   VotingMethod,
   writeInCandidate,
@@ -258,7 +257,6 @@ describe('getExportableTallies', () => {
     );
     const tally = getExportableTallies(
       fullInternalTally,
-      new Map(),
       electionWithMsEitherNeither
     );
     expect(tally).toMatchSnapshot();
@@ -276,22 +274,19 @@ describe('getExportableTallies', () => {
     const fullExternalTally: FullElectionExternalTally = {
       overallTally: fullInternalTally.overallTally,
       resultsByCategory: fullInternalTally.resultsByCategory,
-      source: ExternalTallySourceType.Manual,
-      inputSourceName: 'manual',
       timestampCreated: new Date(),
       votingMethod: VotingMethod.Precinct,
     };
     // Get tally with just CVR data
     const baseTally = getExportableTallies(
       fullInternalTally,
-      new Map(),
       electionWithMsEitherNeither
     );
     // Get tally with CVR and external data
     const doubleTally = getExportableTallies(
       fullInternalTally,
-      new Map([[fullExternalTally.source, fullExternalTally]]),
-      electionWithMsEitherNeither
+      electionWithMsEitherNeither,
+      fullExternalTally
     );
 
     // doubleTally should be exactly 2 times everything in baseTally
@@ -309,7 +304,6 @@ describe('getExportableTallies', () => {
     );
     const tally = getExportableTallies(
       fullInternalTally,
-      new Map(),
       multiPartyPrimaryElection
     );
     expect(tally).toMatchSnapshot();
@@ -327,22 +321,19 @@ describe('getExportableTallies', () => {
     const fullExternalTally: FullElectionExternalTally = {
       overallTally: fullInternalTally.overallTally,
       resultsByCategory: fullInternalTally.resultsByCategory,
-      source: ExternalTallySourceType.Manual,
-      inputSourceName: 'manual',
       timestampCreated: new Date(),
       votingMethod: VotingMethod.Precinct,
     };
     // Get tally with just CVR data
     const baseTally = getExportableTallies(
       fullInternalTally,
-      new Map(),
       multiPartyPrimaryElection
     );
     // Get tally with CVR and external data
     const doubleTally = getExportableTallies(
       fullInternalTally,
-      new Map([[fullExternalTally.source, fullExternalTally]]),
-      multiPartyPrimaryElection
+      multiPartyPrimaryElection,
+      fullExternalTally
     );
 
     // doubleTally should be exactly 2 times everything in baseTally
