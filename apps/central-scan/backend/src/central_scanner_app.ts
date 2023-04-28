@@ -14,22 +14,17 @@ import {
 import {
   BallotPackageConfigurationError,
   BallotPageLayout,
-  BallotPageLayoutSchema,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   SystemSettings,
   safeParse,
-  safeParseJson,
 } from '@votingworks/types';
 import {
   isElectionManagerAuth,
   readBallotPackageFromBuffer,
 } from '@votingworks/utils';
-import makeDebug from 'debug';
 import express, { Application } from 'express';
 import * as fs from 'fs/promises';
-import multer from 'multer';
-import { z } from 'zod';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
@@ -38,8 +33,6 @@ import { Importer } from './importer';
 import { Workspace } from './util/workspace';
 import { DefaultMarkThresholds } from './store';
 import { SCAN_ALLOWED_EXPORT_PATTERNS } from './globals';
-
-const debug = makeDebug('scan:central-scanner');
 
 type NoParams = never;
 
@@ -208,12 +201,6 @@ export async function buildCentralScannerApp({
   const api = buildApi({ auth, workspace, logger, usb, importer });
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
-
-  const upload = multer({
-    storage: multer.diskStorage({
-      destination: workspace.uploadsPath,
-    }),
-  });
 
   const deprecatedApiRouter = express.Router();
   deprecatedApiRouter.use(express.raw());
@@ -397,139 +384,6 @@ export async function buildCentralScannerApp({
       });
     }
   });
-
-  // TODO: Update end_to_end_hmpb.test.ts to use configureFromBallotPackageOnUsbDrive and then
-  // remove this, as it's no longer used by the frontend
-  deprecatedApiRouter.post<
-    NoParams,
-    Scan.AddTemplatesResponse,
-    Scan.AddTemplatesRequest
-  >(
-    '/central-scanner/scan/hmpb/addTemplates',
-    upload.fields([
-      { name: 'ballots' },
-      { name: 'metadatas' },
-      { name: 'layouts' },
-    ]),
-    async (request, response) => {
-      /* istanbul ignore next */
-      if (Array.isArray(request.files) || request.files === undefined) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'missing-ballot-files',
-              message: `expected ballot files in "ballots", "metadatas", and "layouts" fields, but no files were found`,
-            },
-          ],
-        });
-        return;
-      }
-
-      const { ballots = [], metadatas = [], layouts = [] } = request.files;
-
-      try {
-        if (ballots.length === 0) {
-          response.status(400).json({
-            status: 'error',
-            errors: [
-              {
-                type: 'missing-ballot-files',
-                message: `expected ballot files in "ballots", "metadatas", and "layouts" fields, but no files were found`,
-              },
-            ],
-          });
-          return;
-        }
-
-        const electionDefinition = store.getElectionDefinition();
-        assert(electionDefinition);
-
-        for (let i = 0; i < ballots.length; i += 1) {
-          const ballotFile = ballots[i];
-          const metadataFile = metadatas[i];
-          const layoutFile = layouts[i];
-
-          if (ballotFile?.mimetype !== 'application/pdf') {
-            response.status(400).json({
-              status: 'error',
-              errors: [
-                {
-                  type: 'invalid-ballot-type',
-                  message: `expected ballot files to be application/pdf, but got ${ballotFile?.mimetype}`,
-                },
-              ],
-            });
-            return;
-          }
-
-          if (metadataFile?.mimetype !== 'application/json') {
-            response.status(400).json({
-              status: 'error',
-              errors: [
-                {
-                  type: 'invalid-metadata-type',
-                  message: `expected ballot metadata to be application/json, but got ${metadataFile?.mimetype}`,
-                },
-              ],
-            });
-            return;
-          }
-
-          if (layoutFile.mimetype !== 'application/json') {
-            response.status(400).json({
-              status: 'error',
-              errors: [
-                {
-                  type: 'invalid-layout-type',
-                  message: `expected ballot layout to be application/json, but got ${layoutFile?.mimetype}`,
-                },
-              ],
-            });
-            return;
-          }
-
-          const layout = safeParseJson(
-            await fs.readFile(layoutFile.path, 'utf8'),
-            z.array(BallotPageLayoutSchema)
-          ).unsafeUnwrap();
-
-          await importer.addHmpbTemplates(
-            await fs.readFile(ballotFile.path),
-            layout
-          );
-        }
-
-        response.json({ status: 'ok' });
-      } catch (error) {
-        assert(error instanceof Error);
-        debug('error adding templates: %s', error.stack);
-        response.status(500).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'internal-server-error',
-              message: error.message,
-            },
-          ],
-        });
-      } finally {
-        for (const file of [...ballots, ...metadatas, ...layouts]) {
-          await fs.unlink(file.path);
-        }
-      }
-    }
-  );
-
-  // TODO: Update end_to_end_hmpb.test.ts to use configureFromBallotPackageOnUsbDrive and then
-  // remove this, as it's no longer used by the frontend
-  deprecatedApiRouter.post(
-    '/central-scanner/scan/hmpb/doneTemplates',
-    async (_request, response) => {
-      await importer.doneHmpbTemplates();
-      response.json({ status: 'ok' });
-    }
-  );
 
   deprecatedApiRouter.post<
     NoParams,
