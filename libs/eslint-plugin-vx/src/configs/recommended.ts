@@ -79,8 +79,6 @@ export = {
     '@typescript-eslint/explicit-module-boundary-types': 'error',
     // Overridden by vx/gts-no-array-constructor
     '@typescript-eslint/no-array-constructor': 'off',
-    // Allow extra semi-colons as recommended by the Google TypeScript Style Guide.
-    '@typescript-eslint/no-extra-semi': 'off',
     // Enforce handling promises appropriately to avoid potential bugs
     '@typescript-eslint/no-floating-promises': 'error',
     // Disallows the non-null assertion ! operator as recommended by the Google TypeScript Style Guide.
