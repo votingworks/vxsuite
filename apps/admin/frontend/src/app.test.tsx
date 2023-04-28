@@ -587,15 +587,14 @@ test('tabulating CVRs with manual data', async () => {
   expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('200');
 
   const fileTable = getByTestId('loaded-file-table');
-  const manualRow = domGetByText(
-    fileTable,
-    'External Results (Manually Added Data)'
-  ).closest('tr')!;
+  const manualRow = domGetByText(fileTable, 'Manually Added Results').closest(
+    'tr'
+  )!;
   domGetByText(manualRow, '100');
   domGetByText(manualRow, 'District 5');
 
   fireEvent.click(getByText('Reports'));
-  getByText('External Results (Manually Added Data)');
+  getByText('Manually Added Results');
   expect(getByTestId('total-ballot-count').textContent).toEqual('200');
 
   fireEvent.click(getByText('Unofficial Full Election Tally Report'));
@@ -658,16 +657,15 @@ test('tabulating CVRs with manual data', async () => {
   fireEvent.click(getByText('Back to Tally'));
   expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('300');
   const fileTable2 = getByTestId('loaded-file-table');
-  const manualRow2 = domGetByText(
-    fileTable2,
-    'External Results (Manually Added Data)'
-  ).closest('tr')!;
+  const manualRow2 = domGetByText(fileTable2, 'Manually Added Results').closest(
+    'tr'
+  )!;
   domGetByText(manualRow2, '200');
   domGetByText(manualRow2, 'District 5, Panhandle');
 
   fireEvent.click(getByText('Reports'));
   expect(getByTestId('total-ballot-count').textContent).toEqual('300');
-  getByText('External Results (Manually Added Data)');
+  getByText('Manually Added Results');
 
   fireEvent.click(getByText('Unofficial Full Election Tally Report'));
   // Report title should be rendered 2 times - app and preview
@@ -847,7 +845,7 @@ test('clearing results', async () => {
   getByText('No CVR files loaded.');
 
   const externalTallyAfter = await backend.loadFullElectionExternalTally();
-  expect(externalTallyAfter).toBeDefined();
+  expect(externalTallyAfter).toBeUndefined();
 });
 
 test('Can not view or print ballots when using an election with gridlayouts (like NH)', async () => {

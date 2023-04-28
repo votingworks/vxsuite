@@ -306,10 +306,8 @@ describe('Ballot Counts by Scanner', () => {
       }
     }
 
-    getByText('External Results (imported-file-name.csv)');
-    let tableRow = getByText(
-      'External Results (imported-file-name.csv)'
-    ).closest('tr');
+    getByText('Manually Added Results');
+    let tableRow = getByText('Manually Added Results').closest('tr');
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 54)).toBeInTheDocument();
 
@@ -818,7 +816,7 @@ describe('Ballots Counts by Batch', () => {
 
     const externalTableRow = getAllByTestId('batch-external')[0].closest('tr');
     assert(externalTableRow);
-    domGetByText(externalTableRow, 'External Results (imported-file-name.csv)');
+    domGetByText(externalTableRow, 'Manually Added Results');
     domGetByText(externalTableRow, numExternalBallots);
 
     getByText('Total Ballot Count');
