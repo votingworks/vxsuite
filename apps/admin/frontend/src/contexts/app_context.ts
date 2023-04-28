@@ -4,7 +4,7 @@ import {
   DippedSmartCardAuth,
   ElectionDefinition,
   FullElectionTally,
-  FullElectionExternalTally,
+  FullElectionManualTally,
   Printer,
   VotingMethod,
 } from '@votingworks/types';
@@ -29,12 +29,10 @@ export interface AppContextInterface {
   resetFiles: (fileType: ResultsFileType) => Promise<void>;
   usbDrive: UsbDrive;
   fullElectionTally: FullElectionTally;
-  fullElectionExternalTally?: FullElectionExternalTally;
+  fullElectionManualTally?: FullElectionManualTally;
   generateBallotId: () => string;
   isTabulationRunning: boolean;
-  updateExternalTally: (
-    newExternalTally: FullElectionExternalTally
-  ) => Promise<void>;
+  updateManualTally: (newManualTally: FullElectionManualTally) => Promise<void>;
   manualTallyVotingMethod: VotingMethod;
   setManualTallyVotingMethod: (votingMethod: VotingMethod) => void;
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>;
@@ -59,7 +57,7 @@ const appContext: AppContextInterface = {
     format: async () => undefined,
   },
   fullElectionTally: getEmptyFullElectionTally(),
-  updateExternalTally: async () => undefined,
+  updateManualTally: async () => undefined,
   manualTallyVotingMethod: VotingMethod.Precinct,
   setManualTallyVotingMethod: () => undefined,
   generateBallotId: () => '',

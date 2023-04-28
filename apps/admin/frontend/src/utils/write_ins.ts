@@ -7,7 +7,7 @@ import {
   ContestTally,
   Dictionary,
   Election,
-  ExternalTally,
+  ManualTally,
   PartyId,
   writeInCandidate,
 } from '@votingworks/types';
@@ -69,7 +69,7 @@ export function filterWriteInCountsByParty(
   return filteredCounts;
 }
 
-// ExternalTally write-in candidate id creation
+// ManualTally write-in candidate id creation
 export function getAdjudicatedWriteInCandidateId(
   name: string,
   manual: boolean
@@ -96,10 +96,10 @@ export function isManuallyAdjudicatedWriteInCandidate(
   );
 }
 
-// Extracts all write-in data from an ExternalTally and formats it
+// Extracts all write-in data from an ManualTally and formats it
 // as CountsByContestAndCandidateName for the write-in report
 export function getManualWriteInCounts(
-  manualTally: ExternalTally
+  manualTally: ManualTally
 ): CountsByContestAndCandidateName {
   const allContestCounts = new Map<ContestId, Map<string, number>>();
   for (const [contestId, contestTally] of Object.entries(
@@ -166,11 +166,11 @@ export function writeInCountsAreEmpty(
   return true;
 }
 
-// Merges all the distinct write-in candidate tallies in an ExternalTally
+// Merges all the distinct write-in candidate tallies in an ManualTally
 // into a single "Write-In" umbrella tally for the main tally reports
-export function mergeWriteIns(externalTally: ExternalTally): ExternalTally {
+export function mergeWriteIns(manualTally: ManualTally): ManualTally {
   const newContestTallies: Dictionary<ContestTally> = {};
-  for (const contestTally of Object.values(externalTally.contestTallies)) {
+  for (const contestTally of Object.values(manualTally.contestTallies)) {
     assert(contestTally);
     let newContestOptionTallies: Dictionary<ContestOptionTally> = {};
     if (contestTally.contest.type === 'candidate') {
@@ -198,7 +198,7 @@ export function mergeWriteIns(externalTally: ExternalTally): ExternalTally {
   }
 
   return {
-    ...externalTally,
+    ...manualTally,
     contestTallies: newContestTallies,
   };
 }

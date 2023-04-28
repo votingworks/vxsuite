@@ -4,7 +4,7 @@ import pluralize from 'pluralize';
 
 import {
   Election,
-  ExternalTally,
+  ManualTally,
   getContestDistrictName,
   PrecinctId,
   Tally,
@@ -166,7 +166,7 @@ function ContestMetadataRow({
 interface Props {
   election: Election;
   scannedTally: Tally;
-  manualTally?: ExternalTally;
+  manualTally?: ManualTally;
   precinctId?: PrecinctId;
 }
 

@@ -11,7 +11,7 @@ import {
 import {
   ContestId,
   Election,
-  ExternalTally,
+  ManualTally,
   FullElectionTally,
   getLabelForVotingMethod,
   PartyIdSchema,
@@ -21,7 +21,7 @@ import {
   PartyId,
   getPartyIdsWithContests,
   getPartySpecificElectionTitle,
-  FullElectionExternalTally,
+  FullElectionManualTally,
 } from '@votingworks/types';
 import {
   filterTalliesByParams,
@@ -31,7 +31,7 @@ import {
 import React from 'react';
 
 import { find, Optional } from '@votingworks/basics';
-import { filterExternalTalliesByParams } from '../utils/external_tallies';
+import { filterManualTalliesByParams } from '../utils/external_tallies';
 import { mergeWriteIns } from '../utils/write_ins';
 
 export type TallyReportType = 'Official' | 'Unofficial' | 'Test Deck';
@@ -40,7 +40,7 @@ export interface Props {
   batchId?: string;
   batchLabel?: string;
   election: Election;
-  fullElectionExternalTally?: FullElectionExternalTally;
+  fullElectionManualTally?: FullElectionManualTally;
   fullElectionTally: FullElectionTally;
   generatedAtTime?: Date;
   tallyReportType: TallyReportType;
@@ -55,7 +55,7 @@ export function ElectionManagerTallyReport({
   batchId,
   batchLabel,
   election,
-  fullElectionExternalTally,
+  fullElectionManualTally,
   fullElectionTally,
   generatedAtTime = new Date(),
   tallyReportType,
@@ -126,10 +126,10 @@ export function ElectionManagerTallyReport({
               ...tallyForReport.ballotCountsByVotingMethod,
             };
           let reportBallotCount = tallyForReport.numberOfBallotsCounted;
-          let manualTallyForReport: Optional<ExternalTally>;
-          if (fullElectionExternalTally) {
-            const filteredExternalTally = filterExternalTalliesByParams(
-              fullElectionExternalTally,
+          let manualTallyForReport: Optional<ManualTally>;
+          if (fullElectionManualTally) {
+            const filteredManualTally = filterManualTalliesByParams(
+              fullElectionManualTally,
               election,
               {
                 precinctId,
@@ -140,18 +140,16 @@ export function ElectionManagerTallyReport({
               }
             );
             if (
-              filteredExternalTally &&
-              filteredExternalTally.numberOfBallotsCounted > 0
+              filteredManualTally &&
+              filteredManualTally.numberOfBallotsCounted > 0
             ) {
-              manualTallyForReport = mergeWriteIns(filteredExternalTally);
-              ballotCountsByVotingMethod[
-                fullElectionExternalTally.votingMethod
-              ] =
-                filteredExternalTally.numberOfBallotsCounted +
+              manualTallyForReport = mergeWriteIns(filteredManualTally);
+              ballotCountsByVotingMethod[fullElectionManualTally.votingMethod] =
+                filteredManualTally.numberOfBallotsCounted +
                 (ballotCountsByVotingMethod[
-                  fullElectionExternalTally.votingMethod
+                  fullElectionManualTally.votingMethod
                 ] ?? 0);
-              reportBallotCount += filteredExternalTally.numberOfBallotsCounted;
+              reportBallotCount += filteredManualTally.numberOfBallotsCounted;
             }
           }
 

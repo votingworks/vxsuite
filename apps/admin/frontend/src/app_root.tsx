@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import {
-  FullElectionExternalTally,
+  FullElectionManualTally,
   Printer,
   VotingMethod,
   ConverterClientType,
@@ -94,8 +94,7 @@ export function AppRoot({
   useEffect(() => {
     const totalBallots =
       fullElectionTally.overallTally.numberOfBallotsCounted +
-      (store.fullElectionExternalTally?.overallTally.numberOfBallotsCounted ??
-        0);
+      (store.fullElectionManualTally?.overallTally.numberOfBallotsCounted ?? 0);
     void logger.log(LogEventId.RecomputedTally, currentUserRole, {
       message: `Tally recomputed, there are now ${totalBallots} total ballots tallied.`,
       disposition: 'success',
@@ -105,12 +104,12 @@ export function AppRoot({
     currentUserRole,
     fullElectionTally.overallTally.numberOfBallotsCounted,
     logger,
-    store.fullElectionExternalTally,
+    store.fullElectionManualTally,
   ]);
 
-  const updateExternalTally = useCallback(
-    async (newFullElectionExternalTally: FullElectionExternalTally) => {
-      await store.updateFullElectionExternalTally(newFullElectionExternalTally);
+  const updateManualTally = useCallback(
+    async (newFullElectionManualTally: FullElectionManualTally) => {
+      await store.updateFullElectionManualTally(newFullElectionManualTally);
     },
     [store]
   );
@@ -120,7 +119,7 @@ export function AppRoot({
     return getExportableTallies(
       fullElectionTally,
       electionDefinition.election,
-      store.fullElectionExternalTally
+      store.fullElectionManualTally
     );
   }, [electionDefinition, store, fullElectionTally]);
 
@@ -139,7 +138,7 @@ export function AppRoot({
           await clearCastVoteRecordFilesMutation.mutateAsync();
           break;
         case ResultsFileType.Manual: {
-          await store.removeFullElectionExternalTally();
+          await store.removeFullElectionManualTally();
           await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
             message: 'User removed all manually entered tally data.',
             fileType,
@@ -149,7 +148,7 @@ export function AppRoot({
         }
         case ResultsFileType.All:
           await clearCastVoteRecordFilesMutation.mutateAsync();
-          await store.removeFullElectionExternalTally();
+          await store.removeFullElectionManualTally();
           await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
             message: 'User removed all tally data.',
             fileType,
@@ -184,9 +183,9 @@ export function AppRoot({
         resetFiles,
         usbDrive,
         fullElectionTally,
-        fullElectionExternalTally: store.fullElectionExternalTally,
+        fullElectionManualTally: store.fullElectionManualTally,
         generateBallotId,
-        updateExternalTally,
+        updateManualTally,
         manualTallyVotingMethod,
         setManualTallyVotingMethod,
         isTabulationRunning,

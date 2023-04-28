@@ -1,11 +1,11 @@
 import { assert } from '@votingworks/basics';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
-import { FullElectionExternalTally, safeParse } from '@votingworks/types';
+import { FullElectionManualTally, safeParse } from '@votingworks/types';
 import { Storage } from '@votingworks/utils';
 import { z } from 'zod';
 import {
-  convertExternalTallyToStorageString,
-  convertStorageStringToExternalTally,
+  convertManualTallyToStorageString,
+  convertStorageStringToManualTally,
 } from '../../utils/external_tallies';
 import { ElectionManagerStoreBackend } from './types';
 
@@ -43,17 +43,17 @@ export class ElectionManagerStoreAdminBackend
     this.currentUserRole = currentUserRole ?? 'unknown';
   }
 
-  async loadFullElectionExternalTally(): Promise<
-    FullElectionExternalTally | undefined
+  async loadFullElectionManualTally(): Promise<
+    FullElectionManualTally | undefined
   > {
-    const serializedExternalTally = safeParse(
+    const serializedManualTally = safeParse(
       z.string().optional(),
       await this.storage.get(externalVoteTallyFileStorageKey)
     ).ok();
 
-    if (serializedExternalTally) {
-      const importedData = convertStorageStringToExternalTally(
-        serializedExternalTally
+    if (serializedManualTally) {
+      const importedData = convertStorageStringToManualTally(
+        serializedManualTally
       );
       await this.logger.log(LogEventId.LoadFromStorage, 'system', {
         message:
@@ -64,17 +64,17 @@ export class ElectionManagerStoreAdminBackend
     }
   }
 
-  async updateFullElectionExternalTally(
-    newFullElectionExternalTally: FullElectionExternalTally
+  async updateFullElectionManualTally(
+    newFullElectionManualTally: FullElectionManualTally
   ): Promise<void> {
     await this.setStorageKeyAndLog(
       externalVoteTallyFileStorageKey,
-      convertExternalTallyToStorageString(newFullElectionExternalTally),
+      convertManualTallyToStorageString(newFullElectionManualTally),
       `Added or updated manual tally.`
     );
   }
 
-  async removeFullElectionExternalTally(): Promise<void> {
+  async removeFullElectionManualTally(): Promise<void> {
     await this.removeStorageKeyAndLog(
       externalVoteTallyFileStorageKey,
       'Cleared manual tally.'

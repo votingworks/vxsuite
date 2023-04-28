@@ -9,7 +9,7 @@ import {
   ContestVoteOption,
   ContestOptionTally,
   ContestTally,
-  ExternalTally,
+  ManualTally,
   TallyCategory,
   VotingMethod,
   ContestId,
@@ -41,8 +41,8 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { getContestsForPrecinct } from '../utils/election';
 import { TextInput } from '../components/text_input';
 import {
-  convertTalliesByPrecinctToFullExternalTally,
-  getEmptyExternalTalliesByPrecinct,
+  convertTalliesByPrecinctToFullManualTally,
+  getEmptyManualTalliesByPrecinct,
   getTotalNumberOfBallots,
 } from '../utils/external_tallies';
 import {
@@ -182,7 +182,7 @@ interface TempContestTally {
   readonly metadata: TempContestTallyMeta;
 }
 
-interface TempExternalTally {
+interface TempManualTally {
   readonly contestTallies: Dictionary<TempContestTally>;
   readonly numberOfBallotsCounted: number;
 }
@@ -227,10 +227,10 @@ function convertContestTallies(
 
 // Re-calculates the total number of ballots in each contest to create an
 // external tally from contest tallies
-export function getExternalTallyFromContestTallies(
+export function getManualTallyFromContestTallies(
   contestTallies: Dictionary<TempContestTally>,
   election: Election
-): TempExternalTally {
+): TempManualTally {
   const numberBallotsInPrecinct = getTotalNumberOfBallots(
     convertContestTallies(contestTallies),
     election
@@ -297,8 +297,8 @@ export function getCandidateNamesFromContestTally(
 export function ManualDataImportPrecinctScreen(): JSX.Element {
   const {
     electionDefinition,
-    fullElectionExternalTally: existingManualData,
-    updateExternalTally,
+    fullElectionManualTally: existingManualData,
+    updateManualTally,
     manualTallyVotingMethod,
     auth,
     logger,
@@ -314,7 +314,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
 
   const ballotType =
     existingManualData?.votingMethod ?? manualTallyVotingMethod;
-  const existingTalliesByPrecinct: Dictionary<TempExternalTally> | undefined =
+  const existingTalliesByPrecinct: Dictionary<TempManualTally> | undefined =
     existingManualData?.resultsByCategory.get(TallyCategory.Precinct);
 
   const currentPrecinct = election.precincts.find(
@@ -362,12 +362,12 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
       }
     }
 
-    const emptyExternalTalliesByPrecinct = getEmptyExternalTalliesByPrecinct(
+    const emptyManualTalliesByPrecinct = getEmptyManualTalliesByPrecinct(
       election,
       adjudicatedValuesByContestId
     );
-    setTalliesByPrecinct(emptyExternalTalliesByPrecinct);
-    setCurrentPrecinctTally(emptyExternalTalliesByPrecinct[currentPrecinctId]);
+    setTalliesByPrecinct(emptyManualTalliesByPrecinct);
+    setCurrentPrecinctTally(emptyManualTalliesByPrecinct[currentPrecinctId]);
   }, [writeInSummaryQuery, talliesByPrecinct, currentPrecinctId, election]);
 
   async function handleImportingData() {
@@ -375,7 +375,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     // numbers for all tallies to fill in 0s for any empty strings.
     assert(talliesByPrecinct);
     assert(currentPrecinctTally);
-    const convertedTalliesByPrecinct: Dictionary<ExternalTally> = {};
+    const convertedTalliesByPrecinct: Dictionary<ManualTally> = {};
     for (const precinctId of Object.keys(talliesByPrecinct)) {
       const precinctTally =
         precinctId === currentPrecinctId
@@ -388,7 +388,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
       };
     }
 
-    const externalTally = convertTalliesByPrecinctToFullExternalTally(
+    const manualTally = convertTalliesByPrecinctToFullManualTally(
       convertedTalliesByPrecinct,
       election,
       ballotType,
@@ -400,7 +400,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
       numberOfBallotsInPrecinct: currentPrecinctTally.numberOfBallotsCounted,
       precinctId: currentPrecinctId,
     });
-    await updateExternalTally(externalTally);
+    await updateManualTally(manualTally);
     history.push(routerPaths.manualDataImport);
   }
 
@@ -481,7 +481,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
       getContestTallyWithUpdatedNumberOfBallots(newContestTally);
     setCurrentPrecinctTally(
       // Create tally with updated total number of ballots for the entire tally
-      getExternalTallyFromContestTallies(
+      getManualTallyFromContestTallies(
         {
           ...currentPrecinctTally.contestTallies,
           [contestId]: newContestTally,
@@ -492,12 +492,12 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
   }
 
   // Modifies the external tally in place and returns the same object
-  function addWriteInCandidateToExternalTally(
-    externalTally: TempExternalTally,
+  function addWriteInCandidateToManualTally(
+    manualTally: TempManualTally,
     contestId: ContestId,
     name: string
   ) {
-    const contestTally = externalTally.contestTallies[contestId];
+    const contestTally = manualTally.contestTallies[contestId];
     assert(contestTally);
 
     const candidate = getAdjudicatedWriteInCandidate(name, true);
@@ -506,17 +506,17 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
       tally: 0,
     };
 
-    return externalTally;
+    return manualTally;
   }
 
   // modifies the external tally in place and returns the same object
-  const removeCandidateFromTempExternalTally = useCallback(
+  const removeCandidateFromTempManualTally = useCallback(
     (
-      externalTally: TempExternalTally,
+      manualTally: TempManualTally,
       contestId: ContestId,
       removedCandidateId: CandidateId
     ) => {
-      const contestTally = externalTally.contestTallies[contestId];
+      const contestTally = manualTally.contestTallies[contestId];
       assert(contestTally);
 
       const newContestOptionTallies: Dictionary<TempContestOptionTally> = {};
@@ -533,9 +533,9 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
         tallies: newContestOptionTallies,
       });
 
-      return getExternalTallyFromContestTallies(
+      return getManualTallyFromContestTallies(
         {
-          ...externalTally.contestTallies,
+          ...manualTally.contestTallies,
           [contestId]: newContestTally,
         },
         election
@@ -550,20 +550,20 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
       assert(talliesByPrecinct);
 
       setCurrentPrecinctTally({
-        ...addWriteInCandidateToExternalTally(
+        ...addWriteInCandidateToManualTally(
           currentPrecinctTally,
           contestId,
           name
         ),
       });
 
-      const newTalliesByPrecinct: Dictionary<TempExternalTally> = {};
+      const newTalliesByPrecinct: Dictionary<TempManualTally> = {};
 
       for (const [precinctId, precinctTally] of Object.entries(
         talliesByPrecinct
       )) {
         assert(precinctTally);
-        newTalliesByPrecinct[precinctId] = addWriteInCandidateToExternalTally(
+        newTalliesByPrecinct[precinctId] = addWriteInCandidateToManualTally(
           precinctTally,
           contestId,
           name
@@ -581,20 +581,20 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
       assert(talliesByPrecinct);
 
       setCurrentPrecinctTally({
-        ...removeCandidateFromTempExternalTally(
+        ...removeCandidateFromTempManualTally(
           currentPrecinctTally,
           contestId,
           candidateId
         ),
       });
 
-      const newTalliesByPrecinct: Dictionary<TempExternalTally> = {};
+      const newTalliesByPrecinct: Dictionary<TempManualTally> = {};
 
       for (const [precinctId, precinctTally] of Object.entries(
         talliesByPrecinct
       )) {
         assert(precinctTally);
-        newTalliesByPrecinct[precinctId] = removeCandidateFromTempExternalTally(
+        newTalliesByPrecinct[precinctId] = removeCandidateFromTempManualTally(
           precinctTally,
           contestId,
           candidateId
@@ -605,7 +605,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     },
     [
       currentPrecinctTally,
-      removeCandidateFromTempExternalTally,
+      removeCandidateFromTempManualTally,
       talliesByPrecinct,
     ]
   );

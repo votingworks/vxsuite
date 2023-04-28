@@ -18,7 +18,7 @@ export function ConfirmRemovingFileModal({
   onCancel,
   fileType,
 }: Props): JSX.Element | null {
-  const { fullElectionExternalTally: manualData } = useContext(AppContext);
+  const { fullElectionManualTally: manualData } = useContext(AppContext);
 
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
 

@@ -36,7 +36,7 @@ import {
 } from '../test/react_testing_library';
 
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
-import { convertTalliesByPrecinctToFullExternalTally } from './utils/external_tallies';
+import { convertTalliesByPrecinctToFullManualTally } from './utils/external_tallies';
 import { VxFiles } from './lib/converters';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/api_mock';
@@ -715,13 +715,13 @@ test('reports screen shows appropriate summary data about ballot counts', async 
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
 
-  const manualTally = convertTalliesByPrecinctToFullExternalTally(
+  const manualTally = convertTalliesByPrecinctToFullManualTally(
     { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
     eitherNeitherElectionDefinition.election,
     VotingMethod.Absentee,
     new Date()
   );
-  await backend.updateFullElectionExternalTally(manualTally);
+  await backend.updateFullElectionManualTally(manualTally);
 
   renderApp();
   await apiMock.authenticateAsElectionManager(electionDefinition);
@@ -743,13 +743,13 @@ test('removing election resets cvr and manual data files', async () => {
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetSystemSettings();
 
-  const manualTally = convertTalliesByPrecinctToFullExternalTally(
+  const manualTally = convertTalliesByPrecinctToFullManualTally(
     { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
     eitherNeitherElectionDefinition.election,
     VotingMethod.Absentee,
     new Date()
   );
-  await backend.updateFullElectionExternalTally(manualTally);
+  await backend.updateFullElectionManualTally(manualTally);
 
   const { getByText } = renderApp();
 
@@ -759,8 +759,8 @@ test('removing election resets cvr and manual data files', async () => {
   await apiMock.authenticateAsSystemAdministrator();
 
   // check manual tally present before unconfigure
-  const externalTallyBefore = await backend.loadFullElectionExternalTally();
-  expect(externalTallyBefore).toBeDefined();
+  const manualTallyBefore = await backend.loadFullElectionManualTally();
+  expect(manualTallyBefore).toBeDefined();
 
   apiMock.expectUnconfigure();
   apiMock.expectGetCurrentElectionMetadata(null);
@@ -773,8 +773,8 @@ test('removing election resets cvr and manual data files', async () => {
 
   // check manual data removed
   await waitFor(async () => {
-    const externalTallyAfter = await backend.loadFullElectionExternalTally();
-    expect(externalTallyAfter).toBeUndefined();
+    const manualTallyAfter = await backend.loadFullElectionManualTally();
+    expect(manualTallyAfter).toBeUndefined();
   });
 });
 
@@ -792,20 +792,20 @@ test('clearing results', async () => {
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
   apiMock.expectGetSystemSettings();
 
-  const manualTally = convertTalliesByPrecinctToFullExternalTally(
+  const manualTally = convertTalliesByPrecinctToFullManualTally(
     { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
     eitherNeitherElectionDefinition.election,
     VotingMethod.Absentee,
     new Date()
   );
-  await backend.updateFullElectionExternalTally(manualTally);
+  await backend.updateFullElectionManualTally(manualTally);
 
   const { getByText, queryByText } = renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
   // check manual tally present before removing all files
-  const externalTallyBefore = await backend.loadFullElectionExternalTally();
-  expect(externalTallyBefore).toBeDefined();
+  const manualTallyBefore = await backend.loadFullElectionManualTally();
+  expect(manualTallyBefore).toBeDefined();
 
   fireEvent.click(getByText('Tally'));
   expect(
@@ -844,8 +844,8 @@ test('clearing results', async () => {
 
   getByText('No CVR files loaded.');
 
-  const externalTallyAfter = await backend.loadFullElectionExternalTally();
-  expect(externalTallyAfter).toBeUndefined();
+  const manualTallyAfter = await backend.loadFullElectionManualTally();
+  expect(manualTallyAfter).toBeUndefined();
 });
 
 test('Can not view or print ballots when using an election with gridlayouts (like NH)', async () => {

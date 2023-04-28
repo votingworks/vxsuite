@@ -1,6 +1,6 @@
 import React from 'react';
 import { computeTallyWithPrecomputedCategories } from '@votingworks/utils';
-import { ExternalTally, TallyCategory } from '@votingworks/types';
+import { ManualTally, TallyCategory } from '@votingworks/types';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import {
   hasTextAcrossElements,
@@ -39,7 +39,7 @@ const yesNoContestWithExternalData = election.contests.find(
 assert(yesNoContestWithExternalData);
 assert(yesNoContestWithExternalData.type === 'yesno');
 
-const externalTally: ExternalTally = {
+const manualTally: ManualTally = {
   contestTallies: {
     [candidateContestWithExternalDataId]: {
       contest: candidateContestWithExternalData,
@@ -97,7 +97,7 @@ test('adds manual results', () => {
     <ContestTally
       election={election}
       scannedTally={scannedTally}
-      manualTally={externalTally}
+      manualTally={manualTally}
     />
   );
   const bestAnimalFish = screen.getByTestId('results-table-best-animal-fish');
@@ -118,7 +118,7 @@ test('displays yes/no contests correctly', () => {
     <ContestTally
       election={election}
       scannedTally={scannedTally}
-      manualTally={externalTally}
+      manualTally={manualTally}
     />
   );
   const fishing = screen.getByTestId('results-table-fishing');
@@ -168,15 +168,15 @@ test('shows X when missing tally for option', () => {
 // results and that entire contest having no manual tally, yet manualTally
 // being defined.
 test('assumes scanned tally is 0 if it is missing and there is manual data', () => {
-  const externalTallyMissingTallies = cloneDeep(externalTally);
-  externalTallyMissingTallies.contestTallies['best-animal-fish'] = undefined;
-  externalTallyMissingTallies.contestTallies['fishing'] = undefined;
+  const manualTallyMissingTallies = cloneDeep(manualTally);
+  manualTallyMissingTallies.contestTallies['best-animal-fish'] = undefined;
+  manualTallyMissingTallies.contestTallies['fishing'] = undefined;
 
   render(
     <ContestTally
       election={election}
       scannedTally={scannedTallyMissingTallies}
-      manualTally={externalTallyMissingTallies}
+      manualTally={manualTallyMissingTallies}
     />
   );
 

@@ -41,7 +41,7 @@ export function ReportsScreen(): JSX.Element {
     isTabulationRunning,
     generateExportableTallies,
     fullElectionTally,
-    fullElectionExternalTally,
+    fullElectionManualTally,
     configuredAt,
     logger,
     auth,
@@ -67,7 +67,7 @@ export function ReportsScreen(): JSX.Element {
   const totalBallotCountInternal =
     fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0;
   const totalBallotCountExternal =
-    fullElectionExternalTally?.overallTally.numberOfBallotsCounted ?? 0;
+    fullElectionManualTally?.overallTally.numberOfBallotsCounted ?? 0;
   const totalBallotCount = totalBallotCountInternal + totalBallotCountExternal;
 
   const [converterName, setConverterName] = useState('');

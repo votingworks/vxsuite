@@ -7,7 +7,7 @@ import {
   CastVoteRecord,
   ContestTally,
   Election,
-  FullElectionExternalTally,
+  FullElectionManualTally,
   VotingMethod,
   writeInCandidate,
   YesNoContest,
@@ -271,7 +271,7 @@ describe('getExportableTallies', () => {
       electionWithMsEitherNeither,
       new Set(castVoteRecords)
     );
-    const fullExternalTally: FullElectionExternalTally = {
+    const fullManualTally: FullElectionManualTally = {
       overallTally: fullInternalTally.overallTally,
       resultsByCategory: fullInternalTally.resultsByCategory,
       timestampCreated: new Date(),
@@ -286,7 +286,7 @@ describe('getExportableTallies', () => {
     const doubleTally = getExportableTallies(
       fullInternalTally,
       electionWithMsEitherNeither,
-      fullExternalTally
+      fullManualTally
     );
 
     // doubleTally should be exactly 2 times everything in baseTally
@@ -318,7 +318,7 @@ describe('getExportableTallies', () => {
       multiPartyPrimaryElection,
       new Set(castVoteRecords)
     );
-    const fullExternalTally: FullElectionExternalTally = {
+    const fullManualTally: FullElectionManualTally = {
       overallTally: fullInternalTally.overallTally,
       resultsByCategory: fullInternalTally.resultsByCategory,
       timestampCreated: new Date(),
@@ -333,7 +333,7 @@ describe('getExportableTallies', () => {
     const doubleTally = getExportableTallies(
       fullInternalTally,
       multiPartyPrimaryElection,
-      fullExternalTally
+      fullManualTally
     );
 
     // doubleTally should be exactly 2 times everything in baseTally

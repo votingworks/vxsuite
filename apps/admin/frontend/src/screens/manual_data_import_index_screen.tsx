@@ -20,7 +20,7 @@ import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
-import { convertTalliesByPrecinctToFullExternalTally } from '../utils/external_tallies';
+import { convertTalliesByPrecinctToFullManualTally } from '../utils/external_tallies';
 import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_modal';
 
 const SummaryInfo = styled.div`
@@ -39,8 +39,8 @@ const PrecinctRowText = styled(Text)`
 export function ManualDataImportIndexScreen(): JSX.Element {
   const {
     electionDefinition,
-    fullElectionExternalTally: existingManualData,
-    updateExternalTally,
+    fullElectionManualTally: existingManualData,
+    updateManualTally,
     manualTallyVotingMethod,
     setManualTallyVotingMethod,
     resetFiles,
@@ -69,13 +69,13 @@ export function ManualDataImportIndexScreen(): JSX.Element {
     setManualTallyVotingMethod(newBallotType);
 
     if (existingTalliesByPrecinct) {
-      const externalTally = convertTalliesByPrecinctToFullExternalTally(
+      const manualTally = convertTalliesByPrecinctToFullManualTally(
         existingTalliesByPrecinct,
         election,
         newBallotType,
         new Date()
       );
-      await updateExternalTally(externalTally);
+      await updateManualTally(manualTally);
     }
 
     await logger.log(LogEventId.ManualTallyDataEdited, userRole, {

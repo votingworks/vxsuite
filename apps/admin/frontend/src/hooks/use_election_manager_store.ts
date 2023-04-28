@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { typedAs } from '@votingworks/basics';
 import { LoggingUserRole } from '@votingworks/logging';
-import { FullElectionExternalTally } from '@votingworks/types';
+import { FullElectionManualTally } from '@votingworks/types';
 import { useCallback, useContext, useMemo, useRef } from 'react';
 import { ServicesContext } from '../contexts/services_context';
 
@@ -9,19 +9,19 @@ export interface ElectionManagerStore {
   /**
    * Tallies from external sources, e.g. manually entered tallies.
    */
-  readonly fullElectionExternalTally?: FullElectionExternalTally;
+  readonly fullElectionManualTally?: FullElectionManualTally;
 
   /**
    * Updates the external tally for a given source.
    */
-  updateFullElectionExternalTally(
-    newFullElectionExternalTally: FullElectionExternalTally
+  updateFullElectionManualTally(
+    newFullElectionManualTally: FullElectionManualTally
   ): Promise<void>;
 
   /**
    * Removes the external tally for a given source.
    */
-  removeFullElectionExternalTally(): Promise<void>;
+  removeFullElectionManualTally(): Promise<void>;
 
   /**
    * Sets the current user's role, i.e. the person taking action.
@@ -40,19 +40,17 @@ export function useElectionManagerStore(): ElectionManagerStore {
   const currentUserRoleRef = useRef<LoggingUserRole>('unknown');
 
   const getExternalElectionTalliesQuery =
-    useQuery<FullElectionExternalTally | null>(
+    useQuery<FullElectionManualTally | null>(
       [externalVoteTallyFileStorageKey],
       async () => {
-        return (await backend.loadFullElectionExternalTally()) ?? null;
+        return (await backend.loadFullElectionManualTally()) ?? null;
       }
     );
-  const fullElectionExternalTally = getExternalElectionTalliesQuery.data;
+  const fullElectionManualTally = getExternalElectionTalliesQuery.data;
 
-  const updateFullElectionExternalTallyMutation = useMutation(
-    async (newFullElectionExternalTally: FullElectionExternalTally) => {
-      await backend.updateFullElectionExternalTally(
-        newFullElectionExternalTally
-      );
+  const updateFullElectionManualTallyMutation = useMutation(
+    async (newFullElectionManualTally: FullElectionManualTally) => {
+      await backend.updateFullElectionManualTally(newFullElectionManualTally);
     },
     {
       onSuccess() {
@@ -61,18 +59,18 @@ export function useElectionManagerStore(): ElectionManagerStore {
     }
   );
 
-  const updateFullElectionExternalTally = useCallback(
-    async (newFullElectionExternalTally: FullElectionExternalTally) => {
-      await updateFullElectionExternalTallyMutation.mutateAsync(
-        newFullElectionExternalTally
+  const updateFullElectionManualTally = useCallback(
+    async (newFullElectionManualTally: FullElectionManualTally) => {
+      await updateFullElectionManualTallyMutation.mutateAsync(
+        newFullElectionManualTally
       );
     },
-    [updateFullElectionExternalTallyMutation]
+    [updateFullElectionManualTallyMutation]
   );
 
-  const removeFullElectionExternalTallyMutation = useMutation(
+  const removeFullElectionManualTallyMutation = useMutation(
     async () => {
-      await backend.removeFullElectionExternalTally();
+      await backend.removeFullElectionManualTally();
     },
     {
       onSuccess() {
@@ -81,9 +79,9 @@ export function useElectionManagerStore(): ElectionManagerStore {
     }
   );
 
-  const removeFullElectionExternalTally = useCallback(async () => {
-    await removeFullElectionExternalTallyMutation.mutateAsync();
-  }, [removeFullElectionExternalTallyMutation]);
+  const removeFullElectionManualTally = useCallback(async () => {
+    await removeFullElectionManualTallyMutation.mutateAsync();
+  }, [removeFullElectionManualTallyMutation]);
 
   const setCurrentUserRole = useCallback((newCurrentUserRole) => {
     currentUserRoleRef.current = newCurrentUserRole;
@@ -92,16 +90,16 @@ export function useElectionManagerStore(): ElectionManagerStore {
   return useMemo(
     () =>
       typedAs<ElectionManagerStore>({
-        fullElectionExternalTally: fullElectionExternalTally || undefined,
+        fullElectionManualTally: fullElectionManualTally || undefined,
         setCurrentUserRole,
-        updateFullElectionExternalTally,
-        removeFullElectionExternalTally,
+        updateFullElectionManualTally,
+        removeFullElectionManualTally,
       }),
     [
-      fullElectionExternalTally,
-      removeFullElectionExternalTally,
+      fullElectionManualTally,
+      removeFullElectionManualTally,
       setCurrentUserRole,
-      updateFullElectionExternalTally,
+      updateFullElectionManualTally,
     ]
   );
 }

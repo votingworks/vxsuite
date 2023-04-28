@@ -1,4 +1,4 @@
-import { FullElectionExternalTally } from '@votingworks/types';
+import { FullElectionManualTally } from '@votingworks/types';
 import { ElectionManagerStoreBackend } from './types';
 
 /**
@@ -8,31 +8,29 @@ import { ElectionManagerStoreBackend } from './types';
 export class ElectionManagerStoreMemoryBackend
   implements ElectionManagerStoreBackend
 {
-  private fullElectionExternalTally?: FullElectionExternalTally;
+  private fullElectionManualTally?: FullElectionManualTally;
 
   constructor({
-    fullElectionExternalTally,
+    fullElectionManualTally,
   }: {
-    fullElectionExternalTally?: FullElectionExternalTally;
+    fullElectionManualTally?: FullElectionManualTally;
   } = {}) {
-    this.fullElectionExternalTally = fullElectionExternalTally;
+    this.fullElectionManualTally = fullElectionManualTally;
   }
 
-  loadFullElectionExternalTally(): Promise<
-    FullElectionExternalTally | undefined
-  > {
-    return Promise.resolve(this.fullElectionExternalTally);
+  loadFullElectionManualTally(): Promise<FullElectionManualTally | undefined> {
+    return Promise.resolve(this.fullElectionManualTally);
   }
 
-  async updateFullElectionExternalTally(
-    newFullElectionExternalTally: FullElectionExternalTally
+  async updateFullElectionManualTally(
+    newFullElectionManualTally: FullElectionManualTally
   ): Promise<void> {
     await Promise.resolve();
-    this.fullElectionExternalTally = newFullElectionExternalTally;
+    this.fullElectionManualTally = newFullElectionManualTally;
   }
 
-  async removeFullElectionExternalTally(): Promise<void> {
+  async removeFullElectionManualTally(): Promise<void> {
     await Promise.resolve();
-    this.fullElectionExternalTally = undefined;
+    this.fullElectionManualTally = undefined;
   }
 }

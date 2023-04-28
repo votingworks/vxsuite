@@ -50,7 +50,7 @@ export interface FullElectionTally {
   readonly resultsByCategory: ReadonlyMap<TallyCategory, Dictionary<Tally>>;
 }
 
-export interface ExternalTally {
+export interface ManualTally {
   readonly contestTallies: Dictionary<ContestTally>;
   readonly numberOfBallotsCounted: number;
 }
@@ -61,19 +61,18 @@ export enum VotingMethod {
   Unknown = 'unknown',
 }
 
-export interface FullElectionExternalTally {
-  readonly overallTally: ExternalTally;
+export interface FullElectionManualTally {
+  readonly overallTally: ManualTally;
   readonly resultsByCategory: ReadonlyMap<
     TallyCategory,
-    Dictionary<ExternalTally>
+    Dictionary<ManualTally>
   >;
   readonly votingMethod: VotingMethod;
   readonly timestampCreated: Date;
 }
 
-export type OptionalExternalTally = Optional<ExternalTally>;
-export type OptionalFullElectionExternalTally =
-  Optional<FullElectionExternalTally>;
+export type OptionalManualTally = Optional<ManualTally>;
+export type OptionalFullElectionManualTally = Optional<FullElectionManualTally>;
 
 const nonnegativeInteger = z.number().nonnegative().int();
 

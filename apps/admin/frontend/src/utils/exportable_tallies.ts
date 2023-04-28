@@ -5,7 +5,7 @@ import {
   ContestTally,
   FullElectionTally,
   TallyCategory,
-  FullElectionExternalTally,
+  FullElectionManualTally,
 } from '@votingworks/types';
 import {
   ExportableContestTally,
@@ -55,7 +55,7 @@ export function getCombinedExportableContestTally(
 export function getExportableTallies(
   internalElectionTally: FullElectionTally,
   election: Election,
-  externalElectionTally?: FullElectionExternalTally
+  externalElectionTally?: FullElectionManualTally
 ): ExportableTallies {
   const talliesByPrecinct = internalElectionTally.resultsByCategory.get(
     TallyCategory.Precinct
@@ -64,7 +64,7 @@ export function getExportableTallies(
     return getEmptyExportableTallies();
   }
 
-  const externalTallyByPrecinct = externalElectionTally?.resultsByCategory.get(
+  const manualTallyByPrecinct = externalElectionTally?.resultsByCategory.get(
     TallyCategory.Precinct
   );
 
@@ -79,7 +79,7 @@ export function getExportableTallies(
       )
     );
     const tallyForPrecinct = talliesByPrecinct[precinct.id];
-    const externalTallyForPrecinct = externalTallyByPrecinct?.[precinct.id];
+    const manualTallyForPrecinct = manualTallyByPrecinct?.[precinct.id];
     const exportableTallyForPrecinct: ExportableTally = {};
     for (const contest of ballotStyleContests) {
       let exportableContestTally: ExportableContestTally = {
@@ -88,7 +88,7 @@ export function getExportableTallies(
       };
       const contestTalliesToCombine = [
         tallyForPrecinct?.contestTallies[contest.id],
-        externalTallyForPrecinct?.contestTallies[contest.id],
+        manualTallyForPrecinct?.contestTallies[contest.id],
       ].filter((t): t is ContestTally => !!t);
       for (const contestTallyToCombine of contestTalliesToCombine) {
         exportableContestTally = getCombinedExportableContestTally(

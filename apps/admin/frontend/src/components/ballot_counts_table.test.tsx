@@ -7,12 +7,12 @@ import {
 import {
   Dictionary,
   BatchTally,
-  ExternalTally,
+  ManualTally,
   Tally,
   TallyCategory,
   VotingMethod,
   FullElectionTally,
-  FullElectionExternalTally,
+  FullElectionManualTally,
 } from '@votingworks/types';
 
 import { assert } from '@votingworks/basics';
@@ -22,7 +22,7 @@ import { renderInAppContext } from '../../test/render_in_app_context';
 
 import { BallotCountsTable } from './ballot_counts_table';
 import { fakeTally } from '../../test/helpers/fake_tally';
-import { fakeExternalTally } from '../../test/helpers/fake_external_tally';
+import { fakeManualTally } from '../../test/helpers/fake_external_tally';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 let apiMock: ApiMock;
@@ -53,17 +53,17 @@ describe('Ballot Counts by Precinct', () => {
   const resultsByCategory = new Map();
   resultsByCategory.set(TallyCategory.Precinct, resultsByPrecinct);
 
-  const externalResultsByPrecinct: Dictionary<ExternalTally> = {
+  const externalResultsByPrecinct: Dictionary<ManualTally> = {
     // French Camp
-    '6526': fakeExternalTally({
+    '6526': fakeManualTally({
       numberOfBallotsCounted: 13,
     }),
     // East Weir
-    '6525': fakeExternalTally({
+    '6525': fakeManualTally({
       numberOfBallotsCounted: 0,
     }),
     // Hebron
-    '6528': fakeExternalTally({
+    '6528': fakeManualTally({
       numberOfBallotsCounted: 22,
     }),
   };
@@ -79,8 +79,8 @@ describe('Ballot Counts by Precinct', () => {
     }),
     resultsByCategory,
   };
-  const fullElectionExternalTally: FullElectionExternalTally = {
-    overallTally: fakeExternalTally({
+  const fullElectionManualTally: FullElectionManualTally = {
+    overallTally: fakeManualTally({
       numberOfBallotsCounted: 54,
     }),
     resultsByCategory: externalResultsByCategory,
@@ -157,7 +157,7 @@ describe('Ballot Counts by Precinct', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />,
       {
         fullElectionTally,
-        fullElectionExternalTally,
+        fullElectionManualTally,
         apiMock,
       }
     );
@@ -212,8 +212,8 @@ describe('Ballot Counts by Scanner', () => {
     }),
     resultsByCategory,
   };
-  const fullElectionExternalTally: FullElectionExternalTally = {
-    overallTally: fakeExternalTally({
+  const fullElectionManualTally: FullElectionManualTally = {
+    overallTally: fakeManualTally({
       numberOfBallotsCounted: 54,
     }),
     votingMethod: VotingMethod.Precinct,
@@ -279,7 +279,7 @@ describe('Ballot Counts by Scanner', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />,
       {
         fullElectionTally,
-        fullElectionExternalTally,
+        fullElectionManualTally,
         apiMock,
       }
     );
@@ -335,13 +335,13 @@ describe('Ballots Counts by Party', () => {
   const resultsByCategory = new Map();
   resultsByCategory.set(TallyCategory.Party, resultsByParty);
 
-  const externalResultsByParty: Dictionary<ExternalTally> = {
+  const externalResultsByParty: Dictionary<ManualTally> = {
     // Liberty
-    '0': fakeExternalTally({
+    '0': fakeManualTally({
       numberOfBallotsCounted: 13,
     }),
     // Constitution
-    '3': fakeExternalTally({
+    '3': fakeManualTally({
       numberOfBallotsCounted: 73,
     }),
   };
@@ -355,8 +355,8 @@ describe('Ballots Counts by Party', () => {
     resultsByCategory,
   };
 
-  const fullElectionExternalTally: FullElectionExternalTally = {
-    overallTally: fakeExternalTally({
+  const fullElectionManualTally: FullElectionManualTally = {
+    overallTally: fakeManualTally({
       numberOfBallotsCounted: 54,
     }),
     resultsByCategory: externalResultsByCategory,
@@ -466,7 +466,7 @@ describe('Ballots Counts by Party', () => {
           electionData: '',
         },
         fullElectionTally,
-        fullElectionExternalTally,
+        fullElectionManualTally,
         apiMock,
       }
     );
@@ -521,8 +521,8 @@ describe('Ballots Counts by VotingMethod', () => {
 
   const numExternalBallots = 54;
 
-  const fullElectionExternalTally: FullElectionExternalTally = {
-    overallTally: fakeExternalTally({
+  const fullElectionManualTally: FullElectionManualTally = {
+    overallTally: fakeManualTally({
       numberOfBallotsCounted: numExternalBallots,
     }),
     resultsByCategory: new Map(),
@@ -609,7 +609,7 @@ describe('Ballots Counts by VotingMethod', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />,
       {
         fullElectionTally,
-        fullElectionExternalTally,
+        fullElectionManualTally,
         apiMock,
       }
     );
@@ -691,8 +691,8 @@ describe('Ballots Counts by Batch', () => {
 
   const numExternalBallots = 54;
 
-  const fullElectionExternalTally: FullElectionExternalTally = {
-    overallTally: fakeExternalTally({
+  const fullElectionManualTally: FullElectionManualTally = {
+    overallTally: fakeManualTally({
       numberOfBallotsCounted: numExternalBallots,
     }),
     resultsByCategory: new Map(),
@@ -796,7 +796,7 @@ describe('Ballots Counts by Batch', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.Batch} />,
       {
         fullElectionTally,
-        fullElectionExternalTally,
+        fullElectionManualTally,
         apiMock,
       }
     );

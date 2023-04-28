@@ -8,7 +8,7 @@ import { Button, Prose, Table, TD, Text, LinkButton } from '@votingworks/ui';
 import { ResultsFileType } from '../config/types';
 
 import { AppContext } from '../contexts/app_context';
-import { getPrecinctIdsInExternalTally } from '../utils/external_tallies';
+import { getPrecinctIdsInManualTally } from '../utils/external_tallies';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
@@ -21,7 +21,7 @@ export function TallyScreen(): JSX.Element | null {
   const {
     electionDefinition,
     isOfficialResults,
-    fullElectionExternalTally,
+    fullElectionManualTally,
     resetFiles,
     auth,
   } = useContext(AppContext);
@@ -68,8 +68,8 @@ export function TallyScreen(): JSX.Element | null {
 
   const castVoteRecordFileList = castVoteRecordFilesQuery.data;
   const hasAnyFiles =
-    castVoteRecordFileList.length > 0 || fullElectionExternalTally;
-  const hasExternalManualData = !!fullElectionExternalTally;
+    castVoteRecordFileList.length > 0 || fullElectionManualTally;
+  const hasExternalManualData = !!fullElectionManualTally;
 
   const fileMode = castVoteRecordFileModeQuery.data;
   const fileModeText =
@@ -154,16 +154,16 @@ export function TallyScreen(): JSX.Element | null {
                       </tr>
                     )
                   )}
-                  {fullElectionExternalTally ? (
+                  {fullElectionManualTally ? (
                     <tr key="manual-data">
                       <TD narrow nowrap>
                         {moment(
-                          fullElectionExternalTally.timestampCreated
+                          fullElectionManualTally.timestampCreated
                         ).format(TIME_FORMAT)}
                       </TD>
                       <TD narrow>
                         {format.count(
-                          fullElectionExternalTally.overallTally
+                          fullElectionManualTally.overallTally
                             .numberOfBallotsCounted
                         )}
                       </TD>
@@ -172,9 +172,7 @@ export function TallyScreen(): JSX.Element | null {
                       </TD>
                       <TD>
                         {getPrecinctNames(
-                          getPrecinctIdsInExternalTally(
-                            fullElectionExternalTally
-                          )
+                          getPrecinctIdsInManualTally(fullElectionManualTally)
                         )}
                       </TD>
                     </tr>
@@ -189,7 +187,7 @@ export function TallyScreen(): JSX.Element | null {
                           (prev, curr) => prev + curr.numCvrsImported,
                           0
                         ) +
-                          (fullElectionExternalTally?.overallTally
+                          (fullElectionManualTally?.overallTally
                             .numberOfBallotsCounted ?? 0)
                       )}
                     </TD>

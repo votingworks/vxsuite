@@ -59,7 +59,7 @@ export function TallyWriteInReportScreen(): JSX.Element {
     electionDefinition,
     isOfficialResults,
     fullElectionTally,
-    fullElectionExternalTally: manualData,
+    fullElectionManualTally: manualData,
     isTabulationRunning,
     auth,
     logger,
