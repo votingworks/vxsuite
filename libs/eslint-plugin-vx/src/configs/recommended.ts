@@ -89,7 +89,7 @@ export = {
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
     // Disallows unused variables to prevent bugs
     '@typescript-eslint/no-unused-vars': 'error',
-    // Enforce private properties are readonly as recommended by the google TS guide.
+    // Enforce private properties are readonly as recommended by the Google TypeScript Style Guide.
     '@typescript-eslint/prefer-readonly': 'error',
     // Disallows async functions with no await to prevent bugs and confusion
     '@typescript-eslint/require-await': 'error',
