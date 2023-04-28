@@ -6,7 +6,7 @@
     "new-cap": ["error", { "newIsCapExceptionPattern": "^jsfeat\\.." }],
     // Allow for bitwise operation which is necessary for encoding ballots.
     "no-bitwise": "off",
-    // Allow for a variable named $0
+    // $0 is often used as the name of the current process by convention.
     "vx/gts-identifiers": ["error", { "allowedNames": ["$0"] }],
     // Disable JSDOC rule as code is self-documenting.
     "vx/gts-jsdoc": "off"
