@@ -11,6 +11,7 @@
       },
       "extends": ["plugin:cypress/recommended"],
       "rules": {
+        // Cypress requires `cypress.config.ts` to use a default export.
         "vx/gts-no-default-exports": "off"
       }
     }

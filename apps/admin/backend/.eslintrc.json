@@ -4,11 +4,13 @@
     {
       "files": ["test/*"],
       "rules": {
+        // Disable JSDOC rule as code is self-documenting.
         "vx/gts-jsdoc": "off"
       }
     }
   ],
   "rules": {
+    // Allow for "CVR" to be used in naming variables.
     "vx/gts-identifiers": ["error", { "allowedNames": ["/CVR.*/"] }]
   }
 }

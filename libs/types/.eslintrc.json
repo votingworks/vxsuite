@@ -1,6 +1,7 @@
 {
   "extends": ["plugin:vx/recommended"],
   "rules": {
+    // Disable JSDOC rule as code is self-documenting.
     "vx/gts-jsdoc": "off"
   },
   "overrides": [
@@ -10,6 +11,7 @@
         "src/cdf_cast_vote_records.ts"
       ],
       "rules": {
+        // Allow for variable naming to include CVR
         "vx/gts-identifiers": ["error", { "allowedNames": ["/CVR.*/"] }]
       }
     }
