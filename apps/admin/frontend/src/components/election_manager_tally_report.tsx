@@ -12,8 +12,6 @@ import {
   ContestId,
   Election,
   ExternalTally,
-  ExternalTallySourceType,
-  FullElectionExternalTallies,
   FullElectionTally,
   getLabelForVotingMethod,
   PartyIdSchema,
@@ -23,6 +21,7 @@ import {
   PartyId,
   getPartyIdsWithContests,
   getPartySpecificElectionTitle,
+  FullElectionExternalTally,
 } from '@votingworks/types';
 import {
   filterTalliesByParams,
@@ -41,7 +40,7 @@ export interface Props {
   batchId?: string;
   batchLabel?: string;
   election: Election;
-  fullElectionExternalTallies: FullElectionExternalTallies;
+  fullElectionExternalTally?: FullElectionExternalTally;
   fullElectionTally: FullElectionTally;
   generatedAtTime?: Date;
   tallyReportType: TallyReportType;
@@ -56,7 +55,7 @@ export function ElectionManagerTallyReport({
   batchId,
   batchLabel,
   election,
-  fullElectionExternalTallies,
+  fullElectionExternalTally,
   fullElectionTally,
   generatedAtTime = new Date(),
   tallyReportType,
@@ -128,10 +127,9 @@ export function ElectionManagerTallyReport({
             };
           let reportBallotCount = tallyForReport.numberOfBallotsCounted;
           let manualTallyForReport: Optional<ExternalTally>;
-          const otherExternalTalliesForReport: ExternalTally[] = [];
-          for (const t of fullElectionExternalTallies.values()) {
+          if (fullElectionExternalTally) {
             const filteredExternalTally = filterExternalTalliesByParams(
-              t,
+              fullElectionExternalTally,
               election,
               {
                 precinctId,
@@ -145,14 +143,14 @@ export function ElectionManagerTallyReport({
               filteredExternalTally &&
               filteredExternalTally.numberOfBallotsCounted > 0
             ) {
-              if (t.source === ExternalTallySourceType.Manual) {
-                manualTallyForReport = mergeWriteIns(filteredExternalTally);
-              } else {
-                otherExternalTalliesForReport.push(filteredExternalTally);
-              }
-              ballotCountsByVotingMethod[t.votingMethod] =
+              manualTallyForReport = mergeWriteIns(filteredExternalTally);
+              ballotCountsByVotingMethod[
+                fullElectionExternalTally.votingMethod
+              ] =
                 filteredExternalTally.numberOfBallotsCounted +
-                (ballotCountsByVotingMethod[t.votingMethod] ?? 0);
+                (ballotCountsByVotingMethod[
+                  fullElectionExternalTally.votingMethod
+                ] ?? 0);
               reportBallotCount += filteredExternalTally.numberOfBallotsCounted;
             }
           }
@@ -186,7 +184,6 @@ export function ElectionManagerTallyReport({
                     election={election}
                     scannedTally={tallyForReport}
                     manualTally={manualTallyForReport}
-                    otherExternalTallies={otherExternalTalliesForReport}
                     precinctId={precinctId}
                   />
                 </TallyReportColumns>
@@ -273,7 +270,6 @@ export function ElectionManagerTallyReport({
                     election={election}
                     scannedTally={tallyForReport}
                     manualTally={manualTallyForReport}
-                    otherExternalTallies={otherExternalTalliesForReport}
                   />
                 </TallyReportColumns>
               </ReportSection>
@@ -305,7 +301,6 @@ export function ElectionManagerTallyReport({
                   election={election}
                   scannedTally={tallyForReport}
                   manualTally={manualTallyForReport}
-                  otherExternalTallies={otherExternalTalliesForReport}
                 />
               </TallyReportColumns>
             </ReportSection>
