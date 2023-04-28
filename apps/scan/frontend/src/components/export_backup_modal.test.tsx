@@ -2,8 +2,7 @@ import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { err, ok } from '@votingworks/basics';
-import { UsbDriveStatus } from '@votingworks/ui';
-import { mockUsbDrive } from '@votingworks/ui';
+import { UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
 import { render, screen } from '../../test/react_testing_library';
 import {
   ApiMock,
