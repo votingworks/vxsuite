@@ -5,7 +5,6 @@ import {
   ContestOptionTally,
   ContestTally,
   ExternalTally,
-  ExternalTallySourceType,
   FullElectionExternalTally,
   OptionalExternalTally,
   OptionalFullElectionExternalTally,
@@ -13,7 +12,6 @@ import {
   VotingMethod,
   PartyId,
   PrecinctId,
-  FullElectionExternalTallies,
   ContestId,
 } from '@votingworks/types';
 import { combineContestTallies } from '@votingworks/utils';
@@ -25,44 +23,30 @@ import {
 } from './election';
 import { getAdjudicatedWriteInCandidate } from './write_ins';
 
-export function convertExternalTalliesToStorageString(
-  tallies: FullElectionExternalTallies
+export function convertExternalTallyToStorageString(
+  tally: FullElectionExternalTally
 ): string {
-  return JSON.stringify(
-    Array.from(tallies.values()).map((tally) => {
-      return {
-        ...tally,
-        resultsByCategory: Array.from(tally.resultsByCategory.entries()),
-        timestampCreated: tally.timestampCreated.getTime(),
-      };
-    })
-  );
+  return JSON.stringify({
+    ...tally,
+    resultsByCategory: Array.from(tally.resultsByCategory.entries()),
+    timestampCreated: tally.timestampCreated.getTime(),
+  });
 }
 
-export function convertStorageStringToExternalTallies(
+export function convertStorageStringToExternalTally(
   inputString: string
-): FullElectionExternalTally[] {
-  const parsedJson = JSON.parse(inputString) as Array<Record<string, unknown>>;
-  return parsedJson.map((data) => {
-    const {
-      overallTally,
-      resultsByCategory,
-      votingMethod,
-      source,
-      inputSourceName,
-      timestampCreated,
-    } = data;
-    return {
-      overallTally,
-      votingMethod,
-      source,
-      inputSourceName,
-      resultsByCategory: new Map(
-        resultsByCategory as ReadonlyArray<readonly [unknown, unknown]>
-      ),
-      timestampCreated: new Date(timestampCreated as number),
-    } as unknown as FullElectionExternalTally;
-  });
+): FullElectionExternalTally {
+  const parsedJson = JSON.parse(inputString) as Record<string, unknown>;
+  const { overallTally, resultsByCategory, votingMethod, timestampCreated } =
+    parsedJson;
+  return {
+    overallTally,
+    votingMethod,
+    resultsByCategory: new Map(
+      resultsByCategory as ReadonlyArray<readonly [unknown, unknown]>
+    ),
+    timestampCreated: new Date(timestampCreated as number),
+  } as unknown as FullElectionExternalTally;
 }
 
 export function getTotalNumberOfBallots(
@@ -209,8 +193,6 @@ export function convertTalliesByPrecinctToFullExternalTally(
   talliesByPrecinct: Dictionary<ExternalTally>,
   election: Election,
   votingMethod: VotingMethod,
-  source: ExternalTallySourceType,
-  inputSourceName: string,
   timestampCreated: Date
 ): FullElectionExternalTally {
   let totalNumberOfBallots = 0;
@@ -259,8 +241,6 @@ export function convertTalliesByPrecinctToFullExternalTally(
     overallTally,
     resultsByCategory,
     votingMethod,
-    inputSourceName,
-    source,
     timestampCreated,
   };
 }

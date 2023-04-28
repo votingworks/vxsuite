@@ -1,9 +1,4 @@
-import {
-  ExternalTallySourceType,
-  FullElectionExternalTallies,
-  FullElectionExternalTally,
-} from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { FullElectionExternalTally } from '@votingworks/types';
 import { ElectionManagerStoreBackend } from './types';
 
 /**
@@ -13,48 +8,31 @@ import { ElectionManagerStoreBackend } from './types';
 export class ElectionManagerStoreMemoryBackend
   implements ElectionManagerStoreBackend
 {
-  private fullElectionExternalTallies: Map<
-    ExternalTallySourceType,
-    FullElectionExternalTally
-  >;
+  private fullElectionExternalTally?: FullElectionExternalTally;
 
   constructor({
-    fullElectionExternalTallies,
+    fullElectionExternalTally,
   }: {
-    fullElectionExternalTallies?: FullElectionExternalTallies;
+    fullElectionExternalTally?: FullElectionExternalTally;
   } = {}) {
-    this.fullElectionExternalTallies = new Map([
-      ...(fullElectionExternalTallies ?? []),
-    ]);
+    this.fullElectionExternalTally = fullElectionExternalTally;
   }
 
-  loadFullElectionExternalTallies(): Promise<
-    FullElectionExternalTallies | undefined
+  loadFullElectionExternalTally(): Promise<
+    FullElectionExternalTally | undefined
   > {
-    return Promise.resolve(new Map(this.fullElectionExternalTallies));
+    return Promise.resolve(this.fullElectionExternalTally);
   }
 
   async updateFullElectionExternalTally(
-    sourceType: ExternalTallySourceType,
     newFullElectionExternalTally: FullElectionExternalTally
   ): Promise<void> {
     await Promise.resolve();
-    assert(newFullElectionExternalTally.source === sourceType);
-    this.fullElectionExternalTallies.set(
-      sourceType,
-      newFullElectionExternalTally
-    );
+    this.fullElectionExternalTally = newFullElectionExternalTally;
   }
 
-  async removeFullElectionExternalTally(
-    sourceType: ExternalTallySourceType
-  ): Promise<void> {
+  async removeFullElectionExternalTally(): Promise<void> {
     await Promise.resolve();
-    this.fullElectionExternalTallies.delete(sourceType);
-  }
-
-  async clearFullElectionExternalTallies(): Promise<void> {
-    await Promise.resolve();
-    this.fullElectionExternalTallies = new Map();
+    this.fullElectionExternalTally = undefined;
   }
 }
