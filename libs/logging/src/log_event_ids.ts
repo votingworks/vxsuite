@@ -57,7 +57,6 @@ export enum LogEventId {
   CvrFilesReadFromUsb = 'cvr-files-read-from-usb',
   RecomputingTally = 'recompute-tally-init',
   RecomputedTally = 'recompute-tally-complete',
-  ExternalTallyFileLoaded = 'external-tally-file-loaded',
   ManualTallyDataEdited = 'manual-tally-data-edited',
   MarkedTallyResultsOfficial = 'marked-tally-results-official',
   RemovedTallyFile = 'removed-tally-file',
@@ -391,13 +390,6 @@ const RecomputedTally: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'Tally recomputed with new cast vote record files, success or failure indicated by disposition.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
-};
-const ExternalTallyFileLoaded: LogDetails = {
-  eventId: LogEventId.ExternalTallyFileLoaded,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User loaded external tally file to the machine. File type indicated by fileType key. Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 const ManualTallyDataEdited: LogDetails = {
@@ -964,8 +956,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return RecomputingTally;
     case LogEventId.RecomputedTally:
       return RecomputedTally;
-    case LogEventId.ExternalTallyFileLoaded:
-      return ExternalTallyFileLoaded;
     case LogEventId.ManualTallyDataEdited:
       return ManualTallyDataEdited;
     case LogEventId.MarkedTallyResultsOfficial:

@@ -162,10 +162,6 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** Tally recomputed with new cast vote record files, success or failure indicated by disposition.  
 **Machines:** vx-admin-frontend
-### external-tally-file-loaded
-**Type:** [user-action](#user-action)  
-**Description:** User loaded external tally file to the machine. File type indicated by fileType key. Success or failure indicated by disposition.  
-**Machines:** vx-admin-frontend
 ### manual-tally-data-edited
 **Type:** [user-action](#user-action)  
 **Description:** User added or edited manually entered tally data to be included alongside loaded Cvr files.  
