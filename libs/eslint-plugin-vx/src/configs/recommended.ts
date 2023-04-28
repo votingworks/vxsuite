@@ -83,7 +83,7 @@ export = {
     '@typescript-eslint/no-extra-semi': 'off',
     // Enforce handling promises appropriately to avoid potential bugs
     '@typescript-eslint/no-floating-promises': 'error',
-    // Disallows the non-null assertion ! operator as recommended by the google TS guide.
+    // Disallows the non-null assertion ! operator as recommended by the Google TypeScript Style Guide.
     '@typescript-eslint/no-non-null-assertion': 'error',
     // Disallows unnecessary type assertions as recommended by the google TS guide.
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
