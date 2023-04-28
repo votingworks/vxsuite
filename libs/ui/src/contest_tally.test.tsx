@@ -92,23 +92,6 @@ test('shows correct results for candidate contest with only scanned results', ()
   within(bestAnimalFish).getByText(hasTextAcrossElements('Salmon1198'));
 });
 
-test('adds external results', () => {
-  render(
-    <ContestTally
-      election={election}
-      scannedTally={scannedTally}
-      otherExternalTallies={[externalTally]}
-    />
-  );
-  const bestAnimalFish = screen.getByTestId('results-table-best-animal-fish');
-  within(bestAnimalFish).getByText('Best Animal');
-  within(bestAnimalFish).getByText(/1514 ballots cast/);
-  within(bestAnimalFish).getByText(/120 overvotes/);
-  within(bestAnimalFish).getByText(/121 undervotes/);
-  within(bestAnimalFish).getByText(hasTextAcrossElements('Seahorse74'));
-  within(bestAnimalFish).getByText(hasTextAcrossElements('Salmon1199'));
-});
-
 test('adds manual results', () => {
   render(
     <ContestTally
@@ -136,16 +119,15 @@ test('displays yes/no contests correctly', () => {
       election={election}
       scannedTally={scannedTally}
       manualTally={externalTally}
-      otherExternalTallies={[externalTally]}
     />
   );
   const fishing = screen.getByTestId('results-table-fishing');
   within(fishing).getByText('Ballot Measure 3');
-  within(fishing).getByText(hasTextAcrossElements('Ballots Cast151441518'));
-  within(fishing).getByText(hasTextAcrossElements('Overvotes74175'));
-  within(fishing).getByText(hasTextAcrossElements('Undervotes119911200'));
-  within(fishing).getByText(hasTextAcrossElements('Yes1211122'));
-  within(fishing).getByText(hasTextAcrossElements('No1201121'));
+  within(fishing).getByText(hasTextAcrossElements('Ballots Cast151041514'));
+  within(fishing).getByText(hasTextAcrossElements('Overvotes73174'));
+  within(fishing).getByText(hasTextAcrossElements('Undervotes119811199'));
+  within(fishing).getByText(hasTextAcrossElements('Yes1201121'));
+  within(fishing).getByText(hasTextAcrossElements('No1191120'));
 });
 
 test('specifies number of seats if relevant', () => {

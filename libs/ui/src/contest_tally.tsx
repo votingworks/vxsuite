@@ -167,7 +167,6 @@ interface Props {
   election: Election;
   scannedTally: Tally;
   manualTally?: ExternalTally;
-  otherExternalTallies?: ExternalTally[];
   precinctId?: PrecinctId;
 }
 
@@ -175,7 +174,6 @@ export function ContestTally({
   election,
   scannedTally,
   manualTally,
-  otherExternalTallies = [],
   precinctId,
 }: Props): JSX.Element {
   // if there is no precinctId defined, we don't need to do extra work
@@ -202,21 +200,12 @@ export function ContestTally({
           undervotes: manualUndervotes = 0,
         } = manualContestTally?.metadata ?? {};
 
-        const otherExternalContestTallies = otherExternalTallies.map(
-          (t) => t.contestTallies[contest.id]
-        );
-
         let overallContestTally = scannedContestTally;
-        for (const externalContestTally of [
-          manualContestTally,
-          ...otherExternalContestTallies,
-        ]) {
-          if (externalContestTally !== undefined) {
-            overallContestTally = combineContestTallies(
-              overallContestTally,
-              externalContestTally
-            );
-          }
+        if (manualContestTally) {
+          overallContestTally = combineContestTallies(
+            overallContestTally,
+            manualContestTally
+          );
         }
 
         const { tallies, metadata } = overallContestTally;
