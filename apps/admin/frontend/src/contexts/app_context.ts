@@ -5,7 +5,6 @@ import {
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
-  FullElectionExternalTallies,
   Printer,
   VotingMethod,
 } from '@votingworks/types';
@@ -30,7 +29,7 @@ export interface AppContextInterface {
   resetFiles: (fileType: ResultsFileType) => Promise<void>;
   usbDrive: UsbDrive;
   fullElectionTally: FullElectionTally;
-  fullElectionExternalTallies: FullElectionExternalTallies;
+  fullElectionExternalTally?: FullElectionExternalTally;
   generateBallotId: () => string;
   isTabulationRunning: boolean;
   updateExternalTally: (
@@ -60,7 +59,6 @@ const appContext: AppContextInterface = {
     format: async () => undefined,
   },
   fullElectionTally: getEmptyFullElectionTally(),
-  fullElectionExternalTallies: new Map(),
   updateExternalTally: async () => undefined,
   manualTallyVotingMethod: VotingMethod.Precinct,
   setManualTallyVotingMethod: () => undefined,
