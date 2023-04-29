@@ -2,7 +2,6 @@ import path from 'path';
 import { Result, assert, err, ok } from '@votingworks/basics';
 import {
   BALLOT_PACKAGE_FOLDER,
-  BallotPackage,
   readBallotPackageFromBuffer,
 } from '@votingworks/utils';
 import * as fs from 'fs/promises';
@@ -10,7 +9,10 @@ import * as fsSync from 'fs';
 import { AuthStatus as InsertedCardAuthStatus } from '@votingworks/types/src/auth/inserted_smart_card_auth';
 import { AuthStatus as DippedCardAuthStatus } from '@votingworks/types/src/auth/dipped_smart_card_auth';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { BallotPackageConfigurationError } from '@votingworks/types';
+import {
+  BallotPackage,
+  BallotPackageConfigurationError,
+} from '@votingworks/types';
 import { UsbDrive } from '../get_usb_drives';
 
 async function getMostRecentBallotPackageFilepath(

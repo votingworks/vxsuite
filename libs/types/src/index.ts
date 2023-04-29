@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 export * from './auth';
+export * from './ballot_package';
 export * from './byte';
 export * from './hmpb';
 export * from './cast_vote_record';

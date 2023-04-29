@@ -1,6 +1,7 @@
 import { buildCVRContestsFromVotes, hasWriteIns } from '@votingworks/backend';
 import { throwIllegalValue } from '@votingworks/basics';
 import {
+  BallotPackage,
   BallotType,
   Candidate,
   CandidateContest,
@@ -12,7 +13,6 @@ import {
   VotesDict,
   YesNoVote,
 } from '@votingworks/types';
-import { BallotPackage } from '@votingworks/utils';
 import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
 import {
   arrangeContestsBySheet,
