@@ -90,7 +90,7 @@ export async function convert({
 
   if (isElectionDefinition) {
     lines.push(
-      `import { safeParseElectionDefinition } from '@votingworks/types';`
+      `import { BallotPackage, safeParseElectionDefinition, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';`
     );
   }
 
@@ -200,7 +200,20 @@ export async function convert({
       ` *`,
       ` * SHA-256 hash of file data: ${hash}`,
       ` */`,
-      `export const election = electionDefinition.election;`
+      `export const election = electionDefinition.election;`,
+      ``,
+      `/**`,
+      ` * Ballot package for ${relativePath}.`,
+      ` *`,
+      ` * SHA-256 hash of file data: ${hash}`,
+      ` */`,
+      `export function toBallotPackage(systemSettings = DEFAULT_SYSTEM_SETTINGS): BallotPackage {`,
+      `  return {`,
+      `    electionDefinition,`,
+      `    systemSettings,`,
+      `    ballots: [],`,
+      `  };`,
+      `}`
     );
   }
 

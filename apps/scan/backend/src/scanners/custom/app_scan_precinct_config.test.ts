@@ -79,10 +79,8 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
   await withApp({}, async ({ apiClient, mockScanner, mockUsb, mockAuth }) => {
     // Ballot should be rejected when configured for the wrong precinct
     await configureApp(apiClient, mockUsb, {
-      electionDefinition:
-        electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
       ballotPackage:
-        electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asBuffer(),
+        electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(),
       precinctId: '22',
       mockAuth,
     });
@@ -118,10 +116,8 @@ test('hmpb ballot is accepted if precinct is set for the right precinct', async 
   await withApp({}, async ({ apiClient, mockScanner, mockUsb, mockAuth }) => {
     // Configure for the proper precinct and verify the ballot scans
     await configureApp(apiClient, mockUsb, {
-      electionDefinition:
-        electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
       ballotPackage:
-        electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asBuffer(),
+        electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(),
       precinctId: 'town-id-00701-precinct-id-',
       mockAuth,
     });

@@ -14,7 +14,6 @@ export const legacyLiveCvrsData = standardLiveCvrsAsText();
 export const batchCsvData = batchResultsCsvAsText();
 export const finalCsvData = finalResultsCsvAsText();
 
-export * as ballotPackage from './ballot-package.zip';
 export {
   election,
   electionDefinition,

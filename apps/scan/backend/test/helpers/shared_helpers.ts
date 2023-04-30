@@ -1,7 +1,6 @@
-import { Buffer } from 'buffer';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { ok } from '@votingworks/basics';
-import { MockUsb } from '@votingworks/backend';
+import { MockUsb, createBallotPackageZipArchive } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
 import {
@@ -9,7 +8,7 @@ import {
   fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
-import { ElectionDefinition, PrecinctId } from '@votingworks/types';
+import { BallotPackage, PrecinctId } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -65,13 +64,11 @@ export async function configureApp(
   apiClient: grout.Client<Api>,
   mockUsb: MockUsb,
   {
-    electionDefinition = electionFamousNames2021Fixtures.electionDefinition,
-    ballotPackage = electionFamousNames2021Fixtures.ballotPackage.asBuffer(),
+    ballotPackage = electionFamousNames2021Fixtures.electionJson.toBallotPackage(),
     precinctId,
     mockAuth,
   }: {
-    electionDefinition?: ElectionDefinition;
-    ballotPackage?: Buffer;
+    ballotPackage?: BallotPackage;
     precinctId?: PrecinctId;
     mockAuth?: InsertedSmartCardAuthApi;
   } = {}
@@ -80,7 +77,7 @@ export async function configureApp(
     mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
       Promise.resolve({
         status: 'logged_in',
-        user: fakeElectionManagerUser(electionDefinition),
+        user: fakeElectionManagerUser(ballotPackage.electionDefinition),
         sessionExpiresAt: fakeSessionExpiresAt(),
       })
     );
@@ -88,7 +85,9 @@ export async function configureApp(
 
   mockUsb.insertUsbDrive({
     'ballot-packages': {
-      'test-ballot-package.zip': ballotPackage,
+      'test-ballot-package.zip': await createBallotPackageZipArchive(
+        ballotPackage
+      ),
     },
   });
 

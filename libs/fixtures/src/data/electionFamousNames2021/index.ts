@@ -1,6 +1,6 @@
 export { election, electionDefinition } from './election.json';
+export * as electionJson from './election.json';
 export * as ballotPdf from './ballot.pdf';
-export * as ballotPackage from './ballot-package.zip';
 export * as blankPage1 from './ballot-p1.jpg';
 export * as blankPage2 from './ballot-p2.jpg';
 export * as sampleBallotUndervotePage1 from './sample-ballot-undervotes-p1.jpeg';

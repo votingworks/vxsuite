@@ -20,13 +20,14 @@ import {
 } from '@votingworks/utils';
 
 import { Buffer } from 'buffer';
-import {
-  createBallotPackageWithoutTemplates,
-  MockUsb,
-} from '@votingworks/backend';
+import { createBallotPackageZipArchive, MockUsb } from '@votingworks/backend';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  SystemSettingsSchema,
+  unsafeParse,
+} from '@votingworks/types';
 import { configureApp, createApp } from '../test/app_helpers';
 import { Api } from './app';
 
@@ -182,8 +183,10 @@ test('configureBallotPackageFromUsb reads to and writes from store', async () =>
     })
   );
 
-  const zipBuffer = createBallotPackageWithoutTemplates(electionDefinition, {
-    systemSettingsString: systemSettings.asText(),
+  const zipBuffer = await createBallotPackageZipArchive({
+    electionDefinition,
+    systemSettings: unsafeParse(SystemSettingsSchema, systemSettings.asText()),
+    ballots: [],
   });
   mockUsb.insertUsbDrive({
     'ballot-packages': {
@@ -214,8 +217,10 @@ test('unconfigureMachine deletes system settings and election definition', async
     })
   );
 
-  const zipBuffer = createBallotPackageWithoutTemplates(electionDefinition, {
-    systemSettingsString: systemSettings.asText(),
+  const zipBuffer = await createBallotPackageZipArchive({
+    electionDefinition,
+    systemSettings: unsafeParse(SystemSettingsSchema, systemSettings.asText()),
+    ballots: [],
   });
   mockUsb.insertUsbDrive({
     'ballot-packages': {

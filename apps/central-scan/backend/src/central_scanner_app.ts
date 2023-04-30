@@ -19,12 +19,8 @@ import {
   SystemSettings,
   safeParse,
 } from '@votingworks/types';
-import {
-  isElectionManagerAuth,
-  readBallotPackageFromBuffer,
-} from '@votingworks/utils';
+import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
-import * as fs from 'fs/promises';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
@@ -126,10 +122,17 @@ function buildApi({
 
     /* istanbul ignore next - only used by Cypress */
     async configureWithSampleBallotPackageForIntegrationTest(): Promise<void> {
-      const fileContents = await fs.readFile(
-        '../integration-testing/cypress/fixtures/ballot-package.zip'
+      if (process.env.CI !== 'true') {
+        throw new Error(
+          'This function is only intended to be used in CI environments'
+        );
+      }
+
+      const { electionGridLayoutNewHampshireAmherstFixtures } = await import(
+        '@votingworks/fixtures'
       );
-      const ballotPackage = await readBallotPackageFromBuffer(fileContents);
+      const ballotPackage =
+        electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage();
       const { electionDefinition } = ballotPackage;
       const systemSettings = DEFAULT_SYSTEM_SETTINGS;
 

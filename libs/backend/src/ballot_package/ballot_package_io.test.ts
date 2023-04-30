@@ -2,6 +2,8 @@ import { fakeLogger } from '@votingworks/logging';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   InsertedSmartCardAuth,
+  SystemSettingsSchema,
+  safeParseJson,
 } from '@votingworks/types';
 import {
   fakeElectionManagerUser,
@@ -18,7 +20,7 @@ import { safeParseSystemSettings } from '@votingworks/utils';
 import { join } from 'path';
 import * as fs from 'fs';
 import { Buffer } from 'buffer';
-import { createBallotPackageWithoutTemplates } from './test_utils';
+import { createBallotPackageZipArchive } from './test_utils';
 import { readBallotPackageFromUsb } from './ballot_package_io';
 import { createMockUsb } from '../mock_usb';
 import { UsbDrive } from '../get_usb_drives';
@@ -58,10 +60,14 @@ test('readBallotPackageFromUsb can read a ballot package from usb', async () => 
   const mockUsb = createMockUsb();
   mockUsb.insertUsbDrive({
     'ballot-packages': {
-      'test-ballot-package.zip': createBallotPackageWithoutTemplates(
+      'test-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
-        { systemSettingsString: systemSettings.asText() }
-      ),
+        systemSettings: safeParseJson(
+          systemSettings.asText(),
+          SystemSettingsSchema
+        ).unsafeUnwrap(),
+        ballots: [],
+      }),
     },
   });
   const usbDrives = await mockUsb.mock.getUsbDrives();
@@ -94,10 +100,10 @@ test("readBallotPackageFromUsb uses default system settings when system settings
   const mockUsb = createMockUsb();
   mockUsb.insertUsbDrive({
     'ballot-packages': {
-      'test-ballot-package.zip': createBallotPackageWithoutTemplates(
+      'test-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
-        { omitSystemSettings: true }
-      ),
+        ballots: [],
+      }),
     },
   });
   const usbDrives = await mockUsb.mock.getUsbDrives();
@@ -125,10 +131,14 @@ test('errors if logged-out auth is passed', async () => {
   const mockUsb = createMockUsb();
   mockUsb.insertUsbDrive({
     'ballot-packages': {
-      'test-ballot-package.zip': createBallotPackageWithoutTemplates(
+      'test-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
-        { systemSettingsString: systemSettings.asText() }
-      ),
+        systemSettings: safeParseJson(
+          systemSettings.asText(),
+          SystemSettingsSchema
+        ).unsafeUnwrap(),
+        ballots: [],
+      }),
     },
   });
   const usbDrives = await mockUsb.mock.getUsbDrives();
@@ -163,10 +173,14 @@ test('errors if election hash on provided auth is different than ballot package 
   const mockUsb = createMockUsb();
   mockUsb.insertUsbDrive({
     'ballot-packages': {
-      'test-ballot-package.zip': createBallotPackageWithoutTemplates(
-        otherElectionDefinition,
-        { systemSettingsString: systemSettings.asText() }
-      ),
+      'test-ballot-package.zip': await createBallotPackageZipArchive({
+        electionDefinition: otherElectionDefinition,
+        systemSettings: safeParseJson(
+          systemSettings.asText(),
+          SystemSettingsSchema
+        ).unsafeUnwrap(),
+        ballots: [],
+      }),
     },
   });
   const usbDrives = await mockUsb.mock.getUsbDrives();
@@ -241,12 +255,17 @@ test('configures using the most recently created ballot package on the usb drive
   const mockUsb = createMockUsb();
   mockUsb.insertUsbDrive({
     'ballot-packages': {
-      'older-ballot-package.zip':
-        electionFamousNames2021Fixtures.ballotPackage.asBuffer(),
-      'newer-ballot-package.zip': createBallotPackageWithoutTemplates(
-        electionDefinition,
-        { systemSettingsString: systemSettings.asText() }
+      'older-ballot-package.zip': await createBallotPackageZipArchive(
+        electionFamousNames2021Fixtures.electionJson.toBallotPackage()
       ),
+      'newer-ballot-package.zip': await createBallotPackageZipArchive({
+        electionDefinition,
+        systemSettings: safeParseJson(
+          systemSettings.asText(),
+          SystemSettingsSchema
+        ).unsafeUnwrap(),
+        ballots: [],
+      }),
     },
   });
   const [usbDrive] = await mockUsb.mock.getUsbDrives();
@@ -283,10 +302,14 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
   const mockUsb = createMockUsb();
   mockUsb.insertUsbDrive({
     'ballot-packages': {
-      'older-ballot-package.zip': createBallotPackageWithoutTemplates(
+      'older-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
-        { systemSettingsString: systemSettings.asText() }
-      ),
+        systemSettings: safeParseJson(
+          systemSettings.asText(),
+          SystemSettingsSchema
+        ).unsafeUnwrap(),
+        ballots: [],
+      }),
       '._newer-hidden-file-ballot-package.zip': Buffer.from('not a zip file'),
     },
   });

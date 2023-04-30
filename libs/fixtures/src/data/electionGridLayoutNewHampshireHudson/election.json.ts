@@ -6,7 +6,7 @@ import { Buffer } from 'buffer';
 import { mkdtempSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join, sep } from 'path';
-import { safeParseElectionDefinition } from '@votingworks/types';
+import { BallotPackage, safeParseElectionDefinition, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 
 /**
  * Data of data/electionGridLayoutNewHampshireHudson/election.json encoded as base64.
@@ -74,3 +74,16 @@ export const electionDefinition = safeParseElectionDefinition(
  * SHA-256 hash of file data: 7f6c4ab495683535d8b5e15a7d3e2d106247078087ab2abc34624b1966f86e74
  */
 export const election = electionDefinition.election;
+
+/**
+ * Ballot package for data/electionGridLayoutNewHampshireHudson/election.json.
+ *
+ * SHA-256 hash of file data: 7f6c4ab495683535d8b5e15a7d3e2d106247078087ab2abc34624b1966f86e74
+ */
+export function toBallotPackage(systemSettings = DEFAULT_SYSTEM_SETTINGS): BallotPackage {
+  return {
+    electionDefinition,
+    systemSettings,
+    ballots: [],
+  };
+}
