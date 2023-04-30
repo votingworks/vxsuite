@@ -9,6 +9,7 @@ import {
   fakePollWorkerUser,
   fakeSessionExpiresAt,
   mockOf,
+  suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { DEV_JURISDICTION, InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
@@ -25,8 +26,8 @@ import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import {
   DEFAULT_SYSTEM_SETTINGS,
+  safeParseJson,
   SystemSettingsSchema,
-  unsafeParse,
 } from '@votingworks/types';
 import { configureApp, createApp } from '../test/app_helpers';
 import { Api } from './app';
@@ -185,7 +186,10 @@ test('configureBallotPackageFromUsb reads to and writes from store', async () =>
 
   const zipBuffer = await createBallotPackageZipArchive({
     electionDefinition,
-    systemSettings: unsafeParse(SystemSettingsSchema, systemSettings.asText()),
+    systemSettings: safeParseJson(
+      systemSettings.asText(),
+      SystemSettingsSchema
+    ).unsafeUnwrap(),
   });
   mockUsb.insertUsbDrive({
     'ballot-packages': {
@@ -218,7 +222,10 @@ test('unconfigureMachine deletes system settings and election definition', async
 
   const zipBuffer = await createBallotPackageZipArchive({
     electionDefinition,
-    systemSettings: unsafeParse(SystemSettingsSchema, systemSettings.asText()),
+    systemSettings: safeParseJson(
+      systemSettings.asText(),
+      SystemSettingsSchema
+    ).unsafeUnwrap(),
   });
   mockUsb.insertUsbDrive({
     'ballot-packages': {
@@ -237,9 +244,11 @@ test('unconfigureMachine deletes system settings and election definition', async
 });
 
 test('configureBallotPackageFromUsb throws when no USB drive mounted', async () => {
-  await expect(apiClient.configureBallotPackageFromUsb()).rejects.toThrow(
-    'No USB drive mounted'
-  );
+  await suppressingConsoleOutput(async () => {
+    await expect(apiClient.configureBallotPackageFromUsb()).rejects.toThrow(
+      'No USB drive mounted'
+    );
+  });
 });
 
 test('configureBallotPackageFromUsb returns an error if ballot package parsing fails', async () => {
