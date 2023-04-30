@@ -104,7 +104,7 @@ function buildApi(
       }
 
       const ballotPackage = ballotPackageResult.ok();
-      const { electionDefinition, systemSettings, ballots } = ballotPackage;
+      const { electionDefinition, systemSettings } = ballotPackage;
       assert(systemSettings);
 
       let precinctSelection: SinglePrecinctSelection | undefined;
@@ -114,13 +114,12 @@ function buildApi(
         );
       }
 
-      await store.withTransaction(async () => {
+      store.withTransaction(() => {
         store.setElection(electionDefinition.electionData);
         if (precinctSelection) {
           store.setPrecinctSelection(precinctSelection);
         }
         store.setSystemSettings(systemSettings);
-        await store.setHmpbTemplates(ballots);
       });
 
       return ok();

@@ -13,7 +13,6 @@ export interface BallotPackage {
   electionDefinition: ElectionDefinition;
   // TODO(kevin) once all machines support system settings, make systemSettings required
   systemSettings?: SystemSettings;
-  ballots: BallotPackageEntry[];
 }
 
 export interface BallotPackageEntry {

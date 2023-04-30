@@ -211,7 +211,6 @@ export async function convert({
       `  return {`,
       `    electionDefinition,`,
       `    systemSettings,`,
-      `    ballots: [],`,
       `  };`,
       `}`
     );

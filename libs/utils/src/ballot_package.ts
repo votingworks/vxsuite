@@ -39,7 +39,6 @@ export async function readBallotPackageFromBuffer(
     electionDefinition:
       safeParseElectionDefinition(electionData).unsafeUnwrap(),
     systemSettings: safeParseSystemSettings(systemSettingsData).unsafeUnwrap(),
-    ballots: [],
   };
 }
 

@@ -1,8 +1,12 @@
 import { zipFile } from '@votingworks/test-utils';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { typedAs } from '@votingworks/basics';
-import { DEFAULT_SYSTEM_SETTINGS, SystemSettings } from '@votingworks/types';
-import { BallotPackage, readBallotPackageFromFile } from './ballot_package';
+import {
+  BallotPackage,
+  DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
+} from '@votingworks/types';
+import { readBallotPackageFromFile } from './ballot_package';
 
 test('readBallotPackageFromFile reads a ballot package without system settings from a file', async () => {
   const pkg = await zipFile({
@@ -19,7 +23,6 @@ test('readBallotPackageFromFile reads a ballot package without system settings f
       electionDefinition:
         electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
-      ballots: [],
     })
   );
 });
@@ -44,7 +47,6 @@ test('readBallotPackageFromFile reads a ballot package with system settings from
       electionDefinition:
         electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
       systemSettings: { arePollWorkerCardPinsEnabled: true },
-      ballots: [],
     })
   );
 });

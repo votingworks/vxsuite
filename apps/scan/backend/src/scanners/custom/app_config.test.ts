@@ -152,7 +152,6 @@ test('fails to configure ballot package if logged out', async () => {
       'ballot-packages': {
         'test-ballot-package.zip': await createBallotPackageZipArchive({
           electionDefinition: electionSampleDefinition,
-          ballots: [],
         }),
       },
     });
@@ -172,7 +171,6 @@ test('fails to configure ballot package if election definition on card does not 
       'ballot-packages': {
         'test-ballot-package.zip': await createBallotPackageZipArchive({
           electionDefinition: electionSampleDefinition,
-          ballots: [],
         }),
       },
     });
@@ -193,7 +191,6 @@ test("if there's only one precinct in the election, it's selected automatically 
         'test-ballot-package.zip': await createBallotPackageZipArchive({
           electionDefinition:
             electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-          ballots: [],
         }),
       },
     });
@@ -219,7 +216,6 @@ test('configures using the most recently created ballot package on the usb drive
         ),
         'newer-ballot-package.zip': await createBallotPackageZipArchive({
           electionDefinition: electionSampleDefinition,
-          ballots: [],
         }),
       },
     });

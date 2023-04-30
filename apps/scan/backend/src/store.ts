@@ -36,8 +36,8 @@ import {
   Side,
   SystemSettings,
   SystemSettingsDbRow,
+  BallotPackageEntry,
 } from '@votingworks/types';
-import { BallotPackageEntry } from '@votingworks/utils';
 import { assert, iter, Optional } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';
@@ -115,6 +115,7 @@ export class Store {
    * Returns the result of the function.
    */
   withTransaction<T>(fn: () => Promise<T>): Promise<T>;
+  withTransaction<T>(fn: () => T): T;
   withTransaction<T>(fn: () => T): T {
     return this.client.transaction(() => fn());
   }

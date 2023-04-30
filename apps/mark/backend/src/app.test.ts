@@ -186,7 +186,6 @@ test('configureBallotPackageFromUsb reads to and writes from store', async () =>
   const zipBuffer = await createBallotPackageZipArchive({
     electionDefinition,
     systemSettings: unsafeParse(SystemSettingsSchema, systemSettings.asText()),
-    ballots: [],
   });
   mockUsb.insertUsbDrive({
     'ballot-packages': {
@@ -220,7 +219,6 @@ test('unconfigureMachine deletes system settings and election definition', async
   const zipBuffer = await createBallotPackageZipArchive({
     electionDefinition,
     systemSettings: unsafeParse(SystemSettingsSchema, systemSettings.asText()),
-    ballots: [],
   });
   mockUsb.insertUsbDrive({
     'ballot-packages': {

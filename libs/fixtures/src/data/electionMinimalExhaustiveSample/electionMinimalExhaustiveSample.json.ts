@@ -84,6 +84,5 @@ export function toBallotPackage(systemSettings = DEFAULT_SYSTEM_SETTINGS): Ballo
   return {
     electionDefinition,
     systemSettings,
-    ballots: [],
   };
 }

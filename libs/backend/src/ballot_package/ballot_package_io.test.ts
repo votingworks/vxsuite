@@ -66,7 +66,6 @@ test('readBallotPackageFromUsb can read a ballot package from usb', async () => 
           systemSettings.asText(),
           SystemSettingsSchema
         ).unsafeUnwrap(),
-        ballots: [],
       }),
     },
   });
@@ -102,7 +101,6 @@ test("readBallotPackageFromUsb uses default system settings when system settings
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
-        ballots: [],
       }),
     },
   });
@@ -137,7 +135,6 @@ test('errors if logged-out auth is passed', async () => {
           systemSettings.asText(),
           SystemSettingsSchema
         ).unsafeUnwrap(),
-        ballots: [],
       }),
     },
   });
@@ -179,7 +176,6 @@ test('errors if election hash on provided auth is different than ballot package 
           systemSettings.asText(),
           SystemSettingsSchema
         ).unsafeUnwrap(),
-        ballots: [],
       }),
     },
   });
@@ -264,7 +260,6 @@ test('configures using the most recently created ballot package on the usb drive
           systemSettings.asText(),
           SystemSettingsSchema
         ).unsafeUnwrap(),
-        ballots: [],
       }),
     },
   });
@@ -308,7 +303,6 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
           systemSettings.asText(),
           SystemSettingsSchema
         ).unsafeUnwrap(),
-        ballots: [],
       }),
       '._newer-hidden-file-ballot-package.zip': Buffer.from('not a zip file'),
     },
