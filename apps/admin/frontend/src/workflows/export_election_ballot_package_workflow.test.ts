@@ -22,14 +22,12 @@ test('advances from ArchiveBegin to ArchiveEnd', () => {
     workflow.next({
       type: 'ArchiveBegin',
       electionDefinition: electionSampleDefinition,
-      ballotConfigs: [],
       archive: new DownloadableArchive(),
     })
   ).toEqual(
     expect.objectContaining(
       typedAs<workflow.ArchiveEnd>({
         type: 'ArchiveEnd',
-        ballotConfigsCount: 0,
         archive: expect.any(DownloadableArchive),
       })
     )
@@ -41,12 +39,10 @@ test('advances from ArchiveEnd to Done', () => {
     workflow.next({
       type: 'ArchiveEnd',
       archive: new DownloadableArchive(),
-      ballotConfigsCount: 2,
     })
   ).toEqual(
     expect.objectContaining({
       type: 'Done',
-      ballotConfigsCount: 2,
     })
   );
 });

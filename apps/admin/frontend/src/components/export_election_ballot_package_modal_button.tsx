@@ -208,10 +208,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       mainContent = (
         <Prose>
           <h1>Saving…</h1>
-          <p>
-            Rendered {pluralize('ballot', state.ballotConfigsCount, true)},
-            closing zip file.
-          </p>
+          <p>Closing zip file.</p>
         </Prose>
       );
       break;
