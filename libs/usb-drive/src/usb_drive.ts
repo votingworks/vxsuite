@@ -106,14 +106,26 @@ async function unmountUsbDrive(mountPoint: string): Promise<void> {
   await exec('sudo', ['-n', 'umount', mountPoint]);
 }
 
-// TODO check format?
+function isFat32(deviceInfo: BlockDeviceInfo): boolean {
+  return deviceInfo.fstype === 'vfat' && deviceInfo.fsver === 'FAT32';
+}
+
 export function detectUsbDrive(): UsbDrive {
+  // Store eject state so we don't immediately remount the drive on
+  // the next status call. We don't need to persist this across restarts, so
+  // storing in memory is fine.
   let didEject = false;
 
   return {
     async status(): Promise<UsbDriveStatus> {
       let deviceInfo = await getUsbDriveStatus();
-      if (!deviceInfo) return { status: 'no_drive' };
+      if (!deviceInfo) {
+        return { status: 'no_drive' };
+      }
+      if (!isFat32(deviceInfo)) {
+        return { status: 'error', reason: 'bad_format' };
+      }
+
       // Automatically mount the drive if it's not already mounted
       // TODO if the drive is mounted at a different mount point than our
       // default VX mount point, do we want to unmount and remount it?
@@ -121,6 +133,7 @@ export function detectUsbDrive(): UsbDrive {
         await mountUsbDrive(deviceInfo.path);
         deviceInfo = assertDefined(await getUsbDriveStatus());
       }
+
       if (deviceInfo.mountpoint) {
         return {
           status: 'mounted',
@@ -131,6 +144,7 @@ export function detectUsbDrive(): UsbDrive {
       return { status: 'ejected' };
     },
 
+    // TODO do we need to run a `sync` command before unmounting?
     async eject(): Promise<void> {
       const deviceInfo = await getUsbDriveStatus();
       if (!deviceInfo) {

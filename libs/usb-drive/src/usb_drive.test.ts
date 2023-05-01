@@ -162,6 +162,34 @@ describe('status', () => {
       status: 'no_drive',
     });
   });
+
+  test('bad format', async () => {
+    const usbDrive = detectUsbDrive();
+
+    readdirMock.mockResolvedValue(['usb-foobar-part23']);
+    readlinkMock.mockResolvedValue('../../sdb1');
+    execMock.mockResolvedValueOnce(
+      lsblkOutput({
+        fstype: 'exfat',
+      })
+    );
+
+    await expect(usbDrive.status()).resolves.toEqual({
+      status: 'error',
+      reason: 'bad_format',
+    });
+
+    execMock.mockResolvedValueOnce(
+      lsblkOutput({
+        fsver: 'EXFAT',
+      })
+    );
+
+    await expect(usbDrive.status()).resolves.toEqual({
+      status: 'error',
+      reason: 'bad_format',
+    });
+  });
 });
 
 describe('eject', () => {
