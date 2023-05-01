@@ -44,9 +44,7 @@ afterEach(() => {
 });
 
 type BackupFn = AdminActionScreenProps['backup'];
-type BackupResult = BackupFn extends (...args: any[]) => Promise<infer R>
-  ? R
-  : never;
+type BackupResult = BackupFn extends () => Promise<infer R> ? R : never;
 
 function renderScreen(props: Partial<AdminActionScreenProps> = {}) {
   return renderInAppContext(
