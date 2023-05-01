@@ -9,12 +9,10 @@
 
 # More specific ownership rules for more knowledge-specific reviews.
 # It is recommended to continue to include the vxsuite-eng group in these so knowledge doesn't get too siloed and people gain context on code outside of what they own.
-services/scan/ @eventualbuddha @votingworks/vxsuite-eng
 libs/ballot-encoder/ @eventualbuddha @votingworks/vxsuite-eng
 libs/ballot-interpreter-nh/ @eventualbuddha @votingworks/vxsuite-eng
-libs/ballot-interpreter-vx/ @eventualbuddha @votingworks/vxsuite-eng
+libs/ballot-interpreter-nh-next/ @eventualbuddha @votingworks/vxsuite-eng
 libs/eslint-plugin-vx/ @eventualbuddha @votingworks/vxsuite-eng
-apps/vx-scan/backend/ @eventualbuddha @jonahkagan @votingworks/vxsuite-eng
 frontends/election-manager/src/utils/exportable_tallies* @carolinemodic @votingworks/vxsuite-eng 
 frontends/election-manager/src/utils/external_tallies* @carolinemodic @votingworks/vxsuite-eng
 frontends/election-manager/src/utils/sems_tallies* @carolinemodic @votingworks/vxsuite-eng
@@ -24,4 +22,6 @@ libs/utils/src/votes* @carolinemodic @votingworks/vxsuite-eng
 libs/utils/src/compressed_tallies* @carolinemodic @votingworks/vxsuite-eng
 libs/logging/ @carolinemodic @votingworks/vxsuite-eng
 .github/ @carolinemodic @votingworks/vxsuite-eng
-libs/auth @arsalansufi @votingworks/vxsuite-eng
+libs/auth/ @arsalansufi @votingworks/vxsuite-eng
+libs/dev-dock/ @jonahkagan @votingworks/vxsuite-eng
+libs/grout/ @jonahkagan @votingworks/vxsuite-eng
