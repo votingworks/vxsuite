@@ -8,6 +8,7 @@ import {
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   DippedSmartCardAuth,
   InsertedSmartCardAuth,
+  SystemSettings,
 } from '@votingworks/types';
 
 import { Button } from './button';
@@ -53,6 +54,7 @@ function shouldDisplayTimeLimitPrompt(
 interface SessionTimeLimitTrackerHelperProps {
   authStatus: AuthStatusWithSessionExpiry;
   logOut: () => void;
+  systemSettings: SystemSettings | null;
   updateSessionExpiry: (sessionExpiresAt: Date) => void;
 }
 
@@ -62,12 +64,15 @@ interface SessionTimeLimitTrackerHelperProps {
 function SessionTimeLimitTrackerHelper({
   authStatus,
   logOut,
+  systemSettings,
   updateSessionExpiry,
 }: SessionTimeLimitTrackerHelperProps): JSX.Element | null {
-  // TODO: Pull values from system settings
   const inactiveSessionTimeLimitMinutes =
+    systemSettings?.inactiveSessionTimeLimitMinutes ??
     DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES;
-  const overallSessionTimeLimitHours = DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS;
+  const overallSessionTimeLimitHours =
+    systemSettings?.overallSessionTimeLimitHours ??
+    DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS;
 
   const now = useNow().toJSDate();
   const [
@@ -148,6 +153,7 @@ interface SessionTimeLimitTrackerProps {
     | DippedSmartCardAuth.AuthStatus
     | InsertedSmartCardAuth.AuthStatus;
   logOut: () => void;
+  systemSettings?: SystemSettings | null;
   updateSessionExpiry: (sessionExpiresAt: Date) => void;
 }
 
@@ -158,18 +164,26 @@ interface SessionTimeLimitTrackerProps {
 export function SessionTimeLimitTracker({
   authStatus,
   logOut,
+  systemSettings,
   updateSessionExpiry,
 }: SessionTimeLimitTrackerProps): JSX.Element | null {
+  // Data is still being loaded
+  if (authStatus === undefined || systemSettings === undefined) {
+    return null;
+  }
+
   if (
-    authStatus?.status !== 'remove_card' &&
-    authStatus?.status !== 'logged_in'
+    authStatus.status !== 'remove_card' &&
+    authStatus.status !== 'logged_in'
   ) {
     return null;
   }
+
   return (
     <SessionTimeLimitTrackerHelper
       authStatus={authStatus}
       logOut={logOut}
+      systemSettings={systemSettings}
       updateSessionExpiry={updateSessionExpiry}
     />
   );
