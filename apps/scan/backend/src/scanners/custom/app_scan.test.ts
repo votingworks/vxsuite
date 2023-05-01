@@ -1,4 +1,8 @@
-import { AdjudicationReason, AdjudicationReasonInfo } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  AdjudicationReasonInfo,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
 import { err, ok, Result, sleep, typedAs } from '@votingworks/basics';
 import {
@@ -19,7 +23,6 @@ import {
 } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 import { ErrorCode, mocks } from '@votingworks/custom-scanner';
-import { DEV_JURISDICTION } from '@votingworks/auth';
 import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
 import {
   configureApp,
@@ -75,7 +78,7 @@ function checkLogs(logger: Logger): void {
   );
 }
 
-const jurisdiction = DEV_JURISDICTION;
+const jurisdiction = TEST_JURISDICTION;
 
 test('configure and scan hmpb', async () => {
   await withApp(
