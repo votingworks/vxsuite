@@ -550,7 +550,7 @@ test('tabulating CVRs with manual data', async () => {
   apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
   apiMock.expectGetWriteInSummaryAdjudicated([]);
 
-  const { getByText, getByTestId, getAllByText, queryAllByText } = renderApp();
+  const { getByText, getByTestId, getAllByText } = renderApp();
 
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
@@ -587,14 +587,14 @@ test('tabulating CVRs with manual data', async () => {
   expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('200');
 
   const fileTable = getByTestId('loaded-file-table');
-  const manualRow = domGetByText(fileTable, 'Manually Added Results').closest(
+  const manualRow = domGetByText(fileTable, 'Manually Entered Results').closest(
     'tr'
   )!;
   domGetByText(manualRow, '100');
   domGetByText(manualRow, 'District 5');
 
   fireEvent.click(getByText('Reports'));
-  getByText('Manually Added Results');
+  getByText('Manually Entered Results');
   expect(getByTestId('total-ballot-count').textContent).toEqual('200');
 
   fireEvent.click(getByText('Unofficial Full Election Tally Report'));
@@ -657,15 +657,16 @@ test('tabulating CVRs with manual data', async () => {
   fireEvent.click(getByText('Back to Tally'));
   expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('300');
   const fileTable2 = getByTestId('loaded-file-table');
-  const manualRow2 = domGetByText(fileTable2, 'Manually Added Results').closest(
-    'tr'
-  )!;
+  const manualRow2 = domGetByText(
+    fileTable2,
+    'Manually Entered Results'
+  ).closest('tr')!;
   domGetByText(manualRow2, '200');
   domGetByText(manualRow2, 'District 5, Panhandle');
 
   fireEvent.click(getByText('Reports'));
   expect(getByTestId('total-ballot-count').textContent).toEqual('300');
-  getByText('Manually Added Results');
+  getByText('Manually Entered Results');
 
   fireEvent.click(getByText('Unofficial Full Election Tally Report'));
   // Report title should be rendered 2 times - app and preview
@@ -698,7 +699,11 @@ test('tabulating CVRs with manual data', async () => {
   fireEvent.click(within(modal).getByText('Remove Manual Data'));
   await waitFor(() => {
     expect(getByTestId('total-cvr-count').textContent).toEqual('100');
-    expect(queryAllByText('Manually Added Results').length).toEqual(0);
+    expect(
+      within(getByTestId('loaded-file-table')).queryAllByText(
+        'Manually Entered Results'
+      ).length
+    ).toEqual(0);
   });
 });
 

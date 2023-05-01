@@ -172,7 +172,7 @@ export function BallotCountsTable({
             {fullElectionManualTally ? (
               <tr data-testid="table-row" key="manual-data">
                 <TD narrow nowrap>
-                  Manually Added Results
+                  Manually Entered Results
                 </TD>
                 <TD>
                   {format.count(
@@ -383,7 +383,7 @@ export function BallotCountsTable({
             {fullElectionManualTally ? (
               <tr data-testid="table-row" key="manual-data">
                 <TD narrow nowrap data-testid="batch-manual">
-                  Manually Added Results
+                  Manually Entered Results
                 </TD>
                 <TD />
                 <TD>

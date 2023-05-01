@@ -168,7 +168,7 @@ export function TallyScreen(): JSX.Element | null {
                         )}
                       </TD>
                       <TD narrow nowrap>
-                        Manually Added Results
+                        Manually Entered Results
                       </TD>
                       <TD>
                         {getPrecinctNames(

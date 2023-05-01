@@ -303,8 +303,8 @@ describe('Ballot Counts by Scanner', () => {
       }
     }
 
-    getByText('Manually Added Results');
-    let tableRow = getByText('Manually Added Results').closest('tr');
+    getByText('Manually Entered Results');
+    let tableRow = getByText('Manually Entered Results').closest('tr');
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 54)).toBeInTheDocument();
 
@@ -813,7 +813,7 @@ describe('Ballots Counts by Batch', () => {
 
     const manualTableRow = getAllByTestId('batch-manual')[0].closest('tr');
     assert(manualTableRow);
-    domGetByText(manualTableRow, 'Manually Added Results');
+    domGetByText(manualTableRow, 'Manually Entered Results');
     domGetByText(manualTableRow, numManualBallots);
 
     getByText('Total Ballot Count');
