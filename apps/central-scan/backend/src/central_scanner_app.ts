@@ -122,12 +122,6 @@ function buildApi({
 
     /* istanbul ignore next - only used by Cypress */
     async configureWithSampleBallotPackageForIntegrationTest(): Promise<void> {
-      if (process.env.CI !== 'true') {
-        throw new Error(
-          'This function is only intended to be used in CI environments'
-        );
-      }
-
       const { electionGridLayoutNewHampshireAmherstFixtures } = await import(
         '@votingworks/fixtures'
       );
