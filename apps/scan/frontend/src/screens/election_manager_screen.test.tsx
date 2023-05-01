@@ -1,3 +1,4 @@
+import React from 'react';
 import userEvent from '@testing-library/user-event';
 import {
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
@@ -7,8 +8,6 @@ import { fakeLogger } from '@votingworks/logging';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import MockDate from 'mockdate';
-import React from 'react';
-import { mockUsbDrive } from '@votingworks/ui';
 import {
   act,
   render,
@@ -27,6 +26,7 @@ import {
   ElectionManagerScreen,
   ElectionManagerScreenProps,
 } from './election_manager_screen';
+import { fakeUsbDriveStatus } from '../../test/helpers/fake_usb_drive';
 
 let apiMock: ApiMock;
 
@@ -54,7 +54,7 @@ function renderScreen(
       <ElectionManagerScreen
         electionDefinition={electionSampleDefinition}
         scannerStatus={statusNoPaper}
-        usbDrive={mockUsbDrive('absent')}
+        usbDrive={fakeUsbDriveStatus('no_drive')}
         logger={fakeLogger()}
         {...props}
       />
@@ -138,10 +138,9 @@ test('export from admin screen', async () => {
 test('unconfigure does not eject a usb drive that is not mounted', async () => {
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
-  const usbDrive = mockUsbDrive('absent');
   renderScreen({
     scannerStatus: { ...statusNoPaper, canUnconfigure: true },
-    usbDrive,
+    usbDrive: fakeUsbDriveStatus('no_drive'),
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
@@ -149,25 +148,29 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
   apiMock.expectGetConfig({ electionDefinition: undefined });
   userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   userEvent.click(screen.getByText('Yes, Delete All'));
-  expect(usbDrive.eject).toHaveBeenCalledTimes(0);
+  // No call to apiClient.ejectUsbDrive should have occurred, which is confirmed
+  // by apiMock.mockApiClient.assertComplete
+  await waitFor(() => {
+    apiMock.mockApiClient.assertComplete();
+  });
 });
 
 test('unconfigure ejects a usb drive when it is mounted', async () => {
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
-  const usbDrive = mockUsbDrive('mounted');
   renderScreen({
     scannerStatus: { ...statusNoPaper, canUnconfigure: true },
-    usbDrive,
+    usbDrive: fakeUsbDriveStatus('mounted'),
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
   apiMock.mockApiClient.unconfigureElection.expectCallWith({}).resolves();
   apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   userEvent.click(screen.getByText('Yes, Delete All'));
   await waitFor(() => {
-    expect(usbDrive.eject).toHaveBeenCalledTimes(1);
+    apiMock.mockApiClient.assertComplete();
   });
 });
 

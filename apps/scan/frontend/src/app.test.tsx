@@ -9,7 +9,6 @@ import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import {
   fakeKiosk,
-  fakeUsbDrive,
   advanceTimersAndPromises,
   expectPrint,
   generateCvr,
@@ -34,7 +33,6 @@ import {
 import { scannerStatus } from '../test/helpers/helpers';
 import { REPRINT_REPORT_TIMEOUT_SECONDS } from './screens/poll_worker_screen';
 import { SELECT_PRECINCT_TEXT } from './screens/election_manager_screen';
-import { fakeFileWriter } from '../test/helpers/fake_file_writer';
 import {
   ApiMock,
   createApiMock,
@@ -86,10 +84,6 @@ beforeEach(() => {
   jest.useFakeTimers();
 
   kiosk = fakeKiosk();
-  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
-  kiosk.writeFile.mockResolvedValue(
-    fakeFileWriter() as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
-  );
   window.kiosk = kiosk;
 
   apiMock = createApiMock();
@@ -103,6 +97,7 @@ afterEach(() => {
 
 test('shows setup card reader screen when there is no card reader', async () => {
   apiMock.expectGetConfig();
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   const hardware = MemoryHardware.build({ connectCardReader: false });
   renderApp({ hardware });
@@ -111,7 +106,7 @@ test('shows setup card reader screen when there is no card reader', async () => 
 
 test('shows insert USB Drive screen when there is no card reader', async () => {
   apiMock.expectGetConfig();
-  kiosk.getUsbDriveInfo.mockResolvedValue([]);
+  apiMock.expectGetUsbDriveStatus('no_drive');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('No USB Drive Detected');
@@ -124,28 +119,28 @@ test('app can load and configure from a usb stick', async () => {
   apiMock.expectGetConfig({
     electionDefinition: undefined,
   });
-  kiosk.getUsbDriveInfo.mockResolvedValue([]);
+  apiMock.expectGetUsbDriveStatus('no_drive');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('VxScan is Not Configured');
   await screen.findByText('Insert a USB drive containing a ballot package.');
 
   // Insert a USB with no ballot package
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.mockApiClient.configureFromBallotPackageOnUsbDrive
     .expectCallWith()
     .resolves(err('no_ballot_package_on_usb_drive'));
   apiMock.expectGetConfig({
     electionDefinition: undefined,
   });
-  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   await screen.findByText('No ballot package found on the inserted USB drive.');
 
   // Remove the USB
-  kiosk.getUsbDriveInfo.mockResolvedValue([]);
+  apiMock.expectGetUsbDriveStatus('no_drive');
   await screen.findByText('Insert a USB drive containing a ballot package.');
 
   // Insert a USB with a ballot package
-  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.mockApiClient.configureFromBallotPackageOnUsbDrive
     .expectCallWith()
     .resolves(ok());
@@ -170,6 +165,7 @@ test('election manager must set precinct', async () => {
   apiMock.expectGetConfig({
     precinctSelection: undefined,
   });
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('No Precinct Selected');
@@ -206,6 +202,7 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig(config);
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.expectGetUsbDriveStatus('mounted');
   const { logger } = renderApp();
   await screen.findByText('Polls Closed');
 
@@ -349,13 +346,14 @@ test('election manager and poll worker configuration', async () => {
   // Actually unconfigure
   apiMock.mockApiClient.unconfigureElection.expectCallWith({}).resolves();
   apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
+  apiMock.expectGetUsbDriveStatus('ejected');
   userEvent.click(
     await screen.findByText('Delete All Election Data from VxScan')
   );
   userEvent.click(await screen.findByText('Yes, Delete All'));
   await screen.findByText('Loading');
   await screen.findByText('VxScan is Not Configured');
-  expect(kiosk.unmountUsbDrive).toHaveBeenCalledTimes(1);
 });
 
 const statusBallotCounted = scannerStatus({
@@ -391,6 +389,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   apiMock.expectGetConfig({
     pollsState: 'polls_open',
   });
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('Insert Your Ballot Above');
@@ -460,12 +459,10 @@ test('voter can cast a ballot that scans successfully ', async () => {
   });
 
   // Simulate unmounted usb drive
-  kiosk.getUsbDriveInfo.mockResolvedValue([
-    fakeUsbDrive({ mountPoint: undefined }),
-  ]);
+  apiMock.expectGetUsbDriveStatus('ejected');
   await advanceTimersAndPromises(2);
   // Remove the usb drive
-  kiosk.getUsbDriveInfo.mockResolvedValue([]);
+  apiMock.expectGetUsbDriveStatus('no_drive');
   await advanceTimersAndPromises(2);
 
   // Remove pollworker card
@@ -479,19 +476,21 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await screen.findByText('No USB Drive Detected');
   userEvent.click(await screen.findByText('Cancel'));
   expect(screen.queryByText('No USB Drive Detected')).toBeNull();
-  userEvent.click(await screen.findByText('Save CVRs'));
-  await screen.findByText('No USB Drive Detected');
-  userEvent.click(await screen.findByText('Cancel'));
-  expect(screen.queryByText('No USB Drive Detected')).toBeNull();
-  // Insert usb drive
-  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
-  await advanceTimersAndPromises(2);
-  userEvent.click(await screen.findByText('Save CVRs'));
+
+  // Insert Usb Drive
+  apiMock.expectGetUsbDriveStatus('mounted');
+  await waitFor(() => {
+    expect(screen.getButton('Save CVRs')).toBeEnabled();
+  });
+  userEvent.click(await screen.findButton('Save CVRs'));
+  await screen.findByRole('heading', { name: 'Save CVRs' });
 
   apiMock.expectExportCastVoteRecordsToUsbDrive();
-  expect(screen.getAllByText('Save CVRs')).toHaveLength(2);
   userEvent.click(await screen.findByText('Save'));
   await screen.findByText('CVRs Saved to USB Drive');
+
+  apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
+  apiMock.expectGetUsbDriveStatus('ejected');
   userEvent.click(await screen.findByText('Eject USB'));
   await waitFor(() => {
     expect(screen.queryByText('Eject USB')).toBeNull();
@@ -500,6 +499,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
 
 test('voter can cast a ballot that needs review and adjudicate as desired', async () => {
   apiMock.expectGetConfig({ pollsState: 'polls_open' });
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('Insert Your Ballot Above');
@@ -547,6 +547,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
 
 test('voter tries to cast ballot that is rejected', async () => {
   apiMock.expectGetConfig({ pollsState: 'polls_open' });
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('Insert Your Ballot Above');
@@ -579,6 +580,7 @@ test('voter tries to cast ballot that is rejected', async () => {
 
 test('voter can cast another ballot while the success screen is showing', async () => {
   apiMock.expectGetConfig({ pollsState: 'polls_open' });
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'accepted', ballotsCounted: 1 })
   );
@@ -607,6 +609,7 @@ test('voter can cast another ballot while the success screen is showing', async 
 
 test('scanning is not triggered when polls closed or cards present', async () => {
   apiMock.expectGetConfig();
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
   renderApp();
   await screen.findByText('Polls Closed');
@@ -629,6 +632,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
 
 test('no printer: poll worker can open and close polls without scanning any ballots', async () => {
   apiMock.expectGetConfig();
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('Polls Closed');
@@ -663,6 +667,7 @@ test('no printer: poll worker can open and close polls without scanning any ball
 
 test('with printer: poll worker can open and close polls without scanning any ballots', async () => {
   apiMock.expectGetConfig({ pollsState: 'polls_closed_initial' });
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   const hardware = MemoryHardware.build({
     connectCardReader: true,
@@ -716,6 +721,7 @@ test('with printer: poll worker can open and close polls without scanning any ba
 
 test('no printer: open polls, scan ballot, close polls, save results', async () => {
   apiMock.expectGetConfig();
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('Polls Closed');
@@ -797,6 +803,7 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
 
 test('poll worker can open, pause, unpause, and close poll without scanning any ballots', async () => {
   apiMock.expectGetConfig();
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('Polls Closed');
@@ -859,6 +866,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
 
 test('system administrator can log in and unconfigure machine', async () => {
   apiMock.expectGetConfig();
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
 
@@ -888,6 +896,7 @@ test('system administrator can log in and unconfigure machine', async () => {
 
 test('system administrator allowed to log in on unconfigured machine', async () => {
   apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
 
@@ -900,6 +909,7 @@ test('system administrator allowed to log in on unconfigured machine', async () 
 
 test('system administrator sees system administrator screen after logging in to unconfigured machine', async () => {
   apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.authenticateAsSystemAdministrator();
   renderApp();
@@ -911,6 +921,7 @@ test('system administrator can reset polls to paused', async () => {
   apiMock.expectGetConfig({
     pollsState: 'polls_closed_final',
   });
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
   await screen.findByText('Polls Closed');
@@ -935,6 +946,7 @@ test('system administrator can reset polls to paused', async () => {
 
 test('election manager cannot auth onto machine with different election hash', async () => {
   apiMock.expectGetConfig();
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
 
@@ -949,6 +961,7 @@ test('replace ballot bag flow', async () => {
   apiMock.expectGetConfig({
     pollsState: 'polls_open',
   });
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   const { logger } = renderApp();
   await screen.findByText('Insert Your Ballot Above');

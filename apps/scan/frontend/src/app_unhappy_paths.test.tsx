@@ -4,7 +4,6 @@ import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   advanceTimersAndPromises,
   fakeKiosk,
-  fakeUsbDrive,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
@@ -46,6 +45,7 @@ beforeEach(() => {
   jest.useFakeTimers();
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.removeCard(); // Set a default auth state of no card inserted.
 });
 
@@ -70,6 +70,7 @@ test('backend fails to unconfigure', async () => {
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus({ ...statusNoPaper, canUnconfigure: true });
+  apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   apiMock.mockApiClient.unconfigureElection
     .expectCallWith({})
     .throws(new ServerError('failed'));
@@ -209,7 +210,6 @@ test('App shows warning message to connect to power when disconnected', async ()
   hardware.setBatteryDischarging(true);
   hardware.setBatteryLevel(0.9);
   const kiosk = fakeKiosk();
-  kiosk.getUsbDriveInfo = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp({ hardware });

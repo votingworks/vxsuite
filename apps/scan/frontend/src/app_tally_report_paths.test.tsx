@@ -8,13 +8,12 @@ import {
   electionSample2Definition,
 } from '@votingworks/fixtures';
 import {
-  fakeKiosk,
   advanceTimersAndPromises,
   generateCvr,
   getZeroCompressedTally,
-  fakeUsbDrive,
   expectPrint,
   hasTextAcrossElements,
+  fakeKiosk,
 } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -38,7 +37,6 @@ import MockDate from 'mockdate';
 import { fakeLogger } from '@votingworks/logging';
 import { err } from '@votingworks/basics';
 import { render, screen, within } from '../test/react_testing_library';
-import { fakeFileWriter } from '../test/helpers/fake_file_writer';
 import { App } from './app';
 import {
   ApiMock,
@@ -104,13 +102,10 @@ beforeEach(() => {
   jest.useFakeTimers();
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.removeCard(); // Set a default auth state of no card inserted.
 
   const kiosk = fakeKiosk();
-  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
-  kiosk.writeFile.mockResolvedValue(
-    fakeFileWriter() as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
-  );
   window.kiosk = kiosk;
 });
 
