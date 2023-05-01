@@ -3,8 +3,10 @@ import { Optional, Result } from '@votingworks/basics';
 import {
   BallotStyleId,
   InsertedSmartCardAuth,
+  NumIncorrectPinAttemptsAllowedBeforeCardLockout,
   OverallSessionTimeLimitHours,
   PrecinctId,
+  StartingCardLockoutDurationSeconds,
 } from '@votingworks/types';
 
 /**
@@ -70,7 +72,7 @@ export interface InsertedSmartCardAuthMachineState {
   arePollWorkerCardPinsEnabled?: boolean;
   electionHash?: string;
   jurisdiction?: string;
-  numIncorrectPinAttemptsAllowedBeforeCardLockout?: number;
+  numIncorrectPinAttemptsAllowedBeforeCardLockout?: NumIncorrectPinAttemptsAllowedBeforeCardLockout;
   overallSessionTimeLimitHours?: OverallSessionTimeLimitHours;
-  startingCardLockoutDurationSeconds?: number;
+  startingCardLockoutDurationSeconds?: StartingCardLockoutDurationSeconds;
 }
