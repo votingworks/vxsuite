@@ -44,7 +44,9 @@ afterEach(() => {
 });
 
 type BackupFn = AdminActionScreenProps['backup'];
-type BackupResult = BackupFn extends () => Promise<infer R> ? R : never;
+type BackupResult = BackupFn extends (...args: any[]) => Promise<infer R>
+  ? R
+  : never;
 
 function renderScreen(props: Partial<AdminActionScreenProps> = {}) {
   return renderInAppContext(
@@ -138,12 +140,8 @@ test('clicking "Delete Election Data from VxCentralScan" shows progress', async 
   const unconfigureServer = jest.fn();
   renderScreen({ unconfigureServer, canUnconfigure: true });
 
-  let resolve!: () => void;
-  unconfigureServer.mockReturnValueOnce(
-    new Promise<void>((res) => {
-      resolve = res;
-    })
-  );
+  const { promise, resolve } = deferred<void>();
+  unconfigureServer.mockReturnValueOnce(promise);
 
   // Click to reset.
   expect(unconfigureServer).not.toHaveBeenCalled();
@@ -178,12 +176,8 @@ test('clicking "Delete Ballot Data" shows progress', async () => {
   const zeroData = jest.fn();
   renderScreen({ zeroData, hasBatches: true, canUnconfigure: true });
 
-  let resolve!: () => void;
-  zeroData.mockReturnValueOnce(
-    new Promise<void>((res) => {
-      resolve = res;
-    })
-  );
+  const { promise, resolve } = deferred<void>();
+  zeroData.mockReturnValueOnce(promise);
 
   expect(zeroData).not.toHaveBeenCalled();
   fireEvent.click(screen.getByText('Delete Ballot Data'));
