@@ -19,7 +19,7 @@ test('navigates to settings screen', () => {
 
   expect(history.location.pathname).toEqual('/');
 
-  userEvent.click(screen.getButton(/display settings/i));
+  userEvent.click(screen.getButton(/color & size/i));
 
   expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
 });
