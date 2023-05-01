@@ -13,3 +13,7 @@ A few things to note:
 
 You can use `./bin/usb-drive <command>` to play with the API. Run
 `./bin/usb-drive` to see the available commands.
+
+## Debugging
+
+Set `DEBUG=usb-drive` to see debug logs.

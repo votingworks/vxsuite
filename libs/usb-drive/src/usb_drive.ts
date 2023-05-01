@@ -1,11 +1,8 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { execFile } from 'child_process';
-import { promisify } from 'util';
 import { assertDefined } from '@votingworks/basics';
 import makeDebug from 'debug';
-
-const exec = promisify(execFile);
+import { exec } from './exec';
 
 const debug = makeDebug('usb-drive');
 
@@ -25,7 +22,7 @@ export interface UsbDrive {
   eject(): Promise<void>;
 }
 
-interface BlockDeviceInfo {
+export interface BlockDeviceInfo {
   name: string;
   path: string;
   mountpoint: string | null;

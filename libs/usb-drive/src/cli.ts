@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import { sleep } from '@votingworks/basics';
 import { detectUsbDrive, UsbDrive } from './usb_drive';
 

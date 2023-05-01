@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
 import { execSync } from 'child_process';
 import { join } from 'path';
