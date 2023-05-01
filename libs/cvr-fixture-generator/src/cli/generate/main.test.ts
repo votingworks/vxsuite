@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { fakeReadable, fakeWritable } from '@votingworks/test-utils';
 import { safeParseJson, CVR, unsafeParse } from '@votingworks/types';
 import { readFileSync } from 'fs';
@@ -80,7 +80,7 @@ test('missing output path', async () => {
 
 test('generate with defaults', async () => {
   const ballotPackagePath =
-    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
+    electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asFilePath();
   const outputDirectory = dirSync();
 
   expect(
@@ -92,17 +92,17 @@ test('generate with defaults', async () => {
     ])
   ).toEqual({
     exitCode: 0,
-    stdout: `Wrote 112 cast vote records to ${outputDirectory.name}\n`,
+    stdout: `Wrote 184 cast vote records to ${outputDirectory.name}\n`,
     stderr: '',
   });
 
   const report = reportFromFile(outputDirectory.name);
-  expect(report.CVR).toHaveLength(112);
+  expect(report.CVR).toHaveLength(184);
 });
 
 test('generate with custom number of records below the suggested number', async () => {
   const ballotPackagePath =
-    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
+    electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asFilePath();
   const outputDirectory = dirSync();
 
   expect(
@@ -126,7 +126,7 @@ test('generate with custom number of records below the suggested number', async 
 
 test('generate with custom number of records above the suggested number', async () => {
   const ballotPackagePath =
-    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
+    electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asFilePath();
   const outputDirectory = dirSync();
 
   expect(
@@ -164,7 +164,7 @@ test('generate with custom number of records above the suggested number', async 
 
 test('generate live mode CVRs', async () => {
   const ballotPackagePath =
-    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
+    electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asFilePath();
   const outputDirectory = dirSync();
 
   await run([
@@ -183,7 +183,7 @@ test('generate live mode CVRs', async () => {
 
 test('generate test mode CVRs', async () => {
   const ballotPackagePath =
-    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
+    electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asFilePath();
   const outputDirectory = dirSync();
 
   await run([
@@ -201,7 +201,7 @@ test('generate test mode CVRs', async () => {
 
 test('specifying scanner ids', async () => {
   const ballotPackagePath =
-    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
+    electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asFilePath();
   const outputDirectory = dirSync();
 
   await run([
@@ -221,7 +221,7 @@ test('specifying scanner ids', async () => {
 
 test('including ballot images', async () => {
   const ballotPackagePath =
-    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
+    electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asFilePath();
   const outputDirectory = dirSync();
 
   await run([
@@ -251,10 +251,8 @@ test('including ballot images', async () => {
 
   // files referenced from the report
   expect(Array.from(imageFileUris)).toMatchObject([
-    `file:ballot-images/${defaultBatchId}/1M__precinct-1__1.jpg`,
-    `file:ballot-images/${defaultBatchId}/1M__precinct-2__1.jpg`,
-    `file:ballot-images/${defaultBatchId}/2F__precinct-1__1.jpg`,
-    `file:ballot-images/${defaultBatchId}/2F__precinct-2__1.jpg`,
+    `file:ballot-images/${defaultBatchId}/card-number-3__town-id-00701-precinct-id-__2.jpg`,
+    `file:ballot-images/${defaultBatchId}/card-number-3__town-id-00701-precinct-id-__1.jpg`,
   ]);
 
   // images exported
@@ -264,10 +262,8 @@ test('including ballot images', async () => {
     )
   ).toMatchInlineSnapshot(`
     Array [
-      "1M__precinct-1__1.jpg",
-      "1M__precinct-2__1.jpg",
-      "2F__precinct-1__1.jpg",
-      "2F__precinct-2__1.jpg",
+      "card-number-3__town-id-00701-precinct-id-__1.jpg",
+      "card-number-3__town-id-00701-precinct-id-__2.jpg",
     ]
   `);
 
@@ -278,17 +274,15 @@ test('including ballot images', async () => {
     )
   ).toMatchInlineSnapshot(`
     Array [
-      "1M__precinct-1__1.layout.json",
-      "1M__precinct-2__1.layout.json",
-      "2F__precinct-1__1.layout.json",
-      "2F__precinct-2__1.layout.json",
+      "card-number-3__town-id-00701-precinct-id-__1.layout.json",
+      "card-number-3__town-id-00701-precinct-id-__2.layout.json",
     ]
   `);
 });
 
 test('generating as BMD ballots', async () => {
   const ballotPackagePath =
-    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
+    electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asFilePath();
   const outputDirectory = dirSync();
 
   expect(
@@ -301,7 +295,7 @@ test('generating as BMD ballots', async () => {
     ])
   ).toEqual({
     exitCode: 0,
-    stdout: `Wrote 112 cast vote records to ${outputDirectory.name}\n`,
+    stdout: `Wrote 184 cast vote records to ${outputDirectory.name}\n`,
     stderr: '',
   });
 

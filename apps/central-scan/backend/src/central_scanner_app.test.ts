@@ -74,7 +74,7 @@ beforeEach(async () => {
     ballotMetadata,
     getMockBallotPageLayoutsWithImages(ballotMetadata, 2)
   );
-  app = await buildCentralScannerApp({
+  app = buildCentralScannerApp({
     auth,
     usb: mockUsb.mock,
     allowedExportPatterns: ['/tmp/**'],
@@ -296,7 +296,7 @@ test('DELETE /config/election ignores lack of backup when ?ignoreBackupRequireme
 });
 
 test('PATCH /config/testMode', async () => {
-  importer.setTestMode.mockResolvedValueOnce(undefined);
+  importer.setTestMode.mockReturnValue(undefined);
 
   await request(app)
     .patch('/central-scanner/config/testMode')
@@ -318,7 +318,7 @@ test('PATCH /config/testMode', async () => {
 });
 
 test('PATCH /config/markThresholdOverrides', async () => {
-  importer.setMarkThresholdOverrides.mockResolvedValue(undefined);
+  importer.setMarkThresholdOverrides.mockReturnValue(undefined);
 
   await request(app)
     .patch('/central-scanner/config/markThresholdOverrides')

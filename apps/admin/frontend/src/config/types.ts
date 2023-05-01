@@ -1,6 +1,5 @@
 import { Admin } from '@votingworks/api';
 import {
-  BallotStyleId,
   CastVoteRecord,
   ContestTallyMeta,
   Dictionary,
@@ -63,11 +62,6 @@ export interface Printer {
 }
 
 // Router Props
-export interface BallotScreenProps {
-  ballotStyleId: BallotStyleId;
-  precinctId: PrecinctId;
-  localeCode?: string;
-}
 export interface PrecinctReportScreenProps {
   precinctId: PrecinctId;
 }

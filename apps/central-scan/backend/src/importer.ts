@@ -3,11 +3,8 @@ import {
   detectQrcodeInFilePath,
   normalizeSheetOutput,
 } from '@votingworks/ballot-interpreter-vx';
-import { Result, assert, find, ok, sleep } from '@votingworks/basics';
-import { pdfToImages } from '@votingworks/image-utils';
+import { Result, assert, ok, sleep } from '@votingworks/basics';
 import {
-  BallotPageLayout,
-  BallotPageLayoutWithImage,
   ElectionDefinition,
   MarkThresholds,
   PageInterpretation,
@@ -15,7 +12,6 @@ import {
   SheetOf,
 } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
 import { join } from 'path';
@@ -46,7 +42,7 @@ export class Importer {
   private sheetGenerator?: BatchControl;
   private batchId?: string;
   private interpreterState: 'init' | 'configuring' | 'ready' = 'init';
-  private interpreterReadyPromise?: Promise<void>;
+  private vxInterpreter = new vxInterpreter.VxInterpreter();
 
   constructor({ workspace, scanner }: Options) {
     this.workspace = workspace;
@@ -54,54 +50,15 @@ export class Importer {
   }
 
   private invalidateInterpreterConfig(): void {
-    this.interpreterReadyPromise = undefined;
+    this.vxInterpreter.unconfigure();
     this.interpreterState = 'init';
   }
 
-  private async configureInterpreter(): Promise<void> {
-    if (!this.interpreterReadyPromise) {
-      this.interpreterState = 'configuring';
-      this.interpreterReadyPromise = Promise.resolve().then(async () => {
-        await vxInterpreter.configure(this.workspace.store);
-        this.interpreterState = 'ready';
-      });
-    }
-    return this.interpreterReadyPromise;
-  }
-
-  async addHmpbTemplates(
-    pdf: Buffer,
-    layouts: readonly BallotPageLayout[]
-  ): Promise<BallotPageLayoutWithImage[]> {
-    this.getElectionDefinition(); // ensure election definition is loaded
-    const result: BallotPageLayoutWithImage[] = [];
-
-    for await (const { page, pageNumber } of pdfToImages(pdf, {
-      scale: 2,
-    })) {
-      const ballotPageLayout = find(
-        layouts,
-        (l) => l.metadata.pageNumber === pageNumber
-      );
-      result.push({ ballotPageLayout, imageData: page });
-    }
-
-    this.workspace.store.addHmpbTemplate(
-      pdf,
-      result[0].ballotPageLayout.metadata,
-      result
-    );
-
-    this.invalidateInterpreterConfig();
-
-    return result;
-  }
-
-  /**
-   * Tell the importer that we have all the templates
-   */
-  async doneHmpbTemplates(): Promise<void> {
-    await this.configureInterpreter();
+  private configureInterpreter(): void {
+    this.interpreterState = 'configuring';
+    this.vxInterpreter = new vxInterpreter.VxInterpreter();
+    this.vxInterpreter.configure(this.workspace.store);
+    this.interpreterState = 'ready';
   }
 
   /**
@@ -117,29 +74,28 @@ export class Importer {
     });
     // Central scanner only uses all precinct mode, set on every configure
     this.workspace.store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
+    this.configureInterpreter();
   }
 
-  async setTestMode(testMode: boolean): Promise<void> {
+  setTestMode(testMode: boolean): void {
     debug('setting test mode to %s', testMode);
     this.doZero();
     this.workspace.store.setTestMode(testMode);
-    await this.restoreConfig();
+    this.restoreConfig();
   }
 
-  async setMarkThresholdOverrides(
-    markThresholds?: MarkThresholds
-  ): Promise<void> {
+  setMarkThresholdOverrides(markThresholds?: MarkThresholds): void {
     debug('setting mark thresholds overrides to %s', markThresholds);
     this.workspace.store.setMarkThresholdOverrides(markThresholds);
-    await this.restoreConfig();
+    this.restoreConfig();
   }
 
   /**
    * Restore configuration from the store.
    */
-  async restoreConfig(): Promise<void> {
+  restoreConfig(): void {
     this.invalidateInterpreterConfig();
-    await this.configureInterpreter();
+    this.configureInterpreter();
   }
 
   private async sheetAdded(
@@ -264,13 +220,13 @@ export class Importer {
         await frontDetectQrcodePromise,
         await backDetectQrcodePromise,
       ]);
-    const frontInterpretPromise = vxInterpreter.interpret(
+    const frontInterpretPromise = this.vxInterpreter.interpret(
       frontImagePath,
       sheetId,
       this.workspace.ballotImagesPath,
       frontDetectQrcodeOutput
     );
-    const backInterpretPromise = vxInterpreter.interpret(
+    const backInterpretPromise = this.vxInterpreter.interpret(
       backImagePath,
       sheetId,
       this.workspace.ballotImagesPath,

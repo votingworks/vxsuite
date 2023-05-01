@@ -1,47 +1,18 @@
-import {
-  electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleDefinition,
-  electionMinimalExhaustiveSampleFixtures,
-} from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { CVR, getBallotStyle, getContests } from '@votingworks/types';
 import { BallotPackage, readBallotPackageFromBuffer } from '@votingworks/utils';
-import { assert, find, iter, throwIllegalValue } from '@votingworks/basics';
+import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { generateCvrs } from './generate_cvrs';
 import { IMAGE_URI_REGEX } from './utils';
 
 async function mockBallotPackage(): Promise<BallotPackage> {
   return await readBallotPackageFromBuffer(
-    electionMinimalExhaustiveSampleFixtures.ballotPackage.asBuffer()
+    electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asBuffer()
   );
 }
 
-async function mockMultiSheetBallotPackage(): Promise<BallotPackage> {
-  const singleSheetBallotPackage = await mockBallotPackage();
-
-  return {
-    ...singleSheetBallotPackage,
-    ballots: singleSheetBallotPackage.ballots.map((ballot) => ({
-      ...ballot,
-      layout: [...ballot.layout, ...ballot.layout],
-    })),
-  };
-}
-
-test('fails on ballot package with more than one sheet', async () => {
-  await expect(async () =>
-    iter(
-      generateCvrs({
-        ballotPackage: await mockMultiSheetBallotPackage(),
-        scannerIds: ['scanner-1'],
-        testMode: true,
-        includeBallotImages: false,
-      })
-    ).toArray()
-  ).rejects.toThrowError('only single-sheet ballots are supported');
-});
-
 test('produces well-formed cast vote records with all contests', async () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionGridLayoutNewHampshireAmherstFixtures;
   for await (const cvr of generateCvrs({
     ballotPackage: await mockBallotPackage(),
     scannerIds: ['scanner-1'],
@@ -122,7 +93,7 @@ test('uses all the scanners given', async () => {
 
 test('adds write-ins for contests that allow them', async () => {
   const writeInContest =
-    electionMinimalExhaustiveSampleFixtures.election.contests.find(
+    electionGridLayoutNewHampshireAmherstFixtures.election.contests.find(
       (contest) => contest.type === 'candidate' && contest.allowWriteIns
     )!;
   let seenWriteIn = false;
@@ -154,12 +125,13 @@ test('adds write-ins for contests that allow them', async () => {
 });
 
 test('adds write-ins for contests that have 1 seat', async () => {
-  const writeInContest = electionFamousNames2021Fixtures.election.contests.find(
-    (contest) =>
-      contest.type === 'candidate' &&
-      contest.allowWriteIns &&
-      contest.seats === 1
-  )!;
+  const writeInContest =
+    electionGridLayoutNewHampshireAmherstFixtures.election.contests.find(
+      (contest) =>
+        contest.type === 'candidate' &&
+        contest.allowWriteIns &&
+        contest.seats === 1
+    )!;
   let seenWriteIn = false;
 
   for await (const cvr of generateCvrs({
@@ -167,7 +139,7 @@ test('adds write-ins for contests that have 1 seat', async () => {
     testMode: false,
     includeBallotImages: false,
     ballotPackage: await readBallotPackageFromBuffer(
-      electionFamousNames2021Fixtures.ballotPackage.asBuffer()
+      electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asBuffer()
     ),
   })) {
     const cvrContests = cvr.CVRSnapshot[0]?.CVRContest;
@@ -190,7 +162,6 @@ test('adds write-ins for contests that have 1 seat', async () => {
   expect(seenWriteIn).toEqual(true);
 });
 
-// current fixture only has write-ins on the front
 test('can include ballot image references for write-ins', async () => {
   let reportHasWriteIn = false;
   for await (const cvr of generateCvrs({
@@ -219,15 +190,9 @@ test('can include ballot image references for write-ins', async () => {
     }
 
     if (cvrHasWriteIn) {
-      expect(cvr.BallotImage).toMatchObject([
-        {
-          '@type': 'CVR.ImageData',
-          Location: expect.stringMatching(IMAGE_URI_REGEX),
-        },
-        {
-          '@type': 'CVR.ImageData',
-        },
-      ]);
+      const firstImageDataLocation = cvr.BallotImage?.[0]?.Location;
+      const secondImageDataLocation = cvr.BallotImage?.[1]?.Location;
+      expect(firstImageDataLocation ?? secondImageDataLocation).toBeDefined();
     } else {
       expect(cvr.BallotImage).toBeUndefined();
     }

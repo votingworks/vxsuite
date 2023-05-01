@@ -1,6 +1,5 @@
 import { ContestId } from '@votingworks/types';
 import {
-  BallotScreenProps,
   PartyReportScreenProps,
   PrecinctReportScreenProps,
   ScannerReportScreenProps,
@@ -21,14 +20,6 @@ export const routerPaths = {
   smartcardsByType: ({ smartcardType }: SmartcardsScreenProps): string =>
     `/smartcards/smartcard-types/${smartcardType}`,
   ballotsList: '/ballots',
-  ballotsView: ({ ballotStyleId, precinctId }: BallotScreenProps): string =>
-    `/ballots/style/${ballotStyleId}/precinct/${precinctId}`,
-  ballotsViewLanguage: ({
-    ballotStyleId,
-    precinctId,
-    localeCode,
-  }: BallotScreenProps): string =>
-    `/ballots/style/${ballotStyleId}/precinct/${precinctId}/language/${localeCode}`,
   manualDataImport: '/tally/manual-data-import',
   manualDataImportForPrecinct: ({
     precinctId,

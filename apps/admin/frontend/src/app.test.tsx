@@ -20,7 +20,6 @@ import {
   fakePrinterInfo,
   fakeSessionExpiresAt,
   fakeUsbDrive,
-  hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
@@ -124,12 +123,6 @@ test('configuring with a demo election definition', async () => {
   fireEvent.click(screen.getByText('Load Demo Election Definition'));
 
   await screen.findByText('Election Definition');
-
-  await screen.findByText('Ballots');
-  fireEvent.click(await screen.findByText('Ballots'));
-  await waitFor(() => {
-    fireEvent.click(screen.getAllByText('View Ballot')[0]);
-  });
 
   // You can view the Logs screen and save log files when there is an election.
   fireEvent.click(screen.getByText('Logs'));
@@ -252,7 +245,6 @@ test('authentication works', async () => {
     sessionExpiresAt: fakeSessionExpiresAt(),
   });
   await screen.findByText('Lock Machine');
-  await screen.findByText('Ballots');
 
   // Lock the machine
   apiMock.expectLogOut();
@@ -866,7 +858,7 @@ test('clearing results', async () => {
   expect(externalTalliesAfter?.size).toEqual(0);
 });
 
-test('Can not view or print ballots when using an election with gridlayouts (like NH)', async () => {
+test('can not view or print ballots', async () => {
   const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
 
   const { renderApp } = buildApp(apiMock);
@@ -901,9 +893,6 @@ test('election manager UI has expected nav', async () => {
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
-  userEvent.click(screen.getByText('Ballots'));
-  await screen.findAllByText('View Ballot');
-
   userEvent.click(screen.getByText('L&A'));
   await screen.findByRole('heading', { name: 'L&A Testing Documents' });
 
@@ -932,7 +921,6 @@ test('system administrator UI has expected nav', async () => {
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Election Definition' });
   userEvent.click(screen.getByText('Ballots'));
-  await screen.findAllByText('View Ballot');
   userEvent.click(screen.getByText('Smartcards'));
   await screen.findByRole('heading', { name: 'Election Cards' });
   userEvent.click(screen.getByText('Settings'));
@@ -1073,15 +1061,6 @@ test('primary election flow', async () => {
 
   renderApp();
   await apiMock.authenticateAsElectionManager(electionDefinition);
-
-  // Check "Ballots" page has correct contests count.
-  // TODO: Confirm ballot contents. Not possible currently because we don't
-  // render ballots in tests, only mocks.
-  userEvent.click(screen.getByText('Ballots'));
-  userEvent.click(screen.getAllByText('View Ballot')[0]);
-  screen.getByText(
-    hasTextAcrossElements('Ballot Style 1M for Precinct 1 has 5 contests')
-  );
 
   // Confirm "L&A" page prints separate test deck tally reports for non-partisan contests
   userEvent.click(screen.getByText('L&A'));

@@ -11,3 +11,4 @@ export * from './outline';
 export * from './pdf_to_images';
 export * from './rotate';
 export * from './types';
+export { createImageData } from 'canvas';

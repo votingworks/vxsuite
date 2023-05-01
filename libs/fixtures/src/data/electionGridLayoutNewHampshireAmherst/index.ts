@@ -1,3 +1,4 @@
+export * as ballotPackage from './ballot-package.zip';
 export * as definitionXml from './definition.xml';
 export { election, electionDefinition } from './election.json';
 export * as electionJson from './election.json';

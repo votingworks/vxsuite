@@ -16,10 +16,7 @@ import {
   waitFor,
   within,
 } from '../../test/react_testing_library';
-import {
-  eitherNeitherElectionDefinition,
-  renderInAppContext,
-} from '../../test/render_in_app_context';
+import { renderInAppContext } from '../../test/render_in_app_context';
 import { ExportElectionBallotPackageModalButton } from './export_election_ballot_package_modal_button';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
@@ -27,7 +24,6 @@ jest.mock('@votingworks/ballot-interpreter-vx', () => ({
   ...jest.requireActual('@votingworks/ballot-interpreter-vx'),
   interpretMultiPagePdfTemplate: jest.fn(),
 }));
-jest.mock('../components/hand_marked_paper_ballot');
 
 let apiMock: ApiMock;
 
@@ -110,16 +106,6 @@ test('Modal renders export confirmation screen when usb detected and manual link
 
   fireEvent.click(within(modal).getByText('Custom'));
   await within(modal).findByText('Ballot Package Saved');
-  await waitFor(() => {
-    expect(interpretMultiPagePdfTemplate).toHaveBeenCalledTimes(
-      2 /* test & live */ *
-        eitherNeitherElectionDefinition.election.ballotStyles.reduce(
-          (acc, bs) => acc + bs.precincts.length,
-          0
-        )
-    );
-    expect(window.kiosk!.saveAs).toHaveBeenCalledTimes(1);
-  });
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.SaveBallotPackageInit,
     'election_manager'

@@ -34,7 +34,7 @@ beforeEach(async () => {
     baseUrl: `http://localhost:${port}/api`,
   });
   server = await start({
-    app: await buildCentralScannerApp({
+    app: buildCentralScannerApp({
       auth,
       usb: createMockUsb().mock,
       importer: new Importer({ workspace, scanner: makeMockScanner() }),

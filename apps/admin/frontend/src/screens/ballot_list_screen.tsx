@@ -1,35 +1,13 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
-import pluralize from 'pluralize';
 
-import { assert, find } from '@votingworks/basics';
-import {
-  Button,
-  SegmentedButtonDeprecated as SegmentedButton,
-  NoWrap,
-  Prose,
-  Table,
-  TD,
-  LinkButton,
-} from '@votingworks/ui';
-import {
-  isElectionManagerAuth,
-  isSystemAdministratorAuth,
-} from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
+import { Prose } from '@votingworks/ui';
+import { isElectionManagerAuth } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
 
-import { routerPaths } from '../router_paths';
-import {
-  getBallotStylesData,
-  getSuperBallotStyleData,
-  isSuperBallotStyle,
-  sortBallotStyleDataByPrecinct,
-  sortBallotStyleDataByStyle,
-} from '../utils/election';
 import { NavigationScreen } from '../components/navigation_screen';
 import { ExportElectionBallotPackageModalButton } from '../components/export_election_ballot_package_modal_button';
-import { ExportBallotPdfsButton } from '../components/export_ballot_pdfs_button';
-import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
 
 const Header = styled.div`
   display: flex;
@@ -40,131 +18,33 @@ const Header = styled.div`
 export function BallotListScreen(): JSX.Element {
   const { auth, configuredAt, electionDefinition } = useContext(AppContext);
   assert(electionDefinition && typeof configuredAt === 'string');
-  const { election } = electionDefinition;
-
-  const allBallotStyles = getBallotStylesData(election);
-  const ballotLists = [
-    sortBallotStyleDataByStyle(election, allBallotStyles),
-    sortBallotStyleDataByPrecinct(election, allBallotStyles),
-  ];
-  if (isSystemAdministratorAuth(auth)) {
-    const superBallotStyleData = getSuperBallotStyleData(election);
-    ballotLists[0].unshift(superBallotStyleData);
-    ballotLists[1].unshift(superBallotStyleData);
-  }
-  const [ballotView, setBallotView] = useState(1);
-  function sortByStyle() {
-    return setBallotView(0);
-  }
-  function sortByPrecinct() {
-    return setBallotView(1);
-  }
-
-  const ballots = ballotLists[ballotView];
-
-  if (election && !canViewAndPrintBallots(election)) {
-    return (
-      <NavigationScreen>
-        <Header>
-          <Prose>
-            <h1>Ballots</h1>
-            <p>VxAdmin does not produce ballots for this election.</p>
-            {isElectionManagerAuth(auth) ? (
-              <React.Fragment>
-                <p>
-                  Save the Ballot Package to USB to configure VxCentralScan or
-                  VxScan.
-                </p>
-                <p>
-                  <ExportElectionBallotPackageModalButton />
-                </p>
-              </React.Fragment>
-            ) : (
-              <p>
-                <em>
-                  Lock machine, then insert Election Manager card to save the
-                  Ballot Package.
-                </em>
-              </p>
-            )}
-          </Prose>
-        </Header>
-      </NavigationScreen>
-    );
-  }
 
   return (
     <NavigationScreen>
       <Header>
-        <Prose maxWidth={false}>
-          <p>
-            {`Sort ${pluralize('ballot', ballots.length, true)} by: `}
-            <SegmentedButton>
-              <Button
-                small
-                onPress={sortByPrecinct}
-                disabled={ballotView === 1}
-              >
-                Precinct
-              </Button>
-              <Button small onPress={sortByStyle} disabled={ballotView === 0}>
-                Style
-              </Button>
-            </SegmentedButton>
-          </p>
-        </Prose>
-
-        <Prose maxWidth={false}>
-          <p>
-            {isElectionManagerAuth(auth) && (
-              <React.Fragment>
-                <ExportBallotPdfsButton />{' '}
+        <Prose>
+          <h1>Ballots</h1>
+          <p>VxAdmin does not produce ballots for this election.</p>
+          {isElectionManagerAuth(auth) ? (
+            <React.Fragment>
+              <p>
+                Save the Ballot Package to USB to configure VxCentralScan or
+                VxScan.
+              </p>
+              <p>
                 <ExportElectionBallotPackageModalButton />
-              </React.Fragment>
-            )}
-          </p>
+              </p>
+            </React.Fragment>
+          ) : (
+            <p>
+              <em>
+                Lock machine, then insert Election Manager card to save the
+                Ballot Package.
+              </em>
+            </p>
+          )}
         </Prose>
       </Header>
-      <Table>
-        <thead>
-          <tr>
-            <TD as="th" />
-            <TD as="th">Precinct</TD>
-            <TD as="th">Ballot Style</TD>
-            <TD as="th">Contests</TD>
-          </tr>
-        </thead>
-        <tbody>
-          {ballots.map((ballot) => {
-            const precinctName = isSuperBallotStyle(ballot.ballotStyleId)
-              ? 'All'
-              : find(election.precincts, (p) => p.id === ballot.precinctId)
-                  .name;
-            return (
-              <tr key={ballot.ballotStyleId + ballot.precinctId}>
-                <TD textAlign="right" nowrap>
-                  <LinkButton
-                    fullWidth
-                    small
-                    to={routerPaths.ballotsView(ballot)}
-                  >
-                    View Ballot
-                  </LinkButton>
-                </TD>
-                <TD>
-                  <NoWrap>{precinctName}</NoWrap>
-                </TD>
-                <TD>
-                  {isSuperBallotStyle(ballot.ballotStyleId)
-                    ? 'All'
-                    : ballot.ballotStyleId}
-                </TD>
-                <TD>{ballot.contestIds.length}</TD>
-              </tr>
-            );
-          })}
-        </tbody>
-      </Table>
     </NavigationScreen>
   );
 }
