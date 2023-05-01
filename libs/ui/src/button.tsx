@@ -2,7 +2,7 @@
 import React, { PureComponent } from 'react';
 
 import styled, { css, DefaultTheme, StyledComponent } from 'styled-components';
-import { Color, UiTheme } from '@votingworks/types';
+import { Color, SizeMode, UiTheme } from '@votingworks/types';
 
 import { Icons } from './icons';
 
@@ -159,6 +159,18 @@ function getBorderColor(p: ThemedStyledButtonProps): Color | undefined {
   return getForegroundColor(p);
 }
 
+const paddingStyles: Record<SizeMode, string | undefined> = {
+  s: '0.5em 0.6em',
+  m: '0.5em 0.6em',
+  l: '0.4em 0.5em',
+  xl: '0.3em 0.4em',
+  legacy: undefined, // Already defined in base styles.
+};
+
+function getPadding(p: StyledButtonProps & { theme: DefaultTheme }) {
+  return paddingStyles[p.theme.sizeMode];
+}
+
 const sizeThemeStyles = css<StyledButtonProps>`
   align-items: center;
   display: inline-flex;
@@ -170,7 +182,7 @@ const sizeThemeStyles = css<StyledButtonProps>`
   gap: 0.5rem;
   letter-spacing: ${(p) => p.theme.sizes.letterSpacingEm}em;
   line-height: ${(p) => p.theme.sizes.lineHeight};
-  padding: 0.5em 0.6em;
+  padding: ${getPadding};
   width: auto;
   min-height: ${(p) => p.theme.sizes.minTouchAreaSizePx}px;
   vertical-align: middle;

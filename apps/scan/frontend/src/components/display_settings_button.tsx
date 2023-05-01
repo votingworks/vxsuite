@@ -12,7 +12,6 @@ const LabelContainer = styled.span`
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
   gap: 0.5rem;
   text-align: left;
-  width: min-content;
 `;
 
 export function DisplaySettingsButton(): JSX.Element | null {
@@ -27,7 +26,7 @@ export function DisplaySettingsButton(): JSX.Element | null {
     <Button onPress={history.push} value={Paths.DISPLAY_SETTINGS}>
       <LabelContainer>
         <Icons.Display />
-        <span>Display Settings</span>
+        <span>Color & Size</span>
       </LabelContainer>
     </Button>
   );

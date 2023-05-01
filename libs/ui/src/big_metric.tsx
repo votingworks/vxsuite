@@ -20,7 +20,6 @@ const StyledContainer = styled.span`
   display: inline-block;
   font-size: 1rem;
   line-height: 1;
-  margin-bottom: 0.35rem;
   text-align: center;
 `;
 
