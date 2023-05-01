@@ -5,6 +5,7 @@ import {
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 
 export function fakeSystemAdministratorUser(
@@ -12,7 +13,7 @@ export function fakeSystemAdministratorUser(
 ): SystemAdministratorUser {
   return {
     role: 'system_administrator',
-    jurisdiction: 'jurisdiction',
+    jurisdiction: TEST_JURISDICTION,
     ...props,
   };
 }
@@ -22,7 +23,7 @@ export function fakeElectionManagerUser(
 ): ElectionManagerUser {
   return {
     role: 'election_manager',
-    jurisdiction: 'jurisdiction',
+    jurisdiction: TEST_JURISDICTION,
     electionHash: 'election-hash',
     ...props,
   };
@@ -33,7 +34,7 @@ export function fakePollWorkerUser(
 ): PollWorkerUser {
   return {
     role: 'poll_worker',
-    jurisdiction: 'jurisdiction',
+    jurisdiction: TEST_JURISDICTION,
     electionHash: 'election-hash',
     ...props,
   };

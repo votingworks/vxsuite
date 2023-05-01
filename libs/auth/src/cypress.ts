@@ -10,6 +10,5 @@
  * ```
  */
 
-export { DEV_JURISDICTION } from './jurisdictions';
 export { mockCard } from './mock_file_card';
 export type { MockFileContents } from './mock_file_card';
