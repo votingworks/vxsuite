@@ -8,7 +8,11 @@ import { Application } from 'express';
 import { AddressInfo } from 'net';
 import { fakeLogger } from '@votingworks/logging';
 import tmp from 'tmp';
-import { MockUsb, createMockUsb } from '@votingworks/backend';
+import {
+  MockUsb,
+  createBallotPackageZipArchive,
+  createMockUsb,
+} from '@votingworks/backend';
 import { Server } from 'http';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
@@ -56,7 +60,7 @@ export async function configureApp(
   mockUsb: MockUsb
 ): Promise<void> {
   const jurisdiction = DEV_JURISDICTION;
-  const { ballotPackage, electionDefinition } = electionFamousNames2021Fixtures;
+  const { electionJson, electionDefinition } = electionFamousNames2021Fixtures;
   const { electionHash } = electionDefinition;
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
@@ -67,7 +71,9 @@ export async function configureApp(
   );
   mockUsb.insertUsbDrive({
     'ballot-packages': {
-      'test-ballot-package.zip': ballotPackage.asBuffer(),
+      'test-ballot-package.zip': await createBallotPackageZipArchive(
+        electionJson.toBallotPackage()
+      ),
     },
   });
   const result = await apiClient.configureBallotPackageFromUsb();

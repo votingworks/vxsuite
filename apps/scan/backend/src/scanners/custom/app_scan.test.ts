@@ -83,10 +83,8 @@ test('configure and scan hmpb', async () => {
     async ({ apiClient, mockScanner, mockUsb, logger, mockAuth }) => {
       await configureApp(apiClient, mockUsb, {
         mockAuth,
-        electionDefinition:
-          electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
         ballotPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asBuffer(),
+          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(),
       });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
@@ -192,10 +190,8 @@ test('ballot needs review - return', async () => {
     }) => {
       await configureApp(apiClient, mockUsb, {
         mockAuth,
-        electionDefinition:
-          electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
         ballotPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asBuffer(),
+          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(),
       });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));

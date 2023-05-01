@@ -2,6 +2,7 @@ import getPort from 'get-port';
 import {
   MockUsb,
   convertCastVoteRecordVotesToLegacyVotes,
+  createBallotPackageZipArchive,
   createMockUsb,
   getCastVoteRecordReportImport,
   isTestReport,
@@ -141,8 +142,9 @@ test('going through the whole process works', async () => {
 
   mockUsb.insertUsbDrive({
     'ballot-packages': {
-      'ballot-package.zip':
-        electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asBuffer(),
+      'ballot-package.zip': await createBallotPackageZipArchive(
+        electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage()
+      ),
     },
   });
   const configureResult =

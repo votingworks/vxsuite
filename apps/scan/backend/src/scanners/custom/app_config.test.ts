@@ -21,7 +21,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   convertCastVoteRecordVotesToLegacyVotes,
-  createBallotPackageWithoutTemplates,
+  createBallotPackageZipArchive,
   getCastVoteRecordReportImport,
   validateCastVoteRecordReportDirectoryStructure,
 } from '@votingworks/backend';
@@ -150,9 +150,9 @@ test('fails to configure ballot package if logged out', async () => {
     mockLoggedOut(mockAuth);
     mockUsb.insertUsbDrive({
       'ballot-packages': {
-        'test-ballot-package.zip': createBallotPackageWithoutTemplates(
-          electionSampleDefinition
-        ),
+        'test-ballot-package.zip': await createBallotPackageZipArchive({
+          electionDefinition: electionSampleDefinition,
+        }),
       },
     });
     expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
@@ -169,9 +169,9 @@ test('fails to configure ballot package if election definition on card does not 
     );
     mockUsb.insertUsbDrive({
       'ballot-packages': {
-        'test-ballot-package.zip': createBallotPackageWithoutTemplates(
-          electionSampleDefinition
-        ),
+        'test-ballot-package.zip': await createBallotPackageZipArchive({
+          electionDefinition: electionSampleDefinition,
+        }),
       },
     });
     expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
@@ -188,9 +188,10 @@ test("if there's only one precinct in the election, it's selected automatically 
     );
     mockUsb.insertUsbDrive({
       'ballot-packages': {
-        'test-ballot-package.zip': createBallotPackageWithoutTemplates(
-          electionMinimalExhaustiveSampleSinglePrecinctDefinition
-        ),
+        'test-ballot-package.zip': await createBallotPackageZipArchive({
+          electionDefinition:
+            electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+        }),
       },
     });
     expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
@@ -210,11 +211,12 @@ test('configures using the most recently created ballot package on the usb drive
 
     mockUsb.insertUsbDrive({
       'ballot-packages': {
-        'older-ballot-package.zip':
-          electionFamousNames2021Fixtures.ballotPackage.asBuffer(),
-        'newer-ballot-package.zip': createBallotPackageWithoutTemplates(
-          electionSampleDefinition
+        'older-ballot-package.zip': await createBallotPackageZipArchive(
+          electionFamousNames2021Fixtures.electionJson.toBallotPackage()
         ),
+        'newer-ballot-package.zip': await createBallotPackageZipArchive({
+          electionDefinition: electionSampleDefinition,
+        }),
       },
     });
     // Ensure our mock actually created the files in the order we expect (the

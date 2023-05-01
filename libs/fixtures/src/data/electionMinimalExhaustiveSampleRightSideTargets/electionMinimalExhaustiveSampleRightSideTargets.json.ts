@@ -6,7 +6,7 @@ import { Buffer } from 'buffer';
 import { mkdtempSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join, sep } from 'path';
-import { safeParseElectionDefinition } from '@votingworks/types';
+import { BallotPackage, safeParseElectionDefinition, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 
 /**
  * Data of data/electionMinimalExhaustiveSampleRightSideTargets/electionMinimalExhaustiveSampleRightSideTargets.json encoded as base64.
@@ -74,3 +74,15 @@ export const electionDefinition = safeParseElectionDefinition(
  * SHA-256 hash of file data: 411e738810d8f13972946f4fea8179bfc40efdfe0797d99d13a098f66914904d
  */
 export const election = electionDefinition.election;
+
+/**
+ * Ballot package for data/electionMinimalExhaustiveSampleRightSideTargets/electionMinimalExhaustiveSampleRightSideTargets.json.
+ *
+ * SHA-256 hash of file data: 411e738810d8f13972946f4fea8179bfc40efdfe0797d99d13a098f66914904d
+ */
+export function toBallotPackage(systemSettings = DEFAULT_SYSTEM_SETTINGS): BallotPackage {
+  return {
+    electionDefinition,
+    systemSettings,
+  };
+}

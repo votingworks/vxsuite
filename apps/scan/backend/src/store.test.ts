@@ -2,7 +2,9 @@ import { ResultSheet } from '@votingworks/backend';
 import { sleep, typedAs } from '@votingworks/basics';
 import {
   AdjudicationReason,
+  BallotConfig,
   BallotMetadata,
+  BallotPackageEntry,
   BallotPageLayout,
   BallotType,
   CandidateContest,
@@ -14,8 +16,6 @@ import {
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
-  BallotConfig,
-  BallotPackageEntry,
   singlePrecinctSelectionFor,
   safeParseSystemSettings,
 } from '@votingworks/utils';

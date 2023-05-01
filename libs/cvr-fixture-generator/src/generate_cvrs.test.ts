@@ -1,20 +1,22 @@
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
-import { CVR, getBallotStyle, getContests } from '@votingworks/types';
-import { BallotPackage, readBallotPackageFromBuffer } from '@votingworks/utils';
+import {
+  BallotPackage,
+  CVR,
+  getBallotStyle,
+  getContests,
+} from '@votingworks/types';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { generateCvrs } from './generate_cvrs';
 import { IMAGE_URI_REGEX } from './utils';
 
-async function mockBallotPackage(): Promise<BallotPackage> {
-  return await readBallotPackageFromBuffer(
-    electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asBuffer()
-  );
+function mockBallotPackage(): BallotPackage {
+  return electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage();
 }
 
 test('produces well-formed cast vote records with all contests', async () => {
   const { election } = electionGridLayoutNewHampshireAmherstFixtures;
   for await (const cvr of generateCvrs({
-    ballotPackage: await mockBallotPackage(),
+    ballotPackage: mockBallotPackage(),
     scannerIds: ['scanner-1'],
     testMode: true,
     includeBallotImages: false,
@@ -46,7 +48,7 @@ test('has absentee and standard ballot types', async () => {
     testMode: false,
     scannerIds: ['scanner-1'],
     includeBallotImages: false,
-    ballotPackage: await mockBallotPackage(),
+    ballotPackage: mockBallotPackage(),
   })) {
     switch (cvr.vxBallotType) {
       case CVR.vxBallotType.Absentee:
@@ -81,7 +83,7 @@ test('uses all the scanners given', async () => {
     testMode: false,
     scannerIds: ['scanner-1', 'scanner-2'],
     includeBallotImages: false,
-    ballotPackage: await mockBallotPackage(),
+    ballotPackage: mockBallotPackage(),
   })) {
     expect(cvr.CreatingDeviceId).toBeDefined();
     assert(typeof cvr.CreatingDeviceId !== 'undefined');
@@ -102,7 +104,7 @@ test('adds write-ins for contests that allow them', async () => {
     testMode: false,
     scannerIds: ['scanner-1'],
     includeBallotImages: false,
-    ballotPackage: await mockBallotPackage(),
+    ballotPackage: mockBallotPackage(),
   })) {
     const cvrContests = cvr.CVRSnapshot[0]?.CVRContest;
     assert(cvrContests);
@@ -138,9 +140,8 @@ test('adds write-ins for contests that have 1 seat', async () => {
     scannerIds: ['scanner-1'],
     testMode: false,
     includeBallotImages: false,
-    ballotPackage: await readBallotPackageFromBuffer(
-      electionGridLayoutNewHampshireAmherstFixtures.ballotPackage.asBuffer()
-    ),
+    ballotPackage:
+      electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(),
   })) {
     const cvrContests = cvr.CVRSnapshot[0]?.CVRContest;
     assert(cvrContests);
@@ -168,7 +169,7 @@ test('can include ballot image references for write-ins', async () => {
     testMode: false,
     scannerIds: ['scanner-1'],
     includeBallotImages: true,
-    ballotPackage: await mockBallotPackage(),
+    ballotPackage: mockBallotPackage(),
   })) {
     let cvrHasWriteIn = false;
     const selectionPositions = cvr.CVRSnapshot[0]!.CVRContest.flatMap(

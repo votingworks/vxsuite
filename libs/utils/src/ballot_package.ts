@@ -1,13 +1,7 @@
 import {
-  BallotLocale,
-  BallotPageLayout,
-  BallotStyleId,
-  ContestId,
+  BallotPackage,
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionDefinition,
-  PrecinctId,
   safeParseElectionDefinition,
-  SystemSettings,
 } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import 'fast-text-encoding';
@@ -20,37 +14,6 @@ import {
   getEntries,
   readTextEntry,
 } from './file_reading';
-
-export interface BallotPackage {
-  electionDefinition: ElectionDefinition;
-  // TODO(kevin) once all machines support system settings, make systemSettings required
-  systemSettings?: SystemSettings;
-  ballots: BallotPackageEntry[];
-}
-
-export interface BallotPackageEntry {
-  pdf: Buffer;
-  ballotConfig: BallotConfig;
-  layout: readonly BallotPageLayout[];
-}
-
-export interface BallotPackageManifest {
-  ballots: readonly BallotConfig[];
-}
-
-export interface BallotStyleData {
-  ballotStyleId: BallotStyleId;
-  contestIds: ContestId[];
-  precinctId: PrecinctId;
-}
-
-export interface BallotConfig extends BallotStyleData {
-  filename: string;
-  layoutFilename: string;
-  locales: BallotLocale;
-  isLiveMode: boolean;
-  isAbsentee: boolean;
-}
 
 export async function readBallotPackageFromBuffer(
   source: Buffer
@@ -76,7 +39,6 @@ export async function readBallotPackageFromBuffer(
     electionDefinition:
       safeParseElectionDefinition(electionData).unsafeUnwrap(),
     systemSettings: safeParseSystemSettings(systemSettingsData).unsafeUnwrap(),
-    ballots: [],
   };
 }
 

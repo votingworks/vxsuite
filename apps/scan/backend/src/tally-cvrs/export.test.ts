@@ -1,14 +1,12 @@
 import { mockOf } from '@votingworks/test-utils';
 import {
+  BallotConfig,
+  BallotPackageEntry,
   BallotPageMetadata,
   BallotType,
   CastVoteRecord,
 } from '@votingworks/types';
-import {
-  BallotConfig,
-  BallotPackageEntry,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
+import { isFeatureFlagEnabled } from '@votingworks/utils';
 import { writeFile } from 'fs-extra';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
