@@ -24,8 +24,8 @@ test('jam on scan', async () => {
         DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
       },
     },
-    async ({ apiClient, mockScanner, mockUsb, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -50,8 +50,8 @@ test('jam on accept', async () => {
         DELAY_ACCEPTING_TIMEOUT: 500,
       },
     },
-    async ({ apiClient, mockScanner, interpreter, mockUsb, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth, testMode: true });
+    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth, testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -95,8 +95,8 @@ test('jam on accept', async () => {
 test('jam on return', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockScanner, interpreter, mockUsb, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -126,8 +126,8 @@ test('jam on return', async () => {
 test('jam on reject', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockScanner, interpreter, mockUsb, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });

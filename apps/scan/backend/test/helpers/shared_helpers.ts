@@ -1,6 +1,6 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { ok } from '@votingworks/basics';
-import { MockUsb, createBallotPackageZipArchive } from '@votingworks/backend';
+import { createBallotPackageZipArchive } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
 import {
@@ -14,6 +14,7 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import waitForExpect from 'wait-for-expect';
+import { MockUsbDrive } from '@votingworks/usb-drive';
 import { Api } from '../../src/app';
 import { PrecinctScannerInterpreter } from '../../src/interpret';
 import {
@@ -54,7 +55,7 @@ export async function waitForStatus(
 /**
  * configureApp is a testing convenience function that handles some common configuration of the VxScan app.
  * @param apiClient - a VxScan API client
- * @param mockUsb - a mock USB
+ * @param mockUsbDrive - a mock USB drive
  * @param options - an object containing optional arguments
  * @param options.mockAuth - a mock InsertedSmartCardAuthApi. Passing this will automatically
  *                           create a mock that auths the user as an election manager of the same
@@ -62,7 +63,7 @@ export async function waitForStatus(
  */
 export async function configureApp(
   apiClient: grout.Client<Api>,
-  mockUsb: MockUsb,
+  mockUsbDrive: MockUsbDrive,
   {
     ballotPackage = electionFamousNames2021Fixtures.electionJson.toBallotPackage(),
     precinctId,
@@ -85,7 +86,7 @@ export async function configureApp(
     );
   }
 
-  mockUsb.insertUsbDrive({
+  mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive(
         ballotPackage

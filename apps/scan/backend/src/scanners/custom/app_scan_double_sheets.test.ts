@@ -21,8 +21,8 @@ const needsReviewInterpretation: SheetInterpretation = {
 test('insert second ballot before first ballot accept', async () => {
   await withApp(
     { delays: {} },
-    async ({ apiClient, mockScanner, mockUsb, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth, testMode: true });
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth, testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -66,8 +66,8 @@ test('insert second ballot while first ballot is accepting', async () => {
         DELAY_ACCEPTED_RESET_TO_NO_PAPER: 2000,
       },
     },
-    async ({ apiClient, mockScanner, interpreter, mockUsb, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -106,8 +106,8 @@ test('insert second ballot while first ballot is accepting', async () => {
 test('insert second ballot while first ballot needs review', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockScanner, interpreter, mockUsb, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -157,8 +157,8 @@ test('double sheet on scan', async () => {
         DELAY_JAM_WHEN_SCANNING: 50,
       },
     },
-    async ({ apiClient, mockScanner, mockUsb, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
