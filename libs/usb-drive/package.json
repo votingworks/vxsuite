@@ -32,13 +32,16 @@
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
-    "debug": "^4.3.2"
+    "@votingworks/test-utils": "workspace:*",
+    "debug": "^4.3.2",
+    "tmp": "^0.2.1"
   },
   "devDependencies": {
     "@types/debug": "^4.1.7",
     "@types/jest": "^27.0.3",
     "@types/node": "^18.11.18",
     "@types/styled-components": "^5.1.9",
+    "@types/tmp": "^0.2.3",
     "@typescript-eslint/eslint-plugin": "^5.37.0",
     "@typescript-eslint/parser": "^5.37.0",
     "esbuild": "^0.17.11",

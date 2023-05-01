@@ -9,5 +9,8 @@
     "declaration": true,
     "declarationMap": true
   },
-  "references": [{ "path": "../basics/tsconfig.build.json" }]
+  "references": [
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../test-utils/tsconfig.build.json" }
+  ]
 }

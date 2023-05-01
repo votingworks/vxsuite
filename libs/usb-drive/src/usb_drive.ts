@@ -11,14 +11,18 @@ const debug = makeDebug('usb-drive');
 
 export type UsbDriveStatus =
   | { status: 'no_drive' }
-  | { status: 'mounted'; mountPoint: string }
+  | {
+      status: 'mounted';
+      mountPoint: string;
+      /** @deprecated - Temporary for backwards compatibility */
+      deviceName: string;
+    }
   | { status: 'ejected' }
   | { status: 'error'; reason: 'bad_format' };
 
 export interface UsbDrive {
   status(): Promise<UsbDriveStatus>;
   eject(): Promise<void>;
-  format(): Promise<void>;
 }
 
 interface BlockDeviceInfo {
@@ -103,6 +107,7 @@ async function unmountUsbDrive(mountPoint: string): Promise<void> {
   await exec('umount', [mountPoint]);
 }
 
+// TODO check format?
 export function detectUsbDrive(): UsbDrive {
   let didEject = false;
 
@@ -118,7 +123,11 @@ export function detectUsbDrive(): UsbDrive {
         deviceInfo = assertDefined(await getUsbDriveStatus());
       }
       if (deviceInfo.mountpoint) {
-        return { status: 'mounted', mountPoint: deviceInfo.mountpoint };
+        return {
+          status: 'mounted',
+          mountPoint: deviceInfo.mountpoint,
+          deviceName: deviceInfo.name,
+        };
       }
       return { status: 'ejected' };
     },
@@ -133,11 +142,6 @@ export function detectUsbDrive(): UsbDrive {
       }
       await unmountUsbDrive(deviceInfo.mountpoint);
       didEject = true;
-    },
-
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async format(): Promise<void> {
-      throw new Error('Not implemented');
     },
   };
 }
