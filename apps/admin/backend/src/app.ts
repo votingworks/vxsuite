@@ -205,14 +205,14 @@ function buildApi({
         const settings = store.getSystemSettings();
         await logger.log(
           LogEventId.SystemSettingsRetrieved,
-          assertDefined(await getUserRole()),
+          (await getUserRole()) ?? 'unknown',
           { disposition: 'success' }
         );
         return settings || null;
       } catch (error) {
         await logger.log(
           LogEventId.SystemSettingsRetrieved,
-          assertDefined(await getUserRole()),
+          (await getUserRole()) ?? 'unknown',
           { disposition: 'failure' }
         );
         throw error;
