@@ -13,7 +13,9 @@ type HeadingType = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 export interface FontProps {
   align?: Align;
   children?: React.ReactNode;
+  className?: string;
   color?: AccentColor;
+  id?: string;
   italic?: boolean;
   noWrap?: boolean;
   weight?: keyof SizeTheme['fontWeight'];

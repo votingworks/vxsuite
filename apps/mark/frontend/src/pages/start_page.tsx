@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
-import { Main, Screen, Prose, Button, H1 } from '@votingworks/ui';
+import { Main, Screen, Prose, Button, H1, P } from '@votingworks/ui';
 
 import pluralize from 'pluralize';
 import { assert } from '@votingworks/basics';
@@ -122,22 +122,22 @@ export function StartPage(): JSX.Element {
               {partyPrimaryAdjective} {title}
             </H1>
             <hr />
-            <p>
+            <P>
               <span>
                 Your ballot has{' '}
                 <strong>{pluralize('contest', contests.length, true)}</strong>.
               </span>
-            </p>
+            </P>
             {settingsContainer}
           </Prose>
         )}
-        <p className="screen-reader-only">
+        <P className="screen-reader-only">
           When voting with the text-to-speech audio, use the accessible
           controller to navigate your ballot. To navigate through the contests,
           use the left and right buttons. To navigate through contest choices,
           use the up and down buttons. To select or unselect a contest choice as
           your vote, use the select button.
-        </p>
+        </P>
       </Main>
       {isPortrait ? (
         <Footer>

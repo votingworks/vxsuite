@@ -1,12 +1,7 @@
 import React, { useEffect } from 'react';
 
 import {
-  ElectionDefinition,
-  PollsState,
-  PrecinctSelection,
-} from '@votingworks/types';
-import { makeAsync } from '@votingworks/utils';
-import {
+  P,
   Button,
   ChangePrecinctButton,
   CurrentDateAndTime,
@@ -23,6 +18,12 @@ import {
   UsbControllerButton,
   UsbDrive,
 } from '@votingworks/ui';
+import {
+  ElectionDefinition,
+  PollsState,
+  PrecinctSelection,
+} from '@votingworks/types';
+import { makeAsync } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 // eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/mark-backend';
@@ -81,13 +82,13 @@ export function AdminScreen({
           {election && (
             <React.Fragment>
               <H2>Stats</H2>
-              <p>
+              <P>
                 Ballots Printed: <strong>{ballotsPrintedCount}</strong>
-              </p>
+              </P>
               <H2>
                 <label htmlFor="selectPrecinct">Precinct</label>
               </H2>
-              <p>
+              <P>
                 <ChangePrecinctButton
                   appPrecinctSelection={appPrecinct}
                   updatePrecinctSelection={makeAsync(updateAppPrecinct)}
@@ -113,9 +114,9 @@ export function AdminScreen({
                     </Text>
                   </React.Fragment>
                 )}
-              </p>
+              </P>
               <H2>Test Ballot Mode</H2>
-              <p>
+              <P>
                 <SegmentedButton
                   label="Test Ballot Mode"
                   hideLabel
@@ -130,25 +131,25 @@ export function AdminScreen({
                 <Text small italic as="span">
                   Switching the mode will reset the Ballots Printed count.
                 </Text>
-              </p>
+              </P>
             </React.Fragment>
           )}
           <H2>Current Date and Time</H2>
-          <p>
+          <P>
             <CurrentDateAndTime />
-          </p>
-          <p>
+          </P>
+          <P>
             <SetClockButton>Update Date and Time</SetClockButton>
-          </p>
+          </P>
           <H2>Configuration</H2>
-          <p>
+          <P>
             <Text as="span" voteIcon>
               Election Definition is loaded.
             </Text>{' '}
             <Button variant="danger" small onPress={unconfigure}>
               Unconfigure Machine
             </Button>
-          </p>
+          </P>
           <H2>USB</H2>
           <UsbControllerButton
             small={false}

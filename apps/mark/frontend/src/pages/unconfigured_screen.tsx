@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Main, Screen, CenteredLargeProse, H1 } from '@votingworks/ui';
+import { Main, Screen, CenteredLargeProse, H1, P } from '@votingworks/ui';
 
 interface Props {
   hasElectionDefinition: boolean;
@@ -15,9 +15,9 @@ export function UnconfiguredScreen({
         <CenteredLargeProse>
           <H1>VxMark is Not Configured</H1>
           {hasElectionDefinition ? (
-            <p>Insert Election Manager card to select a precinct.</p>
+            <P>Insert Election Manager card to select a precinct.</P>
           ) : (
-            <p>Insert Election Manager card to load an election definition.</p>
+            <P>Insert Election Manager card to load an election definition.</P>
           )}
         </CenteredLargeProse>
       </Main>

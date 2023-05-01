@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import {
   Button,
   SegmentedButtonDeprecated as SegmentedButton,
+  P,
 } from '@votingworks/ui';
 
 import {
@@ -50,7 +51,7 @@ export function SettingsTextSize({
     setUserSettings({ textSize });
   }
   return (
-    <p>
+    <P>
       <Label aria-hidden>Text Size</Label>
       <TextSizeSegmentedButton data-testid="change-text-size-buttons">
         {FONT_SIZES.slice(0, 3).map((v: number, i: number) => (
@@ -68,6 +69,6 @@ export function SettingsTextSize({
           </Button>
         ))}
       </TextSizeSegmentedButton>
-    </p>
+    </P>
   );
 }

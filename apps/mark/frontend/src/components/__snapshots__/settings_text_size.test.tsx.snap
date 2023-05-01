@@ -56,7 +56,9 @@ exports[`renders SettingsTextSize 1`] = `
   margin-bottom: 0.4rem;
 }
 
-<p>
+<p
+  class="sc-dkPtyc XGKAk"
+>
   <label
     aria-hidden="true"
     class="c0"

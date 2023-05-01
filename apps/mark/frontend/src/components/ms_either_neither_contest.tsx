@@ -7,9 +7,8 @@ import React, {
   useState,
 } from 'react';
 import styled from 'styled-components';
-
-import { YesNoVote, OptionalYesNoVote } from '@votingworks/types';
 import {
+  P,
   Button,
   ContestChoiceButton,
   H1,
@@ -18,6 +17,8 @@ import {
   Text,
   TextWithLineBreaks,
 } from '@votingworks/ui';
+
+import { YesNoVote, OptionalYesNoVote } from '@votingworks/types';
 
 import { ScrollDirections, UpdateVoteFunction } from '../config/types';
 import {
@@ -207,7 +208,7 @@ export function MsEitherNeitherContest({
             <DistrictName>{districtName}</DistrictName>
             {contest.title}
           </H1>
-          <p>
+          <P>
             {eitherNeitherVote && pickOneVote ? (
               <span>
                 You have selected {eitherLabel} and your preferred measure.
@@ -240,7 +241,7 @@ export function MsEitherNeitherContest({
               To navigate through the contest choices, use the down button. To
               move to the next contest, use the right button.
             </span>
-          </p>
+          </P>
         </Prose>
       </ContentHeader>
       <VariableContentContainer

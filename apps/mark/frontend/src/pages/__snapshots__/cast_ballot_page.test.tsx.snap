@@ -53,7 +53,9 @@ exports[`renders CastBallotPage 1`] = `
       >
         You’re Almost Done
       </h1>
-      <p>
+      <p
+        class="sc-dkPtyc XGKAk"
+      >
         Your official ballot is printing. To finish voting you need to…
       </p>
       <ol

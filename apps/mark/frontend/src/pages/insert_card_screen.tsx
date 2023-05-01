@@ -13,6 +13,7 @@ import {
   ElectionInfoBar,
   InsertCardImage,
   H1,
+  P,
 } from '@votingworks/ui';
 
 import { throwIllegalValue } from '@votingworks/basics';
@@ -43,7 +44,7 @@ export function InsertCardScreen({
         return (
           <React.Fragment>
             <H1>Polls Closed</H1>
-            <p>Insert Poll Worker card to open.</p>
+            <P>Insert Poll Worker card to open.</P>
           </React.Fragment>
         );
       case 'polls_open':
@@ -52,14 +53,14 @@ export function InsertCardScreen({
         return (
           <React.Fragment>
             <H1>Voting Paused</H1>
-            <p>Insert Poll Worker card to resume voting.</p>
+            <P>Insert Poll Worker card to resume voting.</P>
           </React.Fragment>
         );
       case 'polls_closed_final':
         return (
           <React.Fragment>
             <H1>Polls Closed</H1>
-            <p>Voting is complete.</p>
+            <P>Voting is complete.</P>
           </React.Fragment>
         );
       /* istanbul ignore next - compile time check for completeness */
@@ -79,9 +80,9 @@ export function InsertCardScreen({
               plug in the power cord for this machine.
             </Text>
           )}
-          <p>
+          <P>
             <InsertCardImage />
-          </p>
+          </P>
           {mainText}
           {showNoAccessibleControllerWarning && (
             <Text muted small>

@@ -25,6 +25,7 @@ import {
   Prose,
   Screen,
   Text,
+  P,
 } from '@votingworks/ui';
 
 import {
@@ -550,8 +551,8 @@ export function ReviewPage(): JSX.Element {
           <SidebarSpacer />
           <Prose>
             <H2 aria-hidden>Review Votes</H2>
-            <p>Confirm your votes are correct.</p>
-            <p>{printMyBallotButton}</p>
+            <P>Confirm your votes are correct.</P>
+            <P>{printMyBallotButton}</P>
           </Prose>
         </Sidebar>
       )}
