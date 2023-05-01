@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from 'react';
-import pluralize from 'pluralize';
 import styled from 'styled-components';
 import { join } from 'path';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
