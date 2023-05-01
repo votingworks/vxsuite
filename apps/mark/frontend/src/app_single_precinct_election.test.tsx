@@ -32,7 +32,7 @@ test('loading election with a single precinct automatically sets precinct', asyn
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
-  apiMock.expectGetSystemSettings(null);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
 
   render(

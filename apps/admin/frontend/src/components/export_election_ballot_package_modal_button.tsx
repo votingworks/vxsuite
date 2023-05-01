@@ -1,8 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { join } from 'path';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-
 import {
   generateFilenameForBallotExportPackage,
   BALLOT_PACKAGE_FOLDER,
@@ -30,9 +28,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
   const { electionDefinition, usbDrive, auth, logger } = useContext(AppContext);
   assert(electionDefinition);
   const systemSettingsQuery = getSystemSettings.useQuery();
-  const systemSettings = systemSettingsQuery.isSuccess
-    ? systemSettingsQuery.data
-    : undefined;
+  const systemSettings = systemSettingsQuery.data;
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
   const { election, electionData, electionHash } = electionDefinition;
@@ -89,6 +85,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
   // Callback to open the file dialog.
   async function saveFileCallback(openDialog: boolean) {
     assert(state.type === 'ArchiveBegin');
+    assert(systemSettings !== undefined);
     // TODO(auth) check proper file permissions
     try {
       await logger.log(LogEventId.SaveBallotPackageInit, userRole);
@@ -106,7 +103,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       await state.archive.file('election.json', electionData);
       await state.archive.file(
         'systemSettings.json',
-        JSON.stringify(systemSettings || DEFAULT_SYSTEM_SETTINGS, null, 2)
+        JSON.stringify(systemSettings, null, 2)
       );
       setState(workflow.next);
     } catch (error) {
@@ -148,7 +145,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
                   src="/assets/usb-drive.svg"
                   alt="Insert USB Image"
                   // hidden feature to save with file dialog by double-clicking
-                  onDoubleClick={() => saveFileCallback(true)}
+                  onDoubleClick={
+                    loaded ? () => saveFileCallback(true) : undefined
+                  }
                 />
                 Please insert a USB drive in order to save the ballot
                 configuration.
@@ -176,7 +175,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
                 {loaded ? 'Save' : 'Loading …'}
               </Button>
               <Button onPress={closeModal}>Cancel</Button>
-              <Button onPress={() => saveFileCallback(true)}>Custom</Button>
+              <Button disabled={!loaded} onPress={() => saveFileCallback(true)}>
+                Custom
+              </Button>
             </React.Fragment>
           );
           mainContent = (

@@ -91,8 +91,8 @@ function buildApi(
       return workspace.store.getElectionDefinition() ?? null;
     },
 
-    getSystemSettings(): SystemSettings | null {
-      return workspace.store.getSystemSettings() ?? null;
+    getSystemSettings(): SystemSettings {
+      return workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
     },
 
     unconfigureMachine() {

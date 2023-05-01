@@ -6,6 +6,7 @@ import {
 import { LogEventId } from '@votingworks/logging';
 
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -254,7 +255,7 @@ test('getSystemSettings happy path', async () => {
   expect(systemSettingsResult).toEqual(JSON.parse(systemSettings.asText()));
 });
 
-test('getSystemSettings returns null when no `system settings` are found', async () => {
+test('getSystemSettings returns default system settings when no system settings are found', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
@@ -263,5 +264,5 @@ test('getSystemSettings returns null when no `system settings` are found', async
   mockSystemAdministratorAuth(auth);
 
   const systemSettingsResult = await apiClient.getSystemSettings();
-  expect(systemSettingsResult).toBeNull();
+  expect(systemSettingsResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });

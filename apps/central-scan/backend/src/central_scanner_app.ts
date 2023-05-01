@@ -164,8 +164,8 @@ function buildApi({
       return ok(electionDefinition);
     },
 
-    getSystemSettings(): SystemSettings | null {
-      return workspace.store.getSystemSettings() ?? null;
+    getSystemSettings(): SystemSettings {
+      return workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
     },
   });
 }

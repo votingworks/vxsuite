@@ -26,7 +26,7 @@ test('renders an error if ballot package config endpoint returns an error', asyn
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });
-  apiMock.expectGetSystemSettings(null);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   apiMock.setAuthStatusElectionManagerLoggedIn(electionSampleDefinition);
 
@@ -41,7 +41,7 @@ test('renders an error if ballot package config endpoint returns an error', asyn
   );
 
   apiMock.expectConfigureBallotPackageFromUsbError('election_hash_mismatch');
-  apiMock.expectGetSystemSettings(null);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   await screen.findByText('Configuring VxMark from USB drive…');

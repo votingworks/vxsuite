@@ -54,7 +54,7 @@ function shouldDisplayTimeLimitPrompt(
 interface SessionTimeLimitTrackerHelperProps {
   authStatus: AuthStatusWithSessionExpiry;
   logOut: () => void;
-  systemSettings: SystemSettings | null;
+  systemSettings: SystemSettings;
   updateSessionExpiry: (sessionExpiresAt: Date) => void;
 }
 
@@ -153,7 +153,7 @@ interface SessionTimeLimitTrackerProps {
     | DippedSmartCardAuth.AuthStatus
     | InsertedSmartCardAuth.AuthStatus;
   logOut: () => void;
-  systemSettings?: SystemSettings | null;
+  systemSettings?: SystemSettings;
   updateSessionExpiry: (sessionExpiresAt: Date) => void;
 }
 

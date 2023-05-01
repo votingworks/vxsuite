@@ -6,6 +6,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import {
   BallotPackageConfigurationError,
   BallotStyleId,
+  DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   InsertedSmartCardAuth,
   PrecinctId,
@@ -140,7 +141,9 @@ export function createApiMock() {
         .resolves(electionDefinition);
     },
 
-    expectGetSystemSettings(systemSettings: SystemSettings | null) {
+    expectGetSystemSettings(
+      systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
+    ) {
       mockApiClient.getSystemSettings.expectCallWith().resolves(systemSettings);
     },
 

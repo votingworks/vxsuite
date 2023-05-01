@@ -62,7 +62,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   });
   const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);
   const reload = jest.fn();
-  apiMock.expectGetSystemSettings(null);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   render(
     <App
@@ -412,7 +412,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Unconfigure the machine
   apiMock.expectUnconfigureMachine();
-  apiMock.expectGetSystemSettings(null);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   userEvent.click(screen.getByText('Unconfigure Machine'));
   await advanceTimersAndPromises();
@@ -446,7 +446,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   );
   const modal = await screen.findByRole('alertdialog');
   apiMock.expectUnconfigureMachine();
-  apiMock.expectGetSystemSettings(null);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   userEvent.click(
     within(modal).getByRole('button', {

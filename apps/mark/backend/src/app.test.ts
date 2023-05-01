@@ -240,7 +240,7 @@ test('unconfigureMachine deletes system settings and election definition', async
   await apiClient.unconfigureMachine();
 
   const readResult = await apiClient.getSystemSettings();
-  expect(readResult).toBeNull();
+  expect(readResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
   const electionDefinitionResult = await apiClient.getElectionDefinition();
   expect(electionDefinitionResult).toBeNull();
 });

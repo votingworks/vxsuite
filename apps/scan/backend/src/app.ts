@@ -4,6 +4,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPackageConfigurationError,
   CastVoteRecord,
+  DEFAULT_SYSTEM_SETTINGS,
   MarkThresholds,
   PollsState,
   PrecinctSelection,
@@ -131,7 +132,7 @@ function buildApi(
     getConfig(): PrecinctScannerConfig {
       return {
         electionDefinition: store.getElectionDefinition(),
-        systemSettings: store.getSystemSettings(),
+        systemSettings: store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS,
         precinctSelection: store.getPrecinctSelection(),
         markThresholdOverrides: store.getMarkThresholdOverrides(),
         isSoundMuted: store.getIsSoundMuted(),

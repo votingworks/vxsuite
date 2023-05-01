@@ -3,6 +3,7 @@ import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
   CastVoteRecord,
+  DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   InsertedSmartCardAuth,
   MarkThresholds,
@@ -39,6 +40,7 @@ const defaultConfig: PrecinctScannerConfig = {
   ballotCountWhenBallotBagLastReplaced: 0,
   electionDefinition: electionSampleDefinition,
   precinctSelection: ALL_PRECINCTS_SELECTION,
+  systemSettings: DEFAULT_SYSTEM_SETTINGS,
 };
 
 export const statusNoPaper: PrecinctScannerStatus = {
