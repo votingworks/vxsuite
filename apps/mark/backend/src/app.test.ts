@@ -125,7 +125,7 @@ test('read scanner report data from card', async () => {
   expect(mockAuth.readCardData).toHaveBeenCalledTimes(1);
   expect(mockAuth.readCardData).toHaveBeenNthCalledWith(
     1,
-    { electionHash, jurisdiction },
+    { ...DEFAULT_SYSTEM_SETTINGS, electionHash, jurisdiction },
     { schema: ScannerReportDataSchema }
   );
 });
@@ -168,6 +168,7 @@ test('clear scanner report data from card', async () => {
   expect(result).toEqual(ok());
   expect(mockAuth.clearCardData).toHaveBeenCalledTimes(1);
   expect(mockAuth.clearCardData).toHaveBeenNthCalledWith(1, {
+    ...DEFAULT_SYSTEM_SETTINGS,
     electionHash,
     jurisdiction,
   });

@@ -1,5 +1,6 @@
 import { zipFile } from '@votingworks/test-utils';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { readInitialAdminSetupPackageFromFile } from './initial_setup_package';
 
 test('readInitialAdminSetupPackageFromFile happy path', async () => {
@@ -16,5 +17,5 @@ test('readInitialAdminSetupPackageFromFile happy path', async () => {
   const electionObj = JSON.parse(setupPackage.electionString);
   expect(electionObj.title).toEqual('Example Primary Election');
   const systemSettingsObj = JSON.parse(setupPackage.systemSettingsString);
-  expect(systemSettingsObj.arePollWorkerCardPinsEnabled).toEqual(true);
+  expect(systemSettingsObj).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });
