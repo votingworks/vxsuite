@@ -1,7 +1,6 @@
 import express, { Application } from 'express';
 import { z } from 'zod';
 import {
-  DEV_JURISDICTION,
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
@@ -14,6 +13,7 @@ import {
   PrecinctId,
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
   ScannerReportData,
@@ -106,7 +106,7 @@ function buildApi(
       const systemSettings = DEFAULT_SYSTEM_SETTINGS;
       workspace.store.setElectionAndJurisdiction({
         electionData: electionDefinition.electionData,
-        jurisdiction: DEV_JURISDICTION,
+        jurisdiction: TEST_JURISDICTION,
       });
       workspace.store.setSystemSettings(systemSettings);
       return ok(electionDefinition);

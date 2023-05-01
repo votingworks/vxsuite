@@ -1,12 +1,12 @@
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { TEST_JURISDICTION } from '@votingworks/types';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
 import { dirSync, fileSync } from 'tmp';
-import { DEV_JURISDICTION } from '@votingworks/auth';
 import { Store } from '../store';
 import * as interpretNh from './nh';
 
-const jurisdiction = DEV_JURISDICTION;
+const jurisdiction = TEST_JURISDICTION;
 
 test('interpret', async () => {
   const dbPath = fileSync().name;

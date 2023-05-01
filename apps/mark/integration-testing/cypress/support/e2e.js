@@ -18,14 +18,12 @@ import './commands';
 
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { methodUrl } from '@votingworks/grout';
+import { TEST_JURISDICTION } from '@votingworks/types';
 
 // Importing all of @votingworks/auth causes Cypress tests to fail since @votingworks/auth contains
 // code that isn't browser-safe
 // eslint-disable-next-line vx/no-import-workspace-subfolders
-import {
-  DEV_JURISDICTION,
-  mockCard,
-} from '@votingworks/auth/src/cypress';
+import { mockCard } from '@votingworks/auth/src/cypress';
 
 const { electionData, electionHash } = electionSampleDefinition;
 const PIN = '000000';
@@ -41,7 +39,7 @@ function insertElectionManagerCard() {
       cardDetails: {
         user: {
           role: 'election_manager',
-          jurisdiction: DEV_JURISDICTION,
+          jurisdiction: TEST_JURISDICTION,
           electionHash,
         },
       },
@@ -58,7 +56,7 @@ function insertPollWorkerCard() {
       cardDetails: {
         user: {
           role: 'poll_worker',
-          jurisdiction: DEV_JURISDICTION,
+          jurisdiction: TEST_JURISDICTION,
           electionHash,
         },
         hasPin: false,

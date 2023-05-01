@@ -11,7 +11,7 @@ import {
   mockOf,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
-import { DEV_JURISDICTION, InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   ALL_PRECINCTS_SELECTION,
   ReportSourceMachineType,
@@ -28,6 +28,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   safeParseJson,
   SystemSettingsSchema,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 import { configureApp, createApp } from '../test/app_helpers';
 import { Api } from './app';
@@ -45,7 +46,7 @@ afterEach(() => {
   server?.close();
 });
 
-const jurisdiction = DEV_JURISDICTION;
+const jurisdiction = TEST_JURISDICTION;
 
 test('uses machine config from env', async () => {
   const originalEnv = process.env;

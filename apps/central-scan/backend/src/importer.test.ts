@@ -1,13 +1,12 @@
 import { dirSync } from 'tmp';
 import { typedAs } from '@votingworks/basics';
-import { MarkThresholds } from '@votingworks/types';
+import { MarkThresholds, TEST_JURISDICTION } from '@votingworks/types';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
-import { DEV_JURISDICTION } from '@votingworks/auth';
 import { Importer } from './importer';
 import { createWorkspace } from './util/workspace';
 import { makeMockScanner } from '../test/util/mocks';
 
-const jurisdiction = DEV_JURISDICTION;
+const jurisdiction = TEST_JURISDICTION;
 
 test('no election is configured', async () => {
   const workspace = await createWorkspace(dirSync().name);

@@ -12,6 +12,7 @@ import {
   InterpretedHmpbPage,
   PageInterpretationWithFiles,
   SheetOf,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
@@ -25,7 +26,6 @@ import path from 'path';
 import { typedAs } from '@votingworks/basics';
 import {
   buildMockDippedSmartCardAuth,
-  DEV_JURISDICTION,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { Server } from 'http';
@@ -40,7 +40,7 @@ import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
 
 jest.mock('./importer');
 
-const jurisdiction = DEV_JURISDICTION;
+const jurisdiction = TEST_JURISDICTION;
 
 let app: Application;
 let auth: DippedSmartCardAuthApi;

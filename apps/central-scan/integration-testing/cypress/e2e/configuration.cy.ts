@@ -1,15 +1,12 @@
 import { Buffer } from 'buffer';
-import { methodUrl } from '@votingworks/grout';
 import { sha256 } from 'js-sha256';
+import { methodUrl } from '@votingworks/grout';
+import { TEST_JURISDICTION } from '@votingworks/types';
 
 // Importing all of @votingworks/auth causes Cypress tests to fail since @votingworks/auth contains
 // code that isn't browser-safe
 // eslint-disable-next-line vx/no-import-workspace-subfolders
-import {
-  DEV_JURISDICTION,
-  mockCard,
-  MockFileContents,
-} from '@votingworks/auth/src/cypress';
+import { mockCard, MockFileContents } from '@votingworks/auth/src/cypress';
 
 const PIN = '000000';
 
@@ -28,7 +25,7 @@ function mockElectionManagerCard() {
           cardDetails: {
             user: {
               role: 'election_manager',
-              jurisdiction: DEV_JURISDICTION,
+              jurisdiction: TEST_JURISDICTION,
               electionHash,
             },
           },

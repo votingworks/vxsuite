@@ -1,12 +1,12 @@
 import { DateTime } from 'luxon';
-import { DEV_JURISDICTION } from '@votingworks/auth';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { TEST_JURISDICTION } from '@votingworks/types';
 
 import { configureApp, createApp } from '../test/app_helpers';
 
+const jurisdiction = TEST_JURISDICTION;
 const { electionDefinition } = electionFamousNames2021Fixtures;
 const { electionHash } = electionDefinition;
-const jurisdiction = DEV_JURISDICTION;
 
 test('getAuthStatus', async () => {
   const { apiClient, mockAuth, mockUsb } = createApp();

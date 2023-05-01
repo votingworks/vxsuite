@@ -5,6 +5,7 @@ import {
   BallotType,
   CVR,
   safeParseJson,
+  TEST_JURISDICTION,
   unsafeParse,
 } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
@@ -18,7 +19,6 @@ import { basename } from 'path';
 import { fileSync, tmpNameSync } from 'tmp';
 import ZipStream from 'zip-stream';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
-import { DEV_JURISDICTION } from '@votingworks/auth';
 import { election, electionDefinition } from '../test/fixtures/2020-choctaw';
 import { backup, Backup } from './backup';
 import { Store } from './store';
@@ -40,9 +40,9 @@ jest.mock('fs-extra', (): typeof import('fs-extra') => {
   };
 });
 
-const jurisdiction = DEV_JURISDICTION;
-
 const existsSyncMock = mockOf(existsSync);
+
+const jurisdiction = TEST_JURISDICTION;
 
 function getEntries(zipfile: JsZip): JSZipObject[] {
   return Object.values(zipfile.files);

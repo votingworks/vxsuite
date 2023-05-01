@@ -4,12 +4,12 @@ import { DateTime } from 'luxon';
 import { dirSync } from 'tmp';
 import {
   buildMockDippedSmartCardAuth,
-  DEV_JURISDICTION,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { createMockUsb } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { fakeLogger, Logger } from '@votingworks/logging';
+import { TEST_JURISDICTION } from '@votingworks/types';
 
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMockScanner } from '../test/util/mocks';
@@ -51,9 +51,9 @@ afterEach(() => {
   server.close();
 });
 
+const jurisdiction = TEST_JURISDICTION;
 const { electionDefinition } = stateOfHamilton;
 const { electionData, electionHash } = electionDefinition;
-const jurisdiction = DEV_JURISDICTION;
 
 function configureMachine(): void {
   workspace.store.setElectionAndJurisdiction({ electionData, jurisdiction });
