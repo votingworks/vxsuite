@@ -76,11 +76,11 @@ function getCurrentElectionDefinition(
 function constructAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
+  const electionDefinition = getCurrentElectionDefinition(workspace);
   const systemSettings = workspace.store.getSystemSettings();
-  const currentElectionDefinition = getCurrentElectionDefinition(workspace);
   return {
-    arePollWorkerCardPinsEnabled: systemSettings?.arePollWorkerCardPinsEnabled,
-    electionHash: currentElectionDefinition?.electionHash,
+    ...(systemSettings ?? {}),
+    electionHash: electionDefinition?.electionHash,
     jurisdiction: isIntegrationTest()
       ? TEST_JURISDICTION
       : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION,
