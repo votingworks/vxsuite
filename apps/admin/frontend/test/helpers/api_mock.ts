@@ -17,6 +17,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   CastVoteRecord,
+  DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
   ElectionDefinition,
   SystemSettings,
@@ -152,12 +153,9 @@ export function createApiMock(
     },
 
     expectGetSystemSettings(systemSettings?: SystemSettings) {
-      const defaultSystemSettings: SystemSettings = {
-        arePollWorkerCardPinsEnabled: false,
-      };
       apiClient.getSystemSettings
         .expectCallWith()
-        .resolves(systemSettings ?? defaultSystemSettings);
+        .resolves(systemSettings ?? DEFAULT_SYSTEM_SETTINGS);
     },
 
     expectGetCastVoteRecordFileMode(fileMode: CvrFileMode) {

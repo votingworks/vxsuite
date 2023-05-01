@@ -202,6 +202,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings(null);
   apiMock.expectGetElectionDefinition(null);
 
   await setElectionInStorage(storage, electionDefinition);

@@ -80,6 +80,7 @@ beforeEach(() => {
     reason: 'machine_locked',
   });
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings();
 
   MockDate.set(new Date('2020-11-03T22:22:00'));
   fetchMock.reset();
@@ -118,6 +119,7 @@ test('configuring with a demo election definition', async () => {
 
   // expecting configure and resulting refetch
   apiMock.expectConfigure(electionDefinition.electionData);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   fireEvent.click(screen.getByText('Load Demo Election Definition'));
 
@@ -165,7 +167,6 @@ test('authentication works', async () => {
   const { renderApp, hardware } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetSystemSettings();
   renderApp();
 
   await screen.findByText('VxAdmin is Locked');
@@ -259,7 +260,6 @@ test('L&A (logic and accuracy) flow', async () => {
     electionDefinition,
   });
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
-  apiMock.expectGetSystemSettings();
 
   renderApp();
   await apiMock.authenticateAsElectionManager(electionDefinition);
@@ -361,7 +361,6 @@ test('marking results as official', async () => {
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
   });
-  apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetWriteInSummaryAdjudicated([]);
   renderApp();
@@ -391,7 +390,6 @@ test('marking results as official', async () => {
 test('tabulating CVRs', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
   const { renderApp, logger } = buildApp(apiMock, 'ms-sems');
-  apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(EITHER_NEITHER_CVR_DATA, electionDefinition)
   );
@@ -530,7 +528,6 @@ test('tabulating CVRs with manual data', async () => {
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(EITHER_NEITHER_CVR_DATA, electionDefinition)
   );
-  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
     isOfficialResults: false,
@@ -706,7 +703,6 @@ test('reports screen shows appropriate summary data about ballot counts', async 
     await fileDataToCastVoteRecords(legacyCvrData, electionDefinition)
   );
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecordFileMode('test');
 
   const manualTally = convertTalliesByPrecinctToFullManualTally(
@@ -735,7 +731,6 @@ test('removing election resets cvr and manual data files', async () => {
   const { renderApp, backend } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetSystemSettings();
 
   const manualTally = convertTalliesByPrecinctToFullManualTally(
     { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
@@ -757,6 +752,7 @@ test('removing election resets cvr and manual data files', async () => {
   expect(manualTallyBefore).toBeDefined();
 
   apiMock.expectUnconfigure();
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectGetCastVoteRecords([]);
   fireEvent.click(getByText('Definition'));
@@ -784,7 +780,6 @@ test('clearing results', async () => {
     { ...mockCastVoteRecordFileRecord, numCvrsImported: 3000 },
   ]);
   apiMock.expectGetCastVoteRecordFileMode('test');
-  apiMock.expectGetSystemSettings();
 
   const manualTally = convertTalliesByPrecinctToFullManualTally(
     { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
@@ -848,7 +843,6 @@ test('can not view or print ballots', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetSystemSettings();
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
@@ -871,7 +865,6 @@ test('election manager UI has expected nav', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
   renderApp();
@@ -938,6 +931,7 @@ test('system administrator UI has expected nav when no election', async () => {
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
   const { electionDefinition } = electionFamousNames2021Fixtures;
   apiMock.expectConfigure(electionDefinition.electionData);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   userEvent.click(
     screen.getByRole('button', { name: 'Load Demo Election Definition' })
@@ -1036,7 +1030,6 @@ test('primary election flow', async () => {
   const { renderApp } = buildApp(apiMock);
 
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(legacyCvrData, electionDefinition)
   );

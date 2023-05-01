@@ -18,6 +18,7 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings(null);
   apiMock.expectGetElectionDefinition(null);
 });
 

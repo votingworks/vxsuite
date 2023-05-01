@@ -12,6 +12,7 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
+  DEFAULT_SYSTEM_SETTINGS,
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
@@ -36,6 +37,7 @@ beforeEach(() => {
     reason: 'machine_locked',
   });
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCastVoteRecords([]);
 
   fetchMock.reset();
@@ -51,7 +53,6 @@ afterEach(() => {
 
 test('Smartcard modal displays card details', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
@@ -164,7 +165,6 @@ test('Smartcard modal displays card details', async () => {
 
 test('Smartcard modal displays card details when no election definition on machine', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata(null);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
@@ -265,7 +265,6 @@ test('Smartcard modal displays card details when no election definition on machi
 
 test('Programming election manager and poll worker smartcards', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
@@ -376,7 +375,6 @@ test('Programming election manager and poll worker smartcards', async () => {
 
 test('Programming system administrator smartcards', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
@@ -479,7 +477,11 @@ test('Programming smartcards when no election definition on machine', async () =
 
 test('Resetting smartcard PINs', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetSystemSettings({ arePollWorkerCardPinsEnabled: true });
+  apiMock.apiClient.getSystemSettings.reset();
+  apiMock.expectGetSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    arePollWorkerCardPinsEnabled: true,
+  });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
@@ -546,7 +548,6 @@ test('Resetting smartcard PINs', async () => {
 
 test('Resetting system administrator smartcard PINs when no election definition on machine', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata(null);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
@@ -590,7 +591,6 @@ test('Resetting system administrator smartcard PINs when no election definition 
 
 test('Unprogramming smartcards', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
@@ -666,7 +666,6 @@ test('Unprogramming smartcards', async () => {
 
 test('Error handling', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();

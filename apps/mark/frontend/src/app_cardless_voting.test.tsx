@@ -47,6 +47,7 @@ test('Cardless Voting Flow', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings(null);
   apiMock.expectGetElectionDefinition(null);
   render(
     <App
@@ -262,6 +263,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings(null);
   apiMock.expectGetElectionDefinition(null);
 
   await setElectionInStorage(storage, electionSampleDefinition);
@@ -351,6 +353,7 @@ test('poll worker must select a precinct first', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings(null);
   apiMock.expectGetElectionDefinition(null);
   render(
     <App

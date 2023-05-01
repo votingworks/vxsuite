@@ -30,6 +30,7 @@ beforeEach(() => {
   window.location.href = '/';
   window.kiosk = fakeKiosk();
   apiMock = createApiMock();
+  apiMock.expectGetSystemSettings(null);
   apiMock.expectGetElectionDefinition(null);
 });
 
