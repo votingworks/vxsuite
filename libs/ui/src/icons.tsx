@@ -9,6 +9,7 @@ import {
   faCircleLeft,
   faCircleRight,
   faDeleteLeft,
+  faDisplay,
   faExclamationCircle,
   faExclamationTriangle,
   faGear,
@@ -92,6 +93,10 @@ export const Icons = {
 
   Disabled(): JSX.Element {
     return <FaIcon type={faBan} />;
+  },
+
+  Display(): JSX.Element {
+    return <FaIcon type={faDisplay} />;
   },
 
   Done(): JSX.Element {

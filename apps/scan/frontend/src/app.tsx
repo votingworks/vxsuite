@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
 
 import { getHardware } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
@@ -21,6 +21,8 @@ import {
 } from './api';
 import { ScanAppBase } from './scan_app_base';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
+import { Paths } from './constants';
+import { DisplaySettingsScreen } from './screens/display_settings_screen';
 
 export interface AppProps {
   hardware?: AppRootProps['hardware'];
@@ -53,7 +55,12 @@ export function App({
         >
           <ApiClientContext.Provider value={apiClient}>
             <QueryClientProvider client={queryClient}>
-              <AppRoot hardware={hardware} logger={logger} />
+              <Route path={Paths.DISPLAY_SETTINGS} exact>
+                <DisplaySettingsScreen />
+              </Route>
+              <Route path={Paths.APP_ROOT}>
+                <AppRoot hardware={hardware} logger={logger} />
+              </Route>
               <SessionTimeLimitTracker />
             </QueryClientProvider>
           </ApiClientContext.Provider>
