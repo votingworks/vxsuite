@@ -1,20 +1,15 @@
 import { assert } from '@votingworks/basics';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
-import {
-  ExternalTallySourceType,
-  FullElectionExternalTallies,
-  FullElectionExternalTally,
-  safeParse,
-} from '@votingworks/types';
+import { FullElectionManualTally, safeParse } from '@votingworks/types';
 import { Storage } from '@votingworks/utils';
 import { z } from 'zod';
 import {
-  convertExternalTalliesToStorageString,
-  convertStorageStringToExternalTallies,
-} from '../../utils/external_tallies';
+  convertManualTallyToStorageString,
+  convertStorageStringToManualTally,
+} from '../../utils/manual_tallies';
 import { ElectionManagerStoreBackend } from './types';
 
-const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
+const manualVoteTallyFileStorageKey = 'manualVoteTally';
 
 /** @visibleForTesting */
 export const currentElectionIdStorageKey = 'currentElectionId';
@@ -48,66 +43,41 @@ export class ElectionManagerStoreAdminBackend
     this.currentUserRole = currentUserRole ?? 'unknown';
   }
 
-  async loadFullElectionExternalTallies(): Promise<
-    FullElectionExternalTallies | undefined
+  async loadFullElectionManualTally(): Promise<
+    FullElectionManualTally | undefined
   > {
-    const serializedExternalTallies = safeParse(
+    const serializedManualTally = safeParse(
       z.string().optional(),
-      await this.storage.get(externalVoteTalliesFileStorageKey)
+      await this.storage.get(manualVoteTallyFileStorageKey)
     ).ok();
 
-    if (serializedExternalTallies) {
-      const importedData = convertStorageStringToExternalTallies(
-        serializedExternalTallies
+    if (serializedManualTally) {
+      const importedData = convertStorageStringToManualTally(
+        serializedManualTally
       );
       await this.logger.log(LogEventId.LoadFromStorage, 'system', {
         message:
-          'External file format vote tally data automatically loaded into application from local storage.',
+          'Manual vote tally data automatically loaded into application from local storage.',
         disposition: 'success',
-        importedTallyFileNames: importedData
-          .map((d) => d.inputSourceName)
-          .join(', '),
       });
-      return new Map(importedData.map((d) => [d.source, d]));
+      return importedData;
     }
   }
 
-  async updateFullElectionExternalTally(
-    sourceType: ExternalTallySourceType,
-    newFullElectionExternalTally: FullElectionExternalTally
+  async updateFullElectionManualTally(
+    newFullElectionManualTally: FullElectionManualTally
   ): Promise<void> {
-    const newFullElectionExternalTallies = new Map(
-      await this.loadFullElectionExternalTallies()
-    );
-    newFullElectionExternalTallies.set(
-      sourceType,
-      newFullElectionExternalTally
-    );
     await this.setStorageKeyAndLog(
-      externalVoteTalliesFileStorageKey,
-      convertExternalTalliesToStorageString(newFullElectionExternalTallies),
-      `Updated external tally from source: ${newFullElectionExternalTally.source}`
+      manualVoteTallyFileStorageKey,
+      convertManualTallyToStorageString(newFullElectionManualTally),
+      `Added or updated manual tally.`
     );
   }
 
-  async removeFullElectionExternalTally(
-    sourceType: ExternalTallySourceType
-  ): Promise<void> {
-    const newFullElectionExternalTallies = new Map(
-      await this.loadFullElectionExternalTallies()
-    );
-    newFullElectionExternalTallies.delete(sourceType);
-    await this.setStorageKeyAndLog(
-      externalVoteTalliesFileStorageKey,
-      convertExternalTalliesToStorageString(newFullElectionExternalTallies),
-      `Removed external tally from source: ${sourceType}`
-    );
-  }
-
-  async clearFullElectionExternalTallies(): Promise<void> {
+  async removeFullElectionManualTally(): Promise<void> {
     await this.removeStorageKeyAndLog(
-      externalVoteTalliesFileStorageKey,
-      'Cleared all external tallies'
+      manualVoteTallyFileStorageKey,
+      'Cleared manual tally.'
     );
   }
 

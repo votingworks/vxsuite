@@ -3,7 +3,6 @@ import pluralize from 'pluralize';
 
 import { throwIllegalValue } from '@votingworks/basics';
 import { Modal, Prose, Button } from '@votingworks/ui';
-import { ExternalTallySourceType } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { ResultsFileType } from '../config/types';
 import { getCastVoteRecordFiles } from '../api';
@@ -19,11 +18,7 @@ export function ConfirmRemovingFileModal({
   onCancel,
   fileType,
 }: Props): JSX.Element | null {
-  const { fullElectionExternalTallies } = useContext(AppContext);
-
-  const manualData = fullElectionExternalTallies.get(
-    ExternalTallySourceType.Manual
-  );
+  const { fullElectionManualTally: manualData } = useContext(AppContext);
 
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
 

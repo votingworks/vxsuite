@@ -1,9 +1,4 @@
-import {
-  ExternalTallySourceType,
-  FullElectionExternalTallies,
-  FullElectionExternalTally,
-} from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { FullElectionManualTally } from '@votingworks/types';
 import { ElectionManagerStoreBackend } from './types';
 
 /**
@@ -13,48 +8,29 @@ import { ElectionManagerStoreBackend } from './types';
 export class ElectionManagerStoreMemoryBackend
   implements ElectionManagerStoreBackend
 {
-  private fullElectionExternalTallies: Map<
-    ExternalTallySourceType,
-    FullElectionExternalTally
-  >;
+  private fullElectionManualTally?: FullElectionManualTally;
 
   constructor({
-    fullElectionExternalTallies,
+    fullElectionManualTally,
   }: {
-    fullElectionExternalTallies?: FullElectionExternalTallies;
+    fullElectionManualTally?: FullElectionManualTally;
   } = {}) {
-    this.fullElectionExternalTallies = new Map([
-      ...(fullElectionExternalTallies ?? []),
-    ]);
+    this.fullElectionManualTally = fullElectionManualTally;
   }
 
-  loadFullElectionExternalTallies(): Promise<
-    FullElectionExternalTallies | undefined
-  > {
-    return Promise.resolve(new Map(this.fullElectionExternalTallies));
+  loadFullElectionManualTally(): Promise<FullElectionManualTally | undefined> {
+    return Promise.resolve(this.fullElectionManualTally);
   }
 
-  async updateFullElectionExternalTally(
-    sourceType: ExternalTallySourceType,
-    newFullElectionExternalTally: FullElectionExternalTally
+  async updateFullElectionManualTally(
+    newFullElectionManualTally: FullElectionManualTally
   ): Promise<void> {
     await Promise.resolve();
-    assert(newFullElectionExternalTally.source === sourceType);
-    this.fullElectionExternalTallies.set(
-      sourceType,
-      newFullElectionExternalTally
-    );
+    this.fullElectionManualTally = newFullElectionManualTally;
   }
 
-  async removeFullElectionExternalTally(
-    sourceType: ExternalTallySourceType
-  ): Promise<void> {
+  async removeFullElectionManualTally(): Promise<void> {
     await Promise.resolve();
-    this.fullElectionExternalTallies.delete(sourceType);
-  }
-
-  async clearFullElectionExternalTallies(): Promise<void> {
-    await Promise.resolve();
-    this.fullElectionExternalTallies = new Map();
+    this.fullElectionManualTally = undefined;
   }
 }

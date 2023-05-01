@@ -7,8 +7,7 @@ import {
 import { Route } from 'react-router-dom';
 
 import {
-  ExternalTallySourceType,
-  FullElectionExternalTally,
+  FullElectionManualTally,
   TallyCategory,
   VotingMethod,
 } from '@votingworks/types';
@@ -24,11 +23,11 @@ import {
 } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import {
-  getEmptyExternalTalliesByPrecinct,
-  getEmptyExternalTally,
-} from '../utils/external_tallies';
+  getEmptyManualTalliesByPrecinct,
+  getEmptyManualTally,
+} from '../utils/manual_tallies';
 import { ManualDataImportPrecinctScreen } from './manual_data_import_precinct_screen';
-import { buildExternalTally } from '../../test/helpers/build_external_tally';
+import { buildManualTally } from '../../test/helpers/build_manual_tally';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 let apiMock: ApiMock;
@@ -64,7 +63,7 @@ test('displays error screen for invalid precinct', async () => {
 });
 
 test('displays correct contests for each precinct', async () => {
-  const updateExternalTally = jest.fn();
+  const updateManualTally = jest.fn();
   const commissionerRaces = [
     'Election Commissioner 01',
     'Election Commissioner 02',
@@ -113,7 +112,7 @@ test('displays correct contests for each precinct', async () => {
       {
         route: `/tally/manual-data-import/precinct/${precinctId}`,
         electionDefinition: electionWithMsEitherNeitherDefinition,
-        updateExternalTally,
+        updateManualTally,
         apiMock,
       }
     );
@@ -134,7 +133,7 @@ test('displays correct contests for each precinct', async () => {
 });
 
 test('can edit counts and update totals', async () => {
-  const updateExternalTally = jest.fn();
+  const updateManualTally = jest.fn();
   const logger = fakeLogger();
   apiMock.expectGetWriteInSummaryAdjudicated([]);
   renderInAppContext(
@@ -143,7 +142,7 @@ test('can edit counts and update totals', async () => {
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/23',
-      updateExternalTally,
+      updateManualTally,
       electionDefinition: electionSampleDefinition,
       logger,
       apiMock,
@@ -222,8 +221,8 @@ test('can edit counts and update totals', async () => {
       expect.objectContaining({ disposition: 'success' })
     )
   );
-  expect(updateExternalTally).toHaveBeenCalledTimes(1);
-  expect(updateExternalTally).toHaveBeenCalledWith(
+  expect(updateManualTally).toHaveBeenCalledTimes(1);
+  expect(updateManualTally).toHaveBeenCalledWith(
     expect.objectContaining({
       overallTally: {
         numberOfBallotsCounted: 100,
@@ -371,7 +370,7 @@ test('loads pre-adjudicated write-in values', async () => {
 
 test('can enter data for yes no contests as expected', async () => {
   apiMock.expectGetWriteInSummaryAdjudicated([]);
-  const updateExternalTally = jest.fn();
+  const updateManualTally = jest.fn();
   const logger = fakeLogger();
   renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
@@ -379,7 +378,7 @@ test('can enter data for yes no contests as expected', async () => {
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/23',
-      updateExternalTally,
+      updateManualTally,
       electionDefinition: electionSampleDefinition,
       logger,
       apiMock,
@@ -451,8 +450,8 @@ test('can enter data for yes no contests as expected', async () => {
       expect.objectContaining({ disposition: 'success' })
     )
   );
-  expect(updateExternalTally).toHaveBeenCalledTimes(1);
-  expect(updateExternalTally).toHaveBeenCalledWith(
+  expect(updateManualTally).toHaveBeenCalledTimes(1);
+  expect(updateManualTally).toHaveBeenCalledWith(
     expect.objectContaining({
       overallTally: {
         numberOfBallotsCounted: 100,
@@ -473,39 +472,35 @@ test('can enter data for yes no contests as expected', async () => {
 test('loads preexisting manual data to edit', async () => {
   apiMock.expectGetWriteInSummaryAdjudicated([]);
   const { election } = electionSampleDefinition;
-  const talliesByPrecinct = getEmptyExternalTalliesByPrecinct(election);
-  talliesByPrecinct['23'] = buildExternalTally(election, 1, [
+  const talliesByPrecinct = getEmptyManualTalliesByPrecinct(election);
+  talliesByPrecinct['23'] = buildManualTally(election, 1, [
     'county-commissioners',
     'judicial-robert-demergue',
   ]);
-  talliesByPrecinct['20'] = buildExternalTally(election, 1, [
+  talliesByPrecinct['20'] = buildManualTally(election, 1, [
     'primary-constitution-head-of-party',
   ]);
 
   const resultsByCategory = new Map();
   resultsByCategory.set(TallyCategory.Precinct, talliesByPrecinct);
-  const externalTally: FullElectionExternalTally = {
-    overallTally: getEmptyExternalTally(),
+  const manualTally: FullElectionManualTally = {
+    overallTally: getEmptyManualTally(),
     resultsByCategory,
     votingMethod: VotingMethod.Absentee,
-    inputSourceName: `Doesn't matter`,
-    source: ExternalTallySourceType.Manual,
     timestampCreated: new Date(),
   };
 
-  const updateExternalTally = jest.fn();
+  const updateManualTally = jest.fn();
   renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/23',
-      updateExternalTally,
+      updateManualTally,
       manualTallyVotingMethod: VotingMethod.Precinct,
       electionDefinition: electionSampleDefinition,
-      fullElectionExternalTallies: new Map([
-        [externalTally.source, externalTally],
-      ]),
+      fullElectionManualTally: manualTally,
       apiMock,
     }
   );

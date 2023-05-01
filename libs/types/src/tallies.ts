@@ -50,16 +50,9 @@ export interface FullElectionTally {
   readonly resultsByCategory: ReadonlyMap<TallyCategory, Dictionary<Tally>>;
 }
 
-export interface ExternalTally {
+export interface ManualTally {
   readonly contestTallies: Dictionary<ContestTally>;
   readonly numberOfBallotsCounted: number;
-}
-
-// Why have a source type with only one value? We used to support importing
-// external tallies from state election management systems and had more source
-// types.
-export enum ExternalTallySourceType {
-  Manual = 'manual-data',
 }
 
 export enum VotingMethod {
@@ -68,26 +61,18 @@ export enum VotingMethod {
   Unknown = 'unknown',
 }
 
-export interface FullElectionExternalTally {
-  readonly overallTally: ExternalTally;
+export interface FullElectionManualTally {
+  readonly overallTally: ManualTally;
   readonly resultsByCategory: ReadonlyMap<
     TallyCategory,
-    Dictionary<ExternalTally>
+    Dictionary<ManualTally>
   >;
   readonly votingMethod: VotingMethod;
-  readonly source: ExternalTallySourceType;
-  readonly inputSourceName: string;
   readonly timestampCreated: Date;
 }
 
-export type FullElectionExternalTallies = ReadonlyMap<
-  ExternalTallySourceType,
-  FullElectionExternalTally
->;
-
-export type OptionalExternalTally = Optional<ExternalTally>;
-export type OptionalFullElectionExternalTally =
-  Optional<FullElectionExternalTally>;
+export type OptionalManualTally = Optional<ManualTally>;
+export type OptionalFullElectionManualTally = Optional<FullElectionManualTally>;
 
 const nonnegativeInteger = z.number().nonnegative().int();
 

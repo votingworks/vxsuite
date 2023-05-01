@@ -6,8 +6,7 @@ import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import {
   ElectionDefinition,
   FullElectionTally,
-  FullElectionExternalTally,
-  FullElectionExternalTallies,
+  FullElectionManualTally,
   Printer,
   VotingMethod,
   DippedSmartCardAuth,
@@ -57,12 +56,12 @@ interface RenderInAppContextParams {
   generateBallotId?: () => string;
   isTabulationRunning?: boolean;
   setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>;
-  updateExternalTally?: (
-    newExternalTally: FullElectionExternalTally
+  updateManualTally?: (
+    newManualTally: FullElectionManualTally
   ) => Promise<void>;
   manualTallyVotingMethod?: VotingMethod;
   setManualTallyVotingMethod?: (votingMethod: VotingMethod) => void;
-  fullElectionExternalTallies?: FullElectionExternalTallies;
+  fullElectionManualTally?: FullElectionManualTally;
   generateExportableTallies?: () => ExportableTallies;
   auth?: DippedSmartCardAuth.AuthStatus;
   machineConfig?: MachineConfig;
@@ -121,10 +120,10 @@ export function renderInAppContext(
     generateBallotId = randomBallotId,
     isTabulationRunning = false,
     setIsTabulationRunning = jest.fn(),
-    updateExternalTally = jest.fn(),
+    updateManualTally = jest.fn(),
     manualTallyVotingMethod = VotingMethod.Precinct,
     setManualTallyVotingMethod = jest.fn(),
-    fullElectionExternalTallies = new Map(),
+    fullElectionManualTally = undefined,
     generateExportableTallies = jest.fn(),
     auth = electionDefinition === 'NONE'
       ? {
@@ -166,10 +165,10 @@ export function renderInAppContext(
         generateBallotId,
         isTabulationRunning,
         setIsTabulationRunning,
-        updateExternalTally,
+        updateManualTally,
         manualTallyVotingMethod,
         setManualTallyVotingMethod,
-        fullElectionExternalTallies,
+        fullElectionManualTally,
         generateExportableTallies,
         auth,
         machineConfig,

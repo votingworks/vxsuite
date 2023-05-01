@@ -10,9 +10,8 @@ import { Router, Route } from 'react-router-dom';
 import {
   ContestOptionTally,
   ContestTally,
-  ExternalTally,
-  ExternalTallySourceType,
-  FullElectionExternalTally,
+  ManualTally,
+  FullElectionManualTally,
   TallyCategory,
   VotingMethod,
 } from '@votingworks/types';
@@ -22,9 +21,9 @@ import { ManualDataImportIndexScreen } from './manual_data_import_index_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ResultsFileType } from '../config/types';
 import {
-  getEmptyExternalTalliesByPrecinct,
-  getEmptyExternalTally,
-} from '../utils/external_tallies';
+  getEmptyManualTalliesByPrecinct,
+  getEmptyManualTally,
+} from '../utils/manual_tallies';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 let apiMock: ApiMock;
@@ -40,7 +39,7 @@ afterEach(() => {
 });
 
 test('toggling ballot types before data has been added does not update tallies', async () => {
-  const updateExternalTally = jest.fn();
+  const updateManualTally = jest.fn();
   const setManualTallyVotingMethod = jest.fn();
   const { getByText, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import">
@@ -51,7 +50,7 @@ test('toggling ballot types before data has been added does not update tallies',
       electionDefinition: multiPartyPrimaryElectionDefinition,
       manualTallyVotingMethod: VotingMethod.Precinct,
       setManualTallyVotingMethod,
-      updateExternalTally,
+      updateManualTally,
       apiMock,
     }
   );
@@ -69,20 +68,18 @@ test('toggling ballot types before data has been added does not update tallies',
   expect(setManualTallyVotingMethod).toHaveBeenCalledWith(
     VotingMethod.Absentee
   );
-  expect(updateExternalTally).not.toHaveBeenCalled();
+  expect(updateManualTally).not.toHaveBeenCalled();
 });
 
 test('toggling ballot types before data after been added does does update tallies', async () => {
-  const updateExternalTally = jest.fn();
+  const updateManualTally = jest.fn();
   const setManualTallyVotingMethod = jest.fn();
-  const manualFullElectionExternalTally: FullElectionExternalTally = {
-    overallTally: getEmptyExternalTally(),
+  const manualFullElectionManualTally: FullElectionManualTally = {
+    overallTally: getEmptyManualTally(),
     resultsByCategory: new Map([
-      [TallyCategory.Precinct, { precinct: getEmptyExternalTally() }],
+      [TallyCategory.Precinct, { precinct: getEmptyManualTally() }],
     ]),
     votingMethod: VotingMethod.Absentee,
-    inputSourceName: 'Doesnt matter',
-    source: ExternalTallySourceType.Manual,
     timestampCreated: new Date(),
   };
   const { getByText, getByTestId } = renderInAppContext(
@@ -94,10 +91,8 @@ test('toggling ballot types before data after been added does does update tallie
       electionDefinition: multiPartyPrimaryElectionDefinition,
       manualTallyVotingMethod: VotingMethod.Absentee,
       setManualTallyVotingMethod,
-      updateExternalTally,
-      fullElectionExternalTallies: new Map([
-        [ExternalTallySourceType.Manual, manualFullElectionExternalTally],
-      ]),
+      updateManualTally,
+      fullElectionManualTally: manualFullElectionManualTally,
       apiMock,
     }
   );
@@ -115,16 +110,15 @@ test('toggling ballot types before data after been added does does update tallie
   expect(setManualTallyVotingMethod).toHaveBeenCalledWith(
     VotingMethod.Precinct
   );
-  expect(updateExternalTally).toHaveBeenCalledWith(
+  expect(updateManualTally).toHaveBeenCalledWith(
     expect.objectContaining({
-      source: ExternalTallySourceType.Manual,
       votingMethod: VotingMethod.Precinct,
     })
   );
 });
 
 test('precinct table renders properly when there is no data', () => {
-  const updateExternalTally = jest.fn();
+  const updateManualTally = jest.fn();
   const history = createMemoryHistory();
   const { getByText, getByTestId } = renderInAppContext(
     <Router history={history}>
@@ -133,7 +127,7 @@ test('precinct table renders properly when there is no data', () => {
     {
       route: '/tally/manual-data-import',
       electionDefinition: electionSampleDefinition,
-      updateExternalTally,
+      updateManualTally,
       apiMock,
     }
   );
@@ -170,7 +164,7 @@ test('precinct table renders properly when there is no data', () => {
 });
 
 test('loads preexisting manual data to edit', async () => {
-  const talliesByPrecinct = getEmptyExternalTalliesByPrecinct(
+  const talliesByPrecinct = getEmptyManualTalliesByPrecinct(
     electionSampleDefinition.election
   );
   talliesByPrecinct['23'] = {
@@ -231,18 +225,16 @@ test('loads preexisting manual data to edit', async () => {
       } as unknown as ContestTally,
     },
   };
-  const overallTally: ExternalTally = {
-    ...getEmptyExternalTally(),
+  const overallTally: ManualTally = {
+    ...getEmptyManualTally(),
     numberOfBallotsCounted: 100,
   };
   const resultsByCategory = new Map();
   resultsByCategory.set(TallyCategory.Precinct, talliesByPrecinct);
-  const externalTally: FullElectionExternalTally = {
+  const manualTally: FullElectionManualTally = {
     overallTally,
     resultsByCategory,
     votingMethod: VotingMethod.Absentee,
-    inputSourceName: 'Doesnt matter',
-    source: ExternalTallySourceType.Manual,
     timestampCreated: new Date(),
   };
   const resetFiles = jest.fn();
@@ -256,9 +248,7 @@ test('loads preexisting manual data to edit', async () => {
       electionDefinition: electionSampleDefinition,
       resetFiles,
       manualTallyVotingMethod: VotingMethod.Absentee,
-      fullElectionExternalTallies: new Map([
-        [externalTally.source, externalTally],
-      ]),
+      fullElectionManualTally: manualTally,
       apiMock,
     }
   );

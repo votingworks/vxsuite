@@ -63,7 +63,7 @@ export function TallyReportScreen(): JSX.Element {
     electionDefinition,
     isOfficialResults,
     fullElectionTally,
-    fullElectionExternalTallies,
+    fullElectionManualTally,
     isTabulationRunning,
     auth,
     logger,
@@ -171,7 +171,7 @@ export function TallyReportScreen(): JSX.Element {
       batchId={batchId}
       batchLabel={batchLabel}
       election={election}
-      fullElectionExternalTallies={fullElectionExternalTallies}
+      fullElectionManualTally={fullElectionManualTally}
       fullElectionTally={fullElectionTally}
       officialCandidateWriteIns={
         screenAdjudicatedOfficialCandidateWriteInCounts
@@ -306,9 +306,8 @@ export function TallyReportScreen(): JSX.Element {
             <Prose textCenter>
               <h1>Mark Unofficial Tally Results as Official Tally Results?</h1>
               <p>
-                Have all CVR and external results files been loaded? Once
-                results are marked as official, no additional CVR or external
-                files can be loaded.
+                Have all CVR files been loaded? Once results are marked as
+                official, no additional CVR files can be loaded.
               </p>
               <p>Have all unofficial tally reports been reviewed?</p>
             </Prose>

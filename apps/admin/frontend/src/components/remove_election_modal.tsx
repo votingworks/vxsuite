@@ -16,8 +16,8 @@ export function RemoveElectionModal({ onClose }: Props): JSX.Element {
   const store = useElectionManagerStore();
 
   async function unconfigureElection() {
-    // TODO: remove line once external tallies are in the backend
-    await store.clearFullElectionExternalTallies();
+    // TODO: remove line once manual tallies are in the backend
+    await store.removeFullElectionManualTally();
     unconfigureMutation.mutate(undefined, {
       onSuccess: () => {
         history.push(routerPaths.root);

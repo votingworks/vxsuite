@@ -1,8 +1,4 @@
-import {
-  ExternalTallySourceType,
-  FullElectionExternalTallies,
-  FullElectionExternalTally,
-} from '@votingworks/types';
+import { FullElectionManualTally } from '@votingworks/types';
 
 export interface AddCastVoteRecordFileResult {
   readonly wasExistingFile: boolean;
@@ -15,29 +11,19 @@ export interface AddCastVoteRecordFileResult {
  */
 export interface ElectionManagerStoreBackend {
   /**
-   * Loads the existing external tallies.
+   * Loads the existing manual tallies.
    */
-  loadFullElectionExternalTallies(): Promise<
-    FullElectionExternalTallies | undefined
-  >;
+  loadFullElectionManualTally(): Promise<FullElectionManualTally | undefined>;
 
   /**
-   * Updates the external tally for a given source.
+   * Updates the manual tally for a given source.
    */
-  updateFullElectionExternalTally(
-    sourceType: ExternalTallySourceType,
-    newFullElectionExternalTally: FullElectionExternalTally
+  updateFullElectionManualTally(
+    newFullElectionManualTally: FullElectionManualTally
   ): Promise<void>;
 
   /**
-   * Removes the external tally for a given source.
+   * Removes the manual tally for a given source.
    */
-  removeFullElectionExternalTally(
-    sourceType: ExternalTallySourceType
-  ): Promise<void>;
-
-  /**
-   * Clears all external tallies.
-   */
-  clearFullElectionExternalTallies(): Promise<void>;
+  removeFullElectionManualTally(): Promise<void>;
 }

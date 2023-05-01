@@ -7,13 +7,12 @@ import {
 import {
   Dictionary,
   BatchTally,
-  ExternalTally,
-  ExternalTallySourceType,
+  ManualTally,
   Tally,
   TallyCategory,
   VotingMethod,
   FullElectionTally,
-  FullElectionExternalTally,
+  FullElectionManualTally,
 } from '@votingworks/types';
 
 import { assert } from '@votingworks/basics';
@@ -23,7 +22,7 @@ import { renderInAppContext } from '../../test/render_in_app_context';
 
 import { BallotCountsTable } from './ballot_counts_table';
 import { fakeTally } from '../../test/helpers/fake_tally';
-import { fakeExternalTally } from '../../test/helpers/fake_external_tally';
+import { fakeManualTally } from '../../test/helpers/fake_manual_tally';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 let apiMock: ApiMock;
@@ -54,25 +53,22 @@ describe('Ballot Counts by Precinct', () => {
   const resultsByCategory = new Map();
   resultsByCategory.set(TallyCategory.Precinct, resultsByPrecinct);
 
-  const externalResultsByPrecinct: Dictionary<ExternalTally> = {
+  const manualResultsByPrecinct: Dictionary<ManualTally> = {
     // French Camp
-    '6526': fakeExternalTally({
+    '6526': fakeManualTally({
       numberOfBallotsCounted: 13,
     }),
     // East Weir
-    '6525': fakeExternalTally({
+    '6525': fakeManualTally({
       numberOfBallotsCounted: 0,
     }),
     // Hebron
-    '6528': fakeExternalTally({
+    '6528': fakeManualTally({
       numberOfBallotsCounted: 22,
     }),
   };
-  const externalResultsByCategory = new Map();
-  externalResultsByCategory.set(
-    TallyCategory.Precinct,
-    externalResultsByPrecinct
-  );
+  const manualResultsByCategory = new Map();
+  manualResultsByCategory.set(TallyCategory.Precinct, manualResultsByPrecinct);
 
   const fullElectionTally: FullElectionTally = {
     overallTally: fakeTally({
@@ -80,14 +76,12 @@ describe('Ballot Counts by Precinct', () => {
     }),
     resultsByCategory,
   };
-  const fullElectionExternalTally: FullElectionExternalTally = {
-    overallTally: fakeExternalTally({
+  const fullElectionManualTally: FullElectionManualTally = {
+    overallTally: fakeManualTally({
       numberOfBallotsCounted: 54,
     }),
-    resultsByCategory: externalResultsByCategory,
+    resultsByCategory: manualResultsByCategory,
     votingMethod: VotingMethod.Precinct,
-    source: ExternalTallySourceType.Manual,
-    inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
 
@@ -155,14 +149,12 @@ describe('Ballot Counts by Precinct', () => {
     );
   });
 
-  it('renders as expected when there is tally data and external data', () => {
+  it('renders as expected when there is tally data and manual data', () => {
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />,
       {
         fullElectionTally,
-        fullElectionExternalTallies: new Map([
-          [fullElectionExternalTally.source, fullElectionExternalTally],
-        ]),
+        fullElectionManualTally,
         apiMock,
       }
     );
@@ -170,7 +162,7 @@ describe('Ballot Counts by Precinct', () => {
       // Expect that 0 ballots are counted when the precinct is missing in the dictionary or the tally says there are 0 ballots
       const expectedNumberOfBallots =
         (resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0) +
-        (externalResultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0);
+        (manualResultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0);
       getByText(precinct.name);
       const tableRow = getByText(precinct.name).closest('tr');
       expect(tableRow).toBeDefined();
@@ -217,14 +209,12 @@ describe('Ballot Counts by Scanner', () => {
     }),
     resultsByCategory,
   };
-  const fullElectionExternalTally: FullElectionExternalTally = {
-    overallTally: fakeExternalTally({
+  const fullElectionManualTally: FullElectionManualTally = {
+    overallTally: fakeManualTally({
       numberOfBallotsCounted: 54,
     }),
     votingMethod: VotingMethod.Precinct,
     resultsByCategory: new Map(),
-    source: ExternalTallySourceType.Manual,
-    inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
 
@@ -281,14 +271,12 @@ describe('Ballot Counts by Scanner', () => {
     expect(getAllByTestId('table-row').length).toEqual(scannerIds.length + 2);
   });
 
-  it('renders as expected when there is tally data and external data', () => {
+  it('renders as expected when there is tally data and manual data', () => {
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />,
       {
         fullElectionTally,
-        fullElectionExternalTallies: new Map([
-          [fullElectionExternalTally.source, fullElectionExternalTally],
-        ]),
+        fullElectionManualTally,
         apiMock,
       }
     );
@@ -315,10 +303,8 @@ describe('Ballot Counts by Scanner', () => {
       }
     }
 
-    getByText('External Results (imported-file-name.csv)');
-    let tableRow = getByText(
-      'External Results (imported-file-name.csv)'
-    ).closest('tr');
+    getByText('Manually Entered Results');
+    let tableRow = getByText('Manually Entered Results').closest('tr');
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 54)).toBeInTheDocument();
 
@@ -346,18 +332,18 @@ describe('Ballots Counts by Party', () => {
   const resultsByCategory = new Map();
   resultsByCategory.set(TallyCategory.Party, resultsByParty);
 
-  const externalResultsByParty: Dictionary<ExternalTally> = {
+  const manualResultsByParty: Dictionary<ManualTally> = {
     // Liberty
-    '0': fakeExternalTally({
+    '0': fakeManualTally({
       numberOfBallotsCounted: 13,
     }),
     // Constitution
-    '3': fakeExternalTally({
+    '3': fakeManualTally({
       numberOfBallotsCounted: 73,
     }),
   };
-  const externalResultsByCategory = new Map();
-  externalResultsByCategory.set(TallyCategory.Party, externalResultsByParty);
+  const manualResultsByCategory = new Map();
+  manualResultsByCategory.set(TallyCategory.Party, manualResultsByParty);
 
   const fullElectionTally: FullElectionTally = {
     overallTally: fakeTally({
@@ -366,14 +352,12 @@ describe('Ballots Counts by Party', () => {
     resultsByCategory,
   };
 
-  const fullElectionExternalTally: FullElectionExternalTally = {
-    overallTally: fakeExternalTally({
+  const fullElectionManualTally: FullElectionManualTally = {
+    overallTally: fakeManualTally({
       numberOfBallotsCounted: 54,
     }),
-    resultsByCategory: externalResultsByCategory,
+    resultsByCategory: manualResultsByCategory,
     votingMethod: VotingMethod.Precinct,
-    source: ExternalTallySourceType.Manual,
-    inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
 
@@ -465,7 +449,7 @@ describe('Ballots Counts by Party', () => {
     );
   });
 
-  it('renders as expected where there is tally data and external data', () => {
+  it('renders as expected where there is tally data and manual data', () => {
     const expectedParties = [
       { partyName: 'Constitution Party', partyId: '3' },
       { partyName: 'Federalist Party', partyId: '4' },
@@ -479,9 +463,7 @@ describe('Ballots Counts by Party', () => {
           electionData: '',
         },
         fullElectionTally,
-        fullElectionExternalTallies: new Map([
-          [fullElectionExternalTally.source, fullElectionExternalTally],
-        ]),
+        fullElectionManualTally,
         apiMock,
       }
     );
@@ -489,7 +471,7 @@ describe('Ballots Counts by Party', () => {
     for (const { partyName, partyId } of expectedParties) {
       const expectedNumberOfBallots =
         (resultsByParty[partyId]?.numberOfBallotsCounted ?? 0) +
-        (externalResultsByParty[partyId]?.numberOfBallotsCounted ?? 0);
+        (manualResultsByParty[partyId]?.numberOfBallotsCounted ?? 0);
       getByText(partyName);
       const tableRow = getByText(partyName).closest('tr');
       expect(tableRow).toBeDefined();
@@ -534,16 +516,14 @@ describe('Ballots Counts by VotingMethod', () => {
     resultsByCategory,
   };
 
-  const numExternalBallots = 54;
+  const numManualBallots = 54;
 
-  const fullElectionExternalTally: FullElectionExternalTally = {
-    overallTally: fakeExternalTally({
-      numberOfBallotsCounted: numExternalBallots,
+  const fullElectionManualTally: FullElectionManualTally = {
+    overallTally: fakeManualTally({
+      numberOfBallotsCounted: numManualBallots,
     }),
     resultsByCategory: new Map(),
     votingMethod: VotingMethod.Precinct,
-    source: ExternalTallySourceType.Manual,
-    inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
 
@@ -613,7 +593,7 @@ describe('Ballots Counts by VotingMethod', () => {
     );
   });
 
-  it('renders as expected where there is tally data and external data', () => {
+  it('renders as expected where there is tally data and manual data', () => {
     const expectedLabels = [
       {
         method: VotingMethod.Absentee,
@@ -626,20 +606,18 @@ describe('Ballots Counts by VotingMethod', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />,
       {
         fullElectionTally,
-        fullElectionExternalTallies: new Map([
-          [fullElectionExternalTally.source, fullElectionExternalTally],
-        ]),
+        fullElectionManualTally,
         apiMock,
       }
     );
 
-    // The external tally is configured to be labelled as precinct data.
+    // The manual tally is configured to be labelled as precinct data.
 
     for (const { method, label } of expectedLabels) {
       let expectedNumberOfBallots =
         resultsByVotingMethod[method]?.numberOfBallotsCounted ?? 0;
       if (method === VotingMethod.Precinct) {
-        expectedNumberOfBallots += numExternalBallots;
+        expectedNumberOfBallots += numManualBallots;
       }
       getByText(label);
       const tableRow = getByText(label).closest('tr');
@@ -708,16 +686,14 @@ describe('Ballots Counts by Batch', () => {
     resultsByCategory,
   };
 
-  const numExternalBallots = 54;
+  const numManualBallots = 54;
 
-  const fullElectionExternalTally: FullElectionExternalTally = {
-    overallTally: fakeExternalTally({
-      numberOfBallotsCounted: numExternalBallots,
+  const fullElectionManualTally: FullElectionManualTally = {
+    overallTally: fakeManualTally({
+      numberOfBallotsCounted: numManualBallots,
     }),
     resultsByCategory: new Map(),
     votingMethod: VotingMethod.Precinct,
-    source: ExternalTallySourceType.Manual,
-    inputSourceName: 'imported-file-name.csv',
     timestampCreated: new Date(),
   };
 
@@ -790,7 +766,7 @@ describe('Ballots Counts by Batch', () => {
     );
   });
 
-  it('renders as expected where there is tally data and external data', () => {
+  it('renders as expected where there is tally data and manual data', () => {
     const expectedLabels = [
       {
         batchId: '12341',
@@ -817,14 +793,12 @@ describe('Ballots Counts by Batch', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.Batch} />,
       {
         fullElectionTally,
-        fullElectionExternalTallies: new Map([
-          [fullElectionExternalTally.source, fullElectionExternalTally],
-        ]),
+        fullElectionManualTally,
         apiMock,
       }
     );
 
-    // The external tally is configured to be labelled as precinct data.
+    // The manual tally is configured to be labelled as precinct data.
 
     for (const { batchId, label, scannerLabel } of expectedLabels) {
       const expectedNumberOfBallots =
@@ -837,17 +811,17 @@ describe('Ballots Counts by Batch', () => {
       domGetByText(tableRow!, `Unofficial ${label} Tally Report`);
     }
 
-    const externalTableRow = getAllByTestId('batch-external')[0].closest('tr');
-    assert(externalTableRow);
-    domGetByText(externalTableRow, 'External Results (imported-file-name.csv)');
-    domGetByText(externalTableRow, numExternalBallots);
+    const manualTableRow = getAllByTestId('batch-manual')[0].closest('tr');
+    assert(manualTableRow);
+    domGetByText(manualTableRow, 'Manually Entered Results');
+    domGetByText(manualTableRow, numManualBallots);
 
     getByText('Total Ballot Count');
     const tableRow = getByText('Total Ballot Count').closest('tr');
     assert(tableRow);
     domGetByText(tableRow, 176);
 
-    // There should be 3 extra table rows in addition to the batches, one for the headers, one for the external data, and one for the total row.
+    // There should be 3 extra table rows in addition to the batches, one for the headers, one for the manual data, and one for the total row.
     expect(getAllByTestId('table-row').length).toEqual(
       expectedLabels.length + 3
     );

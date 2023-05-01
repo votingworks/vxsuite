@@ -7,11 +7,7 @@ import {
 } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
-import {
-  VotingMethod,
-  getLabelForVotingMethod,
-  ExternalTallySourceType,
-} from '@votingworks/types';
+import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
 import {
   Prose,
   TallyReportPreview,
@@ -63,7 +59,7 @@ export function TallyWriteInReportScreen(): JSX.Element {
     electionDefinition,
     isOfficialResults,
     fullElectionTally,
-    fullElectionExternalTallies,
+    fullElectionManualTally: manualData,
     isTabulationRunning,
     auth,
     logger,
@@ -79,9 +75,6 @@ export function TallyWriteInReportScreen(): JSX.Element {
   }) as UseQueryResult<Admin.WriteInSummaryEntryAdjudicated[]>;
   const screenAdjudicatedWriteInCounts = getScreenAdjudicatedWriteInCounts(
     writeInSummaryQuery.data ?? []
-  );
-  const manualData = fullElectionExternalTallies.get(
-    ExternalTallySourceType.Manual
   );
   const manualWriteInCounts = manualData
     ? getManualWriteInCounts(manualData.overallTally)

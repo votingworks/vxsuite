@@ -4,16 +4,14 @@ import {
   getContests,
   ContestOptionTally,
   ContestTally,
-  ExternalTally,
-  ExternalTallySourceType,
-  FullElectionExternalTally,
-  OptionalExternalTally,
-  OptionalFullElectionExternalTally,
+  ManualTally,
+  FullElectionManualTally,
+  OptionalManualTally,
+  OptionalFullElectionManualTally,
   TallyCategory,
   VotingMethod,
   PartyId,
   PrecinctId,
-  FullElectionExternalTallies,
   ContestId,
 } from '@votingworks/types';
 import { combineContestTallies } from '@votingworks/utils';
@@ -25,44 +23,30 @@ import {
 } from './election';
 import { getAdjudicatedWriteInCandidate } from './write_ins';
 
-export function convertExternalTalliesToStorageString(
-  tallies: FullElectionExternalTallies
+export function convertManualTallyToStorageString(
+  tally: FullElectionManualTally
 ): string {
-  return JSON.stringify(
-    Array.from(tallies.values()).map((tally) => {
-      return {
-        ...tally,
-        resultsByCategory: Array.from(tally.resultsByCategory.entries()),
-        timestampCreated: tally.timestampCreated.getTime(),
-      };
-    })
-  );
+  return JSON.stringify({
+    ...tally,
+    resultsByCategory: Array.from(tally.resultsByCategory.entries()),
+    timestampCreated: tally.timestampCreated.getTime(),
+  });
 }
 
-export function convertStorageStringToExternalTallies(
+export function convertStorageStringToManualTally(
   inputString: string
-): FullElectionExternalTally[] {
-  const parsedJson = JSON.parse(inputString) as Array<Record<string, unknown>>;
-  return parsedJson.map((data) => {
-    const {
-      overallTally,
-      resultsByCategory,
-      votingMethod,
-      source,
-      inputSourceName,
-      timestampCreated,
-    } = data;
-    return {
-      overallTally,
-      votingMethod,
-      source,
-      inputSourceName,
-      resultsByCategory: new Map(
-        resultsByCategory as ReadonlyArray<readonly [unknown, unknown]>
-      ),
-      timestampCreated: new Date(timestampCreated as number),
-    } as unknown as FullElectionExternalTally;
-  });
+): FullElectionManualTally {
+  const parsedJson = JSON.parse(inputString) as Record<string, unknown>;
+  const { overallTally, resultsByCategory, votingMethod, timestampCreated } =
+    parsedJson;
+  return {
+    overallTally,
+    votingMethod,
+    resultsByCategory: new Map(
+      resultsByCategory as ReadonlyArray<readonly [unknown, unknown]>
+    ),
+    timestampCreated: new Date(timestampCreated as number),
+  } as unknown as FullElectionManualTally;
 }
 
 export function getTotalNumberOfBallots(
@@ -111,15 +95,15 @@ export function getTotalNumberOfBallots(
   );
 }
 
-export function getEmptyExternalTally(): ExternalTally {
+export function getEmptyManualTally(): ManualTally {
   return {
     contestTallies: {},
     numberOfBallotsCounted: 0,
   };
 }
 
-export function getPrecinctIdsInExternalTally(
-  tally: FullElectionExternalTally
+export function getPrecinctIdsInManualTally(
+  tally: FullElectionManualTally
 ): string[] {
   const resultsByPrecinct = tally.resultsByCategory.get(TallyCategory.Precinct);
   if (resultsByPrecinct) {
@@ -135,7 +119,7 @@ export function getPrecinctIdsInExternalTally(
 }
 
 function filterTallyForPartyId(
-  tally: ExternalTally,
+  tally: ManualTally,
   partyId: PartyId,
   election: Election
 ) {
@@ -163,8 +147,8 @@ function filterTallyForPartyId(
   };
 }
 
-export function filterExternalTalliesByParams(
-  fullTally: OptionalFullElectionExternalTally,
+export function filterManualTalliesByParams(
+  fullTally: OptionalFullElectionManualTally,
   election: Election,
   {
     precinctId,
@@ -179,13 +163,13 @@ export function filterExternalTalliesByParams(
     votingMethod?: VotingMethod;
     batchId?: string;
   }
-): OptionalExternalTally {
+): OptionalManualTally {
   if (!fullTally || scannerId || batchId) {
     return undefined;
   }
 
   if (votingMethod && fullTally.votingMethod !== votingMethod) {
-    return getEmptyExternalTally();
+    return getEmptyManualTally();
   }
 
   const { overallTally, resultsByCategory } = fullTally;
@@ -195,7 +179,7 @@ export function filterExternalTalliesByParams(
   if (precinctId) {
     filteredTally =
       resultsByCategory.get(TallyCategory.Precinct)?.[precinctId] ||
-      getEmptyExternalTally();
+      getEmptyManualTally();
   }
 
   if (!partyId) {
@@ -205,14 +189,12 @@ export function filterExternalTalliesByParams(
   return filterTallyForPartyId(filteredTally, partyId, election);
 }
 
-export function convertTalliesByPrecinctToFullExternalTally(
-  talliesByPrecinct: Dictionary<ExternalTally>,
+export function convertTalliesByPrecinctToFullManualTally(
+  talliesByPrecinct: Dictionary<ManualTally>,
   election: Election,
   votingMethod: VotingMethod,
-  source: ExternalTallySourceType,
-  inputSourceName: string,
   timestampCreated: Date
-): FullElectionExternalTally {
+): FullElectionManualTally {
   let totalNumberOfBallots = 0;
   const overallContestTallies: Dictionary<ContestTally> = {};
   for (const precinctTally of Object.values(talliesByPrecinct)) {
@@ -235,7 +217,7 @@ export function convertTalliesByPrecinctToFullExternalTally(
     }
   }
 
-  const overallTally: ExternalTally = {
+  const overallTally: ManualTally = {
     contestTallies: overallContestTallies,
     numberOfBallotsCounted: totalNumberOfBallots,
   };
@@ -244,7 +226,7 @@ export function convertTalliesByPrecinctToFullExternalTally(
   resultsByCategory.set(TallyCategory.Precinct, talliesByPrecinct);
 
   // Compute results filtered by party, this filters the sets of contests and requires recomputing the number of ballots counted.
-  const contestTalliesByParty: Dictionary<ExternalTally> = {};
+  const contestTalliesByParty: Dictionary<ManualTally> = {};
   const partiesInElection = getPartiesWithPrimaryElections(election);
   for (const party of partiesInElection) {
     contestTalliesByParty[party.id] = filterTallyForPartyId(
@@ -259,8 +241,6 @@ export function convertTalliesByPrecinctToFullExternalTally(
     overallTally,
     resultsByCategory,
     votingMethod,
-    inputSourceName,
-    source,
     timestampCreated,
   };
 }
@@ -320,11 +300,11 @@ export function getEmptyContestTallies(
   return contestTallies;
 }
 
-export function getEmptyExternalTalliesByPrecinct(
+export function getEmptyManualTalliesByPrecinct(
   election: Election,
   allAdjudicatedValues?: Map<ContestId, string[]>
-): Dictionary<ExternalTally> {
-  const tallies: Dictionary<ExternalTally> = {};
+): Dictionary<ManualTally> {
+  const tallies: Dictionary<ManualTally> = {};
   for (const precinct of election.precincts) {
     tallies[precinct.id] = {
       contestTallies: getEmptyContestTallies(election, allAdjudicatedValues),

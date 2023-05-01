@@ -1,6 +1,6 @@
 import React from 'react';
 import { computeTallyWithPrecomputedCategories } from '@votingworks/utils';
-import { ExternalTally, TallyCategory } from '@votingworks/types';
+import { ManualTally, TallyCategory } from '@votingworks/types';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import {
   hasTextAcrossElements,
@@ -25,31 +25,31 @@ const scannedTally = fullElectionTally.resultsByCategory.get(
 )?.['1'];
 assert(scannedTally);
 
-const candidateContestWithExternalDataId = 'best-animal-fish';
-const candidateContestWithExternalData = election.contests.find(
-  (c) => c.id === candidateContestWithExternalDataId
+const candidateContestWithManualDataId = 'best-animal-fish';
+const candidateContestWithManualData = election.contests.find(
+  (c) => c.id === candidateContestWithManualDataId
 );
-assert(candidateContestWithExternalData);
-assert(candidateContestWithExternalData.type === 'candidate');
+assert(candidateContestWithManualData);
+assert(candidateContestWithManualData.type === 'candidate');
 
-const yesNoContestWithExternalDataId = 'fishing';
-const yesNoContestWithExternalData = election.contests.find(
-  (c) => c.id === yesNoContestWithExternalDataId
+const yesNoContestWithManualDataId = 'fishing';
+const yesNoContestWithManualData = election.contests.find(
+  (c) => c.id === yesNoContestWithManualDataId
 );
-assert(yesNoContestWithExternalData);
-assert(yesNoContestWithExternalData.type === 'yesno');
+assert(yesNoContestWithManualData);
+assert(yesNoContestWithManualData.type === 'yesno');
 
-const externalTally: ExternalTally = {
+const manualTally: ManualTally = {
   contestTallies: {
-    [candidateContestWithExternalDataId]: {
-      contest: candidateContestWithExternalData,
+    [candidateContestWithManualDataId]: {
+      contest: candidateContestWithManualData,
       tallies: {
         salmon: {
-          option: candidateContestWithExternalData.candidates[0],
+          option: candidateContestWithManualData.candidates[0],
           tally: 1,
         },
         seahorse: {
-          option: candidateContestWithExternalData.candidates[1],
+          option: candidateContestWithManualData.candidates[1],
           tally: 1,
         },
       },
@@ -59,8 +59,8 @@ const externalTally: ExternalTally = {
         ballots: 4,
       },
     },
-    [yesNoContestWithExternalDataId]: {
-      contest: yesNoContestWithExternalData,
+    [yesNoContestWithManualDataId]: {
+      contest: yesNoContestWithManualData,
       tallies: {
         yes: {
           option: ['yes'],
@@ -92,29 +92,12 @@ test('shows correct results for candidate contest with only scanned results', ()
   within(bestAnimalFish).getByText(hasTextAcrossElements('Salmon1198'));
 });
 
-test('adds external results', () => {
-  render(
-    <ContestTally
-      election={election}
-      scannedTally={scannedTally}
-      otherExternalTallies={[externalTally]}
-    />
-  );
-  const bestAnimalFish = screen.getByTestId('results-table-best-animal-fish');
-  within(bestAnimalFish).getByText('Best Animal');
-  within(bestAnimalFish).getByText(/1514 ballots cast/);
-  within(bestAnimalFish).getByText(/120 overvotes/);
-  within(bestAnimalFish).getByText(/121 undervotes/);
-  within(bestAnimalFish).getByText(hasTextAcrossElements('Seahorse74'));
-  within(bestAnimalFish).getByText(hasTextAcrossElements('Salmon1199'));
-});
-
 test('adds manual results', () => {
   render(
     <ContestTally
       election={election}
       scannedTally={scannedTally}
-      manualTally={externalTally}
+      manualTally={manualTally}
     />
   );
   const bestAnimalFish = screen.getByTestId('results-table-best-animal-fish');
@@ -135,17 +118,16 @@ test('displays yes/no contests correctly', () => {
     <ContestTally
       election={election}
       scannedTally={scannedTally}
-      manualTally={externalTally}
-      otherExternalTallies={[externalTally]}
+      manualTally={manualTally}
     />
   );
   const fishing = screen.getByTestId('results-table-fishing');
   within(fishing).getByText('Ballot Measure 3');
-  within(fishing).getByText(hasTextAcrossElements('Ballots Cast151441518'));
-  within(fishing).getByText(hasTextAcrossElements('Overvotes74175'));
-  within(fishing).getByText(hasTextAcrossElements('Undervotes119911200'));
-  within(fishing).getByText(hasTextAcrossElements('Yes1211122'));
-  within(fishing).getByText(hasTextAcrossElements('No1201121'));
+  within(fishing).getByText(hasTextAcrossElements('Ballots Cast151041514'));
+  within(fishing).getByText(hasTextAcrossElements('Overvotes73174'));
+  within(fishing).getByText(hasTextAcrossElements('Undervotes119811199'));
+  within(fishing).getByText(hasTextAcrossElements('Yes1201121'));
+  within(fishing).getByText(hasTextAcrossElements('No1191120'));
 });
 
 test('specifies number of seats if relevant', () => {
@@ -186,15 +168,15 @@ test('shows X when missing tally for option', () => {
 // results and that entire contest having no manual tally, yet manualTally
 // being defined.
 test('assumes scanned tally is 0 if it is missing and there is manual data', () => {
-  const externalTallyMissingTallies = cloneDeep(externalTally);
-  externalTallyMissingTallies.contestTallies['best-animal-fish'] = undefined;
-  externalTallyMissingTallies.contestTallies['fishing'] = undefined;
+  const manualTallyMissingTallies = cloneDeep(manualTally);
+  manualTallyMissingTallies.contestTallies['best-animal-fish'] = undefined;
+  manualTallyMissingTallies.contestTallies['fishing'] = undefined;
 
   render(
     <ContestTally
       election={election}
       scannedTally={scannedTallyMissingTallies}
-      manualTally={externalTallyMissingTallies}
+      manualTally={manualTallyMissingTallies}
     />
   );
 

@@ -3,10 +3,10 @@ import {
   CandidateId,
   ContestId,
   Dictionary,
-  ExternalTally,
+  ManualTally,
   writeInCandidate,
 } from '@votingworks/types';
-import { buildExternalTally } from '../../test/helpers/build_external_tally';
+import { buildManualTally } from '../../test/helpers/build_manual_tally';
 import {
   combineWriteInCounts,
   CountsByContestAndCandidateName,
@@ -28,13 +28,13 @@ function writeInCountsAsObject(
 
 // Modifies a contest of external tally to include an additional write-in
 // returns new write-in candidate id
-function addWriteInToExternalTally(
-  externalTally: ExternalTally,
+function addWriteInToManualTally(
+  manualTally: ManualTally,
   contestId: ContestId,
   name: string,
   tally: number
 ): CandidateId {
-  const contestTally = externalTally.contestTallies[contestId];
+  const contestTally = manualTally.contestTallies[contestId];
   const candidate = getAdjudicatedWriteInCandidate(name, false);
   contestTally!.tallies[candidate.id] = {
     option: candidate,
@@ -44,17 +44,17 @@ function addWriteInToExternalTally(
 }
 
 test('getManualWriteInCounts', () => {
-  const externalTally = buildExternalTally(electionSample, 1, [
+  const manualTally = buildManualTally(electionSample, 1, [
     'county-commissioners',
     'city-mayor',
     'president',
   ]);
-  addWriteInToExternalTally(externalTally, 'county-commissioners', 'John', 4);
-  addWriteInToExternalTally(externalTally, 'county-commissioners', 'Jane', 7);
-  addWriteInToExternalTally(externalTally, 'city-mayor', 'Jill', 8);
+  addWriteInToManualTally(manualTally, 'county-commissioners', 'John', 4);
+  addWriteInToManualTally(manualTally, 'county-commissioners', 'Jane', 7);
+  addWriteInToManualTally(manualTally, 'city-mayor', 'Jill', 8);
 
   expect(
-    writeInCountsAsObject(getManualWriteInCounts(externalTally))
+    writeInCountsAsObject(getManualWriteInCounts(manualTally))
   ).toMatchObject({
     'county-commissioners': {
       John: 4,
@@ -115,25 +115,25 @@ test('combineWriteInCounts', () => {
 });
 
 test('mergeWriteIns', () => {
-  const externalTally = buildExternalTally(electionSample, 0, [
+  const manualTally = buildManualTally(electionSample, 0, [
     'county-commissioners',
   ]);
   const originalWriteInIds = [];
   originalWriteInIds.push(
-    addWriteInToExternalTally(externalTally, 'county-commissioners', 'Bri', 10)
+    addWriteInToManualTally(manualTally, 'county-commissioners', 'Bri', 10)
   );
   originalWriteInIds.push(
-    addWriteInToExternalTally(externalTally, 'county-commissioners', 'Brad', 9)
+    addWriteInToManualTally(manualTally, 'county-commissioners', 'Brad', 9)
   );
   originalWriteInIds.push(
-    addWriteInToExternalTally(externalTally, 'county-commissioners', 'Bran', 8)
+    addWriteInToManualTally(manualTally, 'county-commissioners', 'Bran', 8)
   );
 
-  const externalTallyWithWriteInsMerged = mergeWriteIns(externalTally);
+  const manualTallyWithWriteInsMerged = mergeWriteIns(manualTally);
 
   // Should have the merged results
   expect(
-    externalTallyWithWriteInsMerged.contestTallies['county-commissioners']
+    manualTallyWithWriteInsMerged.contestTallies['county-commissioners']
   ).toMatchObject({
     tallies: {
       'write-in': {
@@ -145,7 +145,7 @@ test('mergeWriteIns', () => {
 
   // Should not have the original write-ins
   const countyCommissionerCandidateIds = Object.keys(
-    externalTallyWithWriteInsMerged.contestTallies['county-commissioners']!
+    manualTallyWithWriteInsMerged.contestTallies['county-commissioners']!
       .tallies
   );
   for (const originalWriteInId of originalWriteInIds) {

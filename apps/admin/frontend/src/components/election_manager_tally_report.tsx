@@ -11,9 +11,7 @@ import {
 import {
   ContestId,
   Election,
-  ExternalTally,
-  ExternalTallySourceType,
-  FullElectionExternalTallies,
+  ManualTally,
   FullElectionTally,
   getLabelForVotingMethod,
   PartyIdSchema,
@@ -23,6 +21,7 @@ import {
   PartyId,
   getPartyIdsWithContests,
   getPartySpecificElectionTitle,
+  FullElectionManualTally,
 } from '@votingworks/types';
 import {
   filterTalliesByParams,
@@ -32,7 +31,7 @@ import {
 import React from 'react';
 
 import { find, Optional } from '@votingworks/basics';
-import { filterExternalTalliesByParams } from '../utils/external_tallies';
+import { filterManualTalliesByParams } from '../utils/manual_tallies';
 import { mergeWriteIns } from '../utils/write_ins';
 
 export type TallyReportType = 'Official' | 'Unofficial' | 'Test Deck';
@@ -41,7 +40,7 @@ export interface Props {
   batchId?: string;
   batchLabel?: string;
   election: Election;
-  fullElectionExternalTallies: FullElectionExternalTallies;
+  fullElectionManualTally?: FullElectionManualTally;
   fullElectionTally: FullElectionTally;
   generatedAtTime?: Date;
   tallyReportType: TallyReportType;
@@ -56,7 +55,7 @@ export function ElectionManagerTallyReport({
   batchId,
   batchLabel,
   election,
-  fullElectionExternalTallies,
+  fullElectionManualTally,
   fullElectionTally,
   generatedAtTime = new Date(),
   tallyReportType,
@@ -127,11 +126,10 @@ export function ElectionManagerTallyReport({
               ...tallyForReport.ballotCountsByVotingMethod,
             };
           let reportBallotCount = tallyForReport.numberOfBallotsCounted;
-          let manualTallyForReport: Optional<ExternalTally>;
-          const otherExternalTalliesForReport: ExternalTally[] = [];
-          for (const t of fullElectionExternalTallies.values()) {
-            const filteredExternalTally = filterExternalTalliesByParams(
-              t,
+          let manualTallyForReport: Optional<ManualTally>;
+          if (fullElectionManualTally) {
+            const filteredManualTally = filterManualTalliesByParams(
+              fullElectionManualTally,
               election,
               {
                 precinctId,
@@ -142,18 +140,16 @@ export function ElectionManagerTallyReport({
               }
             );
             if (
-              filteredExternalTally &&
-              filteredExternalTally.numberOfBallotsCounted > 0
+              filteredManualTally &&
+              filteredManualTally.numberOfBallotsCounted > 0
             ) {
-              if (t.source === ExternalTallySourceType.Manual) {
-                manualTallyForReport = mergeWriteIns(filteredExternalTally);
-              } else {
-                otherExternalTalliesForReport.push(filteredExternalTally);
-              }
-              ballotCountsByVotingMethod[t.votingMethod] =
-                filteredExternalTally.numberOfBallotsCounted +
-                (ballotCountsByVotingMethod[t.votingMethod] ?? 0);
-              reportBallotCount += filteredExternalTally.numberOfBallotsCounted;
+              manualTallyForReport = mergeWriteIns(filteredManualTally);
+              ballotCountsByVotingMethod[fullElectionManualTally.votingMethod] =
+                filteredManualTally.numberOfBallotsCounted +
+                (ballotCountsByVotingMethod[
+                  fullElectionManualTally.votingMethod
+                ] ?? 0);
+              reportBallotCount += filteredManualTally.numberOfBallotsCounted;
             }
           }
 
@@ -186,7 +182,6 @@ export function ElectionManagerTallyReport({
                     election={election}
                     scannedTally={tallyForReport}
                     manualTally={manualTallyForReport}
-                    otherExternalTallies={otherExternalTalliesForReport}
                     precinctId={precinctId}
                   />
                 </TallyReportColumns>
@@ -273,7 +268,6 @@ export function ElectionManagerTallyReport({
                     election={election}
                     scannedTally={tallyForReport}
                     manualTally={manualTallyForReport}
-                    otherExternalTallies={otherExternalTalliesForReport}
                   />
                 </TallyReportColumns>
               </ReportSection>
@@ -305,7 +299,6 @@ export function ElectionManagerTallyReport({
                   election={election}
                   scannedTally={tallyForReport}
                   manualTally={manualTallyForReport}
-                  otherExternalTallies={otherExternalTalliesForReport}
                 />
               </TallyReportColumns>
             </ReportSection>

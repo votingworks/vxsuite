@@ -2,20 +2,20 @@ import {
   ContestOptionTally,
   Dictionary,
   Election,
-  ExternalTally,
+  ManualTally,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import {
   getEmptyContestTallies,
   getTotalNumberOfBallots,
-} from '../../src/utils/external_tallies';
+} from '../../src/utils/manual_tallies';
 
 // Note this helper uses 'getEmptyContestTallies' and 'getTotalNumberOfBallots' util functions so should not be used to test those implementations.
-export function buildExternalTally(
+export function buildManualTally(
   election: Election,
   multiplier: number,
   contestIdsToPopulate: string[]
-): ExternalTally {
+): ManualTally {
   // Initialize an empty set of contest tallies
   const contestTallies = getEmptyContestTallies(election);
   for (const contestId of contestIdsToPopulate) {
