@@ -5468,9 +5468,15 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       debug:
         specifier: ^4.3.2
         version: 4.3.4(supports-color@8.1.1)
+      tmp:
+        specifier: ^0.2.1
+        version: 0.2.1
     devDependencies:
       '@types/debug':
         specifier: ^4.1.7
@@ -5479,16 +5485,19 @@ importers:
         specifier: ^27.0.3
         version: 27.4.1
       '@types/node':
-        specifier: ^18.11.18
-        version: 18.11.18
+        specifier: 16.18.23
+        version: 16.18.23
       '@types/styled-components':
         specifier: ^5.1.9
         version: 5.1.9
+      '@types/tmp':
+        specifier: ^0.2.3
+        version: 0.2.3
       '@typescript-eslint/eslint-plugin':
-        specifier: ^5.37.0
+        specifier: 5.37.0
         version: 5.37.0(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)(typescript@4.6.3)
       '@typescript-eslint/parser':
-        specifier: ^5.37.0
+        specifier: 5.37.0
         version: 5.37.0(eslint@8.23.1)(typescript@4.6.3)
       esbuild:
         specifier: ^0.17.11
@@ -5513,7 +5522,7 @@ importers:
         version: 26.6.0(@typescript-eslint/eslint-plugin@5.37.0)(eslint@8.23.1)(jest@27.5.1)(typescript@4.6.3)
       eslint-plugin-prettier:
         specifier: ^4.2.1
-        version: 4.2.1(eslint-config-prettier@8.6.0)(eslint@8.23.1)(prettier@2.8.3)
+        version: 4.2.1(eslint-config-prettier@8.6.0)(eslint@8.23.1)(prettier@2.6.2)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -5533,8 +5542,8 @@ importers:
         specifier: ^11.0.0
         version: 11.0.0
       prettier:
-        specifier: ^2.6.2
-        version: 2.8.3
+        specifier: 2.6.2
+        version: 2.6.2
       sort-package-json:
         specifier: ^1.50.0
         version: 1.50.0
