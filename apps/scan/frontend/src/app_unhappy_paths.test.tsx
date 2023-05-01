@@ -13,10 +13,8 @@ import userEvent from '@testing-library/user-event';
 
 import { ServerError } from '@votingworks/grout';
 import { fakeLogger } from '@votingworks/logging';
-import { deferred } from '@votingworks/basics';
-import type { PrecinctScannerConfig } from '@votingworks/scan-backend';
-import { act, render, screen, waitFor } from '../test/react_testing_library';
-import { scannerStatus } from '../test/helpers/helpers';
+import { PrecinctScannerConfig } from '@votingworks/scan-backend';
+import { act, render, screen } from '../test/react_testing_library';
 import {
   ApiMock,
   createApiMock,
@@ -69,7 +67,6 @@ test('when backend does not respond shows error screen', async () => {
 });
 
 test('backend fails to unconfigure', async () => {
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus({ ...statusNoPaper, canUnconfigure: true });
@@ -256,58 +253,4 @@ test('App shows warning message to connect to power when disconnected', async ()
     hardware.setBatteryDischarging(true);
   });
   await screen.findByText('No Power Detected.');
-});
-
-test('removing card during calibration', async () => {
-  apiMock.expectGetConfig();
-  const kiosk = fakeKiosk();
-  kiosk.getUsbDriveInfo = jest.fn().mockResolvedValue([fakeUsbDrive()]);
-  window.kiosk = kiosk;
-  apiMock.expectCheckCalibrationSupported(true);
-  apiMock.expectCheckUltrasonicSupported(false);
-  apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.expectGetCastVoteRecordsForTally([]);
-  renderApp();
-
-  // Open Polls
-  apiMock.authenticateAsPollWorker(electionSampleDefinition);
-  userEvent.click(
-    await screen.findByRole('button', { name: 'Yes, Open the Polls' })
-  );
-  apiMock.expectSetPollsState('polls_open');
-  apiMock.expectGetConfig({ pollsState: 'polls_open' });
-  await screen.findByText('Polls are open.');
-  apiMock.removeCard();
-  await screen.findByText('Insert Your Ballot Above');
-
-  // Start calibrating
-  apiMock.authenticateAsElectionManager(electionSampleDefinition);
-
-  const { promise, resolve } = deferred<boolean>();
-  apiMock.mockApiClient.calibrate.expectCallWith().returns(promise);
-  userEvent.click(
-    await screen.findByRole('button', { name: 'Calibrate Scanner' })
-  );
-  await screen.findByText('Waiting for Paper');
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
-  userEvent.click(await screen.findByRole('button', { name: 'Calibrate' }));
-  await screen.findByText(/Calibrating/);
-
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'calibrating' }));
-  // Wait for status to update to calibrating (no way to tell on screen)
-  await waitFor(() =>
-    expect(() =>
-      apiMock.mockApiClient.getScannerStatus.assertComplete()
-    ).not.toThrow()
-  );
-
-  // Removing card shouldn't crash the app - for now we just show a blank screen
-  apiMock.removeCard();
-  await waitFor(() => {
-    expect(screen.queryByText(/Calibrating/)).not.toBeInTheDocument();
-  });
-
-  apiMock.expectGetScannerStatus(statusNoPaper);
-  resolve(true);
-  await screen.findByText('Insert Your Ballot Above');
 });

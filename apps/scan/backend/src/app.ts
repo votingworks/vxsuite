@@ -320,15 +320,6 @@ function buildApi(
       machine.return();
     },
 
-    supportsCalibration(): boolean {
-      return typeof machine.calibrate === 'function';
-    },
-
-    async calibrate(): Promise<boolean> {
-      const result = await machine.calibrate?.();
-      return result?.isOk() ?? false;
-    },
-
     supportsUltrasonic(): boolean {
       return machine.supportsUltrasonic();
     },

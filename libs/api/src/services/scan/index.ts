@@ -641,37 +641,6 @@ export type ZeroResponse = OkResponse | ErrorsResponse;
 export const ZeroResponseSchema: z.ZodSchema<ZeroResponse> = OkResponseSchema;
 
 /**
- * This is `never` because there is no request data.
- *
- * @url /scan/calibrate
- * @method POST
- */
-export type CalibrateRequest = never;
-
-/**
- * This is `never` because there is no request data.
- *
- * @url /scan/calibrate
- * @method POST
- */
-export const CalibrateRequestSchema: z.ZodSchema<CalibrateRequest> = z.never();
-
-/**
- * @url /scan/calibrate
- * @method POST
- */
-export type CalibrateResponse = OkResponse | ErrorsResponse;
-
-/**
- * @url /scan/calibrate
- * @method POST
- */
-export const CalibrateResponseSchema: z.ZodSchema<CalibrateResponse> = z.union([
-  OkResponseSchema,
-  ErrorsResponseSchema,
-]);
-
-/**
  * @url /scan/hmpb/review/next-sheet
  * @method GET
  */

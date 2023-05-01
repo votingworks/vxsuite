@@ -63,7 +63,6 @@ function renderScreen(
 }
 
 test('renders date and time settings modal', async () => {
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   renderScreen();
@@ -99,7 +98,6 @@ test('renders date and time settings modal', async () => {
 });
 
 test('option to set precinct if more than one', async () => {
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   const precinct = electionSampleDefinition.election.precincts[0];
@@ -114,7 +112,6 @@ test('option to set precinct if more than one', async () => {
 });
 
 test('no option to change precinct if there is only one precinct', async () => {
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   const electionDefinition =
     electionMinimalExhaustiveSampleSinglePrecinctDefinition;
@@ -129,7 +126,6 @@ test('no option to change precinct if there is only one precinct', async () => {
 });
 
 test('export from admin screen', async () => {
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   renderScreen();
@@ -140,7 +136,6 @@ test('export from admin screen', async () => {
 });
 
 test('unconfigure does not eject a usb drive that is not mounted', async () => {
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   const usbDrive = mockUsbDrive('absent');
@@ -158,7 +153,6 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
 });
 
 test('unconfigure ejects a usb drive when it is mounted', async () => {
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   const usbDrive = mockUsbDrive('mounted');
@@ -178,7 +172,6 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
 });
 
 test('unconfigure button is disabled when the machine cannot be unconfigured', async () => {
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   renderScreen();
@@ -189,7 +182,6 @@ test('unconfigure button is disabled when the machine cannot be unconfigured', a
 });
 
 test('cannot toggle to Test Ballot Mode when the machine cannot be unconfigured', async () => {
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig({ isTestMode: false });
   renderScreen();
@@ -201,7 +193,6 @@ test('cannot toggle to Test Ballot Mode when the machine cannot be unconfigured'
 });
 
 test('allows overriding mark thresholds', async () => {
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   renderScreen();
@@ -226,7 +217,6 @@ test('allows overriding mark thresholds', async () => {
 });
 
 test('when sounds are not muted, shows a button to mute sounds', async () => {
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig({ isSoundMuted: false });
   renderScreen();
@@ -241,7 +231,6 @@ test('when sounds are not muted, shows a button to mute sounds', async () => {
 });
 
 test('when sounds are muted, shows a button to unmute sounds', async () => {
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig({ isSoundMuted: true });
   renderScreen();
@@ -255,41 +244,31 @@ test('when sounds are muted, shows a button to unmute sounds', async () => {
   await screen.findByRole('button', { name: 'Mute Sounds' });
 });
 
-test('does not show calibrate or ultrasonic button if not supported', async () => {
-  apiMock.expectCheckCalibrationSupported(false);
+test('does not show ultrasonic button if not supported', async () => {
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
-
-  expect(screen.queryByText('Calibrate Scanner')).toBeNull();
   expect(screen.queryByText('Disable Double Sheet Detection')).toBeNull();
 });
 
 test('shows ultrasonic toggle when supported', async () => {
-  apiMock.expectCheckCalibrationSupported(false);
   apiMock.expectCheckUltrasonicSupported(true);
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
-
-  expect(screen.queryByText('Calibrate Scanner')).toBeNull();
   await screen.findByText('Disable Double Sheet Detection');
 });
 
 test('prompts to enable ultrasonic when disabled ', async () => {
-  apiMock.expectCheckCalibrationSupported(false);
   apiMock.expectCheckUltrasonicSupported(true);
   apiMock.expectGetConfig({ isUltrasonicDisabled: true });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
-
-  expect(screen.queryByText('Calibrate Scanner')).toBeNull();
   await screen.findByText('Enable Double Sheet Detection');
 });
 
 test('disables ultrasonic properly', async () => {
-  apiMock.expectCheckCalibrationSupported(false);
   apiMock.expectCheckUltrasonicSupported(true);
   apiMock.expectGetConfig();
   renderScreen();
@@ -301,7 +280,5 @@ test('disables ultrasonic properly', async () => {
   apiMock.expectGetConfig({ isUltrasonicDisabled: true });
   userEvent.click(await screen.findButton('Disable Double Sheet Detection'));
   await screen.findButton('Enable Double Sheet Detection');
-
-  expect(screen.queryByText('Calibrate Scanner')).toBeNull();
   await screen.findByText('Enable Double Sheet Detection');
 });
