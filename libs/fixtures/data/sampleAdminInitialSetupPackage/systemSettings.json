@@ -1,3 +1,7 @@
 {
-  "arePollWorkerCardPinsEnabled": true
+  "arePollWorkerCardPinsEnabled": false,
+  "inactiveSessionTimeLimitMinutes": 30,
+  "numIncorrectPinAttemptsAllowedBeforeCardLockout": 5,
+  "overallSessionTimeLimitHours": 12,
+  "startingCardLockoutDurationSeconds": 15
 }
