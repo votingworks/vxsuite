@@ -80,19 +80,22 @@ async function findUsbDriveDevice(): Promise<string | undefined> {
 
 async function getUsbDriveDeviceInfo(): Promise<BlockDeviceInfo | undefined> {
   const devicePath = await findUsbDriveDevice();
-  if (!devicePath) return undefined;
-  debug(`Found USB drive at ${devicePath}`);
+  if (!devicePath) {
+    debug(`No USB drive detected`);
+    return undefined;
+  }
+  debug(`Detected USB drive at ${devicePath}`);
   return await getBlockDeviceInfo(devicePath);
 }
 
 async function mountUsbDrive(devicePath: string): Promise<void> {
   debug(`Mounting USB drive ${devicePath}`);
-  await exec('sudo', ['-n', `${__dirname}/mount.sh`, devicePath]);
+  await exec('sudo', ['-n', `${__dirname}/../src/mount.sh`, devicePath]);
 }
 
 async function unmountUsbDrive(mountPoint: string): Promise<void> {
   debug(`Unmounting USB drive at ${mountPoint}`);
-  await exec('sudo', ['-n', `${__dirname}/unmount.sh`, mountPoint]);
+  await exec('sudo', ['-n', `${__dirname}/../src/unmount.sh`, mountPoint]);
 }
 
 function isFat32(deviceInfo: BlockDeviceInfo): boolean {
