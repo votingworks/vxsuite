@@ -17,8 +17,8 @@ const LoggerMock = Logger as jest.MockedClass<typeof Logger>;
 
 let workspace!: Workspace;
 
-beforeEach(async () => {
-  workspace = await createWorkspace(dirSync().name);
+beforeEach(() => {
+  workspace = createWorkspace(dirSync().name);
 });
 
 afterEach(() => {

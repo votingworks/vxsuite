@@ -1,3 +1,4 @@
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
   CandidateContest,
   MarkStatus,
@@ -8,7 +9,7 @@ import {
 
 import { optionMarkStatus } from './option_mark_status';
 
-import { election } from '../../test/fixtures/state-of-hamilton';
+const { election } = electionGridLayoutNewHampshireAmherstFixtures;
 
 const markThresholds: MarkThresholds = {
   definite: 0.17,

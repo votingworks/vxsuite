@@ -55,24 +55,3 @@ export class Fixture implements Input {
 export const croppedQrCode = new Fixture(
   join(__dirname, 'fixtures/cropped-qr-code.jpg')
 );
-
-/**
- * A long contest that is quite skewed.
- */
-export const skewedLongContest = new Fixture(
-  join(__dirname, 'fixtures/skewed-long-contest.png')
-);
-
-/**
- * A contest box whose top-right corner was not found correctly.
- */
-export const topRightCornerRegressionTest = new Fixture(
-  join(__dirname, 'fixtures/top-right-corner-regression-test.png')
-);
-
-/**
- * A contest box whose top-left corner was not found correctly.
- */
-export const topLeftCornerRegressionTest = new Fixture(
-  join(__dirname, 'fixtures/top-left-corner-regression-test.png')
-);

@@ -38,7 +38,6 @@ export class VxInterpreter {
       electionDefinition,
       precinctSelection,
       testMode: store.getTestMode(),
-      markThresholdOverrides: store.getMarkThresholdOverrides(),
       adjudicationReasons: electionDefinition.election
         .centralScanAdjudicationReasons ?? [AdjudicationReason.MarginalMark],
     });
@@ -57,7 +56,7 @@ export class VxInterpreter {
     debug('interpret ballot image: %s', ballotImagePath);
     assert(this.interpreter, 'interpreter not configured');
 
-    const result = await this.interpreter.interpretFile({
+    const result = this.interpreter.interpretFile({
       ballotImagePath,
       detectQrcodeResult,
     });

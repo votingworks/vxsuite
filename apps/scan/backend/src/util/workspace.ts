@@ -45,7 +45,7 @@ export interface Workspace {
   clearUploads(): void;
 }
 
-export async function createWorkspace(root: string): Promise<Workspace> {
+export function createWorkspace(root: string): Workspace {
   const resolvedRoot = resolve(root);
   const ballotImagesPath = join(resolvedRoot, 'ballot-images');
   const scannedImagesPath = join(ballotImagesPath, 'scanned-images');
@@ -54,7 +54,7 @@ export async function createWorkspace(root: string): Promise<Workspace> {
   ensureDirSync(scannedImagesPath);
 
   const dbPath = join(resolvedRoot, 'ballots.db');
-  const store = await Store.fileStore(dbPath);
+  const store = Store.fileStore(dbPath);
 
   return {
     path: resolvedRoot,

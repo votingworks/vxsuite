@@ -9,7 +9,7 @@ import { makeMockScanner } from '../test/util/mocks';
 const jurisdiction = TEST_JURISDICTION;
 
 test('no election is configured', async () => {
-  const workspace = await createWorkspace(dirSync().name);
+  const workspace = createWorkspace(dirSync().name);
   const scanner = makeMockScanner();
   const importer = new Importer({
     workspace,
@@ -25,8 +25,8 @@ test('no election is configured', async () => {
   ).rejects.toThrowError('no election configuration');
 });
 
-test('setting mark threshold overrides are stored in the database', async () => {
-  const workspace = await createWorkspace(dirSync().name);
+test('setting mark threshold overrides are stored in the database', () => {
+  const workspace = createWorkspace(dirSync().name);
   const scanner = makeMockScanner();
   const importer = new Importer({
     workspace,

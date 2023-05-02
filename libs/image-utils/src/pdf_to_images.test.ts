@@ -1,18 +1,19 @@
 import { iter } from '@votingworks/basics';
+import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { Size } from '@votingworks/types';
-import { promises as fs } from 'fs';
-import { join } from 'path';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { PdfPage, pdfToImages, setPdfRenderWorkerSrc } from './pdf_to_images';
 
-const ballotNotRequiringPdfjsIntermediateCanvasPath = join(
-  __dirname,
-  '../../../apps/central-scan/backend/test/fixtures/state-of-hamilton/ballot.pdf'
+const pdfNotRequiringPdfjsIntermediateCanvasBuffer = readFileSync(
+  join(
+    __dirname,
+    '../test/fixtures/pdf-not-requiring-pdfjs-intermediate-canvas.pdf'
+  )
 );
-const ballotRequiringPdfjsIntermediateCanvasPath = join(
-  __dirname,
-  '../../fixtures/data/electionGridLayoutNewHampshireHudson/template.pdf'
-);
+const pdfRequiringPdfjsIntermediateCanvasBuffer =
+  electionGridLayoutNewHampshireHudsonFixtures.templatePdf.asBuffer();
 
 function assertHasPageCountAndSize(
   pages: PdfPage[],
@@ -27,24 +28,25 @@ function assertHasPageCountAndSize(
 }
 
 test('yields the right number of images sized correctly', async () => {
-  const pdfBytes = await fs.readFile(
-    ballotNotRequiringPdfjsIntermediateCanvasPath
+  assertHasPageCountAndSize(
+    await iter(
+      pdfToImages(pdfNotRequiringPdfjsIntermediateCanvasBuffer)
+    ).toArray(),
+    {
+      pageCount: 6,
+      size: {
+        width: 612,
+        height: 792,
+      },
+    }
   );
-  assertHasPageCountAndSize(await iter(pdfToImages(pdfBytes)).toArray(), {
-    pageCount: 6,
-    size: {
-      width: 612,
-      height: 792,
-    },
-  });
 });
 
 test('can generate images with a different scale', async () => {
-  const pdfBytes = await fs.readFile(
-    ballotNotRequiringPdfjsIntermediateCanvasPath
-  );
   assertHasPageCountAndSize(
-    await iter(pdfToImages(pdfBytes, { scale: 2 })).toArray(),
+    await iter(
+      pdfToImages(pdfNotRequiringPdfjsIntermediateCanvasBuffer, { scale: 2 })
+    ).toArray(),
     {
       pageCount: 6,
       size: { width: 1224, height: 1584 },
@@ -53,13 +55,15 @@ test('can generate images with a different scale', async () => {
 });
 
 test('can render a PDF that requires the PDF.js intermediate canvas', async () => {
-  const pdfBytes = await fs.readFile(
-    ballotRequiringPdfjsIntermediateCanvasPath
+  assertHasPageCountAndSize(
+    await iter(
+      pdfToImages(pdfRequiringPdfjsIntermediateCanvasBuffer)
+    ).toArray(),
+    {
+      pageCount: 2,
+      size: { width: 684, height: 1080 },
+    }
   );
-  assertHasPageCountAndSize(await iter(pdfToImages(pdfBytes)).toArray(), {
-    pageCount: 2,
-    size: { width: 684, height: 1080 },
-  });
 });
 
 test('can configure the workerSrc', () => {

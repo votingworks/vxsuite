@@ -1,4 +1,7 @@
-import { asElectionDefinition } from '@votingworks/fixtures';
+import {
+  asElectionDefinition,
+  electionGridLayoutNewHampshireAmherstFixtures,
+} from '@votingworks/fixtures';
 import { mockOf } from '@votingworks/test-utils';
 import {
   BallotIdSchema,
@@ -19,9 +22,11 @@ import { basename } from 'path';
 import { fileSync, tmpNameSync } from 'tmp';
 import ZipStream from 'zip-stream';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
-import { election, electionDefinition } from '../test/fixtures/2020-choctaw';
 import { backup, Backup } from './backup';
 import { Store } from './store';
+
+const { election, electionDefinition } =
+  electionGridLayoutNewHampshireAmherstFixtures;
 
 jest.mock('fs-extra', (): typeof import('fs-extra') => {
   return {
@@ -251,8 +256,8 @@ test('has cast vote record report', async () => {
         type: 'InterpretedBmdPage',
         ballotId: unsafeParse(BallotIdSchema, 'abc'),
         metadata: {
-          ballotStyleId: '1',
-          precinctId: '6522',
+          ballotStyleId: 'card-number-3',
+          precinctId: 'town-id-00701-precinct-id-',
           ballotType: BallotType.Standard,
           electionHash: electionDefinition.electionHash,
           isTestMode: false,

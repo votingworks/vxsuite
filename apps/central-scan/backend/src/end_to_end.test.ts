@@ -52,10 +52,10 @@ let workspace: Workspace;
 let scanner: MockScanner;
 let logger: Logger;
 
-beforeEach(async () => {
+beforeEach(() => {
   auth = buildMockDippedSmartCardAuth();
   scanner = makeMockScanner();
-  workspace = await createWorkspace(dirSync().name);
+  workspace = createWorkspace(dirSync().name);
   importer = new Importer({
     workspace,
     scanner,

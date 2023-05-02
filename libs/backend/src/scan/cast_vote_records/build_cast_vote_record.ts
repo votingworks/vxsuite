@@ -23,10 +23,7 @@ import {
 } from '@votingworks/types';
 import { getMarkStatus } from '@votingworks/utils';
 
-import {
-  BallotPageLayoutsLookup,
-  getContestsForBallotPage,
-} from './page_layouts';
+import { getContestsForBallotPage } from './page_layouts';
 
 /**
  * Converts from the ballot type enumeration to a test representation used
@@ -450,7 +447,6 @@ type BuildCastVoteRecordParams = {
         interpretation: InterpretedHmpbPage;
         imageFileUri?: string;
       }>;
-      ballotPageLayoutsLookup: BallotPageLayoutsLookup;
     }
 );
 
@@ -523,7 +519,7 @@ export function buildCastVoteRecord({
     };
   }
 
-  const { pages, ballotPageLayoutsLookup, definiteMarkThreshold } = rest;
+  const { pages, definiteMarkThreshold } = rest;
 
   // The larger page number should be an even number which, divided by two,
   // yields the sheet number
@@ -554,7 +550,6 @@ export function buildCastVoteRecord({
           ...buildCVRContestsFromVotes({
             contests: getContestsForBallotPage({
               ballotPageMetadata: pages[0].interpretation.metadata,
-              ballotPageLayoutsLookup,
               election,
             }),
             votes: pages[0].interpretation.votes,
@@ -566,7 +561,6 @@ export function buildCastVoteRecord({
           ...buildCVRContestsFromVotes({
             contests: getContestsForBallotPage({
               ballotPageMetadata: pages[1].interpretation.metadata,
-              ballotPageLayoutsLookup,
               election,
             }),
             votes: pages[1].interpretation.votes,

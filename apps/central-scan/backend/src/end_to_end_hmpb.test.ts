@@ -80,7 +80,7 @@ let server: Server;
 beforeEach(async () => {
   const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
-  workspace = await createWorkspace(dirSync().name);
+  workspace = createWorkspace(dirSync().name);
   scanner = makeMockScanner();
   importer = new Importer({ workspace, scanner });
   mockUsb = createMockUsb();

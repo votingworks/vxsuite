@@ -33,14 +33,12 @@ import {
   InvalidSheetFoundError,
   ResultSheet,
 } from './export';
-import { BallotPageLayoutsLookup } from './page_layouts';
 
 const electionDefinition: ElectionDefinition = {
   ...electionMinimalExhaustiveSampleDefinition,
   electionHash: '0000000000', // fixed for resiliency to hash change
 };
 const definiteMarkThreshold = 0.15;
-const ballotPageLayoutsLookup: BallotPageLayoutsLookup = [];
 const batchInfo: BatchInfo[] = [];
 
 const mockBallotPageLayout: BallotPageLayout = {
@@ -98,7 +96,6 @@ test('getCastVoteRecordReportStream', async () => {
   const stream = getCastVoteRecordReportStream({
     electionDefinition,
     definiteMarkThreshold,
-    ballotPageLayoutsLookup,
     isTestMode: false,
     batchInfo,
     reportContext: 'report-only',
@@ -132,7 +129,6 @@ test('getCastVoteRecordReportStream results in error when validation fails', asy
   const stream = getCastVoteRecordReportStream({
     electionDefinition,
     definiteMarkThreshold,
-    ballotPageLayoutsLookup,
     isTestMode: false,
     batchInfo,
     reportContext: 'backup',
@@ -171,7 +167,6 @@ test('getCastVoteRecordReportStream can include file uris in backup format', asy
   const stream = getCastVoteRecordReportStream({
     electionDefinition,
     definiteMarkThreshold,
-    ballotPageLayoutsLookup,
     isTestMode: false,
     batchInfo,
     reportContext: 'backup',
@@ -265,7 +260,6 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
   const exportResult = await exportCastVoteRecordReportToUsbDrive({
     electionDefinition,
     definiteMarkThreshold,
-    ballotPageLayoutsLookup,
     isTestMode: false,
     batchInfo: [],
     ballotsCounted: 1,
@@ -357,7 +351,6 @@ test('exportCastVoteRecordReportToUsbDrive bubbles up export errors', async () =
   const exportResult = await exportCastVoteRecordReportToUsbDrive({
     electionDefinition,
     definiteMarkThreshold,
-    ballotPageLayoutsLookup,
     isTestMode: false,
     batchInfo: [],
     ballotsCounted: 1,
@@ -375,7 +368,6 @@ test('exportCastVoteRecordReportToUsbDrive bubbles up export errors', async () =
   const exportResult2 = await exportCastVoteRecordReportToUsbDrive({
     electionDefinition,
     definiteMarkThreshold,
-    ballotPageLayoutsLookup,
     isTestMode: false,
     batchInfo: [],
     ballotsCounted: 1,

@@ -104,7 +104,6 @@ export class Backup {
         definiteMarkThreshold:
           this.store.getCurrentMarkThresholds()?.definite ?? 0.12,
         isTestMode: this.store.getTestMode(),
-        ballotPageLayoutsLookup: this.store.getBallotPageLayoutsLookup(),
         resultSheetGenerator: this.store.forEachResultSheet(),
         batchInfo: this.store.batchStatus(),
         reportContext: 'backup',
