@@ -2,7 +2,7 @@
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
 import { execSync } from 'child_process';
 import { join } from 'path';
-import { mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'fs';
 import tmp from 'tmp';
 import { Buffer } from 'buffer';
 import { UsbDrive } from './usb_drive';
@@ -40,6 +40,20 @@ export interface MockUsbDrive {
   removeUsbDrive(): void;
 }
 
+const TMP_DIR_PREFIX = 'mock-usb-drive-';
+
+// Clean up any mock USB drives directories that were created during tests
+if (typeof jest !== 'undefined') {
+  afterAll(() => {
+    const tmpDirs = readdirSync('/tmp').filter((name) =>
+      name.startsWith(TMP_DIR_PREFIX)
+    );
+    for (const tmpDir of tmpDirs) {
+      rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+}
+
 /**
  * Creates a mock of the UsbDrive interface. Each method is mocked with a
  * mockFunction (see @votingworks/test-utils).
@@ -69,7 +83,10 @@ export function createMockUsbDrive(): MockUsbDrive {
 
     insertUsbDrive(contents: MockFileTree) {
       mockUsbTmpDir?.removeCallback();
-      mockUsbTmpDir = tmp.dirSync({ unsafeCleanup: true });
+      mockUsbTmpDir = tmp.dirSync({
+        unsafeCleanup: true,
+        prefix: TMP_DIR_PREFIX,
+      });
       writeMockFileTree(mockUsbTmpDir.name, contents);
       usbDrive.status.expectRepeatedCallsWith().resolves({
         status: 'mounted',
