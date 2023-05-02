@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.shared.json",
-  "include": ["src", "test", "test/fixtures/**/*.json", "__mocks__"],
+  "include": ["src", "test"],
   "exclude": [],
   "compilerOptions": {
     "module": "commonjs",

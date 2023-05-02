@@ -8,7 +8,8 @@ import { crop, loadImageData } from '@votingworks/image-utils';
 import { Rect, Size } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
-import { DetectQrCodeResult } from '../types';
+import { Optional, Result, err, ok } from '@votingworks/basics';
+import { DetectedQrCode } from '../types';
 import { stats, Stats } from './luminosity';
 
 const LETTER_WIDTH_TO_HEIGHT_RATIO = 8.5 / 11;
@@ -47,36 +48,6 @@ export function* getSearchAreas(
   const isLetter =
     Math.abs(widthToHeightRatio - LETTER_WIDTH_TO_HEIGHT_RATIO) <
     Math.abs(widthToHeightRatio - LEGAL_WIDTH_TO_HEIGHT_RATIO);
-
-  // QR code for HMPB is bottom right, so appears bottom right or top left
-  const hmpbWidth = Math.round(size.width / 4);
-  const hmpbHeight = Math.round(size.height / 8);
-  // We look at the top first because we're assuming people will mostly scan
-  // sheets so they appear right-side up to them, but bottom-side first to the
-  // scanner.
-
-  // ┌─┬─┐
-  // ├─┘ │
-  // │   │
-  // └───┘
-  yield {
-    position: 'top',
-    bounds: { x: 0, y: 0, width: hmpbWidth, height: hmpbHeight },
-  };
-
-  // ┌───┐
-  // │   │
-  // │ ┌─┤
-  // └─┴─┘
-  yield {
-    position: 'bottom',
-    bounds: {
-      x: size.width - hmpbWidth,
-      y: size.height - hmpbHeight,
-      width: hmpbWidth,
-      height: hmpbHeight,
-    },
-  };
 
   // If we're not letter size then the size of the scanned image may be too
   // large compared to the actual paper size. Instead of looking at the top
@@ -195,7 +166,7 @@ export function* getSearchAreas(
  */
 export async function detect(
   imageData: ImageData
-): Promise<DetectQrCodeResult | undefined> {
+): Promise<Optional<DetectedQrCode>> {
   debug('detect: checking %dˣ%d image', imageData.width, imageData.height);
 
   const detectors = [
@@ -267,7 +238,8 @@ export interface BallotPageQrcode {
   position: 'top' | 'bottom';
 }
 
-export type QrCodePageResult = BlankPageResult | NonBlankPageResult;
+export type DetectQrCodeError = { type: 'blank-page' } | { type: 'no-qr-code' };
+export type QrCodePageResult = Result<DetectedQrCode, DetectQrCodeError>;
 
 export interface BlankPageResult {
   blank: true;
@@ -278,10 +250,9 @@ export interface NonBlankPageResult {
   qrcode?: BallotPageQrcode;
 }
 
-export async function detectInFilePath(
-  imagePath: string
+export async function detectInBallot(
+  imageData: ImageData
 ): Promise<QrCodePageResult> {
-  const imageData = await loadImageData(imagePath);
   let foundDarkRegion = false;
   let darkestRegionStats: Stats | undefined;
   let darkestRegion: Rect | undefined;
@@ -307,8 +278,7 @@ export async function detectInFilePath(
       regionStats.foreground.ratio > MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO
     ) {
       debug(
-        '[path=%s] found dark region in %s QR code search area (%o): %O',
-        imagePath,
+        'found dark region in %s QR code search area (%o): %O',
         position,
         bounds,
         regionStats
@@ -320,22 +290,25 @@ export async function detectInFilePath(
 
   if (!foundDarkRegion) {
     debug(
-      '[path=%s] appears to be a blank page, skipping. darkest region: %o stats=%O',
-      imagePath,
+      'appears to be a blank page, skipping. darkest region: %o stats=%O',
       darkestRegion,
       darkestRegionStats
     );
-    return { blank: true };
+    return err({ type: 'blank-page' });
   }
 
-  const result = await detect(imageData);
-  return {
-    blank: false,
-    qrcode: result
-      ? {
-          data: result.data,
-          position: result.position,
-        }
-      : undefined,
-  };
+  const qrcode = await detect(imageData);
+
+  if (!qrcode) {
+    return err({ type: 'no-qr-code' });
+  }
+
+  return ok(qrcode);
+}
+
+export async function detectInFilePath(
+  imagePath: string
+): Promise<QrCodePageResult> {
+  const imageData = await loadImageData(imagePath);
+  return detectInBallot(imageData);
 }

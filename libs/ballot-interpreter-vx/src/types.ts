@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 
-export interface DetectQrCodeResult {
+export interface DetectedQrCode {
   data: Buffer;
   position: 'top' | 'bottom';
   detector: string;
