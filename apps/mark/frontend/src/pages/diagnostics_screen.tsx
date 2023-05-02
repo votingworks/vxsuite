@@ -35,14 +35,16 @@ const ButtonAndTimestamp = styled.div`
   }
 `;
 
+export const CHECKBOX_ICON_TEST_ID = 'checkboxIcon';
 const CHECKBOX_ICON = (
-  <Font color="success">
+  <Font color="success" data-testid={CHECKBOX_ICON_TEST_ID}>
     <Icons.Checkbox />
   </Font>
 );
 
+export const WARNING_ICON_TEST_ID = 'warningIcon';
 const WARNING_ICON = (
-  <Font color="warning">
+  <Font color="warning" data-testid={WARNING_ICON_TEST_ID}>
     <Icons.Warning />
   </Font>
 );
