@@ -1,4 +1,3 @@
-import { Admin } from '@votingworks/api';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   CandidateContest,
@@ -35,7 +34,21 @@ import {
   parseCastVoteRecordReportDirectoryName,
 } from '@votingworks/utils';
 import { loadImageData, toDataUrl } from '@votingworks/image-utils';
-import { ConfigureResult, SetSystemSettingsResult } from './types';
+import {
+  CastVoteRecordFileRecord,
+  ConfigureResult,
+  CvrFileImportInfo,
+  CvrFileMode,
+  ElectionRecord,
+  SetSystemSettingsResult,
+  WriteInAdjudicationRecord,
+  WriteInAdjudicationStatus,
+  WriteInAdjudicationTable,
+  WriteInImageView,
+  WriteInRecord,
+  WriteInSummaryEntry,
+  WriteInSummaryEntryNonPending,
+} from './types';
 import { Workspace } from './util/workspace';
 import {
   AddCastVoteRecordReportError,
@@ -45,6 +58,7 @@ import {
 } from './cvr_files';
 import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
+import { render as renderWriteInAdjudicationTable } from './util/write_in_adjudication_table';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -234,7 +248,7 @@ function buildApi({
     },
 
     // use null because React Query does not allow undefined as a query result
-    getCurrentElectionMetadata(): Admin.ElectionRecord | null {
+    getCurrentElectionMetadata(): ElectionRecord | null {
       const currentElectionId = store.getCurrentElectionId();
       if (currentElectionId) {
         const electionRecord = store.getElection(currentElectionId);
@@ -269,7 +283,7 @@ function buildApi({
       return listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger);
     },
 
-    getCastVoteRecordFiles(): Admin.CastVoteRecordFileRecord[] {
+    getCastVoteRecordFiles(): CastVoteRecordFileRecord[] {
       return store.getCvrFiles(loadCurrentElectionIdOrThrow(workspace));
     },
 
@@ -294,7 +308,7 @@ function buildApi({
       path: string;
     }): Promise<
       Result<
-        Admin.CvrFileImportInfo,
+        CvrFileImportInfo,
         AddCastVoteRecordReportError & { message: string }
       >
     > {
@@ -385,7 +399,7 @@ function buildApi({
       store.setElectionResultsOfficial(electionId, false);
     },
 
-    getCastVoteRecordFileMode(): Admin.CvrFileMode {
+    getCastVoteRecordFileMode(): CvrFileMode {
       return store.getCurrentCvrFileModeForElection(
         loadCurrentElectionIdOrThrow(workspace)
       );
@@ -394,10 +408,10 @@ function buildApi({
     getWriteIns(
       input: {
         contestId?: ContestId;
-        status?: Admin.WriteInAdjudicationStatus;
+        status?: WriteInAdjudicationStatus;
         limit?: number;
       } = {}
-    ): Admin.WriteInRecord[] {
+    ): WriteInRecord[] {
       return store.getWriteInRecords({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
@@ -414,7 +428,7 @@ function buildApi({
     // not being used by frontend, can be removed if determined unnecessary
     getWriteInAdjudications(
       input: { contestId?: ContestId } = {}
-    ): Admin.WriteInAdjudicationRecord[] {
+    ): WriteInAdjudicationRecord[] {
       return store.getWriteInAdjudicationRecords({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         contestId: input.contestId,
@@ -452,9 +466,9 @@ function buildApi({
     getWriteInSummary(
       input: {
         contestId?: ContestId;
-        status?: Admin.WriteInAdjudicationStatus;
+        status?: WriteInAdjudicationStatus;
       } = {}
-    ): Admin.WriteInSummaryEntry[] {
+    ): WriteInSummaryEntry[] {
       return store.getWriteInAdjudicationSummary({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
@@ -463,7 +477,7 @@ function buildApi({
 
     getWriteInAdjudicationTable(input: {
       contestId: ContestId;
-    }): Admin.WriteInAdjudicationTable {
+    }): WriteInAdjudicationTable {
       const { contestId } = input;
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       const electionRecord = store.getElection(electionId);
@@ -481,20 +495,16 @@ function buildApi({
           contestId,
         })
         .filter(
-          (s): s is Admin.WriteInSummaryEntryNonPending =>
-            s.status !== 'pending'
+          (s): s is WriteInSummaryEntryNonPending => s.status !== 'pending'
         );
 
-      return Admin.Views.writeInAdjudicationTable.render(
-        contest,
-        writeInSummaries
-      );
+      return renderWriteInAdjudicationTable(contest, writeInSummaries);
     },
 
     // use null because React Query does not allow undefined as a query result
     async getWriteInImageView(input: {
       writeInId: string;
-    }): Promise<Admin.WriteInImageView | null> {
+    }): Promise<WriteInImageView | null> {
       const writeInWithImage = store.getWriteInWithImage(input.writeInId);
 
       assert(writeInWithImage);

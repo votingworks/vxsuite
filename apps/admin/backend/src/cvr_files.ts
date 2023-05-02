@@ -1,4 +1,3 @@
-import { Admin } from '@votingworks/api';
 import {
   FileSystemEntryType,
   getCastVoteRecordReportImport,
@@ -48,7 +47,11 @@ import { basename, join, normalize, parse } from 'path';
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
 import { Store } from './store';
-import { CastVoteRecordFileMetadata } from './types';
+import {
+  CastVoteRecordFileMetadata,
+  CvrFileImportInfo,
+  CvrFileMode,
+} from './types';
 import { sha256File } from './util/sha256_file';
 import { Usb } from './util/usb';
 
@@ -324,7 +327,7 @@ export type AddCastVoteRecordReportError =
     }
   | {
       type: 'invalid-report-file-mode';
-      currentFileMode: Admin.CvrFileMode;
+      currentFileMode: CvrFileMode;
     }
   | {
       type: 'ballot-id-already-exists-with-different-data';
@@ -348,7 +351,7 @@ export function getAddCastVoteRecordReportErrorMessage(
     case 'malformed-cast-vote-record':
       return 'Unable to parse cast vote record report, it may be malformed.';
     case 'invalid-report-file-mode':
-      if (error.currentFileMode === Admin.CvrFileMode.Official) {
+      if (error.currentFileMode === CvrFileMode.Official) {
         return `You are currently tabulating official results but the selected cast vote record report contains test results.`;
       }
       return `You are currently tabulating test results but the selected cast vote record report contains official results.`;
@@ -399,7 +402,7 @@ export function getAddCastVoteRecordReportErrorMessage(
  * Result of an attempt to import a cast vote record report.
  */
 export type AddCastVoteRecordReportResult = Result<
-  Admin.CvrFileImportInfo,
+  CvrFileImportInfo,
   AddCastVoteRecordReportError
 >;
 
@@ -493,11 +496,11 @@ export async function addCastVoteRecordReport({
 
   // Ensure the report matches the file mode of previous imports
   const reportFileMode = isTestReport(reportMetadata)
-    ? Admin.CvrFileMode.Test
-    : Admin.CvrFileMode.Official;
+    ? CvrFileMode.Test
+    : CvrFileMode.Official;
   const currentFileMode = store.getCurrentCvrFileModeForElection(electionId);
   if (
-    currentFileMode !== Admin.CvrFileMode.Unlocked &&
+    currentFileMode !== CvrFileMode.Unlocked &&
     reportFileMode !== currentFileMode
   ) {
     return err({

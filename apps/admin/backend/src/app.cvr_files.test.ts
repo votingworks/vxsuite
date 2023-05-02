@@ -1,4 +1,3 @@
-import { Admin } from '@votingworks/api';
 import { assert } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
@@ -21,6 +20,7 @@ import {
 } from '../test/app';
 import { modifyCastVoteRecordReport } from '../test/utils';
 import { deprecatedGetWriteInsFromCastVoteRecord } from './util/cvrs';
+import { CvrFileMode } from './types';
 
 jest.setTimeout(60_000);
 
@@ -68,7 +68,7 @@ test('happy path - mock election flow', async () => {
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(0);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual(
-    Admin.CvrFileMode.Unlocked
+    CvrFileMode.Unlocked
   );
   expect(await apiClient.listCastVoteRecordFilesOnUsb()).toEqual([]);
 
@@ -138,9 +138,7 @@ test('happy path - mock election flow', async () => {
       scannerIds: ['VX-00-000'],
     }),
   ]);
-  expect(await apiClient.getCastVoteRecordFileMode()).toEqual(
-    Admin.CvrFileMode.Test
-  );
+  expect(await apiClient.getCastVoteRecordFileMode()).toEqual(CvrFileMode.Test);
 
   // check cast vote record count and a single record. a record with the
   // specified votes should exist given the size of the cast vote record
@@ -210,7 +208,7 @@ test('happy path - mock election flow', async () => {
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(0);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual(
-    Admin.CvrFileMode.Unlocked
+    CvrFileMode.Unlocked
   );
 
   // now try loading official CVR files, as if after L&A
@@ -269,7 +267,7 @@ test('happy path - mock election flow', async () => {
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(3000);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual(
-    Admin.CvrFileMode.Official
+    CvrFileMode.Official
   );
 });
 
