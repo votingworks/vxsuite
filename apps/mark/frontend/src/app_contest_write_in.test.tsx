@@ -168,7 +168,7 @@ it('Single Seat Contest with Write In', async () => {
   // Review Screen
   await screen.findByText('Review Your Votes');
   expect(screen.getByText('SAL')).toBeTruthy();
-  expect(screen.getByText('(write-in)')).toBeTruthy();
+  expect(screen.getByText(/\(write-in\)/)).toBeTruthy();
 
   // Print Screen
   fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));

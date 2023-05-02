@@ -16,7 +16,12 @@ import { expectPrint, PrintRenderResult } from '@votingworks/test-utils';
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
-import { fireEvent, render, screen } from '../test/react_testing_library';
+import {
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '../test/react_testing_library';
 import { App } from './app';
 import { PrintPage } from './pages/print_page';
 
@@ -312,13 +317,14 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   contestReviewTitle = getByTextWithMarkup(
     `${districtName}${eitherNeitherContest.title}`
   );
-  const eitherAndFirst = getByTextWithMarkup(
-    `${districtName}${eitherNeitherContest.title}`
-  ).nextSibling;
-  expect(eitherAndFirst?.textContent?.trim()).toEqual(
+  assert(contestReviewTitle.parentElement);
+  const eitherAndFirstVotes = within(
+    contestReviewTitle.parentElement
+  ).getAllByRole('listitem');
+  expect(eitherAndFirstVotes[0]).toHaveTextContent(
     'FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A'
   );
-  expect(eitherAndFirst?.nextSibling?.textContent?.trim()).toEqual(
+  expect(eitherAndFirstVotes[1]).toHaveTextContent(
     'FOR Initiative Measure No. 65'
   );
 
@@ -340,13 +346,14 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   contestReviewTitle = getByTextWithMarkup(
     `${districtName}${eitherNeitherContest.title}`
   );
-  const neitherAndSecond = getByTextWithMarkup(
-    `${districtName}${eitherNeitherContest.title}`
-  ).nextSibling;
-  expect(neitherAndSecond?.textContent?.trim()).toEqual(
+  assert(contestReviewTitle.parentElement);
+  const neitherAndSecondVotes = within(
+    contestReviewTitle.parentElement
+  ).getAllByRole('listitem');
+  expect(neitherAndSecondVotes[0]).toHaveTextContent(
     'AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A'
   );
-  expect(neitherAndSecond?.nextSibling?.textContent?.trim()).toEqual(
+  expect(neitherAndSecondVotes[1]).toHaveTextContent(
     'FOR Alternative Measure 65 A'
   );
 
@@ -365,15 +372,14 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   contestReviewTitle = getByTextWithMarkup(
     `${districtName}${eitherNeitherContest.title}`
   );
-  const noneAndSecond = getByTextWithMarkup(
-    `${districtName}${eitherNeitherContest.title}`
-  ).nextSibling;
-  expect(noneAndSecond?.textContent?.trim()).toEqual(
+  assert(contestReviewTitle.parentElement);
+  within(contestReviewTitle.parentElement).getByText(
     'You may still vote in this contest.'
   );
-  expect(noneAndSecond?.nextSibling?.textContent?.trim()).toEqual(
-    'FOR Alternative Measure 65 A'
+  const noneAndSecondVote = within(contestReviewTitle.parentElement).getByRole(
+    'listitem'
   );
+  expect(noneAndSecondVote).toHaveTextContent('FOR Alternative Measure 65 A');
 
   // Go to Contest Screen
   fireEvent.click(contestReviewTitle);
@@ -393,13 +399,14 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   contestReviewTitle = getByTextWithMarkup(
     `${districtName}${eitherNeitherContest.title}`
   );
-  const eitherAndNone = getByTextWithMarkup(
-    `${districtName}${eitherNeitherContest.title}`
-  ).nextSibling;
-  expect(eitherAndNone?.textContent?.trim()).toEqual(
+  assert(contestReviewTitle.parentElement);
+  const eitherAndNoneVote = within(contestReviewTitle.parentElement).getByRole(
+    'listitem'
+  );
+  expect(eitherAndNoneVote).toHaveTextContent(
     'FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A'
   );
-  expect(eitherAndNone?.nextSibling?.textContent?.trim()).toEqual(
+  within(contestReviewTitle.parentElement).getByText(
     'You may still vote in this contest.'
   );
 });
