@@ -193,26 +193,22 @@ describe('status', () => {
 });
 
 describe('eject', () => {
-  test('no drive', async () => {
+  test('no drive - no op', async () => {
     const usbDrive = detectUsbDrive();
 
     readdirMock.mockResolvedValueOnce([]);
 
-    await expect(usbDrive.eject()).rejects.toThrowError(
-      'No USB drive detected'
-    );
+    await expect(usbDrive.eject()).resolves.toBeUndefined();
   });
 
-  test('not mounted', async () => {
+  test('not mounted - no op', async () => {
     const usbDrive = detectUsbDrive();
 
     readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
     readlinkMock.mockResolvedValueOnce('../../sdb1');
     execMock.mockResolvedValueOnce(lsblkOutput({ mountpoint: null }));
 
-    await expect(usbDrive.eject()).rejects.toThrowError(
-      'USB drive is not mounted'
-    );
+    await expect(usbDrive.eject()).resolves.toBeUndefined();
   });
 
   test('mounted', async () => {
