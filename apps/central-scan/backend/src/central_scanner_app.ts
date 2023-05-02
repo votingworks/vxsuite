@@ -1,6 +1,5 @@
 import { Scan } from '@votingworks/api';
 import {
-  DEV_JURISDICTION,
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
@@ -18,6 +17,7 @@ import {
   ElectionDefinition,
   SystemSettings,
   safeParse,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
@@ -130,7 +130,7 @@ function buildApi({
       const { electionDefinition } = ballotPackage;
       const systemSettings = DEFAULT_SYSTEM_SETTINGS;
 
-      importer.configure(electionDefinition, DEV_JURISDICTION);
+      importer.configure(electionDefinition, TEST_JURISDICTION);
       store.setSystemSettings(systemSettings);
     },
 

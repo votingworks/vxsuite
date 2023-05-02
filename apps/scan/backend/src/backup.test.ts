@@ -5,6 +5,7 @@ import {
   BallotType,
   CVR,
   safeParseJson,
+  TEST_JURISDICTION,
   unsafeParse,
 } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
@@ -41,6 +42,8 @@ jest.mock('fs-extra', (): typeof import('fs-extra') => {
 
 const existsSyncMock = mockOf(existsSync);
 
+const jurisdiction = TEST_JURISDICTION;
+
 function getEntries(zipfile: JsZip): JSZipObject[] {
   return Object.values(zipfile.files);
 }
@@ -75,7 +78,10 @@ test('unconfigured', async () => {
 
 test('configured', async () => {
   const store = Store.memoryStore();
-  store.setElection(electionDefinition.electionData);
+  store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction,
+  });
   const result = new WritableStream();
   const onError = jest.fn();
 
@@ -105,7 +111,10 @@ test('zip entry fails', async () => {
 
 test('has election.json', async () => {
   const store = Store.memoryStore();
-  store.setElection(asElectionDefinition(election).electionData);
+  store.setElectionAndJurisdiction({
+    electionData: asElectionDefinition(election).electionData,
+    jurisdiction,
+  });
   const result = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -120,7 +129,10 @@ test('has election.json', async () => {
 
 test('has ballots.db', async () => {
   const store = Store.memoryStore();
-  store.setElection(electionDefinition.electionData);
+  store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction,
+  });
   const output = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -142,7 +154,10 @@ test('has ballots.db', async () => {
 
 test('has all files referenced in the database', async () => {
   const store = Store.memoryStore();
-  store.setElection(electionDefinition.electionData);
+  store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction,
+  });
   const batchId = store.addBatch();
 
   const frontOriginalFile = fileSync();
@@ -221,7 +236,10 @@ test('has all files referenced in the database', async () => {
 
 test('has cast vote record report', async () => {
   const store = Store.memoryStore();
-  store.setElection(electionDefinition.electionData);
+  store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction,
+  });
   const result = new WritableStream();
 
   const batchId = store.addBatch();
@@ -282,7 +300,10 @@ test('does not have vx-logs.log if file does not exist', async () => {
   existsSyncMock.mockReturnValueOnce(false);
 
   const store = Store.memoryStore();
-  store.setElection(asElectionDefinition(election).electionData);
+  store.setElectionAndJurisdiction({
+    electionData: asElectionDefinition(election).electionData,
+    jurisdiction,
+  });
   const result = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -298,7 +319,10 @@ test('has vx-logs.log if file exists', async () => {
   existsSyncMock.mockReturnValueOnce(true);
 
   const store = Store.memoryStore();
-  store.setElection(asElectionDefinition(election).electionData);
+  store.setElectionAndJurisdiction({
+    electionData: asElectionDefinition(election).electionData,
+    jurisdiction,
+  });
   const result = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -341,7 +365,10 @@ test.each(spaceOptimizedBackupTestCases)(
     expectedScanImagesInBackup,
   }) => {
     const store = Store.memoryStore();
-    store.setElection(electionDefinition.electionData);
+    store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction,
+    });
     const batchId = store.addBatch();
 
     const originalFileNames = [];

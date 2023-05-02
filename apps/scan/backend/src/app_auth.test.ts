@@ -1,12 +1,12 @@
 import { DateTime } from 'luxon';
-import { DEV_JURISDICTION } from '@votingworks/auth';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { TEST_JURISDICTION } from '@votingworks/types';
 
 import { withApp } from '../test/helpers/custom_helpers';
 import { configureApp } from '../test/helpers/shared_helpers';
 
+const jurisdiction = TEST_JURISDICTION;
 const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
-const jurisdiction = DEV_JURISDICTION;
 
 test('getAuthStatus', async () => {
   await withApp({}, async ({ apiClient, mockAuth, mockUsb }) => {
@@ -71,7 +71,7 @@ test('getAuthStatus before election definition has been configured', async () =>
   await withApp({}, async ({ apiClient, mockAuth }) => {
     await apiClient.getAuthStatus();
     expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
-    expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, { jurisdiction });
+    expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {});
   });
 });
 
@@ -79,11 +79,7 @@ test('checkPin before election definition has been configured', async () => {
   await withApp({}, async ({ apiClient, mockAuth }) => {
     await apiClient.checkPin({ pin: '123456' });
     expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
-    expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
-      1,
-      { jurisdiction },
-      { pin: '123456' }
-    );
+    expect(mockAuth.checkPin).toHaveBeenNthCalledWith(1, {}, { pin: '123456' });
   });
 });
 
@@ -91,7 +87,7 @@ test('logOut before election definition has been configured', async () => {
   await withApp({}, async ({ apiClient, mockAuth }) => {
     await apiClient.logOut();
     expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
-    expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, { jurisdiction });
+    expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {});
   });
 });
 
@@ -103,7 +99,7 @@ test('updateSessionExpiry before election definition has been configured', async
     expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
     expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
       1,
-      { jurisdiction },
+      {},
       { sessionExpiresAt: expect.any(Date) }
     );
   });

@@ -12,6 +12,7 @@ import {
 import {
   ScannerReportData,
   ScannerReportDataSchema,
+  isElectionManagerAuth,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import express, { Application } from 'express';
@@ -23,7 +24,6 @@ import {
 } from '@votingworks/backend';
 import { assert, err, iter, ok, Result } from '@votingworks/basics';
 import {
-  DEV_JURISDICTION,
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
@@ -44,10 +44,10 @@ function constructAuthMachineState(
   workspace: Workspace
 ): InsertedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
+  const jurisdiction = workspace.store.getJurisdiction();
   return {
     electionHash: electionDefinition?.electionHash,
-    // TODO: Persist jurisdiction in store and pull from there
-    jurisdiction: DEV_JURISDICTION,
+    jurisdiction,
   };
 }
 
@@ -86,13 +86,12 @@ function buildApi(
     async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<void, BallotPackageConfigurationError>
     > {
-      assert(!store.getElectionDefinition(), 'Already configured');
-      const [usbDrive] = await usb.getUsbDrives();
-      assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
-
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
+      assert(!store.getElectionDefinition(), 'Already configured');
+      const [usbDrive] = await usb.getUsbDrives();
+      assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
 
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
@@ -102,11 +101,10 @@ function buildApi(
       if (ballotPackageResult.isErr()) {
         return ballotPackageResult;
       }
-
+      assert(isElectionManagerAuth(authStatus));
       const ballotPackage = ballotPackageResult.ok();
       const { electionDefinition, systemSettings } = ballotPackage;
       assert(systemSettings);
-
       let precinctSelection: SinglePrecinctSelection | undefined;
       if (electionDefinition.election.precincts.length === 1) {
         precinctSelection = singlePrecinctSelectionFor(
@@ -115,7 +113,10 @@ function buildApi(
       }
 
       store.withTransaction(() => {
-        store.setElection(electionDefinition.electionData);
+        store.setElectionAndJurisdiction({
+          electionData: electionDefinition.electionData,
+          jurisdiction: authStatus.user.jurisdiction,
+        });
         if (precinctSelection) {
           store.setPrecinctSelection(precinctSelection);
         }

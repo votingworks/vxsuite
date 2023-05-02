@@ -5,6 +5,7 @@ import {
   BallotPageMetadata,
   BallotType,
   CastVoteRecord,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 import { isFeatureFlagEnabled } from '@votingworks/utils';
 import { writeFile } from 'fs-extra';
@@ -23,6 +24,8 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     isFeatureFlagEnabled: jest.fn(),
   };
 });
+
+const jurisdiction = TEST_JURISDICTION;
 
 const ballotConfig: BallotConfig = {
   filename: 'test-filename',
@@ -83,7 +86,10 @@ test('exportCvrs', async () => {
   buildCastVoteRecordMock.mockReturnValue(cvr);
 
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({
+    electionData: stateOfHamilton.electionDefinition.electionData,
+    jurisdiction,
+  });
 
   // No CVRs, export should be empty
   expect(iter(exportCastVoteRecords({ store })).toArray()).toEqual([]);
@@ -149,7 +155,10 @@ test('exportCvrs', async () => {
 
 test('exportCvrs orders by sheet ID', async () => {
   const store = Store.memoryStore();
-  store.setElection(stateOfHamilton.electionDefinition.electionData);
+  store.setElectionAndJurisdiction({
+    electionData: stateOfHamilton.electionDefinition.electionData,
+    jurisdiction,
+  });
 
   await store.setHmpbTemplates(ballotTemplates);
 

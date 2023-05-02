@@ -9,6 +9,7 @@ import {
   mapSheet,
   PageInterpretationWithFiles,
   SheetOf,
+  TEST_JURISDICTION,
   YesNoContest,
 } from '@votingworks/types';
 import {
@@ -21,7 +22,6 @@ import * as fs from 'fs/promises';
 import { v4 as uuid } from 'uuid';
 import { sleep, typedAs } from '@votingworks/basics';
 import { ResultSheet } from '@votingworks/backend';
-import { DEV_JURISDICTION } from '@votingworks/auth';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import {
@@ -34,7 +34,7 @@ import { ballotPdf } from '../test/fixtures/2020-choctaw';
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
 
-const jurisdiction = DEV_JURISDICTION;
+const jurisdiction = TEST_JURISDICTION;
 const { electionDefinition } = stateOfHamilton;
 const { election, electionData, electionHash } = electionDefinition;
 

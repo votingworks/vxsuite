@@ -12,7 +12,7 @@ import {
   asElectionDefinition,
   electionGridLayoutNewHampshireAmherstFixtures,
 } from '@votingworks/fixtures';
-import { CVR, unsafeParse } from '@votingworks/types';
+import { CVR, TEST_JURISDICTION, unsafeParse } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
 import {
   BooleanEnvironmentVariableName,
@@ -25,10 +25,7 @@ import * as fs from 'fs-extra';
 import { join } from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
-import {
-  buildMockDippedSmartCardAuth,
-  DEV_JURISDICTION,
-} from '@votingworks/auth';
+import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { Server } from 'http';
 import { fakeSessionExpiresAt } from '@votingworks/test-utils';
@@ -116,7 +113,7 @@ afterEach(async () => {
   server.close();
 });
 
-const jurisdiction = DEV_JURISDICTION;
+const jurisdiction = TEST_JURISDICTION;
 
 test('going through the whole process works', async () => {
   jest.setTimeout(25000);

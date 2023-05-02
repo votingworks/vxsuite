@@ -11,6 +11,7 @@ import {
   safeParseNumber,
   SystemSettings,
   SystemSettingsSchema,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
   assert,
@@ -32,6 +33,7 @@ import { promises as fs, Stats } from 'fs';
 import { basename, dirname } from 'path';
 import {
   CAST_VOTE_RECORD_REPORT_FILENAME,
+  isIntegrationTest,
   parseCastVoteRecordReportDirectoryName,
 } from '@votingworks/utils';
 import { loadImageData, toDataUrl } from '@votingworks/image-utils';
@@ -65,7 +67,9 @@ function constructAuthMachineState(
   return {
     arePollWorkerCardPinsEnabled: systemSettings?.arePollWorkerCardPinsEnabled,
     electionHash: currentElectionDefinition?.electionHash,
-    jurisdiction: process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION,
+    jurisdiction: isIntegrationTest()
+      ? TEST_JURISDICTION
+      : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION,
   };
 }
 

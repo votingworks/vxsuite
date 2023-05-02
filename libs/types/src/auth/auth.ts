@@ -66,3 +66,15 @@ export type OverallSessionTimeLimitHours =
   | 11
   | 12;
 export const DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS: OverallSessionTimeLimitHours = 12;
+
+/**
+ * The jurisdiction used across tests.
+ *
+ * We define this here instead of in @votingworks/auth so that it can be imported by
+ * @votingworks/test-utils without creating a circular dependency.
+ *
+ * And we define it here instead of in @votingworks/test-utils so that it can be imported by app
+ * source code, e.g. for integration tests, without having to move @votingworks/test-utils from dev
+ * dependencies to non-dev dependencies.
+ */
+export const TEST_JURISDICTION = 'jurisdiction';

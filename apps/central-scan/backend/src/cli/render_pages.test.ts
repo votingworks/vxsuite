@@ -3,10 +3,13 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import { pathExists } from 'fs-extra';
 import { tmpNameSync } from 'tmp';
-import { BallotMetadata, BallotType } from '@votingworks/types';
+import {
+  BallotMetadata,
+  BallotType,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { loadImageData } from '@votingworks/image-utils';
-import { DEV_JURISDICTION } from '@votingworks/auth';
 import { Store } from '../store';
 import {
   election,
@@ -15,7 +18,7 @@ import {
 import { main } from './render_pages';
 import { getMockBallotPageLayoutsWithImages } from '../../test/helpers/mock_layouts';
 
-const jurisdiction = DEV_JURISDICTION;
+const jurisdiction = TEST_JURISDICTION;
 
 function fakeOutput(): WritableStream & NodeJS.WriteStream {
   return new WritableStream() as WritableStream & NodeJS.WriteStream;

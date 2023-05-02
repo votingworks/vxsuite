@@ -1,12 +1,16 @@
 import { DateTime } from 'luxon';
-import { DEV_JURISDICTION } from '@votingworks/auth';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { TEST_JURISDICTION } from '@votingworks/types';
 
 import { buildTestEnvironment, configureMachine } from '../test/app';
 
+beforeEach(() => {
+  process.env = { ...process.env, VX_MACHINE_JURISDICTION: TEST_JURISDICTION };
+});
+
+const jurisdiction = TEST_JURISDICTION;
 const { electionDefinition } = electionFamousNames2021Fixtures;
 const { electionData, electionHash } = electionDefinition;
-const jurisdiction = DEV_JURISDICTION;
 
 test('getAuthStatus', async () => {
   const { apiClient, auth } = buildTestEnvironment();

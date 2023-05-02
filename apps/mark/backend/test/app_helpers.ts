@@ -1,6 +1,5 @@
 import {
   buildMockInsertedSmartCardAuth,
-  DEV_JURISDICTION,
   InsertedSmartCardAuthApi,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
@@ -20,6 +19,7 @@ import {
   fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
+import { TEST_JURISDICTION } from '@votingworks/types';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace } from '../src/util/workspace';
 
@@ -59,7 +59,7 @@ export async function configureApp(
   mockAuth: InsertedSmartCardAuthApi,
   mockUsb: MockUsb
 ): Promise<void> {
-  const jurisdiction = DEV_JURISDICTION;
+  const jurisdiction = TEST_JURISDICTION;
   const { electionJson, electionDefinition } = electionFamousNames2021Fixtures;
   const { electionHash } = electionDefinition;
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>

@@ -1,7 +1,4 @@
-import {
-  DEV_JURISDICTION,
-  buildMockDippedSmartCardAuth,
-} from '@votingworks/auth';
+import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import {
   convertCastVoteRecordVotesToLegacyVotes,
   createMockUsb,
@@ -15,7 +12,7 @@ import {
   electionSample as election,
   sampleBallotImages,
 } from '@votingworks/fixtures';
-import { CVR, unsafeParse } from '@votingworks/types';
+import { CVR, TEST_JURISDICTION, unsafeParse } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
@@ -80,7 +77,7 @@ afterEach(async () => {
   featureFlagMock.resetFeatureFlags();
 });
 
-const jurisdiction = DEV_JURISDICTION;
+const jurisdiction = TEST_JURISDICTION;
 
 test('going through the whole process works', async () => {
   auth.getAuthStatus.mockResolvedValue({

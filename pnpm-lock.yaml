@@ -1455,6 +1455,9 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
+      '@votingworks/types':
+        specifier: workspace:*
+        version: link:../../../libs/types
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
