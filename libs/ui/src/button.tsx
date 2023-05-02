@@ -262,6 +262,7 @@ const IconContainer = styled.span`
 
 const TextContainer = styled.span`
   display: inline-block;
+  flex-grow: 1;
   flex-shrink: 1;
 `;
 

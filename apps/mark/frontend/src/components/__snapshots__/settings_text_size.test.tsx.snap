@@ -75,7 +75,7 @@ exports[`renders SettingsTextSize 1`] = `
       type="button"
     >
       <span
-        class="sc-ezbkgU gcJsOl"
+        class="sc-ezbkgU bmeHoE"
       >
         A
       </span>
@@ -86,7 +86,7 @@ exports[`renders SettingsTextSize 1`] = `
       type="button"
     >
       <span
-        class="sc-ezbkgU gcJsOl"
+        class="sc-ezbkgU bmeHoE"
       >
         A
       </span>
@@ -97,7 +97,7 @@ exports[`renders SettingsTextSize 1`] = `
       type="button"
     >
       <span
-        class="sc-ezbkgU gcJsOl"
+        class="sc-ezbkgU bmeHoE"
       >
         A
       </span>

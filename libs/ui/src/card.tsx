@@ -28,7 +28,7 @@ const StyledContent = styled.div`
   padding: 0.6rem;
 
   /* Shrink padding if there's a footer: */
-  &:last-child {
+  &:not(:last-child) {
     padding-bottom: 0.25rem;
   }
 `;

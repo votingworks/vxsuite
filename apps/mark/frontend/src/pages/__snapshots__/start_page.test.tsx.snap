@@ -192,7 +192,7 @@ exports[`renders StartPage 1`] = `
           type="button"
         >
           <span
-            class="sc-ezbkgU gcJsOl"
+            class="sc-ezbkgU bmeHoE"
           >
             Start Voting
           </span>
@@ -225,7 +225,7 @@ exports[`renders StartPage 1`] = `
               type="button"
             >
               <span
-                class="sc-ezbkgU gcJsOl"
+                class="sc-ezbkgU bmeHoE"
               >
                 A
               </span>
@@ -236,7 +236,7 @@ exports[`renders StartPage 1`] = `
               type="button"
             >
               <span
-                class="sc-ezbkgU gcJsOl"
+                class="sc-ezbkgU bmeHoE"
               >
                 A
               </span>
@@ -247,7 +247,7 @@ exports[`renders StartPage 1`] = `
               type="button"
             >
               <span
-                class="sc-ezbkgU gcJsOl"
+                class="sc-ezbkgU bmeHoE"
               >
                 A
               </span>
@@ -606,7 +606,7 @@ exports[`renders StartPage with inline SVG 1`] = `
           type="button"
         >
           <span
-            class="sc-ezbkgU gcJsOl"
+            class="sc-ezbkgU bmeHoE"
           >
             Start Voting
           </span>
@@ -639,7 +639,7 @@ exports[`renders StartPage with inline SVG 1`] = `
               type="button"
             >
               <span
-                class="sc-ezbkgU gcJsOl"
+                class="sc-ezbkgU bmeHoE"
               >
                 A
               </span>
@@ -650,7 +650,7 @@ exports[`renders StartPage with inline SVG 1`] = `
               type="button"
             >
               <span
-                class="sc-ezbkgU gcJsOl"
+                class="sc-ezbkgU bmeHoE"
               >
                 A
               </span>
@@ -661,7 +661,7 @@ exports[`renders StartPage with inline SVG 1`] = `
               type="button"
             >
               <span
-                class="sc-ezbkgU gcJsOl"
+                class="sc-ezbkgU bmeHoE"
               >
                 A
               </span>
@@ -856,7 +856,7 @@ exports[`renders StartPage with no seal 1`] = `
           type="button"
         >
           <span
-            class="sc-ezbkgU gcJsOl"
+            class="sc-ezbkgU bmeHoE"
           >
             Start Voting
           </span>
@@ -889,7 +889,7 @@ exports[`renders StartPage with no seal 1`] = `
               type="button"
             >
               <span
-                class="sc-ezbkgU gcJsOl"
+                class="sc-ezbkgU bmeHoE"
               >
                 A
               </span>
@@ -900,7 +900,7 @@ exports[`renders StartPage with no seal 1`] = `
               type="button"
             >
               <span
-                class="sc-ezbkgU gcJsOl"
+                class="sc-ezbkgU bmeHoE"
               >
                 A
               </span>
@@ -911,7 +911,7 @@ exports[`renders StartPage with no seal 1`] = `
               type="button"
             >
               <span
-                class="sc-ezbkgU gcJsOl"
+                class="sc-ezbkgU bmeHoE"
               >
                 A
               </span>

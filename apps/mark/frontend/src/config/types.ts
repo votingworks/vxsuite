@@ -9,6 +9,7 @@ import {
   OptionalYesNoVote,
   PrecinctId,
   VotesDict,
+  YesNoContest,
 } from '@votingworks/types';
 import type { MachineConfig } from '@votingworks/mark-backend';
 import {
@@ -48,10 +49,13 @@ export interface CandidateContestResultInterface {
   vote: CandidateVote;
 }
 export interface YesNoContestResultInterface {
+  contest: YesNoContest;
+  election: Election;
   vote: OptionalYesNoVote;
 }
 export interface MsEitherNeitherContestResultInterface {
   contest: MsEitherNeitherContest;
+  election: Election;
   eitherNeitherContestVote: OptionalYesNoVote;
   pickOneContestVote: OptionalYesNoVote;
 }
