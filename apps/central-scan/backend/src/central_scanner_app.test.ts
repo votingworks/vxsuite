@@ -49,12 +49,12 @@ let workspace: Workspace;
 let logger: Logger;
 let mockUsb: MockUsb;
 
-beforeEach(async () => {
+beforeEach(() => {
   auth = buildMockDippedSmartCardAuth();
   importer = makeMock(Importer);
   mockUsb = createMockUsb();
   logger = fakeLogger();
-  workspace = await createWorkspace(dirSync().name);
+  workspace = createWorkspace(dirSync().name);
   workspace.store.setElectionAndJurisdiction({
     electionData:
       electionGridLayoutNewHampshireAmherstFixtures.electionDefinition

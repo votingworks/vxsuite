@@ -62,7 +62,7 @@ export async function withApp(
   const mockAuth = buildMockInsertedSmartCardAuth();
   const logger = fakeLogger();
   const workspace =
-    preconfiguredWorkspace ?? (await createWorkspace(tmp.dirSync().name));
+    preconfiguredWorkspace ?? createWorkspace(tmp.dirSync().name);
   const mockScanner = mocks.fakeCustomScanner();
   const deferredConnect = deferred<void>();
   async function createCustomClient(): Promise<

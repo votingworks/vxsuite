@@ -27,7 +27,7 @@ let logger: Logger;
 beforeEach(async () => {
   const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
-  workspace = await createWorkspace(dirSync().name);
+  workspace = createWorkspace(dirSync().name);
   logger = fakeLogger();
 
   apiClient = grout.createClient({

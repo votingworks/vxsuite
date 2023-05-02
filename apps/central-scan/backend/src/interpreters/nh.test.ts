@@ -11,7 +11,7 @@ const jurisdiction = TEST_JURISDICTION;
 test('interpret', async () => {
   const dbPath = fileSync().name;
   const ballotImagesPath = dirSync().name;
-  const store = await Store.fileStore(dbPath);
+  const store = Store.fileStore(dbPath);
 
   const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
   store.setElectionAndJurisdiction({
