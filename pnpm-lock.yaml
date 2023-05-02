@@ -5480,12 +5480,6 @@ importers:
       fast-text-encoding:
         specifier: ^1.0.2
         version: 1.0.3
-      fetch-mock:
-        specifier: ^9.11.0
-        version: 9.11.0
-      jest-fetch-mock:
-        specifier: ^3.0.3
-        version: 3.0.3
       jszip:
         specifier: ^3.9.1
         version: 3.9.1
@@ -5565,6 +5559,9 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
+      fetch-mock:
+        specifier: ^9.11.0
+        version: 9.11.0(node-fetch@2.6.7)
       is-ci-cli:
         specifier: ^2.2.0
         version: 2.2.0
@@ -5574,6 +5571,9 @@ importers:
       jest-environment-jsdom:
         specifier: ^29.4.1
         version: 29.4.1
+      jest-fetch-mock:
+        specifier: ^3.0.3
+        version: 3.0.3
       jest-junit:
         specifier: ^15.0.0
         version: 15.0.0
@@ -5586,6 +5586,9 @@ importers:
       mockdate:
         specifier: ^3.0.5
         version: 3.0.5
+      node-fetch:
+        specifier: ^2.6.0
+        version: 2.6.7
       prettier:
         specifier: 2.6.2
         version: 2.6.2
@@ -19926,6 +19929,7 @@ packages:
       whatwg-url: 6.5.0
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /fetch-mock@9.11.0(node-fetch@2.6.7):
     resolution: {integrity: sha512-PG1XUv+x7iag5p/iNHD4/jdpxL9FtVSqRMUQhPab4hVDt80T1MH5ehzVrL2IdXO9Q2iBggArFvPqjUbHFuI58Q==}
@@ -23024,6 +23028,7 @@ packages:
       promise-polyfill: 8.2.3
     transitivePeerDependencies:
       - encoding
+    dev: true
 
   /jest-get-type@24.9.0:
     resolution: {integrity: sha512-lUseMzAley4LhIcpSP9Jf+fTrQ4a1yHQwLNeeVa2cEmbCGeoZAtYPOIv8JaxLD/sUpKxetKGP+gsHl8f8TSj8Q==}
@@ -28192,6 +28197,7 @@ packages:
 
   /promise-polyfill@8.2.3:
     resolution: {integrity: sha512-Og0+jCRQetV84U8wVjMNccfGCnMQ9mGs9Hv78QFe+pSDD3gWTpz0y+1QCuxy5d/vBFuZ3iwP2eycAkvqIMPmWg==}
+    dev: true
 
   /promise@8.1.0:
     resolution: {integrity: sha512-W04AqnILOL/sPRXziNicCjSNRruLAuIHEOVBazepu0545DDNGYHz7ar9ZgZ1fMU8/MA4mVxp5rkBWRi6OXIy3Q==}
