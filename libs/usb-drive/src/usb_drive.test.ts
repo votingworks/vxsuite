@@ -88,11 +88,14 @@ describe('status', () => {
     execMock.mockResolvedValueOnce(lsblkOutput({ mountpoint: null }));
     // Mount
     execMock.mockResolvedValueOnce({ stdout: '' });
+
+    // While mounting, status is 'no_drive'
+    await expect(usbDrive.status()).resolves.toEqual({ status: 'no_drive' });
+
     // Status after mount
     execMock.mockResolvedValueOnce(
       lsblkOutput({ mountpoint: '/media/vx/usb-drive' })
     );
-
     await expect(usbDrive.status()).resolves.toEqual({
       status: 'mounted',
       mountPoint: '/media/vx/usb-drive',
@@ -234,6 +237,7 @@ describe('eject', () => {
     readlinkMock.mockResolvedValueOnce('../../sdb1');
     execMock.mockResolvedValueOnce(lsblkOutput({ mountpoint: null }));
     execMock.mockResolvedValueOnce({ stdout: '' });
+    await expect(usbDrive.status()).resolves.toEqual({ status: 'no_drive' });
     readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
     readlinkMock.mockResolvedValueOnce('../../sdb1');
     execMock.mockResolvedValueOnce(

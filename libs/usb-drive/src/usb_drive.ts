@@ -88,14 +88,16 @@ async function getUsbDriveDeviceInfo(): Promise<BlockDeviceInfo | undefined> {
   return await getBlockDeviceInfo(devicePath);
 }
 
+const MOUNT_SCRIPT_PATH = join(__dirname, '../src');
+
 async function mountUsbDrive(devicePath: string): Promise<void> {
   debug(`Mounting USB drive ${devicePath}`);
-  await exec('sudo', ['-n', `${__dirname}/../src/mount.sh`, devicePath]);
+  await exec('sudo', ['-n', join(MOUNT_SCRIPT_PATH, 'mount.sh'), devicePath]);
 }
 
 async function unmountUsbDrive(mountPoint: string): Promise<void> {
   debug(`Unmounting USB drive at ${mountPoint}`);
-  await exec('sudo', ['-n', `${__dirname}/../src/unmount.sh`, mountPoint]);
+  await exec('sudo', ['-n', join(MOUNT_SCRIPT_PATH, 'unmount.sh'), mountPoint]);
 }
 
 function isFat32(deviceInfo: BlockDeviceInfo): boolean {
@@ -108,9 +110,12 @@ export function detectUsbDrive(): UsbDrive {
   // storing in memory is fine.
   let didEject = false;
 
+  // Store mounting state so we don't try to mount the drive multiple times.
+  let isMounting = false;
+
   return {
     async status(): Promise<UsbDriveStatus> {
-      let deviceInfo = await getUsbDriveDeviceInfo();
+      const deviceInfo = await getUsbDriveDeviceInfo();
       if (!deviceInfo) {
         // Reset eject state in case the drive was removed
         didEject = false;
@@ -122,11 +127,22 @@ export function detectUsbDrive(): UsbDrive {
 
       // Automatically mount the drive if it's not already mounted
       if (!deviceInfo.mountpoint && !didEject) {
-        await mountUsbDrive(deviceInfo.path);
-        deviceInfo = assertDefined(await getUsbDriveDeviceInfo());
+        if (!isMounting) {
+          isMounting = true;
+          // Mount the drive in the background
+          void mountUsbDrive(deviceInfo.path).catch(
+            /* istanbul ignore next */
+            (error) => {
+              // eslint-disable-next-line no-console
+              console.error(`Error mounting USB drive: ${error}`);
+            }
+          );
+        }
+        return { status: 'no_drive' };
       }
 
       if (deviceInfo.mountpoint) {
+        isMounting = false;
         return {
           status: 'mounted',
           mountPoint: deviceInfo.mountpoint,
