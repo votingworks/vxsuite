@@ -4,7 +4,6 @@ import { exec } from './exec';
 
 jest.mock('fs', () => ({
   promises: {
-    mkdir: jest.fn().mockRejectedValue(new Error('Not mocked')),
     readdir: jest.fn().mockRejectedValue(new Error('Not mocked')),
     readlink: jest.fn().mockRejectedValue(new Error('Not mocked')),
   },
@@ -13,7 +12,6 @@ jest.mock('./exec', () => ({
   exec: jest.fn().mockRejectedValue(new Error('Not mocked')),
 }));
 
-const mkdirMock = fs.mkdir as unknown as jest.Mock<Promise<void>>;
 const readdirMock = fs.readdir as unknown as jest.Mock<Promise<string[]>>;
 const readlinkMock = fs.readlink as unknown as jest.Mock<Promise<string>>;
 const execMock = exec as unknown as jest.Mock<Promise<{ stdout: string }>>;
@@ -89,7 +87,6 @@ describe('status', () => {
     // Initial status
     execMock.mockResolvedValueOnce(lsblkOutput({ mountpoint: null }));
     // Mount
-    mkdirMock.mockResolvedValueOnce();
     execMock.mockResolvedValueOnce({ stdout: '' });
     // Status after mount
     execMock.mockResolvedValueOnce(
@@ -112,16 +109,9 @@ describe('status', () => {
     ]);
     expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
       '-n',
-      'mount',
-      '-w',
-      '-o',
-      'umask=000,nosuid,nodev,noexec',
+      `${__dirname}/mount.sh`,
       '/dev/sdb1',
-      '/media/vx/usb-drive',
     ]);
-    expect(mkdirMock).toHaveBeenCalledWith('/media/vx/usb-drive', {
-      recursive: true,
-    });
     expect(execMock).toHaveBeenNthCalledWith(3, 'lsblk', [
       '-J',
       '-n',
@@ -227,7 +217,7 @@ describe('eject', () => {
 
     expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
       '-n',
-      'umount',
+      `${__dirname}/unmount.sh`,
       '/media/usb-drive-sdb1',
     ]);
 
