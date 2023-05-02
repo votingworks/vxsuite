@@ -217,7 +217,7 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-ezbkgU gcJsOl"
+                  class="sc-ezbkgU bmeHoE"
                 >
                   <span
                     class="sc-caiKgP SOLan"
@@ -267,7 +267,7 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-ezbkgU gcJsOl"
+                  class="sc-ezbkgU bmeHoE"
                 >
                   <span
                     class="sc-caiKgP SOLan"
@@ -317,7 +317,7 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-ezbkgU gcJsOl"
+                  class="sc-ezbkgU bmeHoE"
                 >
                   <span
                     class="sc-caiKgP SOLan"
@@ -367,7 +367,7 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-ezbkgU gcJsOl"
+                  class="sc-ezbkgU bmeHoE"
                 >
                   <span
                     class="sc-caiKgP SOLan"
@@ -417,7 +417,7 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-ezbkgU gcJsOl"
+                  class="sc-ezbkgU bmeHoE"
                 >
                   <span
                     class="sc-caiKgP SOLan"
@@ -467,7 +467,7 @@ exports[`Renders ContestPage 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-ezbkgU gcJsOl"
+                  class="sc-ezbkgU bmeHoE"
                 >
                   <span
                     class="sc-caiKgP SOLan"
@@ -524,7 +524,7 @@ exports[`Renders ContestPage 1`] = `
         type="button"
       >
         <span
-          class="sc-ezbkgU gcJsOl"
+          class="sc-ezbkgU bmeHoE"
         >
           <span
             class="c8"
@@ -540,7 +540,7 @@ exports[`Renders ContestPage 1`] = `
         type="button"
       >
         <span
-          class="sc-ezbkgU gcJsOl"
+          class="sc-ezbkgU bmeHoE"
         >
           <span
             class="c9"
@@ -555,7 +555,7 @@ exports[`Renders ContestPage 1`] = `
         type="button"
       >
         <span
-          class="sc-ezbkgU gcJsOl"
+          class="sc-ezbkgU bmeHoE"
         >
           Settings
         </span>
@@ -813,7 +813,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-ezbkgU gcJsOl"
+                  class="sc-ezbkgU bmeHoE"
                 >
                   <span
                     class="sc-caiKgP SOLan"
@@ -863,7 +863,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-ezbkgU gcJsOl"
+                  class="sc-ezbkgU bmeHoE"
                 >
                   <span
                     class="sc-caiKgP SOLan"
@@ -913,7 +913,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-ezbkgU gcJsOl"
+                  class="sc-ezbkgU bmeHoE"
                 >
                   <span
                     class="sc-caiKgP SOLan"
@@ -963,7 +963,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-ezbkgU gcJsOl"
+                  class="sc-ezbkgU bmeHoE"
                 >
                   <span
                     class="sc-caiKgP SOLan"
@@ -1013,7 +1013,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-ezbkgU gcJsOl"
+                  class="sc-ezbkgU bmeHoE"
                 >
                   <span
                     class="sc-caiKgP SOLan"
@@ -1063,7 +1063,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 type="button"
               >
                 <span
-                  class="sc-ezbkgU gcJsOl"
+                  class="sc-ezbkgU bmeHoE"
                 >
                   <span
                     class="sc-caiKgP SOLan"
@@ -1141,7 +1141,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               type="button"
             >
               <span
-                class="sc-ezbkgU gcJsOl"
+                class="sc-ezbkgU bmeHoE"
               >
                 <span
                   class="c8"
@@ -1161,7 +1161,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               type="button"
             >
               <span
-                class="sc-ezbkgU gcJsOl"
+                class="sc-ezbkgU bmeHoE"
               >
                 <span
                   class="c9"
@@ -1185,7 +1185,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
             type="button"
           >
             <span
-              class="sc-ezbkgU gcJsOl"
+              class="sc-ezbkgU bmeHoE"
             >
               Settings
             </span>
