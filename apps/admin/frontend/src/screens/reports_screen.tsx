@@ -16,7 +16,6 @@ import {
 import { TallyCategory } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 
-import { Admin } from '@votingworks/api';
 import { assert } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 import { MsSemsConverterClient } from '../lib/converters/ms_sems_converter_client';
@@ -161,7 +160,7 @@ export function ReportsScreen(): JSX.Element {
     <p>
       <strong>
         {format.count(totalBallotCount)}
-        {fileMode === Admin.CvrFileMode.Unlocked ? ' ' : ` ${fileMode} `}
+        {fileMode === 'unlocked' ? ' ' : ` ${fileMode} `}
         {pluralize('ballot', totalBallotCount, false)}{' '}
       </strong>{' '}
       have been counted for <strong>{electionDefinition.election.title}</strong>
@@ -172,7 +171,7 @@ export function ReportsScreen(): JSX.Element {
   // saving results is enabled once a cast vote record file is loaded
   const canSaveResults =
     castVoteRecordFileModeQuery.isSuccess &&
-    castVoteRecordFileModeQuery.data !== Admin.CvrFileMode.Unlocked;
+    castVoteRecordFileModeQuery.data !== 'unlocked';
 
   return (
     <React.Fragment>

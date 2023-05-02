@@ -4,8 +4,8 @@ import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { screen } from '@testing-library/react';
 
-import { Admin } from '@votingworks/api';
 import { computeFullElectionTally } from '@votingworks/utils';
+import type { WriteInSummaryEntryAdjudicated } from '@votingworks/admin-backend';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 import { TallyWriteInReportScreen } from './tally_writein_report_screen';
@@ -25,35 +25,33 @@ async function getFullElectionTally() {
   );
 }
 
-const nonOfficialAdjudicationSummaryMammal: Admin.WriteInSummaryEntryAdjudicated =
-  {
-    status: 'adjudicated',
+const nonOfficialAdjudicationSummaryMammal: WriteInSummaryEntryAdjudicated = {
+  status: 'adjudicated',
+  contestId: 'zoo-council-mammal',
+  transcribedValue: 'Chimera',
+  writeInCount: 1,
+  writeInAdjudication: {
+    id: 'some',
     contestId: 'zoo-council-mammal',
     transcribedValue: 'Chimera',
-    writeInCount: 1,
-    writeInAdjudication: {
-      id: 'some',
-      contestId: 'zoo-council-mammal',
-      transcribedValue: 'Chimera',
-      adjudicatedValue: 'Chimera',
-    },
-  };
+    adjudicatedValue: 'Chimera',
+  },
+};
 
-const nonOfficialAdjudicationSummaryFish: Admin.WriteInSummaryEntryAdjudicated =
-  {
-    status: 'adjudicated',
-    contestId: 'aquarium-council-fish',
+const nonOfficialAdjudicationSummaryFish: WriteInSummaryEntryAdjudicated = {
+  status: 'adjudicated',
+  contestId: 'aquarium-council-fish',
+  transcribedValue: 'Loch Ness',
+  writeInCount: 1,
+  writeInAdjudication: {
+    id: 'some',
+    contestId: 'zoo-council-mammal',
     transcribedValue: 'Loch Ness',
-    writeInCount: 1,
-    writeInAdjudication: {
-      id: 'some',
-      contestId: 'zoo-council-mammal',
-      transcribedValue: 'Loch Ness',
-      adjudicatedValue: 'Loch Ness',
-    },
-  };
+    adjudicatedValue: 'Loch Ness',
+  },
+};
 
-const officialAdjudicationSummaryFish: Admin.WriteInSummaryEntryAdjudicated = {
+const officialAdjudicationSummaryFish: WriteInSummaryEntryAdjudicated = {
   status: 'adjudicated',
   contestId: 'aquarium-council-fish',
   transcribedValue: 'Loch Ness',

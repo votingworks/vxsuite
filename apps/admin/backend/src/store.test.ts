@@ -1,4 +1,3 @@
-import { Admin } from '@votingworks/api';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { safeParseSystemSettings } from '@votingworks/utils';
 import { typedAs } from '@votingworks/basics';
@@ -10,7 +9,12 @@ import { BallotPageLayout, BallotType } from '@votingworks/types';
 import { Store } from './store';
 import { addCastVoteRecordReport } from './cvr_files';
 import { modifyCastVoteRecordReport } from '../test/utils';
-import { ScannerBatch } from './types';
+import {
+  ElectionRecord,
+  ScannerBatch,
+  WriteInRecord,
+  WriteInSummaryEntry,
+} from './types';
 
 const mockImageData = Buffer.from([1, 2, 3, 4]);
 const mockPageLayout: BallotPageLayout = {
@@ -108,7 +112,7 @@ test('get write-in adjudication records', async () => {
   });
 
   expect(store.getWriteInRecords({ electionId })).toEqual(
-    typedAs<Admin.WriteInRecord[]>([
+    typedAs<WriteInRecord[]>([
       {
         id: zooCouncilMammalWriteInAdjudicationId,
         contestId: 'zoo-council-mammal',
@@ -226,7 +230,7 @@ test('write-in adjudication lifecycle', async () => {
   });
 
   expect(store.getWriteInAdjudicationSummary({ electionId })).toEqual(
-    typedAs<Admin.WriteInSummaryEntry[]>([
+    typedAs<WriteInSummaryEntry[]>([
       {
         status: 'pending',
         contestId: 'zoo-council-mammal',
@@ -250,7 +254,7 @@ test('write-in adjudication lifecycle', async () => {
   store.transcribeWriteIn(writeInId, 'Mickey Mouse');
 
   expect(store.getWriteInAdjudicationSummary({ electionId })).toEqual(
-    typedAs<Admin.WriteInSummaryEntry[]>([
+    typedAs<WriteInSummaryEntry[]>([
       {
         status: 'transcribed',
         contestId: 'zoo-council-mammal',
@@ -324,7 +328,7 @@ test('write-in adjudication lifecycle', async () => {
       status: 'adjudicated',
     })
   ).toEqual(
-    typedAs<Admin.WriteInRecord[]>([
+    typedAs<WriteInRecord[]>([
       {
         id: writeInId,
         contestId: 'zoo-council-mammal',
@@ -339,7 +343,7 @@ test('write-in adjudication lifecycle', async () => {
   );
 
   expect(store.getWriteInAdjudicationSummary({ electionId })).toEqual(
-    typedAs<Admin.WriteInSummaryEntry[]>([
+    typedAs<WriteInSummaryEntry[]>([
       {
         status: 'adjudicated',
         contestId: 'zoo-council-mammal',
@@ -378,7 +382,7 @@ test('write-in adjudication lifecycle', async () => {
       status: 'adjudicated',
     })
   ).toEqual(
-    typedAs<Admin.WriteInRecord[]>([
+    typedAs<WriteInRecord[]>([
       {
         id: writeInId,
         contestId: 'zoo-council-mammal',
@@ -392,7 +396,7 @@ test('write-in adjudication lifecycle', async () => {
   );
 
   expect(store.getWriteInAdjudicationSummary({ electionId })).toEqual(
-    typedAs<Admin.WriteInSummaryEntry[]>([
+    typedAs<WriteInSummaryEntry[]>([
       {
         status: 'adjudicated',
         contestId: 'zoo-council-mammal',
@@ -425,7 +429,7 @@ test('write-in adjudication lifecycle', async () => {
       status: 'adjudicated',
     })
   ).toEqual(
-    typedAs<Admin.WriteInRecord[]>([
+    typedAs<WriteInRecord[]>([
       {
         id: writeInId,
         contestId: 'zoo-council-mammal',
@@ -447,7 +451,7 @@ test('write-in adjudication lifecycle', async () => {
       status: 'transcribed',
     })
   ).toEqual(
-    typedAs<Admin.WriteInRecord[]>([
+    typedAs<WriteInRecord[]>([
       {
         id: writeInId,
         contestId: 'zoo-council-mammal',
@@ -507,7 +511,7 @@ test('setElectionResultsOfficial', () => {
 
   expect(store.getElection(electionId)).toEqual(
     expect.objectContaining(
-      typedAs<Partial<Admin.ElectionRecord>>({
+      typedAs<Partial<ElectionRecord>>({
         isOfficialResults: false,
       })
     )
@@ -517,7 +521,7 @@ test('setElectionResultsOfficial', () => {
 
   expect(store.getElection(electionId)).toEqual(
     expect.objectContaining(
-      typedAs<Partial<Admin.ElectionRecord>>({
+      typedAs<Partial<ElectionRecord>>({
         isOfficialResults: true,
       })
     )
@@ -527,7 +531,7 @@ test('setElectionResultsOfficial', () => {
 
   expect(store.getElection(electionId)).toEqual(
     expect.objectContaining(
-      typedAs<Partial<Admin.ElectionRecord>>({
+      typedAs<Partial<ElectionRecord>>({
         isOfficialResults: false,
       })
     )

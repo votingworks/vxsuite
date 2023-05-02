@@ -1,6 +1,6 @@
-import { Admin } from '@votingworks/api';
+import { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
 
-export const mockCastVoteRecordFileRecord: Admin.CastVoteRecordFileRecord = {
+export const mockCastVoteRecordFileRecord: CastVoteRecordFileRecord = {
   id: '',
   electionId: '',
   filename: '',

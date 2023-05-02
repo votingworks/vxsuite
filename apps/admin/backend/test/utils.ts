@@ -1,4 +1,3 @@
-import { Admin } from '@votingworks/api';
 import {
   CastVoteRecordReportImport,
   getCastVoteRecordReportImport,
@@ -11,6 +10,7 @@ import {
 } from '@votingworks/utils';
 import * as fs from 'fs';
 import { join } from 'path';
+import { WriteInAdjudicationTableOptionGroup } from '../src';
 
 /**
  * Builds the group of options for adjudicating write-ins to official candidates
@@ -18,7 +18,7 @@ import { join } from 'path';
  */
 export function buildOfficialCandidatesWriteInAdjudicationOptionGroup(
   contest: CandidateContest
-): Admin.WriteInAdjudicationTableOptionGroup {
+): WriteInAdjudicationTableOptionGroup {
   return {
     title: 'Official Candidates',
     options: contest.candidates

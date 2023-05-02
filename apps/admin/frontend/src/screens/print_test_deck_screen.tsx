@@ -1,5 +1,4 @@
 import React, { useState, useContext, useCallback } from 'react';
-import { Admin } from '@votingworks/api';
 import {
   BallotPaperSize,
   Election,
@@ -141,7 +140,7 @@ function getHandMarkedPaperBallotsWithOnReadyCallback({
           ballotStyleId={ballot.ballotStyleId}
           election={election}
           electionHash={electionHash}
-          ballotMode={Admin.BallotMode.Test}
+          ballotMode="test"
           isAbsentee={false}
           precinctId={ballot.precinctId}
           locales={{ primary: 'en-US' }}

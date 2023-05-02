@@ -18,8 +18,8 @@ import {
   printElementToPdf,
   LinkButton,
 } from '@votingworks/ui';
-import { Admin } from '@votingworks/api';
 import { UseQueryResult } from '@tanstack/react-query';
+import type { WriteInSummaryEntryAdjudicated } from '@votingworks/admin-backend';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 
 import {
@@ -72,7 +72,7 @@ export function TallyWriteInReportScreen(): JSX.Element {
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
   const writeInSummaryQuery = getWriteInSummary.useQuery({
     status: 'adjudicated',
-  }) as UseQueryResult<Admin.WriteInSummaryEntryAdjudicated[]>;
+  }) as UseQueryResult<WriteInSummaryEntryAdjudicated[]>;
   const screenAdjudicatedWriteInCounts = getScreenAdjudicatedWriteInCounts(
     writeInSummaryQuery.data ?? []
   );

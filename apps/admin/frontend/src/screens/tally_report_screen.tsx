@@ -22,8 +22,8 @@ import {
   TallyReportPreview,
   Text,
 } from '@votingworks/ui';
-import { Admin } from '@votingworks/api';
 import { UseQueryResult } from '@tanstack/react-query';
+import type { WriteInSummaryEntryAdjudicated } from '@votingworks/admin-backend';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 
 import {
@@ -74,7 +74,7 @@ export function TallyReportScreen(): JSX.Element {
   const userRole = auth.user.role;
   const writeInSummaryQuery = getWriteInSummary.useQuery({
     status: 'adjudicated',
-  }) as UseQueryResult<Admin.WriteInSummaryEntryAdjudicated[]>;
+  }) as UseQueryResult<WriteInSummaryEntryAdjudicated[]>;
   const screenAdjudicatedOfficialCandidateWriteInCounts =
     getScreenAdjudicatedWriteInCounts(writeInSummaryQuery.data ?? [], true);
 
@@ -264,8 +264,7 @@ export function TallyReportScreen(): JSX.Element {
               <Button
                 disabled={
                   !castVoteRecordFileModeQuery.isSuccess ||
-                  castVoteRecordFileModeQuery.data ===
-                    Admin.CvrFileMode.Unlocked ||
+                  castVoteRecordFileModeQuery.data === 'unlocked' ||
                   isOfficialResults
                 }
                 onPress={openMarkOfficialModal}

@@ -3,26 +3,25 @@ import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { typedAs } from '@votingworks/basics';
 import { fakeKiosk, hasTextAcrossElements } from '@votingworks/test-utils';
 import fetchMock from 'fetch-mock';
-import { Admin } from '@votingworks/api';
+import type { WriteInSummaryEntryAdjudicated } from '@votingworks/admin-backend';
 import { screen, within } from '../test/react_testing_library';
 import { ApiMock, createApiMock } from '../test/helpers/api_mock';
 import { buildApp } from '../test/helpers/build_app';
 import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
 import { VxFiles } from './lib/converters';
 
-const nonOfficialAdjudicationSummaryMammal: Admin.WriteInSummaryEntryAdjudicated =
-  {
-    status: 'adjudicated',
+const nonOfficialAdjudicationSummaryMammal: WriteInSummaryEntryAdjudicated = {
+  status: 'adjudicated',
+  contestId: 'zoo-council-mammal',
+  transcribedValue: 'Chimera',
+  writeInCount: 1,
+  writeInAdjudication: {
+    id: 'some',
     contestId: 'zoo-council-mammal',
     transcribedValue: 'Chimera',
-    writeInCount: 1,
-    writeInAdjudication: {
-      id: 'some',
-      contestId: 'zoo-council-mammal',
-      transcribedValue: 'Chimera',
-      adjudicatedValue: 'Chimera',
-    },
-  };
+    adjudicatedValue: 'Chimera',
+  },
+};
 
 let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
 let apiMock: ApiMock;
@@ -69,7 +68,7 @@ test('manual write-in data end-to-end test', async () => {
     )
   );
   apiMock.expectGetCastVoteRecordFiles([]);
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
+  apiMock.expectGetCastVoteRecordFileMode('test');
   renderApp();
 
   // Navigate to manual data entry

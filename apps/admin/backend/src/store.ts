@@ -2,7 +2,6 @@
 // The durable datastore for election data, CVRs, and adjudication info.
 //
 
-import { Admin } from '@votingworks/api';
 import {
   Optional,
   Result,
@@ -32,7 +31,22 @@ import {
 import { join } from 'path';
 import { Buffer } from 'buffer';
 import { v4 as uuid } from 'uuid';
-import { CastVoteRecordMetadata, ScannerBatch } from './types';
+import {
+  CastVoteRecordFileEntryRecord,
+  CastVoteRecordFileRecord,
+  CastVoteRecordFileRecordSchema,
+  CastVoteRecordMetadata,
+  CvrFileMode,
+  ElectionRecord,
+  ScannerBatch,
+  WriteInAdjudicationRecord,
+  WriteInAdjudicationStatus,
+  WriteInRecord,
+  WriteInRecordAdjudicated,
+  WriteInRecordPendingTranscription,
+  WriteInRecordTranscribed,
+  WriteInSummaryEntry,
+} from './types';
 import {
   areCastVoteRecordMetadataEqual,
   cvrBallotTypeToLegacyBallotType,
@@ -110,7 +124,7 @@ export class Store {
   /**
    * Gets all election records.
    */
-  getElections(): Admin.ElectionRecord[] {
+  getElections(): ElectionRecord[] {
     return (
       this.client.all(`
       select
@@ -139,7 +153,7 @@ export class Store {
   /**
    * Gets a specific election record.
    */
-  getElection(electionId: string): Admin.ElectionRecord | undefined {
+  getElection(electionId: string): ElectionRecord | undefined {
     const result = this.client.one(
       `
       select
@@ -554,7 +568,7 @@ export class Store {
   /**
    * Returns the current CVR file mode for the current election.
    */
-  getCurrentCvrFileModeForElection(electionId: Id): Admin.CvrFileMode {
+  getCurrentCvrFileModeForElection(electionId: Id): CvrFileMode {
     const sampleCastVoteRecordFile = this.client.one(
       `
         select
@@ -567,12 +581,10 @@ export class Store {
     ) as { isTestMode: number } | undefined;
 
     if (!sampleCastVoteRecordFile) {
-      return Admin.CvrFileMode.Unlocked;
+      return 'unlocked';
     }
 
-    return sampleCastVoteRecordFile.isTestMode
-      ? Admin.CvrFileMode.Test
-      : Admin.CvrFileMode.Official;
+    return sampleCastVoteRecordFile.isTestMode ? 'test' : 'official';
   }
 
   /**
@@ -660,7 +672,7 @@ export class Store {
     };
   }
 
-  getCvrFiles(electionId: Id): Admin.CastVoteRecordFileRecord[] {
+  getCvrFiles(electionId: Id): CastVoteRecordFileRecord[] {
     const results = this.client.all(
       `
       select
@@ -700,7 +712,7 @@ export class Store {
 
     return results
       .map((result) =>
-        safeParse(Admin.CastVoteRecordFileRecordSchema, {
+        safeParse(CastVoteRecordFileRecordSchema, {
           id: result.id,
           electionId,
           sha256Hash: result.sha256Hash,
@@ -714,7 +726,7 @@ export class Store {
           createdAt: convertSqliteTimestampToIso8601(result.createdAt),
         }).unsafeUnwrap()
       )
-      .map<Admin.CastVoteRecordFileRecord>((parsedResult) => ({
+      .map<CastVoteRecordFileRecord>((parsedResult) => ({
         ...parsedResult,
         precinctIds: [...parsedResult.precinctIds].sort(),
         scannerIds: [...parsedResult.scannerIds].sort(),
@@ -724,12 +736,10 @@ export class Store {
   /**
    * Gets all CVR entries for an election.
    */
-  getCastVoteRecordEntries(
-    electionId: Id
-  ): Admin.CastVoteRecordFileEntryRecord[] {
+  getCastVoteRecordEntries(electionId: Id): CastVoteRecordFileEntryRecord[] {
     const fileMode = this.getCurrentCvrFileModeForElection(electionId);
-    if (fileMode === Admin.CvrFileMode.Unlocked) return [];
-    const isTestMode = fileMode === Admin.CvrFileMode.Test;
+    if (fileMode === 'unlocked') return [];
+    const isTestMode = fileMode === 'test';
 
     const entries = this.client.all(
       `
@@ -840,8 +850,8 @@ export class Store {
   }: {
     electionId: Id;
     contestId?: ContestId;
-    status?: Admin.WriteInAdjudicationStatus;
-  }): Admin.WriteInSummaryEntry[] {
+    status?: WriteInAdjudicationStatus;
+  }): WriteInSummaryEntry[] {
     const whereParts: string[] = ['cvrs.election_id = ?'];
     const params: Bindable[] = [electionId];
 
@@ -896,7 +906,7 @@ export class Store {
       contestId,
     });
 
-    return rows.map((row): Admin.WriteInSummaryEntry => {
+    return rows.map((row): WriteInSummaryEntry => {
       const adjudication = writeInAdjudications.find(
         (a) => a.id === row.writeInAdjudicationId
       );
@@ -939,9 +949,9 @@ export class Store {
   }: {
     electionId: Id;
     contestId?: ContestId;
-    status?: Admin.WriteInAdjudicationStatus;
+    status?: WriteInAdjudicationStatus;
     limit?: number;
-  }): Admin.WriteInRecord[] {
+  }): WriteInRecord[] {
     this.assertElectionExists(electionId);
 
     const whereParts: string[] = ['cvr_files.election_id = ?'];
@@ -995,7 +1005,7 @@ export class Store {
     return writeInRows
       .map((row) => {
         if (!row.transcribedValue) {
-          return typedAs<Admin.WriteInRecordPendingTranscription>({
+          return typedAs<WriteInRecordPendingTranscription>({
             id: row.id,
             status: 'pending',
             castVoteRecordId: row.castVoteRecordId,
@@ -1011,7 +1021,7 @@ export class Store {
         );
 
         if (!adjudication) {
-          return typedAs<Admin.WriteInRecordTranscribed>({
+          return typedAs<WriteInRecordTranscribed>({
             id: row.id,
             castVoteRecordId: row.castVoteRecordId,
             contestId: row.contestId,
@@ -1021,7 +1031,7 @@ export class Store {
           });
         }
 
-        return typedAs<Admin.WriteInRecordAdjudicated>({
+        return typedAs<WriteInRecordAdjudicated>({
           id: row.id,
           castVoteRecordId: row.castVoteRecordId,
           contestId: row.contestId,
@@ -1194,7 +1204,7 @@ export class Store {
   }: {
     electionId: Id;
     contestId?: ContestId;
-  }): Admin.WriteInAdjudicationRecord[] {
+  }): WriteInAdjudicationRecord[] {
     const whereParts: string[] = ['election_id = ?'];
     const params: Bindable[] = [electionId];
 

@@ -3,11 +3,11 @@ import {
   Button,
   SegmentedButtonDeprecated as SegmentedButton,
 } from '@votingworks/ui';
-import { Admin } from '@votingworks/api';
+import type { BallotMode } from '@votingworks/admin-backend';
 
 interface Props {
-  ballotMode: Admin.BallotMode;
-  setBallotMode: (ballotMode: Admin.BallotMode) => void;
+  ballotMode: BallotMode;
+  setBallotMode: (ballotMode: BallotMode) => void;
 }
 
 export function BallotModeToggle({
@@ -17,22 +17,22 @@ export function BallotModeToggle({
   return (
     <SegmentedButton>
       <Button
-        disabled={ballotMode === Admin.BallotMode.Official}
-        onPress={() => setBallotMode(Admin.BallotMode.Official)}
+        disabled={ballotMode === 'official'}
+        onPress={() => setBallotMode('official')}
         small
       >
         Official
       </Button>
       <Button
-        disabled={ballotMode === Admin.BallotMode.Test}
-        onPress={() => setBallotMode(Admin.BallotMode.Test)}
+        disabled={ballotMode === 'test'}
+        onPress={() => setBallotMode('test')}
         small
       >
         Test
       </Button>
       <Button
-        disabled={ballotMode === Admin.BallotMode.Sample}
-        onPress={() => setBallotMode(Admin.BallotMode.Sample)}
+        disabled={ballotMode === 'sample'}
+        onPress={() => setBallotMode('sample')}
         small
       >
         Sample

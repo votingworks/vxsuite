@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { basename } from 'path';
 import moment from 'moment';
 
-import { Admin } from '@votingworks/api';
 import {
   Modal,
   ModalWidth,
@@ -20,6 +19,7 @@ import {
 } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
+import type { CvrFileImportInfo } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
 import {
@@ -59,9 +59,9 @@ const TestMode = styled.span`
 type ModalState =
   | { state: 'error'; errorMessage?: string; filename: string }
   | { state: 'loading' }
-  | { state: 'duplicate'; result: Admin.CvrFileImportInfo }
+  | { state: 'duplicate'; result: CvrFileImportInfo }
   | { state: 'init' }
-  | { state: 'success'; result: Admin.CvrFileImportInfo };
+  | { state: 'success'; result: CvrFileImportInfo };
 
 export interface Props {
   onClose: () => void;
@@ -262,7 +262,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
 
   if (usbDrive.status === 'mounted') {
     // Determine if we are already locked to a filemode based on previously loaded CVRs
-    const fileModeLocked = fileMode !== Admin.CvrFileMode.Unlocked;
+    const fileModeLocked = fileMode !== 'unlocked';
 
     // Parse the file options on the USB drive and build table rows for each valid file.
     const fileTableRows: JSX.Element[] = [];
@@ -275,8 +275,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       const fileImported = importedFileNames.has(name);
       const inProperFileMode =
         !fileModeLocked ||
-        (isTestModeResults && fileMode === Admin.CvrFileMode.Test) ||
-        (!isTestModeResults && fileMode === Admin.CvrFileMode.Official);
+        (isTestModeResults && fileMode === 'test') ||
+        (!isTestModeResults && fileMode === 'official');
       const canImport = !fileImported && inProperFileMode;
       const row = (
         <tr key={name} data-testid="table-row">
@@ -314,7 +314,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     const headerModeText =
       fileMode === 'test' ? (
         <TestMode>Test Ballot Mode</TestMode>
-      ) : fileMode === 'live' ? (
+      ) : fileMode === 'official' ? (
         'Official Ballot Mode'
       ) : (
         ''

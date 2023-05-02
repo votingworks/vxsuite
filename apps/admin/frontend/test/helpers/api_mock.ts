@@ -1,10 +1,13 @@
 import { screen } from '@testing-library/react';
-import {
+import type {
   Api,
   CastVoteRecordFileMetadata,
+  CastVoteRecordFileRecord,
+  CvrFileMode,
   MachineConfig,
+  WriteInRecord,
+  WriteInSummaryEntryAdjudicated,
 } from '@votingworks/admin-backend';
-import { Admin } from '@votingworks/api';
 import { ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
@@ -157,18 +160,16 @@ export function createApiMock(
         .resolves(systemSettings ?? defaultSystemSettings);
     },
 
-    expectGetCastVoteRecordFileMode(fileMode: Admin.CvrFileMode) {
+    expectGetCastVoteRecordFileMode(fileMode: CvrFileMode) {
       apiClient.getCastVoteRecordFileMode.expectCallWith().resolves(fileMode);
     },
 
-    expectGetCastVoteRecordFiles(
-      fileRecords: Admin.CastVoteRecordFileRecord[]
-    ) {
+    expectGetCastVoteRecordFiles(fileRecords: CastVoteRecordFileRecord[]) {
       apiClient.getCastVoteRecordFiles.expectCallWith().resolves(fileRecords);
     },
 
     expectGetWriteInSummaryAdjudicated(
-      writeInSummaryRecords: Admin.WriteInSummaryEntryAdjudicated[]
+      writeInSummaryRecords: WriteInSummaryEntryAdjudicated[]
     ) {
       apiClient.getWriteInSummary
         .expectCallWith({
@@ -177,7 +178,7 @@ export function createApiMock(
         .resolves(writeInSummaryRecords);
     },
 
-    expectGetWriteIns(writeInRecords: Admin.WriteInRecord[]) {
+    expectGetWriteIns(writeInRecords: WriteInRecord[]) {
       apiClient.getWriteIns.expectCallWith().resolves(writeInRecords);
     },
 

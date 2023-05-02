@@ -1,4 +1,3 @@
-import { Admin } from '@votingworks/api';
 import {
   CastVoteRecord,
   ContestTallyMeta,
@@ -10,6 +9,7 @@ import {
 } from '@votingworks/types';
 import { Optional, throwIllegalValue } from '@votingworks/basics';
 import { z } from 'zod';
+import type { BallotMode } from '@votingworks/admin-backend';
 
 // Events
 export type InputEventFunction = (
@@ -31,20 +31,18 @@ export const PrintableBallotTypeSchema = z.union([
   z.literal('standard'),
 ]);
 
-export function ballotModeToReadableString(
-  ballotMode: Admin.BallotMode
-): string {
+export function ballotModeToReadableString(ballotMode: BallotMode): string {
   switch (ballotMode) {
-    case Admin.BallotMode.Draft: {
+    case 'draft': {
       return 'Draft';
     }
-    case Admin.BallotMode.Official: {
+    case 'official': {
       return 'Official';
     }
-    case Admin.BallotMode.Sample: {
+    case 'sample': {
       return 'Sample';
     }
-    case Admin.BallotMode.Test: {
+    case 'test': {
       return 'Test';
     }
     /* istanbul ignore next: Compile-time check for completeness */

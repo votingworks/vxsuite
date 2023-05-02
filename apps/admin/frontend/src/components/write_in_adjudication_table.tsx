@@ -1,4 +1,3 @@
-import { Admin } from '@votingworks/api';
 import { ContestOptionId, Id } from '@votingworks/types';
 import {
   Button,
@@ -13,9 +12,17 @@ import { find } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import type {
+  WriteInAdjudicationTable as WriteInAdjudicationTableType,
+  WriteInAdjudicationTableAdjudicatedRow,
+  WriteInAdjudicationTableAdjudicatedRowGroup,
+  WriteInAdjudicationTableOption,
+  WriteInAdjudicationTableOptionGroup,
+  WriteInAdjudicationTableTranscribedRow,
+} from '@votingworks/admin-backend';
 
 export interface Props {
-  readonly adjudicationTable: Admin.WriteInAdjudicationTable;
+  readonly adjudicationTable: WriteInAdjudicationTableType;
   readonly adjudicationQueuePhrase: string;
   readonly adjudicateTranscription: (
     transcribedValue: string,
@@ -64,7 +71,7 @@ const TD = styled(TableDataUI)`
 function AdjudicatedGroupHeaderRow({
   adjudicatedGroup,
 }: {
-  adjudicatedGroup: Admin.WriteInAdjudicationTableAdjudicatedRowGroup;
+  adjudicatedGroup: WriteInAdjudicationTableAdjudicatedRowGroup;
 }): JSX.Element {
   return (
     <StyledAdjudicatedRow>
@@ -95,10 +102,10 @@ function AdjudicationSelect({
   onChange,
   onBlur,
 }: {
-  groups: readonly Admin.WriteInAdjudicationTableOptionGroup[];
-  defaultValue?: Admin.WriteInAdjudicationTableOption;
+  groups: readonly WriteInAdjudicationTableOptionGroup[];
+  defaultValue?: WriteInAdjudicationTableOption;
   small?: boolean;
-  onChange: (option: Admin.WriteInAdjudicationTableOption) => void;
+  onChange: (option: WriteInAdjudicationTableOption) => void;
   onBlur?: () => void;
 }): JSX.Element {
   return (
@@ -140,8 +147,8 @@ function AdjudicationRow({
   groupData,
   updateAdjudication,
 }: {
-  rowData: Admin.WriteInAdjudicationTableAdjudicatedRow;
-  groupData: Admin.WriteInAdjudicationTableAdjudicatedRowGroup;
+  rowData: WriteInAdjudicationTableAdjudicatedRow;
+  groupData: WriteInAdjudicationTableAdjudicatedRowGroup;
   updateAdjudication: Props['updateAdjudication'];
 }): JSX.Element {
   const [isChanging, setIsChanging] = useState(false);
@@ -189,7 +196,7 @@ function TranscriptionRow({
   rowData,
   adjudicateTranscription,
 }: {
-  rowData: Admin.WriteInAdjudicationTableTranscribedRow;
+  rowData: WriteInAdjudicationTableTranscribedRow;
   adjudicateTranscription: Props['adjudicateTranscription'];
 }): JSX.Element {
   return (

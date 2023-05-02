@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { generateFinalExportDefaultFilename } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { Admin } from '@votingworks/api';
 import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { AppContext } from '../contexts/app_context';
 import { generateResultsCsv } from '../utils/generate_results_csv';
@@ -19,8 +18,7 @@ export function SaveResultsButton({
   const { election } = electionDefinition;
 
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
-  const isTestMode =
-    castVoteRecordFileModeQuery.data === Admin.CvrFileMode.Test;
+  const isTestMode = castVoteRecordFileModeQuery.data === 'test';
 
   const defaultFilename = generateFinalExportDefaultFilename(
     isTestMode,

@@ -1,35 +1,38 @@
 import { find, typedAs } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { CandidateContest } from '@votingworks/types';
-import * as Admin from '../index';
 import * as view from './write_in_adjudication_table';
+import {
+  WriteInAdjudicationTable,
+  WriteInAdjudicationTableOptionGroup,
+  WriteInSummaryEntryNonPending,
+} from '../types';
 
-const officialCandidatesOptionGroup: Admin.WriteInAdjudicationTableOptionGroup =
-  {
-    title: 'Official Candidates',
-    options: [
-      {
-        adjudicatedValue: 'Elephant',
-        adjudicatedOptionId: 'elephant',
-        enabled: true,
-      },
-      {
-        adjudicatedValue: 'Kangaroo',
-        adjudicatedOptionId: 'kangaroo',
-        enabled: true,
-      },
-      {
-        adjudicatedValue: 'Lion',
-        adjudicatedOptionId: 'lion',
-        enabled: true,
-      },
-      {
-        adjudicatedValue: 'Zebra',
-        adjudicatedOptionId: 'zebra',
-        enabled: true,
-      },
-    ],
-  };
+const officialCandidatesOptionGroup: WriteInAdjudicationTableOptionGroup = {
+  title: 'Official Candidates',
+  options: [
+    {
+      adjudicatedValue: 'Elephant',
+      adjudicatedOptionId: 'elephant',
+      enabled: true,
+    },
+    {
+      adjudicatedValue: 'Kangaroo',
+      adjudicatedOptionId: 'kangaroo',
+      enabled: true,
+    },
+    {
+      adjudicatedValue: 'Lion',
+      adjudicatedOptionId: 'lion',
+      enabled: true,
+    },
+    {
+      adjudicatedValue: 'Zebra',
+      adjudicatedOptionId: 'zebra',
+      enabled: true,
+    },
+  ],
+};
 
 test('no transcribed or adjudicated write-ins', () => {
   const contest =
@@ -37,7 +40,7 @@ test('no transcribed or adjudicated write-ins', () => {
       ({ id }) => id === 'zoo-council-mammal'
     ) as CandidateContest;
   expect(view.render(contest, [])).toEqual(
-    typedAs<Admin.WriteInAdjudicationTable>({
+    typedAs<WriteInAdjudicationTable>({
       contestId: 'zoo-council-mammal',
       writeInCount: 0,
       adjudicated: [],
@@ -56,7 +59,7 @@ test('end-to-end adjudication & update', () => {
     ({ id }) => id === contestId
   ) as CandidateContest;
 
-  const summariesAfterTranscription: Admin.WriteInSummaryEntryNonPending[] = [
+  const summariesAfterTranscription: WriteInSummaryEntryNonPending[] = [
     {
       status: 'transcribed',
       contestId: 'zoo-council-mammal',
@@ -78,7 +81,7 @@ test('end-to-end adjudication & update', () => {
   ];
 
   expect(view.render(contest, summariesAfterTranscription)).toEqual(
-    typedAs<Admin.WriteInAdjudicationTable>({
+    typedAs<WriteInAdjudicationTable>({
       contestId,
       writeInCount: 3,
       adjudicated: [],
@@ -136,7 +139,7 @@ test('end-to-end adjudication & update', () => {
   );
 
   // adjudicate "Hyena" and "Gibbon" together
-  const summariesAfterAdjudication: Admin.WriteInSummaryEntryNonPending[] = [
+  const summariesAfterAdjudication: WriteInSummaryEntryNonPending[] = [
     {
       status: 'adjudicated',
       contestId: 'zoo-council-mammal',
@@ -170,7 +173,7 @@ test('end-to-end adjudication & update', () => {
   ];
 
   expect(view.render(contest, summariesAfterAdjudication)).toEqual(
-    typedAs<Admin.WriteInAdjudicationTable>({
+    typedAs<WriteInAdjudicationTable>({
       contestId,
       writeInCount: 3,
       adjudicated: [

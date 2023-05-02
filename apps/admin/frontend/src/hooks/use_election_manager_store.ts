@@ -32,7 +32,7 @@ export interface ElectionManagerStore {
 export const manualVoteTallyFileStorageKey = 'manualVoteTallies';
 
 /**
- * Manages the stored data for VxAdmin.
+ * Manages the stored data for Vx
  */
 export function useElectionManagerStore(): ElectionManagerStore {
   const { backend } = useContext(ServicesContext);

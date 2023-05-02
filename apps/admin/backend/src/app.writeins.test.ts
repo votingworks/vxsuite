@@ -1,4 +1,3 @@
-import { Admin } from '@votingworks/api';
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
   electionMinimalExhaustiveSampleFixtures,
@@ -16,6 +15,13 @@ import {
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app';
+import {
+  WriteInAdjudicationRecord,
+  WriteInAdjudicationTable,
+  WriteInAdjudicationTableAdjudicatedRowGroup,
+  WriteInAdjudicationTableOptionGroup,
+  WriteInAdjudicationTableTranscribedRow,
+} from './types';
 
 jest.setTimeout(30_000);
 
@@ -131,7 +137,7 @@ test('getWriteInAdjudications', async () => {
   });
 
   expect(await apiClient.getWriteInAdjudications()).toEqual(
-    typedAs<Admin.WriteInAdjudicationRecord[]>([
+    typedAs<WriteInAdjudicationRecord[]>([
       {
         id: expect.any(String),
         contestId: 'zoo-council-mammal',
@@ -158,7 +164,7 @@ test('getWriteInAdjudications', async () => {
       contestId: 'zoo-council-mammal',
     })
   ).toEqual(
-    typedAs<Admin.WriteInAdjudicationRecord[]>([
+    typedAs<WriteInAdjudicationRecord[]>([
       {
         id: expect.any(String),
         contestId: 'zoo-council-mammal',
@@ -198,7 +204,7 @@ test('write-in adjudication lifecycle', async () => {
     contestId,
   });
   expect(writeInAdjudicationTable).toEqual(
-    typedAs<Admin.WriteInAdjudicationTable>({
+    typedAs<WriteInAdjudicationTable>({
       contestId,
       writeInCount: 0,
       adjudicated: [],
@@ -240,7 +246,7 @@ test('write-in adjudication lifecycle', async () => {
     });
 
   expect(writeInAdjudicationTableAfterTranscription).toEqual(
-    typedAs<Admin.WriteInAdjudicationTable>({
+    typedAs<WriteInAdjudicationTable>({
       contestId,
       writeInCount,
       adjudicated: [],
@@ -252,7 +258,7 @@ test('write-in adjudication lifecycle', async () => {
             writeInCount,
             adjudicationOptionGroups: [
               expect.objectContaining(
-                typedAs<Partial<Admin.WriteInAdjudicationTableOptionGroup>>({
+                typedAs<Partial<WriteInAdjudicationTableOptionGroup>>({
                   title: 'Official Candidates',
                 })
               ),
@@ -288,7 +294,7 @@ test('write-in adjudication lifecycle', async () => {
   const writeInAdjudicationTableAfterAdjudication =
     await apiClient.getWriteInAdjudicationTable({ contestId });
   expect(writeInAdjudicationTableAfterAdjudication).toEqual(
-    typedAs<Admin.WriteInAdjudicationTable>({
+    typedAs<WriteInAdjudicationTable>({
       contestId,
       writeInCount,
       adjudicated: [
@@ -303,7 +309,7 @@ test('write-in adjudication lifecycle', async () => {
               editable: true,
               adjudicationOptionGroups: [
                 expect.objectContaining(
-                  typedAs<Partial<Admin.WriteInAdjudicationTableOptionGroup>>({
+                  typedAs<Partial<WriteInAdjudicationTableOptionGroup>>({
                     title: 'Official Candidates',
                   })
                 ),
@@ -332,7 +338,7 @@ test('write-in adjudication lifecycle', async () => {
     await apiClient.getWriteInAdjudications({ contestId });
 
   expect(writeInAdjudicationsAfterAdjuducation).toEqual(
-    typedAs<Admin.WriteInAdjudicationRecord[]>([
+    typedAs<WriteInAdjudicationRecord[]>([
       {
         id: expect.any(String),
         contestId,
@@ -357,12 +363,12 @@ test('write-in adjudication lifecycle', async () => {
   const writeInAdjudicationTableAfterUpdate =
     await apiClient.getWriteInAdjudicationTable({ contestId });
   expect(writeInAdjudicationTableAfterUpdate).toEqual(
-    typedAs<Admin.WriteInAdjudicationTable>({
+    typedAs<WriteInAdjudicationTable>({
       contestId,
       writeInCount,
       adjudicated: [
         expect.objectContaining(
-          typedAs<Partial<Admin.WriteInAdjudicationTableAdjudicatedRowGroup>>({
+          typedAs<Partial<WriteInAdjudicationTableAdjudicatedRowGroup>>({
             adjudicatedValue: 'Modest Mouse',
           })
         ),
@@ -385,12 +391,12 @@ test('write-in adjudication lifecycle', async () => {
   const writeInAdjudicationTableAfterUpdateAgain =
     await apiClient.getWriteInAdjudicationTable({ contestId });
   expect(writeInAdjudicationTableAfterUpdateAgain).toEqual(
-    typedAs<Admin.WriteInAdjudicationTable>({
+    typedAs<WriteInAdjudicationTable>({
       contestId,
       writeInCount,
       adjudicated: [
         expect.objectContaining(
-          typedAs<Partial<Admin.WriteInAdjudicationTableAdjudicatedRowGroup>>({
+          typedAs<Partial<WriteInAdjudicationTableAdjudicatedRowGroup>>({
             adjudicatedValue: 'Zebra',
             adjudicatedOptionId: 'zebra',
           })
@@ -410,7 +416,7 @@ test('write-in adjudication lifecycle', async () => {
   const writeInAdjudicationTableAfterDelete =
     await apiClient.getWriteInAdjudicationTable({ contestId });
   expect(writeInAdjudicationTableAfterDelete).toEqual(
-    typedAs<Admin.WriteInAdjudicationTable>({
+    typedAs<WriteInAdjudicationTable>({
       contestId,
       writeInCount,
       adjudicated: [],
@@ -418,7 +424,7 @@ test('write-in adjudication lifecycle', async () => {
         writeInCount,
         rows: [
           expect.objectContaining(
-            typedAs<Partial<Admin.WriteInAdjudicationTableTranscribedRow>>({
+            typedAs<Partial<WriteInAdjudicationTableTranscribedRow>>({
               transcribedValue: 'Mickey Mouse',
               writeInCount,
             })
@@ -479,7 +485,7 @@ test('create write-in adjudication for an unlisted candidate', async () => {
   });
 
   expect(await apiClient.getWriteInAdjudications()).toEqual(
-    typedAs<Admin.WriteInAdjudicationRecord[]>([
+    typedAs<WriteInAdjudicationRecord[]>([
       {
         id: expect.any(String),
         contestId: 'zoo-council-mammal',
@@ -510,7 +516,7 @@ test('create write-in adjudication for an official candidate', async () => {
   });
 
   expect(await apiClient.getWriteInAdjudications()).toEqual(
-    typedAs<Admin.WriteInAdjudicationRecord[]>([
+    typedAs<WriteInAdjudicationRecord[]>([
       {
         id: expect.any(String),
         contestId: 'zoo-council-mammal',

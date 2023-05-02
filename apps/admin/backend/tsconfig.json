@@ -16,7 +16,6 @@
     "skipLibCheck": true
   },
   "references": [
-    { "path": "../../../libs/api/tsconfig.build.json" },
     { "path": "../../../libs/auth/tsconfig.build.json" },
     { "path": "../../../libs/backend/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },
