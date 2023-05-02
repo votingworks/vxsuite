@@ -8,9 +8,7 @@ import {
   AdjudicationStatus,
   AnyContest,
   BallotMetadata,
-  BallotMetadataSchema,
   BallotPageLayout,
-  BallotPageLayoutSchema,
   BallotPageLayoutWithImage,
   BallotPageMetadata,
   BallotPaperSize,
@@ -37,13 +35,11 @@ import {
   SystemSettingsDbRow,
 } from '@votingworks/types';
 import { assert, Optional } from '@votingworks/basics';
-import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
 import { v4 as uuid } from 'uuid';
-import { z } from 'zod';
 import { ResultSheet } from '@votingworks/backend';
 import { sheetRequiresAdjudication } from './vx_interpreter';
 import { rootDebug } from './util/debug';
@@ -1008,50 +1004,6 @@ export class Store {
         backNormalizedFilename: row.backNormalizedFilename,
       };
     }
-  }
-
-  getHmpbTemplates(): Array<[Buffer, BallotPageLayout[]]> {
-    const rows = this.client.all(
-      `
-        select
-          id,
-          pdf,
-          metadata_json as metadataJson,
-          layouts_json as layoutsJson
-        from hmpb_templates
-        order by created_at asc
-      `
-    ) as Array<{
-      id: string;
-      pdf: Buffer;
-      layoutsJson: string;
-      metadataJson: string;
-    }>;
-    const results: Array<[Buffer, BallotPageLayout[]]> = [];
-
-    for (const { id, pdf, metadataJson, layoutsJson } of rows) {
-      const metadata = safeParseJson(
-        metadataJson,
-        BallotMetadataSchema
-      ).unsafeUnwrap();
-      debug('loading stored HMPB template id=%s: %O', id, metadata);
-      const layouts: BallotPageLayout[] = safeParseJson(
-        layoutsJson,
-        z.array(BallotPageLayoutSchema)
-      ).unsafeUnwrap();
-      results.push([
-        pdf,
-        layouts.map((layout, i) => ({
-          ...layout,
-          metadata: {
-            ...metadata,
-            pageNumber: i + 1,
-          },
-        })),
-      ]);
-    }
-
-    return results;
   }
 
   /**
