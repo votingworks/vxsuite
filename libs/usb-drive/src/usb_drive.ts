@@ -85,25 +85,14 @@ async function getUsbDriveStatus(): Promise<BlockDeviceInfo | undefined> {
   return await getBlockDeviceInfo(devicePath);
 }
 
-const VX_MOUNT_POINT = '/media/vx/usb-drive';
-
 async function mountUsbDrive(devicePath: string): Promise<void> {
-  debug(`Mounting USB drive ${devicePath} at ${VX_MOUNT_POINT}`);
-  await fs.mkdir(VX_MOUNT_POINT, { recursive: true });
-  await exec('sudo', [
-    '-n',
-    'mount',
-    '-w',
-    '-o',
-    'umask=000,nosuid,nodev,noexec',
-    devicePath,
-    VX_MOUNT_POINT,
-  ]);
+  debug(`Mounting USB drive ${devicePath}`);
+  await exec('sudo', ['-n', `${__dirname}/mount.sh`, devicePath]);
 }
 
 async function unmountUsbDrive(mountPoint: string): Promise<void> {
   debug(`Unmounting USB drive at ${mountPoint}`);
-  await exec('sudo', ['-n', 'umount', mountPoint]);
+  await exec('sudo', ['-n', `${__dirname}/unmount.sh`, mountPoint]);
 }
 
 function isFat32(deviceInfo: BlockDeviceInfo): boolean {
@@ -127,8 +116,6 @@ export function detectUsbDrive(): UsbDrive {
       }
 
       // Automatically mount the drive if it's not already mounted
-      // TODO if the drive is mounted at a different mount point than our
-      // default VX mount point, do we want to unmount and remount it?
       if (!deviceInfo.mountpoint && !didEject) {
         await mountUsbDrive(deviceInfo.path);
         deviceInfo = assertDefined(await getUsbDriveStatus());
