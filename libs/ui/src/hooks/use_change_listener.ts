@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import deepEqual from 'deep-eql';
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type { UseQueryResult } from '@tanstack/react-query';
 
 /**

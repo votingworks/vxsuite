@@ -22,7 +22,6 @@ import {
 import { AdjudicationReason, getDisplayElectionHash } from '@votingworks/types';
 import { err, ok } from '@votingworks/basics';
 
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type {
   PrecinctScannerConfig,
   SheetInterpretation,

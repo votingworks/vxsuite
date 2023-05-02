@@ -6,7 +6,6 @@ import { Caption } from '../typography';
 import { RadioButton } from './radio_button';
 import { RadioGroupOption, RadioGroupOptionId } from './types';
 
-// eslint-disable-next-line vx/gts-no-import-export-type
 export type { RadioGroupOption, RadioGroupOptionId };
 
 /** Props for {@link RadioGroup}. */

@@ -11,7 +11,6 @@ import {
 import { NullPrinter, getEmptyFullElectionTally } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/ui';
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/admin-backend';
 import {
   Iso8601Timestamp,

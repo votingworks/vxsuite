@@ -1,4 +1,3 @@
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type Express from 'express';
 import { rootDebug } from './debug';
 import { serialize, deserialize } from './serialization';

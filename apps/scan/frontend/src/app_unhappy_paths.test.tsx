@@ -14,7 +14,6 @@ import userEvent from '@testing-library/user-event';
 import { ServerError } from '@votingworks/grout';
 import { fakeLogger } from '@votingworks/logging';
 import { deferred } from '@votingworks/basics';
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type { PrecinctScannerConfig } from '@votingworks/scan-backend';
 import { act, render, screen, waitFor } from '../test/react_testing_library';
 import { scannerStatus } from '../test/helpers/helpers';

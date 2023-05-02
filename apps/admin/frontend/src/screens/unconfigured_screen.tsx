@@ -12,7 +12,6 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { Button, Prose, useMountedState } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type { ConfigureResult } from '@votingworks/admin-backend';
 import { readFileAsyncAsString } from '@votingworks/utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';

@@ -218,7 +218,6 @@ type OkInterface<T> = Ok<T>;
 // eslint-disable-next-line vx/gts-jsdoc
 type ErrInterface<T> = Err<T>;
 // Allow `export type` here so we can use `isolatedModules`.
-// eslint-disable-next-line vx/gts-no-import-export-type
 export type { OkInterface as Ok, ErrInterface as Err };
 
 /**

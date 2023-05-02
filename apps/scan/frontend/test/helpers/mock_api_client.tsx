@@ -10,7 +10,6 @@ import {
   PrecinctSelection,
 } from '@votingworks/types';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type {
   Api,
   MachineConfig,
