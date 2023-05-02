@@ -220,32 +220,36 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
            General Election
         </h5>
         <p
-          class="sc-bqiQRQ jKCqve"
+          class="sc-dkPtyc XGKAk"
         >
-          November 3, 2020
-          <br />
           <span
-            class="sc-ksdxAp gMaEyZ"
+            class="sc-gsDJrp cXSIgy"
           >
-            Franklin County
-            ,
-          </span>
-           
-          <span
-            class="sc-ksdxAp gMaEyZ"
-          >
-            State of Hamilton
+            November 3, 2020
+            <br />
+            <span
+              class="sc-ksdxAp gMaEyZ"
+            >
+              Franklin County
+              ,
+            </span>
+             
+            <span
+              class="sc-ksdxAp gMaEyZ"
+            >
+              State of Hamilton
+            </span>
           </span>
         </p>
-        <p
-          class="sc-bqiQRQ lpjhJV"
+        <span
+          class="sc-gsDJrp cXSIgy"
         >
           <span
             class="sc-ksdxAp gMaEyZ"
           >
             Center Springfield
           </span>
-        </p>
+        </span>
       </div>
     </div>
   </div>
@@ -472,32 +476,36 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
            General Election
         </h5>
         <p
-          class="sc-bqiQRQ jKCqve"
+          class="sc-dkPtyc XGKAk"
         >
-          November 3, 2020
-          <br />
           <span
-            class="sc-ksdxAp gMaEyZ"
+            class="sc-gsDJrp cXSIgy"
           >
-            Franklin County
-            ,
-          </span>
-           
-          <span
-            class="sc-ksdxAp gMaEyZ"
-          >
-            State of Hamilton
+            November 3, 2020
+            <br />
+            <span
+              class="sc-ksdxAp gMaEyZ"
+            >
+              Franklin County
+              ,
+            </span>
+             
+            <span
+              class="sc-ksdxAp gMaEyZ"
+            >
+              State of Hamilton
+            </span>
           </span>
         </p>
-        <p
-          class="sc-bqiQRQ lpjhJV"
+        <span
+          class="sc-gsDJrp cXSIgy"
         >
           <span
             class="sc-ksdxAp gMaEyZ"
           >
             Center Springfield
           </span>
-        </p>
+        </span>
       </div>
     </div>
   </div>

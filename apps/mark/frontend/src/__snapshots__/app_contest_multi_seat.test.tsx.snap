@@ -149,8 +149,8 @@ exports[`Single Seat Contest 1`] = `
       <div
         class="sc-fotPbf iwtRsQ"
       >
-        <p
-          class="sc-bqiQRQ jKCqve"
+        <span
+          class="sc-gsDJrp cXSIgy"
         >
           This is the
            
@@ -162,7 +162,7 @@ exports[`Single Seat Contest 1`] = `
            
           20 contests
            on your ballot.
-        </p>
+        </span>
       </div>
     </div>
     <main
@@ -190,16 +190,12 @@ exports[`Single Seat Contest 1`] = `
           <p
             class="sc-dkPtyc XGKAk"
           >
-            <span
-              class="sc-bqiQRQ bIFmdQ"
-            >
-              Vote for 
-              4
-              .
-            </span>
+            Vote for 
+            4
+            .
              
             <span
-              class="sc-bqiQRQ gRKWVK"
+              class="sc-bdvvaa hCYwzI"
             >
               You have selected 
               4

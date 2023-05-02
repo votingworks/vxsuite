@@ -70,7 +70,7 @@ exports[`renders CastBallotPage 1`] = `
             style="left: -0.75em;"
           />
           <p
-            class="sc-bqiQRQ bIFmdQ"
+            class="sc-dkPtyc XGKAk"
           >
             1. Verify your official ballot.
           </p>
@@ -83,7 +83,7 @@ exports[`renders CastBallotPage 1`] = `
             src="/images/instructions-2-scan.svg"
           />
           <p
-            class="sc-bqiQRQ bIFmdQ"
+            class="sc-dkPtyc XGKAk"
           >
             2. Scan your official ballot.
           </p>
@@ -92,9 +92,11 @@ exports[`renders CastBallotPage 1`] = `
       <h3
         class="sc-gKckTs lQVQK"
       >
-        <strong>
+        <span
+          class="sc-bdvvaa hCYwzI"
+        >
           Need help?
-        </strong>
+        </span>
          Ask a poll worker.
       </h3>
     </div>
