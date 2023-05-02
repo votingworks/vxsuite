@@ -7,7 +7,6 @@ import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { screen } from '@testing-library/react';
 
-import { Admin } from '@votingworks/api';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 import { LogicAndAccuracyScreen } from './logic_and_accuracy_screen';
@@ -35,7 +34,7 @@ afterAll(() => {
 });
 
 test('l&a documents accessible in unlocked mode', async () => {
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+  apiMock.expectGetCastVoteRecordFileMode('unlocked');
 
   renderInAppContext(<LogicAndAccuracyScreen />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
@@ -47,7 +46,7 @@ test('l&a documents accessible in unlocked mode', async () => {
 });
 
 test('l&a documents accessible in test mode', async () => {
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+  apiMock.expectGetCastVoteRecordFileMode('unlocked');
 
   renderInAppContext(<LogicAndAccuracyScreen />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
@@ -59,7 +58,7 @@ test('l&a documents accessible in test mode', async () => {
 });
 
 test('l&a documents not accessible in official mode', async () => {
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
+  apiMock.expectGetCastVoteRecordFileMode('official');
 
   renderInAppContext(<LogicAndAccuracyScreen />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
@@ -78,7 +77,7 @@ test('l&a documents not accessible in official mode', async () => {
 });
 
 test('l&a documents not accessible in gridLayouts election', async () => {
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+  apiMock.expectGetCastVoteRecordFileMode('unlocked');
 
   renderInAppContext(<LogicAndAccuracyScreen />, {
     electionDefinition:

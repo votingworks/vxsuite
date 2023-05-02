@@ -1,11 +1,13 @@
 import React from 'react';
 import { fakeKiosk } from '@votingworks/test-utils';
 
-import { Admin } from '@votingworks/api';
 import { ElectronFile, UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
-import type { CastVoteRecordFileMetadata } from '@votingworks/admin-backend';
+import type {
+  CastVoteRecordFileMetadata,
+  CvrFileImportInfo,
+} from '@votingworks/admin-backend';
 import {
   waitFor,
   fireEvent,
@@ -22,12 +24,12 @@ const TEST_FILE1 = 'TEST__machine_0001__10_ballots__2020-12-09_15-49-32.jsonl';
 const TEST_FILE2 = 'TEST__machine_0003__5_ballots__2020-12-07_15-49-32.jsonl';
 const LIVE_FILE1 = 'machine_0002__10_ballots__2020-12-09_15-59-32.jsonl';
 
-const mockCastVoteRecordImportInfo: Admin.CvrFileImportInfo = {
+const mockCastVoteRecordImportInfo: CvrFileImportInfo = {
   wasExistingFile: false,
   newlyAdded: 0,
   alreadyPresent: 0,
   exportedTimestamp: new Date().toISOString(),
-  fileMode: Admin.CvrFileMode.Test,
+  fileMode: 'test',
   fileName: 'cvrs.jsonl',
   id: 'cvr-file-1',
 };
@@ -74,7 +76,7 @@ test('when USB is not present or valid', async () => {
 
   for (const usbStatus of usbStatuses) {
     const closeFn = jest.fn();
-    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+    apiMock.expectGetCastVoteRecordFileMode('unlocked');
     apiMock.expectGetCastVoteRecordFiles([]);
     apiMock.expectListCastVoteRecordFilesOnUsb([]);
     const { unmount } = renderInAppContext(
@@ -96,7 +98,7 @@ test('when USB is mounting or ejecting', async () => {
   const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
 
   for (const usbStatus of usbStatuses) {
-    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+    apiMock.expectGetCastVoteRecordFileMode('unlocked');
     apiMock.expectGetCastVoteRecordFiles([]);
     apiMock.expectListCastVoteRecordFilesOnUsb([]);
     const closeFn = jest.fn();
@@ -122,7 +124,7 @@ describe('when USB is properly mounted', () => {
   test('no files found screen & manual load', async () => {
     window.kiosk = fakeKiosk();
     const closeFn = jest.fn();
-    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+    apiMock.expectGetCastVoteRecordFileMode('unlocked');
     apiMock.expectGetCastVoteRecordFiles([]);
     apiMock.expectListCastVoteRecordFilesOnUsb([]);
 
@@ -153,7 +155,7 @@ describe('when USB is properly mounted', () => {
     });
 
     // modal refetches after adding cast vote record
-    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
+    apiMock.expectGetCastVoteRecordFileMode('test');
     apiMock.expectGetCastVoteRecordFiles([]);
 
     await screen.findByText('0 new CVRs Loaded');
@@ -163,7 +165,7 @@ describe('when USB is properly mounted', () => {
 
   test('shows table with both test and live CVR files & allows loading', async () => {
     const closeFn = jest.fn();
-    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+    apiMock.expectGetCastVoteRecordFileMode('unlocked');
     apiMock.expectGetCastVoteRecordFiles([]);
     apiMock.expectListCastVoteRecordFilesOnUsb(mockCastVoteRecordFileMetadata);
 
@@ -202,7 +204,7 @@ describe('when USB is properly mounted', () => {
         path: '/tmp/machine_0002__10_ballots__2020-12-09_15-59-32.jsonl',
       })
       .resolves(ok(mockCastVoteRecordImportInfo));
-    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
+    apiMock.expectGetCastVoteRecordFileMode('official');
     apiMock.expectGetCastVoteRecordFiles([]);
 
     userEvent.click(domGetByText(tableRows[0], 'Load'));
@@ -212,7 +214,7 @@ describe('when USB is properly mounted', () => {
 
   test('locks to test mode when in test mode & shows previously loaded files as loaded', async () => {
     const closeFn = jest.fn();
-    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
+    apiMock.expectGetCastVoteRecordFileMode('test');
     apiMock.expectGetCastVoteRecordFiles([
       { ...mockCastVoteRecordFileRecord, filename: TEST_FILE1 },
     ]);
@@ -247,7 +249,7 @@ describe('when USB is properly mounted', () => {
   });
 
   test('locks to live mode when live files have been loaded', async () => {
-    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
+    apiMock.expectGetCastVoteRecordFileMode('official');
     apiMock.expectGetCastVoteRecordFiles([
       { ...mockCastVoteRecordFileRecord, filename: 'random' },
     ]);

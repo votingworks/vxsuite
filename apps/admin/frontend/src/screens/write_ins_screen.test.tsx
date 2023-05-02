@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { sleep } from '@votingworks/basics';
 import React from 'react';
-import { Admin } from '@votingworks/api';
+import type { WriteInRecord } from '@votingworks/admin-backend';
 import { act, screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { WriteInsScreen } from './write_ins_screen';
@@ -10,7 +10,7 @@ import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
 
-function getMockPendingWriteInRecord(id: string): Admin.WriteInRecord {
+function getMockPendingWriteInRecord(id: string): WriteInRecord {
   return {
     id,
     contestId: 'zoo-council-mammal',

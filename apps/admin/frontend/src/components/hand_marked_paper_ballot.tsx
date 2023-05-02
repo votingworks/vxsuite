@@ -9,7 +9,6 @@ import { fromByteArray } from 'base64-js';
 import { Handler, Previewer, registerHandlers } from 'pagedjs';
 import { TFunction, StringMap } from 'i18next';
 import { useTranslation, Trans } from 'react-i18next';
-import { Admin } from '@votingworks/api';
 import {
   BallotLocale,
   BallotType,
@@ -38,6 +37,7 @@ import { QrCode, HandMarkedPaperBallotProse, Text } from '@votingworks/ui';
 
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 
+import type { BallotMode } from '@votingworks/admin-backend';
 import { BubbleMark } from './bubble_mark';
 import { WriteInLine } from './write_in_line';
 import { HorizontalRule } from './horizontal_rule';
@@ -145,18 +145,18 @@ function dualLanguageComposer(
   };
 }
 
-function ballotModeToBallotTitle(ballotMode: Admin.BallotMode): string {
+function ballotModeToBallotTitle(ballotMode: BallotMode): string {
   switch (ballotMode) {
-    case Admin.BallotMode.Draft: {
+    case 'draft': {
       return 'DRAFT BALLOT';
     }
-    case Admin.BallotMode.Official: {
+    case 'official': {
       return 'Official Ballot';
     }
-    case Admin.BallotMode.Sample: {
+    case 'sample': {
       return 'SAMPLE BALLOT';
     }
-    case Admin.BallotMode.Test: {
+    case 'test': {
       return 'TEST BALLOT';
     }
     /* istanbul ignore next: Compile-time check for completeness */
@@ -562,7 +562,7 @@ export interface HandMarkedPaperBallotProps {
   ballotStyleId: BallotStyleId;
   election: Election;
   electionHash: string;
-  ballotMode?: Admin.BallotMode;
+  ballotMode?: BallotMode;
   isAbsentee?: boolean;
   precinctId: PrecinctId;
   locales: BallotLocale;
@@ -575,7 +575,7 @@ export function HandMarkedPaperBallot({
   ballotStyleId,
   election,
   electionHash,
-  ballotMode = Admin.BallotMode.Official,
+  ballotMode = 'official',
   isAbsentee = true,
   precinctId,
   locales,
@@ -769,9 +769,7 @@ export function HandMarkedPaperBallot({
                 </div>
               </PageFooterRow>
             </PageFooterMain>
-            {[Admin.BallotMode.Draft, Admin.BallotMode.Sample].includes(
-              ballotMode
-            ) ? (
+            {['draft', 'sample'].includes(ballotMode) ? (
               <PageFooterQrCodeOutline />
             ) : (
               <PageFooterQrCode
@@ -783,7 +781,7 @@ export function HandMarkedPaperBallot({
                     ballotStyleId,
                     precinctId,
                     locales,
-                    isTestMode: ballotMode === Admin.BallotMode.Test,
+                    isTestMode: ballotMode === 'test',
                     ballotType: isAbsentee
                       ? BallotType.Absentee
                       : BallotType.Standard,
@@ -796,12 +794,12 @@ export function HandMarkedPaperBallot({
         </div>
 
         <div className="watermark">
-          {ballotMode === Admin.BallotMode.Draft && (
+          {ballotMode === 'draft' && (
             <Watermark>
               <div>DRAFT</div>
             </Watermark>
           )}
-          {ballotMode === Admin.BallotMode.Sample && (
+          {ballotMode === 'sample' && (
             <Watermark>
               <div>SAMPLE</div>
             </Watermark>

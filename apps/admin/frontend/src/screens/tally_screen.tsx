@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import moment from 'moment';
 
-import { Admin } from '@votingworks/api';
 import { format, isElectionManagerAuth } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
 import { Button, Prose, Table, TD, Text, LinkButton } from '@votingworks/ui';
@@ -73,9 +72,9 @@ export function TallyScreen(): JSX.Element | null {
 
   const fileMode = castVoteRecordFileModeQuery.data;
   const fileModeText =
-    fileMode === Admin.CvrFileMode.Test
+    fileMode === 'test'
       ? 'Currently tallying test ballots. Once you have completed L&A testing and are ready to start tallying official ballots remove all of the loaded CVR files before loading official ballot results.'
-      : fileMode === Admin.CvrFileMode.Official
+      : fileMode === 'official'
       ? 'Currently tallying official ballots.'
       : '';
 
@@ -104,9 +103,7 @@ export function TallyScreen(): JSX.Element | null {
               Load CVR Files
             </Button>{' '}
             <Button
-              disabled={
-                fileMode === Admin.CvrFileMode.Unlocked || isOfficialResults
-              }
+              disabled={fileMode === 'unlocked' || isOfficialResults}
               onPress={() =>
                 beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
               }

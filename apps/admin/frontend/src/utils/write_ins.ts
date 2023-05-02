@@ -1,4 +1,3 @@
-import { Admin } from '@votingworks/api';
 import {
   Candidate,
   ContestId,
@@ -12,6 +11,7 @@ import {
   writeInCandidate,
 } from '@votingworks/types';
 import { assert, collections, iter } from '@votingworks/basics';
+import type { WriteInSummaryEntryAdjudicated } from '@votingworks/admin-backend';
 
 export type CountsByContestAndCandidateName = Map<
   ContestId,
@@ -19,7 +19,7 @@ export type CountsByContestAndCandidateName = Map<
 >;
 
 export function getScreenAdjudicatedWriteInCounts(
-  writeInSummaryData: Admin.WriteInSummaryEntryAdjudicated[],
+  writeInSummaryData: WriteInSummaryEntryAdjudicated[],
   onlyOfficialCandidates = false
 ): CountsByContestAndCandidateName {
   const writeInsByContestAndCandidate = collections.map(

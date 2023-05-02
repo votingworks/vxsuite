@@ -11,7 +11,7 @@ import {
 // InitialAdminSetupPackage models the zip file read in by VxAdmin when a system admin configures the machine.
 // It's the delivery method for the system settings file.
 // VxAdmin is the only machine to read system settings this way; other machines read system settings
-// in via the ballot package which is exported by VxAdmin. Therefore we need a different way for
+// in via the ballot package which is exported by Vx Therefore we need a different way for
 // VxAdmin to ingest system settings.
 export interface InitialAdminSetupPackage {
   systemSettingsString: string;

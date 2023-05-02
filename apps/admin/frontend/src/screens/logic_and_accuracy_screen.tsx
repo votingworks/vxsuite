@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { Admin } from '@votingworks/api';
 import { LinkButton, Prose } from '@votingworks/ui';
 
 import { NavigationScreen } from '../components/navigation_screen';
@@ -23,7 +22,7 @@ export function LogicAndAccuracyScreen(): JSX.Element {
             VxAdmin does not produce ballots or L&A documents for this election.
           </p>
         ) : !castVoteRecordFileModeQuery.isSuccess ? null : castVoteRecordFileModeQuery.data ===
-          Admin.CvrFileMode.Official ? (
+          'official' ? (
           <p>
             L&A testing documents are not available after official election CVRs
             have been loaded.

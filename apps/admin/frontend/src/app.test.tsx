@@ -23,7 +23,6 @@ import {
 } from '@votingworks/test-utils';
 import { VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
-import { Admin } from '@votingworks/api';
 import {
   fireEvent,
   screen,
@@ -259,7 +258,7 @@ test('L&A (logic and accuracy) flow', async () => {
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
   });
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+  apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetSystemSettings();
 
   renderApp();
@@ -363,7 +362,7 @@ test('marking results as official', async () => {
     electionDefinition,
   });
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
+  apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetWriteInSummaryAdjudicated([]);
   renderApp();
 
@@ -400,7 +399,7 @@ test('tabulating CVRs', async () => {
     electionDefinition,
     isOfficialResults: true,
   });
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
+  apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetWriteInSummaryAdjudicated([]);
   const { getByText, getAllByText, getByTestId } = renderApp();
 
@@ -539,7 +538,7 @@ test('tabulating CVRs with manual data', async () => {
   apiMock.expectGetCastVoteRecordFiles([
     { ...mockCastVoteRecordFileRecord, numCvrsImported: 100 },
   ]);
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
+  apiMock.expectGetCastVoteRecordFileMode('test');
   apiMock.expectGetWriteInSummaryAdjudicated([]);
 
   const { getByText, getByTestId, getAllByText } = renderApp();
@@ -708,7 +707,7 @@ test('reports screen shows appropriate summary data about ballot counts', async 
   );
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
+  apiMock.expectGetCastVoteRecordFileMode('test');
 
   const manualTally = convertTalliesByPrecinctToFullManualTally(
     { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
@@ -784,7 +783,7 @@ test('clearing results', async () => {
   apiMock.expectGetCastVoteRecordFiles([
     { ...mockCastVoteRecordFileRecord, numCvrsImported: 3000 },
   ]);
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
+  apiMock.expectGetCastVoteRecordFileMode('test');
   apiMock.expectGetSystemSettings();
 
   const manualTally = convertTalliesByPrecinctToFullManualTally(
@@ -815,7 +814,7 @@ test('clearing results', async () => {
   apiMock.expectClearCastVoteRecordFiles();
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCastVoteRecordFiles([]);
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+  apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   fireEvent.click(getByText('Clear All Tallies and Results'));
   getByText(
@@ -873,7 +872,7 @@ test('election manager UI has expected nav', async () => {
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Unlocked);
+  apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
@@ -1041,7 +1040,7 @@ test('primary election flow', async () => {
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(legacyCvrData, electionDefinition)
   );
-  apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Test);
+  apiMock.expectGetCastVoteRecordFileMode('test');
   apiMock.expectGetWriteInSummaryAdjudicated([]);
 
   renderApp();

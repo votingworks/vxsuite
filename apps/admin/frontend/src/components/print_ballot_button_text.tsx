@@ -1,11 +1,11 @@
 import React from 'react';
-import { Admin } from '@votingworks/api';
 import pluralize from 'pluralize';
+import type { BallotMode } from '@votingworks/admin-backend';
 import { ballotModeToReadableString } from '../config/types';
 
 interface Props {
   ballotCopies: number;
-  ballotMode: Admin.BallotMode;
+  ballotMode: BallotMode;
   isAbsentee: boolean;
 }
 

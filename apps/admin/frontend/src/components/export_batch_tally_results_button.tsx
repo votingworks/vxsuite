@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { generateBatchResultsDefaultFilename } from '@votingworks/utils';
-import { Admin } from '@votingworks/api';
 import { assert } from '@votingworks/basics';
 import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { AppContext } from '../contexts/app_context';
@@ -16,8 +15,7 @@ export function ExportBatchTallyResultsButton(): JSX.Element {
 
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
 
-  const isTestMode =
-    castVoteRecordFileModeQuery.data === Admin.CvrFileMode.Test;
+  const isTestMode = castVoteRecordFileModeQuery.data === 'test';
 
   const defaultFilename = generateBatchResultsDefaultFilename(
     isTestMode,

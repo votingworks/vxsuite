@@ -16,7 +16,6 @@ import {
 } from '@votingworks/types';
 
 import { assert } from '@votingworks/basics';
-import { Admin } from '@votingworks/api';
 import { getByText as domGetByText } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
@@ -643,7 +642,7 @@ describe('Ballots Counts by VotingMethod', () => {
 
 describe('Ballots Counts by Batch', () => {
   beforeEach(() => {
-    apiMock.expectGetCastVoteRecordFileMode(Admin.CvrFileMode.Official);
+    apiMock.expectGetCastVoteRecordFileMode('official');
   });
 
   const resultsByBatch: Dictionary<BatchTally> = {
