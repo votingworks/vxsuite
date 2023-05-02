@@ -20,7 +20,6 @@ import {
 } from '../test/app';
 import { modifyCastVoteRecordReport } from '../test/utils';
 import { deprecatedGetWriteInsFromCastVoteRecord } from './util/cvrs';
-import { CvrFileMode } from './types';
 
 jest.setTimeout(60_000);
 
@@ -67,9 +66,7 @@ test('happy path - mock election flow', async () => {
   // initially, no files or cast vote records
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(0);
-  expect(await apiClient.getCastVoteRecordFileMode()).toEqual(
-    CvrFileMode.Unlocked
-  );
+  expect(await apiClient.getCastVoteRecordFileMode()).toEqual('unlocked');
   expect(await apiClient.listCastVoteRecordFilesOnUsb()).toEqual([]);
 
   // insert a USB drive
@@ -138,7 +135,7 @@ test('happy path - mock election flow', async () => {
       scannerIds: ['VX-00-000'],
     }),
   ]);
-  expect(await apiClient.getCastVoteRecordFileMode()).toEqual(CvrFileMode.Test);
+  expect(await apiClient.getCastVoteRecordFileMode()).toEqual('test');
 
   // check cast vote record count and a single record. a record with the
   // specified votes should exist given the size of the cast vote record
@@ -207,9 +204,7 @@ test('happy path - mock election flow', async () => {
   await apiClient.clearCastVoteRecordFiles();
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(0);
-  expect(await apiClient.getCastVoteRecordFileMode()).toEqual(
-    CvrFileMode.Unlocked
-  );
+  expect(await apiClient.getCastVoteRecordFileMode()).toEqual('unlocked');
 
   // now try loading official CVR files, as if after L&A
   const officialReportDirectoryName =
@@ -266,9 +261,7 @@ test('happy path - mock election flow', async () => {
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(3000);
-  expect(await apiClient.getCastVoteRecordFileMode()).toEqual(
-    CvrFileMode.Official
-  );
+  expect(await apiClient.getCastVoteRecordFileMode()).toEqual('official');
 });
 
 test('adding a duplicate file returns OK to client but logs an error', async () => {

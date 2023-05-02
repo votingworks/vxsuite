@@ -351,7 +351,7 @@ export function getAddCastVoteRecordReportErrorMessage(
     case 'malformed-cast-vote-record':
       return 'Unable to parse cast vote record report, it may be malformed.';
     case 'invalid-report-file-mode':
-      if (error.currentFileMode === CvrFileMode.Official) {
+      if (error.currentFileMode === 'official') {
         return `You are currently tabulating official results but the selected cast vote record report contains test results.`;
       }
       return `You are currently tabulating test results but the selected cast vote record report contains official results.`;
@@ -495,14 +495,9 @@ export async function addCastVoteRecordReport({
     getCastVoteRecordReportImportResult.ok();
 
   // Ensure the report matches the file mode of previous imports
-  const reportFileMode = isTestReport(reportMetadata)
-    ? CvrFileMode.Test
-    : CvrFileMode.Official;
+  const reportFileMode = isTestReport(reportMetadata) ? 'test' : 'official';
   const currentFileMode = store.getCurrentCvrFileModeForElection(electionId);
-  if (
-    currentFileMode !== CvrFileMode.Unlocked &&
-    reportFileMode !== currentFileMode
-  ) {
+  if (currentFileMode !== 'unlocked' && reportFileMode !== currentFileMode) {
     return err({
       type: 'invalid-report-file-mode',
       currentFileMode,

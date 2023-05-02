@@ -581,12 +581,10 @@ export class Store {
     ) as { isTestMode: number } | undefined;
 
     if (!sampleCastVoteRecordFile) {
-      return CvrFileMode.Unlocked;
+      return 'unlocked';
     }
 
-    return sampleCastVoteRecordFile.isTestMode
-      ? CvrFileMode.Test
-      : CvrFileMode.Official;
+    return sampleCastVoteRecordFile.isTestMode ? 'test' : 'official';
   }
 
   /**
@@ -740,8 +738,8 @@ export class Store {
    */
   getCastVoteRecordEntries(electionId: Id): CastVoteRecordFileEntryRecord[] {
     const fileMode = this.getCurrentCvrFileModeForElection(electionId);
-    if (fileMode === CvrFileMode.Unlocked) return [];
-    const isTestMode = fileMode === CvrFileMode.Test;
+    if (fileMode === 'unlocked') return [];
+    const isTestMode = fileMode === 'test';
 
     const entries = this.client.all(
       `

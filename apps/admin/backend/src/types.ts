@@ -571,54 +571,25 @@ export interface CastVoteRecordData {
 }
 
 /**
- * Convenience enum for the printable ballot types.
- */
-export const PrintableBallotType = {
-  Absentee: 'absentee',
-  Precinct: 'standard',
-} as const;
-
-/**
- * Printable ballot types.
- */
-export type PrintableBallotType =
-  typeof PrintableBallotType[keyof typeof PrintableBallotType];
-
-/**
- * Schema for {@link PrintableBallotType}.
- */
-export const PrintableBallotTypeSchema = z.union([
-  z.literal('absentee'),
-  z.literal('standard'),
-]);
-
-/**
  * Ballot mode.
  */
-export enum BallotMode {
-  /** Real ballots to be used and scanned during an election */
-  Official = 'live',
+export type BallotMode =
+  /** Official ballots to be used and scanned during an election */
+  | 'official'
   /** Test ballots to be used and scanned during pre-election testing / L&A */
-  Test = 'test',
+  | 'test'
   /** Sample ballots to be provided to voters ahead of an election */
-  Sample = 'sample',
+  | 'sample'
   /** Draft ballots to verify that an election definition has been properly configured */
-  Draft = 'draft',
-}
+  | 'draft';
 
 /**
  * The ballot type for the CVR files currently being handled.
  */
-export enum CvrFileMode {
-  /** Only working with real CVR files generated during an official election. */
-  Official = 'live',
-  /** Only working with test CVR files used during pre-election testing/L&A. */
-  Test = 'test',
+export type CvrFileMode =
+  /** Only working with official CVR files generated during an official election. */
+  | 'official'
+  /** Only working with test CVR files used during pre-election testing / L&A. */
+  | 'test'
   /** No CVR files imported yet - file mode is not currently locked. */
-  Unlocked = 'unlocked',
-}
-
-/**
- * Schema for {@link BallotMode}.
- */
-export const BallotModeSchema = z.nativeEnum(BallotMode);
+  | 'unlocked';
