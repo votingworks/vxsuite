@@ -33,9 +33,7 @@ test('readBallotPackageFromFile reads a ballot package with system settings from
       electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
         .electionData,
     'systemSettings.json': JSON.stringify(
-      typedAs<SystemSettings>({
-        arePollWorkerCardPinsEnabled: true,
-      })
+      typedAs<SystemSettings>(DEFAULT_SYSTEM_SETTINGS)
     ),
   });
   expect(
@@ -46,7 +44,7 @@ test('readBallotPackageFromFile reads a ballot package with system settings from
     typedAs<BallotPackage>({
       electionDefinition:
         electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
-      systemSettings: { arePollWorkerCardPinsEnabled: true },
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
     })
   );
 });

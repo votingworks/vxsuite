@@ -125,7 +125,7 @@ test('read scanner report data from card', async () => {
   expect(mockAuth.readCardData).toHaveBeenCalledTimes(1);
   expect(mockAuth.readCardData).toHaveBeenNthCalledWith(
     1,
-    { electionHash, jurisdiction },
+    { ...DEFAULT_SYSTEM_SETTINGS, electionHash, jurisdiction },
     { schema: ScannerReportDataSchema }
   );
 });
@@ -168,6 +168,7 @@ test('clear scanner report data from card', async () => {
   expect(result).toEqual(ok());
   expect(mockAuth.clearCardData).toHaveBeenCalledTimes(1);
   expect(mockAuth.clearCardData).toHaveBeenNthCalledWith(1, {
+    ...DEFAULT_SYSTEM_SETTINGS,
     electionHash,
     jurisdiction,
   });
@@ -239,7 +240,7 @@ test('unconfigureMachine deletes system settings and election definition', async
   await apiClient.unconfigureMachine();
 
   const readResult = await apiClient.getSystemSettings();
-  expect(readResult).toBeNull();
+  expect(readResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
   const electionDefinitionResult = await apiClient.getElectionDefinition();
   expect(electionDefinitionResult).toBeNull();
 });

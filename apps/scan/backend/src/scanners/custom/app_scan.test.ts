@@ -1,6 +1,7 @@
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
+  DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
@@ -490,7 +491,7 @@ test('write scanner report data to card', async () => {
     expect(mockAuth.writeCardData).toHaveBeenCalledTimes(1);
     expect(mockAuth.writeCardData).toHaveBeenNthCalledWith(
       1,
-      { electionHash, jurisdiction },
+      { ...DEFAULT_SYSTEM_SETTINGS, electionHash, jurisdiction },
       { data: scannerReportData, schema: ScannerReportDataSchema }
     );
   });

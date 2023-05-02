@@ -1,15 +1,18 @@
 import { DateTime } from 'luxon';
 import { Optional } from '@votingworks/basics';
-
-const DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT = 5;
-const DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS = 15;
+import {
+  DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
+  DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
+  NumIncorrectPinAttemptsAllowedBeforeCardLockout,
+  StartingCardLockoutDurationSeconds,
+} from '@votingworks/types';
 
 /**
  * Config params for card lockout
  */
 export interface CardLockoutConfig {
-  numIncorrectPinAttemptsAllowedBeforeCardLockout?: number;
-  startingCardLockoutDurationSeconds?: number;
+  numIncorrectPinAttemptsAllowedBeforeCardLockout?: NumIncorrectPinAttemptsAllowedBeforeCardLockout;
+  startingCardLockoutDurationSeconds?: StartingCardLockoutDurationSeconds;
 }
 
 /**

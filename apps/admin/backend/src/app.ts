@@ -4,6 +4,7 @@ import {
   CastVoteRecord,
   ContestId,
   ContestOptionId,
+  DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   safeParseElectionDefinition,
   safeParseJson,
@@ -76,11 +77,11 @@ function getCurrentElectionDefinition(
 function constructAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
+  const electionDefinition = getCurrentElectionDefinition(workspace);
   const systemSettings = workspace.store.getSystemSettings();
-  const currentElectionDefinition = getCurrentElectionDefinition(workspace);
   return {
-    arePollWorkerCardPinsEnabled: systemSettings?.arePollWorkerCardPinsEnabled,
-    electionHash: currentElectionDefinition?.electionHash,
+    ...(systemSettings ?? {}),
+    electionHash: electionDefinition?.electionHash,
     jurisdiction: isIntegrationTest()
       ? TEST_JURISDICTION
       : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION,
@@ -200,19 +201,19 @@ function buildApi({
       return ok({});
     },
 
-    async getSystemSettings(): Promise<SystemSettings | null> {
+    async getSystemSettings(): Promise<SystemSettings> {
       try {
         const settings = store.getSystemSettings();
         await logger.log(
           LogEventId.SystemSettingsRetrieved,
-          assertDefined(await getUserRole()),
+          (await getUserRole()) ?? 'unknown',
           { disposition: 'success' }
         );
-        return settings || null;
+        return settings ?? DEFAULT_SYSTEM_SETTINGS;
       } catch (error) {
         await logger.log(
           LogEventId.SystemSettingsRetrieved,
-          assertDefined(await getUserRole()),
+          (await getUserRole()) ?? 'unknown',
           { disposition: 'failure' }
         );
         throw error;

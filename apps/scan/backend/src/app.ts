@@ -4,6 +4,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPackageConfigurationError,
   CastVoteRecord,
+  DEFAULT_SYSTEM_SETTINGS,
   MarkThresholds,
   PollsState,
   PrecinctSelection,
@@ -45,7 +46,9 @@ function constructAuthMachineState(
 ): InsertedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
   const jurisdiction = workspace.store.getJurisdiction();
+  const systemSettings = workspace.store.getSystemSettings();
   return {
+    ...(systemSettings ?? {}),
     electionHash: electionDefinition?.electionHash,
     jurisdiction,
   };
@@ -129,7 +132,7 @@ function buildApi(
     getConfig(): PrecinctScannerConfig {
       return {
         electionDefinition: store.getElectionDefinition(),
-        systemSettings: store.getSystemSettings(),
+        systemSettings: store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS,
         precinctSelection: store.getPrecinctSelection(),
         markThresholdOverrides: store.getMarkThresholdOverrides(),
         isSoundMuted: store.getIsSoundMuted(),

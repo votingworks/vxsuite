@@ -46,7 +46,9 @@ function constructAuthMachineState(
 ): DippedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
   const jurisdiction = workspace.store.getJurisdiction();
+  const systemSettings = workspace.store.getSystemSettings();
   return {
+    ...(systemSettings ?? {}),
     electionHash: electionDefinition?.electionHash,
     jurisdiction,
   };
@@ -162,8 +164,8 @@ function buildApi({
       return ok(electionDefinition);
     },
 
-    getSystemSettings(): SystemSettings | null {
-      return workspace.store.getSystemSettings() ?? null;
+    getSystemSettings(): SystemSettings {
+      return workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
     },
   });
 }

@@ -43,6 +43,7 @@ test('MarkAndPrint: voter settings in landscape orientation', async () => {
     screenOrientation: 'landscape',
   });
   const reload = jest.fn();
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   render(
     <App

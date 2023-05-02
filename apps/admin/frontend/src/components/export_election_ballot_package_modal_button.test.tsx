@@ -95,7 +95,9 @@ test('Modal renders export confirmation screen when usb detected and manual link
     logger,
     apiMock,
   });
-  fireEvent.click(screen.getByText('Save Ballot Package'));
+  userEvent.click(
+    await screen.findByRole('button', { name: 'Save Ballot Package' })
+  );
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Ballot Package');
   within(modal).getByAltText('Insert USB Image');

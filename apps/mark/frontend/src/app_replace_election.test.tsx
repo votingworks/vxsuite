@@ -5,6 +5,7 @@ import {
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import { FakeKiosk, fakeKiosk } from '@votingworks/test-utils';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { screen } from '../test/react_testing_library';
 import {
   setElectionInStorage,
@@ -36,6 +37,7 @@ test('app renders a notice when election hash on card does not match that of mac
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
   // Set up an already-congfigured election
+  apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   apiMock.expectGetElectionDefinition(electionSampleDefinition);
 
   // setup with typical election

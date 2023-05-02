@@ -567,9 +567,7 @@ test('saveSystemSettings and getSystemSettings write and read system settings', 
   const systemSettings = makeSystemSettings();
   store.saveSystemSettings(systemSettings);
   const retrievedSystemSettings = store.getSystemSettings();
-  expect(retrievedSystemSettings?.arePollWorkerCardPinsEnabled).toEqual(
-    systemSettings.arePollWorkerCardPinsEnabled
-  );
+  expect(retrievedSystemSettings).toEqual(systemSettings);
 });
 
 test('getSystemSettings returns undefined when no system settings exist', () => {

@@ -1,6 +1,10 @@
 import { safeParseSystemSettings } from '@votingworks/utils';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import { SystemSettings, TEST_JURISDICTION } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 import { Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout
@@ -49,9 +53,10 @@ test('get/set/delete system settings', () => {
 
 test('setSystemSettings can handle boolean values in input', () => {
   const store = Store.memoryStore();
-  const systemSettingsWithTrue = safeParseSystemSettings(
-    electionMinimalExhaustiveSampleFixtures.systemSettings.asText()
-  ).unsafeUnwrap();
+  const systemSettingsWithTrue: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    arePollWorkerCardPinsEnabled: true,
+  };
 
   store.setSystemSettings(systemSettingsWithTrue);
   let settings = store.getSystemSettings();

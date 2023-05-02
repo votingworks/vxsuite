@@ -14,7 +14,10 @@ import {
 import { MemoryHardware } from '@votingworks/utils';
 import { typedAs, sleep, ok } from '@votingworks/basics';
 import { Scan } from '@votingworks/api';
-import { ElectionDefinition } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  ElectionDefinition,
+} from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger } from '@votingworks/logging';
 import {
@@ -36,11 +39,13 @@ beforeEach(() => {
   window.kiosk = undefined;
 
   mockApiClient = createMockApiClient();
-  // Set a default auth status of logged out
   setAuthStatus(mockApiClient, {
     status: 'logged_out',
     reason: 'machine_locked',
   });
+  mockApiClient.getSystemSettings
+    .expectCallWith()
+    .resolves(DEFAULT_SYSTEM_SETTINGS);
 
   fetchMock.config.fallbackToNetwork = true;
   fetchMock.get(
@@ -79,6 +84,9 @@ function expectConfigureFromBallotPackageOnUsbDrive() {
   mockApiClient.configureFromBallotPackageOnUsbDrive
     .expectCallWith()
     .resolves(ok(electionSampleDefinition));
+  mockApiClient.getSystemSettings
+    .expectCallWith()
+    .resolves(DEFAULT_SYSTEM_SETTINGS);
 }
 
 export async function authenticateAsSystemAdministrator(

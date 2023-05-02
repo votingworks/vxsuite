@@ -2,8 +2,10 @@ import { Result } from '@votingworks/basics';
 import {
   DippedSmartCardAuth,
   ElectionManagerUser,
+  NumIncorrectPinAttemptsAllowedBeforeCardLockout,
   OverallSessionTimeLimitHours,
   PollWorkerUser,
+  StartingCardLockoutDurationSeconds,
   SystemAdministratorUser,
 } from '@votingworks/types';
 
@@ -52,7 +54,7 @@ export interface DippedSmartCardAuthMachineState {
   arePollWorkerCardPinsEnabled?: boolean;
   electionHash?: string;
   jurisdiction?: string;
-  numIncorrectPinAttemptsAllowedBeforeCardLockout?: number;
+  numIncorrectPinAttemptsAllowedBeforeCardLockout?: NumIncorrectPinAttemptsAllowedBeforeCardLockout;
   overallSessionTimeLimitHours?: OverallSessionTimeLimitHours;
-  startingCardLockoutDurationSeconds?: number;
+  startingCardLockoutDurationSeconds?: StartingCardLockoutDurationSeconds;
 }
