@@ -41,7 +41,6 @@ test('NH interpreter of overvote yields a sheet that needs to be reviewed', asyn
     electionDefinition:
       electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
     precinctSelection: ALL_PRECINCTS_SELECTION,
-    layouts: [],
     ballotImagesPath,
     testMode: true,
   });
@@ -62,7 +61,6 @@ test.each([true, false])(
       electionDefinition:
         electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
       precinctSelection: ALL_PRECINCTS_SELECTION,
-      layouts: [],
       ballotImagesPath,
       testMode,
     });
