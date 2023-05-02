@@ -27,7 +27,6 @@ import {
   printElement,
   Prose,
   Screen,
-  Text,
   PrecinctScannerBallotCountReport,
   ElectionInfoBar,
   TestMode,
@@ -36,6 +35,8 @@ import {
   H1,
   H2,
   P,
+  Caption,
+  Font,
 } from '@votingworks/ui';
 
 import {
@@ -593,20 +594,20 @@ export function PollWorkerScreen({
             <ol>
               <li>
                 Instruct the voter to press the{' '}
-                <Text as="span" bold noWrap>
+                <Font weight="bold" noWrap>
                   Start Voting
-                </Text>{' '}
+                </Font>{' '}
                 button on the next screen.
               </li>
               <li>Remove the poll worker card to continue.</li>
             </ol>
             <HorizontalRule>or</HorizontalRule>
-            <Text center>Deactivate this voter session to start over.</Text>
-            <Text center>
+            <P align="center">Deactivate this voter session to start over.</P>
+            <P align="center">
               <Button small onPress={resetCardlessVoterSession}>
                 Deactivate Voting Session
               </Button>
-            </Text>
+            </P>
           </Prose>
         </Main>
       </Screen>
@@ -632,24 +633,20 @@ export function PollWorkerScreen({
           <Prose maxWidth={false}>
             <H1>
               VxMark{' '}
-              <Text as="span" light noWrap>
+              <Font weight="light" noWrap>
                 Poll Worker Actions
-              </Text>
+              </Font>
             </H1>
             <H2>
               <NoWrap>
-                <Text light as="span">
-                  Ballots Printed:
-                </Text>{' '}
-                <strong>{ballotsPrintedCount}</strong>
+                <Font weight="light">Ballots Printed:</Font>{' '}
+                {ballotsPrintedCount}
               </NoWrap>
               <br />
 
               <NoWrap>
-                <Text light as="span">
-                  Polls:
-                </Text>{' '}
-                <strong>{getPollsStateName(pollsState)}</strong>
+                <Font weight="light">Polls:</Font>{' '}
+                {getPollsStateName(pollsState)}
               </NoWrap>
             </H2>
             {canSelectBallotStyle && !isHidingSelectBallotStyle ? (
@@ -703,10 +700,10 @@ export function PollWorkerScreen({
                       ))}
                     </ButtonList>
                   ) : (
-                    <Text italic>
+                    <P>
                       Select the voter’s precinct above to view ballot styles
                       for the precinct.
-                    </Text>
+                    </P>
                   )}
                 </VotingSession>
                 <Button onPress={() => setIsHidingSelectBallotStyle(true)}>
@@ -769,14 +766,14 @@ export function PollWorkerScreen({
                 </H1>
                 <P>
                   Today is election day and this machine is in{' '}
-                  <strong>
-                    <NoWrap>Test Ballot Mode.</NoWrap>
-                  </strong>
+                  <Font noWrap weight="bold">
+                    Test Ballot Mode.
+                  </Font>
                 </P>
-                <Text small italic>
+                <Caption>
                   Note: Switching back to Test Ballot Mode requires an{' '}
                   <NoWrap>Election Manager Card.</NoWrap>
-                </Text>
+                </Caption>
               </Prose>
             }
             actions={

@@ -24,8 +24,8 @@ import {
   Main,
   Modal,
   Prose,
-  Text,
   P,
+  Font,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -306,16 +306,14 @@ export function CandidateContest({
               {contest.title}
             </H1>
             <P>
-              <Text as="span">Vote for {contest.seats}.</Text>{' '}
+              Vote for {contest.seats}.{' '}
               {vote.length === contest.seats && (
-                <Text as="span" bold>
-                  You have selected {contest.seats}.
-                </Text>
+                <Font weight="bold">You have selected {contest.seats}.</Font>
               )}
               {vote.length < contest.seats && vote.length !== 0 && (
-                <Text as="span" bold>
+                <Font weight="bold">
                   You may select {contest.seats - vote.length} more.
-                </Text>
+                </Font>
               )}
               <span className="screen-reader-only">
                 To navigate through the contest choices, use the down button. To
@@ -439,14 +437,14 @@ export function CandidateContest({
           centerContent
           content={
             <Prose>
-              <Text id="modalaudiofocus">
+              <P id="modalaudiofocus">
                 You may only select {contest.seats}{' '}
                 {contest.seats === 1 ? 'candidate' : 'candidates'} in this
                 contest. To vote for {attemptedOvervoteCandidate.name}, you must
                 first unselect the selected{' '}
                 {contest.seats === 1 ? 'candidate' : 'candidates'}.
                 <span aria-label="Use the select button to continue." />
-              </Text>
+              </P>
             </Prose>
           }
           actions={
@@ -466,10 +464,10 @@ export function CandidateContest({
           centerContent
           content={
             <Prose>
-              <Text id="modalaudiofocus">
+              <P id="modalaudiofocus">
                 Do you want to unselect and remove{' '}
                 {candidatePendingRemoval.name}?
-              </Text>
+              </P>
             </Prose>
           }
           actions={
@@ -492,17 +490,17 @@ export function CandidateContest({
             <WriteInModalContent>
               <Prose id="modalaudiofocus" maxWidth={false}>
                 <H1 aria-label="Write-In Candidate.">Write-In Candidate</H1>
-                <Text aria-label="Enter the name of a person who is not on the ballot. Use the up and down buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
-                  Enter the name of a person who is <strong>not</strong> on the
-                  ballot.
-                </Text>
+                <P aria-label="Enter the name of a person who is not on the ballot. Use the up and down buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
+                  Enter the name of a person who is{' '}
+                  <Font weight="bold">not</Font> on the ballot.
+                </P>
                 {writeInCandidateName.length >
                   WRITE_IN_CANDIDATE_MAX_LENGTH - 5 && (
-                  <Text error>
-                    <strong>Note:</strong> You have entered{' '}
+                  <P color="danger">
+                    <Icons.Danger /> <Font>Note:</Font> You have entered{' '}
                     {writeInCandidateName.length} of maximum{' '}
                     {WRITE_IN_CANDIDATE_MAX_LENGTH} characters.
-                  </Text>
+                  </P>
                 )}
               </Prose>
               <WriteInCandidateForm>

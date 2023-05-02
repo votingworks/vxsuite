@@ -9,9 +9,11 @@ import {
   Main,
   Prose,
   Screen,
-  Text,
   useCancelablePromise,
   P,
+  Caption,
+  Font,
+  Icons,
 } from '@votingworks/ui';
 import { formatTime, Hardware } from '@votingworks/utils';
 import { DateTime } from 'luxon';
@@ -33,6 +35,18 @@ const ButtonAndTimestamp = styled.div`
   }
 `;
 
+const CHECKBOX_ICON = (
+  <Font color="success">
+    <Icons.Checkbox />
+  </Font>
+);
+
+const WARNING_ICON = (
+  <Font color="warning">
+    <Icons.Warning />
+  </Font>
+);
+
 interface ComputerStatusProps {
   computer: ComputerStatusType;
 }
@@ -40,14 +54,14 @@ interface ComputerStatusProps {
 function ComputerStatus({ computer }: ComputerStatusProps) {
   return (
     <React.Fragment>
-      <Text voteIcon>
-        Battery:{' '}
+      <P>
+        {CHECKBOX_ICON} Battery:{' '}
         {computer.batteryLevel && `${Math.round(computer.batteryLevel * 100)}%`}
-      </Text>
+      </P>
       {computer.batteryIsCharging ? (
-        <Text voteIcon>Power cord connected.</Text>
+        <P>{CHECKBOX_ICON} Power cord connected.</P>
       ) : (
-        <Text warningIcon>No power cord connected. Connect power cord.</Text>
+        <P>{WARNING_ICON} No power cord connected. Connect power cord.</P>
       )}
     </React.Fragment>
   );
@@ -161,21 +175,21 @@ function PrinterStatus({ hardware }: PrinterStatusProps) {
   }, [loadPrinterStatus]);
 
   if (printerStatus.isLoading) {
-    return <Text>Loading printer status…</Text>;
+    return <P>Loading printer status…</P>;
   }
   const { printer, loadedAt } = printerStatus;
 
   const refreshButton = (
     <ButtonAndTimestamp>
       <Button onPress={loadPrinterStatus}>Refresh Printer Status</Button>
-      {loadedAt && <Text small>Last updated at {formatTime(loadedAt)}</Text>}
+      {loadedAt && <Caption>Last updated at {formatTime(loadedAt)}</Caption>}
     </ButtonAndTimestamp>
   );
 
   if (!printer || printer.state === 'unknown') {
     return (
       <React.Fragment>
-        <Text warningIcon>Could not get printer status.</Text>
+        <P>{WARNING_ICON} Could not get printer status.</P>
         {refreshButton}
       </React.Fragment>
     );
@@ -187,11 +201,9 @@ function PrinterStatus({ hardware }: PrinterStatusProps) {
 
   return (
     <React.Fragment>
-      <Text
-        voteIcon={printer.state !== 'stopped'}
-        warningIcon={printer.state === 'stopped'}
-      >
-        Printer status:{' '}
+      <P>
+        {printer.state === 'stopped' ? WARNING_ICON : CHECKBOX_ICON} Printer
+        status:{' '}
         {
           {
             idle: 'Ready',
@@ -199,16 +211,17 @@ function PrinterStatus({ hardware }: PrinterStatusProps) {
             stopped: 'Stopped',
           }[printer.state]
         }
-      </Text>
+      </P>
       {bestReason && bestReason !== 'none' && (
-        <Text warningIcon>
-          Warning: {IppPrinterStateReasonMessage[bestReason] ?? bestReason}
-        </Text>
+        <P>
+          {WARNING_ICON} Warning:{' '}
+          {IppPrinterStateReasonMessage[bestReason] ?? bestReason}
+        </P>
       )}
-      <Text voteIcon={!markerLow} warningIcon={markerLow}>
-        Toner level:{' '}
+      <P>
+        {markerLow ? WARNING_ICON : CHECKBOX_ICON} Toner level:{' '}
         {marker && marker.level >= 0 ? `${marker.level}%` : 'Unknown'}
-      </Text>
+      </P>
       {refreshButton}
     </React.Fragment>
   );
@@ -224,26 +237,28 @@ function AccessibleControllerStatus({
   diagnosticResults,
 }: AccessibleControllerStatusProps) {
   if (!accessibleController) {
-    return <Text warningIcon>No accessible controller connected.</Text>;
+    return <P>{WARNING_ICON} No accessible controller connected.</P>;
   }
 
   return (
     <React.Fragment>
-      <Text voteIcon>Accessible controller connected.</Text>
+      <P>{CHECKBOX_ICON} Accessible controller connected.</P>
       {diagnosticResults &&
         (diagnosticResults.passed ? (
-          <Text voteIcon>Test passed.</Text>
+          <P>{CHECKBOX_ICON} Test passed.</P>
         ) : (
-          <Text warningIcon>Test failed: {diagnosticResults.message}</Text>
+          <P>
+            {WARNING_ICON} Test failed: {diagnosticResults.message}
+          </P>
         ))}
       <ButtonAndTimestamp>
         <LinkButton to="/accessible-controller">
           Start Accessible Controller Test
         </LinkButton>
         {diagnosticResults && (
-          <Text small>
+          <Caption>
             Last tested at {formatTime(diagnosticResults.completedAt)}
-          </Text>
+          </Caption>
         )}
       </ButtonAndTimestamp>
     </React.Fragment>

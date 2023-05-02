@@ -14,9 +14,11 @@ import {
   SegmentedButton,
   SetClockButton,
   TestMode,
-  Text,
   UsbControllerButton,
   UsbDrive,
+  Caption,
+  Font,
+  Icons,
 } from '@votingworks/ui';
 import {
   ElectionDefinition,
@@ -73,11 +75,11 @@ export function AdminScreen({
         <Prose>
           <H1>
             VxMark{' '}
-            <Text as="span" light noWrap>
+            <Font weight="light" noWrap>
               Election Manager Actions
-            </Text>
+            </Font>
           </H1>
-          <Text italic>Remove card when finished.</Text>
+          <P weight="bold">Remove card when finished.</P>
           {election && (
             <React.Fragment>
               <H2>Stats</H2>
@@ -101,16 +103,16 @@ export function AdminScreen({
                   logger={logger}
                 />
                 <br />
-                <Text small italic as="span">
+                <Caption>
                   Changing the precinct will reset the Ballots Printed count.
-                </Text>
+                </Caption>
                 {election.precincts.length === 1 && (
                   <React.Fragment>
                     <br />
-                    <Text small italic as="span">
+                    <Caption>
                       Precinct cannot be changed because there is only one
                       precinct configured for this election.
-                    </Text>
+                    </Caption>
                   </React.Fragment>
                 )}
               </P>
@@ -127,9 +129,9 @@ export function AdminScreen({
                   selectedOptionId={isLiveMode ? 'official' : 'test'}
                 />
                 <br />
-                <Text small italic as="span">
+                <Caption>
                   Switching the mode will reset the Ballots Printed count.
-                </Text>
+                </Caption>
               </P>
             </React.Fragment>
           )}
@@ -142,9 +144,10 @@ export function AdminScreen({
           </P>
           <H2>Configuration</H2>
           <P>
-            <Text as="span" voteIcon>
-              Election Definition is loaded.
-            </Text>{' '}
+            <Font color="success">
+              <Icons.Checkbox />
+            </Font>{' '}
+            Election Definition is loaded.{' '}
             <Button variant="danger" small onPress={unconfigure}>
               Unconfigure Machine
             </Button>

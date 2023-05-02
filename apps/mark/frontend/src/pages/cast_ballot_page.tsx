@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button, Main, Screen, Prose, Text, H1, H3, P } from '@votingworks/ui';
+import { Button, Main, Screen, Prose, H1, H3, P, Font } from '@votingworks/ui';
 
 const SingleGraphic = styled.img`
   margin: 0 auto 1em;
@@ -52,7 +52,7 @@ export function CastBallotPage({
                 src="/images/instructions-1-verify.svg"
                 style={{ left: '-0.75em' }}
               />
-              <Text>1. Verify your official ballot.</Text>
+              <P>1. Verify your official ballot.</P>
             </li>
             <li>
               <SingleGraphic
@@ -60,11 +60,11 @@ export function CastBallotPage({
                 alt="Scan Your Ballot"
                 src="/images/instructions-2-scan.svg"
               />
-              <Text>2. Scan your official ballot.</Text>
+              <P>2. Scan your official ballot.</P>
             </li>
           </Instructions>
           <H3>
-            <strong>Need help?</strong> Ask a poll worker.
+            <Font weight="bold">Need help?</Font> Ask a poll worker.
           </H3>
         </Prose>
         <Done>
