@@ -49,7 +49,10 @@ export = {
     'vx/gts-no-default-exports': 'error',
     'vx/gts-no-foreach': 'error',
     'vx/gts-no-for-in-loop': 'error',
-    'vx/gts-no-import-export-type': ['error', { allowReexport: true }],
+    // Importing types allows a package to list another package as a dev
+    // dependencies if only using the package's types. This makes it possible
+    // for browser-based packages to import types from Node-based packages.
+    'vx/gts-no-import-export-type': 'off',
     'vx/gts-no-private-fields': 'error',
     'vx/gts-no-public-class-fields': 'error',
     'vx/gts-no-public-modifier': 'error',
@@ -92,7 +95,7 @@ export = {
     // Disallows async functions with no await to prevent bugs and confusion
     '@typescript-eslint/require-await': 'error',
 
-    // Configure default rules as recommened by Google TypeScript Style Guide.
+    // Configure default rules as recommended by Google TypeScript Style Guide.
     'class-methods-use-this': 'off',
     'consistent-return': 'off',
     'dot-notation': 'off',
