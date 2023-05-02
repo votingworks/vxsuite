@@ -165,12 +165,6 @@ export function createApiMock() {
         .resolves(ok());
     },
 
-    expectCheckCalibrationSupported(supportsCalibration: boolean): void {
-      mockApiClient.supportsCalibration
-        .expectCallWith()
-        .resolves(supportsCalibration);
-    },
-
     expectCheckUltrasonicSupported(supportsUltrasonic: boolean): void {
       mockApiClient.supportsUltrasonic
         .expectCallWith()

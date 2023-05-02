@@ -1,4 +1,3 @@
-import { Result } from '@votingworks/basics';
 import {
   AdjudicationReasonInfo,
   ElectionDefinition,
@@ -42,7 +41,6 @@ export type PrecinctScannerState =
   | 'returned'
   | 'rejecting'
   | 'rejected'
-  | 'calibrating'
   | 'jammed'
   | 'both_sides_have_paper'
   | 'recovering_from_error'
@@ -79,7 +77,6 @@ export type PrecinctScannerErrorType =
   | 'paper_in_both_sides_after_reconnect'
   | 'unexpected_paper_status'
   | 'unexpected_event'
-  | 'calibration_failed'
   | 'client_error';
 export interface PrecinctScannerMachineStatus {
   state: PrecinctScannerState;
@@ -110,7 +107,6 @@ export interface PrecinctScannerConfig {
  * The precinct scanner state machine can:
  * - return its status
  * - accept scanning commands
- * - calibrate
  */
 export interface PrecinctScannerStateMachine {
   status: () => PrecinctScannerMachineStatus;
@@ -121,7 +117,4 @@ export interface PrecinctScannerStateMachine {
   scan: () => void;
   accept: () => void;
   return: () => void;
-  // Calibrate is the exception, which blocks until calibration is finished and
-  // returns a result.
-  calibrate?: () => Promise<Result<void, string>>;
 }

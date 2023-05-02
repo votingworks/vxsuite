@@ -16,7 +16,6 @@ import {
 import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
 import { Logger, LogSource } from '@votingworks/logging';
-import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { ScreenMainCenterChild } from '../components/layout';
@@ -27,7 +26,6 @@ import {
   setIsUltrasonicDisabled,
   setPrecinctSelection,
   setTestMode,
-  supportsCalibration,
   supportsUltrasonic,
   unconfigureElection,
 } from '../api';
@@ -50,7 +48,6 @@ export function ElectionManagerScreen({
   usbDrive,
   logger,
 }: ElectionManagerScreenProps): JSX.Element | null {
-  const supportsCalibrationQuery = supportsCalibration.useQuery();
   const supportsUltrasonicQuery = supportsUltrasonic.useQuery();
   const configQuery = getConfig.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
@@ -68,7 +65,6 @@ export function ElectionManagerScreen({
   const [isExportingBackup, setIsExportingBackup] = useState(false);
 
   const [confirmUnconfigure, setConfirmUnconfigure] = useState(false);
-  const [isCalibratingScanner, setIsCalibratingScanner] = useState(false);
   const [isMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
     useState(false);
   const [isUnconfiguring, setIsUnconfiguring] = useState(false);
@@ -170,12 +166,6 @@ export function ElectionManagerScreen({
           </Button>
         </P>
         <P>
-          {supportsCalibrationQuery.data === true && (
-            <Button onPress={() => setIsCalibratingScanner(true)}>
-              Calibrate Scanner
-            </Button>
-          )}
-
           {supportsUltrasonicQuery.data === true && (
             <Button
               onPress={() =>
@@ -289,12 +279,6 @@ export function ElectionManagerScreen({
         />
       )}
 
-      {isCalibratingScanner && (
-        <CalibrateScannerModal
-          scannerStatus={scannerStatus}
-          onCancel={() => setIsCalibratingScanner(false)}
-        />
-      )}
       {isExportingResults && (
         <ExportResultsModal
           onClose={() => setIsExportingResults(false)}

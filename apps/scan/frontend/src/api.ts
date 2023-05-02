@@ -284,16 +284,6 @@ export const returnBallot = {
   },
 } as const;
 
-export const supportsCalibration = {
-  queryKey(): QueryKey {
-    return ['supportsCalibration'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.supportsCalibration());
-  },
-} as const;
-
 export const supportsUltrasonic = {
   queryKey(): QueryKey {
     return ['supportsUltrasonic'];
@@ -301,13 +291,6 @@ export const supportsUltrasonic = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.supportsUltrasonic());
-  },
-} as const;
-
-export const calibrate = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.calibrate);
   },
 } as const;
 

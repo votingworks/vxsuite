@@ -119,7 +119,6 @@ test('shows insert USB Drive screen when there is no card reader', async () => {
 
 test('app can load and configure from a usb stick', async () => {
   apiMock.authenticateAsElectionManager(electionSampleDefinition);
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
 
   apiMock.expectGetConfig({
@@ -167,7 +166,6 @@ test('app can load and configure from a usb stick', async () => {
 });
 
 test('election manager must set precinct', async () => {
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig({
     precinctSelection: undefined,
@@ -205,28 +203,15 @@ test('election manager must set precinct', async () => {
 test('election manager and poll worker configuration', async () => {
   const electionDefinition = electionSampleDefinition;
   let config: Partial<PrecinctScannerConfig> = { electionDefinition };
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig(config);
   apiMock.expectGetScannerStatus(statusNoPaper);
   const { logger } = renderApp();
   await screen.findByText('Polls Closed');
 
-  // Calibrate scanner as Election Manager
+  // Change mode as Election Manager
   apiMock.authenticateAsElectionManager(electionDefinition);
   await screen.findByText('Election Manager Settings');
-  userEvent.click(await screen.findByText('Calibrate Scanner'));
-  await screen.findByText('Waiting for Paper');
-  userEvent.click(await screen.findByText('Cancel'));
-  expect(screen.queryByText('Waiting for Paper')).toBeNull();
-  userEvent.click(await screen.findByText('Calibrate Scanner'));
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
-  apiMock.mockApiClient.calibrate.expectCallWith().resolves(true);
-  userEvent.click(await screen.findByText('Calibrate'));
-  await screen.findByText('Calibration succeeded!');
-  userEvent.click(screen.getByRole('button', { name: 'Close' }));
-
-  // Change mode as Election Manager
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectSetTestMode(false);
   config = { ...config, isTestMode: false };
@@ -402,7 +387,6 @@ async function scanBallot() {
 }
 
 test('voter can cast a ballot that scans successfully ', async () => {
-  apiMock.expectCheckCalibrationSupported(true);
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig({
     pollsState: 'polls_open',
