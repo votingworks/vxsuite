@@ -1,4 +1,3 @@
-/* eslint-disable vx/gts-no-import-export-type */
 import type { Api } from '@votingworks/mark-backend';
 import React from 'react';
 import * as grout from '@votingworks/grout';

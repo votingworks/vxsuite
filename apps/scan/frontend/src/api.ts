@@ -1,4 +1,3 @@
-/* eslint-disable-next-line vx/gts-no-import-export-type */
 import type { Api, PrecinctScannerStatus } from '@votingworks/scan-backend';
 import React from 'react';
 import * as grout from '@votingworks/grout';

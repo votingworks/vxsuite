@@ -10,7 +10,6 @@ import {
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/mark-backend';
 import {
   ContestsWithMsEitherNeither,

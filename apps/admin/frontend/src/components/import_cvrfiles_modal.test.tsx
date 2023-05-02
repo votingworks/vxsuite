@@ -5,7 +5,6 @@ import { Admin } from '@votingworks/api';
 import { ElectronFile, UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type { CastVoteRecordFileMetadata } from '@votingworks/admin-backend';
 import {
   waitFor,

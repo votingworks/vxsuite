@@ -26,7 +26,6 @@ import {
   fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/admin-backend';
 import { UsbDrive, mockUsbDrive } from '@votingworks/ui';
 import { render as testRender, RenderResult } from './react_testing_library';

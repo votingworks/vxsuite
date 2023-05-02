@@ -2,7 +2,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { Buffer } from 'buffer';
 import userEvent from '@testing-library/user-event';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type { Api } from '@votingworks/dev-dock-backend';
 import {
   BooleanEnvironmentVariableName,

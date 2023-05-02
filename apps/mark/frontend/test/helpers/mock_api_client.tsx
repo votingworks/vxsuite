@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type { Api, MachineConfig } from '@votingworks/mark-backend';
 import { QueryClientProvider } from '@tanstack/react-query';
 import {

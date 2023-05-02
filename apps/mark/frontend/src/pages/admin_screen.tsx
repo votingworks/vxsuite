@@ -25,7 +25,6 @@ import {
 } from '@votingworks/types';
 import { makeAsync } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/mark-backend';
 import { ScreenReader } from '../config/types';
 

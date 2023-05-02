@@ -10,7 +10,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import styled from 'styled-components';
 import * as grout from '@votingworks/grout';
 import { assert, assertDefined, uniqueBy } from '@votingworks/basics';
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type { Api, DevDockUserRole } from '@votingworks/dev-dock-backend';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {

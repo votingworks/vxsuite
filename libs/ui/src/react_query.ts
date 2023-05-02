@@ -1,4 +1,3 @@
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type { DefaultOptions } from '@tanstack/react-query';
 
 /**

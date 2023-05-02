@@ -10,7 +10,6 @@ import {
   P,
 } from '@votingworks/ui';
 import { formatLongDate } from '@votingworks/utils';
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type { MachineConfig } from '@votingworks/mark-backend';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';

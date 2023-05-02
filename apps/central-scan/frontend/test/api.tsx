@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Api } from '@votingworks/central-scan-backend'; // eslint-disable-line vx/gts-no-import-export-type
+import type { Api } from '@votingworks/central-scan-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
 import { QueryClientProvider } from '@tanstack/react-query';
