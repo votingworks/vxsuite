@@ -256,7 +256,6 @@ function buildApi(
           ballotsCounted: store.getBallotsCounted(),
           batchInfo: store.batchStatus(),
           getResultSheetGenerator: store.forEachResultSheet.bind(store),
-          ballotPageLayoutsLookup: store.getBallotPageLayoutsLookup(),
           definiteMarkThreshold:
             store.getCurrentMarkThresholds()?.definite ??
             DefaultMarkThresholds.definite,

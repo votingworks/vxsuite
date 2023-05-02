@@ -50,7 +50,6 @@ describe('getBallotPageLayout', () => {
     expect(() =>
       getBallotPageLayout({
         ballotPageMetadata,
-        ballotPageLayoutsLookup: [],
         election,
       })
     ).toThrow();
@@ -60,15 +59,6 @@ describe('getBallotPageLayout', () => {
     expect(
       getBallotPageLayout({
         ballotPageMetadata,
-        ballotPageLayoutsLookup: [
-          {
-            ballotMetadata: ballotPageMetadata,
-            ballotPageLayouts: mockBallotPageLayouts.map((layout) => ({
-              ...layout,
-              name: 'ignore me',
-            })),
-          },
-        ],
         election: {
           ...election,
           gridLayouts: [],
@@ -83,12 +73,6 @@ describe('getBallotPageLayout', () => {
     expect(
       getBallotPageLayout({
         ballotPageMetadata,
-        ballotPageLayoutsLookup: [
-          {
-            ballotMetadata: ballotPageMetadata,
-            ballotPageLayouts: mockBallotPageLayouts,
-          },
-        ],
         election,
       })
     ).toMatchObject({
@@ -100,12 +84,6 @@ describe('getBallotPageLayout', () => {
 test('getContestsForBallotPage', () => {
   const page1Contests = getContestsForBallotPage({
     ballotPageMetadata,
-    ballotPageLayoutsLookup: [
-      {
-        ballotMetadata: ballotPageMetadata,
-        ballotPageLayouts: mockBallotPageLayouts,
-      },
-    ],
     election,
   });
   const page2Contests = getContestsForBallotPage({
@@ -113,12 +91,6 @@ test('getContestsForBallotPage', () => {
       ...ballotPageMetadata,
       pageNumber: 2,
     },
-    ballotPageLayoutsLookup: [
-      {
-        ballotMetadata: ballotPageMetadata,
-        ballotPageLayouts: mockBallotPageLayouts,
-      },
-    ],
     election,
   });
 
@@ -139,12 +111,6 @@ test('getContestsForBallotPage', () => {
         ...ballotPageMetadata,
         pageNumber: 3,
       },
-      ballotPageLayoutsLookup: [
-        {
-          ballotMetadata: ballotPageMetadata,
-          ballotPageLayouts: mockBallotPageLayouts,
-        },
-      ],
       election,
     })
   ).toThrow();

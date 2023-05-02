@@ -1,7 +1,5 @@
 import {
   AdjudicationReason,
-  BallotMetadata,
-  BallotPageLayout,
   BallotType,
   CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
@@ -16,17 +14,12 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { Buffer } from 'buffer';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
 import { sleep, typedAs } from '@votingworks/basics';
 import { ResultSheet } from '@votingworks/backend';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { zeroRect } from '../test/fixtures/zero_rect';
-import {
-  getMockBallotPageLayoutsWithImages,
-  getMockImageData,
-} from '../test/helpers/mock_layouts';
 import { Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout
@@ -202,66 +195,9 @@ test('get/set cvrs as backed up', () => {
   expect(store.getCvrsBackupTimestamp()).toBeFalsy();
 });
 
-test('HMPB template handling', () => {
-  const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
-  const metadata: BallotMetadata = {
-    electionHash: 'd34db33f',
-    locales: { primary: 'en-US' },
-    ballotStyleId: '12',
-    precinctId: '23',
-    isTestMode: false,
-    ballotType: BallotType.Standard,
-  };
-
-  expect(store.getHmpbTemplates()).toEqual([]);
-
-  store.addHmpbTemplate(
-    Buffer.of(1, 2, 3),
-    metadata,
-    getMockBallotPageLayoutsWithImages(metadata, 2)
-  );
-
-  expect(store.getHmpbTemplates()).toEqual(
-    typedAs<Array<[Buffer, BallotPageLayout[]]>>([
-      [
-        Buffer.of(1, 2, 3),
-        [
-          {
-            pageSize: { width: 1, height: 1 },
-            metadata: {
-              electionHash: 'd34db33f',
-              ballotType: BallotType.Standard,
-              locales: { primary: 'en-US' },
-              ballotStyleId: '12',
-              precinctId: '23',
-              isTestMode: false,
-              pageNumber: 1,
-            },
-            contests: [],
-          },
-          {
-            pageSize: { width: 1, height: 1 },
-            metadata: {
-              electionHash: 'd34db33f',
-              ballotType: BallotType.Standard,
-              locales: { primary: 'en-US' },
-              ballotStyleId: '12',
-              precinctId: '23',
-              isTestMode: false,
-              pageNumber: 2,
-            },
-            contests: [],
-          },
-        ],
-      ],
-    ])
-  );
-});
-
-test('batch cleanup works correctly', async () => {
+test('batch cleanup works correctly', () => {
   const dbFile = tmp.fileSync();
-  const store = await Store.fileStore(dbFile.name);
+  const store = Store.fileStore(dbFile.name);
 
   store.reset();
 
@@ -484,69 +420,7 @@ test('adjudication', () => {
   const yesnoOption = 'yes';
 
   const store = Store.memoryStore();
-  const metadata: BallotMetadata = {
-    electionHash,
-    ballotStyleId: '12',
-    precinctId: '23',
-    isTestMode: false,
-    locales: { primary: 'en-US' },
-    ballotType: BallotType.Standard,
-  };
   store.setElectionAndJurisdiction({ electionData, jurisdiction });
-  store.addHmpbTemplate(
-    Buffer.of(),
-    metadata,
-    [1, 2].map((pageNumber) => ({
-      imageData: getMockImageData(),
-      ballotPageLayout: {
-        pageSize: { width: 1, height: 1 },
-        metadata: {
-          ...metadata,
-          pageNumber,
-        },
-        contests: [
-          {
-            contestId: 'id-0',
-            bounds: zeroRect,
-            corners: [
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-            ],
-            options: [
-              {
-                bounds: zeroRect,
-                target: {
-                  bounds: zeroRect,
-                  inner: zeroRect,
-                },
-              },
-            ],
-          },
-          {
-            contestId: 'id-1',
-            bounds: zeroRect,
-            corners: [
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-            ],
-            options: [
-              {
-                bounds: zeroRect,
-                target: {
-                  bounds: zeroRect,
-                  inner: zeroRect,
-                },
-              },
-            ],
-          },
-        ],
-      },
-    }))
-  );
   function fakePage(i: 0 | 1): PageInterpretationWithFiles {
     return {
       originalFilename: i === 0 ? '/front-original.png' : '/back-original.png',
@@ -810,9 +684,9 @@ test('iterating over each result sheet includes correct batch sequence id', () =
   }
 });
 
-test('resetElectionSession', async () => {
+test('resetElectionSession', () => {
   const dbFile = tmp.fileSync();
-  const store = await Store.fileStore(dbFile.name);
+  const store = Store.fileStore(dbFile.name);
   store.setElectionAndJurisdiction({ electionData, jurisdiction });
 
   store.setPollsState('polls_open');
@@ -927,39 +801,6 @@ test('getBallotsCounted', () => {
   // Delete one of the batches
   store.deleteBatch(batchId);
   expect(store.getBallotsCounted()).toEqual(1);
-});
-
-test('getBallotPageLayoutsLookup', () => {
-  const store = Store.memoryStore();
-  expect(store.getBallotPageLayoutsLookup()).toMatchObject([]);
-
-  const metadata: BallotMetadata = {
-    electionHash,
-    ballotStyleId: '12',
-    precinctId: '23',
-    isTestMode: false,
-    locales: { primary: 'en-US' },
-    ballotType: BallotType.Standard,
-  };
-
-  const mockBallotPageLayoutsWithImages = getMockBallotPageLayoutsWithImages(
-    metadata,
-    2
-  );
-
-  store.addHmpbTemplate(
-    Buffer.of(1, 2, 3),
-    metadata,
-    mockBallotPageLayoutsWithImages
-  );
-  expect(store.getBallotPageLayoutsLookup()).toMatchObject([
-    {
-      ballotMetadata: metadata,
-      ballotPageLayouts: mockBallotPageLayoutsWithImages.map(
-        (layoutWithImage) => layoutWithImage.ballotPageLayout
-      ),
-    },
-  ]);
 });
 
 test('systemSettings can set/get/delete', () => {

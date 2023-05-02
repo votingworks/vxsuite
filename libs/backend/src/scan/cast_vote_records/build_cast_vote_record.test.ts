@@ -607,7 +607,6 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
       },
     ],
     definiteMarkThreshold,
-    ballotPageLayoutsLookup: [],
   });
 
   test('includes correct metadata, including sheet number as BallotSheetId', () => {
@@ -721,7 +720,6 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
       },
     ],
     definiteMarkThreshold,
-    ballotPageLayoutsLookup: [],
   });
 
   // image references are included

@@ -42,10 +42,9 @@ import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
-import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
-import { BallotPageLayoutsLookup, ResultSheet } from '@votingworks/backend';
+import { ResultSheet } from '@votingworks/backend';
 import { sheetRequiresAdjudication } from './vx_interpreter';
 import { rootDebug } from './util/debug';
 import { normalizeAndJoin } from './util/path';
@@ -1056,37 +1055,7 @@ export class Store {
   }
 
   /**
-   * Gets all ballot page layouts listed by metadata. Will return an empty
-   * array if it is a `gridLayouts` election.
-   */
-  getBallotPageLayoutsLookup(): BallotPageLayoutsLookup {
-    const rows = this.client.all(
-      `
-        select
-          layouts_json as layoutsJson,
-          metadata_json as metadataJson
-        from hmpb_templates
-      `
-    ) as Array<{
-      layoutsJson: string;
-      metadataJson: string;
-    }>;
-
-    return rows.map(({ layoutsJson, metadataJson }) => ({
-      ballotMetadata: safeParseJson(
-        metadataJson,
-        BallotMetadataSchema
-      ).unsafeUnwrap(),
-      ballotPageLayouts: safeParseJson(
-        layoutsJson,
-        z.array(BallotPageLayoutSchema)
-      ).unsafeUnwrap(),
-    }));
-  }
-
-  /**
-   * @deprecated use {@link getBallotPageLayoutsLookup} to get ballot
-   * page layouts and then do filtering outside the store
+   * @deprecated
    */
   getBallotPageLayoutForMetadata(
     metadata: BallotPageMetadata,
@@ -1099,59 +1068,17 @@ export class Store {
   }
 
   /**
-   * @deprecated use {@link getBallotPageLayoutsLookup} to get ballot
-   * page layouts and then do filtering outside the store
+   * @deprecated
    */
   getBallotPageLayoutsForMetadata(
     metadata: BallotMetadata,
     electionDefinition = this.getElectionDefinition()
   ): BallotPageLayout[] {
-    // Handle timing mark ballots differently. We should have the layout from
-    // the scan/interpret process, but since we don't right now we generate it
-    // from what we expect the layout to be instead. This means there could be
-    // some error in the layout, but it's better than nothing.
-    if (electionDefinition?.election.gridLayouts) {
-      return generateBallotPageLayouts(
-        electionDefinition.election,
-        metadata
-      ).unsafeUnwrap();
-    }
-
-    const rows = this.client.all(
-      `
-        select
-          layouts_json as layoutsJson,
-          metadata_json as metadataJson
-        from hmpb_templates
-      `
-    ) as Array<{
-      layoutsJson: string;
-      metadataJson: string;
-    }>;
-
-    for (const row of rows) {
-      const { locales, ballotStyleId, precinctId, isTestMode } = safeParseJson(
-        row.metadataJson,
-        BallotMetadataSchema
-      ).unsafeUnwrap();
-
-      if (
-        metadata.locales.primary === locales.primary &&
-        metadata.locales.secondary === locales.secondary &&
-        metadata.ballotStyleId === ballotStyleId &&
-        metadata.precinctId === precinctId &&
-        metadata.isTestMode === isTestMode
-      ) {
-        return safeParseJson(
-          row.layoutsJson,
-          z.array(BallotPageLayoutSchema)
-        ).unsafeUnwrap();
-      }
-    }
-
-    throw new Error(
-      `no ballot layouts found matching metadata: ${inspect(metadata)}`
-    );
+    assert(electionDefinition?.election.gridLayouts);
+    return generateBallotPageLayouts(
+      electionDefinition.election,
+      metadata
+    ).unsafeUnwrap();
   }
 
   getContestIdsForMetadata(

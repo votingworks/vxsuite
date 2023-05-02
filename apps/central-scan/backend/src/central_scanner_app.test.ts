@@ -9,7 +9,6 @@ import {
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
-  BallotMetadata,
   BallotPageLayout,
   BallotType,
   InterpretedHmpbPage,
@@ -19,7 +18,6 @@ import {
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
-import { Buffer } from 'buffer';
 import { Application } from 'express';
 import * as fs from 'fs/promises';
 import request from 'supertest';
@@ -37,7 +35,6 @@ import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './central_scanner_app';
-import { getMockBallotPageLayoutsWithImages } from '../test/helpers/mock_layouts';
 import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
 
 jest.mock('./importer');
@@ -65,21 +62,6 @@ beforeEach(async () => {
     jurisdiction,
   });
   workspace.store.setTestMode(false);
-  const ballotMetadata: BallotMetadata = {
-    locales: { primary: 'en-US' },
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
-    ballotType: BallotType.Standard,
-    ballotStyleId: '12',
-    precinctId: '23',
-    isTestMode: false,
-  };
-  workspace.store.addHmpbTemplate(
-    Buffer.of(),
-    ballotMetadata,
-    getMockBallotPageLayoutsWithImages(ballotMetadata, 2)
-  );
   app = buildCentralScannerApp({
     auth,
     usb: mockUsb.mock,
