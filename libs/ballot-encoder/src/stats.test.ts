@@ -5,7 +5,7 @@ import {
   Election,
   unsafeParse,
 } from '@votingworks/types';
-import { encodeBallot, encodeHmpbBallotPageMetadata } from '.';
+import { encodeBallot } from '.';
 
 const district1Id = unsafeParse(DistrictIdSchema, 'district1');
 const election: Election = {
@@ -31,7 +31,7 @@ const election: Election = {
 };
 const { electionHash } = asElectionDefinition(election);
 
-test('BMD: smallest possible encoded ballot', () => {
+test('smallest possible encoded ballot', () => {
   expect(
     encodeBallot(election, {
       electionHash,
@@ -42,18 +42,4 @@ test('BMD: smallest possible encoded ballot', () => {
       votes: {},
     }).byteLength
   ).toEqual(18);
-});
-
-test('HMPB: smallest possible encoded metadata', () => {
-  expect(
-    encodeHmpbBallotPageMetadata(election, {
-      electionHash: electionHash.slice(0, 20),
-      ballotStyleId: 'style1',
-      precinctId: 'precinct1',
-      ballotType: BallotType.Standard,
-      isTestMode: true,
-      locales: { primary: 'en-US' },
-      pageNumber: 1,
-    }).byteLength
-  ).toEqual(20);
 });
