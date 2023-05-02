@@ -43,10 +43,6 @@ export class VxInterpreter {
     });
   }
 
-  unconfigure(): void {
-    this.interpreter = undefined;
-  }
-
   async interpret(
     ballotImagePath: string,
     sheetId: string,

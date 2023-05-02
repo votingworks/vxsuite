@@ -574,12 +574,5 @@ export function buildCentralScannerApp({
 
   app.use(deprecatedApiRouter);
 
-  // NOTE: this appears to cause web requests to block until restoreConfig is done.
-  // if restoreConfig ends up on a background thread, we'll want to explicitly
-  // return a "status: notready" or something like it.
-  //
-  // but for now, this seems to be fine, the front-end just waits.
-  importer.restoreConfig();
-
   return app;
 }
