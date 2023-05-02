@@ -78,7 +78,7 @@ async function findUsbDriveDevice(): Promise<string | undefined> {
   return devicePath;
 }
 
-async function getUsbDriveStatus(): Promise<BlockDeviceInfo | undefined> {
+async function getUsbDriveDeviceInfo(): Promise<BlockDeviceInfo | undefined> {
   const devicePath = await findUsbDriveDevice();
   if (!devicePath) return undefined;
   debug(`Found USB drive at ${devicePath}`);
@@ -107,7 +107,7 @@ export function detectUsbDrive(): UsbDrive {
 
   return {
     async status(): Promise<UsbDriveStatus> {
-      let deviceInfo = await getUsbDriveStatus();
+      let deviceInfo = await getUsbDriveDeviceInfo();
       if (!deviceInfo) {
         // Reset eject state in case the drive was removed
         didEject = false;
@@ -120,7 +120,7 @@ export function detectUsbDrive(): UsbDrive {
       // Automatically mount the drive if it's not already mounted
       if (!deviceInfo.mountpoint && !didEject) {
         await mountUsbDrive(deviceInfo.path);
-        deviceInfo = assertDefined(await getUsbDriveStatus());
+        deviceInfo = assertDefined(await getUsbDriveDeviceInfo());
       }
 
       if (deviceInfo.mountpoint) {
@@ -135,7 +135,7 @@ export function detectUsbDrive(): UsbDrive {
 
     // TODO do we need to run a `sync` command before unmounting?
     async eject(): Promise<void> {
-      const deviceInfo = await getUsbDriveStatus();
+      const deviceInfo = await getUsbDriveDeviceInfo();
       if (!deviceInfo?.mountpoint) {
         debug('No USB drive mounted, skipping eject');
         return;
