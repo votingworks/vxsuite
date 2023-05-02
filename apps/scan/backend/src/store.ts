@@ -4,7 +4,6 @@
 
 import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
 import { Client as DbClient } from '@votingworks/db';
-import { pdfToImages } from '@votingworks/image-utils';
 import {
   AdjudicationStatus,
   AnyContest,
@@ -36,9 +35,8 @@ import {
   Side,
   SystemSettings,
   SystemSettingsDbRow,
-  BallotPackageEntry,
 } from '@votingworks/types';
-import { assert, iter, Optional } from '@votingworks/basics';
+import { assert, Optional } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
@@ -97,13 +95,8 @@ export class Store {
   /**
    * Builds and returns a new store at `dbPath`.
    */
-  static async fileStore(dbPath: string): Promise<Store> {
-    const newStore = new Store(DbClient.fileClient(dbPath, SchemaPath));
-
-    // If there are already templates, force caching of the layouts with image
-    await newStore.loadLayouts();
-
-    return newStore;
+  static fileStore(dbPath: string): Store {
+    return new Store(DbClient.fileClient(dbPath, SchemaPath));
   }
 
   // TODO(jonah): Make this the only way to access the store so that we always
@@ -1018,33 +1011,6 @@ export class Store {
     }
   }
 
-  async setHmpbTemplates(ballotTemplates: BallotPackageEntry[]): Promise<void> {
-    this.client.run(`delete from hmpb_templates`);
-
-    for await (const ballotTemplate of ballotTemplates) {
-      const id = uuid();
-      this.client.run(
-        `
-        insert into hmpb_templates (
-          id,
-          pdf,
-          metadata_json,
-          layouts_json
-        ) values (
-          ?, ?, ?, ?
-        )
-        `,
-        id,
-        ballotTemplate.pdf,
-        JSON.stringify(ballotTemplate.layout[0].metadata),
-        JSON.stringify(ballotTemplate.layout)
-      );
-
-      // Load the layouts immediately to warm the cache.
-      await this.loadLayouts();
-    }
-  }
-
   getHmpbTemplates(): Array<[Buffer, BallotPageLayout[]]> {
     const rows = this.client.all(
       `
@@ -1087,29 +1053,6 @@ export class Store {
     }
 
     return results;
-  }
-
-  async loadLayouts(): Promise<BallotPageLayoutWithImage[] | undefined> {
-    const electionDefinition = this.getElectionDefinition();
-    if (!electionDefinition) return;
-
-    if (this.cachedLayouts.length > 0) return this.cachedLayouts;
-
-    const templates = this.getHmpbTemplates();
-
-    // These computations are expensive so we cache the loaded layouts
-    this.cachedLayouts = await iter(templates)
-      .async()
-      .flatMap(([pdf, layouts]) =>
-        iter(pdfToImages(pdf, { scale: 2 }))
-          .zip(layouts)
-          .map(([{ page: imageData }, ballotPageLayout]) => ({
-            ballotPageLayout,
-            imageData,
-          }))
-      )
-      .toArray();
-    return this.cachedLayouts;
   }
 
   /**

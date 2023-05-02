@@ -11,7 +11,7 @@ import * as grout from '@votingworks/grout';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { TEST_JURISDICTION } from '@votingworks/types';
 
-import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { makeMockScanner } from '../test/util/mocks';
 import { Api, buildCentralScannerApp } from './central_scanner_app';
 import { Importer } from './importer';
@@ -52,7 +52,7 @@ afterEach(() => {
 });
 
 const jurisdiction = TEST_JURISDICTION;
-const { electionDefinition } = stateOfHamilton;
+const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
 const { electionData, electionHash } = electionDefinition;
 
 function configureMachine(): void {

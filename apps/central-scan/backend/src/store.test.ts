@@ -18,24 +18,22 @@ import {
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import * as tmp from 'tmp';
-import * as fs from 'fs/promises';
 import { v4 as uuid } from 'uuid';
 import { sleep, typedAs } from '@votingworks/basics';
 import { ResultSheet } from '@votingworks/backend';
-import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import {
   getMockBallotPageLayoutsWithImages,
   getMockImageData,
 } from '../test/helpers/mock_layouts';
 import { Store } from './store';
-import { ballotPdf } from '../test/fixtures/2020-choctaw';
 
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
 
 const jurisdiction = TEST_JURISDICTION;
-const { electionDefinition } = stateOfHamilton;
+const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
 const { election, electionData, electionHash } = electionDefinition;
 
 test('get/set election', () => {
@@ -153,8 +151,8 @@ test('get current mark thresholds falls back to election definition defaults', (
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({ electionData, jurisdiction });
   expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.17,
-    marginal: 0.12,
+    definite: 0.08,
+    marginal: 0.05,
   });
 
   store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
@@ -165,8 +163,8 @@ test('get current mark thresholds falls back to election definition defaults', (
 
   store.setMarkThresholdOverrides(undefined);
   expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.17,
-    marginal: 0.12,
+    definite: 0.08,
+    marginal: 0.05,
   });
 });
 
@@ -259,66 +257,6 @@ test('HMPB template handling', () => {
       ],
     ])
   );
-});
-
-test('layout caching', async () => {
-  const dbFile = tmp.fileSync();
-  const initialStore = await Store.fileStore(dbFile.name);
-  initialStore.setElectionAndJurisdiction({ electionData, jurisdiction });
-
-  const metadata: BallotMetadata = {
-    electionHash: 'd34db33f',
-    locales: { primary: 'en-US' },
-    ballotStyleId: '12',
-    precinctId: '23',
-    isTestMode: false,
-    ballotType: BallotType.Standard,
-  };
-
-  initialStore.addHmpbTemplate(
-    await fs.readFile(ballotPdf),
-    metadata,
-    getMockBallotPageLayoutsWithImages(metadata, 2)
-  );
-
-  const expectedLayouts = [
-    {
-      imageData: expect.anything(),
-      ballotPageLayout: {
-        metadata: {
-          ...metadata,
-          pageNumber: 1,
-        },
-      },
-    },
-    {
-      imageData: expect.anything(),
-      ballotPageLayout: {
-        metadata: {
-          ...metadata,
-          pageNumber: 2,
-        },
-      },
-    },
-  ];
-
-  // The layouts should be cached after adding, and we should not be retrieving
-  // templates from the DB.
-  let getHmpbTemplatesSpy = jest.spyOn(initialStore, 'getHmpbTemplates');
-  let layouts = await initialStore.loadLayouts();
-  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
-  expect(layouts).toMatchObject(expectedLayouts);
-
-  // If we reload the store from the DB, it caches on reload and use cache
-  const loadedStore = await Store.fileStore(dbFile.name);
-  getHmpbTemplatesSpy = jest.spyOn(loadedStore, 'getHmpbTemplates');
-  layouts = await loadedStore.loadLayouts();
-  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
-
-  // if we reset and reload templates, the cache should be clear
-  loadedStore.reset();
-  loadedStore.setElectionAndJurisdiction({ electionData, jurisdiction });
-  expect(await loadedStore.loadLayouts()).toMatchObject([]);
 });
 
 test('batch cleanup works correctly', async () => {
@@ -624,7 +562,7 @@ test('adjudication', () => {
               type: 'candidate',
               contestId: candidateContests[i].id,
               optionId: candidateContests[i].candidates[0].id,
-              score: 0.12, // marginal
+              score: 0.06, // marginal
               scoredOffset: { x: 0, y: 0 },
               bounds: zeroRect,
               target: {
@@ -632,18 +570,22 @@ test('adjudication', () => {
                 inner: zeroRect,
               },
             },
-            {
-              type: 'yesno',
-              contestId: yesnoContests[i].id,
-              optionId: yesnoOption,
-              score: 1, // definite
-              scoredOffset: { x: 0, y: 0 },
-              bounds: zeroRect,
-              target: {
-                bounds: zeroRect,
-                inner: zeroRect,
-              },
-            },
+            ...(yesnoContests[i]
+              ? ([
+                  {
+                    type: 'yesno',
+                    contestId: yesnoContests[i].id,
+                    optionId: yesnoOption,
+                    score: 1, // definite
+                    scoredOffset: { x: 0, y: 0 },
+                    bounds: zeroRect,
+                    target: {
+                      bounds: zeroRect,
+                      inner: zeroRect,
+                    },
+                  },
+                ] as const)
+              : []),
           ],
         },
         metadata: {

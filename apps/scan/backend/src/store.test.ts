@@ -2,10 +2,6 @@ import { ResultSheet } from '@votingworks/backend';
 import { sleep, typedAs } from '@votingworks/basics';
 import {
   AdjudicationReason,
-  BallotConfig,
-  BallotMetadata,
-  BallotPackageEntry,
-  BallotPageLayout,
   BallotType,
   CandidateContest,
   InterpretedHmpbPage,
@@ -20,14 +16,12 @@ import {
   singlePrecinctSelectionFor,
   safeParseSystemSettings,
 } from '@votingworks/utils';
-import { Buffer } from 'buffer';
-import { readFileSync } from 'fs';
-import * as fs from 'fs/promises';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import { ballotPdf, electionDefinition } from '../test/fixtures/2020-choctaw';
-import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
+import {
+  electionGridLayoutNewHampshireAmherstFixtures,
+  electionMinimalExhaustiveSampleFixtures,
+} from '@votingworks/fixtures';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
 
@@ -43,11 +37,13 @@ test('get/set election', () => {
   expect(store.hasElection()).toBeFalsy();
 
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
   expect(store.getElectionDefinition()?.election).toEqual(
-    stateOfHamilton.election
+    electionGridLayoutNewHampshireAmherstFixtures.election
   );
   expect(store.hasElection()).toBeTruthy();
 
@@ -75,7 +71,9 @@ test('get/set test mode', () => {
   expect(() => store.setTestMode(false)).toThrowError();
 
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
 
@@ -97,7 +95,9 @@ test('get/set is sounds muted mode', () => {
   expect(() => store.setIsSoundMuted(true)).toThrowError();
 
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
 
@@ -119,7 +119,9 @@ test('get/set is ultrasonic disabled mode', () => {
   expect(() => store.setIsUltrasonicDisabled(true)).toThrowError();
 
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
 
@@ -143,7 +145,9 @@ test('get/set ballot count when ballot bag last replaced', () => {
   ).toThrowError();
 
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
 
@@ -164,7 +168,9 @@ test('get/set precinct selection', () => {
   ).toThrowError();
 
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
 
@@ -187,7 +193,9 @@ test('get/set mark threshold overrides', () => {
   expect(() => store.setMarkThresholdOverrides()).toThrowError();
 
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
 
@@ -204,12 +212,14 @@ test('get/set mark threshold overrides', () => {
 test('get current mark thresholds falls back to election definition defaults', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
   expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.17,
-    marginal: 0.12,
+    definite: 0.08,
+    marginal: 0.05,
   });
 
   store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
@@ -220,8 +230,8 @@ test('get current mark thresholds falls back to election definition defaults', (
 
   store.setMarkThresholdOverrides(undefined);
   expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.17,
-    marginal: 0.12,
+    definite: 0.08,
+    marginal: 0.05,
   });
 });
 
@@ -233,7 +243,9 @@ test('get/set polls state', () => {
   expect(() => store.setPollsState('polls_open')).toThrowError();
 
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
 
@@ -245,7 +257,9 @@ test('get/set polls state', () => {
 test('get/set scanner as backed up', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
   expect(store.getScannerBackupTimestamp()).toBeFalsy();
@@ -258,7 +272,9 @@ test('get/set scanner as backed up', () => {
 test('get/set cvrs as backed up', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
   expect(store.getCvrsBackupTimestamp()).toBeFalsy();
@@ -268,151 +284,9 @@ test('get/set cvrs as backed up', () => {
   expect(store.getCvrsBackupTimestamp()).toBeFalsy();
 });
 
-const metadata: BallotMetadata = {
-  electionHash: electionDefinition.electionHash,
-  locales: { primary: 'en-US' },
-  ballotStyleId: '12',
-  precinctId: '23',
-  isTestMode: false,
-  ballotType: BallotType.Standard,
-};
-
-const ballotConfig: BallotConfig = {
-  filename: 'test-filename',
-  layoutFilename: 'test-layout-filename',
-  locales: { primary: 'en-US' },
-  isLiveMode: true,
-  isAbsentee: false,
-  ballotStyleId: '12',
-  precinctId: '23',
-  contestIds: [],
-};
-
-const ballotPdfBuffer = readFileSync(ballotPdf);
-
-const ballotTemplates: BallotPackageEntry[] = [
-  {
-    pdf: ballotPdfBuffer,
-    layout: [
-      {
-        pageSize: { width: 1, height: 1 },
-        metadata: { ...metadata, pageNumber: 1 },
-        contests: [],
-      },
-      {
-        pageSize: { width: 1, height: 1 },
-        metadata: { ...metadata, pageNumber: 2 },
-        contests: [],
-      },
-    ],
-    ballotConfig,
-  },
-];
-
-test('HMPB template handling', async () => {
-  const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
-    jurisdiction,
-  });
-
-  expect(store.getHmpbTemplates()).toEqual([]);
-
-  await store.setHmpbTemplates(ballotTemplates);
-
-  expect(store.getHmpbTemplates()).toEqual(
-    typedAs<Array<[Buffer, BallotPageLayout[]]>>([
-      [
-        ballotPdfBuffer,
-        [
-          {
-            pageSize: { width: 1, height: 1 },
-            metadata: {
-              electionHash: electionDefinition.electionHash,
-              ballotType: BallotType.Standard,
-              locales: { primary: 'en-US' },
-              ballotStyleId: '12',
-              precinctId: '23',
-              isTestMode: false,
-              pageNumber: 1,
-            },
-            contests: [],
-          },
-          {
-            pageSize: { width: 1, height: 1 },
-            metadata: {
-              electionHash: electionDefinition.electionHash,
-              ballotType: BallotType.Standard,
-              locales: { primary: 'en-US' },
-              ballotStyleId: '12',
-              precinctId: '23',
-              isTestMode: false,
-              pageNumber: 2,
-            },
-            contests: [],
-          },
-        ],
-      ],
-    ])
-  );
-});
-
-test('layout caching', async () => {
+test('batch cleanup works correctly', () => {
   const dbFile = tmp.fileSync();
-  const initialStore = await Store.fileStore(dbFile.name);
-  initialStore.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
-    jurisdiction,
-  });
-
-  await initialStore.setHmpbTemplates(ballotTemplates);
-
-  const expectedLayouts = [
-    {
-      imageData: expect.anything(),
-      ballotPageLayout: {
-        metadata: {
-          ...metadata,
-          pageNumber: 1,
-        },
-      },
-    },
-    {
-      imageData: expect.anything(),
-      ballotPageLayout: {
-        metadata: {
-          ...metadata,
-          pageNumber: 2,
-        },
-      },
-    },
-  ];
-
-  // The layouts should be cached after adding, and we should not be retrieving
-  // templates from the DB.
-  let getHmpbTemplatesSpy = jest.spyOn(initialStore, 'getHmpbTemplates');
-  let layouts = await initialStore.loadLayouts();
-  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
-  expect(layouts).toMatchObject(expectedLayouts);
-
-  // If we reload the store from the DB, it caches on reload and use cache
-  const loadedStore = await Store.fileStore(dbFile.name);
-  getHmpbTemplatesSpy = jest.spyOn(loadedStore, 'getHmpbTemplates');
-  layouts = await loadedStore.loadLayouts();
-  expect(getHmpbTemplatesSpy).toHaveBeenCalledTimes(0);
-
-  // if we reset and reload templates, the cache should be clear
-  loadedStore.reset();
-  loadedStore.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
-    jurisdiction,
-  });
-  expect(await loadedStore.loadLayouts()).toMatchObject([]);
-});
-
-test('batch cleanup works correctly', async () => {
-  const dbFile = tmp.fileSync();
-  const store = await Store.fileStore(dbFile.name);
+  const store = Store.fileStore(dbFile.name);
 
   store.reset();
 
@@ -512,7 +386,9 @@ test('batchStatus', () => {
 test('canUnconfigure in test mode', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
   store.setTestMode(true);
@@ -525,7 +401,9 @@ test('canUnconfigure in test mode', () => {
 test('canUnconfigure not in test mode', async () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
   store.setTestMode(false);
@@ -631,81 +509,24 @@ test('canUnconfigure not in test mode', async () => {
   expect(store.getCanUnconfigure()).toEqual(true);
 });
 
-test('adjudication', async () => {
-  const candidateContests = stateOfHamilton.election.contests.filter(
-    (contest): contest is CandidateContest => contest.type === 'candidate'
-  );
-  const yesnoContests = stateOfHamilton.election.contests.filter(
-    (contest): contest is YesNoContest => contest.type === 'yesno'
-  );
+test('adjudication', () => {
+  const candidateContests =
+    electionGridLayoutNewHampshireAmherstFixtures.election.contests.filter(
+      (contest): contest is CandidateContest => contest.type === 'candidate'
+    );
+  const yesnoContests =
+    electionGridLayoutNewHampshireAmherstFixtures.election.contests.filter(
+      (contest): contest is YesNoContest => contest.type === 'yesno'
+    );
   const yesnoOption = 'yes';
 
   const store = Store.memoryStore();
-  const ballotMetadata: BallotMetadata = {
-    electionHash: stateOfHamilton.electionDefinition.electionHash,
-    ballotStyleId: '12',
-    precinctId: '23',
-    isTestMode: false,
-    locales: { primary: 'en-US' },
-    ballotType: BallotType.Standard,
-  };
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
-  await store.setHmpbTemplates([
-    {
-      pdf: await fs.readFile(ballotPdf),
-      layout: [1, 2].map((pageNumber) => ({
-        pageSize: { width: 1, height: 1 },
-        metadata: {
-          ...ballotMetadata,
-          pageNumber,
-        },
-        contests: [
-          {
-            contestId: 'id-0',
-            bounds: zeroRect,
-            corners: [
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-            ],
-            options: [
-              {
-                bounds: zeroRect,
-                target: {
-                  bounds: zeroRect,
-                  inner: zeroRect,
-                },
-              },
-            ],
-          },
-          {
-            contestId: 'id-1',
-            bounds: zeroRect,
-            corners: [
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-              { x: 0, y: 0 },
-            ],
-            options: [
-              {
-                bounds: zeroRect,
-                target: {
-                  bounds: zeroRect,
-                  inner: zeroRect,
-                },
-              },
-            ],
-          },
-        ],
-      })),
-      ballotConfig,
-    },
-  ]);
   function fakePage(i: 0 | 1): PageInterpretationWithFiles {
     return {
       originalFilename: i === 0 ? '/front-original.png' : '/back-original.png',
@@ -729,24 +550,30 @@ test('adjudication', async () => {
                 inner: zeroRect,
               },
             },
-            {
-              type: 'yesno',
-              contestId: yesnoContests[i].id,
-              optionId: yesnoOption,
-              score: 1, // definite
-              scoredOffset: { x: 0, y: 0 },
-              bounds: zeroRect,
-              target: {
-                bounds: zeroRect,
-                inner: zeroRect,
-              },
-            },
+            ...(yesnoContests[i]
+              ? ([
+                  {
+                    type: 'yesno',
+                    contestId: yesnoContests[i].id,
+                    optionId: yesnoOption,
+                    score: 1, // definite
+                    scoredOffset: { x: 0, y: 0 },
+                    bounds: zeroRect,
+                    target: {
+                      bounds: zeroRect,
+                      inner: zeroRect,
+                    },
+                  },
+                ] as const)
+              : []),
           ],
         },
         metadata: {
-          electionHash: stateOfHamilton.electionDefinition.electionHash,
-          ballotStyleId: '12',
-          precinctId: '23',
+          electionHash:
+            electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+              .electionHash,
+          ballotStyleId: 'card-number-3',
+          precinctId: 'town-id-00701-precinct-id-',
           isTestMode: false,
           pageNumber: 1,
           locales: { primary: 'en-US' },
@@ -791,7 +618,9 @@ test('adjudication', async () => {
 test('iterating over all result sheets', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
 
@@ -812,7 +641,9 @@ test('iterating over all result sheets', () => {
           marks: [],
         },
         metadata: {
-          electionHash: stateOfHamilton.electionDefinition.electionHash,
+          electionHash:
+            electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+              .electionHash,
           ballotStyleId: '12',
           precinctId: '23',
           isTestMode: false,
@@ -839,7 +670,9 @@ test('iterating over all result sheets', () => {
           marks: [],
         },
         metadata: {
-          electionHash: stateOfHamilton.electionDefinition.electionHash,
+          electionHash:
+            electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+              .electionHash,
           ballotStyleId: '12',
           precinctId: '23',
           isTestMode: false,
@@ -905,11 +738,13 @@ test('iterating over all result sheets', () => {
   expect(Array.from(store.forEachResultSheet())).toEqual([]);
 });
 
-test('resetElectionSession', async () => {
+test('resetElectionSession', () => {
   const dbFile = tmp.fileSync();
-  const store = await Store.fileStore(dbFile.name);
+  const store = Store.fileStore(dbFile.name);
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
 
@@ -1025,16 +860,4 @@ test('getBallotsCounted', () => {
   // Delete one of the batches
   store.deleteBatch(batchId);
   expect(store.getBallotsCounted()).toEqual(1);
-});
-
-test('getBallotPageLayoutsLookup', async () => {
-  const store = Store.memoryStore();
-  expect(store.getBallotPageLayoutsLookup()).toMatchObject([]);
-  await store.setHmpbTemplates(ballotTemplates);
-  expect(store.getBallotPageLayoutsLookup()).toMatchObject([
-    {
-      ballotMetadata: metadata,
-      ballotPageLayouts: ballotTemplates[0].layout,
-    },
-  ]);
 });

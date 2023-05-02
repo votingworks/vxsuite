@@ -3,7 +3,10 @@ import {
   createMockUsb,
   getCastVoteRecordReportImport,
 } from '@votingworks/backend';
-import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
+import {
+  electionGridLayoutNewHampshireAmherstFixtures,
+  electionSampleDefinition as testElectionDefinition,
+} from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   BallotMetadata,
@@ -30,7 +33,6 @@ import {
 } from '@votingworks/auth';
 import { Server } from 'http';
 import { Logger, fakeLogger } from '@votingworks/logging';
-import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -57,13 +59,17 @@ beforeEach(async () => {
   logger = fakeLogger();
   workspace = await createWorkspace(dirSync().name);
   workspace.store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
   workspace.store.setTestMode(false);
   const ballotMetadata: BallotMetadata = {
     locales: { primary: 'en-US' },
-    electionHash: stateOfHamilton.electionDefinition.electionHash,
+    electionHash:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionHash,
     ballotType: BallotType.Standard,
     ballotStyleId: '12',
     precinctId: '23',
@@ -92,10 +98,12 @@ afterEach(async () => {
   server?.close();
 });
 
-const frontOriginal = stateOfHamilton.filledInPage1Flipped;
-const frontNormalized = stateOfHamilton.filledInPage1;
-const backOriginal = stateOfHamilton.filledInPage2;
-const backNormalized = stateOfHamilton.filledInPage2;
+const frontOriginal =
+  electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath();
+const frontNormalized = frontOriginal;
+const backOriginal =
+  electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath();
+const backNormalized = backOriginal;
 const sheet: SheetOf<PageInterpretationWithFiles> = [
   {
     originalFilename: frontOriginal,
@@ -104,7 +112,9 @@ const sheet: SheetOf<PageInterpretationWithFiles> = [
       type: 'InterpretedHmpbPage',
       metadata: {
         locales: { primary: 'en-US' },
-        electionHash: stateOfHamilton.electionDefinition.electionHash,
+        electionHash:
+          electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+            .electionHash,
         ballotType: BallotType.Standard,
         ballotStyleId: '12',
         precinctId: '23',
@@ -131,7 +141,9 @@ const sheet: SheetOf<PageInterpretationWithFiles> = [
       type: 'InterpretedHmpbPage',
       metadata: {
         locales: { primary: 'en-US' },
-        electionHash: stateOfHamilton.electionDefinition.electionHash,
+        electionHash:
+          electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+            .electionHash,
         ballotType: BallotType.Standard,
         ballotStyleId: '12',
         precinctId: '23',
@@ -516,10 +528,12 @@ test('get next sheet layouts', async () => {
     type: 'InterpretedHmpbPage',
     metadata: {
       locales: { primary: 'en-US' },
-      electionHash: stateOfHamilton.electionDefinition.electionHash,
+      electionHash:
+        electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+          .electionHash,
       ballotType: BallotType.Standard,
-      ballotStyleId: '12',
-      precinctId: '23',
+      ballotStyleId: 'card-number-3',
+      precinctId: 'town-id-00701-precinct-id-',
       isTestMode: false,
       pageNumber: 1,
     },

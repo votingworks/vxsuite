@@ -1,4 +1,7 @@
-import { electionWithMsEitherNeither } from '@votingworks/fixtures';
+import {
+  electionWithMsEitherNeither,
+  electionFamousNames2021Fixtures,
+} from '@votingworks/fixtures';
 import {
   AnyContest,
   BallotIdSchema,
@@ -10,13 +13,14 @@ import {
   vote,
   YesNoContest,
 } from '@votingworks/types';
-import { election, electionDefinition } from '../../test/fixtures/2020-choctaw';
 import {
   buildCastVoteRecord,
   getCvrBallotType,
   getOptionIdsForContestVote,
   getWriteInOptionIdsForContestVote,
 } from './build';
+
+const { election, electionDefinition } = electionFamousNames2021Fixtures;
 
 const candidateContest = electionWithMsEitherNeither.contests.find(
   (contest): contest is CandidateContest => contest.type === 'candidate'
@@ -98,145 +102,135 @@ test('generates a CVR from a completed BMD ballot', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = '20';
   const batchId = '1234';
   const batchLabel = 'Batch 1';
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
   const contests = getContests({ ballotStyle, election });
 
-  const blankPageTypes = ['BlankPage', 'UnreadablePage'];
-  for (const blankPageType of blankPageTypes) {
-    expect(
-      buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-        {
-          interpretation: {
-            type: 'InterpretedBmdPage',
-            ballotId,
-            metadata: {
-              locales: { primary: 'en-US' },
-              electionHash: electionDefinition.electionHash,
-              ballotType: BallotType.Standard,
-              ballotStyleId,
-              precinctId,
-              isTestMode: false,
-            },
-            votes: vote(contests, {
-              '1': '1',
-              '2': '22',
-              'initiative-65': ['yes', 'no'],
-            }),
+  expect(
+    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
+      {
+        interpretation: {
+          type: 'InterpretedBmdPage',
+          ballotId,
+          metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: electionDefinition.electionHash,
+            ballotType: BallotType.Standard,
+            ballotStyleId,
+            precinctId,
+            isTestMode: false,
           },
+          votes: vote(contests, {
+            mayor: 'sherlock-holmes',
+            controller: 'winston-churchill',
+          }),
         },
-        {
-          interpretation: {
-            type: blankPageType as 'BlankPage' | 'UnreadablePage',
-          },
+      },
+      {
+        interpretation: {
+          type: 'BlankPage',
         },
-      ])
-    ).toMatchInlineSnapshot(`
-          Object {
-            "1": Array [
-              "1",
-            ],
-            "2": Array [
-              "22",
-            ],
-            "3": Array [],
-            "4": Array [],
-            "_ballotId": "abcdefg",
-            "_ballotStyleId": "1",
-            "_ballotType": "standard",
-            "_batchId": "1234",
-            "_batchLabel": "Batch 1",
-            "_precinctId": "6522",
-            "_scannerId": "000",
-            "_testBallot": false,
-            "flag-question": Array [],
-            "initiative-65": Array [
-              "yes",
-              "no",
-            ],
-            "initiative-65-a": Array [],
-            "runoffs-question": Array [],
-          }
-        `);
-  }
+      },
+    ])
+  ).toMatchInlineSnapshot(`
+    Object {
+      "_ballotId": "abcdefg",
+      "_ballotStyleId": "1",
+      "_ballotType": "standard",
+      "_batchId": "1234",
+      "_batchLabel": "Batch 1",
+      "_precinctId": "20",
+      "_scannerId": "000",
+      "_testBallot": false,
+      "attorney": Array [],
+      "board-of-alderman": Array [],
+      "chief-of-police": Array [],
+      "city-council": Array [],
+      "controller": Array [
+        "winston-churchill",
+      ],
+      "mayor": Array [
+        "sherlock-holmes",
+      ],
+      "parks-and-recreation-director": Array [],
+      "public-works-director": Array [],
+    }
+  `);
 });
 test('generates a CVR from a completed BMD ballot with write in and overvotes', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = '20';
   const batchId = '1234';
   const batchLabel = 'Batch 1';
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
   const contests = getContests({ ballotStyle, election });
 
-  const blankPageTypes = ['BlankPage', 'UnreadablePage'];
-  for (const blankPageType of blankPageTypes) {
-    expect(
-      buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-        {
-          interpretation: {
-            type: 'InterpretedBmdPage',
-            ballotId,
-            metadata: {
-              locales: { primary: 'en-US' },
-              electionHash: electionDefinition.electionHash,
-              ballotType: BallotType.Standard,
-              ballotStyleId,
-              precinctId,
-              isTestMode: false,
+  expect(
+    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
+      {
+        interpretation: {
+          type: 'InterpretedBmdPage',
+          ballotId,
+          metadata: {
+            locales: { primary: 'en-US' },
+            electionHash: electionDefinition.electionHash,
+            ballotType: BallotType.Standard,
+            ballotStyleId,
+            precinctId,
+            isTestMode: false,
+          },
+          votes: vote(contests, {
+            mayor: {
+              id: 'write-in-PIKACHU',
+              name: 'Pikachu',
+              isWriteIn: true,
             },
-            votes: vote(contests, {
-              '1': {
-                id: 'write-in-PIKACHU',
-                name: 'Pikachu',
-                isWriteIn: true,
-              },
-              '2': ['21', '22'],
-            }),
-          },
+            controller: ['oprah-winfrey', 'winston-churchill'],
+          }),
         },
-        {
-          interpretation: {
-            type: blankPageType as 'BlankPage' | 'UnreadablePage',
-          },
+      },
+      {
+        interpretation: {
+          type: 'BlankPage',
         },
-      ])
-    ).toMatchInlineSnapshot(`
-          Object {
-            "1": Array [
-              "write-in-PIKACHU",
-            ],
-            "2": Array [
-              "21",
-              "22",
-            ],
-            "3": Array [],
-            "4": Array [],
-            "_ballotId": "abcdefg",
-            "_ballotStyleId": "1",
-            "_ballotType": "standard",
-            "_batchId": "1234",
-            "_batchLabel": "Batch 1",
-            "_precinctId": "6522",
-            "_scannerId": "000",
-            "_testBallot": false,
-            "flag-question": Array [],
-            "initiative-65": Array [],
-            "initiative-65-a": Array [],
-            "runoffs-question": Array [],
-          }
-        `);
-  }
+      },
+    ])
+  ).toMatchInlineSnapshot(`
+    Object {
+      "_ballotId": "abcdefg",
+      "_ballotStyleId": "1",
+      "_ballotType": "standard",
+      "_batchId": "1234",
+      "_batchLabel": "Batch 1",
+      "_precinctId": "20",
+      "_scannerId": "000",
+      "_testBallot": false,
+      "attorney": Array [],
+      "board-of-alderman": Array [],
+      "chief-of-police": Array [],
+      "city-council": Array [],
+      "controller": Array [
+        "winston-churchill",
+        "oprah-winfrey",
+      ],
+      "mayor": Array [
+        "write-in-PIKACHU",
+      ],
+      "parks-and-recreation-director": Array [],
+      "public-works-director": Array [],
+    }
+  `);
 });
 
 test('generates a CVR from a completed HMPB page', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = '20';
   const batchId = '1234';
   const batchLabel = 'Batch 1';
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
@@ -265,11 +259,11 @@ test('generates a CVR from a completed HMPB page', () => {
             ignoredReasonInfos: [],
           },
           votes: vote(contests, {
-            '1': '1',
-            '2': '22',
+            mayor: 'sherlock-holmes',
+            controller: 'louis-armstrong',
           }),
         },
-        contestIds: ['1', '2'],
+        contestIds: ['mayor', 'controller'],
       },
       {
         interpretation: {
@@ -291,32 +285,26 @@ test('generates a CVR from a completed HMPB page', () => {
             enabledReasonInfos: [],
             ignoredReasonInfos: [],
           },
-          votes: vote(contests, {
-            'initiative-65': ['yes', 'no'],
-          }),
+          votes: vote(contests, {}),
         },
-        contestIds: ['initiative-65'],
+        contestIds: [],
       },
     ])
   ).toMatchInlineSnapshot(`
     Object {
-      "1": Array [
-        "1",
-      ],
-      "2": Array [
-        "22",
-      ],
       "_ballotId": "abcdefg",
       "_ballotStyleId": "1",
       "_ballotType": "standard",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
-      "_precinctId": "6522",
+      "_precinctId": "20",
       "_scannerId": "000",
       "_testBallot": false,
-      "initiative-65": Array [
-        "yes",
-        "no",
+      "controller": Array [
+        "louis-armstrong",
+      ],
+      "mayor": Array [
+        "sherlock-holmes",
       ],
     }
   `);
@@ -326,7 +314,7 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = '20';
   const batchId = '1234';
   const batchLabel = 'Batch 1';
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
@@ -355,11 +343,11 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
             ignoredReasonInfos: [],
           },
           votes: vote(contests, {
-            '1': { id: 'write-in-0', name: 'Pikachu', isWriteIn: true },
-            '2': ['21', '22'],
+            mayor: { id: 'write-in-0', name: 'Pikachu', isWriteIn: true },
+            controller: ['winston-churchill', 'oprah-winfrey'],
           }),
         },
-        contestIds: ['1', '2'],
+        contestIds: ['mayor', 'controller'],
       },
       {
         interpretation: {
@@ -381,123 +369,27 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
             enabledReasonInfos: [],
             ignoredReasonInfos: [],
           },
-          votes: vote(contests, {
-            'initiative-65': ['yes', 'no'],
-          }),
+          votes: vote(contests, {}),
         },
-        contestIds: ['initiative-65'],
+        contestIds: [],
       },
     ])
   ).toMatchInlineSnapshot(`
     Object {
-      "1": Array [
-        "write-in-0",
-      ],
-      "2": Array [
-        "21",
-        "22",
-      ],
       "_ballotId": "abcdefg",
       "_ballotStyleId": "1",
       "_ballotType": "standard",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
-      "_precinctId": "6522",
+      "_precinctId": "20",
       "_scannerId": "000",
       "_testBallot": false,
-      "initiative-65": Array [
-        "yes",
-        "no",
+      "controller": Array [
+        "winston-churchill",
+        "oprah-winfrey",
       ],
-    }
-  `);
-});
-
-test('generates a CVR from a completed absentee HMPB page', () => {
-  const sheetId = 'sheetid';
-  const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
-  const ballotStyleId = '1';
-  const precinctId = '6522';
-  const batchId = '1234';
-  const batchLabel = 'Batch 1';
-  const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
-  const contests = getContests({ ballotStyle, election });
-
-  expect(
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Absentee,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 1,
-          },
-          markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          votes: vote(contests, {
-            '1': '1',
-            '2': '22',
-          }),
-        },
-        contestIds: ['1', '2'],
-      },
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Absentee,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 2,
-          },
-          markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          votes: vote(contests, {
-            'initiative-65': ['yes', 'no'],
-          }),
-        },
-        contestIds: ['initiative-65'],
-      },
-    ])
-  ).toMatchInlineSnapshot(`
-    Object {
-      "1": Array [
-        "1",
-      ],
-      "2": Array [
-        "22",
-      ],
-      "_ballotId": "abcdefg",
-      "_ballotStyleId": "1",
-      "_ballotType": "absentee",
-      "_batchId": "1234",
-      "_batchLabel": "Batch 1",
-      "_precinctId": "6522",
-      "_scannerId": "000",
-      "_testBallot": false,
-      "initiative-65": Array [
-        "yes",
-        "no",
+      "mayor": Array [
+        "write-in-0",
       ],
     }
   `);
@@ -507,7 +399,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = '20';
   const batchId = '1234';
   const batchLabel = 'Batch 1';
 
@@ -573,7 +465,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = '20';
   const batchId = '1234';
   const batchLabel = 'Batch 1';
 
@@ -638,7 +530,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
 test('fails to generate a CVR from an invalid HMPB sheet with different ballot styles', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
-  const precinctId = '6522';
+  const precinctId = '20';
   const batchId = '1234';
   const batchLabel = 'Batch 1';
 
@@ -783,7 +675,7 @@ test('fails to generate CVRs from invalid test mode pages', () => {
   const sheetId = 'sheetid';
   const ballotId = unsafeParse(BallotIdSchema, 'abcdefg');
   const ballotStyleId = '1';
-  const precinctId = '6522';
+  const precinctId = '20';
   const batchId = '1234';
   const batchLabel = 'Batch 1';
 

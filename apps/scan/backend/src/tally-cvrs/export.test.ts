@@ -1,7 +1,5 @@
 import { mockOf } from '@votingworks/test-utils';
 import {
-  BallotConfig,
-  BallotPackageEntry,
   BallotPageMetadata,
   BallotType,
   CastVoteRecord,
@@ -11,9 +9,8 @@ import { isFeatureFlagEnabled } from '@votingworks/utils';
 import { writeFile } from 'fs-extra';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
-import fs from 'fs';
 import { iter } from '@votingworks/basics';
-import * as stateOfHamilton from '../../test/fixtures/state-of-hamilton';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { Store } from '../store';
 import * as buildCastVoteRecord from './build';
 import { exportCastVoteRecords } from './export';
@@ -27,44 +24,25 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 
 const jurisdiction = TEST_JURISDICTION;
 
-const ballotConfig: BallotConfig = {
-  filename: 'test-filename',
-  layoutFilename: 'test-layout-filename',
-  locales: { primary: 'en-US' },
-  isLiveMode: true,
-  isAbsentee: false,
-  ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
-  precinctId: stateOfHamilton.election.precincts[0].id,
-  contestIds: [],
-};
-
 const metadata: BallotPageMetadata = {
   locales: { primary: 'en-US' },
-  electionHash: stateOfHamilton.electionDefinition.electionHash,
+  electionHash:
+    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+      .electionHash,
   ballotType: BallotType.Standard,
-  ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
-  precinctId: stateOfHamilton.election.precincts[0].id,
+  ballotStyleId:
+    electionGridLayoutNewHampshireAmherstFixtures.election.ballotStyles[0].id,
+  precinctId:
+    electionGridLayoutNewHampshireAmherstFixtures.election.precincts[0].id,
   isTestMode: false,
   pageNumber: 1,
 };
-
-const ballotTemplates: BallotPackageEntry[] = [
-  {
-    pdf: fs.readFileSync(stateOfHamilton.ballotPdf),
-    layout: [1, 2, 3, 4, 5, 6].map((i) => ({
-      pageSize: { width: 1, height: 1 },
-      metadata: { ...metadata, pageNumber: i },
-      contests: [],
-    })),
-    ballotConfig,
-  },
-];
 
 beforeEach(() => {
   mockOf(isFeatureFlagEnabled).mockImplementation(() => false);
 });
 
-test('exportCvrs', async () => {
+test('exportCvrs', () => {
   mockOf(isFeatureFlagEnabled).mockImplementation(() => true);
 
   const buildCastVoteRecordMock = jest.spyOn(
@@ -87,14 +65,14 @@ test('exportCvrs', async () => {
 
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
 
   // No CVRs, export should be empty
   expect(iter(exportCastVoteRecords({ store })).toArray()).toEqual([]);
-
-  await store.setHmpbTemplates(ballotTemplates);
 
   // Create CVRs, confirm that they are exported should work
   const batchId = store.addBatch();
@@ -156,11 +134,11 @@ test('exportCvrs', async () => {
 test('exportCvrs orders by sheet ID', async () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
-    electionData: stateOfHamilton.electionDefinition.electionData,
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
     jurisdiction,
   });
-
-  await store.setHmpbTemplates(ballotTemplates);
 
   // Create CVRs, confirm that they are exported should work
   const sheetIds = ['fake-uuid-zzz', 'fake-uuid-lll', 'fake-uuid-aaa'];

@@ -294,18 +294,15 @@ function buildApi(
       };
     },
 
-    async scanBallot(): Promise<void> {
+    scanBallot(): void {
       assert(store.getPollsState() === 'polls_open');
       const electionDefinition = store.getElectionDefinition();
       const precinctSelection = store.getPrecinctSelection();
-      const layouts = await store.loadLayouts();
       assert(electionDefinition);
       assert(precinctSelection);
-      assert(layouts);
       interpreter.configure({
         electionDefinition,
         precinctSelection,
-        layouts,
         testMode: store.getTestMode(),
         markThresholdOverrides: store.getMarkThresholdOverrides(),
         ballotImagesPath: workspace.ballotImagesPath,

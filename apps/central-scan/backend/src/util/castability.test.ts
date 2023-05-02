@@ -7,7 +7,7 @@ import {
   UnreadablePage,
   unsafeParse,
 } from '@votingworks/types';
-import * as choctaw2020 from '../../test/fixtures/2020-choctaw';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { Castability, checkSheetCastability } from './castability';
 
 const interpretedBmdPage: Readonly<InterpretedBmdPage> = {
@@ -17,7 +17,9 @@ const interpretedBmdPage: Readonly<InterpretedBmdPage> = {
     ballotStyleId: '1',
     precinctId: '6522',
     ballotType: BallotType.Standard,
-    electionHash: choctaw2020.electionDefinition.electionHash,
+    electionHash:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionHash,
     isTestMode: false,
     locales: { primary: 'en-US' },
   },
@@ -31,7 +33,9 @@ const interpretedHmpbPage: Readonly<InterpretedHmpbPage> = {
   ballotId: unsafeParse(BallotIdSchema, 'abcdefg'),
   metadata: {
     locales: { primary: 'en-US' },
-    electionHash: choctaw2020.electionDefinition.electionHash,
+    electionHash:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionHash,
     ballotType: BallotType.Standard,
     ballotStyleId: '1',
     precinctId: '6522',
