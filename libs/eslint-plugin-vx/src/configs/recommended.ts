@@ -50,8 +50,8 @@ export = {
     'vx/gts-no-foreach': 'error',
     'vx/gts-no-for-in-loop': 'error',
     // Importing types allows a package to list another package as a dev
-    // dependencies if only using the package's types. This makes it possible
-    // for browser-based packages to import types from Node-based packages.
+    // dependency if only using the package's types. This makes it possible for
+    // browser-based packages to import types from Node-based packages.
     'vx/gts-no-import-export-type': 'off',
     'vx/gts-no-private-fields': 'error',
     'vx/gts-no-public-class-fields': 'error',
