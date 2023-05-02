@@ -1,44 +1,17 @@
-import { ok } from '@votingworks/basics';
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { assert } from '@votingworks/basics';
 import {
-  BallotPageLayout,
-  BallotPageMetadata,
-  BallotType,
-} from '@votingworks/types';
+  electionGridLayoutNewHampshireAmherstFixtures,
+  electionMinimalExhaustiveSampleDefinition,
+} from '@votingworks/fixtures';
+import { BallotPageMetadata, BallotType } from '@votingworks/types';
 import { getBallotPageLayout, getContestsForBallotPage } from './page_layouts';
 
-const { election } = electionMinimalExhaustiveSampleDefinition;
-
-/**
- * Ballot Page Layouts Mock
- */
-export const mockBallotPageLayouts = [
-  {
-    name: 'mockPageLayout',
-    metadata: {
-      pageNumber: 1,
-      ballotStyleId: '2F',
-    },
-    contests: [0, 1],
-  },
-  {
-    metadata: {
-      pageNumber: 2,
-      ballotStyleId: '2F',
-    },
-    contests: [2],
-  },
-] as unknown as BallotPageLayout[];
-
-jest.mock('@votingworks/ballot-interpreter-nh', () => ({
-  ...jest.requireActual('@votingworks/ballot-interpreter-nh'),
-  generateBallotPageLayouts: () => ok(mockBallotPageLayouts),
-}));
+const { election } = electionGridLayoutNewHampshireAmherstFixtures;
 
 const ballotPageMetadata: BallotPageMetadata = {
-  electionHash: '0000000000', // fixed for resiliency to hash change'
-  precinctId: 'precinct-1',
-  ballotStyleId: '2F',
+  electionHash: '0000000000', // fixed for resiliency to hash change
+  precinctId: 'town-id-00701-precinct-id-',
+  ballotStyleId: 'card-number-3',
   locales: { primary: 'en-US' },
   isTestMode: true,
   pageNumber: 1,
@@ -47,37 +20,21 @@ const ballotPageMetadata: BallotPageMetadata = {
 
 describe('getBallotPageLayout', () => {
   test('throws error if layout not found and not gridLayouts election', () => {
+    assert(!electionMinimalExhaustiveSampleDefinition.election.gridLayouts);
     expect(() =>
       getBallotPageLayout({
         ballotPageMetadata,
-        election,
+        election: electionMinimalExhaustiveSampleDefinition.election,
       })
     ).toThrow();
   });
 
-  test('ignores ballot page layouts if using a gridLayouts election', () => {
-    expect(
-      getBallotPageLayout({
-        ballotPageMetadata,
-        election: {
-          ...election,
-          gridLayouts: [],
-        },
-      })
-    ).toMatchObject({
-      name: 'mockPageLayout',
+  test('finds layout if gridLayouts election', () => {
+    const layout = getBallotPageLayout({
+      ballotPageMetadata,
+      election,
     });
-  });
-
-  test('find layout in lookup table if exists', () => {
-    expect(
-      getBallotPageLayout({
-        ballotPageMetadata,
-        election,
-      })
-    ).toMatchObject({
-      name: 'mockPageLayout',
-    });
+    expect(layout).toBeDefined();
   });
 });
 
@@ -94,14 +51,23 @@ test('getContestsForBallotPage', () => {
     election,
   });
 
-  // Should have first and second contest in election definition
   expect(page1Contests.map((contest) => contest.id)).toEqual([
-    'best-animal-fish',
-    'aquarium-council-fish',
+    'Governor-061a401b',
+    'United-States-Senator-d3f1c75b',
+    'Representative-in-Congress-24683b44',
+    'Executive-Councilor-bb22557f',
+    'State-Senator-391381f8',
+    'State-Representatives-Hillsborough-District-34-b1012d38',
+    'State-Representative-Hillsborough-District-37-f3bde894',
   ]);
-  // Should have third contest in election definition
   expect(page2Contests.map((contest) => contest.id)).toEqual([
-    'new-zoo-either',
+    'Sheriff-4243fe0b',
+    'County-Attorney-133f910f',
+    'County-Treasurer-87d25a31',
+    'Register-of-Deeds-a1278df2',
+    'Register-of-Probate-a4117da8',
+    'County-Commissioner-d6feed25',
+    'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
   ]);
 
   // Should throw error if page doesn't exist
