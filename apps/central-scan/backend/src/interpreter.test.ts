@@ -21,7 +21,7 @@ import {
 } from '@votingworks/utils';
 import { detectQrcodeInFilePath } from '@votingworks/ballot-interpreter-vx';
 import { throwIllegalValue } from '@votingworks/basics';
-import { Interpreter, sheetRequiresAdjudication } from './interpreter';
+import { interpretFile, sheetRequiresAdjudication } from './interpreter';
 
 // mock SKIP_SCAN_ELECTION_HASH_CHECK to allow us to use old ballot image fixtures
 const featureFlagMock = getFeatureFlagMock();
@@ -44,22 +44,26 @@ afterEach(() => {
 test('extracts votes encoded in a QR code', async () => {
   const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
   expect(
-    new Interpreter({
-      electionDefinition: {
-        ...electionSampleDefinition,
-        election: {
-          ...electionSampleDefinition.election,
-          markThresholds: { definite: 0.2, marginal: 0.17 },
+    interpretFile(
+      {
+        electionDefinition: {
+          ...electionSampleDefinition,
+          election: {
+            ...electionSampleDefinition.election,
+            markThresholds: { definite: 0.2, marginal: 0.17 },
+          },
         },
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+        testMode: true,
+        adjudicationReasons:
+          electionSampleDefinition.election.centralScanAdjudicationReasons ??
+          [],
       },
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      testMode: true,
-      adjudicationReasons:
-        electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
-    }).interpretFile({
-      ballotImagePath,
-      detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-    }).interpretation
+      {
+        ballotImagePath,
+        detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+      }
+    ).interpretation
   ).toMatchInlineSnapshot(`
     Object {
       "ballotId": undefined,
@@ -91,22 +95,25 @@ test('extracts votes encoded in a QR code', async () => {
 
 test('properly detects test ballot in live mode', async () => {
   const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
-  const interpretationResult = new Interpreter({
-    electionDefinition: {
-      ...electionSampleDefinition,
-      election: {
-        ...electionSampleDefinition.election,
-        markThresholds: { definite: 0.2, marginal: 0.17 },
+  const interpretationResult = interpretFile(
+    {
+      electionDefinition: {
+        ...electionSampleDefinition,
+        election: {
+          ...electionSampleDefinition.election,
+          markThresholds: { definite: 0.2, marginal: 0.17 },
+        },
       },
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      testMode: false, // this is the test mode
+      adjudicationReasons:
+        electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
     },
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-    testMode: false, // this is the test mode
-    adjudicationReasons:
-      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
-  }).interpretFile({
-    ballotImagePath,
-    detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-  });
+    {
+      ballotImagePath,
+      detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+    }
+  );
 
   expect(interpretationResult.interpretation.type).toEqual(
     'InvalidTestModePage'
@@ -115,22 +122,25 @@ test('properly detects test ballot in live mode', async () => {
 
 test('properly detects bmd ballot with wrong precinct', async () => {
   const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
-  const interpretationResult = new Interpreter({
-    electionDefinition: {
-      ...electionSampleDefinition,
-      election: {
-        ...electionSampleDefinition.election,
-        markThresholds: { definite: 0.2, marginal: 0.17 },
+  const interpretationResult = interpretFile(
+    {
+      electionDefinition: {
+        ...electionSampleDefinition,
+        election: {
+          ...electionSampleDefinition.election,
+          markThresholds: { definite: 0.2, marginal: 0.17 },
+        },
       },
+      testMode: true,
+      precinctSelection: singlePrecinctSelectionFor('20'),
+      adjudicationReasons:
+        electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
     },
-    testMode: true,
-    precinctSelection: singlePrecinctSelectionFor('20'),
-    adjudicationReasons:
-      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
-  }).interpretFile({
-    ballotImagePath,
-    detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-  });
+    {
+      ballotImagePath,
+      detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+    }
+  );
 
   expect(interpretationResult.interpretation.type).toEqual(
     'InvalidPrecinctPage'
@@ -139,22 +149,25 @@ test('properly detects bmd ballot with wrong precinct', async () => {
 
 test('properly detects bmd ballot with correct precinct', async () => {
   const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
-  const interpretationResult = new Interpreter({
-    electionDefinition: {
-      ...electionSampleDefinition,
-      election: {
-        ...electionSampleDefinition.election,
-        markThresholds: { definite: 0.2, marginal: 0.17 },
+  const interpretationResult = interpretFile(
+    {
+      electionDefinition: {
+        ...electionSampleDefinition,
+        election: {
+          ...electionSampleDefinition.election,
+          markThresholds: { definite: 0.2, marginal: 0.17 },
+        },
       },
+      testMode: true,
+      precinctSelection: singlePrecinctSelectionFor('23'),
+      adjudicationReasons:
+        electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
     },
-    testMode: true,
-    precinctSelection: singlePrecinctSelectionFor('23'),
-    adjudicationReasons:
-      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
-  }).interpretFile({
-    ballotImagePath,
-    detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-  });
+    {
+      ballotImagePath,
+      detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+    }
+  );
 
   expect(interpretationResult.interpretation.type).toEqual(
     'InterpretedBmdPage'
@@ -166,22 +179,25 @@ test('properly detects a ballot with incorrect election hash', async () => {
     BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
   );
   const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();
-  const interpretationResult = new Interpreter({
-    electionDefinition: {
-      ...electionSampleDefinition,
-      election: {
-        ...electionSampleDefinition.election,
-        markThresholds: { definite: 0.2, marginal: 0.17 },
+  const interpretationResult = interpretFile(
+    {
+      electionDefinition: {
+        ...electionSampleDefinition,
+        election: {
+          ...electionSampleDefinition.election,
+          markThresholds: { definite: 0.2, marginal: 0.17 },
+        },
       },
+      testMode: true,
+      precinctSelection: singlePrecinctSelectionFor('23'),
+      adjudicationReasons:
+        electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
     },
-    testMode: true,
-    precinctSelection: singlePrecinctSelectionFor('23'),
-    adjudicationReasons:
-      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
-  }).interpretFile({
-    ballotImagePath,
-    detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-  });
+    {
+      ballotImagePath,
+      detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+    }
+  );
 
   expect(interpretationResult.interpretation.type).toEqual(
     'InvalidElectionHashPage'
@@ -190,16 +206,19 @@ test('properly detects a ballot with incorrect election hash', async () => {
 
 test('detects a blank page', async () => {
   const ballotImagePath = sampleBallotImages.blankPage.asFilePath();
-  const interpretationResult = new Interpreter({
-    electionDefinition:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-    testMode: true,
-    adjudicationReasons: [],
-  }).interpretFile({
-    ballotImagePath,
-    detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-  });
+  const interpretationResult = interpretFile(
+    {
+      electionDefinition:
+        electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      testMode: true,
+      adjudicationReasons: [],
+    },
+    {
+      ballotImagePath,
+      detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+    }
+  );
 
   expect(interpretationResult.interpretation.type).toEqual('BlankPage');
 });

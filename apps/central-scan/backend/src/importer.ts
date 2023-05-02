@@ -196,8 +196,6 @@ export class Importer {
         sheetId,
         {
           electionDefinition,
-          adjudicationReasons:
-            electionDefinition.election.centralScanAdjudicationReasons ?? [],
           precinctSelection: ALL_PRECINCTS_SELECTION,
           testMode: this.workspace.store.getTestMode(),
         },

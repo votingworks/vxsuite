@@ -1,8 +1,3 @@
-//
-// The Interpreter watches a directory where scanned ballot images will appear
-// and process/interpret them into a cast-vote record.
-//
-
 import {
   decodeBallot,
   decodeElectionHash,
@@ -13,9 +8,9 @@ import { QrCodePageResult } from '@votingworks/ballot-interpreter-vx';
 import { throwIllegalValue } from '@votingworks/basics';
 import {
   AdjudicationReason,
+  BallotMetadata,
   BallotType,
   ElectionDefinition,
-  InterpretedBmdPage,
   PageInterpretation,
   PrecinctSelection,
   SheetOf,
@@ -27,7 +22,6 @@ import {
 } from '@votingworks/utils';
 import { ImageData } from 'canvas';
 import makeDebug from 'debug';
-import { BallotPageQrcode } from './types';
 
 const debug = makeDebug('scan:interpreter');
 
@@ -107,144 +101,114 @@ export interface InterpreterOptions {
   electionDefinition: ElectionDefinition;
   precinctSelection: PrecinctSelection;
   testMode: boolean;
-  adjudicationReasons: readonly AdjudicationReason[];
 }
 
-export class Interpreter {
-  private readonly electionDefinition: ElectionDefinition;
-  private readonly precinctSelection: PrecinctSelection;
-  private readonly testMode: boolean;
+export function interpretFile(
+  { electionDefinition, precinctSelection, testMode }: InterpreterOptions,
+  { ballotImagePath, detectQrcodeResult }: InterpretFileParams
+): InterpretFileResult {
+  const timer = time(debug, `interpretFile: ${ballotImagePath}`);
 
-  constructor({
-    electionDefinition,
-    testMode,
-    precinctSelection,
-  }: InterpreterOptions) {
-    this.electionDefinition = electionDefinition;
-    this.testMode = testMode;
-    this.precinctSelection = precinctSelection;
-  }
+  try {
+    if (detectQrcodeResult.isErr()) {
+      const error = detectQrcodeResult.err();
+      switch (error.type) {
+        case 'blank-page':
+          return { interpretation: { type: 'BlankPage' } };
 
-  interpretFile({
-    ballotImagePath,
-    detectQrcodeResult,
-  }: InterpretFileParams): InterpretFileResult {
-    const timer = time(debug, `interpretFile: ${ballotImagePath}`);
-
-    try {
-      if (detectQrcodeResult.isErr()) {
-        const error = detectQrcodeResult.err();
-        switch (error.type) {
-          case 'blank-page':
-            return { interpretation: { type: 'BlankPage' } };
-
-          case 'no-qr-code':
-            return {
-              interpretation: {
-                type: 'UnreadablePage',
-                reason: 'No QR code found',
-              },
-            };
-
-          default:
-            throwIllegalValue(error);
-        }
-      }
-
-      const qrcode = detectQrcodeResult.ok();
-
-      if (
-        !isFeatureFlagEnabled(
-          BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
-        )
-      ) {
-        const actualElectionHash =
-          decodeElectionHash(qrcode.data) ?? 'not found';
-        const expectedElectionHash = this.electionDefinition.electionHash.slice(
-          0,
-          ELECTION_HASH_LENGTH
-        );
-
-        debug(
-          'comparing election hash (%s) to expected value (%s)',
-          actualElectionHash,
-          expectedElectionHash
-        );
-        if (actualElectionHash !== expectedElectionHash) {
+        case 'no-qr-code':
           return {
             interpretation: {
-              type: 'InvalidElectionHashPage',
-              expectedElectionHash,
-              actualElectionHash,
+              type: 'UnreadablePage',
+              reason: 'No QR code found',
             },
           };
-        }
+
+        default:
+          throwIllegalValue(error);
       }
+    }
 
-      const bmdResult = this.interpretBMDFile(qrcode);
+    const qrcode = detectQrcodeResult.ok();
 
-      if (bmdResult) {
-        const bmdMetadata = (bmdResult.interpretation as InterpretedBmdPage)
-          .metadata;
-        if (bmdMetadata.isTestMode !== this.testMode) {
-          return {
-            interpretation: {
-              type: 'InvalidTestModePage',
-              metadata: bmdMetadata,
-            },
-          };
-        }
+    if (
+      !isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
+      )
+    ) {
+      const actualElectionHash = decodeElectionHash(qrcode.data) ?? 'not found';
+      const expectedElectionHash = electionDefinition.electionHash.slice(
+        0,
+        ELECTION_HASH_LENGTH
+      );
 
-        if (
-          this.precinctSelection.kind !== 'AllPrecincts' &&
-          bmdMetadata.precinctId !== this.precinctSelection.precinctId
-        ) {
-          return {
-            interpretation: {
-              type: 'InvalidPrecinctPage',
-              metadata: bmdMetadata,
-            },
-          };
-        }
-
-        return bmdResult;
+      debug(
+        'comparing election hash (%s) to expected value (%s)',
+        actualElectionHash,
+        expectedElectionHash
+      );
+      if (actualElectionHash !== expectedElectionHash) {
+        return {
+          interpretation: {
+            type: 'InvalidElectionHashPage',
+            expectedElectionHash,
+            actualElectionHash,
+          },
+        };
       }
+    }
 
+    if (!detectRawBytesBmdBallot(qrcode.data)) {
       return {
         interpretation: {
           type: 'UnreadablePage',
         },
       };
-    } finally {
-      timer.end();
-    }
-  }
-
-  private interpretBMDFile(
-    qrcode: BallotPageQrcode
-  ): InterpretFileResult | undefined {
-    if (!detectRawBytesBmdBallot(qrcode.data)) {
-      return;
     }
 
     debug('decoding BMD ballot: %o', qrcode);
-    const ballot = decodeBallot(this.electionDefinition.election, qrcode.data);
+    const ballot = decodeBallot(electionDefinition.election, qrcode.data);
     debug('decoded BMD ballot: %o', ballot.votes);
+
+    const metadata: BallotMetadata = {
+      electionHash: ballot.electionHash,
+      ballotType: BallotType.Standard,
+      locales: { primary: 'en-US' },
+      ballotStyleId: ballot.ballotStyleId,
+      precinctId: ballot.precinctId,
+      isTestMode: ballot.isTestMode,
+    };
+
+    if (ballot.isTestMode !== testMode) {
+      return {
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata,
+        },
+      };
+    }
+
+    if (
+      precinctSelection.kind !== 'AllPrecincts' &&
+      metadata.precinctId !== precinctSelection.precinctId
+    ) {
+      return {
+        interpretation: {
+          type: 'InvalidPrecinctPage',
+          metadata,
+        },
+      };
+    }
 
     return {
       interpretation: {
         type: 'InterpretedBmdPage',
         ballotId: ballot.ballotId,
-        metadata: {
-          electionHash: ballot.electionHash,
-          ballotType: BallotType.Standard,
-          locales: { primary: 'en-US' },
-          ballotStyleId: ballot.ballotStyleId,
-          precinctId: ballot.precinctId,
-          isTestMode: ballot.isTestMode,
-        },
+        metadata,
         votes: ballot.votes,
       },
     };
+  } finally {
+    timer.end();
   }
 }

@@ -1,4 +1,3 @@
-import { QrCodePageResult } from '@votingworks/ballot-interpreter-vx';
 import {
   Id,
   PageInterpretationWithFiles,
@@ -6,39 +5,33 @@ import {
   mapSheet,
 } from '@votingworks/types';
 import makeDebug from 'debug';
-import { assert } from '@votingworks/basics';
 import {
   InterpretFileParams,
-  Interpreter,
   InterpreterOptions,
+  interpretFile,
 } from '../interpreter';
 import { saveSheetImages } from '../util/save_images';
 
 const debug = makeDebug('scan:vx:interpret');
 
-async function interpretPage(
-  interpreter: Interpreter,
-  ballotImagePath: string,
+async function interpretPageAndSaveImages(
+  interpreterOptions: InterpreterOptions,
+  interpretFileParams: InterpretFileParams,
   sheetId: string,
-  ballotImagesPath: string,
-  detectQrcodeResult: QrCodePageResult
+  ballotImagesPath: string
 ): Promise<PageInterpretationWithFiles> {
-  debug('interpret ballot image: %s', ballotImagePath);
-  assert(interpreter, 'interpreter not configured');
+  debug('interpret ballot image: %s', interpretFileParams.ballotImagePath);
 
-  const result = interpreter.interpretFile({
-    ballotImagePath,
-    detectQrcodeResult,
-  });
+  const result = interpretFile(interpreterOptions, interpretFileParams);
   debug(
     'interpreted ballot image as %s: %s',
     result.interpretation.type,
-    ballotImagePath
+    interpretFileParams.ballotImagePath
   );
   const images = await saveSheetImages(
     sheetId,
     ballotImagesPath,
-    ballotImagePath,
+    interpretFileParams.ballotImagePath,
     result.normalizedImage
   );
   return {
@@ -54,19 +47,7 @@ export async function interpret(
   files: SheetOf<InterpretFileParams>,
   ballotImagesPath: string
 ): Promise<SheetOf<PageInterpretationWithFiles>> {
-  const innerInterpreter = new Interpreter({
-    electionDefinition: options.electionDefinition,
-    precinctSelection: options.precinctSelection,
-    testMode: options.testMode,
-    adjudicationReasons: options.adjudicationReasons,
-  });
   return await mapSheet(files, async (file) =>
-    interpretPage(
-      innerInterpreter,
-      file.ballotImagePath,
-      sheetId,
-      ballotImagesPath,
-      file.detectQrcodeResult
-    )
+    interpretPageAndSaveImages(options, file, sheetId, ballotImagesPath)
   );
 }
