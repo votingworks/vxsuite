@@ -109,6 +109,8 @@ export function detectUsbDrive(): UsbDrive {
     async status(): Promise<UsbDriveStatus> {
       let deviceInfo = await getUsbDriveStatus();
       if (!deviceInfo) {
+        // Reset eject state in case the drive was removed
+        didEject = false;
         return { status: 'no_drive' };
       }
       if (!isFat32(deviceInfo)) {

@@ -226,5 +226,23 @@ describe('eject', () => {
     execMock.mockResolvedValueOnce(lsblkOutput({ mountpoint: null }));
 
     await expect(usbDrive.status()).resolves.toEqual({ status: 'ejected' });
+
+    // Remove USB and reinsert, should be detected and mounted again
+    readdirMock.mockResolvedValueOnce([]);
+    await expect(usbDrive.status()).resolves.toEqual({ status: 'no_drive' });
+    readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
+    readlinkMock.mockResolvedValueOnce('../../sdb1');
+    execMock.mockResolvedValueOnce(lsblkOutput({ mountpoint: null }));
+    execMock.mockResolvedValueOnce({ stdout: '' });
+    readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
+    readlinkMock.mockResolvedValueOnce('../../sdb1');
+    execMock.mockResolvedValueOnce(
+      lsblkOutput({ mountpoint: '/media/vx/usb-drive' })
+    );
+    await expect(usbDrive.status()).resolves.toEqual({
+      status: 'mounted',
+      mountPoint: '/media/vx/usb-drive',
+      deviceName: 'sdb1',
+    });
   });
 });
