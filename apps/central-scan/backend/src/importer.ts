@@ -191,22 +191,29 @@ export class Importer {
       await frontDetectQrcodePromise,
       await backDetectQrcodePromise,
     ];
-    const interpreter = new vxInterpreter.VxInterpreter();
-    interpreter.configure(this.workspace.store);
-    const frontInterpretPromise = interpreter.interpret(
-      frontImagePath,
-      sheetId,
-      this.workspace.ballotImagesPath,
-      frontDetectQrcodeOutput
+    return ok(
+      await vxInterpreter.interpret(
+        sheetId,
+        {
+          electionDefinition,
+          adjudicationReasons:
+            electionDefinition.election.centralScanAdjudicationReasons ?? [],
+          precinctSelection: ALL_PRECINCTS_SELECTION,
+          testMode: this.workspace.store.getTestMode(),
+        },
+        [
+          {
+            ballotImagePath: frontImagePath,
+            detectQrcodeResult: frontDetectQrcodeOutput,
+          },
+          {
+            ballotImagePath: backImagePath,
+            detectQrcodeResult: backDetectQrcodeOutput,
+          },
+        ],
+        this.workspace.ballotImagesPath
+      )
     );
-    const backInterpretPromise = interpreter.interpret(
-      backImagePath,
-      sheetId,
-      this.workspace.ballotImagesPath,
-      backDetectQrcodeOutput
-    );
-
-    return ok([await frontInterpretPromise, await backInterpretPromise]);
   }
 
   /**
