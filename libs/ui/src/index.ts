@@ -84,5 +84,6 @@ export * from './export_logs_modal';
 export * from './graphics';
 export * from './types';
 export * from './unconfigured_election_screen';
+export * from './usb_drive';
 export * from './power_down_button';
 export * from './voter_contest_summary';

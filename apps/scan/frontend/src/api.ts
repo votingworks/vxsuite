@@ -12,11 +12,11 @@ import {
 import { CastVoteRecord } from '@votingworks/types';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
+  USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
   UsbDriveStatus as LegacyUsbDriveStatus,
 } from '@votingworks/ui';
 import { typedAs } from '@votingworks/basics';
-// eslint-disable-next-line vx/gts-no-import-export-type
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 
 export type ApiClient = grout.Client<Api>;
@@ -122,7 +122,7 @@ export const getUsbDriveStatus = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
-      refetchInterval: 500,
+      refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
     });
   },
 } as const;
