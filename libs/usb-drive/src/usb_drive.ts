@@ -133,7 +133,6 @@ export function detectUsbDrive(): UsbDrive {
       return { status: 'ejected' };
     },
 
-    // TODO do we need to run a `sync` command before unmounting?
     async eject(): Promise<void> {
       const deviceInfo = await getUsbDriveDeviceInfo();
       if (!deviceInfo?.mountpoint) {

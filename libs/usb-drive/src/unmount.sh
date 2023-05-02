@@ -21,4 +21,9 @@ if ! [[ $MOUNTPOINT = $VX_MOUNTPOINT || $MOUNTPOINT =~ $DEV_MOUNTPOINT_REGEX ]];
     echo "unmount.sh: mount point \"${MOUNTPOINT}\" is not a valid mounted USB drive"
     exit 1
 fi
+
+# Run sync before unmounting to force any cached file data to be flushed to the
+# removable drive. Used to prevent incomplete file transfers.
+sync -f $MOUNTPOINT
+
 umount $MOUNTPOINT
