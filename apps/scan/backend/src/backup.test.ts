@@ -13,15 +13,20 @@ import {
 } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import Database from 'better-sqlite3';
-import { Buffer } from 'buffer';
 import { writeFileSync } from 'fs';
 import { writeFile, existsSync } from 'fs-extra';
-import JsZip, { JSZipObject } from 'jszip';
 import { WritableStream } from 'memory-streams';
 import { basename } from 'path';
 import { fileSync, tmpNameSync } from 'tmp';
 import ZipStream from 'zip-stream';
-import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
+import {
+  CAST_VOTE_RECORD_REPORT_FILENAME,
+  getEntries,
+  openZip,
+  readEntry,
+  readJsonEntry,
+  readTextEntry,
+} from '@votingworks/utils';
 import { backup, Backup } from './backup';
 import { Store } from './store';
 
@@ -48,28 +53,6 @@ jest.mock('fs-extra', (): typeof import('fs-extra') => {
 const existsSyncMock = mockOf(existsSync);
 
 const jurisdiction = TEST_JURISDICTION;
-
-function getEntries(zipfile: JsZip): JSZipObject[] {
-  return Object.values(zipfile.files);
-}
-
-async function openZip(data: Buffer): Promise<JsZip> {
-  return await new JsZip().loadAsync(data);
-}
-
-async function readEntry(entry: JSZipObject): Promise<Buffer> {
-  return entry.async('nodebuffer');
-}
-
-async function readTextEntry(entry: JSZipObject): Promise<string> {
-  const bytes = await readEntry(entry);
-  const string = new TextDecoder().decode(bytes);
-  return string;
-}
-
-async function readJsonEntry(entry: JSZipObject): Promise<unknown> {
-  return readTextEntry(entry).then(JSON.parse);
-}
 
 test('unconfigured', async () => {
   const store = Store.memoryStore();

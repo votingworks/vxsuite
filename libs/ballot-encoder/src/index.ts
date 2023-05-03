@@ -35,11 +35,6 @@ import {
 export const MAXIMUM_WRITE_IN_LENGTH = 40;
 
 /**
- * Maximum number of pages in a hand-marked paper ballot.
- */
-export const MAXIMUM_PAGE_NUMBERS = 30;
-
-/**
  * Exact length of the SHA256 hash of the election definition.
  */
 export const ELECTION_HASH_LENGTH = 20;

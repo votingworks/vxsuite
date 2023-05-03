@@ -1,12 +1,10 @@
 import { Result } from '@votingworks/basics';
 import {
-  CastVoteRecord,
   CVR,
   ContestId,
   ContestIdSchema,
   ContestOptionId,
   ContestOptionIdSchema,
-  Dictionary,
   ElectionDefinition,
   ElectionDefinitionSchema,
   Id,
@@ -56,12 +54,6 @@ export interface CastVoteRecordFileMetadata {
   readonly exportTimestamp: Date;
   readonly isTestModeResults: boolean;
 }
-
-/**
- * Representation of votes in the VxAdmin store. Simple dictionary of
- * contest id's to a list of contest option ids.
- */
-export type CastVoteRecordVotes = Dictionary<readonly string[]>;
 
 /**
  * Representation of a cast vote record's metadata. Does not include ballot ID.
@@ -557,17 +549,6 @@ export interface WriteInImageView {
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
   readonly writeInCoordinates: Rect;
-}
-
-/**
- * Cast vote record data for a given write in option.
- */
-export interface CastVoteRecordData {
-  readonly cvr: CastVoteRecord;
-  readonly writeInId: Id;
-  readonly contestId: ContestId;
-  readonly optionId: ContestOptionId;
-  readonly electionId: Id;
 }
 
 /**
