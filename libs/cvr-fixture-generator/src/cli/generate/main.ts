@@ -1,4 +1,9 @@
-import { BallotPaperSize, BallotType, CVR } from '@votingworks/types';
+import {
+  BallotPaperSize,
+  BallotType,
+  CVR,
+  safeParseElectionDefinition,
+} from '@votingworks/types';
 import { assert, assertDefined, find, iter } from '@votingworks/basics';
 import {
   buildCastVoteRecordReportMetadata,
@@ -10,7 +15,6 @@ import yargs from 'yargs/yargs';
 import {
   CAST_VOTE_RECORD_REPORT_FILENAME,
   jsonStream,
-  readBallotPackageFromBuffer,
 } from '@votingworks/utils';
 import { writeImageData, createImageData } from '@votingworks/image-utils';
 import { pipeline } from 'stream/promises';
@@ -37,14 +41,12 @@ import {
 export const DEFAULT_SCANNER_ID = 'VX-00-000';
 
 interface GenerateCvrFileArguments {
-  ballotPackage?: string;
+  electionDefinition?: string;
   outputPath?: string;
   numBallots?: number;
   scannerIds?: Array<string | number>;
   officialBallots: boolean;
-  includeBallotImages: boolean;
   ballotIdPrefix?: string;
-  bmdBallots: boolean;
   help?: boolean;
   [x: string]: unknown;
 }
@@ -67,10 +69,10 @@ export async function main(
     .strict()
     .exitProcess(false)
     .options({
-      ballotPackage: {
+      electionDefinition: {
         type: 'string',
         alias: 'p',
-        description: 'Path to the election ballot package.',
+        description: 'Path to the election definition.',
       },
       outputPath: {
         type: 'string',
@@ -92,20 +94,10 @@ export async function main(
         type: 'array',
         description: 'Creates ballots for each scanner id specified.',
       },
-      includeBallotImages: {
-        type: 'boolean',
-        description:
-          'Whether to include ballot images with write-in ballots in the output.',
-      },
       ballotIdPrefix: {
         type: 'string',
         description:
           'If included, applies a prefix to the ballot ids. E.g. "p-456" instead of "456"',
-      },
-      bmdBallots: {
-        type: 'boolean',
-        description:
-          'Create BMD ballots when specified. By default HMPB ballots are created. Note that this will create ballots without images, regardless of the "includeBallotImages" argument',
       },
     })
     .alias('-h', '--help')
@@ -132,8 +124,8 @@ export async function main(
     return 0;
   }
 
-  if (!args.ballotPackage) {
-    stderr.write('Missing ballot package\n');
+  if (!args.electionDefinition) {
+    stderr.write('Missing election definition\n');
     return 1;
   }
 
@@ -151,10 +143,8 @@ export async function main(
 
   const {
     outputPath,
-    includeBallotImages,
-    ballotPackage: ballotPackagePath,
+    electionDefinition: electionDefinitionPath,
     ballotIdPrefix,
-    bmdBallots,
   } = args;
   const testMode = !args.officialBallots;
 
@@ -162,19 +152,16 @@ export async function main(
     (s) => `${s}`
   );
 
-  const ballotPackage = await readBallotPackageFromBuffer(
-    fs.readFileSync(ballotPackagePath)
-  );
-  const { electionDefinition } = ballotPackage;
+  const electionDefinition = safeParseElectionDefinition(
+    fs.readFileSync(electionDefinitionPath).toString()
+  ).unsafeUnwrap();
 
   const castVoteRecords = iter(
     generateCvrs({
-      ballotPackage,
-      includeBallotImages,
+      electionDefinition,
       testMode,
       scannerIds,
       ballotIdPrefix,
-      bmdBallots,
     })
   ).toArray();
 
@@ -241,7 +228,7 @@ export async function main(
     fs.createWriteStream(join(outputPath, CAST_VOTE_RECORD_REPORT_FILENAME))
   );
 
-  if (includeBallotImages) {
+  if (election.gridLayouts) {
     // determine the images referenced in the report
     const imageUris = new Set<string>();
     for (const castVoteRecord of castVoteRecords) {

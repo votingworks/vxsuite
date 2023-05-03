@@ -1,4 +1,7 @@
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionGridLayoutNewHampshireAmherstFixtures,
+} from '@votingworks/fixtures';
 import { fakeReadable, fakeWritable } from '@votingworks/test-utils';
 import { safeParseJson, CVR, unsafeParse } from '@votingworks/types';
 import { readFileSync } from 'fs';
@@ -7,7 +10,6 @@ import { join, resolve } from 'path';
 import { dirSync } from 'tmp';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
 import {
-  createBallotPackageZipArchive,
   getCastVoteRecordReportImport,
   getWriteInsFromCastVoteRecord,
   isBmdWriteIn,
@@ -18,16 +20,8 @@ import { getBatchIdForScannerId } from '../../utils';
 
 jest.setTimeout(30_000);
 
-async function makeBallotPackageZipArchiveFile(): Promise<string> {
-  const ballotPackage =
-    electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage();
-  const filename = join(dirSync().name, 'ballot-package.zip');
-  await fs.writeFile(
-    filename,
-    await createBallotPackageZipArchive(ballotPackage)
-  );
-  return filename;
-}
+const electionDefinitionPathAmherst =
+  electionGridLayoutNewHampshireAmherstFixtures.electionJson.asFilePath();
 
 function reportFromFile(directory: string) {
   const filename = join(directory, CAST_VOTE_RECORD_REPORT_FILENAME);
@@ -61,7 +55,7 @@ async function run(
 test('--help', async () => {
   expect(await run(['--help'])).toEqual({
     exitCode: 0,
-    stdout: expect.stringContaining('--ballotPackage'),
+    stdout: expect.stringContaining('--electionDefinition'),
     stderr: '',
   });
 });
@@ -74,16 +68,16 @@ test('invalid option', async () => {
   });
 });
 
-test('missing ballot package', async () => {
+test('missing election definition', async () => {
   expect(await run(['--outputPath', '/tmp/test'])).toEqual({
     exitCode: 1,
     stdout: '',
-    stderr: expect.stringContaining('Missing ballot package'),
+    stderr: expect.stringContaining('Missing election definition'),
   });
 });
 
 test('missing output path', async () => {
-  expect(await run(['--ballotPackage', '/tmp/test'])).toEqual({
+  expect(await run(['--electionDefinition', '/tmp/test'])).toEqual({
     exitCode: 1,
     stdout: '',
     stderr: expect.stringContaining('Missing output path'),
@@ -91,13 +85,13 @@ test('missing output path', async () => {
 });
 
 test('generate with defaults', async () => {
-  const ballotPackagePath = await makeBallotPackageZipArchiveFile();
+  const electionDefinitionPath = electionDefinitionPathAmherst;
   const outputDirectory = dirSync();
 
   expect(
     await run([
-      '--ballotPackage',
-      ballotPackagePath,
+      '--electionDefinition',
+      electionDefinitionPath,
       '--outputPath',
       outputDirectory.name,
     ])
@@ -112,13 +106,13 @@ test('generate with defaults', async () => {
 });
 
 test('generate with custom number of records below the suggested number', async () => {
-  const ballotPackagePath = await makeBallotPackageZipArchiveFile();
+  const electionDefinitionPath = electionDefinitionPathAmherst;
   const outputDirectory = dirSync();
 
   expect(
     await run([
-      '--ballotPackage',
-      ballotPackagePath,
+      '--electionDefinition',
+      electionDefinitionPath,
       '--outputPath',
       outputDirectory.name,
       '--numBallots',
@@ -135,23 +129,23 @@ test('generate with custom number of records below the suggested number', async 
 });
 
 test('generate with custom number of records above the suggested number', async () => {
-  const ballotPackagePath = await makeBallotPackageZipArchiveFile();
+  const electionDefinitionPath = electionDefinitionPathAmherst;
   const outputDirectory = dirSync();
 
   expect(
     await run([
-      '--ballotPackage',
-      ballotPackagePath,
+      '--electionDefinition',
+      electionDefinitionPath,
       '--outputPath',
       outputDirectory.name,
       '--numBallots',
-      '3000',
+      '500',
       '--ballotIdPrefix',
       'pre',
     ])
   ).toEqual({
     exitCode: 0,
-    stdout: `Wrote 3000 cast vote records to ${outputDirectory.name}\n`,
+    stdout: `Wrote 500 cast vote records to ${outputDirectory.name}\n`,
     stderr: '',
   });
 
@@ -168,16 +162,16 @@ test('generate with custom number of records above the suggested number', async 
     cvrCount += 1;
   }
 
-  expect(cvrCount).toEqual(3000);
+  expect(cvrCount).toEqual(500);
 });
 
 test('generate live mode CVRs', async () => {
-  const ballotPackagePath = await makeBallotPackageZipArchiveFile();
+  const electionDefinitionPath = electionDefinitionPathAmherst;
   const outputDirectory = dirSync();
 
   await run([
-    '--ballotPackage',
-    ballotPackagePath,
+    '--electionDefinition',
+    electionDefinitionPath,
     '--outputPath',
     outputDirectory.name,
     '--officialBallots',
@@ -190,12 +184,12 @@ test('generate live mode CVRs', async () => {
 });
 
 test('generate test mode CVRs', async () => {
-  const ballotPackagePath = await makeBallotPackageZipArchiveFile();
+  const electionDefinitionPath = electionDefinitionPathAmherst;
   const outputDirectory = dirSync();
 
   await run([
-    '--ballotPackage',
-    ballotPackagePath,
+    '--electionDefinition',
+    electionDefinitionPath,
     '--outputPath',
     outputDirectory.name,
     '--numBallots',
@@ -207,12 +201,12 @@ test('generate test mode CVRs', async () => {
 });
 
 test('specifying scanner ids', async () => {
-  const ballotPackagePath = await makeBallotPackageZipArchiveFile();
+  const electionDefinitionPath = electionDefinitionPathAmherst;
   const outputDirectory = dirSync();
 
   await run([
-    '--ballotPackage',
-    ballotPackagePath,
+    '--electionDefinition',
+    electionDefinitionPath,
     '--outputPath',
     outputDirectory.name,
     '--scannerIds',
@@ -226,15 +220,14 @@ test('specifying scanner ids', async () => {
 });
 
 test('including ballot images', async () => {
-  const ballotPackagePath = await makeBallotPackageZipArchiveFile();
+  const electionDefinitionPath = electionDefinitionPathAmherst;
   const outputDirectory = dirSync();
 
   await run([
-    '--ballotPackage',
-    ballotPackagePath,
+    '--electionDefinition',
+    electionDefinitionPath,
     '--outputPath',
     outputDirectory.name,
-    '--includeBallotImages',
   ]);
 
   const report = reportFromFile(outputDirectory.name);
@@ -285,21 +278,21 @@ test('including ballot images', async () => {
   `);
 });
 
-test('generating as BMD ballots', async () => {
-  const ballotPackagePath = await makeBallotPackageZipArchiveFile();
+test('generating as BMD ballots (non-gridlayouts election)', async () => {
+  const electionDefinitionPath =
+    electionFamousNames2021Fixtures.electionJson.asFilePath();
   const outputDirectory = dirSync();
 
   expect(
     await run([
-      '--ballotPackage',
-      ballotPackagePath,
+      '--electionDefinition',
+      electionDefinitionPath,
       '--outputPath',
       outputDirectory.name,
-      '--bmdBallots',
     ])
   ).toEqual({
     exitCode: 0,
-    stdout: `Wrote 184 cast vote records to ${outputDirectory.name}\n`,
+    stdout: `Wrote 1752 cast vote records to ${outputDirectory.name}\n`,
     stderr: '',
   });
 

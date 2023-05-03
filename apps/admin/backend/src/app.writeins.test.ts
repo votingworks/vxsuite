@@ -1,7 +1,4 @@
-import {
-  electionGridLayoutNewHampshireAmherstFixtures,
-  electionMinimalExhaustiveSampleFixtures,
-} from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { assert, typedAs } from '@votingworks/basics';
 import { CVR_BALLOT_IMAGES_SUBDIRECTORY } from '@votingworks/backend';
 import { toDataUrl, loadImage, toImageData } from '@votingworks/image-utils';
@@ -47,35 +44,24 @@ afterEach(() => {
 });
 
 test('getWriteIns', async () => {
-  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const { apiClient, auth } = buildTestEnvironment();
 
   const { electionDefinition, castVoteRecordReport } =
-    electionMinimalExhaustiveSampleFixtures;
-  const electionId = await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition
-  );
+    electionGridLayoutNewHampshireAmherstFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   (
     await apiClient.addCastVoteRecordFile({
       path: castVoteRecordReport.asDirectoryPath(),
     })
-  ).assertOk('expected to load cast vote record report successfully');
+  ).assertOk('cast vote record failed to load in test setup');
 
-  expect(await apiClient.getWriteIns()).toHaveLength(
-    workspace.store.getWriteInRecords({ electionId }).length
-  );
+  expect(await apiClient.getWriteIns()).toHaveLength(80);
 
   expect(
-    await apiClient.getWriteIns({ contestId: 'zoo-council-mammal' })
-  ).toHaveLength(
-    workspace.store.getWriteInRecords({
-      electionId,
-      contestId: 'zoo-council-mammal',
-    }).length
-  );
+    await apiClient.getWriteIns({ contestId: 'Governor-061a401b' })
+  ).toHaveLength(2);
 
   expect(await apiClient.getWriteIns({ limit: 3 })).toHaveLength(3);
 });
@@ -84,7 +70,7 @@ test('transcribeWriteIn', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
   const { electionDefinition, castVoteRecordReport } =
-    electionMinimalExhaustiveSampleFixtures;
+    electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
@@ -92,7 +78,7 @@ test('transcribeWriteIn', async () => {
     await apiClient.addCastVoteRecordFile({
       path: castVoteRecordReport.asDirectoryPath(),
     })
-  ).assertOk('expected to load cast vote record report successfully');
+  ).assertOk('cast vote record failed to load in test setup');
 
   const [writeInRecord] = await apiClient.getWriteIns({ limit: 1 });
   assert(writeInRecord);
@@ -118,7 +104,7 @@ test('getWriteInAdjudications', async () => {
   const { auth, apiClient } = buildTestEnvironment();
 
   const { electionDefinition, castVoteRecordReport } =
-    electionMinimalExhaustiveSampleFixtures;
+    electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
@@ -126,12 +112,12 @@ test('getWriteInAdjudications', async () => {
     await apiClient.addCastVoteRecordFile({
       path: castVoteRecordReport.asDirectoryPath(),
     })
-  ).assertOk('expected to load cast vote record report successfully');
+  ).assertOk('cast vote record failed to load in test setup');
 
   expect(await apiClient.getWriteInAdjudications()).toEqual([]);
 
   await apiClient.createWriteInAdjudication({
-    contestId: 'zoo-council-mammal',
+    contestId: 'Governor-061a401b',
     transcribedValue: 'Bob',
     adjudicatedValue: 'Robert',
   });
@@ -140,13 +126,13 @@ test('getWriteInAdjudications', async () => {
     typedAs<WriteInAdjudicationRecord[]>([
       {
         id: expect.any(String),
-        contestId: 'zoo-council-mammal',
+        contestId: 'Governor-061a401b',
         transcribedValue: 'Bob',
         adjudicatedValue: 'Robert',
       },
       {
         id: expect.any(String),
-        contestId: 'zoo-council-mammal',
+        contestId: 'Governor-061a401b',
         transcribedValue: 'Robert',
         adjudicatedValue: 'Robert',
       },
@@ -161,19 +147,19 @@ test('getWriteInAdjudications', async () => {
   // matched filter
   expect(
     await apiClient.getWriteInAdjudications({
-      contestId: 'zoo-council-mammal',
+      contestId: 'Governor-061a401b',
     })
   ).toEqual(
     typedAs<WriteInAdjudicationRecord[]>([
       {
         id: expect.any(String),
-        contestId: 'zoo-council-mammal',
+        contestId: 'Governor-061a401b',
         transcribedValue: 'Bob',
         adjudicatedValue: 'Robert',
       },
       {
         id: expect.any(String),
-        contestId: 'zoo-council-mammal',
+        contestId: 'Governor-061a401b',
         transcribedValue: 'Robert',
         adjudicatedValue: 'Robert',
       },
@@ -185,7 +171,7 @@ test('write-in adjudication lifecycle', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
   const { electionDefinition, castVoteRecordReport } =
-    electionMinimalExhaustiveSampleFixtures;
+    electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
@@ -194,10 +180,10 @@ test('write-in adjudication lifecycle', async () => {
     await apiClient.addCastVoteRecordFile({
       path: castVoteRecordReport.asDirectoryPath(),
     })
-  ).assertOk('expected to load cast vote record report successfully');
+  ).assertOk('cast vote record failed to load in test setup');
 
   // focus on this contest
-  const contestId = 'zoo-council-mammal';
+  const contestId = 'Governor-061a401b';
 
   // view the adjudication table
   const writeInAdjudicationTable = await apiClient.getWriteInAdjudicationTable({
@@ -439,7 +425,7 @@ test('write-in summary filtered by contestId & status', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
   const { electionDefinition, castVoteRecordReport } =
-    electionMinimalExhaustiveSampleFixtures;
+    electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
@@ -448,10 +434,10 @@ test('write-in summary filtered by contestId & status', async () => {
     await apiClient.addCastVoteRecordFile({
       path: castVoteRecordReport.asDirectoryPath(),
     })
-  ).assertOk('expected to load cast vote record report successfully');
+  ).assertOk('cast vote record failed to load in test setup');
 
   // focus on this contest
-  const contestId = 'zoo-council-mammal';
+  const contestId = 'Governor-061a401b';
 
   const pendingWriteInSummary = await apiClient.getWriteInSummary({
     contestId,
@@ -474,12 +460,12 @@ test('write-in summary filtered by contestId & status', async () => {
 
 test('create write-in adjudication for an unlisted candidate', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
 
   await configureMachine(apiClient, auth, electionDefinition);
 
   await apiClient.createWriteInAdjudication({
-    contestId: 'zoo-council-mammal',
+    contestId: 'governor-061a401b',
     transcribedValue: 'Zebra',
     adjudicatedValue: 'Cyclops',
   });
@@ -488,13 +474,13 @@ test('create write-in adjudication for an unlisted candidate', async () => {
     typedAs<WriteInAdjudicationRecord[]>([
       {
         id: expect.any(String),
-        contestId: 'zoo-council-mammal',
+        contestId: 'governor-061a401b',
         transcribedValue: 'Cyclops',
         adjudicatedValue: 'Cyclops',
       },
       {
         id: expect.any(String),
-        contestId: 'zoo-council-mammal',
+        contestId: 'governor-061a401b',
         transcribedValue: 'Zebra',
         adjudicatedValue: 'Cyclops',
       },
@@ -504,12 +490,12 @@ test('create write-in adjudication for an unlisted candidate', async () => {
 
 test('create write-in adjudication for an official candidate', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
 
   await configureMachine(apiClient, auth, electionDefinition);
 
   await apiClient.createWriteInAdjudication({
-    contestId: 'zoo-council-mammal',
+    contestId: 'governor-061a401b',
     transcribedValue: 'Zebra',
     adjudicatedValue: 'Zebra',
     adjudicatedOptionId: 'zebra',
@@ -519,7 +505,7 @@ test('create write-in adjudication for an official candidate', async () => {
     typedAs<WriteInAdjudicationRecord[]>([
       {
         id: expect.any(String),
-        contestId: 'zoo-council-mammal',
+        contestId: 'governor-061a401b',
         transcribedValue: 'Zebra',
         adjudicatedValue: 'Zebra',
         adjudicatedOptionId: 'zebra',
@@ -530,11 +516,12 @@ test('create write-in adjudication for an official candidate', async () => {
 
 test('getWriteInImage', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, castVoteRecordReportSingle } =
+  const { electionDefinition, manualCastVoteRecordReportSingle } =
     electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
-  const reportDirectoryPath = castVoteRecordReportSingle.asDirectoryPath();
+  const reportDirectoryPath =
+    manualCastVoteRecordReportSingle.asDirectoryPath();
   (
     await apiClient.addCastVoteRecordFile({
       path: reportDirectoryPath,

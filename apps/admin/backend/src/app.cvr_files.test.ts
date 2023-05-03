@@ -1,5 +1,9 @@
 import { assert } from '@votingworks/basics';
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import {
+  electionGridLayoutNewHampshireAmherstFixtures,
+  electionMinimalExhaustiveSampleDefinition,
+  electionMinimalExhaustiveSampleFixtures,
+} from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { CVR as CVRType, safeParse } from '@votingworks/types';
 import { basename, join } from 'path';
@@ -45,7 +49,7 @@ afterEach(() => {
 });
 
 const { electionDefinition, castVoteRecordReport } =
-  electionMinimalExhaustiveSampleFixtures;
+  electionGridLayoutNewHampshireAmherstFixtures;
 
 async function getOfficialReportPath(): Promise<string> {
   return await modifyCastVoteRecordReport(
@@ -72,7 +76,7 @@ test('happy path - mock election flow', async () => {
   // insert a USB drive
   const { insertUsbDrive, removeUsbDrive } = mockUsb;
   const testReportDirectoryName =
-    'TEST__machine_0000__3000_ballots__2022-07-01_11-21-41';
+    'TEST__machine_0000__184_ballots__2022-07-01_11-21-41';
   const testExportTimestamp = '2022-07-01T11:21:41.000Z';
   insertUsbDrive(
     mockCastVoteRecordFileTree(electionDefinition, {
@@ -84,7 +88,7 @@ test('happy path - mock election flow', async () => {
   expect(availableCastVoteRecordFiles).toMatchObject([
     expect.objectContaining({
       name: testReportDirectoryName,
-      cvrCount: 3000,
+      cvrCount: 184,
       exportTimestamp: new Date(testExportTimestamp),
       isTestModeResults: true,
       scannerIds: ['0000'],
@@ -108,7 +112,7 @@ test('happy path - mock election flow', async () => {
     wasExistingFile: false,
     exportedTimestamp: testExportTimestamp,
     alreadyPresent: 0,
-    newlyAdded: 3000,
+    newlyAdded: 184,
     fileMode: 'test',
     fileName: testReportDirectoryName,
   });
@@ -119,7 +123,7 @@ test('happy path - mock election flow', async () => {
       disposition: 'success',
       filename: testReportDirectoryName,
       message: expect.anything(),
-      numberOfBallotsImported: 3000,
+      numberOfBallotsImported: 184,
       duplicateBallotsIgnored: 0,
     }
   );
@@ -130,8 +134,8 @@ test('happy path - mock election flow', async () => {
     expect.objectContaining({
       exportTimestamp: testExportTimestamp,
       filename: testReportDirectoryName,
-      numCvrsImported: 3000,
-      precinctIds: ['precinct-1', 'precinct-2'],
+      numCvrsImported: 184,
+      precinctIds: ['town-id-00701-precinct-id-'],
       scannerIds: ['VX-00-000'],
     }),
   ]);
@@ -139,22 +143,32 @@ test('happy path - mock election flow', async () => {
 
   // check cast vote record count and a single record. a record with the
   // specified votes should exist given the size of the cast vote record
-  expect(await apiClient.getCastVoteRecords()).toHaveLength(3000);
+  expect(await apiClient.getCastVoteRecords()).toHaveLength(184);
   expect(await apiClient.getCastVoteRecords()).toMatchObject(
     expect.arrayContaining([
       expect.objectContaining({
         _ballotType: 'absentee',
-        _precinctId: 'precinct-1',
-        _ballotStyleId: '1M',
+        _precinctId: 'town-id-00701-precinct-id-',
+        _ballotStyleId: 'card-number-3',
         _testBallot: true,
         _scannerId: 'VX-00-000',
         _batchId: '9822c71014',
         _batchLabel: '9822c71014',
-        'best-animal-mammal': [],
-        'zoo-council-mammal': [],
-        'new-zoo-either': ['yes'],
-        'new-zoo-pick': ['yes'],
-        fishing: ['yes'],
+        'Governor-061a401b': [],
+        'United-States-Senator-d3f1c75b': [],
+        'Representative-in-Congress-24683b44': [],
+        'Executive-Councilor-bb22557f': [],
+        'State-Senator-391381f8': [],
+        'State-Representatives-Hillsborough-District-34-b1012d38': [],
+        'State-Representative-Hillsborough-District-37-f3bde894': [],
+        'Sheriff-4243fe0b': [],
+        'County-Attorney-133f910f': [],
+        'County-Treasurer-87d25a31': [],
+        'Register-of-Deeds-a1278df2': [],
+        'Register-of-Probate-a4117da8': [],
+        'County-Commissioner-d6feed25': [],
+        'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc':
+          ['yes'],
       }),
     ])
   );
@@ -208,7 +222,7 @@ test('happy path - mock election flow', async () => {
 
   // now try loading official CVR files, as if after L&A
   const officialReportDirectoryName =
-    'machine_0000__3000_ballots__2022-07-01_11-21-41';
+    'machine_0000__184_ballots__2022-07-01_11-21-41';
   const officialExportTimestamp = '2022-07-01T11:21:41.000Z';
   const officialReportDirectoryPath = await modifyCastVoteRecordReport(
     castVoteRecordReport.asDirectoryPath(),
@@ -227,7 +241,7 @@ test('happy path - mock election flow', async () => {
   expect(availableCastVoteRecordFiles2).toMatchObject([
     expect.objectContaining({
       name: officialReportDirectoryName,
-      cvrCount: 3000,
+      cvrCount: 184,
       exportTimestamp: new Date(officialExportTimestamp),
       isTestModeResults: false,
       scannerIds: ['0000'],
@@ -253,15 +267,74 @@ test('happy path - mock election flow', async () => {
       disposition: 'success',
       filename: officialReportDirectoryName,
       message: expect.anything(),
-      numberOfBallotsImported: 3000,
+      numberOfBallotsImported: 184,
       duplicateBallotsIgnored: 0,
     }
   );
   removeUsbDrive();
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
-  expect(await apiClient.getCastVoteRecords()).toHaveLength(3000);
+  expect(await apiClient.getCastVoteRecords()).toHaveLength(184);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('official');
+});
+
+test('adding a file with BMD cast vote records', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(
+    apiClient,
+    auth,
+    electionMinimalExhaustiveSampleDefinition
+  );
+  mockElectionManagerAuth(
+    auth,
+    electionMinimalExhaustiveSampleDefinition.electionHash
+  );
+
+  const addTestFileResult = await apiClient.addCastVoteRecordFile({
+    path: electionMinimalExhaustiveSampleFixtures.castVoteRecordReport.asDirectoryPath(),
+  });
+  assert(addTestFileResult.isOk());
+  expect(addTestFileResult.ok()).toMatchObject({
+    wasExistingFile: false,
+    alreadyPresent: 0,
+    newlyAdded: 112,
+    fileMode: 'test',
+  });
+
+  // should now be able to retrieve the file
+  expect(await apiClient.getCastVoteRecordFiles()).toEqual([
+    expect.objectContaining({
+      numCvrsImported: 112,
+      precinctIds: ['precinct-1', 'precinct-2'],
+      scannerIds: ['VX-00-000'],
+    }),
+  ]);
+  expect(await apiClient.getCastVoteRecordFileMode()).toEqual('test');
+
+  // check cast vote record count and a single record. a record with the
+  // specified votes should exist given the size of the cast vote record
+  expect(await apiClient.getCastVoteRecords()).toHaveLength(112);
+  expect(await apiClient.getCastVoteRecords()).toMatchObject(
+    expect.arrayContaining([
+      expect.objectContaining({
+        _ballotType: 'absentee',
+        _precinctId: 'precinct-1',
+        _ballotStyleId: '1M',
+        _testBallot: true,
+        _scannerId: 'VX-00-000',
+        _batchId: '9822c71014',
+        _batchLabel: '9822c71014',
+        'best-animal-mammal': [],
+        'zoo-council-mammal': [],
+        'new-zoo-either': ['yes'],
+        'new-zoo-pick': ['yes'],
+        fishing: ['yes'],
+      }),
+    ])
+  );
+
+  // check that no write-in records were created
+  expect(await apiClient.getWriteIns()).toHaveLength(0);
 });
 
 test('adding a duplicate file returns OK to client but logs an error', async () => {
@@ -288,13 +361,13 @@ test('adding a duplicate file returns OK to client but logs an error', async () 
   assert(addDuplicateFileResult.isOk());
   expect(addDuplicateFileResult.ok()).toMatchObject({
     wasExistingFile: true,
-    alreadyPresent: 3000,
+    alreadyPresent: 184,
     newlyAdded: 0,
     fileMode: 'test',
     fileName: basename(reportDirectoryPath),
   });
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
-  expect(await apiClient.getCastVoteRecords()).toHaveLength(3000);
+  expect(await apiClient.getCastVoteRecords()).toHaveLength(184);
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.CvrLoaded,
     'election_manager',
@@ -545,7 +618,7 @@ test('error if cast vote records from different files share same ballot id but h
   ).assertOk('expected to load cast vote record report successfully');
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
-  expect(await apiClient.getCastVoteRecords()).toHaveLength(3000);
+  expect(await apiClient.getCastVoteRecords()).toHaveLength(184);
 
   const reportDirectoryPath = await modifyCastVoteRecordReport(
     castVoteRecordReport.asDirectoryPath(),
@@ -570,7 +643,7 @@ test('error if cast vote records from different files share same ballot id but h
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
-  expect(await apiClient.getCastVoteRecords()).toHaveLength(3000);
+  expect(await apiClient.getCastVoteRecords()).toHaveLength(184);
 });
 
 test('error if a layout is invalid', async () => {

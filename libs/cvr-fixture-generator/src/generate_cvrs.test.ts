@@ -1,28 +1,48 @@
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
-  BallotPackage,
-  CVR,
-  getBallotStyle,
-  getContests,
-} from '@votingworks/types';
+  electionFamousNames2021Fixtures,
+  electionGridLayoutNewHampshireAmherstFixtures,
+} from '@votingworks/fixtures';
+import { CVR, getBallotStyle, getContests } from '@votingworks/types';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { generateCvrs } from './generate_cvrs';
 import { IMAGE_URI_REGEX } from './utils';
 
-function mockBallotPackage(): BallotPackage {
-  return electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage();
-}
-
-test('produces well-formed cast vote records with all contests', async () => {
-  const { election } = electionGridLayoutNewHampshireAmherstFixtures;
+test('produces well-formed cast vote records with all contests in HMPB (gridlayouts) case', async () => {
+  const { election, electionDefinition } =
+    electionGridLayoutNewHampshireAmherstFixtures;
   for await (const cvr of generateCvrs({
-    ballotPackage: mockBallotPackage(),
+    electionDefinition,
     scannerIds: ['scanner-1'],
     testMode: true,
-    includeBallotImages: false,
   })) {
     expect(cvr.CVRSnapshot).toHaveLength(1);
     expect(cvr.BallotSheetId).toEqual('1');
+    const ballotStyleId = cvr.BallotStyleId;
+    expect(
+      cvr.CVRSnapshot[0]!.CVRContest?.map((cvrContest) => cvrContest.ContestId)
+    ).toMatchObject(
+      expect.arrayContaining(
+        getContests({
+          ballotStyle: getBallotStyle({
+            ballotStyleId,
+            election,
+          })!,
+          election,
+        }).map((contest) => contest.id)
+      )
+    );
+  }
+});
+
+test('produces well-formed cast vote records with all contests in BMD (non-gridlayouts) case', async () => {
+  const { election, electionDefinition } = electionFamousNames2021Fixtures;
+  for await (const cvr of generateCvrs({
+    electionDefinition,
+    scannerIds: ['scanner-1'],
+    testMode: true,
+  })) {
+    expect(cvr.CVRSnapshot).toHaveLength(1);
+    expect(cvr.BallotSheetId).toBeUndefined();
     const ballotStyleId = cvr.BallotStyleId;
     expect(
       cvr.CVRSnapshot[0]!.CVRContest?.map((cvrContest) => cvrContest.ContestId)
@@ -47,8 +67,7 @@ test('has absentee and standard ballot types', async () => {
   for await (const cvr of generateCvrs({
     testMode: false,
     scannerIds: ['scanner-1'],
-    includeBallotImages: false,
-    ballotPackage: mockBallotPackage(),
+    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
   })) {
     switch (cvr.vxBallotType) {
       case CVR.vxBallotType.Absentee:
@@ -82,8 +101,7 @@ test('uses all the scanners given', async () => {
   for await (const cvr of generateCvrs({
     testMode: false,
     scannerIds: ['scanner-1', 'scanner-2'],
-    includeBallotImages: false,
-    ballotPackage: mockBallotPackage(),
+    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
   })) {
     expect(cvr.CreatingDeviceId).toBeDefined();
     assert(typeof cvr.CreatingDeviceId !== 'undefined');
@@ -94,17 +112,15 @@ test('uses all the scanners given', async () => {
 });
 
 test('adds write-ins for contests that allow them', async () => {
-  const writeInContest =
-    electionGridLayoutNewHampshireAmherstFixtures.election.contests.find(
-      (contest) => contest.type === 'candidate' && contest.allowWriteIns
-    )!;
+  const writeInContest = electionFamousNames2021Fixtures.election.contests.find(
+    (contest) => contest.type === 'candidate' && contest.allowWriteIns
+  )!;
   let seenWriteIn = false;
 
   for await (const cvr of generateCvrs({
     testMode: false,
     scannerIds: ['scanner-1'],
-    includeBallotImages: false,
-    ballotPackage: mockBallotPackage(),
+    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
   })) {
     const cvrContests = cvr.CVRSnapshot[0]?.CVRContest;
     assert(cvrContests);
@@ -127,21 +143,18 @@ test('adds write-ins for contests that allow them', async () => {
 });
 
 test('adds write-ins for contests that have 1 seat', async () => {
-  const writeInContest =
-    electionGridLayoutNewHampshireAmherstFixtures.election.contests.find(
-      (contest) =>
-        contest.type === 'candidate' &&
-        contest.allowWriteIns &&
-        contest.seats === 1
-    )!;
+  const writeInContest = electionFamousNames2021Fixtures.election.contests.find(
+    (contest) =>
+      contest.type === 'candidate' &&
+      contest.allowWriteIns &&
+      contest.seats === 1
+  )!;
   let seenWriteIn = false;
 
   for await (const cvr of generateCvrs({
     scannerIds: ['scanner-1'],
     testMode: false,
-    includeBallotImages: false,
-    ballotPackage:
-      electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(),
+    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
   })) {
     const cvrContests = cvr.CVRSnapshot[0]?.CVRContest;
     assert(cvrContests);
@@ -163,13 +176,13 @@ test('adds write-ins for contests that have 1 seat', async () => {
   expect(seenWriteIn).toEqual(true);
 });
 
-test('can include ballot image references for write-ins', async () => {
+test('can include ballot image references for write-ins (gridLayouts)', async () => {
   let reportHasWriteIn = false;
   for await (const cvr of generateCvrs({
     testMode: false,
     scannerIds: ['scanner-1'],
-    includeBallotImages: true,
-    ballotPackage: mockBallotPackage(),
+    electionDefinition:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
   })) {
     let cvrHasWriteIn = false;
     const selectionPositions = cvr.CVRSnapshot[0]!.CVRContest.flatMap(

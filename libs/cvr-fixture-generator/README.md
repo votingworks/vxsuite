@@ -1,19 +1,18 @@
 # Cast Vote Record Fixture Generator
 
 A command-line tool for generating cast vote record fixtures from ballot
-packages.
+packages. Generates BMD ballot CVRs for VotingWorks election definitions and
+HMPB ballot CVRs for NH (`gridLayouts`) election definitions
 
 ## Usage
 
 ```bash
 # from libs/cvr-fixture-generator
-./bin/generate --ballotPackage ./ballot-package.zip --outputPath ./standard-cvr-fixture --includeBallotImages
+./bin/generate --electionDefinition ./election.json --outputPath ./standard-cvr-fixture
 ```
 
 Optional flags:
 
-- `--includeBallotImages` - whether to include images and layouts for cast vote
-  records with write-ins
 - `--officialBallots` - whether to export a report for official ballots. By
   default the report is for test ballots.
 - `--scannerIds` - if provided with a comma-separated list of scanner ids, there
@@ -26,11 +25,6 @@ Optional flags:
 - `--ballotIdPrefix` - a prefix to prepend to every ballot id (or `UniqueId` in
   the CDF). Since ballot ids are incrementing numbers starting from 1, they will
   have id collisions in VxAdmin if they are not distinguished by a prefix.
-- `--bmdBallots` - use this flag to generate BMD ballots instead of HMPB
-  ballots. BMD ballots have no images, their write-ins include a `Text` field
-  instead of an image reference, and all the contests are in one CVR rather than
-  one CVR per sheet. Note that if you use this option, `--includeBallotImages`
-  will do nothing.
 
 ## Vote Variations
 
@@ -47,9 +41,6 @@ included.
 
 ## Limitations
 
-- Fixtures must be generated using a ballot package, which means that they
-  cannot be auto-generated. We may revisit this once ballot layouts are included
-  in the election definition.
 - Multi-sheet ballots are not supported. There is no underlying technical
   limitation, we just do not have the fixtures or the requirement yet to test
   this and ensure the fixtures are correct.
@@ -58,8 +49,4 @@ included.
 - Vote variations do not reflect any probable real-world distribution of votes.
   For example, the number of undervotes and overvotes for ballot measure
   contests is extremely high.
-- BMD ballots are not represented in the exports, only HMPB ballots.
-- Ballot images do not have any real marks on them, they are only blank ballots.
-- Ballot images are shared between different ballots of the same style and
-  precinct since they are all identically blank. This is on purpose, to reduce
-  the size of the fixture. This could be changed if it is deemed a limitation.
+- Ballot images do not have any real marks on them, they are only blank pages.

@@ -1,13 +1,13 @@
 import { buildCVRContestsFromVotes, hasWriteIns } from '@votingworks/backend';
 import { throwIllegalValue } from '@votingworks/basics';
 import {
-  BallotPackage,
   BallotType,
   Candidate,
   CandidateContest,
   CandidateVote,
   ContestId,
   CVR,
+  ElectionDefinition,
   getContests,
   Vote,
   VotesDict,
@@ -105,10 +105,8 @@ function getVoteConfigurations(
 interface GenerateCvrsParams {
   testMode: boolean;
   scannerIds: readonly string[];
-  ballotPackage: BallotPackage;
-  includeBallotImages: boolean;
+  electionDefinition: ElectionDefinition;
   ballotIdPrefix?: string;
-  bmdBallots?: boolean;
 }
 
 /**
@@ -121,14 +119,16 @@ interface GenerateCvrsParams {
 export function* generateCvrs({
   testMode,
   scannerIds,
-  ballotPackage,
-  includeBallotImages,
+  electionDefinition,
   ballotIdPrefix,
-  bmdBallots,
 }: GenerateCvrsParams): Iterable<CVR.CVR> {
-  const { electionDefinition } = ballotPackage;
   const { election } = electionDefinition;
   const { ballotStyles } = election;
+
+  // Currently we can generate only BMD ballots for non-gridLayouts elections.
+  // For gridLayouts elections we can generate BMD ballots although it would
+  // not be realistic since they cannot currently be scanned.
+  const bmdBallots = Boolean(!election.gridLayouts);
 
   let castVoteRecordId = 0;
   for (const ballotStyle of ballotStyles) {
@@ -143,7 +143,7 @@ export function* generateCvrs({
       CVR.vxBallotType.Precinct,
     ]) {
       for (const precinctId of precinctIds) {
-        const allBallotPageLayouts = bmdBallots
+        const ballotPageLayouts = bmdBallots
           ? []
           : generateBallotPageLayouts(election, {
               ballotStyleId,
@@ -156,14 +156,6 @@ export function* generateCvrs({
               locales: { primary: 'en-US' },
               isTestMode: testMode,
             }).unsafeUnwrap();
-        // Find the layout, which we'll use to determine which contests are
-        // on which page for HMPBs
-        const ballotPageLayouts = allBallotPageLayouts.filter(
-          (layout) =>
-            layout.metadata.ballotStyleId === ballotStyleId &&
-            layout.metadata.precinctId === precinctId &&
-            layout.metadata.isTestMode === testMode
-        );
         if (ballotPageLayouts.length > 2) {
           throw new Error('only single-sheet ballots are supported');
         }
@@ -289,9 +281,7 @@ export function* generateCvrs({
                           votes,
                           options: {
                             ballotMarkingMode: 'hand',
-                            imageFileUri: includeBallotImages
-                              ? frontImageFileUri
-                              : undefined,
+                            imageFileUri: frontImageFileUri,
                           },
                         }),
                         ...buildCVRContestsFromVotes({
@@ -299,31 +289,28 @@ export function* generateCvrs({
                           votes,
                           options: {
                             ballotMarkingMode: 'hand',
-                            imageFileUri: includeBallotImages
-                              ? backImageFileUri
-                              : undefined,
+                            imageFileUri: backImageFileUri,
                           },
                         }),
                       ],
                     },
                   ],
-                  BallotImage:
-                    includeBallotImages && sheetHasWriteIns
-                      ? [
-                          {
-                            '@type': 'CVR.ImageData',
-                            Location: frontHasWriteIns
-                              ? frontImageFileUri
-                              : undefined,
-                          },
-                          {
-                            '@type': 'CVR.ImageData',
-                            Location: backHasWriteIns
-                              ? backImageFileUri
-                              : undefined,
-                          },
-                        ]
-                      : undefined,
+                  BallotImage: sheetHasWriteIns
+                    ? [
+                        {
+                          '@type': 'CVR.ImageData',
+                          Location: frontHasWriteIns
+                            ? frontImageFileUri
+                            : undefined,
+                        },
+                        {
+                          '@type': 'CVR.ImageData',
+                          Location: backHasWriteIns
+                            ? backImageFileUri
+                            : undefined,
+                        },
+                      ]
+                    : undefined,
                 };
 
                 castVoteRecordId += 1;
