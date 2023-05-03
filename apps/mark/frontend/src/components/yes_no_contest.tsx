@@ -30,8 +30,6 @@ import { ScrollDirections, UpdateVoteFunction } from '../config/types';
 
 import { BallotContext } from '../contexts/ballot_context';
 
-import { FONT_SIZES } from '../config/globals';
-
 import {
   ContentHeader,
   ContestFooter,
@@ -43,6 +41,7 @@ import {
   ChoicesGrid,
   ContestDescription,
 } from './contest_screen_layout';
+import { useCurrentTextSizePx } from '../hooks/use_current_text_size';
 
 interface Props {
   contest: YesNoContestInterface;
@@ -55,7 +54,8 @@ export function YesNoContest({
   vote,
   updateVote,
 }: Props): JSX.Element {
-  const { userSettings, electionDefinition } = useContext(BallotContext);
+  const { electionDefinition } = useContext(BallotContext);
+  const textSizePx = useCurrentTextSizePx();
   assert(electionDefinition);
   const { election } = electionDefinition;
   const districtName = getContestDistrictName(election, contest);
@@ -81,7 +81,7 @@ export function YesNoContest({
     if (!target) {
       return;
     }
-    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8; // magic number: room for buttons + spacing
+    const targetMinHeight = textSizePx * 8; // magic number: room for buttons + spacing
     const windowsScrollTopOffsetMagicNumber = 1; // Windows Chrome is often 1px when using scroll buttons.
     const windowsScrollTop = Math.ceil(target.scrollTop); // Windows Chrome scrolls to sub-pixel values.
     setIsScrollable(
@@ -97,7 +97,7 @@ export function YesNoContest({
         target.scrollHeight
     );
     setIsScrollAtTop(target.scrollTop === 0);
-  }, [scrollContainer, userSettings.textSize]);
+  }, [scrollContainer, textSizePx]);
 
   const voteLength = vote?.length;
   useEffect(() => {

@@ -11,12 +11,6 @@ describe('renders SetupCardReaderPage', () => {
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  test('triggers useEffect property', () => {
-    const triggerFn = jest.fn();
-    render(<SetupCardReaderPage useEffectToggleLargeDisplay={triggerFn} />);
-    expect(triggerFn).toHaveBeenCalled();
-  });
-
   test('renders SetupCardReaderPage with usePollWorkerLanguage set to false', () => {
     render(<SetupCardReaderPage usePollWorkerLanguage={false} />);
     screen.getByText('Card Reader Not Detected');

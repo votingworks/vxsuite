@@ -46,7 +46,6 @@ import {
   YesNoContestResultInterface,
 } from '../config/types';
 
-import { FONT_SIZES } from '../config/globals';
 import { BallotContext } from '../contexts/ballot_context';
 import { Sidebar } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
@@ -56,6 +55,7 @@ import {
 } from '../components/button_footer';
 import { screenOrientation } from '../lib/screen_orientation';
 import { getContestDistrictName } from '../utils/ms_either_neither_contests';
+import { useCurrentTextSizePx } from '../hooks/use_current_text_size';
 import { DisplaySettingsButton } from '../components/display_settings_button';
 
 const ContentHeader = styled.div`
@@ -297,7 +297,6 @@ const SidebarSpacer = styled.div`
 
 export function ReviewPage(): JSX.Element {
   const {
-    userSettings,
     contests,
     ballotStyleId,
     electionDefinition,
@@ -307,6 +306,7 @@ export function ReviewPage(): JSX.Element {
   } = useContext(BallotContext);
   const scrollContainer = useRef<HTMLDivElement>(null);
   const { isLandscape, isPortrait } = screenOrientation(machineConfig);
+  const textSizePx = useCurrentTextSizePx();
 
   const [isScrollable, setIsScrollable] = useState(false);
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(true);
@@ -318,7 +318,7 @@ export function ReviewPage(): JSX.Element {
     if (!target) {
       return;
     }
-    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8; // magic number: room for buttons + spacing
+    const targetMinHeight = textSizePx * 8; // magic number: room for buttons + spacing
     const windowsScrollTopOffsetMagicNumber = 1; // Windows Chrome is often 1px when using scroll buttons.
     const windowsScrollTop = Math.ceil(target.scrollTop); // Windows Chrome scrolls to sub-pixel values.
     setIsScrollable(
@@ -334,7 +334,7 @@ export function ReviewPage(): JSX.Element {
         target.scrollHeight
     );
     setIsScrollAtTop(target.scrollTop === 0);
-  }, [scrollContainer, userSettings.textSize]);
+  }, [scrollContainer, textSizePx]);
 
   useEffect(() => {
     updateContestChoicesScrollStates();
