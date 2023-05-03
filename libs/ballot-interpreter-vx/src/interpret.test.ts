@@ -18,8 +18,8 @@ test('happy path', async () => {
       "ballotId": undefined,
       "ballotStyleId": "1",
       "ballotType": 0,
-      "electionHash": "da81438d51136692b43c",
-      "isTestMode": false,
+      "electionHash": "11442cf380df2e505d14",
+      "isTestMode": true,
       "precinctId": "23",
       "votes": Object {
         "attorney": Array [
