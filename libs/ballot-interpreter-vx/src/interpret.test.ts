@@ -28,7 +28,7 @@ test.each([
     electionFamousNames2021Fixtures.electionDefinition,
     card
   );
-  const { ballot, normalizedImages } = result.unsafeUnwrap();
+  const { ballot, summaryBallotImage, blankPageImage } = result.unsafeUnwrap();
   expect(ballot).toMatchInlineSnapshot(`
     Object {
       "ballotId": undefined,
@@ -159,11 +159,11 @@ test.each([
   // don't use Jest `toEqual` matcher because it tries to pretty print the
   // ImageData objects, which is slow and causes the test to time out
   if (name === 'front, back') {
-    assert(normalizedImages[0] === card[0]);
-    assert(normalizedImages[1] === card[1]);
+    assert(summaryBallotImage === card[0]);
+    assert(blankPageImage === card[1]);
   } else {
-    assert(normalizedImages[0] === card[1]);
-    assert(normalizedImages[1] === card[0]);
+    assert(summaryBallotImage === card[1]);
+    assert(blankPageImage === card[0]);
   }
 });
 

@@ -25,7 +25,7 @@ export interface InterpretFileParams {
 
 export interface InterpretFileResult {
   interpretation: PageInterpretation;
-  normalizedImage?: ImageData;
+  normalizedImage: ImageData;
 }
 
 export interface InterpreterOptions {
@@ -40,10 +40,10 @@ export async function interpretSheet(
 ): Promise<SheetOf<InterpretFileResult>> {
   const timer = time(debug, `interpretSheet: ${sheet.join(', ')}`);
 
-  const interpretResult = await interpret(
-    electionDefinition,
-    await mapSheet(sheet, (ballotImagePath) => loadImageData(ballotImagePath))
+  const ballotImages = await mapSheet(sheet, (ballotImagePath) =>
+    loadImageData(ballotImagePath)
   );
+  const interpretResult = await interpret(electionDefinition, ballotImages);
 
   if (interpretResult.isErr()) {
     const error = interpretResult.err();
@@ -55,6 +55,7 @@ export async function interpretSheet(
             expectedElectionHash: error.expectedElectionHash,
             actualElectionHash: error.actualElectionHash,
           },
+          normalizedImage: ballotImages[0],
         },
         {
           interpretation: {
@@ -62,6 +63,7 @@ export async function interpretSheet(
             expectedElectionHash: error.expectedElectionHash,
             actualElectionHash: error.actualElectionHash,
           },
+          normalizedImage: ballotImages[1],
         },
       ];
     }
@@ -73,17 +75,19 @@ export async function interpretSheet(
           type: 'UnreadablePage',
           reason: JSON.stringify(frontReason),
         },
+        normalizedImage: ballotImages[0],
       },
       {
         interpretation: {
           type: 'UnreadablePage',
           reason: JSON.stringify(backReason),
         },
+        normalizedImage: ballotImages[1],
       },
     ];
   }
 
-  const { ballot } = interpretResult.ok();
+  const { ballot, summaryBallotImage, blankPageImage } = interpretResult.ok();
   let front: InterpretFileResult;
 
   try {
@@ -103,6 +107,7 @@ export async function interpretSheet(
         metadata,
         votes: ballot.votes,
       },
+      normalizedImage: summaryBallotImage,
     };
 
     if (front.interpretation.type === 'InterpretedBmdPage') {
@@ -112,6 +117,7 @@ export async function interpretSheet(
             type: 'InvalidTestModePage',
             metadata: front.interpretation.metadata,
           },
+          normalizedImage: summaryBallotImage,
         };
       } else if (
         precinctSelection.kind !== 'AllPrecincts' &&
@@ -123,6 +129,7 @@ export async function interpretSheet(
             type: 'InvalidPrecinctPage',
             metadata: front.interpretation.metadata,
           },
+          normalizedImage: summaryBallotImage,
         };
       }
     }
@@ -133,6 +140,7 @@ export async function interpretSheet(
         interpretation: {
           type: 'BlankPage',
         },
+        normalizedImage: blankPageImage,
       },
     ];
   } finally {

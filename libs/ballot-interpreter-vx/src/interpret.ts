@@ -15,7 +15,8 @@ import { DetectedQrCode } from './types';
 
 export interface Interpretation {
   ballot: CompletedBallot;
-  normalizedImages: SheetOf<ImageData>;
+  summaryBallotImage: ImageData;
+  blankPageImage: ImageData;
 }
 
 export type InterpretError =
@@ -76,9 +77,7 @@ export async function interpret(
 
   return ok({
     ballot: decodeBallot(electionDefinition.election, foundQrCode.data),
-    normalizedImages: [
-      frontResult.isOk() ? card[0] : card[1],
-      frontResult.isOk() ? card[1] : card[0],
-    ],
+    summaryBallotImage: frontResult.isOk() ? card[0] : card[1],
+    blankPageImage: frontResult.isOk() ? card[1] : card[0],
   });
 }
