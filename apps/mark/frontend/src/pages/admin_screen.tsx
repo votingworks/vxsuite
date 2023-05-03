@@ -6,8 +6,6 @@ import {
   ChangePrecinctButton,
   CurrentDateAndTime,
   ElectionInfoBar,
-  H1,
-  H2,
   Main,
   Prose,
   Screen,
@@ -19,6 +17,8 @@ import {
   Caption,
   Font,
   Icons,
+  H3,
+  H6,
 } from '@votingworks/ui';
 import {
   ElectionDefinition,
@@ -73,22 +73,24 @@ export function AdminScreen({
       {election && !isLiveMode && <TestMode />}
       <Main padded>
         <Prose>
-          <H1>
+          <H3 as="h1">
             VxMark{' '}
             <Font weight="light" noWrap>
               Election Manager Actions
             </Font>
-          </H1>
-          <P weight="bold">Remove card when finished.</P>
+          </H3>
+          <Caption weight="bold">
+            <Icons.Info /> Remove card when finished.
+          </Caption>
           {election && (
             <React.Fragment>
-              <H2>Stats</H2>
+              <H6 as="h2">Stats</H6>
               <P>
                 Ballots Printed: <strong>{ballotsPrintedCount}</strong>
               </P>
-              <H2>
+              <H6 as="h2">
                 <label htmlFor="selectPrecinct">Precinct</label>
-              </H2>
+              </H6>
               <P>
                 <ChangePrecinctButton
                   appPrecinctSelection={appPrecinct}
@@ -116,7 +118,7 @@ export function AdminScreen({
                   </React.Fragment>
                 )}
               </P>
-              <H2>Test Ballot Mode</H2>
+              <H6 as="h2">Test Ballot Mode</H6>
               <P>
                 <SegmentedButton
                   label="Test Ballot Mode"
@@ -135,24 +137,26 @@ export function AdminScreen({
               </P>
             </React.Fragment>
           )}
-          <H2>Current Date and Time</H2>
+          <H6 as="h2">Current Date and Time</H6>
           <P>
-            <CurrentDateAndTime />
+            <Caption>
+              <CurrentDateAndTime />
+            </Caption>
           </P>
           <P>
             <SetClockButton>Update Date and Time</SetClockButton>
           </P>
-          <H2>Configuration</H2>
+          <H6 as="h2">Configuration</H6>
           <P>
             <Font color="success">
               <Icons.Checkbox />
             </Font>{' '}
             Election Definition is loaded.{' '}
-            <Button variant="danger" small onPress={unconfigure}>
-              Unconfigure Machine
-            </Button>
           </P>
-          <H2>USB</H2>
+          <Button variant="danger" small onPress={unconfigure}>
+            Unconfigure Machine
+          </Button>
+          <H6 as="h2">USB</H6>
           <UsbControllerButton
             small={false}
             primary
