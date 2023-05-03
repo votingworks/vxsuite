@@ -24,7 +24,7 @@ export interface MockFileContents {
 }
 
 /**
- * Convert a MockFileContents object into a Buffer
+ * Converts a MockFileContents object into a Buffer
  */
 export function serializeMockFileContents(
   mockFileContents: MockFileContents
@@ -42,7 +42,7 @@ export function serializeMockFileContents(
 }
 
 /**
- * Convert a Buffer created by serializeMockFileContents back into a MockFileContents object
+ * Converts a Buffer created by serializeMockFileContents back into a MockFileContents object
  */
 export function deserializeMockFileContents(file: Buffer): MockFileContents {
   const { cardStatus, data, numIncorrectPinAttempts, pin } = JSON.parse(
@@ -54,14 +54,6 @@ export function deserializeMockFileContents(file: Buffer): MockFileContents {
     numIncorrectPinAttempts,
     pin,
   };
-}
-
-/**
- * Read and parse the contents of the mock file for the current MockFileCard
- */
-export function readFromMockFile(): MockFileContents {
-  const file = fs.readFileSync(MOCK_FILE_PATH);
-  return deserializeMockFileContents(file);
 }
 
 function writeToMockFile(
@@ -77,10 +69,27 @@ function writeToMockFile(
 export const mockCard = writeToMockFile;
 
 /**
+ * Reads and parses the contents of the file underlying a MockFileCard
+ */
+export function readFromMockFile(): MockFileContents {
+  // Initialize the mock file if it doesn't already exist
+  if (!fs.existsSync(MOCK_FILE_PATH)) {
+    writeToMockFile({
+      cardStatus: {
+        status: 'no_card',
+      },
+    });
+  }
+
+  const file = fs.readFileSync(MOCK_FILE_PATH);
+  return deserializeMockFileContents(file);
+}
+
+/**
  * A mock implementation of the card API that reads from and writes to a file under the hood. Meant
  * for local development and integration tests.
  *
- * Use the mock-card script in libs/auth/scripts/ to mock cards during local development.
+ * Use ./scripts/mock-card in libs/auth/ to mock cards during local development.
  */
 export class MockFileCard implements Card {
   constructor() {
