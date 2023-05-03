@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import { spawn } from 'child_process';
-import { promises as fs } from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 import { FileResult, fileSync } from 'tmp';
 
