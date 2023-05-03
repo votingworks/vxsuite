@@ -37,6 +37,9 @@ import {
   P,
   Caption,
   Font,
+  H3,
+  H4,
+  Icons,
 } from '@votingworks/ui';
 
 import {
@@ -636,7 +639,7 @@ export function PollWorkerScreen({
                 Poll Worker Actions
               </Font>
             </H1>
-            <H2>
+            <H3 as="h2">
               <NoWrap>
                 <Font weight="light">Ballots Printed:</Font>{' '}
                 {ballotsPrintedCount}
@@ -647,14 +650,14 @@ export function PollWorkerScreen({
                 <Font weight="light">Polls:</Font>{' '}
                 {getPollsStateName(pollsState)}
               </NoWrap>
-            </H2>
+            </H3>
             {canSelectBallotStyle && !isHidingSelectBallotStyle ? (
               <React.Fragment>
                 <VotingSession>
-                  <H1>Start a New Voting Session</H1>
+                  <H2>Start a New Voting Session</H2>
                   {appPrecinct.kind === 'AllPrecincts' && (
                     <React.Fragment>
-                      <H2>1. Select Voter’s Precinct</H2>
+                      <H4 as="h3">1. Select Voter’s Precinct</H4>
                       <ButtonList data-testid="precincts">
                         {election.precincts.map((precinct) => (
                           <Button
@@ -676,10 +679,10 @@ export function PollWorkerScreen({
                       </ButtonList>
                     </React.Fragment>
                   )}
-                  <H2>
+                  <H4 as="h3">
                     {appPrecinct.kind === 'AllPrecincts' ? '2. ' : ''}Select
                     Voter’s Ballot Style
-                  </H2>
+                  </H4>
                   {selectedCardlessVoterPrecinctId ? (
                     <ButtonList data-testid="ballot-styles">
                       {precinctBallotStyles.map((ballotStyle) => (
@@ -700,8 +703,8 @@ export function PollWorkerScreen({
                     </ButtonList>
                   ) : (
                     <P>
-                      Select the voter’s precinct above to view ballot styles
-                      for the precinct.
+                      <Icons.Info /> Select the voter’s precinct above to view
+                      ballot styles for the precinct.
                     </P>
                   )}
                 </VotingSession>
