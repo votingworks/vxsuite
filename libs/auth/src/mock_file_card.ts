@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
-import * as fs from 'fs';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import fs from 'fs';
+import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
 import {
   ElectionManagerUser,
   PollWorkerUser,
@@ -11,7 +11,10 @@ import { Card, CardStatus, CheckPinResponse } from './card';
 
 type WriteFileFn = (filePath: string, fileContents: Buffer) => void;
 
-const MOCK_FILE_PATH = '/tmp/mock-file-card.json';
+/**
+ * The path of the file underlying a MockFileCard
+ */
+export const MOCK_FILE_PATH = '/tmp/mock-file-card.json';
 
 /**
  * The contents of the file underlying a MockFileCard
@@ -19,22 +22,20 @@ const MOCK_FILE_PATH = '/tmp/mock-file-card.json';
 export interface MockFileContents {
   cardStatus: CardStatus;
   data?: Buffer;
-  numIncorrectPinAttempts?: number;
   pin?: string;
 }
 
 /**
- * Convert a MockFileContents object into a Buffer
+ * Converts a MockFileContents object into a Buffer
  */
 export function serializeMockFileContents(
   mockFileContents: MockFileContents
 ): Buffer {
-  const { cardStatus, data, numIncorrectPinAttempts, pin } = mockFileContents;
+  const { cardStatus, data, pin } = mockFileContents;
   return Buffer.from(
     JSON.stringify({
       cardStatus,
       data: data ? data.toString('hex') : undefined,
-      numIncorrectPinAttempts,
       pin,
     }),
     'utf-8'
@@ -42,30 +43,20 @@ export function serializeMockFileContents(
 }
 
 /**
- * Convert a Buffer created by serializeMockFileContents back into a MockFileContents object
+ * Converts a Buffer created by serializeMockFileContents back into a MockFileContents object
  */
 export function deserializeMockFileContents(file: Buffer): MockFileContents {
-  const { cardStatus, data, numIncorrectPinAttempts, pin } = JSON.parse(
-    file.toString('utf-8')
-  );
+  const { cardStatus, data, pin } = JSON.parse(file.toString('utf-8'));
   return {
     cardStatus,
     data: data ? Buffer.from(data, 'hex') : undefined,
-    numIncorrectPinAttempts,
     pin,
   };
 }
 
-/**
- * Read and parse the contents of the mock file for the current MockFileCard
- */
-export function readFromMockFile(): MockFileContents {
-  const file = fs.readFileSync(MOCK_FILE_PATH);
-  return deserializeMockFileContents(file);
-}
-
 function writeToMockFile(
   mockFileContents: MockFileContents,
+  // Allow Cypress tests to use cy.writeFile for file writing
   writeFileFn: WriteFileFn = fs.writeFileSync
 ): void {
   writeFileFn(MOCK_FILE_PATH, serializeMockFileContents(mockFileContents));
@@ -76,19 +67,70 @@ function writeToMockFile(
  */
 export const mockCard = writeToMockFile;
 
+function initializeMockFile() {
+  writeToMockFile({
+    cardStatus: {
+      status: 'no_card',
+    },
+  });
+}
+
+/**
+ * A helper for readFromMockFile. Returns undefined if the mock file doesn't exist or can't be
+ * parsed.
+ */
+function readFromMockFileHelper(): Optional<MockFileContents> {
+  if (!fs.existsSync(MOCK_FILE_PATH)) {
+    return undefined;
+  }
+  const file = fs.readFileSync(MOCK_FILE_PATH);
+  try {
+    return deserializeMockFileContents(file);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Reads and parses the contents of the file underlying a MockFileCard
+ */
+export function readFromMockFile(): MockFileContents {
+  let mockFileContents = readFromMockFileHelper();
+  if (!mockFileContents) {
+    initializeMockFile();
+    mockFileContents = readFromMockFileHelper();
+    assert(mockFileContents !== undefined);
+  }
+  return mockFileContents;
+}
+
+function updateNumIncorrectPinAttempts(
+  mockFileContents: MockFileContents,
+  numIncorrectPinAttempts?: number
+): void {
+  const { cardStatus } = mockFileContents;
+  assert(cardStatus.status === 'ready' && cardStatus.cardDetails !== undefined);
+  writeToMockFile({
+    ...mockFileContents,
+    cardStatus: {
+      ...cardStatus,
+      cardDetails: {
+        ...cardStatus.cardDetails,
+        numIncorrectPinAttempts,
+      },
+    },
+  });
+}
+
 /**
  * A mock implementation of the card API that reads from and writes to a file under the hood. Meant
  * for local development and integration tests.
  *
- * Use the mock-card script in libs/auth/scripts/ to mock cards during local development.
+ * Use ./scripts/mock-card in libs/auth/ to mock cards during local development.
  */
 export class MockFileCard implements Card {
   constructor() {
-    writeToMockFile({
-      cardStatus: {
-        status: 'no_card',
-      },
-    });
+    initializeMockFile();
   }
 
   getCardStatus(): Promise<CardStatus> {
@@ -98,19 +140,17 @@ export class MockFileCard implements Card {
 
   checkPin(pin: string): Promise<CheckPinResponse> {
     const mockFileContents = readFromMockFile();
+    const { cardStatus } = mockFileContents;
+    assert(
+      cardStatus.status === 'ready' && cardStatus.cardDetails !== undefined
+    );
     if (pin === mockFileContents.pin) {
-      writeToMockFile({
-        ...mockFileContents,
-        numIncorrectPinAttempts: undefined,
-      });
+      updateNumIncorrectPinAttempts(mockFileContents, undefined);
       return Promise.resolve({ response: 'correct' });
     }
     const numIncorrectPinAttempts =
-      (mockFileContents.numIncorrectPinAttempts ?? 0) + 1;
-    writeToMockFile({
-      ...mockFileContents,
-      numIncorrectPinAttempts,
-    });
+      (cardStatus.cardDetails.numIncorrectPinAttempts ?? 0) + 1;
+    updateNumIncorrectPinAttempts(mockFileContents, numIncorrectPinAttempts);
     return Promise.resolve({ response: 'incorrect', numIncorrectPinAttempts });
   }
 

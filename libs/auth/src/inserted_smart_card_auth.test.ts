@@ -403,8 +403,8 @@ test('Card lockout', async () => {
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      numIncorrectPinAttempts: 2,
       user: electionManagerUser,
+      numIncorrectPinAttempts: 2,
     },
   });
   expect(await auth.getAuthStatus(machineState)).toEqual({
@@ -436,8 +436,8 @@ test('Card lockout', async () => {
   mockCardStatus({
     status: 'ready',
     cardDetails: {
-      numIncorrectPinAttempts: 3,
       user: electionManagerUser,
+      numIncorrectPinAttempts: 3,
     },
   });
   expect(await auth.getAuthStatus(machineState)).toEqual({

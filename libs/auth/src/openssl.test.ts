@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import { spawn } from 'child_process';
-import { promises as fs } from 'fs';
+import fs from 'fs/promises';
 import { fileSync } from 'tmp';
 import {
   fakeChildProcess as newMockChildProcess,

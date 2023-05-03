@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import fs from 'fs';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   ElectionManagerUser,
@@ -9,6 +10,7 @@ import {
 import { DEV_JURISDICTION } from './jurisdictions';
 import {
   deserializeMockFileContents,
+  MOCK_FILE_PATH,
   mockCard,
   MockFileCard,
   MockFileContents,
@@ -277,4 +279,20 @@ test('MockFileCard data reading and writing', async () => {
   );
   await card.clearData();
   expect(await card.readData()).toEqual(Buffer.from([]));
+});
+
+test('MockFileCard resiliency to deletion of underlying file', async () => {
+  const card = new MockFileCard();
+  fs.rmSync(MOCK_FILE_PATH);
+  expect(await card.getCardStatus()).toEqual({
+    status: 'no_card',
+  });
+});
+
+test('MockFileCard resiliency to underlying file that cannot be parsed', async () => {
+  const card = new MockFileCard();
+  fs.writeFileSync(MOCK_FILE_PATH, 'Not valid JSON');
+  expect(await card.getCardStatus()).toEqual({
+    status: 'no_card',
+  });
 });

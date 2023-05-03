@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { Buffer } from 'buffer';
-import { promises as fs } from 'fs';
+import fs from 'fs/promises';
 import yargs from 'yargs/yargs';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 

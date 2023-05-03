@@ -1,7 +1,7 @@
 /**
  * This file exists so that Cypress tests can import what they need without having to import all of
- * the auth lib. This ensures that we don't import packages that don't work in the browser. All of
- * this file's dependencies should accordingly contain only browser-safe code.
+ * the auth lib. This ensures that we only import packages that work in the browser. All of this
+ * file's dependencies should accordingly contain only browser-safe code.
  *
  * Cypress tests should import from this file as follows:
  * ```
