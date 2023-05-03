@@ -169,22 +169,27 @@ export async function main(
     ),
   });
 
-  if (convertResult.issues.length > 0) {
-    io.stderr.write(convertResult.success ? 'warning: ' : 'error: ');
+  const { issues = [] } = convertResult.ok() ?? convertResult.err() ?? {};
+
+  if (issues.length > 0) {
+    io.stderr.write(convertResult.isOk() ? 'warning: ' : 'error: ');
     io.stderr.write(`conversion completed with issues:\n`);
-    for (const issue of convertResult.issues) {
+    for (const issue of issues) {
       io.stderr.write(`- ${issue.message}\n`);
     }
   }
 
-  if (convertResult.election) {
-    const output = JSON.stringify(convertResult.election, null, 2);
-    if (!outputPath) {
-      io.stdout.write(output);
-    } else {
-      await fs.writeFile(outputPath, output);
+  if (convertResult.isOk()) {
+    const { election } = convertResult.ok();
+    if (election) {
+      const output = JSON.stringify(election, null, 2);
+      if (!outputPath) {
+        io.stdout.write(output);
+      } else {
+        await fs.writeFile(outputPath, output);
+      }
     }
   }
 
-  return convertResult.success ? 0 : 1;
+  return convertResult.isOk() ? 0 : 1;
 }

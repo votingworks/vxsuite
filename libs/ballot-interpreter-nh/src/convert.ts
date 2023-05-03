@@ -19,8 +19,17 @@ import {
   safeParseNumber,
   unsafeParse,
   YesNoContest,
+  MarkThresholds,
 } from '@votingworks/types';
-import { assert, iter, throwIllegalValue } from '@votingworks/basics';
+import {
+  Result,
+  assert,
+  err,
+  iter,
+  ok,
+  resultBlock,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { decode as decodeHtmlEntities } from 'he';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
@@ -32,7 +41,6 @@ import {
   getTemplateBallotPaperSize,
   TemplateOval,
 } from './accuvote';
-import { DefaultMarkThresholds } from './interpret';
 import { interpretBallotCardLayout } from './interpret/interpret_ballot_card_layout';
 import { Bit, FrontMarksMetadata, PartialTimingMarks, Size } from './types';
 import {
@@ -40,9 +48,15 @@ import {
   parseConstitutionalQuestions,
 } from './convert/parse_constitutional_questions';
 
-export { interpret } from './interpret';
-
 const debug = makeDebug('ballot-interpreter-nh:convert');
+
+/**
+ * Default thresholds for interpreting marks on a ballot as votes.
+ */
+export const DefaultMarkThresholds: MarkThresholds = {
+  definite: 0.08,
+  marginal: 0.05,
+};
 
 function makeId(text: string): string {
   const hash = sha256(text);
@@ -122,16 +136,18 @@ export type PairColumnEntriesIssue<T extends GridEntry, U extends GridEntry> =
  * issues that occurred during the pairing process. If success is `false`,
  * then `entries` will only be partially populated.
  */
-export type PairColumnEntriesResult<T extends GridEntry, U extends GridEntry> =
-  | {
-      readonly success: true;
-      readonly pairs: ReadonlyArray<[T, U]>;
-    }
-  | {
-      readonly success: false;
-      readonly pairs: ReadonlyArray<[T, U]>;
-      readonly issues: ReadonlyArray<PairColumnEntriesIssue<T, U>>;
-    };
+export type PairColumnEntriesResult<
+  T extends GridEntry,
+  U extends GridEntry
+> = Result<
+  {
+    readonly pairs: ReadonlyArray<[T, U]>;
+  },
+  {
+    readonly pairs: ReadonlyArray<[T, U]>;
+    readonly issues: ReadonlyArray<PairColumnEntriesIssue<T, U>>;
+  }
+>;
 
 /**
  * Pairs entries by column and row, ignoring the absolute values of the columns
@@ -183,9 +199,7 @@ export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
     columnIndex += 1;
   }
 
-  return issues.length
-    ? { success: false, pairs, issues }
-    : { success: true, pairs };
+  return issues.length ? err({ pairs, issues }) : ok({ success: true, pairs });
 }
 
 /**
@@ -201,12 +215,12 @@ function matchContestOptionsOnGrid(
 ): PairColumnEntriesResult<GridPosition, TemplateOvalGridEntry> {
   const pairResult = pairColumnEntries(gridPositions, ovalGrid);
 
-  if (pairResult.success || pairResult.issues.length !== 2 /* YES/NO */) {
+  if (pairResult.isOk() || pairResult.err().issues.length !== 2 /* YES/NO */) {
     return pairResult;
   }
 
-  const pairs = [...pairResult.pairs];
-  let [yesColumnIssue, noColumnIssue] = pairResult.issues;
+  const pairs = [...pairResult.err().pairs];
+  let [yesColumnIssue, noColumnIssue] = pairResult.err().issues;
   const yesNoContests = contests.filter((contest) => contest.type === 'yesno');
 
   // Ensure we have exactly two columns with the expected number of extra
@@ -266,7 +280,7 @@ function matchContestOptionsOnGrid(
     );
   }
 
-  return { success: true, pairs };
+  return ok({ pairs });
 }
 
 /**
@@ -415,17 +429,16 @@ export type ConvertIssue =
 /**
  * Contains the result of converting a ballot card definition.
  */
-export type ConvertResult =
-  | {
-      readonly success: true;
-      readonly election: Election;
-      readonly issues: readonly ConvertIssue[];
-    }
-  | {
-      readonly success: false;
-      readonly election?: Election;
-      readonly issues: readonly ConvertIssue[];
-    };
+export type ConvertResult = Result<
+  {
+    readonly election: Election;
+    readonly issues: readonly ConvertIssue[];
+  },
+  {
+    readonly election?: Election;
+    readonly issues: readonly ConvertIssue[];
+  }
+>;
 
 /**
  * Creates an election definition only from the ballot metadata, ignoring the
@@ -439,8 +452,7 @@ export function convertElectionDefinitionHeader(
   const electionId =
     accuvoteHeaderInfo?.getElementsByTagName('ElectionID')[0]?.textContent;
   if (typeof electionId !== 'string') {
-    return {
-      success: false,
+    return err({
       issues: [
         {
           kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -448,14 +460,13 @@ export function convertElectionDefinitionHeader(
           property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
         },
       ],
-    };
+    });
   }
 
   const title =
     accuvoteHeaderInfo?.getElementsByTagName('ElectionName')[0]?.textContent;
   if (typeof title !== 'string') {
-    return {
-      success: false,
+    return err({
       issues: [
         {
           kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -463,14 +474,13 @@ export function convertElectionDefinitionHeader(
           property: 'AVSInterface > AccuvoteHeaderInfo > ElectionName',
         },
       ],
-    };
+    });
   }
 
   const townName =
     accuvoteHeaderInfo?.getElementsByTagName('TownName')[0]?.textContent;
   if (typeof townName !== 'string') {
-    return {
-      success: false,
+    return err({
       issues: [
         {
           kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -478,14 +488,13 @@ export function convertElectionDefinitionHeader(
           property: 'AVSInterface > AccuvoteHeaderInfo > TownName',
         },
       ],
-    };
+    });
   }
 
   const townId =
     accuvoteHeaderInfo?.getElementsByTagName('TownID')[0]?.textContent;
   if (typeof townId !== 'string') {
-    return {
-      success: false,
+    return err({
       issues: [
         {
           kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -493,14 +502,13 @@ export function convertElectionDefinitionHeader(
           property: 'AVSInterface > AccuvoteHeaderInfo > TownID',
         },
       ],
-    };
+    });
   }
 
   const rawDate =
     accuvoteHeaderInfo?.getElementsByTagName('ElectionDate')[0]?.textContent;
   if (typeof rawDate !== 'string') {
-    return {
-      success: false,
+    return err({
       issues: [
         {
           kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -508,7 +516,7 @@ export function convertElectionDefinitionHeader(
           property: 'AVSInterface > AccuvoteHeaderInfo > ElectionDate',
         },
       ],
-    };
+    });
   }
 
   const parsedDate = DateTime.fromFormat(rawDate.trim(), 'M/d/yyyy HH:mm:ss', {
@@ -516,8 +524,7 @@ export function convertElectionDefinitionHeader(
     zone: 'America/New_York',
   });
   if (parsedDate.invalidReason) {
-    return {
-      success: false,
+    return err({
       issues: [
         {
           kind: ConvertIssueKind.InvalidElectionDate,
@@ -526,13 +533,12 @@ export function convertElectionDefinitionHeader(
           invalidReason: parsedDate.invalidReason,
         },
       ],
-    };
+    });
   }
 
   const rawPrecinctId = root.getElementsByTagName('PrecinctID')[0]?.textContent;
   if (typeof rawPrecinctId !== 'string') {
-    return {
-      success: false,
+    return err({
       issues: [
         {
           kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -540,7 +546,7 @@ export function convertElectionDefinitionHeader(
           property: 'AVSInterface > AccuvoteHeaderInfo > PrecinctID',
         },
       ],
-    };
+    });
   }
   const cleanedPrecinctId = rawPrecinctId.replace(/[^-_\w]/g, '');
   const precinctId = `town-id-${townId}-precinct-id-${cleanedPrecinctId}`;
@@ -548,8 +554,7 @@ export function convertElectionDefinitionHeader(
   const rawDistrictId = `town-id-${townId}-precinct-id-${cleanedPrecinctId}`;
   const districtIdResult = safeParse(DistrictIdSchema, rawDistrictId);
   if (districtIdResult.isErr()) {
-    return {
-      success: false,
+    return err({
       issues: [
         {
           kind: ConvertIssueKind.InvalidDistrictId,
@@ -559,14 +564,13 @@ export function convertElectionDefinitionHeader(
           invalidDistrictId: rawDistrictId,
         },
       ],
-    };
+    });
   }
   const districtId = districtIdResult.ok();
 
   const ballotSize = root.getElementsByTagName('BallotSize')[0]?.textContent;
   if (typeof ballotSize !== 'string') {
-    return {
-      success: false,
+    return err({
       issues: [
         {
           kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -574,7 +578,7 @@ export function convertElectionDefinitionHeader(
           property: 'AVSInterface > AccuvoteHeaderInfo > BallotSize',
         },
       ],
-    };
+    });
   }
   let paperSize: BallotPaperSize;
   switch (ballotSize) {
@@ -587,8 +591,7 @@ export function convertElectionDefinitionHeader(
       break;
 
     default:
-      return {
-        success: false,
+      return err({
         issues: [
           {
             kind: ConvertIssueKind.InvalidBallotSize,
@@ -596,7 +599,7 @@ export function convertElectionDefinitionHeader(
             invalidBallotSize: ballotSize,
           },
         ],
-      };
+      });
   }
   const geometry = getTemplateBallotCardGeometry(paperSize);
 
@@ -616,8 +619,7 @@ export function convertElectionDefinitionHeader(
     const officeName =
       officeNameElement?.getElementsByTagName('Name')[0]?.textContent;
     if (typeof officeName !== 'string') {
-      return {
-        success: false,
+      return err({
         issues: [
           {
             kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -625,7 +627,7 @@ export function convertElectionDefinitionHeader(
             property: 'AVSInterface > Candidates > OfficeName > Name',
           },
         ],
-      };
+      });
     }
     const contestId = makeId(officeName);
 
@@ -649,8 +651,7 @@ export function convertElectionDefinitionHeader(
       const candidateName =
         candidateElement.getElementsByTagName('Name')[0]?.textContent;
       if (typeof candidateName !== 'string') {
-        return {
-          success: false,
+        return err({
           issues: [
             {
               kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -658,7 +659,7 @@ export function convertElectionDefinitionHeader(
               property: 'AVSInterface > Candidates > CandidateName > Name',
             },
           ],
-        };
+        });
       }
 
       let party: Party | undefined;
@@ -686,8 +687,7 @@ export function convertElectionDefinitionHeader(
       if (existingCandidateIndex >= 0) {
         const existingPartyIds = candidates[existingCandidateIndex]?.partyIds;
         if (!party || !existingPartyIds) {
-          return {
-            success: false,
+          return err({
             issues: [
               {
                 kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -695,7 +695,7 @@ export function convertElectionDefinitionHeader(
                 property: 'AVSInterface > Candidates > CandidateName > Party',
               },
             ],
-          };
+          });
         }
 
         candidates[existingCandidateIndex] = {
@@ -887,8 +887,7 @@ export function convertElectionDefinitionHeader(
   const parseElectionResult = safeParseElection(election);
 
   if (parseElectionResult.isErr()) {
-    return {
-      success: false,
+    return err({
       issues: [
         {
           kind: ConvertIssueKind.ElectionValidationFailed,
@@ -896,14 +895,13 @@ export function convertElectionDefinitionHeader(
           validationError: parseElectionResult.err(),
         },
       ],
-    };
+    });
   }
 
-  return {
-    success: true,
+  return ok({
     election: parseElectionResult.ok(),
     issues,
-  };
+  });
 }
 
 /**
@@ -916,206 +914,205 @@ export function convertElectionDefinition(
     debug: imdebug = noDebug(),
   }: { ovalTemplate: ImageData; debug?: Debugger }
 ): ConvertResult {
-  const convertHeaderResult = convertElectionDefinitionHeader(
-    cardDefinition.definition
-  );
+  return resultBlock((fail) => {
+    const convertHeader = convertElectionDefinitionHeader(
+      cardDefinition.definition
+    ).okOrElse(fail);
 
-  if (!convertHeaderResult.success) {
-    return convertHeaderResult;
-  }
+    const { election, issues: headerIssues } = convertHeader;
+    let success = true;
+    const issues = [...headerIssues];
 
-  const { election, issues: headerIssues } = convertHeaderResult;
-  let success = true;
-  const issues = [...headerIssues];
+    let paperSize = election.ballotLayout?.paperSize;
 
-  let paperSize = election.ballotLayout?.paperSize;
-
-  const frontExpectedPaperSize = getTemplateBallotPaperSize({
-    width: cardDefinition.front.width,
-    height: cardDefinition.front.height,
-  });
-  const backExpectedPaperSize = getTemplateBallotPaperSize({
-    width: cardDefinition.back.width,
-    height: cardDefinition.back.height,
-  });
-
-  if (
-    !frontExpectedPaperSize ||
-    !backExpectedPaperSize ||
-    frontExpectedPaperSize !== backExpectedPaperSize ||
-    frontExpectedPaperSize !== paperSize
-  ) {
-    success = frontExpectedPaperSize === backExpectedPaperSize;
-    issues.push({
-      kind: ConvertIssueKind.InvalidTemplateSize,
-      message: `Template images do not match expected sizes. The XML definition says the template images should be "${paperSize}", but the template images are front="${frontExpectedPaperSize}" and back="${backExpectedPaperSize}".`,
-      paperSize,
-      frontTemplateSize: {
-        width: cardDefinition.front.width,
-        height: cardDefinition.front.height,
-      },
-      backTemplateSize: {
-        width: cardDefinition.back.width,
-        height: cardDefinition.back.height,
-      },
+    const frontExpectedPaperSize = getTemplateBallotPaperSize({
+      width: cardDefinition.front.width,
+      height: cardDefinition.front.height,
     });
-    paperSize = frontExpectedPaperSize;
-  }
-
-  assert(paperSize, 'paperSize should always be set');
-  const expectedCardGeometry = getTemplateBallotCardGeometry(paperSize);
-
-  const frontLayout = imdebug.capture('front', () => {
-    imdebug.imageData(0, 0, cardDefinition.front);
-    return interpretBallotCardLayout(cardDefinition.front, {
-      geometry: expectedCardGeometry,
-      debug: imdebug,
+    const backExpectedPaperSize = getTemplateBallotPaperSize({
+      width: cardDefinition.back.width,
+      height: cardDefinition.back.height,
     });
-  });
 
-  if (!frontLayout) {
-    success = false;
-    issues.push({
-      kind: ConvertIssueKind.TimingMarkDetectionFailed,
-      message: 'no timing marks found on front',
-      side: 'front',
+    if (
+      !frontExpectedPaperSize ||
+      !backExpectedPaperSize ||
+      frontExpectedPaperSize !== backExpectedPaperSize ||
+      frontExpectedPaperSize !== paperSize
+    ) {
+      success = frontExpectedPaperSize === backExpectedPaperSize;
+      issues.push({
+        kind: ConvertIssueKind.InvalidTemplateSize,
+        message: `Template images do not match expected sizes. The XML definition says the template images should be "${paperSize}", but the template images are front="${frontExpectedPaperSize}" and back="${backExpectedPaperSize}".`,
+        paperSize,
+        frontTemplateSize: {
+          width: cardDefinition.front.width,
+          height: cardDefinition.front.height,
+        },
+        backTemplateSize: {
+          width: cardDefinition.back.width,
+          height: cardDefinition.back.height,
+        },
+      });
+      paperSize = frontExpectedPaperSize;
+    }
+
+    assert(paperSize, 'paperSize should always be set');
+    const expectedCardGeometry = getTemplateBallotCardGeometry(paperSize);
+
+    const frontLayout = imdebug.capture('front', () => {
+      imdebug.imageData(0, 0, cardDefinition.front);
+      return interpretBallotCardLayout(cardDefinition.front, {
+        geometry: expectedCardGeometry,
+        debug: imdebug,
+      });
     });
-  }
 
-  const backLayout = imdebug.capture('back', () => {
-    imdebug.imageData(0, 0, cardDefinition.back);
-    return interpretBallotCardLayout(cardDefinition.back, {
-      geometry: expectedCardGeometry,
-      debug: imdebug,
+    if (!frontLayout) {
+      success = false;
+      issues.push({
+        kind: ConvertIssueKind.TimingMarkDetectionFailed,
+        message: 'no timing marks found on front',
+        side: 'front',
+      });
+    }
+
+    const backLayout = imdebug.capture('back', () => {
+      imdebug.imageData(0, 0, cardDefinition.back);
+      return interpretBallotCardLayout(cardDefinition.back, {
+        geometry: expectedCardGeometry,
+        debug: imdebug,
+      });
     });
-  });
 
-  if (!backLayout) {
-    success = false;
-    issues.push({
-      kind: ConvertIssueKind.TimingMarkDetectionFailed,
-      message: 'no timing marks found on back',
-      side: 'back',
-    });
-  }
+    if (!backLayout) {
+      success = false;
+      issues.push({
+        kind: ConvertIssueKind.TimingMarkDetectionFailed,
+        message: 'no timing marks found on back',
+        side: 'back',
+      });
+    }
 
-  if (frontLayout.side !== 'front') {
-    success = false;
-    issues.push({
-      kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-      message: `front page timing mark metadata is invalid: side=${frontLayout.side}`,
-      side: 'front',
-      timingMarkBits: frontLayout.metadata.bits,
-      timingMarks: frontLayout.partialTimingMarks,
-    });
-  }
+    if (frontLayout.side !== 'front') {
+      success = false;
+      issues.push({
+        kind: ConvertIssueKind.InvalidTimingMarkMetadata,
+        message: `front page timing mark metadata is invalid: side=${frontLayout.side}`,
+        side: 'front',
+        timingMarkBits: frontLayout.metadata.bits,
+        timingMarks: frontLayout.partialTimingMarks,
+      });
+    }
 
-  if (!success) {
-    return {
-      success,
-      issues,
-      election,
-    };
-  }
+    if (!success) {
+      return err({
+        issues,
+        election,
+      });
+    }
 
-  const frontMetadata = frontLayout.metadata as FrontMarksMetadata;
-  const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
+    const frontMetadata = frontLayout.metadata as FrontMarksMetadata;
+    const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
 
-  const frontTemplateOvals = imdebug.capture('front ovals', () =>
-    findTemplateOvals(
-      cardDefinition.front,
-      ovalTemplate,
-      frontLayout.completeTimingMarks,
-      { usableArea: expectedCardGeometry.frontUsableArea, debug: imdebug }
-    )
-  );
-  const backTemplateOvals = imdebug.capture('back ovals', () =>
-    findTemplateOvals(
-      cardDefinition.back,
-      ovalTemplate,
-      backLayout.completeTimingMarks,
-      { usableArea: expectedCardGeometry.backUsableArea, debug: imdebug }
-    )
-  );
+    const frontTemplateOvals = imdebug.capture('front ovals', () =>
+      findTemplateOvals(
+        cardDefinition.front,
+        ovalTemplate,
+        frontLayout.completeTimingMarks,
+        { usableArea: expectedCardGeometry.frontUsableArea, debug: imdebug }
+      )
+    );
+    const backTemplateOvals = imdebug.capture('back ovals', () =>
+      findTemplateOvals(
+        cardDefinition.back,
+        ovalTemplate,
+        backLayout.completeTimingMarks,
+        { usableArea: expectedCardGeometry.backUsableArea, debug: imdebug }
+      )
+    );
 
-  const gridLayout = election.gridLayouts?.[0];
-  assert(gridLayout, 'grid layout missing');
+    const gridLayout = election.gridLayouts?.[0];
+    assert(gridLayout, 'grid layout missing');
 
-  const ballotStyle = election.ballotStyles[0];
-  assert(ballotStyle, 'ballot style missing');
+    const ballotStyle = election.ballotStyles[0];
+    assert(ballotStyle, 'ballot style missing');
 
-  const ovalGrid = [
-    ...frontTemplateOvals.map<TemplateOvalGridEntry>((oval) => ({
-      ...oval,
-      side: 'front',
-    })),
-    ...backTemplateOvals.map<TemplateOvalGridEntry>((oval) => ({
-      ...oval,
-      side: 'back',
-    })),
-  ];
+    const ovalGrid = [
+      ...frontTemplateOvals.map<TemplateOvalGridEntry>((oval) => ({
+        ...oval,
+        side: 'front',
+      })),
+      ...backTemplateOvals.map<TemplateOvalGridEntry>((oval) => ({
+        ...oval,
+        side: 'back',
+      })),
+    ];
 
-  const pairColumnEntriesResult = matchContestOptionsOnGrid(
-    getContests({ ballotStyle, election }),
-    gridLayout.gridPositions.map<GridPosition>((gridPosition) => ({
-      ...gridPosition,
-    })),
-    ovalGrid
-  );
+    const pairColumnEntriesResult = matchContestOptionsOnGrid(
+      getContests({ ballotStyle, election }),
+      gridLayout.gridPositions.map<GridPosition>((gridPosition) => ({
+        ...gridPosition,
+      })),
+      ovalGrid
+    );
 
-  if (!pairColumnEntriesResult.success) {
-    success = false;
+    if (pairColumnEntriesResult.isErr()) {
+      success = false;
 
-    for (const issue of pairColumnEntriesResult.issues) {
-      switch (issue.kind) {
-        case PairColumnEntriesIssueKind.ColumnCountMismatch:
-          issues.push({
-            kind: ConvertIssueKind.MismatchedOvalGrids,
-            message: `XML definition and ballot images have different number of columns containing ovals: ${issue.columnCounts[0]} vs ${issue.columnCounts[1]}`,
-            pairColumnEntriesIssue: issue,
-          });
-          break;
+      for (const issue of pairColumnEntriesResult.err().issues) {
+        switch (issue.kind) {
+          case PairColumnEntriesIssueKind.ColumnCountMismatch:
+            issues.push({
+              kind: ConvertIssueKind.MismatchedOvalGrids,
+              message: `XML definition and ballot images have different number of columns containing ovals: ${issue.columnCounts[0]} vs ${issue.columnCounts[1]}`,
+              pairColumnEntriesIssue: issue,
+            });
+            break;
 
-        case PairColumnEntriesIssueKind.ColumnEntryCountMismatch:
-          issues.push({
-            kind: ConvertIssueKind.MismatchedOvalGrids,
-            message: `XML definition and ballot images have different number of entries in column ${issue.columnIndex}: ${issue.columnEntryCounts[0]} vs ${issue.columnEntryCounts[1]}`,
-            pairColumnEntriesIssue: issue,
-          });
-          break;
+          case PairColumnEntriesIssueKind.ColumnEntryCountMismatch:
+            issues.push({
+              kind: ConvertIssueKind.MismatchedOvalGrids,
+              message: `XML definition and ballot images have different number of entries in column ${issue.columnIndex}: ${issue.columnEntryCounts[0]} vs ${issue.columnEntryCounts[1]}`,
+              pairColumnEntriesIssue: issue,
+            });
+            break;
 
-        default:
-          throwIllegalValue(issue, 'kind');
+          default:
+            throwIllegalValue(issue, 'kind');
+        }
       }
     }
-  }
 
-  const mergedGrids = pairColumnEntriesResult.pairs;
-  const result: Election = {
-    ...election,
-    ballotLayout: {
-      ...(election.ballotLayout ?? {}),
-      paperSize,
-    },
-    ballotStyles: [
-      {
-        ...ballotStyle,
-        id: ballotStyleId,
+    const mergedGrids = pairColumnEntriesResult.isOk()
+      ? pairColumnEntriesResult.ok().pairs
+      : pairColumnEntriesResult.err().pairs;
+    const result: Election = {
+      ...election,
+      ballotLayout: {
+        ...(election.ballotLayout ?? {}),
+        paperSize,
       },
-    ],
-    gridLayouts: [
-      {
-        ...gridLayout,
-        ballotStyleId,
-        gridPositions: mergedGrids.map(([definition, oval]) => ({
-          ...definition,
-          side: oval.side,
-          column: oval.column,
-          row: oval.row,
-        })),
-      },
-    ],
-  };
+      ballotStyles: [
+        {
+          ...ballotStyle,
+          id: ballotStyleId,
+        },
+      ],
+      gridLayouts: [
+        {
+          ...gridLayout,
+          ballotStyleId,
+          gridPositions: mergedGrids.map(([definition, oval]) => ({
+            ...definition,
+            side: oval.side,
+            column: oval.column,
+            row: oval.row,
+          })),
+        },
+      ],
+    };
 
-  return { success, issues, election: result };
+    return ok({ issues, election: result });
+  });
 }
