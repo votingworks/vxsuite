@@ -299,30 +299,24 @@ export function DiagnosticsScreen({
         <Screen>
           <Main padded>
             <Prose compact maxWidth={false}>
+              <H1>System Diagnostics</H1>
               <P>
-                <Button variant="primary" onPress={onBackButtonPress}>
+                <Button variant="previousPrimary" onPress={onBackButtonPress}>
                   Back to Poll Worker Actions
                 </Button>
               </P>
-              <H1>System Diagnostics</H1>
               <span className="screen-reader-only">
                 To navigate through the available actions, use the down arrow.
               </span>
-              <section>
-                <H2>Computer</H2>
-                <ComputerStatus computer={devices.computer} />
-              </section>
-              <section>
-                <H2>Printer</H2>
-                <PrinterStatus hardware={hardware} />
-              </section>
-              <section>
-                <H2>Accessible Controller</H2>
-                <AccessibleControllerStatus
-                  accessibleController={devices.accessibleController}
-                  diagnosticResults={accessibleControllerDiagnosticResults}
-                />
-              </section>
+              <H2>Computer</H2>
+              <ComputerStatus computer={devices.computer} />
+              <H2>Printer</H2>
+              <PrinterStatus hardware={hardware} />
+              <H2>Accessible Controller</H2>
+              <AccessibleControllerStatus
+                accessibleController={devices.accessibleController}
+                diagnosticResults={accessibleControllerDiagnosticResults}
+              />
             </Prose>
           </Main>
         </Screen>
