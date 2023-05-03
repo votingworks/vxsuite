@@ -417,10 +417,9 @@ function UpdatePollsDirectlyButton({
       <Button onPress={() => setIsConfirmationModalOpen(true)}>{action}</Button>
       {isConfirmationModalOpen && (
         <Modal
-          centerContent
+          title={`No ${reportTitle} on Card`}
           content={
-            <Prose textCenter id="modalaudiofocus">
-              <H1>No {reportTitle} on Card</H1>
+            <Prose id="modalaudiofocus">
               <P>{suggestVxScanText}</P>
             </Prose>
           }
