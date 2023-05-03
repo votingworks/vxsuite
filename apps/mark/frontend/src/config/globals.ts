@@ -19,3 +19,6 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   textSize: TEXT_SIZE,
   showSettingsModal: false,
 };
+export enum Paths {
+  DISPLAY_SETTINGS = '/display-settings',
+}
