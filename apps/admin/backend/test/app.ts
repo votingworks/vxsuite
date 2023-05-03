@@ -8,11 +8,7 @@ import {
   fakeSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
-import {
-  DippedSmartCardAuth,
-  ElectionDefinition,
-  getDisplayElectionHash,
-} from '@votingworks/types';
+import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
 import { assert } from '@votingworks/basics';
 import { fakeLogger } from '@votingworks/logging';
@@ -22,7 +18,10 @@ import fs from 'fs';
 import tmp from 'tmp';
 import { execSync } from 'child_process';
 import { join } from 'path';
-import { SCANNER_RESULTS_FOLDER } from '@votingworks/utils';
+import {
+  generateElectionBasedSubfolderName,
+  SCANNER_RESULTS_FOLDER,
+} from '@votingworks/utils';
 import { Api } from '../src';
 import { createWorkspace } from '../src/util/workspace';
 import { buildApp } from '../src/app';
@@ -55,11 +54,11 @@ export function mockCastVoteRecordFileTree(
   electionDefinition: ElectionDefinition,
   mockDirectory: MockDirectory
 ): MockFileTree {
+  const { election, electionHash } = electionDefinition;
   return {
     [SCANNER_RESULTS_FOLDER]: {
-      [`sample-county_example-primary-election_${getDisplayElectionHash(
-        electionDefinition
-      )}`]: mockDirectory,
+      [generateElectionBasedSubfolderName(election, electionHash)]:
+        mockDirectory,
     },
   };
 }
