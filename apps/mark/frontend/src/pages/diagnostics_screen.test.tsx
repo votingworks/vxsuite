@@ -55,17 +55,12 @@ describe('System Diagnostics screen: Computer section', () => {
 
     screen.getByRole('heading', { name: 'System Diagnostics' });
 
-    const computerSection = screen
-      .getByRole('heading', { name: 'Computer' })
-      .closest('section')!;
-    const batteryText = within(computerSection).getByText('Battery: 5%');
+    const batteryText = screen.getByText('Battery: 5%');
     // The battery level always has a success icon, even when it's low, since
     // it's only an actionable problem if the computer is not connected to
     // power, and that would trigger a full-screen alert
     expectToHaveSuccessIcon(batteryText);
-    const powerCordText = within(computerSection).getByText(
-      'Power cord connected.'
-    );
+    const powerCordText = screen.getByText('Power cord connected.');
     expectToHaveSuccessIcon(powerCordText);
 
     // Explicitly unmount before the printer status has resolved to verify that
@@ -79,12 +74,9 @@ describe('System Diagnostics screen: Computer section', () => {
     });
     const { unmount } = renderScreen({ devices });
 
-    const computerSection = screen
-      .getByRole('heading', { name: 'Computer' })
-      .closest('section')!;
-    const batteryText = within(computerSection).getByText('Battery: 80%');
+    const batteryText = screen.getByText('Battery: 80%');
     expectToHaveSuccessIcon(batteryText);
-    const powerCordText = within(computerSection).getByText(
+    const powerCordText = screen.getByText(
       'No power cord connected. Connect power cord.'
     );
     expectToHaveWarningIcon(powerCordText);
@@ -100,22 +92,17 @@ describe('System Diagnostics screen: Printer section', () => {
     const hardware = MemoryHardware.buildStandard();
     renderScreen({ hardware });
 
-    const printerSection = screen
-      .getByRole('heading', { name: 'Printer' })
-      .closest('section')!;
-    within(printerSection).getByText('Loading printer status…');
+    screen.getByText('Loading printer status…');
 
-    let printerStatusText = await within(printerSection).findByText(
-      'Printer status: Ready'
-    );
+    let printerStatusText = await screen.findByText('Printer status: Ready');
     expectToHaveSuccessIcon(printerStatusText);
-    let tonerLevelText = within(printerSection).getByText('Toner level: 92%');
+    let tonerLevelText = screen.getByText('Toner level: 92%');
     expectToHaveSuccessIcon(tonerLevelText);
 
-    const refreshButton = within(printerSection).getByRole('button', {
+    const refreshButton = screen.getByRole('button', {
       name: 'Refresh Printer Status',
     });
-    within(printerSection).getByText('Last updated at 11:23 AM');
+    screen.getByText('Last updated at 11:23 AM');
 
     hardware.setPrinterIppAttributes({
       state: 'stopped',
@@ -124,17 +111,15 @@ describe('System Diagnostics screen: Printer section', () => {
     });
     userEvent.click(refreshButton);
 
-    within(printerSection).getByText('Loading printer status…');
+    screen.getByText('Loading printer status…');
 
-    printerStatusText = await within(printerSection).findByText(
-      'Printer status: Stopped'
-    );
+    printerStatusText = await screen.findByText('Printer status: Stopped');
     expectToHaveWarningIcon(printerStatusText);
-    const warningText = within(printerSection).getByText(
+    const warningText = screen.getByText(
       'Warning: The printer is low on toner. Replace toner cartridge.'
     );
     expectToHaveWarningIcon(warningText);
-    tonerLevelText = within(printerSection).getByText('Toner level: 2%');
+    tonerLevelText = screen.getByText('Toner level: 2%');
     expectToHaveWarningIcon(tonerLevelText);
   });
 
@@ -145,18 +130,15 @@ describe('System Diagnostics screen: Printer section', () => {
     });
     renderScreen({ hardware });
 
-    const printerSection = screen
-      .getByRole('heading', { name: 'Printer' })
-      .closest('section')!;
-    const printerStatusText = await within(printerSection).findByText(
+    const printerStatusText = await screen.findByText(
       'Could not get printer status.'
     );
     expectToHaveWarningIcon(printerStatusText);
 
-    within(printerSection).getByRole('button', {
+    screen.getByRole('button', {
       name: 'Refresh Printer Status',
     });
-    within(printerSection).getByText('Last updated at 11:23 AM');
+    screen.getByText('Last updated at 11:23 AM');
   });
 
   it('shows only the highest priority printer state reason', async () => {
@@ -173,10 +155,7 @@ describe('System Diagnostics screen: Printer section', () => {
     });
     renderScreen({ hardware });
 
-    const printerSection = screen
-      .getByRole('heading', { name: 'Printer' })
-      .closest('section')!;
-    const warningText = await within(printerSection).findByText(
+    const warningText = await screen.findByText(
       'Warning: The printer is out of paper. Add paper to the printer.'
     );
     expectToHaveWarningIcon(warningText);
@@ -191,12 +170,7 @@ describe('System Diagnostics screen: Printer section', () => {
     });
     renderScreen({ hardware });
 
-    const printerSection = screen
-      .getByRole('heading', { name: 'Printer' })
-      .closest('section')!;
-    const warningText = await within(printerSection).findByText(
-      'Warning: some-other-reason'
-    );
+    const warningText = await screen.findByText('Warning: some-other-reason');
     expectToHaveWarningIcon(warningText);
   });
 
@@ -209,13 +183,8 @@ describe('System Diagnostics screen: Printer section', () => {
     });
     renderScreen({ hardware });
 
-    const printerSection = screen
-      .getByRole('heading', { name: 'Printer' })
-      .closest('section')!;
-    await within(printerSection).findByText('Printer status: Stopped');
-    expect(
-      within(printerSection).queryByText(/Warning/)
-    ).not.toBeInTheDocument();
+    await screen.findByText('Printer status: Stopped');
+    expect(screen.queryByText(/Warning/)).not.toBeInTheDocument();
   });
 
   it("handles negative toner level (which indicates that the toner level can't be read)", async () => {
@@ -227,12 +196,7 @@ describe('System Diagnostics screen: Printer section', () => {
     });
     renderScreen({ hardware });
 
-    const printerSection = screen
-      .getByRole('heading', { name: 'Printer' })
-      .closest('section')!;
-    const tonerLevelText = await within(printerSection).findByText(
-      'Toner level: Unknown'
-    );
+    const tonerLevelText = await screen.findByText('Toner level: Unknown');
     expectToHaveWarningIcon(tonerLevelText);
   });
 });
@@ -243,17 +207,10 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
     const screenReader = new AriaScreenReader(mockTts);
     const { unmount } = renderScreen({ screenReader });
 
-    let controllerSection = screen
-      .getByRole('heading', { name: 'Accessible Controller' })
-      .closest('section')!;
-    const connectionText = within(controllerSection).getByText(
-      'Accessible controller connected.'
-    );
+    const connectionText = screen.getByText('Accessible controller connected.');
     expectToHaveSuccessIcon(connectionText);
 
-    userEvent.click(
-      within(controllerSection).getByText('Start Accessible Controller Test')
-    );
+    userEvent.click(screen.getByText('Start Accessible Controller Test'));
 
     // Execute happy path so we can get a test result
     // We have to wrap key presses in act to avoid a warning. This may be due
@@ -274,25 +231,17 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
     await waitFor(() => expect(mockTts.speak).toHaveBeenCalled());
     act(() => void userEvent.keyboard('{Enter}'));
 
-    controllerSection = (
-      await screen.findByRole('heading', { name: 'Accessible Controller' })
-    ).closest('section')!;
-    const testResultText = within(controllerSection).getByText('Test passed.');
+    const testResultText = screen.getByText('Test passed.');
     expectToHaveSuccessIcon(testResultText);
-    within(controllerSection).getByText('Last tested at 11:23 AM');
+    screen.getByText('Last tested at 11:23 AM');
 
     // Bonus test - if we start a new test and cancel it, last results should still be shown
     MockDate.set(new Date());
-    userEvent.click(
-      within(controllerSection).getByText('Start Accessible Controller Test')
-    );
+    userEvent.click(screen.getButton('Start Accessible Controller Test'));
     userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
 
-    controllerSection = (
-      await screen.findByRole('heading', { name: 'Accessible Controller' })
-    ).closest('section')!;
-    within(controllerSection).getByText('Test passed.');
-    within(controllerSection).getByText('Last tested at 11:23 AM');
+    screen.getByText('Test passed.');
+    screen.getByText('Last tested at 11:23 AM');
 
     unmount();
   });
@@ -302,15 +251,12 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
     devices.accessibleController = undefined;
     const { unmount } = renderScreen({ devices });
 
-    const controllerSection = screen
-      .getByRole('heading', { name: 'Accessible Controller' })
-      .closest('section')!;
-    const connectionText = within(controllerSection).getByText(
+    const connectionText = screen.getByText(
       'No accessible controller connected.'
     );
     expectToHaveWarningIcon(connectionText);
     expect(
-      within(controllerSection).queryByText('Start Accessible Controller Test')
+      screen.queryByText('Start Accessible Controller Test')
     ).not.toBeInTheDocument();
 
     unmount();
@@ -326,10 +272,7 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
       screen.getByRole('button', { name: 'Up Button is Not Working' })
     );
 
-    const controllerSection = (
-      await screen.findByRole('heading', { name: 'Accessible Controller' })
-    ).closest('section')!;
-    const testResultText = within(controllerSection).getByText(
+    const testResultText = screen.getByText(
       'Test failed: Up button is not working.'
     );
     expectToHaveWarningIcon(testResultText);
