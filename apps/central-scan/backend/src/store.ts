@@ -42,7 +42,7 @@ import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { ResultSheet } from '@votingworks/backend';
-import { sheetRequiresAdjudication } from './interpreter';
+import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { normalizeAndJoin } from './util/path';
 
 const debug = makeDebug('scan:store');

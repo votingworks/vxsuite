@@ -4,50 +4,39 @@ import {
   SheetOf,
   mapSheet,
 } from '@votingworks/types';
-import makeDebug from 'debug';
-import {
-  InterpretFileParams,
-  InterpreterOptions,
-  interpretFile,
-} from '../interpreter';
+import { InterpreterOptions, interpretSheet } from '../interpret_sheet';
 import { saveSheetImages } from '../util/save_images';
 
-const debug = makeDebug('scan:vx:interpret');
-
-async function interpretPageAndSaveImages(
+async function interpretSheetAndSaveImages(
   interpreterOptions: InterpreterOptions,
-  interpretFileParams: InterpretFileParams,
+  sheet: SheetOf<string>,
   sheetId: string,
   ballotImagesPath: string
-): Promise<PageInterpretationWithFiles> {
-  debug('interpret ballot image: %s', interpretFileParams.ballotImagePath);
-
-  const result = interpretFile(interpreterOptions, interpretFileParams);
-  debug(
-    'interpreted ballot image as %s: %s',
-    result.interpretation.type,
-    interpretFileParams.ballotImagePath
+): Promise<SheetOf<PageInterpretationWithFiles>> {
+  return mapSheet(
+    await interpretSheet(interpreterOptions, sheet),
+    async (result, side) => {
+      const ballotImagePath = sheet[side === 'front' ? 0 : 1];
+      const images = await saveSheetImages(
+        sheetId,
+        ballotImagesPath,
+        ballotImagePath,
+        result.normalizedImage
+      );
+      return {
+        interpretation: result.interpretation,
+        originalFilename: images.original,
+        normalizedFilename: images.normalized,
+      };
+    }
   );
-  const images = await saveSheetImages(
-    sheetId,
-    ballotImagesPath,
-    interpretFileParams.ballotImagePath,
-    result.normalizedImage
-  );
-  return {
-    interpretation: result.interpretation,
-    originalFilename: images.original,
-    normalizedFilename: images.normalized,
-  };
 }
 
 export async function interpret(
   sheetId: Id,
   options: InterpreterOptions,
-  files: SheetOf<InterpretFileParams>,
+  sheet: SheetOf<string>,
   ballotImagesPath: string
 ): Promise<SheetOf<PageInterpretationWithFiles>> {
-  return await mapSheet(files, async (file) =>
-    interpretPageAndSaveImages(options, file, sheetId, ballotImagesPath)
-  );
+  return interpretSheetAndSaveImages(options, sheet, sheetId, ballotImagesPath);
 }

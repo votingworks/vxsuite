@@ -1,5 +1,4 @@
 import { Scan } from '@votingworks/api';
-import { detectQrcodeInFilePath } from '@votingworks/ballot-interpreter-vx';
 import { Result, assert, ok, sleep } from '@votingworks/basics';
 import {
   ElectionDefinition,
@@ -185,12 +184,6 @@ export class Importer {
       );
     }
 
-    const frontDetectQrcodePromise = detectQrcodeInFilePath(frontImagePath);
-    const backDetectQrcodePromise = detectQrcodeInFilePath(backImagePath);
-    const [frontDetectQrcodeOutput, backDetectQrcodeOutput] = [
-      await frontDetectQrcodePromise,
-      await backDetectQrcodePromise,
-    ];
     return ok(
       await vxInterpreter.interpret(
         sheetId,
@@ -199,16 +192,7 @@ export class Importer {
           precinctSelection: ALL_PRECINCTS_SELECTION,
           testMode: this.workspace.store.getTestMode(),
         },
-        [
-          {
-            ballotImagePath: frontImagePath,
-            detectQrcodeResult: frontDetectQrcodeOutput,
-          },
-          {
-            ballotImagePath: backImagePath,
-            detectQrcodeResult: backDetectQrcodeOutput,
-          },
-        ],
+        [frontImagePath, backImagePath],
         this.workspace.ballotImagesPath
       )
     );
