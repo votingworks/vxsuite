@@ -1,5 +1,5 @@
 import { assert } from '@votingworks/basics';
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { unsafeParse, CVR } from '@votingworks/types';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
 import { rmSync, writeFileSync } from 'fs';
@@ -17,7 +17,7 @@ import {
 } from './scan';
 
 const cdfCvrReport =
-  electionMinimalExhaustiveSampleFixtures.castVoteRecordReport;
+  electionGridLayoutNewHampshireAmherstFixtures.castVoteRecordReport;
 
 describe('getCastVoteRecordReportImport', () => {
   test('imports a valid cast vote record report', async () => {
@@ -36,7 +36,7 @@ describe('getCastVoteRecordReportImport', () => {
       unsafeParse(CVR.CVRSchema, unparsedCastVoteRecord);
       cvrCount += 1;
     }
-    expect(cvrCount).toEqual(3000);
+    expect(cvrCount).toEqual(184);
   });
 
   test('returns a parsing error if report metadata is invalid', async () => {
@@ -73,10 +73,8 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
     expect(validationResult.isOk()).toBeTruthy();
     expect(validationResult.ok()).toMatchInlineSnapshot(`
       Array [
-        "9822c71014/1M__precinct-1__1.jpg",
-        "9822c71014/1M__precinct-2__1.jpg",
-        "9822c71014/2F__precinct-1__1.jpg",
-        "9822c71014/2F__precinct-2__1.jpg",
+        "9822c71014/card-number-3__town-id-00701-precinct-id-__1.jpg",
+        "9822c71014/card-number-3__town-id-00701-precinct-id-__2.jpg",
       ]
     `);
   });
@@ -100,7 +98,7 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
         directoryPath,
         CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
         '9822c71014',
-        '1M__precinct-1__1.layout.json'
+        'card-number-3__town-id-00701-precinct-id-__1.layout.json'
       )
     );
     const validationResult =
