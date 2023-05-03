@@ -386,7 +386,7 @@ export class JavaCard implements Card {
   }
 
   /**
-   * We wrap this.readCardDetails to create this.safeReadCardDetails because this.readCardDetails:
+   * We wrap readCardDetails to create safeReadCardDetails because readCardDetails:
    * 1. Intentionally throws errors if any verification fails
    * 2. Can throw errors due to external actions like preemptively removing the card from the card
    *    reader

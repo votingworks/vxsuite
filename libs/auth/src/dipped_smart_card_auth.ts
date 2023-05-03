@@ -464,17 +464,20 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                   const skipPinEntry = isFeatureFlagEnabled(
                     BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
                   );
-                  const lockedOutUntil = computeCardLockoutEndTime(
-                    machineState,
-                    cardDetails.numIncorrectPinAttempts
-                  );
                   return skipPinEntry
                     ? {
                         status: 'remove_card',
                         user,
                         sessionExpiresAt: computeSessionEndTime(machineState),
                       }
-                    : { status: 'checking_pin', user, lockedOutUntil };
+                    : {
+                        status: 'checking_pin',
+                        user,
+                        lockedOutUntil: computeCardLockoutEndTime(
+                          machineState,
+                          cardDetails.numIncorrectPinAttempts
+                        ),
+                      };
                 }
                 return {
                   status: 'logged_out',
