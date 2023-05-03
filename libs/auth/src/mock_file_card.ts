@@ -19,7 +19,6 @@ const MOCK_FILE_PATH = '/tmp/mock-file-card.json';
 export interface MockFileContents {
   cardStatus: CardStatus;
   data?: Buffer;
-  numIncorrectPinAttempts?: number;
   pin?: string;
 }
 
@@ -29,12 +28,11 @@ export interface MockFileContents {
 export function serializeMockFileContents(
   mockFileContents: MockFileContents
 ): Buffer {
-  const { cardStatus, data, numIncorrectPinAttempts, pin } = mockFileContents;
+  const { cardStatus, data, pin } = mockFileContents;
   return Buffer.from(
     JSON.stringify({
       cardStatus,
       data: data ? data.toString('hex') : undefined,
-      numIncorrectPinAttempts,
       pin,
     }),
     'utf-8'
@@ -45,19 +43,17 @@ export function serializeMockFileContents(
  * Converts a Buffer created by serializeMockFileContents back into a MockFileContents object
  */
 export function deserializeMockFileContents(file: Buffer): MockFileContents {
-  const { cardStatus, data, numIncorrectPinAttempts, pin } = JSON.parse(
-    file.toString('utf-8')
-  );
+  const { cardStatus, data, pin } = JSON.parse(file.toString('utf-8'));
   return {
     cardStatus,
     data: data ? Buffer.from(data, 'hex') : undefined,
-    numIncorrectPinAttempts,
     pin,
   };
 }
 
 function writeToMockFile(
   mockFileContents: MockFileContents,
+  // Allow Cypress tests to use cy.writeFile for file writing
   writeFileFn: WriteFileFn = fs.writeFileSync
 ): void {
   writeFileFn(MOCK_FILE_PATH, serializeMockFileContents(mockFileContents));
@@ -85,6 +81,24 @@ export function readFromMockFile(): MockFileContents {
   return deserializeMockFileContents(file);
 }
 
+function updateNumIncorrectPinAttempts(
+  mockFileContents: MockFileContents,
+  numIncorrectPinAttempts?: number
+): void {
+  const { cardStatus } = mockFileContents;
+  assert(cardStatus.status === 'ready' && cardStatus.cardDetails !== undefined);
+  writeToMockFile({
+    ...mockFileContents,
+    cardStatus: {
+      ...cardStatus,
+      cardDetails: {
+        ...cardStatus.cardDetails,
+        numIncorrectPinAttempts,
+      },
+    },
+  });
+}
+
 /**
  * A mock implementation of the card API that reads from and writes to a file under the hood. Meant
  * for local development and integration tests.
@@ -107,19 +121,17 @@ export class MockFileCard implements Card {
 
   checkPin(pin: string): Promise<CheckPinResponse> {
     const mockFileContents = readFromMockFile();
+    const { cardStatus } = mockFileContents;
+    assert(
+      cardStatus.status === 'ready' && cardStatus.cardDetails !== undefined
+    );
     if (pin === mockFileContents.pin) {
-      writeToMockFile({
-        ...mockFileContents,
-        numIncorrectPinAttempts: undefined,
-      });
+      updateNumIncorrectPinAttempts(mockFileContents, undefined);
       return Promise.resolve({ response: 'correct' });
     }
     const numIncorrectPinAttempts =
-      (mockFileContents.numIncorrectPinAttempts ?? 0) + 1;
-    writeToMockFile({
-      ...mockFileContents,
-      numIncorrectPinAttempts,
-    });
+      (cardStatus.cardDetails.numIncorrectPinAttempts ?? 0) + 1;
+    updateNumIncorrectPinAttempts(mockFileContents, numIncorrectPinAttempts);
     return Promise.resolve({ response: 'incorrect', numIncorrectPinAttempts });
   }
 

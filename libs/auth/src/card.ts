@@ -6,18 +6,18 @@ import {
 } from '@votingworks/types';
 
 interface SystemAdministratorCardDetails {
-  numIncorrectPinAttempts?: number;
   user: SystemAdministratorUser;
+  numIncorrectPinAttempts?: number;
 }
 
 interface ElectionManagerCardDetails {
-  numIncorrectPinAttempts?: number;
   user: ElectionManagerUser;
+  numIncorrectPinAttempts?: number;
 }
 
 interface PollWorkerCardDetails {
-  numIncorrectPinAttempts?: number;
   user: PollWorkerUser;
+  numIncorrectPinAttempts?: number;
 
   /**
    * Unlike system administrator and election manager cards, which always have PINs, poll worker
@@ -25,6 +25,14 @@ interface PollWorkerCardDetails {
    */
   hasPin: boolean;
 }
+
+/**
+ * Details about a programmed card
+ */
+export type CardDetails =
+  | SystemAdministratorCardDetails
+  | ElectionManagerCardDetails
+  | PollWorkerCardDetails;
 
 /**
  * A CardDetails type guard
@@ -52,14 +60,6 @@ export function arePollWorkerCardDetails(
 ): cardDetails is PollWorkerCardDetails {
   return cardDetails.user.role === 'poll_worker';
 }
-
-/**
- * Details about a programmed card
- */
-export type CardDetails =
-  | SystemAdministratorCardDetails
-  | ElectionManagerCardDetails
-  | PollWorkerCardDetails;
 
 interface CardStatusReady {
   status: 'ready';
