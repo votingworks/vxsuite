@@ -23,7 +23,7 @@ import {
   ButtonFooter,
   ButtonFooterLandscape,
 } from '../components/button_footer';
-import { SettingsButton } from '../components/settings_button';
+import { DisplaySettingsButton } from '../components/display_settings_button';
 
 interface ContestParams {
   contestNumber: string;
@@ -38,7 +38,6 @@ export function ContestPage(): JSX.Element {
     electionDefinition,
     machineConfig,
     precinctId,
-    setUserSettings,
     updateVote,
     votes,
   } = useContext(BallotContext);
@@ -51,9 +50,6 @@ export function ContestPage(): JSX.Element {
     'precinctId is required to render ContestPage'
   );
   const { isLandscape, isPortrait } = screenOrientation(machineConfig);
-  function showSettingsModal() {
-    return setUserSettings({ showSettingsModal: true });
-  }
 
   // eslint-disable-next-line vx/gts-safe-number-parse
   const currentContestIndex = parseInt(contestNumber, 10);
@@ -136,9 +132,7 @@ export function ContestPage(): JSX.Element {
     </LinkButton>
   );
 
-  const settingsButton = (
-    <SettingsButton large={isPortrait} onPress={showSettingsModal} />
-  );
+  const settingsButton = <DisplaySettingsButton />;
 
   return (
     <Screen navRight={isLandscape}>

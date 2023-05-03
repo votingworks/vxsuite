@@ -12,8 +12,8 @@ import { BallotContext } from '../contexts/ballot_context';
 import { Wobble } from '../components/animations';
 import { ElectionInfo } from '../components/election_info';
 import { Sidebar } from '../components/sidebar';
-import { SettingsTextSize } from '../components/settings_text_size';
 import { screenOrientation } from '../lib/screen_orientation';
+import { DisplaySettingsButton } from '../components/display_settings_button';
 
 const SidebarSpacer = styled.div`
   height: 90px;
@@ -43,8 +43,6 @@ export function StartPage(): JSX.Element {
     electionDefinition,
     machineConfig,
     precinctId,
-    setUserSettings,
-    userSettings,
     forceSaveVote,
   } = useContext(BallotContext);
   assert(
@@ -82,10 +80,7 @@ export function StartPage(): JSX.Element {
     <React.Fragment>
       <H1>Voter Settings</H1>
       <SettingsContainer>
-        <SettingsTextSize
-          userSettings={userSettings}
-          setUserSettings={setUserSettings}
-        />
+        <DisplaySettingsButton />
       </SettingsContainer>
     </React.Fragment>
   );

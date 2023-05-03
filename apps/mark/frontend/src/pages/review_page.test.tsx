@@ -17,7 +17,7 @@ it('Renders ContestPage', () => {
     ballotStyleId: electionSample.ballotStyles[0].id,
   });
   screen.getByText('Review Your Votes');
-  screen.getByText('Settings');
+  screen.getByText(/color & size/i);
 });
 
 it('Renders ContestPage in Landscape orientation', () => {

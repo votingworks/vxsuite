@@ -55,8 +55,8 @@ import {
   ButtonFooterLandscape,
 } from '../components/button_footer';
 import { screenOrientation } from '../lib/screen_orientation';
-import { SettingsButton } from '../components/settings_button';
 import { getContestDistrictName } from '../utils/ms_either_neither_contests';
+import { DisplaySettingsButton } from '../components/display_settings_button';
 
 const ContentHeader = styled.div`
   padding: 0.5rem 0.75rem 0;
@@ -304,13 +304,9 @@ export function ReviewPage(): JSX.Element {
     machineConfig,
     precinctId,
     votes,
-    setUserSettings,
   } = useContext(BallotContext);
   const scrollContainer = useRef<HTMLDivElement>(null);
   const { isLandscape, isPortrait } = screenOrientation(machineConfig);
-  function showSettingsModal() {
-    return setUserSettings({ showSettingsModal: true });
-  }
 
   const [isScrollable, setIsScrollable] = useState(false);
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(true);
@@ -393,9 +389,7 @@ export function ReviewPage(): JSX.Element {
     </LinkButton>
   );
 
-  const settingsButton = (
-    <SettingsButton large={isPortrait} onPress={showSettingsModal} />
-  );
+  const settingsButton = <DisplaySettingsButton />;
 
   return (
     <Screen navRight={isLandscape}>
