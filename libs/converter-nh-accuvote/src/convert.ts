@@ -48,7 +48,7 @@ import {
   parseConstitutionalQuestions,
 } from './convert/parse_constitutional_questions';
 
-const debug = makeDebug('ballot-interpreter-nh:convert');
+const debug = makeDebug('converter-nh-accuvote:convert');
 
 /**
  * Default thresholds for interpreting marks on a ballot as votes.

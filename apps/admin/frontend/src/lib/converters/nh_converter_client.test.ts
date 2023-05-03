@@ -1,7 +1,7 @@
 import {
   convertElectionDefinition,
   ConvertIssueKind,
-} from '@votingworks/ballot-interpreter-nh';
+} from '@votingworks/converter-nh-accuvote';
 import { electionMinimalExhaustiveSample } from '@votingworks/fixtures';
 import { mockOf } from '@votingworks/test-utils';
 import { safeParseElection } from '@votingworks/types';
@@ -12,7 +12,7 @@ import { readBlobAsString } from '../blob';
 import { NhConverterClient } from './nh_converter_client';
 import { VxFiles } from './types';
 
-jest.mock('@votingworks/ballot-interpreter-nh');
+jest.mock('@votingworks/converter-nh-accuvote');
 jest.mock('../../utils/pdf_to_images');
 
 /* eslint-disable @typescript-eslint/require-await */

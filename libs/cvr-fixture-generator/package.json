@@ -20,8 +20,8 @@
   },
   "dependencies": {
     "@votingworks/backend": "*",
-    "@votingworks/ballot-interpreter-nh": "workspace:^",
     "@votingworks/basics": "*",
+    "@votingworks/converter-nh-accuvote": "workspace:^",
     "@votingworks/fixtures": "*",
     "@votingworks/image-utils": "*",
     "@votingworks/types": "*",

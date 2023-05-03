@@ -1,6 +1,6 @@
 import { interpret as interpretVxBmdBallotSheet } from '@votingworks/ballot-interpreter-vx';
 import { interpret as interpretNhHmpbBallotSheet } from '@votingworks/ballot-interpreter-nh-next';
-import { throwIllegalValue, typedAs } from '@votingworks/basics';
+import { Result, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { loadImageData } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
@@ -39,6 +39,11 @@ export interface InterpreterOptions {
   markThresholds?: MarkThresholds;
   adjudicationReasons?: readonly AdjudicationReason[];
 }
+
+/**
+ * Result of interpreting a sheet of ballot images.
+ */
+export type InterpretResult = Result<SheetOf<InterpretFileResult>, Error>;
 
 /**
  * Validates the interpreter results against the scanning configuration.
