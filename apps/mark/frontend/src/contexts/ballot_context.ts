@@ -1,5 +1,4 @@
 import { createContext } from 'react';
-import * as GLOBALS from '../config/globals';
 
 import { BallotContextInterface } from '../config/types';
 
@@ -15,11 +14,9 @@ const ballot: BallotContextInterface = {
   generateBallotId: () => '',
   endVoterSession: () => Promise.resolve(),
   resetBallot: () => undefined,
-  setUserSettings: () => undefined,
   updateTally: () => undefined,
   updateVote: () => undefined,
   forceSaveVote: () => undefined,
-  userSettings: GLOBALS.DEFAULT_USER_SETTINGS,
   votes: {},
 };
 

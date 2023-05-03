@@ -13,9 +13,6 @@ import { MachineConfig } from '@votingworks/mark-backend';
 import { electionSampleNoSealDefinition } from '@votingworks/fixtures';
 import { randomBallotId } from '@votingworks/utils';
 import { render as testRender } from './react_testing_library';
-import * as GLOBALS from '../src/config/globals';
-
-import { UserSettings } from '../src/config/types';
 
 import { BallotContext } from '../src/contexts/ballot_context';
 import { fakeMachineConfig } from './helpers/fake_machine_config';
@@ -35,11 +32,9 @@ export function render(
     machineConfig = fakeMachineConfig(),
     precinctId,
     resetBallot = jest.fn(),
-    setUserSettings = jest.fn(),
     updateTally = jest.fn(),
     updateVote = jest.fn(),
     forceSaveVote = jest.fn(),
-    userSettings = GLOBALS.DEFAULT_USER_SETTINGS,
     votes = {},
   }: {
     route?: string;
@@ -58,7 +53,6 @@ export function render(
     updateTally?(): void;
     updateVote?(): void;
     forceSaveVote?(): void;
-    userSettings?: UserSettings;
     votes?: VotesDict;
   } = {}
 ): ReturnType<typeof testRender> {
@@ -76,11 +70,9 @@ export function render(
           endVoterSession,
           precinctId,
           resetBallot,
-          setUserSettings,
           updateTally,
           updateVote,
           forceSaveVote,
-          userSettings,
           votes,
         }}
       >
