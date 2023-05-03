@@ -1,5 +1,4 @@
 import { Scan } from '@votingworks/api';
-import { detectQrcodeInFilePath } from '@votingworks/ballot-interpreter-vx';
 import { Result, assert, ok, sleep } from '@votingworks/basics';
 import {
   ElectionDefinition,
@@ -13,6 +12,7 @@ import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
+import { interpretSheetAndSaveImages } from '@votingworks/backend';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { Castability, checkSheetCastability } from './util/castability';
 import { Workspace } from './util/workspace';
@@ -20,8 +20,6 @@ import {
   describeValidationError,
   validateSheetInterpretation,
 } from './validation';
-import * as nhInterpreter from './interpreters/nh';
-import * as vxInterpreter from './interpreters/vx';
 
 const debug = makeDebug('scan:importer');
 
@@ -38,24 +36,10 @@ export class Importer {
   private readonly scanner: BatchScanner;
   private sheetGenerator?: BatchControl;
   private batchId?: string;
-  private interpreterState: 'init' | 'configuring' | 'ready' = 'init';
-  private vxInterpreter = new vxInterpreter.VxInterpreter();
 
   constructor({ workspace, scanner }: Options) {
     this.workspace = workspace;
     this.scanner = scanner;
-  }
-
-  private invalidateInterpreterConfig(): void {
-    this.vxInterpreter.unconfigure();
-    this.interpreterState = 'init';
-  }
-
-  private configureInterpreter(): void {
-    this.interpreterState = 'configuring';
-    this.vxInterpreter = new vxInterpreter.VxInterpreter();
-    this.vxInterpreter.configure(this.workspace.store);
-    this.interpreterState = 'ready';
   }
 
   /**
@@ -71,28 +55,17 @@ export class Importer {
     });
     // Central scanner only uses all precinct mode, set on every configure
     this.workspace.store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
-    this.configureInterpreter();
   }
 
   setTestMode(testMode: boolean): void {
     debug('setting test mode to %s', testMode);
     this.doZero();
     this.workspace.store.setTestMode(testMode);
-    this.restoreConfig();
   }
 
   setMarkThresholdOverrides(markThresholds?: MarkThresholds): void {
     debug('setting mark thresholds overrides to %s', markThresholds);
     this.workspace.store.setMarkThresholdOverrides(markThresholds);
-    this.restoreConfig();
-  }
-
-  /**
-   * Restore configuration from the store.
-   */
-  restoreConfig(): void {
-    this.invalidateInterpreterConfig();
-    this.configureInterpreter();
   }
 
   private async sheetAdded(
@@ -199,37 +172,21 @@ export class Importer {
   ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
     const electionDefinition = this.getElectionDefinition();
 
-    // Carve-out for NH ballots, which are the only ones that use `gridLayouts`
-    // for now.
-    if (electionDefinition.election.gridLayouts) {
-      return await nhInterpreter.interpret(
-        this.workspace.store,
-        sheetId,
+    return ok(
+      await interpretSheetAndSaveImages(
+        {
+          electionDefinition,
+          precinctSelection: ALL_PRECINCTS_SELECTION,
+          testMode: this.workspace.store.getTestMode(),
+          adjudicationReasons:
+            electionDefinition.election.centralScanAdjudicationReasons,
+          markThresholds: this.workspace.store.getMarkThresholdOverrides(),
+        },
         [frontImagePath, backImagePath],
+        sheetId,
         this.workspace.ballotImagesPath
-      );
-    }
-
-    const frontDetectQrcodePromise = detectQrcodeInFilePath(frontImagePath);
-    const backDetectQrcodePromise = detectQrcodeInFilePath(backImagePath);
-    const [frontDetectQrcodeOutput, backDetectQrcodeOutput] = [
-      await frontDetectQrcodePromise,
-      await backDetectQrcodePromise,
-    ];
-    const frontInterpretPromise = this.vxInterpreter.interpret(
-      frontImagePath,
-      sheetId,
-      this.workspace.ballotImagesPath,
-      frontDetectQrcodeOutput
+      )
     );
-    const backInterpretPromise = this.vxInterpreter.interpret(
-      backImagePath,
-      sheetId,
-      this.workspace.ballotImagesPath,
-      backDetectQrcodeOutput
-    );
-
-    return ok([await frontInterpretPromise, await backInterpretPromise]);
   }
 
   /**
@@ -352,10 +309,6 @@ export class Importer {
       throw new Error('scanning already in progress');
     }
 
-    if (this.interpreterState !== 'ready') {
-      throw new Error('interpreter still loading');
-    }
-
     this.batchId = this.workspace.store.addBatch();
     const batchScanDirectory = join(
       this.workspace.ballotImagesPath,
@@ -450,7 +403,6 @@ export class Importer {
    * Resets all data like `doZero`, removes election info, and stops importing.
    */
   unconfigure(): void {
-    this.invalidateInterpreterConfig();
     this.doZero();
     this.workspace.store.reset(); // destroy all data
   }

@@ -5,13 +5,18 @@ import {
   SheetOf,
   mapSheet,
 } from '@votingworks/types';
-import { decodeBallot } from '@votingworks/ballot-encoder';
+import {
+  ELECTION_HASH_LENGTH,
+  decodeBallot,
+  decodeElectionHash,
+} from '@votingworks/ballot-encoder';
 import { DetectQrCodeError, detectInBallot } from './utils/qrcode';
 import { DetectedQrCode } from './types';
 
 export interface Interpretation {
   ballot: CompletedBallot;
-  normalizedImages: SheetOf<ImageData>;
+  summaryBallotImage: ImageData;
+  blankPageImage: ImageData;
 }
 
 export type InterpretError =
@@ -22,6 +27,11 @@ export type InterpretError =
   | {
       type: 'multiple-qr-codes';
       source: SheetOf<DetectedQrCode>;
+    }
+  | {
+      type: 'mismatched-election';
+      expectedElectionHash: string;
+      actualElectionHash: string;
     };
 
 export type InterpretResult = Result<Interpretation, InterpretError>;
@@ -50,11 +60,24 @@ export async function interpret(
   }
 
   const foundQrCode = (frontResult.ok() ?? backResult.ok()) as DetectedQrCode;
+  const actualElectionHash =
+    decodeElectionHash(foundQrCode.data) ?? 'not found';
+  const expectedElectionHash = electionDefinition.electionHash.slice(
+    0,
+    ELECTION_HASH_LENGTH
+  );
+
+  if (actualElectionHash !== expectedElectionHash) {
+    return err({
+      type: 'mismatched-election',
+      expectedElectionHash,
+      actualElectionHash,
+    });
+  }
+
   return ok({
     ballot: decodeBallot(electionDefinition.election, foundQrCode.data),
-    normalizedImages: [
-      frontResult.isOk() ? card[0] : card[1],
-      frontResult.isOk() ? card[1] : card[0],
-    ],
+    summaryBallotImage: frontResult.isOk() ? card[0] : card[1],
+    blankPageImage: frontResult.isOk() ? card[1] : card[0],
   });
 }

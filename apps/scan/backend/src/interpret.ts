@@ -1,4 +1,3 @@
-import { interpretCompatible as interpretNh } from '@votingworks/ballot-interpreter-nh-next';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
@@ -7,15 +6,11 @@ import {
   MarkThresholds,
   PageInterpretationWithFiles,
   PrecinctSelection,
-  mapSheet,
   SheetOf,
-  PageInterpretation,
 } from '@votingworks/types';
-import { detectQrcodeInFilePath } from '@votingworks/ballot-interpreter-vx';
 import { time } from '@votingworks/utils';
-import { err, ok, Optional, Result, typedAs } from '@votingworks/basics';
-import { Interpreter as VxInterpreter } from './vx_interpreter';
-import { saveSheetImages } from './util/save_images';
+import { err, ok, Optional, Result } from '@votingworks/basics';
+import { interpretSheetAndSaveImages } from '@votingworks/backend';
 import { rootDebug } from './util/debug';
 import { SheetInterpretation } from './types';
 
@@ -156,140 +151,6 @@ function combinePageInterpretationsForSheet(
   };
 }
 
-async function nhInterpret(
-  sheetId: Id,
-  sheet: SheetOf<string>,
-  config: InterpreterConfig
-): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
-  const timer = time(rootDebug, `nhInterpret: ${sheetId}`);
-
-  const { electionDefinition, ballotImagesPath, markThresholdOverrides } =
-    config;
-  const result = await interpretNh(electionDefinition, sheet, {
-    isTestMode: config.testMode,
-    markThresholds: markThresholdOverrides,
-    adjudicationReasons:
-      electionDefinition.election.precinctScanAdjudicationReasons ?? [],
-  });
-
-  timer.checkpoint('finishedInterpretation');
-
-  if (result.isErr()) {
-    return result;
-  }
-
-  const [frontResult, backResult] = mapSheet(result.ok(), (pageResult) => {
-    if (config.precinctSelection.kind !== 'AllPrecincts') {
-      if (
-        'metadata' in pageResult.interpretation &&
-        pageResult.interpretation.metadata.precinctId !==
-          config.precinctSelection.precinctId
-      ) {
-        return {
-          ...pageResult,
-          interpretation: typedAs<PageInterpretation>({
-            type: 'InvalidPrecinctPage',
-            metadata: pageResult.interpretation.metadata,
-          }),
-        };
-      }
-    }
-
-    return pageResult;
-  });
-
-  const frontImages = await saveSheetImages(
-    sheetId,
-    ballotImagesPath,
-    sheet[0],
-    frontResult.normalizedImage
-  );
-  const backImages = await saveSheetImages(
-    sheetId,
-    ballotImagesPath,
-    sheet[1],
-    backResult.normalizedImage
-  );
-
-  timer.checkpoint('savedSheetImages');
-
-  timer.end();
-
-  const pageInterpretations: SheetOf<PageInterpretationWithFiles> = [
-    {
-      interpretation: frontResult.interpretation,
-      originalFilename: frontImages.original,
-      normalizedFilename: frontImages.normalized,
-    },
-    {
-      interpretation: backResult.interpretation,
-      originalFilename: backImages.original,
-      normalizedFilename: backImages.normalized,
-    },
-  ];
-  return ok(pageInterpretations);
-}
-
-async function vxInterpret(
-  sheetId: Id,
-  sheet: SheetOf<string>,
-  config: InterpreterConfig
-): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
-  const { electionDefinition, ballotImagesPath, precinctSelection, testMode } =
-    config;
-  const timer = time(rootDebug, `vxInterpret: ${sheetId}`);
-
-  const vxInterpreter = new VxInterpreter({
-    electionDefinition,
-    testMode,
-    precinctSelection,
-    adjudicationReasons:
-      electionDefinition.election.precinctScanAdjudicationReasons ?? [],
-  });
-
-  const [frontQrcodeOutput, backQrcodeOutput] = await mapSheet(
-    sheet,
-    detectQrcodeInFilePath
-  );
-  timer.checkpoint('extractedQrCodes');
-
-  const [frontPath, backPath] = sheet;
-  const pageInterpretations = await mapSheet(
-    [
-      [frontPath, frontQrcodeOutput],
-      [backPath, backQrcodeOutput],
-    ] as const,
-    async ([
-      ballotImagePath,
-      detectQrcodeResult,
-    ]): Promise<PageInterpretationWithFiles> => {
-      const result = vxInterpreter.interpretFile({
-        ballotImagePath,
-        detectQrcodeResult,
-      });
-
-      const images = await saveSheetImages(
-        sheetId,
-        ballotImagesPath,
-        ballotImagePath,
-        result.normalizedImage
-      );
-
-      return {
-        interpretation: result.interpretation,
-        originalFilename: images.original,
-        normalizedFilename: images.normalized,
-      };
-    }
-  );
-
-  timer.checkpoint('finishedInterpretation');
-
-  timer.end();
-
-  return ok(pageInterpretations);
-}
-
 /**
  * Create an interpreter for the precinct scanner. The interpreter can be
  * configured and unconfigured with different election settings.
@@ -312,11 +173,31 @@ export function createInterpreter(): PrecinctScannerInterpreter {
 
     interpret: async (sheetId, sheet) => {
       if (!config) return err(Error('Interpreter not configured'));
-      const result = config.electionDefinition.election.gridLayouts
-        ? await nhInterpret(sheetId, sheet, config)
-        : await vxInterpret(sheetId, sheet, config);
-      if (result.isErr()) return result;
-      const pageInterpretations = result.ok();
+
+      const {
+        electionDefinition,
+        ballotImagesPath,
+        precinctSelection,
+        testMode,
+      } = config;
+      const timer = time(rootDebug, `vxInterpret: ${sheetId}`);
+
+      const pageInterpretations = await interpretSheetAndSaveImages(
+        {
+          electionDefinition,
+          precinctSelection,
+          testMode,
+          adjudicationReasons:
+            electionDefinition.election.precinctScanAdjudicationReasons,
+          markThresholds: config.markThresholdOverrides,
+        },
+        sheet,
+        sheetId,
+        ballotImagesPath
+      );
+
+      timer.end();
+
       return ok({
         ...combinePageInterpretationsForSheet(pageInterpretations),
         pages: pageInterpretations,

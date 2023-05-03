@@ -7,11 +7,7 @@ import {
   MockUsb,
   validateCastVoteRecordReportDirectoryStructure,
 } from '@votingworks/backend';
-import {
-  asElectionDefinition,
-  electionSample as election,
-  sampleBallotImages,
-} from '@votingworks/fixtures';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { CVR, TEST_JURISDICTION, unsafeParse } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -96,11 +92,9 @@ test('going through the whole process works', async () => {
     .set('Accept', 'application/json')
     .expect(400);
 
-  importer.configure(asElectionDefinition(election), jurisdiction);
-
-  // sample ballot election hash does not match election hash for this test
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
+  importer.configure(
+    electionFamousNames2021Fixtures.electionDefinition,
+    jurisdiction
   );
 
   await request(app)
@@ -115,16 +109,8 @@ test('going through the whole process works', async () => {
     scanner
       .withNextScannerSession()
       .sheet([
-        sampleBallotImages.sampleBatch1Ballot1.asFilePath(),
-        sampleBallotImages.blankPage.asFilePath(),
-      ])
-      .sheet([
-        sampleBallotImages.sampleBatch1Ballot2.asFilePath(),
-        sampleBallotImages.blankPage.asFilePath(),
-      ])
-      .sheet([
-        sampleBallotImages.sampleBatch1Ballot3.asFilePath(),
-        sampleBallotImages.blankPage.asFilePath(),
+        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
+        electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
       ])
       .end();
     await request(app)
@@ -145,7 +131,7 @@ test('going through the whole process works', async () => {
       .set('Accept', 'application/json')
       .expect(200);
 
-    expect(JSON.parse(status.text).batches[0].count).toEqual(3);
+    expect(JSON.parse(status.text).batches[0].count).toEqual(1);
   }
 
   {
@@ -158,7 +144,7 @@ test('going through the whole process works', async () => {
 
     const [usbDrive] = await mockUsb.mock.getUsbDrives();
     const cvrReportDirectoryPath = getCastVoteRecordReportPaths(usbDrive)[0];
-    expect(cvrReportDirectoryPath).toContain('TEST__machine_000__3_ballots__');
+    expect(cvrReportDirectoryPath).toContain('TEST__machine_000__1_ballot__');
 
     // check that exported report directory appears valid
     expect(
@@ -184,15 +170,10 @@ test('going through the whole process works', async () => {
         convertCastVoteRecordVotesToLegacyVotes(cvr.CVRSnapshot[0])
       )
     ).toEqual([
-      // sample-batch-1-ballot-1.png
-      expect.objectContaining({ president: ['cramer-vuocolo'] }),
-      // sample-batch-1-ballot-2.png
       expect.objectContaining({
-        president: ['boone-lian'],
-        'county-commissioners': ['argent', 'bainbridge', 'write-in-0'],
+        mayor: ['sherlock-holmes'],
+        controller: ['winston-churchill'],
       }),
-      // sample-batch-1-ballot-3.png
-      expect.objectContaining({ president: ['barchi-hallaren'] }),
     ]);
   }
 

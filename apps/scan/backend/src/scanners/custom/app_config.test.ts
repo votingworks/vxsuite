@@ -37,14 +37,6 @@ import { SheetInterpretation } from '../../types';
 import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
-jest.mock('@votingworks/ballot-encoder', () => {
-  return {
-    ...jest.requireActual('@votingworks/ballot-encoder'),
-    // to allow changing election definitions without changing the image fixtures
-    // TODO: generate image fixtures from election definitions more easily
-    sliceElectionHash: () => 'da81438d51136692b43c',
-  };
-});
 
 async function scanBallot(
   mockScanner: jest.Mocked<CustomScanner>,
@@ -55,6 +47,8 @@ async function scanBallot(
   await waitForStatus(apiClient, {
     state: 'ready_to_scan',
     ballotsCounted: initialBallotsCounted,
+    canUnconfigure:
+      initialBallotsCounted === 0 || (await apiClient.getConfig()).isTestMode,
   });
 
   const interpretation: SheetInterpretation = {
@@ -68,6 +62,7 @@ async function scanBallot(
     state: 'ready_to_accept',
     interpretation,
     ballotsCounted: initialBallotsCounted,
+    canUnconfigure: true,
   });
   await apiClient.acceptBallot();
   mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
@@ -75,12 +70,14 @@ async function scanBallot(
     ballotsCounted: initialBallotsCounted + 1,
     state: 'accepted',
     interpretation,
+    canUnconfigure: true,
   });
 
   // Wait for transition back to no paper
   await waitForStatus(apiClient, {
     state: 'no_paper',
     ballotsCounted: initialBallotsCounted + 1,
+    canUnconfigure: true,
   });
 }
 
@@ -249,7 +246,7 @@ test('export CVRs to USB', async () => {
   await withApp(
     {},
     async ({ apiClient, mockScanner, mockUsb, mockAuth, workspace }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+      await configureApp(apiClient, mockUsb, { mockAuth, testMode: true });
       await scanBallot(mockScanner, apiClient, 0);
       expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 
@@ -335,7 +332,7 @@ test('ballot batching', async () => {
       mockUsb,
       mockAuth,
     }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+      await configureApp(apiClient, mockUsb, { mockAuth, testMode: true });
 
       // Scan two ballots, which should have the same batch
       await scanBallot(mockScanner, apiClient, 0);

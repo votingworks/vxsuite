@@ -35,16 +35,6 @@ import { SheetInterpretation } from '../../types';
 import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
-jest.mock('@votingworks/ballot-encoder', () => {
-  return {
-    ...jest.requireActual('@votingworks/ballot-encoder'),
-    // to allow changing election definitions without changing the image fixtures
-    // TODO: generate image fixtures from election definitions more easily
-    // this election hash is for the famous names image fixtures
-    sliceElectionHash: () => 'da81438d51136692b43c',
-  };
-});
-
 /**
  * Basic checks for logging. We don't try to be exhaustive here because paper
  * status polling can be a bit non-deterministic, so logs can vary between runs.
@@ -136,7 +126,7 @@ test('configure and scan bmd ballot', async () => {
   await withApp(
     {},
     async ({ apiClient, mockScanner, mockUsb, logger, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+      await configureApp(apiClient, mockUsb, { mockAuth, testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -152,24 +142,28 @@ test('configure and scan bmd ballot', async () => {
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
+        canUnconfigure: true,
       });
 
       await apiClient.acceptBallot();
       await expectStatus(apiClient, {
         state: 'accepting',
         interpretation,
+        canUnconfigure: true,
       });
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, {
         state: 'accepted',
         interpretation,
         ballotsCounted: 1,
+        canUnconfigure: true,
       });
 
       // Test scanning again without first transitioning back to no_paper
       await waitForStatus(apiClient, {
         state: 'ready_to_scan',
         ballotsCounted: 1,
+        canUnconfigure: true,
       });
 
       // Check the CVR

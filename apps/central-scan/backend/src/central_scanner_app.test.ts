@@ -147,11 +147,6 @@ const sheet: SheetOf<PageInterpretationWithFiles> = [
   },
 ];
 
-test('reloads configuration from the store', () => {
-  // did we load everything from the store?
-  expect(importer.restoreConfig).toHaveBeenCalled();
-});
-
 test('GET /config/election (application/octet-stream)', async () => {
   workspace.store.setElectionAndJurisdiction({
     electionData: testElectionDefinition.electionData,
