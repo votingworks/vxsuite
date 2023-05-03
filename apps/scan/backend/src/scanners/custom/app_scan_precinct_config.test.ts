@@ -10,20 +10,15 @@ import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
 import { SheetInterpretation } from '../../types';
 
 jest.setTimeout(20_000);
-jest.mock('@votingworks/ballot-encoder', () => {
-  return {
-    ...jest.requireActual('@votingworks/ballot-encoder'),
-    // to allow changing election definitions without changing the image fixtures
-    // TODO: generate image fixtures from election definitions more easily
-    // this election hash is for the famous names image fixtures
-    sliceElectionHash: () => 'da81438d51136692b43c',
-  };
-});
 
 test('bmd ballot is rejected when scanned for wrong precinct', async () => {
   await withApp({}, async ({ apiClient, mockScanner, mockUsb, mockAuth }) => {
     // Ballot should be rejected when configured for the wrong precinct
-    await configureApp(apiClient, mockUsb, { precinctId: '22', mockAuth });
+    await configureApp(apiClient, mockUsb, {
+      precinctId: '22',
+      mockAuth,
+      testMode: true,
+    });
 
     mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
     await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -55,7 +50,11 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
 test('bmd ballot is accepted if precinct is set for the right precinct', async () => {
   await withApp({}, async ({ apiClient, mockScanner, mockUsb, mockAuth }) => {
     // Configure for the proper precinct and verify the ballot scans
-    await configureApp(apiClient, mockUsb, { precinctId: '23', mockAuth });
+    await configureApp(apiClient, mockUsb, {
+      precinctId: '23',
+      mockAuth,
+      testMode: true,
+    });
 
     const validInterpretation: SheetInterpretation = {
       type: 'ValidSheet',

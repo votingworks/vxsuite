@@ -67,10 +67,12 @@ export async function configureApp(
     ballotPackage = electionFamousNames2021Fixtures.electionJson.toBallotPackage(),
     precinctId,
     mockAuth,
+    testMode = false,
   }: {
     ballotPackage?: BallotPackage;
     precinctId?: PrecinctId;
     mockAuth?: InsertedSmartCardAuthApi;
+    testMode?: boolean;
   } = {}
 ): Promise<void> {
   if (mockAuth) {
@@ -98,7 +100,7 @@ export async function configureApp(
       ? singlePrecinctSelectionFor(precinctId)
       : ALL_PRECINCTS_SELECTION,
   });
-  await apiClient.setTestMode({ isTestMode: false });
+  await apiClient.setTestMode({ isTestMode: testMode });
   await apiClient.setPollsState({ pollsState: 'polls_open' });
 }
 

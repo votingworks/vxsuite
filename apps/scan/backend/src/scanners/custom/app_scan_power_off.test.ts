@@ -11,15 +11,6 @@ import { SheetInterpretation } from '../../types';
 import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
-jest.mock('@votingworks/ballot-encoder', () => {
-  return {
-    ...jest.requireActual('@votingworks/ballot-encoder'),
-    // to allow changing election definitions without changing the image fixtures
-    // TODO: generate image fixtures from election definitions more easily
-    // this election hash is for the famous names image fixtures
-    sliceElectionHash: () => 'da81438d51136692b43c',
-  };
-});
 
 const needsReviewInterpretation: SheetInterpretation = {
   type: 'NeedsReviewSheet',

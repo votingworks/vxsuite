@@ -12,15 +12,6 @@ import { SheetInterpretation } from '../../types';
 import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
-jest.mock('@votingworks/ballot-encoder', () => {
-  return {
-    ...jest.requireActual('@votingworks/ballot-encoder'),
-    // to allow changing election definitions without changing the image fixtures
-    // TODO: generate image fixtures from election definitions more easily
-    // this election hash is for the famous names image fixtures
-    sliceElectionHash: () => 'da81438d51136692b43c',
-  };
-});
 
 const needsReviewInterpretation: SheetInterpretation = {
   type: 'NeedsReviewSheet',
@@ -31,7 +22,7 @@ test('insert second ballot before first ballot accept', async () => {
   await withApp(
     { delays: {} },
     async ({ apiClient, mockScanner, mockUsb, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+      await configureApp(apiClient, mockUsb, { mockAuth, testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -58,7 +49,11 @@ test('insert second ballot before first ballot accept', async () => {
       await waitForStatus(apiClient, { state: 'accepting', interpretation });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
-      await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
+      await waitForStatus(apiClient, {
+        state: 'no_paper',
+        ballotsCounted: 1,
+        canUnconfigure: true,
+      });
     }
   );
 });
