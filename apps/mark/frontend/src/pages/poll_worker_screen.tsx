@@ -719,7 +719,7 @@ export function PollWorkerScreen({
                   <React.Fragment>
                     <P>
                       <Button
-                        variant="primary"
+                        variant="previousPrimary"
                         onPress={() => setIsHidingSelectBallotStyle(false)}
                       >
                         Back to Ballot Style Selection
