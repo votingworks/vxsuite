@@ -6,8 +6,6 @@ import {
   ChangePrecinctButton,
   CurrentDateAndTime,
   ElectionInfoBar,
-  H1,
-  H2,
   Main,
   Prose,
   Screen,
@@ -19,6 +17,8 @@ import {
   Caption,
   Font,
   Icons,
+  H4,
+  H1,
 } from '@votingworks/ui';
 import {
   ElectionDefinition,
@@ -73,22 +73,24 @@ export function AdminScreen({
       {election && !isLiveMode && <TestMode />}
       <Main padded>
         <Prose>
-          <H1>
+          <H1 as="h1">
             VxMark{' '}
             <Font weight="light" noWrap>
               Election Manager Actions
             </Font>
           </H1>
-          <P weight="bold">Remove card when finished.</P>
+          <P weight="bold">
+            <Icons.Info /> Remove card when finished.
+          </P>
           {election && (
             <React.Fragment>
-              <H2>Stats</H2>
+              <H4 as="h2">Stats</H4>
               <P>
                 Ballots Printed: <strong>{ballotsPrintedCount}</strong>
               </P>
-              <H2>
+              <H4 as="h2">
                 <label htmlFor="selectPrecinct">Precinct</label>
-              </H2>
+              </H4>
               <P>
                 <ChangePrecinctButton
                   appPrecinctSelection={appPrecinct}
@@ -116,7 +118,7 @@ export function AdminScreen({
                   </React.Fragment>
                 )}
               </P>
-              <H2>Test Ballot Mode</H2>
+              <H4 as="h2">Test Ballot Mode</H4>
               <P>
                 <SegmentedButton
                   label="Test Ballot Mode"
@@ -135,14 +137,16 @@ export function AdminScreen({
               </P>
             </React.Fragment>
           )}
-          <H2>Current Date and Time</H2>
+          <H4 as="h2">Current Date and Time</H4>
           <P>
-            <CurrentDateAndTime />
+            <Caption>
+              <CurrentDateAndTime />
+            </Caption>
           </P>
           <P>
             <SetClockButton>Update Date and Time</SetClockButton>
           </P>
-          <H2>Configuration</H2>
+          <H4 as="h2">Configuration</H4>
           <P>
             <Font color="success">
               <Icons.Checkbox />
@@ -152,7 +156,7 @@ export function AdminScreen({
               Unconfigure Machine
             </Button>
           </P>
-          <H2>USB</H2>
+          <H4 as="h2">USB</H4>
           <UsbControllerButton
             small={false}
             primary
