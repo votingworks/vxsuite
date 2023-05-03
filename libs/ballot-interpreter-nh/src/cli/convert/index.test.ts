@@ -3,6 +3,7 @@ import { fakeReadable, fakeWritable, mockOf } from '@votingworks/test-utils';
 import { createImageData } from 'canvas';
 import { readFileSync } from 'fs';
 import { fileSync } from 'tmp';
+import { err, ok } from '@votingworks/basics';
 import { main } from '.';
 import { Stdio } from '..';
 import { convertElectionDefinition, ConvertIssueKind } from '../../convert';
@@ -167,11 +168,9 @@ test('convert to stdout', async () => {
 
   const { election } = electionGridLayoutNewHampshireHudsonFixtures;
 
-  mockOf(convertElectionDefinition).mockReturnValue({
-    success: true,
-    election,
-    issues: [],
-  });
+  mockOf(convertElectionDefinition).mockReturnValue(
+    ok({ election, issues: [] })
+  );
 
   const exitCode = await main(
     [
@@ -204,11 +203,9 @@ test('convert to file', async () => {
 
   const { election } = electionGridLayoutNewHampshireHudsonFixtures;
 
-  mockOf(convertElectionDefinition).mockReturnValue({
-    success: true,
-    election,
-    issues: [],
-  });
+  mockOf(convertElectionDefinition).mockReturnValue(
+    ok({ election, issues: [] })
+  );
 
   const outputFile = fileSync();
   const exitCode = await main(
@@ -244,16 +241,17 @@ test('convert fails', async () => {
     stderr: fakeWritable(),
   };
 
-  mockOf(convertElectionDefinition).mockReturnValue({
-    success: false,
-    issues: [
-      {
-        kind: ConvertIssueKind.MissingDefinitionProperty,
-        message: 'ElectionID is missing',
-        property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
-      },
-    ],
-  });
+  mockOf(convertElectionDefinition).mockReturnValue(
+    err({
+      issues: [
+        {
+          kind: ConvertIssueKind.MissingDefinitionProperty,
+          message: 'ElectionID is missing',
+          property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+        },
+      ],
+    })
+  );
 
   const exitCode = await main(
     [

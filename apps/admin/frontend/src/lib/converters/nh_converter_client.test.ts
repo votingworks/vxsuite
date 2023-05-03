@@ -5,7 +5,7 @@ import {
 import { electionMinimalExhaustiveSample } from '@votingworks/fixtures';
 import { mockOf } from '@votingworks/test-utils';
 import { safeParseElection } from '@votingworks/types';
-import { iter, typedAs } from '@votingworks/basics';
+import { err, iter, ok, typedAs } from '@votingworks/basics';
 import { PdfPage } from '@votingworks/image-utils';
 import { pdfToImages } from '../../utils/pdf_to_images';
 import { readBlobAsString } from '../blob';
@@ -158,16 +158,17 @@ test('process without card ballot', async () => {
 test('conversion fails', async () => {
   const client = new NhConverterClient();
 
-  mockOf(convertElectionDefinition).mockReturnValue({
-    success: false,
-    issues: [
-      {
-        kind: ConvertIssueKind.MissingDefinitionProperty,
-        message: 'ElectionID is missing',
-        property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
-      },
-    ],
-  });
+  mockOf(convertElectionDefinition).mockReturnValue(
+    err({
+      issues: [
+        {
+          kind: ConvertIssueKind.MissingDefinitionProperty,
+          message: 'ElectionID is missing',
+          property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+        },
+      ],
+    })
+  );
   mockOf(pdfToImages).mockReturnValue(makePdfToImagesMockReturnValue());
 
   await client.setInputFile(
@@ -211,11 +212,12 @@ test('too many PDF pages', async () => {
 test('process success', async () => {
   const client = new NhConverterClient();
 
-  mockOf(convertElectionDefinition).mockReturnValue({
-    success: true,
-    election: electionMinimalExhaustiveSample,
-    issues: [],
-  });
+  mockOf(convertElectionDefinition).mockReturnValue(
+    ok({
+      election: electionMinimalExhaustiveSample,
+      issues: [],
+    })
+  );
   mockOf(pdfToImages).mockReturnValue(makePdfToImagesMockReturnValue());
 
   await client.setInputFile(

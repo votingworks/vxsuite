@@ -12,7 +12,7 @@ import {
   unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/basics';
+import { Result, typedAs } from '@votingworks/basics';
 import {
   readFixtureBallotCardDefinition,
   readFixtureDefinition,
@@ -40,10 +40,10 @@ test('converting the Hudson ballot', async () => {
     TemplateBallotCardGeometry8pt5x14
   );
   const debug = testImageDebugger(hudsonBallotCardDefinition.front);
-  const convertResult = convertElectionDefinition(hudsonBallotCardDefinition, {
+  const converted = convertElectionDefinition(hudsonBallotCardDefinition, {
     ovalTemplate: await templates.getOvalTemplate(),
     debug,
-  });
+  }).unsafeUnwrap();
 
   // uncomment this to update the fixture
   // require('fs').writeFileSync(
@@ -56,13 +56,9 @@ test('converting the Hudson ballot', async () => {
   // );
 
   const { election } = electionGridLayoutNewHampshireHudsonFixtures;
-  expect(convertResult).toEqual({
-    success: true,
-    election,
-    issues: [],
-  });
+  expect(converted).toEqual({ election, issues: [] });
 
-  expect(convertResult.election).toMatchObject(
+  expect(converted.election).toMatchObject(
     electionGridLayoutNewHampshireHudsonFixtures.electionDefinition.election
   );
 });
@@ -76,11 +72,11 @@ test('letter-size card definition', () => {
     'BallotSize'
   )[0]!.textContent = '8.5X11';
 
-  const convertHeaderResult = convertElectionDefinitionHeader(
+  const header = convertElectionDefinitionHeader(
     hudsonBallotCardDefinition
-  );
+  ).unsafeUnwrap();
 
-  expect(convertHeaderResult.election?.ballotLayout?.paperSize).toEqual(
+  expect(header.election?.ballotLayout?.paperSize).toEqual(
     BallotPaperSize.Letter
   );
 });
@@ -100,7 +96,7 @@ test('mismatched ballot image size', async () => {
   expect(
     convertElectionDefinition(hudsonBallotCardDefinition, {
       ovalTemplate: await templates.getOvalTemplate(),
-    }).issues
+    }).unsafeUnwrap().issues
   ).toEqual(
     expect.arrayContaining([
       typedAs<ConvertIssue>({
@@ -126,7 +122,9 @@ test('missing ElectionID', () => {
   electionIdElement.parentNode?.removeChild(electionIdElement);
 
   expect(
-    convertElectionDefinitionHeader(hudsonBallotCardDefinition).issues
+    convertElectionDefinitionHeader(
+      hudsonBallotCardDefinition
+    ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
       kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -146,7 +144,9 @@ test('missing ElectionName', () => {
   electionNameElement.parentNode?.removeChild(electionNameElement);
 
   expect(
-    convertElectionDefinitionHeader(hudsonBallotCardDefinition).issues
+    convertElectionDefinitionHeader(
+      hudsonBallotCardDefinition
+    ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
       kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -166,7 +166,9 @@ test('missing TownName', () => {
   townNameElement.parentNode?.removeChild(townNameElement);
 
   expect(
-    convertElectionDefinitionHeader(hudsonBallotCardDefinition).issues
+    convertElectionDefinitionHeader(
+      hudsonBallotCardDefinition
+    ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
       kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -186,7 +188,9 @@ test('missing TownID', () => {
   townIdElement.parentNode?.removeChild(townIdElement);
 
   expect(
-    convertElectionDefinitionHeader(hudsonBallotCardDefinition).issues
+    convertElectionDefinitionHeader(
+      hudsonBallotCardDefinition
+    ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
       kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -206,7 +210,9 @@ test('missing ElectionDate', () => {
   electionDateElement.parentNode?.removeChild(electionDateElement);
 
   expect(
-    convertElectionDefinitionHeader(hudsonBallotCardDefinition).issues
+    convertElectionDefinitionHeader(
+      hudsonBallotCardDefinition
+    ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
       kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -226,7 +232,9 @@ test('missing PrecinctID', () => {
   precinctIdElement.parentNode?.removeChild(precinctIdElement);
 
   expect(
-    convertElectionDefinitionHeader(hudsonBallotCardDefinition).issues
+    convertElectionDefinitionHeader(
+      hudsonBallotCardDefinition
+    ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
       kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -242,8 +250,8 @@ test('multi-party endorsement', () => {
   );
 
   expect(
-    convertElectionDefinitionHeader(amherstBallotCardDefinition).election
-      ?.contests
+    convertElectionDefinitionHeader(amherstBallotCardDefinition).unsafeUnwrap()
+      .election?.contests
   ).toEqual(
     expect.arrayContaining([
       expect.objectContaining(
@@ -291,7 +299,9 @@ test('missing Party on multi-party endorsement', () => {
   );
 
   expect(
-    convertElectionDefinitionHeader(amherstBallotCardDefinition).issues
+    convertElectionDefinitionHeader(
+      amherstBallotCardDefinition
+    ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
       kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -402,14 +412,14 @@ test('default adjudication reasons', async () => {
     TemplateBallotCardGeometry8pt5x14
   );
   const debug = testImageDebugger(hudsonBallotCardDefinition.front);
-  const convertResult = convertElectionDefinition(hudsonBallotCardDefinition, {
+  const converted = convertElectionDefinition(hudsonBallotCardDefinition, {
     ovalTemplate: await templates.getOvalTemplate(),
     debug,
-  });
-  expect(convertResult.election?.centralScanAdjudicationReasons).toEqual(
+  }).unsafeUnwrap();
+  expect(converted.election?.centralScanAdjudicationReasons).toEqual(
     typedAs<AdjudicationReason[]>([AdjudicationReason.Overvote])
   );
-  expect(convertResult.election?.precinctScanAdjudicationReasons).toEqual(
+  expect(converted.election?.precinctScanAdjudicationReasons).toEqual(
     typedAs<AdjudicationReason[]>([AdjudicationReason.Overvote])
   );
 });
@@ -421,12 +431,12 @@ test('constitutional questions become yesno contests', async () => {
     await electionGridLayoutNewHampshireAmherstFixtures.templateBack.asImage(),
     TemplateBallotCardGeometry8pt5x11
   );
-  const convertResult = convertElectionDefinitionHeader(
+  const converted = convertElectionDefinitionHeader(
     amherstBallotCardDefinition.definition
-  );
+  ).unsafeUnwrap();
 
   expect(
-    convertResult.election?.contests.filter((c) => c.type === 'yesno')
+    converted.election?.contests.filter((c) => c.type === 'yesno')
   ).toEqual(
     typedAs<YesNoContest[]>([
       {
@@ -448,9 +458,9 @@ test('constitutional question ovals get placed on the grid correctly', async () 
     await electionGridLayoutNewHampshireAmherstFixtures.templateBack.asImage(),
     TemplateBallotCardGeometry8pt5x11
   );
-  const convertResult = convertElectionDefinition(amherstBallotCardDefinition, {
+  const converted = convertElectionDefinition(amherstBallotCardDefinition, {
     ovalTemplate: await templates.getOvalTemplate(),
-  });
+  }).unsafeUnwrap();
 
   // uncomment this to update the fixture
   // require('fs').writeFileSync(
@@ -462,9 +472,8 @@ test('constitutional question ovals get placed on the grid correctly', async () 
   //   'utf8'
   // );
 
-  expect(convertResult).toEqual(
-    typedAs<ConvertResult>({
-      success: true,
+  expect(converted).toEqual(
+    typedAs<ConvertResult extends Result<infer T, unknown> ? T : never>({
       issues: expect.any(Array),
       election: expect.objectContaining({
         contests: expect.arrayContaining([
@@ -510,13 +519,13 @@ test('constitutional question ovals get placed on the grid correctly', async () 
     })
   );
 
-  for (const issue of convertResult.issues) {
+  for (const issue of converted.issues) {
     expect(issue).not.toMatchObject({
       kind: ConvertIssueKind.MismatchedOvalGrids,
     });
   }
 
-  expect(convertResult.election).toMatchObject(
+  expect(converted.election).toMatchObject(
     electionGridLayoutNewHampshireAmherstFixtures.electionDefinition.election
   );
 });

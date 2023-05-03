@@ -79,20 +79,14 @@ export class NhConverterClient implements ConverterClient {
 
     const [front, back] = nhCardBallotImages;
 
-    const convertResult = convertElectionDefinition(
+    const { election } = convertElectionDefinition(
       {
         definition,
         front,
         back,
       },
       { ovalTemplate: await templates.getOvalTemplate() }
-    );
-
-    if (!convertResult.success) {
-      throw convertResult;
-    }
-
-    const { election } = convertResult;
+    ).unsafeUnwrap();
 
     this.outputFiles.set(
       VxElectionDefinitionFile,
