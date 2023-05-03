@@ -3,13 +3,10 @@ import {
   fakeFileWriter,
   fakeKiosk,
   fakeUsbDrive,
-  mockOf,
 } from '@votingworks/test-utils';
 import React from 'react';
 import { UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
-import { iter } from '@votingworks/basics';
-import { interpretMultiPagePdfTemplate } from '@votingworks/ballot-interpreter-vx';
 import {
   fireEvent,
   screen,
@@ -19,11 +16,6 @@ import {
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ExportElectionBallotPackageModalButton } from './export_election_ballot_package_modal_button';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
-
-jest.mock('@votingworks/ballot-interpreter-vx', () => ({
-  ...jest.requireActual('@votingworks/ballot-interpreter-vx'),
-  interpretMultiPagePdfTemplate: jest.fn(),
-}));
 
 let apiMock: ApiMock;
 
@@ -37,9 +29,6 @@ beforeEach(() => {
   mockKiosk.saveAs = jest.fn().mockResolvedValue(fileWriter);
   mockKiosk.writeFile = jest.fn().mockResolvedValue(fileWriter);
   window.kiosk = mockKiosk;
-  mockOf(interpretMultiPagePdfTemplate).mockImplementation(() =>
-    iter([]).async()
-  );
 });
 
 afterEach(() => {

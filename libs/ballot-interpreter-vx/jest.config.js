@@ -5,13 +5,12 @@ const shared = require('../../jest.config.shared');
  */
 module.exports = {
   ...shared,
-  collectCoverageFrom: [...shared.collectCoverageFrom],
   coverageThreshold: {
     global: {
-      statements: 0,
-      branches: 0,
-      lines: 0,
-      functions: 0,
+      statements: 91,
+      branches: 60,
+      functions: 80,
+      lines: 90,
     },
   },
 };

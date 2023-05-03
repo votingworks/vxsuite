@@ -19,8 +19,6 @@ import {
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { emptyDirSync } from 'fs-extra';
-import { join } from 'path';
 import { detectQrcodeInFilePath } from '@votingworks/ballot-interpreter-vx';
 import { throwIllegalValue } from '@votingworks/basics';
 import { Interpreter, sheetRequiresAdjudication } from './interpreter';
@@ -42,9 +40,6 @@ beforeEach(() => {
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
-
-const interpreterOutputPath = join(__dirname, '..', 'test-output-dir/');
-emptyDirSync(interpreterOutputPath);
 
 test('extracts votes encoded in a QR code', async () => {
   const ballotImagePath = sampleBallotImages.sampleBatch1Ballot1.asFilePath();

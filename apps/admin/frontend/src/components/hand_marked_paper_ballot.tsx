@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import DomPurify from 'dompurify';
 import moment from 'moment';
 import 'moment/min/locales';
-import { fromByteArray } from 'base64-js';
 import { Handler, Previewer, registerHandlers } from 'pagedjs';
 import { TFunction, StringMap } from 'i18next';
 import { useTranslation, Trans } from 'react-i18next';
@@ -23,7 +22,6 @@ import {
   getContests,
   getPartyFullNameFromBallotStyle,
   getPrecinctById,
-  safeParseElection,
   ContestOption,
   BallotStyleId,
   PrecinctId,
@@ -34,8 +32,6 @@ import {
   getContestDistrictName,
 } from '@votingworks/types';
 import { QrCode, HandMarkedPaperBallotProse, Text } from '@votingworks/ui';
-
-import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 
 import type { BallotMode } from '@votingworks/admin-backend';
 import { BubbleMark } from './bubble_mark';
@@ -227,43 +223,11 @@ class PostRenderBallotProcessor extends Handler {
 
     // Post-process QR codes in footer.
     for (const page of pages) {
-      const { pageNumber } = page.element.dataset;
-      assert(typeof pageNumber !== 'undefined');
       const qrCodeTarget = page.element.getElementsByClassName(
         qrCodeTargetClassName
       )[0];
       if (qrCodeTarget && qrCodeTarget instanceof HTMLElement) {
-        const election = safeParseElection(
-          qrCodeTarget.dataset['election'] ?? ''
-        ).unsafeUnwrap();
-        const {
-          electionHash,
-          precinctId,
-          ballotStyleId,
-          isTestMode,
-          locales,
-          ballotType,
-          ballotId,
-        }: HmpbBallotMetadata = JSON.parse(
-          qrCodeTarget.dataset['metadata'] ?? ''
-        );
-
-        const encoded = encodeHmpbBallotPageMetadata(election, {
-          electionHash: electionHash.substring(0, 20),
-          ballotStyleId,
-          precinctId,
-          locales,
-          isTestMode,
-          // eslint-disable-next-line vx/gts-safe-number-parse
-          pageNumber: parseInt(pageNumber, 10),
-          ballotType,
-          ballotId,
-        });
-
-        ReactDom.render(
-          <QrCode level="L" value={fromByteArray(encoded)} />,
-          qrCodeTarget
-        );
+        ReactDom.render(<QrCode level="L" value="placeholder" />, qrCodeTarget);
       }
     }
   }

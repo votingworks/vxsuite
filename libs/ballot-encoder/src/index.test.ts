@@ -1,39 +1,31 @@
-import {
-  electionSampleLongContentDefinition as electionDefinition,
-  electionWithMsEitherNeitherDefinition,
-} from '@votingworks/fixtures';
+import { electionSampleLongContentDefinition as electionDefinition } from '@votingworks/fixtures';
 import {
   BallotIdSchema,
   BallotType,
   BallotTypeMaximumValue,
   CompletedBallot,
   getContests,
-  HmpbBallotPageMetadata,
   isVotePresent,
   unsafeParse,
   vote,
   VotesDict,
 } from '@votingworks/types';
 import '../test/expect';
-import { BitWriter, toUint8, Utf8Encoding } from './bits';
+import { BitWriter, toUint8 } from './bits';
 import {
   decodeBallot,
   decodeElectionHash,
-  decodeHmpbBallotPageMetadata,
   detectRawBytesBmdBallot,
-  detectHmpbBallotPageMetadata,
-  isHmpbMetadata,
   isVxBallot,
   ELECTION_HASH_LENGTH,
   encodeBallot,
   encodeBallotInto,
-  encodeHmpbBallotPageMetadata,
   HexEncoding,
   MAXIMUM_WRITE_IN_LENGTH,
   Prelude,
-  HmpbPrelude,
   WriteInEncoding,
   sliceElectionHash,
+  encodeBallotConfigInto,
 } from './index';
 
 function falses(count: number): boolean[] {
@@ -58,29 +50,6 @@ test('can detect an encoded ballot', () => {
   expect(isVxBallot(Uint8Array.of())).toEqual(false);
   expect(isVxBallot(Uint8Array.of(0, ...Prelude))).toEqual(false);
   expect(isVxBallot(Uint8Array.of(...Prelude.slice(0, -2)))).toEqual(false);
-});
-
-test('can detect an hmpb ballot', () => {
-  expect(isHmpbMetadata(Uint8Array.of(...HmpbPrelude))).toEqual(true);
-  expect(isHmpbMetadata(Uint8Array.of())).toEqual(false);
-  expect(isHmpbMetadata(Uint8Array.of(0, ...HmpbPrelude))).toEqual(false);
-  expect(isHmpbMetadata(Uint8Array.of(...HmpbPrelude.slice(0, -2)))).toEqual(
-    false
-  );
-
-  expect(isVxBallot(Uint8Array.of(...HmpbPrelude))).toEqual(true);
-  expect(isVxBallot(Uint8Array.of())).toEqual(false);
-  expect(isVxBallot(Uint8Array.of(0, ...HmpbPrelude))).toEqual(false);
-  expect(isVxBallot(Uint8Array.of(...HmpbPrelude.slice(0, -2)))).toEqual(false);
-});
-
-test('can detect our legacy formats', () => {
-  const hmpbMetadata =
-    'https://ballot.page/?t=_&pr=23&bs=12&l1=en-US&l2=es-US&p=5-5';
-  const bmdData = 'https://vx.vote/?t=_&pr=42&bs=77&p=2-2';
-
-  expect(isVxBallot(Utf8Encoding.encode(hmpbMetadata))).toEqual(true);
-  expect(isVxBallot(Utf8Encoding.encode(bmdData))).toEqual(true);
 });
 
 test('encodes & decodes with Uint8Array as the standard encoding interface', () => {
@@ -108,7 +77,7 @@ test('encodes & decodes with Uint8Array as the standard encoding interface', () 
   });
 });
 
-it('encodes & decodes empty votes correctly', () => {
+test('encodes & decodes empty votes correctly', () => {
   const { election, electionHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
@@ -165,7 +134,7 @@ it('encodes & decodes empty votes correctly', () => {
   });
 });
 
-it('encodes & decodes without a ballot id', () => {
+test('encodes & decodes without a ballot id', () => {
   const { election, electionHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
@@ -218,7 +187,7 @@ it('encodes & decodes without a ballot id', () => {
   });
 });
 
-it('encodes & decodes whether it is a test ballot', () => {
+test('encodes & decodes whether it is a test ballot', () => {
   const { election, electionHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
@@ -275,7 +244,7 @@ it('encodes & decodes whether it is a test ballot', () => {
   });
 });
 
-it('encodes & decodes the ballot type', () => {
+test('encodes & decodes the ballot type', () => {
   const { election, electionHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
@@ -332,7 +301,7 @@ it('encodes & decodes the ballot type', () => {
   });
 });
 
-it('encodes & decodes yesno votes correctly', () => {
+test('encodes & decodes yesno votes correctly', () => {
   const { election, electionHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
@@ -407,7 +376,52 @@ it('encodes & decodes yesno votes correctly', () => {
   );
 });
 
-it('throws on trying to encode a bad yes/no vote', () => {
+test('throws on invalid precinct', () => {
+  const { election, electionHash } = electionDefinition;
+  const ballotStyle = election.ballotStyles[0]!;
+  const ballotStyleId = ballotStyle.id;
+  const precinctId = 'not-a-precinct';
+  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
+  const contests = getContests({ ballotStyle, election });
+  const votes = vote(contests, {});
+  const ballot: CompletedBallot = {
+    electionHash,
+    ballotId,
+    ballotStyleId,
+    precinctId,
+    votes,
+    isTestMode: false,
+    ballotType: BallotType.Standard,
+  };
+
+  expect(() => encodeBallot(election, ballot)).toThrowError(
+    'precinct ID not found: not-a-precinct'
+  );
+});
+
+test('throws on invalid ballot style', () => {
+  const { election } = electionDefinition;
+  const precinct = election.precincts[0]!;
+  const ballotStyleId = 'not-a-ballot-style';
+  const precinctId = precinct.id;
+  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
+
+  expect(() =>
+    encodeBallotConfigInto(
+      election,
+      {
+        ballotStyleId,
+        precinctId,
+        ballotId,
+        ballotType: BallotType.Standard,
+        isTestMode: false,
+      },
+      new BitWriter()
+    )
+  ).toThrowError('ballot style ID not found: not-a-ballot-style');
+});
+
+test('throws on trying to encode a bad yes/no vote', () => {
   const { election, electionHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
@@ -439,7 +453,7 @@ it('throws on trying to encode a bad yes/no vote', () => {
   );
 });
 
-it('throws on trying to encode a ballot style', () => {
+test('throws on trying to encode a ballot style', () => {
   const { election, electionHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
@@ -585,7 +599,7 @@ test('throws on decoding an incorrect number of contests', () => {
   );
 });
 
-it('encodes & decodes candidate choice votes correctly', () => {
+test('encodes & decodes candidate choice votes correctly', () => {
   const { election, electionHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
@@ -684,7 +698,7 @@ it('encodes & decodes candidate choice votes correctly', () => {
   });
 });
 
-it('encodes & decodes write-in votes correctly', () => {
+test('encodes & decodes write-in votes correctly', () => {
   const { election, electionHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
@@ -873,189 +887,6 @@ test('cannot decode a ballot that includes too much padding at the end', () => {
   expect(() => decodeBallot(election, corruptedBallot)).toThrowError(
     'unexpected data found while reading padding, expected EOF'
   );
-});
-
-test('encode and decode HMPB ballot page metadata', () => {
-  const { election, electionHash } = electionDefinition;
-  const ballotMetadata: HmpbBallotPageMetadata = {
-    electionHash,
-    precinctId: election.ballotStyles[0]!.precincts[0]!,
-    ballotStyleId: election.ballotStyles[0]!.id,
-    locales: {
-      primary: 'en-US',
-    },
-    pageNumber: 3,
-    isTestMode: true,
-    ballotType: BallotType.Standard,
-  };
-
-  const encoded = encodeHmpbBallotPageMetadata(election, ballotMetadata);
-  const decoded = decodeHmpbBallotPageMetadata(election, encoded);
-  expect(decoded).toEqual(ballotMetadata);
-
-  // corrupt the first byte and expect it to fail
-  encoded[0] = 42;
-  expect(() => decodeHmpbBallotPageMetadata(election, encoded)).toThrowError();
-});
-
-test('encode and decode HMPB ballot page metadata with ballot ID', () => {
-  const { election, electionHash } = electionWithMsEitherNeitherDefinition;
-  const ballotMetadata: HmpbBallotPageMetadata = {
-    electionHash,
-    precinctId: election.ballotStyles[2]!.precincts[1]!,
-    ballotStyleId: election.ballotStyles[2]!.id,
-    locales: {
-      primary: 'en-US',
-      secondary: 'es-US',
-    },
-    pageNumber: 2,
-    isTestMode: false,
-    ballotType: BallotType.Absentee,
-    ballotId: unsafeParse(BallotIdSchema, 'foobar'),
-  };
-
-  const encoded = encodeHmpbBallotPageMetadata(election, ballotMetadata);
-  const decoded = decodeHmpbBallotPageMetadata(election, encoded);
-  expect(decoded).toEqual(ballotMetadata);
-});
-
-test('encode HMPB ballot page metadata with bad precinct fails', () => {
-  const { election, electionHash } = electionDefinition;
-  const ballotMetadata: HmpbBallotPageMetadata = {
-    electionHash,
-    precinctId: 'SanDimas', // not an actual precinct ID
-    ballotStyleId: election.ballotStyles[0]!.id,
-    locales: {
-      primary: 'en-US',
-    },
-    pageNumber: 3,
-    isTestMode: true,
-    ballotType: BallotType.Standard,
-  };
-
-  expect(() =>
-    encodeHmpbBallotPageMetadata(election, ballotMetadata)
-  ).toThrowError('precinct ID not found: SanDimas');
-});
-
-test('encode HMPB ballot page metadata with bad ballot style fails', () => {
-  const { election, electionHash } = electionDefinition;
-  const ballotMetadata: HmpbBallotPageMetadata = {
-    electionHash,
-    precinctId: election.ballotStyles[0]!.precincts[0]!,
-    ballotStyleId: '42', // not a good ballot style
-    locales: {
-      primary: 'en-US',
-    },
-    pageNumber: 3,
-    isTestMode: true,
-    ballotType: BallotType.Standard,
-  };
-
-  expect(() =>
-    encodeHmpbBallotPageMetadata(election, ballotMetadata)
-  ).toThrowError('ballot style ID not found: 42');
-});
-
-test('encode HMPB ballot page metadata with bad primary locale', () => {
-  const { election, electionHash } = electionDefinition;
-  const ballotMetadata: HmpbBallotPageMetadata = {
-    electionHash,
-    precinctId: election.ballotStyles[0]!.precincts[0]!,
-    ballotStyleId: election.ballotStyles[0]!.id,
-    locales: {
-      primary: 'fr-CA', // not a supported locale
-    },
-    pageNumber: 3,
-    isTestMode: true,
-    ballotType: BallotType.Standard,
-  };
-
-  expect(() =>
-    encodeHmpbBallotPageMetadata(election, ballotMetadata)
-  ).toThrowError('primary locale not found: fr-CA');
-});
-
-test('encode HMPB ballot page metadata with bad secondary locale', () => {
-  const { election, electionHash } = electionDefinition;
-  const ballotMetadata: HmpbBallotPageMetadata = {
-    electionHash,
-    precinctId: election.ballotStyles[0]!.precincts[0]!,
-    ballotStyleId: election.ballotStyles[0]!.id,
-    locales: {
-      primary: 'en-US',
-      secondary: 'fr-CA', // not a supported locale
-    },
-    pageNumber: 3,
-    isTestMode: true,
-    ballotType: BallotType.Standard,
-  };
-
-  expect(() =>
-    encodeHmpbBallotPageMetadata(election, ballotMetadata)
-  ).toThrowError('secondary locale not found: fr-CA');
-});
-
-test('detect HMPB ballot page metadata', () => {
-  const { election, electionHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = ballotStyle.precincts[0]!;
-  const ballotMetadata: HmpbBallotPageMetadata = {
-    electionHash,
-    precinctId,
-    ballotStyleId: ballotStyle.id,
-    locales: {
-      primary: 'en-US',
-    },
-    pageNumber: 3,
-    isTestMode: true,
-    ballotType: BallotType.Standard,
-  };
-
-  // empty
-  expect(detectHmpbBallotPageMetadata(Uint8Array.of())).toEqual(false);
-
-  // gibberish
-  expect(detectHmpbBallotPageMetadata(Uint8Array.of(1, 2, 3))).toEqual(false);
-
-  // HMPB
-  expect(
-    detectHmpbBallotPageMetadata(
-      encodeHmpbBallotPageMetadata(election, ballotMetadata)
-    )
-  ).toEqual(true);
-
-  // BMD
-  expect(
-    detectHmpbBallotPageMetadata(
-      encodeBallot(election, {
-        electionHash,
-        ballotStyleId,
-        precinctId,
-        ballotType: BallotType.Standard,
-        isTestMode: false,
-        votes: {},
-      })
-    )
-  ).toEqual(false);
-});
-
-test('decode election hash from HMPB metadata', () => {
-  const { election, electionHash } = electionDefinition;
-  const ballotMetadata: HmpbBallotPageMetadata = {
-    electionHash,
-    precinctId: election.ballotStyles[0]!.precincts[0]!,
-    ballotStyleId: election.ballotStyles[0]!.id,
-    locales: { primary: 'en-US' },
-    pageNumber: 3,
-    isTestMode: true,
-    ballotType: BallotType.Standard,
-  };
-
-  expect(
-    decodeElectionHash(encodeHmpbBallotPageMetadata(election, ballotMetadata))
-  ).toEqual(electionHash);
 });
 
 test('decode election hash from BMD metadata', () => {

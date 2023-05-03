@@ -1,7 +1,6 @@
 import {
   BallotId,
   BallotIdSchema,
-  BallotLocale,
   BallotStyleId,
   BallotType,
   BallotTypeMaximumValue,
@@ -13,7 +12,6 @@ import {
   getBallotStyle,
   getContests,
   getPrecinctById,
-  HmpbBallotPageMetadata,
   isVotePresent,
   PrecinctId,
   unsafeParse,
@@ -29,7 +27,6 @@ import {
   toUint8,
   Uint8,
   Uint8Size,
-  Utf8Encoding,
 } from './bits';
 
 /**
@@ -55,16 +52,6 @@ export function sliceElectionHash(electionHash: string): string {
   return electionHash.slice(0, ELECTION_HASH_LENGTH);
 }
 
-/**
- * Which locales we support as ISO 639-1 codes.
- *
- * Pad this locale array so the same code can later be upgraded to support other
- * languages without breaking previously printed ballots.
- */
-export const SUPPORTED_LOCALES = ['en-US', 'es-US'].concat(
-  Array.from({ length: 250 })
-);
-
 // TODO: include "magic number" and encoding version
 
 /**
@@ -88,13 +75,6 @@ export const Prelude: readonly Uint8[] = [
 ];
 
 /**
- * The bytes we expect a hand-marked paper ballot to start with.
- */
-export const HmpbPrelude: readonly Uint8[] = [
-  /* V */ 86, /* P = Paper */ 80, /* version = */ 1,
-];
-
-/**
  * Detects whether `data` is a v1-encoded ballot.
  */
 export function detectRawBytesBmdBallot(data: Uint8Array): boolean {
@@ -106,40 +86,10 @@ export function detectRawBytesBmdBallot(data: Uint8Array): boolean {
 }
 
 /**
- * Detect whether `data` is bmd ballot data.
- */
-export function isBmdBallot(data: Uint8Array): boolean {
-  if (detectRawBytesBmdBallot(data)) {
-    return true;
-  }
-
-  // legacy BMD ballot with a URL
-  const dataAsString = Utf8Encoding.decode(data);
-  return dataAsString.startsWith('https://vx.vote');
-}
-
-/**
- * Detect whether `data` is hmpb ballot metadata.
- */
-export function isHmpbMetadata(data: Uint8Array): boolean {
-  const prelude = data.slice(0, HmpbPrelude.length);
-  if (
-    prelude.length === HmpbPrelude.length &&
-    prelude.every((byte, i) => byte === HmpbPrelude[i])
-  ) {
-    return true;
-  }
-
-  // legacy HMPB ballot metadata with a URL
-  const dataAsString = Utf8Encoding.decode(data);
-  return dataAsString.startsWith('https://ballot.page');
-}
-
-/**
  * Detect whether `data` is a votingworks encoded ballot / metadata.
  */
 export function isVxBallot(data: Uint8Array): boolean {
-  return isBmdBallot(data) || isHmpbMetadata(data);
+  return detectRawBytesBmdBallot(data);
 }
 
 /**
@@ -150,11 +100,6 @@ export interface BallotConfig {
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   isTestMode: boolean;
-  /**
-   * @deprecated to be replaced (https://github.com/votingworks/roadmap/issues/15)
-   */
-  locales?: BallotLocale;
-  pageNumber?: number;
   precinctId: PrecinctId;
 }
 
@@ -163,15 +108,7 @@ export interface BallotConfig {
  */
 export function encodeBallotConfigInto(
   election: Election,
-  {
-    ballotId,
-    ballotStyleId,
-    ballotType,
-    isTestMode,
-    locales,
-    pageNumber,
-    precinctId,
-  }: BallotConfig,
+  { ballotId, ballotStyleId, ballotType, isTestMode, precinctId }: BallotConfig,
   bits: BitWriter
 ): BitWriter {
   const { precincts, ballotStyles, contests } = election;
@@ -196,35 +133,6 @@ export function encodeBallotConfigInto(
     .writeUint(precinctIndex, { max: precinctCount - 1 })
     .writeUint(ballotStyleIndex, { max: ballotStyleCount - 1 });
 
-  if (locales) {
-    const primaryLocaleIndex = SUPPORTED_LOCALES.indexOf(locales.primary);
-    const secondaryLocaleIndex = locales.secondary
-      ? SUPPORTED_LOCALES.indexOf(locales.secondary)
-      : undefined;
-
-    if (primaryLocaleIndex === -1) {
-      throw new Error(`primary locale not found: ${locales.primary}`);
-    }
-
-    if (secondaryLocaleIndex === -1) {
-      throw new Error(`secondary locale not found: ${locales.secondary}`);
-    }
-
-    bits
-      .writeUint(primaryLocaleIndex, { max: SUPPORTED_LOCALES.length - 1 })
-      .writeBoolean(!!secondaryLocaleIndex);
-
-    if (secondaryLocaleIndex) {
-      bits.writeUint(secondaryLocaleIndex, {
-        max: SUPPORTED_LOCALES.length - 1,
-      });
-    }
-  }
-
-  if (typeof pageNumber === 'number') {
-    bits.writeUint(pageNumber, { max: MAXIMUM_PAGE_NUMBERS });
-  }
-
   bits
     .writeBoolean(isTestMode)
     .writeUint(ballotType, { max: BallotTypeMaximumValue });
@@ -239,51 +147,10 @@ export function encodeBallotConfigInto(
 }
 
 /**
- * Decodes a {@link BallotConfig} from a bit reader, skipping locales and page
- * number.
- */
-export function decodeBallotConfigFromReader(
-  election: Election,
-  {
-    readLocales,
-    readPageNumber,
-  }: { readLocales: false; readPageNumber: false },
-  bits: BitReader
-): BallotConfig & { locales: undefined; pageNumber: undefined };
-/**
- * Decodes a {@link BallotConfig} from a bit reader, skipping locales.
- */
-export function decodeBallotConfigFromReader(
-  election: Election,
-  { readLocales, readPageNumber }: { readLocales: false; readPageNumber: true },
-  bits: BitReader
-): BallotConfig & { locales: undefined; pageNumber: number };
-/**
- * Decodes a {@link BallotConfig} from a bit reader, skipping page number.
- */
-export function decodeBallotConfigFromReader(
-  election: Election,
-  { readLocales, readPageNumber }: { readLocales: true; readPageNumber: false },
-  bits: BitReader
-): BallotConfig & { locales: BallotLocale; pageNumber: undefined };
-/**
  * Decodes a {@link BallotConfig} from a bit reader.
  */
 export function decodeBallotConfigFromReader(
   election: Election,
-  { readLocales, readPageNumber }: { readLocales: true; readPageNumber: true },
-  bits: BitReader
-): BallotConfig & { locales: BallotLocale; pageNumber: number };
-/**
- * Decodes a {@link BallotConfig} from a bit reader, possibly skipping locales
- * and page number.
- */
-export function decodeBallotConfigFromReader(
-  election: Election,
-  {
-    readLocales,
-    readPageNumber,
-  }: { readLocales: boolean; readPageNumber: boolean },
   bits: BitReader
 ): BallotConfig {
   const { precincts, ballotStyles, contests } = election;
@@ -312,18 +179,6 @@ export function decodeBallotConfigFromReader(
     );
   }
 
-  const primaryLocaleIndex = readLocales
-    ? bits.readUint({
-        max: SUPPORTED_LOCALES.length - 1,
-      })
-    : undefined;
-  const secondaryLocaleIndex =
-    readLocales && bits.readBoolean()
-      ? bits.readUint({ max: SUPPORTED_LOCALES.length - 1 })
-      : undefined;
-  const pageNumber = readPageNumber
-    ? bits.readUint({ max: MAXIMUM_PAGE_NUMBERS })
-    : undefined;
   const isTestMode = bits.readBoolean();
   const ballotType = bits.readUint({ max: BallotTypeMaximumValue });
   const ballotId = bits.readBoolean()
@@ -332,23 +187,9 @@ export function decodeBallotConfigFromReader(
 
   const ballotStyle = ballotStyles[ballotStyleIndex];
   const precinct = precincts[precinctIndex];
-  const primaryLocale =
-    readLocales && typeof primaryLocaleIndex === 'number'
-      ? SUPPORTED_LOCALES[primaryLocaleIndex]
-      : undefined;
-  const secondaryLocale =
-    readLocales && typeof secondaryLocaleIndex === 'number'
-      ? SUPPORTED_LOCALES[secondaryLocaleIndex]
-      : undefined;
 
   assert(ballotStyle, `ballot style index ${ballotStyleIndex} is invalid`);
   assert(precinct, `precinct index ${precinctIndex} is invalid`);
-  assert(
-    !readLocales ||
-      (typeof primaryLocaleIndex === 'number' &&
-        typeof primaryLocale !== 'undefined'),
-    `primary locale index ${primaryLocaleIndex} is invalid`
-  );
 
   return {
     ballotId,
@@ -356,10 +197,6 @@ export function decodeBallotConfigFromReader(
     ballotType,
     isTestMode,
     precinctId: precinct.id,
-    locales: primaryLocale
-      ? { primary: primaryLocale, secondary: secondaryLocale }
-      : undefined,
-    pageNumber,
   };
 }
 
@@ -594,11 +431,7 @@ export function decodeBallotFromReader(
   });
 
   const { ballotId, ballotStyleId, ballotType, isTestMode, precinctId } =
-    decodeBallotConfigFromReader(
-      election,
-      { readLocales: false, readPageNumber: false },
-      bits
-    );
+    decodeBallotConfigFromReader(election, bits);
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   const precinct = getPrecinctById({ precinctId, election });
 
@@ -632,87 +465,11 @@ export function decodeBallot(
 }
 
 /**
- * Encodes a hand-marked paper ballot's metadata into a bit writer.
- */
-export function encodeHmpbBallotPageMetadataInto(
-  election: Election,
-  {
-    ballotId,
-    ballotStyleId,
-    ballotType,
-    electionHash,
-    isTestMode,
-    locales,
-    pageNumber,
-    precinctId,
-  }: HmpbBallotPageMetadata,
-  bits: BitWriter
-): BitWriter {
-  return (
-    bits
-      .writeUint8(...HmpbPrelude)
-      // TODO: specify the length so we don't have to write a length-prefixed
-      // string, saving us a byte in the QR code.
-      .writeString(electionHash, { encoding: HexEncoding })
-      .with(() =>
-        encodeBallotConfigInto(
-          election,
-          {
-            ballotId,
-            ballotStyleId,
-            ballotType,
-            isTestMode,
-            locales,
-            pageNumber,
-            precinctId,
-          },
-          bits
-        )
-      )
-  );
-}
-
-/**
- * Encodes hand-marked paper ballot page metadata as a byte array.
- */
-export function encodeHmpbBallotPageMetadata(
-  election: Election,
-  metadata: HmpbBallotPageMetadata
-): Uint8Array {
-  return encodeHmpbBallotPageMetadataInto(
-    election,
-    metadata,
-    new BitWriter()
-  ).toUint8Array();
-}
-
-/**
- * Reads the HMPB prelude bytes from `bits`. When detected, the cursor of `bits`
- * will be updated to skip the prelude bytes.
- */
-export function detectHmpbBallotPageMetadataFromReader(
-  bits: BitReader
-): boolean {
-  return bits.skipUint8(...HmpbPrelude);
-}
-
-/**
- * Reads the HMPB prelude bytes from `data`, returning true when they are found.
- */
-export function detectHmpbBallotPageMetadata(data: Uint8Array): boolean {
-  return detectHmpbBallotPageMetadataFromReader(new BitReader(data));
-}
-
-/**
- * Reads the election hash from an encoded ballot or encoded HMPB metadata.
+ * Reads the election hash from an encoded BMD ballot metadata.
  */
 export function decodeElectionHashFromReader(
   bits: BitReader
 ): string | undefined {
-  if (bits.skipUint8(...HmpbPrelude)) {
-    return bits.readString({ encoding: HexEncoding });
-  }
-
   if (bits.skipUint8(...Prelude)) {
     return bits.readString({
       encoding: HexEncoding,
@@ -722,58 +479,8 @@ export function decodeElectionHashFromReader(
 }
 
 /**
- * Reads the election hash from an encoded ballot or encoded HMPB metadata.
+ * Reads the election hash from an encoded ballot metadata.
  */
 export function decodeElectionHash(data: Uint8Array): string | undefined {
   return decodeElectionHashFromReader(new BitReader(data));
-}
-
-/**
- * Decodes a hand-marked paper ballot page's metadata from a bit reader.
- */
-export function decodeHmpbBallotPageMetadataFromReader(
-  election: Election,
-  bits: BitReader
-): HmpbBallotPageMetadata {
-  if (!detectHmpbBallotPageMetadataFromReader(bits)) {
-    throw new Error(
-      "expected leading prelude 'V' 'P' 0b00000001 but it was not found"
-    );
-  }
-
-  const electionHash = bits.readString({ encoding: HexEncoding });
-  const {
-    ballotId,
-    ballotStyleId,
-    ballotType,
-    isTestMode,
-    locales,
-    pageNumber,
-    precinctId,
-  } = decodeBallotConfigFromReader(
-    election,
-    { readLocales: true, readPageNumber: true },
-    bits
-  );
-
-  return {
-    electionHash,
-    precinctId,
-    ballotStyleId,
-    locales,
-    pageNumber,
-    isTestMode,
-    ballotType,
-    ballotId,
-  };
-}
-
-/**
- * Decodes a hand-marked paper ballot page's metadata from a byte array.
- */
-export function decodeHmpbBallotPageMetadata(
-  election: Election,
-  data: Uint8Array
-): HmpbBallotPageMetadata {
-  return decodeHmpbBallotPageMetadataFromReader(election, new BitReader(data));
 }

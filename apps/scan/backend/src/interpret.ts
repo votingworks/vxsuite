@@ -11,10 +11,7 @@ import {
   SheetOf,
   PageInterpretation,
 } from '@votingworks/types';
-import {
-  detectQrcodeInFilePath,
-  normalizeSheetOutput,
-} from '@votingworks/ballot-interpreter-vx';
+import { detectQrcodeInFilePath } from '@votingworks/ballot-interpreter-vx';
 import { time } from '@votingworks/utils';
 import { err, ok, Optional, Result, typedAs } from '@votingworks/basics';
 import { Interpreter as VxInterpreter } from './vx_interpreter';
@@ -250,11 +247,10 @@ async function vxInterpret(
       electionDefinition.election.precinctScanAdjudicationReasons ?? [],
   });
 
-  const [frontQrcodeOutput, backQrcodeOutput] = normalizeSheetOutput(
-    electionDefinition,
-    await mapSheet(sheet, detectQrcodeInFilePath)
+  const [frontQrcodeOutput, backQrcodeOutput] = await mapSheet(
+    sheet,
+    detectQrcodeInFilePath
   );
-
   timer.checkpoint('extractedQrCodes');
 
   const [frontPath, backPath] = sheet;
