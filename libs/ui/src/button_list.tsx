@@ -10,6 +10,7 @@ export const ButtonList = styled.p`
   }
   & > button {
     margin-bottom: 0.5rem;
+    width: 100%;
     overflow: hidden;
   }
 `;
