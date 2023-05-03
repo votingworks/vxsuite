@@ -40,6 +40,7 @@ import {
   H3,
   H4,
   Icons,
+  FullScreenIconWrapper,
 } from '@votingworks/ui';
 
 import {
@@ -590,20 +591,29 @@ export function PollWorkerScreen({
       <Screen white>
         <Main centerChild>
           <Prose id="audiofocus">
-            <H1>
+            <FullScreenIconWrapper align="center" color="success">
+              <Icons.Done />
+            </FullScreenIconWrapper>
+            <H1 align="center">
               {`Voting Session Active: ${ballotStyleId} at ${precinct.name}`}
             </H1>
             <ol>
               <li>
-                Instruct the voter to press the{' '}
-                <Font weight="bold" noWrap>
-                  Start Voting
-                </Font>{' '}
-                button on the next screen.
+                <P>
+                  Instruct the voter to press the{' '}
+                  <Font weight="bold" noWrap>
+                    Start Voting
+                  </Font>{' '}
+                  button on the next screen.
+                </P>
               </li>
-              <li>Remove the poll worker card to continue.</li>
+              <li>
+                <P>Remove the poll worker card to continue.</P>
+              </li>
             </ol>
-            <HorizontalRule>or</HorizontalRule>
+            <P>
+              <HorizontalRule>or</HorizontalRule>
+            </P>
             <P align="center">Deactivate this voter session to start over.</P>
             <P align="center">
               <Button small onPress={resetCardlessVoterSession}>
