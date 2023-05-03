@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import * as fs from 'fs';
+import fs from 'fs';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   ElectionManagerUser,
@@ -11,7 +11,10 @@ import { Card, CardStatus, CheckPinResponse } from './card';
 
 type WriteFileFn = (filePath: string, fileContents: Buffer) => void;
 
-const MOCK_FILE_PATH = '/tmp/mock-file-card.json';
+/**
+ * The path of the file underlying a MockFileCard
+ */
+export const MOCK_FILE_PATH = '/tmp/mock-file-card.json';
 
 /**
  * The contents of the file underlying a MockFileCard
