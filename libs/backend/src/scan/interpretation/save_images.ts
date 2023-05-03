@@ -3,7 +3,7 @@ import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
 import { basename, join, parse } from 'path';
 
-const debug = makeDebug('scan:importer');
+const debug = makeDebug('backend:scan:save_images');
 
 interface SaveImagesResult {
   original: string;
@@ -22,6 +22,9 @@ async function linkOrCopy(src: string, dest: string): Promise<void> {
   }
 }
 
+/**
+ * Saves the images for a ballot in the ballot images directory.
+ */
 export async function saveImages(
   imagePath: string,
   originalImagePath: string,

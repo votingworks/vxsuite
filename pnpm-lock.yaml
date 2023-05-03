@@ -359,9 +359,6 @@ importers:
       '@votingworks/ballot-interpreter-nh':
         specifier: workspace:*
         version: link:../../../libs/ballot-interpreter-nh
-      '@votingworks/ballot-interpreter-vx':
-        specifier: workspace:*
-        version: link:../../../libs/ballot-interpreter-vx
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -922,12 +919,6 @@ importers:
       '@votingworks/ballot-interpreter-nh':
         specifier: workspace:*
         version: link:../../../libs/ballot-interpreter-nh
-      '@votingworks/ballot-interpreter-nh-next':
-        specifier: workspace:*
-        version: link:../../../libs/ballot-interpreter-nh-next
-      '@votingworks/ballot-interpreter-vx':
-        specifier: workspace:*
-        version: link:../../../libs/ballot-interpreter-vx
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -2149,9 +2140,6 @@ importers:
       '@votingworks/ballot-interpreter-nh':
         specifier: workspace:*
         version: link:../../../libs/ballot-interpreter-nh
-      '@votingworks/ballot-interpreter-nh-next':
-        specifier: workspace:*
-        version: link:../../../libs/ballot-interpreter-nh-next
       '@votingworks/ballot-interpreter-vx':
         specifier: workspace:*
         version: link:../../../libs/ballot-interpreter-vx
@@ -2934,6 +2922,12 @@ importers:
       '@votingworks/ballot-interpreter-nh':
         specifier: workspace:*
         version: link:../ballot-interpreter-nh
+      '@votingworks/ballot-interpreter-nh-next':
+        specifier: workspace:*
+        version: link:../ballot-interpreter-nh-next
+      '@votingworks/ballot-interpreter-vx':
+        specifier: workspace:*
+        version: link:../ballot-interpreter-vx
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -2958,6 +2952,9 @@ importers:
       debug:
         specifier: ^4.3.2
         version: 4.3.4(supports-color@8.1.1)
+      fs-extra:
+        specifier: ^11.1.1
+        version: 11.1.1
       jszip:
         specifier: ^3.9.1
         version: 3.9.1
@@ -2986,6 +2983,9 @@ importers:
       '@types/debug':
         specifier: ^4.1.7
         version: 4.1.7
+      '@types/fs-extra':
+        specifier: ^11.0.1
+        version: 11.0.1
       '@types/jest':
         specifier: ^27.4.1
         version: 27.4.1

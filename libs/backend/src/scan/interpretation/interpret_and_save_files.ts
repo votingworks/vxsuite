@@ -4,13 +4,16 @@ import {
   SheetOf,
   mapSheet,
 } from '@votingworks/types';
-import { InterpreterOptions, interpretSheet } from '../interpret_sheet';
-import { saveSheetImages } from '../util/save_images';
+import { saveSheetImages } from './save_images';
+import { InterpreterOptions, interpretSheet } from './interpret';
 
-async function interpretSheetAndSaveImages(
+/**
+ * Interpret a ballot sheet and save the images to their final storage location.
+ */
+export async function interpretSheetAndSaveImages(
   interpreterOptions: InterpreterOptions,
   sheet: SheetOf<string>,
-  sheetId: string,
+  sheetId: Id,
   ballotImagesPath: string
 ): Promise<SheetOf<PageInterpretationWithFiles>> {
   return mapSheet(
@@ -30,13 +33,4 @@ async function interpretSheetAndSaveImages(
       };
     }
   );
-}
-
-export async function interpret(
-  sheetId: Id,
-  options: InterpreterOptions,
-  sheet: SheetOf<string>,
-  ballotImagesPath: string
-): Promise<SheetOf<PageInterpretationWithFiles>> {
-  return interpretSheetAndSaveImages(options, sheet, sheetId, ballotImagesPath);
 }

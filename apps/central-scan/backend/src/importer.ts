@@ -12,6 +12,7 @@ import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
+import { interpretSheetAndSaveImages } from '@votingworks/backend';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { Castability, checkSheetCastability } from './util/castability';
 import { Workspace } from './util/workspace';
@@ -19,8 +20,6 @@ import {
   describeValidationError,
   validateSheetInterpretation,
 } from './validation';
-import * as nhInterpreter from './interpreters/nh';
-import * as vxInterpreter from './interpreters/vx';
 
 const debug = makeDebug('scan:importer');
 
@@ -173,26 +172,18 @@ export class Importer {
   ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
     const electionDefinition = this.getElectionDefinition();
 
-    // Carve-out for NH ballots, which are the only ones that use `gridLayouts`
-    // for now.
-    if (electionDefinition.election.gridLayouts) {
-      return await nhInterpreter.interpret(
-        this.workspace.store,
-        sheetId,
-        [frontImagePath, backImagePath],
-        this.workspace.ballotImagesPath
-      );
-    }
-
     return ok(
-      await vxInterpreter.interpret(
-        sheetId,
+      await interpretSheetAndSaveImages(
         {
           electionDefinition,
           precinctSelection: ALL_PRECINCTS_SELECTION,
           testMode: this.workspace.store.getTestMode(),
+          adjudicationReasons:
+            electionDefinition.election.centralScanAdjudicationReasons,
+          markThresholds: this.workspace.store.getMarkThresholdOverrides(),
         },
         [frontImagePath, backImagePath],
+        sheetId,
         this.workspace.ballotImagesPath
       )
     );

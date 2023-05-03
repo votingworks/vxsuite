@@ -21,8 +21,6 @@
     { "path": "../../../libs/auth/tsconfig.build.json" },
     { "path": "../../../libs/ballot-encoder/tsconfig.build.json" },
     { "path": "../../../libs/ballot-interpreter-nh/tsconfig.build.json" },
-    { "path": "../../../libs/ballot-interpreter-nh-next/tsconfig.build.json" },
-    { "path": "../../../libs/ballot-interpreter-vx/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },
     { "path": "../../../libs/backend/tsconfig.build.json" },
     { "path": "../../../libs/db/tsconfig.build.json" },
