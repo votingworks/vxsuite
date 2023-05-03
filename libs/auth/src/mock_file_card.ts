@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import fs from 'fs';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
 import {
   ElectionManagerUser,
   PollWorkerUser,
@@ -67,21 +67,41 @@ function writeToMockFile(
  */
 export const mockCard = writeToMockFile;
 
+function initializeMockFile() {
+  writeToMockFile({
+    cardStatus: {
+      status: 'no_card',
+    },
+  });
+}
+
+/**
+ * A helper for readFromMockFile. Returns undefined if the mock file doesn't exist or can't be
+ * parsed.
+ */
+function readFromMockFileHelper(): Optional<MockFileContents> {
+  if (!fs.existsSync(MOCK_FILE_PATH)) {
+    return undefined;
+  }
+  const file = fs.readFileSync(MOCK_FILE_PATH);
+  try {
+    return deserializeMockFileContents(file);
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * Reads and parses the contents of the file underlying a MockFileCard
  */
 export function readFromMockFile(): MockFileContents {
-  // Initialize the mock file if it doesn't already exist
-  if (!fs.existsSync(MOCK_FILE_PATH)) {
-    writeToMockFile({
-      cardStatus: {
-        status: 'no_card',
-      },
-    });
+  let mockFileContents = readFromMockFileHelper();
+  if (!mockFileContents) {
+    initializeMockFile();
+    mockFileContents = readFromMockFileHelper();
+    assert(mockFileContents !== undefined);
   }
-
-  const file = fs.readFileSync(MOCK_FILE_PATH);
-  return deserializeMockFileContents(file);
+  return mockFileContents;
 }
 
 function updateNumIncorrectPinAttempts(
@@ -110,11 +130,7 @@ function updateNumIncorrectPinAttempts(
  */
 export class MockFileCard implements Card {
   constructor() {
-    writeToMockFile({
-      cardStatus: {
-        status: 'no_card',
-      },
-    });
+    initializeMockFile();
   }
 
   getCardStatus(): Promise<CardStatus> {
