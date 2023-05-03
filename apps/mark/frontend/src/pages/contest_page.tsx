@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
-import { LinkButton, Screen, Prose, Text, P } from '@votingworks/ui';
+import { LinkButton, Screen, Prose, P, Caption } from '@votingworks/ui';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import React, { useContext, useEffect, useState } from 'react';
@@ -145,11 +145,11 @@ export function ContestPage(): JSX.Element {
       {isPortrait && (
         <Breadcrumbs>
           <Prose>
-            <Text small>
+            <Caption>
               This is the{' '}
               <strong>{ordinal(ballotContestNumber)} contest</strong> of{' '}
               {pluralize('contest', ballotContestsLength, true)} on your ballot.
-            </Text>
+            </Caption>
           </Prose>
         </Breadcrumbs>
       )}
@@ -210,10 +210,10 @@ export function ContestPage(): JSX.Element {
           }
         >
           <Prose>
-            <Text center>
+            <P align="center">
               This is the <strong>{ordinal(currentContestIndex + 1)}</strong> of{' '}
               {pluralize('contest', contests.length, true)}.
-            </Text>
+            </P>
             {isReviewMode ? (
               <P>{reviewScreenButton}</P>
             ) : (

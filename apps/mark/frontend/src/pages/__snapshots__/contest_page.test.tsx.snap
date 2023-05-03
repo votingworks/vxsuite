@@ -138,8 +138,8 @@ exports[`Renders ContestPage 1`] = `
       <div
         class="sc-fotPbf iwtRsQ"
       >
-        <p
-          class="sc-bqiQRQ jKCqve"
+        <span
+          class="sc-gsDJrp cXSIgy"
         >
           This is the
            
@@ -151,7 +151,7 @@ exports[`Renders ContestPage 1`] = `
            
           21 contests
            on your ballot.
-        </p>
+        </span>
       </div>
     </div>
     <main
@@ -179,13 +179,9 @@ exports[`Renders ContestPage 1`] = `
           <p
             class="sc-dkPtyc XGKAk"
           >
-            <span
-              class="sc-bqiQRQ bIFmdQ"
-            >
-              Vote for 
-              1
-              .
-            </span>
+            Vote for 
+            1
+            .
              
             <span
               class="screen-reader-only"
@@ -775,13 +771,9 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
           <p
             class="sc-dkPtyc XGKAk"
           >
-            <span
-              class="sc-bqiQRQ bIFmdQ"
-            >
-              Vote for 
-              1
-              .
-            </span>
+            Vote for 
+            1
+            .
              
             <span
               class="screen-reader-only"
@@ -1120,7 +1112,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
           class="sc-fotPbf iwtRsQ"
         >
           <p
-            class="sc-bqiQRQ boCaWT"
+            class="sc-dkPtyc ckrwKj"
           >
             This is the 
             <strong>
@@ -1213,25 +1205,29 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                  General Election
               </h5>
               <p
-                class="sc-bqiQRQ jKCqve"
+                class="sc-dkPtyc XGKAk"
               >
-                November 3, 2020
-                <br />
                 <span
-                  class="sc-ksdxAp gMaEyZ"
+                  class="sc-gsDJrp cXSIgy"
                 >
-                  Franklin County
-                  ,
-                </span>
-                 
-                <span
-                  class="sc-ksdxAp gMaEyZ"
-                >
-                  State of Hamilton
+                  November 3, 2020
+                  <br />
+                  <span
+                    class="sc-ksdxAp gMaEyZ"
+                  >
+                    Franklin County
+                    ,
+                  </span>
+                   
+                  <span
+                    class="sc-ksdxAp gMaEyZ"
+                  >
+                    State of Hamilton
+                  </span>
                 </span>
               </p>
-              <p
-                class="sc-bqiQRQ lpjhJV"
+              <span
+                class="sc-gsDJrp cXSIgy"
               >
                 <span
                   class="sc-ksdxAp gMaEyZ"
@@ -1245,7 +1241,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                   ballot style 
                   12
                 </span>
-              </p>
+              </span>
             </div>
           </div>
         </div>

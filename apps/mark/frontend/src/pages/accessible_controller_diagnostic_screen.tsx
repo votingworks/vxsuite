@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, H1, Main, Prose, Screen, Text } from '@votingworks/ui';
+import { Button, Font, H1, Main, P, Prose, Screen } from '@votingworks/ui';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
 import { ScreenReader } from '../config/types';
@@ -282,10 +282,10 @@ export function AccessibleControllerDiagnosticScreen({
     <Screen>
       <Main centerChild>
         <Header>
-          <Text>
-            <strong>Accessible Controller Test</strong> &mdash; Step {step + 1}{' '}
-            of {steps.length}
-          </Text>
+          <P>
+            <Font weight="bold">Accessible Controller Test</Font> &mdash; Step{' '}
+            {step + 1} of {steps.length}
+          </P>
           <Button onPress={onCancel}>Cancel Test</Button>
         </Header>
         <StepContainer>{steps[step]}</StepContainer>

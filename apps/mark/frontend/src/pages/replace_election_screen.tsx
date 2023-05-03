@@ -6,8 +6,9 @@ import {
   Prose,
   Screen,
   Table,
-  Text,
   P,
+  H1,
+  Icons,
 } from '@votingworks/ui';
 import { formatLongDate } from '@votingworks/utils';
 import type { MachineConfig } from '@votingworks/mark-backend';
@@ -74,9 +75,9 @@ export function ReplaceElectionScreen({
     <Screen>
       <Main padded centerChild>
         <Prose id="audiofocus">
-          <Text as="h1" error>
-            This card is configured for a different election.
-          </Text>
+          <H1 color="danger">
+            <Icons.Danger /> This card is configured for a different election.
+          </H1>
           <Table>
             <thead>
               <tr>

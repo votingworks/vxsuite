@@ -12,24 +12,20 @@ import {
   within,
 } from '../../test/react_testing_library';
 import {
+  CHECKBOX_ICON_TEST_ID,
   DiagnosticsScreen,
   DiagnosticsScreenProps,
+  WARNING_ICON_TEST_ID,
 } from './diagnostics_screen';
 import { fakeDevices } from '../../test/helpers/fake_devices';
 import { AriaScreenReader } from '../utils/ScreenReader';
 import { fakeTts } from '../../test/helpers/fake_tts';
 
-// Unfortunately, since the icons are rendered in CSS ::before pseudo-elements,
-// we can't check for them in the rendered HTML output. The
-// jest-styled-components library does enable us to check for this, but we would
-// need to upgrade jest first (https://github.com/votingworks/vxsuite/issues/1622).
-// For now, we just hardcode the styled-components generated class names of the
-// Text components with the various icons.
 function expectToHaveSuccessIcon(element: HTMLElement) {
-  expect(element).toHaveClass('sc-bqiQRQ cheCgH');
+  within(element).getByTestId(CHECKBOX_ICON_TEST_ID);
 }
 function expectToHaveWarningIcon(element: HTMLElement) {
-  expect(element).toHaveClass('sc-bqiQRQ eMTyqo');
+  within(element).getByTestId(WARNING_ICON_TEST_ID);
 }
 
 function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {

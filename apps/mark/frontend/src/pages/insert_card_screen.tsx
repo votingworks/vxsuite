@@ -9,11 +9,13 @@ import {
   Screen,
   Prose,
   TestMode,
-  Text,
   ElectionInfoBar,
   InsertCardImage,
   H1,
   P,
+  Caption,
+  Icons,
+  Font,
 } from '@votingworks/ui';
 
 import { throwIllegalValue } from '@votingworks/basics';
@@ -75,19 +77,20 @@ export function InsertCardScreen({
       <Main centerChild>
         <Prose textCenter id="audiofocus">
           {showNoChargerAttachedWarning && (
-            <Text warning small>
-              <strong>No Power Detected.</strong> Please ask a poll worker to
-              plug in the power cord for this machine.
-            </Text>
+            <Caption color="warning">
+              <Icons.Warning /> <Font weight="bold">No Power Detected.</Font>{' '}
+              Please ask a poll worker to plug in the power cord for this
+              machine.
+            </Caption>
           )}
           <P>
             <InsertCardImage />
           </P>
           {mainText}
           {showNoAccessibleControllerWarning && (
-            <Text muted small>
+            <Caption>
               Voting with an accessible controller is not currently available.
-            </Text>
+            </Caption>
           )}
         </Prose>
       </Main>

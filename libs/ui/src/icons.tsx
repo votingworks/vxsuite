@@ -22,6 +22,7 @@ import {
   faMagnifyingGlassMinus,
   faTextHeight,
   faBan,
+  faCheckSquare,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -55,6 +56,10 @@ function FaIcon(props: InnerProps): JSX.Element {
 export const Icons = {
   Backspace(): JSX.Element {
     return <FaIcon type={faDeleteLeft} />;
+  },
+
+  Checkbox(): JSX.Element {
+    return <FaIcon type={faCheckSquare} />;
   },
 
   Checkmark(): JSX.Element {

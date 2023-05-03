@@ -14,8 +14,8 @@ import {
   H1,
   Main,
   Prose,
-  Text,
   TextWithLineBreaks,
+  Caption,
 } from '@votingworks/ui';
 
 import { YesNoVote, OptionalYesNoVote } from '@votingworks/types';
@@ -297,15 +297,9 @@ export function MsEitherNeitherContest({
           }}
         >
           <Prose>
-            <Text
-              small
-              bold
-              style={{
-                fontSize: '0.7rem',
-              }}
-            >
-              {contest.eitherNeitherLabel}
-            </Text>
+            <P weight="bold">
+              <Caption>{contest.eitherNeitherLabel}</Caption>
+            </P>
           </Prose>
         </GridLabel>
         <ContestChoiceButton
@@ -342,15 +336,9 @@ export function MsEitherNeitherContest({
           }}
         >
           <Prose>
-            <Text
-              small
-              bold
-              style={{
-                fontSize: '0.7rem',
-              }}
-            >
-              {contest.pickOneLabel}
-            </Text>
+            <P weight="bold">
+              <Caption>{contest.pickOneLabel}</Caption>
+            </P>
           </Prose>
         </GridLabel>
         <ContestChoiceButton
