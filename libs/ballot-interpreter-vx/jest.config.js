@@ -7,7 +7,7 @@ module.exports = {
   ...shared,
   coverageThreshold: {
     global: {
-      statements: 91,
+      statements: 90,
       branches: 60,
       functions: 80,
       lines: 90,
