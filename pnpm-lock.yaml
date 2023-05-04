@@ -2173,6 +2173,9 @@ importers:
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../../libs/usb-drive
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
@@ -2499,6 +2502,9 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../../libs/usb-drive
       eslint:
         specifier: 8.23.1
         version: 8.23.1
@@ -5456,6 +5462,97 @@ importers:
       vite:
         specifier: ^4.0.4
         version: 4.0.4(@types/node@16.18.23)
+
+  libs/usb-drive:
+    dependencies:
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../basics
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
+      debug:
+        specifier: ^4.3.2
+        version: 4.3.4(supports-color@8.1.1)
+      tmp:
+        specifier: ^0.2.1
+        version: 0.2.1
+    devDependencies:
+      '@types/debug':
+        specifier: ^4.1.7
+        version: 4.1.7
+      '@types/jest':
+        specifier: ^27.0.3
+        version: 27.4.1
+      '@types/node':
+        specifier: 16.18.23
+        version: 16.18.23
+      '@types/styled-components':
+        specifier: ^5.1.9
+        version: 5.1.9
+      '@types/tmp':
+        specifier: ^0.2.3
+        version: 0.2.3
+      '@typescript-eslint/eslint-plugin':
+        specifier: 5.37.0
+        version: 5.37.0(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)(typescript@4.6.3)
+      '@typescript-eslint/parser':
+        specifier: 5.37.0
+        version: 5.37.0(eslint@8.23.1)(typescript@4.6.3)
+      esbuild:
+        specifier: ^0.17.11
+        version: 0.17.11
+      esbuild-runner:
+        specifier: ^2.2.2
+        version: 2.2.2(esbuild@0.17.11)
+      eslint:
+        specifier: 8.23.1
+        version: 8.23.1
+      eslint-config-prettier:
+        specifier: ^8.5.0
+        version: 8.6.0(eslint@8.23.1)
+      eslint-import-resolver-node:
+        specifier: ^0.3.6
+        version: 0.3.7
+      eslint-plugin-import:
+        specifier: ^2.26.0
+        version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
+      eslint-plugin-jest:
+        specifier: ^26.1.5
+        version: 26.6.0(@typescript-eslint/eslint-plugin@5.37.0)(eslint@8.23.1)(jest@27.5.1)(typescript@4.6.3)
+      eslint-plugin-prettier:
+        specifier: ^4.2.1
+        version: 4.2.1(eslint-config-prettier@8.6.0)(eslint@8.23.1)(prettier@2.6.2)
+      eslint-plugin-vx:
+        specifier: workspace:*
+        version: link:../eslint-plugin-vx
+      is-ci-cli:
+        specifier: ^2.2.0
+        version: 2.2.0
+      jest:
+        specifier: ^27.3.1
+        version: 27.5.1
+      jest-junit:
+        specifier: ^14.0.1
+        version: 14.0.1
+      jest-watch-typeahead:
+        specifier: ^0.6.4
+        version: 0.6.4(jest@27.5.1)
+      lint-staged:
+        specifier: ^11.0.0
+        version: 11.0.0
+      prettier:
+        specifier: 2.6.2
+        version: 2.6.2
+      sort-package-json:
+        specifier: ^1.50.0
+        version: 1.50.0
+      ts-jest:
+        specifier: ^27.0.7
+        version: 27.1.3(@babel/core@7.12.3)(@types/jest@27.4.1)(esbuild@0.17.11)(jest@27.5.1)(typescript@4.6.3)
+      typescript:
+        specifier: 4.6.3
+        version: 4.6.3
 
   libs/utils:
     dependencies:
@@ -14326,18 +14423,18 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /babel-jest@27.5.1(@babel/core@7.20.12):
+  /babel-jest@27.5.1(@babel/core@7.12.3):
     resolution: {integrity: sha512-cdQ5dXjGRd0IBRATiQ4mZGlGlRE8kJpjPOixdNRdT+m3UcNqmYWN6rK6nvtXYfY3D76cb8s/O1Ss8ea24PIwcg==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     peerDependencies:
       '@babel/core': ^7.8.0
     dependencies:
-      '@babel/core': 7.20.12
+      '@babel/core': 7.12.3
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
       '@types/babel__core': 7.20.0
       babel-plugin-istanbul: 6.1.1
-      babel-preset-jest: 27.5.1(@babel/core@7.20.12)
+      babel-preset-jest: 27.5.1(@babel/core@7.12.3)
       chalk: 4.1.2
       graceful-fs: 4.2.10
       slash: 3.0.0
@@ -14682,15 +14779,15 @@ packages:
       babel-plugin-jest-hoist: 26.6.2
       babel-preset-current-node-syntax: 1.0.1(@babel/core@7.20.12)
 
-  /babel-preset-jest@27.5.1(@babel/core@7.20.12):
+  /babel-preset-jest@27.5.1(@babel/core@7.12.3):
     resolution: {integrity: sha512-Nptf2FzlPCWYuJg41HBqXVT8ym6bXOevuCTbhxlUpjwtysGaIWFvDEjp4y+G7fl13FgOdjs7P/DmErqH7da0Ag==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     peerDependencies:
       '@babel/core': ^7.0.0
     dependencies:
-      '@babel/core': 7.20.12
+      '@babel/core': 7.12.3
       babel-plugin-jest-hoist: 27.5.1
-      babel-preset-current-node-syntax: 1.0.1(@babel/core@7.20.12)
+      babel-preset-current-node-syntax: 1.0.1(@babel/core@7.12.3)
     dev: true
 
   /babel-preset-jest@28.1.3(@babel/core@7.20.12):
@@ -22673,10 +22770,10 @@ packages:
       ts-node:
         optional: true
     dependencies:
-      '@babel/core': 7.20.12
+      '@babel/core': 7.12.3
       '@jest/test-sequencer': 27.5.1
       '@jest/types': 27.5.1
-      babel-jest: 27.5.1(@babel/core@7.20.12)
+      babel-jest: 27.5.1(@babel/core@7.12.3)
       chalk: 4.1.2
       ci-info: 3.3.2
       deepmerge: 4.2.2
@@ -30892,6 +30989,42 @@ packages:
       '@types/jest': 27.4.1
       bs-logger: 0.2.6
       esbuild: 0.16.17
+      fast-json-stable-stringify: 2.1.0
+      jest: 27.5.1
+      jest-util: 27.5.1
+      json5: 2.2.3
+      lodash.memoize: 4.1.2
+      make-error: 1.3.6
+      semver: 7.3.2
+      typescript: 4.6.3
+      yargs-parser: 20.2.9
+    dev: true
+
+  /ts-jest@27.1.3(@babel/core@7.12.3)(@types/jest@27.4.1)(esbuild@0.17.11)(jest@27.5.1)(typescript@4.6.3):
+    resolution: {integrity: sha512-6Nlura7s6uM9BVUAoqLH7JHyMXjz8gluryjpPXxr3IxZdAXnU6FhjvVLHFtfd1vsE1p8zD1OJfskkc0jhTSnkA==}
+    engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
+    hasBin: true
+    peerDependencies:
+      '@babel/core': '>=7.0.0-beta.0 <8'
+      '@types/jest': ^27.0.0
+      babel-jest: '>=27.0.0 <28'
+      esbuild: ~0.14.0
+      jest: ^27.0.0
+      typescript: '>=3.8 <5.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@types/jest':
+        optional: true
+      babel-jest:
+        optional: true
+      esbuild:
+        optional: true
+    dependencies:
+      '@babel/core': 7.12.3
+      '@types/jest': 27.4.1
+      bs-logger: 0.2.6
+      esbuild: 0.17.11
       fast-json-stable-stringify: 2.1.0
       jest: 27.5.1
       jest-util: 27.5.1

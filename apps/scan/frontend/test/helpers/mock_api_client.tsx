@@ -25,7 +25,9 @@ import {
   fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
+import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ApiClientContext, createQueryClient } from '../../src/api';
+import { fakeUsbDriveStatus } from './fake_usb_drive';
 
 export const machineConfig: MachineConfig = {
   machineId: '0002',
@@ -116,6 +118,12 @@ export function createApiMock() {
         status: 'logged_out',
         reason: 'no_card',
       });
+    },
+
+    expectGetUsbDriveStatus(status: UsbDriveStatus['status']): void {
+      mockApiClient.getUsbDriveStatus
+        .expectRepeatedCallsWith()
+        .resolves(fakeUsbDriveStatus(status));
     },
 
     expectGetMachineConfig(): void {

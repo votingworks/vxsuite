@@ -18,40 +18,46 @@ const needsReviewInterpretation: SheetInterpretation = {
 };
 
 test('scanner powered off while waiting for paper', async () => {
-  await withApp({}, async ({ apiClient, mockScanner, mockUsb, mockAuth }) => {
-    await configureApp(apiClient, mockUsb, { mockAuth });
+  await withApp(
+    {},
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
-    mockScanner.getStatus.mockResolvedValue(err(ErrorCode.ScannerOffline));
-    await waitForStatus(apiClient, { state: 'disconnected' });
+      mockScanner.getStatus.mockResolvedValue(err(ErrorCode.ScannerOffline));
+      await waitForStatus(apiClient, { state: 'disconnected' });
 
-    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
-    await waitForStatus(apiClient, { state: 'no_paper' });
-  });
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
+      await waitForStatus(apiClient, { state: 'no_paper' });
+    }
+  );
 });
 
 test('scanner powered off while scanning', async () => {
-  await withApp({}, async ({ apiClient, mockScanner, mockUsb, mockAuth }) => {
-    await configureApp(apiClient, mockUsb, { mockAuth });
+  await withApp(
+    {},
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
-    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-    await waitForStatus(apiClient, { state: 'ready_to_scan' });
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+      await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-    mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeBmd()));
-    await apiClient.scanBallot();
-    await expectStatus(apiClient, { state: 'scanning' });
-    mockScanner.getStatus.mockResolvedValue(err(ErrorCode.ScannerOffline));
-    await waitForStatus(apiClient, { state: 'disconnected' });
+      mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeBmd()));
+      await apiClient.scanBallot();
+      await expectStatus(apiClient, { state: 'scanning' });
+      mockScanner.getStatus.mockResolvedValue(err(ErrorCode.ScannerOffline));
+      await waitForStatus(apiClient, { state: 'disconnected' });
 
-    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_INTERNAL_JAM));
-    await waitForStatus(apiClient, { state: 'jammed' });
-  });
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_INTERNAL_JAM));
+      await waitForStatus(apiClient, { state: 'jammed' });
+    }
+  );
 });
 
 test('scanner powered off while accepting', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockScanner, interpreter, mockUsb, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -90,8 +96,8 @@ test('scanner powered off while accepting', async () => {
 test('scanner powered off after accepting', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockScanner, interpreter, mockUsb, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -136,8 +142,8 @@ test('scanner powered off after accepting', async () => {
 test('scanner powered off while rejecting', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockScanner, interpreter, mockUsb, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -171,8 +177,8 @@ test('scanner powered off while rejecting', async () => {
 test('scanner powered off while returning', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockScanner, interpreter, mockUsb, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -204,8 +210,8 @@ test('scanner powered off while returning', async () => {
 test('scanner powered off after returning', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockScanner, interpreter, mockUsb, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });

@@ -26,7 +26,7 @@ import { Application } from 'express';
 import { Server } from 'http';
 import { AddressInfo } from 'net';
 import tmp from 'tmp';
-import { MockUsb, createMockUsb } from '@votingworks/backend';
+import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import { Api, buildApp } from '../../src/app';
 import {
   PrecinctScannerInterpreter,
@@ -53,7 +53,7 @@ export async function withApp(
     mockAuth: InsertedSmartCardAuthApi;
     mockScanner: jest.Mocked<CustomScanner>;
     workspace: Workspace;
-    mockUsb: MockUsb;
+    mockUsbDrive: MockUsbDrive;
     logger: Logger;
     interpreter: PrecinctScannerInterpreter;
     server: Server;
@@ -89,13 +89,13 @@ export async function withApp(
       ...delays,
     },
   });
-  const mockUsb = createMockUsb();
+  const mockUsbDrive = createMockUsbDrive();
   const app = buildApp(
     mockAuth,
     precinctScannerMachine,
     interpreter,
     workspace,
-    mockUsb.mock,
+    mockUsbDrive.usbDrive,
     logger
   );
 
@@ -116,11 +116,12 @@ export async function withApp(
       mockAuth,
       mockScanner,
       workspace,
-      mockUsb,
+      mockUsbDrive,
       logger,
       interpreter,
       server,
     });
+    mockUsbDrive.assertComplete();
   } finally {
     const { promise, resolve, reject } = deferred<void>();
     server.close((error) => (error ? reject(error) : resolve()));

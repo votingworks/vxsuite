@@ -1,7 +1,6 @@
 import React from 'react';
 
 import {
-  useUsbDrive,
   SetupCardReaderPage,
   useDevices,
   UnlockMachineScreen,
@@ -38,6 +37,8 @@ import {
   getConfig,
   getMachineConfig,
   getScannerStatus,
+  getUsbDriveStatus,
+  legacyUsbDriveStatus,
   setPollsState,
   unconfigureElection,
 } from './api';
@@ -53,11 +54,10 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
   const machineConfigQuery = getMachineConfig.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
   const configQuery = getConfig.useQuery();
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const checkPinMutation = checkPin.useMutation();
   const setPollsStateMutation = setPollsState.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
-
-  const usbDrive = useUsbDrive({ logger });
 
   const {
     cardReader,
@@ -77,7 +77,8 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
       machineConfigQuery.isSuccess &&
       authStatusQuery.isSuccess &&
       configQuery.isSuccess &&
-      scannerStatusQuery.isSuccess
+      scannerStatusQuery.isSuccess &&
+      usbDriveStatusQuery.isSuccess
     )
   ) {
     return <LoadingConfigurationScreen />;
@@ -94,6 +95,7 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
     ballotCountWhenBallotBagLastReplaced,
   } = configQuery.data;
   const scannerStatus = scannerStatusQuery.data;
+  const usbDrive = usbDriveStatusQuery.data;
 
   if (!cardReader) {
     return <SetupCardReaderPage />;
@@ -163,7 +165,7 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
               : undefined
           }
           isMachineConfigured={Boolean(electionDefinition)}
-          usbDriveStatus={usbDrive.status}
+          usbDriveStatus={legacyUsbDriveStatus(usbDrive)}
         />
       </ScreenMainCenterChild>
     );
@@ -196,7 +198,6 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
   if (!electionDefinition) {
     return (
       <UnconfiguredElectionScreenWrapper
-        usbDriveStatus={usbDrive.status}
         isElectionManagerAuth={isElectionManagerAuth(authStatus)}
       />
     );
@@ -215,7 +216,7 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
 
   if (!precinctSelection) return <UnconfiguredPrecinctScreen />;
 
-  if (window.kiosk && usbDrive.status !== 'mounted') {
+  if (usbDrive.status !== 'mounted') {
     return <InsertUsbScreen />;
   }
 

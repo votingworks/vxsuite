@@ -28,6 +28,7 @@ import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
+import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { backupToUsbDrive } from './backup';
 import { exportCastVoteRecords } from './tally-cvrs/export';
 import { PrecinctScannerInterpreter } from './interpret';
@@ -37,7 +38,6 @@ import {
   PrecinctScannerStatus,
 } from './types';
 import { Workspace } from './util/workspace';
-import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
 import { DefaultMarkThresholds } from './store';
 
@@ -59,7 +59,7 @@ function buildApi(
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
-  usb: Usb,
+  usbDrive: UsbDrive,
   logger: Logger
 ) {
   const { store } = workspace;
@@ -86,19 +86,28 @@ function buildApi(
       );
     },
 
+    async getUsbDriveStatus(): Promise<UsbDriveStatus> {
+      return usbDrive.status();
+    },
+
+    async ejectUsbDrive(): Promise<void> {
+      return usbDrive.eject();
+    },
+
     async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<void, BallotPackageConfigurationError>
     > {
+      assert(!store.getElectionDefinition(), 'Already configured');
+      const usbDriveStatus = await usbDrive.status();
+      assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
+
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
-      assert(!store.getElectionDefinition(), 'Already configured');
-      const [usbDrive] = await usb.getUsbDrives();
-      assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
-
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
-        usbDrive,
+        // TODO convert readBallotPackegFromUsb to use UsbDriveStatus
+        { deviceName: 'not used', mountPoint: usbDriveStatus.mountPoint },
         logger
       );
       if (ballotPackageResult.isErr()) {
@@ -243,7 +252,7 @@ function buildApi(
     },
 
     async backupToUsbDrive(): Promise<Result<void, ExportDataError>> {
-      return await backupToUsbDrive(store, usb);
+      return await backupToUsbDrive(store, usbDrive);
     },
 
     async exportCastVoteRecordsToUsbDrive(): Promise<
@@ -263,7 +272,11 @@ function buildApi(
             store.getCurrentMarkThresholds()?.definite ??
             DefaultMarkThresholds.definite,
         },
-        usb.getUsbDrives
+        // TODO Convert exportCastVoteRecordReportToUsbDrive to use libs/usb-drive
+        async () => {
+          const drive = await usbDrive.status();
+          return drive.status === 'mounted' ? [drive] : [];
+        }
       );
 
       if (exportResult.isOk()) {
@@ -351,11 +364,11 @@ export function buildApp(
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
-  usb: Usb,
+  usbDrive: UsbDrive,
   logger: Logger
 ): Application {
   const app: Application = express();
-  const api = buildApi(auth, machine, interpreter, workspace, usb, logger);
+  const api = buildApi(auth, machine, interpreter, workspace, usbDrive, logger);
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;

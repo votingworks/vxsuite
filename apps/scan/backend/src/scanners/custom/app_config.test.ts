@@ -128,14 +128,14 @@ test('uses default machine config if not set', async () => {
 });
 
 test("fails to configure if there's no ballot package on the usb drive", async () => {
-  await withApp({}, async ({ apiClient, mockAuth, mockUsb }) => {
+  await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
     mockElectionManager(mockAuth, electionSampleDefinition);
-    mockUsb.insertUsbDrive({});
+    mockUsbDrive.insertUsbDrive({});
     expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
       err('no_ballot_package_on_usb_drive')
     );
-    mockUsb.removeUsbDrive();
-    mockUsb.insertUsbDrive({ 'ballot-packages': {} });
+
+    mockUsbDrive.insertUsbDrive({ 'ballot-packages': {} });
     expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
       err('no_ballot_package_on_usb_drive')
     );
@@ -143,9 +143,9 @@ test("fails to configure if there's no ballot package on the usb drive", async (
 });
 
 test('fails to configure ballot package if logged out', async () => {
-  await withApp({}, async ({ apiClient, mockUsb, mockAuth }) => {
+  await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
     mockLoggedOut(mockAuth);
-    mockUsb.insertUsbDrive({
+    mockUsbDrive.insertUsbDrive({
       'ballot-packages': {
         'test-ballot-package.zip': await createBallotPackageZipArchive({
           electionDefinition: electionSampleDefinition,
@@ -159,12 +159,12 @@ test('fails to configure ballot package if logged out', async () => {
 });
 
 test('fails to configure ballot package if election definition on card does not match that of the ballot package', async () => {
-  await withApp({}, async ({ apiClient, mockUsb, mockAuth }) => {
+  await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
     mockElectionManager(
       mockAuth,
       electionFamousNames2021Fixtures.electionDefinition
     );
-    mockUsb.insertUsbDrive({
+    mockUsbDrive.insertUsbDrive({
       'ballot-packages': {
         'test-ballot-package.zip': await createBallotPackageZipArchive({
           electionDefinition: electionSampleDefinition,
@@ -178,12 +178,12 @@ test('fails to configure ballot package if election definition on card does not 
 });
 
 test("if there's only one precinct in the election, it's selected automatically on configure", async () => {
-  await withApp({}, async ({ apiClient, mockUsb, mockAuth }) => {
+  await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
     mockElectionManager(
       mockAuth,
       electionMinimalExhaustiveSampleSinglePrecinctDefinition
     );
-    mockUsb.insertUsbDrive({
+    mockUsbDrive.insertUsbDrive({
       'ballot-packages': {
         'test-ballot-package.zip': await createBallotPackageZipArchive({
           electionDefinition:
@@ -203,10 +203,10 @@ test("if there's only one precinct in the election, it's selected automatically 
 });
 
 test('configures using the most recently created ballot package on the usb drive', async () => {
-  await withApp({}, async ({ apiClient, mockUsb, mockAuth }) => {
+  await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
     mockElectionManager(mockAuth, electionSampleDefinition);
 
-    mockUsb.insertUsbDrive({
+    mockUsbDrive.insertUsbDrive({
       'ballot-packages': {
         'older-ballot-package.zip': await createBallotPackageZipArchive(
           electionFamousNames2021Fixtures.electionJson.toBallotPackage()
@@ -218,8 +218,8 @@ test('configures using the most recently created ballot package on the usb drive
     });
     // Ensure our mock actually created the files in the order we expect (the
     // order of the keys in the object above)
-    const [usbDrive] = await mockUsb.mock.getUsbDrives();
-    assert(usbDrive.mountPoint !== undefined);
+    const usbDrive = await mockUsbDrive.usbDrive.status();
+    assert(usbDrive.status === 'mounted');
     const dirPath = join(usbDrive.mountPoint, 'ballot-packages');
     const files = fs.readdirSync(dirPath);
     const filesWithStats = files.map((file) => ({
@@ -245,13 +245,13 @@ test('configures using the most recently created ballot package on the usb drive
 test('export CVRs to USB', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockScanner, mockUsb, mockAuth, workspace }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth, testMode: true });
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, workspace }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth, testMode: true });
       await scanBallot(mockScanner, apiClient, 0);
       expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 
-      const [usbDrive] = await mockUsb.mock.getUsbDrives();
-      assert(usbDrive.mountPoint !== undefined);
+      const usbDrive = await mockUsbDrive.usbDrive.status();
+      assert(usbDrive.status === 'mounted');
       const resultsDirPath = join(usbDrive.mountPoint, SCANNER_RESULTS_FOLDER);
       const electionDirs = fs.readdirSync(resultsDirPath);
       expect(electionDirs).toHaveLength(1);
@@ -310,15 +310,18 @@ test('export CVRs to USB', async () => {
 });
 
 test('setPrecinctSelection will reset polls to closed', async () => {
-  await withApp({}, async ({ apiClient, mockUsb, workspace, mockAuth }) => {
-    await configureApp(apiClient, mockUsb, { mockAuth });
+  await withApp(
+    {},
+    async ({ apiClient, mockUsbDrive, workspace, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
-    workspace.store.setPollsState('polls_open');
-    await apiClient.setPrecinctSelection({
-      precinctSelection: singlePrecinctSelectionFor('21'),
-    });
-    expect(workspace.store.getPollsState()).toEqual('polls_closed_initial');
-  });
+      workspace.store.setPollsState('polls_open');
+      await apiClient.setPrecinctSelection({
+        precinctSelection: singlePrecinctSelectionFor('21'),
+      });
+      expect(workspace.store.getPollsState()).toEqual('polls_closed_initial');
+    }
+  );
 });
 
 test('ballot batching', async () => {
@@ -329,10 +332,10 @@ test('ballot batching', async () => {
       mockScanner,
       logger,
       workspace,
-      mockUsb,
+      mockUsbDrive,
       mockAuth,
     }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth, testMode: true });
+      await configureApp(apiClient, mockUsbDrive, { mockAuth, testMode: true });
 
       // Scan two ballots, which should have the same batch
       await scanBallot(mockScanner, apiClient, 0);
@@ -426,8 +429,8 @@ test('ballot batching', async () => {
 test('unconfiguring machine', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockUsb, interpreter, workspace, mockAuth }) => {
-      await configureApp(apiClient, mockUsb, { mockAuth });
+    async ({ apiClient, mockUsbDrive, interpreter, workspace, mockAuth }) => {
+      await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
       jest.spyOn(interpreter, 'unconfigure');
       jest.spyOn(workspace, 'reset');

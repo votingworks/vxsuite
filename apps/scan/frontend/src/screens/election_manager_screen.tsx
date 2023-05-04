@@ -7,7 +7,6 @@ import {
   Prose,
   SegmentedButton,
   SetClockButton,
-  UsbDrive,
   ChangePrecinctButton,
   P,
   H2,
@@ -16,11 +15,13 @@ import {
 import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
 import { Logger, LogSource } from '@votingworks/logging';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { ScreenMainCenterChild } from '../components/layout';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import {
+  ejectUsbDrive,
   getConfig,
   setIsSoundMuted,
   setIsUltrasonicDisabled,
@@ -38,7 +39,7 @@ export interface ElectionManagerScreenProps {
   // to be able to change it (otherwise we would just use the configQuery
   electionDefinition: ElectionDefinition;
   scannerStatus: PrecinctScannerStatus;
-  usbDrive: UsbDrive;
+  usbDrive: UsbDriveStatus;
   logger: Logger;
 }
 
@@ -55,6 +56,7 @@ export function ElectionManagerScreen({
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const setIsUltrasonicDisabledMutation = setIsUltrasonicDisabled.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
   const [
     isShowingToggleTestModeWarningModal,
@@ -89,13 +91,19 @@ export function ElectionManagerScreen({
     }
   }
 
-  async function handleUnconfigure() {
+  function handleUnconfigure() {
     setIsUnconfiguring(true);
     // If there is a mounted usb eject it so that it doesn't auto reconfigure the machine.
+    // TODO move this to the backend?
     if (usbDrive.status === 'mounted') {
-      await usbDrive.eject('election_manager');
+      ejectUsbDriveMutation.mutate(undefined, {
+        onSuccess() {
+          unconfigureMutation.mutate({});
+        },
+      });
+    } else {
+      unconfigureMutation.mutate({});
     }
-    unconfigureMutation.mutate({});
   }
 
   return (
@@ -306,15 +314,7 @@ export function DefaultPreview(): JSX.Element {
         ballotsCounted: 1234,
         canUnconfigure: true,
       }}
-      usbDrive={{
-        status: 'absent',
-        eject: () => {
-          return Promise.resolve();
-        },
-        format: () => {
-          return Promise.resolve();
-        },
-      }}
+      usbDrive={{ status: 'no_drive' }}
       logger={new Logger(LogSource.VxScanFrontend)}
     />
   );

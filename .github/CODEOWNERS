@@ -25,3 +25,4 @@ libs/logging/ @carolinemodic @votingworks/vxsuite-eng
 libs/auth/ @arsalansufi @votingworks/vxsuite-eng
 libs/dev-dock/ @jonahkagan @votingworks/vxsuite-eng
 libs/grout/ @jonahkagan @votingworks/vxsuite-eng
+libs/usb-drive/ @jonahkagan @votingworks/vxsuite-eng

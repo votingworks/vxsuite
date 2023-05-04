@@ -5,8 +5,8 @@ import {
   JavaCard,
   MockFileCard,
 } from '@votingworks/auth';
-import { getUsbDrives } from '@votingworks/backend';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { detectUsbDrive } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -16,7 +16,6 @@ import { buildApp } from './app';
 import { PORT } from './globals';
 import { PrecinctScannerInterpreter } from './interpret';
 import { PrecinctScannerStateMachine } from './types';
-import { Usb } from './util/usb';
 import { Workspace } from './util/workspace';
 
 export interface StartOptions {
@@ -51,7 +50,7 @@ export function start({
       logger,
     });
 
-  const usb: Usb = { getUsbDrives };
+  const usbDrive = detectUsbDrive();
 
   // Clear any cached data
   workspace.clearUploads();
@@ -61,7 +60,7 @@ export function start({
     precinctScannerStateMachine,
     precinctScannerInterpreter,
     workspace,
-    usb,
+    usbDrive,
     logger
   );
 
