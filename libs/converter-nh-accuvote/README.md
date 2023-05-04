@@ -20,7 +20,7 @@ const definition = new DOMParser().parseFromString(
   await fs.readFile('./election.xml', 'utf8'),
   'text/xml'
 );
-const convertResult = await convertElectionDefinition(electionDefinition, {
+const convertResult = convertElectionDefinition({
   front,
   back,
   definition,
