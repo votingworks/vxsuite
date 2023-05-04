@@ -181,7 +181,7 @@ test('hudson template', async () => {
   `);
 
   const grid = readGridFromElectionDefinition(hudson.definition);
-  const pairResult = pairColumnEntries(
+  const { pairs } = pairColumnEntries(
     grid.map((entry) => ({ ...entry, side: 'front' as const })),
     [
       ...frontTemplateOvals.map((oval) => ({
@@ -193,9 +193,8 @@ test('hudson template', async () => {
         side: 'back' as const,
       })),
     ]
-  );
-  expect(pairResult.success).toEqual(true);
-  expect(pairResult.pairs).toHaveLength(
+  ).unsafeUnwrap();
+  expect(pairs).toHaveLength(
     frontTemplateOvals.length + backTemplateOvals.length
   );
 

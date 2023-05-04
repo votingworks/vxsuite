@@ -1,97 +1,47 @@
 # ballot-interpreter-nh
 
-Interprets ballots as used by the state of New Hampshire, marked by hand and
-scanned into images.
+Converts XML/PDF ballot definitions as used by the state of New Hampshire into a
+VotingWorks election definition.
 
 ## Setup
 
-This package is private and is not intended to be published to NPM, but is for
-use within the `vxsuite` monorepo. To use it from a library or app within the
-monorepo, run `pnpm i -S '@votingworks/ballot-interpreter-vx@workspace:*'` in
-the library/app root.
-
-Follow the instructions in the [VxSuite README](../../README.md) to get set up,
-then get started like so:
-
-```sh
-# test on changes
-pnpm test:watch
-```
+Follow the instructions in the [VxSuite README](../../README.md) to get set up.
 
 ## API Usage
 
 ```ts
-import { interpret } from '@votingworks/ballot-interpreter-nh';
+import { convertElectionDefinition } from '@votingworks/ballot-interpreter-nh';
+import { loadImageData } from '@votingworks/image-utils';
+import { DOMParser } from '@xmldom/xmldom';
 
-const interpretResult = await interpret(electionDefinition, [
-  frontImagePath,
-  backImagePath,
-]);
+const front = await loadImageData('./template-front.jpeg');
+const back = await loadImageData('./template-back.jpeg');
+const definition = new DOMParser().parseFromString(
+  await fs.readFile('./election.xml', 'utf8'),
+  'text/xml'
+);
+const convertResult = await convertElectionDefinition(electionDefinition, {
+  front,
+  back,
+  definition,
+});
 
-if (interpretResult.isErr()) {
-  console.error(`error: ${interpretResult.err().message}`);
+if (convertResult.isErr()) {
+  console.error(`error: ${JSON.stringify(convertResult.err())}`);
 } else {
-  console.log('Interpreted ballot:', interpretResult.ok());
+  console.log('Converted election result:', convertResult.ok().election);
 }
 ```
 
 ## CLI Usage
 
-Run these examples from the root of `ballot-interpreter-nh`. The percentages
-shown are the mark score for each bubble. Output from each example is truncated
-for clarity.
-
 ```sh
 # use the default mark thresholds
-$ ./bin/interpret \
-    ../fixtures/data/electionGridLayoutNewHampshireHudson/election.json \
-    ../fixtures/data/electionGridLayoutNewHampshireHudson/scan-marked-{front,back}.jpeg
-../fixtures/data/electionGridLayoutNewHampshireHudson/scan-marked-front.jpeg:
-President and Vice-President of the United States
-✅ (44.47%) Donald J. Trump  and Michael R. Pence
-❓ (10.81%) Joseph R. Biden  and Kamala D. Harris
-✅ (15.78%) Jo Jorgensen  and Jeremy Cohen
-✅ (77.27%) Write-In #1
-
-Governor
-✅ (15.03%) Chris Sununu
-…
-
-# customize the mark threshold to 5% for both marginal & definite
-$ ./bin/interpret \
-    ../fixtures/data/electionGridLayoutNewHampshireHudson/election.json \
-    ../fixtures/data/electionGridLayoutNewHampshireHudson/scan-marked-{front,back}.jpeg \
-    -t 5%
-…
-State Representatives
-✅ ( 6.46%) Tony Lekas
-✅ ( 7.58%) Hershel Nunez
-⬜️ ( 3.98%) Lynne Ober
-✅ (24.47%) Russell Ober
-✅ (21.61%) Andrew Prout
-✅ (20.50%) Andrew Renzullo
-✅ ( 8.07%) Kimberly Rice
-✅ ( 5.09%) Denise Smith
-✅ (13.42%) Jordan Ulery
-…
-
-# customize the mark thresholds to 4% for marginal & 7% for definite
-$ ./bin/interpret \
-    ../fixtures/data/electionGridLayoutNewHampshireHudson/election.json \
-    ../fixtures/data/electionGridLayoutNewHampshireHudson/scan-marked-{front,back}.jpeg \
-    -t 4%,7%
-…
-Representative in Congress
-✅ (31.55%) Steven Negron
-✅ ( 7.70%) Ann McLane Kuster
-✅ (36.77%) Andrew Olding
-✅ (18.14%) Write-In #1
-
-Executive Councilor
-✅ (71.30%) Dave Wheeler
-✅ ( 7.70%) Debora B. Pignatelli
-✅ (13.79%) Write-In #1
-…
+$ ./bin/convert \
+  ../fixtures/data/electionGridLayoutNewHampshireAmherst/{definition.xml,template-front.jpeg,template-back.jpeg} \
+  -o ../fixtures/data/electionGridLayoutNewHampshireAmherst/election.json
+warning: conversion completed with issues:
+- Template images do not match expected sizes. The XML definition says the template images should be "legal", but the template images are front="letter" and back="letter".
 ```
 
 ## License
