@@ -58,6 +58,7 @@ interface RenderInAppContextParams {
   resetFiles?: () => Promise<void>;
   usbDriveStatus?: usbstick.UsbDriveStatus;
   usbDriveEject?: () => Promise<void>;
+  usbDriveFormat?: () => Promise<void>;
   addPrintedBallot?: (printedBallot: PrintedBallot) => void;
   printedBallots?: PrintedBallot[];
   fullElectionTally?: FullElectionTally;
@@ -117,6 +118,7 @@ export function renderInAppContext(
     resetFiles = jest.fn(),
     usbDriveStatus = usbstick.UsbDriveStatus.absent,
     usbDriveEject = jest.fn(),
+    usbDriveFormat = jest.fn(),
     addPrintedBallot = jest.fn(),
     printedBallots = [],
     fullElectionTally = getEmptyFullElectionTally(),
@@ -156,6 +158,7 @@ export function renderInAppContext(
         resetFiles,
         usbDriveStatus,
         usbDriveEject,
+        usbDriveFormat,
         addPrintedBallot,
         printedBallots,
         fullElectionTally,

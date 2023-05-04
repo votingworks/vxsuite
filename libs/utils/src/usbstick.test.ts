@@ -4,6 +4,7 @@ import {
   getStatus,
   doMount,
   doEject,
+  doFormat,
   getDevicePath,
   doSync,
 } from './usbstick';
@@ -67,6 +68,23 @@ test('can mount and unmount USB drive', async () => {
   await doEject();
   expect(window.kiosk.syncUsbDrive).toBeCalledWith('/media/usb-drive-sdb');
   expect(window.kiosk.unmountUsbDrive).toBeCalledWith('sdb');
+});
+
+test('can format USB drive', async () => {
+  const fKiosk = fakeKiosk();
+  window.kiosk = fKiosk;
+
+  fKiosk.getUsbDrives.mockResolvedValue([]);
+  await doFormat('test-name');
+  expect(window.kiosk.formatUsbDrive).not.toHaveBeenCalled();
+
+  fKiosk.getUsbDrives.mockResolvedValue(mountedDevices);
+
+  await doFormat('test-name');
+  expect(window.kiosk.formatUsbDrive).toHaveBeenCalledWith(
+    mountedDevices[0]!.deviceName,
+    { format: 'fat32', name: 'test-name' }
+  );
 });
 
 test('without a kiosk, calls do not crash', async () => {

@@ -9,6 +9,7 @@ import {
 } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
 import React from 'react';
+import { Button } from '..';
 import { UsbControllerButton } from '../usbcontroller_button';
 import { POLLING_INTERVAL_FOR_USB, useUsbDrive } from './use_usb_drive';
 
@@ -72,6 +73,33 @@ test('returns the status after the first tick', async () => {
       newStatus: 'mounted',
     })
   );
+});
+
+test('format USB drive', async () => {
+  function ThisTestComponent() {
+    const usbDrive = useUsbDrive({ logger });
+
+    return (
+      <Button
+        onPress={() =>
+          usbDrive && usbDrive.format && usbDrive.format('test-name')
+        }
+      >
+        Format
+      </Button>
+    );
+  }
+
+  const kiosk = fakeKiosk();
+  kiosk.getUsbDrives.mockResolvedValue([MOUNTED_DRIVE]);
+  window.kiosk = kiosk;
+
+  // wait for initial status
+  render(<ThisTestComponent />);
+
+  userEvent.click(screen.getByText('Format'));
+  await advanceTimersAndPromises(1);
+  expect(kiosk.formatUsbDrive).toHaveBeenCalled();
 });
 
 test('full lifecycle with USBControllerButton', async () => {
