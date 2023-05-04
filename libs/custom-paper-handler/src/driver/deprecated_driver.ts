@@ -3,13 +3,6 @@ import makeDebug from 'debug';
 import { assert, Optional, sleep } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import {
-  CoderType,
-  literal,
-  message,
-  uint8,
-  // unboundedString,
-} from '@votingworks/message-coder';
-import {
   assertNumberIsInRangeInclusive,
   assertUint16,
   isUint8,
@@ -43,39 +36,11 @@ import {
 
 const serverDebug = makeDebug('paper-handler:driver');
 
-function debug(msg: string) {
-  serverDebug(msg);
+function debug(message: string) {
+  serverDebug(message);
   /* eslint-disable-next-line no-console */
-  console.log(msg);
+  console.log(message);
 }
-
-// Common Bytes
-const START_OF_PACKET: Uint8 = 0x02;
-const NULL_CODE: Uint8 = 0x00;
-const TOKEN: Uint8 = 0x01;
-
-const InitializeRequest = literal(0x1b, 0x40);
-
-const TransferOutRealTimeRequest = message({
-  stx: literal(0x02),
-  requestId: uint8(),
-  token: literal(TOKEN),
-  optionalDataLength: uint8(),
-});
-type TransferOutRealTimeRequest = CoderType<typeof TransferOutRealTimeRequest>;
-
-// Use for transfer in once big endianness is supported
-// const TransferInRealTimeExchangeResponse = message({
-//   startOfPacket: literal(0x82),
-//   requestId: uint8(),
-//   token: literal(TOKEN),
-//   returnCode: uint8(),
-//   optionalDataLength: uint8(),
-//   optionalData: unboundedString(),
-// });
-// type TransferInRealTimeExchangeResponse = CoderType<
-//   typeof TransferInRealTimeExchangeResponse
-// >;
 
 /**
  * USB commands are a series of byte values
@@ -114,7 +79,12 @@ const GENERIC_ENDPOINT_IN = 1;
 export const GENERIC_ENDPOINT_OUT = 2;
 const REAL_TIME_ENDPOINT_IN = 3;
 const REAL_TIME_ENDPOINT_OUT = 4;
-export const PACKET_SIZE = 65536; // 0.5 MB, greater than the maximum observed size of scan data block. smaller and we slow down scanning results
+const PACKET_SIZE = 65536; // 0.5 MB, greater than the maximum observed size of scan data block. smaller and we slow down scanning results
+
+// Common Bytes
+const START_OF_PACKET: Uint8 = 0x02;
+const NULL_CODE: Uint8 = 0x00;
+const TOKEN: Uint8 = 0x01;
 
 // Return Codes
 const POSITIVE_ACKNOWLEDGEMENT: Uint8 = 0x06;
@@ -160,6 +130,7 @@ const SCANNER_CALIBRATION: Command = [0x1f, 0x43];
 
 const ENABLE_PRINT: Command = [0x1f, 0x45];
 const DISABLE_PRINT: Command = [0x1f, 0x65];
+const INITIALIZE_DEVICE: Command = [0x1b, 0x40];
 const PRINT_AND_FEED_PAPER: Command = [0x1b, 0x4a];
 const SELECT_IMAGE_PRINT_MODE: Command = [0x1b, 0x2a];
 const SET_ABSOLUTE_PRINT_POSITION: Command = [0x1b, 0x24];
@@ -236,6 +207,18 @@ export class PaperHandlerDriver {
   }
 
   /**
+   * Send commands or data on the generic bulk out endpoint.
+   */
+  transferOutGeneric(
+    data: Uint8[] | Uint8Array | Buffer
+  ): Promise<USBOutTransferResult> {
+    return this.webDevice.transferOut(
+      GENERIC_ENDPOINT_OUT,
+      Array.isArray(data) ? new Uint8Array(data) : data
+    );
+  }
+
+  /**
    * Receive data or command responses on the generic bulk in endpoint.
    */
   transferInGeneric(): Promise<USBInTransferResult> {
@@ -262,14 +245,11 @@ export class PaperHandlerDriver {
   /**
    * Transfers data out on the real time bulk out endpoint.
    */
-  transferOutRealTime(requestId: Uint8): Promise<USBOutTransferResult> {
-    // TODO error handling
-    const buf = TransferOutRealTimeRequest.encode({
-      requestId,
-      optionalDataLength: NULL_CODE,
-    }).ok();
-    assert(buf);
-    return this.webDevice.transferOut(REAL_TIME_ENDPOINT_OUT, buf);
+  transferOutRealTime(command: Uint8[]): Promise<USBOutTransferResult> {
+    return this.webDevice.transferOut(
+      REAL_TIME_ENDPOINT_OUT,
+      new Uint8Array(command)
+    );
   }
 
   /**
@@ -279,80 +259,10 @@ export class PaperHandlerDriver {
     return this.webDevice.transferIn(REAL_TIME_ENDPOINT_IN, PACKET_SIZE);
   }
 
-  async handleRealTimeExchange(
-    // TODO make this an enum
-    requestId: Uint8
-    // According to the manual, "REAL-TIME USB PROTOCOL FORMAT" supports optional data.
-    // The prototype doesn't support it, so leave out support from this function until needed.
-  ): Promise<DataView> {
+  async handleRealTimeExchange(requestId: Uint8): Promise<DataView> {
     await this.realTimeLock.acquire();
 
-    const transferOutResult = await this.transferOutRealTime(requestId);
-    assert(transferOutResult.status === 'ok'); // TODO: handling
-
-    const transferInResult = await this.transferInRealTime();
-    this.realTimeLock.release();
-    assert(transferInResult.status === 'ok'); // TODO: handling
-
-    const { data } = transferInResult;
-    assert(data);
-    // TODO support big endian
-    // const response = TransferInRealTimeExchangeResponse.decode(
-    //   Buffer.from(data.buffer)
-    // ).ok();
-    assert(data.getUint8(1) === requestId);
-    assert(data.getUint8(3) === POSITIVE_ACKNOWLEDGEMENT); // TODO: handling
-    return data;
-  }
-
-  /**
-   * Begin migrated functions
-   */
-
-  /**
-   * Send commands or data on the generic bulk out endpoint.
-   */
-  transferOutGeneric(
-    data: Uint8[] | Uint8Array | Buffer
-  ): Promise<USBOutTransferResult> {
-    return this.webDevice.transferOut(
-      GENERIC_ENDPOINT_OUT,
-      Array.isArray(data) ? new Uint8Array(data) : data
-    );
-  }
-
-  /**
-   * According to manual, "Clears the data in the print buffer and resets the
-   * device mode to that in effect when power was turned on." It is called
-   * initialize device but it appears to actually just initialize the printer.
-   */
-  async initializePrinter(): Promise<void> {
-    const requestBuffer = InitializeRequest.encode().ok();
-    // TODO error handling
-    assert(requestBuffer);
-    await this.transferOutGeneric(requestBuffer);
-  }
-
-  /**
-   * End migrated functions
-   */
-
-  /**
-   * Transfers data out on the real time bulk out endpoint.
-   */
-  deprecatedTransferOutRealTime(
-    command: Uint8[]
-  ): Promise<USBOutTransferResult> {
-    return this.webDevice.transferOut(
-      REAL_TIME_ENDPOINT_OUT,
-      new Uint8Array(command)
-    );
-  }
-
-  async deprecatedHandleRealTimeExchange(requestId: Uint8): Promise<DataView> {
-    await this.realTimeLock.acquire();
-
-    const transferOutResult = await this.deprecatedTransferOutRealTime([
+    const transferOutResult = await this.transferOutRealTime([
       START_OF_PACKET,
       requestId,
       TOKEN,
@@ -389,17 +299,17 @@ export class PaperHandlerDriver {
    */
   async getPrinterStatus(): Promise<PrinterStatus> {
     return parsePrinterStatus(
-      await this.deprecatedHandleRealTimeExchange(PRINTER_STATUS_REQUEST_ID)
+      await this.handleRealTimeExchange(PRINTER_STATUS_REQUEST_ID)
     );
   }
 
   async abortScan(): Promise<void> {
-    await this.deprecatedHandleRealTimeExchange(SCAN_ABORT_REQUEST_ID);
+    await this.handleRealTimeExchange(SCAN_ABORT_REQUEST_ID);
   }
 
   // reset scan reconnects the scanenr, changes the device address, and requires a new WebUSBDevice
   async resetScan(): Promise<void> {
-    await this.deprecatedHandleRealTimeExchange(SCAN_RESET_REQUEST_ID);
+    await this.handleRealTimeExchange(SCAN_RESET_REQUEST_ID);
   }
 
   /**
@@ -590,6 +500,15 @@ export class PaperHandlerDriver {
    */
   disablePrint(): Promise<boolean> {
     return this.handleGenericCommandWithAcknowledgement(DISABLE_PRINT);
+  }
+
+  /**
+   * According to manual, "Clears the data in the print buffer and resets the
+   * device mode to that in effect when power was turned on." It is called
+   * initialize device but it appears to actually just initialize the printer.
+   */
+  async initializePrinter(): Promise<void> {
+    await this.transferOutGeneric(INITIALIZE_DEVICE);
   }
 
   async setMotionUnits(x: number, y: number): Promise<USBOutTransferResult> {

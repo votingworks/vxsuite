@@ -1,13 +1,11 @@
 import { assert } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
-import { Buffer } from 'buffer';
 import { Device, findByIds, WebUSBDevice } from 'usb';
 import {
   GENERIC_ENDPOINT_OUT,
   getPaperHandlerWebDevice,
   PaperHandlerDriver,
-  PACKET_SIZE,
-} from './driver';
+} from './deprecated_driver';
 
 type MockWebUsbDevice = mocks.MockWebUsbDevice;
 
@@ -22,25 +20,13 @@ const TEST_ALTERNATE_INTERFACE: USBAlternateInterface = {
       endpointNumber: 1,
       direction: 'in',
       type: 'bulk',
-      packetSize: PACKET_SIZE,
+      packetSize: 11,
     },
     {
       endpointNumber: 2,
       direction: 'out',
       type: 'bulk',
-      packetSize: PACKET_SIZE,
-    },
-    {
-      endpointNumber: 3,
-      direction: 'in',
-      type: 'bulk',
-      packetSize: PACKET_SIZE,
-    },
-    {
-      endpointNumber: 4,
-      direction: 'out',
-      type: 'bulk',
-      packetSize: PACKET_SIZE,
+      packetSize: 11,
     },
   ],
 };
@@ -133,32 +119,10 @@ test('initializePrinter sends the correct message', async () => {
 
   const transferOutStub = jest.fn();
   paperHandlerWebDevice.transferOut = transferOutStub;
-
   await paperHandlerDriver.initializePrinter();
   expect(paperHandlerWebDevice.transferOut).toHaveBeenCalledTimes(1);
   expect(paperHandlerWebDevice.transferOut).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    // new Uint8Array([0x1b, 0x40])
-    Buffer.from([0x1b, 0x40])
-  );
-});
-
-test('getScannerStatus sends the correct message', async () => {
-  const { mockWebUsbDevice, paperHandlerWebDevice } =
-    await getMockWebUsbDevice();
-  const paperHandlerDriver = new PaperHandlerDriver(paperHandlerWebDevice);
-  await paperHandlerDriver.connect();
-
-  mockWebUsbDevice.mockSetConfiguration(TEST_CONFIGURATION);
-  await paperHandlerWebDevice.selectConfiguration(1);
-
-  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
-
-  await paperHandlerDriver.getScannerStatus();
-  expect(transferOutSpy).toHaveBeenCalledTimes(1);
-  expect(transferOutSpy).toHaveBeenCalledWith(
-    GENERIC_ENDPOINT_OUT,
-    Buffer.from('TODO')
-    // Buffer.from([0x1b, 0x40])
+    new Uint8Array([0x1b, 0x40])
   );
 });

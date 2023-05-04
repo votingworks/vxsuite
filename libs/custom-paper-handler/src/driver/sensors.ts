@@ -97,6 +97,7 @@ export interface PrinterStatus {
 
 export type PaperHandlerStatus = ScannerStatus & PrinterStatus;
 
+// See: page 45 of manual
 export function parseScannerStatus(data: DataView): ScannerStatus {
   assert(data.byteLength === 9);
 
