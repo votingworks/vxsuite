@@ -133,8 +133,8 @@ export type PairColumnEntriesIssue<T extends GridEntry, U extends GridEntry> =
 
 /**
  * Result of {@link pairColumnEntries}. The `issues` property is an array of
- * issues that occurred during the pairing process. If success is `false`,
- * then `entries` will only be partially populated.
+ * issues that occurred during the pairing process. The `Err` variant still has
+ * `pairs`, but they will only be partially populated.
  */
 export type PairColumnEntriesResult<
   T extends GridEntry,
@@ -199,7 +199,7 @@ export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
     columnIndex += 1;
   }
 
-  return issues.length ? err({ pairs, issues }) : ok({ success: true, pairs });
+  return issues.length ? err({ pairs, issues }) : ok({ pairs });
 }
 
 /**

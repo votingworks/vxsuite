@@ -169,7 +169,9 @@ export async function main(
     ),
   });
 
-  const { issues = [] } = convertResult.ok() ?? convertResult.err() ?? {};
+  const { issues = [] } = convertResult.isOk()
+    ? convertResult.ok()
+    : convertResult.err();
 
   if (issues.length > 0) {
     io.stderr.write(convertResult.isOk() ? 'warning: ' : 'error: ');
