@@ -1,6 +1,6 @@
 import { interpret as interpretVxBmdBallotSheet } from '@votingworks/ballot-interpreter-vx';
 import { interpret as interpretNhHmpbBallotSheet } from '@votingworks/ballot-interpreter-nh-next';
-import { throwIllegalValue, typedAs } from '@votingworks/basics';
+import { Result, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { loadImageData } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
@@ -20,6 +20,11 @@ import makeDebug from 'debug';
 import { convertNhInterpretResultToLegacyResult } from './legacy_adapter';
 
 const debug = makeDebug('backend:scan:interpreter');
+
+/**
+ * Result of interpreting a sheet of ballot images.
+ */
+export type InterpretResult = Result<SheetOf<InterpretFileResult>, Error>;
 
 /**
  * Result of interpreting a single ballot image.

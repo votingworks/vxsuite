@@ -1,4 +1,3 @@
-import * as current from '@votingworks/ballot-interpreter-nh';
 import {
   assert,
   err,
@@ -42,11 +41,13 @@ import {
   InterpretedContestLayout,
   InterpretedContestOptionLayout,
 } from '@votingworks/ballot-interpreter-nh-next';
-import { type InterpreterOptions } from './interpret';
+import type {
+  InterpretFileResult,
+  InterpretResult,
+  InterpreterOptions,
+} from './interpret';
 
 type OkType<T> = T extends Ok<infer U> ? U : never;
-
-type InterpretResult = Awaited<ReturnType<typeof current.interpret>>;
 
 function convertNewHampshireNextMarkToSharedMark(
   contests: Contests,
@@ -290,7 +291,7 @@ function convertNextInterpretedBallotPage(
   options: InterpreterOptions,
   nextInterpretedBallotCard: InterpretedBallotCard,
   side: 'front' | 'back'
-): current.InterpretFileResult {
+): InterpretFileResult {
   /* istanbul ignore next */
   const markThresholds =
     options.markThresholds ?? electionDefinition.election.markThresholds;
