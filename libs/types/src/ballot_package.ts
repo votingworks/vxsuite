@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer';
 import {
   BallotLocale,
   BallotStyleId,
@@ -7,22 +6,11 @@ import {
   PrecinctId,
 } from './election';
 import { SystemSettings } from './system_settings';
-import { BallotPageLayout } from './hmpb';
 
 export interface BallotPackage {
   electionDefinition: ElectionDefinition;
   // TODO(kevin) once all machines support system settings, make systemSettings required
   systemSettings?: SystemSettings;
-}
-
-export interface BallotPackageEntry {
-  pdf: Buffer;
-  ballotConfig: BallotConfig;
-  layout: readonly BallotPageLayout[];
-}
-
-export interface BallotPackageManifest {
-  ballots: readonly BallotConfig[];
 }
 
 export interface BallotStyleData {

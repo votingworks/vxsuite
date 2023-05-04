@@ -20,11 +20,6 @@ export interface PageInterpretationWithAdjudication<
   contestIds?: readonly string[];
 }
 
-export interface BallotPageQrcode {
-  data: Uint8Array;
-  position: 'top' | 'bottom';
-}
-
 export type PrecinctScannerState =
   | 'connecting'
   | 'disconnected'

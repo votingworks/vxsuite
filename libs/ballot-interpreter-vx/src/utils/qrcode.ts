@@ -4,7 +4,7 @@ import {
   detectRawBytesBmdBallot as detectMetadata,
   isVxBallot,
 } from '@votingworks/ballot-encoder';
-import { crop, loadImageData } from '@votingworks/image-utils';
+import { crop } from '@votingworks/image-utils';
 import { Rect, Size } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
@@ -241,15 +241,6 @@ export interface BallotPageQrcode {
 export type DetectQrCodeError = { type: 'blank-page' } | { type: 'no-qr-code' };
 export type QrCodePageResult = Result<DetectedQrCode, DetectQrCodeError>;
 
-export interface BlankPageResult {
-  blank: true;
-}
-
-export interface NonBlankPageResult {
-  blank: false;
-  qrcode?: BallotPageQrcode;
-}
-
 export async function detectInBallot(
   imageData: ImageData
 ): Promise<QrCodePageResult> {
@@ -304,11 +295,4 @@ export async function detectInBallot(
   }
 
   return ok(qrcode);
-}
-
-export async function detectInFilePath(
-  imagePath: string
-): Promise<QrCodePageResult> {
-  const imageData = await loadImageData(imagePath);
-  return detectInBallot(imageData);
 }

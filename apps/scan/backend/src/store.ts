@@ -41,7 +41,7 @@ import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { ResultSheet } from '@votingworks/backend';
-import { sheetRequiresAdjudication } from './vx_interpreter';
+import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
 import { normalizeAndJoin } from './util/path';
 
