@@ -5,10 +5,13 @@ import {
   electionSampleNoSealDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
+import { createMemoryHistory } from 'history';
+import userEvent from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { render } from '../../test/test_utils';
 import { StartPage } from './start_page';
+import { Paths } from '../config/globals';
 
 test('renders StartPage', () => {
   const electionDefinition = primaryElectionSampleDefinition;
@@ -57,4 +60,22 @@ test('renders StartPage with no seal', () => {
     route: '/',
   });
   expect(container.firstChild).toMatchSnapshot();
+});
+
+it('renders display settings button', () => {
+  const electionDefinition = electionSampleDefinition;
+  const history = createMemoryHistory({ initialEntries: ['/'] });
+
+  render(<Route path="/" component={StartPage} />, {
+    ballotStyleId: '12',
+    electionDefinition,
+    history,
+    precinctId: '23',
+    route: '/',
+  });
+
+  expect(history.location.pathname).toEqual('/');
+
+  userEvent.click(screen.getButton(/color & size/i));
+  expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
 });
