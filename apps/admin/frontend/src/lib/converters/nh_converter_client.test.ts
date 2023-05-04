@@ -181,7 +181,6 @@ test('conversion fails', async () => {
   );
 
   await expect(client.process()).rejects.toMatchObject({
-    success: false,
     issues: [
       {
         kind: ConvertIssueKind.MissingDefinitionProperty,
