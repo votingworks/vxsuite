@@ -124,6 +124,22 @@ exports[`Renders ContestPage 1`] = `
   padding-left: 10px;
 }
 
+.c10 {
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  text-align: left;
+}
+
 .c0 {
   padding: 30px 30px 0;
 }
@@ -546,14 +562,36 @@ exports[`Renders ContestPage 1`] = `
         </span>
       </button>
       <button
-        aria-label="Change Settings"
-        class="sc-iJKOzS gmzpar"
+        class="sc-iJKOzS ebzhGa"
         type="button"
       >
         <span
           class="sc-ezbkgU bmeHoE"
         >
-          Settings
+          <span
+            class="c10"
+          >
+            <svg
+              aria-hidden="true"
+              class="svg-inline--fa fa-display "
+              data-icon="display"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 576 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V352H64V64H512z"
+                fill="currentColor"
+              />
+            </svg>
+            <span
+              class="sc-bdvvaa dEbbYD"
+            >
+              Color & Size
+            </span>
+          </span>
         </span>
       </button>
     </nav>
@@ -626,11 +664,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   margin-bottom: 40px;
 }
 
-.c14 {
+.c15 {
   max-width: 250px;
 }
 
-.c12 {
+.c13 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -638,7 +676,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   margin: 1.5rem 1rem 0;
 }
 
-.c13 {
+.c14 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -653,7 +691,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   margin: auto;
 }
 
-.c13 div:first-child {
+.c14 div:first-child {
   margin-right: 1rem;
   min-width: 5rem;
 }
@@ -740,6 +778,22 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 .c11 button {
   padding-right: 10px;
   padding-left: 10px;
+}
+
+.c12 {
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  text-align: left;
 }
 
 <div>
@@ -1172,28 +1226,50 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
           class="c11"
         >
           <button
-            aria-label="Change Settings"
             class="sc-iJKOzS ebzhGa"
             type="button"
           >
             <span
               class="sc-ezbkgU bmeHoE"
             >
-              Settings
+              <span
+                class="c12"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-display "
+                  data-icon="display"
+                  data-prefix="fas"
+                  focusable="false"
+                  role="img"
+                  viewBox="0 0 576 512"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V352H64V64H512z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <span
+                  class="sc-bdvvaa dEbbYD"
+                >
+                  Color & Size
+                </span>
+              </span>
             </span>
           </button>
         </div>
         <div
           aria-hidden="true"
-          class="c12"
+          class="c13"
           data-testid="election-info"
         >
           <div
-            class="c13"
+            class="c14"
           >
             <div
               aria-hidden="true"
-              class="c14"
+              class="c15"
             />
             <div
               class="sc-fotPbf hdnDAU"

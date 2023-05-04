@@ -23,59 +23,20 @@ exports[`renders StartPage 1`] = `
   margin: 0 auto 0.5rem;
 }
 
-.c7 {
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  white-space: nowrap;
-}
-
-.c7 > button {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  box-shadow: inset 1px 0 0 rgb(190,190,190);
-}
-
-.c7 > button:first-child {
-  box-shadow: none;
-}
-
-.c7 > button:not(:last-child) {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.c7 > button:not(:first-child) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.c7 > button:disabled {
-  background: #028099;
-  color: #ffffff;
-}
-
-.c7 button {
-  min-width: 98px;
-}
-
-.c7 button[data-size='0'] {
-  font-size: 22px !important;
-}
-
-.c7 button[data-size='1'] {
-  font-size: 28px !important;
-}
-
-.c7 button[data-size='2'] {
-  font-size: 36px !important;
-}
-
 .c6 {
-  display: block;
-  margin-bottom: 0.4rem;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  text-align: left;
 }
 
 .c3 {
@@ -206,54 +167,39 @@ exports[`renders StartPage 1`] = `
       <div
         class="c5"
       >
-        <p
-          class="sc-dkPtyc XGKAk"
+        <button
+          class="sc-iJKOzS ebzhGa"
+          type="button"
         >
-          <label
-            aria-hidden="true"
-            class="c6"
-          >
-            Text Size
-          </label>
           <span
-            class="sc-bYoCmx c7"
-            data-testid="change-text-size-buttons"
+            class="sc-ezbkgU bmeHoE"
           >
-            <button
-              aria-label=" Text Size: Small"
-              class="sc-iJKOzS fssKts"
-              type="button"
+            <span
+              class="c6"
             >
-              <span
-                class="sc-ezbkgU bmeHoE"
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-display "
+                data-icon="display"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                viewBox="0 0 576 512"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                A
-              </span>
-            </button>
-            <button
-              aria-label="Selected Text Size: Medium"
-              class="sc-iJKOzS dPQYPM"
-              type="button"
-            >
+                <path
+                  d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V352H64V64H512z"
+                  fill="currentColor"
+                />
+              </svg>
               <span
-                class="sc-ezbkgU bmeHoE"
+                class="sc-bdvvaa dEbbYD"
               >
-                A
+                Color & Size
               </span>
-            </button>
-            <button
-              aria-label=" Text Size: Large"
-              class="sc-iJKOzS fssKts"
-              type="button"
-            >
-              <span
-                class="sc-ezbkgU bmeHoE"
-              >
-                A
-              </span>
-            </button>
+            </span>
           </span>
-        </p>
+        </button>
       </div>
     </div>
   </nav>
@@ -279,59 +225,20 @@ exports[`renders StartPage with inline SVG 1`] = `
   margin: 0 auto 0.5rem;
 }
 
-.c6 {
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  white-space: nowrap;
-}
-
-.c6 > button {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  box-shadow: inset 1px 0 0 rgb(190,190,190);
-}
-
-.c6 > button:first-child {
-  box-shadow: none;
-}
-
-.c6 > button:not(:last-child) {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.c6 > button:not(:first-child) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.c6 > button:disabled {
-  background: #028099;
-  color: #ffffff;
-}
-
-.c6 button {
-  min-width: 98px;
-}
-
-.c6 button[data-size='0'] {
-  font-size: 22px !important;
-}
-
-.c6 button[data-size='1'] {
-  font-size: 28px !important;
-}
-
-.c6 button[data-size='2'] {
-  font-size: 36px !important;
-}
-
 .c5 {
-  display: block;
-  margin-bottom: 0.4rem;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  text-align: left;
 }
 
 .c2 {
@@ -620,54 +527,39 @@ exports[`renders StartPage with inline SVG 1`] = `
       <div
         class="c4"
       >
-        <p
-          class="sc-dkPtyc XGKAk"
+        <button
+          class="sc-iJKOzS ebzhGa"
+          type="button"
         >
-          <label
-            aria-hidden="true"
-            class="c5"
-          >
-            Text Size
-          </label>
           <span
-            class="sc-bYoCmx c6"
-            data-testid="change-text-size-buttons"
+            class="sc-ezbkgU bmeHoE"
           >
-            <button
-              aria-label=" Text Size: Small"
-              class="sc-iJKOzS fssKts"
-              type="button"
+            <span
+              class="c5"
             >
-              <span
-                class="sc-ezbkgU bmeHoE"
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-display "
+                data-icon="display"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                viewBox="0 0 576 512"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                A
-              </span>
-            </button>
-            <button
-              aria-label="Selected Text Size: Medium"
-              class="sc-iJKOzS dPQYPM"
-              type="button"
-            >
+                <path
+                  d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V352H64V64H512z"
+                  fill="currentColor"
+                />
+              </svg>
               <span
-                class="sc-ezbkgU bmeHoE"
+                class="sc-bdvvaa dEbbYD"
               >
-                A
+                Color & Size
               </span>
-            </button>
-            <button
-              aria-label=" Text Size: Large"
-              class="sc-iJKOzS fssKts"
-              type="button"
-            >
-              <span
-                class="sc-ezbkgU bmeHoE"
-              >
-                A
-              </span>
-            </button>
+            </span>
           </span>
-        </p>
+        </button>
       </div>
     </div>
   </nav>
@@ -693,59 +585,20 @@ exports[`renders StartPage with no seal 1`] = `
   margin: 0 auto 0.5rem;
 }
 
-.c6 {
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  white-space: nowrap;
-}
-
-.c6 > button {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  box-shadow: inset 1px 0 0 rgb(190,190,190);
-}
-
-.c6 > button:first-child {
-  box-shadow: none;
-}
-
-.c6 > button:not(:last-child) {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.c6 > button:not(:first-child) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.c6 > button:disabled {
-  background: #028099;
-  color: #ffffff;
-}
-
-.c6 button {
-  min-width: 98px;
-}
-
-.c6 button[data-size='0'] {
-  font-size: 22px !important;
-}
-
-.c6 button[data-size='1'] {
-  font-size: 28px !important;
-}
-
-.c6 button[data-size='2'] {
-  font-size: 36px !important;
-}
-
 .c5 {
-  display: block;
-  margin-bottom: 0.4rem;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  text-align: left;
 }
 
 .c2 {
@@ -870,54 +723,39 @@ exports[`renders StartPage with no seal 1`] = `
       <div
         class="c4"
       >
-        <p
-          class="sc-dkPtyc XGKAk"
+        <button
+          class="sc-iJKOzS ebzhGa"
+          type="button"
         >
-          <label
-            aria-hidden="true"
-            class="c5"
-          >
-            Text Size
-          </label>
           <span
-            class="sc-bYoCmx c6"
-            data-testid="change-text-size-buttons"
+            class="sc-ezbkgU bmeHoE"
           >
-            <button
-              aria-label=" Text Size: Small"
-              class="sc-iJKOzS fssKts"
-              type="button"
+            <span
+              class="c5"
             >
-              <span
-                class="sc-ezbkgU bmeHoE"
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-display "
+                data-icon="display"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                viewBox="0 0 576 512"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                A
-              </span>
-            </button>
-            <button
-              aria-label="Selected Text Size: Medium"
-              class="sc-iJKOzS dPQYPM"
-              type="button"
-            >
+                <path
+                  d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V352H64V64H512z"
+                  fill="currentColor"
+                />
+              </svg>
               <span
-                class="sc-ezbkgU bmeHoE"
+                class="sc-bdvvaa dEbbYD"
               >
-                A
+                Color & Size
               </span>
-            </button>
-            <button
-              aria-label=" Text Size: Large"
-              class="sc-iJKOzS fssKts"
-              type="button"
-            >
-              <span
-                class="sc-ezbkgU bmeHoE"
-              >
-                A
-              </span>
-            </button>
+            </span>
           </span>
-        </p>
+        </button>
       </div>
     </div>
   </nav>
