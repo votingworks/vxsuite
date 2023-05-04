@@ -2919,9 +2919,9 @@ importers:
 
   libs/backend:
     dependencies:
-      '@votingworks/ballot-interpreter-nh-next':
+      '@votingworks/ballot-interpreter-nh':
         specifier: workspace:*
-        version: link:../ballot-interpreter-nh-next
+        version: link:../ballot-interpreter-nh
       '@votingworks/ballot-interpreter-vx':
         specifier: workspace:*
         version: link:../ballot-interpreter-vx
@@ -3168,7 +3168,7 @@ importers:
         specifier: 4.6.3
         version: 4.6.3
 
-  libs/ballot-interpreter-nh-next:
+  libs/ballot-interpreter-nh:
     dependencies:
       '@votingworks/basics':
         specifier: workspace:*
@@ -3260,7 +3260,7 @@ importers:
         version: 29.5.0(@types/node@16.18.23)
       jest-watch-typeahead:
         specifier: ^0.6.4
-        version: 0.6.5(jest@29.5.0)
+        version: 0.6.4(jest@29.5.0)
       ts-jest:
         specifier: ^29.0.5
         version: 29.0.5(@babel/core@7.12.3)(@jest/types@29.5.0)(esbuild@0.17.11)(jest@29.5.0)(typescript@4.6.3)
@@ -10746,7 +10746,7 @@ packages:
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
       '@types/node': 16.18.23
-      '@types/yargs': 17.0.12
+      '@types/yargs': 17.0.22
       chalk: 4.1.2
 
   /@joshwooding/vite-plugin-react-docgen-typescript@0.2.1(typescript@4.6.3)(vite@4.0.4):
@@ -12385,7 +12385,7 @@ packages:
     resolution: {integrity: sha512-1zzPV9FDe1I/WHhRkf9SNgqtRJWZqrBWgu7JGveuHmmyR9CnAPCie2N/x+iHrgnpYBIcCJWHBoMRv2TRWktsvw==}
     deprecated: This is a stub types definition for chalk (https://github.com/chalk/chalk). chalk provides its own type definitions, so you don't need @types/chalk installed!
     dependencies:
-      chalk: 5.2.0
+      chalk: 4.1.2
     dev: true
 
   /@types/compression@1.7.2:
@@ -13060,12 +13060,12 @@ packages:
     resolution: {integrity: sha512-Nz4MPhecOFArtm81gFQvQqdV7XYCrWKx5uUt6GNHredFHn1i2mtWqXTON7EPXMtNi1qjtjEM/VCHDhcHsAMLXQ==}
     dependencies:
       '@types/yargs-parser': 21.0.0
+    dev: true
 
   /@types/yargs@17.0.22:
     resolution: {integrity: sha512-pet5WJ9U8yPVRhkwuEIp5ktAeAqRZOq4UdAyWLWzxbtpyXnzbtLdKiXAjJzi/KLmPGS9wk86lUFWZFN6sISo4g==}
     dependencies:
       '@types/yargs-parser': 21.0.0
-    dev: true
 
   /@types/yauzl@2.9.1:
     resolution: {integrity: sha512-A1b8SU4D10uoPjwb0lnHmmu8wZhR9d+9o2PKBQT2jU5YPTKsxac6M2qGAdY7VcL+dHHhARVUDmeg0rOrcd9EjA==}
@@ -24362,22 +24362,6 @@ packages:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       jest: 27.5.1
-      jest-regex-util: 27.5.1
-      jest-watcher: 27.5.1
-      slash: 3.0.0
-      string-length: 4.0.2
-      strip-ansi: 6.0.1
-    dev: true
-
-  /jest-watch-typeahead@0.6.5(jest@29.5.0):
-    resolution: {integrity: sha512-GIbV6h37/isatMDtqZlA8Q5vC6T3w+5qdvtF+3LIkPc58zEWzbKmTHvlUIp3wvBm400RzrQWcVPcsAJqKWu7XQ==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      jest: ^26.0.0 || ^27.0.0
-    dependencies:
-      ansi-escapes: 4.3.2
-      chalk: 4.1.2
-      jest: 29.5.0(@types/node@16.18.23)
       jest-regex-util: 27.5.1
       jest-watcher: 27.5.1
       slash: 3.0.0

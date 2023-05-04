@@ -180,15 +180,16 @@ test('conversion fails', async () => {
     new File(['%PDF'], 'ballot.pdf')
   );
 
-  await expect(client.process()).rejects.toMatchObject({
-    success: false,
-    issues: [
-      {
-        kind: ConvertIssueKind.MissingDefinitionProperty,
-        property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
-      },
-    ],
-  });
+  await expect(client.process()).rejects.toMatchObject(
+    err({
+      issues: [
+        {
+          kind: ConvertIssueKind.MissingDefinitionProperty,
+          property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+        },
+      ],
+    })
+  );
 });
 
 test('too many PDF pages', async () => {
