@@ -38,6 +38,7 @@ export interface AppContextInterface {
   resetFiles: (fileType: ResultsFileType) => Promise<void>;
   usbDriveStatus: usbstick.UsbDriveStatus;
   usbDriveEject: (currentUserRole: LoggingUserRole) => Promise<void>;
+  usbDriveFormat?: (name: string) => Promise<void>;
   addPrintedBallot: (printedBallot: PrintedBallot) => void;
   printedBallots: readonly PrintedBallot[];
   fullElectionTally: FullElectionTally;
@@ -75,6 +76,7 @@ const appContext: AppContextInterface = {
   resetFiles: async () => undefined,
   usbDriveStatus: usbstick.UsbDriveStatus.notavailable,
   usbDriveEject: async () => undefined,
+  usbDriveFormat: async () => undefined,
   addPrintedBallot: () => undefined,
   printedBallots: [],
   fullElectionTally: getEmptyFullElectionTally(),

@@ -11,6 +11,7 @@ const { UsbDriveStatus } = usbstick;
 export interface UsbDrive {
   status?: usbstick.UsbDriveStatus;
   eject(currentUser: string): Promise<void>;
+  format?(name: string): Promise<void>;
 }
 
 export interface UsbDriveProps {
@@ -34,6 +35,7 @@ export const POLLING_INTERVAL_FOR_USB = 100;
  */
 export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
   const [isMountingOrUnmounting, setIsMountingOrUnmounting] = useState(false);
+  const [isFormatting, setIsFormatting] = useState(false);
   const [status, setStatus] = useState<usbstick.UsbDriveStatus>();
   const [recentlyEjected, setRecentlyEjected] = useState(false);
   const makeCancelable = useCancelablePromise();
@@ -66,9 +68,21 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
     [makeCancelable, logger]
   );
 
+  const format = useCallback(
+    async (name: string) => {
+      setIsFormatting(true);
+      try {
+        await makeCancelable(usbstick.doFormat(name));
+      } finally {
+        setIsFormatting(false);
+      }
+    },
+    [makeCancelable]
+  );
+
   useInterval(
     async () => {
-      if (isMountingOrUnmounting) {
+      if (isMountingOrUnmounting || isFormatting) {
         return;
       }
 
@@ -139,5 +153,6 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
         ? UsbDriveStatus.recentlyEjected
         : status,
     eject,
+    format,
   };
 }

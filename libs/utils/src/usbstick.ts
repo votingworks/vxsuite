@@ -69,6 +69,19 @@ export async function doEject(): Promise<void> {
   }
 }
 
+export async function doFormat(name: string): Promise<void> {
+  const device = await getDevice();
+  if (!device?.deviceName) {
+    return;
+  }
+
+  assert(window.kiosk);
+  await window.kiosk.formatUsbDrive(device.deviceName, {
+    format: 'fat32',
+    name,
+  });
+}
+
 // Triggers linux 'sync' command which forces any cached file data to be
 // flushed to the removable drive. Used to prevent incomplete file transfers.
 export async function doSync(): Promise<void> {

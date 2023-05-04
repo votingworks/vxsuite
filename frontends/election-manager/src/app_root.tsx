@@ -268,6 +268,7 @@ export function AppRoot({
         resetFiles,
         usbDriveStatus: displayUsbStatus,
         usbDriveEject: usbDrive.eject,
+        usbDriveFormat: usbDrive.format,
         printedBallots: store.printedBallots,
         addPrintedBallot,
         fullElectionTally,
