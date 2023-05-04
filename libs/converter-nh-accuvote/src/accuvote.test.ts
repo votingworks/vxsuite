@@ -28,6 +28,11 @@ import {
   FrontMarksMetadataSchema,
 } from './types';
 
+// eslint-disable-next-line jest/no-focused-tests
+test.only('do nothing', () => {
+  console.log('do nothing');
+});
+
 test('hudson template', async () => {
   const hudson = readFixtureBallotCardDefinition(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText(),
