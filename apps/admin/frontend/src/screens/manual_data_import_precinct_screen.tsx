@@ -344,19 +344,16 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     if (writeInSummaryQuery.isFetching) return;
 
     const summaries = writeInSummaryQuery.data;
-    const adjudications = summaries
-      .filter((summary) => summary.writeInCount > 0)
-      .map((summary) => summary.writeInAdjudication);
 
     const adjudicatedValuesByContestId: Map<ContestId, string[]> = new Map();
-    for (const adjudication of adjudications) {
-      // Omit adjudications for official candidates
-      if (!adjudication.adjudicatedOptionId) {
+    for (const summary of summaries) {
+      // Use only adjudication summaries of write-in candidates
+      if (summary.adjudicationType === 'write-in-candidate') {
         const currentValuesForContest =
-          adjudicatedValuesByContestId.get(adjudication.contestId) ?? [];
-        currentValuesForContest.push(adjudication.adjudicatedValue);
+          adjudicatedValuesByContestId.get(summary.contestId) ?? [];
+        currentValuesForContest.push(summary.candidateName);
         adjudicatedValuesByContestId.set(
-          adjudication.contestId,
+          summary.contestId,
           currentValuesForContest
         );
       }

@@ -340,15 +340,11 @@ test('loads pre-adjudicated write-in values', async () => {
   apiMock.expectGetWriteInSummaryAdjudicated([
     {
       status: 'adjudicated',
+      adjudicationType: 'write-in-candidate',
       contestId: 'zoo-council-mammal',
       writeInCount: 1,
-      transcribedValue: 'Chimera',
-      writeInAdjudication: {
-        id: 'id',
-        contestId: 'zoo-council-mammal',
-        transcribedValue: 'Chimera',
-        adjudicatedValue: 'Chimera',
-      },
+      candidateName: 'Chimera',
+      candidateId: 'uuid',
     },
   ]);
 
