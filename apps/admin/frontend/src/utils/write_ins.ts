@@ -1,7 +1,6 @@
 import {
   Candidate,
   ContestId,
-  ContestOptionId,
   ContestOptionTally,
   ContestTally,
   Dictionary,
@@ -11,40 +10,87 @@ import {
   writeInCandidate,
 } from '@votingworks/types';
 import { assert, collections, iter } from '@votingworks/basics';
-import type { WriteInSummaryEntryAdjudicated } from '@votingworks/admin-backend';
+import type {
+  WriteInSummaryEntryAdjudicated,
+  WriteInSummaryEntryAdjudicatedOfficialCandidate,
+  WriteInSummaryEntryAdjudicatedWriteInCandidate,
+} from '@votingworks/admin-backend';
 
 export type CountsByContestAndCandidateName = Map<
   ContestId,
   Map<string, number>
 >;
 
-export function getScreenAdjudicatedWriteInCounts(
-  writeInSummaryData: WriteInSummaryEntryAdjudicated[],
-  onlyOfficialCandidates = false
+/**
+ * Returns the counts, by contest id and candidate id, of write-ins adjudicated
+ * for official candidates.
+ */
+export function getOfficialCandidateScreenAdjudicatedWriteInCounts(
+  writeInSummaryData: WriteInSummaryEntryAdjudicated[]
 ): CountsByContestAndCandidateName {
   const writeInsByContestAndCandidate = collections.map(
     iter(writeInSummaryData).toMap(({ contestId }) => contestId),
     (writeInSummary) => {
-      return onlyOfficialCandidates
-        ? iter(writeInSummary)
-            .filter(
-              (s) => s.writeInAdjudication.adjudicatedOptionId !== undefined
-            )
-            .toMap(
-              (s) =>
-                s.writeInAdjudication.adjudicatedOptionId as ContestOptionId
-            )
-        : iter(writeInSummary)
-            .filter(
-              (s) => s.writeInAdjudication.adjudicatedOptionId === undefined
-            )
-            .toMap((s) => s.writeInAdjudication.adjudicatedValue);
+      return iter(writeInSummary)
+        .filter(
+          (s): s is WriteInSummaryEntryAdjudicatedOfficialCandidate =>
+            s.adjudicationType === 'official-candidate'
+        )
+        .toMap((s) => s.candidateId);
     }
   );
   return collections.map(writeInsByContestAndCandidate, (byCandidate) =>
     collections.map(byCandidate, (entries) =>
       iter(entries).sum((entry) => entry.writeInCount ?? 0)
     )
+  );
+}
+
+/**
+ * Returns the counts, by contest id and candidate name, of write-ins adjudicated
+ * for write-in candidates.
+ */
+export function getWriteInCandidateScreenAdjudicatedWriteInCounts(
+  writeInSummaryData: WriteInSummaryEntryAdjudicated[]
+): CountsByContestAndCandidateName {
+  const writeInsByContestAndCandidate = collections.map(
+    iter(writeInSummaryData).toMap(({ contestId }) => contestId),
+    (writeInSummary) => {
+      return iter(writeInSummary)
+        .filter(
+          (s): s is WriteInSummaryEntryAdjudicatedWriteInCandidate =>
+            s.adjudicationType === 'write-in-candidate'
+        )
+        .toMap((s) => s.candidateName);
+    }
+  );
+  return collections.map(writeInsByContestAndCandidate, (byCandidate) =>
+    collections.map(byCandidate, (entries) =>
+      iter(entries).sum((entry) => entry.writeInCount ?? 0)
+    )
+  );
+}
+
+/**
+ * Returns the counts, by contest id and candidate id, of write-ins adjudicated
+ * for official candidates.
+ */
+export function getInvalidWriteInCounts(
+  writeInSummaryData: WriteInSummaryEntryAdjudicated[]
+): Map<ContestId, number> {
+  return collections.map(
+    iter(writeInSummaryData).toMap(({ contestId }) => contestId),
+    (writeInSummaries) => {
+      return collections.reduce(
+        writeInSummaries,
+        (acc, writeInSummary) => {
+          return writeInSummary.adjudicationType === 'invalid'
+            ? acc + writeInSummary.writeInCount
+            : acc;
+        },
+        0
+      );
+    }
   );
 }
 

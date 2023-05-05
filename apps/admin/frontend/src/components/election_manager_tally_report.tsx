@@ -49,6 +49,7 @@ export interface Props {
   scannerId?: string;
   votingMethod?: VotingMethod;
   officialCandidateWriteIns?: Map<ContestId, Map<string, number>>; // Contest -> Candidate ID -> Count
+  invalidWriteIns?: Map<ContestId, number>; // Contest -> Count
 }
 
 export function ElectionManagerTallyReport({
@@ -64,6 +65,7 @@ export function ElectionManagerTallyReport({
   scannerId,
   votingMethod,
   officialCandidateWriteIns,
+  invalidWriteIns,
 }: Props): JSX.Element {
   const reportPartyId: Optional<PartyId> = reportPartyIdFromProps
     ? unsafeParse(PartyIdSchema, reportPartyIdFromProps)
@@ -115,12 +117,14 @@ export function ElectionManagerTallyReport({
             },
             { contestPartyFilter: sectionPartyId ?? NONPARTISAN_FILTER }
           );
-          const tallyForReport = officialCandidateWriteIns
-            ? modifyTallyWithWriteInInfo(
-                filteredTally,
-                officialCandidateWriteIns
-              )
-            : filteredTally;
+          const tallyForReport =
+            officialCandidateWriteIns && invalidWriteIns
+              ? modifyTallyWithWriteInInfo(
+                  filteredTally,
+                  officialCandidateWriteIns,
+                  invalidWriteIns
+                )
+              : filteredTally;
           const ballotCountsByVotingMethod: Tally['ballotCountsByVotingMethod'] =
             {
               ...tallyForReport.ballotCountsByVotingMethod,

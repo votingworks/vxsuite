@@ -27,42 +27,29 @@ async function getFullElectionTally() {
 
 const nonOfficialAdjudicationSummaryMammal: WriteInSummaryEntryAdjudicated = {
   status: 'adjudicated',
+  adjudicationType: 'write-in-candidate',
   contestId: 'zoo-council-mammal',
-  transcribedValue: 'Chimera',
   writeInCount: 1,
-  writeInAdjudication: {
-    id: 'some',
-    contestId: 'zoo-council-mammal',
-    transcribedValue: 'Chimera',
-    adjudicatedValue: 'Chimera',
-  },
+  candidateName: 'Chimera',
+  candidateId: 'uuid',
 };
 
 const nonOfficialAdjudicationSummaryFish: WriteInSummaryEntryAdjudicated = {
   status: 'adjudicated',
+  adjudicationType: 'write-in-candidate',
   contestId: 'aquarium-council-fish',
-  transcribedValue: 'Loch Ness',
   writeInCount: 1,
-  writeInAdjudication: {
-    id: 'some',
-    contestId: 'zoo-council-mammal',
-    transcribedValue: 'Loch Ness',
-    adjudicatedValue: 'Loch Ness',
-  },
+  candidateName: 'Loch Ness',
+  candidateId: 'uuid',
 };
 
 const officialAdjudicationSummaryFish: WriteInSummaryEntryAdjudicated = {
   status: 'adjudicated',
+  adjudicationType: 'official-candidate',
   contestId: 'aquarium-council-fish',
-  transcribedValue: 'Loch Ness',
   writeInCount: 1,
-  writeInAdjudication: {
-    id: 'some',
-    contestId: 'zoo-council-mammal',
-    transcribedValue: 'Loch Ness',
-    adjudicatedValue: 'Rockfish',
-    adjudicatedOptionId: 'rockfish',
-  },
+  candidateName: 'Loch Ness',
+  candidateId: 'Loch Ness',
 };
 
 beforeEach(() => {

@@ -41,7 +41,10 @@ import { routerPaths } from '../router_paths';
 
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { ElectionManagerTallyReport } from '../components/election_manager_tally_report';
-import { getScreenAdjudicatedWriteInCounts } from '../utils/write_ins';
+import {
+  getInvalidWriteInCounts,
+  getOfficialCandidateScreenAdjudicatedWriteInCounts,
+} from '../utils/write_ins';
 import { PrintButton } from '../components/print_button';
 import {
   getCastVoteRecordFileMode,
@@ -75,8 +78,14 @@ export function TallyReportScreen(): JSX.Element {
   const writeInSummaryQuery = getWriteInSummary.useQuery({
     status: 'adjudicated',
   }) as UseQueryResult<WriteInSummaryEntryAdjudicated[]>;
+
   const screenAdjudicatedOfficialCandidateWriteInCounts =
-    getScreenAdjudicatedWriteInCounts(writeInSummaryQuery.data ?? [], true);
+    getOfficialCandidateScreenAdjudicatedWriteInCounts(
+      writeInSummaryQuery.data ?? []
+    );
+  const invalidWriteInCounts = getInvalidWriteInCounts(
+    writeInSummaryQuery.data ?? []
+  );
 
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
 
@@ -165,7 +174,6 @@ export function TallyReportScreen(): JSX.Element {
   ]);
 
   const generatedAtTime = new Date();
-
   const tallyReport = (
     <ElectionManagerTallyReport
       batchId={batchId}
@@ -176,6 +184,7 @@ export function TallyReportScreen(): JSX.Element {
       officialCandidateWriteIns={
         screenAdjudicatedOfficialCandidateWriteInCounts
       }
+      invalidWriteIns={invalidWriteInCounts}
       generatedAtTime={generatedAtTime}
       tallyReportType={isOfficialResults ? 'Official' : 'Unofficial'}
       partyId={partyId}
