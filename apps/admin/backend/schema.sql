@@ -6,17 +6,15 @@ create table elections (
   deleted_at timestamp
 );
 
-create table write_in_adjudications (
+create table write_in_candidates (
   id varchar(36) primary key,
   election_id varchar(36) not null,
   contest_id text not null,
-  transcribed_value text not null,
-  adjudicated_value text not null,
-  adjudicated_option_id text,
+  name text not null,
   created_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)
     on delete cascade,
-  unique (election_id, contest_id, transcribed_value)
+  unique (election_id, contest_id, name)
 );
 
 create table write_ins (
@@ -25,13 +23,23 @@ create table write_ins (
   side text not null check (side = 'front' or side = 'back'),
   contest_id text not null,
   option_id text not null,
-  transcribed_value text,
-  transcribed_at timestamp,
+  official_candidate_id text,
+  write_in_candidate_id varchar(36),
+  is_invalid boolean not null default false,
+  adjudicated_at timestamp,
   created_at timestamp not null default current_timestamp,
   foreign key (cvr_id) references cvrs(id)
     on delete cascade,
   foreign key (cvr_id, side) references ballot_images(cvr_id, side),
-  unique (cvr_id, contest_id, option_id)
+  foreign key (write_in_candidate_id) references write_in_candidates(id),
+  unique (cvr_id, contest_id, option_id),
+  check (
+    (
+      (case when official_candidate_id is null then 0 else 1 end) +
+      (case when write_in_candidate_id is null then 0 else 1 end) +
+      is_invalid
+    ) < 2
+  )
 );
 
 create table cvrs (
