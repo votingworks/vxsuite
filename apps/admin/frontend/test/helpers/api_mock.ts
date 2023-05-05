@@ -5,7 +5,10 @@ import type {
   CastVoteRecordFileRecord,
   CvrFileMode,
   MachineConfig,
+  WriteInAdjudicationStatus,
+  WriteInCandidateRecord,
   WriteInRecord,
+  WriteInSummaryEntry,
   WriteInSummaryEntryAdjudicated,
 } from '@votingworks/admin-backend';
 import { ok } from '@votingworks/basics';
@@ -166,6 +169,23 @@ export function createApiMock(
       apiClient.getCastVoteRecordFiles.expectCallWith().resolves(fileRecords);
     },
 
+    expectGetWriteInSummary(
+      writeInSummaryRecords: WriteInSummaryEntry[],
+      status?: WriteInAdjudicationStatus
+    ) {
+      if (status) {
+        apiClient.getWriteInSummary
+          .expectCallWith({
+            status,
+          })
+          .resolves(writeInSummaryRecords);
+      } else {
+        apiClient.getWriteInSummary
+          .expectCallWith()
+          .resolves(writeInSummaryRecords);
+      }
+    },
+
     expectGetWriteInSummaryAdjudicated(
       writeInSummaryRecords: WriteInSummaryEntryAdjudicated[]
     ) {
@@ -176,8 +196,29 @@ export function createApiMock(
         .resolves(writeInSummaryRecords);
     },
 
-    expectGetWriteIns(writeInRecords: WriteInRecord[]) {
-      apiClient.getWriteIns.expectCallWith().resolves(writeInRecords);
+    expectGetWriteIns(writeInRecords: WriteInRecord[], contestId?: string) {
+      if (contestId) {
+        apiClient.getWriteIns
+          .expectCallWith({ contestId })
+          .resolves(writeInRecords);
+      } else {
+        apiClient.getWriteIns.expectCallWith().resolves(writeInRecords);
+      }
+    },
+
+    expectGetWriteInCandidates(
+      writeInCandidates: WriteInCandidateRecord[],
+      contestId?: string
+    ) {
+      if (contestId) {
+        apiClient.getWriteInCandidates
+          .expectCallWith({ contestId })
+          .resolves(writeInCandidates);
+      } else {
+        apiClient.getWriteInCandidates
+          .expectCallWith()
+          .resolves(writeInCandidates);
+      }
     },
 
     expectGetWriteInImageView(writeInId: string) {
