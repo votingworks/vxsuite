@@ -7,17 +7,13 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { buildTestEnvironment, configureMachine } from '../test/app';
 import {
-  buildTestEnvironment,
-  configureMachine,
-  mockElectionManagerAuth,
-} from '../test/app';
-import {
-  WriteInAdjudicationRecord,
-  WriteInAdjudicationTable,
-  WriteInAdjudicationTableAdjudicatedRowGroup,
-  WriteInAdjudicationTableOptionGroup,
-  WriteInAdjudicationTableTranscribedRow,
+  WriteInSummaryEntryAdjudicated,
+  WriteInSummaryEntryAdjudicatedInvalid,
+  WriteInSummaryEntryAdjudicatedOfficialCandidate,
+  WriteInSummaryEntryAdjudicatedWriteInCandidate,
+  WriteInSummaryEntryPending,
 } from './types';
 
 jest.setTimeout(30_000);
@@ -44,477 +40,280 @@ afterEach(() => {
 });
 
 test('getWriteIns', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
-
+  const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition, castVoteRecordReport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   (
     await apiClient.addCastVoteRecordFile({
       path: castVoteRecordReport.asDirectoryPath(),
     })
-  ).assertOk('cast vote record failed to load in test setup');
+  ).unsafeUnwrap();
 
-  expect(await apiClient.getWriteIns()).toHaveLength(80);
+  const allWriteIns = await apiClient.getWriteIns();
+  expect(allWriteIns).toHaveLength(80);
+  assert(allWriteIns.every((writeIn) => writeIn.status === 'pending'));
 
-  expect(
-    await apiClient.getWriteIns({ contestId: 'Governor-061a401b' })
-  ).toHaveLength(2);
+  expect(await apiClient.getWriteIns({ status: 'pending' })).toHaveLength(80);
+  expect(await apiClient.getWriteIns({ status: 'adjudicated' })).toHaveLength(
+    0
+  );
 
   expect(await apiClient.getWriteIns({ limit: 3 })).toHaveLength(3);
-});
 
-test('transcribeWriteIn', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
-
-  const { electionDefinition, castVoteRecordReport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
-
-  (
-    await apiClient.addCastVoteRecordFile({
-      path: castVoteRecordReport.asDirectoryPath(),
+  expect(
+    await apiClient.getWriteIns({
+      contestId: 'Sheriff-4243fe0b',
     })
-  ).assertOk('cast vote record failed to load in test setup');
-
-  const [writeInRecord] = await apiClient.getWriteIns({ limit: 1 });
-  assert(writeInRecord);
-
-  const writeInRecords1 = await apiClient.getWriteIns();
-  expect(new Set(writeInRecords1.map(({ status }) => status))).toEqual(
-    new Set(['pending'])
-  );
-
-  await apiClient.transcribeWriteIn({
-    writeInId: writeInRecord.id,
-    transcribedValue: 'Mickey Mouse',
-  });
-
-  const writeInRecords2 = await apiClient.getWriteIns();
-
-  expect(new Set(writeInRecords2.map(({ status }) => status))).toEqual(
-    new Set(['pending', 'transcribed'])
-  );
+  ).toHaveLength(2);
 });
 
-test('getWriteInAdjudications', async () => {
+test('getWriteInSummary', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-
   const { electionDefinition, castVoteRecordReport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   (
     await apiClient.addCastVoteRecordFile({
       path: castVoteRecordReport.asDirectoryPath(),
     })
-  ).assertOk('cast vote record failed to load in test setup');
+  ).unsafeUnwrap();
 
-  expect(await apiClient.getWriteInAdjudications()).toEqual([]);
-
-  await apiClient.createWriteInAdjudication({
-    contestId: 'Governor-061a401b',
-    transcribedValue: 'Bob',
-    adjudicatedValue: 'Robert',
-  });
-
-  expect(await apiClient.getWriteInAdjudications()).toEqual(
-    typedAs<WriteInAdjudicationRecord[]>([
-      {
-        id: expect.any(String),
-        contestId: 'Governor-061a401b',
-        transcribedValue: 'Bob',
-        adjudicatedValue: 'Robert',
-      },
-      {
-        id: expect.any(String),
-        contestId: 'Governor-061a401b',
-        transcribedValue: 'Robert',
-        adjudicatedValue: 'Robert',
-      },
-    ])
+  const contestsWithWriteIns = electionDefinition.election.contests.filter(
+    (contest) => contest.type === 'candidate' && contest.allowWriteIns
   );
 
-  // mismatched filter
-  expect(
-    await apiClient.getWriteInAdjudications({ contestId: 'zoo-council-fish' })
-  ).toEqual([]);
+  const allWriteInSummaries = await apiClient.getWriteInSummary();
+  expect(allWriteInSummaries).toHaveLength(contestsWithWriteIns.length);
+  assert(allWriteInSummaries.every((summary) => summary.status === 'pending'));
 
-  // matched filter
+  expect(await apiClient.getWriteInSummary({ status: 'pending' })).toHaveLength(
+    contestsWithWriteIns.length
+  );
   expect(
-    await apiClient.getWriteInAdjudications({
-      contestId: 'Governor-061a401b',
+    await apiClient.getWriteInSummary({ status: 'adjudicated' })
+  ).toHaveLength(0);
+
+  expect(
+    await apiClient.getWriteInSummary({
+      contestId: 'Sheriff-4243fe0b',
     })
-  ).toEqual(
-    typedAs<WriteInAdjudicationRecord[]>([
-      {
-        id: expect.any(String),
-        contestId: 'Governor-061a401b',
-        transcribedValue: 'Bob',
-        adjudicatedValue: 'Robert',
-      },
-      {
-        id: expect.any(String),
-        contestId: 'Governor-061a401b',
-        transcribedValue: 'Robert',
-        adjudicatedValue: 'Robert',
-      },
-    ])
-  );
+  ).toHaveLength(1);
 });
 
-test('write-in adjudication lifecycle', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
-
+test('e2e write-in adjudication', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition, castVoteRecordReport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  // upload the CVR file
   (
     await apiClient.addCastVoteRecordFile({
       path: castVoteRecordReport.asDirectoryPath(),
     })
-  ).assertOk('cast vote record failed to load in test setup');
+  ).unsafeUnwrap();
 
-  // focus on this contest
-  const contestId = 'Governor-061a401b';
+  // focus on this contest with two of write-ins
+  const contestId = 'Sheriff-4243fe0b';
+  const contestWriteIns = await apiClient.getWriteIns({ contestId });
+  expect(contestWriteIns).toHaveLength(2);
 
-  // view the adjudication table
-  const writeInAdjudicationTable = await apiClient.getWriteInAdjudicationTable({
-    contestId,
-  });
-  expect(writeInAdjudicationTable).toEqual(
-    typedAs<WriteInAdjudicationTable>({
-      contestId,
-      writeInCount: 0,
-      adjudicated: [],
-      transcribed: {
-        writeInCount: 0,
-        rows: [],
-      },
-    })
-  );
-
-  // process all the write-ins for the contest we're going to adjudicate
-  let writeInCount = 0;
-  for (;;) {
-    const pendingWriteIn = await apiClient.getWriteIns({
-      status: 'pending',
-      contestId,
-      limit: 1,
-    });
-
-    if (pendingWriteIn.length === 0) {
-      break;
-    }
-
-    const writeInRecord = pendingWriteIn[0]!;
-
-    // transcribe it
-    await apiClient.transcribeWriteIn({
-      writeInId: writeInRecord.id,
-      transcribedValue: 'Mickey Mouse',
-    });
-
-    writeInCount += 1;
-  }
-
-  // view the adjudication table
-  const writeInAdjudicationTableAfterTranscription =
-    await apiClient.getWriteInAdjudicationTable({
-      contestId,
-    });
-
-  expect(writeInAdjudicationTableAfterTranscription).toEqual(
-    typedAs<WriteInAdjudicationTable>({
-      contestId,
-      writeInCount,
-      adjudicated: [],
-      transcribed: {
-        writeInCount,
-        rows: [
-          {
-            transcribedValue: 'Mickey Mouse',
-            writeInCount,
-            adjudicationOptionGroups: [
-              expect.objectContaining(
-                typedAs<Partial<WriteInAdjudicationTableOptionGroup>>({
-                  title: 'Official Candidates',
-                })
-              ),
-              {
-                title: 'Write-In Candidates',
-                options: [
-                  {
-                    adjudicatedValue: 'Mickey Mouse',
-                    enabled: true,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    })
-  );
-
-  const writeInAdjudicationsAfterTranscription =
-    await apiClient.getWriteInAdjudications({ contestId });
-
-  expect(writeInAdjudicationsAfterTranscription).toEqual([]);
-
-  // adjudicate all "Mickey Mouse" transcribed write-ins as "Mickey Mouse"
-  await apiClient.createWriteInAdjudication({
-    contestId,
-    transcribedValue: 'Mickey Mouse',
-    adjudicatedValue: 'Mickey Mouse',
-  });
-
-  // view the adjudication table
-  const writeInAdjudicationTableAfterAdjudication =
-    await apiClient.getWriteInAdjudicationTable({ contestId });
-  expect(writeInAdjudicationTableAfterAdjudication).toEqual(
-    typedAs<WriteInAdjudicationTable>({
-      contestId,
-      writeInCount,
-      adjudicated: [
-        {
-          adjudicatedValue: 'Mickey Mouse',
-          writeInCount,
-          rows: [
-            {
-              transcribedValue: 'Mickey Mouse',
-              writeInAdjudicationId: expect.any(String),
-              writeInCount,
-              editable: true,
-              adjudicationOptionGroups: [
-                expect.objectContaining(
-                  typedAs<Partial<WriteInAdjudicationTableOptionGroup>>({
-                    title: 'Official Candidates',
-                  })
-                ),
-                {
-                  title: 'Write-In Candidates',
-                  options: [
-                    {
-                      adjudicatedValue: 'Mickey Mouse',
-                      enabled: true,
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-      transcribed: {
-        writeInCount: 0,
-        rows: [],
-      },
-    })
-  );
-
-  const writeInAdjudicationsAfterAdjuducation =
-    await apiClient.getWriteInAdjudications({ contestId });
-
-  expect(writeInAdjudicationsAfterAdjuducation).toEqual(
-    typedAs<WriteInAdjudicationRecord[]>([
-      {
-        id: expect.any(String),
-        contestId,
-        transcribedValue: 'Mickey Mouse',
-        adjudicatedValue: 'Mickey Mouse',
-      },
-    ])
-  );
-
-  const writeInAdjudicationId =
-    writeInAdjudicationTableAfterAdjudication.adjudicated[0]?.rows[0]
-      ?.writeInAdjudicationId;
-  assert(typeof writeInAdjudicationId === 'string');
-
-  // update the adjudication
-  await apiClient.updateWriteInAdjudication({
-    writeInAdjudicationId,
-    adjudicatedValue: 'Modest Mouse',
-  });
-
-  // view the adjudication table
-  const writeInAdjudicationTableAfterUpdate =
-    await apiClient.getWriteInAdjudicationTable({ contestId });
-  expect(writeInAdjudicationTableAfterUpdate).toEqual(
-    typedAs<WriteInAdjudicationTable>({
-      contestId,
-      writeInCount,
-      adjudicated: [
-        expect.objectContaining(
-          typedAs<Partial<WriteInAdjudicationTableAdjudicatedRowGroup>>({
-            adjudicatedValue: 'Modest Mouse',
-          })
-        ),
-      ],
-      transcribed: {
-        writeInCount: 0,
-        rows: [],
-      },
-    })
-  );
-
-  // update the adjudication again, to official candidate
-  await apiClient.updateWriteInAdjudication({
-    writeInAdjudicationId,
-    adjudicatedValue: 'Zebra',
-    adjudicatedOptionId: 'zebra',
-  });
-
-  // view the adjudication table
-  const writeInAdjudicationTableAfterUpdateAgain =
-    await apiClient.getWriteInAdjudicationTable({ contestId });
-  expect(writeInAdjudicationTableAfterUpdateAgain).toEqual(
-    typedAs<WriteInAdjudicationTable>({
-      contestId,
-      writeInCount,
-      adjudicated: [
-        expect.objectContaining(
-          typedAs<Partial<WriteInAdjudicationTableAdjudicatedRowGroup>>({
-            adjudicatedValue: 'Zebra',
-            adjudicatedOptionId: 'zebra',
-          })
-        ),
-      ],
-      transcribed: {
-        writeInCount: 0,
-        rows: [],
-      },
-    })
-  );
-
-  // delete the adjudication
-  await apiClient.deleteWriteInAdjudication({ writeInAdjudicationId });
-
-  // view the adjudication table
-  const writeInAdjudicationTableAfterDelete =
-    await apiClient.getWriteInAdjudicationTable({ contestId });
-  expect(writeInAdjudicationTableAfterDelete).toEqual(
-    typedAs<WriteInAdjudicationTable>({
-      contestId,
-      writeInCount,
-      adjudicated: [],
-      transcribed: {
-        writeInCount,
-        rows: [
-          expect.objectContaining(
-            typedAs<Partial<WriteInAdjudicationTableTranscribedRow>>({
-              transcribedValue: 'Mickey Mouse',
-              writeInCount,
-            })
-          ),
-        ],
-      },
-    })
-  );
-});
-
-test('write-in summary filtered by contestId & status', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
-
-  const { electionDefinition, castVoteRecordReport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
-
-  // upload the CVR file
-  (
-    await apiClient.addCastVoteRecordFile({
-      path: castVoteRecordReport.asDirectoryPath(),
-    })
-  ).assertOk('cast vote record failed to load in test setup');
-
-  // focus on this contest
-  const contestId = 'Governor-061a401b';
-
-  const pendingWriteInSummary = await apiClient.getWriteInSummary({
+  const [writeInA1, writeInB1] = contestWriteIns;
+  assert(writeInA1 && writeInB1);
+  expect(writeInA1).toMatchObject({
     contestId,
     status: 'pending',
   });
-  expect(pendingWriteInSummary).toHaveLength(1);
 
-  const transcribedWriteInSummary = await apiClient.getWriteInSummary({
+  // write-in A: adjudicate for an official candidate
+  const officialCandidateId = 'Edward-Randolph-bf4c848a';
+  await apiClient.adjudicateWriteIn({
+    writeInId: writeInA1.id,
+    type: 'official-candidate',
+    candidateId: officialCandidateId,
+  });
+
+  const [writeInA2] = await apiClient.getWriteIns({ contestId });
+  expect(writeInA2).toMatchObject({
     contestId,
-    status: 'transcribed',
+    adjudicationType: 'official-candidate',
+    candidateId: officialCandidateId,
+    status: 'adjudicated',
   });
-  expect(transcribedWriteInSummary).toHaveLength(0);
-
-  const adjudicatedWriteInSummary = await apiClient.getWriteInSummary({
-    contestId,
-    status: 'transcribed',
-  });
-  expect(adjudicatedWriteInSummary).toHaveLength(0);
-});
-
-test('create write-in adjudication for an unlisted candidate', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
-
-  await configureMachine(apiClient, auth, electionDefinition);
-
-  await apiClient.createWriteInAdjudication({
-    contestId: 'governor-061a401b',
-    transcribedValue: 'Zebra',
-    adjudicatedValue: 'Cyclops',
-  });
-
-  expect(await apiClient.getWriteInAdjudications()).toEqual(
-    typedAs<WriteInAdjudicationRecord[]>([
-      {
-        id: expect.any(String),
-        contestId: 'governor-061a401b',
-        transcribedValue: 'Cyclops',
-        adjudicatedValue: 'Cyclops',
-      },
-      {
-        id: expect.any(String),
-        contestId: 'governor-061a401b',
-        transcribedValue: 'Zebra',
-        adjudicatedValue: 'Cyclops',
-      },
+  expect(await apiClient.getWriteInSummary({ contestId })).toMatchObject(
+    expect.arrayContaining([
+      typedAs<WriteInSummaryEntryAdjudicatedOfficialCandidate>({
+        contestId,
+        adjudicationType: 'official-candidate',
+        candidateId: officialCandidateId,
+        candidateName: 'Edward Randolph',
+        status: 'adjudicated',
+        writeInCount: 1,
+      }),
+      typedAs<WriteInSummaryEntryPending>({
+        contestId,
+        status: 'pending',
+        writeInCount: 1,
+      }),
     ])
   );
-});
 
-test('create write-in adjudication for an official candidate', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
-
-  await configureMachine(apiClient, auth, electionDefinition);
-
-  await apiClient.createWriteInAdjudication({
-    contestId: 'governor-061a401b',
-    transcribedValue: 'Zebra',
-    adjudicatedValue: 'Zebra',
-    adjudicatedOptionId: 'zebra',
+  // write-in A: re-adjudicate as invalid
+  await apiClient.adjudicateWriteIn({
+    writeInId: writeInA1.id,
+    type: 'invalid',
   });
 
-  expect(await apiClient.getWriteInAdjudications()).toEqual(
-    typedAs<WriteInAdjudicationRecord[]>([
-      {
-        id: expect.any(String),
-        contestId: 'governor-061a401b',
-        transcribedValue: 'Zebra',
-        adjudicatedValue: 'Zebra',
-        adjudicatedOptionId: 'zebra',
-      },
+  const [writeInA3] = await apiClient.getWriteIns({ contestId });
+  expect(writeInA3).toMatchObject({
+    contestId,
+    adjudicationType: 'invalid',
+    status: 'adjudicated',
+  });
+  expect(await apiClient.getWriteInSummary({ contestId })).toMatchObject(
+    expect.arrayContaining([
+      typedAs<WriteInSummaryEntryAdjudicatedInvalid>({
+        contestId,
+        adjudicationType: 'invalid',
+        status: 'adjudicated',
+        writeInCount: 1,
+      }),
+      typedAs<WriteInSummaryEntryPending>({
+        contestId,
+        status: 'pending',
+        writeInCount: 1,
+      }),
     ])
   );
+
+  // write-in A: re-adjudicate for the official candidate
+  await apiClient.adjudicateWriteIn({
+    writeInId: writeInA1.id,
+    type: 'official-candidate',
+    candidateId: officialCandidateId,
+  });
+
+  const [writeInA4] = await apiClient.getWriteIns({ contestId });
+  expect(writeInA4).toMatchObject({
+    contestId,
+    adjudicationType: 'official-candidate',
+    candidateId: officialCandidateId,
+    status: 'adjudicated',
+  });
+  expect(await apiClient.getWriteInSummary({ contestId })).toMatchObject(
+    expect.arrayContaining([
+      typedAs<WriteInSummaryEntryAdjudicated>({
+        contestId,
+        adjudicationType: 'official-candidate',
+        candidateId: officialCandidateId,
+        candidateName: 'Edward Randolph',
+        status: 'adjudicated',
+        writeInCount: 1,
+      }),
+      typedAs<WriteInSummaryEntryPending>({
+        contestId,
+        status: 'pending',
+        writeInCount: 1,
+      }),
+    ])
+  );
+
+  // write-in B: add and adjudicate for a write-in candidate
+  expect(await apiClient.getWriteInCandidates()).toMatchObject([]);
+
+  await apiClient.addWriteInCandidate({ contestId, name: 'Mr. Pickles' });
+  expect(await apiClient.getWriteInCandidates()).toMatchObject([
+    { contestId, name: 'Mr. Pickles' },
+  ]);
+  const [mrPickles] = await apiClient.getWriteInCandidates();
+
+  await apiClient.adjudicateWriteIn({
+    writeInId: writeInB1.id,
+    type: 'write-in-candidate',
+    candidateId: mrPickles!.id,
+  });
+
+  const [, writeInB2] = await apiClient.getWriteIns({ contestId });
+  expect(writeInB2).toMatchObject({
+    contestId,
+    adjudicationType: 'write-in-candidate',
+    candidateId: mrPickles!.id,
+    status: 'adjudicated',
+  });
+
+  expect(await apiClient.getWriteInSummary({ contestId })).toMatchObject(
+    expect.arrayContaining([
+      typedAs<WriteInSummaryEntryAdjudicatedOfficialCandidate>({
+        contestId,
+        adjudicationType: 'official-candidate',
+        candidateId: officialCandidateId,
+        candidateName: 'Edward Randolph',
+        status: 'adjudicated',
+        writeInCount: 1,
+      }),
+      typedAs<WriteInSummaryEntryAdjudicatedWriteInCandidate>({
+        contestId,
+        adjudicationType: 'write-in-candidate',
+        candidateId: mrPickles!.id,
+        candidateName: 'Mr. Pickles',
+        status: 'adjudicated',
+        writeInCount: 1,
+      }),
+    ])
+  );
+
+  // write-in B: re-adjudicate for a different write-in candidate
+  await apiClient.addWriteInCandidate({ contestId, name: 'Pickles Jr.' });
+  expect(await apiClient.getWriteInCandidates()).toMatchObject([
+    { contestId, name: 'Mr. Pickles' },
+    { contestId, name: 'Pickles Jr.' },
+  ]);
+  const [, picklesJr] = await apiClient.getWriteInCandidates();
+
+  await apiClient.adjudicateWriteIn({
+    writeInId: writeInB1.id,
+    type: 'write-in-candidate',
+    candidateId: picklesJr!.id,
+  });
+
+  const [, writeInB3] = await apiClient.getWriteIns({ contestId });
+  expect(writeInB3).toMatchObject({
+    contestId,
+    adjudicationType: 'write-in-candidate',
+    status: 'adjudicated',
+    candidateId: picklesJr!.id,
+  });
+
+  expect(await apiClient.getWriteInSummary({ contestId })).toMatchObject(
+    expect.arrayContaining([
+      typedAs<WriteInSummaryEntryAdjudicatedOfficialCandidate>({
+        contestId,
+        adjudicationType: 'official-candidate',
+        candidateId: officialCandidateId,
+        candidateName: 'Edward Randolph',
+        status: 'adjudicated',
+        writeInCount: 1,
+      }),
+      typedAs<WriteInSummaryEntryAdjudicatedWriteInCandidate>({
+        contestId,
+        adjudicationType: 'write-in-candidate',
+        candidateId: picklesJr!.id,
+        candidateName: 'Pickles Jr.',
+        status: 'adjudicated',
+        writeInCount: 1,
+      }),
+    ])
+  );
+
+  // now that Mr. Pickles has no adjudications, he should have been removed as a write-in candidate
+  expect(await apiClient.getWriteInCandidates({ contestId })).toMatchObject([
+    { name: 'Pickles Jr.' },
+  ]);
 });
 
-test('getWriteInImage', async () => {
+test('getWriteInImageView', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition, manualCastVoteRecordReportSingle } =
     electionGridLayoutNewHampshireAmherstFixtures;

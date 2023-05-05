@@ -24,6 +24,7 @@ module.exports = {
     '!**/node_modules/**',
     '!src/index.ts',
     '!src/types.ts',
+    '!src/util/debug.ts',
     '!test/**/*',
   ],
 };
