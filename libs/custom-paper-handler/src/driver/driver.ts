@@ -48,11 +48,10 @@ function debug(msg: string) {
   /* eslint-disable-next-line no-console */
   console.log(msg);
 }
-
 // Common Bytes
 const START_OF_PACKET: Uint8 = 0x02;
-const NULL_CODE: Uint8 = 0x00;
-const TOKEN: Uint8 = 0x01;
+export const NULL_CODE: Uint8 = 0x00;
+export const TOKEN: Uint8 = 0x01;
 
 const InitializeRequest = literal(0x1b, 0x40);
 
@@ -107,26 +106,33 @@ export interface PaperHandlerBitmap {
 const VENDOR_ID = 0x0dd4;
 const PRODUCT_ID = 0x4105;
 // Disable no-unused-vars until this file is cleaned up
-/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+
 const INTERFACE_NUMBER = 0;
 const GENERIC_ENDPOINT_IN = 1;
 // The endpoint for generic transfer out, exported for tests
 export const GENERIC_ENDPOINT_OUT = 2;
-const REAL_TIME_ENDPOINT_IN = 3;
-const REAL_TIME_ENDPOINT_OUT = 4;
+export const REAL_TIME_ENDPOINT_IN = 3;
+export const REAL_TIME_ENDPOINT_OUT = 4;
 export const PACKET_SIZE = 65536; // 0.5 MB, greater than the maximum observed size of scan data block. smaller and we slow down scanning results
+const CONFIGURATION_NUMBER = 1; // TODO verify this against manual/hardware
 
 // Return Codes
-const POSITIVE_ACKNOWLEDGEMENT: Uint8 = 0x06;
 const NEGATIVE_ACKNOWLEDGEMENT: Uint8 = 0x15;
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const UNKNOWN_COMMAND: Uint8 = 0x3f;
+// TODO update with rest of return codes
+export enum ReturnCodes {
+  POSITIVE_ACKNOWLEDGEMENT = 0x06,
+}
 
 // Real Time Request IDs
 const SCAN_ABORT_REQUEST_ID: Uint8 = 0x43;
 const SCAN_RESET_REQUEST_ID: Uint8 = 0x52;
-const SCANNER_COMPLETE_STATUS_REQUEST_ID: Uint8 = 0x73;
 const PRINTER_STATUS_REQUEST_ID: Uint8 = 0x64;
+// TODO update with rest of real time request IDs
+export enum RealTimeRequestIds {
+  SCANNER_COMPLETE_STATUS_REQUEST_ID = 0x73,
+}
 
 // Generic Commands
 const GET_SCANNER_CAPABILITY: Command = [0x1c, 0x53, 0x43, 0x47];
@@ -198,7 +204,12 @@ export async function getPaperHandlerWebDevice(): Promise<
 // Not all WebUSbDevice methods are implemented in the mock
 export type MinimalWebUsbDevice = Pick<
   WebUSBDevice,
-  'open' | 'close' | 'transferOut' | 'transferIn' | 'claimInterface'
+  | 'open'
+  | 'close'
+  | 'transferOut'
+  | 'transferIn'
+  | 'claimInterface'
+  | 'selectConfiguration'
 >;
 
 export class PaperHandlerDriver {
@@ -211,8 +222,10 @@ export class PaperHandlerDriver {
   async connect(): Promise<void> {
     await this.webDevice.open();
     debug('opened web device');
-    // await this.webDevice.claimInterface(INTERFACE_NUMBER);
-    // debug('claimed usb interface');
+    await this.webDevice.selectConfiguration(CONFIGURATION_NUMBER);
+    debug(`selected configuration ${CONFIGURATION_NUMBER}`);
+    await this.webDevice.claimInterface(INTERFACE_NUMBER);
+    debug(`claimed usb interface ${INTERFACE_NUMBER}`);
   }
 
   async disconnect(): Promise<void> {
@@ -301,7 +314,7 @@ export class PaperHandlerDriver {
     //   Buffer.from(data.buffer)
     // ).ok();
     assert(data.getUint8(1) === requestId);
-    assert(data.getUint8(3) === POSITIVE_ACKNOWLEDGEMENT); // TODO: handling
+    assert(data.getUint8(3) === ReturnCodes.POSITIVE_ACKNOWLEDGEMENT); // TODO: handling
     return data;
   }
 
@@ -367,7 +380,7 @@ export class PaperHandlerDriver {
     const { data } = transferInResult;
     assert(data);
     assert(data.getUint8(1) === requestId);
-    assert(data.getUint8(3) === POSITIVE_ACKNOWLEDGEMENT); // TODO: handling
+    assert(data.getUint8(3) === ReturnCodes.POSITIVE_ACKNOWLEDGEMENT); // TODO: handling
     return data;
   }
 
@@ -378,7 +391,9 @@ export class PaperHandlerDriver {
    */
   async getScannerStatus(): Promise<ScannerStatus> {
     return parseScannerStatus(
-      await this.handleRealTimeExchange(SCANNER_COMPLETE_STATUS_REQUEST_ID)
+      await this.handleRealTimeExchange(
+        RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID
+      )
     );
   }
 
@@ -434,7 +449,7 @@ export class PaperHandlerDriver {
     debug(`transfer in status: ${transferInResult.status}`);
     const code = transferInResult.data?.getUint8(0);
     switch (code) {
-      case POSITIVE_ACKNOWLEDGEMENT:
+      case ReturnCodes.POSITIVE_ACKNOWLEDGEMENT:
         debug('positive acknowledgement');
         return true;
       case NEGATIVE_ACKNOWLEDGEMENT:

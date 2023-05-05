@@ -361,9 +361,6 @@ export class MockWebUsbDevice implements USBDevice {
     }
 
     for (const usbInterface of configuration.interfaces) {
-      console.log(
-        `USB interface ${usbInterface.interfaceNumber} claimed status: ${usbInterface.claimed}`
-      );
       if (usbInterface.claimed) {
         for (const endpoint of usbInterface.alternate.endpoints) {
           if (endpoint.endpointNumber === endpointNumber) {

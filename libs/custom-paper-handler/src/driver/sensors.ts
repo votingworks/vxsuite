@@ -97,15 +97,23 @@ export interface PrinterStatus {
 
 export type PaperHandlerStatus = ScannerStatus & PrinterStatus;
 
-// See: page 45 of manual
+// See: page 60 of manual
 export function parseScannerStatus(data: DataView): ScannerStatus {
+  /**
+   * The device answer is as follows: 0x82 0x73 tk Retcode 0x04 STS
+   * where all components of the answer are 1 byte except STS, which is 4 bytes.
+   * Therefore the complete answer is 9 bytes.
+   */
   assert(data.byteLength === 9);
 
+  // We get the first part of the response from the 5th byte (0-indexed) ie. the start of STS
+  // Uint8ToBitArray takes a Uint8 and returns a bit array with MSB in the 0th position of the bit array
   const [
     parkSensor,
     paperOutSensor,
     paperPostCisSensor,
     paperPreCisSensor,
+    // This differs from documentation
     paperInputLeftInnerSensor,
     paperInputRightInnerSensor,
     paperInputLeftOuterSensor,
@@ -133,6 +141,8 @@ export function parseScannerStatus(data: DataView): ScannerStatus {
     ballotBoxAttachSensor,
     preHeadSensor,
   ] = Uint8ToBitArray(data.getUint8(7) as Uint8);
+
+  // The fourth byte is fixed to 0x00 and doesn't need to be parsed
 
   return {
     parkSensor,
