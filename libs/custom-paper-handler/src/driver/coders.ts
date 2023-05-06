@@ -37,3 +37,14 @@ export const PrinterStatusRealTimeExchangeResponse = message({
 export type PrinterStatusRealTimeExchangeResponse = CoderType<
   typeof PrinterStatusRealTimeExchangeResponse
 >;
+
+export const RealTimeExchangeResponseWithoutData = message({
+  startOfPacket: literal(0x82),
+  requestId: uint8(),
+  token: literal(TOKEN),
+  returnCode: uint8(),
+  optionalDataLength: literal(0x00),
+});
+export type RealTimeExchangeResponseWithoutData = CoderType<
+  typeof RealTimeExchangeResponseWithoutData
+>;

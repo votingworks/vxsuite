@@ -42,9 +42,10 @@ import {
   ScanLight,
   ScannerConfig,
 } from './scanner_config';
-import { TOKEN } from './constants';
+import { NULL_CODE, START_OF_PACKET, TOKEN } from './constants';
 import {
   PrinterStatusRealTimeExchangeResponse,
+  RealTimeExchangeResponseWithoutData,
   SensorStatusRealTimeExchangeResponse,
 } from './coders';
 
@@ -79,14 +80,10 @@ function printBits(bitString: string) {
   }
 }
 
-// Common Bytes
-const START_OF_PACKET: Uint8 = 0x02;
-export const NULL_CODE: Uint8 = 0x00;
-
 const InitializeRequest = literal(0x1b, 0x40);
 
 const TransferOutRealTimeRequest = message({
-  stx: literal(0x02),
+  stx: literal(START_OF_PACKET),
   requestId: uint8(),
   token: literal(TOKEN),
   optionalDataLength: uint8(),
@@ -143,12 +140,11 @@ export enum ReturnCodes {
 }
 
 // Real Time Request IDs
-const SCAN_ABORT_REQUEST_ID: Uint8 = 0x43;
-const SCAN_RESET_REQUEST_ID: Uint8 = 0x52;
-// TODO update with rest of real time request IDs
 export enum RealTimeRequestIds {
   SCANNER_COMPLETE_STATUS_REQUEST_ID = 0x73,
   PRINTER_STATUS_REQUEST_ID = 0x64,
+  SCAN_ABORT_REQUEST_ID = 0x43,
+  SCAN_RESET_REQUEST_ID = 0x52,
 }
 
 // Generic Commands
@@ -409,52 +405,32 @@ export class PaperHandlerDriver {
     return parsePrinterStatus(response);
   }
 
+  async abortScan(): Promise<void> {
+    const result = await this.handleRealTimeExchange(
+      RealTimeRequestIds.SCAN_ABORT_REQUEST_ID,
+      RealTimeExchangeResponseWithoutData
+    );
+    const response = result.ok();
+    assert(response);
+    assert(response.requestId === RealTimeRequestIds.SCAN_ABORT_REQUEST_ID);
+    assert(response.returnCode === ReturnCodes.POSITIVE_ACKNOWLEDGEMENT);
+  }
+
+  // reset scan reconnects the scanner, changes the device address, and requires a new WebUSBDevice
+  async resetScan(): Promise<void> {
+    const result = await this.handleRealTimeExchange(
+      RealTimeRequestIds.SCAN_RESET_REQUEST_ID,
+      RealTimeExchangeResponseWithoutData
+    );
+    const response = result.ok();
+    assert(response);
+    assert(response.requestId === RealTimeRequestIds.SCAN_RESET_REQUEST_ID);
+    assert(response.returnCode === ReturnCodes.POSITIVE_ACKNOWLEDGEMENT);
+  }
+
   /**
    * End migrated functions
    */
-
-  /**
-   * Transfers data out on the real time bulk out endpoint.
-   */
-  deprecatedTransferOutRealTime(
-    command: Uint8[]
-  ): Promise<USBOutTransferResult> {
-    return this.webDevice.transferOut(
-      REAL_TIME_ENDPOINT_OUT,
-      new Uint8Array(command)
-    );
-  }
-
-  async deprecatedHandleRealTimeExchange(requestId: Uint8): Promise<DataView> {
-    await this.realTimeLock.acquire();
-
-    const transferOutResult = await this.deprecatedTransferOutRealTime([
-      START_OF_PACKET,
-      requestId,
-      TOKEN as Uint8,
-      NULL_CODE,
-    ]);
-    assert(transferOutResult.status === 'ok'); // TODO: handling
-
-    const transferInResult = await this.transferInRealTime();
-    this.realTimeLock.release();
-    assert(transferInResult.status === 'ok'); // TODO: handling
-
-    const { data } = transferInResult;
-    assert(data);
-    assert(data.getUint8(1) === requestId);
-    assert(data.getUint8(3) === ReturnCodes.POSITIVE_ACKNOWLEDGEMENT); // TODO: handling
-    return data;
-  }
-
-  async abortScan(): Promise<void> {
-    await this.deprecatedHandleRealTimeExchange(SCAN_ABORT_REQUEST_ID);
-  }
-
-  // reset scan reconnects the scanenr, changes the device address, and requires a new WebUSBDevice
-  async resetScan(): Promise<void> {
-    await this.deprecatedHandleRealTimeExchange(SCAN_RESET_REQUEST_ID);
-  }
 
   /**
    * Does not map to a single command, but is useful for testing

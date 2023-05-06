@@ -12,9 +12,8 @@ import {
   PACKET_SIZE,
   RealTimeRequestIds,
   ReturnCodes,
-  NULL_CODE,
 } from './driver';
-import { TOKEN } from './constants';
+import { TOKEN, NULL_CODE } from './constants';
 import { PrinterStatus, ScannerStatus } from './sensors';
 
 /**
@@ -24,8 +23,11 @@ import { PrinterStatus, ScannerStatus } from './sensors';
  * isLegacyTEst=false forces tests to format the input to transferOut as Buffer.
  */
 const isLegacyTest = false;
-function formatTransferOutArg(data: Buffer): Uint8Array | Buffer {
-  return isLegacyTest ? new Uint8Array(data) : data;
+function formatTransferOutArg(
+  data: Buffer,
+  legacyTestOverride = false
+): Uint8Array | Buffer {
+  return isLegacyTest || legacyTestOverride ? new Uint8Array(data) : data;
 }
 type MockWebUsbDevice = mocks.MockWebUsbDevice;
 
@@ -313,3 +315,45 @@ test('getPrinterStatus sends the correct message and can parse a response', asyn
 
   expect(result).toEqual(expectedStatus);
 });
+
+const testsWithNoAdditionalResponseData = [
+  {
+    description: 'abortScan',
+    requestId: RealTimeRequestIds.SCAN_ABORT_REQUEST_ID,
+    functionToTest: PaperHandlerDriver.prototype.abortScan,
+  },
+  {
+    description: 'resetScan',
+    requestId: RealTimeRequestIds.SCAN_RESET_REQUEST_ID,
+    functionToTest: PaperHandlerDriver.prototype.resetScan,
+  },
+];
+test.each(testsWithNoAdditionalResponseData)(
+  `$description sends the correct message`,
+  async ({ requestId, functionToTest }) => {
+    const { mockWebUsbDevice, paperHandlerWebDevice } =
+      await getMockWebUsbDevice();
+    const paperHandlerDriver = new PaperHandlerDriver(paperHandlerWebDevice);
+    await paperHandlerDriver.connect();
+
+    const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+    await mockWebUsbDevice.mockAddTransferInData(
+      REAL_TIME_ENDPOINT_IN,
+      Buffer.from([
+        0x82,
+        requestId,
+        TOKEN,
+        ReturnCodes.POSITIVE_ACKNOWLEDGEMENT,
+        0x00, // no additional data
+      ])
+    );
+
+    await functionToTest.call(paperHandlerDriver);
+    expect(transferOutSpy).toHaveBeenCalledTimes(1);
+    const inputAsBuffer = Buffer.from([0x02, requestId, TOKEN, NULL_CODE]);
+    expect(transferOutSpy).toHaveBeenCalledWith(
+      REAL_TIME_ENDPOINT_OUT,
+      formatTransferOutArg(inputAsBuffer)
+    );
+  }
+);
