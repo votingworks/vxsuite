@@ -2,6 +2,7 @@ import { assert } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
 import { Buffer } from 'buffer';
 import { Device, findByIds, WebUSBDevice } from 'usb';
+// import { Uint8 } from '@votingworks/message-coder';
 import {
   GENERIC_ENDPOINT_OUT,
   REAL_TIME_ENDPOINT_IN,
@@ -10,13 +11,22 @@ import {
   PaperHandlerDriver,
   PACKET_SIZE,
   RealTimeRequestIds,
-  TOKEN,
   ReturnCodes,
   NULL_CODE,
 } from './driver';
-import { ScannerStatus } from './sensors';
-import { Uint8 } from '../bits';
+import { TOKEN } from './constants';
+import { PrinterStatus, ScannerStatus } from './sensors';
 
+/**
+ * message-coder (new) encodes as Buffers, but the prototype driver (legacy) sends messages as Uint8Array.
+ * This means the type of input of calls to webDevice.transferOut will differ between the legacy and new implementations.
+ * isLegacyTest=true forces tests to format the input to transferOut as Uint8Array.
+ * isLegacyTEst=false forces tests to format the input to transferOut as Buffer.
+ */
+const isLegacyTest = false;
+function formatTransferOutArg(data: Buffer): Uint8Array | Buffer {
+  return isLegacyTest ? new Uint8Array(data) : data;
+}
 type MockWebUsbDevice = mocks.MockWebUsbDevice;
 
 const TEST_ALTERNATE_INTERFACE: USBAlternateInterface = {
@@ -135,8 +145,6 @@ test('initializePrinter sends the correct message', async () => {
   const paperHandlerDriver = new PaperHandlerDriver(paperHandlerWebDevice);
   await paperHandlerDriver.connect();
 
-  // await paperHandlerWebDevice.selectConfiguration(1);
-
   const transferOutStub = jest.fn();
   paperHandlerWebDevice.transferOut = transferOutStub;
 
@@ -144,61 +152,34 @@ test('initializePrinter sends the correct message', async () => {
   expect(paperHandlerWebDevice.transferOut).toHaveBeenCalledTimes(1);
   expect(paperHandlerWebDevice.transferOut).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    // new Uint8Array([0x1b, 0x40])
     Buffer.from([0x1b, 0x40])
   );
 });
 
-test('getScannerStatus sends the correct message', async () => {
+test('getScannerStatus sends the correct message and can parse a response', async () => {
   const { mockWebUsbDevice, paperHandlerWebDevice } =
     await getMockWebUsbDevice();
   const paperHandlerDriver = new PaperHandlerDriver(paperHandlerWebDevice);
   await paperHandlerDriver.connect();
 
-  // await paperHandlerWebDevice.selectConfiguration(1);
-
   const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+
   // How test values are chosen:
-  // Choose non-palindrome value so we know we're parsing in the right direction.
-  // 8 in 2^1 position should map to 4 most significant bits in expectedStatus ie. parkSensor ... paperPreCisSensor.
-  // f in 2^0 position should map to 4 least significant bits in expected status ie. paperInputLeftInnerSensor ... paperInputRightOuterSensor
+  // Choose non-palindrome value so we know we're parsing in the right order. eg. for first byte:
+  // 8 in left position should map to 4 most significant bits in expectedStatus ie. parkSensor ... paperPreCisSensor.
+  // f in right position should map to 4 least significant bits in expected status ie. paperInputLeftInnerSensor ... paperInputRightOuterSensor
   // 0x8f == 0b10001111 so we expect
   // (parkSensor, ...                                  , paperInputRightOuterSensor)
   // (true      , false, false, false, true, true, true, true                      )
-  const firstByteOfStatusResponse: Uint8 = 0x8f;
-  // Respect fixed null character at 0x80
-  const secondByteOfStatusResponse: Uint8 = 0x4f;
-  // Respect fixed null characters from 0x10 to 0x80
-  const thirdByteOfStatusResponse: Uint8 = 0x08;
-  // All null characters
-  const fourthByteOfStatusResponse: Uint8 = 0x00;
-
-  await mockWebUsbDevice.mockAddTransferInData(
-    REAL_TIME_ENDPOINT_IN,
-    Buffer.from([
-      0x82,
-      RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
-      TOKEN,
-      ReturnCodes.POSITIVE_ACKNOWLEDGEMENT,
-      0x04,
-      firstByteOfStatusResponse,
-      secondByteOfStatusResponse,
-      thirdByteOfStatusResponse,
-      fourthByteOfStatusResponse,
-    ])
-  );
-
-  const result = await paperHandlerDriver.getScannerStatus();
-  expect(transferOutSpy).toHaveBeenCalledTimes(1);
-  expect(transferOutSpy).toHaveBeenCalledWith(
-    REAL_TIME_ENDPOINT_OUT,
-    Buffer.from([
-      0x02,
-      RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
-      TOKEN,
-      NULL_CODE,
-    ])
-  );
+  const optionalResponseBytes = [
+    0x8f,
+    // Respect fixed null character at 0x80
+    0x4f,
+    // Respect fixed null characters from 0x10 to 0x80
+    0x08,
+    // All null characters
+    0x00,
+  ];
 
   // See the ScannerStatus type for more information on position of these values in the bitmap
   const expectedStatus: ScannerStatus = {
@@ -232,5 +213,103 @@ test('getScannerStatus sends the correct message', async () => {
     ballotBoxAttachSensor: false,
     preHeadSensor: false,
   };
+
+  await mockWebUsbDevice.mockAddTransferInData(
+    REAL_TIME_ENDPOINT_IN,
+    Buffer.from([
+      0x82,
+      RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
+      TOKEN,
+      ReturnCodes.POSITIVE_ACKNOWLEDGEMENT,
+      0x04,
+      ...optionalResponseBytes,
+    ])
+  );
+
+  const result = await paperHandlerDriver.getScannerStatus();
+  expect(transferOutSpy).toHaveBeenCalledTimes(1);
+  const inputAsBuffer = Buffer.from([
+    0x02,
+    RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
+    TOKEN,
+    NULL_CODE,
+  ]);
+  expect(transferOutSpy).toHaveBeenCalledWith(
+    REAL_TIME_ENDPOINT_OUT,
+    formatTransferOutArg(inputAsBuffer)
+  );
+
+  expect(result).toEqual(expectedStatus);
+});
+
+test('getPrinterStatus sends the correct message and can parse a response', async () => {
+  const { mockWebUsbDevice, paperHandlerWebDevice } =
+    await getMockWebUsbDevice();
+  const paperHandlerDriver = new PaperHandlerDriver(paperHandlerWebDevice);
+  await paperHandlerDriver.connect();
+
+  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  const expectedStatus: PrinterStatus = {
+    paperNotPresent: false,
+    ticketPresentInOutput: true,
+
+    dragPaperMotorOn: true,
+    spooling: true,
+    coverOpen: false,
+    printingHeadUpError: false,
+
+    notAcknowledgeCommandError: false,
+    powerSupplyVoltageError: false,
+    headNotConnected: false,
+    comError: true,
+    headTemperatureError: false,
+
+    diverterError: true,
+    headErrorLocked: false,
+    printingHeadReadyToPrint: false,
+    eepromError: false,
+    ramError: false,
+  };
+
+  const optionalDataBytes = [
+    // fixed
+    0x10,
+    // fixed
+    0x0f,
+    // paper status
+    0x20,
+    // user status
+    0x0c,
+    // recoverable error status
+    0x02,
+    // unrecoverable error status
+    0x80,
+  ];
+
+  await mockWebUsbDevice.mockAddTransferInData(
+    REAL_TIME_ENDPOINT_IN,
+    Buffer.from([
+      0x82,
+      RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
+      TOKEN,
+      ReturnCodes.POSITIVE_ACKNOWLEDGEMENT,
+      0x06, // 6 bytes of optional data
+      ...optionalDataBytes,
+    ])
+  );
+
+  const result = await paperHandlerDriver.getPrinterStatus();
+  expect(transferOutSpy).toHaveBeenCalledTimes(1);
+  const inputAsBuffer = Buffer.from([
+    0x02,
+    RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
+    TOKEN,
+    NULL_CODE,
+  ]);
+  expect(transferOutSpy).toHaveBeenCalledWith(
+    REAL_TIME_ENDPOINT_OUT,
+    formatTransferOutArg(inputAsBuffer)
+  );
+
   expect(result).toEqual(expectedStatus);
 });

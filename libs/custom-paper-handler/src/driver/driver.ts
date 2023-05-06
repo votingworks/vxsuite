@@ -1,13 +1,14 @@
 import { findByIds, WebUSBDevice } from 'usb';
 import makeDebug from 'debug';
-import { assert, Optional, sleep } from '@votingworks/basics';
+import { assert, ok, Optional, Result, sleep } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import {
+  Coder,
+  CoderError,
   CoderType,
   literal,
   message,
   uint8,
-  // unboundedString,
 } from '@votingworks/message-coder';
 import {
   assertNumberIsInRangeInclusive,
@@ -17,6 +18,7 @@ import {
   Uint16Max,
   Uint16toUint8,
   Uint8,
+  Uint8ToBinaryArray,
 } from '../bits';
 import { Lock } from './lock';
 import {
@@ -40,6 +42,11 @@ import {
   ScanLight,
   ScannerConfig,
 } from './scanner_config';
+import { TOKEN } from './constants';
+import {
+  PrinterStatusRealTimeExchangeResponse,
+  SensorStatusRealTimeExchangeResponse,
+} from './coders';
 
 const serverDebug = makeDebug('paper-handler:driver');
 
@@ -48,10 +55,33 @@ function debug(msg: string) {
   /* eslint-disable-next-line no-console */
   console.log(msg);
 }
+
+/**
+ * Debug function for printing a Uint8 as binary array
+ */
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+function printByte(byte: number, prefixText: string) {
+  debug(`${prefixText}: ${Uint8ToBinaryArray(byte as Uint8)}`);
+}
+
+/**
+ * Debug function for printing a string (such as from a coder's field defined as an unboundedString) as binary
+ */
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+function printBits(bitString: string) {
+  const textEncoder = new TextEncoder();
+  const stsData = new DataView(textEncoder.encode(bitString).buffer);
+  for (let i = 0; i < stsData.byteLength; i += 1) {
+    const byte: Uint8 = stsData.getUint8(i) as Uint8;
+    const bits = Uint8ToBinaryArray(byte);
+    /* eslint-disable-next-line no-console */
+    console.log(`Byte ${i} = ${bits}`);
+  }
+}
+
 // Common Bytes
 const START_OF_PACKET: Uint8 = 0x02;
 export const NULL_CODE: Uint8 = 0x00;
-export const TOKEN: Uint8 = 0x01;
 
 const InitializeRequest = literal(0x1b, 0x40);
 
@@ -62,19 +92,6 @@ const TransferOutRealTimeRequest = message({
   optionalDataLength: uint8(),
 });
 type TransferOutRealTimeRequest = CoderType<typeof TransferOutRealTimeRequest>;
-
-// Use for transfer in once big endianness is supported
-// const TransferInRealTimeExchangeResponse = message({
-//   startOfPacket: literal(0x82),
-//   requestId: uint8(),
-//   token: literal(TOKEN),
-//   returnCode: uint8(),
-//   optionalDataLength: uint8(),
-//   optionalData: unboundedString(),
-// });
-// type TransferInRealTimeExchangeResponse = CoderType<
-//   typeof TransferInRealTimeExchangeResponse
-// >;
 
 /**
  * USB commands are a series of byte values
@@ -128,10 +145,10 @@ export enum ReturnCodes {
 // Real Time Request IDs
 const SCAN_ABORT_REQUEST_ID: Uint8 = 0x43;
 const SCAN_RESET_REQUEST_ID: Uint8 = 0x52;
-const PRINTER_STATUS_REQUEST_ID: Uint8 = 0x64;
 // TODO update with rest of real time request IDs
 export enum RealTimeRequestIds {
   SCANNER_COMPLETE_STATUS_REQUEST_ID = 0x73,
+  PRINTER_STATUS_REQUEST_ID = 0x64,
 }
 
 // Generic Commands
@@ -292,12 +309,14 @@ export class PaperHandlerDriver {
     return this.webDevice.transferIn(REAL_TIME_ENDPOINT_IN, PACKET_SIZE);
   }
 
-  async handleRealTimeExchange(
+  // TODO do this without generics
+  async handleRealTimeExchange<T>(
     // TODO make this an enum
-    requestId: Uint8
-    // According to the manual, "REAL-TIME USB PROTOCOL FORMAT" supports optional data.
+    requestId: Uint8,
+    coder: Coder<T>
+    // According to the manual, "REAL-TIME USB PROTOCOL FORMAT" supports transferring out optional data.
     // The prototype doesn't support it, so leave out support from this function until needed.
-  ): Promise<DataView> {
+  ): Promise<Result<T, CoderError>> {
     await this.realTimeLock.acquire();
 
     const transferOutResult = await this.transferOutRealTime(requestId);
@@ -309,13 +328,10 @@ export class PaperHandlerDriver {
 
     const { data } = transferInResult;
     assert(data);
-    // TODO support big endian
-    // const response = TransferInRealTimeExchangeResponse.decode(
-    //   Buffer.from(data.buffer)
-    // ).ok();
-    assert(data.getUint8(1) === requestId);
-    assert(data.getUint8(3) === ReturnCodes.POSITIVE_ACKNOWLEDGEMENT); // TODO: handling
-    return data;
+    const response = coder.decode(Buffer.from(data.buffer)).ok();
+    assert(response);
+
+    return ok(response);
   }
 
   /**
@@ -346,6 +362,53 @@ export class PaperHandlerDriver {
     await this.transferOutGeneric(requestBuffer);
   }
 
+  // TODO make union type or otherwise make this less messy
+  validateRealTimeExchangeResponse(
+    response:
+      | SensorStatusRealTimeExchangeResponse
+      | PrinterStatusRealTimeExchangeResponse
+  ): void {
+    // TODO add more validation
+    assert(response.returnCode === ReturnCodes.POSITIVE_ACKNOWLEDGEMENT);
+  }
+
+  /**
+   * Requests, receives, and parses the complete scanner status bitmask.
+   *
+   * @returns {ScannerStatus}
+   */
+  async getScannerStatus(): Promise<ScannerStatus> {
+    const result = await this.handleRealTimeExchange(
+      RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
+      SensorStatusRealTimeExchangeResponse
+    );
+    const response = result.ok();
+    assert(response);
+    assert(
+      response.requestId ===
+        RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID
+    );
+    this.validateRealTimeExchangeResponse(response);
+    return parseScannerStatus(response);
+  }
+
+  /**
+   * Requests, receives, and parses the printer status bitmask.
+   *
+   * @returns {PrinterStatus}
+   */
+  async getPrinterStatus(): Promise<PrinterStatus> {
+    const result = await this.handleRealTimeExchange(
+      RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
+      PrinterStatusRealTimeExchangeResponse
+    );
+    const response = result.ok();
+    assert(response);
+    assert(response.requestId === RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID);
+    this.validateRealTimeExchangeResponse(response);
+    return parsePrinterStatus(response);
+  }
+
   /**
    * End migrated functions
    */
@@ -368,7 +431,7 @@ export class PaperHandlerDriver {
     const transferOutResult = await this.deprecatedTransferOutRealTime([
       START_OF_PACKET,
       requestId,
-      TOKEN,
+      TOKEN as Uint8,
       NULL_CODE,
     ]);
     assert(transferOutResult.status === 'ok'); // TODO: handling
@@ -382,30 +445,6 @@ export class PaperHandlerDriver {
     assert(data.getUint8(1) === requestId);
     assert(data.getUint8(3) === ReturnCodes.POSITIVE_ACKNOWLEDGEMENT); // TODO: handling
     return data;
-  }
-
-  /**
-   * Requests, receives, and parses the complete scanner status bitmask.
-   *
-   * @returns {ScannerStatus}
-   */
-  async getScannerStatus(): Promise<ScannerStatus> {
-    return parseScannerStatus(
-      await this.handleRealTimeExchange(
-        RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID
-      )
-    );
-  }
-
-  /**
-   * Requests, receives, and parses the printer status bitmask.
-   *
-   * @returns {PrinterStatus}
-   */
-  async getPrinterStatus(): Promise<PrinterStatus> {
-    return parsePrinterStatus(
-      await this.deprecatedHandleRealTimeExchange(PRINTER_STATUS_REQUEST_ID)
-    );
   }
 
   async abortScan(): Promise<void> {
