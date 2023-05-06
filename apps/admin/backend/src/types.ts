@@ -11,6 +11,10 @@ import {
   Iso8601TimestampSchema,
   Rect,
   CandidateId,
+  YesNoVote,
+  CandidateIdSchema,
+  YesNoVoteSchema,
+  ContestIdSchema,
 } from '@votingworks/types';
 import * as z from 'zod';
 
@@ -334,15 +338,18 @@ export type WriteInAdjudicationAction =
   | WriteInAdjudicationActionInvalid;
 
 /**
- * Data required to view a write-in image in our transcription interface,
- * including an image URL and the coordinates of the ballot, relevant contest,
- * and relevant contest option.
+ * Data required to adjudicate a write-in image in our adjudication interface,
+ * including an image URL; the coordinates of the ballot, relevant contest,
+ * and relevant contest option; and the votes for the contest in question.
  */
-export interface WriteInImageView {
+export interface WriteInDetailView {
   readonly imageUrl: string;
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
   readonly writeInCoordinates: Rect;
+  readonly markedOfficialCandidateIds: CandidateId[];
+  readonly writeInAdjudicatedOfficialCandidateIds: CandidateId[];
+  readonly writeInAdjudicatedWriteInCandidateIds: string[];
 }
 
 /**
@@ -368,3 +375,20 @@ export type CvrFileMode =
   | 'test'
   /** No CVR files imported yet - file mode is not currently locked. */
   | 'unlocked';
+
+/**
+ * Votes as they are serialized in the database.
+ */
+export type DatabaseSerializedCastVoteRecordVotes = Record<
+  ContestId,
+  CandidateId[] | YesNoVote
+>;
+
+/**
+ * Schema for {@link DatabaseSerializedCastVoteRecordVotes}.
+ */
+export const DatabaseSerializedCastVoteRecordVotesSchema: z.ZodSchema<DatabaseSerializedCastVoteRecordVotes> =
+  z.record(
+    ContestIdSchema,
+    z.union([z.array(CandidateIdSchema), YesNoVoteSchema])
+  );

@@ -41,6 +41,8 @@ import {
   CastVoteRecordFileRecordSchema,
   CastVoteRecordMetadata,
   CvrFileMode,
+  DatabaseSerializedCastVoteRecordVotes,
+  DatabaseSerializedCastVoteRecordVotesSchema,
   ElectionRecord,
   ScannerBatch,
   WriteInAdjudicationAction,
@@ -656,26 +658,33 @@ export class Store {
   /**
    * Returns the data necessary to display a single write-in.
    */
-  getWriteInWithImage(writeInId: Id): Optional<{
+  getWriteInWithDetails(writeInId: Id): {
     writeInId: Id;
     contestId: ContestId;
     optionId: ContestOptionId;
     image: Buffer;
     layout: BallotPageLayout;
-  }> {
-    const result = this.client.one(
+    castVoteRecordId: Id;
+    castVoteRecordVotes: DatabaseSerializedCastVoteRecordVotes;
+  } {
+    const writeInWithDetails = this.client.one(
       `
         select
           write_ins.id as writeInId,
           write_ins.contest_id as contestId,
           write_ins.option_id as optionId,
           ballot_images.image as image,
-          ballot_images.layout as layout
+          ballot_images.layout as layout,
+          cvrs.votes as castVoteRecordVotes,
+          write_ins.cvr_id as castVoteRecordId
         from write_ins
         inner join
           ballot_images on 
             write_ins.cvr_id = ballot_images.cvr_id and 
             write_ins.side = ballot_images.side
+        inner join
+          cvrs on
+            write_ins.cvr_id = cvrs.id
         where write_ins.id = ?
       `,
       writeInId
@@ -686,16 +695,22 @@ export class Store {
           optionId: ContestOptionId;
           image: Buffer;
           layout: string;
+          castVoteRecordVotes: string;
+          castVoteRecordId: string;
         }
       | undefined;
 
-    if (!result) return result;
+    assert(writeInWithDetails, 'write-in does not exist');
 
     return {
-      ...result,
+      ...writeInWithDetails,
       layout: safeParseJson(
-        result.layout,
+        writeInWithDetails.layout,
         BallotPageLayoutSchema
+      ).unsafeUnwrap(),
+      castVoteRecordVotes: safeParseJson(
+        writeInWithDetails.castVoteRecordVotes,
+        DatabaseSerializedCastVoteRecordVotesSchema
       ).unsafeUnwrap(),
     };
   }
@@ -1083,16 +1098,20 @@ export class Store {
   }
 
   /**
-   * Gets all write-in records, filtered by the given options.
+   * Gets write-in records filtered by the given options.
    */
   getWriteInRecords({
     electionId,
     contestId,
+    castVoteRecordId,
+    writeInId,
     status,
     limit,
   }: {
     electionId: Id;
     contestId?: ContestId;
+    castVoteRecordId?: Id;
+    writeInId?: Id;
     status?: WriteInAdjudicationStatus;
     limit?: number;
   }): WriteInRecord[] {
@@ -1102,8 +1121,18 @@ export class Store {
     const params: Bindable[] = [electionId];
 
     if (contestId) {
-      whereParts.push('contest_id = ?');
+      whereParts.push('write_ins.contest_id = ?');
       params.push(contestId);
+    }
+
+    if (castVoteRecordId) {
+      whereParts.push('write_ins.cvr_id = ?');
+      params.push(castVoteRecordId);
+    }
+
+    if (writeInId) {
+      whereParts.push('write_ins.id = ?');
+      params.push(writeInId);
     }
 
     if (status === 'adjudicated') {
@@ -1204,86 +1233,13 @@ export class Store {
   }
 
   /**
-   * Get an individual write-in record. We assume it exists.
-   */
-  private getWriteIn(id: Id): WriteInRecord {
-    const row = this.client.one(
-      `
-      select
-        id as id,
-        cvr_id as castVoteRecordId,
-        contest_id as contestId,
-        option_id as optionId,
-        official_candidate_id as officialCandidateId,
-        write_in_candidate_id as writeInCandidateId,
-        is_invalid as isInvalid
-      from write_ins
-      where id = ?
-   `,
-      id
-    ) as
-      | {
-          id: Id;
-          castVoteRecordId: Id;
-          contestId: ContestId;
-          optionId: ContestOptionId;
-          isInvalid: boolean;
-          officialCandidateId: string | null;
-          writeInCandidateId: string | null;
-        }
-      | undefined;
-
-    assert(row, 'write-in record does not exist');
-
-    if (row.officialCandidateId) {
-      return typedAs<WriteInRecordAdjudicatedOfficialCandidate>({
-        id: row.id,
-        castVoteRecordId: row.castVoteRecordId,
-        contestId: row.contestId,
-        optionId: row.optionId,
-        status: 'adjudicated',
-        adjudicationType: 'official-candidate',
-        candidateId: row.officialCandidateId,
-      });
-    }
-
-    if (row.writeInCandidateId) {
-      return typedAs<WriteInRecordAdjudicatedWriteInCandidate>({
-        id: row.id,
-        castVoteRecordId: row.castVoteRecordId,
-        contestId: row.contestId,
-        optionId: row.optionId,
-        status: 'adjudicated',
-        adjudicationType: 'write-in-candidate',
-        candidateId: row.writeInCandidateId,
-      });
-    }
-
-    if (row.isInvalid) {
-      return typedAs<WriteInRecordAdjudicatedInvalid>({
-        id: row.id,
-        castVoteRecordId: row.castVoteRecordId,
-        contestId: row.contestId,
-        optionId: row.optionId,
-        status: 'adjudicated',
-        adjudicationType: 'invalid',
-      });
-    }
-
-    return typedAs<WriteInRecordPending>({
-      id: row.id,
-      status: 'pending',
-      castVoteRecordId: row.castVoteRecordId,
-      contestId: row.contestId,
-      optionId: row.optionId,
-    });
-  }
-
-  /**
    * Adjudicates a write-in.
    */
   adjudicateWriteIn(adjudicationAction: WriteInAdjudicationAction): void {
-    const initialWriteInRecord = this.getWriteIn(adjudicationAction.writeInId);
+    const [initialWriteInRecord] = this.getWriteInRecords({
+      electionId: assertDefined(this.getCurrentElectionId()),
+      writeInId: adjudicationAction.writeInId,
+    });
     assert(initialWriteInRecord, 'write-in record does not exist');
 
     const params =
