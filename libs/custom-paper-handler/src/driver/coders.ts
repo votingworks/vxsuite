@@ -1,6 +1,10 @@
 import { CoderType, literal, message, uint8 } from '@votingworks/message-coder';
 import { TOKEN } from './constants';
 
+// This is not very DRY but results from 2 issues
+// 1. Real-time exchange responses have an optional data field whose length varies between command responses.
+// 2. unboundedString() is the only unbounded coder type, but utf-8 string encoding adds extra bits
+// TODO how does custom-scanner deal with optional data of varying lengths?
 export const SensorStatusRealTimeExchangeResponse = message({
   startOfPacket: literal(0x82),
   requestId: uint8(),
