@@ -379,12 +379,17 @@ export class PaperHandlerDriver {
       SensorStatusRealTimeExchangeResponse
     );
     const response = result.ok();
+
+    // This boilerplate validation should get better once we improve
+    // the way we handle coder types in coders.ts
+    /** Begin boilerplate validation */
     assert(response);
     assert(
       response.requestId ===
         RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID
     );
     this.validateRealTimeExchangeResponse(response);
+    /** End boilerplate validation */
     return parseScannerStatus(response);
   }
 
