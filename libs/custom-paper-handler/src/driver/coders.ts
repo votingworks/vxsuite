@@ -5,6 +5,8 @@ import { TOKEN } from './constants';
 // 1. Real-time exchange responses have an optional data field whose length varies between command responses.
 // 2. unboundedString() is the only unbounded coder type, but utf-8 string encoding adds extra bits
 // TODO how does custom-scanner deal with optional data of varying lengths?
+// Also possible we want to extend message-coder to support an unbounded ArrayBuffer coder, but it should
+// be possible to avoid this since custom-scanner uses unboundedString(). See: DataResponseMessage in protocol.ts
 export const SensorStatusRealTimeExchangeResponse = message({
   startOfPacket: literal(0x82),
   requestId: uint8(),
