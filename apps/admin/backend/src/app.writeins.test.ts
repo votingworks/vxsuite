@@ -7,8 +7,10 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { Rect } from '@votingworks/types';
 import { buildTestEnvironment, configureMachine } from '../test/app';
 import {
+  WriteInDetailView,
   WriteInSummaryEntryAdjudicated,
   WriteInSummaryEntryAdjudicatedInvalid,
   WriteInSummaryEntryAdjudicatedOfficialCandidate,
@@ -313,7 +315,7 @@ test('e2e write-in adjudication', async () => {
   ]);
 });
 
-test('getWriteInImageView', async () => {
+test('getWriteInDetailView', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition, manualCastVoteRecordReportSingle } =
     electionGridLayoutNewHampshireAmherstFixtures;
@@ -327,39 +329,57 @@ test('getWriteInImageView', async () => {
     })
   ).unsafeUnwrap();
 
+  // look at a contest with multiple write-ins possible
+  const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
   const writeIns = await apiClient.getWriteIns({
-    contestId: 'County-Commissioner-d6feed25',
+    contestId,
   });
-  expect(writeIns).toHaveLength(1);
+  expect(writeIns).toHaveLength(2);
 
-  const writeIn = writeIns[0];
-  assert(writeIn);
-  const writeInImageView = await apiClient.getWriteInImageView({
-    writeInId: writeIn.id,
+  const [writeInA, writeInB] = writeIns;
+  assert(writeInA && writeInB);
+
+  // check initial view of first write-in
+  const writeInDetailViewA = await apiClient.getWriteInDetailView({
+    writeInId: writeInA.id,
   });
-  assert(writeInImageView);
+  assert(writeInDetailViewA);
 
-  const { imageUrl: actualImageUrl, ...coordinates } = writeInImageView;
-  expect(coordinates).toMatchInlineSnapshot(`
+  expect(writeInDetailViewA).toMatchObject(
+    typedAs<Partial<WriteInDetailView>>({
+      markedOfficialCandidateIds: ['Obadiah-Carrigan-5c95145a'],
+      writeInAdjudicatedOfficialCandidateIds: [],
+      writeInAdjudicatedWriteInCandidateIds: [],
+    })
+  );
+
+  const {
+    imageUrl: actualImageUrl,
+    ballotCoordinates: ballotCoordinatesA,
+    contestCoordinates: contestCoordinatesA,
+    writeInCoordinates: writeInCoordinatesA,
+  } = writeInDetailViewA;
+
+  const expectedBallotCoordinates: Rect = {
+    height: 2200,
+    width: 1696,
+    x: 0,
+    y: 0,
+  };
+  expect(ballotCoordinatesA).toEqual(expectedBallotCoordinates);
+  const expectedContestCoordinates: Rect = {
+    height: 374,
+    width: 1161,
+    x: 436,
+    y: 1183,
+  };
+  expect(contestCoordinatesA).toEqual(expectedContestCoordinates);
+  expect(writeInCoordinatesA).toMatchInlineSnapshot(`
     Object {
-      "ballotCoordinates": Object {
-        "height": 2200,
-        "width": 1696,
-        "x": 0,
-        "y": 0,
-      },
-      "contestCoordinates": Object {
-        "height": 99,
-        "width": 1331,
-        "x": 251,
-        "y": 1008,
-      },
-      "writeInCoordinates": Object {
-        "height": 93,
-        "width": 443,
-        "x": 1139,
-        "y": 1014,
-      },
+      "height": 140,
+      "width": 270,
+      "x": 1327,
+      "y": 1274,
     }
   `);
 
@@ -367,8 +387,8 @@ test('getWriteInImageView', async () => {
     join(
       reportDirectoryPath,
       CVR_BALLOT_IMAGES_SUBDIRECTORY,
-      '3f1799cd-f8ae-4f6a-906a-90f56015be42',
-      '33a20fb3-6a55-4e9b-a756-9b2ba622cfb6-back.jpeg-7bbc0e7d-e489-485e-b1c2-c9d54818aea2-normalized.jpg'
+      '378f6a69-62d3-4184-a1a7-3a5d90083e21',
+      'a6f30699-8d95-462c-b1d2-fc078048f760-front.jpeg-864a2854-ee26-4223-8097-9633b7bed096-normalized.jpg'
     )
   );
   const expectedImageUrl = toDataUrl(
@@ -378,6 +398,64 @@ test('getWriteInImageView', async () => {
     }),
     'image/jpeg'
   );
-
   expect(actualImageUrl).toEqual(expectedImageUrl);
+
+  // adjudicate first write-in for an official candidate
+  await apiClient.adjudicateWriteIn({
+    writeInId: writeInA.id,
+    type: 'official-candidate',
+    candidateId: 'Mary-Baker-Eddy-350785d5',
+  });
+
+  // check the second write-in detail view, which should the just-adjudicated write-in
+  const writeInDetailViewB1 = await apiClient.getWriteInDetailView({
+    writeInId: writeInB.id,
+  });
+
+  expect(writeInDetailViewB1).toMatchObject(
+    typedAs<Partial<WriteInDetailView>>({
+      markedOfficialCandidateIds: ['Obadiah-Carrigan-5c95145a'],
+      writeInAdjudicatedOfficialCandidateIds: ['Mary-Baker-Eddy-350785d5'],
+      writeInAdjudicatedWriteInCandidateIds: [],
+    })
+  );
+
+  // contest and ballot coordinates should be the same, but write-in coordinates are different
+  const {
+    ballotCoordinates: ballotCoordinatesB,
+    contestCoordinates: contestCoordinatesB,
+    writeInCoordinates: writeInCoordinatesB,
+  } = writeInDetailViewB1;
+  expect(ballotCoordinatesB).toEqual(expectedBallotCoordinates);
+  expect(contestCoordinatesB).toEqual(expectedContestCoordinates);
+  expect(writeInCoordinatesB).toMatchInlineSnapshot(`
+    Object {
+      "height": 138,
+      "width": 269,
+      "x": 1328,
+      "y": 1366,
+    }
+  `);
+
+  // re-adjudicate the first write-in for a write-in candidate and expect the id's to change
+  const { id: writeInCandidateId } = await apiClient.addWriteInCandidate({
+    contestId,
+    name: 'Bob Hope',
+  });
+  await apiClient.adjudicateWriteIn({
+    writeInId: writeInA.id,
+    type: 'write-in-candidate',
+    candidateId: writeInCandidateId,
+  });
+  const writeInDetailViewB2 = await apiClient.getWriteInDetailView({
+    writeInId: writeInB.id,
+  });
+
+  expect(writeInDetailViewB2).toMatchObject(
+    typedAs<Partial<WriteInDetailView>>({
+      markedOfficialCandidateIds: ['Obadiah-Carrigan-5c95145a'],
+      writeInAdjudicatedOfficialCandidateIds: [],
+      writeInAdjudicatedWriteInCandidateIds: [writeInCandidateId],
+    })
+  );
 });
