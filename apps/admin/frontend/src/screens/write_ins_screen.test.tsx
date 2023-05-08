@@ -141,7 +141,7 @@ test('ballot pagination', async () => {
 
 test('adjudication', async () => {
   const contestId = 'zoo-council-mammal';
-  apiMock.expectGetWriteInSummary([mockWriteInSummaryPending(contestId, 3)]);
+  apiMock.expectGetWriteInSummary([mockWriteInSummaryPending(contestId, 2)]);
   apiMock.expectGetCastVoteRecordFiles([]);
 
   renderInAppContext(<WriteInsScreen />, {
@@ -161,13 +161,14 @@ test('adjudication', async () => {
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
   apiMock.expectGetWriteInImageView(mockWriteInRecords[0].id);
   apiMock.expectGetWriteInImageView(mockWriteInRecords[1].id); // prefetch
-  userEvent.click(await screen.findByText('Adjudicate 3'));
+  userEvent.click(await screen.findByText('Adjudicate 2'));
 
-  await screen.findButton('Zebra');
-  await screen.findButton('Lion');
-  await screen.findButton('Kangaroo');
-  await screen.findButton('Elephant');
-  await screen.findButton('Lemur');
+  await screen.findByText('2 write-ins to adjudicate.');
+  screen.getButton('Zebra');
+  screen.getButton('Lion');
+  screen.getButton('Kangaroo');
+  screen.getButton('Elephant');
+  screen.getButton('Lemur');
 
   // adjudicate for official candidate
   const partialMockAdjudicatedWriteIn = {
