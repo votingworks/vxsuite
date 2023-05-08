@@ -37,6 +37,11 @@ import {
   P,
   Caption,
   Font,
+  H4,
+  Icons,
+  FullScreenIconWrapper,
+  H3,
+  H6,
 } from '@votingworks/ui';
 
 import {
@@ -264,6 +269,7 @@ function ScannerReportModal({
     }
   }
 
+  let modalTitle: string | undefined;
   let modalContent: React.ReactNode = null;
   let modalActions: React.ReactNode = null;
 
@@ -272,9 +278,9 @@ function ScannerReportModal({
 
   switch (modalState) {
     case 'initial':
+      modalTitle = `${reportTitle} on Card`;
       modalContent = (
         <Prose id="modalaudiofocus">
-          <H1>{reportTitle} on Card</H1>
           {willUpdatePollsToMatchScanner ? (
             <P>
               This poll worker card contains a {reportTitle.toLowerCase()}.
@@ -308,9 +314,9 @@ function ScannerReportModal({
       );
       break;
     case 'reprint':
+      modalTitle = `${reportTitle} Printed`;
       modalContent = (
         <Prose id="modalaudiofocus">
-          <H1>{reportTitle} Printed</H1>
           {willUpdatePollsToMatchScanner ? (
             <P>
               The polls are now {newPollsStateName.toLowerCase()}. If needed,
@@ -347,6 +353,7 @@ function ScannerReportModal({
       // tree. We set this prop to false to disable hiding the app.
       // https://github.com/votingworks/vxsuite/issues/2618
       ariaHideApp={false}
+      title={modalTitle}
       content={modalContent}
       actions={modalActions}
     />
@@ -417,10 +424,10 @@ function UpdatePollsDirectlyButton({
       <Button onPress={() => setIsConfirmationModalOpen(true)}>{action}</Button>
       {isConfirmationModalOpen && (
         <Modal
+          title={`No ${reportTitle} on Card`}
           centerContent
           content={
-            <Prose textCenter id="modalaudiofocus">
-              <H1>No {reportTitle} on Card</H1>
+            <Prose id="modalaudiofocus">
               <P>{suggestVxScanText}</P>
             </Prose>
           }
@@ -586,22 +593,31 @@ export function PollWorkerScreen({
 
     return (
       <Screen white>
-        <Main centerChild>
+        <Main centerChild padded>
           <Prose id="audiofocus">
-            <H1>
+            <FullScreenIconWrapper align="center" color="success">
+              <Icons.Done />
+            </FullScreenIconWrapper>
+            <H2 as="h1" align="center">
               {`Voting Session Active: ${ballotStyleId} at ${precinct.name}`}
-            </H1>
+            </H2>
             <ol>
               <li>
-                Instruct the voter to press the{' '}
-                <Font weight="bold" noWrap>
-                  Start Voting
-                </Font>{' '}
-                button on the next screen.
+                <P>
+                  Instruct the voter to press the{' '}
+                  <Font weight="bold" noWrap>
+                    Start Voting
+                  </Font>{' '}
+                  button on the next screen.
+                </P>
               </li>
-              <li>Remove the poll worker card to continue.</li>
+              <li>
+                <P>Remove the poll worker card to continue.</P>
+              </li>
             </ol>
-            <HorizontalRule>or</HorizontalRule>
+            <P>
+              <HorizontalRule>or</HorizontalRule>
+            </P>
             <P align="center">Deactivate this voter session to start over.</P>
             <P align="center">
               <Button small onPress={resetCardlessVoterSession}>
@@ -631,13 +647,13 @@ export function PollWorkerScreen({
         {!isLiveMode && <TestMode />}
         <Main padded>
           <Prose maxWidth={false}>
-            <H1>
+            <H2 as="h1">
               VxMark{' '}
               <Font weight="light" noWrap>
                 Poll Worker Actions
               </Font>
-            </H1>
-            <H2>
+            </H2>
+            <H4 as="h2">
               <NoWrap>
                 <Font weight="light">Ballots Printed:</Font>{' '}
                 {ballotsPrintedCount}
@@ -648,14 +664,14 @@ export function PollWorkerScreen({
                 <Font weight="light">Polls:</Font>{' '}
                 {getPollsStateName(pollsState)}
               </NoWrap>
-            </H2>
+            </H4>
             {canSelectBallotStyle && !isHidingSelectBallotStyle ? (
               <React.Fragment>
                 <VotingSession>
-                  <H1>Start a New Voting Session</H1>
+                  <H4 as="h2">Start a New Voting Session</H4>
                   {appPrecinct.kind === 'AllPrecincts' && (
                     <React.Fragment>
-                      <H2>1. Select Voter’s Precinct</H2>
+                      <H6 as="h3">1. Select Voter’s Precinct</H6>
                       <ButtonList data-testid="precincts">
                         {election.precincts.map((precinct) => (
                           <Button
@@ -677,10 +693,10 @@ export function PollWorkerScreen({
                       </ButtonList>
                     </React.Fragment>
                   )}
-                  <H2>
+                  <H6 as="h3">
                     {appPrecinct.kind === 'AllPrecincts' ? '2. ' : ''}Select
                     Voter’s Ballot Style
-                  </H2>
+                  </H6>
                   {selectedCardlessVoterPrecinctId ? (
                     <ButtonList data-testid="ballot-styles">
                       {precinctBallotStyles.map((ballotStyle) => (
@@ -700,10 +716,10 @@ export function PollWorkerScreen({
                       ))}
                     </ButtonList>
                   ) : (
-                    <P>
-                      Select the voter’s precinct above to view ballot styles
-                      for the precinct.
-                    </P>
+                    <Caption>
+                      <Icons.Info /> Select the voter’s precinct above to view
+                      ballot styles for the precinct.
+                    </Caption>
                   )}
                 </VotingSession>
                 <Button onPress={() => setIsHidingSelectBallotStyle(true)}>
@@ -717,13 +733,13 @@ export function PollWorkerScreen({
                   <React.Fragment>
                     <P>
                       <Button
-                        variant="primary"
+                        variant="previousPrimary"
                         onPress={() => setIsHidingSelectBallotStyle(false)}
                       >
                         Back to Ballot Style Selection
                       </Button>
                     </P>
-                    <H1>More Actions</H1>
+                    <H3 as="h2">More Actions</H3>
                   </React.Fragment>
                 )}
                 <P>
@@ -758,12 +774,9 @@ export function PollWorkerScreen({
         {isConfirmingEnableLiveMode && (
           <Modal
             centerContent
+            title="Switch to Official Ballot Mode and reset the Ballots Printed count?"
             content={
               <Prose textCenter id="modalaudiofocus">
-                <H1>
-                  Switch to Official Ballot Mode and reset the Ballots Printed
-                  count?
-                </H1>
                 <P>
                   Today is election day and this machine is in{' '}
                   <Font noWrap weight="bold">
