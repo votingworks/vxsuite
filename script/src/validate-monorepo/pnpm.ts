@@ -1,6 +1,9 @@
 import { execFile } from 'child_process';
 import { readFile } from 'fs/promises';
 import { join, relative } from 'path';
+import { Package } from './validation/util';
+import { maybeReadPackageJson } from './validation/util';
+import assert from 'assert';
 
 /**
  * Workspace package info.
@@ -10,6 +13,11 @@ export interface PackageInfo {
    * Absolute path to the package root.
    */
   readonly path: string;
+
+  /**
+   * Path to the package root relative to the workspace root.
+   */
+  readonly relativePath: string;
 
   /**
    * Name of the package, i.e. `name` from `package.json`.
@@ -38,6 +46,16 @@ export interface PackageInfo {
    * Missing if the package is not a library.
    */
   readonly source?: string;
+
+  /**
+   * The full `package.json` contents.
+   */
+  readonly packageJson: Package;
+
+  /**
+   * The full `package.json` path.
+   */
+  readonly packageJsonPath: string;
 }
 
 /**
@@ -75,15 +93,19 @@ export async function getWorkspacePackageInfo(
 
   for (const path of await getWorkspacePackagePaths(root)) {
     const packageJsonPath = join(root, path, 'package.json');
-    const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'));
+    const packageJson = await maybeReadPackageJson(packageJsonPath);
+    assert(packageJson);
 
     result.set(packageJson.name, {
       path: join(root, path),
+      relativePath: path,
       name: packageJson.name,
       version: packageJson.version,
       main: packageJson.main,
       module: packageJson.module,
       source: (packageJson.main || packageJson.module) && 'src/index.ts',
+      packageJson,
+      packageJsonPath,
     });
   }
 

@@ -1,6 +1,8 @@
-import { basename, join } from 'path';
+import { basename, dirname, join } from 'path';
 import * as ts from 'typescript';
 import { maybeReadPackageJson } from './util';
+import { statSync } from 'fs';
+import { PackageInfo } from '../pnpm';
 
 export interface Tsconfig {
   readonly include?: readonly string[];
@@ -13,6 +15,7 @@ export enum ValidationIssueKind {
   InvalidPropertyValue = 'InvalidPropertyValue',
   MissingConfigFile = 'MissingConfigFile',
   MissingReference = 'MissingReference',
+  MissingWorkspaceDependency = 'MissingWorkspaceDependency',
 }
 
 export interface MissingConfigFileIssue {
@@ -35,14 +38,32 @@ export interface MissingReferenceIssue {
   readonly expectedReferencePath: string;
 }
 
+export interface MissingWorkspaceDependencyIssue {
+  readonly kind: ValidationIssueKind.MissingWorkspaceDependency;
+  readonly packageJsonPath: string;
+  readonly dependencyName: string;
+}
+
 export type ValidationIssue =
   | MissingConfigFileIssue
   | InvalidPropertyValueIssue
-  | MissingReferenceIssue;
+  | MissingReferenceIssue
+  | MissingWorkspaceDependencyIssue;
 
 export function maybeReadTsconfig(filepath: string): Tsconfig | undefined {
+  if (!statSync(dirname(filepath)).isDirectory()) {
+    throw new Error(`directory ${dirname(filepath)} does not exist`);
+  }
+
+  if (!ts.sys.fileExists(filepath)) {
+    return undefined;
+  }
+
   const { config, error } = ts.readConfigFile(filepath, ts.sys.readFile);
-  return error ? undefined : config;
+  if (error) {
+    throw error;
+  }
+  return config;
 }
 
 export function* checkTsconfig(
@@ -131,7 +152,7 @@ export function* checkTsconfig(
     };
   }
 
-  if (!Array.isArray(tsconfig.exclude)) {
+  if (tsconfig.exclude && !Array.isArray(tsconfig.exclude)) {
     yield {
       kind: ValidationIssueKind.InvalidPropertyValue,
       tsconfigPath,
@@ -145,28 +166,20 @@ export function* checkTsconfig(
 export async function* checkTsconfigMatchesPackageJson(
   tsconfig: Tsconfig,
   tsconfigPath: string,
-  workspaceDependencies: readonly string[],
+  workspaceDependencyPackages: readonly PackageInfo[],
   packageJsonPath: string
 ): AsyncGenerator<ValidationIssue> {
   const tsconfigReferencesPaths = new Set(
     tsconfig.references?.map(({ path }) => join(tsconfigPath, '..', path)) ?? []
   );
 
-  for (const workspaceDependency of workspaceDependencies) {
-    if (workspaceDependency.startsWith('@types/')) {
+  for (const workspaceDependencyPackage of workspaceDependencyPackages) {
+    if (workspaceDependencyPackage.name.startsWith('@types/')) {
       continue;
     }
 
-    const workspaceDependencyName = workspaceDependency
-      .split('/')
-      .pop() as string;
-    const expectedWorkspaceDependencyPath = join(
-      __dirname,
-      '../../../libs',
-      workspaceDependencyName
-    );
     const expectedWorkspaceDependencyTsconfigBuildPath = join(
-      expectedWorkspaceDependencyPath,
+      workspaceDependencyPackage.path,
       'tsconfig.build.json'
     );
 
@@ -223,15 +236,14 @@ export function* checkTsconfigReferencesMatch(
 }
 
 export async function* checkConfig({
-  packages,
+  workspacePackages,
 }: {
-  packages: readonly string[];
+  workspacePackages: ReadonlyMap<string, PackageInfo>;
 }): AsyncGenerator<ValidationIssue> {
-  for (const pkg of packages) {
-    const packageJsonPath = join(pkg, 'package.json');
-    const packageJson = await maybeReadPackageJson(packageJsonPath);
+  for (const pkg of workspacePackages.values()) {
+    const { packageJson, packageJsonPath } = pkg;
 
-    if (!packageJson) {
+    if (!pkg.packageJson.devDependencies?.['typescript']) {
       continue;
     }
 
@@ -248,7 +260,27 @@ export async function* checkConfig({
         : []
     );
 
-    const tsconfigPath = join(pkg, 'tsconfig.json');
+    let hasMissingWorkspaceDependency = false;
+    for (const workspaceDependency of workspaceDependencies) {
+      if (!workspacePackages.has(workspaceDependency)) {
+        hasMissingWorkspaceDependency = true;
+        yield {
+          kind: ValidationIssueKind.MissingWorkspaceDependency,
+          packageJsonPath,
+          dependencyName: workspaceDependency,
+        };
+      }
+    }
+
+    if (hasMissingWorkspaceDependency) {
+      continue;
+    }
+
+    const workspaceDependencyPackages = workspaceDependencies.map((name) =>
+      workspacePackages.get(name)
+    ) as PackageInfo[];
+
+    const tsconfigPath = join(pkg.path, 'tsconfig.json');
     const tsconfig = maybeReadTsconfig(tsconfigPath);
 
     if (!tsconfig) {
@@ -264,11 +296,11 @@ export async function* checkConfig({
     yield* checkTsconfigMatchesPackageJson(
       tsconfig,
       tsconfigPath,
-      workspaceDependencies,
+      workspaceDependencyPackages,
       packageJsonPath
     );
 
-    const tsconfigBuildPath = join(pkg, 'tsconfig.build.json');
+    const tsconfigBuildPath = join(pkg.path, 'tsconfig.build.json');
     const tsconfigBuild = maybeReadTsconfig(tsconfigBuildPath);
 
     if (tsconfigBuild) {
@@ -277,7 +309,7 @@ export async function* checkConfig({
       yield* checkTsconfigMatchesPackageJson(
         tsconfigBuild,
         tsconfigBuildPath,
-        workspaceDependencies,
+        workspaceDependencyPackages,
         packageJsonPath
       );
 

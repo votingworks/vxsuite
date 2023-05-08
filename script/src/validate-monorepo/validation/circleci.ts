@@ -1,5 +1,6 @@
 import { readFile } from 'fs/promises';
 import { parse as parseYaml } from 'yaml';
+import { PackageInfo } from '../pnpm';
 
 /**
  * Any kind of validation issue with the CircleCI configuration.
@@ -72,7 +73,7 @@ export async function loadConfig(configPath: string): Promise<Config> {
 export function* checkConfig(
   config: Config,
   configPath: string,
-  workspacePaths: readonly string[]
+  workspacePackages: ReadonlyMap<string, PackageInfo>
 ): Generator<ValidationIssue> {
   const unusedJobs = new Set(Object.keys(config.jobs));
 
@@ -90,21 +91,18 @@ export function* checkConfig(
     };
   }
 
-  for (const workspacePath of workspacePaths) {
-    const match = workspacePath.match(/([^/]+)\/(.+)/);
+  for (const pkg of workspacePackages.values()) {
+    // exclude some packages that are intentionally not tested
+    if (!pkg.packageJson.scripts?.['test']) {
+      continue;
+    }
+
+    const match = pkg.relativePath.match(/([^/]+)\/(.+)/);
     if (match === null) {
       continue;
     }
 
-    const [, packageType, packageName] = match;
-
-    // exclude some packages that are intentionally not tested
-    if (
-      (packageType === 'libs' && packageName.startsWith('@types/')) ||
-      packageName.endsWith('/prodserver')
-    ) {
-      continue;
-    }
+    const [, packageType, packageName] = match as [string, string, string];
 
     const expectedJobName = packageName
       ? `test-${packageType}-${packageName.replace('/', '-')}`
@@ -114,7 +112,7 @@ export function* checkConfig(
       yield {
         kind: ValidationIssueKind.UntestedPackageIssue,
         configPath,
-        packagePath: workspacePath,
+        packagePath: pkg.path,
         expectedJobName,
       };
     }

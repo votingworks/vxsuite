@@ -3,6 +3,10 @@ import { join } from 'path';
 
 export interface Package {
   readonly name: string;
+  readonly version: string;
+  readonly main?: string;
+  readonly module?: string;
+  readonly scripts?: { [name: string]: string };
   readonly dependencies?: { [name: string]: string };
   readonly devDependencies?: { [name: string]: string };
   readonly peerDependencies?: { [name: string]: string };
