@@ -1,9 +1,20 @@
+/* stylelint-disable order/properties-order */
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import React, { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
-import { Main, Screen, Prose, Button, H1, P } from '@votingworks/ui';
+import {
+  Main,
+  Screen,
+  Prose,
+  Button,
+  H1,
+  P,
+  Icons,
+  H6,
+  Font,
+} from '@votingworks/ui';
 
 import pluralize from 'pluralize';
 import { assert } from '@votingworks/basics';
@@ -19,20 +30,23 @@ const SidebarSpacer = styled.div`
   height: 90px;
 `;
 
-const Footer = styled.nav`
-  background-color: #333333;
-  padding: 60px 40px;
-  color: #ffffff;
+const Footer = styled.div`
+  border-top: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
+    ${(p) => p.theme.colors.foreground};
+  padding: 0.5rem;
 `;
 
-const SettingsContainer = styled.div`
+const FooterContent = styled.nav`
+  align-items: center;
   display: flex;
-  flex-wrap: wrap;
+  gap: 1rem;
   justify-content: center;
-  border: 1px solid #808080;
-  border-width: 1px 0;
-  padding: 1rem 0;
-  gap: 2em;
+`;
+
+const LargeButtonText = styled.span`
+  font-size: 50px;
+  line-height: 2;
+  padding: 0 1rem;
 `;
 
 export function StartPage(): JSX.Element {
@@ -78,10 +92,12 @@ export function StartPage(): JSX.Element {
 
   const settingsContainer = (
     <React.Fragment>
-      <H1>Voter Settings</H1>
-      <SettingsContainer>
+      <H6 align="center" as="h2">
+        <Font>Voter Settings</Font>
+      </H6>
+      <FooterContent>
         <DisplaySettingsButton />
-      </SettingsContainer>
+      </FooterContent>
     </React.Fragment>
   );
 
@@ -95,7 +111,9 @@ export function StartPage(): JSX.Element {
         id="next"
         aria-label="Press the right button to advance to the first contest."
       >
-        Start Voting
+        <LargeButtonText>
+          <Icons.Next /> Start Voting
+        </LargeButtonText>
       </Button>
     </Wobble>
   );
@@ -104,13 +122,16 @@ export function StartPage(): JSX.Element {
     <Screen navRight={isLandscape} ref={audioFocus}>
       <Main centerChild padded>
         {isPortrait ? (
-          <ElectionInfo
-            electionDefinition={electionDefinition}
-            ballotStyleId={ballotStyleId}
-            precinctSelection={singlePrecinctSelectionFor(precinctId)}
-            ariaHidden={false}
-            contestCount={contests.length}
-          />
+          <React.Fragment>
+            <ElectionInfo
+              electionDefinition={electionDefinition}
+              ballotStyleId={ballotStyleId}
+              precinctSelection={singlePrecinctSelectionFor(precinctId)}
+              ariaHidden={false}
+              contestCount={contests.length}
+            />
+            {startVotingButton}
+          </React.Fragment>
         ) : (
           <Prose textCenter>
             <H1 aria-label={`${partyPrimaryAdjective} ${title}.`}>
@@ -135,12 +156,7 @@ export function StartPage(): JSX.Element {
         </P>
       </Main>
       {isPortrait ? (
-        <Footer>
-          <Prose textCenter>
-            {startVotingButton}
-            {settingsContainer}
-          </Prose>
-        </Footer>
+        <Footer>{settingsContainer}</Footer>
       ) : (
         <Sidebar
           footer={
