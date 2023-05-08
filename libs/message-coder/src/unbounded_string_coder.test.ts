@@ -33,7 +33,6 @@ test('unbounded string with too small buffer', () => {
 /**
  * Utilities for printing bits copied from paper-handler
  */
-/*
 type BinaryStringRepresentation = '0' | '1';
 type BinaryArray = [
   BinaryStringRepresentation,
@@ -63,6 +62,7 @@ function Uint8ToBinaryArray(value: Uint8): BinaryArray {
   return bitArray;
 }
 
+/*
 function printBits(bitString: string) {
   const textEncoder = new TextEncoder();
   const stsData = new DataView(textEncoder.encode(bitString).buffer);
@@ -75,68 +75,36 @@ function printBits(bitString: string) {
 */
 
 const RealTimeExchangeResponse = message({
-  startOfPacket: literal(0x82),
-  requestId: uint8(),
-  token: literal(0x01),
-  returnCode: uint8(),
-  optionalDataLength: uint8(),
-  optionalData: unboundedString(),
+  stringData: unboundedString(),
 });
 
-test.only('unbounded string decodes 0x7f', async () => {
-  const optionalResponseBytes = [
-    0x7f,
-    // Respect fixed null character at 0x80
-    0x4f,
-    // Respect fixed null characters from 0x10 to 0x80
-    0x08,
-    // All null characters
-    0x00,
-  ];
-  const buf = Buffer.from([
-    0x82,
-    0x73,
-    0x01,
-    0x06,
-    0x04,
-    ...optionalResponseBytes,
-  ]);
-
+test('unbounded string decodes 0x7f', () => {
+  // Decode from buffer to JS object
+  const buf = Buffer.from([0x7f]);
   const result = RealTimeExchangeResponse.decode(buf);
+
   assert(result.isOk());
   const data = result.ok();
-  // printBits(data.optionalData);
+
+  // Data is a string but we want a DataView to later apply a bitmask
   const textEncoder = new TextEncoder();
-  const bits = new DataView(textEncoder.encode(data.optionalData).buffer);
+  const bits = new DataView(textEncoder.encode(data.stringData).buffer);
   const firstByteOfDecodedData = bits.getUint8(0);
   expect(firstByteOfDecodedData).toEqual(0x7f);
+  expect(bits.byteLength).toEqual(1);
 });
 
-test.only('unbounded string decodes 0x80', async () => {
-  const optionalResponseBytes = [
-    0x80,
-    // Respect fixed null character at 0x80
-    0x4f,
-    // Respect fixed null characters from 0x10 to 0x80
-    0x08,
-    // All null characters
-    0x00,
-  ];
-  const buf = Buffer.from([
-    0x82,
-    0x73,
-    0x01,
-    0x06,
-    0x04,
-    ...optionalResponseBytes,
-  ]);
-
+test('unbounded string decodes 0x80', () => {
+  const buf = Buffer.from([0x80]);
   const result = RealTimeExchangeResponse.decode(buf);
+
   assert(result.isOk());
   const data = result.ok();
-  // printBits(data.optionalData);
+
   const textEncoder = new TextEncoder();
-  const bits = new DataView(textEncoder.encode(data.optionalData).buffer);
+  const bits = new DataView(textEncoder.encode(data.stringData).buffer);
   const firstByteOfDecodedData = bits.getUint8(0);
   expect(firstByteOfDecodedData).toEqual(0x80);
+  // Comment out the above `expect` to observe `bits` is 3 bytes long
+  expect(bits.byteLength).toEqual(1);
 });
