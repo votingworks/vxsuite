@@ -3,8 +3,8 @@ import { Buffer } from 'buffer';
 import { literal } from './literal_coder';
 import { message } from './message_coder';
 import { unboundedString } from './unbounded_string_coder';
-import { uint8 } from './uint8_coder';
-import { Uint8 } from './types';
+// import { uint8 } from './uint8_coder';
+// import { Uint8 } from './types';
 
 test('unbounded string', () => {
   const coder = unboundedString();
@@ -33,6 +33,7 @@ test('unbounded string with too small buffer', () => {
 /**
  * Utilities for printing bits copied from paper-handler
  */
+/*
 type BinaryStringRepresentation = '0' | '1';
 type BinaryArray = [
   BinaryStringRepresentation,
@@ -62,7 +63,6 @@ function Uint8ToBinaryArray(value: Uint8): BinaryArray {
   return bitArray;
 }
 
-/*
 function printBits(bitString: string) {
   const textEncoder = new TextEncoder();
   const stsData = new DataView(textEncoder.encode(bitString).buffer);
