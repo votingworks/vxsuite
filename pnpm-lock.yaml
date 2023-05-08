@@ -359,9 +359,6 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
-      '@votingworks/converter-nh-accuvote':
-        specifier: workspace:*
-        version: link:../../../libs/converter-nh-accuvote
       '@votingworks/dev-dock-frontend':
         specifier: workspace:*
         version: link:../../../libs/dev-dock/frontend
@@ -3194,9 +3191,6 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
-      '@votingworks/converter-nh-accuvote':
-        specifier: workspace:*
-        version: link:../converter-nh-accuvote
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils
