@@ -33,11 +33,9 @@ export interface BallotContextInterface {
   endVoterSession: () => Promise<void>;
   precinctId?: PrecinctId;
   resetBallot: (showPostVotingInstructions?: boolean) => void;
-  setUserSettings: SetUserSettings;
   updateTally: () => void;
   updateVote: UpdateVoteFunction;
   forceSaveVote: () => void;
-  userSettings: UserSettings;
   votes: VotesDict;
 }
 
@@ -73,15 +71,6 @@ export interface ScrollShadows {
 export interface Scrollable {
   isScrollable: boolean;
 }
-
-export type TextSizeSetting = 0 | 1 | 2 | 3;
-
-export interface UserSettings {
-  showSettingsModal: boolean;
-  textSize: TextSizeSetting;
-}
-export type SetUserSettings = (partial: PartialUserSettings) => void;
-export type PartialUserSettings = Partial<UserSettings>;
 
 // Screen Reader
 export interface SpeakOptions {

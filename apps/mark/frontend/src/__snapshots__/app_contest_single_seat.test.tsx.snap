@@ -124,6 +124,22 @@ exports[`Single Seat Contest 1`] = `
   padding-left: 10px;
 }
 
+.c11 {
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  text-align: left;
+}
+
 .c0 {
   height: 100%;
 }
@@ -141,16 +157,16 @@ exports[`Single Seat Contest 1`] = `
   tabindex="-1"
 >
   <div
-    class="sc-jIkYaL gQaCwX"
+    class="sc-jIkYaL iANHIE"
   >
     <div
       class="c1"
     >
       <div
-        class="sc-fotPbf iwtRsQ"
+        class="sc-fotPbf ihYRXS"
       >
         <span
-          class="sc-gsDJrp cXSIgy"
+          class="sc-gsDJrp cLwXdO"
         >
           This is the
            
@@ -173,12 +189,12 @@ exports[`Single Seat Contest 1`] = `
         id="contest-header"
       >
         <div
-          class="sc-fotPbf iwtRsQ"
+          class="sc-fotPbf ihYRXS"
           id="audiofocus"
         >
           <h1
             aria-label="District 1 President and Vice-President."
-            class="sc-eCImvq cmseZU"
+            class="sc-eCImvq DdpyY"
           >
             <div
               class="c3"
@@ -188,14 +204,14 @@ exports[`Single Seat Contest 1`] = `
             President and Vice-President
           </h1>
           <p
-            class="sc-dkPtyc XGKAk"
+            class="sc-dkPtyc hpserW"
           >
             Vote for 
             1
             .
              
             <span
-              class="sc-bdvvaa hCYwzI"
+              class="sc-bdvvaa iUYxIO"
             >
               You have selected 
               1
@@ -226,7 +242,7 @@ exports[`Single Seat Contest 1`] = `
               <button
                 aria-label="Selected, Joseph Barchi and Joseph Hallaren, Federalist."
                 aria-selected="true"
-                class="sc-iJKOzS jNwvxi sc-jcFkyM bpoIao"
+                class="sc-iJKOzS jIaJlK sc-jcFkyM dlRPOl"
                 role="option"
                 type="button"
               >
@@ -240,7 +256,7 @@ exports[`Single Seat Contest 1`] = `
                       class="sc-iUKrWq hYcNmD"
                     >
                       <span
-                        class="sc-cidCJl bdaONb"
+                        class="sc-cidCJl dalISi"
                       >
                         <svg
                           aria-hidden="true"
@@ -260,12 +276,12 @@ exports[`Single Seat Contest 1`] = `
                       class="sc-iAKVOt gyainp"
                     >
                       <p
-                        class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                        class="sc-dkPtyc hpserW sc-efQUeY hTUHyO"
                       >
                         Joseph Barchi and Joseph Hallaren
                       </p>
                       <span
-                        class="sc-gsDJrp eDjuwm"
+                        class="sc-gsDJrp dVLSYF"
                       >
                         Federalist
                       </span>
@@ -276,7 +292,7 @@ exports[`Single Seat Contest 1`] = `
               <button
                 aria-label=" Adam Cramer and Greg Vuocolo, People’s."
                 aria-selected="false"
-                class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
+                class="sc-iJKOzS esNwDF sc-jcFkyM fjkJAk"
                 role="option"
                 type="button"
               >
@@ -290,7 +306,7 @@ exports[`Single Seat Contest 1`] = `
                       class="sc-iUKrWq hYcNmD"
                     >
                       <span
-                        class="sc-cidCJl bYFEFC"
+                        class="sc-cidCJl kCXJqT"
                       >
                         <svg
                           aria-hidden="true"
@@ -310,12 +326,12 @@ exports[`Single Seat Contest 1`] = `
                       class="sc-iAKVOt gyainp"
                     >
                       <p
-                        class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                        class="sc-dkPtyc hpserW sc-efQUeY hTUHyO"
                       >
                         Adam Cramer and Greg Vuocolo
                       </p>
                       <span
-                        class="sc-gsDJrp eDjuwm"
+                        class="sc-gsDJrp dVLSYF"
                       >
                         People’s
                       </span>
@@ -326,7 +342,7 @@ exports[`Single Seat Contest 1`] = `
               <button
                 aria-label=" Daniel Court and Amy Blumhardt, Liberty."
                 aria-selected="false"
-                class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
+                class="sc-iJKOzS esNwDF sc-jcFkyM fjkJAk"
                 role="option"
                 type="button"
               >
@@ -340,7 +356,7 @@ exports[`Single Seat Contest 1`] = `
                       class="sc-iUKrWq hYcNmD"
                     >
                       <span
-                        class="sc-cidCJl bYFEFC"
+                        class="sc-cidCJl kCXJqT"
                       >
                         <svg
                           aria-hidden="true"
@@ -360,12 +376,12 @@ exports[`Single Seat Contest 1`] = `
                       class="sc-iAKVOt gyainp"
                     >
                       <p
-                        class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                        class="sc-dkPtyc hpserW sc-efQUeY hTUHyO"
                       >
                         Daniel Court and Amy Blumhardt
                       </p>
                       <span
-                        class="sc-gsDJrp eDjuwm"
+                        class="sc-gsDJrp dVLSYF"
                       >
                         Liberty
                       </span>
@@ -376,7 +392,7 @@ exports[`Single Seat Contest 1`] = `
               <button
                 aria-label=" Alvin Boone and James Lian, Constitution."
                 aria-selected="false"
-                class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
+                class="sc-iJKOzS esNwDF sc-jcFkyM fjkJAk"
                 role="option"
                 type="button"
               >
@@ -390,7 +406,7 @@ exports[`Single Seat Contest 1`] = `
                       class="sc-iUKrWq hYcNmD"
                     >
                       <span
-                        class="sc-cidCJl bYFEFC"
+                        class="sc-cidCJl kCXJqT"
                       >
                         <svg
                           aria-hidden="true"
@@ -410,12 +426,12 @@ exports[`Single Seat Contest 1`] = `
                       class="sc-iAKVOt gyainp"
                     >
                       <p
-                        class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                        class="sc-dkPtyc hpserW sc-efQUeY hTUHyO"
                       >
                         Alvin Boone and James Lian
                       </p>
                       <span
-                        class="sc-gsDJrp eDjuwm"
+                        class="sc-gsDJrp dVLSYF"
                       >
                         Constitution
                       </span>
@@ -426,7 +442,7 @@ exports[`Single Seat Contest 1`] = `
               <button
                 aria-label=" Ashley Hildebrand-McDougall and James Garritty, Whig."
                 aria-selected="false"
-                class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
+                class="sc-iJKOzS esNwDF sc-jcFkyM fjkJAk"
                 role="option"
                 type="button"
               >
@@ -440,7 +456,7 @@ exports[`Single Seat Contest 1`] = `
                       class="sc-iUKrWq hYcNmD"
                     >
                       <span
-                        class="sc-cidCJl bYFEFC"
+                        class="sc-cidCJl kCXJqT"
                       >
                         <svg
                           aria-hidden="true"
@@ -460,12 +476,12 @@ exports[`Single Seat Contest 1`] = `
                       class="sc-iAKVOt gyainp"
                     >
                       <p
-                        class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                        class="sc-dkPtyc hpserW sc-efQUeY hTUHyO"
                       >
                         Ashley Hildebrand-McDougall and James Garritty
                       </p>
                       <span
-                        class="sc-gsDJrp eDjuwm"
+                        class="sc-gsDJrp dVLSYF"
                       >
                         Whig
                       </span>
@@ -476,7 +492,7 @@ exports[`Single Seat Contest 1`] = `
               <button
                 aria-label=" Martin Patterson and Clay Lariviere, Labor."
                 aria-selected="false"
-                class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
+                class="sc-iJKOzS esNwDF sc-jcFkyM fjkJAk"
                 role="option"
                 type="button"
               >
@@ -490,7 +506,7 @@ exports[`Single Seat Contest 1`] = `
                       class="sc-iUKrWq hYcNmD"
                     >
                       <span
-                        class="sc-cidCJl bYFEFC"
+                        class="sc-cidCJl kCXJqT"
                       >
                         <svg
                           aria-hidden="true"
@@ -510,12 +526,12 @@ exports[`Single Seat Contest 1`] = `
                       class="sc-iAKVOt gyainp"
                     >
                       <p
-                        class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                        class="sc-dkPtyc hpserW sc-efQUeY hTUHyO"
                       >
                         Martin Patterson and Clay Lariviere
                       </p>
                       <span
-                        class="sc-gsDJrp eDjuwm"
+                        class="sc-gsDJrp dVLSYF"
                       >
                         Labor
                       </span>
@@ -533,7 +549,7 @@ exports[`Single Seat Contest 1`] = `
     >
       <button
         aria-label="next contest"
-        class="sc-iJKOzS gGeLbX"
+        class="sc-iJKOzS jMCCX"
         id="next"
         type="button"
       >
@@ -549,7 +565,7 @@ exports[`Single Seat Contest 1`] = `
       </button>
       <button
         aria-label="previous contest"
-        class="sc-iJKOzS gmzpar"
+        class="sc-iJKOzS eqcjtM"
         id="previous"
         type="button"
       >
@@ -564,14 +580,36 @@ exports[`Single Seat Contest 1`] = `
         </span>
       </button>
       <button
-        aria-label="Change Settings"
-        class="sc-iJKOzS gmzpar"
+        class="sc-iJKOzS esNwDF"
         type="button"
       >
         <span
           class="sc-ezbkgU bmeHoE"
         >
-          Settings
+          <span
+            class="c11"
+          >
+            <svg
+              aria-hidden="true"
+              class="svg-inline--fa fa-display "
+              data-icon="display"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 576 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V352H64V64H512z"
+                fill="currentColor"
+              />
+            </svg>
+            <span
+              class="sc-bdvvaa lfctSd"
+            >
+              Color & Size
+            </span>
+          </span>
         </span>
       </button>
     </nav>

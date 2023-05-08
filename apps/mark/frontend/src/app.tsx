@@ -9,8 +9,8 @@ import {
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AppBase, ErrorBoundary, H1, Prose, Text } from '@votingworks/ui';
-import { ColorMode } from '@votingworks/types';
+import { AppBase, ErrorBoundary, H1, P, Prose } from '@votingworks/ui';
+import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 import { memoize } from './utils/memoize';
 import {
   ScreenReader,
@@ -33,6 +33,10 @@ import { SessionTimeLimitTracker } from './components/session_time_limit_tracker
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault();
 };
+
+const DEFAULT_COLOR_MODE: ColorMode = 'contrastMedium';
+const DEFAULT_SCREEN_TYPE: ScreenType = 'elo15';
+const DEFAULT_SIZE_MODE: SizeMode = 'm';
 
 export interface Props {
   hardware?: AppRootProps['hardware'];
@@ -121,35 +125,30 @@ export function App({
     [screenReader]
   );
 
-  // Copied from old App.css
-  const baseFontSizePx = 24;
-
-  // TODO: Default to high contrast and vary based on user selection.
-  const colorMode: ColorMode = 'legacy';
-
   return (
-    <BrowserRouter>
-      <ErrorBoundary
-        errorMessage={
-          <Prose textCenter>
-            <H1>Something went wrong</H1>
-            <Text>Ask a poll worker to restart the ballot marking device.</Text>
-          </Prose>
-        }
-      >
-        <FocusManager
-          screenReader={screenReader}
-          onKeyDown={onKeyDown}
-          onClickCapture={onClick}
-          onFocusCapture={onFocus}
+    <AppBase
+      defaultColorMode={DEFAULT_COLOR_MODE}
+      defaultSizeMode={DEFAULT_SIZE_MODE}
+      isTouchscreen
+      screenType={DEFAULT_SCREEN_TYPE}
+    >
+      <BrowserRouter>
+        <ErrorBoundary
+          errorMessage={
+            <Prose textCenter>
+              <H1>Something went wrong</H1>
+              <P>Ask a poll worker to restart the ballot marking device.</P>
+            </Prose>
+          }
         >
-          <ApiClientContext.Provider value={apiClient}>
-            <QueryClientProvider client={queryClient}>
-              <AppBase
-                defaultColorMode={colorMode}
-                isTouchscreen
-                legacyBaseFontSizePx={baseFontSizePx}
-              >
+          <FocusManager
+            screenReader={screenReader}
+            onKeyDown={onKeyDown}
+            onClickCapture={onClick}
+            onFocusCapture={onFocus}
+          >
+            <ApiClientContext.Provider value={apiClient}>
+              <QueryClientProvider client={queryClient}>
                 <AppRoot
                   hardware={hardware}
                   storage={storage}
@@ -158,11 +157,11 @@ export function App({
                   logger={logger}
                 />
                 <SessionTimeLimitTracker />
-              </AppBase>
-            </QueryClientProvider>
-          </ApiClientContext.Provider>
-        </FocusManager>
-      </ErrorBoundary>
-    </BrowserRouter>
+              </QueryClientProvider>
+            </ApiClientContext.Provider>
+          </FocusManager>
+        </ErrorBoundary>
+      </BrowserRouter>
+    </AppBase>
   );
 }

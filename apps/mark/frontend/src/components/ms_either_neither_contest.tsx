@@ -25,7 +25,6 @@ import {
   getContestDistrictName,
   MsEitherNeitherContest as MsEitherNeitherContestInterface,
 } from '../utils/ms_either_neither_contests';
-import { FONT_SIZES } from '../config/globals';
 import {
   ContentHeader,
   DistrictName,
@@ -35,6 +34,7 @@ import {
   ScrollableContentWrapper,
 } from './contest_screen_layout';
 import { BallotContext } from '../contexts/ballot_context';
+import { useCurrentTextSizePx } from '../hooks/use_current_text_size';
 
 const ChoicesGrid = styled.div`
   display: grid;
@@ -76,7 +76,8 @@ export function MsEitherNeitherContest({
   pickOneContestVote,
   updateVote,
 }: Props): JSX.Element {
-  const { userSettings, electionDefinition } = useContext(BallotContext);
+  const { electionDefinition } = useContext(BallotContext);
+  const textSizePx = useCurrentTextSizePx();
   assert(electionDefinition);
   const { election } = electionDefinition;
   const scrollContainer = useRef<HTMLDivElement>(null);
@@ -122,7 +123,7 @@ export function MsEitherNeitherContest({
     if (!target) {
       return;
     }
-    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8; // magic number: room for buttons + spacing
+    const targetMinHeight = textSizePx * 8; // magic number: room for buttons + spacing
     const windowsScrollTopOffsetMagicNumber = 1; // Windows Chrome is often 1px when using scroll buttons.
     const windowsScrollTop = Math.ceil(target.scrollTop); // Windows Chrome scrolls to sub-pixel values.
     setIsScrollable(
@@ -138,7 +139,7 @@ export function MsEitherNeitherContest({
         target.scrollHeight
     );
     setIsScrollAtTop(target.scrollTop === 0);
-  }, [userSettings.textSize]);
+  }, [textSizePx]);
 
   /* istanbul ignore next: Tested by Cypress */
   function scrollContestChoices(direction: ScrollDirections) {

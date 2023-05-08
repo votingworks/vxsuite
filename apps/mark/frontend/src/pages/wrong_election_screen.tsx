@@ -4,15 +4,7 @@ import { Main, Screen, Prose, H1, P } from '@votingworks/ui';
 
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 
-interface Props {
-  useEffectToggleLargeDisplay: () => void;
-}
-
-export function WrongElectionScreen({
-  useEffectToggleLargeDisplay,
-}: Props): JSX.Element {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(useEffectToggleLargeDisplay, []);
+export function WrongElectionScreen(): JSX.Element {
   useEffect(triggerAudioFocus, []);
 
   return (

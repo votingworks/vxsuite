@@ -53,7 +53,6 @@ import {
 
 import { Ballot } from './components/ballot';
 import * as GLOBALS from './config/globals';
-import { PartialUserSettings, UserSettings } from './config/types';
 import { BallotContext } from './contexts/ballot_context';
 import {
   handleGamepadButtonDown,
@@ -75,7 +74,6 @@ import { mergeMsEitherNeitherContests } from './utils/ms_either_neither_contests
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
 
 interface UserState {
-  userSettings: UserSettings;
   votes?: VotesDict;
   showPostVotingInstructions?: boolean;
 }
@@ -117,7 +115,6 @@ export const stateStorageKey = 'state';
 export const blankBallotVotes: VotesDict = {};
 
 const initialVoterState: Readonly<UserState> = {
-  userSettings: GLOBALS.DEFAULT_USER_SETTINGS,
   votes: undefined,
   showPostVotingInstructions: undefined,
 };
@@ -155,7 +152,6 @@ type AppAction =
   | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
   | { type: 'forceSaveVote' }
   | { type: 'resetBallot'; showPostVotingInstructions?: boolean }
-  | { type: 'setUserSettings'; userSettings: PartialUserSettings }
   | { type: 'updateAppPrecinct'; appPrecinct: PrecinctSelection }
   | { type: 'enableLiveMode' }
   | { type: 'toggleLiveMode' }
@@ -198,14 +194,6 @@ function appReducer(state: State, action: AppAction): State {
         ...state,
         ...initialVoterState,
         showPostVotingInstructions: action.showPostVotingInstructions,
-      };
-    case 'setUserSettings':
-      return {
-        ...state,
-        userSettings: {
-          ...state.userSettings,
-          ...action.userSettings,
-        },
       };
     case 'updateAppPrecinct':
       return {
@@ -280,7 +268,6 @@ export function AppRoot({
     pollsState,
     initializedFromStorage,
     showPostVotingInstructions,
-    userSettings,
     votes,
   } = appState;
 
@@ -424,27 +411,6 @@ export function AppRoot({
   const forceSaveVote = useCallback(() => {
     dispatchAppState({ type: 'forceSaveVote' });
   }, []);
-
-  const setUserSettings = useCallback(
-    (newUserSettings: PartialUserSettings) => {
-      dispatchAppState({
-        type: 'setUserSettings',
-        userSettings: newUserSettings,
-      });
-    },
-    []
-  );
-
-  function useEffectToggleLargeDisplay() {
-    document.documentElement.style.fontSize = `${
-      GLOBALS.FONT_SIZES[GLOBALS.LARGE_DISPLAY_FONT_SIZE]
-    }px`;
-    return () => {
-      document.documentElement.style.fontSize = `${
-        GLOBALS.FONT_SIZES[GLOBALS.DEFAULT_FONT_SIZE]
-      }px`;
-    };
-  }
 
   const updateAppPrecinct = useCallback((newAppPrecinct: PrecinctSelection) => {
     dispatchAppState({
@@ -632,28 +598,16 @@ export function AppRoot({
   const machineConfig = machineConfigQuery.data;
 
   if (!cardReader) {
-    return (
-      <SetupCardReaderPage
-        useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-      />
-    );
+    return <SetupCardReaderPage />;
   }
   if (
     authStatus.status === 'logged_out' &&
     authStatus.reason === 'card_error'
   ) {
-    return (
-      <CardErrorScreen
-        useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-      />
-    );
+    return <CardErrorScreen />;
   }
   if (computer.batteryIsLow && !computer.batteryIsCharging) {
-    return (
-      <SetupPowerPage
-        useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-      />
-    );
+    return <SetupPowerPage />;
   }
   if (authStatus.status === 'checking_pin') {
     return (
@@ -734,21 +688,13 @@ export function AppRoot({
   }
   if (optionalElectionDefinition && appPrecinct) {
     if (!hasPrinterAttached) {
-      return (
-        <SetupPrinterPage
-          useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-        />
-      );
+      return <SetupPrinterPage />;
     }
     if (
       authStatus.status === 'logged_out' &&
       authStatus.reason === 'poll_worker_wrong_election'
     ) {
-      return (
-        <WrongElectionScreen
-          useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-        />
-      );
+      return <WrongElectionScreen />;
     }
     if (isPollWorkerAuth(authStatus)) {
       return (
@@ -797,10 +743,8 @@ export function AppRoot({
                 isLiveMode,
                 endVoterSession,
                 resetBallot,
-                setUserSettings,
                 updateVote,
                 forceSaveVote,
-                userSettings,
                 votes: votes ?? blankBallotVotes,
               }}
             >

@@ -36,7 +36,7 @@ import { ScrollDirections, UpdateVoteFunction } from '../config/types';
 import { BallotContext } from '../contexts/ballot_context';
 
 import { Blink } from './animations';
-import { FONT_SIZES, WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
+import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 import { VirtualKeyboard } from './virtual_keyboard';
 import {
   ContentHeader,
@@ -47,6 +47,7 @@ import {
   ScrollableContentWrapper,
   ChoicesGrid,
 } from './contest_screen_layout';
+import { useCurrentTextSizePx } from '../hooks/use_current_text_size';
 
 const WriteInModalContent = styled.div`
   margin: -0.5rem;
@@ -101,9 +102,8 @@ export function CandidateContest({
   vote,
   updateVote,
 }: Props): JSX.Element {
-  const { electionDefinition, precinctId, userSettings } =
-    useContext(BallotContext);
-  assert(userSettings, 'userSettings is required to render CandidateContest');
+  const { electionDefinition, precinctId } = useContext(BallotContext);
+  const textSizePx = useCurrentTextSizePx();
   assert(
     electionDefinition,
     'electionDefinition is required to render CandidateContest'
@@ -134,7 +134,7 @@ export function CandidateContest({
     if (!target) {
       return;
     }
-    const targetMinHeight = FONT_SIZES[userSettings.textSize] * 8; // magic number: room for buttons + spacing
+    const targetMinHeight = textSizePx * 8; // magic number: room for buttons + spacing
     const windowsScrollTopOffsetMagicNumber = 1; // Windows Chrome is often 1px when using scroll buttons.
     const windowsScrollTop = Math.ceil(target.scrollTop); // Windows Chrome scrolls to sub-pixel values.
     setIsScrollable(
@@ -150,7 +150,7 @@ export function CandidateContest({
         target.scrollHeight
     );
     setIsScrollAtTop(target.scrollTop === 0);
-  }, [scrollContainer, userSettings.textSize]);
+  }, [scrollContainer, textSizePx]);
 
   useEffect(() => {
     updateContestChoicesScrollStates();
