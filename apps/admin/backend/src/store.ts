@@ -9,12 +9,16 @@ import {
   ok,
   typedAs,
   isResult,
+  assertDefined,
+  find,
+  assert,
 } from '@votingworks/basics';
 import { Bindable, Client as DbClient } from '@votingworks/db';
 import {
   BallotId,
   BallotPageLayout,
   BallotPageLayoutSchema,
+  CandidateContest,
   CastVoteRecord,
   ContestId,
   ContestOptionId,
@@ -39,13 +43,19 @@ import {
   CvrFileMode,
   ElectionRecord,
   ScannerBatch,
-  WriteInAdjudicationRecord,
+  WriteInAdjudicationAction,
   WriteInAdjudicationStatus,
+  WriteInCandidateRecord,
   WriteInRecord,
-  WriteInRecordAdjudicated,
-  WriteInRecordPendingTranscription,
-  WriteInRecordTranscribed,
+  WriteInRecordAdjudicatedInvalid,
+  WriteInRecordAdjudicatedOfficialCandidate,
+  WriteInRecordAdjudicatedWriteInCandidate,
+  WriteInRecordPending,
   WriteInSummaryEntry,
+  WriteInSummaryEntryAdjudicatedInvalid,
+  WriteInSummaryEntryAdjudicatedOfficialCandidate,
+  WriteInSummaryEntryAdjudicatedWriteInCandidate,
+  WriteInSummaryEntryPending,
 } from './types';
 import {
   areCastVoteRecordMetadataEqual,
@@ -606,7 +616,7 @@ export class Store {
   }
 
   /**
-   * Adds a write-in and returns its ID.
+   * Adds a write-in and returns its ID. Used when loading cast vote records.
    */
   addWriteIn({
     castVoteRecordId,
@@ -849,13 +859,99 @@ export class Store {
       );
       this.client.run(
         `
-          delete from write_in_adjudications
+          delete from write_in_candidates
           where election_id = ?
         `,
         electionId
       );
       this.deleteEmptyScannerBatches(electionId);
     });
+  }
+
+  getWriteInCandidates({
+    electionId,
+    contestId,
+  }: {
+    electionId: Id;
+    contestId?: ContestId;
+  }): WriteInCandidateRecord[] {
+    const whereParts: string[] = ['election_id = ?'];
+    const params: Bindable[] = [electionId];
+
+    if (contestId) {
+      whereParts.push('contest_id = ?');
+      params.push(contestId);
+    }
+
+    const rows = this.client.all(
+      `
+        select
+          id,
+          contest_id as contestId,
+          name as name
+        from write_in_candidates
+        where ${whereParts.join(' and ')}
+      `,
+      ...params
+    ) as Array<{
+      id: Id;
+      contestId: ContestId;
+      name: string;
+    }>;
+
+    return rows.map((row) => ({
+      electionId,
+      ...row,
+    }));
+  }
+
+  addWriteInCandidate({
+    electionId,
+    contestId,
+    name,
+  }: Omit<WriteInCandidateRecord, 'id'>): WriteInCandidateRecord {
+    const id = uuid();
+
+    this.client.run(
+      `
+        insert into write_in_candidates 
+          (id, election_id, contest_id, name)
+        values
+          (?, ?, ?, ?)
+      `,
+      id,
+      electionId,
+      contestId,
+      name
+    );
+
+    return {
+      id,
+      electionId,
+      contestId,
+      name,
+    };
+  }
+
+  private deleteWriteInCandidateIfChildless(id: Id): void {
+    const adjudicatedWriteIn = this.client.one(
+      `
+      select id
+      from write_ins
+      where write_in_candidate_id = ?
+    `,
+      id
+    ) as { id: Id } | undefined;
+
+    if (!adjudicatedWriteIn) {
+      this.client.run(
+        `
+        delete from write_in_candidates
+        where id = ?
+      `,
+        id
+      );
+    }
   }
 
   /**
@@ -874,85 +970,115 @@ export class Store {
     const params: Bindable[] = [electionId];
 
     if (contestId) {
-      whereParts.push('contest_id = ?');
+      whereParts.push('write_ins.contest_id = ?');
       params.push(contestId);
     }
 
     if (status === 'adjudicated') {
-      whereParts.push('writeInAdjudicationId is not null');
-    }
-
-    if (status === 'transcribed') {
-      whereParts.push('write_ins.transcribed_value is not null');
+      whereParts.push(
+        '(write_ins.official_candidate_id is not null or write_ins.write_in_candidate_id is not null or write_ins.is_invalid = 1)'
+      );
     }
 
     if (status === 'pending') {
-      whereParts.push(
-        'writeInAdjudicationId is null and write_ins.transcribed_value is null'
-      );
+      whereParts.push('write_ins.official_candidate_id is null');
+      whereParts.push('write_ins.write_in_candidate_id is null');
+      whereParts.push('write_ins.is_invalid = 0');
     }
 
     const rows = this.client.all(
       `
         select
           write_ins.contest_id as contestId,
-          write_ins.transcribed_value as transcribedValue,
-          count(write_ins.id) as writeInCount,
-          (
-            select write_in_adjudications.id from write_in_adjudications
-            where write_in_adjudications.election_id = cvrs.election_id
-              and write_in_adjudications.contest_id = write_ins.contest_id
-              and write_in_adjudications.transcribed_value = write_ins.transcribed_value
-            limit 1
-          ) as writeInAdjudicationId
+          write_ins.official_candidate_id as officialCandidateId,
+          write_ins.write_in_candidate_id as writeInCandidateId,
+          write_ins.is_invalid as isInvalid,
+          count(write_ins.id) as writeInCount
         from write_ins
         inner join
-          cvrs on cvrs.id = write_ins.cvr_id
+          cvrs on write_ins.cvr_id = cvrs.id
         where ${whereParts.join(' and ')}
-        group by contest_id, transcribed_value
+        group by 
+          write_ins.contest_id,
+          write_ins.official_candidate_id,
+          write_ins.write_in_candidate_id,
+          write_ins.is_invalid
       `,
       ...params
     ) as Array<{
       contestId: ContestId;
-      transcribedValue: string | null;
+      isInvalid: boolean;
+      officialCandidateId: string | null;
+      writeInCandidateId: string | null;
       writeInCount: number;
-      writeInAdjudicationId: Id | null;
     }>;
+    if (rows.length === 0) {
+      return [];
+    }
 
-    const writeInAdjudications = this.getWriteInAdjudicationRecords({
+    const officialCandidates = assertDefined(
+      this.getElection(assertDefined(this.getCurrentElectionId()))
+    )
+      .electionDefinition.election.contests.filter(
+        (contest): contest is CandidateContest => contest.type === 'candidate'
+      )
+      .flatMap((contest) => {
+        return contest.candidates
+          .filter((candidate) => !candidate.isWriteIn)
+          .map((candidate) => ({ contestId: contest.id, ...candidate }));
+      });
+
+    const writeInCandidates = this.getWriteInCandidates({
       electionId,
-      contestId,
     });
 
     return rows.map((row): WriteInSummaryEntry => {
-      const adjudication = writeInAdjudications.find(
-        (a) => a.id === row.writeInAdjudicationId
-      );
-
-      if (adjudication && row.transcribedValue) {
-        return {
+      if (row.officialCandidateId) {
+        return typedAs<WriteInSummaryEntryAdjudicatedOfficialCandidate>({
           status: 'adjudicated',
+          adjudicationType: 'official-candidate',
           contestId: row.contestId,
           writeInCount: row.writeInCount,
-          transcribedValue: row.transcribedValue,
-          writeInAdjudication: adjudication,
-        };
+          candidateId: row.officialCandidateId,
+          candidateName: find(
+            officialCandidates,
+            (candidate) =>
+              candidate.id === row.officialCandidateId &&
+              candidate.contestId === row.contestId
+          ).name,
+        });
       }
 
-      if (row.transcribedValue) {
-        return {
-          status: 'transcribed',
+      if (row.writeInCandidateId) {
+        return typedAs<WriteInSummaryEntryAdjudicatedWriteInCandidate>({
+          status: 'adjudicated',
+          adjudicationType: 'write-in-candidate',
           contestId: row.contestId,
           writeInCount: row.writeInCount,
-          transcribedValue: row.transcribedValue,
-        };
+          candidateId: row.writeInCandidateId,
+          candidateName: find(
+            writeInCandidates,
+            (candidate) =>
+              candidate.id === row.writeInCandidateId &&
+              candidate.contestId === row.contestId
+          ).name,
+        });
       }
 
-      return {
+      if (row.isInvalid) {
+        return typedAs<WriteInSummaryEntryAdjudicatedInvalid>({
+          status: 'adjudicated',
+          adjudicationType: 'invalid',
+          contestId: row.contestId,
+          writeInCount: row.writeInCount,
+        });
+      }
+
+      return typedAs<WriteInSummaryEntryPending>({
         status: 'pending',
         contestId: row.contestId,
         writeInCount: row.writeInCount,
-      };
+      });
     });
   }
 
@@ -980,10 +1106,14 @@ export class Store {
       params.push(contestId);
     }
 
-    if (status === 'adjudicated' || status === 'transcribed') {
-      whereParts.push('write_ins.transcribed_value is not null');
+    if (status === 'adjudicated') {
+      whereParts.push(
+        '(write_ins.official_candidate_id is not null or write_ins.write_in_candidate_id is not null or write_ins.is_invalid = 1)'
+      );
     } else if (status === 'pending') {
-      whereParts.push('write_ins.transcribed_value is null');
+      whereParts.push('write_ins.official_candidate_id is null');
+      whereParts.push('write_ins.write_in_candidate_id is null');
+      whereParts.push('write_ins.is_invalid = 0');
     }
 
     if (typeof limit === 'number') {
@@ -997,8 +1127,10 @@ export class Store {
           write_ins.cvr_id as castVoteRecordId,
           write_ins.contest_id as contestId,
           write_ins.option_id as optionId,
-          write_ins.transcribed_value as transcribedValue,
-          datetime(write_ins.transcribed_at, 'localtime') as transcribedAt
+          write_ins.official_candidate_id as officialCandidateId,
+          write_ins.write_in_candidate_id as writeInCandidateId,
+          write_ins.is_invalid as isInvalid,
+          datetime(write_ins.adjudicated_at, 'localtime') as adjudicatedAt
         from write_ins
         inner join
           cvr_file_entries on write_ins.cvr_id = cvr_file_entries.cvr_id
@@ -1006,6 +1138,9 @@ export class Store {
           cvr_files on cvr_file_entries.cvr_file_id = cvr_files.id
         where
           ${whereParts.join(' and ')}
+        order by
+          write_ins.cvr_id,
+          write_ins.option_id
         ${typeof limit === 'number' ? 'limit ?' : ''}
       `,
       ...params
@@ -1014,255 +1149,191 @@ export class Store {
       castVoteRecordId: Id;
       contestId: ContestId;
       optionId: ContestOptionId;
-      transcribedValue: string | null;
-      transcribedAt: Iso8601Timestamp | null;
+      isInvalid: boolean;
+      officialCandidateId: string | null;
+      writeInCandidateId: Id | null;
+      adjudicatedAt: Iso8601Timestamp | null;
     }>;
-
-    const adjudicationRows = this.getWriteInAdjudicationRecords({ electionId });
 
     return writeInRows
       .map((row) => {
-        if (!row.transcribedValue) {
-          return typedAs<WriteInRecordPendingTranscription>({
-            id: row.id,
-            status: 'pending',
-            castVoteRecordId: row.castVoteRecordId,
-            contestId: row.contestId,
-            optionId: row.optionId,
-          });
-        }
-
-        const adjudication = adjudicationRows.find(
-          (a) =>
-            a.contestId === row.contestId &&
-            a.transcribedValue === row.transcribedValue
-        );
-
-        if (!adjudication) {
-          return typedAs<WriteInRecordTranscribed>({
+        if (row.officialCandidateId) {
+          return typedAs<WriteInRecordAdjudicatedOfficialCandidate>({
             id: row.id,
             castVoteRecordId: row.castVoteRecordId,
             contestId: row.contestId,
             optionId: row.optionId,
-            status: 'transcribed',
-            transcribedValue: row.transcribedValue,
+            status: 'adjudicated',
+            adjudicationType: 'official-candidate',
+            candidateId: row.officialCandidateId,
           });
         }
 
-        return typedAs<WriteInRecordAdjudicated>({
+        if (row.writeInCandidateId) {
+          return typedAs<WriteInRecordAdjudicatedWriteInCandidate>({
+            id: row.id,
+            castVoteRecordId: row.castVoteRecordId,
+            contestId: row.contestId,
+            optionId: row.optionId,
+            status: 'adjudicated',
+            adjudicationType: 'write-in-candidate',
+            candidateId: row.writeInCandidateId,
+          });
+        }
+
+        if (row.isInvalid) {
+          return typedAs<WriteInRecordAdjudicatedInvalid>({
+            id: row.id,
+            castVoteRecordId: row.castVoteRecordId,
+            contestId: row.contestId,
+            optionId: row.optionId,
+            status: 'adjudicated',
+            adjudicationType: 'invalid',
+          });
+        }
+
+        return typedAs<WriteInRecordPending>({
           id: row.id,
+          status: 'pending',
           castVoteRecordId: row.castVoteRecordId,
           contestId: row.contestId,
           optionId: row.optionId,
-          status: 'adjudicated',
-          transcribedValue: row.transcribedValue,
-          adjudicatedValue: adjudication.adjudicatedValue,
-          adjudicatedOptionId: adjudication.adjudicatedOptionId,
         });
       })
       .filter((writeInRecord) => writeInRecord.status === status || !status);
   }
 
   /**
-   * Transcribes a write-in.
+   * Get an individual write-in record. We assume it exists.
    */
-  transcribeWriteIn(id: Id, transcribedValue: string): void {
+  private getWriteIn(id: Id): WriteInRecord {
+    const row = this.client.one(
+      `
+      select
+        id as id,
+        cvr_id as castVoteRecordId,
+        contest_id as contestId,
+        option_id as optionId,
+        official_candidate_id as officialCandidateId,
+        write_in_candidate_id as writeInCandidateId,
+        is_invalid as isInvalid
+      from write_ins
+      where id = ?
+   `,
+      id
+    ) as
+      | {
+          id: Id;
+          castVoteRecordId: Id;
+          contestId: ContestId;
+          optionId: ContestOptionId;
+          isInvalid: boolean;
+          officialCandidateId: string | null;
+          writeInCandidateId: string | null;
+        }
+      | undefined;
+
+    assert(row, 'write-in record does not exist');
+
+    if (row.officialCandidateId) {
+      return typedAs<WriteInRecordAdjudicatedOfficialCandidate>({
+        id: row.id,
+        castVoteRecordId: row.castVoteRecordId,
+        contestId: row.contestId,
+        optionId: row.optionId,
+        status: 'adjudicated',
+        adjudicationType: 'official-candidate',
+        candidateId: row.officialCandidateId,
+      });
+    }
+
+    if (row.writeInCandidateId) {
+      return typedAs<WriteInRecordAdjudicatedWriteInCandidate>({
+        id: row.id,
+        castVoteRecordId: row.castVoteRecordId,
+        contestId: row.contestId,
+        optionId: row.optionId,
+        status: 'adjudicated',
+        adjudicationType: 'write-in-candidate',
+        candidateId: row.writeInCandidateId,
+      });
+    }
+
+    if (row.isInvalid) {
+      return typedAs<WriteInRecordAdjudicatedInvalid>({
+        id: row.id,
+        castVoteRecordId: row.castVoteRecordId,
+        contestId: row.contestId,
+        optionId: row.optionId,
+        status: 'adjudicated',
+        adjudicationType: 'invalid',
+      });
+    }
+
+    return typedAs<WriteInRecordPending>({
+      id: row.id,
+      status: 'pending',
+      castVoteRecordId: row.castVoteRecordId,
+      contestId: row.contestId,
+      optionId: row.optionId,
+    });
+  }
+
+  /**
+   * Adjudicates a write-in.
+   */
+  adjudicateWriteIn(adjudicationAction: WriteInAdjudicationAction): void {
+    const initialWriteInRecord = this.getWriteIn(adjudicationAction.writeInId);
+    assert(initialWriteInRecord, 'write-in record does not exist');
+
+    const params =
+      adjudicationAction.type === 'invalid'
+        ? [adjudicationAction.writeInId]
+        : [adjudicationAction.candidateId, adjudicationAction.writeInId];
+
     this.client.run(
       `
         update write_ins
-        set
-          transcribed_value = ?,
-          transcribed_at = current_timestamp
+        set 
+          is_invalid = ${adjudicationAction.type === 'invalid' ? 1 : 0}, 
+          official_candidate_id = ${
+            adjudicationAction.type === 'official-candidate' ? '?' : 'null'
+          }, 
+          write_in_candidate_id = ${
+            adjudicationAction.type === 'write-in-candidate' ? '?' : 'null'
+          }, 
+          adjudicated_at = current_timestamp
         where id = ?
       `,
-      transcribedValue,
-      id
+      ...params
     );
-  }
 
-  /**
-   * Creates a write-in adjudication, mapping a contest's transcribed value to
-   * an adjudicated value or option.
-   */
-  createWriteInAdjudication({
-    electionId,
-    contestId,
-    transcribedValue,
-    adjudicatedValue,
-    adjudicatedOptionId,
-  }: {
-    electionId: Id;
-    contestId: ContestId;
-    transcribedValue: string;
-    adjudicatedValue: string;
-    adjudicatedOptionId?: ContestOptionId;
-  }): Id {
-    const id = uuid();
-
-    try {
-      this.client.run(
-        `
-        insert into write_in_adjudications (
-          id,
-          election_id,
-          contest_id,
-          transcribed_value,
-          adjudicated_value,
-          adjudicated_option_id
-        ) values (
-          ?, ?, ?, ?, ?, ?
-        )
-      `,
-        id,
-        electionId,
-        contestId,
-        transcribedValue,
-        adjudicatedValue,
-        adjudicatedOptionId ?? null
-      );
-
-      if (adjudicatedValue !== transcribedValue && !adjudicatedOptionId) {
-        this.client.run(
-          `
-          insert into write_in_adjudications (
-            id,
-            election_id,
-            contest_id,
-            transcribed_value,
-            adjudicated_value
-          ) values (
-            ?, ?, ?, ?, ?
-          )
-          `,
-          uuid(),
-          electionId,
-          contestId,
-          adjudicatedValue,
-          adjudicatedValue
-        );
-      }
-    } catch (error) {
-      const { id: writeInAdjudicationId } = this.client.one(
-        `
-        select id
-        from write_in_adjudications
-        where election_id = ?
-          and contest_id = ?
-          and transcribed_value = ?
-      `,
-        electionId,
-        contestId,
-        transcribedValue
-      ) as { id: Id };
-
-      this.client.run(
-        `
-        update write_in_adjudications
-        set
-          adjudicated_value = ?,
-          adjudicated_option_id = ?
-        where id = ?
-      `,
-        adjudicatedValue,
-        /* istanbul ignore next */
-        adjudicatedOptionId ?? null,
-        writeInAdjudicationId
-      );
-
-      return writeInAdjudicationId;
+    // if we are switching away from a write-in candidate, we may have to clean
+    // up the record if it has no references
+    if (
+      initialWriteInRecord.status === 'adjudicated' &&
+      initialWriteInRecord.adjudicationType === 'write-in-candidate'
+    ) {
+      this.deleteWriteInCandidateIfChildless(initialWriteInRecord.candidateId);
     }
-
-    return id;
   }
 
   /**
-   * Updates a write-in adjudication by ID.
+   * Sets whether the election with the given ID has had results marked official.
    */
-  updateWriteInAdjudication(
-    id: Id,
-    {
-      adjudicatedValue,
-      adjudicatedOptionId,
-    }: { adjudicatedValue: string; adjudicatedOptionId?: ContestOptionId }
-  ): void {
+  setElectionResultsOfficial(electionId: Id, isOfficialResults: boolean): void {
     this.client.run(
       `
-        update write_in_adjudications
-        set
-          adjudicated_value = ?,
-          adjudicated_option_id = ?
+        update elections
+        set is_official_results = ?
         where id = ?
       `,
-      adjudicatedValue,
-      adjudicatedOptionId ?? null,
-      id
+      isOfficialResults ? 1 : 0,
+      electionId
     );
   }
 
-  /**
-   * Deletes a write-in adjudication by ID.
-   */
-  deleteWriteInAdjudication(id: Id): void {
-    this.client.run(
-      `
-        delete from write_in_adjudications
-        where id = ?
-      `,
-      id
-    );
-  }
-
-  /**
-   * Gets all write-in adjudications for an election, optionally filtered by
-   * contest.
-   */
-  getWriteInAdjudicationRecords({
-    electionId,
-    contestId,
-  }: {
-    electionId: Id;
-    contestId?: ContestId;
-  }): WriteInAdjudicationRecord[] {
-    const whereParts: string[] = ['election_id = ?'];
-    const params: Bindable[] = [electionId];
-
-    if (contestId) {
-      whereParts.push('contest_id = ?');
-      params.push(contestId);
-    }
-
-    return (
-      this.client.all(
-        `
-        select
-          id as id,
-          contest_id as contestId,
-          transcribed_value as transcribedValue,
-          adjudicated_value as adjudicatedValue,
-          adjudicated_option_id as adjudicatedOptionId
-        from write_in_adjudications
-        where ${whereParts.join(' and ')}
-      `,
-        ...params
-      ) as Array<{
-        id: Id;
-        contestId: ContestId;
-        transcribedValue: string;
-        adjudicatedValue: string;
-        adjudicatedOptionId: ContestOptionId | null;
-      }>
-    ).map((row) => ({
-      id: row.id,
-      contestId: row.contestId,
-      transcribedValue: row.transcribedValue,
-      adjudicatedValue: row.adjudicatedValue,
-      adjudicatedOptionId: row.adjudicatedOptionId ?? undefined,
-    }));
-  }
-
-  /**
-   * Gets a summary of tables and their counts for debug purposes.
-   */
+  /* istanbul ignore next - debug purposes only */
   getDebugSummary(): Map<string, number> {
     const tableNameRows = this.client.all(
       `select name from sqlite_schema where type='table' order by name;`
@@ -1280,21 +1351,6 @@ export class Store {
             ).count,
           ] as const
       )
-    );
-  }
-
-  /**
-   * Sets whether the election with the given ID has had results marked official.
-   */
-  setElectionResultsOfficial(electionId: Id, isOfficialResults: boolean): void {
-    this.client.run(
-      `
-        update elections
-        set is_official_results = ?
-        where id = ?
-      `,
-      isOfficialResults ? 1 : 0,
-      electionId
     );
   }
 }

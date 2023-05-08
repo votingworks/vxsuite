@@ -2,9 +2,7 @@ import { Result } from '@votingworks/basics';
 import {
   CVR,
   ContestId,
-  ContestIdSchema,
   ContestOptionId,
-  ContestOptionIdSchema,
   ElectionDefinition,
   ElectionDefinitionSchema,
   Id,
@@ -12,6 +10,7 @@ import {
   Iso8601Timestamp,
   Iso8601TimestampSchema,
   Rect,
+  CandidateId,
 } from '@votingworks/types';
 import * as z from 'zod';
 
@@ -163,27 +162,19 @@ export const CastVoteRecordFileEntryRecordSchema: z.ZodSchema<CastVoteRecordFile
   });
 
 /**
- * Status values for a write-in adjudication.
+ * Details about a candidate added through write-in adjudication.
  */
-export type WriteInAdjudicationStatus =
-  | 'pending'
-  | 'transcribed'
-  | 'adjudicated';
+export interface WriteInCandidateRecord {
+  readonly id: Id;
+  readonly electionId: Id;
+  readonly contestId: ContestId;
+  readonly name: string;
+}
 
 /**
- * Schema for {@link WriteInAdjudicationStatus}.
+ * A write-in that has is not yet adjudicated.
  */
-export const WriteInAdjudicationStatusSchema: z.ZodSchema<WriteInAdjudicationStatus> =
-  z.union([
-    z.literal('pending'),
-    z.literal('transcribed'),
-    z.literal('adjudicated'),
-  ]);
-
-/**
- * A write-in that has no transcription yet.
- */
-export interface WriteInRecordPendingTranscription {
+export interface WriteInRecordPending {
   readonly id: Id;
   readonly contestId: ContestId;
   readonly optionId: ContestOptionId;
@@ -191,353 +182,156 @@ export interface WriteInRecordPendingTranscription {
   readonly status: 'pending';
 }
 
-/**
- * Schema for {@link WriteInRecordPendingTranscription}.
- */
-export const WriteInRecordPendingTranscriptionSchema: z.ZodSchema<WriteInRecordPendingTranscription> =
-  z.object({
-    id: IdSchema,
-    contestId: ContestIdSchema,
-    optionId: ContestOptionIdSchema,
-    castVoteRecordId: IdSchema,
-    status: z.literal('pending'),
-  });
-
-/**
- * A write-in that has a transcription but no adjudication yet.
- */
-export interface WriteInRecordTranscribed {
+interface WriteInRecordAdjudicatedBase {
   readonly id: Id;
   readonly contestId: ContestId;
   readonly optionId: ContestOptionId;
   readonly castVoteRecordId: Id;
-  readonly status: 'transcribed';
-  readonly transcribedValue: string;
+  readonly status: 'adjudicated';
 }
 
 /**
- * Schema for {@link WriteInRecordTranscribed}.
+ * A write-in that has been adjudicated for an official candidate.
  */
-export const WriteInRecordTranscribedSchema: z.ZodSchema<WriteInRecordTranscribed> =
-  z.object({
-    id: IdSchema,
-    contestId: ContestIdSchema,
-    optionId: ContestOptionIdSchema,
-    castVoteRecordId: IdSchema,
-    status: z.literal('transcribed'),
-    transcribedValue: z.string().nonempty(),
-  });
+export interface WriteInRecordAdjudicatedOfficialCandidate
+  extends WriteInRecordAdjudicatedBase {
+  readonly adjudicationType: 'official-candidate';
+  readonly candidateId: CandidateId;
+}
+
+/**
+ * A write-in that has been adjudicated for a write-in candidate.
+ */
+export interface WriteInRecordAdjudicatedWriteInCandidate
+  extends WriteInRecordAdjudicatedBase {
+  readonly adjudicationType: 'write-in-candidate';
+  readonly candidateId: string;
+}
+
+/**
+ * A write-in that has been adjudicated as invalid.
+ */
+export interface WriteInRecordAdjudicatedInvalid
+  extends WriteInRecordAdjudicatedBase {
+  readonly adjudicationType: 'invalid';
+}
 
 /**
  * A write-in that has been adjudicated.
  */
-export interface WriteInRecordAdjudicated {
-  readonly id: Id;
-  readonly contestId: ContestId;
-  readonly optionId: ContestOptionId;
-  readonly castVoteRecordId: Id;
-  readonly status: WriteInAdjudicationStatus;
-  readonly transcribedValue: string;
-  readonly adjudicatedValue: string;
-  readonly adjudicatedOptionId?: ContestOptionId;
-}
+export type WriteInRecordAdjudicated =
+  | WriteInRecordAdjudicatedOfficialCandidate
+  | WriteInRecordAdjudicatedWriteInCandidate
+  | WriteInRecordAdjudicatedInvalid;
 
 /**
- * Schema for {@link WriteInRecordAdjudicated}.
+ * Information about a write-in that has or has not been adjudicated.
  */
-export const WriteInRecordAdjudicatedSchema: z.ZodSchema<WriteInRecordAdjudicated> =
-  z.object({
-    id: IdSchema,
-    contestId: ContestIdSchema,
-    optionId: ContestOptionIdSchema,
-    castVoteRecordId: IdSchema,
-    status: z.literal('transcribed'),
-    transcribedValue: z.string().nonempty(),
-    adjudicatedValue: z.string().nonempty(),
-    adjudicatedOptionId: ContestOptionIdSchema.optional(),
-  });
+export type WriteInRecord = WriteInRecordPending | WriteInRecordAdjudicated;
 
 /**
- * Information about a write-in in one of the adjudication states.
+ * Status values for a write-in or write-in summary - either pending or adjudicated.
  */
-export type WriteInRecord =
-  | WriteInRecordPendingTranscription
-  | WriteInRecordTranscribed
-  | WriteInRecordAdjudicated;
+export type WriteInAdjudicationStatus = WriteInRecord['status'];
 
 /**
- * Schema for {@link WriteInRecord}.
+ * Types of write-in adjudications - for an official candidate, a write-in
+ * candidate, or to mark it as invalid.
  */
-export const WriteInsRecordSchema: z.ZodSchema<WriteInRecord> = z.union([
-  WriteInRecordPendingTranscriptionSchema,
-  WriteInRecordTranscribedSchema,
-  WriteInRecordAdjudicatedSchema,
-]);
+export type WriteInAdjudicationType =
+  WriteInRecordAdjudicated['adjudicationType'];
 
 /**
- * Write-in adjudication information.
+ * Write-in summary information for non-adjudicated records.
  */
-export interface WriteInAdjudicationRecord {
-  readonly id: Id;
-  readonly contestId: ContestId;
-  readonly transcribedValue: string;
-  readonly adjudicatedValue: string;
-  readonly adjudicatedOptionId?: ContestOptionId;
-}
-
-/**
- * Schema for {@link WriteInAdjudicationRecord}.
- */
-export const WriteInAdjudicationRecordSchema: z.ZodSchema<WriteInAdjudicationRecord> =
-  z.object({
-    id: IdSchema,
-    contestId: ContestIdSchema,
-    transcribedValue: z.string().nonempty(),
-    adjudicatedValue: z.string().nonempty(),
-    adjudicatedOptionId: ContestOptionIdSchema.optional(),
-  });
-
-/**
- * Write-in summary information for write-ins pending transcription.
- */
-export interface WriteInSummaryEntryPendingTranscription {
+export interface WriteInSummaryEntryPending {
   readonly status: 'pending';
   readonly contestId: ContestId;
   readonly writeInCount: number;
 }
 
-/**
- * Schema for {@link WriteInSummaryEntryPendingTranscription}.
- */
-export const WriteInSummaryEntryPendingTranscriptionSchema: z.ZodSchema<WriteInSummaryEntryPendingTranscription> =
-  z.object({
-    status: z.literal('pending'),
-    contestId: ContestIdSchema,
-    writeInCount: z.number().int().nonnegative(),
-  });
-
-/**
- * Write-in summary information for transcribed write-ins.
- */
-export interface WriteInSummaryEntryTranscribed {
-  readonly status: 'transcribed';
+interface WriteInSummaryEntryAdjudicatedBase {
+  readonly status: 'adjudicated';
   readonly contestId: ContestId;
   readonly writeInCount: number;
-  readonly transcribedValue: string;
 }
 
 /**
- * Schema for {@link WriteInSummaryEntryTranscribed}.
+ * Write-in summary information for write-ins adjudicated for an official candidate.
  */
-export const WriteInSummaryEntryTranscribedSchema: z.ZodSchema<WriteInSummaryEntryTranscribed> =
-  z.object({
-    status: z.literal('transcribed'),
-    contestId: ContestIdSchema,
-    writeInCount: z.number().int().nonnegative(),
-    transcribedValue: z.string().nonempty(),
-  });
+export interface WriteInSummaryEntryAdjudicatedOfficialCandidate
+  extends WriteInSummaryEntryAdjudicatedBase {
+  readonly adjudicationType: 'official-candidate';
+  readonly candidateId: CandidateId;
+  readonly candidateName: string;
+}
+
+/**
+ * Write-in summary information for write-ins adjudicated for a write-in candidate.
+ */
+export interface WriteInSummaryEntryAdjudicatedWriteInCandidate
+  extends WriteInSummaryEntryAdjudicatedBase {
+  readonly adjudicationType: 'write-in-candidate';
+  readonly candidateId: string;
+  readonly candidateName: string;
+}
+
+/**
+ * Write-in summary information for write-ins adjudicated as invalid.
+ */
+export interface WriteInSummaryEntryAdjudicatedInvalid
+  extends WriteInSummaryEntryAdjudicatedBase {
+  readonly adjudicationType: 'invalid';
+}
 
 /**
  * Write-in summary information for adjudicated write-ins.
  */
-export interface WriteInSummaryEntryAdjudicated {
-  readonly status: 'adjudicated';
-  readonly contestId: ContestId;
-  readonly writeInCount: number;
-  readonly transcribedValue: string;
-  readonly writeInAdjudication: WriteInAdjudicationRecord;
-}
-
-/**
- * Schema for {@link WriteInSummaryEntryAdjudicated}.
- */
-export const WriteInSummaryEntryAdjudicatedSchema: z.ZodSchema<WriteInSummaryEntryAdjudicated> =
-  z.object({
-    status: z.literal('adjudicated'),
-    contestId: ContestIdSchema,
-    writeInCount: z.number().int().nonnegative(),
-    transcribedValue: z.string().nonempty(),
-    writeInAdjudication: WriteInAdjudicationRecordSchema,
-  });
+export type WriteInSummaryEntryAdjudicated =
+  | WriteInSummaryEntryAdjudicatedOfficialCandidate
+  | WriteInSummaryEntryAdjudicatedWriteInCandidate
+  | WriteInSummaryEntryAdjudicatedInvalid;
 
 /**
  * Write-in summary information.
  */
 export type WriteInSummaryEntry =
-  | WriteInSummaryEntryPendingTranscription
-  | WriteInSummaryEntryTranscribed
+  | WriteInSummaryEntryPending
   | WriteInSummaryEntryAdjudicated;
 
 /**
- * Schema for {@link WriteInSummaryEntry}.
+ * Information necessary to adjudicate a write-in for an official candidate.
  */
-export const WriteInSummaryEntrySchema: z.ZodSchema<WriteInSummaryEntry> =
-  z.union([
-    WriteInSummaryEntryPendingTranscriptionSchema,
-    WriteInSummaryEntryTranscribedSchema,
-    WriteInSummaryEntryAdjudicatedSchema,
-  ]);
-
-/**
- * An option for selecting an adjudication value in the write-in adjudication
- * table.
- */
-export interface WriteInAdjudicationTableOption {
-  readonly adjudicatedValue: string;
-  readonly adjudicatedOptionId?: ContestOptionId;
-  readonly enabled: boolean;
+export interface WriteInAdjudicationActionOfficialCandidate {
+  writeInId: Id;
+  type: 'official-candidate';
+  candidateId: CandidateId;
 }
 
 /**
- * Schema for {@link WriteInAdjudicationTableOption}.
+ * Information necessary to adjudicate a write-in for a write-in candidate.
  */
-export const WriteInAdjudicationTableOptionSchema: z.ZodSchema<WriteInAdjudicationTableOption> =
-  z.object({
-    adjudicatedValue: z.string().nonempty(),
-    adjudicatedOptionId: ContestOptionIdSchema.optional(),
-    enabled: z.boolean(),
-  });
-
-/**
- * An option group for selecting an adjudication value in the write-in
- * adjudication table.
- */
-export interface WriteInAdjudicationTableOptionGroup {
-  readonly title: string;
-  readonly options: readonly WriteInAdjudicationTableOption[];
+export interface WriteInAdjudicationActionWriteInCandidate {
+  writeInId: Id;
+  type: 'write-in-candidate';
+  candidateId: string;
 }
 
 /**
- * Schema for {@link WriteInAdjudicationTableOptionGroup}.
+ * Information necessary to adjudicate a write-in as invalid.
  */
-export const WriteInAdjudicationTableOptionGroupSchema: z.ZodSchema<WriteInAdjudicationTableOptionGroup> =
-  z.object({
-    title: z.string().nonempty(),
-    options: z.array(WriteInAdjudicationTableOptionSchema),
-  });
-
-/**
- * A row in the write-in adjudication table that has already been adjudicated.
- */
-export interface WriteInAdjudicationTableAdjudicatedRow {
-  readonly writeInCount: number;
-  readonly transcribedValue: string;
-  readonly writeInAdjudicationId: Id;
-  readonly editable: boolean;
-  readonly adjudicationOptionGroups: readonly WriteInAdjudicationTableOptionGroup[];
+export interface WriteInAdjudicationActionInvalid {
+  writeInId: Id;
+  type: 'invalid';
 }
 
 /**
- * Schema for {@link WriteInAdjudicationTableAdjudicatedRow}.
+ * Information necessary to adjudicate a write-in.
  */
-export const WriteInAdjudicationTableAdjudicatedRowSchema: z.ZodSchema<WriteInAdjudicationTableAdjudicatedRow> =
-  z.object({
-    writeInCount: z.number().int().nonnegative(),
-    transcribedValue: z.string().nonempty(),
-    writeInAdjudicationId: IdSchema,
-    editable: z.boolean(),
-    adjudicationOptionGroups: z.array(
-      WriteInAdjudicationTableOptionGroupSchema
-    ),
-  });
-
-/**
- * Group of rows in the write-in adjudication table that have already been
- * adjudicated.
- */
-export interface WriteInAdjudicationTableAdjudicatedRowGroup {
-  readonly writeInCount: number;
-  readonly adjudicatedValue: string;
-  readonly adjudicatedOptionId?: ContestOptionId;
-  readonly rows: readonly WriteInAdjudicationTableAdjudicatedRow[];
-}
-
-/**
- * Schema for {@link WriteInAdjudicationTableAdjudicatedRowGroup}.
- */
-export const WriteInAdjudicationTableAdjudicatedRowGroupSchema: z.ZodSchema<WriteInAdjudicationTableAdjudicatedRowGroup> =
-  z.object({
-    writeInCount: z.number().int().nonnegative(),
-    adjudicatedValue: z.string().nonempty(),
-    adjudicatedOptionId: ContestOptionIdSchema.optional(),
-    rows: z.array(WriteInAdjudicationTableAdjudicatedRowSchema),
-  });
-
-/**
- * A row in the write-in adjudication table that has not yet been adjudicated.
- */
-export interface WriteInAdjudicationTableTranscribedRow {
-  readonly writeInCount: number;
-  readonly transcribedValue: string;
-  readonly adjudicationOptionGroups: readonly WriteInAdjudicationTableOptionGroup[];
-}
-
-/**
- * Schema for {@link WriteInAdjudicationTableTranscribedRow}.
- */
-export const WriteInAdjudicationTableTranscribedRowSchema: z.ZodSchema<WriteInAdjudicationTableTranscribedRow> =
-  z.object({
-    writeInCount: z.number().int().nonnegative(),
-    transcribedValue: z.string().nonempty(),
-    adjudicationOptionGroups: z.array(
-      WriteInAdjudicationTableOptionGroupSchema
-    ),
-  });
-
-/**
- * Group of rows in the write-in adjudication table that have not yet been
- * adjudicated.
- */
-export interface WriteInAdjudicationTableTranscribedRowGroup {
-  readonly writeInCount: number;
-  readonly rows: readonly WriteInAdjudicationTableTranscribedRow[];
-}
-
-/**
- * Schema for {@link WriteInAdjudicationTableTranscribedRowGroup}.
- */
-export const WriteInAdjudicationTableTranscribedRowGroupSchema: z.ZodSchema<WriteInAdjudicationTableTranscribedRowGroup> =
-  z.object({
-    writeInCount: z.number().int().nonnegative(),
-    rows: z.array(WriteInAdjudicationTableTranscribedRowSchema),
-  });
-
-/**
- * Write-in adjudication table information, for use in adjudicating write-ins.
- */
-export interface WriteInAdjudicationTable {
-  readonly contestId: ContestId;
-  readonly writeInCount: number;
-  readonly adjudicated: readonly WriteInAdjudicationTableAdjudicatedRowGroup[];
-  readonly transcribed: WriteInAdjudicationTableTranscribedRowGroup;
-}
-
-/**
- * Schema for {@link WriteInAdjudicationTable}.
- */
-export const WriteInAdjudicationTableSchema: z.ZodSchema<WriteInAdjudicationTable> =
-  z.object({
-    contestId: ContestIdSchema,
-    writeInCount: z.number().int().nonnegative(),
-    adjudicated: z.array(WriteInAdjudicationTableAdjudicatedRowGroupSchema),
-    transcribed: WriteInAdjudicationTableTranscribedRowGroupSchema,
-  });
-
-/**
- * A non-pending write-in summary entry.
- */
-export type WriteInSummaryEntryNonPending =
-  | WriteInSummaryEntryTranscribed
-  | WriteInSummaryEntryAdjudicated;
-
-/**
- * Schema for {@link WriteInSummaryEntryNonPending}.
- */
-export const WriteInSummaryEntryNonPendingSchema: z.ZodSchema<WriteInSummaryEntryNonPending> =
-  z.union([
-    WriteInSummaryEntryTranscribedSchema,
-    WriteInSummaryEntryAdjudicatedSchema,
-  ]);
+export type WriteInAdjudicationAction =
+  | WriteInAdjudicationActionOfficialCandidate
+  | WriteInAdjudicationActionWriteInCandidate
+  | WriteInAdjudicationActionInvalid;
 
 /**
  * Data required to view a write-in image in our transcription interface,

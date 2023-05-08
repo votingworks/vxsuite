@@ -16,6 +16,7 @@ import {
   ContestTally,
   ContestOptionTally,
   ContestId,
+  ContestTallyMeta,
 } from '@votingworks/types';
 
 import {
@@ -315,22 +316,27 @@ function processCastVoteRecord({
 
 export function modifyTallyWithWriteInInfo(
   tally: Tally,
-  writeIns: Map<ContestId, Map<string, number>>
+  officialCandidateWriteInCounts: Map<ContestId, Map<string, number>>,
+  invalidWriteInCounts: Map<ContestId, number>
 ): Tally {
   const oldContestTallies = tally.contestTallies;
   const newContestTallies: Dictionary<ContestTally> = {};
   for (const contestId of Object.keys(oldContestTallies)) {
-    let totalOfficialWriteInsForContest = 0;
-    if (!writeIns.has(contestId)) {
+    if (!officialCandidateWriteInCounts.has(contestId)) {
       newContestTallies[contestId] = oldContestTallies[contestId];
       continue;
     }
-    const writeInInfo = writeIns.get(contestId);
+
+    const writeInInfo = officialCandidateWriteInCounts.get(contestId);
     assert(writeInInfo);
     const oldContestTally = oldContestTallies[contestId];
     assert(oldContestTally);
     const oldCandidateTallies = oldContestTally.tallies;
     const newCandidateTallies: Dictionary<ContestOptionTally> = {};
+
+    // add write-ins adjudicated for official candidates to their official
+    // candidate counts
+    let totalOfficialWriteInsForContest = 0;
     for (const candidateId of Object.keys(oldCandidateTallies)) {
       const oldCandidateTally = oldCandidateTallies[candidateId];
       assert(oldCandidateTally);
@@ -346,14 +352,30 @@ export function modifyTallyWithWriteInInfo(
       };
       totalOfficialWriteInsForContest += writeInsForCandidate;
     }
+
+    const invalidWriteInCount = invalidWriteInCounts.get(contestId) ?? 0;
+
+    // remove a) the write-in votes adjudicated for official candidates and b)
+    // the write-in votes deemed invalid from the generic "Write-Ins" counts
     const writeInCandidateTally = oldCandidateTallies[writeInCandidate.id];
     assert(writeInCandidateTally);
     newCandidateTallies[writeInCandidate.id] = {
       option: writeInCandidateTally.option,
-      tally: writeInCandidateTally.tally - totalOfficialWriteInsForContest,
+      tally:
+        writeInCandidateTally.tally -
+        totalOfficialWriteInsForContest -
+        invalidWriteInCount,
     };
+
+    // count invalid write-ins as undervotes
+    const newContestMetadata: ContestTallyMeta = {
+      ...oldContestTally.metadata,
+      undervotes: oldContestTally.metadata.undervotes + invalidWriteInCount,
+    };
+
     newContestTallies[contestId] = {
       ...oldContestTally,
+      metadata: newContestMetadata,
       tallies: newCandidateTallies,
     };
   }

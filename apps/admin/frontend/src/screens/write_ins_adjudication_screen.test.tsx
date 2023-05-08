@@ -4,12 +4,11 @@ import { CandidateContest } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
+import { WriteInsAdjudicationScreen } from './write_ins_adjudication_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 const contest = electionDefinition.election.contests[0] as CandidateContest;
 const onClose = jest.fn();
-const saveTranscribedValue = jest.fn();
 
 let apiMock: ApiMock;
 
@@ -21,45 +20,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-test('clicking a previously-saved value', async () => {
-  apiMock.expectGetWriteInImageView('id-174');
-  apiMock.expectGetWriteInImageView('id-175');
-  renderInAppContext(
-    <WriteInsTranscriptionScreen
-      election={electionDefinition.election}
-      contest={contest}
-      transcriptionQueue={4}
-      adjudications={[
-        {
-          contestId: 'best-animal-mammal',
-          transcribedValue: '',
-          id: 'id-174',
-        },
-        {
-          contestId: 'best-animal-mammal',
-          transcribedValue: 'Mickey Mouse',
-          id: 'id-175',
-        },
-      ]}
-      onClose={onClose}
-      saveTranscribedValue={saveTranscribedValue}
-    />,
-    { electionDefinition, apiMock }
-  );
-
-  // Click a previously-saved transcription
-  userEvent.click(await screen.findByText('Mickey Mouse'));
-  expect(saveTranscribedValue).toHaveBeenCalledWith('id-174', 'Mickey Mouse');
-
-  await screen.findByTestId('transcribe:id-174');
-  userEvent.click(await screen.findByText('Next'));
-  await screen.findByTestId('transcribe:id-175');
-  userEvent.click(await screen.findByText('Previous'));
-  await screen.findByTestId('transcribe:id-174');
-
-  userEvent.click(await screen.findByText('Back to All Write-Ins'));
-  expect(onClose).toHaveBeenCalledTimes(1);
-});
+// most testing of this screen in `write_ins_screen.test.tsx`
 
 test('zoomable ballot image', async () => {
   function fakeWriteInImage(id: string) {
@@ -91,26 +52,32 @@ test('zoomable ballot image', async () => {
   apiMock.apiClient.getWriteInImageView
     .expectCallWith({ writeInId: 'id-175' })
     .resolves(fakeWriteInImage('175'));
+  apiMock.expectGetWriteIns(
+    [
+      {
+        id: 'id-174',
+        status: 'pending',
+        contestId: contest.id,
+        optionId: 'write-in-0',
+        castVoteRecordId: 'id',
+      },
+      {
+        id: 'id-175',
+        status: 'pending',
+        contestId: contest.id,
+        optionId: 'write-in-0',
+        castVoteRecordId: 'id',
+      },
+    ],
+    contest.id
+  );
+  apiMock.expectGetWriteInCandidates([], contest.id);
 
   renderInAppContext(
-    <WriteInsTranscriptionScreen
+    <WriteInsAdjudicationScreen
       election={electionDefinition.election}
       contest={contest}
-      transcriptionQueue={4}
-      adjudications={[
-        {
-          contestId: 'best-animal-mammal',
-          transcribedValue: '',
-          id: 'id-174',
-        },
-        {
-          contestId: 'best-animal-mammal',
-          transcribedValue: '',
-          id: 'id-175',
-        },
-      ]}
       onClose={onClose}
-      saveTranscribedValue={saveTranscribedValue}
     />,
     { electionDefinition, apiMock }
   );
@@ -147,7 +114,7 @@ test('zoomable ballot image', async () => {
   ballotImage = screen.getByRole('img');
   expect(ballotImage).toHaveStyle({ width: '100%' });
 
-  // When switching to next transcription, resets to zoomed in
+  // When switching to next adjudication, resets to zoomed in
   userEvent.click(screen.getButton(/Next/));
   await screen.findByTestId('transcribe:id-175');
 
@@ -164,7 +131,7 @@ test('zoomable ballot image', async () => {
   ballotImage = screen.getByRole('img');
   expect(ballotImage).toHaveStyle({ width: '100%' });
 
-  // When switching to previous transcription, resets to zoomed in
+  // When switching to previous adjudication, resets to zoomed in
   userEvent.click(screen.getButton(/Previous/));
   await screen.findByTestId('transcribe:id-174');
   ballotImage = await screen.findByRole('img');

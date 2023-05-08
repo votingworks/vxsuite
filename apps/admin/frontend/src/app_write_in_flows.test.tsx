@@ -12,15 +12,11 @@ import { VxFiles } from './lib/converters';
 
 const nonOfficialAdjudicationSummaryMammal: WriteInSummaryEntryAdjudicated = {
   status: 'adjudicated',
+  adjudicationType: 'write-in-candidate',
   contestId: 'zoo-council-mammal',
-  transcribedValue: 'Chimera',
+  candidateName: 'Chimera',
+  candidateId: 'uuid',
   writeInCount: 1,
-  writeInAdjudication: {
-    id: 'some',
-    contestId: 'zoo-council-mammal',
-    transcribedValue: 'Chimera',
-    adjudicatedValue: 'Chimera',
-  },
 };
 
 let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;

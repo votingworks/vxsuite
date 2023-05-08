@@ -218,18 +218,15 @@ export const getWriteInSummary = {
   },
 } as const;
 
-type GetWriteInAdjudicationTableInput =
-  QueryInput<'getWriteInAdjudicationTable'>;
-export const getWriteInAdjudicationTable = {
-  queryKey(input?: GetWriteInAdjudicationTableInput): QueryKey {
-    return input
-      ? ['getWriteInAdjudicationTable', input]
-      : ['getWriteInAdjudicationTable'];
+type GetWriteInCandidatesInput = QueryInput<'getWriteInCandidates'>;
+export const getWriteInCandidates = {
+  queryKey(input?: GetWriteInCandidatesInput): QueryKey {
+    return input ? ['getWriteInCandidates', input] : ['getWriteInCandidates'];
   },
-  useQuery(input: GetWriteInAdjudicationTableInput) {
+  useQuery(input?: GetWriteInCandidatesInput) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(input), () =>
-      apiClient.getWriteInAdjudicationTable(input)
+      apiClient.getWriteInCandidates(input)
     );
   },
 } as const;
@@ -242,10 +239,12 @@ export const getWriteInImageView = {
   queryFn(input: getWriteInImageViewInput, apiClient: ApiClient) {
     return apiClient.getWriteInImageView(input);
   },
-  useQuery(input: getWriteInImageViewInput) {
+  useQuery(input: getWriteInImageViewInput, enabled = true) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () =>
-      apiClient.getWriteInImageView(input)
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getWriteInImageView(input),
+      { enabled }
     );
   },
 } as const;
@@ -274,7 +273,7 @@ function invalidateWriteInQueries(queryClient: QueryClient) {
   return Promise.all([
     queryClient.invalidateQueries(getWriteIns.queryKey()),
     queryClient.invalidateQueries(getWriteInSummary.queryKey()),
-    queryClient.invalidateQueries(getWriteInAdjudicationTable.queryKey()),
+    queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
   ]);
 }
 
@@ -359,47 +358,23 @@ export const addCastVoteRecordFile = {
   },
 } as const;
 
-export const transcribeWriteIn = {
+export const addWriteInCandidate = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.transcribeWriteIn, {
+    return useMutation(apiClient.addWriteInCandidate, {
       async onSuccess() {
-        await invalidateWriteInQueries(queryClient);
+        await queryClient.invalidateQueries(getWriteInCandidates.queryKey());
       },
     });
   },
 } as const;
 
-export const adjudicateWriteInTranscription = {
+export const adjudicateWriteIn = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.createWriteInAdjudication, {
-      async onSuccess() {
-        await invalidateWriteInQueries(queryClient);
-      },
-    });
-  },
-} as const;
-
-export const updateWriteInAdjudication = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateWriteInAdjudication, {
-      async onSuccess() {
-        await invalidateWriteInQueries(queryClient);
-      },
-    });
-  },
-} as const;
-
-export const deleteWriteInAdjudication = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.deleteWriteInAdjudication, {
+    return useMutation(apiClient.adjudicateWriteIn, {
       async onSuccess() {
         await invalidateWriteInQueries(queryClient);
       },

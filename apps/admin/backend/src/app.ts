@@ -1,9 +1,7 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
-  CandidateContest,
   CastVoteRecord,
   ContestId,
-  ContestOptionId,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   safeParseElectionDefinition,
@@ -44,13 +42,12 @@ import {
   CvrFileMode,
   ElectionRecord,
   SetSystemSettingsResult,
-  WriteInAdjudicationRecord,
+  WriteInAdjudicationAction,
   WriteInAdjudicationStatus,
-  WriteInAdjudicationTable,
+  WriteInCandidateRecord,
   WriteInImageView,
   WriteInRecord,
   WriteInSummaryEntry,
-  WriteInSummaryEntryNonPending,
 } from './types';
 import { Workspace } from './util/workspace';
 import {
@@ -61,7 +58,6 @@ import {
 } from './cvr_files';
 import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
-import { render as renderWriteInAdjudicationTable } from './util/write_in_adjudication_table';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -423,47 +419,8 @@ function buildApi({
       });
     },
 
-    transcribeWriteIn(input: {
-      writeInId: string;
-      transcribedValue: string;
-    }): void {
-      store.transcribeWriteIn(input.writeInId, input.transcribedValue);
-    },
-
-    // not being used by frontend, can be removed if determined unnecessary
-    getWriteInAdjudications(
-      input: { contestId?: ContestId } = {}
-    ): WriteInAdjudicationRecord[] {
-      return store.getWriteInAdjudicationRecords({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        contestId: input.contestId,
-      });
-    },
-
-    createWriteInAdjudication(input: {
-      contestId: ContestId;
-      transcribedValue: string;
-      adjudicatedValue: string;
-      adjudicatedOptionId?: ContestOptionId;
-    }): string {
-      return store.createWriteInAdjudication({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        ...input,
-      });
-    },
-
-    updateWriteInAdjudication(input: {
-      writeInAdjudicationId: string;
-      adjudicatedValue: string;
-      adjudicatedOptionId?: ContestOptionId;
-    }) {
-      store.updateWriteInAdjudication(input.writeInAdjudicationId, {
-        ...input,
-      });
-    },
-
-    deleteWriteInAdjudication(input: { writeInAdjudicationId: string }): void {
-      store.deleteWriteInAdjudication(input.writeInAdjudicationId);
+    adjudicateWriteIn(input: WriteInAdjudicationAction): void {
+      store.adjudicateWriteIn(input);
     },
 
     // frontend only using with status "adjudicated". this could be a more
@@ -480,30 +437,25 @@ function buildApi({
       });
     },
 
-    getWriteInAdjudicationTable(input: {
+    getWriteInCandidates(
+      input: {
+        contestId?: ContestId;
+      } = {}
+    ): WriteInCandidateRecord[] {
+      return store.getWriteInCandidates({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
+    },
+
+    addWriteInCandidate(input: {
       contestId: ContestId;
-    }): WriteInAdjudicationTable {
-      const { contestId } = input;
-      const electionId = loadCurrentElectionIdOrThrow(workspace);
-      const electionRecord = store.getElection(electionId);
-      assert(electionRecord);
-
-      const contest = electionRecord.electionDefinition.election.contests.find(
-        (c): c is CandidateContest =>
-          c.type === 'candidate' && c.id === contestId
-      );
-      assert(contest);
-
-      const writeInSummaries = store
-        .getWriteInAdjudicationSummary({
-          electionId,
-          contestId,
-        })
-        .filter(
-          (s): s is WriteInSummaryEntryNonPending => s.status !== 'pending'
-        );
-
-      return renderWriteInAdjudicationTable(contest, writeInSummaries);
+      name: string;
+    }): WriteInCandidateRecord {
+      return store.addWriteInCandidate({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
     },
 
     // use null because React Query does not allow undefined as a query result

@@ -40,7 +40,7 @@ import { ElectionManagerWriteInTallyReport } from '../components/election_manage
 
 import {
   getManualWriteInCounts,
-  getScreenAdjudicatedWriteInCounts,
+  getWriteInCandidateScreenAdjudicatedWriteInCounts,
   writeInCountsAreEmpty,
 } from '../utils/write_ins';
 import { PrintButton } from '../components/print_button';
@@ -73,9 +73,10 @@ export function TallyWriteInReportScreen(): JSX.Element {
   const writeInSummaryQuery = getWriteInSummary.useQuery({
     status: 'adjudicated',
   }) as UseQueryResult<WriteInSummaryEntryAdjudicated[]>;
-  const screenAdjudicatedWriteInCounts = getScreenAdjudicatedWriteInCounts(
-    writeInSummaryQuery.data ?? []
-  );
+  const screenAdjudicatedWriteInCounts =
+    getWriteInCandidateScreenAdjudicatedWriteInCounts(
+      writeInSummaryQuery.data ?? []
+    );
   const manualWriteInCounts = manualData
     ? getManualWriteInCounts(manualData.overallTally)
     : undefined;
