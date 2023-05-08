@@ -1,5 +1,5 @@
 import { interpret as interpretVxBmdBallotSheet } from '@votingworks/ballot-interpreter-vx';
-import { interpret as interpretNhHmpbBallotSheet } from '@votingworks/ballot-interpreter-nh-next';
+import { interpret as interpretNhHmpbBallotSheet } from '@votingworks/ballot-interpreter-nh';
 import { Result, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { loadImageData } from '@votingworks/image-utils';
 import {

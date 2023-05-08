@@ -2925,9 +2925,9 @@ importers:
 
   libs/backend:
     dependencies:
-      '@votingworks/ballot-interpreter-nh-next':
+      '@votingworks/ballot-interpreter-nh':
         specifier: workspace:*
-        version: link:../ballot-interpreter-nh-next
+        version: link:../ballot-interpreter-nh
       '@votingworks/ballot-interpreter-vx':
         specifier: workspace:*
         version: link:../ballot-interpreter-vx
@@ -3174,7 +3174,7 @@ importers:
         specifier: 4.6.3
         version: 4.6.3
 
-  libs/ballot-interpreter-nh-next:
+  libs/ballot-interpreter-nh:
     dependencies:
       '@votingworks/basics':
         specifier: workspace:*

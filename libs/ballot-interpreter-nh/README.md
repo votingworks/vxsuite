@@ -1,4 +1,4 @@
-# `ballot-interpreter-nh-next`
+# `ballot-interpreter-nh`
 
 An experimental interpreter for New Hampshire's AccuVote ballots built for
 speed.
@@ -35,7 +35,7 @@ to run the Rust build and copy the built library into `./build/rust-addon.node`.
 ### API
 
 ```ts
-import { interpret } from '@votingworks/ballot-interpreter-nh-next';
+import { interpret } from '@votingworks/ballot-interpreter-nh';
 
 console.log(
   'Interpretation:',
