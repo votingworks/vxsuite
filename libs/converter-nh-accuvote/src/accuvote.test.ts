@@ -13,7 +13,6 @@ import {
   ScannedBallotCardGeometry8pt5x14,
   TemplateBallotCardGeometry8pt5x14,
 } from './accuvote';
-import { pairColumnEntries, readGridFromElectionDefinition } from './convert';
 import * as templates from './data/templates';
 import { interpretBallotCardLayout } from './interpret/interpret_ballot_card_layout';
 import {
@@ -27,6 +26,8 @@ import {
   FrontMarksMetadata,
   FrontMarksMetadataSchema,
 } from './types';
+import { pairColumnEntries } from './convert/pair_column_entries';
+import { readGridFromElectionDefinition } from './convert/read_grid_from_election_definition';
 
 test('hudson template', async () => {
   const hudson = readFixtureBallotCardDefinition(

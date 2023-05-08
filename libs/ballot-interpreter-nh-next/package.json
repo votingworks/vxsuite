@@ -23,8 +23,8 @@
   "license": "AGPL-3.0",
   "packageManager": "pnpm@8.1.0",
   "dependencies": {
-    "@votingworks/ballot-interpreter-nh": "workspace:*",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/converter-nh-accuvote": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",

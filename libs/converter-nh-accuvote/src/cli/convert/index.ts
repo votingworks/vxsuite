@@ -9,11 +9,9 @@ import { enable as enableDebug } from 'debug';
 import { promises as fs } from 'fs';
 import { basename } from 'path';
 import { RealIo, Stdio } from '..';
-import {
-  convertElectionDefinition,
-  NewHampshireBallotCardDefinition,
-} from '../../convert';
+import { convertElectionDefinition } from '../../convert/convert_election_definition';
 import * as templates from '../../data/templates';
+import { NewHampshireBallotCardDefinition } from '../../convert/types';
 
 interface ConvertOptions {
   readonly type: 'convert';
@@ -142,7 +140,7 @@ export async function main(
   }
 
   if (options.debug) {
-    enableDebug('ballot-interpreter-nh:*');
+    enableDebug('converter-nh-accuvote:*');
   }
 
   const { definitionPath, frontBallotPath, backBallotPath, outputPath } =

@@ -6,9 +6,10 @@ import { fileSync } from 'tmp';
 import { err, ok } from '@votingworks/basics';
 import { main } from '.';
 import { Stdio } from '..';
-import { convertElectionDefinition, ConvertIssueKind } from '../../convert';
+import { convertElectionDefinition } from '../../convert/convert_election_definition';
+import { ConvertIssueKind } from '../../convert/types';
 
-jest.mock('../../convert');
+jest.mock('../../convert/convert_election_definition');
 jest.mock('../../images', (): typeof import('../../images') => ({
   matchTemplate: jest.fn(),
   matchTemplateImage: jest.fn(),

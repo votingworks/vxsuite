@@ -375,28 +375,6 @@ jobs:
       - store_test_results:
           path: libs/ballot-encoder/reports/
 
-  test-libs-ballot-interpreter-nh:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/ballot-interpreter-nh build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/ballot-interpreter-nh lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/ballot-interpreter-nh test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/ballot-interpreter-nh/reports/
-
   test-libs-ballot-interpreter-nh-next:
     executor: nodejs
     resource_class: xlarge
@@ -484,6 +462,28 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/cdf-schema-builder/reports/
+
+  test-libs-converter-nh-accuvote:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/converter-nh-accuvote build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/converter-nh-accuvote lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/converter-nh-accuvote test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/converter-nh-accuvote/reports/
 
   test-libs-custom-scanner:
     executor: nodejs
@@ -951,11 +951,11 @@ workflows:
       - test-libs-api
       - test-libs-auth
       - test-libs-ballot-encoder
-      - test-libs-ballot-interpreter-nh
       - test-libs-ballot-interpreter-nh-next
       - test-libs-ballot-interpreter-vx
       - test-libs-basics
       - test-libs-cdf-schema-builder
+      - test-libs-converter-nh-accuvote
       - test-libs-custom-scanner
       - test-libs-cvr-fixture-generator
       - test-libs-backend

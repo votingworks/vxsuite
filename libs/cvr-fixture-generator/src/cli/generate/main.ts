@@ -20,7 +20,7 @@ import { writeImageData, createImageData } from '@votingworks/image-utils';
 import { pipeline } from 'stream/promises';
 import { join } from 'path';
 import cloneDeep from 'lodash.clonedeep';
-import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
+import { generateBallotPageLayouts } from '@votingworks/converter-nh-accuvote';
 import { generateCvrs } from '../../generate_cvrs';
 import {
   generateBallotAssetPath,

@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import {
   convertElectionDefinition,
   templates,
-} from '@votingworks/ballot-interpreter-nh';
+} from '@votingworks/converter-nh-accuvote';
 import { ConverterClient, VxFile, VxFiles } from './types';
 import { pdfToImages } from '../../utils/pdf_to_images';
 import { readBlobAsArrayBuffer, readBlobAsString } from '../blob';

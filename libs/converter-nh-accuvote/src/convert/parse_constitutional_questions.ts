@@ -4,7 +4,7 @@ import makeDebug from 'debug';
 import { parseHtml } from './dom_parser';
 
 const debug = makeDebug(
-  'ballot-interpreter-nh:convert:parseConstitutionalQuestions'
+  'converter-nh-accuvote:convert:parseConstitutionalQuestions'
 );
 
 /**

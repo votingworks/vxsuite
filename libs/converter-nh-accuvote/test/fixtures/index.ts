@@ -4,7 +4,6 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { DOMParser } from '@xmldom/xmldom';
 import { Image } from 'canvas';
 import { BallotCardTemplateMargins } from '../../src/accuvote';
-import { NewHampshireBallotCardDefinition } from '../../src/convert';
 import {
   BallotCardGeometry,
   CompleteTimingMarks,
@@ -13,6 +12,7 @@ import {
   ThirtyTwoBits,
 } from '../../src/types';
 import { makeRect } from '../../src/utils';
+import { NewHampshireBallotCardDefinition } from '../../src/convert/types';
 
 /**
  * The size of a single timing mark.

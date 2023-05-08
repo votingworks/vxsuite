@@ -1,4 +1,4 @@
-# ballot-interpreter-nh
+# converter-nh-accuvote
 
 Converts XML/PDF ballot definitions as used by the state of New Hampshire into a
 VotingWorks election definition.
@@ -10,7 +10,7 @@ Follow the instructions in the [VxSuite README](../../README.md) to get set up.
 ## API Usage
 
 ```ts
-import { convertElectionDefinition } from '@votingworks/ballot-interpreter-nh';
+import { convertElectionDefinition } from '@votingworks/converter-nh-accuvote';
 import { loadImageData } from '@votingworks/image-utils';
 import { DOMParser } from '@xmldom/xmldom';
 
@@ -20,7 +20,7 @@ const definition = new DOMParser().parseFromString(
   await fs.readFile('./election.xml', 'utf8'),
   'text/xml'
 );
-const convertResult = await convertElectionDefinition(electionDefinition, {
+const convertResult = convertElectionDefinition({
   front,
   back,
   definition,
