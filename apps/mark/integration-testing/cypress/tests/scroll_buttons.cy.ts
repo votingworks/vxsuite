@@ -4,7 +4,7 @@ describe('Scroll Buttons', () => {
 
   it('Scroll buttons appear and function correctly', () => {
     cy.wait(waitTime);
-    cy.get('nav').contains('Start Voting').click();
+    cy.contains('Start Voting').click();
     cy.contains('Next').click();
     cy.wait(waitTime);
     cy.contains('Next').click();
