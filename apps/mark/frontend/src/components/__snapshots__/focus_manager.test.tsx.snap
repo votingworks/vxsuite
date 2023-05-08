@@ -9,6 +9,18 @@ exports[`renders FocusManager 1`] = `
   outline: none;
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div>
   <div
     class="c0"

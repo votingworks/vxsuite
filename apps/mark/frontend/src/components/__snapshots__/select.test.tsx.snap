@@ -22,6 +22,18 @@ exports[`Full-width select 1`] = `
   color: rgb(170,170,170);
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <select
   class="c0"
 >
@@ -62,6 +74,18 @@ exports[`Inline select 1`] = `
 .c0:disabled {
   background: #dddddd;
   color: rgb(170,170,170);
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
 }
 
 <select

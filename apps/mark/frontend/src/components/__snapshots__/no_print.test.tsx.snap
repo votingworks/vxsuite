@@ -2,6 +2,18 @@
 
 exports[`renders NoPrint 1`] = `
 @media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
   .c0 {
     display: none;
   }
