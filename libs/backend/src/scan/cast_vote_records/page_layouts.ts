@@ -1,4 +1,4 @@
-import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
+import { generateBallotPageLayouts } from '@votingworks/converter-nh-accuvote';
 import { assert, find } from '@votingworks/basics';
 import {
   BallotMetadata,

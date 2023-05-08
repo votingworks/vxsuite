@@ -142,7 +142,7 @@ export async function main(
   }
 
   if (options.debug) {
-    enableDebug('ballot-interpreter-nh:*');
+    enableDebug('converter-nh-accuvote:*');
   }
 
   const { definitionPath, frontBallotPath, backBallotPath, outputPath } =

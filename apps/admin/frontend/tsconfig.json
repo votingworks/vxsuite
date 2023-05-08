@@ -19,8 +19,8 @@
   "references": [
     { "path": "../../../libs/api/tsconfig.build.json" },
     { "path": "../../../libs/ballot-encoder/tsconfig.build.json" },
-    { "path": "../../../libs/ballot-interpreter-nh/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },
+    { "path": "../../../libs/converter-nh-accuvote/tsconfig.build.json" },
     { "path": "../../../libs/dev-dock/frontend/tsconfig.build.json" },
     { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../../libs/fixtures/tsconfig.build.json" },

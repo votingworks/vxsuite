@@ -13,7 +13,7 @@ import {
   VotesDict,
   YesNoVote,
 } from '@votingworks/types';
-import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
+import { generateBallotPageLayouts } from '@votingworks/converter-nh-accuvote';
 import {
   arrangeContestsBySheet,
   filterVotesByContests,

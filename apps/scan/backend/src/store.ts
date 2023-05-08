@@ -2,7 +2,7 @@
 // The durable datastore for CVRs and configuration info.
 //
 
-import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
+import { generateBallotPageLayouts } from '@votingworks/converter-nh-accuvote';
 import { Client as DbClient } from '@votingworks/db';
 import {
   AdjudicationStatus,
