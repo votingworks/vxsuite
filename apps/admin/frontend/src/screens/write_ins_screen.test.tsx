@@ -113,7 +113,7 @@ test('ballot pagination', async () => {
   apiMock.expectGetWriteIns(mockWriteInRecords, contestId);
   apiMock.expectGetWriteInCandidates([], contestId);
   for (const mockWriteInRecord of mockWriteInRecords) {
-    apiMock.expectGetWriteInImageView(mockWriteInRecord.id);
+    apiMock.expectGetWriteInDetailView(mockWriteInRecord.id);
   }
 
   userEvent.click(await screen.findByText(`Adjudicate ${pageCount}`));
@@ -159,11 +159,11 @@ test('adjudication', async () => {
     electionId: 'id',
   };
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
-  apiMock.expectGetWriteInImageView(mockWriteInRecords[0].id);
-  apiMock.expectGetWriteInImageView(mockWriteInRecords[1].id); // prefetch
+  apiMock.expectGetWriteInDetailView(mockWriteInRecords[0].id);
+  apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id); // prefetch
   userEvent.click(await screen.findByText('Adjudicate 2'));
 
-  await screen.findByText('2 write-ins to adjudicate.');
+  await screen.findByRole('img');
   screen.getButton('Zebra');
   screen.getButton('Lion');
   screen.getButton('Kangaroo');
@@ -197,7 +197,9 @@ test('adjudication', async () => {
     contestId
   );
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
+  apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
   apiMock.expectGetWriteInSummary([]);
+
   userEvent.click(screen.getButton('Zebra'));
   expect(await screen.findButton('Next')).toHaveFocus();
 
@@ -225,6 +227,7 @@ test('adjudication', async () => {
     contestId
   );
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
+  apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
   apiMock.expectGetWriteInSummary([]);
   userEvent.click(screen.getButton('Lemur'));
   expect(await screen.findButton('Next')).toHaveFocus();
@@ -269,6 +272,7 @@ test('adjudication', async () => {
     [mockWriteInCandidate, mockNewWriteInCandidateRecord],
     contestId
   );
+  apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
   apiMock.expectGetWriteInSummary([]);
   userEvent.click(await screen.findButton('Add New Write-In Candidate'));
   userEvent.type(
@@ -298,6 +302,7 @@ test('adjudication', async () => {
     contestId
   );
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
+  apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
   apiMock.expectGetWriteInSummary([]);
   userEvent.click(await screen.findButton('Mark Write-In Invalid'));
   expect(await screen.findButton('Next')).toHaveFocus();
