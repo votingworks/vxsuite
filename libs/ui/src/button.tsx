@@ -13,6 +13,7 @@ export const ALL_BUTTON_VARIANTS = [
   'done',
   'edit',
   'next',
+  'nextSecondary',
   'previous',
   'previousPrimary',
   'primary',
@@ -85,6 +86,7 @@ const variantConfigs: Record<ButtonVariant, VariantConfig> = {
   done: { color: 'accentPrimary', icon: Icons.Done, isSolidColor: true },
   edit: { color: 'foreground', icon: Icons.Edit },
   next: { color: 'accentPrimary', icon: Icons.Next, isSolidColor: true },
+  nextSecondary: { color: 'foreground', icon: Icons.Next, isSolidColor: false },
   previous: { color: 'foreground', icon: Icons.Previous },
   previousPrimary: {
     color: 'accentPrimary',

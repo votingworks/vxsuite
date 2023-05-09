@@ -24,7 +24,6 @@ import {
   Icons,
   LinkButton,
   Main,
-  NoWrap,
   Prose,
   Screen,
   P,
@@ -49,10 +48,7 @@ import {
 import { BallotContext } from '../contexts/ballot_context';
 import { Sidebar } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
-import {
-  ButtonFooter,
-  ButtonFooterLandscape,
-} from '../components/button_footer';
+import { ButtonFooter } from '../components/button_footer';
 import { screenOrientation } from '../lib/screen_orientation';
 import { getContestDistrictName } from '../utils/ms_either_neither_contests';
 import { useCurrentTextSizePx } from '../hooks/use_current_text_size';
@@ -384,8 +380,8 @@ export function ReviewPage(): JSX.Element {
   const { election } = electionDefinition;
 
   const printMyBallotButton = (
-    <LinkButton large primary to="/print" id="next">
-      I’m Ready to <NoWrap>Print My Ballot</NoWrap>
+    <LinkButton to="/print" id="next" variant="done">
+      Print My Ballot
     </LinkButton>
   );
 
@@ -500,14 +496,14 @@ export function ReviewPage(): JSX.Element {
       </Main>
       {isPortrait ? (
         <ButtonFooter>
-          {printMyBallotButton}
           {settingsButton}
+          {printMyBallotButton}
         </ButtonFooter>
       ) : (
         <Sidebar
           footer={
             <React.Fragment>
-              <ButtonFooterLandscape>{settingsButton}</ButtonFooterLandscape>
+              <ButtonFooter>{settingsButton}</ButtonFooter>
               <ElectionInfo
                 electionDefinition={electionDefinition}
                 ballotStyleId={ballotStyleId}
