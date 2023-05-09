@@ -94,7 +94,7 @@ export interface InterpretedBallotCard {
 /** A successfully imported ballot page. */
 export interface InterpretedBallotPage {
   grid: TimingMarkGrid;
-  marks: ScoredOvalMarks;
+  marks: ScoredBubbleMarks;
   normalizedImage: ImageData;
   contestLayouts: InterpretedContestLayout[];
 }
@@ -113,11 +113,13 @@ export interface InterpretedContestLayout {
 }
 
 /** An array of optional marks and their corresponding grid positions. */
-export type ScoredOvalMarks = Array<[GridPosition, Optional<ScoredOvalMark>]>;
+export type ScoredBubbleMarks = Array<
+  [GridPosition, Optional<ScoredBubbleMark>]
+>;
 
 /**
  * Represents a grid of timing marks and provides access to the expected
- * location of ovals in the grid. Note that all coordinates are based in an
+ * location of bubbles in the grid. Note that all coordinates are based in an
  * image that may have been rotated, cropped, and scaled. To recreate the image
  * that corresponds to the grid, follow these steps starting with the original:
  *   1. rotate 180 degrees if `orientation` is `PortraitReversed`.
@@ -160,6 +162,8 @@ export type BallotPageMetadata =
 
 /** Metadata encoded on the front side of a ballot card. */
 export interface BallotPageMetadataFront {
+  side: 'front';
+
   /** Raw bits 0-31 in LSB-MSB order (right to left). */
   bits: boolean[];
 
@@ -191,6 +195,8 @@ export interface BallotPageMetadataFront {
 
 /** Metadata encoded on the front side of a ballot card. */
 export interface BallotPageMetadataBack {
+  side: 'back';
+
   /** Raw bits 0-31 in LSB-MSB order (right-to-left). */
   bits: boolean[];
 
@@ -218,7 +224,33 @@ export interface BallotPageMetadataBack {
 }
 
 /** Represents a single capital letter from A-Z represented by a u8 index. */
-export type IndexedCapitalLetter = u8;
+export type IndexedCapitalLetter =
+  | 'A'
+  | 'B'
+  | 'C'
+  | 'D'
+  | 'E'
+  | 'F'
+  | 'G'
+  | 'H'
+  | 'I'
+  | 'J'
+  | 'K'
+  | 'L'
+  | 'M'
+  | 'N'
+  | 'O'
+  | 'P'
+  | 'Q'
+  | 'R'
+  | 'S'
+  | 'T'
+  | 'U'
+  | 'V'
+  | 'W'
+  | 'X'
+  | 'Y'
+  | 'Z';
 
 /** Represents partial timing marks found in a ballot card. */
 export interface PartialTimingMarks {
@@ -254,10 +286,10 @@ export interface CompleteTimingMarks {
   bottomRightRect: Rect;
 }
 
-/** Location and score information for a ballot contest option's oval. */
-export interface ScoredOvalMark {
+/** Location and score information for a ballot contest option's bubble. */
+export interface ScoredBubbleMark {
   /**
-   * The location of the oval mark in the grid. Uses side/column/row, not
+   * The location of the bubble mark in the grid. Uses side/column/row, not
    * x/y.
    */
   location: GridLocation;
@@ -265,23 +297,23 @@ export interface ScoredOvalMark {
   /**
    * The score for the match between the source image and the template. This
    * is the highest value found when looking around `expectedBounds` for the
-   * oval. 100% is a perfect match.
+   * bubble. 100% is a perfect match.
    */
-  matchScore: OvalMarkScore;
+  matchScore: BubbleMarkScore;
 
   /**
-   * The score for the fill of the oval at `matchedBounds`. 100% is
+   * The score for the fill of the bubble at `matchedBounds`. 100% is
    * perfectly filled.
    */
-  fillScore: OvalMarkScore;
+  fillScore: BubbleMarkScore;
 
   /**
-   * The expected bounds of the oval mark in the scanned source image.
+   * The expected bounds of the bubble mark in the scanned source image.
    */
   expectedBounds: Rect;
 
   /**
-   * The bounds of the oval mark in the scanned source image that was
+   * The bounds of the bubble mark in the scanned source image that was
    * determined to be the best match.
    */
   matchedBounds: Rect;
@@ -295,8 +327,8 @@ export interface ScoredOvalMark {
  */
 export type UnitIntervalValue = f32;
 
-/** Alias used for an oval mark's score values. */
-export type OvalMarkScore = UnitIntervalValue;
+/** Alias used for an bubble mark's score values. */
+export type BubbleMarkScore = UnitIntervalValue;
 
 /** Coordinates specifying a timing mark intersection on the ballot card. */
 export interface GridLocation {
@@ -323,11 +355,8 @@ export interface Geometry {
   pixelsPerInch: PixelUnit;
   canvasSize: Size<PixelUnit>;
   contentArea: Rect;
-  ovalSize: Size<PixelUnit>;
   timingMarkSize: Size<SubPixelUnit>;
   gridSize: Size<GridUnit>;
-  frontUsableArea: Rect;
-  backUsableArea: Rect;
 }
 
 /** Ballot card orientation. */

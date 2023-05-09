@@ -16,7 +16,7 @@ use crate::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RAINBOW, RED,
         WHITE_RGB,
     },
-    scoring::ScoredOvalMark,
+    scoring::ScoredBubbleMark,
     timing_marks::{Partial, TimingMarkGrid},
 };
 
@@ -347,14 +347,14 @@ fn monospace_font() -> Font<'static> {
         .expect("font is valid")
 }
 
-/// Draws a debug image outlining all the scored oval marks.
-pub fn draw_scored_oval_marks_debug_image_mut(
+/// Draws a debug image outlining all the scored bubble marks.
+pub fn draw_scored_bubble_marks_debug_image_mut(
     canvas: &mut RgbImage,
-    scored_oval_marks: &Vec<(GridPosition, Option<ScoredOvalMark>)>,
+    scored_bubble_marks: &Vec<(GridPosition, Option<ScoredBubbleMark>)>,
 ) {
     let option_color = PINK;
-    let matched_oval_color = DARK_GREEN;
-    let original_oval_color = DARK_BLUE;
+    let matched_bubble_color = DARK_GREEN;
+    let original_bubble_color = DARK_BLUE;
     let match_score_color = ORANGE;
     let fill_score_color = DARK_CYAN;
     let font = &monospace_font();
@@ -364,29 +364,29 @@ pub fn draw_scored_oval_marks_debug_image_mut(
     draw_legend(
         canvas,
         &vec![
-            (original_oval_color, "Expected Oval Bounds"),
-            (matched_oval_color, "Matched Oval Bounds"),
+            (original_bubble_color, "Expected Bubble Bounds"),
+            (matched_bubble_color, "Matched Bubble Bounds"),
             (
                 match_score_color,
-                "Oval Match Score (100% = perfect alignment)",
+                "Bubble Match Score (100% = perfect alignment)",
             ),
             (
                 fill_score_color,
-                "Oval Fill Score (0% = no fill, 100% = perfect fill)",
+                "Bubble Fill Score (0% = no fill, 100% = perfect fill)",
             ),
         ],
     );
 
-    for (grid_position, scored_oval_mark) in scored_oval_marks {
-        if let Some(scored_oval_mark) = scored_oval_mark {
+    for (grid_position, scored_bubble_mark) in scored_bubble_marks {
+        if let Some(scored_bubble_mark) = scored_bubble_mark {
             let mut option_text = grid_position.to_string();
             option_text.truncate(25);
 
             let (option_text_width, option_text_height) =
                 text_size(scale, font, option_text.as_str());
 
-            let match_score_text = scored_oval_mark.match_score.to_string();
-            let fill_score_text = scored_oval_mark.fill_score.to_string();
+            let match_score_text = scored_bubble_mark.match_score.to_string();
+            let fill_score_text = scored_bubble_mark.fill_score.to_string();
             let (match_score_text_width, match_score_text_height) =
                 text_size(scale, font, match_score_text.as_str());
             let (fill_score_text_width, _) = text_size(scale, font, fill_score_text.as_str());
@@ -394,20 +394,20 @@ pub fn draw_scored_oval_marks_debug_image_mut(
             draw_text_with_background_mut(
                 canvas,
                 &option_text,
-                scored_oval_mark
+                scored_bubble_mark
                     .expected_bounds
                     .left()
-                    .min(scored_oval_mark.matched_bounds.left())
+                    .min(scored_bubble_mark.matched_bounds.left())
                     - option_text_width
                     - 5,
-                (scored_oval_mark
+                (scored_bubble_mark
                     .expected_bounds
                     .top()
-                    .min(scored_oval_mark.matched_bounds.top())
-                    + scored_oval_mark
+                    .min(scored_bubble_mark.matched_bounds.top())
+                    + scored_bubble_mark
                         .expected_bounds
                         .bottom()
-                        .max(scored_oval_mark.matched_bounds.bottom()))
+                        .max(scored_bubble_mark.matched_bounds.bottom()))
                     / 2
                     - (option_text_height / 2),
                 scale,
@@ -419,20 +419,20 @@ pub fn draw_scored_oval_marks_debug_image_mut(
             draw_text_with_background_mut(
                 canvas,
                 &match_score_text,
-                (scored_oval_mark
+                (scored_bubble_mark
                     .expected_bounds
                     .left()
-                    .min(scored_oval_mark.matched_bounds.left())
-                    + scored_oval_mark
+                    .min(scored_bubble_mark.matched_bounds.left())
+                    + scored_bubble_mark
                         .expected_bounds
                         .right()
-                        .max(scored_oval_mark.matched_bounds.right()))
+                        .max(scored_bubble_mark.matched_bounds.right()))
                     / 2
                     - (match_score_text_width / 2),
-                scored_oval_mark
+                scored_bubble_mark
                     .expected_bounds
                     .top()
-                    .min(scored_oval_mark.matched_bounds.top())
+                    .min(scored_bubble_mark.matched_bounds.top())
                     - 5
                     - match_score_text_height,
                 scale,
@@ -444,20 +444,20 @@ pub fn draw_scored_oval_marks_debug_image_mut(
             draw_text_with_background_mut(
                 canvas,
                 &fill_score_text,
-                (scored_oval_mark
+                (scored_bubble_mark
                     .expected_bounds
                     .left()
-                    .min(scored_oval_mark.matched_bounds.left())
-                    + scored_oval_mark
+                    .min(scored_bubble_mark.matched_bounds.left())
+                    + scored_bubble_mark
                         .expected_bounds
                         .right()
-                        .max(scored_oval_mark.matched_bounds.right()))
+                        .max(scored_bubble_mark.matched_bounds.right()))
                     / 2
                     - (fill_score_text_width / 2),
-                scored_oval_mark
+                scored_bubble_mark
                     .expected_bounds
                     .bottom()
-                    .max(scored_oval_mark.matched_bounds.bottom())
+                    .max(scored_bubble_mark.matched_bounds.bottom())
                     + 5,
                 scale,
                 font,
@@ -467,13 +467,13 @@ pub fn draw_scored_oval_marks_debug_image_mut(
 
             draw_hollow_rect_mut(
                 canvas,
-                scored_oval_mark.expected_bounds.into(),
-                original_oval_color,
+                scored_bubble_mark.expected_bounds.into(),
+                original_bubble_color,
             );
             draw_hollow_rect_mut(
                 canvas,
-                scored_oval_mark.matched_bounds.into(),
-                matched_oval_color,
+                scored_bubble_mark.matched_bounds.into(),
+                matched_bubble_color,
             );
         }
     }

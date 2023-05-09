@@ -1,3 +1,6 @@
+import { Election } from '@votingworks/types';
+import { type FoundLayout } from './find_layout';
+
 /**
  * The result of calling `interpret`.
  */
@@ -19,9 +22,17 @@ export type BridgeInterpretResult =
  * JSON. If `success` is false, `value` will be an error object as JSON.
  */
 export function interpret(
-  electionJson: string,
+  election: Election,
   ballotImageSourceSideA: string | ImageData,
   ballotImageSourceSideB: string | ImageData,
   debugBasePathSideA?: string,
   debugBasePathSideB?: string
 ): BridgeInterpretResult;
+
+/**
+ * Type of the Rust `findLayout` implementation.
+ */
+export function findLayout(
+  ballotImageSourceSideA: string | ImageData,
+  ballotImageSourceSideB: string | ImageData
+): FoundLayout;

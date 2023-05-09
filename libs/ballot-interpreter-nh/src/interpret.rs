@@ -7,9 +7,10 @@ use imageproc::contrast::otsu_level;
 use logging_timer::time;
 use serde::Serialize;
 
-use crate::ballot_card::get_scanned_ballot_card_geometry;
+use crate::ballot_card::get_matching_paper_info_for_image_size;
 use crate::ballot_card::BallotSide;
 use crate::ballot_card::Geometry;
+use crate::ballot_card::PaperInfo;
 use crate::debug::ImageDebugWriter;
 use crate::election::BallotStyleId;
 use crate::election::Election;
@@ -23,8 +24,8 @@ use crate::layout::build_interpreted_page_layout;
 use crate::layout::InterpretedContestLayout;
 use crate::metadata::BallotPageMetadata;
 use crate::metadata::BallotPageMetadataError;
-use crate::scoring::score_oval_marks_from_grid_layout;
-use crate::scoring::ScoredOvalMarks;
+use crate::scoring::score_bubble_marks_from_grid_layout;
+use crate::scoring::ScoredBubbleMarks;
 use crate::timing_marks::find_timing_mark_grid;
 use crate::timing_marks::TimingMarkGrid;
 
@@ -32,14 +33,14 @@ use crate::timing_marks::TimingMarkGrid;
 pub struct Options {
     pub debug_side_a_base: Option<PathBuf>,
     pub debug_side_b_base: Option<PathBuf>,
-    pub oval_template: GrayImage,
+    pub bubble_template: GrayImage,
     pub election: Election,
 }
 
 pub struct BallotImage {
-    image: GrayImage,
-    threshold: u8,
-    border_inset: Inset,
+    pub image: GrayImage,
+    pub threshold: u8,
+    pub border_inset: Inset,
 }
 pub struct BallotPage {
     ballot_image: BallotImage,
@@ -47,9 +48,9 @@ pub struct BallotPage {
 }
 
 pub struct BallotCard {
-    side_a: BallotImage,
-    side_b: BallotImage,
-    geometry: Geometry,
+    pub side_a: BallotImage,
+    pub side_b: BallotImage,
+    pub geometry: Geometry,
 }
 
 #[derive(Debug, Serialize)]
@@ -64,7 +65,7 @@ pub struct NormalizedImageBuffer {
 #[serde(rename_all = "camelCase")]
 pub struct InterpretedBallotPage {
     pub grid: TimingMarkGrid,
-    pub marks: ScoredOvalMarks,
+    pub marks: ScoredBubbleMarks,
     #[serde(skip_serializing)] // `normalized_image` is returned separately.
     pub normalized_image: GrayImage,
     pub contest_layouts: Vec<InterpretedContestLayout>,
@@ -164,15 +165,64 @@ impl Display for Error {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub enum ResizeStrategy {
+    Fit,
+    NoResize,
+}
+
+impl ResizeStrategy {
+    pub fn compute_error(
+        &self,
+        expected_dimensions: (u32, u32),
+        actual_dimensions: (u32, u32),
+    ) -> f32 {
+        match self {
+            Self::Fit => {
+                let (expected_width, expected_height) = expected_dimensions;
+                let (actual_width, actual_height) = actual_dimensions;
+                let expected_aspect_ratio = expected_width as f32 / expected_height as f32;
+                let actual_aspect_ratio = actual_width as f32 / actual_height as f32;
+                (expected_aspect_ratio - actual_aspect_ratio).abs()
+            }
+            Self::NoResize => {
+                let (expected_width, expected_height) = expected_dimensions;
+                let (actual_width, actual_height) = actual_dimensions;
+                let width_error =
+                    (expected_width as f32 - actual_width as f32).abs() / expected_width as f32;
+                let height_error =
+                    (expected_height as f32 - actual_height as f32).abs() / expected_height as f32;
+                width_error + height_error
+            }
+        }
+    }
+}
+
 /// Load both sides of a ballot card image and return the ballot card.
 #[time]
-fn prepare_ballot_card_images(
+pub fn prepare_ballot_card_images(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
+    possible_paper_infos: &[PaperInfo],
+    resize_strategy: ResizeStrategy,
 ) -> core::result::Result<BallotCard, Error> {
     let (side_a_result, side_b_result) = rayon::join(
-        || prepare_ballot_page_image(SIDE_A_LABEL, side_a_image),
-        || prepare_ballot_page_image(SIDE_B_LABEL, side_b_image),
+        || {
+            prepare_ballot_page_image(
+                SIDE_A_LABEL,
+                side_a_image,
+                possible_paper_infos,
+                resize_strategy,
+            )
+        },
+        || {
+            prepare_ballot_page_image(
+                SIDE_B_LABEL,
+                side_b_image,
+                possible_paper_infos,
+                resize_strategy,
+            )
+        },
     );
 
     let BallotPage {
@@ -233,6 +283,8 @@ pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<BallotImag
 fn prepare_ballot_page_image(
     label: &str,
     image: GrayImage,
+    possible_paper_infos: &[PaperInfo],
+    resize_strategy: ResizeStrategy,
 ) -> core::result::Result<BallotPage, Error> {
     let Some(BallotImage {
         image,
@@ -244,7 +296,7 @@ fn prepare_ballot_page_image(
         });
     };
 
-    let Some(geometry) = get_scanned_ballot_card_geometry(image.dimensions()) else {
+    let Some(paper_info) = get_matching_paper_info_for_image_size(image.dimensions(), possible_paper_infos, resize_strategy) else {
         let (width, height) = image.dimensions();
         return Err(Error::UnexpectedDimensions {
             label: label.to_string(),
@@ -252,6 +304,7 @@ fn prepare_ballot_page_image(
         });
     };
 
+    let geometry = paper_info.compute_geometry();
     let image = maybe_resize_image_to_fit(image, geometry.canvas_size);
 
     Ok(BallotPage {
@@ -274,7 +327,12 @@ pub fn interpret_ballot_card(
         side_a,
         side_b,
         geometry,
-    } = prepare_ballot_card_images(side_a_image, side_b_image)?;
+    } = prepare_ballot_card_images(
+        side_a_image,
+        side_b_image,
+        &PaperInfo::scanned(),
+        ResizeStrategy::Fit,
+    )?;
 
     let mut side_a_debug = match &options.debug_side_a_base {
         Some(base) => ImageDebugWriter::new(base.clone(), side_a.image.clone()),
@@ -361,11 +419,11 @@ pub fn interpret_ballot_card(
             })
     };
 
-    let (front_scored_oval_marks, back_scored_oval_marks) = rayon::join(
+    let (front_scored_bubble_marks, back_scored_bubble_marks) = rayon::join(
         || {
-            score_oval_marks_from_grid_layout(
+            score_bubble_marks_from_grid_layout(
                 &front_image,
-                &options.oval_template,
+                &options.bubble_template,
                 &front_grid,
                 grid_layout,
                 BallotSide::Front,
@@ -373,9 +431,9 @@ pub fn interpret_ballot_card(
             )
         },
         || {
-            score_oval_marks_from_grid_layout(
+            score_bubble_marks_from_grid_layout(
                 &back_image,
-                &options.oval_template,
+                &options.bubble_template,
                 &back_grid,
                 grid_layout,
                 BallotSide::Back,
@@ -400,13 +458,13 @@ pub fn interpret_ballot_card(
     Ok(InterpretedBallotCard {
         front: InterpretedBallotPage {
             grid: front_grid,
-            marks: front_scored_oval_marks,
+            marks: front_scored_bubble_marks,
             normalized_image: front_image,
             contest_layouts: front_contest_layouts,
         },
         back: InterpretedBallotPage {
             grid: back_grid,
-            marks: back_scored_oval_marks,
+            marks: back_scored_bubble_marks,
             normalized_image: back_image,
             contest_layouts: back_contest_layouts,
         },
@@ -421,7 +479,7 @@ mod test {
         path::{Path, PathBuf},
     };
 
-    use crate::ballot_card::load_oval_template;
+    use crate::ballot_card::load_ballot_scan_bubble_image;
 
     use super::*;
 
@@ -448,7 +506,7 @@ mod test {
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
-        let oval_template = load_oval_template().unwrap();
+        let bubble_template = load_ballot_scan_bubble_image().unwrap();
         for (side_a_name, side_b_name) in vec![
             ("scan-side-a.jpeg", "scan-side-b.jpeg"),
             ("scan-rotated-side-b.jpeg", "scan-rotated-side-a.jpeg"),
@@ -462,7 +520,7 @@ mod test {
                 &Options {
                     debug_side_a_base: None,
                     debug_side_b_base: None,
-                    oval_template: oval_template.clone(),
+                    bubble_template: bubble_template.clone(),
                     election: election.clone(),
                 },
             )

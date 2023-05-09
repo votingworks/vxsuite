@@ -1,13 +1,12 @@
-use std::{fmt::Debug, hash::Hash, io};
+use std::{cmp::Ordering, fmt::Debug, hash::Hash, io};
 
-use image::{GrayImage, Luma};
-use imageproc::contrast::{otsu_level, threshold};
+use image::GrayImage;
 use logging_timer::time;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    geometry::{GridUnit, PixelUnit, Rect, Size, SubPixelUnit},
-    image_utils::bleed,
+    geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
+    interpret::ResizeStrategy,
 };
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
@@ -37,11 +36,8 @@ pub struct Geometry {
     pub pixels_per_inch: PixelUnit,
     pub canvas_size: Size<PixelUnit>,
     pub content_area: Rect,
-    pub oval_size: Size<PixelUnit>,
     pub timing_mark_size: Size<SubPixelUnit>,
     pub grid_size: Size<GridUnit>,
-    pub front_usable_area: Rect,
-    pub back_usable_area: Rect,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
@@ -52,89 +48,165 @@ pub enum BallotSide {
     Back,
 }
 
-pub const fn get_scanned_ballot_card_geometry_8pt5x11() -> Geometry {
-    Geometry {
-        ballot_paper_size: BallotPaperSize::Letter,
-        pixels_per_inch: 200,
-        canvas_size: Size {
-            width: 1696,
-            height: 2200,
-        },
-        content_area: Rect::new(0, 0, 1696, 2200),
-        oval_size: Size {
-            width: 40,
-            height: 26,
-        },
-        timing_mark_size: Size {
-            width: 37.5,
-            height: 12.5,
-        },
-        grid_size: Size {
-            width: 34,
-            height: 41,
-        },
-        front_usable_area: Rect::new(0, 0, 34, 41),
-        back_usable_area: Rect::new(0, 0, 34, 41),
+/// Expected PPI for scanned ballot cards.
+const SCAN_PIXELS_PER_INCH: PixelUnit = 200;
+
+/// Expected PPI for ballot card templates.
+const TEMPLATE_PIXELS_PER_INCH: PixelUnit = 72;
+
+/// Template margins for the front and back of the ballot card in inches.
+const BALLOT_CARD_TEMPLATE_MARGINS: Size<Inch> = Size {
+    width: 0.5,
+    height: 0.5,
+};
+
+/// Scanned margins for the front and back of the ballot card in inches.
+const BALLOT_CARD_SCAN_MARGINS: Size<Inch> = Size {
+    width: 0.0,
+    height: 0.0,
+};
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct PaperInfo {
+    pub size: BallotPaperSize,
+    pub margins: Size<Inch>,
+    pub pixels_per_inch: PixelUnit,
+}
+
+impl PaperInfo {
+    /// Returns info for a letter-sized scanned ballot card.
+    pub const fn scanned_letter() -> Self {
+        Self {
+            size: BallotPaperSize::Letter,
+            margins: BALLOT_CARD_SCAN_MARGINS,
+            pixels_per_inch: SCAN_PIXELS_PER_INCH,
+        }
+    }
+
+    /// Returns info for a legal-sized scanned ballot card.
+    pub const fn scanned_legal() -> Self {
+        Self {
+            size: BallotPaperSize::Legal,
+            margins: BALLOT_CARD_SCAN_MARGINS,
+            pixels_per_inch: SCAN_PIXELS_PER_INCH,
+        }
+    }
+
+    /// Returns info for a letter-sized ballot card template.
+    pub const fn template_letter() -> Self {
+        Self {
+            size: BallotPaperSize::Letter,
+            margins: BALLOT_CARD_TEMPLATE_MARGINS,
+            pixels_per_inch: TEMPLATE_PIXELS_PER_INCH,
+        }
+    }
+
+    /// Returns info for a legal-sized ballot card template.
+    pub const fn template_legal() -> Self {
+        Self {
+            size: BallotPaperSize::Legal,
+            margins: BALLOT_CARD_TEMPLATE_MARGINS,
+            pixels_per_inch: TEMPLATE_PIXELS_PER_INCH,
+        }
+    }
+
+    /// Returns info for all supported scanned paper sizes.
+    pub const fn scanned() -> [Self; 2] {
+        [Self::scanned_letter(), Self::scanned_legal()]
+    }
+
+    /// Returns info for all supported template paper sizes.
+    pub const fn template() -> [Self; 2] {
+        [Self::template_letter(), Self::template_legal()]
+    }
+
+    pub fn compute_geometry(&self) -> Geometry {
+        let ballot_paper_size = self.size;
+        let margins = self.margins;
+        let pixels_per_inch = self.pixels_per_inch;
+        let (width, height) = match ballot_paper_size {
+            BallotPaperSize::Letter => (8.5 as Inch, 11.0 as Inch),
+            BallotPaperSize::Legal => (8.5 as Inch, 14.0 as Inch),
+        };
+        let canvas_size = Size {
+            width: (pixels_per_inch as SubPixelUnit * (margins.width.mul_add(2.0, width))).round()
+                as PixelUnit,
+            height: (pixels_per_inch as SubPixelUnit * (margins.height.mul_add(2.0, height)))
+                .round() as PixelUnit,
+        };
+        let content_area = Rect::new(
+            (pixels_per_inch as SubPixelUnit * margins.width).round() as PixelPosition,
+            (pixels_per_inch as SubPixelUnit * margins.height).round() as PixelPosition,
+            canvas_size.width
+                - (pixels_per_inch as SubPixelUnit * margins.width).round() as PixelUnit,
+            canvas_size.height
+                - (pixels_per_inch as SubPixelUnit * margins.height).round() as PixelUnit,
+        );
+        let timing_mark_size = Size {
+            width: (3.0 / 16.0) * pixels_per_inch as SubPixelUnit,
+            height: (1.0 / 16.0) * pixels_per_inch as SubPixelUnit,
+        };
+        let grid_size = match ballot_paper_size {
+            BallotPaperSize::Letter => Size {
+                width: 34,
+                height: 41,
+            },
+            BallotPaperSize::Legal => Size {
+                width: 34,
+                height: 53,
+            },
+        };
+
+        Geometry {
+            ballot_paper_size,
+            pixels_per_inch,
+            canvas_size,
+            content_area,
+            timing_mark_size,
+            grid_size,
+        }
     }
 }
 
-pub const fn get_scanned_ballot_card_geometry_8pt5x14() -> Geometry {
-    Geometry {
-        ballot_paper_size: BallotPaperSize::Legal,
-        pixels_per_inch: 200,
-        canvas_size: Size {
-            width: 1696,
-            height: 2800,
-        },
-        content_area: Rect::new(0, 0, 1696, 2800),
-        oval_size: Size {
-            width: 40,
-            height: 26,
-        },
-        timing_mark_size: Size {
-            width: 37.5,
-            height: 12.5,
-        },
-        grid_size: Size {
-            width: 34,
-            height: 53,
-        },
-        front_usable_area: Rect::new(0, 0, 34, 53),
-        back_usable_area: Rect::new(0, 0, 34, 53),
-    }
-}
-
-pub fn get_scanned_ballot_card_geometry(size: (PixelUnit, PixelUnit)) -> Option<Geometry> {
-    let (width, height) = size;
-    let aspect_ratio = width as SubPixelUnit / height as SubPixelUnit;
-    let letter_size = get_scanned_ballot_card_geometry_8pt5x11();
-    let letter_aspect_ratio = letter_size.canvas_size.width as SubPixelUnit
-        / letter_size.canvas_size.height as SubPixelUnit;
-    let legal_size = get_scanned_ballot_card_geometry_8pt5x14();
-    let legal_aspect_ratio = legal_size.canvas_size.width as SubPixelUnit
-        / legal_size.canvas_size.height as SubPixelUnit;
-
-    if (aspect_ratio - letter_aspect_ratio).abs() < 0.05 {
-        Some(letter_size)
-    } else if (aspect_ratio - legal_aspect_ratio).abs() < 0.05 {
-        Some(legal_size)
-    } else {
-        None
-    }
+pub fn get_matching_paper_info_for_image_size(
+    size: (PixelUnit, PixelUnit),
+    possible_paper_info: &[PaperInfo],
+    resize_strategy: ResizeStrategy,
+) -> Option<PaperInfo> {
+    const THRESHOLD: f32 = 0.05;
+    possible_paper_info
+        .iter()
+        .map(|paper_info| {
+            let geometry = paper_info.compute_geometry();
+            (
+                paper_info,
+                resize_strategy.compute_error(
+                    (geometry.canvas_size.width, geometry.canvas_size.height),
+                    size,
+                ),
+            )
+        })
+        .min_by(|(_, error1), (_, error2)| error1.partial_cmp(error2).unwrap_or(Ordering::Equal))
+        .filter(|(_, error)| *error < THRESHOLD)
+        .map(|(paper_info, _)| *paper_info)
 }
 
 #[time]
-pub fn load_oval_template() -> Option<GrayImage> {
-    let oval_scan_bytes = include_bytes!("../data/oval_scan.png");
-    let inner = io::Cursor::new(oval_scan_bytes);
-    let oval_scan_image = match image::load(inner, image::ImageFormat::Png).ok() {
-        Some(image) => image.to_luma8(),
-        _ => return None,
-    };
-    Some(bleed(
-        &threshold(&oval_scan_image, otsu_level(&oval_scan_image)),
-        Luma([0u8]),
-    ))
+pub fn load_ballot_scan_bubble_image() -> Option<GrayImage> {
+    let bubble_image_bytes = include_bytes!("../data/bubble_scan.png");
+    let inner = io::Cursor::new(bubble_image_bytes);
+    image::load(inner, image::ImageFormat::Png)
+        .ok()
+        .map(|image| image.to_luma8())
+}
+
+#[time]
+pub fn load_ballot_template_bubble_image() -> Option<GrayImage> {
+    let bubble_image_bytes = include_bytes!("../data/bubble_template.png");
+    let inner = io::Cursor::new(bubble_image_bytes);
+    image::load(inner, image::ImageFormat::Png)
+        .ok()
+        .map(|image| image.to_luma8())
 }
 
 #[cfg(test)]
@@ -144,19 +216,35 @@ mod tests {
     #[test]
     fn test_get_scanned_ballot_card_geometry() {
         assert_eq!(
-            get_scanned_ballot_card_geometry((1696, 2200)),
-            Some(get_scanned_ballot_card_geometry_8pt5x11())
+            get_matching_paper_info_for_image_size(
+                (1696, 2200),
+                &PaperInfo::scanned(),
+                ResizeStrategy::Fit
+            ),
+            Some(PaperInfo::scanned_letter())
         );
         assert_eq!(
-            get_scanned_ballot_card_geometry((1696, 2800)),
-            Some(get_scanned_ballot_card_geometry_8pt5x14())
+            get_matching_paper_info_for_image_size(
+                (1696, 2800),
+                &PaperInfo::scanned(),
+                ResizeStrategy::Fit
+            ),
+            Some(PaperInfo::scanned_legal())
         );
-        assert_eq!(get_scanned_ballot_card_geometry((1500, 1500)), None);
+        assert_eq!(
+            get_matching_paper_info_for_image_size(
+                (1500, 1500),
+                &PaperInfo::scanned(),
+                ResizeStrategy::Fit
+            ),
+            None
+        );
     }
 
     #[test]
-    fn test_load_oval_template() {
-        assert!(load_oval_template().is_some());
+    fn test_load_bubble_template() {
+        assert!(load_ballot_scan_bubble_image().is_some());
+        assert!(load_ballot_template_bubble_image().is_some());
     }
 
     #[test]

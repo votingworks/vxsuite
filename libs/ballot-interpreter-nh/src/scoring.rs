@@ -16,27 +16,27 @@ use crate::{
 };
 
 #[derive(Clone, Serialize)]
-pub struct OvalMarkScore(pub UnitIntervalValue);
+pub struct BubbleMarkScore(pub UnitIntervalValue);
 
-impl Display for OvalMarkScore {
+impl Display for BubbleMarkScore {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         write!(f, "{:.2}%", self.0 * 100.0)
     }
 }
 
-impl core::fmt::Debug for OvalMarkScore {
+impl core::fmt::Debug for BubbleMarkScore {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         write!(f, "{:.2}%", self.0 * 100.0)
     }
 }
 
-impl PartialEq for OvalMarkScore {
+impl PartialEq for BubbleMarkScore {
     fn eq(&self, other: &Self) -> bool {
         self.0.eq(&other.0)
     }
 }
 
-impl PartialOrd for OvalMarkScore {
+impl PartialOrd for BubbleMarkScore {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         self.0.partial_cmp(&other.0)
     }
@@ -44,24 +44,24 @@ impl PartialOrd for OvalMarkScore {
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ScoredOvalMark {
-    /// The location of the oval mark in the grid. Uses side/column/row, not
+pub struct ScoredBubbleMark {
+    /// The location of the bubble mark in the grid. Uses side/column/row, not
     /// x/y.
     pub location: GridLocation,
 
     /// The score for the match between the source image and the template. This
     /// is the highest value found when looking around `expected_bounds` for the
-    /// oval. 100% is a perfect match.
-    pub match_score: OvalMarkScore,
+    /// bubble. 100% is a perfect match.
+    pub match_score: BubbleMarkScore,
 
-    /// The score for the fill of the oval at `matched_bounds`. 100% is
+    /// The score for the fill of the bubble at `matched_bounds`. 100% is
     /// perfectly filled.
-    pub fill_score: OvalMarkScore,
+    pub fill_score: BubbleMarkScore,
 
-    /// The expected bounds of the oval mark in the scanned source image.
+    /// The expected bounds of the bubble mark in the scanned source image.
     pub expected_bounds: Rect,
 
-    /// The bounds of the oval mark in the scanned source image that was
+    /// The bounds of the bubble mark in the scanned source image that was
     /// determined to be the best match.
     pub matched_bounds: Rect,
 
@@ -85,11 +85,11 @@ pub struct ScoredOvalMark {
     pub fill_diff_image: GrayImage,
 }
 
-impl std::fmt::Debug for ScoredOvalMark {
+impl std::fmt::Debug for ScoredBubbleMark {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         write!(
             f,
-            "ScoredOvalMark {{ location: {:?}, match_score: {}, fill_score: {}, matched_bounds: {:?} }}",
+            "ScoredBubbleMark {{ location: {:?}, match_score: {}, fill_score: {}, matched_bounds: {:?} }}",
             self.location, self.match_score, self.fill_score, self.matched_bounds
         )
     }
@@ -97,20 +97,20 @@ impl std::fmt::Debug for ScoredOvalMark {
 
 pub const DEFAULT_MAXIMUM_SEARCH_DISTANCE: u32 = 7;
 
-pub type ScoredOvalMarks = Vec<(GridPosition, Option<ScoredOvalMark>)>;
+pub type ScoredBubbleMarks = Vec<(GridPosition, Option<ScoredBubbleMark>)>;
 
 #[time]
-pub fn score_oval_marks_from_grid_layout(
+pub fn score_bubble_marks_from_grid_layout(
     img: &GrayImage,
-    oval_template: &GrayImage,
+    bubble_template: &GrayImage,
     timing_mark_grid: &TimingMarkGrid,
     grid_layout: &GridLayout,
     side: BallotSide,
     debug: &ImageDebugWriter,
-) -> ScoredOvalMarks {
+) -> ScoredBubbleMarks {
     let threshold = otsu_level(img);
 
-    let scored_ovals = &grid_layout
+    let scored_bubbles = &grid_layout
         .grid_positions
         .par_iter()
         .flat_map(|grid_position| {
@@ -124,13 +124,13 @@ pub fn score_oval_marks_from_grid_layout(
                 .point_for_location(location.column, location.row)
                 .map_or_else(
                     || vec![(grid_position.clone(), None)],
-                    |expected_oval_center| {
+                    |expected_bubble_center| {
                         vec![(
                             grid_position.clone(),
-                            score_oval_mark(
+                            score_bubble_mark(
                                 img,
-                                oval_template,
-                                expected_oval_center,
+                                bubble_template,
+                                expected_bubble_center,
                                 &location,
                                 DEFAULT_MAXIMUM_SEARCH_DISTANCE,
                                 threshold,
@@ -139,43 +139,43 @@ pub fn score_oval_marks_from_grid_layout(
                     },
                 )
         })
-        .collect::<ScoredOvalMarks>();
+        .collect::<ScoredBubbleMarks>();
 
-    debug.write("scored_oval_marks", |canvas| {
-        debug::draw_scored_oval_marks_debug_image_mut(canvas, scored_ovals);
+    debug.write("scored_bubble_marks", |canvas| {
+        debug::draw_scored_bubble_marks_debug_image_mut(canvas, scored_bubbles);
     });
 
-    scored_ovals.clone()
+    scored_bubbles.clone()
 }
 
-/// Scores an oval mark within a scanned ballot image.
+/// Scores a bubble mark within a scanned ballot image.
 ///
-/// Compares the source image to the oval template image at every pixel location
-/// within `maximum_search_distance` pixels of `expected_oval_center` in all
+/// Compares the source image to the bubble template image at every pixel location
+/// within `maximum_search_distance` pixels of `expected_bubble_center` in all
 /// directions. This comparison produces a match score in the unit interval for
 /// each location. The highest match score is used to determine the bounds of
-/// the oval mark in the source image. The best matching bounds is also where
-/// we compute a fill score for the oval.
+/// the bubble mark in the source image. The best matching bounds is also where
+/// we compute a fill score for the bubble.
 ///
 /// We look for the highest match score in the vicinity of where we expect
-/// because the oval mark may not be exactly where we expect in the scanned
+/// because the bubble mark may not be exactly where we expect in the scanned
 /// image due to stretching or other distortions.
-pub fn score_oval_mark(
+pub fn score_bubble_mark(
     img: &GrayImage,
-    oval_template: &GrayImage,
-    expected_oval_center: Point<SubPixelUnit>,
+    bubble_template: &GrayImage,
+    expected_bubble_center: Point<SubPixelUnit>,
     location: &GridLocation,
     maximum_search_distance: PixelUnit,
     threshold: u8,
-) -> Option<ScoredOvalMark> {
-    let center_x = expected_oval_center.x.round() as PixelUnit;
-    let center_y = expected_oval_center.y.round() as PixelUnit;
-    let left = center_x - oval_template.width() / 2;
-    let top = center_y - oval_template.height() / 2;
-    let width = oval_template.width();
-    let height = oval_template.height();
+) -> Option<ScoredBubbleMark> {
+    let center_x = expected_bubble_center.x.round() as PixelUnit;
+    let center_y = expected_bubble_center.y.round() as PixelUnit;
+    let left = center_x - bubble_template.width() / 2;
+    let top = center_y - bubble_template.height() / 2;
+    let width = bubble_template.width();
+    let height = bubble_template.height();
     let expected_bounds = Rect::new(left as PixelPosition, top as PixelPosition, width, height);
-    let mut best_match_score = OvalMarkScore(UnitIntervalValue::NEG_INFINITY);
+    let mut best_match_score = BubbleMarkScore(UnitIntervalValue::NEG_INFINITY);
     let mut best_match_bounds: Option<Rect> = None;
     let mut best_match_diff: Option<GrayImage> = None;
 
@@ -200,12 +200,12 @@ pub fn score_oval_mark(
                 .to_image();
             let cropped_and_thresholded = imageproc::contrast::threshold(&cropped, threshold);
 
-            let match_diff = diff(&cropped_and_thresholded, oval_template);
-            let match_score = OvalMarkScore(ratio(&match_diff, WHITE));
+            let match_diff = diff(&cropped_and_thresholded, bubble_template);
+            let match_score = BubbleMarkScore(ratio(&match_diff, WHITE));
 
             if match_score > best_match_score {
                 best_match_score = match_score;
-                best_match_bounds = Some(Rect::new(x, y, width, oval_template.height()));
+                best_match_bounds = Some(Rect::new(x, y, width, bubble_template.height()));
                 best_match_diff = Some(match_diff);
             }
         }
@@ -223,10 +223,10 @@ pub fn score_oval_mark(
         )
         .to_image();
     let binarized_source_image = imageproc::contrast::threshold(&source_image, threshold);
-    let diff_image = diff(oval_template, &binarized_source_image);
-    let fill_score = OvalMarkScore(ratio(&diff_image, BLACK));
+    let diff_image = diff(bubble_template, &binarized_source_image);
+    let fill_score = BubbleMarkScore(ratio(&diff_image, BLACK));
 
-    Some(ScoredOvalMark {
+    Some(ScoredBubbleMark {
         location: *location,
         match_score: best_match_score,
         fill_score,

@@ -17,5 +17,6 @@ mod types;
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("interpret", js::interpret)?;
+    cx.export_function("findLayout", js::find_layout)?;
     Ok(())
 }

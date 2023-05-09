@@ -35,11 +35,17 @@ to run the Rust build and copy the built library into `./build/rust-addon.node`.
 ### API
 
 ```ts
-import { interpret } from '@votingworks/ballot-interpreter-nh';
+import { interpret, findLayout } from '@votingworks/ballot-interpreter-nh';
 
 console.log(
   'Interpretation:',
   interpret(electionDefinition, ['/path/to/scan1.jpeg', '/path/to/scan2.jpeg'])
+);
+
+// Determines the layout of a ballot scan or template, does not interpret.
+console.log(
+  'Layout:',
+  findLayout(['/path/to/scan1.jpeg', '/path/to/scan2.jpeg'])
 );
 ```
 
@@ -56,7 +62,7 @@ bin/interpret path/to/workspace
 bin/interpret path/to/workspace d34d-b33f
 
 # Write debug images alongside input images
-# (i.e. ballot-side-a_debug_scored_oval_marks.png)
+# (i.e. ballot-side-a_debug_scored_bubble_marks.png)
 bin/interpret -d election.json ballot-side-a.jpeg ballot-side-b.jpeg
 ```
 

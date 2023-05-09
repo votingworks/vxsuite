@@ -1,6 +1,6 @@
 import { assertDefined, ok, unique } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
-import { ElectionDefinition, SheetOf } from '@votingworks/types';
+import { Election, ElectionDefinition, SheetOf } from '@votingworks/types';
 import { interpret } from './interpret';
 
 test('interpret exists', () => {
@@ -10,11 +10,11 @@ test('interpret exists', () => {
 test('interpret with bad election data', () => {
   const electionDefinition: ElectionDefinition = {
     ...electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
-    electionData: 'not json',
+    election: { bad: 'election' } as unknown as Election,
   };
 
   expect(() => interpret(electionDefinition, ['a', 'b'])).toThrowError(
-    'failed to parse election definition'
+    'missing field `title`'
   );
 });
 

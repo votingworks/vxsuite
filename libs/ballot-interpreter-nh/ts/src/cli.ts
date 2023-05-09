@@ -56,7 +56,7 @@ function usage(out: NodeJS.WritableStream): void {
   out.write(`\n`);
   out.write(chalk.dim(`  # Write debug images alongside input images\n`));
   out.write(
-    chalk.dim(`  # (i.e. ballot-side-a_debug_scored_oval_marks.png)\n`)
+    chalk.dim(`  # (i.e. ballot-side-a_debug_scored_bubble_marks.png)\n`)
   );
   out.write(
     `  interpret -d election.json ballot-side-a.jpeg ballot-side-b.jpeg\n`
