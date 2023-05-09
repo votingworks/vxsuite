@@ -10,5 +10,9 @@
     "noEmit": true,
     "strict": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [
+    { "path": "../libs/basics/tsconfig.build.json" },
+    { "path": "../libs/monorepo-utils/tsconfig.build.json" }
+  ]
 }

@@ -1,1 +1,0 @@
-../../script/src/validate-monorepo/pnpm.ts

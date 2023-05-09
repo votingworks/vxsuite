@@ -1,5 +1,4 @@
-import { join } from 'path';
-import { maybeReadPackageJson } from './util';
+import { PackageInfo } from '@votingworks/monorepo-utils';
 
 export enum ValidationIssueKind {
   MismatchedPackageVersion = 'MismatchedPackageVersion',
@@ -19,25 +18,24 @@ export interface MismatchedPackagePropertyIssue {
 export type ValidationIssue = MismatchedPackagePropertyIssue;
 
 export async function* checkPackageManager({
-  packages,
+  workspacePackages,
 }: {
-  packages: readonly string[];
+  workspacePackages: ReadonlyMap<string, PackageInfo>;
 }): AsyncGenerator<ValidationIssue> {
   const packageManagers = new Set<string | undefined>();
   const properties: PackageJsonProperty[] = [];
 
-  for (const pkg of packages) {
-    const packageJsonPath = join(pkg, 'package.json');
-    const packageJson = await maybeReadPackageJson(packageJsonPath);
-
-    if (packageJson) {
-      packageManagers.add(packageJson.packageManager);
-      properties.push({
-        packageJsonPath,
-        propertyName: 'packageManager',
-        value: packageJson.packageManager,
-      });
+  for (const pkg of workspacePackages.values()) {
+    if (pkg.name.startsWith('@types/') || pkg.name === 'prodserver') {
+      continue;
     }
+
+    packageManagers.add(pkg.packageJson.packageManager);
+    properties.push({
+      packageJsonPath: pkg.packageJsonPath,
+      propertyName: 'packageManager',
+      value: pkg.packageJson.packageManager,
+    });
   }
 
   if (packageManagers.size > 1) {
@@ -52,23 +50,18 @@ export async function* checkPackageManager({
  * Check that certain packages all have the same pinned version.
  */
 export async function* checkPinnedVersions({
-  packages,
   pinnedPackages,
+  workspacePackages,
 }: {
-  packages: readonly string[];
   pinnedPackages: readonly string[];
+  workspacePackages: ReadonlyMap<string, PackageInfo>;
 }): AsyncGenerator<ValidationIssue> {
   for (const pinnedPackage of pinnedPackages) {
     const versions = new Set<string | undefined>();
     const properties: PackageJsonProperty[] = [];
 
-    for (const pkg of packages) {
-      const packageJsonPath = join(pkg, 'package.json');
-      const packageJson = await maybeReadPackageJson(packageJsonPath);
-
-      if (!packageJson) {
-        continue;
-      }
+    for (const pkg of workspacePackages.values()) {
+      const { packageJson, packageJsonPath } = pkg;
 
       if (packageJson.dependencies?.[pinnedPackage]) {
         versions.add(packageJson.dependencies[pinnedPackage]);
@@ -106,10 +99,12 @@ export async function* checkPinnedVersions({
 export async function* checkConfig({
   packages,
   pinnedPackages,
+  workspacePackages,
 }: {
   packages: readonly string[];
   pinnedPackages: readonly string[];
+  workspacePackages: ReadonlyMap<string, PackageInfo>;
 }): AsyncGenerator<ValidationIssue> {
-  yield* checkPackageManager({ packages });
-  yield* checkPinnedVersions({ packages, pinnedPackages });
+  yield* checkPackageManager({ workspacePackages });
+  yield* checkPinnedVersions({ workspacePackages, pinnedPackages });
 }

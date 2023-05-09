@@ -1,10 +1,10 @@
+import { throwIllegalValue } from '@votingworks/basics';
 import { relative } from 'path';
 import { IO } from '../types';
 import { validateMonorepo, ValidationIssue } from './validation';
 import * as circleci from './validation/circleci';
 import * as pkgs from './validation/packages';
 import * as tsconfig from './validation/tsconfig';
-import { assertNever } from './validation/util';
 
 /**
  * Validate the monorepo build configuration, printing any issues found.
@@ -56,6 +56,15 @@ export async function main({ stderr }: IO): Promise<number> {
         );
         break;
 
+      case tsconfig.ValidationIssueKind.MissingWorkspaceDependency:
+        stderr.write(
+          `${relative(
+            cwd,
+            issue.packageJsonPath
+          )}: missing expected workspace dependency on ${issue.dependencyName}\n`
+        );
+        break;
+
       case circleci.ValidationIssueKind.UnusedJobIssue:
         stderr.write(
           `${relative(cwd, issue.configPath)}: unused job "${issue.jobName}"\n`
@@ -71,7 +80,7 @@ export async function main({ stderr }: IO): Promise<number> {
         break;
 
       default:
-        assertNever(issue);
+        throwIllegalValue(issue);
     }
   }
 

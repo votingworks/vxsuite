@@ -28,7 +28,10 @@ import { join, relative } from 'path';
 import { Project } from 'ts-morph';
 import { iter, Optional } from '@votingworks/basics';
 import { formatDurationNs } from '@votingworks/utils';
-import { getWorkspacePackageInfo, PackageInfo } from '../pnpm';
+import {
+  getWorkspacePackageInfo,
+  PackageInfo,
+} from '@votingworks/monorepo-utils';
 
 const VOTINGWORKS_PACKAGE_NAMESPACE = '@votingworks';
 
@@ -72,7 +75,7 @@ export async function main(args: readonly string[]): Promise<number> {
   const monorepoRoot = join(__dirname, '../../..');
   const movements: Movement[] = [];
   const packages: PackageInfo[] = [];
-  const workspacePackageInfo = await getWorkspacePackageInfo(monorepoRoot);
+  const workspacePackageInfo = getWorkspacePackageInfo(monorepoRoot);
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i] as string;

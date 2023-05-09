@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { getWorkspacePackagePaths } from '../pnpm';
+import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 import * as circleci from './circleci';
 import * as pkgs from './packages';
 import * as tsconfig from './tsconfig';
@@ -17,6 +17,7 @@ export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
   const services = await readdir(join(root, 'services'));
   const libs = await readdir(join(root, 'libs'));
   const packages = [...services, ...libs, ...appPackages];
+  const workspacePackages = getWorkspacePackageInfo(root);
 
   yield* pkgs.checkConfig({
     packages: [root, ...packages],
@@ -38,8 +39,9 @@ export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
       'react-dom',
       'typescript',
     ],
+    workspacePackages,
   });
-  yield* tsconfig.checkConfig({ packages });
+  yield* tsconfig.checkConfig({ workspacePackages });
 
   const circleCiConfigPath = join(root, '.circleci/config.yml');
   const circleCiConfig = await circleci.loadConfig(circleCiConfigPath);
@@ -47,6 +49,6 @@ export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
   yield* circleci.checkConfig(
     circleCiConfig,
     circleCiConfigPath,
-    await getWorkspacePackagePaths(root)
+    await getWorkspacePackageInfo(root)
   );
 }

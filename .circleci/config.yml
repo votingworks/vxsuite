@@ -771,6 +771,28 @@ jobs:
       - store_test_results:
           path: libs/message-coder/reports/
 
+  test-libs-monorepo-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/monorepo-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/monorepo-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/monorepo-utils test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/monorepo-utils/reports/
+
   test-libs-res-to-ts:
     executor: nodejs
     resource_class: xlarge
@@ -929,6 +951,10 @@ jobs:
     steps:
       - checkout-and-install
       - run:
+          name: Build
+          command: |
+            pnpm --dir script build
+      - run:
           name: Validate
           command: |
             ./script/validate-monorepo
@@ -969,6 +995,7 @@ workflows:
       - test-libs-image-utils
       - test-libs-logging
       - test-libs-message-coder
+      - test-libs-monorepo-utils
       - test-libs-res-to-ts
       - test-libs-test-utils
       - test-libs-types

@@ -63,6 +63,7 @@
   "references": [
     { "path": "../libs/basics/tsconfig.build.json" },
     { "path": "../libs/eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../libs/monorepo-utils/tsconfig.build.json" },
     { "path": "../libs/utils/tsconfig.build.json" }
   ]
 }

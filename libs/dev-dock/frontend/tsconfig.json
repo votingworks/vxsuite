@@ -12,7 +12,8 @@
     "skipLibCheck": true
   },
   "references": [
-    { "path": "../../dev-dock/backend/tsconfig.build.json" },
+    { "path": "../backend/tsconfig.build.json" },
+    { "path": "../../auth/tsconfig.build.json" },
     { "path": "../../basics/tsconfig.build.json" },
     { "path": "../../eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../grout/tsconfig.build.json" },
