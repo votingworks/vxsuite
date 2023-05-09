@@ -2,7 +2,7 @@ import * as path from 'path';
 import { Alias, mergeConfig, InlineConfig } from 'vite';
 import { StorybookConfig } from '@storybook/react-vite';
 
-import { getWorkspacePackageInfo } from '../../../script/src/validate-monorepo/pnpm';
+import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(ts|tsx)'],
@@ -23,7 +23,7 @@ const config: StorybookConfig = {
   },
   staticDirs: ['../.storybook-static'],
   async viteFinal(config: InlineConfig): Promise<InlineConfig> {
-    const workspacePackages = await getWorkspacePackageInfo(
+    const workspacePackages = getWorkspacePackageInfo(
       path.join(__dirname, '../..')
     );
 

@@ -111,6 +111,7 @@
     "@votingworks/central-scan-backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout-test-utils": "workspace:*",
+    "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "^0.15.10",
     "esbuild-runner": "^2.2.1",

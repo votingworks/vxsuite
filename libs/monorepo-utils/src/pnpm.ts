@@ -1,9 +1,22 @@
-import { execFile } from 'child_process';
-import { readFile } from 'fs/promises';
+import { assert } from '@votingworks/basics';
+import { execFileSync } from 'child_process';
+import { readFileSync } from 'fs';
 import { join, relative } from 'path';
-import { Package } from './validation/util';
-import { maybeReadPackageJson } from './validation/util';
-import assert from 'assert';
+
+/**
+ * Package info from `package.json`.
+ */
+export interface PackageJson {
+  readonly name: string;
+  readonly version: string;
+  readonly main?: string;
+  readonly module?: string;
+  readonly scripts?: { [name: string]: string };
+  readonly dependencies?: { [name: string]: string };
+  readonly devDependencies?: { [name: string]: string };
+  readonly peerDependencies?: { [name: string]: string };
+  readonly packageManager?: string;
+}
 
 /**
  * Workspace package info.
@@ -50,7 +63,7 @@ export interface PackageInfo {
   /**
    * The full `package.json` contents.
    */
-  readonly packageJson: Package;
+  readonly packageJson: PackageJson;
 
   /**
    * The full `package.json` path.
@@ -59,41 +72,50 @@ export interface PackageInfo {
 }
 
 /**
+ * Read a JSON file, returning `undefined` if the file does not exist.
+ */
+function maybeReadJson(filepath: string): unknown {
+  try {
+    return JSON.parse(readFileSync(filepath, { encoding: 'utf-8' }));
+  } catch {
+    // istanbul ignore next
+    return undefined;
+  }
+}
+
+/**
+ * Read a `package.json` file, returning `undefined` if the file does not exist.
+ */
+function maybeReadPackageJson(filepath: string): PackageJson | undefined {
+  return maybeReadJson(filepath) as PackageJson | undefined;
+}
+
+/**
  * Get all pnpm workspace package paths.
  */
-export function getWorkspacePackagePaths(root: string): Promise<string[]> {
-  return new Promise((resolve, reject) => {
-    execFile(
-      'pnpm',
-      ['recursive', 'list', '--depth=-1', '--porcelain'],
-      { cwd: root },
-      (err, stdout) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(
-            stdout
-              .split('\n')
-              .map((line) => relative(root, line))
-              .filter((line) => line.length > 0)
-          );
-        }
-      }
-    );
-  });
+export function getWorkspacePackagePaths(root: string): string[] {
+  const stdout = execFileSync(
+    'pnpm',
+    ['recursive', 'list', '--depth=-1', '--porcelain'],
+    { cwd: root, encoding: 'utf-8' }
+  );
+  return stdout
+    .split('\n')
+    .map((line) => relative(root, line))
+    .filter((line) => line.length > 0);
 }
 
 /**
  * Get all pnpm workspace package info by package name.
  */
-export async function getWorkspacePackageInfo(
+export function getWorkspacePackageInfo(
   root: string
-): Promise<Map<string, PackageInfo>> {
+): Map<string, PackageInfo> {
   const result = new Map<string, PackageInfo>();
 
-  for (const path of await getWorkspacePackagePaths(root)) {
+  for (const path of getWorkspacePackagePaths(root)) {
     const packageJsonPath = join(root, path, 'package.json');
-    const packageJson = await maybeReadPackageJson(packageJsonPath);
+    const packageJson = maybeReadPackageJson(packageJsonPath);
     assert(packageJson);
 
     result.set(packageJson.name, {

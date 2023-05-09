@@ -4,6 +4,8 @@
   "license": "GPL-3.0",
   "author": "VotingWorks Eng <eng@voting.works>",
   "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build --watch tsconfig.build.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "type-check": "tsc --build",
@@ -14,6 +16,7 @@
     "esbuild-esm-loader": "^0.2.3",
     "ts-morph": "^12.2.0",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/utils": "workspace:*"
   },
   "devDependencies": {

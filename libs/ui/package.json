@@ -92,6 +92,7 @@
     "@typescript-eslint/eslint-plugin": "5.37.0",
     "@typescript-eslint/parser": "5.37.0",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "assert": "^2.0.0",
     "browserify-zlib": "^0.2.0",
