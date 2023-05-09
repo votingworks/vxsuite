@@ -5783,6 +5783,9 @@ importers:
 
   script:
     dependencies:
+      '@votingworks/monorepo-utils':
+        specifier: workspace:*
+        version: link:../libs/monorepo-utils
       concurrently:
         specifier: ^7.4.0
         version: 7.4.0

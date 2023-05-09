@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { getWorkspacePackageInfo } from '../pnpm';
+import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 import * as circleci from './circleci';
 import * as pkgs from './packages';
 import * as tsconfig from './tsconfig';
@@ -17,7 +17,7 @@ export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
   const services = await readdir(join(root, 'services'));
   const libs = await readdir(join(root, 'libs'));
   const packages = [...services, ...libs, ...appPackages];
-  const workspacePackages = await getWorkspacePackageInfo(root);
+  const workspacePackages = getWorkspacePackageInfo(root);
 
   yield* pkgs.checkConfig({
     packages: [root, ...packages],

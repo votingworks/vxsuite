@@ -1,8 +1,7 @@
 import { basename, dirname, join } from 'path';
 import * as ts from 'typescript';
-import { maybeReadPackageJson } from './util';
 import { statSync } from 'fs';
-import { PackageInfo } from '../pnpm';
+import { PackageInfo } from '@votingworks/monorepo-utils';
 
 export interface Tsconfig {
   readonly include?: readonly string[];

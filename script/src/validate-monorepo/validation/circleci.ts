@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
 import { parse as parseYaml } from 'yaml';
-import { PackageInfo } from '../pnpm';
+import { PackageInfo } from '@votingworks/monorepo-utils';
 
 /**
  * Any kind of validation issue with the CircleCI configuration.
