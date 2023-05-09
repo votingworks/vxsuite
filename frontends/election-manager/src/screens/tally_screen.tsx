@@ -163,6 +163,9 @@ export function TallyScreen(): JSX.Element {
               {hasAnyFiles ? (
                 <React.Fragment>
                   <tr>
+                    <TD as="th" narrow nowrap textAlign="right">
+                      #
+                    </TD>
                     <TD as="th" narrow nowrap>
                       Created At
                     </TD>
@@ -177,14 +180,20 @@ export function TallyScreen(): JSX.Element {
                     </TD>
                   </tr>
                   {castVoteRecordFileList.map(
-                    ({
-                      name,
-                      exportTimestamp,
-                      importedCvrCount,
-                      scannerIds,
-                      precinctIds,
-                    }) => (
+                    (
+                      {
+                        name,
+                        exportTimestamp,
+                        importedCvrCount,
+                        scannerIds,
+                        precinctIds,
+                      },
+                      cvrFileIndex
+                    ) => (
                       <tr key={name}>
+                        <TD narrow nowrap textAlign="right">
+                          {cvrFileIndex + 1}.
+                        </TD>
                         <TD narrow nowrap>
                           {moment(exportTimestamp).format(
                             'MM/DD/YYYY hh:mm:ss A'
@@ -200,6 +209,7 @@ export function TallyScreen(): JSX.Element {
                   )}
                   {externalTallyRows}
                   <tr>
+                    <TD />
                     <TD as="th" narrow nowrap>
                       Total CVRs Count
                     </TD>
