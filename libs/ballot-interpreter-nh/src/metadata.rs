@@ -195,19 +195,22 @@ pub fn compute_bits_from_bottom_timing_marks(
 
     // The first and last timing marks must be present.
     match (bottom_timing_marks.first(), bottom_timing_marks.last()) {
-        (Some(Some(_)), Some(Some(_))) => {}
-        _ => {
+        (Some(Some(_)), Some(Some(_))) => {
+            // both timing marks are present
+        }
+        (Some(None), Some(None)) => {
             return Err(BallotPageMetadataError::InvalidTimingMarkCount {
                 expected: 2,
-                actual: vec![
-                    bottom_timing_marks.first().unwrap(),
-                    bottom_timing_marks.last().unwrap(),
-                ]
-                .iter()
-                .filter(|&mark| mark.is_some())
-                .count(),
+                actual: 0,
             });
         }
+        (Some(None), _) | (_, Some(None)) => {
+            return Err(BallotPageMetadataError::InvalidTimingMarkCount {
+                expected: 2,
+                actual: 1,
+            });
+        }
+        _ => unreachable!(),
     }
 
     let bits: Vec<bool> = bottom_timing_marks
