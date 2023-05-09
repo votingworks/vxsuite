@@ -111,12 +111,12 @@ test('get/set is sounds muted mode', () => {
   expect(store.getIsSoundMuted()).toEqual(false);
 });
 
-test('get/set is ultrasonic disabled mode', () => {
+test('get/set is double sheet disabled mode', () => {
   const store = Store.memoryStore();
 
   // Before setting an election
-  expect(store.getIsUltrasonicDisabled()).toEqual(false);
-  expect(() => store.setIsUltrasonicDisabled(true)).toThrowError();
+  expect(store.getIsDoubleSheetDetectionDisabled()).toEqual(false);
+  expect(() => store.setIsDoubleSheetDetectionDisabled(true)).toThrowError();
 
   store.setElectionAndJurisdiction({
     electionData:
@@ -126,13 +126,13 @@ test('get/set is ultrasonic disabled mode', () => {
   });
 
   // After setting an election
-  expect(store.getIsUltrasonicDisabled()).toEqual(false);
+  expect(store.getIsDoubleSheetDetectionDisabled()).toEqual(false);
 
-  store.setIsUltrasonicDisabled(true);
-  expect(store.getIsUltrasonicDisabled()).toEqual(true);
+  store.setIsDoubleSheetDetectionDisabled(true);
+  expect(store.getIsDoubleSheetDetectionDisabled()).toEqual(true);
 
-  store.setIsUltrasonicDisabled(false);
-  expect(store.getIsUltrasonicDisabled()).toEqual(false);
+  store.setIsDoubleSheetDetectionDisabled(false);
+  expect(store.getIsDoubleSheetDetectionDisabled()).toEqual(false);
 });
 
 test('get/set ballot count when ballot bag last replaced', () => {

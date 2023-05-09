@@ -215,7 +215,7 @@ export function arbitrarySetScanParametersRequestData(): fc.Arbitrary<SetScanPar
     acquireNoPaperSensor: fc.boolean(),
     acquireMotorOff: fc.boolean(),
     ultrasonicSensorLevel: arbitraryUltrasonicSensorLevelInternal(),
-    disableUltrasonicSensor: fc.boolean(),
+    disableDoubleSheetDetection: fc.boolean(),
     disableHardwareDeskew: fc.boolean(),
     formStandingAfterScan: arbitraryFormStanding(),
     wantedScanSide: arbitraryScanSide(),

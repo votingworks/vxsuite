@@ -1,4 +1,4 @@
-import type { Api, PrecinctScannerStatus } from '@votingworks/scan-backend';
+import { Api, PrecinctScannerStatus } from '@votingworks/scan-backend';
 import React from 'react';
 import * as grout from '@votingworks/grout';
 import {
@@ -17,7 +17,7 @@ import {
   UsbDriveStatus as LegacyUsbDriveStatus,
 } from '@votingworks/ui';
 import { typedAs } from '@votingworks/basics';
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { UsbDriveStatus } from '@votingworks/usb-drive';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -211,11 +211,11 @@ export const setIsSoundMuted = {
   },
 } as const;
 
-export const setIsUltrasonicDisabled = {
+export const setIsDoubleSheetDetectionDisabled = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.setIsUltrasonicDisabled, {
+    return useMutation(apiClient.setIsDoubleSheetDetectionDisabled, {
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
       },
@@ -324,13 +324,15 @@ export const returnBallot = {
   },
 } as const;
 
-export const supportsUltrasonic = {
+export const supportsDoubleSheetDetection = {
   queryKey(): QueryKey {
-    return ['supportsUltrasonic'];
+    return ['supportsDoubleSheetDetection'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.supportsUltrasonic());
+    return useQuery(this.queryKey(), () =>
+      apiClient.supportsDoubleSheetDetection()
+    );
   },
 } as const;
 

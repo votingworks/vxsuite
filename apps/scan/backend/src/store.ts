@@ -232,19 +232,19 @@ export class Store {
   }
 
   /**
-   * Gets whether ultrasonic is disabled.
+   * Gets whether double sheet is disabled.
    */
-  getIsUltrasonicDisabled(): boolean {
+  getIsDoubleSheetDetectionDisabled(): boolean {
     const electionRow = this.client.one(
-      'select is_ultrasonic_disabled as isUltrasonicDisabled from election'
-    ) as { isUltrasonicDisabled: number } | undefined;
+      'select is_double_sheet_disabled as isDoubleSheetDetectionDisabled from election'
+    ) as { isDoubleSheetDetectionDisabled: number } | undefined;
 
     if (!electionRow) {
-      // we will not disable ultrasonic by default once an election is defined
+      // we will not disable double sheet by default once an election is defined
       return false;
     }
 
-    return Boolean(electionRow.isUltrasonicDisabled);
+    return Boolean(electionRow.isDoubleSheetDetectionDisabled);
   }
 
   /**
@@ -262,16 +262,20 @@ export class Store {
   }
 
   /**
-   * Sets whether or not to enable ultrasonic, if supported.
+   * Sets whether or not to enable double sheet detection, if supported.
    */
-  setIsUltrasonicDisabled(isUltrasonicDisabled: boolean): void {
+  setIsDoubleSheetDetectionDisabled(
+    isDoubleSheetDetectionDisabled: boolean
+  ): void {
     if (!this.hasElection()) {
-      throw new Error('Cannot toggle ultrasonic without an election.');
+      throw new Error(
+        'Cannot toggle double sheet detection without an election.'
+      );
     }
 
     this.client.run(
-      'update election set is_ultrasonic_disabled = ?',
-      isUltrasonicDisabled ? 1 : 0
+      'update election set is_double_sheet_disabled = ?',
+      isDoubleSheetDetectionDisabled ? 1 : 0
     );
   }
 

@@ -90,7 +90,7 @@ export function convertToInternalScanParameters(
     ultrasonicSensorLevel: convertToUltrasonicSensorLevelInternal(
       scanParameters.doubleSheetDetection
     ),
-    disableUltrasonicSensor:
+    disableDoubleSheetDetection:
       scanParameters.doubleSheetDetection === DoubleSheetDetectOpt.DetectOff,
     disableHardwareDeskew: true,
     formStandingAfterScan: scanParameters.formStandingAfterScan,

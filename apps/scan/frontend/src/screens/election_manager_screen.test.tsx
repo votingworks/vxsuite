@@ -63,7 +63,7 @@ function renderScreen(
 }
 
 test('renders date and time settings modal', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -98,7 +98,7 @@ test('renders date and time settings modal', async () => {
 });
 
 test('option to set precinct if more than one', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   apiMock.expectGetConfig();
   const precinct = electionSampleDefinition.election.precincts[0];
   const precinctSelection = singlePrecinctSelectionFor(precinct.id);
@@ -112,7 +112,7 @@ test('option to set precinct if more than one', async () => {
 });
 
 test('no option to change precinct if there is only one precinct', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   const electionDefinition =
     electionMinimalExhaustiveSampleSinglePrecinctDefinition;
   apiMock.expectGetConfig({
@@ -126,7 +126,7 @@ test('no option to change precinct if there is only one precinct', async () => {
 });
 
 test('export from admin screen', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   apiMock.expectGetConfig();
   renderScreen();
 
@@ -136,7 +136,7 @@ test('export from admin screen', async () => {
 });
 
 test('unconfigure does not eject a usb drive that is not mounted', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   apiMock.expectGetConfig();
   renderScreen({
     scannerStatus: { ...statusNoPaper, canUnconfigure: true },
@@ -156,7 +156,7 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
 });
 
 test('unconfigure ejects a usb drive when it is mounted', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   apiMock.expectGetConfig();
   renderScreen({
     scannerStatus: { ...statusNoPaper, canUnconfigure: true },
@@ -175,7 +175,7 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
 });
 
 test('unconfigure button is disabled when the machine cannot be unconfigured', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -185,7 +185,7 @@ test('unconfigure button is disabled when the machine cannot be unconfigured', a
 });
 
 test('cannot toggle to Test Ballot Mode when the machine cannot be unconfigured', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   apiMock.expectGetConfig({ isTestMode: false });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -196,7 +196,7 @@ test('cannot toggle to Test Ballot Mode when the machine cannot be unconfigured'
 });
 
 test('allows overriding mark thresholds', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -220,7 +220,7 @@ test('allows overriding mark thresholds', async () => {
 });
 
 test('when sounds are not muted, shows a button to mute sounds', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   apiMock.expectGetConfig({ isSoundMuted: false });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -234,7 +234,7 @@ test('when sounds are not muted, shows a button to mute sounds', async () => {
 });
 
 test('when sounds are muted, shows a button to unmute sounds', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   apiMock.expectGetConfig({ isSoundMuted: true });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -247,40 +247,40 @@ test('when sounds are muted, shows a button to unmute sounds', async () => {
   await screen.findByRole('button', { name: 'Mute Sounds' });
 });
 
-test('does not show ultrasonic button if not supported', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
+test('does not show double sheet detection button if not supported', async () => {
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
   expect(screen.queryByText('Disable Double Sheet Detection')).toBeNull();
 });
 
-test('shows ultrasonic toggle when supported', async () => {
-  apiMock.expectCheckUltrasonicSupported(true);
+test('shows double sheet detection toggle when supported', async () => {
+  apiMock.expectCheckDoubleSheetDetectionSupported(true);
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
   await screen.findByText('Disable Double Sheet Detection');
 });
 
-test('prompts to enable ultrasonic when disabled ', async () => {
-  apiMock.expectCheckUltrasonicSupported(true);
-  apiMock.expectGetConfig({ isUltrasonicDisabled: true });
+test('prompts to enable double sheet detection when disabled ', async () => {
+  apiMock.expectCheckDoubleSheetDetectionSupported(true);
+  apiMock.expectGetConfig({ isDoubleSheetDetectionDisabled: true });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
   await screen.findByText('Enable Double Sheet Detection');
 });
 
-test('disables ultrasonic properly', async () => {
-  apiMock.expectCheckUltrasonicSupported(true);
+test('disables double sheet detection properly', async () => {
+  apiMock.expectCheckDoubleSheetDetectionSupported(true);
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
-  apiMock.mockApiClient.setIsUltrasonicDisabled
-    .expectCallWith({ isUltrasonicDisabled: true })
+  apiMock.mockApiClient.setIsDoubleSheetDisabled
+    .expectCallWith({ isDoubleSheetDetectionDisabled: true })
     .resolves();
-  apiMock.expectGetConfig({ isUltrasonicDisabled: true });
+  apiMock.expectGetConfig({ isDoubleSheetDetectionDisabled: true });
   userEvent.click(await screen.findButton('Disable Double Sheet Detection'));
   await screen.findButton('Enable Double Sheet Detection');
   await screen.findByText('Enable Double Sheet Detection');

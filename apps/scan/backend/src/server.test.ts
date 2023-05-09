@@ -31,7 +31,7 @@ function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctScannerSta
     scan: jest.fn(),
     accept: jest.fn(),
     return: jest.fn(),
-    supportsUltrasonic: jest.fn(),
+    supportsDoubleSheetDetection: jest.fn(),
   };
 }
 

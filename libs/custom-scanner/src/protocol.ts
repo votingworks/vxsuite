@@ -445,7 +445,7 @@ export const SetScanParametersRequestData = message({
   ),
 
   /** Byte 8.5 (0x20) */
-  disableUltrasonicSensor: uint1(),
+  disableDoubleSheetDetection: uint1(),
 
   /** Byte 8.4 (0x10) */
   disableHardwareDeskew: uint1(),

@@ -13,9 +13,9 @@ import {
   Caption,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
-import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
+import { PrecinctScannerStatus } from '@votingworks/scan-backend';
 import { Logger, LogSource } from '@votingworks/logging';
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { ScreenMainCenterChild } from '../components/layout';
@@ -24,10 +24,10 @@ import {
   ejectUsbDrive,
   getConfig,
   setIsSoundMuted,
-  setIsUltrasonicDisabled,
+  setIsDoubleSheetDetectionDisabled,
   setPrecinctSelection,
   setTestMode,
-  supportsUltrasonic,
+  supportsDoubleSheetDetection,
   unconfigureElection,
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
@@ -49,12 +49,14 @@ export function ElectionManagerScreen({
   usbDrive,
   logger,
 }: ElectionManagerScreenProps): JSX.Element | null {
-  const supportsUltrasonicQuery = supportsUltrasonic.useQuery();
+  const supportsDoubleSheetDetectionQuery =
+    supportsDoubleSheetDetection.useQuery();
   const configQuery = getConfig.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
-  const setIsUltrasonicDisabledMutation = setIsUltrasonicDisabled.useMutation();
+  const setIsDoubleSheetDetectionDisabledMutation =
+    setIsDoubleSheetDetectionDisabled.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
@@ -78,7 +80,7 @@ export function ElectionManagerScreen({
     precinctSelection,
     isTestMode,
     isSoundMuted,
-    isUltrasonicDisabled,
+    isDoubleSheetDetectionDisabled,
     markThresholdOverrides,
     pollsState,
   } = configQuery.data;
@@ -174,15 +176,16 @@ export function ElectionManagerScreen({
           </Button>
         </P>
         <P>
-          {supportsUltrasonicQuery.data === true && (
+          {supportsDoubleSheetDetectionQuery.data === true && (
             <Button
               onPress={() =>
-                setIsUltrasonicDisabledMutation.mutate({
-                  isUltrasonicDisabled: !isUltrasonicDisabled,
+                setIsDoubleSheetDetectionDisabledMutation.mutate({
+                  isDoubleSheetDetectionDisabled:
+                    !isDoubleSheetDetectionDisabled,
                 })
               }
             >
-              {isUltrasonicDisabled
+              {isDoubleSheetDetectionDisabled
                 ? 'Enable Double Sheet Detection'
                 : 'Disable Double Sheet Detection'}
             </Button>

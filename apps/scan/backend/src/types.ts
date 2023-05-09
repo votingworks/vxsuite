@@ -91,7 +91,7 @@ export interface PrecinctScannerConfig {
   precinctSelection?: PrecinctSelection;
   markThresholdOverrides?: MarkThresholds;
   isSoundMuted: boolean;
-  isUltrasonicDisabled: boolean;
+  isDoubleSheetDetectionDisabled: boolean;
   // "Config" that is specific to each election session
   isTestMode: boolean;
   pollsState: PollsState;
@@ -105,7 +105,7 @@ export interface PrecinctScannerConfig {
  */
 export interface PrecinctScannerStateMachine {
   status: () => PrecinctScannerMachineStatus;
-  supportsUltrasonic: () => boolean;
+  supportsDoubleSheetDetection: () => boolean;
   // The commands are non-blocking and do not return a result. They just send an
   // event to the machine. The effects of the event (or any error) will show up
   // in the status.

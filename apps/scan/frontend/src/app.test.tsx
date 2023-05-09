@@ -21,7 +21,7 @@ import {
 import { AdjudicationReason, getDisplayElectionHash } from '@votingworks/types';
 import { err, ok } from '@votingworks/basics';
 
-import type {
+import {
   PrecinctScannerConfig,
   SheetInterpretation,
 } from '@votingworks/scan-backend';
@@ -114,7 +114,7 @@ test('shows insert USB Drive screen when there is no card reader', async () => {
 
 test('app can load and configure from a usb stick', async () => {
   apiMock.authenticateAsElectionManager(electionSampleDefinition);
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
 
   apiMock.expectGetConfig({
     electionDefinition: undefined,
@@ -161,7 +161,7 @@ test('app can load and configure from a usb stick', async () => {
 });
 
 test('election manager must set precinct', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   apiMock.expectGetConfig({
     precinctSelection: undefined,
   });
@@ -199,7 +199,7 @@ test('election manager must set precinct', async () => {
 test('election manager and poll worker configuration', async () => {
   const electionDefinition = electionSampleDefinition;
   let config: Partial<PrecinctScannerConfig> = { electionDefinition };
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   apiMock.expectGetConfig(config);
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -385,7 +385,7 @@ async function scanBallot() {
 }
 
 test('voter can cast a ballot that scans successfully ', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
+  apiMock.expectCheckDoubleSheetDetectionSupported(false);
   apiMock.expectGetConfig({
     pollsState: 'polls_open',
   });

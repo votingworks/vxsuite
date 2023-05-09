@@ -146,8 +146,9 @@ function buildApi(
         markThresholdOverrides: store.getMarkThresholdOverrides(),
         isSoundMuted: store.getIsSoundMuted(),
         isTestMode: store.getTestMode(),
-        isUltrasonicDisabled:
-          !machine.supportsUltrasonic() || store.getIsUltrasonicDisabled(),
+        isDoubleSheetDetectionDisabled:
+          !machine.supportsDoubleSheetDetection() ||
+          store.getIsDoubleSheetDetectionDisabled(),
         pollsState: store.getPollsState(),
         ballotCountWhenBallotBagLastReplaced:
           store.getBallotCountWhenBallotBagLastReplaced(),
@@ -184,8 +185,12 @@ function buildApi(
       store.setIsSoundMuted(input.isSoundMuted);
     },
 
-    setIsUltrasonicDisabled(input: { isUltrasonicDisabled: boolean }): void {
-      store.setIsUltrasonicDisabled(input.isUltrasonicDisabled);
+    setIsDoubleSheetDetectionDisabled(input: {
+      isDoubleSheetDetectionDisabled: boolean;
+    }): void {
+      store.setIsDoubleSheetDetectionDisabled(
+        input.isDoubleSheetDetectionDisabled
+      );
     },
 
     setTestMode(input: { isTestMode: boolean }): void {
@@ -333,8 +338,8 @@ function buildApi(
       machine.return();
     },
 
-    supportsUltrasonic(): boolean {
-      return machine.supportsUltrasonic();
+    supportsDoubleSheetDetection(): boolean {
+      return machine.supportsDoubleSheetDetection();
     },
 
     async saveScannerReportDataToCard(input: {

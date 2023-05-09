@@ -11,7 +11,7 @@ import {
   PrecinctSelection,
 } from '@votingworks/types';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
-import type {
+import {
   Api,
   MachineConfig,
   PrecinctScannerConfig,
@@ -26,7 +26,11 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { ApiClientContext, createQueryClient } from '../../src/api';
+import {
+  ApiClientContext,
+  createQueryClient,
+  supportsDoubleSheetDetection,
+} from '../../src/api';
 import { fakeUsbDriveStatus } from './fake_usb_drive';
 
 export const machineConfig: MachineConfig = {
@@ -36,7 +40,7 @@ export const machineConfig: MachineConfig = {
 
 const defaultConfig: PrecinctScannerConfig = {
   isSoundMuted: false,
-  isUltrasonicDisabled: false,
+  isDoubleSheetDetectionDisabled: false,
   isTestMode: true,
   pollsState: 'polls_closed_initial',
   ballotCountWhenBallotBagLastReplaced: 0,
@@ -175,10 +179,12 @@ export function createApiMock() {
         .resolves(ok());
     },
 
-    expectCheckUltrasonicSupported(supportsUltrasonic: boolean): void {
-      mockApiClient.supportsUltrasonic
+    expectCheckDoubleSheetDetectionSupported(
+      supportsDoubleSheetDetection: boolean
+    ): void {
+      mockApiClient.supportsDoubleSheetDetection
         .expectCallWith()
-        .resolves(supportsUltrasonic);
+        .resolves(supportsDoubleSheetDetection);
     },
   };
 }
