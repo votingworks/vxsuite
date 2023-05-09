@@ -24,6 +24,10 @@ jobs:
     steps:
       - checkout-and-install
       - run:
+          name: Build
+          command: |
+            pnpm --dir codemods build
+      - run:
           name: Lint
           command: |
             pnpm --dir codemods lint
@@ -946,6 +950,10 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir script build
       - run:
           name: Validate
           command: |

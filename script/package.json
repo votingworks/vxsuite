@@ -5,7 +5,11 @@
   "description": "",
   "license": "GPL-3.0",
   "author": "VotingWorks Eng <eng@voting.works>",
+  "scripts": {
+    "build": "tsc --build"
+  },
   "dependencies": {
+    "@votingworks/basics": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
     "concurrently": "^7.4.0",
     "resolve-from": "^5.0.0",

@@ -1,6 +1,4 @@
-import { join } from 'path';
-import { maybeReadPackageJson } from './util';
-import { PackageInfo } from '../pnpm';
+import { PackageInfo } from '@votingworks/monorepo-utils';
 
 export enum ValidationIssueKind {
   MismatchedPackageVersion = 'MismatchedPackageVersion',

@@ -5783,6 +5783,9 @@ importers:
 
   script:
     dependencies:
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../libs/basics
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../libs/monorepo-utils
