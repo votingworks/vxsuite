@@ -9,13 +9,11 @@ import {
 } from '@votingworks/types';
 import { getPrecinctSelectionName, format } from '@votingworks/utils';
 
-import { Prose, NoWrap, H1, H5, P, Caption } from '@votingworks/ui';
+import { Prose, NoWrap, H1, H5, P, Caption, Font, Seal } from '@votingworks/ui';
 import pluralize from 'pluralize';
-import { Seal } from './seal';
 
 const VerticalContainer = styled.div`
   display: block;
-  margin: auto;
   div:first-child {
     margin: 0 auto 0.5rem;
   }
@@ -99,21 +97,21 @@ export function ElectionInfo({
     <VerticalContainer aria-hidden={ariaHidden}>
       <Seal seal={seal} sealUrl={sealUrl} />
       <Prose textCenter>
-        <H1 aria-label={`${title}.`}>{title}</H1>
+        <H1>{title}</H1>
         <P
-          aria-label={`${electionDate}. ${state}, ${county.name}. ${precinctName}.`}
+          aria-label={`${electionDate}. ${county.name}, ${state}. ${precinctName}.`}
         >
           {electionDate}
           <br />
-          {state}
-          <br />
-          {county.name}
+          <Caption>
+            {precinctName && <NoWrap>{precinctName}, </NoWrap>}
+            {county.name}, {state}
+          </Caption>
           {precinctName && <br />}
           {precinctName && (
-            <strong>
-              <NoWrap>{precinctName}</NoWrap>{' '}
-              {ballotStyleId && <NoWrap>({ballotStyleId})</NoWrap>}
-            </strong>
+            <Caption>
+              Ballot style: {ballotStyleId && <NoWrap>{ballotStyleId}</NoWrap>}
+            </Caption>
           )}
         </P>
         {contestCount && (
@@ -121,7 +119,10 @@ export function ElectionInfo({
             <hr />
             <P>
               Your ballot has{' '}
-              <strong>{pluralize('contest', contestCount, true)}</strong>.
+              <Font weight="bold">
+                {pluralize('contest', contestCount, true)}
+              </Font>
+              .
             </P>
           </React.Fragment>
         )}

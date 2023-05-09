@@ -1,25 +1,273 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`supports yes/no contest allows voting for both yes and no 1`] = `
+.c5 {
+  font-size: 1em;
+  line-height: 1.2;
+  margin: 0;
+  font-size: 1rem;
+  margin-bottom: 0.5em;
+}
+
+.c3 {
+  font-size: 1em;
+  line-height: 1.2;
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.08;
+  margin-bottom: 0.3em;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.c3:not(:first-child) {
+  margin-top: 1.25em;
+}
+
+.c3 + h1,
+.c3 + h2,
+.c3 + h3,
+.c3 + h4,
+.c3 + h5,
+.c3 + h6 {
+  margin-top: 0 !important;
+}
+
+.c2 {
+  max-width: 66ch;
+  line-height: 1.2;
+}
+
+.c2 p {
+  font-size: 1em;
+}
+
+.c2 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c2 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c2 h3 {
+  font-size: 1.17em;
+}
+
+.c2 h4 {
+  font-size: 1em;
+}
+
+.c2 h5 {
+  font-size: 0.9em;
+}
+
+.c2 h3,
+.c2 h4,
+.c2 h5,
+.c2 p,
+.c2 ol,
+.c2 ul,
+.c2 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h1 + ol,
+.c2 h2 + ol,
+.c2 h1 + ul,
+.c2 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c2 h3 + p,
+.c2 h4 + p,
+.c2 h5 + p,
+.c2 h3 + ol,
+.c2 h4 + ol,
+.c2 h5 + ol,
+.c2 h3 + ul,
+.c2 h4 + ul,
+.c2 h5 + ul {
+  margin-top: -1em;
+}
+
+.c2 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c2 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c2 dl {
+  margin: 1em 0;
+}
+
+.c2 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c18 {
+  fill: currentColor;
+  height: 1em;
+  width: 1em;
+}
+
+.c12 {
+  display: inline-block;
+  border: none;
+  border-radius: 0.25em;
+  box-sizing: border-box;
+  background: #d3d3d3;
+  padding: 0.75em 1em;
+  text-align: center;
+  line-height: 1.25;
+  color: #000000;
+  touch-action: manipulation;
+}
+
+.c12:hover,
+.c12:active {
+  outline: none;
+}
+
+.c14 {
+  display: inline-block;
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  -webkit-flex-shrink: 1;
+  -ms-flex-negative: 1;
+  flex-shrink: 1;
+}
+
+.c17 {
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border: 0.05rem solid currentColor;
+  border-radius: 0.15em;
+  box-sizing: border-box;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  height: 1.75em;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  width: 1.75em;
+}
+
+.c17 > * {
+  opacity: 0;
+  -webkit-transition: opacity 100ms ease-in;
+  transition: opacity 100ms ease-in;
+}
+
+.c13 {
+  border: 0.05rem solid currentColor;
+  -webkit-box-pack: start;
+  -webkit-justify-content: start;
+  -ms-flex-pack: start;
+  justify-content: start;
+  min-width: -webkit-min-content;
+  min-width: -moz-min-content;
+  min-width: min-content;
+  padding: 0.5rem 0.5rem;
+  text-align: left;
+  width: 100%;
+}
+
+.c13:active {
+  border: 0.05rem solid #47a74b;
+}
+
+.c15 {
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+}
+
+.c16 {
+  -webkit-box-flex: 0;
+  -webkit-flex-grow: 0;
+  -ms-flex-positive: 0;
+  flex-grow: 0;
+  -webkit-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+}
+
+.c19 {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  line-height: 1;
+}
+
+.c20 {
+  line-height: inherit;
+  margin-bottom: 0;
+}
+
 .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.c1 {
   margin: 0 auto;
   width: 100%;
   padding: 1rem 30px 0.5rem;
 }
 
-.c6 {
+.c10 {
   margin: 0 auto;
   width: 100%;
   padding: 30px 20px 0;
 }
 
-.c1 {
+.c4 {
   text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
 }
 
-.c2 {
+.c6 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -28,8 +276,8 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   overflow: auto;
 }
 
-.c2::before,
-.c2::after {
+.c6::before,
+.c6::after {
   position: absolute;
   z-index: 1;
   width: 100%;
@@ -39,67 +287,83 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   transition: opacity 0.25s ease;
 }
 
-.c2::before {
+.c6::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c2::after {
+.c6::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
 }
 
-.c3 {
+.c7 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   overflow: auto;
 }
 
-.c4 {
+.c8 {
   margin: 0 auto;
   width: 100%;
   padding: 0.25rem 20px 0;
 }
 
-.c5 {
+.c9 {
   padding: 0 10px;
 }
 
-.c7 {
+.c11 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 20px;
   margin-bottom: 40px;
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div>
   <main
-    class="sc-ZOsLE fjQwTk"
+    class="c0"
   >
     <div
-      class="c0"
+      class="c1"
       id="contest-header"
     >
       <div
-        class="sc-fotPbf iwtRsQ"
+        class="c2"
         id="audiofocus"
       >
         <h1
           aria-label="District 1 Ballot Measure 3."
-          class="sc-eCImvq cmseZU"
+          class="c3"
         >
           <div
-            class="c1"
+            class="c4"
           >
             District 1
           </div>
           Ballot Measure 3
         </h1>
         <p
-          class="sc-dkPtyc XGKAk"
+          class="c5"
         >
           Vote 
           <strong>
@@ -120,22 +384,22 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
       </div>
     </div>
     <div
-      class="c2"
+      class="c6"
     >
       <div
-        class="c3"
+        class="c7"
       >
         <div
-          class="c4"
+          class="c8"
         >
           <div
-            class="c5"
+            class="c9"
           >
             <div
-              class="sc-fotPbf iwtRsQ"
+              class="c2"
             >
               <p
-                class="sc-bqiQRQ bIFmdQ"
+                class=""
               >
                 <span>
                   Should fishing be banned in all city owned lakes and rivers?
@@ -147,36 +411,36 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
       </div>
     </div>
     <div
-      class="c6"
+      class="c10"
     >
       <div
         aria-multiselectable="true"
-        class="c7"
+        class="c11"
         data-testid="contest-choices"
         role="listbox"
       >
         <button
           aria-label=" Yes on Ballot Measure 3"
           aria-selected="false"
-          class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
+          class="c12 c13"
           role="option"
           type="button"
         >
           <span
-            class="sc-ezbkgU bmeHoE"
+            class="c14"
           >
             <span
-              class="sc-caiKgP SOLan"
+              class="c15"
             >
               <span
-                class="sc-iUKrWq hYcNmD"
+                class="c16"
               >
                 <span
-                  class="sc-cidCJl bYFEFC"
+                  class="c17"
                 >
                   <svg
                     aria-hidden="true"
-                    class="sc-iwjezw daAwbp"
+                    class="c18"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -189,10 +453,10 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
                 </span>
               </span>
               <span
-                class="sc-iAKVOt gyainp"
+                class="c19"
               >
                 <p
-                  class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                  class="c5 c20"
                 >
                   Yes
                 </p>
@@ -203,25 +467,25 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
         <button
           aria-label=" No on Ballot Measure 3"
           aria-selected="false"
-          class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
+          class="c12 c13"
           role="option"
           type="button"
         >
           <span
-            class="sc-ezbkgU bmeHoE"
+            class="c14"
           >
             <span
-              class="sc-caiKgP SOLan"
+              class="c15"
             >
               <span
-                class="sc-iUKrWq hYcNmD"
+                class="c16"
               >
                 <span
-                  class="sc-cidCJl bYFEFC"
+                  class="c17"
                 >
                   <svg
                     aria-hidden="true"
-                    class="sc-iwjezw daAwbp"
+                    class="c18"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -234,10 +498,10 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
                 </span>
               </span>
               <span
-                class="sc-iAKVOt gyainp"
+                class="c19"
               >
                 <p
-                  class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                  class="c5 c20"
                 >
                   No
                 </p>
@@ -252,25 +516,337 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 `;
 
 exports[`supports yes/no contest displays warning when attempting to change vote 1`] = `
+.c5 {
+  font-size: 1em;
+  line-height: 1.2;
+  margin: 0;
+  font-size: 1rem;
+  margin-bottom: 0.5em;
+}
+
+.c3 {
+  font-size: 1em;
+  line-height: 1.2;
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.08;
+  margin-bottom: 0.3em;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.c3:not(:first-child) {
+  margin-top: 1.25em;
+}
+
+.c3 + h1,
+.c3 + h2,
+.c3 + h3,
+.c3 + h4,
+.c3 + h5,
+.c3 + h6 {
+  margin-top: 0 !important;
+}
+
+.c2 {
+  max-width: 66ch;
+  line-height: 1.2;
+}
+
+.c2 p {
+  font-size: 1em;
+}
+
+.c2 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c2 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c2 h3 {
+  font-size: 1.17em;
+}
+
+.c2 h4 {
+  font-size: 1em;
+}
+
+.c2 h5 {
+  font-size: 0.9em;
+}
+
+.c2 h3,
+.c2 h4,
+.c2 h5,
+.c2 p,
+.c2 ol,
+.c2 ul,
+.c2 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c2 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c2 h1 + p,
+.c2 h2 + p,
+.c2 h1 + ol,
+.c2 h2 + ol,
+.c2 h1 + ul,
+.c2 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c2 h3 + p,
+.c2 h4 + p,
+.c2 h5 + p,
+.c2 h3 + ol,
+.c2 h4 + ol,
+.c2 h5 + ol,
+.c2 h3 + ul,
+.c2 h4 + ul,
+.c2 h5 + ul {
+  margin-top: -1em;
+}
+
+.c2 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c2 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c2 dl {
+  margin: 1em 0;
+}
+
+.c2 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
+}
+
+.c18 {
+  fill: currentColor;
+  height: 1em;
+  width: 1em;
+}
+
+.c12 {
+  display: inline-block;
+  border: none;
+  border-radius: 0.25em;
+  box-sizing: border-box;
+  background: #47a74b;
+  padding: 0.75em 1em;
+  text-align: center;
+  line-height: 1.25;
+  color: #ffffff;
+  touch-action: manipulation;
+}
+
+.c12:hover,
+.c12:active {
+  outline: none;
+}
+
+.c21 {
+  display: inline-block;
+  border: none;
+  border-radius: 0.25em;
+  box-sizing: border-box;
+  background: #d3d3d3;
+  padding: 0.75em 1em;
+  text-align: center;
+  line-height: 1.25;
+  color: #000000;
+  touch-action: manipulation;
+}
+
+.c21:hover,
+.c21:active {
+  outline: none;
+}
+
+.c14 {
+  display: inline-block;
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  -webkit-flex-shrink: 1;
+  -ms-flex-negative: 1;
+  flex-shrink: 1;
+}
+
+.c17 {
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border: 0.05rem solid currentColor;
+  border-radius: 0.15em;
+  box-sizing: border-box;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  height: 1.75em;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  width: 1.75em;
+  border: 0.15rem solid currentColor;
+}
+
+.c17 > * {
+  opacity: 1;
+  -webkit-transition: opacity 100ms ease-in;
+  transition: opacity 100ms ease-in;
+}
+
+.c23 {
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border: 0.05rem solid currentColor;
+  border-radius: 0.15em;
+  box-sizing: border-box;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  height: 1.75em;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  width: 1.75em;
+}
+
+.c23 > * {
+  opacity: 0;
+  -webkit-transition: opacity 100ms ease-in;
+  transition: opacity 100ms ease-in;
+}
+
+.c13 {
+  border: 0.05rem solid currentColor;
+  -webkit-box-pack: start;
+  -webkit-justify-content: start;
+  -ms-flex-pack: start;
+  justify-content: start;
+  min-width: -webkit-min-content;
+  min-width: -moz-min-content;
+  min-width: min-content;
+  padding: 0.5rem 0.5rem;
+  text-align: left;
+  width: 100%;
+  border: 0.05rem solid #47a74b;
+}
+
+.c13:active {
+  border: 0.05rem solid #47a74b;
+}
+
+.c22 {
+  border: 0.05rem solid currentColor;
+  -webkit-box-pack: start;
+  -webkit-justify-content: start;
+  -ms-flex-pack: start;
+  justify-content: start;
+  min-width: -webkit-min-content;
+  min-width: -moz-min-content;
+  min-width: min-content;
+  padding: 0.5rem 0.5rem;
+  text-align: left;
+  width: 100%;
+}
+
+.c22:active {
+  border: 0.05rem solid #47a74b;
+}
+
+.c15 {
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+}
+
+.c16 {
+  -webkit-box-flex: 0;
+  -webkit-flex-grow: 0;
+  -ms-flex-positive: 0;
+  flex-grow: 0;
+  -webkit-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+}
+
+.c19 {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  line-height: 1;
+}
+
+.c20 {
+  line-height: inherit;
+  margin-bottom: 0;
+}
+
 .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.c1 {
   margin: 0 auto;
   width: 100%;
   padding: 1rem 30px 0.5rem;
 }
 
-.c6 {
+.c10 {
   margin: 0 auto;
   width: 100%;
   padding: 30px 20px 0;
 }
 
-.c1 {
+.c4 {
   text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
 }
 
-.c2 {
+.c6 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -279,8 +855,8 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   overflow: auto;
 }
 
-.c2::before,
-.c2::after {
+.c6::before,
+.c6::after {
   position: absolute;
   z-index: 1;
   width: 100%;
@@ -290,67 +866,83 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   transition: opacity 0.25s ease;
 }
 
-.c2::before {
+.c6::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c2::after {
+.c6::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
 }
 
-.c3 {
+.c7 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   overflow: auto;
 }
 
-.c4 {
+.c8 {
   margin: 0 auto;
   width: 100%;
   padding: 0.25rem 20px 0;
 }
 
-.c5 {
+.c9 {
   padding: 0 10px;
 }
 
-.c7 {
+.c11 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 20px;
   margin-bottom: 40px;
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div>
   <main
-    class="sc-ZOsLE fjQwTk"
+    class="c0"
   >
     <div
-      class="c0"
+      class="c1"
       id="contest-header"
     >
       <div
-        class="sc-fotPbf iwtRsQ"
+        class="c2"
         id="audiofocus"
       >
         <h1
           aria-label="District 1 Ballot Measure 3."
-          class="sc-eCImvq cmseZU"
+          class="c3"
         >
           <div
-            class="c1"
+            class="c4"
           >
             District 1
           </div>
           Ballot Measure 3
         </h1>
         <p
-          class="sc-dkPtyc XGKAk"
+          class="c5"
         >
           Vote 
           <strong>
@@ -371,22 +963,22 @@ exports[`supports yes/no contest displays warning when attempting to change vote
       </div>
     </div>
     <div
-      class="c2"
+      class="c6"
     >
       <div
-        class="c3"
+        class="c7"
       >
         <div
-          class="c4"
+          class="c8"
         >
           <div
-            class="c5"
+            class="c9"
           >
             <div
-              class="sc-fotPbf iwtRsQ"
+              class="c2"
             >
               <p
-                class="sc-bqiQRQ bIFmdQ"
+                class=""
               >
                 <span>
                   Should fishing be banned in all city owned lakes and rivers?
@@ -398,36 +990,36 @@ exports[`supports yes/no contest displays warning when attempting to change vote
       </div>
     </div>
     <div
-      class="c6"
+      class="c10"
     >
       <div
         aria-multiselectable="true"
-        class="c7"
+        class="c11"
         data-testid="contest-choices"
         role="listbox"
       >
         <button
           aria-label="Selected, Yes on Ballot Measure 3"
           aria-selected="true"
-          class="sc-iJKOzS jNwvxi sc-jcFkyM bpoIao"
+          class="c12 c13"
           role="option"
           type="button"
         >
           <span
-            class="sc-ezbkgU bmeHoE"
+            class="c14"
           >
             <span
-              class="sc-caiKgP SOLan"
+              class="c15"
             >
               <span
-                class="sc-iUKrWq hYcNmD"
+                class="c16"
               >
                 <span
-                  class="sc-cidCJl bdaONb"
+                  class="c17"
                 >
                   <svg
                     aria-hidden="true"
-                    class="sc-iwjezw daAwbp"
+                    class="c18"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -440,10 +1032,10 @@ exports[`supports yes/no contest displays warning when attempting to change vote
                 </span>
               </span>
               <span
-                class="sc-iAKVOt gyainp"
+                class="c19"
               >
                 <p
-                  class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                  class="c5 c20"
                 >
                   Yes
                 </p>
@@ -454,25 +1046,25 @@ exports[`supports yes/no contest displays warning when attempting to change vote
         <button
           aria-label=" No on Ballot Measure 3"
           aria-selected="false"
-          class="sc-iJKOzS ebzhGa sc-jcFkyM itMNA-D"
+          class="c21 c22"
           role="option"
           type="button"
         >
           <span
-            class="sc-ezbkgU bmeHoE"
+            class="c14"
           >
             <span
-              class="sc-caiKgP SOLan"
+              class="c15"
             >
               <span
-                class="sc-iUKrWq hYcNmD"
+                class="c16"
               >
                 <span
-                  class="sc-cidCJl bYFEFC"
+                  class="c23"
                 >
                   <svg
                     aria-hidden="true"
-                    class="sc-iwjezw daAwbp"
+                    class="c18"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -485,10 +1077,10 @@ exports[`supports yes/no contest displays warning when attempting to change vote
                 </span>
               </span>
               <span
-                class="sc-iAKVOt gyainp"
+                class="c19"
               >
                 <p
-                  class="sc-dkPtyc XGKAk sc-efQUeY hTUHyO"
+                  class="c5 c20"
                 >
                   No
                 </p>
