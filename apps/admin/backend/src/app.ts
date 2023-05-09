@@ -1,6 +1,5 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
-  CastVoteRecord,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
@@ -285,23 +284,6 @@ function buildApi({
 
     getCastVoteRecordFiles(): CastVoteRecordFileRecord[] {
       return store.getCvrFiles(loadCurrentElectionIdOrThrow(workspace));
-    },
-
-    // TODO(https://github.com/votingworks/vxsuite/issues/2613): This endpoint
-    // can be removed once we've moved tally computation to the server - it's
-    // currently only used as a stopgap while we migrate all app state to the
-    // server.
-    getCastVoteRecords(): CastVoteRecord[] {
-      const currentElectionId = store.getCurrentElectionId();
-      if (!currentElectionId) {
-        return [];
-      }
-
-      return store
-        .getCastVoteRecordEntries(currentElectionId)
-        .map(
-          (entry) => safeParseJson(entry.data).unsafeUnwrap() as CastVoteRecord
-        );
     },
 
     async addCastVoteRecordFile(input: {

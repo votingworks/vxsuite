@@ -52,8 +52,8 @@ create table cvrs (
   batch_id text not null,
   precinct_id text not null,
   sheet_number integer check (sheet_number is null or sheet_number > 0),
-  votes text not null,
   created_at timestamp not null default current_timestamp,
+  hash text not null,
   foreign key (election_id) references elections(id)
     on delete cascade,
   foreign key (batch_id) references scanner_batches(id)
@@ -61,6 +61,19 @@ create table cvrs (
 
 create index idx_cvrs_election_id on cvrs(election_id);
 create index idx_cvrs_ballot_id on cvrs(ballot_id);
+
+create table votes (
+  id serial primary key,
+  cvr_id varchar(36) not null,
+  contest_id text not null,
+  option_id text not null,
+  -- v = valid, o = overvote, u = undervote, oo = overflow overvote
+  type text not null
+    check (type = 'v' or type = 'o' or type = 'oo'),
+  unique (cvr_id, contest_id, option_id)
+);
+
+create index idx_votes_cvr_id on votes(cvr_id);
 
 create table scanner_batches (
   id text not null,

@@ -6,7 +6,6 @@ import {
   CastVoteRecordReportDirectoryStructureValidationError,
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
-  convertCastVoteRecordVotesToLegacyVotes,
   isTestReport,
   getCurrentSnapshot,
   getWriteInsFromCastVoteRecord,
@@ -26,6 +25,7 @@ import {
   BallotPageLayoutSchema,
   Contests,
   CVR,
+  Dictionary,
   ElectionDefinition,
   getBallotStyle,
   getContests,
@@ -46,6 +46,7 @@ import * as fs from 'fs/promises';
 import { basename, join, normalize, parse } from 'path';
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
+import { sha256 } from 'js-sha256';
 import { Store } from './store';
 import {
   CastVoteRecordFileMetadata,
@@ -54,6 +55,7 @@ import {
 } from './types';
 import { sha256File } from './util/sha256_file';
 import { Usb } from './util/usb';
+import { convertCastVoteRecordVotesToVoteRecords } from './util/votes';
 
 /**
  * Gets the metadata, including the path, of cast vote record files found in
@@ -578,12 +580,18 @@ export async function addCastVoteRecordReport({
         });
       }
 
+      const contestVotesAllowedMap: Dictionary<number> = {};
+      for (const contest of electionDefinition.election.contests) {
+        if (contest.type === 'candidate') {
+          contestVotesAllowedMap[contest.id] = contest.seats;
+        } else {
+          contestVotesAllowedMap[contest.id] = 2;
+        }
+      }
+
       // Add the cast vote record to the store
       const currentSnapshot = getCurrentSnapshot(cvr);
       assert(currentSnapshot);
-      const votes = JSON.stringify(
-        convertCastVoteRecordVotesToLegacyVotes(currentSnapshot)
-      );
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         electionId,
         cvrFileId: fileId,
@@ -598,7 +606,11 @@ export async function addCastVoteRecordReport({
             ? safeParseNumber(cvr.BallotSheetId).unsafeUnwrap()
             : undefined,
         },
-        votes,
+        hash: sha256(JSON.stringify(unparsedCastVoteRecord)),
+        voteRecords: convertCastVoteRecordVotesToVoteRecords(
+          currentSnapshot,
+          contestVotesAllowedMap
+        ),
       });
       if (addCastVoteRecordResult.isErr()) {
         const errorType = addCastVoteRecordResult.err().type;

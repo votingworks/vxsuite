@@ -392,3 +392,87 @@ export const DatabaseSerializedCastVoteRecordVotesSchema: z.ZodSchema<DatabaseSe
     ContestIdSchema,
     z.union([z.array(CandidateIdSchema), YesNoVoteSchema])
   );
+
+/**
+ *
+ */
+export interface OvervoteRecord {
+  contestId: string;
+  optionId: string;
+  type: 'overvote';
+}
+
+/**
+ *
+ */
+export interface OverflowOvervoteRecord {
+  contestId: string;
+  optionId: string;
+  type: 'overflow-overvote';
+}
+
+/**
+ *
+ */
+export interface ValidVoteRecord {
+  contestId: string;
+  optionId: string;
+  type: 'valid';
+}
+
+/**
+ *
+ */
+export type VoteRecord =
+  | OvervoteRecord
+  | OverflowOvervoteRecord
+  | ValidVoteRecord;
+
+/**
+ *
+ */
+export type VoteType = VoteRecord['type'];
+
+/**
+ *
+ */
+export interface SimpleContestTallyMetadata {
+  overvotes: number;
+  undervotes: number;
+  ballotSheetsCounted: number;
+}
+
+/**
+ *
+ */
+export interface SimpleContestTally {
+  optionTallies: Record<ContestOptionId, number>;
+  metadata: SimpleContestTallyMetadata;
+}
+
+/**
+ *
+ */
+export interface SimpleTally {
+  contestTallies: Record<ContestId, SimpleContestTally>;
+  cardCounts: number[];
+}
+
+/**
+ *
+ */
+export interface BallotStyleSheetCount {
+  count: number;
+  sheetNumber: number | null;
+  ballotStyleId: string;
+}
+
+/**
+ *
+ */
+export interface ContestOptionVoteCount {
+  contestId: string;
+  optionId: string;
+  validVoteCount: number;
+  overvoteCount: number;
+}
