@@ -40,7 +40,7 @@ import {
   Rect as NextRect,
   InterpretedContestLayout,
   InterpretedContestOptionLayout,
-} from '@votingworks/ballot-interpreter-nh-next';
+} from '@votingworks/ballot-interpreter-nh';
 import type {
   InterpretFileResult,
   InterpretResult,

@@ -1,5 +1,5 @@
 {
-  "name": "@votingworks/ballot-interpreter-nh-next",
+  "name": "@votingworks/ballot-interpreter-nh",
   "version": "1.0.0",
   "description": "",
   "main": "./build/index.js",

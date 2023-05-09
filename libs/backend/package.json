@@ -34,7 +34,7 @@
     ]
   },
   "dependencies": {
-    "@votingworks/ballot-interpreter-nh-next": "workspace:*",
+    "@votingworks/ballot-interpreter-nh": "workspace:*",
     "@votingworks/ballot-interpreter-vx": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/converter-nh-accuvote": "workspace:*",

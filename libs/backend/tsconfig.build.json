@@ -9,7 +9,7 @@
     "declaration": true
   },
   "references": [
-    { "path": "../../libs/ballot-interpreter-nh-next/tsconfig.build.json" },
+    { "path": "../../libs/ballot-interpreter-nh/tsconfig.build.json" },
     { "path": "../../libs/ballot-interpreter-vx/tsconfig.build.json" },
     { "path": "../../libs/converter-nh-accuvote/tsconfig.build.json" },
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
