@@ -199,10 +199,13 @@ pub fn compute_bits_from_bottom_timing_marks(
         _ => {
             return Err(BallotPageMetadataError::InvalidTimingMarkCount {
                 expected: 2,
-                actual: bottom_timing_marks
-                    .iter()
-                    .filter(|&mark| mark.is_some())
-                    .count(),
+                actual: vec![
+                    bottom_timing_marks.first().unwrap(),
+                    bottom_timing_marks.last().unwrap(),
+                ]
+                .iter()
+                .filter(|&mark| mark.is_some())
+                .count(),
             });
         }
     }
