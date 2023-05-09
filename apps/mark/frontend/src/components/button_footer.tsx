@@ -1,35 +1,19 @@
-import styled, { css } from 'styled-components';
-
-const ButtonFooterButtons = css`
-  button {
-    padding-right: 10px;
-    padding-left: 10px;
-  }
-`;
+/* stylelint-disable order/properties-order */
+import styled from 'styled-components';
 
 export const ButtonFooter = styled.nav`
+  align-items: stretch;
+  border-top: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
+    ${(p) => p.theme.colors.foreground};
   display: flex;
-  background-color: #333333;
-  padding: 20px;
-  color: #ffffff;
-  gap: 20px;
+  gap: 0.5rem;
+  justify-content: right;
+  min-height: 4.5rem;
+  padding: 0.5rem;
+
   & > * {
-    flex: 1;
-    &:first-child {
-      flex: 2 1;
-      order: 1;
+    &:not(:first-child):not(:last-child) {
+      flex-grow: 1;
     }
   }
-  /* stylelint-disable-next-line value-keyword-case, order/order */
-  ${ButtonFooterButtons}
-`;
-
-export const ButtonFooterLandscape = styled.div`
-  display: flex;
-  gap: 20px;
-  & > * {
-    flex: 1;
-  }
-  /* stylelint-disable-next-line value-keyword-case, order/order */
-  ${ButtonFooterButtons}
 `;
