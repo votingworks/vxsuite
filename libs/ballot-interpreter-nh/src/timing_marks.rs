@@ -696,18 +696,21 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     let left_line = &partial_timing_marks.left_rects;
     let right_line = &partial_timing_marks.right_rects;
 
-    let mut all_distances = vec![];
-    all_distances.append(&mut distances_between_rects(top_line));
-    all_distances.append(&mut distances_between_rects(bottom_line));
-    all_distances.append(&mut distances_between_rects(left_line));
-    all_distances.append(&mut distances_between_rects(right_line));
-    all_distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    let mut horizontal_distances = vec![];
+    horizontal_distances.append(&mut distances_between_rects(top_line));
+    horizontal_distances.append(&mut distances_between_rects(bottom_line));
+    horizontal_distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    let mut vertical_distances = vec![];
+    vertical_distances.append(&mut distances_between_rects(left_line));
+    vertical_distances.append(&mut distances_between_rects(right_line));
+    vertical_distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
 
-    if all_distances.is_empty() {
+    if horizontal_distances.is_empty() || vertical_distances.is_empty() {
         return None;
     }
 
-    let median_distance = all_distances[all_distances.len() / 2];
+    let median_horizontal_distance = horizontal_distances[horizontal_distances.len() / 2];
+    let median_vertical_distance = vertical_distances[vertical_distances.len() / 2];
 
     let top_line = infer_missing_timing_marks_on_segment(
         top_line,
@@ -715,7 +718,7 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
             partial_timing_marks.top_left_corner,
             partial_timing_marks.top_right_corner,
         ),
-        median_distance,
+        median_horizontal_distance,
         geometry.grid_size.width,
         geometry,
     );
@@ -726,7 +729,7 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
             partial_timing_marks.bottom_left_corner,
             partial_timing_marks.bottom_right_corner,
         ),
-        median_distance,
+        median_horizontal_distance,
         geometry.grid_size.width,
         geometry,
     );
@@ -737,7 +740,7 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
             partial_timing_marks.top_left_corner,
             partial_timing_marks.bottom_left_corner,
         ),
-        median_distance,
+        median_vertical_distance,
         geometry.grid_size.height,
         geometry,
     );
@@ -748,7 +751,7 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
             partial_timing_marks.top_right_corner,
             partial_timing_marks.bottom_right_corner,
         ),
-        median_distance,
+        median_vertical_distance,
         geometry.grid_size.height,
         geometry,
     );
