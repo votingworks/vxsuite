@@ -11,11 +11,10 @@ import {
   P,
   Button,
   ContestChoiceButton,
-  H1,
   Main,
   Prose,
-  TextWithLineBreaks,
   Caption,
+  Pre,
 } from '@votingworks/ui';
 
 import { YesNoVote, OptionalYesNoVote } from '@votingworks/types';
@@ -27,7 +26,6 @@ import {
 } from '../utils/ms_either_neither_contests';
 import {
   ContentHeader,
-  DistrictName,
   VariableContentContainer,
   ScrollControls,
   ScrollContainer,
@@ -35,18 +33,19 @@ import {
 } from './contest_screen_layout';
 import { BallotContext } from '../contexts/ballot_context';
 import { useCurrentTextSizePx } from '../hooks/use_current_text_size';
+import { ContestTitle } from './contest_title';
 
 const ChoicesGrid = styled.div`
   display: grid;
   grid-auto-rows: minmax(auto, 1fr);
-  grid-gap: 1rem;
+  grid-gap: 0.5rem;
   grid-template-areas:
     'either-neither-label divider pick-one-label'
     'either-option divider first-option'
     'neither-option divider second-option';
-  grid-template-columns: 1fr calc(2rem + 1px) 1fr;
+  grid-template-columns: 1fr calc(0.5rem + 1px) 1fr;
   grid-template-rows: auto;
-  padding: 1rem 2rem;
+  padding: 0.5rem;
 `;
 const GridLabel = styled.div`
   display: flex;
@@ -57,8 +56,8 @@ const Divider = styled.div`
   grid-area: divider;
   justify-content: center;
   &::before {
-    background: #000000;
-    width: 2px;
+    background: ${(p) => p.theme.colors.foreground};
+    width: ${(p) => p.theme.sizes.bordersRem.medium}rem;
     content: '';
   }
 `;
@@ -205,11 +204,8 @@ export function MsEitherNeitherContest({
     <Main flexColumn>
       <ContentHeader>
         <Prose>
-          <H1 aria-label={`${districtName} ${contest.title}.`}>
-            <DistrictName>{districtName}</DistrictName>
-            {contest.title}
-          </H1>
-          <P>
+          <ContestTitle districtName={districtName} title={contest.title} />
+          <Caption>
             {eitherNeitherVote && pickOneVote ? (
               <span>
                 You have selected {eitherLabel} and your preferred measure.
@@ -242,7 +238,7 @@ export function MsEitherNeitherContest({
               To navigate through the contest choices, use the down button. To
               move to the next contest, use the right button.
             </span>
-          </P>
+          </Caption>
         </Prose>
       </ContentHeader>
       <VariableContentContainer
@@ -254,14 +250,9 @@ export function MsEitherNeitherContest({
           onScroll={updateContestChoicesScrollStates}
         >
           <ScrollableContentWrapper isScrollable={isScrollable}>
-            <Prose>
-              <TextWithLineBreaks
-                style={{
-                  fontSize: '0.95rem',
-                }}
-                text={contest.description}
-              />
-            </Prose>
+            <Caption>
+              <Pre>{contest.description}</Pre>
+            </Caption>
           </ScrollableContentWrapper>
         </ScrollContainer>
         {isScrollable /* istanbul ignore next: Tested by Cypress */ && (

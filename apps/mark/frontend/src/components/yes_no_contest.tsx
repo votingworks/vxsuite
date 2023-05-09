@@ -16,12 +16,12 @@ import {
   Button,
   ContestChoiceButton,
   DisplayTextForYesOrNo,
-  H1,
   Main,
   Modal,
   Prose,
-  TextWithLineBreaks,
   P,
+  Caption,
+  Pre,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -33,15 +33,14 @@ import { BallotContext } from '../contexts/ballot_context';
 import {
   ContentHeader,
   ContestFooter,
-  DistrictName,
   VariableContentContainer,
   ScrollControls,
   ScrollContainer,
   ScrollableContentWrapper,
   ChoicesGrid,
-  ContestDescription,
 } from './contest_screen_layout';
 import { useCurrentTextSizePx } from '../hooks/use_current_text_size';
+import { ContestTitle } from './contest_title';
 
 interface Props {
   contest: YesNoContestInterface;
@@ -152,18 +151,15 @@ export function YesNoContest({
       <Main flexColumn>
         <ContentHeader id="contest-header">
           <Prose id="audiofocus">
-            <H1 aria-label={`${districtName} ${contest.title}.`}>
-              <DistrictName>{districtName}</DistrictName>
-              {contest.title}
-            </H1>
-            <P>
+            <ContestTitle districtName={districtName} title={contest.title} />
+            <Caption>
               Vote <strong>Yes</strong> or <strong>No</strong>.
               <span className="screen-reader-only">
                 {contest.description}
                 To navigate through the contest choices, use the down button. To
                 move to the next contest, use the right button.
               </span>
-            </P>
+            </Caption>
           </Prose>
         </ContentHeader>
         <VariableContentContainer
@@ -175,11 +171,9 @@ export function YesNoContest({
             onScroll={updateContestChoicesScrollStates}
           >
             <ScrollableContentWrapper isScrollable={isScrollable}>
-              <ContestDescription>
-                <Prose>
-                  <TextWithLineBreaks text={contest.description} />
-                </Prose>
-              </ContestDescription>
+              <Caption>
+                <Pre>{contest.description}</Pre>
+              </Caption>
             </ScrollableContentWrapper>
           </ScrollContainer>
           {

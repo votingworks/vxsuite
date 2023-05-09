@@ -2,14 +2,12 @@ import styled from 'styled-components';
 import { Scrollable, ScrollShadows } from '../config/types';
 
 export const ContentHeader = styled.div`
-  margin: 0 auto;
-  width: 100%;
-  padding: 1rem 30px 0.5rem;
+  padding: 0.25rem 0.5rem 0.5rem;
 `;
 export const ContestFooter = styled.div`
   margin: 0 auto;
   width: 100%;
-  padding: 30px 20px 0;
+  padding: 0.5rem;
 `;
 export const DistrictName = styled.div`
   text-transform: uppercase;
@@ -129,6 +127,6 @@ export const ChoicesGrid = styled.div.attrs({
 })`
   display: grid;
   grid-auto-rows: minmax(auto, 1fr);
-  grid-gap: 20px;
-  margin-bottom: 40px;
+  grid-gap: 0.5rem;
+  margin-bottom: 1rem;
 `;
