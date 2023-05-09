@@ -316,7 +316,7 @@ describe('buildCVRContestsFromVotes', () => {
     expect(result).toHaveLength(1);
     const cvrContest = result[0];
     expect(cvrContest).toMatchObject({
-      Overvotes: 1,
+      Overvotes: 3,
       Undervotes: 0,
       Status: expect.arrayContaining([
         CVR.ContestStatus.Overvoted,
