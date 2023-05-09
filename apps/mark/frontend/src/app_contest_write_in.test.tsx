@@ -12,8 +12,6 @@ import {
 } from '../test/react_testing_library';
 import { App } from './app';
 
-import { withMarkup } from '../test/helpers/with_markup';
-
 import {
   advanceTimers,
   advanceTimersAndPromises,
@@ -75,7 +73,6 @@ it('Single Seat Contest with Write In', async () => {
     />
   );
   await advanceTimersAndPromises();
-  const getByTextWithMarkup = withMarkup(screen.getByText);
 
   function getWithinKeyboard(text: string) {
     return within(screen.getByTestId('virtual-keyboard')).getByText(text);
@@ -172,7 +169,7 @@ it('Single Seat Contest with Write In', async () => {
   expect(screen.getByText(/\(write-in\)/)).toBeTruthy();
 
   // Print Screen
-  fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
+  fireEvent.click(screen.getByText(/Print My ballot/i));
   advanceTimers();
   screen.getByText('Printing Your Official Ballot');
   await expectPrint((printedElement) => {
