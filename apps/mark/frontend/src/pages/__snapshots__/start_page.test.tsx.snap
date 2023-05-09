@@ -14,13 +14,6 @@ exports[`renders StartPage 1`] = `
   margin: 0;
 }
 
-.c21 {
-  font-size: 1em;
-  font-weight: 500;
-  line-height: 1.2;
-  margin: 0;
-}
-
 .c8 {
   font-size: 1em;
   line-height: 1.2;
@@ -296,6 +289,10 @@ exports[`renders StartPage 1`] = `
   -webkit-flex-wrap: nowrap;
   -ms-flex-wrap: nowrap;
   flex-wrap: nowrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
   gap: 0.5rem;
   text-align: left;
 }
@@ -500,10 +497,8 @@ exports[`renders StartPage 1`] = `
                 fill="currentColor"
               />
             </svg>
-            <span
-              class="c21"
-            >
-              Color & Size
+            <span>
+              Color/Size
             </span>
           </span>
         </span>
@@ -523,13 +518,6 @@ exports[`renders StartPage with inline SVG 1`] = `
 
 .c16 {
   font-size: 1em;
-  line-height: 1.2;
-  margin: 0;
-}
-
-.c20 {
-  font-size: 1em;
-  font-weight: 500;
   line-height: 1.2;
   margin: 0;
 }
@@ -805,6 +793,10 @@ exports[`renders StartPage with inline SVG 1`] = `
   -webkit-flex-wrap: nowrap;
   -ms-flex-wrap: nowrap;
   flex-wrap: nowrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
   gap: 0.5rem;
   text-align: left;
 }
@@ -1167,10 +1159,8 @@ exports[`renders StartPage with inline SVG 1`] = `
                 fill="currentColor"
               />
             </svg>
-            <span
-              class="c20"
-            >
-              Color & Size
+            <span>
+              Color/Size
             </span>
           </span>
         </span>
@@ -1190,13 +1180,6 @@ exports[`renders StartPage with no seal 1`] = `
 
 .c16 {
   font-size: 1em;
-  line-height: 1.2;
-  margin: 0;
-}
-
-.c20 {
-  font-size: 1em;
-  font-weight: 500;
   line-height: 1.2;
   margin: 0;
 }
@@ -1472,6 +1455,10 @@ exports[`renders StartPage with no seal 1`] = `
   -webkit-flex-wrap: nowrap;
   -ms-flex-wrap: nowrap;
   flex-wrap: nowrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
   gap: 0.5rem;
   text-align: left;
 }
@@ -1670,10 +1657,8 @@ exports[`renders StartPage with no seal 1`] = `
                 fill="currentColor"
               />
             </svg>
-            <span
-              class="c20"
-            >
-              Color & Size
+            <span>
+              Color/Size
             </span>
           </span>
         </span>
