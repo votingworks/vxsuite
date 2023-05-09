@@ -116,6 +116,9 @@ export function TallyScreen(): JSX.Element | null {
               {hasAnyFiles ? (
                 <React.Fragment>
                   <tr>
+                    <TD as="th" narrow nowrap textAlign="right">
+                      #
+                    </TD>
                     <TD as="th" narrow nowrap>
                       Created At
                     </TD>
@@ -130,14 +133,20 @@ export function TallyScreen(): JSX.Element | null {
                     </TD>
                   </tr>
                   {castVoteRecordFileList.map(
-                    ({
-                      filename,
-                      exportTimestamp,
-                      numCvrsImported,
-                      scannerIds,
-                      precinctIds,
-                    }) => (
+                    (
+                      {
+                        filename,
+                        exportTimestamp,
+                        numCvrsImported,
+                        scannerIds,
+                        precinctIds,
+                      },
+                      cvrFileIndex
+                    ) => (
                       <tr key={filename}>
+                        <TD narrow nowrap textAlign="right">
+                          {cvrFileIndex + 1}.
+                        </TD>
                         <TD narrow nowrap>
                           {moment(exportTimestamp).format(
                             'MM/DD/YYYY hh:mm:ss A'
@@ -153,6 +162,7 @@ export function TallyScreen(): JSX.Element | null {
                   )}
                   {fullElectionManualTally ? (
                     <tr key="manual-data">
+                      <TD />
                       <TD narrow nowrap>
                         {moment(
                           fullElectionManualTally.timestampCreated
@@ -175,6 +185,7 @@ export function TallyScreen(): JSX.Element | null {
                     </tr>
                   ) : null}
                   <tr>
+                    <TD />
                     <TD as="th" narrow nowrap>
                       Total CVRs Count
                     </TD>
@@ -194,7 +205,7 @@ export function TallyScreen(): JSX.Element | null {
                 </React.Fragment>
               ) : (
                 <tr>
-                  <TD colSpan={2}>
+                  <TD colSpan={3}>
                     <em>No CVR files loaded.</em>
                   </TD>
                 </tr>
