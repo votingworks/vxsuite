@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+require('esbuild-runner/register');
+require('../src/generate_fixtures').main();

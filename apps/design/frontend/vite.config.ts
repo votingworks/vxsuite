@@ -1,7 +1,7 @@
 import react from '@vitejs/plugin-react';
 import { join } from 'path';
 import { Alias, defineConfig, loadEnv } from 'vite';
-import { getWorkspacePackageInfo } from '../../../script/src/validate-monorepo/pnpm';
+import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 
 export default defineConfig(async (env) => {
   const workspaceRootPath = join(__dirname, '../../..');
