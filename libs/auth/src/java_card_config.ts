@@ -2,6 +2,7 @@ import path from 'path';
 import { isVxDev } from '@votingworks/utils';
 
 import { getRequiredEnvVar } from './env_vars';
+import { FileKey, TpmKey } from './keys';
 
 /**
  * Config params for the Java Card implementation of the card API
@@ -10,19 +11,13 @@ export interface JavaCardConfig {
   /** Only VxAdmin should provide these params, for card programming */
   cardProgrammingConfig?: {
     vxAdminCertAuthorityCertPath: string;
-    vxAdminPrivateKeyPassword: string;
-    vxAdminPrivateKeyPath: string;
+    vxAdminPrivateKey: FileKey | TpmKey;
   };
   /** Only tests should provide this param, to make challenge generation non-random */
   customChallengeGenerator?: () => string;
   /** The path to the VotingWorks cert authority cert on the machine */
   vxCertAuthorityCertPath: string;
 }
-
-/**
- * The password for all dev private keys
- */
-export const DEV_PRIVATE_KEY_PASSWORD = '1234';
 
 function shouldUseProdCerts(): boolean {
   return process.env.NODE_ENV === 'production' && !isVxDev();
@@ -31,19 +26,12 @@ function shouldUseProdCerts(): boolean {
 function constructCardProgrammingConfig(): JavaCardConfig['cardProgrammingConfig'] {
   if (shouldUseProdCerts()) {
     const vxConfigRoot = getRequiredEnvVar('VX_CONFIG_ROOT');
-    const vxMachinePrivateKeyPassword = getRequiredEnvVar(
-      'VX_MACHINE_PRIVATE_KEY_PASSWORD'
-    );
     return {
       vxAdminCertAuthorityCertPath: path.join(
         vxConfigRoot,
         'vx-admin-cert-authority-cert.pem'
       ),
-      vxAdminPrivateKeyPassword: vxMachinePrivateKeyPassword,
-      vxAdminPrivateKeyPath: path.join(
-        vxConfigRoot,
-        'vx-admin-private-key.pem'
-      ),
+      vxAdminPrivateKey: { source: 'tpm' },
     };
   }
   return {
@@ -51,11 +39,10 @@ function constructCardProgrammingConfig(): JavaCardConfig['cardProgrammingConfig
       __dirname,
       '../certs/dev/vx-admin-cert-authority-cert.pem'
     ),
-    vxAdminPrivateKeyPassword: DEV_PRIVATE_KEY_PASSWORD,
-    vxAdminPrivateKeyPath: path.join(
-      __dirname,
-      '../certs/dev/vx-admin-private-key.pem'
-    ),
+    vxAdminPrivateKey: {
+      source: 'file',
+      path: path.join(__dirname, '../certs/dev/vx-admin-private-key.pem'),
+    },
   };
 }
 
