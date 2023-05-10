@@ -88,4 +88,5 @@ export * from './types';
 export * from './unconfigured_election_screen';
 export * from './usb_drive';
 export * from './power_down_button';
+export * from './verify_ballot_image';
 export * from './voter_contest_summary';

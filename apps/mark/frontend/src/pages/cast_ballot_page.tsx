@@ -1,34 +1,45 @@
+/* stylelint-disable order/properties-order */
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button, Main, Screen, Prose, H1, H3, P, Font } from '@votingworks/ui';
-
-const SingleGraphic = styled.img`
-  margin: 0 auto 1em;
-  height: 20vw;
-`;
+import {
+  Button,
+  Font,
+  H1,
+  Icons,
+  InsertBallotImage,
+  Main,
+  P,
+  Screen,
+  VerifyBallotImage,
+} from '@votingworks/ui';
 
 const Instructions = styled.ol`
+  margin: 2rem 0;
+  padding: 0;
+`;
+
+const ListItem = styled.li`
+  align-items: center;
   display: flex;
-  padding: 1rem;
-  list-style: none;
-  text-align: center;
-  > li {
-    flex: 1;
-    margin-right: 3em;
-    &:last-child {
-      margin-right: 0;
-    }
-    img {
-      position: relative;
-    }
-  }
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+`;
+
+const InstructionImageContainer = styled.div`
+  border-right: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
+    ${(p) => p.theme.colors.foreground};
+  display: flex;
+  justify-content: center;
+  padding: 1rem 1rem 0 0;
+  width: 30vw;
 `;
 
 const Done = styled.div`
   position: absolute;
-  right: 1em;
-  bottom: 1em;
+  right: 1rem;
+  bottom: 1rem;
 `;
 
 interface Props {
@@ -40,35 +51,33 @@ export function CastBallotPage({
 }: Props): JSX.Element {
   return (
     <Screen white>
-      <Main centerChild>
-        <Prose textCenter maxWidth={false} id="audiofocus">
+      <Main padded>
+        <div id="audiofocus">
           <H1 aria-label="You’re almost done.">You’re Almost Done</H1>
           <P>Your official ballot is printing. To finish voting you need to…</P>
           <Instructions>
-            <li>
-              <SingleGraphic
-                aria-hidden
-                alt="Verify Your Printed Ballot"
-                src="/images/instructions-1-verify.svg"
-                style={{ left: '-0.75em' }}
-              />
-              <P>1. Verify your official ballot.</P>
-            </li>
-            <li>
-              <SingleGraphic
-                aria-hidden
-                alt="Scan Your Ballot"
-                src="/images/instructions-2-scan.svg"
-              />
-              <P>2. Scan your official ballot.</P>
-            </li>
+            <ListItem>
+              <InstructionImageContainer>
+                <VerifyBallotImage />
+              </InstructionImageContainer>
+              <span>1. Verify your official ballot.</span>
+            </ListItem>
+            <ListItem>
+              <InstructionImageContainer>
+                <InsertBallotImage disableAnimation />
+              </InstructionImageContainer>
+              <span>2. Scan your official ballot.</span>
+            </ListItem>
           </Instructions>
-          <H3>
-            <Font weight="bold">Need help?</Font> Ask a poll worker.
-          </H3>
-        </Prose>
+          <P>
+            <Icons.Info /> <Font weight="bold">Need help?</Font> Ask a poll
+            worker.
+          </P>
+        </div>
         <Done>
-          <Button onPress={hidePostVotingInstructions}>Done</Button>
+          <Button onPress={hidePostVotingInstructions} variant="done">
+            Done
+          </Button>
         </Done>
       </Main>
     </Screen>
