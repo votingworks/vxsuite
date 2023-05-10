@@ -34,6 +34,7 @@ import {
   parseCert,
 } from './certs';
 import { JavaCardConfig } from './java_card_config';
+import { FileKey, TpmKey } from './keys';
 import {
   certDerToPem,
   certPemToDer,
@@ -253,11 +254,8 @@ export class JavaCard implements Card {
       this.cardProgrammingConfig !== undefined,
       'cardProgrammingConfig must be defined'
     );
-    const {
-      vxAdminCertAuthorityCertPath,
-      vxAdminPrivateKeyPassword,
-      vxAdminPrivateKeyPath,
-    } = this.cardProgrammingConfig;
+    const { vxAdminCertAuthorityCertPath, vxAdminPrivateKey } =
+      this.cardProgrammingConfig;
     const { user } = input;
     const hasPin = input.pin !== undefined;
     const pin = input.pin ?? DEFAULT_PIN;
@@ -293,15 +291,17 @@ export class JavaCard implements Card {
       }
     }
     const cardVxAdminCert = await createCert({
+      certKeyInput: {
+        type: 'public',
+        key: { source: 'inline', content: publicKey.toString('utf-8') },
+      },
       certSubject: constructCardCertSubject(cardDetails),
       expiryInDays:
         user.role === 'system_administrator'
           ? CERT_EXPIRY_IN_DAYS.SYSTEM_ADMINISTRATOR_CARD_VX_ADMIN_CERT
           : CERT_EXPIRY_IN_DAYS.ELECTION_CARD_VX_ADMIN_CERT,
-      publicKeyToSign: publicKey,
-      signingCertAuthorityCert: vxAdminCertAuthorityCertPath,
-      signingPrivateKey: vxAdminPrivateKeyPath,
-      signingPrivateKeyPassword: vxAdminPrivateKeyPassword,
+      signingCertAuthorityCertPath: vxAdminCertAuthorityCertPath,
+      signingPrivateKey: vxAdminPrivateKey,
     });
     await this.storeCert(CARD_VX_ADMIN_CERT.OBJECT_ID, cardVxAdminCert);
 
@@ -703,22 +703,23 @@ export class JavaCard implements Card {
    * Creates and stores the card's VotingWorks-issued cert. Only to be used by the initial card
    * configuration script.
    */
-  async createAndStoreCardVxCert(input: {
-    vxPrivateKeyPassword: string;
-    vxPrivateKeyPath: string;
-  }): Promise<void> {
+  async createAndStoreCardVxCert(
+    vxPrivateKey: FileKey | TpmKey
+  ): Promise<void> {
     await this.selectApplet();
 
     const publicKey = await this.generateAsymmetricKeyPair(
       CARD_VX_CERT.PRIVATE_KEY_ID
     );
     const cardVxCert = await createCert({
+      certKeyInput: {
+        type: 'public',
+        key: { source: 'inline', content: publicKey.toString('utf-8') },
+      },
       certSubject: constructCardCertSubjectWithoutJurisdictionAndCardType(),
       expiryInDays: CERT_EXPIRY_IN_DAYS.CARD_VX_CERT,
-      publicKeyToSign: publicKey,
-      signingCertAuthorityCert: this.vxCertAuthorityCertPath,
-      signingPrivateKey: input.vxPrivateKeyPath,
-      signingPrivateKeyPassword: input.vxPrivateKeyPassword,
+      signingCertAuthorityCertPath: this.vxCertAuthorityCertPath,
+      signingPrivateKey: vxPrivateKey,
     });
     await this.storeCert(CARD_VX_CERT.OBJECT_ID, cardVxCert);
   }
