@@ -258,10 +258,15 @@ function DoubleVoteAlertModal({
       case 'marked-official-candidate':
         return (
           <P>
-            The current ballot’s contest has a bubble selection marked for{' '}
+            The current ballot contest has a bubble selection marked for{' '}
             <Font weight="bold">{name}</Font>, so adjudicating the current
             write-in for <Font weight="bold">{name}</Font> would create a double
             vote.
+            <br />
+            <br />
+            If the ballot contest does indeed contain a double vote, you can
+            invalidate this write-in by selecting{' '}
+            <Font italic>Mark Write-In Invalid</Font>.
           </P>
         );
       case 'adjudicated-official-candidate':
@@ -272,6 +277,11 @@ function DoubleVoteAlertModal({
             adjudicated for <Font weight="bold">{name}</Font>, so the current
             write-in cannot also be adjudicated for{' '}
             <Font weight="bold">{name}</Font>.
+            <br />
+            <br />
+            If the ballot contest does indeed contain a double vote, you can
+            invalidate this write-in by selecting{' '}
+            <Font italic>Mark Write-In Invalid</Font>.
           </P>
         );
       /* istanbul ignore next */
