@@ -3,6 +3,19 @@ import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
 import { FileResult, fileSync } from 'tmp';
+import { z } from 'zod';
+import { throwIllegalValue } from '@votingworks/basics';
+import { unsafeParse } from '@votingworks/types';
+
+import {
+  FileKey,
+  FileKeySchema,
+  InlineKey,
+  InlineKeySchema,
+  TpmKey,
+  TpmKeySchema,
+} from './keys';
+import { OPENSSL_TPM_ENGINE_NAME, TPM_KEY_ID, TPM_KEY_PASSWORD } from './tpm';
 
 /**
  * The path to the OpenSSL config file
@@ -20,12 +33,26 @@ export const PUBLIC_KEY_IN_DER_FORMAT_HEADER = Buffer.from([
   0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 0x42, 0x00,
 ]);
 
+function errorFromStderrAndStdout({
+  stderr,
+  stdout,
+}: {
+  stderr: Buffer;
+  stdout: Buffer;
+}): Error {
+  const errorMessage = [stderr, stdout]
+    .map((buffer) => buffer.toString('utf-8'))
+    .filter(Boolean)
+    .join('\n');
+  return new Error(errorMessage);
+}
+
 type OpensslParam = string | Buffer;
 
 /**
  * A convenience function for OpenSSL shell commands. For file params, accepts Buffers containing
- * the file's contents. Writes these Buffers to temporary files in the specified (or default)
- * working directory and deletes these files after completion of the OpenSSL command.
+ * the file's contents. Writes these Buffers to temporary files and deletes these files after
+ * completion of the OpenSSL command.
  *
  * The returned promise resolves if the shell command's exit status is 0 and rejects otherwise
  * (OpenSSL cert and signature verification commands return non-zero exit statuses when
@@ -71,9 +98,7 @@ export async function openssl(params: OpensslParam[]): Promise<Buffer> {
         cleanupError = error;
       }
       if (code !== 0) {
-        reject(
-          new Error(`${stderr.toString('utf-8')}\n${stdout.toString('utf-8')}`)
-        );
+        reject(errorFromStderrAndStdout({ stderr, stdout }));
       } else if (cleanupError) {
         reject(cleanupError);
       } else {
@@ -84,9 +109,9 @@ export async function openssl(params: OpensslParam[]): Promise<Buffer> {
 }
 
 /**
- * An alias of OpensslParam for clarity
+ * An alias for clarity
  */
-type FilePathOrBuffer = OpensslParam;
+type FilePathOrBuffer = string | Buffer;
 
 /**
  * Converts a cert in DER format to PEM format
@@ -186,68 +211,254 @@ export async function verifySignature({
   ]);
 }
 
+//
+// Cert creation functions
+//
+
+type CertType = 'cert_authority_cert' | 'standard_cert';
+
 /**
- * Creates a cert by signing a public key with a signing cert authority cert and private key. All
- * key and cert inputs should be in PEM format. The outputted cert will also be in PEM format.
+ * Creates a cert signing request, or CSR
  */
-export async function createCert({
+export async function createCertSigningRequest({
+  certKey,
   certSubject,
-  certType = 'standard',
-  expiryInDays,
-  publicKeyToSign,
-  signingCertAuthorityCert,
-  signingPrivateKey,
-  signingPrivateKeyPassword,
 }: {
+  certKey: FileKey | InlineKey | TpmKey;
   certSubject: string;
-  certType?: 'standard' | 'certAuthorityCert';
-  expiryInDays: number;
-  publicKeyToSign: FilePathOrBuffer;
-  signingCertAuthorityCert: FilePathOrBuffer;
-  signingPrivateKey: FilePathOrBuffer;
-  signingPrivateKeyPassword: string;
 }): Promise<Buffer> {
-  // TODO: Instead of using a throwaway private key to generate the cert signing request and
-  // injecting the public key we want using -force_pubkey, have the relevant HSM (Java Card, TPM,
-  // etc.) generate the cert signing request
-  const throwawayPrivateKey = await openssl([
-    'ecparam',
-    '-genkey',
-    '-name',
-    'prime256v1',
-    '-noout',
-  ]);
+  const keyParams: OpensslParam[] = (() => {
+    switch (certKey.source) {
+      case 'file': {
+        return ['-key', certKey.path];
+      }
+      case 'inline': {
+        return ['-key', Buffer.from(certKey.content, 'utf-8')];
+      }
+      case 'tpm': {
+        return [
+          '-key',
+          TPM_KEY_ID,
+          '-keyform',
+          'engine',
+          '-engine',
+          OPENSSL_TPM_ENGINE_NAME,
+          '-passin',
+          `pass:${TPM_KEY_PASSWORD}`,
+        ];
+      }
+      /* istanbul ignore next: Compile-time check for completeness */
+      default: {
+        throwIllegalValue(certKey, 'source');
+      }
+    }
+  })();
   const certSigningRequest = await openssl([
     'req',
     '-new',
     '-config',
     OPENSSL_CONFIG_FILE_PATH,
-    '-key',
-    throwawayPrivateKey,
+    ...keyParams,
     '-subj',
     certSubject,
   ]);
+  return certSigningRequest;
+}
+
+/**
+ * Creates a cert given a cert signing request, or CSR. Supports overriding the cert public key if
+ * the private key of the public key to sign was unavailable at the time of CSR creation, and a
+ * throwaway private key was used.
+ */
+export async function createCertFromCertSigningRequest({
+  certPublicKeyOverride,
+  certSigningRequest,
+  certType = 'standard_cert',
+  expiryInDays,
+  signingCertAuthorityCertPath,
+  signingPrivateKey,
+}: {
+  certPublicKeyOverride?: Buffer;
+  certSigningRequest: Buffer;
+  certType?: CertType;
+  expiryInDays: number;
+  signingCertAuthorityCertPath: string;
+  signingPrivateKey: FileKey | TpmKey;
+}): Promise<Buffer> {
+  const certAuthorityKeyParams: OpensslParam[] = (() => {
+    switch (signingPrivateKey.source) {
+      case 'file': {
+        return ['-CAkey', signingPrivateKey.path];
+      }
+      case 'tpm': {
+        return [
+          '-CAkey',
+          TPM_KEY_ID,
+          '-CAkeyform',
+          'engine',
+          '-engine',
+          OPENSSL_TPM_ENGINE_NAME,
+          '-passin',
+          `pass:${TPM_KEY_PASSWORD}`,
+        ];
+      }
+      /* istanbul ignore next: Compile-time check for completeness */
+      default: {
+        throwIllegalValue(signingPrivateKey, 'source');
+      }
+    }
+  })();
   const cert = await openssl([
     'x509',
     '-req',
     '-CA',
-    signingCertAuthorityCert,
-    '-CAkey',
-    signingPrivateKey,
-    '-passin',
-    `pass:${signingPrivateKeyPassword}`,
+    signingCertAuthorityCertPath,
+    ...certAuthorityKeyParams,
     '-CAcreateserial',
     '-CAserial',
     '/tmp/serial.txt',
     '-in',
     certSigningRequest,
-    '-force_pubkey',
-    publicKeyToSign,
     '-days',
     `${expiryInDays}`,
-    ...(certType === 'certAuthorityCert'
+    ...(certPublicKeyOverride ? ['-force_pubkey', certPublicKeyOverride] : []),
+    ...(certType === 'cert_authority_cert'
       ? ['-extensions', 'v3_ca', '-extfile', OPENSSL_CONFIG_FILE_PATH]
       : []),
   ]);
   return cert;
+}
+
+/**
+ * The input to createCert. All file keys and inline keys should be in PEM format.
+ */
+export interface CreateCertInput {
+  /**
+   * A private key should be provided when possible, but if the private key of the public key to
+   * sign isn't available (as is the case for a key pair generated on a Java Card), the public key is
+   * also acceptable. We set the cert key using -force_pubkey in this case.
+   */
+  certKeyInput:
+    | { type: 'private'; key: FileKey }
+    | { type: 'public'; key: InlineKey };
+  certSubject: string;
+  certType?: CertType;
+  expiryInDays: number;
+  signingCertAuthorityCertPath: string;
+  signingPrivateKey: FileKey | TpmKey;
+}
+
+const CreateCertInputSchema: z.ZodSchema<CreateCertInput> = z.object({
+  certKeyInput: z.union([
+    z.object({ type: z.literal('private'), key: FileKeySchema }),
+    z.object({ type: z.literal('public'), key: InlineKeySchema }),
+  ]),
+  certSubject: z.string(),
+  certType: z
+    .union([z.literal('cert_authority_cert'), z.literal('standard_cert')])
+    .optional(),
+  expiryInDays: z.number(),
+  signingCertAuthorityCertPath: z.string(),
+  signingPrivateKey: z.union([FileKeySchema, TpmKeySchema]),
+});
+
+/**
+ * Parses a JSON string as a CreateCertInput, throwing an error if parsing fails
+ */
+export function parseCreateCertInput(value: string): CreateCertInput {
+  return unsafeParse(CreateCertInputSchema, JSON.parse(value));
+}
+
+/**
+ * A helper for createCert. Creates a cert, combining cert signing request creation and cert
+ * creation into a single function. The outputted cert will be in PEM format.
+ */
+export async function createCertHelper({
+  certKeyInput,
+  certSubject,
+  certType = 'standard_cert',
+  expiryInDays,
+  signingCertAuthorityCertPath,
+  signingPrivateKey,
+}: CreateCertInput): Promise<Buffer> {
+  const isPrivateKeyOfPublicKeyToSignUnavailable =
+    certKeyInput.type === 'public';
+
+  let certKey: FileKey | InlineKey;
+  if (isPrivateKeyOfPublicKeyToSignUnavailable) {
+    const throwawayPrivateKey = await openssl([
+      'ecparam',
+      '-genkey',
+      '-name',
+      'prime256v1',
+      '-noout',
+    ]);
+    certKey = {
+      source: 'inline',
+      content: throwawayPrivateKey.toString('utf-8'),
+    };
+  } else {
+    certKey = certKeyInput.key;
+  }
+  const certSigningRequest = await createCertSigningRequest({
+    certKey,
+    certSubject,
+  });
+
+  const certPublicKeyOverride = isPrivateKeyOfPublicKeyToSignUnavailable
+    ? Buffer.from(certKeyInput.key.content, 'utf-8')
+    : undefined;
+  const cert = await createCertFromCertSigningRequest({
+    certPublicKeyOverride,
+    certSigningRequest,
+    certType,
+    expiryInDays,
+    signingCertAuthorityCertPath,
+    signingPrivateKey,
+  });
+
+  return cert;
+}
+
+/**
+ * Creates a cert, combining cert signing request creation and cert creation into a single
+ * function. The outputted cert will be in PEM format.
+ *
+ * Uses a slightly roundabout control flow for permissions purposes:
+ *
+ * createCert() --> ../src/create-cert --> createCertHelper()
+ *
+ * When using TPM keys in production, we need sudo access. Creating the intermediate create-cert
+ * script allows us to grant password-less sudo access to the relevant system users for just that
+ * operation, instead of having to grant password-less sudo access more globally.
+ */
+export async function createCert(input: CreateCertInput): Promise<Buffer> {
+  const scriptPath = path.join(__dirname, '../src/create-cert');
+  const scriptInput = JSON.stringify(input);
+  const usingTpm = input.signingPrivateKey.source === 'tpm';
+  const command = usingTpm
+    ? (['sudo', scriptPath, scriptInput] as const)
+    : ([scriptPath, scriptInput] as const);
+
+  return new Promise((resolve, reject) => {
+    const process = spawn(command[0], command.slice(1));
+
+    let stdout: Buffer = Buffer.from([]);
+    process.stdout.on('data', (data) => {
+      stdout = Buffer.concat([stdout, data]);
+    });
+
+    let stderr: Buffer = Buffer.from([]);
+    process.stderr.on('data', (data) => {
+      stderr = Buffer.concat([stderr, data]);
+    });
+
+    process.on('close', (code) => {
+      if (code !== 0) {
+        reject(errorFromStderrAndStdout({ stderr, stdout }));
+      } else {
+        resolve(stdout);
+      }
+    });
+  });
 }
