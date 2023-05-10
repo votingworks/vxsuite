@@ -40,6 +40,28 @@ jobs:
       - store_test_results:
           path: codemods/reports/
 
+  test-apps-design-frontend:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/design/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/design/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/design/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/design/frontend/reports/
+
   test-apps-mark-backend:
     executor: nodejs
     resource_class: xlarge
@@ -963,6 +985,7 @@ workflows:
   test:
     jobs:
       - test-codemods
+      - test-apps-design-frontend
       - test-apps-mark-backend
       - test-apps-mark-frontend
       - test-apps-mark-integration-testing
