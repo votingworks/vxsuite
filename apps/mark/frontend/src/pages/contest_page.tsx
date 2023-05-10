@@ -1,14 +1,12 @@
 import styled from 'styled-components';
 
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
-import { LinkButton, Screen, Prose, P, Caption } from '@votingworks/ui';
+import { LinkButton, Screen, Prose, P, Font } from '@votingworks/ui';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import pluralize from 'pluralize';
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { assert } from '@votingworks/basics';
-import { ordinal } from '../utils/ordinal';
 
 import { BallotContext } from '../contexts/ballot_context';
 
@@ -16,18 +14,18 @@ import { CandidateContest } from '../components/candidate_contest';
 import { ElectionInfo } from '../components/election_info';
 import { Sidebar } from '../components/sidebar';
 import { YesNoContest } from '../components/yes_no_contest';
-import { TextIcon } from '../components/text_icon';
 import { MsEitherNeitherContest } from '../components/ms_either_neither_contest';
 import { screenOrientation } from '../lib/screen_orientation';
-import {
-  ButtonFooter,
-  ButtonFooterLandscape,
-} from '../components/button_footer';
+import { ButtonFooter } from '../components/button_footer';
 import { DisplaySettingsButton } from '../components/display_settings_button';
 
 interface ContestParams {
   contestNumber: string;
 }
+
+const Breadcrumbs = styled.div`
+  padding: 0 0.5rem;
+`;
 
 export function ContestPage(): JSX.Element {
   const { contestNumber } = useParams<ContestParams>();
@@ -87,48 +85,37 @@ export function ContestPage(): JSX.Element {
     calculateIsVoteComplete();
   }, [contest, vote, votes]);
 
-  const Breadcrumbs = styled.div`
-    padding: 30px 30px 0;
-  `;
-
   const nextContestButton = (
     <LinkButton
-      large
       id="next"
-      variant={isVoteComplete ? 'primary' : 'regular'}
+      variant={isVoteComplete ? 'next' : 'nextSecondary'}
       aria-label="next contest"
       to={nextContest ? `/contests/${nextContestIndex}` : '/review'}
     >
-      <TextIcon arrowRight white={isVoteComplete}>
-        Next
-      </TextIcon>
+      Next
     </LinkButton>
   );
 
   const previousContestButton = (
     <LinkButton
-      small={isLandscape}
+      variant="previous"
       large={isPortrait}
       id="previous"
       aria-label="previous contest"
       to={prevContest ? `/contests/${prevContestIndex}` : '/'}
     >
-      <TextIcon small={isLandscape} arrowLeft>
-        Back
-      </TextIcon>
+      Back
     </LinkButton>
   );
 
   const reviewScreenButton = (
     <LinkButton
       large
-      variant={isVoteComplete ? 'primary' : 'regular'}
+      variant={isVoteComplete ? 'next' : 'nextSecondary'}
       to={`/review#contest-${contest.id}`}
       id="next"
     >
-      <TextIcon arrowRight white={isVoteComplete}>
-        Review
-      </TextIcon>
+      Review
     </LinkButton>
   );
 
@@ -138,13 +125,10 @@ export function ContestPage(): JSX.Element {
     <Screen navRight={isLandscape}>
       {isPortrait && (
         <Breadcrumbs>
-          <Prose>
-            <Caption>
-              This is the{' '}
-              <strong>{ordinal(ballotContestNumber)} contest</strong> of{' '}
-              {pluralize('contest', ballotContestsLength, true)} on your ballot.
-            </Caption>
-          </Prose>
+          <P align="right">
+            Contest <Font weight="bold">{ballotContestNumber}</Font> of{' '}
+            <Font weight="bold">{ballotContestsLength}</Font>
+          </P>
         </Breadcrumbs>
       )}
       {contest.type === 'candidate' && (
@@ -180,20 +164,23 @@ export function ContestPage(): JSX.Element {
       {isPortrait ? (
         <ButtonFooter>
           {isReviewMode ? (
-            reviewScreenButton
+            <React.Fragment>
+              {settingsButton}
+              {reviewScreenButton}
+            </React.Fragment>
           ) : (
             <React.Fragment>
-              {nextContestButton}
               {previousContestButton}
+              {settingsButton}
+              {nextContestButton}
             </React.Fragment>
           )}
-          {settingsButton}
         </ButtonFooter>
       ) : (
         <Sidebar
           footer={
             <React.Fragment>
-              <ButtonFooterLandscape>{settingsButton}</ButtonFooterLandscape>
+              <ButtonFooter>{settingsButton}</ButtonFooter>
               <ElectionInfo
                 electionDefinition={electionDefinition}
                 ballotStyleId={ballotStyleId}
@@ -205,8 +192,8 @@ export function ContestPage(): JSX.Element {
         >
           <Prose>
             <P align="center">
-              This is the <strong>{ordinal(currentContestIndex + 1)}</strong> of{' '}
-              {pluralize('contest', contests.length, true)}.
+              Contest <Font weight="bold">{ballotContestNumber}</Font> of{' '}
+              <Font weight="bold">{ballotContestsLength}</Font>
             </P>
             {isReviewMode ? (
               <P>{reviewScreenButton}</P>

@@ -71,6 +71,6 @@ it('renders display settings button', () => {
 
   expect(history.location.pathname).toEqual('/contests/0');
 
-  userEvent.click(screen.getButton(/color & size/i));
+  userEvent.click(screen.getButton(/color.+size/i));
   expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
 });

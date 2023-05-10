@@ -26,6 +26,7 @@ import {
   Prose,
   P,
   Font,
+  Caption,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -40,7 +41,6 @@ import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 import { VirtualKeyboard } from './virtual_keyboard';
 import {
   ContentHeader,
-  DistrictName,
   VariableContentContainer,
   ScrollControls,
   ScrollContainer,
@@ -48,6 +48,7 @@ import {
   ChoicesGrid,
 } from './contest_screen_layout';
 import { useCurrentTextSizePx } from '../hooks/use_current_text_size';
+import { ContestTitle } from './contest_title';
 
 const WriteInModalContent = styled.div`
   margin: -0.5rem;
@@ -301,11 +302,8 @@ export function CandidateContest({
       <Main flexColumn>
         <ContentHeader id="contest-header">
           <Prose id="audiofocus">
-            <H1 aria-label={`${districtName} ${contest.title}.`}>
-              <DistrictName>{districtName}</DistrictName>
-              {contest.title}
-            </H1>
-            <P>
+            <ContestTitle districtName={districtName} title={contest.title} />
+            <Caption>
               Vote for {contest.seats}.{' '}
               {vote.length === contest.seats && (
                 <Font weight="bold">You have selected {contest.seats}.</Font>
@@ -319,7 +317,7 @@ export function CandidateContest({
                 To navigate through the contest choices, use the down button. To
                 move to the next contest, use the right button.
               </span>
-            </P>
+            </Caption>
           </Prose>
         </ContentHeader>
         <VariableContentContainer

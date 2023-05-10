@@ -232,7 +232,7 @@ test('Cardless Voting Flow', async () => {
   }
 
   // Advance to print ballot
-  fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
+  fireEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText('Printing Your Official Ballot');
   await expectPrint();
 
@@ -279,7 +279,6 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   );
   await advanceTimersAndPromises();
 
-  const getByTextWithMarkup = withMarkup(screen.getByText);
   const findByTextWithMarkup = withMarkup(screen.findByText);
 
   // ====================== END CONTEST SETUP ====================== //
@@ -325,7 +324,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   }
 
   // Advance to print ballot
-  fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
+  fireEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText('Printing Your Official Ballot');
   await expectPrint();
 
@@ -548,7 +547,7 @@ test('poll worker must select a precinct first', async () => {
   }
 
   // Advance to print ballot
-  fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
+  fireEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText('Printing Your Official Ballot');
   await expectPrint();
 

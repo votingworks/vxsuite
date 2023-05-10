@@ -91,7 +91,7 @@ const StyledPre = styled.pre<FontProps>`
   ${fontStyles}
 
   display: block;
-  font-size: 1rem;
+  font-size: 1em;
   font-family: inherit;
   margin-bottom: 0.35em;
   white-space: ${(p) => (p.noWrap ? 'pre' : 'pre-wrap')};

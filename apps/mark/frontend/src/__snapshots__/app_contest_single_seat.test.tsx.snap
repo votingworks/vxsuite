@@ -1,21 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Single Seat Contest 1`] = `
-.c10 {
+.c4 {
   font-size: 1em;
   font-weight: 600;
   line-height: 1.15;
   margin: 0;
 }
 
-.c34 {
-  font-size: 1em;
-  font-weight: 500;
-  line-height: 1.15;
-  margin: 0;
-}
-
-.c24 {
+.c26 {
   font-size: 1em;
   font-weight: 300;
   line-height: 1.15;
@@ -23,7 +16,7 @@ exports[`Single Seat Contest 1`] = `
   font-size: 0.75rem;
 }
 
-.c4 {
+.c11 {
   font-size: 1em;
   line-height: 1.15;
   margin: 0;
@@ -32,120 +25,64 @@ exports[`Single Seat Contest 1`] = `
 
 .c9 {
   font-size: 1em;
+  font-weight: 500;
+  line-height: 1.15;
+  margin: 0;
+  font-size: 0.75rem;
+}
+
+.c24 {
+  font-size: 1em;
   line-height: 1.15;
   margin: 0;
   font-size: 1rem;
   margin-bottom: 0.5em;
 }
 
-.c7 {
+.c3 {
+  font-size: 1em;
+  line-height: 1.15;
+  margin: 0;
+  text-align: right;
+  font-size: 1rem;
+  margin-bottom: 0.5em;
+}
+
+.c8 {
   font-size: 1em;
   line-height: 1.15;
   margin: 0;
   font-weight: 500;
   line-height: 1.035;
   margin-bottom: 0.3em;
-  font-size: 2.125rem;
+  font-size: 1.75rem;
   font-weight: 600;
 }
 
-.c7:not(:first-child) {
+.c8:not(:first-child) {
   margin-top: 1.25em;
 }
 
-.c7 + h1,
-.c7 + h2,
-.c7 + h3,
-.c7 + h4,
-.c7 + h5,
-.c7 + h6 {
+.c8 + h1,
+.c8 + h2,
+.c8 + h3,
+.c8 + h4,
+.c8 + h5,
+.c8 + h6 {
   margin-top: 0 !important;
 }
 
-.c3 {
+.c7 {
   max-width: 66ch;
 }
 
-.c21 {
+.c22 {
   fill: currentColor;
   height: 1em;
   width: 1em;
 }
 
-.c29 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25em;
-  box-sizing: border-box;
-  background: #00437d;
-  padding: 1em 1.75em;
-  text-align: center;
-  line-height: 1.25;
-  color: #fafafa;
-  font-size: 1.25em;
-  touch-action: manipulation;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  -webkit-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  gap: 0.5rem;
-  -webkit-letter-spacing: 0.01em;
-  -moz-letter-spacing: 0.01em;
-  -ms-letter-spacing: 0.01em;
-  letter-spacing: 0.01em;
-  line-height: 1.15;
-  padding: 0.5em 0.6em;
-  width: auto;
-  min-height: 70.86614173228345px;
-  vertical-align: middle;
-  background: #00437d;
-  border: 0.15rem solid #00437d;
-  border-radius: 0.25rem;
-  box-shadow: none;
-  color: #fafafa;
-  cursor: pointer;
-  text-shadow: none;
-  -webkit-transition: 100ms ease-in;
-  transition: 100ms ease-in;
-  -webkit-transition-property: background,border,box-shadow,color;
-  transition-property: background,border,box-shadow,color;
-}
-
-.c29:hover,
-.c29:active {
-  outline: none;
-}
-
-.c29:hover,
-.c29:active {
-  outline: none;
-}
-
-.c29:active {
-  box-shadow: inset 0 0 0 0.15rem #fafafa;
-}
-
-.c29[disabled] {
-  border: 0.15rem dashed #222222;
-  box-shadow: none;
-  cursor: not-allowed;
-}
-
-.c25 {
+.c27 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -197,21 +134,21 @@ exports[`Single Seat Contest 1`] = `
   transition-property: background,border,box-shadow,color;
 }
 
-.c25:hover,
-.c25:active {
+.c27:hover,
+.c27:active {
   outline: none;
 }
 
-.c25:hover,
-.c25:active {
+.c27:hover,
+.c27:active {
   outline: none;
 }
 
-.c25:active {
+.c27:active {
   box-shadow: inset 0 0 0 0.15rem #222222;
 }
 
-.c25[disabled] {
+.c27[disabled] {
   border: 0.15rem dashed #222222;
   box-shadow: none;
   cursor: not-allowed;
@@ -290,7 +227,7 @@ exports[`Single Seat Contest 1`] = `
   cursor: not-allowed;
 }
 
-.c15 {
+.c16 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -342,27 +279,31 @@ exports[`Single Seat Contest 1`] = `
   transition-property: background,border,box-shadow,color;
 }
 
-.c15:hover,
-.c15:active {
+.c16:hover,
+.c16:active {
   outline: none;
 }
 
-.c15:hover,
-.c15:active {
+.c16:hover,
+.c16:active {
   outline: none;
 }
 
-.c15:active {
+.c16:active {
   box-shadow: inset 0 0 0 0.15rem #fafafa;
 }
 
-.c15[disabled] {
+.c16[disabled] {
   border: 0.15rem dashed #222222;
   box-shadow: none;
   cursor: not-allowed;
 }
 
-.c17 {
+.c32 {
+  display: inline-block;
+}
+
+.c18 {
   display: inline-block;
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
@@ -373,7 +314,7 @@ exports[`Single Seat Contest 1`] = `
   flex-shrink: 1;
 }
 
-.c27 {
+.c29 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -393,13 +334,13 @@ exports[`Single Seat Contest 1`] = `
   width: 1.75em;
 }
 
-.c27 > * {
+.c29 > * {
   opacity: 0;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c20 {
+.c21 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -420,13 +361,13 @@ exports[`Single Seat Contest 1`] = `
   border: 0.15rem solid currentColor;
 }
 
-.c20 > * {
+.c21 > * {
   opacity: 1;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c26 {
+.c28 {
   border: 0.055rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -440,11 +381,11 @@ exports[`Single Seat Contest 1`] = `
   width: 100%;
 }
 
-.c26:active {
+.c28:active {
   border: 0.055rem solid #00437d;
 }
 
-.c16 {
+.c17 {
   border: 0.055rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -459,11 +400,11 @@ exports[`Single Seat Contest 1`] = `
   border: 0.055rem solid #00437d;
 }
 
-.c16:active {
+.c17:active {
   border: 0.055rem solid #00437d;
 }
 
-.c18 {
+.c19 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -478,7 +419,7 @@ exports[`Single Seat Contest 1`] = `
   gap: 0.5rem;
 }
 
-.c19 {
+.c20 {
   -webkit-box-flex: 0;
   -webkit-flex-grow: 0;
   -ms-flex-positive: 0;
@@ -488,7 +429,7 @@ exports[`Single Seat Contest 1`] = `
   flex-shrink: 0;
 }
 
-.c22 {
+.c23 {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
@@ -496,7 +437,7 @@ exports[`Single Seat Contest 1`] = `
   line-height: 1;
 }
 
-.c23 {
+.c25 {
   line-height: inherit;
   margin-bottom: 0;
 }
@@ -527,18 +468,10 @@ exports[`Single Seat Contest 1`] = `
 }
 
 .c6 {
-  margin: 0 auto;
-  width: 100%;
-  padding: 1rem 30px 0.5rem;
+  padding: 0.25rem 0.5rem 0.5rem;
 }
 
-.c8 {
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.c11 {
+.c12 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -547,8 +480,8 @@ exports[`Single Seat Contest 1`] = `
   overflow: auto;
 }
 
-.c11::before,
-.c11::after {
+.c12::before,
+.c12::after {
   position: absolute;
   z-index: 1;
   width: 100%;
@@ -558,95 +491,67 @@ exports[`Single Seat Contest 1`] = `
   transition: opacity 0.25s ease;
 }
 
-.c11::before {
+.c12::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c11::after {
+.c12::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
 }
 
-.c12 {
+.c13 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   overflow: auto;
 }
 
-.c13 {
+.c14 {
   margin: 0 auto;
   width: 100%;
   padding: 0.25rem 20px 0;
 }
 
-.c14 {
+.c15 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 20px;
-  margin-bottom: 40px;
+  grid-gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.c32 {
-  white-space: nowrap;
-}
-
-.c32::before {
-  display: inline-block;
-  margin-right: 0.5rem;
-  background: url('/images/arrow-left-open-black.svg') no-repeat;
-  width: 1.375rem;
-  height: 1.375rem;
-  vertical-align: text-bottom;
-  content: '';
+.c10 {
+  display: block;
+  margin-bottom: 0;
 }
 
 .c30 {
-  white-space: nowrap;
-}
-
-.c30::after {
-  display: inline-block;
-  margin-left: 0.5rem;
-  background: url('/images/arrow-right-open-white.svg') no-repeat;
-  width: 1.375rem;
-  height: 1.375rem;
-  vertical-align: text-bottom;
-  content: '';
-}
-
-.c28 {
+  -webkit-align-items: stretch;
+  -webkit-box-align: stretch;
+  -ms-flex-align: stretch;
+  align-items: stretch;
+  border-top: 0.25rem solid #222222;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  background-color: #333333;
-  padding: 20px;
-  color: #ffffff;
-  gap: 20px;
+  gap: 0.5rem;
+  -webkit-box-pack: right;
+  -webkit-justify-content: right;
+  -ms-flex-pack: right;
+  justify-content: right;
+  min-height: 4.5rem;
+  padding: 0.5rem;
 }
 
-.c28 > * {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-}
-
-.c28 > *:first-child {
-  -webkit-flex: 2 1;
-  -ms-flex: 2 1;
-  flex: 2 1;
-  -webkit-order: 1;
-  -ms-flex-order: 1;
-  order: 1;
-}
-
-.c28 button {
-  padding-right: 10px;
-  padding-left: 10px;
+.c30 > *:not(:first-child):not(:last-child) {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
 }
 
 .c33 {
@@ -661,8 +566,16 @@ exports[`Single Seat Contest 1`] = `
   -webkit-flex-wrap: nowrap;
   -ms-flex-wrap: nowrap;
   flex-wrap: nowrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
   gap: 0.5rem;
   text-align: left;
+}
+
+.c2 {
+  padding: 0 0.5rem;
 }
 
 .c0 {
@@ -671,10 +584,6 @@ exports[`Single Seat Contest 1`] = `
 
 .c0:focus {
   outline: none;
-}
-
-.c2 {
-  padding: 30px 30px 0;
 }
 
 @media print {
@@ -737,24 +646,23 @@ exports[`Single Seat Contest 1`] = `
     <div
       class="c2"
     >
-      <div
+      <p
         class="c3"
       >
+        Contest 
         <span
           class="c4"
         >
-          This is the
-           
-          <strong>
-            1st
-             contest
-          </strong>
-           of
-           
-          20 contests
-           on your ballot.
+          1
         </span>
-      </div>
+         of
+         
+        <span
+          class="c4"
+        >
+          20
+        </span>
+      </p>
     </div>
     <main
       class="c5"
@@ -764,29 +672,29 @@ exports[`Single Seat Contest 1`] = `
         id="contest-header"
       >
         <div
-          class="c3"
+          class="c7"
           id="audiofocus"
         >
           <h1
             aria-label="District 1 President and Vice-President."
-            class="c7"
+            class="c8"
           >
-            <div
-              class="c8"
+            <span
+              class="c9 c10"
             >
               District 1
-            </div>
+            </span>
             President and Vice-President
           </h1>
-          <p
-            class="c9"
+          <span
+            class="c11"
           >
             Vote for 
             1
             .
              
             <span
-              class="c10"
+              class="c4"
             >
               You have selected 
               1
@@ -797,45 +705,45 @@ exports[`Single Seat Contest 1`] = `
             >
               To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
             </span>
-          </p>
+          </span>
         </div>
       </div>
       <div
-        class="c11"
+        class="c12"
       >
         <div
-          class="c12"
+          class="c13"
         >
           <div
-            class="c13"
+            class="c14"
           >
             <div
               aria-multiselectable="true"
-              class="c14"
+              class="c15"
               role="listbox"
             >
               <button
                 aria-label="Selected, Joseph Barchi and Joseph Hallaren, Federalist."
                 aria-selected="true"
-                class="c15 c16"
+                class="c16 c17"
                 role="option"
                 type="button"
               >
                 <span
-                  class="c17"
+                  class="c18"
                 >
                   <span
-                    class="c18"
+                    class="c19"
                   >
                     <span
-                      class="c19"
+                      class="c20"
                     >
                       <span
-                        class="c20"
+                        class="c21"
                       >
                         <svg
                           aria-hidden="true"
-                          class="c21"
+                          class="c22"
                           height="100"
                           role="img"
                           viewBox="0 0 100 100"
@@ -848,15 +756,15 @@ exports[`Single Seat Contest 1`] = `
                       </span>
                     </span>
                     <span
-                      class="c22"
+                      class="c23"
                     >
                       <p
-                        class="c9 c23"
+                        class="c24 c25"
                       >
                         Joseph Barchi and Joseph Hallaren
                       </p>
                       <span
-                        class="c24"
+                        class="c26"
                       >
                         Federalist
                       </span>
@@ -867,25 +775,25 @@ exports[`Single Seat Contest 1`] = `
               <button
                 aria-label=" Adam Cramer and Greg Vuocolo, People’s."
                 aria-selected="false"
-                class="c25 c26"
+                class="c27 c28"
                 role="option"
                 type="button"
               >
                 <span
-                  class="c17"
+                  class="c18"
                 >
                   <span
-                    class="c18"
+                    class="c19"
                   >
                     <span
-                      class="c19"
+                      class="c20"
                     >
                       <span
-                        class="c27"
+                        class="c29"
                       >
                         <svg
                           aria-hidden="true"
-                          class="c21"
+                          class="c22"
                           height="100"
                           role="img"
                           viewBox="0 0 100 100"
@@ -898,15 +806,15 @@ exports[`Single Seat Contest 1`] = `
                       </span>
                     </span>
                     <span
-                      class="c22"
+                      class="c23"
                     >
                       <p
-                        class="c9 c23"
+                        class="c24 c25"
                       >
                         Adam Cramer and Greg Vuocolo
                       </p>
                       <span
-                        class="c24"
+                        class="c26"
                       >
                         People’s
                       </span>
@@ -917,25 +825,25 @@ exports[`Single Seat Contest 1`] = `
               <button
                 aria-label=" Daniel Court and Amy Blumhardt, Liberty."
                 aria-selected="false"
-                class="c25 c26"
+                class="c27 c28"
                 role="option"
                 type="button"
               >
                 <span
-                  class="c17"
+                  class="c18"
                 >
                   <span
-                    class="c18"
+                    class="c19"
                   >
                     <span
-                      class="c19"
+                      class="c20"
                     >
                       <span
-                        class="c27"
+                        class="c29"
                       >
                         <svg
                           aria-hidden="true"
-                          class="c21"
+                          class="c22"
                           height="100"
                           role="img"
                           viewBox="0 0 100 100"
@@ -948,15 +856,15 @@ exports[`Single Seat Contest 1`] = `
                       </span>
                     </span>
                     <span
-                      class="c22"
+                      class="c23"
                     >
                       <p
-                        class="c9 c23"
+                        class="c24 c25"
                       >
                         Daniel Court and Amy Blumhardt
                       </p>
                       <span
-                        class="c24"
+                        class="c26"
                       >
                         Liberty
                       </span>
@@ -967,25 +875,25 @@ exports[`Single Seat Contest 1`] = `
               <button
                 aria-label=" Alvin Boone and James Lian, Constitution."
                 aria-selected="false"
-                class="c25 c26"
+                class="c27 c28"
                 role="option"
                 type="button"
               >
                 <span
-                  class="c17"
+                  class="c18"
                 >
                   <span
-                    class="c18"
+                    class="c19"
                   >
                     <span
-                      class="c19"
+                      class="c20"
                     >
                       <span
-                        class="c27"
+                        class="c29"
                       >
                         <svg
                           aria-hidden="true"
-                          class="c21"
+                          class="c22"
                           height="100"
                           role="img"
                           viewBox="0 0 100 100"
@@ -998,15 +906,15 @@ exports[`Single Seat Contest 1`] = `
                       </span>
                     </span>
                     <span
-                      class="c22"
+                      class="c23"
                     >
                       <p
-                        class="c9 c23"
+                        class="c24 c25"
                       >
                         Alvin Boone and James Lian
                       </p>
                       <span
-                        class="c24"
+                        class="c26"
                       >
                         Constitution
                       </span>
@@ -1017,25 +925,25 @@ exports[`Single Seat Contest 1`] = `
               <button
                 aria-label=" Ashley Hildebrand-McDougall and James Garritty, Whig."
                 aria-selected="false"
-                class="c25 c26"
+                class="c27 c28"
                 role="option"
                 type="button"
               >
                 <span
-                  class="c17"
+                  class="c18"
                 >
                   <span
-                    class="c18"
+                    class="c19"
                   >
                     <span
-                      class="c19"
+                      class="c20"
                     >
                       <span
-                        class="c27"
+                        class="c29"
                       >
                         <svg
                           aria-hidden="true"
-                          class="c21"
+                          class="c22"
                           height="100"
                           role="img"
                           viewBox="0 0 100 100"
@@ -1048,15 +956,15 @@ exports[`Single Seat Contest 1`] = `
                       </span>
                     </span>
                     <span
-                      class="c22"
+                      class="c23"
                     >
                       <p
-                        class="c9 c23"
+                        class="c24 c25"
                       >
                         Ashley Hildebrand-McDougall and James Garritty
                       </p>
                       <span
-                        class="c24"
+                        class="c26"
                       >
                         Whig
                       </span>
@@ -1067,25 +975,25 @@ exports[`Single Seat Contest 1`] = `
               <button
                 aria-label=" Martin Patterson and Clay Lariviere, Labor."
                 aria-selected="false"
-                class="c25 c26"
+                class="c27 c28"
                 role="option"
                 type="button"
               >
                 <span
-                  class="c17"
+                  class="c18"
                 >
                   <span
-                    class="c18"
+                    class="c19"
                   >
                     <span
-                      class="c19"
+                      class="c20"
                     >
                       <span
-                        class="c27"
+                        class="c29"
                       >
                         <svg
                           aria-hidden="true"
-                          class="c21"
+                          class="c22"
                           height="100"
                           role="img"
                           viewBox="0 0 100 100"
@@ -1098,15 +1006,15 @@ exports[`Single Seat Contest 1`] = `
                       </span>
                     </span>
                     <span
-                      class="c22"
+                      class="c23"
                     >
                       <p
-                        class="c9 c23"
+                        class="c24 c25"
                       >
                         Martin Patterson and Clay Lariviere
                       </p>
                       <span
-                        class="c24"
+                        class="c26"
                       >
                         Labor
                       </span>
@@ -1120,24 +1028,8 @@ exports[`Single Seat Contest 1`] = `
       </div>
     </main>
     <nav
-      class="c28"
+      class="c30"
     >
-      <button
-        aria-label="next contest"
-        class="c29"
-        id="next"
-        type="button"
-      >
-        <span
-          class="c17"
-        >
-          <span
-            class="c30"
-          >
-            Next
-          </span>
-        </span>
-      </button>
       <button
         aria-label="previous contest"
         class="c31"
@@ -1145,21 +1037,36 @@ exports[`Single Seat Contest 1`] = `
         type="button"
       >
         <span
-          class="c17"
+          class="c32"
         >
-          <span
-            class="c32"
+          <svg
+            aria-hidden="true"
+            class="svg-inline--fa fa-circle-left "
+            data-icon="circle-left"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            Back
-          </span>
+            <path
+              d="M512 256A256 256 0 1 0 0 256a256 256 0 1 0 512 0zM217.4 376.9L117.5 269.8c-3.5-3.8-5.5-8.7-5.5-13.8s2-10.1 5.5-13.8l99.9-107.1c4.2-4.5 10.1-7.1 16.3-7.1c12.3 0 22.3 10 22.3 22.3l0 57.7 96 0c17.7 0 32 14.3 32 32l0 32c0 17.7-14.3 32-32 32l-96 0 0 57.7c0 12.3-10 22.3-22.3 22.3c-6.2 0-12.1-2.6-16.3-7.1z"
+              fill="currentColor"
+            />
+          </svg>
+        </span>
+        <span
+          class="c18"
+        >
+          Back
         </span>
       </button>
       <button
-        class="c25"
+        class="c27"
         type="button"
       >
         <span
-          class="c17"
+          class="c18"
         >
           <span
             class="c33"
@@ -1179,12 +1086,41 @@ exports[`Single Seat Contest 1`] = `
                 fill="currentColor"
               />
             </svg>
-            <span
-              class="c34"
-            >
-              Color & Size
+            <span>
+              Color/Size
             </span>
           </span>
+        </span>
+      </button>
+      <button
+        aria-label="next contest"
+        class="c16"
+        id="next"
+        type="button"
+      >
+        <span
+          class="c32"
+        >
+          <svg
+            aria-hidden="true"
+            class="svg-inline--fa fa-circle-right "
+            data-icon="circle-right"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM294.6 135.1l99.9 107.1c3.5 3.8 5.5 8.7 5.5 13.8s-2 10.1-5.5 13.8L294.6 376.9c-4.2 4.5-10.1 7.1-16.3 7.1C266 384 256 374 256 361.7l0-57.7-96 0c-17.7 0-32-14.3-32-32l0-32c0-17.7 14.3-32 32-32l96 0 0-57.7c0-12.3 10-22.3 22.3-22.3c6.2 0 12.1 2.6 16.3 7.1z"
+              fill="currentColor"
+            />
+          </svg>
+        </span>
+        <span
+          class="c18"
+        >
+          Next
         </span>
       </button>
     </nav>

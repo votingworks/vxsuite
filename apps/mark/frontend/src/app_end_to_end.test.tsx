@@ -278,7 +278,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   screen.getByText('You may still vote for 2 more candidates.');
 
   // Print Screen
-  userEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
+  userEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText('Printing Your Official Ballot');
   await expectPrint();
 

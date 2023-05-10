@@ -1,12 +1,38 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`supports yes/no contest allows voting for both yes and no 1`] = `
-.c5 {
+.c4 {
+  font-size: 1em;
+  font-weight: 500;
+  line-height: 1.2;
+  margin: 0;
+  font-size: 0.75em;
+}
+
+.c6 {
+  font-size: 1em;
+  line-height: 1.2;
+  margin: 0;
+  font-size: 0.75em;
+}
+
+.c21 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
   font-size: 1rem;
   margin-bottom: 0.5em;
+}
+
+.c10 {
+  font-size: 1em;
+  line-height: 1.2;
+  margin: 0;
+  display: block;
+  font-size: 1em;
+  font-family: inherit;
+  margin-bottom: 0.35em;
+  white-space: pre-wrap;
 }
 
 .c3 {
@@ -16,7 +42,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   font-weight: 500;
   line-height: 1.08;
   margin-bottom: 0.3em;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 600;
 }
 
@@ -118,13 +144,13 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   border-top: 0.1em solid #666666;
 }
 
-.c18 {
+.c19 {
   fill: currentColor;
   height: 1em;
   width: 1em;
 }
 
-.c12 {
+.c13 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -137,12 +163,12 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   touch-action: manipulation;
 }
 
-.c12:hover,
-.c12:active {
+.c13:hover,
+.c13:active {
   outline: none;
 }
 
-.c14 {
+.c15 {
   display: inline-block;
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
@@ -153,7 +179,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   flex-shrink: 1;
 }
 
-.c17 {
+.c18 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -173,13 +199,13 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   width: 1.75em;
 }
 
-.c17 > * {
+.c18 > * {
   opacity: 0;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c13 {
+.c14 {
   border: 0.05rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -193,11 +219,11 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   width: 100%;
 }
 
-.c13:active {
+.c14:active {
   border: 0.05rem solid #47a74b;
 }
 
-.c15 {
+.c16 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -212,7 +238,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   gap: 0.5rem;
 }
 
-.c16 {
+.c17 {
   -webkit-box-flex: 0;
   -webkit-flex-grow: 0;
   -ms-flex-positive: 0;
@@ -222,7 +248,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   flex-shrink: 0;
 }
 
-.c19 {
+.c20 {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
@@ -230,7 +256,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   line-height: 1;
 }
 
-.c20 {
+.c22 {
   line-height: inherit;
   margin-bottom: 0;
 }
@@ -250,24 +276,16 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 }
 
 .c1 {
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+
+.c11 {
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 30px 0.5rem;
+  padding: 0.5rem;
 }
 
-.c10 {
-  margin: 0 auto;
-  width: 100%;
-  padding: 30px 20px 0;
-}
-
-.c4 {
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.c6 {
+.c7 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -276,8 +294,8 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   overflow: auto;
 }
 
-.c6::before,
-.c6::after {
+.c7::before,
+.c7::after {
   position: absolute;
   z-index: 1;
   width: 100%;
@@ -287,44 +305,41 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   transition: opacity 0.25s ease;
 }
 
-.c6::before {
+.c7::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c6::after {
+.c7::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
 }
 
-.c7 {
+.c8 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   overflow: auto;
 }
 
-.c8 {
+.c9 {
   margin: 0 auto;
   width: 100%;
   padding: 0.25rem 20px 0;
 }
 
-.c9 {
-  padding: 0 10px;
-}
-
-.c11 {
+.c12 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 20px;
-  margin-bottom: 40px;
+  grid-gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-@media print {
-
+.c5 {
+  display: block;
+  margin-bottom: 0;
 }
 
 @media print {
@@ -355,15 +370,15 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           aria-label="District 1 Ballot Measure 3."
           class="c3"
         >
-          <div
-            class="c4"
+          <span
+            class="c4 c5"
           >
             District 1
-          </div>
+          </span>
           Ballot Measure 3
         </h1>
-        <p
-          class="c5"
+        <span
+          class="c6"
         >
           Vote 
           <strong>
@@ -380,67 +395,61 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
             Should fishing be banned in all city owned lakes and rivers?
             To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
           </span>
-        </p>
+        </span>
       </div>
     </div>
     <div
-      class="c6"
+      class="c7"
     >
       <div
-        class="c7"
+        class="c8"
       >
         <div
-          class="c8"
+          class="c9"
         >
-          <div
-            class="c9"
+          <span
+            class="c6"
           >
-            <div
-              class="c2"
+            <pre
+              class="c10"
             >
-              <p
-                class=""
-              >
-                <span>
-                  Should fishing be banned in all city owned lakes and rivers?
-                </span>
-              </p>
-            </div>
-          </div>
+              Should fishing be banned in all city owned lakes and rivers?
+            </pre>
+          </span>
         </div>
       </div>
     </div>
     <div
-      class="c10"
+      class="c11"
     >
       <div
         aria-multiselectable="true"
-        class="c11"
+        class="c12"
         data-testid="contest-choices"
         role="listbox"
       >
         <button
           aria-label=" Yes on Ballot Measure 3"
           aria-selected="false"
-          class="c12 c13"
+          class="c13 c14"
           role="option"
           type="button"
         >
           <span
-            class="c14"
+            class="c15"
           >
             <span
-              class="c15"
+              class="c16"
             >
               <span
-                class="c16"
+                class="c17"
               >
                 <span
-                  class="c17"
+                  class="c18"
                 >
                   <svg
                     aria-hidden="true"
-                    class="c18"
+                    class="c19"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -453,10 +462,10 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
                 </span>
               </span>
               <span
-                class="c19"
+                class="c20"
               >
                 <p
-                  class="c5 c20"
+                  class="c21 c22"
                 >
                   Yes
                 </p>
@@ -467,25 +476,25 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
         <button
           aria-label=" No on Ballot Measure 3"
           aria-selected="false"
-          class="c12 c13"
+          class="c13 c14"
           role="option"
           type="button"
         >
           <span
-            class="c14"
+            class="c15"
           >
             <span
-              class="c15"
+              class="c16"
             >
               <span
-                class="c16"
+                class="c17"
               >
                 <span
-                  class="c17"
+                  class="c18"
                 >
                   <svg
                     aria-hidden="true"
-                    class="c18"
+                    class="c19"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -498,10 +507,10 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
                 </span>
               </span>
               <span
-                class="c19"
+                class="c20"
               >
                 <p
-                  class="c5 c20"
+                  class="c21 c22"
                 >
                   No
                 </p>
@@ -516,12 +525,38 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 `;
 
 exports[`supports yes/no contest displays warning when attempting to change vote 1`] = `
-.c5 {
+.c4 {
+  font-size: 1em;
+  font-weight: 500;
+  line-height: 1.2;
+  margin: 0;
+  font-size: 0.75em;
+}
+
+.c6 {
+  font-size: 1em;
+  line-height: 1.2;
+  margin: 0;
+  font-size: 0.75em;
+}
+
+.c21 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
   font-size: 1rem;
   margin-bottom: 0.5em;
+}
+
+.c10 {
+  font-size: 1em;
+  line-height: 1.2;
+  margin: 0;
+  display: block;
+  font-size: 1em;
+  font-family: inherit;
+  margin-bottom: 0.35em;
+  white-space: pre-wrap;
 }
 
 .c3 {
@@ -531,7 +566,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   font-weight: 500;
   line-height: 1.08;
   margin-bottom: 0.3em;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 600;
 }
 
@@ -633,13 +668,13 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   border-top: 0.1em solid #666666;
 }
 
-.c18 {
+.c19 {
   fill: currentColor;
   height: 1em;
   width: 1em;
 }
 
-.c12 {
+.c13 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -652,12 +687,12 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   touch-action: manipulation;
 }
 
-.c12:hover,
-.c12:active {
+.c13:hover,
+.c13:active {
   outline: none;
 }
 
-.c21 {
+.c23 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -670,12 +705,12 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   touch-action: manipulation;
 }
 
-.c21:hover,
-.c21:active {
+.c23:hover,
+.c23:active {
   outline: none;
 }
 
-.c14 {
+.c15 {
   display: inline-block;
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
@@ -686,7 +721,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   flex-shrink: 1;
 }
 
-.c17 {
+.c18 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -707,13 +742,13 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   border: 0.15rem solid currentColor;
 }
 
-.c17 > * {
+.c18 > * {
   opacity: 1;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c23 {
+.c25 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -733,13 +768,13 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   width: 1.75em;
 }
 
-.c23 > * {
+.c25 > * {
   opacity: 0;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c13 {
+.c14 {
   border: 0.05rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -754,11 +789,11 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   border: 0.05rem solid #47a74b;
 }
 
-.c13:active {
+.c14:active {
   border: 0.05rem solid #47a74b;
 }
 
-.c22 {
+.c24 {
   border: 0.05rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -772,11 +807,11 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   width: 100%;
 }
 
-.c22:active {
+.c24:active {
   border: 0.05rem solid #47a74b;
 }
 
-.c15 {
+.c16 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -791,7 +826,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   gap: 0.5rem;
 }
 
-.c16 {
+.c17 {
   -webkit-box-flex: 0;
   -webkit-flex-grow: 0;
   -ms-flex-positive: 0;
@@ -801,7 +836,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   flex-shrink: 0;
 }
 
-.c19 {
+.c20 {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
@@ -809,7 +844,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   line-height: 1;
 }
 
-.c20 {
+.c22 {
   line-height: inherit;
   margin-bottom: 0;
 }
@@ -829,24 +864,16 @@ exports[`supports yes/no contest displays warning when attempting to change vote
 }
 
 .c1 {
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+
+.c11 {
   margin: 0 auto;
   width: 100%;
-  padding: 1rem 30px 0.5rem;
+  padding: 0.5rem;
 }
 
-.c10 {
-  margin: 0 auto;
-  width: 100%;
-  padding: 30px 20px 0;
-}
-
-.c4 {
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.c6 {
+.c7 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -855,8 +882,8 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   overflow: auto;
 }
 
-.c6::before,
-.c6::after {
+.c7::before,
+.c7::after {
   position: absolute;
   z-index: 1;
   width: 100%;
@@ -866,44 +893,41 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   transition: opacity 0.25s ease;
 }
 
-.c6::before {
+.c7::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c6::after {
+.c7::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
 }
 
-.c7 {
+.c8 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   overflow: auto;
 }
 
-.c8 {
+.c9 {
   margin: 0 auto;
   width: 100%;
   padding: 0.25rem 20px 0;
 }
 
-.c9 {
-  padding: 0 10px;
-}
-
-.c11 {
+.c12 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
-  grid-gap: 20px;
-  margin-bottom: 40px;
+  grid-gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-@media print {
-
+.c5 {
+  display: block;
+  margin-bottom: 0;
 }
 
 @media print {
@@ -934,15 +958,15 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           aria-label="District 1 Ballot Measure 3."
           class="c3"
         >
-          <div
-            class="c4"
+          <span
+            class="c4 c5"
           >
             District 1
-          </div>
+          </span>
           Ballot Measure 3
         </h1>
-        <p
-          class="c5"
+        <span
+          class="c6"
         >
           Vote 
           <strong>
@@ -959,67 +983,61 @@ exports[`supports yes/no contest displays warning when attempting to change vote
             Should fishing be banned in all city owned lakes and rivers?
             To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
           </span>
-        </p>
+        </span>
       </div>
     </div>
     <div
-      class="c6"
+      class="c7"
     >
       <div
-        class="c7"
+        class="c8"
       >
         <div
-          class="c8"
+          class="c9"
         >
-          <div
-            class="c9"
+          <span
+            class="c6"
           >
-            <div
-              class="c2"
+            <pre
+              class="c10"
             >
-              <p
-                class=""
-              >
-                <span>
-                  Should fishing be banned in all city owned lakes and rivers?
-                </span>
-              </p>
-            </div>
-          </div>
+              Should fishing be banned in all city owned lakes and rivers?
+            </pre>
+          </span>
         </div>
       </div>
     </div>
     <div
-      class="c10"
+      class="c11"
     >
       <div
         aria-multiselectable="true"
-        class="c11"
+        class="c12"
         data-testid="contest-choices"
         role="listbox"
       >
         <button
           aria-label="Selected, Yes on Ballot Measure 3"
           aria-selected="true"
-          class="c12 c13"
+          class="c13 c14"
           role="option"
           type="button"
         >
           <span
-            class="c14"
+            class="c15"
           >
             <span
-              class="c15"
+              class="c16"
             >
               <span
-                class="c16"
+                class="c17"
               >
                 <span
-                  class="c17"
+                  class="c18"
                 >
                   <svg
                     aria-hidden="true"
-                    class="c18"
+                    class="c19"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -1032,10 +1050,10 @@ exports[`supports yes/no contest displays warning when attempting to change vote
                 </span>
               </span>
               <span
-                class="c19"
+                class="c20"
               >
                 <p
-                  class="c5 c20"
+                  class="c21 c22"
                 >
                   Yes
                 </p>
@@ -1046,25 +1064,25 @@ exports[`supports yes/no contest displays warning when attempting to change vote
         <button
           aria-label=" No on Ballot Measure 3"
           aria-selected="false"
-          class="c21 c22"
+          class="c23 c24"
           role="option"
           type="button"
         >
           <span
-            class="c14"
+            class="c15"
           >
             <span
-              class="c15"
+              class="c16"
             >
               <span
-                class="c16"
+                class="c17"
               >
                 <span
-                  class="c23"
+                  class="c25"
                 >
                   <svg
                     aria-hidden="true"
-                    class="c18"
+                    class="c19"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -1077,10 +1095,10 @@ exports[`supports yes/no contest displays warning when attempting to change vote
                 </span>
               </span>
               <span
-                class="c19"
+                class="c20"
               >
                 <p
-                  class="c5 c20"
+                  class="c21 c22"
                 >
                   No
                 </p>

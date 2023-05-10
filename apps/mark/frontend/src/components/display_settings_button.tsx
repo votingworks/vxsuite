@@ -1,6 +1,6 @@
 /* stylelint-disable order/properties-order */
 import React from 'react';
-import { Button, Font, Icons } from '@votingworks/ui';
+import { Button, Icons } from '@votingworks/ui';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Paths } from '../config/globals';
@@ -9,6 +9,7 @@ const LabelContainer = styled.span`
   align-items: center;
   display: flex;
   flex-wrap: nowrap;
+  justify-content: center;
   gap: 0.5rem;
   text-align: left;
 `;
@@ -20,7 +21,7 @@ export function DisplaySettingsButton(): JSX.Element | null {
     <Button onPress={history.push} value={Paths.DISPLAY_SETTINGS}>
       <LabelContainer>
         <Icons.Display />
-        <Font weight="semiBold">Color & Size</Font>
+        <span>Color/Size</span>
       </LabelContainer>
     </Button>
   );
