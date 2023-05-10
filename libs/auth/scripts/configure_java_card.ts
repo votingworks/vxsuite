@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Buffer } from 'buffer';
 import { existsSync } from 'fs';
 import { Byte } from '@votingworks/types';
@@ -68,7 +67,6 @@ const PUT_DATA_ADMIN = {
 const vxCertAuthorityCertPath = getRequiredEnvVar(
   'VX_CERT_AUTHORITY_CERT_PATH'
 );
-const vxPrivateKeyPassword = getRequiredEnvVar('VX_PRIVATE_KEY_PASSWORD');
 const vxPrivateKeyPath = getRequiredEnvVar('VX_PRIVATE_KEY_PATH');
 
 function sectionLog(symbol: string, message: string): void {
@@ -187,7 +185,7 @@ function runAppletConfigurationCommands(): void {
       data: PUK,
     }),
 
-    // Configure max invalid PIN attempts
+    // Configure max incorrect PIN attempts
     new CommandApdu({
       cla: { secure: true },
       ins: PUT_DATA_ADMIN.INS,
@@ -264,8 +262,8 @@ async function createAndStoreCardVxCert(): Promise<void> {
   const card = new JavaCard({ vxCertAuthorityCertPath });
   await waitForReadyCardStatus(card);
   await card.createAndStoreCardVxCert({
-    vxPrivateKeyPassword,
-    vxPrivateKeyPath,
+    source: 'file',
+    path: vxPrivateKeyPath,
   });
 }
 

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Buffer } from 'buffer';
 import * as fs from 'fs';
 import { sha256 } from 'js-sha256';
