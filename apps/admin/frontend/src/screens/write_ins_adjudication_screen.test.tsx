@@ -2,6 +2,11 @@ import React from 'react';
 import { electionMinimalExhaustiveSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 import { CandidateContest } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
+import {
+  WriteInCandidateRecord,
+  WriteInDetailView,
+  WriteInRecord,
+} from '@votingworks/admin-backend';
 import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { WriteInsAdjudicationScreen } from './write_ins_adjudication_screen';
@@ -23,7 +28,7 @@ afterEach(() => {
 // most testing of this screen in `write_ins_screen.test.tsx`
 
 test('zoomable ballot image', async () => {
-  function fakeWriteInImage(id: string) {
+  function fakeWriteInImage(id: string): Partial<WriteInDetailView> {
     return {
       imageUrl: `fake-image-data-${id}`,
       ballotCoordinates: {
@@ -46,12 +51,8 @@ test('zoomable ballot image', async () => {
       },
     };
   }
-  apiMock.apiClient.getWriteInImageView
-    .expectCallWith({ writeInId: 'id-174' })
-    .resolves(fakeWriteInImage('174'));
-  apiMock.apiClient.getWriteInImageView
-    .expectCallWith({ writeInId: 'id-175' })
-    .resolves(fakeWriteInImage('175'));
+  apiMock.expectGetWriteInDetailView('id-174', fakeWriteInImage('174'));
+  apiMock.expectGetWriteInDetailView('id-175', fakeWriteInImage('175'));
   apiMock.expectGetWriteIns(
     [
       {
@@ -59,7 +60,7 @@ test('zoomable ballot image', async () => {
         status: 'pending',
         contestId: contest.id,
         optionId: 'write-in-0',
-        castVoteRecordId: 'id',
+        castVoteRecordId: 'id-174',
       },
       {
         id: 'id-175',
@@ -136,4 +137,89 @@ test('zoomable ballot image', async () => {
   await screen.findByTestId('transcribe:id-174');
   ballotImage = await screen.findByRole('img');
   expect(ballotImage).toHaveStyle({ width: `${expectedZoomedInWidth}px` });
+});
+
+describe('preventing double votes', () => {
+  const mockWriteInRecord: WriteInRecord = {
+    id: 'id',
+    status: 'pending',
+    contestId: contest.id,
+    optionId: 'write-in-0',
+    castVoteRecordId: 'id',
+  };
+
+  test('previous bubble marked official candidates', async () => {
+    apiMock.expectGetWriteIns([mockWriteInRecord], contest.id);
+    apiMock.expectGetWriteInDetailView('id', {
+      markedOfficialCandidateIds: ['fox'],
+    });
+    apiMock.expectGetWriteInCandidates([], contest.id);
+
+    renderInAppContext(
+      <WriteInsAdjudicationScreen
+        election={electionDefinition.election}
+        contest={contest}
+        onClose={onClose}
+      />,
+      { electionDefinition, apiMock }
+    );
+
+    await screen.findByRole('img');
+
+    userEvent.click(screen.getButton('Fox'));
+    await screen.findByText('Possible Double Vote Detected');
+    screen.getByText(/has a bubble selection marked for/);
+  });
+
+  test('previous adjudicated official candidates', async () => {
+    apiMock.expectGetWriteIns([mockWriteInRecord], contest.id);
+    apiMock.expectGetWriteInDetailView('id', {
+      writeInAdjudicatedOfficialCandidateIds: ['fox'],
+    });
+    apiMock.expectGetWriteInCandidates([], contest.id);
+
+    renderInAppContext(
+      <WriteInsAdjudicationScreen
+        election={electionDefinition.election}
+        contest={contest}
+        onClose={onClose}
+      />,
+      { electionDefinition, apiMock }
+    );
+
+    await screen.findByRole('img');
+
+    userEvent.click(screen.getButton('Fox'));
+    await screen.findByText('Possible Double Vote Detected');
+    screen.getByText(/has a write-in that has already been adjudicated for/);
+  });
+
+  test('previous adjudicated write-in candidates', async () => {
+    const mockWriteInCandidate: WriteInCandidateRecord = {
+      id: 'puma',
+      electionId: 'id',
+      contestId: contest.id,
+      name: 'Puma',
+    };
+    apiMock.expectGetWriteIns([mockWriteInRecord], contest.id);
+    apiMock.expectGetWriteInDetailView('id', {
+      writeInAdjudicatedWriteInCandidateIds: ['puma'],
+    });
+    apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contest.id);
+
+    renderInAppContext(
+      <WriteInsAdjudicationScreen
+        election={electionDefinition.election}
+        contest={contest}
+        onClose={onClose}
+      />,
+      { electionDefinition, apiMock }
+    );
+
+    await screen.findByRole('img');
+
+    userEvent.click(screen.getButton('Puma'));
+    await screen.findByText('Possible Double Vote Detected');
+    screen.getByText(/has a write-in that has already been adjudicated for/);
+  });
 });

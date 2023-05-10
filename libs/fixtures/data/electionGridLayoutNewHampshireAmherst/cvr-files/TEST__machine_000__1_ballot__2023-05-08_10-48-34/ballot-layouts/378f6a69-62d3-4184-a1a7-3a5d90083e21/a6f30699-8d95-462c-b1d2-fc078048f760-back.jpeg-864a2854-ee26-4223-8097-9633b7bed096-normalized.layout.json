@@ -4,7 +4,7 @@
     "height": 2200
   },
   "metadata": {
-    "electionHash": "87034971ecdd76161d159d4d77d75c276fe4166300aa4c8ea66c65f61a01c4e4",
+    "electionHash": "20bf89eed3f48b4cbbe29cfa42a126a31179316979915fb820456ee8ab79e9e1",
     "precinctId": "town-id-00701-precinct-id-",
     "ballotStyleId": "card-number-3",
     "locales": {
@@ -18,27 +18,27 @@
     {
       "contestId": "Sheriff-4243fe0b",
       "bounds": {
-        "x": 261,
-        "y": 334,
-        "width": 1331,
-        "height": 110
+        "x": 436,
+        "y": 340,
+        "width": 1160,
+        "height": 153
       },
       "corners": [
         {
-          "x": 261,
-          "y": 334
+          "x": 436,
+          "y": 340
         },
         {
-          "x": 1592,
-          "y": 334
+          "x": 1596,
+          "y": 340
         },
         {
-          "x": 261,
-          "y": 444
+          "x": 436,
+          "y": 493
         },
         {
-          "x": 1592,
-          "y": 444
+          "x": 1596,
+          "y": 493
         }
       ],
       "options": [
@@ -52,10 +52,10 @@
             "optionIndex": 0
           },
           "bounds": {
-            "x": 261,
-            "y": 334,
-            "width": 443,
-            "height": 97
+            "x": 436,
+            "y": 340,
+            "width": 315,
+            "height": 140
           },
           "target": {
             "bounds": {
@@ -82,10 +82,10 @@
             "optionIndex": 0
           },
           "bounds": {
-            "x": 571,
-            "y": 339,
-            "width": 443,
-            "height": 96
+            "x": 747,
+            "y": 345,
+            "width": 315,
+            "height": 140
           },
           "target": {
             "bounds": {
@@ -113,10 +113,10 @@
             "writeInIndex": 0
           },
           "bounds": {
-            "x": 1149,
-            "y": 347,
-            "width": 443,
-            "height": 97
+            "x": 1326,
+            "y": 354,
+            "width": 270,
+            "height": 139
           },
           "target": {
             "bounds": {
@@ -138,27 +138,27 @@
     {
       "contestId": "County-Attorney-133f910f",
       "bounds": {
-        "x": 259,
-        "y": 467,
-        "width": 1331,
-        "height": 110
+        "x": 434,
+        "y": 474,
+        "width": 1159,
+        "height": 153
       },
       "corners": [
         {
-          "x": 259,
-          "y": 467
+          "x": 434,
+          "y": 474
         },
         {
-          "x": 1590,
-          "y": 467
+          "x": 1593,
+          "y": 474
         },
         {
-          "x": 259,
-          "y": 577
+          "x": 434,
+          "y": 627
         },
         {
-          "x": 1590,
-          "y": 577
+          "x": 1593,
+          "y": 627
         }
       ],
       "options": [
@@ -172,10 +172,10 @@
             "optionIndex": 0
           },
           "bounds": {
-            "x": 259,
-            "y": 467,
-            "width": 443,
-            "height": 97
+            "x": 434,
+            "y": 474,
+            "width": 314,
+            "height": 140
           },
           "target": {
             "bounds": {
@@ -202,10 +202,10 @@
             "optionIndex": 1
           },
           "bounds": {
-            "x": 569,
-            "y": 472,
-            "width": 443,
-            "height": 97
+            "x": 745,
+            "y": 479,
+            "width": 315,
+            "height": 140
           },
           "target": {
             "bounds": {
@@ -233,10 +233,10 @@
             "writeInIndex": 0
           },
           "bounds": {
-            "x": 1147,
-            "y": 480,
-            "width": 443,
-            "height": 97
+            "x": 1324,
+            "y": 488,
+            "width": 269,
+            "height": 139
           },
           "target": {
             "bounds": {
@@ -258,27 +258,27 @@
     {
       "contestId": "County-Treasurer-87d25a31",
       "bounds": {
-        "x": 256,
-        "y": 601,
-        "width": 1332,
-        "height": 110
+        "x": 432,
+        "y": 608,
+        "width": 1159,
+        "height": 153
       },
       "corners": [
         {
-          "x": 256,
-          "y": 601
+          "x": 432,
+          "y": 608
         },
         {
-          "x": 1588,
-          "y": 601
+          "x": 1591,
+          "y": 608
         },
         {
-          "x": 256,
-          "y": 711
+          "x": 432,
+          "y": 761
         },
         {
-          "x": 1588,
-          "y": 711
+          "x": 1591,
+          "y": 761
         }
       ],
       "options": [
@@ -292,10 +292,10 @@
             "optionIndex": 0
           },
           "bounds": {
-            "x": 256,
-            "y": 601,
-            "width": 444,
-            "height": 97
+            "x": 432,
+            "y": 608,
+            "width": 314,
+            "height": 140
           },
           "target": {
             "bounds": {
@@ -322,10 +322,10 @@
             "optionIndex": 1
           },
           "bounds": {
-            "x": 566,
-            "y": 606,
-            "width": 444,
-            "height": 97
+            "x": 743,
+            "y": 613,
+            "width": 315,
+            "height": 140
           },
           "target": {
             "bounds": {
@@ -353,10 +353,10 @@
             "writeInIndex": 0
           },
           "bounds": {
-            "x": 1144,
-            "y": 614,
-            "width": 444,
-            "height": 97
+            "x": 1322,
+            "y": 622,
+            "width": 269,
+            "height": 139
           },
           "target": {
             "bounds": {
@@ -378,27 +378,27 @@
     {
       "contestId": "Register-of-Deeds-a1278df2",
       "bounds": {
-        "x": 254,
-        "y": 737,
-        "width": 1332,
-        "height": 107
+        "x": 429,
+        "y": 742,
+        "width": 1160,
+        "height": 152
       },
       "corners": [
         {
-          "x": 254,
-          "y": 737
+          "x": 429,
+          "y": 742
         },
         {
-          "x": 1586,
-          "y": 737
+          "x": 1589,
+          "y": 742
         },
         {
-          "x": 254,
-          "y": 844
+          "x": 429,
+          "y": 894
         },
         {
-          "x": 1586,
-          "y": 844
+          "x": 1589,
+          "y": 894
         }
       ],
       "options": [
@@ -412,10 +412,10 @@
             "optionIndex": 0
           },
           "bounds": {
-            "x": 254,
-            "y": 737,
-            "width": 444,
-            "height": 96
+            "x": 429,
+            "y": 742,
+            "width": 315,
+            "height": 139
           },
           "target": {
             "bounds": {
@@ -442,10 +442,10 @@
             "optionIndex": 1
           },
           "bounds": {
-            "x": 564,
-            "y": 741,
-            "width": 444,
-            "height": 96
+            "x": 741,
+            "y": 747,
+            "width": 315,
+            "height": 139
           },
           "target": {
             "bounds": {
@@ -473,10 +473,10 @@
             "writeInIndex": 0
           },
           "bounds": {
-            "x": 1142,
-            "y": 748,
-            "width": 444,
-            "height": 96
+            "x": 1319,
+            "y": 756,
+            "width": 270,
+            "height": 138
           },
           "target": {
             "bounds": {
@@ -498,27 +498,27 @@
     {
       "contestId": "Register-of-Probate-a4117da8",
       "bounds": {
-        "x": 252,
-        "y": 872,
-        "width": 1333,
-        "height": 103
+        "x": 427,
+        "y": 876,
+        "width": 1161,
+        "height": 150
       },
       "corners": [
         {
-          "x": 252,
-          "y": 872
+          "x": 427,
+          "y": 876
         },
         {
-          "x": 1585,
-          "y": 872
+          "x": 1588,
+          "y": 876
         },
         {
-          "x": 252,
-          "y": 975
+          "x": 427,
+          "y": 1026
         },
         {
-          "x": 1585,
-          "y": 975
+          "x": 1588,
+          "y": 1026
         }
       ],
       "options": [
@@ -532,10 +532,10 @@
             "optionIndex": 0
           },
           "bounds": {
-            "x": 252,
-            "y": 872,
-            "width": 444,
-            "height": 95
+            "x": 427,
+            "y": 876,
+            "width": 315,
+            "height": 139
           },
           "target": {
             "bounds": {
@@ -562,10 +562,10 @@
             "optionIndex": 1
           },
           "bounds": {
-            "x": 563,
-            "y": 875,
-            "width": 444,
-            "height": 95
+            "x": 739,
+            "y": 880,
+            "width": 314,
+            "height": 139
           },
           "target": {
             "bounds": {
@@ -593,10 +593,10 @@
             "writeInIndex": 0
           },
           "bounds": {
-            "x": 1140,
-            "y": 881,
-            "width": 445,
-            "height": 94
+            "x": 1317,
+            "y": 889,
+            "width": 271,
+            "height": 137
           },
           "target": {
             "bounds": {
@@ -618,27 +618,27 @@
     {
       "contestId": "County-Commissioner-d6feed25",
       "bounds": {
-        "x": 251,
-        "y": 1008,
-        "width": 1331,
-        "height": 99
+        "x": 426,
+        "y": 1010,
+        "width": 1160,
+        "height": 148
       },
       "corners": [
         {
-          "x": 251,
-          "y": 1008
+          "x": 426,
+          "y": 1010
         },
         {
-          "x": 1582,
-          "y": 1008
+          "x": 1586,
+          "y": 1010
         },
         {
-          "x": 251,
-          "y": 1107
+          "x": 426,
+          "y": 1158
         },
         {
-          "x": 1582,
-          "y": 1107
+          "x": 1586,
+          "y": 1158
         }
       ],
       "options": [
@@ -652,10 +652,10 @@
             "optionIndex": 0
           },
           "bounds": {
-            "x": 251,
-            "y": 1008,
-            "width": 444,
-            "height": 93
+            "x": 426,
+            "y": 1010,
+            "width": 314,
+            "height": 139
           },
           "target": {
             "bounds": {
@@ -682,10 +682,10 @@
             "optionIndex": 1
           },
           "bounds": {
-            "x": 561,
-            "y": 1010,
-            "width": 444,
-            "height": 93
+            "x": 737,
+            "y": 1014,
+            "width": 314,
+            "height": 138
           },
           "target": {
             "bounds": {
@@ -713,10 +713,10 @@
             "writeInIndex": 0
           },
           "bounds": {
-            "x": 1139,
-            "y": 1014,
-            "width": 443,
-            "height": 93
+            "x": 1316,
+            "y": 1021,
+            "width": 270,
+            "height": 137
           },
           "target": {
             "bounds": {
@@ -738,27 +738,27 @@
     {
       "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
       "bounds": {
-        "x": 871,
-        "y": 1235,
-        "width": 711,
-        "height": 92
+        "x": 1047,
+        "y": 1241,
+        "width": 536,
+        "height": 138
       },
       "corners": [
         {
-          "x": 871,
-          "y": 1235
+          "x": 1047,
+          "y": 1241
         },
         {
-          "x": 1582,
-          "y": 1235
+          "x": 1583,
+          "y": 1241
         },
         {
-          "x": 871,
-          "y": 1327
+          "x": 1047,
+          "y": 1379
         },
         {
-          "x": 1582,
-          "y": 1327
+          "x": 1583,
+          "y": 1379
         }
       ],
       "options": [
@@ -771,10 +771,10 @@
             "optionIndex": 0
           },
           "bounds": {
-            "x": 871,
-            "y": 1235,
-            "width": 444,
-            "height": 91
+            "x": 1047,
+            "y": 1241,
+            "width": 313,
+            "height": 136
           },
           "target": {
             "bounds": {
@@ -800,10 +800,10 @@
             "optionIndex": 1
           },
           "bounds": {
-            "x": 1138,
-            "y": 1236,
-            "width": 444,
-            "height": 91
+            "x": 1314,
+            "y": 1243,
+            "width": 269,
+            "height": 136
           },
           "target": {
             "bounds": {

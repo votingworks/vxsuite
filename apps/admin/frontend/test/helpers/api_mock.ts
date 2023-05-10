@@ -7,6 +7,7 @@ import type {
   MachineConfig,
   WriteInAdjudicationStatus,
   WriteInCandidateRecord,
+  WriteInDetailView,
   WriteInRecord,
   WriteInSummaryEntry,
   WriteInSummaryEntryAdjudicated,
@@ -23,8 +24,16 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
   ElectionDefinition,
+  Rect,
   SystemSettings,
 } from '@votingworks/types';
+
+const mockRect: Rect = {
+  width: 1000,
+  height: 1000,
+  x: 0,
+  y: 0,
+};
 
 export type MockApiClient = MockClient<Api>;
 
@@ -221,10 +230,20 @@ export function createApiMock(
       }
     },
 
-    expectGetWriteInImageView(writeInId: string) {
-      apiClient.getWriteInImageView
-        .expectCallWith({ writeInId })
-        .resolves(null);
+    expectGetWriteInDetailView(
+      writeInId: string,
+      detailView: Partial<WriteInDetailView> = {}
+    ) {
+      apiClient.getWriteInDetailView.expectCallWith({ writeInId }).resolves({
+        imageUrl: 'WW91IGJlIGdvb2QsIEkgbG92ZSB5b3UuIFNlZSB5b3UgdG9tb3Jyb3cu',
+        ballotCoordinates: mockRect,
+        contestCoordinates: mockRect,
+        writeInCoordinates: mockRect,
+        markedOfficialCandidateIds: [],
+        writeInAdjudicatedOfficialCandidateIds: [],
+        writeInAdjudicatedWriteInCandidateIds: [],
+        ...detailView,
+      });
     },
 
     expectMarkResultsOfficial() {

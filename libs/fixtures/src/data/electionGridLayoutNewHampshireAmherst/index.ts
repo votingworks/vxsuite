@@ -24,4 +24,4 @@ export * as templateBack from './template-back.jpeg';
 export * as templatePdf from './template.pdf';
 export * as castVoteRecordReport from './cvr-files/standard';
 export * as manualCastVoteRecordReport from './cvr-files/TEST__machine_000__25_ballots__2023-04-13_14-23-38';
-export * as manualCastVoteRecordReportSingle from './cvr-files/TEST__machine_000__1_ballot__2023-04-13_15-55-30';
+export * as manualCastVoteRecordReportSingle from './cvr-files/TEST__machine_000__1_ballot__2023-05-08_10-48-34';

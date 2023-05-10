@@ -13,6 +13,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
+import { Id } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -231,19 +232,42 @@ export const getWriteInCandidates = {
   },
 } as const;
 
-type getWriteInImageViewInput = QueryInput<'getWriteInImageView'>;
-export const getWriteInImageView = {
-  queryKey(input?: getWriteInImageViewInput): QueryKey {
-    return input ? ['getWriteInImageView', input] : ['getWriteInImageView'];
+interface GetWriteInDetailViewInput {
+  castVoteRecordId: Id;
+  contestId: Id;
+  writeInId: Id;
+}
+export const getWriteInDetailView = {
+  queryKey(input?: GetWriteInDetailViewInput): QueryKey {
+    return input
+      ? [
+          'getWriteInDetailView',
+          input.castVoteRecordId,
+          input.contestId,
+          input.writeInId,
+        ]
+      : ['getWriteInDetailView'];
   },
-  queryFn(input: getWriteInImageViewInput, apiClient: ApiClient) {
-    return apiClient.getWriteInImageView(input);
+  invalidateRelatedWriteInDetailViewQueries(
+    queryClient: QueryClient,
+    { castVoteRecordId, contestId, writeInId }: GetWriteInDetailViewInput
+  ) {
+    return queryClient.invalidateQueries({
+      predicate(query) {
+        return (
+          query.queryKey[0] === 'getWriteInDetailView' &&
+          query.queryKey[1] === castVoteRecordId &&
+          query.queryKey[2] === contestId &&
+          query.queryKey[3] !== writeInId
+        );
+      },
+    });
   },
-  useQuery(input: getWriteInImageViewInput, enabled = true) {
+  useQuery(input: GetWriteInDetailViewInput, enabled = true) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
-      () => apiClient.getWriteInImageView(input),
+      () => apiClient.getWriteInDetailView({ writeInId: input.writeInId }),
       { enabled }
     );
   },
@@ -337,7 +361,7 @@ export const clearCastVoteRecordFiles = {
         return Promise.all([
           invalidateCastVoteRecordQueries(queryClient),
           invalidateWriteInQueries(queryClient),
-          queryClient.invalidateQueries(getWriteInImageView.queryKey()),
+          queryClient.invalidateQueries(getWriteInDetailView.queryKey()),
           queryClient.invalidateQueries(getCurrentElectionMetadata.queryKey()),
         ]);
       },

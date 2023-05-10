@@ -6,7 +6,6 @@ import {
   ElectionDefinition,
   safeParseElectionDefinition,
   safeParseJson,
-  safeParseNumber,
   SystemSettings,
   SystemSettingsSchema,
   TEST_JURISDICTION,
@@ -34,7 +33,6 @@ import {
   isIntegrationTest,
   parseCastVoteRecordReportDirectoryName,
 } from '@votingworks/utils';
-import { loadImageData, toDataUrl } from '@votingworks/image-utils';
 import {
   CastVoteRecordFileRecord,
   ConfigureResult,
@@ -45,7 +43,7 @@ import {
   WriteInAdjudicationAction,
   WriteInAdjudicationStatus,
   WriteInCandidateRecord,
-  WriteInImageView,
+  WriteInDetailView,
   WriteInRecord,
   WriteInSummaryEntry,
 } from './types';
@@ -58,6 +56,7 @@ import {
 } from './cvr_files';
 import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
+import { getWriteInDetailView } from './util/write_ins';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -458,48 +457,13 @@ function buildApi({
       });
     },
 
-    // use null because React Query does not allow undefined as a query result
-    async getWriteInImageView(input: {
+    async getWriteInDetailView(input: {
       writeInId: string;
-    }): Promise<WriteInImageView | null> {
-      const writeInWithImage = store.getWriteInWithImage(input.writeInId);
-
-      assert(writeInWithImage);
-      const { contestId, optionId, layout, image } = writeInWithImage;
-
-      // Identify the contest layout
-      const contestLayout = layout.contests.find(
-        (contest) => contest.contestId === contestId
-      );
-      if (!contestLayout) {
-        throw new Error('unable to find a layout for the specified contest');
-      }
-
-      // Identify the write-in option layout
-      const writeInOptions = contestLayout.options.filter((option) =>
-        option.definition?.id.startsWith('write-in')
-      );
-      const writeInOptionIndex = safeParseNumber(
-        optionId.slice('write-in-'.length)
-      );
-      if (writeInOptionIndex.isErr() || writeInOptions === undefined) {
-        throw new Error('unable to interpret layout write-in options');
-      }
-      const writeInLayout = writeInOptions[writeInOptionIndex.ok()];
-      if (writeInLayout === undefined) {
-        throw new Error('unexpected write-in option index');
-      }
-
-      return {
-        imageUrl: toDataUrl(await loadImageData(image), 'image/jpeg'),
-        ballotCoordinates: {
-          ...layout.pageSize,
-          x: 0,
-          y: 0,
-        },
-        contestCoordinates: contestLayout.bounds,
-        writeInCoordinates: writeInLayout.bounds,
-      };
+    }): Promise<WriteInDetailView> {
+      return getWriteInDetailView({
+        store: workspace.store,
+        writeInId: input.writeInId,
+      });
     },
   });
 }

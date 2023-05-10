@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
+  Candidate,
   CandidateContest,
   Election,
   getContestDistrictName,
@@ -16,15 +17,20 @@ import {
   Prose,
   HorizontalRule,
   Icons,
+  Modal,
+  H1,
+  P,
+  Font,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
-import { assert } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import { useQueryClient } from '@tanstack/react-query';
+import type { WriteInCandidateRecord } from '@votingworks/admin-backend';
 import { Navigation } from '../components/navigation';
 import { InlineForm, TextInput } from '../components/text_input';
 import {
-  getWriteInImageView,
+  getWriteInDetailView,
   getWriteIns,
   getWriteInCandidates,
   adjudicateWriteIn,
@@ -70,7 +76,7 @@ const AdjudicationHeader = styled.div`
   background: #ffffff;
   width: 100%;
   padding: 0.5rem 1rem;
-  p + h1 {
+  p + h2 {
     margin-top: 0;
   }
 `;
@@ -231,6 +237,76 @@ function BallotImageViewer({
   );
 }
 
+interface DoubleVoteAlert {
+  type:
+    | 'marked-official-candidate'
+    | 'adjudicated-write-in-candidate'
+    | 'adjudicated-official-candidate';
+  name: string;
+}
+
+function DoubleVoteAlertModal({
+  doubleVoteAlert,
+  onClose,
+}: {
+  doubleVoteAlert: DoubleVoteAlert;
+  onClose: () => void;
+}) {
+  const { type, name } = doubleVoteAlert;
+  const text = (() => {
+    switch (type) {
+      case 'marked-official-candidate':
+        return (
+          <P>
+            The current ballot contest has a bubble selection marked for{' '}
+            <Font weight="bold">{name}</Font>, so adjudicating the current
+            write-in for <Font weight="bold">{name}</Font> would create a double
+            vote.
+            <br />
+            <br />
+            If the ballot contest does indeed contain a double vote, you can
+            invalidate this write-in by selecting{' '}
+            <Font italic>Mark Write-In Invalid</Font>.
+          </P>
+        );
+      case 'adjudicated-official-candidate':
+      case 'adjudicated-write-in-candidate':
+        return (
+          <P>
+            The current ballot contest has a write-in that has already been
+            adjudicated for <Font weight="bold">{name}</Font>, so the current
+            write-in cannot also be adjudicated for{' '}
+            <Font weight="bold">{name}</Font>.
+            <br />
+            <br />
+            If the ballot contest does indeed contain a double vote, you can
+            invalidate this write-in by selecting{' '}
+            <Font italic>Mark Write-In Invalid</Font>.
+          </P>
+        );
+      /* istanbul ignore next */
+      default:
+        throwIllegalValue(type);
+    }
+  })();
+
+  return (
+    <Modal
+      content={
+        <React.Fragment>
+          <H1>Possible Double Vote Detected</H1>
+          {text}
+        </React.Fragment>
+      }
+      actions={
+        <Button variant="regular" onPress={onClose}>
+          Cancel
+        </Button>
+      }
+    />
+  );
+}
+
 interface Props {
   contest: CandidateContest;
   election: Election;
@@ -255,13 +331,16 @@ export function WriteInsAdjudicationScreen({
   const currentWriteIn = writeInsQuery.data
     ? writeInsQuery.data[offset]
     : undefined;
-  const writeInImageViewQuery = getWriteInImageView.useQuery(
+  const writeInDetailViewQuery = getWriteInDetailView.useQuery(
     {
+      castVoteRecordId: currentWriteIn?.castVoteRecordId ?? 'no-op',
+      contestId: currentWriteIn?.contestId ?? 'no-op',
       writeInId: currentWriteIn?.id ?? 'no-op',
     },
     !!currentWriteIn
   );
 
+  const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
   const [showNewWriteInCandidateForm, setShowNewWriteInCandidateForm] =
     useState(false);
   const newWriteInCandidateInput = useRef<HTMLInputElement>(null);
@@ -274,11 +353,13 @@ export function WriteInsAdjudicationScreen({
     const nextWriteIn = writeInsQuery.data[offset + 1];
     if (nextWriteIn) {
       void queryClient.prefetchQuery({
-        queryKey: getWriteInImageView.queryKey({
+        queryKey: getWriteInDetailView.queryKey({
+          castVoteRecordId: nextWriteIn.castVoteRecordId,
+          contestId: nextWriteIn.contestId,
           writeInId: nextWriteIn.id,
         }),
         queryFn: () =>
-          getWriteInImageView.queryFn({ writeInId: nextWriteIn.id }, apiClient),
+          apiClient.getWriteInDetailView({ writeInId: nextWriteIn.id }),
       });
     }
   }, [apiClient, queryClient, writeInsQuery.data, offset]);
@@ -292,8 +373,8 @@ export function WriteInsAdjudicationScreen({
     return null;
   }
 
-  const writeInImageView = writeInImageViewQuery.data
-    ? writeInImageViewQuery.data
+  const writeInDetailView = writeInDetailViewQuery.data
+    ? writeInDetailViewQuery.data
     : undefined;
 
   const writeIns = writeInsQuery.data;
@@ -332,6 +413,88 @@ export function WriteInsAdjudicationScreen({
       nextButton.current?.focus();
     }, 0);
   }
+
+  const isWriteInDetailViewFresh =
+    writeInDetailViewQuery.isSuccess && !writeInDetailViewQuery.isStale;
+  function invalidateQueriesForRelatedWriteIns() {
+    assert(currentWriteIn);
+    return getWriteInDetailView.invalidateRelatedWriteInDetailViewQueries(
+      queryClient,
+      {
+        castVoteRecordId: currentWriteIn.castVoteRecordId,
+        contestId: currentWriteIn.contestId,
+        writeInId: currentWriteIn.id,
+      }
+    );
+  }
+  async function adjudicateAsOfficialCandidate(
+    officialCandidate: Candidate
+  ): Promise<void> {
+    if (
+      writeInDetailView?.markedOfficialCandidateIds.includes(
+        officialCandidate.id
+      )
+    ) {
+      setDoubleVoteAlert({
+        type: 'marked-official-candidate',
+        name: officialCandidate.name,
+      });
+      return;
+    }
+    if (
+      writeInDetailView?.writeInAdjudicatedOfficialCandidateIds.includes(
+        officialCandidate.id
+      )
+    ) {
+      setDoubleVoteAlert({
+        type: 'adjudicated-official-candidate',
+        name: officialCandidate.name,
+      });
+      return;
+    }
+
+    assert(currentWriteIn);
+    adjudicateWriteInMutation.mutate({
+      writeInId: currentWriteIn.id,
+      type: 'official-candidate',
+      candidateId: officialCandidate.id,
+    });
+    await invalidateQueriesForRelatedWriteIns();
+    focusNext();
+  }
+  async function adjudicateAsWriteInCandidate(
+    writeInCandidate: WriteInCandidateRecord
+  ): Promise<void> {
+    if (
+      writeInDetailView?.writeInAdjudicatedWriteInCandidateIds.includes(
+        writeInCandidate.id
+      )
+    ) {
+      setDoubleVoteAlert({
+        type: 'adjudicated-write-in-candidate',
+        name: writeInCandidate.name,
+      });
+      return;
+    }
+    assert(currentWriteIn);
+    adjudicateWriteInMutation.mutate({
+      writeInId: currentWriteIn.id,
+      type: 'write-in-candidate',
+      candidateId: writeInCandidate.id,
+    });
+    await invalidateQueriesForRelatedWriteIns();
+    focusNext();
+  }
+  async function adjudicateAsInvalid(): Promise<void> {
+    assert(currentWriteIn);
+    adjudicateWriteInMutation.mutate({
+      writeInId: currentWriteIn.id,
+      type: 'invalid',
+    });
+    await invalidateQueriesForRelatedWriteIns();
+    focusNext();
+  }
+
   async function onAddWriteInCandidate() {
     const name = newWriteInCandidateInput.current?.value;
     assert(currentWriteIn);
@@ -343,12 +506,7 @@ export function WriteInsAdjudicationScreen({
         contestId: contest.id,
         name,
       });
-      adjudicateWriteInMutation.mutate({
-        writeInId: currentWriteIn.id,
-        type: 'write-in-candidate',
-        candidateId: writeInCandidate.id,
-      });
-      focusNext();
+      await adjudicateAsWriteInCandidate(writeInCandidate);
       setShowNewWriteInCandidateForm(false);
     } catch (error) {
       // Handled by default query client error handling
@@ -389,12 +547,12 @@ export function WriteInsAdjudicationScreen({
       />
       <Main flexRow data-testid={`transcribe:${currentWriteIn.id}`}>
         <BallotViews>
-          {writeInImageView && (
+          {writeInDetailView && (
             <BallotImageViewer
               key={currentWriteIn.id} // Reset zoom state for each write-in
-              imageUrl={writeInImageView.imageUrl}
-              ballotBounds={writeInImageView.ballotCoordinates}
-              writeInBounds={writeInImageView.writeInCoordinates}
+              imageUrl={writeInDetailView.imageUrl}
+              ballotBounds={writeInDetailView.ballotCoordinates}
+              writeInBounds={writeInDetailView.writeInCoordinates}
             />
           )}
         </BallotViews>
@@ -420,19 +578,25 @@ export function WriteInsAdjudicationScreen({
           <AdjudicationHeader>
             <Prose compact>
               <AdjudicationId>
+                Ballot ID
+                <br />
+                <strong>
+                  {currentWriteIn.castVoteRecordId.substring(0, 4)}
+                </strong>
+                <br />
                 Adjudication ID
                 <br />
                 <strong>{currentWriteIn.id.substring(0, 4)}</strong>
               </AdjudicationId>
               <Text>{getContestDistrictName(election, contest)}</Text>
-              <h1>
+              <h2>
                 {contest.title}
                 {contest.partyId &&
                   ` (${getPartyAbbreviationByPartyId({
                     partyId: contest.partyId,
                     election,
                   })})`}
-              </h1>
+              </h2>
             </Prose>
           </AdjudicationHeader>
           <AdjudicationForm>
@@ -449,16 +613,12 @@ export function WriteInsAdjudicationScreen({
                       key={candidate.id}
                       ref={i === 0 ? firstAdjudicationButton : undefined}
                       variant={isCurrentAdjudication ? 'secondary' : 'regular'}
-                      onPress={() => {
+                      onPress={async () => {
                         if (!isCurrentAdjudication) {
-                          adjudicateWriteInMutation.mutate({
-                            writeInId: currentWriteIn.id,
-                            type: 'official-candidate',
-                            candidateId: candidate.id,
-                          });
-                          focusNext();
+                          await adjudicateAsOfficialCandidate(candidate);
                         }
                       }}
+                      disabled={!isWriteInDetailViewFresh}
                     >
                       {candidate.name}
                     </Button>
@@ -477,16 +637,12 @@ export function WriteInsAdjudicationScreen({
                     <Button
                       key={candidate.id}
                       variant={isCurrentAdjudication ? 'secondary' : 'regular'}
-                      onPress={() => {
+                      onPress={async () => {
                         if (!isCurrentAdjudication) {
-                          adjudicateWriteInMutation.mutate({
-                            writeInId: currentWriteIn.id,
-                            type: 'write-in-candidate',
-                            candidateId: candidate.id,
-                          });
-                          focusNext();
+                          await adjudicateAsWriteInCandidate(candidate);
                         }
                       }}
+                      disabled={!isWriteInDetailViewFresh}
                     >
                       {candidate.name}
                     </Button>
@@ -528,22 +684,25 @@ export function WriteInsAdjudicationScreen({
               </p>
               <HorizontalRule color="#cccccc" />
               <Button
-                onPress={() => {
+                onPress={async () => {
                   if (!currentWriteInMarkedInvalid) {
-                    adjudicateWriteInMutation.mutate({
-                      writeInId: currentWriteIn.id,
-                      type: 'invalid',
-                    });
-                    focusNext();
+                    await adjudicateAsInvalid();
                   }
                 }}
                 variant={currentWriteInMarkedInvalid ? 'secondary' : 'regular'}
+                disabled={!isWriteInDetailViewFresh}
               >
                 Mark Write-In Invalid
               </Button>
             </Prose>
           </AdjudicationForm>
         </AdjudicationControls>
+        {doubleVoteAlert && (
+          <DoubleVoteAlertModal
+            doubleVoteAlert={doubleVoteAlert}
+            onClose={() => setDoubleVoteAlert(undefined)}
+          />
+        )}
       </Main>
     </Screen>
   );
