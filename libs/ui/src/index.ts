@@ -44,6 +44,7 @@ export * from './modal';
 export * from './number_pad';
 export * from './precinct_scanner_tally_report';
 export * from './precinct_scanner_tally_qrcode';
+export * from './printing_ballot_image';
 export * from './progress_bar';
 export * from './progress_ellipsis';
 export * from './prose';

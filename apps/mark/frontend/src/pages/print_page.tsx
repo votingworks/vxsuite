@@ -1,28 +1,22 @@
 import { assert } from '@votingworks/basics';
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
-import styled from 'styled-components';
 
 import {
   BmdPaperBallot,
   H1,
   Main,
   printElement,
-  ProgressEllipsis,
   Prose,
   Screen,
   useLock,
-  P,
+  LoadingAnimation,
+  PrintingBallotImage,
 } from '@votingworks/ui';
 
 import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { BallotContext } from '../contexts/ballot_context';
 
 export const printingMessageTimeoutSeconds = 5;
-
-const Graphic = styled.img`
-  margin: 0 auto -1rem;
-  height: 40vw;
-`;
 
 export function PrintPage(): JSX.Element {
   const {
@@ -95,18 +89,11 @@ export function PrintPage(): JSX.Element {
     <Screen white>
       <Main centerChild>
         <Prose textCenter id="audiofocus">
-          <P>
-            <Graphic
-              src="/images/printing-ballot.svg"
-              alt="Printing Ballot"
-              aria-hidden
-            />
-          </P>
-          <H1>
-            <ProgressEllipsis aria-label="Printing your official ballot.">
-              Printing Your Official Ballot
-            </ProgressEllipsis>
-          </H1>
+          <PrintingBallotImage />
+          <div>
+            <H1>Printing Your Official Ballot</H1>
+            <LoadingAnimation />
+          </div>
         </Prose>
       </Main>
     </Screen>
