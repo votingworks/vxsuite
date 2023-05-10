@@ -56,7 +56,7 @@ function buildCVRBallotMeasureContest({
   return {
     '@type': 'CVR.CVRContest',
     ContestId: contest.id,
-    Overvotes: Math.max(vote.length - 1, 0),
+    Overvotes: vote.length > 1 ? 1 : 0,
     Undervotes: Math.max(1 - vote.length, 0),
     Status: overvoted
       ? [CVR.ContestStatus.Overvoted, CVR.ContestStatus.InvalidatedRules]
@@ -211,7 +211,7 @@ function buildCVRCandidateContest({
   return {
     '@type': 'CVR.CVRContest',
     ContestId: contest.id,
-    Overvotes: Math.max(vote.length - contest.seats, 0), // VVSG 2.0 1.1.5-E.2
+    Overvotes: vote.length > contest.seats ? contest.seats : 0, // VVSG 2.0 1.1.5-E.2
     Undervotes: Math.max(contest.seats - vote.length, 0), // VVSG 2.0 1.1.5-E.2
     WriteIns: numWriteIns, // VVSG 2.0 1.1.5-E.3
     Status: statuses.length > 0 ? statuses : undefined,
