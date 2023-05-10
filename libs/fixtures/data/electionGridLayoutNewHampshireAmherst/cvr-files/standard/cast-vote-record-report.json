@@ -3,7 +3,7 @@
   "Version": "1.0.0",
   "ReportType": ["originating-device-export", "other"],
   "OtherReportType": "test",
-  "GeneratedDate": "2023-05-03T19:26:52.584Z",
+  "GeneratedDate": "2023-05-10T19:36:40.507Z",
   "ReportGeneratingDeviceIds": ["VX-00-000"],
   "ReportingDevice": [
     {
@@ -607,7 +607,7 @@
       "@id": "9822c71014",
       "BatchLabel": "9822c71014",
       "SequenceId": 1,
-      "StartTime": "2023-05-03T19:26:52.584Z",
+      "StartTime": "2023-05-10T19:36:40.507Z",
       "NumberSheets": 184,
       "CreatingDeviceId": "VX-00-000"
     }
@@ -1334,7 +1334,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "Governor-061a401b",
-              "Overvotes": 2,
+              "Overvotes": 1,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -1419,7 +1419,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "Representative-in-Congress-24683b44",
-              "Overvotes": 2,
+              "Overvotes": 1,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -1570,7 +1570,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "State-Representative-Hillsborough-District-37-f3bde894",
-              "Overvotes": 2,
+              "Overvotes": 1,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -1993,7 +1993,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-              "Overvotes": 1,
+              "Overvotes": 3,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -2371,7 +2371,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-              "Overvotes": 2,
+              "Overvotes": 3,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -3142,7 +3142,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-              "Overvotes": 4,
+              "Overvotes": 3,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -3550,7 +3550,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-              "Overvotes": 5,
+              "Overvotes": 3,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -4005,8 +4005,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -4361,8 +4361,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -4717,8 +4717,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -5073,8 +5073,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -5429,8 +5429,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -5785,8 +5785,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -6141,8 +6141,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -6497,8 +6497,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -6853,8 +6853,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -7209,8 +7209,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -7565,8 +7565,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -7921,8 +7921,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -8277,8 +8277,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -8633,8 +8633,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -8989,8 +8989,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -9345,8 +9345,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -9701,8 +9701,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -10057,8 +10057,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -10413,8 +10413,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -10769,8 +10769,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -11125,8 +11125,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -11481,8 +11481,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -11837,8 +11837,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -12193,8 +12193,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -12549,8 +12549,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -12905,8 +12905,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -13261,8 +13261,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -13617,8 +13617,8 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "write-in-2",
-                  "OptionPosition": 10,
+                  "ContestSelectionId": "write-in-0",
+                  "OptionPosition": 8,
                   "Status": ["needs-adjudication"],
                   "SelectionPosition": [
                     {
@@ -33628,7 +33628,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "Governor-061a401b",
-              "Overvotes": 2,
+              "Overvotes": 1,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -33713,7 +33713,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "Representative-in-Congress-24683b44",
-              "Overvotes": 2,
+              "Overvotes": 1,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -33864,7 +33864,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "State-Representative-Hillsborough-District-37-f3bde894",
-              "Overvotes": 2,
+              "Overvotes": 1,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -34287,7 +34287,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-              "Overvotes": 1,
+              "Overvotes": 3,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -34665,7 +34665,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-              "Overvotes": 2,
+              "Overvotes": 3,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -35436,7 +35436,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-              "Overvotes": 4,
+              "Overvotes": 3,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -35844,7 +35844,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-              "Overvotes": 5,
+              "Overvotes": 3,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],

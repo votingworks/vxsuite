@@ -3,7 +3,7 @@
   "Version": "1.0.0",
   "ReportType": ["originating-device-export", "other"],
   "OtherReportType": "test",
-  "GeneratedDate": "2023-05-03T19:23:41.820Z",
+  "GeneratedDate": "2023-05-10T19:35:12.957Z",
   "ReportGeneratingDeviceIds": ["VX-00-000"],
   "ReportingDevice": [
     {
@@ -265,7 +265,7 @@
       "@id": "9822c71014",
       "BatchLabel": "9822c71014",
       "SequenceId": 1,
-      "StartTime": "2023-05-03T19:23:41.820Z",
+      "StartTime": "2023-05-10T19:35:12.957Z",
       "NumberSheets": 112,
       "CreatingDeviceId": "VX-00-000"
     }
@@ -540,7 +540,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "best-animal-mammal",
-              "Overvotes": 2,
+              "Overvotes": 1,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -791,7 +791,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "zoo-council-mammal",
-              "Overvotes": 1,
+              "Overvotes": 3,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -2335,7 +2335,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "best-animal-mammal",
-              "Overvotes": 2,
+              "Overvotes": 1,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -2586,7 +2586,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "zoo-council-mammal",
-              "Overvotes": 1,
+              "Overvotes": 3,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -4130,7 +4130,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "best-animal-mammal",
-              "Overvotes": 2,
+              "Overvotes": 1,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -4381,7 +4381,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "zoo-council-mammal",
-              "Overvotes": 1,
+              "Overvotes": 3,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -5925,7 +5925,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "best-animal-mammal",
-              "Overvotes": 2,
+              "Overvotes": 1,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -6176,7 +6176,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "zoo-council-mammal",
-              "Overvotes": 1,
+              "Overvotes": 3,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -7742,7 +7742,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "aquarium-council-fish",
-              "Overvotes": 1,
+              "Overvotes": 2,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -9383,7 +9383,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "aquarium-council-fish",
-              "Overvotes": 1,
+              "Overvotes": 2,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -11024,7 +11024,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "aquarium-council-fish",
-              "Overvotes": 1,
+              "Overvotes": 2,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
@@ -12665,7 +12665,7 @@
             {
               "@type": "CVR.CVRContest",
               "ContestId": "aquarium-council-fish",
-              "Overvotes": 1,
+              "Overvotes": 2,
               "Undervotes": 0,
               "WriteIns": 0,
               "Status": ["overvoted", "invalidated-rules"],
