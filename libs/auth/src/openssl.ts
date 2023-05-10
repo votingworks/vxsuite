@@ -267,10 +267,10 @@ export async function createCertSigningRequest({
 
 /**
  * Creates a cert given a cert signing request, or CSR. Supports overriding the cert public key if
- * the private key of the public key to sign was unavailable at the time of CSR creation, and a
+ * the private key of the public key to certify was unavailable at the time of CSR creation, and a
  * throwaway private key was used.
  */
-export async function createCertFromCertSigningRequest({
+export async function createCertGivenCertSigningRequest({
   certPublicKeyOverride,
   certSigningRequest,
   certType = 'standard_cert',
@@ -335,8 +335,8 @@ export async function createCertFromCertSigningRequest({
 export interface CreateCertInput {
   /**
    * A private key should be provided when possible, but if the private key of the public key to
-   * sign isn't available (as is the case for a key pair generated on a Java Card), the public key is
-   * also acceptable. We set the cert key using -force_pubkey in this case.
+   * certify isn't available (as is the case for a key pair generated on a Java Card), the public
+   * key is also acceptable. We set the cert key using -force_pubkey in this case.
    */
   certKeyInput:
     | { type: 'private'; key: FileKey }
@@ -408,7 +408,7 @@ export async function createCertHelper({
   const certPublicKeyOverride = isPrivateKeyOfPublicKeyToSignUnavailable
     ? Buffer.from(certKeyInput.key.content, 'utf-8')
     : undefined;
-  const cert = await createCertFromCertSigningRequest({
+  const cert = await createCertGivenCertSigningRequest({
     certPublicKeyOverride,
     certSigningRequest,
     certType,

@@ -10,7 +10,7 @@ import {
 
 import {
   createCert,
-  createCertFromCertSigningRequest,
+  createCertGivenCertSigningRequest,
   createCertHelper,
   CreateCertInput,
   createCertSigningRequest,
@@ -251,12 +251,12 @@ test('createCertSigningRequest', async () => {
   ]);
 });
 
-test('createCertFromCertSigningRequest', async () => {
+test('createCertGivenCertSigningRequest', async () => {
   setTimeout(() => {
     mockChildProcess.emit('close', 0);
   });
 
-  await createCertFromCertSigningRequest({
+  await createCertGivenCertSigningRequest({
     certSigningRequest: Buffer.from('csr'),
     expiryInDays: 365,
     signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
@@ -292,8 +292,8 @@ test.each<{
 }>([
   {
     description:
-      'signing public key with private key file, ' +
-      'where private key of public key to sign is unavailable',
+      'certifying public key with private key file, ' +
+      'where private key of public key to certify is unavailable',
     certKeyInput: {
       type: 'public',
       key: { source: 'inline', content: 'content' },
@@ -330,8 +330,8 @@ test.each<{
   },
   {
     description:
-      'signing public key with TPM private key, ' +
-      'where private key of public key to sign is unavailable',
+      'certifying public key with TPM private key, ' +
+      'where private key of public key to certify is unavailable',
     certKeyInput: {
       type: 'public',
       key: { source: 'inline', content: 'content' },
@@ -374,8 +374,8 @@ test.each<{
   },
   {
     description:
-      'signing public key with private key file, ' +
-      'where private key of public key to sign is available and cert type is cert authority cert',
+      'certifying public key with private key file, ' +
+      'where private key of public key to certify is available and cert type is cert authority cert',
     certKeyInput: {
       type: 'private',
       key: { source: 'file', path: '/path/to/private-key-1.pem' },
