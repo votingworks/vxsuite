@@ -133,6 +133,10 @@
       "path": "libs/custom-scanner"
     },
     {
+      "name": "libs/custom-paper-handler",
+      "path": "libs/custom-paper-handler"
+    },
+    {
       "name": "libs/res-to-ts",
       "path": "libs/res-to-ts"
     },

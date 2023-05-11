@@ -1,0 +1,24 @@
+{
+  "ballots": [
+    {
+      "ballotStyleId": "1",
+      "precinctId": "6526",
+      "contestIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "initiative-65",
+        "initiative-65-a",
+        "flag-question",
+        "runoffs-question"
+      ],
+      "isLiveMode": true,
+      "isAbsentee": false,
+      "locales": {
+        "primary": "en-US"
+      },
+      "filename": "election-0428fbdfff-precinct-french-camp-id-6526-style-1-English-live.pdf"
+    }
+  ]
+}
