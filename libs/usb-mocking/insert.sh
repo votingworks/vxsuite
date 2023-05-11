@@ -24,7 +24,7 @@ echo "Virtual USB drive attached."
 DELAY=0.05
 DELAY_COUNTER=0
 DELAY_MAX_TIMES=10
-until [[ $( lsblk -fl | grep "${DEVICE_BASENAME}p1 vfat" ) ]]
+until [[ $( lsblk -fl | grep "${DEVICE_BASENAME}p1.*vfat" ) ]]
 do
     echo "Waiting for OS to detect filesystem on virtual USB drive partition..."
     sleep $DELAY
