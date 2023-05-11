@@ -1,4 +1,5 @@
 import {
+  BallotMetadata,
   BallotType,
   BlankPage,
   InterpretedBmdPage,
@@ -29,16 +30,19 @@ const BlankPage: BlankPage = {
   type: 'BlankPage',
 };
 
+const metadata: BallotMetadata = {
+  ballotStyleId: '12',
+  precinctId: '23',
+  ballotType: BallotType.Absentee,
+  electionHash: 'abc',
+  isTestMode: false,
+  locales: { primary: 'en-US' },
+};
 const HmpbPage1: InterpretedHmpbPage = {
   type: 'InterpretedHmpbPage',
   metadata: {
-    ballotStyleId: '12',
-    precinctId: '23',
+    ...metadata,
     pageNumber: 1,
-    ballotType: BallotType.Absentee,
-    electionHash: 'abc',
-    isTestMode: false,
-    locales: { primary: 'en-US' },
   },
   adjudicationInfo: {
     requiresAdjudication: false,
@@ -51,12 +55,27 @@ const HmpbPage1: InterpretedHmpbPage = {
     ballotSize: { width: 1, height: 1 },
   },
   votes: {},
+  layout: {
+    pageSize: { width: 1, height: 1 },
+    metadata: {
+      ...metadata,
+      pageNumber: 1,
+    },
+    contests: [],
+  },
 };
 const HmpbPage2: InterpretedHmpbPage = {
   ...HmpbPage1,
   metadata: {
     ...HmpbPage1.metadata,
     pageNumber: 2,
+  },
+  layout: {
+    ...HmpbPage1.layout,
+    metadata: {
+      ...metadata,
+      pageNumber: 2,
+    },
   },
 };
 

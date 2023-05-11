@@ -1,57 +1,5 @@
-import { generateBallotPageLayouts } from '@votingworks/converter-nh-accuvote';
-import { assert, find } from '@votingworks/basics';
-import {
-  BallotMetadata,
-  BallotPageLayout,
-  BallotPageMetadata,
-  Contests,
-  Election,
-  getBallotStyle,
-  getContests,
-} from '@votingworks/types';
-
-/**
- * Retrieves the ballot page layouts for a ballot given a lookup array and the ballot
- * metadata to use as a key. For `gridLayouts` elections, this method generates
- * the template on the fly.
- *
- * @param ballotPageMetadata Metadata of the ballot for which you want a layout
- * @param election Current election
- */
-function getBallotPageLayouts({
-  ballotMetadata,
-  election,
-}: {
-  ballotMetadata: BallotMetadata;
-  election: Election;
-}): BallotPageLayout[] {
-  return generateBallotPageLayouts(election, ballotMetadata).unsafeUnwrap();
-}
-
-/**
- * Retrieves the ballot page layout for a ballot given a lookup array and the ballot
- * page metadata to use as a key. For `gridLayouts` elections, this method generates
- * the template on the fly.
- *
- * @param ballotPageMetadata Metadata of the ballot page for which you want a layout
- * @param election Current election
- */
-export function getBallotPageLayout({
-  ballotPageMetadata,
-  election,
-}: {
-  ballotPageMetadata: BallotPageMetadata;
-  election: Election;
-}): BallotPageLayout {
-  return find(
-    getBallotPageLayouts({
-      ballotMetadata: ballotPageMetadata,
-      election,
-    }),
-    (ballotPageLayout) =>
-      ballotPageLayout.metadata.pageNumber === ballotPageMetadata.pageNumber
-  );
-}
+import { iter } from '@votingworks/basics';
+import { BallotPageMetadata, Contests, Election } from '@votingworks/types';
 
 /**
  * Gets the contest ids for a given ballot page, specified by its metadata.
@@ -66,34 +14,27 @@ export function getContestsForBallotPage({
   ballotPageMetadata: BallotPageMetadata;
   election: Election;
 }): Contests {
-  const layouts = getBallotPageLayouts({
-    ballotMetadata: ballotPageMetadata,
-    election,
-  });
-  let contestOffset = 0;
-
-  for (const layout of layouts) {
-    if (layout.metadata.pageNumber === ballotPageMetadata.pageNumber) {
-      const ballotStyle = getBallotStyle({
-        election,
-        ballotStyleId: ballotPageMetadata.ballotStyleId,
-      });
-      assert(ballotStyle);
-      const contests = getContests({
-        election,
-        ballotStyle,
-      });
-
-      return contests.slice(
-        contestOffset,
-        contestOffset + layout.contests.length
-      );
-    }
-
-    contestOffset += layout.contests.length;
+  if (!election.gridLayouts) {
+    throw new Error('election does not have grid layouts');
   }
 
-  throw new Error(
-    `unable to find page with pageNumber=${ballotPageMetadata.pageNumber}`
+  const layout = election.gridLayouts.find(
+    ({ ballotStyleId, precinctId }) =>
+      ballotStyleId === ballotPageMetadata.ballotStyleId &&
+      precinctId === ballotPageMetadata.precinctId
   );
+
+  if (!layout) {
+    throw new Error(
+      `unable to find layout for ballotStyleId=${ballotPageMetadata.ballotStyleId} precinctId=${ballotPageMetadata.precinctId}`
+    );
+  }
+
+  const side = ballotPageMetadata.pageNumber % 2 === 0 ? 'back' : 'front';
+  const contestIds = iter(layout.gridPositions)
+    .filter((gridPosition) => gridPosition.side === side)
+    .map((gridPosition) => gridPosition.contestId)
+    .toSet();
+
+  return election.contests.filter((contest) => contestIds.has(contest.id));
 }

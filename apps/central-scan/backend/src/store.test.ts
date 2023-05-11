@@ -1,5 +1,6 @@
 import {
   AdjudicationReason,
+  BallotMetadata,
   BallotType,
   CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
@@ -422,6 +423,14 @@ test('adjudication', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({ electionData, jurisdiction });
   function fakePage(i: 0 | 1): PageInterpretationWithFiles {
+    const metadata: BallotMetadata = {
+      electionHash,
+      ballotStyleId: '12',
+      precinctId: '23',
+      isTestMode: false,
+      locales: { primary: 'en-US' },
+      ballotType: BallotType.Standard,
+    };
     return {
       originalFilename: i === 0 ? '/front-original.png' : '/back-original.png',
       normalizedFilename:
@@ -463,13 +472,8 @@ test('adjudication', () => {
           ],
         },
         metadata: {
-          electionHash,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
+          ...metadata,
           pageNumber: 1,
-          locales: { primary: 'en-US' },
-          ballotType: BallotType.Standard,
         },
         adjudicationInfo: {
           requiresAdjudication: true,
@@ -491,6 +495,14 @@ test('adjudication', () => {
           ],
           ignoredReasonInfos: [],
         },
+        layout: {
+          pageSize: { width: 0, height: 0 },
+          metadata: {
+            ...metadata,
+            pageNumber: 1,
+          },
+          contests: [],
+        },
       },
     };
   }
@@ -507,6 +519,14 @@ test('adjudication', () => {
   store.cleanupIncompleteBatches();
 });
 
+const metadata: BallotMetadata = {
+  electionHash,
+  ballotStyleId: '12',
+  precinctId: '23',
+  isTestMode: false,
+  locales: { primary: 'en-US' },
+  ballotType: BallotType.Standard,
+};
 const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
   {
     originalFilename: '/original.png',
@@ -519,19 +539,22 @@ const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
         marks: [],
       },
       metadata: {
-        electionHash,
-        ballotStyleId: '12',
-        precinctId: '23',
-        isTestMode: false,
+        ...metadata,
         pageNumber: 1,
-        locales: { primary: 'en-US' },
-        ballotType: BallotType.Standard,
       },
       adjudicationInfo: {
         requiresAdjudication: false,
         enabledReasons: [],
         enabledReasonInfos: [],
         ignoredReasonInfos: [],
+      },
+      layout: {
+        pageSize: { width: 0, height: 0 },
+        metadata: {
+          ...metadata,
+          pageNumber: 1,
+        },
+        contests: [],
       },
     },
   },
@@ -546,19 +569,22 @@ const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
         marks: [],
       },
       metadata: {
-        electionHash,
-        ballotStyleId: '12',
-        precinctId: '23',
-        isTestMode: false,
+        ...metadata,
         pageNumber: 2,
-        locales: { primary: 'en-US' },
-        ballotType: BallotType.Standard,
       },
       adjudicationInfo: {
         requiresAdjudication: false,
         enabledReasons: [],
         enabledReasonInfos: [],
         ignoredReasonInfos: [],
+      },
+      layout: {
+        pageSize: { width: 0, height: 0 },
+        metadata: {
+          ...metadata,
+          pageNumber: 2,
+        },
+        contests: [],
       },
     },
   },

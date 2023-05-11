@@ -70,16 +70,6 @@ export const BallotPageLayoutSchema: z.ZodSchema<BallotPageLayout> = z.object({
   contests: z.array(BallotPageContestLayoutSchema),
 });
 
-export interface BallotPageLayoutWithImage {
-  imageData: ImageData;
-  ballotPageLayout: BallotPageLayout;
-}
-export const BallotPageLayoutWithImageSchema: z.ZodSchema<BallotPageLayoutWithImage> =
-  z.object({
-    imageData: ImageDataSchema,
-    ballotPageLayout: BallotPageLayoutSchema,
-  });
-
 export enum MarkStatus {
   Marked = 'marked',
   Unmarked = 'unmarked',

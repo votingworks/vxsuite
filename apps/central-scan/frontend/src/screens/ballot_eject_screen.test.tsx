@@ -1,5 +1,9 @@
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { AdjudicationReason, BallotType } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  BallotMetadata,
+  BallotType,
+} from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { typedAs } from '@votingworks/basics';
 import fetchMock from 'fetch-mock';
@@ -91,6 +95,14 @@ test('says the sheet is unreadable if it is', async () => {
 });
 
 test('says the ballot sheet is overvoted if it is', async () => {
+  const metadata: BallotMetadata = {
+    ballotStyleId: '1',
+    precinctId: '1',
+    ballotType: BallotType.Standard,
+    electionHash: 'abcde',
+    isTestMode: false,
+    locales: { primary: 'en-US' },
+  };
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
@@ -105,12 +117,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
               marks: [],
             },
             metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
+              ...metadata,
               pageNumber: 1,
             },
             adjudicationInfo: {
@@ -128,6 +135,14 @@ test('says the ballot sheet is overvoted if it is', async () => {
               enabledReasons: [AdjudicationReason.Overvote],
             },
             votes: {},
+            layout: {
+              pageSize: { width: 1, height: 1 },
+              metadata: {
+                ...metadata,
+                pageNumber: 1,
+              },
+              contests: [],
+            },
           },
         },
         back: {
@@ -139,12 +154,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
               marks: [],
             },
             metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
+              ...metadata,
               pageNumber: 2,
             },
             adjudicationInfo: {
@@ -154,6 +164,14 @@ test('says the ballot sheet is overvoted if it is', async () => {
               enabledReasons: [AdjudicationReason.Overvote],
             },
             votes: {},
+            layout: {
+              pageSize: { width: 1, height: 1 },
+              metadata: {
+                ...metadata,
+                pageNumber: 2,
+              },
+              contests: [],
+            },
           },
         },
       },
@@ -202,6 +220,14 @@ test('says the ballot sheet is overvoted if it is', async () => {
 });
 
 test('says the ballot sheet is undervoted if it is', async () => {
+  const metadata: BallotMetadata = {
+    ballotStyleId: '1',
+    precinctId: '1',
+    ballotType: BallotType.Standard,
+    electionHash: 'abcde',
+    isTestMode: false,
+    locales: { primary: 'en-US' },
+  };
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
@@ -216,12 +242,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
               marks: [],
             },
             metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
+              ...metadata,
               pageNumber: 1,
             },
             adjudicationInfo: {
@@ -239,6 +260,14 @@ test('says the ballot sheet is undervoted if it is', async () => {
               enabledReasons: [AdjudicationReason.Undervote],
             },
             votes: {},
+            layout: {
+              pageSize: { width: 1, height: 1 },
+              metadata: {
+                ...metadata,
+                pageNumber: 1,
+              },
+              contests: [],
+            },
           },
         },
         back: {
@@ -250,12 +279,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
               marks: [],
             },
             metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
+              ...metadata,
               pageNumber: 2,
             },
             adjudicationInfo: {
@@ -265,6 +289,14 @@ test('says the ballot sheet is undervoted if it is', async () => {
               enabledReasons: [AdjudicationReason.Overvote],
             },
             votes: {},
+            layout: {
+              pageSize: { width: 1, height: 1 },
+              metadata: {
+                ...metadata,
+                pageNumber: 2,
+              },
+              contests: [],
+            },
           },
         },
       },
@@ -313,6 +345,14 @@ test('says the ballot sheet is undervoted if it is', async () => {
 });
 
 test('says the ballot sheet is blank if it is', async () => {
+  const metadata: BallotMetadata = {
+    ballotStyleId: '1',
+    precinctId: '1',
+    ballotType: BallotType.Standard,
+    electionHash: 'abcde',
+    isTestMode: false,
+    locales: { primary: 'en-US' },
+  };
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
@@ -327,12 +367,7 @@ test('says the ballot sheet is blank if it is', async () => {
               marks: [],
             },
             metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
+              ...metadata,
               pageNumber: 1,
             },
             adjudicationInfo: {
@@ -354,6 +389,14 @@ test('says the ballot sheet is blank if it is', async () => {
               ],
             },
             votes: {},
+            layout: {
+              pageSize: { width: 1, height: 1 },
+              metadata: {
+                ...metadata,
+                pageNumber: 1,
+              },
+              contests: [],
+            },
           },
         },
         back: {
@@ -365,12 +408,7 @@ test('says the ballot sheet is blank if it is', async () => {
               marks: [],
             },
             metadata: {
-              ballotStyleId: '1',
-              precinctId: '1',
-              ballotType: BallotType.Standard,
-              electionHash: 'abcde',
-              isTestMode: false,
-              locales: { primary: 'en-US' },
+              ...metadata,
               pageNumber: 2,
             },
             adjudicationInfo: {
@@ -383,6 +421,14 @@ test('says the ballot sheet is blank if it is', async () => {
               ],
             },
             votes: {},
+            layout: {
+              pageSize: { width: 1, height: 1 },
+              metadata: {
+                ...metadata,
+                pageNumber: 2,
+              },
+              contests: [],
+            },
           },
         },
       },

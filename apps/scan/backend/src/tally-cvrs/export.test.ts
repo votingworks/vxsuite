@@ -97,6 +97,14 @@ test('exportCvrs', () => {
           ballotSize: { width: 1, height: 1 },
         },
         votes: {},
+        layout: {
+          pageSize: { width: 1, height: 1 },
+          metadata: {
+            ...metadata,
+            pageNumber: 1,
+          },
+          contests: [],
+        },
       },
     },
     {
@@ -119,6 +127,14 @@ test('exportCvrs', () => {
           ballotSize: { width: 1, height: 1 },
         },
         votes: {},
+        layout: {
+          pageSize: { width: 1, height: 1 },
+          metadata: {
+            ...metadata,
+            pageNumber: 2,
+          },
+          contests: [],
+        },
       },
     },
   ]);
@@ -171,6 +187,14 @@ test('exportCvrs orders by sheet ID', async () => {
             ballotSize: { width: 1, height: 1 },
           },
           votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              ...metadata,
+              pageNumber: 1,
+            },
+            contests: [],
+          },
         },
       },
       {
@@ -193,6 +217,14 @@ test('exportCvrs orders by sheet ID', async () => {
             ballotSize: { width: 1, height: 1 },
           },
           votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              ...metadata,
+              pageNumber: 2,
+            },
+            contests: [],
+          },
         },
       },
     ]);

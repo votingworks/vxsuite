@@ -1,10 +1,8 @@
 import {
   BallotIdSchema,
   BallotPageLayout,
-  BallotPageMetadata,
   BatchInfo,
   CVR,
-  Election,
   ElectionDefinition,
   Id,
   PageInterpretation,
@@ -33,7 +31,6 @@ import {
   getUsbDrives as defaultGetUsbDrives,
 } from '../../get_usb_drives';
 import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../globals';
-import { getBallotPageLayout } from './page_layouts';
 import { buildCastVoteRecordReportMetadata } from './build_report_metadata';
 
 /**
@@ -255,24 +252,14 @@ async function exportPageImageAndLayoutToUsbDrive({
   bucket,
   imageFilename,
   computedLayout,
-  ballotPageMetadata,
-  election,
   batchId,
 }: {
   exporter: Exporter;
   bucket: string;
   imageFilename: string;
-  computedLayout?: BallotPageLayout;
-  ballotPageMetadata: BallotPageMetadata;
-  election: Election;
+  computedLayout: BallotPageLayout;
   batchId: string;
 }): Promise<Result<void, ExportDataError>> {
-  const layout =
-    computedLayout ??
-    getBallotPageLayout({
-      ballotPageMetadata,
-      election,
-    });
   const exportImageResult = await exporter.exportDataToUsbDrive(
     bucket,
     join(CVR_BALLOT_IMAGES_SUBDIRECTORY, batchId, basename(imageFilename)),
@@ -286,7 +273,7 @@ async function exportPageImageAndLayoutToUsbDrive({
   const exportLayoutResult = await exporter.exportDataToUsbDrive(
     bucket,
     join(CVR_BALLOT_LAYOUTS_SUBDIRECTORY, batchId, layoutBasename),
-    JSON.stringify(layout, undefined, 2)
+    JSON.stringify(computedLayout, undefined, 2)
   );
   if (exportLayoutResult.isErr()) {
     return exportLayoutResult;
@@ -413,8 +400,6 @@ export async function exportCastVoteRecordReportToUsbDrive(
           bucket: reportDirectory,
           imageFilename: frontFilename,
           computedLayout: front.layout,
-          ballotPageMetadata: front.metadata,
-          election,
           batchId,
         });
       if (exportFrontPageImageAndLayoutResult.isErr()) {
@@ -430,8 +415,6 @@ export async function exportCastVoteRecordReportToUsbDrive(
           bucket: reportDirectory,
           imageFilename: backFilename,
           computedLayout: back.layout,
-          ballotPageMetadata: back.metadata,
-          election,
           batchId,
         });
       if (exportBackPageImageAndLayoutResult.isErr()) {

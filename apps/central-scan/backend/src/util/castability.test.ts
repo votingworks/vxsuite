@@ -1,5 +1,6 @@
 import {
   BallotIdSchema,
+  BallotMetadata,
   BallotType,
   BlankPage,
   InterpretedBmdPage,
@@ -10,19 +11,20 @@ import {
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { Castability, checkSheetCastability } from './castability';
 
+const metadata: BallotMetadata = {
+  ballotStyleId: '1',
+  precinctId: '6522',
+  ballotType: BallotType.Standard,
+  electionHash:
+    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+      .electionHash,
+  isTestMode: false,
+  locales: { primary: 'en-US' },
+};
 const interpretedBmdPage: Readonly<InterpretedBmdPage> = {
   type: 'InterpretedBmdPage',
   ballotId: unsafeParse(BallotIdSchema, 'abc'),
-  metadata: {
-    ballotStyleId: '1',
-    precinctId: '6522',
-    ballotType: BallotType.Standard,
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
-    isTestMode: false,
-    locales: { primary: 'en-US' },
-  },
+  metadata,
   votes: {
     'flag-question': ['yes'],
   },
@@ -32,14 +34,7 @@ const interpretedHmpbPage: Readonly<InterpretedHmpbPage> = {
   type: 'InterpretedHmpbPage',
   ballotId: unsafeParse(BallotIdSchema, 'abcdefg'),
   metadata: {
-    locales: { primary: 'en-US' },
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
-    ballotType: BallotType.Standard,
-    ballotStyleId: '1',
-    precinctId: '6522',
-    isTestMode: false,
+    ...metadata,
     pageNumber: 1,
   },
   markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
@@ -50,6 +45,14 @@ const interpretedHmpbPage: Readonly<InterpretedHmpbPage> = {
     ignoredReasonInfos: [],
   },
   votes: {},
+  layout: {
+    pageSize: { width: 1, height: 1 },
+    metadata: {
+      ...metadata,
+      pageNumber: 1,
+    },
+    contests: [],
+  },
 };
 
 const interpretedHmpbPageRequiringAdjudication: Readonly<InterpretedHmpbPage> =

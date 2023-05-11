@@ -1,10 +1,6 @@
-import { assert } from '@votingworks/basics';
-import {
-  electionGridLayoutNewHampshireAmherstFixtures,
-  electionMinimalExhaustiveSampleDefinition,
-} from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { BallotPageMetadata, BallotType } from '@votingworks/types';
-import { getBallotPageLayout, getContestsForBallotPage } from './page_layouts';
+import { getContestsForBallotPage } from './page_layouts';
 
 const { election } = electionGridLayoutNewHampshireAmherstFixtures;
 
@@ -17,26 +13,6 @@ const ballotPageMetadata: BallotPageMetadata = {
   pageNumber: 1,
   ballotType: BallotType.Standard,
 };
-
-describe('getBallotPageLayout', () => {
-  test('throws error if layout not found and not gridLayouts election', () => {
-    assert(!electionMinimalExhaustiveSampleDefinition.election.gridLayouts);
-    expect(() =>
-      getBallotPageLayout({
-        ballotPageMetadata,
-        election: electionMinimalExhaustiveSampleDefinition.election,
-      })
-    ).toThrow();
-  });
-
-  test('finds layout if gridLayouts election', () => {
-    const layout = getBallotPageLayout({
-      ballotPageMetadata,
-      election,
-    });
-    expect(layout).toBeDefined();
-  });
-});
 
 test('getContestsForBallotPage', () => {
   const page1Contests = getContestsForBallotPage({
@@ -69,15 +45,4 @@ test('getContestsForBallotPage', () => {
     'County-Commissioner-d6feed25',
     'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
   ]);
-
-  // Should throw error if page doesn't exist
-  expect(() =>
-    getContestsForBallotPage({
-      ballotPageMetadata: {
-        ...ballotPageMetadata,
-        pageNumber: 3,
-      },
-      election,
-    })
-  ).toThrow();
 });

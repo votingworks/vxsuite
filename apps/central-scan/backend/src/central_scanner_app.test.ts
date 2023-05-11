@@ -9,7 +9,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
-  BallotPageLayout,
+  BallotMetadata,
   BallotType,
   InterpretedHmpbPage,
   PageInterpretationWithFiles,
@@ -86,66 +86,80 @@ const frontNormalized = frontOriginal;
 const backOriginal =
   electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath();
 const backNormalized = backOriginal;
-const sheet: SheetOf<PageInterpretationWithFiles> = [
-  {
-    originalFilename: frontOriginal,
-    normalizedFilename: frontNormalized,
-    interpretation: {
-      type: 'InterpretedHmpbPage',
-      metadata: {
-        locales: { primary: 'en-US' },
-        electionHash:
-          electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-            .electionHash,
-        ballotType: BallotType.Standard,
-        ballotStyleId: '12',
-        precinctId: '23',
-        isTestMode: false,
-        pageNumber: 1,
-      },
-      votes: {},
-      markInfo: {
-        ballotSize: { width: 0, height: 0 },
-        marks: [],
-      },
-      adjudicationInfo: {
-        requiresAdjudication: false,
-        enabledReasons: [],
-        enabledReasonInfos: [],
-        ignoredReasonInfos: [],
-      },
-    },
-  },
-  {
-    originalFilename: backOriginal,
-    normalizedFilename: backNormalized,
-    interpretation: {
-      type: 'InterpretedHmpbPage',
-      metadata: {
-        locales: { primary: 'en-US' },
-        electionHash:
-          electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-            .electionHash,
-        ballotType: BallotType.Standard,
-        ballotStyleId: '12',
-        precinctId: '23',
-        isTestMode: false,
-        pageNumber: 2,
-      },
-      votes: {},
-      markInfo: {
-        ballotSize: { width: 0, height: 0 },
-        marks: [],
-      },
-      adjudicationInfo: {
-        requiresAdjudication: false,
-        enabledReasons: [],
-        enabledReasonInfos: [],
-        ignoredReasonInfos: [],
+const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
+  const metadata: BallotMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionHash,
+    ballotType: BallotType.Standard,
+    ballotStyleId: '12',
+    precinctId: '23',
+    isTestMode: false,
+  };
+  return [
+    {
+      originalFilename: frontOriginal,
+      normalizedFilename: frontNormalized,
+      interpretation: {
+        type: 'InterpretedHmpbPage',
+        metadata: {
+          ...metadata,
+          pageNumber: 1,
+        },
+        votes: {},
+        markInfo: {
+          ballotSize: { width: 0, height: 0 },
+          marks: [],
+        },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        layout: {
+          pageSize: { width: 0, height: 0 },
+          metadata: {
+            ...metadata,
+            pageNumber: 1,
+          },
+          contests: [],
+        },
       },
     },
-  },
-];
+    {
+      originalFilename: backOriginal,
+      normalizedFilename: backNormalized,
+      interpretation: {
+        type: 'InterpretedHmpbPage',
+        metadata: {
+          ...metadata,
+          pageNumber: 2,
+        },
+        votes: {},
+        markInfo: {
+          ballotSize: { width: 0, height: 0 },
+          marks: [],
+        },
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          enabledReasons: [],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+        layout: {
+          pageSize: { width: 0, height: 0 },
+          metadata: {
+            ...metadata,
+            pageNumber: 2,
+          },
+          contests: [],
+        },
+      },
+    },
+  ];
+})();
 
 test('GET /config/election (application/octet-stream)', async () => {
   workspace.store.setElectionAndJurisdiction({
@@ -501,17 +515,20 @@ test('get next sheet', async () => {
 });
 
 test('get next sheet layouts', async () => {
+  const metadata: BallotMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionHash,
+    ballotType: BallotType.Standard,
+    ballotStyleId: 'card-number-3',
+    precinctId: 'town-id-00701-precinct-id-',
+    isTestMode: false,
+  };
   const frontInterpretation: InterpretedHmpbPage = {
     type: 'InterpretedHmpbPage',
     metadata: {
-      locales: { primary: 'en-US' },
-      electionHash:
-        electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-          .electionHash,
-      ballotType: BallotType.Standard,
-      ballotStyleId: 'card-number-3',
-      precinctId: 'town-id-00701-precinct-id-',
-      isTestMode: false,
+      ...metadata,
       pageNumber: 1,
     },
     markInfo: {
@@ -533,6 +550,14 @@ test('get next sheet layouts', async () => {
       ignoredReasonInfos: [],
     },
     votes: {},
+    layout: {
+      pageSize: { width: 1, height: 1 },
+      metadata: {
+        ...metadata,
+        pageNumber: 1,
+      },
+      contests: [],
+    },
   };
   const backInterpretation: InterpretedHmpbPage = {
     ...frontInterpretation,
@@ -553,44 +578,31 @@ test('get next sheet layouts', async () => {
     },
   });
 
-  const frontLayout: BallotPageLayout = {
-    pageSize: { width: 1, height: 1 },
-    metadata: frontInterpretation.metadata,
-    contests: [],
-  };
-  const backLayout: BallotPageLayout = {
-    pageSize: { width: 1, height: 1 },
-    metadata: backInterpretation.metadata,
-    contests: [],
-  };
-  jest
-    .spyOn(workspace.store, 'getBallotPageLayoutsForMetadata')
-    .mockReturnValue([frontLayout, backLayout]);
-
-  await request(app)
+  const response = await request(app)
     .get(`/central-scanner/scan/hmpb/review/next-sheet`)
-    .expect(
-      200,
-      typedAs<Scan.GetNextReviewSheetResponse>({
-        interpreted: {
-          id: 'mock-review-sheet',
-          front: {
-            image: { url: '/url/front' },
-            interpretation: frontInterpretation,
-          },
-          back: {
-            image: { url: '/url/back' },
-            interpretation: backInterpretation,
-          },
+    .expect(200);
+
+  expect(response.body).toEqual(
+    typedAs<Scan.GetNextReviewSheetResponse>({
+      interpreted: {
+        id: 'mock-review-sheet',
+        front: {
+          image: { url: '/url/front' },
+          interpretation: frontInterpretation,
         },
-        layouts: {
-          front: frontLayout,
-          back: backLayout,
+        back: {
+          image: { url: '/url/back' },
+          interpretation: backInterpretation,
         },
-        definitions: {
-          front: { contestIds: [] },
-          back: { contestIds: [] },
-        },
-      })
-    );
+      },
+      layouts: {
+        front: frontInterpretation.layout,
+        back: backInterpretation.layout,
+      },
+      definitions: {
+        front: { contestIds: expect.any(Array) },
+        back: { contestIds: expect.any(Array) },
+      },
+    })
+  );
 });

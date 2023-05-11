@@ -3,8 +3,10 @@ import {
   CastVoteRecord,
   InterpretedHmpbPage,
   PageInterpretation,
+  mapSheet,
   unsafeParse,
 } from '@votingworks/types';
+import { getContestsForBallotPage } from '@votingworks/backend';
 import { Store } from '../store';
 import { buildCastVoteRecord } from './build';
 
@@ -41,26 +43,15 @@ export function* exportCastVoteRecords({
           interpretation[1].ballotId) ||
         unsafeParse(BallotIdSchema, id),
       electionDefinition.election,
-      [
-        {
-          interpretation: interpretation[0],
-          contestIds: isHmpbPage(interpretation[0])
-            ? store.getContestIdsForMetadata(
-                interpretation[0].metadata,
-                electionDefinition
-              )
-            : undefined,
-        },
-        {
-          interpretation: interpretation[1],
-          contestIds: isHmpbPage(interpretation[1])
-            ? store.getContestIdsForMetadata(
-                interpretation[1].metadata,
-                electionDefinition
-              )
-            : undefined,
-        },
-      ]
+      mapSheet(interpretation, (page) => ({
+        interpretation: page,
+        contestIds: isHmpbPage(page)
+          ? getContestsForBallotPage({
+              election: electionDefinition.election,
+              ballotPageMetadata: page.metadata,
+            }).map((contest) => contest.id)
+          : undefined,
+      }))
     );
 
     if (cvr) {

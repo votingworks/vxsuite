@@ -3,6 +3,7 @@ import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixt
 import {
   AdjudicationReason,
   BallotIdSchema,
+  BallotMetadata,
   BlankPage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
@@ -12,20 +13,23 @@ import {
 } from '@votingworks/types';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 
+const metadata: BallotMetadata = {
+  ballotStyleId: '12',
+  ballotType: 0,
+  electionHash:
+    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+      .electionHash,
+  isTestMode: false,
+  locales: {
+    primary: 'en-US',
+  },
+  precinctId: '23',
+};
 const pageInterpretationBoilerplate: InterpretedHmpbPage = {
   type: 'InterpretedHmpbPage',
   metadata: {
-    ballotStyleId: '12',
-    ballotType: 0,
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
-    isTestMode: false,
-    locales: {
-      primary: 'en-US',
-    },
+    ...metadata,
     pageNumber: 3,
-    precinctId: '23',
   },
   markInfo: {
     ballotSize: {
@@ -68,6 +72,14 @@ const pageInterpretationBoilerplate: InterpretedHmpbPage = {
     enabledReasonInfos: [],
     enabledReasons: [],
     requiresAdjudication: false,
+  },
+  layout: {
+    pageSize: { width: 0, height: 0 },
+    metadata: {
+      ...metadata,
+      pageNumber: 3,
+    },
+    contests: [],
   },
 };
 

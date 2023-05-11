@@ -51,7 +51,7 @@ export interface InterpretedHmpbPage {
   markInfo: MarkInfo;
   votes: VotesDict;
   adjudicationInfo: AdjudicationInfo;
-  layout?: BallotPageLayout;
+  layout: BallotPageLayout;
 }
 export const InterpretedHmpbPageSchema: z.ZodSchema<InterpretedHmpbPage> =
   z.object({
@@ -61,7 +61,7 @@ export const InterpretedHmpbPageSchema: z.ZodSchema<InterpretedHmpbPage> =
     markInfo: MarkInfoSchema,
     votes: VotesDictSchema,
     adjudicationInfo: AdjudicationInfoSchema,
-    layout: BallotPageLayoutSchema.optional(),
+    layout: BallotPageLayoutSchema,
   });
 
 export interface InvalidElectionHashPage {
