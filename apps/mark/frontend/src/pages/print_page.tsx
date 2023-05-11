@@ -9,7 +9,6 @@ import {
   Prose,
   Screen,
   useLock,
-  LoadingAnimation,
   PrintingBallotImage,
 } from '@votingworks/ui';
 
@@ -87,12 +86,11 @@ export function PrintPage(): JSX.Element {
 
   return (
     <Screen white>
-      <Main centerChild>
+      <Main centerChild padded>
         <Prose textCenter id="audiofocus">
           <PrintingBallotImage />
           <div>
-            <H1>Printing Your Official Ballot</H1>
-            <LoadingAnimation />
+            <H1>Printing Your Official Ballot...</H1>
           </div>
         </Prose>
       </Main>
