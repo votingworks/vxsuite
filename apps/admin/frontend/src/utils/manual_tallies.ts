@@ -301,13 +301,12 @@ export function getEmptyContestTallies(
 }
 
 export function getEmptyManualTalliesByPrecinct(
-  election: Election,
-  allAdjudicatedValues?: Map<ContestId, string[]>
+  election: Election
 ): Dictionary<ManualTally> {
   const tallies: Dictionary<ManualTally> = {};
   for (const precinct of election.precincts) {
     tallies[precinct.id] = {
-      contestTallies: getEmptyContestTallies(election, allAdjudicatedValues),
+      contestTallies: getEmptyContestTallies(election),
       numberOfBallotsCounted: 0,
     };
   }
