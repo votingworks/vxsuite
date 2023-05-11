@@ -12,7 +12,6 @@ import {
   VotingMethod,
   PartyId,
   PrecinctId,
-  ContestId,
 } from '@votingworks/types';
 import { combineContestTallies } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -21,7 +20,6 @@ import {
   getDistrictIdsForPartyId,
   getPartiesWithPrimaryElections,
 } from './election';
-import { getAdjudicatedWriteInCandidate } from './write_ins';
 
 export function convertManualTallyToStorageString(
   tally: FullElectionManualTally
@@ -246,8 +244,7 @@ export function convertTalliesByPrecinctToFullManualTally(
 }
 
 export function getEmptyContestTallies(
-  election: Election,
-  allAdjudicatedValues?: Map<ContestId, string[]>
+  election: Election
 ): Dictionary<ContestTally> {
   const contestTallies: Dictionary<ContestTally> = {};
   for (const contest of election.contests) {
@@ -259,21 +256,6 @@ export function getEmptyContestTallies(
             option: candidate,
             tally: 0,
           };
-        }
-        if (contest.allowWriteIns && allAdjudicatedValues) {
-          const adjudicatedValues = allAdjudicatedValues.get(contest.id);
-          if (adjudicatedValues) {
-            for (const adjudicatedValue of adjudicatedValues) {
-              const adjudicatedCandidate = getAdjudicatedWriteInCandidate(
-                adjudicatedValue,
-                false
-              );
-              optionTallies[adjudicatedCandidate.id] = {
-                option: adjudicatedCandidate,
-                tally: 0,
-              };
-            }
-          }
         }
         break;
       }

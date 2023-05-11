@@ -1,5 +1,6 @@
 import { electionSample } from '@votingworks/fixtures';
 import {
+  Candidate,
   CandidateId,
   ContestId,
   Dictionary,
@@ -10,7 +11,6 @@ import { buildManualTally } from '../../test/helpers/build_manual_tally';
 import {
   combineWriteInCounts,
   CountsByContestAndCandidateName,
-  getAdjudicatedWriteInCandidate,
   getManualWriteInCounts,
   mergeWriteIns,
 } from './write_ins';
@@ -35,7 +35,11 @@ function addWriteInToManualTally(
   tally: number
 ): CandidateId {
   const contestTally = manualTally.contestTallies[contestId];
-  const candidate = getAdjudicatedWriteInCandidate(name, false);
+  const candidate: Candidate = {
+    name,
+    isWriteIn: true,
+    id: `write-in-(${name})-temp`,
+  };
   contestTally!.tallies[candidate.id] = {
     option: candidate,
     tally,
