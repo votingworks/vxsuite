@@ -18,27 +18,26 @@ import {
 import {
   Button,
   ContestChoiceButton,
-  H1,
-  H3,
   Icons,
   Main,
   Modal,
   Prose,
   P,
   Font,
+  VirtualKeyboard,
   Caption,
+  TouchTextInput,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
+import pluralize from 'pluralize';
 import { stripQuotes } from '../utils/strip_quotes';
 
 import { ScrollDirections, UpdateVoteFunction } from '../config/types';
 
 import { BallotContext } from '../contexts/ballot_context';
 
-import { Blink } from './animations';
 import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
-import { VirtualKeyboard } from './virtual_keyboard';
 import {
   ContentHeader,
   VariableContentContainer,
@@ -50,39 +49,7 @@ import {
 import { useCurrentTextSizePx } from '../hooks/use_current_text_size';
 import { ContestTitle } from './contest_title';
 
-const WriteInModalContent = styled.div`
-  margin: -0.5rem;
-  max-width: 80vw;
-`;
-
-const WriteInCandidateForm = styled.div`
-  margin-top: 1rem;
-  border-radius: 0.25rem;
-  background-color: rgb(211, 211, 211);
-  padding: 0.25rem;
-`;
-
-const WriteInCandidateFieldSet = styled.div`
-  margin: 0 0.5rem 0.5rem;
-`;
-
-const WriteInCandidateName = styled.div`
-  border: 1px solid rgb(169, 169, 169);
-  box-shadow: 0 0 3px -1px rgba(0, 0, 0, 0.3);
-  background: #ffffff;
-  width: 100%;
-  padding: 1rem;
-  font-size: 1.5rem;
-`;
-
-const WriteInCandidateCursor = styled(Blink)`
-  display: inline-block;
-  position: relative;
-  top: 3px;
-  margin-left: 0.1rem;
-  border-left: 0.15rem solid #000000;
-  height: 1.3rem;
-`;
+const WriteInModalContent = styled.div``;
 
 interface Props {
   contest: CandidateContestInterface;
@@ -247,23 +214,24 @@ export function CandidateContest({
 
   function onKeyboardInput(key: string) {
     setWriteInCandidateName((prevName) => {
-      let newName = prevName;
-      if (key === 'space') {
-        newName += ' ';
-      } else if (key === '⌫ delete') {
-        newName = newName.slice(0, -1);
-      } else {
-        newName += key;
-      }
-      return newName.slice(0, WRITE_IN_CANDIDATE_MAX_LENGTH);
+      return (prevName + key)
+        .trimStart()
+        .replace(/\s+/g, ' ')
+        .slice(0, WRITE_IN_CANDIDATE_MAX_LENGTH);
     });
   }
 
-  function keyDisabled(key: string) {
-    return (
-      writeInCandidateName.length >= WRITE_IN_CANDIDATE_MAX_LENGTH &&
-      key !== '⌫ delete'
-    );
+  function onKeyboardBackspace() {
+    setWriteInCandidateName((prevName) => {
+      return prevName.slice(0, Math.max(0, prevName.length - 1));
+    });
+  }
+
+  const writeInCharsRemaining =
+    WRITE_IN_CANDIDATE_MAX_LENGTH - writeInCandidateName.length;
+
+  function keyDisabled() {
+    return writeInCharsRemaining === 0;
   }
 
   /* istanbul ignore next: Tested by Cypress */
@@ -481,47 +449,43 @@ export function CandidateContest({
           }
         />
       )}
+      {/* TODO: This should really be broken out into separate components. */}
       {writeInCandidateModalIsOpen && (
         <Modal
           ariaLabel=""
+          title={`Write-In: ${contest.title}`}
           content={
             <WriteInModalContent>
               <Prose id="modalaudiofocus" maxWidth={false}>
-                <H1 aria-label="Write-In Candidate.">Write-In Candidate</H1>
-                <P aria-label="Enter the name of a person who is not on the ballot. Use the up and down buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
-                  Enter the name of a person who is{' '}
-                  <Font weight="bold">not</Font> on the ballot.
+                <P>
+                  <Caption aria-label="Enter the name of a person who is not on the ballot. Use the up and down buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
+                    <Icons.Info /> Enter the name of a person who is{' '}
+                    <Font weight="bold">not</Font> on the ballot:
+                  </Caption>
                 </P>
-                {writeInCandidateName.length >
-                  WRITE_IN_CANDIDATE_MAX_LENGTH - 5 && (
-                  <P color="danger">
-                    <Icons.Danger /> <Font>Note:</Font> You have entered{' '}
-                    {writeInCandidateName.length} of maximum{' '}
-                    {WRITE_IN_CANDIDATE_MAX_LENGTH} characters.
-                  </P>
-                )}
               </Prose>
-              <WriteInCandidateForm>
-                <WriteInCandidateFieldSet>
-                  <Prose>
-                    <H3>{contest.title} (write-in)</H3>
-                  </Prose>
-                  <WriteInCandidateName>
-                    {writeInCandidateName}
-                    <WriteInCandidateCursor />
-                  </WriteInCandidateName>
-                </WriteInCandidateFieldSet>
-                <VirtualKeyboard
-                  onKeyPress={onKeyboardInput}
-                  keyDisabled={keyDisabled}
-                />
-              </WriteInCandidateForm>
+              <TouchTextInput value={writeInCandidateName} />
+              <P
+                align="right"
+                color={writeInCharsRemaining ? 'default' : 'warning'}
+              >
+                <Caption>
+                  {writeInCharsRemaining === 0 && <Icons.Warning />}{' '}
+                  {writeInCharsRemaining}{' '}
+                  {pluralize('character', writeInCharsRemaining)} remaining
+                </Caption>
+              </P>
+              <VirtualKeyboard
+                onBackspace={onKeyboardBackspace}
+                onKeyPress={onKeyboardInput}
+                keyDisabled={keyDisabled}
+              />
             </WriteInModalContent>
           }
           actions={
             <React.Fragment>
               <Button
-                variant="primary"
+                variant="done"
                 onPress={addWriteInCandidate}
                 disabled={
                   normalizeCandidateName(writeInCandidateName).length === 0

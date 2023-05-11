@@ -4,7 +4,7 @@ import { CandidateContest as CandidateContestInterface } from '@votingworks/type
 import { electionSampleDefinition } from '@votingworks/fixtures';
 
 import { act } from 'react-dom/test-utils';
-import { fireEvent, screen } from '../../test/react_testing_library';
+import { fireEvent, screen, within } from '../../test/react_testing_library';
 import { render as renderWithBallotContext } from '../../test/test_utils';
 import { CandidateContest } from './candidate_contest';
 
@@ -182,10 +182,18 @@ describe('supports write-in candidates', () => {
     fireEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
-    screen.getByText('Write-In Candidate');
+
+    const modal = within(screen.getByRole('alertdialog'));
+
+    modal.getByText(`Write-In: ${candidateContestWithWriteIns.title}`);
+    modal.getByText(/40 characters remaining/);
+
     typeKeysInVirtualKeyboard('LIZARD PEOPLE');
-    fireEvent.click(screen.getByText('Accept'));
-    expect(screen.queryByText('Write-In Candidate')).toBeFalsy();
+
+    modal.getByText(/27 characters remaining/);
+
+    fireEvent.click(modal.getByText('Accept'));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
     expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
       { id: 'write-in-lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
@@ -212,11 +220,14 @@ describe('supports write-in candidates', () => {
     fireEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
-    screen.getByText('Write-In Candidate');
+
+    const modal = within(screen.getByRole('alertdialog'));
+
+    modal.getByText(`Write-In: ${candidateContestWithWriteIns.title}`);
     typeKeysInVirtualKeyboard('JACOB JOHANSON JINGLEHEIMMER SCHMIDTT');
-    screen.getByText('You have entered 37 of maximum 40 characters.');
-    fireEvent.click(screen.getByText('Cancel'));
-    expect(screen.queryByText('Write-In Candidate')).toBeFalsy();
+    modal.getByText(/3 characters remaining/);
+    fireEvent.click(modal.getByText('Cancel'));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
     act(() => {
       jest.runOnlyPendingTimers();
@@ -239,17 +250,20 @@ describe('supports write-in candidates', () => {
     fireEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
-    screen.getByText('Write-In Candidate');
+
+    const modal = within(screen.getByRole('alertdialog'));
+
+    modal.getByText(`Write-In: ${candidateContestWithWriteIns.title}`);
     const writeInCandidate =
       "JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, THAT'S MY NAME TOO";
     typeKeysInVirtualKeyboard(writeInCandidate);
-    screen.getByText('You have entered 40 of maximum 40 characters.');
+    modal.getByText(/0 characters remaining/);
 
     expect(
-      screen.getByText('space').closest('button')!.hasAttribute('disabled')
+      modal.getByText('space').closest('button')!.hasAttribute('disabled')
     ).toEqual(true);
-    fireEvent.click(screen.getByText('Accept'));
-    expect(screen.queryByText('Write-In Candidate')).toBeFalsy();
+    fireEvent.click(modal.getByText('Accept'));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
     expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
       {
