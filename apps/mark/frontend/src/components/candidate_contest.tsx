@@ -27,6 +27,7 @@ import {
   P,
   Font,
   Caption,
+  VirtualKeyboard,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -38,7 +39,6 @@ import { BallotContext } from '../contexts/ballot_context';
 
 import { Blink } from './animations';
 import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
-import { VirtualKeyboard } from './virtual_keyboard';
 import {
   ContentHeader,
   VariableContentContainer,
