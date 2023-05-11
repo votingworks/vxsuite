@@ -14,7 +14,7 @@ const VX_IANA_ENTERPRISE_OID = '1.3.6.1.4.1.59817';
  * Instead of overloading existing X.509 cert fields, we're using our own custom cert fields.
  */
 const VX_CUSTOM_CERT_FIELD = {
-  /** One of: card, admin, central-scan, mark, scan (the latter four referring to machines) */
+  /** One of: admin, central-scan, mark, scan, card (the first four referring to machines) */
   COMPONENT: `${VX_IANA_ENTERPRISE_OID}.1`,
   /** Format: {state-2-letter-abbreviation}.{county-or-town} (e.g. ms.warren or ca.los-angeles) */
   JURISDICTION: `${VX_IANA_ENTERPRISE_OID}.2`,
@@ -33,41 +33,120 @@ export const STANDARD_CERT_FIELDS = [
   'O=VotingWorks', // Organization
 ] as const;
 
-/**
- * Valid values for cert card type field
- */
-export type CardType =
-  | 'system-administrator'
-  | 'election-manager'
-  | 'poll-worker'
-  | 'poll-worker-with-pin';
+interface VxAdminCustomCertFields {
+  component: 'admin';
+  jurisdiction: string;
+}
+
+interface VxCentralScanCustomCertFields {
+  component: 'central-scan';
+}
+
+interface VxMarkCustomCertFields {
+  component: 'mark';
+}
+
+interface VxScanCustomCertFields {
+  component: 'scan';
+}
+
+interface SystemAdministratorCardCustomCertFields {
+  component: 'card';
+  jurisdiction: string;
+  cardType: 'system-administrator';
+}
+
+interface ElectionCardCustomCertFields {
+  component: 'card';
+  jurisdiction: string;
+  cardType: 'election-manager' | 'poll-worker' | 'poll-worker-with-pin';
+  electionHash: string;
+}
+
+type CardCustomCertFields =
+  | SystemAdministratorCardCustomCertFields
+  | ElectionCardCustomCertFields;
 
 /**
  * Parsed custom cert fields
  */
-export interface CustomCertFields {
-  component: 'card' | 'admin' | 'central-scan' | 'mark' | 'scan';
-  jurisdiction: string;
-  cardType?: CardType;
-  electionHash?: string;
-}
+export type CustomCertFields =
+  | VxAdminCustomCertFields
+  | VxCentralScanCustomCertFields
+  | VxMarkCustomCertFields
+  | VxScanCustomCertFields
+  | CardCustomCertFields;
+
+/**
+ * Valid values for component field in VotingWorks certs
+ */
+export type Component = CustomCertFields['component'];
+
+/**
+ * Machine type as specified in VotingWorks certs
+ */
+export type MachineType = Exclude<Component, 'card'>;
+
+/**
+ * Valid values for card type field in VotingWorks certs
+ */
+export type CardType = CardCustomCertFields['cardType'];
+
+const VxAdminCustomCertFieldsSchema: z.ZodSchema<VxAdminCustomCertFields> =
+  z.object({
+    component: z.literal('admin'),
+    jurisdiction: z.string(),
+  });
+
+const VxCentralScanCustomCertFieldsSchema: z.ZodSchema<VxCentralScanCustomCertFields> =
+  z.object({
+    component: z.literal('central-scan'),
+  });
+
+const VxMarkCustomCertFieldsSchema: z.ZodSchema<VxMarkCustomCertFields> =
+  z.object({
+    component: z.literal('mark'),
+  });
+
+const VxScanCustomCertFieldsSchema: z.ZodSchema<VxScanCustomCertFields> =
+  z.object({
+    component: z.literal('scan'),
+  });
+
+const SystemAdministratorCardCustomCertFieldsSchema: z.ZodSchema<SystemAdministratorCardCustomCertFields> =
+  z.object({
+    component: z.literal('card'),
+    jurisdiction: z.string(),
+    cardType: z.literal('system-administrator'),
+  });
+
+const ElectionCardCustomCertFieldsSchema: z.ZodSchema<ElectionCardCustomCertFields> =
+  z.object({
+    component: z.literal('card'),
+    jurisdiction: z.string(),
+    cardType: z.union([
+      z.literal('election-manager'),
+      z.literal('poll-worker'),
+      z.literal('poll-worker-with-pin'),
+    ]),
+    electionHash: z.string(),
+  });
+
+const CardCustomCertFieldsSchema: z.ZodSchema<CardCustomCertFields> = z.union([
+  SystemAdministratorCardCustomCertFieldsSchema,
+  ElectionCardCustomCertFieldsSchema,
+]);
 
 /**
  * A schema to facilitate parsing custom cert fields
  */
-const CustomCertFieldsSchema: z.ZodSchema<CustomCertFields> = z.object({
-  component: z.enum(['card', 'admin', 'central-scan', 'mark', 'scan']),
-  jurisdiction: z.string(),
-  cardType: z.optional(
-    z.enum([
-      'system-administrator',
-      'election-manager',
-      'poll-worker',
-      'poll-worker-with-pin',
-    ])
-  ),
-  electionHash: z.optional(z.string()),
-});
+const CustomCertFieldsSchema: z.ZodSchema<CustomCertFields> = z.union([
+  VxAdminCustomCertFieldsSchema,
+  VxCentralScanCustomCertFieldsSchema,
+  VxMarkCustomCertFieldsSchema,
+  VxScanCustomCertFieldsSchema,
+  CardCustomCertFieldsSchema,
+]);
 
 /**
  * Cert expiries in days. Must be integers.
@@ -120,11 +199,9 @@ export async function parseCert(cert: Buffer): Promise<CustomCertFields> {
 export async function parseCardDetailsFromCert(
   cert: Buffer
 ): Promise<CardDetails> {
-  const { component, jurisdiction, cardType, electionHash } = await parseCert(
-    cert
-  );
-  assert(component === 'card');
-  assert(cardType !== undefined);
+  const certDetails = await parseCert(cert);
+  assert(certDetails.component === 'card');
+  const { jurisdiction, cardType } = certDetails;
 
   switch (cardType) {
     case 'system-administrator': {
@@ -133,20 +210,20 @@ export async function parseCardDetailsFromCert(
       };
     }
     case 'election-manager': {
-      assert(electionHash !== undefined);
+      const { electionHash } = certDetails;
       return {
         user: { role: 'election_manager', jurisdiction, electionHash },
       };
     }
     case 'poll-worker': {
-      assert(electionHash !== undefined);
+      const { electionHash } = certDetails;
       return {
         user: { role: 'poll_worker', jurisdiction, electionHash },
         hasPin: false,
       };
     }
     case 'poll-worker-with-pin': {
-      assert(electionHash !== undefined);
+      const { electionHash } = certDetails;
       return {
         user: { role: 'poll_worker', jurisdiction, electionHash },
         hasPin: true,
@@ -164,9 +241,9 @@ export async function parseCardDetailsFromCert(
  */
 export function constructCardCertSubject(cardDetails: CardDetails): string {
   const { user } = cardDetails;
-  const component: CustomCertFields['component'] = 'card';
+  const component: Component = 'card';
 
-  let cardType: CustomCertFields['cardType'];
+  let cardType: CardType;
   let electionHash: string | undefined;
   switch (user.role) {
     case 'system_administrator': {
@@ -211,7 +288,7 @@ export function constructCardCertSubject(cardDetails: CardDetails): string {
  * jurisdiction and card type.
  */
 export function constructCardCertSubjectWithoutJurisdictionAndCardType(): string {
-  const component: CustomCertFields['component'] = 'card';
+  const component: Component = 'card';
   const entries = [
     ...STANDARD_CERT_FIELDS,
     `${VX_CUSTOM_CERT_FIELD.COMPONENT}=${component}`,
@@ -224,14 +301,20 @@ export function constructCardCertSubjectWithoutJurisdictionAndCardType(): string
  * Constructs a VotingWorks machine cert subject that can be passed to an openssl command
  */
 export function constructMachineCertSubject(
-  component: Exclude<CustomCertFields['component'], 'card'>,
-  jurisdiction: string
+  machineType: MachineType,
+  jurisdiction?: string
 ): string {
+  assert(
+    (machineType === 'admin' && jurisdiction !== undefined) ||
+      (machineType !== 'admin' && jurisdiction === undefined)
+  );
   const entries = [
     ...STANDARD_CERT_FIELDS,
-    `${VX_CUSTOM_CERT_FIELD.COMPONENT}=${component}`,
-    `${VX_CUSTOM_CERT_FIELD.JURISDICTION}=${jurisdiction}`,
+    `${VX_CUSTOM_CERT_FIELD.COMPONENT}=${machineType}`,
   ];
+  if (jurisdiction) {
+    entries.push(`${VX_CUSTOM_CERT_FIELD.JURISDICTION}=${jurisdiction}`);
+  }
   const certSubject = `/${entries.join('/')}/`;
   return certSubject;
 }

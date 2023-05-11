@@ -270,6 +270,7 @@ export class JavaCard implements Card {
     const vxAdminCertAuthorityCertDetails = await parseCert(
       await fs.readFile(vxAdminCertAuthorityCertPath)
     );
+    assert(vxAdminCertAuthorityCertDetails.component === 'admin');
     assert(user.jurisdiction === vxAdminCertAuthorityCertDetails.jurisdiction);
     let cardDetails: CardDetails;
     switch (user.role) {
