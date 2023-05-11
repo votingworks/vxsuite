@@ -30,8 +30,6 @@ create table sheets (
   batch_id varchar(36),
 
   -- Filenames for where the sheet images are stored on disk.
-  front_original_filename text unique,
-  back_original_filename text unique,
   front_normalized_filename text unique,
   back_normalized_filename text unique,
 

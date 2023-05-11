@@ -103,14 +103,8 @@ export class Importer {
     }
 
     const [
-      {
-        originalFilename: frontOriginalFilename,
-        normalizedFilename: frontNormalizedFilename,
-      },
-      {
-        originalFilename: backOriginalFilename,
-        normalizedFilename: backNormalizedFilename,
-      },
+      { normalizedFilename: frontNormalizedFilename },
+      { normalizedFilename: backNormalizedFilename },
     ] = interpretResult.ok();
     let [
       { interpretation: frontInterpretation },
@@ -155,10 +149,8 @@ export class Importer {
 
     sheetId = await this.addSheet(
       batchId,
-      frontOriginalFilename,
       frontNormalizedFilename,
       frontInterpretation,
-      backOriginalFilename,
       backNormalizedFilename,
       backInterpretation
     );
@@ -194,10 +186,8 @@ export class Importer {
    */
   private async addSheet(
     batchId: string,
-    frontOriginalBallotImagePath: string,
     frontNormalizedBallotImagePath: string,
     frontInterpretation: PageInterpretation,
-    backOriginalBallotImagePath: string,
     backNormalizedBallotImagePath: string,
     backInterpretation: PageInterpretation
   ): Promise<string> {
@@ -212,10 +202,8 @@ export class Importer {
         ) {
           return this.addSheet(
             batchId,
-            backOriginalBallotImagePath,
             backNormalizedBallotImagePath,
             backInterpretation,
-            frontOriginalBallotImagePath,
             frontNormalizedBallotImagePath,
             frontInterpretation
           );
@@ -225,12 +213,10 @@ export class Importer {
 
     const ballotId = this.workspace.store.addSheet(uuid(), batchId, [
       {
-        originalFilename: frontOriginalBallotImagePath,
         normalizedFilename: frontNormalizedBallotImagePath,
         interpretation: frontInterpretation,
       },
       {
-        originalFilename: backOriginalBallotImagePath,
         normalizedFilename: backNormalizedBallotImagePath,
         interpretation: backInterpretation,
       },

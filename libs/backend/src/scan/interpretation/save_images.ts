@@ -1,12 +1,11 @@
 import { writeImageData } from '@votingworks/image-utils';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
-import { basename, join, parse } from 'path';
+import { join, parse } from 'path';
 
 const debug = makeDebug('backend:scan:save_images');
 
 interface SaveImagesResult {
-  original: string;
   normalized: string;
 }
 
@@ -27,23 +26,18 @@ async function linkOrCopy(src: string, dest: string): Promise<void> {
  */
 export async function saveImages(
   imagePath: string,
-  originalImagePath: string,
   normalizedImagePath: string,
   normalizedImage?: ImageData
 ): Promise<SaveImagesResult> {
-  if (imagePath !== originalImagePath) {
-    debug('linking image file %s from %s', imagePath, originalImagePath);
-    await linkOrCopy(imagePath, originalImagePath);
-  }
-
   if (normalizedImage) {
     debug('about to write normalized ballot image to %s', normalizedImagePath);
     await writeImageData(normalizedImagePath, normalizedImage);
     debug('wrote normalized ballot image to %s', normalizedImagePath);
-    return { original: originalImagePath, normalized: normalizedImagePath };
+    return { normalized: normalizedImagePath };
   }
 
-  return { original: originalImagePath, normalized: originalImagePath };
+  await linkOrCopy(imagePath, normalizedImagePath);
+  return { normalized: normalizedImagePath };
 }
 
 /**
@@ -63,17 +57,12 @@ export async function saveSheetImages(
 ): Promise<SaveImagesResult> {
   const parts = parse(ballotImagePath);
   const ext = parts.ext === '.png' ? '.png' : '.jpg';
-  const originalImagePath = join(
-    ballotImagesPath,
-    `${basename(ballotImagePath, ext)}-${sheetId}-original${ext}`
-  );
   const normalizedImagePath = join(
     ballotImagesPath,
-    `${basename(ballotImagePath, ext)}-${sheetId}-normalized${ext}`
+    `${sheetId}-normalized${ext}`
   );
   return await saveImages(
     ballotImagePath,
-    originalImagePath,
     normalizedImagePath,
     normalizedImage
   );

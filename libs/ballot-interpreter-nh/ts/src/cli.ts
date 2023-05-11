@@ -337,12 +337,12 @@ async function interpretWorkspace(
     sheetIdsArray.length
       ? db
           .prepare(
-            'SELECT id, front_original_filename as frontPath, back_original_filename as backPath FROM sheets WHERE id IN ?'
+            'SELECT id, front_normalized_filename as frontPath, back_normalized_filename as backPath FROM sheets WHERE id IN ?'
           )
           .all(sheetIdsArray)
       : db
           .prepare(
-            'SELECT id, front_original_filename as frontPath, back_original_filename as backPath FROM sheets'
+            'SELECT id, front_normalized_filename as frontPath, back_normalized_filename as backPath FROM sheets'
           )
           .all()
   ) as Array<{ id: string; frontPath: string; backPath: string }>;

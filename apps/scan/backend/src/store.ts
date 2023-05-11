@@ -639,23 +639,19 @@ export class Store {
         `insert into sheets (
             id,
             batch_id,
-            front_original_filename,
             front_normalized_filename,
             front_interpretation_json,
-            back_original_filename,
             back_normalized_filename,
             back_interpretation_json,
             requires_adjudication,
             finished_adjudication_at
           ) values (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?
           )`,
         sheetId,
         batchId,
-        front.originalFilename,
         front.normalizedFilename,
         JSON.stringify(front.interpretation),
-        back.originalFilename,
         back.normalizedFilename,
         JSON.stringify(back.interpretation ?? {}),
         sheetRequiresAdjudication([front.interpretation, back.interpretation])
@@ -666,13 +662,13 @@ export class Store {
     } catch (error) {
       debug(
         'sheet insert failed; maybe a duplicate? filenames=[%s, %s]',
-        front.originalFilename,
-        back.originalFilename
+        front.normalizedFilename,
+        back.normalizedFilename
       );
 
       const row = this.client.one<[string]>(
-        'select id from sheets where front_original_filename = ?',
-        front.originalFilename
+        'select id from sheets where front_normalized_filename = ?',
+        front.normalizedFilename
       ) as { id: string } | undefined;
 
       if (row) {
@@ -716,11 +712,10 @@ export class Store {
   getBallotFilenames(
     sheetId: string,
     side: Side
-  ): { original: string; normalized: string } | undefined {
+  ): { normalized: string } | undefined {
     const row = this.client.one<[string]>(
       `
       select
-        ${side}_original_filename as original,
         ${side}_normalized_filename as normalized
       from
         sheets
@@ -728,14 +723,13 @@ export class Store {
         id = ?
     `,
       sheetId
-    ) as { original: string; normalized: string } | undefined;
+    ) as { normalized: string } | undefined;
 
     if (!row) {
       return;
     }
 
     return {
-      original: normalizeAndJoin(dirname(this.getDbPath()), row.original),
       normalized: normalizeAndJoin(dirname(this.getDbPath()), row.normalized),
     };
   }
@@ -792,42 +786,34 @@ export class Store {
 
   *getSheets(): Generator<{
     id: string;
-    front: { original: string; normalized: string };
-    back: { original: string; normalized: string };
+    front: { normalized: string };
+    back: { normalized: string };
     exportedAsCvrAt: Iso8601Timestamp;
   }> {
     for (const {
       id,
-      frontOriginalFilename,
       frontNormalizedFilename,
-      backOriginalFilename,
       backNormalizedFilename,
       exportedAsCvrAt,
     } of this.client.each(`
       select
         id,
-        front_original_filename as frontOriginalFilename,
         front_normalized_filename as frontNormalizedFilename,
-        back_original_filename as backOriginalFilename,
         back_normalized_filename as backNormalizedFilename
       from sheets
       order by created_at asc
     `) as Iterable<{
       id: string;
-      frontOriginalFilename: string;
       frontNormalizedFilename: string;
-      backOriginalFilename: string;
       backNormalizedFilename: string;
       exportedAsCvrAt: Iso8601Timestamp;
     }>) {
       yield {
         id,
         front: {
-          original: frontOriginalFilename,
           normalized: frontNormalizedFilename,
         },
         back: {
-          original: backOriginalFilename,
           normalized: backNormalizedFilename,
         },
         exportedAsCvrAt,

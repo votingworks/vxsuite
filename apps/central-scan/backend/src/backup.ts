@@ -19,19 +19,6 @@ import { Store } from './store';
 const debug = makeDebug('scan:backup');
 
 /**
- * Specifies what to include in the backup
- *
- * @property saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets If the number of sheets
- * scanned by the machine is less than or equal to this, only original scan images will be included
- * in the backup, and if the number of sheets scanned by the machine is greater, only normalized
- * scan images will be included in the backup. If not specified, both original and normalized scan
- * images will be included.
- */
-export interface BackupOptions {
-  saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets?: number;
-}
-
-/**
  * Creates a backup of the database and all scanned files.
  */
 export class Backup {
@@ -81,9 +68,7 @@ export class Backup {
   /**
    * Runs the backup.
    */
-  async backup({
-    saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets,
-  }: BackupOptions = {}): Promise<void> {
+  async backup(): Promise<void> {
     debug('starting a backup');
 
     const electionDefinition = this.store.getElectionDefinition();
@@ -126,28 +111,9 @@ export class Backup {
       sheets.push(sheet);
     }
     debug('adding ballot images to backup...');
-    if (
-      saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets !== undefined
-    ) {
-      for (const sheet of sheets) {
-        if (
-          sheets.length <=
-          saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets
-        ) {
-          await this.addFileEntry(sheet.front.original);
-          await this.addFileEntry(sheet.back.original);
-        } else {
-          await this.addFileEntry(sheet.front.normalized);
-          await this.addFileEntry(sheet.back.normalized);
-        }
-      }
-    } else {
-      for (const sheet of sheets) {
-        await this.addFileEntry(sheet.front.original);
-        await this.addFileEntry(sheet.front.normalized);
-        await this.addFileEntry(sheet.back.original);
-        await this.addFileEntry(sheet.back.normalized);
-      }
+    for (const sheet of sheets) {
+      await this.addFileEntry(sheet.front.normalized);
+      await this.addFileEntry(sheet.back.normalized);
     }
     debug('added ballot images to backup');
 
@@ -170,18 +136,14 @@ export class Backup {
     const selectSheets = db.prepare<[]>(`
       select
         id,
-        front_original_filename,
         front_normalized_filename,
-        back_original_filename,
         back_normalized_filename
       from sheets
       `);
-    const updateSheet = db.prepare<[string, string, string, string, string]>(
+    const updateSheet = db.prepare<[string, string, string]>(
       `
       update sheets
-      set front_original_filename = ?,
-          front_normalized_filename = ?,
-          back_original_filename = ?,
+      set front_normalized_filename = ?,
           back_normalized_filename = ?
       where id = ?
       `
@@ -190,9 +152,7 @@ export class Backup {
     const updates: Array<Promise<void>> = [];
     for (const row of selectSheets.all()) {
       updateSheet.run(
-        basename(row.front_original_filename),
         basename(row.front_normalized_filename),
-        basename(row.back_original_filename),
         basename(row.back_normalized_filename),
         row.id
       );
@@ -205,15 +165,12 @@ export class Backup {
 /**
  * Backs up the store and all referenced files into a zip archive.
  */
-export function backup(
-  store: Store,
-  options: BackupOptions = {}
-): NodeJS.ReadableStream {
+export function backup(store: Store): NodeJS.ReadableStream {
   const zip = new ZipStream();
 
   process.nextTick(() => {
     new Backup(zip, store)
-      .backup(options)
+      .backup()
       .then(() => {
         store.setScannerBackedUp();
       })
@@ -231,8 +188,7 @@ export function backup(
  */
 export async function backupToUsbDrive(
   exporter: Exporter,
-  store: Store,
-  options: BackupOptions = {}
+  store: Store
 ): Promise<Scan.BackupResult> {
   const electionDefinition = store.getElectionDefinition();
 
@@ -249,6 +205,6 @@ export async function backupToUsbDrive(
       electionDefinition.election,
       electionDefinition.electionHash
     )}/${new Date().toISOString().replace(/[^-a-z0-9]+/gi, '-')}-backup.zip`,
-    backup(store, options)
+    backup(store)
   );
 }

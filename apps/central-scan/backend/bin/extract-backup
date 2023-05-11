@@ -24,8 +24,8 @@ sqlite3 "${BACKUP_DIR}/ballots.db" "
     '# batch ' || batches.id || x'0a' ||
     -- get all pages from the batch in front/back order
     group_concat(
-      sheets.front_original_filename || x'0a' ||
-      sheets.back_original_filename,
+      sheets.front_normalized_filename || x'0a' ||
+      sheets.back_normalized_filename,
       x'0a'
     ) ||
     -- separate batches with an empty line

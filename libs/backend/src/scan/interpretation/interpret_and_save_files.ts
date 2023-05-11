@@ -28,7 +28,6 @@ export async function interpretSheetAndSaveImages(
       );
       return {
         interpretation: result.interpretation,
-        originalFilename: images.original,
         normalizedFilename: images.normalized,
       };
     }

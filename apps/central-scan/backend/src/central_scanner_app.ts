@@ -453,22 +453,21 @@ export function buildCentralScannerApp({
   );
 
   deprecatedApiRouter.get(
-    '/central-scanner/scan/hmpb/ballot/:sheetId/:side/image/:version',
+    '/central-scanner/scan/hmpb/ballot/:sheetId/:side/image/normalized',
     (request, response) => {
-      const { sheetId, side, version } = request.params;
+      const { sheetId, side } = request.params;
 
       if (
         typeof sheetId !== 'string' ||
-        (side !== 'front' && side !== 'back') ||
-        (version !== 'original' && version !== 'normalized')
+        (side !== 'front' && side !== 'back')
       ) {
         response.status(404);
         return;
       }
       const filenames = store.getBallotFilenames(sheetId, side);
 
-      if (filenames && version in filenames) {
-        response.sendFile(filenames[version]);
+      if (filenames) {
+        response.sendFile(filenames.normalized);
       } else {
         response.status(404).end();
       }

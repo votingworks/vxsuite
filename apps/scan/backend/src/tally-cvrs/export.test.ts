@@ -78,7 +78,6 @@ test('exportCvrs', () => {
   const batchId = store.addBatch();
   store.addSheet(uuid(), batchId, [
     {
-      originalFilename: '/tmp/front-page.png',
       normalizedFilename: '/tmp/front-page-normalized.png',
       interpretation: {
         type: 'InterpretedHmpbPage',
@@ -108,7 +107,6 @@ test('exportCvrs', () => {
       },
     },
     {
-      originalFilename: '/tmp/back-page.png',
       normalizedFilename: '/tmp/back-page-normalized.png',
       interpretation: {
         type: 'InterpretedHmpbPage',
@@ -168,7 +166,6 @@ test('exportCvrs orders by sheet ID', async () => {
 
     store.addSheet(sheetId, batchId, [
       {
-        originalFilename: `/tmp/front-page-${sheetId}.png`,
         normalizedFilename: frontNormalizedFile.name,
         interpretation: {
           type: 'InterpretedHmpbPage',
@@ -198,7 +195,6 @@ test('exportCvrs orders by sheet ID', async () => {
         },
       },
       {
-        originalFilename: `/tmp/back-page-${sheetId}.png`,
         normalizedFilename: backNormalizedFile.name,
         interpretation: {
           type: 'InterpretedHmpbPage',

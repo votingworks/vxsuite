@@ -80,12 +80,10 @@ afterEach(async () => {
   server?.close();
 });
 
-const frontOriginal =
+const frontNormalized =
   electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath();
-const frontNormalized = frontOriginal;
-const backOriginal =
+const backNormalized =
   electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath();
-const backNormalized = backOriginal;
 const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   const metadata: BallotMetadata = {
     locales: { primary: 'en-US' },
@@ -99,7 +97,6 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   };
   return [
     {
-      originalFilename: frontOriginal,
       normalizedFilename: frontNormalized,
       interpretation: {
         type: 'InterpretedHmpbPage',
@@ -129,7 +126,6 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
       },
     },
     {
-      originalFilename: backOriginal,
       normalizedFilename: backNormalized,
       interpretation: {
         type: 'InterpretedHmpbPage',
@@ -449,10 +445,6 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
     .expect(200, await fs.readFile(frontNormalized));
 
   await request(app)
-    .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/front/image/original`)
-    .expect(200, await fs.readFile(frontOriginal));
-
-  await request(app)
     .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/back/image`)
     .expect(301)
     .expect(
@@ -463,10 +455,6 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
   await request(app)
     .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/back/image/normalized`)
     .expect(200, await fs.readFile(backNormalized));
-
-  await request(app)
-    .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/back/image/original`)
-    .expect(200, await fs.readFile(backOriginal));
 });
 
 test('GET /scan/hmpb/ballot/:sheetId/image 404', async () => {
