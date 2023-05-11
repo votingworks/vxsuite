@@ -2,21 +2,13 @@
 // The durable datastore for CVRs and configuration info.
 //
 
-import { generateBallotPageLayouts } from '@votingworks/converter-nh-accuvote';
 import { Client as DbClient } from '@votingworks/db';
 import {
   AdjudicationStatus,
-  AnyContest,
-  BallotMetadata,
-  BallotPageLayout,
-  BallotPageLayoutWithImage,
-  BallotPageMetadata,
   BallotPaperSize,
   BallotSheetInfo,
   BatchInfo,
   ElectionDefinition,
-  getBallotStyle,
-  getContests,
   Iso8601Timestamp,
   mapSheet,
   MarkThresholds,
@@ -66,7 +58,6 @@ function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
  */
 export class Store {
   private constructor(private readonly client: DbClient) {}
-  private cachedLayouts: BallotPageLayoutWithImage[] = [];
 
   getDbPath(): string {
     return this.client.getDatabasePath();
@@ -120,7 +111,6 @@ export class Store {
    */
   reset(): void {
     this.client.reset();
-    this.cachedLayouts = [];
   }
 
   /**
@@ -1004,72 +994,6 @@ export class Store {
         backNormalizedFilename: row.backNormalizedFilename,
       };
     }
-  }
-
-  /**
-   * @deprecated
-   */
-  getBallotPageLayoutForMetadata(
-    metadata: BallotPageMetadata,
-    electionDefinition?: ElectionDefinition
-  ): BallotPageLayout | undefined {
-    return this.getBallotPageLayoutsForMetadata(
-      metadata,
-      electionDefinition
-    ).find((layout) => layout.metadata.pageNumber === metadata.pageNumber);
-  }
-
-  /**
-   * @deprecated
-   */
-  getBallotPageLayoutsForMetadata(
-    metadata: BallotMetadata,
-    electionDefinition = this.getElectionDefinition()
-  ): BallotPageLayout[] {
-    assert(electionDefinition?.election.gridLayouts);
-    return generateBallotPageLayouts(
-      electionDefinition.election,
-      metadata
-    ).unsafeUnwrap();
-  }
-
-  getContestIdsForMetadata(
-    metadata: BallotPageMetadata,
-    electionDefinition = this.getElectionDefinition()
-  ): Array<AnyContest['id']> {
-    if (!electionDefinition) {
-      throw new Error('no election configured');
-    }
-
-    const layouts = this.getBallotPageLayoutsForMetadata(
-      metadata,
-      electionDefinition
-    );
-    let contestOffset = 0;
-
-    for (const layout of layouts) {
-      if (layout.metadata.pageNumber === metadata.pageNumber) {
-        const ballotStyle = getBallotStyle({
-          election: electionDefinition.election,
-          ballotStyleId: metadata.ballotStyleId,
-        });
-        assert(ballotStyle);
-        const contests = getContests({
-          election: electionDefinition.election,
-          ballotStyle,
-        });
-
-        return contests
-          .slice(contestOffset, contestOffset + layout.contests.length)
-          .map(({ id }) => id);
-      }
-
-      contestOffset += layout.contests.length;
-    }
-
-    throw new Error(
-      `unable to find page with pageNumber=${metadata.pageNumber}`
-    );
   }
 
   /**

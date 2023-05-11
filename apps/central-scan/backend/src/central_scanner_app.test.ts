@@ -10,7 +10,6 @@ import {
 import {
   AdjudicationReason,
   BallotMetadata,
-  BallotPageLayout,
   BallotType,
   InterpretedHmpbPage,
   PageInterpretationWithFiles,
@@ -579,44 +578,31 @@ test('get next sheet layouts', async () => {
     },
   });
 
-  const frontLayout: BallotPageLayout = {
-    pageSize: { width: 1, height: 1 },
-    metadata: frontInterpretation.metadata,
-    contests: [],
-  };
-  const backLayout: BallotPageLayout = {
-    pageSize: { width: 1, height: 1 },
-    metadata: backInterpretation.metadata,
-    contests: [],
-  };
-  jest
-    .spyOn(workspace.store, 'getBallotPageLayoutsForMetadata')
-    .mockReturnValue([frontLayout, backLayout]);
-
-  await request(app)
+  const response = await request(app)
     .get(`/central-scanner/scan/hmpb/review/next-sheet`)
-    .expect(
-      200,
-      typedAs<Scan.GetNextReviewSheetResponse>({
-        interpreted: {
-          id: 'mock-review-sheet',
-          front: {
-            image: { url: '/url/front' },
-            interpretation: frontInterpretation,
-          },
-          back: {
-            image: { url: '/url/back' },
-            interpretation: backInterpretation,
-          },
+    .expect(200);
+
+  expect(response.body).toEqual(
+    typedAs<Scan.GetNextReviewSheetResponse>({
+      interpreted: {
+        id: 'mock-review-sheet',
+        front: {
+          image: { url: '/url/front' },
+          interpretation: frontInterpretation,
         },
-        layouts: {
-          front: frontLayout,
-          back: backLayout,
+        back: {
+          image: { url: '/url/back' },
+          interpretation: backInterpretation,
         },
-        definitions: {
-          front: { contestIds: [] },
-          back: { contestIds: [] },
-        },
-      })
-    );
+      },
+      layouts: {
+        front: frontInterpretation.layout,
+        back: backInterpretation.layout,
+      },
+      definitions: {
+        front: { contestIds: expect.any(Array) },
+        back: { contestIds: expect.any(Array) },
+      },
+    })
+  );
 });

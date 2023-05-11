@@ -1,7 +1,6 @@
 import { err, ok } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import {
-  BallotPageLayout,
   BallotPageMetadata,
   BatchInfo,
   CVR,
@@ -24,7 +23,6 @@ import {
   interpretedBmdPage,
   interpretedHmpbPage1,
   interpretedHmpbPage2,
-  mockBallotMetadata,
 } from '../../../test/fixtures/interpretations';
 import { ExportDataError } from '../../exporter';
 import {
@@ -41,18 +39,8 @@ const electionDefinition: ElectionDefinition = {
 const definiteMarkThreshold = 0.15;
 const batchInfo: BatchInfo[] = [];
 
-const mockBallotPageLayout: BallotPageLayout = {
-  pageSize: {
-    width: 0,
-    height: 0,
-  },
-  metadata: { ...mockBallotMetadata, pageNumber: 1 },
-  contests: [],
-};
-
 jest.mock('./page_layouts', () => ({
   ...jest.requireActual('./page_layouts'),
-  getBallotPageLayout: () => mockBallotPageLayout,
   getContestsForBallotPage: ({
     ballotPageMetadata,
   }: {
@@ -284,7 +272,7 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
     3,
     expectedReportPath,
     'ballot-layouts/batch-1/front.layout.json',
-    JSON.stringify(mockBallotPageLayout, undefined, 2)
+    JSON.stringify(interpretedHmpbPage1WithWriteIn.layout, undefined, 2)
   );
 
   const exportStream = exportDataToUsbDriveMock.mock.calls[0][2];

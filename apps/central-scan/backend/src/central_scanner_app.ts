@@ -9,6 +9,7 @@ import {
   Exporter,
   Usb,
   readBallotPackageFromUsb,
+  getContestsForBallotPage,
 } from '@votingworks/backend';
 import {
   BallotPackageConfigurationError,
@@ -477,6 +478,7 @@ export function buildCentralScannerApp({
   deprecatedApiRouter.get<NoParams, Scan.GetNextReviewSheetResponse>(
     '/central-scanner/scan/hmpb/review/next-sheet',
     (_request, response) => {
+      const { election } = store.getElectionDefinition() as ElectionDefinition;
       const sheet = store.getNextAdjudicationSheet();
 
       if (sheet) {
@@ -491,21 +493,21 @@ export function buildCentralScannerApp({
 
         if (sheet.front.interpretation.type === 'InterpretedHmpbPage') {
           const front = sheet.front.interpretation;
-          const layouts = store.getBallotPageLayoutsForMetadata(front.metadata);
-          const contestIds = store.getContestIdsForMetadata(front.metadata);
-          frontLayout = layouts.find(
-            ({ metadata }) => metadata.pageNumber === front.metadata.pageNumber
-          );
+          frontLayout = front.layout;
+          const contestIds = getContestsForBallotPage({
+            election,
+            ballotPageMetadata: front.metadata,
+          }).map(({ id }) => id);
           frontDefinition = { contestIds };
         }
 
         if (sheet.back.interpretation.type === 'InterpretedHmpbPage') {
           const back = sheet.back.interpretation;
-          const layouts = store.getBallotPageLayoutsForMetadata(back.metadata);
-          const contestIds = store.getContestIdsForMetadata(back.metadata);
-          backLayout = layouts.find(
-            ({ metadata }) => metadata.pageNumber === back.metadata.pageNumber
-          );
+          const contestIds = getContestsForBallotPage({
+            election,
+            ballotPageMetadata: back.metadata,
+          }).map(({ id }) => id);
+          backLayout = back.layout;
           backDefinition = { contestIds };
         }
 
