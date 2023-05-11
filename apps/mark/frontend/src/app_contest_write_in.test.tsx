@@ -171,7 +171,7 @@ it('Single Seat Contest with Write In', async () => {
   // Print Screen
   fireEvent.click(screen.getByText(/Print My ballot/i));
   advanceTimers();
-  screen.getByText('Printing Your Official Ballot');
+  screen.getByText(/Printing Your Official Ballot/i);
   await expectPrint((printedElement) => {
     expect(printedElement.getByText('Official Ballot')).toBeTruthy();
     expect(printedElement.getByText('(write-in)')).toBeTruthy();

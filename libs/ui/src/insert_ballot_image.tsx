@@ -1,12 +1,14 @@
-/* stylelint-disable order/properties-order */
+/* stylelint-disable order/properties-order, value-keyword-case */
 import React from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 
 import { Svg } from './svg';
 
 export type BallotFeedLocation = 'bottom' | 'top';
 
 export interface InsertBallotImageProps {
+  disableAnimation?: boolean;
+  /** @default 'top' */
   ballotFeedLocation?: BallotFeedLocation;
 }
 
@@ -39,8 +41,16 @@ const ballotFeedAnimationKeyframes = keyframes`
   }
 `;
 
-const BallotSheetGroup = styled.g`
+interface BallotSheetProps {
+  disableAnimation?: boolean;
+}
+
+const ballotSheetAnimation = css`
   animation: ${ballotFeedAnimationKeyframes} 4s ease-in-out infinite;
+`;
+
+const BallotSheetGroup = styled.g<BallotSheetProps>`
+  ${(p) => (p.disableAnimation ? undefined : ballotSheetAnimation)}
 `;
 
 const ForegroundLine = styled.line`
@@ -60,7 +70,7 @@ const FilledBubble = styled(Bubble)`
 `;
 
 export function InsertBallotImage(props: InsertBallotImageProps): JSX.Element {
-  const { ballotFeedLocation = 'bottom' } = props;
+  const { ballotFeedLocation = 'top', disableAnimation } = props;
 
   return (
     <Svg.FullScreenSvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -72,7 +82,7 @@ export function InsertBallotImage(props: InsertBallotImageProps): JSX.Element {
       <Svg.ForegroundFillPath d="M484.9,139.15v26.6H27.1v-26.6H484.9m12.4-21.1H14.7a8.7,8.7,0,0,0-8.7,8.7v51.4a8.71,8.71,0,0,0,8.7,8.71H497.3a8.71,8.71,0,0,0,8.7-8.71v-51.4a8.7,8.7,0,0,0-8.7-8.7Z" />
       <g>
         <g clipPath="url(#InsertBallotImage--ballot-feed-mask)">
-          <BallotSheetGroup>
+          <BallotSheetGroup disableAnimation={disableAnimation}>
             <Svg.BackgroundFillPath d="M452.25 506.57H69.75L101 148.71H416.91L452.25 506.57Z" />
             <Svg.ForegroundFillPath d="M452.25 512H69.75C68.9664 512.001 68.192 511.832 67.4799 511.504C66.7678 511.177 66.135 510.7 65.6248 510.105C65.1146 509.511 64.7392 508.813 64.5243 508.059C64.3094 507.306 64.2602 506.514 64.38 505.74L95.5 148.17C95.6982 146.888 96.3487 145.72 97.3337 144.876C98.3186 144.032 99.5731 143.569 100.87 143.57L416.91 143.28C418.258 143.278 419.558 143.778 420.558 144.682C421.558 145.586 422.186 146.829 422.32 148.17L457.65 506C457.73 506.757 457.65 507.522 457.415 508.246C457.18 508.97 456.795 509.637 456.286 510.203C455.777 510.768 455.154 511.221 454.459 511.53C453.764 511.84 453.011 512 452.25 512ZM76.08 501.14H446.25L412 154.14L105.57 154.43L76.08 501.14Z" />
             <g>

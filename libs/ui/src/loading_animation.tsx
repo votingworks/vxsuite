@@ -31,7 +31,7 @@ const ForegroundStripe = styled.rect`
 
 export function LoadingAnimation(): JSX.Element {
   return (
-    <SvgContainer xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20">
+    <SvgContainer xmlns="http://www.w3.org/2000/svg" viewBox="0 0 93 20">
       <defs>
         <pattern
           width="100"

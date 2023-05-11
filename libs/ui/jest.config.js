@@ -16,8 +16,10 @@ module.exports = {
     'src/insert_ballot_image.tsx',
     'src/insert_card_image.tsx',
     'src/loading_animation.tsx',
+    'src/printing_ballot_image.tsx',
     'src/rotate_card_image.tsx',
     'src/svg.tsx',
+    'src/verify_ballot_image.tsx',
     'src/voter_contest_summary.tsx',
   ],
   transform: {
