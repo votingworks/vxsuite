@@ -286,7 +286,6 @@ test.each<{
   certKeyInput: CreateCertInput['certKeyInput'];
   certType?: CreateCertInput['certType'];
   signingPrivateKey: CreateCertInput['signingPrivateKey'];
-  isThrowawayPrivateKeyCreationExpected: boolean;
   expectedOpensslCsrCreationRequestParams: string[];
   expectedOpensslCertCreationRequestParams: string[];
 }>([
@@ -299,7 +298,6 @@ test.each<{
       key: { source: 'inline', content: 'content' },
     },
     signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' },
-    isThrowawayPrivateKeyCreationExpected: true,
     expectedOpensslCsrCreationRequestParams: [
       'req',
       '-new',
@@ -337,7 +335,6 @@ test.each<{
       key: { source: 'inline', content: 'content' },
     },
     signingPrivateKey: { source: 'tpm' },
-    isThrowawayPrivateKeyCreationExpected: true,
     expectedOpensslCsrCreationRequestParams: [
       'req',
       '-new',
@@ -382,7 +379,6 @@ test.each<{
     },
     certType: 'cert_authority_cert',
     signingPrivateKey: { source: 'file', path: '/path/to/private-key-2.pem' },
-    isThrowawayPrivateKeyCreationExpected: false,
     expectedOpensslCsrCreationRequestParams: [
       'req',
       '-new',
@@ -419,16 +415,15 @@ test.each<{
     certKeyInput,
     certType,
     signingPrivateKey,
-    isThrowawayPrivateKeyCreationExpected,
     expectedOpensslCsrCreationRequestParams,
     expectedOpensslCertCreationRequestParams,
   }) => {
-    const expectedNumSpawnCalls = isThrowawayPrivateKeyCreationExpected ? 3 : 2;
-    for (let i = 0; i < expectedNumSpawnCalls; i += 1) {
-      setTimeout(() => {
-        mockChildProcess.emit('close', 0);
-      });
-    }
+    setTimeout(() => {
+      mockChildProcess.emit('close', 0);
+    });
+    setTimeout(() => {
+      mockChildProcess.emit('close', 0);
+    });
 
     await createCertHelper({
       certKeyInput,
@@ -439,23 +434,14 @@ test.each<{
       signingPrivateKey,
     });
 
-    expect(spawn).toHaveBeenCalledTimes(expectedNumSpawnCalls);
-    if (isThrowawayPrivateKeyCreationExpected) {
-      expect(spawn).toHaveBeenNthCalledWith(1, 'openssl', [
-        'ecparam',
-        '-genkey',
-        '-name',
-        'prime256v1',
-        '-noout',
-      ]);
-    }
+    expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenNthCalledWith(
-      isThrowawayPrivateKeyCreationExpected ? 2 : 1,
+      1,
       'openssl',
       expectedOpensslCsrCreationRequestParams
     );
     expect(spawn).toHaveBeenNthCalledWith(
-      isThrowawayPrivateKeyCreationExpected ? 3 : 2,
+      2,
       'openssl',
       expectedOpensslCertCreationRequestParams
     );

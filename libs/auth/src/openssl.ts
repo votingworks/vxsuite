@@ -33,6 +33,18 @@ export const PUBLIC_KEY_IN_DER_FORMAT_HEADER = Buffer.from([
   0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 0x42, 0x00,
 ]);
 
+/**
+ * When creating card certs, we use a throwaway private key to create the cert signing request
+ * since we can't access/use Java Card private keys for this purpose. We set the cert key using
+ * -force_pubkey in this case.
+ */
+const THROWAWAY_PRIVATE_KEY = `-----BEGIN EC PRIVATE KEY-----
+MHcCAQEEIBf6X2JisC7M+vYNi2RPaHrDUGPGZxtY5sYszU6RAgsqoAoGCCqGSM49
+AwEHoUQDQgAEHAj1wCr6aDNph19ibxPgmkbLTAje0o7XhrQIlmmgFMS06wxaP8NA
+6gRPXUxm7gTFKR9PU6lMMBD8FMzmjBC0iA==
+-----END EC PRIVATE KEY-----
+`;
+
 function errorFromStderrAndStdout({
   stderr,
   stdout,
@@ -381,31 +393,19 @@ export async function createCertHelper({
   signingCertAuthorityCertPath,
   signingPrivateKey,
 }: CreateCertInput): Promise<Buffer> {
-  const isPrivateKeyOfPublicKeyToSignUnavailable =
+  const isPrivateKeyOfPublicKeyToCertifyUnavailable =
     certKeyInput.type === 'public';
 
-  let certKey: FileKey | InlineKey;
-  if (isPrivateKeyOfPublicKeyToSignUnavailable) {
-    const throwawayPrivateKey = await openssl([
-      'ecparam',
-      '-genkey',
-      '-name',
-      'prime256v1',
-      '-noout',
-    ]);
-    certKey = {
-      source: 'inline',
-      content: throwawayPrivateKey.toString('utf-8'),
-    };
-  } else {
-    certKey = certKeyInput.key;
-  }
+  const certKey: FileKey | InlineKey =
+    isPrivateKeyOfPublicKeyToCertifyUnavailable
+      ? { source: 'inline', content: THROWAWAY_PRIVATE_KEY }
+      : certKeyInput.key;
   const certSigningRequest = await createCertSigningRequest({
     certKey,
     certSubject,
   });
 
-  const certPublicKeyOverride = isPrivateKeyOfPublicKeyToSignUnavailable
+  const certPublicKeyOverride = isPrivateKeyOfPublicKeyToCertifyUnavailable
     ? Buffer.from(certKeyInput.key.content, 'utf-8')
     : undefined;
   const cert = await createCertGivenCertSigningRequest({
