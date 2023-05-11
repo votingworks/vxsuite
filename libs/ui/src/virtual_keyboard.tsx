@@ -1,51 +1,49 @@
+/* stylelint-disable order/properties-order */
 import React from 'react';
-import styled from 'styled-components';
-
+import styled, { DefaultTheme } from 'styled-components';
 import { Button } from './button';
+import { Icons } from './icons';
+
+/* istanbul ignore next */
+function getBorderWidthRem(p: { theme: DefaultTheme }): number {
+  switch (p.theme.sizeMode) {
+    case 'xl':
+      return p.theme.sizes.bordersRem.hairline;
+    default:
+      return p.theme.sizes.bordersRem.thin;
+  }
+}
 
 const Keyboard = styled.div`
-  & div {
-    display: flex;
-    &:nth-child(2) {
-      margin-right: 0;
-      margin-left: 0.25rem;
-      @media (min-width: 480px) {
-        margin-right: 0;
-        margin-left: 0.5rem;
-      }
-    }
-    &:nth-child(3) {
-      margin-right: 0.25rem;
-      margin-left: 0.5rem;
-      @media (min-width: 480px) {
-        margin-right: 0.5rem;
-        margin-left: 1rem;
-      }
-    }
-  }
   & button {
-    flex: 1;
-    margin: 4px;
-    box-sizing: content-box;
-    background: #ffffff;
-    padding: 2vw 0;
-    white-space: nowrap;
-    color: #000000;
-    @media (min-width: 480px) {
-      min-width: 1rem;
-    }
-    @media (min-width: 850px) {
-      padding: 0.75rem 0;
-    }
+    border-width: ${getBorderWidthRem}rem;
+    font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+    min-height: ${(p) => p.theme.sizes.minTouchAreaSizePx}px;
+    min-width: ${(p) => p.theme.sizes.minTouchAreaSizePx}px;
 
     &:disabled {
-      color: #999999;
+      border-width: ${getBorderWidthRem}rem;
     }
   }
 `;
 
-interface Props {
+const KeyRow = styled.div`
+  display: flex;
+  gap: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
+  justify-content: center;
+  margin-bottom: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
+`;
+
+const SpaceBar = styled.span`
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex-grow: 1;
+`;
+
+export interface VirtualKeyboardProps {
   onKeyPress: (key: string) => void;
+  onBackspace: () => void;
   keyDisabled(key: string): boolean;
   keyMap?: KeyMap;
 }
@@ -98,34 +96,44 @@ const US_ENGLISH_KEYMAP: KeyMap = {
       { label: '.', ariaLabel: 'period' },
       { label: '-', ariaLabel: 'dash' },
     ],
-    [{ label: 'space' }, { label: '⌫ delete', ariaLabel: 'delete' }],
   ],
 };
 
 export function VirtualKeyboard({
+  onBackspace,
   onKeyPress,
   keyDisabled,
   keyMap = US_ENGLISH_KEYMAP,
-}: Props): JSX.Element {
+}: VirtualKeyboardProps): JSX.Element {
   return (
     <Keyboard data-testid="virtual-keyboard">
       {keyMap.rows.map((row) => {
         return (
-          <div key={`row-${row.map((key) => key.label).join()}`}>
+          <KeyRow key={`row-${row.map((key) => key.label).join()}`}>
             {row.map(({ label, ariaLabel }) => (
               <Button
                 key={label}
                 value={label}
-                aria-label={ariaLabel ?? label.toLowerCase()}
+                aria-label={ariaLabel}
                 onPress={onKeyPress}
                 disabled={keyDisabled(label)}
               >
                 {label}
               </Button>
             ))}
-          </div>
+          </KeyRow>
         );
       })}
+      <KeyRow>
+        <SpaceBar>
+          <Button disabled={keyDisabled(' ')} onPress={onKeyPress} value=" ">
+            space
+          </Button>
+        </SpaceBar>
+        <Button onPress={onBackspace}>
+          <Icons.Backspace /> delete
+        </Button>
+      </KeyRow>
     </Keyboard>
   );
 }
