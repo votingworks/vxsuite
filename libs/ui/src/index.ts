@@ -71,6 +71,7 @@ export * from './text';
 export * from './theme_manager_context';
 export * from './themes';
 export * from './timer';
+export * from './touch_text_input';
 export * from './typography';
 export * from './usbcontroller_button';
 export * from './remove_card_screen';
