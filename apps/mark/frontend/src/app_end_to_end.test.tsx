@@ -279,7 +279,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Print Screen
   userEvent.click(screen.getByText(/Print My ballot/i));
-  screen.getByText('Printing Your Official Ballot');
+  screen.getByText(/Printing Your Official Ballot/i);
   await expectPrint();
 
   // Expire timeout for display of "Printing Ballot" screen

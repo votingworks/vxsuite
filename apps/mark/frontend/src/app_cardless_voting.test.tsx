@@ -232,8 +232,13 @@ test('Cardless Voting Flow', async () => {
   }
 
   // Advance to print ballot
+<<<<<<< HEAD
   fireEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText('Printing Your Official Ballot');
+=======
+  fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
+  screen.getByText(/Printing Your Official Ballot/i);
+>>>>>>> aa2b52f51 (Update tests to account for ellipsis in print page text)
   await expectPrint();
 
   // Reset ballot
@@ -324,8 +329,13 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   }
 
   // Advance to print ballot
+<<<<<<< HEAD
   fireEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText('Printing Your Official Ballot');
+=======
+  fireEvent.click(getByTextWithMarkup('I’m Ready to Print My Ballot'));
+  screen.getByText(/Printing Your Official Ballot/i);
+>>>>>>> aa2b52f51 (Update tests to account for ellipsis in print page text)
   await expectPrint();
 
   // Reset ballot
@@ -548,7 +558,7 @@ test('poll worker must select a precinct first', async () => {
 
   // Advance to print ballot
   fireEvent.click(screen.getByText(/Print My ballot/i));
-  screen.getByText('Printing Your Official Ballot');
+  screen.getByText(/Printing Your Official Ballot/i);
   await expectPrint();
 
   // Reset ballot
