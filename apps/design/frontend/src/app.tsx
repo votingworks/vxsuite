@@ -3,7 +3,7 @@
 /* eslint-disable react/no-array-index-key */
 import './polyfills';
 import { AppBase } from '@votingworks/ui';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
 import {
   AnyElement,
@@ -202,6 +202,30 @@ function DocumentSvg({
   const dragStartPosition = useRef<{ x: number; y: number } | null>(null);
 
   const { width, height, grid, pages } = document;
+
+  // Temporary optimization: memoize the pages so that we don't rerender them
+  // when changing pan/zoom
+  const pagesElements = useMemo(
+    () =>
+      pages.map((page, index) => (
+        <PageObject
+          x={index % 2 === 0 ? 0 : width + PAGE_GAP}
+          y={Math.floor(index / 2) * (height + PAGE_GAP)}
+          grid={grid}
+          width={width}
+          height={height}
+          page={page}
+          setPage={(newPage) =>
+            setDocument({
+              ...document,
+              pages: replaceAtIndex(pages, index, newPage),
+            })
+          }
+          key={index}
+        />
+      )),
+    [width, height, grid, pages, document, setDocument]
+  );
   return (
     <svg
       width={dimensions.width}
@@ -242,23 +266,7 @@ function DocumentSvg({
         }
       }}
     >
-      {pages.map((page, index) => (
-        <PageObject
-          x={index % 2 === 0 ? 0 : width + PAGE_GAP}
-          y={Math.floor(index / 2) * (height + PAGE_GAP)}
-          grid={grid}
-          width={width}
-          height={height}
-          page={page}
-          setPage={(newPage) =>
-            setDocument({
-              ...document,
-              pages: replaceAtIndex(pages, index, newPage),
-            })
-          }
-          key={index}
-        />
-      ))}
+      {pagesElements}
     </svg>
   );
 }
