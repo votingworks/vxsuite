@@ -106,7 +106,7 @@ it('Single Seat Contest with Write In', async () => {
   fireEvent.click(
     screen.getByText('add write-in candidate').closest('button')!
   );
-  expect(screen.getByText('Write-In Candidate')).toBeTruthy();
+  screen.getByText(`Write-In: ${singleSeatContestWithWriteIn.title}`);
   // Capture styles of Single Candidate Contest
   expect(container.firstChild).toMatchSnapshot();
 
@@ -114,7 +114,7 @@ it('Single Seat Contest with Write In', async () => {
   fireEvent.click(getWithinKeyboard('B'));
   fireEvent.click(getWithinKeyboard('O'));
   fireEvent.click(getWithinKeyboard('V'));
-  fireEvent.click(getWithinKeyboard('⌫ delete'));
+  fireEvent.click(getWithinKeyboard('delete'));
   fireEvent.click(getWithinKeyboard('B'));
   fireEvent.click(screen.getByText('Accept'));
   advanceTimers();
