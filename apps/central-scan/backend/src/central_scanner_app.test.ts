@@ -80,9 +80,9 @@ afterEach(async () => {
   server?.close();
 });
 
-const frontNormalized =
+const frontImagePath =
   electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath();
-const backNormalized =
+const backImagePath =
   electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath();
 const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   const metadata: BallotMetadata = {
@@ -97,7 +97,7 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   };
   return [
     {
-      normalizedFilename: frontNormalized,
+      imagePath: frontImagePath,
       interpretation: {
         type: 'InterpretedHmpbPage',
         metadata: {
@@ -126,7 +126,7 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
       },
     },
     {
-      normalizedFilename: backNormalized,
+      imagePath: backImagePath,
       interpretation: {
         type: 'InterpretedHmpbPage',
         metadata: {
@@ -434,32 +434,16 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
 
   await request(app)
     .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/front/image`)
-    .expect(301)
-    .expect(
-      'Location',
-      `/central-scanner/scan/hmpb/ballot/${sheetId}/front/image/normalized`
-    );
-
-  await request(app)
-    .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/front/image/normalized`)
-    .expect(200, await fs.readFile(frontNormalized));
+    .expect(200, await fs.readFile(frontImagePath));
 
   await request(app)
     .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/back/image`)
-    .expect(301)
-    .expect(
-      'Location',
-      `/central-scanner/scan/hmpb/ballot/${sheetId}/back/image/normalized`
-    );
-
-  await request(app)
-    .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/back/image/normalized`)
-    .expect(200, await fs.readFile(backNormalized));
+    .expect(200, await fs.readFile(backImagePath));
 });
 
 test('GET /scan/hmpb/ballot/:sheetId/image 404', async () => {
   await request(app)
-    .get(`/central-scanner/scan/hmpb/ballot/111/front/image/normalized`)
+    .get(`/central-scanner/scan/hmpb/ballot/111/front/image`)
     .expect(404);
 });
 

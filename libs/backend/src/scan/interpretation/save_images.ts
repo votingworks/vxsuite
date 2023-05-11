@@ -1,13 +1,10 @@
 import { writeImageData } from '@votingworks/image-utils';
+import { Side } from '@votingworks/types';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
 import { join, parse } from 'path';
 
 const debug = makeDebug('backend:scan:save_images');
-
-interface SaveImagesResult {
-  normalized: string;
-}
 
 /**
  * Links {@link src} to {@link dest} if both paths are on the same file system,
@@ -22,48 +19,53 @@ async function linkOrCopy(src: string, dest: string): Promise<void> {
 }
 
 /**
- * Saves the images for a ballot in the ballot images directory.
+ * Saves the image for a ballot in the ballot images directory.
  */
-export async function saveImages(
-  imagePath: string,
-  normalizedImagePath: string,
-  normalizedImage?: ImageData
-): Promise<SaveImagesResult> {
+export async function saveImage({
+  sourceImagePath,
+  destinationImagePath,
+  normalizedImage,
+}: {
+  sourceImagePath: string;
+  destinationImagePath: string;
+  normalizedImage?: ImageData;
+}): Promise<void> {
   if (normalizedImage) {
-    debug('about to write normalized ballot image to %s', normalizedImagePath);
-    await writeImageData(normalizedImagePath, normalizedImage);
-    debug('wrote normalized ballot image to %s', normalizedImagePath);
-    return { normalized: normalizedImagePath };
+    debug('about to write normalized ballot image to %s', destinationImagePath);
+    await writeImageData(destinationImagePath, normalizedImage);
+    debug('wrote normalized ballot image to %s', destinationImagePath);
+  } else {
+    debug('using the original ballot image at %s', sourceImagePath);
+    await linkOrCopy(sourceImagePath, destinationImagePath);
   }
-
-  await linkOrCopy(imagePath, normalizedImagePath);
-  return { normalized: normalizedImagePath };
 }
 
 /**
- * Stores the images for a ballot in the ballot images directory.
- *
- * @param sheetId the database id of the sheet
- * @param ballotImagesPath the location where the ballot images are stored
- * @param ballotImagePath the location of the original scanned ballot image
- * @param normalizedImage the normalized ballot image, if any
- * @returns the locations of the original and normalized ballot images
+ * Stores the image for a ballot in the ballot images directory.
  */
-export async function saveSheetImages(
-  sheetId: string,
-  ballotImagesPath: string,
-  ballotImagePath: string,
-  normalizedImage?: ImageData
-): Promise<SaveImagesResult> {
-  const parts = parse(ballotImagePath);
+export async function saveSheetImage({
+  sheetId,
+  side,
+  ballotImagesPath,
+  sourceImagePath,
+  normalizedImage,
+}: {
+  sheetId: string;
+  side: Side;
+  ballotImagesPath: string;
+  sourceImagePath: string;
+  normalizedImage?: ImageData;
+}): Promise<string> {
+  const parts = parse(sourceImagePath);
   const ext = parts.ext === '.png' ? '.png' : '.jpg';
-  const normalizedImagePath = join(
+  const destinationImagePath = join(
     ballotImagesPath,
-    `${sheetId}-normalized${ext}`
+    `${sheetId}-${side}${ext}`
   );
-  return await saveImages(
-    ballotImagePath,
-    normalizedImagePath,
-    normalizedImage
-  );
+  await saveImage({
+    sourceImagePath,
+    destinationImagePath,
+    normalizedImage,
+  });
+  return destinationImagePath;
 }

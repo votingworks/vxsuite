@@ -22,7 +22,6 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
   SheetOf,
-  Side,
   SystemSettings,
   SystemSettingsDbRow,
 } from '@votingworks/types';
@@ -30,12 +29,11 @@ import { assert, Optional } from '@votingworks/basics';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
-import { dirname, join } from 'path';
+import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { ResultSheet } from '@votingworks/backend';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
-import { normalizeAndJoin } from './util/path';
 
 const debug = rootDebug.extend('store');
 
@@ -639,9 +637,9 @@ export class Store {
         `insert into sheets (
             id,
             batch_id,
-            front_normalized_filename,
+            front_image_path,
             front_interpretation_json,
-            back_normalized_filename,
+            back_image_path,
             back_interpretation_json,
             requires_adjudication,
             finished_adjudication_at
@@ -650,9 +648,9 @@ export class Store {
           )`,
         sheetId,
         batchId,
-        front.normalizedFilename,
+        front.imagePath,
         JSON.stringify(front.interpretation),
-        back.normalizedFilename,
+        back.imagePath,
         JSON.stringify(back.interpretation ?? {}),
         sheetRequiresAdjudication([front.interpretation, back.interpretation])
           ? 1
@@ -662,13 +660,13 @@ export class Store {
     } catch (error) {
       debug(
         'sheet insert failed; maybe a duplicate? filenames=[%s, %s]',
-        front.normalizedFilename,
-        back.normalizedFilename
+        front.imagePath,
+        back.imagePath
       );
 
       const row = this.client.one<[string]>(
-        'select id from sheets where front_normalized_filename = ?',
-        front.normalizedFilename
+        'select id from sheets where front_image_path = ?',
+        front.imagePath
       ) as { id: string } | undefined;
 
       if (row) {
@@ -706,34 +704,6 @@ export class Store {
     this.client.run("delete from sqlite_sequence where name = 'batches'");
   }
 
-  /**
-   * @deprecated We can get this information via `forEachResultSheet`
-   */
-  getBallotFilenames(
-    sheetId: string,
-    side: Side
-  ): { normalized: string } | undefined {
-    const row = this.client.one<[string]>(
-      `
-      select
-        ${side}_normalized_filename as normalized
-      from
-        sheets
-      where
-        id = ?
-    `,
-      sheetId
-    ) as { normalized: string } | undefined;
-
-    if (!row) {
-      return;
-    }
-
-    return {
-      normalized: normalizeAndJoin(dirname(this.getDbPath()), row.normalized),
-    };
-  }
-
   getNextAdjudicationSheet(): BallotSheetInfo | undefined {
     const row = this.client.one(
       `
@@ -767,14 +737,14 @@ export class Store {
         id: row.id,
         front: {
           image: {
-            url: `/central-scanner/scan/hmpb/ballot/${row.id}/front/image/normalized`,
+            url: `/central-scanner/scan/hmpb/ballot/${row.id}/front/image`,
           },
           interpretation: JSON.parse(row.frontInterpretationJson),
           adjudicationFinishedAt: row.finishedAdjudicationAt ?? undefined,
         },
         back: {
           image: {
-            url: `/central-scanner/scan/hmpb/ballot/${row.id}/back/image/normalized`,
+            url: `/central-scanner/scan/hmpb/ballot/${row.id}/back/image`,
           },
           interpretation: JSON.parse(row.backInterpretationJson),
           adjudicationFinishedAt: row.finishedAdjudicationAt ?? undefined,
@@ -786,36 +756,28 @@ export class Store {
 
   *getSheets(): Generator<{
     id: string;
-    front: { normalized: string };
-    back: { normalized: string };
+    frontImagePath: string;
+    backImagePath: string;
     exportedAsCvrAt: Iso8601Timestamp;
   }> {
-    for (const {
-      id,
-      frontNormalizedFilename,
-      backNormalizedFilename,
-      exportedAsCvrAt,
-    } of this.client.each(`
+    for (const { id, frontImagePath, backImagePath, exportedAsCvrAt } of this
+      .client.each(`
       select
         id,
-        front_normalized_filename as frontNormalizedFilename,
-        back_normalized_filename as backNormalizedFilename
+        front_image_path as frontImagePath,
+        back_image_path as backImagePath
       from sheets
       order by created_at asc
     `) as Iterable<{
       id: string;
-      frontNormalizedFilename: string;
-      backNormalizedFilename: string;
+      frontImagePath: string;
+      backImagePath: string;
       exportedAsCvrAt: Iso8601Timestamp;
     }>) {
       yield {
         id,
-        front: {
-          normalized: frontNormalizedFilename,
-        },
-        back: {
-          normalized: backNormalizedFilename,
-        },
+        frontImagePath,
+        backImagePath,
         exportedAsCvrAt,
       };
     }
@@ -949,8 +911,8 @@ export class Store {
         batches.label as batchLabel,
         front_interpretation_json as frontInterpretationJson,
         back_interpretation_json as backInterpretationJson,
-        front_normalized_filename as frontNormalizedFilename,
-        back_normalized_filename as backNormalizedFilename
+        front_image_path as frontImagePath,
+        back_image_path as backImagePath
       from sheets left join batches
       on sheets.batch_id = batches.id
       where
@@ -965,8 +927,8 @@ export class Store {
       batchLabel: string | null;
       frontInterpretationJson: string;
       backInterpretationJson: string;
-      frontNormalizedFilename: string;
-      backNormalizedFilename: string;
+      frontImagePath: string;
+      backImagePath: string;
     }>) {
       yield {
         id: row.id,
@@ -976,8 +938,8 @@ export class Store {
           [row.frontInterpretationJson, row.backInterpretationJson],
           (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
         ),
-        frontNormalizedFilename: row.frontNormalizedFilename,
-        backNormalizedFilename: row.backNormalizedFilename,
+        frontImagePath: row.frontImagePath,
+        backImagePath: row.backImagePath,
       };
     }
   }

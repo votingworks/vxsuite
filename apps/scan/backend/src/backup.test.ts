@@ -147,20 +147,20 @@ test('has all files referenced in the database', async () => {
   });
   const batchId = store.addBatch();
 
-  const frontNormalizedFile = fileSync();
-  await writeFile(frontNormalizedFile.fd, 'front normalized');
+  const frontImagePath = fileSync();
+  await writeFile(frontImagePath.fd, 'front image path');
 
-  const backNormalizedFile = fileSync();
-  await writeFile(backNormalizedFile.fd, 'back normalized');
+  const backImagePath = fileSync();
+  await writeFile(backImagePath.fd, 'back image path');
 
   store.addSheet('sheet-1', batchId, [
     {
       interpretation: { type: 'UnreadablePage' },
-      normalizedFilename: frontNormalizedFile.name,
+      imagePath: frontImagePath.name,
     },
     {
       interpretation: { type: 'UnreadablePage' },
-      normalizedFilename: backNormalizedFile.name,
+      imagePath: backImagePath.name,
     },
   ]);
 
@@ -185,14 +185,14 @@ test('has all files referenced in the database', async () => {
       )
       .sort()
   ).toEqual(
-    [frontNormalizedFile.name, backNormalizedFile.name]
+    [frontImagePath.name, backImagePath.name]
       .map((name) => basename(name))
       .sort()
   );
 
   for (const [{ name }, content] of [
-    [frontNormalizedFile, 'front normalized'],
-    [backNormalizedFile, 'back normalized'],
+    [frontImagePath, 'front image path'],
+    [backImagePath, 'back image path'],
   ] as const) {
     expect(
       new TextDecoder().decode(
@@ -206,11 +206,11 @@ test('has all files referenced in the database', async () => {
   await writeFile(dbFile.fd, await readEntry(dbEntry!));
   const db = new Database(dbFile.name);
   const stmt = db.prepare<[]>(
-    'select front_normalized_filename as filename from sheets'
+    'select front_image_path as filename from sheets'
   );
   const row: { filename: string } = stmt.get();
   expect(row).toEqual({
-    filename: basename(frontNormalizedFile.name),
+    filename: basename(frontImagePath.name),
   });
 });
 
@@ -224,7 +224,7 @@ test('has cast vote record report', async () => {
 
   const batchId = store.addBatch();
   const imageFile = fileSync();
-  await writeFile(imageFile.fd, 'front normalized');
+  await writeFile(imageFile.fd, 'front image path');
   store.addSheet('sheet-1', batchId, [
     {
       interpretation: {
@@ -242,11 +242,11 @@ test('has cast vote record report', async () => {
           'flag-question': ['yes'],
         },
       },
-      normalizedFilename: imageFile.name,
+      imagePath: imageFile.name,
     },
     {
       interpretation: { type: 'BlankPage' },
-      normalizedFilename: imageFile.name,
+      imagePath: imageFile.name,
     },
   ]);
 

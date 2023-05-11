@@ -49,8 +49,8 @@ export interface ResultSheet {
   // TODO: remove once the deprecated CVR export is no longer using batchLabel
   readonly batchLabel?: string;
   readonly interpretation: SheetOf<PageInterpretation>;
-  readonly frontNormalizedFilename: string;
-  readonly backNormalizedFilename: string;
+  readonly frontImagePath: string;
+  readonly backImagePath: string;
 }
 
 /**
@@ -124,8 +124,8 @@ function* getCastVoteRecordGenerator({
     batchId,
     indexInBatch,
     interpretation: [sideOne, sideTwo],
-    frontNormalizedFilename: sideOneFilename,
-    backNormalizedFilename: sideTwoFilename,
+    frontImagePath: sideOneFilename,
+    backImagePath: sideTwoFilename,
   } of resultSheetGenerator) {
     const canonicalizationResult = canonicalizeSheet(
       [sideOne, sideTwo],
@@ -364,8 +364,8 @@ export async function exportCastVoteRecordReportToUsbDrive(
   for (const {
     batchId,
     interpretation: [sideOne, sideTwo],
-    frontNormalizedFilename: sideOneFilename,
-    backNormalizedFilename: sideTwoFilename,
+    frontImagePath: sideOneFilename,
+    backImagePath: sideTwoFilename,
   } of getResultSheetGenerator()) {
     const canonicalizationResult = canonicalizeSheet(
       [sideOne, sideTwo],

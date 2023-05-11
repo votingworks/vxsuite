@@ -7,82 +7,66 @@ import {
 import { readFileSync } from 'fs-extra';
 import { join } from 'path';
 import { tmpDir, tmpFileWithData } from '../../../test/helpers/tmp';
-import { saveImages, saveSheetImages } from './save_images';
+import { saveImage, saveSheetImage } from './save_images';
 
 test('saveImages without normalized image', async () => {
-  const imagePath = tmpFileWithData('image');
-  const originalImagePath = tmpFileWithData('original image');
-  const normalizedImagePath = tmpFileWithData('normalized image');
+  const destinationImagePath = tmpFileWithData('image');
+  const sourceImagePath = tmpFileWithData('source image');
 
-  const { original, normalized } = await saveImages(
-    imagePath,
-    originalImagePath,
-    normalizedImagePath
-  );
-
-  expect(original).toEqual(originalImagePath);
-  expect(normalized).toEqual(originalImagePath);
+  await saveImage({ sourceImagePath, destinationImagePath });
 
   // has the new data
-  expect(readFileSync(originalImagePath, 'utf8')).toEqual('image');
+  expect(readFileSync(destinationImagePath, 'utf8')).toEqual('source image');
 
   // unchanged
-  expect(readFileSync(normalizedImagePath, 'utf8')).toEqual('normalized image');
+  expect(readFileSync(sourceImagePath, 'utf8')).toEqual('source image');
 });
 
 test('saveImages with normalized image', async () => {
-  const imagePath = tmpFileWithData('image');
-  const originalImagePath = tmpFileWithData('original image');
-  const normalizedImagePath = tmpFileWithData('normalized image');
+  const destinationImagePath = tmpFileWithData('image');
+  const sourceImagePath = tmpFileWithData('source image');
 
-  const { original, normalized } = await saveImages(
-    imagePath,
-    originalImagePath,
-    normalizedImagePath,
-    createImageData(1, 1)
-  );
+  await saveImage({
+    sourceImagePath,
+    destinationImagePath,
+    normalizedImage: createImageData(1, 1),
+  });
 
-  expect(original).toEqual(originalImagePath);
-  expect(normalized).toEqual(normalizedImagePath);
-
-  expect(readFileSync(originalImagePath, 'utf8')).toEqual('image');
+  expect(readFileSync(sourceImagePath, 'utf8')).toEqual('source image');
 
   // has the image data
-  expect(toGrayscale(await loadImageData(normalizedImagePath))).toEqual(
+  expect(toGrayscale(await loadImageData(destinationImagePath))).toEqual(
     toGrayscale(createImageData(1, 1))
   );
 });
 
-test.each([['.jpg'], ['.png']])(
-  'saveSheetImages: %s extension',
-  async (ext) => {
-    const sheetId = 'sheetId';
-    const scannedImagesPath = tmpDir();
-    const ballotImagesPath = tmpDir();
-    const ballotImagePath = join(scannedImagesPath, `ballot-image${ext}`);
-    const normalizedImage = createImageData(1, 1);
+test.each([
+  ['.jpg', 'front'],
+  ['.jpg', 'back'],
+  ['.png', 'front'],
+  ['.png', 'back'],
+] as const)('saveSheetImages: %s extension', async (ext, side) => {
+  const sheetId = 'sheetId';
+  const scannedImagesPath = tmpDir();
+  const ballotImagesPath = tmpDir();
+  const sourceImagePath = join(scannedImagesPath, `ballot-image${ext}`);
+  const normalizedImage = createImageData(1, 1);
 
-    await writeImageData(ballotImagePath, normalizedImage);
+  await writeImageData(sourceImagePath, normalizedImage);
 
-    const { original, normalized } = await saveSheetImages(
-      sheetId,
-      ballotImagesPath,
-      ballotImagePath,
-      normalizedImage
-    );
+  const destinationImagePath = await saveSheetImage({
+    sheetId,
+    side,
+    ballotImagesPath,
+    sourceImagePath,
+    normalizedImage,
+  });
 
-    expect(original).toEqual(
-      join(ballotImagesPath, `ballot-image-sheetId-original${ext}`)
-    );
-    expect(normalized).toEqual(
-      join(ballotImagesPath, `ballot-image-sheetId-normalized${ext}`)
-    );
+  expect(destinationImagePath).toEqual(
+    join(ballotImagesPath, `sheetId-${side}${ext}`)
+  );
 
-    expect(toGrayscale(await loadImageData(original))).toEqual(
-      toGrayscale(normalizedImage)
-    );
-    expect(toGrayscale(await loadImageData(normalized))).toEqual(
-      toGrayscale(normalizedImage)
-    );
-  }
-);
+  expect(toGrayscale(await loadImageData(destinationImagePath))).toEqual(
+    toGrayscale(normalizedImage)
+  );
+});

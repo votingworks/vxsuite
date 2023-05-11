@@ -132,12 +132,12 @@ export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> =
   ]);
 
 export interface PageInterpretationWithFiles {
-  normalizedFilename: string;
+  imagePath: string;
   interpretation: PageInterpretation;
 }
 export const PageInterpretationWithFilesSchema: z.ZodSchema<PageInterpretationWithFiles> =
   z.object({
-    normalizedFilename: z.string(),
+    imagePath: z.string(),
     interpretation: PageInterpretationSchema,
   });
 

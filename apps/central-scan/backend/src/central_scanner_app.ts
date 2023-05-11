@@ -444,30 +444,10 @@ export function buildCentralScannerApp({
         response.status(404);
         return;
       }
+      const imagePath = store.getBallotImagePath(sheetId, side);
 
-      response.redirect(
-        301,
-        `/central-scanner/scan/hmpb/ballot/${sheetId}/${side}/image/normalized`
-      );
-    }
-  );
-
-  deprecatedApiRouter.get(
-    '/central-scanner/scan/hmpb/ballot/:sheetId/:side/image/normalized',
-    (request, response) => {
-      const { sheetId, side } = request.params;
-
-      if (
-        typeof sheetId !== 'string' ||
-        (side !== 'front' && side !== 'back')
-      ) {
-        response.status(404);
-        return;
-      }
-      const filenames = store.getBallotFilenames(sheetId, side);
-
-      if (filenames) {
-        response.sendFile(filenames.normalized);
+      if (imagePath) {
+        response.sendFile(imagePath);
       } else {
         response.status(404).end();
       }

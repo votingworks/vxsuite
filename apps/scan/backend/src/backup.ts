@@ -116,8 +116,8 @@ export class Backup {
     }
     debug('adding ballot images to backup...');
     for (const sheet of sheets) {
-      await this.addFileEntry(sheet.front.normalized);
-      await this.addFileEntry(sheet.back.normalized);
+      await this.addFileEntry(sheet.frontImagePath);
+      await this.addFileEntry(sheet.backImagePath);
     }
     debug('added ballot images to backup');
 
@@ -140,15 +140,16 @@ export class Backup {
     const selectSheets = db.prepare<[]>(`
       select
         id,
-        front_normalized_filename,
-        back_normalized_filename
+        front_image_path,
+        back_image_path
       from sheets
       `);
     const updateSheet = db.prepare<[string, string, string]>(
       `
       update sheets
-          front_normalized_filename = ?,
-          back_normalized_filename = ?
+      set
+        front_image_path = ?,
+        back_image_path = ?
       where id = ?
       `
     );
@@ -156,8 +157,8 @@ export class Backup {
     const updates: Array<Promise<void>> = [];
     for (const row of selectSheets.all()) {
       updateSheet.run(
-        basename(row.front_normalized_filename),
-        basename(row.back_normalized_filename),
+        basename(row.front_image_path),
+        basename(row.back_image_path),
         row.id
       );
     }

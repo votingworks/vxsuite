@@ -129,11 +129,11 @@ export function mockInterpretation(
       pages: [
         {
           interpretation: { type: 'BlankPage' },
-          normalizedFilename: 'fake_normalized_filename',
+          imagePath: 'fake_filename',
         },
         {
           interpretation: { type: 'BlankPage' },
-          normalizedFilename: 'fake_normalized_filename',
+          imagePath: 'fake_filename',
         },
       ],
     })

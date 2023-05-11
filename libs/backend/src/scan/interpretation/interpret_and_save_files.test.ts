@@ -28,9 +28,7 @@ test('interprets ballot images and saves images for storage', async () => {
     'InterpretedBmdPage',
     'BlankPage',
   ]);
-  for (const imagePath of result.flatMap(({ normalizedFilename }) => [
-    normalizedFilename,
-  ])) {
+  for (const imagePath of result.map((page) => page.imagePath)) {
     await expect(loadImageData(imagePath)).resolves.toBeDefined();
   }
 });

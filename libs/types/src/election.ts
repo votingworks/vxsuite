@@ -979,15 +979,6 @@ export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
   count: z.number().nonnegative(),
 });
 
-export interface InlineBallotImage {
-  normalized: string;
-}
-export const InlineBallotImageSchema: z.ZodSchema<InlineBallotImage> = z.object(
-  {
-    normalized: z.string(),
-  }
-);
-
 export interface CompletedBallot {
   readonly electionHash: string;
   readonly ballotStyleId: BallotStyleId;
