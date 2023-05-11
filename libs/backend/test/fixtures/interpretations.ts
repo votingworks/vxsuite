@@ -73,6 +73,39 @@ export const interpretedHmpbPage1: InterpretedHmpbPage = {
   votes: {
     [fishCouncilContest.id]: fishCouncilContest.candidates.slice(0, 1),
   },
+  layout: {
+    pageSize: { width: 0, height: 0 },
+    metadata: {
+      ...mockBallotMetadata,
+      pageNumber: 1,
+    },
+    contests: [
+      {
+        contestId: fishCouncilContest.id,
+        bounds: defaultShape.bounds,
+        corners: [
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+        ],
+        options: [
+          {
+            target: defaultShape,
+            bounds: defaultShape.bounds,
+            definition: {
+              type: 'candidate',
+              id: assertDefined(fishCouncilContest.candidates[0]).id,
+              contestId: fishCouncilContest.id,
+              name: assertDefined(fishCouncilContest.candidates[0]).name,
+              isWriteIn: false,
+              optionIndex: 0,
+            },
+          },
+        ],
+      },
+    ],
+  },
 };
 
 export const interpretedHmpbPage2: InterpretedHmpbPage = {
@@ -107,6 +140,38 @@ export const interpretedHmpbPage2: InterpretedHmpbPage = {
   adjudicationInfo,
   votes: {
     [fishingContest.id]: ['no'],
+  },
+  layout: {
+    pageSize: { width: 0, height: 0 },
+    metadata: {
+      ...mockBallotMetadata,
+      pageNumber: 1,
+    },
+    contests: [
+      {
+        contestId: fishingContest.id,
+        bounds: defaultShape.bounds,
+        corners: [
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+        ],
+        options: [
+          {
+            target: defaultShape,
+            bounds: defaultShape.bounds,
+            definition: {
+              type: 'yesno',
+              id: 'yes',
+              name: 'Yes',
+              contestId: fishingContest.id,
+              optionIndex: 0,
+            },
+          },
+        ],
+      },
+    ],
   },
 };
 

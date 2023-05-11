@@ -5,6 +5,7 @@ import {
 import {
   AnyContest,
   BallotIdSchema,
+  BallotMetadata,
   BallotType,
   CandidateContest,
   getBallotStyle,
@@ -107,6 +108,14 @@ test('generates a CVR from a completed BMD ballot', () => {
   const batchLabel = 'Batch 1';
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
   const contests = getContests({ ballotStyle, election });
+  const metadata: BallotMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: electionDefinition.electionHash,
+    ballotType: BallotType.Standard,
+    ballotStyleId,
+    precinctId,
+    isTestMode: false,
+  };
 
   expect(
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -114,14 +123,7 @@ test('generates a CVR from a completed BMD ballot', () => {
         interpretation: {
           type: 'InterpretedBmdPage',
           ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-          },
+          metadata,
           votes: vote(contests, {
             mayor: 'sherlock-holmes',
             controller: 'winston-churchill',
@@ -168,6 +170,14 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
   const batchLabel = 'Batch 1';
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
   const contests = getContests({ ballotStyle, election });
+  const metadata: BallotMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: electionDefinition.electionHash,
+    ballotType: BallotType.Standard,
+    ballotStyleId,
+    precinctId,
+    isTestMode: false,
+  };
 
   expect(
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -175,14 +185,7 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
         interpretation: {
           type: 'InterpretedBmdPage',
           ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-          },
+          metadata,
           votes: vote(contests, {
             mayor: {
               id: 'write-in-PIKACHU',
@@ -235,6 +238,14 @@ test('generates a CVR from a completed HMPB page', () => {
   const batchLabel = 'Batch 1';
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
   const contests = getContests({ ballotStyle, election });
+  const metadata: BallotMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: electionDefinition.electionHash,
+    ballotType: BallotType.Standard,
+    ballotStyleId,
+    precinctId,
+    isTestMode: false,
+  };
 
   expect(
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -243,12 +254,7 @@ test('generates a CVR from a completed HMPB page', () => {
           type: 'InterpretedHmpbPage',
           ballotId,
           metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
+            ...metadata,
             pageNumber: 1,
           },
           markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
@@ -262,6 +268,14 @@ test('generates a CVR from a completed HMPB page', () => {
             mayor: 'sherlock-holmes',
             controller: 'louis-armstrong',
           }),
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              ...metadata,
+              pageNumber: 1,
+            },
+            contests: [],
+          },
         },
         contestIds: ['mayor', 'controller'],
       },
@@ -270,12 +284,7 @@ test('generates a CVR from a completed HMPB page', () => {
           type: 'InterpretedHmpbPage',
           ballotId,
           metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
+            ...metadata,
             pageNumber: 2,
           },
           markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
@@ -286,6 +295,14 @@ test('generates a CVR from a completed HMPB page', () => {
             ignoredReasonInfos: [],
           },
           votes: vote(contests, {}),
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              ...metadata,
+              pageNumber: 2,
+            },
+            contests: [],
+          },
         },
         contestIds: [],
       },
@@ -319,6 +336,14 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
   const batchLabel = 'Batch 1';
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
   const contests = getContests({ ballotStyle, election });
+  const metadata: BallotMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: electionDefinition.electionHash,
+    ballotType: BallotType.Standard,
+    ballotStyleId,
+    precinctId,
+    isTestMode: false,
+  };
 
   expect(
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -327,12 +352,7 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
           type: 'InterpretedHmpbPage',
           ballotId,
           metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
+            ...metadata,
             pageNumber: 1,
           },
           markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
@@ -346,6 +366,14 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
             mayor: { id: 'write-in-0', name: 'Pikachu', isWriteIn: true },
             controller: ['winston-churchill', 'oprah-winfrey'],
           }),
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              ...metadata,
+              pageNumber: 1,
+            },
+            contests: [],
+          },
         },
         contestIds: ['mayor', 'controller'],
       },
@@ -370,6 +398,14 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
             ignoredReasonInfos: [],
           },
           votes: vote(contests, {}),
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              ...metadata,
+              pageNumber: 2,
+            },
+            contests: [],
+          },
         },
         contestIds: [],
       },
@@ -402,6 +438,14 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
   const precinctId = '20';
   const batchId = '1234';
   const batchLabel = 'Batch 1';
+  const metadata: BallotMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: electionDefinition.electionHash,
+    ballotType: BallotType.Standard,
+    ballotStyleId,
+    precinctId,
+    isTestMode: false,
+  };
 
   expect(() =>
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -409,12 +453,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
+            ...metadata,
             pageNumber: 1,
           },
           adjudicationInfo: {
@@ -428,18 +467,21 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
             ballotSize: { width: 1, height: 1 },
           },
           votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              ...metadata,
+              pageNumber: 1,
+            },
+            contests: [],
+          },
         },
       },
       {
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
+            ...metadata,
             pageNumber: 1,
           },
           adjudicationInfo: {
@@ -453,6 +495,14 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
             ballotSize: { width: 1, height: 1 },
           },
           votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              ...metadata,
+              pageNumber: 1,
+            },
+            contests: [],
+          },
         },
       },
     ])
@@ -468,6 +518,14 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
   const precinctId = '20';
   const batchId = '1234';
   const batchLabel = 'Batch 1';
+  const metadata: BallotMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: electionDefinition.electionHash,
+    ballotType: BallotType.Standard,
+    ballotStyleId,
+    precinctId,
+    isTestMode: false,
+  };
 
   expect(() =>
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -475,12 +533,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
+            ...metadata,
             pageNumber: 1,
           },
           adjudicationInfo: {
@@ -494,18 +547,21 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
             ballotSize: { width: 1, height: 1 },
           },
           votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              ...metadata,
+              pageNumber: 1,
+            },
+            contests: [],
+          },
         },
       },
       {
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
+            ...metadata,
             pageNumber: 3,
           },
           adjudicationInfo: {
@@ -519,6 +575,14 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
             ballotSize: { width: 1, height: 1 },
           },
           votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              ...metadata,
+              pageNumber: 3,
+            },
+            contests: [],
+          },
         },
       },
     ])
@@ -533,6 +597,14 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
   const precinctId = '20';
   const batchId = '1234';
   const batchLabel = 'Batch 1';
+  const metadata: BallotMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: electionDefinition.electionHash,
+    ballotType: BallotType.Standard,
+    ballotStyleId: '1',
+    precinctId,
+    isTestMode: false,
+  };
 
   expect(() =>
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -540,12 +612,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId: '1',
-            precinctId,
-            isTestMode: false,
+            ...metadata,
             pageNumber: 1,
           },
           adjudicationInfo: {
@@ -559,18 +626,21 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
             ballotSize: { width: 1, height: 1 },
           },
           votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              ...metadata,
+              pageNumber: 1,
+            },
+            contests: [],
+          },
         },
       },
       {
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId: '2',
-            precinctId,
-            isTestMode: false,
+            ...metadata,
             pageNumber: 2,
           },
           adjudicationInfo: {
@@ -584,6 +654,14 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
             ballotSize: { width: 1, height: 1 },
           },
           votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              ...metadata,
+              pageNumber: 2,
+            },
+            contests: [],
+          },
         },
       },
     ])
@@ -598,6 +676,14 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
   const ballotStyleId = '1';
   const batchId = '1234';
   const batchLabel = 'Batch 1';
+  const metadata: BallotMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: electionDefinition.electionHash,
+    ballotType: BallotType.Standard,
+    ballotStyleId,
+    precinctId: '6522',
+    isTestMode: false,
+  };
 
   expect(() =>
     buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
@@ -605,12 +691,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId: '6522',
-            isTestMode: false,
+            ...metadata,
             pageNumber: 1,
           },
           adjudicationInfo: {
@@ -624,18 +705,21 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
             ballotSize: { width: 1, height: 1 },
           },
           votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              ...metadata,
+              pageNumber: 1,
+            },
+            contests: [],
+          },
         },
       },
       {
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId: '6523',
-            isTestMode: false,
+            ...metadata,
             pageNumber: 2,
           },
           adjudicationInfo: {
@@ -649,6 +733,14 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
             ballotSize: { width: 1, height: 1 },
           },
           votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              ...metadata,
+              pageNumber: 2,
+            },
+            contests: [],
+          },
         },
       },
     ])

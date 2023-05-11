@@ -2,6 +2,7 @@ import { ResultSheet } from '@votingworks/backend';
 import { sleep, typedAs } from '@votingworks/basics';
 import {
   AdjudicationReason,
+  BallotMetadata,
   BallotType,
   CandidateContest,
   InterpretedHmpbPage,
@@ -528,6 +529,16 @@ test('adjudication', () => {
     jurisdiction,
   });
   function fakePage(i: 0 | 1): PageInterpretationWithFiles {
+    const metadata: BallotMetadata = {
+      electionHash:
+        electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+          .electionHash,
+      ballotStyleId: 'card-number-3',
+      precinctId: 'town-id-00701-precinct-id-',
+      isTestMode: false,
+      locales: { primary: 'en-US' },
+      ballotType: BallotType.Standard,
+    };
     return {
       originalFilename: i === 0 ? '/front-original.png' : '/back-original.png',
       normalizedFilename:
@@ -569,15 +580,8 @@ test('adjudication', () => {
           ],
         },
         metadata: {
-          electionHash:
-            electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-              .electionHash,
-          ballotStyleId: 'card-number-3',
-          precinctId: 'town-id-00701-precinct-id-',
-          isTestMode: false,
+          ...metadata,
           pageNumber: 1,
-          locales: { primary: 'en-US' },
-          ballotType: BallotType.Standard,
         },
         adjudicationInfo: {
           requiresAdjudication: true,
@@ -598,6 +602,14 @@ test('adjudication', () => {
             },
           ],
           ignoredReasonInfos: [],
+        },
+        layout: {
+          pageSize: { width: 0, height: 0 },
+          metadata: {
+            ...metadata,
+            pageNumber: 1,
+          },
+          contests: [],
         },
       },
     };
@@ -629,6 +641,16 @@ test('iterating over all result sheets', () => {
 
   // add a batch with a sheet
   const batchId = store.addBatch();
+  const metadata: BallotMetadata = {
+    electionHash:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionHash,
+    ballotStyleId: '12',
+    precinctId: '23',
+    isTestMode: false,
+    locales: { primary: 'en-US' },
+    ballotType: BallotType.Standard,
+  };
   const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
     {
       originalFilename: '/original.png',
@@ -641,21 +663,22 @@ test('iterating over all result sheets', () => {
           marks: [],
         },
         metadata: {
-          electionHash:
-            electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-              .electionHash,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
+          ...metadata,
           pageNumber: 1,
-          locales: { primary: 'en-US' },
-          ballotType: BallotType.Standard,
         },
         adjudicationInfo: {
           requiresAdjudication: false,
           enabledReasons: [],
           enabledReasonInfos: [],
           ignoredReasonInfos: [],
+        },
+        layout: {
+          pageSize: { width: 0, height: 0 },
+          metadata: {
+            ...metadata,
+            pageNumber: 1,
+          },
+          contests: [],
         },
       },
     },
@@ -670,21 +693,22 @@ test('iterating over all result sheets', () => {
           marks: [],
         },
         metadata: {
-          electionHash:
-            electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-              .electionHash,
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
+          ...metadata,
           pageNumber: 2,
-          locales: { primary: 'en-US' },
-          ballotType: BallotType.Standard,
         },
         adjudicationInfo: {
           requiresAdjudication: false,
           enabledReasons: [],
           enabledReasonInfos: [],
           ignoredReasonInfos: [],
+        },
+        layout: {
+          pageSize: { width: 0, height: 0 },
+          metadata: {
+            ...metadata,
+            pageNumber: 2,
+          },
+          contests: [],
         },
       },
     },
