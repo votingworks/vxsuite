@@ -14,6 +14,9 @@ assert(
   'NODE_ENV should be one of development or production'
 );
 const isProduction = nodeEnv === 'production';
+const jurisdiction = isProduction
+  ? getRequiredEnvVar('VX_MACHINE_JURISDICTION')
+  : DEV_JURISDICTION;
 
 const initialJavaCardConfigurationScriptReminder = `
 ${
@@ -32,12 +35,7 @@ async function programSystemAdministratorJavaCard(): Promise<string> {
   );
   await waitForReadyCardStatus(card);
 
-  let jurisdiction = DEV_JURISDICTION;
-  let pin = '000000';
-  if (isProduction) {
-    jurisdiction = getRequiredEnvVar('VX_MACHINE_JURISDICTION');
-    pin = generatePin();
-  }
+  const pin = isProduction ? generatePin() : '000000';
   try {
     await card.program({
       user: { role: 'system_administrator', jurisdiction },
