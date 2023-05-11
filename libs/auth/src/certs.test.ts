@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
 import { mockOf } from '@votingworks/test-utils';
+import { TEST_JURISDICTION } from '@votingworks/types';
 
 import { CardDetails } from './card';
 import {
@@ -7,6 +8,7 @@ import {
   constructCardCertSubjectWithoutJurisdictionAndCardType,
   constructMachineCertSubject,
   CustomCertFields,
+  MachineType,
   parseCardDetailsFromCert,
   parseCert,
 } from './certs';
@@ -17,7 +19,7 @@ jest.mock('./openssl');
 const cert = Buffer.from([]);
 const electionHash =
   '43939f8d6b94dd85827c1d151d0b75f4617e934979d53b6d5ce2abf4535a93d4';
-const jurisdiction = 'st.jurisdiction';
+const jurisdiction = TEST_JURISDICTION;
 
 test.each<{ subject: string; expectedCustomCertFields: CustomCertFields }>([
   {
@@ -86,10 +88,31 @@ test.each<{ description: string; subject: string }>([
       `1.3.6.1.4.1.59817.2 = ${jurisdiction}`,
   },
   {
-    description: 'missing jurisdiction',
+    description: 'missing jurisdiction on VxAdmin cert',
     subject:
       'subject=C = US, ST = CA, O = VotingWorks, ' +
       '1.3.6.1.4.1.59817.1 = admin',
+  },
+  {
+    description: 'missing jurisdiction on card cert',
+    subject:
+      'subject=C = US, ST = CA, O = VotingWorks, ' +
+      '1.3.6.1.4.1.59817.1 = card',
+  },
+  {
+    description: 'missing card type on card cert',
+    subject:
+      'subject=C = US, ST = CA, O = VotingWorks, ' +
+      '1.3.6.1.4.1.59817.1 = card, ' +
+      `1.3.6.1.4.1.59817.2 = ${jurisdiction}`,
+  },
+  {
+    description: 'missing election hash on election card cert',
+    subject:
+      'subject=C = US, ST = CA, O = VotingWorks, ' +
+      '1.3.6.1.4.1.59817.1 = card, ' +
+      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
+      '1.3.6.1.4.1.59817.3 = election-manager',
   },
 ])('parseCert validation - $description', async ({ subject }) => {
   mockOf(openssl).mockImplementationOnce(() =>
@@ -243,8 +266,74 @@ test('constructCardCertSubjectWithoutJurisdictionAndCardType', () => {
   );
 });
 
-test('constructMachineCertSubject', () => {
-  expect(constructMachineCertSubject('admin', jurisdiction)).toEqual(
-    `/C=US/ST=CA/O=VotingWorks/1.3.6.1.4.1.59817.1=admin/1.3.6.1.4.1.59817.2=${jurisdiction}/`
-  );
-});
+test.each<{
+  machineType: MachineType;
+  jurisdiction?: string;
+  expectedSubject: string;
+}>([
+  {
+    machineType: 'admin',
+    jurisdiction,
+    expectedSubject:
+      '/C=US/ST=CA/O=VotingWorks' +
+      '/1.3.6.1.4.1.59817.1=admin' +
+      `/1.3.6.1.4.1.59817.2=${jurisdiction}/`,
+  },
+  {
+    machineType: 'central-scan',
+    jurisdiction: undefined,
+    expectedSubject:
+      '/C=US/ST=CA/O=VotingWorks/1.3.6.1.4.1.59817.1=central-scan/',
+  },
+  {
+    machineType: 'mark',
+    jurisdiction: undefined,
+    expectedSubject: '/C=US/ST=CA/O=VotingWorks/1.3.6.1.4.1.59817.1=mark/',
+  },
+  {
+    machineType: 'scan',
+    jurisdiction: undefined,
+    expectedSubject: '/C=US/ST=CA/O=VotingWorks/1.3.6.1.4.1.59817.1=scan/',
+  },
+])(
+  'constructMachineCertSubject - $machineType',
+  ({ machineType, jurisdiction: testCaseJurisdiction, expectedSubject }) => {
+    expect(
+      constructMachineCertSubject(machineType, testCaseJurisdiction)
+    ).toEqual(expectedSubject);
+  }
+);
+
+test.each<{
+  description: string;
+  machineType: MachineType;
+  jurisdiction?: string;
+}>([
+  {
+    description: 'missing jurisdiction for VxAdmin',
+    machineType: 'admin',
+    jurisdiction: undefined,
+  },
+  {
+    description: 'provided unneeded jurisdiction for VxCentralScan',
+    machineType: 'central-scan',
+    jurisdiction,
+  },
+  {
+    description: 'provided unneeded jurisdiction for VxMark',
+    machineType: 'mark',
+    jurisdiction,
+  },
+  {
+    description: 'provided unneeded jurisdiction for VxScan',
+    machineType: 'scan',
+    jurisdiction,
+  },
+])(
+  'constructMachineCertSubject validation - $description',
+  ({ machineType, jurisdiction: testCaseJurisdiction }) => {
+    expect(() =>
+      constructMachineCertSubject(machineType, testCaseJurisdiction)
+    ).toThrow();
+  }
+);

@@ -22,6 +22,7 @@ import {
 import {
   ElectionSchema,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -70,8 +71,8 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
-const jurisdiction = 'st.jurisdiction';
-const otherJurisdiction = 'st.other-jurisdiction';
+const jurisdiction = TEST_JURISDICTION;
+const otherJurisdiction = `${TEST_JURISDICTION}-2`;
 const { election, electionData, electionHash } = electionSampleDefinition;
 const otherElectionHash = electionSample2Definition.electionHash;
 const defaultConfig: InsertedSmartCardAuthConfig = {};
