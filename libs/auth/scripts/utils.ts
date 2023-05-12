@@ -12,7 +12,7 @@ export function errorContains(error: unknown, message: string): boolean {
 
 /**
  * Runs the provided shell command, returning the standard output. Throws an error if the process
- * exits with a non-success status code.
+ * exits with an error code.
  */
 export function runCommand(command: string[]): string {
   assert(command[0] !== undefined);
