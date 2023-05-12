@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { assert } from '@votingworks/basics';
 import { generatePin, hyphenatePin } from '@votingworks/utils';
 

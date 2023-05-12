@@ -1,11 +1,7 @@
 import { mockOf } from '@votingworks/test-utils';
 import { isVxDev } from '@votingworks/utils';
 
-import {
-  constructJavaCardConfig,
-  DEV_PRIVATE_KEY_PASSWORD,
-  JavaCardConfig,
-} from './java_card_config';
+import { constructJavaCardConfig, JavaCardConfig } from './java_card_config';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
   ...jest.requireActual('@votingworks/utils'),
@@ -15,7 +11,6 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
 beforeEach(() => {
   process.env.NODE_ENV = 'test';
   process.env.VX_CONFIG_ROOT = '/vx/config';
-  process.env.VX_MACHINE_PRIVATE_KEY_PASSWORD = '5678';
 
   mockOf(isVxDev).mockImplementation(() => false);
 });
@@ -62,10 +57,10 @@ test.each<{
         vxAdminCertAuthorityCertPath: expect.stringContaining(
           '/certs/dev/vx-admin-cert-authority-cert.pem'
         ),
-        vxAdminPrivateKeyPassword: DEV_PRIVATE_KEY_PASSWORD,
-        vxAdminPrivateKeyPath: expect.stringContaining(
-          '/certs/dev/vx-admin-private-key.pem'
-        ),
+        vxAdminPrivateKey: {
+          source: 'file',
+          path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
+        },
       },
       vxCertAuthorityCertPath: expect.stringContaining(
         '/certs/dev/vx-cert-authority-cert.pem'
@@ -79,8 +74,9 @@ test.each<{
       cardProgrammingConfig: {
         vxAdminCertAuthorityCertPath:
           '/vx/config/vx-admin-cert-authority-cert.pem',
-        vxAdminPrivateKeyPassword: '5678',
-        vxAdminPrivateKeyPath: '/vx/config/vx-admin-private-key.pem',
+        vxAdminPrivateKey: {
+          source: 'tpm',
+        },
       },
       vxCertAuthorityCertPath: expect.stringContaining(
         '/certs/prod/vx-cert-authority-cert.pem'
@@ -96,10 +92,10 @@ test.each<{
         vxAdminCertAuthorityCertPath: expect.stringContaining(
           '/certs/dev/vx-admin-cert-authority-cert.pem'
         ),
-        vxAdminPrivateKeyPassword: DEV_PRIVATE_KEY_PASSWORD,
-        vxAdminPrivateKeyPath: expect.stringContaining(
-          '/certs/dev/vx-admin-private-key.pem'
-        ),
+        vxAdminPrivateKey: {
+          source: 'file',
+          path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
+        },
       },
       vxCertAuthorityCertPath: expect.stringContaining(
         '/certs/dev/vx-cert-authority-cert.pem'

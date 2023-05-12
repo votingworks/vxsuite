@@ -41,7 +41,7 @@ import {
   PUK,
   VX_ADMIN_CERT_AUTHORITY_CERT,
 } from './java_card';
-import { DEV_PRIVATE_KEY_PASSWORD, JavaCardConfig } from './java_card_config';
+import { JavaCardConfig } from './java_card_config';
 import { DEV_JURISDICTION } from './jurisdictions';
 import {
   certDerToPem,
@@ -121,10 +121,12 @@ const configWithCardProgrammingConfig: JavaCardConfig = {
     vxAdminCertAuthorityCertPath: getTestFilePath({
       fileType: 'vx-admin-cert-authority-cert.pem',
     }),
-    vxAdminPrivateKeyPassword: DEV_PRIVATE_KEY_PASSWORD,
-    vxAdminPrivateKeyPath: getTestFilePath({
-      fileType: 'vx-admin-private-key.pem',
-    }),
+    vxAdminPrivateKey: {
+      source: 'file',
+      path: getTestFilePath({
+        fileType: 'vx-admin-private-key.pem',
+      }),
+    },
   },
 };
 
@@ -190,8 +192,6 @@ async function mockCardSignatureRequest(
     '-sha256',
     '-sign',
     privateKeyPath,
-    '-passin',
-    `pass:${DEV_PRIVATE_KEY_PASSWORD}`,
     Buffer.from(mockChallenge, 'utf-8'),
   ]);
   const responseData = constructTlv(
@@ -873,23 +873,33 @@ test.each<{
     await javaCard.program(programInput);
     expect(createCert).toHaveBeenCalledTimes(1);
     expect(createCert).toHaveBeenNthCalledWith(1, {
+      certKeyInput: {
+        type: 'public',
+        key: {
+          source: 'inline',
+          content: (
+            await publicKeyDerToPem(
+              fs.readFileSync(
+                getTestFilePath({
+                  fileType: 'card-vx-admin-public-key.der',
+                  cardType: expectedCardType,
+                })
+              )
+            )
+          ).toString('utf-8'),
+        },
+      },
       certSubject: expectedCertSubject,
       expiryInDays: expectedExpiryInDays,
-      publicKeyToSign: await publicKeyDerToPem(
-        fs.readFileSync(
-          getTestFilePath({
-            fileType: 'card-vx-admin-public-key.der',
-            cardType: expectedCardType,
-          })
-        )
-      ),
-      signingCertAuthorityCert: getTestFilePath({
+      signingCertAuthorityCertPath: getTestFilePath({
         fileType: 'vx-admin-cert-authority-cert.pem',
       }),
-      signingPrivateKey: getTestFilePath({
-        fileType: 'vx-admin-private-key.pem',
-      }),
-      signingPrivateKeyPassword: DEV_PRIVATE_KEY_PASSWORD,
+      signingPrivateKey: {
+        source: 'file',
+        path: getTestFilePath({
+          fileType: 'vx-admin-private-key.pem',
+        }),
+      },
     });
 
     expect(await javaCard.getCardStatus()).toEqual({
@@ -1082,29 +1092,39 @@ test('createAndStoreCardVxCert', async () => {
   mockCardCertStorageRequest(CARD_VX_CERT.OBJECT_ID, cardVxCertPath);
 
   await javaCard.createAndStoreCardVxCert({
-    vxPrivateKeyPassword: DEV_PRIVATE_KEY_PASSWORD,
-    vxPrivateKeyPath: getTestFilePath({
+    source: 'file',
+    path: getTestFilePath({
       fileType: 'vx-private-key.pem',
     }),
   });
   expect(createCert).toHaveBeenCalledTimes(1);
   expect(createCert).toHaveBeenNthCalledWith(1, {
+    certKeyInput: {
+      type: 'public',
+      key: {
+        source: 'inline',
+        content: (
+          await publicKeyDerToPem(
+            fs.readFileSync(
+              getTestFilePath({
+                fileType: 'card-vx-public-key.der',
+                cardType: 'system-administrator',
+              })
+            )
+          )
+        ).toString('utf-8'),
+      },
+    },
     certSubject: '/C=US/ST=CA/O=VotingWorks/1.3.6.1.4.1.59817.1=card/',
     expiryInDays: 365 * 100,
-    publicKeyToSign: await publicKeyDerToPem(
-      fs.readFileSync(
-        getTestFilePath({
-          fileType: 'card-vx-public-key.der',
-          cardType: 'system-administrator',
-        })
-      )
-    ),
-    signingCertAuthorityCert: getTestFilePath({
+    signingCertAuthorityCertPath: getTestFilePath({
       fileType: 'vx-cert-authority-cert.pem',
     }),
-    signingPrivateKey: getTestFilePath({
-      fileType: 'vx-private-key.pem',
-    }),
-    signingPrivateKeyPassword: DEV_PRIVATE_KEY_PASSWORD,
+    signingPrivateKey: {
+      source: 'file',
+      path: getTestFilePath({
+        fileType: 'vx-private-key.pem',
+      }),
+    },
   });
 });

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Buffer } from 'buffer';
 import fs from 'fs/promises';
 import yargs from 'yargs/yargs';
@@ -13,7 +12,6 @@ import {
   constructMachineCertSubject,
   STANDARD_CERT_FIELDS,
 } from '../src/certs';
-import { DEV_PRIVATE_KEY_PASSWORD } from '../src/java_card_config';
 import { DEV_JURISDICTION } from '../src/jurisdictions';
 import {
   certPemToDer,
@@ -25,35 +23,13 @@ import {
 import { runCommand } from './utils';
 
 async function generateDevPrivateKey(): Promise<Buffer> {
-  const privateKey = await openssl([
-    'ecparam',
-    '-genkey',
-    '-name',
-    'prime256v1',
-    '-noout',
-  ]);
-  const encryptedPrivateKey = await openssl([
-    'pkcs8',
-    '-topk8',
-    '-in',
-    privateKey,
-    '-passout',
-    `pass:${DEV_PRIVATE_KEY_PASSWORD}`,
-  ]);
-  return encryptedPrivateKey;
+  return await openssl(['ecparam', '-genkey', '-name', 'prime256v1', '-noout']);
 }
 
 async function extractPublicKeyFromDevPrivateKey(
   privateKeyPath: string
 ): Promise<Buffer> {
-  return await openssl([
-    'ec',
-    '-pubout',
-    '-in',
-    privateKeyPath,
-    '-passin',
-    `pass:${DEV_PRIVATE_KEY_PASSWORD}`,
-  ]);
+  return await openssl(['ec', '-pubout', '-in', privateKeyPath]);
 }
 
 /**
@@ -70,8 +46,6 @@ async function generateDevVxCertAuthorityCert(
     OPENSSL_CONFIG_FILE_PATH,
     '-key',
     vxPrivateKeyPath,
-    '-passin',
-    `pass:${DEV_PRIVATE_KEY_PASSWORD}`,
     '-subj',
     `/${STANDARD_CERT_FIELDS.join('/')}/`,
     '-days',
@@ -152,17 +126,16 @@ async function generateDevKeysAndCerts({
   // Generate VxAdmin private key and cert authority cert
   const vxAdminPrivateKey = await generateDevPrivateKey();
   await fs.writeFile(vxAdminPrivateKeyPath, vxAdminPrivateKey);
-  const vxAdminPublicKey = await extractPublicKeyFromDevPrivateKey(
-    vxAdminPrivateKeyPath
-  );
   const vxAdminCertAuthorityCert = await createCert({
+    certKeyInput: {
+      type: 'private',
+      key: { source: 'file', path: vxAdminPrivateKeyPath },
+    },
     certSubject: constructMachineCertSubject('admin', DEV_JURISDICTION),
-    certType: 'certAuthorityCert',
+    certType: 'cert_authority_cert',
     expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
-    publicKeyToSign: vxAdminPublicKey,
-    signingCertAuthorityCert: vxCertAuthorityCertPath,
-    signingPrivateKey: vxPrivateKeyPath,
-    signingPrivateKeyPassword: DEV_PRIVATE_KEY_PASSWORD,
+    signingCertAuthorityCertPath: vxCertAuthorityCertPath,
+    signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },
   });
   await fs.writeFile(vxAdminCertAuthorityCertPath, vxAdminCertAuthorityCert);
 
@@ -238,12 +211,17 @@ async function generateDevKeysAndCerts({
         await publicKeyPemToDer(cardVxPublicKey)
       );
       const cardVxCert = await createCert({
+        certKeyInput: {
+          type: 'public',
+          key: {
+            source: 'inline',
+            content: cardVxPublicKey.toString('utf-8'),
+          },
+        },
         certSubject: constructCardCertSubjectWithoutJurisdictionAndCardType(),
         expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
-        publicKeyToSign: cardVxPublicKey,
-        signingCertAuthorityCert: vxCertAuthorityCertPath,
-        signingPrivateKey: vxPrivateKeyPath,
-        signingPrivateKeyPassword: DEV_PRIVATE_KEY_PASSWORD,
+        signingCertAuthorityCertPath: vxCertAuthorityCertPath,
+        signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },
       });
       await fs.writeFile(cardVxCertPath, await certPemToDer(cardVxCert));
 
@@ -258,12 +236,17 @@ async function generateDevKeysAndCerts({
         await publicKeyPemToDer(cardVxAdminPublicKey)
       );
       const cardVxAdminCert = await createCert({
+        certKeyInput: {
+          type: 'public',
+          key: {
+            source: 'inline',
+            content: cardVxAdminPublicKey.toString('utf-8'),
+          },
+        },
         certSubject: constructCardCertSubject(cardDetails),
         expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
-        publicKeyToSign: cardVxAdminPublicKey,
-        signingCertAuthorityCert: vxAdminCertAuthorityCertPath,
-        signingPrivateKey: vxAdminPrivateKeyPath,
-        signingPrivateKeyPassword: DEV_PRIVATE_KEY_PASSWORD,
+        signingCertAuthorityCertPath: vxAdminCertAuthorityCertPath,
+        signingPrivateKey: { source: 'file', path: vxAdminPrivateKeyPath },
       });
       await fs.writeFile(
         cardVxAdminCertPath,

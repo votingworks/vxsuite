@@ -269,7 +269,7 @@ export function parseTlv(
 }
 
 /**
- * A response APDU with a non-success status word
+ * A response APDU with an error status word
  */
 export class ResponseApduError extends Error {
   private readonly sw1: Byte;
@@ -278,7 +278,7 @@ export class ResponseApduError extends Error {
   constructor(statusWord: [Byte, Byte]) {
     const [sw1, sw2] = statusWord;
     super(
-      'Received response APDU with non-success status word: ' +
+      'Received response APDU with error status word: ' +
         `${asHexString(sw1)} ${asHexString(sw2)}`
     );
     this.sw1 = sw1;

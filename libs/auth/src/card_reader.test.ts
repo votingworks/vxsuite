@@ -202,7 +202,7 @@ test('CardReader command transmission - success', async () => {
   );
 });
 
-test('CardReader command transmission - response APDU with non-success status word', async () => {
+test('CardReader command transmission - response APDU with error status word', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(

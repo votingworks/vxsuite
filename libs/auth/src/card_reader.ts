@@ -99,7 +99,7 @@ export class CardReader {
 
   /**
    * Transmits command APDUs to a smart card. On success, returns response data. On error, throws.
-   * Specifically throws a ResponseApduError when a response APDU with a non-success status word is
+   * Specifically throws a ResponseApduError when a response APDU with an error status word is
    * received.
    */
   async transmit(command: CardCommand): Promise<Buffer> {

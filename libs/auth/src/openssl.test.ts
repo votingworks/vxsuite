@@ -8,7 +8,16 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 
-import { createCert, openssl } from './openssl';
+import {
+  createCert,
+  createCertGivenCertSigningRequest,
+  createCertHelper,
+  CreateCertInput,
+  createCertSigningRequest,
+  openssl,
+  parseCreateCertInput,
+} from './openssl';
+import { OPENSSL_TPM_ENGINE_NAME, TPM_KEY_ID, TPM_KEY_PASSWORD } from './tpm';
 
 jest.mock('child_process');
 jest.mock('tmp');
@@ -44,7 +53,11 @@ const fileBuffers = [
   Buffer.from('file1Contents', 'utf-8'),
   Buffer.from('file2contents', 'utf-8'),
 ] as const;
-const tempFilePaths = ['/tmp/openssl/1', '/tmp/openssl/2'] as const;
+const tempFilePaths = [
+  '/tmp/openssl/1',
+  '/tmp/openssl/2',
+  '/tmp/openssl/3',
+] as const;
 const responseChunks = [
   Buffer.from('Hey!', 'utf-8'),
   Buffer.from(' ', 'utf-8'),
@@ -54,6 +67,8 @@ const errorChunks = [
   Buffer.from('Uh ', 'utf-8'),
   Buffer.from('oh!', 'utf-8'),
 ] as const;
+const successExitCode = 0;
+const errorExitCode = 1;
 
 test('openssl', async () => {
   setTimeout(() => {
@@ -61,7 +76,7 @@ test('openssl', async () => {
       mockChildProcess.stdout.emit('data', responseChunk);
     });
     mockChildProcess.stderr.emit('data', Buffer.from('Some warning', 'utf-8'));
-    mockChildProcess.emit('close', 0);
+    mockChildProcess.emit('close', successExitCode);
   });
 
   const response = await openssl([
@@ -87,10 +102,10 @@ test('openssl', async () => {
 
 test('openssl - no Buffer params', async () => {
   setTimeout(() => {
-    responseChunks.forEach((responseChunk) => {
+    for (const responseChunk of responseChunks) {
       mockChildProcess.stdout.emit('data', responseChunk);
-    });
-    mockChildProcess.emit('close', 0);
+    }
+    mockChildProcess.emit('close', successExitCode);
   });
 
   const response = await openssl(['some', 'command']);
@@ -103,7 +118,7 @@ test('openssl - no Buffer params', async () => {
 
 test('openssl - no standard output', async () => {
   setTimeout(() => {
-    mockChildProcess.emit('close', 0);
+    mockChildProcess.emit('close', successExitCode);
   });
 
   const response = await openssl(['some', 'command']);
@@ -131,18 +146,18 @@ test('openssl - error cleaning up temp files', async () => {
     for (const tempFileRemoveCallback of tempFileRemoveCallbacks) {
       tempFileRemoveCallback.mockRejectedValueOnce(new Error('Whoa!'));
     }
-    mockChildProcess.emit('close', 0);
+    mockChildProcess.emit('close', successExitCode);
   });
 
   await expect(openssl([fileBuffers[0]])).rejects.toThrow('Whoa!');
 });
 
-test('openssl - process exits with a non-success status code', async () => {
+test('openssl - process exits with an error code', async () => {
   setTimeout(() => {
-    errorChunks.forEach((errorChunk) => {
+    for (const errorChunk of errorChunks) {
       mockChildProcess.stderr.emit('data', errorChunk);
-    });
-    mockChildProcess.emit('close', 1);
+    }
+    mockChildProcess.emit('close', errorExitCode);
   });
 
   await expect(openssl([fileBuffers[0]])).rejects.toThrow('Uh oh!');
@@ -150,13 +165,13 @@ test('openssl - process exits with a non-success status code', async () => {
 
 test('openssl - provides both stderr and stdout on error', async () => {
   setTimeout(() => {
-    errorChunks.forEach((errorChunk) => {
+    for (const errorChunk of errorChunks) {
       mockChildProcess.stderr.emit('data', errorChunk);
-    });
-    responseChunks.forEach((responseChunk) => {
+    }
+    for (const responseChunk of responseChunks) {
       mockChildProcess.stdout.emit('data', responseChunk);
-    });
-    mockChildProcess.emit('close', 1);
+    }
+    mockChildProcess.emit('close', errorExitCode);
   });
 
   await expect(openssl([fileBuffers[0]])).rejects.toThrow(
@@ -164,97 +179,128 @@ test('openssl - provides both stderr and stdout on error', async () => {
   );
 });
 
+test.each<CreateCertInput>([
+  {
+    certKeyInput: {
+      type: 'private',
+      key: { source: 'file', path: '/path/to/private-key-1.pem' },
+    },
+    certSubject: '//',
+    certType: 'cert_authority_cert',
+    expiryInDays: 365,
+    signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
+    signingPrivateKey: { source: 'file', path: '/path/to/private-key-2.pem' },
+  },
+  {
+    certKeyInput: {
+      type: 'public',
+      key: { source: 'inline', content: 'content' },
+    },
+    certSubject: '//',
+    expiryInDays: 365,
+    signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
+    signingPrivateKey: { source: 'tpm' },
+  },
+])('parseCreateCertInput success', (createCertInput) => {
+  expect(parseCreateCertInput(JSON.stringify(createCertInput))).toEqual(
+    createCertInput
+  );
+});
+
+test.each<string>([
+  '',
+  JSON.stringify({}),
+  JSON.stringify({
+    certKeyInput: {
+      type: 'public',
+      key: { source: 'inline', oops: 'oops' },
+    },
+    certSubject: '//',
+    expiryInDays: 365,
+    signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
+    signingPrivateKey: { source: 'tpm' },
+  }),
+])('parseCreateCertInput error', (createCertInput) => {
+  expect(() => parseCreateCertInput(createCertInput)).toThrow();
+});
+
+test('createCertSigningRequest', async () => {
+  setTimeout(() => {
+    mockChildProcess.emit('close', successExitCode);
+  });
+
+  await createCertSigningRequest({
+    certKey: { source: 'tpm' },
+    certSubject: '//',
+  });
+
+  expect(spawn).toHaveBeenCalledTimes(1);
+  expect(spawn).toHaveBeenNthCalledWith(1, 'openssl', [
+    'req',
+    '-new',
+    '-config',
+    expect.stringContaining('/certs/openssl.cnf'),
+    '-key',
+    TPM_KEY_ID,
+    '-keyform',
+    'engine',
+    '-engine',
+    OPENSSL_TPM_ENGINE_NAME,
+    '-passin',
+    `pass:${TPM_KEY_PASSWORD}`,
+    '-subj',
+    '//',
+  ]);
+});
+
+test('createCertGivenCertSigningRequest', async () => {
+  setTimeout(() => {
+    mockChildProcess.emit('close', successExitCode);
+  });
+
+  await createCertGivenCertSigningRequest({
+    certSigningRequest: Buffer.from('csr'),
+    expiryInDays: 365,
+    signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
+    signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' },
+  });
+
+  expect(spawn).toHaveBeenCalledTimes(1);
+  expect(spawn).toHaveBeenNthCalledWith(1, 'openssl', [
+    'x509',
+    '-req',
+    '-CA',
+    '/path/to/cert-authority-cert.pem',
+    '-CAkey',
+    '/path/to/private-key.pem',
+    '-CAcreateserial',
+    '-CAserial',
+    '/tmp/serial.txt',
+    '-in',
+    tempFilePaths[0],
+    '-days',
+    '365',
+  ]);
+});
+
 test.each<{
-  certType?: 'standard' | 'certAuthorityCert';
-  expiryInDays: number;
+  description: string;
+  certKeyInput: CreateCertInput['certKeyInput'];
+  certType?: CreateCertInput['certType'];
+  signingPrivateKey: CreateCertInput['signingPrivateKey'];
+  expectedOpensslCsrCreationRequestParams: string[];
   expectedOpensslCertCreationRequestParams: string[];
 }>([
   {
-    certType: undefined,
-    expiryInDays: 1000,
-    expectedOpensslCertCreationRequestParams: [
-      'x509',
-      '-req',
-      '-CA',
-      '/path/to/cert-authority-cert.pem',
-      '-CAkey',
-      '/path/to/private-key.pem',
-      '-passin',
-      'pass:1234',
-      '-CAcreateserial',
-      '-CAserial',
-      '/tmp/serial.txt',
-      '-in',
-      tempFilePaths[1],
-      '-force_pubkey',
-      '/path/to/public-key.pem',
-      '-days',
-      '1000',
-    ],
-  },
-  {
-    certType: 'certAuthorityCert',
-    expiryInDays: 1000,
-    expectedOpensslCertCreationRequestParams: [
-      'x509',
-      '-req',
-      '-CA',
-      '/path/to/cert-authority-cert.pem',
-      '-CAkey',
-      '/path/to/private-key.pem',
-      '-passin',
-      'pass:1234',
-      '-CAcreateserial',
-      '-CAserial',
-      '/tmp/serial.txt',
-      '-in',
-      tempFilePaths[1],
-      '-force_pubkey',
-      '/path/to/public-key.pem',
-      '-days',
-      '1000',
-      '-extensions',
-      'v3_ca',
-      '-extfile',
-      expect.stringContaining('/certs/openssl.cnf'),
-    ],
-  },
-])(
-  'createCert - certType = $certType, expiryInDays = $expiryInDays',
-  async ({
-    certType,
-    expiryInDays,
-    expectedOpensslCertCreationRequestParams,
-  }) => {
-    setTimeout(() => {
-      mockChildProcess.emit('close', 0);
-    });
-    setTimeout(() => {
-      mockChildProcess.emit('close', 0);
-    });
-    setTimeout(() => {
-      mockChildProcess.emit('close', 0);
-    });
-
-    await createCert({
-      certSubject: '//',
-      certType,
-      expiryInDays,
-      publicKeyToSign: '/path/to/public-key.pem',
-      signingCertAuthorityCert: '/path/to/cert-authority-cert.pem',
-      signingPrivateKey: '/path/to/private-key.pem',
-      signingPrivateKeyPassword: '1234',
-    });
-
-    expect(spawn).toHaveBeenCalledTimes(3);
-    expect(spawn).toHaveBeenNthCalledWith(1, 'openssl', [
-      'ecparam',
-      '-genkey',
-      '-name',
-      'prime256v1',
-      '-noout',
-    ]);
-    expect(spawn).toHaveBeenNthCalledWith(2, 'openssl', [
+    description:
+      'certifying public key with private key file, ' +
+      'where private key of public key to certify is unavailable',
+    certKeyInput: {
+      type: 'public',
+      key: { source: 'inline', content: 'content' },
+    },
+    signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' },
+    expectedOpensslCsrCreationRequestParams: [
       'req',
       '-new',
       '-config',
@@ -263,11 +309,221 @@ test.each<{
       tempFilePaths[0],
       '-subj',
       '//',
-    ]);
+    ],
+    expectedOpensslCertCreationRequestParams: [
+      'x509',
+      '-req',
+      '-CA',
+      '/path/to/cert-authority-cert.pem',
+      '-CAkey',
+      '/path/to/private-key.pem',
+      '-CAcreateserial',
+      '-CAserial',
+      '/tmp/serial.txt',
+      '-in',
+      tempFilePaths[1],
+      '-days',
+      '365',
+      '-force_pubkey',
+      tempFilePaths[2],
+    ],
+  },
+  {
+    description:
+      'certifying public key with TPM private key, ' +
+      'where private key of public key to certify is unavailable',
+    certKeyInput: {
+      type: 'public',
+      key: { source: 'inline', content: 'content' },
+    },
+    signingPrivateKey: { source: 'tpm' },
+    expectedOpensslCsrCreationRequestParams: [
+      'req',
+      '-new',
+      '-config',
+      expect.stringContaining('/certs/openssl.cnf'),
+      '-key',
+      tempFilePaths[0],
+      '-subj',
+      '//',
+    ],
+    expectedOpensslCertCreationRequestParams: [
+      'x509',
+      '-req',
+      '-CA',
+      '/path/to/cert-authority-cert.pem',
+      '-CAkey',
+      TPM_KEY_ID,
+      '-CAkeyform',
+      'engine',
+      '-engine',
+      OPENSSL_TPM_ENGINE_NAME,
+      '-passin',
+      `pass:${TPM_KEY_PASSWORD}`,
+      '-CAcreateserial',
+      '-CAserial',
+      '/tmp/serial.txt',
+      '-in',
+      tempFilePaths[1],
+      '-days',
+      '365',
+      '-force_pubkey',
+      tempFilePaths[2],
+    ],
+  },
+  {
+    description:
+      'certifying public key with private key file, ' +
+      'where private key of public key to certify is available and cert type is cert authority cert',
+    certKeyInput: {
+      type: 'private',
+      key: { source: 'file', path: '/path/to/private-key-1.pem' },
+    },
+    certType: 'cert_authority_cert',
+    signingPrivateKey: { source: 'file', path: '/path/to/private-key-2.pem' },
+    expectedOpensslCsrCreationRequestParams: [
+      'req',
+      '-new',
+      '-config',
+      expect.stringContaining('/certs/openssl.cnf'),
+      '-key',
+      '/path/to/private-key-1.pem',
+      '-subj',
+      '//',
+    ],
+    expectedOpensslCertCreationRequestParams: [
+      'x509',
+      '-req',
+      '-CA',
+      '/path/to/cert-authority-cert.pem',
+      '-CAkey',
+      '/path/to/private-key-2.pem',
+      '-CAcreateserial',
+      '-CAserial',
+      '/tmp/serial.txt',
+      '-in',
+      tempFilePaths[0],
+      '-days',
+      '365',
+      '-extensions',
+      'v3_ca',
+      '-extfile',
+      expect.stringContaining('/certs/openssl.cnf'),
+    ],
+  },
+])(
+  'createCertHelper - $description',
+  async ({
+    certKeyInput,
+    certType,
+    signingPrivateKey,
+    expectedOpensslCsrCreationRequestParams,
+    expectedOpensslCertCreationRequestParams,
+  }) => {
+    setTimeout(() => {
+      mockChildProcess.emit('close', successExitCode);
+    });
+    setTimeout(() => {
+      mockChildProcess.emit('close', successExitCode);
+    });
+
+    await createCertHelper({
+      certKeyInput,
+      certSubject: '//',
+      certType,
+      expiryInDays: 365,
+      signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
+      signingPrivateKey,
+    });
+
+    expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenNthCalledWith(
-      3,
+      1,
+      'openssl',
+      expectedOpensslCsrCreationRequestParams
+    );
+    expect(spawn).toHaveBeenNthCalledWith(
+      2,
       'openssl',
       expectedOpensslCertCreationRequestParams
     );
   }
 );
+
+test.each<{
+  certKeyInput: CreateCertInput['certKeyInput'];
+  signingPrivateKey: CreateCertInput['signingPrivateKey'];
+  isSudoExpected: boolean;
+}>([
+  {
+    certKeyInput: {
+      type: 'public',
+      key: { source: 'inline', content: 'content' },
+    },
+    signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' },
+    isSudoExpected: false,
+  },
+  {
+    certKeyInput: {
+      type: 'public',
+      key: { source: 'inline', content: 'content' },
+    },
+    signingPrivateKey: { source: 'tpm' },
+    isSudoExpected: true,
+  },
+])(
+  'createCert',
+  async ({ certKeyInput, signingPrivateKey, isSudoExpected }) => {
+    setTimeout(() => {
+      responseChunks.forEach((responseChunk) => {
+        mockChildProcess.stdout.emit('data', responseChunk);
+      });
+      mockChildProcess.emit('close', successExitCode);
+    });
+
+    const cert = await createCert({
+      certKeyInput,
+      certSubject: '//',
+      expiryInDays: 365,
+      signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
+      signingPrivateKey,
+    });
+    expect(cert.toString('utf-8')).toEqual('Hey! How is it going?');
+
+    expect(spawn).toHaveBeenCalledTimes(1);
+    if (isSudoExpected) {
+      expect(spawn).toHaveBeenNthCalledWith(1, 'sudo', [
+        expect.stringContaining('/src/create-cert'),
+        expect.any(String),
+      ]);
+    } else {
+      expect(spawn).toHaveBeenNthCalledWith(
+        1,
+        expect.stringContaining('/src/create-cert'),
+        [expect.any(String)]
+      );
+    }
+  }
+);
+
+test('createCert - process exits with an error code', async () => {
+  setTimeout(() => {
+    errorChunks.forEach((errorChunk) => {
+      mockChildProcess.stderr.emit('data', errorChunk);
+    });
+    mockChildProcess.emit('close', errorExitCode);
+  });
+
+  await expect(
+    createCert({
+      certKeyInput: {
+        type: 'public',
+        key: { source: 'inline', content: 'content' },
+      },
+      certSubject: '//',
+      expiryInDays: 365,
+      signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
+      signingPrivateKey: { source: 'tpm' },
+    })
+  ).rejects.toThrow('Uh oh!');
+});
