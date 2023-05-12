@@ -67,6 +67,8 @@ const errorChunks = [
   Buffer.from('Uh ', 'utf-8'),
   Buffer.from('oh!', 'utf-8'),
 ] as const;
+const successExitCode = 0;
+const errorExitCode = 1;
 
 test('openssl', async () => {
   setTimeout(() => {
@@ -74,7 +76,7 @@ test('openssl', async () => {
       mockChildProcess.stdout.emit('data', responseChunk);
     });
     mockChildProcess.stderr.emit('data', Buffer.from('Some warning', 'utf-8'));
-    mockChildProcess.emit('close', 0);
+    mockChildProcess.emit('close', successExitCode);
   });
 
   const response = await openssl([
@@ -103,7 +105,7 @@ test('openssl - no Buffer params', async () => {
     for (const responseChunk of responseChunks) {
       mockChildProcess.stdout.emit('data', responseChunk);
     }
-    mockChildProcess.emit('close', 0);
+    mockChildProcess.emit('close', successExitCode);
   });
 
   const response = await openssl(['some', 'command']);
@@ -116,7 +118,7 @@ test('openssl - no Buffer params', async () => {
 
 test('openssl - no standard output', async () => {
   setTimeout(() => {
-    mockChildProcess.emit('close', 0);
+    mockChildProcess.emit('close', successExitCode);
   });
 
   const response = await openssl(['some', 'command']);
@@ -144,18 +146,18 @@ test('openssl - error cleaning up temp files', async () => {
     for (const tempFileRemoveCallback of tempFileRemoveCallbacks) {
       tempFileRemoveCallback.mockRejectedValueOnce(new Error('Whoa!'));
     }
-    mockChildProcess.emit('close', 0);
+    mockChildProcess.emit('close', successExitCode);
   });
 
   await expect(openssl([fileBuffers[0]])).rejects.toThrow('Whoa!');
 });
 
-test('openssl - process exits with a non-success status code', async () => {
+test('openssl - process exits with an error code', async () => {
   setTimeout(() => {
     for (const errorChunk of errorChunks) {
       mockChildProcess.stderr.emit('data', errorChunk);
     }
-    mockChildProcess.emit('close', 1);
+    mockChildProcess.emit('close', errorExitCode);
   });
 
   await expect(openssl([fileBuffers[0]])).rejects.toThrow('Uh oh!');
@@ -169,7 +171,7 @@ test('openssl - provides both stderr and stdout on error', async () => {
     for (const responseChunk of responseChunks) {
       mockChildProcess.stdout.emit('data', responseChunk);
     }
-    mockChildProcess.emit('close', 1);
+    mockChildProcess.emit('close', errorExitCode);
   });
 
   await expect(openssl([fileBuffers[0]])).rejects.toThrow(
@@ -224,7 +226,7 @@ test.each<string>([
 
 test('createCertSigningRequest', async () => {
   setTimeout(() => {
-    mockChildProcess.emit('close', 0);
+    mockChildProcess.emit('close', successExitCode);
   });
 
   await createCertSigningRequest({
@@ -253,7 +255,7 @@ test('createCertSigningRequest', async () => {
 
 test('createCertGivenCertSigningRequest', async () => {
   setTimeout(() => {
-    mockChildProcess.emit('close', 0);
+    mockChildProcess.emit('close', successExitCode);
   });
 
   await createCertGivenCertSigningRequest({
@@ -419,10 +421,10 @@ test.each<{
     expectedOpensslCertCreationRequestParams,
   }) => {
     setTimeout(() => {
-      mockChildProcess.emit('close', 0);
+      mockChildProcess.emit('close', successExitCode);
     });
     setTimeout(() => {
-      mockChildProcess.emit('close', 0);
+      mockChildProcess.emit('close', successExitCode);
     });
 
     await createCertHelper({
@@ -476,7 +478,7 @@ test.each<{
       responseChunks.forEach((responseChunk) => {
         mockChildProcess.stdout.emit('data', responseChunk);
       });
-      mockChildProcess.emit('close', 0);
+      mockChildProcess.emit('close', successExitCode);
     });
 
     const cert = await createCert({
@@ -504,12 +506,12 @@ test.each<{
   }
 );
 
-test('createCert error handling', async () => {
+test('createCert - process exits with an error code', async () => {
   setTimeout(() => {
     errorChunks.forEach((errorChunk) => {
       mockChildProcess.stderr.emit('data', errorChunk);
     });
-    mockChildProcess.emit('close', 1);
+    mockChildProcess.emit('close', errorExitCode);
   });
 
   await expect(
