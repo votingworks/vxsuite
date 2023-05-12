@@ -4,41 +4,9 @@ import {
   toGrayscale,
   writeImageData,
 } from '@votingworks/image-utils';
-import { readFileSync } from 'fs-extra';
 import { join } from 'path';
-import { tmpDir, tmpFileWithData } from '../../../test/helpers/tmp';
-import { saveImage, saveSheetImage } from './save_images';
-
-test('saveImages without normalized image', async () => {
-  const destinationImagePath = tmpFileWithData('image');
-  const sourceImagePath = tmpFileWithData('source image');
-
-  await saveImage({ sourceImagePath, destinationImagePath });
-
-  // has the new data
-  expect(readFileSync(destinationImagePath, 'utf8')).toEqual('source image');
-
-  // unchanged
-  expect(readFileSync(sourceImagePath, 'utf8')).toEqual('source image');
-});
-
-test('saveImages with normalized image', async () => {
-  const destinationImagePath = tmpFileWithData('image');
-  const sourceImagePath = tmpFileWithData('source image');
-
-  await saveImage({
-    sourceImagePath,
-    destinationImagePath,
-    normalizedImage: createImageData(1, 1),
-  });
-
-  expect(readFileSync(sourceImagePath, 'utf8')).toEqual('source image');
-
-  // has the image data
-  expect(toGrayscale(await loadImageData(destinationImagePath))).toEqual(
-    toGrayscale(createImageData(1, 1))
-  );
-});
+import { tmpDir } from '../../../test/helpers/tmp';
+import { saveSheetImage } from './save_images';
 
 test.each([
   ['.jpg', 'front'],
