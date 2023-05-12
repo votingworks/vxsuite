@@ -3,7 +3,10 @@ import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { typedAs } from '@votingworks/basics';
 import { fakeKiosk, hasTextAcrossElements } from '@votingworks/test-utils';
 import fetchMock from 'fetch-mock';
-import type { WriteInSummaryEntryAdjudicated } from '@votingworks/admin-backend';
+import type {
+  WriteInCandidateRecord,
+  WriteInSummaryEntryAdjudicated,
+} from '@votingworks/admin-backend';
 import { screen, within } from '../test/react_testing_library';
 import { ApiMock, createApiMock } from '../test/helpers/api_mock';
 import { buildApp } from '../test/helpers/build_app';
@@ -51,6 +54,18 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
+function mockWriteInCandidateRecord(
+  contestId: string,
+  name: string
+): WriteInCandidateRecord {
+  return {
+    contestId,
+    name,
+    id: name.toLowerCase(),
+    electionId: 'uuid',
+  };
+}
+
 test('manual write-in data end-to-end test', async () => {
   const { electionDefinition, legacyPartial1CvrFile } =
     electionMinimalExhaustiveSampleFixtures;
@@ -65,6 +80,11 @@ test('manual write-in data end-to-end test', async () => {
   );
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetCastVoteRecordFileMode('test');
+  const chimera = mockWriteInCandidateRecord('zoo-council-mammal', 'Chimera');
+  apiMock.expectGetWriteInCandidates([chimera]);
+  apiMock.expectGetWriteInSummaryAdjudicated([
+    nonOfficialAdjudicationSummaryMammal,
+  ]);
   renderApp();
 
   // Navigate to manual data entry
@@ -73,9 +93,6 @@ test('manual write-in data end-to-end test', async () => {
   userEvent.click(screen.getByText('Tally'));
   userEvent.click(await screen.findByText('Add Manually Entered Results'));
 
-  apiMock.expectGetWriteInSummaryAdjudicated([
-    nonOfficialAdjudicationSummaryMammal,
-  ]);
   userEvent.click(screen.getByText('Edit Precinct Results for Precinct 1'));
 
   // Enter some official results for Precinct 1
@@ -94,9 +111,7 @@ test('manual write-in data end-to-end test', async () => {
     .getByText('Zoo Council - Mammal Party')
     .closest('div')!;
   userEvent.type(
-    within(zooMammalCouncil).getByTestId(
-      'zoo-council-mammal-write-in-(Chimera)-input'
-    ),
+    within(zooMammalCouncil).getByTestId('zoo-council-mammal-chimera-input'),
     '9'
   );
 
@@ -109,28 +124,15 @@ test('manual write-in data end-to-end test', async () => {
   userEvent.click(within(zooMammalCouncil).getByText('Add'));
   userEvent.type(
     within(zooMammalCouncil).getByTestId(
-      'zoo-council-mammal-write-in-(Rapidash)-manual-input'
+      'zoo-council-mammal-write-in-(Rapidash)-temp-input'
     ),
     '5'
   );
 
-  // Add a write-in we'll remove later
-  userEvent.click(within(zooMammalCouncil).getByText('Add Write-In Candidate'));
-  userEvent.type(
-    within(zooMammalCouncil).getByTestId('zoo-council-mammal-write-in-input'),
-    'Slakoth'
-  );
-  userEvent.click(within(zooMammalCouncil).getByText('Add'));
-  userEvent.type(
-    within(zooMammalCouncil).getByTestId(
-      'zoo-council-mammal-write-in-(Slakoth)-manual-input'
-    ),
-    '9'
-  );
   expect(
     within(zooMammalCouncil).getByTestId('zoo-council-mammal-numBallots')
       .textContent
-  ).toEqual('11');
+  ).toEqual('8');
 
   // Add a write-in to another race
   const zooFishCouncil = screen
@@ -144,56 +146,57 @@ test('manual write-in data end-to-end test', async () => {
   userEvent.click(within(zooFishCouncil).getByText('Add'));
   userEvent.type(
     within(zooFishCouncil).getByTestId(
-      'aquarium-council-fish-write-in-(Relicanth)-manual-input'
+      'aquarium-council-fish-write-in-(Relicanth)-temp-input'
     ),
     '14'
   );
 
   // Save results and check index screen
+  const rapidash = mockWriteInCandidateRecord('zoo-council-mammal', 'Rapidash');
+  const relicanth = mockWriteInCandidateRecord(
+    'aquarium-council-fish',
+    'Relicanth'
+  );
+  apiMock.expectAddWriteInCandidate(
+    {
+      contestId: 'zoo-council-mammal',
+      name: 'Rapidash',
+    },
+    rapidash
+  );
+  apiMock.expectGetWriteInCandidates([chimera, rapidash]);
+  apiMock.expectAddWriteInCandidate(
+    {
+      contestId: 'aquarium-council-fish',
+      name: 'Relicanth',
+    },
+    relicanth
+  );
+  apiMock.expectGetWriteInCandidates([chimera, rapidash, relicanth]);
   userEvent.click(screen.getByText('Save Precinct Results for Precinct 1'));
   let summaryTable = await screen.findByTestId('summary-data');
-  let precinct1SummaryRow = within(summaryTable)
+  const precinct1SummaryRow = within(summaryTable)
     .getByText('Precinct 1')
     .closest('tr')!;
   expect(
     within(precinct1SummaryRow).getByTestId('numBallots').textContent
-  ).toEqual('11');
+  ).toEqual('8');
 
   // Check our write-ins appear for precinct 2
   userEvent.click(screen.getByText('Edit Precinct Results for Precinct 2'));
   screen.getByText('Chimera (write-in)');
   screen.getByText('Rapidash (write-in)');
-  screen.getByText('Slakoth (write-in)');
   screen.getByText('Relicanth (write-in)');
 
   // Add results for one write-in for precinct 2
-  userEvent.type(
-    screen.getByTestId('zoo-council-mammal-write-in-(Rapidash)-manual-input'),
-    '15'
-  );
-
-  // Remove one of the write-in candidates in precinct 2 screen
-  userEvent.click(
-    within(
-      screen.getByTestId('zoo-council-mammal-write-in-(Slakoth)-manual')
-    ).getByText('Remove')
-  );
-  userEvent.click(screen.getByText('Remove Candidate'));
+  userEvent.type(screen.getByTestId('zoo-council-mammal-rapidash-input'), '15');
 
   // Save results and confirm index screen has updated appropriately
   userEvent.click(screen.getByText('Save Precinct Results for Precinct 2'));
   summaryTable = await screen.findByTestId('summary-data');
-  precinct1SummaryRow = within(summaryTable)
-    .getByText('Precinct 1')
-    .closest('tr')!;
   const precinct2SummaryRow = within(summaryTable)
     .getByText('Precinct 2')
     .closest('tr')!;
-  // Here we're confirming that removing a candidate from one precinct screen
-  // alters the candidates and results from another precinct
-  expect(
-    within(precinct1SummaryRow).getByTestId('numBallots').textContent
-  ).toEqual('8');
   expect(
     within(precinct2SummaryRow).getByTestId('numBallots').textContent
   ).toEqual('5');
