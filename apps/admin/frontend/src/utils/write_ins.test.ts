@@ -13,6 +13,7 @@ import {
   CountsByContestAndCandidateName,
   getManualWriteInCounts,
   mergeWriteIns,
+  normalizeWriteInName,
 } from './write_ins';
 
 // Converts the nested maps of write-in counts to an object for easier assertions
@@ -155,4 +156,10 @@ test('mergeWriteIns', () => {
   for (const originalWriteInId of originalWriteInIds) {
     expect(countyCommissionerCandidateIds).not.toContain(originalWriteInId);
   }
+});
+
+test('normalizeWriteInName', () => {
+  expect(normalizeWriteInName('Name')).toEqual('name');
+  expect(normalizeWriteInName('  Name  ')).toEqual('name');
+  expect(normalizeWriteInName('  Na     me  ')).toEqual('na me');
 });

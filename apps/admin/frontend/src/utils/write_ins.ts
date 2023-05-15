@@ -221,3 +221,7 @@ export function mergeWriteIns(manualTally: ManualTally): ManualTally {
     contestTallies: newContestTallies,
   };
 }
+
+export function normalizeWriteInName(name: string): string {
+  return name.toLowerCase().trim().replace(/\s+/, ' ');
+}

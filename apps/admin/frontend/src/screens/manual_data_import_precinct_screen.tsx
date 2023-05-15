@@ -37,6 +37,7 @@ import {
   getWriteInCandidates,
   addWriteInCandidate as addWriteInCandidateApi,
 } from '../api';
+import { normalizeWriteInName } from '../utils/write_ins';
 
 const TallyInput = styled(TextInput)`
   width: 4em;
@@ -85,10 +86,6 @@ function ContestDataRow({
       </TD>
     </tr>
   );
-}
-
-function normalizeWriteInName(name: string) {
-  return name.toLowerCase().trim();
 }
 
 function AddWriteInRow({
