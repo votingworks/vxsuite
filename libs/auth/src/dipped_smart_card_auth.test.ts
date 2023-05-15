@@ -16,7 +16,10 @@ import {
   fakeSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
-import { DippedSmartCardAuth as DippedSmartCardAuthTypes } from '@votingworks/types';
+import {
+  DippedSmartCardAuth as DippedSmartCardAuthTypes,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   generatePin,
@@ -63,8 +66,8 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
-const jurisdiction = 'st.jurisdiction';
-const otherJurisdiction = 'st.other-jurisdiction';
+const jurisdiction = TEST_JURISDICTION;
+const otherJurisdiction = `${TEST_JURISDICTION}-2`;
 const { electionData, electionHash } = electionSampleDefinition;
 const otherElectionHash = electionSample2Definition.electionHash;
 const defaultConfig: DippedSmartCardAuthConfig = {};

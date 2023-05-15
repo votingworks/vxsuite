@@ -95,6 +95,18 @@ relevant env vars for local development and then calls the base script:
 The initial Java Card configuration script needs to be run before this script
 can be run. This script will remind you if you haven't done so.
 
+### Production Machine Cert Signing Request Creation Script
+
+This script creates a production machine cert signing request, using the
+machine's TPM key, given which the VotingWorks certification terminal will
+create a machine cert. Because the script requires a TPM, it can only be run on
+real hardware.
+
+```
+# With relevant env vars set
+./scripts/create-production-machine-cert-signing-request
+```
+
 ### Common Java Card Script Gotchas
 
 This library's card reader code only allows one process to access the card
