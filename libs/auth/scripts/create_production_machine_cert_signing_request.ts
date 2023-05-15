@@ -19,11 +19,10 @@ const jurisdiction =
     : undefined;
 
 async function createProductionMachineCertSigningRequest(): Promise<Buffer> {
-  const certSigningRequest = await createCertSigningRequest({
+  return await createCertSigningRequest({
     certKey: { source: 'tpm' },
     certSubject: constructMachineCertSubject(machineType, jurisdiction),
   });
-  return certSigningRequest;
 }
 
 /**
