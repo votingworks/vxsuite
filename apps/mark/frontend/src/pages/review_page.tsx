@@ -1,11 +1,5 @@
 import pluralize from 'pluralize';
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import {
   CandidateVote,
@@ -14,7 +8,6 @@ import {
   getCandidatePartiesDescription,
 } from '@votingworks/types';
 import {
-  Button,
   Caption,
   Card,
   ContestVote,
@@ -29,6 +22,7 @@ import {
   P,
   VoterContestSummary,
   H1,
+  WithScrollButtons,
 } from '@votingworks/ui';
 
 import {
@@ -39,9 +33,6 @@ import { assert } from '@votingworks/basics';
 import {
   CandidateContestResultInterface,
   MsEitherNeitherContestResultInterface,
-  Scrollable,
-  ScrollDirections,
-  ScrollShadows,
   YesNoContestResultInterface,
 } from '../config/types';
 
@@ -51,116 +42,10 @@ import { ElectionInfo } from '../components/election_info';
 import { ButtonFooter } from '../components/button_footer';
 import { screenOrientation } from '../lib/screen_orientation';
 import { getContestDistrictName } from '../utils/ms_either_neither_contests';
-import { useCurrentTextSizePx } from '../hooks/use_current_text_size';
 import { DisplaySettingsButton } from '../components/display_settings_button';
 
 const ContentHeader = styled.div`
   padding: 0.5rem 0.75rem 0;
-`;
-const VariableContentContainer = styled.div<ScrollShadows>`
-  display: flex;
-  flex: 1;
-  position: relative;
-  overflow: auto;
-  &::before,
-  &::after {
-    position: absolute;
-    z-index: 1;
-    width: 100%;
-    height: 0.25rem;
-    content: '';
-    transition: opacity 0.25s ease;
-  }
-  &::before {
-    top: 0;
-    opacity: ${({ showTopShadow }) =>
-      showTopShadow ? /* istanbul ignore next: Tested by Cypress */ 1 : 0};
-    background: linear-gradient(
-      to bottom,
-      rgb(177, 186, 190) 0%,
-      transparent 100%
-    );
-  }
-  &::after {
-    bottom: 0;
-    opacity: ${({ showBottomShadow }) =>
-      showBottomShadow ? /* istanbul ignore next: Tested by Cypress */ 1 : 0};
-    background: linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgb(177, 186, 190) 100%
-    );
-  }
-`;
-const ScrollControls = styled.div`
-  z-index: 2;
-  & > button {
-    position: absolute;
-    right: 1.5rem;
-    transform: opacity 1s linear;
-    visibility: visible;
-    opacity: 1;
-    outline: none;
-    box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.3);
-    width: 8rem;
-    height: 5rem;
-    padding: 0;
-    font-weight: 700;
-    transition: visibility 0s linear 0s, opacity 500ms;
-    &[disabled] {
-      visibility: hidden;
-      opacity: 0;
-      transition: visibility 0s linear 500ms, opacity 500ms;
-      pointer-events: none;
-    }
-    & > span {
-      position: relative;
-      pointer-events: none;
-    }
-    &::before {
-      position: absolute;
-      left: 50%;
-      margin-left: -1rem;
-      width: 2rem;
-      height: 2rem;
-      content: '';
-    }
-    &:first-child {
-      top: 0;
-      border-radius: 0 0 4rem 4rem;
-      & > span {
-        top: -1.25rem;
-      }
-      &::before {
-        bottom: 0.75rem;
-        background: url('/images/arrow-up.svg') no-repeat;
-      }
-    }
-    &:last-child {
-      bottom: 0;
-      border-radius: 4rem 4rem 0 0;
-      & > span {
-        top: 1.25rem;
-      }
-      &::before {
-        top: 0.75rem;
-        background: url('/images/arrow-down.svg') no-repeat;
-      }
-    }
-  }
-`;
-const ScrollContainer = styled.div`
-  flex: 1;
-  overflow: auto;
-`;
-const ScrollableContentWrapper = styled.div<Scrollable>`
-  margin: 0 auto;
-  width: 100%;
-  padding: 0 0.75rem 0.75rem;
-  padding-right: ${({ isScrollable }) =>
-    isScrollable
-      ? /* istanbul ignore next: Tested by Cypress */ '11rem'
-      : undefined};
 `;
 
 const Contest = styled.button`
@@ -300,74 +185,7 @@ export function ReviewPage(): JSX.Element {
     precinctId,
     votes,
   } = useContext(BallotContext);
-  const scrollContainer = useRef<HTMLDivElement>(null);
   const { isLandscape, isPortrait } = screenOrientation(machineConfig);
-  const textSizePx = useCurrentTextSizePx();
-
-  const [isScrollable, setIsScrollable] = useState(false);
-  const [isScrollAtBottom, setIsScrollAtBottom] = useState(true);
-  const [isScrollAtTop, setIsScrollAtTop] = useState(true);
-
-  const updateContestChoicesScrollStates = useCallback(() => {
-    const target = scrollContainer.current;
-    /* istanbul ignore next - `target` should always exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
-    if (!target) {
-      return;
-    }
-    const targetMinHeight = textSizePx * 8; // magic number: room for buttons + spacing
-    const windowsScrollTopOffsetMagicNumber = 1; // Windows Chrome is often 1px when using scroll buttons.
-    const windowsScrollTop = Math.ceil(target.scrollTop); // Windows Chrome scrolls to sub-pixel values.
-    setIsScrollable(
-      /* istanbul ignore next: Tested by Cypress */
-      target.scrollHeight > target.offsetHeight &&
-        /* istanbul ignore next: Tested by Cypress */
-        target.offsetHeight > targetMinHeight
-    );
-    setIsScrollAtBottom(
-      windowsScrollTop +
-        target.offsetHeight +
-        windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
-        target.scrollHeight
-    );
-    setIsScrollAtTop(target.scrollTop === 0);
-  }, [scrollContainer, textSizePx]);
-
-  useEffect(() => {
-    updateContestChoicesScrollStates();
-    window.addEventListener('resize', updateContestChoicesScrollStates);
-    const targetElement =
-      window.location.hash && document.querySelector(window.location.hash);
-    /* istanbul ignore next: Tested by Cypress */
-    if (targetElement && !navigator.userAgent.includes('jsdom')) {
-      targetElement.scrollIntoView({ block: 'center' });
-      window.setTimeout(() => (targetElement as HTMLDivElement).focus(), 1);
-    }
-    return () => {
-      window.removeEventListener('resize', updateContestChoicesScrollStates);
-    };
-  }, [updateContestChoicesScrollStates]);
-
-  /* istanbul ignore next: Tested by Cypress */
-  function scrollContestChoices(direction: ScrollDirections) {
-    const sc = scrollContainer.current;
-    assert(sc);
-    const currentScrollTop = sc.scrollTop;
-    const { offsetHeight } = sc;
-    const { scrollHeight } = sc;
-    const idealScrollDistance = Math.round(offsetHeight * 0.75);
-    const maxScrollableDownDistance =
-      scrollHeight - offsetHeight - currentScrollTop;
-    const maxScrollTop =
-      direction === 'down'
-        ? currentScrollTop + maxScrollableDownDistance
-        : currentScrollTop;
-    const idealScrollTop =
-      direction === 'down'
-        ? currentScrollTop + idealScrollDistance
-        : currentScrollTop - idealScrollDistance;
-    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
-    sc.scrollTo({ behavior: 'smooth', left: 0, top });
-  }
 
   assert(
     electionDefinition,
@@ -404,95 +222,55 @@ export function ReviewPage(): JSX.Element {
             </H1>
           </Prose>
         </ContentHeader>
-        <VariableContentContainer
-          showTopShadow={!isScrollAtTop}
-          showBottomShadow={!isScrollAtBottom}
-        >
-          <ScrollContainer
-            ref={scrollContainer}
-            onScroll={updateContestChoicesScrollStates}
-          >
-            <ScrollableContentWrapper isScrollable={isScrollable}>
-              {contests.map((contest, i) => (
-                <LinkButton
-                  component={Contest}
-                  id={`contest-${contest.id}`}
-                  key={contest.id}
-                  to={`/contests/${i}#review`}
-                >
-                  <Card
-                    footerAlign="right"
-                    footer={
-                      <DecoyButton aria-label="Press the select button to change your votes for this contest.">
-                        <Caption>
-                          <Icons.Edit /> Change
-                        </Caption>
-                      </DecoyButton>
+        <WithScrollButtons>
+          {contests.map((contest, i) => (
+            <LinkButton
+              component={Contest}
+              id={`contest-${contest.id}`}
+              key={contest.id}
+              to={`/contests/${i}#review`}
+            >
+              <Card
+                footerAlign="right"
+                footer={
+                  <DecoyButton aria-label="Press the select button to change your votes for this contest.">
+                    <Caption>
+                      <Icons.Edit /> Change
+                    </Caption>
+                  </DecoyButton>
+                }
+              >
+                {contest.type === 'candidate' && (
+                  <CandidateContestResult
+                    contest={contest}
+                    election={election}
+                    precinctId={precinctId}
+                    vote={votes[contest.id] as CandidateVote}
+                  />
+                )}
+                {contest.type === 'yesno' && (
+                  <YesNoContestResult
+                    vote={votes[contest.id] as YesNoVote}
+                    contest={contest}
+                    election={election}
+                  />
+                )}
+                {contest.type === 'ms-either-neither' && (
+                  <MsEitherNeitherContestResult
+                    contest={contest}
+                    election={election}
+                    eitherNeitherContestVote={
+                      votes[contest.eitherNeitherContestId] as OptionalYesNoVote
                     }
-                  >
-                    {contest.type === 'candidate' && (
-                      <CandidateContestResult
-                        contest={contest}
-                        election={election}
-                        precinctId={precinctId}
-                        vote={votes[contest.id] as CandidateVote}
-                      />
-                    )}
-                    {contest.type === 'yesno' && (
-                      <YesNoContestResult
-                        vote={votes[contest.id] as YesNoVote}
-                        contest={contest}
-                        election={election}
-                      />
-                    )}
-                    {contest.type === 'ms-either-neither' && (
-                      <MsEitherNeitherContestResult
-                        contest={contest}
-                        election={election}
-                        eitherNeitherContestVote={
-                          votes[
-                            contest.eitherNeitherContestId
-                          ] as OptionalYesNoVote
-                        }
-                        pickOneContestVote={
-                          votes[contest.pickOneContestId] as OptionalYesNoVote
-                        }
-                      />
-                    )}
-                  </Card>
-                </LinkButton>
-              ))}
-            </ScrollableContentWrapper>
-          </ScrollContainer>
-          {
-            /* istanbul ignore next: Tested by Cypress */ isScrollable && (
-              <ScrollControls aria-hidden>
-                <Button
-                  className="scroll-up"
-                  large
-                  variant="primary"
-                  aria-hidden
-                  value="up"
-                  disabled={isScrollAtTop}
-                  onPress={scrollContestChoices}
-                >
-                  <span>See More</span>
-                </Button>
-                <Button
-                  className="scroll-down"
-                  large
-                  variant="primary"
-                  aria-hidden
-                  value="down"
-                  disabled={isScrollAtBottom}
-                  onPress={scrollContestChoices}
-                >
-                  <span>See More</span>
-                </Button>
-              </ScrollControls>
-            )
-          }
-        </VariableContentContainer>
+                    pickOneContestVote={
+                      votes[contest.pickOneContestId] as OptionalYesNoVote
+                    }
+                  />
+                )}
+              </Card>
+            </LinkButton>
+          ))}
+        </WithScrollButtons>
       </Main>
       {isPortrait ? (
         <ButtonFooter>

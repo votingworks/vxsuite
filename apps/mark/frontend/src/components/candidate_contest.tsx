@@ -1,11 +1,5 @@
 import camelCase from 'lodash.camelcase';
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -27,26 +21,19 @@ import {
   VirtualKeyboard,
   Caption,
   TouchTextInput,
+  WithScrollButtons,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
 import pluralize from 'pluralize';
 import { stripQuotes } from '../utils/strip_quotes';
 
-import { ScrollDirections, UpdateVoteFunction } from '../config/types';
+import { UpdateVoteFunction } from '../config/types';
 
 import { BallotContext } from '../contexts/ballot_context';
 
 import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
-import {
-  ContentHeader,
-  VariableContentContainer,
-  ScrollControls,
-  ScrollContainer,
-  ScrollableContentWrapper,
-  ChoicesGrid,
-} from './contest_screen_layout';
-import { useCurrentTextSizePx } from '../hooks/use_current_text_size';
+import { ContentHeader, ChoicesGrid } from './contest_screen_layout';
 import { ContestTitle } from './contest_title';
 
 const WriteInModalContent = styled.div``;
@@ -71,7 +58,6 @@ export function CandidateContest({
   updateVote,
 }: Props): JSX.Element {
   const { electionDefinition, precinctId } = useContext(BallotContext);
-  const textSizePx = useCurrentTextSizePx();
   assert(
     electionDefinition,
     'electionDefinition is required to render CandidateContest'
@@ -82,51 +68,15 @@ export function CandidateContest({
   );
   const { election } = electionDefinition;
   const districtName = getContestDistrictName(election, contest);
-  const scrollContainer = useRef<HTMLDivElement>(null);
 
   const [attemptedOvervoteCandidate, setAttemptedOvervoteCandidate] =
     useState<Candidate>();
   const [candidatePendingRemoval, setCandidatePendingRemoval] =
     useState<Candidate>();
-  const [isScrollable, setIsScrollable] = useState(false);
-  const [isScrollAtBottom, setIsScrollAtBottom] = useState(true);
-  const [isScrollAtTop, setIsScrollAtTop] = useState(true);
   const [writeInCandidateModalIsOpen, setWriteInCandidateModalIsOpen] =
     useState(false);
   const [writeInCandidateName, setWriteInCandidateName] = useState('');
   const [deselectedCandidate, setDeselectedCandidate] = useState('');
-
-  const updateContestChoicesScrollStates = useCallback(() => {
-    const target = scrollContainer.current;
-    /* istanbul ignore next - `target` should always exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
-    if (!target) {
-      return;
-    }
-    const targetMinHeight = textSizePx * 8; // magic number: room for buttons + spacing
-    const windowsScrollTopOffsetMagicNumber = 1; // Windows Chrome is often 1px when using scroll buttons.
-    const windowsScrollTop = Math.ceil(target.scrollTop); // Windows Chrome scrolls to sub-pixel values.
-    setIsScrollable(
-      /* istanbul ignore next: Tested by Cypress */
-      target.scrollHeight > target.offsetHeight &&
-        /* istanbul ignore next: Tested by Cypress */
-        target.offsetHeight > targetMinHeight
-    );
-    setIsScrollAtBottom(
-      windowsScrollTop +
-        target.offsetHeight +
-        windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
-        target.scrollHeight
-    );
-    setIsScrollAtTop(target.scrollTop === 0);
-  }, [scrollContainer, textSizePx]);
-
-  useEffect(() => {
-    updateContestChoicesScrollStates();
-    window.addEventListener('resize', updateContestChoicesScrollStates);
-    return () => {
-      window.removeEventListener('resize', updateContestChoicesScrollStates);
-    };
-  }, [vote.length, updateContestChoicesScrollStates]);
 
   useEffect(() => {
     if (deselectedCandidate !== '') {
@@ -234,28 +184,6 @@ export function CandidateContest({
     return writeInCharsRemaining === 0;
   }
 
-  /* istanbul ignore next: Tested by Cypress */
-  function scrollContestChoices(direction: ScrollDirections) {
-    const sc = scrollContainer.current;
-    assert(sc);
-    const currentScrollTop = sc.scrollTop;
-    const { offsetHeight } = sc;
-    const { scrollHeight } = sc;
-    const idealScrollDistance = Math.round(offsetHeight * 0.75);
-    const maxScrollableDownDistance =
-      scrollHeight - offsetHeight - currentScrollTop;
-    const maxScrollTop =
-      direction === 'down'
-        ? currentScrollTop + maxScrollableDownDistance
-        : currentScrollTop;
-    const idealScrollTop =
-      direction === 'down'
-        ? currentScrollTop + idealScrollDistance
-        : currentScrollTop - idealScrollDistance;
-    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
-    sc.scrollTo({ behavior: 'smooth', left: 0, top });
-  }
-
   function handleDisabledAddWriteInClick() {
     handleChangeVoteAlert({
       id: 'write-in',
@@ -288,114 +216,74 @@ export function CandidateContest({
             </Caption>
           </Prose>
         </ContentHeader>
-        <VariableContentContainer
-          showTopShadow={!isScrollAtTop}
-          showBottomShadow={!isScrollAtBottom}
-        >
-          <ScrollContainer
-            ref={scrollContainer}
-            onScroll={updateContestChoicesScrollStates}
-          >
-            <ScrollableContentWrapper isScrollable={isScrollable}>
-              <ChoicesGrid>
-                {contest.candidates.map((candidate) => {
-                  const isChecked = !!findCandidateById(vote, candidate.id);
-                  const isDisabled = hasReachedMaxSelections && !isChecked;
-                  function handleDisabledClick() {
-                    handleChangeVoteAlert(candidate);
+        <WithScrollButtons>
+          <ChoicesGrid>
+            {contest.candidates.map((candidate) => {
+              const isChecked = !!findCandidateById(vote, candidate.id);
+              const isDisabled = hasReachedMaxSelections && !isChecked;
+              function handleDisabledClick() {
+                handleChangeVoteAlert(candidate);
+              }
+              const partiesDescription = getCandidatePartiesDescription(
+                election,
+                candidate
+              );
+              let prefixAudioText = '';
+              if (isChecked) {
+                prefixAudioText = 'Selected,';
+              } else if (deselectedCandidate === candidate.id) {
+                prefixAudioText = 'Deselected,';
+              }
+              return (
+                <ContestChoiceButton
+                  key={candidate.id}
+                  isSelected={isChecked}
+                  onPress={
+                    isDisabled ? handleDisabledClick : handleUpdateSelection
                   }
-                  const partiesDescription = getCandidatePartiesDescription(
-                    election,
-                    candidate
-                  );
-                  let prefixAudioText = '';
-                  if (isChecked) {
-                    prefixAudioText = 'Selected,';
-                  } else if (deselectedCandidate === candidate.id) {
-                    prefixAudioText = 'Deselected,';
-                  }
+                  choice={candidate.id}
+                  ariaLabel={`${prefixAudioText} ${stripQuotes(
+                    candidate.name
+                  )}${partiesDescription ? `, ${partiesDescription}` : ''}.`}
+                  label={candidate.name}
+                  caption={partiesDescription}
+                />
+              );
+            })}
+            {contest.allowWriteIns &&
+              vote
+                .filter((c) => c.isWriteIn)
+                .map((candidate) => {
                   return (
                     <ContestChoiceButton
                       key={candidate.id}
-                      isSelected={isChecked}
-                      onPress={
-                        isDisabled ? handleDisabledClick : handleUpdateSelection
-                      }
+                      isSelected
                       choice={candidate.id}
-                      ariaLabel={`${prefixAudioText} ${stripQuotes(
-                        candidate.name
-                      )}${
-                        partiesDescription ? `, ${partiesDescription}` : ''
-                      }.`}
+                      onPress={handleUpdateSelection}
+                      ariaLabel={`Selected, write-in: ${candidate.name}.`}
                       label={candidate.name}
-                      caption={partiesDescription}
+                      caption="Write-In"
                     />
                   );
                 })}
-                {contest.allowWriteIns &&
-                  vote
-                    .filter((c) => c.isWriteIn)
-                    .map((candidate) => {
-                      return (
-                        <ContestChoiceButton
-                          key={candidate.id}
-                          isSelected
-                          choice={candidate.id}
-                          onPress={handleUpdateSelection}
-                          ariaLabel={`Selected, write-in: ${candidate.name}.`}
-                          label={candidate.name}
-                          caption="Write-In"
-                        />
-                      );
-                    })}
-                {contest.allowWriteIns && (
-                  <ContestChoiceButton
-                    choice="write-in"
-                    isSelected={false}
-                    onPress={
-                      hasReachedMaxSelections
-                        ? handleDisabledAddWriteInClick
-                        : initWriteInCandidate
-                    }
-                    label={
-                      <span>
-                        <Icons.Edit /> add write-in candidate
-                      </span>
-                    }
-                  />
-                )}
-              </ChoicesGrid>
-            </ScrollableContentWrapper>
-          </ScrollContainer>
-          {
-            /* istanbul ignore next: Tested by Cypress */ isScrollable && (
-              <ScrollControls aria-hidden>
-                <Button
-                  className="scroll-up"
-                  large
-                  variant="primary"
-                  aria-hidden
-                  value="up"
-                  disabled={isScrollAtTop}
-                  onPress={scrollContestChoices}
-                >
-                  <span>See More</span>
-                </Button>
-                <Button
-                  className="scroll-down"
-                  large
-                  variant="primary"
-                  aria-hidden
-                  value="down"
-                  disabled={isScrollAtBottom}
-                  onPress={scrollContestChoices}
-                >
-                  <span>See More</span>
-                </Button>
-              </ScrollControls>
-            )
-          }
-        </VariableContentContainer>
+            {contest.allowWriteIns && (
+              <ContestChoiceButton
+                choice="write-in"
+                isSelected={false}
+                onPress={
+                  hasReachedMaxSelections
+                    ? handleDisabledAddWriteInClick
+                    : initWriteInCandidate
+                }
+                label={
+                  <span>
+                    <Icons.Edit /> add write-in candidate
+                  </span>
+                }
+              />
+            )}
+          </ChoicesGrid>
+        </WithScrollButtons>
       </Main>
       {attemptedOvervoteCandidate && (
         <Modal

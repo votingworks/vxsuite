@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   YesNoVote,
   OptionalYesNoVote,
@@ -22,24 +16,20 @@ import {
   P,
   Caption,
   Pre,
+  WithScrollButtons,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
 import { assert, Optional } from '@votingworks/basics';
-import { ScrollDirections, UpdateVoteFunction } from '../config/types';
+import { UpdateVoteFunction } from '../config/types';
 
 import { BallotContext } from '../contexts/ballot_context';
 
 import {
   ContentHeader,
   ContestFooter,
-  VariableContentContainer,
-  ScrollControls,
-  ScrollContainer,
-  ScrollableContentWrapper,
   ChoicesGrid,
 } from './contest_screen_layout';
-import { useCurrentTextSizePx } from '../hooks/use_current_text_size';
 import { ContestTitle } from './contest_title';
 
 interface Props {
@@ -54,15 +44,10 @@ export function YesNoContest({
   updateVote,
 }: Props): JSX.Element {
   const { electionDefinition } = useContext(BallotContext);
-  const textSizePx = useCurrentTextSizePx();
   assert(electionDefinition);
   const { election } = electionDefinition;
   const districtName = getContestDistrictName(election, contest);
-  const scrollContainer = useRef<HTMLDivElement>(null);
 
-  const [isScrollable, setIsScrollable] = useState(false);
-  const [isScrollAtBottom, setIsScrollAtBottom] = useState(true);
-  const [isScrollAtTop, setIsScrollAtTop] = useState(true);
   const [overvoteSelection, setOvervoteSelection] =
     useState<Optional<YesOrNo>>();
   const [deselectedVote, setDeselectedVote] = useState('');
@@ -73,39 +58,6 @@ export function YesNoContest({
       return () => clearTimeout(timer);
     }
   }, [deselectedVote]);
-
-  const updateContestChoicesScrollStates = useCallback(() => {
-    const target = scrollContainer.current;
-    /* istanbul ignore next - `target` should always exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
-    if (!target) {
-      return;
-    }
-    const targetMinHeight = textSizePx * 8; // magic number: room for buttons + spacing
-    const windowsScrollTopOffsetMagicNumber = 1; // Windows Chrome is often 1px when using scroll buttons.
-    const windowsScrollTop = Math.ceil(target.scrollTop); // Windows Chrome scrolls to sub-pixel values.
-    setIsScrollable(
-      /* istanbul ignore next: Tested by Cypress */
-      target.scrollHeight > target.offsetHeight &&
-        /* istanbul ignore next: Tested by Cypress */
-        target.offsetHeight > targetMinHeight
-    );
-    setIsScrollAtBottom(
-      windowsScrollTop +
-        target.offsetHeight +
-        windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
-        target.scrollHeight
-    );
-    setIsScrollAtTop(target.scrollTop === 0);
-  }, [scrollContainer, textSizePx]);
-
-  const voteLength = vote?.length;
-  useEffect(() => {
-    updateContestChoicesScrollStates();
-    window.addEventListener('resize', updateContestChoicesScrollStates);
-    return () => {
-      window.removeEventListener('resize', updateContestChoicesScrollStates);
-    };
-  }, [voteLength, updateContestChoicesScrollStates]);
 
   function handleUpdateSelection(newVote: YesOrNo) {
     if ((vote as string[] | undefined)?.includes(newVote)) {
@@ -118,28 +70,6 @@ export function YesNoContest({
 
   function handleChangeVoteAlert(newValue: YesOrNo) {
     setOvervoteSelection(newValue);
-  }
-
-  /* istanbul ignore next: Tested by Cypress */
-  function scrollContestChoices(direction: ScrollDirections) {
-    const sc = scrollContainer.current;
-    assert(sc);
-    const currentScrollTop = sc.scrollTop;
-    const { offsetHeight } = sc;
-    const { scrollHeight } = sc;
-    const idealScrollDistance = Math.round(offsetHeight * 0.75);
-    const maxScrollableDownDistance =
-      scrollHeight - offsetHeight - currentScrollTop;
-    const maxScrollTop =
-      direction === 'down'
-        ? currentScrollTop + maxScrollableDownDistance
-        : currentScrollTop;
-    const idealScrollTop =
-      direction === 'down'
-        ? currentScrollTop + idealScrollDistance
-        : currentScrollTop - idealScrollDistance;
-    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
-    sc.scrollTo({ behavior: 'smooth', left: 0, top });
   }
 
   function closeOvervoteAlert() {
@@ -162,49 +92,11 @@ export function YesNoContest({
             </Caption>
           </Prose>
         </ContentHeader>
-        <VariableContentContainer
-          showTopShadow={!isScrollAtTop}
-          showBottomShadow={!isScrollAtBottom}
-        >
-          <ScrollContainer
-            ref={scrollContainer}
-            onScroll={updateContestChoicesScrollStates}
-          >
-            <ScrollableContentWrapper isScrollable={isScrollable}>
-              <Caption>
-                <Pre>{contest.description}</Pre>
-              </Caption>
-            </ScrollableContentWrapper>
-          </ScrollContainer>
-          {
-            /* istanbul ignore next: Tested by Cypress */ isScrollable && (
-              <ScrollControls aria-hidden>
-                <Button
-                  className="scroll-up"
-                  large
-                  variant="primary"
-                  aria-hidden
-                  value="up"
-                  disabled={isScrollAtTop}
-                  onPress={scrollContestChoices}
-                >
-                  <span>See More</span>
-                </Button>
-                <Button
-                  className="scroll-down"
-                  large
-                  variant="primary"
-                  aria-hidden
-                  value="down"
-                  disabled={isScrollAtBottom}
-                  onPress={scrollContestChoices}
-                >
-                  <span>See More</span>
-                </Button>
-              </ScrollControls>
-            )
-          }
-        </VariableContentContainer>
+        <WithScrollButtons>
+          <Caption>
+            <Pre>{contest.description}</Pre>
+          </Caption>
+        </WithScrollButtons>
         <ContestFooter>
           <ChoicesGrid data-testid="contest-choices">
             {[
