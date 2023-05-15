@@ -3,7 +3,7 @@ use serde::Serialize;
 
 use crate::{
     ballot_card::BallotSide,
-    election::{ContestId, GridLayout, GridPosition, OptionId},
+    election::{ContestId, GridLayout, GridLocation, GridPosition, OptionId},
     geometry::{GridUnit, Point, Rect},
     timing_marks::TimingMarkGrid,
 };
@@ -11,16 +11,17 @@ use crate::{
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterpretedContestOptionLayout {
-    option_id: OptionId,
-    bounds: Rect,
+    pub option_id: OptionId,
+    pub bounds: Rect,
+    pub grid_location: GridLocation,
 }
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterpretedContestLayout {
-    contest_id: ContestId,
-    bounds: Rect,
-    options: Vec<InterpretedContestOptionLayout>,
+    pub contest_id: ContestId,
+    pub bounds: Rect,
+    pub options: Vec<InterpretedContestOptionLayout>,
 }
 
 fn build_option_layout(
@@ -84,6 +85,7 @@ fn build_option_layout(
     Some(InterpretedContestOptionLayout {
         option_id: grid_position.option_id(),
         bounds: Rect::from_points(furthest_top_left_point, furthest_bottom_right_point),
+        grid_location: bubble_location,
     })
 }
 

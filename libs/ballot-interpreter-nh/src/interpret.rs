@@ -1,5 +1,6 @@
 use std::fmt::Display;
 use std::path::PathBuf;
+use std::time::Instant;
 
 use image::GenericImage;
 use image::GrayImage;
@@ -25,7 +26,9 @@ use crate::layout::InterpretedContestLayout;
 use crate::metadata::BallotPageMetadata;
 use crate::metadata::BallotPageMetadataError;
 use crate::scoring::score_bubble_marks_from_grid_layout;
+use crate::scoring::score_write_in_areas;
 use crate::scoring::ScoredBubbleMarks;
+use crate::scoring::ScoredPositionAreas;
 use crate::timing_marks::find_timing_mark_grid;
 use crate::timing_marks::TimingMarkGrid;
 
@@ -66,6 +69,7 @@ pub struct NormalizedImageBuffer {
 pub struct InterpretedBallotPage {
     pub grid: TimingMarkGrid,
     pub marks: ScoredBubbleMarks,
+    pub write_ins: ScoredPositionAreas,
     #[serde(skip_serializing)] // `normalized_image` is returned separately.
     pub normalized_image: GrayImage,
     pub contest_layouts: Vec<InterpretedContestLayout>,
@@ -455,16 +459,41 @@ pub fn interpret_ballot_card(
             },
         )?;
 
+    let start = Instant::now();
+    let (front_write_in_area_scores, back_write_in_area_scores) = rayon::join(
+        || {
+            score_write_in_areas(
+                &front_image,
+                grid_layout,
+                &front_contest_layouts,
+                &front_scored_bubble_marks,
+                &front_debug,
+            )
+        },
+        || {
+            score_write_in_areas(
+                &back_image,
+                grid_layout,
+                &back_contest_layouts,
+                &back_scored_bubble_marks,
+                &back_debug,
+            )
+        },
+    );
+    println!("score_write_in_areas took {:?}", start.elapsed());
+
     Ok(InterpretedBallotCard {
         front: InterpretedBallotPage {
             grid: front_grid,
             marks: front_scored_bubble_marks,
+            write_ins: front_write_in_area_scores,
             normalized_image: front_image,
             contest_layouts: front_contest_layouts,
         },
         back: InterpretedBallotPage {
             grid: back_grid,
             marks: back_scored_bubble_marks,
+            write_ins: back_write_in_area_scores,
             normalized_image: back_image,
             contest_layouts: back_contest_layouts,
         },

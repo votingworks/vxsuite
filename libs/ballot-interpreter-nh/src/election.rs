@@ -35,6 +35,15 @@ pub struct GridLayout {
     pub grid_positions: Vec<GridPosition>,
 }
 
+impl GridLayout {
+    pub fn write_in_positions(&self) -> Vec<&GridPosition> {
+        self.grid_positions
+            .iter()
+            .filter(|grid_position| matches!(grid_position, GridPosition::WriteIn { .. }))
+            .collect()
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Outset<T> {
     pub top: T,
@@ -111,7 +120,7 @@ impl GridPosition {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize)]
+#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
 pub struct GridLocation {
     pub side: BallotSide,
     pub column: GridUnit,
