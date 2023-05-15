@@ -115,33 +115,6 @@ export function filterWriteInCountsByParty(
   return filteredCounts;
 }
 
-// ManualTally write-in candidate id creation
-export function getAdjudicatedWriteInCandidateId(
-  name: string,
-  manual: boolean
-): string {
-  return `write-in-(${name})${manual ? '-manual' : ''}`;
-}
-
-export function getAdjudicatedWriteInCandidate(
-  name: string,
-  manual: boolean
-): Candidate {
-  return {
-    id: getAdjudicatedWriteInCandidateId(name, manual),
-    name,
-    isWriteIn: true,
-  };
-}
-
-export function isManuallyAdjudicatedWriteInCandidate(
-  candidate: Candidate
-): boolean {
-  return (
-    candidate.id.startsWith('write-in-(') && candidate.id.endsWith(')-manual')
-  );
-}
-
 // Extracts all write-in data from an ManualTally and formats it
 // as CountsByContestAndCandidateName for the write-in report
 export function getManualWriteInCounts(
@@ -247,4 +220,8 @@ export function mergeWriteIns(manualTally: ManualTally): ManualTally {
     ...manualTally,
     contestTallies: newContestTallies,
   };
+}
+
+export function normalizeWriteInName(name: string): string {
+  return name.toLowerCase().trim().replace(/\s+/, ' ');
 }

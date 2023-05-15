@@ -536,6 +536,7 @@ test('tabulating CVRs with manual data', async () => {
     { ...mockCastVoteRecordFileRecord, numCvrsImported: 100 },
   ]);
   apiMock.expectGetCastVoteRecordFileMode('test');
+  apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetWriteInSummaryAdjudicated([]);
 
   const { getByText, getByTestId, getAllByText } = renderApp();

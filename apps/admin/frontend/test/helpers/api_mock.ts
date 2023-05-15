@@ -230,6 +230,15 @@ export function createApiMock(
       }
     },
 
+    expectAddWriteInCandidate(
+      input: { contestId: string; name: string },
+      writeInCandidateRecord: WriteInCandidateRecord
+    ) {
+      apiClient.addWriteInCandidate
+        .expectCallWith(input)
+        .resolves(writeInCandidateRecord);
+    },
+
     expectGetWriteInDetailView(
       writeInId: string,
       detailView: Partial<WriteInDetailView> = {}

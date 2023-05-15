@@ -37,6 +37,7 @@ import {
   useApiClient,
   addWriteInCandidate,
 } from '../api';
+import { normalizeWriteInName } from '../utils/write_ins';
 
 const BallotViews = styled.div`
   flex: 3;
@@ -394,8 +395,8 @@ export function WriteInsAdjudicationScreen({
   const writeInCandidates = writeInCandidatesQuery.data;
   const disallowedWriteInCandidateNames = [
     '',
-    ...officialCandidates.map((c) => c.name.toLowerCase()),
-    ...writeInCandidates.map((c) => c.name.toLowerCase()),
+    ...officialCandidates.map((c) => normalizeWriteInName(c.name)),
+    ...writeInCandidates.map((c) => normalizeWriteInName(c.name)),
   ];
 
   function goPrevious() {
@@ -499,7 +500,9 @@ export function WriteInsAdjudicationScreen({
     const name = newWriteInCandidateInput.current?.value;
     assert(currentWriteIn);
     if (!name) return;
-    if (disallowedWriteInCandidateNames.includes(name.toLowerCase())) return;
+    if (disallowedWriteInCandidateNames.includes(normalizeWriteInName(name))) {
+      return;
+    }
 
     try {
       const writeInCandidate = await addWriteInCandidateMutation.mutateAsync({
@@ -669,7 +672,9 @@ export function WriteInsAdjudicationScreen({
                       disabled={
                         !!newWriteInCandidateInput.current &&
                         disallowedWriteInCandidateNames.includes(
-                          newWriteInCandidateInput.current.value.toLowerCase()
+                          normalizeWriteInName(
+                            newWriteInCandidateInput.current.value
+                          )
                         )
                       }
                     >

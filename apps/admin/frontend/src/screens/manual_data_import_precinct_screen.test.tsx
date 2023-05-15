@@ -41,7 +41,7 @@ afterEach(() => {
 });
 
 test('displays error screen for invalid precinct', async () => {
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInCandidates([]);
   renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
@@ -104,7 +104,7 @@ test('displays correct contests for each precinct', async () => {
     precinctName,
     expectedCommissionerRace,
   } of testcases) {
-    apiMock.expectGetWriteInSummaryAdjudicated([]);
+    apiMock.expectGetWriteInCandidates([]);
     const { unmount } = renderInAppContext(
       <Route path="/tally/manual-data-import/precinct/:precinctId">
         <ManualDataImportPrecinctScreen />
@@ -135,7 +135,7 @@ test('displays correct contests for each precinct', async () => {
 test('can edit counts and update totals', async () => {
   const updateManualTally = jest.fn();
   const logger = fakeLogger();
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInCandidates([]);
   renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
@@ -245,7 +245,7 @@ test('can edit counts and update totals', async () => {
 });
 
 test('can add and remove a write-in candidate when contest allows', async () => {
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInCandidates([]);
   renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
@@ -304,47 +304,41 @@ test('can add and remove a write-in candidate when contest allows', async () => 
   userEvent.click(within(commissionerContest).getByText('Add'));
   // Button should re-appear, allowing us to add more
   within(commissionerContest).getByText('Add Write-In Candidate');
+  await screen.findByText('Fake Candidate (write-in)');
+
   // Can add to new write-in candidate's count
   userEvent.type(
     screen.getByTestId(
-      'county-commissioners-write-in-(Fake Candidate)-manual-input'
+      'county-commissioners-write-in-(Fake Candidate)-temp-input'
     ),
     '10'
   );
   // Updating write-in value updates contest total
-  expect(
-    screen.getByTestId('county-commissioners-numBallots').textContent
-  ).toEqual('3'); // multi-seat contest calculation, ceil(10 / 4)
+  await waitFor(() => {
+    expect(
+      screen.getByTestId('county-commissioners-numBallots').textContent
+    ).toEqual('3'); // multi-seat contest calculation, ceil(10 / 4)
+  });
+
   // Can remove our write-in
   userEvent.click(within(commissionerContest).getByText('Remove'));
-  let modal = screen.getByRole('alertdialog');
-  userEvent.click(within(modal).getByText('Cancel')); // Can cancel
-  userEvent.click(within(commissionerContest).getByText('Remove'));
-  modal = screen.getByRole('alertdialog');
-  within(modal).getByText('Fake Candidate');
-  userEvent.click(within(modal).getByText('Remove Candidate'));
-  // Row should be gone
   expect(
-    screen.queryByTestId(
-      'county-commissioners-write-in-(Fake Candidate)-manual-input'
-    )
+    screen.queryByTestId('write-in-(Fake Candidate)-temp')
   ).not.toBeInTheDocument();
   // Totals should be adjusted
   expect(
     screen.getByTestId('county-commissioners-numBallots').textContent
-  ).toEqual('0'); // multi-seat contest calculation, ceil(10 / 4)
+  ).toEqual('0');
 });
 
-test('loads pre-adjudicated write-in values', async () => {
+test('loads already added write-in candidates values', async () => {
   // Set up an existing adjudicated value
-  apiMock.expectGetWriteInSummaryAdjudicated([
+  apiMock.expectGetWriteInCandidates([
     {
-      status: 'adjudicated',
-      adjudicationType: 'write-in-candidate',
+      electionId: 'uuid',
       contestId: 'zoo-council-mammal',
-      writeInCount: 1,
-      candidateName: 'Chimera',
-      candidateId: 'uuid',
+      name: 'Chimera',
+      id: 'uuid',
     },
   ]);
 
@@ -365,7 +359,7 @@ test('loads pre-adjudicated write-in values', async () => {
 });
 
 test('can enter data for yes no contests as expected', async () => {
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInCandidates([]);
   const updateManualTally = jest.fn();
   const logger = fakeLogger();
   renderInAppContext(
@@ -466,7 +460,7 @@ test('can enter data for yes no contests as expected', async () => {
 });
 
 test('loads preexisting manual data to edit', async () => {
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInCandidates([]);
   const { election } = electionSampleDefinition;
   const talliesByPrecinct = getEmptyManualTalliesByPrecinct(election);
   talliesByPrecinct['23'] = buildManualTally(election, 1, [
