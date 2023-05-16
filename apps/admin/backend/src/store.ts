@@ -18,13 +18,18 @@ import {
   BallotId,
   BallotPageLayout,
   BallotPageLayoutSchema,
+  Candidate,
   CandidateContest,
   CastVoteRecord,
   ContestId,
   ContestOptionId,
+  ContestTally,
   CVR,
+  Dictionary,
   Id,
   Iso8601Timestamp,
+  ManualTally,
+  PrecinctId,
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
@@ -951,22 +956,68 @@ export class Store {
   private deleteWriteInCandidateIfChildless(id: Id): void {
     const adjudicatedWriteIn = this.client.one(
       `
-      select id
-      from write_ins
-      where write_in_candidate_id = ?
-    `,
+        select id from write_ins
+        where write_in_candidate_id = ?
+      `,
       id
     ) as { id: Id } | undefined;
 
-    if (!adjudicatedWriteIn) {
+    const manualTally = this.client.one(
+      `
+        select manual_tally_id from manual_tally_write_in_candidate_references
+        where write_in_candidate_id = ?
+      `,
+      id
+    ) as { id: Id } | undefined;
+
+    if (!adjudicatedWriteIn && !manualTally) {
       this.client.run(
         `
-        delete from write_in_candidates
-        where id = ?
-      `,
+          delete from write_in_candidates
+          where id = ?
+        `,
         id
       );
     }
+  }
+
+  private deleteAllChildlessWriteInCandidates(): void {
+    // get ids of write-ins who have on screen adjudications
+    const adjudicatedWriteInCandidateIds = (
+      this.client.all(
+        `
+          select distinct write_in_candidate_id as writeInCandidateId
+          from write_ins
+          where write_in_candidate_id is not null
+        `
+      ) as Array<{ writeInCandidateId: Id }>
+    ).map(({ writeInCandidateId }) => writeInCandidateId);
+
+    // get ids of write-ins who are included in manual tallies
+    const manualTallyWriteInCandidateIds = (
+      this.client.all(
+        `
+          select distinct write_in_candidate_id as writeInCandidateId
+          from manual_tally_write_in_candidate_references
+        `
+      ) as Array<{ writeInCandidateId: Id }>
+    ).map(({ writeInCandidateId }) => writeInCandidateId);
+
+    const writeInCandidateIdsWithChildren = new Set<Id>([
+      ...adjudicatedWriteInCandidateIds,
+      ...manualTallyWriteInCandidateIds,
+    ]);
+
+    const params: Bindable[] = [...writeInCandidateIdsWithChildren];
+    const questionMarks = params.map(() => '?');
+
+    this.client.run(
+      `
+      delete from write_in_candidates
+      where id not in (${questionMarks.join(', ')})
+    `,
+      ...params
+    );
   }
 
   /**
@@ -1272,6 +1323,149 @@ export class Store {
     ) {
       this.deleteWriteInCandidateIfChildless(initialWriteInRecord.candidateId);
     }
+  }
+
+  deleteAllManualTallies({ electionId }: { electionId: Id }): void {
+    this.client.run(
+      `delete from manual_tallies where election_id = ?`,
+      electionId
+    );
+
+    // removing manual tallies may have left unofficial write-in candidates
+    // without any references, which we clean up
+    this.deleteAllChildlessWriteInCandidates();
+  }
+
+  setManualTally({
+    electionId,
+    precinctId,
+    manualTally,
+  }: {
+    electionId: Id;
+    precinctId: PrecinctId;
+    manualTally: ManualTally;
+  }): void {
+    const ballotCount = manualTally.numberOfBallotsCounted;
+    const serializedContestTallies = JSON.stringify(manualTally.contestTallies);
+
+    const { id: manualTallyRecordId } = this.client.one(
+      `
+        insert into manual_tallies (
+          election_id,
+          precinct_id,
+          ballot_count,
+          contest_tallies
+        ) values 
+          (?, ?, ?, ?)
+        on conflict
+          (election_id, precinct_id)
+        do update set
+          ballot_count = excluded.ballot_count,
+          contest_tallies = excluded.contest_tallies
+        returning (id)
+      `,
+      electionId,
+      precinctId,
+      ballotCount,
+      serializedContestTallies
+    ) as { id: Id };
+
+    // delete any previous write-in candidate references
+    this.client.run(
+      `
+        delete from manual_tally_write_in_candidate_references
+        where manual_tally_id = ?
+      `,
+      manualTallyRecordId
+    );
+
+    // check for the current write-in candidate references
+    const writeInCandidateIds: Id[] = [];
+    for (const contestTally of Object.values(manualTally.contestTallies)) {
+      assert(contestTally);
+      if (contestTally.contest.type === 'candidate') {
+        for (const optionTally of Object.values(contestTally.tallies)) {
+          assert(optionTally);
+          const candidate = optionTally.option as Candidate;
+          if (candidate.isWriteIn) {
+            writeInCandidateIds.push(candidate.id);
+          }
+        }
+      }
+    }
+
+    if (writeInCandidateIds.length > 0) {
+      const params: Bindable[] = [];
+      const questionMarks: string[] = [];
+      for (const writeInCandidateId of writeInCandidateIds) {
+        params.push(manualTallyRecordId, writeInCandidateId);
+        questionMarks.push('(?, ?)');
+      }
+
+      // insert new write-in candidate references
+      this.client.run(
+        `
+          insert into manual_tally_write_in_candidate_references (
+            manual_tally_id,
+            write_in_candidate_id
+          ) values ${questionMarks.join(', ')}
+        `,
+        ...params
+      );
+    }
+
+    // clean up write-in candidates that may have only been included on the
+    // previously entered manually tally
+    this.deleteAllChildlessWriteInCandidates();
+  }
+
+  getManualTallies({
+    electionId,
+    precinctId,
+  }: {
+    electionId: Id;
+    precinctId?: PrecinctId;
+  }): Array<{
+    precinctId: PrecinctId;
+    manualTally: ManualTally;
+    createdAt: Iso8601Timestamp;
+  }> {
+    const whereParts = ['election_id = ?'];
+    const params: Bindable[] = [electionId];
+
+    if (precinctId) {
+      whereParts.push('precinct_id = ?');
+      params.push(precinctId);
+    }
+
+    return (
+      this.client.all(
+        `
+          select 
+            precinct_id as precinctId,
+            ballot_count as ballotCount,
+            contest_tallies as contestTallyData,
+            datetime(created_at, 'localtime') as createdAt
+          from manual_tallies
+          where ${whereParts.join(' and ')}
+        `,
+        ...params
+      ) as Array<{
+        precinctId: PrecinctId;
+        ballotCount: number;
+        contestTallyData: string;
+        createdAt: string;
+      }>
+    ).map((row) => ({
+      precinctId: row.precinctId,
+      manualTally: {
+        numberOfBallotsCounted: row.ballotCount,
+        contestTallies: JSON.parse(
+          row.contestTallyData
+        ) as Dictionary<ContestTally>,
+      },
+      createdAt: convertSqliteTimestampToIso8601(row.createdAt),
+    }));
   }
 
   /**
