@@ -24,7 +24,7 @@ pub enum Error {
 impl ToString for Error {
     fn to_string(&self) -> String {
         match self {
-            Error::ImageError(msg) | Error::TimingMarkGridError(msg) => msg.clone(),
+            Self::ImageError(msg) | Self::TimingMarkGridError(msg) => msg.clone(),
         }
     }
 }
@@ -58,7 +58,7 @@ pub fn find_template_grid_and_bubbles(
     let (side_a_result, side_b_result) = rayon::join(
         || {
             find_timing_mark_grid(
-                &side_a_label,
+                side_a_label,
                 &geometry,
                 &side_a.image,
                 side_a.border_inset,
@@ -67,7 +67,7 @@ pub fn find_template_grid_and_bubbles(
         },
         || {
             find_timing_mark_grid(
-                &side_b_label,
+                side_b_label,
                 &geometry,
                 &side_b.image,
                 side_b.border_inset,

@@ -31,10 +31,10 @@ use crate::timing_marks::TimingMarkGrid;
 
 #[derive(Debug, Clone)]
 pub struct Options {
+    pub election: Election,
+    pub bubble_template: GrayImage,
     pub debug_side_a_base: Option<PathBuf>,
     pub debug_side_b_base: Option<PathBuf>,
-    pub bubble_template: GrayImage,
-    pub election: Election,
 }
 
 pub struct BallotImage {
@@ -173,7 +173,7 @@ pub enum ResizeStrategy {
 
 impl ResizeStrategy {
     pub fn compute_error(
-        &self,
+        self,
         expected_dimensions: (u32, u32),
         actual_dimensions: (u32, u32),
     ) -> f32 {
