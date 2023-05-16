@@ -3781,6 +3781,9 @@ importers:
 
   libs/converter-nh-accuvote:
     dependencies:
+      '@votingworks/ballot-interpreter-nh':
+        specifier: workspace:*
+        version: link:../ballot-interpreter-nh
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -3857,9 +3860,6 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
-      '@votingworks/res-to-ts':
-        specifier: workspace:*
-        version: link:../res-to-ts
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils

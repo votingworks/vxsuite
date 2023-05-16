@@ -1,3 +1,6 @@
+import { Election } from '@votingworks/types';
+import { type TemplateGridAndBubbles } from './find_template_grid_and_bubbles';
+
 /**
  * The result of calling `interpret`.
  */
@@ -19,9 +22,17 @@ export type BridgeInterpretResult =
  * JSON. If `success` is false, `value` will be an error object as JSON.
  */
 export function interpret(
-  electionJson: string,
+  election: Election,
   ballotImageSourceSideA: string | ImageData,
   ballotImageSourceSideB: string | ImageData,
   debugBasePathSideA?: string,
   debugBasePathSideB?: string
 ): BridgeInterpretResult;
+
+/**
+ * Type of the Rust `findTemplateGridAndBubbles` implementation.
+ */
+export function findTemplateGridAndBubbles(
+  ballotImageSourceSideA: string | ImageData,
+  ballotImageSourceSideB: string | ImageData
+): TemplateGridAndBubbles;

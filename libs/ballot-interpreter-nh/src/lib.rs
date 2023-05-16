@@ -10,6 +10,7 @@ mod js;
 mod layout;
 mod metadata;
 mod scoring;
+mod template;
 mod timing_marks;
 mod types;
 
@@ -17,5 +18,9 @@ mod types;
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("interpret", js::interpret)?;
+    cx.export_function(
+        "findTemplateGridAndBubbles",
+        js::find_template_grid_and_bubbles,
+    )?;
     Ok(())
 }

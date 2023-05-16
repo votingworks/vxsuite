@@ -12,11 +12,12 @@ use crate::{
     ballot_card::{Geometry, Orientation},
     debug,
     debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
+    election::UnitIntervalValue,
     geometry::{
         find_largest_subset_intersecting_line, intersection_of_lines, GridUnit, PixelPosition,
-        Point, Rect, Segment, Size, SubPixelUnit,
+        PixelUnit, Point, Rect, Segment, Size, SubPixelUnit,
     },
-    image_utils::{expand_image, Inset, WHITE},
+    image_utils::{expand_image, match_template, Inset, WHITE},
     interpret::Error,
     metadata::{decode_metadata_from_timing_marks, BallotPageMetadata},
 };
@@ -79,7 +80,7 @@ pub struct Complete {
 }
 
 /// Represents a grid of timing marks and provides access to the expected
-/// location of ovals in the grid. Note that all coordinates are based in an
+/// location of bubbles in the grid. Note that all coordinates are based in an
 /// image that may have been rotated, cropped, and scaled. To recreate the image
 /// that corresponds to the grid, follow these steps starting with the original:
 ///   1. rotate 180 degrees if `orientation` is `PortraitReversed`.
@@ -138,7 +139,7 @@ impl TimingMarkGrid {
 
     /// Returns the center of the grid position at the given coordinates. Timing
     /// marks are at the edges of the grid, and the inside of the grid is where
-    /// the ovals are.
+    /// the bubbles are.
     ///
     /// For example, if the grid is 34x51, then:
     ///
@@ -146,7 +147,7 @@ impl TimingMarkGrid {
     ///   - (33, 0) is the top right corner of the grid
     ///   - (0, 50) is the bottom left corner of the grid
     ///   - (33, 50) is the bottom right corner of the grid
-    ///   - (c, r) where 0 < c < 33 and 0 < r < 50 is the oval at column c and
+    ///   - (c, r) where 0 < c < 33 and 0 < r < 50 is the bubble at column c and
     ///     row r
     ///
     /// The point location is determined by finding the left and right timing
@@ -188,7 +189,7 @@ impl TimingMarkGrid {
 }
 
 /// Finds the timing marks in the given image and computes the grid of timing
-/// marks, i.e. the locations of all the possible ovals.
+/// marks, i.e. the locations of all the possible bubbles.
 #[time]
 pub fn find_timing_mark_grid(
     label: &str,
@@ -853,12 +854,36 @@ fn infer_missing_timing_marks_on_segment(
     inferred_timing_marks
 }
 
-/// Determines whether a rect could be a timing mark based on its size.
+/// Determines whether a rect could be a timing mark based on its rect.
 pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
-    let min_timing_mark_width = (geometry.timing_mark_size.width * 1.0 / 4.0).floor() as u32;
-    let max_timing_mark_width = (geometry.timing_mark_size.width * 3.0 / 2.0).ceil() as u32;
-    let min_timing_mark_height = (geometry.timing_mark_size.height * 2.0 / 3.0).floor() as u32;
-    let max_timing_mark_height = (geometry.timing_mark_size.height * 3.0 / 2.0).ceil() as u32;
+    let timing_mark_size = geometry.timing_mark_size;
+
+    let is_near_left_or_right_edge = rect.left() < timing_mark_size.width.ceil() as i32
+        || rect.right()
+            > (geometry.canvas_size.width as f32 - timing_mark_size.width.ceil()) as i32;
+    let is_near_top_or_bottom_edge = rect.top() < timing_mark_size.height.ceil() as i32
+        || rect.bottom()
+            > (geometry.canvas_size.height as f32 - timing_mark_size.height.ceil()) as i32;
+
+    // allow timing marks near an edge to be substantially clipped
+    let min_timing_mark_width_multiplier = if is_near_left_or_right_edge {
+        0.20
+    } else {
+        0.75
+    };
+    let min_timing_mark_height_multiplier = if is_near_top_or_bottom_edge {
+        0.20
+    } else {
+        0.75
+    };
+
+    let min_timing_mark_width =
+        (timing_mark_size.width * min_timing_mark_width_multiplier).floor() as u32;
+    let min_timing_mark_height =
+        (timing_mark_size.height * min_timing_mark_height_multiplier).floor() as u32;
+    let max_timing_mark_width = (timing_mark_size.width * 1.50).round() as u32;
+    let max_timing_mark_height = (timing_mark_size.height * 1.50).round() as u32;
+
     rect.width() >= min_timing_mark_width
         && rect.width() <= max_timing_mark_width
         && rect.height() >= min_timing_mark_height
@@ -873,4 +898,73 @@ pub fn distances_between_rects(rects: &[Rect]) -> Vec<f32> {
         .collect::<Vec<f32>>();
     distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
     distances
+}
+
+/// Finds the points in a timing mark grid that contain empty bubbles matching a
+/// given template image.
+pub fn find_empty_bubbles_matching_template(
+    ballot_image: &GrayImage,
+    bubble_template: &GrayImage,
+    grid: &TimingMarkGrid,
+    threshold: UnitIntervalValue,
+    match_error_pixels: PixelUnit,
+) -> Vec<Point<GridUnit>> {
+    let mut empty_bubbles = vec![];
+
+    for column in 1..grid.geometry.grid_size.width - 1 {
+        for row in 1..grid.geometry.grid_size.height - 1 {
+            if let Some(bubble_center) = grid.point_for_location(column, row) {
+                let bubble_center = bubble_center.round();
+                let bubble_origin = Point::new(
+                    (bubble_center.x as SubPixelUnit
+                        - bubble_template.width() as SubPixelUnit / 2.0)
+                        as PixelUnit,
+                    (bubble_center.y as SubPixelUnit
+                        - bubble_template.height() as SubPixelUnit / 2.0)
+                        as PixelUnit,
+                );
+                assert!(bubble_origin.x >= match_error_pixels);
+                assert!(bubble_origin.y >= match_error_pixels);
+                assert!(
+                    (bubble_origin.x + bubble_template.width() as PixelUnit)
+                        < ballot_image.width() - match_error_pixels,
+                    "column: {column}, row: {row}, bubble origin: {:?}, bubble template size: {:?}, ballot image size: {:?}",
+                    bubble_origin,
+                    bubble_template.dimensions(),
+                    ballot_image.dimensions()
+                );
+                assert!(
+                    (bubble_origin.y + bubble_template.height() as PixelUnit)
+                        < ballot_image.height() - match_error_pixels,
+                    "column: {column}, row: {row}, bubble origin: {:?}, bubble template size: {:?}, ballot image size: {:?}",
+                    bubble_origin,
+                    bubble_template.dimensions(),
+                    ballot_image.dimensions()
+                );
+
+                'bubble_search: for x in
+                    (bubble_origin.x - match_error_pixels)..=(bubble_origin.x + match_error_pixels)
+                {
+                    for y in (bubble_origin.y - match_error_pixels)
+                        ..=(bubble_origin.y + match_error_pixels)
+                    {
+                        let bubble_image = ballot_image.view(
+                            x,
+                            y,
+                            bubble_template.width(),
+                            bubble_template.height(),
+                        );
+
+                        let bubble_image = bubble_image.to_image();
+                        let match_score = match_template(&bubble_image, bubble_template);
+                        if match_score >= threshold {
+                            empty_bubbles.push(Point::new(column, row));
+                            break 'bubble_search;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    empty_bubbles
 }

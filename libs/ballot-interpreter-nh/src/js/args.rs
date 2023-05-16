@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use crate::election::Election;
 
 use super::image_data::ImageData;
+use super::serialization::from_js;
 
 /// Image arguments can be either a path or an `ImageData` object.
 #[derive(Debug)]
@@ -59,22 +60,11 @@ pub fn get_election_definition_from_arg(
     cx: &mut FunctionContext,
     argument: i32,
 ) -> Result<Election, Throw> {
-    let Some(election_json) = cx.argument_opt(0) else {
+    let Some(js_election) = cx.argument_opt(0) else {
         return cx.throw_type_error(format!(
             "election definition expected at argument {argument}"
         ));
     };
 
-    let Ok(election_json) = election_json
-        .downcast::<JsString, _>(cx) else {
-            return cx.throw_type_error(format!(
-                "election definition at argument {argument} must be a string"
-            ));
-        };
-
-    serde_json::from_str(election_json.value(cx).as_str()).or_else(|err| {
-        cx.throw_type_error(format!(
-            "failed to parse election definition at argument {argument}: {err}"
-        ))
-    })
+    from_js(cx, js_election)
 }

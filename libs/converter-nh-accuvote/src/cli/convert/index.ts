@@ -1,16 +1,10 @@
-import {
-  loadImage,
-  toImageData,
-  imageDebugger,
-} from '@votingworks/image-utils';
+import { loadImageData } from '@votingworks/image-utils';
 import { err, ok, Result } from '@votingworks/basics';
 import { DOMParser } from '@xmldom/xmldom';
 import { enable as enableDebug } from 'debug';
 import { promises as fs } from 'fs';
-import { basename } from 'path';
 import { RealIo, Stdio } from '..';
 import { convertElectionDefinition } from '../../convert/convert_election_definition';
-import * as templates from '../../data/templates';
 import { NewHampshireBallotCardDefinition } from '../../convert/types';
 
 interface ConvertOptions {
@@ -147,8 +141,8 @@ export async function main(
     options;
 
   const definitionContent = await fs.readFile(definitionPath, 'utf8');
-  const frontBallotImage = toImageData(await loadImage(frontBallotPath));
-  const backBallotImage = toImageData(await loadImage(backBallotPath));
+  const frontBallotImage = await loadImageData(frontBallotPath);
+  const backBallotImage = await loadImageData(backBallotPath);
 
   const cardDefinition: NewHampshireBallotCardDefinition = {
     definition: parseXml(definitionContent),
@@ -156,16 +150,7 @@ export async function main(
     back: backBallotImage,
   };
 
-  const convertResult = convertElectionDefinition(cardDefinition, {
-    ovalTemplate: await templates.getOvalTemplate(),
-    debug: imageDebugger(
-      outputPath ??
-        `convert-front=${basename(frontBallotPath)}-back=${basename(
-          backBallotPath
-        )}`,
-      { width: frontBallotImage.width, height: frontBallotImage.height }
-    ),
-  });
+  const convertResult = convertElectionDefinition(cardDefinition);
 
   const { issues = [] } = convertResult.isOk()
     ? convertResult.ok()

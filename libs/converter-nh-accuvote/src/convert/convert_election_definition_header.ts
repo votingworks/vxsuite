@@ -22,7 +22,6 @@ import makeDebug from 'debug';
 import { decode as decodeHtmlEntities } from 'he';
 import { DateTime } from 'luxon';
 import { sha256 } from 'js-sha256';
-import { getTemplateBallotCardGeometry } from '../accuvote';
 import { parseConstitutionalQuestions } from './parse_constitutional_questions';
 import {
   ConvertIssue,
@@ -211,7 +210,6 @@ export function convertElectionDefinitionHeader(
         ],
       });
   }
-  const geometry = getTemplateBallotCardGeometry(paperSize);
 
   const parties = new Map<string, Party>();
   const contests: Array<CandidateContest | YesNoContest> = [];
@@ -457,8 +455,9 @@ export function convertElectionDefinitionHeader(
       {
         precinctId,
         ballotStyleId: 'default',
-        columns: geometry.gridSize.width,
-        rows: geometry.gridSize.height,
+        // placeholder values to be overridden
+        columns: 0,
+        rows: 0,
         // hardcoded for NH state elections
         optionBoundsFromTargetMark: {
           left: 5,

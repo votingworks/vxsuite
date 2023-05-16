@@ -20,8 +20,7 @@ import { writeImageData, createImageData } from '@votingworks/image-utils';
 import { pipeline } from 'stream/promises';
 import { join } from 'path';
 import cloneDeep from 'lodash.clonedeep';
-import { generateBallotPageLayouts } from '@votingworks/converter-nh-accuvote';
-import { generateCvrs } from '../../generate_cvrs';
+import { generateBallotPageLayouts, generateCvrs } from '../../generate_cvrs';
 import {
   generateBallotAssetPath,
   replaceUniqueId,
@@ -318,7 +317,7 @@ export async function main(
           ballotType: BallotType.Standard,
           locales: { primary: 'en-US' },
           isTestMode: testMode,
-        }).unsafeUnwrap(),
+        }),
         (l) => l.metadata.pageNumber === pageNumber
       );
       fs.writeFileSync(

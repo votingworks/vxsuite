@@ -37,6 +37,12 @@ pub type SubPixelUnit = f32;
 /// with the same underlying representation is not used.
 pub type Radians = f32;
 
+/// Fractional number of inches.
+///
+/// Because this is just a type alias it does not enforce that another type
+/// with the same underlying representation is not used.
+pub type Inch = f32;
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct Point<T: Sub<Output = T>> {
     pub x: T,

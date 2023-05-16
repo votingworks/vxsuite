@@ -32,8 +32,7 @@ test('no debug', () => {
   );
 
   expect(interpretImplMock).toHaveBeenCalledWith(
-    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-      .electionData,
+    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition.election,
     'a.jpeg',
     'b.jpeg',
     undefined,
@@ -55,8 +54,7 @@ test('empty debug paths', () => {
   );
 
   expect(interpretImplMock).toHaveBeenCalledWith(
-    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-      .electionData,
+    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition.election,
     frontImageData,
     backImageData,
     undefined,
@@ -77,8 +75,7 @@ test('undefined debug paths', () => {
   );
 
   expect(interpretImplMock).toHaveBeenCalledWith(
-    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-      .electionData,
+    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition.election,
     frontImageData,
     backImageData,
     undefined,
@@ -99,8 +96,7 @@ test('debug with image paths', () => {
   );
 
   expect(interpretImplMock).toHaveBeenCalledWith(
-    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-      .electionData,
+    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition.election,
     'a.jpeg',
     'b.jpeg',
     'a.jpeg',
@@ -121,8 +117,7 @@ test('debug with image data', () => {
   );
 
   expect(interpretImplMock).toHaveBeenCalledWith(
-    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-      .electionData,
+    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition.election,
     frontImageData,
     backImageData,
     'a.jpeg',

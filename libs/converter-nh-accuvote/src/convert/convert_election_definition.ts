@@ -1,19 +1,16 @@
 import {
+  BallotPageMetadataFront,
+  findTemplateGridAndBubbles,
+} from '@votingworks/ballot-interpreter-nh';
+import {
   assert,
   err,
   ok,
   resultBlock,
   throwIllegalValue,
+  typedAs,
 } from '@votingworks/basics';
-import { Debugger, noDebug } from '@votingworks/image-utils';
 import { Election, GridPosition, getContests } from '@votingworks/types';
-import {
-  findTemplateOvals,
-  getTemplateBallotCardGeometry,
-  getTemplateBallotPaperSize,
-} from '../accuvote';
-import { interpretBallotCardLayout } from '../interpret/interpret_ballot_card_layout';
-import { FrontMarksMetadata } from '../types';
 import { convertElectionDefinitionHeader } from './convert_election_definition_header';
 import { matchContestOptionsOnGrid } from './match_contest_options_on_grid';
 import {
@@ -21,18 +18,15 @@ import {
   ConvertResult,
   NewHampshireBallotCardDefinition,
   PairColumnEntriesIssueKind,
-  TemplateOvalGridEntry,
+  TemplateBubbleGridEntry,
+  ConvertIssue,
 } from './types';
 
 /**
  * Convert New Hampshire XML files to a single {@link Election} object.
  */
 export function convertElectionDefinition(
-  cardDefinition: NewHampshireBallotCardDefinition,
-  {
-    ovalTemplate,
-    debug: imdebug = noDebug(),
-  }: { ovalTemplate: ImageData; debug?: Debugger }
+  cardDefinition: NewHampshireBallotCardDefinition
 ): ConvertResult {
   return resultBlock((fail) => {
     const convertHeader = convertElectionDefinitionHeader(
@@ -43,23 +37,50 @@ export function convertElectionDefinition(
     let success = true;
     const issues = [...headerIssues];
 
-    let paperSize = election.ballotLayout?.paperSize;
+    const findTemplateGridAndBubblesResult = findTemplateGridAndBubbles([
+      cardDefinition.front,
+      cardDefinition.back,
+    ]);
 
-    const frontExpectedPaperSize = getTemplateBallotPaperSize({
-      width: cardDefinition.front.width,
-      height: cardDefinition.front.height,
-    });
-    const backExpectedPaperSize = getTemplateBallotPaperSize({
-      width: cardDefinition.back.width,
-      height: cardDefinition.back.height,
-    });
+    if (findTemplateGridAndBubblesResult.isErr()) {
+      return err({
+        issues: [
+          ...issues,
+          typedAs<ConvertIssue>({
+            kind: ConvertIssueKind.TimingMarkDetectionFailed,
+            message: 'failed to detect timing marks',
+            side: 'front',
+          }),
+        ],
+      });
+    }
+
+    let [frontGridAndBubbles, backGridAndBubbles] =
+      findTemplateGridAndBubblesResult.ok();
 
     if (
-      !frontExpectedPaperSize ||
-      !backExpectedPaperSize ||
-      frontExpectedPaperSize !== backExpectedPaperSize ||
-      frontExpectedPaperSize !== paperSize
+      frontGridAndBubbles.grid.metadata.side === 'back' &&
+      backGridAndBubbles.grid.metadata.side === 'front'
     ) {
+      [frontGridAndBubbles, backGridAndBubbles] = [
+        backGridAndBubbles,
+        frontGridAndBubbles,
+      ];
+    }
+
+    let paperSize = election.ballotLayout?.paperSize;
+
+    const frontExpectedPaperSize =
+      frontGridAndBubbles.grid.geometry.ballotPaperSize;
+    const backExpectedPaperSize =
+      backGridAndBubbles.grid.geometry.ballotPaperSize;
+
+    assert(
+      frontExpectedPaperSize === backExpectedPaperSize,
+      'the paper size should be the same for both sides'
+    );
+
+    if (frontExpectedPaperSize !== paperSize) {
       success = frontExpectedPaperSize === backExpectedPaperSize;
       issues.push({
         kind: ConvertIssueKind.InvalidTemplateSize,
@@ -77,51 +98,25 @@ export function convertElectionDefinition(
       paperSize = frontExpectedPaperSize;
     }
 
-    assert(paperSize, 'paperSize should always be set');
-    const expectedCardGeometry = getTemplateBallotCardGeometry(paperSize);
-
-    const frontLayout = imdebug.capture('front', () => {
-      imdebug.imageData(0, 0, cardDefinition.front);
-      return interpretBallotCardLayout(cardDefinition.front, {
-        geometry: expectedCardGeometry,
-        debug: imdebug,
-      });
-    });
-
-    if (!frontLayout) {
-      success = false;
-      issues.push({
-        kind: ConvertIssueKind.TimingMarkDetectionFailed,
-        message: 'no timing marks found on front',
-        side: 'front',
-      });
-    }
-
-    const backLayout = imdebug.capture('back', () => {
-      imdebug.imageData(0, 0, cardDefinition.back);
-      return interpretBallotCardLayout(cardDefinition.back, {
-        geometry: expectedCardGeometry,
-        debug: imdebug,
-      });
-    });
-
-    if (!backLayout) {
-      success = false;
-      issues.push({
-        kind: ConvertIssueKind.TimingMarkDetectionFailed,
-        message: 'no timing marks found on back',
-        side: 'back',
-      });
-    }
-
-    if (frontLayout.side !== 'front') {
+    if (frontGridAndBubbles.grid.metadata.side !== 'front') {
       success = false;
       issues.push({
         kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-        message: `front page timing mark metadata is invalid: side=${frontLayout.side}`,
+        message: `front page timing mark metadata is invalid: side=${frontGridAndBubbles.grid.metadata.side}`,
         side: 'front',
-        timingMarkBits: frontLayout.metadata.bits,
-        timingMarks: frontLayout.partialTimingMarks,
+        timingMarkBits: frontGridAndBubbles.grid.metadata.bits,
+        timingMarks: frontGridAndBubbles.grid.partialTimingMarks,
+      });
+    }
+
+    if (backGridAndBubbles.grid.metadata.side !== 'back') {
+      success = false;
+      issues.push({
+        kind: ConvertIssueKind.InvalidTimingMarkMetadata,
+        message: `back page timing mark metadata is invalid: side=${backGridAndBubbles.grid.metadata.side}`,
+        side: 'back',
+        timingMarkBits: backGridAndBubbles.grid.metadata.bits,
+        timingMarks: backGridAndBubbles.grid.partialTimingMarks,
       });
     }
 
@@ -132,25 +127,12 @@ export function convertElectionDefinition(
       });
     }
 
-    const frontMetadata = frontLayout.metadata as FrontMarksMetadata;
+    const frontMetadata = frontGridAndBubbles.grid
+      .metadata as BallotPageMetadataFront;
     const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
 
-    const frontTemplateOvals = imdebug.capture('front ovals', () =>
-      findTemplateOvals(
-        cardDefinition.front,
-        ovalTemplate,
-        frontLayout.completeTimingMarks,
-        { usableArea: expectedCardGeometry.frontUsableArea, debug: imdebug }
-      )
-    );
-    const backTemplateOvals = imdebug.capture('back ovals', () =>
-      findTemplateOvals(
-        cardDefinition.back,
-        ovalTemplate,
-        backLayout.completeTimingMarks,
-        { usableArea: expectedCardGeometry.backUsableArea, debug: imdebug }
-      )
-    );
+    const frontTemplateBubbles = frontGridAndBubbles.bubbles;
+    const backTemplateBubbles = backGridAndBubbles.bubbles;
 
     const gridLayout = election.gridLayouts?.[0];
     assert(gridLayout, 'grid layout missing');
@@ -158,14 +140,16 @@ export function convertElectionDefinition(
     const ballotStyle = election.ballotStyles[0];
     assert(ballotStyle, 'ballot style missing');
 
-    const ovalGrid = [
-      ...frontTemplateOvals.map<TemplateOvalGridEntry>((oval) => ({
-        ...oval,
+    const bubbleGrid = [
+      ...frontTemplateBubbles.map<TemplateBubbleGridEntry>((bubble) => ({
         side: 'front',
+        column: bubble.x,
+        row: bubble.y,
       })),
-      ...backTemplateOvals.map<TemplateOvalGridEntry>((oval) => ({
-        ...oval,
+      ...backTemplateBubbles.map<TemplateBubbleGridEntry>((bubble) => ({
         side: 'back',
+        column: bubble.x,
+        row: bubble.y,
       })),
     ];
 
@@ -174,7 +158,7 @@ export function convertElectionDefinition(
       gridLayout.gridPositions.map<GridPosition>((gridPosition) => ({
         ...gridPosition,
       })),
-      ovalGrid
+      bubbleGrid
     );
 
     if (pairColumnEntriesResult.isErr()) {
@@ -222,12 +206,14 @@ export function convertElectionDefinition(
       gridLayouts: [
         {
           ...gridLayout,
+          columns: frontGridAndBubbles.grid.geometry.gridSize.width,
+          rows: frontGridAndBubbles.grid.geometry.gridSize.height,
           ballotStyleId,
-          gridPositions: mergedGrids.map(([definition, oval]) => ({
+          gridPositions: mergedGrids.map(([definition, bubble]) => ({
             ...definition,
-            side: oval.side,
-            column: oval.column,
-            row: oval.row,
+            side: bubble.side,
+            column: bubble.column,
+            row: bubble.row,
           })),
         },
       ],

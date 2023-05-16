@@ -1,19 +1,27 @@
 import { buildCVRContestsFromVotes, hasWriteIns } from '@votingworks/backend';
-import { throwIllegalValue } from '@votingworks/basics';
+import { iter, throwIllegalValue } from '@votingworks/basics';
 import {
+  BallotMetadata,
+  BallotPageContestLayout,
+  BallotPageContestOptionLayout,
+  BallotPageLayout,
+  BallotPaperSize,
   BallotType,
   Candidate,
   CandidateContest,
   CandidateVote,
   ContestId,
   CVR,
+  Election,
   ElectionDefinition,
   getContests,
+  mapSheet,
+  Size,
   Vote,
   VotesDict,
   YesNoVote,
 } from '@votingworks/types';
-import { generateBallotPageLayouts } from '@votingworks/converter-nh-accuvote';
+import { allContestOptions } from '@votingworks/utils';
 import {
   arrangeContestsBySheet,
   filterVotesByContests,
@@ -110,6 +118,74 @@ interface GenerateCvrsParams {
 }
 
 /**
+ * Generate a fake page layout for a ballot.
+ */
+export function generateBallotPageLayouts(
+  election: Election,
+  metadata: BallotMetadata
+): readonly BallotPageLayout[] {
+  if (!election.gridLayouts) {
+    return [];
+  }
+
+  const gridLayout = election.gridLayouts.find(
+    (layout) =>
+      layout.ballotStyleId === metadata.ballotStyleId &&
+      layout.precinctId === metadata.precinctId
+  );
+
+  if (!gridLayout) {
+    throw new Error(
+      `no grid layout found for ballot style ${metadata.ballotStyleId} and precinct ${metadata.precinctId}`
+    );
+  }
+
+  const paperSize = election.ballotLayout?.paperSize ?? BallotPaperSize.Letter;
+  const pageSize: Size = {
+    width: 200 * 8.5,
+    height: 200 * (paperSize === BallotPaperSize.Letter ? 11 : 14),
+  };
+  return mapSheet([1, 2], (pageNumber, side) => ({
+    pageSize,
+    metadata: {
+      ...metadata,
+      pageNumber,
+    },
+    contests: election.contests
+      .filter((contest) =>
+        gridLayout.gridPositions.some(
+          (position) =>
+            position.side === side && position.contestId === contest.id
+        )
+      )
+      .map(
+        (contest): BallotPageContestLayout => ({
+          contestId: contest.id,
+          bounds: { x: 0, y: 0, width: 100, height: 100 },
+          corners: [
+            { x: 0, y: 0 },
+            { x: 100, y: 0 },
+            { x: 0, y: 100 },
+            { x: 100, y: 100 },
+          ],
+          options: iter(allContestOptions(contest))
+            .map(
+              (option): BallotPageContestOptionLayout => ({
+                bounds: { x: 0, y: 0, width: 10, height: 10 },
+                target: {
+                  bounds: { x: 0, y: 0, width: 10, height: 10 },
+                  inner: { x: 0, y: 0, width: 10, height: 10 },
+                },
+                definition: option,
+              })
+            )
+            .toArray(),
+        })
+      ),
+  }));
+}
+
+/**
  * Generates a base set of CVRs for a given election that obtains maximum coverage of all the ballot metadata (precincts, scanners, etc.) and all possible votes on each contest.
  * @param options.ballotPackage Ballot package containing the election data to generate CVRs for
  * @param options.scannerIds Scanners to include in the output CVRs
@@ -155,7 +231,7 @@ export function* generateCvrs({
                   : BallotType.Standard,
               locales: { primary: 'en-US' },
               isTestMode: testMode,
-            }).unsafeUnwrap();
+            });
         if (ballotPageLayouts.length > 2) {
           throw new Error('only single-sheet ballots are supported');
         }

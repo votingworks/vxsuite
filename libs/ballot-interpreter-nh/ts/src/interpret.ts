@@ -60,7 +60,7 @@ function normalizeArgumentsForBridge(
   }
 
   return [
-    electionDefinition.electionData,
+    electionDefinition.election,
     ...ballotImageSources,
     debugBasePathSideA,
     debugBasePathSideB,

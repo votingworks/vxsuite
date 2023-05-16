@@ -1,8 +1,10 @@
-use image::{DynamicImage, GrayImage};
+use image::{DynamicImage, GrayImage, Luma};
+use imageproc::contrast::{otsu_level, threshold};
 use neon::prelude::*;
 use neon::types::JsObject;
 
-use crate::ballot_card::load_oval_template;
+use crate::ballot_card::load_ballot_scan_bubble_image;
+use crate::image_utils::bleed;
 use crate::interpret::{interpret_ballot_card, Options, SIDE_A_LABEL, SIDE_B_LABEL};
 
 use self::args::{
@@ -10,9 +12,11 @@ use self::args::{
     ImageSource,
 };
 use self::image_data::ImageData;
+use self::serialization::tuple2_to_js;
 
 mod args;
 mod image_data;
+mod serialization;
 
 fn make_interpret_result<'a>(
     cx: &mut FunctionContext<'a>,
@@ -67,12 +71,17 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
             }
         };
 
+    let bubble_template = load_ballot_scan_bubble_image().expect("failed to load bubble template");
+    let bubble_template = bleed(
+        &threshold(&bubble_template, otsu_level(&bubble_template)),
+        Luma([0u8]),
+    );
     let interpret_result = interpret_ballot_card(
         side_a_image,
         side_b_image,
         &Options {
             election,
-            oval_template: load_oval_template().expect("failed to load oval template"),
+            bubble_template,
             debug_side_a_base,
             debug_side_b_base,
         },
@@ -114,6 +123,45 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     result_object.set(&mut cx, "backNormalizedImage", back_js_normalized_image_obj)?;
 
     Ok(result_object)
+}
+
+pub fn find_template_grid_and_bubbles(mut cx: FunctionContext) -> JsResult<JsArray> {
+    let side_a_image_or_path = get_image_data_or_path_from_arg(&mut cx, 0)?;
+    let side_b_image_or_path = get_image_data_or_path_from_arg(&mut cx, 1)?;
+    let side_a_label = side_a_image_or_path.as_label_or(SIDE_A_LABEL);
+    let side_b_label = side_b_image_or_path.as_label_or(SIDE_B_LABEL);
+    let (side_a_image, side_b_image) = rayon::join(
+        || load_ballot_image_from_image_or_path(side_a_image_or_path),
+        || load_ballot_image_from_image_or_path(side_b_image_or_path),
+    );
+
+    let (side_a_image, side_b_image) = match (
+        (side_a_image, side_a_label.clone()),
+        (side_b_image, side_b_label.clone()),
+    ) {
+        ((Some(a), _), (Some(b), _)) => (a, b),
+        ((None, label), (Some(_), _)) | ((Some(_), _), (None, label)) => {
+            return cx.throw_error(format!("failed to load ballot card image: {label}"));
+        }
+        ((None, a), (None, b)) => {
+            return cx.throw_error(format!("failed to load ballot card images: {a}, {b}"));
+        }
+    };
+
+    // call the underlying non-JS function
+    let template_grid_and_bubbles = match crate::template::find_template_grid_and_bubbles(
+        side_a_image,
+        side_b_image,
+        side_a_label.as_str(),
+        side_b_label.as_str(),
+    ) {
+        Ok(template_grid_and_bubbles) => template_grid_and_bubbles,
+        Err(err) => {
+            return cx.throw_error(err.to_string());
+        }
+    };
+
+    tuple2_to_js(&mut cx, template_grid_and_bubbles)
 }
 
 fn load_ballot_image_from_image_or_path(image_or_path: ImageSource) -> Option<GrayImage> {

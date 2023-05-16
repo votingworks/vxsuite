@@ -10,15 +10,12 @@ import { convertElectionDefinition } from '../../convert/convert_election_defini
 import { ConvertIssueKind } from '../../convert/types';
 
 jest.mock('../../convert/convert_election_definition');
-jest.mock('../../images', (): typeof import('../../images') => ({
-  matchTemplate: jest.fn(),
-  matchTemplateImage: jest.fn(),
-}));
 jest.mock(
   '@votingworks/image-utils',
   (): Partial<typeof import('@votingworks/image-utils')> => ({
     imageDebugger: jest.fn(),
     loadImage: jest.fn(),
+    loadImageData: jest.fn().mockReturnValue(createImageData(1, 1)),
     toImageData: jest.fn().mockReturnValue(createImageData(1, 1)),
   })
 );
