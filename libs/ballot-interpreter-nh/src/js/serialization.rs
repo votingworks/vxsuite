@@ -27,3 +27,16 @@ pub fn from_js<'a, T: DeserializeOwned, C: Context<'a>>(
     serde_json::from_str(&json)
         .or_else(|err| cx.throw_error(format!("deserialization from JSON failed: {err}")))
 }
+
+/// Converts a Rust 2-tuple to a JS array.
+pub fn tuple2_to_js<'a, T1: Serialize, T2: Serialize, C: Context<'a>>(
+    cx: &mut C,
+    tuple: (T1, T2),
+) -> NeonResult<Handle<'a, JsArray>> {
+    let array = JsArray::new(cx, 2);
+    let element0 = to_js(cx, tuple.0)?;
+    let element1 = to_js(cx, tuple.1)?;
+    array.set(cx, 0, element0)?;
+    array.set(cx, 1, element1)?;
+    Ok(array)
+}

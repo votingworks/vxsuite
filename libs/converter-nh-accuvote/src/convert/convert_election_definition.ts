@@ -1,6 +1,6 @@
 import {
   BallotPageMetadataFront,
-  findLayout,
+  findTemplateGridAndBubbles,
 } from '@votingworks/ballot-interpreter-nh';
 import {
   assert,
@@ -37,12 +37,12 @@ export function convertElectionDefinition(
     let success = true;
     const issues = [...headerIssues];
 
-    const findLayoutResult = findLayout([
+    const findTemplateGridAndBubblesResult = findTemplateGridAndBubbles([
       cardDefinition.front,
       cardDefinition.back,
     ]);
 
-    if (findLayoutResult.isErr()) {
+    if (findTemplateGridAndBubblesResult.isErr()) {
       return err({
         issues: [
           ...issues,
@@ -55,26 +55,32 @@ export function convertElectionDefinition(
       });
     }
 
-    let [frontLayout, backLayout] = findLayoutResult.ok().layouts;
+    let [frontGridAndBubbles, backGridAndBubbles] =
+      findTemplateGridAndBubblesResult.ok();
 
     if (
-      frontLayout.grid.metadata.side === 'back' &&
-      backLayout.grid.metadata.side === 'front'
+      frontGridAndBubbles.grid.metadata.side === 'back' &&
+      backGridAndBubbles.grid.metadata.side === 'front'
     ) {
-      [frontLayout, backLayout] = [backLayout, frontLayout];
+      [frontGridAndBubbles, backGridAndBubbles] = [
+        backGridAndBubbles,
+        frontGridAndBubbles,
+      ];
     }
 
     let paperSize = election.ballotLayout?.paperSize;
 
-    const frontExpectedPaperSize = frontLayout.grid.geometry.ballotPaperSize;
-    const backExpectedPaperSize = backLayout.grid.geometry.ballotPaperSize;
+    const frontExpectedPaperSize =
+      frontGridAndBubbles.grid.geometry.ballotPaperSize;
+    const backExpectedPaperSize =
+      backGridAndBubbles.grid.geometry.ballotPaperSize;
 
-    if (
-      !frontExpectedPaperSize ||
-      !backExpectedPaperSize ||
-      frontExpectedPaperSize !== backExpectedPaperSize ||
-      frontExpectedPaperSize !== paperSize
-    ) {
+    assert(
+      frontExpectedPaperSize === backExpectedPaperSize,
+      'the paper size should be the same for both sides'
+    );
+
+    if (frontExpectedPaperSize !== paperSize) {
       success = frontExpectedPaperSize === backExpectedPaperSize;
       issues.push({
         kind: ConvertIssueKind.InvalidTemplateSize,
@@ -92,27 +98,25 @@ export function convertElectionDefinition(
       paperSize = frontExpectedPaperSize;
     }
 
-    assert(paperSize, 'paperSize should always be set');
-
-    if (frontLayout.grid.metadata.side !== 'front') {
+    if (frontGridAndBubbles.grid.metadata.side !== 'front') {
       success = false;
       issues.push({
         kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-        message: `front page timing mark metadata is invalid: side=${frontLayout.grid.metadata.side}`,
+        message: `front page timing mark metadata is invalid: side=${frontGridAndBubbles.grid.metadata.side}`,
         side: 'front',
-        timingMarkBits: frontLayout.grid.metadata.bits,
-        timingMarks: frontLayout.grid.partialTimingMarks,
+        timingMarkBits: frontGridAndBubbles.grid.metadata.bits,
+        timingMarks: frontGridAndBubbles.grid.partialTimingMarks,
       });
     }
 
-    if (backLayout.grid.metadata.side !== 'back') {
+    if (backGridAndBubbles.grid.metadata.side !== 'back') {
       success = false;
       issues.push({
         kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-        message: `back page timing mark metadata is invalid: side=${backLayout.grid.metadata.side}`,
+        message: `back page timing mark metadata is invalid: side=${backGridAndBubbles.grid.metadata.side}`,
         side: 'back',
-        timingMarkBits: backLayout.grid.metadata.bits,
-        timingMarks: backLayout.grid.partialTimingMarks,
+        timingMarkBits: backGridAndBubbles.grid.metadata.bits,
+        timingMarks: backGridAndBubbles.grid.partialTimingMarks,
       });
     }
 
@@ -123,11 +127,12 @@ export function convertElectionDefinition(
       });
     }
 
-    const frontMetadata = frontLayout.grid.metadata as BallotPageMetadataFront;
+    const frontMetadata = frontGridAndBubbles.grid
+      .metadata as BallotPageMetadataFront;
     const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
 
-    const frontTemplateBubbles = frontLayout.bubbles;
-    const backTemplateBubbles = backLayout.bubbles;
+    const frontTemplateBubbles = frontGridAndBubbles.bubbles;
+    const backTemplateBubbles = backGridAndBubbles.bubbles;
 
     const gridLayout = election.gridLayouts?.[0];
     assert(gridLayout, 'grid layout missing');
@@ -201,8 +206,8 @@ export function convertElectionDefinition(
       gridLayouts: [
         {
           ...gridLayout,
-          columns: frontLayout.grid.geometry.gridSize.width,
-          rows: frontLayout.grid.geometry.gridSize.height,
+          columns: frontGridAndBubbles.grid.geometry.gridSize.width,
+          rows: frontGridAndBubbles.grid.geometry.gridSize.height,
           ballotStyleId,
           gridPositions: mergedGrids.map(([definition, bubble]) => ({
             ...definition,

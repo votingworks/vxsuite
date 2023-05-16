@@ -4,7 +4,7 @@ import {
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import { SheetOf } from '@votingworks/types';
-import { findLayout } from './find_layout';
+import { findTemplateGridAndBubbles } from './find_template_grid_and_bubbles';
 import { TimingMarkGrid } from './types';
 
 test('find layout from template images', async () => {
@@ -13,14 +13,16 @@ test('find layout from template images', async () => {
     await electionGridLayoutNewHampshireAmherstFixtures.templateBack.asImageData(),
   ];
 
-  const { layouts } = findLayout(ballotImages).unsafeUnwrap();
-  expect(layouts).toEqual(
+  const [front, back] = findTemplateGridAndBubbles(ballotImages).unsafeUnwrap();
+
+  // the particulars of the grid are tested in template.rs
+  expect([front, back]).toEqual(
     typedAs<SheetOf<TimingMarkGrid>>([expect.any(Object), expect.any(Object)])
   );
-  expect(layouts[0].grid.metadata.side).toEqual('front');
-  expect(layouts[1].grid.metadata.side).toEqual('back');
-  expect(layouts[0].bubbles).toHaveLength(32);
-  expect(layouts[1].bubbles).toHaveLength(20);
+  expect(front.grid.metadata.side).toEqual('front');
+  expect(back.grid.metadata.side).toEqual('back');
+  expect(front.bubbles).toBeDefined();
+  expect(back.bubbles).toBeDefined();
 });
 
 test('returns Err on error', async () => {
@@ -29,5 +31,7 @@ test('returns Err on error', async () => {
     await sampleBallotImages.notBallot.asImageData(),
   ];
 
-  expect(findLayout(ballotImages)).toEqual(err(expect.anything()));
+  expect(findTemplateGridAndBubbles(ballotImages)).toEqual(
+    err(expect.anything())
+  );
 });

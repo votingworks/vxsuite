@@ -223,7 +223,7 @@ export interface BallotPageMetadataBack {
   expectedEnderCode: boolean[];
 }
 
-/** Represents a single capital letter from A-Z represented by a u8 index. */
+/** Represents a single capital letter from A-Z. */
 export type IndexedCapitalLetter =
   | 'A'
   | 'B'

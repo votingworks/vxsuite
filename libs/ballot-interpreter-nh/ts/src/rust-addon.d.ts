@@ -1,5 +1,5 @@
 import { Election } from '@votingworks/types';
-import { type FoundLayout } from './find_layout';
+import { type TemplateGridAndBubbles } from './find_template_grid_and_bubbles';
 
 /**
  * The result of calling `interpret`.
@@ -30,9 +30,9 @@ export function interpret(
 ): BridgeInterpretResult;
 
 /**
- * Type of the Rust `findLayout` implementation.
+ * Type of the Rust `findTemplateGridAndBubbles` implementation.
  */
-export function findLayout(
+export function findTemplateGridAndBubbles(
   ballotImageSourceSideA: string | ImageData,
   ballotImageSourceSideB: string | ImageData
-): FoundLayout;
+): TemplateGridAndBubbles;

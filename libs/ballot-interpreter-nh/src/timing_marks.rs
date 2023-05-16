@@ -865,6 +865,7 @@ pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
         || rect.bottom()
             > (geometry.canvas_size.height as f32 - timing_mark_size.height.ceil()) as i32;
 
+    // allow timing marks near an edge to be substantially clipped
     let min_timing_mark_width_multiplier = if is_near_left_or_right_edge {
         0.20
     } else {
