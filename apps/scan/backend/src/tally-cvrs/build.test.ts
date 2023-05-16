@@ -137,7 +137,7 @@ test('generates a CVR from a completed BMD ballot', () => {
       },
     ])
   ).toMatchInlineSnapshot(`
-    Object {
+    {
       "_ballotId": "abcdefg",
       "_ballotStyleId": "1",
       "_ballotType": "standard",
@@ -146,18 +146,18 @@ test('generates a CVR from a completed BMD ballot', () => {
       "_precinctId": "20",
       "_scannerId": "000",
       "_testBallot": false,
-      "attorney": Array [],
-      "board-of-alderman": Array [],
-      "chief-of-police": Array [],
-      "city-council": Array [],
-      "controller": Array [
+      "attorney": [],
+      "board-of-alderman": [],
+      "chief-of-police": [],
+      "city-council": [],
+      "controller": [
         "winston-churchill",
       ],
-      "mayor": Array [
+      "mayor": [
         "sherlock-holmes",
       ],
-      "parks-and-recreation-director": Array [],
-      "public-works-director": Array [],
+      "parks-and-recreation-director": [],
+      "public-works-director": [],
     }
   `);
 });
@@ -203,7 +203,7 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
       },
     ])
   ).toMatchInlineSnapshot(`
-    Object {
+    {
       "_ballotId": "abcdefg",
       "_ballotStyleId": "1",
       "_ballotType": "standard",
@@ -212,19 +212,19 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
       "_precinctId": "20",
       "_scannerId": "000",
       "_testBallot": false,
-      "attorney": Array [],
-      "board-of-alderman": Array [],
-      "chief-of-police": Array [],
-      "city-council": Array [],
-      "controller": Array [
+      "attorney": [],
+      "board-of-alderman": [],
+      "chief-of-police": [],
+      "city-council": [],
+      "controller": [
         "winston-churchill",
         "oprah-winfrey",
       ],
-      "mayor": Array [
+      "mayor": [
         "write-in-PIKACHU",
       ],
-      "parks-and-recreation-director": Array [],
-      "public-works-director": Array [],
+      "parks-and-recreation-director": [],
+      "public-works-director": [],
     }
   `);
 });
@@ -308,7 +308,7 @@ test('generates a CVR from a completed HMPB page', () => {
       },
     ])
   ).toMatchInlineSnapshot(`
-    Object {
+    {
       "_ballotId": "abcdefg",
       "_ballotStyleId": "1",
       "_ballotType": "standard",
@@ -317,10 +317,10 @@ test('generates a CVR from a completed HMPB page', () => {
       "_precinctId": "20",
       "_scannerId": "000",
       "_testBallot": false,
-      "controller": Array [
+      "controller": [
         "louis-armstrong",
       ],
-      "mayor": Array [
+      "mayor": [
         "sherlock-holmes",
       ],
     }
@@ -411,7 +411,7 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
       },
     ])
   ).toMatchInlineSnapshot(`
-    Object {
+    {
       "_ballotId": "abcdefg",
       "_ballotStyleId": "1",
       "_ballotType": "standard",
@@ -420,11 +420,11 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
       "_precinctId": "20",
       "_scannerId": "000",
       "_testBallot": false,
-      "controller": Array [
+      "controller": [
         "winston-churchill",
         "oprah-winfrey",
       ],
-      "mayor": Array [
+      "mayor": [
         "write-in-0",
       ],
     }

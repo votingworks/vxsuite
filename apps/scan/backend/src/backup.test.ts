@@ -39,14 +39,14 @@ jest.mock('fs-extra', (): typeof import('fs-extra') => {
     existsSync: jest.fn((path) =>
       jest.requireActual('fs-extra').existsSync(path)
     ),
-    createReadStream: jest.fn((path) => {
+    createReadStream: (path) => {
       if (path === '/var/log/vx-logs.log') {
         const tmpFile = tmpNameSync();
         writeFileSync(tmpFile, 'mock logs');
         return jest.requireActual('fs-extra').createReadStream(tmpFile);
       }
       return jest.requireActual('fs-extra').createReadStream(path);
-    }),
+    },
   };
 });
 

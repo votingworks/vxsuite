@@ -1,4 +1,4 @@
-import { writeImageData } from '@votingworks/image-utils';
+import { createImageData, writeImageData } from '@votingworks/image-utils';
 import {
   FakeReadable,
   fakeReadable,
@@ -10,16 +10,15 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { fileSync } from 'tmp';
-import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing';
 import { BatchControl, BatchScanner } from '../../src/fujitsu_scanner';
 
-export function makeMock<T>(Cls: new (...args: never[]) => T): MaybeMocked<T> {
+export function makeMock<T>(Cls: new (...args: never[]) => T): jest.Mocked<T> {
   if (!jest.isMockFunction(Cls)) {
     throw new Error(
       `${Cls} is not a mock function; are you missing a jest.mock(…) call?`
     );
   }
-  return mocked(new Cls());
+  return new Cls();
 }
 
 type ScanSessionStep =
@@ -169,10 +168,9 @@ export function makeMockChildProcess(): MockChildProcess {
 
 export async function makeImageFile(): Promise<string> {
   const imageFile = fileSync({ postfix: '.png' });
-  await writeImageData(imageFile.name, {
-    data: Uint8ClampedArray.of(0, 0, 0),
-    width: 1,
-    height: 1,
-  });
+  await writeImageData(
+    imageFile.name,
+    createImageData(Uint8ClampedArray.of(0, 0, 0), 1, 1)
+  );
   return imageFile.name;
 }

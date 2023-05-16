@@ -236,49 +236,49 @@ test('going through the whole process works', async () => {
     expect(cvr.vxBallotType).toEqual(CVR.vxBallotType.Precinct);
     expect(convertCastVoteRecordVotesToLegacyVotes(cvr.CVRSnapshot[0]))
       .toMatchInlineSnapshot(`
-      Object {
-        "County-Attorney-133f910f": Array [
+      {
+        "County-Attorney-133f910f": [
           "Mary-Woolson-dc0b854a",
         ],
-        "County-Commissioner-d6feed25": Array [
+        "County-Commissioner-d6feed25": [
           "write-in-0",
         ],
-        "County-Treasurer-87d25a31": Array [
+        "County-Treasurer-87d25a31": [
           "write-in-0",
         ],
-        "Executive-Councilor-bb22557f": Array [
+        "Executive-Councilor-bb22557f": [
           "write-in-0",
         ],
-        "Governor-061a401b": Array [
+        "Governor-061a401b": [
           "Josiah-Bartlett-1bb99985",
         ],
-        "Register-of-Deeds-a1278df2": Array [
+        "Register-of-Deeds-a1278df2": [
           "John-Mann-b56bbdd3",
         ],
-        "Register-of-Probate-a4117da8": Array [
+        "Register-of-Probate-a4117da8": [
           "Claire-Cutts-07a436e7",
         ],
-        "Representative-in-Congress-24683b44": Array [
+        "Representative-in-Congress-24683b44": [
           "Richard-Coote-b9095636",
         ],
-        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": Array [
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
           "yes",
         ],
-        "Sheriff-4243fe0b": Array [
+        "Sheriff-4243fe0b": [
           "Edward-Randolph-bf4c848a",
         ],
-        "State-Representative-Hillsborough-District-37-f3bde894": Array [
+        "State-Representative-Hillsborough-District-37-f3bde894": [
           "Charles-H-Hersey-096286a4",
         ],
-        "State-Representatives-Hillsborough-District-34-b1012d38": Array [
+        "State-Representatives-Hillsborough-District-34-b1012d38": [
           "Samuel-Bell-17973275",
           "Samuel-Livermore-f927fef1",
           "Jacob-Freese-b5146505",
         ],
-        "State-Senator-391381f8": Array [
+        "State-Senator-391381f8": [
           "James-Poole-db5ef4bd",
         ],
-        "United-States-Senator-d3f1c75b": Array [
+        "United-States-Senator-d3f1c75b": [
           "William-Preston-3778fcd5",
         ],
       }
