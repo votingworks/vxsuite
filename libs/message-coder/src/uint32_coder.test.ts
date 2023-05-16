@@ -29,6 +29,29 @@ test('uint32', () => {
   );
 });
 
+test('uint32 with big-endian=true', () => {
+  fc.assert(
+    fc.property(
+      fc.integer(0, 0xffffffff),
+      fc.integer({ min: 0, max: 100 }),
+      (value, byteOffset) => {
+        const bitOffset = byteOffset * 8;
+        const buffer = Buffer.alloc(4 + byteOffset);
+        const field = uint32(undefined, { littleEndian: false });
+        type field = CoderType<typeof field>;
+
+        expect(field.encodeInto(value, buffer, bitOffset)).toEqual(
+          ok(bitOffset + 32)
+        );
+        expect(buffer.readUInt32BE(byteOffset)).toEqual(value);
+        expect(field.decodeFrom(buffer, bitOffset)).toEqual(
+          typedAs<DecodeResult<field>>(ok({ value, bitOffset: bitOffset + 32 }))
+        );
+      }
+    )
+  );
+});
+
 test('uint32 with enumeration', () => {
   enum Enum {
     A = 1,
