@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import moment from 'moment';
 
 import { format, isElectionManagerAuth } from '@votingworks/utils';
-import { assert, find } from '@votingworks/basics';
+import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { Button, Prose, Table, TD, Text, LinkButton } from '@votingworks/ui';
 import { ResultsFileType } from '../config/types';
 
@@ -14,19 +14,27 @@ import { routerPaths } from '../router_paths';
 import { ImportCvrFilesModal } from '../components/import_cvrfiles_modal';
 import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_modal';
 import { TIME_FORMAT } from '../config/globals';
-import { getCastVoteRecordFileMode, getCastVoteRecordFiles } from '../api';
+import {
+  clearCastVoteRecordFiles,
+  deleteAllManualTallies,
+  getCastVoteRecordFileMode,
+  getCastVoteRecordFiles,
+} from '../api';
 
 export function TallyScreen(): JSX.Element | null {
   const {
     electionDefinition,
     isOfficialResults,
     fullElectionManualTally,
-    resetFiles,
     auth,
   } = useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth));
   const { election } = electionDefinition;
+
+  const clearCastVoteRecordFilesMutation =
+    clearCastVoteRecordFiles.useMutation();
+  const deleteAllManualTalliesMutation = deleteAllManualTallies.useMutation();
 
   const [confirmingRemoveFileType, setConfirmingRemoveFileType] =
     useState<ResultsFileType>();
@@ -38,9 +46,23 @@ export function TallyScreen(): JSX.Element | null {
   function cancelConfirmingRemoveFiles() {
     setConfirmingRemoveFileType(undefined);
   }
-  async function confirmRemoveFiles(fileType: ResultsFileType) {
+  function confirmRemoveFiles(fileType: ResultsFileType) {
+    switch (fileType) {
+      case ResultsFileType.Manual:
+        deleteAllManualTalliesMutation.mutate();
+        break;
+      case ResultsFileType.CastVoteRecord:
+        clearCastVoteRecordFilesMutation.mutate();
+        break;
+      case ResultsFileType.All:
+        deleteAllManualTalliesMutation.mutate();
+        clearCastVoteRecordFilesMutation.mutate();
+        break;
+      /** istanbul ignore next */
+      default:
+        throwIllegalValue(fileType);
+    }
     setConfirmingRemoveFileType(undefined);
-    await resetFiles(fileType);
   }
 
   function getPrecinctNames(precinctIds: readonly string[]) {

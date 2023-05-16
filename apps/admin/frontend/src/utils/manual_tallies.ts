@@ -16,36 +16,11 @@ import {
 import { combineContestTallies } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
+import type { ServerFullElectionManualTally } from '@votingworks/admin-backend';
 import {
   getDistrictIdsForPartyId,
   getPartiesWithPrimaryElections,
 } from './election';
-
-export function convertManualTallyToStorageString(
-  tally: FullElectionManualTally
-): string {
-  return JSON.stringify({
-    ...tally,
-    resultsByCategory: Array.from(tally.resultsByCategory.entries()),
-    timestampCreated: tally.timestampCreated.getTime(),
-  });
-}
-
-export function convertStorageStringToManualTally(
-  inputString: string
-): FullElectionManualTally {
-  const parsedJson = JSON.parse(inputString) as Record<string, unknown>;
-  const { overallTally, resultsByCategory, votingMethod, timestampCreated } =
-    parsedJson;
-  return {
-    overallTally,
-    votingMethod,
-    resultsByCategory: new Map(
-      resultsByCategory as ReadonlyArray<readonly [unknown, unknown]>
-    ),
-    timestampCreated: new Date(timestampCreated as number),
-  } as unknown as FullElectionManualTally;
-}
 
 export function getTotalNumberOfBallots(
   contestTallies: Dictionary<ContestTally>,
@@ -293,4 +268,24 @@ export function getEmptyManualTalliesByPrecinct(
     };
   }
   return tallies;
+}
+
+export function convertServerFullElectionManualTally(
+  serverFullElectionManualTally: ServerFullElectionManualTally
+): FullElectionManualTally {
+  const resultsByCategory: Map<
+    TallyCategory,
+    Dictionary<ManualTally>
+  > = new Map();
+  for (const [tallyCategory, indexedTallies] of Object.entries(
+    serverFullElectionManualTally.resultsByCategory
+  )) {
+    assert(indexedTallies);
+    resultsByCategory.set(tallyCategory as TallyCategory, indexedTallies);
+  }
+
+  return {
+    ...serverFullElectionManualTally,
+    resultsByCategory,
+  };
 }

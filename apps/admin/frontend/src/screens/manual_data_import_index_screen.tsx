@@ -1,27 +1,18 @@
 import { assert } from '@votingworks/basics';
-import React, { ReactChild, useContext, useEffect, useState } from 'react';
+import React, { ReactChild, useContext, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
-import {
-  Button,
-  SegmentedButtonDeprecated as SegmentedButton,
-  Prose,
-  Table,
-  TD,
-  Text,
-  LinkButton,
-} from '@votingworks/ui';
+import { Button, Prose, Table, TD, Text, LinkButton } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import { TallyCategory, VotingMethod } from '@votingworks/types';
-import { LogEventId } from '@votingworks/logging';
+import { TallyCategory } from '@votingworks/types';
 import { ResultsFileType } from '../config/types';
 import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
-import { convertTalliesByPrecinctToFullManualTally } from '../utils/manual_tallies';
 import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_modal';
+import { deleteAllManualTallies } from '../api';
 
 const SummaryInfo = styled.div`
   align-self: flex-start;
@@ -40,18 +31,14 @@ export function ManualDataImportIndexScreen(): JSX.Element {
   const {
     electionDefinition,
     fullElectionManualTally: existingManualData,
-    updateManualTally,
-    manualTallyVotingMethod,
-    setManualTallyVotingMethod,
-    resetFiles,
     auth,
-    logger,
   } = useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for adding manual tally data
-  const userRole = auth.user.role;
   const { election } = electionDefinition;
   const history = useHistory();
+
+  const deleteAllManualTalliesMutation = deleteAllManualTallies.useMutation();
 
   const existingTalliesByPrecinct = existingManualData?.resultsByCategory.get(
     TallyCategory.Precinct
@@ -60,40 +47,10 @@ export function ManualDataImportIndexScreen(): JSX.Element {
   const hasManualData =
     !!existingManualData?.overallTally.numberOfBallotsCounted;
 
-  async function confirmClearManualData(fileType: ResultsFileType) {
+  function confirmClearManualData() {
     setIsClearing(false);
-    await resetFiles(fileType);
+    deleteAllManualTalliesMutation.mutate();
   }
-
-  async function handleSettingBallotType(newBallotType: VotingMethod) {
-    setManualTallyVotingMethod(newBallotType);
-
-    if (existingTalliesByPrecinct) {
-      const manualTally = convertTalliesByPrecinctToFullManualTally(
-        existingTalliesByPrecinct,
-        election,
-        newBallotType,
-        new Date()
-      );
-      await updateManualTally(manualTally);
-    }
-
-    await logger.log(LogEventId.ManualTallyDataEdited, userRole, {
-      disposition: 'success',
-      newBallotType,
-      message: `Ballot type for manually entered tally data changed to ${newBallotType}`,
-    });
-  }
-
-  useEffect(() => {
-    // If the data gets cleared, reset voting method.
-    if (existingManualData === undefined) {
-      setManualTallyVotingMethod(VotingMethod.Precinct);
-    }
-  }, [existingManualData, setManualTallyVotingMethod]);
-
-  const votingMethodName =
-    manualTallyVotingMethod === VotingMethod.Absentee ? 'Absentee' : 'Precinct';
 
   let totalNumberBallotsEntered = 0;
   const enteredDataRows: ReactChild[] = [];
@@ -117,7 +74,7 @@ export function ManualDataImportIndexScreen(): JSX.Element {
               precinctId: precinct.id,
             })}
           >
-            Edit {votingMethodName} Results for {precinct.name}
+            Edit Results for {precinct.name}
           </LinkButton>
         </TD>
       </tr>
@@ -135,26 +92,7 @@ export function ManualDataImportIndexScreen(): JSX.Element {
                 Back to Tally
               </Button>
             </p>
-            <p>Select the voting method for manually entered results:</p>
-            <p>
-              <SegmentedButton>
-                <Button
-                  data-testid="ballottype-precinct"
-                  disabled={manualTallyVotingMethod === VotingMethod.Precinct}
-                  onPress={() => handleSettingBallotType(VotingMethod.Precinct)}
-                >
-                  Precinct Results
-                </Button>
-                <Button
-                  data-testid="ballottype-absentee"
-                  disabled={manualTallyVotingMethod === VotingMethod.Absentee}
-                  onPress={() => handleSettingBallotType(VotingMethod.Absentee)}
-                >
-                  Absentee Results
-                </Button>
-              </SegmentedButton>
-            </p>
-            <h1>Manually Entered {votingMethodName} Results</h1>
+            <h1>Manually Entered Results</h1>
             <Table condensed data-testid="summary-data">
               <thead>
                 <tr>

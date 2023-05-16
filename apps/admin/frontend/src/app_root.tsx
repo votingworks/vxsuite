@@ -6,12 +6,7 @@ import React, {
   useContext,
 } from 'react';
 import { LogEventId } from '@votingworks/logging';
-import {
-  FullElectionManualTally,
-  Printer,
-  VotingMethod,
-  ConverterClientType,
-} from '@votingworks/types';
+import { Printer, ConverterClientType } from '@votingworks/types';
 import {
   Hardware,
   computeFullElectionTally,
@@ -20,20 +15,20 @@ import {
 } from '@votingworks/utils';
 import { useUsbDrive, useDevices } from '@votingworks/ui';
 
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import { AppContext } from './contexts/app_context';
 import { ElectionManager } from './components/election_manager';
-import { ResultsFileType, ExportableTallies } from './config/types';
-import { useElectionManagerStore } from './hooks/use_election_manager_store';
+import { ExportableTallies } from './config/types';
 import { getExportableTallies } from './utils/exportable_tallies';
 import { ServicesContext } from './contexts/services_context';
 import {
-  clearCastVoteRecordFiles,
   getAuthStatus,
   getCastVoteRecords,
   getCurrentElectionMetadata,
+  getFullElectionManualTally,
   getMachineConfig,
 } from './api';
+import { convertServerFullElectionManualTally } from './utils/manual_tallies';
 
 export interface Props {
   printer: Printer;
@@ -53,26 +48,27 @@ export function AppRoot({
   const { cardReader, printer: printerInfo } = useDevices({ hardware, logger });
 
   const [isTabulationRunning, setIsTabulationRunning] = useState(false);
-  const [manualTallyVotingMethod, setManualTallyVotingMethod] = useState(
-    VotingMethod.Precinct
-  );
 
   const authStatusQuery = getAuthStatus.useQuery();
   const getMachineConfigQuery = getMachineConfig.useQuery();
   const currentElectionMetadataQuery = getCurrentElectionMetadata.useQuery();
   const castVoteRecordsQuery = getCastVoteRecords.useQuery();
+  const fullElectionManualTallyQuery = getFullElectionManualTally.useQuery();
+  const fullElectionManualTally = useMemo(() => {
+    return fullElectionManualTallyQuery.data
+      ? convertServerFullElectionManualTally(fullElectionManualTallyQuery.data)
+      : undefined;
+  }, [fullElectionManualTallyQuery.data]);
+
   const currentUserRole =
     authStatusQuery.data?.status === 'logged_in'
       ? authStatusQuery.data.user.role
       : 'unknown';
 
-  const store = useElectionManagerStore();
   const cvrs = castVoteRecordsQuery.data;
 
   const electionDefinition =
     currentElectionMetadataQuery.data?.electionDefinition;
-
-  store.setCurrentUserRole(currentUserRole);
 
   // Recomputed as needed based on the cast vote record files. Uses `useMemo`
   // because it can be slow with a lot of CVRs.
@@ -94,7 +90,7 @@ export function AppRoot({
   useEffect(() => {
     const totalBallots =
       fullElectionTally.overallTally.numberOfBallotsCounted +
-      (store.fullElectionManualTally?.overallTally.numberOfBallotsCounted ?? 0);
+      (fullElectionManualTally?.overallTally.numberOfBallotsCounted ?? 0);
     void logger.log(LogEventId.RecomputedTally, currentUserRole, {
       message: `Tally recomputed, there are now ${totalBallots} total ballots tallied.`,
       disposition: 'success',
@@ -104,63 +100,17 @@ export function AppRoot({
     currentUserRole,
     fullElectionTally.overallTally.numberOfBallotsCounted,
     logger,
-    store.fullElectionManualTally,
+    fullElectionManualTally,
   ]);
-
-  const updateManualTally = useCallback(
-    async (newFullElectionManualTally: FullElectionManualTally) => {
-      await store.updateFullElectionManualTally(newFullElectionManualTally);
-    },
-    [store]
-  );
 
   const generateExportableTallies = useCallback((): ExportableTallies => {
     assert(electionDefinition);
     return getExportableTallies(
       fullElectionTally,
       electionDefinition.election,
-      store.fullElectionManualTally
+      fullElectionManualTally
     );
-  }, [electionDefinition, store, fullElectionTally]);
-
-  const clearCastVoteRecordFilesMutation =
-    clearCastVoteRecordFiles.useMutation();
-
-  const resetFiles = useCallback(
-    async (fileType: ResultsFileType) => {
-      switch (fileType) {
-        case ResultsFileType.CastVoteRecord:
-          await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
-            message: 'User removed all Cast vote record files.',
-            fileType,
-            disposition: 'success',
-          });
-          await clearCastVoteRecordFilesMutation.mutateAsync();
-          break;
-        case ResultsFileType.Manual: {
-          await store.removeFullElectionManualTally();
-          await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
-            message: 'User removed all manually entered tally data.',
-            fileType,
-            disposition: 'success',
-          });
-          break;
-        }
-        case ResultsFileType.All:
-          await clearCastVoteRecordFilesMutation.mutateAsync();
-          await store.removeFullElectionManualTally();
-          await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
-            message: 'User removed all tally data.',
-            fileType,
-            disposition: 'success',
-          });
-          break;
-        default:
-          throwIllegalValue(fileType);
-      }
-    },
-    [logger, currentUserRole, clearCastVoteRecordFilesMutation, store]
-  );
+  }, [electionDefinition, fullElectionManualTally, fullElectionTally]);
 
   if (
     !authStatusQuery.isSuccess ||
@@ -180,14 +130,10 @@ export function AppRoot({
         isOfficialResults:
           currentElectionMetadataQuery.data?.isOfficialResults ?? false,
         printer,
-        resetFiles,
         usbDrive,
         fullElectionTally,
-        fullElectionManualTally: store.fullElectionManualTally,
+        fullElectionManualTally,
         generateBallotId,
-        updateManualTally,
-        manualTallyVotingMethod,
-        setManualTallyVotingMethod,
         isTabulationRunning,
         setIsTabulationRunning,
         generateExportableTallies,
