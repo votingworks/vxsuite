@@ -31,7 +31,7 @@ export type InterpretResult = Result<SheetOf<InterpretFileResult>, Error>;
  */
 export interface InterpretFileResult {
   interpretation: PageInterpretation;
-  normalizedImage?: ImageData;
+  normalizedImage: ImageData;
 }
 
 /**

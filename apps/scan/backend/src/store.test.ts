@@ -330,15 +330,13 @@ test('batchStatus', () => {
   const batchId = store.addBatch();
   const sheetId = store.addSheet(uuid(), batchId, [
     {
-      originalFilename: '/tmp/front-page.png',
-      normalizedFilename: '/tmp/front-normalized-page.png',
+      imagePath: '/tmp/front-page.png',
       interpretation: {
         type: 'UnreadablePage',
       },
     },
     {
-      originalFilename: '/tmp/back-page.png',
-      normalizedFilename: '/tmp/back-normalized-page.png',
+      imagePath: '/tmp/back-page.png',
       interpretation: {
         type: 'UnreadablePage',
       },
@@ -348,15 +346,13 @@ test('batchStatus', () => {
   // Add a second sheet
   const sheetId2 = store.addSheet(uuid(), batchId, [
     {
-      originalFilename: '/tmp/front-page2.png',
-      normalizedFilename: '/tmp/front-normalized-page2.png',
+      imagePath: '/tmp/front-page2.png',
       interpretation: {
         type: 'UnreadablePage',
       },
     },
     {
-      originalFilename: '/tmp/back-page2.png',
-      normalizedFilename: '/tmp/back-normalized-page2.png',
+      imagePath: '/tmp/back-page2.png',
       interpretation: {
         type: 'UnreadablePage',
       },
@@ -421,15 +417,13 @@ test('canUnconfigure not in test mode', async () => {
   // Cannot unconfigure after new sheet added
   const sheetId = store.addSheet(uuid(), batchId, [
     {
-      originalFilename: '/tmp/front-page.png',
-      normalizedFilename: '/tmp/front-normalized-page.png',
+      imagePath: '/tmp/front-page.png',
       interpretation: {
         type: 'UnreadablePage',
       },
     },
     {
-      originalFilename: '/tmp/back-page.png',
-      normalizedFilename: '/tmp/back-normalized-page.png',
+      imagePath: '/tmp/back-page.png',
       interpretation: {
         type: 'UnreadablePage',
       },
@@ -444,15 +438,13 @@ test('canUnconfigure not in test mode', async () => {
   const batchId2 = store.addBatch();
   store.addSheet(uuid(), batchId2, [
     {
-      originalFilename: '/tmp/front-page2.png',
-      normalizedFilename: '/tmp/front-normalized-page2.png',
+      imagePath: '/tmp/front-page2.png',
       interpretation: {
         type: 'UnreadablePage',
       },
     },
     {
-      originalFilename: '/tmp/back-page2.png',
-      normalizedFilename: '/tmp/back-normalized-page2.png',
+      imagePath: '/tmp/back-page2.png',
       interpretation: {
         type: 'UnreadablePage',
       },
@@ -467,15 +459,13 @@ test('canUnconfigure not in test mode', async () => {
   const batchId3 = store.addBatch();
   const sheetId3 = store.addSheet(uuid(), batchId3, [
     {
-      originalFilename: '/tmp/front-page3.png',
-      normalizedFilename: '/tmp/front-normalized-page3.png',
+      imagePath: '/tmp/front-page3.png',
       interpretation: {
         type: 'UnreadablePage',
       },
     },
     {
-      originalFilename: '/tmp/back-page3.png',
-      normalizedFilename: '/tmp/back-normalized-page3.png',
+      imagePath: '/tmp/back-page3.png',
       interpretation: {
         type: 'UnreadablePage',
       },
@@ -540,9 +530,7 @@ test('adjudication', () => {
       ballotType: BallotType.Standard,
     };
     return {
-      originalFilename: i === 0 ? '/front-original.png' : '/back-original.png',
-      normalizedFilename:
-        i === 0 ? '/front-normalized.png' : '/back-normalized.png',
+      imagePath: i === 0 ? '/front.png' : '/back.png',
       interpretation: {
         type: 'InterpretedHmpbPage',
         votes: {},
@@ -653,8 +641,7 @@ test('iterating over all result sheets', () => {
   };
   const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
     {
-      originalFilename: '/original.png',
-      normalizedFilename: '/normalized.png',
+      imagePath: '/front.png',
       interpretation: {
         type: 'InterpretedHmpbPage',
         votes: {},
@@ -683,8 +670,7 @@ test('iterating over all result sheets', () => {
       },
     },
     {
-      originalFilename: '/original.png',
-      normalizedFilename: '/normalized.png',
+      imagePath: '/back.png',
       interpretation: {
         type: 'InterpretedHmpbPage',
         votes: {},
@@ -724,8 +710,8 @@ test('iterating over all result sheets', () => {
         batchId,
         batchLabel: 'Batch 1',
         interpretation: mapSheet(sheetWithFiles, (page) => page.interpretation),
-        frontNormalizedFilename: '/normalized.png',
-        backNormalizedFilename: '/normalized.png',
+        frontImagePath: '/front.png',
+        backImagePath: '/back.png',
       },
     ])
   );
@@ -816,15 +802,13 @@ test('getBallotsCounted', () => {
   const batchId = store.addBatch();
   store.addSheet(uuid(), batchId, [
     {
-      originalFilename: '/tmp/front-page.png',
-      normalizedFilename: '/tmp/front-normalized-page.png',
+      imagePath: '/tmp/front-page.png',
       interpretation: {
         type: 'UnreadablePage',
       },
     },
     {
-      originalFilename: '/tmp/back-page.png',
-      normalizedFilename: '/tmp/back-normalized-page.png',
+      imagePath: '/tmp/back-page.png',
       interpretation: {
         type: 'UnreadablePage',
       },
@@ -839,15 +823,13 @@ test('getBallotsCounted', () => {
   const batch2Id = store.addBatch();
   store.addSheet(uuid(), batch2Id, [
     {
-      originalFilename: '/tmp/front-page2.png',
-      normalizedFilename: '/tmp/front-normalized-page2.png',
+      imagePath: '/tmp/front-page2.png',
       interpretation: {
         type: 'UnreadablePage',
       },
     },
     {
-      originalFilename: '/tmp/back-page2.png',
-      normalizedFilename: '/tmp/back-normalized-page2.png',
+      imagePath: '/tmp/back-page2.png',
       interpretation: {
         type: 'UnreadablePage',
       },
@@ -858,15 +840,13 @@ test('getBallotsCounted', () => {
 
   const sheetId3 = store.addSheet(uuid(), batch2Id, [
     {
-      originalFilename: '/tmp/front-page3.png',
-      normalizedFilename: '/tmp/front-normalized-page3.png',
+      imagePath: '/tmp/front-page3.png',
       interpretation: {
         type: 'UnreadablePage',
       },
     },
     {
-      originalFilename: '/tmp/back-page3.png',
-      normalizedFilename: '/tmp/back-normalized-page3.png',
+      imagePath: '/tmp/back-page3.png',
       interpretation: {
         type: 'UnreadablePage',
       },

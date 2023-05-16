@@ -66,8 +66,8 @@ test('getCastVoteRecordReportStream', async () => {
       id: 'ballot-1',
       batchId: 'batch-1',
       indexInBatch: 1,
-      frontNormalizedFilename: 'front.jpg',
-      backNormalizedFilename: 'back.jpg',
+      frontImagePath: 'front.jpg',
+      backImagePath: 'back.jpg',
       interpretation: [interpretedHmpbPage1, interpretedHmpbPage2],
     };
 
@@ -75,8 +75,8 @@ test('getCastVoteRecordReportStream', async () => {
       id: 'ballot-2',
       batchId: 'batch-1',
       indexInBatch: 2,
-      frontNormalizedFilename: 'front.jpg',
-      backNormalizedFilename: 'back.jpg',
+      frontImagePath: 'front.jpg',
+      backImagePath: 'back.jpg',
       interpretation: [interpretedBmdPage, { type: 'BlankPage' }],
     };
   }
@@ -108,8 +108,8 @@ test('getCastVoteRecordReportStream results in error when validation fails', asy
     yield {
       id: 'ballot-1',
       batchId: 'batch-1',
-      frontNormalizedFilename: 'front.jpg',
-      backNormalizedFilename: 'back.jpg',
+      frontImagePath: 'front.jpg',
+      backImagePath: 'back.jpg',
       interpretation: [interpretedHmpbPage1, { type: 'BlankPage' }],
     };
   }
@@ -136,8 +136,8 @@ test('getCastVoteRecordReportStream can include file uris in backup format', asy
     yield {
       id: 'ballot-1',
       batchId: 'batch-1',
-      frontNormalizedFilename: 'front.jpg',
-      backNormalizedFilename: 'back.jpg',
+      frontImagePath: 'front.jpg',
+      backImagePath: 'back.jpg',
       interpretation: [
         {
           ...interpretedHmpbPage1,
@@ -231,16 +231,16 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
     yield {
       id: 'ballot-1',
       batchId: 'batch-1',
-      frontNormalizedFilename: 'front.jpg',
-      backNormalizedFilename: 'back.jpg',
+      frontImagePath: 'front.jpg',
+      backImagePath: 'back.jpg',
       interpretation: [interpretedHmpbPage1WithWriteIn, interpretedHmpbPage2],
     };
 
     yield {
       id: 'ballot-2',
       batchId: 'batch-1',
-      frontNormalizedFilename: 'front.jpg',
-      backNormalizedFilename: 'back.jpg',
+      frontImagePath: 'front.jpg',
+      backImagePath: 'back.jpg',
       interpretation: [interpretedBmdPage, { type: 'BlankPage' }],
     };
   }
@@ -322,8 +322,8 @@ test('exportCastVoteRecordReportToUsbDrive bubbles up export errors', async () =
     yield {
       id: 'ballot-1',
       batchId: 'batch-1',
-      frontNormalizedFilename: 'front.jpg',
-      backNormalizedFilename: 'back.jpg',
+      frontImagePath: 'front.jpg',
+      backImagePath: 'back.jpg',
       interpretation: [interpretedHmpbPage1WithWriteIn, interpretedHmpbPage2],
     };
   }

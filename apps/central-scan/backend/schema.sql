@@ -29,11 +29,9 @@ create table sheets (
   id varchar(36) primary key,
   batch_id varchar(36),
 
-  -- Filenames for where the sheet images are stored on disk.
-  front_original_filename text unique,
-  back_original_filename text unique,
-  front_normalized_filename text unique,
-  back_normalized_filename text unique,
+  -- Paths for the sheet images.
+  front_image_path text unique,
+  back_image_path text unique,
 
   -- Original interpretation of the sheet. These values should never be updated.
   -- @type {PageInterpretation}

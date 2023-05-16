@@ -4,7 +4,7 @@ import {
   SheetOf,
   mapSheet,
 } from '@votingworks/types';
-import { saveSheetImages } from './save_images';
+import { saveSheetImage } from './save_images';
 import { InterpreterOptions, interpretSheet } from './interpret';
 
 /**
@@ -20,16 +20,16 @@ export async function interpretSheetAndSaveImages(
     await interpretSheet(interpreterOptions, sheet),
     async (result, side) => {
       const ballotImagePath = sheet[side === 'front' ? 0 : 1];
-      const images = await saveSheetImages(
+      const imagePath = await saveSheetImage({
         sheetId,
+        side,
         ballotImagesPath,
-        ballotImagePath,
-        result.normalizedImage
-      );
+        sourceImagePath: ballotImagePath,
+        normalizedImage: result.normalizedImage,
+      });
       return {
         interpretation: result.interpretation,
-        originalFilename: images.original,
-        normalizedFilename: images.normalized,
+        imagePath,
       };
     }
   );

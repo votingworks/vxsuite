@@ -662,24 +662,20 @@ export class Store {
         `insert into sheets (
             id,
             batch_id,
-            front_original_filename,
-            front_normalized_filename,
+            front_image_path,
             front_interpretation_json,
-            back_original_filename,
-            back_normalized_filename,
+            back_image_path,
             back_interpretation_json,
             requires_adjudication,
             finished_adjudication_at
           ) values (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?
           )`,
         sheetId,
         batchId,
-        front.originalFilename,
-        front.normalizedFilename,
+        front.imagePath,
         JSON.stringify(front.interpretation),
-        back.originalFilename,
-        back.normalizedFilename,
+        back.imagePath,
         JSON.stringify(back.interpretation ?? {}),
         sheetRequiresAdjudication([front.interpretation, back.interpretation])
           ? 1
@@ -689,13 +685,13 @@ export class Store {
     } catch (error) {
       debug(
         'sheet insert failed; maybe a duplicate? filenames=[%s, %s]',
-        front.originalFilename,
-        back.originalFilename
+        front.imagePath,
+        back.imagePath
       );
 
       const row = this.client.one<[string]>(
-        'select id from sheets where front_original_filename = ?',
-        front.originalFilename
+        'select id from sheets where front_image_path = ?',
+        front.imagePath
       ) as { id: string } | undefined;
 
       if (row) {
@@ -733,31 +729,24 @@ export class Store {
     this.client.run("delete from sqlite_sequence where name = 'batches'");
   }
 
-  getBallotFilenames(
-    sheetId: string,
-    side: Side
-  ): { original: string; normalized: string } | undefined {
+  getBallotImagePath(sheetId: string, side: Side): Optional<string> {
     const row = this.client.one<[string]>(
       `
       select
-        ${side}_original_filename as original,
-        ${side}_normalized_filename as normalized
+        ${side}_image_path as imagePath
       from
         sheets
       where
         id = ?
     `,
       sheetId
-    ) as { original: string; normalized: string } | undefined;
+    ) as Optional<{ imagePath: string }>;
 
     if (!row) {
       return;
     }
 
-    return {
-      original: normalizeAndJoin(dirname(this.getDbPath()), row.original),
-      normalized: normalizeAndJoin(dirname(this.getDbPath()), row.normalized),
-    };
+    return normalizeAndJoin(dirname(this.getDbPath()), row.imagePath);
   }
 
   getNextAdjudicationSheet(): BallotSheetInfo | undefined {
@@ -793,14 +782,14 @@ export class Store {
         id: row.id,
         front: {
           image: {
-            url: `/central-scanner/scan/hmpb/ballot/${row.id}/front/image/normalized`,
+            url: `/central-scanner/scan/hmpb/ballot/${row.id}/front/image`,
           },
           interpretation: JSON.parse(row.frontInterpretationJson),
           adjudicationFinishedAt: row.finishedAdjudicationAt ?? undefined,
         },
         back: {
           image: {
-            url: `/central-scanner/scan/hmpb/ballot/${row.id}/back/image/normalized`,
+            url: `/central-scanner/scan/hmpb/ballot/${row.id}/back/image`,
           },
           interpretation: JSON.parse(row.backInterpretationJson),
           adjudicationFinishedAt: row.finishedAdjudicationAt ?? undefined,
@@ -812,44 +801,28 @@ export class Store {
 
   *getSheets(): Generator<{
     id: string;
-    front: { original: string; normalized: string };
-    back: { original: string; normalized: string };
+    frontImagePath: string;
+    backImagePath: string;
     exportedAsCvrAt: Iso8601Timestamp;
   }> {
-    for (const {
-      id,
-      frontOriginalFilename,
-      frontNormalizedFilename,
-      backOriginalFilename,
-      backNormalizedFilename,
-      exportedAsCvrAt,
-    } of this.client.each(`
+    for (const { id, frontImagePath, backImagePath, exportedAsCvrAt } of this
+      .client.each(`
       select
         id,
-        front_original_filename as frontOriginalFilename,
-        front_normalized_filename as frontNormalizedFilename,
-        back_original_filename as backOriginalFilename,
-        back_normalized_filename as backNormalizedFilename
+        front_image_path as frontImagePath,
+        back_image_path as backImagePath
       from sheets
       order by created_at asc
     `) as Iterable<{
       id: string;
-      frontOriginalFilename: string;
-      frontNormalizedFilename: string;
-      backOriginalFilename: string;
-      backNormalizedFilename: string;
+      frontImagePath: string;
+      backImagePath: string;
       exportedAsCvrAt: Iso8601Timestamp;
     }>) {
       yield {
         id,
-        front: {
-          original: frontOriginalFilename,
-          normalized: frontNormalizedFilename,
-        },
-        back: {
-          original: backOriginalFilename,
-          normalized: backNormalizedFilename,
-        },
+        frontImagePath,
+        backImagePath,
         exportedAsCvrAt,
       };
     }
@@ -983,8 +956,8 @@ export class Store {
         batches.label as batchLabel,
         front_interpretation_json as frontInterpretationJson,
         back_interpretation_json as backInterpretationJson,
-        front_normalized_filename as frontNormalizedFilename,
-        back_normalized_filename as backNormalizedFilename,
+        front_image_path as frontImagePath,
+        back_image_path as backImagePath,
         row_number() over (partition by batches.id order by sheets.created_at) indexInBatch
       from sheets left join batches
       on sheets.batch_id = batches.id
@@ -999,8 +972,8 @@ export class Store {
       batchLabel: string | null;
       frontInterpretationJson: string;
       backInterpretationJson: string;
-      frontNormalizedFilename: string;
-      backNormalizedFilename: string;
+      frontImagePath: string;
+      backImagePath: string;
       indexInBatch: number;
     }>) {
       yield {
@@ -1012,8 +985,8 @@ export class Store {
           [row.frontInterpretationJson, row.backInterpretationJson],
           (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
         ),
-        frontNormalizedFilename: row.frontNormalizedFilename,
-        backNormalizedFilename: row.backNormalizedFilename,
+        frontImagePath: row.frontImagePath,
+        backImagePath: row.backImagePath,
       };
     }
   }

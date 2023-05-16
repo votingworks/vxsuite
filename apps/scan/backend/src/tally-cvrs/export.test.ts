@@ -78,8 +78,7 @@ test('exportCvrs', () => {
   const batchId = store.addBatch();
   store.addSheet(uuid(), batchId, [
     {
-      originalFilename: '/tmp/front-page.png',
-      normalizedFilename: '/tmp/front-page-normalized.png',
+      imagePath: '/tmp/front-page.png',
       interpretation: {
         type: 'InterpretedHmpbPage',
         metadata: {
@@ -108,8 +107,7 @@ test('exportCvrs', () => {
       },
     },
     {
-      originalFilename: '/tmp/back-page.png',
-      normalizedFilename: '/tmp/back-page-normalized.png',
+      imagePath: '/tmp/back-page.png',
       interpretation: {
         type: 'InterpretedHmpbPage',
         metadata: {
@@ -160,16 +158,15 @@ test('exportCvrs orders by sheet ID', async () => {
   const sheetIds = ['fake-uuid-zzz', 'fake-uuid-lll', 'fake-uuid-aaa'];
   const batchId = store.addBatch();
   for (const sheetId of sheetIds) {
-    const frontNormalizedFile = tmp.fileSync();
-    await writeFile(frontNormalizedFile.fd, 'front normalized');
+    const frontImagePath = tmp.fileSync();
+    await writeFile(frontImagePath.fd, 'front image path');
 
-    const backNormalizedFile = tmp.fileSync();
-    await writeFile(backNormalizedFile.fd, 'back normalized');
+    const backImagePath = tmp.fileSync();
+    await writeFile(backImagePath.fd, 'back image path');
 
     store.addSheet(sheetId, batchId, [
       {
-        originalFilename: `/tmp/front-page-${sheetId}.png`,
-        normalizedFilename: frontNormalizedFile.name,
+        imagePath: frontImagePath.name,
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {
@@ -198,8 +195,7 @@ test('exportCvrs orders by sheet ID', async () => {
         },
       },
       {
-        originalFilename: `/tmp/back-page-${sheetId}.png`,
-        normalizedFilename: backNormalizedFile.name,
+        imagePath: backImagePath.name,
         interpretation: {
           type: 'InterpretedHmpbPage',
           metadata: {

@@ -234,11 +234,24 @@ async function interpretFiles(
 
   if (json) {
     const normalizedImagePaths = await writeNormalizedImages(result.ok());
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resultJson: any = result.ok();
-    resultJson.front.normalizedImage = normalizedImagePaths.front;
-    resultJson.back.normalizedImage = normalizedImagePaths.back;
-    await writeIterToStream(jsonStream(resultJson, { compact: false }), stdout);
+    const interpreted = result.ok();
+    await writeIterToStream(
+      jsonStream(
+        {
+          ...interpreted,
+          front: {
+            ...interpreted.front,
+            normalizedImage: normalizedImagePaths.front,
+          },
+          back: {
+            ...interpreted.back,
+            normalizedImage: normalizedImagePaths.back,
+          },
+        },
+        { compact: false }
+      ),
+      stdout
+    );
   } else {
     prettyPrintInterpretation({
       electionDefinition,
@@ -337,15 +350,16 @@ async function interpretWorkspace(
     sheetIdsArray.length
       ? db
           .prepare(
-            'SELECT id, front_original_filename as frontPath, back_original_filename as backPath FROM sheets WHERE id IN ?'
+            'SELECT id, front_image_path as frontPath, back_image_path as backPath FROM sheets WHERE id IN ?'
           )
           .all(sheetIdsArray)
       : db
           .prepare(
-            'SELECT id, front_original_filename as frontPath, back_original_filename as backPath FROM sheets'
+            'SELECT id, front_image_path as frontPath, back_image_path as backPath FROM sheets'
           )
           .all()
   ) as Array<{ id: string; frontPath: string; backPath: string }>;
+  console.log(sheets);
 
   /**
    * Look for the ballot images where the database says they are, and if not

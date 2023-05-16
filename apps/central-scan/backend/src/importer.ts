@@ -89,29 +89,21 @@ export class Importer {
 
   async importSheet(
     batchId: string,
-    frontImagePath: string,
-    backImagePath: string
+    frontInputImagePath: string,
+    backInputImagePath: string
   ): Promise<string> {
     let sheetId = uuid();
     const interpretResult = await this.interpretSheet(sheetId, [
-      frontImagePath,
-      backImagePath,
+      frontInputImagePath,
+      backInputImagePath,
     ]);
 
     if (interpretResult.isErr()) {
       throw interpretResult.err();
     }
 
-    const [
-      {
-        originalFilename: frontOriginalFilename,
-        normalizedFilename: frontNormalizedFilename,
-      },
-      {
-        originalFilename: backOriginalFilename,
-        normalizedFilename: backNormalizedFilename,
-      },
-    ] = interpretResult.ok();
+    const [{ imagePath: frontImagePath }, { imagePath: backImagePath }] =
+      interpretResult.ok();
     let [
       { interpretation: frontInterpretation },
       { interpretation: backInterpretation },
@@ -155,11 +147,9 @@ export class Importer {
 
     sheetId = await this.addSheet(
       batchId,
-      frontOriginalFilename,
-      frontNormalizedFilename,
+      frontImagePath,
       frontInterpretation,
-      backOriginalFilename,
-      backNormalizedFilename,
+      backImagePath,
       backInterpretation
     );
 
@@ -194,11 +184,9 @@ export class Importer {
    */
   private async addSheet(
     batchId: string,
-    frontOriginalBallotImagePath: string,
-    frontNormalizedBallotImagePath: string,
+    frontImagePath: string,
     frontInterpretation: PageInterpretation,
-    backOriginalBallotImagePath: string,
-    backNormalizedBallotImagePath: string,
+    backImagePath: string,
     backInterpretation: PageInterpretation
   ): Promise<string> {
     if ('metadata' in frontInterpretation && 'metadata' in backInterpretation) {
@@ -212,11 +200,9 @@ export class Importer {
         ) {
           return this.addSheet(
             batchId,
-            backOriginalBallotImagePath,
-            backNormalizedBallotImagePath,
+            backImagePath,
             backInterpretation,
-            frontOriginalBallotImagePath,
-            frontNormalizedBallotImagePath,
+            frontImagePath,
             frontInterpretation
           );
         }
@@ -225,13 +211,11 @@ export class Importer {
 
     const ballotId = this.workspace.store.addSheet(uuid(), batchId, [
       {
-        originalFilename: frontOriginalBallotImagePath,
-        normalizedFilename: frontNormalizedBallotImagePath,
+        imagePath: frontImagePath,
         interpretation: frontInterpretation,
       },
       {
-        originalFilename: backOriginalBallotImagePath,
-        normalizedFilename: backNormalizedBallotImagePath,
+        imagePath: backImagePath,
         interpretation: backInterpretation,
       },
     ]);

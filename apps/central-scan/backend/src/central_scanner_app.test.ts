@@ -80,12 +80,10 @@ afterEach(async () => {
   server?.close();
 });
 
-const frontOriginal =
+const frontImagePath =
   electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath();
-const frontNormalized = frontOriginal;
-const backOriginal =
+const backImagePath =
   electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath();
-const backNormalized = backOriginal;
 const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   const metadata: BallotMetadata = {
     locales: { primary: 'en-US' },
@@ -99,8 +97,7 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   };
   return [
     {
-      originalFilename: frontOriginal,
-      normalizedFilename: frontNormalized,
+      imagePath: frontImagePath,
       interpretation: {
         type: 'InterpretedHmpbPage',
         metadata: {
@@ -129,8 +126,7 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
       },
     },
     {
-      originalFilename: backOriginal,
-      normalizedFilename: backNormalized,
+      imagePath: backImagePath,
       interpretation: {
         type: 'InterpretedHmpbPage',
         metadata: {
@@ -438,40 +434,16 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
 
   await request(app)
     .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/front/image`)
-    .expect(301)
-    .expect(
-      'Location',
-      `/central-scanner/scan/hmpb/ballot/${sheetId}/front/image/normalized`
-    );
-
-  await request(app)
-    .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/front/image/normalized`)
-    .expect(200, await fs.readFile(frontNormalized));
-
-  await request(app)
-    .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/front/image/original`)
-    .expect(200, await fs.readFile(frontOriginal));
+    .expect(200, await fs.readFile(frontImagePath));
 
   await request(app)
     .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/back/image`)
-    .expect(301)
-    .expect(
-      'Location',
-      `/central-scanner/scan/hmpb/ballot/${sheetId}/back/image/normalized`
-    );
-
-  await request(app)
-    .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/back/image/normalized`)
-    .expect(200, await fs.readFile(backNormalized));
-
-  await request(app)
-    .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/back/image/original`)
-    .expect(200, await fs.readFile(backOriginal));
+    .expect(200, await fs.readFile(backImagePath));
 });
 
 test('GET /scan/hmpb/ballot/:sheetId/image 404', async () => {
   await request(app)
-    .get(`/central-scanner/scan/hmpb/ballot/111/front/image/normalized`)
+    .get(`/central-scanner/scan/hmpb/ballot/111/front/image`)
     .expect(404);
 });
 
