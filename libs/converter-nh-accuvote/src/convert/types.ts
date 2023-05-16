@@ -6,8 +6,7 @@ import {
   Size,
 } from '@votingworks/types';
 import { ZodError } from 'zod';
-import { TemplateOval } from '../accuvote';
-import { Bit, PartialTimingMarks } from '../types';
+import { PartialTimingMarks } from '@votingworks/ballot-interpreter-nh';
 import { ParseConstitutionalQuestionError } from './parse_constitutional_questions';
 
 /**
@@ -112,9 +111,19 @@ export enum ConvertIssueKind {
 }
 
 /**
+ * Represents a bubble found in a ballot template.
+ */
+export interface TemplateBubble {
+  readonly row: number;
+  readonly column: number;
+}
+
+/**
  * A grid entry for a specific template oval.
  */
-export type TemplateOvalGridEntry = TemplateOval & { side: 'front' | 'back' };
+export type TemplateBubbleGridEntry = TemplateBubble & {
+  side: 'front' | 'back';
+};
 
 /**
  * Issues that can occur when converting a ballot card definition.
@@ -153,7 +162,7 @@ export type ConvertIssue =
       message: string;
       side: 'front' | 'back';
       timingMarks: PartialTimingMarks;
-      timingMarkBits: readonly Bit[];
+      timingMarkBits: readonly boolean[];
       validationError?: ZodError;
     }
   | {
@@ -161,7 +170,7 @@ export type ConvertIssue =
       message: string;
       pairColumnEntriesIssue: PairColumnEntriesIssue<
         GridPosition,
-        TemplateOvalGridEntry
+        TemplateBubbleGridEntry
       >;
     }
   | {

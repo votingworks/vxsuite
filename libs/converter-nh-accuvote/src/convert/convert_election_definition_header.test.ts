@@ -17,7 +17,6 @@ import {
 } from '../../test/fixtures';
 import { convertElectionDefinitionHeader } from './convert_election_definition_header';
 import { ConvertIssue, ConvertIssueKind } from './types';
-import { TemplateBallotCardGeometry8pt5x11 } from '../accuvote';
 
 test('letter-size card definition', () => {
   const hudsonBallotCardDefinition = readFixtureDefinition(
@@ -240,9 +239,8 @@ test('missing Party on multi-party endorsement', () => {
 test('constitutional questions become yesno contests', async () => {
   const amherstBallotCardDefinition = readFixtureBallotCardDefinition(
     electionGridLayoutNewHampshireAmherstFixtures.definitionXml.asText(),
-    await electionGridLayoutNewHampshireAmherstFixtures.templateFront.asImage(),
-    await electionGridLayoutNewHampshireAmherstFixtures.templateBack.asImage(),
-    TemplateBallotCardGeometry8pt5x11
+    await electionGridLayoutNewHampshireAmherstFixtures.templateFront.asImageData(),
+    await electionGridLayoutNewHampshireAmherstFixtures.templateBack.asImageData()
   );
   const converted = convertElectionDefinitionHeader(
     amherstBallotCardDefinition.definition

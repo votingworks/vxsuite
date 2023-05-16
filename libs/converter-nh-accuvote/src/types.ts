@@ -13,24 +13,6 @@ export type Point = NewType<
 >;
 
 /**
- * Schema for {@link Point}.
- */
-export const PointSchema = z.object({
-  x: z.number(),
-  y: z.number(),
-}) as unknown as z.ZodSchema<Point>;
-
-/**
- * Insets from a rectangle 2D space.
- */
-export interface Inset {
-  readonly left: number;
-  readonly top: number;
-  readonly right: number;
-  readonly bottom: number;
-}
-
-/**
  * A vector in 2D space.
  */
 export type Vector = NewType<
@@ -40,14 +22,6 @@ export type Vector = NewType<
   },
   'Vector'
 >;
-
-/**
- * Schema for {@link Vector}.
- */
-export const VectorSchema = z.object({
-  x: z.number(),
-  y: z.number(),
-}) as unknown as z.ZodSchema<Vector>;
 
 /**
  * A size in 2D space.
@@ -77,38 +51,6 @@ export interface Rect {
 export interface Segment {
   readonly from: Point;
   readonly to: Point;
-}
-
-/**
- * Potentially-incomplete timing marks for a ballot card.
- */
-export interface PartialTimingMarks {
-  readonly bottom: readonly Rect[];
-  readonly left: readonly Rect[];
-  readonly right: readonly Rect[];
-  readonly top: readonly Rect[];
-  readonly topLeft?: Rect;
-  readonly topRight?: Rect;
-  readonly bottomLeft?: Rect;
-  readonly bottomRight?: Rect;
-}
-
-/**
- * Complete timing marks for a ballot card. Includes all timing marks,
- * meaning that the timing marks are evenly spaced and left and right
- * have the same number of timing marks. Also includes the corners. All top
- * timing marks are included, though bottom marks may be missing because the
- * bottom row is used for encoding metadata.
- */
-export interface CompleteTimingMarks {
-  readonly bottom: readonly Rect[];
-  readonly left: readonly Rect[];
-  readonly right: readonly Rect[];
-  readonly top: readonly Rect[];
-  readonly topLeft: Rect;
-  readonly topRight: Rect;
-  readonly bottomLeft: Rect;
-  readonly bottomRight: Rect;
 }
 
 /**
@@ -483,30 +425,11 @@ export interface BallotCardGeometry {
   readonly timingMarkSize: Size;
 
   /**
-   * The size of an oval in pixels.
-   */
-  readonly ovalSize: Size;
-
-  /**
    * The size of the grid of timing marks, in units of timing marks. For
    * example, a grid of size `{ width: 20, height: 30 }` means there are 20
    * columns of timing marks and 30 rows of timing marks.
    */
   readonly gridSize: Size;
-
-  /**
-   * The area within the timing mark grid on the front of the ballot card that
-   * may be used for ovals. In practice, there will be at least one edge in each
-   * direction that is not usable for ovals.
-   */
-  readonly frontUsableArea: Rect;
-
-  /**
-   * The area within the timing mark grid on the back of the ballot card that
-   * may be used for ovals. In practice, there will be at least one edge in each
-   * direction that is not usable for ovals.
-   */
-  readonly backUsableArea: Rect;
 }
 
 /**

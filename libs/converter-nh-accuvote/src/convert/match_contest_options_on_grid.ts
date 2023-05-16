@@ -4,7 +4,7 @@ import { pairColumnEntries } from './pair_column_entries';
 import {
   PairColumnEntriesIssueKind,
   PairColumnEntriesResult,
-  TemplateOvalGridEntry,
+  TemplateBubbleGridEntry,
 } from './types';
 
 /**
@@ -16,8 +16,8 @@ import {
 export function matchContestOptionsOnGrid(
   contests: Contests,
   gridPositions: readonly GridPosition[],
-  ovalGrid: readonly TemplateOvalGridEntry[]
-): PairColumnEntriesResult<GridPosition, TemplateOvalGridEntry> {
+  ovalGrid: readonly TemplateBubbleGridEntry[]
+): PairColumnEntriesResult<GridPosition, TemplateBubbleGridEntry> {
   const pairResult = pairColumnEntries(gridPositions, ovalGrid);
 
   if (pairResult.isOk() || pairResult.err().issues.length !== 2 /* YES/NO */) {

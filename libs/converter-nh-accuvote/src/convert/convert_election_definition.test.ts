@@ -11,27 +11,18 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { readFixtureBallotCardDefinition } from '../../test/fixtures';
-import { testImageDebugger } from '../../test/utils';
-import {
-  TemplateBallotCardGeometry8pt5x11,
-  TemplateBallotCardGeometry8pt5x14,
-} from '../accuvote';
-import * as templates from '../data/templates';
 import { convertElectionDefinition } from './convert_election_definition';
 import { ConvertIssue, ConvertIssueKind, ConvertResult } from './types';
 
 test('converting the Hudson ballot', async () => {
   const hudsonBallotCardDefinition = readFixtureBallotCardDefinition(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText(),
-    await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImage(),
-    await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImage(),
-    TemplateBallotCardGeometry8pt5x14
+    await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImageData(),
+    await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImageData()
   );
-  const debug = testImageDebugger(hudsonBallotCardDefinition.front);
-  const converted = convertElectionDefinition(hudsonBallotCardDefinition, {
-    ovalTemplate: await templates.getOvalTemplate(),
-    debug,
-  }).unsafeUnwrap();
+  const converted = convertElectionDefinition(
+    hudsonBallotCardDefinition
+  ).unsafeUnwrap();
 
   // uncomment this to update the fixture
   // require('fs').writeFileSync(
@@ -54,9 +45,8 @@ test('converting the Hudson ballot', async () => {
 test('mismatched ballot image size', async () => {
   const hudsonBallotCardDefinition = readFixtureBallotCardDefinition(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText(),
-    await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImage(),
-    await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImage(),
-    TemplateBallotCardGeometry8pt5x14
+    await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImageData(),
+    await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImageData()
   );
 
   hudsonBallotCardDefinition.definition.getElementsByTagName(
@@ -64,9 +54,7 @@ test('mismatched ballot image size', async () => {
   )[0]!.textContent = '8.5X11';
 
   expect(
-    convertElectionDefinition(hudsonBallotCardDefinition, {
-      ovalTemplate: await templates.getOvalTemplate(),
-    }).unsafeUnwrap().issues
+    convertElectionDefinition(hudsonBallotCardDefinition).unsafeUnwrap().issues
   ).toEqual(
     expect.arrayContaining([
       typedAs<ConvertIssue>({
@@ -85,15 +73,12 @@ test('mismatched ballot image size', async () => {
 test('default adjudication reasons', async () => {
   const hudsonBallotCardDefinition = readFixtureBallotCardDefinition(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText(),
-    await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImage(),
-    await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImage(),
-    TemplateBallotCardGeometry8pt5x14
+    await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImageData(),
+    await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImageData()
   );
-  const debug = testImageDebugger(hudsonBallotCardDefinition.front);
-  const converted = convertElectionDefinition(hudsonBallotCardDefinition, {
-    ovalTemplate: await templates.getOvalTemplate(),
-    debug,
-  }).unsafeUnwrap();
+  const converted = convertElectionDefinition(
+    hudsonBallotCardDefinition
+  ).unsafeUnwrap();
   expect(converted.election?.centralScanAdjudicationReasons).toEqual(
     typedAs<AdjudicationReason[]>([AdjudicationReason.Overvote])
   );
@@ -105,13 +90,12 @@ test('default adjudication reasons', async () => {
 test('constitutional question ovals get placed on the grid correctly', async () => {
   const amherstBallotCardDefinition = readFixtureBallotCardDefinition(
     electionGridLayoutNewHampshireAmherstFixtures.definitionXml.asText(),
-    await electionGridLayoutNewHampshireAmherstFixtures.templateFront.asImage(),
-    await electionGridLayoutNewHampshireAmherstFixtures.templateBack.asImage(),
-    TemplateBallotCardGeometry8pt5x11
+    await electionGridLayoutNewHampshireAmherstFixtures.templateFront.asImageData(),
+    await electionGridLayoutNewHampshireAmherstFixtures.templateBack.asImageData()
   );
-  const converted = convertElectionDefinition(amherstBallotCardDefinition, {
-    ovalTemplate: await templates.getOvalTemplate(),
-  }).unsafeUnwrap();
+  const converted = convertElectionDefinition(
+    amherstBallotCardDefinition
+  ).unsafeUnwrap();
 
   // uncomment this to update the fixture
   // require('fs').writeFileSync(

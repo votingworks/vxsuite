@@ -36,10 +36,10 @@ import {
   Geometry,
   InterpretedBallotCard,
   InterpretResult as NextInterpretResult,
-  ScoredOvalMarks,
   Rect as NextRect,
   InterpretedContestLayout,
   InterpretedContestOptionLayout,
+  ScoredBubbleMarks,
 } from '@votingworks/ballot-interpreter-nh';
 import type {
   InterpretFileResult,
@@ -51,7 +51,7 @@ type OkType<T> = T extends Ok<infer U> ? U : never;
 
 function convertNewHampshireNextMarkToSharedMark(
   contests: Contests,
-  [gridPosition, scoredMark]: ScoredOvalMarks[number]
+  [gridPosition, scoredMark]: ScoredBubbleMarks[number]
 ): BallotTargetMark {
   assert(scoredMark, 'scoredMark must be defined');
 
@@ -108,7 +108,7 @@ function convertNewHampshireNextMarkToSharedMark(
 export function convertMarksToAdjudicationInfo(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
-  marks: ScoredOvalMarks
+  marks: ScoredBubbleMarks
 ): AdjudicationInfo {
   const markThresholds =
     options.markThresholds ?? electionDefinition.election.markThresholds;
@@ -177,7 +177,7 @@ export function convertMarksToAdjudicationInfo(
 function convertMarksToMarkInfo(
   contests: Contests,
   geometry: Geometry,
-  marks: ScoredOvalMarks
+  marks: ScoredBubbleMarks
 ): MarkInfo {
   const markInfo: MarkInfo = {
     ballotSize: geometry.canvasSize,
@@ -192,7 +192,7 @@ function convertMarksToMarkInfo(
 function convertMarksToVotes(
   contests: Contests,
   markThresholds: MarkThresholds,
-  marks: ScoredOvalMarks
+  marks: ScoredBubbleMarks
 ): VotesDict {
   return convertMarksToVotesDict(
     contests,
@@ -289,7 +289,7 @@ function convertContestLayouts(
 function convertNextInterpretedBallotPage(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
-  nextInterpretedBallotCard: InterpretedBallotCard,
+  interpretedBallotCard: InterpretedBallotCard,
   side: 'front' | 'back'
 ): InterpretFileResult {
   /* istanbul ignore next */
@@ -300,42 +300,42 @@ function convertNextInterpretedBallotPage(
   const metadata = buildInterpretedHmpbPageMetadata(
     electionDefinition,
     options,
-    nextInterpretedBallotCard.front.grid.metadata as BallotPageMetadataFront,
+    interpretedBallotCard.front.grid.metadata as BallotPageMetadataFront,
     side
   );
 
-  const nextInterpretation = nextInterpretedBallotCard[side];
+  const interpretation = interpretedBallotCard[side];
   return {
     interpretation: {
       type: 'InterpretedHmpbPage',
       metadata,
       markInfo: convertMarksToMarkInfo(
         electionDefinition.election.contests,
-        nextInterpretation.grid.geometry,
-        nextInterpretation.marks
+        interpretation.grid.geometry,
+        interpretation.marks
       ),
       adjudicationInfo: convertMarksToAdjudicationInfo(
         electionDefinition,
         options,
-        nextInterpretation.marks
+        interpretation.marks
       ),
       votes: convertMarksToVotes(
         electionDefinition.election.contests,
         markThresholds,
-        nextInterpretation.marks
+        interpretation.marks
       ),
       layout: {
-        pageSize: nextInterpretation.grid.geometry.canvasSize,
+        pageSize: interpretation.grid.geometry.canvasSize,
         metadata,
         contests: convertContestLayouts(
           electionDefinition.election.contests,
-          nextInterpretation.contestLayouts
+          interpretation.contestLayouts
         ),
       },
     },
     normalizedImage: {
-      ...nextInterpretation.normalizedImage,
-      data: new Uint8ClampedArray(nextInterpretation.normalizedImage.data),
+      ...interpretation.normalizedImage,
+      data: new Uint8ClampedArray(interpretation.normalizedImage.data),
     },
   };
 }
