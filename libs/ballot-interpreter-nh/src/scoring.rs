@@ -314,8 +314,8 @@ fn score_write_in_area(
     // 75% of the width of the write-in crop area and 2x the height of the
     // bubble turned out to work pretty well with the NH state ballot layout.
     // For now we're not trying to be more general than that.
-    let width = write_in_layout_width * 3 / 4;
-    let height = scored_bubble_mark_bounds.height() * 2;
+    let width = write_in_layout_width * 2 / 4;
+    let height = scored_bubble_mark_bounds.height();
     let bounds = Rect::new(
         scored_bubble_mark_bounds.left() - width as i32,
         scored_bubble_mark_bounds.bottom() - height as i32,

@@ -232,9 +232,46 @@ async function interpretFiles(
     return 1;
   }
 
+  const interpreted = result.ok();
+  const { markThresholds } = electionDefinition.election;
+  const definiteThreshold = markThresholds?.definite ?? 0.7;
+
+  console.log('--------');
+  console.log(ballotPathSideA);
+  console.log(ballotPathSideB);
+  for (const [gridPosition, scoredBubbleMark] of [
+    ...interpreted.front.marks,
+    ...interpreted.back.marks,
+  ]) {
+    for (const writeIn of [
+      ...interpreted.front.writeIns,
+      ...interpreted.back.writeIns,
+    ]) {
+      if (
+        scoredBubbleMark &&
+        writeIn.gridPosition.side === gridPosition.side &&
+        writeIn.gridPosition.column === gridPosition.column &&
+        writeIn.gridPosition.row === gridPosition.row
+      ) {
+        if (
+          scoredBubbleMark.fillScore < definiteThreshold &&
+          writeIn.score > 0.1
+        ) {
+          console.log(
+            `Warning: POSSIBLE UNMARKED WRITE-IN. ${
+              gridPosition.contestId
+            } write-in-${
+              gridPosition.type === 'write-in' && gridPosition.writeInIndex
+            }`
+          );
+        }
+      }
+    }
+  }
+  console.log('--------');
+
   if (json) {
-    const normalizedImagePaths = await writeNormalizedImages(result.ok());
-    const interpreted = result.ok();
+    const normalizedImagePaths = await writeNormalizedImages(interpreted);
     await writeIterToStream(
       jsonStream(
         {
@@ -256,7 +293,7 @@ async function interpretFiles(
     prettyPrintInterpretation({
       electionDefinition,
       paths: [ballotPathSideA, ballotPathSideB],
-      interpretedBallotCard: result.ok(),
+      interpretedBallotCard: interpreted,
       stdout,
     });
   }
@@ -272,10 +309,10 @@ function tryReadElectionFromElectionTable(
       db
         .prepare('SELECT election_data as electionData FROM election LIMIT 1')
         .get() as Optional<{ electionData: string }>
-    )?.electionData;
+    )?.electionData?.toString();
 
     return electionData
-      ? safeParseElectionDefinition(electionData).ok()
+      ? { electionData, election: JSON.parse(electionData), electionHash: '' }
       : undefined;
   } catch {
     return undefined;
@@ -350,12 +387,12 @@ async function interpretWorkspace(
     sheetIdsArray.length
       ? db
           .prepare(
-            'SELECT id, front_image_path as frontPath, back_image_path as backPath FROM sheets WHERE id IN ?'
+            'SELECT id, front_normalized_filename as frontPath, back_normalized_filename as backPath FROM sheets WHERE id IN ?'
           )
           .all(sheetIdsArray)
       : db
           .prepare(
-            'SELECT id, front_image_path as frontPath, back_image_path as backPath FROM sheets'
+            'SELECT id, front_normalized_filename as frontPath, back_normalized_filename as backPath FROM sheets'
           )
           .all()
   ) as Array<{ id: string; frontPath: string; backPath: string }>;

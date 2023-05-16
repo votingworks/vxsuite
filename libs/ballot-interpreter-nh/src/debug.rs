@@ -416,30 +416,30 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
                 WHITE_RGB,
             );
 
-            draw_text_with_background_mut(
-                canvas,
-                &match_score_text,
-                (scored_bubble_mark
-                    .expected_bounds
-                    .left()
-                    .min(scored_bubble_mark.matched_bounds.left())
-                    + scored_bubble_mark
-                        .expected_bounds
-                        .right()
-                        .max(scored_bubble_mark.matched_bounds.right()))
-                    / 2
-                    - (match_score_text_width / 2),
-                scored_bubble_mark
-                    .expected_bounds
-                    .top()
-                    .min(scored_bubble_mark.matched_bounds.top())
-                    - 5
-                    - match_score_text_height,
-                scale,
-                font,
-                match_score_color,
-                WHITE_RGB,
-            );
+            // draw_text_with_background_mut(
+            //     canvas,
+            //     &match_score_text,
+            //     (scored_bubble_mark
+            //         .expected_bounds
+            //         .left()
+            //         .min(scored_bubble_mark.matched_bounds.left())
+            //         + scored_bubble_mark
+            //             .expected_bounds
+            //             .right()
+            //             .max(scored_bubble_mark.matched_bounds.right()))
+            //         / 2
+            //         - (match_score_text_width / 2),
+            //     scored_bubble_mark
+            //         .expected_bounds
+            //         .top()
+            //         .min(scored_bubble_mark.matched_bounds.top())
+            //         - 5
+            //         - match_score_text_height,
+            //     scale,
+            //     font,
+            //     match_score_color,
+            //     WHITE_RGB,
+            // );
 
             draw_text_with_background_mut(
                 canvas,
