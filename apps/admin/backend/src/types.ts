@@ -15,6 +15,9 @@ import {
   CandidateIdSchema,
   YesNoVoteSchema,
   ContestIdSchema,
+  FullElectionManualTally,
+  Dictionary,
+  ManualTally,
 } from '@votingworks/types';
 import * as z from 'zod';
 
@@ -392,3 +395,15 @@ export const DatabaseSerializedCastVoteRecordVotesSchema: z.ZodSchema<DatabaseSe
     ContestIdSchema,
     z.union([z.array(CandidateIdSchema), YesNoVoteSchema])
   );
+
+/**
+ * @deprecated The {@link FullElectionManualTally} object is not serializable
+ * by `grout` so we have an alternative on the server side, and convert on the
+ * frontend.
+ */
+export type ServerFullElectionManualTally = Omit<
+  FullElectionManualTally,
+  'resultsByCategory'
+> & {
+  resultsByCategory: Dictionary<Dictionary<ManualTally>>;
+};
