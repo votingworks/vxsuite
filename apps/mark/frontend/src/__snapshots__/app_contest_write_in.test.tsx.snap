@@ -8,7 +8,7 @@ exports[`Single Seat Contest with Write In 1`] = `
   margin: 0;
 }
 
-.c26 {
+.c25 {
   font-size: 1em;
   font-weight: 300;
   line-height: 1.15;
@@ -31,7 +31,7 @@ exports[`Single Seat Contest with Write In 1`] = `
   font-size: 0.75rem;
 }
 
-.c24 {
+.c23 {
   font-size: 1em;
   line-height: 1.15;
   margin: 0;
@@ -76,13 +76,13 @@ exports[`Single Seat Contest with Write In 1`] = `
   max-width: 66ch;
 }
 
-.c22 {
+.c21 {
   fill: currentColor;
   height: 1em;
   width: 1em;
 }
 
-.c16 {
+.c15 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -134,27 +134,27 @@ exports[`Single Seat Contest with Write In 1`] = `
   transition-property: background,border,box-shadow,color;
 }
 
-.c16:hover,
-.c16:active {
+.c15:hover,
+.c15:active {
   outline: none;
 }
 
-.c16:hover,
-.c16:active {
+.c15:hover,
+.c15:active {
   outline: none;
 }
 
-.c16:active {
+.c15:active {
   box-shadow: inset 0 0 0 0.15rem #222222;
 }
 
-.c16[disabled] {
+.c15[disabled] {
   border: 0.15rem dashed #222222;
   box-shadow: none;
   cursor: not-allowed;
 }
 
-.c28 {
+.c27 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -207,31 +207,31 @@ exports[`Single Seat Contest with Write In 1`] = `
   transition-property: background,border,box-shadow,color;
 }
 
-.c28:hover,
-.c28:active {
+.c27:hover,
+.c27:active {
   outline: none;
 }
 
-.c28:hover,
-.c28:active {
+.c27:hover,
+.c27:active {
   outline: none;
 }
 
-.c28:active {
+.c27:active {
   box-shadow: inset 0 0 0 0.15rem #222222;
 }
 
-.c28[disabled] {
+.c27[disabled] {
   border: 0.15rem dashed #222222;
   box-shadow: none;
   cursor: not-allowed;
 }
 
-.c29 {
+.c28 {
   display: inline-block;
 }
 
-.c18 {
+.c17 {
   display: inline-block;
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
@@ -242,7 +242,7 @@ exports[`Single Seat Contest with Write In 1`] = `
   flex-shrink: 1;
 }
 
-.c21 {
+.c20 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -262,13 +262,13 @@ exports[`Single Seat Contest with Write In 1`] = `
   width: 1.75em;
 }
 
-.c21 > * {
+.c20 > * {
   opacity: 0;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c17 {
+.c16 {
   border: 0.055rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -282,11 +282,11 @@ exports[`Single Seat Contest with Write In 1`] = `
   width: 100%;
 }
 
-.c17:active {
+.c16:active {
   border: 0.055rem solid #00437d;
 }
 
-.c19 {
+.c18 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -301,7 +301,7 @@ exports[`Single Seat Contest with Write In 1`] = `
   gap: 0.5rem;
 }
 
-.c20 {
+.c19 {
   -webkit-box-flex: 0;
   -webkit-flex-grow: 0;
   -ms-flex-positive: 0;
@@ -311,7 +311,7 @@ exports[`Single Seat Contest with Write In 1`] = `
   flex-shrink: 0;
 }
 
-.c23 {
+.c22 {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
@@ -319,7 +319,7 @@ exports[`Single Seat Contest with Write In 1`] = `
   line-height: 1;
 }
 
-.c25 {
+.c24 {
   line-height: inherit;
   margin-bottom: 0;
 }
@@ -349,60 +349,48 @@ exports[`Single Seat Contest with Write In 1`] = `
   overflow: auto;
 }
 
-.c6 {
-  padding: 0.25rem 0.5rem 0.5rem;
-}
-
 .c12 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  height: 100%;
+  overflow: hidden;
   position: relative;
-  overflow: auto;
-}
-
-.c12::before,
-.c12::after {
-  position: absolute;
-  z-index: 1;
-  width: 100%;
-  height: 0.25rem;
-  content: '';
-  -webkit-transition: opacity 0.25s ease;
-  transition: opacity 0.25s ease;
-}
-
-.c12::before {
-  top: 0;
-  opacity: 0;
-  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
-}
-
-.c12::after {
-  bottom: 0;
-  opacity: 0;
-  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
 }
 
 .c13 {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  overflow: auto;
+  -webkit-align-items: stretch;
+  -webkit-box-align: stretch;
+  -ms-flex-align: stretch;
+  align-items: stretch;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  -webkit-box-pack: stretch;
+  -webkit-justify-content: stretch;
+  -ms-flex-pack: stretch;
+  justify-content: stretch;
+  overflow: scroll;
+  padding: 0 0.5rem;
+}
+
+.c6 {
+  padding: 0.25rem 0.5rem 0.5rem;
 }
 
 .c14 {
-  margin: 0 auto;
-  width: 100%;
-  padding: 0.25rem 20px 0;
-}
-
-.c15 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.5rem;
-  margin-bottom: 1rem;
 }
 
 .c10 {
@@ -410,7 +398,7 @@ exports[`Single Seat Contest with Write In 1`] = `
   margin-bottom: 0;
 }
 
-.c27 {
+.c26 {
   -webkit-align-items: stretch;
   -webkit-box-align: stretch;
   -ms-flex-align: stretch;
@@ -429,14 +417,14 @@ exports[`Single Seat Contest with Write In 1`] = `
   padding: 0.5rem;
 }
 
-.c27 > *:not(:first-child):not(:last-child) {
+.c26 > *:not(:first-child):not(:last-child) {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
   flex-grow: 1;
 }
 
-.c30 {
+.c29 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -590,19 +578,19 @@ exports[`Single Seat Contest with Write In 1`] = `
           class="c13"
         >
           <div
+            aria-multiselectable="true"
             class="c14"
+            role="listbox"
           >
-            <div
-              aria-multiselectable="true"
-              class="c15"
-              role="listbox"
+            <button
+              aria-label=" Rhadka Ramachandrani, Independent."
+              aria-selected="false"
+              class="c15 c16"
+              role="option"
+              type="button"
             >
-              <button
-                aria-label=" Rhadka Ramachandrani, Independent."
-                aria-selected="false"
-                class="c16 c17"
-                role="option"
-                type="button"
+              <span
+                class="c17"
               >
                 <span
                   class="c18"
@@ -613,45 +601,45 @@ exports[`Single Seat Contest with Write In 1`] = `
                     <span
                       class="c20"
                     >
-                      <span
+                      <svg
+                        aria-hidden="true"
                         class="c21"
+                        height="100"
+                        role="img"
+                        viewBox="0 0 100 100"
+                        width="100"
                       >
-                        <svg
-                          aria-hidden="true"
-                          class="c22"
-                          height="100"
-                          role="img"
-                          viewBox="0 0 100 100"
-                          width="100"
-                        >
-                          <path
-                            d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
-                          />
-                        </svg>
-                      </span>
+                        <path
+                          d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
+                        />
+                      </svg>
                     </span>
-                    <span
-                      class="c23"
+                  </span>
+                  <span
+                    class="c22"
+                  >
+                    <p
+                      class="c23 c24"
                     >
-                      <p
-                        class="c24 c25"
-                      >
-                        Rhadka Ramachandrani
-                      </p>
-                      <span
-                        class="c26"
-                      >
-                        Independent
-                      </span>
+                      Rhadka Ramachandrani
+                    </p>
+                    <span
+                      class="c25"
+                    >
+                      Independent
                     </span>
                   </span>
                 </span>
-              </button>
-              <button
-                aria-selected="false"
-                class="c16 c17"
-                role="option"
-                type="button"
+              </span>
+            </button>
+            <button
+              aria-selected="false"
+              class="c15 c16"
+              role="option"
+              type="button"
+            >
+              <span
+                class="c17"
               >
                 <span
                   class="c18"
@@ -662,68 +650,64 @@ exports[`Single Seat Contest with Write In 1`] = `
                     <span
                       class="c20"
                     >
-                      <span
+                      <svg
+                        aria-hidden="true"
                         class="c21"
+                        height="100"
+                        role="img"
+                        viewBox="0 0 100 100"
+                        width="100"
                       >
-                        <svg
-                          aria-hidden="true"
-                          class="c22"
-                          height="100"
-                          role="img"
-                          viewBox="0 0 100 100"
-                          width="100"
-                        >
-                          <path
-                            d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
-                          />
-                        </svg>
-                      </span>
-                    </span>
-                    <span
-                      class="c23"
-                    >
-                      <p
-                        class="c24 c25"
-                      >
-                        <span>
-                          <svg
-                            aria-hidden="true"
-                            class="svg-inline--fa fa-pencil "
-                            data-icon="pencil"
-                            data-prefix="fas"
-                            focusable="false"
-                            role="img"
-                            viewBox="0 0 512 512"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
-                              fill="currentColor"
-                            />
-                          </svg>
-                           add write-in candidate
-                        </span>
-                      </p>
+                        <path
+                          d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
+                        />
+                      </svg>
                     </span>
                   </span>
+                  <span
+                    class="c22"
+                  >
+                    <p
+                      class="c23 c24"
+                    >
+                      <span>
+                        <svg
+                          aria-hidden="true"
+                          class="svg-inline--fa fa-pencil "
+                          data-icon="pencil"
+                          data-prefix="fas"
+                          focusable="false"
+                          role="img"
+                          viewBox="0 0 512 512"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                         add write-in candidate
+                      </span>
+                    </p>
+                  </span>
                 </span>
-              </button>
-            </div>
+              </span>
+            </button>
           </div>
         </div>
       </div>
     </main>
     <nav
-      class="c27"
+      class="c26"
     >
       <button
         aria-label="previous contest"
-        class="c28"
+        class="c27"
         id="previous"
         type="button"
       >
         <span
-          class="c29"
+          class="c28"
         >
           <svg
             aria-hidden="true"
@@ -742,20 +726,20 @@ exports[`Single Seat Contest with Write In 1`] = `
           </svg>
         </span>
         <span
-          class="c18"
+          class="c17"
         >
           Back
         </span>
       </button>
       <button
-        class="c16"
+        class="c15"
         type="button"
       >
         <span
-          class="c18"
+          class="c17"
         >
           <span
-            class="c30"
+            class="c29"
           >
             <svg
               aria-hidden="true"
@@ -780,12 +764,12 @@ exports[`Single Seat Contest with Write In 1`] = `
       </button>
       <button
         aria-label="next contest"
-        class="c16"
+        class="c15"
         id="next"
         type="button"
       >
         <span
-          class="c29"
+          class="c28"
         >
           <svg
             aria-hidden="true"
@@ -804,7 +788,7 @@ exports[`Single Seat Contest with Write In 1`] = `
           </svg>
         </span>
         <span
-          class="c18"
+          class="c17"
         >
           Next
         </span>

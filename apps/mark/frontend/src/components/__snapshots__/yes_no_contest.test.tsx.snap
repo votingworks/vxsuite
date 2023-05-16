@@ -16,7 +16,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   font-size: 0.75em;
 }
 
-.c21 {
+.c20 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
@@ -24,7 +24,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   margin-bottom: 0.5em;
 }
 
-.c10 {
+.c9 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
@@ -144,13 +144,13 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   border-top: 0.1em solid #666666;
 }
 
-.c19 {
+.c18 {
   fill: currentColor;
   height: 1em;
   width: 1em;
 }
 
-.c13 {
+.c12 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -163,12 +163,12 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   touch-action: manipulation;
 }
 
-.c13:hover,
-.c13:active {
+.c12:hover,
+.c12:active {
   outline: none;
 }
 
-.c15 {
+.c14 {
   display: inline-block;
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
@@ -179,7 +179,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   flex-shrink: 1;
 }
 
-.c18 {
+.c17 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -199,13 +199,13 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   width: 1.75em;
 }
 
-.c18 > * {
+.c17 > * {
   opacity: 0;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c14 {
+.c13 {
   border: 0.05rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -219,11 +219,11 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   width: 100%;
 }
 
-.c14:active {
+.c13:active {
   border: 0.05rem solid #47a74b;
 }
 
-.c16 {
+.c15 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -238,7 +238,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   gap: 0.5rem;
 }
 
-.c17 {
+.c16 {
   -webkit-box-flex: 0;
   -webkit-flex-grow: 0;
   -ms-flex-positive: 0;
@@ -248,7 +248,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   flex-shrink: 0;
 }
 
-.c20 {
+.c19 {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
@@ -256,7 +256,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   line-height: 1;
 }
 
-.c22 {
+.c21 {
   line-height: inherit;
   margin-bottom: 0;
 }
@@ -275,66 +275,54 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   overflow: auto;
 }
 
-.c1 {
-  padding: 0.25rem 0.5rem 0.5rem;
-}
-
-.c11 {
-  margin: 0 auto;
-  width: 100%;
-  padding: 0.5rem;
-}
-
 .c7 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  height: 100%;
+  overflow: hidden;
   position: relative;
-  overflow: auto;
-}
-
-.c7::before,
-.c7::after {
-  position: absolute;
-  z-index: 1;
-  width: 100%;
-  height: 0.25rem;
-  content: '';
-  -webkit-transition: opacity 0.25s ease;
-  transition: opacity 0.25s ease;
-}
-
-.c7::before {
-  top: 0;
-  opacity: 0;
-  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
-}
-
-.c7::after {
-  bottom: 0;
-  opacity: 0;
-  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
 }
 
 .c8 {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  overflow: auto;
+  -webkit-align-items: stretch;
+  -webkit-box-align: stretch;
+  -ms-flex-align: stretch;
+  align-items: stretch;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  -webkit-box-pack: stretch;
+  -webkit-justify-content: stretch;
+  -ms-flex-pack: stretch;
+  justify-content: stretch;
+  overflow: scroll;
+  padding: 0 0.5rem;
 }
 
-.c9 {
+.c1 {
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+
+.c10 {
   margin: 0 auto;
   width: 100%;
-  padding: 0.25rem 20px 0;
+  padding: 0.5rem;
 }
 
-.c12 {
+.c11 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.5rem;
-  margin-bottom: 1rem;
 }
 
 .c5 {
@@ -404,52 +392,48 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
       <div
         class="c8"
       >
-        <div
-          class="c9"
+        <span
+          class="c6"
         >
-          <span
-            class="c6"
+          <pre
+            class="c9"
           >
-            <pre
-              class="c10"
-            >
-              Should fishing be banned in all city owned lakes and rivers?
-            </pre>
-          </span>
-        </div>
+            Should fishing be banned in all city owned lakes and rivers?
+          </pre>
+        </span>
       </div>
     </div>
     <div
-      class="c11"
+      class="c10"
     >
       <div
         aria-multiselectable="true"
-        class="c12"
+        class="c11"
         data-testid="contest-choices"
         role="listbox"
       >
         <button
           aria-label=" Yes on Ballot Measure 3"
           aria-selected="false"
-          class="c13 c14"
+          class="c12 c13"
           role="option"
           type="button"
         >
           <span
-            class="c15"
+            class="c14"
           >
             <span
-              class="c16"
+              class="c15"
             >
               <span
-                class="c17"
+                class="c16"
               >
                 <span
-                  class="c18"
+                  class="c17"
                 >
                   <svg
                     aria-hidden="true"
-                    class="c19"
+                    class="c18"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -462,10 +446,10 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
                 </span>
               </span>
               <span
-                class="c20"
+                class="c19"
               >
                 <p
-                  class="c21 c22"
+                  class="c20 c21"
                 >
                   Yes
                 </p>
@@ -476,25 +460,25 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
         <button
           aria-label=" No on Ballot Measure 3"
           aria-selected="false"
-          class="c13 c14"
+          class="c12 c13"
           role="option"
           type="button"
         >
           <span
-            class="c15"
+            class="c14"
           >
             <span
-              class="c16"
+              class="c15"
             >
               <span
-                class="c17"
+                class="c16"
               >
                 <span
-                  class="c18"
+                  class="c17"
                 >
                   <svg
                     aria-hidden="true"
-                    class="c19"
+                    class="c18"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -507,10 +491,10 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
                 </span>
               </span>
               <span
-                class="c20"
+                class="c19"
               >
                 <p
-                  class="c21 c22"
+                  class="c20 c21"
                 >
                   No
                 </p>
@@ -540,7 +524,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   font-size: 0.75em;
 }
 
-.c21 {
+.c20 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
@@ -548,7 +532,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   margin-bottom: 0.5em;
 }
 
-.c10 {
+.c9 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
@@ -668,13 +652,13 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   border-top: 0.1em solid #666666;
 }
 
-.c19 {
+.c18 {
   fill: currentColor;
   height: 1em;
   width: 1em;
 }
 
-.c13 {
+.c12 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -687,12 +671,12 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   touch-action: manipulation;
 }
 
-.c13:hover,
-.c13:active {
+.c12:hover,
+.c12:active {
   outline: none;
 }
 
-.c23 {
+.c22 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -705,12 +689,12 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   touch-action: manipulation;
 }
 
-.c23:hover,
-.c23:active {
+.c22:hover,
+.c22:active {
   outline: none;
 }
 
-.c15 {
+.c14 {
   display: inline-block;
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
@@ -721,7 +705,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   flex-shrink: 1;
 }
 
-.c18 {
+.c17 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -742,13 +726,13 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   border: 0.15rem solid currentColor;
 }
 
-.c18 > * {
+.c17 > * {
   opacity: 1;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c25 {
+.c24 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -768,13 +752,13 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   width: 1.75em;
 }
 
-.c25 > * {
+.c24 > * {
   opacity: 0;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c14 {
+.c13 {
   border: 0.05rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -789,11 +773,11 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   border: 0.05rem solid #47a74b;
 }
 
-.c14:active {
+.c13:active {
   border: 0.05rem solid #47a74b;
 }
 
-.c24 {
+.c23 {
   border: 0.05rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -807,11 +791,11 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   width: 100%;
 }
 
-.c24:active {
+.c23:active {
   border: 0.05rem solid #47a74b;
 }
 
-.c16 {
+.c15 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -826,7 +810,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   gap: 0.5rem;
 }
 
-.c17 {
+.c16 {
   -webkit-box-flex: 0;
   -webkit-flex-grow: 0;
   -ms-flex-positive: 0;
@@ -836,7 +820,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   flex-shrink: 0;
 }
 
-.c20 {
+.c19 {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
@@ -844,7 +828,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   line-height: 1;
 }
 
-.c22 {
+.c21 {
   line-height: inherit;
   margin-bottom: 0;
 }
@@ -863,66 +847,54 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   overflow: auto;
 }
 
-.c1 {
-  padding: 0.25rem 0.5rem 0.5rem;
-}
-
-.c11 {
-  margin: 0 auto;
-  width: 100%;
-  padding: 0.5rem;
-}
-
 .c7 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  height: 100%;
+  overflow: hidden;
   position: relative;
-  overflow: auto;
-}
-
-.c7::before,
-.c7::after {
-  position: absolute;
-  z-index: 1;
-  width: 100%;
-  height: 0.25rem;
-  content: '';
-  -webkit-transition: opacity 0.25s ease;
-  transition: opacity 0.25s ease;
-}
-
-.c7::before {
-  top: 0;
-  opacity: 0;
-  background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
-}
-
-.c7::after {
-  bottom: 0;
-  opacity: 0;
-  background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
 }
 
 .c8 {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  overflow: auto;
+  -webkit-align-items: stretch;
+  -webkit-box-align: stretch;
+  -ms-flex-align: stretch;
+  align-items: stretch;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  -webkit-box-pack: stretch;
+  -webkit-justify-content: stretch;
+  -ms-flex-pack: stretch;
+  justify-content: stretch;
+  overflow: scroll;
+  padding: 0 0.5rem;
 }
 
-.c9 {
+.c1 {
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+
+.c10 {
   margin: 0 auto;
   width: 100%;
-  padding: 0.25rem 20px 0;
+  padding: 0.5rem;
 }
 
-.c12 {
+.c11 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.5rem;
-  margin-bottom: 1rem;
 }
 
 .c5 {
@@ -992,52 +964,48 @@ exports[`supports yes/no contest displays warning when attempting to change vote
       <div
         class="c8"
       >
-        <div
-          class="c9"
+        <span
+          class="c6"
         >
-          <span
-            class="c6"
+          <pre
+            class="c9"
           >
-            <pre
-              class="c10"
-            >
-              Should fishing be banned in all city owned lakes and rivers?
-            </pre>
-          </span>
-        </div>
+            Should fishing be banned in all city owned lakes and rivers?
+          </pre>
+        </span>
       </div>
     </div>
     <div
-      class="c11"
+      class="c10"
     >
       <div
         aria-multiselectable="true"
-        class="c12"
+        class="c11"
         data-testid="contest-choices"
         role="listbox"
       >
         <button
           aria-label="Selected, Yes on Ballot Measure 3"
           aria-selected="true"
-          class="c13 c14"
+          class="c12 c13"
           role="option"
           type="button"
         >
           <span
-            class="c15"
+            class="c14"
           >
             <span
-              class="c16"
+              class="c15"
             >
               <span
-                class="c17"
+                class="c16"
               >
                 <span
-                  class="c18"
+                  class="c17"
                 >
                   <svg
                     aria-hidden="true"
-                    class="c19"
+                    class="c18"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -1050,10 +1018,10 @@ exports[`supports yes/no contest displays warning when attempting to change vote
                 </span>
               </span>
               <span
-                class="c20"
+                class="c19"
               >
                 <p
-                  class="c21 c22"
+                  class="c20 c21"
                 >
                   Yes
                 </p>
@@ -1064,25 +1032,25 @@ exports[`supports yes/no contest displays warning when attempting to change vote
         <button
           aria-label=" No on Ballot Measure 3"
           aria-selected="false"
-          class="c23 c24"
+          class="c22 c23"
           role="option"
           type="button"
         >
           <span
-            class="c15"
+            class="c14"
           >
             <span
-              class="c16"
+              class="c15"
             >
               <span
-                class="c17"
+                class="c16"
               >
                 <span
-                  class="c25"
+                  class="c24"
                 >
                   <svg
                     aria-hidden="true"
-                    class="c19"
+                    class="c18"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -1095,10 +1063,10 @@ exports[`supports yes/no contest displays warning when attempting to change vote
                 </span>
               </span>
               <span
-                class="c20"
+                class="c19"
               >
                 <p
-                  class="c21 c22"
+                  class="c20 c21"
                 >
                   No
                 </p>

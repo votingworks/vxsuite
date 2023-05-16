@@ -1,38 +1,24 @@
 import { assert } from '@votingworks/basics';
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
-  P,
-  Button,
   ContestChoiceButton,
   Main,
   Prose,
   Caption,
   Pre,
+  WithScrollButtons,
 } from '@votingworks/ui';
 
 import { YesNoVote, OptionalYesNoVote } from '@votingworks/types';
 
-import { ScrollDirections, UpdateVoteFunction } from '../config/types';
+import { UpdateVoteFunction } from '../config/types';
 import {
   getContestDistrictName,
   MsEitherNeitherContest as MsEitherNeitherContestInterface,
 } from '../utils/ms_either_neither_contests';
-import {
-  ContentHeader,
-  VariableContentContainer,
-  ScrollControls,
-  ScrollContainer,
-  ScrollableContentWrapper,
-} from './contest_screen_layout';
+import { ContentHeader } from './contest_screen_layout';
 import { BallotContext } from '../contexts/ballot_context';
-import { useCurrentTextSizePx } from '../hooks/use_current_text_size';
 import { ContestTitle } from './contest_title';
 
 const ChoicesGrid = styled.div`
@@ -76,18 +62,11 @@ export function MsEitherNeitherContest({
   updateVote,
 }: Props): JSX.Element {
   const { electionDefinition } = useContext(BallotContext);
-  const textSizePx = useCurrentTextSizePx();
   assert(electionDefinition);
   const { election } = electionDefinition;
-  const scrollContainer = useRef<HTMLDivElement>(null);
-  const [isScrollable, setIsScrollable] = useState(true);
-  const [isScrollAtTop, setIsScrollAtTop] = useState(true);
-  const [isScrollAtBottom, setIsScrollAtBottom] = useState(true);
   const [deselectedOption, setDeselectedOption] = useState<
     'either' | 'neither' | 'first' | 'second'
   >();
-  const showTopShadow = true;
-  const showBottomShadow = true;
 
   function handleUpdateEitherNeither(targetVote: string) {
     const currentVote = eitherNeitherContestVote?.[0];
@@ -115,71 +94,6 @@ export function MsEitherNeitherContest({
     );
     updateVote(contest.pickOneContestId, newVote as YesNoVote);
   }
-
-  const updateContestChoicesScrollStates = useCallback(() => {
-    const target = scrollContainer.current;
-    /* istanbul ignore next - `target` should always exist, but sometimes it doesn't. Don't know how to create this condition in testing.  */
-    if (!target) {
-      return;
-    }
-    const targetMinHeight = textSizePx * 8; // magic number: room for buttons + spacing
-    const windowsScrollTopOffsetMagicNumber = 1; // Windows Chrome is often 1px when using scroll buttons.
-    const windowsScrollTop = Math.ceil(target.scrollTop); // Windows Chrome scrolls to sub-pixel values.
-    setIsScrollable(
-      /* istanbul ignore next: Tested by Cypress */
-      target.scrollHeight > target.offsetHeight &&
-        /* istanbul ignore next: Tested by Cypress */
-        target.offsetHeight > targetMinHeight
-    );
-    setIsScrollAtBottom(
-      windowsScrollTop +
-        target.offsetHeight +
-        windowsScrollTopOffsetMagicNumber >= // Windows Chrome "gte" check.
-        target.scrollHeight
-    );
-    setIsScrollAtTop(target.scrollTop === 0);
-  }, [textSizePx]);
-
-  /* istanbul ignore next: Tested by Cypress */
-  function scrollContestChoices(direction: ScrollDirections) {
-    const sc = scrollContainer.current;
-    assert(sc);
-    const currentScrollTop = sc.scrollTop;
-    const { offsetHeight, scrollHeight } = sc;
-    const idealScrollDistance = Math.round(offsetHeight * 0.75);
-    const maxScrollableDownDistance =
-      scrollHeight - offsetHeight - currentScrollTop;
-    const maxScrollTop =
-      direction === 'down'
-        ? currentScrollTop + maxScrollableDownDistance
-        : currentScrollTop;
-    const idealScrollTop =
-      direction === 'down'
-        ? currentScrollTop + idealScrollDistance
-        : currentScrollTop - idealScrollDistance;
-    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
-    sc.scrollTo({
-      behavior: 'smooth',
-      left: 0,
-      top,
-    });
-  }
-
-  useEffect(() => {
-    updateContestChoicesScrollStates();
-    window.addEventListener('resize', updateContestChoicesScrollStates);
-    return () => {
-      window.removeEventListener('resize', updateContestChoicesScrollStates);
-    };
-  }, [updateContestChoicesScrollStates]);
-
-  useEffect(() => {
-    updateContestChoicesScrollStates();
-  }, [
-    eitherNeitherContestVote,
-    pickOneContestVote,
-    updateContestChoicesScrollStates,
-  ]);
 
   const districtName = getContestDistrictName(election, contest);
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
@@ -241,58 +155,18 @@ export function MsEitherNeitherContest({
           </Caption>
         </Prose>
       </ContentHeader>
-      <VariableContentContainer
-        showTopShadow={showTopShadow}
-        showBottomShadow={showBottomShadow}
-      >
-        <ScrollContainer
-          ref={scrollContainer}
-          onScroll={updateContestChoicesScrollStates}
-        >
-          <ScrollableContentWrapper isScrollable={isScrollable}>
-            <Caption>
-              <Pre>{contest.description}</Pre>
-            </Caption>
-          </ScrollableContentWrapper>
-        </ScrollContainer>
-        {isScrollable /* istanbul ignore next: Tested by Cypress */ && (
-          <ScrollControls aria-hidden>
-            <Button
-              className="scroll-up"
-              large
-              variant="primary"
-              aria-hidden
-              value="up"
-              disabled={isScrollAtTop}
-              onPress={scrollContestChoices}
-            >
-              <span>See More</span>
-            </Button>
-            <Button
-              className="scroll-down"
-              large
-              variant="primary"
-              aria-hidden
-              value="down"
-              disabled={isScrollAtBottom}
-              onPress={scrollContestChoices}
-            >
-              <span>See More</span>
-            </Button>
-          </ScrollControls>
-        )}
-      </VariableContentContainer>
+      <WithScrollButtons>
+        <Caption>
+          <Pre>{contest.description}</Pre>
+        </Caption>
+      </WithScrollButtons>
       <ChoicesGrid>
         <GridLabel
           style={{
             gridArea: 'either-neither-label',
           }}
         >
-          <Prose>
-            <P weight="bold">
-              <Caption>{contest.eitherNeitherLabel}</Caption>
-            </P>
-          </Prose>
+          <Caption weight="bold">{contest.eitherNeitherLabel}</Caption>
         </GridLabel>
         <ContestChoiceButton
           choice="yes"
@@ -327,11 +201,7 @@ export function MsEitherNeitherContest({
             gridArea: 'pick-one-label',
           }}
         >
-          <Prose>
-            <P weight="bold">
-              <Caption>{contest.pickOneLabel}</Caption>
-            </P>
-          </Prose>
+          <Caption weight="bold">{contest.pickOneLabel}</Caption>
         </GridLabel>
         <ContestChoiceButton
           choice="yes"

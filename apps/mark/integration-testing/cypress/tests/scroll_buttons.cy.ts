@@ -1,4 +1,11 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
+
+const SCROLL_BUTTON_QUERY_OPTIONS = {
+  name: 'More',
+  hidden: true,
+  timeout: 5,
+} as const;
+
 describe('Scroll Buttons', () => {
   const waitTime = 500;
 
@@ -10,19 +17,19 @@ describe('Scroll Buttons', () => {
     cy.contains('Next').click();
     cy.wait(waitTime);
     cy.contains('Brad Plunkard').should('be.visible');
-    cy.findByText('↑ See More', { timeout: 0 }).should('not.exist');
-    cy.findByText('↓ See More', { timeout: 0 }).should('not.exist');
+    cy.findAllByRole('button', SCROLL_BUTTON_QUERY_OPTIONS).should('not.exist');
     cy.contains('Next').click();
     cy.wait(waitTime);
-    cy.get('button').should('have.length', 16 + 5); // 16 candidates + 5 UI (Next, Back, Settings, 2 x See More)
+    cy.findAllByRole('button', SCROLL_BUTTON_QUERY_OPTIONS).should(
+      'have.length',
+      1
+    );
     cy.contains('Charlene Franz').should('be.visible');
-    cy.get('.scroll-up').should('be.disabled');
-    cy.get('.scroll-down').click();
+    cy.findAllByRole('button', SCROLL_BUTTON_QUERY_OPTIONS).last().click();
     cy.wait(waitTime);
     cy.contains('Charlene Franz', { timeout: 0 }).should('not.be.visible');
     cy.contains('Henry Ash').should('be.visible');
-    cy.get('.scroll-down').should('be.disabled');
-    cy.get('.scroll-up').click();
+    cy.findAllByRole('button', SCROLL_BUTTON_QUERY_OPTIONS).first().click();
     cy.wait(waitTime);
     cy.contains('Charlene Franz').should('be.visible');
   });

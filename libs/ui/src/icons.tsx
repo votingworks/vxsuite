@@ -23,6 +23,8 @@ import {
   faTextHeight,
   faBan,
   faCheckSquare,
+  faChevronCircleUp,
+  faChevronCircleDown,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -108,6 +110,10 @@ export const Icons = {
     return <FaIcon type={faCheckCircle} />;
   },
 
+  DownChevron(): JSX.Element {
+    return <FaIcon type={faChevronCircleDown} />;
+  },
+
   Edit(): JSX.Element {
     return <FaIcon type={faPencil} />;
   },
@@ -134,6 +140,10 @@ export const Icons = {
 
   TextSize(): JSX.Element {
     return <FaIcon type={faTextHeight} />;
+  },
+
+  UpChevron(): JSX.Element {
+    return <FaIcon type={faChevronCircleUp} />;
   },
 
   Warning(): JSX.Element {
