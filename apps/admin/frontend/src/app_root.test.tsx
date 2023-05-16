@@ -28,6 +28,7 @@ test('renders without crashing', async () => {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
   apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetMachineConfig();
   renderRootElement(
     <BrowserRouter>

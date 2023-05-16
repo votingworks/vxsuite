@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  multiPartyPrimaryElectionDefinition,
-  electionSampleDefinition,
-} from '@votingworks/fixtures';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import { advanceTimersAndPromises } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
 import { Router, Route } from 'react-router-dom';
@@ -19,7 +16,6 @@ import userEvent from '@testing-library/user-event';
 import { fireEvent, screen, within } from '../../test/react_testing_library';
 import { ManualDataImportIndexScreen } from './manual_data_import_index_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { ResultsFileType } from '../config/types';
 import {
   getEmptyManualTalliesByPrecinct,
   getEmptyManualTally,
@@ -38,87 +34,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-test('toggling ballot types before data has been added does not update tallies', async () => {
-  const updateManualTally = jest.fn();
-  const setManualTallyVotingMethod = jest.fn();
-  const { getByText, getByTestId } = renderInAppContext(
-    <Route path="/tally/manual-data-import">
-      <ManualDataImportIndexScreen />
-    </Route>,
-    {
-      route: '/tally/manual-data-import',
-      electionDefinition: multiPartyPrimaryElectionDefinition,
-      manualTallyVotingMethod: VotingMethod.Precinct,
-      setManualTallyVotingMethod,
-      updateManualTally,
-      apiMock,
-    }
-  );
-  getByText('Manually Entered Precinct Results');
-
-  // Precinct ballots should be selected by default but should be able to toggle to absentee.
-  expect(getByTestId('ballottype-precinct').closest('button')).toBeDisabled();
-  expect(
-    getByTestId('ballottype-absentee').closest('button')
-  ).not.toBeDisabled();
-  getByText('Edit Precinct Results for Precinct 5');
-
-  userEvent.click(getByTestId('ballottype-absentee'));
-  await advanceTimersAndPromises(1);
-  expect(setManualTallyVotingMethod).toHaveBeenCalledWith(
-    VotingMethod.Absentee
-  );
-  expect(updateManualTally).not.toHaveBeenCalled();
-});
-
-test('toggling ballot types before data after been added does does update tallies', async () => {
-  const updateManualTally = jest.fn();
-  const setManualTallyVotingMethod = jest.fn();
-  const manualFullElectionManualTally: FullElectionManualTally = {
-    overallTally: getEmptyManualTally(),
-    resultsByCategory: new Map([
-      [TallyCategory.Precinct, { precinct: getEmptyManualTally() }],
-    ]),
-    votingMethod: VotingMethod.Absentee,
-    timestampCreated: new Date(),
-  };
-  const { getByText, getByTestId } = renderInAppContext(
-    <Route path="/tally/manual-data-import">
-      <ManualDataImportIndexScreen />
-    </Route>,
-    {
-      route: '/tally/manual-data-import',
-      electionDefinition: multiPartyPrimaryElectionDefinition,
-      manualTallyVotingMethod: VotingMethod.Absentee,
-      setManualTallyVotingMethod,
-      updateManualTally,
-      fullElectionManualTally: manualFullElectionManualTally,
-      apiMock,
-    }
-  );
-  getByText('Manually Entered Absentee Results');
-
-  // Absentee ballots should be selected but should be able to toggle to precinct.
-  expect(getByTestId('ballottype-absentee').closest('button')).toBeDisabled();
-  expect(
-    getByTestId('ballottype-precinct').closest('button')
-  ).not.toBeDisabled();
-  getByText('Edit Absentee Results for Precinct 5');
-
-  userEvent.click(getByTestId('ballottype-precinct'));
-  await advanceTimersAndPromises(1);
-  expect(setManualTallyVotingMethod).toHaveBeenCalledWith(
-    VotingMethod.Precinct
-  );
-  expect(updateManualTally).toHaveBeenCalledWith(
-    expect.objectContaining({
-      votingMethod: VotingMethod.Precinct,
-    })
-  );
-});
-
 test('precinct table renders properly when there is no data', () => {
-  const updateManualTally = jest.fn();
   const history = createMemoryHistory();
   const { getByText, getByTestId } = renderInAppContext(
     <Router history={history}>
@@ -127,11 +43,10 @@ test('precinct table renders properly when there is no data', () => {
     {
       route: '/tally/manual-data-import',
       electionDefinition: electionSampleDefinition,
-      updateManualTally,
       apiMock,
     }
   );
-  getByText('Manually Entered Precinct Results');
+  getByText('Manually Entered Results');
   // Everything should start as 0s
   const summaryTable = getByTestId('summary-data');
   const centerSpringfield = within(summaryTable)
@@ -153,11 +68,11 @@ test('precinct table renders properly when there is no data', () => {
     '0'
   );
   expect(getByTestId('total-ballots-entered')).toHaveTextContent('0');
-  fireEvent.click(getByText('Edit Precinct Results for Center Springfield'));
+  fireEvent.click(getByText('Edit Results for Center Springfield'));
   expect(history.location.pathname).toEqual(
     '/tally/manual-data-import/precinct/23'
   );
-  fireEvent.click(getByText('Edit Precinct Results for North Springfield'));
+  fireEvent.click(getByText('Edit Results for North Springfield'));
   expect(history.location.pathname).toEqual(
     '/tally/manual-data-import/precinct/21'
   );
@@ -237,7 +152,6 @@ test('loads preexisting manual data to edit', async () => {
     votingMethod: VotingMethod.Absentee,
     timestampCreated: new Date(),
   };
-  const resetFiles = jest.fn();
   apiMock.expectGetCastVoteRecordFiles([]);
   const { getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import">
@@ -246,18 +160,12 @@ test('loads preexisting manual data to edit', async () => {
     {
       route: '/tally/manual-data-import',
       electionDefinition: electionSampleDefinition,
-      resetFiles,
       manualTallyVotingMethod: VotingMethod.Absentee,
       fullElectionManualTally: manualTally,
       apiMock,
     }
   );
-  await screen.findByText('Manually Entered Absentee Results');
-  // Absentee ballot type should be selected
-  expect(
-    getByTestId('ballottype-precinct').closest('button')
-  ).not.toBeDisabled();
-  expect(getByTestId('ballottype-absentee').closest('button')).toBeDisabled();
+  await screen.findByText('Manually Entered Results');
 
   // Make sure all the summary loaded as expected
   expect(getByTestId('total-ballots-entered')).toHaveTextContent('157');
@@ -283,10 +191,9 @@ test('loads preexisting manual data to edit', async () => {
     '7'
   );
 
+  apiMock.expectDeleteAllManualTallies();
   userEvent.click(await screen.findByText('Clear Manual Data'));
   userEvent.click(await screen.findByText('Remove Manual Data'));
-
-  expect(resetFiles).toHaveBeenCalledWith(ResultsFileType.Manual);
 
   await advanceTimersAndPromises();
 });

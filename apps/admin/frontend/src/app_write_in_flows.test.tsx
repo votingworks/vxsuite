@@ -7,11 +7,21 @@ import type {
   WriteInCandidateRecord,
   WriteInSummaryEntryAdjudicated,
 } from '@votingworks/admin-backend';
-import { screen, within } from '../test/react_testing_library';
+import { VotingMethod } from '@votingworks/types';
+import { screen, waitFor, within } from '../test/react_testing_library';
 import { ApiMock, createApiMock } from '../test/helpers/api_mock';
 import { buildApp } from '../test/helpers/build_app';
 import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
 import { VxFiles } from './lib/converters';
+import { buildSpecifiedManualTally } from '../test/helpers/build_manual_tally';
+import {
+  convertTalliesByPrecinctToFullManualTally,
+  getEmptyManualTalliesByPrecinct,
+} from './utils/manual_tallies';
+import {
+  getMockTempWriteInCandidate,
+  getMockWriteInCandidate,
+} from '../test/api_mock_data';
 
 const nonOfficialAdjudicationSummaryMammal: WriteInSummaryEntryAdjudicated = {
   status: 'adjudicated',
@@ -69,6 +79,7 @@ function mockWriteInCandidateRecord(
 test('manual write-in data end-to-end test', async () => {
   const { electionDefinition, legacyPartial1CvrFile } =
     electionMinimalExhaustiveSampleFixtures;
+  const { election } = electionDefinition;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetSystemSettings();
@@ -78,6 +89,7 @@ test('manual write-in data end-to-end test', async () => {
       electionDefinition
     )
   );
+  apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetCastVoteRecordFileMode('test');
   const chimera = mockWriteInCandidateRecord('zoo-council-mammal', 'Chimera');
@@ -87,16 +99,16 @@ test('manual write-in data end-to-end test', async () => {
   ]);
   renderApp();
 
-  // Navigate to manual data entry
+  // navigate to manual data entry
   await apiMock.authenticateAsElectionManager(electionDefinition);
 
   userEvent.click(screen.getByText('Tally'));
   userEvent.click(await screen.findByText('Add Manually Entered Results'));
 
-  userEvent.click(screen.getByText('Edit Precinct Results for Precinct 1'));
+  userEvent.click(screen.getByText('Edit Results for Precinct 1'));
 
-  // Enter some official results for Precinct 1
-  await screen.findByText('Manually Entered Precinct Results:');
+  // enter some official results for Precinct 1
+  await screen.findByText('Manually Entered Results:');
   userEvent.type(
     screen.getByTestId('zoo-council-mammal-zebra-input').closest('input')!,
     '7'
@@ -106,7 +118,7 @@ test('manual write-in data end-to-end test', async () => {
     '3'
   );
 
-  // Add votes to the pre-adjudicated value
+  // add votes to the pre-adjudicated value
   const zooMammalCouncil = screen
     .getByText('Zoo Council - Mammal Party')
     .closest('div')!;
@@ -115,7 +127,7 @@ test('manual write-in data end-to-end test', async () => {
     '9'
   );
 
-  // Add a write-in to appear in the results
+  // add a write-in to appear in the results
   userEvent.click(within(zooMammalCouncil).getByText('Add Write-In Candidate'));
   userEvent.type(
     within(zooMammalCouncil).getByTestId('zoo-council-mammal-write-in-input'),
@@ -124,7 +136,7 @@ test('manual write-in data end-to-end test', async () => {
   userEvent.click(within(zooMammalCouncil).getByText('Add'));
   userEvent.type(
     within(zooMammalCouncil).getByTestId(
-      'zoo-council-mammal-write-in-(Rapidash)-temp-input'
+      'zoo-council-mammal-temp-write-in-(Rapidash)-input'
     ),
     '5'
   );
@@ -134,7 +146,7 @@ test('manual write-in data end-to-end test', async () => {
       .textContent
   ).toEqual('8');
 
-  // Add a write-in to another race
+  // add a write-in for another race
   const zooFishCouncil = screen
     .getByText('Zoo Council - Fish Party')
     .closest('div')!;
@@ -146,62 +158,124 @@ test('manual write-in data end-to-end test', async () => {
   userEvent.click(within(zooFishCouncil).getByText('Add'));
   userEvent.type(
     within(zooFishCouncil).getByTestId(
-      'aquarium-council-fish-write-in-(Relicanth)-temp-input'
+      'aquarium-council-fish-temp-write-in-(Relicanth)-input'
     ),
     '14'
   );
 
-  // Save results and check index screen
+  // save results and then check index screen
+  const expectedTempManualTally = buildSpecifiedManualTally(election, 8, {
+    'zoo-council-mammal': {
+      ballots: 8,
+      officialOptionTallies: {
+        zebra: 7,
+        kangaroo: 3,
+      },
+      writeInOptionTallies: {
+        chimera: {
+          candidate: getMockWriteInCandidate('Chimera'),
+          count: 9,
+        },
+        'temp-write-in-(Rapidash)': {
+          candidate: getMockTempWriteInCandidate('Rapidash'),
+          count: 5,
+        },
+      },
+    },
+    'aquarium-council-fish': {
+      ballots: 7,
+      writeInOptionTallies: {
+        'temp-write-in-(Relicanth)': {
+          candidate: getMockTempWriteInCandidate('Relicanth'),
+          count: 14,
+        },
+      },
+    },
+  });
+  const expectedManualTally = buildSpecifiedManualTally(election, 8, {
+    'zoo-council-mammal': {
+      ballots: 8,
+      officialOptionTallies: {
+        zebra: 3,
+        kangaroo: 3,
+      },
+      writeInOptionTallies: {
+        chimera: {
+          candidate: getMockWriteInCandidate('Chimera'),
+          count: 9,
+        },
+        rapidash: {
+          candidate: getMockWriteInCandidate('Rapidash'),
+          count: 5,
+        },
+      },
+    },
+    'aquarium-council-fish': {
+      ballots: 7,
+      writeInOptionTallies: {
+        relicanth: {
+          candidate: getMockWriteInCandidate('Relicanth'),
+          count: 14,
+        },
+      },
+    },
+  });
+  apiMock.expectSetManualTally({
+    precinctId: 'precinct-1',
+    manualTally: expectedTempManualTally,
+  });
+  const talliesByPrecinct = getEmptyManualTalliesByPrecinct(election);
+  talliesByPrecinct['precinct-1'] = expectedManualTally;
+  apiMock.expectGetFullElectionManualTally(
+    convertTalliesByPrecinctToFullManualTally(
+      talliesByPrecinct,
+      election,
+      VotingMethod.Precinct,
+      new Date()
+    )
+  );
+  userEvent.click(screen.getByText('Save Results for Precinct 1'));
+  const summaryTable = await screen.findByTestId('summary-data');
+  const precinct1SummaryRow = within(summaryTable)
+    .getByText('Precinct 1')
+    .closest('tr')!;
+  await waitFor(() => {
+    expect(
+      within(precinct1SummaryRow).getByTestId('numBallots').textContent
+    ).toEqual('8');
+  });
+
+  // check our write-ins appear for Precinct 2
   const rapidash = mockWriteInCandidateRecord('zoo-council-mammal', 'Rapidash');
   const relicanth = mockWriteInCandidateRecord(
     'aquarium-council-fish',
     'Relicanth'
   );
-  apiMock.expectAddWriteInCandidate(
-    {
-      contestId: 'zoo-council-mammal',
-      name: 'Rapidash',
-    },
-    rapidash
-  );
-  apiMock.expectGetWriteInCandidates([chimera, rapidash]);
-  apiMock.expectAddWriteInCandidate(
-    {
-      contestId: 'aquarium-council-fish',
-      name: 'Relicanth',
-    },
-    relicanth
-  );
   apiMock.expectGetWriteInCandidates([chimera, rapidash, relicanth]);
-  userEvent.click(screen.getByText('Save Precinct Results for Precinct 1'));
-  let summaryTable = await screen.findByTestId('summary-data');
-  const precinct1SummaryRow = within(summaryTable)
-    .getByText('Precinct 1')
-    .closest('tr')!;
-  expect(
-    within(precinct1SummaryRow).getByTestId('numBallots').textContent
-  ).toEqual('8');
-
-  // Check our write-ins appear for precinct 2
-  userEvent.click(screen.getByText('Edit Precinct Results for Precinct 2'));
+  userEvent.click(screen.getByText('Edit Results for Precinct 2'));
   screen.getByText('Chimera (write-in)');
-  screen.getByText('Rapidash (write-in)');
+  await screen.findByText('Rapidash (write-in)');
   screen.getByText('Relicanth (write-in)');
 
-  // Add results for one write-in for precinct 2
-  userEvent.type(screen.getByTestId('zoo-council-mammal-rapidash-input'), '15');
-
-  // Save results and confirm index screen has updated appropriately
-  userEvent.click(screen.getByText('Save Precinct Results for Precinct 2'));
-  summaryTable = await screen.findByTestId('summary-data');
-  const precinct2SummaryRow = within(summaryTable)
-    .getByText('Precinct 2')
-    .closest('tr')!;
+  // check our results appear properly if we navigate back to Precinct 1
+  userEvent.click(screen.getByText('Tally'));
+  userEvent.click(screen.getButton('Edit Manually Entered Results'));
+  userEvent.click(screen.getButton('Edit Results for Precinct 1'));
+  const zooMammalCouncil2 = screen
+    .getByText('Zoo Council - Mammal Party')
+    .closest('div')!;
   expect(
-    within(precinct2SummaryRow).getByTestId('numBallots').textContent
+    within(zooMammalCouncil2)
+      .getByTestId('zoo-council-mammal-chimera-input')
+      .closest('input')!.value
+  ).toEqual('9');
+  expect(
+    within(zooMammalCouncil2)
+      .getByTestId('zoo-council-mammal-rapidash-input')
+      .closest('input')!.value
   ).toEqual('5');
 
-  // Check that results are appropriately incorporated into the main report
+  // check that results are appropriately incorporated into the main report
   userEvent.click(screen.getByText('Reports'));
   userEvent.click(screen.getByText('Unofficial Full Election Tally Report'));
   const mainReportPreview = await screen.findByTestId('report-preview');
@@ -214,7 +288,7 @@ test('manual write-in data end-to-end test', async () => {
   const zooCouncilFish = within(mainReportPreview).getByTestId(
     'results-table-aquarium-council-fish'
   );
-  // Added write-in candidates should not appear in the report
+  // added write-in candidates should not appear in the report
   expect(
     within(zooCouncilMammal).queryByText(/Chimera/)
   ).not.toBeInTheDocument();
@@ -224,17 +298,17 @@ test('manual write-in data end-to-end test', async () => {
   expect(
     within(zooCouncilFish).queryByText(/Relicanth/)
   ).not.toBeInTheDocument();
-  // Check totals are correct
+  // check totals are correct
   within(zooCouncilMammal).getByText(
-    hasTextAcrossElements('Ballots Cast10113114')
+    hasTextAcrossElements('Ballots Cast1018109')
   );
-  within(zooCouncilMammal).getByText(hasTextAcrossElements('Zebra58765'));
+  within(zooCouncilMammal).getByText(hasTextAcrossElements('Zebra58361'));
   within(zooCouncilMammal).getByText(hasTextAcrossElements('Kangaroo42345'));
-  within(zooCouncilMammal).getByText(hasTextAcrossElements('Write-In422971'));
+  within(zooCouncilMammal).getByText(hasTextAcrossElements('Write-In421456'));
   within(zooCouncilFish).getByText(hasTextAcrossElements('Ballots Cast077'));
   within(zooCouncilFish).getByText(hasTextAcrossElements('Write-In01414'));
 
-  // Check that results are appropriately incorporated into scatter report
+  // check that results are appropriately incorporated into scatter report
   userEvent.click(screen.getByText('Reports'));
   userEvent.click(screen.getByText('Unofficial Write-In Tally Report'));
   const writeInReportPreview = await screen.findByTestId('report-preview');
@@ -248,6 +322,6 @@ test('manual write-in data end-to-end test', async () => {
     'results-table-aquarium-council-fish'
   );
   within(zooCouncilMammal2).getByText(hasTextAcrossElements('Chimera10'));
-  within(zooCouncilMammal2).getByText(hasTextAcrossElements('Rapidash20'));
+  within(zooCouncilMammal2).getByText(hasTextAcrossElements('Rapidash5'));
   within(zooCouncilFish2).getByText(hasTextAcrossElements('Relicanth14'));
 });

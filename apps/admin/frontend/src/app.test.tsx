@@ -34,12 +34,16 @@ import {
 } from '../test/react_testing_library';
 
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
-import { convertTalliesByPrecinctToFullManualTally } from './utils/manual_tallies';
+import {
+  convertTalliesByPrecinctToFullManualTally,
+  getEmptyManualTalliesByPrecinct,
+} from './utils/manual_tallies';
 import { VxFiles } from './lib/converters';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/api_mock';
 import { mockCastVoteRecordFileRecord } from '../test/api_mock_data';
 import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
+import { buildSpecifiedManualTally } from '../test/helpers/build_manual_tally';
 
 const EITHER_NEITHER_CVR_DATA =
   electionWithMsEitherNeitherFixtures.legacyCvrData;
@@ -111,6 +115,7 @@ test('configuring with a demo election definition', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetFullElectionManualTally();
 
   const { getByText, queryAllByText, getByTestId } = renderApp();
 
@@ -144,6 +149,7 @@ test('configuring with a demo election definition', async () => {
   apiMock.expectUnconfigure();
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetFullElectionManualTally();
   fireEvent.click(getByText('Remove'));
   fireEvent.click(getByText('Remove Election Definition'));
 
@@ -167,6 +173,7 @@ test('authentication works', async () => {
   const { renderApp, hardware } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetFullElectionManualTally();
   renderApp();
 
   await screen.findByText('VxAdmin is Locked');
@@ -259,6 +266,7 @@ test('L&A (logic and accuracy) flow', async () => {
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
   });
+  apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
 
   renderApp();
@@ -361,6 +369,7 @@ test('marking results as official', async () => {
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
   });
+  apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetWriteInSummaryAdjudicated([]);
   renderApp();
@@ -397,6 +406,7 @@ test('tabulating CVRs', async () => {
     electionDefinition,
     isOfficialResults: true,
   });
+  apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetWriteInSummaryAdjudicated([]);
   const { getByText, getAllByText, getByTestId } = renderApp();
@@ -524,6 +534,7 @@ test('tabulating CVRs', async () => {
 
 test('tabulating CVRs with manual data', async () => {
   const electionDefinition = electionWithMsEitherNeitherDefinition;
+  const { election } = electionDefinition;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(EITHER_NEITHER_CVR_DATA, electionDefinition)
@@ -532,6 +543,7 @@ test('tabulating CVRs with manual data', async () => {
     electionDefinition,
     isOfficialResults: false,
   });
+  apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFiles([
     { ...mockCastVoteRecordFileRecord, numCvrsImported: 100 },
   ]);
@@ -546,11 +558,12 @@ test('tabulating CVRs with manual data', async () => {
   fireEvent.click(getByText('Tally'));
   expect(await screen.findByTestId('total-cvr-count')).toHaveTextContent('100');
 
+  // Enter manual data for District 5
   fireEvent.click(getByText('Add Manually Entered Results'));
-  getByText('Manually Entered Precinct Results');
+  getByText('Manually Entered Results');
 
-  fireEvent.click(getByText('Edit Precinct Results for District 5'));
-  await screen.findByText('Save Precinct Results for District 5');
+  fireEvent.click(getByText('Edit Results for District 5'));
+  await screen.findByText('Save Results for District 5');
   fireEvent.change(getByTestId('775020876-undervotes-input'), {
     target: { value: '12' },
   });
@@ -567,8 +580,38 @@ test('tabulating CVRs with manual data', async () => {
     target: { value: '20' },
   });
 
-  fireEvent.click(getByText('Save Precinct Results for District 5'));
-  await waitFor(() => getByText('Manually Entered Precinct Results'));
+  const district5ExpectedManualTally = buildSpecifiedManualTally(
+    election,
+    100,
+    {
+      '775020876': {
+        undervotes: 12,
+        overvotes: 8,
+        ballots: 100,
+        officialOptionTallies: {
+          '775031988': 32,
+          '775031987': 28,
+          '775031989': 20,
+        },
+      },
+    }
+  );
+  apiMock.expectSetManualTally({
+    precinctId: '6522',
+    manualTally: district5ExpectedManualTally,
+  });
+  const talliesByPrecinct = getEmptyManualTalliesByPrecinct(election);
+  talliesByPrecinct['6522'] = district5ExpectedManualTally;
+  apiMock.expectGetFullElectionManualTally(
+    convertTalliesByPrecinctToFullManualTally(
+      talliesByPrecinct,
+      eitherNeitherElectionDefinition.election,
+      VotingMethod.Precinct,
+      new Date()
+    )
+  );
+  fireEvent.click(getByText('Save Results for District 5'));
+  await screen.findByText('Manually Entered Results');
   await waitFor(() => {
     expect(getByTestId('total-ballots-entered').textContent).toEqual('100');
   });
@@ -609,7 +652,7 @@ test('tabulating CVRs with manual data', async () => {
   within(totalRow).getByText('Total Ballots Cast');
   within(totalRow).getByText('200');
 
-  // Now edit the manual data
+  // Navigate back to manual data
   fireEvent.click(getByText('Tally'));
   fireEvent.click(await screen.findByText('Edit Manually Entered Results'));
 
@@ -619,13 +662,10 @@ test('tabulating CVRs with manual data', async () => {
     '100'
   );
 
-  // Change the manual data to absentee
-  fireEvent.click(getByText('Absentee Results'));
-
-  await advanceTimersAndPromises(0);
-  // Change to another precinct
-  fireEvent.click(getByText('Edit Absentee Results for Panhandle'));
-  await screen.findByText('Save Absentee Results for Panhandle');
+  // Edit a different precinct, Panhandle
+  apiMock.expectGetWriteInCandidates([]);
+  fireEvent.click(getByText('Edit Results for Panhandle'));
+  await screen.findByText('Save Results for Panhandle');
   fireEvent.change(getByTestId('750000017-undervotes-input'), {
     target: { value: '17' },
   });
@@ -639,7 +679,37 @@ test('tabulating CVRs with manual data', async () => {
     target: { value: '26' },
   });
 
-  fireEvent.click(getByText('Save Absentee Results for Panhandle'));
+  const panhandleExpectedManualTally = buildSpecifiedManualTally(
+    election,
+    100,
+    {
+      '750000017': {
+        undervotes: 17,
+        overvotes: 3,
+        ballots: 100,
+        officialOptionTallies: {
+          yes: 54,
+          no: 26,
+        },
+      },
+    }
+  );
+  apiMock.expectSetManualTally({
+    precinctId: '6532',
+    manualTally: panhandleExpectedManualTally,
+  });
+  const talliesByPrecinct2 = getEmptyManualTalliesByPrecinct(election);
+  talliesByPrecinct2['6522'] = district5ExpectedManualTally;
+  talliesByPrecinct2['6532'] = panhandleExpectedManualTally;
+  apiMock.expectGetFullElectionManualTally(
+    convertTalliesByPrecinctToFullManualTally(
+      talliesByPrecinct2,
+      eitherNeitherElectionDefinition.election,
+      VotingMethod.Precinct,
+      new Date()
+    )
+  );
+  fireEvent.click(getByText('Save Results for Panhandle'));
   await waitFor(() => {
     expect(getByTestId('total-ballots-entered').textContent).toEqual('200');
   });
@@ -657,6 +727,7 @@ test('tabulating CVRs with manual data', async () => {
   expect(getByTestId('total-ballot-count').textContent).toEqual('300');
   getByText('Manually Entered Results');
 
+  apiMock.expectGetWriteInSummaryAdjudicated([]);
   fireEvent.click(getByText('Unofficial Full Election Tally Report'));
   // Report title should be rendered 2 times - app and preview
   expect(
@@ -669,11 +740,11 @@ test('tabulating CVRs with manual data', async () => {
   );
   const absenteeRow2 = within(reportPreview2).getByTestId('absentee');
   within(absenteeRow2).getByText('Absentee');
-  within(absenteeRow2).getByText('250');
+  within(absenteeRow2).getByText('50');
 
   const precinctRow2 = within(reportPreview2).getByTestId('standard');
   within(precinctRow2).getByText('Precinct');
-  within(precinctRow2).getByText('50');
+  within(precinctRow2).getByText('250');
 
   const totalRow2 = within(reportPreview2).getByTestId('total');
   within(totalRow2).getByText('Total Ballots Cast');
@@ -685,6 +756,8 @@ test('tabulating CVRs with manual data', async () => {
 
   getByText('Do you want to remove the manually entered data?');
   const modal = await screen.findByRole('alertdialog');
+  apiMock.expectDeleteAllManualTallies();
+  apiMock.expectGetFullElectionManualTally();
   fireEvent.click(within(modal).getByText('Remove Manual Data'));
   await waitFor(() => {
     expect(getByTestId('total-cvr-count').textContent).toEqual('100');
@@ -699,20 +772,19 @@ test('tabulating CVRs with manual data', async () => {
 test('reports screen shows appropriate summary data about ballot counts', async () => {
   const { electionDefinition, legacyCvrData } =
     electionMinimalExhaustiveSampleFixtures;
-  const { renderApp, backend } = buildApp(apiMock);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(legacyCvrData, electionDefinition)
   );
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetCastVoteRecordFileMode('test');
-
   const manualTally = convertTalliesByPrecinctToFullManualTally(
     { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
     eitherNeitherElectionDefinition.election,
     VotingMethod.Absentee,
     new Date()
   );
-  await backend.updateFullElectionManualTally(manualTally);
+  apiMock.expectGetFullElectionManualTally(manualTally);
+  apiMock.expectGetCastVoteRecordFileMode('test');
 
   renderApp();
   await apiMock.authenticateAsElectionManager(electionDefinition);
@@ -729,17 +801,16 @@ test('reports screen shows appropriate summary data about ballot counts', async 
 
 test('removing election resets cvr and manual data files', async () => {
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
-  const { renderApp, backend } = buildApp(apiMock);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-
   const manualTally = convertTalliesByPrecinctToFullManualTally(
     { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
     eitherNeitherElectionDefinition.election,
     VotingMethod.Absentee,
     new Date()
   );
-  await backend.updateFullElectionManualTally(manualTally);
+  apiMock.expectGetFullElectionManualTally(manualTally);
 
   const { getByText } = renderApp();
 
@@ -748,30 +819,20 @@ test('removing election resets cvr and manual data files', async () => {
   await apiMock.logOut();
   await apiMock.authenticateAsSystemAdministrator();
 
-  // check manual tally present before unconfigure
-  const manualTallyBefore = await backend.loadFullElectionManualTally();
-  expect(manualTallyBefore).toBeDefined();
-
+  // expect all data to be refetched on unconfigure
   apiMock.expectUnconfigure();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectGetCastVoteRecords([]);
+  apiMock.expectGetFullElectionManualTally();
   fireEvent.click(getByText('Definition'));
   fireEvent.click(getByText('Remove Election'));
   fireEvent.click(getByText('Remove Election Definition'));
-
-  // we expect the unconfigure mutation to remove cast vote record files on backend
-
-  // check manual data removed
-  await waitFor(async () => {
-    const manualTallyAfter = await backend.loadFullElectionManualTally();
-    expect(manualTallyAfter).toBeUndefined();
-  });
 });
 
 test('clearing results', async () => {
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
-  const { renderApp, backend } = buildApp(apiMock);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
@@ -788,14 +849,10 @@ test('clearing results', async () => {
     VotingMethod.Absentee,
     new Date()
   );
-  await backend.updateFullElectionManualTally(manualTally);
+  apiMock.expectGetFullElectionManualTally(manualTally);
 
   const { getByText, queryByText } = renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
-
-  // check manual tally present before removing all files
-  const manualTallyBefore = await backend.loadFullElectionManualTally();
-  expect(manualTallyBefore).toBeDefined();
 
   fireEvent.click(getByText('Tally'));
   expect(
@@ -806,6 +863,9 @@ test('clearing results', async () => {
     getByText('Edit Manually Entered Results').closest('button')
   ).toBeDisabled();
   expect(getByText('Remove Manual Data').closest('button')).toBeDisabled();
+
+  apiMock.expectDeleteAllManualTallies();
+  apiMock.expectGetFullElectionManualTally();
 
   apiMock.expectClearCastVoteRecordFiles();
   apiMock.expectGetCastVoteRecords([]);
@@ -833,9 +893,6 @@ test('clearing results', async () => {
   expect(queryByText('Clear All Tallies and Results')).not.toBeInTheDocument();
 
   getByText('No CVR files loaded.');
-
-  const manualTallyAfter = await backend.loadFullElectionManualTally();
-  expect(manualTallyAfter).toBeUndefined();
 });
 
 test('can not view or print ballots', async () => {
@@ -844,6 +901,7 @@ test('can not view or print ballots', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetFullElectionManualTally();
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
@@ -868,6 +926,7 @@ test('election manager UI has expected nav', async () => {
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
+  apiMock.expectGetFullElectionManualTally();
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
@@ -893,6 +952,7 @@ test('system administrator UI has expected nav', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetFullElectionManualTally();
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
@@ -912,6 +972,7 @@ test('system administrator UI has expected nav when no election', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetFullElectionManualTally();
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
@@ -949,6 +1010,7 @@ test('system administrator UI has expected nav when no election', async () => {
   apiMock.expectUnconfigure();
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetFullElectionManualTally();
   userEvent.click(screen.getByText('Remove Election'));
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(
@@ -968,6 +1030,7 @@ test('system administrator Smartcards screen navigation', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetFullElectionManualTally();
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
@@ -986,6 +1049,7 @@ test('election manager cannot auth onto unconfigured machine', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetFullElectionManualTally();
   renderApp();
 
   await screen.findByText('VxAdmin is Locked');
@@ -1007,6 +1071,7 @@ test('election manager cannot auth onto machine with different election hash', a
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  apiMock.expectGetFullElectionManualTally();
   renderApp();
 
   await screen.findByText('VxAdmin is Locked');
@@ -1034,6 +1099,7 @@ test('primary election flow', async () => {
   apiMock.expectGetCastVoteRecords(
     await fileDataToCastVoteRecords(legacyCvrData, electionDefinition)
   );
+  apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFileMode('test');
   apiMock.expectGetWriteInSummaryAdjudicated([]);
 
@@ -1098,6 +1164,7 @@ test('usb formatting flows', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata();
+  apiMock.expectGetFullElectionManualTally();
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();

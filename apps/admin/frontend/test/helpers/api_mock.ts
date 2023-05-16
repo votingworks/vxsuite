@@ -12,7 +12,7 @@ import type {
   WriteInSummaryEntry,
   WriteInSummaryEntryAdjudicated,
 } from '@votingworks/admin-backend';
-import { ok } from '@votingworks/basics';
+import { collections, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
   fakeElectionManagerUser,
@@ -24,6 +24,9 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
   ElectionDefinition,
+  FullElectionManualTally,
+  Id,
+  ManualTally,
   Rect,
   SystemSettings,
 } from '@votingworks/types';
@@ -265,6 +268,36 @@ export function createApiMock(
 
     expectListCastVoteRecordFilesOnUsb(files: CastVoteRecordFileMetadata[]) {
       apiClient.listCastVoteRecordFilesOnUsb.expectCallWith().resolves(files);
+    },
+
+    expectDeleteAllManualTallies() {
+      apiClient.deleteAllManualTallies.expectCallWith().resolves();
+    },
+
+    expectSetManualTally(input: { precinctId: Id; manualTally: ManualTally }) {
+      apiClient.setManualTally.expectCallWith(input).resolves();
+    },
+
+    expectGetFullElectionManualTally(
+      fullElectionManualTally?: FullElectionManualTally
+    ) {
+      apiClient.getFullElectionManualTally.expectCallWith().resolves(
+        fullElectionManualTally
+          ? {
+              ...fullElectionManualTally,
+              resultsByCategory: collections.reduce(
+                fullElectionManualTally.resultsByCategory,
+                (dictionary, indexedTallies, indexKey) => {
+                  return {
+                    ...dictionary,
+                    [indexKey]: indexedTallies,
+                  };
+                },
+                {}
+              ),
+            }
+          : null
+      );
     },
   };
 }
