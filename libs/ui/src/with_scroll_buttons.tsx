@@ -177,7 +177,7 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
         >
           <Controls aria-hidden>
             {canScrollUp && (
-              <Control onPress={onScrollUp}>
+              <Control onPress={onScrollUp} variant="primary">
                 <ControlLabel>
                   <Icons.UpChevron />
                   <span>More</span>
@@ -186,7 +186,7 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
             )}
             <ControlsSpacer />
             {canScrollDown && (
-              <Control onPress={onScrollDown}>
+              <Control onPress={onScrollDown} variant="primary">
                 <ControlLabel>
                   <span>More</span>
                   <Icons.DownChevron />
