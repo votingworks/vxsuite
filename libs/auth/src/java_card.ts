@@ -568,9 +568,9 @@ export class JavaCard implements Card {
     // Use the cert's public key to verify the generated signature
     const certPublicKey = await extractPublicKeyFromCert(cert);
     await verifySignature({
+      message: Buffer.from(challenge, 'utf-8'),
+      messageSignature: challengeSignature,
       publicKey: certPublicKey,
-      challengeSignature,
-      challenge: Buffer.from(challenge, 'utf-8'),
     });
   }
 
