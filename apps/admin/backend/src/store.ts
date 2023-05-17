@@ -982,41 +982,20 @@ export class Store {
   }
 
   private deleteAllChildlessWriteInCandidates(): void {
-    // get ids of write-ins who have on screen adjudications
-    const adjudicatedWriteInCandidateIds = (
-      this.client.all(
-        `
-          select distinct write_in_candidate_id as writeInCandidateId
-          from write_ins
-          where write_in_candidate_id is not null
-        `
-      ) as Array<{ writeInCandidateId: Id }>
-    ).map(({ writeInCandidateId }) => writeInCandidateId);
-
-    // get ids of write-ins who are included in manual tallies
-    const manualTallyWriteInCandidateIds = (
-      this.client.all(
-        `
-          select distinct write_in_candidate_id as writeInCandidateId
-          from manual_tally_write_in_candidate_references
-        `
-      ) as Array<{ writeInCandidateId: Id }>
-    ).map(({ writeInCandidateId }) => writeInCandidateId);
-
-    const writeInCandidateIdsWithChildren = new Set<Id>([
-      ...adjudicatedWriteInCandidateIds,
-      ...manualTallyWriteInCandidateIds,
-    ]);
-
-    const params: Bindable[] = [...writeInCandidateIdsWithChildren];
-    const questionMarks = params.map(() => '?');
-
     this.client.run(
       `
       delete from write_in_candidates
-      where id not in (${questionMarks.join(', ')})
-    `,
-      ...params
+      where 
+        id not in (
+          select distinct write_in_candidate_id
+          from write_ins
+          where write_in_candidate_id is not null
+        ) and 
+        id not in (
+          select distinct write_in_candidate_id
+          from manual_tally_write_in_candidate_references
+        )
+      `
     );
   }
 
