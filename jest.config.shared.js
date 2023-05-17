@@ -11,6 +11,7 @@ module.exports = {
     '<rootDir>[/\\\\](build|docs|node_modules|deploy|scripts)[/\\\\]'
   ],
   collectCoverageFrom: ['{src,test}/**/*.{ts,tsx}', '!src/**/*.d.ts'],
+  coveragePathIgnorePatterns: ["/node_modules/", "/custom-paper-handler/"],
   coverageThreshold: {
     global: {
       statements: 100,
