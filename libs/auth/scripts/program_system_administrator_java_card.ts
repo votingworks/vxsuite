@@ -31,7 +31,7 @@ Run that and then retry.
 async function programSystemAdministratorJavaCard(): Promise<string> {
   const card = new JavaCard(
     // Uses NODE_ENV to determine which config to use
-    constructJavaCardConfig({ includeCardProgrammingConfig: true })
+    constructJavaCardConfig()
   );
   await waitForReadyCardStatus(card);
 

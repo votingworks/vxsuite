@@ -49,15 +49,11 @@ function constructCardProgrammingConfig(): JavaCardConfig['cardProgrammingConfig
 /**
  * Constructs a Java Card config
  */
-export function constructJavaCardConfig({
-  includeCardProgrammingConfig,
-}: {
-  includeCardProgrammingConfig?: boolean;
-} = {}): JavaCardConfig {
+export function constructJavaCardConfig(): JavaCardConfig {
+  const machineType = getRequiredEnvVar('VX_MACHINE_TYPE');
   return {
-    cardProgrammingConfig: includeCardProgrammingConfig
-      ? constructCardProgrammingConfig()
-      : undefined,
+    cardProgrammingConfig:
+      machineType === 'admin' ? constructCardProgrammingConfig() : undefined,
     vxCertAuthorityCertPath: shouldUseProdCerts()
       ? // We can commit this prod cert to the codebase because it's 1) universal and 2) public
         path.join(__dirname, '../certs/prod/vx-cert-authority-cert.pem')

@@ -62,9 +62,7 @@ export async function start({
         isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
         isIntegrationTest()
           ? new MockFileCard()
-          : new JavaCard(
-              constructJavaCardConfig({ includeCardProgrammingConfig: true })
-            ),
+          : new JavaCard(constructJavaCardConfig()),
       config: {
         allowElectionManagersToAccessUnconfiguredMachines: false,
       },
