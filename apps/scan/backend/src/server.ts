@@ -1,5 +1,4 @@
 import {
-  constructJavaCardConfig,
   InsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
   JavaCard,
@@ -45,7 +44,7 @@ export function start({
         isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
         isIntegrationTest()
           ? new MockFileCard()
-          : new JavaCard(constructJavaCardConfig()),
+          : new JavaCard(),
       config: {},
       logger,
     });

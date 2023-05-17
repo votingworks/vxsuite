@@ -33,7 +33,7 @@ import {
   parseCardDetailsFromCert,
   parseCert,
 } from './certs';
-import { JavaCardConfig } from './config';
+import { constructJavaCardConfig, JavaCardConfig } from './config';
 import { FileKey, TpmKey } from './keys';
 import {
   certDerToPem,
@@ -154,7 +154,11 @@ export class JavaCard implements Card {
   private readonly customChallengeGenerator?: () => string;
   private readonly vxCertAuthorityCertPath: string;
 
-  constructor(input: JavaCardConfig) {
+  constructor(
+    // Support specifying a custom config for tests
+    /* istanbul ignore next */
+    input: JavaCardConfig = constructJavaCardConfig()
+  ) {
     this.cardProgrammingConfig = input.cardProgrammingConfig;
     this.cardStatus = { status: 'no_card' };
     this.customChallengeGenerator = input.customChallengeGenerator;

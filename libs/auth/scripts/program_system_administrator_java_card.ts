@@ -2,7 +2,6 @@ import { assert } from '@votingworks/basics';
 import { generatePin, hyphenatePin } from '@votingworks/utils';
 
 import { ResponseApduError } from '../src/apdu';
-import { constructJavaCardConfig } from '../src/config';
 import { getRequiredEnvVar } from '../src/env_vars';
 import { JavaCard } from '../src/java_card';
 import { DEV_JURISDICTION } from '../src/jurisdictions';
@@ -29,10 +28,7 @@ Run that and then retry.
 `;
 
 async function programSystemAdministratorJavaCard(): Promise<string> {
-  const card = new JavaCard(
-    // Uses NODE_ENV to determine which config to use
-    constructJavaCardConfig()
-  );
+  const card = new JavaCard(); // Uses NODE_ENV to determine which config to use
   await waitForReadyCardStatus(card);
 
   const pin = isProduction ? generatePin() : '000000';
