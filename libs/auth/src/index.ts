@@ -1,3 +1,4 @@
+export * from './artifact_authenticator';
 export type { CardStatus } from './card';
 export * from './config';
 export * from './dipped_smart_card_auth_api';
