@@ -282,9 +282,6 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         "precincts": precincts,
         "ballotStyles": ballot_styles,
         "sealUrl": "/seals/Seal_of_Mississippi_BW.svg",
-        "ballotStrings": {
-            "officialInitials": "Initialing Manager"
-        },
         "centralScanAdjudicationReasons": ["Overvote", "BlankBallot"],
         "precinctScanAdjudicationReasons": ["Overvote", "Undervote", "BlankBallot"],
         "markThresholds": { "definite": 0.12, "marginal": 0.12 }        

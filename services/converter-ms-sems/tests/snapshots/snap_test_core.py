@@ -8,9 +8,6 @@ from snapshottest import Snapshot
 snapshots = Snapshot()
 
 snapshots['test_election_and_tallies_process 1'] = {
-    'ballotStrings': {
-        'officialInitials': 'Initialing Manager'
-    },
     'ballotStyles': [
         {
             'districts': [

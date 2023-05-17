@@ -329,11 +329,6 @@ export const CountySchema: z.ZodSchema<County> = z.object({
   name: z.string().nonempty(),
 });
 
-export type BallotStrings = Record<string, string | Translations>;
-export const BallotStringsSchema: z.ZodSchema<BallotStrings> = z.record(
-  z.union([z.string(), TranslationsSchema])
-);
-
 export enum BallotPaperSize {
   Letter = 'letter',
   Legal = 'legal',
@@ -461,7 +456,6 @@ export const GridLayoutSchema: z.ZodSchema<GridLayout> = z.object({
 
 export interface Election {
   readonly ballotLayout?: BallotLayout;
-  readonly ballotStrings?: BallotStrings;
   readonly ballotStyles: readonly BallotStyle[];
   readonly centralScanAdjudicationReasons?: readonly AdjudicationReason[];
   readonly contests: Contests;
@@ -482,9 +476,6 @@ export interface Election {
 export const ElectionSchema: z.ZodSchema<Election> = z
   .object({
     ballotLayout: BallotLayoutSchema.optional(),
-    ballotStrings: z
-      .record(z.union([z.string(), TranslationsSchema]))
-      .optional(),
     ballotStyles: BallotStylesSchema,
     centralScanAdjudicationReasons: z
       .array(z.lazy(() => AdjudicationReasonSchema))

@@ -6,8 +6,7 @@ import DomPurify from 'dompurify';
 import moment from 'moment';
 import 'moment/min/locales';
 import { Handler, Previewer, registerHandlers } from 'pagedjs';
-import { TFunction, StringMap } from 'i18next';
-import { useTranslation } from 'react-i18next';
+import type { BallotMode } from '@votingworks/admin-backend';
 import {
   BallotType,
   Candidate,
@@ -31,8 +30,8 @@ import {
   getContestDistrictName,
 } from '@votingworks/types';
 import { QrCode, HandMarkedPaperBallotProse, Text } from '@votingworks/ui';
+import { format } from '@votingworks/utils';
 
-import type { BallotMode } from '@votingworks/admin-backend';
 import { BubbleMark } from './bubble_mark';
 import { WriteInLine } from './write_in_line';
 import { ABSENTEE_TINT_COLOR } from '../config/globals';
@@ -72,15 +71,6 @@ function getWriteInNameAtPosition(
 
 function localeDateLong(dateString: string) {
   return moment(new Date(dateString)).locale('en-US').format('LL');
-}
-
-function dualLanguageComposer(t: TFunction) {
-  return (key: string, options: StringMap = {}) => {
-    return t(key, {
-      ...options,
-      lng: 'en-US',
-    });
-  };
 }
 
 function ballotModeToBallotTitle(ballotMode: BallotMode): string {
@@ -408,11 +398,9 @@ export function CandidateContestChoices({
   vote,
   targetMarkPosition,
 }: CandidateContestChoicesProps): JSX.Element {
-  const { t } = useTranslation();
   const writeInItemKeys = integers()
     .take(contest.seats)
     .map((num) => `write-in-${contest.id}-${num}`);
-  const dualLanguageWithSlash = dualLanguageComposer(t);
   return (
     <React.Fragment>
       {contest.candidates.map((candidate) => (
@@ -447,7 +435,7 @@ export function CandidateContestChoices({
               >
                 <WriteInLine />
                 <Text small noWrap as="span">
-                  {dualLanguageWithSlash('write-in')}
+                  write-in
                 </Text>
               </BubbleMark>
               {hasWriteInAtPosition(vote, position) && (
@@ -487,9 +475,7 @@ export function HandMarkedPaperBallot({
 }: HandMarkedPaperBallotProps): JSX.Element {
   const layoutDensity = getBallotLayoutDensity(election);
 
-  const { t, i18n } = useTranslation();
   const { county, date, seal, sealUrl, state, title } = election;
-  i18n.addResources('en-US', 'translation', election.ballotStrings);
   const primaryPartyName = !isSuperBallotStyle(ballotStyleId)
     ? getPartyFullNameFromBallotStyle({
         ballotStyleId,
@@ -559,20 +545,13 @@ export function HandMarkedPaperBallot({
     votes,
   ]);
 
-  const l = dualLanguageComposer(t);
-
   const columnFooter = (
     <StyledColumnFooter>
       <HandMarkedPaperBallotProse>
-        <h3>
-          {l('Thank you for voting.', {
-            normal: true,
-          })}
-        </h3>
+        <h3>Thank you for voting.</h3>
         <p>
-          {l(
-            'You have reached the end of the ballot. Please review your ballot selections.'
-          )}
+          You have reached the end of the ballot. Please review your ballot
+          selections.
         </p>
       </HandMarkedPaperBallotProse>
     </StyledColumnFooter>
@@ -602,20 +581,20 @@ export function HandMarkedPaperBallot({
               <PageFooterRow>
                 <div>
                   <Text small right as="div">
-                    {l('Precinct')}
+                    Precinct
                   </Text>
                   <Text as="h2">{precinct.name}</Text>
                 </div>
                 <div>
                   <Text small right as="div">
-                    {l('Style')}
+                    Style
                   </Text>
                   <Text as="h2">{ballotStyle?.id || 'All'}</Text>
                 </div>
                 <div />
                 <div>
                   <Text small right as="div">
-                    {l('Page')}
+                    Page
                   </Text>
                   <Text as="h2">
                     <span className="page-number" />
@@ -623,7 +602,7 @@ export function HandMarkedPaperBallot({
                     <span className="total-pages" />
                   </Text>
                   <Text small left as="div">
-                    {l('Pages')}
+                    Pages
                   </Text>
                 </div>
               </PageFooterRow>
@@ -706,11 +685,7 @@ export function HandMarkedPaperBallot({
                   </div>
                 ) : null}
                 <HandMarkedPaperBallotProse>
-                  <h2>
-                    {t(ballotModeToBallotTitle(ballotMode), {
-                      lng: 'en-US',
-                    })}
-                  </h2>
+                  <h2>{ballotModeToBallotTitle(ballotMode)}</h2>
                   <h3>
                     {ballotStyle?.partyId && primaryPartyName} {title}
                   </h3>
@@ -762,13 +737,10 @@ export function HandMarkedPaperBallot({
                   <React.Fragment>
                     <Text small={layoutDensity !== 0}>
                       {contest.seats === 1
-                        ? l('Vote for 1', {
-                            normal: true,
-                          })
-                        : l('Vote for not more than {{ seats }}', {
-                            seats: contest.seats,
-                            normal: true,
-                          })}
+                        ? 'Vote for 1'
+                        : `Vote for not more than ${format.count(
+                            contest.seats
+                          )}`}
                     </Text>
                     <CandidateContestChoices
                       election={election}
@@ -815,7 +787,7 @@ export function HandMarkedPaperBallot({
                           position={election.ballotLayout?.targetMarkPosition}
                           checked={hasVote(votes?.[contest.id], 'yes')}
                         >
-                          <span>{l(contest.yesOption?.label || 'Yes')}</span>
+                          <span>{contest.yesOption?.label || 'Yes'}</span>
                         </BubbleMark>
                       </Text>
                       <Text bold>
@@ -823,7 +795,7 @@ export function HandMarkedPaperBallot({
                           position={election.ballotLayout?.targetMarkPosition}
                           checked={hasVote(votes?.[contest.id], 'no')}
                         >
-                          <span>{l(contest.noOption?.label || 'No')}</span>
+                          <span>{contest.noOption?.label || 'No'}</span>
                         </BubbleMark>
                       </Text>
                     </React.Fragment>

@@ -1,7 +1,6 @@
 import './polyfills';
 import React from 'react';
 import ReactDom from 'react-dom';
-import './i18n';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { DevDock } from '@votingworks/dev-dock-frontend';
