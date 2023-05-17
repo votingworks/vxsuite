@@ -418,7 +418,6 @@ test('adjudication', () => {
       ballotStyleId: '12',
       precinctId: '23',
       isTestMode: false,
-      locales: { primary: 'en-US' },
       ballotType: BallotType.Standard,
     };
     return {
@@ -512,7 +511,6 @@ const metadata: BallotMetadata = {
   ballotStyleId: '12',
   precinctId: '23',
   isTestMode: false,
-  locales: { primary: 'en-US' },
   ballotType: BallotType.Standard,
 };
 const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [

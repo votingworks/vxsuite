@@ -37,9 +37,6 @@ describe('VX BMD interpretation', () => {
                 "ballotType": 0,
                 "electionHash": "11442cf380df2e505d14",
                 "isTestMode": true,
-                "locales": Object {
-                  "primary": "en-US",
-                },
                 "precinctId": "23",
               },
               "type": "InterpretedBmdPage",

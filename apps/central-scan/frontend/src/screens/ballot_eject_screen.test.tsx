@@ -101,7 +101,6 @@ test('says the ballot sheet is overvoted if it is', async () => {
     ballotType: BallotType.Standard,
     electionHash: 'abcde',
     isTestMode: false,
-    locales: { primary: 'en-US' },
   };
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
@@ -226,7 +225,6 @@ test('says the ballot sheet is undervoted if it is', async () => {
     ballotType: BallotType.Standard,
     electionHash: 'abcde',
     isTestMode: false,
-    locales: { primary: 'en-US' },
   };
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
@@ -351,7 +349,6 @@ test('says the ballot sheet is blank if it is', async () => {
     ballotType: BallotType.Standard,
     electionHash: 'abcde',
     isTestMode: false,
-    locales: { primary: 'en-US' },
   };
   fetchMock.getOnce(
     '/central-scanner/scan/hmpb/review/next-sheet',
@@ -492,7 +489,6 @@ test('calls out official ballot sheets in test mode', async () => {
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
-              locales: { primary: 'en-US' },
               pageNumber: 1,
             },
           },
@@ -507,7 +503,6 @@ test('calls out official ballot sheets in test mode', async () => {
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
-              locales: { primary: 'en-US' },
               pageNumber: 2,
             },
           },
@@ -566,7 +561,6 @@ test('calls out test ballot sheets in live mode', async () => {
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
-              locales: { primary: 'en-US' },
               pageNumber: 1,
             },
           },
@@ -581,7 +575,6 @@ test('calls out test ballot sheets in live mode', async () => {
               ballotType: BallotType.Standard,
               electionHash: 'abcde',
               isTestMode: false,
-              locales: { primary: 'en-US' },
               pageNumber: 2,
             },
           },

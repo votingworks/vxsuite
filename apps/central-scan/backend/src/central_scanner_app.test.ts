@@ -86,7 +86,6 @@ const backImagePath =
   electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath();
 const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   const metadata: BallotMetadata = {
-    locales: { primary: 'en-US' },
     electionHash:
       electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
         .electionHash,
@@ -488,7 +487,6 @@ test('get next sheet', async () => {
 
 test('get next sheet layouts', async () => {
   const metadata: BallotMetadata = {
-    locales: { primary: 'en-US' },
     electionHash:
       electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
         .electionHash,

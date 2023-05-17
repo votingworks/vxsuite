@@ -1,5 +1,4 @@
 import {
-  BallotLocale,
   BallotStyle,
   BallotType,
   ElectionDefinition,
@@ -20,7 +19,6 @@ export enum ValidationErrorType {
   MismatchedBallotStyle = 'MismatchedBallotStyle',
   MismatchedBallotType = 'MismatchedBallotType',
   MismatchedElectionHash = 'MismatchedElectionHash',
-  MismatchedLocales = 'MismatchedLocales',
   MismatchedPrecinct = 'MismatchedPrecinct',
   NonConsecutivePages = 'NonConsecutivePages',
 }
@@ -45,10 +43,6 @@ export type ValidationError =
   | {
       type: ValidationErrorType.MismatchedElectionHash;
       electionHashes: SheetOf<ElectionDefinition['electionHash']>;
-    }
-  | {
-      type: ValidationErrorType.MismatchedLocales;
-      locales: SheetOf<BallotLocale>;
     }
   | {
       type: ValidationErrorType.MismatchedPrecinct;
@@ -127,16 +121,6 @@ export function validateSheetInterpretation([
         ],
       });
     }
-
-    if (
-      front.metadata.locales.primary !== back.metadata.locales.primary ||
-      front.metadata.locales.secondary !== back.metadata.locales.secondary
-    ) {
-      return err({
-        type: ValidationErrorType.MismatchedLocales,
-        locales: [front.metadata.locales, back.metadata.locales],
-      });
-    }
   }
 
   return ok(undefined);
@@ -172,15 +156,6 @@ export function describeValidationError(
     case ValidationErrorType.MismatchedElectionHash: {
       const [front, back] = validationError.electionHashes;
       return `expected a sheet to have the same election hash, but got front=${front} back=${back}`;
-    }
-
-    case ValidationErrorType.MismatchedLocales: {
-      const [front, back] = validationError.locales;
-      return `expected a sheet to have the same locale, but got front=${
-        front.primary
-      }/${front.secondary ?? 'n/a'} back=${back.primary}/${
-        back.secondary ?? 'n/a'
-      }`;
     }
 
     case ValidationErrorType.MismatchedPrecinct: {

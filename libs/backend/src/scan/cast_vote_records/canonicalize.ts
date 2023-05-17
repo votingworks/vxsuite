@@ -1,5 +1,4 @@
 import {
-  BallotLocale,
   BallotStyle,
   BallotType,
   ElectionDefinition,
@@ -29,10 +28,6 @@ export enum SheetValidationErrorType {
   MismatchedBallotStyle = 'MismatchedBallotStyle',
   MismatchedBallotType = 'MismatchedBallotType',
   MismatchedElectionHash = 'MismatchedElectionHash',
-  /**
-   * @deprecated to be replaced (https://github.com/votingworks/roadmap/issues/15)
-   */
-  MismatchedLocales = 'MismatchedLocales',
   MismatchedPrecinct = 'MismatchedPrecinct',
   NonConsecutivePages = 'NonConsecutivePages',
 }
@@ -60,10 +55,6 @@ export type SheetValidationError =
   | {
       type: SheetValidationErrorType.MismatchedElectionHash;
       electionHashes: SheetOf<ElectionDefinition['electionHash']>;
-    }
-  | {
-      type: SheetValidationErrorType.MismatchedLocales;
-      locales: SheetOf<BallotLocale>;
     }
   | {
       type: SheetValidationErrorType.MismatchedPrecinct;
@@ -165,16 +156,6 @@ export function canonicalizeSheet(
     });
   }
 
-  if (
-    front.metadata.locales.primary !== back.metadata.locales.primary ||
-    front.metadata.locales.secondary !== back.metadata.locales.secondary
-  ) {
-    return err({
-      type: SheetValidationErrorType.MismatchedLocales,
-      locales: [front.metadata.locales, back.metadata.locales],
-    });
-  }
-
   // Valid and correctly oriented HMPB sheet
   if (front.metadata.pageNumber + 1 === back.metadata.pageNumber) {
     return ok({
@@ -232,15 +213,6 @@ export function describeSheetValidationError(
     case SheetValidationErrorType.MismatchedElectionHash: {
       const [front, back] = validationError.electionHashes;
       return `expected a sheet to have the same election hash, but got front=${front} back=${back}`;
-    }
-
-    case SheetValidationErrorType.MismatchedLocales: {
-      const [front, back] = validationError.locales;
-      return `expected a sheet to have the same locale, but got front=${
-        front.primary
-      }/${front.secondary ?? 'n/a'} back=${back.primary}/${
-        back.secondary ?? 'n/a'
-      }`;
     }
 
     case SheetValidationErrorType.MismatchedPrecinct: {

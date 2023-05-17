@@ -59,15 +59,6 @@ is encoded as follows:
 - **Ballot Style Index:** A dynamic-width number for the index of the ballot
   style (`C.ballotStyleId`).
   - Size: 1-8 bits.
-- **Primary Locale:** _(HMPB-only.)_ A dynamic-width number for the index of the
-  primary locale within the known locale list (`C.locales.primary`).
-  - Size: 8 bits.
-- **Secondary Locale Set?:** _(HMPB-only.)_ A boolean set to true when there is
-  a secondary locale (`C.locales.secondary`).
-  - Size: 1 bit.
-- **Secondary Locale:** _(HMPB-only.)_ A dynamic-width number for the index of
-  the secondary locale within the known locale list (`C.locales.secondary`).
-  - Size: 8 bits.
 - **Page Number:** _(HMPB-only.)_ A dynamic-width number for the 1-based page
   number up to a maximum number of pages (`C.pageNumber`).
   - Size: 5 bits.

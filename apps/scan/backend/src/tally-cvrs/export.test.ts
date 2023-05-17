@@ -25,7 +25,6 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 const jurisdiction = TEST_JURISDICTION;
 
 const metadata: BallotPageMetadata = {
-  locales: { primary: 'en-US' },
   electionHash:
     electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
       .electionHash,

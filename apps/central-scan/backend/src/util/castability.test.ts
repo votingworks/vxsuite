@@ -19,7 +19,6 @@ const metadata: BallotMetadata = {
     electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
       .electionHash,
   isTestMode: false,
-  locales: { primary: 'en-US' },
 };
 const interpretedBmdPage: Readonly<InterpretedBmdPage> = {
   type: 'InterpretedBmdPage',

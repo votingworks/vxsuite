@@ -236,7 +236,6 @@ test('has cast vote record report', async () => {
           ballotType: BallotType.Standard,
           electionHash: electionDefinition.electionHash,
           isTestMode: false,
-          locales: { primary: 'en-US' },
         },
         votes: {
           'flag-question': ['yes'],

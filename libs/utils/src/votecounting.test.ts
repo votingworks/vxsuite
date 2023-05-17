@@ -562,25 +562,6 @@ test('parsing CVRs flags when batch label is not a string', () => {
   ]);
 });
 
-test('parsing CVRs flags when locale is not well formed', () => {
-  // @ts-expect-error - object missing properties
-  const cvr: CastVoteRecord = {
-    _ballotStyleId: '12',
-    _ballotType: 'standard',
-    _precinctId: '23',
-    _ballotId: unsafeParse(BallotIdSchema, 'abc'),
-    _scannerId: 'scanner-1',
-    _testBallot: false,
-  };
-  expect([...parseCvrs(JSON.stringify(cvr), electionSample)]).toEqual([
-    {
-      cvr,
-      errors: [],
-      lineNumber: 1,
-    },
-  ]);
-});
-
 test('parsing CVRs with different batch labels in the same id does not error', () => {
   const cvr1: CastVoteRecord = {
     _ballotStyleId: '12',

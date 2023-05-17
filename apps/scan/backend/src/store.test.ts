@@ -526,7 +526,6 @@ test('adjudication', () => {
       ballotStyleId: 'card-number-3',
       precinctId: 'town-id-00701-precinct-id-',
       isTestMode: false,
-      locales: { primary: 'en-US' },
       ballotType: BallotType.Standard,
     };
     return {
@@ -636,7 +635,6 @@ test('iterating over all result sheets', () => {
     ballotStyleId: '12',
     precinctId: '23',
     isTestMode: false,
-    locales: { primary: 'en-US' },
     ballotType: BallotType.Standard,
   };
   const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [

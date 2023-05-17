@@ -7,9 +7,6 @@
     "electionHash": "87034971ecdd76161d159d4d77d75c276fe4166300aa4c8ea66c65f61a01c4e4",
     "precinctId": "town-id-00701-precinct-id-",
     "ballotStyleId": "card-number-3",
-    "locales": {
-      "primary": "en-US"
-    },
     "pageNumber": 2,
     "isTestMode": true,
     "ballotType": 0
