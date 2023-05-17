@@ -8,6 +8,7 @@ import {
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import './App.css';
+import { LogSource, Logger } from '@votingworks/logging';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 
@@ -17,6 +18,7 @@ export function App({
   hardware = getHardware(),
   printer = getPrinter(),
   converter = getConverterClientType(),
+  logger = new Logger(LogSource.VxAdminFrontend, window.kiosk),
   generateBallotId,
 }: Props): JSX.Element {
   // Copied from old App.css
@@ -38,6 +40,7 @@ export function App({
           hardware={hardware}
           converter={converter}
           generateBallotId={generateBallotId}
+          logger={logger}
         />
         <SessionTimeLimitTracker />
       </AppBase>

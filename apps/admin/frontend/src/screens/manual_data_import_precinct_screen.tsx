@@ -1,4 +1,4 @@
-import { Optional, assert, assertDefined, find } from '@votingworks/basics';
+import { Optional, assert, assertDefined } from '@votingworks/basics';
 import React, { useCallback, useContext, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -10,16 +10,13 @@ import {
   ContestTally,
   ManualTally,
   TallyCategory,
-  VotingMethod,
   ContestId,
-  Candidate,
   Election,
   getContestDistrictName,
 } from '@votingworks/types';
 import { Button, Prose, Table, TD, Text, LinkButton } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 
-import { LogEventId } from '@votingworks/logging';
 import { ManualDataPrecinctScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
 
@@ -29,14 +26,10 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { getContestsForPrecinct } from '../utils/election';
 import { TextInput } from '../components/text_input';
 import {
-  convertTalliesByPrecinctToFullManualTally,
   getEmptyManualTalliesByPrecinct,
   getTotalNumberOfBallots,
 } from '../utils/manual_tallies';
-import {
-  getWriteInCandidates,
-  addWriteInCandidate as addWriteInCandidateApi,
-} from '../api';
+import { getWriteInCandidates, setManualTally } from '../api';
 import { normalizeWriteInName } from '../utils/write_ins';
 
 const TallyInput = styled(TextInput)`
@@ -274,24 +267,18 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
   const {
     electionDefinition,
     fullElectionManualTally: existingManualData,
-    updateManualTally,
-    manualTallyVotingMethod,
     auth,
-    logger,
   } = useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for adding manual tally data
-  const userRole = auth.user.role;
   const { election } = electionDefinition;
   const { precinctId: currentPrecinctId } =
     useParams<ManualDataPrecinctScreenProps>();
   const history = useHistory();
 
   const getWriteInCandidatesQuery = getWriteInCandidates.useQuery();
-  const addWriteInCandidateMutation = addWriteInCandidateApi.useMutation();
+  const setManualTallyMutation = setManualTally.useMutation();
 
-  const ballotType =
-    existingManualData?.votingMethod ?? manualTallyVotingMethod;
   const initialTalliesByPrecinct: Dictionary<ManualTally> =
     existingManualData?.resultsByCategory.get(TallyCategory.Precinct) ||
     getEmptyManualTalliesByPrecinct(election);
@@ -307,85 +294,21 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     TempWriteInCandidate[]
   >([]);
 
-  async function saveResults() {
+  function saveResults() {
     assert(currentPrecinctTally);
     // replace temporary tally values with the numeric values we'll save
-    const finalPrecinctTally: ManualTally = {
+    const convertedPrecinctTally: ManualTally = {
       ...currentPrecinctTally,
       contestTallies: convertContestTallies(
         currentPrecinctTally.contestTallies
       ),
     };
 
-    // remove any temporary write-in candidates with 0 votes
-    const nonZeroTempWriteInCandidates: TempWriteInCandidate[] = [];
-    for (const writeInCandidate of tempWriteInCandidates) {
-      const numVotes =
-        finalPrecinctTally.contestTallies[writeInCandidate.contestId]?.tallies[
-          writeInCandidate.id
-        ]?.tally;
-
-      if (!numVotes) {
-        delete finalPrecinctTally.contestTallies[writeInCandidate.contestId]
-          ?.tallies[writeInCandidate.id];
-      } else {
-        nonZeroTempWriteInCandidates.push(writeInCandidate);
-      }
-    }
-    try {
-      // add temporary write-in candidates to backend, get ids
-      const writeInCandidateRecords = await Promise.all(
-        nonZeroTempWriteInCandidates.map((candidate) =>
-          addWriteInCandidateMutation.mutateAsync({
-            contestId: candidate.contestId,
-            name: candidate.name,
-          })
-        )
-      );
-
-      // edit the precinctTally to use the new ids
-      for (const tempWriteInCandidate of nonZeroTempWriteInCandidates) {
-        const oldId = tempWriteInCandidate.id;
-        const newId = find(
-          writeInCandidateRecords,
-          (writeInCandidateRecord) =>
-            writeInCandidateRecord.name === tempWriteInCandidate.name
-        ).id;
-
-        const contestTally =
-          finalPrecinctTally.contestTallies[tempWriteInCandidate.contestId];
-        assert(contestTally);
-        const optionTally = contestTally.tallies[oldId];
-        assert(optionTally);
-        contestTally.tallies[newId] = {
-          ...optionTally,
-          option: {
-            ...(optionTally.option as Candidate),
-            id: newId,
-          },
-        };
-        delete contestTally.tallies[oldId];
-      }
-    } catch {
-      // Handled by default query client error handling
-    }
-
-    const newFullManualTally = convertTalliesByPrecinctToFullManualTally(
-      {
-        ...initialTalliesByPrecinct,
-        [currentPrecinctId]: finalPrecinctTally,
-      },
-      election,
-      ballotType,
-      new Date()
-    );
-    await logger.log(LogEventId.ManualTallyDataEdited, userRole, {
-      disposition: 'success',
-      message: `Manually entered tally data added or edited for precinct: ${currentPrecinctId}`,
-      numberOfBallotsInPrecinct: finalPrecinctTally.numberOfBallotsCounted,
+    setManualTallyMutation.mutate({
       precinctId: currentPrecinctId,
+      manualTally: convertedPrecinctTally,
     });
-    await updateManualTally(newFullManualTally);
+
     history.push(routerPaths.manualDataImport);
   }
 
@@ -496,7 +419,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     setTempWriteInCandidates([
       ...tempWriteInCandidates,
       {
-        id: `write-in-(${name})-temp`,
+        id: `temp-write-in-(${name})`,
         name,
         contestId,
       },
@@ -515,9 +438,6 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
   }
 
   const currentContests = getContestsForPrecinct(election, currentPrecinctId);
-
-  const votingMethodName =
-    ballotType === VotingMethod.Absentee ? 'Absentee' : 'Precinct';
 
   if (currentPrecinct === undefined) {
     return (
@@ -546,7 +466,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     <NavigationScreen>
       <Prose>
         <h1>
-          <small>Manually Entered {votingMethodName} Results:</small>
+          <small>Manually Entered Results:</small>
           <br />
           {currentPrecinct.name}
         </h1>
@@ -745,7 +665,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
         <p>
           <LinkButton to={routerPaths.manualDataImport}>Cancel</LinkButton>{' '}
           <Button variant="primary" onPress={saveResults}>
-            Save {votingMethodName} Results for {currentPrecinct.name}
+            Save Results for {currentPrecinct.name}
           </Button>
         </p>
       </Prose>

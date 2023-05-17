@@ -39,7 +39,7 @@ function addWriteInToManualTally(
   const candidate: Candidate = {
     name,
     isWriteIn: true,
-    id: `write-in-(${name})-temp`,
+    id: `temp-write-in-(${name})`,
   };
   contestTally!.tallies[candidate.id] = {
     option: candidate,

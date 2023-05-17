@@ -106,6 +106,28 @@ create table ballot_images (
     on delete cascade
 );
 
+create table manual_tallies (
+  id integer primary key,
+  election_id integer not null,
+  precinct_id text not null,
+  ballot_count integer not null,
+  contest_tallies text not null,
+  created_at timestamp not null default current_timestamp,
+  unique (election_id, precinct_id),
+  foreign key (election_id) references elections(id)
+    on delete cascade
+);
+
+create table manual_tally_write_in_candidate_references (
+  manual_tally_id integer not null,
+  write_in_candidate_id varchar(36) not null,
+  primary key (manual_tally_id, write_in_candidate_id),
+  foreign key (manual_tally_id) references manual_tallies(id)
+    on delete cascade,
+  foreign key (write_in_candidate_id) references write_in_candidates(id)
+    on delete cascade
+);
+
 create table system_settings (
   -- enforce singleton table
   id integer primary key check (id = 1),

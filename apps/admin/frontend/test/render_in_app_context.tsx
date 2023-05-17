@@ -13,12 +13,10 @@ import {
 } from '@votingworks/types';
 import {
   NullPrinter,
-  MemoryStorage,
-  Storage,
   getEmptyFullElectionTally,
   randomBallotId,
 } from '@votingworks/utils';
-import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
+import { Logger, LogSource } from '@votingworks/logging';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -31,11 +29,6 @@ import { UsbDrive, mockUsbDrive } from '@votingworks/ui';
 import { render as testRender, RenderResult } from './react_testing_library';
 import { AppContext } from '../src/contexts/app_context';
 import { Iso8601Timestamp, ExportableTallies } from '../src/config/types';
-import { ServicesContext } from '../src/contexts/services_context';
-import {
-  ElectionManagerStoreBackend,
-  ElectionManagerStoreMemoryBackend,
-} from '../src/lib/backends';
 import { ApiClient, ApiClientContext, createQueryClient } from '../src/api';
 import { ApiMock } from './helpers/api_mock';
 
@@ -49,7 +42,6 @@ interface RenderInAppContextParams {
   configuredAt?: Iso8601Timestamp;
   isOfficialResults?: boolean;
   printer?: Printer;
-  resetFiles?: () => Promise<void>;
   usbDrive?: UsbDrive;
   fullElectionTally?: FullElectionTally;
   generateBallotId?: () => string;
@@ -67,7 +59,6 @@ interface RenderInAppContextParams {
   hasCardReaderAttached?: boolean;
   hasPrinterAttached?: boolean;
   logger?: Logger;
-  backend?: ElectionManagerStoreBackend;
   apiMock?: ApiMock;
   queryClient?: QueryClient;
 }
@@ -75,9 +66,6 @@ interface RenderInAppContextParams {
 export function renderRootElement(
   component: React.ReactNode,
   {
-    backend = new ElectionManagerStoreMemoryBackend(),
-    logger = fakeLogger(),
-    storage = new MemoryStorage(),
     // If there's no apiClient given, we don't want to create one by default,
     // since the apiClient needs to have assertComplete called by the test. If
     // the test doesn't need to make API calls, then it should not pass in an
@@ -86,21 +74,16 @@ export function renderRootElement(
     apiClient,
     queryClient = createQueryClient(),
   }: {
-    backend?: ElectionManagerStoreBackend;
-    logger?: Logger;
-    storage?: Storage;
     apiClient?: ApiClient;
     queryClient?: QueryClient;
   } = {}
 ): RenderResult {
   return testRender(
-    <ServicesContext.Provider value={{ backend, logger, storage }}>
-      <ApiClientContext.Provider value={apiClient}>
-        <QueryClientProvider client={queryClient}>
-          {component}
-        </QueryClientProvider>
-      </ApiClientContext.Provider>
-    </ServicesContext.Provider>
+    <ApiClientContext.Provider value={apiClient}>
+      <QueryClientProvider client={queryClient}>
+        {component}
+      </QueryClientProvider>
+    </ApiClientContext.Provider>
   );
 }
 
@@ -113,15 +96,11 @@ export function renderInAppContext(
     configuredAt = new Date().toISOString(),
     isOfficialResults = false,
     printer = new NullPrinter(),
-    resetFiles = jest.fn(),
     usbDrive = mockUsbDrive(),
     fullElectionTally = getEmptyFullElectionTally(),
     generateBallotId = randomBallotId,
     isTabulationRunning = false,
     setIsTabulationRunning = jest.fn(),
-    updateManualTally = jest.fn(),
-    manualTallyVotingMethod = VotingMethod.Precinct,
-    setManualTallyVotingMethod = jest.fn(),
     fullElectionManualTally = undefined,
     generateExportableTallies = jest.fn(),
     auth = electionDefinition === 'NONE'
@@ -145,7 +124,6 @@ export function renderInAppContext(
     hasCardReaderAttached = true,
     hasPrinterAttached = true,
     logger = new Logger(LogSource.VxAdminFrontend),
-    backend,
     apiMock,
     queryClient,
   }: RenderInAppContextParams = {}
@@ -158,15 +136,11 @@ export function renderInAppContext(
         configuredAt,
         isOfficialResults,
         printer,
-        resetFiles,
         usbDrive,
         fullElectionTally,
         generateBallotId,
         isTabulationRunning,
         setIsTabulationRunning,
-        updateManualTally,
-        manualTallyVotingMethod,
-        setManualTallyVotingMethod,
         fullElectionManualTally,
         generateExportableTallies,
         auth,
@@ -178,6 +152,6 @@ export function renderInAppContext(
     >
       <Router history={history}>{component}</Router>
     </AppContext.Provider>,
-    { apiClient: apiMock?.apiClient, backend, logger, queryClient }
+    { apiClient: apiMock?.apiClient, queryClient }
   );
 }

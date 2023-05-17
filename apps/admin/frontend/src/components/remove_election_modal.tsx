@@ -4,7 +4,6 @@ import { useHistory } from 'react-router-dom';
 import { Button, Modal, Prose } from '@votingworks/ui';
 import { routerPaths } from '../router_paths';
 import { unconfigure } from '../api';
-import { useElectionManagerStore } from '../hooks/use_election_manager_store';
 
 export interface Props {
   onClose: () => void;
@@ -13,11 +12,8 @@ export interface Props {
 export function RemoveElectionModal({ onClose }: Props): JSX.Element {
   const history = useHistory();
   const unconfigureMutation = unconfigure.useMutation();
-  const store = useElectionManagerStore();
 
-  async function unconfigureElection() {
-    // TODO: remove line once manual tallies are in the backend
-    await store.removeFullElectionManualTally();
+  function unconfigureElection() {
     unconfigureMutation.mutate(undefined, {
       onSuccess: () => {
         history.push(routerPaths.root);

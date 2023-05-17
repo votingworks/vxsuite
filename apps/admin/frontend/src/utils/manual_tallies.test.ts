@@ -21,8 +21,6 @@ import { buildManualTally } from '../../test/helpers/build_manual_tally';
 import { buildCandidateTallies } from '../../test/util/build_candidate_tallies';
 
 import {
-  convertManualTallyToStorageString,
-  convertStorageStringToManualTally,
   convertTalliesByPrecinctToFullManualTally,
   filterManualTalliesByParams,
   getEmptyManualTalliesByPrecinct,
@@ -242,34 +240,6 @@ describe('getEmptyManualTalliesByPrecinct', () => {
         }
       }
     }
-  });
-});
-
-describe('convertManualTallyToStorageString, convertStorageStringToManualTally', () => {
-  it('can convert to storage string and back to manual tally', () => {
-    const singleVotes = buildManualTally(electionWithMsEitherNeither, 1, [
-      '775020876',
-      '750000017',
-    ]);
-    const doubleVotes = buildManualTally(electionWithMsEitherNeither, 2, [
-      '775020876',
-      '750000017',
-    ]);
-    const resultsByCategory = new Map();
-    resultsByCategory.set(TallyCategory.Precinct, {
-      '6522': singleVotes,
-      '6524': singleVotes,
-    });
-    const fullTally1: FullElectionManualTally = {
-      overallTally: doubleVotes,
-      resultsByCategory,
-      votingMethod: VotingMethod.Absentee,
-      timestampCreated: new Date(1989, 11, 13),
-    }; // Have information both in the main tally and results by category
-
-    const storageString = convertManualTallyToStorageString(fullTally1);
-    const recreatedTallies = convertStorageStringToManualTally(storageString);
-    expect(recreatedTallies).toStrictEqual(fullTally1);
   });
 });
 

@@ -3,7 +3,6 @@ import { fakePrinter } from '@votingworks/test-utils';
 import { ConverterClientType } from '@votingworks/types';
 import { MemoryHardware } from '@votingworks/utils';
 import { App } from '../../src/app';
-import { ElectionManagerStoreMemoryBackend } from '../../src/lib/backends';
 import { renderRootElement } from '../render_in_app_context';
 import { ApiMock } from './api_mock';
 
@@ -13,7 +12,6 @@ function mockRandomBallotId() {
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApp(apiMock: ApiMock, converter?: ConverterClientType) {
-  const backend = new ElectionManagerStoreMemoryBackend();
   const hardware = MemoryHardware.build({
     connectCardReader: true,
     connectPrinter: true,
@@ -26,14 +24,13 @@ export function buildApp(apiMock: ApiMock, converter?: ConverterClientType) {
         hardware,
         printer,
         converter,
+        logger,
         generateBallotId: mockRandomBallotId,
       }),
       {
         apiClient: apiMock.apiClient,
-        backend,
-        logger,
       }
     );
   }
-  return { apiMock, backend, hardware, logger, printer, renderApp };
+  return { apiMock, hardware, logger, printer, renderApp };
 }

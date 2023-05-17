@@ -11,7 +11,7 @@ import {
   TallyCategory,
   VotingMethod,
 } from '@votingworks/types';
-import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { fakeLogger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { assert, sleep } from '@votingworks/basics';
 import {
@@ -27,7 +27,10 @@ import {
   getEmptyManualTally,
 } from '../utils/manual_tallies';
 import { ManualDataImportPrecinctScreen } from './manual_data_import_precinct_screen';
-import { buildManualTally } from '../../test/helpers/build_manual_tally';
+import {
+  buildManualTally,
+  buildSpecifiedManualTally,
+} from '../../test/helpers/build_manual_tally';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 let apiMock: ApiMock;
@@ -116,8 +119,8 @@ test('displays correct contests for each precinct', async () => {
         apiMock,
       }
     );
-    await screen.findByText('Manually Entered Precinct Results:');
-    screen.getByText(`Save Precinct Results for ${precinctName}`);
+    await screen.findByText('Manually Entered Results:');
+    screen.getByText(`Save Results for ${precinctName}`);
 
     // All precincts have the president contest
     screen.getByText('President');
@@ -133,7 +136,6 @@ test('displays correct contests for each precinct', async () => {
 });
 
 test('can edit counts and update totals', async () => {
-  const updateManualTally = jest.fn();
   const logger = fakeLogger();
   apiMock.expectGetWriteInCandidates([]);
   renderInAppContext(
@@ -142,13 +144,12 @@ test('can edit counts and update totals', async () => {
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/23',
-      updateManualTally,
       electionDefinition: electionSampleDefinition,
       logger,
       apiMock,
     }
   );
-  await screen.findByText('Manually Entered Precinct Results:');
+  await screen.findByText('Manually Entered Results:');
   screen.getByText('Center Springfield');
 
   // Input elements start as 0
@@ -211,37 +212,30 @@ test('can edit counts and update totals', async () => {
     );
   });
 
-  userEvent.click(
-    screen.getByText('Save Precinct Results for Center Springfield')
-  );
-  await waitFor(() =>
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.ManualTallyDataEdited,
-      'election_manager',
-      expect.objectContaining({ disposition: 'success' })
-    )
-  );
-  expect(updateManualTally).toHaveBeenCalledTimes(1);
-  expect(updateManualTally).toHaveBeenCalledWith(
-    expect.objectContaining({
-      overallTally: {
-        numberOfBallotsCounted: 100,
-        contestTallies: expect.objectContaining({
-          president: expect.objectContaining({
-            metadata: { ballots: 100, undervotes: 4, overvotes: 6 },
-            tallies: {
-              'barchi-hallaren': expect.objectContaining({ tally: 10 }),
-              'cramer-vuocolo': expect.objectContaining({ tally: 20 }),
-              'court-blumhardt': expect.objectContaining({ tally: 35 }),
-              'boone-lian': expect.objectContaining({ tally: 25 }),
-              'hildebrand-garritty': expect.objectContaining({ tally: 0 }),
-              'patterson-lariviere': expect.objectContaining({ tally: 0 }),
-            },
-          }),
-        }),
+  // build expected tally
+  const expectedTally = buildSpecifiedManualTally(
+    electionSampleDefinition.election,
+    100,
+    {
+      president: {
+        overvotes: 6,
+        undervotes: 4,
+        ballots: 100,
+        officialOptionTallies: {
+          'barchi-hallaren': 10,
+          'cramer-vuocolo': 20,
+          'court-blumhardt': 35,
+          'boone-lian': 25,
+        },
       },
-    })
+    }
   );
+
+  apiMock.expectSetManualTally({
+    precinctId: '23',
+    manualTally: expectedTally,
+  });
+  userEvent.click(screen.getByText('Save Results for Center Springfield'));
 });
 
 test('can add and remove a write-in candidate when contest allows', async () => {
@@ -256,7 +250,7 @@ test('can add and remove a write-in candidate when contest allows', async () => 
       apiMock,
     }
   );
-  await screen.findByText('Manually Entered Precinct Results:');
+  await screen.findByText('Manually Entered Results:');
   screen.getByText('Center Springfield');
 
   // President contest shouldn't allow a write-in
@@ -309,7 +303,7 @@ test('can add and remove a write-in candidate when contest allows', async () => 
   // Can add to new write-in candidate's count
   userEvent.type(
     screen.getByTestId(
-      'county-commissioners-write-in-(Fake Candidate)-temp-input'
+      'county-commissioners-temp-write-in-(Fake Candidate)-input'
     ),
     '10'
   );
@@ -323,7 +317,7 @@ test('can add and remove a write-in candidate when contest allows', async () => 
   // Can remove our write-in
   userEvent.click(within(commissionerContest).getByText('Remove'));
   expect(
-    screen.queryByTestId('write-in-(Fake Candidate)-temp')
+    screen.queryByTestId('temp-write-in-(Fake Candidate)')
   ).not.toBeInTheDocument();
   // Totals should be adjusted
   expect(
@@ -374,7 +368,7 @@ test('can enter data for yes no contests as expected', async () => {
       apiMock,
     }
   );
-  await screen.findByText('Manually Entered Precinct Results:');
+  await screen.findByText('Manually Entered Results:');
   screen.getByText('Center Springfield');
 
   // Input elements start as 0
@@ -428,35 +422,28 @@ test('can enter data for yes no contests as expected', async () => {
     }
   );
 
-  // A yes no contest does not allow write ins has no write in row.
+  // A yes no contest does not allow write ins so has no write in row.
   expect(screen.queryAllByTestId('president-write-in').length).toEqual(0);
-  fireEvent.click(
-    screen.getByText('Save Precinct Results for Center Springfield')
-  );
-  await waitFor(() =>
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.ManualTallyDataEdited,
-      'election_manager',
-      expect.objectContaining({ disposition: 'success' })
-    )
-  );
-  expect(updateManualTally).toHaveBeenCalledTimes(1);
-  expect(updateManualTally).toHaveBeenCalledWith(
-    expect.objectContaining({
-      overallTally: {
-        numberOfBallotsCounted: 100,
-        contestTallies: expect.objectContaining({
-          'judicial-robert-demergue': expect.objectContaining({
-            metadata: { ballots: 100, undervotes: 4, overvotes: 6 },
-            tallies: {
-              yes: { option: ['yes'], tally: 50 },
-              no: { option: ['no'], tally: 40 },
-            },
-          }),
-        }),
+  const expectedTally = buildSpecifiedManualTally(
+    electionSampleDefinition.election,
+    100,
+    {
+      'judicial-robert-demergue': {
+        undervotes: 4,
+        overvotes: 6,
+        ballots: 100,
+        officialOptionTallies: {
+          yes: 50,
+          no: 40,
+        },
       },
-    })
+    }
   );
+  apiMock.expectSetManualTally({
+    precinctId: '23',
+    manualTally: expectedTally,
+  });
+  fireEvent.click(screen.getByText('Save Results for Center Springfield'));
 });
 
 test('loads preexisting manual data to edit', async () => {
@@ -494,7 +481,7 @@ test('loads preexisting manual data to edit', async () => {
       apiMock,
     }
   );
-  await screen.findByText('Manually Entered Absentee Results:');
+  await screen.findByText('Manually Entered Results:');
 
   // Check contests with mock data
   expect(

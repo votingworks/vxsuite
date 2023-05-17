@@ -7,21 +7,11 @@ import { DevDock } from '@votingworks/dev-dock-frontend';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
-  KioskStorage,
-  LocalStorage,
 } from '@votingworks/utils';
-import { Logger, LogSource } from '@votingworks/logging';
 import { ErrorBoundary, Prose, Text } from '@votingworks/ui';
 import { App } from './app';
-import { ElectionManagerStoreAdminBackend } from './lib/backends';
-import { ServicesContext } from './contexts/services_context';
 import { ApiClientContext, createApiClient, createQueryClient } from './api';
 
-const storage = window.kiosk
-  ? new KioskStorage(window.kiosk)
-  : new LocalStorage();
-const logger = new Logger(LogSource.VxAdminFrontend, window.kiosk);
-const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 const apiClient = createApiClient();
 const queryClient = createQueryClient();
 
@@ -38,20 +28,18 @@ ReactDom.render(
         </Prose>
       }
     >
-      <ServicesContext.Provider value={{ backend, logger, storage }}>
-        <ApiClientContext.Provider value={apiClient}>
-          <QueryClientProvider client={queryClient}>
-            <App />
-            {isFeatureFlagEnabled(
-              BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
-            ) && (
-              <div className="no-print">
-                <ReactQueryDevtools initialIsOpen={false} position="top-left" />
-              </div>
-            )}
-          </QueryClientProvider>
-        </ApiClientContext.Provider>
-      </ServicesContext.Provider>
+      <ApiClientContext.Provider value={apiClient}>
+        <QueryClientProvider client={queryClient}>
+          <App />
+          {isFeatureFlagEnabled(
+            BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
+          ) && (
+            <div className="no-print">
+              <ReactQueryDevtools initialIsOpen={false} position="top-left" />
+            </div>
+          )}
+        </QueryClientProvider>
+      </ApiClientContext.Provider>
     </ErrorBoundary>
     <DevDock />
   </React.StrictMode>,

@@ -1,9 +1,10 @@
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { safeParseSystemSettings } from '@votingworks/utils';
-import { typedAs } from '@votingworks/basics';
+import { find, typedAs } from '@votingworks/basics';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpNameSync } from 'tmp';
+import { ContestTally, ManualTally } from '@votingworks/types';
 import { Store } from './store';
 import { ElectionRecord, ScannerBatch } from './types';
 
@@ -136,4 +137,95 @@ test('scanner batches', () => {
 
   store.deleteEmptyScannerBatches(electionId);
   expect(store.getScannerBatches(electionId)).toEqual([]);
+});
+
+test('manual tallies', () => {
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionData, election } = electionDefinition;
+
+  const store = Store.memoryStore();
+  const electionId = store.addElection(electionData);
+  const contestId = 'zoo-council-mammal';
+  const writeInCandidate = store.addWriteInCandidate({
+    electionId,
+    contestId,
+    name: 'Mr. Pickles',
+  });
+  expect(store.getWriteInCandidates({ electionId })).toHaveLength(1);
+
+  const contest = find(election.contests, (c) => c.id === contestId);
+  const contestTally: ContestTally = {
+    contest,
+    tallies: {
+      [writeInCandidate.id]: {
+        tally: 10,
+        option: {
+          id: writeInCandidate.id,
+          name: writeInCandidate.name,
+          isWriteIn: true,
+        },
+      },
+    },
+    metadata: {
+      undervotes: 20,
+      overvotes: 0,
+      ballots: 10,
+    },
+  };
+  const manualTally: ManualTally = {
+    numberOfBallotsCounted: 10,
+    contestTallies: {
+      [contestId]: contestTally,
+    },
+  };
+  const precinctId = 'precinct-1';
+
+  store.setManualTally({ electionId, precinctId, manualTally });
+  expect(store.getManualTallies({ electionId })).toMatchObject([
+    { precinctId, manualTally },
+  ]);
+  expect(store.getManualTallies({ electionId, precinctId })).toMatchObject([
+    { precinctId, manualTally },
+  ]);
+  expect(store.getWriteInCandidates({ electionId })).toHaveLength(1);
+
+  // update the tally, without changing the write-in candidate reference
+  const editedManualTally: ManualTally = {
+    ...manualTally,
+    numberOfBallotsCounted: 11,
+  };
+  store.setManualTally({
+    electionId,
+    precinctId,
+    manualTally: editedManualTally,
+  });
+  expect(store.getManualTallies({ electionId })).toMatchObject([
+    { precinctId, manualTally: editedManualTally },
+  ]);
+  expect(store.getWriteInCandidates({ electionId })).toHaveLength(1);
+
+  // update the tally, and change the write-in candidate reference
+  const noWriteInManualTally: ManualTally = {
+    numberOfBallotsCounted: 11,
+    contestTallies: {
+      ...manualTally.contestTallies,
+      [contestId]: {
+        ...contestTally,
+        tallies: {},
+      },
+    },
+  };
+  store.setManualTally({
+    electionId,
+    precinctId,
+    manualTally: noWriteInManualTally,
+  });
+  expect(store.getManualTallies({ electionId })).toMatchObject([
+    { precinctId, manualTally: noWriteInManualTally },
+  ]);
+  // write-in should be deleted as it has no references anymore
+  expect(store.getWriteInCandidates({ electionId })).toHaveLength(0);
+
+  store.deleteAllManualTallies({ electionId });
+  expect(store.getManualTallies({ electionId })).toEqual([]);
 });

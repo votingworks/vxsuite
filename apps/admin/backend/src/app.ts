@@ -4,6 +4,8 @@ import {
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
+  ManualTally,
+  PrecinctId,
   safeParseElectionDefinition,
   safeParseJson,
   SystemSettings,
@@ -39,6 +41,7 @@ import {
   CvrFileImportInfo,
   CvrFileMode,
   ElectionRecord,
+  ServerFullElectionManualTally,
   SetSystemSettingsResult,
   WriteInAdjudicationAction,
   WriteInAdjudicationStatus,
@@ -57,6 +60,10 @@ import {
 import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
 import { getWriteInDetailView } from './util/write_ins';
+import {
+  buildFullElectionManualTallyFromStore,
+  handleEnteredWriteInCandidateData,
+} from './util/manual_tallies';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -393,10 +400,18 @@ function buildApi({
       return addCastVoteRecordReportResult;
     },
 
-    clearCastVoteRecordFiles(): void {
+    async clearCastVoteRecordFiles(): Promise<void> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       store.deleteCastVoteRecordFiles(electionId);
       store.setElectionResultsOfficial(electionId, false);
+      await logger.log(
+        LogEventId.RemovedTallyFile,
+        assertDefined(await getUserRole()),
+        {
+          message: 'User removed all cast vote record files.',
+          disposition: 'success',
+        }
+      );
     },
 
     getCastVoteRecordFileMode(): CvrFileMode {
@@ -464,6 +479,58 @@ function buildApi({
         store: workspace.store,
         writeInId: input.writeInId,
       });
+    },
+
+    async deleteAllManualTallies(): Promise<void> {
+      store.deleteAllManualTallies({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+      });
+      await logger.log(
+        LogEventId.RemovedTallyFile,
+        assertDefined(await getUserRole()),
+        {
+          message: 'User removed all manually entered tally data.',
+          disposition: 'success',
+        }
+      );
+    },
+
+    async setManualTally(input: {
+      precinctId: PrecinctId;
+      manualTally: ManualTally;
+    }): Promise<void> {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      await store.withTransaction(() => {
+        const manualTally = handleEnteredWriteInCandidateData({
+          manualTally: input.manualTally,
+          electionId,
+          store,
+        });
+        store.setManualTally({
+          electionId,
+          precinctId: input.precinctId,
+          manualTally,
+        });
+        return Promise.resolve();
+      });
+
+      await logger.log(
+        LogEventId.ManualTallyDataEdited,
+        assertDefined(await getUserRole()),
+        {
+          disposition: 'success',
+          message: `Manually entered tally data added or edited for precinct: ${input.precinctId}`,
+          numberOfBallotsInPrecinct: input.manualTally.numberOfBallotsCounted,
+          precinctId: input.precinctId,
+        }
+      );
+    },
+
+    getFullElectionManualTally(): ServerFullElectionManualTally | null {
+      const electionId = workspace.store.getCurrentElectionId();
+      if (!electionId) return null;
+
+      return buildFullElectionManualTallyFromStore(store, electionId) || null;
     },
   });
 }

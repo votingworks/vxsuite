@@ -283,6 +283,18 @@ export const getSystemSettings = {
   },
 } as const;
 
+export const getFullElectionManualTally = {
+  queryKey(): QueryKey {
+    return ['getFullElectionManualTally'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getFullElectionManualTally()
+    );
+  },
+} as const;
+
 // Grouped Invalidations
 
 function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
@@ -376,6 +388,36 @@ export const addCastVoteRecordFile = {
     return useMutation(apiClient.addCastVoteRecordFile, {
       async onSuccess() {
         await invalidateCastVoteRecordQueries(queryClient);
+        await invalidateWriteInQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
+export const setManualTally = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setManualTally, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getFullElectionManualTally.queryKey()
+        );
+        await invalidateWriteInQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
+export const deleteAllManualTallies = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.deleteAllManualTallies, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getFullElectionManualTally.queryKey()
+        );
         await invalidateWriteInQueries(queryClient);
       },
     });
