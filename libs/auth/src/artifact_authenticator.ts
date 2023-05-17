@@ -10,8 +10,8 @@ import {
 
 import { parseCert } from './certs';
 import {
-  constructArtifactAuthenticatorConfig,
   ArtifactAuthenticatorConfig,
+  constructArtifactAuthenticatorConfig,
 } from './config';
 import { FileKey, TpmKey } from './keys';
 import {
@@ -145,6 +145,7 @@ export class ArtifactAuthenticator {
   ): Buffer {
     const { signature, signingMachineCert } = signatureFileContents;
     return Buffer.concat([
+      // ECC signature length can vary ever so slightly, hence the need to persist length metadata
       Buffer.from([signature.length]),
       signature,
       signingMachineCert,

@@ -2,9 +2,9 @@ import { mockOf } from '@votingworks/test-utils';
 import { isVxDev } from '@votingworks/utils';
 
 import {
+  ArtifactAuthenticatorConfig,
   constructArtifactAuthenticatorConfig,
   constructJavaCardConfig,
-  ArtifactAuthenticatorConfig,
   JavaCardConfig,
 } from './config';
 
