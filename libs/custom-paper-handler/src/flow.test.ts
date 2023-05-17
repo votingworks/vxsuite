@@ -16,14 +16,10 @@ test('basic machine flow', async () => {
 
   let status = await paperHandlerMachine.getSimpleStatus();
 
-  // test designed to start with no paper inside the scanner,
+  // test designed to start with no paper inside the scanner
   debug('ejecting any parked paper at beginning of test');
   await paperHandlerMachine.ejectPaper();
   debug('eject complete');
-  // if (status === 'paper_parked') {
-  //   debug('ejecting parked paper at beginning of test');
-  //   await paperHandlerMachine.ejectPaper();
-  // }
 
   status = await paperHandlerMachine.getSimpleStatus();
   expect(['no_paper', 'paper_ready_to_load']).toContain(status);
