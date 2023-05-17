@@ -24,11 +24,11 @@ export function buildApp(apiMock: ApiMock, converter?: ConverterClientType) {
         hardware,
         printer,
         converter,
+        logger,
         generateBallotId: mockRandomBallotId,
       }),
       {
         apiClient: apiMock.apiClient,
-        logger,
       }
     );
   }

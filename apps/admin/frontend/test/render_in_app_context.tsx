@@ -16,7 +16,7 @@ import {
   getEmptyFullElectionTally,
   randomBallotId,
 } from '@votingworks/utils';
-import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
+import { Logger, LogSource } from '@votingworks/logging';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -29,7 +29,6 @@ import { UsbDrive, mockUsbDrive } from '@votingworks/ui';
 import { render as testRender, RenderResult } from './react_testing_library';
 import { AppContext } from '../src/contexts/app_context';
 import { Iso8601Timestamp, ExportableTallies } from '../src/config/types';
-import { ServicesContext } from '../src/contexts/services_context';
 import { ApiClient, ApiClientContext, createQueryClient } from '../src/api';
 import { ApiMock } from './helpers/api_mock';
 
@@ -67,7 +66,6 @@ interface RenderInAppContextParams {
 export function renderRootElement(
   component: React.ReactNode,
   {
-    logger = fakeLogger(),
     // If there's no apiClient given, we don't want to create one by default,
     // since the apiClient needs to have assertComplete called by the test. If
     // the test doesn't need to make API calls, then it should not pass in an
@@ -76,19 +74,16 @@ export function renderRootElement(
     apiClient,
     queryClient = createQueryClient(),
   }: {
-    logger?: Logger;
     apiClient?: ApiClient;
     queryClient?: QueryClient;
   } = {}
 ): RenderResult {
   return testRender(
-    <ServicesContext.Provider value={{ logger }}>
-      <ApiClientContext.Provider value={apiClient}>
-        <QueryClientProvider client={queryClient}>
-          {component}
-        </QueryClientProvider>
-      </ApiClientContext.Provider>
-    </ServicesContext.Provider>
+    <ApiClientContext.Provider value={apiClient}>
+      <QueryClientProvider client={queryClient}>
+        {component}
+      </QueryClientProvider>
+    </ApiClientContext.Provider>
   );
 }
 
@@ -157,6 +152,6 @@ export function renderInAppContext(
     >
       <Router history={history}>{component}</Router>
     </AppContext.Provider>,
-    { apiClient: apiMock?.apiClient, logger, queryClient }
+    { apiClient: apiMock?.apiClient, queryClient }
   );
 }

@@ -9,13 +9,10 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { Logger, LogSource } from '@votingworks/logging';
 import { ErrorBoundary, Prose, Text } from '@votingworks/ui';
 import { App } from './app';
-import { ServicesContext } from './contexts/services_context';
 import { ApiClientContext, createApiClient, createQueryClient } from './api';
 
-const logger = new Logger(LogSource.VxAdminFrontend, window.kiosk);
 const apiClient = createApiClient();
 const queryClient = createQueryClient();
 
@@ -32,20 +29,18 @@ ReactDom.render(
         </Prose>
       }
     >
-      <ServicesContext.Provider value={{ logger }}>
-        <ApiClientContext.Provider value={apiClient}>
-          <QueryClientProvider client={queryClient}>
-            <App />
-            {isFeatureFlagEnabled(
-              BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
-            ) && (
-              <div className="no-print">
-                <ReactQueryDevtools initialIsOpen={false} position="top-left" />
-              </div>
-            )}
-          </QueryClientProvider>
-        </ApiClientContext.Provider>
-      </ServicesContext.Provider>
+      <ApiClientContext.Provider value={apiClient}>
+        <QueryClientProvider client={queryClient}>
+          <App />
+          {isFeatureFlagEnabled(
+            BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
+          ) && (
+            <div className="no-print">
+              <ReactQueryDevtools initialIsOpen={false} position="top-left" />
+            </div>
+          )}
+        </QueryClientProvider>
+      </ApiClientContext.Provider>
     </ErrorBoundary>
     <DevDock />
   </React.StrictMode>,

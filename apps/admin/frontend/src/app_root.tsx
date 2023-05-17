@@ -1,11 +1,5 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useContext,
-} from 'react';
-import { LogEventId } from '@votingworks/logging';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { Printer, ConverterClientType } from '@votingworks/types';
 import {
   Hardware,
@@ -20,7 +14,6 @@ import { AppContext } from './contexts/app_context';
 import { ElectionManager } from './components/election_manager';
 import { ExportableTallies } from './config/types';
 import { getExportableTallies } from './utils/exportable_tallies';
-import { ServicesContext } from './contexts/services_context';
 import {
   getAuthStatus,
   getCastVoteRecords,
@@ -33,6 +26,7 @@ import { convertServerFullElectionManualTally } from './utils/manual_tallies';
 export interface Props {
   printer: Printer;
   hardware: Hardware;
+  logger: Logger;
   converter?: ConverterClientType;
   generateBallotId?: () => string;
 }
@@ -41,10 +35,9 @@ export function AppRoot({
   printer,
   hardware,
   converter,
+  logger,
   generateBallotId = randomBallotId,
 }: Props): JSX.Element | null {
-  const { logger } = useContext(ServicesContext);
-
   const { cardReader, printer: printerInfo } = useDevices({ hardware, logger });
 
   const [isTabulationRunning, setIsTabulationRunning] = useState(false);
