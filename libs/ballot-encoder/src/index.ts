@@ -3,7 +3,6 @@ import {
   BallotIdSchema,
   BallotStyleId,
   BallotType,
-  BallotTypeMaximumValue,
   Candidate,
   CandidateVote,
   CompletedBallot,
@@ -19,15 +18,8 @@ import {
   VotesDict,
   YesNoVote,
 } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
-import {
-  BitReader,
-  BitWriter,
-  CustomEncoding,
-  toUint8,
-  Uint8,
-  Uint8Size,
-} from './bits';
+import { assert, iter, Optional } from '@votingworks/basics';
+import { BitReader, BitWriter, CustomEncoding, Uint8, Uint8Size } from './bits';
 
 /**
  * Maximum number of characters in a write-in.
@@ -98,39 +90,84 @@ export interface BallotConfig {
   precinctId: PrecinctId;
 }
 
+const CARD_NUMBER_BITS = 16;
+const TEST_MODES = [true, false] as const;
+const BALLOT_TYPES = [BallotType.Absentee, BallotType.Standard] as const;
+const MAX_BALLOT_CONFIGURATIONS = 1 << CARD_NUMBER_BITS;
+
+function* allBallotConfigurations(election: Election): Generator<BallotConfig> {
+  const totalBallotConfigurations =
+    TEST_MODES.length *
+    iter(election.ballotStyles)
+      .map(({ precincts }) => precincts.length)
+      .sum() *
+    BALLOT_TYPES.length;
+
+  if (totalBallotConfigurations > MAX_BALLOT_CONFIGURATIONS) {
+    throw new Error(
+      `too many ballot configurations: ${totalBallotConfigurations} > ${MAX_BALLOT_CONFIGURATIONS}`
+    );
+  }
+
+  for (const isTestMode of TEST_MODES) {
+    for (const { id: ballotStyleId, precincts } of election.ballotStyles) {
+      for (const precinctId of precincts) {
+        for (const ballotType of BALLOT_TYPES) {
+          yield {
+            ballotStyleId,
+            ballotType,
+            isTestMode,
+            precinctId,
+          };
+        }
+      }
+    }
+  }
+}
+
+function cardNumberFromBallotConfig(
+  election: Election,
+  ballotConfig: BallotConfig
+): Optional<number> {
+  return iter(allBallotConfigurations(election))
+    .enumerate()
+    .find(
+      ([, config]) =>
+        config.ballotStyleId === ballotConfig.ballotStyleId &&
+        config.ballotType === ballotConfig.ballotType &&
+        config.isTestMode === ballotConfig.isTestMode &&
+        config.precinctId === ballotConfig.precinctId
+    )?.[0];
+}
+
+function ballotConfigFromCardNumber(
+  election: Election,
+  cardNumber: number
+): Optional<BallotConfig> {
+  return iter(allBallotConfigurations(election)).skip(cardNumber).first();
+}
+
 /**
  * Encodes a {@link BallotConfig} into the given bit writer.
  */
 export function encodeBallotConfigInto(
   election: Election,
-  { ballotId, ballotStyleId, ballotType, isTestMode, precinctId }: BallotConfig,
+  ballotConfig: BallotConfig,
   bits: BitWriter
 ): BitWriter {
-  const { precincts, ballotStyles, contests } = election;
-  const precinctCount = toUint8(precincts.length);
-  const ballotStyleCount = toUint8(ballotStyles.length);
-  const contestCount = toUint8(contests.length);
-  const precinctIndex = precincts.findIndex((p) => p.id === precinctId);
-  const ballotStyleIndex = ballotStyles.findIndex(
-    (bs) => bs.id === ballotStyleId
-  );
+  const cardNumber = cardNumberFromBallotConfig(election, ballotConfig);
 
-  if (precinctIndex === -1) {
-    throw new Error(`precinct ID not found: ${precinctId}`);
+  if (cardNumber === undefined) {
+    throw new Error(
+      `could not find card number for ballot config ${JSON.stringify(
+        ballotConfig
+      )}`
+    );
   }
 
-  if (ballotStyleIndex === -1) {
-    throw new Error(`ballot style ID not found: ${ballotStyleId}`);
-  }
+  bits.writeUint(cardNumber, { size: CARD_NUMBER_BITS });
 
-  bits
-    .writeUint8(precinctCount, ballotStyleCount, contestCount)
-    .writeUint(precinctIndex, { max: precinctCount - 1 })
-    .writeUint(ballotStyleIndex, { max: ballotStyleCount - 1 });
-
-  bits
-    .writeBoolean(isTestMode)
-    .writeUint(ballotType, { max: BallotTypeMaximumValue });
+  const { ballotId } = ballotConfig;
 
   bits.writeBoolean(!!ballotId);
 
@@ -148,51 +185,20 @@ export function decodeBallotConfigFromReader(
   election: Election,
   bits: BitReader
 ): BallotConfig {
-  const { precincts, ballotStyles, contests } = election;
-  const precinctCount = bits.readUint8();
-  const ballotStyleCount = bits.readUint8();
-  const contestCount = bits.readUint8();
+  const cardNumber = bits.readUint({ size: CARD_NUMBER_BITS });
+  const ballotConfig = ballotConfigFromCardNumber(election, cardNumber);
 
-  if (precinctCount !== precincts.length) {
+  if (ballotConfig === undefined) {
     throw new Error(
-      `expected ${precincts.length} precinct(s), but read ${precinctCount} from encoded config`
+      `could not find ballot config for card number ${cardNumber}`
     );
   }
 
-  if (ballotStyleCount !== ballotStyles.length) {
-    throw new Error(
-      `expected ${ballotStyles.length} ballot style(s), but read ${ballotStyleCount} from encoded config`
-    );
-  }
-
-  const precinctIndex = bits.readUint({ max: precinctCount - 1 });
-  const ballotStyleIndex = bits.readUint({ max: ballotStyleCount - 1 });
-
-  if (contestCount !== contests.length) {
-    throw new Error(
-      `expected ${contests.length} contest(s), but read ${contestCount} from encoded config`
-    );
-  }
-
-  const isTestMode = bits.readBoolean();
-  const ballotType = bits.readUint({ max: BallotTypeMaximumValue });
   const ballotId = bits.readBoolean()
     ? unsafeParse(BallotIdSchema, bits.readString())
     : undefined;
 
-  const ballotStyle = ballotStyles[ballotStyleIndex];
-  const precinct = precincts[precinctIndex];
-
-  assert(ballotStyle, `ballot style index ${ballotStyleIndex} is invalid`);
-  assert(precinct, `precinct index ${precinctIndex} is invalid`);
-
-  return {
-    ballotId,
-    ballotStyleId: ballotStyle.id,
-    ballotType,
-    isTestMode,
-    precinctId: precinct.id,
-  };
+  return { ballotId, ...ballotConfig };
 }
 
 function writeYesNoVote(bits: BitWriter, ynVote: YesNoVote): void {
