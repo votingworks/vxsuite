@@ -35,7 +35,7 @@ describe('VX BMD interpretation', () => {
               "metadata": Object {
                 "ballotStyleId": "1",
                 "ballotType": 0,
-                "electionHash": "11442cf380df2e505d14",
+                "electionHash": "b4e07814b46911211ec7",
                 "isTestMode": true,
                 "precinctId": "23",
               },
@@ -225,7 +225,7 @@ describe('VX BMD interpretation', () => {
     expect(interpretationResult[0].interpretation).toEqual(
       typedAs<InvalidElectionHashPage>({
         type: 'InvalidElectionHashPage',
-        actualElectionHash: '11442cf380df2e505d14',
+        actualElectionHash: 'b4e07814b46911211ec7',
         expectedElectionHash: 'd34db33f',
       })
     );

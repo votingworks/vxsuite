@@ -34,7 +34,7 @@ test.each([
       "ballotId": undefined,
       "ballotStyleId": "1",
       "ballotType": 0,
-      "electionHash": "11442cf380df2e505d14",
+      "electionHash": "b4e07814b46911211ec7",
       "isTestMode": true,
       "precinctId": "23",
       "votes": Object {

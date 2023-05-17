@@ -963,9 +963,6 @@ snapshots['test_general_conversion 1'] = '''{
     }
   ],
   "sealUrl": "/seals/Seal_of_Mississippi_BW.svg",
-  "ballotStrings": {
-    "officialInitials": "Initialing Manager"
-  },
   "centralScanAdjudicationReasons": [
     "Overvote",
     "BlankBallot"
@@ -1389,9 +1386,6 @@ snapshots['test_general_conversion 2'] = '''{
     }
   ],
   "sealUrl": "/seals/Seal_of_Mississippi_BW.svg",
-  "ballotStrings": {
-    "officialInitials": "Initialing Manager"
-  },
   "centralScanAdjudicationReasons": [
     "Overvote",
     "BlankBallot"
@@ -1613,9 +1607,6 @@ snapshots['test_general_conversion 3'] = '''{
     }
   ],
   "sealUrl": "/seals/Seal_of_Mississippi_BW.svg",
-  "ballotStrings": {
-    "officialInitials": "Initialing Manager"
-  },
   "centralScanAdjudicationReasons": [
     "Overvote",
     "BlankBallot"
@@ -2169,9 +2160,6 @@ snapshots['test_general_conversion 4'] = '''{
     }
   ],
   "sealUrl": "/seals/Seal_of_Mississippi_BW.svg",
-  "ballotStrings": {
-    "officialInitials": "Initialing Manager"
-  },
   "centralScanAdjudicationReasons": [
     "Overvote",
     "BlankBallot"

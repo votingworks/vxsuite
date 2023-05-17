@@ -311,9 +311,6 @@
     }
   ],
   "sealUrl": "/seals/state-of-hamilton-official-seal.svg",
-  "ballotStrings": {
-    "officialInitials": "Initialing Manager"
-  },
   "adjudicationReasons": [
     "UninterpretableBallot",
     "Overvote",
