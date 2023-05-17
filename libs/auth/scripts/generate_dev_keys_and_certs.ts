@@ -10,6 +10,7 @@ import {
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
   constructMachineCertSubject,
+  MachineType,
   STANDARD_CERT_FIELDS,
 } from '../src/certs';
 import { DEV_JURISDICTION } from '../src/jurisdictions';
@@ -110,12 +111,10 @@ async function generateDevKeysAndCerts({
   outputDir,
 }: GenerateDevKeysAndCertsInput): Promise<void> {
   runCommand(['mkdir', '-p', outputDir]);
-  const vxPrivateKeyPath = `${outputDir}/vx-private-key.pem`;
-  const vxCertAuthorityCertPath = `${outputDir}/vx-cert-authority-cert.pem`;
-  const vxAdminPrivateKeyPath = `${outputDir}/vx-admin-private-key.pem`;
-  const vxAdminCertAuthorityCertPath = `${outputDir}/vx-admin-cert-authority-cert.pem`;
 
   // Generate VotingWorks private key and cert authority cert
+  const vxPrivateKeyPath = `${outputDir}/vx-private-key.pem`;
+  const vxCertAuthorityCertPath = `${outputDir}/vx-cert-authority-cert.pem`;
   const vxPrivateKey = await generateDevPrivateKey();
   await fs.writeFile(vxPrivateKeyPath, vxPrivateKey);
   const vxCertAuthorityCert = await generateDevVxCertAuthorityCert(
@@ -124,6 +123,8 @@ async function generateDevKeysAndCerts({
   await fs.writeFile(vxCertAuthorityCertPath, vxCertAuthorityCert);
 
   // Generate VxAdmin private key and cert authority cert
+  const vxAdminPrivateKeyPath = `${outputDir}/vx-admin-private-key.pem`;
+  const vxAdminCertAuthorityCertPath = `${outputDir}/vx-admin-cert-authority-cert.pem`;
   const vxAdminPrivateKey = await generateDevPrivateKey();
   await fs.writeFile(vxAdminPrivateKeyPath, vxAdminPrivateKey);
   const vxAdminCertAuthorityCert = await createCert({
@@ -138,6 +139,30 @@ async function generateDevKeysAndCerts({
     signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },
   });
   await fs.writeFile(vxAdminCertAuthorityCertPath, vxAdminCertAuthorityCert);
+
+  // Generate non-VxAdmin machine private keys and certs
+  const nonVxAdminMachineTypes: MachineType[] = [
+    'central-scan',
+    'mark',
+    'scan',
+  ];
+  for (const machineType of nonVxAdminMachineTypes) {
+    const machinePrivateKeyPath = `${outputDir}/vx-${machineType}-private-key.pem`;
+    const machineCertPath = `${outputDir}/vx-${machineType}-cert.pem`;
+    const machinePrivateKey = await generateDevPrivateKey();
+    await fs.writeFile(machinePrivateKeyPath, machinePrivateKey);
+    const machineCert = await createCert({
+      certKeyInput: {
+        type: 'private',
+        key: { source: 'file', path: machinePrivateKeyPath },
+      },
+      certSubject: constructMachineCertSubject(machineType),
+      expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
+      signingCertAuthorityCertPath: vxCertAuthorityCertPath,
+      signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },
+    });
+    await fs.writeFile(machineCertPath, machineCert);
+  }
 
   if (forTests) {
     // Save VxAdmin cert authority cert in DER format
@@ -193,14 +218,11 @@ async function generateDevKeysAndCerts({
       ];
     for (const { cardType, cardDetails } of cardConfigs) {
       runCommand(['mkdir', '-p', `${outputDir}/${cardType}`]);
+
+      // Generate card VotingWorks key pair and cert
       const cardVxPrivateKeyPath = `${outputDir}/${cardType}/card-vx-private-key.pem`;
       const cardVxPublicKeyPath = `${outputDir}/${cardType}/card-vx-public-key.der`;
       const cardVxCertPath = `${outputDir}/${cardType}/card-vx-cert.der`;
-      const cardVxAdminPrivateKeyPath = `${outputDir}/${cardType}/card-vx-admin-private-key.pem`;
-      const cardVxAdminPublicKeyPath = `${outputDir}/${cardType}/card-vx-admin-public-key.der`;
-      const cardVxAdminCertPath = `${outputDir}/${cardType}/card-vx-admin-cert.der`;
-
-      // Generate card VotingWorks key pair and cert
       const cardVxPrivateKey = await generateDevPrivateKey();
       await fs.writeFile(cardVxPrivateKeyPath, cardVxPrivateKey);
       const cardVxPublicKey = await extractPublicKeyFromDevPrivateKey(
@@ -226,6 +248,9 @@ async function generateDevKeysAndCerts({
       await fs.writeFile(cardVxCertPath, await certPemToDer(cardVxCert));
 
       // Generate card VxAdmin key pair and cert
+      const cardVxAdminPrivateKeyPath = `${outputDir}/${cardType}/card-vx-admin-private-key.pem`;
+      const cardVxAdminPublicKeyPath = `${outputDir}/${cardType}/card-vx-admin-public-key.der`;
+      const cardVxAdminCertPath = `${outputDir}/${cardType}/card-vx-admin-cert.der`;
       const cardVxAdminPrivateKey = await generateDevPrivateKey();
       await fs.writeFile(cardVxAdminPrivateKeyPath, cardVxAdminPrivateKey);
       const cardVxAdminPublicKey = await extractPublicKeyFromDevPrivateKey(
@@ -262,6 +287,12 @@ async function generateDevKeysAndCerts({
  * - VotingWorks cert authority cert
  * - VxAdmin private key
  * - VxAdmin cert authority cert
+ * - VxCentralScan private key
+ * - VxCentralScan cert
+ * - VxMark private key
+ * - VxMark cert
+ * - VxScan private key
+ * - VxScan cert
  *
  * If run with --for-tests, the script will additionally:
  * - Save the VxAdmin cert authority cert in DER format

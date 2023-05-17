@@ -97,8 +97,14 @@ interface CardAgnosticTestFile {
     | 'vx-admin-cert-authority-cert.der'
     | 'vx-admin-cert-authority-cert.pem'
     | 'vx-admin-private-key.pem'
+    | 'vx-central-scan-cert.pem'
+    | 'vx-central-scan-private-key.pem'
     | 'vx-cert-authority-cert.pem'
-    | 'vx-private-key.pem';
+    | 'vx-mark-cert.pem'
+    | 'vx-mark-private-key.pem'
+    | 'vx-private-key.pem'
+    | 'vx-scan-cert.pem'
+    | 'vx-scan-private-key.pem';
   setId?: TestFileSetId;
 }
 
