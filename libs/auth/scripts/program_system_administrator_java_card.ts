@@ -2,9 +2,9 @@ import { assert } from '@votingworks/basics';
 import { generatePin, hyphenatePin } from '@votingworks/utils';
 
 import { ResponseApduError } from '../src/apdu';
+import { constructJavaCardConfig } from '../src/config';
 import { getRequiredEnvVar } from '../src/env_vars';
 import { JavaCard } from '../src/java_card';
-import { constructJavaCardConfig } from '../src/java_card_config';
 import { DEV_JURISDICTION } from '../src/jurisdictions';
 import { waitForReadyCardStatus } from './utils';
 

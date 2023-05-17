@@ -29,6 +29,7 @@ import {
 import { Card, CardDetails, CheckPinResponse } from './card';
 import { CardReader } from './card_reader';
 import { CardType } from './certs';
+import { JavaCardConfig } from './config';
 import {
   CARD_VX_ADMIN_CERT,
   CARD_VX_CERT,
@@ -41,7 +42,6 @@ import {
   PUK,
   VX_ADMIN_CERT_AUTHORITY_CERT,
 } from './java_card';
-import { JavaCardConfig } from './java_card_config';
 import { DEV_JURISDICTION } from './jurisdictions';
 import {
   certDerToPem,

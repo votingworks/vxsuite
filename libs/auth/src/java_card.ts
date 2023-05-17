@@ -33,7 +33,7 @@ import {
   parseCardDetailsFromCert,
   parseCert,
 } from './certs';
-import { JavaCardConfig } from './java_card_config';
+import { JavaCardConfig } from './config';
 import { FileKey, TpmKey } from './keys';
 import {
   certDerToPem,
