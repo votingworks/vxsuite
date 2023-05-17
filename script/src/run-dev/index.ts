@@ -169,7 +169,7 @@ export async function main(
             npmBinCommand({
               name: `${name}:run`,
               command:
-                'while [ ! -f build/index.js ]; do echo "Waiting for build…"; sleep 1; done; nodemon --watch build --delay 1 --exitcrash --exec NODE_ENV=development node build/index.js',
+                `while [ ! -f build/index.js ]; do echo "Waiting for build…"; sleep 1; done; nodemon --watch build --delay 1 --exitcrash --exec NODE_ENV=development VX_MACHINE_TYPE=${frontend} node build/index.js`,
               prefixColor: 'cyan',
               cwd: serviceRoot,
               env: extraEnv,

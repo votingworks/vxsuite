@@ -2,4 +2,6 @@
 
 set -euo pipefail
 
-NODE_ENV=development ./scripts/program-system-administrator-java-card
+NODE_ENV=development \
+    VX_MACHINE_TYPE=admin \
+    ./scripts/program-system-administrator-java-card
