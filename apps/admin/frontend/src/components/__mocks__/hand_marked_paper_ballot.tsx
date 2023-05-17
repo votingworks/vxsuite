@@ -8,13 +8,12 @@ export function HandMarkedPaperBallot({
   ballotStyleId,
   precinctId,
   electionHash,
-  locales,
   isAbsentee,
   ballotMode,
 }: HandMarkedPaperBallotProps): JSX.Element {
   useEffect(() => {
     onRendered?.(0);
-  }, [ballotStyleId, election, electionHash, locales, onRendered, precinctId]);
+  }, [ballotStyleId, election, electionHash, onRendered, precinctId]);
 
   const precinct = getPrecinctById({ election, precinctId });
 

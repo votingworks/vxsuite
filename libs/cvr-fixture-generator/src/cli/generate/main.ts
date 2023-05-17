@@ -315,7 +315,6 @@ export async function main(
           precinctId,
           electionHash,
           ballotType: BallotType.Standard,
-          locales: { primary: 'en-US' },
           isTestMode: testMode,
         }),
         (l) => l.metadata.pageNumber === pageNumber

@@ -8,7 +8,7 @@ beforeEach(() => {
   window.kiosk = fakeKiosk();
 });
 
-test('initializes with an Election, hash, and locales', () => {
+test('initializes with an Election, hash', () => {
   expect(workflow.init(electionSampleDefinition).type).toEqual('Init');
 });
 

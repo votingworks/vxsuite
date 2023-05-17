@@ -223,7 +223,6 @@ function buildInterpretedHmpbPageMetadata(
     ballotType: BallotType.Standard,
     electionHash: electionDefinition.electionHash,
     isTestMode: options.testMode,
-    locales: { primary: 'en-US' },
     pageNumber: side === 'front' ? 1 : 2,
   };
 }

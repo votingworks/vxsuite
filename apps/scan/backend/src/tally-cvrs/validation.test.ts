@@ -21,7 +21,6 @@ const BmdPage: InterpretedBmdPage = {
     ballotType: BallotType.Absentee,
     electionHash: 'abc',
     isTestMode: false,
-    locales: { primary: 'en-US' },
   },
   votes: {},
 };
@@ -36,7 +35,6 @@ const metadata: BallotMetadata = {
   ballotType: BallotType.Absentee,
   electionHash: 'abc',
   isTestMode: false,
-  locales: { primary: 'en-US' },
 };
 const HmpbPage1: InterpretedHmpbPage = {
   type: 'InterpretedHmpbPage',

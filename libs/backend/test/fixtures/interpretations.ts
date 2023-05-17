@@ -34,9 +34,6 @@ export const mockBallotMetadata: BallotMetadata = {
   ballotStyleId: '2F',
   isTestMode: true,
   ballotType: BallotType.Standard,
-  locales: {
-    primary: 'en-US',
-  },
 };
 const adjudicationInfo: AdjudicationInfo = {
   requiresAdjudication: false,

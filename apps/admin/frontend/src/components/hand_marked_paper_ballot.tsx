@@ -7,9 +7,8 @@ import moment from 'moment';
 import 'moment/min/locales';
 import { Handler, Previewer, registerHandlers } from 'pagedjs';
 import { TFunction, StringMap } from 'i18next';
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import {
-  BallotLocale,
   BallotType,
   Candidate,
   CandidateContest,
@@ -36,7 +35,6 @@ import { QrCode, HandMarkedPaperBallotProse, Text } from '@votingworks/ui';
 import type { BallotMode } from '@votingworks/admin-backend';
 import { BubbleMark } from './bubble_mark';
 import { WriteInLine } from './write_in_line';
-import { HorizontalRule } from './horizontal_rule';
 import { ABSENTEE_TINT_COLOR } from '../config/globals';
 import { getBallotLayoutPageSize } from '../utils/get_ballot_layout_page_size';
 import { getBallotLayoutDensity } from '../utils/get_ballot_layout_density';
@@ -72,71 +70,15 @@ function getWriteInNameAtPosition(
   return writeIn?.name;
 }
 
-function localeDateLong(dateString: string, locale: string) {
-  return moment(new Date(dateString)).locale(locale).format('LL');
+function localeDateLong(dateString: string) {
+  return moment(new Date(dateString)).locale('en-US').format('LL');
 }
 
-function dualPhraseWithBreak(t1: string, t2?: string) {
-  if (!t2 || t1 === t2) {
-    return t1;
-  }
-  return (
-    <React.Fragment>
-      <strong>{t1}</strong>
-      <br />
-      {t2}
-    </React.Fragment>
-  );
-}
-
-function dualPhraseWithSlash(
-  t1: string,
-  t2?: string,
-  {
-    separator = ' / ',
-    normal = false,
-  }: { separator?: string; normal?: boolean } = {}
-) {
-  if (!t2 || t1 === t2) {
-    return t1;
-  }
-  if (normal) {
-    return (
-      <React.Fragment>
-        {t1}
-        {separator}
-        <Text normal as="span">
-          {t2}
-        </Text>
-      </React.Fragment>
-    );
-  }
-  return `${t1}${separator}${t2}`;
-}
-
-function dualLanguageComposer(
-  t: TFunction,
-  locales: BallotLocale,
-  separator?: string
-) {
+function dualLanguageComposer(t: TFunction) {
   return (key: string, options: StringMap = {}) => {
-    const enTranslation = t(key, {
+    return t(key, {
       ...options,
-      lng: locales.primary,
-    });
-    if (!locales.secondary) {
-      return enTranslation;
-    }
-    const dualTranslation = t(key, {
-      ...options,
-      lng: locales.secondary,
-    });
-    if (separator === 'break') {
-      return dualPhraseWithBreak(enTranslation, dualTranslation);
-    }
-    return dualPhraseWithSlash(enTranslation, dualTranslation, {
-      separator,
-      normal: true,
+      lng: 'en-US',
     });
   };
 }
@@ -454,7 +396,6 @@ const CandidateDescription = styled.span<{ isSmall?: boolean }>`
 export interface CandidateContestChoicesProps {
   election: Election;
   contest: CandidateContest;
-  locales: BallotLocale;
   vote?: CandidateVote;
   density?: number;
   targetMarkPosition?: BallotTargetMarkPosition;
@@ -464,7 +405,6 @@ export function CandidateContestChoices({
   election,
   contest,
   density,
-  locales,
   vote,
   targetMarkPosition,
 }: CandidateContestChoicesProps): JSX.Element {
@@ -472,7 +412,7 @@ export function CandidateContestChoices({
   const writeInItemKeys = integers()
     .take(contest.seats)
     .map((num) => `write-in-${contest.id}-${num}`);
-  const dualLanguageWithSlash = dualLanguageComposer(t, locales);
+  const dualLanguageWithSlash = dualLanguageComposer(t);
   return (
     <React.Fragment>
       {contest.candidates.map((candidate) => (
@@ -529,7 +469,6 @@ export interface HandMarkedPaperBallotProps {
   ballotMode?: BallotMode;
   isAbsentee?: boolean;
   precinctId: PrecinctId;
-  locales: BallotLocale;
   ballotId?: BallotId;
   votes?: VotesDict;
   onRendered?(pageCount: number): void;
@@ -542,27 +481,21 @@ export function HandMarkedPaperBallot({
   ballotMode = 'official',
   isAbsentee = true,
   precinctId,
-  locales,
   ballotId,
   votes,
   onRendered,
 }: HandMarkedPaperBallotProps): JSX.Element {
   const layoutDensity = getBallotLayoutDensity(election);
-  assert(
-    locales.primary !== locales.secondary,
-    'rendering a dual-language ballot with both languages the same is not allowed'
-  );
 
   const { t, i18n } = useTranslation();
   const { county, date, seal, sealUrl, state, title } = election;
-  i18n.addResources(locales.primary, 'translation', election.ballotStrings);
+  i18n.addResources('en-US', 'translation', election.ballotStrings);
   const primaryPartyName = !isSuperBallotStyle(ballotStyleId)
     ? getPartyFullNameFromBallotStyle({
         ballotStyleId,
         election,
       })
     : undefined;
-  const localePrimaryPartyName = undefined;
   let ballotStyle: BallotStyle | undefined;
   if (isSuperBallotStyle(ballotStyleId)) {
     ballotStyle = undefined;
@@ -623,23 +556,21 @@ export function HandMarkedPaperBallot({
     onRendered,
     precinctId,
     isAbsentee,
-    locales,
     votes,
   ]);
 
-  const dualLanguageWithSlash = dualLanguageComposer(t, locales);
-  const dualLanguageWithBreak = dualLanguageComposer(t, locales, 'break');
+  const l = dualLanguageComposer(t);
 
   const columnFooter = (
     <StyledColumnFooter>
       <HandMarkedPaperBallotProse>
         <h3>
-          {dualLanguageWithBreak('Thank you for voting.', {
+          {l('Thank you for voting.', {
             normal: true,
           })}
         </h3>
         <p>
-          {dualLanguageWithBreak(
+          {l(
             'You have reached the end of the ballot. Please review your ballot selections.'
           )}
         </p>
@@ -664,32 +595,27 @@ export function HandMarkedPaperBallot({
             )}
             <OfficialInitials>
               <Text as="span" small>
-                <Trans
-                  i18nKey="officialInitials"
-                  tOptions={{ lng: locales.primary }}
-                >
-                  Official’s Initials
-                </Trans>
+                Official’s Initials
               </Text>
             </OfficialInitials>
             <PageFooterMain>
               <PageFooterRow>
                 <div>
                   <Text small right as="div">
-                    {dualLanguageWithBreak('Precinct')}
+                    {l('Precinct')}
                   </Text>
                   <Text as="h2">{precinct.name}</Text>
                 </div>
                 <div>
                   <Text small right as="div">
-                    {dualLanguageWithBreak('Style')}
+                    {l('Style')}
                   </Text>
                   <Text as="h2">{ballotStyle?.id || 'All'}</Text>
                 </div>
                 <div />
                 <div>
                   <Text small right as="div">
-                    {dualLanguageWithBreak('Page')}
+                    {l('Page')}
                   </Text>
                   <Text as="h2">
                     <span className="page-number" />
@@ -697,16 +623,14 @@ export function HandMarkedPaperBallot({
                     <span className="total-pages" />
                   </Text>
                   <Text small left as="div">
-                    {dualLanguageWithBreak('Pages')}
+                    {l('Pages')}
                   </Text>
                 </div>
               </PageFooterRow>
               <PageFooterRow>
                 <div>
                   <Text small left as="div">
-                    {ballotStyle?.partyId &&
-                    primaryPartyName &&
-                    localePrimaryPartyName
+                    {ballotStyle?.partyId && primaryPartyName
                       ? `${ballotStyle?.partyId && primaryPartyName} ${title}`
                       : election.title}
                   </Text>
@@ -718,17 +642,7 @@ export function HandMarkedPaperBallot({
                 </div>
                 <div>
                   <Text small right as="div">
-                    {locales.secondary ? (
-                      <React.Fragment>
-                        <strong>{localeDateLong(date, locales.primary)}</strong>
-                        <br />
-                        {localeDateLong(date, locales.secondary)}
-                      </React.Fragment>
-                    ) : (
-                      <React.Fragment>
-                        {localeDateLong(date, locales.primary)}
-                      </React.Fragment>
-                    )}
+                    {localeDateLong(date)}
                   </Text>
                 </div>
               </PageFooterRow>
@@ -744,7 +658,6 @@ export function HandMarkedPaperBallot({
                     electionHash,
                     ballotStyleId,
                     precinctId,
-                    locales,
                     isTestMode: ballotMode === 'test',
                     ballotType: isAbsentee
                       ? BallotType.Absentee
@@ -795,7 +708,7 @@ export function HandMarkedPaperBallot({
                 <HandMarkedPaperBallotProse>
                   <h2>
                     {t(ballotModeToBallotTitle(ballotMode), {
-                      lng: locales.primary,
+                      lng: 'en-US',
                     })}
                   </h2>
                   <h3>
@@ -806,7 +719,7 @@ export function HandMarkedPaperBallot({
                     <br />
                     {county.name}
                     <br />
-                    {localeDateLong(date, locales.primary)}
+                    {localeDateLong(date)}
                   </p>
                 </HandMarkedPaperBallotProse>
               </BallotHeader>
@@ -817,70 +730,24 @@ export function HandMarkedPaperBallot({
                     alt=""
                     className="ignore-prose"
                   />
-                  <h4>{t('Instructions', { lng: locales.primary })}</h4>
+                  <h4>Instructions</h4>
                   <Text small>
-                    {t(
-                      'To vote, use a black pen to completely fill in the oval to the left of your choice.',
-                      { lng: locales.primary }
-                    )}
+                    To vote, use a black pen to completely fill in the oval to
+                    the left of your choice.
                   </Text>
-                  <h4>
-                    {t('To Vote for a Write-In', { lng: locales.primary })}
-                  </h4>
+                  <h4>To Vote for a Write-In</h4>
                   <Text small>
                     <img src="/ballot/instructions-write-in.svg" alt="" />
-                    {t(
-                      'To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.',
-                      { lng: locales.primary }
-                    )}
+                    To vote for a person not on the ballot, completely fill in
+                    the oval to the left of the “write-in” line and print the
+                    person’s name on the line.
                   </Text>
-                  <h4>{t('To correct a mistake', { lng: locales.primary })}</h4>
+                  <h4>To correct a mistake</h4>
                   <Text small>
-                    {t(
-                      'To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.',
-                      { lng: locales.primary }
-                    )}
+                    To make a correction, please ask for a replacement ballot.
+                    Any marks other than filled ovals may cause your ballot not
+                    to be counted.
                   </Text>
-                  {locales.secondary && (
-                    <React.Fragment>
-                      <HorizontalRule />
-                      <img
-                        src="/ballot/instructions-fill-oval.svg"
-                        alt=""
-                        className="ignore-prose"
-                      />
-                      <h4>{t('Instructions', { lng: locales.secondary })}</h4>
-                      <Text small>
-                        {t(
-                          'To vote, use a black pen to completely fill in the oval to the left of your choice.',
-                          { lng: locales.secondary }
-                        )}
-                      </Text>
-                      <h4>
-                        {t('To Vote for a Write-In', {
-                          lng: locales.secondary,
-                        })}
-                      </h4>
-                      <Text small>
-                        <img src="/ballot/instructions-write-in.svg" alt="" />
-                        {t(
-                          'To vote for a person not on the ballot, completely fill in the oval to the left of the “write-in” line and print the person’s name on the line.',
-                          { lng: locales.secondary }
-                        )}
-                      </Text>
-                      <h4>
-                        {t('To correct a mistake', {
-                          lng: locales.secondary,
-                        })}
-                      </h4>
-                      <Text small>
-                        {t(
-                          'To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.',
-                          { lng: locales.secondary }
-                        )}
-                      </Text>
-                    </React.Fragment>
-                  )}
                 </HandMarkedPaperBallotProse>
               </Instructions>
             </IntroColumn>
@@ -895,19 +762,18 @@ export function HandMarkedPaperBallot({
                   <React.Fragment>
                     <Text small={layoutDensity !== 0}>
                       {contest.seats === 1
-                        ? dualLanguageWithSlash('Vote for 1', {
+                        ? l('Vote for 1', {
                             normal: true,
                           })
-                        : dualLanguageWithSlash(
-                            'Vote for not more than {{ seats }}',
-                            { seats: contest.seats, normal: true }
-                          )}
+                        : l('Vote for not more than {{ seats }}', {
+                            seats: contest.seats,
+                            normal: true,
+                          })}
                     </Text>
                     <CandidateContestChoices
                       election={election}
                       contest={contest}
                       vote={votes?.[contest.id] as CandidateVote | undefined}
-                      locales={locales}
                       density={layoutDensity}
                       targetMarkPosition={
                         election.ballotLayout?.targetMarkPosition
@@ -932,30 +798,9 @@ export function HandMarkedPaperBallot({
                   {contest.type === 'yesno' && (
                     <React.Fragment>
                       <p>
-                        <Trans
-                          i18nKey="voteYesOrNo"
-                          tOptions={{ lng: locales.primary }}
-                        >
-                          Vote{' '}
-                          <strong>{contest.yesOption?.label || 'Yes'}</strong>{' '}
-                          or <strong>{contest.noOption?.label || 'No'}</strong>
-                        </Trans>
-                        {locales.secondary && (
-                          <React.Fragment>
-                            {' / '}
-                            <Trans
-                              i18nKey="voteYesOrNo"
-                              tOptions={{ lng: locales.secondary }}
-                            >
-                              Vote{' '}
-                              <strong>
-                                {contest.yesOption?.label || 'Yes'}
-                              </strong>{' '}
-                              or{' '}
-                              <strong>{contest.noOption?.label || 'No'}</strong>
-                            </Trans>
-                          </React.Fragment>
-                        )}
+                        Vote{' '}
+                        <strong>{contest.yesOption?.label || 'Yes'}</strong> or{' '}
+                        <strong>{contest.noOption?.label || 'No'}</strong>
                       </p>
                       <Text
                         small
@@ -970,11 +815,7 @@ export function HandMarkedPaperBallot({
                           position={election.ballotLayout?.targetMarkPosition}
                           checked={hasVote(votes?.[contest.id], 'yes')}
                         >
-                          <span>
-                            {dualLanguageWithSlash(
-                              contest.yesOption?.label || 'Yes'
-                            )}
-                          </span>
+                          <span>{l(contest.yesOption?.label || 'Yes')}</span>
                         </BubbleMark>
                       </Text>
                       <Text bold>
@@ -982,11 +823,7 @@ export function HandMarkedPaperBallot({
                           position={election.ballotLayout?.targetMarkPosition}
                           checked={hasVote(votes?.[contest.id], 'no')}
                         >
-                          <span>
-                            {dualLanguageWithSlash(
-                              contest.noOption?.label || 'No'
-                            )}
-                          </span>
+                          <span>{l(contest.noOption?.label || 'No')}</span>
                         </BubbleMark>
                       </Text>
                     </React.Fragment>

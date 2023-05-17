@@ -8,7 +8,6 @@ const ballotPageMetadata: BallotPageMetadata = {
   electionHash: '0000000000', // fixed for resiliency to hash change
   precinctId: 'town-id-00701-precinct-id-',
   ballotStyleId: 'card-number-3',
-  locales: { primary: 'en-US' },
   isTestMode: true,
   pageNumber: 1,
   ballotType: BallotType.Standard,

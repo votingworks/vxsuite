@@ -109,7 +109,6 @@ test('generates a CVR from a completed BMD ballot', () => {
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
   const contests = getContests({ ballotStyle, election });
   const metadata: BallotMetadata = {
-    locales: { primary: 'en-US' },
     electionHash: electionDefinition.electionHash,
     ballotType: BallotType.Standard,
     ballotStyleId,
@@ -171,7 +170,6 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
   const contests = getContests({ ballotStyle, election });
   const metadata: BallotMetadata = {
-    locales: { primary: 'en-US' },
     electionHash: electionDefinition.electionHash,
     ballotType: BallotType.Standard,
     ballotStyleId,
@@ -239,7 +237,6 @@ test('generates a CVR from a completed HMPB page', () => {
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
   const contests = getContests({ ballotStyle, election });
   const metadata: BallotMetadata = {
-    locales: { primary: 'en-US' },
     electionHash: electionDefinition.electionHash,
     ballotType: BallotType.Standard,
     ballotStyleId,
@@ -337,7 +334,6 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
   const ballotStyle = getBallotStyle({ ballotStyleId, election })!;
   const contests = getContests({ ballotStyle, election });
   const metadata: BallotMetadata = {
-    locales: { primary: 'en-US' },
     electionHash: electionDefinition.electionHash,
     ballotType: BallotType.Standard,
     ballotStyleId,
@@ -382,7 +378,6 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
           type: 'InterpretedHmpbPage',
           ballotId,
           metadata: {
-            locales: { primary: 'en-US' },
             electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
@@ -439,7 +434,6 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
   const batchId = '1234';
   const batchLabel = 'Batch 1';
   const metadata: BallotMetadata = {
-    locales: { primary: 'en-US' },
     electionHash: electionDefinition.electionHash,
     ballotType: BallotType.Standard,
     ballotStyleId,
@@ -519,7 +513,6 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
   const batchId = '1234';
   const batchLabel = 'Batch 1';
   const metadata: BallotMetadata = {
-    locales: { primary: 'en-US' },
     electionHash: electionDefinition.electionHash,
     ballotType: BallotType.Standard,
     ballotStyleId,
@@ -598,7 +591,6 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
   const batchId = '1234';
   const batchLabel = 'Batch 1';
   const metadata: BallotMetadata = {
-    locales: { primary: 'en-US' },
     electionHash: electionDefinition.electionHash,
     ballotType: BallotType.Standard,
     ballotStyleId: '1',
@@ -675,7 +667,6 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
   const batchId = '1234';
   const batchLabel = 'Batch 1';
   const metadata: BallotMetadata = {
-    locales: { primary: 'en-US' },
     electionHash: electionDefinition.electionHash,
     ballotType: BallotType.Standard,
     ballotStyleId,
@@ -773,7 +764,6 @@ test('fails to generate CVRs from invalid test mode pages', () => {
         interpretation: {
           type: 'InvalidTestModePage',
           metadata: {
-            locales: { primary: 'en-US' },
             electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,

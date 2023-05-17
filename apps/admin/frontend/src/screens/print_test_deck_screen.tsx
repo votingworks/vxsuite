@@ -143,7 +143,6 @@ function getHandMarkedPaperBallotsWithOnReadyCallback({
           ballotMode="test"
           isAbsentee={false}
           precinctId={ballot.precinctId}
-          locales={{ primary: 'en-US' }}
           votes={ballot.votes}
           onRendered={onReady}
           key={`ballot-${i}`} // eslint-disable-line react/no-array-index-key

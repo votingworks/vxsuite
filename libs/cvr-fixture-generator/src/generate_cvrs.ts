@@ -229,7 +229,6 @@ export function* generateCvrs({
                 ballotType === CVR.vxBallotType.Absentee
                   ? BallotType.Absentee
                   : BallotType.Standard,
-              locales: { primary: 'en-US' },
               isTestMode: testMode,
             });
         if (ballotPageLayouts.length > 2) {

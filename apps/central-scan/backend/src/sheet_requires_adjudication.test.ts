@@ -20,9 +20,6 @@ const metadata: BallotMetadata = {
     electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
       .electionHash,
   isTestMode: false,
-  locales: {
-    primary: 'en-US',
-  },
   precinctId: '23',
 };
 const pageInterpretationBoilerplate: InterpretedHmpbPage = {
@@ -218,9 +215,6 @@ test('sheetRequiresAdjudication is happy with a BMD ballot', () => {
       electionHash: '41',
       precinctId: '12',
       ballotStyleId: '1',
-      locales: {
-        primary: 'en-US',
-      },
       isTestMode: true,
       ballotType: 0,
     },
