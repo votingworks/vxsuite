@@ -5,10 +5,6 @@ packages:
   - 'apps/*/backend'
   - 'apps/*/integration-testing'
 
-  # include all the frontends and their prodservers
-  - 'frontends/*'
-  - 'frontends/*/prodserver'
-
   # include all the services
   - 'services/*'
 
@@ -17,9 +13,6 @@ packages:
   - 'libs/@types/*'
   - 'libs/grout/*'
   - 'libs/dev-dock/*'
-
-  # include all integration tests
-  - 'integration-testing/*'
 
   # include top-level development project
   - 'codemods'
