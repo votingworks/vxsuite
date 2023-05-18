@@ -24,7 +24,7 @@ export class Uint32Coder extends UintCoder {
 
   constructor(
     enumeration?: unknown,
-    options: Uint32CoderOptions = { littleEndian: true }
+    { littleEndian = true }: Partial<Uint32CoderOptions> = {}
   ) {
     super(enumeration);
     this.littleEndian = options.littleEndian;
