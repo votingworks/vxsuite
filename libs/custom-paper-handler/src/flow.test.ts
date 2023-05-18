@@ -1,7 +1,7 @@
 import { sleep } from '@votingworks/basics';
 import waitForExpect from 'wait-for-expect';
 import makeDebug from 'debug';
-import { ballotFixture } from './ballot_fixture';
+import { ballotFixture } from '../test/fixtures';
 import { getPaperHandlerMachine } from './paper_handler_machine';
 
 const debug = makeDebug('paper-handler:test');
