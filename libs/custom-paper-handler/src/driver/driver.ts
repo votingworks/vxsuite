@@ -76,7 +76,7 @@ const GENERIC_ENDPOINT_IN = 1;
 const GENERIC_ENDPOINT_OUT = 2;
 const REAL_TIME_ENDPOINT_IN = 3;
 const REAL_TIME_ENDPOINT_OUT = 4;
-const PACKET_SIZE = 65536; // 0.5 MB, greater than the maximum observed size of scan data block. smaller and we slow down scanning results
+const PACKET_SIZE = 65536;
 
 // Common Bytes
 const START_OF_PACKET: Uint8 = 0x02;
