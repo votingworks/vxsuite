@@ -1,4 +1,4 @@
-import { err, resultBlock } from '@votingworks/basics';
+import { Result, err, ok, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { BaseCoder } from './base_coder';
 import { BITS_PER_BYTE, toByteOffset } from './bits';
@@ -6,6 +6,7 @@ import {
   BitLength,
   BitOffset,
   Coder,
+  CoderError,
   DecodeResult,
   EncodeResult,
   Uint2,
@@ -20,12 +21,21 @@ class Uint2Coder extends BaseCoder<Uint2> {
     super();
   }
 
+  canEncode(value: unknown): value is number {
+    return (
+      typeof value === 'number' &&
+      Number.isInteger(value) &&
+      this.minValue <= value &&
+      value <= this.maxValue
+    );
+  }
+
   default(): Uint2 {
     return defaultEnumValue(this.enumeration);
   }
 
-  bitLength(): BitLength {
-    return 2;
+  bitLength(): Result<BitLength, CoderError> {
+    return ok(2);
   }
 
   protected minValue = 0b00;
@@ -48,7 +58,7 @@ class Uint2Coder extends BaseCoder<Uint2> {
         return err('UnsupportedOffset');
       }
 
-      const shift = BITS_PER_BYTE - remainder - this.bitLength();
+      const shift = BITS_PER_BYTE - remainder - this.bitLength().okOrElse(fail);
       const mask = (1 << (shift + 1)) | (1 << shift);
       const byteOffset = toByteOffset(bitOffset - remainder).assertOk(
         'subtracting remainder, which was checked above, should yield a valid byte offset'
@@ -57,7 +67,7 @@ class Uint2Coder extends BaseCoder<Uint2> {
       const byte = buffer.readUInt8(byteOffset);
       const nextByte = (byte & ~mask) | ((validatedValue << shift) & mask);
       buffer.writeUInt8(nextByte, byteOffset);
-      return bitOffset + this.bitLength();
+      return bitOffset + this.bitLength().okOrElse(fail);
     });
   }
 
@@ -69,7 +79,7 @@ class Uint2Coder extends BaseCoder<Uint2> {
         return err('UnsupportedOffset');
       }
 
-      const shift = BITS_PER_BYTE - remainder - this.bitLength();
+      const shift = BITS_PER_BYTE - remainder - this.bitLength().okOrElse(fail);
       const mask = (1 << (shift + 1)) | (1 << shift);
       const byteOffset = toByteOffset(bitOffset - remainder).assertOk(
         'subtracting remainder, which was checked above, should yield a valid byte offset'
@@ -80,7 +90,7 @@ class Uint2Coder extends BaseCoder<Uint2> {
         this.enumeration,
         (byte & mask) >> shift
       ).okOrElse(fail);
-      return { value, bitOffset: bitOffset + this.bitLength() };
+      return { value, bitOffset: bitOffset + this.bitLength().okOrElse(fail) };
     });
   }
 }

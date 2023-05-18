@@ -1,4 +1,4 @@
-import { err, ok } from '@votingworks/basics';
+import { Result, err, ok, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { BaseCoder } from './base_coder';
 import { BITS_PER_BYTE, bufferContainsBitOffset, toByteOffset } from './bits';
@@ -6,6 +6,7 @@ import {
   BitLength,
   BitOffset,
   Coder,
+  CoderError,
   DecodeResult,
   EncodeResult,
 } from './types';
@@ -14,12 +15,16 @@ import {
  * Coder for a uint1, aka a boolean.
  */
 export class Uint1Coder extends BaseCoder<boolean> {
+  canEncode(value: unknown): value is boolean {
+    return typeof value === 'boolean';
+  }
+
   default(): boolean {
     return false;
   }
 
-  bitLength(): BitLength {
-    return 1;
+  bitLength(): Result<BitLength, CoderError> {
+    return ok(1);
   }
 
   encodeInto(
@@ -27,34 +32,53 @@ export class Uint1Coder extends BaseCoder<boolean> {
     buffer: Buffer,
     bitOffset: BitOffset
   ): EncodeResult {
-    if (!bufferContainsBitOffset(buffer, bitOffset, this.bitLength())) {
-      return err('SmallBuffer');
-    }
+    return resultBlock((fail) => {
+      if (
+        !bufferContainsBitOffset(
+          buffer,
+          bitOffset,
+          this.bitLength().okOrElse(fail)
+        )
+      ) {
+        return err('SmallBuffer');
+      }
 
-    const remainder = bitOffset % BITS_PER_BYTE;
-    const byteOffset = toByteOffset(bitOffset - remainder).assertOk(
-      'subtracting remainder, which was checked above, should yield a valid byte offset'
-    );
-    const mask = 0x80 >> remainder;
-    const byte = buffer.readUInt8(byteOffset);
-    const nextByte = (byte & ~mask) | ((value ? 1 : 0) << (7 - remainder));
-    buffer.writeUInt8(nextByte, byteOffset);
-    return ok(bitOffset + this.bitLength());
+      const remainder = bitOffset % BITS_PER_BYTE;
+      const byteOffset = toByteOffset(bitOffset - remainder).assertOk(
+        'subtracting remainder, which was checked above, should yield a valid byte offset'
+      );
+      const mask = 0x80 >> remainder;
+      const byte = buffer.readUInt8(byteOffset);
+      const nextByte = (byte & ~mask) | ((value ? 1 : 0) << (7 - remainder));
+      buffer.writeUInt8(nextByte, byteOffset);
+      return bitOffset + this.bitLength().okOrElse(fail);
+    });
   }
 
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<boolean> {
-    if (!bufferContainsBitOffset(buffer, bitOffset, this.bitLength())) {
-      return err('SmallBuffer');
-    }
+    return resultBlock((fail) => {
+      if (
+        !bufferContainsBitOffset(
+          buffer,
+          bitOffset,
+          this.bitLength().okOrElse(fail)
+        )
+      ) {
+        return err('SmallBuffer');
+      }
 
-    const remainder = bitOffset % BITS_PER_BYTE;
-    const byteOffset = toByteOffset(bitOffset - remainder).assertOk(
-      'subtracting remainder, which was checked above, should yield a valid byte offset'
-    );
-    const mask = 0x80 >> remainder;
-    const byte = buffer.readUInt8(byteOffset);
-    const value = !!(byte & mask);
-    return ok({ value, bitOffset: bitOffset + this.bitLength() });
+      const remainder = bitOffset % BITS_PER_BYTE;
+      const byteOffset = toByteOffset(bitOffset - remainder).assertOk(
+        'subtracting remainder, which was checked above, should yield a valid byte offset'
+      );
+      const mask = 0x80 >> remainder;
+      const byte = buffer.readUInt8(byteOffset);
+      const value = !!(byte & mask);
+      return {
+        value,
+        bitOffset: bitOffset + this.bitLength().okOrElse(fail),
+      };
+    });
   }
 }
 

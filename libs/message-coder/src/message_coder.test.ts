@@ -5,13 +5,17 @@ import { literal } from './literal_coder';
 import { CoderType, message } from './message_coder';
 import { DecodeResult } from './types';
 import { uint8 } from './uint8_coder';
+import { padding } from './padding_coder';
 
 test('empty message', () => {
   const m = message({});
   type m = CoderType<typeof m>;
 
+  expect(m.canEncode(null)).toEqual(false);
+  expect(m.canEncode(undefined)).toEqual(false);
+  expect(m.canEncode({})).toEqual(true);
   expect(m.default()).toEqual({});
-  expect(m.bitLength({})).toEqual(0);
+  expect(m.bitLength({})).toEqual(ok(0));
   expect(m.encode({})).toEqual(ok(Buffer.alloc(0)));
   expect(m.decode(Buffer.alloc(0))).toEqual(typedAs<m>(ok({})));
 
@@ -26,8 +30,9 @@ test('message with single literal', () => {
   const m = message({ header: literal('PDF') });
   type m = CoderType<typeof m>;
 
-  expect(m.default()).toEqual({});
-  expect(m.bitLength({})).toEqual(24);
+  expect(m.canEncode({})).toEqual(true);
+  expect(m.default()).toEqual({ header: ['PDF'] });
+  expect(m.bitLength({})).toEqual(ok(24));
   expect(m.encode({ header: 'PDF' })).toEqual(ok(Buffer.from('PDF')));
   expect(m.decode(Buffer.from('PDF'))).toEqual(ok(typedAs<m>({})));
   expect(m.decode(Buffer.from('DFP'))).toEqual(err('InvalidValue'));
@@ -35,8 +40,10 @@ test('message with single literal', () => {
 
 test('message with single uint8', () => {
   const m = message({ version: uint8() });
+  expect(m.canEncode({ version: 1 })).toEqual(true);
+  expect(m.canEncode({})).toEqual(false);
   expect(m.default()).toEqual({ version: 0 });
-  expect(m.bitLength({ version: 1 })).toEqual(8);
+  expect(m.bitLength({ version: 1 })).toEqual(ok(8));
   expect(m.encode({ version: 1 })).toEqual(ok(Buffer.from([1])));
   expect(m.decode(Buffer.from([1]))).toEqual(ok({ version: 1 }));
 });
@@ -47,8 +54,8 @@ test('message with multiple fields', () => {
     version: uint8(),
     flags: uint8(),
   });
-  expect(m.default()).toEqual({ version: 0, flags: 0 });
-  expect(m.bitLength({ version: 1, flags: 2 })).toEqual(40);
+  expect(m.default()).toEqual({ header: ['PDF'], version: 0, flags: 0 });
+  expect(m.bitLength({ version: 1, flags: 2 })).toEqual(ok(40));
   expect(m.encode({ version: 1, flags: 2 })).toEqual(
     // 0x01 = version, 0x02 = flags
     ok(Buffer.from('PDF\x01\x02'))
@@ -56,6 +63,30 @@ test('message with multiple fields', () => {
   // 0x01 = version, 0x02 = flags
   expect(m.decode(Buffer.from('PDF\x01\x02'))).toEqual(
     ok({ version: 1, flags: 2 })
+  );
+});
+
+test('message with padding', () => {
+  const m = message({
+    field1: uint8(),
+    field2: padding(16),
+    field3: uint8(),
+  });
+  expect(m.canEncode({ field1: 1, field3: 2 })).toEqual(true);
+  expect(m.canEncode({})).toEqual(false);
+  // include `field2` for code coverage purposes
+  expect(m.canEncode({ field1: 1, field2: undefined, field3: 2 })).toEqual(
+    true
+  );
+  expect(m.default()).toEqual({ field1: 0, field3: 0 });
+  expect(m.bitLength({ field1: 1, field3: 2 })).toEqual(ok(8 + 16 + 8));
+  expect(m.encode({ field1: 1, field3: 2 })).toEqual(
+    // 0x01 = field1, 0x00 0x00 = padding, 0x02 = field3
+    ok(Buffer.from([0x01, 0x00, 0x00, 0x02]))
+  );
+  // 0x01 = field1, 0x00 0x00 = padding, 0x02 = field3
+  expect(m.decode(Buffer.from([0x01, 0x00, 0x00, 0x02]))).toEqual(
+    ok({ field1: 1, field3: 2 })
   );
 });
 
@@ -102,11 +133,13 @@ test('id3v1 tag', () => {
   const decodeResult = id3v1.decode(encodeResult.assertOk('encode failed'));
   expect(decodeResult).toEqual(ok(tag));
   expect(id3v1.default()).toEqual({
+    header: ['TAG'],
     title: '',
     artist: '',
     album: '',
     year: '',
     comment: '',
+    zeroByte: [0],
     track: 0,
     genre: 0,
   });

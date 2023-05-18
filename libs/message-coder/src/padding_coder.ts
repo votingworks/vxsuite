@@ -1,8 +1,14 @@
-import { err, ok } from '@votingworks/basics';
+import { Result, err, ok } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { BaseCoder } from './base_coder';
 import { bufferContainsBitOffset } from './bits';
-import { BitOffset, DecodeResult, EncodeResult } from './types';
+import {
+  BitLength,
+  BitOffset,
+  CoderError,
+  DecodeResult,
+  EncodeResult,
+} from './types';
 
 /**
  * Occupies bits in the buffer without encoding or decoding any data.
@@ -12,12 +18,16 @@ export class PaddingCoder extends BaseCoder<void> {
     super();
   }
 
+  canEncode(value: unknown): value is void {
+    return value === undefined;
+  }
+
   default(): void {
     return undefined;
   }
 
-  bitLength(): number {
-    return this.paddingBitsLength;
+  bitLength(): Result<BitLength, CoderError> {
+    return ok(this.paddingBitsLength);
   }
 
   encodeInto(_value: void, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
@@ -33,7 +43,7 @@ export class PaddingCoder extends BaseCoder<void> {
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<void> {
     const nextOffset = bitOffset + this.paddingBitsLength;
 
-    if (!bufferContainsBitOffset(buffer, nextOffset, this.paddingBitsLength)) {
+    if (!bufferContainsBitOffset(buffer, nextOffset)) {
       return err('SmallBuffer');
     }
 

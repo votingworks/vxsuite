@@ -60,7 +60,9 @@ test('uint32 with enumeration', () => {
   }
 
   const field = uint32<Enum>(Enum);
-  expect(field.bitLength(Enum.A)).toEqual(32);
+  expect(field.canEncode(Enum.A)).toEqual(true);
+  expect(field.canEncode(99)).toEqual(false);
+  expect(field.bitLength(Enum.A)).toEqual(ok(32));
   expect(field.encode(Enum.A)).toEqual(ok(Buffer.from([1, 0, 0, 0])));
   expect(field.decode(Buffer.from([1, 0, 0, 0]))).toEqual(ok(Enum.A));
   expect(field.encode(99)).toEqual(err('InvalidValue'));

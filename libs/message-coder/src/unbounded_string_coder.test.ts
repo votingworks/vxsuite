@@ -6,16 +6,19 @@ import { unboundedString } from './unbounded_string_coder';
 
 test('unbounded string', () => {
   const coder = unboundedString();
+  expect(coder.canEncode('')).toEqual(true);
+  expect(coder.canEncode('hello')).toEqual(true);
+  expect(coder.canEncode(undefined)).toEqual(false);
   expect(coder.default()).toEqual('');
-  expect(coder.bitLength('hello')).toEqual(5 * 8);
+  expect(coder.bitLength('hello')).toEqual(ok(5 * 8));
   expect(coder.encode('hello')).toEqual(ok(Buffer.from('hello')));
   expect(coder.decode(Buffer.from('hello'))).toEqual(ok('hello'));
 });
 
 test('unbounded string inside a message', () => {
   const m = message({ header: literal('CDAT'), data: unboundedString() });
-  expect(m.default()).toEqual({ data: '' });
-  expect(m.bitLength({ data: 'hello' })).toEqual(32 + 5 * 8);
+  expect(m.default()).toEqual({ header: ['CDAT'], data: '' });
+  expect(m.bitLength({ data: 'hello' })).toEqual(ok(32 + 5 * 8));
   expect(m.encode({ data: 'hello' })).toEqual(ok(Buffer.from('CDAThello')));
   expect(m.decode(Buffer.from('CDAThello'))).toEqual(ok({ data: 'hello' }));
 });

@@ -1,25 +1,41 @@
-import { resultBlock } from '@votingworks/basics';
+import { Result, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { BaseCoder } from './base_coder';
 import { LiteralCoder } from './literal_coder';
 import { PaddingCoder } from './padding_coder';
-import { BitOffset, Coder, DecodeResult, EncodeResult } from './types';
+import {
+  BitLength,
+  BitOffset,
+  Coder,
+  CoderError,
+  DecodeResult,
+  EncodeResult,
+} from './types';
 
 /**
  * Parts of a message coder.
  */
 type MessageCoderParts<T> = {
-  [K in keyof T]: Coder<T[K]> | LiteralCoder | PaddingCoder;
+  [K in keyof T]:
+    | Coder<T[K]>
+    | LiteralCoder<Array<string | number | Buffer>>
+    | PaddingCoder;
 };
 type PropsMatching<T, V> = {
   [P in keyof T]: T[P] extends V ? P : never;
 }[keyof T];
 type FilterOut<T, V> = Omit<T, PropsMatching<T, V>>;
+type MakeOptional<T, V> = Omit<T, PropsMatching<T, V>> &
+  Partial<Pick<T, PropsMatching<T, V>>>;
 
 /**
  * Gets the type encoded by a coder.
  */
-export type CoderType<T> = T extends Coder<infer U> ? U : never;
+export type CoderType<T> = T extends Coder<infer U>
+  ? U
+  : T extends [infer Head, ...infer Tail]
+  ? CoderType<Head> | CoderType<Tail>
+  : never;
 
 /**
  * Gets the object type encoded by a message coder's parts.
@@ -31,7 +47,12 @@ type CoderPartsOperand<T> = T extends MessageCoderParts<infer U> ? U : never;
  * contribute to the JS object.
  */
 type CoderFromParts<T> = Coder<
-  CoderPartsOperand<FilterOut<T, LiteralCoder | PaddingCoder>>
+  CoderPartsOperand<
+    MakeOptional<
+      FilterOut<T, PaddingCoder>,
+      LiteralCoder<Array<string | number | Buffer>>
+    >
+  >
 >;
 
 /**
@@ -73,27 +94,45 @@ class MessageCoder<P extends MessageCoderParts<object>>
     super();
   }
 
+  canEncode(value: unknown): value is ObjectFromParts<P> {
+    if (typeof value !== 'object' || value === null) {
+      return false;
+    }
+    for (const [k, v] of Object.entries(this.parts)) {
+      const coder = v as Coder<ObjectFromParts<P>[keyof ObjectFromParts<P>]>;
+      if (coder instanceof PaddingCoder) {
+        continue;
+      }
+
+      if (!coder.canEncode((value as ObjectFromParts<P>)[k])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   default(): ObjectFromParts<P> {
     const result: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(this.parts)) {
       const coder = v as Coder<ObjectFromParts<P>[keyof ObjectFromParts<P>]>;
-      if (
-        !(coder instanceof LiteralCoder) &&
-        !(coder instanceof PaddingCoder)
-      ) {
-        result[k] = coder.default();
+      if (coder instanceof PaddingCoder) {
+        continue;
       }
+
+      result[k] = coder.default();
     }
     return result as ObjectFromParts<P>;
   }
 
-  bitLength(value: ObjectFromParts<P>): number {
-    let length = 0;
-    for (const [k, v] of Object.entries(this.parts)) {
-      const coder = v as Coder<ObjectFromParts<P>[keyof ObjectFromParts<P>]>;
-      length += coder.bitLength(value[k]);
-    }
-    return length;
+  bitLength(value: ObjectFromParts<P>): Result<BitLength, CoderError> {
+    return resultBlock((fail) => {
+      let length = 0;
+      for (const [k, v] of Object.entries(this.parts)) {
+        const coder = v as Coder<ObjectFromParts<P>[keyof ObjectFromParts<P>]>;
+        length += coder.bitLength(value[k]).okOrElse(fail);
+      }
+      return length;
+    });
   }
 
   encodeInto(
@@ -107,7 +146,7 @@ class MessageCoder<P extends MessageCoderParts<object>>
       for (const [k, v] of Object.entries(this.parts)) {
         const coder = v as Coder<ObjectFromParts<P>[keyof ObjectFromParts<P>]>;
         bitOffset = (
-          coder instanceof LiteralCoder || coder instanceof PaddingCoder
+          coder instanceof PaddingCoder
             ? coder.encodeInto(undefined, buffer, bitOffset)
             : coder.encodeInto(value[k], buffer, bitOffset)
         ).okOrElse(fail);

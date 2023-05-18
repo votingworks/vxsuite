@@ -10,6 +10,9 @@ test('uint1 offset=0', () => {
   type coder = CoderType<typeof coder>;
   const buffer = Buffer.alloc(1);
   const bitOffset = 0;
+  expect(coder.canEncode(true)).toEqual(true);
+  expect(coder.canEncode(false)).toEqual(true);
+  expect(coder.canEncode(0)).toEqual(false);
   expect(coder.default()).toEqual(false);
   expect(coder.encodeInto(true, buffer, bitOffset)).toEqual(ok(bitOffset + 1));
   expect(buffer.readUInt8(0)).toEqual(0b10000000);

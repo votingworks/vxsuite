@@ -8,6 +8,11 @@ import { uint2 } from './uint2_coder';
 test('uint2 simple', () => {
   const coder = uint2();
 
+  expect(coder.canEncode(0)).toEqual(true);
+  expect(coder.canEncode(1)).toEqual(true);
+  expect(coder.canEncode(2)).toEqual(true);
+  expect(coder.canEncode(3)).toEqual(true);
+  expect(coder.canEncode(4)).toEqual(false);
   expect(coder.default()).toEqual(0);
 
   // encode/decode

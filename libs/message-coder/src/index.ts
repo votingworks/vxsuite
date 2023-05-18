@@ -6,6 +6,7 @@ export * from './equality';
 export * from './fixed_string';
 export * from './literal_coder';
 export * from './message_coder';
+export * from './one_of_coder';
 export * from './padding_coder';
 export * from './types';
 export * from './uint16_coder';
