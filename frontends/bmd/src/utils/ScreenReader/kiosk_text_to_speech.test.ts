@@ -13,6 +13,7 @@ it('speaks an utterance when given text to speak', async () => {
   await tts.speak('hello world');
   expect(window.kiosk.cancelSpeak).toHaveBeenCalled();
   expect(window.kiosk.speak).toHaveBeenCalledWith('hello world', {
+    cacheOnly: false,
     volume: 44,
   });
 });
@@ -33,6 +34,7 @@ it('is unmuted by default, which means utterances are spoken', async () => {
   expect(tts.isMuted()).toBe(false);
   await tts.speak('hello world');
   expect(window.kiosk.speak).toHaveBeenCalledWith('hello world', {
+    cacheOnly: false,
     volume: 44,
   });
 });
@@ -55,6 +57,7 @@ it('can be muted and then unmuted, which means utterances are spoken', async () 
   tts.unmute();
   await tts.speak('hello world');
   expect(window.kiosk.speak).toHaveBeenCalledWith('hello world', {
+    cacheOnly: false,
     volume: 44,
   });
 });
@@ -88,6 +91,7 @@ it('changeVolume cycles through volumes and announces the change', async () => {
   // check initial volume
   await tts.speak('hello world');
   expect(window.kiosk.speak).toHaveBeenCalledWith('hello world', {
+    cacheOnly: false,
     volume: 44,
   });
 
@@ -98,6 +102,7 @@ it('changeVolume cycles through volumes and announces the change', async () => {
       expect(window.kiosk!.speak).toHaveBeenLastCalledWith(
         `Increased volume to ${i} out of 10.`,
         {
+          cacheOnly: false,
           volume: 20 + i * 8,
         }
       );
@@ -107,6 +112,7 @@ it('changeVolume cycles through volumes and announces the change', async () => {
   // check that changed volume applies to other requests
   await tts.speak('hello world');
   expect(window.kiosk.speak).toHaveBeenLastCalledWith('hello world', {
+    cacheOnly: false,
     volume: 100,
   });
 
@@ -117,6 +123,7 @@ it('changeVolume cycles through volumes and announces the change', async () => {
       expect(window.kiosk!.speak).toHaveBeenLastCalledWith(
         `Decreased volume to ${i} out of 10.`,
         {
+          cacheOnly: false,
           volume: 20 + i * 8,
         }
       );
@@ -130,6 +137,7 @@ it('changeVolume cycles through volumes and announces the change', async () => {
       expect(window.kiosk!.speak).toHaveBeenLastCalledWith(
         `Increased volume to ${i} out of 10.`,
         {
+          cacheOnly: false,
           volume: 20 + i * 8,
         }
       );

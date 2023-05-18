@@ -31,20 +31,24 @@ export class KioskTextToSpeech implements TextToSpeech {
    * Directly triggers speech of text. Resolves when speaking is finished
    * or cancelled.
    */
-  async speak(text: string, { now = true }: SpeakOptions = {}): Promise<void> {
+  async speak(
+    text: string,
+    { now = true, cacheOnly = false }: SpeakOptions = {}
+  ): Promise<void> {
     assert(now, 'method "speak"  with "options.now = false" is not supported');
     assert(window.kiosk);
 
-    if (this.isMuted()) {
+    if (!cacheOnly && this.isMuted()) {
       return;
     }
 
-    if (now) {
+    if (!cacheOnly && now) {
       await window.kiosk.cancelSpeak();
     }
 
     await window.kiosk.speak(text, {
       volume: incrementToVolume(this.volumeIncrement),
+      cacheOnly,
     });
   }
 

@@ -16,9 +16,11 @@ import {
   PrecinctId,
   BallotStyleId,
   PrecinctSelection,
+  getCandidatePartiesDescription,
 } from '@votingworks/types';
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder';
 import 'normalize.css';
+import pluralize from 'pluralize';
 
 import Gamepad from 'react-gamepad';
 import { useHistory } from 'react-router-dom';
@@ -50,6 +52,7 @@ import {
   CARD_POLLING_INTERVAL,
   UnlockMachineScreen,
 } from '@votingworks/ui';
+import { stripQuotes } from './utils/strip_quotes';
 import { Ballot } from './components/ballot';
 import * as GLOBALS from './config/globals';
 import {
@@ -535,8 +538,96 @@ export function AppRoot({
     /* istanbul ignore else */
     if (newElectionDefinition) {
       updateElectionDefinition(newElectionDefinition);
+
+      void (async () => {
+        const { election } = newElectionDefinition;
+        try {
+          const genericStrings = [
+            'When voting with the text-to-speech audio, use the accessible controller to navigate your ballot.',
+            'To navigate through the contests, use the left and right buttons.',
+            'To navigate through contest choices, use the up and down buttons.',
+            'To select or unselect a contest choice as your vote, use the select button.',
+            'Press the right button to advance to the first contest.',
+            'To move to the next contest, use the right button.',
+            // reviewing
+            'Review Your Votes.',
+            'To review your votes, advance through the ballot contests using the up and down buttons.',
+            'To change your vote in any contest, use the select button to navigate to that contest.',
+            'When you are finished making your ballot selections and ready to print your ballot, use the right button to print your ballot.',
+            'You may still vote in this contest.',
+            'Press the select button to change your votes for this contest.',
+            // printing
+            'Printing your official ballot.',
+            "You're almost done.",
+            'Your official ballot is printing.',
+            'To finish voting you need to....',
+            '1.',
+            'Verify your official ballot.',
+            '2.',
+            'Scan your official ballot.',
+            'Need help? Ask a poll worker.',
+          ];
+
+          for (let i = 0; i < genericStrings.length; i += 1) {
+            await screenReader.speak(genericStrings[i], { cacheOnly: true });
+          }
+
+          await screenReader.speak(
+            `Your ballot has ${pluralize(
+              'contest',
+              election.contests.length,
+              true
+            )}.`,
+            { cacheOnly: true }
+          );
+
+          // all the parties
+          await screenReader.speak(`${election.title}.`, { cacheOnly: true });
+          await screenReader.speak(`Republican ${election.title}.`, {
+            cacheOnly: true,
+          });
+          await screenReader.speak(`Democratic ${election.title}.`, {
+            cacheOnly: true,
+          });
+
+          // contests
+          for (const contest of election.contests) {
+            if (contest.type === 'candidate') {
+              await screenReader.speak(`${contest.section} ${contest.title}.`, {
+                cacheOnly: true,
+              });
+              await screenReader.speak(`Vote for ${contest.seats}.`, {
+                cacheOnly: true,
+              });
+
+              for (const candidate of contest.candidates) {
+                const partiesDescription = getCandidatePartiesDescription(
+                  election,
+                  candidate
+                );
+
+                for (const prefixAudioText of [
+                  '',
+                  'Selected,',
+                  'Deselected,',
+                ]) {
+                  await screenReader.speak(
+                    `${prefixAudioText} ${stripQuotes(candidate.name)}${
+                      partiesDescription ? `, ${partiesDescription}` : ''
+                    }.`,
+                    { cacheOnly: true }
+                  );
+                }
+              }
+            }
+          }
+        } finally {
+          // if something fails in loading the voices, whatever it may be,
+          // gotta recover at least so you can vote.
+        }
+      })();
     }
-  }, [getElectionDefinitionFromCard, updateElectionDefinition]);
+  }, [screenReader, getElectionDefinitionFromCard, updateElectionDefinition]);
 
   const activateCardlessBallot = useCallback(
     (sessionPrecinctId: PrecinctId, sessionBallotStyleId: BallotStyleId) => {

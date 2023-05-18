@@ -45,7 +45,7 @@ export function CastBallotPage({
     <Screen white>
       <Main centerChild>
         <Prose textCenter maxWidth={false} id="audiofocus">
-          <h1 aria-label="You’re almost done.">You’re Almost Done</h1>
+          <h1 aria-label="You're almost done.">You’re Almost Done</h1>
           <p>Your official ballot is printing. To finish voting you need to…</p>
           <Instructions>
             <li>
