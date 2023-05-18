@@ -5,7 +5,7 @@ import { readFile, symlink, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { Readable } from 'stream';
 import { DirResult, dirSync } from 'tmp';
-import { Exporter, ExportFileResult } from './exporter';
+import { Exporter, ExportDataResult } from './exporter';
 import { UsbDrive } from './get_usb_drives';
 import { execFile } from './utils/exec';
 
@@ -105,7 +105,7 @@ test('exportData with a symbolic link', async () => {
   await writeFile(existingPath, 'bar');
   await symlink(existingPath, linkPath);
   const result = await exporter.exportData(linkPath, 'bar');
-  expect(result).toEqual<ExportFileResult>(
+  expect(result).toEqual<ExportDataResult>(
     err({
       type: 'permission-denied',
       message: expect.stringContaining('Path must not contain symbolic links'),

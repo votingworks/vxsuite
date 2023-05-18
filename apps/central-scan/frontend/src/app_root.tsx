@@ -53,7 +53,9 @@ import {
   checkPin,
   configureFromBallotPackageOnUsbDrive,
   getAuthStatus,
+  getTestMode,
   logOut,
+  setTestMode,
 } from './api';
 
 const Buttons = styled.div`
@@ -77,7 +79,6 @@ export function AppRoot({
   const [electionDefinition, setElectionDefinition] =
     useState<ElectionDefinition>();
   const [electionJustLoaded, setElectionJustLoaded] = useState(false);
-  const [isTestMode, setTestMode] = useState(false);
   const [isTogglingTestMode, setTogglingTestMode] = useState(false);
   const [status, setStatus] = useState<Scan.GetScanStatusResponse>({
     canUnconfigure: true,
@@ -109,6 +110,10 @@ export function AppRoot({
   const checkPinMutation = checkPin.useMutation();
   const logOutMutation = logOut.useMutation();
 
+  const getTestModeQuery = getTestMode.useQuery();
+  const isTestMode = getTestModeQuery.data ?? false;
+  const setTestModeMutation = setTestMode.useMutation();
+
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);
 
   const [markThresholds, setMarkThresholds] =
@@ -124,7 +129,6 @@ export function AppRoot({
 
   const refreshConfig = useCallback(async () => {
     setElectionDefinition(await config.getElectionDefinition());
-    setTestMode(await config.getTestMode());
     setMarkThresholds(await config.getMarkThresholdOverrides());
     await logger.log(LogEventId.ScannerConfigReloaded, userRole, {
       message:
@@ -422,8 +426,7 @@ export function AppRoot({
           isTestMode ? 'Official' : 'Test'
         } Ballot Mode...`,
       });
-      await config.setTestMode(!isTestMode);
-      await refreshConfig();
+      await setTestModeMutation.mutateAsync({ testMode: !isTestMode });
       await logger.log(LogEventId.ToggledTestMode, userRole, {
         disposition: 'success',
         message: `Successfully toggled to ${
@@ -443,7 +446,7 @@ export function AppRoot({
     } finally {
       setTogglingTestMode(false);
     }
-  }, [history, isTestMode, refreshConfig, logger, userRole]);
+  }, [logger, userRole, isTestMode, setTestModeMutation, history]);
 
   const setMarkThresholdOverrides = useCallback(
     async (markThresholdOverrides?: MarkThresholds) => {

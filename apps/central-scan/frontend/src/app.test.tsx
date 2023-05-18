@@ -125,10 +125,7 @@ export async function authenticateAsElectionManager(
 test('renders without crashing', async () => {
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
-    status: 'ok',
-    testMode: true,
-  };
+  mockApiClient.getTestMode.expectCallWith().resolves(true);
   const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
@@ -136,9 +133,6 @@ test('renders without crashing', async () => {
   fetchMock
     .getOnce('/central-scanner/config/election', {
       body: getElectionResponseBody,
-    })
-    .getOnce('/central-scanner/config/testMode', {
-      body: getTestModeResponseBody,
     })
     .getOnce('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
@@ -152,17 +146,13 @@ test('renders without crashing', async () => {
 test('shows a "test ballot mode" button if the app is in Official Ballot Mode', async () => {
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
-    status: 'ok',
-    testMode: false,
-  };
+  mockApiClient.getTestMode.expectCallWith().resolves(false);
   const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
     };
   fetchMock
     .get('/central-scanner/config/election', { body: getElectionResponseBody })
-    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
     .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     });
@@ -179,17 +169,13 @@ test('shows a "test ballot mode" button if the app is in Official Ballot Mode', 
 test('shows an "official ballot mode" button if the app is in Test Mode', async () => {
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
-    status: 'ok',
-    testMode: true,
-  };
+  mockApiClient.getTestMode.expectCallWith().resolves(true);
   const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
     };
   fetchMock
     .get('/central-scanner/config/election', { body: getElectionResponseBody })
-    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
     .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     });
@@ -210,10 +196,7 @@ test('shows an "official ballot mode" button if the app is in Test Mode', async 
 test('clicking Scan Batch will scan a batch', async () => {
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
-    status: 'ok',
-    testMode: true,
-  };
+  mockApiClient.getTestMode.expectCallWith().resolves(true);
   const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
@@ -224,7 +207,6 @@ test('clicking Scan Batch will scan a batch', async () => {
   };
   fetchMock
     .get('/central-scanner/config/election', { body: getElectionResponseBody })
-    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
     .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     })
@@ -262,10 +244,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
 
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
-    status: 'ok',
-    testMode: true,
-  };
+  mockApiClient.getTestMode.expectCallWith().resolves(true);
   const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
@@ -285,7 +264,6 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   };
   fetchMock
     .get('/central-scanner/config/election', { body: getElectionResponseBody })
-    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
     .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     })
@@ -320,25 +298,15 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
 
 // bad cleanup
 test('configuring election from usb ballot package works end to end', async () => {
-  const getTestModeConfigResponse: Scan.GetTestModeConfigResponse = {
-    status: 'ok',
-    testMode: true,
-  };
+  mockApiClient.getTestMode.expectCallWith().resolves(true);
   const getMarkThresholdOverridesResponse: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
     };
   fetchMock
     .get('/central-scanner/config/election', { body: 'null' })
-    .get('/central-scanner/config/testMode', {
-      body: getTestModeConfigResponse,
-    })
     .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponse,
-    })
-    .patchOnce('/central-scanner/config/testMode', {
-      body: '{"status": "ok"}',
-      status: 200,
     })
     .patchOnce('/central-scanner/config/election', {
       body: '{"status": "ok"}',
@@ -362,15 +330,9 @@ test('configuring election from usb ballot package works end to end', async () =
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   expectConfigureFromBallotPackageOnUsbDrive();
 
-  fetchMock
-    .get('/central-scanner/config/election', electionSampleDefinition, {
-      overwriteRoutes: true,
-    })
-    .getOnce(
-      '/central-scanner/config/testMode',
-      { status: 'ok', testMode: true },
-      { overwriteRoutes: true }
-    );
+  fetchMock.get('/central-scanner/config/election', electionSampleDefinition, {
+    overwriteRoutes: true,
+  });
 
   await act(async () => {
     await sleep(500);
@@ -390,13 +352,6 @@ test('configuring election from usb ballot package works end to end', async () =
     .getOnce('/central-scanner/config/election', JSON.stringify(null), {
       overwriteRoutes: true,
     })
-    .getOnce(
-      '/central-scanner/config/testMode',
-      { body: getTestModeConfigResponse },
-      {
-        overwriteRoutes: true,
-      }
-    )
     .deleteOnce('/central-scanner/config/election', {
       body: '{"status": "ok"}',
       status: 200,
@@ -423,10 +378,7 @@ test('authentication works', async () => {
   hardware.setBatchScannerConnected(false);
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
-    status: 'ok',
-    testMode: true,
-  };
+  mockApiClient.getTestMode.expectCallWith().resolves(true);
   const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
@@ -434,7 +386,6 @@ test('authentication works', async () => {
 
   fetchMock
     .get('/central-scanner/config/election', { body: getElectionResponseBody })
-    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
     .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     });
@@ -533,10 +484,7 @@ test('authentication works', async () => {
 test('system administrator can log in and unconfigure machine', async () => {
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
-    status: 'ok',
-    testMode: true,
-  };
+  mockApiClient.getTestMode.expectCallWith().resolves(true);
   const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
@@ -547,7 +495,6 @@ test('system administrator can log in and unconfigure machine', async () => {
 
   fetchMock
     .get('/central-scanner/config/election', { body: getElectionResponseBody })
-    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
     .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     })
@@ -584,16 +531,12 @@ test('system administrator can log in and unconfigure machine', async () => {
 test('election manager cannot auth onto machine with different election hash', async () => {
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
-    status: 'ok',
-    testMode: true,
-  };
+  mockApiClient.getTestMode.expectCallWith().resolves(true);
   const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     { status: 'ok' };
 
   fetchMock
     .get('/central-scanner/config/election', { body: getElectionResponseBody })
-    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
     .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     });
@@ -615,16 +558,12 @@ test('election manager cannot auth onto machine with different election hash', a
 test('error boundary', async () => {
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
-    status: 'ok',
-    testMode: true,
-  };
+  mockApiClient.getTestMode.expectCallWith().resolves(true);
   const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     { status: 'ok' };
 
   fetchMock
     .get('/central-scanner/config/election', { body: getElectionResponseBody })
-    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
     .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     });

@@ -350,9 +350,6 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.7
         version: 5.1.9
-      '@votingworks/api':
-        specifier: workspace:*
-        version: link:../../../libs/api
       '@votingworks/ballot-encoder':
         specifier: workspace:*
         version: link:../../../libs/ballot-encoder

@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { err, ok, Result } from '@votingworks/basics';
 import { mkdir, writeFile } from 'fs/promises';
 import { any } from 'micromatch';
@@ -26,32 +25,9 @@ export type ExportDataError =
   | { type: 'missing-usb-drive'; message: string };
 
 /**
- * Schema for {@link ExportDataError}.
+ * Result of exporting data to the file system.
  */
-export const ExportFileErrorSchema: z.ZodSchema<ExportDataError> =
-  z.discriminatedUnion('type', [
-    z.object({
-      type: z.literal('relative-file-path'),
-      message: z.string(),
-    }),
-    z.object({
-      type: z.literal('permission-denied'),
-      message: z.string(),
-    }),
-    z.object({
-      type: z.literal('file-system-error'),
-      message: z.string(),
-    }),
-    z.object({
-      type: z.literal('missing-usb-drive'),
-      message: z.string(),
-    }),
-  ]);
-
-/**
- * Result of exporting a file to the file system.
- */
-export type ExportFileResult = Result<string[], ExportDataError>;
+export type ExportDataResult = Result<string[], ExportDataError>;
 
 /** Settings for the {@link Exporter}. */
 export interface ExporterSettings {
@@ -89,7 +65,7 @@ export class Exporter {
     }: {
       maximumFileSize?: number;
     } = {}
-  ): Promise<ExportFileResult> {
+  ): Promise<ExportDataResult> {
     const getSafePathResult = this.getSafePathForWriting(path);
 
     if (getSafePathResult.isErr()) {
@@ -139,7 +115,7 @@ export class Exporter {
     }: {
       maximumFileSize?: number;
     } = {}
-  ): Promise<ExportFileResult> {
+  ): Promise<ExportDataResult> {
     const [usbDrive] = await this.getUsbDrives();
 
     if (!usbDrive?.mountPoint) {

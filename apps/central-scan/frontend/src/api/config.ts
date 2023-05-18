@@ -77,26 +77,6 @@ export async function deleteElection({
   await del(deletionUrl);
 }
 
-export async function getTestMode(): Promise<boolean> {
-  return safeParseJson(
-    await (await fetch('/central-scanner/config/testMode')).text(),
-    Scan.GetTestModeConfigResponseSchema
-  ).unsafeUnwrap().testMode;
-}
-
-export async function setTestMode(testMode: boolean): Promise<void> {
-  await patch<Scan.PatchTestModeConfigRequest>(
-    '/central-scanner/config/testMode',
-    {
-      testMode,
-    }
-  );
-  const newTestMode = await getTestMode();
-  if (newTestMode !== testMode) {
-    throw new Error('Error setting test mode, please try again');
-  }
-}
-
 export async function getMarkThresholdOverrides(): Promise<
   MarkThresholds | undefined
 > {

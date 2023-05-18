@@ -84,6 +84,14 @@ function buildApi({
       return auth.logOut(constructAuthMachineState(workspace));
     },
 
+    getTestMode() {
+      return store.getTestMode();
+    },
+
+    setTestMode(input: { testMode: boolean }) {
+      return store.setTestMode(input.testMode);
+    },
+
     updateSessionExpiry(input: { sessionExpiresAt: Date }) {
       return auth.updateSessionExpiry(
         constructAuthMachineState(workspace),
@@ -245,37 +253,6 @@ export function buildCentralScannerApp({
       response.json({ status: 'ok' });
     }
   );
-
-  deprecatedApiRouter.get<NoParams, Scan.GetTestModeConfigResponse>(
-    '/central-scanner/config/testMode',
-    (_request, response) => {
-      const testMode = store.getTestMode();
-      response.json({ status: 'ok', testMode });
-    }
-  );
-
-  deprecatedApiRouter.patch<
-    NoParams,
-    Scan.PatchTestModeConfigResponse,
-    Scan.PatchTestModeConfigRequest
-  >('/central-scanner/config/testMode', (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchTestModeConfigRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    importer.setTestMode(bodyParseResult.ok().testMode);
-    response.json({ status: 'ok' });
-  });
 
   deprecatedApiRouter.get<
     NoParams,

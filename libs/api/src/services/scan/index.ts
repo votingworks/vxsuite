@@ -1,4 +1,4 @@
-import { Optional, Result } from '@votingworks/basics';
+import { Result } from '@votingworks/basics';
 import {
   AdjudicationStatus,
   AdjudicationStatusSchema,
@@ -15,10 +15,6 @@ import {
   IdSchema,
   MarkThresholds,
   MarkThresholdsSchema,
-  PollsState,
-  PollsStateSchema,
-  PrecinctSelection,
-  PrecinctSelectionSchema,
 } from '@votingworks/types';
 import * as z from 'zod';
 import {
@@ -70,35 +66,6 @@ export const GetElectionConfigResponseSchema: z.ZodSchema<GetElectionConfigRespo
 
 /**
  * @url /config/election
- * @method PATCH
- */
-export type PatchElectionConfigResponse = OkResponse | ErrorsResponse;
-
-/**
- * @url /config/election
- * @method PATCH
- */
-export const PatchElectionConfigResponseSchema: z.ZodSchema<PatchElectionConfigResponse> =
-  z.union([OkResponseSchema, ErrorsResponseSchema]);
-
-/**
- * @url /config/election
- * @method PATCH
- */
-export type PatchElectionConfigRequest = Uint8Array; // should be Buffer, but this triggers type errors
-
-/**
- * @url /config/election
- * @method PATCH
- */
-export const PatchElectionConfigRequestSchema: z.ZodSchema<PatchElectionConfigRequest> =
-  z.instanceof(
-    // should be Buffer, but this triggers type errors
-    Uint8Array
-  );
-
-/**
- * @url /config/election
  * @method DELETE
  */
 export type DeleteElectionConfigResponse = OkResponse | ErrorsResponse;
@@ -108,199 +75,6 @@ export type DeleteElectionConfigResponse = OkResponse | ErrorsResponse;
  * @method DELETE
  */
 export const DeleteElectionConfigResponseSchema: z.ZodSchema<DeleteElectionConfigResponse> =
-  OkResponseSchema;
-
-/**
- * @url /config/package
- * @method PUT
- */
-export type PutConfigPackageRequest = never;
-
-/**
- * @url /config/package
- * @method PUT
- */
-export const PutConfigPackageRequestSchema: z.ZodSchema<PutConfigPackageRequest> =
-  z.never();
-
-/**
- * @url /config/package
- * @method PUT
- */
-export type PutConfigPackageResponse = OkResponse | ErrorsResponse;
-
-/**
- * @url /config/package
- * @method PUT
- */
-export const PutConfigPackageResponseSchema: z.ZodSchema<PutConfigPackageResponse> =
-  z.union([OkResponseSchema, ErrorsResponseSchema]);
-
-/**
- * @url /config/testMode
- * @method GET
- */
-export type GetTestModeConfigResponse = OkResponse<{ testMode: boolean }>;
-
-/**
- * @url /config/testMode
- * @method GET
- */
-export const GetTestModeConfigResponseSchema: z.ZodSchema<GetTestModeConfigResponse> =
-  z.object({
-    status: z.literal('ok'),
-    testMode: z.boolean(),
-  });
-
-/**
- * @url /config/testMode
- * @method PATCH
- */
-export interface PatchTestModeConfigRequest {
-  testMode: boolean;
-}
-
-/**
- * @url /config/testMode
- * @method PATCH
- */
-export const PatchTestModeConfigRequestSchema: z.ZodSchema<PatchTestModeConfigRequest> =
-  z.object({
-    testMode: z.boolean(),
-  });
-
-/**
- * @url /config/testMode
- * @method PATCH
- */
-export type PatchTestModeConfigResponse = OkResponse | ErrorsResponse;
-
-/**
- * @url /config/testMode
- * @method PATCH
- */
-export const PatchTestModeConfigResponseSchema: z.ZodSchema<PatchTestModeConfigResponse> =
-  z.union([OkResponseSchema, ErrorsResponseSchema]);
-
-/**
- * @url /config/precinct
- * @method GET
- */
-export type GetPrecinctSelectionConfigResponse = OkResponse<{
-  precinctSelection?: PrecinctSelection;
-}>;
-
-/**
- * @url /config/precinct
- * @method GET
- */
-export const GetPrecinctSelectionConfigResponseSchema: z.ZodSchema<GetPrecinctSelectionConfigResponse> =
-  z.object({
-    status: z.literal('ok'),
-    precinctSelection: z.optional(PrecinctSelectionSchema),
-  });
-
-/**
- * @url /config/precinct
- * @method PATCH
- */
-export interface PatchPrecinctSelectionConfigRequest {
-  precinctSelection: PrecinctSelection;
-}
-
-/**
- * @url /config/precinct
- * @method PATCH
- */
-export const PatchPrecinctSelectionConfigRequestSchema: z.ZodSchema<PatchPrecinctSelectionConfigRequest> =
-  z.object({
-    precinctSelection: PrecinctSelectionSchema,
-  });
-
-/**
- * @url /config/precinct
- * @method PATCH
- */
-export type PatchPrecinctSelectionConfigResponse = OkResponse | ErrorsResponse;
-
-/**
- * @url /config/precinct
- * @method PATCH
- */
-export const PatchPrecinctSelectionConfigResponseSchema: z.ZodSchema<PatchPrecinctSelectionConfigResponse> =
-  z.union([OkResponseSchema, ErrorsResponseSchema]);
-
-/**
- * @url /config/isSoundMuted
- * @method PATCH
- */
-export type PatchIsSoundMutedConfigResponse = OkResponse | ErrorsResponse;
-
-/**
- * @url /config/isSoundMuted
- * @method PATCH
- */
-export const PatchIsSoundMutedConfigResponseSchema: z.ZodSchema<PatchIsSoundMutedConfigResponse> =
-  z.union([OkResponseSchema, ErrorsResponseSchema]);
-
-/**
- * @url /config/isSoundMuted
- * @method PATCH
- */
-export interface PatchIsSoundMutedConfigRequest {
-  isSoundMuted: boolean;
-}
-
-/**
- * @url /config/isSoundMuted
- * @method PATCH
- */
-export const PatchIsSoundMutedConfigRequestSchema: z.ZodSchema<PatchIsSoundMutedConfigRequest> =
-  z.object({
-    isSoundMuted: z.boolean(),
-  });
-
-/**
- * @url /config/polls
- * @method PATCH
- */
-export interface PatchPollsStateRequest {
-  pollsState: PollsState;
-}
-
-/**
- * @url /config/polls
- * @method PATCH
- */
-export const PatchPollsStateRequestSchema: z.ZodSchema<PatchPollsStateRequest> =
-  z.object({
-    pollsState: PollsStateSchema,
-  });
-
-/**
- * @url /config/polls
- * @method PATCH
- */
-export type PatchPollsStateResponse = OkResponse | ErrorsResponse;
-
-/**
- * @url /config/polls
- * @method PATCH
- */
-export const PatchPollsStateResponseSchema: z.ZodSchema<PatchPollsStateResponse> =
-  z.union([OkResponseSchema, ErrorsResponseSchema]);
-
-/**
- * @url /config/ballotCountWhenBallotBagLastReplaced
- * @method PATCH
- */
-export type PatchBallotBagReplaced = OkResponse;
-
-/**
- * @url /config/ballotCountWhenBallotBagLastReplaced
- * @method PATCH
- */
-export const PatchBallotBagReplacedSchema: z.ZodSchema<PatchBallotBagReplaced> =
   OkResponseSchema;
 
 /**
@@ -453,56 +227,6 @@ export type ExportToUsbDriveResponse = OkResponse | ErrorsResponse;
  */
 export const ExportToUsbDriveResponseSchema: z.ZodSchema<ExportToUsbDriveResponse> =
   z.union([OkResponseSchema, ErrorsResponseSchema]);
-
-/**
- * @url /scan/export
- * @method POST
- */
-export type ExportRequest = Optional<{
-  skipImages: boolean;
-}>;
-
-/**
- * @url /scan/export
- * @method POST
- */
-export const ExportRequestSchema: z.ZodSchema<ExportRequest> = z
-  .object({
-    skipImages: z.boolean(),
-  })
-  .optional();
-
-/**
- * @url /scan/export
- * @method POST
- */
-export type ExportResponse = string | ErrorsResponse;
-
-/**
- * @url /scan/export
- * @method POST
- */
-export const ExportResponseSchema: z.ZodSchema<ExportResponse> = z.union([
-  z.string(),
-  ErrorsResponseSchema,
-]);
-
-/**
- * @url /scan/export
- * @method GET
- */
-export interface DownloadExportQueryParams {
-  filename?: string;
-}
-
-/**
- * @url /scan/export
- * @method GET
- */
-export const DownloadExportQueryParamsSchema: z.ZodSchema<DownloadExportQueryParams> =
-  z.object({
-    filename: z.string().optional(),
-  });
 
 /**
  * Possible errors when exporting a file.
