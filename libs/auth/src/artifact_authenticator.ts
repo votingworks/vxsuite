@@ -173,6 +173,10 @@ export class ArtifactAuthenticator {
   private deserializeArtifactSignatureBundle(
     buffer: Buffer
   ): ArtifactSignatureBundle {
+    assert(
+      buffer.length >= 500, // A conservative lower bound
+      'Buffer is too small to reasonably contain an artifact signature bundle'
+    );
     const signatureLength = buffer[0];
     assert(signatureLength !== undefined);
     assert(
