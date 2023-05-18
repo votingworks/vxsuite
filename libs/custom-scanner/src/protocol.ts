@@ -628,12 +628,16 @@ class GetImageDataRequestScanSideCoder extends BaseCoder<ScanSide> {
   private static readonly SideA = 0x0;
   private static readonly SideB = 0x1;
 
+  canEncode(value: unknown): value is ScanSide {
+    return value === ScanSide.A || value === ScanSide.B;
+  }
+
   default(): ScanSide {
     return ScanSide.A;
   }
 
-  bitLength(): BitLength {
-    return 8;
+  bitLength(): Result<BitLength, CoderError> {
+    return ok(8);
   }
 
   encodeInto(value: ScanSide, buffer: Buffer, bitOffset: number): EncodeResult {
