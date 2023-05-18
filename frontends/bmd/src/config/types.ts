@@ -156,6 +156,7 @@ export type PartialUserSettings = Partial<UserSettings>;
 // Screen Reader
 export interface SpeakOptions {
   now?: boolean;
+  cacheOnly?: boolean;
 }
 
 export interface TextToSpeech {

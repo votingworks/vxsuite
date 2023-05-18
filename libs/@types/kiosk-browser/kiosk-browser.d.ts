@@ -115,6 +115,7 @@ declare namespace KioskBrowser {
 
   export interface SpeakOptions {
     volume: number;
+    cacheOnly?: boolean;
   }
 
   export interface FileFilter {

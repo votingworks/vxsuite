@@ -48,7 +48,7 @@ exports[`renders CastBallotPage 1`] = `
       id="audiofocus"
     >
       <h1
-        aria-label="You’re almost done."
+        aria-label="You're almost done."
       >
         You’re Almost Done
       </h1>
