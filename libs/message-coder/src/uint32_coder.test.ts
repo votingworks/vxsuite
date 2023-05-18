@@ -29,7 +29,7 @@ test('uint32', () => {
   );
 });
 
-test('uint32 with big-endian=true', () => {
+test('uint32 with little-endian=false', () => {
   fc.assert(
     fc.property(
       fc.integer(0, 0xffffffff),
