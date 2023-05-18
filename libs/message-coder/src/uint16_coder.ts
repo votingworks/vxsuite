@@ -24,7 +24,7 @@ export class Uint16Coder extends UintCoder {
 
   constructor(
     enumeration?: unknown,
-    options: Uint16CoderOptions = { littleEndian: true }
+    { littleEndian = true }: Partial<Uint16CoderOptions> = {}
   ) {
     super(enumeration);
     this.littleEndian = options.littleEndian;
