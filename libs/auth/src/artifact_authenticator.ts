@@ -175,6 +175,10 @@ export class ArtifactAuthenticator {
   ): ArtifactSignatureBundle {
     const signatureLength = buffer[0];
     assert(signatureLength !== undefined);
+    assert(
+      signatureLength >= 70 && signatureLength <= 72,
+      `Signature length should be between 70 and 72, received ${signatureLength}`
+    );
     const signature = buffer.subarray(1, signatureLength + 1);
     const signingMachineCert = buffer.subarray(signatureLength + 1);
     return { signature, signingMachineCert };
