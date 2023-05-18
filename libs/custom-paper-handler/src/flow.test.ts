@@ -6,7 +6,7 @@ import { getPaperHandlerMachine } from './paper_handler_machine';
 
 const debug = makeDebug('paper-handler:test');
 
-jest.setTimeout(60_000);
+jest.setTimeout(15_000);
 
 test('basic machine flow', async () => {
   const paperHandlerMachine = await getPaperHandlerMachine();

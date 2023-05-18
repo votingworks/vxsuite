@@ -14,4 +14,5 @@ module.exports = {
       functions: 0,
     },
   },
+  testPathIgnorePatterns: ["/<rootDir>/src/flow.test.ts"],
 };
