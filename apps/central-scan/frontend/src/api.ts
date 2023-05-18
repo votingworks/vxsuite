@@ -47,6 +47,28 @@ export const getAuthStatus = {
   },
 } as const;
 
+export const getTestMode = {
+  queryKey(): QueryKey {
+    return ['getTestMode'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getTestMode());
+  },
+} as const;
+
+export const setTestMode = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setTestMode, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getTestMode.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const getSystemSettings = {
   queryKey(): QueryKey {
     return ['getSystemSettings'];

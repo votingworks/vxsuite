@@ -16,16 +16,20 @@ import {
 } from '@votingworks/utils';
 import { Application } from 'express';
 import * as fsExtra from 'fs-extra';
+import { Server } from 'http';
 import * as path from 'path';
+import * as grout from '@votingworks/grout';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { fakeSessionExpiresAt } from '@votingworks/test-utils';
+import getPort from 'get-port';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
-import { buildCentralScannerApp } from './central_scanner_app';
+import { Api, buildCentralScannerApp } from './central_scanner_app';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
+import { start } from './server';
 
 // we need more time for ballot interpretation
 jest.setTimeout(20000);
@@ -47,8 +51,11 @@ let mockUsb: MockUsb;
 let workspace: Workspace;
 let scanner: MockScanner;
 let logger: Logger;
+let apiClient: grout.Client<Api>;
+let server: Server;
 
-beforeEach(() => {
+beforeEach(async () => {
+  const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
   scanner = makeMockScanner();
   workspace = createWorkspace(dirSync().name);
@@ -66,11 +73,24 @@ beforeEach(() => {
     workspace,
     logger,
   });
+  const baseUrl = `http://localhost:${port}/api`;
+  apiClient = grout.createClient({
+    baseUrl,
+  });
+
+  server = await start({
+    app,
+    logger,
+    workspace,
+    port,
+  });
 });
 
 afterEach(async () => {
+  importer.unconfigure();
   await fsExtra.remove(workspace.path);
   featureFlagMock.resetFeatureFlags();
+  server.close();
 });
 
 const jurisdiction = TEST_JURISDICTION;
@@ -97,12 +117,7 @@ test('going through the whole process works', async () => {
     jurisdiction
   );
 
-  await request(app)
-    .patch('/central-scanner/config/testMode')
-    .send({ testMode: true })
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' });
+  await apiClient.setTestMode({ testMode: true });
 
   {
     // define the next scanner session & scan some sample ballots

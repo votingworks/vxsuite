@@ -78,52 +78,6 @@ export const DeleteElectionConfigResponseSchema: z.ZodSchema<DeleteElectionConfi
   OkResponseSchema;
 
 /**
- * @url /config/testMode
- * @method GET
- */
-export type GetTestModeConfigResponse = OkResponse<{ testMode: boolean }>;
-
-/**
- * @url /config/testMode
- * @method GET
- */
-export const GetTestModeConfigResponseSchema: z.ZodSchema<GetTestModeConfigResponse> =
-  z.object({
-    status: z.literal('ok'),
-    testMode: z.boolean(),
-  });
-
-/**
- * @url /config/testMode
- * @method PATCH
- */
-export interface PatchTestModeConfigRequest {
-  testMode: boolean;
-}
-
-/**
- * @url /config/testMode
- * @method PATCH
- */
-export const PatchTestModeConfigRequestSchema: z.ZodSchema<PatchTestModeConfigRequest> =
-  z.object({
-    testMode: z.boolean(),
-  });
-
-/**
- * @url /config/testMode
- * @method PATCH
- */
-export type PatchTestModeConfigResponse = OkResponse | ErrorsResponse;
-
-/**
- * @url /config/testMode
- * @method PATCH
- */
-export const PatchTestModeConfigResponseSchema: z.ZodSchema<PatchTestModeConfigResponse> =
-  z.union([OkResponseSchema, ErrorsResponseSchema]);
-
-/**
  * @url /config/markThresholdOverrides
  * @method GET
  */

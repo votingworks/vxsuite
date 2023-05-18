@@ -208,22 +208,6 @@ test('GET /config/election (application/json)', async () => {
     .expect(200, 'null');
 });
 
-test('GET /config/testMode', async () => {
-  workspace.store.setElectionAndJurisdiction({
-    electionData: testElectionDefinition.electionData,
-    jurisdiction,
-  });
-  workspace.store.setTestMode(true);
-  workspace.store.setMarkThresholdOverrides(undefined);
-  const response = await request(app)
-    .get('/central-scanner/config/testMode')
-    .expect(200);
-  expect(response.body).toEqual({
-    status: 'ok',
-    testMode: true,
-  });
-});
-
 test('GET /config/markThresholdOverrides', async () => {
   workspace.store.setElectionAndJurisdiction({
     electionData: testElectionDefinition.electionData,
@@ -291,28 +275,6 @@ test('DELETE /config/election ignores lack of backup when ?ignoreBackupRequireme
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
   expect(importer.unconfigure).toBeCalled();
-});
-
-test('PATCH /config/testMode', async () => {
-  importer.setTestMode.mockReturnValue(undefined);
-
-  await request(app)
-    .patch('/central-scanner/config/testMode')
-    .send({ testMode: true })
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .expect(200);
-
-  expect(importer.setTestMode).toHaveBeenNthCalledWith(1, true);
-
-  await request(app)
-    .patch('/central-scanner/config/testMode')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .send({ testMode: false })
-    .expect(200);
-
-  expect(importer.setTestMode).toHaveBeenNthCalledWith(2, false);
 });
 
 test('PATCH /config/markThresholdOverrides', async () => {

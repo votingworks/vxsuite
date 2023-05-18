@@ -151,12 +151,7 @@ test('going through the whole process works', async () => {
   expect(configureResult.ok()).toEqual(electionDefinition);
 
   // need to turn off test mode after election is loaded
-  await request(app)
-    .patch('/central-scanner/config/testMode')
-    .send({ testMode: false })
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' });
+  await apiClient.setTestMode({ testMode: false });
 
   mockUsb.removeUsbDrive();
 
