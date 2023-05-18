@@ -29,7 +29,7 @@ export interface Artifact {
   path: string;
 }
 
-interface SignatureFileContents {
+interface ArtifactSignatureBundle {
   signature: Buffer;
   signingMachineCert: Buffer;
 }
@@ -59,29 +59,31 @@ export class ArtifactAuthenticator {
    * but with a .vxsig extension, e.g. /path/to/artifact.txt.vxsig.
    */
   async writeSignatureFile(artifact: Artifact): Promise<void> {
-    const message = await this.constructMessage(artifact);
-    const messageSignature = await this.signMessage(message);
-    const signingMachineCert = await fs.readFile(this.signingMachineCertPath);
-    const signatureFile = this.serializeSignatureFileContents({
-      signature: messageSignature,
-      signingMachineCert,
-    });
+    const artifactSignatureBundle = await this.constructArtifactSignatureBundle(
+      artifact
+    );
     await fs.writeFile(
       this.constructSignatureFilePath(artifact),
-      signatureFile
+      this.serializeArtifactSignatureBundle(artifactSignatureBundle)
     );
   }
 
   /**
    * Verifies the authenticity of the provided artifact using its signature file, which is expected
    * to be found at the same file path as the artifact, but with a .vxsig extension, e.g.
-   * /path/to/artifact.txt.vxsig.
+   * /path/to/artifact.txt.vxsig. Returns an error Result if artifact authentication fails.
    */
   async authenticateArtifactUsingSignatureFile(
     artifact: Artifact
   ): Promise<Result<void, Error>> {
     try {
-      await this.authenticateArtifactUsingSignatureFileHelper(artifact);
+      const artifactSignatureBundle = this.deserializeArtifactSignatureBundle(
+        await fs.readFile(this.constructSignatureFilePath(artifact))
+      );
+      await this.authenticateArtifactUsingArtifactSignatureBundle(
+        artifact,
+        artifactSignatureBundle
+      );
     } catch {
       // TODO: Log raw error
       return err(
@@ -91,18 +93,43 @@ export class ArtifactAuthenticator {
     return ok();
   }
 
-  private async authenticateArtifactUsingSignatureFileHelper(
+  private async constructArtifactSignatureBundle(
     artifact: Artifact
+  ): Promise<ArtifactSignatureBundle> {
+    const message = await this.constructMessage(artifact);
+    const messageSignature = await this.signMessage(message);
+    const signingMachineCert = await fs.readFile(this.signingMachineCertPath);
+    return { signature: messageSignature, signingMachineCert };
+  }
+
+  /**
+   * Throws an error if artifact authentication fails
+   */
+  private async authenticateArtifactUsingArtifactSignatureBundle(
+    artifact: Artifact,
+    artifactSignatureBundle: ArtifactSignatureBundle
   ): Promise<void> {
     const message = await this.constructMessage(artifact);
-
-    const signatureFile = await fs.readFile(
-      this.constructSignatureFilePath(artifact)
-    );
     const { signature: messageSignature, signingMachineCert } =
-      this.deserializeSignatureFileContents(signatureFile);
+      artifactSignatureBundle;
+    await this.validateSigningMachineCert(signingMachineCert, artifact);
+    const signingMachinePublicKey = await extractPublicKeyFromCert(
+      signingMachineCert
+    );
+    await verifySignature({
+      message,
+      messageSignature,
+      publicKey: signingMachinePublicKey,
+    });
+  }
 
-    // Verify type and authenticity of signing machine cert
+  /**
+   * Throws an error if validation fails
+   */
+  private async validateSigningMachineCert(
+    signingMachineCert: Buffer,
+    artifact: Artifact
+  ): Promise<void> {
     const certDetails = await parseCert(signingMachineCert);
     switch (artifact.type) {
       case 'cvr_file': {
@@ -129,21 +156,12 @@ export class ArtifactAuthenticator {
       signingMachineCert,
       this.vxCertAuthorityCertPath
     );
-
-    const signingMachinePublicKey = await extractPublicKeyFromCert(
-      signingMachineCert
-    );
-    await verifySignature({
-      message,
-      messageSignature,
-      publicKey: signingMachinePublicKey,
-    });
   }
 
-  private serializeSignatureFileContents(
-    signatureFileContents: SignatureFileContents
+  private serializeArtifactSignatureBundle(
+    artifactSignatureBundle: ArtifactSignatureBundle
   ): Buffer {
-    const { signature, signingMachineCert } = signatureFileContents;
+    const { signature, signingMachineCert } = artifactSignatureBundle;
     return Buffer.concat([
       // ECC signature length can vary ever so slightly, hence the need to persist length metadata
       Buffer.from([signature.length]),
@@ -152,13 +170,13 @@ export class ArtifactAuthenticator {
     ]);
   }
 
-  private deserializeSignatureFileContents(
-    file: Buffer
-  ): SignatureFileContents {
-    const signatureLength = file[0];
+  private deserializeArtifactSignatureBundle(
+    buffer: Buffer
+  ): ArtifactSignatureBundle {
+    const signatureLength = buffer[0];
     assert(signatureLength !== undefined);
-    const signature = file.subarray(1, signatureLength + 1);
-    const signingMachineCert = file.subarray(signatureLength + 1);
+    const signature = buffer.subarray(1, signatureLength + 1);
+    const signingMachineCert = buffer.subarray(signatureLength + 1);
     return { signature, signingMachineCert };
   }
 
@@ -196,7 +214,7 @@ export class ArtifactAuthenticator {
     }
   }
 
-  private constructSignatureFilePath(artifact: Artifact) {
+  private constructSignatureFilePath(artifact: Artifact): string {
     return `${artifact.path}.vxsig`;
   }
 }
