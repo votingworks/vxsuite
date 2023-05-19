@@ -1,11 +1,6 @@
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
-import {
-  DippedSmartCardAuth,
-  JavaCard,
-  constructJavaCardConfig,
-  MockFileCard,
-} from '@votingworks/auth';
+import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
 import { getUsbDrives } from '@votingworks/backend';
 import { Server } from 'http';
 import {
@@ -62,9 +57,7 @@ export async function start({
         isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
         isIntegrationTest()
           ? new MockFileCard()
-          : new JavaCard(
-              constructJavaCardConfig({ includeCardProgrammingConfig: true })
-            ),
+          : new JavaCard(),
       config: {
         allowElectionManagersToAccessUnconfiguredMachines: false,
       },

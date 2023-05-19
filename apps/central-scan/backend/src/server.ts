@@ -1,12 +1,7 @@
 import { getUsbDrives, Usb } from '@votingworks/backend';
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
-import {
-  constructJavaCardConfig,
-  DippedSmartCardAuth,
-  JavaCard,
-  MockFileCard,
-} from '@votingworks/auth';
+import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
 import { Server } from 'http';
 import {
   BooleanEnvironmentVariableName,
@@ -70,7 +65,7 @@ export async function start({
         isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
         isIntegrationTest()
           ? new MockFileCard()
-          : new JavaCard(constructJavaCardConfig()),
+          : new JavaCard(),
       config: {
         allowElectionManagersToAccessUnconfiguredMachines: true,
       },

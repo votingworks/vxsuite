@@ -1,9 +1,10 @@
+export * from './artifact_authenticator';
 export type { CardStatus } from './card';
+export * from './config';
 export * from './dipped_smart_card_auth_api';
 export * from './dipped_smart_card_auth';
 export * from './inserted_smart_card_auth_api';
 export * from './inserted_smart_card_auth';
-export * from './java_card_config';
 export * from './java_card';
 export * from './jurisdictions';
 export * from './mock_file_card';

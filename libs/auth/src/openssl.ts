@@ -200,16 +200,16 @@ export function verifyFirstCertWasSignedBySecondCert(
 }
 
 /**
- * Verifies a challenge signature against an original challenge using a public key (in PEM format).
+ * Verifies a message signature against an original message using a public key (in PEM format).
  * Throws an error if signature verification fails.
  */
 export async function verifySignature({
-  challenge,
-  challengeSignature,
+  message,
+  messageSignature,
   publicKey,
 }: {
-  challenge: FilePathOrBuffer;
-  challengeSignature: FilePathOrBuffer;
+  message: FilePathOrBuffer;
+  messageSignature: FilePathOrBuffer;
   publicKey: FilePathOrBuffer;
 }): Promise<void> {
   await openssl([
@@ -218,9 +218,38 @@ export async function verifySignature({
     '-verify',
     publicKey,
     '-signature',
-    challengeSignature,
-    challenge,
+    messageSignature,
+    message,
   ]);
+}
+
+/**
+ * Signs a message using a private key (in PEM format if using a file key)
+ */
+export async function signMessageUsingPrivateKey({
+  message,
+  privateKey,
+}: {
+  message: FilePathOrBuffer;
+  privateKey: FileKey | TpmKey;
+}): Promise<Buffer> {
+  const signParams: OpensslParam[] = (() => {
+    switch (privateKey.source) {
+      case 'file': {
+        return ['-sign', privateKey.path];
+      }
+      /* istanbul ignore next */
+      case 'tpm': {
+        // TODO: Handle signing with the TPM key
+        throw new Error('Not yet implemented');
+      }
+      /* istanbul ignore next: Compile-time check for completeness */
+      default: {
+        throwIllegalValue(privateKey, 'source');
+      }
+    }
+  })();
+  return await openssl(['dgst', '-sha256', ...signParams, message]);
 }
 
 //
@@ -342,7 +371,7 @@ export async function createCertGivenCertSigningRequest({
 }
 
 /**
- * The input to createCert. All file keys and inline keys should be in PEM format.
+ * The input to createCert. All file keys, inline keys, and certs should be in PEM format.
  */
 export interface CreateCertInput {
   /**

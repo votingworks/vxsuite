@@ -1,6 +1,5 @@
 import { Server } from 'http';
 import {
-  constructJavaCardConfig,
   InsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
   JavaCard,
@@ -36,7 +35,7 @@ export function start({ auth, logger, port, workspace }: StartOptions): Server {
         isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
         isIntegrationTest()
           ? new MockFileCard()
-          : new JavaCard(constructJavaCardConfig()),
+          : new JavaCard(),
       config: {
         allowCardlessVoterSessions: true,
         allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,

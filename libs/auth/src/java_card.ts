@@ -33,7 +33,7 @@ import {
   parseCardDetailsFromCert,
   parseCert,
 } from './certs';
-import { JavaCardConfig } from './java_card_config';
+import { constructJavaCardConfig, JavaCardConfig } from './config';
 import { FileKey, TpmKey } from './keys';
 import {
   certDerToPem,
@@ -154,7 +154,11 @@ export class JavaCard implements Card {
   private readonly customChallengeGenerator?: () => string;
   private readonly vxCertAuthorityCertPath: string;
 
-  constructor(input: JavaCardConfig) {
+  constructor(
+    // Support specifying a custom config for tests
+    /* istanbul ignore next */
+    input: JavaCardConfig = constructJavaCardConfig()
+  ) {
     this.cardProgrammingConfig = input.cardProgrammingConfig;
     this.cardStatus = { status: 'no_card' };
     this.customChallengeGenerator = input.customChallengeGenerator;
@@ -564,9 +568,9 @@ export class JavaCard implements Card {
     // Use the cert's public key to verify the generated signature
     const certPublicKey = await extractPublicKeyFromCert(cert);
     await verifySignature({
+      message: Buffer.from(challenge, 'utf-8'),
+      messageSignature: challengeSignature,
       publicKey: certPublicKey,
-      challengeSignature,
-      challenge: Buffer.from(challenge, 'utf-8'),
     });
   }
 
