@@ -293,14 +293,7 @@ export function PollWorkerScreen({
 
   const [pollWorkerFlowState, setPollWorkerFlowState] = useState<
     PollWorkerFlowState | undefined
-  >(
-    isPollsOpen
-      ? PollWorkerFlowState.CLOSE_POLLS_FLOW__CONFIRM
-      : PollWorkerFlowState.OPEN_POLLS_FLOW__CONFIRM
-  );
-  function showAllPollWorkerActions() {
-    return setPollWorkerFlowState(undefined);
-  }
+  >(undefined);
 
   async function openPolls() {
     setPollWorkerFlowState(PollWorkerFlowState.OPEN_POLLS_FLOW__PROCESSING);
@@ -398,25 +391,6 @@ export function PollWorkerScreen({
     </PrintableContainer>
   );
 
-  if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__CONFIRM) {
-    return (
-      <React.Fragment>
-        <ScreenMainCenterChild infoBarMode="pollworker">
-          <CenteredLargeProse>
-            <p>Do you want to open the polls?</p>
-            <p>
-              <Button primary onPress={openPolls}>
-                Yes, Open the Polls
-              </Button>{' '}
-              <Button onPress={showAllPollWorkerActions}>No</Button>
-            </p>
-          </CenteredLargeProse>
-        </ScreenMainCenterChild>
-        {printableReport}
-      </React.Fragment>
-    );
-  }
-
   if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__PROCESSING) {
     return (
       <React.Fragment>
@@ -452,25 +426,6 @@ export function PollWorkerScreen({
         </CenteredLargeProse>
         {printableReport}
       </ScreenMainCenterChild>
-    );
-  }
-
-  if (pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__CONFIRM) {
-    return (
-      <React.Fragment>
-        <ScreenMainCenterChild infoBarMode="pollworker">
-          <CenteredLargeProse>
-            <p>Do you want to close the polls?</p>
-            <p>
-              <Button primary onPress={closePolls}>
-                Yes, Close the Polls
-              </Button>{' '}
-              <Button onPress={showAllPollWorkerActions}>No</Button>
-            </p>
-          </CenteredLargeProse>
-        </ScreenMainCenterChild>
-        {printableReport}
-      </React.Fragment>
     );
   }
 
@@ -547,15 +502,15 @@ export function PollWorkerScreen({
   return (
     <React.Fragment>
       <ScreenMainCenterChild infoBarMode="pollworker">
-        <Prose textCenter>
+        <CenteredLargeProse>
           <h1>Poll Worker Actions</h1>
           <p>
             {isPollsOpen ? (
-              <Button primary large onPress={closePolls}>
+              <Button primary onPress={closePolls}>
                 Close Polls for {precinctName}
               </Button>
             ) : (
-              <Button primary large onPress={openPolls}>
+              <Button primary onPress={openPolls}>
                 Open Polls for {precinctName}
               </Button>
             )}
@@ -581,7 +536,7 @@ export function PollWorkerScreen({
               </Button>
             </p>
           )}
-        </Prose>
+        </CenteredLargeProse>
         <ScannedBallotCount count={scannedBallotCount} />
         {isExportingResults && (
           <ExportResultsModal

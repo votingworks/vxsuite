@@ -167,7 +167,7 @@ test('expected tally reports are printed for a primary election with all precinc
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to open the polls?');
+  await screen.findByText('Poll Worker Actions');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
   expect(
@@ -276,7 +276,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to close the polls?');
+  await screen.findByText('Poll Worker Actions');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
   expect(
@@ -441,7 +441,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   act(() => {
     hardware.setPrinterConnected(false);
   });
-  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
   await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);
@@ -502,7 +502,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
     .mockResolvedValue(err(new Error('bad read')));
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
   await screen.findByText('Polls are open.');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
   expect(writeLongObjectMock).toHaveBeenNthCalledWith(
@@ -623,7 +623,7 @@ test('expected tally reports for a primary election with a single precincts with
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to close the polls?');
+  await screen.findByText('Poll Worker Actions');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
   expect(
@@ -866,7 +866,7 @@ test('expected tally reports for a general election with all precincts with CVRs
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to close the polls?');
+  await screen.findByText('Poll Worker Actions');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
   screen.getByText('TEST Polls Closed Report for Center Springfield');
@@ -936,7 +936,7 @@ test('expected tally reports for a general election with all precincts with CVRs
   act(() => {
     hardware.setPrinterConnected(false);
   });
-  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
   await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);
@@ -983,7 +983,7 @@ test('expected tally reports for a general election with all precincts with CVRs
     .mockResolvedValue(err(new Error('bad read')));
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
   await screen.findByText('Polls are open.');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
   expect(writeLongObjectMock).toHaveBeenNthCalledWith(
@@ -1087,7 +1087,7 @@ test('expected tally reports for a general election with a single precincts with
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to close the polls?');
+  await screen.findByText('Poll Worker Actions');
   expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
   screen.getByText('TEST Polls Closed Report for Center Springfield');
@@ -1125,7 +1125,9 @@ test('expected tally reports for a general election with a single precincts with
   act(() => {
     hardware.setPrinterConnected(false);
   });
-  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  fireEvent.click(
+    await screen.findByText('Close Polls for Center Springfield')
+  );
   await screen.findByText('Polls are closed.');
 
   card.removeCard();
@@ -1163,7 +1165,7 @@ test('expected tally reports for a general election with a single precincts with
     .mockResolvedValue(err(new Error('bad read')));
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  fireEvent.click(await screen.findByText('Open Polls for Center Springfield'));
   await screen.findByText('Polls are open.');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
   expect(writeLongObjectMock).toHaveBeenNthCalledWith(

@@ -368,7 +368,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
   await screen.findByText('Polls are open.');
 
   // Remove pollworker card
@@ -420,7 +420,7 @@ test('removing card during calibration', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   userEvent.click(
-    await screen.findByRole('button', { name: 'Yes, Open the Polls' })
+    await screen.findByRole('button', { name: 'Open Polls for All Precincts' })
   );
   await screen.findByText('Polls are open.');
   card.removeCard();

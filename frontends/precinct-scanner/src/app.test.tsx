@@ -181,7 +181,7 @@ test('initializes app with stored state', async () => {
   fetchMock.post('/precinct-scanner/export', {});
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to close the polls?');
+  await screen.findByText('Poll Worker Actions');
 });
 
 test('app can load and configure from a usb stick', async () => {
@@ -339,7 +339,7 @@ test('election manager must set precinct', async () => {
   fetchMock.post('/precinct-scanner/export', {});
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to open the polls?');
+  await screen.findByText('Poll Worker Actions');
 });
 
 test('election manager and poll worker configuration', async () => {
@@ -365,7 +365,7 @@ test('election manager and poll worker configuration', async () => {
   fetchMock.post('/precinct-scanner/export', {});
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to open the polls?');
+  await screen.findByText('Poll Worker Actions');
 
   // Basic auth logging check
   expect(logger.log).toHaveBeenCalledWith(
@@ -375,7 +375,7 @@ test('election manager and poll worker configuration', async () => {
   );
 
   // Open Polls
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
   );
@@ -422,7 +422,7 @@ test('election manager and poll worker configuration', async () => {
   // Open Polls again
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
   );
@@ -571,10 +571,10 @@ test('voter can cast a ballot that scans successfully ', async () => {
   });
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to close the polls?');
+  await screen.findByText('Poll Worker Actions');
 
   // Close Polls
-  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
   await screen.findByText('Closing Polls…');
   await screen.findByText('Polls are closed.');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
@@ -826,7 +826,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   fetchMock.post('/precinct-scanner/export', {});
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to open the polls?');
+  await screen.findByText('Poll Worker Actions');
   // We should see 15 ballots were scanned
   fireEvent.click(screen.getAllByText('No')[0]);
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('15');
@@ -861,8 +861,8 @@ test('no printer: poll worker can open and close polls without scanning any ball
   // Open Polls Flow
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to open the polls?');
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await screen.findByText('Poll Worker Actions');
+  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
   );
@@ -872,8 +872,8 @@ test('no printer: poll worker can open and close polls without scanning any ball
   // Close Polls Flow
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to close the polls?');
-  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  await screen.findByText('Poll Worker Actions');
+  fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
   await screen.findByText('Closing Polls…');
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
@@ -906,8 +906,10 @@ test('with printer: poll worker can open and close polls without scanning any ba
   // Open Polls Flow
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to open the polls?');
-  userEvent.click(screen.getByRole('button', { name: 'Yes, Open the Polls' }));
+  await screen.findByText('Poll Worker Actions');
+  userEvent.click(
+    screen.getByRole('button', { name: 'Open Polls for All Precincts' })
+  );
   await screen.findByText('Polls are open.');
   expect(printFn).toHaveBeenCalledTimes(1);
   userEvent.click(
@@ -925,8 +927,10 @@ test('with printer: poll worker can open and close polls without scanning any ba
   // Close Polls Flow
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to close the polls?');
-  userEvent.click(screen.getByRole('button', { name: 'Yes, Close the Polls' }));
+  await screen.findByText('Poll Worker Actions');
+  userEvent.click(
+    screen.getByRole('button', { name: 'Close Polls for All Precincts' })
+  );
   await screen.findByText('Polls are closed.');
   expect(printFn).toHaveBeenCalledTimes(3);
   userEvent.click(
@@ -958,8 +962,8 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
   // Open Polls Flow
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to open the polls?');
-  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await screen.findByText('Poll Worker Actions');
+  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
   expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
@@ -1017,9 +1021,9 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Do you want to close the polls?');
+  await screen.findByText('Poll Worker Actions');
 
-  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
   await screen.findByText('Closing Polls…');
   await screen.findByText('Polls are closed.');
   await screen.findByText(
@@ -1269,7 +1273,7 @@ test('uses storage for frontend state', async () => {
   // Confirm polls status is saved to storage
   fetchMock.post('/precinct-scanner/export', {});
   card.insertCard(pollWorkerCard);
-  userEvent.click(await screen.findByText('Yes, Close the Polls'));
+  userEvent.click(await screen.findByText('Close Polls for All Precincts'));
   await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);
