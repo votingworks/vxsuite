@@ -1,7 +1,18 @@
+import { relative } from 'path';
 import { getWorkspacePackageInfo, getWorkspacePackagePaths } from './pnpm';
 
 test('getWorkspacePackagePaths', () => {
   expect(getWorkspacePackagePaths(__dirname)).toEqual(
+    expect.arrayContaining([
+      // workspace root
+      '../../..',
+      // this package
+      '..',
+      // basics, as an example library
+      '../../basics',
+    ])
+  );
+  expect(getWorkspacePackagePaths(relative(process.cwd(), __dirname))).toEqual(
     expect.arrayContaining([
       // workspace root
       '../../..',

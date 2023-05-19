@@ -1,7 +1,7 @@
 import { assert } from '@votingworks/basics';
 import { execFileSync } from 'child_process';
 import { readFileSync } from 'fs';
-import { join, relative } from 'path';
+import { isAbsolute, join, relative } from 'path';
 
 /**
  * Package info from `package.json`.
@@ -16,6 +16,11 @@ export interface PackageJson {
   readonly devDependencies?: { [name: string]: string };
   readonly peerDependencies?: { [name: string]: string };
   readonly packageManager?: string;
+
+  /**
+   * Binaries of the package, i.e. `bin` from `package.json`.
+   */
+  readonly bin?: string | { [name: string]: string };
 }
 
 /**
@@ -63,12 +68,12 @@ export interface PackageInfo {
   /**
    * The full `package.json` contents.
    */
-  readonly packageJson: PackageJson;
+  readonly packageJson?: PackageJson;
 
   /**
    * The full `package.json` path.
    */
-  readonly packageJsonPath: string;
+  readonly packageJsonPath?: string;
 }
 
 /**
@@ -94,14 +99,15 @@ function maybeReadPackageJson(filepath: string): PackageJson | undefined {
  * Get all pnpm workspace package paths.
  */
 export function getWorkspacePackagePaths(root: string): string[] {
+  const absoluteRootPath = isAbsolute(root) ? root : join(process.cwd(), root);
   const stdout = execFileSync(
     'pnpm',
     ['recursive', 'list', '--depth=-1', '--porcelain'],
-    { cwd: root, encoding: 'utf-8' }
+    { cwd: absoluteRootPath, encoding: 'utf-8' }
   );
   return stdout
     .split('\n')
-    .map((line) => relative(root, line))
+    .map((line) => relative(absoluteRootPath, line))
     .filter((line) => line.length > 0);
 }
 

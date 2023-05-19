@@ -6,6 +6,9 @@
   "license": "GPL-3.0",
   "author": "VotingWorks Eng <eng@voting.works>",
   "main": "build/index.js",
+  "bin": {
+    "cvr-fixture-generator": "bin/generate"
+  },
   "scripts": {
     "type-check": "tsc --build",
     "build": "tsc --build tsconfig.build.json",

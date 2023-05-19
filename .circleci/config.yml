@@ -1,3 +1,6 @@
+# THIS FILE IS GENERATED. DO NOT EDIT IT DIRECTLY.
+# Run `pnpm -w generate-circleci-config` to regenerate it.
+
 version: 2.1
 
 orbs:
@@ -18,172 +21,7 @@ executors:
           password: $VX_DOCKER_PASSWORD
 
 jobs:
-  test-codemods:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir codemods build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir codemods lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir codemods test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: codemods/reports/
-
-  test-apps-design-frontend:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/design/frontend build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/design/frontend lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/design/frontend test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: apps/design/frontend/reports/
-
-  test-apps-mark-backend:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/mark/backend build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/mark/backend lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/mark/backend test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: apps/mark/backend/reports/
-
-  test-apps-mark-frontend:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/mark/frontend build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/mark/frontend lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/mark/frontend test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: apps/mark/frontend/reports/
-      - store_artifacts:
-          path: apps/mark/frontend/cypress/screenshots
-      - store_artifacts:
-          path: apps/mark/frontend/cypress/videos
-
-  test-apps-central-scan-frontend:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/central-scan/frontend build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/central-scan/frontend lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/central-scan/frontend test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: apps/central-scan/frontend/reports/
-      - store_artifacts:
-          path: apps/central-scan/frontend/cypress/screenshots
-      - store_artifacts:
-          path: apps/central-scan/frontend/cypress/videos
-
-  test-apps-central-scan-backend:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/central-scan/backend build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/central-scan/backend lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/central-scan/backend test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: apps/central-scan/backend/reports/
-
-  test-apps-admin-frontend:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/admin/frontend build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/admin/frontend lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/admin/frontend test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: apps/admin/frontend/reports/
-      - store_artifacts:
-          path: apps/admin/frontend/cypress/screenshots
-      - store_artifacts:
-          path: apps/admin/frontend/cypress/videos
-
+  # @votingworks/admin-backend
   test-apps-admin-backend:
     executor: nodejs
     resource_class: xlarge
@@ -206,6 +44,229 @@ jobs:
       - store_test_results:
           path: apps/admin/backend/reports/
 
+  # @votingworks/admin-frontend
+  test-apps-admin-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/admin/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/admin/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/admin/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/admin/frontend/reports/
+
+  # @votingworks/integration-testing-election-manager
+  test-apps-admin-integration-testing:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - install-cypress-browser
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/admin/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/admin/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/admin/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/admin/integration-testing/reports/
+      - store_artifacts:
+          path: apps/admin/integration-testing/cypress/screenshots/
+      - store_artifacts:
+          path: apps/admin/integration-testing/cypress/videos/
+
+  # @votingworks/central-scan-backend
+  test-apps-central-scan-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/central-scan/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/central-scan/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/central-scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/central-scan/backend/reports/
+
+  # @votingworks/central-scan-frontend
+  test-apps-central-scan-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/central-scan/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/central-scan/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/central-scan/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/central-scan/frontend/reports/
+
+  # @votingworks/central-scan-integration-testing
+  test-apps-central-scan-integration-testing:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - install-cypress-browser
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/central-scan/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/central-scan/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/central-scan/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/central-scan/integration-testing/reports/
+      - store_artifacts:
+          path: apps/central-scan/integration-testing/cypress/screenshots/
+      - store_artifacts:
+          path: apps/central-scan/integration-testing/cypress/videos/
+
+  # @votingworks/design-frontend
+  test-apps-design-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/design/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/design/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/design/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/design/frontend/reports/
+
+  # @votingworks/mark-backend
+  test-apps-mark-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark/backend/reports/
+
+  # @votingworks/mark-frontend
+  test-apps-mark-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark/frontend/reports/
+
+  # @votingworks/mark-integration-testing
+  test-apps-mark-integration-testing:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - install-cypress-browser
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark/integration-testing/reports/
+      - store_artifacts:
+          path: apps/mark/integration-testing/cypress/screenshots/
+      - store_artifacts:
+          path: apps/mark/integration-testing/cypress/videos/
+
+  # @votingworks/scan-backend
   test-apps-scan-backend:
     executor: nodejs
     resource_class: xlarge
@@ -228,8 +289,9 @@ jobs:
       - store_test_results:
           path: apps/scan/backend/reports/
 
+  # @votingworks/scan-frontend
   test-apps-scan-frontend:
-    executor: nodejs-browsers
+    executor: nodejs
     resource_class: xlarge
     steps:
       - checkout-and-install
@@ -250,87 +312,30 @@ jobs:
       - store_test_results:
           path: apps/scan/frontend/reports/
 
-  test-apps-mark-integration-testing:
-    executor: nodejs-browsers
+  # @votingworks/codemods
+  test-codemods:
+    executor: nodejs
     resource_class: xlarge
     steps:
-      - install-cypress-browser
       - checkout-and-install
       - run:
           name: Build
           command: |
-            pnpm --dir apps/mark/integration-testing build
+            pnpm --dir codemods build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/mark/integration-testing lint
+            pnpm --dir codemods lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/mark/integration-testing test
+            pnpm --dir codemods test
           environment:
-            MOCHA_FILE: ./reports/junit.xml
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/mark/integration-testing/reports/
-      - store_artifacts:
-          path: apps/mark/integration-testing/cypress/screenshots
-      - store_artifacts:
-          path: apps/mark/integration-testing/cypress/videos
+          path: codemods/reports/
 
-  test-apps-central-scan-integration-testing:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - install-cypress-browser
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/central-scan/integration-testing build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/central-scan/integration-testing lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/central-scan/integration-testing test
-          environment:
-            MOCHA_FILE: ./reports/junit.xml
-      - store_test_results:
-          path: apps/central-scan/integration-testing/reports/
-      - store_artifacts:
-          path: apps/central-scan/integration-testing/cypress/screenshots
-      - store_artifacts:
-          path: apps/central-scan/integration-testing/cypress/videos
-
-  test-apps-admin-integration-testing:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - install-cypress-browser
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/admin/integration-testing build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/admin/integration-testing lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/admin/integration-testing test
-          environment:
-            MOCHA_FILE: ./reports/junit.xml
-      - store_test_results:
-          path: apps/admin/integration-testing/reports/
-      - store_artifacts:
-          path: apps/admin/integration-testing/cypress/screenshots
-      - store_artifacts:
-          path: apps/admin/integration-testing/cypress/videos
-
+  # @votingworks/api
   test-libs-api:
     executor: nodejs
     resource_class: xlarge
@@ -353,6 +358,7 @@ jobs:
       - store_test_results:
           path: libs/api/reports/
 
+  # @votingworks/auth
   test-libs-auth:
     executor: nodejs
     resource_class: xlarge
@@ -375,204 +381,7 @@ jobs:
       - store_test_results:
           path: libs/auth/reports/
 
-  test-libs-ballot-encoder:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/ballot-encoder build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/ballot-encoder lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/ballot-encoder test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/ballot-encoder/reports/
-
-  test-libs-ballot-interpreter-nh:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/ballot-interpreter-nh build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/ballot-interpreter-nh lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/ballot-interpreter-nh test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/ballot-interpreter-nh/reports/
-
-  test-libs-ballot-interpreter-vx:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/ballot-interpreter-vx build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/ballot-interpreter-vx lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/ballot-interpreter-vx test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/ballot-interpreter-vx/reports/
-
-  test-libs-basics:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/basics build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/basics lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/basics test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/basics/reports/
-
-  test-libs-cdf-schema-builder:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/cdf-schema-builder build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/cdf-schema-builder lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/cdf-schema-builder test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/cdf-schema-builder/reports/
-
-  test-libs-converter-nh-accuvote:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/converter-nh-accuvote build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/converter-nh-accuvote lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/converter-nh-accuvote test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/converter-nh-accuvote/reports/
-
-  test-libs-custom-scanner:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/custom-scanner build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/custom-scanner lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/custom-scanner test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/custom-scanner/reports/
-
-  test-libs-custom-paper-handler:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/custom-paper-handler build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/custom-paper-handler lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/custom-paper-handler test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/custom-paper-handler/reports/
-
-  test-libs-cvr-fixture-generator:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/cvr-fixture-generator build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/cvr-fixture-generator lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/cvr-fixture-generator test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/cvr-fixture-generator/reports/
-
+  # @votingworks/backend
   test-libs-backend:
     executor: nodejs
     resource_class: xlarge
@@ -595,6 +404,214 @@ jobs:
       - store_test_results:
           path: libs/backend/reports/
 
+  # @votingworks/ballot-encoder
+  test-libs-ballot-encoder:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ballot-encoder build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ballot-encoder lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ballot-encoder test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ballot-encoder/reports/
+
+  # @votingworks/ballot-interpreter-nh
+  test-libs-ballot-interpreter-nh:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ballot-interpreter-nh build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ballot-interpreter-nh lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ballot-interpreter-nh test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ballot-interpreter-nh/reports/
+
+  # @votingworks/ballot-interpreter-vx
+  test-libs-ballot-interpreter-vx:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ballot-interpreter-vx build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ballot-interpreter-vx lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ballot-interpreter-vx test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ballot-interpreter-vx/reports/
+
+  # @votingworks/basics
+  test-libs-basics:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/basics build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/basics lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/basics test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/basics/reports/
+
+  # @votingworks/cdf-schema-builder
+  test-libs-cdf-schema-builder:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/cdf-schema-builder build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/cdf-schema-builder lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/cdf-schema-builder test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/cdf-schema-builder/reports/
+
+  # @votingworks/converter-nh-accuvote
+  test-libs-converter-nh-accuvote:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/converter-nh-accuvote build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/converter-nh-accuvote lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/converter-nh-accuvote test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/converter-nh-accuvote/reports/
+
+  # @votingworks/custom-paper-handler
+  test-libs-custom-paper-handler:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/custom-paper-handler build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/custom-paper-handler lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/custom-paper-handler test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/custom-paper-handler/reports/
+
+  # @votingworks/custom-scanner
+  test-libs-custom-scanner:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/custom-scanner build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/custom-scanner lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/custom-scanner test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/custom-scanner/reports/
+
+  # @votingworks/cvr-fixture-generator
+  test-libs-cvr-fixture-generator:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/cvr-fixture-generator build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/cvr-fixture-generator lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/cvr-fixture-generator test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/cvr-fixture-generator/reports/
+
+  # @votingworks/db
   test-libs-db:
     executor: nodejs
     resource_class: xlarge
@@ -617,6 +634,7 @@ jobs:
       - store_test_results:
           path: libs/db/reports/
 
+  # @votingworks/dev-dock-backend
   test-libs-dev-dock-backend:
     executor: nodejs
     resource_class: xlarge
@@ -639,6 +657,7 @@ jobs:
       - store_test_results:
           path: libs/dev-dock/backend/reports/
 
+  # @votingworks/dev-dock-frontend
   test-libs-dev-dock-frontend:
     executor: nodejs
     resource_class: xlarge
@@ -661,8 +680,9 @@ jobs:
       - store_test_results:
           path: libs/dev-dock/frontend/reports/
 
+  # eslint-plugin-vx
   test-libs-eslint-plugin-vx:
-    executor: nodejs-browsers
+    executor: nodejs
     resource_class: xlarge
     steps:
       - checkout-and-install
@@ -683,6 +703,7 @@ jobs:
       - store_test_results:
           path: libs/eslint-plugin-vx/reports/
 
+  # @votingworks/fixtures
   test-libs-fixtures:
     executor: nodejs
     resource_class: xlarge
@@ -705,6 +726,7 @@ jobs:
       - store_test_results:
           path: libs/fixtures/reports/
 
+  # @votingworks/grout
   test-libs-grout:
     executor: nodejs
     resource_class: xlarge
@@ -727,6 +749,7 @@ jobs:
       - store_test_results:
           path: libs/grout/reports/
 
+  # @votingworks/grout-test-utils
   test-libs-grout-test-utils:
     executor: nodejs
     resource_class: xlarge
@@ -749,6 +772,7 @@ jobs:
       - store_test_results:
           path: libs/grout/test-utils/reports/
 
+  # @votingworks/image-utils
   test-libs-image-utils:
     executor: nodejs
     resource_class: xlarge
@@ -771,6 +795,7 @@ jobs:
       - store_test_results:
           path: libs/image-utils/reports/
 
+  # @votingworks/logging
   test-libs-logging:
     executor: nodejs
     resource_class: xlarge
@@ -793,6 +818,7 @@ jobs:
       - store_test_results:
           path: libs/logging/reports/
 
+  # @votingworks/message-coder
   test-libs-message-coder:
     executor: nodejs
     resource_class: xlarge
@@ -815,6 +841,7 @@ jobs:
       - store_test_results:
           path: libs/message-coder/reports/
 
+  # @votingworks/monorepo-utils
   test-libs-monorepo-utils:
     executor: nodejs
     resource_class: xlarge
@@ -837,15 +864,16 @@ jobs:
       - store_test_results:
           path: libs/monorepo-utils/reports/
 
+  # @votingworks/res-to-ts
   test-libs-res-to-ts:
     executor: nodejs
     resource_class: xlarge
     steps:
       - checkout-and-install
       - run:
-          name: Type Check
+          name: Build
           command: |
-            pnpm --dir libs/res-to-ts type-check
+            pnpm --dir libs/res-to-ts build
       - run:
           name: Lint
           command: |
@@ -853,14 +881,15 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/res-to-ts test:ci
+            pnpm --dir libs/res-to-ts test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/res-to-ts/reports/
 
+  # @votingworks/test-utils
   test-libs-test-utils:
-    executor: nodejs-browsers
+    executor: nodejs
     resource_class: xlarge
     steps:
       - checkout-and-install
@@ -881,6 +910,7 @@ jobs:
       - store_test_results:
           path: libs/test-utils/reports/
 
+  # @votingworks/types
   test-libs-types:
     executor: nodejs
     resource_class: xlarge
@@ -903,8 +933,9 @@ jobs:
       - store_test_results:
           path: libs/types/reports/
 
+  # @votingworks/ui
   test-libs-ui:
-    executor: nodejs-browsers
+    executor: nodejs
     resource_class: xlarge
     steps:
       - checkout-and-install
@@ -925,6 +956,7 @@ jobs:
       - store_test_results:
           path: libs/ui/reports/
 
+  # @votingworks/usb-drive
   test-libs-usb-drive:
     executor: nodejs
     resource_class: xlarge
@@ -947,8 +979,9 @@ jobs:
       - store_test_results:
           path: libs/usb-drive/reports/
 
+  # @votingworks/utils
   test-libs-utils:
-    executor: nodejs-browsers
+    executor: nodejs
     resource_class: xlarge
     steps:
       - checkout-and-install
@@ -969,6 +1002,7 @@ jobs:
       - store_test_results:
           path: libs/utils/reports/
 
+  # TODO: remove this once we replace the Python code
   test-services-converter-ms-sems:
     executor: nodejs
     resource_class: medium
@@ -984,10 +1018,6 @@ jobs:
           name: Test
           command: |
             make -C services/converter-ms-sems coverage
-      # - run:
-      #     name: Typecheck
-      #     command: |
-      #       make -C services/converter-ms-sems typecheck
 
   validate-monorepo:
     executor: nodejs
@@ -1006,34 +1036,34 @@ jobs:
 workflows:
   test:
     jobs:
-      - test-codemods
+      - test-apps-admin-backend
+      - test-apps-admin-frontend
+      - test-apps-admin-integration-testing
+      - test-apps-central-scan-backend
+      - test-apps-central-scan-frontend
+      - test-apps-central-scan-integration-testing
       - test-apps-design-frontend
       - test-apps-mark-backend
       - test-apps-mark-frontend
       - test-apps-mark-integration-testing
       - test-apps-scan-backend
       - test-apps-scan-frontend
-      - test-apps-admin-frontend
-      - test-apps-admin-backend
-      - test-apps-admin-integration-testing
-      - test-apps-central-scan-frontend
-      - test-apps-central-scan-backend
-      - test-apps-central-scan-integration-testing
+      - test-codemods
       - test-libs-api
       - test-libs-auth
+      - test-libs-backend
       - test-libs-ballot-encoder
       - test-libs-ballot-interpreter-nh
       - test-libs-ballot-interpreter-vx
       - test-libs-basics
       - test-libs-cdf-schema-builder
       - test-libs-converter-nh-accuvote
-      - test-libs-custom-scanner
       - test-libs-custom-paper-handler
+      - test-libs-custom-scanner
       - test-libs-cvr-fixture-generator
-      - test-libs-backend
+      - test-libs-db
       - test-libs-dev-dock-backend
       - test-libs-dev-dock-frontend
-      - test-libs-db
       - test-libs-eslint-plugin-vx
       - test-libs-fixtures
       - test-libs-grout

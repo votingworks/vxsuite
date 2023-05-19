@@ -65,17 +65,9 @@ export async function main({ stderr }: IO): Promise<number> {
         );
         break;
 
-      case circleci.ValidationIssueKind.UnusedJobIssue:
+      case circleci.ValidationIssueKind.OutdatedConfig:
         stderr.write(
-          `${relative(cwd, issue.configPath)}: unused job "${issue.jobName}"\n`
-        );
-        break;
-
-      case circleci.ValidationIssueKind.UntestedPackageIssue:
-        stderr.write(
-          `${relative(cwd, issue.configPath)}: untested package "${
-            issue.packagePath
-          }", job "${issue.expectedJobName}" was not found\n`
+          `${relative(cwd, issue.configPath)}: configuration is outdated\n`
         );
         break;
 

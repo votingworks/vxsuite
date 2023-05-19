@@ -39,6 +39,7 @@
     "@types/node": "16.18.23",
     "@typescript-eslint/eslint-plugin": "5.37.0",
     "@typescript-eslint/parser": "5.37.0",
+    "esbuild-runner": "^2.2.2",
     "eslint": "8.23.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-node": "^0.3.6",

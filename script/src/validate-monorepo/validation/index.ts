@@ -41,14 +41,6 @@ export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
     ],
     workspacePackages,
   });
-  yield* tsconfig.checkConfig({ workspacePackages });
-
-  const circleCiConfigPath = join(root, '.circleci/config.yml');
-  const circleCiConfig = await circleci.loadConfig(circleCiConfigPath);
-
-  yield* circleci.checkConfig(
-    circleCiConfig,
-    circleCiConfigPath,
-    await getWorkspacePackageInfo(root)
-  );
+  yield* tsconfig.checkConfig(workspacePackages);
+  yield* circleci.checkConfig(workspacePackages);
 }
