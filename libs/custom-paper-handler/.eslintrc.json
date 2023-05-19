@@ -1,0 +1,9 @@
+{
+  "extends": ["plugin:vx/recommended"],
+  "rules": {
+    // Allow for bitwise operations which are necessary for usb protocol communication.
+    "no-bitwise": "off",
+    // Disable JSDOC rule: legacy code is not commented with JSDoc comments. Rule status will be reevaluated before production use
+    "vx/gts-jsdoc": "off"
+  }
+}
