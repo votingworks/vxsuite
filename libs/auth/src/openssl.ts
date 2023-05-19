@@ -224,16 +224,32 @@ export async function verifySignature({
 }
 
 /**
- * Signs a message using a private key file (in PEM format)
+ * Signs a message using a private key (in PEM format if using a file key)
  */
-export async function signMessageUsingPrivateKeyFile({
+export async function signMessageUsingPrivateKey({
   message,
   privateKey,
 }: {
   message: FilePathOrBuffer;
-  privateKey: FilePathOrBuffer;
+  privateKey: FileKey | TpmKey;
 }): Promise<Buffer> {
-  return await openssl(['dgst', '-sha256', '-sign', privateKey, message]);
+  const signParams: OpensslParam[] = (() => {
+    switch (privateKey.source) {
+      case 'file': {
+        return ['-sign', privateKey.path];
+      }
+      /* istanbul ignore next */
+      case 'tpm': {
+        // TODO: Handle signing with the TPM key
+        throw new Error('Not yet implemented');
+      }
+      /* istanbul ignore next: Compile-time check for completeness */
+      default: {
+        throwIllegalValue(privateKey, 'source');
+      }
+    }
+  })();
+  return await openssl(['dgst', '-sha256', ...signParams, message]);
 }
 
 //

@@ -16,7 +16,7 @@ import {
 import { FileKey, TpmKey } from './keys';
 import {
   extractPublicKeyFromCert,
-  signMessageUsingPrivateKeyFile,
+  signMessageUsingPrivateKey,
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
 } from './openssl';
@@ -203,23 +203,10 @@ export class ArtifactAuthenticator {
   }
 
   private async signMessage(message: Buffer): Promise<Buffer> {
-    switch (this.signingMachinePrivateKey.source) {
-      case 'file': {
-        return await signMessageUsingPrivateKeyFile({
-          message,
-          privateKey: this.signingMachinePrivateKey.path,
-        });
-      }
-      /* istanbul ignore next */
-      case 'tpm': {
-        // TODO: Move TPM signing script from vxsuite-complete-system to vxsuite and call here
-        return Buffer.from([]);
-      }
-      /* istanbul ignore next: Compile-time check for completeness */
-      default: {
-        throwIllegalValue(this.signingMachinePrivateKey, 'source');
-      }
-    }
+    return await signMessageUsingPrivateKey({
+      message,
+      privateKey: this.signingMachinePrivateKey,
+    });
   }
 
   private constructSignatureFilePath(artifact: Artifact): string {
