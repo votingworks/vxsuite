@@ -27,7 +27,7 @@ export class Uint32Coder extends UintCoder {
     { littleEndian = true }: Partial<Uint32CoderOptions> = {}
   ) {
     super(enumeration);
-    this.littleEndian = options.littleEndian;
+    this.littleEndian = littleEndian;
   }
 
   bitLength(): BitLength {

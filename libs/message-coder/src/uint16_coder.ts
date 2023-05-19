@@ -27,7 +27,7 @@ export class Uint16Coder extends UintCoder {
     { littleEndian = true }: Partial<Uint16CoderOptions> = {}
   ) {
     super(enumeration);
-    this.littleEndian = options.littleEndian;
+    this.littleEndian = littleEndian;
   }
 
   bitLength(): BitLength {
