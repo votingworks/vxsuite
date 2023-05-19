@@ -35,11 +35,10 @@ import {
   ScannerConfig,
 } from './scanner_config';
 
-const serverDebug = makeDebug('paper-handler:driver');
+const serverDebug = makeDebug('custom-paper-handler:driver');
 
 function debug(message: string) {
   serverDebug(message);
-  console.log(message);
 }
 
 /**
