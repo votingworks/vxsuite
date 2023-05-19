@@ -11,11 +11,25 @@ import {
 } from './types';
 import { UintCoder } from './uint_coder';
 
+interface Uint32CoderOptions {
+  littleEndian: boolean;
+}
+
 /**
  * Coder for a uint32, aka a 32-bit unsigned integer. Uses little-endian byte
  * order.
  */
 export class Uint32Coder extends UintCoder {
+  private readonly littleEndian: boolean;
+
+  constructor(
+    enumeration?: unknown,
+    { littleEndian = true }: Partial<Uint32CoderOptions> = {}
+  ) {
+    super(enumeration);
+    this.littleEndian = littleEndian;
+  }
+
   bitLength(): BitLength {
     return 32;
   }
@@ -32,14 +46,20 @@ export class Uint32Coder extends UintCoder {
       this.validateValue(value).okOrElse(fail);
 
       return this.encodeUsing(buffer, bitOffset, (byteOffset) =>
-        buffer.writeUInt32LE(value, byteOffset)
+        this.littleEndian
+          ? buffer.writeUInt32LE(value, byteOffset)
+          : buffer.writeUInt32BE(value, byteOffset)
       );
     });
   }
 
   decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<Uint32> {
     return this.decodeUsing(buffer, bitOffset, (byteOffset) =>
-      this.validateValue(buffer.readUInt32LE(byteOffset))
+      this.validateValue(
+        this.littleEndian
+          ? buffer.readUInt32LE(byteOffset)
+          : buffer.readUInt32BE(byteOffset)
+      )
     );
   }
 }
@@ -49,7 +69,8 @@ export class Uint32Coder extends UintCoder {
  */
 // eslint-disable-next-line vx/gts-no-return-type-only-generics -- TS does not have a way of saying "I want an enum of numbers"
 export function uint32<T extends number = Uint32>(
-  enumeration?: unknown
+  enumeration?: unknown,
+  options?: Uint32CoderOptions
 ): Coder<T> {
-  return new Uint32Coder(enumeration) as unknown as Coder<T>;
+  return new Uint32Coder(enumeration, options) as unknown as Coder<T>;
 }

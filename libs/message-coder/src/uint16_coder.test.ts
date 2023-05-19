@@ -29,6 +29,29 @@ test('uint16', () => {
   );
 });
 
+test('uint16 with littleEndian=false', () => {
+  fc.assert(
+    fc.property(
+      fc.integer(0, 65535),
+      fc.integer({ min: 0, max: 100 }),
+      (value, byteOffset) => {
+        const bitOffset = byteOffset * 8;
+        const buffer = Buffer.alloc(2 + byteOffset);
+        const field = uint16(undefined, { littleEndian: false });
+        type field = CoderType<typeof field>;
+
+        expect(field.encodeInto(value, buffer, bitOffset)).toEqual(
+          ok(bitOffset + 16)
+        );
+        expect(buffer.readUInt16BE(byteOffset)).toEqual(value);
+        expect(field.decodeFrom(buffer, bitOffset)).toEqual(
+          typedAs<DecodeResult<field>>(ok({ value, bitOffset: bitOffset + 16 }))
+        );
+      }
+    )
+  );
+});
+
 test('uint16 with enumeration', () => {
   enum Enum {
     A = 1,
