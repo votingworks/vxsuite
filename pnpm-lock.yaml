@@ -4017,9 +4017,6 @@ importers:
       typescript:
         specifier: 4.6.3
         version: 4.6.3
-      vite:
-        specifier: ^4.0.4
-        version: 4.0.4(@types/node@16.18.23)
 
   libs/custom-scanner:
     dependencies:
