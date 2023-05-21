@@ -4,6 +4,8 @@ import { ScreenReader, SpeakOptions, TextToSpeech } from '../../config/types';
  * Implements `ScreenReader` using the ARIA DOM attributes.
  */
 export class AriaScreenReader implements ScreenReader {
+  private currentInterval?: ReturnType<typeof setInterval>;
+
   /**
    * @param tts A text-to-speech engine to use to speak aloud.
    */
@@ -13,14 +15,32 @@ export class AriaScreenReader implements ScreenReader {
    * Call this with an event target when a focus event occurs. Resolves when speaking is done.
    */
   async onFocus(target?: EventTarget): Promise<void> {
+    if (this.currentInterval) {
+      clearInterval(this.currentInterval);
+      this.currentInterval = undefined;
+    }
+
     await this.speakEventTarget(target);
+
+    this.currentInterval = setInterval(() => {
+      void this.speakEventTarget(target);
+    }, 15000);
   }
 
   /**
    * Call this with an event target when a click event occurs. Resolves when speaking is done.
    */
   async onClick(target?: EventTarget): Promise<void> {
+    if (this.currentInterval) {
+      clearInterval(this.currentInterval);
+      this.currentInterval = undefined;
+    }
+
     await this.speakEventTarget(target);
+
+    this.currentInterval = setInterval(() => {
+      void this.speakEventTarget(target);
+    }, 8000);
   }
 
   /**
@@ -28,6 +48,11 @@ export class AriaScreenReader implements ScreenReader {
    */
   // eslint-disable-next-line @typescript-eslint/require-await
   async onPageLoad(): Promise<void> {
+    if (this.currentInterval) {
+      clearInterval(this.currentInterval);
+      this.currentInterval = undefined;
+    }
+
     this.tts.stop();
   }
 
