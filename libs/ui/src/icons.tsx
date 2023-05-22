@@ -25,6 +25,7 @@ import {
   faCheckSquare,
   faChevronCircleUp,
   faChevronCircleDown,
+  faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -132,6 +133,10 @@ export const Icons = {
 
   Previous(): JSX.Element {
     return <FaIcon type={faCircleLeft} />;
+  },
+
+  RightChevron(): JSX.Element {
+    return <FaIcon type={faChevronRight} />;
   },
 
   Settings(): JSX.Element {
