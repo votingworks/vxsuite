@@ -234,15 +234,17 @@ export function* checkTsconfigReferencesMatch(
   }
 }
 
-export async function* checkConfig({
-  workspacePackages,
-}: {
-  workspacePackages: ReadonlyMap<string, PackageInfo>;
-}): AsyncGenerator<ValidationIssue> {
+export async function* checkConfig(
+  workspacePackages: ReadonlyMap<string, PackageInfo>
+): AsyncGenerator<ValidationIssue> {
   for (const pkg of workspacePackages.values()) {
     const { packageJson, packageJsonPath } = pkg;
 
-    if (!pkg.packageJson.devDependencies?.['typescript']) {
+    if (!packageJson || !packageJsonPath) {
+      continue;
+    }
+
+    if (!packageJson.devDependencies?.['typescript']) {
       continue;
     }
 

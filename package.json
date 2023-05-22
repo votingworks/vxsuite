@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "clean-all": "git clean -dfX",
+    "generate-circleci-config": "node libs/monorepo-utils/bin/generate-circleci-config",
     "prepare": "husky install",
     "configure-env": "node libs/utils/build/scripts/generate_env_file.js",
     "configure-vxdev-env": "node libs/utils/build/scripts/generate_env_file.js --isVxDev -o /vx/config/.env.local",
