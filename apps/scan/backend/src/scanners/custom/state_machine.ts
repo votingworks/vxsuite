@@ -1241,6 +1241,7 @@ export function createPrecinctScannerStateMachine({
   logger: Logger;
   delays?: Partial<Delays>;
 }): PrecinctScannerStateMachine {
+  debug('Creating state machine'); // Useful for separating test cases in debug logs
   const machine = buildMachine({
     createCustomClient,
     workspace,
