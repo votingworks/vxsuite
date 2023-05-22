@@ -132,3 +132,79 @@ export function ElectionInfoBar({
     </Bar>
   );
 }
+
+const VerticalBar = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const MachineInfoSection = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const TinyInfo = styled(Caption)`
+  display: block;
+  font-size: 0.6rem;
+`;
+
+/* istanbul ignore next - purely presentational */
+export function VerticalElectionInfoBar({
+  mode = 'voter',
+  electionDefinition,
+  codeVersion,
+  machineId,
+  precinctSelection,
+}: ElectionInfoBarProps): JSX.Element {
+  const {
+    election: { precincts, date, title, county, state, seal, sealUrl },
+  } = electionDefinition;
+  const electionDate = formatShortDate(DateTime.fromISO(date));
+
+  return (
+    <VerticalBar>
+      <Caption weight="regular" align="left">
+        <ElectionInfoContainer>
+          <SealContainer>
+            {(seal || sealUrl) && <Seal seal={seal} sealUrl={sealUrl} />}
+          </SealContainer>
+          <Font weight="bold">{title}</Font>
+        </ElectionInfoContainer>
+
+        {precinctSelection && (
+          <TinyInfo>
+            {getPrecinctSelectionName(precincts, precinctSelection)}
+          </TinyInfo>
+        )}
+
+        <TinyInfo>
+          {county.name}, {state}
+        </TinyInfo>
+
+        <TinyInfo>{electionDate}</TinyInfo>
+      </Caption>
+
+      <MachineInfoSection>
+        {mode !== 'voter' && codeVersion && (
+          <TinyInfo>
+            Software Version: <Font weight="semiBold">{codeVersion}</Font>
+          </TinyInfo>
+        )}
+
+        {mode !== 'voter' && machineId && (
+          <TinyInfo>
+            Machine ID: <Font weight="semiBold">{machineId}</Font>
+          </TinyInfo>
+        )}
+
+        <TinyInfo>
+          Election ID:{' '}
+          <Font weight="semiBold">
+            {getDisplayElectionHash(electionDefinition)}
+          </Font>
+        </TinyInfo>
+      </MachineInfoSection>
+    </VerticalBar>
+  );
+}
