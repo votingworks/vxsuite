@@ -1,4 +1,3 @@
-import MockDate from 'mockdate';
 import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
 import {
@@ -86,7 +85,7 @@ beforeEach(() => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
 
-  MockDate.set(new Date('2020-11-03T22:22:00'));
+  jest.setSystemTime(new Date('2020-11-03T22:22:00'));
   fetchMock.reset();
   fetchMock.get(
     '/convert/election/files',
@@ -444,7 +443,7 @@ test('tabulating CVRs', async () => {
   advanceTimers(2);
   await screen.findByText('Save Batch Results');
   await screen.findByText(
-    'votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
+    'votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-02.csv'
   );
 
   fireEvent.click(getByText('Save'));
@@ -455,7 +454,7 @@ test('tabulating CVRs', async () => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
-      'fake mount point/votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
+      'fake mount point/votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-02.csv',
       expect.stringContaining(
         'Batch ID,Batch Name,Tabulator,Number of Ballots,"President - Ballots Cast"'
       )
@@ -504,7 +503,7 @@ test('tabulating CVRs', async () => {
   fireEvent.click(getByText('Save SEMS Results'));
   advanceTimers(2);
   getByText(
-    'votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.txt'
+    'votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-04.txt'
   );
 
   fireEvent.click(getByText('Save'));
@@ -515,7 +514,7 @@ test('tabulating CVRs', async () => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(2);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       2,
-      'fake mount point/votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.txt',
+      'fake mount point/votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-04.txt',
       'test-content'
     );
   });
