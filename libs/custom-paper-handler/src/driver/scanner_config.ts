@@ -1,4 +1,5 @@
 import { Uint16toUint8, Uint32toUint8, Uint8 } from '../bits';
+import { ConfigureScannerCommand } from './coders';
 
 export type PaperMovementAfterScan =
   | 'hold_ticket'
@@ -22,17 +23,19 @@ export interface ScannerConfig {
   disableJamWheelSensor: boolean;
 }
 
-export const defaultConfig: ScannerConfig = {
-  scanLight: 'white',
-  scanDataFormat: 'grayscale',
-  horizontalResolution: 200,
-  verticalResolution: 200,
-  paperMovementAfterScan: 'hold_ticket',
-  scanDirection: 'forward',
-  scanHorizontalDimensionInDots: 1728,
-  scanMaxVerticalDimensionInDots: 0, // allows maximum
-  disableJamWheelSensor: false,
-};
+export function getDefaultConfig(): ScannerConfig {
+  return {
+    scanLight: 'white',
+    scanDataFormat: 'grayscale',
+    horizontalResolution: 200,
+    verticalResolution: 200,
+    paperMovementAfterScan: 'hold_ticket',
+    scanDirection: 'forward',
+    scanHorizontalDimensionInDots: 1728,
+    scanMaxVerticalDimensionInDots: 0, // allows maximum
+    disableJamWheelSensor: false,
+  };
+}
 
 type Encoder<T extends string | number> = Record<T, Uint8>;
 
@@ -58,11 +61,31 @@ const ScanTypeEncoder: Record<ScanDataFormat, Encoder<ScanLight>> = {
   },
 };
 
+// Bitmap. 'Scan in park' is represented by the 0x02 position but requires
+// 'backward' scan direction to be set in 0x01, so the final value is binary(011) == 0x03
 const ScanDirectionEncoder: Encoder<ScanDirection> = {
   forward: 0x00,
   backward: 0x01,
   in_park: 0x03,
 };
+
+export function getScannerConfigCoderValues(
+  scannerConfig: ScannerConfig
+): ConfigureScannerCommand {
+  return {
+    optionPaperConfig:
+      PaperMovementAfterScanEncoder[scannerConfig.paperMovementAfterScan],
+    optionSensorConfig: scannerConfig.disableJamWheelSensor ? 0x04 : 0x00,
+    flags: ScanDirectionEncoder[scannerConfig.scanDirection],
+    scan: ScanTypeEncoder[scannerConfig.scanDataFormat][
+      scannerConfig.scanLight
+    ],
+    dpiX: scannerConfig.horizontalResolution,
+    dpiY: scannerConfig.verticalResolution,
+    sizeX: scannerConfig.scanHorizontalDimensionInDots,
+    sizeY: scannerConfig.scanMaxVerticalDimensionInDots,
+  };
+}
 
 export function encodeScannerConfig(scannerConfig: ScannerConfig): Uint8[] {
   const data: Uint8[] = [];
