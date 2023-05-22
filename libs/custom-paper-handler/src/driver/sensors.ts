@@ -1,5 +1,9 @@
 import { assert } from '@votingworks/basics';
 import { BitArray, Uint8, Uint8ToBitArray } from '../bits';
+import {
+  PrinterStatusRealTimeExchangeResponse,
+  SensorStatusRealTimeExchangeResponse,
+} from './coders';
 
 /**
  * Contains the pieces of state that we receive from the scanner.
@@ -97,7 +101,122 @@ export interface PrinterStatus {
 
 export type PaperHandlerStatus = ScannerStatus & PrinterStatus;
 
-export function parseScannerStatus(data: DataView): ScannerStatus {
+// See: page 60 of manual
+export function parseScannerStatus(
+  response: SensorStatusRealTimeExchangeResponse
+): ScannerStatus {
+  // Uint8ToBitArray takes a Uint8 and returns a bit array with MSB in the 0th position of the bit array
+  const [
+    parkSensor,
+    paperOutSensor,
+    paperPostCisSensor,
+    paperPreCisSensor,
+    // This differs from documentation
+    paperInputLeftInnerSensor,
+    paperInputRightInnerSensor,
+    paperInputLeftOuterSensor,
+    paperInputRightOuterSensor,
+  ] = Uint8ToBitArray(response.optionalByte0 as Uint8);
+
+  const [
+    ,
+    printHeadInPosition,
+    scanTimeout,
+    motorMove,
+    scanInProgress,
+    jamEncoder,
+    paperJam,
+    coverOpen,
+  ] = Uint8ToBitArray(response.optionalByte1 as Uint8);
+
+  const [
+    ,
+    ,
+    ,
+    ,
+    optoSensor,
+    ballotBoxDoorSensor,
+    ballotBoxAttachSensor,
+    preHeadSensor,
+  ] = Uint8ToBitArray(response.optionalByte2 as Uint8);
+
+  // The fourth byte is fixed to 0x00 and doesn't need to be parsed
+
+  return {
+    parkSensor,
+    paperOutSensor,
+    paperPostCisSensor,
+    paperPreCisSensor,
+    paperInputLeftInnerSensor,
+    paperInputRightInnerSensor,
+    paperInputLeftOuterSensor,
+    paperInputRightOuterSensor,
+    printHeadInPosition,
+    scanTimeout,
+    motorMove,
+    scanInProgress,
+    jamEncoder,
+    paperJam,
+    coverOpen,
+    optoSensor,
+    ballotBoxDoorSensor,
+    ballotBoxAttachSensor,
+    preHeadSensor,
+  };
+}
+
+export function parsePrinterStatus(
+  response: PrinterStatusRealTimeExchangeResponse
+): PrinterStatus {
+  // Bytes 0 and 1 are fixed and don't communicate printer status, so we don't need to parse them
+  const [, , ticketPresentInOutput, , , , , paperNotPresent]: BitArray =
+    Uint8ToBitArray(response.optionalByte2 as Uint8);
+
+  const [, , , , dragPaperMotorOn, spooling, coverOpen, printingHeadUpError] =
+    Uint8ToBitArray(response.optionalByte3 as Uint8);
+
+  const [
+    ,
+    ,
+    notAcknowledgeCommandError,
+    ,
+    powerSupplyVoltageError,
+    headNotConnected,
+    comError,
+    headTemperatureError,
+  ] = Uint8ToBitArray(response.optionalByte4 as Uint8);
+
+  const [
+    diverterError,
+    headErrorLocked,
+    printingHeadReadyToPrint,
+    ,
+    eepromError,
+    ramError,
+    ,
+    ,
+  ] = Uint8ToBitArray(response.optionalByte5 as Uint8);
+
+  return {
+    ticketPresentInOutput,
+    paperNotPresent,
+    dragPaperMotorOn,
+    spooling,
+    coverOpen,
+    printingHeadUpError,
+    notAcknowledgeCommandError,
+    powerSupplyVoltageError,
+    headNotConnected,
+    comError,
+    headTemperatureError,
+    diverterError,
+    headErrorLocked,
+    printingHeadReadyToPrint,
+    eepromError,
+    ramError,
+  };
+}
+export function parseScannerStatusDeprecated(data: DataView): ScannerStatus {
   assert(data.byteLength === 9);
 
   const [
@@ -156,7 +275,7 @@ export function parseScannerStatus(data: DataView): ScannerStatus {
   };
 }
 
-export function parsePrinterStatus(data: DataView): PrinterStatus {
+export function parsePrinterStatusDeprecated(data: DataView): PrinterStatus {
   assert(data.byteLength === 11);
   const [, , ticketPresentInOutput, , , , , paperNotPresent]: BitArray =
     Uint8ToBitArray(data.getUint8(7) as Uint8);
