@@ -49,7 +49,11 @@ export default defineConfig(async (env) => {
         // The trailing slash is important, otherwise it will be resolved as a
         // built-in NodeJS module.
         { find: 'buffer', replacement: require.resolve('buffer/') },
+        { find: 'events', replacement: require.resolve('events/') },
+        { find: 'fs', replacement: join(__dirname, './src/stubs/fs.ts') },
         { find: 'path', replacement: require.resolve('path/') },
+        { find: 'stream', replacement: require.resolve('stream-browserify') },
+        { find: 'util', replacement: require.resolve('util/') },
 
         // Create aliases for all workspace packages, i.e.
         //

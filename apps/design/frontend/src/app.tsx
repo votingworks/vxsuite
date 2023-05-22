@@ -2,9 +2,9 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable react/no-array-index-key */
 import './polyfills';
-import { AppBase } from '@votingworks/ui';
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { throwIllegalValue } from '@votingworks/basics';
+import { deferred, throwIllegalValue } from '@votingworks/basics';
+import createBlobStream from 'blob-stream';
 import {
   AnyElement,
   Box,
@@ -17,6 +17,7 @@ import {
 } from './document_types';
 import { SvgBox, SvgEllipse, SvgPage, SvgRectangle } from './document_svg';
 import { allBubbleBallots } from './all_bubble_ballots';
+import { renderDocumentToPdf } from './document_pdf';
 
 function replaceAtIndex<T>(array: T[], index: number, value: T): T[] {
   return [...array.slice(0, index), value, ...array.slice(index + 1)];
@@ -188,6 +189,40 @@ function PageObject({
   );
 }
 
+async function renderDocumentToBlob(document: Document) {
+  const blobStream = createBlobStream();
+  renderDocumentToPdf(document, blobStream);
+  const { promise, resolve } = deferred<Blob>();
+  blobStream.on('finish', () => {
+    resolve(blobStream.toBlob('application/pdf'));
+  });
+  return promise;
+}
+
+function DocumentPdf({
+  dimensions,
+  document,
+}: {
+  dimensions: { width: number; height: number };
+  document: Document;
+}) {
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      setPdfBlob(await renderDocumentToBlob(document));
+    })();
+  }, [document]);
+
+  return (
+    <div style={dimensions}>
+      {pdfBlob && (
+        <embed src={URL.createObjectURL(pdfBlob)} width="100%" height="100%" />
+      )}
+    </div>
+  );
+}
+
 function DocumentSvg({
   dimensions,
   document,
@@ -290,12 +325,18 @@ export function App(): JSX.Element {
   }, []);
 
   return (
-    <AppBase>
-      <DocumentSvg
+    <React.Fragment>
+      <button
+        onClick={() => setDocument(allBubbleBallots.blank.ballotDocument)}
+        type="button"
+      >
+        Change ballot
+      </button>
+      <DocumentPdf
         dimensions={dimensions}
         document={document}
-        setDocument={setDocument}
+        // setDocument={setDocument}
       />
-    </AppBase>
+    </React.Fragment>
   );
 }

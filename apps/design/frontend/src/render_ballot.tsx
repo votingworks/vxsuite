@@ -3,11 +3,16 @@ import React from 'react';
 import ReactDomServer from 'react-dom/server';
 import { throwIllegalValue } from '@votingworks/basics';
 import fs from 'fs';
-import PdfDocument from 'pdfkit';
-import SvgToPdf from 'svg-to-pdfkit';
+// import PdfDocument from 'pdfkit';
+// import SvgToPdf from 'svg-to-pdfkit';
 import { safeParseJson } from '@votingworks/types';
+import makeDebug from 'debug';
+import { time } from '@votingworks/utils';
 import { SvgBox, SvgEllipse, SvgPage, SvgRectangle } from './document_svg';
 import { Document, AnyElement, Page } from './document_types';
+import { renderDocumentToPdf } from './document_pdf';
+
+const debug = makeDebug('design');
 
 function SvgAnyElement(props: AnyElement): JSX.Element {
   // eslint-disable-next-line react/destructuring-assignment
@@ -46,28 +51,28 @@ function renderPageToSvg(page: Page, width: number, height: number): string {
   return pageSvgString.replace(/^<svg width="\d*" height="\d*"/, '<svg');
 }
 
-export function renderDocumentToPdf(
-  document: Document,
-  outStream: NodeJS.WritableStream
-): void {
-  const svgPages = document.pages.map((page) =>
-    renderPageToSvg(page, document.width, document.height)
-  );
+// export function renderDocumentToPdf(
+//   document: Document,
+//   outStream: NodeJS.WritableStream
+// ): void {
+//   const svgPages = document.pages.map((page) =>
+//     renderPageToSvg(page, document.width, document.height)
+//   );
 
-  const pdf = new PdfDocument({
-    layout: 'portrait',
-    size: 'letter',
-    autoFirstPage: false,
-  });
+//   const pdf = new PdfDocument({
+//     layout: 'portrait',
+//     size: 'letter',
+//     autoFirstPage: false,
+//   });
 
-  for (const svgPage of svgPages) {
-    pdf.addPage();
-    SvgToPdf(pdf, svgPage, 0, 0);
-  }
+//   for (const svgPage of svgPages) {
+//     pdf.addPage();
+//     SvgToPdf(pdf, svgPage, 0, 0);
+//   }
 
-  pdf.pipe(outStream);
-  pdf.end();
-}
+//   pdf.pipe(outStream);
+//   pdf.end();
+// }
 
 export function main(): void {
   const USAGE = `Usage: ./bin/render-ballot <ballot-document.json> <ballot-output.pdf>`;
@@ -83,8 +88,11 @@ export function main(): void {
   const ballotDocument = safeParseJson(ballotDocumentJson).assertOk(
     'Invalid ballot document JSON'
   );
+
+  const timer = time(debug, 'render ballot');
   renderDocumentToPdf(
     ballotDocument as Document,
     fs.createWriteStream(outputPdfPath)
   );
+  timer.end();
 }

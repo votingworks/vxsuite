@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { finished } from 'stream/promises';
 import tmp from 'tmp';
 import { allBubbleBallots } from './all_bubble_ballots';
-import { renderDocumentToPdf } from './render_ballot';
+import { renderDocumentToPdf } from './document_pdf';
 
 function normalizePdf(pdf: string): string {
   return pdf.replace(/ID \[<.+> <.+>\]/, '').replace(/(D:\d+Z)/, '');

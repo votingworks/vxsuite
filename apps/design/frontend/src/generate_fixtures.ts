@@ -1,7 +1,7 @@
 import { join } from 'path';
 import * as fs from 'fs';
 import { allBubbleBallots } from './all_bubble_ballots';
-import { renderDocumentToPdf } from './render_ballot';
+import { renderDocumentToPdf } from './document_pdf';
 
 export function main(): void {
   const fixturesDir = join(__dirname, '../fixtures');
