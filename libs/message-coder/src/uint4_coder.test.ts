@@ -9,7 +9,7 @@ import { uint4 } from './uint4_coder';
 test('uint4', () => {
   fc.assert(
     fc.property(
-      fc.integer(0, 15),
+      fc.integer({ min: 0, max: 15 }),
       fc.integer({ min: 0, max: 100 }),
       (value, byteOffset) => {
         const bitOffset = byteOffset * 8;
@@ -17,6 +17,7 @@ test('uint4', () => {
         const field = uint4();
         type field = CoderType<typeof field>;
 
+        expect(field.canEncode(value)).toEqual(true);
         expect(field.encodeInto(value, buffer, bitOffset)).toEqual(
           ok(bitOffset + 4)
         );
@@ -52,6 +53,8 @@ test('uint4 with enumeration', () => {
   const coder = uint4<Speed>(Speed);
 
   // encode/decode
+  expect(coder.canEncode(Speed.Fast)).toEqual(true);
+  expect(coder.canEncode(3)).toEqual(false);
   expect(coder.encode(Speed.Fast)).toEqual(ok(Buffer.from([0b00100000])));
   expect(coder.decode(Buffer.from([0b00100000]))).toEqual(ok(Speed.Fast));
 

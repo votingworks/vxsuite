@@ -1,4 +1,4 @@
-import { err, resultBlock } from '@votingworks/basics';
+import { Result, err, ok, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { BaseCoder } from './base_coder';
 import { BITS_PER_BYTE, toByteOffset } from './bits';
@@ -6,6 +6,7 @@ import {
   BitLength,
   BitOffset,
   Coder,
+  CoderError,
   DecodeResult,
   EncodeResult,
   Uint4,
@@ -20,12 +21,16 @@ export class Uint4Coder extends BaseCoder<Uint4> {
     super();
   }
 
+  canEncode(value: unknown): value is number {
+    return typeof value === 'number' && this.validateValue(value).isOk();
+  }
+
   default(): Uint4 {
     return defaultEnumValue(this.enumeration);
   }
 
-  bitLength(): BitLength {
-    return 4;
+  bitLength(): Result<BitLength, CoderError> {
+    return ok(4);
   }
 
   protected minValue = 0b0000;
@@ -33,15 +38,7 @@ export class Uint4Coder extends BaseCoder<Uint4> {
 
   encodeInto(value: Uint4, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
     return resultBlock((fail) => {
-      const validatedValue = validateEnumValue(
-        this.enumeration,
-        value
-      ).okOrElse(fail);
-
-      if (validatedValue < this.minValue || validatedValue > this.maxValue) {
-        return err('InvalidValue');
-      }
-
+      const validatedValue = this.validateValue(value).okOrElse(fail);
       const remainder = bitOffset % BITS_PER_BYTE;
       const isHigh = remainder === 0;
       const isLow = remainder === 4;
@@ -54,11 +51,11 @@ export class Uint4Coder extends BaseCoder<Uint4> {
         'subtracting remainder, which was checked above, should yield a valid byte offset'
       );
       const mask = isHigh ? 0x0f : 0xf0;
-      const shift = isHigh ? this.bitLength() : 0;
+      const shift = isHigh ? this.bitLength().okOrElse(fail) : 0;
       const byte = buffer.readUInt8(byteOffset);
       const nextByte = (byte & mask) | ((validatedValue << shift) & ~mask);
       buffer.writeUInt8(nextByte, byteOffset);
-      return bitOffset + this.bitLength();
+      return bitOffset + this.bitLength().okOrElse(fail);
     });
   }
 
@@ -75,13 +72,28 @@ export class Uint4Coder extends BaseCoder<Uint4> {
       const byteOffset = toByteOffset(bitOffset - remainder).assertOk(
         'subtracting remainder, which was checked above, should yield a valid byte offset'
       );
-      const shift = isHigh ? this.bitLength() : 0;
+      const shift = isHigh ? this.bitLength().okOrElse(fail) : 0;
       const byte = buffer.readUInt8(byteOffset);
       const value = validateEnumValue(
         this.enumeration,
         (byte >> shift) & 0xf
       ).okOrElse(fail);
-      return { value, bitOffset: bitOffset + this.bitLength() };
+      return { value, bitOffset: bitOffset + this.bitLength().okOrElse(fail) };
+    });
+  }
+
+  protected validateValue(value: number): Result<Uint4, CoderError> {
+    return resultBlock((fail) => {
+      const validatedValue = validateEnumValue(
+        this.enumeration,
+        value
+      ).okOrElse(fail);
+
+      return !Number.isInteger(validatedValue) ||
+        validatedValue < this.minValue ||
+        validatedValue > this.maxValue
+        ? err('InvalidValue')
+        : ok(validatedValue);
     });
   }
 }

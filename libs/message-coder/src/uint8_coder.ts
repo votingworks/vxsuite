@@ -1,10 +1,11 @@
-import { resultBlock } from '@votingworks/basics';
+import { Result, ok, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { MAX_UINT8, MIN_UINT8 } from './constants';
 import {
   BitLength,
   BitOffset,
   Coder,
+  CoderError,
   DecodeResult,
   EncodeResult,
   Uint8,
@@ -15,8 +16,8 @@ import { UintCoder } from './uint_coder';
  * Coder for a uint8, aka an 8-bit unsigned integer.
  */
 export class Uint8Coder extends UintCoder {
-  bitLength(): BitLength {
-    return 8;
+  bitLength(): Result<BitLength, CoderError> {
+    return ok(8);
   }
 
   protected minValue = MIN_UINT8;

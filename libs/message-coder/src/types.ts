@@ -72,6 +72,11 @@ export interface Coder<T> {
   default(): T;
 
   /**
+   * Determine whether a value can be encoded by this coder.
+   */
+  canEncode(value: unknown): value is T;
+
+  /**
    * Encode a value as a buffer.
    */
   encode(value: T): Result<Buffer, CoderError>;
@@ -84,7 +89,7 @@ export interface Coder<T> {
   /**
    * Calculate how many bits are needed to encode a value.
    */
-  bitLength(value: T): BitLength;
+  bitLength(value: T): Result<BitLength, CoderError>;
 
   /**
    * Encode a value into a buffer at a given bit offset.

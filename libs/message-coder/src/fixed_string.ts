@@ -25,6 +25,10 @@ export class FixedStringCoder implements Coder<string> {
     private readonly includeTrailingNulls = false
   ) {}
 
+  canEncode(value: unknown): value is string {
+    return typeof value === 'string';
+  }
+
   default(): string {
     if (!this.includeTrailingNulls) {
       return '';
@@ -33,8 +37,8 @@ export class FixedStringCoder implements Coder<string> {
     return Buffer.alloc(this.byteLength).toString('utf8');
   }
 
-  bitLength(): BitLength {
-    return toBitLength(this.byteLength);
+  bitLength(): Result<BitLength, CoderError> {
+    return ok(toBitLength(this.byteLength));
   }
 
   encode(value: string): Result<Buffer, CoderError> {

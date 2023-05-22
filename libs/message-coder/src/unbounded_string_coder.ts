@@ -20,12 +20,16 @@ import {
  * required to be the last field in a message.
  */
 export class UnboundedStringCoder implements Coder<string> {
+  canEncode(value: unknown): value is string {
+    return typeof value === 'string';
+  }
+
   default(): string {
     return '';
   }
 
-  bitLength(string: string): BitLength {
-    return toBitLength(Buffer.from(string).byteLength);
+  bitLength(string: string): Result<BitLength, CoderError> {
+    return ok(toBitLength(Buffer.from(string).byteLength));
   }
 
   encode(value: string): Result<Buffer, CoderError> {

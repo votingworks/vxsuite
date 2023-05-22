@@ -12,8 +12,11 @@ test('padding', () => {
     b: uint8(),
   });
 
+  expect(padding(1).canEncode(undefined)).toEqual(true);
+  expect(padding(1).canEncode('a value')).toEqual(false);
+
   expect(m.default()).toEqual({ a: 0, b: 0 });
-  expect(m.bitLength({ a: 1, b: 2 })).toEqual(16);
+  expect(m.bitLength({ a: 1, b: 2 })).toEqual(ok(16));
   expect(m.encode({ a: 1, b: 2 })).toEqual(ok(Buffer.from([0b00010000, 0x02])));
   expect(m.decode(Buffer.from([0b00010000, 0x02]))).toEqual(ok({ a: 1, b: 2 }));
 

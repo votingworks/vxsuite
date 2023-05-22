@@ -63,7 +63,9 @@ test('uint8 with enumeration', () => {
   }
 
   const field = uint8<Enum>(Enum);
-  expect(field.bitLength(Enum.A)).toEqual(8);
+  expect(field.canEncode(Enum.A)).toEqual(true);
+  expect(field.canEncode(99)).toEqual(false);
+  expect(field.bitLength(Enum.A)).toEqual(ok(8));
   expect(field.encode(Enum.A)).toEqual(ok(Buffer.from([1])));
   expect(field.decode(Buffer.from([1]))).toEqual(ok(Enum.A));
   expect(field.encode(99)).toEqual(err('InvalidValue'));

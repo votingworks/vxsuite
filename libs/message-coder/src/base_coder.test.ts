@@ -1,17 +1,27 @@
-import { err, ok } from '@votingworks/basics';
+import { Result, err, ok } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fc from 'fast-check';
 import { BaseCoder } from './base_coder';
 import { bufferContainsBitOffset, toByteOffset } from './bits';
-import { DecodeResult, EncodeResult, Uint8 } from './types';
+import {
+  BitLength,
+  CoderError,
+  DecodeResult,
+  EncodeResult,
+  Uint8,
+} from './types';
 
 class TestCoder extends BaseCoder<number> {
+  canEncode(value: unknown): value is number {
+    return typeof value === 'number';
+  }
+
   default(): number {
     return 0;
   }
 
-  bitLength(): number {
-    return 8;
+  bitLength(): Result<BitLength, CoderError> {
+    return ok(8);
   }
 
   encodeInto(value: number, buffer: Buffer, bitOffset: number): EncodeResult {

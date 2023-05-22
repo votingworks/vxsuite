@@ -1,7 +1,14 @@
-import { resultBlock } from '@votingworks/basics';
+import { Result, ok, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { MAX_UINT24, MIN_UINT24 } from './constants';
-import { BitOffset, Coder, DecodeResult, EncodeResult, Uint24 } from './types';
+import {
+  BitOffset,
+  Coder,
+  CoderError,
+  DecodeResult,
+  EncodeResult,
+  Uint24,
+} from './types';
 import { UintCoder } from './uint_coder';
 
 /**
@@ -9,8 +16,8 @@ import { UintCoder } from './uint_coder';
  * order.
  */
 export class Uint24Coder extends UintCoder {
-  bitLength(): Uint24 {
-    return 24;
+  bitLength(): Result<Uint24, CoderError> {
+    return ok(24);
   }
 
   protected minValue = MIN_UINT24;

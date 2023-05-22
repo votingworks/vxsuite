@@ -10,8 +10,10 @@ test('fixed string', () => {
   const coder = fixedString(5);
   type coder = CoderType<typeof coder>;
 
+  expect(coder.canEncode('hello')).toEqual(true);
+  expect(coder.canEncode(1)).toEqual(false);
   expect(coder.default()).toEqual('');
-  expect(coder.bitLength('hello')).toEqual(40);
+  expect(coder.bitLength('hello')).toEqual(ok(40));
   expect(coder.encode('hello')).toEqual(ok(Buffer.from('hello')));
   expect(coder.decode(Buffer.from('hello'))).toEqual(ok('hello'));
 
@@ -69,7 +71,7 @@ test('fixed string random', () => {
         // encodeInto/decodeFrom
         const buffer = Buffer.alloc(byteLength + byteOffset);
         expect(coder.encodeInto(s, buffer, toBitOffset(byteOffset))).toEqual(
-          ok(bitOffset + coder.bitLength(s))
+          ok(bitOffset + coder.bitLength(s).unsafeUnwrap())
         );
         expect(buffer.slice(byteOffset).toString('utf8')).toEqual(s);
         expect(coder.decodeFrom(buffer, toBitOffset(byteOffset))).toEqual(

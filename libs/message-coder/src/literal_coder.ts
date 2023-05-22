@@ -1,46 +1,79 @@
-import { err, resultBlock } from '@votingworks/basics';
+import { Optional, Result, err, ok, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { BaseCoder } from './base_coder';
 import { toBitLength, toByteOffset } from './bits';
-import { BitOffset, DecodeResult, EncodeResult } from './types';
+import {
+  BitLength,
+  BitOffset,
+  CoderError,
+  DecodeResult,
+  EncodeResult,
+} from './types';
+
+function concatLiteralParts<T extends Array<string | number | Buffer>>(
+  ...values: T
+): Buffer {
+  return Buffer.concat(
+    values.map((v) =>
+      typeof v === 'string'
+        ? Buffer.from(v)
+        : Buffer.isBuffer(v)
+        ? v
+        : Buffer.of(v)
+    )
+  );
+}
 
 /**
  * A literal value in a message.
  */
-export class LiteralCoder extends BaseCoder<void> {
+export class LiteralCoder<
+  T extends ReadonlyArray<string | number | Buffer>
+> extends BaseCoder<Optional<T>> {
+  private readonly values: T;
   private readonly value: Buffer;
 
-  constructor(...values: Array<string | number | Buffer>) {
+  constructor(...values: T) {
     super();
-    this.value = Buffer.concat(
-      values.map((v) =>
-        typeof v === 'string'
-          ? Buffer.from(v)
-          : Buffer.isBuffer(v)
-          ? v
-          : Buffer.of(v)
-      )
-    );
+    this.values = values;
+    this.value = concatLiteralParts(...values);
   }
 
-  default(): void {
-    return undefined;
+  canEncode(value: unknown): value is T {
+    if (typeof value === 'undefined') {
+      return true;
+    }
+
+    const parts = Array.isArray(value) ? value : [value];
+    const buffer = concatLiteralParts(...parts);
+    return Buffer.compare(this.value, buffer) === 0;
   }
 
-  bitLength(): number {
-    return toBitLength(this.value.byteLength);
+  default(): Optional<T> {
+    return this.values;
   }
 
-  encodeInto(_value: void, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
+  bitLength(): Result<BitLength, CoderError> {
+    return ok(toBitLength(this.value.byteLength));
+  }
+
+  encodeInto(
+    value: Optional<T>,
+    buffer: Buffer,
+    bitOffset: BitOffset
+  ): EncodeResult {
+    if (!this.canEncode(value)) {
+      return err('InvalidValue');
+    }
+
     return resultBlock((fail) => {
-      const { value } = this;
       const byteOffset = toByteOffset(bitOffset).okOrElse(fail);
-      buffer.set(value, byteOffset);
-      return toBitLength(byteOffset + value.byteLength);
+      buffer.set(this.value, byteOffset);
+      return toBitLength(byteOffset + this.value.byteLength);
     });
   }
 
-  decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<void> {
+  decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<Optional<T>> {
     return resultBlock((fail) => {
       const { value } = this;
       const byteOffset = toByteOffset(bitOffset).okOrElse(fail);
@@ -60,8 +93,8 @@ export class LiteralCoder extends BaseCoder<void> {
  * A literal value in a message. For use with `message` when a section of the
  * message's memory is always a fixed value.
  */
-export function literal(
-  ...values: Array<string | number | Buffer>
-): LiteralCoder {
+export function literal<T extends ReadonlyArray<string | number | Buffer>>(
+  ...values: T
+): LiteralCoder<T> {
   return new LiteralCoder(...values);
 }

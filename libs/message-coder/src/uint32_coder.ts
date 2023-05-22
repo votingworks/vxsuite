@@ -1,10 +1,11 @@
-import { resultBlock } from '@votingworks/basics';
+import { Result, ok, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { MAX_UINT32, MIN_UINT32 } from './constants';
 import {
   BitLength,
   BitOffset,
   Coder,
+  CoderError,
   DecodeResult,
   EncodeResult,
   Uint32,
@@ -30,8 +31,8 @@ export class Uint32Coder extends UintCoder {
     this.littleEndian = littleEndian;
   }
 
-  bitLength(): BitLength {
-    return 32;
+  bitLength(): Result<BitLength, CoderError> {
+    return ok(32);
   }
 
   protected minValue = MIN_UINT32;

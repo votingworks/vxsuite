@@ -57,11 +57,15 @@ export abstract class UintCoder extends BaseCoder<number> {
     super();
   }
 
+  canEncode(value: unknown): value is number {
+    return typeof value === 'number' && this.validateValue(value).isOk();
+  }
+
   default(): number {
     return defaultEnumValue(this.enumeration);
   }
 
-  abstract bitLength(): BitLength;
+  abstract bitLength(): Result<BitLength, CoderError>;
   protected abstract readonly minValue: number;
   protected abstract readonly maxValue: number;
 
@@ -71,7 +75,11 @@ export abstract class UintCoder extends BaseCoder<number> {
   ): Result<number, CoderError> {
     return resultBlock((fail) => {
       const byteOffset = toByteOffset(bitOffset).okOrElse(fail);
-      return bufferContainsBitOffset(buffer, bitOffset, this.bitLength())
+      return bufferContainsBitOffset(
+        buffer,
+        bitOffset,
+        this.bitLength().okOrElse(fail)
+      )
         ? ok(byteOffset)
         : err('SmallBuffer');
     });
@@ -85,7 +93,7 @@ export abstract class UintCoder extends BaseCoder<number> {
     return resultBlock((fail) => {
       const byteOffset = this.getByteOffset(buffer, bitOffset).okOrElse(fail);
       fn(byteOffset);
-      return bitOffset + this.bitLength();
+      return bitOffset + this.bitLength().okOrElse(fail);
     });
   }
 
@@ -97,7 +105,7 @@ export abstract class UintCoder extends BaseCoder<number> {
     return resultBlock((fail) => {
       const byteOffset = this.getByteOffset(buffer, bitOffset).okOrElse(fail);
       const value = fn(byteOffset).okOrElse(fail);
-      return { value, bitOffset: bitOffset + this.bitLength() };
+      return { value, bitOffset: bitOffset + this.bitLength().okOrElse(fail) };
     });
   }
 
@@ -105,7 +113,12 @@ export abstract class UintCoder extends BaseCoder<number> {
     return resultBlock((fail) => {
       validateEnumValue(this.enumeration, value).okOrElse(fail);
 
-      if (value < this.minValue || value > this.maxValue) {
+      if (
+        typeof value !== 'number' ||
+        !Number.isInteger(value) ||
+        value < this.minValue ||
+        value > this.maxValue
+      ) {
         return err('InvalidValue');
       }
 

@@ -108,6 +108,7 @@ test('get image data request', () => {
   );
 
   expect(GetImageDataRequest.default()).toEqual({
+    header: ['IMG', 0x00],
     length: 0,
     scanSide: ScanSide.A,
   });
@@ -789,6 +790,7 @@ test('getImageData', async () => {
 
         onRead.mockResolvedValueOnce(ok(res));
 
+        expect(GetImageDataRequest.canEncode(req)).toEqual(true);
         expect(await getImageData(channel, req.length, req.scanSide)).toEqual(
           ok(res)
         );
