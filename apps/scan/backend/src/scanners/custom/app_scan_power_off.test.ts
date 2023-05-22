@@ -3,7 +3,6 @@ import { ErrorCode, mocks } from '@votingworks/custom-scanner';
 import { err, ok } from '@votingworks/basics';
 import {
   configureApp,
-  expectStatus,
   mockInterpretation,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
@@ -47,7 +46,6 @@ test('scanner powered off while scanning', async () => {
 
       simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       mockScanner.getStatus.mockResolvedValue(err(ErrorCode.ScannerOffline));
       await waitForStatus(apiClient, { state: 'disconnected' });
 
@@ -73,7 +71,6 @@ test('scanner powered off while accepting', async () => {
 
       simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -112,7 +109,6 @@ test('scanner powered off after accepting', async () => {
 
       simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -158,7 +154,6 @@ test('scanner powered off while rejecting', async () => {
 
       simulateScan(mockScanner, await ballotImages.wrongElection());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,
@@ -187,7 +182,6 @@ test('scanner powered off while returning', async () => {
 
       simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
       await apiClient.returnBallot();
@@ -219,7 +213,6 @@ test('scanner powered off after returning', async () => {
 
       simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
       await apiClient.returnBallot();

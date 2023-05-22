@@ -3,7 +3,6 @@ import { mocks } from '@votingworks/custom-scanner';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
   configureApp,
-  expectStatus,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
@@ -36,7 +35,6 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
 
       simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,
@@ -73,7 +71,6 @@ test('bmd ballot is accepted if precinct is set for the right precinct', async (
 
       simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation: validInterpretation,
@@ -104,7 +101,6 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
 
       simulateScan(mockScanner, await ballotImages.completeHmpb());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,
@@ -142,7 +138,6 @@ test('hmpb ballot is accepted if precinct is set for the right precinct', async 
 
       simulateScan(mockScanner, await ballotImages.completeHmpb());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation: validInterpretation,

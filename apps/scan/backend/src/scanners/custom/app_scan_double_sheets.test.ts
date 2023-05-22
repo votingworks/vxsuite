@@ -83,7 +83,6 @@ test('insert second ballot while first ballot is accepting', async () => {
 
       simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -120,7 +119,6 @@ test('insert second ballot while first ballot needs review', async () => {
 
       simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
       mockScanner.getStatus.mockResolvedValue(

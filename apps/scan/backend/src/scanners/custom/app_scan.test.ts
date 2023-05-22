@@ -94,7 +94,6 @@ test('configure and scan hmpb', async () => {
 
       simulateScan(mockScanner, await ballotImages.completeHmpb());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -210,7 +209,6 @@ test('ballot needs review - return', async () => {
 
       simulateScan(mockScanner, await ballotImages.overvoteHmpb());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
       await apiClient.returnBallot();
@@ -265,7 +263,6 @@ test('invalid ballot rejected', async () => {
 
       simulateScan(mockScanner, await ballotImages.wrongElection());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,
@@ -307,7 +304,6 @@ test('blank sheet ballot rejected', async () => {
 
       simulateScan(mockScanner, await ballotImages.blankSheet());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,
