@@ -19,16 +19,11 @@ import { setUpMockWebUsbDevice } from './test_utils';
 
 /**
  * message-coder (new) encodes as Buffers, but the prototype driver (legacy) sends messages as Uint8Array.
- * This means the type of input of calls to webDevice.transferOut will differ between the legacy and new implementations.
- * isLegacyTest=true forces tests to format the input to transferOut as Uint8Array.
- * isLegacyTEst=false forces tests to format the input to transferOut as Buffer.
+ * This means the type of input for calls to webDevice.transferOut will differ between the legacy and new implementations.
+ * We wrap test expectations in formatTransferOutArg now so we can easily change them in the future.
  */
-const isLegacyTest = true;
-function formatTransferOutArg(
-  data: Buffer,
-  legacyTestOverride = false
-): Uint8Array | Buffer {
-  return isLegacyTest || legacyTestOverride ? new Uint8Array(data) : data;
+function formatTransferOutArg(data: Buffer): Uint8Array | Buffer {
+  return new Uint8Array(data);
 }
 type MockWebUsbDevice = mocks.MockWebUsbDevice;
 
