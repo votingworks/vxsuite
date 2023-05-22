@@ -126,16 +126,13 @@ test('getScannerStatus sends the correct message and can parse a response', asyn
 
   const result = await paperHandlerDriver.getScannerStatus();
   expect(transferOutSpy).toHaveBeenCalledTimes(1);
-  const inputAsBuffer = Uint8Array.from([
+  const input = Uint8Array.from([
     0x02,
     RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
     TOKEN,
     NULL_CODE,
   ]);
-  expect(transferOutSpy).toHaveBeenCalledWith(
-    REAL_TIME_ENDPOINT_OUT,
-    inputAsBuffer
-  );
+  expect(transferOutSpy).toHaveBeenCalledWith(REAL_TIME_ENDPOINT_OUT, input);
 
   expect(result).toEqual(expectedStatus);
 });
@@ -193,16 +190,13 @@ test('getPrinterStatus sends the correct message and can parse a response', asyn
 
   const result = await paperHandlerDriver.getPrinterStatus();
   expect(transferOutSpy).toHaveBeenCalledTimes(1);
-  const inputAsBuffer = Uint8Array.from([
+  const input = Uint8Array.from([
     0x02,
     RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
     TOKEN,
     NULL_CODE,
   ]);
-  expect(transferOutSpy).toHaveBeenCalledWith(
-    REAL_TIME_ENDPOINT_OUT,
-    inputAsBuffer
-  );
+  expect(transferOutSpy).toHaveBeenCalledWith(REAL_TIME_ENDPOINT_OUT, input);
 
   expect(result).toEqual(expectedStatus);
 });
@@ -236,10 +230,9 @@ test.each(testsWithNoAdditionalResponseData)(
 
     await functionToTest.call(paperHandlerDriver);
     expect(transferOutSpy).toHaveBeenCalledTimes(1);
-    const inputAsBuffer = Uint8Array.from([0x02, requestId, TOKEN, NULL_CODE]);
     expect(transferOutSpy).toHaveBeenCalledWith(
       REAL_TIME_ENDPOINT_OUT,
-      inputAsBuffer
+      Uint8Array.from([0x02, requestId, TOKEN, NULL_CODE])
     );
   }
 );

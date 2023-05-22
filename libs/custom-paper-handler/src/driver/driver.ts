@@ -36,10 +36,12 @@ import {
   ScannerConfig,
 } from './scanner_config';
 
-const serverDebug = makeDebug('custom-paper-handler:driver');
+const serverDebug = makeDebug('paper-handler:driver');
 
 function debug(message: string) {
   serverDebug(message);
+  /* eslint-disable-next-line no-console */
+  console.log(message);
 }
 
 /**
@@ -104,12 +106,19 @@ const SCAN: Command = [0x1c, 0x53, 0x50, 0x53];
 
 // Ongoing Scan Status
 const OK_CONTINUE: Uint8 = 0x00;
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const OK_DONE: Uint8 = 0xff;
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const SCAN_ABORTED: Uint8 = 0x41;
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const SCANNER_BUSY: Uint8 = 0x42;
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const COVER_OPEN: Uint8 = 0x43;
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const PAPER_JAM: Uint8 = 0x4a;
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const TIMEOUT: Uint8 = 0x54;
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const DOUBLE_SHEET_DETECTED: Uint8 = 0x55;
 
 const LOAD_PAPER: Command = [0x1c, 0x53, 0x50, 0x4c];
@@ -209,7 +218,7 @@ export class PaperHandlerDriver {
    * Send commands or data on the generic bulk out endpoint.
    */
   transferOutGeneric(
-    data: Uint8[] | Uint8Array
+    data: Uint8[] | Uint8Array | Buffer
   ): Promise<USBOutTransferResult> {
     return this.webDevice.transferOut(
       GENERIC_ENDPOINT_OUT,
