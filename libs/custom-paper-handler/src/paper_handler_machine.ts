@@ -116,6 +116,10 @@ export class PaperHandlerMachine {
     this.status = 'no_paper';
   }
 
+  async logStatus(): Promise<void> {
+    debug(JSON.stringify(await this.driver.getPaperHandlerStatus(), null, 2));
+  }
+
   /**
    * Parks paper inside the handler. If there is no paper to park, returns
    * negative acknowledgement.If paper already parked, does nothing and returns
