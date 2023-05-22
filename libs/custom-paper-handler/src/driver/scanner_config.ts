@@ -83,6 +83,5 @@ export function encodeScannerConfig(scannerConfig: ScannerConfig): Uint8[] {
   data.push(...Uint16toUint8(scannerConfig.verticalResolution));
   data.push(...Uint16toUint8(scannerConfig.scanHorizontalDimensionInDots));
   data.push(...Uint32toUint8(scannerConfig.scanMaxVerticalDimensionInDots));
-  console.log(data);
   return data;
 }
