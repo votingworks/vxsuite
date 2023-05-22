@@ -8,7 +8,11 @@ import {
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import { SheetInterpretation } from '../../types';
-import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
+import {
+  ballotImages,
+  simulateScan,
+  withApp,
+} from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
 
@@ -61,10 +65,9 @@ test('jam on accept', async () => {
       };
       mockInterpretation(interpreter, interpretation);
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeBmd()));
+      simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
       await waitForStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -104,10 +107,9 @@ test('jam on return', async () => {
       const interpretation = needsReviewInterpretation;
       mockInterpretation(interpreter, interpretation);
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.unmarkedHmpb()));
+      simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
       await apiClient.scanBallot();
       await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
       await apiClient.returnBallot();
@@ -138,12 +140,9 @@ test('jam on reject', async () => {
       };
       mockInterpretation(interpreter, interpretation);
 
-      mockScanner.scan.mockResolvedValue(
-        ok(await ballotImages.wrongElection())
-      );
+      simulateScan(mockScanner, await ballotImages.wrongElection());
       await apiClient.scanBallot();
       await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,

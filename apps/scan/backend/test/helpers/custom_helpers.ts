@@ -189,3 +189,26 @@ export const ballotImages = {
       await electionFamousNames2021Fixtures.machineMarkedBallotPage2.asImageData(),
     ]),
 } as const;
+
+/**
+ * To avoid race conditions within the state machine, its important that the
+ * mock scanner immediately transition from READY_TO_SCAN to READY_TO_EJECT once
+ * the scan command completes (simulating how the real scanner works). This
+ * helper function implements that pattern.
+ */
+export function simulateScan(
+  mockScanner: jest.Mocked<CustomScanner>,
+  ballotImage: SheetOf<ImageFromScanner>
+): void {
+  let didScan = false;
+  mockScanner.getStatus.mockImplementation(() => {
+    if (!didScan) {
+      return Promise.resolve(ok(mocks.MOCK_READY_TO_SCAN));
+    }
+    return Promise.resolve(ok(mocks.MOCK_READY_TO_EJECT));
+  });
+  mockScanner.scan.mockImplementationOnce(() => {
+    didScan = true;
+    return Promise.resolve(ok(ballotImage));
+  });
+}

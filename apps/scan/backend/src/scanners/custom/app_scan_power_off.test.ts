@@ -8,7 +8,11 @@ import {
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import { SheetInterpretation } from '../../types';
-import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
+import {
+  ballotImages,
+  simulateScan,
+  withApp,
+} from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
 
@@ -41,7 +45,7 @@ test('scanner powered off while scanning', async () => {
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeBmd()));
+      simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
       await expectStatus(apiClient, { state: 'scanning' });
       mockScanner.getStatus.mockResolvedValue(err(ErrorCode.ScannerOffline));
@@ -67,10 +71,9 @@ test('scanner powered off while accepting', async () => {
       };
       mockInterpretation(interpreter, interpretation);
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeBmd()));
+      simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
       await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -107,10 +110,9 @@ test('scanner powered off after accepting', async () => {
       };
       mockInterpretation(interpreter, interpretation);
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeBmd()));
+      simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
       await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -154,12 +156,9 @@ test('scanner powered off while rejecting', async () => {
       };
       mockInterpretation(interpreter, interpretation);
 
-      mockScanner.scan.mockResolvedValue(
-        ok(await ballotImages.wrongElection())
-      );
+      simulateScan(mockScanner, await ballotImages.wrongElection());
       await apiClient.scanBallot();
       await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,
@@ -186,10 +185,9 @@ test('scanner powered off while returning', async () => {
       const interpretation = needsReviewInterpretation;
       mockInterpretation(interpreter, interpretation);
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.unmarkedHmpb()));
+      simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
       await apiClient.scanBallot();
       await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
       await apiClient.returnBallot();
@@ -219,10 +217,9 @@ test('scanner powered off after returning', async () => {
       const interpretation = needsReviewInterpretation;
       mockInterpretation(interpreter, interpretation);
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.unmarkedHmpb()));
+      simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
       await apiClient.scanBallot();
       await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
       await apiClient.returnBallot();
