@@ -86,6 +86,7 @@ export async function withApp(
       DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 100,
       DELAY_ACCEPTED_RESET_TO_NO_PAPER: 200,
       DELAY_PAPER_STATUS_POLLING_INTERVAL: 50,
+      DELAY_RETRY_SCANNING: 0,
       ...delays,
     },
   });
