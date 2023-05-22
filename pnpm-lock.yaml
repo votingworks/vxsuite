@@ -3911,6 +3911,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
+      '@votingworks/custom-scanner':
+        specifier: workspace:*
+        version: link:../custom-scanner
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils
@@ -3957,9 +3960,6 @@ importers:
       '@typescript-eslint/parser':
         specifier: 5.37.0
         version: 5.37.0(eslint@8.23.1)(typescript@4.6.3)
-      '@votingworks/custom-scanner':
-        specifier: workspace:*
-        version: link:../custom-scanner
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
