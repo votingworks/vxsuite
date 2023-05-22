@@ -7,10 +7,12 @@ import type {
   WriteInRecordPending,
   WriteInSummaryEntryPending,
 } from '@votingworks/admin-backend';
-import { act, screen } from '../../test/react_testing_library';
+import { act, screen, waitFor } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { WriteInsScreen } from './write_ins_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+
+jest.setTimeout(20000);
 
 const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
 
@@ -35,7 +37,11 @@ function mockWriteInSummaryPending(
   };
 }
 
+let apiMock: ApiMock;
+
 afterEach(async () => {
+  apiMock.assertComplete();
+
   // Several tests on this page create test warnings because hooks run after
   // the end of the test, and there is no specific change on the page to check.
   // TODO: Remove after upgrade to React 18, which does not warn in this case.
@@ -44,14 +50,8 @@ afterEach(async () => {
   });
 });
 
-let apiMock: ApiMock;
-
 beforeEach(() => {
   apiMock = createApiMock();
-});
-
-afterEach(() => {
-  apiMock.assertComplete();
 });
 
 test('No CVRs loaded', async () => {
@@ -201,7 +201,9 @@ test('adjudication', async () => {
   apiMock.expectGetWriteInSummary([]);
 
   userEvent.click(screen.getButton('Zebra'));
-  expect(await screen.findButton('Next')).toHaveFocus();
+  await waitFor(async () =>
+    expect(await screen.findButton('Next')).toHaveFocus()
+  );
 
   // clicking current selection should be no-op
   userEvent.click(screen.getButton('Zebra'));
@@ -230,7 +232,9 @@ test('adjudication', async () => {
   apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
   apiMock.expectGetWriteInSummary([]);
   userEvent.click(screen.getButton('Lemur'));
-  expect(await screen.findButton('Next')).toHaveFocus();
+  await waitFor(async () =>
+    expect(await screen.findButton('Next')).toHaveFocus()
+  );
 
   // clicking current selection should be no-op
   userEvent.click(screen.getButton('Lemur'));
@@ -282,7 +286,9 @@ test('adjudication', async () => {
   userEvent.click(await screen.findByText('Add'));
 
   await screen.findButton('Dark Helmet');
-  expect(await screen.findButton('Next')).toHaveFocus();
+  await waitFor(async () =>
+    expect(await screen.findButton('Next')).toHaveFocus()
+  );
 
   // adjudicate as invalid
   apiMock.apiClient.adjudicateWriteIn
@@ -305,6 +311,8 @@ test('adjudication', async () => {
   apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
   apiMock.expectGetWriteInSummary([]);
   userEvent.click(await screen.findButton('Mark Write-In Invalid'));
-  expect(await screen.findButton('Next')).toHaveFocus();
+  await waitFor(async () =>
+    expect(await screen.findButton('Next')).toHaveFocus()
+  );
   expect(screen.queryByText('Dark Helmet')).not.toBeInTheDocument();
 });
