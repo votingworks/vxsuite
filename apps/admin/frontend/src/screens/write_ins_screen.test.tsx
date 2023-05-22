@@ -163,7 +163,7 @@ test('adjudication', async () => {
   apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id); // prefetch
   userEvent.click(await screen.findByText('Adjudicate 2'));
 
-  await screen.findByRole('img');
+  await screen.findByRole('img', { name: /ballot/i });
   screen.getButton('Zebra');
   screen.getButton('Lion');
   screen.getButton('Kangaroo');
