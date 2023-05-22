@@ -287,6 +287,25 @@ export const Uint8Max: Uint8 = 255;
 export const Uint8MostSignificantBitMask: Uint8 = 128;
 
 /**
+ * Binary array for debugging
+ */
+type BinaryStringRepresentation = '0' | '1';
+export type BinaryArray = [
+  BinaryStringRepresentation,
+  BinaryStringRepresentation,
+  BinaryStringRepresentation,
+  BinaryStringRepresentation,
+  BinaryStringRepresentation,
+  BinaryStringRepresentation,
+  BinaryStringRepresentation,
+  BinaryStringRepresentation
+];
+
+export function getZeroBinaryArray(): BinaryArray {
+  return ['0', '0', '0', '0', '0', '0', '0', '0'];
+}
+
+/**
  * Array of booleans representing the bits in a byte. Although unenforceable,
  * use to represent MSB-first to mirror how we would represent binary.
  */
@@ -311,6 +330,18 @@ export function Uint8ToBitArray(value: Uint8): BitArray {
   const bitArray = getZeroBitArray();
   for (let i = 0; i < Uint8Size; i += 1) {
     bitArray[i] = Boolean(shiftingValue & Uint8MostSignificantBitMask);
+    shiftingValue <<= 1;
+  }
+  return bitArray;
+}
+
+export function Uint8ToBinaryArray(value: Uint8): BinaryArray {
+  let shiftingValue: number = value;
+
+  const bitArray = getZeroBinaryArray();
+  for (let i = 0; i < Uint8Size; i += 1) {
+    const booleanValue = shiftingValue & Uint8MostSignificantBitMask;
+    bitArray[i] = booleanValue ? '1' : '0';
     shiftingValue <<= 1;
   }
   return bitArray;

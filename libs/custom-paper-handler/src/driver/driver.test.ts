@@ -55,7 +55,7 @@ test('initializePrinter sends the correct message', async () => {
   expect(paperHandlerWebDevice.transferOut).toHaveBeenCalledTimes(1);
   expect(paperHandlerWebDevice.transferOut).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from([0x1b, 0x40])
+    Buffer.from([0x1b, 0x40])
   );
 });
 
@@ -126,7 +126,7 @@ test('getScannerStatus sends the correct message and can parse a response', asyn
 
   const result = await paperHandlerDriver.getScannerStatus();
   expect(transferOutSpy).toHaveBeenCalledTimes(1);
-  const inputAsBuffer = Uint8Array.from([
+  const inputAsBuffer = Buffer.from([
     0x02,
     RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
     TOKEN,
@@ -193,7 +193,7 @@ test('getPrinterStatus sends the correct message and can parse a response', asyn
 
   const result = await paperHandlerDriver.getPrinterStatus();
   expect(transferOutSpy).toHaveBeenCalledTimes(1);
-  const inputAsBuffer = Uint8Array.from([
+  const inputAsBuffer = Buffer.from([
     0x02,
     RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
     TOKEN,
@@ -236,7 +236,7 @@ test.each(testsWithNoAdditionalResponseData)(
 
     await functionToTest.call(paperHandlerDriver);
     expect(transferOutSpy).toHaveBeenCalledTimes(1);
-    const inputAsBuffer = Uint8Array.from([0x02, requestId, TOKEN, NULL_CODE]);
+    const inputAsBuffer = Buffer.from([0x02, requestId, TOKEN, NULL_CODE]);
     expect(transferOutSpy).toHaveBeenCalledWith(
       REAL_TIME_ENDPOINT_OUT,
       inputAsBuffer
@@ -297,7 +297,7 @@ test.each(scannerCommands)(
     await functionToTest.call(paperHandlerDriver);
     expect(transferOutSpy).toHaveBeenCalledWith(
       GENERIC_ENDPOINT_OUT,
-      Uint8Array.from(command)
+      Buffer.from(command)
     );
   }
 );
@@ -346,7 +346,7 @@ async function expectScanConfigTransferOut(
   await testFn();
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from(expectation)
+    Buffer.from(expectation)
   );
 }
 
@@ -430,7 +430,7 @@ test('print command', async () => {
   await paperHandlerDriver.print(motionUnits);
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from(expectation)
+    Buffer.from(expectation)
   );
 });
 
@@ -446,7 +446,7 @@ test('print command defaults to 0 motion units', async () => {
   await paperHandlerDriver.print();
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from(expectation)
+    Buffer.from(expectation)
   );
 });
 
@@ -505,7 +505,7 @@ test.each(commandsWithMotionUnits)(
     functionToTest.call(paperHandlerDriver, motionUnits);
     expect(transferOutSpy).toHaveBeenCalledWith(
       GENERIC_ENDPOINT_OUT,
-      Uint8Array.from(transferOutExpectation)
+      Buffer.from(transferOutExpectation)
     );
   }
 );
@@ -522,7 +522,7 @@ test('setPrintingDensity', async () => {
   await paperHandlerDriver.setPrintingDensity('+25%');
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from(expectation)
+    Buffer.from(expectation)
   );
 });
 
@@ -538,7 +538,7 @@ test('setPrintingSpeed', async () => {
   await paperHandlerDriver.setPrintingSpeed('fast');
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from(expectation)
+    Buffer.from(expectation)
   );
 });
 
@@ -556,7 +556,7 @@ test('setMotionUnits', async () => {
   await paperHandlerDriver.setMotionUnits(x, y);
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from(expectation)
+    Buffer.from(expectation)
   );
 });
 
@@ -573,6 +573,6 @@ test('setLineSpacing', async () => {
   await paperHandlerDriver.setLineSpacing(n);
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from(expectation)
+    Buffer.from(expectation)
   );
 });

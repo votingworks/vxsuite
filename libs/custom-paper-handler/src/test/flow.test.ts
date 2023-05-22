@@ -1,8 +1,8 @@
 import { sleep } from '@votingworks/basics';
 import waitForExpect from 'wait-for-expect';
 import makeDebug from 'debug';
-import { ballotFixture } from '../test/fixtures';
-import { getPaperHandlerMachine } from './paper_handler_machine';
+import { ballotFixture } from './fixtures';
+import { getPaperHandlerMachine } from '../paper_handler_machine';
 
 const debug = makeDebug('paper-handler:test');
 
@@ -16,8 +16,10 @@ test('basic machine flow', async () => {
 
   let status = await paperHandlerMachine.getSimpleStatus();
 
-  // test designed to start with no paper inside the scanner
-  debug('ejecting any parked paper at beginning of test');
+  debug('logging status at beginning of test');
+  await paperHandlerMachine.logStatus();
+  // test designed to start with no paper inside the scanner,
+  debug('ejecting any parked paper');
   await paperHandlerMachine.ejectPaper();
   debug('eject complete');
 
