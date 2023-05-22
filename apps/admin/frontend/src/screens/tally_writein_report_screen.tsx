@@ -211,9 +211,8 @@ export function TallyWriteInReportScreen(): JSX.Element {
 
   if (isTabulationRunning || !screenAdjudicatedWriteInCounts) {
     return (
-      <NavigationScreen centerChild>
-        <Prose textCenter>
-          <h1>Building Tabulation Report...</h1>
+      <NavigationScreen centerChild title="Building Tabulation Report...">
+        <Prose>
           <p>This may take a few seconds.</p>
         </Prose>
       </NavigationScreen>
@@ -226,9 +225,8 @@ export function TallyWriteInReportScreen(): JSX.Element {
 
   return (
     <React.Fragment>
-      <NavigationScreen>
+      <NavigationScreen title={reportDisplayTitle}>
         <Prose>
-          <h1>{reportDisplayTitle}</h1>
           {!isReportEmpty ? (
             <React.Fragment>
               <TallyReportMetadata

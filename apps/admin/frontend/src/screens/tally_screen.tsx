@@ -20,6 +20,7 @@ import {
   getCastVoteRecordFileMode,
   getCastVoteRecordFiles,
 } from '../api';
+import { Loading } from '../components/loading';
 
 export function TallyScreen(): JSX.Element | null {
   const {
@@ -79,10 +80,8 @@ export function TallyScreen(): JSX.Element | null {
     !castVoteRecordFileModeQuery.isSuccess
   ) {
     return (
-      <NavigationScreen>
-        <Prose maxWidth={false}>
-          <h1>Cast Vote Record (CVR) Management</h1>
-        </Prose>
+      <NavigationScreen title="Cast Vote Record (CVR) Management">
+        <Loading isFullscreen />
       </NavigationScreen>
     );
   }
@@ -102,10 +101,9 @@ export function TallyScreen(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <NavigationScreen>
+      <NavigationScreen title="Cast Vote Records">
         <Prose maxWidth={false}>
-          <h1>Cast Vote Record (CVR) Management</h1>
-          <Text>{fileModeText}</Text>
+          {fileModeText && <Text>{fileModeText}</Text>}
           {isOfficialResults && (
             <Button
               variant="danger"

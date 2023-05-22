@@ -51,9 +51,8 @@ export function DefinitionScreen(): JSX.Element {
 
   return (
     <React.Fragment>
-      <NavigationScreen>
+      <NavigationScreen title="Election Definition">
         <Prose maxWidth={false}>
-          <h1>Election Definition</h1>
           <Text small>
             Configured with the current election at{' '}
             <strong>

@@ -525,10 +525,8 @@ export function PrintTestDeckScreen(): JSX.Element {
           printIndex={printIndex}
         />
       )}
-      <NavigationScreen>
+      <NavigationScreen title={pageTitle}>
         <Prose maxWidth={false}>
-          <h1>{pageTitle}</h1>
-
           <p>
             Print the L&A Packages for all precincts, or for a specific
             precinct, by selecting a button below.

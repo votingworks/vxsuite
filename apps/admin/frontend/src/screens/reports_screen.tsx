@@ -175,9 +175,8 @@ export function ReportsScreen(): JSX.Element {
 
   return (
     <React.Fragment>
-      <NavigationScreen>
+      <NavigationScreen title="Election Reports">
         <Prose maxWidth={false}>
-          <h1>Election Reports</h1>
           {ballotCountSummaryText}
           <p>
             <LinkButton primary to={routerPaths.tallyFullReport}>

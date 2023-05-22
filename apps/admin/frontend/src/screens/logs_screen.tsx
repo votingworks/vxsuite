@@ -9,9 +9,8 @@ export function LogsScreen(): JSX.Element {
     useContext(AppContext);
 
   return (
-    <NavigationScreen>
+    <NavigationScreen title="Logs">
       <Prose maxWidth={false}>
-        <h1>Logs</h1>
         <ExportLogsButtonRow
           electionDefinition={electionDefinition}
           usbDriveStatus={usbDrive.status}

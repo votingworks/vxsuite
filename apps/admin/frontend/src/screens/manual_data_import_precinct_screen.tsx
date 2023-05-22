@@ -463,13 +463,11 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
   const writeInCandidates = getWriteInCandidatesQuery.data;
 
   return (
-    <NavigationScreen>
+    <NavigationScreen
+      titleCaption="Manually Entered Results:"
+      title={currentPrecinct.name}
+    >
       <Prose>
-        <h1>
-          <small>Manually Entered Results:</small>
-          <br />
-          {currentPrecinct.name}
-        </h1>
         <p>Enter the number of votes for each contest option.</p>
         {currentContests.map((contest) => {
           let contestTitle = contest.title;
