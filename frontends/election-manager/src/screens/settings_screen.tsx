@@ -56,13 +56,13 @@ export function SettingsScreen(): JSX.Element {
           />{' '}
           or <RebootToBiosButton logger={logger} />
         </p>
-        <h2>USB Sticks</h2>
+        <h2>USB Drives</h2>
         <p>
           <Button
             disabled={!formatButtonEnabled}
             onPress={() => setShowFormatModal(true)}
           >
-            Format USB Stick
+            Format USB Drive
           </Button>
         </p>
       </Prose>
@@ -71,15 +71,15 @@ export function SettingsScreen(): JSX.Element {
           centerContent
           content={
             <Prose textCenter>
-              <p>Do you want to format this USB stick?</p>
-              <p>All data on the USB stick will be removed.</p>
+              <p>Do you want to format this USB drive?</p>
+              <p>All data on the USB drive will be removed.</p>
             </Prose>
           }
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
               <Button danger onPress={formatUsb}>
-                Format USB Stick
+                Format USB Drive
               </Button>
               <Button onPress={onClose}>Cancel</Button>
             </React.Fragment>
