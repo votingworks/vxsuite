@@ -329,7 +329,11 @@ test('blank sheet ballot rejected', async () => {
 
 test('scan fails and retries', async () => {
   await withApp(
-    {},
+    {
+      delays: {
+        DELAY_RETRY_SCANNING: 500,
+      },
+    },
     async ({
       apiClient,
       interpreter,
@@ -377,7 +381,11 @@ test('scan fails and retries', async () => {
 
 test('scan fails repeatedly and eventually gives up', async () => {
   await withApp(
-    {},
+    {
+      delays: {
+        DELAY_RETRY_SCANNING: 500,
+      },
+    },
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
