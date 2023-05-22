@@ -55,6 +55,6 @@
     "jest-watch-typeahead": "^0.6.4",
     "prettier": "2.6.2",
     "react": "17.0.1",
-    "ts-jest": "^27.0.7"
+    "ts-jest": "29.0.5"
   }
 }

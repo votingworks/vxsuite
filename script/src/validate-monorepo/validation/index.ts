@@ -37,6 +37,7 @@ export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
       'prettier',
       'react',
       'react-dom',
+      'ts-jest',
       'typescript',
     ],
     workspacePackages,
