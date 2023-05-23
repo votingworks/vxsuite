@@ -25,6 +25,7 @@ import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
   DEV_JURISDICTION,
+  ArtifactAuthenticatorApi,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
@@ -96,11 +97,13 @@ function loadCurrentElectionIdOrThrow(workspace: Workspace) {
 
 function buildApi({
   auth,
+  artifactAuthenticator,
   workspace,
   logger,
   usb,
 }: {
   auth: DippedSmartCardAuthApi;
+  artifactAuthenticator: ArtifactAuthenticatorApi;
   workspace: Workspace;
   logger: Logger;
   usb: Usb;
@@ -159,6 +162,15 @@ function buildApi({
 
     unprogramCard() {
       return auth.unprogramCard(constructAuthMachineState(workspace));
+    },
+
+    async writeBallotPackageSignatureFile(input: {
+      ballotPackagePath: string;
+    }): Promise<void> {
+      await artifactAuthenticator.writeSignatureFile({
+        type: 'ballot_package',
+        path: input.ballotPackagePath,
+      });
     },
 
     async setSystemSettings(input: {
@@ -545,17 +557,19 @@ export type Api = ReturnType<typeof buildApi>;
  */
 export function buildApp({
   auth,
+  artifactAuthenticator,
   workspace,
   logger,
   usb,
 }: {
   auth: DippedSmartCardAuthApi;
+  artifactAuthenticator: ArtifactAuthenticatorApi;
   workspace: Workspace;
   logger: Logger;
   usb: Usb;
 }): Application {
   const app: Application = express();
-  const api = buildApi({ auth, workspace, logger, usb });
+  const api = buildApi({ auth, artifactAuthenticator, workspace, logger, usb });
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;

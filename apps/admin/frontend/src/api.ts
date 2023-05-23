@@ -133,6 +133,13 @@ export const unprogramCard = {
   },
 } as const;
 
+export const writeBallotPackageSignatureFile = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.writeBallotPackageSignatureFile);
+  },
+} as const;
+
 // Queries
 
 type QueryInput<Method extends keyof ApiClient> = Parameters<

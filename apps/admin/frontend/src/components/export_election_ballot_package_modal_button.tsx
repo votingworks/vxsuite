@@ -11,7 +11,7 @@ import {
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Button, Modal, Prose, UsbControllerButton } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
-import { getSystemSettings } from '../api';
+import { getSystemSettings, writeBallotPackageSignatureFile } from '../api';
 
 import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
@@ -32,6 +32,8 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
   const { election, electionData, electionHash } = electionDefinition;
+  const writeBallotPackageSignatureFileMutation =
+    writeBallotPackageSignatureFile.useMutation();
 
   const [state, setState] = useState<workflow.State>(
     workflow.init(electionDefinition)
@@ -106,6 +108,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         JSON.stringify(systemSettings, null, 2)
       );
       setState(workflow.next);
+      await writeBallotPackageSignatureFileMutation.mutateAsync({
+        ballotPackagePath: pathToFile,
+      });
     } catch (error) {
       assert(error instanceof Error);
       setState(workflow.error(state, error));
