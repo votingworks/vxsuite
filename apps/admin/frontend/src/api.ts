@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 import type { Api } from '@votingworks/admin-backend';
 import {
@@ -59,6 +60,15 @@ export const getAuthStatus = {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
       refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+      structuralSharing(oldData, newData) {
+        if (!oldData) {
+          return newData;
+        }
+
+        // Prevent infinite re-renders of the app tree:
+        const isUnchanged = _.isEqual(oldData, newData);
+        return isUnchanged ? oldData : newData;
+      },
     });
   },
 } as const;
