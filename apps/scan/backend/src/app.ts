@@ -25,6 +25,7 @@ import {
 } from '@votingworks/backend';
 import { assert, err, iter, ok, Result } from '@votingworks/basics';
 import {
+  ArtifactAuthenticatorApi,
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
@@ -56,6 +57,7 @@ function constructAuthMachineState(
 
 function buildApi(
   auth: InsertedSmartCardAuthApi,
+  artifactAuthenticator: ArtifactAuthenticatorApi,
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
@@ -106,6 +108,7 @@ function buildApi(
       );
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
+        artifactAuthenticator,
         // TODO convert readBallotPackegFromUsb to use UsbDriveStatus
         { deviceName: 'not used', mountPoint: usbDriveStatus.mountPoint },
         logger
@@ -361,6 +364,7 @@ export type Api = ReturnType<typeof buildApi>;
 
 export function buildApp(
   auth: InsertedSmartCardAuthApi,
+  artifactAuthenticator: ArtifactAuthenticatorApi,
   machine: PrecinctScannerStateMachine,
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
@@ -368,7 +372,15 @@ export function buildApp(
   logger: Logger
 ): Application {
   const app: Application = express();
-  const api = buildApi(auth, machine, interpreter, workspace, usbDrive, logger);
+  const api = buildApi(
+    auth,
+    artifactAuthenticator,
+    machine,
+    interpreter,
+    workspace,
+    usbDrive,
+    logger
+  );
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;
