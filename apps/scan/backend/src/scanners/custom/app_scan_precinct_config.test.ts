@@ -3,10 +3,13 @@ import { mocks } from '@votingworks/custom-scanner';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
   configureApp,
-  expectStatus,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
-import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
+import {
+  ballotImages,
+  simulateScan,
+  withApp,
+} from '../../../test/helpers/custom_helpers';
 import { SheetInterpretation } from '../../types';
 
 jest.setTimeout(20_000);
@@ -30,10 +33,8 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
         reason: 'invalid_precinct',
       };
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeBmd()));
+      simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,
@@ -68,10 +69,8 @@ test('bmd ballot is accepted if precinct is set for the right precinct', async (
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeBmd()));
+      simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation: validInterpretation,
@@ -100,10 +99,8 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
         reason: 'invalid_precinct',
       };
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeHmpb()));
+      simulateScan(mockScanner, await ballotImages.completeHmpb());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,
@@ -139,10 +136,8 @@ test('hmpb ballot is accepted if precinct is set for the right precinct', async 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeHmpb()));
+      simulateScan(mockScanner, await ballotImages.completeHmpb());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation: validInterpretation,

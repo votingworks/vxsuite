@@ -32,7 +32,11 @@ import {
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import { SheetInterpretation } from '../../types';
-import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
+import {
+  ballotImages,
+  simulateScan,
+  withApp,
+} from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
 /**
@@ -88,10 +92,8 @@ test('configure and scan hmpb', async () => {
         type: 'ValidSheet',
       };
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeHmpb()));
+      simulateScan(mockScanner, await ballotImages.completeHmpb());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -135,10 +137,9 @@ test('configure and scan bmd ballot', async () => {
         type: 'ValidSheet',
       };
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeBmd()));
+      simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
       await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -206,10 +207,8 @@ test('ballot needs review - return', async () => {
         ],
       };
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.overvoteHmpb()));
+      simulateScan(mockScanner, await ballotImages.overvoteHmpb());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
       await apiClient.returnBallot();
@@ -262,12 +261,8 @@ test('invalid ballot rejected', async () => {
         reason: 'invalid_election_hash',
       };
 
-      mockScanner.scan.mockResolvedValue(
-        ok(await ballotImages.wrongElection())
-      );
+      simulateScan(mockScanner, await ballotImages.wrongElection());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,
@@ -307,10 +302,8 @@ test('blank sheet ballot rejected', async () => {
         reason: 'unknown',
       };
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.blankSheet()));
+      simulateScan(mockScanner, await ballotImages.blankSheet());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,

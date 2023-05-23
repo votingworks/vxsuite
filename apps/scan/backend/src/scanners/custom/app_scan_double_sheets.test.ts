@@ -9,7 +9,11 @@ import {
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import { SheetInterpretation } from '../../types';
-import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
+import {
+  ballotImages,
+  simulateScan,
+  withApp,
+} from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
 
@@ -77,10 +81,8 @@ test('insert second ballot while first ballot is accepting', async () => {
       };
       mockInterpretation(interpreter, interpretation);
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeBmd()));
+      simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
-      await expectStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -105,7 +107,11 @@ test('insert second ballot while first ballot is accepting', async () => {
 
 test('insert second ballot while first ballot needs review', async () => {
   await withApp(
-    {},
+    {
+      delays: {
+        DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 3000,
+      },
+    },
     async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
@@ -115,11 +121,8 @@ test('insert second ballot while first ballot needs review', async () => {
       const interpretation = needsReviewInterpretation;
       mockInterpretation(interpreter, interpretation);
 
-      mockScanner.scan.mockResolvedValue(ok(await ballotImages.unmarkedHmpb()));
+      simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
       await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
-
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
       mockScanner.getStatus.mockResolvedValue(
