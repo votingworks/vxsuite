@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { findByIds, WebUSBDevice } from 'usb';
 import makeDebug from 'debug';
-import { assert, sleep, Optional } from '@votingworks/basics';
+import { assert, Optional, sleep } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import {
   assertNumberIsInRangeInclusive,
@@ -25,7 +26,7 @@ import {
   ScannerCapability,
 } from './scanner_capability';
 import {
-  defaultConfig,
+  getDefaultConfig,
   encodeScannerConfig,
   PaperMovementAfterScan,
   Resolution,
@@ -70,12 +71,13 @@ export interface PaperHandlerBitmap {
 // USB Interface Information
 const VENDOR_ID = 0x0dd4;
 const PRODUCT_ID = 0x4105;
+const CONFIGURATION_NUMBER = 1; // TODO verify this against manual/hardware
 const INTERFACE_NUMBER = 0;
-const GENERIC_ENDPOINT_IN = 1;
-const GENERIC_ENDPOINT_OUT = 2;
-const REAL_TIME_ENDPOINT_IN = 3;
-const REAL_TIME_ENDPOINT_OUT = 4;
-const PACKET_SIZE = 65536;
+export const GENERIC_ENDPOINT_IN = 1;
+export const GENERIC_ENDPOINT_OUT = 2;
+export const REAL_TIME_ENDPOINT_IN = 3;
+export const REAL_TIME_ENDPOINT_OUT = 4;
+export const PACKET_SIZE = 65536;
 
 // Common Bytes
 const START_OF_PACKET: Uint8 = 0x02;
@@ -83,15 +85,17 @@ const NULL_CODE: Uint8 = 0x00;
 const TOKEN: Uint8 = 0x01;
 
 // Return Codes
-const POSITIVE_ACKNOWLEDGEMENT: Uint8 = 0x06;
-const NEGATIVE_ACKNOWLEDGEMENT: Uint8 = 0x15;
-const UNKNOWN_COMMAND: Uint8 = 0x3f;
+export enum ReturnCodes {
+  POSITIVE_ACKNOWLEDGEMENT = 0x06,
+  NEGATIVE_ACKNOWLEDGEMENT = 0x15,
+}
 
-// Real Time Request IDs
-const SCAN_ABORT_REQUEST_ID: Uint8 = 0x43;
-const SCAN_RESET_REQUEST_ID: Uint8 = 0x52;
-const SCANNER_COMPLETE_STATUS_REQUEST_ID: Uint8 = 0x73;
-const PRINTER_STATUS_REQUEST_ID: Uint8 = 0x64;
+export enum RealTimeRequestIds {
+  SCANNER_COMPLETE_STATUS_REQUEST_ID = 0x73,
+  PRINTER_STATUS_REQUEST_ID = 0x64,
+  SCAN_ABORT_REQUEST_ID = 0x43,
+  SCAN_RESET_REQUEST_ID = 0x52,
+}
 
 // Generic Commands
 const GET_SCANNER_CAPABILITY: Command = [0x1c, 0x53, 0x43, 0x47];
@@ -154,18 +158,31 @@ export async function getPaperHandlerWebDevice(): Promise<
   }
 }
 
+// Not all WebUSbDevice methods are implemented in the mock
+export type MinimalWebUsbDevice = Pick<
+  WebUSBDevice,
+  | 'open'
+  | 'close'
+  | 'transferOut'
+  | 'transferIn'
+  | 'claimInterface'
+  | 'selectConfiguration'
+>;
+
 export class PaperHandlerDriver {
   private readonly genericLock = new Lock();
   private readonly realTimeLock = new Lock();
-  private readonly scannerConfig: ScannerConfig = defaultConfig;
+  private readonly scannerConfig: ScannerConfig = getDefaultConfig();
 
-  constructor(private readonly webDevice: WebUSBDevice) {}
+  constructor(private readonly webDevice: MinimalWebUsbDevice) {}
 
   async connect(): Promise<void> {
     await this.webDevice.open();
     debug('opened web device');
-    // await this.webDevice.claimInterface(INTERFACE_NUMBER);
-    // debug('claimed usb interface');
+    await this.webDevice.selectConfiguration(CONFIGURATION_NUMBER);
+    debug(`selected configuration ${CONFIGURATION_NUMBER}`);
+    await this.webDevice.claimInterface(INTERFACE_NUMBER);
+    debug(`claimed usb interface ${INTERFACE_NUMBER}`);
   }
 
   async disconnect(): Promise<void> {
@@ -184,7 +201,7 @@ export class PaperHandlerDriver {
   /**
    * Should be private, but exposed for development.
    */
-  getWebDevice(): WebUSBDevice {
+  getWebDevice(): MinimalWebUsbDevice {
     return this.webDevice;
   }
 
@@ -221,7 +238,7 @@ export class PaperHandlerDriver {
       ]);
       i += 1;
     }
-    console.log(`${i} packets cleared`);
+    debug(`${i} packets cleared`);
   }
 
   /**
@@ -259,7 +276,7 @@ export class PaperHandlerDriver {
     const { data } = transferInResult;
     assert(data);
     assert(data.getUint8(1) === requestId);
-    assert(data.getUint8(3) === POSITIVE_ACKNOWLEDGEMENT); // TODO: handling
+    assert(data.getUint8(3) === ReturnCodes.POSITIVE_ACKNOWLEDGEMENT); // TODO: handling
     return data;
   }
 
@@ -270,7 +287,9 @@ export class PaperHandlerDriver {
    */
   async getScannerStatus(): Promise<ScannerStatus> {
     return parseScannerStatus(
-      await this.handleRealTimeExchange(SCANNER_COMPLETE_STATUS_REQUEST_ID)
+      await this.handleRealTimeExchange(
+        RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID
+      )
     );
   }
 
@@ -281,17 +300,19 @@ export class PaperHandlerDriver {
    */
   async getPrinterStatus(): Promise<PrinterStatus> {
     return parsePrinterStatus(
-      await this.handleRealTimeExchange(PRINTER_STATUS_REQUEST_ID)
+      await this.handleRealTimeExchange(
+        RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID
+      )
     );
   }
 
   async abortScan(): Promise<void> {
-    await this.handleRealTimeExchange(SCAN_ABORT_REQUEST_ID);
+    await this.handleRealTimeExchange(RealTimeRequestIds.SCAN_ABORT_REQUEST_ID);
   }
 
   // reset scan reconnects the scanenr, changes the device address, and requires a new WebUSBDevice
   async resetScan(): Promise<void> {
-    await this.handleRealTimeExchange(SCAN_RESET_REQUEST_ID);
+    await this.handleRealTimeExchange(RealTimeRequestIds.SCAN_RESET_REQUEST_ID);
   }
 
   /**
@@ -326,10 +347,10 @@ export class PaperHandlerDriver {
     debug(`transfer in status: ${transferInResult.status}`);
     const code = transferInResult.data?.getUint8(0);
     switch (code) {
-      case POSITIVE_ACKNOWLEDGEMENT:
+      case ReturnCodes.POSITIVE_ACKNOWLEDGEMENT:
         debug('positive acknowledgement');
         return true;
-      case NEGATIVE_ACKNOWLEDGEMENT:
+      case ReturnCodes.NEGATIVE_ACKNOWLEDGEMENT:
         debug('negative acknowledgement');
         return false;
       default:
@@ -390,7 +411,7 @@ export class PaperHandlerDriver {
   async scan(): Promise<Uint8Array> {
     await this.genericLock.acquire();
     await this.transferOutGeneric(SCAN);
-    console.log('STARTING SCAN');
+    debug('STARTING SCAN');
     let scanStatus = OK_CONTINUE;
     const imageData: Uint8Array[] = [];
 
@@ -407,16 +428,16 @@ export class PaperHandlerDriver {
 
       let dataBlockBytesReceived = header.buffer.byteLength - 16;
       while (dataBlockBytesReceived < dataBlockByteLength) {
-        console.log('Additional data...');
+        debug('Additional data...');
         const { data } = await this.transferInGeneric();
         assert(data);
-        console.log(data.byteLength);
+        debug(`${data.byteLength}`);
         imageData.push(new Uint8Array(data.buffer));
         dataBlockBytesReceived += data.byteLength;
       }
     }
     this.genericLock.release();
-    console.log('ALL BLOCKS RECEIVED');
+    debug('ALL BLOCKS RECEIVED');
     return Buffer.concat(imageData);
   }
 

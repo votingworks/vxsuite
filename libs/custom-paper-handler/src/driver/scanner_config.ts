@@ -22,17 +22,19 @@ export interface ScannerConfig {
   disableJamWheelSensor: boolean;
 }
 
-export const defaultConfig: ScannerConfig = {
-  scanLight: 'white',
-  scanDataFormat: 'grayscale',
-  horizontalResolution: 200,
-  verticalResolution: 200,
-  paperMovementAfterScan: 'hold_ticket',
-  scanDirection: 'forward',
-  scanHorizontalDimensionInDots: 1728,
-  scanMaxVerticalDimensionInDots: 0, // allows maximum
-  disableJamWheelSensor: false,
-};
+export function getDefaultConfig(): ScannerConfig {
+  return {
+    scanLight: 'white',
+    scanDataFormat: 'grayscale',
+    horizontalResolution: 200,
+    verticalResolution: 200,
+    paperMovementAfterScan: 'hold_ticket',
+    scanDirection: 'forward',
+    scanHorizontalDimensionInDots: 1728,
+    scanMaxVerticalDimensionInDots: 0, // allows maximum
+    disableJamWheelSensor: false,
+  };
+}
 
 type Encoder<T extends string | number> = Record<T, Uint8>;
 
@@ -58,6 +60,8 @@ const ScanTypeEncoder: Record<ScanDataFormat, Encoder<ScanLight>> = {
   },
 };
 
+// Bitmap. 'Scan in park' is represented by the 0x02 position but requires
+// 'backward' scan direction to be set in 0x01, so the final value is binary(011) == 0x03
 const ScanDirectionEncoder: Encoder<ScanDirection> = {
   forward: 0x00,
   backward: 0x01,
@@ -79,6 +83,5 @@ export function encodeScannerConfig(scannerConfig: ScannerConfig): Uint8[] {
   data.push(...Uint16toUint8(scannerConfig.verticalResolution));
   data.push(...Uint16toUint8(scannerConfig.scanHorizontalDimensionInDots));
   data.push(...Uint32toUint8(scannerConfig.scanMaxVerticalDimensionInDots));
-  console.log(data);
   return data;
 }
