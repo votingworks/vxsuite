@@ -3118,6 +3118,9 @@ importers:
 
   libs/backend:
     dependencies:
+      '@votingworks/auth':
+        specifier: workspace:*
+        version: link:../auth
       '@votingworks/ballot-interpreter-nh':
         specifier: workspace:*
         version: link:../ballot-interpreter-nh
