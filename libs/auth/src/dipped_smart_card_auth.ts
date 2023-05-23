@@ -172,9 +172,7 @@ async function logAuthEventIfNecessary(
 }
 
 /**
- * An implementation of the dipped smart card auth API.
- *
- * See the libs/auth README for notes on error handling.
+ * The implementation of the dipped smart card auth API
  */
 export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
   private authStatus: DippedSmartCardAuthTypes.AuthStatus;

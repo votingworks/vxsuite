@@ -15,6 +15,8 @@ import {
 } from './apdu';
 import { CardReader, PcscLite } from './card_reader';
 
+jest.mock('pcsclite');
+
 type ConnectCallback = (error?: Error, protocol?: number) => void;
 type Connect = (options: { share_mode: number }, cb: ConnectCallback) => void;
 type DisconnectCallback = (error?: Error) => void;
@@ -47,8 +49,6 @@ function newMockPcscLiteReader(): PcscLiteReader {
   };
   return Object.assign(new EventEmitter(), additionalFields) as PcscLiteReader;
 }
-
-jest.mock('pcsclite');
 
 let mockPcscLite: PcscLite;
 let mockPcscLiteReader: PcscLiteReader;

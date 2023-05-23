@@ -143,9 +143,7 @@ async function logAuthEvent(
 }
 
 /**
- * An implementation of the inserted smart card auth API.
- *
- * See the libs/auth README for notes on error handling.
+ * The implementation of the inserted smart card auth API
  */
 export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   private authStatus: InsertedSmartCardAuthTypes.AuthStatus;
