@@ -112,7 +112,7 @@ export class Store {
       select
         id,
         data as electionData,
-        created_at as createdAt
+        datetime(created_at, 'localtime') as createdAt
       from elections
       where deleted_at is null
     `) as Array<{
