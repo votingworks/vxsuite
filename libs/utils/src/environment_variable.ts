@@ -29,6 +29,8 @@ export enum BooleanEnvironmentVariableName {
   // Skips election hash checks when scanning to allow using old fixtures in
   // development even as their respective election definitions change.
   SKIP_SCAN_ELECTION_HASH_CHECK = 'REACT_APP_VX_SKIP_SCAN_ELECTION_HASH_CHECK',
+  // Skips authentication (i.e. signature verification) of ballot packages on import
+  SKIP_BALLOT_PACKAGE_AUTHENTICATION = 'REACT_APP_VX_SKIP_BALLOT_PACKAGE_AUTHENTICATION',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -77,6 +79,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_SKIP_CVR_ELECTION_HASH_CHECK;
     case BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK:
       return process.env.REACT_APP_VX_SKIP_SCAN_ELECTION_HASH_CHECK;
+    case BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION:
+      return process.env.REACT_APP_VX_SKIP_BALLOT_PACKAGE_AUTHENTICATION;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
     /* istanbul ignore next compile time check */
@@ -150,6 +154,12 @@ export function getBooleanEnvVarConfig(
         autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION:
       return {
         name,
         allowInProduction: false,
