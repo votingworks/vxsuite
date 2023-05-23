@@ -3,6 +3,7 @@ export * from './base_coder';
 export * from './bits';
 export * from './constants';
 export * from './equality';
+export * from './dynamic_bytes';
 export * from './fixed_string';
 export * from './literal_coder';
 export * from './message_coder';
