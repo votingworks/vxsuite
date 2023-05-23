@@ -107,7 +107,11 @@ test('insert second ballot while first ballot is accepting', async () => {
 
 test('insert second ballot while first ballot needs review', async () => {
   await withApp(
-    {},
+    {
+      delays: {
+        DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 3000,
+      },
+    },
     async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockUsbDrive, { mockAuth });
 
