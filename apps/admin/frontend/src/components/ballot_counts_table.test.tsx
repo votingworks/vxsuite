@@ -16,12 +16,12 @@ import {
 } from '@votingworks/types';
 
 import { assert } from '@votingworks/basics';
+import { getMockManualTally } from '@votingworks/utils';
 import { getByText as domGetByText } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
 import { BallotCountsTable } from './ballot_counts_table';
 import { fakeTally } from '../../test/helpers/fake_tally';
-import { fakeManualTally } from '../../test/helpers/fake_manual_tally';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 let apiMock: ApiMock;
@@ -54,15 +54,15 @@ describe('Ballot Counts by Precinct', () => {
 
   const manualResultsByPrecinct: Dictionary<ManualTally> = {
     // French Camp
-    '6526': fakeManualTally({
+    '6526': getMockManualTally({
       numberOfBallotsCounted: 13,
     }),
     // East Weir
-    '6525': fakeManualTally({
+    '6525': getMockManualTally({
       numberOfBallotsCounted: 0,
     }),
     // Hebron
-    '6528': fakeManualTally({
+    '6528': getMockManualTally({
       numberOfBallotsCounted: 22,
     }),
   };
@@ -76,7 +76,7 @@ describe('Ballot Counts by Precinct', () => {
     resultsByCategory,
   };
   const fullElectionManualTally: FullElectionManualTally = {
-    overallTally: fakeManualTally({
+    overallTally: getMockManualTally({
       numberOfBallotsCounted: 54,
     }),
     resultsByCategory: manualResultsByCategory,
@@ -209,7 +209,7 @@ describe('Ballot Counts by Scanner', () => {
     resultsByCategory,
   };
   const fullElectionManualTally: FullElectionManualTally = {
-    overallTally: fakeManualTally({
+    overallTally: getMockManualTally({
       numberOfBallotsCounted: 54,
     }),
     votingMethod: VotingMethod.Precinct,
@@ -333,11 +333,11 @@ describe('Ballots Counts by Party', () => {
 
   const manualResultsByParty: Dictionary<ManualTally> = {
     // Liberty
-    '0': fakeManualTally({
+    '0': getMockManualTally({
       numberOfBallotsCounted: 13,
     }),
     // Constitution
-    '3': fakeManualTally({
+    '3': getMockManualTally({
       numberOfBallotsCounted: 73,
     }),
   };
@@ -352,7 +352,7 @@ describe('Ballots Counts by Party', () => {
   };
 
   const fullElectionManualTally: FullElectionManualTally = {
-    overallTally: fakeManualTally({
+    overallTally: getMockManualTally({
       numberOfBallotsCounted: 54,
     }),
     resultsByCategory: manualResultsByCategory,
@@ -518,7 +518,7 @@ describe('Ballots Counts by VotingMethod', () => {
   const numManualBallots = 54;
 
   const fullElectionManualTally: FullElectionManualTally = {
-    overallTally: fakeManualTally({
+    overallTally: getMockManualTally({
       numberOfBallotsCounted: numManualBallots,
     }),
     resultsByCategory: new Map(),
@@ -688,7 +688,7 @@ describe('Ballots Counts by Batch', () => {
   const numManualBallots = 54;
 
   const fullElectionManualTally: FullElectionManualTally = {
-    overallTally: fakeManualTally({
+    overallTally: getMockManualTally({
       numberOfBallotsCounted: numManualBallots,
     }),
     resultsByCategory: new Map(),

@@ -4,7 +4,7 @@ import {
   PrecinctReportScreenProps,
   ScannerReportScreenProps,
   VotingMethodReportScreenProps,
-  ManualDataPrecinctScreenProps,
+  ManualDataEntryScreenProps,
   BatchReportScreenProps,
   SmartcardsScreenProps,
 } from './config/types';
@@ -20,11 +20,13 @@ export const routerPaths = {
   smartcardsByType: ({ smartcardType }: SmartcardsScreenProps): string =>
     `/smartcards/smartcard-types/${smartcardType}`,
   ballotsList: '/ballots',
-  manualDataImport: '/tally/manual-data-import',
-  manualDataImportForPrecinct: ({
+  manualDataSummary: '/tally/manual-data-summary',
+  manualDataEntry: ({
     precinctId,
-  }: ManualDataPrecinctScreenProps): string =>
-    `/tally/manual-data-import/precinct/${precinctId}`,
+    ballotStyleId,
+    ballotType,
+  }: ManualDataEntryScreenProps): string =>
+    `/tally/manual-data-entry/${ballotStyleId}/${ballotType}/${precinctId}`,
   reports: '/reports',
   tally: '/tally',
   tallyPrecinctReport: ({ precinctId }: PrecinctReportScreenProps): string =>

@@ -1,4 +1,5 @@
 import {
+  BallotStyleId,
   CastVoteRecord,
   ContestTallyMeta,
   Dictionary,
@@ -75,8 +76,10 @@ export interface PartyReportScreenProps {
 export interface VotingMethodReportScreenProps {
   votingMethod: string;
 }
-export interface ManualDataPrecinctScreenProps {
+export interface ManualDataEntryScreenProps {
   precinctId: PrecinctId;
+  ballotStyleId: BallotStyleId;
+  ballotType: string;
 }
 export interface SmartcardsScreenProps {
   smartcardType: string;
@@ -101,7 +104,6 @@ export enum ResultsFileType {
   // eslint-disable-next-line @typescript-eslint/no-shadow
   CastVoteRecord = 'cvr',
   All = 'all',
-  Manual = 'manual',
 }
 export type OptionalFile = Optional<File>;
 

@@ -164,16 +164,20 @@ IDs are logged with each log to identify the log being written.
 **Machines:** vx-admin-frontend
 ### manual-tally-data-edited
 **Type:** [user-action](#user-action)  
-**Description:** User added or edited manually entered tally data to be included alongside loaded Cvr files.  
-**Machines:** vx-admin-frontend
+**Description:** User added or edited manually entered tally data to be included in the results alongside loaded CVR files.  
+**Machines:** vx-admin-service
+### manual-tally-data-removed
+**Type:** [user-action](#user-action)  
+**Description:** User removed manual tally data that was previously entered.  
+**Machines:** vx-admin-service
 ### marked-tally-results-official
 **Type:** [user-action](#user-action)  
-**Description:** User marked the tally results as official. This disabled loading any more cvr or other tally data files.  
-**Machines:** vx-admin-frontend
-### removed-tally-file
+**Description:** User marked the tally results as official. This disables loading more CVR files or editing manual tally data.  
+**Machines:** vx-admin-service
+### cast-vote-record-file-removed
 **Type:** [user-action](#user-action)  
-**Description:** The user removed CVR file(s), manually entered tally data, or all tally data. The type of file removed specified by the filetype key.  
-**Machines:** vx-admin-frontend
+**Description:** The user removed one or more CVR files.  
+**Machines:** vx-admin-service
 ### tally-report-previewed
 **Type:** [user-action](#user-action)  
 **Description:** Tally Report previewed and viewed in the app.  

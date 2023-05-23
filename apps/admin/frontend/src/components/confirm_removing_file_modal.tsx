@@ -45,11 +45,6 @@ export function ConfirmRemovingFileModal({
       );
       break;
     }
-    case ResultsFileType.Manual: {
-      fileTypeName = 'Manual Data';
-      mainContent = <p>Do you want to remove the manually entered data?</p>;
-      break;
-    }
     case ResultsFileType.All: {
       fileTypeName = 'Data';
       singleFileRemoval = false;

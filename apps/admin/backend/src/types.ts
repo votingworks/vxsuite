@@ -18,6 +18,8 @@ import {
   FullElectionManualTally,
   Dictionary,
   ManualTally,
+  PrecinctId,
+  BallotStyleId,
 } from '@votingworks/types';
 import * as z from 'zod';
 
@@ -407,3 +409,34 @@ export type ServerFullElectionManualTally = Omit<
 > & {
   resultsByCategory: Dictionary<Dictionary<ManualTally>>;
 };
+
+/**
+ * Ballot types for which we allow manual tally entry.
+ */
+export type ManualTallyBallotType = 'absentee' | 'precinct';
+
+/**
+ * Attributes which uniquely identify a manual tally within an election due
+ * to the levels of granularity we do or don't support.
+ */
+export interface ManualTallyIdentifier {
+  precinctId: PrecinctId;
+  ballotStyleId: BallotStyleId;
+  ballotType: ManualTallyBallotType;
+}
+
+/**
+ * Manual tallies as they are represented in the store.
+ */
+export interface ManualTallyRecord extends ManualTallyIdentifier {
+  manualTally: ManualTally;
+  createdAt: Iso8601Timestamp;
+}
+
+/**
+ * Ballot count summary of a manual tally record.
+ */
+export interface ManualTallyMetadataRecord extends ManualTallyIdentifier {
+  ballotCount: number;
+  createdAt: Iso8601Timestamp;
+}
