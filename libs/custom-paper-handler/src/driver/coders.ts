@@ -62,6 +62,17 @@ export type RealTimeExchangeResponseWithoutData = CoderType<
 export const AcknowledgementResponse = uint8();
 export type AcknowledgementResponse = CoderType<typeof AcknowledgementResponse>;
 
+export const ScanResponse = message({
+  signature: literal('IMG'),
+  returnCode: uint8(),
+  cis: uint8(0x00 | 0x01 | 0x02),
+  scan: uint8(),
+  sizeX: uint16(),
+  sizeY: uint16(),
+  status: uint16(),
+  dummy: uint32(), // 4 unused bytes
+});
+
 /**
  * Command coders
  */
