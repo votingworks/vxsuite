@@ -5,6 +5,7 @@ import './polyfills';
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { deferred, throwIllegalValue } from '@votingworks/basics';
 import createBlobStream from 'blob-stream';
+import PdfJs from 'pdfjs-dist';
 import {
   AnyElement,
   Box,
@@ -216,11 +217,40 @@ function DocumentPdf({
 
   return (
     <div style={dimensions}>
-      {pdfBlob && (
-        <embed src={URL.createObjectURL(pdfBlob)} width="100%" height="100%" />
-      )}
+      {pdfBlob && <PdfViewer pdfBlob={pdfBlob} dimensions={dimensions} />}
     </div>
   );
+}
+
+function PdfViewer({
+  pdfBlob,
+  dimensions,
+}: {
+  pdfBlob: Blob;
+  dimensions: { width: number; height: number };
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const url = URL.createObjectURL(pdfBlob);
+  useEffect(() => {
+    void (async () => {
+      PdfJs.GlobalWorkerOptions.workerSrc = `${window.location.origin}/pdf.worker.min.js`;
+      const pdf = await PdfJs.getDocument(url).promise;
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 1.5 });
+
+      // Prepare canvas using PDF page dimensions.
+      /* eslint-disable @typescript-eslint/no-non-null-assertion */
+      const canvas = canvasRef.current!;
+      const canvasContext = canvas.getContext('2d')!;
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      // Render PDF page into canvas context.
+      page.render({ canvasContext, viewport });
+    })();
+  }, [url]);
+
+  return <canvas ref={canvasRef} style={{ height: '100vh' }} />;
 }
 
 function DocumentSvg({
@@ -327,7 +357,13 @@ export function App(): JSX.Element {
   return (
     <React.Fragment>
       <button
-        onClick={() => setDocument(allBubbleBallots.blank.ballotDocument)}
+        onClick={() =>
+          setDocument(
+            document === allBubbleBallots.cycling.ballotDocument
+              ? allBubbleBallots.blank.ballotDocument
+              : allBubbleBallots.cycling.ballotDocument
+          )
+        }
         type="button"
       >
         Change ballot

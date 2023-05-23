@@ -1513,6 +1513,9 @@ importers:
 
   apps/design/frontend:
     dependencies:
+      '@types/pdfjs-dist':
+        specifier: 2.1.3
+        version: 2.1.3
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -1555,6 +1558,9 @@ importers:
       path:
         specifier: ^0.12.7
         version: 0.12.7
+      pdfjs-dist:
+        specifier: 2.3.200
+        version: 2.3.200(webpack@4.44.2)
       pdfkit:
         specifier: ^0.13.0
         version: 0.13.0
@@ -13283,7 +13289,6 @@ packages:
 
   /@types/pdfjs-dist@2.1.3:
     resolution: {integrity: sha512-aGyFfB4Q8QjaSR3cBTiJfnFXBU6SXQaBVM7ADfBaZzq4L7EGbjuSoqXfHJofZmLFBfKzZ9b+9nXO2FfUIsw77w==}
-    dev: true
 
   /@types/pdfkit@0.12.9:
     resolution: {integrity: sha512-z0y4rQky+nvno3nzyNUeZbrx2YvwP0GEfnpk8o3zG7jL4FYCZk9Vn11DzM+HC4RPzaJDOg9kiLzl3lng4FDcLA==}
