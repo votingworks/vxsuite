@@ -377,6 +377,13 @@ export function PollWorkerScreen({
     appPrecinct
   );
 
+  // Disable the audiotrack when on poll-worker screen
+  useEffect(() => {
+    const initialMuted = screenReader.isMuted();
+    screenReader.mute();
+    return () => screenReader.toggleMuted(initialMuted);
+  }, [screenReader]);
+
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
       appPrecinct.kind === 'SinglePrecinct' ? appPrecinct.precinctId : undefined
