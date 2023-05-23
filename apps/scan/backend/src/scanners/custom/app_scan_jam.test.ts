@@ -28,7 +28,7 @@ test('jam on scan', async () => {
       },
     },
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth });
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -54,7 +54,7 @@ test('jam on accept', async () => {
       },
     },
     async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth, testMode: true });
+      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -97,7 +97,7 @@ test('jam on return', async () => {
   await withApp(
     {},
     async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth });
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -126,7 +126,7 @@ test('jam on reject', async () => {
   await withApp(
     {},
     async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth });
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });

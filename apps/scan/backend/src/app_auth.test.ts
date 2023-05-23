@@ -10,7 +10,7 @@ const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
 
 test('getAuthStatus', async () => {
   await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
-    await configureApp(apiClient, mockUsbDrive, { mockAuth });
+    await configureApp(apiClient, mockAuth, mockUsbDrive);
 
     // Gets called once during configuration
     expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
@@ -27,7 +27,7 @@ test('getAuthStatus', async () => {
 
 test('checkPin', async () => {
   await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
-    await configureApp(apiClient, mockUsbDrive, { mockAuth });
+    await configureApp(apiClient, mockAuth, mockUsbDrive);
 
     await apiClient.checkPin({ pin: '123456' });
     expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
@@ -41,7 +41,7 @@ test('checkPin', async () => {
 
 test('logOut', async () => {
   await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
-    await configureApp(apiClient, mockUsbDrive, { mockAuth });
+    await configureApp(apiClient, mockAuth, mockUsbDrive);
 
     await apiClient.logOut();
     expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
@@ -55,7 +55,7 @@ test('logOut', async () => {
 
 test('updateSessionExpiry', async () => {
   await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
-    await configureApp(apiClient, mockUsbDrive, { mockAuth });
+    await configureApp(apiClient, mockAuth, mockUsbDrive);
 
     await apiClient.updateSessionExpiry({
       sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),

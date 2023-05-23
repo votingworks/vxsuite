@@ -55,36 +55,31 @@ export async function waitForStatus(
 /**
  * configureApp is a testing convenience function that handles some common configuration of the VxScan app.
  * @param apiClient - a VxScan API client
+ * @param mockAuth - a mock InsertedSmartCardAuthApi
  * @param mockUsbDrive - a mock USB drive
  * @param options - an object containing optional arguments
- * @param options.mockAuth - a mock InsertedSmartCardAuthApi. Passing this will automatically
- *                           create a mock that auths the user as an election manager of the same
- *                           election defined in the ballot package.
  */
 export async function configureApp(
   apiClient: grout.Client<Api>,
+  mockAuth: InsertedSmartCardAuthApi,
   mockUsbDrive: MockUsbDrive,
   {
     ballotPackage = electionFamousNames2021Fixtures.electionJson.toBallotPackage(),
     precinctId,
-    mockAuth,
     testMode = false,
   }: {
     ballotPackage?: BallotPackage;
     precinctId?: PrecinctId;
-    mockAuth?: InsertedSmartCardAuthApi;
     testMode?: boolean;
   } = {}
 ): Promise<void> {
-  if (mockAuth) {
-    mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-      Promise.resolve({
-        status: 'logged_in',
-        user: fakeElectionManagerUser(ballotPackage.electionDefinition),
-        sessionExpiresAt: fakeSessionExpiresAt(),
-      })
-    );
-  }
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: fakeElectionManagerUser(ballotPackage.electionDefinition),
+      sessionExpiresAt: fakeSessionExpiresAt(),
+    })
+  );
 
   mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
