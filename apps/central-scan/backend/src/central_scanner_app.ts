@@ -1,5 +1,6 @@
 import { Scan } from '@votingworks/api';
 import {
+  ArtifactAuthenticatorApi,
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
@@ -35,6 +36,7 @@ type NoParams = never;
 
 export interface AppOptions {
   auth: DippedSmartCardAuthApi;
+  artifactAuthenticator: ArtifactAuthenticatorApi;
   allowedExportPatterns?: string[];
   importer: Importer;
   workspace: Workspace;
@@ -57,11 +59,12 @@ function constructAuthMachineState(
 
 function buildApi({
   auth,
+  artifactAuthenticator,
   workspace,
   logger,
   usb,
   importer,
-}: Pick<AppOptions, 'auth' | 'workspace' | 'logger' | 'usb' | 'importer'>) {
+}: Exclude<AppOptions, 'allowedExportPatterns'>) {
   const { store } = workspace;
 
   async function getUserRole(): Promise<LoggingUserRole> {
@@ -156,6 +159,7 @@ function buildApi({
 
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
+        artifactAuthenticator,
         usbDrive,
         logger
       );
@@ -190,6 +194,7 @@ export type Api = ReturnType<typeof buildApi>;
  */
 export function buildCentralScannerApp({
   auth,
+  artifactAuthenticator,
   allowedExportPatterns = SCAN_ALLOWED_EXPORT_PATTERNS,
   importer,
   workspace,
@@ -199,7 +204,14 @@ export function buildCentralScannerApp({
   const { store } = workspace;
 
   const app: Application = express();
-  const api = buildApi({ auth, workspace, logger, usb, importer });
+  const api = buildApi({
+    auth,
+    artifactAuthenticator,
+    workspace,
+    logger,
+    usb,
+    importer,
+  });
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
 
