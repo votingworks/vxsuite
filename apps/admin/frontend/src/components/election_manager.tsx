@@ -24,8 +24,8 @@ import { TallyReportScreen } from '../screens/tally_report_screen';
 import { TallyWriteInReportScreen } from '../screens/tally_writein_report_screen';
 import { DefinitionEditorScreen } from '../screens/definition_editor_screen';
 import { DefinitionContestsScreen } from '../screens/definition_contests_screen';
-import { ManualDataImportIndexScreen } from '../screens/manual_data_import_index_screen';
-import { ManualDataImportPrecinctScreen } from '../screens/manual_data_import_precinct_screen';
+import { ManualDataSummaryScreen } from '../screens/manual_data_summary_screen';
+import { ManualDataEntryScreen } from '../screens/manual_data_entry_screen';
 import { SmartcardsScreen } from '../screens/smartcards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
 import { WriteInsScreen } from '../screens/write_ins_screen';
@@ -152,8 +152,8 @@ export function ElectionManager(): JSX.Element {
       <Route exact path={routerPaths.ballotsList}>
         <BallotListScreen />
       </Route>
-      <Route exact path={routerPaths.manualDataImport}>
-        <ManualDataImportIndexScreen />
+      <Route exact path={routerPaths.manualDataSummary}>
+        <ManualDataSummaryScreen />
       </Route>
       {isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
@@ -164,11 +164,13 @@ export function ElectionManager(): JSX.Element {
       )}
       <Route
         exact
-        path={routerPaths.manualDataImportForPrecinct({
+        path={routerPaths.manualDataEntry({
           precinctId: ':precinctId',
+          ballotStyleId: ':ballotStyleId',
+          ballotType: ':ballotType',
         })}
       >
-        <ManualDataImportPrecinctScreen />
+        <ManualDataEntryScreen />
       </Route>
       <Route exact path={routerPaths.tally}>
         <TallyScreen />

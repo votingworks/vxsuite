@@ -2,12 +2,11 @@ import React, { useContext, useState } from 'react';
 import moment from 'moment';
 
 import { format, isElectionManagerAuth } from '@votingworks/utils';
-import { assert, find, throwIllegalValue } from '@votingworks/basics';
+import { assert, find, throwIllegalValue, unique } from '@votingworks/basics';
 import { Button, Prose, Table, TD, Text, LinkButton } from '@votingworks/ui';
 import { ResultsFileType } from '../config/types';
 
 import { AppContext } from '../contexts/app_context';
-import { getPrecinctIdsInManualTally } from '../utils/manual_tallies';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
@@ -19,16 +18,14 @@ import {
   deleteAllManualTallies,
   getCastVoteRecordFileMode,
   getCastVoteRecordFiles,
+  getManualTallyMetadata,
 } from '../api';
 import { Loading } from '../components/loading';
+import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tallies_modal';
 
 export function TallyScreen(): JSX.Element | null {
-  const {
-    electionDefinition,
-    isOfficialResults,
-    fullElectionManualTally,
-    auth,
-  } = useContext(AppContext);
+  const { electionDefinition, isOfficialResults, auth } =
+    useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth));
   const { election } = electionDefinition;
@@ -39,6 +36,10 @@ export function TallyScreen(): JSX.Element | null {
 
   const [confirmingRemoveFileType, setConfirmingRemoveFileType] =
     useState<ResultsFileType>();
+  const [
+    isConfirmingRemoveAllManualTallies,
+    setIsConfirmingRemoveAllManualTallies,
+  ] = useState(false);
   const [isImportCvrModalOpen, setIsImportCvrModalOpen] = useState(false);
 
   function beginConfirmRemoveFiles(fileType: ResultsFileType) {
@@ -49,9 +50,6 @@ export function TallyScreen(): JSX.Element | null {
   }
   function confirmRemoveFiles(fileType: ResultsFileType) {
     switch (fileType) {
-      case ResultsFileType.Manual:
-        deleteAllManualTalliesMutation.mutate();
-        break;
       case ResultsFileType.CastVoteRecord:
         clearCastVoteRecordFilesMutation.mutate();
         break;
@@ -74,10 +72,12 @@ export function TallyScreen(): JSX.Element | null {
 
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
+  const manualTallyMetadataQuery = getManualTallyMetadata.useQuery();
 
   if (
     !castVoteRecordFilesQuery.isSuccess ||
-    !castVoteRecordFileModeQuery.isSuccess
+    !castVoteRecordFileModeQuery.isSuccess ||
+    !manualTallyMetadataQuery.isSuccess
   ) {
     return (
       <NavigationScreen title="Cast Vote Record (CVR) Management">
@@ -86,10 +86,29 @@ export function TallyScreen(): JSX.Element | null {
     );
   }
 
+  const manualTallyMetadata = manualTallyMetadataQuery.data;
+  const hasManualTally = manualTallyMetadata.length > 0;
+  const manualTallyTotalBallotCount = manualTallyMetadata.reduce(
+    (acc, metadata) => acc + metadata.ballotCount,
+    0
+  );
+  const manualTallyPrecinctIds = unique(
+    manualTallyMetadata.map((metadata) => metadata.precinctId)
+  );
+  const manualTallyFirstAdded = manualTallyMetadata.reduce(
+    (firstAdded, metadata) => {
+      const currentTallyAdded = new Date(metadata.createdAt);
+      if (currentTallyAdded.valueOf() < firstAdded.valueOf()) {
+        return currentTallyAdded;
+      }
+
+      return firstAdded;
+    },
+    new Date()
+  );
+
   const castVoteRecordFileList = castVoteRecordFilesQuery.data;
-  const hasAnyFiles =
-    castVoteRecordFileList.length > 0 || fullElectionManualTally;
-  const hasManualData = !!fullElectionManualTally;
+  const hasAnyFiles = castVoteRecordFileList.length > 0 || hasManualTally;
 
   const fileMode = castVoteRecordFileModeQuery.data;
   const fileModeText =
@@ -101,7 +120,7 @@ export function TallyScreen(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <NavigationScreen title="Cast Vote Records">
+      <NavigationScreen title="Cast Vote Record (CVR) Management">
         <Prose maxWidth={false}>
           {fileModeText && <Text>{fileModeText}</Text>}
           {isOfficialResults && (
@@ -180,28 +199,19 @@ export function TallyScreen(): JSX.Element | null {
                       </tr>
                     )
                   )}
-                  {fullElectionManualTally ? (
+                  {hasManualTally ? (
                     <tr key="manual-data">
                       <TD />
                       <TD narrow nowrap>
-                        {moment(
-                          fullElectionManualTally.timestampCreated
-                        ).format(TIME_FORMAT)}
+                        {moment(manualTallyFirstAdded).format(TIME_FORMAT)}
                       </TD>
                       <TD narrow>
-                        {format.count(
-                          fullElectionManualTally.overallTally
-                            .numberOfBallotsCounted
-                        )}
+                        {format.count(manualTallyTotalBallotCount)}
                       </TD>
                       <TD narrow nowrap>
                         Manually Entered Results
                       </TD>
-                      <TD>
-                        {getPrecinctNames(
-                          getPrecinctIdsInManualTally(fullElectionManualTally)
-                        )}
-                      </TD>
+                      <TD>{getPrecinctNames(manualTallyPrecinctIds)}</TD>
                     </tr>
                   ) : null}
                   <tr>
@@ -214,9 +224,7 @@ export function TallyScreen(): JSX.Element | null {
                         castVoteRecordFileList.reduce(
                           (prev, curr) => prev + curr.numCvrsImported,
                           0
-                        ) +
-                          (fullElectionManualTally?.overallTally
-                            .numberOfBallotsCounted ?? 0)
+                        ) + manualTallyTotalBallotCount
                       )}
                     </TD>
                     <TD />
@@ -235,18 +243,18 @@ export function TallyScreen(): JSX.Element | null {
           <h2>Manually Entered Results</h2>
           <p>
             <LinkButton
-              to={routerPaths.manualDataImport}
+              to={routerPaths.manualDataSummary}
               disabled={isOfficialResults}
             >
-              {hasManualData
+              {hasManualTally
                 ? 'Edit Manually Entered Results'
                 : 'Add Manually Entered Results'}
             </LinkButton>{' '}
             <Button
-              disabled={!hasManualData || isOfficialResults}
-              onPress={() => beginConfirmRemoveFiles(ResultsFileType.Manual)}
+              disabled={!hasManualTally || isOfficialResults}
+              onPress={() => setIsConfirmingRemoveAllManualTallies(true)}
             >
-              Remove Manual Data
+              Remove Manually Entered Results
             </Button>
           </p>
         </Prose>
@@ -256,6 +264,11 @@ export function TallyScreen(): JSX.Element | null {
           fileType={confirmingRemoveFileType}
           onConfirm={confirmRemoveFiles}
           onCancel={cancelConfirmingRemoveFiles}
+        />
+      )}
+      {isConfirmingRemoveAllManualTallies && (
+        <RemoveAllManualTalliesModal
+          onClose={() => setIsConfirmingRemoveAllManualTallies(false)}
         />
       )}
       {isImportCvrModalOpen && (

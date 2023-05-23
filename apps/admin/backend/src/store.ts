@@ -29,7 +29,6 @@ import {
   Id,
   Iso8601Timestamp,
   ManualTally,
-  PrecinctId,
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
@@ -49,6 +48,9 @@ import {
   DatabaseSerializedCastVoteRecordVotes,
   DatabaseSerializedCastVoteRecordVotesSchema,
   ElectionRecord,
+  ManualTallyIdentifier,
+  ManualTallyMetadataRecord,
+  ManualTallyRecord,
   ScannerBatch,
   WriteInAdjudicationAction,
   WriteInAdjudicationStatus,
@@ -1311,17 +1313,43 @@ export class Store {
     );
 
     // removing manual tallies may have left unofficial write-in candidates
-    // without any references, which we clean up
+    // without any references, so we delete them
+    this.deleteAllChildlessWriteInCandidates();
+  }
+
+  deleteManualTally({
+    electionId,
+    precinctId,
+    ballotStyleId,
+    ballotType,
+  }: { electionId: Id } & ManualTallyIdentifier): void {
+    this.client.run(
+      `
+        delete from manual_tallies
+        where 
+          election_id = ? and
+          precinct_id = ? and
+          ballot_style_id = ? and
+          ballot_type = ?`,
+      electionId,
+      precinctId,
+      ballotStyleId,
+      ballotType
+    );
+
+    // removing the manual tally may have left unofficial write-in candidates
+    // without any references, so we delete them
     this.deleteAllChildlessWriteInCandidates();
   }
 
   setManualTally({
     electionId,
     precinctId,
+    ballotStyleId,
+    ballotType,
     manualTally,
-  }: {
+  }: ManualTallyIdentifier & {
     electionId: Id;
-    precinctId: PrecinctId;
     manualTally: ManualTally;
   }): void {
     const ballotCount = manualTally.numberOfBallotsCounted;
@@ -1332,12 +1360,14 @@ export class Store {
         insert into manual_tallies (
           election_id,
           precinct_id,
+          ballot_style_id,
+          ballot_type,
           ballot_count,
           contest_tallies
         ) values 
-          (?, ?, ?, ?)
+          (?, ?, ?, ?, ?, ?)
         on conflict
-          (election_id, precinct_id)
+          (election_id, precinct_id, ballot_style_id, ballot_type)
         do update set
           ballot_count = excluded.ballot_count,
           contest_tallies = excluded.contest_tallies
@@ -1345,6 +1375,8 @@ export class Store {
       `,
       electionId,
       precinctId,
+      ballotStyleId,
+      ballotType,
       ballotCount,
       serializedContestTallies
     ) as { id: Id };
@@ -1393,22 +1425,19 @@ export class Store {
       );
     }
 
-    // clean up write-in candidates that may have only been included on the
-    // previously entered manually tally
+    // delete write-in candidates that may have only been included on the
+    // previously entered manually tally and are now not referenced
     this.deleteAllChildlessWriteInCandidates();
   }
 
   getManualTallies({
     electionId,
     precinctId,
+    ballotStyleId,
+    ballotType,
   }: {
     electionId: Id;
-    precinctId?: PrecinctId;
-  }): Array<{
-    precinctId: PrecinctId;
-    manualTally: ManualTally;
-    createdAt: Iso8601Timestamp;
-  }> {
+  } & Partial<ManualTallyIdentifier>): ManualTallyRecord[] {
     const whereParts = ['election_id = ?'];
     const params: Bindable[] = [electionId];
 
@@ -1417,11 +1446,23 @@ export class Store {
       params.push(precinctId);
     }
 
+    if (ballotStyleId) {
+      whereParts.push('ballot_style_id = ?');
+      params.push(ballotStyleId);
+    }
+
+    if (ballotType) {
+      whereParts.push('ballot_type = ?');
+      params.push(ballotType);
+    }
+
     return (
       this.client.all(
         `
           select 
             precinct_id as precinctId,
+            ballot_style_id as ballotStyleId,
+            ballot_type as ballotType,
             ballot_count as ballotCount,
             contest_tallies as contestTallyData,
             datetime(created_at, 'localtime') as createdAt
@@ -1429,20 +1470,56 @@ export class Store {
           where ${whereParts.join(' and ')}
         `,
         ...params
-      ) as Array<{
-        precinctId: PrecinctId;
-        ballotCount: number;
-        contestTallyData: string;
-        createdAt: string;
-      }>
+      ) as Array<
+        ManualTallyIdentifier & {
+          contestTallyData: string;
+          ballotCount: number;
+          createdAt: string;
+        }
+      >
     ).map((row) => ({
       precinctId: row.precinctId,
+      ballotStyleId: row.ballotStyleId,
+      ballotType: row.ballotType,
       manualTally: {
         numberOfBallotsCounted: row.ballotCount,
         contestTallies: JSON.parse(
           row.contestTallyData
         ) as Dictionary<ContestTally>,
       },
+      createdAt: convertSqliteTimestampToIso8601(row.createdAt),
+    }));
+  }
+
+  getManualTallyMetadata({
+    electionId,
+  }: {
+    electionId: Id;
+  }): ManualTallyMetadataRecord[] {
+    return (
+      this.client.all(
+        `
+          select 
+            precinct_id as precinctId,
+            ballot_style_id as ballotStyleId,
+            ballot_type as ballotType,
+            ballot_count as ballotCount,
+            datetime(created_at, 'localtime') as createdAt
+          from manual_tallies
+          where election_id = ?
+        `,
+        electionId
+      ) as Array<
+        ManualTallyIdentifier & {
+          ballotCount: number;
+          createdAt: string;
+        }
+      >
+    ).map((row) => ({
+      precinctId: row.precinctId,
+      ballotStyleId: row.ballotStyleId,
+      ballotType: row.ballotType,
+      ballotCount: row.ballotCount,
       createdAt: convertSqliteTimestampToIso8601(row.createdAt),
     }));
   }

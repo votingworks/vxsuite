@@ -22,4 +22,11 @@ module.exports = {
       lines: 76,
     },
   },
+  collectCoverageFrom: [
+    '!jest.config.js',
+    '!coverage/**/*',
+    '!src/data/*',
+    '!src/__snapshots__/*',
+    '!src/manual_tallies_test_utils.ts',
+  ],
 };

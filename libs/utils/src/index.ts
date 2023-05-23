@@ -17,6 +17,8 @@ export * from './Hardware';
 export * from './hmpb';
 export * from './json_stream';
 export * from './make_async';
+export * from './manual_tallies';
+export * from './manual_tallies_test_utils';
 export * from './perf';
 export * from './polls';
 export * from './precinct_selection';

@@ -58,8 +58,9 @@ export enum LogEventId {
   RecomputingTally = 'recompute-tally-init',
   RecomputedTally = 'recompute-tally-complete',
   ManualTallyDataEdited = 'manual-tally-data-edited',
+  ManualTallyDataRemoved = 'manual-tally-data-removed',
   MarkedTallyResultsOfficial = 'marked-tally-results-official',
-  RemovedTallyFile = 'removed-tally-file',
+  CaseVoteRecordFileRemoved = 'cast-vote-record-file-removed',
   TallyReportPreviewed = 'tally-report-previewed',
   TallyReportPrinted = 'tally-report-printed',
   ConvertingResultsToSemsFormat = 'converting-to-sems',
@@ -396,22 +397,28 @@ const ManualTallyDataEdited: LogDetails = {
   eventId: LogEventId.ManualTallyDataEdited,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'User added or edited manually entered tally data to be included alongside loaded Cvr files.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+    'User added or edited manually entered tally data to be included in the results alongside loaded CVR files.',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
+};
+const ManualTallyDataRemoved: LogDetails = {
+  eventId: LogEventId.ManualTallyDataRemoved,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User removed manual tally data that was previously entered.',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
 const MarkedTallyResultsOfficial: LogDetails = {
   eventId: LogEventId.MarkedTallyResultsOfficial,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'User marked the tally results as official. This disabled loading any more cvr or other tally data files.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+    'User marked the tally results as official. This disables loading more CVR files or editing manual tally data.',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
-const RemovedTallyFile: LogDetails = {
-  eventId: LogEventId.RemovedTallyFile,
+const CastVoteRecordFileRemoved: LogDetails = {
+  eventId: LogEventId.CaseVoteRecordFileRemoved,
   eventType: LogEventType.UserAction,
-  documentationMessage:
-    'The user removed CVR file(s), manually entered tally data, or all tally data. The type of file removed specified by the filetype key.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+  documentationMessage: 'The user removed one or more CVR files.',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
 const TallyReportPrinted: LogDetails = {
   eventId: LogEventId.TallyReportPrinted,
@@ -958,10 +965,12 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return RecomputedTally;
     case LogEventId.ManualTallyDataEdited:
       return ManualTallyDataEdited;
+    case LogEventId.ManualTallyDataRemoved:
+      return ManualTallyDataRemoved;
     case LogEventId.MarkedTallyResultsOfficial:
       return MarkedTallyResultsOfficial;
-    case LogEventId.RemovedTallyFile:
-      return RemovedTallyFile;
+    case LogEventId.CaseVoteRecordFileRemoved:
+      return CastVoteRecordFileRemoved;
     case LogEventId.TallyReportPrinted:
       return TallyReportPrinted;
     case LogEventId.TallyReportPreviewed:

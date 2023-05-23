@@ -5,6 +5,8 @@ import type {
   CastVoteRecordFileRecord,
   CvrFileMode,
   MachineConfig,
+  ManualTallyIdentifier,
+  ManualTallyMetadataRecord,
   WriteInAdjudicationStatus,
   WriteInCandidateRecord,
   WriteInDetailView,
@@ -25,7 +27,6 @@ import {
   DippedSmartCardAuth,
   ElectionDefinition,
   FullElectionManualTally,
-  Id,
   ManualTally,
   Rect,
   SystemSettings,
@@ -274,8 +275,30 @@ export function createApiMock(
       apiClient.deleteAllManualTallies.expectCallWith().resolves();
     },
 
-    expectSetManualTally(input: { precinctId: Id; manualTally: ManualTally }) {
+    expectDeleteManualTally(input: ManualTallyIdentifier) {
+      apiClient.deleteManualTally.expectCallWith(input).resolves();
+    },
+
+    expectSetManualTally(
+      input: ManualTallyIdentifier & { manualTally: ManualTally }
+    ) {
       apiClient.setManualTally.expectCallWith(input).resolves();
+    },
+
+    expectGetManualTally(input: ManualTallyIdentifier, tally?: ManualTally) {
+      apiClient.getManualTally.expectCallWith(input).resolves(
+        tally
+          ? {
+              ...input,
+              manualTally: tally,
+              createdAt: new Date().toISOString(),
+            }
+          : null
+      );
+    },
+
+    expectGetManualTallyMetadata(records: ManualTallyMetadataRecord[]) {
+      apiClient.getManualTallyMetadata.expectCallWith().resolves(records);
     },
 
     expectGetFullElectionManualTally(

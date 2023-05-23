@@ -1,240 +1,225 @@
 import {
+  BallotStyleId,
   Candidate,
+  CandidateContest,
+  CandidateId,
   ContestOptionTally,
   ContestTally,
   Dictionary,
   Election,
-  FullElectionManualTally,
   Id,
   ManualTally,
-  Party,
   PartyId,
   TallyCategory,
   VotingMethod,
-  getContests,
+  YesNoContest,
+  writeInCandidate as genericWriteInCandidate,
 } from '@votingworks/types';
+import { Optional, assert, assertDefined } from '@votingworks/basics';
 import {
-  Optional,
-  assert,
-  collections,
-  throwIllegalValue,
-} from '@votingworks/basics';
-import { combineContestTallies } from '@votingworks/utils';
+  getEmptyCandidateContestTally,
+  getEmptyManualTally,
+  getEmptyYesNoContestTally,
+} from '@votingworks/utils';
 import { Store } from '../store';
-import { ServerFullElectionManualTally } from '../types';
+import {
+  ServerFullElectionManualTally,
+  WriteInCandidateRecord,
+} from '../types';
 
-function getDistrictIdsForPartyId(
-  election: Election,
-  partyId: PartyId
-): string[] {
-  return election.ballotStyles
-    .filter((bs) => bs.partyId === partyId)
-    .flatMap((bs) => bs.districts);
+function combineManualYesNoContestTallies({
+  contest,
+  contestTallies,
+}: {
+  contest: YesNoContest;
+  contestTallies: ContestTally[];
+}): ContestTally {
+  if (contestTallies.length === 0) {
+    return getEmptyYesNoContestTally(contest);
+  }
+
+  let overvotes = 0;
+  let undervotes = 0;
+  let ballots = 0;
+  let yesCount = 0;
+  let noCount = 0;
+  for (const contestTally of contestTallies) {
+    overvotes += contestTally.metadata.overvotes;
+    undervotes += contestTally.metadata.undervotes;
+    ballots += contestTally.metadata.ballots;
+    yesCount += assertDefined(contestTally.tallies['yes']).tally;
+    noCount += assertDefined(contestTally.tallies['no']).tally;
+  }
+
+  return {
+    contest,
+    tallies: {
+      yes: {
+        option: ['yes'],
+        tally: yesCount,
+      },
+      no: {
+        option: ['no'],
+        tally: noCount,
+      },
+    },
+    metadata: {
+      undervotes,
+      overvotes,
+      ballots,
+    },
+  };
 }
 
-function getPartiesWithPrimaryElections(election: Election): Party[] {
-  const partyIds = election.ballotStyles
-    .map((bs) => bs.partyId)
-    .filter((id): id is PartyId => id !== undefined);
-  return election.parties.filter((party) => partyIds.includes(party.id));
+function combineManualCandidateContestTallies({
+  contest,
+  contestTallies,
+  writeInCandidates,
+  mergeWriteIns,
+}: {
+  contest: CandidateContest;
+  contestTallies: ContestTally[];
+  writeInCandidates: WriteInCandidateRecord[];
+  mergeWriteIns: boolean;
+}): ContestTally {
+  if (contestTallies.length === 0) {
+    return getEmptyCandidateContestTally(contest);
+  }
+
+  const contestWriteInCandidates = writeInCandidates.filter(
+    (c) => c.contestId === contest.id
+  );
+
+  // iterate through all the tallies, summing counts
+  let overvotes = 0;
+  let undervotes = 0;
+  let ballots = 0;
+  const officialCandidateCounts: Record<CandidateId, number> = {};
+  const writeInCandidateCounts: Record<Id, number> = {};
+  for (const contestTally of contestTallies) {
+    overvotes += contestTally.metadata.overvotes;
+    undervotes += contestTally.metadata.undervotes;
+    ballots += contestTally.metadata.ballots;
+    for (const candidate of contest.candidates) {
+      const candidateTally = contestTally.tallies[candidate.id];
+      if (candidateTally) {
+        officialCandidateCounts[candidate.id] =
+          (officialCandidateCounts[candidate.id] ?? 0) + candidateTally.tally;
+      }
+    }
+    for (const writeInCandidate of contestWriteInCandidates) {
+      const writeInCandidateTally = contestTally.tallies[writeInCandidate.id];
+      if (writeInCandidateTally) {
+        writeInCandidateCounts[writeInCandidate.id] =
+          (writeInCandidateCounts[writeInCandidate.id] ?? 0) +
+          writeInCandidateTally.tally;
+      }
+    }
+  }
+
+  // format official candidate counts for the ContestTally
+  const combinedCandidateTallies: Dictionary<ContestOptionTally> = {};
+  for (const candidate of contest.candidates) {
+    combinedCandidateTallies[candidate.id] = {
+      option: candidate,
+      tally: officialCandidateCounts[candidate.id] ?? 0,
+    };
+  }
+
+  // if merging write-ins, combine all write-in votes under generic write-in
+  if (mergeWriteIns) {
+    const totalWriteInCount = Object.values(writeInCandidateCounts).reduce(
+      (acc, cur) => acc + cur,
+      0
+    );
+    combinedCandidateTallies[genericWriteInCandidate.id] = {
+      option: genericWriteInCandidate,
+      tally: totalWriteInCount,
+    };
+  } else {
+    // if not merging write-ins, format write-in counts for the combined ContestTally.
+    // only includes if write-in candidates seen in at least one of the contest tallies
+    for (const writeInCandidate of contestWriteInCandidates) {
+      const numVotesForWriteInCandidate =
+        writeInCandidateCounts[writeInCandidate.id];
+      if (numVotesForWriteInCandidate !== undefined) {
+        combinedCandidateTallies[writeInCandidate.id] = {
+          option: {
+            id: writeInCandidate.id,
+            name: writeInCandidate.name,
+            isWriteIn: true,
+          },
+          tally: numVotesForWriteInCandidate,
+        };
+      }
+    }
+  }
+
+  return {
+    contest,
+    tallies: combinedCandidateTallies,
+    metadata: {
+      undervotes,
+      overvotes,
+      ballots,
+    },
+  };
 }
 
 /**
- * @deprecated Copied from `admin/frontend` to use during manual tally data
- * transition. Does not produce reliable ballot count.
+ * Combine a list of manual tallies into a single manual tally.
  */
-function getTotalNumberOfBallots(
-  contestTallies: Dictionary<ContestTally>,
-  election: Election
-): number {
-  // Get Separate Ballot Style Sets
-  // Get Contest IDs by Ballot Style
-  let contestIdSets = election.ballotStyles.map((bs) => {
-    return new Set(
-      getContests({
-        ballotStyle: bs,
-        election,
-      }).map((c) => c.id)
-    );
-  });
+export function combineManualTallies({
+  manualTallies,
+  election,
+  writeInCandidates,
+  mergeWriteIns,
+}: {
+  manualTallies: ManualTally[];
+  election: Election;
+  writeInCandidates: WriteInCandidateRecord[];
+  mergeWriteIns: boolean;
+}): ManualTally {
+  const combinedContestTallies: Dictionary<ContestTally> = {};
 
-  // Break the sets of contest IDs into disjoint sets, so contests that are never seen on the same ballot style.
   for (const contest of election.contests) {
-    const combinedSetForContest = new Set<string>();
-    const newListOfContestIdSets: Array<Set<string>> = [];
-    for (const contestIdSet of contestIdSets) {
-      if (contestIdSet.has(contest.id)) {
-        for (const id of contestIdSet) combinedSetForContest.add(id);
-      } else {
-        newListOfContestIdSets.push(contestIdSet);
-      }
+    const contestTallies = manualTallies
+      .map((manualTally) => manualTally.contestTallies[contest.id])
+      .filter(
+        (contestTally): contestTally is ContestTally =>
+          contestTally !== undefined
+      );
+
+    // the contest may not be relevant for this set of manual tallies
+    if (contestTallies.length === 0) {
+      continue;
     }
-    newListOfContestIdSets.push(combinedSetForContest);
-    contestIdSets = newListOfContestIdSets;
+
+    if (contest.type === 'yesno') {
+      combinedContestTallies[contest.id] = combineManualYesNoContestTallies({
+        contest,
+        contestTallies,
+      });
+    } else {
+      combinedContestTallies[contest.id] = combineManualCandidateContestTallies(
+        {
+          contest,
+          contestTallies,
+          writeInCandidates,
+          mergeWriteIns,
+        }
+      );
+    }
   }
 
-  // Within each ballot set find the maximum number of ballots cast on a contest, that is the number of ballots cast amongst ballot styles represented.
-  const ballotsCastPerSet = contestIdSets.map((set) =>
-    [...set].reduce(
-      (prevValue, contestId) =>
-        Math.max(prevValue, contestTallies[contestId]?.metadata.ballots || 0),
-      0
-    )
-  );
-
-  // Sum across disjoint sets of ballot styles to get the total number of ballots cast.
-  return ballotsCastPerSet.reduce(
-    (prevValue, maxBallotCount) => prevValue + maxBallotCount,
+  const combinedNumberOfBallotsCounted = manualTallies.reduce(
+    (acc, cur) => acc + cur.numberOfBallotsCounted,
     0
   );
-}
-
-/**
- * @deprecated Copied from `admin/frontend` to use during manual tally data
- * transition. Unable to filter non-partisan races in primary elections.
- */
-function filterTallyForPartyId(
-  tally: ManualTally,
-  partyId: PartyId,
-  election: Election
-) {
-  // Filter contests by party and recompute the number of ballots based on those contests.
-  const districtsForParty = getDistrictIdsForPartyId(election, partyId);
-  const filteredContestTallies: Dictionary<ContestTally> = {};
-  for (const contestId of Object.keys(tally.contestTallies)) {
-    const contestTally = tally.contestTallies[contestId];
-    if (
-      contestTally &&
-      districtsForParty.includes(contestTally.contest.districtId) &&
-      contestTally.contest.type === 'candidate' &&
-      contestTally.contest.partyId === partyId
-    ) {
-      filteredContestTallies[contestId] = contestTally;
-    }
-  }
-  const numberOfBallotsCounted = getTotalNumberOfBallots(
-    filteredContestTallies,
-    election
-  );
-  return {
-    contestTallies: filteredContestTallies,
-    numberOfBallotsCounted,
-  };
-}
-
-function getEmptyContestTallies(election: Election): Dictionary<ContestTally> {
-  const contestTallies: Dictionary<ContestTally> = {};
-  for (const contest of election.contests) {
-    const optionTallies: Dictionary<ContestOptionTally> = {};
-    switch (contest.type) {
-      case 'candidate': {
-        for (const candidate of contest.candidates) {
-          optionTallies[candidate.id] = {
-            option: candidate,
-            tally: 0,
-          };
-        }
-        break;
-      }
-      case 'yesno': {
-        optionTallies['yes'] = {
-          option: ['yes'],
-          tally: 0,
-        };
-        optionTallies['no'] = {
-          option: ['no'],
-          tally: 0,
-        };
-        break;
-      }
-      default:
-        throwIllegalValue(contest, 'type');
-    }
-    contestTallies[contest.id] = {
-      contest,
-      tallies: optionTallies,
-      metadata: { overvotes: 0, undervotes: 0, ballots: 0 },
-    };
-  }
-  return contestTallies;
-}
-
-/**
- * @deprecated Copied from `admin/frontend` to use during manual tally data
- * transition.
- */
-function getEmptyManualTalliesByPrecinct(
-  election: Election
-): Dictionary<ManualTally> {
-  const tallies: Dictionary<ManualTally> = {};
-  for (const precinct of election.precincts) {
-    tallies[precinct.id] = {
-      contestTallies: getEmptyContestTallies(election),
-      numberOfBallotsCounted: 0,
-    };
-  }
-  return tallies;
-}
-
-/**
- * @deprecated Copied from `admin/frontend` to use during manual tally data
- * transition. We use this to create a {@link FullElectionManualTally} which
- * will no longer be served to the frontend once tally reports are created on
- * the backend.
- */
-function convertTalliesByPrecinctToFullManualTally(
-  talliesByPrecinct: Dictionary<ManualTally>,
-  election: Election,
-  votingMethod: VotingMethod,
-  timestampCreated: Date
-): FullElectionManualTally {
-  let totalNumberOfBallots = 0;
-  const overallContestTallies: Dictionary<ContestTally> = {};
-  for (const precinctTally of Object.values(talliesByPrecinct)) {
-    assert(precinctTally);
-    totalNumberOfBallots += precinctTally.numberOfBallotsCounted;
-    for (const contestId of Object.keys(precinctTally.contestTallies)) {
-      if (!(contestId in overallContestTallies)) {
-        overallContestTallies[contestId] =
-          precinctTally.contestTallies[contestId];
-      } else {
-        const existingContestTallies = overallContestTallies[contestId];
-        const secondTally = precinctTally.contestTallies[contestId];
-        assert(existingContestTallies);
-        assert(secondTally);
-        overallContestTallies[contestId] = combineContestTallies(
-          existingContestTallies,
-          secondTally
-        );
-      }
-    }
-  }
-
-  const overallTally: ManualTally = {
-    contestTallies: overallContestTallies,
-    numberOfBallotsCounted: totalNumberOfBallots,
-  };
-
-  const resultsByCategory = new Map();
-  resultsByCategory.set(TallyCategory.Precinct, talliesByPrecinct);
-
-  // Compute results filtered by party, this filters the sets of contests and requires recomputing the number of ballots counted.
-  const contestTalliesByParty: Dictionary<ManualTally> = {};
-  const partiesInElection = getPartiesWithPrimaryElections(election);
-  for (const party of partiesInElection) {
-    contestTalliesByParty[party.id] = filterTallyForPartyId(
-      overallTally,
-      party.id,
-      election
-    );
-  }
-  resultsByCategory.set(TallyCategory.Party, contestTalliesByParty);
 
   return {
-    overallTally,
-    resultsByCategory,
-    votingMethod,
-    timestampCreated,
+    numberOfBallotsCounted: combinedNumberOfBallotsCounted,
+    contestTallies: combinedContestTallies,
   };
 }
 
@@ -252,37 +237,79 @@ export function buildFullElectionManualTallyFromStore(
   const { electionDefinition } = electionRecord;
   const { election } = electionDefinition;
 
-  const manualTallyRecords = store.getManualTallies({ electionId });
+  // TODO: wire up frontend so it can handle multiple ballot types. for now
+  // we are only providing precinct manual tallies to frontend tallying
+  const manualTallyRecords = store.getManualTallies({
+    electionId,
+    ballotType: 'precinct',
+  });
   if (manualTallyRecords.length === 0) return undefined;
 
-  const manualTalliesByPrecinct: Dictionary<ManualTally> =
-    getEmptyManualTalliesByPrecinct(election);
+  const writeInCandidates = store.getWriteInCandidates({ electionId });
+
+  // calculate manual tallies for each precinct
+  const manualTalliesByPrecinct: Dictionary<ManualTally> = {};
+  for (const precinct of election.precincts) {
+    const precinctManualTallies = manualTallyRecords
+      .filter(({ precinctId }) => precinctId === precinct.id)
+      .map(({ manualTally }) => manualTally);
+    manualTalliesByPrecinct[precinct.id] =
+      precinctManualTallies.length === 0
+        ? getEmptyManualTally(election)
+        : combineManualTallies({
+            manualTallies: [...precinctManualTallies],
+            election,
+            writeInCandidates,
+            mergeWriteIns: false,
+          });
+  }
+
+  const ballotStyleIdsByPartyId: Record<PartyId, BallotStyleId[]> = {};
+  for (const ballotStyle of election.ballotStyles) {
+    if (ballotStyle.partyId) {
+      ballotStyleIdsByPartyId[ballotStyle.partyId] = [
+        ...(ballotStyleIdsByPartyId[ballotStyle.partyId] ?? []),
+        ballotStyle.id,
+      ];
+    }
+  }
+
+  const manualTalliesByParty: Dictionary<ManualTally> = {};
+  for (const [partyId, ballotStyleIds] of Object.entries(
+    ballotStyleIdsByPartyId
+  )) {
+    const partyManualTallies = manualTallyRecords
+      .filter(({ ballotStyleId }) => ballotStyleIds.includes(ballotStyleId))
+      .map(({ manualTally }) => manualTally);
+    manualTalliesByParty[partyId] = combineManualTallies({
+      manualTallies: [...partyManualTallies],
+      election,
+      writeInCandidates,
+      mergeWriteIns: false,
+    });
+  }
+
+  const overallTally = combineManualTallies({
+    manualTallies: manualTallyRecords.map(({ manualTally }) => manualTally),
+    election,
+    writeInCandidates,
+    mergeWriteIns: false,
+  });
+
   let oldestCreatedAt = new Date();
-  for (const { precinctId, manualTally, createdAt } of manualTallyRecords) {
-    manualTalliesByPrecinct[precinctId] = manualTally;
+  for (const { createdAt } of manualTallyRecords) {
     const createdAtDate = new Date(createdAt);
     if (createdAtDate < oldestCreatedAt) oldestCreatedAt = createdAtDate;
   }
 
-  const fullElectionManualTally = convertTalliesByPrecinctToFullManualTally(
-    manualTalliesByPrecinct,
-    election,
-    VotingMethod.Precinct,
-    oldestCreatedAt
-  );
-
   return {
-    ...fullElectionManualTally,
-    resultsByCategory: collections.reduce(
-      fullElectionManualTally.resultsByCategory,
-      (dictionary, indexedTallies, indexKey) => {
-        return {
-          ...dictionary,
-          [indexKey]: indexedTallies,
-        };
-      },
-      {}
-    ),
+    votingMethod: VotingMethod.Precinct,
+    timestampCreated: oldestCreatedAt,
+    overallTally,
+    resultsByCategory: {
+      [TallyCategory.Precinct]: manualTalliesByPrecinct,
+      [TallyCategory.Party]: manualTalliesByParty,
+    },
   };
 }
 

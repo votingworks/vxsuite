@@ -20,15 +20,6 @@ export interface TestDeckBallot {
   votes: VotesDict;
 }
 
-export function getDistrictIdsForPartyId(
-  election: Election,
-  partyId: PartyId
-): string[] {
-  return election.ballotStyles
-    .filter((bs) => bs.partyId === partyId)
-    .flatMap((bs) => bs.districts);
-}
-
 export function getPartiesWithPrimaryElections(election: Election): Party[] {
   const partyIds = election.ballotStyles
     .map((bs) => bs.partyId)

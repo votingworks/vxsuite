@@ -1,19 +1,12 @@
-import { assert, find } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import {
-  electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleFixtures,
   electionSampleCdfDefinition,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import {
-  ContestOptionTally,
-  DEFAULT_SYSTEM_SETTINGS,
-  Dictionary,
-  ManualTally,
-  TallyCategory,
-} from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -272,109 +265,4 @@ test('getSystemSettings returns default system settings when no system settings 
 
   const systemSettingsResult = await apiClient.getSystemSettings();
   expect(systemSettingsResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
-});
-
-const manualTallyContestId = 'zoo-council-mammal';
-const manualTallyContest = find(
-  electionMinimalExhaustiveSampleDefinition.election.contests,
-  (c) => c.id === manualTallyContestId
-);
-function getMockManualTally(
-  optionTallies: Dictionary<ContestOptionTally> = {}
-): ManualTally {
-  return {
-    numberOfBallotsCounted: 10,
-    contestTallies: {
-      [manualTallyContestId]: {
-        contest: manualTallyContest,
-        tallies: optionTallies,
-        metadata: {
-          undervotes: 20,
-          overvotes: 0,
-          ballots: 10,
-        },
-      },
-    },
-  };
-}
-
-test('manual tally flow', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
-
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
-
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
-
-  // initial null
-  expect(await apiClient.getFullElectionManualTally()).toBeNull();
-
-  const manualTally = getMockManualTally();
-
-  await apiClient.setManualTally({
-    precinctId: 'precinct-1',
-    manualTally,
-  });
-
-  // check results after setting a tally
-  const fullElectionManualTally = await apiClient.getFullElectionManualTally();
-  expect(fullElectionManualTally?.overallTally).toMatchObject(manualTally);
-  expect(
-    fullElectionManualTally?.resultsByCategory[TallyCategory.Precinct]?.[
-      'precinct-1'
-    ]
-  ).toMatchObject(manualTally);
-  expect(
-    fullElectionManualTally?.resultsByCategory[TallyCategory.Precinct]?.[
-      'precinct-2'
-    ]
-  ).toMatchObject({
-    numberOfBallotsCounted: 0,
-  });
-
-  // delete tallies
-  await apiClient.deleteAllManualTallies();
-  expect(await apiClient.getFullElectionManualTally()).toBeNull();
-
-  // add tally with a temporary write-in candidate with no votes
-  expect(await apiClient.getWriteInCandidates()).toHaveLength(0);
-  const manualTallyTempWriteInZeroVotes = getMockManualTally({
-    'temp-write-in-(Bob)': {
-      tally: 0,
-      option: {
-        id: 'temp-write-in-(Bob)',
-        name: 'Bob',
-        isWriteIn: true,
-      },
-    },
-  });
-  await apiClient.setManualTally({
-    precinctId: 'precinct-1',
-    manualTally: manualTallyTempWriteInZeroVotes,
-  });
-  expect(await apiClient.getWriteInCandidates()).toHaveLength(0);
-
-  // add tally with a temporary write-in candidate with  votes
-  const manualTallyTempWriteInWithVotes = getMockManualTally({
-    'temp-write-in-(Bob)': {
-      tally: 1,
-      option: {
-        id: 'temp-write-in-(Bob)',
-        name: 'Bob',
-        isWriteIn: true,
-      },
-    },
-  });
-  await apiClient.setManualTally({
-    precinctId: 'precinct-1',
-    manualTally: manualTallyTempWriteInWithVotes,
-  });
-  expect(await apiClient.getWriteInCandidates()).toMatchObject([
-    { contestId: 'zoo-council-mammal', name: 'Bob' },
-  ]);
-
-  // clearing manual results should clear write-in candidate
-  await apiClient.deleteAllManualTallies();
-  expect(await apiClient.getFullElectionManualTally()).toBeNull();
-  expect(await apiClient.getWriteInCandidates()).toHaveLength(0);
 });

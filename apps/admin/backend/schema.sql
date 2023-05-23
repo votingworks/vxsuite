@@ -110,10 +110,13 @@ create table manual_tallies (
   id integer primary key,
   election_id integer not null,
   precinct_id text not null,
+  ballot_style_id text not null,
+  ballot_type text not null 
+    check (ballot_type = 'absentee' or ballot_type = 'precinct'),
   ballot_count integer not null,
   contest_tallies text not null,
   created_at timestamp not null default current_timestamp,
-  unique (election_id, precinct_id),
+  unique (election_id, precinct_id, ballot_style_id, ballot_type),
   foreign key (election_id) references elections(id)
     on delete cascade
 );

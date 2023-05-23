@@ -7,7 +7,7 @@ import {
   ManualTally,
   writeInCandidate,
 } from '@votingworks/types';
-import { buildManualTally } from '../../test/helpers/build_manual_tally';
+import { buildManualTally } from '@votingworks/utils';
 import {
   combineWriteInCounts,
   CountsByContestAndCandidateName,

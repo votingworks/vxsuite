@@ -7,18 +7,46 @@ import {
   Election,
   Id,
   ManualTally,
+  CandidateContest,
+  BallotStyle,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import {
   getEmptyContestTallies,
   getTotalNumberOfBallots,
-} from '../../src/utils/manual_tallies';
+} from './manual_tallies';
+
+export function buildCandidateTallies(
+  multiplier: number,
+  contest: CandidateContest
+): Dictionary<ContestOptionTally> {
+  const results: Dictionary<ContestOptionTally> = {};
+  let index = 0;
+  for (const c of contest.candidates) {
+    results[c.id] = {
+      option: c,
+      tally: index * multiplier,
+    };
+    index += 1;
+  }
+  return results;
+}
+
+export function getMockManualTally(
+  props: Partial<ManualTally> = {}
+): ManualTally {
+  return {
+    numberOfBallotsCounted: 0,
+    contestTallies: {},
+    ...props,
+  };
+}
 
 /**
  * Note this helper uses 'getEmptyContestTallies' and 'getTotalNumberOfBallots'
  * util functions so should not be used to test those implementations.
  *
- * Builds a tally with even amounts of votes or each option.
+ * Builds a tally with even amounts of votes for each option.
  */
 export function buildManualTally(
   election: Election,
@@ -67,7 +95,7 @@ export function buildManualTally(
 /**
  * Build a manual tally with the specified metadata and tallies.
  */
-export function buildSpecifiedManualTally(
+export function buildSpecificManualTally(
   election: Election,
   numberOfBallotsCounted: number,
   contestTallySummaries: Record<
@@ -85,10 +113,11 @@ export function buildSpecifiedManualTally(
         }
       >;
     }
-  >
+  >,
+  ballotStyle?: BallotStyle
 ): ManualTally {
   // Initialize an empty set of contest tallies
-  const contestTallies = getEmptyContestTallies(election);
+  const contestTallies = getEmptyContestTallies(election, ballotStyle);
   for (const [contestId, tallySummary] of Object.entries(
     contestTallySummaries
   )) {

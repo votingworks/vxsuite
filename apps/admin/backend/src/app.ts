@@ -5,7 +5,6 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   ManualTally,
-  PrecinctId,
   safeParseElectionDefinition,
   safeParseJson,
   SystemSettings,
@@ -41,6 +40,9 @@ import {
   CvrFileImportInfo,
   CvrFileMode,
   ElectionRecord,
+  ManualTallyIdentifier,
+  ManualTallyMetadataRecord,
+  ManualTallyRecord,
   ServerFullElectionManualTally,
   SetSystemSettingsResult,
   WriteInAdjudicationAction,
@@ -405,7 +407,7 @@ function buildApi({
       store.deleteCastVoteRecordFiles(electionId);
       store.setElectionResultsOfficial(electionId, false);
       await logger.log(
-        LogEventId.RemovedTallyFile,
+        LogEventId.CaseVoteRecordFileRemoved,
         assertDefined(await getUserRole()),
         {
           message: 'User removed all cast vote record files.',
@@ -486,7 +488,7 @@ function buildApi({
         electionId: loadCurrentElectionIdOrThrow(workspace),
       });
       await logger.log(
-        LogEventId.RemovedTallyFile,
+        LogEventId.ManualTallyDataRemoved,
         assertDefined(await getUserRole()),
         {
           message: 'User removed all manually entered tally data.',
@@ -495,10 +497,28 @@ function buildApi({
       );
     },
 
-    async setManualTally(input: {
-      precinctId: PrecinctId;
-      manualTally: ManualTally;
-    }): Promise<void> {
+    async deleteManualTally(input: ManualTallyIdentifier): Promise<void> {
+      store.deleteManualTally({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
+      await logger.log(
+        LogEventId.ManualTallyDataRemoved,
+        assertDefined(await getUserRole()),
+        {
+          message:
+            'User removed manually entered tally data for a particular ballot style, precinct, and voting method.',
+          ...input,
+          disposition: 'success',
+        }
+      );
+    },
+
+    async setManualTally(
+      input: ManualTallyIdentifier & {
+        manualTally: ManualTally;
+      }
+    ): Promise<void> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       await store.withTransaction(() => {
         const manualTally = handleEnteredWriteInCandidateData({
@@ -509,6 +529,8 @@ function buildApi({
         store.setManualTally({
           electionId,
           precinctId: input.precinctId,
+          ballotStyleId: input.ballotStyleId,
+          ballotType: input.ballotType,
           manualTally,
         });
         return Promise.resolve();
@@ -519,18 +541,40 @@ function buildApi({
         assertDefined(await getUserRole()),
         {
           disposition: 'success',
-          message: `Manually entered tally data added or edited for precinct: ${input.precinctId}`,
-          numberOfBallotsInPrecinct: input.manualTally.numberOfBallotsCounted,
+          message:
+            'User added or edited manually entered tally data for a particular ballot style, precinct, and voting method.',
+          numberOfBallots: input.manualTally.numberOfBallotsCounted,
+          ballotStyleId: input.ballotStyleId,
           precinctId: input.precinctId,
+          ballotType: input.ballotType,
         }
       );
     },
 
     getFullElectionManualTally(): ServerFullElectionManualTally | null {
-      const electionId = workspace.store.getCurrentElectionId();
+      const electionId = store.getCurrentElectionId();
       if (!electionId) return null;
 
       return buildFullElectionManualTallyFromStore(store, electionId) || null;
+    },
+
+    getManualTally(input: ManualTallyIdentifier): ManualTallyRecord | null {
+      const [manualTallyRecord] = store.getManualTallies({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
+
+      return manualTallyRecord ?? null;
+    },
+
+    getManualTallyMetadata(): ManualTallyMetadataRecord[] {
+      return store
+        .getManualTallyMetadata({
+          electionId: loadCurrentElectionIdOrThrow(workspace),
+        })
+        .map((record) => ({ ...record }));
+      // TODO: grout is having trouble serializing records from the store
+      // without destructuring them. need to investigate
     },
   });
 }

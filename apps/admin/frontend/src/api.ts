@@ -295,6 +295,29 @@ export const getFullElectionManualTally = {
   },
 } as const;
 
+type GetManualTallyInput = QueryInput<'getManualTally'>;
+export const getManualTally = {
+  queryKey(input?: GetManualTallyInput): QueryKey {
+    return input ? ['getManualTally', input] : ['getManualTally'];
+  },
+  useQuery(input: GetManualTallyInput) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getManualTally(input)
+    );
+  },
+} as const;
+
+export const getManualTallyMetadata = {
+  queryKey(): QueryKey {
+    return ['getManualTallyMetadata'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getManualTallyMetadata());
+  },
+} as const;
+
 // Grouped Invalidations
 
 function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
@@ -310,6 +333,14 @@ function invalidateWriteInQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getWriteIns.queryKey()),
     queryClient.invalidateQueries(getWriteInSummary.queryKey()),
     queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
+  ]);
+}
+
+function invalidateManualTallyQueries(queryClient: QueryClient) {
+  return Promise.all([
+    queryClient.invalidateQueries(getManualTally.queryKey()),
+    queryClient.invalidateQueries(getFullElectionManualTally.queryKey()),
+    queryClient.invalidateQueries(getManualTallyMetadata.queryKey()),
   ]);
 }
 
@@ -400,9 +431,7 @@ export const setManualTally = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.setManualTally, {
       async onSuccess() {
-        await queryClient.invalidateQueries(
-          getFullElectionManualTally.queryKey()
-        );
+        await invalidateManualTallyQueries(queryClient);
         await invalidateWriteInQueries(queryClient);
       },
     });
@@ -415,9 +444,20 @@ export const deleteAllManualTallies = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.deleteAllManualTallies, {
       async onSuccess() {
-        await queryClient.invalidateQueries(
-          getFullElectionManualTally.queryKey()
-        );
+        await invalidateManualTallyQueries(queryClient);
+        await invalidateWriteInQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
+export const deleteManualTally = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.deleteManualTally, {
+      async onSuccess() {
+        await invalidateManualTallyQueries(queryClient);
         await invalidateWriteInQueries(queryClient);
       },
     });

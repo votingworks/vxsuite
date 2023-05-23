@@ -16,9 +16,11 @@ import {
   unsafeParse,
   PartyIdSchema,
 } from '@votingworks/types';
-import { combineContestTallies } from '@votingworks/utils';
-import { buildManualTally } from '../../test/helpers/build_manual_tally';
-import { buildCandidateTallies } from '../../test/util/build_candidate_tallies';
+import { combineContestTallies } from './tallies';
+import {
+  buildManualTally,
+  buildCandidateTallies,
+} from './manual_tallies_test_utils';
 
 import {
   convertTalliesByPrecinctToFullManualTally,

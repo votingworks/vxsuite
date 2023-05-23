@@ -6,7 +6,7 @@ import { join } from 'path';
 import { tmpNameSync } from 'tmp';
 import { ContestTally, ManualTally } from '@votingworks/types';
 import { Store } from './store';
-import { ElectionRecord, ScannerBatch } from './types';
+import { ElectionRecord, ManualTallyBallotType, ScannerBatch } from './types';
 
 test('create a file store', async () => {
   const tmpDir = tmpNameSync();
@@ -179,14 +179,27 @@ test('manual tallies', () => {
     },
   };
   const precinctId = 'precinct-1';
+  const ballotStyleId = '1M';
+  const ballotType: ManualTallyBallotType = 'precinct';
 
-  store.setManualTally({ electionId, precinctId, manualTally });
+  store.setManualTally({
+    electionId,
+    precinctId,
+    ballotStyleId,
+    ballotType,
+    manualTally,
+  });
   expect(store.getManualTallies({ electionId })).toMatchObject([
-    { precinctId, manualTally },
+    { precinctId, ballotStyleId, ballotType, manualTally },
   ]);
-  expect(store.getManualTallies({ electionId, precinctId })).toMatchObject([
-    { precinctId, manualTally },
-  ]);
+  expect(
+    store.getManualTallies({
+      electionId,
+      precinctId,
+      ballotStyleId,
+      ballotType,
+    })
+  ).toMatchObject([{ precinctId, ballotStyleId, ballotType, manualTally }]);
   expect(store.getWriteInCandidates({ electionId })).toHaveLength(1);
 
   // update the tally, without changing the write-in candidate reference
@@ -197,10 +210,12 @@ test('manual tallies', () => {
   store.setManualTally({
     electionId,
     precinctId,
+    ballotStyleId,
+    ballotType,
     manualTally: editedManualTally,
   });
   expect(store.getManualTallies({ electionId })).toMatchObject([
-    { precinctId, manualTally: editedManualTally },
+    { precinctId, ballotStyleId, ballotType, manualTally: editedManualTally },
   ]);
   expect(store.getWriteInCandidates({ electionId })).toHaveLength(1);
 
@@ -218,10 +233,17 @@ test('manual tallies', () => {
   store.setManualTally({
     electionId,
     precinctId,
+    ballotStyleId,
+    ballotType,
     manualTally: noWriteInManualTally,
   });
   expect(store.getManualTallies({ electionId })).toMatchObject([
-    { precinctId, manualTally: noWriteInManualTally },
+    {
+      precinctId,
+      ballotStyleId,
+      ballotType,
+      manualTally: noWriteInManualTally,
+    },
   ]);
   // write-in should be deleted as it has no references anymore
   expect(store.getWriteInCandidates({ electionId })).toHaveLength(0);
