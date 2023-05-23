@@ -5,8 +5,12 @@
   "ballotStyles": [
     {
       "id": "card-number-1",
-      "districts": ["test-district"],
-      "precincts": ["test-precinct"]
+      "districts": [
+        "test-district"
+      ],
+      "precincts": [
+        "test-precinct"
+      ]
     }
   ],
   "centralScanAdjudicationReasons": [],

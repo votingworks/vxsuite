@@ -5,6 +5,7 @@ import './polyfills';
 import { AppBase } from '@votingworks/ui';
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
+import { Stage, Text } from '@inlet/react-pixi';
 import {
   AnyElement,
   Box,
@@ -17,6 +18,7 @@ import {
 } from './document_types';
 import { SvgBox, SvgEllipse, SvgPage, SvgRectangle } from './document_svg';
 import { allBubbleBallots } from './all_bubble_ballots';
+import { CanvasBox, CanvasPage, CanvasRectangle } from './document_canvas';
 
 function replaceAtIndex<T>(array: T[], index: number, value: T): T[] {
   return [...array.slice(0, index), value, ...array.slice(index + 1)];
@@ -32,62 +34,31 @@ interface BaseObjectProps<T extends AnyElement> {
 }
 
 function RectangleObject({ element, setElement }: BaseObjectProps<Rectangle>) {
-  return (
-    <g
-      onClick={() => {
-        setElement({
-          ...element,
-          fill: randomColor(),
-        });
-      }}
-    >
-      <SvgRectangle {...element} />
-    </g>
-  );
+  return <CanvasRectangle {...element} />;
 }
 
 function EllipseObject({ element, setElement }: BaseObjectProps<Ellipse>) {
-  return (
-    <g
-      onClick={() => {
-        setElement({
-          ...element,
-          fill: randomColor(),
-        });
-      }}
-    >
-      <SvgEllipse {...element} />
-    </g>
-  );
+  return null;
 }
 
 function BoxObject({ element, setElement }: BaseObjectProps<Box>) {
   return (
-    <g
-      onClick={() => {
-        setElement({
-          ...element,
-          fill: randomColor(),
-        });
-      }}
-    >
-      <SvgBox {...element}>
-        {element.children?.map((child, index) => (
-          <AnyElementObject
-            key={index}
-            element={child}
-            setElement={(newChild) => {
-              setElement({
-                ...element,
-                children:
-                  element.children &&
-                  replaceAtIndex(element.children, index, newChild),
-              });
-            }}
-          />
-        ))}
-      </SvgBox>
-    </g>
+    <CanvasBox {...element}>
+      {element.children?.map((child, index) => (
+        <AnyElementObject
+          key={index}
+          element={child}
+          setElement={(newChild) => {
+            setElement({
+              ...element,
+              children:
+                element.children &&
+                replaceAtIndex(element.children, index, newChild),
+            });
+          }}
+        />
+      ))}
+    </CanvasBox>
   );
 }
 
@@ -170,7 +141,7 @@ function PageObject({
   setPage: (page: Page) => void;
 }) {
   return (
-    <SvgPage {...{ x, y, width, height, ...page }}>
+    <CanvasPage {...{ x, y, width, height, ...page }}>
       {page.children.map((element, index) => (
         <AnyElementObject
           key={index}
@@ -183,12 +154,12 @@ function PageObject({
           }}
         />
       ))}
-      <GridLines {...{ grid, width, height }} />
-    </SvgPage>
+      {/* <GridLines {...{ grid, width, height }} /> */}
+    </CanvasPage>
   );
 }
 
-function DocumentSvg({
+function DocumentCanvas({
   dimensions,
   document,
   setDocument,
@@ -197,17 +168,13 @@ function DocumentSvg({
   document: Document;
   setDocument: (document: Document) => void;
 }) {
-  const [zoom, setZoom] = useState(0.2);
-  const [panOffset, setPanOffset] = useState({ x: -100, y: -100 });
-  const dragStartPosition = useRef<{ x: number; y: number } | null>(null);
-
-  const { width, height, grid, pages } = document;
-
-  // Temporary optimization: memoize the pages so that we don't rerender them
-  // when changing pan/zoom
-  const pagesElements = useMemo(
-    () =>
-      pages.map((page, index) => (
+  const { pages, width, height, grid } = document;
+  console.log('DocumentCanvas', dimensions, width, height);
+  return (
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    <Stage {...dimensions} options={{ backgroundAlpha: 0, antialias: true }}>
+      {pages.map((page, index) => (
         <PageObject
           x={index % 2 === 0 ? 0 : width + PAGE_GAP}
           y={Math.floor(index / 2) * (height + PAGE_GAP)}
@@ -223,51 +190,8 @@ function DocumentSvg({
           }
           key={index}
         />
-      )),
-    [width, height, grid, pages, document, setDocument]
-  );
-  return (
-    <svg
-      width={dimensions.width}
-      height={dimensions.height}
-      viewBox={`${panOffset.x} ${panOffset.y} ${dimensions.width / zoom} ${
-        dimensions.height / zoom
-      }`}
-      onMouseDown={(event) => {
-        if (event.button === 0 && !dragStartPosition.current) {
-          dragStartPosition.current = {
-            x: panOffset.x + event.clientX / zoom,
-            y: panOffset.y + event.clientY / zoom,
-          };
-        }
-      }}
-      onMouseMove={(event) => {
-        if (dragStartPosition.current) {
-          setPanOffset({
-            x: dragStartPosition.current.x - event.clientX / zoom,
-            y: dragStartPosition.current.y - event.clientY / zoom,
-          });
-        }
-      }}
-      onMouseUp={() => {
-        dragStartPosition.current = null;
-      }}
-      onMouseLeave={() => {
-        dragStartPosition.current = null;
-      }}
-      onWheel={(event) => {
-        if (event.metaKey) {
-          setZoom((prevZoom) => prevZoom * (1 - event.deltaY / 1000));
-        } else {
-          setPanOffset((prevPanOffset) => ({
-            x: prevPanOffset.x + event.deltaX / zoom,
-            y: prevPanOffset.y + event.deltaY / zoom,
-          }));
-        }
-      }}
-    >
-      {pagesElements}
-    </svg>
+      ))}
+    </Stage>
   );
 }
 
@@ -291,7 +215,19 @@ export function App(): JSX.Element {
 
   return (
     <AppBase>
-      <DocumentSvg
+      <button
+        type="button"
+        onClick={() =>
+          setDocument(
+            document === allBubbleBallots.cycling.ballotDocument
+              ? allBubbleBallots.blank.ballotDocument
+              : allBubbleBallots.cycling.ballotDocument
+          )
+        }
+      >
+        Change ballot
+      </button>
+      <DocumentCanvas
         dimensions={dimensions}
         document={document}
         setDocument={setDocument}

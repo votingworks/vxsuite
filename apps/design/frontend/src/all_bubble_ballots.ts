@@ -24,12 +24,14 @@ interface AllBubbleBallotOptions {
   fillBubble: (page: number, row: number, column: number) => boolean;
 }
 
+const ppi = 72;
+
 function createDocument({
   pages,
   fillBubble,
 }: AllBubbleBallotOptions): Document {
-  const documentWidth = 1700;
-  const documentHeight = 2200;
+  const documentWidth = 8.5 * ppi;
+  const documentHeight = 11 * ppi;
   const columnGap = documentWidth / (grid.columns + 1);
   const rowGap = documentHeight / (grid.rows + 1);
 
@@ -40,8 +42,8 @@ function createDocument({
     row: number;
     column: number;
   }): Rectangle {
-    const markWidth = 37.5;
-    const markHeight = 12.5;
+    const markWidth = 0.1875 * ppi;
+    const markHeight = 0.0625 * ppi;
     return {
       type: 'Rectangle',
       x: (column + 1) * columnGap - markWidth / 2,
@@ -100,8 +102,8 @@ function createDocument({
     column: number;
     isFilled: boolean;
   }): Rectangle {
-    const bubbleWidth = 40;
-    const bubbleHeight = 26;
+    const bubbleWidth = 0.2 * ppi;
+    const bubbleHeight = 0.13 * ppi;
     return {
       type: 'Rectangle',
       x: (column + 1) * columnGap - bubbleWidth / 2,
@@ -110,7 +112,7 @@ function createDocument({
       height: bubbleHeight,
       borderRadius: 13,
       stroke: 'black',
-      strokeWidth: 2,
+      strokeWidth: 1,
       fill: isFilled ? 'black' : 'none',
     };
   }
