@@ -141,3 +141,16 @@ test('updateSessionExpiry before election definition has been configured', async
     { sessionExpiresAt: expect.any(Date) }
   );
 });
+
+test('writeBallotPackageSignatureFile', async () => {
+  const { apiClient, artifactAuthenticator } = buildTestEnvironment();
+
+  await apiClient.writeBallotPackageSignatureFile({
+    ballotPackagePath: '/path/to/ballot-package.zip',
+  });
+  expect(artifactAuthenticator.writeSignatureFile).toHaveBeenCalledTimes(1);
+  expect(artifactAuthenticator.writeSignatureFile).toHaveBeenNthCalledWith(1, {
+    type: 'ballot_package',
+    path: '/path/to/ballot-package.zip',
+  });
+});
