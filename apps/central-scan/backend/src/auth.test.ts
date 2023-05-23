@@ -3,6 +3,8 @@ import { Server } from 'http';
 import { DateTime } from 'luxon';
 import { dirSync } from 'tmp';
 import {
+  ArtifactAuthenticatorApi,
+  buildMockArtifactAuthenticator,
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
@@ -20,6 +22,7 @@ import { createWorkspace, Workspace } from './util/workspace';
 
 let apiClient: grout.Client<Api>;
 let auth: DippedSmartCardAuthApi;
+let artifactAuthenticator: ArtifactAuthenticatorApi;
 let server: Server;
 let workspace: Workspace;
 let logger: Logger;
@@ -27,6 +30,7 @@ let logger: Logger;
 beforeEach(async () => {
   const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
+  artifactAuthenticator = buildMockArtifactAuthenticator();
   workspace = createWorkspace(dirSync().name);
   logger = fakeLogger();
 
@@ -36,6 +40,7 @@ beforeEach(async () => {
   server = await start({
     app: buildCentralScannerApp({
       auth,
+      artifactAuthenticator,
       usb: createMockUsb().mock,
       importer: new Importer({ workspace, scanner: makeMockScanner() }),
       workspace,
