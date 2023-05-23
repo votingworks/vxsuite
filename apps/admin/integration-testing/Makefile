@@ -24,7 +24,8 @@ build: build-frontend build-backend build-converter-ms-sems
 run:
 	rm -rf $(ADMIN_WORKSPACE)
 	mkdir $(ADMIN_WORKSPACE)
-	NODE_ENV=production IS_INTEGRATION_TEST=true ./node_modules/.bin/concurrently -n sems,frontend,backend --kill-others \
+	NODE_ENV=production IS_INTEGRATION_TEST=true VX_MACHINE_TYPE=admin \
+		./node_modules/.bin/concurrently -n sems,frontend,backend --kill-others \
 		"make -C $(SEMS) run" \
 		"make -C $(APP)/frontend run" \
 		"make -C $(APP)/backend run"

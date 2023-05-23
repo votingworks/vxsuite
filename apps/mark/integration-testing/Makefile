@@ -18,6 +18,7 @@ build: build-frontend build-backend
 run:
 	rm -rf $(MARK_WORKSPACE)
 	mkdir $(MARK_WORKSPACE)
-	NODE_ENV=production IS_INTEGRATION_TEST=true ./node_modules/.bin/concurrently -n frontend,backend --kill-others \
+	NODE_ENV=production IS_INTEGRATION_TEST=true VX_MACHINE_TYPE=mark \
+		./node_modules/.bin/concurrently -n frontend,backend --kill-others \
 		"make -C $(APP)/frontend run" \
 		"make -C $(APP)/backend run"
