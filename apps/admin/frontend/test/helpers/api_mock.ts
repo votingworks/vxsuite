@@ -299,6 +299,12 @@ export function createApiMock(
           : null
       );
     },
+
+    expectWriteBallotPackageSignatureFile(ballotPackagePath: string) {
+      apiClient.writeBallotPackageSignatureFile
+        .expectCallWith({ ballotPackagePath })
+        .resolves();
+    },
   };
 }
 

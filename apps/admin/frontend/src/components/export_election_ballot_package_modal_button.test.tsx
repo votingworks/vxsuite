@@ -1,3 +1,4 @@
+import MockDate from 'mockdate';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import {
   fakeFileWriter,
@@ -20,6 +21,8 @@ import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 let apiMock: ApiMock;
 
 beforeEach(() => {
+  MockDate.set(new Date(2023, 0, 1));
+
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
 
@@ -35,6 +38,9 @@ afterEach(() => {
   apiMock.assertComplete();
   delete window.kiosk;
 });
+
+const ballotPackagePath =
+  'fake mount point/ballot-packages/choctaw-county_mock-general-election-choctaw-2020_6b99ddaab1__2023-01-01_00-00-00.zip';
 
 test('Button renders properly when not clicked', () => {
   const { queryByTestId } = renderInAppContext(
@@ -84,6 +90,7 @@ test('Modal renders export confirmation screen when usb detected and manual link
     logger,
     apiMock,
   });
+  apiMock.expectWriteBallotPackageSignatureFile(ballotPackagePath);
   userEvent.click(
     await screen.findByRole('button', { name: 'Save Ballot Package' })
   );
@@ -173,6 +180,7 @@ test('Modal renders renders loading message while rendering ballots appropriatel
       apiMock,
       usbDrive,
     });
+  apiMock.expectWriteBallotPackageSignatureFile(ballotPackagePath);
   fireEvent.click(getByText('Save Ballot Package'));
   await waitFor(() => getByText('Save'));
   userEvent.click(getByRole('button', { name: /Save/ }));
