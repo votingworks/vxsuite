@@ -3,6 +3,7 @@ import { mocks } from '@votingworks/custom-scanner';
 import { Buffer } from 'buffer';
 import { findByIds, WebUSBDevice } from 'usb';
 import { Uint16 } from '@votingworks/message-coder';
+import { mockOf } from '@votingworks/test-utils';
 import {
   GENERIC_ENDPOINT_OUT,
   REAL_TIME_ENDPOINT_IN,
@@ -17,21 +18,11 @@ import { TOKEN, NULL_CODE } from './constants';
 import { PrinterStatus, ScannerStatus } from './sensors';
 import { setUpMockWebUsbDevice } from './test_utils';
 
-/**
- * message-coder (new) encodes as Buffers, but the prototype driver (legacy) sends messages as Uint8Array.
- * This means the type of input for calls to webDevice.transferOut will differ between the legacy and new implementations.
- * We wrap test expectations in formatTransferOutArg now so we can easily change them in the future.
- */
-function formatTransferOutArg(data: Buffer): Uint8Array | Buffer {
-  return new Uint8Array(data);
-}
 type MockWebUsbDevice = mocks.MockWebUsbDevice;
 
 jest.mock('usb');
-const findByIdsMock = findByIds as jest.MockedFunction<typeof findByIds>;
-const createInstanceMock = WebUSBDevice.createInstance as jest.MockedFunction<
-  typeof WebUSBDevice.createInstance
->;
+const findByIdsMock = mockOf(findByIds);
+const createInstanceMock = mockOf(WebUSBDevice.createInstance);
 
 let mockWebUsbDevice: MockWebUsbDevice;
 let paperHandlerWebDevice: WebUSBDevice;
@@ -64,7 +55,7 @@ test('initializePrinter sends the correct message', async () => {
   expect(paperHandlerWebDevice.transferOut).toHaveBeenCalledTimes(1);
   expect(paperHandlerWebDevice.transferOut).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    formatTransferOutArg(Buffer.from([0x1b, 0x40]))
+    Uint8Array.from([0x1b, 0x40])
   );
 });
 
@@ -135,7 +126,7 @@ test('getScannerStatus sends the correct message and can parse a response', asyn
 
   const result = await paperHandlerDriver.getScannerStatus();
   expect(transferOutSpy).toHaveBeenCalledTimes(1);
-  const inputAsBuffer = Buffer.from([
+  const inputAsBuffer = Uint8Array.from([
     0x02,
     RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
     TOKEN,
@@ -143,7 +134,7 @@ test('getScannerStatus sends the correct message and can parse a response', asyn
   ]);
   expect(transferOutSpy).toHaveBeenCalledWith(
     REAL_TIME_ENDPOINT_OUT,
-    formatTransferOutArg(inputAsBuffer)
+    inputAsBuffer
   );
 
   expect(result).toEqual(expectedStatus);
@@ -202,7 +193,7 @@ test('getPrinterStatus sends the correct message and can parse a response', asyn
 
   const result = await paperHandlerDriver.getPrinterStatus();
   expect(transferOutSpy).toHaveBeenCalledTimes(1);
-  const inputAsBuffer = Buffer.from([
+  const inputAsBuffer = Uint8Array.from([
     0x02,
     RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
     TOKEN,
@@ -210,7 +201,7 @@ test('getPrinterStatus sends the correct message and can parse a response', asyn
   ]);
   expect(transferOutSpy).toHaveBeenCalledWith(
     REAL_TIME_ENDPOINT_OUT,
-    formatTransferOutArg(inputAsBuffer)
+    inputAsBuffer
   );
 
   expect(result).toEqual(expectedStatus);
@@ -245,10 +236,10 @@ test.each(testsWithNoAdditionalResponseData)(
 
     await functionToTest.call(paperHandlerDriver);
     expect(transferOutSpy).toHaveBeenCalledTimes(1);
-    const inputAsBuffer = Buffer.from([0x02, requestId, TOKEN, NULL_CODE]);
+    const inputAsBuffer = Uint8Array.from([0x02, requestId, TOKEN, NULL_CODE]);
     expect(transferOutSpy).toHaveBeenCalledWith(
       REAL_TIME_ENDPOINT_OUT,
-      formatTransferOutArg(inputAsBuffer)
+      inputAsBuffer
     );
   }
 );
@@ -306,7 +297,7 @@ test.each(scannerCommands)(
     await functionToTest.call(paperHandlerDriver);
     expect(transferOutSpy).toHaveBeenCalledWith(
       GENERIC_ENDPOINT_OUT,
-      formatTransferOutArg(Buffer.from(command))
+      Uint8Array.from(command)
     );
   }
 );
@@ -355,7 +346,7 @@ async function expectScanConfigTransferOut(
   await testFn();
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    formatTransferOutArg(Buffer.from(expectation))
+    Uint8Array.from(expectation)
   );
 }
 
@@ -439,7 +430,7 @@ test('print command', async () => {
   await paperHandlerDriver.print(motionUnits);
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    formatTransferOutArg(Buffer.from(expectation))
+    Uint8Array.from(expectation)
   );
 });
 
@@ -455,7 +446,7 @@ test('print command defaults to 0 motion units', async () => {
   await paperHandlerDriver.print();
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    formatTransferOutArg(Buffer.from(expectation))
+    Uint8Array.from(expectation)
   );
 });
 
@@ -514,7 +505,7 @@ test.each(commandsWithMotionUnits)(
     functionToTest.call(paperHandlerDriver, motionUnits);
     expect(transferOutSpy).toHaveBeenCalledWith(
       GENERIC_ENDPOINT_OUT,
-      formatTransferOutArg(Buffer.from(transferOutExpectation))
+      Uint8Array.from(transferOutExpectation)
     );
   }
 );
@@ -531,7 +522,7 @@ test('setPrintingDensity', async () => {
   await paperHandlerDriver.setPrintingDensity('+25%');
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    formatTransferOutArg(Buffer.from(expectation))
+    Uint8Array.from(expectation)
   );
 });
 
@@ -547,7 +538,7 @@ test('setPrintingSpeed', async () => {
   await paperHandlerDriver.setPrintingSpeed('fast');
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    formatTransferOutArg(Buffer.from(expectation))
+    Uint8Array.from(expectation)
   );
 });
 
@@ -565,7 +556,7 @@ test('setMotionUnits', async () => {
   await paperHandlerDriver.setMotionUnits(x, y);
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    formatTransferOutArg(Buffer.from(expectation))
+    Uint8Array.from(expectation)
   );
 });
 
@@ -582,6 +573,6 @@ test('setLineSpacing', async () => {
   await paperHandlerDriver.setLineSpacing(n);
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    formatTransferOutArg(Buffer.from(expectation))
+    Uint8Array.from(expectation)
   );
 });
