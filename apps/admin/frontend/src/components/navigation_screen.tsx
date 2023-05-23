@@ -1,10 +1,9 @@
 import React, { useContext } from 'react';
-import { useLocation } from 'react-router-dom';
+import _ from 'lodash';
+import styled from 'styled-components';
+
 import {
   Button,
-  ElectionInfoBar,
-  LinkButton,
-  Main,
   Screen,
   SessionTimeLimitTimer,
   UsbControllerButton,
@@ -15,103 +14,86 @@ import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
+
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
-import { Navigation } from './navigation';
 import { logOut } from '../api';
-
-interface NavItem {
-  label: string;
-  routerPath: string;
-}
+import { ScreenHeader } from './layout/screen_header';
+import { NavItem, Sidebar } from './layout/sidebar';
+import { MainContent } from './layout/main_content';
 
 interface Props {
   children: React.ReactNode;
   centerChild?: boolean;
   flexColumn?: boolean;
   flexRow?: boolean;
+  title?: React.ReactNode;
+  titleCaption?: React.ReactNode;
 }
+
+const SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
+  { label: 'Definition', routerPath: routerPaths.electionDefinition },
+  { label: 'Ballots', routerPath: routerPaths.ballotsList },
+  { label: 'Smartcards', routerPath: routerPaths.smartcards },
+  { label: 'Logs', routerPath: routerPaths.logs },
+  { label: 'Settings', routerPath: routerPaths.settings },
+];
+
+const SYSTEM_ADMIN_NAV_ITEMS_NO_ELECTION: readonly NavItem[] = [
+  { label: 'Definition', routerPath: routerPaths.electionDefinition },
+  { label: 'Logs', routerPath: routerPaths.logs },
+  { label: 'Settings', routerPath: routerPaths.settings },
+];
+
+const ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = _.compact([
+  { label: 'Ballots', routerPath: routerPaths.ballotsList },
+  { label: 'L&A', routerPath: routerPaths.logicAndAccuracy },
+  { label: 'Tally', routerPath: routerPaths.tally },
+  isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
+  ) && { label: 'Write-Ins', routerPath: routerPaths.writeIns },
+  { label: 'Reports', routerPath: routerPaths.reports },
+]);
+
+const ELECTION_MANAGER_NAV_ITEMS_NO_ELECTION: readonly NavItem[] = [];
+
+const ScreenBody = styled.div`
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+`;
 
 export function NavigationScreen({
   children,
   centerChild,
   flexColumn,
   flexRow,
+  title,
+  titleCaption,
 }: Props): JSX.Element {
-  const location = useLocation();
-
-  function isActiveSection(path: string) {
-    if (path === '/') {
-      return location.pathname === '/' ? 'active-section' : '';
-    }
-    return new RegExp(`^${path}`).test(location.pathname)
-      ? 'active-section'
-      : '';
-  }
-
-  const { electionDefinition, usbDrive, machineConfig, auth } =
-    useContext(AppContext);
+  const { electionDefinition, usbDrive, auth } = useContext(AppContext);
   const election = electionDefinition?.election;
   const logOutMutation = logOut.useMutation();
 
-  let primaryNavItems: NavItem[] = [];
-  if (isSystemAdministratorAuth(auth)) {
-    primaryNavItems = election
-      ? [
-          { label: 'Definition', routerPath: routerPaths.electionDefinition },
-          { label: 'Ballots', routerPath: routerPaths.ballotsList },
-          { label: 'Smartcards', routerPath: routerPaths.smartcards },
-        ]
-      : [{ label: 'Definition', routerPath: routerPaths.electionDefinition }];
-  } else if (isElectionManagerAuth(auth)) {
-    const primaryNavItemsUnfiltered: Array<NavItem | false> = election
-      ? [
-          { label: 'Ballots', routerPath: routerPaths.ballotsList },
-          { label: 'L&A', routerPath: routerPaths.logicAndAccuracy },
-          { label: 'Tally', routerPath: routerPaths.tally },
-          isFeatureFlagEnabled(
-            BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
-          ) && {
-            label: 'Write-Ins',
-            routerPath: routerPaths.writeIns,
-          },
-          { label: 'Reports', routerPath: routerPaths.reports },
-        ]
-      : [];
-    primaryNavItems = primaryNavItemsUnfiltered.filter<NavItem>(
-      (entry): entry is NavItem => Boolean(entry)
-    );
-  }
+  const primaryNavItems: readonly NavItem[] = isSystemAdministratorAuth(auth)
+    ? election
+      ? SYSTEM_ADMIN_NAV_ITEMS
+      : SYSTEM_ADMIN_NAV_ITEMS_NO_ELECTION
+    : isElectionManagerAuth(auth)
+    ? election
+      ? ELECTION_MANAGER_NAV_ITEMS
+      : ELECTION_MANAGER_NAV_ITEMS_NO_ELECTION
+    : [];
 
   return (
     <Screen>
-      <Navigation
-        primaryNav={
-          <React.Fragment>
-            {primaryNavItems.map(({ label, routerPath }) => (
-              <LinkButton
-                className={isActiveSection(routerPath)}
-                to={routerPath}
-                key={label}
-              >
-                {label}
-              </LinkButton>
-            ))}
-          </React.Fragment>
-        }
-        secondaryNav={
+      <ScreenHeader
+        noBorder
+        title={title}
+        titleCaption={titleCaption}
+        actions={
           <React.Fragment>
             <SessionTimeLimitTimer authStatus={auth} />
-            {isSystemAdministratorAuth(auth) && (
-              <React.Fragment>
-                <LinkButton small to={routerPaths.settings}>
-                  Settings
-                </LinkButton>
-                <LinkButton small to={routerPaths.logs}>
-                  Logs
-                </LinkButton>
-              </React.Fragment>
-            )}
             {(isSystemAdministratorAuth(auth) ||
               isElectionManagerAuth(auth)) && (
               <React.Fragment>
@@ -127,22 +109,17 @@ export function NavigationScreen({
           </React.Fragment>
         }
       />
-      <Main
-        padded
-        centerChild={centerChild}
-        flexColumn={flexColumn}
-        flexRow={flexRow}
-      >
-        {children}
-      </Main>
-      {electionDefinition && (
-        <ElectionInfoBar
-          mode="admin"
-          electionDefinition={electionDefinition}
-          codeVersion={machineConfig.codeVersion}
-          machineId={machineConfig.machineId}
-        />
-      )}
+      <ScreenBody>
+        <Sidebar navItems={primaryNavItems} />
+        <MainContent
+          padded
+          centerChild={centerChild}
+          flexColumn={flexColumn}
+          flexRow={flexRow}
+        >
+          {children}
+        </MainContent>
+      </ScreenBody>
     </Screen>
   );
 }

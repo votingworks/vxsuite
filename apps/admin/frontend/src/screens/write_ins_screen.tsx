@@ -62,7 +62,7 @@ export function WriteInsScreen(): JSX.Element {
 
   if (!election) {
     return (
-      <NavigationScreen>
+      <NavigationScreen title="Write-In Adjudication">
         <Prose>
           <p>Election must be defined.</p>
         </Prose>
@@ -100,10 +100,9 @@ export function WriteInsScreen(): JSX.Element {
   }
 
   return (
-    <NavigationScreen>
+    <NavigationScreen title="Write-In Adjudication">
       <ContentWrapper>
         <Prose maxWidth={false}>
-          <h1>Write-In Adjudication</h1>
           {renderHeaderText()}
           <Table>
             <thead>

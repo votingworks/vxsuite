@@ -84,7 +84,9 @@ test('zoomable ballot image', async () => {
   );
 
   await screen.findByTestId('transcribe:id-174');
-  let ballotImage = await screen.findByRole('img');
+  let ballotImage = await screen.findByRole('img', {
+    name: /ballot with write-in/i,
+  });
   expect(ballotImage).toHaveAttribute('src', 'fake-image-data-174');
 
   // Initially zoomed in to show the write-in area
@@ -100,26 +102,34 @@ test('zoomable ballot image', async () => {
 
   // Zoom out to show the entire ballot
   userEvent.click(zoomOutButton);
-  ballotImage = screen.getByRole('img');
+  ballotImage = screen.getByRole('img', {
+    name: /full ballot/i,
+  });
   expect(ballotImage).toHaveStyle({ width: '100%' });
   expect(zoomInButton).toBeEnabled();
   expect(zoomOutButton).toBeDisabled();
 
   // Zoom back in
   userEvent.click(zoomInButton);
-  ballotImage = screen.getByRole('img');
+  ballotImage = screen.getByRole('img', {
+    name: /ballot with write-in/i,
+  });
   expect(ballotImage).toHaveStyle({ width: `${expectedZoomedInWidth}px` });
 
   // Zoom back out
   userEvent.click(zoomOutButton);
-  ballotImage = screen.getByRole('img');
+  ballotImage = screen.getByRole('img', {
+    name: /full ballot/i,
+  });
   expect(ballotImage).toHaveStyle({ width: '100%' });
 
   // When switching to next adjudication, resets to zoomed in
   userEvent.click(screen.getButton(/Next/));
   await screen.findByTestId('transcribe:id-175');
 
-  ballotImage = await screen.findByRole('img');
+  ballotImage = await screen.findByRole('img', {
+    name: /ballot with write-in/i,
+  });
   expect(ballotImage).toHaveAttribute('src', 'fake-image-data-175');
   expect(ballotImage).toHaveStyle({ width: `${expectedZoomedInWidth}px` });
   zoomInButton = screen.getButton(/Zoom In/);
@@ -129,13 +139,17 @@ test('zoomable ballot image', async () => {
 
   // Zoom out
   userEvent.click(zoomOutButton);
-  ballotImage = screen.getByRole('img');
+  ballotImage = screen.getByRole('img', {
+    name: /full ballot/i,
+  });
   expect(ballotImage).toHaveStyle({ width: '100%' });
 
   // When switching to previous adjudication, resets to zoomed in
   userEvent.click(screen.getButton(/Previous/));
   await screen.findByTestId('transcribe:id-174');
-  ballotImage = await screen.findByRole('img');
+  ballotImage = await screen.findByRole('img', {
+    name: /ballot with write-in/i,
+  });
   expect(ballotImage).toHaveStyle({ width: `${expectedZoomedInWidth}px` });
 });
 
@@ -164,7 +178,9 @@ describe('preventing double votes', () => {
       { electionDefinition, apiMock }
     );
 
-    await screen.findByRole('img');
+    await screen.findByRole('img', {
+      name: /ballot with write-in/i,
+    });
 
     userEvent.click(screen.getButton('Fox'));
     await screen.findByText('Possible Double Vote Detected');
@@ -187,7 +203,9 @@ describe('preventing double votes', () => {
       { electionDefinition, apiMock }
     );
 
-    await screen.findByRole('img');
+    await screen.findByRole('img', {
+      name: /ballot with write-in/i,
+    });
 
     userEvent.click(screen.getButton('Fox'));
     await screen.findByText('Possible Double Vote Detected');
@@ -216,7 +234,9 @@ describe('preventing double votes', () => {
       { electionDefinition, apiMock }
     );
 
-    await screen.findByRole('img');
+    await screen.findByRole('img', {
+      name: /ballot with write-in/i,
+    });
 
     userEvent.click(screen.getButton('Puma'));
     await screen.findByText('Possible Double Vote Detected');

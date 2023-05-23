@@ -309,9 +309,11 @@ export function UnconfiguredScreen(): JSX.Element {
 
   if (isUsingConverter && inputConversionFiles.length > 0) {
     return (
-      <NavigationScreen centerChild>
+      <NavigationScreen
+        centerChild
+        title={`Convert from ${client?.getDisplayName()} files`}
+      >
         <Prose textCenter>
-          <h1>Convert from {client?.getDisplayName()} files</h1>
           <p> Select the following files from a USB drive, etc.</p>
           {inputConversionFiles.map((file) =>
             file.path ? (
@@ -355,9 +357,8 @@ export function UnconfiguredScreen(): JSX.Element {
   }
 
   return (
-    <NavigationScreen centerChild>
+    <NavigationScreen centerChild title="Configure VxAdmin">
       <Prose textCenter>
-        <h1>Configure VxAdmin</h1>
         <p>How would you like to start?</p>
         {vxElectionFileIsInvalid && (
           <Invalid>Invalid Vx Election Definition file.</Invalid>

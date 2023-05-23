@@ -20,10 +20,9 @@ export function BallotListScreen(): JSX.Element {
   assert(electionDefinition && typeof configuredAt === 'string');
 
   return (
-    <NavigationScreen>
+    <NavigationScreen title="Ballots">
       <Header>
         <Prose>
-          <h1>Ballots</h1>
           <p>VxAdmin does not produce ballots for this election.</p>
           {isElectionManagerAuth(auth) ? (
             <React.Fragment>

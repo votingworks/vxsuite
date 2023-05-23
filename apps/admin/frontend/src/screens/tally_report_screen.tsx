@@ -234,9 +234,8 @@ export function TallyReportScreen(): JSX.Element {
 
   if (isTabulationRunning) {
     return (
-      <NavigationScreen centerChild>
+      <NavigationScreen centerChild title="Building Tabulation Report...">
         <Prose textCenter>
-          <h1>Building Tabulation Report...</h1>
           <p>This may take a few seconds.</p>
         </Prose>
       </NavigationScreen>
@@ -251,9 +250,8 @@ export function TallyReportScreen(): JSX.Element {
 
   return (
     <React.Fragment>
-      <NavigationScreen>
+      <NavigationScreen title={reportDisplayTitle}>
         <Prose>
-          <h1>{reportDisplayTitle}</h1>
           <TallyReportMetadata
             generatedAtTime={generatedAtTime}
             election={election}

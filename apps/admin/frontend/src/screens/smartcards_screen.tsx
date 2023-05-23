@@ -23,13 +23,15 @@ export function SmartcardsScreen(): JSX.Element {
   );
 
   return (
-    <NavigationScreen flexRow>
+    <NavigationScreen
+      flexRow
+      title={
+        smartcardType === 'election'
+          ? 'Election Cards'
+          : 'System Administrator Cards'
+      }
+    >
       <Body maxWidth={false}>
-        <h1>
-          {smartcardType === 'election'
-            ? 'Election Cards'
-            : 'System Administrator Cards'}
-        </h1>
         <p>Insert a smartcard to:</p>
         <ul>
           <li>View card details.</li>

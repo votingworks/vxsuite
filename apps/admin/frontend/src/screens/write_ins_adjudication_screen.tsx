@@ -27,7 +27,7 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import { useQueryClient } from '@tanstack/react-query';
 import type { WriteInCandidateRecord } from '@votingworks/admin-backend';
-import { Navigation } from '../components/navigation';
+import { ScreenHeader } from '../components/layout/screen_header';
 import { InlineForm, TextInput } from '../components/text_input';
 import {
   getWriteInDetailView,
@@ -526,9 +526,9 @@ export function WriteInsAdjudicationScreen({
 
   return (
     <Screen>
-      <Navigation
-        screenTitle="Write-In Adjudication"
-        secondaryNav={
+      <ScreenHeader
+        title="Write-In Adjudication"
+        actions={
           <React.Fragment>
             <Text as="span">
               {areAllWriteInsAdjudicated

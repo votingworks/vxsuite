@@ -13,9 +13,8 @@ export function LogicAndAccuracyScreen(): JSX.Element {
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
 
   return (
-    <NavigationScreen>
+    <NavigationScreen title="L&A Testing Documents">
       <Prose>
-        <h1>L&A Testing Documents</h1>
         {electionDefinition &&
         !canViewAndPrintBallots(electionDefinition.election) ? (
           <p>

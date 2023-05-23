@@ -18,10 +18,6 @@ import { AppContext } from '../contexts/app_context';
 import { TextInput } from '../components/text_input';
 import { TextareaAutosize } from '../components/textarea';
 
-const PageHeader = styled.div`
-  margin-bottom: 2rem;
-`;
-
 const Columns = styled.div`
   display: flex;
   flex-direction: row-reverse;
@@ -167,12 +163,7 @@ export function DefinitionContestsScreen(): JSX.Element {
 
   if (contestId && contest) {
     return (
-      <NavigationScreen>
-        <PageHeader>
-          <Prose maxWidth={false}>
-            <h1>View Contest</h1>
-          </Prose>
-        </PageHeader>
+      <NavigationScreen title="View Contest">
         <Columns>
           <div>
             <Prose>
@@ -274,8 +265,7 @@ export function DefinitionContestsScreen(): JSX.Element {
   }
 
   return (
-    <NavigationScreen>
-      <h1>DefinitionContestsScreen</h1>
+    <NavigationScreen title="DefinitionContestsScreen">
       <p>
         /definition/contests - Add new - section - title - party - seats -
         allowWriteIns - candidates.length

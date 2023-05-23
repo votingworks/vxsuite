@@ -15,9 +15,8 @@ export function SettingsScreen(): JSX.Element {
   const { logger, usbDrive } = useContext(AppContext);
 
   return (
-    <NavigationScreen>
+    <NavigationScreen title="Settings">
       <Prose maxWidth={false}>
-        <h1>Settings</h1>
         <h2>Current Date and Time</h2>
         <p>
           <SetClockButton>

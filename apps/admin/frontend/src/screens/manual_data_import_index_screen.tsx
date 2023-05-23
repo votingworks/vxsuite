@@ -84,7 +84,7 @@ export function ManualDataImportIndexScreen(): JSX.Element {
 
   return (
     <React.Fragment>
-      <NavigationScreen>
+      <NavigationScreen title="Manually Entered Results">
         <SummaryInfo>
           <Prose maxWidth={false}>
             <p>
@@ -92,7 +92,6 @@ export function ManualDataImportIndexScreen(): JSX.Element {
                 Back to Tally
               </Button>
             </p>
-            <h1>Manually Entered Results</h1>
             <Table condensed data-testid="summary-data">
               <thead>
                 <tr>
