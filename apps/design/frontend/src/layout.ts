@@ -1,12 +1,27 @@
-import { assert, assertDefined, iter } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  iter,
+  ok,
+  Result,
+  wrapException,
+} from '@votingworks/basics';
 import {
   AnyContest,
   Election,
   getCandidatePartiesDescription,
   GridLayout,
 } from '@votingworks/types';
-import { Document, Rectangle } from './document_types';
+import makeDebug from 'debug';
+import { AnyElement, Document, Page, Rectangle } from './document_types';
 import { encodeMetadata } from './encode_metadata';
+
+// TODO
+// - Text wrapping in contest/candidate names
+// - Implement some sort of density control?
+// - Make sure can still interpret with diff timing marks
+
+const debug = makeDebug('layout');
 
 const FontWeight = {
   NORMAL: 400,
@@ -26,14 +41,19 @@ const FontStyles = {
     lineHeight: 16,
   },
   H3: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: FontWeight.BOLD,
-    lineHeight: 14,
+    lineHeight: 13,
   },
   BODY: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: FontWeight.NORMAL,
-    lineHeight: 11,
+    lineHeight: 10,
+  },
+  SMALL: {
+    fontSize: 9,
+    fontWeight: FontWeight.NORMAL,
+    lineHeight: 9,
   },
 } as const;
 
@@ -46,24 +66,31 @@ export interface GridDimensions {
   columns: number;
 }
 
-const NUM_CONTEST_COLUMNS = 3;
-const GUTTER = 1;
-
-export const GRID: GridDimensions = {
-  rows: 41,
-  columns: 11 * NUM_CONTEST_COLUMNS + (NUM_CONTEST_COLUMNS - 1) * GUTTER,
-};
-
 export const PPI = 72;
 export const DOCUMENT_WIDTH = 8.5 * PPI;
 export const DOCUMENT_HEIGHT = 11 * PPI;
+
+const NUM_CONTEST_COLUMNS = 3;
+const GUTTER_WIDTH = 1;
+const CONTEST_COLUMN_WIDTH = 10;
+export const GRID: GridDimensions = {
+  rows: 41,
+  columns:
+    3 + // Timing marks
+    CONTEST_COLUMN_WIDTH * NUM_CONTEST_COLUMNS +
+    GUTTER_WIDTH * (NUM_CONTEST_COLUMNS - 1),
+};
+const HEADER_ROW_HEIGHT = 5;
+const INSTRUCTIONS_ROW_HEIGHT = 3;
+const HEADER_AND_INSTRUCTIONS_ROW_HEIGHT =
+  HEADER_ROW_HEIGHT + INSTRUCTIONS_ROW_HEIGHT;
+const FOOTER_ROW_HEIGHT = 3;
+const TIMING_MARKS_ROW_HEIGHT = 1.5; // Includes margin
+const CONTENT_AREA_ROW_HEIGHT = GRID.rows - TIMING_MARKS_ROW_HEIGHT * 2 + 1;
+const CONTENT_AREA_COLUMN_WIDTH = GRID.columns - 3;
+
 export const COLUMN_GAP = DOCUMENT_WIDTH / (GRID.columns + 1);
 export const ROW_GAP = DOCUMENT_HEIGHT / (GRID.rows + 1);
-
-const HEADER_ROW_HEIGHT = 5;
-const FOOTER_ROW_HEIGHT = 3;
-const CONTENT_AREA_ROW_HEIGHT = GRID.rows - 3;
-const CONTENT_AREA_COLUMN_WIDTH = GRID.columns - 3;
 
 export interface GridPoint {
   row: number;
@@ -90,7 +117,7 @@ function gridHeight(gridUnits: number): number {
 }
 
 function yToRow(y: number): number {
-  return Math.floor(y / ROW_GAP);
+  return y / ROW_GAP;
 }
 
 export function Bubble({
@@ -138,12 +165,16 @@ function TimingMark({
   };
 }
 
-export function TimingMarkGrid(page: number): Rectangle {
+export function TimingMarkGrid({
+  pageNumber,
+}: {
+  pageNumber: number;
+}): AnyElement {
   // Ballot styles are `card-number-{sheetNumber}`
-  const ballotStyleIndex = Math.ceil(page / 2);
+  const ballotStyleIndex = Math.ceil(pageNumber / 2);
   const sheetMetadata = encodeMetadata(ballotStyleIndex);
   const pageMetadata =
-    page % 2 === 1
+    pageNumber % 2 === 1
       ? sheetMetadata.frontTimingMarks
       : sheetMetadata.backTimingMarks;
   return {
@@ -184,17 +215,27 @@ export function TimingMarkGrid(page: number): Rectangle {
   };
 }
 
-function Header({ election }: { election: Election }): Rectangle {
-  return {
+function HeaderAndInstructions({
+  election,
+  pageNumber,
+}: {
+  election: Election;
+  pageNumber: number;
+}): Rectangle | null {
+  if (pageNumber % 2 === 0) {
+    return null;
+  }
+
+  const header: Rectangle = {
     type: 'Rectangle',
-    ...gridPosition({ row: 2, column: 2 }),
+    ...gridPosition({ row: 0, column: 0 }),
     width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
     height: gridHeight(HEADER_ROW_HEIGHT),
     stroke: 'black',
     children: [
       {
         type: 'TextBox',
-        ...gridPosition({ row: 0.5, column: 5 }),
+        ...gridPosition({ row: 0.5, column: 5.5 }),
         width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
         height: gridHeight(3),
         textLines: ['Sample Ballot', election.title],
@@ -202,7 +243,7 @@ function Header({ election }: { election: Election }): Rectangle {
       },
       {
         type: 'TextBox',
-        ...gridPosition({ row: 2.75, column: 5 }),
+        ...gridPosition({ row: 2.75, column: 5.5 }),
         width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
         height: gridHeight(5),
         textLines: [
@@ -218,12 +259,39 @@ function Header({ election }: { election: Election }): Rectangle {
       },
       {
         type: 'Image',
-        ...gridPosition({ row: 0.5, column: 0 }),
+        ...gridPosition({ row: 0.5, column: 0.25 }),
         width: gridWidth(5),
         height: gridHeight(4),
         href: assertDefined(election.sealUrl),
       },
     ],
+  };
+
+  const instructions: Rectangle = {
+    type: 'Rectangle',
+    ...gridPosition({ row: HEADER_ROW_HEIGHT, column: 0 }),
+    width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
+    height: gridHeight(INSTRUCTIONS_ROW_HEIGHT + 0.5),
+    stroke: 'black',
+    fill: '#ededed',
+    children: [
+      {
+        type: 'TextBox',
+        ...gridPosition({ row: 0.5, column: 0.5 }),
+        width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
+        height: gridHeight(INSTRUCTIONS_ROW_HEIGHT - 1),
+        textLines: ['Instructions'],
+        ...FontStyles.H2,
+      },
+    ],
+  };
+
+  return {
+    type: 'Rectangle',
+    ...gridPosition({ row: TIMING_MARKS_ROW_HEIGHT, column: 2 }),
+    width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
+    height: gridHeight(HEADER_AND_INSTRUCTIONS_ROW_HEIGHT),
+    children: [header, instructions],
   };
 }
 
@@ -231,7 +299,11 @@ function Header({ election }: { election: Election }): Rectangle {
 function Footer({ election }: { election: Election }): Rectangle {
   return {
     type: 'Rectangle',
-    ...gridPosition({ row: GRID.rows - 4, column: 2 }),
+    ...gridPosition({
+      row:
+        TIMING_MARKS_ROW_HEIGHT + CONTENT_AREA_ROW_HEIGHT - FOOTER_ROW_HEIGHT,
+      column: 2,
+    }),
     width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
     height: gridHeight(FOOTER_ROW_HEIGHT),
     stroke: 'black',
@@ -241,12 +313,10 @@ function Footer({ election }: { election: Election }): Rectangle {
 function Contest({
   election,
   contest,
-  columnWidth,
   row,
 }: {
   election: Election;
   contest: AnyContest;
-  columnWidth: number;
   row: number;
 }): Rectangle {
   assert(contest.type === 'candidate');
@@ -255,23 +325,35 @@ function Contest({
   const heading: Rectangle = {
     type: 'Rectangle',
     ...gridPosition({ row: 0, column: 0 }),
-    width: gridWidth(columnWidth),
+    width: gridWidth(CONTEST_COLUMN_WIDTH),
     height: gridHeight(headingRowHeight),
     children: [
+      // Thicker top border
+      {
+        type: 'Rectangle',
+        ...gridPosition({ row: 0, column: 0 }),
+        width: gridWidth(CONTEST_COLUMN_WIDTH),
+        height: 3,
+        fill: 'black',
+      },
       {
         type: 'TextBox',
         ...gridPosition({ row: 0.5, column: 0.5 }),
-        width: gridWidth(columnWidth - 1),
+        width: gridWidth(CONTEST_COLUMN_WIDTH - 1),
         height: gridHeight(1),
         textLines: [contest.title],
         ...FontStyles.H3,
       },
       {
         type: 'TextBox',
-        ...gridPosition({ row: 1.5, column: 0.5 }),
-        width: gridWidth(columnWidth - 1),
+        ...gridPosition({ row: 1.4, column: 0.5 }),
+        width: gridWidth(CONTEST_COLUMN_WIDTH - 1),
         height: gridHeight(1),
-        textLines: [`Vote for ${contest.seats}`],
+        textLines: [
+          contest.seats === 1
+            ? 'Vote for 1'
+            : `Vote for not more than ${contest.seats}`,
+        ],
         ...FontStyles.BODY,
       },
     ],
@@ -284,7 +366,7 @@ function Contest({
       row: headingRowHeight + index * optionRowHeight,
       column: 0,
     }),
-    width: gridWidth(columnWidth),
+    width: gridWidth(CONTEST_COLUMN_WIDTH),
     height: gridHeight(optionRowHeight),
     // fill: 'rgb(0, 255, 0, 0.2)',
     children: [
@@ -292,16 +374,16 @@ function Contest({
       {
         type: 'TextBox',
         ...gridPosition({ row: 0.6, column: 1.75 }),
-        width: gridWidth(columnWidth - 1),
+        width: gridWidth(CONTEST_COLUMN_WIDTH - 1),
         height: gridHeight(1),
         textLines: [candidate.name],
         ...FontStyles.BODY,
-        fontWeight: FontWeight.SEMIBOLD,
+        fontWeight: FontWeight.BOLD,
       },
       {
         type: 'TextBox',
         ...gridPosition({ row: 1.3, column: 1.75 }),
-        width: gridWidth(columnWidth - 1),
+        width: gridWidth(CONTEST_COLUMN_WIDTH - 1),
         height: gridHeight(1),
         textLines: [getCandidatePartiesDescription(election, candidate)],
         ...FontStyles.BODY,
@@ -309,16 +391,55 @@ function Contest({
     ],
   }));
 
+  if (contest.allowWriteIns) {
+    const writeInRowHeight = 2;
+    const writeInOptions = range(0, contest.seats).map(
+      (writeInIndex): Rectangle => ({
+        type: 'Rectangle',
+        ...gridPosition({
+          row:
+            headingRowHeight +
+            options.length * optionRowHeight +
+            writeInIndex * writeInRowHeight,
+          column: 0,
+        }),
+        width: gridWidth(CONTEST_COLUMN_WIDTH),
+        height: gridHeight(writeInRowHeight),
+        children: [
+          Bubble({ row: 1, column: 1, isFilled: false }),
+          {
+            type: 'Rectangle', // Line?
+            ...gridPosition({ row: 1.25, column: 1.75 }),
+            width: gridWidth(CONTEST_COLUMN_WIDTH - 2.5),
+            height: 1,
+            fill: 'black',
+          },
+          {
+            type: 'TextBox',
+            ...gridPosition({ row: 1.3, column: 1.75 }),
+            width: gridWidth(CONTEST_COLUMN_WIDTH - 2.5),
+            height: gridHeight(1),
+            textLines: ['write-in'],
+            ...FontStyles.SMALL,
+          },
+        ],
+      })
+    );
+    options.push(...writeInOptions);
+  }
+
+  const contestHeight =
+    heading.height +
+    iter(options)
+      .map((option) => option.height)
+      .sum() +
+    gridHeight(0.5);
+
   return {
     type: 'Rectangle',
     ...gridPosition({ row, column: 0 }),
-    width: gridWidth(columnWidth),
-    height:
-      heading.height +
-      iter(options)
-        .map((option) => option.height)
-        .sum() +
-      gridHeight(0.5),
+    width: gridWidth(CONTEST_COLUMN_WIDTH),
+    height: contestHeight,
     stroke: 'black',
     children: [heading, ...options],
   };
@@ -327,57 +448,72 @@ function Contest({
 function ThreeColumnContests({
   election,
   contests,
+  startRow,
+  columnRowHeight,
 }: {
   election: Election;
   contests: AnyContest[];
+  startRow: number;
+  columnRowHeight: number;
 }): [Rectangle, AnyContest[]] {
-  const rowHeight =
-    CONTENT_AREA_ROW_HEIGHT - HEADER_ROW_HEIGHT - FOOTER_ROW_HEIGHT - 2;
-  const columnWidth =
-    (CONTENT_AREA_COLUMN_WIDTH - GUTTER * (NUM_CONTEST_COLUMNS - 1)) /
-    NUM_CONTEST_COLUMNS;
-
   // eslint-disable-next-line @typescript-eslint/no-shadow
   function fillColumn(contests: AnyContest[]): [Rectangle[], AnyContest[]] {
-    let heightRemaining = gridHeight(rowHeight);
+    debug(`Filling column with ${contests.length} possible contests`);
+    const CONTEST_ROW_MARGIN = 0.5;
+    let heightRemaining = gridHeight(columnRowHeight);
     let contestIndex = 0;
     const columnContests = [];
-    while (heightRemaining > 0 && contestIndex < contests.length) {
+    while (
+      heightRemaining > gridHeight(CONTEST_ROW_MARGIN) &&
+      contestIndex < contests.length
+    ) {
       const contest = contests[contestIndex];
+      debug(`Attempting to fit contest ${contest.title}`);
       const contestElement = Contest({
         election,
         contest,
-        columnWidth,
-        row: yToRow(gridHeight(rowHeight) - heightRemaining) + contestIndex,
+        row:
+          yToRow(gridHeight(columnRowHeight) - heightRemaining) +
+          contestIndex * CONTEST_ROW_MARGIN,
       });
-      if (contestElement.height > heightRemaining) {
-        return [columnContests, contests.slice(contestIndex)];
+      if (contestElement.height > gridHeight(columnRowHeight)) {
+        throw new Error(
+          `Contest "${contest.title}" is too tall to fit in one column.`
+        );
       }
+      if (contestElement.height > heightRemaining) {
+        debug('Not enough room for contest, ending column.');
+        break;
+      }
+      debug('Contest fits, adding to column.');
       columnContests.push(contestElement);
       heightRemaining -= contestElement.height;
       contestIndex += 1;
     }
-    return [columnContests, []];
+    return [columnContests, contests.slice(contestIndex)];
   }
 
   const [column1Contests, restContests1] = fillColumn(contests);
+  debug('Column 1 contests:', contests.length - restContests1.length);
   const [column2Contests, restContests2] = fillColumn(restContests1);
+  debug('Column 2 contests:', restContests1.length - restContests2.length);
   const [column3Contests, restContests3] = fillColumn(restContests2);
+  debug('Column 3 contests:', restContests2.length - restContests3.length);
 
   const contestColumns: Rectangle = {
     type: 'Rectangle',
-    ...gridPosition({ row: HEADER_ROW_HEIGHT + 3, column: 2 }),
+    ...gridPosition({ row: startRow, column: 2 }),
     width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
-    height: gridHeight(rowHeight),
+    height: gridHeight(columnRowHeight),
     children: [column1Contests, column2Contests, column3Contests].map(
       (columnContests, columnIndex) => ({
         type: 'Rectangle',
         ...gridPosition({
           row: 0,
-          column: (columnWidth + GUTTER) * columnIndex,
+          column: (CONTEST_COLUMN_WIDTH + GUTTER_WIDTH) * columnIndex,
         }),
-        width: gridWidth(columnWidth),
-        height: gridHeight(rowHeight),
+        width: gridWidth(CONTEST_COLUMN_WIDTH),
+        height: gridHeight(columnRowHeight),
         // fill: 'rgb(255, 0, 0, 0.2)',
         children: columnContests,
       })
@@ -390,6 +526,63 @@ function ThreeColumnContests({
 export interface BallotLayout {
   document: Document;
   gridLayouts: GridLayout[];
+}
+
+function layOutBallotHelper(
+  election: Election,
+  precinctId: string,
+  districtIds: string[]
+) {
+  const contests = election.contests.filter((contest) =>
+    districtIds.includes(contest.districtId)
+  );
+
+  let contestsLeftToLayOut = contests;
+  const pages: Page[] = [];
+  while (contestsLeftToLayOut.length > 0 && pages.length < 3) {
+    const pageNumber = pages.length + 1;
+    debug(
+      `Laying out page ${pageNumber}, ${contestsLeftToLayOut.length} contests left`
+    );
+    const headerAndInstructions = HeaderAndInstructions({
+      election,
+      pageNumber,
+    });
+    const headerAndInstructionsRowHeight = headerAndInstructions
+      ? HEADER_AND_INSTRUCTIONS_ROW_HEIGHT + 1
+      : 0;
+    const columnRowHeight =
+      CONTENT_AREA_ROW_HEIGHT -
+      headerAndInstructionsRowHeight -
+      (FOOTER_ROW_HEIGHT + 1);
+    const [contestColumns, restContests] = ThreeColumnContests({
+      election,
+      contests: contestsLeftToLayOut,
+      columnRowHeight,
+      startRow: TIMING_MARKS_ROW_HEIGHT + headerAndInstructionsRowHeight,
+    });
+    debug(
+      `Layed out ${contestsLeftToLayOut.length - restContests.length} contests`
+    );
+    contestsLeftToLayOut = restContests;
+    pages.push({
+      children: [
+        TimingMarkGrid({ pageNumber }),
+        headerAndInstructions,
+        contestColumns,
+        Footer({ election }),
+      ].filter((child): child is AnyElement => child !== null),
+    });
+  }
+
+  return {
+    document: {
+      width: DOCUMENT_WIDTH,
+      height: DOCUMENT_HEIGHT,
+      pages,
+    },
+    gridLayouts: [],
+  };
 }
 
 /**
@@ -407,32 +600,10 @@ export function layOutBallot(
   election: Election,
   precinctId: string,
   districtIds: string[]
-): BallotLayout {
-  const contests = election.contests.filter((contest) =>
-    districtIds.includes(contest.districtId)
-  );
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [contestColumns, restContests] = ThreeColumnContests({
-    election,
-    contests,
-  });
-
-  return {
-    document: {
-      width: DOCUMENT_WIDTH,
-      height: DOCUMENT_HEIGHT,
-      pages: [
-        {
-          children: [
-            TimingMarkGrid(1),
-            Header({ election }),
-            contestColumns,
-            Footer({ election }),
-          ],
-        },
-      ],
-    },
-    gridLayouts: [],
-  };
+): Result<BallotLayout, Error> {
+  try {
+    return ok(layOutBallotHelper(election, precinctId, districtIds));
+  } catch (e) {
+    return wrapException(e);
+  }
 }

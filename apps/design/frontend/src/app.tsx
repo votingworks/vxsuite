@@ -1,10 +1,9 @@
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable react/no-array-index-key */
-import React from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import './polyfills';
 import { AppBase } from '@votingworks/ui';
-import { useEffect, useRef, useState, useMemo } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
 import styled from 'styled-components';
@@ -20,33 +19,16 @@ import { SvgImage, SvgPage, SvgRectangle, SvgTextBox } from './document_svg';
 import { GRID, GridDimensions, layOutBallot } from './layout';
 import election from './electionFamousNames2021.json';
 
-function replaceAtIndex<T>(array: T[], index: number, value: T): T[] {
-  return [...array.slice(0, index), value, ...array.slice(index + 1)];
-}
-
 interface BaseObjectProps<T extends AnyElement> {
   element: T;
   setElement: (element: T) => void;
 }
 
-function RectangleObject({ element, setElement }: BaseObjectProps<Rectangle>) {
+function RectangleObject({ element }: BaseObjectProps<Rectangle>) {
   return (
     <SvgRectangle {...element}>
       {element.children?.map((child, index) => {
-        return (
-          <AnyElementObject
-            key={index}
-            element={child}
-            setElement={(newChild) => {
-              setElement({
-                ...element,
-                children:
-                  element.children &&
-                  replaceAtIndex(element.children, index, newChild),
-              });
-            }}
-          />
-        );
+        return <AnyElementObject key={index} element={child} />;
       })}
     </SvgRectangle>
   );
@@ -60,10 +42,7 @@ function ImageObject({ element }: BaseObjectProps<Image>) {
   return <SvgImage {...element} />;
 }
 
-function AnyElementObject(props: {
-  element: AnyElement;
-  setElement: (element: AnyElement) => void;
-}) {
+function AnyElementObject(props: { element: AnyElement }) {
   switch (props.element.type) {
     case 'Rectangle':
       return <RectangleObject {...(props as BaseObjectProps<Rectangle>)} />;
@@ -128,7 +107,6 @@ function PageObject({
   height,
   grid,
   page,
-  setPage,
   showGridLines,
 }: {
   x: number;
@@ -137,22 +115,12 @@ function PageObject({
   width: number;
   height: number;
   page: Page;
-  setPage: (page: Page) => void;
   showGridLines: boolean;
 }) {
   return (
     <SvgPage {...{ x, y, width, height, ...page }}>
       {page.children.map((element, index) => (
-        <AnyElementObject
-          key={index}
-          element={element}
-          setElement={(newElement) => {
-            setPage({
-              ...page,
-              children: replaceAtIndex(page.children, index, newElement),
-            });
-          }}
-        />
+        <AnyElementObject key={index} element={element} />
       ))}
       {showGridLines && <GridLines {...{ grid, width, height }} />}
     </SvgPage>
@@ -162,12 +130,10 @@ function PageObject({
 function DocumentSvg({
   dimensions,
   document,
-  setDocument,
   showGridLines,
 }: {
   dimensions: { width: number; height: number };
   document: Document;
-  setDocument: (document: Document) => void;
   showGridLines: boolean;
 }) {
   const [zoom, setZoom] = useState(0.8);
@@ -188,17 +154,11 @@ function DocumentSvg({
           width={width}
           height={height}
           page={page}
-          setPage={(newPage) =>
-            setDocument({
-              ...document,
-              pages: replaceAtIndex(pages, index, newPage),
-            })
-          }
           showGridLines={showGridLines}
           key={index}
         />
       )),
-    [width, height, pages, document, setDocument, showGridLines]
+    [width, height, pages, showGridLines]
   );
   return (
     <svg
@@ -257,14 +217,22 @@ const Controls = styled.div`
   gap: 1rem;
 `;
 
+const ErrorMessage = styled.div`
+  color: red;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ballotResult = layOutBallot(
+  election as unknown as Election,
+  election.precincts[0].id,
+  election.districts.map((district) => district.id)
+);
+
 export function App(): JSX.Element {
-  const [document, setDocument] = useState(
-    layOutBallot(
-      election as unknown as Election,
-      election.precincts[0].id,
-      election.districts.slice(0, 2).map((district) => district.id)
-    ).document
-  );
   const [showGridLines, setShowGridLines] = useState(true);
 
   const [dimensions, setDimensions] = useState({
@@ -282,24 +250,30 @@ export function App(): JSX.Element {
 
   return (
     <AppBase>
-      <Controls>
-        <button
-          type="button"
-          onClick={() => setShowGridLines(!showGridLines)}
-          style={{ width: '100px' }}
-        >
-          {showGridLines ? 'Hide Grid' : 'Show Grid'}
-        </button>
-        <div>
-          {GRID.rows} rows x {GRID.columns} columns
-        </div>
-      </Controls>
-      <DocumentSvg
-        dimensions={dimensions}
-        document={document}
-        setDocument={setDocument}
-        showGridLines={showGridLines}
-      />
+      {ballotResult.isErr() && (
+        <ErrorMessage>{ballotResult.err().message}</ErrorMessage>
+      )}
+      {ballotResult.isOk() && (
+        <React.Fragment>
+          <Controls>
+            <button
+              type="button"
+              onClick={() => setShowGridLines(!showGridLines)}
+              style={{ width: '100px' }}
+            >
+              {showGridLines ? 'Hide Grid' : 'Show Grid'}
+            </button>
+            <div>
+              {GRID.rows} rows x {GRID.columns} columns
+            </div>
+          </Controls>
+          <DocumentSvg
+            dimensions={dimensions}
+            document={ballotResult.ok().document}
+            showGridLines={showGridLines}
+          />
+        </React.Fragment>
+      )}
     </AppBase>
   );
 }

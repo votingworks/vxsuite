@@ -41,8 +41,8 @@ function createDocument({
   return {
     width: DOCUMENT_WIDTH,
     height: DOCUMENT_HEIGHT,
-    pages: range(1, pages + 1).map((page) => ({
-      children: [TimingMarkGrid(page), ...Bubbles(page)],
+    pages: range(1, pages + 1).map((pageNumber) => ({
+      children: [TimingMarkGrid({ pageNumber }), ...Bubbles(pageNumber)],
     })),
   };
 }

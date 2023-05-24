@@ -1513,9 +1513,6 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
-      '@votingworks/fixtures':
-        specifier: workspace:*
-        version: link:../../../libs/fixtures
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
@@ -1525,6 +1522,9 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
+      debug:
+        specifier: ^4.3.4
+        version: 4.3.4
       dotenv:
         specifier: 8.2.0
         version: 8.2.0
@@ -1568,6 +1568,9 @@ importers:
       '@codemod/parser':
         specifier: ^1.0.6
         version: 1.2.1
+      '@types/debug':
+        specifier: ^4.1.8
+        version: 4.1.8
       '@types/jest':
         specifier: ^24.0.0
         version: 24.9.1
@@ -12921,6 +12924,12 @@ packages:
     resolution: {integrity: sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==}
     dependencies:
       '@types/ms': 0.7.31
+
+  /@types/debug@4.1.8:
+    resolution: {integrity: sha512-/vPO1EPOs306Cvhwv7KfVfYvOJqA/S/AXjaHQiJboCZzcNDb+TIJFN9/2C9DZ//ijSKWioNyUxD792QmDJ+HKQ==}
+    dependencies:
+      '@types/ms': 0.7.31
+    dev: true
 
   /@types/deep-eql@4.0.0:
     resolution: {integrity: sha512-UkfTYLA64vGUyR4ez8ybIC01wtilS/ydOqKL1fSHOvnX1sVm1sI5btr7Q+bqpdaPGD+QNhOgBXq1HGjO+99e1A==}
