@@ -81,7 +81,7 @@ export const GRID: GridDimensions = {
     GUTTER_WIDTH * (NUM_CONTEST_COLUMNS - 1),
 };
 const HEADER_ROW_HEIGHT = 5;
-const INSTRUCTIONS_ROW_HEIGHT = 3;
+const INSTRUCTIONS_ROW_HEIGHT = 4;
 const HEADER_AND_INSTRUCTIONS_ROW_HEIGHT =
   HEADER_ROW_HEIGHT + INSTRUCTIONS_ROW_HEIGHT;
 const FOOTER_ROW_HEIGHT = 3;
@@ -271,7 +271,7 @@ function HeaderAndInstructions({
     type: 'Rectangle',
     ...gridPosition({ row: HEADER_ROW_HEIGHT, column: 0 }),
     width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
-    height: gridHeight(INSTRUCTIONS_ROW_HEIGHT + 0.5),
+    height: gridHeight(INSTRUCTIONS_ROW_HEIGHT),
     stroke: 'black',
     fill: '#ededed',
     children: [
@@ -549,7 +549,7 @@ function layOutBallotHelper(
       pageNumber,
     });
     const headerAndInstructionsRowHeight = headerAndInstructions
-      ? HEADER_AND_INSTRUCTIONS_ROW_HEIGHT + 1
+      ? HEADER_AND_INSTRUCTIONS_ROW_HEIGHT
       : 0;
     const columnRowHeight =
       CONTENT_AREA_ROW_HEIGHT -
@@ -559,7 +559,7 @@ function layOutBallotHelper(
       election,
       contests: contestsLeftToLayOut,
       columnRowHeight,
-      startRow: TIMING_MARKS_ROW_HEIGHT + headerAndInstructionsRowHeight,
+      startRow: TIMING_MARKS_ROW_HEIGHT + headerAndInstructionsRowHeight + 0.5,
     });
     debug(
       `Layed out ${contestsLeftToLayOut.length - restContests.length} contests`
