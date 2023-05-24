@@ -1558,6 +1558,9 @@ importers:
       styled-components:
         specifier: ^5.2.3
         version: 5.2.3(react-dom@17.0.1)(react-is@18.2.0)(react@17.0.1)
+      svg-text-wrap:
+        specifier: ^0.0.1
+        version: 0.0.1
       svg-to-pdfkit:
         specifier: ^0.1.8
         version: 0.1.8
@@ -31181,6 +31184,16 @@ packages:
   /svg-tags@1.0.0:
     resolution: {integrity: sha512-ovssysQTa+luh7A5Weu3Rta6FJlFBBbInjOh722LIt6klpU2/HtdUbszju/G4devcvk8PGt7FCLv5wftu3THUA==}
     dev: true
+
+  /svg-text-size@0.0.1:
+    resolution: {integrity: sha512-zmXbaDvjqVgjjfnz8dqfDID1eNDBBTY7f6fEAZjoYYvkWsVAcGZo6ceoTKY4oz5mQrvffpJRMRrFaGbTFWnJMA==}
+    dev: false
+
+  /svg-text-wrap@0.0.1:
+    resolution: {integrity: sha512-o/wRvISU2XZq5x95WW9+4CFtcYVRYB/HPON6yAscxrABNyzXSDLmzPhObOrG1hVkdDt5mjyr78ukG9k4jsq+DA==}
+    dependencies:
+      svg-text-size: 0.0.1
+    dev: false
 
   /svg-to-pdfkit@0.1.8:
     resolution: {integrity: sha512-QItiGZBy5TstGy+q8mjQTMGRlDDOARXLxH+sgVm1n/LYeo0zFcQlcCh8m4zi8QxctrxB9Kue/lStc/RD5iLadQ==}

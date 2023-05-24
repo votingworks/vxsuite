@@ -13,6 +13,7 @@ import {
   GridLayout,
 } from '@votingworks/types';
 import makeDebug from 'debug';
+import textWrap from 'svg-text-wrap';
 import { AnyElement, Document, Page, Rectangle } from './document_types';
 import { encodeMetadata } from './encode_metadata';
 
@@ -321,7 +322,20 @@ function Contest({
 }): Rectangle {
   assert(contest.type === 'candidate');
 
-  const headingRowHeight = 2;
+  const titleLines = textWrap(
+    contest.title,
+    gridWidth(CONTEST_COLUMN_WIDTH - 0.5)
+  );
+  const titleTextBox: TextBox = {
+    type: 'TextBox',
+    ...gridPosition({ row: 0.5, column: 0.5 }),
+    width: gridWidth(CONTEST_COLUMN_WIDTH - 1),
+    height: gridHeight(titleLines.length),
+    textLines: titleLines,
+    ...FontStyles.H3,
+  };
+
+  const headingRowHeight = 1 + titleLines.length;
   const heading: Rectangle = {
     type: 'Rectangle',
     ...gridPosition({ row: 0, column: 0 }),
@@ -336,17 +350,15 @@ function Contest({
         height: 3,
         fill: 'black',
       },
+      titleTextBox,
       {
         type: 'TextBox',
-        ...gridPosition({ row: 0.5, column: 0.5 }),
-        width: gridWidth(CONTEST_COLUMN_WIDTH - 1),
-        height: gridHeight(1),
-        textLines: [contest.title],
-        ...FontStyles.H3,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 1.4, column: 0.5 }),
+        ...gridPosition({ row: 0, column: 0.5 }),
+        // TODO: better approach to line spacing
+        y:
+          titleTextBox.y +
+          titleLines.length * FontStyles.H3.lineHeight +
+          gridHeight(0.25),
         width: gridWidth(CONTEST_COLUMN_WIDTH - 1),
         height: gridHeight(1),
         textLines: [
