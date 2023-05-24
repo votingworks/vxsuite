@@ -6,26 +6,27 @@ import fs from 'fs';
 import PdfDocument from 'pdfkit';
 import SvgToPdf from 'svg-to-pdfkit';
 import { safeParseJson } from '@votingworks/types';
-import { SvgBox, SvgEllipse, SvgPage, SvgRectangle } from './document_svg';
+import { SvgImage, SvgPage, SvgRectangle, SvgTextBox } from './document_svg';
 import { Document, AnyElement, Page } from './document_types';
 
 function SvgAnyElement(props: AnyElement): JSX.Element {
   // eslint-disable-next-line react/destructuring-assignment
   switch (props.type) {
-    case 'Rectangle':
-      return <SvgRectangle {...props} />;
-    case 'Ellipse':
-      return <SvgEllipse {...props} />;
-    case 'Box': {
+    case 'Rectangle': {
       const { children, ...rest } = props;
       return (
-        <SvgBox {...rest}>
+        <SvgRectangle {...rest}>
           {children?.map((child, index) => (
             <SvgAnyElement key={index} {...child} />
           ))}
-        </SvgBox>
+        </SvgRectangle>
       );
     }
+    case 'TextBox':
+      return <SvgTextBox {...props} />;
+    case 'Image':
+      // TODO support loading images from disk?
+      return <SvgImage {...props} />;
     default:
       throwIllegalValue(props);
   }
@@ -83,8 +84,11 @@ export function main(): void {
   const ballotDocument = safeParseJson(ballotDocumentJson).assertOk(
     'Invalid ballot document JSON'
   );
+  const startTime = process.hrtime.bigint();
   renderDocumentToPdf(
     ballotDocument as Document,
     fs.createWriteStream(outputPdfPath)
   );
+  const endTime = process.hrtime.bigint();
+  console.log(`Rendered ballot in ${(endTime - startTime) / BigInt(1e6)}ms`);
 }

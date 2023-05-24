@@ -6,17 +6,15 @@ import {
   GridLayout,
   Side,
 } from '@votingworks/types';
-import { Document, GridDimensions, Rectangle } from './document_types';
-import { encodeMetadata } from './encode_metadata';
-
-function range(start: number, end: number): number[] {
-  return Array.from({ length: end - start }, (_, i) => i + start);
-}
-
-const grid: GridDimensions = {
-  rows: 41,
-  columns: 34,
-};
+import { Document } from './document_types';
+import {
+  Bubble,
+  DOCUMENT_HEIGHT,
+  DOCUMENT_WIDTH,
+  GRID,
+  range,
+  TimingMarkGrid,
+} from './layout';
 
 interface AllBubbleBallotOptions {
   title: string;
@@ -28,96 +26,9 @@ function createDocument({
   pages,
   fillBubble,
 }: AllBubbleBallotOptions): Document {
-  const documentWidth = 1700;
-  const documentHeight = 2200;
-  const columnGap = documentWidth / (grid.columns + 1);
-  const rowGap = documentHeight / (grid.rows + 1);
-
-  function TimingMark({
-    row,
-    column,
-  }: {
-    row: number;
-    column: number;
-  }): Rectangle {
-    const markWidth = 37.5;
-    const markHeight = 12.5;
-    return {
-      type: 'Rectangle',
-      x: (column + 1) * columnGap - markWidth / 2,
-      y: (row + 1) * rowGap - markHeight / 2,
-      width: markWidth,
-      height: markHeight,
-      fill: 'black',
-    };
-  }
-
-  function timingMarks(page: number) {
-    // Ballot styles are `card-number-{sheetNumber}`
-    const ballotStyleIndex = Math.ceil(page / 2);
-    const sheetMetadata = encodeMetadata(ballotStyleIndex);
-    const pageMetadata =
-      page % 2 === 1
-        ? sheetMetadata.frontTimingMarks
-        : sheetMetadata.backTimingMarks;
-    return [
-      // Top
-      range(0, grid.columns).map((column) =>
-        TimingMark({
-          row: 0,
-          column,
-        })
-      ),
-      // Bottom
-      [...pageMetadata.entries()]
-        .filter(([, bit]) => bit === 1)
-        .map(([column]) =>
-          TimingMark({
-            row: grid.rows - 1,
-            column,
-          })
-        ),
-      // Left
-      range(0, grid.rows).map((row) =>
-        TimingMark({
-          row,
-          column: 0,
-        })
-      ),
-      // Right
-      range(0, grid.rows).map((row) =>
-        TimingMark({ row, column: grid.columns - 1 })
-      ),
-    ].flat();
-  }
-
-  function Bubble({
-    row,
-    column,
-    isFilled,
-  }: {
-    row: number;
-    column: number;
-    isFilled: boolean;
-  }): Rectangle {
-    const bubbleWidth = 40;
-    const bubbleHeight = 26;
-    return {
-      type: 'Rectangle',
-      x: (column + 1) * columnGap - bubbleWidth / 2,
-      y: (row + 1) * rowGap - bubbleHeight / 2,
-      width: bubbleWidth,
-      height: bubbleHeight,
-      borderRadius: 13,
-      stroke: 'black',
-      strokeWidth: 2,
-      fill: isFilled ? 'black' : 'none',
-    };
-  }
-
-  function bubbles(page: number) {
-    return range(1, grid.rows - 1).flatMap((row) =>
-      range(1, grid.columns - 1).map((column) =>
+  function Bubbles(page: number) {
+    return range(1, GRID.rows - 1).flatMap((row) =>
+      range(1, GRID.columns - 1).map((column) =>
         Bubble({
           row,
           column,
@@ -128,11 +39,10 @@ function createDocument({
   }
 
   return {
-    width: documentWidth,
-    height: documentHeight,
-    grid,
+    width: DOCUMENT_WIDTH,
+    height: DOCUMENT_HEIGHT,
     pages: range(1, pages + 1).map((page) => ({
-      children: [...timingMarks(page), ...bubbles(page)],
+      children: [TimingMarkGrid(page), ...Bubbles(page)],
     })),
   };
 }
@@ -149,8 +59,8 @@ function createElectionDefinition({
   }
 
   const gridPositions = range(1, pages + 1).flatMap((page) =>
-    range(1, grid.rows - 1).flatMap((row) =>
-      range(1, grid.columns - 1).map((column) => ({
+    range(1, GRID.rows - 1).flatMap((row) =>
+      range(1, GRID.columns - 1).map((column) => ({
         page,
         row,
         column,
@@ -178,8 +88,8 @@ function createElectionDefinition({
   const gridLayouts: GridLayout[] = sheets.map((sheet) => ({
     precinctId,
     ballotStyleId: ballotStyleIdForSheet(sheet),
-    columns: grid.columns,
-    rows: grid.rows,
+    columns: GRID.columns,
+    rows: GRID.rows,
     optionBoundsFromTargetMark: {
       bottom: 1,
       left: 1,
@@ -187,8 +97,8 @@ function createElectionDefinition({
       top: 1,
     },
     gridPositions: (['front', 'back'] as Side[]).flatMap((side) =>
-      range(1, grid.rows - 1).flatMap((row) =>
-        range(1, grid.columns - 1).map((column) => ({
+      range(1, GRID.rows - 1).flatMap((row) =>
+        range(1, GRID.columns - 1).map((column) => ({
           type: 'option',
           side,
           column,

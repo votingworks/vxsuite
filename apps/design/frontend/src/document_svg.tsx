@@ -1,58 +1,74 @@
 import React from 'react';
-import { Box, Color, Ellipse, Page, Rectangle } from './document_types';
+import { Color, Image, Page, Rectangle, TextBox } from './document_types';
 
-type SvgRectangleProps = Omit<Rectangle, 'type'>;
-
-export function SvgRectangle({
-  borderRadius,
-  ...props
-}: SvgRectangleProps): JSX.Element {
-  return <rect {...props} rx={borderRadius} ry={borderRadius} />;
-}
-
-type SvgEllipseProps = Omit<Ellipse, 'type'>;
-
-export function SvgEllipse({
-  x,
-  y,
-  width,
-  height,
-  ...props
-}: SvgEllipseProps): JSX.Element {
-  return (
-    <ellipse
-      cx={x + width / 2}
-      cy={y + height / 2}
-      rx={width / 2}
-      ry={height / 2}
-      {...props}
-    />
-  );
-}
-
-interface SvgBoxProps extends Omit<Box, 'type' | 'children'> {
+interface SvgRectangleProps extends Omit<Rectangle, 'type' | 'children'> {
   children?: React.ReactNode;
 }
 
-export function SvgBox({
+export function SvgRectangle({
   x,
   y,
+  borderRadius,
+  fill,
   children,
   ...rectProps
-}: SvgBoxProps): JSX.Element {
+}: SvgRectangleProps): JSX.Element {
+  // eslint-disable-next-line no-param-reassign
+  fill = fill ?? 'none';
   return (
-    <svg x={x} y={y}>
-      <SvgRectangle x={0} y={0} {...rectProps} />
+    <svg x={x} y={y} overflow="visible">
+      <rect
+        x={0}
+        y={0}
+        rx={borderRadius}
+        ry={borderRadius}
+        fill={fill}
+        {...rectProps}
+      />
       {children}
     </svg>
   );
 }
 
+type SvgTextBoxProps = Omit<TextBox, 'type'>;
+
+export function SvgTextBox({
+  x,
+  y,
+  width,
+  height,
+  textLines,
+  lineHeight,
+  ...textProps
+}: SvgTextBoxProps): JSX.Element {
+  return (
+    <svg x={x} y={y} width={width} height={height}>
+      {textLines.map((textLine, index) => (
+        <text
+          // eslint-disable-next-line react/no-array-index-key
+          key={textLine + index}
+          x={0}
+          y={(index + 1) * lineHeight}
+          {...textProps}
+        >
+          {textLine}
+        </text>
+      ))}
+    </svg>
+  );
+}
+
+type SvgImageProps = Omit<Image, 'type'>;
+
+export function SvgImage(props: SvgImageProps): JSX.Element {
+  return <image {...props} />;
+}
+
 interface SvgPageProps extends Omit<Page, 'children'> {
   x?: number;
   y?: number;
-  width?: number;
-  height?: number;
+  width: number;
+  height: number;
   stroke?: Color;
   strokeWidth?: number;
   children: React.ReactNode;

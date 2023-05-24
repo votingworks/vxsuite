@@ -17,31 +17,34 @@ export interface Shape extends ElementBase {
 export interface Rectangle extends Shape {
   type: 'Rectangle';
   borderRadius?: number;
-}
-
-export interface Ellipse extends Shape {
-  type: 'Ellipse';
-}
-
-export interface Box extends Omit<Rectangle, 'type'> {
-  type: 'Box';
   children?: AnyElement[];
 }
 
-export type AnyElement = Rectangle | Ellipse | Box;
+export interface TextBox extends ElementBase {
+  type: 'TextBox';
+  width: number;
+  height: number;
+  textLines: string[]; // TODO support spans for rich text styling
+  fontSize: number;
+  fontWeight: number;
+  lineHeight: number;
+}
+
+export interface Image extends ElementBase {
+  type: 'Image';
+  width: number;
+  height: number;
+  href: string;
+}
+
+export type AnyElement = Rectangle | TextBox | Image;
 
 export interface Page {
   children: AnyElement[];
 }
 
-export interface GridDimensions {
-  rows: number;
-  columns: number;
-}
-
 export interface Document {
   width: number;
   height: number;
-  grid: GridDimensions;
   pages: Page[];
 }

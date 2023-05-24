@@ -1,0 +1,324 @@
+{
+  "title": "Lincoln Municipal General Election",
+  "state": "State of Hamilton",
+  "county": {
+    "id": "franklin",
+    "name": "Franklin County"
+  },
+  "date": "2021-06-06T00:00:00-10:00",
+  "parties": [
+    {
+      "id": "0",
+      "name": "Democrat",
+      "fullName": "Democratic Party",
+      "abbrev": "D"
+    },
+    {
+      "id": "1",
+      "name": "Republican",
+      "fullName": "Republican Party",
+      "abbrev": "R"
+    },
+    {
+      "id": "2",
+      "name": "Liberty",
+      "fullName": "Liberty Party",
+      "abbrev": "Li"
+    },
+    {
+      "id": "3",
+      "name": "Green",
+      "fullName": "Green Party",
+      "abbrev": "G"
+    }
+  ],
+  "contests": [
+    {
+      "id": "mayor",
+      "districtId": "district-1",
+      "type": "candidate",
+      "title": "Mayor",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "sherlock-holmes",
+          "name": "Sherlock Holmes",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "thomas-edison",
+          "name": "Thomas Edison",
+          "partyIds": ["1"]
+        }
+      ]
+    },
+    {
+      "id": "controller",
+      "districtId": "district-1",
+      "type": "candidate",
+      "title": "Controller",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "winston-churchill",
+          "name": "Winston Churchill",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "oprah-winfrey",
+          "name": "Oprah Winfrey",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "louis-armstrong",
+          "name": "Louis Armstrong",
+          "partyIds": ["3"]
+        }
+      ]
+    },
+    {
+      "id": "attorney",
+      "districtId": "district-1",
+      "type": "candidate",
+      "title": "Attorney",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "john-snow",
+          "name": "John Snow",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "mark-twain",
+          "name": "Mark Twain",
+          "partyIds": ["3"]
+        }
+      ]
+    },
+    {
+      "id": "public-works-director",
+      "districtId": "district-1",
+      "type": "candidate",
+      "title": "Public Works Director",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "benjamin-franklin",
+          "name": "Benjamin Franklin",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "robert-downey-jr",
+          "name": "Robert Downey Jr.",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "bill-nye",
+          "name": "Bill Nye",
+          "partyIds": ["3"]
+        }
+      ]
+    },
+    {
+      "id": "chief-of-police",
+      "districtId": "district-1",
+      "type": "candidate",
+      "title": "Chief of Police",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "natalie-portman",
+          "name": "Natalie Portman",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "frank-sinatra",
+          "name": "Frank Sinatra",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "andy-warhol",
+          "name": "Andy Warhol",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "alfred-hitchcock",
+          "name": "Alfred Hitchcock",
+          "partyIds": ["3"]
+        }
+      ]
+    },
+    {
+      "id": "parks-and-recreation-director",
+      "districtId": "district-1",
+      "type": "candidate",
+      "title": "Parks and Recreation Director",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "charles-darwin",
+          "name": "Charles Darwin",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "stephen-hawking",
+          "name": "Stephen Hawking",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "johan-sebastian-bach",
+          "name": "Johann Sebastian Bach",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "alexander-graham-bell",
+          "name": "Alexander Graham Bell",
+          "partyIds": ["1"]
+        }
+      ]
+    },
+    {
+      "id": "board-of-alderman",
+      "districtId": "district-1",
+      "type": "candidate",
+      "title": "Board of Alderman",
+      "seats": 4,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "helen-keller",
+          "name": "Helen Keller",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "steve-jobs",
+          "name": "Steve Jobs",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "nikola-tesla",
+          "name": "Nikola Tesla",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "vincent-van-gogh",
+          "name": "Vincent Van Gogh",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "pablo-picasso",
+          "name": "Pablo Picasso",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "wolfgang-amadeus-mozart",
+          "name": "Wolfgang Amadeus Mozart",
+          "partyIds": ["2"]
+        }
+      ]
+    },
+    {
+      "id": "city-council",
+      "districtId": "district-1",
+      "type": "candidate",
+      "title": "City Council",
+      "seats": 4,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "marie-curie",
+          "name": "Marie Curie",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "indiana-jones",
+          "name": "Indiana Jones",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "mona-lisa",
+          "name": "Mona Lisa",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "jackie-chan",
+          "name": "Jackie Chan",
+          "partyIds": ["3"]
+        },
+        {
+          "id": "tim-allen",
+          "name": "Tim Allen",
+          "partyIds": ["2"]
+        },
+        {
+          "id": "mark-antony",
+          "name": "Mark Antony",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "harriet-tubman",
+          "name": "Harriet Tubman",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "martin-luther-king",
+          "name": "Dr. Martin Luther King Jr.",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "marilyn-monroe",
+          "name": "Marilyn Monroe",
+          "partyIds": ["1"]
+        }
+      ]
+    }
+  ],
+  "districts": [
+    {
+      "id": "district-1",
+      "name": "City of Lincoln"
+    }
+  ],
+  "precincts": [
+    {
+      "id": "23",
+      "name": "North Lincoln"
+    },
+    {
+      "id": "22",
+      "name": "South Lincoln"
+    },
+    {
+      "id": "21",
+      "name": "East Lincoln"
+    },
+    {
+      "id": "20",
+      "name": "West Lincoln"
+    }
+  ],
+  "ballotStyles": [
+    {
+      "id": "1",
+      "precincts": ["20", "21", "22", "23"],
+      "districts": ["district-1"]
+    }
+  ],
+  "sealUrl": "/seals/state-of-hamilton-official-seal.svg",
+  "adjudicationReasons": [
+    "UninterpretableBallot",
+    "Overvote",
+    "Undervote",
+    "BlankBallot"
+  ],
+  "markThresholds": {
+    "definite": 0.12,
+    "marginal": 0.12
+  }
+}
