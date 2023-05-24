@@ -9,7 +9,6 @@ import {
   fakeElectionManagerUser,
   fakePollWorkerUser,
   fakeSessionExpiresAt,
-  mockOf,
 } from '@votingworks/test-utils';
 import {
   electionMinimalExhaustiveSampleFixtures,
@@ -19,7 +18,7 @@ import {
 import { assert, err } from '@votingworks/basics';
 import {
   BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
+  getFeatureFlagMock,
   safeParseSystemSettings,
 } from '@votingworks/utils';
 import {
@@ -34,15 +33,18 @@ import { readBallotPackageFromUsb } from './ballot_package_io';
 import { createMockUsb } from '../mock_usb';
 import { UsbDrive } from '../get_usb_drives';
 
+const mockFeatureFlagger = getFeatureFlagMock();
+
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
   ...jest.requireActual('@votingworks/utils'),
-  isFeatureFlagEnabled: jest.fn(),
+  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
 let mockArtifactAuthenticator: jest.Mocked<ArtifactAuthenticatorApi>;
 
 beforeEach(() => {
-  mockOf(isFeatureFlagEnabled).mockImplementation(() => false);
+  mockFeatureFlagger.resetFeatureFlags();
+
   mockArtifactAuthenticator = buildMockArtifactAuthenticator();
 });
 
@@ -408,9 +410,8 @@ test('readBallotPackageFromUsb ignores ballot package authentication errors if S
   mockArtifactAuthenticator.authenticateArtifactUsingSignatureFile.mockResolvedValue(
     err(new Error('Whoa!'))
   );
-  mockOf(isFeatureFlagEnabled).mockImplementation(
-    (flag) =>
-      flag === BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
   );
 
   const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
