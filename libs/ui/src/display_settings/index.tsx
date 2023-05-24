@@ -6,9 +6,10 @@ import { SettingsPaneId } from './types';
 import { TabBar } from './tab_bar';
 import { ColorSettings, ColorSettingsProps } from './color_settings';
 import { SizeSettings, SizeSettingsProps } from './size_settings';
-import { H1 } from '../typography';
+import { H2 } from '../typography';
 import { Button } from '../button';
 import { ThemeManagerContext } from '../theme_manager_context';
+import { useScreenInfo } from '../hooks/use_screen_info';
 
 export interface DisplaySettingsProps {
   /** @default ['contrastLow', 'contrastMedium', 'contrastHighLight', 'contrastHighDark'] */
@@ -24,8 +25,19 @@ const Container = styled.div`
   height: 100vh;
 `;
 
-const Header = styled.div`
-  padding: 0.5rem 0.5rem 0.125rem;
+interface HeaderProps {
+  portrait?: boolean;
+}
+
+/* istanbul ignore next */
+const Header = styled.div<HeaderProps>`
+  align-items: ${(p) => (p.portrait ? 'stretch' : 'center')};
+  border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem dotted
+    ${(p) => p.theme.colors.foreground};
+  display: flex;
+  flex-direction: ${(p) => (p.portrait ? 'column' : 'row')};
+  gap: ${(p) => (p.portrait ? 0.25 : 0.5)}rem;
+  padding: 0.25rem 0.5rem 0.5rem;
 `;
 
 const ActivePaneContainer = styled.div`
@@ -36,7 +48,8 @@ const Footer = styled.div`
   display: flex;
   gap: 0.5rem;
   justify-content: end;
-  padding: 0.25rem 0.5rem 0.5rem;
+  padding: max(0.25rem, ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px)
+    0.5rem;
 `;
 
 /**
@@ -48,6 +61,8 @@ const Footer = styled.div`
 export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
   const { colorModes, onClose, sizeModes } = props;
 
+  const screenInfo = useScreenInfo();
+
   const [activePaneId, setActivePaneId] = React.useState<SettingsPaneId>(
     'displaySettingsColor'
   );
@@ -56,10 +71,14 @@ export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
 
   return (
     <Container>
-      <Header>
-        <H1>Display Settings</H1>
+      <Header portrait={screenInfo.isPortrait}>
+        <H2 as="h1">Display Settings:</H2>
+        <TabBar
+          activePaneId={activePaneId}
+          grow={!screenInfo.isPortrait}
+          onChange={setActivePaneId}
+        />
       </Header>
-      <TabBar activePaneId={activePaneId} onChange={setActivePaneId} />
       <ActivePaneContainer>
         {activePaneId === 'displaySettingsColor' && (
           <ColorSettings colorModes={colorModes} />
