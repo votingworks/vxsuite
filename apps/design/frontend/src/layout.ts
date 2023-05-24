@@ -10,11 +10,18 @@ import {
   AnyContest,
   Election,
   getCandidatePartiesDescription,
+  getPrecinctById,
   GridLayout,
 } from '@votingworks/types';
 import makeDebug from 'debug';
 import textWrap from 'svg-text-wrap';
-import { AnyElement, Document, Page, Rectangle } from './document_types';
+import {
+  AnyElement,
+  Document,
+  Page,
+  Rectangle,
+  TextBox,
+} from './document_types';
 import { encodeMetadata } from './encode_metadata';
 
 // TODO
@@ -81,11 +88,11 @@ export const GRID: GridDimensions = {
     CONTEST_COLUMN_WIDTH * NUM_CONTEST_COLUMNS +
     GUTTER_WIDTH * (NUM_CONTEST_COLUMNS - 1),
 };
-const HEADER_ROW_HEIGHT = 5;
-const INSTRUCTIONS_ROW_HEIGHT = 4;
+const HEADER_ROW_HEIGHT = 4.5;
+const INSTRUCTIONS_ROW_HEIGHT = 3.5;
 const HEADER_AND_INSTRUCTIONS_ROW_HEIGHT =
   HEADER_ROW_HEIGHT + INSTRUCTIONS_ROW_HEIGHT;
-const FOOTER_ROW_HEIGHT = 3;
+const FOOTER_ROW_HEIGHT = 2;
 const TIMING_MARKS_ROW_HEIGHT = 1.5; // Includes margin
 const CONTENT_AREA_ROW_HEIGHT = GRID.rows - TIMING_MARKS_ROW_HEIGHT * 2 + 1;
 const CONTENT_AREA_COLUMN_WIDTH = GRID.columns - 3;
@@ -141,7 +148,7 @@ export function Bubble({
     height: bubbleHeight,
     borderRadius: 0.07 * PPI,
     stroke: 'black',
-    strokeWidth: 1,
+    strokeWidth: 0.5,
     fill: isFilled ? 'black' : 'none',
   };
 }
@@ -232,11 +239,10 @@ function HeaderAndInstructions({
     ...gridPosition({ row: 0, column: 0 }),
     width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
     height: gridHeight(HEADER_ROW_HEIGHT),
-    stroke: 'black',
     children: [
       {
         type: 'TextBox',
-        ...gridPosition({ row: 0.5, column: 5.5 }),
+        ...gridPosition({ row: 0, column: 5.5 }),
         width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
         height: gridHeight(3),
         textLines: ['Sample Ballot', election.title],
@@ -244,7 +250,7 @@ function HeaderAndInstructions({
       },
       {
         type: 'TextBox',
-        ...gridPosition({ row: 2.75, column: 5.5 }),
+        ...gridPosition({ row: 2.25, column: 5.5 }),
         width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
         height: gridHeight(5),
         textLines: [
@@ -260,8 +266,8 @@ function HeaderAndInstructions({
       },
       {
         type: 'Image',
-        ...gridPosition({ row: 0.5, column: 0.25 }),
-        width: gridWidth(5),
+        ...gridPosition({ row: 0, column: 0.5 }),
+        width: gridWidth(4),
         height: gridHeight(4),
         href: assertDefined(election.sealUrl),
       },
@@ -274,15 +280,79 @@ function HeaderAndInstructions({
     width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
     height: gridHeight(INSTRUCTIONS_ROW_HEIGHT),
     stroke: 'black',
+    strokeWidth: 0.5,
     fill: '#ededed',
     children: [
+      // Thicker top border
+      {
+        type: 'Rectangle',
+        ...gridPosition({ row: 0, column: 0 }),
+        width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
+        height: 2,
+        fill: 'black',
+      },
       {
         type: 'TextBox',
-        ...gridPosition({ row: 0.5, column: 0.5 }),
+        ...gridPosition({ row: 0.25, column: 0.5 }),
         width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
         height: gridHeight(INSTRUCTIONS_ROW_HEIGHT - 1),
         textLines: ['Instructions'],
-        ...FontStyles.H2,
+        ...FontStyles.H3,
+      },
+      {
+        type: 'TextBox',
+        ...gridPosition({ row: 1.1, column: 0.5 }),
+        width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
+        height: gridHeight(INSTRUCTIONS_ROW_HEIGHT - 1),
+        textLines: ['To Vote:'],
+        ...FontStyles.SMALL,
+        fontWeight: FontWeight.BOLD,
+      },
+      {
+        type: 'TextBox',
+        ...gridPosition({ row: 1.7, column: 0.5 }),
+        width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
+        height: gridHeight(INSTRUCTIONS_ROW_HEIGHT - 1),
+        textLines: [
+          'To vote, completely fill in',
+          'the oval next to your choice.',
+        ],
+        ...FontStyles.SMALL,
+      },
+      {
+        type: 'Image',
+        ...gridPosition({ row: 1.1, column: 7.5 }),
+        width: gridWidth(5),
+        height: gridHeight(2),
+        href: '/images/instructions-fill-oval.svg',
+      },
+      {
+        type: 'TextBox',
+        ...gridPosition({ row: 1.1, column: 13.5 }),
+        width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
+        height: gridHeight(INSTRUCTIONS_ROW_HEIGHT - 1),
+        textLines: ['To Vote for a Write-In:'],
+        ...FontStyles.SMALL,
+        fontWeight: FontWeight.BOLD,
+      },
+      {
+        type: 'TextBox',
+        ...gridPosition({ row: 1.7, column: 13.5 }),
+        width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
+        height: gridHeight(INSTRUCTIONS_ROW_HEIGHT - 1),
+        textLines: [
+          'To vote for a person whose name is not on the',
+          'ballot, write the person’s name on the "write-in" line',
+          'and completely fill in the oval to the left of the line.',
+        ],
+        ...FontStyles.SMALL,
+      },
+      {
+        type: 'Image',
+        ...gridPosition({ row: 1.1, column: 26.5 }),
+        width: gridWidth(5),
+        height: gridHeight(1.5),
+        href: '/images/instructions-write-in.svg',
       },
     ],
   };
@@ -296,8 +366,50 @@ function HeaderAndInstructions({
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function Footer({ election }: { election: Election }): Rectangle {
+function Footer({
+  election,
+  precinctId,
+  pageNumber,
+  totalPages,
+}: {
+  election: Election;
+  precinctId: string;
+  pageNumber: number;
+  totalPages: number;
+}): Rectangle {
+  const continueVoting: AnyElement[] = [
+    {
+      type: 'TextBox',
+      ...gridPosition({ row: 0.5, column: 16.5 }),
+      width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
+      height: gridHeight(FOOTER_ROW_HEIGHT - 1),
+      textLines: ['Turn ballot over and continue voting'],
+      ...FontStyles.H3,
+    },
+    {
+      type: 'Image',
+      ...gridPosition({ row: 0.25, column: 30 }),
+      width: gridWidth(1.5),
+      height: gridHeight(1.5),
+      href: '/images/arrow-right-circle.svg',
+    },
+  ];
+
+  const ballotComplete: AnyElement[] = [
+    {
+      type: 'TextBox',
+      ...gridPosition({ row: 0.5, column: 20 }),
+      width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
+      height: gridHeight(FOOTER_ROW_HEIGHT - 1),
+      textLines: ['You have completed this ballot.'],
+      ...FontStyles.H3,
+    },
+  ];
+
+  // TODO handle multiple sheets
+  const endOfPageInstruction =
+    pageNumber === totalPages ? ballotComplete : continueVoting;
+
   return {
     type: 'Rectangle',
     ...gridPosition({
@@ -307,7 +419,54 @@ function Footer({ election }: { election: Election }): Rectangle {
     }),
     width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
     height: gridHeight(FOOTER_ROW_HEIGHT),
+    fill: '#ededed',
     stroke: 'black',
+    strokeWidth: 0.5,
+    children: [
+      // Thicker top border
+      {
+        type: 'Rectangle',
+        ...gridPosition({ row: 0, column: 0 }),
+        width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
+        height: 2,
+        fill: 'black',
+      },
+      {
+        type: 'TextBox',
+        ...gridPosition({ row: 0.25, column: 0.5 }),
+        width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
+        height: gridHeight(FOOTER_ROW_HEIGHT - 1),
+        textLines: ['Page'],
+        ...FontStyles.SMALL,
+      },
+      {
+        type: 'TextBox',
+        ...gridPosition({ row: 0.8, column: 0.5 }),
+        width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
+        height: gridHeight(FOOTER_ROW_HEIGHT - 1),
+        textLines: [`${pageNumber}/${totalPages}`],
+        ...FontStyles.H2,
+      },
+      {
+        type: 'TextBox',
+        ...gridPosition({ row: 0.25, column: 3.5 }),
+        width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
+        height: gridHeight(FOOTER_ROW_HEIGHT - 1),
+        textLines: ['Precinct'],
+        ...FontStyles.SMALL,
+      },
+      {
+        type: 'TextBox',
+        ...gridPosition({ row: 0.8, column: 3.5 }),
+        width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
+        height: gridHeight(FOOTER_ROW_HEIGHT - 1),
+        textLines: [
+          assertDefined(getPrecinctById({ election, precinctId })).name,
+        ],
+        ...FontStyles.H2,
+      },
+      ...endOfPageInstruction,
+    ],
   };
 }
 
@@ -347,7 +506,7 @@ function Contest({
         type: 'Rectangle',
         ...gridPosition({ row: 0, column: 0 }),
         width: gridWidth(CONTEST_COLUMN_WIDTH),
-        height: 3,
+        height: 2,
         fill: 'black',
       },
       titleTextBox,
@@ -453,6 +612,7 @@ function Contest({
     width: gridWidth(CONTEST_COLUMN_WIDTH),
     height: contestHeight,
     stroke: 'black',
+    strokeWidth: 0.5,
     children: [heading, ...options],
   };
 }
@@ -468,24 +628,23 @@ function ThreeColumnContests({
   startRow: number;
   columnRowHeight: number;
 }): [Rectangle, AnyContest[]] {
+  console.log({ startRow });
   // eslint-disable-next-line @typescript-eslint/no-shadow
   function fillColumn(contests: AnyContest[]): [Rectangle[], AnyContest[]] {
     debug(`Filling column with ${contests.length} possible contests`);
     const CONTEST_ROW_MARGIN = 0.5;
-    let heightRemaining = gridHeight(columnRowHeight);
+    let heightRemaining = gridHeight(columnRowHeight - CONTEST_ROW_MARGIN * 2);
     let contestIndex = 0;
     const columnContests = [];
-    while (
-      heightRemaining > gridHeight(CONTEST_ROW_MARGIN) &&
-      contestIndex < contests.length
-    ) {
+    while (heightRemaining > 0 && contestIndex < contests.length) {
       const contest = contests[contestIndex];
       debug(`Attempting to fit contest ${contest.title}`);
       const contestElement = Contest({
         election,
         contest,
         row:
-          yToRow(gridHeight(columnRowHeight) - heightRemaining) +
+          yToRow(gridHeight(columnRowHeight) - heightRemaining) -
+          CONTEST_ROW_MARGIN +
           contestIndex * CONTEST_ROW_MARGIN,
       });
       if (contestElement.height > gridHeight(columnRowHeight)) {
@@ -571,7 +730,7 @@ function layOutBallotHelper(
       election,
       contests: contestsLeftToLayOut,
       columnRowHeight,
-      startRow: TIMING_MARKS_ROW_HEIGHT + headerAndInstructionsRowHeight + 0.5,
+      startRow: TIMING_MARKS_ROW_HEIGHT + headerAndInstructionsRowHeight,
     });
     debug(
       `Layed out ${contestsLeftToLayOut.length - restContests.length} contests`
@@ -582,9 +741,20 @@ function layOutBallotHelper(
         TimingMarkGrid({ pageNumber }),
         headerAndInstructions,
         contestColumns,
-        Footer({ election }),
       ].filter((child): child is AnyElement => child !== null),
     });
+  }
+
+  // Add footers once we know how many total pages there are.
+  for (const [pageNumber, page] of pages.entries()) {
+    page.children.push(
+      Footer({
+        election,
+        precinctId,
+        pageNumber: pageNumber + 1,
+        totalPages: pages.length,
+      })
+    );
   }
 
   return {

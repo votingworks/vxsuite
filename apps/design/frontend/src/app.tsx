@@ -98,7 +98,7 @@ function GridLines({
   );
 }
 
-const PAGE_GAP = 100;
+const PAGE_GAP = 50;
 
 function PageObject({
   x,
