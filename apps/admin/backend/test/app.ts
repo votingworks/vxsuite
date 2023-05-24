@@ -1,4 +1,5 @@
 import {
+  buildMockArtifactAuthenticator,
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
@@ -164,6 +165,7 @@ export async function configureMachine(
 export function buildTestEnvironment(workspaceRoot?: string) {
   const logger = fakeLogger();
   const auth = buildMockDippedSmartCardAuth();
+  const artifactAuthenticator = buildMockArtifactAuthenticator();
   const resolvedWorkspaceRoot =
     workspaceRoot ||
     (() => {
@@ -173,7 +175,13 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     })();
   const workspace = createWorkspace(resolvedWorkspaceRoot);
   const mockUsb = createMockUsb();
-  const app = buildApp({ auth, workspace, logger, usb: mockUsb.usb });
+  const app = buildApp({
+    auth,
+    artifactAuthenticator,
+    workspace,
+    logger,
+    usb: mockUsb.usb,
+  });
   // port 0 will bind to a random, free port assigned by the OS
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
@@ -187,6 +195,7 @@ export function buildTestEnvironment(workspaceRoot?: string) {
   return {
     logger,
     auth,
+    artifactAuthenticator,
     workspace,
     app,
     apiClient,

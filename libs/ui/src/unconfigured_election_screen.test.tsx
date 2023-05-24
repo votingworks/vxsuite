@@ -31,7 +31,7 @@ test('UnconfiguredElectionScreen shows a loading screen when USB drive is mounte
 
 test.each([
   {
-    description: 'no USB drive is detected',
+    description: 'no ballot package on USB drive',
     errorString: 'no_ballot_package_on_usb_drive',
     expectedErrorMessage: 'No ballot package found on the inserted USB drive.',
   },
@@ -40,6 +40,12 @@ test.each([
     errorString: 'auth_required_before_ballot_package_load',
     expectedErrorMessage:
       'Please insert an election manager card before configuring.',
+  },
+  {
+    description: 'ballot package authentication errs',
+    errorString: 'ballot_package_authentication_error',
+    expectedErrorMessage:
+      'Error authenticating ballot package. Try re-exporting from VxAdmin.',
   },
   {
     description:

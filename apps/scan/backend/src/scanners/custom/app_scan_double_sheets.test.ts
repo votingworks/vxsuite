@@ -26,7 +26,7 @@ test('insert second ballot before first ballot accept', async () => {
   await withApp(
     { delays: {} },
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth, testMode: true });
+      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -71,7 +71,7 @@ test('insert second ballot while first ballot is accepting', async () => {
       },
     },
     async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth });
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -113,7 +113,7 @@ test('insert second ballot while first ballot needs review', async () => {
       },
     },
     async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth });
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -161,7 +161,7 @@ test('double sheet on scan', async () => {
       },
     },
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth });
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });

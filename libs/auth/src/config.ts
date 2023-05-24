@@ -1,11 +1,13 @@
 import path from 'path';
-import { isVxDev } from '@votingworks/utils';
+import { isIntegrationTest, isVxDev } from '@votingworks/utils';
 
 import { getRequiredEnvVar } from './env_vars';
 import { FileKey, TpmKey } from './keys';
 
 function shouldUseProdCerts(): boolean {
-  return process.env.NODE_ENV === 'production' && !isVxDev();
+  return (
+    process.env.NODE_ENV === 'production' && !isVxDev() && !isIntegrationTest()
+  );
 }
 
 function getVxCertAuthorityCertPath(): string {

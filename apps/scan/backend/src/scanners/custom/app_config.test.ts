@@ -246,7 +246,7 @@ test('export CVRs to USB', async () => {
   await withApp(
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, workspace }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth, testMode: true });
+      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
       await scanBallot(mockScanner, apiClient, 0);
       expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 
@@ -313,7 +313,7 @@ test('setPrecinctSelection will reset polls to closed', async () => {
   await withApp(
     {},
     async ({ apiClient, mockUsbDrive, workspace, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth });
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       workspace.store.setPollsState('polls_open');
       await apiClient.setPrecinctSelection({
@@ -335,7 +335,7 @@ test('ballot batching', async () => {
       mockUsbDrive,
       mockAuth,
     }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth, testMode: true });
+      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       // Scan two ballots, which should have the same batch
       await scanBallot(mockScanner, apiClient, 0);
@@ -430,7 +430,7 @@ test('unconfiguring machine', async () => {
   await withApp(
     {},
     async ({ apiClient, mockUsbDrive, interpreter, workspace, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth });
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       jest.spyOn(interpreter, 'unconfigure');
       jest.spyOn(workspace, 'reset');

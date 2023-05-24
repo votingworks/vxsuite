@@ -2,17 +2,20 @@ import path from 'path';
 import { Result, assert, err, ok } from '@votingworks/basics';
 import {
   BALLOT_PACKAGE_FOLDER,
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
   readBallotPackageFromBuffer,
 } from '@votingworks/utils';
 import * as fs from 'fs/promises';
 import * as fsSync from 'fs';
-import { AuthStatus as InsertedCardAuthStatus } from '@votingworks/types/src/auth/inserted_smart_card_auth';
-import { AuthStatus as DippedCardAuthStatus } from '@votingworks/types/src/auth/dipped_smart_card_auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPackage,
   BallotPackageConfigurationError,
+  DippedSmartCardAuth,
+  InsertedSmartCardAuth,
 } from '@votingworks/types';
+import { ArtifactAuthenticatorApi } from '@votingworks/auth';
 import { UsbDrive } from '../get_usb_drives';
 
 async function getMostRecentBallotPackageFilepath(
@@ -59,12 +62,14 @@ async function getMostRecentBallotPackageFilepath(
  * readBallotPackageFromUsb validates desired auth and USB state and returns the ballot package
  * from a USB drive if possible, or an error if not possible.
  * @param authStatus AuthStatus representing an inserted card
+ * @param artifactAuthenticator An ArtifactAuthenticatorApi instance
  * @param usbDrive UsbDrive representing status of an inserted USB drive
- * @param logger an instance of Logger
+ * @param logger A Logger instance
  * @returns Result<BallotPackage, BallotPackageConfigurationError> intended to be consumed by an API handler
  */
 export async function readBallotPackageFromUsb(
-  authStatus: InsertedCardAuthStatus | DippedCardAuthStatus,
+  authStatus: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus,
+  artifactAuthenticator: ArtifactAuthenticatorApi,
   usbDrive: UsbDrive,
   logger: Logger
 ): Promise<Result<BallotPackage, BallotPackageConfigurationError>> {
@@ -90,6 +95,25 @@ export async function readBallotPackageFromUsb(
   if (filepathResult.isErr()) {
     return filepathResult;
   }
+
+  const artifactAuthenticationResult =
+    await artifactAuthenticator.authenticateArtifactUsingSignatureFile({
+      type: 'ballot_package',
+      path: filepathResult.ok(),
+    });
+  if (
+    artifactAuthenticationResult.isErr() &&
+    !isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+    )
+  ) {
+    await logger.log(LogEventId.BallotPackageLoadedFromUsb, 'system', {
+      disposition: 'failure',
+      message: 'Ballot package authentication erred.',
+    });
+    return err('ballot_package_authentication_error');
+  }
+
   const ballotPackage = await readBallotPackageFromBuffer(
     await fs.readFile(filepathResult.ok())
   );

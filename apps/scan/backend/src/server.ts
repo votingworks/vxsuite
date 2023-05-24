@@ -1,4 +1,6 @@
 import {
+  ArtifactAuthenticator,
+  ArtifactAuthenticatorApi,
   InsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
   JavaCard,
@@ -19,6 +21,7 @@ import { Workspace } from './util/workspace';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
+  artifactAuthenticator?: ArtifactAuthenticatorApi;
   logger?: Logger;
   port?: number | string;
   precinctScannerInterpreter: PrecinctScannerInterpreter;
@@ -31,6 +34,7 @@ export interface StartOptions {
  */
 export function start({
   auth,
+  artifactAuthenticator,
   logger = new Logger(LogSource.VxScanBackend),
   precinctScannerInterpreter,
   precinctScannerStateMachine,
@@ -48,6 +52,8 @@ export function start({
       config: {},
       logger,
     });
+  const resolvedArtifactAuthenticator =
+    artifactAuthenticator ?? new ArtifactAuthenticator();
 
   const usbDrive = detectUsbDrive();
 
@@ -56,6 +62,7 @@ export function start({
 
   const app = buildApp(
     resolvedAuth,
+    resolvedArtifactAuthenticator,
     precinctScannerStateMachine,
     precinctScannerInterpreter,
     workspace,

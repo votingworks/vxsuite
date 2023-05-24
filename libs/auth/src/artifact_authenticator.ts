@@ -25,7 +25,7 @@ import {
  * A machine-exported artifact whose authenticity we want to be able to verify
  */
 export interface Artifact {
-  type: 'cvr_file' | 'election_definition';
+  type: 'ballot_package' | 'cvr_file';
   path: string;
 }
 
@@ -35,10 +35,20 @@ interface ArtifactSignatureBundle {
 }
 
 /**
- * An artifact authenticator that uses digital signatures to verify the authenticity of
+ * The API for an artifact authenticator that uses digital signatures to verify the authenticity of
  * machine-exported artifacts, meeting VVSG2 data protection requirements
  */
-export class ArtifactAuthenticator {
+export interface ArtifactAuthenticatorApi {
+  writeSignatureFile(artifact: Artifact): Promise<void>;
+  authenticateArtifactUsingSignatureFile(
+    artifact: Artifact
+  ): Promise<Result<void, Error>>;
+}
+
+/**
+ * The implementation of the artifact authenticator API
+ */
+export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
   private readonly signingMachineCertPath: string;
   private readonly signingMachinePrivateKey: FileKey | TpmKey;
   private readonly vxCertAuthorityCertPath: string;
@@ -132,18 +142,18 @@ export class ArtifactAuthenticator {
   ): Promise<void> {
     const certDetails = await parseCert(signingMachineCert);
     switch (artifact.type) {
+      case 'ballot_package': {
+        assert(
+          certDetails.component === 'admin',
+          'Signing machine cert for ballot package should be a VxAdmin cert'
+        );
+        break;
+      }
       case 'cvr_file': {
         assert(
           certDetails.component === 'central-scan' ||
             certDetails.component === 'scan',
           'Signing machine cert for CVR file should be a VxCentralScan or VxScan cert'
-        );
-        break;
-      }
-      case 'election_definition': {
-        assert(
-          certDetails.component === 'admin',
-          'Signing machine cert for election definition should be a VxAdmin cert'
         );
         break;
       }

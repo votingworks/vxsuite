@@ -48,7 +48,7 @@ test.each<{
   importingMachineConfig: ArtifactAuthenticatorConfig;
 }>([
   {
-    artifactType: 'election_definition',
+    artifactType: 'ballot_package',
     exportingMachineConfig: vxAdminTestConfig,
     importingMachineConfig: vxScanTestConfig,
   },
@@ -103,7 +103,7 @@ test('Mismatched artifact type', async () => {
       vxAdminTestConfig
     ).authenticateArtifactUsingSignatureFile({
       ...artifact,
-      type: 'election_definition',
+      type: 'ballot_package',
     })
   ).toEqual(
     err(new Error(`Error authenticating ${tempFile.name} using signature file`))

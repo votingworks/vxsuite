@@ -79,8 +79,7 @@ test('configure and scan hmpb', async () => {
   await withApp(
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, logger, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, {
-        mockAuth,
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
         ballotPackage:
           electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(),
       });
@@ -128,7 +127,7 @@ test('configure and scan bmd ballot', async () => {
   await withApp(
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, logger, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth, testMode: true });
+      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -187,8 +186,7 @@ test('ballot needs review - return', async () => {
       logger,
       mockAuth,
     }) => {
-      await configureApp(apiClient, mockUsbDrive, {
-        mockAuth,
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
         ballotPackage:
           electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(),
       });
@@ -251,7 +249,7 @@ test('invalid ballot rejected', async () => {
       logger,
       mockAuth,
     }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth });
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -292,7 +290,7 @@ test('blank sheet ballot rejected', async () => {
   await withApp(
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth });
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -331,7 +329,7 @@ test('scan fails and retries', async () => {
       mockUsbDrive,
       mockAuth,
     }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth });
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -372,7 +370,7 @@ test('scan fails repeatedly and eventually gives up', async () => {
   await withApp(
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth });
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -403,7 +401,7 @@ test('scanning time out', async () => {
       },
     },
     async ({ apiClient, mockScanner, logger, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockUsbDrive, { mockAuth });
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -439,7 +437,7 @@ test('scanning time out', async () => {
 
 test('write scanner report data to card', async () => {
   await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
-    await configureApp(apiClient, mockUsbDrive, { mockAuth });
+    await configureApp(apiClient, mockAuth, mockUsbDrive);
 
     mockOf(mockAuth.writeCardData).mockResolvedValue(ok());
 

@@ -25,7 +25,10 @@ import * as fs from 'fs-extra';
 import { join } from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
-import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
+import {
+  buildMockArtifactAuthenticator,
+  buildMockDippedSmartCardAuth,
+} from '@votingworks/auth';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { Server } from 'http';
 import { fakeSessionExpiresAt } from '@votingworks/test-utils';
@@ -68,6 +71,7 @@ jest.mock('./exec', () => ({
 }));
 
 let auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
+let artifactAuthenticator: ReturnType<typeof buildMockArtifactAuthenticator>;
 let workspace: Workspace;
 let scanner: MockScanner;
 let mockUsb: MockUsb;
@@ -80,6 +84,7 @@ let server: Server;
 beforeEach(async () => {
   const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
+  artifactAuthenticator = buildMockArtifactAuthenticator();
   workspace = createWorkspace(dirSync().name);
   scanner = makeMockScanner();
   importer = new Importer({ workspace, scanner });
@@ -87,6 +92,7 @@ beforeEach(async () => {
   logger = fakeLogger();
   app = buildCentralScannerApp({
     auth,
+    artifactAuthenticator,
     usb: mockUsb.mock,
     allowedExportPatterns: ['/tmp/**'],
     importer,

@@ -1,7 +1,10 @@
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
 import { dirSync } from 'tmp';
-import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
+import {
+  buildMockArtifactAuthenticator,
+  buildMockInsertedSmartCardAuth,
+} from '@votingworks/auth';
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { createInterpreter } from './interpret';
@@ -44,6 +47,7 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
 
   start({
     auth: buildMockInsertedSmartCardAuth(),
+    artifactAuthenticator: buildMockArtifactAuthenticator(),
     logger,
     precinctScannerInterpreter,
     precinctScannerStateMachine,
@@ -52,6 +56,7 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
 
   expect(buildAppMock).toHaveBeenCalledWith(
     expect.anything(), // auth
+    expect.anything(), // artifactAuthenticator
     precinctScannerStateMachine,
     expect.anything(), // precinctScannerInterpreter
     workspace,
@@ -85,6 +90,7 @@ test('start uses its own logger if none is provided', async () => {
 
   start({
     auth: buildMockInsertedSmartCardAuth(),
+    artifactAuthenticator: buildMockArtifactAuthenticator(),
     precinctScannerStateMachine,
     precinctScannerInterpreter,
     workspace,
@@ -92,6 +98,7 @@ test('start uses its own logger if none is provided', async () => {
 
   expect(buildAppMock).toHaveBeenCalledWith(
     expect.anything(), // auth
+    expect.anything(), // artifactAuthenticator
     precinctScannerStateMachine,
     expect.anything(), // precinctScannerInterpreter
     workspace,

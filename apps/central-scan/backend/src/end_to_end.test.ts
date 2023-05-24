@@ -1,4 +1,7 @@
-import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
+import {
+  buildMockArtifactAuthenticator,
+  buildMockDippedSmartCardAuth,
+} from '@votingworks/auth';
 import {
   convertCastVoteRecordVotesToLegacyVotes,
   createMockUsb,
@@ -46,6 +49,7 @@ jest.mock('@votingworks/utils', () => {
 
 let app: Application;
 let auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
+let artifactAuthenticator: ReturnType<typeof buildMockArtifactAuthenticator>;
 let importer: Importer;
 let mockUsb: MockUsb;
 let workspace: Workspace;
@@ -57,6 +61,7 @@ let server: Server;
 beforeEach(async () => {
   const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
+  artifactAuthenticator = buildMockArtifactAuthenticator();
   scanner = makeMockScanner();
   workspace = createWorkspace(dirSync().name);
   importer = new Importer({
@@ -67,6 +72,7 @@ beforeEach(async () => {
   mockUsb = createMockUsb();
   app = buildCentralScannerApp({
     auth,
+    artifactAuthenticator,
     usb: mockUsb.mock,
     allowedExportPatterns: ['/tmp/**'],
     importer,

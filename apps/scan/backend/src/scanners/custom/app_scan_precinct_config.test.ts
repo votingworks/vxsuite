@@ -19,9 +19,8 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       // Ballot should be rejected when configured for the wrong precinct
-      await configureApp(apiClient, mockUsbDrive, {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
         precinctId: '22',
-        mockAuth,
         testMode: true,
       });
 
@@ -56,9 +55,8 @@ test('bmd ballot is accepted if precinct is set for the right precinct', async (
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       // Configure for the proper precinct and verify the ballot scans
-      await configureApp(apiClient, mockUsbDrive, {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
         precinctId: '23',
-        mockAuth,
         testMode: true,
       });
 
@@ -84,11 +82,10 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       // Ballot should be rejected when configured for the wrong precinct
-      await configureApp(apiClient, mockUsbDrive, {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
         ballotPackage:
           electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(),
         precinctId: '22',
-        mockAuth,
       });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
@@ -122,11 +119,10 @@ test('hmpb ballot is accepted if precinct is set for the right precinct', async 
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       // Configure for the proper precinct and verify the ballot scans
-      await configureApp(apiClient, mockUsbDrive, {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
         ballotPackage:
           electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(),
         precinctId: 'town-id-00701-precinct-id-',
-        mockAuth,
       });
 
       const validInterpretation: SheetInterpretation = {

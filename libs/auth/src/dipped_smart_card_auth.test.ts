@@ -23,7 +23,7 @@ import {
 import {
   BooleanEnvironmentVariableName,
   generatePin,
-  isFeatureFlagEnabled,
+  getFeatureFlagMock,
 } from '@votingworks/utils';
 
 import { buildMockCard, MockCard, mockCardAssertComplete } from '../test/utils';
@@ -34,10 +34,12 @@ import {
   DippedSmartCardAuthMachineState,
 } from './dipped_smart_card_auth_api';
 
+const mockFeatureFlagger = getFeatureFlagMock();
+
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
   ...jest.requireActual('@votingworks/utils'),
   generatePin: jest.fn(),
-  isFeatureFlagEnabled: jest.fn(),
+  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
 const pin = '123456';
@@ -53,7 +55,7 @@ beforeEach(() => {
   jest.setSystemTime(mockTime.toJSDate());
 
   mockOf(generatePin).mockImplementation(() => pin);
-  mockOf(isFeatureFlagEnabled).mockImplementation(() => false);
+  mockFeatureFlagger.resetFeatureFlags();
 
   mockCard = buildMockCard();
   mockLogger = fakeLogger();
@@ -1254,8 +1256,8 @@ test('Attempting card programming and unprogramming when not a system administra
 });
 
 test('SKIP_PIN_ENTRY feature flag', async () => {
-  mockOf(isFeatureFlagEnabled).mockImplementation(
-    (flag) => flag === BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
   );
   const auth = new DippedSmartCardAuth({
     card: mockCard,

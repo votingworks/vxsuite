@@ -1,7 +1,12 @@
 import { getUsbDrives, Usb } from '@votingworks/backend';
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
-import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
+import {
+  ArtifactAuthenticator,
+  DippedSmartCardAuth,
+  JavaCard,
+  MockFileCard,
+} from '@votingworks/auth';
 import { Server } from 'http';
 import {
   BooleanEnvironmentVariableName,
@@ -71,6 +76,7 @@ export async function start({
       },
       logger,
     });
+    const artifactAuthenticator = new ArtifactAuthenticator();
 
     const resolvedBatchScanner =
       batchScanner ?? new FujitsuScanner({ mode: ScannerMode.Gray, logger });
@@ -86,6 +92,7 @@ export async function start({
 
     resolvedApp = buildCentralScannerApp({
       auth,
+      artifactAuthenticator,
       importer: resolvedImporter,
       logger,
       usb: resolvedUsb,
