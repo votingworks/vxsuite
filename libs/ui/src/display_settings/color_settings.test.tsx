@@ -13,25 +13,25 @@ test('renders with default color options', () => {
 
   // contractHighDark:
   screen.getByRole('radio', {
-    name: /white text on black background/i,
+    name: /white text.+black background/i,
     checked: false,
   });
 
   // contrastLow:
   screen.getByRole('radio', {
-    name: /gray text on dark background/i,
+    name: /gray text.+dark background/i,
     checked: true,
   });
 
   // contrastMedium:
   screen.getByRole('radio', {
-    name: /dark text on light background/i,
+    name: /dark text.+light background/i,
     checked: false,
   });
 
   // contrastHighLight:
   screen.getByRole('radio', {
-    name: /black text on white background/i,
+    name: /black text.+white background/i,
     checked: false,
   });
 });
@@ -45,13 +45,13 @@ test('renders with specified color options', () => {
 
   // contrastLow:
   screen.getByRole('radio', {
-    name: /gray text on dark background/i,
+    name: /gray text.+dark background/i,
     checked: true,
   });
 
   // contrastMedium:
   screen.getByRole('radio', {
-    name: /dark text on light background/i,
+    name: /dark text.+light background/i,
     checked: false,
   });
 });
@@ -87,7 +87,7 @@ test('option selections trigger theme updates', () => {
   );
 
   userEvent.click(
-    screen.getByRole('radio', { name: /gray text on dark background/i })
+    screen.getByRole('radio', { name: /gray text.+dark background/i })
   );
 
   expect(currentTheme).toEqual(
