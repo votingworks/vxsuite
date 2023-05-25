@@ -244,8 +244,8 @@ test('shows internal wiring message when there is no plustek scanner, but tablet
       state: 'disconnected',
     });
   render(<App card={card} storage={storage} hardware={hardware} />);
-  await screen.findByRole('heading', { name: 'Scanner Error' });
-  screen.getByText('Ask a poll worker to unplug the power cord.');
+  await screen.findByRole('heading', { name: 'Internal Connection Problem' });
+  screen.getByText('Please ask a poll worker for help.');
 });
 
 test('shows power cable message when there is no plustek scanner and tablet is not plugged in', async () => {
