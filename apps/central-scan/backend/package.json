@@ -41,6 +41,7 @@
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/ballot-encoder": "workspace:*",
+    "@votingworks/ballot-interpreter": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/converter-nh-accuvote": "workspace:*",
     "@votingworks/db": "workspace:*",

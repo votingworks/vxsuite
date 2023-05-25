@@ -19,7 +19,7 @@ import { ALL_PRECINCTS_SELECTION, time } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { convertNhInterpretResultToLegacyResult } from './legacy_adapter';
 
-const debug = makeDebug('backend:scan:interpreter');
+const debug = makeDebug('ballot-interpreter:scan:interpreter');
 
 /**
  * Result of interpreting a sheet of ballot images.

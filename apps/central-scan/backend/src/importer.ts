@@ -12,7 +12,7 @@ import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
-import { interpretSheetAndSaveImages } from '@votingworks/backend';
+import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { Castability, checkSheetCastability } from './util/castability';
 import { Workspace } from './util/workspace';
