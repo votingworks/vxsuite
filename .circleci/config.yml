@@ -67,7 +67,7 @@ jobs:
       - store_test_results:
           path: apps/admin/frontend/reports/
 
-  # @votingworks/integration-testing-election-manager
+  # @votingworks/admin-integration-testing
   test-apps-admin-integration-testing:
     executor: nodejs-browsers
     resource_class: xlarge
