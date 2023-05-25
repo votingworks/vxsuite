@@ -14,13 +14,13 @@ import {
 
 import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { BallotContext } from '../contexts/ballot_context';
+import { getElectionDefinition } from '../api';
 
 export const printingMessageTimeoutSeconds = 5;
 
 export function PrintPage(): JSX.Element {
   const {
     ballotStyleId,
-    electionDefinition,
     generateBallotId,
     isLiveMode,
     precinctId,
@@ -28,10 +28,8 @@ export function PrintPage(): JSX.Element {
     updateTally,
     votes,
   } = useContext(BallotContext);
-  assert(
-    electionDefinition,
-    'electionDefinition is required to render PrintPage'
-  );
+  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  const electionDefinition = getElectionDefinitionQuery.data ?? undefined;
   assert(
     typeof ballotStyleId === 'string',
     'ballotStyleId is required to render PrintPage'
@@ -45,7 +43,7 @@ export function PrintPage(): JSX.Element {
 
   const printBallot = useCallback(async () => {
     /* istanbul ignore if */
-    if (!printLock.lock()) return;
+    if (!electionDefinition || !printLock.lock()) return;
     await printElement(
       <BmdPaperBallot
         ballotStyleId={ballotStyleId}

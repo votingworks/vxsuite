@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import {
   BallotStyleId,
-  ElectionDefinition,
   getPartyPrimaryAdjectiveFromBallotStyle,
   PrecinctSelection,
 } from '@votingworks/types';
@@ -11,6 +10,7 @@ import { getPrecinctSelectionName, format } from '@votingworks/utils';
 
 import { Prose, NoWrap, H1, H5, P, Caption, Font, Seal } from '@votingworks/ui';
 import pluralize from 'pluralize';
+import { getElectionDefinition } from '../api';
 
 const VerticalContainer = styled.div`
   display: block;
@@ -36,7 +36,6 @@ const HorizontalContainer = styled.div`
 `;
 
 interface Props {
-  electionDefinition: ElectionDefinition;
   precinctSelection?: PrecinctSelection;
   ballotStyleId?: BallotStyleId;
   horizontal?: boolean;
@@ -45,13 +44,19 @@ interface Props {
 }
 
 export function ElectionInfo({
-  electionDefinition,
   precinctSelection,
   ballotStyleId,
   horizontal = false,
   ariaHidden = true,
   contestCount,
-}: Props): JSX.Element {
+}: Props): JSX.Element | null {
+  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  const electionDefinition = getElectionDefinitionQuery.data ?? undefined;
+
+  if (!electionDefinition) {
+    return null;
+  }
+
   const { election } = electionDefinition;
   const { title: t, state, county, date, seal, sealUrl } = election;
   const precinctName =

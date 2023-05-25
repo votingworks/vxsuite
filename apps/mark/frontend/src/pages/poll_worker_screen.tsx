@@ -65,7 +65,13 @@ import {
 import { LogEventId, Logger } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/mark-backend';
 import styled from 'styled-components';
-import { assert, find, sleep, throwIllegalValue } from '@votingworks/basics';
+import {
+  Optional,
+  assert,
+  find,
+  sleep,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { ScreenReader } from '../config/types';
 
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
@@ -73,6 +79,7 @@ import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
 import {
   clearScannerReportDataFromCard,
+  getElectionDefinition,
   getScannerReportDataFromCard,
 } from '../api';
 
@@ -454,7 +461,6 @@ export interface PollworkerScreenProps {
   ) => void;
   resetCardlessVoterSession: () => void;
   appPrecinct: PrecinctSelection;
-  electionDefinition: ElectionDefinition;
   enableLiveMode: () => void;
   hasVotes: boolean;
   isLiveMode: boolean;
@@ -474,7 +480,6 @@ export function PollWorkerScreen({
   activateCardlessVoterSession,
   resetCardlessVoterSession,
   appPrecinct,
-  electionDefinition,
   enableLiveMode,
   isLiveMode,
   pollsState,
@@ -487,10 +492,12 @@ export function PollWorkerScreen({
   hasVotes,
   reload,
   logger,
-}: PollworkerScreenProps): JSX.Element {
-  const { election } = electionDefinition;
-  const electionDate = DateTime.fromISO(electionDefinition.election.date);
-  const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
+}: PollworkerScreenProps): JSX.Element | null {
+  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  const electionDefinition = getElectionDefinitionQuery.data ?? undefined;
+  const election = electionDefinition?.election;
+  const electionDate = election ? DateTime.fromISO(election.date) : undefined;
+  const isElectionDay = electionDate?.hasSame(DateTime.now(), 'day');
 
   const scannerReportDataFromCardQuery =
     getScannerReportDataFromCard.useQuery();
@@ -520,26 +527,30 @@ export function PollWorkerScreen({
   );
 
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
-    useState<PrecinctId | undefined>(
+    useState<Optional<PrecinctId>>(
       appPrecinct.kind === 'SinglePrecinct' ? appPrecinct.precinctId : undefined
     );
 
-  const precinctBallotStyles = selectedCardlessVoterPrecinctId
-    ? election.ballotStyles.filter((bs) =>
-        bs.precincts.includes(selectedCardlessVoterPrecinctId)
-      )
-    : [];
+  const precinctBallotStyles =
+    election && selectedCardlessVoterPrecinctId
+      ? election.ballotStyles.filter((bs) =>
+          bs.precincts.includes(selectedCardlessVoterPrecinctId)
+        )
+      : [];
   /*
    * Various state parameters to handle controlling when certain modals on the page are open or not.
    * If you are adding a new modal make sure to add the new parameter to the triggerAudiofocus useEffect
    * dependency. This will retrigger the audio to explain landing on the PollWorker homepage
    * when the modal closes.
    */
-  const [isConfirmingEnableLiveMode, setIsConfirmingEnableLiveMode] = useState(
-    !isLiveMode && isElectionDay
-  );
+  const [
+    hasDismissedConfirmEnableLiveMode,
+    setHasDismissedConfirmEnableLiveMode,
+  ] = useState(false);
+  const isConfirmingEnableLiveMode =
+    !hasDismissedConfirmEnableLiveMode && !isLiveMode && isElectionDay;
   function cancelEnableLiveMode() {
-    return setIsConfirmingEnableLiveMode(false);
+    return setHasDismissedConfirmEnableLiveMode(true);
   }
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
 
@@ -560,7 +571,11 @@ export function PollWorkerScreen({
 
   function confirmEnableLiveMode() {
     enableLiveMode();
-    setIsConfirmingEnableLiveMode(false);
+    setHasDismissedConfirmEnableLiveMode(false);
+  }
+
+  if (!election) {
+    return null;
   }
 
   if (hasVotes && pollWorkerAuth.cardlessVoterUser) {

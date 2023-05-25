@@ -8,8 +8,8 @@ import { App } from './app';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import {
+  electionDefinition,
   presidentContest,
-  setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
@@ -21,7 +21,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -35,7 +34,7 @@ it('Single Seat Contest', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
 
-  await setElectionInStorage(storage);
+  apiMock.expectGetElectionDefinition(electionDefinition);
   await setStateInStorage(storage);
 
   const { container } = render(

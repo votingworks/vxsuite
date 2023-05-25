@@ -61,6 +61,7 @@ function renderScreen(
   ),
   electionDefinition: ElectionDefinition = electionSampleDefinition
 ) {
+  apiMock.expectGetElectionDefinition(electionDefinition);
   return render(
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
       <QueryClientProvider client={createQueryClient()}>
@@ -69,7 +70,6 @@ function renderScreen(
           activateCardlessVoterSession={jest.fn()}
           resetCardlessVoterSession={jest.fn()}
           appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
-          electionDefinition={electionDefinition}
           enableLiveMode={jest.fn()}
           hasVotes={false}
           isLiveMode={false}
@@ -89,26 +89,18 @@ function renderScreen(
   );
 }
 
-test('renders PollWorkerScreen in MarkAndPrint app mode', () => {
-  apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith()
-    .resolves(ok(undefined));
-  renderScreen(undefined, undefined, undefined);
-  screen.getByText('Poll Worker Actions');
-  expect(
-    screen.getByText('Ballots Printed:').parentElement!.textContent
-  ).toEqual('Ballots Printed: 0');
-});
-
-test('renders PollWorkerScreen', () => {
+test('renders PollWorkerScreen', async () => {
   apiMock.mockApiClient.readScannerReportDataFromCard
     .expectCallWith()
     .resolves(ok(undefined));
   renderScreen();
-  screen.getByText('Poll Worker Actions');
+  await screen.findByText('Poll Worker Actions');
+  expect(
+    (await screen.findByText('Ballots Printed:')).parentElement!.textContent
+  ).toEqual('Ballots Printed: 0');
 });
 
-test('switching out of test mode on election day', () => {
+test('switching out of test mode on election day', async () => {
   const electionDefinition = asElectionDefinition({
     ...electionSampleWithSeal,
     date: new Date().toISOString(),
@@ -117,20 +109,23 @@ test('switching out of test mode on election day', () => {
     .expectCallWith()
     .resolves(ok(undefined));
   const enableLiveMode = jest.fn();
-  renderScreen({
-    pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
-    electionDefinition,
-    enableLiveMode,
-  });
+  renderScreen(
+    {
+      pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
+      enableLiveMode,
+    },
+    undefined,
+    electionDefinition
+  );
 
-  screen.getByText(
+  await screen.findByText(
     'Switch to Official Ballot Mode and reset the Ballots Printed count?'
   );
-  fireEvent.click(screen.getByText('Switch to Official Ballot Mode'));
+  fireEvent.click(await screen.findByText('Switch to Official Ballot Mode'));
   expect(enableLiveMode).toHaveBeenCalled();
 });
 
-test('keeping test mode on election day', () => {
+test('keeping test mode on election day', async () => {
   const electionDefinition = asElectionDefinition({
     ...electionSampleWithSeal,
     date: new Date().toISOString(),
@@ -139,20 +134,21 @@ test('keeping test mode on election day', () => {
     .expectCallWith()
     .resolves(ok(undefined));
   const enableLiveMode = jest.fn();
-  renderScreen({ electionDefinition, enableLiveMode });
+  renderScreen({ enableLiveMode }, undefined, electionDefinition);
 
-  screen.getByText(
+  await screen.findByText(
     'Switch to Official Ballot Mode and reset the Ballots Printed count?'
   );
-  fireEvent.click(screen.getByText('Cancel'));
+  fireEvent.click(await screen.findByText('Cancel'));
   expect(enableLiveMode).not.toHaveBeenCalled();
 });
 
-test('live mode on election day', () => {
+test('live mode on election day', async () => {
   apiMock.mockApiClient.readScannerReportDataFromCard
     .expectCallWith()
     .resolves(ok(undefined));
   renderScreen({ isLiveMode: true });
+  await screen.findByText('Poll Worker Actions');
   expect(
     screen.queryByText(
       'Switch to Official Ballot Mode and reset the Ballots Printed count?'
@@ -160,14 +156,18 @@ test('live mode on election day', () => {
   ).toBeNull();
 });
 
-test('navigates to System Diagnostics screen', () => {
+test('navigates to System Diagnostics screen', async () => {
   apiMock.mockApiClient.readScannerReportDataFromCard
     .expectCallWith()
     .resolves(ok(undefined));
   const { unmount } = renderScreen();
 
-  userEvent.click(screen.getByRole('button', { name: 'View More Actions' }));
-  userEvent.click(screen.getByRole('button', { name: 'System Diagnostics' }));
+  userEvent.click(
+    await screen.findByRole('button', { name: 'View More Actions' })
+  );
+  userEvent.click(
+    await screen.findByRole('button', { name: 'System Diagnostics' })
+  );
   screen.getByRole('heading', { name: 'System Diagnostics' });
 
   userEvent.click(
@@ -180,7 +180,7 @@ test('navigates to System Diagnostics screen', () => {
   unmount();
 });
 
-test('requires confirmation to open polls if no report on card', () => {
+test('requires confirmation to open polls if no report on card', async () => {
   apiMock.mockApiClient.readScannerReportDataFromCard
     .expectCallWith()
     .resolves(ok(undefined));
@@ -190,19 +190,19 @@ test('requires confirmation to open polls if no report on card', () => {
     updatePollsState,
   });
 
-  fireEvent.click(screen.getByText('Open Polls'));
+  fireEvent.click(await screen.findByText('Open Polls'));
 
   // Should show the modal and not open/close polls
   expect(updatePollsState).not.toHaveBeenCalled();
-  screen.getByText('No Polls Opened Report on Card');
+  await screen.findByText('No Polls Opened Report on Card');
 
   // Clicking Cancel closes the modal
-  fireEvent.click(screen.getByText('Cancel'));
-  screen.getByText('Open Polls');
+  fireEvent.click(await screen.findByText('Cancel'));
+  await screen.findByText('Open Polls');
 
   // Clicking Open Polls on VxMark Now should open/close polls anyway
-  fireEvent.click(screen.getByText('Open Polls'));
-  fireEvent.click(screen.getByText('Open Polls on VxMark Now'));
+  fireEvent.click(await screen.findByText('Open Polls'));
+  fireEvent.click(await screen.findByText('Open Polls on VxMark Now'));
   expect(updatePollsState).toHaveBeenCalled();
 });
 
@@ -219,10 +219,10 @@ test('can toggle between vote activation and "other actions" during polls open',
   await screen.findByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
 
   // switch to other actions pane
-  userEvent.click(screen.getByText('View More Actions'));
-  screen.getByText('System Diagnostics');
+  userEvent.click(await screen.findByText('View More Actions'));
+  await screen.findByText('System Diagnostics');
 
   // switch back
-  userEvent.click(screen.getByText('Back to Ballot Style Selection'));
-  screen.getByText('Select Voter’s Ballot Style');
+  userEvent.click(await screen.findByText('Back to Ballot Style Selection'));
+  await screen.findByText('Select Voter’s Ballot Style');
 });

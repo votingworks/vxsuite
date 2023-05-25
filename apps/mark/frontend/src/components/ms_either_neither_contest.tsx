@@ -1,5 +1,4 @@
-import { assert } from '@votingworks/basics';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
   ContestChoiceButton,
@@ -18,8 +17,8 @@ import {
   MsEitherNeitherContest as MsEitherNeitherContestInterface,
 } from '../utils/ms_either_neither_contests';
 import { ContentHeader } from './contest_screen_layout';
-import { BallotContext } from '../contexts/ballot_context';
 import { ContestTitle } from './contest_title';
+import { getElectionDefinition } from '../api';
 
 const ChoicesGrid = styled.div`
   display: grid;
@@ -60,10 +59,9 @@ export function MsEitherNeitherContest({
   eitherNeitherContestVote,
   pickOneContestVote,
   updateVote,
-}: Props): JSX.Element {
-  const { electionDefinition } = useContext(BallotContext);
-  assert(electionDefinition);
-  const { election } = electionDefinition;
+}: Props): JSX.Element | null {
+  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  const electionDefinition = getElectionDefinitionQuery.data ?? undefined;
   const [deselectedOption, setDeselectedOption] = useState<
     'either' | 'neither' | 'first' | 'second'
   >();
@@ -95,7 +93,6 @@ export function MsEitherNeitherContest({
     updateVote(contest.pickOneContestId, newVote as YesNoVote);
   }
 
-  const districtName = getContestDistrictName(election, contest);
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
   const forEither = '“for either”';
   const againstBoth = '“against both”';
@@ -114,11 +111,19 @@ export function MsEitherNeitherContest({
     }
   }, [deselectedOption]);
 
+  if (!electionDefinition) {
+    return null;
+  }
+  const { election } = electionDefinition;
+
   return (
     <Main flexColumn>
       <ContentHeader>
         <Prose>
-          <ContestTitle districtName={districtName} title={contest.title} />
+          <ContestTitle
+            districtName={getContestDistrictName(election, contest)}
+            title={contest.title}
+          />
           <Caption>
             {eitherNeitherVote && pickOneVote ? (
               <span>

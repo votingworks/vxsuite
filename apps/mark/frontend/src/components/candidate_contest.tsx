@@ -35,6 +35,7 @@ import { BallotContext } from '../contexts/ballot_context';
 import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 import { ContentHeader, ChoicesGrid } from './contest_screen_layout';
 import { ContestTitle } from './contest_title';
+import { getElectionDefinition } from '../api';
 
 const WriteInModalContent = styled.div``;
 
@@ -56,18 +57,14 @@ export function CandidateContest({
   contest,
   vote,
   updateVote,
-}: Props): JSX.Element {
-  const { electionDefinition, precinctId } = useContext(BallotContext);
-  assert(
-    electionDefinition,
-    'electionDefinition is required to render CandidateContest'
-  );
+}: Props): JSX.Element | null {
+  const { precinctId } = useContext(BallotContext);
+  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  const electionDefinition = getElectionDefinitionQuery.data ?? undefined;
   assert(
     typeof precinctId === 'string',
     'precinctId is required to render ContestPage'
   );
-  const { election } = electionDefinition;
-  const districtName = getContestDistrictName(election, contest);
 
   const [attemptedOvervoteCandidate, setAttemptedOvervoteCandidate] =
     useState<Candidate>();
@@ -193,12 +190,21 @@ export function CandidateContest({
 
   const hasReachedMaxSelections = contest.seats === vote.length;
 
+  if (!electionDefinition) {
+    return null;
+  }
+
+  const { election } = electionDefinition;
+
   return (
     <React.Fragment>
       <Main flexColumn>
         <ContentHeader id="contest-header">
           <Prose id="audiofocus">
-            <ContestTitle districtName={districtName} title={contest.title} />
+            <ContestTitle
+              districtName={getContestDistrictName(election, contest)}
+              title={contest.title}
+            />
             <Caption>
               Vote for {contest.seats}.{' '}
               {vote.length === contest.seats && (

@@ -16,6 +16,7 @@ import { expectPrint, PrintRenderResult } from '@votingworks/test-utils';
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
+import { QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
   render,
@@ -29,11 +30,9 @@ import { render as renderWithBallotContext } from '../test/test_utils';
 import { withMarkup } from '../test/helpers/with_markup';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
-import {
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
+import { setStateInStorage } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { ApiClientContext, createQueryClient } from './api';
 
 let apiMock: ApiMock;
 
@@ -89,8 +88,24 @@ function expectPrintedVotes(
   );
 }
 
+function renderScreen(
+  props: Parameters<typeof renderWithBallotContext>[1] = {}
+) {
+  apiMock.expectGetElectionDefinition(
+    props.electionDefinition ?? electionDefinition
+  );
+  return renderWithBallotContext(
+    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+      <QueryClientProvider client={createQueryClient()}>
+        <Route path="/print" component={PrintPage} />
+      </QueryClientProvider>
+    </ApiClientContext.Provider>,
+    props
+  );
+}
+
 test('Renders Ballot with EitherNeither: blank', async () => {
-  renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+  renderScreen({
     ballotStyleId,
     precinctId,
     route: '/print',
@@ -118,7 +133,7 @@ test('Renders Ballot with EitherNeither: blank', async () => {
 });
 
 test('Renders Ballot with EitherNeither: Either & blank', async () => {
-  renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+  renderScreen({
     ballotStyleId,
     precinctId,
     route: '/print',
@@ -146,7 +161,7 @@ test('Renders Ballot with EitherNeither: Either & blank', async () => {
 });
 
 test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
-  renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+  renderScreen({
     ballotStyleId,
     precinctId,
     route: '/print',
@@ -174,7 +189,7 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
 });
 
 test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
-  renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+  renderScreen({
     ballotStyleId,
     precinctId,
     route: '/print',
@@ -208,9 +223,8 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 
-  await setElectionInStorage(storage, electionDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
   await setStateInStorage(storage, {
     appPrecinct: singlePrecinctSelectionFor(precinctId),
   });

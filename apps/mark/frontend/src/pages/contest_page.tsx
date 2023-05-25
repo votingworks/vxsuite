@@ -33,16 +33,11 @@ export function ContestPage(): JSX.Element {
   const {
     ballotStyleId,
     contests,
-    electionDefinition,
     machineConfig,
     precinctId,
     updateVote,
     votes,
   } = useContext(BallotContext);
-  assert(
-    electionDefinition,
-    'electionDefinition is required to render ContestPage'
-  );
   assert(
     typeof precinctId === 'string',
     'precinctId is required to render ContestPage'
@@ -182,7 +177,6 @@ export function ContestPage(): JSX.Element {
             <React.Fragment>
               <ButtonFooter>{settingsButton}</ButtonFooter>
               <ElectionInfo
-                electionDefinition={electionDefinition}
                 ballotStyleId={ballotStyleId}
                 precinctSelection={singlePrecinctSelectionFor(precinctId)}
                 horizontal

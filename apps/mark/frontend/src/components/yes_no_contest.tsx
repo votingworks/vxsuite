@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   YesNoVote,
   OptionalYesNoVote,
@@ -20,10 +20,8 @@ import {
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
-import { assert, Optional } from '@votingworks/basics';
+import { Optional } from '@votingworks/basics';
 import { UpdateVoteFunction } from '../config/types';
-
-import { BallotContext } from '../contexts/ballot_context';
 
 import {
   ContentHeader,
@@ -31,6 +29,7 @@ import {
   ChoicesGrid,
 } from './contest_screen_layout';
 import { ContestTitle } from './contest_title';
+import { getElectionDefinition } from '../api';
 
 interface Props {
   contest: YesNoContestInterface;
@@ -42,11 +41,9 @@ export function YesNoContest({
   contest,
   vote,
   updateVote,
-}: Props): JSX.Element {
-  const { electionDefinition } = useContext(BallotContext);
-  assert(electionDefinition);
-  const { election } = electionDefinition;
-  const districtName = getContestDistrictName(election, contest);
+}: Props): JSX.Element | null {
+  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  const electionDefinition = getElectionDefinitionQuery.data ?? undefined;
 
   const [overvoteSelection, setOvervoteSelection] =
     useState<Optional<YesOrNo>>();
@@ -76,12 +73,21 @@ export function YesNoContest({
     setOvervoteSelection(undefined);
   }
 
+  if (!electionDefinition) {
+    return null;
+  }
+
+  const { election } = electionDefinition;
+
   return (
     <React.Fragment>
       <Main flexColumn>
         <ContentHeader id="contest-header">
           <Prose id="audiofocus">
-            <ContestTitle districtName={districtName} title={contest.title} />
+            <ContestTitle
+              districtName={getContestDistrictName(election, contest)}
+              title={contest.title}
+            />
             <Caption>
               Vote <strong>Yes</strong> or <strong>No</strong>.
               <span className="screen-reader-only">

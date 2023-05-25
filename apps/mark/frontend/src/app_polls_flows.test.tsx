@@ -36,10 +36,7 @@ import {
   waitForElementToBeRemoved,
   within,
 } from '../test/react_testing_library';
-import {
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
+import { setStateInStorage } from '../test/helpers/election';
 import { buildApp } from '../test/helpers/build_app';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
@@ -117,7 +114,6 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -138,7 +134,7 @@ function checkPollsOpenedReport(printedElement: PrintRenderResult) {
 
 test('full polls flow with tally reports - general, single precinct', async () => {
   const { renderApp, storage, logger } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
   renderApp();
   await screen.findByText('Polls Closed');
@@ -484,7 +480,7 @@ test('tally report: as expected with all precinct combined data for general elec
     ballotCounts: { 'undefined,__ALL_PRECINCTS': [20, 5] },
   };
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_open' });
   renderApp();
   await screen.findByText('Insert Card');
@@ -579,7 +575,7 @@ test('tally report: as expected with all precinct specific data for general elec
   };
 
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_open' });
   renderApp();
   await screen.findByText('Insert Card');
@@ -829,7 +825,7 @@ test('tally report: as expected with a single precinct for primary election', as
   };
 
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_open',
     appPrecinct: ALL_PRECINCTS_SELECTION,
@@ -875,7 +871,7 @@ test('tally report: as expected with all precinct combined data for primary elec
   };
 
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_open',
     appPrecinct: ALL_PRECINCTS_SELECTION,
@@ -1006,7 +1002,7 @@ test('tally report: as expected with all precinct specific data for primary elec
   };
 
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_open',
     appPrecinct: ALL_PRECINCTS_SELECTION,
@@ -1284,7 +1280,7 @@ test('tally report: as expected with all precinct specific data for primary elec
 
 test('tally report: will print but not update polls state appropriate', async () => {
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   // The polls have already been closed
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
   renderApp();
@@ -1348,7 +1344,7 @@ test('full polls flow without tally reports', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   const { renderApp, storage, logger } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
   renderApp();
   await screen.findByText('Polls Closed');
@@ -1428,7 +1424,7 @@ test('full polls flow without tally reports', async () => {
 
 test('can close from paused without tally report', async () => {
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_paused' });
   renderApp();
   await screen.findByText('Voting Paused');
@@ -1450,7 +1446,7 @@ test('can close from paused without tally report', async () => {
 
 test('no buttons to change polls from closed final', async () => {
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
   renderApp();
   await screen.findByText('Polls Closed');
@@ -1473,7 +1469,7 @@ test('no buttons to change polls from closed final', async () => {
 
 test('can reset polls to paused with system administrator card', async () => {
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
   renderApp();
   await screen.findByText('Polls Closed');
@@ -1495,7 +1491,7 @@ test('can reset polls to paused with system administrator card', async () => {
 
 test('will not try to print report or change polls if report on card is in wrong mode', async () => {
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_closed_initial',
     isLiveMode: true,
@@ -1534,7 +1530,7 @@ test('will not try to print report or change polls if report on card is in wrong
 
 test('cannot close polls from closed report on card if polls have not been opened', async () => {
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
   renderApp();
   await screen.findByText('Polls Closed');
@@ -1569,7 +1565,7 @@ test('cannot close polls from closed report on card if polls have not been opene
 
 test('error clearing report from card does not affect printing and is logged', async () => {
   const { logger, renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
   renderApp();
 
@@ -1614,7 +1610,7 @@ test('error clearing report from card does not affect printing and is logged', a
 
 test('inserting two poll worker cards, one with a report and one without', async () => {
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
   renderApp();
 

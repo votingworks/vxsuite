@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
   ElectionDefinition,
-  OptionalElectionDefinition,
   OptionalVote,
   VotesDict,
   getBallotStyle,
@@ -20,7 +19,6 @@ import { IdleTimerProvider } from 'react-idle-timer';
 import {
   Storage,
   Hardware,
-  singlePrecinctSelectionFor,
   makeAsync,
   isElectionManagerAuth,
   isCardlessVoterAuth,
@@ -37,16 +35,16 @@ import {
   usePrevious,
   useUsbDrive,
   UnlockMachineScreen,
-  useQueryChangeListener,
 } from '@votingworks/ui';
 
-import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   checkPin,
   endCardlessVoterSession,
   getAuthStatus,
   getElectionDefinition,
   getMachineConfig,
+  logOut,
   startCardlessVoterSession,
   unconfigureMachine,
 } from './api';
@@ -81,7 +79,6 @@ interface UserState {
 interface SharedState {
   appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
-  electionDefinition: OptionalElectionDefinition;
   isLiveMode: boolean;
   pollsState: PollsState;
 }
@@ -122,7 +119,6 @@ const initialVoterState: Readonly<UserState> = {
 const initialSharedState: Readonly<SharedState> = {
   appPrecinct: undefined,
   ballotsPrintedCount: 0,
-  electionDefinition: undefined,
   isLiveMode: false,
   pollsState: 'polls_closed_initial',
 };
@@ -157,7 +153,6 @@ type AppAction =
   | { type: 'toggleLiveMode' }
   | { type: 'updatePollsState'; pollsState: PollsState }
   | { type: 'updateTally' }
-  | { type: 'updateElectionDefinition'; electionDefinition: ElectionDefinition }
   | { type: 'initializeAppState'; appState: Partial<State> };
 
 function appReducer(state: State, action: AppAction): State {
@@ -226,19 +221,6 @@ function appReducer(state: State, action: AppAction): State {
         ballotsPrintedCount: state.ballotsPrintedCount + 1,
       };
     }
-    case 'updateElectionDefinition': {
-      const { precincts } = action.electionDefinition.election;
-      let defaultPrecinct: Optional<PrecinctSelection>;
-      if (precincts.length === 1) {
-        defaultPrecinct = singlePrecinctSelectionFor(precincts[0].id);
-      }
-      return {
-        ...state,
-        ...initialUserState,
-        electionDefinition: action.electionDefinition,
-        appPrecinct: defaultPrecinct,
-      };
-    }
     case 'initializeAppState':
       return {
         ...state,
@@ -263,7 +245,6 @@ export function AppRoot({
   const {
     appPrecinct,
     ballotsPrintedCount,
-    electionDefinition: optionalElectionDefinition,
     isLiveMode,
     pollsState,
     initializedFromStorage,
@@ -290,12 +271,17 @@ export function AppRoot({
   const authStatus = authStatusQuery.isSuccess
     ? authStatusQuery.data
     : InsertedSmartCardAuth.DEFAULT_AUTH_STATUS;
+  const logOutMutation = logOut.useMutation();
 
   const checkPinMutation = checkPin.useMutation();
   const startCardlessVoterSessionMutation =
     startCardlessVoterSession.useMutation();
   const endCardlessVoterSessionMutation = endCardlessVoterSession.useMutation();
   const unconfigureMachineMutation = unconfigureMachine.useMutation();
+
+  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  const optionalElectionDefinition =
+    getElectionDefinitionQuery.data ?? undefined;
 
   const precinctId = isCardlessVoterAuth(authStatus)
     ? authStatus.user.precinctId
@@ -319,38 +305,6 @@ export function AppRoot({
           })
         )
       : [];
-
-  /** @deprecated Use backend state instead: configureBallotPackageFromUsb.useMutation() and getElectionDefinition.useQuery() */
-  const updateElectionDefinition = useCallback(
-    (electionDefinition: ElectionDefinition) => {
-      dispatchAppState({
-        type: 'updateElectionDefinition',
-        electionDefinition,
-      });
-    },
-    []
-  );
-
-  // Any time election definition is changed in the backend, update the frontend store too.
-  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
-  useQueryChangeListener(
-    getElectionDefinitionQuery,
-    (newElectionDefinition) => {
-      if (newElectionDefinition) {
-        updateElectionDefinition(newElectionDefinition);
-      }
-    }
-  );
-
-  // Handle Storing Election Locally
-  useEffect(() => {
-    async function storeElection(electionDefinition: ElectionDefinition) {
-      await storage.set(electionStorageKey, electionDefinition);
-    }
-    if (optionalElectionDefinition) {
-      void storeElection(optionalElectionDefinition);
-    }
-  }, [optionalElectionDefinition, storage]);
 
   // Handle Vote Updated
   useEffect(() => {
@@ -400,9 +354,10 @@ export function AppRoot({
   const unconfigure = useCallback(async () => {
     await storage.clear();
     await unconfigureMachineMutation.mutateAsync();
+    await logOutMutation.mutateAsync();
     dispatchAppState({ type: 'unconfigure' });
     history.push('/');
-  }, [storage, history, unconfigureMachineMutation]);
+  }, [storage, unconfigureMachineMutation, logOutMutation, history]);
 
   const updateVote = useCallback((contestId: ContestId, vote: OptionalVote) => {
     dispatchAppState({ type: 'updateVote', contestId, vote });
@@ -538,11 +493,6 @@ export function AppRoot({
   // Bootstraps the AppRoot Component
   useEffect(() => {
     async function updateStorage() {
-      // TODO: validate this with zod schema
-      const storedElectionDefinition = (await storage.get(
-        electionStorageKey
-      )) as ElectionDefinition | undefined;
-
       const storedAppState: Partial<State> =
         // TODO: validate this with zod schema
         ((await storage.get(stateStorageKey)) as Partial<State> | undefined) ||
@@ -560,7 +510,6 @@ export function AppRoot({
         appState: {
           appPrecinct: storedAppPrecinct,
           ballotsPrintedCount: storedBallotsPrintedCount,
-          electionDefinition: storedElectionDefinition,
           isLiveMode: storedIsLiveMode,
           pollsState: storedPollsState,
         },
@@ -642,10 +591,7 @@ export function AppRoot({
   if (isElectionManagerAuth(authStatus)) {
     if (!optionalElectionDefinition) {
       return (
-        <UnconfiguredElectionScreenWrapper
-          usbDriveStatus={usbDrive.status}
-          updateElectionDefinition={updateElectionDefinition}
-        />
+        <UnconfiguredElectionScreenWrapper usbDriveStatus={usbDrive.status} />
       );
     }
 
@@ -673,7 +619,6 @@ export function AppRoot({
       <AdminScreen
         appPrecinct={appPrecinct}
         ballotsPrintedCount={ballotsPrintedCount}
-        electionDefinition={optionalElectionDefinition}
         isLiveMode={isLiveMode}
         updateAppPrecinct={updateAppPrecinct}
         toggleLiveMode={toggleLiveMode}
@@ -703,7 +648,6 @@ export function AppRoot({
           activateCardlessVoterSession={activateCardlessBallot}
           resetCardlessVoterSession={resetCardlessBallot}
           appPrecinct={appPrecinct}
-          electionDefinition={optionalElectionDefinition}
           enableLiveMode={enableLiveMode}
           isLiveMode={isLiveMode}
           pollsState={pollsState}

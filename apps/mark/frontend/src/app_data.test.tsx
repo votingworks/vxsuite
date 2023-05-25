@@ -1,10 +1,8 @@
 import { screen } from '../test/react_testing_library';
 
-import { electionStorageKey } from './app_root';
-
 import {
   election,
-  setElectionInStorage,
+  electionDefinition,
   setStateInStorage,
 } from '../test/helpers/election';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
@@ -19,7 +17,6 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -29,24 +26,24 @@ afterEach(() => {
 describe('loads election', () => {
   it('Machine is not configured by default', async () => {
     const { renderApp } = buildApp(apiMock);
+    apiMock.expectGetElectionDefinition(null);
     renderApp();
 
     // Let the initial hardware detection run.
     await advanceTimersAndPromises();
 
-    screen.getByText('VxMark is Not Configured');
+    await screen.findByText('VxMark is Not Configured');
   });
 
-  it('from storage', async () => {
+  it('from API', async () => {
     const { storage, renderApp } = buildApp(apiMock);
-    await setElectionInStorage(storage);
+    apiMock.expectGetElectionDefinition(electionDefinition);
     await setStateInStorage(storage);
     renderApp();
 
     // Let the initial hardware detection run.
     await advanceTimersAndPromises();
 
-    screen.getByText(election.title);
-    expect(storage.get(electionStorageKey)).toBeTruthy();
+    await screen.findByText(election.title);
   });
 });

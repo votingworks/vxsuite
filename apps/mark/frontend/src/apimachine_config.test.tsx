@@ -6,10 +6,7 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { render, screen } from '../test/react_testing_library';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { App } from './app';
-import {
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
+import { setStateInStorage } from '../test/helpers/election';
 
 let apiMock: ApiMock;
 
@@ -18,7 +15,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -30,8 +26,7 @@ test('machineConfig is fetched from api client by default', async () => {
     codeVersion: 'fake-code-version',
   });
   const storage = new MemoryStorage();
-  await setElectionInStorage(
-    storage,
+  apiMock.expectGetElectionDefinition(
     electionFamousNames2021Fixtures.electionDefinition
   );
   await setStateInStorage(storage);

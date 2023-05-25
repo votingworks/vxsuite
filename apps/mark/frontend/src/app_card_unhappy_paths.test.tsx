@@ -8,10 +8,7 @@ import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
-import {
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
+import { setStateInStorage } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -21,7 +18,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -35,7 +31,7 @@ test('Poll worker card with invalid scanner report data is treated like card wit
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
 
-  await setElectionInStorage(storage, electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage, {
     pollsState: 'polls_closed_initial',
   });
@@ -71,7 +67,7 @@ test('Shows card backwards screen when card connection error occurs', async () =
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
 
-  await setElectionInStorage(storage);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage);
 
   render(

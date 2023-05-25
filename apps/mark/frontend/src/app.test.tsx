@@ -10,10 +10,7 @@ import * as React from 'react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { fireEvent, screen, waitFor } from '../test/react_testing_library';
-import {
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
+import { setStateInStorage } from '../test/helpers/election';
 import { fakeTts } from '../test/helpers/fake_tts';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 import { render } from '../test/test_utils';
@@ -135,7 +132,6 @@ it('uses window.location.reload by default', async () => {
   const reload = jest.fn();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
   jest.spyOn(window, 'location', 'get').mockReturnValue({
     ...window.location,
     reload,
@@ -146,7 +142,7 @@ it('uses window.location.reload by default', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
 
-  await setElectionInStorage(storage, electionDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
   await setStateInStorage(storage, {
     appPrecinct: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_closed_initial',

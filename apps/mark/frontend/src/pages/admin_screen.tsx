@@ -20,20 +20,16 @@ import {
   H3,
   H6,
 } from '@votingworks/ui';
-import {
-  ElectionDefinition,
-  PollsState,
-  PrecinctSelection,
-} from '@votingworks/types';
+import { PollsState, PrecinctSelection } from '@votingworks/types';
 import { makeAsync } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/mark-backend';
 import { ScreenReader } from '../config/types';
+import { getElectionDefinition } from '../api';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
-  electionDefinition: ElectionDefinition;
   isLiveMode: boolean;
   updateAppPrecinct: (appPrecinct: PrecinctSelection) => void;
   toggleLiveMode: VoidFunction;
@@ -48,7 +44,6 @@ export interface AdminScreenProps {
 export function AdminScreen({
   appPrecinct,
   ballotsPrintedCount,
-  electionDefinition,
   isLiveMode,
   updateAppPrecinct,
   toggleLiveMode,
@@ -59,7 +54,9 @@ export function AdminScreen({
   logger,
   usbDrive,
 }: AdminScreenProps): JSX.Element {
-  const { election } = electionDefinition;
+  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  const electionDefinition = getElectionDefinitionQuery.data ?? undefined;
+  const election = electionDefinition?.election;
 
   // Disable the audiotrack when in admin mode
   useEffect(() => {
@@ -165,7 +162,7 @@ export function AdminScreen({
           />
         </Prose>
       </Main>
-      {election && (
+      {electionDefinition && (
         <ElectionInfoBar
           mode="admin"
           electionDefinition={electionDefinition}

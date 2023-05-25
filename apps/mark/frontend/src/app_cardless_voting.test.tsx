@@ -15,7 +15,6 @@ import { App } from './app';
 
 import {
   presidentContest,
-  setElectionInStorage,
   setStateInStorage,
   voterContests,
 } from '../test/helpers/election';
@@ -264,9 +263,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
-
-  await setElectionInStorage(storage, electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage);
 
   render(

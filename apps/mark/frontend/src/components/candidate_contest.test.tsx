@@ -4,9 +4,12 @@ import { CandidateContest as CandidateContestInterface } from '@votingworks/type
 import { electionSampleDefinition } from '@votingworks/fixtures';
 
 import { act } from 'react-dom/test-utils';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, screen, within } from '../../test/react_testing_library';
 import { render as renderWithBallotContext } from '../../test/test_utils';
 import { CandidateContest } from './candidate_contest';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { ApiClientContext, createQueryClient } from '../api';
 
 const electionDefinition = electionSampleDefinition;
 const precinctId = electionDefinition.election.precincts[0].id;
@@ -24,14 +27,36 @@ const candidateContestWithWriteIns = electionDefinition.election.contests.find(
   (c) => c.type === 'candidate' && c.allowWriteIns
 )! as CandidateContestInterface;
 
+let apiMock: ApiMock;
+
+function renderScreen(
+  children: Parameters<typeof renderWithBallotContext>[0],
+  props: Parameters<typeof renderWithBallotContext>[1] = {}
+) {
+  apiMock.expectGetElectionDefinition(electionDefinition);
+  return renderWithBallotContext(
+    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+      <QueryClientProvider client={createQueryClient()}>
+        {children}
+      </QueryClientProvider>
+    </ApiClientContext.Provider>,
+    props
+  );
+}
+
 beforeEach(() => {
   jest.useFakeTimers();
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 describe('supports single-seat contest', () => {
-  it('allows any candidate to be selected when no candidate is selected', () => {
+  it('allows any candidate to be selected when no candidate is selected', async () => {
     const updateVote = jest.fn();
-    renderWithBallotContext(
+    renderScreen(
       <CandidateContest
         contest={candidateContest}
         vote={[]}
@@ -44,17 +69,23 @@ describe('supports single-seat contest', () => {
     );
 
     fireEvent.click(
-      screen.getByText(candidateContest.candidates[0]!.name).closest('button')!
+      (await screen.findByText(candidateContest.candidates[0]!.name)).closest(
+        'button'
+      )!
     );
     expect(updateVote).toHaveBeenCalledTimes(1);
 
     fireEvent.click(
-      screen.getByText(candidateContest.candidates[1]!.name).closest('button')!
+      (await screen.findByText(candidateContest.candidates[1]!.name)).closest(
+        'button'
+      )!
     );
     expect(updateVote).toHaveBeenCalledTimes(2);
 
     fireEvent.click(
-      screen.getByText(candidateContest.candidates[2]!.name).closest('button')!
+      (await screen.findByText(candidateContest.candidates[2]!.name)).closest(
+        'button'
+      )!
     );
     expect(updateVote).toHaveBeenCalledTimes(3);
 
@@ -63,9 +94,9 @@ describe('supports single-seat contest', () => {
     });
   });
 
-  it("doesn't allow other candidates to be selected when a candidate is selected", () => {
+  it("doesn't allow other candidates to be selected when a candidate is selected", async () => {
     const updateVote = jest.fn();
-    renderWithBallotContext(
+    renderScreen(
       <CandidateContest
         contest={candidateContest}
         vote={[candidateContest.candidates[0]]}
@@ -77,23 +108,29 @@ describe('supports single-seat contest', () => {
       }
     );
 
-    screen.getByRole('option', {
+    await screen.findByRole('option', {
       name: new RegExp(candidateContest.candidates[0].name),
       selected: true,
     });
 
     fireEvent.click(
-      screen.getByText(candidateContest.candidates[1].name).closest('button')!
+      (await screen.findByText(candidateContest.candidates[1].name)).closest(
+        'button'
+      )!
     );
     expect(updateVote).not.toHaveBeenCalled();
 
     fireEvent.click(
-      screen.getByText(candidateContest.candidates[2].name).closest('button')!
+      (await screen.findByText(candidateContest.candidates[2].name)).closest(
+        'button'
+      )!
     );
     expect(updateVote).not.toHaveBeenCalled();
 
     fireEvent.click(
-      screen.getByText(candidateContest.candidates[0].name).closest('button')!
+      (await screen.findByText(candidateContest.candidates[0].name)).closest(
+        'button'
+      )!
     );
     expect(updateVote).toHaveBeenCalled();
 
@@ -104,9 +141,9 @@ describe('supports single-seat contest', () => {
 });
 
 describe('supports multi-seat contests', () => {
-  it('allows a second candidate to be selected when one is selected', () => {
+  it('allows a second candidate to be selected when one is selected', async () => {
     const updateVote = jest.fn();
-    renderWithBallotContext(
+    renderScreen(
       <CandidateContest
         contest={candidateContestWithMultipleSeats}
         vote={[candidateContestWithMultipleSeats.candidates[0]]}
@@ -118,15 +155,15 @@ describe('supports multi-seat contests', () => {
       }
     );
 
-    screen.getByRole('option', {
+    await screen.findByRole('option', {
       name: new RegExp(candidateContestWithMultipleSeats.candidates[0].name),
       selected: true,
     });
-    screen.getByRole('option', {
+    await screen.findByRole('option', {
       name: new RegExp(candidateContestWithMultipleSeats.candidates[1].name),
       selected: false,
     });
-    screen.getByRole('option', {
+    await screen.findByRole('option', {
       name: new RegExp(candidateContestWithMultipleSeats.candidates[2].name),
       selected: false,
     });
@@ -159,16 +196,16 @@ describe('supports multi-seat contests', () => {
 });
 
 describe('supports write-in candidates', () => {
-  function typeKeysInVirtualKeyboard(chars: string): void {
+  async function typeKeysInVirtualKeyboard(chars: string): Promise<void> {
     for (const i of chars) {
       const key = i === ' ' ? 'space' : i;
-      fireEvent.click(screen.getByText(key).closest('button')!);
+      fireEvent.click((await screen.findByText(key)).closest('button')!);
     }
   }
 
-  it('updates votes when a write-in candidate is selected', () => {
+  it('updates votes when a write-in candidate is selected', async () => {
     const updateVote = jest.fn();
-    renderWithBallotContext(
+    renderScreen(
       <CandidateContest
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -180,15 +217,15 @@ describe('supports write-in candidates', () => {
       }
     );
     fireEvent.click(
-      screen.getByText('add write-in candidate').closest('button')!
+      (await screen.findByText('add write-in candidate')).closest('button')!
     );
 
-    const modal = within(screen.getByRole('alertdialog'));
+    const modal = within(await screen.findByRole('alertdialog'));
 
     modal.getByText(`Write-In: ${candidateContestWithWriteIns.title}`);
     modal.getByText(/40 characters remaining/);
 
-    typeKeysInVirtualKeyboard('LIZARD PEOPLE');
+    await typeKeysInVirtualKeyboard('LIZARD PEOPLE');
 
     modal.getByText(/27 characters remaining/);
 
@@ -204,9 +241,9 @@ describe('supports write-in candidates', () => {
     });
   });
 
-  it('displays warning if write-in candidate name is too long', () => {
+  it('displays warning if write-in candidate name is too long', async () => {
     const updateVote = jest.fn();
-    renderWithBallotContext(
+    renderScreen(
       <CandidateContest
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -218,13 +255,13 @@ describe('supports write-in candidates', () => {
       }
     );
     fireEvent.click(
-      screen.getByText('add write-in candidate').closest('button')!
+      (await screen.findByText('add write-in candidate')).closest('button')!
     );
 
-    const modal = within(screen.getByRole('alertdialog'));
+    const modal = within(await screen.findByRole('alertdialog'));
 
     modal.getByText(`Write-In: ${candidateContestWithWriteIns.title}`);
-    typeKeysInVirtualKeyboard('JACOB JOHANSON JINGLEHEIMMER SCHMIDTT');
+    await typeKeysInVirtualKeyboard('JACOB JOHANSON JINGLEHEIMMER SCHMIDTT');
     modal.getByText(/3 characters remaining/);
     fireEvent.click(modal.getByText('Cancel'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -234,9 +271,9 @@ describe('supports write-in candidates', () => {
     });
   });
 
-  it('prevents writing more than the allowed number of characters', () => {
+  it('prevents writing more than the allowed number of characters', async () => {
     const updateVote = jest.fn();
-    renderWithBallotContext(
+    renderScreen(
       <CandidateContest
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -248,7 +285,7 @@ describe('supports write-in candidates', () => {
       }
     );
     fireEvent.click(
-      screen.getByText('add write-in candidate').closest('button')!
+      (await screen.findByText('add write-in candidate')).closest('button')!
     );
 
     const modal = within(screen.getByRole('alertdialog'));
@@ -256,7 +293,7 @@ describe('supports write-in candidates', () => {
     modal.getByText(`Write-In: ${candidateContestWithWriteIns.title}`);
     const writeInCandidate =
       "JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, THAT'S MY NAME TOO";
-    typeKeysInVirtualKeyboard(writeInCandidate);
+    await typeKeysInVirtualKeyboard(writeInCandidate);
     modal.getByText(/0 characters remaining/);
 
     expect(

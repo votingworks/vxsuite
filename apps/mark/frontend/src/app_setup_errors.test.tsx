@@ -14,7 +14,6 @@ import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import {
   electionDefinition,
-  setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
 import { withMarkup } from '../test/helpers/with_markup';
@@ -27,7 +26,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -40,12 +38,12 @@ const noPowerDetectedWarningText = 'No Power Detected.';
 
 describe('Displays setup warning messages and errors screens', () => {
   it('Displays warning if Accessible Controller connection is lost', async () => {
-    apiMock.expectGetMachineConfig();
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
     hardware.setAccessibleControllerConnected(true);
 
-    await setElectionInStorage(storage);
+    apiMock.expectGetMachineConfig();
+    apiMock.expectGetElectionDefinition(electionDefinition);
     await setStateInStorage(storage);
 
     render(
@@ -85,10 +83,10 @@ describe('Displays setup warning messages and errors screens', () => {
   });
 
   it('Displays error screen if Card Reader connection is lost', async () => {
-    apiMock.expectGetMachineConfig();
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
-    await setElectionInStorage(storage);
+    apiMock.expectGetMachineConfig();
+    apiMock.expectGetElectionDefinition(electionDefinition);
     await setStateInStorage(storage);
 
     render(
@@ -122,10 +120,10 @@ describe('Displays setup warning messages and errors screens', () => {
   });
 
   it('Displays error screen if Power connection is lost', async () => {
-    apiMock.expectGetMachineConfig();
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
-    await setElectionInStorage(storage);
+    apiMock.expectGetMachineConfig();
+    apiMock.expectGetElectionDefinition(electionDefinition);
     await setStateInStorage(storage);
     render(
       <App
@@ -156,10 +154,10 @@ describe('Displays setup warning messages and errors screens', () => {
   });
 
   it('Admin screen trumps "No Printer Detected" error', async () => {
-    apiMock.expectGetMachineConfig();
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
-    await setElectionInStorage(storage, electionDefinition);
+    apiMock.expectGetMachineConfig();
+    apiMock.expectGetElectionDefinition(electionDefinition);
     await setStateInStorage(storage);
     render(
       <App
@@ -188,10 +186,10 @@ describe('Displays setup warning messages and errors screens', () => {
   });
 
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
-    apiMock.expectGetMachineConfig();
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
-    await setElectionInStorage(storage);
+    apiMock.expectGetMachineConfig();
+    apiMock.expectGetElectionDefinition(electionDefinition);
     await setStateInStorage(storage);
     render(
       <App

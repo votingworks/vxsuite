@@ -43,6 +43,7 @@ import { ButtonFooter } from '../components/button_footer';
 import { screenOrientation } from '../lib/screen_orientation';
 import { getContestDistrictName } from '../utils/ms_either_neither_contests';
 import { DisplaySettingsButton } from '../components/display_settings_button';
+import { getElectionDefinition } from '../api';
 
 const ContentHeader = styled.div`
   padding: 0.5rem 0.75rem 0;
@@ -176,21 +177,17 @@ const SidebarSpacer = styled.div`
   height: 90px;
 `;
 
-export function ReviewPage(): JSX.Element {
-  const {
-    contests,
-    ballotStyleId,
-    electionDefinition,
-    machineConfig,
-    precinctId,
-    votes,
-  } = useContext(BallotContext);
+export function ReviewPage(): JSX.Element | null {
+  const { contests, ballotStyleId, machineConfig, precinctId, votes } =
+    useContext(BallotContext);
+  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  const electionDefinition = getElectionDefinitionQuery.data ?? undefined;
   const { isLandscape, isPortrait } = screenOrientation(machineConfig);
 
-  assert(
-    electionDefinition,
-    'electionDefinition is required to render ReviewPage'
-  );
+  if (!electionDefinition) {
+    return null;
+  }
+
   assert(
     typeof precinctId !== 'undefined',
     'precinctId is required to render ReviewPage'
@@ -283,7 +280,6 @@ export function ReviewPage(): JSX.Element {
             <React.Fragment>
               <ButtonFooter>{settingsButton}</ButtonFooter>
               <ElectionInfo
-                electionDefinition={electionDefinition}
                 ballotStyleId={ballotStyleId}
                 precinctSelection={singlePrecinctSelectionFor(precinctId)}
                 horizontal

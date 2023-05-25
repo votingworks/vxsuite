@@ -25,6 +25,7 @@ import { ElectionInfo } from '../components/election_info';
 import { Sidebar } from '../components/sidebar';
 import { screenOrientation } from '../lib/screen_orientation';
 import { DisplaySettingsButton } from '../components/display_settings_button';
+import { getElectionDefinition } from '../api';
 
 const SidebarSpacer = styled.div`
   height: 90px;
@@ -49,20 +50,10 @@ const LargeButtonText = styled.span`
   padding: 0 1rem;
 `;
 
-export function StartPage(): JSX.Element {
+export function StartPage(): JSX.Element | null {
   const history = useHistory();
-  const {
-    ballotStyleId,
-    contests,
-    electionDefinition,
-    machineConfig,
-    precinctId,
-    forceSaveVote,
-  } = useContext(BallotContext);
-  assert(
-    electionDefinition,
-    'electionDefinition is required to render StartPage'
-  );
+  const { ballotStyleId, contests, machineConfig, precinctId, forceSaveVote } =
+    useContext(BallotContext);
   assert(
     typeof precinctId !== 'undefined',
     'precinctId is required to render StartPage'
@@ -73,12 +64,16 @@ export function StartPage(): JSX.Element {
   );
   const audioFocus = useRef<HTMLDivElement>(null);
   const { isLandscape, isPortrait } = screenOrientation(machineConfig);
-  const { election } = electionDefinition;
-  const { title } = election;
-  const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
-    election,
-    ballotStyleId,
-  });
+  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  const electionDefinition = getElectionDefinitionQuery.data ?? undefined;
+  const election = electionDefinition?.election;
+  const title = election?.title;
+  const partyPrimaryAdjective =
+    election &&
+    getPartyPrimaryAdjectiveFromBallotStyle({
+      election,
+      ballotStyleId,
+    });
 
   function onStart() {
     forceSaveVote();
@@ -118,13 +113,16 @@ export function StartPage(): JSX.Element {
     </Wobble>
   );
 
+  if (!electionDefinition) {
+    return null;
+  }
+
   return (
     <Screen navRight={isLandscape} ref={audioFocus}>
       <Main centerChild padded>
         {isPortrait ? (
           <React.Fragment>
             <ElectionInfo
-              electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
               precinctSelection={singlePrecinctSelectionFor(precinctId)}
               ariaHidden={false}
@@ -161,7 +159,6 @@ export function StartPage(): JSX.Element {
         <Sidebar
           footer={
             <ElectionInfo
-              electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
               precinctSelection={singlePrecinctSelectionFor(precinctId)}
               horizontal

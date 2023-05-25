@@ -9,7 +9,7 @@ import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import {
   countyCommissionersContest,
-  setElectionInStorage,
+  electionDefinition,
   setStateInStorage,
 } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
@@ -21,7 +21,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -35,7 +34,7 @@ it('Single Seat Contest', async () => {
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
 
-  await setElectionInStorage(storage);
+  apiMock.expectGetElectionDefinition(electionDefinition);
   await setStateInStorage(storage);
 
   const { container } = render(

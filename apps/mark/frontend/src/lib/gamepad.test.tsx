@@ -11,7 +11,7 @@ import {
   contest0candidate0,
   contest0candidate1,
   contest1candidate0,
-  setElectionInStorage,
+  electionDefinition,
   setStateInStorage,
 } from '../../test/helpers/election';
 
@@ -25,7 +25,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -36,8 +35,7 @@ it('gamepad controls work', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
-
-  await setElectionInStorage(storage);
+  apiMock.expectGetElectionDefinition(electionDefinition);
   await setStateInStorage(storage);
 
   render(

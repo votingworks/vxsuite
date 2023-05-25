@@ -14,6 +14,7 @@ import { fakeLogger } from '@votingworks/logging';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { mockUsbDrive } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
+import { ElectionDefinition } from '@votingworks/types';
 import {
   act,
   fireEvent,
@@ -50,14 +51,20 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-function renderScreen(props: Partial<AdminScreenProps> = {}) {
+function renderScreen(
+  props: Partial<
+    AdminScreenProps & { electionDefinition: ElectionDefinition }
+  > = {}
+) {
+  apiMock.expectGetElectionDefinition(
+    props.electionDefinition ?? asElectionDefinition(election)
+  );
   return render(
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
       <QueryClientProvider client={createQueryClient()}>
         <AdminScreen
           appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
           ballotsPrintedCount={0}
-          electionDefinition={asElectionDefinition(election)}
           isLiveMode={false}
           updateAppPrecinct={jest.fn()}
           toggleLiveMode={jest.fn()}
@@ -111,23 +118,24 @@ test('renders date and time settings modal', async () => {
   screen.getByText(startDate);
 });
 
-test('can switch the precinct', () => {
+test('can switch the precinct', async () => {
   const updateAppPrecinct = jest.fn();
   renderScreen({ updateAppPrecinct });
 
-  const precinctSelect = screen.getByLabelText('Precinct');
-  const allPrecinctsOption =
-    within(precinctSelect).getByText<HTMLOptionElement>('All Precincts');
+  const precinctSelect = await screen.findByLabelText('Precinct');
+  const allPrecinctsOption = await within(
+    precinctSelect
+  ).findByText<HTMLOptionElement>('All Precincts');
   fireEvent.change(precinctSelect, {
     target: { value: allPrecinctsOption.value },
   });
   expect(updateAppPrecinct).toHaveBeenCalledWith(ALL_PRECINCTS_SELECTION);
 });
 
-test('precinct change disabled if polls closed', () => {
+test('precinct change disabled if polls closed', async () => {
   renderScreen({ pollsState: 'polls_closed_final' });
 
-  const precinctSelect = screen.getByLabelText('Precinct');
+  const precinctSelect = await screen.findByLabelText('Precinct');
   expect(precinctSelect).toBeDisabled();
 });
 
@@ -138,8 +146,8 @@ test('precinct selection disabled if single precinct election', async () => {
   });
 
   await screen.findByText('Election Manager Actions');
-  expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
-  screen.getByText(
+  expect(await screen.findByTestId('selectPrecinct')).toBeDisabled();
+  await screen.findByText(
     'Precinct cannot be changed because there is only one precinct configured for this election.'
   );
 });

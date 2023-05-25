@@ -10,10 +10,7 @@ import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
-import {
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
+import { setStateInStorage } from '../test/helpers/election';
 
 import {
   IDLE_RESET_TIMEOUT_SECONDS,
@@ -31,7 +28,6 @@ beforeEach(() => {
   window.kiosk = fakeKiosk();
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -48,7 +44,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
     machineId: '0000',
   });
 
-  await setElectionInStorage(storage);
+  apiMock.expectGetElectionDefinition(electionSampleDefinition);
   await setStateInStorage(storage);
 
   render(
@@ -78,7 +74,7 @@ test('Voter idle timeout', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
-  await setElectionInStorage(storage, electionDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
   await setStateInStorage(storage);
   render(
     <App

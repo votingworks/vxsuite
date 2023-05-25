@@ -57,6 +57,7 @@ export const voterContests = getContests({
   election,
 });
 
+/** @deprecated */
 export async function setElectionInStorage(
   storage: Storage,
   newElectionDefinition = electionDefinition
