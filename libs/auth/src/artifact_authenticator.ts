@@ -1,5 +1,8 @@
 import { Buffer } from 'buffer';
+import CombinedStream from 'combined-stream';
+import { createReadStream } from 'fs';
 import fs from 'fs/promises';
+import { Stream } from 'stream';
 import {
   assert,
   err,
@@ -16,7 +19,7 @@ import {
 import { FileKey, TpmKey } from './keys';
 import {
   extractPublicKeyFromCert,
-  signMessageUsingPrivateKey,
+  signMessage,
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
 } from './openssl';
@@ -106,7 +109,7 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
   private async constructArtifactSignatureBundle(
     artifact: Artifact
   ): Promise<ArtifactSignatureBundle> {
-    const message = await this.constructMessage(artifact);
+    const message = this.constructMessage(artifact);
     const messageSignature = await this.signMessage(message);
     const signingMachineCert = await fs.readFile(this.signingMachineCertPath);
     return { signature: messageSignature, signingMachineCert };
@@ -119,7 +122,7 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
     artifact: Artifact,
     artifactSignatureBundle: ArtifactSignatureBundle
   ): Promise<void> {
-    const message = await this.constructMessage(artifact);
+    const message = this.constructMessage(artifact);
     const { signature: messageSignature, signingMachineCert } =
       artifactSignatureBundle;
     await this.validateSigningMachineCert(signingMachineCert, artifact);
@@ -198,24 +201,26 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
     return { signature, signingMachineCert };
   }
 
-  private async constructMessage(artifact: Artifact): Promise<Buffer> {
+  private constructMessage(artifact: Artifact): Stream {
+    const message = CombinedStream.create();
+
     const messageFormatVersion = Buffer.from('1', 'utf-8');
     const separator = Buffer.from('//', 'utf-8');
     const fileType = Buffer.from(artifact.type, 'utf-8');
-    const fileContents = await fs.readFile(artifact.path);
-    return Buffer.concat([
-      messageFormatVersion,
-      separator,
-      fileType,
-      separator,
-      fileContents,
-    ]);
+    message.append(
+      Buffer.concat([messageFormatVersion, separator, fileType, separator])
+    );
+
+    const fileContents = createReadStream(artifact.path);
+    message.append(fileContents);
+
+    return message;
   }
 
-  private async signMessage(message: Buffer): Promise<Buffer> {
-    return await signMessageUsingPrivateKey({
+  private async signMessage(message: Stream): Promise<Buffer> {
+    return await signMessage({
       message,
-      privateKey: this.signingMachinePrivateKey,
+      signingPrivateKey: this.signingMachinePrivateKey,
     });
   }
 
