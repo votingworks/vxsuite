@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer';
 import fs from 'fs/promises';
 import yargs from 'yargs/yargs';
+import { extractErrorMessage } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { TEST_JURISDICTION } from '@votingworks/types';
 
@@ -22,7 +23,7 @@ import {
   OPENSSL_CONFIG_FILE_PATH,
   publicKeyPemToDer,
 } from '../src/openssl';
-import { runCommand } from './utils';
+import { runCommand } from '../src/shell';
 
 async function generateDevPrivateKey(): Promise<Buffer> {
   return await openssl(['ecparam', '-genkey', '-name', 'prime256v1', '-noout']);
@@ -113,7 +114,7 @@ async function generateDevKeysAndCerts({
 }: GenerateDevKeysAndCertsInput): Promise<void> {
   const jurisdiction = forTests ? TEST_JURISDICTION : DEV_JURISDICTION;
 
-  runCommand(['mkdir', '-p', outputDir]);
+  await runCommand(['mkdir', '-p', outputDir]);
 
   // Generate VotingWorks private key and cert authority cert
   const vxPrivateKeyPath = `${outputDir}/vx-private-key.pem`;
@@ -205,7 +206,7 @@ async function generateDevKeysAndCerts({
         },
       ];
     for (const { cardType, cardDetails } of cardConfigs) {
-      runCommand(['mkdir', '-p', `${outputDir}/${cardType}`]);
+      await runCommand(['mkdir', '-p', `${outputDir}/${cardType}`]);
 
       // Generate card VotingWorks key pair and cert
       const cardVxPrivateKeyPath = `${outputDir}/${cardType}/card-vx-private-key.pem`;
@@ -301,7 +302,7 @@ export async function main(): Promise<void> {
     const generateDevKeysAndCertsInput = await parseCommandLineArgs();
     await generateDevKeysAndCerts(generateDevKeysAndCertsInput);
   } catch (error) {
-    console.error(error instanceof Error ? `❌ ${error.message}` : error);
+    console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
   }
   console.log('✅ Done!');

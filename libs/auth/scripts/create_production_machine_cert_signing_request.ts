@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { assert } from '@votingworks/basics';
+import { assert, extractErrorMessage } from '@votingworks/basics';
 
 import { constructMachineCertSubject, MachineType } from '../src/certs';
 import { getRequiredEnvVar } from '../src/env_vars';
@@ -33,7 +33,7 @@ export async function main(): Promise<void> {
   try {
     certSigningRequest = await createProductionMachineCertSigningRequest();
   } catch (error) {
-    console.error(error instanceof Error ? `❌ ${error.message}` : error);
+    console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
   }
   process.stdout.write(certSigningRequest);
