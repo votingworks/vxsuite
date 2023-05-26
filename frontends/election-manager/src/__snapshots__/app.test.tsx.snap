@@ -56,13 +56,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           role="option"
           type="button"
         >
-          Write-Ins
-        </button>
-        <button
-          class="sc-ksdxAp gfVRPE"
-          role="option"
-          type="button"
-        >
           Reports
         </button>
       </div>
@@ -1530,13 +1523,6 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           role="option"
           type="button"
         >
-          Write-Ins
-        </button>
-        <button
-          class="sc-ksdxAp gfVRPE"
-          role="option"
-          type="button"
-        >
           Reports
         </button>
       </div>
@@ -2992,13 +2978,6 @@ exports[`L&A (logic and accuracy) flow 3`] = `
           type="button"
         >
           Tally
-        </button>
-        <button
-          class="sc-ksdxAp gfVRPE"
-          role="option"
-          type="button"
-        >
-          Write-Ins
         </button>
         <button
           class="sc-ksdxAp gfVRPE"
