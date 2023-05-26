@@ -2,12 +2,11 @@ import { Buffer } from 'buffer';
 import fs from 'fs';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
-  ElectionManagerUser,
-  PollWorkerUser,
-  SystemAdministratorUser,
-} from '@votingworks/types';
+  fakeElectionManagerUser,
+  fakePollWorkerUser,
+  fakeSystemAdministratorUser,
+} from '@votingworks/test-utils';
 
-import { DEV_JURISDICTION } from './jurisdictions';
 import {
   deserializeMockFileContents,
   MOCK_FILE_PATH,
@@ -21,20 +20,9 @@ const { electionData, electionHash } = electionSampleDefinition;
 const pin = '123456';
 const wrongPin = '234567';
 
-const systemAdministratorUser: SystemAdministratorUser = {
-  role: 'system_administrator',
-  jurisdiction: DEV_JURISDICTION,
-};
-const electionManagerUser: ElectionManagerUser = {
-  role: 'election_manager',
-  jurisdiction: DEV_JURISDICTION,
-  electionHash,
-};
-const pollWorkerUser: PollWorkerUser = {
-  role: 'poll_worker',
-  jurisdiction: DEV_JURISDICTION,
-  electionHash,
-};
+const systemAdministratorUser = fakeSystemAdministratorUser();
+const electionManagerUser = fakeElectionManagerUser({ electionHash });
+const pollWorkerUser = fakePollWorkerUser({ electionHash });
 
 test.each<MockFileContents>([
   {
