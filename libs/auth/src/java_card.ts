@@ -395,6 +395,7 @@ export class JavaCard implements Card {
    * 1. Intentionally throws errors if any verification fails
    * 2. Can throw errors due to external actions like preemptively removing the card from the card
    *    reader
+   *
    * This wrapper should never throw errors.
    */
   private async safeReadCardDetails(): Promise<Optional<CardDetails>> {
