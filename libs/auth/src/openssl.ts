@@ -416,14 +416,17 @@ export async function createCertHelper({
  *
  * Uses a slightly roundabout control flow for permissions purposes:
  *
- * createCert() --> ../src/create-cert --> createCertHelper()
+ * createCert() --> ../src/intermediate-scripts/create-cert --> createCertHelper()
  *
  * When using TPM keys in production, we need sudo access. Creating the intermediate create-cert
  * script allows us to grant password-less sudo access to the relevant system users for just that
  * operation, instead of having to grant password-less sudo access more globally.
  */
 export async function createCert(input: CreateCertInput): Promise<Buffer> {
-  const scriptPath = path.join(__dirname, '../src/create-cert');
+  const scriptPath = path.join(
+    __dirname,
+    '../src/intermediate-scripts/create-cert'
+  );
   const scriptInput = JSON.stringify(input);
   const usingTpm = input.signingPrivateKey.source === 'tpm';
   const command = usingTpm
