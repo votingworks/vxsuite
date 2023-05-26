@@ -1,55 +1,36 @@
 /* eslint-disable react/destructuring-assignment */
-/* eslint-disable @typescript-eslint/no-use-before-define */
+
 /* eslint-disable react/no-array-index-key */
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import './polyfills';
 import { AppBase } from '@votingworks/ui';
-import { throwIllegalValue } from '@votingworks/basics';
+import { ok, throwIllegalValue } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
 import styled from 'styled-components';
-import {
-  AnyElement,
-  Document,
-  Image,
-  Page,
-  Rectangle,
-  TextBox,
-} from './document_types';
+import { AnyElement, Document, Page } from './document_types';
 import { SvgImage, SvgPage, SvgRectangle, SvgTextBox } from './document_svg';
-import { GRID, GridDimensions, layOutBallot } from './layout';
+import {
+  DOCUMENT_HEIGHT,
+  DOCUMENT_WIDTH,
+  GRID,
+  GridDimensions,
+  // layOutBallot,
+} from './layout';
 import election from './electionFamousNames2021.json';
+import { layOutPage, testLayoutPage } from './layout_engine';
 
-interface BaseObjectProps<T extends AnyElement> {
-  element: T;
-  setElement: (element: T) => void;
+interface ControlSettings {
+  showGridLines: boolean;
 }
 
-function RectangleObject({ element }: BaseObjectProps<Rectangle>) {
-  return (
-    <SvgRectangle {...element}>
-      {element.children?.map((child, index) => {
-        return <AnyElementObject key={index} element={child} />;
-      })}
-    </SvgRectangle>
-  );
-}
-
-function TextBoxObject({ element }: BaseObjectProps<TextBox>) {
-  return <SvgTextBox {...element} />;
-}
-
-function ImageObject({ element }: BaseObjectProps<Image>) {
-  return <SvgImage {...element} />;
-}
-
-function AnyElementObject(props: { element: AnyElement }) {
+function SvgAnyElement(props: { element: AnyElement }) {
   switch (props.element.type) {
     case 'Rectangle':
-      return <RectangleObject {...(props as BaseObjectProps<Rectangle>)} />;
+      return <SvgRectangle {...props.element} />;
     case 'TextBox':
-      return <TextBoxObject {...(props as BaseObjectProps<TextBox>)} />;
+      return <SvgTextBox {...props.element} />;
     case 'Image':
-      return <ImageObject {...(props as BaseObjectProps<Image>)} />;
+      return <SvgImage {...props.element} />;
     default:
       return throwIllegalValue(props.element);
   }
@@ -107,7 +88,7 @@ function PageObject({
   height,
   grid,
   page,
-  showGridLines,
+  controlSettings,
 }: {
   x: number;
   y: number;
@@ -115,14 +96,16 @@ function PageObject({
   width: number;
   height: number;
   page: Page;
-  showGridLines: boolean;
+  controlSettings: ControlSettings;
 }) {
   return (
     <SvgPage {...{ x, y, width, height, ...page }}>
       {page.children.map((element, index) => (
-        <AnyElementObject key={index} element={element} />
+        <SvgAnyElement key={index} element={element} />
       ))}
-      {showGridLines && <GridLines {...{ grid, width, height }} />}
+      {controlSettings.showGridLines && (
+        <GridLines {...{ grid, width, height }} />
+      )}
     </SvgPage>
   );
 }
@@ -130,11 +113,11 @@ function PageObject({
 function DocumentSvg({
   dimensions,
   document,
-  showGridLines,
+  controlSettings,
 }: {
   dimensions: { width: number; height: number };
   document: Document;
-  showGridLines: boolean;
+  controlSettings: ControlSettings;
 }) {
   const [zoom, setZoom] = useState(0.8);
   const [panOffset, setPanOffset] = useState({ x: -100, y: -100 });
@@ -154,11 +137,11 @@ function DocumentSvg({
           width={width}
           height={height}
           page={page}
-          showGridLines={showGridLines}
+          controlSettings={controlSettings}
           key={index}
         />
       )),
-    [width, height, pages, showGridLines]
+    [width, height, pages, controlSettings]
   );
   return (
     <svg
@@ -226,14 +209,29 @@ const ErrorMessage = styled.div`
   justify-content: center;
 `;
 
-const ballotResult = layOutBallot(
-  election as unknown as Election,
-  election.precincts[0].id,
-  election.districts.map((district) => district.id)
-);
+// const ballotResult = layOutBallot(
+//   election as unknown as Election,
+//   election.precincts[0].id,
+//   election.districts.map((district) => district.id)
+// );
+
+const document: Document = {
+  width: DOCUMENT_WIDTH,
+  height: DOCUMENT_HEIGHT,
+  pages: [
+    {
+      children: layOutPage(testLayoutPage, {
+        width: DOCUMENT_WIDTH,
+        height: DOCUMENT_HEIGHT,
+      }),
+    },
+  ],
+};
 
 export function App(): JSX.Element {
-  const [showGridLines, setShowGridLines] = useState(true);
+  const [controlSettings, setControlSettings] = useState<ControlSettings>({
+    showGridLines: false,
+  });
 
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
@@ -250,18 +248,24 @@ export function App(): JSX.Element {
 
   return (
     <AppBase>
-      {ballotResult.isErr() && (
+      {/* {ballotResult.isErr() && (
         <ErrorMessage>{ballotResult.err().message}</ErrorMessage>
-      )}
-      {ballotResult.isOk() && (
+      )} */}
+      {/* {ballotResult.isOk() && ( */}
+      {true && (
         <React.Fragment>
           <Controls>
             <button
               type="button"
-              onClick={() => setShowGridLines(!showGridLines)}
+              onClick={() =>
+                setControlSettings((prev) => ({
+                  ...prev,
+                  showGridLines: !prev.showGridLines,
+                }))
+              }
               style={{ width: '100px' }}
             >
-              {showGridLines ? 'Hide Grid' : 'Show Grid'}
+              {controlSettings.showGridLines ? 'Hide Grid' : 'Show Grid'}
             </button>
             <div>
               {GRID.rows} rows x {GRID.columns} columns
@@ -269,8 +273,9 @@ export function App(): JSX.Element {
           </Controls>
           <DocumentSvg
             dimensions={dimensions}
-            document={ballotResult.ok().document}
-            showGridLines={showGridLines}
+            // document={ballotResult.ok().document}
+            document={document}
+            controlSettings={controlSettings}
           />
         </React.Fragment>
       )}

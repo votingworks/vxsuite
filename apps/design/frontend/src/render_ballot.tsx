@@ -13,14 +13,7 @@ function SvgAnyElement(props: AnyElement): JSX.Element {
   // eslint-disable-next-line react/destructuring-assignment
   switch (props.type) {
     case 'Rectangle': {
-      const { children, ...rest } = props;
-      return (
-        <SvgRectangle {...rest}>
-          {children?.map((child, index) => (
-            <SvgAnyElement key={index} {...child} />
-          ))}
-        </SvgRectangle>
-      );
+      return <SvgRectangle {...props} />;
     }
     case 'TextBox':
       return <SvgTextBox {...props} />;

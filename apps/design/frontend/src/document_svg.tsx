@@ -1,36 +1,42 @@
 import React from 'react';
-import { Color, Image, Page, Rectangle, TextBox } from './document_types';
+import {
+  ImageElement,
+  Page,
+  RectangleElement,
+  TextBoxElement,
+} from './document_types';
 
-interface SvgRectangleProps extends Omit<Rectangle, 'type' | 'children'> {
-  children?: React.ReactNode;
-}
+type SvgRectangleProps = Omit<RectangleElement, 'type'>;
 
 export function SvgRectangle({
   x,
   y,
+  width,
+  height,
+  fillColor,
+  strokeColor,
+  strokeWidth,
   borderRadius,
-  fill,
-  children,
-  ...rectProps
 }: SvgRectangleProps): JSX.Element {
-  // eslint-disable-next-line no-param-reassign
-  fill = fill ?? 'none';
+  const fill = fillColor ?? 'none';
   return (
     <svg x={x} y={y} overflow="visible">
       <rect
         x={0}
         y={0}
+        width={width}
+        height={height}
         rx={borderRadius}
         ry={borderRadius}
         fill={fill}
-        {...rectProps}
+        stroke={strokeColor}
+        strokeWidth={strokeWidth?.top} // TODO handle different widths for each side
       />
-      {children}
     </svg>
   );
 }
 
-type SvgTextBoxProps = Omit<TextBox, 'type'>;
+type SvgTextBoxProps = Omit<TextBoxElement, 'type'>;
 
 export function SvgTextBox({
   x,
@@ -42,23 +48,26 @@ export function SvgTextBox({
   ...textProps
 }: SvgTextBoxProps): JSX.Element {
   return (
-    <svg x={x} y={y} width={width} height={height}>
+    <svg x={x} y={y} width={width} height={height} overflow="visible">
       {textLines.map((textLine, index) => (
         <text
           // eslint-disable-next-line react/no-array-index-key
-          key={textLine + index}
+          key={index}
           x={0}
-          y={(index + 1) * lineHeight}
+          y={(index + 1) * lineHeight - lineHeight / 4}
           {...textProps}
         >
-          {textLine}
+          {
+            // TODO handle text span weight
+            textLine.map((textSpan) => textSpan.text).join('')
+          }
         </text>
       ))}
     </svg>
   );
 }
 
-type SvgImageProps = Omit<Image, 'type'>;
+type SvgImageProps = Omit<ImageElement, 'type'>;
 
 export function SvgImage(props: SvgImageProps): JSX.Element {
   return <image {...props} />;
@@ -69,8 +78,6 @@ interface SvgPageProps extends Omit<Page, 'children'> {
   y?: number;
   width: number;
   height: number;
-  stroke?: Color;
-  strokeWidth?: number;
   children: React.ReactNode;
 }
 
@@ -79,8 +86,6 @@ export function SvgPage({
   y,
   width,
   height,
-  stroke,
-  strokeWidth,
   children,
 }: SvgPageProps): JSX.Element {
   return (
@@ -91,13 +96,7 @@ export function SvgPage({
       height={height}
       viewBox={`0 0 ${width} ${height}`}
     >
-      <rect
-        width={width}
-        height={height}
-        stroke={stroke}
-        strokeWidth={strokeWidth}
-        fill="white"
-      />
+      <rect width={width} height={height} fill="white" />
       {children}
     </svg>
   );

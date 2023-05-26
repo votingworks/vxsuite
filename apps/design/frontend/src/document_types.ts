@@ -1,50 +1,55 @@
 export type Color = string;
+export type PixelUnit = number;
+
+export interface Sides<T> {
+  top: T;
+  bottom: T;
+  left: T;
+  right: T;
+}
 
 interface ElementBase {
   type: unknown;
-  x: number;
-  y: number;
+  x: PixelUnit;
+  y: PixelUnit;
+  width: PixelUnit;
+  height: PixelUnit;
 }
 
-export interface Shape extends ElementBase {
-  width: number;
-  height: number;
-  stroke?: Color;
-  strokeWidth?: number;
-  fill?: Color;
-}
-
-export interface Rectangle extends Shape {
+export interface RectangleElement extends ElementBase {
   type: 'Rectangle';
-  borderRadius?: number;
-  children?: AnyElement[];
+  borderRadius?: PixelUnit;
+  strokeColor?: Color;
+  strokeWidth?: Sides<PixelUnit>;
+  fillColor?: Color;
 }
 
-export interface TextBox extends ElementBase {
-  type: 'TextBox';
-  width: number;
-  height: number;
-  textLines: string[]; // TODO support spans for rich text styling
-  fontSize: number;
+export interface TextSpanElement {
+  type: 'TextSpan';
+  text: string;
   fontWeight: number;
-  lineHeight: number;
 }
 
-export interface Image extends ElementBase {
+export interface TextBoxElement extends ElementBase {
+  type: 'TextBox';
+  textLines: Array<TextSpanElement[]>;
+  fontSize: number;
+  lineHeight: PixelUnit;
+}
+
+export interface ImageElement extends ElementBase {
   type: 'Image';
-  width: number;
-  height: number;
   href: string;
 }
 
-export type AnyElement = Rectangle | TextBox | Image;
+export type AnyElement = RectangleElement | TextBoxElement | ImageElement;
 
 export interface Page {
   children: AnyElement[];
 }
 
 export interface Document {
-  width: number;
-  height: number;
+  width: PixelUnit;
+  height: PixelUnit;
   pages: Page[];
 }
