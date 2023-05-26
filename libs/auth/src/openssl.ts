@@ -1,5 +1,4 @@
 import { Buffer } from 'buffer';
-import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
 import { FileResult, fileSync } from 'tmp';
@@ -15,6 +14,7 @@ import {
   TpmKey,
   TpmKeySchema,
 } from './keys';
+import { runCommand } from './shell';
 import { OPENSSL_TPM_ENGINE_NAME, TPM_KEY_ID, TPM_KEY_PASSWORD } from './tpm';
 
 /**
@@ -45,20 +45,6 @@ AwEHoUQDQgAEHAj1wCr6aDNph19ibxPgmkbLTAje0o7XhrQIlmmgFMS06wxaP8NA
 -----END EC PRIVATE KEY-----
 `;
 
-function errorFromStderrAndStdout({
-  stderr,
-  stdout,
-}: {
-  stderr: Buffer;
-  stdout: Buffer;
-}): Error {
-  const errorMessage = [stderr, stdout]
-    .map((buffer) => buffer.toString('utf-8'))
-    .filter(Boolean)
-    .join('\n');
-  return new Error(errorMessage);
-}
-
 type OpensslParam = string | Buffer;
 
 /**
@@ -71,7 +57,7 @@ type OpensslParam = string | Buffer;
  * verification fails). The promise also rejects if cleanup of temporary files fails.
  *
  * Sample usage:
- * await openssl(['verify', '-CAfile', '/path/to/cert/authority/cert.pem', certToVerifyAsBuffer ]);
+ * await openssl(['verify', '-CAfile', '/path/to/cert/authority/cert.pem', certToVerifyAsBuffer]);
  */
 export async function openssl(params: OpensslParam[]): Promise<Buffer> {
   const processedParams: string[] = [];
@@ -86,37 +72,12 @@ export async function openssl(params: OpensslParam[]): Promise<Buffer> {
       processedParams.push(param);
     }
   }
-
-  return new Promise((resolve, reject) => {
-    const opensslProcess = spawn('openssl', processedParams);
-
-    let stdout: Buffer = Buffer.from([]);
-    opensslProcess.stdout.on('data', (data) => {
-      stdout = Buffer.concat([stdout, data]);
-    });
-
-    let stderr: Buffer = Buffer.from([]);
-    opensslProcess.stderr.on('data', (data) => {
-      stderr = Buffer.concat([stderr, data]);
-    });
-
-    opensslProcess.on('close', async (code) => {
-      let cleanupError: unknown;
-      try {
-        await Promise.all(
-          tempFileResults.map((tempFile) => tempFile.removeCallback())
-        );
-      } catch (error) {
-        cleanupError = error;
-      }
-      if (code !== 0) {
-        reject(errorFromStderrAndStdout({ stderr, stdout }));
-      } else if (cleanupError) {
-        reject(cleanupError);
-      } else {
-        resolve(stdout);
-      }
-    });
+  return runCommand(['openssl', ...processedParams], {
+    onClose: async () => {
+      await Promise.all(
+        tempFileResults.map((tempFile) => tempFile.removeCallback())
+      );
+    },
   });
 }
 
@@ -466,28 +427,7 @@ export async function createCert(input: CreateCertInput): Promise<Buffer> {
   const scriptInput = JSON.stringify(input);
   const usingTpm = input.signingPrivateKey.source === 'tpm';
   const command = usingTpm
-    ? (['sudo', scriptPath, scriptInput] as const)
-    : ([scriptPath, scriptInput] as const);
-
-  return new Promise((resolve, reject) => {
-    const process = spawn(command[0], command.slice(1));
-
-    let stdout: Buffer = Buffer.from([]);
-    process.stdout.on('data', (data) => {
-      stdout = Buffer.concat([stdout, data]);
-    });
-
-    let stderr: Buffer = Buffer.from([]);
-    process.stderr.on('data', (data) => {
-      stderr = Buffer.concat([stderr, data]);
-    });
-
-    process.on('close', (code) => {
-      if (code !== 0) {
-        reject(errorFromStderrAndStdout({ stderr, stdout }));
-      } else {
-        resolve(stdout);
-      }
-    });
-  });
+    ? ['sudo', scriptPath, scriptInput]
+    : [scriptPath, scriptInput];
+  return runCommand(command);
 }
