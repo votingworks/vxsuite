@@ -83,9 +83,6 @@ beforeEach(() => {
 
 afterEach(() => {
   mockCardReader.transmit.assertComplete();
-
-  // Remove all mock implementations
-  jest.resetAllMocks();
 });
 
 const { electionData, electionHash } =
