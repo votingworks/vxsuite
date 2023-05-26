@@ -1,10 +1,13 @@
 import { Buffer } from 'buffer';
 import { spawn } from 'child_process';
+import { Stream } from 'stream';
 import { assert } from '@votingworks/basics';
 
 interface RunCommandOptions {
   /** A function to run on child process close, e.g. for cleanup */
   onClose?: () => Promise<void>;
+  /** Data to pipe to the child process's standard input */
+  stdin?: Stream;
 }
 
 /**
@@ -15,7 +18,7 @@ interface RunCommandOptions {
  */
 export async function runCommand(
   command: string[],
-  { onClose }: RunCommandOptions = {}
+  { onClose, stdin }: RunCommandOptions = {}
 ): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     assert(command[0] !== undefined);
@@ -30,6 +33,10 @@ export async function runCommand(
     childProcess.stderr.on('data', (data) => {
       stderr = Buffer.concat([stderr, data]);
     });
+
+    if (stdin) {
+      stdin.pipe(childProcess.stdin);
+    }
 
     childProcess.on('close', async (code) => {
       if (onClose) {
