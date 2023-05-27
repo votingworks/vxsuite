@@ -93,6 +93,7 @@ exports[`renders CastBallotPage 1`] = `
       class="c2"
     >
       <button
+        aria-hidden="true"
         class="sc-ksdxAp gfVRPE"
         type="button"
       >

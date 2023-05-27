@@ -82,7 +82,9 @@ export function CastBallotPage({
           </h3>
         </Prose>
         <Done>
-          <Button onPress={hidePostVotingInstructions}>Done</Button>
+          <Button aria-hidden onPress={hidePostVotingInstructions}>
+            Done
+          </Button>
         </Done>
       </Main>
     </Screen>

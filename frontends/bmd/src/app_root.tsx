@@ -543,19 +543,11 @@ export function AppRoot({
         const { election } = newElectionDefinition;
         try {
           const genericStrings = [
-            'When voting with the text-to-speech audio, use the accessible controller to navigate your ballot.',
-            'To navigate through the contests, use the left and right buttons.',
-            'To navigate through contest choices, use the up and down buttons.',
-            'To select or unselect a contest choice as your vote, use the select button.',
-            'Press the right button to advance to the first contest.',
-            'To move to the next contest, use the right button.',
             // reviewing
-            'Review Your Votes.',
-            'To review your votes, advance through the ballot contests using the up and down buttons.',
-            'To change your vote in any contest, use the select button to navigate to that contest.',
-            'When you are finished making your ballot selections and ready to print your ballot, use the right button to print your ballot.',
-            'You may still vote in this contest.',
-            'Press the select button to change your votes for this contest.',
+            'Review Your Votes. To review your votes, advance through the ballot contests using the up and down buttons. To change your vote in any contest, use the select button to navigate to that contest. When you are finished making your ballot selections and ready to print your ballot, use the right button to print your ballot.',
+            /*
+               'You may still vote in this contest.',
+               'Press the select button to change your votes for this contest.', */
             // printing
             'Printing your official ballot.',
             "You're almost done.",
@@ -566,39 +558,38 @@ export function AppRoot({
             '2.',
             'Scan your official ballot.',
             'Need help? Ask a poll worker.',
+            // pinpad
+            '1 2 3 4 5 6 7 8 9 clear. 0 backspace.',
+            "You're almost done. Your official ballot is printing. To finish voting you need to…. 1. Verify your official ballot. 2. Scan your official ballot. Need help? Ask a poll worker.",
           ];
 
           for (let i = 0; i < genericStrings.length; i += 1) {
             await screenReader.speak(genericStrings[i], { cacheOnly: true });
           }
 
-          await screenReader.speak(
-            `Your ballot has ${pluralize(
-              'contest',
-              election.contests.length,
-              true
-            )}.`,
-            { cacheOnly: true }
-          );
-
-          // all the parties
-          await screenReader.speak(`${election.title}.`, { cacheOnly: true });
-          await screenReader.speak(`Republican ${election.title}.`, {
-            cacheOnly: true,
-          });
-          await screenReader.speak(`Democratic ${election.title}.`, {
-            cacheOnly: true,
-          });
+          // TODO: get the party list from the election definition
+          const partyList = ['Republican ', 'Democratic ', ''];
+          for (let i = 0; i < partyList.length; i += 1) {
+            await screenReader.speak(
+              `${partyList[i]}${election.title}.Your ballot has ${pluralize(
+                'contest',
+                election.contests.length,
+                true
+              )}. When voting with the text-to-speech audio, use the accessible controller to navigate your ballot. To navigate through the contests, use the left and right buttons. To navigate through contest choices, use the up and down buttons. To select or unselect a contest choice as your vote, use the select button.`,
+              { cacheOnly: true }
+            );
+          }
 
           // contests
           for (const contest of election.contests) {
             if (contest.type === 'candidate') {
-              await screenReader.speak(`${contest.section} ${contest.title}.`, {
-                cacheOnly: true,
-              });
-              await screenReader.speak(`Vote for ${contest.seats}.`, {
-                cacheOnly: true,
-              });
+              // the per-contest screen
+              await screenReader.speak(
+                `${contest.section} ${contest.title}. Vote for ${contest.seats}. To navigate through the contest choices, use the down button. To move to the next contest, use the right button.`,
+                {
+                  cacheOnly: true,
+                }
+              );
 
               for (const candidate of contest.candidates) {
                 const partiesDescription = getCandidatePartiesDescription(
@@ -618,7 +609,25 @@ export function AppRoot({
                     { cacheOnly: true }
                   );
                 }
+
+                // for the review screen
+                await screenReader.speak(
+                  `${contest.section} ${contest.title}. ${stripQuotes(
+                    candidate.name
+                  )}${
+                    partiesDescription ? `, ${partiesDescription}` : ''
+                  }. Press the select button to change your votes for this contest.`,
+                  { cacheOnly: true }
+                );
               }
+
+              // the review screen
+              await screenReader.speak(
+                `${contest.section} ${contest.title}. You may still vote in this contest. Press the select button to change your votes for this contest.`,
+                {
+                  cacheOnly: true,
+                }
+              );
             }
           }
         } finally {
