@@ -107,6 +107,7 @@ export function TallyScreen(): JSX.Element {
     const precinctsInExternalFile = getPrecinctIdsInExternalTally(t);
     return (
       <tr key={t.inputSourceName}>
+        <TD />
         <TD narrow nowrap>
           {moment(t.timestampCreated).format(TIME_FORMAT)}
         </TD>
