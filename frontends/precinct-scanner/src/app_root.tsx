@@ -675,12 +675,9 @@ export function AppRoot({
         return <ScanProcessingScreen />;
       case 'unrecoverable_error':
         return (
-          <ScanErrorScreen
-            error={scannerStatus.error}
-            isTestMode={isTestMode}
-            scannedBallotCount={scannerStatus.ballotsCounted}
-            restartRequired
-            powerConnected={computer.batteryIsCharging}
+          <SetupScannerScreen
+            batteryIsCharging={computer.batteryIsCharging}
+            scannedBallotCount={scannerStatus?.ballotsCounted}
           />
         );
       // If an election manager removes their card during calibration, we'll

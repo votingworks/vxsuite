@@ -219,7 +219,7 @@ test('show card backwards screen when card connection error occurs', async () =>
   await screen.findByText('Polls Closed');
 });
 
-test('shows internal wiring message when there is no plustek scanner, but tablet is plugged in', async () => {
+test('shows scanner restart message when there is no plustek scanner, but tablet is plugged in', async () => {
   const card = new MemoryCard();
   const storage = new MemoryStorage();
   const hardware = MemoryHardware.buildStandard();
@@ -244,8 +244,8 @@ test('shows internal wiring message when there is no plustek scanner, but tablet
       state: 'disconnected',
     });
   render(<App card={card} storage={storage} hardware={hardware} />);
-  await screen.findByRole('heading', { name: 'Internal Connection Problem' });
-  screen.getByText('Please ask a poll worker for help.');
+  await screen.findByRole('heading', { name: 'Scanner Error' });
+  screen.getByText('Ask a poll worker to unplug the power cord.');
 });
 
 test('shows power cable message when there is no plustek scanner and tablet is not plugged in', async () => {

@@ -63,34 +63,3 @@ test('render correct unreadable ballot screen', async () => {
     'There was a problem reading this ballot. Please scan again.'
   );
 });
-
-test('render correct through unrecoverable error', async () => {
-  render(
-    <ScanErrorScreen
-      error="plustek_error"
-      scannedBallotCount={42}
-      restartRequired
-      powerConnected
-      isTestMode
-    />
-  );
-  await screen.findByText('Scanner Error');
-  await screen.findByText('Ask a poll worker to unplug the power cord.');
-});
-
-test('render correct through unrecoverable error with power cord unplugged', async () => {
-  render(
-    <ScanErrorScreen
-      error="plustek_error"
-      scannedBallotCount={42}
-      restartRequired
-      powerConnected={false}
-      isTestMode
-    />
-  );
-
-  await screen.findByText('Scanner Error');
-  await screen.findByText(
-    'Plug the power cord back in to restart the scanner.'
-  );
-});
