@@ -70,7 +70,6 @@ export function ScanErrorScreen({
             Ask a poll worker if you need help.
           </Text>
         </React.Fragment>
-        )
       </CenteredLargeProse>
       <ScannedBallotCount count={scannedBallotCount} />
     </ScreenMainCenterChild>
