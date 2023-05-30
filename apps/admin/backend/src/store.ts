@@ -10,7 +10,6 @@ import {
   typedAs,
   isResult,
   assertDefined,
-  find,
   assert,
 } from '@votingworks/basics';
 import { Bindable, Client as DbClient } from '@votingworks/db';
@@ -18,14 +17,16 @@ import {
   BallotId,
   BallotPageLayout,
   BallotPageLayoutSchema,
+  BallotStyleId,
   Candidate,
-  CandidateContest,
   CastVoteRecord,
   ContestId,
   ContestOptionId,
   ContestTally,
   CVR,
   Dictionary,
+  Election,
+  ElectionDefinition,
   Id,
   Iso8601Timestamp,
   ManualTally,
@@ -35,10 +36,16 @@ import {
   Side,
   SystemSettings,
   SystemSettingsDbRow,
+  Tabulation,
 } from '@votingworks/types';
 import { join } from 'path';
 import { Buffer } from 'buffer';
 import { v4 as uuid } from 'uuid';
+import {
+  OfficialCandidateNameLookup,
+  getBallotStyleIdPartyIdLookup,
+  getOfficialCandidateNameLookup,
+} from '@votingworks/utils';
 import {
   CastVoteRecordFileEntryRecord,
   CastVoteRecordFileRecord,
@@ -52,6 +59,7 @@ import {
   ManualTallyMetadataRecord,
   ManualTallyRecord,
   ScannerBatch,
+  StoreTabulationFilter,
   WriteInAdjudicationAction,
   WriteInAdjudicationStatus,
   WriteInCandidateRecord,
@@ -80,6 +88,51 @@ function convertSqliteTimestampToIso8601(
   sqliteTimestamp: string
 ): Iso8601Timestamp {
   return new Date(sqliteTimestamp).toISOString();
+}
+
+/**
+ * Replaces the `partyIds` filter in a {@link Tabulation.Filter} with
+ * an equivalent `ballotStyleIds` filter.
+ */
+export function replacePartyIdFilter(
+  filter: Tabulation.Filter,
+  election: Election
+): StoreTabulationFilter {
+  if (!filter.partyIds) return filter;
+
+  const ballotStyleIds: BallotStyleId[] = [];
+
+  for (const ballotStyle of election.ballotStyles) {
+    if (
+      ballotStyle.partyId &&
+      filter.partyIds.includes(ballotStyle.partyId) &&
+      (!filter.ballotStyleIds || filter.ballotStyleIds.includes(ballotStyle.id))
+    ) {
+      ballotStyleIds.push(ballotStyle.id);
+    }
+  }
+
+  return {
+    ballotStyleIds,
+    precinctIds: filter.precinctIds,
+    votingMethods: filter.votingMethods,
+    scannerIds: filter.scannerIds,
+    batchIds: filter.batchIds,
+  };
+}
+
+function asQueryPlaceholders(list: unknown[]): string {
+  const questionMarks = list.map(() => '?');
+  return `(${questionMarks.join(', ')})`;
+}
+
+interface WriteInTallyRow {
+  contestId: ContestId;
+  isInvalid: boolean;
+  officialCandidateId: string | null;
+  writeInCandidateId: string | null;
+  writeInCandidateName: string | null;
+  tally: number;
 }
 
 /**
@@ -257,6 +310,16 @@ export class Store {
     ) as { currentElectionId: Id } | null;
 
     return settings?.currentElectionId ?? undefined;
+  }
+
+  /**
+   * Returns the current election definition or throws an error if it does
+   * not exist.
+   */
+  getCurrentElectionDefinitionOrThrow(): ElectionDefinition {
+    return assertDefined(
+      this.getElection(assertDefined(this.getCurrentElectionId()))
+    ).electionDefinition;
   }
 
   /**
@@ -850,6 +913,105 @@ export class Store {
     });
   }
 
+  private getTabulationFilterAsSql(
+    electionId: Id,
+    filter: StoreTabulationFilter
+  ): [whereParts: string[], params: Bindable[]] {
+    const whereParts = ['cvrs.election_id = ?'];
+    const params: Bindable[] = [electionId];
+
+    if (filter.ballotStyleIds) {
+      whereParts.push(
+        `cvrs.ballot_style_id in ${asQueryPlaceholders(filter.ballotStyleIds)}`
+      );
+      params.push(...filter.ballotStyleIds);
+    }
+
+    if (filter.precinctIds) {
+      whereParts.push(
+        `cvrs.precinct_id in ${asQueryPlaceholders(filter.precinctIds)}`
+      );
+      params.push(...filter.precinctIds);
+    }
+
+    if (filter.votingMethods) {
+      whereParts.push(
+        `cvrs.ballot_type in ${asQueryPlaceholders(filter.votingMethods)}`
+      );
+      params.push(...filter.votingMethods);
+    }
+
+    if (filter.batchIds) {
+      whereParts.push(
+        `cvrs.ballot_type in ${asQueryPlaceholders(filter.batchIds)}`
+      );
+      params.push(...filter.batchIds);
+    }
+
+    if (filter.precinctIds) {
+      whereParts.push(
+        `cvrs.ballot_type in ${asQueryPlaceholders(filter.precinctIds)}`
+      );
+      params.push(...filter.precinctIds);
+    }
+
+    return [whereParts, params];
+  }
+
+  /**
+   * Returns an iterator of cast vote records for tabulation purposes. Filters
+   * the cast vote records by specified filters.
+   */
+  *getCastVoteRecords({
+    electionId,
+    election,
+    filter,
+  }: {
+    electionId: Id;
+    election: Election;
+    filter: Tabulation.Filter;
+  }): Generator<Tabulation.CastVoteRecord> {
+    const [whereParts, params] = this.getTabulationFilterAsSql(
+      electionId,
+      replacePartyIdFilter(filter, election)
+    );
+
+    for (const row of this.client.each(
+      `
+        select
+          cvrs.ballot_style_id as ballotStyleId,
+          cvrs.precinct_id as precinctId,
+          cvrs.ballot_type as ballotType,
+          cvrs.batch_id as batchId,
+          scanner_batches.scanner_id as scannerId,
+          cvrs.sheet_number as sheetNumber,
+          cvrs.votes as votes
+        from
+          cvrs inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+        where ${whereParts.join(' and ')}
+      `,
+      ...params
+    ) as Iterable<{
+      ballotStyleId: string;
+      ballotType: string;
+      batchId: string;
+      precinctId: string;
+      scannerId: string;
+      sheetNumber: number | null;
+      votes: string;
+    }>) {
+      yield {
+        ballotStyleId: row.ballotStyleId,
+        votingMethod: row.ballotType as Tabulation.VotingMethod,
+        batchId: row.batchId,
+        scannerId: row.scannerId,
+        precinctId: row.precinctId,
+        cardType: row.sheetNumber ?? 'bmd',
+        votes: JSON.parse(row.votes),
+      };
+    }
+  }
+
   /**
    * Deletes all CVR files for an election.
    */
@@ -1085,11 +1247,14 @@ export class Store {
           write_ins.contest_id as contestId,
           write_ins.official_candidate_id as officialCandidateId,
           write_ins.write_in_candidate_id as writeInCandidateId,
+          write_in_candidates.name as writeInCandidateName,
           write_ins.is_invalid as isInvalid,
-          count(write_ins.id) as writeInCount
+          count(write_ins.id) as tally
         from write_ins
         inner join
           cvrs on write_ins.cvr_id = cvrs.id
+        left join
+          write_in_candidates on write_in_candidates.id = write_ins.write_in_candidate_id
         where ${whereParts.join(' and ')}
         group by 
           write_ins.contest_id,
@@ -1098,81 +1263,122 @@ export class Store {
           write_ins.is_invalid
       `,
       ...params
-    ) as Array<{
-      contestId: ContestId;
-      isInvalid: boolean;
-      officialCandidateId: string | null;
-      writeInCandidateId: string | null;
-      writeInCount: number;
-    }>;
+    ) as WriteInTallyRow[];
     if (rows.length === 0) {
       return [];
     }
 
-    const officialCandidates = assertDefined(
-      this.getElection(assertDefined(this.getCurrentElectionId()))
-    )
-      .electionDefinition.election.contests.filter(
-        (contest): contest is CandidateContest => contest.type === 'candidate'
-      )
-      .flatMap((contest) => {
-        return contest.candidates
-          .filter((candidate) => !candidate.isWriteIn)
-          .map((candidate) => ({ contestId: contest.id, ...candidate }));
-      });
+    const { election } = this.getCurrentElectionDefinitionOrThrow();
 
-    const writeInCandidates = this.getWriteInCandidates({
+    const officialCandidateNameLookup =
+      getOfficialCandidateNameLookup(election);
+
+    return rows.map((row) =>
+      this.formatWriteInTallyRow(row, officialCandidateNameLookup)
+    );
+  }
+
+  /**
+   * Gets write-in tallies specifically for tabulation, filtered and and
+   * grouped by cast vote record attributes.
+   */
+  *getWriteInTalliesForTabulation({
+    electionId,
+    election,
+    filter = {},
+    groupBy = {},
+  }: {
+    electionId: Id;
+    election: Election;
+    filter?: StoreTabulationFilter;
+    groupBy?: Tabulation.GroupBy;
+  }): Generator<Tabulation.GroupOf<WriteInTally>> {
+    const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
-    });
+      replacePartyIdFilter(filter, election)
+    );
 
-    return rows.map((row): WriteInSummaryEntry => {
-      if (row.officialCandidateId) {
-        return typedAs<WriteInSummaryEntryAdjudicatedOfficialCandidate>({
-          status: 'adjudicated',
-          adjudicationType: 'official-candidate',
-          contestId: row.contestId,
-          writeInCount: row.writeInCount,
-          candidateId: row.officialCandidateId,
-          candidateName: find(
-            officialCandidates,
-            (candidate) =>
-              candidate.id === row.officialCandidateId &&
-              candidate.contestId === row.contestId
-          ).name,
-        });
-      }
+    const cvrSelectParts: string[] = [];
+    const groupByParts: string[] = [];
 
-      if (row.writeInCandidateId) {
-        return typedAs<WriteInSummaryEntryAdjudicatedWriteInCandidate>({
-          status: 'adjudicated',
-          adjudicationType: 'write-in-candidate',
-          contestId: row.contestId,
-          writeInCount: row.writeInCount,
-          candidateId: row.writeInCandidateId,
-          candidateName: find(
-            writeInCandidates,
-            (candidate) =>
-              candidate.id === row.writeInCandidateId &&
-              candidate.contestId === row.contestId
-          ).name,
-        });
-      }
+    if (groupBy.groupByBallotStyle || groupBy.groupByParty) {
+      cvrSelectParts.push('cvrs.ballot_style_id as ballotStyleId');
+      groupByParts.push('cvrs.ballot_style_id');
+    }
 
-      if (row.isInvalid) {
-        return typedAs<WriteInSummaryEntryAdjudicatedInvalid>({
-          status: 'adjudicated',
-          adjudicationType: 'invalid',
-          contestId: row.contestId,
-          writeInCount: row.writeInCount,
-        });
-      }
+    if (groupBy.groupByBatch) {
+      cvrSelectParts.push('cvrs.batch_id as batchId');
+      groupByParts.push('cvrs.batch_id');
+    }
 
-      return typedAs<WriteInSummaryEntryPending>({
-        status: 'pending',
-        contestId: row.contestId,
-        writeInCount: row.writeInCount,
-      });
-    });
+    if (groupBy.groupByPrecinct) {
+      cvrSelectParts.push('cvrs.precinct_id as precinctId');
+      groupByParts.push('cvrs.precinct_id');
+    }
+
+    if (groupBy.groupByScanner) {
+      cvrSelectParts.push('cvrs.scanner_id as scannerId');
+      groupByParts.push('cvrs.scanner_id');
+    }
+
+    if (groupBy.groupByVotingMethod) {
+      cvrSelectParts.push('cvrs.ballot_type as votingMethod');
+      groupByParts.push('cvrs.ballot_type');
+    }
+
+    const officialCandidateNameLookup =
+      getOfficialCandidateNameLookup(election);
+    const ballotStylePartyLookup = getBallotStyleIdPartyIdLookup(election);
+
+    for (const row of this.client.each(
+      `
+          select
+            ${cvrSelectParts.map((line) => `${line},`).join('\n')}
+            write_ins.contest_id as contestId,
+            write_ins.official_candidate_id as officialCandidateId,
+            write_ins.write_in_candidate_id as writeInCandidateId,
+            write_in_candidates.name as writeInCandidateName,
+            write_ins.is_invalid as isInvalid,
+            count(write_ins.id) as tally
+          from write_ins
+          inner join
+            cvrs on write_ins.cvr_id = cvrs.id
+          inner join
+            scanner_batches on scanner_batches.id = cvrs.batch_id
+          left join
+            write_in_candidates on write_in_candidates.id = write_ins.write_in_candidate_id
+          where ${whereParts.join(' and ')}
+          group by 
+            ${groupByParts.map((line) => `${line},`).join('\n')}
+            write_ins.contest_id,
+            write_ins.official_candidate_id,
+            write_ins.write_in_candidate_id,
+            write_ins.is_invalid
+        `,
+      ...params
+    ) as Iterable<
+      WriteInTallyRow & Partial<Tabulation.CastVoteRecordAttributes>
+    >) {
+      const groupSpecifier: Tabulation.GroupSpecifier = groupBy
+        ? {
+            ballotStyleId: groupBy.groupByBallotStyle
+              ? ballotStylePartyLookup[assertDefined(row.ballotStyleId)]
+              : undefined,
+            partyId: groupBy.groupByParty ? row.ballotStyleId : undefined,
+            batchId: groupBy.groupByBatch ? row.batchId : undefined,
+            scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
+            precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
+            votingMethod: groupBy.groupByVotingMethod
+              ? row.votingMethod
+              : undefined,
+          }
+        : {};
+
+      yield {
+        ...groupSpecifier,
+        ...this.formatWriteInTallyRow(row, officialCandidateNameLookup),
+      };
+    }
   }
 
   /**

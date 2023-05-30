@@ -1,12 +1,68 @@
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import {
+  electionMinimalExhaustiveSampleDefinition,
+  electionMinimalExhaustiveSampleFixtures,
+} from '@votingworks/fixtures';
 import { safeParseSystemSettings } from '@votingworks/utils';
 import { find, typedAs } from '@votingworks/basics';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpNameSync } from 'tmp';
 import { ContestTally, ManualTally } from '@votingworks/types';
-import { Store } from './store';
+import { Store, replacePartyIdFilter } from './store';
 import { ElectionRecord, ManualTallyBallotType, ScannerBatch } from './types';
+
+test('replacePartyIdFilter', () => {
+  const { election } = electionMinimalExhaustiveSampleDefinition;
+
+  expect(
+    replacePartyIdFilter(
+      {
+        partyIds: ['0'],
+      },
+      election
+    )
+  ).toEqual({
+    ballotStyleIds: ['1M'],
+  });
+
+  expect(
+    replacePartyIdFilter(
+      {
+        partyIds: ['0', '1'],
+      },
+      election
+    )
+  ).toEqual({
+    ballotStyleIds: ['1M', '2F'],
+  });
+
+  // doesn't touch other filters when no party id
+  expect(
+    replacePartyIdFilter(
+      {
+        ballotStyleIds: ['1M', '2F'],
+        votingMethods: ['absentee'],
+      },
+      election
+    )
+  ).toEqual({
+    ballotStyleIds: ['1M', '2F'],
+    votingMethods: ['absentee'],
+  });
+
+  // intersects explicit ballot style ids and implied ballot style ids
+  expect(
+    replacePartyIdFilter(
+      {
+        partyIds: ['0'],
+        ballotStyleIds: ['1M', '2F'],
+      },
+      election
+    )
+  ).toEqual({
+    ballotStyleIds: ['1M'],
+  });
+});
 
 test('create a file store', async () => {
   const tmpDir = tmpNameSync();
