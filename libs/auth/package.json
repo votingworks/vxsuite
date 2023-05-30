@@ -37,6 +37,7 @@
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "base64-js": "^1.3.1",
+    "combined-stream": "^1.0.8",
     "js-sha256": "^0.9.0",
     "luxon": "^3.0.0",
     "node-fetch": "^2.6.0",
@@ -47,6 +48,7 @@
     "zod": "3.14.4"
   },
   "devDependencies": {
+    "@types/combined-stream": "^1.0.3",
     "@types/jest": "^27.0.3",
     "@types/luxon": "^3.0.0",
     "@types/node-fetch": "^2.6.0",

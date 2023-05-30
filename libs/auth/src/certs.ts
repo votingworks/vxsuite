@@ -182,14 +182,14 @@ export async function parseCert(cert: Buffer): Promise<CustomCertFields> {
     }
   }
 
-  const customCertFields = CustomCertFieldsSchema.parse({
+  const certDetails = CustomCertFieldsSchema.parse({
     component: certFields[VX_CUSTOM_CERT_FIELD.COMPONENT],
     jurisdiction: certFields[VX_CUSTOM_CERT_FIELD.JURISDICTION],
     cardType: certFields[VX_CUSTOM_CERT_FIELD.CARD_TYPE],
     electionHash: certFields[VX_CUSTOM_CERT_FIELD.ELECTION_HASH],
   });
 
-  return customCertFields;
+  return certDetails;
 }
 
 /**

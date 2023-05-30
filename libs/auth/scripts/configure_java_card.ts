@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
 import { existsSync } from 'fs';
+import { extractErrorMessage } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 
 import { CommandApdu, constructTlv } from '../src/apdu';
@@ -19,10 +20,11 @@ import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
 } from '../src/piv';
-import { errorContains, runCommand, waitForReadyCardStatus } from './utils';
+import { runCommand } from '../src/shell';
+import { waitForReadyCardStatus } from './utils';
 
 const APPLET_PATH = 'applets/OpenFIPS201-v1.10.2-with-vx-mods.cap';
-const GLOBAL_PLATFORM_PATH = 'scripts/gp.jar';
+const GLOBAL_PLATFORM_JAR_FILE_PATH = 'scripts/gp.jar';
 
 /**
  * CHANGE REFERENCE DATA ADMIN is an OpenFIPS201-specific extension of the PIV-standard CHANGE
@@ -76,30 +78,30 @@ function sectionLog(symbol: string, message: string): void {
 }
 
 function globalPlatformCommand(command: string[]): string[] {
-  return ['java', '-jar', GLOBAL_PLATFORM_PATH, ...command];
+  return ['java', '-jar', GLOBAL_PLATFORM_JAR_FILE_PATH, ...command];
 }
 
 function checkForScriptDependencies(): void {
-  if (!existsSync(GLOBAL_PLATFORM_PATH)) {
+  if (!existsSync(GLOBAL_PLATFORM_JAR_FILE_PATH)) {
     throw new Error(
       'Missing script dependencies; install using `make install-script-dependencies`'
     );
   }
 }
 
-function installApplet(): void {
+async function installApplet(): Promise<void> {
   sectionLog('🧹', 'Uninstalling applet if already installed...');
   try {
-    runCommand(globalPlatformCommand(['--uninstall', APPLET_PATH]));
+    await runCommand(globalPlatformCommand(['--uninstall', APPLET_PATH]));
   } catch (error) {
     // Don't err if the applet was never installed to begin with
-    if (!errorContains(error, 'is not present on card!')) {
+    if (!extractErrorMessage(error).includes('is not present on card!')) {
       throw error;
     }
   }
 
   sectionLog('💿', 'Installing applet...');
-  runCommand(globalPlatformCommand(['--install', APPLET_PATH]));
+  await runCommand(globalPlatformCommand(['--install', APPLET_PATH]));
 }
 
 function configureKeySlotCommandApdu(
@@ -163,7 +165,7 @@ function configureDataObjectSlotCommandApdu(objectId: Buffer): CommandApdu {
   });
 }
 
-function runAppletConfigurationCommands(): void {
+async function runAppletConfigurationCommands(): Promise<void> {
   sectionLog('🔧', 'Running applet configuration commands...');
 
   const apdus = [
@@ -228,8 +230,10 @@ function runAppletConfigurationCommands(): void {
   console.log(
     'Sending the following APDUs over a GlobalPlatform Secure Channel:'
   );
-  for (const apduString of apduStrings) console.log(`> ${apduString}`);
-  const output = runCommand(
+  for (const apduString of apduStrings) {
+    console.log(`> ${apduString}`);
+  }
+  const output = await runCommand(
     // -d --> Output command and response APDUs
     // -c <applet-id> + --mode enc + -s <apdu> --> Use a GlobalPlatform Secure Channel
     globalPlatformCommand([
@@ -242,6 +246,7 @@ function runAppletConfigurationCommands(): void {
     ])
   );
   const apduLines = output
+    .toString('utf-8')
     .split('\n')
     .filter((line) => line.startsWith('A>>') || line.startsWith('A<<'));
   const successCount = apduLines.filter(
@@ -273,11 +278,11 @@ async function createAndStoreCardVxCert(): Promise<void> {
 export async function main(): Promise<void> {
   try {
     checkForScriptDependencies();
-    installApplet();
-    runAppletConfigurationCommands();
+    await installApplet();
+    await runAppletConfigurationCommands();
     await createAndStoreCardVxCert();
   } catch (error) {
-    console.error(error instanceof Error ? `❌ ${error.message}` : error);
+    console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
   }
   sectionLog('✅', 'Done!');

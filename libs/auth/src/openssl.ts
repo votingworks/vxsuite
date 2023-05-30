@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
-import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
+import { Stream } from 'stream';
 import { FileResult, fileSync } from 'tmp';
 import { z } from 'zod';
 import { throwIllegalValue } from '@votingworks/basics';
@@ -15,6 +15,7 @@ import {
   TpmKey,
   TpmKeySchema,
 } from './keys';
+import { runCommand } from './shell';
 import { OPENSSL_TPM_ENGINE_NAME, TPM_KEY_ID, TPM_KEY_PASSWORD } from './tpm';
 
 /**
@@ -45,20 +46,6 @@ AwEHoUQDQgAEHAj1wCr6aDNph19ibxPgmkbLTAje0o7XhrQIlmmgFMS06wxaP8NA
 -----END EC PRIVATE KEY-----
 `;
 
-function errorFromStderrAndStdout({
-  stderr,
-  stdout,
-}: {
-  stderr: Buffer;
-  stdout: Buffer;
-}): Error {
-  const errorMessage = [stderr, stdout]
-    .map((buffer) => buffer.toString('utf-8'))
-    .filter(Boolean)
-    .join('\n');
-  return new Error(errorMessage);
-}
-
 type OpensslParam = string | Buffer;
 
 /**
@@ -71,9 +58,12 @@ type OpensslParam = string | Buffer;
  * verification fails). The promise also rejects if cleanup of temporary files fails.
  *
  * Sample usage:
- * await openssl(['verify', '-CAfile', '/path/to/cert/authority/cert.pem', certToVerifyAsBuffer ]);
+ * await openssl(['verify', '-CAfile', '/path/to/cert/authority/cert.pem', certToVerifyAsBuffer]);
  */
-export async function openssl(params: OpensslParam[]): Promise<Buffer> {
+export async function openssl(
+  params: OpensslParam[],
+  { stdin }: { stdin?: Stream } = {}
+): Promise<Buffer> {
   const processedParams: string[] = [];
   const tempFileResults: FileResult[] = [];
   for (const param of params) {
@@ -87,37 +77,15 @@ export async function openssl(params: OpensslParam[]): Promise<Buffer> {
     }
   }
 
-  return new Promise((resolve, reject) => {
-    const opensslProcess = spawn('openssl', processedParams);
-
-    let stdout: Buffer = Buffer.from([]);
-    opensslProcess.stdout.on('data', (data) => {
-      stdout = Buffer.concat([stdout, data]);
-    });
-
-    let stderr: Buffer = Buffer.from([]);
-    opensslProcess.stderr.on('data', (data) => {
-      stderr = Buffer.concat([stderr, data]);
-    });
-
-    opensslProcess.on('close', async (code) => {
-      let cleanupError: unknown;
-      try {
-        await Promise.all(
-          tempFileResults.map((tempFile) => tempFile.removeCallback())
-        );
-      } catch (error) {
-        cleanupError = error;
-      }
-      if (code !== 0) {
-        reject(errorFromStderrAndStdout({ stderr, stdout }));
-      } else if (cleanupError) {
-        reject(cleanupError);
-      } else {
-        resolve(stdout);
-      }
-    });
-  });
+  let stdout: Buffer;
+  try {
+    stdout = await runCommand(['openssl', ...processedParams], { stdin });
+  } finally {
+    await Promise.all(
+      tempFileResults.map((tempFile) => tempFile.removeCallback())
+    );
+  }
+  return stdout;
 }
 
 /**
@@ -208,48 +176,23 @@ export async function verifySignature({
   messageSignature,
   publicKey,
 }: {
-  message: FilePathOrBuffer;
+  message: FilePathOrBuffer | Stream;
   messageSignature: FilePathOrBuffer;
   publicKey: FilePathOrBuffer;
 }): Promise<void> {
-  await openssl([
+  const params = [
     'dgst',
     '-sha256',
     '-verify',
     publicKey,
     '-signature',
     messageSignature,
-    message,
-  ]);
-}
-
-/**
- * Signs a message using a private key (in PEM format if using a file key)
- */
-export async function signMessageUsingPrivateKey({
-  message,
-  privateKey,
-}: {
-  message: FilePathOrBuffer;
-  privateKey: FileKey | TpmKey;
-}): Promise<Buffer> {
-  const signParams: OpensslParam[] = (() => {
-    switch (privateKey.source) {
-      case 'file': {
-        return ['-sign', privateKey.path];
-      }
-      /* istanbul ignore next */
-      case 'tpm': {
-        // TODO: Handle signing with the TPM key
-        throw new Error('Not yet implemented');
-      }
-      /* istanbul ignore next: Compile-time check for completeness */
-      default: {
-        throwIllegalValue(privateKey, 'source');
-      }
-    }
-  })();
-  return await openssl(['dgst', '-sha256', ...signParams, message]);
+  ];
+  if (typeof message === 'string' || Buffer.isBuffer(message)) {
+    await openssl([...params, message]);
+    return;
+  }
+  await openssl(params, { stdin: message });
 }
 
 //
@@ -455,39 +398,127 @@ export async function createCertHelper({
  *
  * Uses a slightly roundabout control flow for permissions purposes:
  *
- * createCert() --> ../src/create-cert --> createCertHelper()
+ * createCert() --> ../src/intermediate-scripts/create-cert --> createCertHelper()
  *
  * When using TPM keys in production, we need sudo access. Creating the intermediate create-cert
  * script allows us to grant password-less sudo access to the relevant system users for just that
  * operation, instead of having to grant password-less sudo access more globally.
  */
 export async function createCert(input: CreateCertInput): Promise<Buffer> {
-  const scriptPath = path.join(__dirname, '../src/create-cert');
+  const scriptPath = path.join(
+    __dirname,
+    '../src/intermediate-scripts/create-cert'
+  );
   const scriptInput = JSON.stringify(input);
   const usingTpm = input.signingPrivateKey.source === 'tpm';
   const command = usingTpm
-    ? (['sudo', scriptPath, scriptInput] as const)
-    : ([scriptPath, scriptInput] as const);
+    ? ['sudo', scriptPath, scriptInput]
+    : [scriptPath, scriptInput];
+  return runCommand(command);
+}
 
-  return new Promise((resolve, reject) => {
-    const process = spawn(command[0], command.slice(1));
+//
+// Message signing functions
+//
 
-    let stdout: Buffer = Buffer.from([]);
-    process.stdout.on('data', (data) => {
-      stdout = Buffer.concat([stdout, data]);
-    });
+/**
+ * The input to signMessage. File keys should be in PEM format.
+ */
+export interface SignMessageInput {
+  /**
+   * We use streaming APIs to process the message since the message could be large and infeasible
+   * to store in memory (i.e. in a Buffer), e.g. the message might include the contents of a
+   * multi-GB zip file.
+   *
+   * A seeming alternative would be to require a file path since the openssl command streams under
+   * the hood, but many of our messages will include the contents of a file preceded by a custom
+   * prefix, so there is no file path to provide (unless a temporary file is created, which too
+   * would have to be done with streaming APIs).
+   */
+  message: Stream;
+  signingPrivateKey: FileKey | TpmKey;
+}
 
-    let stderr: Buffer = Buffer.from([]);
-    process.stderr.on('data', (data) => {
-      stderr = Buffer.concat([stderr, data]);
-    });
+/**
+ * The input to signMessage, excluding the message
+ */
+export type SignMessageInputExcludingMessage = Omit<
+  SignMessageInput,
+  'message'
+>;
 
-    process.on('close', (code) => {
-      if (code !== 0) {
-        reject(errorFromStderrAndStdout({ stderr, stdout }));
-      } else {
-        resolve(stdout);
-      }
-    });
+const SignMessageInputExcludingMessageSchema: z.ZodSchema<SignMessageInputExcludingMessage> =
+  z.object({
+    signingPrivateKey: z.union([FileKeySchema, TpmKeySchema]),
   });
+
+/**
+ * Parses a JSON string as a SignMessageInputExcludingMessage, throwing an error if parsing fails
+ */
+export function parseSignMessageInputExcludingMessage(
+  value: string
+): SignMessageInputExcludingMessage {
+  return unsafeParse(SignMessageInputExcludingMessageSchema, JSON.parse(value));
+}
+
+/**
+ * A helper for signMessage. Digitally signs data from the standard input using the specified
+ * private key.
+ */
+export async function signMessageHelper({
+  signingPrivateKey,
+}: SignMessageInputExcludingMessage): Promise<Buffer> {
+  const signParams: OpensslParam[] = (() => {
+    switch (signingPrivateKey.source) {
+      case 'file': {
+        return ['-sign', signingPrivateKey.path];
+      }
+      case 'tpm': {
+        return [
+          '-sign',
+          TPM_KEY_ID,
+          '-keyform',
+          'engine',
+          '-engine',
+          OPENSSL_TPM_ENGINE_NAME,
+          '-passin',
+          `pass:${TPM_KEY_PASSWORD}`,
+        ];
+      }
+      /* istanbul ignore next: Compile-time check for completeness */
+      default: {
+        throwIllegalValue(signingPrivateKey, 'source');
+      }
+    }
+  })();
+  return await openssl(['dgst', '-sha256', ...signParams], {
+    stdin: process.stdin,
+  });
+}
+
+/**
+ * Digitally signs a message using the specified private key.
+ *
+ * Uses a slightly roundabout control flow for permissions purposes:
+ *
+ * signMessage() --> ../src/intermediate-scripts/sign-message --> signMessageHelper()
+ *
+ * When using TPM keys in production, we need sudo access. Creating the intermediate sign-message
+ * script allows us to grant password-less sudo access to the relevant system users for just that
+ * operation, instead of having to grant password-less sudo access more globally.
+ */
+export async function signMessage({
+  message,
+  ...inputExcludingMessage
+}: SignMessageInput): Promise<Buffer> {
+  const scriptPath = path.join(
+    __dirname,
+    '../src/intermediate-scripts/sign-message'
+  );
+  const scriptInput = JSON.stringify(inputExcludingMessage);
+  const usingTpm = inputExcludingMessage.signingPrivateKey.source === 'tpm';
+  const command = usingTpm
+    ? ['sudo', scriptPath, scriptInput]
+    : [scriptPath, scriptInput];
+  return runCommand(command, { stdin: message });
 }

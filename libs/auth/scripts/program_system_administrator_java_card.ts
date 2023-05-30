@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { assert, extractErrorMessage } from '@votingworks/basics';
 import { generatePin, hyphenatePin } from '@votingworks/utils';
 
 import { ResponseApduError } from '../src/apdu';
@@ -39,9 +39,8 @@ async function programSystemAdministratorJavaCard(): Promise<string> {
     });
   } catch (error) {
     if (error instanceof ResponseApduError) {
-      const errorMessage = error instanceof Error ? error.message : '';
       throw new Error(
-        `${errorMessage}\n${initialJavaCardConfigurationScriptReminder}`
+        `${error.message}\n${initialJavaCardConfigurationScriptReminder}`
       );
     }
     throw error;
@@ -61,7 +60,7 @@ export async function main(): Promise<void> {
   try {
     pin = await programSystemAdministratorJavaCard();
   } catch (error) {
-    console.error(error instanceof Error ? `❌ ${error.message}` : error);
+    console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
   }
   console.log(`✅ Done! Card PIN is ${hyphenatePin(pin)}.`);

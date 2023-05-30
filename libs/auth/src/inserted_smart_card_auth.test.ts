@@ -68,9 +68,6 @@ beforeEach(() => {
 
 afterEach(() => {
   mockCardAssertComplete(mockCard);
-
-  // Remove all mock implementations
-  jest.resetAllMocks();
 });
 
 const jurisdiction = TEST_JURISDICTION;

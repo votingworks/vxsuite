@@ -2,7 +2,12 @@ import { Buffer } from 'buffer';
 import * as fs from 'fs';
 import { sha256 } from 'js-sha256';
 import yargs from 'yargs/yargs';
-import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  extractErrorMessage,
+  Optional,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { safeParseElection } from '@votingworks/types';
 
 import { DEV_JURISDICTION } from '../src/jurisdictions';
@@ -212,7 +217,7 @@ export async function main(): Promise<void> {
     const mockCardInput = await parseCommandLineArgs();
     mockCardWrapper(mockCardInput);
   } catch (error) {
-    console.error(error instanceof Error ? `❌ ${error.message}` : error);
+    console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
   }
   process.exit(0);

@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer';
 import { spawn } from 'child_process';
 import fs from 'fs/promises';
+import { Writable } from 'stream';
 import { fileSync } from 'tmp';
 import {
   fakeChildProcess as newMockChildProcess,
@@ -8,6 +9,7 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 
+import { createReadStreamFromBuffer } from '../test/utils';
 import {
   createCert,
   createCertGivenCertSigningRequest,
@@ -16,6 +18,11 @@ import {
   createCertSigningRequest,
   openssl,
   parseCreateCertInput,
+  parseSignMessageInputExcludingMessage,
+  signMessage,
+  signMessageHelper,
+  SignMessageInput,
+  SignMessageInputExcludingMessage,
 } from './openssl';
 import { OPENSSL_TPM_ENGINE_NAME, TPM_KEY_ID, TPM_KEY_PASSWORD } from './tpm';
 
@@ -42,11 +49,8 @@ beforeEach(() => {
     };
   });
   jest.spyOn(fs, 'writeFile').mockResolvedValue();
-});
 
-afterEach(() => {
-  // Remove all mock implementations
-  jest.resetAllMocks();
+  jest.spyOn(process.stdin, 'pipe').mockImplementation(() => new Writable());
 });
 
 const fileBuffers = [
@@ -178,6 +182,10 @@ test('openssl - provides both stderr and stdout on error', async () => {
     'Uh oh!\nHey! How is it going?'
   );
 });
+
+//
+// Cert creation functions
+//
 
 test.each<CreateCertInput>([
   {
@@ -493,37 +501,146 @@ test.each<{
     expect(spawn).toHaveBeenCalledTimes(1);
     if (isSudoExpected) {
       expect(spawn).toHaveBeenNthCalledWith(1, 'sudo', [
-        expect.stringContaining('/src/create-cert'),
+        expect.stringContaining('/src/intermediate-scripts/create-cert'),
         expect.any(String),
       ]);
     } else {
       expect(spawn).toHaveBeenNthCalledWith(
         1,
-        expect.stringContaining('/src/create-cert'),
+        expect.stringContaining('/src/intermediate-scripts/create-cert'),
         [expect.any(String)]
       );
     }
   }
 );
 
-test('createCert - process exits with an error code', async () => {
-  setTimeout(() => {
-    errorChunks.forEach((errorChunk) => {
-      mockChildProcess.stderr.emit('data', errorChunk);
+//
+// Message signing functions
+//
+
+test.each<SignMessageInputExcludingMessage>([
+  { signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' } },
+  { signingPrivateKey: { source: 'tpm' } },
+])(
+  'parseSignMessageInputExcludingMessage success',
+  (signMessageInputExcludingMessage) => {
+    expect(
+      parseSignMessageInputExcludingMessage(
+        JSON.stringify(signMessageInputExcludingMessage)
+      )
+    ).toEqual(signMessageInputExcludingMessage);
+  }
+);
+
+test.each<string>([
+  '',
+  JSON.stringify({}),
+  JSON.stringify({ signingPrivateKey: { source: 'file', oops: 'oops' } }),
+])(
+  'parseSignMessageInputExcludingMessage error',
+  (signMessageInputExcludingMessage) => {
+    expect(() =>
+      parseSignMessageInputExcludingMessage(signMessageInputExcludingMessage)
+    ).toThrow();
+  }
+);
+
+test.each<{
+  description: string;
+  signingPrivateKey: SignMessageInput['signingPrivateKey'];
+  expectedOpensslSignatureRequestParams: string[];
+}>([
+  {
+    description: 'signing with private key file',
+    signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' },
+    expectedOpensslSignatureRequestParams: [
+      'dgst',
+      '-sha256',
+      '-sign',
+      '/path/to/private-key.pem',
+    ],
+  },
+  {
+    description: 'signing with TPM private key',
+    signingPrivateKey: { source: 'tpm' },
+    expectedOpensslSignatureRequestParams: [
+      'dgst',
+      '-sha256',
+      '-sign',
+      TPM_KEY_ID,
+      '-keyform',
+      'engine',
+      '-engine',
+      OPENSSL_TPM_ENGINE_NAME,
+      '-passin',
+      `pass:${TPM_KEY_PASSWORD}`,
+    ],
+  },
+])(
+  'signMessageHelper - $description',
+  async ({ signingPrivateKey, expectedOpensslSignatureRequestParams }) => {
+    setTimeout(() => {
+      mockChildProcess.emit('close', successExitCode);
     });
-    mockChildProcess.emit('close', errorExitCode);
+
+    await signMessageHelper({ signingPrivateKey });
+
+    expect(spawn).toHaveBeenCalledTimes(1);
+    expect(spawn).toHaveBeenNthCalledWith(
+      1,
+      'openssl',
+      expectedOpensslSignatureRequestParams
+    );
+    expect(process.stdin.pipe).toHaveBeenCalledTimes(1);
+    expect(process.stdin.pipe).toHaveBeenNthCalledWith(
+      1,
+      mockChildProcess.stdin
+    );
+  }
+);
+
+test.each<{
+  signingPrivateKey: SignMessageInput['signingPrivateKey'];
+  isSudoExpected: boolean;
+}>([
+  {
+    signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' },
+    isSudoExpected: false,
+  },
+  {
+    signingPrivateKey: { source: 'tpm' },
+    isSudoExpected: true,
+  },
+])('signMessage', async ({ signingPrivateKey, isSudoExpected }) => {
+  setTimeout(() => {
+    responseChunks.forEach((responseChunk) => {
+      mockChildProcess.stdout.emit('data', responseChunk);
+    });
+    mockChildProcess.emit('close', successExitCode);
   });
 
-  await expect(
-    createCert({
-      certKeyInput: {
-        type: 'public',
-        key: { source: 'inline', content: 'content' },
-      },
-      certSubject: '//',
-      expiryInDays: 365,
-      signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
-      signingPrivateKey: { source: 'tpm' },
-    })
-  ).rejects.toThrow('Uh oh!');
+  const message = createReadStreamFromBuffer(Buffer.from('abcd', 'utf-8'));
+  jest.spyOn(message, 'pipe');
+
+  const messageSignature = await signMessage({
+    message,
+    signingPrivateKey,
+  });
+  expect(messageSignature.toString('utf-8')).toEqual('Hey! How is it going?');
+
+  expect(spawn).toHaveBeenCalledTimes(1);
+  if (isSudoExpected) {
+    expect(spawn).toHaveBeenNthCalledWith(1, 'sudo', [
+      expect.stringContaining('/src/intermediate-scripts/sign-message'),
+      expect.any(String),
+    ]);
+  } else {
+    expect(spawn).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining('/src/intermediate-scripts/sign-message'),
+      [expect.any(String)]
+    );
+  }
+  expect(message.pipe).toHaveBeenCalledTimes(1);
+  expect(message.pipe).toHaveBeenNthCalledWith(1, mockChildProcess.stdin);
 });

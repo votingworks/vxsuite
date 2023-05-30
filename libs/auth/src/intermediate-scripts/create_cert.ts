@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer';
+import { extractErrorMessage } from '@votingworks/basics';
 
-import { createCertHelper, parseCreateCertInput } from './openssl';
+import { createCertHelper, parseCreateCertInput } from '../openssl';
 
 /**
  * An intermediate component of createCert in ./openssl.ts, needed for permissions purposes. See
@@ -11,9 +12,7 @@ export async function main(): Promise<void> {
   try {
     cert = await createCertHelper(parseCreateCertInput(process.argv[2] ?? ''));
   } catch (error) {
-    process.stderr.write(
-      error instanceof Error ? error.message : String(error)
-    );
+    process.stderr.write(extractErrorMessage(error));
     process.exit(1);
   }
   process.stdout.write(cert);
