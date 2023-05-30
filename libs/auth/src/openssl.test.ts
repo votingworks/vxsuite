@@ -580,7 +580,6 @@ test.each<{
   'signMessageHelper - $description',
   async ({ signingPrivateKey, expectedOpensslSignatureRequestParams }) => {
     setTimeout(() => {
-      // process.stdin.destroy();
       mockChildProcess.emit('close', successExitCode);
     });
 
