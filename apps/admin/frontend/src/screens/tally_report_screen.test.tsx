@@ -35,7 +35,7 @@ afterAll(() => {
 });
 
 test('mark official results button disabled when no cast vote record files', async () => {
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInTalliesAdjudicated([]);
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   renderInAppContext(<TallyReportScreen />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
@@ -56,7 +56,7 @@ test('mark official results button disabled when no cast vote record files', asy
 });
 
 test('when already official results', async () => {
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInTalliesAdjudicated([]);
   apiMock.expectGetCastVoteRecordFileMode('official');
   renderInAppContext(<TallyReportScreen />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
@@ -80,7 +80,7 @@ test('when already official results', async () => {
 });
 
 test('marking results as official', async () => {
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInTalliesAdjudicated([]);
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectMarkResultsOfficial();
   renderInAppContext(<TallyReportScreen />, {
@@ -107,7 +107,7 @@ test('marking results as official', async () => {
 });
 
 test('shows unofficial when unofficial', async () => {
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInTalliesAdjudicated([]);
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectMarkResultsOfficial();
   renderInAppContext(<TallyReportScreen />, {
@@ -132,7 +132,7 @@ test('shows unofficial when unofficial', async () => {
 });
 
 test('mark official results button not disabled when in test mode', async () => {
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInTalliesAdjudicated([]);
   apiMock.expectGetCastVoteRecordFileMode('test');
   renderInAppContext(<TallyReportScreen />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,

@@ -223,15 +223,15 @@ export const getWriteIns = {
   },
 } as const;
 
-type GetWriteInSummaryInput = QueryInput<'getWriteInSummary'>;
-export const getWriteInSummary = {
-  queryKey(input?: GetWriteInSummaryInput): QueryKey {
-    return input ? ['getWriteInSummary', input] : ['getWriteInSummary'];
+type GetWriteInTalliesInput = QueryInput<'getWriteInTallies'>;
+export const getWriteInTallies = {
+  queryKey(input?: GetWriteInTalliesInput): QueryKey {
+    return input ? ['getWriteInTallies', input] : ['getWriteInTallies'];
   },
-  useQuery(input?: GetWriteInSummaryInput) {
+  useQuery(input?: GetWriteInTalliesInput) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(input), () =>
-      apiClient.getWriteInSummary(input)
+      apiClient.getWriteInTallies(input)
     );
   },
 } as const;
@@ -348,7 +348,7 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
 function invalidateWriteInQueries(queryClient: QueryClient) {
   return Promise.all([
     queryClient.invalidateQueries(getWriteIns.queryKey()),
-    queryClient.invalidateQueries(getWriteInSummary.queryKey()),
+    queryClient.invalidateQueries(getWriteInTallies.queryKey()),
     queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
   ]);
 }

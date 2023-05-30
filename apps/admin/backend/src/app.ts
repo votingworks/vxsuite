@@ -51,7 +51,7 @@ import {
   WriteInCandidateRecord,
   WriteInDetailView,
   WriteInRecord,
-  WriteInSummaryEntry,
+  WriteInTally,
 } from './types';
 import { Workspace } from './util/workspace';
 import {
@@ -453,13 +453,13 @@ function buildApi({
 
     // frontend only using with status "adjudicated". this could be a more
     // targeted query if the other status filters are determined unnecessary
-    getWriteInSummary(
+    getWriteInTallies(
       input: {
         contestId?: ContestId;
         status?: WriteInAdjudicationStatus;
       } = {}
-    ): WriteInSummaryEntry[] {
-      return store.getWriteInAdjudicationSummary({
+    ): WriteInTally[] {
+      return store.getWriteInTallies({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
       });

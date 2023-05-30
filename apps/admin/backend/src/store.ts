@@ -60,11 +60,11 @@ import {
   WriteInRecordAdjudicatedOfficialCandidate,
   WriteInRecordAdjudicatedWriteInCandidate,
   WriteInRecordPending,
-  WriteInSummaryEntry,
-  WriteInSummaryEntryAdjudicatedInvalid,
-  WriteInSummaryEntryAdjudicatedOfficialCandidate,
-  WriteInSummaryEntryAdjudicatedWriteInCandidate,
-  WriteInSummaryEntryPending,
+  WriteInTally,
+  WriteInAdjudicatedInvalidTally,
+  WriteInAdjudicatedOfficialCandidateTally,
+  WriteInAdjudicatedWriteInCandidateTally,
+  WriteInPendingTally,
 } from './types';
 import {
   areCastVoteRecordMetadataEqual,
@@ -1001,10 +1001,56 @@ export class Store {
     );
   }
 
+  formatWriteInTallyRow(
+    row: WriteInTallyRow,
+    officialCandidateNameLookup: OfficialCandidateNameLookup
+  ): WriteInTally {
+    if (row.officialCandidateId) {
+      return typedAs<WriteInAdjudicatedOfficialCandidateTally>({
+        status: 'adjudicated',
+        adjudicationType: 'official-candidate',
+        contestId: row.contestId,
+        tally: row.tally,
+        candidateId: row.officialCandidateId,
+        candidateName: officialCandidateNameLookup.get(
+          row.contestId,
+          row.officialCandidateId
+        ),
+      });
+    }
+
+    if (row.writeInCandidateId) {
+      assert(row.writeInCandidateName !== null);
+      return typedAs<WriteInAdjudicatedWriteInCandidateTally>({
+        status: 'adjudicated',
+        adjudicationType: 'write-in-candidate',
+        contestId: row.contestId,
+        tally: row.tally,
+        candidateId: row.writeInCandidateId,
+        candidateName: row.writeInCandidateName,
+      });
+    }
+
+    if (row.isInvalid) {
+      return typedAs<WriteInAdjudicatedInvalidTally>({
+        status: 'adjudicated',
+        adjudicationType: 'invalid',
+        contestId: row.contestId,
+        tally: row.tally,
+      });
+    }
+
+    return typedAs<WriteInPendingTally>({
+      status: 'pending',
+      contestId: row.contestId,
+      tally: row.tally,
+    });
+  }
+
   /**
-   * Gets a summary of the write-in adjudication status.
+   * Gets write-in adjudication tallies.
    */
-  getWriteInAdjudicationSummary({
+  getWriteInTallies({
     electionId,
     contestId,
     status,
@@ -1012,7 +1058,7 @@ export class Store {
     electionId: Id;
     contestId?: ContestId;
     status?: WriteInAdjudicationStatus;
-  }): WriteInSummaryEntry[] {
+  }): WriteInTally[] {
     const whereParts: string[] = ['cvrs.election_id = ?'];
     const params: Bindable[] = [electionId];
 

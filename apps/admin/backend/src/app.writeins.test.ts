@@ -11,11 +11,11 @@ import { Rect } from '@votingworks/types';
 import { buildTestEnvironment, configureMachine } from '../test/app';
 import {
   WriteInDetailView,
-  WriteInSummaryEntryAdjudicated,
-  WriteInSummaryEntryAdjudicatedInvalid,
-  WriteInSummaryEntryAdjudicatedOfficialCandidate,
-  WriteInSummaryEntryAdjudicatedWriteInCandidate,
-  WriteInSummaryEntryPending,
+  WriteInAdjudicatedTally,
+  WriteInAdjudicatedInvalidTally,
+  WriteInAdjudicatedOfficialCandidateTally,
+  WriteInAdjudicatedWriteInCandidateTally,
+  WriteInPendingTally,
 } from './types';
 
 jest.setTimeout(30_000);
@@ -71,7 +71,7 @@ test('getWriteIns', async () => {
   ).toHaveLength(2);
 });
 
-test('getWriteInSummary', async () => {
+test('getWriteInTallies', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition, castVoteRecordReport } =
     electionGridLayoutNewHampshireAmherstFixtures;
@@ -87,19 +87,19 @@ test('getWriteInSummary', async () => {
     (contest) => contest.type === 'candidate' && contest.allowWriteIns
   );
 
-  const allWriteInSummaries = await apiClient.getWriteInSummary();
+  const allWriteInSummaries = await apiClient.getWriteInTallies();
   expect(allWriteInSummaries).toHaveLength(contestsWithWriteIns.length);
   assert(allWriteInSummaries.every((summary) => summary.status === 'pending'));
 
-  expect(await apiClient.getWriteInSummary({ status: 'pending' })).toHaveLength(
+  expect(await apiClient.getWriteInTallies({ status: 'pending' })).toHaveLength(
     contestsWithWriteIns.length
   );
   expect(
-    await apiClient.getWriteInSummary({ status: 'adjudicated' })
+    await apiClient.getWriteInTallies({ status: 'adjudicated' })
   ).toHaveLength(0);
 
   expect(
-    await apiClient.getWriteInSummary({
+    await apiClient.getWriteInTallies({
       contestId: 'Sheriff-4243fe0b',
     })
   ).toHaveLength(1);
@@ -144,20 +144,20 @@ test('e2e write-in adjudication', async () => {
     candidateId: officialCandidateId,
     status: 'adjudicated',
   });
-  expect(await apiClient.getWriteInSummary({ contestId })).toMatchObject(
+  expect(await apiClient.getWriteInTallies({ contestId })).toMatchObject(
     expect.arrayContaining([
-      typedAs<WriteInSummaryEntryAdjudicatedOfficialCandidate>({
+      typedAs<WriteInAdjudicatedOfficialCandidateTally>({
         contestId,
         adjudicationType: 'official-candidate',
         candidateId: officialCandidateId,
         candidateName: 'Edward Randolph',
         status: 'adjudicated',
-        writeInCount: 1,
+        tally: 1,
       }),
-      typedAs<WriteInSummaryEntryPending>({
+      typedAs<WriteInPendingTally>({
         contestId,
         status: 'pending',
-        writeInCount: 1,
+        tally: 1,
       }),
     ])
   );
@@ -174,18 +174,18 @@ test('e2e write-in adjudication', async () => {
     adjudicationType: 'invalid',
     status: 'adjudicated',
   });
-  expect(await apiClient.getWriteInSummary({ contestId })).toMatchObject(
+  expect(await apiClient.getWriteInTallies({ contestId })).toMatchObject(
     expect.arrayContaining([
-      typedAs<WriteInSummaryEntryAdjudicatedInvalid>({
+      typedAs<WriteInAdjudicatedInvalidTally>({
         contestId,
         adjudicationType: 'invalid',
         status: 'adjudicated',
-        writeInCount: 1,
+        tally: 1,
       }),
-      typedAs<WriteInSummaryEntryPending>({
+      typedAs<WriteInPendingTally>({
         contestId,
         status: 'pending',
-        writeInCount: 1,
+        tally: 1,
       }),
     ])
   );
@@ -204,20 +204,20 @@ test('e2e write-in adjudication', async () => {
     candidateId: officialCandidateId,
     status: 'adjudicated',
   });
-  expect(await apiClient.getWriteInSummary({ contestId })).toMatchObject(
+  expect(await apiClient.getWriteInTallies({ contestId })).toMatchObject(
     expect.arrayContaining([
-      typedAs<WriteInSummaryEntryAdjudicated>({
+      typedAs<WriteInAdjudicatedTally>({
         contestId,
         adjudicationType: 'official-candidate',
         candidateId: officialCandidateId,
         candidateName: 'Edward Randolph',
         status: 'adjudicated',
-        writeInCount: 1,
+        tally: 1,
       }),
-      typedAs<WriteInSummaryEntryPending>({
+      typedAs<WriteInPendingTally>({
         contestId,
         status: 'pending',
-        writeInCount: 1,
+        tally: 1,
       }),
     ])
   );
@@ -245,23 +245,23 @@ test('e2e write-in adjudication', async () => {
     status: 'adjudicated',
   });
 
-  expect(await apiClient.getWriteInSummary({ contestId })).toMatchObject(
+  expect(await apiClient.getWriteInTallies({ contestId })).toMatchObject(
     expect.arrayContaining([
-      typedAs<WriteInSummaryEntryAdjudicatedOfficialCandidate>({
+      typedAs<WriteInAdjudicatedOfficialCandidateTally>({
         contestId,
         adjudicationType: 'official-candidate',
         candidateId: officialCandidateId,
         candidateName: 'Edward Randolph',
         status: 'adjudicated',
-        writeInCount: 1,
+        tally: 1,
       }),
-      typedAs<WriteInSummaryEntryAdjudicatedWriteInCandidate>({
+      typedAs<WriteInAdjudicatedWriteInCandidateTally>({
         contestId,
         adjudicationType: 'write-in-candidate',
         candidateId: mrPickles!.id,
         candidateName: 'Mr. Pickles',
         status: 'adjudicated',
-        writeInCount: 1,
+        tally: 1,
       }),
     ])
   );
@@ -288,23 +288,23 @@ test('e2e write-in adjudication', async () => {
     candidateId: picklesJr!.id,
   });
 
-  expect(await apiClient.getWriteInSummary({ contestId })).toMatchObject(
+  expect(await apiClient.getWriteInTallies({ contestId })).toMatchObject(
     expect.arrayContaining([
-      typedAs<WriteInSummaryEntryAdjudicatedOfficialCandidate>({
+      typedAs<WriteInAdjudicatedOfficialCandidateTally>({
         contestId,
         adjudicationType: 'official-candidate',
         candidateId: officialCandidateId,
         candidateName: 'Edward Randolph',
         status: 'adjudicated',
-        writeInCount: 1,
+        tally: 1,
       }),
-      typedAs<WriteInSummaryEntryAdjudicatedWriteInCandidate>({
+      typedAs<WriteInAdjudicatedWriteInCandidateTally>({
         contestId,
         adjudicationType: 'write-in-candidate',
         candidateId: picklesJr!.id,
         candidateName: 'Pickles Jr.',
         status: 'adjudicated',
-        writeInCount: 1,
+        tally: 1,
       }),
     ])
   );

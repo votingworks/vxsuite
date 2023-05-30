@@ -11,9 +11,9 @@ import {
 } from '@votingworks/types';
 import { assert, collections, iter } from '@votingworks/basics';
 import type {
-  WriteInSummaryEntryAdjudicated,
-  WriteInSummaryEntryAdjudicatedOfficialCandidate,
-  WriteInSummaryEntryAdjudicatedWriteInCandidate,
+  WriteInAdjudicatedTally,
+  WriteInAdjudicatedOfficialCandidateTally,
+  WriteInAdjudicatedWriteInCandidateTally,
 } from '@votingworks/admin-backend';
 
 export type CountsByContestAndCandidateName = Map<
@@ -26,14 +26,14 @@ export type CountsByContestAndCandidateName = Map<
  * for official candidates.
  */
 export function getOfficialCandidateScreenAdjudicatedWriteInCounts(
-  writeInSummaryData: WriteInSummaryEntryAdjudicated[]
+  writeInTallies: WriteInAdjudicatedTally[]
 ): CountsByContestAndCandidateName {
   const writeInsByContestAndCandidate = collections.map(
-    iter(writeInSummaryData).toMap(({ contestId }) => contestId),
-    (writeInSummary) => {
-      return iter(writeInSummary)
+    iter(writeInTallies).toMap(({ contestId }) => contestId),
+    (contestWriteInTallies) => {
+      return iter(contestWriteInTallies)
         .filter(
-          (s): s is WriteInSummaryEntryAdjudicatedOfficialCandidate =>
+          (s): s is WriteInAdjudicatedOfficialCandidateTally =>
             s.adjudicationType === 'official-candidate'
         )
         .toMap((s) => s.candidateId);
@@ -41,7 +41,7 @@ export function getOfficialCandidateScreenAdjudicatedWriteInCounts(
   );
   return collections.map(writeInsByContestAndCandidate, (byCandidate) =>
     collections.map(byCandidate, (entries) =>
-      iter(entries).sum((entry) => entry.writeInCount ?? 0)
+      iter(entries).sum((entry) => entry.tally ?? 0)
     )
   );
 }
@@ -51,14 +51,14 @@ export function getOfficialCandidateScreenAdjudicatedWriteInCounts(
  * for write-in candidates.
  */
 export function getWriteInCandidateScreenAdjudicatedWriteInCounts(
-  writeInSummaryData: WriteInSummaryEntryAdjudicated[]
+  writeInTallies: WriteInAdjudicatedTally[]
 ): CountsByContestAndCandidateName {
   const writeInsByContestAndCandidate = collections.map(
-    iter(writeInSummaryData).toMap(({ contestId }) => contestId),
-    (writeInSummary) => {
-      return iter(writeInSummary)
+    iter(writeInTallies).toMap(({ contestId }) => contestId),
+    (contestWriteInTallies) => {
+      return iter(contestWriteInTallies)
         .filter(
-          (s): s is WriteInSummaryEntryAdjudicatedWriteInCandidate =>
+          (s): s is WriteInAdjudicatedWriteInCandidateTally =>
             s.adjudicationType === 'write-in-candidate'
         )
         .toMap((s) => s.candidateName);
@@ -66,7 +66,7 @@ export function getWriteInCandidateScreenAdjudicatedWriteInCounts(
   );
   return collections.map(writeInsByContestAndCandidate, (byCandidate) =>
     collections.map(byCandidate, (entries) =>
-      iter(entries).sum((entry) => entry.writeInCount ?? 0)
+      iter(entries).sum((entry) => entry.tally ?? 0)
     )
   );
 }
@@ -76,16 +76,16 @@ export function getWriteInCandidateScreenAdjudicatedWriteInCounts(
  * for official candidates.
  */
 export function getInvalidWriteInCounts(
-  writeInSummaryData: WriteInSummaryEntryAdjudicated[]
+  writeInTallies: WriteInAdjudicatedTally[]
 ): Map<ContestId, number> {
   return collections.map(
-    iter(writeInSummaryData).toMap(({ contestId }) => contestId),
-    (writeInSummaries) => {
+    iter(writeInTallies).toMap(({ contestId }) => contestId),
+    (contestWriteInTallies) => {
       return collections.reduce(
-        writeInSummaries,
-        (acc, writeInSummary) => {
-          return writeInSummary.adjudicationType === 'invalid'
-            ? acc + writeInSummary.writeInCount
+        contestWriteInTallies,
+        (acc, writeInTally) => {
+          return writeInTally.adjudicationType === 'invalid'
+            ? acc + writeInTally.tally
             : acc;
         },
         0

@@ -11,8 +11,8 @@ import type {
   WriteInCandidateRecord,
   WriteInDetailView,
   WriteInRecord,
-  WriteInSummaryEntry,
-  WriteInSummaryEntryAdjudicated,
+  WriteInTally,
+  WriteInAdjudicatedTally,
 } from '@votingworks/admin-backend';
 import { collections, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -182,31 +182,29 @@ export function createApiMock(
       apiClient.getCastVoteRecordFiles.expectCallWith().resolves(fileRecords);
     },
 
-    expectGetWriteInSummary(
-      writeInSummaryRecords: WriteInSummaryEntry[],
+    expectGetWriteInTallies(
+      writeInTallies: WriteInTally[],
       status?: WriteInAdjudicationStatus
     ) {
       if (status) {
-        apiClient.getWriteInSummary
+        apiClient.getWriteInTallies
           .expectCallWith({
             status,
           })
-          .resolves(writeInSummaryRecords);
+          .resolves(writeInTallies);
       } else {
-        apiClient.getWriteInSummary
-          .expectCallWith()
-          .resolves(writeInSummaryRecords);
+        apiClient.getWriteInTallies.expectCallWith().resolves(writeInTallies);
       }
     },
 
-    expectGetWriteInSummaryAdjudicated(
-      writeInSummaryRecords: WriteInSummaryEntryAdjudicated[]
+    expectGetWriteInTalliesAdjudicated(
+      writeInTallies: WriteInAdjudicatedTally[]
     ) {
-      apiClient.getWriteInSummary
+      apiClient.getWriteInTallies
         .expectCallWith({
           status: 'adjudicated',
         })
-        .resolves(writeInSummaryRecords);
+        .resolves(writeInTallies);
     },
 
     expectGetWriteIns(writeInRecords: WriteInRecord[], contestId?: string) {
