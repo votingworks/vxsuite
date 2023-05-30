@@ -23,10 +23,9 @@ module.exports = {
     },
   },
   collectCoverageFrom: [
-    '!jest.config.js',
-    '!coverage/**/*',
-    '!src/data/*',
-    '!src/__snapshots__/*',
+    '**/*.{ts,tsx}',
+    '!**/node_modules/**',
+    '!src/**/index.ts',
     '!src/manual_tallies_test_utils.ts',
   ],
 };

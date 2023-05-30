@@ -26,6 +26,7 @@ export * from './precinct_selection';
 export * from './Printer';
 export * from './random';
 export * from './Storage';
+export * from './tabulation';
 export * from './tallies';
 export * from './types';
 export * from './votes';
