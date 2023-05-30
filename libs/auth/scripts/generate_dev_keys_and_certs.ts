@@ -2,6 +2,7 @@ import { Buffer } from 'buffer';
 import fs from 'fs/promises';
 import yargs from 'yargs/yargs';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { TEST_JURISDICTION } from '@votingworks/types';
 
 import { CardDetails } from '../src/card';
 import {
@@ -110,6 +111,8 @@ async function generateDevKeysAndCerts({
   forTests,
   outputDir,
 }: GenerateDevKeysAndCertsInput): Promise<void> {
+  const jurisdiction = forTests ? TEST_JURISDICTION : DEV_JURISDICTION;
+
   runCommand(['mkdir', '-p', outputDir]);
 
   // Generate VotingWorks private key and cert authority cert
@@ -132,7 +135,7 @@ async function generateDevKeysAndCerts({
       type: 'private',
       key: { source: 'file', path: vxAdminPrivateKeyPath },
     },
-    certSubject: constructMachineCertSubject('admin', DEV_JURISDICTION),
+    certSubject: constructMachineCertSubject('admin', jurisdiction),
     certType: 'cert_authority_cert',
     expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
     signingCertAuthorityCertPath: vxCertAuthorityCertPath,
@@ -177,41 +180,26 @@ async function generateDevKeysAndCerts({
         {
           cardType: 'system-administrator',
           cardDetails: {
-            user: {
-              role: 'system_administrator',
-              jurisdiction: DEV_JURISDICTION,
-            },
+            user: { role: 'system_administrator', jurisdiction },
           },
         },
         {
           cardType: 'election-manager',
           cardDetails: {
-            user: {
-              role: 'election_manager',
-              jurisdiction: DEV_JURISDICTION,
-              electionHash,
-            },
+            user: { role: 'election_manager', jurisdiction, electionHash },
           },
         },
         {
           cardType: 'poll-worker',
           cardDetails: {
-            user: {
-              role: 'poll_worker',
-              jurisdiction: DEV_JURISDICTION,
-              electionHash,
-            },
+            user: { role: 'poll_worker', jurisdiction, electionHash },
             hasPin: false,
           },
         },
         {
           cardType: 'poll-worker-with-pin',
           cardDetails: {
-            user: {
-              role: 'poll_worker',
-              jurisdiction: DEV_JURISDICTION,
-              electionHash,
-            },
+            user: { role: 'poll_worker', jurisdiction, electionHash },
             hasPin: true,
           },
         },

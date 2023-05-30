@@ -10,7 +10,7 @@ import {
   fakeSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
-import { Byte } from '@votingworks/types';
+import { Byte, TEST_JURISDICTION } from '@votingworks/types';
 
 import {
   getTestFilePath,
@@ -42,7 +42,6 @@ import {
   PUK,
   VX_ADMIN_CERT_AUTHORITY_CERT,
 } from './java_card';
-import { DEV_JURISDICTION } from './jurisdictions';
 import {
   certDerToPem,
   createCert,
@@ -91,17 +90,9 @@ afterEach(() => {
 
 const { electionData, electionHash } =
   electionFamousNames2021Fixtures.electionDefinition;
-const systemAdministratorUser = fakeSystemAdministratorUser({
-  jurisdiction: DEV_JURISDICTION,
-});
-const electionManagerUser = fakeElectionManagerUser({
-  jurisdiction: DEV_JURISDICTION,
-  electionHash,
-});
-const pollWorkerUser = fakePollWorkerUser({
-  jurisdiction: DEV_JURISDICTION,
-  electionHash,
-});
+const systemAdministratorUser = fakeSystemAdministratorUser();
+const electionManagerUser = fakeElectionManagerUser({ electionHash });
+const pollWorkerUser = fakePollWorkerUser({ electionHash });
 
 const mockChallenge = 'VotingWorks';
 function customChallengeGenerator(): string {
@@ -752,7 +743,7 @@ test.each<{
     expectedCertSubject:
       '/C=US/ST=CA/O=VotingWorks' +
       '/1.3.6.1.4.1.59817.1=card' +
-      `/1.3.6.1.4.1.59817.2=${DEV_JURISDICTION}` +
+      `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=system-administrator/',
     expectedExpiryInDays: 365 * 5,
     isElectionDataWriteExpected: false,
@@ -771,7 +762,7 @@ test.each<{
     expectedCertSubject:
       '/C=US/ST=CA/O=VotingWorks' +
       '/1.3.6.1.4.1.59817.1=card' +
-      `/1.3.6.1.4.1.59817.2=${DEV_JURISDICTION}` +
+      `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=election-manager' +
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),
@@ -789,7 +780,7 @@ test.each<{
     expectedCertSubject:
       '/C=US/ST=CA/O=VotingWorks' +
       '/1.3.6.1.4.1.59817.1=card' +
-      `/1.3.6.1.4.1.59817.2=${DEV_JURISDICTION}` +
+      `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=poll-worker' +
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),
@@ -809,7 +800,7 @@ test.each<{
     expectedCertSubject:
       '/C=US/ST=CA/O=VotingWorks' +
       '/1.3.6.1.4.1.59817.1=card' +
-      `/1.3.6.1.4.1.59817.2=${DEV_JURISDICTION}` +
+      `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=poll-worker-with-pin' +
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),

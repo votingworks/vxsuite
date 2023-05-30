@@ -9,6 +9,7 @@ module.exports = {
     'src/create_cert.ts',
     'src/cypress.ts',
     'src/index.ts',
+    'src/jurisdictions.ts',
     'src/test_utils.ts',
     'test/utils.ts,',
   ],
