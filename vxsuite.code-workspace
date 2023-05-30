@@ -65,6 +65,10 @@
       "path": "libs/ballot-encoder"
     },
     {
+      "name": "libs/ballot-interpreter",
+      "path": "libs/ballot-interpreter"
+    },
+    {
       "name": "libs/ballot-interpreter-nh",
       "path": "libs/ballot-interpreter-nh"
     },

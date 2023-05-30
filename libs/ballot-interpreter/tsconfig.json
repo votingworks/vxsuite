@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.shared.json",
-  "include": ["src", "src/data/*.json", "test"],
+  "include": ["src", "test"],
   "exclude": [],
   "compilerOptions": {
     "module": "commonjs",
@@ -15,13 +15,12 @@
     "resolveJsonModule": true
   },
   "references": [
-    { "path": "../../libs/auth/tsconfig.build.json" },
+    { "path": "../../libs/ballot-interpreter-nh/tsconfig.build.json" },
+    { "path": "../../libs/ballot-interpreter-vx/tsconfig.build.json" },
     { "path": "../../libs/basics/tsconfig.build.json" },
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/fixtures/tsconfig.build.json" },
     { "path": "../../libs/image-utils/tsconfig.build.json" },
-    { "path": "../../libs/logging/tsconfig.build.json" },
-    { "path": "../../libs/test-utils/tsconfig.build.json" },
     { "path": "../../libs/types/tsconfig.build.json" },
     { "path": "../../libs/utils/tsconfig.build.json" }
   ]

@@ -427,6 +427,29 @@ jobs:
       - store_test_results:
           path: libs/ballot-encoder/reports/
 
+  # @votingworks/ballot-interpreter
+  test-libs-ballot-interpreter:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ballot-interpreter build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ballot-interpreter lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ballot-interpreter test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ballot-interpreter/reports/
+
   # @votingworks/ballot-interpreter-nh
   test-libs-ballot-interpreter-nh:
     executor: nodejs
@@ -1053,6 +1076,7 @@ workflows:
       - test-libs-auth
       - test-libs-backend
       - test-libs-ballot-encoder
+      - test-libs-ballot-interpreter
       - test-libs-ballot-interpreter-nh
       - test-libs-ballot-interpreter-vx
       - test-libs-basics
