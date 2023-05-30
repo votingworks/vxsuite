@@ -2,6 +2,11 @@
   "extends": ["plugin:vx/recommended"],
   "rules": {
     // Disable JSDOC rule as code is self-documenting.
-    "vx/gts-jsdoc": "off"
+    "vx/gts-jsdoc": "off",
+    // Allow for variable naming with "CVR"
+    "vx/gts-identifiers": [
+      "error",
+      { "allowedNames": ["/CVR.*/", "/buildCVR.*/"] }
+    ]
   }
 }

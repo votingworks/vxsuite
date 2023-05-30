@@ -3,6 +3,7 @@ export * from './as_boolean';
 export * from './auth';
 export * from './ballot_package';
 export * from './pins';
+export * from './cast_vote_record_report';
 export * from './compressed_tallies';
 export * from './date';
 export * from './elections';

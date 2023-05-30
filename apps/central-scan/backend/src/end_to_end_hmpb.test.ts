@@ -1,7 +1,6 @@
 import getPort from 'get-port';
 import {
   MockUsb,
-  convertCastVoteRecordVotesToLegacyVotes,
   createBallotPackageZipArchive,
   createMockUsb,
   getCastVoteRecordReportImport,
@@ -17,6 +16,7 @@ import * as grout from '@votingworks/grout';
 import {
   BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
+  convertCastVoteRecordVotesToTabulationVotes,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { EventEmitter } from 'events';
@@ -235,7 +235,7 @@ test('going through the whole process works', async () => {
     expect(cvr.CreatingDeviceId).toEqual('000');
     expect(cvr.BallotSheetId).toEqual('1');
     expect(cvr.vxBallotType).toEqual(CVR.vxBallotType.Precinct);
-    expect(convertCastVoteRecordVotesToLegacyVotes(cvr.CVRSnapshot[0]))
+    expect(convertCastVoteRecordVotesToTabulationVotes(cvr.CVRSnapshot[0]))
       .toMatchInlineSnapshot(`
       {
         "County-Attorney-133f910f": [

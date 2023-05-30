@@ -1,13 +1,6 @@
 import * as fs from 'fs';
 import { CVR, safeParse } from '@votingworks/types';
-import {
-  ok,
-  err,
-  Result,
-  AsyncIteratorPlus,
-  iter,
-  assert,
-} from '@votingworks/basics';
+import { ok, err, Result, AsyncIteratorPlus, iter } from '@votingworks/basics';
 import { chain } from 'stream-chain';
 import { parser } from 'stream-json';
 import { pick } from 'stream-json/filters/Pick';
@@ -228,35 +221,6 @@ export async function validateCastVoteRecordReportDirectoryStructure(
   }
 
   return ok(relativeImagePaths);
-}
-
-/**
- * Converts the vote data in the CDF cast vote record into the simple
- * dictionary of contest ids to contest selection ids that VxAdmin uses
- * internally as a basis for tallying votes.
- */
-export function convertCastVoteRecordVotesToLegacyVotes(
-  cvrSnapshot: CVR.CVRSnapshot
-): Record<string, string[]> {
-  const votes: Record<string, string[]> = {};
-  for (const cvrContest of cvrSnapshot.CVRContest) {
-    const contestSelectionIds: string[] = [];
-    for (const cvrContestSelection of cvrContest.CVRContestSelection) {
-      // We assume every contest selection has only one selection position,
-      // which is true for standard voting but is not be true for ranked choice
-      assert(cvrContestSelection.SelectionPosition.length === 1);
-      const selectionPosition = cvrContestSelection.SelectionPosition[0];
-      assert(selectionPosition);
-
-      if (selectionPosition.HasIndication === CVR.IndicationStatus.Yes) {
-        contestSelectionIds.push(cvrContestSelection.ContestSelectionId);
-      }
-    }
-
-    votes[cvrContest.ContestId] = contestSelectionIds;
-  }
-
-  return votes;
 }
 
 /**

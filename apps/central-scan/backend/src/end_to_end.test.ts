@@ -3,7 +3,6 @@ import {
   buildMockDippedSmartCardAuth,
 } from '@votingworks/auth';
 import {
-  convertCastVoteRecordVotesToLegacyVotes,
   createMockUsb,
   getCastVoteRecordReportImport,
   isTestReport,
@@ -15,6 +14,7 @@ import { CVR, TEST_JURISDICTION, unsafeParse } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
+  convertCastVoteRecordVotesToTabulationVotes,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { Application } from 'express';
@@ -188,7 +188,7 @@ test('going through the whole process works', async () => {
     ).toArray();
     expect(
       cvrs.map((cvr) =>
-        convertCastVoteRecordVotesToLegacyVotes(cvr.CVRSnapshot[0])
+        convertCastVoteRecordVotesToTabulationVotes(cvr.CVRSnapshot[0])
       )
     ).toEqual([
       expect.objectContaining({
