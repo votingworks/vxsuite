@@ -76,14 +76,16 @@ export async function openssl(
       processedParams.push(param);
     }
   }
-  return runCommand(['openssl', ...processedParams], {
-    onClose: async () => {
-      await Promise.all(
-        tempFileResults.map((tempFile) => tempFile.removeCallback())
-      );
-    },
-    stdin,
-  });
+
+  let stdout: Buffer;
+  try {
+    stdout = await runCommand(['openssl', ...processedParams], { stdin });
+  } finally {
+    await Promise.all(
+      tempFileResults.map((tempFile) => tempFile.removeCallback())
+    );
+  }
+  return stdout;
 }
 
 /**

@@ -4,8 +4,6 @@ import { Stream } from 'stream';
 import { assert } from '@votingworks/basics';
 
 interface RunCommandOptions {
-  /** A function to run on child process close, e.g. for cleanup */
-  onClose?: () => Promise<void>;
   /** Data to pipe to the child process's standard input */
   stdin?: Stream;
 }
@@ -13,12 +11,13 @@ interface RunCommandOptions {
 /**
  * Runs a shell command asynchronously.
  *
- * The returned promise resolves if the shell command's exit status is 0 and rejects otherwise. The
- * promise also rejects if the onClose function, if provided, errs.
+ * The returned promise resolves with the data written to the standard output if the shell
+ * command's exit status is 0 and rejects with the data written to both the standard error and
+ * standard output otherwise.
  */
 export async function runCommand(
   command: string[],
-  { onClose, stdin }: RunCommandOptions = {}
+  { stdin }: RunCommandOptions = {}
 ): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     assert(command[0] !== undefined);
@@ -38,15 +37,7 @@ export async function runCommand(
       stdin.pipe(childProcess.stdin);
     }
 
-    childProcess.on('close', async (code) => {
-      if (onClose) {
-        try {
-          await onClose();
-        } catch (error) {
-          reject(error);
-          return;
-        }
-      }
+    childProcess.on('close', (code) => {
       if (code !== 0) {
         const errorMessage = [stderr, stdout]
           .map((buffer) => buffer.toString('utf-8'))
