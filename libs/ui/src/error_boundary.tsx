@@ -40,7 +40,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
   // async code). While this will work in production, it will *not* work in
   // tests due to the way that jest sets up the testing environment (there is no
   // known workaround), which leads to serious pain when debugging tests. So we
-  // should still be dilligent about avoiding unhandled promise rejections at
+  // should still be diligent about avoiding unhandled promise rejections at
   // the source.
   /* istanbul ignore next */
   handleUnhandledRejection(event: PromiseRejectionEvent): void {
