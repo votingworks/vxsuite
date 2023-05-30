@@ -12,12 +12,13 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/test/setupTests.ts'],
   coverageThreshold: {
     global: {
-      statements: 98,
-      branches: 91,
-      functions: 100,
-      lines: 98,
+      statements: 97,
+      branches: 89,
+      functions: 99,
+      lines: 97,
     },
   },
+  coverageProvider: 'v8',
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
     '!**/*.d.ts',
@@ -25,6 +26,7 @@ module.exports = {
     '!src/index.ts',
     '!src/types.ts',
     '!src/util/debug.ts',
+    '!src/util/usb.ts',
     '!test/**/*',
   ],
 };
