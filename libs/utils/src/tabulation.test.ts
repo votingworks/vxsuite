@@ -4,7 +4,12 @@ import {
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
 import { assert, find, typedAs } from '@votingworks/basics';
-import { CVR, Tabulation, safeParse } from '@votingworks/types';
+import {
+  CVR,
+  Tabulation,
+  safeParse,
+  writeInCandidate,
+} from '@votingworks/types';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { GroupSpecifier } from '@votingworks/types/src/tabulation';
@@ -17,45 +22,17 @@ import {
   isGroupByEmpty,
   GROUP_KEY_ROOT,
   getOfficialCandidateNameLookup,
+  getEmptyManualElectionResults,
+  combineManualElectionResults,
+  buildManualResultsFixture,
+  buildElectionResultsFixture,
+  ContestResultsSummaries,
 } from './tabulation';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from './filenames';
 import {
   convertCastVoteRecordVotesToTabulationVotes,
   getCurrentSnapshot,
 } from './cast_vote_record_report';
-
-/**
- * There is definitely value in testing against the entire `ElectionResults`
- * object returned from tabulation, but it makes the test assertions much
- * harder to read. Use this utility to simplify the output for easier testing,
- * being aware that candidate metadata is not being tested.
- */
-function flattenElectionResultForTesting(
-  electionResult: Tabulation.ElectionResults
-) {
-  const flattenedContestResults = Object.values(
-    electionResult.contestResults
-  ).map((contestResult) => {
-    const flattened: Record<string, number | string> = {};
-    flattened['contestId'] = contestResult.contestId;
-    flattened['ballots'] = contestResult.ballots;
-    flattened['overvotes'] = contestResult.overvotes;
-    flattened['undervotes'] = contestResult.undervotes;
-    if (contestResult.contestType === 'yesno') {
-      flattened['yesTally'] = contestResult.yesTally;
-      flattened['noTally'] = contestResult.noTally;
-    } else {
-      for (const candidateTally of Object.values(contestResult.tallies)) {
-        flattened[candidateTally.id] = candidateTally.tally;
-      }
-    }
-    return flattened;
-  });
-  return {
-    cardCounts: electionResult.cardCounts,
-    contestResults: flattenedContestResults,
-  };
-}
 
 /**
  * For testing with small cast vote record files only.
@@ -164,7 +141,7 @@ test('getEmptyElectionResults without generic write-in', () => {
   const { election } = electionMinimalExhaustiveSampleDefinition;
 
   const emptyElectionResult = getEmptyElectionResults(election, false);
-  // check an empty candidate contests
+  // check an empty candidate contest
   const zooCouncilMammalContest = find(
     election.contests,
     (c) => c.id === 'zoo-council-mammal'
@@ -201,6 +178,248 @@ test('getEmptyElectionResults without generic write-in', () => {
       },
     },
   });
+});
+
+test('getEmptyManualElectionResults', () => {
+  const { election } = electionMinimalExhaustiveSampleDefinition;
+
+  const emptyManualElectionResults = getEmptyManualElectionResults(election);
+
+  // empty manual results should closely match empty regular results without the generic write-in
+  const emptyElectionResults = getEmptyElectionResults(election, false);
+
+  expect(emptyManualElectionResults.ballotCount).toEqual(0);
+  expect(emptyManualElectionResults.contestResults['fishing']).toEqual(
+    emptyElectionResults.contestResults['fishing']
+  );
+  expect(
+    emptyManualElectionResults.contestResults['zoo-council-mammal']
+  ).toEqual(emptyElectionResults.contestResults['zoo-council-mammal']);
+});
+
+test('buildElectionResultsFixture', () => {
+  const { election } = electionMinimalExhaustiveSampleDefinition;
+
+  const ballotCount = 10;
+  const cardCounts: Tabulation.CardCounts = {
+    bmd: 5,
+    hmpb: [5],
+  };
+  const contestResultsSummaries: ContestResultsSummaries = {
+    'zoo-council-mammal': {
+      type: 'candidate',
+      ballots: 10,
+      overvotes: 1,
+      undervotes: 0,
+      officialOptionTallies: {
+        elephant: 2,
+        kangaroo: 3,
+        lion: 4,
+      },
+    },
+    'aquarium-council-fish': {
+      type: 'candidate',
+      ballots: 10,
+      writeInOptionTallies: {
+        somebody: {
+          id: 'somebody',
+          name: 'Somebody',
+          tally: 10,
+        },
+      },
+    },
+    fishing: {
+      type: 'yesno',
+      ballots: 10,
+      yesTally: 4,
+      noTally: 6,
+    },
+    'new-zoo-pick': {
+      type: 'yesno',
+      ballots: 0,
+      overvotes: 10,
+    },
+  };
+
+  // test entirety of one fixture to verify completeness
+  const electionResultsFixtureWithoutGenericWriteIn =
+    buildElectionResultsFixture({
+      election,
+      cardCounts,
+      contestResultsSummaries,
+      includeGenericWriteIn: false,
+    });
+  expect(electionResultsFixtureWithoutGenericWriteIn).toEqual({
+    cardCounts,
+    contestResults: {
+      'aquarium-council-fish': {
+        ballots: 10,
+        contestId: 'aquarium-council-fish',
+        contestType: 'candidate',
+        overvotes: 0,
+        tallies: {
+          'manta-ray': {
+            id: 'manta-ray',
+            name: 'Manta Ray',
+            tally: 0,
+          },
+          pufferfish: {
+            id: 'pufferfish',
+            name: 'Pufferfish',
+            tally: 0,
+          },
+          rockfish: {
+            id: 'rockfish',
+            name: 'Rockfish',
+            tally: 0,
+          },
+          somebody: {
+            id: 'somebody',
+            isWriteIn: true,
+            name: 'Somebody',
+            tally: 10,
+          },
+          triggerfish: {
+            id: 'triggerfish',
+            name: 'Triggerfish',
+            tally: 0,
+          },
+        },
+        undervotes: 0,
+        votesAllowed: 2,
+      },
+      'best-animal-fish': {
+        ballots: 0,
+        contestId: 'best-animal-fish',
+        contestType: 'candidate',
+        overvotes: 0,
+        tallies: {
+          salmon: {
+            id: 'salmon',
+            name: 'Salmon',
+            tally: 0,
+          },
+          seahorse: {
+            id: 'seahorse',
+            name: 'Seahorse',
+            tally: 0,
+          },
+        },
+        undervotes: 0,
+        votesAllowed: 1,
+      },
+      'best-animal-mammal': {
+        ballots: 0,
+        contestId: 'best-animal-mammal',
+        contestType: 'candidate',
+        overvotes: 0,
+        tallies: {
+          fox: {
+            id: 'fox',
+            name: 'Fox',
+            tally: 0,
+          },
+          horse: {
+            id: 'horse',
+            name: 'Horse',
+            tally: 0,
+          },
+          otter: {
+            id: 'otter',
+            name: 'Otter',
+            tally: 0,
+          },
+        },
+        undervotes: 0,
+        votesAllowed: 1,
+      },
+      fishing: {
+        ballots: 10,
+        contestId: 'fishing',
+        contestType: 'yesno',
+        noTally: 6,
+        overvotes: 0,
+        undervotes: 0,
+        yesTally: 4,
+      },
+      'new-zoo-either': {
+        ballots: 0,
+        contestId: 'new-zoo-either',
+        contestType: 'yesno',
+        noTally: 0,
+        overvotes: 0,
+        undervotes: 0,
+        yesTally: 0,
+      },
+      'new-zoo-pick': {
+        ballots: 0,
+        contestId: 'new-zoo-pick',
+        contestType: 'yesno',
+        noTally: 0,
+        overvotes: 10,
+        undervotes: 0,
+        yesTally: 0,
+      },
+      'zoo-council-mammal': {
+        ballots: 10,
+        contestId: 'zoo-council-mammal',
+        contestType: 'candidate',
+        overvotes: 1,
+        tallies: {
+          elephant: {
+            id: 'elephant',
+            name: 'Elephant',
+            tally: 2,
+          },
+          kangaroo: {
+            id: 'kangaroo',
+            name: 'Kangaroo',
+            tally: 3,
+          },
+          lion: {
+            id: 'lion',
+            name: 'Lion',
+            tally: 4,
+          },
+          zebra: {
+            id: 'zebra',
+            name: 'Zebra',
+            tally: 0,
+          },
+        },
+        undervotes: 0,
+        votesAllowed: 3,
+      },
+    },
+  });
+
+  // check that the generic write-in option includes the generic write-in
+  const electionResultsFixtureWithGenericWriteIn = buildElectionResultsFixture({
+    election,
+    cardCounts,
+    contestResultsSummaries,
+    includeGenericWriteIn: true,
+  });
+  const zooCouncilMammalWithGenericWriteIn =
+    electionResultsFixtureWithGenericWriteIn.contestResults[
+      'zoo-council-mammal'
+    ] as Tabulation.CandidateContestResults;
+  expect(
+    zooCouncilMammalWithGenericWriteIn.tallies[writeInCandidate.id]
+  ).toBeDefined();
+
+  // check that manual results fixture matches the regular election fixture
+  // minus the metadata
+  const manualResultsFixture = buildManualResultsFixture({
+    election,
+    ballotCount,
+    contestResultsSummaries,
+  });
+
+  expect(manualResultsFixture.contestResults).toEqual(
+    electionResultsFixtureWithoutGenericWriteIn.contestResults
+  );
+  expect(manualResultsFixture.ballotCount).toEqual(ballotCount);
 });
 
 test('getBallotCount', () => {
@@ -344,77 +563,79 @@ describe('tabulateCastVoteRecords', () => {
     })[GROUP_KEY_ROOT];
 
     assert(electionResult);
-    expect(flattenElectionResultForTesting(electionResult)).toEqual({
-      cardCounts: {
-        bmd: 2,
-        hmpb: [2],
-      },
-      contestResults: [
-        {
-          ballots: 2,
-          contestId: 'best-animal-mammal',
-          fox: 1,
-          horse: 0,
-          otter: 0,
-          overvotes: 1,
-          undervotes: 0,
+    expect(electionResult).toEqual(
+      buildElectionResultsFixture({
+        election,
+        includeGenericWriteIn: true,
+        cardCounts: {
+          bmd: 2,
+          hmpb: [2],
         },
-        {
-          ballots: 2,
-          contestId: 'best-animal-fish',
-          overvotes: 0,
-          salmon: 0,
-          seahorse: 1,
-          undervotes: 1,
+        contestResultsSummaries: {
+          'best-animal-mammal': {
+            type: 'candidate',
+            ballots: 2,
+            overvotes: 1,
+            officialOptionTallies: {
+              fox: 1,
+              horse: 0,
+              otter: 0,
+            },
+          },
+          'best-animal-fish': {
+            type: 'candidate',
+            ballots: 2,
+            undervotes: 1,
+            officialOptionTallies: {
+              salmon: 0,
+              seahorse: 1,
+            },
+          },
+          'zoo-council-mammal': {
+            type: 'candidate',
+            ballots: 2,
+            overvotes: 3,
+            officialOptionTallies: {
+              lion: 1,
+              elephant: 1,
+              'write-in': 1,
+            },
+          },
+          'aquarium-council-fish': {
+            type: 'candidate',
+            ballots: 2,
+            undervotes: 1,
+            officialOptionTallies: {
+              pufferfish: 1,
+              'manta-ray': 2,
+            },
+          },
+          'new-zoo-either': {
+            type: 'yesno',
+            ballots: 4,
+            undervotes: 1,
+            overvotes: 1,
+            yesTally: 1,
+            noTally: 1,
+          },
+          'new-zoo-pick': {
+            type: 'yesno',
+            ballots: 4,
+            undervotes: 1,
+            overvotes: 1,
+            yesTally: 1,
+            noTally: 1,
+          },
+          fishing: {
+            type: 'yesno',
+            ballots: 4,
+            undervotes: 1,
+            overvotes: 1,
+            yesTally: 2,
+          },
         },
-        {
-          ballots: 2,
-          contestId: 'zoo-council-mammal',
-          elephant: 1,
-          kangaroo: 0,
-          lion: 1,
-          overvotes: 3,
-          undervotes: 0,
-          'write-in': 1,
-          zebra: 0,
-        },
-        {
-          ballots: 2,
-          contestId: 'aquarium-council-fish',
-          'manta-ray': 2,
-          overvotes: 0,
-          pufferfish: 1,
-          rockfish: 0,
-          triggerfish: 0,
-          undervotes: 1,
-          'write-in': 0,
-        },
-        {
-          ballots: 4,
-          contestId: 'new-zoo-either',
-          noTally: 1,
-          overvotes: 1,
-          undervotes: 1,
-          yesTally: 1,
-        },
-        {
-          ballots: 4,
-          contestId: 'new-zoo-pick',
-          noTally: 1,
-          overvotes: 1,
-          undervotes: 1,
-          yesTally: 1,
-        },
-        {
-          ballots: 4,
-          contestId: 'fishing',
-          noTally: 0,
-          overvotes: 1,
-          undervotes: 1,
-          yesTally: 2,
-        },
-      ],
-    });
+      })
+    );
   });
 
   // use ungrouped results, verified in last test, to compare against for grouped results
@@ -558,78 +779,90 @@ describe('tabulateCastVoteRecords', () => {
       expect(firstResult.cardCounts).toEqual(otherResult.cardCounts);
     }
 
-    // sanity check result
-    expect(flattenElectionResultForTesting(firstResult)).toEqual({
-      cardCounts: {
-        bmd: 28,
-        hmpb: [],
-      },
-      contestResults: [
-        {
-          ballots: 14,
-          contestId: 'best-animal-mammal',
-          fox: 9,
-          horse: 1,
-          otter: 1,
-          overvotes: 2,
-          undervotes: 1,
+    // sanity check actual results
+    expect(firstResult).toMatchObject(
+      buildElectionResultsFixture({
+        election,
+        includeGenericWriteIn: true,
+        cardCounts: {
+          bmd: 28,
+          hmpb: [],
         },
-        {
-          ballots: 14,
-          contestId: 'best-animal-fish',
-          overvotes: 1,
-          salmon: 11,
-          seahorse: 1,
-          undervotes: 1,
+        contestResultsSummaries: {
+          'best-animal-mammal': {
+            type: 'candidate',
+            ballots: 14,
+            overvotes: 2,
+            undervotes: 1,
+            officialOptionTallies: {
+              fox: 9,
+              horse: 1,
+              otter: 1,
+            },
+          },
+          'best-animal-fish': {
+            type: 'candidate',
+            ballots: 14,
+            overvotes: 1,
+            undervotes: 1,
+            officialOptionTallies: {
+              salmon: 11,
+              seahorse: 1,
+            },
+          },
+          'zoo-council-mammal': {
+            type: 'candidate',
+            ballots: 14,
+            overvotes: 3,
+            undervotes: 6,
+            officialOptionTallies: {
+              lion: 7,
+              elephant: 6,
+              kangaroo: 6,
+              zebra: 8,
+              'write-in': 6,
+            },
+          },
+          'aquarium-council-fish': {
+            type: 'candidate',
+            ballots: 14,
+            overvotes: 4,
+            undervotes: 3,
+            officialOptionTallies: {
+              pufferfish: 4,
+              'manta-ray': 5,
+              rockfish: 4,
+              triggerfish: 4,
+              'write-in': 4,
+            },
+          },
+          'new-zoo-either': {
+            type: 'yesno',
+            ballots: 28,
+            undervotes: 22,
+            overvotes: 2,
+            yesTally: 2,
+            noTally: 2,
+          },
+          'new-zoo-pick': {
+            type: 'yesno',
+            ballots: 28,
+            undervotes: 22,
+            overvotes: 2,
+            yesTally: 2,
+            noTally: 2,
+          },
+          fishing: {
+            type: 'yesno',
+            ballots: 28,
+            undervotes: 22,
+            overvotes: 2,
+            yesTally: 2,
+            noTally: 2,
+          },
         },
-        {
-          ballots: 14,
-          contestId: 'zoo-council-mammal',
-          elephant: 6,
-          kangaroo: 6,
-          lion: 7,
-          overvotes: 3,
-          undervotes: 6,
-          'write-in': 6,
-          zebra: 8,
-        },
-        {
-          ballots: 14,
-          contestId: 'aquarium-council-fish',
-          'manta-ray': 5,
-          overvotes: 4,
-          pufferfish: 4,
-          rockfish: 4,
-          triggerfish: 4,
-          undervotes: 3,
-          'write-in': 4,
-        },
-        {
-          ballots: 28,
-          contestId: 'new-zoo-either',
-          noTally: 2,
-          overvotes: 2,
-          undervotes: 22,
-          yesTally: 2,
-        },
-        {
-          ballots: 28,
-          contestId: 'new-zoo-pick',
-          noTally: 2,
-          overvotes: 2,
-          undervotes: 22,
-          yesTally: 2,
-        },
-        {
-          ballots: 28,
-          contestId: 'fishing',
-          noTally: 2,
-          overvotes: 2,
-          undervotes: 22,
-          yesTally: 2,
-        },
-      ],
-    });
+      })
+    );
   });
 });
 
@@ -642,4 +875,121 @@ test('getOfficialCandidateNameLookup', () => {
   expect(() => {
     nameLookup.get('zoo-council-mammal', 'jonathan');
   }).toThrowError();
+});
+
+test('combineManualElectionResults', () => {
+  const { election } = electionMinimalExhaustiveSampleDefinition;
+
+  const manualResults1 = buildManualResultsFixture({
+    election,
+    ballotCount: 10,
+    contestResultsSummaries: {
+      fishing: {
+        type: 'yesno',
+        ballots: 10,
+        overvotes: 3,
+        undervotes: 2,
+        yesTally: 5,
+        noTally: 0,
+      },
+      'zoo-council-mammal': {
+        type: 'candidate',
+        ballots: 10,
+        overvotes: 3,
+        undervotes: 2,
+        officialOptionTallies: {
+          zebra: 8,
+          lion: 6,
+          kangaroo: 7,
+          elephant: 2,
+        },
+        writeInOptionTallies: {
+          somebody: {
+            id: 'somebody',
+            name: 'Somebody',
+            tally: 2,
+          },
+        },
+      },
+    },
+  });
+  const manualResults2 = buildManualResultsFixture({
+    election,
+    ballotCount: 20,
+    contestResultsSummaries: {
+      fishing: {
+        type: 'yesno',
+        ballots: 20,
+        overvotes: 7,
+        undervotes: 2,
+        yesTally: 2,
+        noTally: 9,
+      },
+      'zoo-council-mammal': {
+        type: 'candidate',
+        ballots: 20,
+        overvotes: 9,
+        undervotes: 14,
+        officialOptionTallies: {
+          zebra: 0,
+          lion: 12,
+          kangaroo: 12,
+          elephant: 5,
+        },
+        writeInOptionTallies: {
+          anybody: {
+            id: 'anybody',
+            name: 'Anybody',
+            tally: 8,
+          },
+        },
+      },
+    },
+  });
+
+  const combinedResults = combineManualElectionResults({
+    election,
+    allManualResults: [manualResults1, manualResults2],
+  });
+
+  expect(combinedResults).toEqual(
+    buildManualResultsFixture({
+      election,
+      ballotCount: 30,
+      contestResultsSummaries: {
+        fishing: {
+          type: 'yesno',
+          ballots: 30,
+          overvotes: 10,
+          undervotes: 4,
+          yesTally: 7,
+          noTally: 9,
+        },
+        'zoo-council-mammal': {
+          type: 'candidate',
+          ballots: 30,
+          overvotes: 12,
+          undervotes: 16,
+          officialOptionTallies: {
+            zebra: 8,
+            lion: 18,
+            kangaroo: 19,
+            elephant: 7,
+          },
+          writeInOptionTallies: {
+            somebody: {
+              id: 'somebody',
+              name: 'Somebody',
+              tally: 2,
+            },
+            anybody: {
+              id: 'anybody',
+              name: 'Anybody',
+              tally: 8,
+            },
+          },
+        },
+      },
+    })
+  );
 });

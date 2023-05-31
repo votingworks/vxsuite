@@ -138,3 +138,12 @@ export type CastVoteRecord = {
   readonly votes: Votes;
   readonly card: Card;
 } & CastVoteRecordAttributes;
+
+/**
+ * Manually entered results are represented the same as for scanned results,
+ * except we have a single overall ballot count rather than individual card
+ * counts.
+ */
+export type ManualElectionResults = Omit<ElectionResults, 'cardCounts'> & {
+  ballotCount: number;
+};
