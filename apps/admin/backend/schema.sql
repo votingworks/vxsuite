@@ -106,7 +106,7 @@ create table ballot_images (
     on delete cascade
 );
 
-create table manual_tallies (
+create table manual_results (
   id integer primary key,
   election_id integer not null,
   precinct_id text not null,
@@ -114,18 +114,18 @@ create table manual_tallies (
   ballot_type text not null 
     check (ballot_type = 'absentee' or ballot_type = 'precinct'),
   ballot_count integer not null,
-  contest_tallies text not null,
+  contest_results text not null,
   created_at timestamp not null default current_timestamp,
   unique (election_id, precinct_id, ballot_style_id, ballot_type),
   foreign key (election_id) references elections(id)
     on delete cascade
 );
 
-create table manual_tally_write_in_candidate_references (
-  manual_tally_id integer not null,
+create table manual_result_write_in_candidate_references (
+  manual_result_id integer not null,
   write_in_candidate_id varchar(36) not null,
-  primary key (manual_tally_id, write_in_candidate_id),
-  foreign key (manual_tally_id) references manual_tallies(id)
+  primary key (manual_result_id, write_in_candidate_id),
+  foreign key (manual_result_id) references manual_results(id)
     on delete cascade,
   foreign key (write_in_candidate_id) references write_in_candidates(id)
     on delete cascade
