@@ -83,7 +83,7 @@ const mockValidTally = buildSpecificManualTally(
 
 test('displays correct contests for ballot style', async () => {
   apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualTally({
+  apiMock.expectGetManualResults({
     ballotStyleId: '1M',
     ballotType: 'absentee',
     precinctId: 'precinct-1',
@@ -123,7 +123,7 @@ test('displays correct contests for ballot style', async () => {
 
 test('can edit counts, receive validation messages, and save', async () => {
   apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualTally({
+  apiMock.expectGetManualResults({
     ballotStyleId: '1M',
     ballotType: 'absentee',
     precinctId: 'precinct-1',
@@ -218,7 +218,7 @@ test('can edit counts, receive validation messages, and save', async () => {
 
   await screen.findByText('All entered contest results are valid');
 
-  apiMock.expectSetManualTally({
+  apiMock.expectSetManualResults({
     ballotStyleId: '1M',
     precinctId: 'precinct-1',
     ballotType: 'absentee',
@@ -230,7 +230,7 @@ test('can edit counts, receive validation messages, and save', async () => {
 test('loads pre-existing manual data to edit', async () => {
   apiMock.expectGetWriteInCandidates([]);
   // have an initial tally from backend
-  apiMock.expectGetManualTally(
+  apiMock.expectGetManualResults(
     {
       ballotStyleId: '1M',
       ballotType: 'absentee',
@@ -281,7 +281,7 @@ test('loads pre-existing manual data to edit', async () => {
 
 test('adding new write-in candidates', async () => {
   apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualTally({
+  apiMock.expectGetManualResults({
     ballotStyleId: '1M',
     ballotType: 'precinct',
     precinctId: 'precinct-1',
@@ -379,7 +379,7 @@ test('adding new write-in candidates', async () => {
   await within(zooCouncilMammal).findByText('Entered results are valid');
 
   // saves temp write-in candidate to backend
-  apiMock.expectSetManualTally({
+  apiMock.expectSetManualResults({
     ballotStyleId: '1M',
     precinctId: 'precinct-1',
     ballotType: 'precinct',
@@ -420,7 +420,7 @@ test('loads existing write-in candidates', async () => {
     },
   ]);
 
-  apiMock.expectGetManualTally(
+  apiMock.expectGetManualResults(
     {
       ballotStyleId: '1M',
       ballotType: 'precinct',

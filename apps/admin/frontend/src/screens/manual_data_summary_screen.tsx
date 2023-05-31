@@ -23,22 +23,22 @@ import {
   SelectChangeEventFunction,
 } from '@votingworks/types';
 import type {
-  ManualTallyBallotType,
-  ManualTallyIdentifier,
+  ManualResultsVotingMethod,
+  ManualResultsIdentifier,
 } from '@votingworks/admin-backend';
 import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tallies_modal';
-import { deleteManualTally, getManualTallyMetadata } from '../api';
+import { deleteManualResults, getManualResultsMetadata } from '../api';
 import { Loading } from '../components/loading';
 
-const allManualTallyBallotTypes: ManualTallyBallotType[] = ['precinct'];
+const allManualTallyBallotTypes: ManualResultsVotingMethod[] = ['precinct'];
 
 function getAllPossibleManualTallyIdentifiers(
   election: Election
-): ManualTallyIdentifier[] {
+): ManualResultsIdentifier[] {
   return election.ballotStyles.flatMap((bs) =>
     bs.precincts.flatMap((precinctId) => [
       {
@@ -66,11 +66,11 @@ function RemoveManualTallyModal({
   election,
   onClose,
 }: {
-  identifier: ManualTallyIdentifier;
+  identifier: ManualResultsIdentifier;
   election: Election;
   onClose: VoidFunction;
 }): JSX.Element {
-  const deleteManualTallyMutation = deleteManualTally.useMutation();
+  const deleteManualTallyMutation = deleteManualResults.useMutation();
 
   function onConfirm() {
     deleteManualTallyMutation.mutate({
@@ -125,7 +125,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
   const { election } = electionDefinition;
   const history = useHistory();
 
-  const getManualTallyMetadataQuery = getManualTallyMetadata.useQuery();
+  const getManualTallyMetadataQuery = getManualResultsMetadata.useQuery();
 
   const manualTallyMetadataRecords = useMemo(() => {
     if (!getManualTallyMetadataQuery.data) return [];
@@ -148,7 +148,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
   const [isClearingAll, setIsClearingAll] = useState(false);
 
   const [manualTallyToRemove, setManualTallyToRemove] =
-    useState<ManualTallyIdentifier>();
+    useState<ManualResultsIdentifier>();
 
   // metadata for tallies which do not exist yet and thus could be added
   const uncreatedManualTallyMetadata = useMemo(() => {
@@ -166,7 +166,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
   const [selectedPrecinct, setSelectedPrecinct] = useState<Precinct>();
   const [selectedBallotStyle, setSelectedBallotStyle] = useState<BallotStyle>();
   const [selectedBallotType, setSelectedBallotType] =
-    useState<ManualTallyBallotType>();
+    useState<ManualResultsVotingMethod>();
 
   const selectableBallotStyles = election.ballotStyles.filter((bs) => {
     return uncreatedManualTallyMetadata.some(
@@ -182,7 +182,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
         );
       })
     : [];
-  const selectableBallotTypes: ManualTallyBallotType[] =
+  const selectableBallotTypes: ManualResultsVotingMethod[] =
     selectedBallotStyle && selectedPrecinct
       ? allManualTallyBallotTypes.filter((ballotType) => {
           return uncreatedManualTallyMetadata.some(
@@ -212,7 +212,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
   const handleBallotTypeSelect: SelectChangeEventFunction = (event) => {
     const { value } = event.currentTarget;
 
-    setSelectedBallotType(value as ManualTallyBallotType);
+    setSelectedBallotType(value as ManualResultsVotingMethod);
   };
 
   if (!getManualTallyMetadataQuery.isSuccess) {

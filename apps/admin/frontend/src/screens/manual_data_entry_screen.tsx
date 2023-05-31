@@ -25,7 +25,7 @@ import {
 } from '@votingworks/ui';
 import { isElectionManagerAuth, getEmptyManualTally } from '@votingworks/utils';
 
-import type { ManualTallyBallotType } from '@votingworks/admin-backend';
+import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 import { ManualDataEntryScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
 
@@ -33,7 +33,11 @@ import { AppContext } from '../contexts/app_context';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { TextInput } from '../components/text_input';
-import { getManualTally, getWriteInCandidates, setManualTally } from '../api';
+import {
+  getManualResults,
+  getWriteInCandidates,
+  setManualResults,
+} from '../api';
 import { normalizeWriteInName } from '../utils/write_ins';
 import { Loading } from '../components/loading';
 
@@ -289,13 +293,13 @@ export function ManualDataEntryScreen(): JSX.Element {
     (bs) => bs.id === ballotStyleId
   );
   assert(ballotTypeParam === 'precinct' || ballotTypeParam === 'absentee');
-  const ballotType = ballotTypeParam as ManualTallyBallotType;
+  const ballotType = ballotTypeParam as ManualResultsVotingMethod;
   const ballotTypeTitle = ballotType === 'absentee' ? 'Absentee' : 'Precinct';
   const history = useHistory();
 
   const getWriteInCandidatesQuery = getWriteInCandidates.useQuery();
-  const setManualTallyMutation = setManualTally.useMutation();
-  const getManualTallyQuery = getManualTally.useQuery({
+  const setManualTallyMutation = setManualResults.useMutation();
+  const getManualTallyQuery = getManualResults.useQuery({
     precinctId,
     ballotStyleId,
     ballotType,
@@ -306,7 +310,7 @@ export function ManualDataEntryScreen(): JSX.Element {
   );
   useEffect(() => {
     if (getManualTallyQuery.data) {
-      setTempManualTally(getManualTallyQuery.data.manualTally);
+      setTempManualTally(getManualTallyQuery.data.manualResults);
     }
   }, [getManualTallyQuery.data]);
 

@@ -682,7 +682,7 @@ test('clearing results', async () => {
     new Date()
   );
   apiMock.expectGetFullElectionManualTally(manualTally);
-  apiMock.expectGetManualTallyMetadata([
+  apiMock.expectGetManualResultsMetadata([
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',
@@ -707,7 +707,7 @@ test('clearing results', async () => {
     getByText('Remove Manually Entered Results').closest('button')
   ).toBeDisabled();
 
-  apiMock.expectDeleteAllManualTallies();
+  apiMock.expectDeleteAllManualResults();
   apiMock.expectGetFullElectionManualTally();
 
   apiMock.expectClearCastVoteRecordFiles();
@@ -715,7 +715,7 @@ test('clearing results', async () => {
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetManualTallyMetadata([]);
+  apiMock.expectGetManualResultsMetadata([]);
   fireEvent.click(getByText('Clear All Tallies and Results'));
   getByText(
     'Do you want to remove the 1 loaded CVR file and the manually entered data?'
@@ -773,7 +773,7 @@ test('election manager UI has expected nav', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetFullElectionManualTally();
-  apiMock.expectGetManualTallyMetadata([]);
+  apiMock.expectGetManualResultsMetadata([]);
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 

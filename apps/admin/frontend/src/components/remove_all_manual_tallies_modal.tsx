@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Modal, Button, P, Font, H1 } from '@votingworks/ui';
-import { deleteAllManualTallies } from '../api';
+import { deleteAllManualResults } from '../api';
 
 export interface Props {
   onClose: VoidFunction;
@@ -10,7 +10,7 @@ export interface Props {
 export function RemoveAllManualTalliesModal({
   onClose,
 }: Props): JSX.Element | null {
-  const deleteAllManualTalliesMutation = deleteAllManualTallies.useMutation();
+  const deleteAllManualTalliesMutation = deleteAllManualResults.useMutation();
 
   function onConfirm() {
     deleteAllManualTalliesMutation.mutate();
