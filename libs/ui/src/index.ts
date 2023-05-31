@@ -62,6 +62,7 @@ export * from './select';
 export * from './session_time_limit_tracker';
 export * from './setup_card_reader_page';
 export * from './set_clock';
+export * from './tabbed_section';
 export * from './table';
 export * from './tally_report';
 export * from './tally_report_metadata';
