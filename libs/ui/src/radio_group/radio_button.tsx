@@ -16,8 +16,10 @@ const Container = styled.label<OptionContainerProps>`
   border-width: ${(p) => p.theme.sizes.bordersRem.hairline}rem;
   display: flex;
   flex-wrap: nowrap;
+  gap: 0.25rem;
   justify-content: start;
   min-height: 2.5rem;
+  padding: 0.25rem;
   text-align: left;
 
   &[disabled] {

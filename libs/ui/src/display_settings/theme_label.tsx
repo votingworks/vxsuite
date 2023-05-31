@@ -16,7 +16,7 @@ export interface ThemeLabelProps {
 const Container = styled.span`
   align-items: center;
   display: flex;
-  gap: 0.5rem;
+  gap: 0.25rem;
 `;
 
 const LabelText = styled(Font)`

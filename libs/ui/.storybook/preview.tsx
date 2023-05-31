@@ -7,7 +7,7 @@ import {
 } from '@storybook/types';
 
 import { AppBase, ThemeManagerContext } from '../src';
-import { ColorMode, SizeMode } from '@votingworks/types';
+import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 
 // TODO: Find the storybook.js type declaration for this. Doesn't seem to be in
 // the @storybook/types repo.
@@ -15,9 +15,18 @@ interface ToolbarItem<T> {
   value: T, title: string, left?: string
 }
 
+type ScreenTypeToolBarItem = ToolbarItem<ScreenType>;
+
 type ColorModeToolBarItem = ToolbarItem<ColorMode>;
 
 type SizeModeToolBarItem = ToolbarItem<SizeMode>;
+
+const DEFAULT_SCREEN_TYPE: ScreenType = 'builtIn';
+const screenTypeToolBarItems: Record<ScreenType, ScreenTypeToolBarItem> = {
+  builtIn: { title: 'Generic Built-In Screen', value: 'builtIn' },
+  elo13: { title: 'ELO 13" Screen', value: 'elo13' },
+  elo15: { title: 'ELO 15" Screen', value: 'elo15' },
+};
 
 const DEFAULT_SIZE_MODE: SizeMode = "m";
 const sizeThemeToolBarItems: Record<SizeMode, SizeModeToolBarItem> = {
@@ -45,6 +54,15 @@ const colorThemeToolBarItems: Record<ColorMode, ColorModeToolBarItem> = {
  * for all components that support theming.
  */
 export const globalTypes: GlobalTypes = {
+  screenType: {
+    name: 'Screen Type',
+    toolbar: {
+      icon: 'tablet',
+      items: Object.values(screenTypeToolBarItems),
+      dynamicTitle: true,
+    },
+    defaultValue: DEFAULT_SCREEN_TYPE,
+  },
   colorMode: {
     name: 'Color Theme',
     toolbar: {
@@ -122,6 +140,7 @@ export const decorators: DecoratorFunction[] = [
         defaultColorMode={context.globals.colorMode}
         defaultSizeMode={context.globals.sizeMode}
         enableScroll
+        screenType={context.globals.screenType}
       >
         <StoryWrapper context={context}>
           <Story />

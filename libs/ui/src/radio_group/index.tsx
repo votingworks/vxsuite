@@ -16,13 +16,17 @@ export interface RadioGroupProps<T extends RadioGroupOptionId> {
    * still allowing it to be assigned to the control for screen readers.
    */
   label: string;
+  /** @default 1 */
+  numColumns?: number;
   onChange: (newId: T) => void;
   options: ReadonlyArray<RadioGroupOption<T>>;
   selectedOptionId?: T;
 }
 
 const OuterContainer = styled.fieldset.attrs({ role: 'radiogroup' })`
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 `;
 
 const LabelContainer = styled.legend`
@@ -30,11 +34,20 @@ const LabelContainer = styled.legend`
   margin-bottom: 0.5rem;
 `;
 
-const OptionsContainer = styled.span`
+interface OptionsContainerProps {
+  numColumns: number;
+}
+
+const OPTION_SPACING_REM = 0.5;
+
+const OptionsContainer = styled.span<OptionsContainerProps>`
+  align-items: stretch;
   border-radius: 0.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  display: grid;
+  grid-gap: ${OPTION_SPACING_REM}rem;
+  grid-template-columns: ${(p) =>
+    Array.from({ length: p.numColumns }).fill('1fr').join(' ')};
+  height: 100%;
   margin-bottom: 0.35rem;
 `;
 
@@ -45,7 +58,8 @@ const OptionsContainer = styled.span`
 export function RadioGroup<T extends RadioGroupOptionId>(
   props: RadioGroupProps<T>
 ): JSX.Element {
-  const { hideLabel, label, onChange, options, selectedOptionId } = props;
+  const { hideLabel, label, numColumns, onChange, options, selectedOptionId } =
+    props;
 
   return (
     <OuterContainer aria-label={label}>
@@ -54,7 +68,7 @@ export function RadioGroup<T extends RadioGroupOptionId>(
           <Caption weight="semiBold">{label}</Caption>
         </LabelContainer>
       )}
-      <OptionsContainer>
+      <OptionsContainer numColumns={numColumns || 1}>
         {options.map((o) => (
           <RadioButton
             {...o}

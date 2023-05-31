@@ -3,21 +3,24 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { PANE_IDS, SettingsPaneId } from './types';
-import { Icons } from '../icons';
 import { Button } from '../button';
 
 export interface TabBarProps {
   activePaneId: SettingsPaneId;
+  className?: string;
+  grow?: boolean;
   onChange: (selectedPaneId: SettingsPaneId) => void;
 }
 
-const Container = styled.div`
-  border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem dotted
-    ${(p) => p.theme.colors.foreground};
+interface ContainerProps {
+  grow?: boolean;
+}
+
+const Container = styled.div<ContainerProps>`
   display: flex;
+  flex-grow: ${(p) => (p.grow ? 1 : 0)};
   flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0.25rem 0.5rem 0.75rem;
+  gap: max(0.25rem, ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px);
 
   & > * {
     max-width: ${100 / PANE_IDS.length}%;
@@ -33,16 +36,8 @@ const TabLabel = styled.span`
 `;
 
 const TAB_LABELS: Record<SettingsPaneId, JSX.Element> = {
-  displaySettingsColor: (
-    <React.Fragment>
-      <Icons.Contrast /> <span>Color</span>
-    </React.Fragment>
-  ),
-  displaySettingsSize: (
-    <React.Fragment>
-      <Icons.TextSize /> <span>Text Size</span>
-    </React.Fragment>
-  ),
+  displaySettingsColor: <span>Color</span>,
+  displaySettingsSize: <span>Text Size</span>,
 };
 
 /**
@@ -50,10 +45,15 @@ const TAB_LABELS: Record<SettingsPaneId, JSX.Element> = {
  * unselected tabs and manually handle arrow keys cycling through the tabs.
  */
 export function TabBar(props: TabBarProps): JSX.Element {
-  const { activePaneId, onChange } = props;
+  const { activePaneId, className, grow, onChange } = props;
 
   return (
-    <Container aria-label="Display settings" role="tablist">
+    <Container
+      aria-label="Display settings"
+      className={className}
+      grow={grow}
+      role="tablist"
+    >
       {[...PANE_IDS].map((paneId) => (
         <Button
           aria-controls={paneId}

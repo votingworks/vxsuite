@@ -5,6 +5,7 @@ import { SettingsPane } from './settings_pane';
 import { RadioGroup } from '../radio_group';
 import { ThemeManagerContext } from '../theme_manager_context';
 import { ThemeLabel } from './theme_label';
+import { useScreenInfo } from '../hooks/use_screen_info';
 
 export interface SizeSettingsProps {
   /** @default ['s', 'm', 'l', 'xl'] */
@@ -25,11 +26,16 @@ export function SizeSettings(props: SizeSettingsProps): JSX.Element {
   const { sizeModes = DEFAULT_SIZE_MODES } = props;
   const enabledSizeModes = new Set(sizeModes);
 
+  const screenInfo = useScreenInfo();
+
   const { setSizeMode } = React.useContext(ThemeManagerContext);
 
   const orderedSizeModes = (
     Object.keys(ORDERED_SIZE_MODE_LABELS) as SizeMode[]
   ).filter((m) => enabledSizeModes.has(m));
+
+  /* istanbul ignore next */
+  const numColumns = screenInfo.isPortrait ? 1 : 2;
 
   return (
     <ThemeConsumer>
@@ -38,6 +44,7 @@ export function SizeSettings(props: SizeSettingsProps): JSX.Element {
           <RadioGroup
             hideLabel
             label="Text Size Settings"
+            numColumns={numColumns}
             onChange={setSizeMode}
             options={orderedSizeModes.map((m) => ({
               id: m,

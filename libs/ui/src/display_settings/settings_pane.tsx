@@ -11,7 +11,8 @@ export interface SettingsPaneProps {
 const Container = styled.div.attrs({ role: 'tabpanel' })`
   display: flex;
   flex-direction: column;
-  padding: 0.75rem 0.5rem;
+  flex-grow: 1;
+  padding: 0.5rem;
 `;
 
 export function SettingsPane(props: SettingsPaneProps): JSX.Element {
