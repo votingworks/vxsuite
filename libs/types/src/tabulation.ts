@@ -6,6 +6,7 @@ import {
   ContestId,
   PrecinctId,
 } from './election';
+import * as CVR from './cdf/cast-vote-records/index';
 import { Id } from './generic';
 
 export interface ContestResultsMetadata {
@@ -41,12 +42,7 @@ export type CandidateContestResults = ContestResultsBase & {
  */
 export type ContestResults = YesNoContestResults | CandidateContestResults;
 
-export const VOTING_METHODS = ['absentee', 'precinct', 'provisional'] as const;
-
-/**
- * Should match `CVR.vxBallotStyle` from the generated CDF cast vote record types.
- */
-export type VotingMethod = typeof VOTING_METHODS[number];
+export type VotingMethod = `${CVR.vxBallotType}`;
 
 /**
  * Indicates what cast vote records to include when calculating results.
