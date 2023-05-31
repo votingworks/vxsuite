@@ -43,17 +43,12 @@ const OPTION_SPACING_REM = 0.5;
 const OptionsContainer = styled.span<OptionsContainerProps>`
   align-items: stretch;
   border-radius: 0.25rem;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: ${OPTION_SPACING_REM}rem;
+  display: grid;
+  grid-gap: ${OPTION_SPACING_REM}rem;
+  grid-template-columns: ${(p) =>
+    Array.from({ length: p.numColumns }).fill('1fr').join(' ')};
   height: 100%;
   margin-bottom: 0.35rem;
-
-  & > * {
-    flex-grow: 1;
-    width: calc(100% / ${(p) => p.numColumns} - ${OPTION_SPACING_REM}rem);
-  }
 `;
 
 /**
