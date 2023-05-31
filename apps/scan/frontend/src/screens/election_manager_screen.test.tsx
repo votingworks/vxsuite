@@ -68,6 +68,8 @@ test('renders date and time settings modal', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
+  userEvent.click(screen.getByRole('tab', { name: /system/i }));
+
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM UTC';
@@ -130,6 +132,8 @@ test('export from admin screen', async () => {
   apiMock.expectGetConfig();
   renderScreen();
 
+  userEvent.click(await screen.findByRole('tab', { name: /data/i }));
+
   userEvent.click(await screen.findByText('Save Backup'));
   await screen.findByRole('heading', { name: 'No USB Drive Detected' });
   // Tested in export_backup_modal.test.tsx
@@ -143,6 +147,8 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
     usbDrive: fakeUsbDriveStatus('no_drive'),
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: /data/i }));
 
   apiMock.mockApiClient.unconfigureElection.expectCallWith({}).resolves();
   apiMock.expectGetConfig({ electionDefinition: undefined });
@@ -164,6 +170,8 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
+  userEvent.click(screen.getByRole('tab', { name: /data/i }));
+
   apiMock.mockApiClient.unconfigureElection.expectCallWith({}).resolves();
   apiMock.expectGetConfig({ electionDefinition: undefined });
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
@@ -179,6 +187,8 @@ test('unconfigure button is disabled when the machine cannot be unconfigured', a
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: /data/i }));
 
   userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   expect(screen.queryByText('Unconfigure Machine?')).toBeNull();
@@ -200,6 +210,8 @@ test('allows overriding mark thresholds', async () => {
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: /system/i }));
 
   userEvent.click(screen.getByText('Override Mark Thresholds'));
   userEvent.click(screen.getByText('Proceed to Override Thresholds'));
@@ -229,6 +241,9 @@ test('when sounds are not muted, shows a button to mute sounds', async () => {
     .expectCallWith({ isSoundMuted: true })
     .resolves();
   apiMock.expectGetConfig({ isSoundMuted: true });
+
+  userEvent.click(screen.getByRole('tab', { name: /system/i }));
+
   userEvent.click(screen.getByRole('button', { name: 'Mute Sounds' }));
   await screen.findByRole('button', { name: 'Unmute Sounds' });
 });
@@ -243,6 +258,9 @@ test('when sounds are muted, shows a button to unmute sounds', async () => {
     .expectCallWith({ isSoundMuted: false })
     .resolves();
   apiMock.expectGetConfig({ isSoundMuted: false });
+
+  userEvent.click(screen.getByRole('tab', { name: /system/i }));
+
   userEvent.click(screen.getByRole('button', { name: 'Unmute Sounds' }));
   await screen.findByRole('button', { name: 'Mute Sounds' });
 });
@@ -252,6 +270,9 @@ test('does not show ultrasonic button if not supported', async () => {
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: /system/i }));
+
   expect(screen.queryByText('Disable Double Sheet Detection')).toBeNull();
 });
 
@@ -260,6 +281,9 @@ test('shows ultrasonic toggle when supported', async () => {
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: /system/i }));
+
   await screen.findByText('Disable Double Sheet Detection');
 });
 
@@ -268,6 +292,9 @@ test('prompts to enable ultrasonic when disabled ', async () => {
   apiMock.expectGetConfig({ isUltrasonicDisabled: true });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: /system/i }));
+
   await screen.findByText('Enable Double Sheet Detection');
 });
 
@@ -276,6 +303,8 @@ test('disables ultrasonic properly', async () => {
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: /system/i }));
 
   apiMock.mockApiClient.setIsUltrasonicDisabled
     .expectCallWith({ isUltrasonicDisabled: true })

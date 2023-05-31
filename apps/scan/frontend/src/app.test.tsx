@@ -314,6 +314,9 @@ test('election manager and poll worker configuration', async () => {
   };
   apiMock.expectGetConfig(config);
   userEvent.click(await screen.findByText('Yes, Open the Polls'));
+
+  await hackActuallyCleanUpReactModal();
+
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
   );
@@ -330,6 +333,9 @@ test('election manager and poll worker configuration', async () => {
   await screen.findByText('Election Manager Settings');
   // Confirm we can't unconfigure just by changing precinct
   expect(await screen.findByTestId('selectPrecinct')).toBeDisabled();
+
+  userEvent.click(screen.getByRole('tab', { name: /data/i }));
+
   userEvent.click(
     await screen.findByText('Delete All Election Data from VxScan')
   );
@@ -472,6 +478,9 @@ test('voter can cast a ballot that scans successfully ', async () => {
   // Insert Election Manager Card
   apiMock.authenticateAsElectionManager(electionSampleDefinition);
   await screen.findByText('Election Manager Settings');
+
+  userEvent.click(screen.getByRole('tab', { name: /data/i }));
+
   userEvent.click(await screen.findByText('Save CVRs'));
   await screen.findByText('No USB Drive Detected');
   userEvent.click(await screen.findByText('Cancel'));
