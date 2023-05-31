@@ -46,6 +46,7 @@ import * as fs from 'fs/promises';
 import { basename, join, normalize, parse } from 'path';
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
+import { ArtifactAuthenticatorApi } from '@votingworks/auth';
 import { Store } from './store';
 import {
   CastVoteRecordFileMetadata,
@@ -303,6 +304,9 @@ export type AddCastVoteRecordReportError =
       type: 'report-access-failure';
     }
   | {
+      type: 'cast-vote-records-authentication-error';
+    }
+  | {
       type: 'invalid-report-structure';
       error: CastVoteRecordReportDirectoryStructureValidationError;
     }
@@ -344,7 +348,9 @@ export function getAddCastVoteRecordReportErrorMessage(
   const errorType = error.type;
   switch (errorType) {
     case 'report-access-failure':
-      return 'Failed to access cast vote record report for import.';
+      return 'Unable to access cast vote record report for import.';
+    case 'cast-vote-records-authentication-error':
+      return 'Unable to authenticate cast vote records. Try re-exporting from the scanner.';
     case 'invalid-report-structure':
       return 'Cast vote record report has invalid file structure.';
     case 'malformed-report-metadata':
@@ -373,7 +379,7 @@ export function getAddCastVoteRecordReportErrorMessage(
             return `The record references an invalid sheet number.`;
           case 'invalid-ballot-image-location':
           case 'invalid-write-in-image-location':
-            return `The record references a ballot image which is not included in the report`;
+            return 'The record references a ballot image which is not included in the report.';
           case 'no-current-snapshot':
             return `The record does not contain a current snapshot of the interpreted results.`;
           case 'invalid-contest':
@@ -451,16 +457,32 @@ export async function addCastVoteRecordReport({
   store,
   reportDirectoryPath,
   exportedTimestamp,
+  artifactAuthenticator,
 }: {
   store: Store;
   reportDirectoryPath: string;
   exportedTimestamp: Iso8601Timestamp;
+  artifactAuthenticator: ArtifactAuthenticatorApi;
 }): Promise<AddCastVoteRecordReportResult> {
   const electionId = store.getCurrentElectionId();
   assert(electionId !== undefined);
 
   const electionDefinition = store.getElection(electionId)?.electionDefinition;
   assert(electionDefinition);
+
+  const artifactAuthenticationResult =
+    await artifactAuthenticator.authenticateArtifactUsingSignatureFile({
+      type: 'cast_vote_records',
+      path: reportDirectoryPath,
+    });
+  if (
+    artifactAuthenticationResult.isErr() &&
+    !isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+    )
+  ) {
+    return err({ type: 'cast-vote-records-authentication-error' });
+  }
 
   // Check whether this directory looks like a valid report directory
   const directoryValidationResult =

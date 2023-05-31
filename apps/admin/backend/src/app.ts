@@ -372,6 +372,7 @@ function buildApi({
         store,
         reportDirectoryPath: path,
         exportedTimestamp: exportedTimestamp.toISOString(),
+        artifactAuthenticator,
       });
 
       if (addCastVoteRecordReportResult.isErr()) {
