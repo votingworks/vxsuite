@@ -1,15 +1,6 @@
-import { Optional, assert } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import { CVR, ContestId, ContestOptionId, Side } from '@votingworks/types';
-
-/**
- * Returns the current snapshot of a cast vote record, or undefined if none
- * exists. If undefined, the cast vote record is invalid.
- */
-export function getCurrentSnapshot(cvr: CVR.CVR): Optional<CVR.CVRSnapshot> {
-  return cvr.CVRSnapshot.find(
-    (snapshot) => snapshot['@id'] === cvr.CurrentSnapshotId
-  );
-}
+import { getCurrentSnapshot } from '@votingworks/utils';
 
 /**
  * Our BMD write-ins use the CDF `Text` field on the {@link CVR.CVRWriteIn},

@@ -369,7 +369,7 @@ test('marking results as official', async () => {
   });
   apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFileMode('official');
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInTalliesAdjudicated([]);
   renderApp();
 
   await apiMock.authenticateAsElectionManager(electionDefinition);
@@ -406,7 +406,7 @@ test('tabulating CVRs', async () => {
   });
   apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFileMode('official');
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInTalliesAdjudicated([]);
   const { getByText, getAllByText, getByTestId } = renderApp();
 
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
@@ -543,7 +543,7 @@ test('manual tally data appears in reporting', async () => {
   });
 
   apiMock.expectGetCastVoteRecordFileMode('test');
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInTalliesAdjudicated([]);
 
   const district5ManualTally = buildSpecificManualTally(election, 100, {
     '775020876': {
@@ -948,7 +948,7 @@ test('primary election flow', async () => {
   );
   apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFileMode('test');
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInTalliesAdjudicated([]);
 
   renderApp();
   await apiMock.authenticateAsElectionManager(electionDefinition);

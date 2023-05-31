@@ -23,7 +23,7 @@ import {
   Text,
 } from '@votingworks/ui';
 import { UseQueryResult } from '@tanstack/react-query';
-import type { WriteInSummaryEntryAdjudicated } from '@votingworks/admin-backend';
+import type { WriteInAdjudicatedTally } from '@votingworks/admin-backend';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 
 import {
@@ -48,7 +48,7 @@ import {
 import { PrintButton } from '../components/print_button';
 import {
   getCastVoteRecordFileMode,
-  getWriteInSummary,
+  getWriteInTallies,
   markResultsOfficial,
 } from '../api';
 
@@ -75,16 +75,16 @@ export function TallyReportScreen(): JSX.Element {
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
   const userRole = auth.user.role;
-  const writeInSummaryQuery = getWriteInSummary.useQuery({
+  const writeInTalliesQuery = getWriteInTallies.useQuery({
     status: 'adjudicated',
-  }) as UseQueryResult<WriteInSummaryEntryAdjudicated[]>;
+  }) as UseQueryResult<WriteInAdjudicatedTally[]>;
 
   const screenAdjudicatedOfficialCandidateWriteInCounts =
     getOfficialCandidateScreenAdjudicatedWriteInCounts(
-      writeInSummaryQuery.data ?? []
+      writeInTalliesQuery.data ?? []
     );
   const invalidWriteInCounts = getInvalidWriteInCounts(
-    writeInSummaryQuery.data ?? []
+    writeInTalliesQuery.data ?? []
   );
 
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();

@@ -20,6 +20,7 @@ import {
   ManualTally,
   PrecinctId,
   BallotStyleId,
+  Tabulation,
 } from '@votingworks/types';
 import * as z from 'zod';
 
@@ -253,23 +254,23 @@ export type WriteInAdjudicationType =
 /**
  * Write-in summary information for non-adjudicated records.
  */
-export interface WriteInSummaryEntryPending {
+export interface WriteInPendingTally {
   readonly status: 'pending';
   readonly contestId: ContestId;
-  readonly writeInCount: number;
+  readonly tally: number;
 }
 
-interface WriteInSummaryEntryAdjudicatedBase {
+interface WriteInAdjudicatedTallyBase {
   readonly status: 'adjudicated';
   readonly contestId: ContestId;
-  readonly writeInCount: number;
+  readonly tally: number;
 }
 
 /**
  * Write-in summary information for write-ins adjudicated for an official candidate.
  */
-export interface WriteInSummaryEntryAdjudicatedOfficialCandidate
-  extends WriteInSummaryEntryAdjudicatedBase {
+export interface WriteInAdjudicatedOfficialCandidateTally
+  extends WriteInAdjudicatedTallyBase {
   readonly adjudicationType: 'official-candidate';
   readonly candidateId: CandidateId;
   readonly candidateName: string;
@@ -278,8 +279,8 @@ export interface WriteInSummaryEntryAdjudicatedOfficialCandidate
 /**
  * Write-in summary information for write-ins adjudicated for a write-in candidate.
  */
-export interface WriteInSummaryEntryAdjudicatedWriteInCandidate
-  extends WriteInSummaryEntryAdjudicatedBase {
+export interface WriteInAdjudicatedWriteInCandidateTally
+  extends WriteInAdjudicatedTallyBase {
   readonly adjudicationType: 'write-in-candidate';
   readonly candidateId: string;
   readonly candidateName: string;
@@ -288,25 +289,41 @@ export interface WriteInSummaryEntryAdjudicatedWriteInCandidate
 /**
  * Write-in summary information for write-ins adjudicated as invalid.
  */
-export interface WriteInSummaryEntryAdjudicatedInvalid
-  extends WriteInSummaryEntryAdjudicatedBase {
+export interface WriteInAdjudicatedInvalidTally
+  extends WriteInAdjudicatedTallyBase {
   readonly adjudicationType: 'invalid';
 }
 
 /**
  * Write-in summary information for adjudicated write-ins.
  */
-export type WriteInSummaryEntryAdjudicated =
-  | WriteInSummaryEntryAdjudicatedOfficialCandidate
-  | WriteInSummaryEntryAdjudicatedWriteInCandidate
-  | WriteInSummaryEntryAdjudicatedInvalid;
+export type WriteInAdjudicatedTally =
+  | WriteInAdjudicatedOfficialCandidateTally
+  | WriteInAdjudicatedWriteInCandidateTally
+  | WriteInAdjudicatedInvalidTally;
 
 /**
  * Write-in summary information.
  */
-export type WriteInSummaryEntry =
-  | WriteInSummaryEntryPending
-  | WriteInSummaryEntryAdjudicated;
+export type WriteInTally = WriteInPendingTally | WriteInAdjudicatedTally;
+
+/**
+ * The write-in summary for a specific contest including the number of total
+ * write-ins, pending write-ins, invalid write-ins, and write-ins adjudicated
+ * for each candidate.
+ */
+export interface ContestWriteInSummary {
+  contestId: ContestId;
+  totalTally: number;
+  pendingTally: number;
+  invalidTally: number;
+  candidateTallies: Record<Id, Tabulation.CandidateTally>;
+}
+
+/** */
+export interface ElectionWriteInSummary {
+  contestWriteInSummaries: Record<ContestId, ContestWriteInSummary>;
+}
 
 /**
  * Information necessary to adjudicate a write-in for an official candidate.
@@ -440,3 +457,9 @@ export interface ManualTallyMetadataRecord extends ManualTallyIdentifier {
   ballotCount: number;
   createdAt: Iso8601Timestamp;
 }
+
+/**
+ * Subset of tabulation filters that we can use to directly filter cast
+ * vote records.
+ */
+export type StoreTabulationFilter = Omit<Tabulation.Filter, 'partyIds'>;

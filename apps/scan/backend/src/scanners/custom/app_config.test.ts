@@ -9,6 +9,7 @@ import * as grout from '@votingworks/grout';
 import {
   CAST_VOTE_RECORD_REPORT_FILENAME,
   SCANNER_RESULTS_FOLDER,
+  convertCastVoteRecordVotesToTabulationVotes,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { assert, err, find, ok, unique } from '@votingworks/basics';
@@ -20,7 +21,6 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 import {
-  convertCastVoteRecordVotesToLegacyVotes,
   createBallotPackageZipArchive,
   getCastVoteRecordReportImport,
   validateCastVoteRecordReportDirectoryStructure,
@@ -281,7 +281,7 @@ test('export CVRs to USB', async () => {
       const cvr = cvrs[0];
       expect(cvrs.length).toEqual(1);
       expect(
-        convertCastVoteRecordVotesToLegacyVotes(
+        convertCastVoteRecordVotesToTabulationVotes(
           unsafeParse(CVR.CVRSchema, cvr).CVRSnapshot[0]
         )
       ).toMatchObject({

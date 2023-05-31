@@ -3,7 +3,7 @@ import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { typedAs } from '@votingworks/basics';
 import { fakeKiosk, hasTextAcrossElements } from '@votingworks/test-utils';
 import fetchMock from 'fetch-mock';
-import type { WriteInSummaryEntryAdjudicated } from '@votingworks/admin-backend';
+import type { WriteInAdjudicatedTally } from '@votingworks/admin-backend';
 import { VotingMethod } from '@votingworks/types';
 import {
   convertTalliesByPrecinctToFullManualTally,
@@ -17,13 +17,13 @@ import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
 import { VxFiles } from './lib/converters';
 import { getMockWriteInCandidate } from '../test/api_mock_data';
 
-const nonOfficialAdjudicationSummaryMammal: WriteInSummaryEntryAdjudicated = {
+const nonOfficialAdjudicationSummaryMammal: WriteInAdjudicatedTally = {
   status: 'adjudicated',
   adjudicationType: 'write-in-candidate',
   contestId: 'zoo-council-mammal',
   candidateName: 'Chimera',
   candidateId: 'uuid',
-  writeInCount: 1,
+  tally: 1,
 };
 
 let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
@@ -72,7 +72,7 @@ test('manually added write-in results appears in reports', async () => {
     )
   );
   apiMock.expectGetCastVoteRecordFileMode('test');
-  apiMock.expectGetWriteInSummaryAdjudicated([
+  apiMock.expectGetWriteInTalliesAdjudicated([
     nonOfficialAdjudicationSummaryMammal,
   ]);
 

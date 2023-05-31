@@ -1,6 +1,5 @@
 import { CVR } from '@votingworks/types';
 import {
-  getCurrentSnapshot,
   getWriteInsFromCastVoteRecord,
   isBmdWriteIn,
 } from './cast_vote_record_helpers';
@@ -21,42 +20,6 @@ const mockCastVoteRecord: CVR.CVR = {
   ],
   CVRSnapshot: [],
 };
-
-describe('getCurrentSnapshot', () => {
-  test('happy path', () => {
-    const expectedSnapshot: CVR.CVRSnapshot = {
-      '@type': 'CVR.CVRSnapshot',
-      '@id': '1',
-      Type: CVR.CVRType.Modified,
-      CVRContest: [],
-    };
-
-    const actualSnapshot = getCurrentSnapshot({
-      ...mockCastVoteRecord,
-      CurrentSnapshotId: '1',
-      CVRSnapshot: [
-        expectedSnapshot,
-        {
-          '@type': 'CVR.CVRSnapshot',
-          '@id': '0',
-          Type: CVR.CVRType.Original,
-          CVRContest: [],
-        },
-      ],
-    });
-
-    expect(actualSnapshot).toEqual(expectedSnapshot);
-  });
-
-  test('missing snapshot', () => {
-    expect(
-      getCurrentSnapshot({
-        ...mockCastVoteRecord,
-        CVRSnapshot: [],
-      })
-    ).toBeUndefined();
-  });
-});
 
 describe('getWriteInsFromCastVoteRecord', () => {
   test('HMPB happy path', () => {

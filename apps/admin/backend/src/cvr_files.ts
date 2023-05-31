@@ -6,9 +6,7 @@ import {
   CastVoteRecordReportDirectoryStructureValidationError,
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
-  convertCastVoteRecordVotesToLegacyVotes,
   isTestReport,
-  getCurrentSnapshot,
   getWriteInsFromCastVoteRecord,
 } from '@votingworks/backend';
 import {
@@ -37,7 +35,9 @@ import {
 import {
   BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
+  convertCastVoteRecordVotesToTabulationVotes,
   generateElectionBasedSubfolderName,
+  getCurrentSnapshot,
   isFeatureFlagEnabled,
   parseCastVoteRecordReportDirectoryName,
   SCANNER_RESULTS_FOLDER,
@@ -582,7 +582,7 @@ export async function addCastVoteRecordReport({
       const currentSnapshot = getCurrentSnapshot(cvr);
       assert(currentSnapshot);
       const votes = JSON.stringify(
-        convertCastVoteRecordVotesToLegacyVotes(currentSnapshot)
+        convertCastVoteRecordVotesToTabulationVotes(currentSnapshot)
       );
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         electionId,

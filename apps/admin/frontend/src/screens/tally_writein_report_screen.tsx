@@ -19,7 +19,7 @@ import {
   LinkButton,
 } from '@votingworks/ui';
 import { UseQueryResult } from '@tanstack/react-query';
-import type { WriteInSummaryEntryAdjudicated } from '@votingworks/admin-backend';
+import type { WriteInAdjudicatedTally } from '@votingworks/admin-backend';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 
 import {
@@ -44,7 +44,7 @@ import {
   writeInCountsAreEmpty,
 } from '../utils/write_ins';
 import { PrintButton } from '../components/print_button';
-import { getWriteInSummary } from '../api';
+import { getWriteInTallies } from '../api';
 
 export function TallyWriteInReportScreen(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -70,12 +70,12 @@ export function TallyWriteInReportScreen(): JSX.Element {
 
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
-  const writeInSummaryQuery = getWriteInSummary.useQuery({
+  const writeInTalliesQuery = getWriteInTallies.useQuery({
     status: 'adjudicated',
-  }) as UseQueryResult<WriteInSummaryEntryAdjudicated[]>;
+  }) as UseQueryResult<WriteInAdjudicatedTally[]>;
   const screenAdjudicatedWriteInCounts =
     getWriteInCandidateScreenAdjudicatedWriteInCounts(
-      writeInSummaryQuery.data ?? []
+      writeInTalliesQuery.data ?? []
     );
   const manualWriteInCounts = manualData
     ? getManualWriteInCounts(manualData.overallTally)

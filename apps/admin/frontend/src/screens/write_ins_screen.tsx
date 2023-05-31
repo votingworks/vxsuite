@@ -14,7 +14,7 @@ import type { WriteInAdjudicationStatus } from '@votingworks/admin-backend';
 import { NavigationScreen } from '../components/navigation_screen';
 import { WriteInsAdjudicationScreen } from './write_ins_adjudication_screen';
 import { AppContext } from '../contexts/app_context';
-import { getCastVoteRecordFiles, getWriteInSummary } from '../api';
+import { getCastVoteRecordFiles, getWriteInTallies } from '../api';
 
 const ContentWrapper = styled.div`
   display: inline-block;
@@ -32,22 +32,22 @@ export function WriteInsScreen(): JSX.Element {
   const [contestBeingAdjudicated, setContestBeingAdjudicated] =
     useState<CandidateContest>();
 
-  const writeInSummaryQuery = getWriteInSummary.useQuery();
+  const writeInTalliesQuery = getWriteInTallies.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
 
   // get write-in counts grouped by contest
   const writeInCountsByContest = useMemo(() => {
     return collections.map(
-      iter(writeInSummaryQuery.data ?? []).toMap(({ contestId }) => contestId),
+      iter(writeInTalliesQuery.data ?? []).toMap(({ contestId }) => contestId),
       (writeInSummariesForContest) =>
         collections.reduce(
           writeInSummariesForContest,
-          (writeInCountsForContest, writeInSummary) => {
+          (writeInCountsForContest, writeInTally) => {
             return {
               ...writeInCountsForContest,
-              [writeInSummary.status]:
-                writeInCountsForContest[writeInSummary.status] +
-                writeInSummary.writeInCount,
+              [writeInTally.status]:
+                writeInCountsForContest[writeInTally.status] +
+                writeInTally.tally,
             };
           },
           typedAs<Record<WriteInAdjudicationStatus, number>>({
@@ -56,7 +56,7 @@ export function WriteInsScreen(): JSX.Element {
           })
         )
     );
-  }, [writeInSummaryQuery.data]);
+  }, [writeInTalliesQuery.data]);
 
   const election = electionDefinition?.election;
 

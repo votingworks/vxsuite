@@ -5,7 +5,6 @@ import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
 import { rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import {
-  convertCastVoteRecordVotesToLegacyVotes,
   getCastVoteRecordReportImport,
   isTestReport,
   validateCastVoteRecordReportDirectoryStructure,
@@ -161,71 +160,6 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
       await validateCastVoteRecordReportDirectoryStructure(directoryPath);
     expect(validationResult.isErr()).toBeTruthy();
     expect(validationResult.err()).toMatchObject({ type: 'invalid-directory' });
-  });
-});
-
-describe('convertCastVoteRecordVotesToLegacyVotes', () => {
-  test('snapshot without contests', () => {
-    expect(
-      convertCastVoteRecordVotesToLegacyVotes({
-        '@id': 'test',
-        '@type': 'CVR.CVRSnapshot',
-        Type: CVR.CVRType.Modified,
-        CVRContest: [],
-      })
-    ).toMatchObject({});
-  });
-
-  test('converts snapshot', () => {
-    expect(
-      convertCastVoteRecordVotesToLegacyVotes({
-        '@id': 'test',
-        '@type': 'CVR.CVRSnapshot',
-        Type: CVR.CVRType.Modified,
-        CVRContest: [
-          {
-            '@type': 'CVR.CVRContest',
-            ContestId: 'mayor',
-            CVRContestSelection: [
-              {
-                '@type': 'CVR.CVRContestSelection',
-                ContestSelectionId: 'frodo',
-                SelectionPosition: [
-                  {
-                    '@type': 'CVR.SelectionPosition',
-                    HasIndication: CVR.IndicationStatus.Yes,
-                    NumberVotes: 1,
-                  },
-                ],
-              },
-              {
-                '@type': 'CVR.CVRContestSelection',
-                ContestSelectionId: 'gandalf',
-                SelectionPosition: [
-                  {
-                    '@type': 'CVR.SelectionPosition',
-                    HasIndication: CVR.IndicationStatus.Yes,
-                    NumberVotes: 1,
-                  },
-                ],
-              },
-              {
-                '@type': 'CVR.CVRContestSelection',
-                ContestSelectionId: 'sam',
-                SelectionPosition: [
-                  {
-                    '@type': 'CVR.SelectionPosition',
-                    // should be ignored because not indicated
-                    HasIndication: CVR.IndicationStatus.No,
-                    NumberVotes: 1,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      })
-    ).toEqual({ mayor: ['frodo', 'gandalf'] });
   });
 });
 

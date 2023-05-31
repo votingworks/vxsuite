@@ -5,7 +5,7 @@ import React from 'react';
 import type {
   WriteInCandidateRecord,
   WriteInRecordPending,
-  WriteInSummaryEntryPending,
+  WriteInPendingTally,
 } from '@votingworks/admin-backend';
 import { act, screen, waitFor } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
@@ -26,14 +26,14 @@ function mockWriteInRecordPending(id: string): WriteInRecordPending {
   };
 }
 
-function mockWriteInSummaryPending(
+function mockWriteInTallyPending(
   contestId: string,
-  writeInCount: number
-): WriteInSummaryEntryPending {
+  tally: number
+): WriteInPendingTally {
   return {
     status: 'pending',
     contestId,
-    writeInCount,
+    tally,
   };
 }
 
@@ -55,7 +55,7 @@ beforeEach(() => {
 });
 
 test('No CVRs loaded', async () => {
-  apiMock.expectGetWriteInSummary([]);
+  apiMock.expectGetWriteInTallies([]);
   apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<WriteInsScreen />, { electionDefinition, apiMock });
   await screen.findByText('Load CVRs to begin adjudicating write-in votes.');
@@ -65,9 +65,9 @@ test('No CVRs loaded', async () => {
 });
 
 test('Tally results already marked as official', async () => {
-  apiMock.expectGetWriteInSummary([
-    mockWriteInSummaryPending('zoo-council-mammal', 3),
-    mockWriteInSummaryPending('aquarium-council-fish', 5),
+  apiMock.expectGetWriteInTallies([
+    mockWriteInTallyPending('zoo-council-mammal', 3),
+    mockWriteInTallyPending('aquarium-council-fish', 5),
   ]);
   apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<WriteInsScreen />, {
@@ -85,8 +85,8 @@ test('Tally results already marked as official', async () => {
 });
 
 test('CVRs with write-ins loaded', async () => {
-  apiMock.expectGetWriteInSummary([
-    mockWriteInSummaryPending('zoo-council-mammal', 3),
+  apiMock.expectGetWriteInTallies([
+    mockWriteInTallyPending('zoo-council-mammal', 3),
   ]);
   apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<WriteInsScreen />, {
@@ -101,7 +101,7 @@ test('CVRs with write-ins loaded', async () => {
 test('ballot pagination', async () => {
   const contestId = 'zoo-council-mammal';
   const pageCount = 3;
-  apiMock.expectGetWriteInSummary([mockWriteInSummaryPending(contestId, 3)]);
+  apiMock.expectGetWriteInTallies([mockWriteInTallyPending(contestId, 3)]);
   apiMock.expectGetCastVoteRecordFiles([]);
 
   renderInAppContext(<WriteInsScreen />, {
@@ -141,7 +141,7 @@ test('ballot pagination', async () => {
 
 test('adjudication', async () => {
   const contestId = 'zoo-council-mammal';
-  apiMock.expectGetWriteInSummary([mockWriteInSummaryPending(contestId, 2)]);
+  apiMock.expectGetWriteInTallies([mockWriteInTallyPending(contestId, 2)]);
   apiMock.expectGetCastVoteRecordFiles([]);
 
   renderInAppContext(<WriteInsScreen />, {
@@ -198,7 +198,7 @@ test('adjudication', async () => {
   );
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
   apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
-  apiMock.expectGetWriteInSummary([]);
+  apiMock.expectGetWriteInTallies([]);
 
   userEvent.click(screen.getButton('Zebra'));
   await waitFor(async () =>
@@ -230,7 +230,7 @@ test('adjudication', async () => {
   );
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
   apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
-  apiMock.expectGetWriteInSummary([]);
+  apiMock.expectGetWriteInTallies([]);
   userEvent.click(screen.getButton('Lemur'));
   await waitFor(async () =>
     expect(await screen.findButton('Next')).toHaveFocus()
@@ -277,7 +277,7 @@ test('adjudication', async () => {
     contestId
   );
   apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
-  apiMock.expectGetWriteInSummary([]);
+  apiMock.expectGetWriteInTallies([]);
   userEvent.click(await screen.findButton('Add New Write-In Candidate'));
   userEvent.type(
     await screen.findByPlaceholderText('Candidate Name'),
@@ -309,7 +309,7 @@ test('adjudication', async () => {
   );
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
   apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
-  apiMock.expectGetWriteInSummary([]);
+  apiMock.expectGetWriteInTallies([]);
   userEvent.click(await screen.findButton('Mark Write-In Invalid'));
   await waitFor(async () =>
     expect(await screen.findButton('Next')).toHaveFocus()

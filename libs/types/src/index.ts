@@ -20,6 +20,7 @@ export * from './polls';
 export * from './precinct_selection';
 export * from './printing';
 export * from './system_settings';
+export * as Tabulation from './tabulation';
 export * from './tallies';
 export * from './ui_theme';
 export * from './voting_method';

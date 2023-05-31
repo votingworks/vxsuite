@@ -5,7 +5,7 @@ import { fakeLogger, Logger } from '@votingworks/logging';
 import { screen } from '@testing-library/react';
 
 import { computeFullElectionTally } from '@votingworks/utils';
-import type { WriteInSummaryEntryAdjudicated } from '@votingworks/admin-backend';
+import type { WriteInAdjudicatedTally } from '@votingworks/admin-backend';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 import { TallyWriteInReportScreen } from './tally_writein_report_screen';
@@ -25,29 +25,29 @@ async function getFullElectionTally() {
   );
 }
 
-const nonOfficialAdjudicationSummaryMammal: WriteInSummaryEntryAdjudicated = {
+const nonOfficialAdjudicationSummaryMammal: WriteInAdjudicatedTally = {
   status: 'adjudicated',
   adjudicationType: 'write-in-candidate',
   contestId: 'zoo-council-mammal',
-  writeInCount: 1,
+  tally: 1,
   candidateName: 'Chimera',
   candidateId: 'uuid',
 };
 
-const nonOfficialAdjudicationSummaryFish: WriteInSummaryEntryAdjudicated = {
+const nonOfficialAdjudicationSummaryFish: WriteInAdjudicatedTally = {
   status: 'adjudicated',
   adjudicationType: 'write-in-candidate',
   contestId: 'aquarium-council-fish',
-  writeInCount: 1,
+  tally: 1,
   candidateName: 'Loch Ness',
   candidateId: 'uuid',
 };
 
-const officialAdjudicationSummaryFish: WriteInSummaryEntryAdjudicated = {
+const officialAdjudicationSummaryFish: WriteInAdjudicatedTally = {
   status: 'adjudicated',
   adjudicationType: 'official-candidate',
   contestId: 'aquarium-council-fish',
-  writeInCount: 1,
+  tally: 1,
   candidateName: 'Loch Ness',
   candidateId: 'Loch Ness',
 };
@@ -69,7 +69,7 @@ afterAll(() => {
 });
 
 test('when no adjudications', async () => {
-  apiMock.expectGetWriteInSummaryAdjudicated([]);
+  apiMock.expectGetWriteInTalliesAdjudicated([]);
   renderInAppContext(<TallyWriteInReportScreen />, {
     electionDefinition,
     fullElectionTally: await getFullElectionTally(),
@@ -85,7 +85,7 @@ test('when no adjudications', async () => {
 });
 
 test('with contest from one party adjudicated', async () => {
-  apiMock.expectGetWriteInSummaryAdjudicated([
+  apiMock.expectGetWriteInTalliesAdjudicated([
     nonOfficialAdjudicationSummaryMammal,
   ]);
   renderInAppContext(<TallyWriteInReportScreen />, {
@@ -114,7 +114,7 @@ test('with contest from one party adjudicated', async () => {
 });
 
 test('with contest from multiple parties adjudicated', async () => {
-  apiMock.expectGetWriteInSummaryAdjudicated([
+  apiMock.expectGetWriteInTalliesAdjudicated([
     nonOfficialAdjudicationSummaryMammal,
     nonOfficialAdjudicationSummaryFish,
   ]);
@@ -140,7 +140,7 @@ test('with contest from multiple parties adjudicated', async () => {
 });
 
 test('ignores adjudications for official candidates', async () => {
-  apiMock.expectGetWriteInSummaryAdjudicated([
+  apiMock.expectGetWriteInTalliesAdjudicated([
     nonOfficialAdjudicationSummaryMammal,
     officialAdjudicationSummaryFish,
   ]);
