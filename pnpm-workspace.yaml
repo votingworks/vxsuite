@@ -5,9 +5,6 @@ packages:
   - 'apps/*/backend'
   - 'apps/*/integration-testing'
 
-  # include all the services
-  - 'services/*'
-
   # include all the libraries and our custom types
   - 'libs/*'
   - 'libs/@types/*'
