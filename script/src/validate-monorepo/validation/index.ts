@@ -12,15 +12,9 @@ export type ValidationIssue =
 
 export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
   const root = join(__dirname, '../../../..');
-  const apps = await readdir(join(root, 'apps'));
-  const appPackages = (await Promise.all(apps.map(readdir))).flat();
-  const services = await readdir(join(root, 'services'));
-  const libs = await readdir(join(root, 'libs'));
-  const packages = [...services, ...libs, ...appPackages];
   const workspacePackages = getWorkspacePackageInfo(root);
 
   yield* pkgs.checkConfig({
-    packages: [root, ...packages],
     // It's important that these packages are pinned to a specific version.
     // Otherwise, we can end up with multiple versions of the same package
     // in the same monorepo, which can cause issues. For example, if we

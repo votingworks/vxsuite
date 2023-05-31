@@ -26,7 +26,12 @@ export async function* checkPackageManager({
   const properties: PackageJsonProperty[] = [];
 
   for (const pkg of workspacePackages.values()) {
-    if (!pkg.packageJson || !pkg.packageJsonPath || pkg.name.startsWith('@types/') || pkg.name === 'prodserver') {
+    if (
+      !pkg.packageJson ||
+      !pkg.packageJsonPath ||
+      pkg.name.startsWith('@types/') ||
+      pkg.name === 'prodserver'
+    ) {
       continue;
     }
 
@@ -101,11 +106,9 @@ export async function* checkPinnedVersions({
 }
 
 export async function* checkConfig({
-  packages,
   pinnedPackages,
   workspacePackages,
 }: {
-  packages: readonly string[];
   pinnedPackages: readonly string[];
   workspacePackages: ReadonlyMap<string, PackageInfo>;
 }): AsyncGenerator<ValidationIssue> {
