@@ -42,7 +42,7 @@ export type CandidateContestResults = ContestResultsBase & {
 export type ContestResults = YesNoContestResults | CandidateContestResults;
 
 /**
- * Should match `CVR.vxBallotStyle`.
+ * Should match `CVR.vxBallotStyle` from the generated CDF cast vote record types.
  */
 export type VotingMethod = 'absentee' | 'precinct' | 'provisional';
 
@@ -73,14 +73,14 @@ export interface CastVoteRecordAttributes {
 }
 
 /**
- * Scanned cards can either by BMD ballots or a sheet of an HMPB ballot,
- * indicated by its 1-indexed number.
+ * A scanned card can either be a BMD ballot or a sheet of an HMPB ballot,
+ * indicated by its 1-indexed `sheetNumber`.
  */
-export type CardType = 'bmd' | number;
+export type Card = { type: 'bmd' } | { type: 'hmpb'; sheetNumber: number };
 
 /**
  * In situations where we're generating grouped results, specifiers can be
- * included in {@link ElectionResult} to indicate what it is a grouping of.
+ * included in {@link ElectionResults} to indicate what it is a grouping of.
  */
 export type GroupSpecifier = Partial<CastVoteRecordAttributes> & {
   readonly partyId?: Id;
@@ -101,7 +101,19 @@ export interface GroupBy {
   groupByScanner?: boolean;
 }
 
-export type CardCounts = Record<CardType, number>;
+/**
+ * Object containing the counts for each scanned sheet.
+ * - `bmd` is the number of single-sheet BMD ballots scanned
+ * - `hmpb` is an array of the counts of each numbered ballot sheet. The number
+ * at index `0` is the count of card 1, at index `1` is the count of card 2,
+ * and so on
+ * - `manual` contains the count of manual entered ballot results
+ */
+export interface CardCounts {
+  bmd: number;
+  hmpb: number[];
+  manual?: number;
+}
 
 /**
  * Represents the results of all contests in an election, often filtered by
@@ -126,5 +138,5 @@ export type Votes = Record<ContestId, Id[]>;
 
 export type CastVoteRecord = {
   readonly votes: Votes;
-  readonly cardType: CardType;
+  readonly card: Card;
 } & CastVoteRecordAttributes;

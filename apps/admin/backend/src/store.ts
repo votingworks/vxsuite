@@ -943,16 +943,16 @@ export class Store {
 
     if (filter.batchIds) {
       whereParts.push(
-        `cvrs.ballot_type in ${asQueryPlaceholders(filter.batchIds)}`
+        `cvrs.batch_id in ${asQueryPlaceholders(filter.batchIds)}`
       );
       params.push(...filter.batchIds);
     }
 
-    if (filter.precinctIds) {
+    if (filter.scannerIds) {
       whereParts.push(
-        `cvrs.ballot_type in ${asQueryPlaceholders(filter.precinctIds)}`
+        `cvrs.scanner_id in ${asQueryPlaceholders(filter.scannerIds)}`
       );
-      params.push(...filter.precinctIds);
+      params.push(...filter.scannerIds);
     }
 
     return [whereParts, params];
@@ -1006,7 +1006,9 @@ export class Store {
         batchId: row.batchId,
         scannerId: row.scannerId,
         precinctId: row.precinctId,
-        cardType: row.sheetNumber ?? 'bmd',
+        card: row.sheetNumber
+          ? { type: 'hmpb', sheetNumber: row.sheetNumber }
+          : { type: 'bmd' },
         votes: JSON.parse(row.votes),
       };
     }

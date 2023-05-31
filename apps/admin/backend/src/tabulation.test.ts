@@ -514,8 +514,8 @@ describe('tabulateElectionResults', () => {
 
     // verify details of the results without write-in detail
     expect(initialResultsWithoutWriteInDetail.cardCounts).toEqual({
-      1: 184,
       bmd: 0,
+      hmpb: [184],
     });
 
     const candidateContestId =
@@ -660,8 +660,8 @@ describe('tabulateElectionResults', () => {
     })[GROUP_KEY_ROOT];
     assert(modifiedResults);
     expect(modifiedResults.cardCounts).toEqual({
-      1: 184,
       bmd: 0,
+      hmpb: [184],
     });
     expect(modifiedResults.contestResults[candidateContestId]).toEqual({
       ballots: 184,
@@ -763,8 +763,8 @@ describe('tabulateElectionResults', () => {
     })[GROUP_KEY_ROOT];
     assert(absenteeResults);
     expect(absenteeResults.cardCounts).toEqual({
-      1: 92,
       bmd: 0,
+      hmpb: [92],
     });
     expect(absenteeResults.contestResults[yesNoContestId]).toEqual({
       ballots: 92,

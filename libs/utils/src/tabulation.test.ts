@@ -80,8 +80,10 @@ function loadCastVoteRecordsFromReport(
       scannerId: cvr.CreatingDeviceId,
       precinctId: cvr.BallotStyleUnitId,
       votingMethod: cvr.vxBallotType as Tabulation.VotingMethod,
-      // eslint-disable-next-line vx/gts-safe-number-parse
-      cardType: cvr.BallotSheetId ? Number(cvr.BallotSheetId) : 'bmd',
+      card: cvr.BallotSheetId
+        ? // eslint-disable-next-line vx/gts-safe-number-parse
+          { type: 'hmpb', sheetNumber: Number(cvr.BallotSheetId) }
+        : { type: 'bmd' },
       votes: convertCastVoteRecordVotesToTabulationVotes(
         getCurrentSnapshot(cvr)!
       ),
@@ -205,8 +207,7 @@ test('getBallotCount', () => {
   expect(
     getBallotCount({
       bmd: 10,
-      1: 10,
-      2: 10,
+      hmpb: [10, 10],
     })
   ).toEqual(20);
 });
@@ -295,7 +296,7 @@ describe('tabulateCastVoteRecords', () => {
     const electionResult = tabulateCastVoteRecords({
       cvrs: [
         {
-          cardType: 'bmd',
+          card: { type: 'bmd' },
           votes: {
             'best-animal-mammal': ['fox'],
             'zoo-council-mammal': ['elephant', 'lion', 'write-in-0'],
@@ -306,7 +307,7 @@ describe('tabulateCastVoteRecords', () => {
           ...someMetadata,
         },
         {
-          cardType: 1,
+          card: { type: 'hmpb', sheetNumber: 1 },
           votes: {
             'best-animal-mammal': ['fox', 'horse'],
             'zoo-council-mammal': ['elephant', 'lion', 'zebra', 'kangaroo'],
@@ -317,7 +318,7 @@ describe('tabulateCastVoteRecords', () => {
           ...someMetadata,
         },
         {
-          cardType: 1,
+          card: { type: 'hmpb', sheetNumber: 1 },
           votes: {
             'best-animal-fish': ['seahorse'],
             'aquarium-council-fish': ['manta-ray', 'pufferfish'],
@@ -328,7 +329,7 @@ describe('tabulateCastVoteRecords', () => {
           ...someMetadata,
         },
         {
-          cardType: 'bmd',
+          card: { type: 'bmd' },
           votes: {
             'best-animal-fish': [],
             'aquarium-council-fish': ['manta-ray'],
@@ -345,8 +346,8 @@ describe('tabulateCastVoteRecords', () => {
     assert(electionResult);
     expect(flattenElectionResultForTesting(electionResult)).toEqual({
       cardCounts: {
-        '1': 2,
         bmd: 2,
+        hmpb: [2],
       },
       contestResults: [
         {
@@ -561,6 +562,7 @@ describe('tabulateCastVoteRecords', () => {
     expect(flattenElectionResultForTesting(firstResult)).toEqual({
       cardCounts: {
         bmd: 28,
+        hmpb: [],
       },
       contestResults: [
         {

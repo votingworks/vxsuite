@@ -64,7 +64,7 @@ export function getEmptyCandidateContestResults(
 }
 
 /**
- * Generate an empty {@link Tabulation.ElectionResult} with empty tallies for
+ * Generate an empty {@link Tabulation.ElectionResults} with empty tallies for
  * all contests in the election.
  */
 export function getEmptyElectionResults(
@@ -86,6 +86,7 @@ export function getEmptyElectionResults(
     contestResults,
     cardCounts: {
       bmd: 0,
+      hmpb: [],
     },
   };
 }
@@ -98,9 +99,13 @@ function addCastVoteRecordToElectionResult(
   electionResult: Tabulation.ElectionResults,
   cvr: Tabulation.CastVoteRecord
 ): Tabulation.ElectionResults {
-  // eslint-disable-next-line no-param-reassign
-  electionResult.cardCounts[cvr.cardType] =
-    (electionResult.cardCounts[cvr.cardType] ?? 0) + 1;
+  const { cardCounts } = electionResult;
+  if (cvr.card.type === 'bmd') {
+    cardCounts.bmd += 1;
+  } else {
+    cardCounts.hmpb[cvr.card.sheetNumber - 1] =
+      (cardCounts.hmpb[cvr.card.sheetNumber - 1] ?? 0) + 1;
+  }
 
   for (const [contestId, optionIds] of Object.entries(cvr.votes)) {
     const contestResult = assertDefined(
@@ -149,7 +154,7 @@ function addCastVoteRecordToElectionResult(
  * which is taking the count of the first cards of HMPBs plus BMD count.
  */
 export function getBallotCount(cardCounts: Tabulation.CardCounts): number {
-  return cardCounts['bmd'] + (cardCounts[1] || 0);
+  return cardCounts.bmd + (cardCounts.hmpb[0] ?? 0);
 }
 
 export function isGroupByEmpty(groupBy: Tabulation.GroupBy): boolean {
