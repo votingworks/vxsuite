@@ -1,16 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as CVR from './cdf/cast-vote-records';
 import * as Tabulation from './tabulation';
 
-// compile-time test
 test('Tabulation.VotingMethod in sync with CVR.vxBallotType', () => {
-  // CVR.vxBallotType is subset of Tabulation.VotingMethod
-  const votingMethods = Object.values(
-    CVR.vxBallotType
-  ) as Tabulation.VotingMethod[];
+  // confirm that Tabulation.VotingMethod is a subset of CVR.vxBallotType
+  const vxBallotTypes = Object.values(CVR.vxBallotType) as string[];
+  for (const votingMethod of Tabulation.VOTING_METHODS) {
+    expect(vxBallotTypes.includes(votingMethod)).toEqual(true);
+  }
 
-  // Tabulation.VotingMethod is subset of CVR.vxBallotType
-  const ballotTypes = votingMethods as CVR.vxBallotType[];
+  // confirm sets are the same size
+  expect(Tabulation.VOTING_METHODS).toHaveLength(vxBallotTypes.length);
 
-  // Two sets are equal
+  // proved sets are equal
 });

@@ -41,10 +41,12 @@ export type CandidateContestResults = ContestResultsBase & {
  */
 export type ContestResults = YesNoContestResults | CandidateContestResults;
 
+export const VOTING_METHODS = ['absentee', 'precinct', 'provisional'] as const;
+
 /**
  * Should match `CVR.vxBallotStyle` from the generated CDF cast vote record types.
  */
-export type VotingMethod = 'absentee' | 'precinct' | 'provisional';
+export type VotingMethod = typeof VOTING_METHODS[number];
 
 /**
  * Indicates what cast vote records to include when calculating results.
