@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { assert, err } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
   electionMinimalExhaustiveSampleDefinition,
@@ -16,6 +16,7 @@ import {
   castVoteRecordVoteIsWriteIn,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { mockOf } from '@votingworks/test-utils';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -427,7 +428,7 @@ test('error if path to report is not valid', async () => {
   });
   expect(addNonExistentFileResult.err()).toEqual({
     type: 'report-access-failure',
-    message: 'Failed to access cast vote record report for import.',
+    message: 'Unable to access cast vote record report for import.',
   });
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.CvrLoaded,
@@ -440,6 +441,57 @@ test('error if path to report is not valid', async () => {
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
   expect(await apiClient.getCastVoteRecords()).toHaveLength(0);
+});
+
+test('cast vote records authentication error', async () => {
+  const { apiClient, artifactAuthenticator, auth, logger } =
+    buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+  mockOf(
+    artifactAuthenticator.authenticateArtifactUsingSignatureFile
+  ).mockResolvedValue(err(new Error('Whoa!')));
+
+  const result = await apiClient.addCastVoteRecordFile({
+    path: castVoteRecordReport.asDirectoryPath(),
+  });
+  expect(result).toEqual(
+    err({
+      type: 'cast-vote-records-authentication-error',
+      message:
+        'Unable to authenticate cast vote records. Try re-exporting from the scanner.',
+    })
+  );
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.CvrLoaded,
+    'election_manager',
+    expect.objectContaining({
+      disposition: 'failure',
+      message:
+        'Unable to authenticate cast vote records. Try re-exporting from the scanner.',
+    })
+  );
+  expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
+  expect(await apiClient.getCastVoteRecords()).toHaveLength(0);
+});
+
+test('cast vote records authentication error ignored if SKIP_CAST_VOTE_RECORDS_AUTHENTICATION is enabled', async () => {
+  const { apiClient, artifactAuthenticator, auth } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+  mockOf(
+    artifactAuthenticator.authenticateArtifactUsingSignatureFile
+  ).mockResolvedValue(err(new Error('Whoa!')));
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+  );
+
+  const result = await apiClient.addCastVoteRecordFile({
+    path: castVoteRecordReport.asDirectoryPath(),
+  });
+  expect(result.isOk()).toEqual(true);
 });
 
 test('error if report has invalid directory structure', async () => {
