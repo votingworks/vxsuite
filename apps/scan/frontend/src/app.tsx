@@ -58,7 +58,7 @@ export function App({
               <Route path={Paths.DISPLAY_SETTINGS} exact>
                 <DisplaySettingsScreen />
               </Route>
-              <Route path={Paths.APP_ROOT}>
+              <Route path={Paths.APP_ROOT} exact>
                 <AppRoot hardware={hardware} logger={logger} />
               </Route>
               <SessionTimeLimitTracker />
