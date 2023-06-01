@@ -4,7 +4,7 @@ import { Route } from 'react-router-dom';
 
 import { getBallotStyle, getContests } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
-import { buildSpecificManualTally } from '@votingworks/utils';
+import { buildManualResultsFixture } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
@@ -23,13 +23,13 @@ afterEach(() => {
 
 const electionDefinition = electionMinimalExhaustiveSampleDefinition;
 const { election } = electionDefinition;
-const ballotStyle = getBallotStyle({ election, ballotStyleId: '1M' });
 
-const mockValidTally = buildSpecificManualTally(
+const mockValidResults = buildManualResultsFixture({
   election,
-  10,
-  {
+  ballotCount: 10,
+  contestResultsSummaries: {
     'best-animal-mammal': {
+      type: 'candidate',
       ballots: 10,
       overvotes: 1,
       undervotes: 3,
@@ -40,6 +40,7 @@ const mockValidTally = buildSpecificManualTally(
       },
     },
     'zoo-council-mammal': {
+      type: 'candidate',
       ballots: 10,
       overvotes: 6,
       undervotes: 4,
@@ -51,39 +52,35 @@ const mockValidTally = buildSpecificManualTally(
       },
     },
     'new-zoo-either': {
+      type: 'yesno',
       ballots: 10,
       overvotes: 2,
       undervotes: 2,
-      officialOptionTallies: {
-        yes: 3,
-        no: 3,
-      },
+      yesTally: 3,
+      noTally: 3,
     },
     'new-zoo-pick': {
+      type: 'yesno',
       ballots: 10,
       overvotes: 2,
       undervotes: 2,
-      officialOptionTallies: {
-        yes: 3,
-        no: 3,
-      },
+      yesTally: 3,
+      noTally: 3,
     },
     fishing: {
+      type: 'yesno',
       ballots: 10,
       overvotes: 2,
       undervotes: 2,
-      officialOptionTallies: {
-        yes: 3,
-        no: 3,
-      },
+      yesTally: 3,
+      noTally: 3,
     },
   },
-  ballotStyle
-);
+});
 
 test('displays correct contests for ballot style', async () => {
   apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualTally({
+  apiMock.expectGetManualResults({
     ballotStyleId: '1M',
     ballotType: 'absentee',
     precinctId: 'precinct-1',
@@ -123,7 +120,7 @@ test('displays correct contests for ballot style', async () => {
 
 test('can edit counts, receive validation messages, and save', async () => {
   apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualTally({
+  apiMock.expectGetManualResults({
     ballotStyleId: '1M',
     ballotType: 'absentee',
     precinctId: 'precinct-1',
@@ -218,11 +215,11 @@ test('can edit counts, receive validation messages, and save', async () => {
 
   await screen.findByText('All entered contest results are valid');
 
-  apiMock.expectSetManualTally({
+  apiMock.expectSetManualResults({
     ballotStyleId: '1M',
     precinctId: 'precinct-1',
     ballotType: 'absentee',
-    manualTally: mockValidTally,
+    manualResults: mockValidResults,
   });
   userEvent.click(screen.getButton('Save Results'));
 });
@@ -230,13 +227,13 @@ test('can edit counts, receive validation messages, and save', async () => {
 test('loads pre-existing manual data to edit', async () => {
   apiMock.expectGetWriteInCandidates([]);
   // have an initial tally from backend
-  apiMock.expectGetManualTally(
+  apiMock.expectGetManualResults(
     {
       ballotStyleId: '1M',
       ballotType: 'absentee',
       precinctId: 'precinct-1',
     },
-    mockValidTally
+    mockValidResults
   );
   renderInAppContext(
     <Route path="/tally/manual-data-entry/:ballotStyleId/:ballotType/:precinctId">
@@ -281,7 +278,7 @@ test('loads pre-existing manual data to edit', async () => {
 
 test('adding new write-in candidates', async () => {
   apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualTally({
+  apiMock.expectGetManualResults({
     ballotStyleId: '1M',
     ballotType: 'precinct',
     precinctId: 'precinct-1',
@@ -379,32 +376,29 @@ test('adding new write-in candidates', async () => {
   await within(zooCouncilMammal).findByText('Entered results are valid');
 
   // saves temp write-in candidate to backend
-  apiMock.expectSetManualTally({
+  apiMock.expectSetManualResults({
     ballotStyleId: '1M',
     precinctId: 'precinct-1',
     ballotType: 'precinct',
-    manualTally: buildSpecificManualTally(
+    manualResults: buildManualResultsFixture({
       election,
-      10,
-      {
+      ballotCount: 10,
+      contestResultsSummaries: {
         'zoo-council-mammal': {
+          type: 'candidate',
           ballots: 10,
           overvotes: 0,
           undervotes: 0,
           writeInOptionTallies: {
             'temp-write-in-(Mock Candidate)': {
-              candidate: {
-                id: 'temp-write-in-(Mock Candidate)',
-                name: 'Mock Candidate',
-                isWriteIn: true,
-              },
-              count: 30,
+              id: 'temp-write-in-(Mock Candidate)',
+              name: 'Mock Candidate',
+              tally: 30,
             },
           },
         },
       },
-      ballotStyle
-    ),
+    }),
   });
   userEvent.click(screen.getButton('Save Results'));
 });
@@ -420,34 +414,31 @@ test('loads existing write-in candidates', async () => {
     },
   ]);
 
-  apiMock.expectGetManualTally(
+  apiMock.expectGetManualResults(
     {
       ballotStyleId: '1M',
       ballotType: 'precinct',
       precinctId: 'precinct-1',
     },
-    buildSpecificManualTally(
+    buildManualResultsFixture({
       election,
-      10,
-      {
+      ballotCount: 10,
+      contestResultsSummaries: {
         'zoo-council-mammal': {
+          type: 'candidate',
           ballots: 10,
           overvotes: 0,
           undervotes: 0,
           writeInOptionTallies: {
             chimera: {
-              candidate: {
-                id: 'chimera',
-                name: 'Chimera',
-                isWriteIn: true,
-              },
-              count: 30,
+              id: 'chimera',
+              name: 'Chimera',
+              tally: 30,
             },
           },
         },
       },
-      ballotStyle
-    )
+    })
   );
   renderInAppContext(
     <Route path="/tally/manual-data-entry/:ballotStyleId/:ballotType/:precinctId">

@@ -1,17 +1,13 @@
-import { assert, assertDefined, find } from '@votingworks/basics';
+import { assert, assertDefined, find, mapObject } from '@votingworks/basics';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import {
-  AnyContest,
-  Dictionary,
-  ContestVoteOption,
-  ContestOptionTally,
-  ContestTally,
-  ManualTally,
   ContestId,
   getContestDistrictName,
   getContests,
+  Tabulation,
+  CandidateId,
 } from '@votingworks/types';
 import {
   Button,
@@ -23,9 +19,12 @@ import {
   H3,
   Font,
 } from '@votingworks/ui';
-import { isElectionManagerAuth, getEmptyManualTally } from '@votingworks/utils';
+import {
+  isElectionManagerAuth,
+  getEmptyManualElectionResults,
+} from '@votingworks/utils';
 
-import type { ManualTallyBallotType } from '@votingworks/admin-backend';
+import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 import { ManualDataEntryScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
 
@@ -33,7 +32,11 @@ import { AppContext } from '../contexts/app_context';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { TextInput } from '../components/text_input';
-import { getManualTally, getWriteInCandidates, setManualTally } from '../api';
+import {
+  getManualResults,
+  getWriteInCandidates,
+  setManualResults,
+} from '../api';
 import { normalizeWriteInName } from '../utils/write_ins';
 import { Loading } from '../components/loading';
 
@@ -160,32 +163,43 @@ function AddWriteInRow({
   );
 }
 
-// While we're holding data internally in this component tallies can be stored
+// While we're holding data internally in this component, tallies can be stored
 // as strings or as numbers to allow the user to delete a "0" in the text boxes.
 // When the data is saved empty strings are converted back to 0s.
 type EmptyValue = '';
 type InputValue = EmptyValue | number;
 
-interface TempContestOptionTally {
-  readonly option: ContestVoteOption;
-  readonly tally: InputValue;
+type TempCandidateTally = Omit<Tabulation.CandidateTally, 'tally'> & {
+  tally: InputValue;
+};
+
+interface TempContestResultsMetadata {
+  ballots: InputValue;
+  overvotes: InputValue;
+  undervotes: InputValue;
 }
 
-interface TempContestTallyMeta {
-  readonly ballots: InputValue;
-  readonly undervotes: InputValue;
-  readonly overvotes: InputValue;
-}
+type TempYesNoContestResults = Omit<
+  Tabulation.YesNoContestResults,
+  'ballots' | 'overvotes' | 'undervotes' | 'yesTally' | 'noTally'
+> &
+  TempContestResultsMetadata & {
+    yesTally: InputValue;
+    noTally: InputValue;
+  };
 
-interface TempContestTally {
-  readonly contest: AnyContest;
-  readonly tallies: Dictionary<TempContestOptionTally>;
-  readonly metadata: TempContestTallyMeta;
-  readonly enteredVotesMinusExpectedVotes?: number;
-}
+type TempCandidateContestResults = Omit<
+  Tabulation.CandidateContestResults,
+  'ballots' | 'overvotes' | 'undervotes' | 'tallies'
+> &
+  TempContestResultsMetadata & {
+    tallies: Record<CandidateId, TempCandidateTally>;
+  };
 
-interface TempManualTally {
-  readonly contestTallies: Dictionary<TempContestTally>;
+type TempContestResults = TempYesNoContestResults | TempCandidateContestResults;
+
+interface TempManualResults {
+  readonly contestResults: Record<ContestId, TempContestResults>;
 }
 
 interface TempWriteInCandidate {
@@ -201,72 +215,76 @@ function getNumericalValueForTally(tally: InputValue): number {
   return tally;
 }
 
-// Convert temporary contest tally that allows for empty strings to the regular
+// Convert temporary contest results that allows for empty strings to the regular
 // type by mapping any empty string values to zeros.
-function convertContestTally(tempContestTally: TempContestTally): ContestTally {
-  const convertedOptionTallies: Dictionary<ContestOptionTally> = {};
-  for (const optionId of Object.keys(tempContestTally.tallies)) {
-    const optionTally = tempContestTally.tallies[optionId];
-    assert(optionTally);
-    convertedOptionTallies[optionId] = {
-      ...optionTally,
-      tally: getNumericalValueForTally(optionTally.tally),
+function convertContestResults(
+  tempContestResults: TempContestResults
+): Tabulation.ContestResults {
+  const metadata = {
+    ballots: getNumericalValueForTally(tempContestResults.ballots),
+    overvotes: getNumericalValueForTally(tempContestResults.overvotes),
+    undervotes: getNumericalValueForTally(tempContestResults.undervotes),
+  } as const;
+  if (tempContestResults.contestType === 'yesno') {
+    return {
+      ...tempContestResults,
+      ...metadata,
+      yesTally: getNumericalValueForTally(tempContestResults.yesTally),
+      noTally: getNumericalValueForTally(tempContestResults.noTally),
     };
   }
+
   return {
-    ...tempContestTally,
-    tallies: convertedOptionTallies,
-    metadata: {
-      ballots: getNumericalValueForTally(tempContestTally.metadata.ballots),
-      undervotes: getNumericalValueForTally(
-        tempContestTally.metadata.undervotes
-      ),
-      overvotes: getNumericalValueForTally(tempContestTally.metadata.overvotes),
-    },
+    ...tempContestResults,
+    ...metadata,
+    tallies: mapObject(tempContestResults.tallies, (tempCandidateTally) => ({
+      ...tempCandidateTally,
+      tally: getNumericalValueForTally(tempCandidateTally.tally),
+    })),
   };
 }
 
-function convertContestTallies(
-  tempContestTallies: Dictionary<TempContestTally>
-): Dictionary<ContestTally> {
-  const convertedContestTallies: Dictionary<ContestTally> = {};
-  for (const contestId of Object.keys(tempContestTallies)) {
-    const tempContestTally = tempContestTallies[contestId];
-    assert(tempContestTally);
-    convertedContestTallies[contestId] = convertContestTally(tempContestTally);
+function convertManualResults(
+  tempManualResults: TempManualResults
+): Tabulation.ManualElectionResults {
+  const convertedContestResults: Tabulation.ManualElectionResults['contestResults'] =
+    {};
+  for (const [contestId, tempContestResults] of Object.entries(
+    tempManualResults.contestResults
+  )) {
+    convertedContestResults[contestId] =
+      convertContestResults(tempContestResults);
   }
-  return convertedContestTallies;
-}
-
-// We treat the maximum of all the contests' ballot counts as the total
-function getTotalNumberOfBallots(
-  contestTallies: Dictionary<ContestTally>
-): number {
-  return Math.max(
-    ...Object.values(contestTallies).map(
-      (contestTally) => assertDefined(contestTally).metadata.ballots
-    )
-  );
+  return {
+    contestResults: convertedContestResults,
+    ballotCount: Math.max(
+      ...Object.values(convertedContestResults).map(
+        (contestResults) => contestResults.ballots
+      )
+    ),
+  };
 }
 
 type ContestValidationState = 'no-results' | 'invalid' | 'valid';
 
 function getContestValidationState(
-  tempContestTally: TempContestTally
+  tempContestResults: TempContestResults
 ): ContestValidationState {
-  const contestTally = convertContestTally(tempContestTally);
+  const contestResults = convertContestResults(tempContestResults);
   const ballotMultiplier = // number of votes expected per ballot
-    contestTally.contest.type === 'yesno' ? 1 : contestTally.contest.seats;
+    contestResults.contestType === 'yesno' ? 1 : contestResults.votesAllowed;
 
-  const expectedVotes = contestTally.metadata.ballots * ballotMultiplier;
+  const expectedVotes = contestResults.ballots * ballotMultiplier;
 
   const enteredVotes =
-    contestTally.metadata.overvotes +
-    contestTally.metadata.undervotes +
-    Object.values(contestTally.tallies).reduce(
-      (acc, cur) => acc + assertDefined(cur).tally,
-      0
-    );
+    contestResults.overvotes +
+    contestResults.undervotes +
+    (contestResults.contestType === 'yesno'
+      ? contestResults.yesTally + contestResults.noTally
+      : Object.values(contestResults.tallies).reduce(
+          (acc, cur) => acc + cur.tally,
+          0
+        ));
 
   if (expectedVotes === 0 && enteredVotes === 0) return 'no-results';
 
@@ -289,59 +307,50 @@ export function ManualDataEntryScreen(): JSX.Element {
     (bs) => bs.id === ballotStyleId
   );
   assert(ballotTypeParam === 'precinct' || ballotTypeParam === 'absentee');
-  const ballotType = ballotTypeParam as ManualTallyBallotType;
+  const ballotType = ballotTypeParam as ManualResultsVotingMethod;
   const ballotTypeTitle = ballotType === 'absentee' ? 'Absentee' : 'Precinct';
   const history = useHistory();
 
   const getWriteInCandidatesQuery = getWriteInCandidates.useQuery();
-  const setManualTallyMutation = setManualTally.useMutation();
-  const getManualTallyQuery = getManualTally.useQuery({
+  const setManualTallyMutation = setManualResults.useMutation();
+  const getManualResultsQuery = getManualResults.useQuery({
     precinctId,
     ballotStyleId,
     ballotType,
   });
 
-  const [tempManualTally, setTempManualTally] = useState<TempManualTally>(
-    getEmptyManualTally(election, ballotStyle)
+  const [tempManualResults, setTempManualResults] = useState<TempManualResults>(
+    getEmptyManualElectionResults(election)
   );
   useEffect(() => {
-    if (getManualTallyQuery.data) {
-      setTempManualTally(getManualTallyQuery.data.manualTally);
+    if (getManualResultsQuery.data) {
+      setTempManualResults(getManualResultsQuery.data.manualResults);
     }
-  }, [getManualTallyQuery.data]);
+  }, [getManualResultsQuery.data]);
 
   const [tempWriteInCandidates, setTempWriteInCandidates] = useState<
     TempWriteInCandidate[]
   >([]);
 
   function saveResults() {
-    assert(tempManualTally);
-    // replace temporary tally values with the numeric values we'll save
-    const convertedContestTallies = convertContestTallies(
-      tempManualTally.contestTallies
-    );
-    const convertedManualTally: ManualTally = {
-      numberOfBallotsCounted: getTotalNumberOfBallots(convertedContestTallies),
-      contestTallies: convertedContestTallies,
-    };
-
     setManualTallyMutation.mutate({
       precinctId,
       ballotStyleId,
       ballotType,
-      manualTally: convertedManualTally,
+      // replace temporary tally values with the numeric values we'll save
+      manualResults: convertManualResults(tempManualResults),
     });
 
     history.push(routerPaths.manualDataSummary);
   }
 
-  function updateManualTallyWithNewContestTally(
-    newContestTally: TempContestTally
+  function updateManualResultsWithNewContestResults(
+    newContestResults: TempContestResults
   ) {
-    setTempManualTally({
-      contestTallies: {
-        ...tempManualTally.contestTallies,
-        [newContestTally.contest.id]: newContestTally,
+    setTempManualResults({
+      contestResults: {
+        ...tempManualResults.contestResults,
+        [newContestResults.contestId]: newContestResults,
       },
     });
   }
@@ -350,18 +359,23 @@ export function ManualDataEntryScreen(): JSX.Element {
     contestId: ContestId,
     dataKey: string
   ): number | EmptyValue {
-    assert(tempManualTally);
-    const contestTally = tempManualTally.contestTallies[contestId];
-    assert(contestTally);
+    const contestResults = tempManualResults.contestResults[contestId];
     switch (dataKey) {
       case 'numBallots':
-        return contestTally.metadata.ballots;
+        return contestResults.ballots;
       case 'overvotes':
-        return contestTally.metadata.overvotes;
+        return contestResults.overvotes;
       case 'undervotes':
-        return contestTally.metadata.undervotes;
+        return contestResults.undervotes;
+      case 'yesTally':
+      case 'noTally':
+        assert(contestResults.contestType === 'yesno');
+        return dataKey === 'yesTally'
+          ? contestResults.yesTally
+          : contestResults.noTally;
       default:
-        return contestTally.tallies[dataKey]?.tally ?? 0;
+        assert(contestResults.contestType === 'candidate');
+        return contestResults.tallies[dataKey]?.tally ?? 0;
     }
   }
 
@@ -371,9 +385,7 @@ export function ManualDataEntryScreen(): JSX.Element {
     event: React.FormEvent<HTMLInputElement>,
     candidateName?: string
   ) {
-    assert(tempManualTally);
-    const contestTally = tempManualTally.contestTallies[contestId];
-    assert(contestTally);
+    const contestResults = tempManualResults.contestResults[contestId];
     const stringValue = event.currentTarget.value;
     // eslint-disable-next-line vx/gts-safe-number-parse
     const numericalValue = Number(stringValue);
@@ -381,58 +393,68 @@ export function ManualDataEntryScreen(): JSX.Element {
       return;
     }
     const valueToSave = stringValue === '' ? '' : numericalValue;
-    let newContestTally = contestTally;
+    let newContestResults = contestResults;
     switch (dataKey) {
       case 'overvotes':
-        newContestTally = {
-          ...contestTally,
-          metadata: {
-            ...contestTally.metadata,
-            overvotes: valueToSave,
-          },
+        newContestResults = {
+          ...contestResults,
+          overvotes: valueToSave,
         };
         break;
       case 'undervotes':
-        newContestTally = {
-          ...contestTally,
-          metadata: {
-            ...contestTally.metadata,
-            undervotes: valueToSave,
-          },
+        newContestResults = {
+          ...contestResults,
+          undervotes: valueToSave,
         };
         break;
       case 'numBallots':
-        newContestTally = {
-          ...contestTally,
-          metadata: {
-            ...contestTally.metadata,
-            ballots: valueToSave,
-          },
+        newContestResults = {
+          ...contestResults,
+          ballots: valueToSave,
         };
         break;
+      case 'noTally':
+      case 'yesTally':
+        assert(contestResults.contestType === 'yesno');
+        assert(newContestResults.contestType === 'yesno');
+        if (dataKey === 'yesTally') {
+          newContestResults = {
+            ...contestResults,
+            yesTally: valueToSave,
+          };
+        } else {
+          newContestResults = {
+            ...contestResults,
+            noTally: valueToSave,
+          };
+        }
+        break;
       default: {
-        const tally = contestTally.tallies[dataKey];
-        const option = tally
-          ? tally.option
+        assert(contestResults.contestType === 'candidate');
+        assert(newContestResults.contestType === 'candidate');
+        const candidateTally = contestResults.tallies[dataKey];
+        const newCandidateTally: TempCandidateTally = candidateTally
+          ? {
+              ...candidateTally,
+              tally: valueToSave,
+            }
           : {
               id: dataKey,
               isWriteIn: true,
               name: assertDefined(candidateName),
-            };
-        newContestTally = {
-          ...contestTally,
-          tallies: {
-            ...contestTally.tallies,
-            [dataKey]: {
-              option,
               tally: valueToSave,
-            },
+            };
+        newContestResults = {
+          ...contestResults,
+          tallies: {
+            ...contestResults.tallies,
+            [dataKey]: newCandidateTally,
           },
         };
       }
     }
 
-    updateManualTallyWithNewContestTally(newContestTally);
+    updateManualResultsWithNewContestResults(newContestResults);
   }
 
   function addTempWriteInCandidate(name: string, contestId: string): void {
@@ -450,17 +472,19 @@ export function ManualDataEntryScreen(): JSX.Element {
     setTempWriteInCandidates(tempWriteInCandidates.filter((c) => c.id !== id));
 
     // remove temp candidate from contest
-    assert(tempManualTally);
-    const contestTally = tempManualTally.contestTallies[contestId];
-    assert(contestTally);
-    delete contestTally?.tallies[id];
+    const contestResults = tempManualResults.contestResults[contestId];
+    assert(contestResults.contestType === 'candidate');
+    delete contestResults?.tallies[id];
 
-    updateManualTallyWithNewContestTally(contestTally);
+    updateManualResultsWithNewContestResults(contestResults);
   }
 
   const currentContests = getContests({ election, ballotStyle });
 
-  if (!getWriteInCandidatesQuery.isSuccess || !getManualTallyQuery.isSuccess) {
+  if (
+    !getWriteInCandidatesQuery.isSuccess ||
+    !getManualResultsQuery.isSuccess
+  ) {
     return (
       <NavigationScreen title="Manually Entered Results Form">
         <Loading isFullscreen />
@@ -473,7 +497,7 @@ export function ManualDataEntryScreen(): JSX.Element {
   const contestValidationStates: Record<ContestId, ContestValidationState> = {};
   for (const contest of currentContests) {
     contestValidationStates[contest.id] = getContestValidationState(
-      assertDefined(tempManualTally.contestTallies[contest.id])
+      tempManualResults.contestResults[contest.id]
     );
   }
   const someContestHasInvalidResults = Object.values(
@@ -492,9 +516,6 @@ export function ManualDataEntryScreen(): JSX.Element {
       </P>
       <P>Enter the number of votes for each contest option.</P>
       {currentContests.map((contest) => {
-        const contestTally = tempManualTally.contestTallies[contest.id];
-        assert(contestTally);
-
         const contestWriteInCandidates = writeInCandidates.filter(
           ({ contestId }) => contestId === contest.id
         );
@@ -632,9 +653,9 @@ export function ManualDataEntryScreen(): JSX.Element {
                       <TallyInput
                         name={`${contest.id}-yes`}
                         data-testid={`${contest.id}-yes-input`}
-                        value={getValueForInput(contest.id, 'yes')}
+                        value={getValueForInput(contest.id, 'yesTally')}
                         onChange={(e) =>
-                          updateContestData(contest.id, 'yes', e)
+                          updateContestData(contest.id, 'yesTally', e)
                         }
                       />
                     </ContestDataRow>
@@ -642,8 +663,10 @@ export function ManualDataEntryScreen(): JSX.Element {
                       <TallyInput
                         name={`${contest.id}-no`}
                         data-testid={`${contest.id}-no-input`}
-                        value={getValueForInput(contest.id, 'no')}
-                        onChange={(e) => updateContestData(contest.id, 'no', e)}
+                        value={getValueForInput(contest.id, 'noTally')}
+                        onChange={(e) =>
+                          updateContestData(contest.id, 'noTally', e)
+                        }
                       />
                     </ContestDataRow>
                   </React.Fragment>

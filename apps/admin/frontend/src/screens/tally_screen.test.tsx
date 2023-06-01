@@ -28,7 +28,7 @@ const laterDate = new Date('2022-07-01T12:05:00.000Z');
 test('displays manual tally metadata & links to manual data summary page', async () => {
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetCastVoteRecordFiles([]);
-  apiMock.expectGetManualTallyMetadata([
+  apiMock.expectGetManualResultsMetadata([
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',
@@ -77,7 +77,7 @@ test('displays manual tally metadata & links to manual data summary page', async
 test('can delete manual data', async () => {
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetCastVoteRecordFiles([]);
-  apiMock.expectGetManualTallyMetadata([
+  apiMock.expectGetManualResultsMetadata([
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',
@@ -114,8 +114,8 @@ test('can delete manual data', async () => {
   // confirming action causes mutation and refetch
   userEvent.click(screen.getButton('Remove Manually Entered Results'));
   modal = await screen.findByRole('alertdialog');
-  apiMock.expectDeleteAllManualTallies();
-  apiMock.expectGetManualTallyMetadata([]);
+  apiMock.expectDeleteAllManualResults();
+  apiMock.expectGetManualResultsMetadata([]);
   userEvent.click(
     within(modal).getButton('Remove All Manually Entered Results')
   );
@@ -125,7 +125,7 @@ test('can delete manual data', async () => {
 test('with no data loaded', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
-  apiMock.expectGetManualTallyMetadata([]);
+  apiMock.expectGetManualResultsMetadata([]);
   renderInAppContext(<TallyScreen />, {
     electionDefinition,
     apiMock,

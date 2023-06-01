@@ -428,32 +428,35 @@ export type ServerFullElectionManualTally = Omit<
 };
 
 /**
- * Ballot types for which we allow manual tally entry.
+ * Ballot types for which we allow adding manual results.
  */
-export type ManualTallyBallotType = 'absentee' | 'precinct';
+export type ManualResultsVotingMethod = Exclude<
+  Tabulation.VotingMethod,
+  'provisional'
+>;
 
 /**
- * Attributes which uniquely identify a manual tally within an election due
+ * Attributes which uniquely identify manual results within an election due
  * to the levels of granularity we do or don't support.
  */
-export interface ManualTallyIdentifier {
+export interface ManualResultsIdentifier {
   precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
-  ballotType: ManualTallyBallotType;
+  ballotType: ManualResultsVotingMethod;
 }
 
 /**
- * Manual tallies as they are represented in the store.
+ * Manual results as they are represented in the store.
  */
-export interface ManualTallyRecord extends ManualTallyIdentifier {
-  manualTally: ManualTally;
+export interface ManualResultsRecord extends ManualResultsIdentifier {
+  manualResults: Tabulation.ManualElectionResults;
   createdAt: Iso8601Timestamp;
 }
 
 /**
- * Ballot count summary of a manual tally record.
+ * Ballot count summary of a manual results record.
  */
-export interface ManualTallyMetadataRecord extends ManualTallyIdentifier {
+export interface ManualResultsMetadataRecord extends ManualResultsIdentifier {
   ballotCount: number;
   createdAt: Iso8601Timestamp;
 }

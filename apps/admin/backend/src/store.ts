@@ -18,18 +18,14 @@ import {
   BallotPageLayout,
   BallotPageLayoutSchema,
   BallotStyleId,
-  Candidate,
   CastVoteRecord,
   ContestId,
   ContestOptionId,
-  ContestTally,
   CVR,
-  Dictionary,
   Election,
   ElectionDefinition,
   Id,
   Iso8601Timestamp,
-  ManualTally,
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
@@ -55,9 +51,9 @@ import {
   DatabaseSerializedCastVoteRecordVotes,
   DatabaseSerializedCastVoteRecordVotesSchema,
   ElectionRecord,
-  ManualTallyIdentifier,
-  ManualTallyMetadataRecord,
-  ManualTallyRecord,
+  ManualResultsIdentifier,
+  ManualResultsMetadataRecord,
+  ManualResultsRecord,
   ScannerBatch,
   StoreTabulationFilter,
   WriteInAdjudicationAction,
@@ -1128,15 +1124,15 @@ export class Store {
       id
     ) as { id: Id } | undefined;
 
-    const manualTally = this.client.one(
+    const manualResultId = this.client.one(
       `
-        select manual_tally_id from manual_tally_write_in_candidate_references
+        select manual_result_id from manual_result_write_in_candidate_references
         where write_in_candidate_id = ?
       `,
       id
     ) as { id: Id } | undefined;
 
-    if (!adjudicatedWriteIn && !manualTally) {
+    if (!adjudicatedWriteIn && !manualResultId) {
       this.client.run(
         `
           delete from write_in_candidates
@@ -1159,7 +1155,7 @@ export class Store {
         ) and 
         id not in (
           select distinct write_in_candidate_id
-          from manual_tally_write_in_candidate_references
+          from manual_result_write_in_candidate_references
         )
       `
     );
@@ -1560,26 +1556,26 @@ export class Store {
     }
   }
 
-  deleteAllManualTallies({ electionId }: { electionId: Id }): void {
+  deleteAllManualResults({ electionId }: { electionId: Id }): void {
     this.client.run(
-      `delete from manual_tallies where election_id = ?`,
+      `delete from manual_results where election_id = ?`,
       electionId
     );
 
-    // removing manual tallies may have left unofficial write-in candidates
+    // removing manual results may have left unofficial write-in candidates
     // without any references, so we delete them
     this.deleteAllChildlessWriteInCandidates();
   }
 
-  deleteManualTally({
+  deleteManualResults({
     electionId,
     precinctId,
     ballotStyleId,
     ballotType,
-  }: { electionId: Id } & ManualTallyIdentifier): void {
+  }: { electionId: Id } & ManualResultsIdentifier): void {
     this.client.run(
       `
-        delete from manual_tallies
+        delete from manual_results
         where 
           election_id = ? and
           precinct_id = ? and
@@ -1591,40 +1587,42 @@ export class Store {
       ballotType
     );
 
-    // removing the manual tally may have left unofficial write-in candidates
+    // removing the manual result may have left unofficial write-in candidates
     // without any references, so we delete them
     this.deleteAllChildlessWriteInCandidates();
   }
 
-  setManualTally({
+  setManualResults({
     electionId,
     precinctId,
     ballotStyleId,
     ballotType,
-    manualTally,
-  }: ManualTallyIdentifier & {
+    manualResults,
+  }: ManualResultsIdentifier & {
     electionId: Id;
-    manualTally: ManualTally;
+    manualResults: Tabulation.ManualElectionResults;
   }): void {
-    const ballotCount = manualTally.numberOfBallotsCounted;
-    const serializedContestTallies = JSON.stringify(manualTally.contestTallies);
+    const { ballotCount } = manualResults;
+    const serializedContestResults = JSON.stringify(
+      manualResults.contestResults
+    );
 
-    const { id: manualTallyRecordId } = this.client.one(
+    const { id: manualResultsRecordId } = this.client.one(
       `
-        insert into manual_tallies (
+        insert into manual_results (
           election_id,
           precinct_id,
           ballot_style_id,
           ballot_type,
           ballot_count,
-          contest_tallies
+          contest_results
         ) values 
           (?, ?, ?, ?, ?, ?)
         on conflict
           (election_id, precinct_id, ballot_style_id, ballot_type)
         do update set
           ballot_count = excluded.ballot_count,
-          contest_tallies = excluded.contest_tallies
+          contest_results = excluded.contest_results
         returning (id)
       `,
       electionId,
@@ -1632,28 +1630,26 @@ export class Store {
       ballotStyleId,
       ballotType,
       ballotCount,
-      serializedContestTallies
+      serializedContestResults
     ) as { id: Id };
 
     // delete any previous write-in candidate references
     this.client.run(
       `
-        delete from manual_tally_write_in_candidate_references
-        where manual_tally_id = ?
+        delete from manual_result_write_in_candidate_references
+        where manual_result_id = ?
       `,
-      manualTallyRecordId
+      manualResultsRecordId
     );
 
     // check for the current write-in candidate references
     const writeInCandidateIds: Id[] = [];
-    for (const contestTally of Object.values(manualTally.contestTallies)) {
-      assert(contestTally);
-      if (contestTally.contest.type === 'candidate') {
-        for (const optionTally of Object.values(contestTally.tallies)) {
-          assert(optionTally);
-          const candidate = optionTally.option as Candidate;
-          if (candidate.isWriteIn) {
-            writeInCandidateIds.push(candidate.id);
+    for (const contesResults of Object.values(manualResults.contestResults)) {
+      assert(contesResults);
+      if (contesResults.contestType === 'candidate') {
+        for (const candidateTally of Object.values(contesResults.tallies)) {
+          if (candidateTally.isWriteIn) {
+            writeInCandidateIds.push(candidateTally.id);
           }
         }
       }
@@ -1663,15 +1659,15 @@ export class Store {
       const params: Bindable[] = [];
       const questionMarks: string[] = [];
       for (const writeInCandidateId of writeInCandidateIds) {
-        params.push(manualTallyRecordId, writeInCandidateId);
+        params.push(manualResultsRecordId, writeInCandidateId);
         questionMarks.push('(?, ?)');
       }
 
       // insert new write-in candidate references
       this.client.run(
         `
-          insert into manual_tally_write_in_candidate_references (
-            manual_tally_id,
+          insert into manual_result_write_in_candidate_references (
+            manual_result_id,
             write_in_candidate_id
           ) values ${questionMarks.join(', ')}
         `,
@@ -1680,18 +1676,18 @@ export class Store {
     }
 
     // delete write-in candidates that may have only been included on the
-    // previously entered manually tally and are now not referenced
+    // previously entered manual results and are now not referenced
     this.deleteAllChildlessWriteInCandidates();
   }
 
-  getManualTallies({
+  getManualResults({
     electionId,
     precinctId,
     ballotStyleId,
     ballotType,
   }: {
     electionId: Id;
-  } & Partial<ManualTallyIdentifier>): ManualTallyRecord[] {
+  } & Partial<ManualResultsIdentifier>): ManualResultsRecord[] {
     const whereParts = ['election_id = ?'];
     const params: Bindable[] = [electionId];
 
@@ -1718,15 +1714,15 @@ export class Store {
             ballot_style_id as ballotStyleId,
             ballot_type as ballotType,
             ballot_count as ballotCount,
-            contest_tallies as contestTallyData,
+            contest_results as contestResultsData,
             datetime(created_at, 'localtime') as createdAt
-          from manual_tallies
+          from manual_results
           where ${whereParts.join(' and ')}
         `,
         ...params
       ) as Array<
-        ManualTallyIdentifier & {
-          contestTallyData: string;
+        ManualResultsIdentifier & {
+          contestResultsData: string;
           ballotCount: number;
           createdAt: string;
         }
@@ -1735,21 +1731,21 @@ export class Store {
       precinctId: row.precinctId,
       ballotStyleId: row.ballotStyleId,
       ballotType: row.ballotType,
-      manualTally: {
-        numberOfBallotsCounted: row.ballotCount,
-        contestTallies: JSON.parse(
-          row.contestTallyData
-        ) as Dictionary<ContestTally>,
+      manualResults: {
+        ballotCount: row.ballotCount,
+        contestResults: JSON.parse(
+          row.contestResultsData
+        ) as Tabulation.ManualElectionResults['contestResults'],
       },
       createdAt: convertSqliteTimestampToIso8601(row.createdAt),
     }));
   }
 
-  getManualTallyMetadata({
+  getManualResultsMetadata({
     electionId,
   }: {
     electionId: Id;
-  }): ManualTallyMetadataRecord[] {
+  }): ManualResultsMetadataRecord[] {
     return (
       this.client.all(
         `
@@ -1759,12 +1755,12 @@ export class Store {
             ballot_type as ballotType,
             ballot_count as ballotCount,
             datetime(created_at, 'localtime') as createdAt
-          from manual_tallies
+          from manual_results
           where election_id = ?
         `,
         electionId
       ) as Array<
-        ManualTallyIdentifier & {
+        ManualResultsIdentifier & {
           ballotCount: number;
           createdAt: string;
         }

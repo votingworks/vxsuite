@@ -5,8 +5,8 @@ import type {
   CastVoteRecordFileRecord,
   CvrFileMode,
   MachineConfig,
-  ManualTallyIdentifier,
-  ManualTallyMetadataRecord,
+  ManualResultsIdentifier,
+  ManualResultsMetadataRecord,
   WriteInAdjudicationStatus,
   WriteInCandidateRecord,
   WriteInDetailView,
@@ -27,9 +27,9 @@ import {
   DippedSmartCardAuth,
   ElectionDefinition,
   FullElectionManualTally,
-  ManualTally,
   Rect,
   SystemSettings,
+  Tabulation,
 } from '@votingworks/types';
 
 const mockRect: Rect = {
@@ -269,34 +269,39 @@ export function createApiMock(
       apiClient.listCastVoteRecordFilesOnUsb.expectCallWith().resolves(files);
     },
 
-    expectDeleteAllManualTallies() {
-      apiClient.deleteAllManualTallies.expectCallWith().resolves();
+    expectDeleteAllManualResults() {
+      apiClient.deleteAllManualResults.expectCallWith().resolves();
     },
 
-    expectDeleteManualTally(input: ManualTallyIdentifier) {
-      apiClient.deleteManualTally.expectCallWith(input).resolves();
+    expectDeleteManualResults(input: ManualResultsIdentifier) {
+      apiClient.deleteManualResults.expectCallWith(input).resolves();
     },
 
-    expectSetManualTally(
-      input: ManualTallyIdentifier & { manualTally: ManualTally }
+    expectSetManualResults(
+      input: ManualResultsIdentifier & {
+        manualResults: Tabulation.ManualElectionResults;
+      }
     ) {
-      apiClient.setManualTally.expectCallWith(input).resolves();
+      apiClient.setManualResults.expectCallWith(input).resolves();
     },
 
-    expectGetManualTally(input: ManualTallyIdentifier, tally?: ManualTally) {
-      apiClient.getManualTally.expectCallWith(input).resolves(
-        tally
+    expectGetManualResults(
+      input: ManualResultsIdentifier,
+      results?: Tabulation.ManualElectionResults
+    ) {
+      apiClient.getManualResults.expectCallWith(input).resolves(
+        results
           ? {
               ...input,
-              manualTally: tally,
+              manualResults: results,
               createdAt: new Date().toISOString(),
             }
           : null
       );
     },
 
-    expectGetManualTallyMetadata(records: ManualTallyMetadataRecord[]) {
-      apiClient.getManualTallyMetadata.expectCallWith().resolves(records);
+    expectGetManualResultsMetadata(records: ManualResultsMetadataRecord[]) {
+      apiClient.getManualResultsMetadata.expectCallWith().resolves(records);
     },
 
     expectGetFullElectionManualTally(

@@ -4,11 +4,11 @@ import {
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
-  ManualTally,
   safeParseElectionDefinition,
   safeParseJson,
   SystemSettings,
   SystemSettingsSchema,
+  Tabulation,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
@@ -41,9 +41,9 @@ import {
   CvrFileImportInfo,
   CvrFileMode,
   ElectionRecord,
-  ManualTallyIdentifier,
-  ManualTallyMetadataRecord,
-  ManualTallyRecord,
+  ManualResultsIdentifier,
+  ManualResultsMetadataRecord,
+  ManualResultsRecord,
   ServerFullElectionManualTally,
   SetSystemSettingsResult,
   WriteInAdjudicationAction,
@@ -66,7 +66,7 @@ import { getWriteInDetailView } from './util/write_ins';
 import {
   buildFullElectionManualTallyFromStore,
   handleEnteredWriteInCandidateData,
-} from './util/manual_tallies';
+} from './util/manual_results';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -495,8 +495,8 @@ function buildApi({
       });
     },
 
-    async deleteAllManualTallies(): Promise<void> {
-      store.deleteAllManualTallies({
+    async deleteAllManualResults(): Promise<void> {
+      store.deleteAllManualResults({
         electionId: loadCurrentElectionIdOrThrow(workspace),
       });
       await logger.log(
@@ -509,8 +509,8 @@ function buildApi({
       );
     },
 
-    async deleteManualTally(input: ManualTallyIdentifier): Promise<void> {
-      store.deleteManualTally({
+    async deleteManualResults(input: ManualResultsIdentifier): Promise<void> {
+      store.deleteManualResults({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
       });
@@ -526,24 +526,24 @@ function buildApi({
       );
     },
 
-    async setManualTally(
-      input: ManualTallyIdentifier & {
-        manualTally: ManualTally;
+    async setManualResults(
+      input: ManualResultsIdentifier & {
+        manualResults: Tabulation.ManualElectionResults;
       }
     ): Promise<void> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       await store.withTransaction(() => {
-        const manualTally = handleEnteredWriteInCandidateData({
-          manualTally: input.manualTally,
+        const manualResults = handleEnteredWriteInCandidateData({
+          manualResults: input.manualResults,
           electionId,
           store,
         });
-        store.setManualTally({
+        store.setManualResults({
           electionId,
           precinctId: input.precinctId,
           ballotStyleId: input.ballotStyleId,
           ballotType: input.ballotType,
-          manualTally,
+          manualResults,
         });
         return Promise.resolve();
       });
@@ -555,7 +555,7 @@ function buildApi({
           disposition: 'success',
           message:
             'User added or edited manually entered tally data for a particular ballot style, precinct, and voting method.',
-          numberOfBallots: input.manualTally.numberOfBallotsCounted,
+          ballotCount: input.manualResults.ballotCount,
           ballotStyleId: input.ballotStyleId,
           precinctId: input.precinctId,
           ballotType: input.ballotType,
@@ -570,18 +570,20 @@ function buildApi({
       return buildFullElectionManualTallyFromStore(store, electionId) || null;
     },
 
-    getManualTally(input: ManualTallyIdentifier): ManualTallyRecord | null {
-      const [manualTallyRecord] = store.getManualTallies({
+    getManualResults(
+      input: ManualResultsIdentifier
+    ): ManualResultsRecord | null {
+      const [manualResultsRecord] = store.getManualResults({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
       });
 
-      return manualTallyRecord ?? null;
+      return manualResultsRecord ?? null;
     },
 
-    getManualTallyMetadata(): ManualTallyMetadataRecord[] {
+    getManualResultsMetadata(): ManualResultsMetadataRecord[] {
       return store
-        .getManualTallyMetadata({
+        .getManualResultsMetadata({
           electionId: loadCurrentElectionIdOrThrow(workspace),
         })
         .map((record) => ({ ...record }));

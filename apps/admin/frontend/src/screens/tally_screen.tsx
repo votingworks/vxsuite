@@ -15,10 +15,10 @@ import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_mo
 import { TIME_FORMAT } from '../config/globals';
 import {
   clearCastVoteRecordFiles,
-  deleteAllManualTallies,
+  deleteAllManualResults,
   getCastVoteRecordFileMode,
   getCastVoteRecordFiles,
-  getManualTallyMetadata,
+  getManualResultsMetadata,
 } from '../api';
 import { Loading } from '../components/loading';
 import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tallies_modal';
@@ -32,7 +32,7 @@ export function TallyScreen(): JSX.Element | null {
 
   const clearCastVoteRecordFilesMutation =
     clearCastVoteRecordFiles.useMutation();
-  const deleteAllManualTalliesMutation = deleteAllManualTallies.useMutation();
+  const deleteAllManualTalliesMutation = deleteAllManualResults.useMutation();
 
   const [confirmingRemoveFileType, setConfirmingRemoveFileType] =
     useState<ResultsFileType>();
@@ -72,7 +72,7 @@ export function TallyScreen(): JSX.Element | null {
 
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
-  const manualTallyMetadataQuery = getManualTallyMetadata.useQuery();
+  const manualTallyMetadataQuery = getManualResultsMetadata.useQuery();
 
   if (
     !castVoteRecordFilesQuery.isSuccess ||

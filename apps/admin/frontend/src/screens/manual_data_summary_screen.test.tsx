@@ -26,7 +26,7 @@ const electionDefinition = electionMinimalExhaustiveSampleDefinition;
 
 test('navigating back to tally page', async () => {
   const history = createMemoryHistory();
-  apiMock.expectGetManualTallyMetadata([]);
+  apiMock.expectGetManualResultsMetadata([]);
   renderInAppContext(
     <Router history={history}>
       <ManualDataSummaryScreen />
@@ -44,7 +44,7 @@ test('navigating back to tally page', async () => {
 
 test('initial table without manual tallies & adding a manual tally', async () => {
   const history = createMemoryHistory();
-  apiMock.expectGetManualTallyMetadata([]);
+  apiMock.expectGetManualResultsMetadata([]);
   renderInAppContext(
     <Router history={history}>
       <ManualDataSummaryScreen />
@@ -90,7 +90,7 @@ test('initial table without manual tallies & adding a manual tally', async () =>
 
 test('link to edit an existing tally', async () => {
   const history = createMemoryHistory();
-  apiMock.expectGetManualTallyMetadata([
+  apiMock.expectGetManualResultsMetadata([
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',
@@ -122,7 +122,7 @@ test('link to edit an existing tally', async () => {
 });
 
 test('delete an existing tally', async () => {
-  apiMock.expectGetManualTallyMetadata([
+  apiMock.expectGetManualResultsMetadata([
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',
@@ -148,17 +148,17 @@ test('delete an existing tally', async () => {
   within(modal).getByText(hasTextAcrossElements(/Voting Method: Precinct/));
 
   // expect delete request and refetch
-  apiMock.expectDeleteManualTally({
+  apiMock.expectDeleteManualResults({
     precinctId: 'precinct-1',
     ballotStyleId: '1M',
     ballotType: 'precinct',
   });
-  apiMock.expectGetManualTallyMetadata([]);
+  apiMock.expectGetManualResultsMetadata([]);
   userEvent.click(screen.getButton('Remove Manually Entered Results'));
 });
 
 test('full table & clearing all data', async () => {
-  apiMock.expectGetManualTallyMetadata([
+  apiMock.expectGetManualResultsMetadata([
     {
       ballotStyleId: '2F',
       precinctId: 'precinct-2',
@@ -212,8 +212,8 @@ test('full table & clearing all data', async () => {
   userEvent.click(screen.getButton('Remove All Manually Entered Results'));
   const modal = await screen.findByRole('alertdialog');
 
-  apiMock.expectDeleteAllManualTallies();
-  apiMock.expectGetManualTallyMetadata([]);
+  apiMock.expectDeleteAllManualResults();
+  apiMock.expectGetManualResultsMetadata([]);
   userEvent.click(
     within(modal).getButton('Remove All Manually Entered Results')
   );

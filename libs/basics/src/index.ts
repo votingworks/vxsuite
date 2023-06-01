@@ -11,3 +11,4 @@ export * from './sleep';
 export * from './typed_as';
 export * from './types';
 export * from './unique';
+export * from './map_object';

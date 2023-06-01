@@ -312,26 +312,28 @@ export const getFullElectionManualTally = {
   },
 } as const;
 
-type GetManualTallyInput = QueryInput<'getManualTally'>;
-export const getManualTally = {
-  queryKey(input?: GetManualTallyInput): QueryKey {
-    return input ? ['getManualTally', input] : ['getManualTally'];
+type GetManualResultsInput = QueryInput<'getManualResults'>;
+export const getManualResults = {
+  queryKey(input?: GetManualResultsInput): QueryKey {
+    return input ? ['getManualResults', input] : ['getManualResults'];
   },
-  useQuery(input: GetManualTallyInput) {
+  useQuery(input: GetManualResultsInput) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(input), () =>
-      apiClient.getManualTally(input)
+      apiClient.getManualResults(input)
     );
   },
 } as const;
 
-export const getManualTallyMetadata = {
+export const getManualResultsMetadata = {
   queryKey(): QueryKey {
-    return ['getManualTallyMetadata'];
+    return ['getManualResultsMetadata'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getManualTallyMetadata());
+    return useQuery(this.queryKey(), () =>
+      apiClient.getManualResultsMetadata()
+    );
   },
 } as const;
 
@@ -353,11 +355,11 @@ function invalidateWriteInQueries(queryClient: QueryClient) {
   ]);
 }
 
-function invalidateManualTallyQueries(queryClient: QueryClient) {
+function invalidateManualResultsQueries(queryClient: QueryClient) {
   return Promise.all([
-    queryClient.invalidateQueries(getManualTally.queryKey()),
+    queryClient.invalidateQueries(getManualResults.queryKey()),
     queryClient.invalidateQueries(getFullElectionManualTally.queryKey()),
-    queryClient.invalidateQueries(getManualTallyMetadata.queryKey()),
+    queryClient.invalidateQueries(getManualResultsMetadata.queryKey()),
   ]);
 }
 
@@ -442,39 +444,39 @@ export const addCastVoteRecordFile = {
   },
 } as const;
 
-export const setManualTally = {
+export const setManualResults = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.setManualTally, {
+    return useMutation(apiClient.setManualResults, {
       async onSuccess() {
-        await invalidateManualTallyQueries(queryClient);
+        await invalidateManualResultsQueries(queryClient);
         await invalidateWriteInQueries(queryClient);
       },
     });
   },
 } as const;
 
-export const deleteAllManualTallies = {
+export const deleteAllManualResults = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.deleteAllManualTallies, {
+    return useMutation(apiClient.deleteAllManualResults, {
       async onSuccess() {
-        await invalidateManualTallyQueries(queryClient);
+        await invalidateManualResultsQueries(queryClient);
         await invalidateWriteInQueries(queryClient);
       },
     });
   },
 } as const;
 
-export const deleteManualTally = {
+export const deleteManualResults = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.deleteManualTally, {
+    return useMutation(apiClient.deleteManualResults, {
       async onSuccess() {
-        await invalidateManualTallyQueries(queryClient);
+        await invalidateManualResultsQueries(queryClient);
         await invalidateWriteInQueries(queryClient);
       },
     });
