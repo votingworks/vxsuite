@@ -1361,9 +1361,11 @@ export class Store {
       const groupSpecifier: Tabulation.GroupSpecifier = groupBy
         ? {
             ballotStyleId: groupBy.groupByBallotStyle
+              ? row.ballotStyleId
+              : undefined,
+            partyId: groupBy.groupByParty
               ? ballotStylePartyLookup[assertDefined(row.ballotStyleId)]
               : undefined,
-            partyId: groupBy.groupByParty ? row.ballotStyleId : undefined,
             batchId: groupBy.groupByBatch ? row.batchId : undefined,
             scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
             precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
