@@ -134,7 +134,8 @@ function buildApi({
       }
     },
 
-    /* istanbul ignore next - only used by Cypress */
+    /* c8 ignore start */
+    // This is only used in Cypress tests.
     async configureWithSampleBallotPackageForIntegrationTest(): Promise<void> {
       const { electionGridLayoutNewHampshireAmherstFixtures } = await import(
         '@votingworks/fixtures'
@@ -147,6 +148,7 @@ function buildApi({
       importer.configure(electionDefinition, TEST_JURISDICTION);
       store.setSystemSettings(systemSettings);
     },
+    /* c8 ignore stop */
 
     async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<ElectionDefinition, BallotPackageConfigurationError>
