@@ -3,7 +3,7 @@ import {
   buildManualResultsFixture,
   buildSpecificManualTally,
 } from '@votingworks/utils';
-import { convertResultsToDeprecatedTally } from './manual_tallies';
+import { convertResultsToDeprecatedTally } from './manual_results';
 
 const electionDefinition = electionMinimalExhaustiveSampleDefinition;
 const { election } = electionDefinition;

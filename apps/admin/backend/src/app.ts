@@ -66,7 +66,7 @@ import { getWriteInDetailView } from './util/write_ins';
 import {
   buildFullElectionManualTallyFromStore,
   handleEnteredWriteInCandidateData,
-} from './util/manual_tallies';
+} from './util/manual_results';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
