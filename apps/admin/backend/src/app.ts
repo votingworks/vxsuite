@@ -576,7 +576,9 @@ function buildApi({
     ): ManualResultsRecord | null {
       const [manualResultsRecord] = store.getManualResults({
         electionId: loadCurrentElectionIdOrThrow(workspace),
-        ...input,
+        precinctIds: input.precinctId ? [input.precinctId] : undefined,
+        ballotStyleIds: input.ballotStyleId ? [input.ballotStyleId] : undefined,
+        votingMethods: input.ballotType ? [input.ballotType] : undefined,
       });
 
       return manualResultsRecord ?? null;

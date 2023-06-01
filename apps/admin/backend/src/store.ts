@@ -55,7 +55,7 @@ import {
   ManualResultsMetadataRecord,
   ManualResultsRecord,
   ScannerBatch,
-  StoreTabulationFilter,
+  CastVoteRecordStoreFilter,
   WriteInAdjudicationAction,
   WriteInAdjudicationStatus,
   WriteInCandidateRecord,
@@ -69,6 +69,7 @@ import {
   WriteInAdjudicatedOfficialCandidateTally,
   WriteInAdjudicatedWriteInCandidateTally,
   WriteInPendingTally,
+  ManualResultsStoreFilter,
 } from './types';
 import {
   areCastVoteRecordMetadataEqual,
@@ -93,7 +94,7 @@ function convertSqliteTimestampToIso8601(
 export function replacePartyIdFilter(
   filter: Tabulation.Filter,
   election: Election
-): StoreTabulationFilter {
+): CastVoteRecordStoreFilter {
   if (!filter.partyIds) return filter;
 
   const ballotStyleIds: BallotStyleId[] = [];
@@ -911,7 +912,7 @@ export class Store {
 
   private getTabulationFilterAsSql(
     electionId: Id,
-    filter: StoreTabulationFilter
+    filter: CastVoteRecordStoreFilter
   ): [whereParts: string[], params: Bindable[]] {
     const whereParts = ['cvrs.election_id = ?'];
     const params: Bindable[] = [electionId];
@@ -1288,7 +1289,7 @@ export class Store {
   }: {
     electionId: Id;
     election: Election;
-    filter?: StoreTabulationFilter;
+    filter?: CastVoteRecordStoreFilter;
     groupBy?: Tabulation.GroupBy;
   }): Generator<Tabulation.GroupOf<WriteInTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
@@ -1682,28 +1683,30 @@ export class Store {
 
   getManualResults({
     electionId,
-    precinctId,
-    ballotStyleId,
-    ballotType,
+    precinctIds,
+    ballotStyleIds,
+    votingMethods,
   }: {
     electionId: Id;
-  } & Partial<ManualResultsIdentifier>): ManualResultsRecord[] {
+  } & ManualResultsStoreFilter): ManualResultsRecord[] {
     const whereParts = ['election_id = ?'];
     const params: Bindable[] = [electionId];
 
-    if (precinctId) {
-      whereParts.push('precinct_id = ?');
-      params.push(precinctId);
+    if (precinctIds) {
+      whereParts.push(`precinct_id in ${asQueryPlaceholders(precinctIds)}`);
+      params.push(...precinctIds);
     }
 
-    if (ballotStyleId) {
-      whereParts.push('ballot_style_id = ?');
-      params.push(ballotStyleId);
+    if (ballotStyleIds) {
+      whereParts.push(
+        `ballot_style_id in ${asQueryPlaceholders(ballotStyleIds)}`
+      );
+      params.push(...ballotStyleIds);
     }
 
-    if (ballotType) {
-      whereParts.push('ballot_type = ?');
-      params.push(ballotType);
+    if (votingMethods) {
+      whereParts.push(`ballot_type in ${asQueryPlaceholders(votingMethods)}`);
+      params.push(...votingMethods);
     }
 
     return (
