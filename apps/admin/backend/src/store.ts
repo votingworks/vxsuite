@@ -17,7 +17,6 @@ import {
   BallotId,
   BallotPageLayout,
   BallotPageLayoutSchema,
-  BallotStyleId,
   CastVoteRecord,
   ContestId,
   ContestOptionId,
@@ -75,6 +74,7 @@ import {
   areCastVoteRecordMetadataEqual,
   cvrBallotTypeToLegacyBallotType,
 } from './util/cvrs';
+import { replacePartyIdFilter } from './tabulation/utils';
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
@@ -85,37 +85,6 @@ function convertSqliteTimestampToIso8601(
   sqliteTimestamp: string
 ): Iso8601Timestamp {
   return new Date(sqliteTimestamp).toISOString();
-}
-
-/**
- * Replaces the `partyIds` filter in a {@link Tabulation.Filter} with
- * an equivalent `ballotStyleIds` filter.
- */
-export function replacePartyIdFilter(
-  filter: Tabulation.Filter,
-  election: Election
-): CastVoteRecordStoreFilter {
-  if (!filter.partyIds) return filter;
-
-  const ballotStyleIds: BallotStyleId[] = [];
-
-  for (const ballotStyle of election.ballotStyles) {
-    if (
-      ballotStyle.partyId &&
-      filter.partyIds.includes(ballotStyle.partyId) &&
-      (!filter.ballotStyleIds || filter.ballotStyleIds.includes(ballotStyle.id))
-    ) {
-      ballotStyleIds.push(ballotStyle.id);
-    }
-  }
-
-  return {
-    ballotStyleIds,
-    precinctIds: filter.precinctIds,
-    votingMethods: filter.votingMethods,
-    scannerIds: filter.scannerIds,
-    batchIds: filter.batchIds,
-  };
 }
 
 function asQueryPlaceholders(list: unknown[]): string {
