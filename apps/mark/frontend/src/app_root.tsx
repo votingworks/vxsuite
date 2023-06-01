@@ -41,6 +41,7 @@ import {
 } from '@votingworks/ui';
 
 import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
+import { mergeMsEitherNeitherContests } from '@votingworks/mark-flow-ui';
 import {
   checkPin,
   endCardlessVoterSession,
@@ -70,7 +71,6 @@ import { ScreenReader } from './utils/ScreenReader';
 import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
-import { mergeMsEitherNeitherContests } from './utils/ms_either_neither_contests';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
 
 interface UserState {

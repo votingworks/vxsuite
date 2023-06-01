@@ -12,6 +12,7 @@ export interface VoterContestSummaryProps {
   titleType: HeadingProps['as'];
   undervoteWarning?: string;
   votes: ContestVote[];
+  'data-testid'?: string;
 }
 
 export interface ContestVote {
@@ -46,10 +47,17 @@ const CheckboxContainer = styled(Font)`
 export function VoterContestSummary(
   props: VoterContestSummaryProps
 ): JSX.Element {
-  const { districtName, title, titleType, undervoteWarning, votes } = props;
+  const {
+    districtName,
+    title,
+    titleType,
+    undervoteWarning,
+    votes,
+    'data-testid': testId,
+  } = props;
 
   return (
-    <div>
+    <div data-testid={testId}>
       <H5 as={titleType}>
         <DistrictName weight="regular">{districtName}</DistrictName>
         {title}

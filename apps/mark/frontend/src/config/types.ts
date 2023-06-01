@@ -15,7 +15,7 @@ import type { MachineConfig } from '@votingworks/mark-backend';
 import {
   ContestsWithMsEitherNeither,
   MsEitherNeitherContest,
-} from '../utils/ms_either_neither_contests';
+} from '@votingworks/mark-flow-ui';
 
 // Ballot
 export type UpdateVoteFunction = (

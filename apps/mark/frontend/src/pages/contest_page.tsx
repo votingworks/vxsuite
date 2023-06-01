@@ -1,20 +1,14 @@
-import styled from 'styled-components';
-
-import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
-import { LinkButton, Screen, Prose, P, Font } from '@votingworks/ui';
+import { CandidateVote } from '@votingworks/types';
+import { Screen, Prose, P, Font, LinkButton } from '@votingworks/ui';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import React, { useContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-
+import React, { useContext } from 'react';
 import { assert } from '@votingworks/basics';
-
+import { useHistory, useParams } from 'react-router-dom';
+import { Contest as MarkFlowContest } from '@votingworks/mark-flow-ui';
+import styled from 'styled-components';
 import { BallotContext } from '../contexts/ballot_context';
-
-import { CandidateContest } from '../components/candidate_contest';
 import { ElectionInfo } from '../components/election_info';
 import { Sidebar } from '../components/sidebar';
-import { YesNoContest } from '../components/yes_no_contest';
-import { MsEitherNeitherContest } from '../components/ms_either_neither_contest';
 import { screenOrientation } from '../lib/screen_orientation';
 import { ButtonFooter } from '../components/button_footer';
 import { DisplaySettingsButton } from '../components/display_settings_button';
@@ -29,7 +23,9 @@ const Breadcrumbs = styled.div`
 
 export function ContestPage(): JSX.Element {
   const { contestNumber } = useParams<ContestParams>();
-  const isReviewMode = window.location.hash === '#review';
+  const history = useHistory();
+  const isReviewMode = history.location.hash === '#review';
+
   const {
     ballotStyleId,
     contests,
@@ -39,6 +35,17 @@ export function ContestPage(): JSX.Element {
     updateVote,
     votes,
   } = useContext(BallotContext);
+
+  // eslint-disable-next-line vx/gts-safe-number-parse
+  const currentContestIndex = parseInt(contestNumber, 10);
+  const contest = contests[currentContestIndex];
+
+  const prevContestIndex = currentContestIndex - 1;
+  const prevContest = contests[prevContestIndex];
+
+  const nextContestIndex = currentContestIndex + 1;
+  const nextContest = contests[nextContestIndex];
+
   assert(
     electionDefinition,
     'electionDefinition is required to render ContestPage'
@@ -49,41 +56,26 @@ export function ContestPage(): JSX.Element {
   );
   const { isLandscape, isPortrait } = screenOrientation(machineConfig);
 
-  // eslint-disable-next-line vx/gts-safe-number-parse
-  const currentContestIndex = parseInt(contestNumber, 10);
-  const contest = contests[currentContestIndex];
-
   const vote = votes[contest.id];
-
-  const [isVoteComplete, setIsVoteComplete] = useState(false);
-
-  const prevContestIndex = currentContestIndex - 1;
-  const prevContest = contests[prevContestIndex];
-
-  const nextContestIndex = currentContestIndex + 1;
-  const nextContest = contests[nextContestIndex];
 
   const ballotContestNumber = currentContestIndex + 1;
   const ballotContestsLength = contests.length;
 
-  useEffect(() => {
-    function calculateIsVoteComplete() {
-      /* istanbul ignore else */
-      if (contest.type === 'yesno') {
-        setIsVoteComplete(!!vote);
-      } else if (contest.type === 'candidate') {
-        setIsVoteComplete(
-          contest.seats === ((vote as CandidateVote) ?? []).length
-        );
-      } else if (contest.type === 'ms-either-neither') {
-        setIsVoteComplete(
-          votes[contest.pickOneContestId]?.length === 1 ||
-            votes[contest.eitherNeitherContestId]?.[0] === 'no'
-        );
-      }
+  const isVoteComplete = (() => {
+    /* istanbul ignore else */
+    if (contest.type === 'yesno') {
+      return !!vote;
     }
-    calculateIsVoteComplete();
-  }, [contest, vote, votes]);
+    if (contest.type === 'candidate') {
+      return contest.seats === ((vote as CandidateVote) ?? []).length;
+    }
+    if (contest.type === 'ms-either-neither') {
+      return (
+        votes[contest.pickOneContestId]?.length === 1 ||
+        votes[contest.eitherNeitherContestId]?.[0] === 'no'
+      );
+    }
+  })();
 
   const nextContestButton = (
     <LinkButton
@@ -131,36 +123,12 @@ export function ContestPage(): JSX.Element {
           </P>
         </Breadcrumbs>
       )}
-      {contest.type === 'candidate' && (
-        <CandidateContest
-          aria-live="assertive"
-          key={contest.id}
-          contest={contest}
-          vote={(vote ?? []) as CandidateVote}
-          updateVote={updateVote}
-        />
-      )}
-      {contest.type === 'yesno' && (
-        <YesNoContest
-          key={contest.id}
-          contest={contest}
-          vote={vote as OptionalYesNoVote}
-          updateVote={updateVote}
-        />
-      )}
-      {contest.type === 'ms-either-neither' && (
-        <MsEitherNeitherContest
-          key={contest.id}
-          contest={contest}
-          eitherNeitherContestVote={
-            votes[contest.eitherNeitherContestId] as OptionalYesNoVote
-          }
-          pickOneContestVote={
-            votes[contest.pickOneContestId] as OptionalYesNoVote
-          }
-          updateVote={updateVote}
-        />
-      )}
+      <MarkFlowContest
+        election={electionDefinition.election}
+        contest={contest}
+        votes={votes}
+        updateVote={updateVote}
+      />
       {isPortrait ? (
         <ButtonFooter>
           {isReviewMode ? (

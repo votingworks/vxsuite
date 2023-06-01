@@ -11,10 +11,3 @@ const wobbleKeyframes = keyframes`
 export const Wobble = styled.div`
   animation: ${wobbleKeyframes} 10s ease-in-out infinite;
 `;
-
-const blinkKeyframes = keyframes`
-  to { visibility: hidden }
-`;
-export const Blink = styled.span`
-  animation: ${blinkKeyframes} 1s steps(2, start) infinite;
-`;

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import pluralize from 'pluralize';
 import useInterval from 'use-interval';
 
@@ -9,27 +9,37 @@ import {
   IDLE_TIMEOUT_SECONDS,
 } from '../config/globals';
 
-import { BallotContext } from '../contexts/ballot_context';
-
 const timeoutSeconds = IDLE_RESET_TIMEOUT_SECONDS;
 
-export function IdlePage(): JSX.Element {
-  const { endVoterSession, resetBallot } = useContext(BallotContext);
+export interface IdlePageProps {
+  /**
+   * Called when the user clicks the "I'm still voting" button.
+   */
+  onDismiss?: () => void;
+
+  /**
+   * Called when the countdown ends.
+   */
+  onCountdownEnd?: () => void;
+}
+
+function noop(): void {
+  // do nothing
+}
+
+export function IdlePage({
+  onDismiss = noop,
+  onCountdownEnd = noop,
+}: IdlePageProps): JSX.Element {
   const [countdown, setCountdown] = useState(timeoutSeconds);
   const [isLoading, setIsLoading] = useState(false);
 
-  function onPress() {
-    // do nothing
-  }
-
   useEffect(() => {
-    async function reset() {
+    if (countdown === 0 && !isLoading) {
       setIsLoading(true);
-      await endVoterSession();
-      resetBallot();
+      onCountdownEnd();
     }
-    if (countdown === 0 && !isLoading) void reset();
-  }, [countdown, endVoterSession, resetBallot, isLoading]);
+  }, [countdown, isLoading, onCountdownEnd]);
 
   useInterval(() => {
     setCountdown((previous) => previous - 1);
@@ -53,7 +63,7 @@ export function IdlePage(): JSX.Element {
                 <strong>{pluralize('second', countdown, true)}</strong>.
               </P>
             )}
-            <Button variant="primary" onPress={onPress}>
+            <Button variant="primary" onPress={onDismiss}>
               Yes, I’m still voting.
             </Button>
           </Prose>

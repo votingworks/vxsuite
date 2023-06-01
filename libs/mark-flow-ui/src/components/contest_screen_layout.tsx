@@ -8,14 +8,6 @@ export const ContestFooter = styled.div`
   width: 100%;
   padding: 0.5rem;
 `;
-export const DistrictName = styled.div`
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  font-weight: 600;
-`;
-export const ContestDescription = styled.div`
-  padding: 0 10px;
-`;
 export const ChoicesGrid = styled.div.attrs({
   'aria-multiselectable': true,
   role: 'listbox',

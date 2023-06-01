@@ -1,0 +1,9 @@
+{
+  "extends": [
+    "plugin:vx/react",
+    "plugin:storybook/recommended" // Recommended rules for *.stories.ts[x] files used by storybook.js.
+  ],
+  "rules": {
+    "vx/gts-jsdoc": "off"
+  }
+}

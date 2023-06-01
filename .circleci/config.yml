@@ -841,6 +841,29 @@ jobs:
       - store_test_results:
           path: libs/logging/reports/
 
+  # @votingworks/mark-flow-ui
+  test-libs-mark-flow-ui:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/mark-flow-ui build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/mark-flow-ui lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/mark-flow-ui test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/mark-flow-ui/reports/
+
   # @votingworks/message-coder
   test-libs-message-coder:
     executor: nodejs
@@ -1094,6 +1117,7 @@ workflows:
       - test-libs-grout-test-utils
       - test-libs-image-utils
       - test-libs-logging
+      - test-libs-mark-flow-ui
       - test-libs-message-coder
       - test-libs-monorepo-utils
       - test-libs-res-to-ts
