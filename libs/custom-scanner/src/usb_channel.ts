@@ -9,12 +9,13 @@ const debug = makeDebug('custom:usb-channel');
 const READ_RETRY_MAX = 5;
 const WRITE_RETRY_MAX = 3;
 
-/* istanbul ignore next - only used for debugging */
+/* c8 ignore start */
 function truncateStringForDisplay(string: string, maxLength = 100): string {
   return string.length > maxLength
     ? `${string.slice(0, maxLength - 1)}…`
     : string;
 }
+/* c8 ignore stop */
 
 /**
  * Options for building a `UsbChannel`.

@@ -3,7 +3,6 @@ import { debug as baseDebug } from '../debug';
 
 const debug = baseDebug.extend('mock-usb-device');
 
-/* istanbul ignore next */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -30,72 +29,58 @@ export class MockWebUsbDevice implements USBDevice {
   private readonly mockStalledEndpoints = new Set<number>();
   private readonly mockNextTransferLimit = new Map<number, number[]>();
 
-  /* istanbul ignore next */
   get usbVersionMajor(): number {
     return 0;
   }
 
-  /* istanbul ignore next */
   get usbVersionMinor(): number {
     return 0;
   }
 
-  /* istanbul ignore next */
   get usbVersionSubminor(): number {
     return 0;
   }
 
-  /* istanbul ignore next */
   get deviceClass(): number {
     return 0;
   }
 
-  /* istanbul ignore next */
   get deviceSubclass(): number {
     return 0;
   }
 
-  /* istanbul ignore next */
   get deviceProtocol(): number {
     return 0;
   }
 
-  /* istanbul ignore next */
   get vendorId(): number {
     return 0;
   }
 
-  /* istanbul ignore next */
   get productId(): number {
     return 0;
   }
 
-  /* istanbul ignore next */
   get deviceVersionMajor(): number {
     return 0;
   }
 
-  /* istanbul ignore next */
   get deviceVersionMinor(): number {
     return 0;
   }
 
-  /* istanbul ignore next */
   get deviceVersionSubminor(): number {
     return 0;
   }
 
-  /* istanbul ignore next */
   get manufacturerName(): string | undefined {
     return 'mock manufacturer';
   }
 
-  /* istanbul ignore next */
   get productName(): string | undefined {
     return 'mock product';
   }
 
-  /* istanbul ignore next */
   get serialNumber(): string | undefined {
     return 'mock serial number';
   }
@@ -213,7 +198,6 @@ export class MockWebUsbDevice implements USBDevice {
     usbInterface.alternate = alternate;
   }
 
-  /* istanbul ignore next */
   controlTransferIn(
     setup: USBControlTransferParameters,
     length: number
@@ -222,7 +206,6 @@ export class MockWebUsbDevice implements USBDevice {
     throw new Error('not implemented');
   }
 
-  /* istanbul ignore next */
   controlTransferOut(
     setup: USBControlTransferParameters,
     data?: BufferSource
@@ -295,7 +278,6 @@ export class MockWebUsbDevice implements USBDevice {
     return { status: 'ok', bytesWritten };
   }
 
-  /* istanbul ignore next */
   isochronousTransferIn(
     endpointNumber: number,
     packetLengths: number[]
@@ -304,7 +286,6 @@ export class MockWebUsbDevice implements USBDevice {
     throw new Error('not implemented');
   }
 
-  /* istanbul ignore next */
   isochronousTransferOut(
     endpointNumber: number,
     data: BufferSource,
@@ -314,7 +295,6 @@ export class MockWebUsbDevice implements USBDevice {
     throw new Error('not implemented');
   }
 
-  /* istanbul ignore next */
   reset(): Promise<void> {
     throw new Error('not implemented');
   }

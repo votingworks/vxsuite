@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 export * from './custom_a4_scanner';
 export * as mocks from './mocks';
 export * from './open_scanner';

@@ -179,7 +179,7 @@ export class CustomA4Scanner implements CustomScanner {
         createJob(channel)
       );
 
-      /* istanbul ignore next */
+      /* c8 ignore start */
       if (createJobResult.isErr()) {
         const errorCode = createJobResult.err();
         debug('create job error: %o', errorCode);
@@ -194,6 +194,7 @@ export class CustomA4Scanner implements CustomScanner {
       } else {
         break;
       }
+      /* c8 ignore stop */
     }
 
     debug('create job result: %o', createJobResult);
@@ -266,9 +267,9 @@ export class CustomA4Scanner implements CustomScanner {
   scan(
     scanParameters: ScanParameters,
     {
-      /* istanbul ignore next */
+      /* c8 ignore next */
       maxTimeoutNoMoveNoScan = 5_000,
-      /* istanbul ignore next */
+      /* c8 ignore next */
       maxRetries = 3,
     }: { maxTimeoutNoMoveNoScan?: number; maxRetries?: number } = {}
   ): Promise<Result<SheetOf<ImageFromScanner>, ErrorCode>> {
@@ -343,7 +344,7 @@ export class CustomA4Scanner implements CustomScanner {
           const getImagePortionBySideResult =
             await this.getImagePortionBySideInternal(currentSide, pageSize);
 
-          /* istanbul ignore next */
+          /* c8 ignore start */
           if (getImagePortionBySideResult.isErr()) {
             readImageDataErrorCount += 1;
             if (readImageDataErrorCount < maxRetries) {
@@ -353,6 +354,7 @@ export class CustomA4Scanner implements CustomScanner {
 
             return getImagePortionBySideResult;
           }
+          /* c8 ignore stop */
 
           scannerImage.imageBuffer = Buffer.concat([
             scannerImage.imageBuffer,
@@ -460,7 +462,7 @@ export class CustomA4Scanner implements CustomScanner {
           ).okOrElse(fail);
         }
 
-        /* istanbul ignore next */
+        /* c8 ignore start */
         if (
           status.isScanInProgress &&
           a4Status.pageSizeSideA === 0 &&
@@ -468,6 +470,7 @@ export class CustomA4Scanner implements CustomScanner {
         ) {
           debug('scan in progress but no data available');
         }
+        /* c8 ignore stop */
 
         return ok('continue');
       };
@@ -479,7 +482,7 @@ export class CustomA4Scanner implements CustomScanner {
         for (;;) {
           const action = (await scanLoopTick()).okOrElse(fail);
 
-          /* istanbul ignore else */
+          /* c8 ignore start */
           if (action === 'continue') {
             continue;
           } else if (action === 'break') {
@@ -487,6 +490,7 @@ export class CustomA4Scanner implements CustomScanner {
           } else {
             throwIllegalValue(action);
           }
+          /* c8 ignore stop */
         }
       } finally {
         unlock();
@@ -508,10 +512,11 @@ export class CustomA4Scanner implements CustomScanner {
     scanSide: ScanSide,
     imagePortionSize: number
   ): Promise<Result<Buffer, ErrorCode>> {
-    /* istanbul ignore next */
+    /* c8 ignore start */
     if (imagePortionSize === 0) {
       return ok(Buffer.alloc(0));
     }
+    /* c8 ignore stop */
 
     return await this.channelMutex.withLock((channel) =>
       getImageData(
