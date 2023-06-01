@@ -83,7 +83,7 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_SKIP_BALLOT_PACKAGE_AUTHENTICATION;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
-    /* istanbul ignore next compile time check */
+    /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
   }
@@ -165,7 +165,7 @@ export function getBooleanEnvVarConfig(
         allowInProduction: false,
         autoEnableInDevelopment: false,
       };
-    /* istanbul ignore next compile time check */
+    /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
   }
@@ -181,7 +181,7 @@ export function getStringEnvVarConfig(
         defaultValue: 'ms-sems',
         zodSchema: ConverterClientTypeSchema,
       };
-    /* istanbul ignore next compile time check */
+    /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
   }
