@@ -9,8 +9,9 @@ import {
   SetClockButton,
   ChangePrecinctButton,
   P,
-  H2,
   Caption,
+  TabbedSection,
+  H1,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
@@ -18,7 +19,7 @@ import { Logger, LogSource } from '@votingworks/logging';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
-import { ScreenMainCenterChild } from '../components/layout';
+import { Screen } from '../components/layout';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import {
   ejectUsbDrive,
@@ -106,117 +107,172 @@ export function ElectionManagerScreen({
     }
   }
 
+  const changePrecinctButton = election.precincts.length > 1 && (
+    <P>
+      <ChangePrecinctButton
+        appPrecinctSelection={precinctSelection}
+        updatePrecinctSelection={async (newPrecinctSelection) => {
+          try {
+            await setPrecinctSelectionMutation.mutateAsync({
+              precinctSelection: newPrecinctSelection,
+            });
+          } catch (error) {
+            // Handled by default query client error handling
+          }
+        }}
+        election={election}
+        mode={
+          pollsState === 'polls_closed_initial'
+            ? 'default'
+            : pollsState !== 'polls_closed_final' &&
+              scannerStatus.ballotsCounted === 0
+            ? 'confirmation_required'
+            : 'disabled'
+        }
+        logger={logger}
+      />
+    </P>
+  );
+
+  const ballotMode = (
+    <P>
+      <SegmentedButton
+        disabled={setTestModeMutation.isLoading}
+        label="Ballot Mode:"
+        hideLabel
+        onChange={handleTogglingTestMode}
+        options={[
+          { id: 'test', label: 'Test Ballot Mode' },
+          { id: 'official', label: 'Official Ballot Mode' },
+        ]}
+        selectedOptionId={isTestMode ? 'test' : 'official'}
+      />
+    </P>
+  );
+
+  const dateTimeButton = (
+    <P>
+      <SetClockButton large>
+        <span role="img" aria-label="Clock">
+          🕓
+        </span>{' '}
+        <CurrentDateAndTime />
+      </SetClockButton>
+    </P>
+  );
+
+  const dataExportButtons = (
+    <P>
+      <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
+      <Button onPress={() => setIsExportingBackup(true)}>Save Backup</Button>
+    </P>
+  );
+
+  const overrideThresholdsButton = (
+    <P>
+      <Button onPress={() => setIsMarkThresholdModalOpen(true)}>
+        {markThresholdOverrides === undefined
+          ? 'Override Mark Thresholds'
+          : 'Reset Mark Thresholds'}
+      </Button>
+    </P>
+  );
+
+  const doubleSheetDetectionToggle = (
+    <P>
+      {supportsUltrasonicQuery.data === true && (
+        <Button
+          onPress={() =>
+            setIsUltrasonicDisabledMutation.mutate({
+              isUltrasonicDisabled: !isUltrasonicDisabled,
+            })
+          }
+        >
+          {isUltrasonicDisabled
+            ? 'Enable Double Sheet Detection'
+            : 'Disable Double Sheet Detection'}
+        </Button>
+      )}
+    </P>
+  );
+
+  const audioMuteToggle = (
+    <P>
+      <Button
+        onPress={() =>
+          setIsSoundMutedMutation.mutate({
+            isSoundMuted: !isSoundMuted,
+          })
+        }
+      >
+        {isSoundMuted ? 'Unmute Sounds' : 'Mute Sounds'}
+      </Button>
+    </P>
+  );
+
+  const unconfigureElectionButton = (
+    <P>
+      <Button
+        disabled={!scannerStatus.canUnconfigure}
+        onPress={() => setConfirmUnconfigure(true)}
+      >
+        Delete All Election Data from VxScan
+      </Button>
+      <br />
+      {!scannerStatus.canUnconfigure && (
+        <Caption>
+          You must “Save Backup” before you can delete election data from
+          VxScan.
+        </Caption>
+      )}
+    </P>
+  );
+
   return (
-    <ScreenMainCenterChild
+    <Screen
       infoBarMode="admin"
       ballotCountOverride={scannerStatus.ballotsCounted}
     >
-      <Prose textCenter>
-        <H2 as="h1">Election Manager Settings</H2>
-        {election.precincts.length > 1 && (
-          <P>
-            <ChangePrecinctButton
-              appPrecinctSelection={precinctSelection}
-              updatePrecinctSelection={async (newPrecinctSelection) => {
-                try {
-                  await setPrecinctSelectionMutation.mutateAsync({
-                    precinctSelection: newPrecinctSelection,
-                  });
-                } catch (error) {
-                  // Handled by default query client error handling
-                }
-              }}
-              election={election}
-              mode={
-                pollsState === 'polls_closed_initial'
-                  ? 'default'
-                  : pollsState !== 'polls_closed_final' &&
-                    scannerStatus.ballotsCounted === 0
-                  ? 'confirmation_required'
-                  : 'disabled'
-              }
-              logger={logger}
-            />
-          </P>
-        )}
-        <P>
-          <SegmentedButton
-            disabled={setTestModeMutation.isLoading}
-            label="Ballot Mode:"
-            hideLabel
-            onChange={handleTogglingTestMode}
-            options={[
-              { id: 'test', label: 'Test Ballot Mode' },
-              { id: 'official', label: 'Official Ballot Mode' },
-            ]}
-            selectedOptionId={isTestMode ? 'test' : 'official'}
-          />
-        </P>
-        <P>
-          <SetClockButton large>
-            <span role="img" aria-label="Clock">
-              🕓
-            </span>{' '}
-            <CurrentDateAndTime />
-          </SetClockButton>
-        </P>
-        <P>
-          <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
-          <Button onPress={() => setIsExportingBackup(true)}>
-            Save Backup
-          </Button>
-        </P>
-        <P>
-          <Button onPress={() => setIsMarkThresholdModalOpen(true)}>
-            {markThresholdOverrides === undefined
-              ? 'Override Mark Thresholds'
-              : 'Reset Mark Thresholds'}
-          </Button>
-        </P>
-        <P>
-          {supportsUltrasonicQuery.data === true && (
-            <Button
-              onPress={() =>
-                setIsUltrasonicDisabledMutation.mutate({
-                  isUltrasonicDisabled: !isUltrasonicDisabled,
-                })
-              }
-            >
-              {isUltrasonicDisabled
-                ? 'Enable Double Sheet Detection'
-                : 'Disable Double Sheet Detection'}
-            </Button>
-          )}
-        </P>
-        <P>
-          <Button
-            onPress={() =>
-              setIsSoundMutedMutation.mutate({
-                isSoundMuted: !isSoundMuted,
-              })
-            }
-          >
-            {isSoundMuted ? 'Unmute Sounds' : 'Mute Sounds'}
-          </Button>
-        </P>
-        <P>
-          <Button
-            disabled={!scannerStatus.canUnconfigure}
-            variant="danger"
-            small
-            onPress={() => setConfirmUnconfigure(true)}
-          >
-            Delete All Election Data from VxScan
-          </Button>
-          <br />
-          {!scannerStatus.canUnconfigure && (
-            <Caption>
-              You must “Save Backup” before you can delete election data from
-              VxScan.
-            </Caption>
-          )}
-        </P>
-      </Prose>
+      <H1 as="h1" align="center">
+        Election Manager Settings
+      </H1>
+      <TabbedSection
+        ariaLabel="Election Manager Settings"
+        tabs={[
+          {
+            paneId: 'managerSettingsConfiguration',
+            label: 'Configuration',
+            content: (
+              <React.Fragment>
+                {changePrecinctButton}
+                {ballotMode}
+              </React.Fragment>
+            ),
+          },
+          {
+            paneId: 'managerSettingsData',
+            label: 'Election Data',
+            content: (
+              <React.Fragment>
+                {dataExportButtons}
+                {unconfigureElectionButton}
+              </React.Fragment>
+            ),
+          },
+          {
+            paneId: 'managerSettingsSystem',
+            label: 'System Settings',
+            content: (
+              <React.Fragment>
+                {overrideThresholdsButton}
+                {doubleSheetDetectionToggle}
+                {dateTimeButton}
+                {audioMuteToggle}
+              </React.Fragment>
+            ),
+          },
+        ]}
+      />
       {isMarkThresholdModalOpen && (
         <SetMarkThresholdsModal
           markThresholds={electionDefinition.election.markThresholds}
@@ -299,7 +355,7 @@ export function ElectionManagerScreen({
           usbDrive={usbDrive}
         />
       )}
-    </ScreenMainCenterChild>
+    </Screen>
   );
 }
 

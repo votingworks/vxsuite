@@ -1,7 +1,7 @@
 /* stylelint-disable order/properties-order */
 import React from 'react';
 import {
-  Screen,
+  Screen as ScreenBase,
   Main,
   ElectionInfoBar,
   InfoBarMode,
@@ -10,19 +10,26 @@ import {
 import { getConfig, getMachineConfig, getScannerStatus } from '../api';
 import { ScreenHeader } from './screen_header';
 
-interface CenteredScreenProps {
+export interface ScreenProps {
   ballotCountOverride?: number;
+  centerContent?: boolean;
   children: React.ReactNode;
   isLiveMode?: boolean;
   infoBarMode?: InfoBarMode;
+  padded?: boolean;
 }
 
-export function ScreenMainCenterChild({
-  ballotCountOverride,
-  children,
-  infoBarMode,
-  isLiveMode = true,
-}: CenteredScreenProps): JSX.Element | null {
+export type CenteredScreenProps = Omit<ScreenProps, 'centered' | 'padded'>;
+
+export function Screen(props: ScreenProps): JSX.Element | null {
+  const {
+    children,
+    ballotCountOverride,
+    centerContent,
+    infoBarMode,
+    isLiveMode = true,
+    padded,
+  } = props;
   const machineConfigQuery = getMachineConfig.useQuery();
   const configQuery = getConfig.useQuery();
   const scannerStatusQuery = getScannerStatus.useQuery();
@@ -37,12 +44,16 @@ export function ScreenMainCenterChild({
     ballotCountOverride ?? scannerStatusQuery.data?.ballotsCounted;
 
   return (
-    <Screen>
+    <ScreenBase>
       {!isLiveMode && <TestMode />}
       <ScreenHeader
         ballotCount={electionDefinition ? ballotCount : undefined}
       />
-      <Main padded centerChild style={{ position: 'relative' }}>
+      <Main
+        padded={padded}
+        centerChild={centerContent}
+        style={{ position: 'relative' }}
+      >
         {children}
       </Main>
       {electionDefinition && (
@@ -54,6 +65,12 @@ export function ScreenMainCenterChild({
           machineId={machineId}
         />
       )}
-    </Screen>
+    </ScreenBase>
   );
+}
+
+export function ScreenMainCenterChild(
+  props: CenteredScreenProps
+): JSX.Element | null {
+  return <Screen {...props} centerContent padded />;
 }
