@@ -51,7 +51,6 @@ describe('tabulateElectionResults', () => {
 
     const initialResultsWithoutWriteInDetail = tabulateElectionResults({
       store,
-      includeWriteInAdjudicationResults: false,
     })[GROUP_KEY_ROOT];
     assert(initialResultsWithoutWriteInDetail);
 

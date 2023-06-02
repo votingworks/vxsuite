@@ -314,15 +314,11 @@ test('ignores write-ins with zero votes', async () => {
         writeInOptionTallies: {
           chimera: {
             tally: 0,
-            id: 'chimera',
             name: 'Chimera',
-            isWriteIn: true,
           },
           'temp-write-in-(Bob)': {
             tally: 0,
-            id: 'temp-write-in-(Bob)',
             name: 'Bob',
-            isWriteIn: true,
           },
         },
       },
@@ -383,9 +379,7 @@ test('adds temp write-in candidates', async () => {
         writeInOptionTallies: {
           'temp-write-in-(Bob)': {
             tally: 1,
-            id: 'temp-write-in-(Bob)',
             name: 'Bob',
-            isWriteIn: true,
           },
         },
       },
@@ -465,9 +459,7 @@ test('removes write-in candidates not referenced anymore', async () => {
         writeInOptionTallies: {
           [writeInCandidateId]: {
             tally: 1,
-            id: writeInCandidateId,
             name: 'Chimera',
-            isWriteIn: true,
           },
         },
       },

@@ -1,11 +1,17 @@
 import { Tabulation } from '@votingworks/types';
-import { tabulateCastVoteRecords } from '@votingworks/utils';
+import {
+  combineElectionResults,
+  convertManualElectionResults,
+  mergeManualWriteInTallies,
+  tabulateCastVoteRecords,
+} from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { Store } from '../store';
 import {
   modifyElectionResultsWithWriteInSummary,
   tabulateWriteInTallies,
 } from './write_ins';
+import { getManualResults } from './manual_results';
 
 /**
  * Tabulate election results including all scanned and adjudicated information.
@@ -15,11 +21,13 @@ export function tabulateElectionResults({
   filter = {},
   groupBy = {},
   includeWriteInAdjudicationResults,
+  includeManualResults,
 }: {
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-  includeWriteInAdjudicationResults: boolean;
+  includeWriteInAdjudicationResults?: boolean;
+  includeManualResults?: boolean;
 }): Tabulation.GroupedElectionResults {
   const electionId = store.getCurrentElectionId();
   assert(electionId !== undefined);
@@ -29,38 +37,66 @@ export function tabulateElectionResults({
     electionDefinition: { election },
   } = electionRecord;
 
+  // basic cast vote record tally with bucketed write-in counts
   const groupedElectionResults = tabulateCastVoteRecords({
     cvrs: store.getCastVoteRecords({ electionId, election, filter }),
     election,
     groupBy,
   });
 
-  if (!includeWriteInAdjudicationResults) {
-    return groupedElectionResults;
+  // replace bucketed write-in counts with write-in adjudication data
+  // if specified
+  if (includeWriteInAdjudicationResults) {
+    const groupedWriteInSummaries = tabulateWriteInTallies({
+      election,
+      writeInTallies: store.getWriteInTalliesForTabulation({
+        electionId,
+        election,
+        filter,
+        groupBy,
+      }),
+      groupBy,
+    });
+
+    for (const [groupKey, electionResults] of Object.entries(
+      groupedElectionResults
+    )) {
+      const writeInSummary = groupedWriteInSummaries[groupKey];
+      if (writeInSummary) {
+        groupedElectionResults[groupKey] =
+          modifyElectionResultsWithWriteInSummary(
+            electionResults,
+            writeInSummary
+          );
+      }
+    }
   }
 
-  const groupedWriteInSummaries = tabulateWriteInTallies({
-    election,
-    writeInTallies: store.getWriteInTalliesForTabulation({
-      electionId,
-      election,
-      filter,
-      groupBy,
-    }),
-    groupBy,
-  });
+  // include manual results if specified
+  if (includeManualResults) {
+    const queryResult = getManualResults({ store, filter, groupBy });
 
-  for (const [
-    groupKey,
-    electionResultsWithoutWriteInAdjudicationData,
-  ] of Object.entries(groupedElectionResults)) {
-    const writeInSummary = groupedWriteInSummaries[groupKey];
-    if (writeInSummary) {
-      groupedElectionResults[groupKey] =
-        modifyElectionResultsWithWriteInSummary(
-          electionResultsWithoutWriteInAdjudicationData,
-          writeInSummary
-        );
+    // ignore manual results if the query is not successful
+    if (queryResult.isOk()) {
+      const groupedManualResults = queryResult.ok();
+      for (const [groupKey, electionResults] of Object.entries(
+        groupedElectionResults
+      )) {
+        const manualResults = groupedManualResults[groupKey];
+        if (manualResults) {
+          groupedElectionResults[groupKey] = combineElectionResults({
+            election,
+            allElectionResults: [
+              electionResults,
+              includeWriteInAdjudicationResults
+                ? convertManualElectionResults(manualResults)
+                : convertManualElectionResults(
+                    mergeManualWriteInTallies(manualResults)
+                  ),
+            ],
+          });
+        }
+      }
     }
   }
 

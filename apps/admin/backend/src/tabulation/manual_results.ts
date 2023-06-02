@@ -4,7 +4,7 @@ import {
   getBallotStyleIdPartyIdLookup,
   getGroupKey,
 } from '@votingworks/utils';
-import { assert } from '@votingworks/basics';
+import { Result, assert, err, ok } from '@votingworks/basics';
 import {
   ManualResultsFilter,
   ManualResultsGroupBy,
@@ -72,23 +72,14 @@ export function isGroupByCompatibleWithManualResults(
   return !groupBy.groupByBatch && !groupBy.groupByScanner;
 }
 
-/**
- * Outcome of querying for manual results. It is either the data returned by
- * the query or an "incompatible" status, in which case the filters or grouping
- * is not compatible with manual data. Manual data does not support the level
- * of granularity that cast vote records do.
- */
-export type QueryManualResultsResult =
-  | { queryResultType: 'incompatible' }
-  | {
-      queryResultType: 'success';
-      groupedManualResults: Tabulation.Grouped<Tabulation.ManualElectionResults>;
-    };
+type GetManualResultsError =
+  | { type: 'incompatible-filter' }
+  | { type: 'incompatible-group-by' };
 
 /**
- *
+ * Return aggregated manual results, filtered and grouped.
  */
-export function queryManualResults({
+export function getManualResults({
   store,
   filter = {},
   groupBy = {},
@@ -96,12 +87,16 @@ export function queryManualResults({
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-}): QueryManualResultsResult {
-  if (
-    !isFilterCompatibleWithManualResults(filter) ||
-    !isGroupByCompatibleWithManualResults(groupBy)
-  ) {
-    return { queryResultType: 'incompatible' };
+}): Result<
+  Tabulation.Grouped<Tabulation.ManualElectionResults>,
+  GetManualResultsError
+> {
+  if (!isFilterCompatibleWithManualResults(filter)) {
+    return err({ type: 'incompatible-filter' });
+  }
+
+  if (!isGroupByCompatibleWithManualResults(groupBy)) {
+    return err({ type: 'incompatible-group-by' });
   }
 
   const electionId = store.getCurrentElectionId();
@@ -117,12 +112,11 @@ export function queryManualResults({
     ...replacePartyIdFilter(filter, election),
   });
 
-  return {
-    queryResultType: 'success',
-    groupedManualResults: aggregateManualResults({
+  return ok(
+    aggregateManualResults({
       election,
       manualResultsRecords,
       groupBy,
-    }),
-  };
+    })
+  );
 }

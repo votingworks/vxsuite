@@ -34,7 +34,6 @@ test('convertResultsToDeprecatedTally', () => {
         },
         writeInOptionTallies: {
           somebody: {
-            id: 'somebody',
             name: 'Somebody',
             tally: 2,
           },

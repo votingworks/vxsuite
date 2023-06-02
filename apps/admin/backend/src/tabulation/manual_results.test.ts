@@ -6,7 +6,7 @@ import { Store } from '../store';
 import {
   isFilterCompatibleWithManualResults,
   isGroupByCompatibleWithManualResults,
-  queryManualResults,
+  getManualResults,
 } from './manual_results';
 import { ManualResultsFilter, ManualResultsGroupBy } from '../types';
 
@@ -57,8 +57,11 @@ describe('queryManualResults', () => {
     store.setCurrentElectionId(electionId);
 
     expect(
-      queryManualResults({ store, filter: { batchIds: ['batch-1'] } })
-    ).toEqual({ queryResultType: 'incompatible' });
+      getManualResults({
+        store,
+        filter: { batchIds: ['batch-1'] },
+      }).err()
+    ).toEqual({ type: 'incompatible-filter' });
   });
 
   test('on incompatible group by', () => {
@@ -69,8 +72,8 @@ describe('queryManualResults', () => {
     store.setCurrentElectionId(electionId);
 
     expect(
-      queryManualResults({ store, groupBy: { groupByBatch: true } })
-    ).toEqual({ queryResultType: 'incompatible' });
+      getManualResults({ store, groupBy: { groupByBatch: true } }).err()
+    ).toEqual({ type: 'incompatible-group-by' });
   });
 
   test('grouping and filtering', () => {
@@ -257,16 +260,16 @@ describe('queryManualResults', () => {
     ];
 
     for (const { filter, groupBy, expected } of testCases) {
-      const result = queryManualResults({ store, filter, groupBy });
-      assert(result.queryResultType === 'success');
+      const result = getManualResults({ store, filter, groupBy });
+      assert(result.isOk());
 
       for (const [groupKey, ballotCount] of Object.entries(expected)) {
-        expect(result.groupedManualResults[groupKey]).toEqual(
+        expect(result.ok()[groupKey]).toEqual(
           getSimpleManualResultsFixture(ballotCount)
         );
       }
 
-      expect(Object.values(result.groupedManualResults)).toHaveLength(
+      expect(Object.values(result.ok())).toHaveLength(
         Object.values(expected).length
       );
     }
