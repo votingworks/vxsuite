@@ -2,10 +2,11 @@ import { Id, Tabulation } from '@votingworks/types';
 import {
   combineElectionResults,
   convertManualElectionResults,
+  extractGroupSpecifier,
   mergeManualWriteInTallies,
   tabulateCastVoteRecords as tabulateFilteredCastVoteRecords,
 } from '@votingworks/utils';
-import { assertDefined } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { Store } from '../store';
 import {
   modifyElectionResultsWithWriteInSummary,
@@ -83,11 +84,13 @@ export function tabulateElectionResults({
     )) {
       const writeInSummary = groupedWriteInSummaries[groupKey];
       if (writeInSummary) {
-        groupedElectionResults[groupKey] =
-          modifyElectionResultsWithWriteInSummary(
+        groupedElectionResults[groupKey] = {
+          ...electionResults, // maintain group specifier
+          ...modifyElectionResultsWithWriteInSummary(
             electionResults,
             writeInSummary
-          );
+          ),
+        };
       }
     }
   }
@@ -101,26 +104,47 @@ export function tabulateElectionResults({
       groupBy,
     });
 
-    // ignore manual results if the query is not successful
+    // ignore manual results if the tabulation is not successful
     if (queryResult.isOk()) {
       const groupedManualResults = queryResult.ok();
-      for (const [groupKey, electionResults] of Object.entries(
-        groupedElectionResults
-      )) {
+      // unlike the write-in summaries, it's possible that manual results exist
+      // where cast vote record election results do not
+      const allGroupKeys = [
+        ...new Set([
+          ...Object.keys(groupedElectionResults),
+          ...Object.keys(groupedManualResults),
+        ]),
+      ];
+      for (const groupKey of allGroupKeys) {
+        const resultsToCombine: Tabulation.ElectionResults[] = [];
+        const scannedResults = groupedElectionResults[groupKey];
+        if (scannedResults) {
+          resultsToCombine.push(scannedResults);
+        }
         const manualResults = groupedManualResults[groupKey];
         if (manualResults) {
-          groupedElectionResults[groupKey] = combineElectionResults({
-            election,
-            allElectionResults: [
-              electionResults,
-              includeWriteInAdjudicationResults
-                ? convertManualElectionResults(manualResults)
-                : convertManualElectionResults(
-                    mergeManualWriteInTallies(manualResults)
-                  ),
-            ],
-          });
+          if (includeWriteInAdjudicationResults) {
+            resultsToCombine.push(convertManualElectionResults(manualResults));
+          } else {
+            resultsToCombine.push(
+              convertManualElectionResults(
+                mergeManualWriteInTallies(manualResults)
+              )
+            );
+          }
         }
+
+        const someResults = manualResults || scannedResults;
+        assert(someResults);
+        const groupSpecifier = extractGroupSpecifier(someResults);
+
+        groupedElectionResults[groupKey] = {
+          ...groupSpecifier,
+          ...combineElectionResults({
+            election,
+            allElectionResults: resultsToCombine,
+          }),
+        };
       }
     }
   }
