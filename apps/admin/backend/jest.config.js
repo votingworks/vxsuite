@@ -27,6 +27,7 @@ module.exports = {
     '!src/types.ts',
     '!src/util/debug.ts',
     '!src/util/usb.ts',
+    '!src/globals.ts',
     '!test/**/*',
   ],
 };

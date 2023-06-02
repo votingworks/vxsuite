@@ -119,24 +119,31 @@ function addWriteInTallyToElectionWriteInSummary({
 
   if (writeInTally.status === 'pending') {
     contestWriteInSummary.pendingTally += writeInTally.tally;
-  } else if (writeInTally.adjudicationType === 'invalid') {
-    contestWriteInSummary.invalidTally += writeInTally.tally;
-  } else if (writeInTally.adjudicationType === 'official-candidate') {
-    contestWriteInSummary.candidateTallies[writeInTally.candidateId] = {
-      tally: writeInTally.tally,
-      name: writeInTally.candidateName,
-      id: writeInTally.candidateId,
-      isWriteIn: false,
-    };
-  } else if (writeInTally.adjudicationType === 'write-in-candidate') {
-    contestWriteInSummary.candidateTallies[writeInTally.candidateId] = {
-      tally: writeInTally.tally,
-      name: writeInTally.candidateName,
-      id: writeInTally.candidateId,
-      isWriteIn: true,
-    };
   } else {
-    throwIllegalValue(writeInTally);
+    switch (writeInTally.adjudicationType) {
+      case 'invalid':
+        contestWriteInSummary.invalidTally += writeInTally.tally;
+        break;
+      case 'official-candidate':
+        contestWriteInSummary.candidateTallies[writeInTally.candidateId] = {
+          tally: writeInTally.tally,
+          name: writeInTally.candidateName,
+          id: writeInTally.candidateId,
+          isWriteIn: false,
+        };
+        break;
+      case 'write-in-candidate':
+        contestWriteInSummary.candidateTallies[writeInTally.candidateId] = {
+          tally: writeInTally.tally,
+          name: writeInTally.candidateName,
+          id: writeInTally.candidateId,
+          isWriteIn: true,
+        };
+        break;
+      /* c8 ignore next 2 */
+      default:
+        throwIllegalValue(writeInTally);
+    }
   }
 
   return electionWriteInSummary;

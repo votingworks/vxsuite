@@ -1322,22 +1322,20 @@ export class Store {
     ) as Iterable<
       WriteInTallyRow & Partial<Tabulation.CastVoteRecordAttributes>
     >) {
-      const groupSpecifier: Tabulation.GroupSpecifier = groupBy
-        ? {
-            ballotStyleId: groupBy.groupByBallotStyle
-              ? row.ballotStyleId
-              : undefined,
-            partyId: groupBy.groupByParty
-              ? ballotStylePartyLookup[assertDefined(row.ballotStyleId)]
-              : undefined,
-            batchId: groupBy.groupByBatch ? row.batchId : undefined,
-            scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
-            precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
-            votingMethod: groupBy.groupByVotingMethod
-              ? row.votingMethod
-              : undefined,
-          }
-        : {};
+      const groupSpecifier: Tabulation.GroupSpecifier = {
+        ballotStyleId: groupBy.groupByBallotStyle
+          ? row.ballotStyleId
+          : undefined,
+        partyId: groupBy.groupByParty
+          ? ballotStylePartyLookup[assertDefined(row.ballotStyleId)]
+          : undefined,
+        batchId: groupBy.groupByBatch ? row.batchId : undefined,
+        scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
+        precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
+        votingMethod: groupBy.groupByVotingMethod
+          ? row.votingMethod
+          : undefined,
+      };
 
       yield {
         ...groupSpecifier,
@@ -1758,7 +1756,7 @@ export class Store {
     );
   }
 
-  /* istanbul ignore next - debug purposes only */
+  /* c8 ignore start */
   getDebugSummary(): Map<string, number> {
     const tableNameRows = this.client.all(
       `select name from sqlite_schema where type='table' order by name;`
@@ -1778,4 +1776,5 @@ export class Store {
       )
     );
   }
+  /* c8 ignore stop */
 }

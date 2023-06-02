@@ -97,7 +97,7 @@ export async function listCastVoteRecordFilesOnUsb(
       case 'usb-drive-not-mounted':
         // we're just polling without a USB drive in these cases, no issue
         break;
-      /* istanbul ignore next: compile-time check for completeness */
+      /* c8 ignore next 2 */
       default:
         throwIllegalValue(errorType);
     }
@@ -365,7 +365,7 @@ export function getAddCastVoteRecordReportErrorMessage(
       const messageBase = `Found an invalid cast vote record at index ${error.index} in the current report.`;
       const messageDetail = (() => {
         const subErrorType = error.error;
-        /* istanbul ignore next  - write testing when error handling requirements and implementation harden */
+        /* c8 ignore start */
         switch (subErrorType) {
           case 'invalid-election':
             return `The record references an election other than the current election.`;
@@ -386,9 +386,9 @@ export function getAddCastVoteRecordReportErrorMessage(
             return `The record references a contest which does not exist for its ballot style.`;
           case 'invalid-contest-option':
             return `The record references a contest option which does not exist for the contest.`;
-          /* istanbul ignore next: compile-time check for completeness */
           default:
             throwIllegalValue(subErrorType);
+          /* c8 ignore stop */
         }
       })();
 
@@ -398,7 +398,7 @@ export function getAddCastVoteRecordReportErrorMessage(
       return `Unable to parse a layout associated with a ballot image. Path: ${error.path}`;
     case 'ballot-id-already-exists-with-different-data':
       return `Found cast vote record at index ${error.index} that has the same ballot id as a previously imported cast vote record, but with different data.`;
-    /* istanbul ignore next: compile-time check for completeness */
+    /* c8 ignore next 2 */
     default:
       throwIllegalValue(errorType);
   }
@@ -635,7 +635,7 @@ export async function addCastVoteRecordReport({
               type: 'ballot-id-already-exists-with-different-data',
               index: castVoteRecordIndex,
             });
-          /* istanbul ignore next */
+          /* c8 ignore next 2 */
           default:
             throwIllegalValue(errorType);
         }

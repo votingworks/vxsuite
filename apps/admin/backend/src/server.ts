@@ -38,7 +38,7 @@ export async function start({
   workspace,
 }: Partial<StartOptions>): Promise<Server> {
   let resolvedWorkspace = workspace;
-  /* istanbul ignore next */
+  /* c8 ignore start */
   if (!resolvedWorkspace) {
     const workspacePath = ADMIN_WORKSPACE;
     if (!workspacePath) {
@@ -53,9 +53,11 @@ export async function start({
     }
     resolvedWorkspace = createWorkspace(workspacePath);
   }
+  /* c8 ignore stop */
 
   let resolvedApp = app;
-  /* istanbul ignore next */
+
+  /* c8 ignore start */
   if (!resolvedApp) {
     const auth = new DippedSmartCardAuth({
       card:
@@ -80,6 +82,7 @@ export async function start({
       workspace: resolvedWorkspace,
     });
   }
+  /* c8 ignore stop */
 
   const server = resolvedApp.listen(port, async () => {
     await logger.log(LogEventId.ApplicationStartup, 'system', {
