@@ -58,6 +58,7 @@ describe('queryManualResults', () => {
 
     expect(
       tabulateManualResults({
+        electionId,
         store,
         filter: { batchIds: ['batch-1'] },
       }).err()
@@ -72,7 +73,11 @@ describe('queryManualResults', () => {
     store.setCurrentElectionId(electionId);
 
     expect(
-      tabulateManualResults({ store, groupBy: { groupByBatch: true } }).err()
+      tabulateManualResults({
+        electionId,
+        store,
+        groupBy: { groupByBatch: true },
+      }).err()
     ).toEqual({ type: 'incompatible-group-by' });
   });
 
@@ -286,7 +291,12 @@ describe('queryManualResults', () => {
     ];
 
     for (const { filter, groupBy, expected } of testCases) {
-      const result = tabulateManualResults({ store, filter, groupBy });
+      const result = tabulateManualResults({
+        electionId,
+        store,
+        filter,
+        groupBy,
+      });
       assert(result.isOk());
 
       for (const [groupKey, ballotCount, groupSpecifier] of expected) {

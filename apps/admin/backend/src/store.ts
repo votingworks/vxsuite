@@ -22,7 +22,6 @@ import {
   ContestOptionId,
   CVR,
   Election,
-  ElectionDefinition,
   Id,
   Iso8601Timestamp,
   safeParse,
@@ -278,10 +277,10 @@ export class Store {
    * Returns the current election definition or throws an error if it does
    * not exist.
    */
-  getCurrentElectionDefinitionOrThrow(): ElectionDefinition {
+  getCurrentElectionRecordOrThrow(): ElectionRecord {
     return assertDefined(
       this.getElection(assertDefined(this.getCurrentElectionId()))
-    ).electionDefinition;
+    );
   }
 
   /**
@@ -1231,7 +1230,9 @@ export class Store {
       return [];
     }
 
-    const { election } = this.getCurrentElectionDefinitionOrThrow();
+    const {
+      electionDefinition: { election },
+    } = this.getCurrentElectionRecordOrThrow();
 
     const officialCandidateNameLookup =
       getOfficialCandidateNameLookup(election);

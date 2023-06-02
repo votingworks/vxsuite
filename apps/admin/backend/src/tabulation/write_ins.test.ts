@@ -330,6 +330,7 @@ test('tabulateWriteInTallies', () => {
 
   for (const { filter, groupBy, expected } of testCases) {
     const groupedWriteInSummaries = tabulateWriteInTallies({
+      electionId,
       store,
       filter,
       groupBy,

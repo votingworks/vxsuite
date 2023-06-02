@@ -1,11 +1,11 @@
-import { Tabulation } from '@votingworks/types';
+import { Id, Tabulation } from '@votingworks/types';
 import {
   combineElectionResults,
   convertManualElectionResults,
   mergeManualWriteInTallies,
-  tabulateCastVoteRecords,
+  tabulateCastVoteRecords as tabulateFilteredCastVoteRecords,
 } from '@votingworks/utils';
-import { assert } from '@votingworks/basics';
+import { assertDefined } from '@votingworks/basics';
 import { Store } from '../store';
 import {
   modifyElectionResultsWithWriteInSummary,
@@ -14,33 +14,57 @@ import {
 import { tabulateManualResults } from './manual_results';
 
 /**
+ * Tabulate cast vote records with no write-in adjudication information.
+ */
+export function tabulateCastVoteRecords({
+  electionId,
+  store,
+  filter = {},
+  groupBy = {},
+}: {
+  electionId: Id;
+  store: Store;
+  filter?: Tabulation.Filter;
+  groupBy?: Tabulation.GroupBy;
+}): Tabulation.GroupedElectionResults {
+  const {
+    electionDefinition: { election },
+  } = assertDefined(store.getElection(electionId));
+
+  return tabulateFilteredCastVoteRecords({
+    cvrs: store.getCastVoteRecords({ electionId, election, filter }),
+    election,
+    groupBy,
+  });
+}
+
+/**
  * Tabulate election results including all scanned and adjudicated information.
  */
 export function tabulateElectionResults({
+  electionId,
   store,
   filter = {},
   groupBy = {},
   includeWriteInAdjudicationResults,
   includeManualResults,
 }: {
+  electionId: Id;
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
   includeWriteInAdjudicationResults?: boolean;
   includeManualResults?: boolean;
 }): Tabulation.GroupedElectionResults {
-  const electionId = store.getCurrentElectionId();
-  assert(electionId !== undefined);
-  const electionRecord = store.getElection(electionId);
-  assert(electionRecord);
   const {
     electionDefinition: { election },
-  } = electionRecord;
+  } = assertDefined(store.getElection(electionId));
 
   // basic cast vote record tally with bucketed write-in counts
   const groupedElectionResults = tabulateCastVoteRecords({
-    cvrs: store.getCastVoteRecords({ electionId, election, filter }),
-    election,
+    electionId,
+    store,
+    filter,
     groupBy,
   });
 
@@ -48,6 +72,7 @@ export function tabulateElectionResults({
   // if specified
   if (includeWriteInAdjudicationResults) {
     const groupedWriteInSummaries = tabulateWriteInTallies({
+      electionId,
       store,
       filter,
       groupBy,
@@ -69,7 +94,12 @@ export function tabulateElectionResults({
 
   // include manual results if specified
   if (includeManualResults) {
-    const queryResult = tabulateManualResults({ store, filter, groupBy });
+    const queryResult = tabulateManualResults({
+      electionId,
+      store,
+      filter,
+      groupBy,
+    });
 
     // ignore manual results if the query is not successful
     if (queryResult.isOk()) {

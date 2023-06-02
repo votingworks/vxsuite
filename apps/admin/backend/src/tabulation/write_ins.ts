@@ -1,11 +1,11 @@
-import { ContestId, Election, Tabulation } from '@votingworks/types';
+import { ContestId, Election, Id, Tabulation } from '@votingworks/types';
 import {
   GROUP_KEY_ROOT,
   extractGroupSpecifier,
   getGroupKey,
   isGroupByEmpty,
 } from '@votingworks/utils';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   ContestWriteInSummary,
   ElectionWriteInSummary,
@@ -154,21 +154,20 @@ function addWriteInTallyToElectionWriteInSummary({
  * organized by contest and the optional `groupBy` parameter.
  */
 export function tabulateWriteInTallies({
+  electionId,
   store,
   filter,
   groupBy,
 }: {
+  electionId: Id;
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
 }): Tabulation.Grouped<ElectionWriteInSummary> {
-  const electionId = store.getCurrentElectionId();
-  assert(electionId !== undefined);
-  const electionRecord = store.getElection(electionId);
-  assert(electionRecord);
   const {
     electionDefinition: { election },
-  } = electionRecord;
+  } = assertDefined(store.getElection(electionId));
+
   const writeInTallies = store.getWriteInTalliesForTabulation({
     electionId,
     election,

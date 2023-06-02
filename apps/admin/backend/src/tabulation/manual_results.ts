@@ -1,11 +1,11 @@
-import { Election, Tabulation } from '@votingworks/types';
+import { Election, Id, Tabulation } from '@votingworks/types';
 import {
   BallotStyleIdPartyIdLookup,
   combineManualElectionResults,
   getBallotStyleIdPartyIdLookup,
   getGroupKey,
 } from '@votingworks/utils';
-import { Result, assert, err, ok } from '@votingworks/basics';
+import { Result, assertDefined, err, ok } from '@votingworks/basics';
 import {
   ManualResultsFilter,
   ManualResultsGroupBy,
@@ -106,10 +106,12 @@ type GetManualResultsError =
  * Filters, groups, and aggregates manual results.
  */
 export function tabulateManualResults({
+  electionId,
   store,
   filter = {},
   groupBy = {},
 }: {
+  electionId: Id;
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
@@ -125,13 +127,9 @@ export function tabulateManualResults({
     return err({ type: 'incompatible-group-by' });
   }
 
-  const electionId = store.getCurrentElectionId();
-  assert(electionId !== undefined);
-  const electionRecord = store.getElection(electionId);
-  assert(electionRecord);
   const {
     electionDefinition: { election },
-  } = electionRecord;
+  } = assertDefined(store.getElection(electionId));
 
   const manualResultsRecords = store.getManualResults({
     electionId,
