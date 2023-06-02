@@ -45,7 +45,6 @@ import {
   CastVoteRecordFileEntryRecord,
   CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
-  CastVoteRecordMetadata,
   CvrFileMode,
   DatabaseSerializedCastVoteRecordVotes,
   DatabaseSerializedCastVoteRecordVotesSchema,
@@ -70,10 +69,7 @@ import {
   WriteInPendingTally,
   ManualResultsStoreFilter,
 } from './types';
-import {
-  areCastVoteRecordMetadataEqual,
-  cvrBallotTypeToLegacyBallotType,
-} from './util/cvrs';
+import { cvrBallotTypeToLegacyBallotType } from './util/cvrs';
 import { replacePartyIdFilter } from './tabulation/utils';
 
 /**
@@ -444,20 +440,21 @@ export class Store {
     electionId,
     cvrFileId,
     ballotId,
-    metadata,
-    votes,
+    cvr,
   }: {
     electionId: Id;
     cvrFileId: Id;
     ballotId: BallotId;
-    metadata: CastVoteRecordMetadata;
-    votes: string;
+    cvr: Omit<Tabulation.CastVoteRecord, 'scannerId'>;
   }): Result<
     { cvrId: Id; isNew: boolean },
     {
       type: 'ballot-id-already-exists-with-different-data';
     }
   > {
+    const cvrSheetNumber =
+      cvr.card.type === 'bmd' ? null : cvr.card.sheetNumber;
+    const serializedVotes = JSON.stringify(cvr.votes);
     const existingCvr = this.client.one(
       `
         select
@@ -479,7 +476,7 @@ export class Store {
       | {
           id: Id;
           ballotStyleId: string;
-          ballotType: string;
+          ballotType: CVR.vxBallotType;
           batchId: string;
           precinctId: string;
           sheetNumber: number | null;
@@ -489,19 +486,17 @@ export class Store {
 
     const cvrId = existingCvr?.id ?? uuid();
     if (existingCvr) {
-      const existingCvrMetadata: CastVoteRecordMetadata = {
-        ballotStyleId: existingCvr.ballotStyleId,
-        ballotType: existingCvr.ballotType as CVR.vxBallotType,
-        batchId: existingCvr.batchId,
-        precinctId: existingCvr.precinctId,
-        sheetNumber: existingCvr.sheetNumber || undefined,
-      };
-
       // Existing cast vote records are expected, but existing cast vote records
       // with new data indicate a bad or inappropriately manipulated file
       if (
-        !areCastVoteRecordMetadataEqual(metadata, existingCvrMetadata) ||
-        votes !== existingCvr.votes
+        !(
+          existingCvr.ballotStyleId === cvr.ballotStyleId &&
+          existingCvr.ballotType === cvr.votingMethod &&
+          existingCvr.batchId === cvr.batchId &&
+          existingCvr.precinctId === cvr.precinctId &&
+          existingCvr.sheetNumber === cvrSheetNumber &&
+          existingCvr.votes === serializedVotes
+        )
       ) {
         return err({
           type: 'ballot-id-already-exists-with-different-data',
@@ -528,12 +523,12 @@ export class Store {
         cvrId,
         electionId,
         ballotId,
-        metadata.ballotStyleId,
-        metadata.ballotType,
-        metadata.batchId,
-        metadata.precinctId,
-        metadata.sheetNumber || null,
-        votes
+        cvr.ballotStyleId,
+        cvr.votingMethod,
+        cvr.batchId,
+        cvr.precinctId,
+        cvrSheetNumber,
+        serializedVotes
       );
     }
 

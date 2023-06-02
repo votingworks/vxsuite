@@ -603,24 +603,26 @@ export async function addCastVoteRecordReport({
       // Add the cast vote record to the store
       const currentSnapshot = getCurrentSnapshot(cvr);
       assert(currentSnapshot);
-      const votes = JSON.stringify(
-        convertCastVoteRecordVotesToTabulationVotes(currentSnapshot)
-      );
+      const votes =
+        convertCastVoteRecordVotesToTabulationVotes(currentSnapshot);
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         electionId,
         cvrFileId: fileId,
         ballotId: cvr.UniqueId as BallotId,
-        metadata: {
+        cvr: {
           ballotStyleId: cvr.BallotStyleId,
-          ballotType: cvr.vxBallotType,
+          votingMethod: cvr.vxBallotType,
           batchId: cvr.BatchId,
           precinctId: cvr.BallotStyleUnitId,
-          // sheet number was previously validated
-          sheetNumber: cvr.BallotSheetId
-            ? safeParseNumber(cvr.BallotSheetId).unsafeUnwrap()
-            : undefined,
+          card: cvr.BallotSheetId
+            ? {
+                type: 'hmpb',
+                // sheet number was previously validated
+                sheetNumber: safeParseNumber(cvr.BallotSheetId).unsafeUnwrap(),
+              }
+            : { type: 'bmd' },
+          votes,
         },
-        votes,
       });
       if (addCastVoteRecordResult.isErr()) {
         const errorType = addCastVoteRecordResult.err().type;

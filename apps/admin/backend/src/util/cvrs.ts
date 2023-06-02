@@ -6,7 +6,6 @@ import {
   ContestOptionId,
 } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
-import { CastVoteRecordMetadata } from '../types';
 
 /**
  * Gets all the write-in options from a list.
@@ -36,22 +35,6 @@ export function deprecatedGetWriteInsFromCastVoteRecord(
   }
 
   return result;
-}
-
-/**
- * Determines whether two cast vote records have identical metadata.
- */
-export function areCastVoteRecordMetadataEqual(
-  a: CastVoteRecordMetadata,
-  b: CastVoteRecordMetadata
-): boolean {
-  return (
-    a.ballotStyleId === b.ballotStyleId &&
-    a.ballotType === b.ballotType &&
-    a.batchId === b.batchId &&
-    a.precinctId === b.precinctId &&
-    a.sheetNumber === b.sheetNumber
-  );
 }
 
 /**

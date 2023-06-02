@@ -1,6 +1,5 @@
 import { Result } from '@votingworks/basics';
 import {
-  CVR,
   ContestId,
   ContestOptionId,
   ElectionDefinition,
@@ -62,17 +61,6 @@ export interface CastVoteRecordFileMetadata {
   readonly scannerIds: readonly string[];
   readonly exportTimestamp: Date;
   readonly isTestModeResults: boolean;
-}
-
-/**
- * Representation of a cast vote record's metadata. Does not include ballot ID.
- */
-export interface CastVoteRecordMetadata {
-  precinctId: string;
-  ballotStyleId: string;
-  ballotType: CVR.vxBallotType;
-  batchId: string;
-  sheetNumber?: number;
 }
 
 /**
