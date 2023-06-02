@@ -391,7 +391,6 @@ test('adding new write-in candidates', async () => {
           undervotes: 0,
           writeInOptionTallies: {
             'temp-write-in-(Mock Candidate)': {
-              id: 'temp-write-in-(Mock Candidate)',
               name: 'Mock Candidate',
               tally: 30,
             },
@@ -431,7 +430,6 @@ test('loads existing write-in candidates', async () => {
           undervotes: 0,
           writeInOptionTallies: {
             chimera: {
-              id: 'chimera',
               name: 'Chimera',
               tally: 30,
             },
