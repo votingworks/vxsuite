@@ -390,6 +390,7 @@ export function buildCentralScannerApp({
         definiteMarkThreshold:
           store.getCurrentMarkThresholds()?.definite ??
           DefaultMarkThresholds.definite,
+        artifactAuthenticator,
       },
       usb.getUsbDrives
     );

@@ -10,6 +10,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
+import { buildMockArtifactAuthenticator } from '@votingworks/auth';
 import {
   convertContestWriteInSummaryToWriteInTallies,
   getEmptyContestWriteInSummary,
@@ -502,6 +503,7 @@ describe('tabulateElectionResults', () => {
       store,
       reportDirectoryPath: castVoteRecordReport.asDirectoryPath(),
       exportedTimestamp: new Date().toISOString(),
+      artifactAuthenticator: buildMockArtifactAuthenticator(),
     });
     const { id: fileId } = addReportResult.unsafeUnwrap();
     expect(store.getCastVoteRecordCountByFileId(fileId)).toEqual(184);
@@ -745,6 +747,7 @@ describe('tabulateElectionResults', () => {
       store,
       reportDirectoryPath: castVoteRecordReport.asDirectoryPath(),
       exportedTimestamp: new Date().toISOString(),
+      artifactAuthenticator: buildMockArtifactAuthenticator(),
     });
     const { id: fileId } = addReportResult.unsafeUnwrap();
 

@@ -40,7 +40,7 @@ export function UnconfiguredElectionScreen({
       case 'auth_required_before_ballot_package_load':
         return 'Please insert an election manager card before configuring.';
       case 'ballot_package_authentication_error':
-        return 'Error authenticating ballot package. Try re-exporting from VxAdmin.';
+        return 'Error authenticating ballot package. Try exporting it from VxAdmin again.';
       case 'election_hash_mismatch':
         return 'The most recent ballot package found is for a different election.';
       /* istanbul ignore next - compile time check for completeness */

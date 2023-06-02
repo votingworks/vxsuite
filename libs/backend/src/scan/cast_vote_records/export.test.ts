@@ -17,6 +17,10 @@ import {
   clear as clearDateMock,
 } from 'jest-date-mock';
 import {
+  ArtifactAuthenticatorApi,
+  buildMockArtifactAuthenticator,
+} from '@votingworks/auth';
+import {
   bestFishContest,
   fishCouncilContest,
   fishingContest,
@@ -59,6 +63,12 @@ async function streamToString(stream: NodeJS.ReadableStream) {
   return reportChunks.join('');
 }
 
+let mockArtifactAuthenticator: ArtifactAuthenticatorApi;
+
+beforeEach(() => {
+  mockArtifactAuthenticator = buildMockArtifactAuthenticator();
+});
+
 test('getCastVoteRecordReportStream', async () => {
   setDateMock(new Date(2020, 3, 14));
   function* getResultSheetGenerator(): Generator<ResultSheet> {
@@ -70,7 +80,6 @@ test('getCastVoteRecordReportStream', async () => {
       backImagePath: 'back.jpg',
       interpretation: [interpretedHmpbPage1, interpretedHmpbPage2],
     };
-
     yield {
       id: 'ballot-2',
       batchId: 'batch-1',
@@ -235,7 +244,6 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
       backImagePath: 'back.jpg',
       interpretation: [interpretedHmpbPage1WithWriteIn, interpretedHmpbPage2],
     };
-
     yield {
       id: 'ballot-2',
       batchId: 'batch-1',
@@ -244,15 +252,20 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
       interpretation: [interpretedBmdPage, { type: 'BlankPage' }],
     };
   }
+  const mockGetUsbDrives = jest.fn().mockResolvedValue([{ mountPoint: '/' }]);
 
-  const exportResult = await exportCastVoteRecordReportToUsbDrive({
-    electionDefinition,
-    definiteMarkThreshold,
-    isTestMode: false,
-    batchInfo: [],
-    ballotsCounted: 1,
-    getResultSheetGenerator,
-  });
+  const exportResult = await exportCastVoteRecordReportToUsbDrive(
+    {
+      electionDefinition,
+      definiteMarkThreshold,
+      isTestMode: false,
+      batchInfo: [],
+      ballotsCounted: 1,
+      getResultSheetGenerator,
+      artifactAuthenticator: mockArtifactAuthenticator,
+    },
+    mockGetUsbDrives
+  );
 
   expect(exportResult.isOk()).toEqual(true);
   expect(exportDataToUsbDriveMock).toHaveBeenCalledTimes(3);
@@ -274,6 +287,7 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
     'ballot-layouts/batch-1/front.layout.json',
     JSON.stringify(interpretedHmpbPage1WithWriteIn.layout, undefined, 2)
   );
+  expect(mockArtifactAuthenticator.writeSignatureFile).toHaveBeenCalledTimes(1);
 
   const exportStream = exportDataToUsbDriveMock.mock.calls[0][2];
 
@@ -343,6 +357,7 @@ test('exportCastVoteRecordReportToUsbDrive bubbles up export errors', async () =
     batchInfo: [],
     ballotsCounted: 1,
     getResultSheetGenerator,
+    artifactAuthenticator: mockArtifactAuthenticator,
   });
 
   expect(exportResult.isErr()).toEqual(true);
@@ -360,8 +375,39 @@ test('exportCastVoteRecordReportToUsbDrive bubbles up export errors', async () =
     batchInfo: [],
     ballotsCounted: 1,
     getResultSheetGenerator,
+    artifactAuthenticator: mockArtifactAuthenticator,
   });
 
   expect(exportResult2.isErr()).toEqual(true);
   expect(exportResult2.err()).toEqual(exportDataError);
+});
+
+test('exportCastVoteRecordReportToUsbDrive errs if no USB drive found when writing signature file', async () => {
+  function* getResultSheetGenerator(): Generator<ResultSheet> {
+    yield {
+      id: 'ballot-1',
+      batchId: 'batch-1',
+      frontImagePath: 'front.jpg',
+      backImagePath: 'back.jpg',
+      interpretation: [interpretedHmpbPage1, interpretedHmpbPage2],
+    };
+  }
+  const mockGetUsbDrives = jest.fn().mockResolvedValueOnce([]);
+
+  const exportResult = await exportCastVoteRecordReportToUsbDrive(
+    {
+      artifactAuthenticator: mockArtifactAuthenticator,
+      ballotsCounted: 1,
+      batchInfo: [],
+      definiteMarkThreshold,
+      electionDefinition,
+      getResultSheetGenerator,
+      isTestMode: false,
+    },
+    mockGetUsbDrives
+  );
+
+  expect(exportResult).toEqual(
+    err({ type: 'missing-usb-drive', message: 'No USB drive found' })
+  );
 });
