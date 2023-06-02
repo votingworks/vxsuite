@@ -45,7 +45,7 @@ test.each([
     description: 'ballot package authentication errs',
     errorString: 'ballot_package_authentication_error',
     expectedErrorMessage:
-      'Error authenticating ballot package. Try re-exporting from VxAdmin.',
+      'Error authenticating ballot package. Try exporting it from VxAdmin again.',
   },
   {
     description:

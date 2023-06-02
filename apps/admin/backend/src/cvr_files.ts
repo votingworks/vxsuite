@@ -350,7 +350,7 @@ export function getAddCastVoteRecordReportErrorMessage(
     case 'report-access-failure':
       return 'Unable to access cast vote record report for import.';
     case 'cast-vote-records-authentication-error':
-      return 'Unable to authenticate cast vote records. Try re-exporting from the scanner.';
+      return 'Unable to authenticate cast vote records. Try exporting them from the scanner again.';
     case 'invalid-report-structure':
       return 'Cast vote record report has invalid file structure.';
     case 'malformed-report-metadata':

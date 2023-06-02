@@ -460,7 +460,7 @@ test('cast vote records authentication error', async () => {
     err({
       type: 'cast-vote-records-authentication-error',
       message:
-        'Unable to authenticate cast vote records. Try re-exporting from the scanner.',
+        'Unable to authenticate cast vote records. Try exporting them from the scanner again.',
     })
   );
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -469,7 +469,7 @@ test('cast vote records authentication error', async () => {
     expect.objectContaining({
       disposition: 'failure',
       message:
-        'Unable to authenticate cast vote records. Try re-exporting from the scanner.',
+        'Unable to authenticate cast vote records. Try exporting them from the scanner again.',
     })
   );
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
