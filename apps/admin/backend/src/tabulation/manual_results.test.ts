@@ -1,12 +1,12 @@
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { buildManualResultsFixture } from '@votingworks/utils';
-import { GroupKey } from '@votingworks/types/src/tabulation';
 import { assert } from '@votingworks/basics';
+import { Tabulation } from '@votingworks/types';
 import { Store } from '../store';
 import {
   isFilterCompatibleWithManualResults,
   isGroupByCompatibleWithManualResults,
-  getManualResults,
+  tabulateManualResults,
 } from './manual_results';
 import { ManualResultsFilter, ManualResultsGroupBy } from '../types';
 
@@ -57,7 +57,7 @@ describe('queryManualResults', () => {
     store.setCurrentElectionId(electionId);
 
     expect(
-      getManualResults({
+      tabulateManualResults({
         store,
         filter: { batchIds: ['batch-1'] },
       }).err()
@@ -72,7 +72,7 @@ describe('queryManualResults', () => {
     store.setCurrentElectionId(electionId);
 
     expect(
-      getManualResults({ store, groupBy: { groupByBatch: true } }).err()
+      tabulateManualResults({ store, groupBy: { groupByBatch: true } }).err()
     ).toEqual({ type: 'incompatible-group-by' });
   });
 
@@ -163,110 +163,137 @@ describe('queryManualResults', () => {
     const testCases: Array<{
       filter?: ManualResultsFilter;
       groupBy?: ManualResultsGroupBy;
-      expected: Record<GroupKey, number>;
+      expected: Array<
+        [
+          groupKey: Tabulation.GroupKey,
+          tally: number,
+          groupSpecifier: Tabulation.GroupSpecifier
+        ]
+      >;
     }> = [
       // no filter or group case
       {
-        expected: {
-          root: 114,
-        },
+        expected: [['root', 114, {}]],
       },
       // each filter case
       {
         filter: { precinctIds: ['precinct-1'] },
-        expected: {
-          root: 36,
-        },
+        expected: [['root', 36, {}]],
       },
       {
         filter: { ballotStyleIds: ['1M'] },
-        expected: {
-          root: 47,
-        },
+        expected: [['root', 47, {}]],
       },
       {
         filter: { partyIds: ['0'] },
-        expected: {
-          root: 47,
-        },
+        expected: [['root', 47, {}]],
       },
       {
         filter: { votingMethods: ['precinct'] },
-        expected: {
-          root: 50,
-        },
+        expected: [['root', 50, {}]],
       },
       // empty filter case
       {
         filter: { votingMethods: [] },
-        expected: {},
+        expected: [],
       },
       // trivial filter case
       {
         filter: { votingMethods: ['precinct', 'absentee'] },
-        expected: {
-          root: 114,
-        },
+        expected: [['root', 114, {}]],
       },
       // each grouping case
       {
         groupBy: { groupByBallotStyle: true },
-        expected: {
-          'root&1M': 47,
-          'root&2F': 67,
-        },
+        expected: [
+          ['root&1M', 47, { ballotStyleId: '1M' }],
+          ['root&2F', 67, { ballotStyleId: '2F' }],
+        ],
       },
       {
         groupBy: { groupByParty: true },
-        expected: {
-          'root&0': 47,
-          'root&1': 67,
-        },
+        expected: [
+          ['root&0', 47, { partyId: '0' }],
+          ['root&1', 67, { partyId: '1' }],
+        ],
       },
       {
         groupBy: { groupByPrecinct: true },
-        expected: {
-          'root&precinct-1': 36,
-          'root&precinct-2': 78,
-        },
+        expected: [
+          ['root&precinct-1', 36, { precinctId: 'precinct-1' }],
+          ['root&precinct-2', 78, { precinctId: 'precinct-2' }],
+        ],
       },
       {
         groupBy: { groupByVotingMethod: true },
-        expected: {
-          'root&precinct': 50,
-          'root&absentee': 64,
-        },
+        expected: [
+          ['root&precinct', 50, { votingMethod: 'precinct' }],
+          ['root&absentee', 64, { votingMethod: 'absentee' }],
+        ],
       },
       // composite filter & group cases
       {
         groupBy: { groupByVotingMethod: true, groupByPrecinct: true },
-        expected: {
-          'root&precinct-1&precinct': 11,
-          'root&precinct-1&absentee': 25,
-          'root&precinct-2&precinct': 39,
-          'root&precinct-2&absentee': 39,
-        },
+        expected: [
+          [
+            'root&precinct-1&precinct',
+            11,
+            { precinctId: 'precinct-1', votingMethod: 'precinct' },
+          ],
+          [
+            'root&precinct-1&absentee',
+            25,
+            { precinctId: 'precinct-1', votingMethod: 'absentee' },
+          ],
+          [
+            'root&precinct-2&precinct',
+            39,
+            { precinctId: 'precinct-2', votingMethod: 'precinct' },
+          ],
+          [
+            'root&precinct-2&absentee',
+            39,
+            { precinctId: 'precinct-2', votingMethod: 'absentee' },
+          ],
+        ],
       },
       {
         filter: { ballotStyleIds: ['1M'] },
         groupBy: { groupByVotingMethod: true, groupByPrecinct: true },
-        expected: {
-          'root&precinct-1&precinct': 3,
-          'root&precinct-1&absentee': 11,
-          'root&precinct-2&precinct': 18,
-          'root&precinct-2&absentee': 15,
-        },
+        expected: [
+          [
+            'root&precinct-1&precinct',
+            3,
+            { precinctId: 'precinct-1', votingMethod: 'precinct' },
+          ],
+          [
+            'root&precinct-1&absentee',
+            11,
+            { precinctId: 'precinct-1', votingMethod: 'absentee' },
+          ],
+          [
+            'root&precinct-2&precinct',
+            18,
+            { precinctId: 'precinct-2', votingMethod: 'precinct' },
+          ],
+          [
+            'root&precinct-2&absentee',
+            15,
+            { precinctId: 'precinct-2', votingMethod: 'absentee' },
+          ],
+        ],
       },
     ];
 
     for (const { filter, groupBy, expected } of testCases) {
-      const result = getManualResults({ store, filter, groupBy });
+      const result = tabulateManualResults({ store, filter, groupBy });
       assert(result.isOk());
 
-      for (const [groupKey, ballotCount] of Object.entries(expected)) {
-        expect(result.ok()[groupKey]).toEqual(
-          getSimpleManualResultsFixture(ballotCount)
-        );
+      for (const [groupKey, ballotCount, groupSpecifier] of expected) {
+        expect(result.ok()[groupKey]).toEqual({
+          ...groupSpecifier,
+          ...getSimpleManualResultsFixture(ballotCount),
+        });
       }
 
       expect(Object.values(result.ok())).toHaveLength(

@@ -11,7 +11,7 @@ import {
   modifyElectionResultsWithWriteInSummary,
   tabulateWriteInTallies,
 } from './write_ins';
-import { getManualResults } from './manual_results';
+import { tabulateManualResults } from './manual_results';
 
 /**
  * Tabulate election results including all scanned and adjudicated information.
@@ -74,7 +74,7 @@ export function tabulateElectionResults({
 
   // include manual results if specified
   if (includeManualResults) {
-    const queryResult = getManualResults({ store, filter, groupBy });
+    const queryResult = tabulateManualResults({ store, filter, groupBy });
 
     // ignore manual results if the query is not successful
     if (queryResult.isOk()) {

@@ -1,5 +1,6 @@
 import { Election, Tabulation } from '@votingworks/types';
 import {
+  BallotStyleIdPartyIdLookup,
   combineManualElectionResults,
   getBallotStyleIdPartyIdLookup,
   getGroupKey,
@@ -12,6 +13,27 @@ import {
 } from '../types';
 import { Store } from '../store';
 import { replacePartyIdFilter } from './utils';
+
+function getManualResultsGroupSpecifier(
+  manualResultsRecord: ManualResultsRecord,
+  groupBy: ManualResultsGroupBy,
+  partyIdLookup: BallotStyleIdPartyIdLookup
+): Tabulation.GroupSpecifier {
+  return {
+    ballotStyleId: groupBy.groupByBallotStyle
+      ? manualResultsRecord.ballotStyleId
+      : undefined,
+    partyId: groupBy.groupByParty
+      ? partyIdLookup[manualResultsRecord.ballotStyleId]
+      : undefined,
+    precinctId: groupBy.groupByPrecinct
+      ? manualResultsRecord.precinctId
+      : undefined,
+    votingMethod: groupBy.groupByVotingMethod
+      ? manualResultsRecord.votingMethod
+      : undefined,
+  };
+}
 
 /**
  * Aggregates an iterable list of manual results records into one or many
@@ -32,22 +54,26 @@ export function aggregateManualResults({
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
   for (const manualResultsRecord of manualResultsRecords) {
-    const groupKey = getGroupKey(
-      {
-        ...manualResultsRecord,
-        // must include party id for the case where that's the grouping
-        partyId: ballotStyleIdPartyIdLookup[manualResultsRecord.ballotStyleId],
-      },
-      groupBy
+    const groupSpecifier = getManualResultsGroupSpecifier(
+      manualResultsRecord,
+      groupBy,
+      ballotStyleIdPartyIdLookup
     );
+    const groupKey = getGroupKey(groupSpecifier, groupBy);
     const existingGroup = groupedManualResults[groupKey];
     if (existingGroup) {
-      groupedManualResults[groupKey] = combineManualElectionResults({
-        election,
-        allManualResults: [existingGroup, manualResultsRecord.manualResults],
-      });
+      groupedManualResults[groupKey] = {
+        ...groupSpecifier,
+        ...combineManualElectionResults({
+          election,
+          allManualResults: [existingGroup, manualResultsRecord.manualResults],
+        }),
+      };
     } else {
-      groupedManualResults[groupKey] = manualResultsRecord.manualResults;
+      groupedManualResults[groupKey] = {
+        ...groupSpecifier,
+        ...manualResultsRecord.manualResults,
+      };
     }
   }
 
@@ -77,9 +103,9 @@ type GetManualResultsError =
   | { type: 'incompatible-group-by' };
 
 /**
- * Return aggregated manual results, filtered and grouped.
+ * Filters, groups, and aggregates manual results.
  */
-export function getManualResults({
+export function tabulateManualResults({
   store,
   filter = {},
   groupBy = {},
