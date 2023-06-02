@@ -1,14 +1,26 @@
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import {
+  electionGridLayoutNewHampshireAmherstFixtures,
+  electionMinimalExhaustiveSampleFixtures,
+} from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
   GROUP_KEY_ROOT,
+  buildElectionResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { buildMockArtifactAuthenticator } from '@votingworks/auth';
-import { tabulateElectionResults } from './full_results';
+import { Tabulation } from '@votingworks/types';
+import {
+  tabulateCastVoteRecords,
+  tabulateElectionResults,
+} from './full_results';
 import { Store } from '../store';
 import { addCastVoteRecordReport } from '../cvr_files';
+import {
+  MockCastVoteRecordFile,
+  addMockCvrFileToStore,
+} from '../../test/mock_cvr_file';
 
 // mock SKIP_CVR_ELECTION_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
@@ -29,6 +41,222 @@ beforeEach(() => {
 
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
+});
+
+test('tabulateCastVoteRecords', () => {
+  const store = Store.memoryStore();
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { election, electionData } = electionDefinition;
+  const electionId = store.addElection(electionData);
+  store.setCurrentElectionId(electionId);
+
+  // add some mock cast vote records with one vote each
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleId: '1M',
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { fishing: ['yes'] },
+      card: { type: 'bmd' },
+      multiplier: 5,
+    },
+    {
+      ballotStyleId: '1M',
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'absentee',
+      votes: { fishing: ['yes'] },
+      card: { type: 'bmd' },
+      multiplier: 6,
+    },
+    {
+      ballotStyleId: '2F',
+      batchId: 'batch-1-2',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { fishing: ['yes'] },
+      card: { type: 'bmd' },
+      multiplier: 17,
+    },
+    {
+      ballotStyleId: '2F',
+      batchId: 'batch-2-1',
+      scannerId: 'scanner-2',
+      precinctId: 'precinct-2',
+      votingMethod: 'absentee',
+      votes: { fishing: ['yes'] },
+      card: { type: 'bmd' },
+      multiplier: 9,
+    },
+    {
+      ballotStyleId: '2F',
+      batchId: 'batch-2-2',
+      scannerId: 'scanner-2',
+      precinctId: 'precinct-2',
+      votingMethod: 'precinct',
+      votes: { fishing: ['yes'] },
+      card: { type: 'bmd' },
+      multiplier: 12,
+    },
+    {
+      ballotStyleId: '1M',
+      batchId: 'batch-3-1',
+      scannerId: 'scanner-3',
+      precinctId: 'precinct-2',
+      votingMethod: 'precinct',
+      votes: { fishing: ['yes'] },
+      card: { type: 'bmd' },
+      multiplier: 34,
+    },
+  ];
+  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+
+  // because we're only testing filtering and grouping, these results can be simple
+  function getMockElectionResults(
+    fishingTally: number
+  ): Tabulation.ElectionResults {
+    return buildElectionResultsFixture({
+      election,
+      cardCounts: {
+        bmd: fishingTally,
+        hmpb: [],
+      },
+      contestResultsSummaries: {
+        fishing: {
+          type: 'yesno',
+          ballots: fishingTally,
+          overvotes: 0,
+          undervotes: 0,
+          yesTally: fishingTally,
+          noTally: 0,
+        },
+      },
+      includeGenericWriteIn: true,
+    });
+  }
+
+  const testCases: Array<{
+    filter?: Tabulation.Filter;
+    groupBy?: Tabulation.GroupBy;
+    expected: Array<
+      [
+        groupKey: Tabulation.GroupKey,
+        tally: number,
+        groupSpecifier: Tabulation.GroupSpecifier
+      ]
+    >;
+  }> = [
+    // no filter case
+    {
+      expected: [['root', 83, {}]],
+    },
+    // each filter case
+    {
+      filter: { precinctIds: ['precinct-2'] },
+      expected: [['root', 55, {}]],
+    },
+    {
+      filter: { scannerIds: ['scanner-2'] },
+      expected: [['root', 21, {}]],
+    },
+    {
+      filter: { batchIds: ['batch-2-1', 'batch-3-1'] },
+      expected: [['root', 43, {}]],
+    },
+    {
+      filter: { votingMethods: ['precinct'] },
+      expected: [['root', 68, {}]],
+    },
+    {
+      filter: { ballotStyleIds: ['1M'] },
+      expected: [['root', 45, {}]],
+    },
+    {
+      filter: { partyIds: ['0'] },
+      expected: [['root', 45, {}]],
+    },
+    // empty filter case
+    {
+      filter: { partyIds: [] },
+      expected: [['root', 0, {}]],
+    },
+    // trivial filter case
+    {
+      filter: { partyIds: ['0', '1'] },
+      expected: [['root', 83, {}]],
+    },
+    // each group case
+    {
+      groupBy: { groupByBallotStyle: true },
+      expected: [
+        ['root&1M', 45, { ballotStyleId: '1M' }],
+        ['root&2F', 38, { ballotStyleId: '2F' }],
+      ],
+    },
+    {
+      groupBy: { groupByParty: true },
+      expected: [
+        ['root&0', 45, { partyId: '0' }],
+        ['root&1', 38, { partyId: '1' }],
+      ],
+    },
+    {
+      groupBy: { groupByBatch: true },
+      expected: [
+        ['root&batch-1-1', 11, { batchId: 'batch-1-1' }],
+        ['root&batch-1-2', 17, { batchId: 'batch-1-2' }],
+        ['root&batch-2-1', 9, { batchId: 'batch-2-1' }],
+        ['root&batch-2-2', 12, { batchId: 'batch-2-2' }],
+        ['root&batch-3-1', 34, { batchId: 'batch-3-1' }],
+      ],
+    },
+    {
+      groupBy: { groupByScanner: true },
+      expected: [
+        ['root&scanner-1', 28, { scannerId: 'scanner-1' }],
+        ['root&scanner-2', 21, { scannerId: 'scanner-2' }],
+        ['root&scanner-3', 34, { scannerId: 'scanner-3' }],
+      ],
+    },
+    {
+      groupBy: { groupByPrecinct: true },
+      expected: [
+        ['root&precinct-1', 28, { precinctId: 'precinct-1' }],
+        ['root&precinct-2', 55, { precinctId: 'precinct-2' }],
+      ],
+    },
+    {
+      groupBy: { groupByVotingMethod: true },
+      expected: [
+        ['root&precinct', 68, { votingMethod: 'precinct' }],
+        ['root&absentee', 15, { votingMethod: 'absentee' }],
+      ],
+    },
+  ];
+
+  for (const { filter, groupBy, expected } of testCases) {
+    const groupedWriteInSummaries = tabulateCastVoteRecords({
+      electionId,
+      store,
+      filter,
+      groupBy,
+    });
+
+    for (const [groupKey, tally, groupSpecifier] of expected) {
+      expect(groupedWriteInSummaries[groupKey]).toEqual({
+        ...getMockElectionResults(tally),
+        ...groupSpecifier,
+      });
+    }
+
+    expect(Object.values(groupedWriteInSummaries)).toHaveLength(
+      expected.length
+    );
+  }
 });
 
 describe('tabulateElectionResults', () => {
