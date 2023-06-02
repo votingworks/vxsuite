@@ -367,13 +367,14 @@ export class Store {
     ).alreadyPresent;
   }
 
-  addInitialCastVoteRecordFileRecord({
+  addCastVoteRecordFileRecord({
     id,
     electionId,
     isTestMode,
     filename,
     exportedTimestamp,
     sha256Hash,
+    scannerIds,
   }: {
     id: Id;
     electionId: Id;
@@ -381,6 +382,7 @@ export class Store {
     filename: string;
     exportedTimestamp: Iso8601Timestamp;
     sha256Hash: string;
+    scannerIds: Set<string>;
   }): void {
     this.client.run(
       `
@@ -403,7 +405,7 @@ export class Store {
       filename,
       exportedTimestamp,
       JSON.stringify([]),
-      JSON.stringify([]),
+      JSON.stringify([...scannerIds]),
       sha256Hash
     );
   }
@@ -411,22 +413,18 @@ export class Store {
   updateCastVoteRecordFileRecord({
     id,
     precinctIds,
-    scannerIds,
   }: {
     id: Id;
     precinctIds: Set<string>;
-    scannerIds: Set<string>;
   }): void {
     this.client.run(
       `
         update cvr_files
         set
-          precinct_ids = ?,
-          scanner_ids = ?
+          precinct_ids = ?
         where id = ?
       `,
       JSON.stringify([...precinctIds]),
-      JSON.stringify([...scannerIds]),
       id
     );
   }

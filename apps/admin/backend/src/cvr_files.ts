@@ -544,17 +544,8 @@ export async function addCastVoteRecordReport({
       });
     }
 
-    // Add a file record which the cast vote records will link to
-    const fileId = uuid();
-    store.addInitialCastVoteRecordFileRecord({
-      id: fileId,
-      electionId,
-      isTestMode: isTestReport(reportMetadata),
-      filename,
-      exportedTimestamp,
-      sha256Hash,
-    });
-
+    // Add records for all batches in report
+    const scannerIds = new Set<string>();
     for (const vxBatch of reportMetadata.vxBatch) {
       store.addScannerBatch({
         batchId: vxBatch['@id'],
@@ -562,12 +553,24 @@ export async function addCastVoteRecordReport({
         scannerId: vxBatch.CreatingDeviceId,
         electionId,
       });
+      scannerIds.add(vxBatch.CreatingDeviceId);
     }
+
+    // Add a file record which the cast vote records will link to
+    const fileId = uuid();
+    store.addCastVoteRecordFileRecord({
+      id: fileId,
+      electionId,
+      isTestMode: isTestReport(reportMetadata),
+      filename,
+      exportedTimestamp,
+      sha256Hash,
+      scannerIds,
+    });
 
     // Iterate through all the cast vote records
     let castVoteRecordIndex = 0;
     const precinctIds = new Set<string>();
-    const scannerIds = new Set<string>();
     let newlyAdded = 0;
     let alreadyPresent = 0;
     for await (const unparsedCastVoteRecord of unparsedCastVoteRecords) {
@@ -707,20 +710,17 @@ export async function addCastVoteRecordReport({
         alreadyPresent += 1;
       }
       precinctIds.add(cvr.BallotStyleUnitId);
-      scannerIds.add(cvr.CreatingDeviceId);
 
       castVoteRecordIndex += 1;
     }
 
     // Update the cast vote file record with information we learned by
-    // iterating through the records.
-    //
-    // TODO: we should have the precinct and scanner list at the top-level of
-    // the report, which would allow this data to be stored up front
+    // iterating through the records. TODO: Calculate the precinct list before
+    // iterating through records after there is only one geopolitical unit
+    // per batch.
     store.updateCastVoteRecordFileRecord({
       id: fileId,
       precinctIds,
-      scannerIds,
     });
 
     return ok({
