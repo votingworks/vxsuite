@@ -11,6 +11,7 @@ import {
   ElectionWriteInSummary,
   WriteInTally,
 } from '../types';
+import { Store } from '../store';
 
 /**
  * Creates an empty contest write-in summary.
@@ -146,14 +147,28 @@ function addWriteInTallyToElectionWriteInSummary({
  * organized by contest and the optional `groupBy` parameter.
  */
 export function tabulateWriteInTallies({
-  election,
-  writeInTallies,
+  store,
+  filter,
   groupBy,
 }: {
-  election: Election;
-  writeInTallies: Iterable<Tabulation.GroupOf<WriteInTally>>;
+  store: Store;
+  filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
 }): Tabulation.Grouped<ElectionWriteInSummary> {
+  const electionId = store.getCurrentElectionId();
+  assert(electionId !== undefined);
+  const electionRecord = store.getElection(electionId);
+  assert(electionRecord);
+  const {
+    electionDefinition: { election },
+  } = electionRecord;
+  const writeInTallies = store.getWriteInTalliesForTabulation({
+    electionId,
+    election,
+    filter,
+    groupBy,
+  });
+
   const groupedElectionWriteInSummaries: Record<
     string,
     ElectionWriteInSummary

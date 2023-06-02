@@ -909,7 +909,9 @@ export class Store {
 
     if (filter.scannerIds) {
       whereParts.push(
-        `cvrs.scanner_id in ${asQueryPlaceholders(filter.scannerIds)}`
+        `scanner_batches.scanner_id in ${asQueryPlaceholders(
+          filter.scannerIds
+        )}`
       );
       params.push(...filter.scannerIds);
     }
@@ -1278,8 +1280,8 @@ export class Store {
     }
 
     if (groupBy.groupByScanner) {
-      cvrSelectParts.push('cvrs.scanner_id as scannerId');
-      groupByParts.push('cvrs.scanner_id');
+      cvrSelectParts.push('scanner_batches.scanner_id as scannerId');
+      groupByParts.push('scanner_batches.scanner_id');
     }
 
     if (groupBy.groupByVotingMethod) {

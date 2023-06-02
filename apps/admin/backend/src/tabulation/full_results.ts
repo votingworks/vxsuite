@@ -48,13 +48,8 @@ export function tabulateElectionResults({
   // if specified
   if (includeWriteInAdjudicationResults) {
     const groupedWriteInSummaries = tabulateWriteInTallies({
-      election,
-      writeInTallies: store.getWriteInTalliesForTabulation({
-        electionId,
-        election,
-        filter,
-        groupBy,
-      }),
+      store,
+      filter,
       groupBy,
     });
 
