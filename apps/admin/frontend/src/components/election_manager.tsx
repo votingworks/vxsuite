@@ -13,6 +13,7 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { PartyId } from '@votingworks/types';
+import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { DefinitionScreen } from '../screens/definition_screen';
@@ -167,7 +168,7 @@ export function ElectionManager(): JSX.Element {
         path={routerPaths.manualDataEntry({
           precinctId: ':precinctId',
           ballotStyleId: ':ballotStyleId',
-          ballotType: ':ballotType',
+          votingMethod: ':votingMethod' as ManualResultsVotingMethod,
         })}
       >
         <ManualDataEntryScreen />

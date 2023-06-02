@@ -430,9 +430,9 @@ export type ServerFullElectionManualTally = Omit<
 /**
  * Ballot types for which we allow adding manual results.
  */
-export type ManualResultsVotingMethod = Exclude<
+export type ManualResultsVotingMethod = Extract<
   Tabulation.VotingMethod,
-  'provisional'
+  'absentee' | 'precinct'
 >;
 
 /**
@@ -442,7 +442,7 @@ export type ManualResultsVotingMethod = Exclude<
 export interface ManualResultsIdentifier {
   precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
-  ballotType: ManualResultsVotingMethod;
+  votingMethod: ManualResultsVotingMethod;
 }
 
 /**

@@ -1543,7 +1543,7 @@ export class Store {
     electionId,
     precinctId,
     ballotStyleId,
-    ballotType,
+    votingMethod,
   }: { electionId: Id } & ManualResultsIdentifier): void {
     this.client.run(
       `
@@ -1552,11 +1552,11 @@ export class Store {
           election_id = ? and
           precinct_id = ? and
           ballot_style_id = ? and
-          ballot_type = ?`,
+          voting_method = ?`,
       electionId,
       precinctId,
       ballotStyleId,
-      ballotType
+      votingMethod
     );
 
     // removing the manual result may have left unofficial write-in candidates
@@ -1568,7 +1568,7 @@ export class Store {
     electionId,
     precinctId,
     ballotStyleId,
-    ballotType,
+    votingMethod,
     manualResults,
   }: ManualResultsIdentifier & {
     electionId: Id;
@@ -1585,13 +1585,13 @@ export class Store {
           election_id,
           precinct_id,
           ballot_style_id,
-          ballot_type,
+          voting_method,
           ballot_count,
           contest_results
         ) values 
           (?, ?, ?, ?, ?, ?)
         on conflict
-          (election_id, precinct_id, ballot_style_id, ballot_type)
+          (election_id, precinct_id, ballot_style_id, voting_method)
         do update set
           ballot_count = excluded.ballot_count,
           contest_results = excluded.contest_results
@@ -1600,7 +1600,7 @@ export class Store {
       electionId,
       precinctId,
       ballotStyleId,
-      ballotType,
+      votingMethod,
       ballotCount,
       serializedContestResults
     ) as { id: Id };
@@ -1676,7 +1676,7 @@ export class Store {
     }
 
     if (votingMethods) {
-      whereParts.push(`ballot_type in ${asQueryPlaceholders(votingMethods)}`);
+      whereParts.push(`voting_method in ${asQueryPlaceholders(votingMethods)}`);
       params.push(...votingMethods);
     }
 
@@ -1686,7 +1686,7 @@ export class Store {
           select 
             precinct_id as precinctId,
             ballot_style_id as ballotStyleId,
-            ballot_type as ballotType,
+            voting_method as votingMethod,
             ballot_count as ballotCount,
             contest_results as contestResultsData,
             datetime(created_at, 'localtime') as createdAt
@@ -1704,7 +1704,7 @@ export class Store {
     ).map((row) => ({
       precinctId: row.precinctId,
       ballotStyleId: row.ballotStyleId,
-      ballotType: row.ballotType,
+      votingMethod: row.votingMethod,
       manualResults: {
         ballotCount: row.ballotCount,
         contestResults: JSON.parse(
@@ -1726,7 +1726,7 @@ export class Store {
           select 
             precinct_id as precinctId,
             ballot_style_id as ballotStyleId,
-            ballot_type as ballotType,
+            voting_method as votingMethod,
             ballot_count as ballotCount,
             datetime(created_at, 'localtime') as createdAt
           from manual_results
@@ -1742,7 +1742,7 @@ export class Store {
     ).map((row) => ({
       precinctId: row.precinctId,
       ballotStyleId: row.ballotStyleId,
-      ballotType: row.ballotType,
+      votingMethod: row.votingMethod,
       ballotCount: row.ballotCount,
       createdAt: convertSqliteTimestampToIso8601(row.createdAt),
     }));

@@ -10,7 +10,10 @@ import {
 } from '@votingworks/types';
 import { Optional, throwIllegalValue } from '@votingworks/basics';
 import { z } from 'zod';
-import type { BallotMode } from '@votingworks/admin-backend';
+import type {
+  BallotMode,
+  ManualResultsVotingMethod,
+} from '@votingworks/admin-backend';
 
 // Events
 export type InputEventFunction = (
@@ -79,7 +82,7 @@ export interface VotingMethodReportScreenProps {
 export interface ManualDataEntryScreenProps {
   precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
-  ballotType: string;
+  votingMethod: ManualResultsVotingMethod;
 }
 export interface SmartcardsScreenProps {
   smartcardType: string;

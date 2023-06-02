@@ -543,7 +543,7 @@ function buildApi({
           electionId,
           precinctId: input.precinctId,
           ballotStyleId: input.ballotStyleId,
-          ballotType: input.ballotType,
+          votingMethod: input.votingMethod,
           manualResults,
         });
         return Promise.resolve();
@@ -559,7 +559,7 @@ function buildApi({
           ballotCount: input.manualResults.ballotCount,
           ballotStyleId: input.ballotStyleId,
           precinctId: input.precinctId,
-          ballotType: input.ballotType,
+          ballotType: input.votingMethod,
         }
       );
     },
@@ -578,7 +578,7 @@ function buildApi({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         precinctIds: input.precinctId ? [input.precinctId] : undefined,
         ballotStyleIds: input.ballotStyleId ? [input.ballotStyleId] : undefined,
-        votingMethods: input.ballotType ? [input.ballotType] : undefined,
+        votingMethods: input.votingMethod ? [input.votingMethod] : undefined,
       });
 
       return manualResultsRecord ?? null;

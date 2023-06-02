@@ -94,7 +94,7 @@ test('link to edit an existing tally', async () => {
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',
-      ballotType: 'precinct',
+      votingMethod: 'precinct',
       ballotCount: 10,
       createdAt: new Date().toISOString(),
     },
@@ -126,7 +126,7 @@ test('delete an existing tally', async () => {
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',
-      ballotType: 'precinct',
+      votingMethod: 'precinct',
       ballotCount: 10,
       createdAt: new Date().toISOString(),
     },
@@ -151,7 +151,7 @@ test('delete an existing tally', async () => {
   apiMock.expectDeleteManualResults({
     precinctId: 'precinct-1',
     ballotStyleId: '1M',
-    ballotType: 'precinct',
+    votingMethod: 'precinct',
   });
   apiMock.expectGetManualResultsMetadata([]);
   userEvent.click(screen.getButton('Remove Manually Entered Results'));
@@ -162,28 +162,28 @@ test('full table & clearing all data', async () => {
     {
       ballotStyleId: '2F',
       precinctId: 'precinct-2',
-      ballotType: 'precinct',
+      votingMethod: 'precinct',
       ballotCount: 10,
       createdAt: new Date().toISOString(),
     },
     {
       ballotStyleId: '2F',
       precinctId: 'precinct-1',
-      ballotType: 'precinct',
+      votingMethod: 'precinct',
       ballotCount: 10,
       createdAt: new Date().toISOString(),
     },
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',
-      ballotType: 'precinct',
+      votingMethod: 'precinct',
       ballotCount: 10,
       createdAt: new Date().toISOString(),
     },
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-2',
-      ballotType: 'precinct',
+      votingMethod: 'precinct',
       ballotCount: 10,
       createdAt: new Date().toISOString(),
     },

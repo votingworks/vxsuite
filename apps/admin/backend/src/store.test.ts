@@ -185,26 +185,26 @@ test('manual results', () => {
   };
   const precinctId = 'precinct-1';
   const ballotStyleId = '1M';
-  const ballotType: ManualResultsVotingMethod = 'precinct';
+  const votingMethod: ManualResultsVotingMethod = 'precinct';
 
   store.setManualResults({
     electionId,
     precinctId,
     ballotStyleId,
-    ballotType,
+    votingMethod,
     manualResults,
   });
   expect(store.getManualResults({ electionId })).toMatchObject([
-    { precinctId, ballotStyleId, ballotType, manualResults },
+    { precinctId, ballotStyleId, votingMethod, manualResults },
   ]);
   expect(
     store.getManualResults({
       electionId,
       precinctIds: [precinctId],
       ballotStyleIds: [ballotStyleId],
-      votingMethods: [ballotType],
+      votingMethods: [votingMethod],
     })
-  ).toMatchObject([{ precinctId, ballotStyleId, ballotType, manualResults }]);
+  ).toMatchObject([{ precinctId, ballotStyleId, votingMethod, manualResults }]);
   expect(store.getWriteInCandidates({ electionId })).toHaveLength(1);
 
   // update the results, without changing the write-in candidate reference
@@ -216,14 +216,14 @@ test('manual results', () => {
     electionId,
     precinctId,
     ballotStyleId,
-    ballotType,
+    votingMethod,
     manualResults: editedManualResults,
   });
   expect(store.getManualResults({ electionId })).toMatchObject([
     {
       precinctId,
       ballotStyleId,
-      ballotType,
+      votingMethod,
       manualResults: editedManualResults,
     },
   ]);
@@ -244,14 +244,14 @@ test('manual results', () => {
     electionId,
     precinctId,
     ballotStyleId,
-    ballotType,
+    votingMethod,
     manualResults: noWriteInManualResults,
   });
   expect(store.getManualResults({ electionId })).toMatchObject([
     {
       precinctId,
       ballotStyleId,
-      ballotType,
+      votingMethod,
       manualResults: noWriteInManualResults,
     },
   ]);

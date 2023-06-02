@@ -37,8 +37,6 @@ export function aggregateManualResults({
         ...manualResultsRecord,
         // must include party id for the case where that's the grouping
         partyId: ballotStyleIdPartyIdLookup[manualResultsRecord.ballotStyleId],
-        // must rename voting method - TODO: make consistent
-        votingMethod: manualResultsRecord.ballotType,
       },
       groupBy
     );
