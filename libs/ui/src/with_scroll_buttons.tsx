@@ -11,6 +11,7 @@ import { makeTheme } from './themes/make_theme';
 
 export interface WithScrollButtonsProps {
   children: React.ReactNode;
+  noPadding?: boolean;
 }
 
 const SCROLL_DISTANCE_TO_CONTENT_HEIGHT_RATIO = 0.75;
@@ -32,6 +33,7 @@ const Container = styled.div`
 `;
 
 interface ContentProps {
+  noPadding?: boolean;
   scrollEnabled: boolean;
 }
 
@@ -42,7 +44,8 @@ const Content = styled.div<ContentProps>`
   flex-grow: 1;
   justify-content: stretch;
   overflow: scroll;
-  padding: ${(p) => (p.scrollEnabled ? '0.5rem' : '0')} 0.5rem;
+  padding: 0 ${(p) => (p.noPadding ? 0 : 0.5)}rem;
+  padding-bottom: ${(p) => (p.scrollEnabled ? '0.5rem' : '0')};
 `;
 
 const Controls = styled.div`
@@ -101,7 +104,7 @@ const BottomShadow = styled.div`
  * which has an explicit height/max height set.
  */
 export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
-  const { children } = props;
+  const { children, noPadding } = props;
 
   const [canScrollUp, setCanScrollUp] = React.useState(false);
   const [canScrollDown, setCanScrollDown] = React.useState(false);
@@ -158,6 +161,7 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
         ref={contentRef}
         scrollEnabled={scrollEnabled}
         onScroll={updateScrollState}
+        noPadding={noPadding}
       >
         {children}
       </Content>

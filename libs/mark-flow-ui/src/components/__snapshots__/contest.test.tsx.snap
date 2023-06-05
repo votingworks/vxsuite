@@ -304,6 +304,7 @@ exports[`renders 1`] = `
   justify-content: stretch;
   overflow: scroll;
   padding: 0 0.5rem;
+  padding-bottom: 0;
 }
 
 .c1 {

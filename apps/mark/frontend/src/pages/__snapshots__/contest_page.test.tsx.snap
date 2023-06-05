@@ -354,6 +354,7 @@ exports[`Renders ContestPage 1`] = `
   justify-content: stretch;
   overflow: scroll;
   padding: 0 0.5rem;
+  padding-bottom: 0;
 }
 
 .c5 {
@@ -1372,6 +1373,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   justify-content: stretch;
   overflow: scroll;
   padding: 0 0.5rem;
+  padding-bottom: 0;
 }
 
 .c2 {

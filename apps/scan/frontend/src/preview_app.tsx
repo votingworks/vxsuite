@@ -16,6 +16,7 @@ import * as InvalidCardScreen from './screens/invalid_card_screen';
 import * as LoadingConfigurationScreen from './screens/loading_configuration_screen';
 import * as PollsNotOpenScreen from './screens/polls_not_open_screen';
 import * as PollWorkerScreen from './screens/poll_worker_screen';
+import * as ScanDoubleSheetScreen from './screens/scan_double_sheet_screen';
 import * as ScanErrorScreen from './screens/scan_error_screen';
 import * as ScanProcessingScreen from './screens/scan_processing_screen';
 import * as ScanSuccessScreen from './screens/scan_success_screen';
@@ -46,6 +47,7 @@ export function PreviewApp(): JSX.Element {
           LoadingConfigurationScreen,
           PollsNotOpenScreen,
           PollWorkerScreen,
+          ScanDoubleSheetScreen,
           ScanErrorScreen,
           ScanProcessingScreen,
           ScanSuccessScreen,

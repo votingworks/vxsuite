@@ -1,13 +1,8 @@
 import React from 'react';
-import {
-  CenteredLargeProse,
-  FullScreenIconWrapper,
-  H1,
-  Icons,
-  P,
-} from '@votingworks/ui';
+import { FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
 
-import { ScreenMainCenterChild } from '../components/layout';
+import { Screen } from '../components/layout';
+import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
 interface Props {
   scannedBallotCount: number;
@@ -15,15 +10,18 @@ interface Props {
 
 export function ScanSuccessScreen({ scannedBallotCount }: Props): JSX.Element {
   return (
-    <ScreenMainCenterChild ballotCountOverride={scannedBallotCount}>
-      <FullScreenIconWrapper color="success">
-        <Icons.Done />
-      </FullScreenIconWrapper>
-      <CenteredLargeProse>
-        <H1>Your ballot was counted!</H1>
+    <Screen centerContent ballotCountOverride={scannedBallotCount}>
+      <FullScreenPromptLayout
+        title="Your ballot was counted!"
+        image={
+          <FullScreenIconWrapper color="success">
+            <Icons.Done />
+          </FullScreenIconWrapper>
+        }
+      >
         <P>Thank you for voting.</P>
-      </CenteredLargeProse>
-    </ScreenMainCenterChild>
+      </FullScreenPromptLayout>
+    </Screen>
   );
 }
 
