@@ -1,6 +1,6 @@
 import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
-import { H2 } from './typography';
+import { H1 } from './typography';
 import { makeTheme } from './themes/make_theme';
 
 const TestingModeContainer = styled.div`
@@ -19,6 +19,8 @@ const TestingModeContainer = styled.div`
   );
   background-size: 98.99px 98.99px;
   width: 100%;
+  font-size: ${(p) => p.theme.sizes.fontDefault}px;
+
   & > div {
     margin: 0.5rem 0;
     background: #ff8c00;
@@ -26,6 +28,10 @@ const TestingModeContainer = styled.div`
     text-align: center;
     color: #333333;
   }
+`;
+
+const Heading = styled(H1)`
+  font-size: ${(p) => p.theme.sizes.headingsRem.h1}em;
 `;
 
 export function TestMode(): JSX.Element {
@@ -36,13 +42,14 @@ export function TestMode(): JSX.Element {
       theme={(theme) =>
         makeTheme({
           colorMode: theme.colorMode,
+          screenType: theme.screenType,
           sizeMode: theme.sizeMode === 'legacy' ? 'legacy' : 's',
         })
       }
     >
       <TestingModeContainer>
         <div>
-          <H2 as="h1">Test Ballot Mode</H2>
+          <Heading>Test Ballot Mode</Heading>
         </div>
       </TestingModeContainer>
     </ThemeProvider>
