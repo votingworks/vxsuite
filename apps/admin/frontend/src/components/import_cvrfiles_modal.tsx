@@ -148,10 +148,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
           <Prose>
             <h1>Error</h1>
             <p>
-              There was an error reading the content of the file{' '}
+              There was an error reading the contents of{' '}
               <strong>{currentState.filename}</strong>:{' '}
-              {currentState.errorMessage}. Please ensure this file only contains
-              valid CVR data for this election.
+              {currentState.errorMessage}
             </p>
           </Prose>
         }

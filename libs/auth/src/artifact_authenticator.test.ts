@@ -1,19 +1,32 @@
 import fs from 'fs';
-import { FileResult, fileSync } from 'tmp';
+import path from 'path';
+import { dirSync } from 'tmp';
 import { err, ok } from '@votingworks/basics';
 
 import { getTestFilePath } from '../test/utils';
 import { Artifact, ArtifactAuthenticator } from './artifact_authenticator';
 import { ArtifactAuthenticatorConfig } from './config';
 
-let tempFile: FileResult;
+let tempDirectoryPath: string;
+let tempFile1Path: string;
+let tempFile2Path: string;
+let tempSubDirectoryPath: string;
+let tempFile3Path: string;
 
 beforeEach(() => {
-  tempFile = fileSync();
+  tempDirectoryPath = dirSync().name;
+  tempFile1Path = path.join(tempDirectoryPath, 'file-1.txt');
+  tempFile2Path = path.join(tempDirectoryPath, 'file-2.txt');
+  tempSubDirectoryPath = path.join(tempDirectoryPath, 'sub-dir');
+  tempFile3Path = path.join(tempSubDirectoryPath, 'file-3.txt');
+  fs.writeFileSync(tempFile1Path, 'abcd');
+  fs.writeFileSync(tempFile2Path, 'efgh');
+  fs.mkdirSync(tempSubDirectoryPath);
+  fs.writeFileSync(tempFile3Path, 'ijkl');
 });
 
 afterEach(() => {
-  tempFile.removeCallback();
+  fs.rmSync(tempDirectoryPath, { recursive: true });
 });
 
 const vxAdminTestConfig: ArtifactAuthenticatorConfig = {
@@ -42,27 +55,45 @@ const vxScanTestConfig: ArtifactAuthenticatorConfig = {
   }),
 };
 
+/**
+ * Defining artifacts in test.each configs directly results in compile-time errors due to variables
+ * being used before they're assigned to in the beforeEach block, so we use functions to defer
+ * variable access.
+ */
+type ArtifactGenerator = () => Artifact;
+
 test.each<{
-  artifactType: Artifact['type'];
+  description: string;
+  artifactGenerator: ArtifactGenerator;
   exportingMachineConfig: ArtifactAuthenticatorConfig;
   importingMachineConfig: ArtifactAuthenticatorConfig;
 }>([
   {
-    artifactType: 'ballot_package',
+    description: 'ballot package',
+    artifactGenerator: () => ({
+      type: 'ballot_package',
+      path: tempFile1Path,
+    }),
     exportingMachineConfig: vxAdminTestConfig,
     importingMachineConfig: vxScanTestConfig,
   },
   {
-    artifactType: 'cvr_file',
+    description: 'cast vote records',
+    artifactGenerator: () => ({
+      type: 'cast_vote_records',
+      path: tempDirectoryPath,
+    }),
     exportingMachineConfig: vxScanTestConfig,
     importingMachineConfig: vxAdminTestConfig,
   },
 ])(
-  'Writing signature file and authenticating artifact using signature file - $artifactType',
-  async ({ artifactType, exportingMachineConfig, importingMachineConfig }) => {
-    fs.writeFileSync(tempFile.name, 'abcd');
-    const artifact: Artifact = { type: artifactType, path: tempFile.name };
-
+  'Writing signature file and authenticating artifact using signature file - $description',
+  async ({
+    artifactGenerator,
+    exportingMachineConfig,
+    importingMachineConfig,
+  }) => {
+    const artifact = artifactGenerator();
     await new ArtifactAuthenticator(exportingMachineConfig).writeSignatureFile(
       artifact
     );
@@ -74,38 +105,64 @@ test.each<{
   }
 );
 
-test('Detecting that an artifact has been tampered with', async () => {
-  fs.writeFileSync(tempFile.name, 'abcd');
-  const artifact: Artifact = { type: 'cvr_file', path: tempFile.name };
-
-  await new ArtifactAuthenticator(vxScanTestConfig).writeSignatureFile(
-    artifact
-  );
-  fs.writeFileSync(tempFile.name, 'abcde');
-  expect(
-    await new ArtifactAuthenticator(
-      vxAdminTestConfig
-    ).authenticateArtifactUsingSignatureFile(artifact)
-  ).toEqual(
-    err(new Error(`Error authenticating ${tempFile.name} using signature file`))
-  );
-});
-
-test('Mismatched artifact type', async () => {
-  fs.writeFileSync(tempFile.name, 'abcd');
-  const artifact: Artifact = { type: 'cvr_file', path: tempFile.name };
-
-  await new ArtifactAuthenticator(vxScanTestConfig).writeSignatureFile(
-    artifact
-  );
-  expect(
-    await new ArtifactAuthenticator(
-      vxAdminTestConfig
-    ).authenticateArtifactUsingSignatureFile({
-      ...artifact,
+test.each<{
+  description: string;
+  artifactGenerator: ArtifactGenerator;
+  exportingMachineConfig: ArtifactAuthenticatorConfig;
+  importingMachineConfig: ArtifactAuthenticatorConfig;
+  tamperFn: () => void;
+}>([
+  {
+    description: 'ballot package',
+    artifactGenerator: () => ({
       type: 'ballot_package',
-    })
-  ).toEqual(
-    err(new Error(`Error authenticating ${tempFile.name} using signature file`))
-  );
-});
+      path: tempFile1Path,
+    }),
+    exportingMachineConfig: vxAdminTestConfig,
+    importingMachineConfig: vxScanTestConfig,
+    tamperFn: () => fs.appendFileSync(tempFile1Path, 'e'),
+  },
+  {
+    description: 'cast vote records, file is modified',
+    artifactGenerator: () => ({
+      type: 'cast_vote_records',
+      path: tempDirectoryPath,
+    }),
+    exportingMachineConfig: vxScanTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    tamperFn: () => fs.appendFileSync(tempFile1Path, 'e'),
+  },
+  {
+    description: 'cast vote records, file is deleted',
+    artifactGenerator: () => ({
+      type: 'cast_vote_records',
+      path: tempDirectoryPath,
+    }),
+    exportingMachineConfig: vxScanTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    tamperFn: () => fs.rmSync(tempFile2Path),
+  },
+])(
+  'Detecting that an artifact has been tampered with - $description',
+  async ({
+    artifactGenerator,
+    exportingMachineConfig,
+    importingMachineConfig,
+    tamperFn,
+  }) => {
+    const artifact = artifactGenerator();
+    await new ArtifactAuthenticator(exportingMachineConfig).writeSignatureFile(
+      artifact
+    );
+    tamperFn();
+    expect(
+      await new ArtifactAuthenticator(
+        importingMachineConfig
+      ).authenticateArtifactUsingSignatureFile(artifact)
+    ).toEqual(
+      err(
+        new Error(`Error authenticating ${artifact.path} using signature file`)
+      )
+    );
+  }
+);

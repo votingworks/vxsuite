@@ -10,9 +10,11 @@ module.exports = {
   // which we should probably make not be there by using smarter
   // tsconfig.json values.
   roots: ['<rootDir>/src'],
+  coverageProvider: 'v8',
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
     '!**/node_modules/**',
+    '!**/*.d.ts',
     '!src/index.ts',
     '!src/types.ts',
     '!test/**/*',

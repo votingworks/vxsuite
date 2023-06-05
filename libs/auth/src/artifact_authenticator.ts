@@ -2,6 +2,9 @@ import { Buffer } from 'buffer';
 import CombinedStream from 'combined-stream';
 import { createReadStream } from 'fs';
 import fs from 'fs/promises';
+import { sha256 } from 'js-sha256';
+import path from 'path';
+import recursiveReadDir from 'recursive-readdir';
 import { Stream } from 'stream';
 import {
   assert,
@@ -28,7 +31,8 @@ import {
  * A machine-exported artifact whose authenticity we want to be able to verify
  */
 export interface Artifact {
-  type: 'ballot_package' | 'cvr_file';
+  type: 'ballot_package' | 'cast_vote_records';
+  /** A file path for ballot packages and a directory path for cast vote records */
   path: string;
 }
 
@@ -109,7 +113,7 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
   private async constructArtifactSignatureBundle(
     artifact: Artifact
   ): Promise<ArtifactSignatureBundle> {
-    const message = this.constructMessage(artifact);
+    const message = await this.constructMessage(artifact);
     const messageSignature = await this.signMessage(message);
     const signingMachineCert = await fs.readFile(this.signingMachineCertPath);
     return { signature: messageSignature, signingMachineCert };
@@ -122,7 +126,7 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
     artifact: Artifact,
     artifactSignatureBundle: ArtifactSignatureBundle
   ): Promise<void> {
-    const message = this.constructMessage(artifact);
+    const message = await this.constructMessage(artifact);
     const { signature: messageSignature, signingMachineCert } =
       artifactSignatureBundle;
     await this.validateSigningMachineCert(signingMachineCert, artifact);
@@ -152,7 +156,7 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
         );
         break;
       }
-      case 'cvr_file': {
+      case 'cast_vote_records': {
         assert(
           certDetails.component === 'central-scan' ||
             certDetails.component === 'scan',
@@ -201,7 +205,7 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
     return { signature, signingMachineCert };
   }
 
-  private constructMessage(artifact: Artifact): Stream {
+  private async constructMessage(artifact: Artifact): Promise<Stream> {
     const message = CombinedStream.create();
 
     const messageFormatVersion = Buffer.from('1', 'utf-8');
@@ -211,8 +215,13 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
       Buffer.concat([messageFormatVersion, separator, fileType, separator])
     );
 
-    const fileContents = createReadStream(artifact.path);
-    message.append(fileContents);
+    if (artifact.type === 'cast_vote_records') {
+      const directoryContents = await this.hashDirectoryContents(artifact.path);
+      message.append(directoryContents);
+    } else {
+      const fileContents = createReadStream(artifact.path);
+      message.append(fileContents);
+    }
 
     return message;
   }
@@ -226,5 +235,28 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
 
   private constructSignatureFilePath(artifact: Artifact): string {
     return `${artifact.path}.vxsig`;
+  }
+
+  /**
+   * Recursively hashes every file in a directory and outputs a buffer that if written to a file
+   * would look something like this:
+   * 88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589  file-1.txt
+   * e5e088a0b66163a0a26a5e053d2a4496dc16ab6e0e3dd1adf2d16aa84a078c9d  file-2.txt
+   * 005c19658919186b85618c5870463eec8d9b8c1a9d00208a5352891ba5bbe086  sub-dir/file-3.txt
+   *
+   * File paths are sorted alphabetically to ensure a consistent output.
+   */
+  private async hashDirectoryContents(directory: string): Promise<Buffer> {
+    const filePaths = (await recursiveReadDir(directory)).sort();
+    const fileHashEntries: Buffer[] = [];
+    for (const filePath of filePaths) {
+      const fileHash = sha256(await fs.readFile(filePath));
+      const relativeFilePath = path.relative(directory, filePath);
+      fileHashEntries.push(
+        // Mimic the output of the sha256sum command-line tool
+        Buffer.from(`${fileHash}  ${relativeFilePath}\n`, 'utf-8')
+      );
+    }
+    return Buffer.concat(fileHashEntries);
   }
 }

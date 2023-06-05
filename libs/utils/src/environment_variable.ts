@@ -31,6 +31,8 @@ export enum BooleanEnvironmentVariableName {
   SKIP_SCAN_ELECTION_HASH_CHECK = 'REACT_APP_VX_SKIP_SCAN_ELECTION_HASH_CHECK',
   // Skips authentication (i.e. signature verification) of ballot packages on import
   SKIP_BALLOT_PACKAGE_AUTHENTICATION = 'REACT_APP_VX_SKIP_BALLOT_PACKAGE_AUTHENTICATION',
+  // Skips authentication (i.e. signature verification) of cast vote records on import
+  SKIP_CAST_VOTE_RECORDS_AUTHENTICATION = 'REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -81,6 +83,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_SKIP_SCAN_ELECTION_HASH_CHECK;
     case BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION:
       return process.env.REACT_APP_VX_SKIP_BALLOT_PACKAGE_AUTHENTICATION;
+    case BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION:
+      return process.env.REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
     /* c8 ignore next 2 */
@@ -160,6 +164,12 @@ export function getBooleanEnvVarConfig(
         autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION:
       return {
         name,
         allowInProduction: false,

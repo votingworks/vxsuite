@@ -5,5 +5,12 @@ const shared = require('../../jest.config.shared');
  */
 module.exports = {
   ...shared,
-  collectCoverageFrom: [...shared.collectCoverageFrom, '!src/cli/**/*.ts'],
+  collectCoverageFrom: [
+    ...shared.collectCoverageFrom,
+    '!src/**/index.ts',
+    '!src/cli/**/*.ts',
+    '!src/mocks/**/*.ts',
+    '!src/types/**/*.ts',
+  ],
+  coverageProvider: 'v8',
 };

@@ -20,6 +20,7 @@ import {
 } from '@votingworks/utils';
 import { basename, join, parse } from 'path';
 import fs from 'fs';
+import { ArtifactAuthenticatorApi } from '@votingworks/auth';
 import {
   describeSheetValidationError,
   canonicalizeSheet,
@@ -289,6 +290,7 @@ interface ExportCastVoteRecordReportToUsbDriveParams
   > {
   ballotsCounted: number;
   getResultSheetGenerator: () => Generator<ResultSheet>;
+  artifactAuthenticator: ArtifactAuthenticatorApi;
 }
 
 /**
@@ -311,6 +313,7 @@ export async function exportCastVoteRecordReportToUsbDrive(
     getResultSheetGenerator,
     definiteMarkThreshold,
     batchInfo,
+    artifactAuthenticator,
   }: ExportCastVoteRecordReportToUsbDriveParams,
   getUsbDrives: () => Promise<UsbDrive[]> = defaultGetUsbDrives
 ): Promise<Result<void, ExportCastVoteRecordReportToUsbDriveError>> {
@@ -422,6 +425,15 @@ export async function exportCastVoteRecordReportToUsbDrive(
       }
     }
   }
+
+  const usbMountPoint = (await getUsbDrives())[0]?.mountPoint;
+  if (!usbMountPoint) {
+    return err({ type: 'missing-usb-drive', message: 'No USB drive found' });
+  }
+  await artifactAuthenticator.writeSignatureFile({
+    type: 'cast_vote_records',
+    path: join(usbMountPoint, reportDirectory),
+  });
 
   return ok();
 }

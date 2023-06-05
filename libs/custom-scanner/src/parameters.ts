@@ -52,7 +52,7 @@ function convertToUltrasonicSensorLevelInternal(
       return UltrasonicSensorLevelInternal.Level3;
     case DoubleSheetDetectOpt.Level4:
       return UltrasonicSensorLevelInternal.Level4;
-    // istanbul ignore next
+    /* c8 ignore next 2 */
     default:
       throwIllegalValue(option);
   }

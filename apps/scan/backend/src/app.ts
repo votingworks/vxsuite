@@ -274,6 +274,7 @@ function buildApi(
           definiteMarkThreshold:
             store.getCurrentMarkThresholds()?.definite ??
             DefaultMarkThresholds.definite,
+          artifactAuthenticator,
         },
         // TODO Convert exportCastVoteRecordReportToUsbDrive to use libs/usb-drive
         async () => {

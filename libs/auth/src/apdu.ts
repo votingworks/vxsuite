@@ -205,6 +205,7 @@ export class CardCommand {
  * 1. A tag indicating what the value is
  * 2. A length indicating the size of the value in bytes
  * 3. The value itself
+ *
  * The data in command and response APDUs is often comprised of TLVs.
  */
 export function constructTlv(
