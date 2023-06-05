@@ -16,6 +16,7 @@ import { expectPrint, PrintRenderResult } from '@votingworks/test-utils';
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
+import { PrintPage } from './pages/print_page';
 import {
   fireEvent,
   render,
@@ -23,7 +24,6 @@ import {
   within,
 } from '../test/react_testing_library';
 import { App } from './app';
-import { PrintPage } from './pages/print_page';
 
 import { render as renderWithBallotContext } from '../test/test_utils';
 import { withMarkup } from '../test/helpers/with_markup';

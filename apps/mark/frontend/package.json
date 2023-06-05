@@ -77,6 +77,7 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/logging": "workspace:*",
+    "@votingworks/mark-flow-ui": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
     "@votingworks/utils": "workspace:*",

@@ -1,5 +1,4 @@
-import { assert } from '@votingworks/basics';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
   ContestChoiceButton,
@@ -10,7 +9,7 @@ import {
   WithScrollButtons,
 } from '@votingworks/ui';
 
-import { YesNoVote, OptionalYesNoVote } from '@votingworks/types';
+import { YesNoVote, Election } from '@votingworks/types';
 
 import { UpdateVoteFunction } from '../config/types';
 import {
@@ -18,7 +17,6 @@ import {
   MsEitherNeitherContest as MsEitherNeitherContestInterface,
 } from '../utils/ms_either_neither_contests';
 import { ContentHeader } from './contest_screen_layout';
-import { BallotContext } from '../contexts/ballot_context';
 import { ContestTitle } from './contest_title';
 
 const ChoicesGrid = styled.div`
@@ -49,21 +47,20 @@ const Divider = styled.div`
 `;
 
 interface Props {
+  election: Election;
   contest: MsEitherNeitherContestInterface;
-  eitherNeitherContestVote: OptionalYesNoVote;
-  pickOneContestVote: OptionalYesNoVote;
+  eitherNeitherContestVote?: YesNoVote;
+  pickOneContestVote?: YesNoVote;
   updateVote: UpdateVoteFunction;
 }
 
 export function MsEitherNeitherContest({
+  election,
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
   updateVote,
 }: Props): JSX.Element {
-  const { electionDefinition } = useContext(BallotContext);
-  assert(electionDefinition);
-  const { election } = electionDefinition;
   const [deselectedOption, setDeselectedOption] = useState<
     'either' | 'neither' | 'first' | 'second'
   >();
@@ -160,7 +157,7 @@ export function MsEitherNeitherContest({
           <Pre>{contest.description}</Pre>
         </Caption>
       </WithScrollButtons>
-      <ChoicesGrid>
+      <ChoicesGrid data-testid="contest-choices">
         <GridLabel
           style={{
             gridArea: 'either-neither-label',

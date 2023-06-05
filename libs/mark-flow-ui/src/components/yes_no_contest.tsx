@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   YesNoVote,
-  OptionalYesNoVote,
   YesNoContest as YesNoContestInterface,
   YesOrNo,
   getContestDistrictName,
+  Election,
 } from '@votingworks/types';
 import {
   Button,
@@ -20,10 +20,8 @@ import {
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
-import { assert, Optional } from '@votingworks/basics';
+import { Optional } from '@votingworks/basics';
 import { UpdateVoteFunction } from '../config/types';
-
-import { BallotContext } from '../contexts/ballot_context';
 
 import {
   ContentHeader,
@@ -33,19 +31,18 @@ import {
 import { ContestTitle } from './contest_title';
 
 interface Props {
+  election: Election;
   contest: YesNoContestInterface;
-  vote: OptionalYesNoVote;
+  vote?: YesNoVote;
   updateVote: UpdateVoteFunction;
 }
 
 export function YesNoContest({
+  election,
   contest,
   vote,
   updateVote,
 }: Props): JSX.Element {
-  const { electionDefinition } = useContext(BallotContext);
-  assert(electionDefinition);
-  const { election } = electionDefinition;
   const districtName = getContestDistrictName(election, contest);
 
   const [overvoteSelection, setOvervoteSelection] =

@@ -103,8 +103,8 @@ const BottomShadow = styled.div`
 export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
   const { children } = props;
 
-  const [canScrollUp, setCanScrollUp] = React.useState<boolean>(false);
-  const [canScrollDown, setCanScrollDown] = React.useState<boolean>(false);
+  const [canScrollUp, setCanScrollUp] = React.useState(false);
+  const [canScrollDown, setCanScrollDown] = React.useState(false);
   const scrollEnabled = canScrollUp || canScrollDown;
 
   const contentRef = React.useRef<HTMLDivElement>(null);
@@ -119,15 +119,7 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
       );
     }
   }
-  React.useEffect(updateScrollState, [contentRef]);
-  React.useEffect(() => {
-    updateScrollState();
-
-    const contentEl = contentRef.current;
-    contentEl?.addEventListener('scroll', updateScrollState);
-
-    return () => contentEl?.removeEventListener('scroll', updateScrollState);
-  }, [contentRef]);
+  React.useLayoutEffect(updateScrollState);
 
   const onScrollUp = React.useCallback(() => {
     if (contentRef.current) {
@@ -162,7 +154,11 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
 
   return (
     <Container>
-      <Content ref={contentRef} scrollEnabled={scrollEnabled}>
+      <Content
+        ref={contentRef}
+        scrollEnabled={scrollEnabled}
+        onScroll={updateScrollState}
+      >
         {children}
       </Content>
       {scrollEnabled && (

@@ -1,5 +1,5 @@
 import camelCase from 'lodash.camelcase';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -8,6 +8,7 @@ import {
   CandidateContest as CandidateContestInterface,
   getCandidatePartiesDescription,
   getContestDistrictName,
+  Election,
 } from '@votingworks/types';
 import {
   Button,
@@ -30,8 +31,6 @@ import { stripQuotes } from '../utils/strip_quotes';
 
 import { UpdateVoteFunction } from '../config/types';
 
-import { BallotContext } from '../contexts/ballot_context';
-
 import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 import { ContentHeader, ChoicesGrid } from './contest_screen_layout';
 import { ContestTitle } from './contest_title';
@@ -39,6 +38,7 @@ import { ContestTitle } from './contest_title';
 const WriteInModalContent = styled.div``;
 
 interface Props {
+  election: Election;
   contest: CandidateContestInterface;
   vote: CandidateVote;
   updateVote: UpdateVoteFunction;
@@ -53,20 +53,11 @@ function normalizeCandidateName(name: string) {
 }
 
 export function CandidateContest({
+  election,
   contest,
   vote,
   updateVote,
 }: Props): JSX.Element {
-  const { electionDefinition, precinctId } = useContext(BallotContext);
-  assert(
-    electionDefinition,
-    'electionDefinition is required to render CandidateContest'
-  );
-  assert(
-    typeof precinctId === 'string',
-    'precinctId is required to render ContestPage'
-  );
-  const { election } = electionDefinition;
   const districtName = getContestDistrictName(election, contest);
 
   const [attemptedOvervoteCandidate, setAttemptedOvervoteCandidate] =

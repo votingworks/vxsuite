@@ -42,11 +42,10 @@ it('Renders ContestPage in Landscape orientation', () => {
 });
 
 it('Renders ContestPage in Landscape orientation in Review Mode', () => {
-  window.location.hash = '#review';
   renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestPage} />,
     {
-      route: '/contests/0',
+      route: '/contests/0#review',
       precinctId: electionSample.precincts[0].id,
       ballotStyleId: electionSample.ballotStyles[0].id,
       machineConfig: fakeMachineConfig({ screenOrientation: 'landscape' }),

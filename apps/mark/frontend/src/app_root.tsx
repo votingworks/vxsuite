@@ -42,6 +42,10 @@ import {
 
 import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
 import {
+  mergeMsEitherNeitherContests,
+  CastBallotPage,
+} from '@votingworks/mark-flow-ui';
+import {
   checkPin,
   endCardlessVoterSession,
   getAuthStatus,
@@ -58,7 +62,6 @@ import {
   handleGamepadButtonDown,
   handleGamepadKeyboardEvent,
 } from './lib/gamepad';
-import { CastBallotPage } from './pages/cast_ballot_page';
 import { AdminScreen } from './pages/admin_screen';
 import { InsertCardScreen } from './pages/insert_card_screen';
 import { PollWorkerScreen } from './pages/poll_worker_screen';
@@ -70,7 +73,6 @@ import { ScreenReader } from './utils/ScreenReader';
 import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
-import { mergeMsEitherNeitherContests } from './utils/ms_either_neither_contests';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
 
 interface UserState {

@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { IdleTimerProvider } from 'react-idle-timer';
 
+import { IDLE_TIMEOUT_SECONDS, Paths } from '../config/globals';
 import { ContestPage } from '../pages/contest_page';
+import { DisplaySettingsPage } from '../pages/display_settings_page';
 import { IdlePage } from '../pages/idle_page';
 import { NotFoundPage } from '../pages/not_found_page';
 import { PrintPage } from '../pages/print_page';
 import { ReviewPage } from '../pages/review_page';
 import { StartPage } from '../pages/start_page';
-import { IDLE_TIMEOUT_SECONDS, Paths } from '../config/globals';
-import { DisplaySettingsPage } from '../pages/display_settings_page';
 
 export function Ballot(): JSX.Element {
   const [isIdle, setIsIdle] = useState(false);

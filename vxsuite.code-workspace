@@ -129,6 +129,10 @@
       "path": "libs/logging"
     },
     {
+      "name": "libs/mark-flow-ui",
+      "path": "libs/mark-flow-ui"
+    },
+    {
       "name": "libs/message-coder",
       "path": "libs/message-coder"
     },
