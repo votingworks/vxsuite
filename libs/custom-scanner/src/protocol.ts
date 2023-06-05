@@ -667,7 +667,7 @@ class GetImageDataRequestScanSideCoder extends BaseCoder<ScanSide> {
         case GetImageDataRequestScanSideCoder.SideB:
           return { value: ScanSide.B, bitOffset: decoded.bitOffset };
 
-        /* istanbul ignore next */
+        /* c8 ignore next 2 */
         default:
           return err('InvalidValue');
       }
@@ -819,7 +819,7 @@ export function checkAnswer(data: Buffer): CheckAnswerResult {
       case ResponseErrorCode.INVALID_JOB_ID:
         return { type: 'error', errorCode: ErrorCode.JobNotValid };
 
-      /* istanbul ignore next */
+      /* c8 ignore next 2 */
       default:
         throwIllegalValue(errorCode);
     }
@@ -856,7 +856,7 @@ function mapCoderError<T>(result: Result<T, CoderError>): Result<T, ErrorCode> {
     case 'UnsupportedOffset':
       throw new Error(`BUG: unsupported offset`);
 
-    /* istanbul ignore next */
+    /* c8 ignore next 2 */
     default:
       throwIllegalValue(coderError);
   }

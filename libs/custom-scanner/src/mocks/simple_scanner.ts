@@ -1,4 +1,3 @@
-/* istanbul ignore file - mock */
 import { ok } from '@votingworks/basics';
 import { ScannerStatus, SensorStatus } from '../types';
 import { CustomScanner } from '../types/custom_scanner';
