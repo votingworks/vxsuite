@@ -16,9 +16,11 @@ import {
   PaperHandlerBitmap,
 } from './driver';
 import { TOKEN, NULL_CODE, OK_NO_MORE_DATA } from './constants';
-import { PrinterStatus } from './sensors';
 import { setUpMockWebUsbDevice } from './test_utils';
-import { SensorStatusRealTimeExchangeResponse } from './coders';
+import {
+  PrinterStatusRealTimeExchangeResponse,
+  SensorStatusRealTimeExchangeResponse,
+} from './coders';
 
 type MockWebUsbDevice = mocks.MockWebUsbDevice;
 
@@ -86,12 +88,11 @@ test('getScannerStatus sends the correct message and can parse a response', asyn
     // startOfPacket and token literals omitted by message-coder
     requestId: RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
     returnCode: ReturnCodes.POSITIVE_ACKNOWLEDGEMENT,
-    optionalDataLength: 4,
     // Byte 0
-    paperInputExternRightSensor: true,
-    paperInputInternRightSensor: true,
-    paperInputExternLeftSensor: true,
-    paperInputInternLeftSensor: true,
+    paperInputLeftInnerSensor: true,
+    paperInputRightInnerSensor: true,
+    paperInputLeftOuterSensor: true,
+    paperInputRightOuterSensor: true,
     paperPreCisSensor: false,
     paperPostCisSensor: false,
     paperOutSensor: false,
@@ -141,7 +142,10 @@ test('getScannerStatus sends the correct message and can parse a response', asyn
 
 test('getPrinterStatus sends the correct message and can parse a response', async () => {
   const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
-  const expectedStatus: PrinterStatus = {
+  const expectedStatus: PrinterStatusRealTimeExchangeResponse = {
+    requestId: RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
+    returnCode: ReturnCodes.POSITIVE_ACKNOWLEDGEMENT,
+
     paperNotPresent: false,
     ticketPresentInOutput: true,
 

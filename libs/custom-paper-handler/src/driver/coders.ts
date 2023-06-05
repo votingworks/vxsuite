@@ -14,21 +14,37 @@ import { TOKEN } from './constants';
  * Response coders
  */
 
+/**
+ * Contains the pieces of state that we receive from the scanner.
+ *
+ * The paper input sensors are particularly poorly named in the Custom
+ * documentation, so we are using our own terms here. Viewed from the
+ * front of the unit (where you would feed in paper) the sensors are named
+ * as follows:
+ *
+ *   (1)---(2)--------------------------------------------(3)---(4)
+ *
+ * 1. paperInputLeftOuterSensor, called paperInputInternRightSensor in docs
+ * 2. paperInputLeftInnerSensor, called paperInputInternLeftSensor in docs
+ * 3. paperInputRightInnerSensor, called paperInputExternLeftSensor in docs
+ * 4. paperInputRightOuterSensor, called paperInputExternRightSensor in docs
+ *
+ */
 export const SensorStatusRealTimeExchangeResponse = message({
   startOfPacket: literal(0x82),
   requestId: uint8(),
   token: literal(TOKEN),
   returnCode: uint8(),
-  optionalDataLength: uint8(),
+  optionalDataLength: literal(4),
   // Byte 0
   parkSensor: uint1(),
   paperOutSensor: uint1(),
   paperPostCisSensor: uint1(),
   paperPreCisSensor: uint1(),
-  paperInputInternLeftSensor: uint1(),
-  paperInputExternLeftSensor: uint1(),
-  paperInputInternRightSensor: uint1(),
-  paperInputExternRightSensor: uint1(),
+  paperInputLeftInnerSensor: uint1(),
+  paperInputRightInnerSensor: uint1(),
+  paperInputLeftOuterSensor: uint1(),
+  paperInputRightOuterSensor: uint1(),
   // Byte 1
   notUsedByte1: padding(1),
   printHeadInPosition: uint1(),
@@ -56,13 +72,38 @@ export const PrinterStatusRealTimeExchangeResponse = message({
   requestId: uint8(),
   token: literal(TOKEN),
   returnCode: uint8(),
-  optionalDataLength: uint8(),
-  optionalByte0: uint8(),
-  optionalByte1: uint8(),
-  optionalByte2: uint8(),
-  optionalByte3: uint8(),
-  optionalByte4: uint8(),
-  optionalByte5: uint8(),
+  optionalDataLength: literal(6),
+  // Byte 0 fixed
+  dle: literal(0x10),
+  // Byte 1 fixed
+  eot: literal(0x0f),
+  // Byte 2 paper status
+  byte2Padding0: padding(2),
+  ticketPresentInOutput: uint1(),
+  byte2Padding1: padding(4),
+  paperNotPresent: uint1(),
+  // Byte 3 user status
+  byte3Padding: padding(4),
+  dragPaperMotorOn: uint1(),
+  spooling: uint1(),
+  coverOpen: uint1(),
+  printingHeadUpError: uint1(),
+  // Byte 4 recoverable error status
+  byte4Padding0: padding(2),
+  notAcknowledgeCommandError: uint1(),
+  byte4Padding1: padding(1),
+  powerSupplyVoltageError: uint1(),
+  headNotConnected: uint1(),
+  comError: uint1(),
+  headTemperatureError: uint1(),
+  // Byte 5 unrecoverable error status
+  diverterError: uint1(),
+  headErrorLocked: uint1(),
+  printingHeadReadyToPrint: uint1(),
+  byte3Padding0: padding(1),
+  eepromError: uint1(),
+  ramError: uint1(),
+  byte3Padding1: padding(2),
 });
 export type PrinterStatusRealTimeExchangeResponse = CoderType<
   typeof PrinterStatusRealTimeExchangeResponse

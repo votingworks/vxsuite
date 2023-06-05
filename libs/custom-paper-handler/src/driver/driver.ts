@@ -21,11 +21,6 @@ import {
 } from '../bits';
 import { Lock } from './lock';
 import {
-  PaperHandlerStatus,
-  parsePrinterStatus,
-  PrinterStatus,
-} from './sensors';
-import {
   parseScannerCapability,
   ScannerCapability,
 } from './scanner_capability';
@@ -92,6 +87,9 @@ const TransferOutRealTimeRequest = message({
   optionalDataLength: uint8(),
 });
 type TransferOutRealTimeRequest = CoderType<typeof TransferOutRealTimeRequest>;
+
+type PaperHandlerStatus = SensorStatusRealTimeExchangeResponse &
+  PrinterStatusRealTimeExchangeResponse;
 
 export type PrintingSpeed = 'slow' | 'normal' | 'fast';
 const PRINTING_SPEED_CODES: Record<PrintingSpeed, Uint8> = {
@@ -335,7 +333,7 @@ export class PaperHandlerDriver {
    *
    * @returns {PrinterStatus}
    */
-  async getPrinterStatus(): Promise<PrinterStatus> {
+  async getPrinterStatus(): Promise<PrinterStatusRealTimeExchangeResponse> {
     const result = await this.handleRealTimeExchange(
       RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
       PrinterStatusRealTimeExchangeResponse
@@ -347,7 +345,7 @@ export class PaperHandlerDriver {
       RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
       response
     );
-    return parsePrinterStatus(response);
+    return response;
   }
 
   async abortScan(): Promise<void> {
