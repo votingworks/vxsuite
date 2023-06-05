@@ -31,7 +31,7 @@ const commandList = Object.values(Command);
  * Precondition: enable-print command has succeeded
  */
 async function printBallot(driver: PaperHandlerDriver): Promise<void> {
-  let time = Date.now();
+  console.time('pdf to image');
   const pages: ImageData[] = [];
   for await (const { page, pageCount } of pdfToImages(
     Buffer.from(ballotFixture),
@@ -44,8 +44,8 @@ async function printBallot(driver: PaperHandlerDriver): Promise<void> {
   }
   const page = pages[0];
   assert(page);
-  console.log(`pdf to image took ${Date.now() - time} ms`);
-  time = Date.now();
+  console.timeEnd('pdf to image');
+  console.time('image to binary');
   // For prototype we expect image to have the same number of dots as the printer width.
   // This is likely a requirement long term but we should have guarantees upstream.
   assert(page.width === 1600);
@@ -53,13 +53,12 @@ async function printBallot(driver: PaperHandlerDriver): Promise<void> {
   const ballotBinaryBitmap = imageDataToBinaryBitmap(page, {});
   console.log(`bitmap width: ${ballotBinaryBitmap.width}`);
   console.log(`bitmap height: ${ballotBinaryBitmap.height}`);
-  console.log(`image to binary took ${Date.now() - time} ms`);
-  time = Date.now();
+  console.timeEnd('image to binary');
+  console.time('binary to chunks');
 
   const customChunkedBitmaps = chunkBinaryBitmap(ballotBinaryBitmap);
   console.log(`num chunk rows: ${customChunkedBitmaps.length}`);
-  console.log(`binary to chunks took ${Date.now() - time} ms`);
-  time = Date.now();
+  console.timeEnd('binary to chunks');
 
   let dotsSkipped = 0;
   console.log(`begin printing ${customChunkedBitmaps.length} chunks`);
@@ -122,7 +121,7 @@ async function handleCommand(driver: PaperHandlerDriver, command: Command) {
     throw new Error(`Unhandled command '${command}'`);
   }
 
-  console.log('Command finished\n');
+  console.log('Command finished');
 }
 
 export async function main(): Promise<number> {
