@@ -7,8 +7,16 @@ import {
   InfoBarMode,
   TestMode,
 } from '@votingworks/ui';
+import { ThemeContext } from 'styled-components';
+import { SizeMode } from '@votingworks/types';
 import { getConfig, getMachineConfig, getScannerStatus } from '../api';
 import { ScreenHeader } from './screen_header';
+
+/**
+ * At larger text sizes, the election info bar takes up too much valuable screen
+ * space, so we're hiding it in cases where a voter increases text size.
+ */
+const ELECTION_BAR_HIDDEN_SIZE_MODES: Set<SizeMode> = new Set(['l', 'xl']);
 
 export interface ScreenProps {
   ballotCountOverride?: number;
@@ -34,6 +42,8 @@ export function Screen(props: ScreenProps): JSX.Element | null {
   const configQuery = getConfig.useQuery();
   const scannerStatusQuery = getScannerStatus.useQuery();
 
+  const currentTheme = React.useContext(ThemeContext);
+
   if (!(machineConfigQuery.isSuccess && configQuery.isSuccess)) {
     return null;
   }
@@ -42,6 +52,10 @@ export function Screen(props: ScreenProps): JSX.Element | null {
   const { electionDefinition, precinctSelection } = configQuery.data;
   const ballotCount =
     ballotCountOverride ?? scannerStatusQuery.data?.ballotsCounted;
+
+  const hideInfoBar =
+    !electionDefinition ||
+    ELECTION_BAR_HIDDEN_SIZE_MODES.has(currentTheme.sizeMode);
 
   return (
     <ScreenBase>
@@ -56,7 +70,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
       >
         {children}
       </Main>
-      {electionDefinition && (
+      {!hideInfoBar && (
         <ElectionInfoBar
           mode={infoBarMode}
           precinctSelection={precinctSelection}
