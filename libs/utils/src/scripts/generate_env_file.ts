@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/* c8 ignore file */
 import * as readline from 'readline';
 import * as fs from 'fs';
 import { join } from 'path';

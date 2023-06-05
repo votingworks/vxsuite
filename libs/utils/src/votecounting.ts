@@ -123,7 +123,7 @@ export function* parseCvrs(
                   }
                   break;
                 }
-                /* istanbul ignore next */
+                /* c8 ignore next 2 */
                 default:
                   throwIllegalValue(contest, 'type');
               }

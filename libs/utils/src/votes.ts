@@ -74,22 +74,28 @@ export function buildVoteFromCvr({
       continue;
     }
 
-    if (contest.type === 'yesno') {
-      // the CVR is encoded the same way
-      vote[contest.id] = mutableCvr[contest.id] as unknown as YesNoVote;
-      continue;
-    }
+    switch (contest.type) {
+      case 'yesno': {
+        // the CVR is encoded the same way
+        vote[contest.id] = mutableCvr[contest.id] as unknown as YesNoVote;
+        break;
+      }
 
-    /* istanbul ignore else */
-    if (contest.type === 'candidate') {
-      vote[contest.id] = (mutableCvr[contest.id] as string[])
-        .map((candidateId) => normalizeWriteInId(candidateId))
-        .map((candidateId) =>
-          find(
-            [writeInCandidate, ...contest.candidates],
-            (c) => c.id === candidateId
-          )
-        );
+      case 'candidate': {
+        vote[contest.id] = (mutableCvr[contest.id] as string[])
+          .map((candidateId) => normalizeWriteInId(candidateId))
+          .map((candidateId) =>
+            find(
+              [writeInCandidate, ...contest.candidates],
+              (c) => c.id === candidateId
+            )
+          );
+        break;
+      }
+
+      /* c8 ignore next 2 */
+      default:
+        throwIllegalValue(contest);
     }
   }
 
@@ -339,7 +345,7 @@ export function computeTallyWithPrecomputedCategories(
       case TallyCategory.Scanner:
         // do nothing no initialization needed
         break;
-      /* istanbul ignore next - compile time check for completeness */
+      /* c8 ignore next 2 */
       default:
         throwIllegalValue(tallyCategory);
     }
@@ -360,7 +366,7 @@ export function computeTallyWithPrecomputedCategories(
         case TallyCategory.VotingMethod:
           dictionaryKey = getVotingMethodForCastVoteRecord(CVR);
           break;
-        /* istanbul ignore next - compile time check for completeness */
+        /* c8 ignore next 2 */
         default:
           throwIllegalValue(tallyCategory);
       }
@@ -758,7 +764,8 @@ export function convertMarksToVotesDict(
         ? markToCandidateVotes(contest, markThresholds, mark)
         : contest.type === 'yesno'
         ? markToYesNoVotes(markThresholds, mark)
-        : /* istanbul ignore next */ throwIllegalValue(contest, 'type');
+        : /* c8 ignore next */
+          throwIllegalValue(contest, 'type');
 
     if (newVotes.length > 0) {
       votesDict[mark.contestId] = [...existingVotes, ...newVotes] as Vote;

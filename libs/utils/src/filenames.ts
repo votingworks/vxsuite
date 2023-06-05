@@ -295,7 +295,7 @@ export function generateLogFilename(
       return `${logFileName}${SUBSECTION_SEPARATOR}${timeInformation}.log`;
     case LogFileType.Cdf:
       return `${logFileName}${WORD_SEPARATOR}cdf${SUBSECTION_SEPARATOR}${timeInformation}.json`;
-    /* istanbul ignore next - compile time check for completeness */
+    /* c8 ignore next 2 */
     default:
       throwIllegalValue(fileType);
   }

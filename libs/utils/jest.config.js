@@ -7,6 +7,7 @@ module.exports = {
   ...shared,
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  coverageProvider: 'v8',
   coverageThreshold: {
     global: {
       statements: 95,
@@ -18,7 +19,7 @@ module.exports = {
     'src/votecounting.ts': {
       statements: 77,
       branches: 73,
-      functions: 89,
+      functions: 77,
       lines: 76,
     },
   },
@@ -27,5 +28,7 @@ module.exports = {
     '!**/node_modules/**',
     '!src/**/index.ts',
     '!src/manual_tallies_test_utils.ts',
+    '!src/env.d.ts',
+    '!src/scripts/*.ts',
   ],
 };

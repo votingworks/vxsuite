@@ -59,7 +59,7 @@ export function* ballotAdjudicationReasons(
           case MarkStatus.Unmarked:
             break;
 
-          /* istanbul ignore next - compile-time completeness check */
+          /* c8 ignore next 2 */
           default:
             throwIllegalValue(status);
         }
@@ -77,7 +77,7 @@ export function* ballotAdjudicationReasons(
             expectedSelectionCount = 1;
             break;
 
-          /* istanbul ignore next - compile-time completeness check */
+          /* c8 ignore next 2 */
           default:
             throwIllegalValue(contest, 'type');
         }
@@ -136,7 +136,7 @@ export function adjudicationReasonDescription(
     case AdjudicationReason.BlankBallot:
       return `Ballot has no votes.`;
 
-    /* istanbul ignore next - compile-time completeness check */
+    /* c8 ignore next 2 */
     default:
       throwIllegalValue(reason);
   }

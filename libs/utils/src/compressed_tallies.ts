@@ -63,7 +63,7 @@ export function compressTally(
         ]);
       }
 
-      /* istanbul ignore next - compile time check for completeness */
+      /* c8 ignore next 2 */
       default:
         throwIllegalValue(contest, 'type');
     }
@@ -137,7 +137,7 @@ function getContestTalliesForCompressedContest(
         },
       ];
     }
-    /* istanbul ignore next - compile time check for completeness */
+    /* c8 ignore next 2 */
     default:
       throwIllegalValue(contest, 'type');
   }
