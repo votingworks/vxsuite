@@ -10,9 +10,10 @@ import {
   useExternalStateChangeListener,
 } from '@votingworks/ui';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import { ScreenMainCenterChild } from './layout';
+import { Screen } from './layout';
 import { BALLOT_BAG_CAPACITY } from '../config/globals';
 import { recordBallotBagReplaced } from '../api';
+import { FullScreenPromptLayout } from './full_screen_prompt_layout';
 
 interface Props {
   scannedBallotCount: number;
@@ -48,19 +49,20 @@ export function ReplaceBallotBagScreen({
   const mainContent = (() => {
     if (!confirmed && !pollWorkerAuthenticated) {
       return (
-        <React.Fragment>
-          <FullScreenIconWrapper color="warning">
-            <Icons.Warning />
-          </FullScreenIconWrapper>
-          <CenteredLargeProse>
-            <H1>Ballot Bag Full</H1>
-            <P>
-              A poll worker must replace the full ballot bag with a new empty
-              ballot bag.
-            </P>
-            <Caption>Insert a poll worker card to continue.</Caption>
-          </CenteredLargeProse>
-        </React.Fragment>
+        <FullScreenPromptLayout
+          title="Ballot Bag Full"
+          image={
+            <FullScreenIconWrapper color="warning">
+              <Icons.Warning />
+            </FullScreenIconWrapper>
+          }
+        >
+          <P>
+            A poll worker must replace the full ballot bag with a new empty
+            ballot bag.
+          </P>
+          <Caption>Insert a poll worker card to continue.</Caption>
+        </FullScreenPromptLayout>
       );
     }
 
@@ -90,9 +92,9 @@ export function ReplaceBallotBagScreen({
   })();
 
   return (
-    <ScreenMainCenterChild ballotCountOverride={scannedBallotCount}>
+    <Screen centerContent ballotCountOverride={scannedBallotCount}>
       {mainContent}
-    </ScreenMainCenterChild>
+    </Screen>
   );
 }
 

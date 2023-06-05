@@ -1,18 +1,12 @@
 import React from 'react';
-import {
-  Caption,
-  CenteredLargeProse,
-  FullScreenIconWrapper,
-  H1,
-  Icons,
-  P,
-} from '@votingworks/ui';
+import { Caption, FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 import type {
   InvalidInterpretationReason,
   PrecinctScannerErrorType,
 } from '@votingworks/scan-backend';
-import { ScreenMainCenterChild } from '../components/layout';
+import { Screen } from '../components/layout';
+import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
 export interface Props {
   error?: InvalidInterpretationReason | PrecinctScannerErrorType;
@@ -63,23 +57,27 @@ export function ScanErrorScreen({
     }
   })();
   return (
-    <ScreenMainCenterChild
+    <Screen
+      centerContent
       isLiveMode={!isTestMode}
       ballotCountOverride={scannedBallotCount}
     >
-      <FullScreenIconWrapper color="danger">
-        <Icons.DangerX />
-      </FullScreenIconWrapper>
-      <CenteredLargeProse>
-        <H1>Ballot Not Counted</H1>
+      <FullScreenPromptLayout
+        title="Ballot Not Counted"
+        image={
+          <FullScreenIconWrapper color="danger">
+            <Icons.DangerX />
+          </FullScreenIconWrapper>
+        }
+      >
         <P>{errorMessage}</P>
         {restartRequired ? (
           <P>Ask a poll worker to restart the scanner.</P>
         ) : (
           <Caption>Ask a poll worker if you need help.</Caption>
         )}
-      </CenteredLargeProse>
-    </ScreenMainCenterChild>
+      </FullScreenPromptLayout>
+    </Screen>
   );
 }
 

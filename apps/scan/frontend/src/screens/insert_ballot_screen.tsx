@@ -1,14 +1,7 @@
 import React from 'react';
-import {
-  Caption,
-  CenteredLargeProse,
-  Font,
-  H1,
-  Icons,
-  InsertBallotImage,
-  P,
-} from '@votingworks/ui';
-import { ScreenMainCenterChild } from '../components/layout';
+import { Caption, Font, Icons, InsertBallotImage, P } from '@votingworks/ui';
+import { Screen } from '../components/layout';
+import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
 interface Props {
   isLiveMode: boolean;
@@ -22,13 +15,15 @@ export function InsertBallotScreen({
   showNoChargerWarning,
 }: Props): JSX.Element {
   return (
-    <ScreenMainCenterChild
+    <Screen
+      centerContent
       isLiveMode={isLiveMode}
       ballotCountOverride={scannedBallotCount}
     >
-      <InsertBallotImage ballotFeedLocation="top" />
-      <CenteredLargeProse>
-        <H1>Insert Your Ballot Above</H1>
+      <FullScreenPromptLayout
+        title="Insert Your Ballot Above"
+        image={<InsertBallotImage ballotFeedLocation="top" />}
+      >
         <P>Scan one ballot sheet at a time.</P>
         {showNoChargerWarning && (
           <Caption color="warning">
@@ -36,8 +31,8 @@ export function InsertBallotScreen({
             Please ask a poll worker to plug in the power cord.
           </Caption>
         )}
-      </CenteredLargeProse>
-    </ScreenMainCenterChild>
+      </FullScreenPromptLayout>
+    </Screen>
   );
 }
 

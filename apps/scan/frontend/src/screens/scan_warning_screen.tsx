@@ -11,7 +11,6 @@ import {
 import {
   Button,
   Caption,
-  CenteredLargeProse,
   fontSizeTheme,
   FullScreenIconWrapper,
   H1,
@@ -27,27 +26,13 @@ import {
 } from '@votingworks/utils';
 import { assert, find, integers } from '@votingworks/basics';
 import pluralize from 'pluralize';
-import styled from 'styled-components';
 
-import { ScreenMainCenterChild } from '../components/layout';
+import { Screen } from '../components/layout';
 
 import { toSentence } from '../utils/to_sentence';
 import { acceptBallot, returnBallot } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
-
-const ResponsiveButtonParagraph = styled.p`
-  @media (orientation: portrait) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5em;
-    & > button {
-      flex: 1 auto;
-      padding-right: 0.25em;
-      padding-left: 0.25em;
-    }
-  }
-`;
+import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
 interface ConfirmModalProps {
   content?: React.ReactNode;
@@ -61,14 +46,14 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
   return (
     <Modal
       themeDeprecated={fontSizeTheme.large}
-      modalWidth={ModalWidth.Wide}
+      modalWidth={ModalWidth.Standard}
       title="Are you sure?"
       centerContent
       content={content}
       actions={
         <React.Fragment>
           <Button
-            variant="primary"
+            variant="done"
             onPress={() => {
               setConfirmed(true);
               onConfirm();
@@ -116,36 +101,37 @@ function OvervoteWarningScreen({
     .map((c) => c.title);
 
   return (
-    <ScreenMainCenterChild>
-      <FullScreenIconWrapper color="warning">
-        <Icons.Warning />
-      </FullScreenIconWrapper>
-      <CenteredLargeProse>
-        <H1>Too Many Votes</H1>
+    <Screen centerContent>
+      <FullScreenPromptLayout
+        title="Too Many Votes"
+        image={
+          <FullScreenIconWrapper color="warning">
+            <Icons.Warning />
+          </FullScreenIconWrapper>
+        }
+        actionButtons={
+          <React.Fragment>
+            <Button
+              variant="primary"
+              onPress={() => returnBallotMutation.mutate()}
+            >
+              Return Ballot
+            </Button>
+            {allowCastingOvervotes && (
+              <Button onPress={() => setConfirmTabulate(true)}>
+                Cast Ballot As Is <Icons.Next />
+              </Button>
+            )}
+          </React.Fragment>
+        }
+      >
         <P>
           There are too many votes marked in the{' '}
           {pluralize('contest', contestNames.length)}:{' '}
           {toSentence(contestNames)}.
         </P>
-        <ResponsiveButtonParagraph>
-          <Button
-            variant="primary"
-            onPress={() => returnBallotMutation.mutate()}
-          >
-            Return Ballot
-          </Button>
-          {allowCastingOvervotes && (
-            <React.Fragment>
-              {' '}
-              or{' '}
-              <Button onPress={() => setConfirmTabulate(true)}>
-                Cast Ballot As Is
-              </Button>
-            </React.Fragment>
-          )}
-        </ResponsiveButtonParagraph>
         <Caption>Ask a poll worker if you need help.</Caption>
-      </CenteredLargeProse>
+      </FullScreenPromptLayout>
       {confirmTabulate && (
         <ConfirmModal
           content={
@@ -160,7 +146,7 @@ function OvervoteWarningScreen({
           onCancel={() => setConfirmTabulate(false)}
         />
       )}
-    </ScreenMainCenterChild>
+    </Screen>
   );
 }
 
@@ -204,12 +190,28 @@ function UndervoteWarningScreen({
   }
 
   return (
-    <ScreenMainCenterChild>
-      <FullScreenIconWrapper color="warning">
-        <Icons.Warning />
-      </FullScreenIconWrapper>
-      <CenteredLargeProse>
-        <H1>Review Your Ballot</H1>
+    <Screen centerContent>
+      <FullScreenPromptLayout
+        title="Review Your Ballot"
+        image={
+          <FullScreenIconWrapper color="warning">
+            <Icons.Warning />
+          </FullScreenIconWrapper>
+        }
+        actionButtons={
+          <React.Fragment>
+            <Button
+              variant="primary"
+              onPress={() => returnBallotMutation.mutate()}
+            >
+              Return Ballot
+            </Button>
+            <Button onPress={() => setConfirmTabulate(true)}>
+              Cast Ballot As Is
+            </Button>
+          </React.Fragment>
+        }
+      >
         {blankContestNames.length > 0 && (
           <P>
             No votes detected in{' '}
@@ -224,24 +226,12 @@ function UndervoteWarningScreen({
             {toSentence(truncateContestNames(partiallyVotedContestNames))}.
           </P>
         )}
-        <ResponsiveButtonParagraph>
-          <Button
-            variant="primary"
-            onPress={() => returnBallotMutation.mutate()}
-          >
-            Return Ballot
-          </Button>{' '}
-          or{' '}
-          <Button onPress={() => setConfirmTabulate(true)}>
-            Cast Ballot As Is
-          </Button>
-        </ResponsiveButtonParagraph>
         <Caption>
           Your votes will count, even if you leave some blank.
           <br />
           Ask a poll worker if you need help.
         </Caption>
-      </CenteredLargeProse>
+      </FullScreenPromptLayout>
       {confirmTabulate && (
         <ConfirmModal
           content={
@@ -275,7 +265,7 @@ function UndervoteWarningScreen({
           onCancel={() => setConfirmTabulate(false)}
         />
       )}
-    </ScreenMainCenterChild>
+    </Screen>
   );
 }
 
@@ -284,31 +274,35 @@ function BlankBallotWarningScreen(): JSX.Element {
   const acceptBallotMutation = acceptBallot.useMutation();
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
-    <ScreenMainCenterChild>
-      <FullScreenIconWrapper color="warning">
-        <Icons.Warning />
-      </FullScreenIconWrapper>
-      <CenteredLargeProse>
-        <H1>Review Your Ballot</H1>
+    <Screen centerContent>
+      <FullScreenPromptLayout
+        title="Review Your Ballot"
+        image={
+          <FullScreenIconWrapper color="warning">
+            <Icons.Warning />
+          </FullScreenIconWrapper>
+        }
+        actionButtons={
+          <React.Fragment>
+            <Button
+              variant="primary"
+              onPress={() => returnBallotMutation.mutate()}
+            >
+              Return Ballot
+            </Button>
+            <Button onPress={() => setConfirmTabulate(true)}>
+              Cast Ballot As Is
+            </Button>
+          </React.Fragment>
+        }
+      >
         <P>No votes were found when scanning this ballot.</P>
-        <ResponsiveButtonParagraph>
-          <Button
-            variant="primary"
-            onPress={() => returnBallotMutation.mutate()}
-          >
-            Return Ballot
-          </Button>{' '}
-          or{' '}
-          <Button onPress={() => setConfirmTabulate(true)}>
-            Cast Ballot As Is
-          </Button>
-        </ResponsiveButtonParagraph>
         <Caption>
           Your votes will count, even if you leave some blank.
           <br />
           Ask a poll worker if you need help.
         </Caption>
-      </CenteredLargeProse>
+      </FullScreenPromptLayout>
       {confirmTabulate && (
         <ConfirmModal
           content={
@@ -320,7 +314,7 @@ function BlankBallotWarningScreen(): JSX.Element {
           onCancel={() => setConfirmTabulate(false)}
         />
       )}
-    </ScreenMainCenterChild>
+    </Screen>
   );
 }
 
@@ -329,27 +323,31 @@ function OtherReasonWarningScreen(): JSX.Element {
   const acceptBallotMutation = acceptBallot.useMutation();
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
-    <ScreenMainCenterChild>
-      <FullScreenIconWrapper color="warning">
-        <Icons.Warning />
-      </FullScreenIconWrapper>
-      <CenteredLargeProse>
-        <H1>Scanning Failed</H1>
+    <Screen centerContent>
+      <FullScreenPromptLayout
+        title="Scanning Failed"
+        image={
+          <FullScreenIconWrapper color="warning">
+            <Icons.Warning />
+          </FullScreenIconWrapper>
+        }
+        actionButtons={
+          <React.Fragment>
+            <Button
+              variant="primary"
+              onPress={() => returnBallotMutation.mutate()}
+            >
+              Return Ballot
+            </Button>
+            <Button onPress={() => setConfirmTabulate(true)}>
+              Cast Ballot As Is
+            </Button>
+          </React.Fragment>
+        }
+      >
         <P>There was a problem scanning this ballot.</P>
-        <ResponsiveButtonParagraph>
-          <Button
-            variant="primary"
-            onPress={() => returnBallotMutation.mutate()}
-          >
-            Return Ballot
-          </Button>{' '}
-          or{' '}
-          <Button onPress={() => setConfirmTabulate(true)}>
-            Cast Ballot As Is
-          </Button>
-        </ResponsiveButtonParagraph>
         <Caption>Ask a poll worker if you need help.</Caption>
-      </CenteredLargeProse>
+      </FullScreenPromptLayout>
       {confirmTabulate && (
         <ConfirmModal
           content={
@@ -362,7 +360,7 @@ function OtherReasonWarningScreen(): JSX.Element {
           onCancel={() => setConfirmTabulate(false)}
         />
       )}
-    </ScreenMainCenterChild>
+    </Screen>
   );
 }
 

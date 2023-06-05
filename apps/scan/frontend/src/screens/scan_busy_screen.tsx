@@ -1,26 +1,23 @@
 import React from 'react';
-import {
-  Caption,
-  CenteredLargeProse,
-  FullScreenIconWrapper,
-  H1,
-  Icons,
-  P,
-} from '@votingworks/ui';
-import { ScreenMainCenterChild } from '../components/layout';
+import { Caption, FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
+import { Screen } from '../components/layout';
+import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
 export function ScanBusyScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild>
-      <FullScreenIconWrapper color="warning">
-        <Icons.Warning />
-      </FullScreenIconWrapper>
-      <CenteredLargeProse>
-        <H1>Remove Your Ballot</H1>
+    <Screen centerContent>
+      <FullScreenPromptLayout
+        title="Remove Your Ballot"
+        image={
+          <FullScreenIconWrapper color="warning">
+            <Icons.Warning />
+          </FullScreenIconWrapper>
+        }
+      >
         <P>Another ballot is being scanned.</P>
         <Caption>Ask a poll worker if you need help.</Caption>
-      </CenteredLargeProse>
-    </ScreenMainCenterChild>
+      </FullScreenPromptLayout>
+    </Screen>
   );
 }
 

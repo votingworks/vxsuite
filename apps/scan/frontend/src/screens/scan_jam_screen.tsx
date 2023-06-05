@@ -1,13 +1,7 @@
 import React from 'react';
-import {
-  Caption,
-  CenteredLargeProse,
-  FullScreenIconWrapper,
-  H1,
-  Icons,
-  P,
-} from '@votingworks/ui';
-import { ScreenMainCenterChild } from '../components/layout';
+import { Caption, FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
+import { Screen } from '../components/layout';
+import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
 interface Props {
   scannedBallotCount: number;
@@ -15,16 +9,19 @@ interface Props {
 
 export function ScanJamScreen({ scannedBallotCount }: Props): JSX.Element {
   return (
-    <ScreenMainCenterChild ballotCountOverride={scannedBallotCount}>
-      <FullScreenIconWrapper color="danger">
-        <Icons.DangerX />
-      </FullScreenIconWrapper>
-      <CenteredLargeProse>
-        <H1>Ballot Not Counted</H1>
+    <Screen centerContent ballotCountOverride={scannedBallotCount}>
+      <FullScreenPromptLayout
+        title="Ballot Not Counted"
+        image={
+          <FullScreenIconWrapper color="danger">
+            <Icons.DangerX />
+          </FullScreenIconWrapper>
+        }
+      >
         <P>The ballot is jammed in the scanner.</P>
         <Caption>Ask a poll worker for help.</Caption>
-      </CenteredLargeProse>
-    </ScreenMainCenterChild>
+      </FullScreenPromptLayout>
+    </Screen>
   );
 }
 
