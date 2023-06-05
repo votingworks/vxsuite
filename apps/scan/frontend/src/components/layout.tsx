@@ -16,7 +16,10 @@ import { ScreenHeader } from './screen_header';
  * At larger text sizes, the election info bar takes up too much valuable screen
  * space, so we're hiding it in cases where a voter increases text size.
  */
-const ELECTION_BAR_HIDDEN_SIZE_MODES: ReadonlySet<SizeMode> = new Set(['l', 'xl']);
+const ELECTION_BAR_HIDDEN_SIZE_MODES: ReadonlySet<SizeMode> = new Set([
+  'l',
+  'xl',
+]);
 
 export interface ScreenProps {
   ballotCountOverride?: number;
