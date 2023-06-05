@@ -445,7 +445,6 @@ export class PaperHandlerDriver {
     await this.genericLock.acquire();
     await this.transferOutGeneric(GetScannerCapabilityCommand, undefined);
     const transferInResult = await this.transferInGeneric();
-    // TODO replace with coder now that oneOf() is merged
     const { data } = transferInResult;
     assert(data);
     return parseScannerCapability(data);
