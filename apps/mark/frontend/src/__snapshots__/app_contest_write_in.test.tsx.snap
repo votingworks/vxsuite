@@ -381,6 +381,7 @@ exports[`Single Seat Contest with Write In 1`] = `
   justify-content: stretch;
   overflow: scroll;
   padding: 0 0.5rem;
+  padding-bottom: 0;
 }
 
 .c6 {

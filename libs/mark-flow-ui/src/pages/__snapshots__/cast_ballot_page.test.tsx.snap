@@ -103,8 +103,12 @@ exports[`renders CastBallotPage 1`] = `
 
 .c7 {
   fill: #263238;
-  margin: 0 auto 1rem;
-  width: 40vw;
+  margin: 0 auto;
+  width: min(40vw,40vh);
+}
+
+.c7:not(:last-child) {
+  margin-bottom: 1rem;
 }
 
 .c13 {

@@ -371,6 +371,7 @@ exports[`changing votes 1`] = `
   justify-content: stretch;
   overflow: scroll;
   padding: 0 0.5rem;
+  padding-bottom: 0;
 }
 
 .c1 {
@@ -879,6 +880,7 @@ exports[`voting for both yes and no 1`] = `
   justify-content: stretch;
   overflow: scroll;
   padding: 0 0.5rem;
+  padding-bottom: 0;
 }
 
 .c1 {
