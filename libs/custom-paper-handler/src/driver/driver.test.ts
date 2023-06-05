@@ -16,8 +16,9 @@ import {
   PaperHandlerBitmap,
 } from './driver';
 import { TOKEN, NULL_CODE, OK_NO_MORE_DATA } from './constants';
-import { PrinterStatus, ScannerStatus } from './sensors';
+import { PrinterStatus } from './sensors';
 import { setUpMockWebUsbDevice } from './test_utils';
+import { SensorStatusRealTimeExchangeResponse } from './coders';
 
 type MockWebUsbDevice = mocks.MockWebUsbDevice;
 
@@ -81,36 +82,33 @@ test('getScannerStatus sends the correct message and can parse a response', asyn
   ];
 
   // See the ScannerStatus type for more information on position of these values in the bitmap
-  const expectedStatus: ScannerStatus = {
-    // First byte, MSB leftmost bit
-    parkSensor: true,
-    paperOutSensor: false,
-    paperPostCisSensor: false,
+  const expectation: SensorStatusRealTimeExchangeResponse = {
+    // startOfPacket and token literals omitted by message-coder
+    requestId: RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
+    returnCode: ReturnCodes.POSITIVE_ACKNOWLEDGEMENT,
+    optionalDataLength: 4,
+    // Byte 0
+    paperInputExternRightSensor: true,
+    paperInputInternRightSensor: true,
+    paperInputExternLeftSensor: true,
+    paperInputInternLeftSensor: true,
     paperPreCisSensor: false,
-    paperInputLeftInnerSensor: true,
-    paperInputRightInnerSensor: true,
-    paperInputLeftOuterSensor: true,
-    paperInputRightOuterSensor: true,
-
-    // Second byte, MSB leftmost bit
-    // 0x80 fixed to 0
-    printHeadInPosition: true,
-    scanTimeout: false,
-    motorMove: false,
-    scanInProgress: true,
-    jamEncoder: true,
-    paperJam: true,
+    paperPostCisSensor: false,
+    paperOutSensor: false,
+    parkSensor: true,
+    // Byte 1
     coverOpen: true,
-
-    // Third byte, MSB leftmost bit
-    // 0x80 fixed to 0
-    // 0x40 fixed to 0
-    // 0x20 fixed to 0
-    // 0x10 fixed to 0
-    optoSensor: true,
-    ballotBoxDoorSensor: false,
-    ballotBoxAttachSensor: false,
+    paperJam: true,
+    jamEncoder: true,
+    scanInProgress: true,
+    motorMove: false,
+    scanTimeout: false,
+    printHeadInPosition: true,
+    // Byte 2
     preHeadSensor: false,
+    ballotBoxAttachSensor: false,
+    ballotBoxDoorSensor: false,
+    optoSensor: true,
   };
 
   await mockWebUsbDevice.mockAddTransferInData(
@@ -138,7 +136,7 @@ test('getScannerStatus sends the correct message and can parse a response', asyn
     inputAsBuffer
   );
 
-  expect(result).toEqual(expectedStatus);
+  expect(result).toEqual(expectation);
 });
 
 test('getPrinterStatus sends the correct message and can parse a response', async () => {

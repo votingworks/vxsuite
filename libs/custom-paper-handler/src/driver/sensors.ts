@@ -21,37 +21,6 @@ import {
  * 4. paperInputRightOuterSensor, called paperInputExternRightSensor in docs
  *
  */
-export interface ScannerStatus {
-  // FIRST BYTE, MSB first
-  parkSensor: boolean; // 0x80
-  paperOutSensor: boolean; // 0x40
-  paperPostCisSensor: boolean; // 0x20
-  paperPreCisSensor: boolean; // 0x10
-  paperInputLeftInnerSensor: boolean; // 0x08
-  paperInputRightInnerSensor: boolean; // 0x04
-  paperInputLeftOuterSensor: boolean; // 0x02
-  paperInputRightOuterSensor: boolean; // 0x01
-
-  // SECOND BYTE, MSB first
-  // reserved 0x80
-  printHeadInPosition: boolean; // 0x40
-  scanTimeout: boolean; // 0x20
-  motorMove: boolean; // 0x10
-  scanInProgress: boolean; // 0x08
-  jamEncoder: boolean; // 0x04
-  paperJam: boolean; // 0x02
-  coverOpen: boolean; // 0x01, tells you if printer handler unit is not closed shut, distinct from optoSensor
-
-  // THIRD BYTE, MSB first
-  // reserved 0x80
-  // reserved 0x40
-  // reserved 0x20
-  // reserved 0x10
-  optoSensor: boolean; // 0x08, tells you if VSAP plastic lid is open
-  ballotBoxDoorSensor: boolean; // 0x04
-  ballotBoxAttachSensor: boolean; // 0x02
-  preHeadSensor: boolean; // 0x01
-}
 
 export interface PrinterStatus {
   // FIRST BYTE, 0x10
@@ -99,71 +68,8 @@ export interface PrinterStatus {
   // reserved 0x01
 }
 
-export type PaperHandlerStatus = ScannerStatus & PrinterStatus;
-
-// See: page 60 of manual
-export function parseScannerStatus(
-  response: SensorStatusRealTimeExchangeResponse
-): ScannerStatus {
-  // Uint8ToBitArray takes a Uint8 and returns a bit array with MSB in the 0th position of the bit array
-  const [
-    parkSensor,
-    paperOutSensor,
-    paperPostCisSensor,
-    paperPreCisSensor,
-    // This differs from documentation
-    paperInputLeftInnerSensor,
-    paperInputRightInnerSensor,
-    paperInputLeftOuterSensor,
-    paperInputRightOuterSensor,
-  ] = Uint8ToBitArray(response.optionalByte0 as Uint8);
-
-  const [
-    ,
-    printHeadInPosition,
-    scanTimeout,
-    motorMove,
-    scanInProgress,
-    jamEncoder,
-    paperJam,
-    coverOpen,
-  ] = Uint8ToBitArray(response.optionalByte1 as Uint8);
-
-  const [
-    ,
-    ,
-    ,
-    ,
-    optoSensor,
-    ballotBoxDoorSensor,
-    ballotBoxAttachSensor,
-    preHeadSensor,
-  ] = Uint8ToBitArray(response.optionalByte2 as Uint8);
-
-  // The fourth byte is fixed to 0x00 and doesn't need to be parsed
-
-  return {
-    parkSensor,
-    paperOutSensor,
-    paperPostCisSensor,
-    paperPreCisSensor,
-    paperInputLeftInnerSensor,
-    paperInputRightInnerSensor,
-    paperInputLeftOuterSensor,
-    paperInputRightOuterSensor,
-    printHeadInPosition,
-    scanTimeout,
-    motorMove,
-    scanInProgress,
-    jamEncoder,
-    paperJam,
-    coverOpen,
-    optoSensor,
-    ballotBoxDoorSensor,
-    ballotBoxAttachSensor,
-    preHeadSensor,
-  };
-}
+export type PaperHandlerStatus = SensorStatusRealTimeExchangeResponse &
+  PrinterStatus;
 
 export function parsePrinterStatus(
   response: PrinterStatusRealTimeExchangeResponse
@@ -214,64 +120,6 @@ export function parsePrinterStatus(
     printingHeadReadyToPrint,
     eepromError,
     ramError,
-  };
-}
-export function parseScannerStatusDeprecated(data: DataView): ScannerStatus {
-  assert(data.byteLength === 9);
-
-  const [
-    parkSensor,
-    paperOutSensor,
-    paperPostCisSensor,
-    paperPreCisSensor,
-    paperInputLeftInnerSensor,
-    paperInputRightInnerSensor,
-    paperInputLeftOuterSensor,
-    paperInputRightOuterSensor,
-  ] = Uint8ToBitArray(data.getUint8(5) as Uint8);
-
-  const [
-    ,
-    printHeadInPosition,
-    scanTimeout,
-    motorMove,
-    scanInProgress,
-    jamEncoder,
-    paperJam,
-    coverOpen,
-  ] = Uint8ToBitArray(data.getUint8(6) as Uint8);
-
-  const [
-    ,
-    ,
-    ,
-    ,
-    optoSensor,
-    ballotBoxDoorSensor,
-    ballotBoxAttachSensor,
-    preHeadSensor,
-  ] = Uint8ToBitArray(data.getUint8(7) as Uint8);
-
-  return {
-    parkSensor,
-    paperOutSensor,
-    paperPostCisSensor,
-    paperPreCisSensor,
-    paperInputLeftInnerSensor,
-    paperInputRightInnerSensor,
-    paperInputLeftOuterSensor,
-    paperInputRightOuterSensor,
-    printHeadInPosition,
-    scanTimeout,
-    motorMove,
-    scanInProgress,
-    jamEncoder,
-    paperJam,
-    coverOpen,
-    optoSensor,
-    ballotBoxDoorSensor,
-    ballotBoxAttachSensor,
-    preHeadSensor,
   };
 }
 

@@ -23,9 +23,7 @@ import { Lock } from './lock';
 import {
   PaperHandlerStatus,
   parsePrinterStatus,
-  parseScannerStatus,
   PrinterStatus,
-  ScannerStatus,
 } from './sensors';
 import {
   parseScannerCapability,
@@ -317,7 +315,7 @@ export class PaperHandlerDriver {
    *
    * @returns {ScannerStatus}
    */
-  async getScannerStatus(): Promise<ScannerStatus> {
+  async getScannerStatus(): Promise<SensorStatusRealTimeExchangeResponse> {
     const result = await this.handleRealTimeExchange(
       RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
       SensorStatusRealTimeExchangeResponse
@@ -329,7 +327,7 @@ export class PaperHandlerDriver {
       RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
       response
     );
-    return parseScannerStatus(response);
+    return response;
   }
 
   /**

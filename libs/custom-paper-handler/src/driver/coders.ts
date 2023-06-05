@@ -2,6 +2,8 @@ import {
   CoderType,
   literal,
   message,
+  padding,
+  uint1,
   uint16,
   uint32,
   uint8,
@@ -12,19 +14,37 @@ import { TOKEN } from './constants';
  * Response coders
  */
 
-// Real-time exchange responses have the same fields but variable lengths of "optional" data.
-// This implementation isn't DRY but is explicit. It would be more DRY and less explicit to
-// extend message-coder to support an unbounded ArrayBuffer coder
 export const SensorStatusRealTimeExchangeResponse = message({
   startOfPacket: literal(0x82),
   requestId: uint8(),
   token: literal(TOKEN),
   returnCode: uint8(),
   optionalDataLength: uint8(),
-  optionalByte0: uint8(),
-  optionalByte1: uint8(),
-  optionalByte2: uint8(),
-  optionalByte3: uint8(),
+  // Byte 0
+  parkSensor: uint1(),
+  paperOutSensor: uint1(),
+  paperPostCisSensor: uint1(),
+  paperPreCisSensor: uint1(),
+  paperInputInternLeftSensor: uint1(),
+  paperInputExternLeftSensor: uint1(),
+  paperInputInternRightSensor: uint1(),
+  paperInputExternRightSensor: uint1(),
+  // Byte 1
+  notUsedByte1: padding(1),
+  printHeadInPosition: uint1(),
+  scanTimeout: uint1(),
+  motorMove: uint1(),
+  scanInProgress: uint1(),
+  jamEncoder: uint1(),
+  paperJam: uint1(),
+  coverOpen: uint1(),
+  // Byte 2
+  notUsedByte2: padding(4),
+  optoSensor: uint1(),
+  ballotBoxDoorSensor: uint1(),
+  ballotBoxAttachSensor: uint1(),
+  preHeadSensor: uint1(),
+  notUsedByte3: padding(8),
 });
 
 export type SensorStatusRealTimeExchangeResponse = CoderType<
@@ -70,7 +90,7 @@ export const ScanResponse = message({
   sizeX: uint16(),
   sizeY: uint16(),
   status: uint16(),
-  dummy: uint32(), // 4 unused bytes
+  dummy: padding(32),
 });
 export type ScanResponse = CoderType<typeof ScanResponse>;
 
