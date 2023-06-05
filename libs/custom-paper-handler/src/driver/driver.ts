@@ -88,7 +88,7 @@ const TransferOutRealTimeRequest = message({
 });
 type TransferOutRealTimeRequest = CoderType<typeof TransferOutRealTimeRequest>;
 
-type PaperHandlerStatus = SensorStatusRealTimeExchangeResponse &
+export type PaperHandlerStatus = SensorStatusRealTimeExchangeResponse &
   PrinterStatusRealTimeExchangeResponse;
 
 export type PrintingSpeed = 'slow' | 'normal' | 'fast';
