@@ -293,18 +293,6 @@ export class PaperHandlerDriver {
   }
 
   /**
-   * Send commands or data on the generic bulk out endpoint.
-   */
-  transferOutGenericDeprecated(
-    data: Uint8[] | Uint8Array | Buffer
-  ): Promise<USBOutTransferResult> {
-    return this.webDevice.transferOut(
-      GENERIC_ENDPOINT_OUT,
-      Array.isArray(data) ? new Uint8Array(data) : data
-    );
-  }
-
-  /**
    * According to manual, "Clears the data in the print buffer and resets the
    * device mode to that in effect when power was turned on." It is called
    * initialize device but it appears to actually just initialize the printer.
