@@ -1,6 +1,6 @@
+import { Buffer } from 'buffer';
 import { assert } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
-import { Buffer } from 'buffer';
 import { findByIds, WebUSBDevice } from 'usb';
 import { Uint16 } from '@votingworks/message-coder';
 import { mockOf } from '@votingworks/test-utils';
@@ -13,8 +13,9 @@ import {
   RealTimeRequestIds,
   ReturnCodes,
   GENERIC_ENDPOINT_IN,
+  PaperHandlerBitmap,
 } from './driver';
-import { TOKEN, NULL_CODE } from './constants';
+import { TOKEN, NULL_CODE, OK_NO_MORE_DATA } from './constants';
 import { PrinterStatus, ScannerStatus } from './sensors';
 import { setUpMockWebUsbDevice } from './test_utils';
 
@@ -571,6 +572,71 @@ test('setLineSpacing', async () => {
   const expectation = [0x1b, 0x33, n];
 
   await paperHandlerDriver.setLineSpacing(n);
+  expect(transferOutSpy).toHaveBeenCalledWith(
+    GENERIC_ENDPOINT_OUT,
+    Buffer.from(expectation)
+  );
+});
+
+function stringToUint8Array(str: string): Uint8Array {
+  const output: Uint8Array = new Uint8Array(str.length);
+  for (let i = 0; i < str.length; i += 1) {
+    output[i] = str.charCodeAt(i);
+  }
+  return output;
+}
+
+function getFillerData(byteLength: number): Uint8Array {
+  const data: Uint8Array = new Uint8Array(byteLength);
+  for (let i = 0; i < byteLength; i += 1) {
+    data[i] = i % 256;
+  }
+  return data;
+}
+
+test('scan with exactly 1 data block', async () => {
+  const cisStatus = 0x00;
+  const scanType = 0x05;
+  const sizeX = [0x10, 0x00];
+  const sizeY = [0x10, 0x00];
+  // scanner status (2 bytes) is currently unhandled by the scan() function, so use a dummy value for now
+  const statusBytes = [0xff, 0xff];
+  // the command response also includes a 4 byte dummy value
+  const dummyValue = [0x00, 0x00, 0x00, 0x00];
+  const dataBlock = getFillerData(0x10 * 0x10);
+
+  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  await mockWebUsbDevice.mockAddTransferInData(
+    GENERIC_ENDPOINT_IN,
+    Buffer.from([
+      ...stringToUint8Array('IMG'),
+      OK_NO_MORE_DATA,
+      cisStatus,
+      scanType,
+      ...sizeX,
+      ...sizeY,
+      ...statusBytes,
+      ...dummyValue,
+      ...dataBlock,
+    ])
+  );
+
+  await paperHandlerDriver.scan();
+  expect(transferOutSpy).toHaveBeenCalledWith(
+    GENERIC_ENDPOINT_OUT,
+    Buffer.from([0x1c, 0x53, 0x50, 0x53])
+  );
+});
+
+test('bufferChunk', async () => {
+  const MAX_DATA_SIZE = 1023;
+  const dataBlock = getFillerData(MAX_DATA_SIZE);
+
+  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+
+  const input: PaperHandlerBitmap = { data: dataBlock, width: 0x03ff };
+  await paperHandlerDriver.bufferChunk(input);
+  const expectation = [0x1b, 0x2a, 33, 0xff, 3, ...dataBlock];
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
     Buffer.from(expectation)

@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import { findByIds, WebUSBDevice } from 'usb';
 import makeDebug from 'debug';
 import { assert, ok, Optional, Result, sleep } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import {
+  byteArray,
   Coder,
   CoderError,
   CoderType,
@@ -43,7 +42,14 @@ import {
   ScannerConfig,
 } from './scanner_config';
 
-import { NULL_CODE, OK_CONTINUE, START_OF_PACKET, TOKEN } from './constants';
+import {
+  NULL_CODE,
+  OK_CONTINUE,
+  PRINT_MODE_24_DOT_DOUBLE_DENSITY,
+  SCAN_HEADER_LENGTH_BYTES,
+  START_OF_PACKET,
+  TOKEN,
+} from './constants';
 import {
   AcknowledgementResponse,
   ConfigureScannerCommand,
@@ -61,6 +67,7 @@ import {
   RealTimeExchangeResponseWithoutData,
   ScanCommand,
   ScannerCalibrationCommand,
+  ScanResponse,
   SensorStatusRealTimeExchangeResponse,
   SetAbsolutePrintPositionCommand,
   SetLeftMarginCommand,
@@ -131,12 +138,6 @@ export enum RealTimeRequestIds {
   SCAN_ABORT_REQUEST_ID = 0x43,
   SCAN_RESET_REQUEST_ID = 0x52,
 }
-
-/**
- * @deprecated Use a message-coder in libs/custom-paper-handler/src/driver/coders.ts instead.
- */
-export type Command = Uint8[];
-const SELECT_IMAGE_PRINT_MODE: Command = [0x1b, 0x2a];
 
 export async function getPaperHandlerWebDevice(): Promise<
   Optional<WebUSBDevice>
@@ -498,20 +499,41 @@ export class PaperHandlerDriver {
     let scanStatus = OK_CONTINUE;
     const imageData: Uint8Array[] = [];
 
-    // TODO replace with coder for scan response
     while (scanStatus === OK_CONTINUE) {
-      const { data: header } = await this.transferInGeneric();
-      assert(header);
-      scanStatus = header.getUint8(3) as Uint8;
-      const sizeX = header.getUint16(6);
-      const sizeY = header.getUint16(8);
-      const pixelsPerByte = header.getUint8(5) <= 5 ? 1 : 8;
+      const rawResponse = await this.transferInGeneric();
+      assert(rawResponse);
+      assert(rawResponse.data);
+
+      const responseBuffer = rawResponse.data.buffer;
+
+      const header = responseBuffer.slice(0, SCAN_HEADER_LENGTH_BYTES);
+      const response: ScanResponse = ScanResponse.decode(
+        Buffer.from(header)
+      ).okOrElse((err) => {
+        debug('Error when decoding scan response');
+        throw err;
+      });
+
+      scanStatus = response.returnCode;
+      const { sizeX, sizeY } = response;
+      const pixelsPerByte = response.scan <= 5 ? 1 : 8;
+      debug(`sizeX: ${sizeX}, sizeY: ${sizeY}, ppb: ${pixelsPerByte}`);
 
       const dataBlockByteLength = (sizeX * sizeY) / pixelsPerByte;
-      imageData.push(new Uint8Array(header.buffer.slice(16)));
+      imageData.push(
+        new Uint8Array(responseBuffer.slice(SCAN_HEADER_LENGTH_BYTES))
+      );
 
-      let dataBlockBytesReceived = header.buffer.byteLength - 16;
+      let dataBlockBytesReceived = responseBuffer.byteLength - 16;
+      debug(
+        `initial ${dataBlockBytesReceived} bytes received. Expecting ${dataBlockByteLength}`
+      );
+
       while (dataBlockBytesReceived < dataBlockByteLength) {
+        debug(
+          `${dataBlockBytesReceived} bytes received. Expecting ${dataBlockByteLength}`
+        );
+        await sleep(1000);
         debug('Additional data...');
         const { data } = await this.transferInGeneric();
         assert(data);
@@ -698,17 +720,19 @@ export class PaperHandlerDriver {
     }
 
     const [nH, nL] = Uint16toUint8(chunkedCustomBitmap.width);
+    const dotsToPrint = nL + nH * 256;
 
-    // TODO replace with command coder
-    return this.transferOutGenericDeprecated(
-      new Uint8Array([
-        ...SELECT_IMAGE_PRINT_MODE,
-        33 as Uint8,
-        nL,
-        nH,
-        ...chunkedCustomBitmap.data,
-      ])
-    );
+    const coder = message({
+      command: literal(0x1b, 0x2a),
+      bitImageMode: literal(PRINT_MODE_24_DOT_DOUBLE_DENSITY),
+      nL: literal(nL),
+      nH: literal(nH),
+      imageData: byteArray(dotsToPrint),
+    });
+
+    return this.transferOutGeneric(coder, {
+      imageData: chunkedCustomBitmap.data,
+    });
   }
 
   async printChunk(chunkedCustomBitmap: PaperHandlerBitmap): Promise<void> {

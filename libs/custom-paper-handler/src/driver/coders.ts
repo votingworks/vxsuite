@@ -72,6 +72,7 @@ export const ScanResponse = message({
   status: uint16(),
   dummy: uint32(), // 4 unused bytes
 });
+export type ScanResponse = CoderType<typeof ScanResponse>;
 
 /**
  * Command coders
