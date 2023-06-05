@@ -41,7 +41,10 @@ import {
 } from '@votingworks/ui';
 
 import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
-import { mergeMsEitherNeitherContests } from '@votingworks/mark-flow-ui';
+import {
+  mergeMsEitherNeitherContests,
+  CastBallotPage,
+} from '@votingworks/mark-flow-ui';
 import {
   checkPin,
   endCardlessVoterSession,
@@ -59,7 +62,6 @@ import {
   handleGamepadButtonDown,
   handleGamepadKeyboardEvent,
 } from './lib/gamepad';
-import { CastBallotPage } from './pages/cast_ballot_page';
 import { AdminScreen } from './pages/admin_screen';
 import { InsertCardScreen } from './pages/insert_card_screen';
 import { PollWorkerScreen } from './pages/poll_worker_screen';
