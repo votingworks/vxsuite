@@ -2,7 +2,7 @@ import { CandidateVote } from '@votingworks/types';
 import { Screen, Prose, P, Font, LinkButton } from '@votingworks/ui';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import React, { useContext } from 'react';
-import { assert } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { useHistory, useParams } from 'react-router-dom';
 import { Contest as MarkFlowContest } from '@votingworks/mark-flow-ui';
 import styled from 'styled-components';
@@ -62,18 +62,19 @@ export function ContestPage(): JSX.Element {
   const ballotContestsLength = contests.length;
 
   const isVoteComplete = (() => {
-    /* istanbul ignore else */
-    if (contest.type === 'yesno') {
-      return !!vote;
-    }
-    if (contest.type === 'candidate') {
-      return contest.seats === ((vote as CandidateVote) ?? []).length;
-    }
-    if (contest.type === 'ms-either-neither') {
-      return (
-        votes[contest.pickOneContestId]?.length === 1 ||
-        votes[contest.eitherNeitherContestId]?.[0] === 'no'
-      );
+    switch (contest.type) {
+      case 'yesno':
+        return !!vote;
+      case 'candidate':
+        return contest.seats === ((vote as CandidateVote) ?? []).length;
+      case 'ms-either-neither':
+        return (
+          votes[contest.pickOneContestId]?.length === 1 ||
+          votes[contest.eitherNeitherContestId]?.[0] === 'no'
+        );
+      /* istanbul ignore next */
+      default:
+        throwIllegalValue(contest);
     }
   })();
 
