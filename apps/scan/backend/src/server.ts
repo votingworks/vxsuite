@@ -40,7 +40,7 @@ export function start({
   precinctScannerStateMachine,
   workspace,
 }: StartOptions): void {
-  /* istanbul ignore next */
+  /* c8 ignore start */
   const resolvedAuth =
     auth ??
     new InsertedSmartCardAuth({
@@ -52,6 +52,7 @@ export function start({
       config: {},
       logger,
     });
+  /* c8 ignore stop */
   const resolvedArtifactAuthenticator =
     artifactAuthenticator ?? new ArtifactAuthenticator();
 

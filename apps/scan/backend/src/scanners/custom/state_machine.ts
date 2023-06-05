@@ -1329,7 +1329,7 @@ export function createPrecinctScannerStateMachine({
               type: interpretation.type,
               reasons: interpretation.reasons,
             };
-          /* istanbul ignore next - compile time check */
+          /* c8 ignore next 2 */
           default:
             throwIllegalValue(interpretation, 'type');
         }
