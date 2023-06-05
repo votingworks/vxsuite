@@ -12,8 +12,12 @@ export class Svg {
 
   static FullScreenSvg = styled.svg`
     fill: ${(p) => p.theme.colors.foreground};
-    margin: 0 auto 1rem;
-    width: 40vw;
+    margin: 0 auto;
+    width: min(40vw, 40vh);
+
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+    }
   `;
 
   static PurpleFillPath = styled.path`
