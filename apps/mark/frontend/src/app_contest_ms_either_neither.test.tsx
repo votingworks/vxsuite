@@ -16,7 +16,7 @@ import { expectPrint, PrintRenderResult } from '@votingworks/test-utils';
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
-import { PrintPage } from '@votingworks/mark-flow-ui';
+import { PrintPage } from './pages/print_page';
 import {
   fireEvent,
   render,
