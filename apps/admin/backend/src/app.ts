@@ -28,13 +28,17 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { promises as fs, Stats } from 'fs';
-import { basename, dirname } from 'path';
+import { existsSync, promises as fs, Stats } from 'fs';
+import { basename, dirname, join } from 'path';
 import {
+  BALLOT_PACKAGE_FOLDER,
   CAST_VOTE_RECORD_REPORT_FILENAME,
+  generateFilenameForBallotExportPackage,
   isIntegrationTest,
   parseCastVoteRecordReportDirectoryName,
 } from '@votingworks/utils';
+import { dirSync } from 'tmp';
+import ZipStream from 'zip-stream';
 import {
   CastVoteRecordFileRecord,
   ConfigureResult,
@@ -67,6 +71,7 @@ import {
   buildFullElectionManualTallyFromStore,
   handleEnteredWriteInCandidateData,
 } from './util/manual_results';
+import { addFileToZipStream } from './util/zip';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -166,13 +171,81 @@ function buildApi({
       return auth.unprogramCard(constructAuthMachineState(workspace));
     },
 
-    async writeBallotPackageSignatureFile(input: {
-      ballotPackagePath: string;
-    }): Promise<void> {
-      await artifactAuthenticator.writeSignatureFile({
-        type: 'ballot_package',
-        path: input.ballotPackagePath,
+    async saveBallotPackageToUsb(): Promise<Result<void, 'no_usb_drive'>> {
+      await logger.log(LogEventId.SaveBallotPackageInit, 'election_manager');
+
+      const ballotPackageZipStream = new ZipStream();
+      const electionDefinition = getCurrentElectionDefinition(workspace);
+      assert(electionDefinition !== undefined);
+      const systemSettings =
+        store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
+      await addFileToZipStream(ballotPackageZipStream, {
+        path: 'election.json',
+        contents: electionDefinition.electionData,
       });
+      await addFileToZipStream(ballotPackageZipStream, {
+        path: 'systemSettings.json',
+        contents: JSON.stringify(systemSettings, null, 2),
+      });
+      ballotPackageZipStream.finalize();
+
+      const tempDirectory = dirSync().name;
+      const ballotPackageFileName = generateFilenameForBallotExportPackage(
+        electionDefinition,
+        new Date()
+      );
+      await fs.writeFile(
+        join(tempDirectory, ballotPackageFileName),
+        ballotPackageZipStream
+      );
+
+      const usbMountPoint = (await usb.getUsbDrives())[0]?.mountPoint;
+      if (!usbMountPoint) {
+        await logger.log(
+          LogEventId.SaveBallotPackageComplete,
+          'election_manager',
+          {
+            disposition: 'failure',
+            message: 'Error saving ballot package: no USB drive',
+            result: 'Ballot package not saved, error shown to user.',
+          }
+        );
+        return err('no_usb_drive');
+      }
+      const usbBallotPackageDirectory = join(
+        usbMountPoint,
+        BALLOT_PACKAGE_FOLDER
+      );
+      if (!existsSync(usbBallotPackageDirectory)) {
+        await fs.mkdir(usbBallotPackageDirectory);
+      }
+
+      await fs.cp(
+        join(tempDirectory, ballotPackageFileName),
+        join(usbBallotPackageDirectory, ballotPackageFileName)
+      );
+      await artifactAuthenticator.writeSignatureFile(
+        {
+          type: 'ballot_package',
+          // For protection against compromised/faulty USBs, we sign the ballot package as it
+          // exists on the machine, not on the USB (as a compromised/faulty USB could claim to have
+          // written the data that we asked it to but actually have written something else)
+          path: join(tempDirectory, ballotPackageFileName),
+        },
+        usbBallotPackageDirectory
+      );
+
+      await fs.rm(tempDirectory, { recursive: true });
+
+      await logger.log(
+        LogEventId.SaveBallotPackageComplete,
+        'election_manager',
+        {
+          disposition: 'success',
+          message: 'Successfully saved ballot package.',
+        }
+      );
+      return ok();
     },
 
     async setSystemSettings(input: {
