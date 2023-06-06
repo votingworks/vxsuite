@@ -230,8 +230,7 @@ test('setSystemSettings returns an error for malformed input', async () => {
   const result = await apiClient.setSystemSettings({
     systemSettings: JSON.stringify(malformedInput),
   });
-  assert(result.isErr());
-  expect(result.err().type).toEqual('parsing');
+  expect(result).toEqual(err({ type: 'parsing', message: expect.any(String) }));
 });
 
 test('getSystemSettings happy path', async () => {
