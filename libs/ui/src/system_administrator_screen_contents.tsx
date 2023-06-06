@@ -2,6 +2,7 @@ import React from 'react';
 import { Logger } from '@votingworks/logging';
 import { isVxDev } from '@votingworks/utils';
 
+import styled from 'styled-components';
 import { Button } from './button';
 import { Main } from './main';
 import { Prose } from './prose';
@@ -24,6 +25,17 @@ interface Props {
   usbDriveStatus: UsbDriveStatus;
 }
 
+const ButtonGrid = styled.div`
+  display: grid;
+  grid-auto-rows: 1fr;
+  grid-gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
+  grid-template-columns: 1fr 1fr;
+
+  @media (orientation: landscape) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+`;
+
 /**
  * A component for system administrator (formerly super admin) screen contents on non-VxAdmin
  * machines
@@ -45,38 +57,28 @@ export function SystemAdministratorScreenContents({
         {displayRemoveCardToLeavePrompt && (
           <P>Remove the System Administrator card to leave this screen.</P>
         )}
-        {resetPollsToPausedText && (
-          <P>
+        <ButtonGrid>
+          {resetPollsToPausedText && (
             <ResetPollsToPausedButton
               resetPollsToPausedText={resetPollsToPausedText}
               resetPollsToPaused={resetPollsToPaused}
               logger={logger}
             />
-          </P>
-        )}
-        <P>
+          )}
           <RebootFromUsbButton
             usbDriveStatus={usbDriveStatus}
             logger={logger}
           />
-        </P>
-        <P>
           <RebootToBiosButton logger={logger} />
-        </P>
-        <P>
           <PowerDownButton logger={logger} userRole="system_administrator" />
-        </P>
-        <P>
           <UnconfigureMachineButton
             unconfigureMachine={unconfigureMachine}
             isMachineConfigured={isMachineConfigured}
           />
-        </P>
-        {isVxDev() && (
-          <P>
+          {isVxDev() && (
             <Button onPress={() => window.kiosk?.quit()}>Quit</Button>
-          </P>
-        )}
+          )}
+        </ButtonGrid>
       </Prose>
     </Main>
   );
