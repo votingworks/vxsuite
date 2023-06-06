@@ -60,7 +60,8 @@ import {
   sleep,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { ScreenMainCenterChild } from '../components/layout';
+import styled from 'styled-components';
+import { ScreenMainCenterChild, Screen } from '../components/layout';
 
 import { LiveCheckModal } from '../components/live_check_modal';
 
@@ -72,6 +73,7 @@ import {
   saveScannerReportDataToCard as saveScannerReportDataToCardBase,
 } from '../api';
 import { MachineConfig } from '../config/types';
+import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
@@ -85,20 +87,23 @@ type PollWorkerFlowState =
 const debug = rootDebug.extend('pollworker-screen');
 
 const BallotsAlreadyScannedScreen = (
-  <ScreenMainCenterChild infoBarMode="pollworker">
-    <FullScreenIconWrapper color="danger">
-      <Icons.DangerX />
-    </FullScreenIconWrapper>
-    <CenteredLargeProse>
-      <H1>Ballots Already Scanned</H1>
+  <Screen centerContent infoBarMode="pollworker">
+    <FullScreenPromptLayout
+      title="Ballots Already Scanned"
+      image={
+        <FullScreenIconWrapper color="danger">
+          <Icons.DangerX />
+        </FullScreenIconWrapper>
+      }
+    >
       <P>
         Ballots were scanned on this machine before polls were opened. This may
         indicate an internal error or tampering. The polls can no longer be
         opened on this machine. Please report this issue to an election
         administrator.
       </P>
-    </CenteredLargeProse>
-  </ScreenMainCenterChild>
+    </FullScreenPromptLayout>
+  </Screen>
 );
 
 export interface PollWorkerScreenProps {
@@ -111,6 +116,13 @@ export interface PollWorkerScreenProps {
   hasPrinterAttached: boolean;
   logger: Logger;
 }
+
+const ButtonGrid = styled.div`
+  display: grid;
+  grid-auto-rows: 1fr;
+  grid-gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
+  grid-template-columns: 1fr 1fr 1fr;
+`;
 
 export function PollWorkerScreen({
   machineConfig,
@@ -606,53 +618,66 @@ export function PollWorkerScreen({
     );
   }
 
-  const pollsTransitionActions = (() => {
+  const commonActions = (
+    <React.Fragment>
+      <PowerDownButton logger={logger} userRole="poll_worker" />
+      {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
+        <Button onPress={() => setIsShowingLiveCheck(true)}>Live Check</Button>
+      )}
+    </React.Fragment>
+  );
+
+  const content = (() => {
     switch (pollsState) {
       case 'polls_closed_initial':
         return (
           <React.Fragment>
             <P>The polls have not been opened.</P>
-            <P>
+            <ButtonGrid>
               <Button variant="primary" large onPress={openPolls}>
                 Open Polls
               </Button>
-            </P>
+              {commonActions}
+            </ButtonGrid>
           </React.Fragment>
         );
       case 'polls_open':
         return (
           <React.Fragment>
             <P>The polls are currently open.</P>
-            <P>
+            <ButtonGrid>
               <Button variant="primary" large onPress={closePolls}>
                 Close Polls
               </Button>
-            </P>
-            <P>
               <Button large onPress={pauseVoting}>
                 Pause Voting
               </Button>
-            </P>
+              {commonActions}
+            </ButtonGrid>
           </React.Fragment>
         );
       case 'polls_paused':
         return (
           <React.Fragment>
             <P>Voting is currently paused.</P>
-            <P>
+            <ButtonGrid>
               <Button variant="primary" large onPress={resumeVoting}>
                 Resume Voting
               </Button>
-            </P>
-            <P>
               <Button large onPress={closePolls}>
                 Close Polls
               </Button>
-            </P>
+              {commonActions}
+            </ButtonGrid>
           </React.Fragment>
         );
       case 'polls_closed_final':
-        return <P>Voting is complete and the polls cannot be reopened.</P>;
+        return (
+          <React.Fragment>
+            <P>Voting is complete and the polls cannot be reopened.</P>
+            <ButtonGrid>{commonActions}</ButtonGrid>
+          </React.Fragment>
+        );
       /* istanbul ignore next - compile-time check for completeness */
       default:
         throwIllegalValue(pollsState);
@@ -663,15 +688,7 @@ export function PollWorkerScreen({
     <ScreenMainCenterChild infoBarMode="pollworker">
       <Prose textCenter>
         <H1>Poll Worker Actions</H1>
-        {pollsTransitionActions}
-        <PowerDownButton logger={logger} userRole="poll_worker" />
-        {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
-          <P>
-            <Button onPress={() => setIsShowingLiveCheck(true)}>
-              Live Check
-            </Button>
-          </P>
-        )}
+        {content}
       </Prose>
       {isShowingLiveCheck && (
         <LiveCheckModal
