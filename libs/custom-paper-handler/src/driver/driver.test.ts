@@ -580,14 +580,6 @@ test('setLineSpacing', async () => {
   );
 });
 
-function stringToUint8Array(str: string): Uint8Array {
-  const output: Uint8Array = new Uint8Array(str.length);
-  for (let i = 0; i < str.length; i += 1) {
-    output[i] = str.charCodeAt(i);
-  }
-  return output;
-}
-
 function getFillerData(byteLength: number): Uint8Array {
   const data: Uint8Array = new Uint8Array(byteLength);
   for (let i = 0; i < byteLength; i += 1) {
@@ -611,7 +603,7 @@ test('scan with exactly 1 data block', async () => {
   await mockWebUsbDevice.mockAddTransferInData(
     GENERIC_ENDPOINT_IN,
     Buffer.from([
-      ...stringToUint8Array('IMG'),
+      ...Buffer.from('IMG'),
       OK_NO_MORE_DATA,
       cisStatus,
       scanType,
