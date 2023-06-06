@@ -220,7 +220,7 @@ function buildApi({
         await fs.mkdir(usbBallotPackageDirectory);
       }
 
-      await fs.cp(
+      await fs.copyFile(
         join(tempDirectory, ballotPackageFileName),
         join(usbBallotPackageDirectory, ballotPackageFileName)
       );
