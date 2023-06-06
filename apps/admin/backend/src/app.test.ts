@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { assert, err, ok } from '@votingworks/basics';
 import {
   electionMinimalExhaustiveSampleFixtures,
   electionSampleCdfDefinition,
@@ -231,8 +231,7 @@ test('setSystemSettings returns an error for malformed input', async () => {
     systemSettings: JSON.stringify(malformedInput),
   });
   assert(result.isErr());
-  const err = result.err();
-  expect(err.type).toEqual('parsing');
+  expect(result.err().type).toEqual('parsing');
 });
 
 test('getSystemSettings happy path', async () => {
@@ -265,4 +264,23 @@ test('getSystemSettings returns default system settings when no system settings 
 
   const systemSettingsResult = await apiClient.getSystemSettings();
   expect(systemSettingsResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
+});
+
+test('saveBallotPackageToUsb', async () => {
+  const { apiClient, auth, mockUsb } = buildTestEnvironment();
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  mockUsb.insertUsbDrive({});
+  const response = await apiClient.saveBallotPackageToUsb();
+  expect(response).toEqual(ok());
+});
+
+test('saveBallotPackageToUsb when no USB drive', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  const response = await apiClient.saveBallotPackageToUsb();
+  expect(response).toEqual(err('no_usb_drive'));
 });
