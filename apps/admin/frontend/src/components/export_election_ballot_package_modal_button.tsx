@@ -6,8 +6,9 @@ import {
 } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Button, Modal, Prose, UsbControllerButton } from '@votingworks/ui';
-import { saveBallotPackageToUsb as saveBallotPackageToUsbBase } from '../api';
+import { BallotPackageExportError } from '@votingworks/types';
 
+import { saveBallotPackageToUsb as saveBallotPackageToUsbBase } from '../api';
 import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
 
@@ -17,14 +18,13 @@ const UsbImage = styled.img`
   height: 200px;
 `;
 
-type SaveError = 'no_usb_drive';
 type SaveState =
   | { state: 'unsaved' }
   | { state: 'saving' }
   | { state: 'saved' }
-  | { state: 'error'; error: SaveError };
+  | { state: 'error'; error: BallotPackageExportError };
 
-const ErrorMessages: Record<SaveError, string> = {
+const ErrorMessages: Record<BallotPackageExportError, string> = {
   no_usb_drive: 'No USB drive detected',
 };
 

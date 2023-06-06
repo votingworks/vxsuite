@@ -24,3 +24,5 @@ export interface BallotConfig extends BallotStyleData {
   isLiveMode: boolean;
   isAbsentee: boolean;
 }
+
+export type BallotPackageExportError = 'no_usb_drive';

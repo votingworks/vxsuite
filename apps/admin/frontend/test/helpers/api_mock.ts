@@ -22,6 +22,7 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
+  BallotPackageExportError,
   CastVoteRecord,
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
@@ -326,7 +327,9 @@ export function createApiMock(
       );
     },
 
-    expectSaveBallotPackageToUsb(result: Result<void, 'no_usb_drive'> = ok()) {
+    expectSaveBallotPackageToUsb(
+      result: Result<void, BallotPackageExportError> = ok()
+    ) {
       apiClient.saveBallotPackageToUsb.expectCallWith().resolves(result);
     },
   };
