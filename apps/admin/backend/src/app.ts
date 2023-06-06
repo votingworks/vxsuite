@@ -191,52 +191,54 @@ function buildApi({
       ballotPackageZipStream.finalize();
 
       const tempDirectory = dirSync().name;
-      const ballotPackageFileName = generateFilenameForBallotExportPackage(
-        electionDefinition,
-        new Date()
-      );
-      await fs.writeFile(
-        join(tempDirectory, ballotPackageFileName),
-        ballotPackageZipStream
-      );
-
-      const usbMountPoint = (await usb.getUsbDrives())[0]?.mountPoint;
-      if (!usbMountPoint) {
-        await logger.log(
-          LogEventId.SaveBallotPackageComplete,
-          'election_manager',
-          {
-            disposition: 'failure',
-            message: 'Error saving ballot package: no USB drive',
-            result: 'Ballot package not saved, error shown to user.',
-          }
+      try {
+        const ballotPackageFileName = generateFilenameForBallotExportPackage(
+          electionDefinition,
+          new Date()
         );
-        return err('no_usb_drive');
-      }
-      const usbBallotPackageDirectory = join(
-        usbMountPoint,
-        BALLOT_PACKAGE_FOLDER
-      );
-      if (!existsSync(usbBallotPackageDirectory)) {
-        await fs.mkdir(usbBallotPackageDirectory);
-      }
+        await fs.writeFile(
+          join(tempDirectory, ballotPackageFileName),
+          ballotPackageZipStream
+        );
 
-      await fs.copyFile(
-        join(tempDirectory, ballotPackageFileName),
-        join(usbBallotPackageDirectory, ballotPackageFileName)
-      );
-      await artifactAuthenticator.writeSignatureFile(
-        {
-          type: 'ballot_package',
-          // For protection against compromised/faulty USBs, we sign the ballot package as it
-          // exists on the machine, not on the USB (as a compromised/faulty USB could claim to have
-          // written the data that we asked it to but actually have written something else)
-          path: join(tempDirectory, ballotPackageFileName),
-        },
-        usbBallotPackageDirectory
-      );
+        const usbMountPoint = (await usb.getUsbDrives())[0]?.mountPoint;
+        if (!usbMountPoint) {
+          await logger.log(
+            LogEventId.SaveBallotPackageComplete,
+            'election_manager',
+            {
+              disposition: 'failure',
+              message: 'Error saving ballot package: no USB drive',
+              result: 'Ballot package not saved, error shown to user.',
+            }
+          );
+          return err('no_usb_drive');
+        }
+        const usbBallotPackageDirectory = join(
+          usbMountPoint,
+          BALLOT_PACKAGE_FOLDER
+        );
+        if (!existsSync(usbBallotPackageDirectory)) {
+          await fs.mkdir(usbBallotPackageDirectory);
+        }
 
-      await fs.rm(tempDirectory, { recursive: true });
+        await fs.copyFile(
+          join(tempDirectory, ballotPackageFileName),
+          join(usbBallotPackageDirectory, ballotPackageFileName)
+        );
+        await artifactAuthenticator.writeSignatureFile(
+          {
+            type: 'ballot_package',
+            // For protection against compromised/faulty USBs, we sign the ballot package as it
+            // exists on the machine, not on the USB (as a compromised/faulty USB could claim to
+            // have written the data that we asked it to but actually have written something else)
+            path: join(tempDirectory, ballotPackageFileName),
+          },
+          usbBallotPackageDirectory
+        );
+      } finally {
+        await fs.rm(tempDirectory, { recursive: true });
+      }
 
       await logger.log(
         LogEventId.SaveBallotPackageComplete,
