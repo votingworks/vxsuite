@@ -196,8 +196,12 @@ function buildApi({
           electionDefinition,
           new Date()
         );
+        const tempDirectoryBallotPackageFilePath = join(
+          tempDirectory,
+          ballotPackageFileName
+        );
         await fs.writeFile(
-          join(tempDirectory, ballotPackageFileName),
+          tempDirectoryBallotPackageFilePath,
           ballotPackageZipStream
         );
 
@@ -222,17 +226,22 @@ function buildApi({
           await fs.mkdir(usbBallotPackageDirectory);
         }
 
-        await fs.copyFile(
-          join(tempDirectory, ballotPackageFileName),
-          join(usbBallotPackageDirectory, ballotPackageFileName)
+        const usbBallotPackageFilePath = join(
+          usbBallotPackageDirectory,
+          ballotPackageFileName
         );
+        await fs.copyFile(
+          tempDirectoryBallotPackageFilePath,
+          usbBallotPackageFilePath
+        );
+
         await artifactAuthenticator.writeSignatureFile(
           {
             type: 'ballot_package',
             // For protection against compromised/faulty USBs, we sign the ballot package as it
             // exists on the machine, not on the USB (as a compromised/faulty USB could claim to
             // have written the data that we asked it to but actually have written something else)
-            path: join(tempDirectory, ballotPackageFileName),
+            path: tempDirectoryBallotPackageFilePath,
           },
           usbBallotPackageDirectory
         );
