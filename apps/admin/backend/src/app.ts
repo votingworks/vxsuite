@@ -1,6 +1,6 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
-  BallotPackageExportError,
+  BallotPackageExportResult,
   CastVoteRecord,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
@@ -172,9 +172,7 @@ function buildApi({
       return auth.unprogramCard(constructAuthMachineState(workspace));
     },
 
-    async saveBallotPackageToUsb(): Promise<
-      Result<void, BallotPackageExportError>
-    > {
+    async saveBallotPackageToUsb(): Promise<BallotPackageExportResult> {
       await logger.log(LogEventId.SaveBallotPackageInit, 'election_manager');
 
       const ballotPackageZipStream = new ZipStream();

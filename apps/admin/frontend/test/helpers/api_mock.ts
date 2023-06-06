@@ -14,7 +14,7 @@ import type {
   WriteInTally,
   WriteInAdjudicatedTally,
 } from '@votingworks/admin-backend';
-import { Result, collections, ok } from '@votingworks/basics';
+import { collections, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
   fakeElectionManagerUser,
@@ -22,7 +22,7 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
-  BallotPackageExportError,
+  BallotPackageExportResult,
   CastVoteRecord,
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
@@ -327,9 +327,7 @@ export function createApiMock(
       );
     },
 
-    expectSaveBallotPackageToUsb(
-      result: Result<void, BallotPackageExportError> = ok()
-    ) {
+    expectSaveBallotPackageToUsb(result: BallotPackageExportResult = ok()) {
       apiClient.saveBallotPackageToUsb.expectCallWith().resolves(result);
     },
   };
