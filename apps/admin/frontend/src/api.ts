@@ -143,10 +143,10 @@ export const unprogramCard = {
   },
 } as const;
 
-export const writeBallotPackageSignatureFile = {
+export const saveBallotPackageToUsb = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.writeBallotPackageSignatureFile);
+    return useMutation(apiClient.saveBallotPackageToUsb);
   },
 } as const;
 
