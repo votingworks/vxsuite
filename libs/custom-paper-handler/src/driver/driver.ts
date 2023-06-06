@@ -1,6 +1,6 @@
 import { findByIds, WebUSBDevice } from 'usb';
 import makeDebug from 'debug';
-import { assert, ok, Optional, Result, sleep } from '@votingworks/basics';
+import { assert, Optional, Result, sleep } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import {
   byteArray,
@@ -9,6 +9,7 @@ import {
   CoderType,
   literal,
   message,
+  padding,
   uint8,
 } from '@votingworks/message-coder';
 import {
@@ -34,11 +35,11 @@ import {
   ScanLight,
   ScannerConfig,
 } from './scanner_config';
-
 import {
-  NULL_CODE,
+  INT_16_MAX,
+  INT_16_MIN,
   OK_CONTINUE,
-  PRINT_MODE_24_DOT_DOUBLE_DENSITY,
+  PrintModeDotDensity,
   SCAN_HEADER_LENGTH_BYTES,
   START_OF_PACKET,
   TOKEN,
@@ -84,7 +85,8 @@ const TransferOutRealTimeRequest = message({
   stx: literal(START_OF_PACKET),
   requestId: uint8(),
   token: literal(TOKEN),
-  optionalDataLength: uint8(),
+  // Treat "optional data length" byte as padding when no additional data is supplied
+  padding: padding(8),
 });
 type TransferOutRealTimeRequest = CoderType<typeof TransferOutRealTimeRequest>;
 
@@ -232,12 +234,9 @@ export class PaperHandlerDriver {
    * Transfers data out on the real time bulk out endpoint.
    */
   transferOutRealTime(requestId: Uint8): Promise<USBOutTransferResult> {
-    // TODO error handling
     const buf = TransferOutRealTimeRequest.encode({
       requestId,
-      optionalDataLength: NULL_CODE,
-    }).ok();
-    assert(buf);
+    }).unsafeUnwrap();
     return this.webDevice.transferOut(REAL_TIME_ENDPOINT_OUT, buf);
   }
 
@@ -265,10 +264,7 @@ export class PaperHandlerDriver {
 
     const { data } = transferInResult;
     assert(data);
-    const response = coder.decode(Buffer.from(data.buffer)).ok();
-    assert(response);
-
-    return ok(response);
+    return coder.decode(Buffer.from(data.buffer));
   }
 
   /**
@@ -283,8 +279,7 @@ export class PaperHandlerDriver {
       // TODO handle this more gracefully
       throw new Error(encodeResult.err());
     }
-    const data = encodeResult.ok();
-    assert(data);
+    const data = encodeResult.unsafeUnwrap();
     return this.webDevice.transferOut(GENERIC_ENDPOINT_OUT, data);
   }
 
@@ -314,13 +309,12 @@ export class PaperHandlerDriver {
    * @returns {ScannerStatus}
    */
   async getScannerStatus(): Promise<SensorStatusRealTimeExchangeResponse> {
-    const result = await this.handleRealTimeExchange(
-      RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
-      SensorStatusRealTimeExchangeResponse
-    );
-    const response = result.ok();
-
-    assert(response);
+    const response = (
+      await this.handleRealTimeExchange(
+        RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
+        SensorStatusRealTimeExchangeResponse
+      )
+    ).unsafeUnwrap();
     this.validateRealTimeExchangeResponse(
       RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
       response
@@ -334,13 +328,12 @@ export class PaperHandlerDriver {
    * @returns {PrinterStatus}
    */
   async getPrinterStatus(): Promise<PrinterStatusRealTimeExchangeResponse> {
-    const result = await this.handleRealTimeExchange(
-      RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
-      PrinterStatusRealTimeExchangeResponse
-    );
-    const response = result.ok();
-
-    assert(response);
+    const response = (
+      await this.handleRealTimeExchange(
+        RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
+        PrinterStatusRealTimeExchangeResponse
+      )
+    ).unsafeUnwrap();
     this.validateRealTimeExchangeResponse(
       RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
       response
@@ -349,13 +342,12 @@ export class PaperHandlerDriver {
   }
 
   async abortScan(): Promise<void> {
-    const result = await this.handleRealTimeExchange(
-      RealTimeRequestIds.SCAN_ABORT_REQUEST_ID,
-      RealTimeExchangeResponseWithoutData
-    );
-    const response = result.ok();
-
-    assert(response);
+    const response = (
+      await this.handleRealTimeExchange(
+        RealTimeRequestIds.SCAN_ABORT_REQUEST_ID,
+        RealTimeExchangeResponseWithoutData
+      )
+    ).unsafeUnwrap();
     this.validateRealTimeExchangeResponse(
       RealTimeRequestIds.SCAN_ABORT_REQUEST_ID,
       response
@@ -364,12 +356,12 @@ export class PaperHandlerDriver {
 
   // reset scan reconnects the scanner, changes the device address, and requires a new WebUSBDevice
   async resetScan(): Promise<void> {
-    const result = await this.handleRealTimeExchange(
-      RealTimeRequestIds.SCAN_RESET_REQUEST_ID,
-      RealTimeExchangeResponseWithoutData
-    );
-    const response = result.ok();
-    assert(response);
+    const response = (
+      await this.handleRealTimeExchange(
+        RealTimeRequestIds.SCAN_RESET_REQUEST_ID,
+        RealTimeExchangeResponseWithoutData
+      )
+    ).unsafeUnwrap();
     this.validateRealTimeExchangeResponse(
       RealTimeRequestIds.SCAN_RESET_REQUEST_ID,
       response
@@ -484,18 +476,14 @@ export class PaperHandlerDriver {
 
     while (scanStatus === OK_CONTINUE) {
       const rawResponse = await this.transferInGeneric();
-      assert(rawResponse);
-      assert(rawResponse.data);
+      assert(rawResponse?.data);
 
       const responseBuffer = rawResponse.data.buffer;
 
       const header = responseBuffer.slice(0, SCAN_HEADER_LENGTH_BYTES);
       const response: ScanResponse = ScanResponse.decode(
         Buffer.from(header)
-      ).okOrElse((err) => {
-        debug('Error when decoding scan response');
-        throw err;
-      });
+      ).unsafeUnwrap();
 
       scanStatus = response.returnCode;
       const { sizeX, sizeY } = response;
@@ -675,7 +663,7 @@ export class PaperHandlerDriver {
   async setRelativePrintPosition(
     numMotionUnits: number
   ): Promise<USBOutTransferResult> {
-    assertNumberIsInRangeInclusive(numMotionUnits, -32768, 32867);
+    assertNumberIsInRangeInclusive(numMotionUnits, INT_16_MIN, INT_16_MAX);
     const unsignedNumMotionUnits: Uint16 =
       numMotionUnits < 0 ? Uint16Max + 1 - numMotionUnits : numMotionUnits;
     const [nH, nL] = Uint16toUint8(unsignedNumMotionUnits);
@@ -707,7 +695,7 @@ export class PaperHandlerDriver {
 
     const coder = message({
       command: literal(0x1b, 0x2a),
-      bitImageMode: literal(PRINT_MODE_24_DOT_DOUBLE_DENSITY),
+      bitImageMode: literal(PrintModeDotDensity.DOUBLE_DOT_24),
       nL: literal(nL),
       nH: literal(nH),
       imageData: byteArray(dotsToPrint),
