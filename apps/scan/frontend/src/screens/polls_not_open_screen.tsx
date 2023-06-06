@@ -1,14 +1,8 @@
 import React from 'react';
-import {
-  Caption,
-  CenteredLargeProse,
-  FullScreenIconWrapper,
-  H1,
-  Icons,
-  P,
-} from '@votingworks/ui';
+import { Caption, FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
 import { PollsState } from '@votingworks/types';
-import { ScreenMainCenterChild } from '../components/layout';
+import { Screen } from '../components/layout';
+import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
 export interface PollsNotOpenScreenProps {
   isLiveMode: boolean;
@@ -24,18 +18,24 @@ export function PollsNotOpenScreen({
   scannedBallotCount,
 }: PollsNotOpenScreenProps): JSX.Element {
   return (
-    <ScreenMainCenterChild
+    <Screen
+      centerContent
       isLiveMode={isLiveMode}
       infoBarMode="pollworker"
       ballotCountOverride={scannedBallotCount}
     >
-      <FullScreenIconWrapper>
-        {pollsState === 'polls_paused' ? <Icons.Paused /> : <Icons.Closed />}
-      </FullScreenIconWrapper>
-      <CenteredLargeProse>
-        <H1>
-          {pollsState === 'polls_paused' ? 'Polls Paused' : 'Polls Closed'}
-        </H1>
+      <FullScreenPromptLayout
+        title={pollsState === 'polls_paused' ? 'Polls Paused' : 'Polls Closed'}
+        image={
+          <FullScreenIconWrapper>
+            {pollsState === 'polls_paused' ? (
+              <Icons.Paused />
+            ) : (
+              <Icons.Closed />
+            )}
+          </FullScreenIconWrapper>
+        }
+      >
         {pollsState === 'polls_closed_final' ? (
           <P>Voting is complete.</P>
         ) : (
@@ -47,8 +47,8 @@ export function PollsNotOpenScreen({
             poll worker to plug in the power cord.
           </Caption>
         )}
-      </CenteredLargeProse>
-    </ScreenMainCenterChild>
+      </FullScreenPromptLayout>
+    </Screen>
   );
 }
 
