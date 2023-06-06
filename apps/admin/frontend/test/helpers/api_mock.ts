@@ -14,7 +14,7 @@ import type {
   WriteInTally,
   WriteInAdjudicatedTally,
 } from '@votingworks/admin-backend';
-import { collections, ok } from '@votingworks/basics';
+import { Result, collections, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
   fakeElectionManagerUser,
@@ -326,10 +326,8 @@ export function createApiMock(
       );
     },
 
-    expectWriteBallotPackageSignatureFile(ballotPackagePath: string) {
-      apiClient.writeBallotPackageSignatureFile
-        .expectCallWith({ ballotPackagePath })
-        .resolves();
+    expectSaveBallotPackageToUsb(result: Result<void, 'no_usb_drive'> = ok()) {
+      apiClient.saveBallotPackageToUsb.expectCallWith().resolves(result);
     },
   };
 }
