@@ -168,11 +168,26 @@ export type EnablePrintCommand = CoderType<typeof EnablePrintCommand>;
 export const DisablePrintCommand = literal(0x1f, 0x65);
 export type DisablePrintCommand = CoderType<typeof DisablePrintCommand>;
 
+export enum ConfigureScannerOptionPaperConfigValues {
+  HOLD_PAPER_AFTER_SCAN = 0x00,
+  MOVE_FORWARD_AFTER_SCAN = 0x01,
+  MOVE_BACKWARD_AFTER_SCAN = 0x02,
+  MOVE_FORWARD_AFTER_SCAN_AND_HOLD = 0x03,
+}
+export enum ConfigureScannerOptionSensorConfig {
+  NONE = 0x00,
+  DISABLE_JAM_WHEEL_SENSOR = 0x04,
+}
+export enum ConfigureScannerFlags {
+  NONE = 0x00,
+  SCAN_BACKWARDS = 0x01,
+  SCAN_IN_PARK = 0x02,
+}
 export const ConfigureScannerCommand = message({
-  command: literal(0x1c, 0x53, 0x50, 0x43),
-  optionPaperConfig: uint8(0x00 | 0x01 | 0x02 | 0x03),
-  optionSensorConfig: uint8(0x00 | 0x04),
-  flags: uint8(0x00 | 0x01 | 0x02),
+  command: literal(0x1c, 'SPC'),
+  optionPaperConfig: uint8(ConfigureScannerOptionPaperConfigValues),
+  optionSensorConfig: uint8(ConfigureScannerOptionSensorConfig),
+  flags: uint8(ConfigureScannerFlags),
   cis: literal(0x00), // Unsupported
   scan: uint8(),
   dpiX: uint16(undefined, { littleEndian: false }),
