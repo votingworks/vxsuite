@@ -1,5 +1,6 @@
 import {
   CoderType,
+  byteArrayWithLengthPrefix,
   literal,
   message,
   padding,
@@ -114,7 +115,7 @@ export const RealTimeExchangeResponseWithoutData = message({
   requestId: uint8(),
   token: literal(TOKEN),
   returnCode: uint8(),
-  optionalDataLength: literal(0x00),
+  optionalBytes: byteArrayWithLengthPrefix(0),
 });
 export type RealTimeExchangeResponseWithoutData = CoderType<
   typeof RealTimeExchangeResponseWithoutData
@@ -138,21 +139,21 @@ export type ScanResponse = CoderType<typeof ScanResponse>;
 /**
  * Command coders
  */
-export const LoadPaperCommand = literal(0x1c, 0x53, 0x50, 0x4c);
+export const LoadPaperCommand = literal(0x1c, 'SPL');
 export type LoadPaperCommand = CoderType<typeof LoadPaperCommand>;
 
-export const ParkPaperCommand = literal(0x1c, 0x53, 0x50, 0x50);
+export const ParkPaperCommand = literal(0x1c, 'SPP');
 export type ParkPaperCommand = CoderType<typeof ParkPaperCommand>;
 
-export const EjectPaperCommand = literal(0x1c, 0x53, 0x50, 0x45);
+export const EjectPaperCommand = literal(0x1c, 'SPE');
 export type EjectPaperCommand = CoderType<typeof EjectPaperCommand>;
 
-export const PresentPaperAndHoldCommand = literal(0x1c, 0x53, 0x50, 0x46);
+export const PresentPaperAndHoldCommand = literal(0x1c, 'SPF');
 export type PresentPaperAndHoldCommand = CoderType<
   typeof PresentPaperAndHoldCommand
 >;
 
-export const EjectPaperToBallotCommand = literal(0x1c, 0x53, 0x50, 0x48);
+export const EjectPaperToBallotCommand = literal(0x1c, 'SPH');
 export type EjectPaperToBallotCommand = CoderType<
   typeof EjectPaperToBallotCommand
 >;
@@ -197,12 +198,12 @@ export const ConfigureScannerCommand = message({
 });
 export type ConfigureScannerCommand = CoderType<typeof ConfigureScannerCommand>;
 
-export const GetScannerCapabilityCommand = literal(0x1c, 0x53, 0x43, 0x47);
+export const GetScannerCapabilityCommand = literal(0x1c, 'SCG');
 export type GetScannerCapabilityCommand = CoderType<
   typeof GetScannerCapabilityCommand
 >;
 
-export const ScanCommand = literal(0x1c, 0x53, 0x50, 0x53);
+export const ScanCommand = literal(0x1c, 'SPS');
 export type ScanCommand = CoderType<typeof ScanCommand>;
 
 export const PrintAndFeedPaperCommand = message({
