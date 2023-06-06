@@ -53,12 +53,16 @@ const Text = styled.div`
 `;
 
 const Footer = styled.div`
-  display: grid;
-  grid-gap: ${HORIZONTAL_PADDING_REM}rem;
-  grid-template-columns: 1fr 1fr;
-  margin: 0 auto;
+  display: flex;
+  gap: ${HORIZONTAL_PADDING_REM}rem;
+  justify-content: end;
   padding: 0 ${HORIZONTAL_PADDING_REM}rem 0.5rem;
   width: 100%;
+
+  & > * {
+    flex-grow: 1;
+    max-width: 50%;
+  }
 `;
 
 export function FullScreenPromptLayout(
