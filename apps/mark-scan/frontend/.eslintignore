@@ -1,0 +1,10 @@
+/build
+/codemods
+/coverage
+/prodserver/**/*.js
+/src/**/*.js
+/script/**/*.js
+/scripts/**/*.js
+/config/**/*.js
+/*.config.js
+/*.config.ts
