@@ -181,9 +181,9 @@ function PrintingModal({
     return (
       <Modal
         centerContent
+        title="Change Paper"
         content={
           <Prose textCenter>
-            <h1>Change Paper</h1>
             <p>
               Load printer with{' '}
               <strong>

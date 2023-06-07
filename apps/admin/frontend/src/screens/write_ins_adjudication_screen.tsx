@@ -18,7 +18,6 @@ import {
   HorizontalRule,
   Icons,
   Modal,
-  H1,
   P,
   Font,
 } from '@votingworks/ui';
@@ -293,12 +292,8 @@ function DoubleVoteAlertModal({
 
   return (
     <Modal
-      content={
-        <React.Fragment>
-          <H1>Possible Double Vote Detected</H1>
-          {text}
-        </React.Fragment>
-      }
+      title="Possible Double Vote Detected"
+      content={text}
       actions={
         <Button variant="regular" onPress={onClose}>
           Cancel

@@ -55,9 +55,9 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
         case 'mounted': {
           return (
             <Modal
+              title="Format USB Drive"
               content={
                 <Prose>
-                  <h1>Format USB Drive</h1>
                   <p>
                     {usbDrive.status === 'bad_format'
                       ? 'The format of the inserted USB drive is not VotingWorks compatible. Would you like to format the USB drive?'
@@ -88,9 +88,9 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
     case 'confirm':
       return (
         <Modal
+          title="Confirm Format USB Drive"
           content={
             <Prose>
-              <h1>Confirm Format USB Drive</h1>
               <p>
                 <strong>Warning:</strong> formatting will delete all files on
                 the USB drive. Back up USB drive files before formatting.
@@ -113,9 +113,9 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
     case 'done':
       return (
         <Modal
+          title="USB Drive Formatted"
           content={
             <Prose>
-              <h1>USB Drive Formatted</h1>
               <p>
                 USB drive successfully reformatted. It is now ready to use with
                 VotingWorks devices.
@@ -129,9 +129,9 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
     case 'error':
       return (
         <Modal
+          title="Failed to Format USB Drive"
           content={
             <Prose>
-              <h1>Failed to Format USB Drive</h1>
               <p>Failed to format USB drive: {state.message}</p>
             </Prose>
           }
@@ -150,9 +150,9 @@ export function FormatUsbModal({ onClose }: FormatUsbModalProps): JSX.Element {
   if (usbDrive.status === 'absent') {
     return (
       <Modal
+        title="No USB Drive Detected"
         content={
           <Prose>
-            <h1>No USB Drive Detected</h1>
             <p>
               <UsbImage />
               Insert a USB drive you would like to format.
