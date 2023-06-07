@@ -22,8 +22,7 @@ import { UnconfiguredScreen } from '../screens/unconfigured_screen';
 import { TallyScreen } from '../screens/tally_screen';
 import { TallyReportScreen } from '../screens/tally_report_screen';
 import { TallyWriteInReportScreen } from '../screens/tally_writein_report_screen';
-import { DefinitionEditorScreen } from '../screens/definition_editor_screen';
-import { DefinitionContestsScreen } from '../screens/definition_contests_screen';
+import { DefinitionViewerScreen } from '../screens/definition_viewer_screen';
 import { ManualDataSummaryScreen } from '../screens/manual_data_summary_screen';
 import { ManualDataEntryScreen } from '../screens/manual_data_entry_screen';
 import { SmartcardsScreen } from '../screens/smartcards_screen';
@@ -108,14 +107,8 @@ export function ElectionManager(): JSX.Element {
           <Route exact path={routerPaths.electionDefinition}>
             <DefinitionScreen />
           </Route>
-          <Route exact path={routerPaths.definitionEditor}>
-            <DefinitionEditorScreen allowEditing={false} />
-          </Route>
-          <Route
-            exact
-            path={routerPaths.definitionContest({ contestId: ':contestId' })}
-          >
-            <DefinitionContestsScreen />
+          <Route exact path={routerPaths.definitionViewer}>
+            <DefinitionViewerScreen />
           </Route>
           <Route exact path={routerPaths.ballotsList}>
             <BallotListScreen />
