@@ -26,7 +26,7 @@ const screenTypeToolBarItems: Record<ScreenType, ScreenTypeToolBarItem> = {
   builtIn: { title: 'Generic Built-In Screen', value: 'builtIn' },
   elo13: { title: 'ELO 13" Screen', value: 'elo13' },
   elo15: { title: 'ELO 15" Screen', value: 'elo15' },
-  lenovo: { title: 'Lenovo Thinkpad', value: 'lenovo' },
+  lenovoThinkpad15: { title: 'Lenovo Thinkpad 15"', value: 'lenovoThinkpad15' },
 };
 
 const DEFAULT_SIZE_MODE: SizeMode = "m";

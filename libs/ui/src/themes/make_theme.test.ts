@@ -46,12 +46,12 @@ test('varies sizes based on screen type', () => {
     screenType: 'elo15',
     sizeMode: 's',
   });
-  const lenovoScreenTheme = makeTheme({
+  const thinkpad15ScreenTheme = makeTheme({
     colorMode: 'contrastMedium',
-    screenType: 'lenovo',
+    screenType: 'lenovoThinkpad15',
     sizeMode: 's',
   });
 
   expect(elo13ScreenTheme.sizes).not.toEqual(elo15ScreenTheme.sizes);
-  expect(elo15ScreenTheme.sizes).not.toEqual(lenovoScreenTheme.sizes);
+  expect(elo15ScreenTheme.sizes).not.toEqual(thinkpad15ScreenTheme.sizes);
 });
