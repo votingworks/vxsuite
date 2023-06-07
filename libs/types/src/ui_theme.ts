@@ -1,5 +1,5 @@
 /** Supported screen types for VxSuite apps. */
-export type ScreenType = 'builtIn' | 'elo13' | 'elo15';
+export type ScreenType = 'builtIn' | 'elo13' | 'elo15' | 'lenovoThinkpad15';
 
 /** Options for supported UI color themes. */
 export type ColorMode =
