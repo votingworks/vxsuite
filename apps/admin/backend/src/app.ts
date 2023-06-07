@@ -29,7 +29,7 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { existsSync, promises as fs, Stats } from 'fs';
+import { createReadStream, existsSync, promises as fs, Stats } from 'fs';
 import { basename, dirname, join } from 'path';
 import {
   BALLOT_PACKAGE_FOLDER,
@@ -230,9 +230,9 @@ function buildApi({
           usbBallotPackageDirectory,
           ballotPackageFileName
         );
-        await fs.copyFile(
-          tempDirectoryBallotPackageFilePath,
-          usbBallotPackageFilePath
+        await fs.writeFile(
+          usbBallotPackageFilePath,
+          createReadStream(tempDirectoryBallotPackageFilePath)
         );
 
         await artifactAuthenticator.writeSignatureFile(
