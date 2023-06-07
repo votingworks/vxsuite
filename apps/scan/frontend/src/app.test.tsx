@@ -386,7 +386,7 @@ async function scanBallot() {
 
   apiMock.expectGetScannerStatus(statusBallotCounted);
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
   expect(screen.getByTestId('ballot-count').textContent).toEqual('1');
 }
 
@@ -398,7 +398,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
   screen.getByText('Scan one ballot sheet at a time.');
   screen.getByText('General Election');
   screen.getByText(/Franklin County/);
@@ -511,7 +511,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   const interpretation: SheetInterpretation = {
     type: 'NeedsReviewSheet',
@@ -550,7 +550,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     scannerStatus({ state: 'no_paper', ballotsCounted: 1 })
   );
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
   expect(screen.getByTestId('ballot-count').textContent).toEqual('1');
 });
 
@@ -559,7 +559,7 @@ test('voter tries to cast ballot that is rejected', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
   apiMock.mockApiClient.scanBallot.expectCallWith().resolves();
@@ -584,7 +584,7 @@ test('voter tries to cast ballot that is rejected', async () => {
 
   // When the voter removes the ballot return to the insert ballot screen
   apiMock.expectGetScannerStatus(statusNoPaper);
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 });
 
 test('voter can cast another ballot while the success screen is showing', async () => {
@@ -657,7 +657,7 @@ test('no printer: poll worker can open and close polls without scanning any ball
     'Insert poll worker card into VxMark to print the report.'
   );
   apiMock.removeCard();
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Close Polls Flow
   apiMock.expectGetCastVoteRecordsForTally([]);
@@ -704,7 +704,7 @@ test('with printer: poll worker can open and close polls without scanning any ba
   screen.getByRole('button', { name: 'Print Additional Polls Opened Report' });
   screen.getByText('Remove the poll worker card', { exact: false });
   apiMock.removeCard();
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Close Polls Flow
   apiMock.expectGetCastVoteRecordsForTally([]);
@@ -749,7 +749,7 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
     apiMock.mockApiClient.saveScannerReportDataToCard
   ).toHaveBeenCalledTimes(1);
   apiMock.removeCard();
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   await scanBallot();
 
@@ -828,7 +828,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
     'Insert poll worker card into VxMark to print the report.'
   );
   apiMock.removeCard();
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Pause Voting Flow
   apiMock.expectGetCastVoteRecordsForTally([]);
@@ -856,7 +856,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
     'Insert poll worker card into VxMark to print the report.'
   );
   apiMock.removeCard();
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Close Polls Flow
   apiMock.expectGetCastVoteRecordsForTally([]);
@@ -973,7 +973,7 @@ test('replace ballot bag flow', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   const { logger } = renderApp();
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   await scanBallot();
 
@@ -1015,7 +1015,7 @@ test('replace ballot bag flow', async () => {
   });
   apiMock.removeCard();
   await advanceTimersAndPromises(3);
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.BallotBagReplaced,
@@ -1031,7 +1031,7 @@ test('replace ballot bag flow', async () => {
     })
   );
   await advanceTimersAndPromises(1);
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Prompts again if new threshold has been reached
   apiMock.expectGetScannerStatus(

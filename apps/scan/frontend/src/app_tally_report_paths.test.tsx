@@ -347,7 +347,7 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
   renderApp({ connectPrinter: true });
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Close the polls
   await closePolls({
@@ -619,7 +619,7 @@ test('saving to card: polls closed, primary election, all precincts', async () =
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
   renderApp({ connectPrinter: false });
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Close the polls
   await closePolls({
@@ -744,7 +744,7 @@ test('printing: polls closed, primary election, single precinct + check addition
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
   renderApp({ connectPrinter: true });
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Close the polls
   await closePolls({
@@ -892,7 +892,7 @@ test('saving to card: polls closed, primary election, single precinct', async ()
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
   renderApp({ connectPrinter: false });
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Close the polls
   await closePolls({
@@ -974,7 +974,7 @@ test('printing: polls closed, general election, all precincts', async () => {
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: true });
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Close the polls
   await closePolls({
@@ -1062,7 +1062,7 @@ test('saving to card: polls closed, general election, all precincts', async () =
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: false });
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Close the polls
   await closePolls({
@@ -1151,7 +1151,7 @@ test('printing: polls closed, general election, single precinct', async () => {
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: true });
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Close the polls
   await closePolls({
@@ -1216,7 +1216,7 @@ test('saving to card: polls closed, general election, single precinct', async ()
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: false });
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Close the polls
   await closePolls({
@@ -1268,7 +1268,7 @@ test('printing: polls paused', async () => {
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: true });
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Pause the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
@@ -1308,7 +1308,7 @@ test('saving to card: polls paused', async () => {
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({ connectPrinter: false });
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
 
   // Pause the polls
   apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
