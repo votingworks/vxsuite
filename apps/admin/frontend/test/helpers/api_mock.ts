@@ -22,6 +22,7 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
+  BallotPackageExportResult,
   CastVoteRecord,
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
@@ -326,10 +327,8 @@ export function createApiMock(
       );
     },
 
-    expectWriteBallotPackageSignatureFile(ballotPackagePath: string) {
-      apiClient.writeBallotPackageSignatureFile
-        .expectCallWith({ ballotPackagePath })
-        .resolves();
+    expectSaveBallotPackageToUsb(result: BallotPackageExportResult = ok()) {
+      apiClient.saveBallotPackageToUsb.expectCallWith().resolves(result);
     },
   };
 }

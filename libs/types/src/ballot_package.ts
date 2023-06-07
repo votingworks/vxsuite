@@ -1,3 +1,5 @@
+import { Result } from '@votingworks/basics';
+
 import {
   BallotStyleId,
   ContestId,
@@ -24,3 +26,6 @@ export interface BallotConfig extends BallotStyleData {
   isLiveMode: boolean;
   isAbsentee: boolean;
 }
+
+export type BallotPackageExportError = 'no_usb_drive';
+export type BallotPackageExportResult = Result<void, BallotPackageExportError>;

@@ -1,5 +1,5 @@
 import MockDate from 'mockdate';
-import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { fakeLogger } from '@votingworks/logging';
 import {
   fakeFileWriter,
   fakeKiosk,
@@ -8,6 +8,7 @@ import {
 import React from 'react';
 import { UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
+import { err } from '@votingworks/basics';
 import {
   fireEvent,
   screen,
@@ -24,7 +25,6 @@ beforeEach(() => {
   MockDate.set(new Date(2023, 0, 1));
 
   apiMock = createApiMock();
-  apiMock.expectGetSystemSettings();
 
   const mockKiosk = fakeKiosk();
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
@@ -38,9 +38,6 @@ afterEach(() => {
   apiMock.assertComplete();
   delete window.kiosk;
 });
-
-const ballotPackagePath =
-  'fake mount point/ballot-packages/choctaw-county_mock-general-election-choctaw-2020_6b99ddaab1__2023-01-01_00-00-00.zip';
 
 test('Button renders properly when not clicked', () => {
   const { queryByTestId } = renderInAppContext(
@@ -90,7 +87,6 @@ test('Modal renders export confirmation screen when usb detected and manual link
     logger,
     apiMock,
   });
-  apiMock.expectWriteBallotPackageSignatureFile(ballotPackagePath);
   userEvent.click(
     await screen.findByRole('button', { name: 'Save Ballot Package' })
   );
@@ -100,19 +96,10 @@ test('Modal renders export confirmation screen when usb detected and manual link
   within(modal).getByText(
     /A zip archive will automatically be saved to the default location on the mounted USB drive./
   );
-  within(modal).getByText(/Optionally, you may pick a custom save location./);
 
-  fireEvent.click(within(modal).getByText('Custom'));
+  apiMock.expectSaveBallotPackageToUsb();
+  userEvent.click(within(modal).getButton('Save'));
   await within(modal).findByText('Ballot Package Saved');
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.SaveBallotPackageInit,
-    'election_manager'
-  );
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.SaveBallotPackageComplete,
-    'election_manager',
-    expect.objectContaining({ disposition: 'success' })
-  );
 
   fireEvent.click(within(modal).getByText('Close'));
   expect(screen.queryAllByTestId('modal')).toHaveLength(0);
@@ -153,24 +140,15 @@ test('Modal renders error message appropriately', async () => {
   fireEvent.click(getByText('Save Ballot Package'));
   await waitFor(() => getByText('Save'));
 
-  fireEvent.click(getByText('Custom'));
+  apiMock.expectSaveBallotPackageToUsb(err('no_usb_drive'));
+  userEvent.click(screen.getButton('Save'));
 
   await waitFor(() => getByText('Failed to Save Ballot Package'));
   expect(queryAllByTestId('modal')).toHaveLength(1);
-  expect(queryAllByText(/An error occurred:/)).toHaveLength(1);
-  expect(queryAllByText(/could not save; no file was chosen/)).toHaveLength(1);
+  expect(queryAllByText(/An error occurred: No USB drive/)).toHaveLength(1);
 
   fireEvent.click(getByText('Close'));
   expect(queryAllByTestId('modal')).toHaveLength(0);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.SaveBallotPackageInit,
-    'election_manager'
-  );
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.SaveBallotPackageComplete,
-    'election_manager',
-    expect.objectContaining({ disposition: 'failure' })
-  );
 });
 
 test('Modal renders renders loading message while rendering ballots appropriately', async () => {
@@ -180,14 +158,12 @@ test('Modal renders renders loading message while rendering ballots appropriatel
       apiMock,
       usbDrive,
     });
-  apiMock.expectWriteBallotPackageSignatureFile(ballotPackagePath);
   fireEvent.click(getByText('Save Ballot Package'));
   await waitFor(() => getByText('Save'));
+  apiMock.expectSaveBallotPackageToUsb();
   userEvent.click(getByRole('button', { name: /Save/ }));
 
   await waitFor(() => screen.findByText('Ballot Package Saved'));
-  expect(window.kiosk!.writeFile).toHaveBeenCalledTimes(1);
-  expect(window.kiosk!.makeDirectory).toHaveBeenCalledTimes(1);
 
   expect(queryAllByTestId('modal')).toHaveLength(1);
   expect(

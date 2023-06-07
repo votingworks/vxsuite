@@ -46,7 +46,10 @@ interface ArtifactSignatureBundle {
  * machine-exported artifacts, meeting VVSG2 data protection requirements
  */
 export interface ArtifactAuthenticatorApi {
-  writeSignatureFile(artifact: Artifact): Promise<void>;
+  writeSignatureFile(
+    artifact: Artifact,
+    signatureFileDirectory?: string
+  ): Promise<void>;
   authenticateArtifactUsingSignatureFile(
     artifact: Artifact
   ): Promise<Result<void, Error>>;
@@ -72,15 +75,19 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
 
   /**
    * Writes a signature file for the provided artifact that can later be used to verify the
-   * artifact's authenticity. The signature file is written to the same file path as the artifact,
-   * but with a .vxsig extension, e.g. /path/to/artifact.txt.vxsig.
+   * artifact's authenticity. The signature file is written to
+   * {signatureFileDirectory}/{artifactFileName}.vxsig, where signatureFileDirectory defaults to
+   * the same directory as the artifact but can be overridden.
    */
-  async writeSignatureFile(artifact: Artifact): Promise<void> {
+  async writeSignatureFile(
+    artifact: Artifact,
+    signatureFileDirectory: string = path.dirname(artifact.path)
+  ): Promise<void> {
     const artifactSignatureBundle = await this.constructArtifactSignatureBundle(
       artifact
     );
     await fs.writeFile(
-      this.constructSignatureFilePath(artifact),
+      this.constructSignatureFilePath(artifact, signatureFileDirectory),
       this.serializeArtifactSignatureBundle(artifactSignatureBundle)
     );
   }
@@ -233,8 +240,14 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
     });
   }
 
-  private constructSignatureFilePath(artifact: Artifact): string {
-    return `${artifact.path}.vxsig`;
+  private constructSignatureFilePath(
+    artifact: Artifact,
+    signatureFileDirectory: string = path.dirname(artifact.path)
+  ): string {
+    return path.join(
+      signatureFileDirectory,
+      `${path.basename(artifact.path)}.vxsig`
+    );
   }
 
   /**
