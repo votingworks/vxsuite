@@ -247,7 +247,7 @@ test('App shows warning message to connect to power when disconnected', async ()
 
   // Remove pollworker card
   apiMock.removeCard();
-  await screen.findByText('Insert Your Ballot Above');
+  await screen.findByText(/Insert Your Ballot/i);
   // There should be no warning about power
   expect(screen.queryByText('No Power Detected.')).toBeNull();
   // Disconnect from power and check for warning
