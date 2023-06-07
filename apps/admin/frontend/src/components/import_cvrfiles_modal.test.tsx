@@ -223,10 +223,8 @@ describe('when USB is properly mounted', () => {
       usbDrive: mockUsbDrive('mounted'),
       apiMock,
     });
-    await waitFor(() => {
-      expect(screen.getByTestId('modal-title')).toHaveTextContent(
-        'Load Test Ballot Mode CVR Files'
-      );
+    await screen.findByRole('heading', {
+      name: 'Load Test Ballot Mode CVR Files',
     });
 
     const tableRows = screen.getAllByTestId('table-row');

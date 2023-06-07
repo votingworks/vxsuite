@@ -5,7 +5,6 @@ import {
   StyledButtonProps,
   Modal,
   useCancelablePromise,
-  Prose,
 } from '@votingworks/ui';
 import { sleep } from '@votingworks/basics';
 import { Loading } from './loading';
@@ -26,17 +25,16 @@ function PrinterNotConnectedModal({
 }: PrinterNotConnectedModalProps): JSX.Element {
   return (
     <Modal
+      title={
+        isNotConnected
+          ? 'The printer is not connected.'
+          : 'The printer is now connected.'
+      }
       content={
         isNotConnected ? (
-          <Prose>
-            <h2>The printer is not connected.</h2>
-            <p>Please connect the printer.</p>
-          </Prose>
+          <p>Please connect the printer.</p>
         ) : (
-          <Prose>
-            <h2>The printer is now connected.</h2>
-            <p>You may continue printing.</p>
-          </Prose>
+          <p>You may continue printing.</p>
         )
       }
       actions={

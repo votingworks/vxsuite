@@ -308,9 +308,9 @@ export function TallyReportScreen(): JSX.Element {
       {isMarkOfficialModalOpen && (
         <Modal
           centerContent
+          title="Mark Unofficial Tally Results as Official Tally Results?"
           content={
             <Prose textCenter>
-              <h1>Mark Unofficial Tally Results as Official Tally Results?</h1>
               <p>
                 Have all CVR files been loaded? Once results are marked as
                 official, no additional CVR files can be loaded.

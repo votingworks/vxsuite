@@ -159,13 +159,11 @@ export function SaveFileToUsb({
   if (currentState === ModalState.ERROR) {
     return (
       <Modal
+        title={`Failed to Save ${title}`}
         content={
-          <Prose>
-            <h1>Failed to Save {title}</h1>
-            <p>
-              Failed to save {fileName}. {errorMessage}
-            </p>
-          </Prose>
+          <p>
+            Failed to save {fileName}. {errorMessage}
+          </p>
         }
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
@@ -190,9 +188,9 @@ export function SaveFileToUsb({
     }
     return (
       <Modal
+        title={`${title} Saved`}
         content={
           <Prose>
-            <h1>{title} Saved</h1>
             {promptToEjectUsb && <p>You may now eject the USB drive.</p>}
             <p>
               {fileName.charAt(0).toUpperCase() + fileName.slice(1)}{' '}
@@ -228,9 +226,9 @@ export function SaveFileToUsb({
       // on the machine for internal debugging use
       return (
         <Modal
+          title="No USB Drive Detected"
           content={
             <Prose>
-              <h1>No USB Drive Detected</h1>
               <p>
                 <UsbImage
                   src="/assets/usb-drive.svg"
@@ -271,9 +269,9 @@ export function SaveFileToUsb({
     case 'mounted': {
       return (
         <Modal
+          title={`Save ${title}`}
           content={
             <Prose>
-              <h1>Save {title}</h1>
               <p>
                 Save the {fileName} as <strong>{defaultFilename}</strong> on the
                 inserted USB drive?

@@ -8,7 +8,6 @@ import {
   Table,
   TD,
   LinkButton,
-  H1,
   P,
   H4,
   Select,
@@ -89,9 +88,9 @@ function RemoveManualTallyModal({
 
   return (
     <Modal
+      title="Remove Manually Entered Results"
       content={
         <React.Fragment>
-          <H1>Remove Manually Entered Results</H1>
           <P>
             Do you want to remove the manually entered results for the following
             type of ballots cast?

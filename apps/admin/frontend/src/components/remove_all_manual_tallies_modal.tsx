@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Modal, Button, P, Font, H1 } from '@votingworks/ui';
+import { Modal, Button, P, Font } from '@votingworks/ui';
 import { deleteAllManualResults } from '../api';
 
 export interface Props {
@@ -18,14 +18,12 @@ export function RemoveAllManualTalliesModal({
   }
   return (
     <Modal
+      title="Remove Manually Entered Results"
       content={
-        <React.Fragment>
-          <H1>Remove Manually Entered Results</H1>
-          <P>
-            Do you want to remove <Font weight="bold">all</Font> manually
-            entered results?
-          </P>
-        </React.Fragment>
+        <P>
+          Do you want to remove <Font weight="bold">all</Font> manually entered
+          results?
+        </P>
       }
       actions={
         <React.Fragment>

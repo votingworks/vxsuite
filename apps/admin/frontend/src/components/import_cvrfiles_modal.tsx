@@ -144,9 +144,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   if (currentState.state === 'error') {
     return (
       <Modal
+        title="Error"
         content={
           <Prose>
-            <h1>Error</h1>
             <p>
               There was an error reading the contents of{' '}
               <strong>{currentState.filename}</strong>:{' '}
@@ -163,9 +163,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   if (currentState.state === 'duplicate') {
     return (
       <Modal
+        title="Duplicate File"
         content={
           <Prose>
-            <h1>Duplicate File</h1>
             <p>
               The selected file was ignored as a duplicate of a previously
               loaded file.
@@ -181,9 +181,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   if (currentState.state === 'success') {
     return (
       <Modal
+        title={`${currentState.result.newlyAdded} new CVRs Loaded`}
         content={
           <Prose>
-            <h1>{currentState.result.newlyAdded} new CVRs Loaded</h1>
             {currentState.result.alreadyPresent > 0 && (
               <p>
                 Of the{' '}
@@ -229,9 +229,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   ) {
     return (
       <Modal
+        title="No USB Drive Detected"
         content={
           <Prose>
-            <h1>No USB Drive Detected</h1>
             <p>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               Please insert a USB drive in order to load CVR files from the
@@ -311,13 +311,11 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     }
     // Set the header and instructional text for the modal
     const headerModeText =
-      fileMode === 'test' ? (
-        <TestMode>Test Ballot Mode</TestMode>
-      ) : fileMode === 'official' ? (
-        'Official Ballot Mode'
-      ) : (
-        ''
-      );
+      fileMode === 'test'
+        ? 'Test Ballot Mode'
+        : fileMode === 'official'
+        ? 'Official Ballot Mode'
+        : '';
 
     let instructionalText: JSX.Element | string;
     if (numberOfNewFiles === 0) {
@@ -345,12 +343,10 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     return (
       <Modal
         modalWidth={ModalWidth.Wide}
+        title={`Load ${headerModeText} CVR Files`}
         content={
           <React.Fragment>
             <Prose maxWidth={false}>
-              <h1 data-testid="modal-title">
-                Load {headerModeText} CVR Files{' '}
-              </h1>
               <p>{instructionalText}</p>
             </Prose>
             {fileTableRows.length > 0 && (

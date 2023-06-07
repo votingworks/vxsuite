@@ -54,6 +54,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     setSaveState({ state: 'saved' });
   }
 
+  let title = '';
   let mainContent: React.ReactNode = null;
   let actions: React.ReactNode = null;
 
@@ -64,9 +65,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         case 'ejected':
         case 'bad_format':
           actions = <Button onPress={closeModal}>Cancel</Button>;
+          title = 'No USB Drive Detected';
           mainContent = (
             <Prose>
-              <h1>No USB Drive Detected</h1>
               <p>
                 <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
                 Please insert a USB drive in order to save the ballot
@@ -93,9 +94,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
               <Button onPress={closeModal}>Cancel</Button>
             </React.Fragment>
           );
+          title = 'Save Ballot Package';
           mainContent = (
             <Prose>
-              <h1>Save Ballot Package</h1>
               <p>
                 <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />A
                 zip archive will automatically be saved to the default location
@@ -117,9 +118,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
           Cancel
         </Button>
       );
+      title = 'Saving…';
       mainContent = (
         <Prose>
-          <h1>Saving…</h1>
           <p>Closing zip file.</p>
         </Prose>
       );
@@ -142,9 +143,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       } else {
         actions = <Button onPress={closeModal}>Close</Button>;
       }
+      title = 'Ballot Package Saved';
       mainContent = (
         <Prose>
-          <h1>Ballot Package Saved</h1>
           <p>
             You may now eject the USB drive. Use the saved ballot package on
             this USB drive to configure VxScan or VxCentralScan.
@@ -156,9 +157,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
 
     case 'error': {
       actions = <Button onPress={closeModal}>Close</Button>;
+      title = 'Failed to Save Ballot Package';
       mainContent = (
         <Prose>
-          <h1>Failed to Save Ballot Package</h1>
           <p>An error occurred: {ErrorMessages[saveState.error]}.</p>
         </Prose>
       );
@@ -177,6 +178,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       </Button>
       {isModalOpen && (
         <Modal
+          title={title}
           content={mainContent}
           onOverlayClick={closeModal}
           actions={actions}
