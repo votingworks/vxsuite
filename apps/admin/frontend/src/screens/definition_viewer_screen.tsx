@@ -1,48 +1,21 @@
 import { assert } from '@votingworks/basics';
-import React, { useCallback, useContext, useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useContext, useState } from 'react';
 import fileDownload from 'js-file-download';
 
 import dashify from 'dashify';
 
-import { safeParseElection } from '@votingworks/types';
-import { Button, Prose } from '@votingworks/ui';
+import { Button, Icons, Pre, WithScrollButtons } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
-import { Textarea } from '../components/textarea';
 import { ButtonBar } from '../components/button_bar';
 import { NavigationScreen } from '../components/navigation_screen';
-import { TextareaEventFunction } from '../config/types';
 import { RemoveElectionModal } from '../components/remove_election_modal';
-import { configure } from '../api';
 
-const Header = styled.div`
-  margin: 1rem;
-`;
-
-const FlexTextareaWrapper = styled.div`
-  display: flex;
-  flex: 1;
-  & > textarea {
-    flex: 1;
-    border: 2px solid #333333;
-    min-height: 400px;
-    font-family: monospace;
-  }
-`;
-export function DefinitionEditorScreen({
-  allowEditing,
-}: {
-  allowEditing: boolean;
-}): JSX.Element {
-  const configureMutation = configure.useMutation();
+export function DefinitionViewerScreen(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { election, electionData } = electionDefinition;
-  const stringifiedElection = JSON.stringify(election, undefined, 2);
-  const [electionString, setElectionString] = useState(stringifiedElection);
-  const [dirty, setDirty] = useState(false);
-  const [error, setError] = useState('');
+  const electionString = JSON.stringify(election, undefined, 2);
 
   const [isConfirmingUnconfig, setIsConfirmingUnconfig] = useState(false);
   function cancelConfirmingUnconfig() {
@@ -50,29 +23,6 @@ export function DefinitionEditorScreen({
   }
   function initConfirmingUnconfig() {
     setIsConfirmingUnconfig(true);
-  }
-
-  const validateElectionDefinition = useCallback(() => {
-    const result = safeParseElection(electionString);
-    setError(result.err()?.message ?? '');
-    return result.isOk();
-  }, [electionString]);
-  const editElection: TextareaEventFunction = (event) => {
-    setDirty(true);
-    setElectionString(event.currentTarget.value);
-  };
-  function handleSaveElection() {
-    const valid = validateElectionDefinition();
-    if (valid) {
-      configureMutation.mutate({ electionData: electionString });
-      setDirty(false);
-      setError('');
-    }
-  }
-  function resetElectionConfig() {
-    setElectionString(stringifiedElection);
-    setDirty(false);
-    setError('');
   }
 
   function downloadElectionDefinition() {
@@ -85,57 +35,25 @@ export function DefinitionEditorScreen({
     );
   }
 
-  useEffect(() => {
-    validateElectionDefinition();
-  }, [validateElectionDefinition, electionString]);
-
   return (
     <React.Fragment>
-      <NavigationScreen flexColumn>
-        {error && (
-          <Header>
-            <Prose maxWidth={false}>{error}</Prose>
-          </Header>
-        )}
-        <ButtonBar padded dark>
-          {allowEditing && (
-            <React.Fragment>
-              <Button
-                small
-                variant="primary"
-                onPress={handleSaveElection}
-                disabled={!dirty || !!error}
-              >
-                Save
-              </Button>
-              <Button small onPress={resetElectionConfig} disabled={!dirty}>
-                Reset
-              </Button>
-            </React.Fragment>
-          )}
+      <NavigationScreen flexColumn title="Election Definition JSON">
+        <ButtonBar padded>
           <div />
           <div />
           <div />
-          <Button small disabled={dirty} onPress={downloadElectionDefinition}>
-            Save
+          <Button onPress={downloadElectionDefinition}>
+            <Icons.Save /> Save
           </Button>
-          <Button
-            small
-            variant="danger"
-            disabled={dirty}
-            onPress={initConfirmingUnconfig}
-          >
-            Remove
+          <Button onPress={initConfirmingUnconfig}>
+            <Icons.Delete /> Remove
           </Button>
         </ButtonBar>
-        <FlexTextareaWrapper>
-          <Textarea
-            onChange={editElection}
-            value={electionString}
-            disabled={!allowEditing}
-            data-testid="json-input"
-          />
-        </FlexTextareaWrapper>
+        <WithScrollButtons>
+          <code>
+            <Pre>{electionString}</Pre>
+          </code>
+        </WithScrollButtons>
       </NavigationScreen>
       {isConfirmingUnconfig && (
         <RemoveElectionModal onClose={cancelConfirmingUnconfig} />
