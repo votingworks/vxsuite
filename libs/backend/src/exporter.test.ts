@@ -1,5 +1,5 @@
 import { mockOf } from '@votingworks/test-utils';
-import { err, ok } from '@votingworks/basics';
+import { assert, err, ok } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { readFile, symlink, writeFile } from 'fs/promises';
 import { join } from 'path';
@@ -161,5 +161,28 @@ test('exportDataToUsbDrive with maximumFileSize', async () => {
   expect(result).toEqual(ok([`${path}-part-1`, `${path}-part-2`]));
   expect(await readFile(`${path}-part-1`, 'utf-8')).toEqual('ba');
   expect(await readFile(`${path}-part-2`, 'utf-8')).toEqual('r');
+  expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', drive.mountPoint]);
+});
+
+test('exportDataToUsbDrive with machineDirectoryToWriteToFirst', async () => {
+  const tmpDir = createTmpDir();
+  const drive: UsbDrive = {
+    deviceName: '/dev/sdb',
+    mountPoint: tmpDir,
+  };
+  assert(drive.mountPoint !== undefined);
+  getUsbDrivesMock.mockResolvedValueOnce([drive]);
+
+  const result = await exporter.exportDataToUsbDrive(
+    'bucket',
+    'test.txt',
+    Readable.from('1234'),
+    { machineDirectoryToWriteToFirst: '/tmp/abcd' }
+  );
+  const usbFilePath = join(drive.mountPoint, 'bucket/test.txt');
+  const machineFilePath = '/tmp/abcd/test.txt';
+  expect(result).toEqual(ok([usbFilePath]));
+  expect(await readFile(usbFilePath, 'utf-8')).toEqual('1234');
+  expect(await readFile(machineFilePath, 'utf-8')).toEqual('1234');
   expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', drive.mountPoint]);
 });

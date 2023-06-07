@@ -273,19 +273,22 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
     1,
     expectedReportPath,
     CAST_VOTE_RECORD_REPORT_FILENAME,
-    expect.anything()
+    expect.anything(),
+    { machineDirectoryToWriteToFirst: expect.stringContaining('/tmp/') }
   );
   expect(exportDataToUsbDriveMock).toHaveBeenNthCalledWith(
     2,
     expectedReportPath,
     'ballot-images/batch-1/front.jpg',
-    'mock-image-data'
+    'mock-image-data',
+    { machineDirectoryToWriteToFirst: expect.stringContaining('/tmp/') }
   );
   expect(exportDataToUsbDriveMock).toHaveBeenNthCalledWith(
     3,
     expectedReportPath,
     'ballot-layouts/batch-1/front.layout.json',
-    JSON.stringify(interpretedHmpbPage1WithWriteIn.layout, undefined, 2)
+    JSON.stringify(interpretedHmpbPage1WithWriteIn.layout, undefined, 2),
+    { machineDirectoryToWriteToFirst: expect.stringContaining('/tmp/') }
   );
   expect(mockArtifactAuthenticator.writeSignatureFile).toHaveBeenCalledTimes(1);
 
