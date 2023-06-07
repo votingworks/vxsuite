@@ -67,7 +67,7 @@ export async function main({ stderr }: IO): Promise<number> {
 
       case circleci.ValidationIssueKind.OutdatedConfig:
         stderr.write(
-          `${relative(cwd, issue.configPath)}: configuration is outdated\n`
+          `${relative(cwd, issue.configPath)}: configuration is outdated. To resolve, run pnpm -w generate-circleci-config and commit the results.\n`
         );
         break;
 
