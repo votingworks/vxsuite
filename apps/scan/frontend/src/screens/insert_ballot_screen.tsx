@@ -21,7 +21,7 @@ export function InsertBallotScreen({
       ballotCountOverride={scannedBallotCount}
     >
       <FullScreenPromptLayout
-        title="Insert Your Ballot Above"
+        title="Insert Your Ballot"
         image={<InsertBallotImage ballotFeedLocation="top" />}
       >
         <P>Scan one ballot sheet at a time.</P>
