@@ -107,6 +107,9 @@ const SCREEN_WIDTH_INCHES_ELO_15 = 7.62;
 const SCREEN_WIDTH_PIXELS_ELO_13 = 1080;
 const SCREEN_WIDTH_INCHES_ELO_13 = 6.51;
 
+const SCREEN_WIDTH_PIXELS_LENOVO = 1920;
+const SCREEN_WIDTH_INCHES_LENOVO = 14.81;
+
 interface SizeThemeParams {
   screenType: ScreenType;
   sizeMode: SizeMode;
@@ -117,6 +120,7 @@ const devicePixelsPerInch: Record<ScreenType, () => number> = {
   builtIn: () => window.devicePixelRatio * PIXELS_PER_INCH_WEB,
   elo13: () => SCREEN_WIDTH_PIXELS_ELO_13 / SCREEN_WIDTH_INCHES_ELO_13,
   elo15: () => SCREEN_WIDTH_PIXELS_ELO_15 / SCREEN_WIDTH_INCHES_ELO_15,
+  lenovo: () => SCREEN_WIDTH_PIXELS_LENOVO / SCREEN_WIDTH_INCHES_LENOVO,
 };
 
 function mmToPx(mm: number, screenType: ScreenType): number {
