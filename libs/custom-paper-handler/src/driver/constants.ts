@@ -1,5 +1,13 @@
 import { Uint8 } from '@votingworks/message-coder';
 
+/**
+ * Maximum value of a `Uint16`
+ */
+export const UINT_16_MAX = 65535;
+
+/**
+ * Max and min values of signed Int16
+ */
 export const INT_16_MIN = -32768;
 export const INT_16_MAX = 32867;
 

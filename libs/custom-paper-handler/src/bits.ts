@@ -369,11 +369,6 @@ export function bitArrayToByte(bits: BitArray): Uint8 {
  */
 export type Uint16 = number;
 
-/**
- * Maximum value of a `Uint16`
- */
-export const Uint16Max = 65535;
-
 export function numberIsInRangeInclusive(
   num: number,
   lowerBound: number,
@@ -403,11 +398,11 @@ export function assertUint8(num: number): asserts num is Uint8 {
 }
 
 export function assertUint16(num: number): asserts num is Uint16 {
-  assertNumberIsInRangeInclusive(num, 0, Uint16Max);
+  assertNumberIsInRangeInclusive(num, 0, UINT_16_MAX);
 }
 
 export function Uint16toUint8(value: Uint16): [MSB: Uint8, LSB: Uint8] {
-  if (value < 0 || value > Uint16Max) {
+  if (value < 0 || value > UINT_16_MAX) {
     throw new Error('invalid Uint16');
   }
 

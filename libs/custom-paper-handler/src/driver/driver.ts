@@ -16,7 +16,6 @@ import {
   assertNumberIsInRangeInclusive,
   assertUint16,
   Uint16,
-  Uint16Max,
   Uint16toUint8,
   Uint8,
 } from '../bits';
@@ -43,6 +42,7 @@ import {
   SCAN_HEADER_LENGTH_BYTES,
   START_OF_PACKET,
   TOKEN,
+  UINT_16_MAX,
 } from './constants';
 import {
   AcknowledgementResponse,
@@ -665,7 +665,7 @@ export class PaperHandlerDriver {
   ): Promise<USBOutTransferResult> {
     assertNumberIsInRangeInclusive(numMotionUnits, INT_16_MIN, INT_16_MAX);
     const unsignedNumMotionUnits: Uint16 =
-      numMotionUnits < 0 ? Uint16Max + 1 - numMotionUnits : numMotionUnits;
+      numMotionUnits < 0 ? UINT_16_MAX + 1 - numMotionUnits : numMotionUnits;
     const [nH, nL] = Uint16toUint8(unsignedNumMotionUnits);
     return this.transferOutGeneric(SetRelativePrintPositionCommand, { nL, nH });
   }
@@ -673,9 +673,9 @@ export class PaperHandlerDriver {
   async setRelativeVerticalPrintPosition(
     numMotionUnits: number
   ): Promise<USBOutTransferResult> {
-    assertNumberIsInRangeInclusive(numMotionUnits, -32768, 32867);
+    assertNumberIsInRangeInclusive(numMotionUnits, INT_16_MIN, INT_16_MAX);
     const unsignedNumMotionUnits: Uint16 =
-      numMotionUnits < 0 ? Uint16Max + 1 + numMotionUnits : numMotionUnits;
+      numMotionUnits < 0 ? UINT_16_MAX + 1 + numMotionUnits : numMotionUnits;
     const [nH, nL] = Uint16toUint8(unsignedNumMotionUnits);
     return this.transferOutGeneric(SetRelativeVerticalPrintPositionCommand, {
       nL,
