@@ -1,4 +1,5 @@
 import { assert } from '@votingworks/basics';
+import { UINT_16_MAX } from './driver/constants';
 
 /**
  * Possible indexes for a bit offset in a `Uint8` value.
