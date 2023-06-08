@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import { assert } from '@votingworks/basics';
 import { Prose } from '@votingworks/ui';
-import { isElectionManagerAuth } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
 
 import { NavigationScreen } from '../components/navigation_screen';
@@ -16,32 +15,19 @@ const Header = styled.div`
 `;
 
 export function BallotListScreen(): JSX.Element {
-  const { auth, configuredAt, electionDefinition } = useContext(AppContext);
+  const { configuredAt, electionDefinition } = useContext(AppContext);
   assert(electionDefinition && typeof configuredAt === 'string');
 
   return (
     <NavigationScreen title="Ballots">
       <Header>
         <Prose>
-          <p>VxAdmin does not produce ballots for this election.</p>
-          {isElectionManagerAuth(auth) ? (
-            <React.Fragment>
-              <p>
-                Save the Ballot Package to USB to configure VxCentralScan or
-                VxScan.
-              </p>
-              <p>
-                <ExportElectionBallotPackageModalButton />
-              </p>
-            </React.Fragment>
-          ) : (
-            <p>
-              <em>
-                Lock machine, then insert Election Manager card to save the
-                Ballot Package.
-              </em>
-            </p>
-          )}
+          <p>
+            Save the Ballot Package to USB to configure VxCentralScan or VxScan.
+          </p>
+          <p>
+            <ExportElectionBallotPackageModalButton />
+          </p>
         </Prose>
       </Header>
     </NavigationScreen>

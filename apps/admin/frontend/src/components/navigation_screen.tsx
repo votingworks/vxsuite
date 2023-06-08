@@ -15,12 +15,14 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 
+import { DippedSmartCardAuth, Election } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { logOut } from '../api';
 import { ScreenHeader } from './layout/screen_header';
 import { NavItem, Sidebar } from './layout/sidebar';
 import { MainContent } from './layout/main_content';
+import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
 
 interface Props {
   children: React.ReactNode;
@@ -33,7 +35,6 @@ interface Props {
 
 const SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Definition', routerPath: routerPaths.electionDefinition },
-  { label: 'Ballots', routerPath: routerPaths.ballotsList },
   { label: 'Smartcards', routerPath: routerPaths.smartcards },
   { label: 'Logs', routerPath: routerPaths.logs },
   { label: 'Settings', routerPath: routerPaths.settings },
@@ -55,6 +56,15 @@ const ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = _.compact([
   { label: 'Reports', routerPath: routerPaths.reports },
 ]);
 
+const NO_BALLOT_GENERATION_HIDDEN_PATHS: ReadonlySet<string> = new Set([
+  routerPaths.logicAndAccuracy,
+]);
+
+const ELECTION_MANAGER_NAV_ITEMS_NO_BALLOT_GENERATION: readonly NavItem[] =
+  ELECTION_MANAGER_NAV_ITEMS.filter(
+    (item) => !NO_BALLOT_GENERATION_HIDDEN_PATHS.has(item.routerPath)
+  );
+
 const ELECTION_MANAGER_NAV_ITEMS_NO_ELECTION: readonly NavItem[] = [];
 
 const ScreenBody = styled.div`
@@ -62,6 +72,41 @@ const ScreenBody = styled.div`
   flex-grow: 1;
   overflow: hidden;
 `;
+
+function getSysAdminNavItems(election?: Election) {
+  if (!election) {
+    return SYSTEM_ADMIN_NAV_ITEMS_NO_ELECTION;
+  }
+
+  return SYSTEM_ADMIN_NAV_ITEMS;
+}
+
+function getElectionManagerNavItems(election?: Election) {
+  if (!election) {
+    return ELECTION_MANAGER_NAV_ITEMS_NO_ELECTION;
+  }
+
+  if (!canViewAndPrintBallots(election)) {
+    return ELECTION_MANAGER_NAV_ITEMS_NO_BALLOT_GENERATION;
+  }
+
+  return ELECTION_MANAGER_NAV_ITEMS;
+}
+
+function getNavItems(
+  auth: DippedSmartCardAuth.AuthStatus,
+  election?: Election
+) {
+  if (isSystemAdministratorAuth(auth)) {
+    return getSysAdminNavItems(election);
+  }
+
+  if (isElectionManagerAuth(auth)) {
+    return getElectionManagerNavItems(election);
+  }
+
+  return [];
+}
 
 export function NavigationScreen({
   children,
@@ -74,16 +119,6 @@ export function NavigationScreen({
   const { electionDefinition, usbDrive, auth } = useContext(AppContext);
   const election = electionDefinition?.election;
   const logOutMutation = logOut.useMutation();
-
-  const primaryNavItems: readonly NavItem[] = isSystemAdministratorAuth(auth)
-    ? election
-      ? SYSTEM_ADMIN_NAV_ITEMS
-      : SYSTEM_ADMIN_NAV_ITEMS_NO_ELECTION
-    : isElectionManagerAuth(auth)
-    ? election
-      ? ELECTION_MANAGER_NAV_ITEMS
-      : ELECTION_MANAGER_NAV_ITEMS_NO_ELECTION
-    : [];
 
   return (
     <Screen>
@@ -110,7 +145,7 @@ export function NavigationScreen({
         }
       />
       <ScreenBody>
-        <Sidebar navItems={primaryNavItems} />
+        <Sidebar navItems={getNavItems(auth, election)} />
         <MainContent
           padded
           centerChild={centerChild}
