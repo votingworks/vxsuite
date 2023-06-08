@@ -21,6 +21,8 @@ import {
 import { basename, join, parse } from 'path';
 import fs from 'fs';
 import { ArtifactAuthenticatorApi } from '@votingworks/auth';
+import { dirSync } from 'tmp';
+import { rm } from 'fs/promises';
 import {
   describeSheetValidationError,
   canonicalizeSheet,
@@ -254,17 +256,20 @@ async function exportPageImageAndLayoutToUsbDrive({
   imageFilename,
   computedLayout,
   batchId,
+  machineDirectoryToWriteToFirst,
 }: {
   exporter: Exporter;
   bucket: string;
   imageFilename: string;
   computedLayout: BallotPageLayout;
   batchId: string;
+  machineDirectoryToWriteToFirst: string;
 }): Promise<Result<void, ExportDataError>> {
   const exportImageResult = await exporter.exportDataToUsbDrive(
     bucket,
     join(CVR_BALLOT_IMAGES_SUBDIRECTORY, batchId, basename(imageFilename)),
-    fs.createReadStream(imageFilename)
+    fs.createReadStream(imageFilename),
+    { machineDirectoryToWriteToFirst }
   );
   if (exportImageResult.isErr()) {
     return exportImageResult;
@@ -274,7 +279,8 @@ async function exportPageImageAndLayoutToUsbDrive({
   const exportLayoutResult = await exporter.exportDataToUsbDrive(
     bucket,
     join(CVR_BALLOT_LAYOUTS_SUBDIRECTORY, batchId, layoutBasename),
-    JSON.stringify(computedLayout, undefined, 2)
+    JSON.stringify(computedLayout, undefined, 2),
+    { machineDirectoryToWriteToFirst }
   );
   if (exportLayoutResult.isErr()) {
     return exportLayoutResult;
@@ -301,11 +307,7 @@ export type ExportCastVoteRecordReportToUsbDriveError =
   | { type: 'invalid-sheet-found'; message: string }
   | ExportDataError;
 
-/**
- * Exports a complete cast vote record report to an inserted and mounted USB
- * drive, including ballot images and layouts.
- */
-export async function exportCastVoteRecordReportToUsbDrive(
+async function exportCastVoteRecordReportToUsbDriveHelper(
   {
     electionDefinition,
     isTestMode,
@@ -315,7 +317,8 @@ export async function exportCastVoteRecordReportToUsbDrive(
     batchInfo,
     artifactAuthenticator,
   }: ExportCastVoteRecordReportToUsbDriveParams,
-  getUsbDrives: () => Promise<UsbDrive[]> = defaultGetUsbDrives
+  getUsbDrives: () => Promise<UsbDrive[]>,
+  tempDirectory: string
 ): Promise<Result<void, ExportCastVoteRecordReportToUsbDriveError>> {
   const { electionHash, election } = electionDefinition;
   const exporter = new Exporter({
@@ -323,15 +326,20 @@ export async function exportCastVoteRecordReportToUsbDrive(
     getUsbDrives,
   });
 
+  const reportDirectoryName = generateCastVoteRecordReportDirectoryName(
+    VX_MACHINE_ID,
+    ballotsCounted,
+    isTestMode,
+    new Date()
+  );
   const reportDirectory = join(
     SCANNER_RESULTS_FOLDER,
     generateElectionBasedSubfolderName(election, electionHash),
-    generateCastVoteRecordReportDirectoryName(
-      VX_MACHINE_ID,
-      ballotsCounted,
-      isTestMode,
-      new Date()
-    )
+    reportDirectoryName
+  );
+  const machineDirectoryToWriteToFirst = join(
+    tempDirectory,
+    reportDirectoryName
   );
 
   const castVoteRecordReportStream = getCastVoteRecordReportStream({
@@ -349,7 +357,8 @@ export async function exportCastVoteRecordReportToUsbDrive(
     const exportReportResult = await exporter.exportDataToUsbDrive(
       reportDirectory,
       CAST_VOTE_RECORD_REPORT_FILENAME,
-      castVoteRecordReportStream
+      castVoteRecordReportStream,
+      { machineDirectoryToWriteToFirst }
     );
 
     if (exportReportResult.isErr()) {
@@ -404,6 +413,7 @@ export async function exportCastVoteRecordReportToUsbDrive(
           imageFilename: frontFilename,
           computedLayout: front.layout,
           batchId,
+          machineDirectoryToWriteToFirst,
         });
       if (exportFrontPageImageAndLayoutResult.isErr()) {
         return exportFrontPageImageAndLayoutResult;
@@ -419,6 +429,7 @@ export async function exportCastVoteRecordReportToUsbDrive(
           imageFilename: backFilename,
           computedLayout: back.layout,
           batchId,
+          machineDirectoryToWriteToFirst,
         });
       if (exportBackPageImageAndLayoutResult.isErr()) {
         return exportBackPageImageAndLayoutResult;
@@ -430,10 +441,44 @@ export async function exportCastVoteRecordReportToUsbDrive(
   if (!usbMountPoint) {
     return err({ type: 'missing-usb-drive', message: 'No USB drive found' });
   }
-  await artifactAuthenticator.writeSignatureFile({
-    type: 'cast_vote_records',
-    path: join(usbMountPoint, reportDirectory),
-  });
+  // The signature file should live adjacent to the report directory on the USB
+  // (not within the report directory)
+  const signatureFileDirectory = parse(
+    join(usbMountPoint, reportDirectory)
+  ).dir;
+  await artifactAuthenticator.writeSignatureFile(
+    {
+      type: 'cast_vote_records',
+      // For protection against compromised/faulty USBs, we sign the CVRs as
+      // they exist on the machine, not on the USB (as a compromised/faulty USB
+      // could claim to have written the data that we asked it to but actually
+      // have written something else)
+      path: machineDirectoryToWriteToFirst,
+    },
+    signatureFileDirectory
+  );
 
   return ok();
+}
+
+/**
+ * Exports a complete cast vote record report to an inserted and mounted USB
+ * drive, including ballot images and layouts
+ */
+export async function exportCastVoteRecordReportToUsbDrive(
+  params: ExportCastVoteRecordReportToUsbDriveParams,
+  getUsbDrives: () => Promise<UsbDrive[]> = defaultGetUsbDrives
+): Promise<Result<void, ExportCastVoteRecordReportToUsbDriveError>> {
+  const tempDirectory = dirSync().name;
+  let result: Result<void, ExportCastVoteRecordReportToUsbDriveError>;
+  try {
+    result = await exportCastVoteRecordReportToUsbDriveHelper(
+      params,
+      getUsbDrives,
+      tempDirectory
+    );
+  } finally {
+    await rm(tempDirectory, { recursive: true });
+  }
+  return result;
 }

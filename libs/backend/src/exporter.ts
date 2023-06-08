@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'fs/promises';
 import { any } from 'micromatch';
 import { isAbsolute, join, normalize, parse } from 'path';
 import { Readable } from 'stream';
-import { lstatSync } from 'fs';
+import { createReadStream, lstatSync } from 'fs';
 import { splitToFiles } from './split';
 import { execFile } from './utils/exec';
 import { UsbDrive } from './get_usb_drives';
@@ -104,6 +104,11 @@ export class Exporter {
    * Once the promise returned by this function resolves, the data has been
    * successfully written to the USB drive and it may be safely unmounted.
    *
+   * If `machineDirectoryToWriteToFirst` is provided, data will be written to
+   * that directory first and then copied from there to the USB drive. The data
+   * written to `machineDirectoryToWriteToFirst` will be left intact for other
+   * code to use, e.g. for signature file creation.
+   *
    * @returns a list of the paths of the files that were created, or an error
    */
   async exportDataToUsbDrive(
@@ -111,11 +116,23 @@ export class Exporter {
     name: string,
     data: string | NodeJS.ReadableStream,
     {
+      machineDirectoryToWriteToFirst,
       maximumFileSize = MAXIMUM_FAT32_FILE_SIZE,
     }: {
+      machineDirectoryToWriteToFirst?: string;
       maximumFileSize?: number;
     } = {}
   ): Promise<ExportDataResult> {
+    let dataToWrite = data;
+    if (machineDirectoryToWriteToFirst) {
+      const machineFilePath = join(machineDirectoryToWriteToFirst, name);
+      const result = await this.exportData(machineFilePath, dataToWrite);
+      if (result.isErr()) {
+        return result;
+      }
+      dataToWrite = createReadStream(machineFilePath);
+    }
+
     const [usbDrive] = await this.getUsbDrives();
 
     if (!usbDrive?.mountPoint) {
@@ -127,7 +144,7 @@ export class Exporter {
 
     const result = await this.exportData(
       join(usbDrive.mountPoint, bucket, name),
-      data,
+      dataToWrite,
       { maximumFileSize }
     );
 

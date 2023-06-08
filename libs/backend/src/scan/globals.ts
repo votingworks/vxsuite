@@ -25,8 +25,13 @@ export const NODE_ENV = unsafeParse(
  */
 const defaultAllowedExportPatterns =
   NODE_ENV === 'test'
-    ? ['/tmp/**/*'] // Mock USB drive location
-    : ['/media/**/*']; // Real USB drive location
+    ? [
+        '/tmp/**/*', // Mock USB drive location
+      ]
+    : [
+        '/media/**/*', // Real USB drive location
+        '/tmp/**/*', // Where data is first written for signature file creation
+      ];
 
 /**
  * Where are exported files allowed to be written to?
