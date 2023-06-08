@@ -751,17 +751,14 @@ test('can not view or print ballots', async () => {
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
-  fireEvent.click(screen.getByText('Ballots'));
-  await screen.findByText(
-    'VxAdmin does not produce ballots for this election.'
-  );
-  expect(screen.queryByText('Save Ballot Package')).toBeNull();
+  expect(
+    within(screen.getByRole('navigation')).queryByRole('button', {
+      name: 'Ballots',
+    })
+  ).not.toBeInTheDocument();
 
   await apiMock.logOut();
   await apiMock.authenticateAsElectionManager(electionDefinition);
-  await screen.findByText(
-    'VxAdmin does not produce ballots for this election.'
-  );
   screen.getByText('Save Ballot Package');
 });
 
@@ -805,7 +802,6 @@ test('system administrator UI has expected nav', async () => {
 
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Election Definition' });
-  userEvent.click(screen.getByText('Ballots'));
   userEvent.click(screen.getByText('Smartcards'));
   await screen.findByRole('heading', { name: 'Election Cards' });
   userEvent.click(screen.getByText('Settings'));
@@ -832,7 +828,6 @@ test('system administrator UI has expected nav when no election', async () => {
   await screen.findByRole('heading', { name: 'Logs' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
-  expect(screen.queryByText('Ballots')).not.toBeInTheDocument();
   expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
 
   // Create an election definition and verify that previously hidden tabs appear
@@ -850,7 +845,6 @@ test('system administrator UI has expected nav when no election', async () => {
       screen.queryByRole('heading', { name: 'Configure VxAdmin' })
     ).not.toBeInTheDocument()
   );
-  screen.getByText('Ballots');
   screen.getByText('Smartcards');
 
   // Remove the election definition and verify that those same tabs disappear
@@ -867,9 +861,8 @@ test('system administrator UI has expected nav when no election', async () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
   await waitFor(() =>
-    expect(screen.queryByText('Ballots')).not.toBeInTheDocument()
+    expect(screen.queryByText('Smartcards')).not.toBeInTheDocument()
   );
-  expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
 });
 
 test('system administrator Smartcards screen navigation', async () => {

@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  electionGridLayoutNewHampshireHudsonFixtures,
-  electionMinimalExhaustiveSampleDefinition,
-} from '@votingworks/fixtures';
+import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { screen } from '@testing-library/react';
@@ -74,18 +71,4 @@ test('l&a documents not accessible in official mode', async () => {
   expect(
     screen.queryByText('Print Full Test Deck Tally Report')
   ).not.toBeInTheDocument();
-});
-
-test('l&a documents not accessible in gridLayouts election', async () => {
-  apiMock.expectGetCastVoteRecordFileMode('unlocked');
-
-  renderInAppContext(<LogicAndAccuracyScreen />, {
-    electionDefinition:
-      electionGridLayoutNewHampshireHudsonFixtures.electionDefinition,
-    logger,
-    apiMock,
-  });
-  await screen.findByText(
-    'VxAdmin does not produce ballots or L&A documents for this election.'
-  );
 });
