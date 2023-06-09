@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import { Buffer } from 'buffer';
 import fs from 'fs/promises';
 import { sha256 } from 'js-sha256';
@@ -96,8 +97,8 @@ export const CARD_VX_CERT = {
  * The card's VxAdmin-issued cert
  */
 export const CARD_VX_ADMIN_CERT = {
-  OBJECT_ID: pivDataObjectId(0xf1),
-  PRIVATE_KEY_ID: 0xf1,
+  OBJECT_ID: pivDataObjectId(0x0a),
+  PRIVATE_KEY_ID: 0x9c,
 } as const;
 
 /**
@@ -450,7 +451,7 @@ export class JavaCard implements Card {
     const cardDetails = await parseCardDetailsFromCert(cardVxAdminCert);
     assert(
       cardDetails.user.jurisdiction ===
-        vxAdminCertAuthorityCertDetails.jurisdiction
+      vxAdminCertAuthorityCertDetails.jurisdiction
     );
 
     /**
@@ -500,6 +501,7 @@ export class JavaCard implements Card {
     const certTlv = data.subarray(0, -5); // Trim metadata
     const [, , certInDerFormat] = parseTlv(PUT_DATA.CERT_TAG, certTlv);
     const certInPemFormat = await certDerToPem(certInDerFormat);
+    console.log("pem format", certInPemFormat);
     return certInPemFormat;
   }
 
@@ -550,21 +552,40 @@ export class JavaCard implements Card {
       ? this.customChallengeGenerator()
       : /* istanbul ignore next */ `VotingWorks/${new Date().toISOString()}/${uuid()}`;
     const challengeHash = Buffer.from(sha256(challenge), 'hex');
+
+    const asn1Sha256MagicValue = Buffer.from(
+      [0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20]
+    );
+
+    const allFsPadding = Buffer.from(new Uint8Array(256 - 19 - 2 - 1 - 32).fill(0xff));
+
+    // now we pad
+    const paddedMessage = Buffer.concat([
+      Buffer.from([0, 1]),
+      allFsPadding,
+      Buffer.from([0]),
+      asn1Sha256MagicValue,
+      challengeHash,
+    ]);
+
     const generalAuthenticateResponse = await this.cardReader.transmit(
       new CardCommand({
         ins: GENERAL_AUTHENTICATE.INS,
-        p1: CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256,
+        p1: 0x07,//CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256,
         p2: privateKeyId,
         data: constructTlv(
           GENERAL_AUTHENTICATE.DYNAMIC_AUTHENTICATION_TEMPLATE_TAG,
+
           Buffer.concat([
-            constructTlv(GENERAL_AUTHENTICATE.CHALLENGE_TAG, challengeHash),
+            constructTlv(GENERAL_AUTHENTICATE.CHALLENGE_TAG, paddedMessage),
             constructTlv(GENERAL_AUTHENTICATE.RESPONSE_TAG, Buffer.from([])),
           ])
         ),
       })
     );
-    const challengeSignature = generalAuthenticateResponse.subarray(4); // Trim metadata
+
+    // why are we trimming 8 here instead of 4, and why were we trimming 4 before? Is this an ECC vs. RSA formatting?
+    const challengeSignature = generalAuthenticateResponse.subarray(8); // Trim metadata
 
     // Use the cert's public key to verify the generated signature
     const certPublicKey = await extractPublicKeyFromCert(cert);

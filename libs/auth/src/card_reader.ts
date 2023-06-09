@@ -87,7 +87,7 @@ export class CardReader {
           );
         } else {
           this.updateReader({ status: 'no_card' });
-          reader.disconnect(/* istanbul ignore next */ () => undefined);
+          reader.disconnect(/* istanbul ignore next */() => undefined);
         }
       });
 
@@ -106,6 +106,7 @@ export class CardReader {
     const apdus = command.asCommandApdus();
     let data: Buffer = Buffer.from([]);
     let moreDataAvailable = false;
+    let moreDataLength = 0x00;
 
     for (const [i, apdu] of apdus.entries()) {
       if (i < apdus.length - 1) {
@@ -114,35 +115,43 @@ export class CardReader {
       } else {
         const response = await this.transmitHelper(apdu);
         data = Buffer.concat([data, response.data]);
+        console.log("full response:" + JSON.stringify(response));
         moreDataAvailable = response.moreDataAvailable;
+        moreDataLength = response.moreDataLength;
       }
     }
 
     while (moreDataAvailable) {
+      console.log("more data!");
       const response = await this.transmitHelper(
         new CommandApdu({
           ins: GET_RESPONSE.INS,
           p1: GET_RESPONSE.P1,
           p2: GET_RESPONSE.P2,
+          rawData: Buffer.from([moreDataLength]),
         })
       );
       data = Buffer.concat([data, response.data]);
       moreDataAvailable = response.moreDataAvailable;
+      moreDataLength = response.moreDataLength;
     }
 
+    console.log("full receipt: " + data.toString('hex'));
     return data;
   }
 
   private async transmitHelper(
     apdu: CommandApdu
-  ): Promise<{ data: Buffer; moreDataAvailable: boolean }> {
+  ): Promise<{ data: Buffer; moreDataAvailable: boolean; moreDataLength: number }> {
     if (this.reader.status !== 'ready') {
-      throw new Error('Reader not ready');
+      throw new Error('Reader not ready: ' + this.reader.status);
     }
 
     let response: Buffer;
     try {
+      console.log("TRANSMIT: " + apdu.asHexString('-'));
       response = await this.reader.transmit(apdu.asBuffer());
+      console.log("RECEIVE: " + response.toString('hex'));
     } catch {
       throw new Error('Failed to transmit data to card');
     }
@@ -152,10 +161,10 @@ export class CardReader {
     assert(sw1 !== undefined && sw2 !== undefined);
     assert(isByte(sw1) && isByte(sw2));
     if (sw1 === STATUS_WORD.SUCCESS.SW1 && sw2 === STATUS_WORD.SUCCESS.SW2) {
-      return { data, moreDataAvailable: false };
+      return { data, moreDataAvailable: false, moreDataLength: 0 };
     }
     if (sw1 === STATUS_WORD.SUCCESS_MORE_DATA_AVAILABLE.SW1) {
-      return { data, moreDataAvailable: true };
+      return { data, moreDataAvailable: true, moreDataLength: sw2 ?? 0 };
     }
     throw new ResponseApduError([sw1, sw2]);
   }
