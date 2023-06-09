@@ -13,11 +13,9 @@ fi
 
 MOUNTPOINT=$1
 
-USER=`logname`
-VX_MOUNTPOINT=/media/vx/usb-drive
-DEV_MOUNTPOINT_REGEX=^/media/$USER/[a-Z0-9-]+$
+MOUNTPOINT_REGEX=^/media/[a-Z0-9-]+/[a-Z0-9-]+$
 
-if ! [[ $MOUNTPOINT = $VX_MOUNTPOINT || $MOUNTPOINT =~ $DEV_MOUNTPOINT_REGEX ]]; then
+if ! [[ $MOUNTPOINT =~ $MOUNTPOINT_REGEX ]]; then
     echo "unmount.sh: mount point \"${MOUNTPOINT}\" is not a valid mounted USB drive"
     exit 1
 fi
