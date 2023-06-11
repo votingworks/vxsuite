@@ -714,10 +714,8 @@ export async function addCastVoteRecordReport({
       castVoteRecordIndex += 1;
     }
 
-    // Update the cast vote file record with information we learned by
-    // iterating through the records. TODO: Calculate the precinct list before
-    // iterating through records after there is only one geopolitical unit
-    // per batch.
+    // TODO: Calculate the precinct list before iterating through records, once there is
+    // only one geopolitical unit per batch in the future.
     store.updateCastVoteRecordFileRecord({
       id: fileId,
       precinctIds,
