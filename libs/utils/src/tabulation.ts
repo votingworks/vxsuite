@@ -361,7 +361,7 @@ export function tabulateCastVoteRecords({
  * which is taking the count of the first cards of HMPBs plus BMD count.
  */
 export function getBallotCount(cardCounts: Tabulation.CardCounts): number {
-  return cardCounts.bmd + (cardCounts.hmpb[0] ?? 0);
+  return cardCounts.bmd + (cardCounts.hmpb[0] ?? 0) + (cardCounts.manual ?? 0);
 }
 
 /**
@@ -492,6 +492,81 @@ export function combineManualElectionResults({
   };
 }
 
+/**
+ * Combines a list of {@link Tabulation.CardCounts} into a single
+ * {@link Tabulation.CardCounts}.
+ */
+export function combineCardCounts(
+  allCardCounts: Tabulation.CardCounts[]
+): Tabulation.CardCounts {
+  const combinedCardCounts: Tabulation.CardCounts = {
+    bmd: 0,
+    hmpb: [],
+  };
+
+  for (const cardCounts of allCardCounts) {
+    combinedCardCounts.bmd += cardCounts.bmd;
+    combinedCardCounts.manual =
+      (combinedCardCounts.manual ?? 0) + (cardCounts.manual ?? 0);
+    for (let i = 0; i < cardCounts.hmpb.length; i += 1) {
+      const cardCount = cardCounts.hmpb[i];
+      combinedCardCounts.hmpb[i] =
+        (combinedCardCounts.hmpb[i] ?? 0) + (cardCount ?? 0);
+    }
+  }
+
+  return combinedCardCounts;
+}
+
+/**
+ * Combines a list of {@link Tabulation.ElectionResults} into a single
+ * {@link Tabulation.ElectionResults}.
+ */
+export function combineElectionResults({
+  election,
+  allElectionResults,
+}: {
+  election: Election;
+  allElectionResults: Tabulation.ElectionResults[];
+}): Tabulation.ElectionResults {
+  const combinedCardCounts = combineCardCounts(
+    allElectionResults.map(({ cardCounts }) => cardCounts)
+  );
+
+  const electionContestResults = combineElectionContestResults({
+    election,
+    allElectionContestResults: allElectionResults.map(
+      (results) => results.contestResults
+    ),
+  });
+
+  return {
+    cardCounts: combinedCardCounts,
+    contestResults: electionContestResults,
+  };
+}
+
+/**
+ * Converts a {@link Tabulation.ManualElectionResults} into
+ * {@link Tabulation.ElectionResults}, simply changing the ballot
+ * count format.
+ */
+export function convertManualElectionResults(
+  manualResults: Tabulation.ManualElectionResults
+): Tabulation.ElectionResults {
+  return {
+    cardCounts: {
+      bmd: 0,
+      hmpb: [],
+      manual: manualResults.ballotCount,
+    },
+    contestResults: manualResults.contestResults,
+  };
+}
+
+/**
+ * Shorthand type for describing contest results for fixtures.
+ */
 export type ContestResultsSummary = {
   ballots: number;
   overvotes?: number;
@@ -500,7 +575,7 @@ export type ContestResultsSummary = {
   | {
       type: 'candidate';
       officialOptionTallies?: Record<ContestOptionId, number>;
-      writeInOptionTallies?: Record<Id, Tabulation.CandidateTally>;
+      writeInOptionTallies?: Record<Id, { name: string; tally: number }>;
     }
   | {
       type: 'yesno';
@@ -554,6 +629,7 @@ function buildElectionContestResultsFixture({
             resultsSummary.writeInOptionTallies
           )) {
             contestResults.tallies[candidateId] = {
+              id: candidateId,
               ...candidateTally,
               isWriteIn: true,
             };
@@ -613,5 +689,51 @@ export function buildElectionResultsFixture({
       contestResultsSummaries,
       includeGenericWriteIn,
     }),
+  };
+}
+
+/**
+ * Combine all specific write-ins entered for manual results into a single
+ * generic write-in tally.
+ */
+export function mergeManualWriteInTallies(
+  manualResults: Tabulation.ManualElectionResults
+): Tabulation.ManualElectionResults {
+  const newElectionContestResults: Tabulation.ManualElectionResults['contestResults'] =
+    {};
+
+  for (const contestResults of Object.values(manualResults.contestResults)) {
+    if (contestResults.contestType === 'yesno') {
+      newElectionContestResults[contestResults.contestId] = contestResults;
+      continue;
+    }
+
+    const newTallies: Tabulation.CandidateContestResults['tallies'] = {};
+
+    let writeInTally = 0;
+    for (const candidateTally of Object.values(contestResults.tallies)) {
+      if (!candidateTally.isWriteIn) {
+        newTallies[candidateTally.id] = candidateTally;
+      } else {
+        writeInTally += candidateTally.tally;
+      }
+    }
+
+    if (writeInTally > 0) {
+      newTallies[writeInCandidate.id] = {
+        ...writeInCandidate,
+        tally: writeInTally,
+      };
+    }
+
+    newElectionContestResults[contestResults.contestId] = {
+      ...contestResults,
+      tallies: newTallies,
+    };
+  }
+
+  return {
+    ...manualResults,
+    contestResults: newElectionContestResults,
   };
 }

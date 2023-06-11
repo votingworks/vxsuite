@@ -24,9 +24,9 @@ export const routerPaths = {
   manualDataEntry: ({
     precinctId,
     ballotStyleId,
-    ballotType,
+    votingMethod,
   }: ManualDataEntryScreenProps): string =>
-    `/tally/manual-data-entry/${ballotStyleId}/${ballotType}/${precinctId}`,
+    `/tally/manual-data-entry/${ballotStyleId}/${votingMethod}/${precinctId}`,
   reports: '/reports',
   tally: '/tally',
   tallyPrecinctReport: ({ precinctId }: PrecinctReportScreenProps): string =>

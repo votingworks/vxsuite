@@ -686,7 +686,7 @@ test('clearing results', async () => {
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',
-      ballotType: 'precinct',
+      votingMethod: 'precinct',
       ballotCount: 100,
       createdAt: new Date().toISOString(),
     },

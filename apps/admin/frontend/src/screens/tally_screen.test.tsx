@@ -32,14 +32,14 @@ test('displays manual tally metadata & links to manual data summary page', async
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',
-      ballotType: 'precinct',
+      votingMethod: 'precinct',
       ballotCount: 50,
       createdAt: earlierDate.toISOString(),
     },
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-2',
-      ballotType: 'precinct',
+      votingMethod: 'precinct',
       ballotCount: 50,
       createdAt: laterDate.toISOString(),
     },
@@ -81,14 +81,14 @@ test('can delete manual data', async () => {
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',
-      ballotType: 'precinct',
+      votingMethod: 'precinct',
       ballotCount: 50,
       createdAt: earlierDate.toISOString(),
     },
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-2',
-      ballotType: 'precinct',
+      votingMethod: 'precinct',
       ballotCount: 50,
       createdAt: laterDate.toISOString(),
     },

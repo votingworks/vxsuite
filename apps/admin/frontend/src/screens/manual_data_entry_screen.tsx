@@ -24,7 +24,6 @@ import {
   getEmptyManualElectionResults,
 } from '@votingworks/utils';
 
-import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 import { ManualDataEntryScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
 
@@ -296,19 +295,15 @@ export function ManualDataEntryScreen(): JSX.Element {
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for adding manual tally data
   const { election } = electionDefinition;
-  const {
-    precinctId,
-    ballotStyleId,
-    ballotType: ballotTypeParam,
-  } = useParams<ManualDataEntryScreenProps>();
+  const { precinctId, ballotStyleId, votingMethod } =
+    useParams<ManualDataEntryScreenProps>();
   const precinct = find(election.precincts, (p) => p.id === precinctId);
   const ballotStyle = find(
     election.ballotStyles,
     (bs) => bs.id === ballotStyleId
   );
-  assert(ballotTypeParam === 'precinct' || ballotTypeParam === 'absentee');
-  const ballotType = ballotTypeParam as ManualResultsVotingMethod;
-  const ballotTypeTitle = ballotType === 'absentee' ? 'Absentee' : 'Precinct';
+  const votingMethodTitle =
+    votingMethod === 'absentee' ? 'Absentee' : 'Precinct';
   const history = useHistory();
 
   const getWriteInCandidatesQuery = getWriteInCandidates.useQuery();
@@ -316,7 +311,7 @@ export function ManualDataEntryScreen(): JSX.Element {
   const getManualResultsQuery = getManualResults.useQuery({
     precinctId,
     ballotStyleId,
-    ballotType,
+    votingMethod,
   });
 
   const [tempManualResults, setTempManualResults] = useState<TempManualResults>(
@@ -336,7 +331,7 @@ export function ManualDataEntryScreen(): JSX.Element {
     setManualTallyMutation.mutate({
       precinctId,
       ballotStyleId,
-      ballotType,
+      votingMethod,
       // replace temporary tally values with the numeric values we'll save
       manualResults: convertManualResults(tempManualResults),
     });
@@ -512,7 +507,7 @@ export function ManualDataEntryScreen(): JSX.Element {
       <P>
         <Font weight="bold">Ballot Style:</Font> {ballotStyleId} |{' '}
         <Font weight="bold">Precinct:</Font> {precinct.name} |{' '}
-        <Font weight="bold">Voting Method:</Font> {ballotTypeTitle}
+        <Font weight="bold">Voting Method:</Font> {votingMethodTitle}
       </P>
       <P>Enter the number of votes for each contest option.</P>
       {currentContests.map((contest) => {

@@ -27,6 +27,10 @@ import {
   buildManualResultsFixture,
   buildElectionResultsFixture,
   ContestResultsSummaries,
+  combineCardCounts,
+  convertManualElectionResults,
+  combineElectionResults,
+  mergeManualWriteInTallies,
 } from './tabulation';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from './filenames';
 import {
@@ -222,7 +226,6 @@ test('buildElectionResultsFixture', () => {
       ballots: 10,
       writeInOptionTallies: {
         somebody: {
-          id: 'somebody',
           name: 'Somebody',
           tally: 10,
         },
@@ -429,6 +432,13 @@ test('getBallotCount', () => {
       hmpb: [10, 10],
     })
   ).toEqual(20);
+  expect(
+    getBallotCount({
+      bmd: 10,
+      hmpb: [5, 4, 4, 4],
+      manual: 7,
+    })
+  ).toEqual(22);
 });
 
 test('isGroupByEmpty', () => {
@@ -905,7 +915,6 @@ test('combineManualElectionResults', () => {
         },
         writeInOptionTallies: {
           somebody: {
-            id: 'somebody',
             name: 'Somebody',
             tally: 2,
           },
@@ -938,7 +947,6 @@ test('combineManualElectionResults', () => {
         },
         writeInOptionTallies: {
           anybody: {
-            id: 'anybody',
             name: 'Anybody',
             tally: 8,
           },
@@ -978,14 +986,139 @@ test('combineManualElectionResults', () => {
           },
           writeInOptionTallies: {
             somebody: {
-              id: 'somebody',
               name: 'Somebody',
               tally: 2,
             },
             anybody: {
-              id: 'anybody',
               name: 'Anybody',
               tally: 8,
+            },
+          },
+        },
+      },
+    })
+  );
+
+  // test for combineElectionResults
+  expect(
+    combineElectionResults({
+      election,
+      allElectionResults: [
+        convertManualElectionResults(manualResults1),
+        convertManualElectionResults(manualResults2),
+      ],
+    })
+  ).toEqual(convertManualElectionResults(combinedResults));
+});
+
+test('combineCardCounts', () => {
+  expect(
+    combineCardCounts([
+      {
+        bmd: 3,
+        hmpb: [1, undefined as unknown as number, 1, 1],
+      },
+      {
+        bmd: 2,
+        hmpb: [2, 2, 2, 2],
+        manual: 2,
+      },
+    ])
+  ).toEqual({
+    bmd: 5,
+    hmpb: [3, 2, 3, 3],
+    manual: 2,
+  });
+});
+
+test('convertManualElectionResults', () => {
+  expect(
+    convertManualElectionResults({
+      ballotCount: 5,
+      contestResults: {},
+    })
+  ).toEqual(
+    typedAs<Tabulation.ElectionResults>({
+      cardCounts: {
+        bmd: 0,
+        hmpb: [],
+        manual: 5,
+      },
+      contestResults: {},
+    })
+  );
+});
+
+test('mergeManualWriteInTallies', () => {
+  const { election } = electionMinimalExhaustiveSampleDefinition;
+
+  expect(
+    mergeManualWriteInTallies(
+      buildManualResultsFixture({
+        election,
+        ballotCount: 7,
+        contestResultsSummaries: {
+          fishing: {
+            type: 'yesno',
+            ballots: 7,
+            overvotes: 0,
+            undervotes: 0,
+            yesTally: 7,
+            noTally: 0,
+          },
+          'zoo-council-mammal': {
+            type: 'candidate',
+            ballots: 7,
+            overvotes: 0,
+            undervotes: 0,
+            officialOptionTallies: {
+              zebra: 4,
+              lion: 4,
+              kangaroo: 4,
+              elephant: 4,
+            },
+            writeInOptionTallies: {
+              narwhal: {
+                name: 'Narwhal',
+                tally: 3,
+              },
+              unicorn: {
+                name: 'Unicorn',
+                tally: 2,
+              },
+            },
+          },
+        },
+      })
+    )
+  ).toEqual(
+    buildManualResultsFixture({
+      election,
+      ballotCount: 7,
+      contestResultsSummaries: {
+        fishing: {
+          type: 'yesno',
+          ballots: 7,
+          overvotes: 0,
+          undervotes: 0,
+          yesTally: 7,
+          noTally: 0,
+        },
+        'zoo-council-mammal': {
+          type: 'candidate',
+          ballots: 7,
+          overvotes: 0,
+          undervotes: 0,
+          officialOptionTallies: {
+            zebra: 4,
+            lion: 4,
+            kangaroo: 4,
+            elephant: 4,
+          },
+          writeInOptionTallies: {
+            [writeInCandidate.id]: {
+              name: writeInCandidate.name,
+              tally: 5,
             },
           },
         },

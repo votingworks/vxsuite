@@ -112,7 +112,7 @@ test('manual results flow (official candidates only)', async () => {
     await apiClient.getManualResults({
       precinctId: 'precinct-1',
       ballotStyleId: '1M',
-      ballotType: 'precinct',
+      votingMethod: 'precinct',
     })
   ).toBeNull();
 
@@ -134,7 +134,7 @@ test('manual results flow (official candidates only)', async () => {
     await apiClient.setManualResults({
       precinctId,
       ballotStyleId,
-      ballotType: 'precinct',
+      votingMethod: 'precinct',
       manualResults,
     });
     expect(logger.log).toHaveBeenLastCalledWith(
@@ -161,7 +161,7 @@ test('manual results flow (official candidates only)', async () => {
       expect.objectContaining({
         precinctId,
         ballotStyleId,
-        ballotType: 'precinct',
+        votingMethod: 'precinct',
         ballotCount: manualResults.ballotCount,
       })
     );
@@ -246,7 +246,7 @@ test('manual results flow (official candidates only)', async () => {
   const manualResultsRecord = await apiClient.getManualResults({
     precinctId: 'precinct-1',
     ballotStyleId: '1M',
-    ballotType: 'precinct',
+    votingMethod: 'precinct',
   });
   assert(manualResultsRecord);
   expect(manualResultsRecord.manualResults).toEqual(
@@ -254,13 +254,13 @@ test('manual results flow (official candidates only)', async () => {
   );
   expect(manualResultsRecord.ballotStyleId).toEqual('1M');
   expect(manualResultsRecord.precinctId).toEqual('precinct-1');
-  expect(manualResultsRecord.ballotType).toEqual('precinct');
+  expect(manualResultsRecord.votingMethod).toEqual('precinct');
 
   // delete a single manual tally
   const deletedResultsIdentifier: ManualResultsIdentifier = {
     ballotStyleId: '1M',
     precinctId: 'precinct-1',
-    ballotType: 'precinct',
+    votingMethod: 'precinct',
   };
   expect(await apiClient.getManualResultsMetadata()).toHaveLength(4);
   await apiClient.deleteManualResults(deletedResultsIdentifier);
@@ -314,15 +314,11 @@ test('ignores write-ins with zero votes', async () => {
         writeInOptionTallies: {
           chimera: {
             tally: 0,
-            id: 'chimera',
             name: 'Chimera',
-            isWriteIn: true,
           },
           'temp-write-in-(Bob)': {
             tally: 0,
-            id: 'temp-write-in-(Bob)',
             name: 'Bob',
-            isWriteIn: true,
           },
         },
       },
@@ -331,7 +327,7 @@ test('ignores write-ins with zero votes', async () => {
 
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
-    ballotType: 'precinct',
+    votingMethod: 'precinct',
     ballotStyleId: '1M',
     manualResults: manualResultsWithZeroCountWriteIns,
   });
@@ -383,9 +379,7 @@ test('adds temp write-in candidates', async () => {
         writeInOptionTallies: {
           'temp-write-in-(Bob)': {
             tally: 1,
-            id: 'temp-write-in-(Bob)',
             name: 'Bob',
-            isWriteIn: true,
           },
         },
       },
@@ -394,7 +388,7 @@ test('adds temp write-in candidates', async () => {
 
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
-    ballotType: 'precinct',
+    votingMethod: 'precinct',
     ballotStyleId: '1M',
     manualResults: manualResultsWithTempWriteIn,
   });
@@ -465,9 +459,7 @@ test('removes write-in candidates not referenced anymore', async () => {
         writeInOptionTallies: {
           [writeInCandidateId]: {
             tally: 1,
-            id: writeInCandidateId,
             name: 'Chimera',
-            isWriteIn: true,
           },
         },
       },
@@ -476,7 +468,7 @@ test('removes write-in candidates not referenced anymore', async () => {
 
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
-    ballotType: 'precinct',
+    votingMethod: 'precinct',
     ballotStyleId: '1M',
     manualResults: manualResultsWithExistingWriteIn,
   });
@@ -527,7 +519,7 @@ test('removes write-in candidates not referenced anymore', async () => {
 
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
-    ballotType: 'precinct',
+    votingMethod: 'precinct',
     ballotStyleId: '1M',
     manualResults: manualResultsWithWriteInRemoved,
   });

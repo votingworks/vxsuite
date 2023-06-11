@@ -17,7 +17,6 @@ import {
   BallotId,
   BallotPageLayout,
   BallotPageLayoutSchema,
-  BallotStyleId,
   CastVoteRecord,
   ContestId,
   ContestOptionId,
@@ -55,7 +54,7 @@ import {
   ManualResultsMetadataRecord,
   ManualResultsRecord,
   ScannerBatch,
-  StoreTabulationFilter,
+  CastVoteRecordStoreFilter,
   WriteInAdjudicationAction,
   WriteInAdjudicationStatus,
   WriteInCandidateRecord,
@@ -69,11 +68,13 @@ import {
   WriteInAdjudicatedOfficialCandidateTally,
   WriteInAdjudicatedWriteInCandidateTally,
   WriteInPendingTally,
+  ManualResultsStoreFilter,
 } from './types';
 import {
   areCastVoteRecordMetadataEqual,
   cvrBallotTypeToLegacyBallotType,
 } from './util/cvrs';
+import { replacePartyIdFilter } from './tabulation/utils';
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
@@ -84,37 +85,6 @@ function convertSqliteTimestampToIso8601(
   sqliteTimestamp: string
 ): Iso8601Timestamp {
   return new Date(sqliteTimestamp).toISOString();
-}
-
-/**
- * Replaces the `partyIds` filter in a {@link Tabulation.Filter} with
- * an equivalent `ballotStyleIds` filter.
- */
-export function replacePartyIdFilter(
-  filter: Tabulation.Filter,
-  election: Election
-): StoreTabulationFilter {
-  if (!filter.partyIds) return filter;
-
-  const ballotStyleIds: BallotStyleId[] = [];
-
-  for (const ballotStyle of election.ballotStyles) {
-    if (
-      ballotStyle.partyId &&
-      filter.partyIds.includes(ballotStyle.partyId) &&
-      (!filter.ballotStyleIds || filter.ballotStyleIds.includes(ballotStyle.id))
-    ) {
-      ballotStyleIds.push(ballotStyle.id);
-    }
-  }
-
-  return {
-    ballotStyleIds,
-    precinctIds: filter.precinctIds,
-    votingMethods: filter.votingMethods,
-    scannerIds: filter.scannerIds,
-    batchIds: filter.batchIds,
-  };
 }
 
 function asQueryPlaceholders(list: unknown[]): string {
@@ -911,7 +881,7 @@ export class Store {
 
   private getTabulationFilterAsSql(
     electionId: Id,
-    filter: StoreTabulationFilter
+    filter: CastVoteRecordStoreFilter
   ): [whereParts: string[], params: Bindable[]] {
     const whereParts = ['cvrs.election_id = ?'];
     const params: Bindable[] = [electionId];
@@ -1288,7 +1258,7 @@ export class Store {
   }: {
     electionId: Id;
     election: Election;
-    filter?: StoreTabulationFilter;
+    filter?: CastVoteRecordStoreFilter;
     groupBy?: Tabulation.GroupBy;
   }): Generator<Tabulation.GroupOf<WriteInTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
@@ -1360,9 +1330,11 @@ export class Store {
       const groupSpecifier: Tabulation.GroupSpecifier = groupBy
         ? {
             ballotStyleId: groupBy.groupByBallotStyle
+              ? row.ballotStyleId
+              : undefined,
+            partyId: groupBy.groupByParty
               ? ballotStylePartyLookup[assertDefined(row.ballotStyleId)]
               : undefined,
-            partyId: groupBy.groupByParty ? row.ballotStyleId : undefined,
             batchId: groupBy.groupByBatch ? row.batchId : undefined,
             scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
             precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
@@ -1571,7 +1543,7 @@ export class Store {
     electionId,
     precinctId,
     ballotStyleId,
-    ballotType,
+    votingMethod,
   }: { electionId: Id } & ManualResultsIdentifier): void {
     this.client.run(
       `
@@ -1580,11 +1552,11 @@ export class Store {
           election_id = ? and
           precinct_id = ? and
           ballot_style_id = ? and
-          ballot_type = ?`,
+          voting_method = ?`,
       electionId,
       precinctId,
       ballotStyleId,
-      ballotType
+      votingMethod
     );
 
     // removing the manual result may have left unofficial write-in candidates
@@ -1596,7 +1568,7 @@ export class Store {
     electionId,
     precinctId,
     ballotStyleId,
-    ballotType,
+    votingMethod,
     manualResults,
   }: ManualResultsIdentifier & {
     electionId: Id;
@@ -1613,13 +1585,13 @@ export class Store {
           election_id,
           precinct_id,
           ballot_style_id,
-          ballot_type,
+          voting_method,
           ballot_count,
           contest_results
         ) values 
           (?, ?, ?, ?, ?, ?)
         on conflict
-          (election_id, precinct_id, ballot_style_id, ballot_type)
+          (election_id, precinct_id, ballot_style_id, voting_method)
         do update set
           ballot_count = excluded.ballot_count,
           contest_results = excluded.contest_results
@@ -1628,7 +1600,7 @@ export class Store {
       electionId,
       precinctId,
       ballotStyleId,
-      ballotType,
+      votingMethod,
       ballotCount,
       serializedContestResults
     ) as { id: Id };
@@ -1682,28 +1654,30 @@ export class Store {
 
   getManualResults({
     electionId,
-    precinctId,
-    ballotStyleId,
-    ballotType,
+    precinctIds,
+    ballotStyleIds,
+    votingMethods,
   }: {
     electionId: Id;
-  } & Partial<ManualResultsIdentifier>): ManualResultsRecord[] {
+  } & ManualResultsStoreFilter): ManualResultsRecord[] {
     const whereParts = ['election_id = ?'];
     const params: Bindable[] = [electionId];
 
-    if (precinctId) {
-      whereParts.push('precinct_id = ?');
-      params.push(precinctId);
+    if (precinctIds) {
+      whereParts.push(`precinct_id in ${asQueryPlaceholders(precinctIds)}`);
+      params.push(...precinctIds);
     }
 
-    if (ballotStyleId) {
-      whereParts.push('ballot_style_id = ?');
-      params.push(ballotStyleId);
+    if (ballotStyleIds) {
+      whereParts.push(
+        `ballot_style_id in ${asQueryPlaceholders(ballotStyleIds)}`
+      );
+      params.push(...ballotStyleIds);
     }
 
-    if (ballotType) {
-      whereParts.push('ballot_type = ?');
-      params.push(ballotType);
+    if (votingMethods) {
+      whereParts.push(`voting_method in ${asQueryPlaceholders(votingMethods)}`);
+      params.push(...votingMethods);
     }
 
     return (
@@ -1712,7 +1686,7 @@ export class Store {
           select 
             precinct_id as precinctId,
             ballot_style_id as ballotStyleId,
-            ballot_type as ballotType,
+            voting_method as votingMethod,
             ballot_count as ballotCount,
             contest_results as contestResultsData,
             datetime(created_at, 'localtime') as createdAt
@@ -1730,7 +1704,7 @@ export class Store {
     ).map((row) => ({
       precinctId: row.precinctId,
       ballotStyleId: row.ballotStyleId,
-      ballotType: row.ballotType,
+      votingMethod: row.votingMethod,
       manualResults: {
         ballotCount: row.ballotCount,
         contestResults: JSON.parse(
@@ -1752,7 +1726,7 @@ export class Store {
           select 
             precinct_id as precinctId,
             ballot_style_id as ballotStyleId,
-            ballot_type as ballotType,
+            voting_method as votingMethod,
             ballot_count as ballotCount,
             datetime(created_at, 'localtime') as createdAt
           from manual_results
@@ -1768,7 +1742,7 @@ export class Store {
     ).map((row) => ({
       precinctId: row.precinctId,
       ballotStyleId: row.ballotStyleId,
-      ballotType: row.ballotType,
+      votingMethod: row.votingMethod,
       ballotCount: row.ballotCount,
       createdAt: convertSqliteTimestampToIso8601(row.createdAt),
     }));

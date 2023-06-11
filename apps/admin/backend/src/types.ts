@@ -430,9 +430,9 @@ export type ServerFullElectionManualTally = Omit<
 /**
  * Ballot types for which we allow adding manual results.
  */
-export type ManualResultsVotingMethod = Exclude<
+export type ManualResultsVotingMethod = Extract<
   Tabulation.VotingMethod,
-  'provisional'
+  'absentee' | 'precinct'
 >;
 
 /**
@@ -442,7 +442,7 @@ export type ManualResultsVotingMethod = Exclude<
 export interface ManualResultsIdentifier {
   precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
-  ballotType: ManualResultsVotingMethod;
+  votingMethod: ManualResultsVotingMethod;
 }
 
 /**
@@ -462,7 +462,34 @@ export interface ManualResultsMetadataRecord extends ManualResultsIdentifier {
 }
 
 /**
+ * Subset of cast vote records filters that we support with manual results.
+ */
+export type ManualResultsFilter = Pick<
+  Tabulation.Filter,
+  'ballotStyleIds' | 'partyIds' | 'precinctIds' | 'votingMethods'
+>;
+
+/**
+ * Subset of manual results filter that the store itself can filter on.
+ */
+export type ManualResultsStoreFilter = Pick<
+  ManualResultsFilter,
+  'ballotStyleIds' | 'precinctIds' | 'votingMethods'
+>;
+
+/**
+ * Subset of cast vote record groupings that we can group manual results on.
+ */
+export type ManualResultsGroupBy = Pick<
+  Tabulation.GroupBy,
+  | 'groupByBallotStyle'
+  | 'groupByParty'
+  | 'groupByPrecinct'
+  | 'groupByVotingMethod'
+>;
+
+/**
  * Subset of tabulation filters that we can use to directly filter cast
  * vote records.
  */
-export type StoreTabulationFilter = Omit<Tabulation.Filter, 'partyIds'>;
+export type CastVoteRecordStoreFilter = Omit<Tabulation.Filter, 'partyIds'>;

@@ -4,15 +4,13 @@ import {
   extractGroupSpecifier,
   getGroupKey,
   isGroupByEmpty,
-  tabulateCastVoteRecords,
 } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   ContestWriteInSummary,
-  WriteInTally,
   ElectionWriteInSummary,
-} from './types';
-import { Store } from './store';
+  WriteInTally,
+} from '../types';
 
 /**
  * Creates an empty contest write-in summary.
@@ -276,64 +274,4 @@ export function modifyElectionResultsWithWriteInSummary(
   }
 
   return modifiedElectionResults;
-}
-
-/**
- * Tabulate election results including all scanned and adjudicated information.
- */
-export function tabulateElectionResults({
-  store,
-  filter = {},
-  groupBy = {},
-  includeWriteInAdjudicationResults,
-}: {
-  store: Store;
-  filter?: Tabulation.Filter;
-  groupBy?: Tabulation.GroupBy;
-  includeWriteInAdjudicationResults: boolean;
-}): Tabulation.GroupedElectionResults {
-  const electionId = store.getCurrentElectionId();
-  assert(electionId !== undefined);
-  const electionRecord = store.getElection(electionId);
-  assert(electionRecord);
-  const {
-    electionDefinition: { election },
-  } = electionRecord;
-
-  const groupedElectionResults = tabulateCastVoteRecords({
-    cvrs: store.getCastVoteRecords({ electionId, election, filter }),
-    election,
-    groupBy,
-  });
-
-  if (!includeWriteInAdjudicationResults) {
-    return groupedElectionResults;
-  }
-
-  const groupedWriteInSummaries = tabulateWriteInTallies({
-    election,
-    writeInTallies: store.getWriteInTalliesForTabulation({
-      electionId,
-      election,
-      filter,
-      groupBy,
-    }),
-    groupBy,
-  });
-
-  for (const [
-    groupKey,
-    electionResultsWithoutWriteInAdjudicationData,
-  ] of Object.entries(groupedElectionResults)) {
-    const writeInSummary = groupedWriteInSummaries[groupKey];
-    if (writeInSummary) {
-      groupedElectionResults[groupKey] =
-        modifyElectionResultsWithWriteInSummary(
-          electionResultsWithoutWriteInAdjudicationData,
-          writeInSummary
-        );
-    }
-  }
-
-  return groupedElectionResults;
 }

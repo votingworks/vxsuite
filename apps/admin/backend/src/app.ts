@@ -628,7 +628,7 @@ function buildApi({
           electionId,
           precinctId: input.precinctId,
           ballotStyleId: input.ballotStyleId,
-          ballotType: input.ballotType,
+          votingMethod: input.votingMethod,
           manualResults,
         });
         return Promise.resolve();
@@ -644,7 +644,7 @@ function buildApi({
           ballotCount: input.manualResults.ballotCount,
           ballotStyleId: input.ballotStyleId,
           precinctId: input.precinctId,
-          ballotType: input.ballotType,
+          ballotType: input.votingMethod,
         }
       );
     },
@@ -661,7 +661,9 @@ function buildApi({
     ): ManualResultsRecord | null {
       const [manualResultsRecord] = store.getManualResults({
         electionId: loadCurrentElectionIdOrThrow(workspace),
-        ...input,
+        precinctIds: input.precinctId ? [input.precinctId] : undefined,
+        ballotStyleIds: input.ballotStyleId ? [input.ballotStyleId] : undefined,
+        votingMethods: input.votingMethod ? [input.votingMethod] : undefined,
       });
 
       return manualResultsRecord ?? null;

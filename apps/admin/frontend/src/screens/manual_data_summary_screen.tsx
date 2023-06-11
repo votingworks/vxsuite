@@ -43,7 +43,7 @@ function getAllPossibleManualTallyIdentifiers(
       {
         ballotStyleId: bs.id,
         precinctId,
-        ballotType: 'precinct',
+        votingMethod: 'precinct',
       },
     ])
   );
@@ -75,7 +75,7 @@ function RemoveManualTallyModal({
     deleteManualTallyMutation.mutate({
       ballotStyleId: identifier.ballotStyleId,
       precinctId: identifier.precinctId,
-      ballotType: identifier.ballotType,
+      votingMethod: identifier.votingMethod,
     });
     onClose();
   }
@@ -83,8 +83,8 @@ function RemoveManualTallyModal({
     election.precincts,
     (p) => p.id === identifier.precinctId
   );
-  const ballotTypeTitle =
-    identifier.ballotType === 'absentee' ? 'Absentee' : 'Precinct';
+  const votingMethodTitle =
+    identifier.votingMethod === 'absentee' ? 'Absentee' : 'Precinct';
 
   return (
     <Modal
@@ -100,7 +100,7 @@ function RemoveManualTallyModal({
             <br />
             <Font weight="bold">Precinct:</Font> {precinct.name}
             <br />
-            <Font weight="bold">Voting Method:</Font> {ballotTypeTitle}
+            <Font weight="bold">Voting Method:</Font> {votingMethodTitle}
           </P>
         </React.Fragment>
       }
@@ -134,7 +134,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
         return (
           metadataA.ballotStyleId.localeCompare(metadataB.ballotStyleId) ||
           metadataA.precinctId.localeCompare(metadataB.precinctId) ||
-          metadataA.ballotType.localeCompare(metadataB.ballotType)
+          metadataA.votingMethod.localeCompare(metadataB.votingMethod)
         );
       }
     );
@@ -154,17 +154,17 @@ export function ManualDataSummaryScreen(): JSX.Element {
     return getAllPossibleManualTallyIdentifiers(election).filter(
       (identifier) =>
         !manualTallyMetadataRecords.some(
-          ({ ballotStyleId, precinctId, ballotType }) =>
+          ({ ballotStyleId, precinctId, votingMethod }) =>
             ballotStyleId === identifier.ballotStyleId &&
             precinctId === identifier.precinctId &&
-            ballotType === identifier.ballotType
+            votingMethod === identifier.votingMethod
         )
     );
   }, [election, manualTallyMetadataRecords]);
 
   const [selectedPrecinct, setSelectedPrecinct] = useState<Precinct>();
   const [selectedBallotStyle, setSelectedBallotStyle] = useState<BallotStyle>();
-  const [selectedBallotType, setSelectedBallotType] =
+  const [selectedVotingMethod, setSelectedBallotType] =
     useState<ManualResultsVotingMethod>();
 
   const selectableBallotStyles = election.ballotStyles.filter((bs) => {
@@ -183,12 +183,12 @@ export function ManualDataSummaryScreen(): JSX.Element {
     : [];
   const selectableBallotTypes: ManualResultsVotingMethod[] =
     selectedBallotStyle && selectedPrecinct
-      ? allManualTallyBallotTypes.filter((ballotType) => {
+      ? allManualTallyBallotTypes.filter((votingMethod) => {
           return uncreatedManualTallyMetadata.some(
             (metadata) =>
               metadata.ballotStyleId === selectedBallotStyle.id &&
               metadata.precinctId === selectedPrecinct.id &&
-              metadata.ballotType === ballotType
+              metadata.votingMethod === votingMethod
           );
         })
       : [];
@@ -258,16 +258,18 @@ export function ManualDataSummaryScreen(): JSX.Element {
                   election.precincts,
                   (p) => p.id === metadata.precinctId
                 );
-                const ballotTypeTitle =
-                  metadata.ballotType === 'absentee' ? 'Absentee' : 'Precinct';
+                const votingMethodTitle =
+                  metadata.votingMethod === 'absentee'
+                    ? 'Absentee'
+                    : 'Precinct';
                 return (
                   <tr
-                    key={`${metadata.precinctId}-${metadata.ballotStyleId}-${metadata.ballotType}`}
+                    key={`${metadata.precinctId}-${metadata.ballotStyleId}-${metadata.votingMethod}`}
                   >
                     <TD>{metadata.ballotStyleId}</TD>
                     <TD>{precinct.name}</TD>
 
-                    <TD>{ballotTypeTitle}</TD>
+                    <TD>{votingMethodTitle}</TD>
                     <TD nowrap>
                       <LinkButton
                         small
@@ -337,7 +339,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
                     <Select
                       id="selectBallotType"
                       data-testid="selectBallotType"
-                      value={selectedBallotType || ''}
+                      value={selectedVotingMethod || ''}
                       onBlur={handleBallotTypeSelect}
                       onChange={handleBallotTypeSelect}
                       small
@@ -356,14 +358,14 @@ export function ManualDataSummaryScreen(): JSX.Element {
                   <TD nowrap>
                     {selectedBallotStyle &&
                     selectedPrecinct &&
-                    selectedBallotType ? (
+                    selectedVotingMethod ? (
                       <LinkButton
                         small
                         variant="primary"
                         to={routerPaths.manualDataEntry({
                           ballotStyleId: selectedBallotStyle.id,
                           precinctId: selectedPrecinct.id,
-                          ballotType: selectedBallotType,
+                          votingMethod: selectedVotingMethod,
                         })}
                       >
                         Add Results

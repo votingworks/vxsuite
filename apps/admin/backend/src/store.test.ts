@@ -1,72 +1,16 @@
-import {
-  electionMinimalExhaustiveSampleDefinition,
-  electionMinimalExhaustiveSampleFixtures,
-} from '@votingworks/fixtures';
+import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { safeParseSystemSettings } from '@votingworks/utils';
 import { find, typedAs } from '@votingworks/basics';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpNameSync } from 'tmp';
 import { CandidateContest, Tabulation } from '@votingworks/types';
-import { Store, replacePartyIdFilter } from './store';
+import { Store } from './store';
 import {
   ElectionRecord,
   ManualResultsVotingMethod,
   ScannerBatch,
 } from './types';
-
-test('replacePartyIdFilter', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
-
-  expect(
-    replacePartyIdFilter(
-      {
-        partyIds: ['0'],
-      },
-      election
-    )
-  ).toEqual({
-    ballotStyleIds: ['1M'],
-  });
-
-  expect(
-    replacePartyIdFilter(
-      {
-        partyIds: ['0', '1'],
-      },
-      election
-    )
-  ).toEqual({
-    ballotStyleIds: ['1M', '2F'],
-  });
-
-  // doesn't touch other filters when no party id
-  expect(
-    replacePartyIdFilter(
-      {
-        ballotStyleIds: ['1M', '2F'],
-        votingMethods: ['absentee'],
-      },
-      election
-    )
-  ).toEqual({
-    ballotStyleIds: ['1M', '2F'],
-    votingMethods: ['absentee'],
-  });
-
-  // intersects explicit ballot style ids and implied ballot style ids
-  expect(
-    replacePartyIdFilter(
-      {
-        partyIds: ['0'],
-        ballotStyleIds: ['1M', '2F'],
-      },
-      election
-    )
-  ).toEqual({
-    ballotStyleIds: ['1M'],
-  });
-});
 
 test('create a file store', async () => {
   const tmpDir = tmpNameSync();
@@ -241,26 +185,26 @@ test('manual results', () => {
   };
   const precinctId = 'precinct-1';
   const ballotStyleId = '1M';
-  const ballotType: ManualResultsVotingMethod = 'precinct';
+  const votingMethod: ManualResultsVotingMethod = 'precinct';
 
   store.setManualResults({
     electionId,
     precinctId,
     ballotStyleId,
-    ballotType,
+    votingMethod,
     manualResults,
   });
   expect(store.getManualResults({ electionId })).toMatchObject([
-    { precinctId, ballotStyleId, ballotType, manualResults },
+    { precinctId, ballotStyleId, votingMethod, manualResults },
   ]);
   expect(
     store.getManualResults({
       electionId,
-      precinctId,
-      ballotStyleId,
-      ballotType,
+      precinctIds: [precinctId],
+      ballotStyleIds: [ballotStyleId],
+      votingMethods: [votingMethod],
     })
-  ).toMatchObject([{ precinctId, ballotStyleId, ballotType, manualResults }]);
+  ).toMatchObject([{ precinctId, ballotStyleId, votingMethod, manualResults }]);
   expect(store.getWriteInCandidates({ electionId })).toHaveLength(1);
 
   // update the results, without changing the write-in candidate reference
@@ -272,14 +216,14 @@ test('manual results', () => {
     electionId,
     precinctId,
     ballotStyleId,
-    ballotType,
+    votingMethod,
     manualResults: editedManualResults,
   });
   expect(store.getManualResults({ electionId })).toMatchObject([
     {
       precinctId,
       ballotStyleId,
-      ballotType,
+      votingMethod,
       manualResults: editedManualResults,
     },
   ]);
@@ -300,14 +244,14 @@ test('manual results', () => {
     electionId,
     precinctId,
     ballotStyleId,
-    ballotType,
+    votingMethod,
     manualResults: noWriteInManualResults,
   });
   expect(store.getManualResults({ electionId })).toMatchObject([
     {
       precinctId,
       ballotStyleId,
-      ballotType,
+      votingMethod,
       manualResults: noWriteInManualResults,
     },
   ]);

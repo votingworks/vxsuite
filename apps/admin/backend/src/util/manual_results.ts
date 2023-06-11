@@ -93,7 +93,7 @@ export function buildFullElectionManualTallyFromStore(
   // we are only providing precinct manual tallies to frontend tallying
   const manualResultsRecords = store.getManualResults({
     electionId,
-    ballotType: 'precinct',
+    votingMethods: ['precinct'],
   });
   if (manualResultsRecords.length === 0) return undefined;
 
