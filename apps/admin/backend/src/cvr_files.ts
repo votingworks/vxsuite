@@ -97,7 +97,7 @@ export async function listCastVoteRecordFilesOnUsb(
       case 'usb-drive-not-mounted':
         // we're just polling without a USB drive in these cases, no issue
         break;
-      /* istanbul ignore next: compile-time check for completeness */
+      /* c8 ignore next 2 */
       default:
         throwIllegalValue(errorType);
     }
@@ -365,7 +365,7 @@ export function getAddCastVoteRecordReportErrorMessage(
       const messageBase = `Found an invalid cast vote record at index ${error.index} in the current report.`;
       const messageDetail = (() => {
         const subErrorType = error.error;
-        /* istanbul ignore next  - write testing when error handling requirements and implementation harden */
+        /* c8 ignore start */
         switch (subErrorType) {
           case 'invalid-election':
             return `The record references an election other than the current election.`;
@@ -386,9 +386,9 @@ export function getAddCastVoteRecordReportErrorMessage(
             return `The record references a contest which does not exist for its ballot style.`;
           case 'invalid-contest-option':
             return `The record references a contest option which does not exist for the contest.`;
-          /* istanbul ignore next: compile-time check for completeness */
           default:
             throwIllegalValue(subErrorType);
+          /* c8 ignore stop */
         }
       })();
 
@@ -398,7 +398,7 @@ export function getAddCastVoteRecordReportErrorMessage(
       return `Unable to parse a layout associated with a ballot image. Path: ${error.path}`;
     case 'ballot-id-already-exists-with-different-data':
       return `Found cast vote record at index ${error.index} that has the same ballot id as a previously imported cast vote record, but with different data.`;
-    /* istanbul ignore next: compile-time check for completeness */
+    /* c8 ignore next 2 */
     default:
       throwIllegalValue(errorType);
   }
@@ -544,17 +544,8 @@ export async function addCastVoteRecordReport({
       });
     }
 
-    // Add a file record which the cast vote records will link to
-    const fileId = uuid();
-    store.addInitialCastVoteRecordFileRecord({
-      id: fileId,
-      electionId,
-      isTestMode: isTestReport(reportMetadata),
-      filename,
-      exportedTimestamp,
-      sha256Hash,
-    });
-
+    // Add records for all batches in report
+    const scannerIds = new Set<string>();
     for (const vxBatch of reportMetadata.vxBatch) {
       store.addScannerBatch({
         batchId: vxBatch['@id'],
@@ -562,12 +553,24 @@ export async function addCastVoteRecordReport({
         scannerId: vxBatch.CreatingDeviceId,
         electionId,
       });
+      scannerIds.add(vxBatch.CreatingDeviceId);
     }
+
+    // Add a file record which the cast vote records will link to
+    const fileId = uuid();
+    store.addCastVoteRecordFileRecord({
+      id: fileId,
+      electionId,
+      isTestMode: isTestReport(reportMetadata),
+      filename,
+      exportedTimestamp,
+      sha256Hash,
+      scannerIds,
+    });
 
     // Iterate through all the cast vote records
     let castVoteRecordIndex = 0;
     const precinctIds = new Set<string>();
-    const scannerIds = new Set<string>();
     let newlyAdded = 0;
     let alreadyPresent = 0;
     for await (const unparsedCastVoteRecord of unparsedCastVoteRecords) {
@@ -603,24 +606,26 @@ export async function addCastVoteRecordReport({
       // Add the cast vote record to the store
       const currentSnapshot = getCurrentSnapshot(cvr);
       assert(currentSnapshot);
-      const votes = JSON.stringify(
-        convertCastVoteRecordVotesToTabulationVotes(currentSnapshot)
-      );
+      const votes =
+        convertCastVoteRecordVotesToTabulationVotes(currentSnapshot);
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         electionId,
         cvrFileId: fileId,
         ballotId: cvr.UniqueId as BallotId,
-        metadata: {
+        cvr: {
           ballotStyleId: cvr.BallotStyleId,
-          ballotType: cvr.vxBallotType,
+          votingMethod: cvr.vxBallotType,
           batchId: cvr.BatchId,
           precinctId: cvr.BallotStyleUnitId,
-          // sheet number was previously validated
-          sheetNumber: cvr.BallotSheetId
-            ? safeParseNumber(cvr.BallotSheetId).unsafeUnwrap()
-            : undefined,
+          card: cvr.BallotSheetId
+            ? {
+                type: 'hmpb',
+                // sheet number was previously validated
+                sheetNumber: safeParseNumber(cvr.BallotSheetId).unsafeUnwrap(),
+              }
+            : { type: 'bmd' },
+          votes,
         },
-        votes,
       });
       if (addCastVoteRecordResult.isErr()) {
         const errorType = addCastVoteRecordResult.err().type;
@@ -630,7 +635,7 @@ export async function addCastVoteRecordReport({
               type: 'ballot-id-already-exists-with-different-data',
               index: castVoteRecordIndex,
             });
-          /* istanbul ignore next */
+          /* c8 ignore next 2 */
           default:
             throwIllegalValue(errorType);
         }
@@ -705,20 +710,15 @@ export async function addCastVoteRecordReport({
         alreadyPresent += 1;
       }
       precinctIds.add(cvr.BallotStyleUnitId);
-      scannerIds.add(cvr.CreatingDeviceId);
 
       castVoteRecordIndex += 1;
     }
 
-    // Update the cast vote file record with information we learned by
-    // iterating through the records.
-    //
-    // TODO: we should have the precinct and scanner list at the top-level of
-    // the report, which would allow this data to be stored up front
+    // TODO: Calculate the precinct list before iterating through records, once there is
+    // only one geopolitical unit per batch in the future.
     store.updateCastVoteRecordFileRecord({
       id: fileId,
       precinctIds,
-      scannerIds,
     });
 
     return ok({

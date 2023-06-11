@@ -1,16 +1,17 @@
-import { ContestId, Election, Tabulation } from '@votingworks/types';
+import { ContestId, Election, Id, Tabulation } from '@votingworks/types';
 import {
   GROUP_KEY_ROOT,
   extractGroupSpecifier,
   getGroupKey,
   isGroupByEmpty,
 } from '@votingworks/utils';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   ContestWriteInSummary,
   ElectionWriteInSummary,
   WriteInTally,
 } from '../types';
+import { Store } from '../store';
 
 /**
  * Creates an empty contest write-in summary.
@@ -118,24 +119,31 @@ function addWriteInTallyToElectionWriteInSummary({
 
   if (writeInTally.status === 'pending') {
     contestWriteInSummary.pendingTally += writeInTally.tally;
-  } else if (writeInTally.adjudicationType === 'invalid') {
-    contestWriteInSummary.invalidTally += writeInTally.tally;
-  } else if (writeInTally.adjudicationType === 'official-candidate') {
-    contestWriteInSummary.candidateTallies[writeInTally.candidateId] = {
-      tally: writeInTally.tally,
-      name: writeInTally.candidateName,
-      id: writeInTally.candidateId,
-      isWriteIn: false,
-    };
-  } else if (writeInTally.adjudicationType === 'write-in-candidate') {
-    contestWriteInSummary.candidateTallies[writeInTally.candidateId] = {
-      tally: writeInTally.tally,
-      name: writeInTally.candidateName,
-      id: writeInTally.candidateId,
-      isWriteIn: true,
-    };
   } else {
-    throwIllegalValue(writeInTally);
+    switch (writeInTally.adjudicationType) {
+      case 'invalid':
+        contestWriteInSummary.invalidTally += writeInTally.tally;
+        break;
+      case 'official-candidate':
+        contestWriteInSummary.candidateTallies[writeInTally.candidateId] = {
+          tally: writeInTally.tally,
+          name: writeInTally.candidateName,
+          id: writeInTally.candidateId,
+          isWriteIn: false,
+        };
+        break;
+      case 'write-in-candidate':
+        contestWriteInSummary.candidateTallies[writeInTally.candidateId] = {
+          tally: writeInTally.tally,
+          name: writeInTally.candidateName,
+          id: writeInTally.candidateId,
+          isWriteIn: true,
+        };
+        break;
+      /* c8 ignore next 2 */
+      default:
+        throwIllegalValue(writeInTally);
+    }
   }
 
   return electionWriteInSummary;
@@ -146,14 +154,27 @@ function addWriteInTallyToElectionWriteInSummary({
  * organized by contest and the optional `groupBy` parameter.
  */
 export function tabulateWriteInTallies({
-  election,
-  writeInTallies,
+  electionId,
+  store,
+  filter,
   groupBy,
 }: {
-  election: Election;
-  writeInTallies: Iterable<Tabulation.GroupOf<WriteInTally>>;
+  electionId: Id;
+  store: Store;
+  filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
 }): Tabulation.Grouped<ElectionWriteInSummary> {
+  const {
+    electionDefinition: { election },
+  } = assertDefined(store.getElection(electionId));
+
+  const writeInTallies = store.getWriteInTalliesForTabulation({
+    electionId,
+    election,
+    filter,
+    groupBy,
+  });
+
   const groupedElectionWriteInSummaries: Record<
     string,
     ElectionWriteInSummary

@@ -4,6 +4,7 @@ import {
   Candidate,
   CandidateId,
   ContestId,
+  ContestOptionId,
   PrecinctId,
 } from './election';
 import * as CVR from './cdf/cast-vote-records/index';
@@ -132,7 +133,7 @@ export type GroupedElectionResults = Grouped<ElectionResults>;
  * Simplified representation of votes on a scanned ballot for tabulation
  * purposes.
  */
-export type Votes = Record<ContestId, Id[]>;
+export type Votes = Record<ContestId, ContestOptionId[]>;
 
 export type CastVoteRecord = {
   readonly votes: Votes;

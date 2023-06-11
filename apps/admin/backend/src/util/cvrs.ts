@@ -6,7 +6,6 @@ import {
   ContestOptionId,
 } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
-import { CastVoteRecordMetadata } from '../types';
 
 /**
  * Gets all the write-in options from a list.
@@ -39,22 +38,6 @@ export function deprecatedGetWriteInsFromCastVoteRecord(
 }
 
 /**
- * Determines whether two cast vote records have identical metadata.
- */
-export function areCastVoteRecordMetadataEqual(
-  a: CastVoteRecordMetadata,
-  b: CastVoteRecordMetadata
-): boolean {
-  return (
-    a.ballotStyleId === b.ballotStyleId &&
-    a.ballotType === b.ballotType &&
-    a.batchId === b.batchId &&
-    a.precinctId === b.precinctId &&
-    a.sheetNumber === b.sheetNumber
-  );
-}
-
-/**
  * Converts the CDF ballot type into the legacy ballot type for tally code
  * consumers.
  */
@@ -68,7 +51,7 @@ export function cvrBallotTypeToLegacyBallotType(
       return 'standard';
     case CVR.vxBallotType.Provisional:
       return 'provisional';
-    /* istanbul ignore next: compile-time check for completeness */
+    /* c8 ignore next 2 */
     default:
       throwIllegalValue(ballotType);
   }

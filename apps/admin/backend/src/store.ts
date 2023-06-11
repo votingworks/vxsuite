@@ -22,7 +22,6 @@ import {
   ContestOptionId,
   CVR,
   Election,
-  ElectionDefinition,
   Id,
   Iso8601Timestamp,
   safeParse,
@@ -45,7 +44,6 @@ import {
   CastVoteRecordFileEntryRecord,
   CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
-  CastVoteRecordMetadata,
   CvrFileMode,
   DatabaseSerializedCastVoteRecordVotes,
   DatabaseSerializedCastVoteRecordVotesSchema,
@@ -70,10 +68,7 @@ import {
   WriteInPendingTally,
   ManualResultsStoreFilter,
 } from './types';
-import {
-  areCastVoteRecordMetadataEqual,
-  cvrBallotTypeToLegacyBallotType,
-} from './util/cvrs';
+import { cvrBallotTypeToLegacyBallotType } from './util/cvrs';
 import { replacePartyIdFilter } from './tabulation/utils';
 
 /**
@@ -282,10 +277,10 @@ export class Store {
    * Returns the current election definition or throws an error if it does
    * not exist.
    */
-  getCurrentElectionDefinitionOrThrow(): ElectionDefinition {
+  getCurrentElectionRecordOrThrow(): ElectionRecord {
     return assertDefined(
       this.getElection(assertDefined(this.getCurrentElectionId()))
-    ).electionDefinition;
+    );
   }
 
   /**
@@ -371,13 +366,14 @@ export class Store {
     ).alreadyPresent;
   }
 
-  addInitialCastVoteRecordFileRecord({
+  addCastVoteRecordFileRecord({
     id,
     electionId,
     isTestMode,
     filename,
     exportedTimestamp,
     sha256Hash,
+    scannerIds,
   }: {
     id: Id;
     electionId: Id;
@@ -385,6 +381,7 @@ export class Store {
     filename: string;
     exportedTimestamp: Iso8601Timestamp;
     sha256Hash: string;
+    scannerIds: Set<string>;
   }): void {
     this.client.run(
       `
@@ -407,7 +404,7 @@ export class Store {
       filename,
       exportedTimestamp,
       JSON.stringify([]),
-      JSON.stringify([]),
+      JSON.stringify([...scannerIds]),
       sha256Hash
     );
   }
@@ -415,22 +412,18 @@ export class Store {
   updateCastVoteRecordFileRecord({
     id,
     precinctIds,
-    scannerIds,
   }: {
     id: Id;
     precinctIds: Set<string>;
-    scannerIds: Set<string>;
   }): void {
     this.client.run(
       `
         update cvr_files
         set
-          precinct_ids = ?,
-          scanner_ids = ?
+          precinct_ids = ?
         where id = ?
       `,
       JSON.stringify([...precinctIds]),
-      JSON.stringify([...scannerIds]),
       id
     );
   }
@@ -444,20 +437,21 @@ export class Store {
     electionId,
     cvrFileId,
     ballotId,
-    metadata,
-    votes,
+    cvr,
   }: {
     electionId: Id;
     cvrFileId: Id;
     ballotId: BallotId;
-    metadata: CastVoteRecordMetadata;
-    votes: string;
+    cvr: Omit<Tabulation.CastVoteRecord, 'scannerId'>;
   }): Result<
     { cvrId: Id; isNew: boolean },
     {
       type: 'ballot-id-already-exists-with-different-data';
     }
   > {
+    const cvrSheetNumber =
+      cvr.card.type === 'bmd' ? null : cvr.card.sheetNumber;
+    const serializedVotes = JSON.stringify(cvr.votes);
     const existingCvr = this.client.one(
       `
         select
@@ -479,7 +473,7 @@ export class Store {
       | {
           id: Id;
           ballotStyleId: string;
-          ballotType: string;
+          ballotType: CVR.vxBallotType;
           batchId: string;
           precinctId: string;
           sheetNumber: number | null;
@@ -489,19 +483,17 @@ export class Store {
 
     const cvrId = existingCvr?.id ?? uuid();
     if (existingCvr) {
-      const existingCvrMetadata: CastVoteRecordMetadata = {
-        ballotStyleId: existingCvr.ballotStyleId,
-        ballotType: existingCvr.ballotType as CVR.vxBallotType,
-        batchId: existingCvr.batchId,
-        precinctId: existingCvr.precinctId,
-        sheetNumber: existingCvr.sheetNumber || undefined,
-      };
-
       // Existing cast vote records are expected, but existing cast vote records
       // with new data indicate a bad or inappropriately manipulated file
       if (
-        !areCastVoteRecordMetadataEqual(metadata, existingCvrMetadata) ||
-        votes !== existingCvr.votes
+        !(
+          existingCvr.ballotStyleId === cvr.ballotStyleId &&
+          existingCvr.ballotType === cvr.votingMethod &&
+          existingCvr.batchId === cvr.batchId &&
+          existingCvr.precinctId === cvr.precinctId &&
+          existingCvr.sheetNumber === cvrSheetNumber &&
+          existingCvr.votes === serializedVotes
+        )
       ) {
         return err({
           type: 'ballot-id-already-exists-with-different-data',
@@ -528,12 +520,12 @@ export class Store {
         cvrId,
         electionId,
         ballotId,
-        metadata.ballotStyleId,
-        metadata.ballotType,
-        metadata.batchId,
-        metadata.precinctId,
-        metadata.sheetNumber || null,
-        votes
+        cvr.ballotStyleId,
+        cvr.votingMethod,
+        cvr.batchId,
+        cvr.precinctId,
+        cvrSheetNumber,
+        serializedVotes
       );
     }
 
@@ -916,7 +908,9 @@ export class Store {
 
     if (filter.scannerIds) {
       whereParts.push(
-        `cvrs.scanner_id in ${asQueryPlaceholders(filter.scannerIds)}`
+        `scanner_batches.scanner_id in ${asQueryPlaceholders(
+          filter.scannerIds
+        )}`
       );
       params.push(...filter.scannerIds);
     }
@@ -1236,7 +1230,9 @@ export class Store {
       return [];
     }
 
-    const { election } = this.getCurrentElectionDefinitionOrThrow();
+    const {
+      electionDefinition: { election },
+    } = this.getCurrentElectionRecordOrThrow();
 
     const officialCandidateNameLookup =
       getOfficialCandidateNameLookup(election);
@@ -1285,8 +1281,8 @@ export class Store {
     }
 
     if (groupBy.groupByScanner) {
-      cvrSelectParts.push('cvrs.scanner_id as scannerId');
-      groupByParts.push('cvrs.scanner_id');
+      cvrSelectParts.push('scanner_batches.scanner_id as scannerId');
+      groupByParts.push('scanner_batches.scanner_id');
     }
 
     if (groupBy.groupByVotingMethod) {
@@ -1327,22 +1323,20 @@ export class Store {
     ) as Iterable<
       WriteInTallyRow & Partial<Tabulation.CastVoteRecordAttributes>
     >) {
-      const groupSpecifier: Tabulation.GroupSpecifier = groupBy
-        ? {
-            ballotStyleId: groupBy.groupByBallotStyle
-              ? row.ballotStyleId
-              : undefined,
-            partyId: groupBy.groupByParty
-              ? ballotStylePartyLookup[assertDefined(row.ballotStyleId)]
-              : undefined,
-            batchId: groupBy.groupByBatch ? row.batchId : undefined,
-            scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
-            precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
-            votingMethod: groupBy.groupByVotingMethod
-              ? row.votingMethod
-              : undefined,
-          }
-        : {};
+      const groupSpecifier: Tabulation.GroupSpecifier = {
+        ballotStyleId: groupBy.groupByBallotStyle
+          ? row.ballotStyleId
+          : undefined,
+        partyId: groupBy.groupByParty
+          ? ballotStylePartyLookup[assertDefined(row.ballotStyleId)]
+          : undefined,
+        batchId: groupBy.groupByBatch ? row.batchId : undefined,
+        scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
+        precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
+        votingMethod: groupBy.groupByVotingMethod
+          ? row.votingMethod
+          : undefined,
+      };
 
       yield {
         ...groupSpecifier,
@@ -1763,7 +1757,7 @@ export class Store {
     );
   }
 
-  /* istanbul ignore next - debug purposes only */
+  /* c8 ignore start */
   getDebugSummary(): Map<string, number> {
     const tableNameRows = this.client.all(
       `select name from sqlite_schema where type='table' order by name;`
@@ -1783,4 +1777,5 @@ export class Store {
       )
     );
   }
+  /* c8 ignore stop */
 }
