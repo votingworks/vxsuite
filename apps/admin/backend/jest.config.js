@@ -30,4 +30,8 @@ module.exports = {
     '!src/globals.ts',
     '!test/**/*',
   ],
+  moduleNameMapper: {
+    '^csv-stringify/sync':
+      '<rootDir>/node_modules/csv-stringify/dist/cjs/sync.cjs',
+  },
 };

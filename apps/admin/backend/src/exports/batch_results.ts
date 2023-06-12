@@ -2,6 +2,8 @@ import { Election, Tabulation, writeInCandidate } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { Readable } from 'stream';
 import { getBallotCount } from '@votingworks/utils';
+// eslint-disable-next-line import/no-unresolved
+import { stringify } from 'csv-stringify/sync';
 import { ScannerBatch } from '../types';
 
 function generateHeaderRow(election: Election): string {
@@ -15,19 +17,19 @@ function generateHeaderRow(election: Election): string {
       }
     }
     contestTitle = contestTitle.replace(/[^a-z0-9 _-]+/gi, ' ').trim();
-    contestSelectionHeaders.push(`"${contestTitle} - Ballots Cast"`);
-    contestSelectionHeaders.push(`"${contestTitle} - Undervotes"`);
-    contestSelectionHeaders.push(`"${contestTitle} - Overvotes"`);
+    contestSelectionHeaders.push(`${contestTitle} - Ballots Cast`);
+    contestSelectionHeaders.push(`${contestTitle} - Undervotes`);
+    contestSelectionHeaders.push(`${contestTitle} - Overvotes`);
     if (contest.type === 'candidate') {
       for (const candidate of contest.candidates) {
-        contestSelectionHeaders.push(`"${contestTitle} - ${candidate.name}"`);
+        contestSelectionHeaders.push(`${contestTitle} - ${candidate.name}`);
       }
       if (contest.allowWriteIns) {
-        contestSelectionHeaders.push(`"${contestTitle} - Write In"`);
+        contestSelectionHeaders.push(`${contestTitle} - Write In`);
       }
     } else if (contest.type === 'yesno') {
-      contestSelectionHeaders.push(`"${contestTitle} - Yes"`);
-      contestSelectionHeaders.push(`"${contestTitle} - No"`);
+      contestSelectionHeaders.push(`${contestTitle} - Yes`);
+      contestSelectionHeaders.push(`${contestTitle} - No`);
     }
   }
   const headers = [
@@ -37,7 +39,9 @@ function generateHeaderRow(election: Election): string {
     'Number of Ballots',
     ...contestSelectionHeaders,
   ];
-  return headers.join(',');
+
+  // use quotes for all headers that contain a dash i.e. the contest selection headers
+  return stringify([headers], { quoted_match: /-/ });
 }
 
 function generateResultsRow(
@@ -77,7 +81,7 @@ function generateResultsRow(
     getBallotCount(batchResults.cardCounts),
     ...contestVoteTotals,
   ];
-  return row.join(',');
+  return stringify([row]);
 }
 
 /**
@@ -104,7 +108,7 @@ export function generateBatchResultsFile({
   }
 
   function* generateBatchResultsFileRows() {
-    yield `${generateHeaderRow(election)}\n`;
+    yield generateHeaderRow(election);
 
     for (const batchResults of Object.values(batchGroupedResults)) {
       // expect batch results to be grouped by batchId
@@ -114,7 +118,7 @@ export function generateBatchResultsFile({
       const batchMetadata = batchMetadataLookup[batchResults.batchId];
       assert(batchMetadata);
 
-      yield `${generateResultsRow(batchMetadata, batchResults, election)}\n`;
+      yield generateResultsRow(batchMetadata, batchResults, election);
     }
   }
 
