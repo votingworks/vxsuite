@@ -4,7 +4,10 @@ import { generateBatchResultsDefaultFilename } from '@votingworks/utils';
 import { assert, err } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 import { exportBatchResults, getCastVoteRecordFileMode } from '../api';
-import { SaveFileModal, SaveFileResult } from './save_file_modal';
+import {
+  SaveBackendFileModal,
+  SaveBackendFileResult,
+} from './save_backend_file_modal';
 
 export function ExportBatchTallyResultsButton(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -14,7 +17,7 @@ export function ExportBatchTallyResultsButton(): JSX.Element {
 
   const exportBatchResultsMutation = exportBatchResults.useMutation();
 
-  async function onSave(path: string): Promise<SaveFileResult> {
+  async function onSave(path: string): Promise<SaveBackendFileResult> {
     try {
       const exportResult = await exportBatchResultsMutation.mutateAsync({
         path,
@@ -45,7 +48,7 @@ export function ExportBatchTallyResultsButton(): JSX.Element {
         Save Batch Results as CSV
       </Button>
       {isSaveModalOpen && (
-        <SaveFileModal
+        <SaveBackendFileModal
           onClose={() => setIsSaveModalOpen(false)}
           onSave={onSave}
           fileTypeTitle="Batch Results"

@@ -39,7 +39,10 @@ import { NavigationScreen } from '../components/navigation_screen';
 
 import { routerPaths } from '../router_paths';
 
-import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
+import {
+  SaveFrontendFileModal,
+  FileType,
+} from '../components/save_frontend_file_modal';
 import { ElectionManagerTallyReport } from '../components/election_manager_tally_report';
 import {
   getInvalidWriteInCounts,
@@ -298,7 +301,7 @@ export function TallyReportScreen(): JSX.Element {
         </TallyReportPreview>
       </NavigationScreen>
       {isSaveModalOpen && (
-        <SaveFileToUsb
+        <SaveFrontendFileModal
           onClose={() => setIsSaveModalOpen(false)}
           generateFileContent={() => printElementToPdf(tallyReport)}
           defaultFilename={defaultReportFilename}

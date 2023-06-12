@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
 import { err, ok } from '@votingworks/basics';
 import { screen, waitFor } from '../../test/react_testing_library';
-import { SaveFileModal } from './save_file_modal';
+import { SaveBackendFileModal } from './save_backend_file_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
 // mock a mount point for the usb drive
@@ -28,7 +28,7 @@ test('render no usb found screen when there is not a valid mounted usb drive', (
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
     const { unmount } = renderInAppContext(
-      <SaveFileModal
+      <SaveBackendFileModal
         onSave={jest.fn()}
         onClose={closeFn}
         defaultRelativePath=""
@@ -57,7 +57,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
 
   for (const status of usbStatuses) {
     const { unmount } = renderInAppContext(
-      <SaveFileModal
+      <SaveBackendFileModal
         onSave={jest.fn()}
         onClose={jest.fn()}
         defaultRelativePath=""
@@ -90,7 +90,7 @@ test('has development shortcut to export file without USB drive', async () => {
   const onSave = jest.fn().mockResolvedValue(ok());
 
   renderInAppContext(
-    <SaveFileModal
+    <SaveBackendFileModal
       onSave={onSave}
       onClose={jest.fn()}
       defaultRelativePath="batch-export.csv"
@@ -118,7 +118,7 @@ test('happy path - default location', async () => {
   const onSave = jest.fn().mockResolvedValue(ok());
 
   renderInAppContext(
-    <SaveFileModal
+    <SaveBackendFileModal
       onSave={onSave}
       onClose={jest.fn()}
       defaultRelativePath="exports/batch-export.csv"
@@ -151,7 +151,7 @@ test('save as path', async () => {
   const onSave = jest.fn().mockResolvedValue(ok());
 
   renderInAppContext(
-    <SaveFileModal
+    <SaveBackendFileModal
       onSave={onSave}
       onClose={jest.fn()}
       defaultRelativePath="exports/batch-export.csv"
@@ -180,7 +180,7 @@ test('error path', async () => {
     .mockResolvedValue(err({ type: 'permission-denied', message: 'any' }));
 
   renderInAppContext(
-    <SaveFileModal
+    <SaveBackendFileModal
       onSave={onSave}
       onClose={jest.fn()}
       defaultRelativePath="exports/batch-export.csv"
@@ -212,7 +212,7 @@ test('can cancel save dialog', async () => {
   const onSave = jest.fn().mockResolvedValue(ok());
 
   renderInAppContext(
-    <SaveFileModal
+    <SaveBackendFileModal
       onSave={onSave}
       onClose={jest.fn()}
       defaultRelativePath="exports/batch-export.csv"

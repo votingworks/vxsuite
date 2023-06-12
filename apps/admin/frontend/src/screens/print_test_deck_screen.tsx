@@ -41,7 +41,10 @@ import {
   getBallotLayoutPageSizeReadableString,
 } from '../utils/get_ballot_layout_page_size';
 import { PrintButton } from '../components/print_button';
-import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
+import {
+  SaveFrontendFileModal,
+  FileType,
+} from '../components/save_frontend_file_modal';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 
 export const ONE_SIDED_PAGE_PRINT_TIME_MS = 3000;
@@ -602,7 +605,7 @@ export function PrintTestDeckScreen(): JSX.Element {
         </Prose>
       </NavigationScreen>
       {isSaveModalOpen && (
-        <SaveFileToUsb
+        <SaveFrontendFileModal
           onClose={() => setIsSaveModalOpen(false)}
           generateFileContent={() => printLogicAndAccuracyPackageToPdf()}
           defaultFilename={generateDefaultReportFilename(

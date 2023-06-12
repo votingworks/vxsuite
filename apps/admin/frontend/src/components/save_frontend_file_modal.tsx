@@ -46,7 +46,7 @@ enum ModalState {
   INIT = 'init',
 }
 
-export function SaveFileToUsb({
+export function SaveFrontendFileModal({
   onClose,
   generateFileContent,
   defaultFilename,

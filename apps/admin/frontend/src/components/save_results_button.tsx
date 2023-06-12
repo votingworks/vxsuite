@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { generateFinalExportDefaultFilename } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { SaveFileToUsb, FileType } from './save_file_to_usb';
+import { SaveFrontendFileModal, FileType } from './save_frontend_file_modal';
 import { AppContext } from '../contexts/app_context';
 import { generateResultsCsv } from '../utils/generate_results_csv';
 import { getCastVoteRecordFileMode } from '../api';
@@ -33,7 +33,7 @@ export function SaveResultsButton({
         Save Results
       </Button>
       {isSaveModalOpen && (
-        <SaveFileToUsb
+        <SaveFrontendFileModal
           onClose={() => setIsSaveModalOpen(false)}
           generateFileContent={() =>
             generateResultsCsv(fullElectionTally, election)

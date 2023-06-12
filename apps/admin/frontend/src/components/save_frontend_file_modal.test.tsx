@@ -6,7 +6,7 @@ import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
 import { fireEvent, waitFor } from '../../test/react_testing_library';
-import { SaveFileToUsb, FileType } from './save_file_to_usb';
+import { SaveFrontendFileModal, FileType } from './save_frontend_file_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
@@ -16,7 +16,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
     for (const fileType of Object.values(FileType)) {
       const closeFn = jest.fn();
       const { getByText, unmount } = renderInAppContext(
-        <SaveFileToUsb
+        <SaveFrontendFileModal
           onClose={closeFn}
           generateFileContent={jest.fn()}
           defaultFilename="file"
@@ -38,7 +38,7 @@ test('render no usb found screen when there is not a valid mounted usb drive', (
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
     const { getByText, unmount, getByAltText } = renderInAppContext(
-      <SaveFileToUsb
+      <SaveFrontendFileModal
         onClose={closeFn}
         generateFileContent={jest.fn()}
         defaultFilename="file"
@@ -73,7 +73,7 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
   const logger = fakeLogger();
 
   const { getByText, queryAllByText } = renderInAppContext(
-    <SaveFileToUsb
+    <SaveFrontendFileModal
       onClose={closeFn}
       generateFileContent={fileContentFn}
       defaultFilename="this-is-a-file-name.pdf"
@@ -131,7 +131,7 @@ test('renders save screen when usb is mounted with results filetype and prompts 
   const logger = fakeLogger();
 
   const { getByText } = renderInAppContext(
-    <SaveFileToUsb
+    <SaveFrontendFileModal
       onClose={closeFn}
       generateFileContent={fileContentFn}
       defaultFilename="this-is-a-file-name.pdf"
@@ -188,7 +188,7 @@ test('render export modal with errors when appropriate', async () => {
 
   const closeFn = jest.fn();
   const { getByText } = renderInAppContext(
-    <SaveFileToUsb
+    <SaveFrontendFileModal
       onClose={closeFn}
       generateFileContent={fileContentFn}
       defaultFilename="this-is-a-file-name.pdf"
@@ -229,7 +229,7 @@ test('creates new directory and saves to it, if specified', async () => {
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   const { getByText } = renderInAppContext(
-    <SaveFileToUsb
+    <SaveFrontendFileModal
       onClose={closeFn}
       generateFileContent={fileContentFn}
       defaultFilename="ballot.pdf"

@@ -51,17 +51,17 @@ export function SaveAsButton({
   return <Button onPress={useSaveDialog}>Save As…</Button>;
 }
 
-export type SaveFileError =
+export type SaveBackendFileError =
   | ExportDataError
   | {
       type: 'api-error';
       message: string;
     };
 
-export type SaveFileResult = Result<string[], SaveFileError>;
+export type SaveBackendFileResult = Result<string[], SaveBackendFileError>;
 
-export interface SaveFileModalProps {
-  onSave: (location: string) => Promise<SaveFileResult>;
+export interface SaveBackendFileModalProps {
+  onSave: (location: string) => Promise<SaveBackendFileResult>;
   onClose: () => void;
   /**
    * Title case name for the type of file being saved, e.g. "Batch Results".
@@ -79,13 +79,13 @@ export interface SaveFileModalProps {
 
 type SaveFileModalState = 'error' | 'saving' | 'done' | 'init';
 
-export function SaveFileModal({
+export function SaveBackendFileModal({
   onSave,
   onClose,
   fileTypeTitle,
   fileType,
   defaultRelativePath,
-}: SaveFileModalProps): JSX.Element {
+}: SaveBackendFileModalProps): JSX.Element {
   const { usbDrive, auth } = useContext(AppContext);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
 
