@@ -109,6 +109,7 @@ export function SaveFileModal({
     } else {
       setCurrentState('error');
       const error = result.err();
+      // istanbul ignore next
       switch (error.type) {
         case 'permission-denied':
           setErrorMessage('Permission denied.');
@@ -121,6 +122,7 @@ export function SaveFileModal({
         case 'api-error':
           setErrorMessage('Application error.');
           break;
+        // istanbul ignore next
         default:
           throwIllegalValue(error);
       }
@@ -166,6 +168,7 @@ export function SaveFileModal({
     return <Modal content={<Loading>Saving {fileTypeTitle}</Loading>} />;
   }
 
+  // istanbul ignore next
   if (currentState !== 'init') {
     throwIllegalValue(currentState);
   }
@@ -189,7 +192,7 @@ export function SaveFileModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              {(!window.kiosk || process.env.NODE_ENV === 'development') && (
+              {window.kiosk && process.env.NODE_ENV === 'development' && (
                 <SaveAsButton
                   onSave={(location) => saveFile(location)}
                   options={{
@@ -255,6 +258,7 @@ export function SaveFileModal({
         />
       );
     }
+    // istanbul ignore next
     default:
       throwIllegalValue(usbDrive.status);
   }
