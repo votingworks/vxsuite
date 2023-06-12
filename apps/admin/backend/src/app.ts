@@ -75,6 +75,8 @@ import {
 } from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
 import { exportFile } from './util/export_file';
+import { generateBatchResultsFile } from './exports/batch_results';
+import { tabulateElectionResults } from './tabulation/full_results';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -684,9 +686,22 @@ function buildApi({
     async exportBatchResults(input: {
       path: string;
     }): Promise<ExportDataResult> {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      const {
+        electionDefinition: { election },
+      } = assertDefined(store.getElection(electionId));
+
       return exportFile({
         path: input.path,
-        data: 'batch results placeholder',
+        data: generateBatchResultsFile({
+          election,
+          batchGroupedResults: tabulateElectionResults({
+            electionId,
+            store,
+            groupBy: { groupByBatch: true },
+          }),
+          allBatchMetadata: store.getScannerBatches(electionId),
+        }),
       });
     },
   });
