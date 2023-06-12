@@ -37,6 +37,7 @@ import { ReportsScreen } from '../screens/reports_screen';
 import { SmartcardTypeRegExPattern } from '../config/types';
 import { SmartcardModal } from './smartcard_modal';
 import { checkPin } from '../api';
+import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
 
 export function ElectionManager(): JSX.Element {
   const { electionDefinition, configuredAt, auth, hasCardReaderAttached } =
@@ -117,9 +118,6 @@ export function ElectionManager(): JSX.Element {
             path={routerPaths.definitionContest({ contestId: ':contestId' })}
           >
             <DefinitionContestsScreen />
-          </Route>
-          <Route exact path={routerPaths.ballotsList}>
-            <BallotListScreen />
           </Route>
           <Route exact path={routerPaths.smartcards}>
             <Redirect
@@ -229,9 +227,11 @@ export function ElectionManager(): JSX.Element {
       >
         <TallyReportScreen />
       </Route>
-      <Route exact path={routerPaths.logicAndAccuracy}>
-        <LogicAndAccuracyScreen />
-      </Route>
+      {election && canViewAndPrintBallots(election) && (
+        <Route exact path={routerPaths.logicAndAccuracy}>
+          <LogicAndAccuracyScreen />
+        </Route>
+      )}
       <Route exact path={[routerPaths.testDecks]}>
         <PrintTestDeckScreen />
       </Route>
