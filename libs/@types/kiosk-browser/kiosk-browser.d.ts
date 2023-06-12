@@ -126,16 +126,27 @@ declare namespace KioskBrowser {
      * supported:
      */
     properties?: Array<
-      | 'openFile'
-      | 'openDirectory'
-      | 'multiSelections'
-      | 'showHiddenFiles'
-      | 'createDirectory'
-      | 'promptToCreate'
-      | 'noResolveAliases'
-      | 'treatPackageAsDirectory'
-      | 'dontAddToRecent'
+      'openFile' | 'openDirectory' | 'multiSelections' | 'showHiddenFiles'
     >;
+  }
+
+  // Copied from Electron.SaveDialogOptions, with Linux relevant options only
+  export interface SaveDialogOptions {
+    /**
+     * The dialog title. Cannot be displayed on some `Linux` desktop environments.
+     */
+    title?: string;
+    /**
+     * Absolute directory path, absolute file path, or file name to use by default.
+     */
+    defaultPath?: string;
+    /**
+     * Custom label for the confirmation button, when left empty the default label will
+     * be used.
+     */
+    buttonLabel?: string;
+    filters?: FileFilter[];
+    properties?: Array<'showHiddenFiles' | 'showOverwriteConfirmation'>;
   }
 
   export interface MakeDirectoryOptions {
@@ -294,6 +305,11 @@ declare namespace KioskBrowser {
     showOpenDialog(options?: OpenDialogOptions): Promise<{
       canceled: boolean;
       filePaths: string[];
+    }>;
+
+    showSaveDialog(options?: SaveDialogOptions): Promise<{
+      canceled: boolean;
+      filePath?: string;
     }>;
 
     captureScreenshot(): Promise<Buffer>;

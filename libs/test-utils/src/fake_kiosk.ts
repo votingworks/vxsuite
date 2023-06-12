@@ -113,5 +113,6 @@ export function fakeKiosk({
     powerDown: jest.fn(),
     captureScreenshot: jest.fn().mockResolvedValue(Buffer.of()),
     showOpenDialog: jest.fn(),
+    showSaveDialog: jest.fn(),
   };
 }
