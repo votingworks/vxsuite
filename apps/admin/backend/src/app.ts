@@ -46,6 +46,7 @@ import {
   CvrFileImportInfo,
   CvrFileMode,
   ElectionRecord,
+  ExportDataResult,
   ManualResultsIdentifier,
   ManualResultsMetadataRecord,
   ManualResultsRecord,
@@ -73,6 +74,7 @@ import {
   handleEnteredWriteInCandidateData,
 } from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
+import { exportFile } from './util/export_file';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -677,6 +679,15 @@ function buildApi({
         .map((record) => ({ ...record }));
       // TODO: grout is having trouble serializing records from the store
       // without destructuring them. need to investigate
+    },
+
+    async exportBatchResults(input: {
+      path: string;
+    }): Promise<ExportDataResult> {
+      return exportFile({
+        path: input.path,
+        data: 'batch results placeholder',
+      });
     },
   });
 }

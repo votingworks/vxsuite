@@ -1,6 +1,7 @@
 declare namespace NodeJS {
   interface ProcessEnv {
     readonly ADMIN_WORKSPACE?: string;
+    readonly ADMIN_ALLOWED_EXPORT_PATTERNS?: string;
     readonly NODE_ENV: 'development' | 'production' | 'test';
     readonly PORT?: string;
     readonly VX_CODE_VERSION?: string;

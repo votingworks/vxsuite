@@ -30,3 +30,18 @@ export const ADMIN_WORKSPACE =
  */
 // eslint-disable-next-line vx/gts-safe-number-parse
 export const PORT = Number(process.env.PORT || 3004);
+
+const defaultAllowedExportPatterns =
+  NODE_ENV === 'test'
+    ? ['/tmp/**/*'] // Mock USB drive location
+    : [
+        '/media/**/*', // Real USB drive location
+        '/tmp/**/*', // Where data is first written for signature file creation
+      ];
+
+/**
+ * Where are exported files allowed to be written to?
+ */
+export const ADMIN_ALLOWED_EXPORT_PATTERNS =
+  process.env.ADMIN_ALLOWED_EXPORT_PATTERNS?.split(',') ??
+  defaultAllowedExportPatterns;

@@ -518,3 +518,10 @@ export const setSystemSettings = {
     });
   },
 } as const;
+
+export const exportBatchResults = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportBatchResults);
+  },
+} as const;

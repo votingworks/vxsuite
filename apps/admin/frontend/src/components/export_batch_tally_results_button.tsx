@@ -1,17 +1,31 @@
 import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { generateBatchResultsDefaultFilename } from '@votingworks/utils';
-import { assert } from '@votingworks/basics';
-import { SaveFileToUsb, FileType } from './save_file_to_usb';
+import { assert, err } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
-import { generateBatchTallyResultsCsv } from '../utils/generate_batch_tally_results_csv';
-import { getCastVoteRecordFileMode } from '../api';
+import { exportBatchResults, getCastVoteRecordFileMode } from '../api';
+import { SaveFileModal, SaveFileResult } from './save_file_modal';
 
 export function ExportBatchTallyResultsButton(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const { fullElectionTally, electionDefinition } = useContext(AppContext);
+  const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
+
+  const exportBatchResultsMutation = exportBatchResults.useMutation();
+
+  async function onSave(path: string): Promise<SaveFileResult> {
+    try {
+      const exportResult = await exportBatchResultsMutation.mutateAsync({
+        path,
+      });
+      return exportResult;
+    } catch (error) {
+      // Handled by default query client error handling
+    }
+
+    return err({ type: 'api-error', message: 'API error.' });
+  }
 
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
 
@@ -31,13 +45,12 @@ export function ExportBatchTallyResultsButton(): JSX.Element {
         Save Batch Results as CSV
       </Button>
       {isSaveModalOpen && (
-        <SaveFileToUsb
+        <SaveFileModal
           onClose={() => setIsSaveModalOpen(false)}
-          generateFileContent={() =>
-            generateBatchTallyResultsCsv(fullElectionTally, election)
-          }
-          defaultFilename={defaultFilename}
-          fileType={FileType.BatchResultsCsv}
+          onSave={onSave}
+          fileTypeTitle="Batch Results"
+          fileType="batch results"
+          defaultRelativePath={defaultFilename}
         />
       )}
     </React.Fragment>

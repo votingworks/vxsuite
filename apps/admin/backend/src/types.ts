@@ -23,6 +23,8 @@ import {
 } from '@votingworks/types';
 import * as z from 'zod';
 
+export type { ExportDataResult, ExportDataError } from '@votingworks/backend';
+
 /**
  * Environment variables that identify the machine and its software. Set at the
  * machine-level rather than the at the software-level.
