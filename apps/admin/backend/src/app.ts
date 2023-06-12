@@ -691,7 +691,7 @@ function buildApi({
         electionDefinition: { election },
       } = assertDefined(store.getElection(electionId));
 
-      return exportFile({
+      const exportFileResult = await exportFile({
         path: input.path,
         data: generateBatchResultsFile({
           election,
@@ -703,6 +703,20 @@ function buildApi({
           allBatchMetadata: store.getScannerBatches(electionId),
         }),
       });
+
+      await logger.log(
+        LogEventId.FileSaved,
+        assertDefined(await getUserRole()),
+        {
+          disposition: exportFileResult.isOk() ? 'success' : 'failure',
+          message: `${
+            exportFileResult.isOk() ? 'Saved' : 'Failed to save'
+          } batch results to ${input.path} on the USB drive.`,
+          filename: input.path,
+        }
+      );
+
+      return exportFileResult;
     },
   });
 }
