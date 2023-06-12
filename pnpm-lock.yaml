@@ -1707,6 +1707,624 @@ importers:
         specifier: ^2.9.12
         version: 2.9.13
 
+  apps/mark-scan/backend:
+    dependencies:
+      '@votingworks/auth':
+        specifier: workspace:*
+        version: link:../../../libs/auth
+      '@votingworks/backend':
+        specifier: workspace:*
+        version: link:../../../libs/backend
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../../../libs/basics
+      '@votingworks/db':
+        specifier: workspace:*
+        version: link:../../../libs/db
+      '@votingworks/dev-dock-backend':
+        specifier: workspace:*
+        version: link:../../../libs/dev-dock/backend
+      '@votingworks/fixtures':
+        specifier: workspace:*
+        version: link:../../../libs/fixtures
+      '@votingworks/grout':
+        specifier: workspace:*
+        version: link:../../../libs/grout
+      '@votingworks/logging':
+        specifier: workspace:*
+        version: link:../../../libs/logging
+      '@votingworks/types':
+        specifier: workspace:*
+        version: link:../../../libs/types
+      '@votingworks/utils':
+        specifier: workspace:*
+        version: link:../../../libs/utils
+      debug:
+        specifier: ^4.3.4
+        version: 4.3.4(supports-color@8.1.1)
+      dotenv:
+        specifier: ^16.0.2
+        version: 16.0.2
+      dotenv-expand:
+        specifier: ^9.0.0
+        version: 9.0.0
+      express:
+        specifier: ^4.18.0
+        version: 4.18.2(supports-color@6.1.0)
+      fs-extra:
+        specifier: ^11.1.1
+        version: 11.1.1
+      js-sha256:
+        specifier: ^0.9.0
+        version: 0.9.0
+      luxon:
+        specifier: ^3.0.0
+        version: 3.3.0
+      tmp:
+        specifier: ^0.2.1
+        version: 0.2.1
+      zod:
+        specifier: 3.14.4
+        version: 3.14.4
+    devDependencies:
+      '@jest/types':
+        specifier: ^28.1.1
+        version: 28.1.3
+      '@types/debug':
+        specifier: ^4.1.7
+        version: 4.1.7
+      '@types/express':
+        specifier: ^4.17.13
+        version: 4.17.14
+      '@types/fs-extra':
+        specifier: ^11.0.1
+        version: 11.0.1
+      '@types/jest':
+        specifier: ^26.0.6
+        version: 26.0.23
+      '@types/luxon':
+        specifier: ^3.0.0
+        version: 3.2.0
+      '@types/node':
+        specifier: 16.18.23
+        version: 16.18.23
+      '@types/tmp':
+        specifier: ^0.2.3
+        version: 0.2.3
+      '@typescript-eslint/eslint-plugin':
+        specifier: 5.37.0
+        version: 5.37.0(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)(typescript@4.6.3)
+      '@typescript-eslint/parser':
+        specifier: 5.37.0
+        version: 5.37.0(eslint@8.23.1)(typescript@4.6.3)
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../../../libs/test-utils
+      esbuild:
+        specifier: ^0.14.29
+        version: 0.14.30
+      esbuild-runner:
+        specifier: ^2.2.1
+        version: 2.2.2(esbuild@0.14.30)
+      eslint:
+        specifier: 8.23.1
+        version: 8.23.1
+      eslint-config-prettier:
+        specifier: ^8.5.0
+        version: 8.6.0(eslint@8.23.1)
+      eslint-import-resolver-node:
+        specifier: ^0.3.4
+        version: 0.3.7
+      eslint-plugin-import:
+        specifier: ^2.26.0
+        version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
+      eslint-plugin-jest:
+        specifier: ^26.1.5
+        version: 26.6.0(@typescript-eslint/eslint-plugin@5.37.0)(eslint@8.23.1)(jest@26.6.3)(typescript@4.6.3)
+      eslint-plugin-prettier:
+        specifier: ^4.2.1
+        version: 4.2.1(eslint-config-prettier@8.6.0)(eslint@8.23.1)(prettier@2.6.2)
+      eslint-plugin-vx:
+        specifier: workspace:*
+        version: link:../../../libs/eslint-plugin-vx
+      is-ci-cli:
+        specifier: ^2.1.2
+        version: 2.2.0
+      jest:
+        specifier: ^26.6.3
+        version: 26.6.3
+      jest-junit:
+        specifier: ^14.0.1
+        version: 14.0.1
+      jest-watch-typeahead:
+        specifier: ^0.6.4
+        version: 0.6.4(jest@26.6.3)
+      lint-staged:
+        specifier: ^10.5.3
+        version: 10.5.4
+      nodemon:
+        specifier: ^2.0.20
+        version: 2.0.20
+      prettier:
+        specifier: 2.6.2
+        version: 2.6.2
+      sort-package-json:
+        specifier: ^1.50.0
+        version: 1.50.0
+      ts-jest:
+        specifier: ^26.4.4
+        version: 26.5.6(jest@26.6.3)(typescript@4.6.3)
+      typescript:
+        specifier: 4.6.3
+        version: 4.6.3
+
+  apps/mark-scan/frontend:
+    dependencies:
+      '@babel/core':
+        specifier: 7.12.3
+        version: 7.12.3
+      '@rooks/use-interval':
+        specifier: ^4.5.0
+        version: 4.5.0(react@17.0.1)
+      '@tanstack/react-query':
+        specifier: ^4.22.0
+        version: 4.22.0(react-dom@17.0.1)(react@17.0.1)
+      '@testing-library/react-hooks':
+        specifier: ^8.0.1
+        version: 8.0.1(@types/react@17.0.39)(react-dom@17.0.1)(react-test-renderer@16.14.0)(react@17.0.1)
+      '@types/fetch-mock':
+        specifier: ^7.3.2
+        version: 7.3.3
+      '@types/jest':
+        specifier: 25.2.2
+        version: 25.2.2
+      '@types/lodash.camelcase':
+        specifier: ^4.3.6
+        version: 4.3.6
+      '@types/pluralize':
+        specifier: ^0.0.29
+        version: 0.0.29
+      '@types/react':
+        specifier: 17.0.39
+        version: 17.0.39
+      '@types/react-dom':
+        specifier: ^17.0.0
+        version: 17.0.13
+      '@types/react-router-dom':
+        specifier: ^5.1.5
+        version: 5.1.7
+      '@types/styled-components':
+        specifier: ^5.1.7
+        version: 5.1.9
+      '@votingworks/ballot-encoder':
+        specifier: workspace:*
+        version: link:../../../libs/ballot-encoder
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../../../libs/basics
+      '@votingworks/dev-dock-frontend':
+        specifier: workspace:*
+        version: link:../../../libs/dev-dock/frontend
+      '@votingworks/fixtures':
+        specifier: workspace:*
+        version: link:../../../libs/fixtures
+      '@votingworks/grout':
+        specifier: workspace:*
+        version: link:../../../libs/grout
+      '@votingworks/logging':
+        specifier: workspace:*
+        version: link:../../../libs/logging
+      '@votingworks/mark-flow-ui':
+        specifier: workspace:*
+        version: link:../../../libs/mark-flow-ui
+      '@votingworks/types':
+        specifier: workspace:*
+        version: link:../../../libs/types
+      '@votingworks/ui':
+        specifier: workspace:*
+        version: link:../../../libs/ui
+      '@votingworks/utils':
+        specifier: workspace:*
+        version: link:../../../libs/utils
+      abortcontroller-polyfill:
+        specifier: ^1.4.0
+        version: 1.7.1
+      babel-eslint:
+        specifier: ^10.1.0
+        version: 10.1.0(eslint@8.23.1)
+      babel-loader:
+        specifier: 8.1.0
+        version: 8.1.0(@babel/core@7.12.3)(webpack@4.44.2)
+      babel-plugin-named-asset-import:
+        specifier: ^0.3.7
+        version: 0.3.7(@babel/core@7.12.3)
+      babel-preset-react-app:
+        specifier: ^10.0.0
+        version: 10.0.1
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
+      css-loader:
+        specifier: 4.3.0
+        version: 4.3.0(webpack@4.44.2)
+      debug:
+        specifier: ^4.3.2
+        version: 4.3.4(supports-color@8.1.1)
+      dotenv:
+        specifier: 8.2.0
+        version: 8.2.0
+      dotenv-expand:
+        specifier: 5.1.0
+        version: 5.1.0
+      file-loader:
+        specifier: 6.1.1
+        version: 6.1.1(webpack@4.44.2)
+      history:
+        specifier: ^4.10.1
+        version: 4.10.1
+      http-proxy-middleware:
+        specifier: 1.0.6
+        version: 1.0.6(debug@4.3.4)
+      lodash.camelcase:
+        specifier: ^4.3.0
+        version: 4.3.0
+      luxon:
+        specifier: ^3.0.0
+        version: 3.3.0
+      mini-css-extract-plugin:
+        specifier: 0.11.3
+        version: 0.11.3(webpack@4.44.2)
+      mockdate:
+        specifier: ^3.0.2
+        version: 3.0.5
+      normalize.css:
+        specifier: ^8.0.1
+        version: 8.0.1
+      path:
+        specifier: ^0.12.7
+        version: 0.12.7
+      pluralize:
+        specifier: ^8.0.0
+        version: 8.0.0
+      postcss-flexbugs-fixes:
+        specifier: 4.2.1
+        version: 4.2.1
+      postcss-loader:
+        specifier: 3.0.0
+        version: 3.0.0
+      postcss-normalize:
+        specifier: 8.0.1
+        version: 8.0.1
+      postcss-preset-env:
+        specifier: 6.7.0
+        version: 6.7.0
+      postcss-safe-parser:
+        specifier: 5.0.2
+        version: 5.0.2
+      react:
+        specifier: 17.0.1
+        version: 17.0.1
+      react-app-polyfill:
+        specifier: ^2.0.0
+        version: 2.0.0
+      react-dev-utils:
+        specifier: ^11.0.1
+        version: 11.0.3(eslint@8.23.1)(typescript@4.6.3)(webpack@4.44.2)
+      react-dom:
+        specifier: 17.0.1
+        version: 17.0.1(react@17.0.1)
+      react-gamepad:
+        specifier: ^1.0.3
+        version: 1.0.3(react@17.0.1)
+      react-idle-timer:
+        specifier: ^5.5.3
+        version: 5.5.3(react-dom@17.0.1)(react@17.0.1)
+      react-refresh:
+        specifier: ^0.8.3
+        version: 0.8.3
+      react-router-dom:
+        specifier: ^5.2.0
+        version: 5.2.0(react@17.0.1)
+      resolve:
+        specifier: 1.18.1
+        version: 1.18.1
+      resolve-url-loader:
+        specifier: ^3.1.2
+        version: 3.1.2
+      setimmediate:
+        specifier: ^1.0.5
+        version: 1.0.5
+      style-loader:
+        specifier: 1.3.0
+        version: 1.3.0(webpack@4.44.2)
+      styled-components:
+        specifier: ^5.2.3
+        version: 5.2.3(react-dom@17.0.1)(react-is@18.2.0)(react@17.0.1)
+      ts-pnp:
+        specifier: 1.2.0
+        version: 1.2.0(typescript@4.6.3)
+      typescript:
+        specifier: 4.6.3
+        version: 4.6.3
+      url-loader:
+        specifier: 4.1.1
+        version: 4.1.1(file-loader@6.1.1)(webpack@4.44.2)
+      use-interval:
+        specifier: ^1.2.1
+        version: 1.4.0(react@17.0.1)
+    devDependencies:
+      '@babel/runtime':
+        specifier: ^7.18.3
+        version: 7.20.6
+      '@codemod/parser':
+        specifier: ^1.0.7
+        version: 1.1.0
+      '@testing-library/jest-dom':
+        specifier: ^5.16.4
+        version: 5.16.4
+      '@testing-library/react':
+        specifier: ^12.1.5
+        version: 12.1.5(react-dom@17.0.1)(react@17.0.1)
+      '@testing-library/user-event':
+        specifier: ^13.5.0
+        version: 13.5.0(@testing-library/dom@8.11.3)
+      '@types/connect':
+        specifier: ^3.4.35
+        version: 3.4.35
+      '@types/debug':
+        specifier: ^4.1.6
+        version: 4.1.7
+      '@types/history':
+        specifier: ^4.7.8
+        version: 4.7.11
+      '@types/kiosk-browser':
+        specifier: workspace:*
+        version: link:../../../libs/@types/kiosk-browser
+      '@types/luxon':
+        specifier: ^3.0.0
+        version: 3.2.0
+      '@types/react-gamepad':
+        specifier: ^1.0.0
+        version: 1.0.0
+      '@types/setimmediate':
+        specifier: ^1.0.2
+        version: 1.0.2
+      '@types/testing-library__jest-dom':
+        specifier: ^5.14.3
+        version: 5.14.3
+      '@typescript-eslint/eslint-plugin':
+        specifier: 5.37.0
+        version: 5.37.0(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)(typescript@4.6.3)
+      '@typescript-eslint/parser':
+        specifier: 5.37.0
+        version: 5.37.0(eslint@8.23.1)(typescript@4.6.3)
+      '@vitejs/plugin-react':
+        specifier: ^1.3.2
+        version: 1.3.2
+      '@votingworks/grout-test-utils':
+        specifier: workspace:*
+        version: link:../../../libs/grout/test-utils
+      '@votingworks/mark-scan-backend':
+        specifier: workspace:*
+        version: link:../backend
+      '@votingworks/monorepo-utils':
+        specifier: workspace:*
+        version: link:../../../libs/monorepo-utils
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../../../libs/test-utils
+      chalk:
+        specifier: ^4.1.2
+        version: 4.1.2
+      concurrently:
+        specifier: ^7.3.0
+        version: 7.6.0
+      eslint:
+        specifier: 8.23.1
+        version: 8.23.1
+      eslint-config-airbnb:
+        specifier: ^19.0.4
+        version: 19.0.4(eslint-plugin-import@2.27.5)(eslint-plugin-jsx-a11y@6.6.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.31.8)(eslint@8.23.1)
+      eslint-config-prettier:
+        specifier: ^8.5.0
+        version: 8.6.0(eslint@8.23.1)
+      eslint-config-react-app:
+        specifier: ^7.0.1
+        version: 7.0.1(@babel/plugin-syntax-flow@7.18.6)(@babel/plugin-transform-react-jsx@7.20.13)(eslint@8.23.1)(jest@26.6.0)(typescript@4.6.3)
+      eslint-import-resolver-node:
+        specifier: ^0.3.4
+        version: 0.3.7
+      eslint-plugin-flowtype:
+        specifier: ^5.2.0
+        version: 5.2.0(eslint@8.23.1)
+      eslint-plugin-import:
+        specifier: ^2.26.0
+        version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
+      eslint-plugin-jest:
+        specifier: ^26.1.5
+        version: 26.6.0(@typescript-eslint/eslint-plugin@5.37.0)(eslint@8.23.1)(jest@26.6.0)(typescript@4.6.3)
+      eslint-plugin-jsx-a11y:
+        specifier: ^6.6.1
+        version: 6.6.1(eslint@8.23.1)
+      eslint-plugin-prettier:
+        specifier: ^4.2.1
+        version: 4.2.1(eslint-config-prettier@8.6.0)(eslint@8.23.1)(prettier@2.6.2)
+      eslint-plugin-react:
+        specifier: ^7.31.8
+        version: 7.31.8(eslint@8.23.1)
+      eslint-plugin-react-hooks:
+        specifier: ^4.6.0
+        version: 4.6.0(eslint@8.23.1)
+      eslint-plugin-testing-library:
+        specifier: ^5.6.4
+        version: 5.6.4(eslint@8.23.1)(typescript@4.6.3)
+      eslint-plugin-vx:
+        specifier: workspace:*
+        version: link:../../../libs/eslint-plugin-vx
+      fetch-mock:
+        specifier: ^9.5.0
+        version: 9.11.0(node-fetch@2.6.7)
+      is-ci-cli:
+        specifier: ^2.0.0
+        version: 2.2.0
+      jest:
+        specifier: 26.6.0
+        version: 26.6.0(canvas@2.9.1)
+      jest-circus:
+        specifier: 26.6.0
+        version: 26.6.0(canvas@2.9.1)
+      jest-date-mock:
+        specifier: ^1.0.8
+        version: 1.0.8
+      jest-environment-jsdom-sixteen:
+        specifier: ^1.0.3
+        version: 1.0.3(canvas@2.9.1)
+      jest-fetch-mock:
+        specifier: ^3.0.3
+        version: 3.0.3
+      jest-junit:
+        specifier: ^14.0.1
+        version: 14.0.1
+      jest-resolve:
+        specifier: 26.6.0
+        version: 26.6.0
+      jest-styled-components:
+        specifier: ^7.1.1
+        version: 7.1.1(styled-components@5.2.3)
+      jest-watch-typeahead:
+        specifier: 0.6.1
+        version: 0.6.1(jest@26.6.0)
+      lint-staged:
+        specifier: ^10.2.4
+        version: 10.5.4
+      node-fetch:
+        specifier: ^2.6.0
+        version: 2.6.7
+      prettier:
+        specifier: 2.6.2
+        version: 2.6.2
+      sort-package-json:
+        specifier: ^1.50.0
+        version: 1.50.0
+      stylelint:
+        specifier: ^13.3.3
+        version: 13.8.0
+      stylelint-config-palantir:
+        specifier: ^4.0.1
+        version: 4.0.1(stylelint@13.8.0)
+      stylelint-config-prettier:
+        specifier: ^8.0.1
+        version: 8.0.2(stylelint@13.8.0)
+      stylelint-config-styled-components:
+        specifier: ^0.1.1
+        version: 0.1.1
+      stylelint-processor-styled-components:
+        specifier: ^1.10.0
+        version: 1.10.0
+      ts-jest:
+        specifier: '26'
+        version: 26.5.6(jest@26.6.0)(typescript@4.6.3)
+      vite:
+        specifier: ^2.9.12
+        version: 2.9.13
+
+  apps/mark-scan/frontend/prodserver:
+    dependencies:
+      express:
+        specifier: ^4.17.1
+        version: 4.18.2(supports-color@6.1.0)
+      http-proxy-middleware:
+        specifier: 1.0.6
+        version: 1.0.6(debug@4.3.4)
+
+  apps/mark-scan/integration-testing:
+    dependencies:
+      '@testing-library/cypress':
+        specifier: ^8.0.3
+        version: 8.0.3(cypress@10.3.1)
+      '@votingworks/auth':
+        specifier: workspace:*
+        version: link:../../../libs/auth
+      '@votingworks/fixtures':
+        specifier: workspace:*
+        version: link:../../../libs/fixtures
+      '@votingworks/grout':
+        specifier: workspace:*
+        version: link:../../../libs/grout
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../../../libs/test-utils
+      '@votingworks/types':
+        specifier: workspace:*
+        version: link:../../../libs/types
+      cypress:
+        specifier: ^10.3.1
+        version: 10.3.1
+      start-server-and-test:
+        specifier: ^1.12.5
+        version: 1.14.0
+    devDependencies:
+      '@types/node':
+        specifier: 16.18.23
+        version: 16.18.23
+      '@typescript-eslint/eslint-plugin':
+        specifier: 5.37.0
+        version: 5.37.0(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)(typescript@4.6.3)
+      '@typescript-eslint/parser':
+        specifier: 5.37.0
+        version: 5.37.0(eslint@8.23.1)(typescript@4.6.3)
+      concurrently:
+        specifier: ^7.6.0
+        version: 7.6.0
+      eslint:
+        specifier: 8.23.1
+        version: 8.23.1
+      eslint-config-airbnb-base:
+        specifier: ^14.2.1
+        version: 14.2.1(eslint-plugin-import@2.27.5)(eslint@8.23.1)
+      eslint-config-prettier:
+        specifier: ^8.5.0
+        version: 8.6.0(eslint@8.23.1)
+      eslint-import-resolver-node:
+        specifier: ^0.3.4
+        version: 0.3.7
+      eslint-plugin-cypress:
+        specifier: ^2.12.1
+        version: 2.12.1(eslint@8.23.1)
+      eslint-plugin-flowtype:
+        specifier: ^5.2.0
+        version: 5.2.0(eslint@8.23.1)
+      eslint-plugin-import:
+        specifier: ^2.26.0
+        version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
+      eslint-plugin-jest:
+        specifier: ^26.1.5
+        version: 26.6.0(@typescript-eslint/eslint-plugin@5.37.0)(eslint@8.23.1)(jest@28.1.3)(typescript@4.6.3)
+      eslint-plugin-jsx-a11y:
+        specifier: ^6.6.1
+        version: 6.6.1(eslint@8.23.1)
+      eslint-plugin-prettier:
+        specifier: ^4.2.1
+        version: 4.2.1(eslint-config-prettier@8.6.0)(eslint@8.23.1)(prettier@2.6.2)
+      eslint-plugin-vx:
+        specifier: workspace:*
+        version: link:../../../libs/eslint-plugin-vx
+      is-ci-cli:
+        specifier: ^2.1.2
+        version: 2.2.0
+      lint-staged:
+        specifier: ^11.0.0
+        version: 11.0.0
+      prettier:
+        specifier: 2.6.2
+        version: 2.6.2
+      sort-package-json:
+        specifier: ^1.50.0
+        version: 1.50.0
+      typescript:
+        specifier: 4.6.3
+        version: 4.6.3
+
   apps/mark/backend:
     dependencies:
       '@votingworks/auth':
@@ -6698,24 +7316,6 @@ packages:
       lru-cache: 5.1.1
       semver: 6.3.0
 
-  /@babel/helper-create-class-features-plugin@7.19.0(@babel/core@7.20.12):
-    resolution: {integrity: sha512-NRz8DwF4jT3UfrmUoZjd0Uph9HQnP30t7Ash+weACcyNkiYTywpIjDBgReJMKgr+n86sn2nPVVmJ28Dm053Kqw==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0
-    dependencies:
-      '@babel/core': 7.20.12
-      '@babel/helper-annotate-as-pure': 7.18.6
-      '@babel/helper-environment-visitor': 7.18.9
-      '@babel/helper-function-name': 7.19.0
-      '@babel/helper-member-expression-to-functions': 7.18.9
-      '@babel/helper-optimise-call-expression': 7.18.6
-      '@babel/helper-replace-supers': 7.20.7
-      '@babel/helper-split-export-declaration': 7.18.6
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /@babel/helper-create-class-features-plugin@7.20.12(@babel/core@7.12.3):
     resolution: {integrity: sha512-9OunRkbT0JQcednL0UFvbfXpAsUXiGjUk0a7sN8fUXX7Mue79cUSMjHGDRRi/Vz9vYlpIhLV5fMD5dKoMhhsNQ==}
     engines: {node: '>=6.9.0'}
@@ -6817,13 +7417,6 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/types': 7.20.7
-
-  /@babel/helper-member-expression-to-functions@7.18.9:
-    resolution: {integrity: sha512-RxifAh2ZoVU67PyKIO4AMi1wTenGfMR/O/ae0CCRqwgBAt5v7xjdtRw7UoSbsreKrQn5t7r89eruK/9JjYHuDg==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      '@babel/types': 7.20.7
-    dev: true
 
   /@babel/helper-member-expression-to-functions@7.20.7:
     resolution: {integrity: sha512-9J0CxJLq315fEdi4s7xK5TQaNYjZw+nDVpVqr1axNGKzdrdwYBD5b4uKv3n75aABG0rCCTK8Im8Ww7eYfMrZgw==}
@@ -7056,7 +7649,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.20.12
-      '@babel/helper-create-class-features-plugin': 7.19.0(@babel/core@7.20.12)
+      '@babel/helper-create-class-features-plugin': 7.20.12(@babel/core@7.20.12)
       '@babel/helper-plugin-utils': 7.20.2
     transitivePeerDependencies:
       - supports-color
@@ -10949,30 +11542,6 @@ packages:
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
       '@types/node': 16.18.23
-      '@types/yargs': 17.0.12
-      chalk: 4.1.2
-    dev: true
-
-  /@jest/types@29.4.2:
-    resolution: {integrity: sha512-CKlngyGP0fwlgC1BRUtPZSiWLBhyS9dKwKmyGxk8Z6M82LBEGB2aLQSg+U1MyLsU+M7UjnlLllBM2BLWKVm/Uw==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    dependencies:
-      '@jest/schemas': 29.4.3
-      '@types/istanbul-lib-coverage': 2.0.4
-      '@types/istanbul-reports': 3.0.1
-      '@types/node': 16.18.23
-      '@types/yargs': 17.0.22
-      chalk: 4.1.2
-    dev: true
-
-  /@jest/types@29.4.3:
-    resolution: {integrity: sha512-bPYfw8V65v17m2Od1cv44FH+SiKW7w2Xu7trhcdTLUmSv85rfKsP+qXSjO4KGJr4dtPSzl/gvslZBXctf1qGEA==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    dependencies:
-      '@jest/schemas': 29.4.3
-      '@types/istanbul-lib-coverage': 2.0.4
-      '@types/istanbul-reports': 3.0.1
-      '@types/node': 16.18.23
       '@types/yargs': 17.0.22
       chalk: 4.1.2
     dev: true
@@ -12631,7 +13200,7 @@ packages:
     resolution: {integrity: sha512-1zzPV9FDe1I/WHhRkf9SNgqtRJWZqrBWgu7JGveuHmmyR9CnAPCie2N/x+iHrgnpYBIcCJWHBoMRv2TRWktsvw==}
     deprecated: This is a stub types definition for chalk (https://github.com/chalk/chalk). chalk provides its own type definitions, so you don't need @types/chalk installed!
     dependencies:
-      chalk: 5.2.0
+      chalk: 4.1.2
     dev: true
 
   /@types/combined-stream@1.0.3:
@@ -15695,7 +16264,7 @@ packages:
     resolution: {integrity: sha512-Rd3se6QB+sO1TwqZjscQrurpEPIfO0/yYnSin6Q/rD3mOutHvUrCAhJub3r90uNb+SESBuE0QYoB90YdfatsRg==}
 
   /compose-function@3.0.3:
-    resolution: {integrity: sha1-ntZ18TzFRQHTCVCkhv9qe6OrGF8=}
+    resolution: {integrity: sha512-xzhzTJ5eC+gmIzvZq+C3kCJHsp9os6tJkrigDRZclyGtOKINbZtE8n1Tzmeh32jW+BUDPbvZpibwvJHBLGMVwg==}
     dependencies:
       arity-n: 1.0.4
     dev: false
@@ -16324,7 +16893,7 @@ packages:
       pretty-bytes: 5.6.0
       proxy-from-env: 1.0.0
       request-progress: 3.0.0
-      semver: 7.3.7
+      semver: 7.3.2
       supports-color: 8.1.1
       tmp: 0.2.1
       untildify: 4.0.0
@@ -18247,6 +18816,17 @@ packages:
       esbuild: '*'
     dependencies:
       esbuild: 0.13.14
+      source-map-support: 0.5.21
+      tslib: 2.4.0
+    dev: true
+
+  /esbuild-runner@2.2.2(esbuild@0.14.30):
+    resolution: {integrity: sha512-fRFVXcmYVmSmtYm2mL8RlUASt2TDkGh3uRcvHFOKNr/T58VrfVeKD9uT9nlgxk96u0LS0ehS/GY7Da/bXWKkhw==}
+    hasBin: true
+    peerDependencies:
+      esbuild: '*'
+    dependencies:
+      esbuild: 0.14.30
       source-map-support: 0.5.21
       tslib: 2.4.0
     dev: true
@@ -20376,7 +20956,7 @@ packages:
       node-fetch:
         optional: true
     dependencies:
-      '@babel/core': 7.20.12
+      '@babel/core': 7.12.3
       '@babel/runtime': 7.20.6
       core-js: 3.23.3
       debug: 4.3.4(supports-color@8.1.1)
@@ -22369,7 +22949,7 @@ packages:
       jest-runtime: 26.6.3(canvas@2.9.1)
       jest-snapshot: 26.6.2
       jest-util: 26.6.2
-      prettier: 2.8.3
+      prettier: 2.6.2
       pretty-format: 26.6.2
       stack-utils: 2.0.5
       throat: 5.0.0
@@ -24771,7 +25351,7 @@ packages:
         optional: true
     dependencies:
       '@jest/core': 29.4.1
-      '@jest/types': 29.4.2
+      '@jest/types': 29.5.0
       import-local: 3.1.0
       jest-cli: 29.4.1
     transitivePeerDependencies:
@@ -24791,7 +25371,7 @@ packages:
         optional: true
     dependencies:
       '@jest/core': 29.4.2
-      '@jest/types': 29.4.2
+      '@jest/types': 29.5.0
       import-local: 3.1.0
       jest-cli: 29.4.2(@types/node@16.18.23)
     transitivePeerDependencies:
@@ -24811,7 +25391,7 @@ packages:
         optional: true
     dependencies:
       '@jest/core': 29.4.3
-      '@jest/types': 29.4.3
+      '@jest/types': 29.5.0
       import-local: 3.1.0
       jest-cli: 29.4.3(@types/node@16.18.23)
     transitivePeerDependencies:
@@ -28949,11 +29529,11 @@ packages:
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
 
   /rework-visit@1.0.0:
-    resolution: {integrity: sha1-mUWygD8hni96ygCtuLyfZA+ELJo=}
+    resolution: {integrity: sha512-W6V2fix7nCLUYX1v6eGPrBOZlc03/faqzP4sUxMAJMBMOPYhfV/RyLegTufn5gJKaOITyi+gvf0LXDZ9NzkHnQ==}
     dev: false
 
   /rework@1.0.1:
-    resolution: {integrity: sha1-MIBqhBNCtUUQqkEQhQzUhTQUSqc=}
+    resolution: {integrity: sha512-eEjL8FdkdsxApd0yWVZgBGzfCQiT8yqSc2H1p4jpZpQdtz7ohETiDMoje5PlM8I9WgkqkreVxFUKYOiJdVWDXw==}
     dependencies:
       convert-source-map: 0.3.5
       css: 2.2.4

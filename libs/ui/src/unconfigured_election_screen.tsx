@@ -10,7 +10,7 @@ export interface UnconfiguredElectionScreenProps {
   usbDriveStatus: UsbDriveStatus;
   isElectionManagerAuth: boolean;
   backendConfigError?: BallotPackageConfigurationError;
-  machineName: 'VxScan' | 'VxMark' | 'VxCentralScan';
+  machineName: 'VxScan' | 'VxMark' | 'VxCentralScan' | 'VxMarkScan';
 }
 
 export function UnconfiguredElectionScreen({

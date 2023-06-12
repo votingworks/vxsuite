@@ -41,6 +41,18 @@
       "path": "apps/mark/integration-testing"
     },
     {
+      "name": "apps/mark-scan/backend",
+      "path": "apps/mark-scan/backend"
+    },
+    {
+      "name": "apps/mark-scan/frontend",
+      "path": "apps/mark-scan/frontend"
+    },
+    {
+      "name": "apps/mark-scan/integration-testing",
+      "path": "apps/mark-scan/integration-testing"
+    },
+    {
       "name": "apps/scan/backend",
       "path": "apps/scan/backend"
     },

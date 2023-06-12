@@ -192,6 +192,80 @@ jobs:
       - store_test_results:
           path: apps/design/frontend/reports/
 
+  # @votingworks/mark-scan-backend
+  test-apps-mark-scan-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark-scan/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark-scan/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark-scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark-scan/backend/reports/
+
+  # @votingworks/mark-scan-frontend
+  test-apps-mark-scan-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark-scan/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark-scan/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark-scan/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark-scan/frontend/reports/
+
+  # @votingworks/mark-scan-integration-testing
+  test-apps-mark-scan-integration-testing:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - install-cypress-browser
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark-scan/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark-scan/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark-scan/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark-scan/integration-testing/reports/
+      - store_artifacts:
+          path: apps/mark-scan/integration-testing/cypress/screenshots/
+      - store_artifacts:
+          path: apps/mark-scan/integration-testing/cypress/videos/
+
   # @votingworks/mark-backend
   test-apps-mark-backend:
     executor: nodejs
@@ -1089,6 +1163,9 @@ workflows:
       - test-apps-central-scan-frontend
       - test-apps-central-scan-integration-testing
       - test-apps-design-frontend
+      - test-apps-mark-scan-backend
+      - test-apps-mark-scan-frontend
+      - test-apps-mark-scan-integration-testing
       - test-apps-mark-backend
       - test-apps-mark-frontend
       - test-apps-mark-integration-testing
