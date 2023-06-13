@@ -6,6 +6,7 @@ import {
   throwIllegalValue,
   assertDefined,
   Result,
+  sleep,
 } from '@votingworks/basics';
 import {
   isElectionManagerAuth,
@@ -103,7 +104,12 @@ export function SaveBackendFileModal({
 
   async function saveFile(location: string) {
     setCurrentState('saving');
+
+    // Wait at least 1 second before changing the state to "done" or "error".
+    const minimumSaveTimer = sleep(1000);
     const result = await onSave(location);
+    await minimumSaveTimer;
+
     if (result.isOk()) {
       setCurrentState('done');
     } else {

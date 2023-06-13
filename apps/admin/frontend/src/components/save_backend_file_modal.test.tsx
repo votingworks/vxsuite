@@ -109,7 +109,7 @@ test('has development shortcut to export file without USB drive', async () => {
   await waitFor(() => {
     expect(onSave).toHaveBeenCalledWith('/user/batch-export.csv');
   });
-  screen.getByText('Batch Export Saved');
+  await screen.findByText('Batch Export Saved');
 
   process.env = originalEnv;
 });
@@ -171,7 +171,7 @@ test('save as path', async () => {
   await waitFor(() => {
     expect(onSave).toHaveBeenCalledWith('/media/vx/usb-drive/batch-export.csv');
   });
-  screen.getByText('Batch Export Saved');
+  await screen.findByText('Batch Export Saved');
 });
 
 test('error path', async () => {
