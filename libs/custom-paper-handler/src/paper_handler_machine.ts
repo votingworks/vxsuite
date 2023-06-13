@@ -9,8 +9,11 @@ import {
   ImageConversionOptions,
   imageDataToBinaryBitmap,
 } from './printing';
-import { PaperHandlerStatus } from './driver/sensors';
-import { getPaperHandlerDriver, PaperHandlerDriver } from './driver/driver';
+import {
+  getPaperHandlerDriver,
+  PaperHandlerDriver,
+  PaperHandlerStatus,
+} from './driver/driver';
 import { Uint8 } from './bits';
 
 const serverDebug = makeDebug('paper-handler:machine');
@@ -114,6 +117,10 @@ export class PaperHandlerMachine {
 
   resetStatus(): void {
     this.status = 'no_paper';
+  }
+
+  async logStatus(): Promise<void> {
+    debug(JSON.stringify(await this.driver.getPaperHandlerStatus(), null, 2));
   }
 
   /**

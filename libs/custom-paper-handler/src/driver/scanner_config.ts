@@ -1,4 +1,5 @@
 import { Uint16toUint8, Uint32toUint8, Uint8 } from '../bits';
+import { ConfigureScannerCommand } from './coders';
 
 export type PaperMovementAfterScan =
   | 'hold_ticket'
@@ -67,6 +68,24 @@ const ScanDirectionEncoder: Encoder<ScanDirection> = {
   backward: 0x01,
   in_park: 0x03,
 };
+
+export function getScannerConfigCoderValues(
+  scannerConfig: ScannerConfig
+): ConfigureScannerCommand {
+  return {
+    optionPaperConfig:
+      PaperMovementAfterScanEncoder[scannerConfig.paperMovementAfterScan],
+    optionSensorConfig: scannerConfig.disableJamWheelSensor ? 0x04 : 0x00,
+    flags: ScanDirectionEncoder[scannerConfig.scanDirection],
+    scan: ScanTypeEncoder[scannerConfig.scanDataFormat][
+      scannerConfig.scanLight
+    ],
+    dpiX: scannerConfig.horizontalResolution,
+    dpiY: scannerConfig.verticalResolution,
+    sizeX: scannerConfig.scanHorizontalDimensionInDots,
+    sizeY: scannerConfig.scanMaxVerticalDimensionInDots,
+  };
+}
 
 export function encodeScannerConfig(scannerConfig: ScannerConfig): Uint8[] {
   const data: Uint8[] = [];

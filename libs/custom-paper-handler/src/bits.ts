@@ -1,4 +1,5 @@
 import { assert } from '@votingworks/basics';
+import { UINT_16_MAX } from './driver/constants';
 
 /**
  * Possible indexes for a bit offset in a `Uint8` value.
@@ -287,6 +288,25 @@ export const Uint8Max: Uint8 = 255;
 export const Uint8MostSignificantBitMask: Uint8 = 128;
 
 /**
+ * Binary array for debugging
+ */
+type BinaryStringRepresentation = '0' | '1';
+export type BinaryArray = [
+  BinaryStringRepresentation,
+  BinaryStringRepresentation,
+  BinaryStringRepresentation,
+  BinaryStringRepresentation,
+  BinaryStringRepresentation,
+  BinaryStringRepresentation,
+  BinaryStringRepresentation,
+  BinaryStringRepresentation
+];
+
+export function getZeroBinaryArray(): BinaryArray {
+  return ['0', '0', '0', '0', '0', '0', '0', '0'];
+}
+
+/**
  * Array of booleans representing the bits in a byte. Although unenforceable,
  * use to represent MSB-first to mirror how we would represent binary.
  */
@@ -316,6 +336,18 @@ export function Uint8ToBitArray(value: Uint8): BitArray {
   return bitArray;
 }
 
+export function Uint8ToBinaryArray(value: Uint8): BinaryArray {
+  let shiftingValue: number = value;
+
+  const bitArray = getZeroBinaryArray();
+  for (let i = 0; i < Uint8Size; i += 1) {
+    const booleanValue = shiftingValue & Uint8MostSignificantBitMask;
+    bitArray[i] = booleanValue ? '1' : '0';
+    shiftingValue <<= 1;
+  }
+  return bitArray;
+}
+
 const BIT_MULTIPLIERS = [128, 64, 32, 16, 8, 4, 2, 1];
 
 export function bitArrayToByte(bits: BitArray): Uint8 {
@@ -337,11 +369,6 @@ export function bitArrayToByte(bits: BitArray): Uint8 {
  * Just using an alias for readability because we don't have a great way to represent this in typescript.
  */
 export type Uint16 = number;
-
-/**
- * Maximum value of a `Uint16`
- */
-export const Uint16Max = 65535;
 
 export function numberIsInRangeInclusive(
   num: number,
@@ -372,11 +399,11 @@ export function assertUint8(num: number): asserts num is Uint8 {
 }
 
 export function assertUint16(num: number): asserts num is Uint16 {
-  assertNumberIsInRangeInclusive(num, 0, Uint16Max);
+  assertNumberIsInRangeInclusive(num, 0, UINT_16_MAX);
 }
 
 export function Uint16toUint8(value: Uint16): [MSB: Uint8, LSB: Uint8] {
-  if (value < 0 || value > Uint16Max) {
+  if (value < 0 || value > UINT_16_MAX) {
     throw new Error('invalid Uint16');
   }
 

@@ -1,6 +1,6 @@
+import { Buffer } from 'buffer';
 import { assert } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
-import { Buffer } from 'buffer';
 import { findByIds, WebUSBDevice } from 'usb';
 import { Uint16 } from '@votingworks/message-coder';
 import { mockOf } from '@votingworks/test-utils';
@@ -13,10 +13,14 @@ import {
   RealTimeRequestIds,
   ReturnCodes,
   GENERIC_ENDPOINT_IN,
+  PaperHandlerBitmap,
 } from './driver';
-import { TOKEN, NULL_CODE } from './constants';
-import { PrinterStatus, ScannerStatus } from './sensors';
+import { TOKEN, NULL_CODE, OK_NO_MORE_DATA } from './constants';
 import { setUpMockWebUsbDevice } from './test_utils';
+import {
+  PrinterStatusRealTimeExchangeResponse,
+  SensorStatusRealTimeExchangeResponse,
+} from './coders';
 
 type MockWebUsbDevice = mocks.MockWebUsbDevice;
 
@@ -55,7 +59,7 @@ test('initializePrinter sends the correct message', async () => {
   expect(paperHandlerWebDevice.transferOut).toHaveBeenCalledTimes(1);
   expect(paperHandlerWebDevice.transferOut).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from([0x1b, 0x40])
+    Buffer.from([0x1b, 0x40])
   );
 });
 
@@ -80,36 +84,32 @@ test('getScannerStatus sends the correct message and can parse a response', asyn
   ];
 
   // See the ScannerStatus type for more information on position of these values in the bitmap
-  const expectedStatus: ScannerStatus = {
-    // First byte, MSB leftmost bit
-    parkSensor: true,
-    paperOutSensor: false,
-    paperPostCisSensor: false,
-    paperPreCisSensor: false,
+  const expectation: SensorStatusRealTimeExchangeResponse = {
+    // startOfPacket and token literals omitted by message-coder
+    requestId: RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
+    returnCode: ReturnCodes.POSITIVE_ACKNOWLEDGEMENT,
+    // Byte 0
     paperInputLeftInnerSensor: true,
     paperInputRightInnerSensor: true,
     paperInputLeftOuterSensor: true,
     paperInputRightOuterSensor: true,
-
-    // Second byte, MSB leftmost bit
-    // 0x80 fixed to 0
-    printHeadInPosition: true,
-    scanTimeout: false,
-    motorMove: false,
-    scanInProgress: true,
-    jamEncoder: true,
-    paperJam: true,
+    paperPreCisSensor: false,
+    paperPostCisSensor: false,
+    paperOutSensor: false,
+    parkSensor: true,
+    // Byte 1
     coverOpen: true,
-
-    // Third byte, MSB leftmost bit
-    // 0x80 fixed to 0
-    // 0x40 fixed to 0
-    // 0x20 fixed to 0
-    // 0x10 fixed to 0
-    optoSensor: true,
-    ballotBoxDoorSensor: false,
-    ballotBoxAttachSensor: false,
+    paperJam: true,
+    jamEncoder: true,
+    scanInProgress: true,
+    motorMove: false,
+    scanTimeout: false,
+    printHeadInPosition: true,
+    // Byte 2
     preHeadSensor: false,
+    ballotBoxAttachSensor: false,
+    ballotBoxDoorSensor: false,
+    optoSensor: true,
   };
 
   await mockWebUsbDevice.mockAddTransferInData(
@@ -126,7 +126,7 @@ test('getScannerStatus sends the correct message and can parse a response', asyn
 
   const result = await paperHandlerDriver.getScannerStatus();
   expect(transferOutSpy).toHaveBeenCalledTimes(1);
-  const inputAsBuffer = Uint8Array.from([
+  const inputAsBuffer = Buffer.from([
     0x02,
     RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
     TOKEN,
@@ -137,12 +137,15 @@ test('getScannerStatus sends the correct message and can parse a response', asyn
     inputAsBuffer
   );
 
-  expect(result).toEqual(expectedStatus);
+  expect(result).toEqual(expectation);
 });
 
 test('getPrinterStatus sends the correct message and can parse a response', async () => {
   const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
-  const expectedStatus: PrinterStatus = {
+  const expectedStatus: PrinterStatusRealTimeExchangeResponse = {
+    requestId: RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
+    returnCode: ReturnCodes.POSITIVE_ACKNOWLEDGEMENT,
+
     paperNotPresent: false,
     ticketPresentInOutput: true,
 
@@ -193,7 +196,7 @@ test('getPrinterStatus sends the correct message and can parse a response', asyn
 
   const result = await paperHandlerDriver.getPrinterStatus();
   expect(transferOutSpy).toHaveBeenCalledTimes(1);
-  const inputAsBuffer = Uint8Array.from([
+  const inputAsBuffer = Buffer.from([
     0x02,
     RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
     TOKEN,
@@ -236,7 +239,7 @@ test.each(testsWithNoAdditionalResponseData)(
 
     await functionToTest.call(paperHandlerDriver);
     expect(transferOutSpy).toHaveBeenCalledTimes(1);
-    const inputAsBuffer = Uint8Array.from([0x02, requestId, TOKEN, NULL_CODE]);
+    const inputAsBuffer = Buffer.from([0x02, requestId, TOKEN, NULL_CODE]);
     expect(transferOutSpy).toHaveBeenCalledWith(
       REAL_TIME_ENDPOINT_OUT,
       inputAsBuffer
@@ -297,7 +300,7 @@ test.each(scannerCommands)(
     await functionToTest.call(paperHandlerDriver);
     expect(transferOutSpy).toHaveBeenCalledWith(
       GENERIC_ENDPOINT_OUT,
-      Uint8Array.from(command)
+      Buffer.from(command)
     );
   }
 );
@@ -346,7 +349,7 @@ async function expectScanConfigTransferOut(
   await testFn();
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from(expectation)
+    Buffer.from(expectation)
   );
 }
 
@@ -430,7 +433,7 @@ test('print command', async () => {
   await paperHandlerDriver.print(motionUnits);
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from(expectation)
+    Buffer.from(expectation)
   );
 });
 
@@ -446,7 +449,7 @@ test('print command defaults to 0 motion units', async () => {
   await paperHandlerDriver.print();
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from(expectation)
+    Buffer.from(expectation)
   );
 });
 
@@ -505,7 +508,7 @@ test.each(commandsWithMotionUnits)(
     functionToTest.call(paperHandlerDriver, motionUnits);
     expect(transferOutSpy).toHaveBeenCalledWith(
       GENERIC_ENDPOINT_OUT,
-      Uint8Array.from(transferOutExpectation)
+      Buffer.from(transferOutExpectation)
     );
   }
 );
@@ -522,7 +525,7 @@ test('setPrintingDensity', async () => {
   await paperHandlerDriver.setPrintingDensity('+25%');
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from(expectation)
+    Buffer.from(expectation)
   );
 });
 
@@ -538,7 +541,7 @@ test('setPrintingSpeed', async () => {
   await paperHandlerDriver.setPrintingSpeed('fast');
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from(expectation)
+    Buffer.from(expectation)
   );
 });
 
@@ -556,7 +559,7 @@ test('setMotionUnits', async () => {
   await paperHandlerDriver.setMotionUnits(x, y);
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from(expectation)
+    Buffer.from(expectation)
   );
 });
 
@@ -573,6 +576,63 @@ test('setLineSpacing', async () => {
   await paperHandlerDriver.setLineSpacing(n);
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Uint8Array.from(expectation)
+    Buffer.from(expectation)
+  );
+});
+
+function getFillerData(byteLength: number): Uint8Array {
+  const data: Uint8Array = new Uint8Array(byteLength);
+  for (let i = 0; i < byteLength; i += 1) {
+    data[i] = i % 256;
+  }
+  return data;
+}
+
+test('scan with exactly 1 data block', async () => {
+  const cisStatus = 0x00;
+  const scanType = 0x05;
+  const sizeX = [0x10, 0x00];
+  const sizeY = [0x10, 0x00];
+  // scanner status (2 bytes) is currently unhandled by the scan() function, so use a dummy value for now
+  const statusBytes = [0xff, 0xff];
+  // the command response also includes a 4 byte dummy value
+  const dummyValue = [0x00, 0x00, 0x00, 0x00];
+  const dataBlock = getFillerData(0x10 * 0x10);
+
+  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  await mockWebUsbDevice.mockAddTransferInData(
+    GENERIC_ENDPOINT_IN,
+    Buffer.from([
+      ...Buffer.from('IMG'),
+      OK_NO_MORE_DATA,
+      cisStatus,
+      scanType,
+      ...sizeX,
+      ...sizeY,
+      ...statusBytes,
+      ...dummyValue,
+      ...dataBlock,
+    ])
+  );
+
+  await paperHandlerDriver.scan();
+  expect(transferOutSpy).toHaveBeenCalledWith(
+    GENERIC_ENDPOINT_OUT,
+    Buffer.from([0x1c, 0x53, 0x50, 0x53])
+  );
+});
+
+test('bufferChunk', async () => {
+  const MAX_DATA_SIZE = 1023;
+  const dataBlock = getFillerData(MAX_DATA_SIZE);
+
+  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+
+  const input: PaperHandlerBitmap = { data: dataBlock, width: 0x03ff };
+  await paperHandlerDriver.bufferChunk(input);
+  const expectation = [0x1b, 0x2a, 33, 0xff, 3, ...dataBlock];
+  expect(transferOutSpy).toHaveBeenCalledWith(
+    GENERIC_ENDPOINT_OUT,
+    Buffer.from(expectation)
   );
 });
