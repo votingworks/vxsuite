@@ -445,25 +445,12 @@ test('tabulating CVRs', async () => {
     'votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
   );
 
-  fireEvent.click(getByText('Save'));
-  await waitFor(() => getByText(/Saving/));
-  advanceTimers(2);
-  await waitFor(() => getByText(/Batch Results Saved/));
-  await waitFor(() => {
-    expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
-    expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
-      1,
-      'fake mount point/votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
-      expect.stringContaining(
-        'Batch ID,Batch Name,Tabulator,Number of Ballots,"President - Ballots Cast"'
-      )
-    );
-  });
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.FileSaved,
-    expect.any(String),
-    expect.anything()
+  apiMock.expectExportBatchResults(
+    'fake mount point/votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
   );
+  fireEvent.click(getByText('Save'));
+  await screen.findByText(/Saving/);
+  await screen.findByText(/Batch Results Saved/);
 
   fireEvent.click(getByText('Official Batch 2 Tally Report'));
   getByText('Official Batch Tally Report for Batch 2 (Scanner: scanner-1)');
@@ -510,9 +497,9 @@ test('tabulating CVRs', async () => {
   advanceTimers(2);
   await waitFor(() => getByText(/Results Saved/));
   await waitFor(() => {
-    expect(mockKiosk.writeFile).toHaveBeenCalledTimes(2);
+    expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
-      2,
+      1,
       'fake mount point/votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.txt',
       'test-content'
     );

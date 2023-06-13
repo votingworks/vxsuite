@@ -330,6 +330,10 @@ export function createApiMock(
     expectSaveBallotPackageToUsb(result: BallotPackageExportResult = ok()) {
       apiClient.saveBallotPackageToUsb.expectCallWith().resolves(result);
     },
+
+    expectExportBatchResults(path: string) {
+      apiClient.exportBatchResults.expectCallWith({ path }).resolves(ok([]));
+    },
   };
 }
 
