@@ -651,7 +651,6 @@ export class PaperHandlerDriver {
     });
   }
 
-  // TODO why do these functions accept as input a Uint16 instead of 2 Uint8s?
   async setAbsolutePrintPosition(
     numMotionUnits: Uint16
   ): Promise<USBOutTransferResult> {
