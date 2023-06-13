@@ -130,7 +130,7 @@ const defaultDelays: Delays = {
   // When in accepted state, how long to ignore any new ballot that is
   // inserted (this ensures the user sees the accepted screen for a bit
   // before starting a new scan).
-  DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 2_000,
+  DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 500,
   // How long to wait on the accepted state before automatically going
   // back to no_paper.
   DELAY_ACCEPTED_RESET_TO_NO_PAPER: 5_000,
@@ -486,7 +486,7 @@ function buildMachine({
     Event,
     BaseActionObject
   > = {
-    initial: 'starting',
+    initial: 'checking_completed',
     states: {
       starting: {
         invoke: {
@@ -510,7 +510,7 @@ function buildMachine({
           // Sometimes the accept command will complete successfully even though
           // the ballot hasn't been dropped yet (e.g. if it's stuck), so we wait
           // a bit to see if it gets dropped.
-          SCANNER_READY_TO_EJECT: doNothing,
+          SCANNER_READY_TO_EJECT: '#accepted',
           // Sometimes the accept command will complete successfully even though
           // the ballot hasn't been dropped yet (e.g. if it's stuck), so we wait
           // a bit to see if it gets dropped.
