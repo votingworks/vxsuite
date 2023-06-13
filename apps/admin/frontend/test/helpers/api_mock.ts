@@ -13,6 +13,7 @@ import type {
   WriteInRecord,
   WriteInTally,
   WriteInAdjudicatedTally,
+  SemsExportableTallies,
 } from '@votingworks/admin-backend';
 import { collections, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -333,6 +334,10 @@ export function createApiMock(
 
     expectExportBatchResults(path: string) {
       apiClient.exportBatchResults.expectCallWith({ path }).resolves(ok([]));
+    },
+
+    expectGetSemsExportableTallies(result: SemsExportableTallies) {
+      apiClient.getSemsExportableTallies.expectCallWith().resolves(result);
     },
   };
 }

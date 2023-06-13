@@ -50,6 +50,7 @@ import {
   ManualResultsIdentifier,
   ManualResultsMetadataRecord,
   ManualResultsRecord,
+  SemsExportableTallies,
   ServerFullElectionManualTally,
   SetSystemSettingsResult,
   WriteInAdjudicationAction,
@@ -77,6 +78,7 @@ import { addFileToZipStream } from './util/zip';
 import { exportFile } from './util/export_file';
 import { generateBatchResultsFile } from './exports/batch_results';
 import { tabulateElectionResults } from './tabulation/full_results';
+import { getSemsExportableTallies } from './exports/sems_tallies';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -717,6 +719,20 @@ function buildApi({
       );
 
       return exportFileResult;
+    },
+
+    getSemsExportableTallies(): SemsExportableTallies {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+
+      return getSemsExportableTallies(
+        tabulateElectionResults({
+          electionId,
+          store,
+          groupBy: { groupByPrecinct: true },
+          includeManualResults: true,
+          includeWriteInAdjudicationResults: false,
+        })
+      );
     },
   });
 }

@@ -337,6 +337,20 @@ export const getManualResultsMetadata = {
   },
 } as const;
 
+export const getSemsExportableTallies = {
+  queryKey(): QueryKey {
+    return ['getSemsExportableTallies'];
+  },
+  useQuery(enabled = false) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getSemsExportableTallies(),
+      { enabled }
+    );
+  },
+} as const;
+
 // Grouped Invalidations
 
 function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
@@ -344,6 +358,7 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getCastVoteRecordFileMode.queryKey()),
     queryClient.invalidateQueries(getCastVoteRecordFiles.queryKey()),
     queryClient.invalidateQueries(getCastVoteRecords.queryKey()),
+    queryClient.invalidateQueries(getSemsExportableTallies.queryKey()),
   ]);
 }
 
@@ -360,6 +375,7 @@ function invalidateManualResultsQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getManualResults.queryKey()),
     queryClient.invalidateQueries(getFullElectionManualTally.queryKey()),
     queryClient.invalidateQueries(getManualResultsMetadata.queryKey()),
+    queryClient.invalidateQueries(getSemsExportableTallies.queryKey()),
   ]);
 }
 

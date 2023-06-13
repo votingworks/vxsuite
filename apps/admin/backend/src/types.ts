@@ -483,3 +483,27 @@ export type ManualResultsGroupBy = Pick<
  * vote records.
  */
 export type CastVoteRecordStoreFilter = Omit<Tabulation.Filter, 'partyIds'>;
+
+/**
+ * Contest tally format for export to SEMS converter.
+ */
+export interface SemsExportableContestTally {
+  readonly tallies: Dictionary<number>;
+  readonly metadata: {
+    readonly overvotes: number;
+    readonly undervotes: number;
+    readonly ballots: number;
+  };
+}
+
+/**
+ * Tally format for export to SEMS converter.
+ */
+export type SemsExportableTally = Dictionary<SemsExportableContestTally>;
+
+/**
+ * Tallies by precinct for export to SEMS converter.
+ */
+export interface SemsExportableTallies {
+  readonly talliesByPrecinct: Dictionary<SemsExportableTally>;
+}

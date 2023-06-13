@@ -10,6 +10,7 @@ import {
   Printer,
   VotingMethod,
   DippedSmartCardAuth,
+  ConverterClientType,
 } from '@votingworks/types';
 import {
   NullPrinter,
@@ -28,7 +29,7 @@ import type { MachineConfig } from '@votingworks/admin-backend';
 import { UsbDrive, mockUsbDrive } from '@votingworks/ui';
 import { render as testRender, RenderResult } from './react_testing_library';
 import { AppContext } from '../src/contexts/app_context';
-import { Iso8601Timestamp, ExportableTallies } from '../src/config/types';
+import { Iso8601Timestamp } from '../src/config/types';
 import { ApiClient, ApiClientContext, createQueryClient } from '../src/api';
 import { ApiMock } from './helpers/api_mock';
 
@@ -40,6 +41,7 @@ interface RenderInAppContextParams {
   history?: MemoryHistory;
   electionDefinition?: ElectionDefinition | 'NONE';
   configuredAt?: Iso8601Timestamp;
+  converter?: ConverterClientType;
   isOfficialResults?: boolean;
   printer?: Printer;
   usbDrive?: UsbDrive;
@@ -53,7 +55,6 @@ interface RenderInAppContextParams {
   manualTallyVotingMethod?: VotingMethod;
   setManualTallyVotingMethod?: (votingMethod: VotingMethod) => void;
   fullElectionManualTally?: FullElectionManualTally;
-  generateExportableTallies?: () => ExportableTallies;
   auth?: DippedSmartCardAuth.AuthStatus;
   machineConfig?: MachineConfig;
   hasCardReaderAttached?: boolean;
@@ -95,6 +96,7 @@ export function renderInAppContext(
     electionDefinition = eitherNeitherElectionDefinition,
     configuredAt = new Date().toISOString(),
     isOfficialResults = false,
+    converter = undefined,
     printer = new NullPrinter(),
     usbDrive = mockUsbDrive(),
     fullElectionTally = getEmptyFullElectionTally(),
@@ -102,7 +104,6 @@ export function renderInAppContext(
     isTabulationRunning = false,
     setIsTabulationRunning = jest.fn(),
     fullElectionManualTally = undefined,
-    generateExportableTallies = jest.fn(),
     auth = electionDefinition === 'NONE'
       ? {
           status: 'logged_in',
@@ -135,6 +136,7 @@ export function renderInAppContext(
           electionDefinition === 'NONE' ? undefined : electionDefinition,
         configuredAt,
         isOfficialResults,
+        converter,
         printer,
         usbDrive,
         fullElectionTally,
@@ -142,7 +144,6 @@ export function renderInAppContext(
         isTabulationRunning,
         setIsTabulationRunning,
         fullElectionManualTally,
-        generateExportableTallies,
         auth,
         machineConfig,
         hasCardReaderAttached,
