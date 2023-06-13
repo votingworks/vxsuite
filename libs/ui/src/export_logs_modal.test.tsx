@@ -176,7 +176,7 @@ test('successful save raw log flow', async () => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
-      expect.stringContaining('fake mount point/vx-log'),
+      expect.stringContaining('/media/vx/mock-usb-drive/vx-log'),
       'this-is-my-file-content'
     );
   });
@@ -237,7 +237,7 @@ test('successful save cdf log file flow', async () => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
-      expect.stringContaining('fake mount point/vx-log'),
+      expect.stringContaining('/media/vx/mock-usb-drive/vx-log'),
       'this-is-the-cdf-content'
     );
   });

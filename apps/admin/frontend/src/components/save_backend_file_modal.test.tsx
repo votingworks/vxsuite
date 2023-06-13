@@ -133,16 +133,16 @@ test('happy path - default location', async () => {
   userEvent.click(screen.getButton('Save'));
   await waitFor(() => {
     expect(onSave).toHaveBeenCalledWith(
-      'fake mount point/exports/batch-export.csv'
+      '/media/vx/mock-usb-drive/exports/batch-export.csv'
     );
   });
   await screen.findByText('Batch Export Saved');
 });
 
 test('save as path', async () => {
-  const mockShowSaveDialog = jest
-    .fn()
-    .mockResolvedValue({ filePath: 'fake mount point/batch-export.csv' });
+  const mockShowSaveDialog = jest.fn().mockResolvedValue({
+    filePath: '/media/vx/mock-usb-drive/batch-export.csv',
+  });
   mockKiosk.showSaveDialog = mockShowSaveDialog;
 
   const onSave = jest.fn().mockResolvedValue(ok());
@@ -163,10 +163,12 @@ test('save as path', async () => {
 
   userEvent.click(screen.getButton('Save As…'));
   expect(mockShowSaveDialog).toHaveBeenCalledWith({
-    defaultPath: 'fake mount point/batch-export.csv',
+    defaultPath: '/media/vx/mock-usb-drive/batch-export.csv',
   });
   await waitFor(() => {
-    expect(onSave).toHaveBeenCalledWith('fake mount point/batch-export.csv');
+    expect(onSave).toHaveBeenCalledWith(
+      '/media/vx/mock-usb-drive/batch-export.csv'
+    );
   });
   await screen.findByText('Batch Export Saved');
 });
@@ -193,7 +195,7 @@ test('error path', async () => {
   userEvent.click(screen.getButton('Save'));
   await waitFor(() => {
     expect(onSave).toHaveBeenCalledWith(
-      'fake mount point/exports/batch-export.csv'
+      '/media/vx/mock-usb-drive/exports/batch-export.csv'
     );
   });
   await screen.findByText('Batch Export Not Saved');
@@ -222,7 +224,7 @@ test('can cancel save dialog', async () => {
 
   userEvent.click(screen.getButton('Save As…'));
   expect(mockShowSaveDialog).toHaveBeenCalledWith({
-    defaultPath: 'fake mount point/batch-export.csv',
+    defaultPath: '/media/vx/mock-usb-drive/batch-export.csv',
   });
 
   // because the save dialog is not part of the UI, we cannot wait for its disappearance,

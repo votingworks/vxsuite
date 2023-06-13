@@ -97,7 +97,7 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
-      'fake mount point/this-is-a-file-name.pdf',
+      '/media/vx/mock-usb-drive/this-is-a-file-name.pdf',
       'this-is-my-file-content'
     );
   });
@@ -157,7 +157,7 @@ test('renders save screen when usb is mounted with results filetype and prompts 
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
-      'fake mount point/this-is-a-file-name.pdf',
+      '/media/vx/mock-usb-drive/this-is-a-file-name.pdf',
       'this-is-my-file-content'
     );
   });
@@ -246,12 +246,12 @@ test('creates new directory and saves to it, if specified', async () => {
   await waitFor(() => {
     expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);
     expect(mockKiosk.makeDirectory).toHaveBeenCalledWith(
-      'fake mount point/directory',
+      '/media/vx/mock-usb-drive/directory',
       { recursive: true }
     );
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenCalledWith(
-      'fake mount point/directory/ballot.pdf',
+      '/media/vx/mock-usb-drive/directory/ballot.pdf',
       'file-content'
     );
   });

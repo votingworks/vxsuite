@@ -21,7 +21,7 @@ export function fakeUsbDrive(
 ): KioskBrowser.UsbDriveInfo {
   return {
     deviceName: 'fake device',
-    mountPoint: 'fake mount point',
+    mountPoint: '/media/vx/mock-usb-drive',
     fsType: 'vfat',
     fsVersion: 'FAT32',
     label: 'VxUSB-XXXXX',

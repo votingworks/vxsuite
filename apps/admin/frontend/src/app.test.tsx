@@ -446,7 +446,7 @@ test('tabulating CVRs', async () => {
   );
 
   apiMock.expectExportBatchResults(
-    'fake mount point/votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
+    '/media/vx/mock-usb-drive/votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
   );
   fireEvent.click(getByText('Save'));
   await screen.findByText(/Saving/);
@@ -500,7 +500,7 @@ test('tabulating CVRs', async () => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
-      'fake mount point/votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.txt',
+      '/media/vx/mock-usb-drive/votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.txt',
       'test-content'
     );
   });
