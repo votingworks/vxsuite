@@ -9,87 +9,87 @@ exports[`batch export 1`] = `
 exports[`sems export 1`] = `
 Object {
   "aquarium-council-fish": Object {
-    "counts": Object {
+    "metadata": Object {
+      "ballots": 28,
+      "overvotes": 8,
+      "undervotes": 6,
+    },
+    "tallies": Object {
       "manta-ray": 10,
       "pufferfish": 8,
       "rockfish": 8,
       "triggerfish": 8,
       "write-in": 8,
     },
-    "metadata": Object {
-      "ballots": 28,
-      "overvotes": 8,
-      "undervotes": 6,
-    },
   },
   "best-animal-fish": Object {
-    "counts": Object {
-      "salmon": 22,
-      "seahorse": 2,
-    },
     "metadata": Object {
       "ballots": 28,
       "overvotes": 2,
       "undervotes": 2,
     },
+    "tallies": Object {
+      "salmon": 22,
+      "seahorse": 2,
+    },
   },
   "best-animal-mammal": Object {
-    "counts": Object {
-      "fox": 18,
-      "horse": 2,
-      "otter": 2,
-    },
     "metadata": Object {
       "ballots": 28,
       "overvotes": 4,
       "undervotes": 2,
     },
+    "tallies": Object {
+      "fox": 18,
+      "horse": 2,
+      "otter": 2,
+    },
   },
   "fishing": Object {
-    "counts": Object {
-      "no": 4,
-      "yes": 4,
-    },
     "metadata": Object {
       "ballots": 56,
       "overvotes": 4,
       "undervotes": 44,
+    },
+    "tallies": Object {
+      "no": 4,
+      "yes": 4,
     },
   },
   "new-zoo-either": Object {
-    "counts": Object {
-      "no": 4,
-      "yes": 4,
-    },
     "metadata": Object {
       "ballots": 56,
       "overvotes": 4,
       "undervotes": 44,
+    },
+    "tallies": Object {
+      "no": 4,
+      "yes": 4,
     },
   },
   "new-zoo-pick": Object {
-    "counts": Object {
-      "no": 4,
-      "yes": 4,
-    },
     "metadata": Object {
       "ballots": 56,
       "overvotes": 4,
       "undervotes": 44,
     },
+    "tallies": Object {
+      "no": 4,
+      "yes": 4,
+    },
   },
   "zoo-council-mammal": Object {
-    "counts": Object {
+    "metadata": Object {
+      "ballots": 28,
+      "overvotes": 6,
+      "undervotes": 12,
+    },
+    "tallies": Object {
       "elephant": 12,
       "kangaroo": 12,
       "lion": 14,
       "write-in": 12,
       "zebra": 16,
-    },
-    "metadata": Object {
-      "ballots": 28,
-      "overvotes": 6,
-      "undervotes": 12,
     },
   },
 }
