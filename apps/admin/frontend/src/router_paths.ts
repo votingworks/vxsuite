@@ -13,7 +13,7 @@ export const routerPaths = {
   root: '/',
   advanced: '/advanced',
   electionDefinition: '/definition',
-  definitionEditor: '/definition/editor',
+  definitionViewer: '/definition/viewer',
   definitionContest: ({ contestId }: { contestId: ContestId }): string =>
     `/definition/contests/${contestId}`,
   smartcards: '/smartcards',

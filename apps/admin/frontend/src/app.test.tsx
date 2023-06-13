@@ -115,7 +115,7 @@ test('configuring with a demo election definition', async () => {
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectGetFullElectionManualTally();
 
-  const { getByText, queryAllByText, getByTestId } = renderApp();
+  const { getByText } = renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
   await screen.findByText('Load Demo Election Definition');
@@ -138,10 +138,7 @@ test('configuring with a demo election definition', async () => {
 
   fireEvent.click(getByText('Definition'));
 
-  // Verify editing an election is disabled
   fireEvent.click(getByText('View Definition JSON'));
-  expect(queryAllByText('Reset').length).toEqual(0);
-  expect(getByTestId('json-input').hasAttribute('disabled')).toEqual(true);
 
   // remove the election
   apiMock.expectUnconfigure();

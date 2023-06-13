@@ -12,6 +12,7 @@ import {
   faDisplay,
   faExclamationCircle,
   faExclamationTriangle,
+  faFloppyDisk,
   faGear,
   faInfoCircle,
   faMinusCircle,
@@ -137,6 +138,10 @@ export const Icons = {
 
   RightChevron(): JSX.Element {
     return <FaIcon type={faChevronRight} />;
+  },
+
+  Save(): JSX.Element {
+    return <FaIcon type={faFloppyDisk} />;
   },
 
   Settings(): JSX.Element {

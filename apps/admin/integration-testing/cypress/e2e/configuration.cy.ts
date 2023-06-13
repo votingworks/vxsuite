@@ -28,9 +28,10 @@ describe('Election Manager and Module Converter MS SEMS configuration', () => {
     // The page renders twice when first loaded, make sure that is done before we navigate.
     cy.contains('h1', 'Election Definition');
     cy.contains('Definition').click();
+    cy.contains('View Definition JSON').click();
     cy.contains('State Senate 15');
     cy.contains('District 15');
-    cy.contains('Remove Election').click();
+    cy.contains('Remove').click();
     cy.contains('Remove Election Definition').click();
   });
 });
