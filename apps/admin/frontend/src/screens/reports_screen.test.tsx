@@ -93,3 +93,39 @@ test('exporting SEMS results', async () => {
   expect(fetchMock.called('/convert/tallies/output?name=name')).toEqual(true);
   expect(fetchMock.called('/convert/reset')).toEqual(true);
 });
+
+test('exporting batch results', async () => {
+  const mockKiosk = fakeKiosk();
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+  window.kiosk = mockKiosk;
+
+  const logger = fakeLogger();
+
+  apiMock.expectGetCastVoteRecordFileMode('test');
+
+  renderInAppContext(<ReportsScreen />, {
+    electionDefinition,
+    apiMock,
+    logger,
+    usbDrive: mockUsbDrive('mounted'),
+  });
+
+  userEvent.click(screen.getButton('Show Results by Batch and Scanner'));
+  await waitFor(() => {
+    expect(screen.getButton('Save Batch Results as CSV')).toBeEnabled();
+  });
+  userEvent.click(screen.getButton('Save Batch Results as CSV'));
+  await screen.findByRole('alertdialog');
+
+  await screen.findByText('Save Batch Results');
+  await screen.findByText(
+    'votingworks-test-batch-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
+  );
+
+  apiMock.expectExportBatchResults(
+    '/media/vx/mock-usb-drive/votingworks-test-batch-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
+  );
+  userEvent.click(screen.getByText('Save'));
+  await screen.findByText(/Saving/);
+  await screen.findByText(/Batch Results Saved/);
+});

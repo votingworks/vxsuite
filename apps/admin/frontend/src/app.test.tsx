@@ -432,23 +432,7 @@ test('tabulating CVRs', async () => {
   await expectPrintToMatchSnapshot();
 
   fireEvent.click(getByText('Reports'));
-
   fireEvent.click(getByText('Show Results by Batch and Scanner'));
-  getByText('Batch Name');
-  fireEvent.click(getByText('Save Batch Results as CSV'));
-  advanceTimers(2);
-  await screen.findByText('Save Batch Results');
-  await screen.findByText(
-    'votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
-  );
-
-  apiMock.expectExportBatchResults(
-    '/media/vx/mock-usb-drive/votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
-  );
-  fireEvent.click(getByText('Save'));
-  await screen.findByText(/Saving/);
-  await screen.findByText(/Batch Results Saved/);
-
   fireEvent.click(getByText('Official Batch 2 Tally Report'));
   getByText('Official Batch Tally Report for Batch 2 (Scanner: scanner-1)');
   const reportPreview = getByTestId('report-preview');
