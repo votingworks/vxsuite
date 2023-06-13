@@ -1,7 +1,9 @@
 import React from 'react';
-
-import { advancePromises, fakeKiosk } from '@votingworks/test-utils';
-
+import {
+  advancePromises,
+  fakeKiosk,
+  fakeUsbDrive,
+} from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
 import { err, ok } from '@votingworks/basics';
@@ -9,17 +11,16 @@ import { screen, waitFor } from '../../test/react_testing_library';
 import { SaveBackendFileModal } from './save_backend_file_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
-// mock a mount point for the usb drive
-jest.mock('@votingworks/utils', () => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    usbstick: {
-      ...jest.requireActual('@votingworks/utils').usbstick,
-      getInfo: () => ({
-        mountPoint: '/media/vx/usb-drive',
-      }),
-    },
-  };
+let mockKiosk = fakeKiosk();
+
+beforeEach(() => {
+  mockKiosk = fakeKiosk();
+  window.kiosk = mockKiosk;
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+});
+
+afterEach(() => {
+  window.kiosk = undefined;
 });
 
 test('render no usb found screen when there is not a valid mounted usb drive', () => {
@@ -74,12 +75,10 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
 });
 
 test('has development shortcut to export file without USB drive', async () => {
-  const mockKiosk = fakeKiosk();
   const mockShowSaveDialog = jest
     .fn()
     .mockResolvedValue({ filePath: '/user/batch-export.csv' });
   mockKiosk.showSaveDialog = mockShowSaveDialog;
-  window.kiosk = mockKiosk;
 
   const originalEnv: NodeJS.ProcessEnv = { ...process.env };
   process.env = {
@@ -134,19 +133,17 @@ test('happy path - default location', async () => {
   userEvent.click(screen.getButton('Save'));
   await waitFor(() => {
     expect(onSave).toHaveBeenCalledWith(
-      '/media/vx/usb-drive/exports/batch-export.csv'
+      'fake mount point/exports/batch-export.csv'
     );
   });
   await screen.findByText('Batch Export Saved');
 });
 
 test('save as path', async () => {
-  const mockKiosk = fakeKiosk();
   const mockShowSaveDialog = jest
     .fn()
-    .mockResolvedValue({ filePath: '/media/vx/usb-drive/batch-export.csv' });
+    .mockResolvedValue({ filePath: 'fake mount point/batch-export.csv' });
   mockKiosk.showSaveDialog = mockShowSaveDialog;
-  window.kiosk = mockKiosk;
 
   const onSave = jest.fn().mockResolvedValue(ok());
 
@@ -166,10 +163,10 @@ test('save as path', async () => {
 
   userEvent.click(screen.getButton('Save As…'));
   expect(mockShowSaveDialog).toHaveBeenCalledWith({
-    defaultPath: '/media/vx/usb-drive/batch-export.csv',
+    defaultPath: 'fake mount point/batch-export.csv',
   });
   await waitFor(() => {
-    expect(onSave).toHaveBeenCalledWith('/media/vx/usb-drive/batch-export.csv');
+    expect(onSave).toHaveBeenCalledWith('fake mount point/batch-export.csv');
   });
   await screen.findByText('Batch Export Saved');
 });
@@ -196,7 +193,7 @@ test('error path', async () => {
   userEvent.click(screen.getButton('Save'));
   await waitFor(() => {
     expect(onSave).toHaveBeenCalledWith(
-      '/media/vx/usb-drive/exports/batch-export.csv'
+      'fake mount point/exports/batch-export.csv'
     );
   });
   await screen.findByText('Batch Export Not Saved');
@@ -204,10 +201,8 @@ test('error path', async () => {
 });
 
 test('can cancel save dialog', async () => {
-  const mockKiosk = fakeKiosk();
   const mockShowSaveDialog = jest.fn().mockResolvedValue({ canceled: true });
   mockKiosk.showSaveDialog = mockShowSaveDialog;
-  window.kiosk = mockKiosk;
 
   const onSave = jest.fn().mockResolvedValue(ok());
 
@@ -227,7 +222,7 @@ test('can cancel save dialog', async () => {
 
   userEvent.click(screen.getButton('Save As…'));
   expect(mockShowSaveDialog).toHaveBeenCalledWith({
-    defaultPath: '/media/vx/usb-drive/batch-export.csv',
+    defaultPath: 'fake mount point/batch-export.csv',
   });
 
   // because the save dialog is not part of the UI, we cannot wait for its disappearance,
