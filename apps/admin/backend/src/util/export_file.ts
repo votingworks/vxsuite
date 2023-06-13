@@ -13,7 +13,8 @@ export function exportFile({
 }): Promise<ExportDataResult> {
   const exporter = new Exporter({
     allowedExportPatterns: ADMIN_ALLOWED_EXPORT_PATTERNS,
-    // not using `exportDataToUsbDrive`, so dummy getter is fine
+    /* we're not using `exportDataToUsbDrive`, so a placeholder `getUsbDrives` is fine */
+    /* c8 ignore next */
     getUsbDrives: () => Promise.resolve([]),
   });
 

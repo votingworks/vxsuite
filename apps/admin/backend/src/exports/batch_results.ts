@@ -53,9 +53,9 @@ function generateResultsRow(
   for (const contest of election.contests) {
     const contestResults = batchResults.contestResults[contest.id];
     assert(contestResults);
-    contestVoteTotals.push(contestResults.ballots.toString() ?? '0');
-    contestVoteTotals.push(contestResults.undervotes.toString() ?? '0');
-    contestVoteTotals.push(contestResults.overvotes.toString() ?? '0');
+    contestVoteTotals.push(contestResults.ballots.toString());
+    contestVoteTotals.push(contestResults.undervotes.toString());
+    contestVoteTotals.push(contestResults.overvotes.toString());
     if (contest.type === 'candidate') {
       assert(contestResults.contestType === 'candidate');
       for (const candidate of contest.candidates) {
@@ -70,8 +70,8 @@ function generateResultsRow(
       }
     } else if (contest.type === 'yesno') {
       assert(contestResults.contestType === 'yesno');
-      contestVoteTotals.push(contestResults.yesTally.toString() ?? '0');
-      contestVoteTotals.push(contestResults.noTally.toString() ?? '0');
+      contestVoteTotals.push(contestResults.yesTally.toString());
+      contestVoteTotals.push(contestResults.noTally.toString());
     }
   }
   const row = [
