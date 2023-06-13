@@ -18,7 +18,6 @@ import type { ExportDataError } from '@votingworks/admin-backend';
 import {
   Button,
   Modal,
-  H1,
   P,
   useExternalStateChangeListener,
   Font,
@@ -138,13 +137,11 @@ export function SaveBackendFileModal({
   if (currentState === 'error') {
     return (
       <Modal
+        title={`${fileTypeTitle} Not Saved`}
         content={
-          <React.Fragment>
-            <H1>{fileTypeTitle} Not Saved</H1>
-            <P>
-              Failed to save {fileType}. {errorMessage}
-            </P>
-          </React.Fragment>
+          <P>
+            Failed to save {fileType}. {errorMessage}
+          </P>
         }
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
@@ -155,14 +152,12 @@ export function SaveBackendFileModal({
   if (currentState === 'done') {
     return (
       <Modal
+        title={`${fileTypeTitle} Saved`}
         content={
-          <React.Fragment>
-            <H1>{fileTypeTitle} Saved</H1>
-            <P>
-              {fileType.charAt(0).toUpperCase() + fileType.slice(1)}{' '}
-              successfully saved to the inserted USB drive.
-            </P>
-          </React.Fragment>
+          <P>
+            {fileType.charAt(0).toUpperCase() + fileType.slice(1)} successfully
+            saved to the inserted USB drive.
+          </P>
         }
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
@@ -185,15 +180,13 @@ export function SaveBackendFileModal({
     case 'bad_format':
       return (
         <Modal
+          title="No USB Drive Detected"
           content={
-            <React.Fragment>
-              <H1>No USB Drive Detected</H1>
-              <P>
-                <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-                Please insert a USB drive where you would like the save the{' '}
-                {fileType}.
-              </P>
-            </React.Fragment>
+            <P>
+              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
+              Please insert a USB drive where you would like the save the{' '}
+              {fileType}.
+            </P>
           }
           onOverlayClick={onClose}
           actions={
@@ -225,15 +218,13 @@ export function SaveBackendFileModal({
     case 'mounted': {
       return (
         <Modal
+          title={`Save ${fileTypeTitle}`}
           content={
-            <React.Fragment>
-              <H1>Save {fileTypeTitle}</H1>
-              <P>
-                Save the {fileType} as{' '}
-                <Font weight="bold">{defaultRelativePath}</Font> on the inserted
-                USB drive?
-              </P>
-            </React.Fragment>
+            <P>
+              Save the {fileType} as{' '}
+              <Font weight="bold">{defaultRelativePath}</Font> on the inserted
+              USB drive?
+            </P>
           }
           onOverlayClick={onClose}
           actions={
