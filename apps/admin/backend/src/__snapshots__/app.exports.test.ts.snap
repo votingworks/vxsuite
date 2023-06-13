@@ -6,6 +6,199 @@ exports[`batch export 1`] = `
 "
 `;
 
+exports[`precinct / voting method results export - wia and manual data 1`] = `
+"State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Obadiah Carrigan,Obadiah-Carrigan-5c95145a,Test Ballot,town-id-00701-precinct-id-,Absentee,30
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Mary Baker Eddy,Mary-Baker-Eddy-350785d5,Test Ballot,town-id-00701-precinct-id-,Absentee,29
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Samuel Bell,Samuel-Bell-17973275,Test Ballot,town-id-00701-precinct-id-,Absentee,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Samuel Livermore,Samuel-Livermore-f927fef1,Test Ballot,town-id-00701-precinct-id-,Absentee,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Elijah Miller,Elijah-Miller-a52e6988,Test Ballot,town-id-00701-precinct-id-,Absentee,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Isaac Hill,Isaac-Hill-d6c9deeb,Test Ballot,town-id-00701-precinct-id-,Absentee,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Abigail Bartlett,Abigail-Bartlett-4e46c9d4,Test Ballot,town-id-00701-precinct-id-,Absentee,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Jacob Freese,Jacob-Freese-b5146505,Test Ballot,town-id-00701-precinct-id-,Absentee,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Write-In,write-in,Test Ballot,town-id-00701-precinct-id-,Absentee,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Overvotes,,Test Ballot,town-id-00701-precinct-id-,Absentee,15
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Undervotes,,Test Ballot,town-id-00701-precinct-id-,Absentee,6
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Obadiah Carrigan,Obadiah-Carrigan-5c95145a,Test Ballot,town-id-00701-precinct-id-,Precinct,30
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Mary Baker Eddy,Mary-Baker-Eddy-350785d5,Test Ballot,town-id-00701-precinct-id-,Precinct,29
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Samuel Bell,Samuel-Bell-17973275,Test Ballot,town-id-00701-precinct-id-,Precinct,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Samuel Livermore,Samuel-Livermore-f927fef1,Test Ballot,town-id-00701-precinct-id-,Precinct,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Elijah Miller,Elijah-Miller-a52e6988,Test Ballot,town-id-00701-precinct-id-,Precinct,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Isaac Hill,Isaac-Hill-d6c9deeb,Test Ballot,town-id-00701-precinct-id-,Precinct,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Abigail Bartlett,Abigail-Bartlett-4e46c9d4,Test Ballot,town-id-00701-precinct-id-,Precinct,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Jacob Freese,Jacob-Freese-b5146505,Test Ballot,town-id-00701-precinct-id-,Precinct,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Write-In,write-in,Test Ballot,town-id-00701-precinct-id-,Precinct,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Overvotes,,Test Ballot,town-id-00701-precinct-id-,Precinct,15
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Undervotes,,Test Ballot,town-id-00701-precinct-id-,Precinct,6"
+`;
+
+exports[`precinct / voting method results export - wia and manual data 2`] = `
+"State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Obadiah Carrigan,Obadiah-Carrigan-5c95145a,Test Ballot,town-id-00701-precinct-id-,Absentee,40
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Mary Baker Eddy,Mary-Baker-Eddy-350785d5,Test Ballot,town-id-00701-precinct-id-,Absentee,29
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Samuel Bell,Samuel-Bell-17973275,Test Ballot,town-id-00701-precinct-id-,Absentee,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Samuel Livermore,Samuel-Livermore-f927fef1,Test Ballot,town-id-00701-precinct-id-,Absentee,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Elijah Miller,Elijah-Miller-a52e6988,Test Ballot,town-id-00701-precinct-id-,Absentee,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Isaac Hill,Isaac-Hill-d6c9deeb,Test Ballot,town-id-00701-precinct-id-,Absentee,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Abigail Bartlett,Abigail-Bartlett-4e46c9d4,Test Ballot,town-id-00701-precinct-id-,Absentee,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Jacob Freese,Jacob-Freese-b5146505,Test Ballot,town-id-00701-precinct-id-,Absentee,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Overvotes,,Test Ballot,town-id-00701-precinct-id-,Absentee,15
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Undervotes,,Test Ballot,town-id-00701-precinct-id-,Absentee,34
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Obadiah Carrigan,Obadiah-Carrigan-5c95145a,Test Ballot,town-id-00701-precinct-id-,Precinct,30
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Mary Baker Eddy,Mary-Baker-Eddy-350785d5,Test Ballot,town-id-00701-precinct-id-,Precinct,29
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Samuel Bell,Samuel-Bell-17973275,Test Ballot,town-id-00701-precinct-id-,Precinct,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Samuel Livermore,Samuel-Livermore-f927fef1,Test Ballot,town-id-00701-precinct-id-,Precinct,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Elijah Miller,Elijah-Miller-a52e6988,Test Ballot,town-id-00701-precinct-id-,Precinct,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Isaac Hill,Isaac-Hill-d6c9deeb,Test Ballot,town-id-00701-precinct-id-,Precinct,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Abigail Bartlett,Abigail-Bartlett-4e46c9d4,Test Ballot,town-id-00701-precinct-id-,Precinct,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Jacob Freese,Jacob-Freese-b5146505,Test Ballot,town-id-00701-precinct-id-,Precinct,28
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Overvotes,,Test Ballot,town-id-00701-precinct-id-,Precinct,15
+State Representatives  Hillsborough District 34,State-Representatives-Hillsborough-District-34-b1012d38,Undervotes,,Test Ballot,town-id-00701-precinct-id-,Precinct,34"
+`;
+
+exports[`precinct / voting method results export 1`] = `
+"Contest,Contest ID,Selection,Selection ID,Precinct,Precinct ID,Voting Method,Votes
+Best Animal,best-animal-mammal,Horse,horse,Precinct 1,precinct-1,Absentee,1
+Best Animal,best-animal-mammal,Otter,otter,Precinct 1,precinct-1,Absentee,1
+Best Animal,best-animal-mammal,Fox,fox,Precinct 1,precinct-1,Absentee,9
+Best Animal,best-animal-mammal,Overvotes,,Precinct 1,precinct-1,Absentee,2
+Best Animal,best-animal-mammal,Undervotes,,Precinct 1,precinct-1,Absentee,1
+Best Animal,best-animal-fish,Seahorse,seahorse,Precinct 1,precinct-1,Absentee,1
+Best Animal,best-animal-fish,Salmon,salmon,Precinct 1,precinct-1,Absentee,11
+Best Animal,best-animal-fish,Overvotes,,Precinct 1,precinct-1,Absentee,1
+Best Animal,best-animal-fish,Undervotes,,Precinct 1,precinct-1,Absentee,1
+Zoo Council,zoo-council-mammal,Zebra,zebra,Precinct 1,precinct-1,Absentee,8
+Zoo Council,zoo-council-mammal,Lion,lion,Precinct 1,precinct-1,Absentee,7
+Zoo Council,zoo-council-mammal,Kangaroo,kangaroo,Precinct 1,precinct-1,Absentee,6
+Zoo Council,zoo-council-mammal,Elephant,elephant,Precinct 1,precinct-1,Absentee,6
+Zoo Council,zoo-council-mammal,Write-In,write-in,Precinct 1,precinct-1,Absentee,6
+Zoo Council,zoo-council-mammal,Overvotes,,Precinct 1,precinct-1,Absentee,3
+Zoo Council,zoo-council-mammal,Undervotes,,Precinct 1,precinct-1,Absentee,6
+Zoo Council,aquarium-council-fish,Manta Ray,manta-ray,Precinct 1,precinct-1,Absentee,5
+Zoo Council,aquarium-council-fish,Pufferfish,pufferfish,Precinct 1,precinct-1,Absentee,4
+Zoo Council,aquarium-council-fish,Rockfish,rockfish,Precinct 1,precinct-1,Absentee,4
+Zoo Council,aquarium-council-fish,Triggerfish,triggerfish,Precinct 1,precinct-1,Absentee,4
+Zoo Council,aquarium-council-fish,Write-In,write-in,Precinct 1,precinct-1,Absentee,4
+Zoo Council,aquarium-council-fish,Overvotes,,Precinct 1,precinct-1,Absentee,4
+Zoo Council,aquarium-council-fish,Undervotes,,Precinct 1,precinct-1,Absentee,3
+Ballot Measure 1,new-zoo-either,Yes,new-zoo-either-approved,Precinct 1,precinct-1,Absentee,2
+Ballot Measure 1,new-zoo-either,No,new-zoo-neither-approved,Precinct 1,precinct-1,Absentee,2
+Ballot Measure 1,new-zoo-either,Overvotes,,Precinct 1,precinct-1,Absentee,2
+Ballot Measure 1,new-zoo-either,Undervotes,,Precinct 1,precinct-1,Absentee,22
+Ballot Measure 1,new-zoo-pick,Yes,new-zoo-safari,Precinct 1,precinct-1,Absentee,2
+Ballot Measure 1,new-zoo-pick,No,new-zoo-traditional,Precinct 1,precinct-1,Absentee,2
+Ballot Measure 1,new-zoo-pick,Overvotes,,Precinct 1,precinct-1,Absentee,2
+Ballot Measure 1,new-zoo-pick,Undervotes,,Precinct 1,precinct-1,Absentee,22
+Ballot Measure 3,fishing,Yes,ban-fishing,Precinct 1,precinct-1,Absentee,2
+Ballot Measure 3,fishing,No,allow-fishing,Precinct 1,precinct-1,Absentee,2
+Ballot Measure 3,fishing,Overvotes,,Precinct 1,precinct-1,Absentee,2
+Ballot Measure 3,fishing,Undervotes,,Precinct 1,precinct-1,Absentee,22
+Best Animal,best-animal-mammal,Horse,horse,Precinct 1,precinct-1,Precinct,1
+Best Animal,best-animal-mammal,Otter,otter,Precinct 1,precinct-1,Precinct,1
+Best Animal,best-animal-mammal,Fox,fox,Precinct 1,precinct-1,Precinct,9
+Best Animal,best-animal-mammal,Overvotes,,Precinct 1,precinct-1,Precinct,2
+Best Animal,best-animal-mammal,Undervotes,,Precinct 1,precinct-1,Precinct,1
+Best Animal,best-animal-fish,Seahorse,seahorse,Precinct 1,precinct-1,Precinct,1
+Best Animal,best-animal-fish,Salmon,salmon,Precinct 1,precinct-1,Precinct,11
+Best Animal,best-animal-fish,Overvotes,,Precinct 1,precinct-1,Precinct,1
+Best Animal,best-animal-fish,Undervotes,,Precinct 1,precinct-1,Precinct,1
+Zoo Council,zoo-council-mammal,Zebra,zebra,Precinct 1,precinct-1,Precinct,8
+Zoo Council,zoo-council-mammal,Lion,lion,Precinct 1,precinct-1,Precinct,7
+Zoo Council,zoo-council-mammal,Kangaroo,kangaroo,Precinct 1,precinct-1,Precinct,6
+Zoo Council,zoo-council-mammal,Elephant,elephant,Precinct 1,precinct-1,Precinct,6
+Zoo Council,zoo-council-mammal,Write-In,write-in,Precinct 1,precinct-1,Precinct,6
+Zoo Council,zoo-council-mammal,Overvotes,,Precinct 1,precinct-1,Precinct,3
+Zoo Council,zoo-council-mammal,Undervotes,,Precinct 1,precinct-1,Precinct,6
+Zoo Council,aquarium-council-fish,Manta Ray,manta-ray,Precinct 1,precinct-1,Precinct,5
+Zoo Council,aquarium-council-fish,Pufferfish,pufferfish,Precinct 1,precinct-1,Precinct,4
+Zoo Council,aquarium-council-fish,Rockfish,rockfish,Precinct 1,precinct-1,Precinct,4
+Zoo Council,aquarium-council-fish,Triggerfish,triggerfish,Precinct 1,precinct-1,Precinct,4
+Zoo Council,aquarium-council-fish,Write-In,write-in,Precinct 1,precinct-1,Precinct,4
+Zoo Council,aquarium-council-fish,Overvotes,,Precinct 1,precinct-1,Precinct,4
+Zoo Council,aquarium-council-fish,Undervotes,,Precinct 1,precinct-1,Precinct,3
+Ballot Measure 1,new-zoo-either,Yes,new-zoo-either-approved,Precinct 1,precinct-1,Precinct,2
+Ballot Measure 1,new-zoo-either,No,new-zoo-neither-approved,Precinct 1,precinct-1,Precinct,2
+Ballot Measure 1,new-zoo-either,Overvotes,,Precinct 1,precinct-1,Precinct,2
+Ballot Measure 1,new-zoo-either,Undervotes,,Precinct 1,precinct-1,Precinct,22
+Ballot Measure 1,new-zoo-pick,Yes,new-zoo-safari,Precinct 1,precinct-1,Precinct,2
+Ballot Measure 1,new-zoo-pick,No,new-zoo-traditional,Precinct 1,precinct-1,Precinct,2
+Ballot Measure 1,new-zoo-pick,Overvotes,,Precinct 1,precinct-1,Precinct,2
+Ballot Measure 1,new-zoo-pick,Undervotes,,Precinct 1,precinct-1,Precinct,22
+Ballot Measure 3,fishing,Yes,ban-fishing,Precinct 1,precinct-1,Precinct,2
+Ballot Measure 3,fishing,No,allow-fishing,Precinct 1,precinct-1,Precinct,2
+Ballot Measure 3,fishing,Overvotes,,Precinct 1,precinct-1,Precinct,2
+Ballot Measure 3,fishing,Undervotes,,Precinct 1,precinct-1,Precinct,22
+Best Animal,best-animal-mammal,Horse,horse,Precinct 2,precinct-2,Absentee,1
+Best Animal,best-animal-mammal,Otter,otter,Precinct 2,precinct-2,Absentee,1
+Best Animal,best-animal-mammal,Fox,fox,Precinct 2,precinct-2,Absentee,9
+Best Animal,best-animal-mammal,Overvotes,,Precinct 2,precinct-2,Absentee,2
+Best Animal,best-animal-mammal,Undervotes,,Precinct 2,precinct-2,Absentee,1
+Best Animal,best-animal-fish,Seahorse,seahorse,Precinct 2,precinct-2,Absentee,1
+Best Animal,best-animal-fish,Salmon,salmon,Precinct 2,precinct-2,Absentee,11
+Best Animal,best-animal-fish,Overvotes,,Precinct 2,precinct-2,Absentee,1
+Best Animal,best-animal-fish,Undervotes,,Precinct 2,precinct-2,Absentee,1
+Zoo Council,zoo-council-mammal,Zebra,zebra,Precinct 2,precinct-2,Absentee,8
+Zoo Council,zoo-council-mammal,Lion,lion,Precinct 2,precinct-2,Absentee,7
+Zoo Council,zoo-council-mammal,Kangaroo,kangaroo,Precinct 2,precinct-2,Absentee,6
+Zoo Council,zoo-council-mammal,Elephant,elephant,Precinct 2,precinct-2,Absentee,6
+Zoo Council,zoo-council-mammal,Write-In,write-in,Precinct 2,precinct-2,Absentee,6
+Zoo Council,zoo-council-mammal,Overvotes,,Precinct 2,precinct-2,Absentee,3
+Zoo Council,zoo-council-mammal,Undervotes,,Precinct 2,precinct-2,Absentee,6
+Zoo Council,aquarium-council-fish,Manta Ray,manta-ray,Precinct 2,precinct-2,Absentee,5
+Zoo Council,aquarium-council-fish,Pufferfish,pufferfish,Precinct 2,precinct-2,Absentee,4
+Zoo Council,aquarium-council-fish,Rockfish,rockfish,Precinct 2,precinct-2,Absentee,4
+Zoo Council,aquarium-council-fish,Triggerfish,triggerfish,Precinct 2,precinct-2,Absentee,4
+Zoo Council,aquarium-council-fish,Write-In,write-in,Precinct 2,precinct-2,Absentee,4
+Zoo Council,aquarium-council-fish,Overvotes,,Precinct 2,precinct-2,Absentee,4
+Zoo Council,aquarium-council-fish,Undervotes,,Precinct 2,precinct-2,Absentee,3
+Ballot Measure 1,new-zoo-either,Yes,new-zoo-either-approved,Precinct 2,precinct-2,Absentee,2
+Ballot Measure 1,new-zoo-either,No,new-zoo-neither-approved,Precinct 2,precinct-2,Absentee,2
+Ballot Measure 1,new-zoo-either,Overvotes,,Precinct 2,precinct-2,Absentee,2
+Ballot Measure 1,new-zoo-either,Undervotes,,Precinct 2,precinct-2,Absentee,22
+Ballot Measure 1,new-zoo-pick,Yes,new-zoo-safari,Precinct 2,precinct-2,Absentee,2
+Ballot Measure 1,new-zoo-pick,No,new-zoo-traditional,Precinct 2,precinct-2,Absentee,2
+Ballot Measure 1,new-zoo-pick,Overvotes,,Precinct 2,precinct-2,Absentee,2
+Ballot Measure 1,new-zoo-pick,Undervotes,,Precinct 2,precinct-2,Absentee,22
+Ballot Measure 3,fishing,Yes,ban-fishing,Precinct 2,precinct-2,Absentee,2
+Ballot Measure 3,fishing,No,allow-fishing,Precinct 2,precinct-2,Absentee,2
+Ballot Measure 3,fishing,Overvotes,,Precinct 2,precinct-2,Absentee,2
+Ballot Measure 3,fishing,Undervotes,,Precinct 2,precinct-2,Absentee,22
+Best Animal,best-animal-mammal,Horse,horse,Precinct 2,precinct-2,Precinct,1
+Best Animal,best-animal-mammal,Otter,otter,Precinct 2,precinct-2,Precinct,1
+Best Animal,best-animal-mammal,Fox,fox,Precinct 2,precinct-2,Precinct,9
+Best Animal,best-animal-mammal,Overvotes,,Precinct 2,precinct-2,Precinct,2
+Best Animal,best-animal-mammal,Undervotes,,Precinct 2,precinct-2,Precinct,1
+Best Animal,best-animal-fish,Seahorse,seahorse,Precinct 2,precinct-2,Precinct,1
+Best Animal,best-animal-fish,Salmon,salmon,Precinct 2,precinct-2,Precinct,11
+Best Animal,best-animal-fish,Overvotes,,Precinct 2,precinct-2,Precinct,1
+Best Animal,best-animal-fish,Undervotes,,Precinct 2,precinct-2,Precinct,1
+Zoo Council,zoo-council-mammal,Zebra,zebra,Precinct 2,precinct-2,Precinct,8
+Zoo Council,zoo-council-mammal,Lion,lion,Precinct 2,precinct-2,Precinct,7
+Zoo Council,zoo-council-mammal,Kangaroo,kangaroo,Precinct 2,precinct-2,Precinct,6
+Zoo Council,zoo-council-mammal,Elephant,elephant,Precinct 2,precinct-2,Precinct,6
+Zoo Council,zoo-council-mammal,Write-In,write-in,Precinct 2,precinct-2,Precinct,6
+Zoo Council,zoo-council-mammal,Overvotes,,Precinct 2,precinct-2,Precinct,3
+Zoo Council,zoo-council-mammal,Undervotes,,Precinct 2,precinct-2,Precinct,6
+Zoo Council,aquarium-council-fish,Manta Ray,manta-ray,Precinct 2,precinct-2,Precinct,5
+Zoo Council,aquarium-council-fish,Pufferfish,pufferfish,Precinct 2,precinct-2,Precinct,4
+Zoo Council,aquarium-council-fish,Rockfish,rockfish,Precinct 2,precinct-2,Precinct,4
+Zoo Council,aquarium-council-fish,Triggerfish,triggerfish,Precinct 2,precinct-2,Precinct,4
+Zoo Council,aquarium-council-fish,Write-In,write-in,Precinct 2,precinct-2,Precinct,4
+Zoo Council,aquarium-council-fish,Overvotes,,Precinct 2,precinct-2,Precinct,4
+Zoo Council,aquarium-council-fish,Undervotes,,Precinct 2,precinct-2,Precinct,3
+Ballot Measure 1,new-zoo-either,Yes,new-zoo-either-approved,Precinct 2,precinct-2,Precinct,2
+Ballot Measure 1,new-zoo-either,No,new-zoo-neither-approved,Precinct 2,precinct-2,Precinct,2
+Ballot Measure 1,new-zoo-either,Overvotes,,Precinct 2,precinct-2,Precinct,2
+Ballot Measure 1,new-zoo-either,Undervotes,,Precinct 2,precinct-2,Precinct,22
+Ballot Measure 1,new-zoo-pick,Yes,new-zoo-safari,Precinct 2,precinct-2,Precinct,2
+Ballot Measure 1,new-zoo-pick,No,new-zoo-traditional,Precinct 2,precinct-2,Precinct,2
+Ballot Measure 1,new-zoo-pick,Overvotes,,Precinct 2,precinct-2,Precinct,2
+Ballot Measure 1,new-zoo-pick,Undervotes,,Precinct 2,precinct-2,Precinct,22
+Ballot Measure 3,fishing,Yes,ban-fishing,Precinct 2,precinct-2,Precinct,2
+Ballot Measure 3,fishing,No,allow-fishing,Precinct 2,precinct-2,Precinct,2
+Ballot Measure 3,fishing,Overvotes,,Precinct 2,precinct-2,Precinct,2
+Ballot Measure 3,fishing,Undervotes,,Precinct 2,precinct-2,Precinct,22
+"
+`;
+
 exports[`sems export 1`] = `
 Object {
   "aquarium-council-fish": Object {
