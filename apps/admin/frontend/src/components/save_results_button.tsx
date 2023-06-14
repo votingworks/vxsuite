@@ -2,10 +2,9 @@ import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { generateFinalExportDefaultFilename } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { SaveFrontendFileModal, FileType } from './save_frontend_file_modal';
 import { AppContext } from '../contexts/app_context';
-import { generateResultsCsv } from '../utils/generate_results_csv';
-import { getCastVoteRecordFileMode } from '../api';
+import { exportResultsCsv, getCastVoteRecordFileMode } from '../api';
+import { SaveBackendFileModal } from './save_backend_file_modal';
 
 export function SaveResultsButton({
   disabled,
@@ -13,10 +12,11 @@ export function SaveResultsButton({
   disabled?: boolean;
 }): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const { fullElectionTally, electionDefinition } = useContext(AppContext);
+  const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
 
+  const exportResultsCsvMutation = exportResultsCsv.useMutation();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const isTestMode = castVoteRecordFileModeQuery.data === 'test';
 
@@ -33,13 +33,15 @@ export function SaveResultsButton({
         Save Results
       </Button>
       {isSaveModalOpen && (
-        <SaveFrontendFileModal
+        <SaveBackendFileModal
+          saveFileStatus={exportResultsCsvMutation.status}
+          saveFile={exportResultsCsvMutation.mutate}
+          saveFileResult={exportResultsCsvMutation.data}
+          resetSaveFileResult={exportResultsCsvMutation.reset}
           onClose={() => setIsSaveModalOpen(false)}
-          generateFileContent={() =>
-            generateResultsCsv(fullElectionTally, election)
-          }
-          defaultFilename={defaultFilename}
-          fileType={FileType.Results}
+          fileType="results"
+          fileTypeTitle="Results"
+          defaultRelativePath={defaultFilename}
         />
       )}
     </React.Fragment>

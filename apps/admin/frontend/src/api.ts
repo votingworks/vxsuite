@@ -541,3 +541,10 @@ export const exportBatchResults = {
     return useMutation(apiClient.exportBatchResults);
   },
 } as const;
+
+export const exportResultsCsv = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportResultsCsv);
+  },
+} as const;

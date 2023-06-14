@@ -79,6 +79,7 @@ import { exportFile } from './util/export_file';
 import { generateBatchResultsFile } from './exports/batch_results';
 import { tabulateElectionResults } from './tabulation/full_results';
 import { getSemsExportableTallies } from './exports/sems_tallies';
+import { generateResultsCsv } from './exports/csv_results';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -733,6 +734,42 @@ function buildApi({
           includeWriteInAdjudicationResults: false,
         })
       );
+    },
+
+    async exportResultsCsv(input: { path: string }): Promise<ExportDataResult> {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      const {
+        electionDefinition: { election },
+      } = assertDefined(store.getElection(electionId));
+
+      const exportFileResult = await exportFile({
+        path: input.path,
+        data: generateResultsCsv({
+          election,
+          electionResultsByPrecinctAndVotingMethod: tabulateElectionResults({
+            electionId,
+            store,
+            groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
+            includeManualResults: true,
+            includeWriteInAdjudicationResults: true,
+          }),
+          writeInCandidates: store.getWriteInCandidates({ electionId }),
+        }),
+      });
+
+      await logger.log(
+        LogEventId.FileSaved,
+        assertDefined(await getUserRole()),
+        {
+          disposition: exportFileResult.isOk() ? 'success' : 'failure',
+          message: `${
+            exportFileResult.isOk() ? 'Saved' : 'Failed to save'
+          } csv results to ${input.path} on the USB drive.`,
+          filename: input.path,
+        }
+      );
+
+      return exportFileResult;
     },
   });
 }

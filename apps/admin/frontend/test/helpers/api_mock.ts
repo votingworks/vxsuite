@@ -339,6 +339,10 @@ export function createApiMock(
     expectGetSemsExportableTallies(result: SemsExportableTallies) {
       apiClient.getSemsExportableTallies.expectCallWith().resolves(result);
     },
+
+    expectExportResultsCsv(path: string) {
+      apiClient.exportResultsCsv.expectCallWith({ path }).resolves(ok([]));
+    },
   };
 }
 
