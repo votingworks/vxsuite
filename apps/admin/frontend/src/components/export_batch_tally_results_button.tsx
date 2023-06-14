@@ -2,25 +2,25 @@ import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { generateBatchResultsDefaultFilename } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { AppContext } from '../contexts/app_context';
-import { generateBatchTallyResultsCsv } from '../utils/generate_batch_tally_results_csv';
-import { getCastVoteRecordFileMode } from '../api';
+import { exportBatchResults, getCastVoteRecordFileMode } from '../api';
+import { SaveBackendFileModal } from './save_backend_file_modal';
 
 export function ExportBatchTallyResultsButton(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const { fullElectionTally, electionDefinition } = useContext(AppContext);
+  const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
 
+  const exportBatchResultsMutation = exportBatchResults.useMutation();
+
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
-
   const isTestMode = castVoteRecordFileModeQuery.data === 'test';
-
   const defaultFilename = generateBatchResultsDefaultFilename(
     isTestMode,
     election
   );
+
   return (
     <React.Fragment>
       <Button
@@ -31,13 +31,15 @@ export function ExportBatchTallyResultsButton(): JSX.Element {
         Save Batch Results as CSV
       </Button>
       {isSaveModalOpen && (
-        <SaveFileToUsb
+        <SaveBackendFileModal
+          saveFileStatus={exportBatchResultsMutation.status}
+          saveFile={exportBatchResultsMutation.mutate}
+          saveFileResult={exportBatchResultsMutation.data}
+          resetSaveFileResult={exportBatchResultsMutation.reset}
           onClose={() => setIsSaveModalOpen(false)}
-          generateFileContent={() =>
-            generateBatchTallyResultsCsv(fullElectionTally, election)
-          }
-          defaultFilename={defaultFilename}
-          fileType={FileType.BatchResultsCsv}
+          fileTypeTitle="Batch Results"
+          fileType="batch results"
+          defaultRelativePath={defaultFilename}
         />
       )}
     </React.Fragment>

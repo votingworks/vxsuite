@@ -8,7 +8,7 @@ import { AppContext } from '../contexts/app_context';
 import { TestDeckTallyReport } from './test_deck_tally_report';
 import { generateTestDeckBallots } from '../utils/election';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
-import { SaveFileToUsb, FileType } from './save_file_to_usb';
+import { SaveFrontendFileModal, FileType } from './save_frontend_file_modal';
 import { PrintButton } from './print_button';
 
 export function FullTestDeckTallyReportButton(): JSX.Element {
@@ -74,7 +74,7 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
         </Button>
       )}
       {isSaveModalOpen && (
-        <SaveFileToUsb
+        <SaveFrontendFileModal
           onClose={() => setIsSaveModalOpen(false)}
           generateFileContent={() => printElementToPdf(fullTestDeckTallyReport)}
           defaultFilename={defaultReportFilename}

@@ -25,7 +25,10 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
 import { BallotCountsTable } from '../components/ballot_counts_table';
 import { getPartiesWithPrimaryElections } from '../utils/election';
-import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
+import {
+  SaveFrontendFileModal,
+  FileType,
+} from '../components/save_frontend_file_modal';
 import { getTallyConverterClient } from '../lib/converters';
 import { SaveResultsButton } from '../components/save_results_button';
 import { getCastVoteRecordFileMode } from '../api';
@@ -203,7 +206,7 @@ export function ReportsScreen(): JSX.Element {
         </Prose>
       </NavigationScreen>
       {isExportResultsModalOpen && (
-        <SaveFileToUsb
+        <SaveFrontendFileModal
           onClose={() => setIsExportResultsModalOpen(false)}
           generateFileContent={generateSemsResults}
           defaultFilename={generateSemsFinalExportDefaultFilename(

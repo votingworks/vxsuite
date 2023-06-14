@@ -28,7 +28,6 @@ export enum FileType {
   TestDeckTallyReport = 'TestDeckTallyReport',
   Ballot = 'Ballot',
   Results = 'Results',
-  BatchResultsCsv = 'BatchResultsCSV',
 }
 
 export interface Props {
@@ -47,7 +46,7 @@ enum ModalState {
   INIT = 'init',
 }
 
-export function SaveFileToUsb({
+export function SaveFrontendFileModal({
   onClose,
   generateFileContent,
   defaultFilename,
@@ -86,10 +85,6 @@ export function SaveFileToUsb({
     case FileType.Results:
       title = 'Results';
       fileName = 'election results';
-      break;
-    case FileType.BatchResultsCsv:
-      title = 'Batch Results';
-      fileName = 'election batch results';
       break;
     default:
       throwIllegalValue(fileType);
