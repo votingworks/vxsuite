@@ -31,7 +31,7 @@ import {
 } from '../components/save_frontend_file_modal';
 import { getTallyConverterClient } from '../lib/converters';
 import { SaveResultsButton } from '../components/save_results_button';
-import { getCastVoteRecordFileMode } from '../api';
+import { getCastVoteRecordFileMode, getSemsExportableTallies } from '../api';
 
 export function ReportsScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
@@ -41,18 +41,21 @@ export function ReportsScreen(): JSX.Element {
     converter,
     isOfficialResults,
     isTabulationRunning,
-    generateExportableTallies,
     fullElectionTally,
     fullElectionManualTally,
     configuredAt,
     logger,
     auth,
   } = useContext(AppContext);
-  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
   assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
+
+  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
+  const semsExportableTalliesQuery = getSemsExportableTallies.useQuery({
+    enabled: converter === 'ms-sems',
+  });
 
   const [isExportResultsModalOpen, setIsExportResultsModalOpen] =
     useState(false);
@@ -89,7 +92,8 @@ export function ReportsScreen(): JSX.Element {
 
   const generateSemsResults = useCallback(async (): Promise<string> => {
     await logger.log(LogEventId.ConvertingResultsToSemsFormat, userRole);
-    const exportableTallies = generateExportableTallies();
+    assert(semsExportableTalliesQuery.isSuccess);
+
     // process on the server
     const client = new MsSemsConverterClient('tallies');
     const { inputFiles, outputFiles } = await client.getFiles();
@@ -104,7 +108,7 @@ export function ReportsScreen(): JSX.Element {
     );
     await client.setInputFile(
       talliesFile.name,
-      new File([JSON.stringify(exportableTallies)], 'tallies')
+      new File([JSON.stringify(semsExportableTalliesQuery.data)], 'tallies')
     );
     await client.process();
 
@@ -116,8 +120,8 @@ export function ReportsScreen(): JSX.Element {
     return await results.text();
   }, [
     electionDefinition.electionData,
-    generateExportableTallies,
     logger,
+    semsExportableTalliesQuery,
     userRole,
   ]);
 
@@ -189,7 +193,9 @@ export function ReportsScreen(): JSX.Element {
               <React.Fragment>
                 <Button
                   onPress={() => setIsExportResultsModalOpen(true)}
-                  disabled={!canSaveResults}
+                  disabled={
+                    !canSaveResults || !semsExportableTalliesQuery.isSuccess
+                  }
                 >
                   Save {converterName} Results
                 </Button>{' '}

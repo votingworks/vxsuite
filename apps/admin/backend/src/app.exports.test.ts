@@ -1,6 +1,10 @@
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import {
+  electionGridLayoutNewHampshireAmherstFixtures,
+  electionMinimalExhaustiveSampleFixtures,
+} from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
+  buildManualResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { tmpNameSync } from 'tmp';
@@ -35,10 +39,10 @@ afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
-const { electionDefinition, castVoteRecordReport } =
-  electionGridLayoutNewHampshireAmherstFixtures;
-
 test('batch export', async () => {
+  const { electionDefinition, castVoteRecordReport } =
+    electionGridLayoutNewHampshireAmherstFixtures;
+
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
@@ -51,11 +55,7 @@ test('batch export', async () => {
   const path = tmpNameSync();
   const exportResult = await apiClient.exportBatchResults({ path });
   expect(exportResult.isOk()).toEqual(true);
-  expect(readFileSync(path, 'utf-8').toString()).toMatchInlineSnapshot(`
-    "Batch ID,Batch Name,Tabulator,Number of Ballots,\\"Governor - Ballots Cast\\",\\"Governor - Undervotes\\",\\"Governor - Overvotes\\",\\"Governor - Josiah Bartlett\\",\\"Governor - Hannah Dustin\\",\\"Governor - John Spencer\\",\\"Governor - Write In\\",\\"United States Senator - Ballots Cast\\",\\"United States Senator - Undervotes\\",\\"United States Senator - Overvotes\\",\\"United States Senator - John Langdon\\",\\"United States Senator - William Preston\\",\\"United States Senator - Write In\\",\\"Representative in Congress - Ballots Cast\\",\\"Representative in Congress - Undervotes\\",\\"Representative in Congress - Overvotes\\",\\"Representative in Congress - Jeremiah Smith\\",\\"Representative in Congress - Nicholas Gilman\\",\\"Representative in Congress - Richard Coote\\",\\"Representative in Congress - Write In\\",\\"Executive Councilor - Ballots Cast\\",\\"Executive Councilor - Undervotes\\",\\"Executive Councilor - Overvotes\\",\\"Executive Councilor - Anne Waldron\\",\\"Executive Councilor - Daniel Webster\\",\\"Executive Councilor - Write In\\",\\"State Senator - Ballots Cast\\",\\"State Senator - Undervotes\\",\\"State Senator - Overvotes\\",\\"State Senator - James Poole\\",\\"State Senator - Matthew Thornton\\",\\"State Senator - Write In\\",\\"State Representatives  Hillsborough District 34 - Ballots Cast\\",\\"State Representatives  Hillsborough District 34 - Undervotes\\",\\"State Representatives  Hillsborough District 34 - Overvotes\\",\\"State Representatives  Hillsborough District 34 - Obadiah Carrigan\\",\\"State Representatives  Hillsborough District 34 - Mary Baker Eddy\\",\\"State Representatives  Hillsborough District 34 - Samuel Bell\\",\\"State Representatives  Hillsborough District 34 - Samuel Livermore\\",\\"State Representatives  Hillsborough District 34 - Elijah Miller\\",\\"State Representatives  Hillsborough District 34 - Isaac Hill\\",\\"State Representatives  Hillsborough District 34 - Abigail Bartlett\\",\\"State Representatives  Hillsborough District 34 - Jacob Freese\\",\\"State Representatives  Hillsborough District 34 - Write In\\",\\"State Representative  Hillsborough District 37 - Ballots Cast\\",\\"State Representative  Hillsborough District 37 - Undervotes\\",\\"State Representative  Hillsborough District 37 - Overvotes\\",\\"State Representative  Hillsborough District 37 - Abeil Foster\\",\\"State Representative  Hillsborough District 37 - Charles H. Hersey\\",\\"State Representative  Hillsborough District 37 - William Lovejoy\\",\\"State Representative  Hillsborough District 37 - Write In\\",\\"Sheriff - Ballots Cast\\",\\"Sheriff - Undervotes\\",\\"Sheriff - Overvotes\\",\\"Sheriff - Edward Randolph\\",\\"Sheriff - Write In\\",\\"County Attorney - Ballots Cast\\",\\"County Attorney - Undervotes\\",\\"County Attorney - Overvotes\\",\\"County Attorney - Ezra Bartlett\\",\\"County Attorney - Mary Woolson\\",\\"County Attorney - Write In\\",\\"County Treasurer - Ballots Cast\\",\\"County Treasurer - Undervotes\\",\\"County Treasurer - Overvotes\\",\\"County Treasurer - John Smith\\",\\"County Treasurer - Jane Jones\\",\\"County Treasurer - Write In\\",\\"Register of Deeds - Ballots Cast\\",\\"Register of Deeds - Undervotes\\",\\"Register of Deeds - Overvotes\\",\\"Register of Deeds - John Mann\\",\\"Register of Deeds - Ellen A. Stileman\\",\\"Register of Deeds - Write In\\",\\"Register of Probate - Ballots Cast\\",\\"Register of Probate - Undervotes\\",\\"Register of Probate - Overvotes\\",\\"Register of Probate - Nathaniel Parker\\",\\"Register of Probate - Claire Cutts\\",\\"Register of Probate - Write In\\",\\"County Commissioner - Ballots Cast\\",\\"County Commissioner - Undervotes\\",\\"County Commissioner - Overvotes\\",\\"County Commissioner - Ichabod Goodwin\\",\\"County Commissioner - Valbe Cady\\",\\"County Commissioner - Write In\\",\\"Constitutional Amendment Question  1 - Ballots Cast\\",\\"Constitutional Amendment Question  1 - Undervotes\\",\\"Constitutional Amendment Question  1 - Overvotes\\",\\"Constitutional Amendment Question  1 - Yes\\",\\"Constitutional Amendment Question  1 - No\\"
-    9822c71014,9822c71014,VX-00-000,184,184,2,4,2,2,172,2,184,2,2,2,176,2,184,2,4,2,2,172,2,184,2,2,2,176,2,184,2,2,2,176,2,184,12,30,60,58,56,56,56,56,56,56,56,184,2,4,2,2,172,2,184,2,0,180,2,184,2,2,2,176,2,184,2,2,2,176,2,184,2,2,2,176,2,184,2,2,2,176,2,184,2,2,2,176,2,184,178,2,2,2
-    "
-  `);
+  expect(readFileSync(path, 'utf-8').toString()).toMatchSnapshot();
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
     'election_manager',
@@ -81,4 +81,143 @@ test('batch export', async () => {
       message: `Failed to save batch results to ${offLimitsPath} on the USB drive.`,
     }
   );
+});
+
+test('sems export', async () => {
+  const { electionDefinition, castVoteRecordReport } =
+    electionMinimalExhaustiveSampleFixtures;
+
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+  const loadFileResult = await apiClient.addCastVoteRecordFile({
+    path: castVoteRecordReport.asDirectoryPath(),
+  });
+  loadFileResult.assertOk('load file failed');
+
+  const semsExportableTallies = await apiClient.getSemsExportableTallies();
+  const { talliesByPrecinct } = semsExportableTallies;
+  expect(Object.keys(talliesByPrecinct)).toHaveLength(2);
+  expect(talliesByPrecinct['precinct-1']).toMatchSnapshot();
+  expect(talliesByPrecinct['precinct-2']).toEqual(
+    talliesByPrecinct['precinct-1']
+  );
+});
+
+test('precinct / voting method results export', async () => {
+  const { electionDefinition, castVoteRecordReport } =
+    electionMinimalExhaustiveSampleFixtures;
+
+  const { apiClient, auth, logger } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+  const loadFileResult = await apiClient.addCastVoteRecordFile({
+    path: castVoteRecordReport.asDirectoryPath(),
+  });
+  loadFileResult.assertOk('load file failed');
+
+  const path = tmpNameSync();
+  const exportResult = await apiClient.exportResultsCsv({ path });
+  expect(exportResult.isOk()).toEqual(true);
+  expect(readFileSync(path, 'utf-8').toString()).toMatchSnapshot();
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.FileSaved,
+    'election_manager',
+    {
+      disposition: 'success',
+      filename: path,
+      message: `Saved csv results to ${path} on the USB drive.`,
+    }
+  );
+
+  // mock a failure
+  const offLimitsPath = '/root/hidden';
+  const failedExportResult = await apiClient.exportResultsCsv({
+    path: offLimitsPath,
+  });
+  expect(failedExportResult.isErr()).toEqual(true);
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.FileSaved,
+    'election_manager',
+    {
+      disposition: 'failure',
+      filename: offLimitsPath,
+      message: `Failed to save csv results to ${offLimitsPath} on the USB drive.`,
+    }
+  );
+});
+
+test('precinct / voting method results export - wia and manual data', async () => {
+  const { electionDefinition, castVoteRecordReport } =
+    electionGridLayoutNewHampshireAmherstFixtures;
+  const { election } = electionDefinition;
+
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+  const loadFileResult = await apiClient.addCastVoteRecordFile({
+    path: castVoteRecordReport.asDirectoryPath(),
+  });
+  loadFileResult.assertOk('load file failed');
+
+  const candidateContestId =
+    'State-Representatives-Hillsborough-District-34-b1012d38';
+
+  // export without wia and manual data
+  const path = tmpNameSync();
+  const exportResult = await apiClient.exportResultsCsv({ path });
+  expect(exportResult.isOk()).toEqual(true);
+  const fileContentForCandidateContest = readFileSync(path, 'utf-8')
+    .toString()
+    .split('\n')
+    .filter((line) => line.includes(candidateContestId))
+    .join('\n');
+  expect(fileContentForCandidateContest).toMatchSnapshot();
+
+  // add manual data
+  await apiClient.setManualResults({
+    precinctId: election.precincts[0]!.id,
+    votingMethod: 'absentee',
+    ballotStyleId: election.ballotStyles[0]!.id,
+    manualResults: buildManualResultsFixture({
+      election,
+      ballotCount: 10,
+      contestResultsSummaries: {
+        [candidateContestId]: {
+          type: 'candidate',
+          ballots: 10,
+          overvotes: 0,
+          undervotes: 0,
+          officialOptionTallies: {
+            'Obadiah-Carrigan-5c95145a': 10,
+          },
+        },
+      },
+    }),
+  });
+
+  // adjudicate write-ins
+  const writeIns = await apiClient.getWriteIns({
+    contestId: candidateContestId,
+  });
+  for (const writeIn of writeIns) {
+    await apiClient.adjudicateWriteIn({
+      writeInId: writeIn.id,
+      type: 'invalid',
+    });
+  }
+
+  // export with wia and manual data
+  const path2 = tmpNameSync();
+  const exportResult2 = await apiClient.exportResultsCsv({ path: path2 });
+  expect(exportResult2.isOk()).toEqual(true);
+  const fileContentForCandidateContest2 = readFileSync(path2, 'utf-8')
+    .toString()
+    .split('\n')
+    .filter((line) => line.includes(candidateContestId))
+    .join('\n');
+  expect(fileContentForCandidateContest2).toMatchSnapshot();
 });

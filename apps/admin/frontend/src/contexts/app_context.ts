@@ -11,8 +11,7 @@ import { NullPrinter, getEmptyFullElectionTally } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/ui';
 import type { MachineConfig } from '@votingworks/admin-backend';
-import { Iso8601Timestamp, ExportableTallies } from '../config/types';
-import { getEmptyExportableTallies } from '../utils/exportable_tallies';
+import { Iso8601Timestamp } from '../config/types';
 
 export interface AppContextInterface {
   electionDefinition?: ElectionDefinition;
@@ -26,7 +25,6 @@ export interface AppContextInterface {
   generateBallotId: () => string;
   isTabulationRunning: boolean;
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>;
-  generateExportableTallies: () => ExportableTallies;
   auth: DippedSmartCardAuth.AuthStatus;
   machineConfig: MachineConfig;
   hasCardReaderAttached: boolean;
@@ -49,7 +47,6 @@ const appContext: AppContextInterface = {
   generateBallotId: () => '',
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
-  generateExportableTallies: getEmptyExportableTallies,
   auth: DippedSmartCardAuth.DEFAULT_AUTH_STATUS,
   machineConfig: {
     machineId: '0000',

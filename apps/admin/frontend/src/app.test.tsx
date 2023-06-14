@@ -100,7 +100,6 @@ beforeEach(() => {
       outputFiles: [{ name: 'name' }],
     })
   );
-  fetchMock.delete('/admin/write-ins/cvrs', { body: { status: 'ok ' } });
 });
 
 afterEach(() => {
@@ -404,6 +403,7 @@ test('tabulating CVRs', async () => {
   apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetWriteInTalliesAdjudicated([]);
+  apiMock.expectGetSemsExportableTallies({ talliesByPrecinct: {} });
   const { getByText, getAllByText, getByTestId } = renderApp();
 
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
@@ -432,23 +432,7 @@ test('tabulating CVRs', async () => {
   await expectPrintToMatchSnapshot();
 
   fireEvent.click(getByText('Reports'));
-
   fireEvent.click(getByText('Show Results by Batch and Scanner'));
-  getByText('Batch Name');
-  fireEvent.click(getByText('Save Batch Results as CSV'));
-  advanceTimers(2);
-  await screen.findByText('Save Batch Results');
-  await screen.findByText(
-    'votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
-  );
-
-  apiMock.expectExportBatchResults(
-    '/media/vx/mock-usb-drive/votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
-  );
-  fireEvent.click(getByText('Save'));
-  await screen.findByText(/Saving/);
-  await screen.findByText(/Batch Results Saved/);
-
   fireEvent.click(getByText('Official Batch 2 Tally Report'));
   getByText('Official Batch Tally Report for Batch 2 (Scanner: scanner-1)');
   const reportPreview = getByTestId('report-preview');
@@ -473,45 +457,6 @@ test('tabulating CVRs', async () => {
   expect(getAllByText('Mock General Election Choctaw 2020').length).toEqual(
     eitherNeitherElectionDefinition.election.precincts.length + 1
   );
-
-  // Save SEMS file
-  fetchMock.post('/convert/tallies/submitfile', { body: { status: 'ok' } });
-  fetchMock.post('/convert/tallies/process', { body: { status: 'ok' } });
-  fetchMock.getOnce('/convert/tallies/output?name=name', {
-    body: 'test-content',
-  });
-  fetchMock.post('/convert/reset', { body: { status: 'ok' } });
-  fireEvent.click(getByText('Reports'));
-  await waitFor(() => getByText('Save SEMS Results'));
-  fireEvent.click(getByText('Save SEMS Results'));
-  advanceTimers(2);
-  getByText(
-    'votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.txt'
-  );
-
-  fireEvent.click(getByText('Save'));
-  await waitFor(() => getByText(/Saving/));
-  advanceTimers(2);
-  await waitFor(() => getByText(/Results Saved/));
-  await waitFor(() => {
-    expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
-    expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
-      1,
-      '/media/vx/mock-usb-drive/votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.txt',
-      'test-content'
-    );
-  });
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ConvertingResultsToSemsFormat,
-    expect.any(String)
-  );
-  expect(fetchMock.called('/convert/tallies/files')).toEqual(true);
-  expect(fetchMock.called('/convert/tallies/submitfile')).toEqual(true);
-  expect(fetchMock.called('/convert/tallies/process')).toEqual(true);
-  expect(fetchMock.called('/convert/tallies/output?name=name')).toEqual(true);
-  expect(fetchMock.called('/convert/reset')).toEqual(true);
-
-  fireEvent.click(getByText('Close'));
 });
 
 test('manual tally data appears in reporting', async () => {

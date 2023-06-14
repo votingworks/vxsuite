@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { Printer, ConverterClientType } from '@votingworks/types';
 import {
@@ -9,11 +9,8 @@ import {
 } from '@votingworks/utils';
 import { useUsbDrive, useDevices } from '@votingworks/ui';
 
-import { assert } from '@votingworks/basics';
 import { AppContext } from './contexts/app_context';
 import { ElectionManager } from './components/election_manager';
-import { ExportableTallies } from './config/types';
-import { getExportableTallies } from './utils/exportable_tallies';
 import {
   getAuthStatus,
   getCastVoteRecords,
@@ -96,15 +93,6 @@ export function AppRoot({
     fullElectionManualTally,
   ]);
 
-  const generateExportableTallies = useCallback((): ExportableTallies => {
-    assert(electionDefinition);
-    return getExportableTallies(
-      fullElectionTally,
-      electionDefinition.election,
-      fullElectionManualTally
-    );
-  }, [electionDefinition, fullElectionManualTally, fullElectionTally]);
-
   if (
     !authStatusQuery.isSuccess ||
     !getMachineConfigQuery.isSuccess ||
@@ -129,7 +117,6 @@ export function AppRoot({
         generateBallotId,
         isTabulationRunning,
         setIsTabulationRunning,
-        generateExportableTallies,
         auth: authStatusQuery.data,
         machineConfig: getMachineConfigQuery.data,
         hasCardReaderAttached: !!cardReader,

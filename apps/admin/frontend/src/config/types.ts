@@ -1,12 +1,10 @@
 import {
   BallotStyleId,
   CastVoteRecord,
-  ContestTallyMeta,
   Dictionary,
   PartyId,
   PrecinctId,
   PromiseOr,
-  VotingMethod,
 } from '@votingworks/types';
 import { Optional, throwIllegalValue } from '@votingworks/basics';
 import { z } from 'zod';
@@ -86,21 +84,6 @@ export interface ManualDataEntryScreenProps {
 }
 export interface SmartcardsScreenProps {
   smartcardType: string;
-}
-
-// Tallies
-export interface ExportableContestTally {
-  readonly tallies: Dictionary<number>;
-  readonly metadata: ContestTallyMeta;
-}
-export type ExportableTally = Dictionary<ExportableContestTally>;
-export interface ExportableTallies {
-  readonly talliesByPrecinct: Dictionary<ExportableTally>;
-}
-
-export interface ExternalFileConfiguration {
-  readonly file: File;
-  readonly votingMethod: VotingMethod;
 }
 
 export enum ResultsFileType {
