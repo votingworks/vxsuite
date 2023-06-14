@@ -133,129 +133,128 @@ export function SaveBackendFileModal({
     }
   }
 
-  if (currentState === 'error') {
-    return (
-      <Modal
-        title={`${fileTypeTitle} Not Saved`}
-        content={
-          <P>
-            Failed to save {fileType}. {errorMessage}
-          </P>
-        }
-        onOverlayClick={onClose}
-        actions={<Button onPress={onClose}>Close</Button>}
-      />
-    );
-  }
-
-  if (currentState === 'done') {
-    return (
-      <Modal
-        title={`${fileTypeTitle} Saved`}
-        content={
-          <P>
-            {fileType.charAt(0).toUpperCase() + fileType.slice(1)} successfully
-            saved to the inserted USB drive.
-          </P>
-        }
-        onOverlayClick={onClose}
-        actions={<Button onPress={onClose}>Close</Button>}
-      />
-    );
-  }
-
-  if (currentState === 'saving') {
-    return <Modal content={<Loading>Saving {fileTypeTitle}</Loading>} />;
-  }
-
-  // istanbul ignore next
-  if (currentState !== 'init') {
-    throwIllegalValue(currentState);
-  }
-
-  switch (usbDrive.status) {
-    case 'absent':
-    case 'ejected':
-    case 'bad_format':
+  switch (currentState) {
+    case 'saving':
+      return <Modal content={<Loading>Saving {fileTypeTitle}</Loading>} />;
+    case 'error':
       return (
         <Modal
-          title="No USB Drive Detected"
+          title={`${fileTypeTitle} Not Saved`}
           content={
             <P>
-              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              Please insert a USB drive where you would like the save the{' '}
-              {fileType}.
+              Failed to save {fileType}. {errorMessage}
             </P>
           }
           onOverlayClick={onClose}
-          actions={
-            <React.Fragment>
-              {window.kiosk && process.env.NODE_ENV === 'development' && (
-                <SaveAsButton
-                  onSave={(location) => saveFile(location)}
-                  options={{
-                    // Provide a file name, but allow the system dialog to use its
-                    // default starting directory.
-                    defaultPath: basename(defaultRelativePath),
-                  }}
-                />
-              )}
-              <Button onPress={onClose}>Cancel</Button>
-            </React.Fragment>
-          }
+          actions={<Button onPress={onClose}>Close</Button>}
         />
       );
-    case 'ejecting':
-    case 'mounting':
+    case 'done':
       return (
         <Modal
-          content={<Loading />}
-          onOverlayClick={onClose}
-          actions={<Button onPress={onClose}>Cancel</Button>}
-        />
-      );
-    case 'mounted': {
-      return (
-        <Modal
-          title={`Save ${fileTypeTitle}`}
+          title={`${fileTypeTitle} Saved`}
           content={
             <P>
-              Save the {fileType} as{' '}
-              <Font weight="bold">{defaultRelativePath}</Font> on the inserted
-              USB drive?
+              {fileType.charAt(0).toUpperCase() + fileType.slice(1)}{' '}
+              successfully saved to the inserted USB drive.
             </P>
           }
           onOverlayClick={onClose}
-          actions={
-            <React.Fragment>
-              <Button
-                variant="primary"
-                onPress={() =>
-                  saveFile(
-                    join(assertDefined(usbDrivePath), defaultRelativePath)
-                  )
-                }
-              >
-                Save
-              </Button>
-              <Button onPress={onClose}>Cancel</Button>
-              <SaveAsButton
-                onSave={saveFile}
-                options={{
-                  // Provide a file name and default to the USB drive's root directory.
-                  defaultPath: join(
-                    usbDrivePath ?? '',
-                    basename(defaultRelativePath)
-                  ),
-                }}
-              />
-            </React.Fragment>
-          }
+          actions={<Button onPress={onClose}>Close</Button>}
         />
       );
-    }
+    case 'init':
+      switch (usbDrive.status) {
+        case 'absent':
+        case 'ejected':
+        case 'bad_format':
+          return (
+            <Modal
+              title="No USB Drive Detected"
+              content={
+                <P>
+                  <UsbImage
+                    src="/assets/usb-drive.svg"
+                    alt="Insert USB Image"
+                  />
+                  Please insert a USB drive where you would like the save the{' '}
+                  {fileType}.
+                </P>
+              }
+              onOverlayClick={onClose}
+              actions={
+                <React.Fragment>
+                  {window.kiosk && process.env.NODE_ENV === 'development' && (
+                    <SaveAsButton
+                      onSave={(location) => saveFile(location)}
+                      options={{
+                        // Provide a file name, but allow the system dialog to use its
+                        // default starting directory.
+                        defaultPath: basename(defaultRelativePath),
+                      }}
+                    />
+                  )}
+                  <Button onPress={onClose}>Cancel</Button>
+                </React.Fragment>
+              }
+            />
+          );
+        case 'ejecting':
+        case 'mounting':
+          return (
+            <Modal
+              content={<Loading />}
+              onOverlayClick={onClose}
+              actions={<Button onPress={onClose}>Cancel</Button>}
+            />
+          );
+        case 'mounted': {
+          return (
+            <Modal
+              title={`Save ${fileTypeTitle}`}
+              content={
+                <P>
+                  Save the {fileType} as{' '}
+                  <Font weight="bold">{defaultRelativePath}</Font> on the
+                  inserted USB drive?
+                </P>
+              }
+              onOverlayClick={onClose}
+              actions={
+                <React.Fragment>
+                  <Button
+                    variant="primary"
+                    onPress={() =>
+                      saveFile(
+                        join(assertDefined(usbDrivePath), defaultRelativePath)
+                      )
+                    }
+                  >
+                    Save
+                  </Button>
+                  <Button onPress={onClose}>Cancel</Button>
+                  <SaveAsButton
+                    onSave={saveFile}
+                    options={{
+                      // Provide a file name and default to the USB drive's root directory.
+                      defaultPath: join(
+                        usbDrivePath ?? '',
+                        basename(defaultRelativePath)
+                      ),
+                    }}
+                  />
+                </React.Fragment>
+              }
+            />
+          );
+        }
+        // istanbul ignore next
+        default:
+          throwIllegalValue(usbDrive.status);
+      }
+      break;
     // istanbul ignore next
     default:
-      throwIllegalValue(usbDrive.status);
+      throwIllegalValue(currentState);
   }
 }
