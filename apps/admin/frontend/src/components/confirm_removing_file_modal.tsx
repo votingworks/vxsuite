@@ -1,11 +1,10 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import pluralize from 'pluralize';
 
 import { throwIllegalValue } from '@votingworks/basics';
 import { Modal, Prose, Button } from '@votingworks/ui';
-import { AppContext } from '../contexts/app_context';
 import { ResultsFileType } from '../config/types';
-import { getCastVoteRecordFiles } from '../api';
+import { getCastVoteRecordFiles, getManualResultsMetadata } from '../api';
 
 export interface Props {
   onConfirm: (fileType: ResultsFileType) => void;
@@ -18,13 +17,17 @@ export function ConfirmRemovingFileModal({
   onCancel,
   fileType,
 }: Props): JSX.Element | null {
-  const { fullElectionManualTally: manualData } = useContext(AppContext);
-
+  const manualDataResultsMetadataQuery = getManualResultsMetadata.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
 
-  if (!castVoteRecordFilesQuery.isSuccess) {
+  if (
+    !castVoteRecordFilesQuery.isSuccess ||
+    !manualDataResultsMetadataQuery.isSuccess
+  ) {
     return null;
   }
+
+  const hasManualData = manualDataResultsMetadataQuery.data.length > 0;
 
   let mainContent: React.ReactNode = null;
   let fileTypeName = '';
@@ -54,7 +57,7 @@ export function ConfirmRemovingFileModal({
           <p>
             Do you want to remove the {fileList.length} loaded CVR{' '}
             {pluralize('files', fileList.length)}
-            {manualData !== undefined && ' and the manually entered data'}?
+            {hasManualData && ' and the manually entered data'}?
           </p>
           <p>All reports will be unavailable without CVR data.</p>
         </React.Fragment>
