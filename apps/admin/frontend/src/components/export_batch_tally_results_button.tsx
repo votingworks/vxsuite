@@ -1,13 +1,10 @@
 import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { generateBatchResultsDefaultFilename } from '@votingworks/utils';
-import { assert, err } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 import { exportBatchResults, getCastVoteRecordFileMode } from '../api';
-import {
-  SaveBackendFileModal,
-  SaveBackendFileResult,
-} from './save_backend_file_modal';
+import { SaveBackendFileModal } from './save_backend_file_modal';
 
 export function ExportBatchTallyResultsButton(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -17,27 +14,13 @@ export function ExportBatchTallyResultsButton(): JSX.Element {
 
   const exportBatchResultsMutation = exportBatchResults.useMutation();
 
-  async function onSave(path: string): Promise<SaveBackendFileResult> {
-    try {
-      const exportResult = await exportBatchResultsMutation.mutateAsync({
-        path,
-      });
-      return exportResult;
-    } catch (error) {
-      // Handled by default query client error handling
-    }
-
-    return err({ type: 'api-error', message: 'API error.' });
-  }
-
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
-
   const isTestMode = castVoteRecordFileModeQuery.data === 'test';
-
   const defaultFilename = generateBatchResultsDefaultFilename(
     isTestMode,
     election
   );
+
   return (
     <React.Fragment>
       <Button
@@ -49,8 +32,11 @@ export function ExportBatchTallyResultsButton(): JSX.Element {
       </Button>
       {isSaveModalOpen && (
         <SaveBackendFileModal
+          saveFileStatus={exportBatchResultsMutation.status}
+          saveFile={exportBatchResultsMutation.mutate}
+          saveFileResult={exportBatchResultsMutation.data}
+          resetSaveFileResult={exportBatchResultsMutation.reset}
           onClose={() => setIsSaveModalOpen(false)}
-          onSave={onSave}
           fileTypeTitle="Batch Results"
           fileType="batch results"
           defaultRelativePath={defaultFilename}
