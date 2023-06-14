@@ -37,10 +37,7 @@ interface SaveAsButtonProps {
   options?: KioskBrowser.SaveDialogOptions;
 }
 
-export function SaveAsButton({
-  onSave,
-  options,
-}: SaveAsButtonProps): JSX.Element {
+function SaveAsButton({ onSave, options }: SaveAsButtonProps): JSX.Element {
   async function useSaveDialog() {
     assert(window.kiosk);
     const { filePath } = await window.kiosk.showSaveDialog(options);
