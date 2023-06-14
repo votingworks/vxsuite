@@ -341,7 +341,7 @@ export const getSemsExportableTallies = {
   queryKey(): QueryKey {
     return ['getSemsExportableTallies'];
   },
-  useQuery(enabled = false) {
+  useQuery({ enabled }: { enabled: boolean }) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(),

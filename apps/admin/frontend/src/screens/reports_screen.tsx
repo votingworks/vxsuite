@@ -53,9 +53,9 @@ export function ReportsScreen(): JSX.Element {
   const { election } = electionDefinition;
 
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
-  const semsExportableTalliesQuery = getSemsExportableTallies.useQuery(
-    converter === 'ms-sems'
-  );
+  const semsExportableTalliesQuery = getSemsExportableTallies.useQuery({
+    enabled: converter === 'ms-sems',
+  });
 
   const [isExportResultsModalOpen, setIsExportResultsModalOpen] =
     useState(false);
