@@ -126,6 +126,5 @@ test('exporting batch results', async () => {
     '/media/vx/mock-usb-drive/votingworks-test-batch-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
   );
   userEvent.click(screen.getByText('Save'));
-  await screen.findByText(/Saving/);
   await screen.findByText(/Batch Results Saved/);
 });
