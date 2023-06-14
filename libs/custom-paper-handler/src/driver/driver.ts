@@ -35,6 +35,7 @@ import {
   ScannerConfig,
 } from './scanner_config';
 import {
+  DEVICE_MAX_WIDTH_DOTS,
   INT_16_MAX,
   INT_16_MIN,
   OK_CONTINUE,
@@ -277,6 +278,9 @@ export class PaperHandlerDriver {
     const encodeResult = coder.encode(value);
     if (encodeResult.isErr()) {
       // TODO handle this more gracefully
+      debug(
+        `Error attempting transferOutGeneric with coder value ${value}: ${encodeResult.err()}`
+      );
       throw new Error(encodeResult.err());
     }
     const data = encodeResult.unsafeUnwrap();
@@ -626,7 +630,7 @@ export class PaperHandlerDriver {
   async setPrintingAreaWidth(
     numMotionUnits: Uint16 = 0
   ): Promise<USBOutTransferResult> {
-    assertNumberIsInRangeInclusive(numMotionUnits, 0, 1600);
+    assertNumberIsInRangeInclusive(numMotionUnits, 0, DEVICE_MAX_WIDTH_DOTS);
     const [nH, nL] = Uint16toUint8(numMotionUnits);
     return this.transferOutGeneric(SetPrintingAreaWidthCommand, { nL, nH });
   }
@@ -651,6 +655,7 @@ export class PaperHandlerDriver {
     });
   }
 
+  // TODO why do these functions accept as input a Uint16 instead of 2 Uint8s?
   async setAbsolutePrintPosition(
     numMotionUnits: Uint16
   ): Promise<USBOutTransferResult> {
@@ -690,51 +695,64 @@ export class PaperHandlerDriver {
     }
 
     const [nH, nL] = Uint16toUint8(chunkedCustomBitmap.width);
-    const dotsToPrint = nL + nH * 256;
 
     const coder = message({
       command: literal(0x1b, 0x2a),
       bitImageMode: literal(PrintModeDotDensity.DOUBLE_DOT_24),
       nL: literal(nL),
       nH: literal(nH),
-      imageData: byteArray(dotsToPrint),
+      imageData: byteArray(chunkedCustomBitmap.data.length),
     });
 
-    return this.transferOutGeneric(coder, {
+    debug(`Transferring out ${chunkedCustomBitmap.data.length} bits`);
+    const result = this.transferOutGeneric(coder, {
       imageData: chunkedCustomBitmap.data,
     });
+    debug('Done transferring');
+    return result;
   }
 
   async printChunk(chunkedCustomBitmap: PaperHandlerBitmap): Promise<void> {
-    assert(chunkedCustomBitmap.width * 3 === chunkedCustomBitmap.data.length);
-    assert(chunkedCustomBitmap.width <= 1600); // max width
+    const { width, data } = chunkedCustomBitmap;
+    assert(
+      width * 3 === data.length,
+      `Expected data of length ${width * 3}, got ${data.length}`
+    );
+    assert(
+      width <= DEVICE_MAX_WIDTH_DOTS,
+      `Width must be <= ${DEVICE_MAX_WIDTH_DOTS}; got ${width}`
+    ); // max width
 
     // In this case, we can send all data at once
-    if (chunkedCustomBitmap.width < 1024) {
+    if (width < 1024) {
+      debug('buffering single chunk');
       await this.bufferChunk(chunkedCustomBitmap);
       await this.print();
       return;
     }
+    debug(`whole chunk width: ${chunkedCustomBitmap.width}`);
 
     // If chunk is 1024 dots wide or longer, have to buffer as two images
+    const halfPageChunkWidth = DEVICE_MAX_WIDTH_DOTS / 2;
     const leftChunk: PaperHandlerBitmap = {
-      width: 800,
-      data: chunkedCustomBitmap.data.slice(0, 800 * 3),
+      width: halfPageChunkWidth,
+      data: data.slice(0, halfPageChunkWidth * 3),
     };
 
     const rightChunk: PaperHandlerBitmap = {
-      width: chunkedCustomBitmap.width - 800,
-      data: chunkedCustomBitmap.data.slice(800 * 3),
+      width: width - halfPageChunkWidth,
+      data: data.slice(halfPageChunkWidth * 3),
     };
 
+    debug(`buffering left chunk: ${leftChunk.width} width`);
     await this.bufferChunk(leftChunk);
+    debug(`buffering right chunk: ${rightChunk.width} width`);
     await this.bufferChunk(rightChunk);
+    debug('done buffering both chunks');
 
-    // the machine will have automatically printed if we've buffered a full
-    // line worth of data. If we have buffered less, we need to call print
-    if (chunkedCustomBitmap.width < 1600) {
-      await this.print();
-    }
+    debug('flushing line data to printer');
+    await this.print();
+    debug('printChunk end');
   }
 
   /**

@@ -1,6 +1,7 @@
 import { assert } from '@votingworks/basics';
 import { BitArray, bitArrayToByte, Uint8Max } from './bits';
 import { PaperHandlerBitmap } from './driver/driver';
+import { DEVICE_MAX_WIDTH_DOTS } from './driver/constants';
 
 export interface BinaryBitmap {
   width: number;
@@ -147,8 +148,8 @@ export function imageDataToBinaryBitmap(
 export function chunkBinaryBitmap(
   binaryBitmap: BinaryBitmap
 ): PaperHandlerBitmapExt[] {
-  if (binaryBitmap.width > 1600) {
-    throw new Error('binaryBitmap width exceeds printers allowed size');
+  if (binaryBitmap.width > DEVICE_MAX_WIDTH_DOTS) {
+    throw new Error("binaryBitmap width exceeds printer's allowed size");
   }
 
   const paperHandlerBitmaps: PaperHandlerBitmapExt[] = [];

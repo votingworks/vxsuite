@@ -24,4 +24,9 @@ export enum PrintModeDotDensity {
   DOUBLE_DOT_24 = 33,
 }
 
+/**
+ * Maximum width the device can print, in dots
+ */
+export const DEVICE_MAX_WIDTH_DOTS = 1700;
+
 export const SCAN_HEADER_LENGTH_BYTES = 16;

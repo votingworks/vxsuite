@@ -3,10 +3,12 @@
 import { createInterface } from 'readline';
 import { pdfToImages } from '@votingworks/image-utils';
 import { Buffer } from 'buffer';
-import { assert } from '@votingworks/basics';
+import { assert, sleep } from '@votingworks/basics';
+import { exit } from 'process';
 import { PaperHandlerDriver, getPaperHandlerDriver } from '../driver/driver';
 import { ballotFixture } from '../test/fixtures';
 import { chunkBinaryBitmap, imageDataToBinaryBitmap } from '../printing';
+import { DEVICE_MAX_WIDTH_DOTS } from '../driver/constants';
 
 /**
  * Command line interface for interacting with the paper handler driver.
@@ -19,12 +21,35 @@ enum Command {
   Status = 'status',
   EjectFront = 'eject-front',
   EjectBack = 'eject-back',
+  LoadPaper = 'load-paper',
   Park = 'park',
   EnablePrint = 'enable-print',
   PrintSampleBallot = 'print-sample-ballot',
+  PrintSampleBallotShorthand = 'p',
   ResetScan = 'reset-scan',
+  Help = 'help',
 }
 const commandList = Object.values(Command);
+
+function printUsage() {
+  console.log(`Valid commands: ${JSON.stringify(commandList)}`);
+}
+
+async function outputSampleBallotPdfWidth() {
+  const pages: ImageData[] = [];
+  for await (const { page, pageCount } of pdfToImages(
+    Buffer.from(ballotFixture),
+    {
+      scale: 200 / 72,
+    }
+  )) {
+    assert(pageCount === 1);
+    pages.push(page);
+  }
+  const page = pages[0];
+  assert(page, 'No page');
+  console.log(`First page of sample ballot is ${page.width} dots`);
+}
 
 /**
  * Unsafely prints a ballot from ballot fixtures. Adapted from paper_handler_machine.
@@ -48,7 +73,10 @@ async function printBallot(driver: PaperHandlerDriver): Promise<void> {
   console.time('image to binary');
   // For prototype we expect image to have the same number of dots as the printer width.
   // This is likely a requirement long term but we should have guarantees upstream.
-  assert(page.width === 1600);
+  assert(
+    page.width <= DEVICE_MAX_WIDTH_DOTS,
+    `Expected max width ${DEVICE_MAX_WIDTH_DOTS} but got ${page.width}`
+  );
 
   const ballotBinaryBitmap = imageDataToBinaryBitmap(page, {});
   console.log(`bitmap width: ${ballotBinaryBitmap.width}`);
@@ -64,15 +92,17 @@ async function printBallot(driver: PaperHandlerDriver): Promise<void> {
   console.log(`begin printing ${customChunkedBitmaps.length} chunks`);
   let i = 0;
   for (const customChunkedBitmap of customChunkedBitmaps) {
-    console.log(`printing chunk ${i}`);
     if (customChunkedBitmap.empty) {
       dotsSkipped += 24;
     } else {
       if (dotsSkipped) {
+        console.log('setting relative vertical print position');
         await driver.setRelativeVerticalPrintPosition(dotsSkipped * 2); // assuming default vertical units, 1 / 408 units
         dotsSkipped = 0;
       }
+      console.time(`printing chunk ${i}`);
       await driver.printChunk(customChunkedBitmap);
+      console.timeEnd(`printing chunk ${i}`);
     }
     i += 1;
   }
@@ -102,21 +132,35 @@ async function handleCommand(driver: PaperHandlerDriver, command: Command) {
   } else if (command === Command.EjectBack) {
     console.log('Ejecting paper to back');
     await driver.ejectBallot();
+  } else if (command === Command.LoadPaper) {
+    console.log('Loading paper');
+    await driver.loadPaper();
   } else if (command === Command.Park) {
     console.log('Parking paper');
     await driver.parkPaper();
   } else if (command === Command.EnablePrint) {
     console.log('Enabling print');
     await driver.enablePrint();
-  } else if (command === Command.PrintSampleBallot) {
+  } else if (
+    command === Command.PrintSampleBallot ||
+    command === Command.PrintSampleBallotShorthand
+  ) {
     console.log('Printing sample ballot');
     await printBallot(driver);
   } else if (command === Command.ResetScan) {
     console.log('Resetting scan');
     await driver.resetScan();
+    // Reset command returns acknowledgement before things are actually reset. Manual says reset happens after 2s but it seems more like 5.
+    // Wait then exit to force new connection.
+    console.log('Reset issued. Waiting 5s for command to finish.');
+    await sleep(5000);
+    console.log('Exiting');
+    process.exit(0);
   } else if (command === Command.SetDefaults) {
     console.log('Set defaults');
     await setDefaults(driver);
+  } else if (command === Command.Help) {
+    printUsage();
   } else {
     throw new Error(`Unhandled command '${command}'`);
   }
@@ -125,13 +169,29 @@ async function handleCommand(driver: PaperHandlerDriver, command: Command) {
 }
 
 export async function main(): Promise<number> {
-  const driver = await getPaperHandlerDriver();
-  assert(driver);
+  printUsage();
 
-  console.log(
-    `Enter a command. Valid commands: ${JSON.stringify(commandList)}`
+  const initialArgs = process.argv;
+  if (initialArgs.length === 3 && initialArgs[2] === '--pdf-check') {
+    // Don't need the driver for this command, so special case it and exit after
+    await outputSampleBallotPdfWidth();
+    exit(0);
+  }
+
+  const driver = await getPaperHandlerDriver();
+  assert(
+    driver,
+    'Could not get paper handler driver. Is a paper handler device connected?'
   );
+
   const lines = createInterface(process.stdin);
+  if (initialArgs.length > 2 && initialArgs[2] === '--reset') {
+    await handleCommand(driver, Command.ResetScan);
+  }
+
+  await handleCommand(driver, Command.InitPrinter);
+  await handleCommand(driver, Command.SetDefaults);
+  await handleCommand(driver, Command.EnablePrint);
 
   for await (const line of lines) {
     const parts = line.split(' ');
