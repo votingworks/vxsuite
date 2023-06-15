@@ -9,6 +9,12 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   white-space: nowrap;
 }
 
+.c2 {
+  float: right;
+  margin: 0 0 1em 2em;
+  height: 0.25in;
+}
+
 .c6 {
   border-color: rgb(194,200,203);
   width: 100%;
@@ -122,12 +128,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   padding-right: 0;
 }
 
-.c2 {
-  float: right;
-  margin: 0 0 1em 2em;
-  height: 0.25in;
-}
-
 .c1 {
   page-break-before: always;
 }
@@ -167,29 +167,29 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 }
 
 @media print {
+
+}
+
+@media (min-width:480px) {
+
+}
+
+@media print {
+
+}
+
+@media (min-width:480px) {
+
+}
+
+@media print {
+
+}
+
+@media print {
   .c6 {
     border-top: 1px solid rgb(194,200,203);
   }
-}
-
-@media print {
-
-}
-
-@media (min-width:480px) {
-
-}
-
-@media print {
-
-}
-
-@media (min-width:480px) {
-
-}
-
-@media print {
-
 }
 
 @media print {
@@ -1630,10 +1630,6 @@ exports[`L&A (logic and accuracy) flow 2`] = `
 
 }
 
-@media print {
-
-}
-
 @media (min-width:480px) {
 
 }
@@ -1643,6 +1639,10 @@ exports[`L&A (logic and accuracy) flow 2`] = `
 }
 
 @media (min-width:480px) {
+
+}
+
+@media print {
 
 }
 
@@ -2908,10 +2908,6 @@ exports[`L&A (logic and accuracy) flow 3`] = `
 
 }
 
-@media print {
-
-}
-
 @media (min-width:480px) {
 
 }
@@ -2921,6 +2917,10 @@ exports[`L&A (logic and accuracy) flow 3`] = `
 }
 
 @media (min-width:480px) {
+
+}
+
+@media print {
 
 }
 
@@ -3152,6 +3152,12 @@ exports[`tabulating CVRs 1`] = `
   white-space: nowrap;
 }
 
+.c2 {
+  float: right;
+  margin: 0 0 1em 2em;
+  height: 0.25in;
+}
+
 .c6 {
   border-color: rgb(194,200,203);
   width: 100%;
@@ -3241,12 +3247,6 @@ exports[`tabulating CVRs 1`] = `
   padding-right: 0;
 }
 
-.c2 {
-  float: right;
-  margin: 0 0 1em 2em;
-  height: 0.25in;
-}
-
 .c1 {
   page-break-before: always;
 }
@@ -3290,29 +3290,29 @@ exports[`tabulating CVRs 1`] = `
 }
 
 @media print {
+
+}
+
+@media (min-width:480px) {
+
+}
+
+@media print {
+
+}
+
+@media (min-width:480px) {
+
+}
+
+@media print {
+
+}
+
+@media print {
   .c6 {
     border-top: 1px solid rgb(194,200,203);
   }
-}
-
-@media print {
-
-}
-
-@media (min-width:480px) {
-
-}
-
-@media print {
-
-}
-
-@media (min-width:480px) {
-
-}
-
-@media print {
-
 }
 
 @media print {
