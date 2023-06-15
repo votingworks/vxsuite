@@ -702,7 +702,11 @@ function buildApi({
     },
 
     getScannerBatches(): ScannerBatch[] {
-      return store.getScannerBatches(loadCurrentElectionIdOrThrow(workspace));
+      return store
+        .getScannerBatches(loadCurrentElectionIdOrThrow(workspace))
+        .map((record) => ({ ...record }));
+      // TODO: grout is having trouble serializing records from the store
+      // without destructuring them. need to investigate;
     },
 
     async exportBatchResults(input: {
