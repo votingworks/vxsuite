@@ -115,9 +115,7 @@ export function BallotCountsTable({
                 <strong>Total Ballot Count</strong>
               </TD>
               <TD>
-                <strong data-testid="total-ballot-count">
-                  {format.count(totalBallotCount)}
-                </strong>
+                <strong>{format.count(totalBallotCount)}</strong>
               </TD>
               <TD>
                 <LinkButton
@@ -244,9 +242,7 @@ export function BallotCountsTable({
                 <strong>Total Ballot Count</strong>
               </TD>
               <TD>
-                <strong data-testid="total-ballot-count">
-                  {format.count(totalBallotCount)}
-                </strong>
+                <strong>{format.count(totalBallotCount)}</strong>
               </TD>
               <TD />
             </tr>
@@ -333,16 +329,14 @@ export function BallotCountsTable({
                   <TD>{batch.scannerId}</TD>
                   <TD>{format.count(ballotCount)}</TD>
                   <TD>
-                    {ballotCount > 0 && (
-                      <LinkButton
-                        small
-                        to={routerPaths.tallyBatchReport({
-                          batchId,
-                        })}
-                      >
-                        {statusPrefix} {batch.label} Tally Report
-                      </LinkButton>
-                    )}
+                    <LinkButton
+                      small
+                      to={routerPaths.tallyBatchReport({
+                        batchId,
+                      })}
+                    >
+                      {statusPrefix} {batch.label} Tally Report
+                    </LinkButton>
                   </TD>
                 </tr>
               );

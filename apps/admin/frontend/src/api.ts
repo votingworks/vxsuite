@@ -358,7 +358,7 @@ export const getCardCounts = {
   },
   useQuery(input: GetCardCountsInput = { groupBy: {} }) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getCardCounts(input));
+    return useQuery(this.queryKey(input), () => apiClient.getCardCounts(input));
   },
 } as const;
 

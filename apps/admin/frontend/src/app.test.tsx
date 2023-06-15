@@ -27,6 +27,7 @@ import {
   convertTalliesByPrecinctToFullManualTally,
   getEmptyManualTalliesByPrecinct,
   buildSpecificManualTally,
+  getEmptyCardCounts,
 } from '@votingworks/utils';
 import {
   fireEvent,
@@ -40,6 +41,11 @@ import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
 import { VxFiles } from './lib/converters';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/api_mock';
+import {
+  expectReportsScreenCardCountQueries,
+  mockBallotCountsTableGroupBy,
+} from '../test/helpers/api_expect_helpers';
+
 import { mockCastVoteRecordFileRecord } from '../test/api_mock_data';
 import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
 
@@ -366,9 +372,13 @@ test('marking results as official', async () => {
   apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetWriteInTalliesAdjudicated([]);
+  apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetManualResultsMetadata([]);
+  expectReportsScreenCardCountQueries({ apiMock, isPrimary: true });
   renderApp();
 
   await apiMock.authenticateAsElectionManager(electionDefinition);
+
   userEvent.click(screen.getButton('Reports'));
   userEvent.click(screen.getButton('Unofficial Full Election Tally Report'));
   await screen.findByText('Unofficial Example Primary Election Tally Report');
@@ -408,9 +418,21 @@ test('tabulating CVRs', async () => {
 
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
+  expectReportsScreenCardCountQueries({
+    apiMock,
+    isPrimary: false,
+  });
+  apiMock.expectGetManualResultsMetadata([]);
+  apiMock.expectGetScannerBatches([
+    // need to mock scanner batches to get link button to batch report
+    {
+      electionId: 'election-id',
+      batchId: '2',
+      label: 'Batch 2',
+      scannerId: 'scanner-id',
+    },
+  ]);
   fireEvent.click(getByText('Reports'));
-  expect(getByTestId('total-ballot-count').textContent).toEqual('100');
-
   fireEvent.click(getByText('Official Full Election Tally Report'));
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.TallyReportPreviewed,
@@ -432,7 +454,18 @@ test('tabulating CVRs', async () => {
   await expectPrintToMatchSnapshot();
 
   fireEvent.click(getByText('Reports'));
+  apiMock.expectGetCardCounts(
+    mockBallotCountsTableGroupBy({ groupByBatch: true }),
+    [
+      // need to mock batch card count to get link button to batch report
+      {
+        batchId: '2',
+        ...getEmptyCardCounts(),
+      },
+    ]
+  );
   fireEvent.click(getByText('Show Results by Batch and Scanner'));
+  await screen.findByText('Official Batch 2 Tally Report');
   fireEvent.click(getByText('Official Batch 2 Tally Report'));
   getByText('Official Batch Tally Report for Batch 2 (Scanner: scanner-1)');
   const reportPreview = getByTestId('report-preview');
@@ -496,15 +529,18 @@ test('manual tally data appears in reporting', async () => {
       new Date()
     )
   );
+  expectReportsScreenCardCountQueries({
+    apiMock,
+    isPrimary: false,
+  });
+  apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetManualResultsMetadata([]);
 
   renderApp();
 
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
   userEvent.click(screen.getByText('Reports'));
-  screen.getByText('Manually Entered Results');
-  expect(screen.getByTestId('total-ballot-count').textContent).toEqual('200');
-
   userEvent.click(screen.getByText('Unofficial Full Election Tally Report'));
   // Report title should be rendered 2 times - app and preview
   expect(
@@ -528,36 +564,6 @@ test('manual tally data appears in reporting', async () => {
   const totalRow = within(reportPreview).getByTestId('total');
   within(totalRow).getByText('Total Ballots Cast');
   within(totalRow).getByText('200');
-});
-
-test('reports screen shows appropriate summary data about ballot counts', async () => {
-  const { electionDefinition, legacyCvrData } =
-    electionMinimalExhaustiveSampleFixtures;
-  const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords(
-    await fileDataToCastVoteRecords(legacyCvrData, electionDefinition)
-  );
-  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  const manualTally = convertTalliesByPrecinctToFullManualTally(
-    { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
-    eitherNeitherElectionDefinition.election,
-    VotingMethod.Absentee,
-    new Date()
-  );
-  apiMock.expectGetFullElectionManualTally(manualTally);
-  apiMock.expectGetCastVoteRecordFileMode('test');
-
-  renderApp();
-  await apiMock.authenticateAsElectionManager(electionDefinition);
-
-  userEvent.click(screen.getByText('Reports'));
-
-  // total ballot count combination of manual and cast vote record data
-  await waitFor(() =>
-    expect(screen.getAllByTestId('total-ballot-count')[0].textContent).toEqual(
-      '3,100'
-    )
-  );
 });
 
 test('removing election resets cvr and manual data files', async () => {
@@ -700,6 +706,11 @@ test('election manager UI has expected nav', async () => {
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetManualResultsMetadata([]);
+  expectReportsScreenCardCountQueries({
+    apiMock,
+    isPrimary: false,
+  });
+  apiMock.expectGetScannerBatches([]);
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
@@ -891,6 +902,12 @@ test('primary election flow', async () => {
   });
 
   // Check that nonpartisan races are separated in non party-specific reports
+  expectReportsScreenCardCountQueries({
+    apiMock,
+    isPrimary: true,
+  });
+  apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetManualResultsMetadata([]);
   userEvent.click(screen.getByText('Reports'));
   userEvent.click(screen.getByText('Unofficial Full Election Tally Report'));
   const pages = screen.getAllByTestId('election-full-tally-report');
@@ -910,7 +927,9 @@ test('primary election flow', async () => {
 
   // Check that nonpartisan races are broken out in party-specific reports
   userEvent.click(screen.getByText('Reports'));
-  userEvent.click(screen.getByText('Unofficial Fish Party Tally Report'));
+  userEvent.click(
+    await screen.findByText('Unofficial Fish Party Tally Report')
+  );
   const partyReportPages = screen.getAllByTestId('election-full-tally-report');
   expect(partyReportPages).toHaveLength(2);
   within(partyReportPages[0]).getByText(

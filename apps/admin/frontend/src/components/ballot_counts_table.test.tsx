@@ -16,6 +16,7 @@ import { renderInAppContext } from '../../test/render_in_app_context';
 
 import { BallotCountsTable } from './ballot_counts_table';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { mockBallotCountsTableGroupBy } from '../../test/helpers/api_expect_helpers';
 
 let apiMock: ApiMock;
 
@@ -31,21 +32,6 @@ function mockCardCounts(bmdCount: number): Tabulation.CardCounts {
   return {
     bmd: bmdCount,
     hmpb: [],
-  };
-}
-
-/**
- * To match backend input exactly, per `MockFunction` requirements, mock out
- * false values instead of undefined.
- */
-function mockGroupBy(groupBy: Tabulation.GroupBy): Tabulation.GroupBy {
-  return {
-    groupByBatch: false,
-    groupByParty: false,
-    groupByPrecinct: false,
-    groupByScanner: false,
-    groupByVotingMethod: false,
-    ...groupBy,
   };
 }
 
@@ -67,7 +53,10 @@ describe('Ballot Counts by Precinct', () => {
     ];
 
   it('renders as expected when there is no tally data', async () => {
-    apiMock.expectGetCardCounts(mockGroupBy({ groupByPrecinct: true }), []);
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByPrecinct: true }),
+      []
+    );
     apiMock.expectGetScannerBatches([]);
     apiMock.expectGetManualResultsMetadata([]);
     const { getByText, getAllByTestId } = renderInAppContext(
@@ -100,7 +89,7 @@ describe('Ballot Counts by Precinct', () => {
 
   it('renders as expected when there is tally data', async () => {
     apiMock.expectGetCardCounts(
-      mockGroupBy({ groupByPrecinct: true }),
+      mockBallotCountsTableGroupBy({ groupByPrecinct: true }),
       cardCountsByPrecinct
     );
     apiMock.expectGetScannerBatches([]);
@@ -157,7 +146,10 @@ describe('Ballot Counts by Scanner', () => {
   const scannerIds = ['scanner-1', 'scanner-2'];
 
   it('renders as expected when there is no tally data', async () => {
-    apiMock.expectGetCardCounts(mockGroupBy({ groupByScanner: true }), []);
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByScanner: true }),
+      []
+    );
     apiMock.expectGetScannerBatches([]);
     apiMock.expectGetManualResultsMetadata([]);
     const { getByText, getAllByTestId } = renderInAppContext(
@@ -176,7 +168,7 @@ describe('Ballot Counts by Scanner', () => {
 
   it('renders as expected when there is tally data', async () => {
     apiMock.expectGetCardCounts(
-      mockGroupBy({ groupByScanner: true }),
+      mockBallotCountsTableGroupBy({ groupByScanner: true }),
       cardCountsByScanner
     );
     apiMock.expectGetScannerBatches([]);
@@ -217,7 +209,7 @@ describe('Ballot Counts by Scanner', () => {
 
   it('renders as expected when there is tally data and manual data', async () => {
     apiMock.expectGetCardCounts(
-      mockGroupBy({ groupByScanner: true }),
+      mockBallotCountsTableGroupBy({ groupByScanner: true }),
       cardCountsByScanner
     );
     apiMock.expectGetScannerBatches([]);
@@ -273,7 +265,10 @@ describe('Ballots Counts by Party', () => {
   ];
 
   it('renders as expected when there is no data', async () => {
-    apiMock.expectGetCardCounts(mockGroupBy({ groupByParty: true }), []);
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByParty: true }),
+      []
+    );
     apiMock.expectGetScannerBatches([]);
     apiMock.expectGetManualResultsMetadata([]);
     const { getByText, getAllByTestId } = renderInAppContext(
@@ -311,7 +306,7 @@ describe('Ballots Counts by Party', () => {
 
   it('renders as expected when there is tally data', async () => {
     apiMock.expectGetCardCounts(
-      mockGroupBy({ groupByParty: true }),
+      mockBallotCountsTableGroupBy({ groupByParty: true }),
       cardCountsByParty
     );
     apiMock.expectGetScannerBatches([]);
@@ -376,7 +371,10 @@ describe('Ballots Counts by VotingMethod', () => {
   ];
 
   it('renders as expected when there is no data', async () => {
-    apiMock.expectGetCardCounts(mockGroupBy({ groupByVotingMethod: true }), []);
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByVotingMethod: true }),
+      []
+    );
     apiMock.expectGetScannerBatches([]);
     apiMock.expectGetManualResultsMetadata([]);
     const { getByText, getAllByTestId } = renderInAppContext(
@@ -407,7 +405,7 @@ describe('Ballots Counts by VotingMethod', () => {
 
   it('renders as expected when there is tally data', async () => {
     apiMock.expectGetCardCounts(
-      mockGroupBy({ groupByVotingMethod: true }),
+      mockBallotCountsTableGroupBy({ groupByVotingMethod: true }),
       cardCountsByVotingMethod
     );
     apiMock.expectGetScannerBatches([]);
@@ -487,7 +485,10 @@ describe('Ballots Counts by Batch', () => {
   ];
 
   it('renders as expected when there is no data', async () => {
-    apiMock.expectGetCardCounts(mockGroupBy({ groupByBatch: true }), []);
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByBatch: true }),
+      []
+    );
     apiMock.expectGetScannerBatches(scannerBatches);
     apiMock.expectGetManualResultsMetadata([]);
     const { getByText, getAllByTestId } = renderInAppContext(
@@ -523,7 +524,7 @@ describe('Ballots Counts by Batch', () => {
 
   it('renders as expected when there is tally data', async () => {
     apiMock.expectGetCardCounts(
-      mockGroupBy({ groupByBatch: true }),
+      mockBallotCountsTableGroupBy({ groupByBatch: true }),
       cardCountsByBatch
     );
     apiMock.expectGetScannerBatches(scannerBatches);
@@ -563,7 +564,7 @@ describe('Ballots Counts by Batch', () => {
 
   it('renders as expected where there is tally data and manual data', async () => {
     apiMock.expectGetCardCounts(
-      mockGroupBy({ groupByBatch: true }),
+      mockBallotCountsTableGroupBy({ groupByBatch: true }),
       cardCountsByBatch
     );
     apiMock.expectGetScannerBatches(scannerBatches);

@@ -170,7 +170,7 @@ export function ReportsScreen(): JSX.Element {
       <strong>
         {format.count(totalBallotCount)}
         {fileMode === 'unlocked' ? ' ' : ` ${fileMode} `}
-        {pluralize('ballot', totalBallotCount, false)}{' '}
+        {pluralize('ballot', totalBallotCount, false)}
       </strong>{' '}
       have been counted for <strong>{electionDefinition.election.title}</strong>
       .
