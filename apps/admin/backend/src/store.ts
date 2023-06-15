@@ -991,31 +991,31 @@ export class Store {
     election: Election;
     groupBy?: Tabulation.GroupBy;
   }): Generator<Tabulation.GroupOf<CardTally>> {
-    const cvrSelectParts: string[] = [];
+    const selectParts: string[] = [];
     const groupByParts: string[] = [];
 
     if (groupBy.groupByBallotStyle || groupBy.groupByParty) {
-      cvrSelectParts.push('cvrs.ballot_style_id as ballotStyleId');
+      selectParts.push('cvrs.ballot_style_id as ballotStyleId');
       groupByParts.push('cvrs.ballot_style_id');
     }
 
     if (groupBy.groupByBatch) {
-      cvrSelectParts.push('cvrs.batch_id as batchId');
+      selectParts.push('cvrs.batch_id as batchId');
       groupByParts.push('cvrs.batch_id');
     }
 
     if (groupBy.groupByPrecinct) {
-      cvrSelectParts.push('cvrs.precinct_id as precinctId');
+      selectParts.push('cvrs.precinct_id as precinctId');
       groupByParts.push('cvrs.precinct_id');
     }
 
     if (groupBy.groupByScanner) {
-      cvrSelectParts.push('scanner_batches.scanner_id as scannerId');
+      selectParts.push('scanner_batches.scanner_id as scannerId');
       groupByParts.push('scanner_batches.scanner_id');
     }
 
     if (groupBy.groupByVotingMethod) {
-      cvrSelectParts.push('cvrs.ballot_type as votingMethod');
+      selectParts.push('cvrs.ballot_type as votingMethod');
       groupByParts.push('cvrs.ballot_type');
     }
 
@@ -1024,7 +1024,7 @@ export class Store {
     for (const row of this.client.each(
       `
           select
-            ${cvrSelectParts.map((line) => `${line},`).join('\n')}
+            ${selectParts.map((line) => `${line},`).join('\n')}
             cvrs.sheet_number as sheetNumber,
             count(cvrs.id) as tally
           from cvrs
@@ -1353,31 +1353,31 @@ export class Store {
       replacePartyIdFilter(filter, election)
     );
 
-    const cvrSelectParts: string[] = [];
+    const selectParts: string[] = [];
     const groupByParts: string[] = [];
 
     if (groupBy.groupByBallotStyle || groupBy.groupByParty) {
-      cvrSelectParts.push('cvrs.ballot_style_id as ballotStyleId');
+      selectParts.push('cvrs.ballot_style_id as ballotStyleId');
       groupByParts.push('cvrs.ballot_style_id');
     }
 
     if (groupBy.groupByBatch) {
-      cvrSelectParts.push('cvrs.batch_id as batchId');
+      selectParts.push('cvrs.batch_id as batchId');
       groupByParts.push('cvrs.batch_id');
     }
 
     if (groupBy.groupByPrecinct) {
-      cvrSelectParts.push('cvrs.precinct_id as precinctId');
+      selectParts.push('cvrs.precinct_id as precinctId');
       groupByParts.push('cvrs.precinct_id');
     }
 
     if (groupBy.groupByScanner) {
-      cvrSelectParts.push('scanner_batches.scanner_id as scannerId');
+      selectParts.push('scanner_batches.scanner_id as scannerId');
       groupByParts.push('scanner_batches.scanner_id');
     }
 
     if (groupBy.groupByVotingMethod) {
-      cvrSelectParts.push('cvrs.ballot_type as votingMethod');
+      selectParts.push('cvrs.ballot_type as votingMethod');
       groupByParts.push('cvrs.ballot_type');
     }
 
@@ -1388,7 +1388,7 @@ export class Store {
     for (const row of this.client.each(
       `
           select
-            ${cvrSelectParts.map((line) => `${line},`).join('\n')}
+            ${selectParts.map((line) => `${line},`).join('\n')}
             write_ins.contest_id as contestId,
             write_ins.official_candidate_id as officialCandidateId,
             write_ins.write_in_candidate_id as writeInCandidateId,
