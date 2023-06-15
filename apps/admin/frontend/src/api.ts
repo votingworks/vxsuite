@@ -351,6 +351,17 @@ export const getSemsExportableTallies = {
   },
 } as const;
 
+type GetCardCountsInput = QueryInput<'getCardCounts'>;
+export const getCardCounts = {
+  queryKey(input?: GetCardCountsInput): QueryKey {
+    return ['getCardCounts', input];
+  },
+  useQuery(input: GetCardCountsInput = { groupBy: {} }) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getCardCounts(input));
+  },
+} as const;
+
 // Grouped Invalidations
 
 function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
@@ -359,6 +370,7 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getCastVoteRecordFiles.queryKey()),
     queryClient.invalidateQueries(getCastVoteRecords.queryKey()),
     queryClient.invalidateQueries(getSemsExportableTallies.queryKey()),
+    queryClient.invalidateQueries(getCardCounts.queryKey()),
   ]);
 }
 
@@ -376,6 +388,7 @@ function invalidateManualResultsQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getFullElectionManualTally.queryKey()),
     queryClient.invalidateQueries(getManualResultsMetadata.queryKey()),
     queryClient.invalidateQueries(getSemsExportableTallies.queryKey()),
+    queryClient.invalidateQueries(getCardCounts.queryKey()),
   ]);
 }
 
