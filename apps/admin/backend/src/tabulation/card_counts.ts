@@ -14,7 +14,7 @@ import { tabulateManualBallotCounts } from './manual_results';
 
 /**
  * Adds a card tally to a card counts object. Mutates the card counts object
- * in place, and assumes overwrites previous value for the same card.
+ * in place and overwrites the previous count for the same card.
  */
 function addCardTallyToCardCounts({
   cardCounts,
