@@ -25,8 +25,7 @@ export function isPlainObject(
 ): value is Record<string, unknown> {
   return (
     isObject(value) &&
-    Object.getPrototypeOf(value) === Object.prototype &&
-    value.constructor.name === Object.name
+    Object.getPrototypeOf(Object.getPrototypeOf(value)) === null
   );
 }
 
