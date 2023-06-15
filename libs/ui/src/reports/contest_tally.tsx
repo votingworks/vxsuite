@@ -170,6 +170,9 @@ interface Props {
   precinctId?: PrecinctId;
 }
 
+/**
+ * @deprecated in favor of `ContestResultsTable`
+ */
 export function ContestTally({
   election,
   scannedTally,

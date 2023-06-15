@@ -1,5 +1,6 @@
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
+  AnyContest,
   BallotStyleId,
   CandidateContest,
   CandidateId,
@@ -34,7 +35,7 @@ export function getEmptyYesNoContestResults(
  */
 export function getEmptyCandidateContestResults(
   contest: CandidateContest,
-  includeGenericWriteInIfAllowed: boolean
+  includeGenericWriteInIfAllowed?: boolean
 ): Tabulation.CandidateContestResults {
   const tallies: Tabulation.CandidateContestResults['tallies'] = {};
 
@@ -514,6 +515,27 @@ export function combineCandidateContestResults({
   return combinedContestResults;
 }
 
+export function combineContestResults({
+  contest,
+  allContestResults,
+}: {
+  contest: AnyContest;
+  allContestResults: Tabulation.ContestResults[];
+}): Tabulation.ContestResults {
+  if (contest.type === 'yesno') {
+    return combineYesNoContestResults({
+      contest,
+      allContestResults: allContestResults as Tabulation.YesNoContestResults[],
+    });
+  }
+
+  return combineCandidateContestResults({
+    contest,
+    allContestResults:
+      allContestResults as Tabulation.CandidateContestResults[],
+  });
+}
+
 /**
  * Internal helper that combines dictionaries of {@link Tabulation.ContestResults}
  * into a single dictionary of {@link Tabulation.ContestResults}. Relevant to
@@ -534,22 +556,15 @@ function combineElectionContestResults({
     {};
 
   for (const contest of election.contests) {
-    if (contest.type === 'yesno') {
-      combinedElectionContestResults[contest.id] = combineYesNoContestResults({
-        contest,
-        allContestResults: allElectionContestResults.map(
-          (electionContestResults) => electionContestResults[contest.id]
-        ) as Tabulation.YesNoContestResults[],
-      });
-    } else {
-      combinedElectionContestResults[contest.id] =
-        combineCandidateContestResults({
-          contest,
-          allContestResults: allElectionContestResults.map(
-            (electionContestResults) => electionContestResults[contest.id]
-          ) as Tabulation.CandidateContestResults[],
-        });
-    }
+    combinedElectionContestResults[contest.id] = combineContestResults({
+      contest,
+      allContestResults: allElectionContestResults
+        .map((electionContestResults) => electionContestResults[contest.id])
+        .filter(
+          (contestResults): contestResults is Tabulation.ContestResults =>
+            contestResults !== undefined
+        ),
+    });
   }
 
   return combinedElectionContestResults;
@@ -676,6 +691,57 @@ export type ContestResultsSummary = {
     }
 );
 
+export function buildContestResultsFixture({
+  contest,
+  contestResultsSummary,
+  includeGenericWriteIn,
+}: {
+  contest: AnyContest;
+  contestResultsSummary: ContestResultsSummary;
+  includeGenericWriteIn?: boolean;
+}): Tabulation.ContestResults {
+  const contestResults =
+    contest.type === 'yesno'
+      ? getEmptyYesNoContestResults(contest)
+      : getEmptyCandidateContestResults(contest, includeGenericWriteIn);
+
+  contestResults.overvotes = contestResultsSummary.overvotes ?? 0;
+  contestResults.undervotes = contestResultsSummary.undervotes ?? 0;
+  contestResults.ballots = contestResultsSummary.ballots;
+
+  if (contest.type === 'yesno') {
+    assert(contestResultsSummary.type === 'yesno');
+    assert(contestResults.contestType === 'yesno');
+    contestResults.yesTally = contestResultsSummary.yesTally ?? 0;
+    contestResults.noTally = contestResultsSummary.noTally ?? 0;
+  } else {
+    assert(contestResultsSummary.type === 'candidate');
+    assert(contestResults.contestType === 'candidate');
+    // add official candidate vote counts to existing option tallies
+    for (const [candidateId, candidateTally] of Object.entries(
+      contestResults.tallies
+    )) {
+      candidateTally.tally =
+        contestResultsSummary.officialOptionTallies?.[candidateId] ?? 0;
+    }
+
+    // add write-in candidate option tallies if specified
+    if (contestResultsSummary.writeInOptionTallies) {
+      for (const [candidateId, candidateTally] of Object.entries(
+        contestResultsSummary.writeInOptionTallies
+      )) {
+        contestResults.tallies[candidateId] = {
+          id: candidateId,
+          ...candidateTally,
+          isWriteIn: true,
+        };
+      }
+    }
+  }
+
+  return contestResults;
+}
+
 export type ContestResultsSummaries = Record<ContestId, ContestResultsSummary>;
 
 function buildElectionContestResultsFixture({
@@ -690,47 +756,16 @@ function buildElectionContestResultsFixture({
   const electionContestResults: Tabulation.ElectionResults['contestResults'] =
     {};
   for (const contest of election.contests) {
-    const contestResults =
-      contest.type === 'yesno'
-        ? getEmptyYesNoContestResults(contest)
-        : getEmptyCandidateContestResults(contest, includeGenericWriteIn);
-
-    const resultsSummary = contestResultsSummaries[contest.id];
-    if (resultsSummary) {
-      contestResults.overvotes = resultsSummary.overvotes ?? 0;
-      contestResults.undervotes = resultsSummary.undervotes ?? 0;
-      contestResults.ballots = resultsSummary.ballots;
-
-      if (contestResults.contestType === 'yesno') {
-        assert(resultsSummary.type === 'yesno');
-        contestResults.yesTally = resultsSummary.yesTally ?? 0;
-        contestResults.noTally = resultsSummary.noTally ?? 0;
-      } else {
-        assert(resultsSummary.type === 'candidate');
-        // add official candidate vote counts to existing option tallies
-        for (const [candidateId, candidateTally] of Object.entries(
-          contestResults.tallies
-        )) {
-          candidateTally.tally =
-            resultsSummary.officialOptionTallies?.[candidateId] ?? 0;
-        }
-
-        // add write-in candidate option tallies if specified
-        if (resultsSummary.writeInOptionTallies) {
-          for (const [candidateId, candidateTally] of Object.entries(
-            resultsSummary.writeInOptionTallies
-          )) {
-            contestResults.tallies[candidateId] = {
-              id: candidateId,
-              ...candidateTally,
-              isWriteIn: true,
-            };
-          }
-        }
-      }
-    }
-
-    electionContestResults[contest.id] = contestResults;
+    const contestResultsSummary = contestResultsSummaries[contest.id];
+    electionContestResults[contest.id] = contestResultsSummary
+      ? buildContestResultsFixture({
+          contest,
+          contestResultsSummary,
+          includeGenericWriteIn,
+        })
+      : contest.type === 'yesno'
+      ? getEmptyYesNoContestResults(contest)
+      : getEmptyCandidateContestResults(contest, includeGenericWriteIn);
   }
 
   return electionContestResults;
