@@ -8,7 +8,7 @@ import {
 } from '@votingworks/test-utils';
 import cloneDeep from 'lodash.clonedeep';
 import { assert } from '@votingworks/basics';
-import { render, screen, within } from '../test/react_testing_library';
+import { render, screen, within } from '../../test/react_testing_library';
 
 import { ContestTally } from './contest_tally';
 

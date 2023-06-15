@@ -16,9 +16,9 @@ import {
 } from '@votingworks/utils';
 import { throwIllegalValue, assert } from '@votingworks/basics';
 
-import { Prose } from './prose';
-import { Text, NoWrap } from './text';
-import { tableBorderColor } from './table';
+import { Prose } from '../prose';
+import { Text, NoWrap } from '../text';
+import { tableBorderColor } from '../table';
 
 interface ContestProps {
   dim?: boolean;

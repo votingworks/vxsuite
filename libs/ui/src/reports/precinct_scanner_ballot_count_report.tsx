@@ -13,7 +13,7 @@ import { DateTime } from 'luxon';
 import React from 'react';
 import styled from 'styled-components';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
-import { Prose } from './prose';
+import { Prose } from '../prose';
 import { PrintableContainer, ReportSection, TallyReport } from './tally_report';
 
 const Contents = styled(Prose)`
