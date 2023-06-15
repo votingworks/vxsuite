@@ -50,6 +50,7 @@ import {
   ManualResultsIdentifier,
   ManualResultsMetadataRecord,
   ManualResultsRecord,
+  ScannerBatch,
   SemsExportableTallies,
   ServerFullElectionManualTally,
   SetSystemSettingsResult,
@@ -698,6 +699,10 @@ function buildApi({
           groupBy: input.groupBy,
         })
       );
+    },
+
+    getScannerBatches(): ScannerBatch[] {
+      return store.getScannerBatches(loadCurrentElectionIdOrThrow(workspace));
     },
 
     async exportBatchResults(input: {

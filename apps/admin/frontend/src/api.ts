@@ -362,6 +362,16 @@ export const getCardCounts = {
   },
 } as const;
 
+export const getScannerBatches = {
+  queryKey(): QueryKey {
+    return ['getScannerBatches'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getScannerBatches());
+  },
+} as const;
+
 // Grouped Invalidations
 
 function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
@@ -371,6 +381,7 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getCastVoteRecords.queryKey()),
     queryClient.invalidateQueries(getSemsExportableTallies.queryKey()),
     queryClient.invalidateQueries(getCardCounts.queryKey()),
+    queryClient.invalidateQueries(getScannerBatches.queryKey()),
   ]);
 }
 

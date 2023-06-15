@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
 import { format, getBallotCount } from '@votingworks/utils';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { LinkButton, Table, TD } from '@votingworks/ui';
 import {
-  BatchTally,
   TallyCategory,
   VotingMethod,
   getLabelForVotingMethod,
@@ -15,7 +14,7 @@ import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
 import { ExportBatchTallyResultsButton } from './export_batch_tally_results_button';
 import { routerPaths } from '../router_paths';
-import { getCardCounts } from '../api';
+import { getCardCounts, getScannerBatches } from '../api';
 
 export interface Props {
   breakdownCategory: TallyCategory;
@@ -24,12 +23,7 @@ export interface Props {
 export function BallotCountsTable({
   breakdownCategory,
 }: Props): JSX.Element | null {
-  const {
-    electionDefinition,
-    isTabulationRunning,
-    fullElectionTally,
-    isOfficialResults,
-  } = useContext(AppContext);
+  const { electionDefinition, isOfficialResults } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
 
@@ -42,8 +36,9 @@ export function BallotCountsTable({
       groupByScanner: breakdownCategory === TallyCategory.Scanner,
     },
   });
+  const scannerBatchesQuery = getScannerBatches.useQuery();
 
-  if (isTabulationRunning || !cardCountsQuery.isSuccess) {
+  if (!cardCountsQuery.isSuccess || !scannerBatchesQuery.isSuccess) {
     return <Loading />;
   }
 
@@ -141,12 +136,6 @@ export function BallotCountsTable({
             {cardCountsByCategory
               .map((cc) => cc.scannerId)
               .filter((cc): cc is string => cc !== undefined)
-              .sort((a, b) =>
-                a.localeCompare(b, 'en', {
-                  numeric: true,
-                  ignorePunctuation: true,
-                })
-              )
               .map((scannerId) => {
                 const cardCounts = find(
                   cardCountsByCategory,
@@ -308,9 +297,6 @@ export function BallotCountsTable({
       );
     }
     case TallyCategory.Batch: {
-      const resultsByBatch =
-        fullElectionTally?.resultsByCategory.get(TallyCategory.Batch) || {};
-
       return (
         <Table>
           <tbody>
@@ -322,26 +308,29 @@ export function BallotCountsTable({
               <TD as="th">Ballot Count</TD>
               <TD as="th">Report</TD>
             </tr>
-            {Object.keys(resultsByBatch).map((batchId) => {
-              const batchTally = resultsByBatch[batchId] as BatchTally;
-              const batchBallotsCount = batchTally.numberOfBallotsCounted;
-              // This should only be multiple scanners if there are ballots missing batch ids
+            {cardCountsByCategory.map(({ batchId, ...cardCounts }) => {
+              assert(batchId !== undefined);
+              const batch = find(
+                scannerBatchesQuery.data,
+                (b) => b.batchId === batchId
+              );
+              const ballotCount = getBallotCount(cardCounts);
               return (
                 <tr key={batchId} data-testid="table-row">
                   <TD narrow nowrap data-testid={`batch-${batchId}`}>
-                    {batchTally.batchLabel}
+                    {batch.label}
                   </TD>
-                  <TD>{batchTally.scannerIds.join(', ')}</TD>
-                  <TD>{format.count(batchBallotsCount)}</TD>
+                  <TD>{batch.scannerId}</TD>
+                  <TD>{format.count(ballotCount)}</TD>
                   <TD>
-                    {batchBallotsCount > 0 && (
+                    {ballotCount > 0 && (
                       <LinkButton
                         small
                         to={routerPaths.tallyBatchReport({
                           batchId,
                         })}
                       >
-                        {statusPrefix} {batchTally.batchLabel} Tally Report
+                        {statusPrefix} {batch.label} Tally Report
                       </LinkButton>
                     )}
                   </TD>
@@ -374,6 +363,7 @@ export function BallotCountsTable({
         </Table>
       );
     }
+    // istanbul ignore next
     default:
       throwIllegalValue(breakdownCategory);
   }
