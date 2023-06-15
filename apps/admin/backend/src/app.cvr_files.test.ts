@@ -215,6 +215,15 @@ test('happy path - mock election flow', async () => {
       .map((partialRecord) => expect.objectContaining(partialRecord))
   );
 
+  // check scanner batches
+  expect(await apiClient.getScannerBatches()).toEqual([
+    expect.objectContaining({
+      batchId: '9822c71014',
+      label: '9822c71014',
+      scannerId: 'VX-00-000',
+    }),
+  ]);
+
   // remove CVR files, expect clear state
   await apiClient.clearCastVoteRecordFiles();
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);

@@ -6,6 +6,7 @@ import {
   generateSemsFinalExportDefaultFilename,
   format,
   isElectionManagerAuth,
+  getBallotCount,
 } from '@votingworks/utils';
 import {
   Button,
@@ -31,7 +32,11 @@ import {
 } from '../components/save_frontend_file_modal';
 import { getTallyConverterClient } from '../lib/converters';
 import { SaveResultsButton } from '../components/save_results_button';
-import { getCastVoteRecordFileMode, getSemsExportableTallies } from '../api';
+import {
+  getCardCounts,
+  getCastVoteRecordFileMode,
+  getSemsExportableTallies,
+} from '../api';
 
 export function ReportsScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
@@ -41,8 +46,6 @@ export function ReportsScreen(): JSX.Element {
     converter,
     isOfficialResults,
     isTabulationRunning,
-    fullElectionTally,
-    fullElectionManualTally,
     configuredAt,
     logger,
     auth,
@@ -52,6 +55,7 @@ export function ReportsScreen(): JSX.Element {
   assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
 
+  const cardCountsQuery = getCardCounts.useQuery();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const semsExportableTalliesQuery = getSemsExportableTallies.useQuery({
     enabled: converter === 'ms-sems',
@@ -69,11 +73,9 @@ export function ReportsScreen(): JSX.Element {
 
   const partiesForPrimaries = getPartiesWithPrimaryElections(election);
 
-  const totalBallotCountInternal =
-    fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0;
-  const totalBallotCountManual =
-    fullElectionManualTally?.overallTally.numberOfBallotsCounted ?? 0;
-  const totalBallotCount = totalBallotCountInternal + totalBallotCountManual;
+  const totalBallotCount = cardCountsQuery.data
+    ? getBallotCount(cardCountsQuery.data[0])
+    : 0;
 
   const [converterName, setConverterName] = useState('');
   useEffect(() => {
@@ -168,7 +170,7 @@ export function ReportsScreen(): JSX.Element {
       <strong>
         {format.count(totalBallotCount)}
         {fileMode === 'unlocked' ? ' ' : ` ${fileMode} `}
-        {pluralize('ballot', totalBallotCount, false)}{' '}
+        {pluralize('ballot', totalBallotCount, false)}
       </strong>{' '}
       have been counted for <strong>{electionDefinition.election.title}</strong>
       .

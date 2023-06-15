@@ -50,6 +50,7 @@ import {
   ManualResultsIdentifier,
   ManualResultsMetadataRecord,
   ManualResultsRecord,
+  ScannerBatch,
   SemsExportableTallies,
   ServerFullElectionManualTally,
   SetSystemSettingsResult,
@@ -80,6 +81,7 @@ import { generateBatchResultsFile } from './exports/batch_results';
 import { tabulateElectionResults } from './tabulation/full_results';
 import { getSemsExportableTallies } from './exports/sems_tallies';
 import { generateResultsCsv } from './exports/csv_results';
+import { tabulateFullCardCounts } from './tabulation/card_counts';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -684,6 +686,27 @@ function buildApi({
         .map((record) => ({ ...record }));
       // TODO: grout is having trouble serializing records from the store
       // without destructuring them. need to investigate
+    },
+
+    getCardCounts(input: {
+      groupBy: Tabulation.GroupBy;
+    }): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      return Object.values(
+        tabulateFullCardCounts({
+          electionId,
+          store,
+          groupBy: input.groupBy,
+        })
+      );
+    },
+
+    getScannerBatches(): ScannerBatch[] {
+      return store
+        .getScannerBatches(loadCurrentElectionIdOrThrow(workspace))
+        .map((record) => ({ ...record }));
+      // TODO: grout is having trouble serializing records from the store
+      // without destructuring them. need to investigate;
     },
 
     async exportBatchResults(input: {

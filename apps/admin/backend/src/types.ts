@@ -507,3 +507,12 @@ export type SemsExportableTally = Dictionary<SemsExportableContestTally>;
 export interface SemsExportableTallies {
   readonly talliesByPrecinct: Dictionary<SemsExportableTally>;
 }
+
+/**
+ * A count of a specific kind of card. For representation of aggregate values
+ * pulled from the store.
+ */
+export interface CardTally {
+  card: Tabulation.Card;
+  tally: number;
+}

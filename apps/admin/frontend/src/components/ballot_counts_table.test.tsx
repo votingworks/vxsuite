@@ -4,25 +4,19 @@ import {
   electionWithMsEitherNeither,
   multiPartyPrimaryElectionDefinition,
 } from '@votingworks/fixtures';
-import {
-  Dictionary,
-  BatchTally,
-  ManualTally,
-  Tally,
-  TallyCategory,
-  VotingMethod,
-  FullElectionTally,
-  FullElectionManualTally,
-} from '@votingworks/types';
+import { TallyCategory, Tabulation } from '@votingworks/types';
 
 import { assert } from '@votingworks/basics';
-import { getMockManualTally } from '@votingworks/utils';
-import { getByText as domGetByText } from '../../test/react_testing_library';
+import { ScannerBatch } from '@votingworks/admin-backend';
+import {
+  getByText as domGetByText,
+  screen,
+} from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
 import { BallotCountsTable } from './ballot_counts_table';
-import { fakeTally } from '../../test/helpers/fake_tally';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { mockBallotCountsTableGroupBy } from '../../test/helpers/api_expect_helpers';
 
 let apiMock: ApiMock;
 
@@ -34,61 +28,42 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
+function mockCardCounts(bmdCount: number): Tabulation.CardCounts {
+  return {
+    bmd: bmdCount,
+    hmpb: [],
+  };
+}
+
 describe('Ballot Counts by Precinct', () => {
-  const resultsByPrecinct: Dictionary<Tally> = {
-    // French Camp
-    '6526': fakeTally({
-      numberOfBallotsCounted: 25,
-    }),
-    // Kenego
-    '6529': fakeTally({
-      numberOfBallotsCounted: 52,
-    }),
-    // District 5
-    '6522': fakeTally({
-      numberOfBallotsCounted: 0,
-    }),
-  };
-  const resultsByCategory = new Map();
-  resultsByCategory.set(TallyCategory.Precinct, resultsByPrecinct);
+  const cardCountsByPrecinct: Array<Tabulation.GroupOf<Tabulation.CardCounts>> =
+    [
+      {
+        precinctId: '6526',
+        ...mockCardCounts(38),
+      },
+      {
+        precinctId: '6529',
+        ...mockCardCounts(52),
+      },
+      {
+        precinctId: '6528',
+        ...mockCardCounts(22),
+      },
+    ];
 
-  const manualResultsByPrecinct: Dictionary<ManualTally> = {
-    // French Camp
-    '6526': getMockManualTally({
-      numberOfBallotsCounted: 13,
-    }),
-    // East Weir
-    '6525': getMockManualTally({
-      numberOfBallotsCounted: 0,
-    }),
-    // Hebron
-    '6528': getMockManualTally({
-      numberOfBallotsCounted: 22,
-    }),
-  };
-  const manualResultsByCategory = new Map();
-  manualResultsByCategory.set(TallyCategory.Precinct, manualResultsByPrecinct);
-
-  const fullElectionTally: FullElectionTally = {
-    overallTally: fakeTally({
-      numberOfBallotsCounted: 77,
-    }),
-    resultsByCategory,
-  };
-  const fullElectionManualTally: FullElectionManualTally = {
-    overallTally: getMockManualTally({
-      numberOfBallotsCounted: 54,
-    }),
-    resultsByCategory: manualResultsByCategory,
-    votingMethod: VotingMethod.Precinct,
-    timestampCreated: new Date(),
-  };
-
-  it('renders as expected when there is no tally data', () => {
+  it('renders as expected when there is no tally data', async () => {
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByPrecinct: true }),
+      []
+    );
+    apiMock.expectGetScannerBatches([]);
+    apiMock.expectGetManualResultsMetadata([]);
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />,
       { apiMock }
     );
+    await screen.findByText('Precinct');
     for (const precinct of electionWithMsEitherNeither.precincts) {
       getByText(precinct.name);
       const tableRow = getByText(precinct.name).closest('tr');
@@ -112,18 +87,25 @@ describe('Ballot Counts by Precinct', () => {
     );
   });
 
-  it('renders as expected when there is tally data', () => {
+  it('renders as expected when there is tally data', async () => {
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByPrecinct: true }),
+      cardCountsByPrecinct
+    );
+    apiMock.expectGetScannerBatches([]);
+    apiMock.expectGetManualResultsMetadata([]);
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />,
       {
-        fullElectionTally,
         apiMock,
       }
     );
+    await screen.findByText('Precinct');
     for (const precinct of electionWithMsEitherNeither.precincts) {
       // Expect that 0 ballots are counted when the precinct is missing in the dictionary or the tally says there are 0 ballots
       const expectedNumberOfBallots =
-        resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0;
+        cardCountsByPrecinct.find((cc) => cc.precinctId === precinct.id)?.bmd ??
+        0;
       getByText(precinct.name);
       const tableRow = getByText(precinct.name).closest('tr');
       expect(tableRow).toBeDefined();
@@ -137,45 +119,7 @@ describe('Ballot Counts by Precinct', () => {
     getByText('Total Ballot Count');
     const tableRow = getByText('Total Ballot Count').closest('tr');
     expect(tableRow).toBeDefined();
-    expect(domGetByText(tableRow!, 77)).toBeInTheDocument();
-    expect(
-      domGetByText(tableRow!, 'Unofficial Tally Reports for All Precincts')
-    ).toBeInTheDocument();
-
-    // There should be 2 more rows then the number of precincts (header row and totals row)
-    expect(getAllByTestId('table-row').length).toEqual(
-      electionWithMsEitherNeither.precincts.length + 2
-    );
-  });
-
-  it('renders as expected when there is tally data and manual data', () => {
-    const { getByText, getAllByTestId } = renderInAppContext(
-      <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />,
-      {
-        fullElectionTally,
-        fullElectionManualTally,
-        apiMock,
-      }
-    );
-    for (const precinct of electionWithMsEitherNeither.precincts) {
-      // Expect that 0 ballots are counted when the precinct is missing in the dictionary or the tally says there are 0 ballots
-      const expectedNumberOfBallots =
-        (resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0) +
-        (manualResultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0);
-      getByText(precinct.name);
-      const tableRow = getByText(precinct.name).closest('tr');
-      expect(tableRow).toBeDefined();
-      expect(
-        domGetByText(tableRow!, expectedNumberOfBallots)
-      ).toBeInTheDocument();
-      expect(
-        domGetByText(tableRow!, `Unofficial ${precinct.name} Tally Report`)
-      ).toBeInTheDocument();
-    }
-    getByText('Total Ballot Count');
-    const tableRow = getByText('Total Ballot Count').closest('tr');
-    expect(tableRow).toBeDefined();
-    expect(domGetByText(tableRow!, 131)).toBeInTheDocument();
+    expect(domGetByText(tableRow!, 112)).toBeInTheDocument();
     expect(
       domGetByText(tableRow!, 'Unofficial Tally Reports for All Precincts')
     ).toBeInTheDocument();
@@ -188,42 +132,32 @@ describe('Ballot Counts by Precinct', () => {
 });
 
 describe('Ballot Counts by Scanner', () => {
-  const resultsByScanner: Dictionary<Tally> = {
-    'scanner-1': fakeTally({
-      numberOfBallotsCounted: 25,
-    }),
-    'scanner-2': fakeTally({
-      numberOfBallotsCounted: 52,
-    }),
-    'scanner-3': fakeTally({
-      numberOfBallotsCounted: 0,
-    }),
-  };
-  const resultsByCategory = new Map();
-  resultsByCategory.set(TallyCategory.Scanner, resultsByScanner);
+  const cardCountsByScanner: Array<Tabulation.GroupOf<Tabulation.CardCounts>> =
+    [
+      {
+        scannerId: 'scanner-1',
+        ...mockCardCounts(25),
+      },
+      {
+        scannerId: 'scanner-2',
+        ...mockCardCounts(52),
+      },
+    ];
+  const scannerIds = ['scanner-1', 'scanner-2'];
 
-  const fullElectionTally: FullElectionTally = {
-    overallTally: fakeTally({
-      numberOfBallotsCounted: 77,
-    }),
-    resultsByCategory,
-  };
-  const fullElectionManualTally: FullElectionManualTally = {
-    overallTally: getMockManualTally({
-      numberOfBallotsCounted: 54,
-    }),
-    votingMethod: VotingMethod.Precinct,
-    resultsByCategory: new Map(),
-    timestampCreated: new Date(),
-  };
-
-  it('renders as expected when there is no tally data', () => {
+  it('renders as expected when there is no tally data', async () => {
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByScanner: true }),
+      []
+    );
+    apiMock.expectGetScannerBatches([]);
+    apiMock.expectGetManualResultsMetadata([]);
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />,
       { apiMock }
     );
 
-    getByText('Total Ballot Count');
+    await screen.findByText('Total Ballot Count');
     const tableRow = getByText('Total Ballot Count').closest('tr');
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 0)).toBeInTheDocument();
@@ -232,21 +166,24 @@ describe('Ballot Counts by Scanner', () => {
     expect(getAllByTestId('table-row').length).toEqual(2);
   });
 
-  it('renders as expected when there is tally data', () => {
+  it('renders as expected when there is tally data', async () => {
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByScanner: true }),
+      cardCountsByScanner
+    );
+    apiMock.expectGetScannerBatches([]);
+    apiMock.expectGetManualResultsMetadata([]);
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />,
       {
-        fullElectionTally,
         apiMock,
       }
     );
 
-    const scannerIds = ['scanner-1', 'scanner-2', 'scanner-3'];
-
+    await screen.findByText('Scanner ID');
     for (const scannerId of scannerIds) {
-      // Expect that 0 ballots are counted when the precinct is missing in the dictionary or the tally says there are 0 ballots
       const expectedNumberOfBallots =
-        resultsByScanner[scannerId]?.numberOfBallotsCounted ?? 0;
+        cardCountsByScanner.find((cc) => cc.scannerId === scannerId)?.bmd ?? 0;
       getByText(scannerId);
       const tableRow = getByText(scannerId).closest('tr');
       expect(tableRow).toBeDefined();
@@ -270,37 +207,29 @@ describe('Ballot Counts by Scanner', () => {
     expect(getAllByTestId('table-row').length).toEqual(scannerIds.length + 2);
   });
 
-  it('renders as expected when there is tally data and manual data', () => {
+  it('renders as expected when there is tally data and manual data', async () => {
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByScanner: true }),
+      cardCountsByScanner
+    );
+    apiMock.expectGetScannerBatches([]);
+    apiMock.expectGetManualResultsMetadata([
+      {
+        precinctId: 'any',
+        ballotStyleId: 'any',
+        votingMethod: 'precinct',
+        ballotCount: 54,
+        createdAt: 'any',
+      },
+    ]);
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />,
       {
-        fullElectionTally,
-        fullElectionManualTally,
         apiMock,
       }
     );
 
-    const scannerIds = ['scanner-1', 'scanner-2', 'scanner-3'];
-
-    for (const scannerId of scannerIds) {
-      // Expect that 0 ballots are counted when the precinct is missing in the dictionary or the tally says there are 0 ballots
-      const expectedNumberOfBallots =
-        resultsByScanner[scannerId]?.numberOfBallotsCounted ?? 0;
-      getByText(scannerId);
-      const tableRow = getByText(scannerId).closest('tr');
-      expect(tableRow).toBeDefined();
-      expect(
-        domGetByText(tableRow!, expectedNumberOfBallots)
-      ).toBeInTheDocument();
-      if (expectedNumberOfBallots > 0) {
-        expect(
-          domGetByText(
-            tableRow!,
-            `Unofficial Scanner ${scannerId} Tally Report`
-          )
-        ).toBeInTheDocument();
-      }
-    }
+    await screen.findByText('Scanner ID');
 
     getByText('Manually Entered Results');
     let tableRow = getByText('Manually Entered Results').closest('tr');
@@ -318,63 +247,30 @@ describe('Ballot Counts by Scanner', () => {
 
 // Test party ballot counts
 describe('Ballots Counts by Party', () => {
-  const resultsByParty: Dictionary<Tally> = {
-    // Liberty
-    '0': fakeTally({
-      numberOfBallotsCounted: 25,
-    }),
-    // Federalist
-    '4': fakeTally({
-      numberOfBallotsCounted: 52,
-    }),
-  };
-  const resultsByCategory = new Map();
-  resultsByCategory.set(TallyCategory.Party, resultsByParty);
+  const cardCountsByParty: Array<Tabulation.GroupOf<Tabulation.CardCounts>> = [
+    {
+      partyId: '0',
+      ...mockCardCounts(25),
+    },
+    {
+      partyId: '4',
+      ...mockCardCounts(52),
+    },
+  ];
 
-  const manualResultsByParty: Dictionary<ManualTally> = {
-    // Liberty
-    '0': getMockManualTally({
-      numberOfBallotsCounted: 13,
-    }),
-    // Constitution
-    '3': getMockManualTally({
-      numberOfBallotsCounted: 73,
-    }),
-  };
-  const manualResultsByCategory = new Map();
-  manualResultsByCategory.set(TallyCategory.Party, manualResultsByParty);
+  const expectedParties = [
+    { partyName: 'Constitution Party', partyId: '3' },
+    { partyName: 'Federalist Party', partyId: '4' },
+    { partyName: 'Liberty Party', partyId: '0' },
+  ];
 
-  const fullElectionTally: FullElectionTally = {
-    overallTally: fakeTally({
-      numberOfBallotsCounted: 77,
-    }),
-    resultsByCategory,
-  };
-
-  const fullElectionManualTally: FullElectionManualTally = {
-    overallTally: getMockManualTally({
-      numberOfBallotsCounted: 54,
-    }),
-    resultsByCategory: manualResultsByCategory,
-    votingMethod: VotingMethod.Precinct,
-    timestampCreated: new Date(),
-  };
-
-  it('does not render when the election has not ballot styles with parties', () => {
-    // The default election is not a primary
-    const { container } = renderInAppContext(
-      <BallotCountsTable breakdownCategory={TallyCategory.Party} />,
-      { apiMock }
+  it('renders as expected when there is no data', async () => {
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByParty: true }),
+      []
     );
-    expect(container.firstChild).toBeNull();
-  });
-
-  it('renders as expected when there is no data', () => {
-    const expectedParties = [
-      'Constitution Party',
-      'Federalist Party',
-      'Liberty Party',
-    ];
+    apiMock.expectGetScannerBatches([]);
+    apiMock.expectGetManualResultsMetadata([]);
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Party} />,
       {
@@ -386,7 +282,9 @@ describe('Ballots Counts by Party', () => {
       }
     );
 
-    for (const partyName of expectedParties) {
+    await screen.findByText('Party');
+
+    for (const { partyName } of expectedParties) {
       getByText(partyName);
       const tableRow = getByText(partyName).closest('tr');
       expect(tableRow).toBeDefined();
@@ -406,12 +304,13 @@ describe('Ballots Counts by Party', () => {
     );
   });
 
-  it('renders as expected when there is tally data', () => {
-    const expectedParties = [
-      { partyName: 'Constitution Party', partyId: '3' },
-      { partyName: 'Federalist Party', partyId: '4' },
-      { partyName: 'Liberty Party', partyId: '0' },
-    ];
+  it('renders as expected when there is tally data', async () => {
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByParty: true }),
+      cardCountsByParty
+    );
+    apiMock.expectGetScannerBatches([]);
+    apiMock.expectGetManualResultsMetadata([]);
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Party} />,
       {
@@ -419,14 +318,15 @@ describe('Ballots Counts by Party', () => {
           ...multiPartyPrimaryElectionDefinition,
           electionData: '',
         },
-        fullElectionTally,
         apiMock,
       }
     );
 
+    await screen.findByText('Party');
+
     for (const { partyName, partyId } of expectedParties) {
       const expectedNumberOfBallots =
-        resultsByParty[partyId]?.numberOfBallotsCounted ?? 0;
+        cardCountsByParty.find((cc) => cc.partyId === partyId)?.bmd ?? 0;
       getByText(partyName);
       const tableRow = getByText(partyName).closest('tr');
       expect(tableRow).toBeDefined();
@@ -442,50 +342,6 @@ describe('Ballots Counts by Party', () => {
     const tableRow = getByText('Total Ballot Count').closest('tr');
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 77)).toBeInTheDocument();
-
-    expect(getAllByTestId('table-row').length).toEqual(
-      expectedParties.length + 2
-    );
-  });
-
-  it('renders as expected where there is tally data and manual data', () => {
-    const expectedParties = [
-      { partyName: 'Constitution Party', partyId: '3' },
-      { partyName: 'Federalist Party', partyId: '4' },
-      { partyName: 'Liberty Party', partyId: '0' },
-    ];
-    const { getByText, getAllByTestId } = renderInAppContext(
-      <BallotCountsTable breakdownCategory={TallyCategory.Party} />,
-      {
-        electionDefinition: {
-          ...multiPartyPrimaryElectionDefinition,
-          electionData: '',
-        },
-        fullElectionTally,
-        fullElectionManualTally,
-        apiMock,
-      }
-    );
-
-    for (const { partyName, partyId } of expectedParties) {
-      const expectedNumberOfBallots =
-        (resultsByParty[partyId]?.numberOfBallotsCounted ?? 0) +
-        (manualResultsByParty[partyId]?.numberOfBallotsCounted ?? 0);
-      getByText(partyName);
-      const tableRow = getByText(partyName).closest('tr');
-      expect(tableRow).toBeDefined();
-      expect(
-        domGetByText(tableRow!, expectedNumberOfBallots)
-      ).toBeInTheDocument();
-      expect(
-        domGetByText(tableRow!, `Unofficial ${partyName} Tally Report`)
-      ).toBeInTheDocument();
-    }
-
-    getByText('Total Ballot Count');
-    const tableRow = getByText('Total Ballot Count').closest('tr');
-    expect(tableRow).toBeDefined();
-    expect(domGetByText(tableRow!, 131)).toBeInTheDocument();
 
     expect(getAllByTestId('table-row').length).toEqual(
       expectedParties.length + 2
@@ -494,47 +350,40 @@ describe('Ballots Counts by Party', () => {
 });
 
 describe('Ballots Counts by VotingMethod', () => {
-  const resultsByVotingMethod: Dictionary<Tally> = {
-    [VotingMethod.Absentee]: fakeTally({
-      numberOfBallotsCounted: 25,
-    }),
-    [VotingMethod.Precinct]: fakeTally({
-      numberOfBallotsCounted: 42,
-    }),
-    [VotingMethod.Unknown]: fakeTally({
-      numberOfBallotsCounted: 10,
-    }),
-  };
-  const resultsByCategory = new Map();
-  resultsByCategory.set(TallyCategory.VotingMethod, resultsByVotingMethod);
+  const cardCountsByVotingMethod: Array<
+    Tabulation.GroupOf<Tabulation.CardCounts>
+  > = [
+    {
+      votingMethod: 'absentee',
+      ...mockCardCounts(25),
+    },
+    {
+      votingMethod: 'precinct',
+      ...mockCardCounts(42),
+    },
+  ];
+  const expectedLabels = [
+    {
+      method: 'absentee',
+      label: 'Absentee',
+    },
+    { method: 'precinct', label: 'Precinct' },
+  ];
 
-  const fullElectionTally: FullElectionTally = {
-    overallTally: fakeTally({
-      numberOfBallotsCounted: 77,
-    }),
-    resultsByCategory,
-  };
-
-  const numManualBallots = 54;
-
-  const fullElectionManualTally: FullElectionManualTally = {
-    overallTally: getMockManualTally({
-      numberOfBallotsCounted: numManualBallots,
-    }),
-    resultsByCategory: new Map(),
-    votingMethod: VotingMethod.Precinct,
-    timestampCreated: new Date(),
-  };
-
-  it('renders as expected when there is no data', () => {
-    // No row for "Other" ballots renders when there are 0 CVRs for that category.
-    const expectedLabels = ['Absentee', 'Precinct'];
+  it('renders as expected when there is no data', async () => {
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByVotingMethod: true }),
+      []
+    );
+    apiMock.expectGetScannerBatches([]);
+    apiMock.expectGetManualResultsMetadata([]);
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />,
       { apiMock }
     );
 
-    for (const label of expectedLabels) {
+    await screen.findByText('Voting Method');
+    for (const { label } of expectedLabels) {
       getByText(label);
       const tableRow = getByText(label).closest('tr');
       expect(tableRow).toBeDefined();
@@ -554,23 +403,24 @@ describe('Ballots Counts by VotingMethod', () => {
     );
   });
 
-  it('renders as expected when there is tally data', () => {
-    const expectedLabels = [
-      {
-        method: VotingMethod.Absentee,
-        label: 'Absentee',
-      },
-      { method: VotingMethod.Precinct, label: 'Precinct' },
-      { method: VotingMethod.Unknown, label: 'Other' },
-    ];
+  it('renders as expected when there is tally data', async () => {
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByVotingMethod: true }),
+      cardCountsByVotingMethod
+    );
+    apiMock.expectGetScannerBatches([]);
+    apiMock.expectGetManualResultsMetadata([]);
+
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />,
-      { fullElectionTally, apiMock }
+      { apiMock }
     );
 
+    await screen.findByText('Voting Method');
     for (const { method, label } of expectedLabels) {
       const expectedNumberOfBallots =
-        resultsByVotingMethod[method]?.numberOfBallotsCounted ?? 0;
+        cardCountsByVotingMethod.find((cc) => cc.votingMethod === method)
+          ?.bmd ?? 0;
       getByText(label);
       const tableRow = getByText(label).closest('tr');
       expect(tableRow).toBeDefined();
@@ -585,54 +435,7 @@ describe('Ballots Counts by VotingMethod', () => {
     getByText('Total Ballot Count');
     const tableRow = getByText('Total Ballot Count').closest('tr');
     expect(tableRow).toBeDefined();
-    expect(domGetByText(tableRow!, 77)).toBeInTheDocument();
-
-    expect(getAllByTestId('table-row').length).toEqual(
-      expectedLabels.length + 2
-    );
-  });
-
-  it('renders as expected where there is tally data and manual data', () => {
-    const expectedLabels = [
-      {
-        method: VotingMethod.Absentee,
-        label: 'Absentee',
-      },
-      { method: VotingMethod.Precinct, label: 'Precinct' },
-      { method: VotingMethod.Unknown, label: 'Other' },
-    ];
-    const { getByText, getAllByTestId } = renderInAppContext(
-      <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />,
-      {
-        fullElectionTally,
-        fullElectionManualTally,
-        apiMock,
-      }
-    );
-
-    // The manual tally is configured to be labelled as precinct data.
-
-    for (const { method, label } of expectedLabels) {
-      let expectedNumberOfBallots =
-        resultsByVotingMethod[method]?.numberOfBallotsCounted ?? 0;
-      if (method === VotingMethod.Precinct) {
-        expectedNumberOfBallots += numManualBallots;
-      }
-      getByText(label);
-      const tableRow = getByText(label).closest('tr');
-      expect(tableRow).toBeDefined();
-      expect(
-        domGetByText(tableRow!, expectedNumberOfBallots)
-      ).toBeInTheDocument();
-      expect(
-        domGetByText(tableRow!, `Unofficial ${label} Ballot Tally Report`)
-      ).toBeInTheDocument();
-    }
-
-    getByText('Total Ballot Count');
-    const tableRow = getByText('Total Ballot Count').closest('tr');
-    expect(tableRow).toBeDefined();
-    expect(domGetByText(tableRow!, 131)).toBeInTheDocument();
+    expect(domGetByText(tableRow!, 67)).toBeInTheDocument();
 
     expect(getAllByTestId('table-row').length).toEqual(
       expectedLabels.length + 2
@@ -645,65 +448,55 @@ describe('Ballots Counts by Batch', () => {
     apiMock.expectGetCastVoteRecordFileMode('official');
   });
 
-  const resultsByBatch: Dictionary<BatchTally> = {
-    '12341': {
-      ...fakeTally({
-        numberOfBallotsCounted: 25,
-      }),
-      batchLabel: 'Batch 1',
-      scannerIds: ['001'],
+  const cardCountsByBatch: Array<Tabulation.GroupOf<Tabulation.CardCounts>> = [
+    {
+      batchId: '12341',
+      ...mockCardCounts(25),
     },
-    '12342': {
-      ...fakeTally({
-        numberOfBallotsCounted: 15,
-      }),
-      batchLabel: 'Batch 2',
-      scannerIds: ['001'],
+    {
+      batchId: '12342',
+      ...mockCardCounts(15),
     },
-    '12343': {
-      ...fakeTally({
-        numberOfBallotsCounted: 32,
-      }),
-      batchLabel: 'Batch 1',
-      scannerIds: ['002'],
+    {
+      batchId: '12343',
+      ...mockCardCounts(32),
     },
-    'missing-batch-id': {
-      ...fakeTally({
-        numberOfBallotsCounted: 50,
-      }),
-      scannerIds: ['003', '004'],
-      batchLabel: 'Missing Batch',
+  ];
+
+  const scannerBatches: ScannerBatch[] = [
+    {
+      electionId: 'any',
+      batchId: '12341',
+      label: 'Batch 1',
+      scannerId: '001',
     },
-  };
-  const resultsByCategory = new Map();
-  resultsByCategory.set(TallyCategory.Batch, resultsByBatch);
+    {
+      electionId: 'any',
+      batchId: '12342',
+      label: 'Batch 2',
+      scannerId: '001',
+    },
+    {
+      electionId: 'any',
+      batchId: '12343',
+      label: 'Batch 1',
+      scannerId: '002',
+    },
+  ];
 
-  const fullElectionTally: FullElectionTally = {
-    overallTally: fakeTally({
-      numberOfBallotsCounted: 122,
-    }),
-    resultsByCategory,
-  };
-
-  const numManualBallots = 54;
-
-  const fullElectionManualTally: FullElectionManualTally = {
-    overallTally: getMockManualTally({
-      numberOfBallotsCounted: numManualBallots,
-    }),
-    resultsByCategory: new Map(),
-    votingMethod: VotingMethod.Precinct,
-    timestampCreated: new Date(),
-  };
-
-  it('renders as expected when there is no data', () => {
-    // No row for "Other" ballots renders when there are 0 CVRs for that category.
+  it('renders as expected when there is no data', async () => {
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByBatch: true }),
+      []
+    );
+    apiMock.expectGetScannerBatches(scannerBatches);
+    apiMock.expectGetManualResultsMetadata([]);
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Batch} />,
       { apiMock }
     );
 
-    getByText('Total Ballot Count');
+    await screen.findByText('Total Ballot Count');
     const tableRow = getByText('Total Ballot Count').closest('tr');
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 0)).toBeInTheDocument();
@@ -711,37 +504,41 @@ describe('Ballots Counts by Batch', () => {
     expect(getAllByTestId('table-row').length).toEqual(2);
   });
 
-  it('renders as expected when there is tally data', () => {
-    const expectedLabels = [
-      {
-        batchId: '12341',
-        label: 'Batch 1',
-        scannerLabel: '001',
-      },
-      {
-        batchId: '12342',
-        label: 'Batch 2',
-        scannerLabel: '001',
-      },
-      {
-        batchId: '12343',
-        label: 'Batch 1',
-        scannerLabel: '002',
-      },
-      {
-        batchId: 'missing-batch-id',
-        label: 'Missing Batch',
-        scannerLabel: '003, 004',
-      },
-    ];
+  const expectedLabels = [
+    {
+      batchId: '12341',
+      label: 'Batch 1',
+      scannerLabel: '001',
+    },
+    {
+      batchId: '12342',
+      label: 'Batch 2',
+      scannerLabel: '001',
+    },
+    {
+      batchId: '12343',
+      label: 'Batch 1',
+      scannerLabel: '002',
+    },
+  ];
+
+  it('renders as expected when there is tally data', async () => {
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByBatch: true }),
+      cardCountsByBatch
+    );
+    apiMock.expectGetScannerBatches(scannerBatches);
+    apiMock.expectGetManualResultsMetadata([]);
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Batch} />,
-      { fullElectionTally, apiMock }
+      { apiMock }
     );
+
+    await screen.findByText('Batch Name');
 
     for (const { batchId, label, scannerLabel } of expectedLabels) {
       const expectedNumberOfBallots =
-        resultsByBatch[batchId]?.numberOfBallotsCounted ?? 0;
+        cardCountsByBatch.find((cc) => cc.batchId === batchId)?.bmd ?? 0;
       const tableRow = getAllByTestId(`batch-${batchId}`)[0].closest('tr');
       assert(tableRow);
       expect(domGetByText(tableRow, label)).toBeInTheDocument();
@@ -757,7 +554,7 @@ describe('Ballots Counts by Batch', () => {
     getByText('Total Ballot Count');
     const tableRow = getByText('Total Ballot Count').closest('tr');
     expect(tableRow).toBeDefined();
-    expect(domGetByText(tableRow!, 122)).toBeInTheDocument();
+    expect(domGetByText(tableRow!, 72)).toBeInTheDocument();
 
     // There should be 2 extra table rows in addition to the batches, one for the headers, and one for the total row.
     expect(getAllByTestId('table-row').length).toEqual(
@@ -765,60 +562,38 @@ describe('Ballots Counts by Batch', () => {
     );
   });
 
-  it('renders as expected where there is tally data and manual data', () => {
-    const expectedLabels = [
+  it('renders as expected where there is tally data and manual data', async () => {
+    apiMock.expectGetCardCounts(
+      mockBallotCountsTableGroupBy({ groupByBatch: true }),
+      cardCountsByBatch
+    );
+    apiMock.expectGetScannerBatches(scannerBatches);
+    apiMock.expectGetManualResultsMetadata([
       {
-        batchId: '12341',
-        label: 'Batch 1',
-        scannerLabel: '001',
+        precinctId: 'any',
+        ballotStyleId: 'any',
+        votingMethod: 'precinct',
+        ballotCount: 54,
+        createdAt: 'any',
       },
-      {
-        batchId: '12342',
-        label: 'Batch 2',
-        scannerLabel: '001',
-      },
-      {
-        batchId: '12343',
-        label: 'Batch 1',
-        scannerLabel: '002',
-      },
-      {
-        batchId: 'missing-batch-id',
-        label: 'Missing Batch',
-        scannerLabel: '003, 004',
-      },
-    ];
+    ]);
     const { getByText, getAllByTestId } = renderInAppContext(
       <BallotCountsTable breakdownCategory={TallyCategory.Batch} />,
       {
-        fullElectionTally,
-        fullElectionManualTally,
         apiMock,
       }
     );
 
-    // The manual tally is configured to be labelled as precinct data.
-
-    for (const { batchId, label, scannerLabel } of expectedLabels) {
-      const expectedNumberOfBallots =
-        resultsByBatch[batchId]?.numberOfBallotsCounted ?? 0;
-      const tableRow = getAllByTestId(`batch-${batchId}`)[0].closest('tr');
-      expect(tableRow).toBeDefined();
-      domGetByText(tableRow!, label);
-      domGetByText(tableRow!, expectedNumberOfBallots);
-      domGetByText(tableRow!, scannerLabel);
-      domGetByText(tableRow!, `Unofficial ${label} Tally Report`);
-    }
-
+    await screen.findByText('Batch Name');
     const manualTableRow = getAllByTestId('batch-manual')[0].closest('tr');
     assert(manualTableRow);
     domGetByText(manualTableRow, 'Manually Entered Results');
-    domGetByText(manualTableRow, numManualBallots);
+    domGetByText(manualTableRow, 54);
 
     getByText('Total Ballot Count');
     const tableRow = getByText('Total Ballot Count').closest('tr');
     assert(tableRow);
-    domGetByText(tableRow, 176);
+    domGetByText(tableRow, 126);
 
     // There should be 3 extra table rows in addition to the batches, one for the headers, one for the manual data, and one for the total row.
     expect(getAllByTestId('table-row').length).toEqual(

@@ -9,28 +9,30 @@ import { Result, assertDefined, err, ok } from '@votingworks/basics';
 import {
   ManualResultsFilter,
   ManualResultsGroupBy,
+  ManualResultsIdentifier,
+  ManualResultsMetadataRecord,
   ManualResultsRecord,
 } from '../types';
 import { Store } from '../store';
 import { replacePartyIdFilter } from './utils';
 
 function getManualResultsGroupSpecifier(
-  manualResultsRecord: ManualResultsRecord,
+  manualResultsIdentifier: ManualResultsIdentifier,
   groupBy: ManualResultsGroupBy,
   partyIdLookup: BallotStyleIdPartyIdLookup
 ): Tabulation.GroupSpecifier {
   return {
     ballotStyleId: groupBy.groupByBallotStyle
-      ? manualResultsRecord.ballotStyleId
+      ? manualResultsIdentifier.ballotStyleId
       : undefined,
     partyId: groupBy.groupByParty
-      ? partyIdLookup[manualResultsRecord.ballotStyleId]
+      ? partyIdLookup[manualResultsIdentifier.ballotStyleId]
       : undefined,
     precinctId: groupBy.groupByPrecinct
-      ? manualResultsRecord.precinctId
+      ? manualResultsIdentifier.precinctId
       : undefined,
     votingMethod: groupBy.groupByVotingMethod
-      ? manualResultsRecord.votingMethod
+      ? manualResultsIdentifier.votingMethod
       : undefined,
   };
 }
@@ -143,4 +145,44 @@ export function tabulateManualResults({
       groupBy,
     })
   );
+}
+
+/**
+ * Tabulates manual ballot counts, optionally grouped. Returns error if the
+ * group by is incompatible with manual results.
+ */
+export function tabulateManualBallotCounts({
+  election,
+  manualResultsMetadataRecords,
+  groupBy = {},
+}: {
+  election: Election;
+  manualResultsMetadataRecords: Iterable<ManualResultsMetadataRecord>;
+  groupBy?: Tabulation.GroupBy;
+}): Result<Tabulation.GroupedManualBallotCounts, GetManualResultsError> {
+  if (!isGroupByCompatibleWithManualResults(groupBy)) {
+    return err({ type: 'incompatible-group-by' });
+  }
+
+  const groupedManualBallotCounts: Tabulation.GroupedManualBallotCounts = {};
+
+  const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
+
+  for (const manualResultsMetadataRecord of manualResultsMetadataRecords) {
+    const groupSpecifier = getManualResultsGroupSpecifier(
+      manualResultsMetadataRecord,
+      groupBy,
+      ballotStyleIdPartyIdLookup
+    );
+    const groupKey = getGroupKey(groupSpecifier, groupBy);
+
+    groupedManualBallotCounts[groupKey] = {
+      ...groupSpecifier,
+      ballotCount:
+        (groupedManualBallotCounts[groupKey]?.ballotCount ?? 0) +
+        manualResultsMetadataRecord.ballotCount,
+    };
+  }
+
+  return ok(groupedManualBallotCounts);
 }

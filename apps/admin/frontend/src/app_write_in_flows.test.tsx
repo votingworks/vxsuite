@@ -16,6 +16,7 @@ import { buildApp } from '../test/helpers/build_app';
 import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
 import { VxFiles } from './lib/converters';
 import { getMockWriteInCandidate } from '../test/api_mock_data';
+import { expectReportsScreenCardCountQueries } from '../test/helpers/api_expect_helpers';
 
 const nonOfficialAdjudicationSummaryMammal: WriteInAdjudicatedTally = {
   status: 'adjudicated',
@@ -75,6 +76,12 @@ test('manually added write-in results appears in reports', async () => {
   apiMock.expectGetWriteInTalliesAdjudicated([
     nonOfficialAdjudicationSummaryMammal,
   ]);
+  expectReportsScreenCardCountQueries({
+    apiMock,
+    isPrimary: true,
+  });
+  apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetManualResultsMetadata([]);
 
   // mock manual data
   const precinct1ManualTally = buildSpecificManualTally(election, 8, {
