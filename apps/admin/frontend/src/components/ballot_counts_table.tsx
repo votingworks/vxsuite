@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { format } from '@votingworks/utils';
+import { format, getBallotCount } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { LinkButton, Table, TD } from '@votingworks/ui';
 import {
@@ -15,6 +15,7 @@ import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
 import { ExportBatchTallyResultsButton } from './export_batch_tally_results_button';
 import { routerPaths } from '../router_paths';
+import { getCardCounts } from '../api';
 
 export interface Props {
   breakdownCategory: TallyCategory;
@@ -27,31 +28,39 @@ export function BallotCountsTable({
     electionDefinition,
     isTabulationRunning,
     fullElectionTally,
-    fullElectionManualTally,
     isOfficialResults,
   } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
 
-  if (isTabulationRunning) {
+  const cardCountsQuery = getCardCounts.useQuery({
+    groupBy: {
+      groupByParty: breakdownCategory === TallyCategory.Party,
+      groupByVotingMethod: breakdownCategory === TallyCategory.VotingMethod,
+      groupByBatch: breakdownCategory === TallyCategory.Batch,
+      groupByPrecinct: breakdownCategory === TallyCategory.Precinct,
+      groupByScanner: breakdownCategory === TallyCategory.Scanner,
+    },
+  });
+
+  if (isTabulationRunning || !cardCountsQuery.isSuccess) {
     return <Loading />;
   }
 
+  const cardCountsByCategory = cardCountsQuery.data;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
 
-  const totalBallotCountInternal =
-    fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0;
-  const totalBallotCountManual =
-    fullElectionManualTally?.overallTally.numberOfBallotsCounted ?? 0;
+  const totalBallotCount = cardCountsByCategory.reduce(
+    (total, cardCounts) => total + getBallotCount(cardCounts),
+    0
+  );
+  const totalManualBallotCount = cardCountsByCategory.reduce(
+    (total, cardCounts) => total + (cardCounts.manual ?? 0),
+    0
+  );
 
   switch (breakdownCategory) {
     case TallyCategory.Precinct: {
-      const resultsByPrecinct =
-        fullElectionTally?.resultsByCategory.get(TallyCategory.Precinct) || {};
-      const manualResultsByPrecinct =
-        fullElectionManualTally?.resultsByCategory.get(
-          TallyCategory.Precinct
-        ) || {};
       return (
         <Table>
           <tbody>
@@ -69,21 +78,17 @@ export function BallotCountsTable({
                 })
               )
               .map((precinct) => {
-                const precinctBallotsCount =
-                  resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0;
-                const manualPrecinctBallotsCount =
-                  manualResultsByPrecinct[precinct.id]
-                    ?.numberOfBallotsCounted ?? 0;
+                const cardCounts = cardCountsByCategory.find(
+                  (cc) => cc.precinctId === precinct.id
+                );
+                const ballotCount = cardCounts ? getBallotCount(cardCounts) : 0;
+
                 return (
                   <tr key={precinct.id} data-testid="table-row">
                     <TD narrow nowrap>
                       {precinct.name}
                     </TD>
-                    <TD>
-                      {format.count(
-                        precinctBallotsCount + manualPrecinctBallotsCount
-                      )}
-                    </TD>
+                    <TD>{format.count(ballotCount)}</TD>
                     <TD>
                       <LinkButton
                         small
@@ -103,9 +108,7 @@ export function BallotCountsTable({
               </TD>
               <TD>
                 <strong data-testid="total-ballot-count">
-                  {format.count(
-                    totalBallotCountInternal + totalBallotCountManual
-                  )}
+                  {format.count(totalBallotCount)}
                 </strong>
               </TD>
               <TD>
@@ -125,9 +128,6 @@ export function BallotCountsTable({
       );
     }
     case TallyCategory.Scanner: {
-      const resultsByScanner =
-        fullElectionTally?.resultsByCategory.get(TallyCategory.Scanner) || {};
-
       return (
         <Table>
           <tbody>
@@ -138,7 +138,9 @@ export function BallotCountsTable({
               <TD as="th">Ballot Count</TD>
               <TD as="th">Report</TD>
             </tr>
-            {Object.keys(resultsByScanner)
+            {cardCountsByCategory
+              .map((cc) => cc.scannerId)
+              .filter((cc): cc is string => cc !== undefined)
               .sort((a, b) =>
                 a.localeCompare(b, 'en', {
                   numeric: true,
@@ -146,39 +148,36 @@ export function BallotCountsTable({
                 })
               )
               .map((scannerId) => {
-                const scannerBallotsCount =
-                  resultsByScanner[scannerId]?.numberOfBallotsCounted ?? 0;
+                const cardCounts = find(
+                  cardCountsByCategory,
+                  (cc) => cc.scannerId === scannerId
+                );
+                const ballotCount = cardCounts ? getBallotCount(cardCounts) : 0;
                 return (
                   <tr key={scannerId} data-testid="table-row">
                     <TD narrow nowrap>
                       {scannerId}
                     </TD>
-                    <TD>{format.count(scannerBallotsCount)}</TD>
+                    <TD>{format.count(ballotCount)}</TD>
                     <TD>
-                      {scannerBallotsCount > 0 && (
-                        <LinkButton
-                          small
-                          to={routerPaths.tallyScannerReport({
-                            scannerId,
-                          })}
-                        >
-                          {statusPrefix} Scanner {scannerId} Tally Report
-                        </LinkButton>
-                      )}
+                      <LinkButton
+                        small
+                        to={routerPaths.tallyScannerReport({
+                          scannerId,
+                        })}
+                      >
+                        {statusPrefix} Scanner {scannerId} Tally Report
+                      </LinkButton>
                     </TD>
                   </tr>
                 );
               })}
-            {fullElectionManualTally ? (
+            {totalManualBallotCount ? (
               <tr data-testid="table-row" key="manual-data">
                 <TD narrow nowrap>
                   Manually Entered Results
                 </TD>
-                <TD>
-                  {format.count(
-                    fullElectionManualTally.overallTally.numberOfBallotsCounted
-                  )}
-                </TD>
+                <TD>{format.count(totalManualBallotCount)}</TD>
                 <TD />
               </tr>
             ) : null}
@@ -187,11 +186,7 @@ export function BallotCountsTable({
                 <strong>Total Ballot Count</strong>
               </TD>
               <TD>
-                <strong>
-                  {format.count(
-                    totalBallotCountInternal + totalBallotCountManual
-                  )}
-                </strong>
+                <strong>{format.count(totalBallotCount)}</strong>
               </TD>
               <TD />
             </tr>
@@ -200,11 +195,6 @@ export function BallotCountsTable({
       );
     }
     case TallyCategory.Party: {
-      const resultsByParty =
-        fullElectionTally?.resultsByCategory.get(TallyCategory.Party) || {};
-      const manualResultsByParty =
-        fullElectionManualTally?.resultsByCategory.get(TallyCategory.Party) ||
-        {};
       const partiesForPrimaries = getPartiesWithPrimaryElections(election);
       if (partiesForPrimaries.length === 0) {
         return null;
@@ -227,20 +217,16 @@ export function BallotCountsTable({
                 })
               )
               .map((party) => {
-                const partyBallotsCount =
-                  resultsByParty[party.id]?.numberOfBallotsCounted ?? 0;
-                const manualPartyBallotsCount =
-                  manualResultsByParty[party.id]?.numberOfBallotsCounted ?? 0;
+                const cardCounts = cardCountsByCategory.find(
+                  (cc) => cc.partyId === party.id
+                );
+                const ballotCount = cardCounts ? getBallotCount(cardCounts) : 0;
                 return (
                   <tr data-testid="table-row" key={party.id}>
                     <TD narrow nowrap>
                       {party.fullName}
                     </TD>
-                    <TD>
-                      {format.count(
-                        partyBallotsCount + manualPartyBallotsCount
-                      )}
-                    </TD>
+                    <TD>{format.count(ballotCount)}</TD>
                     <TD>
                       <LinkButton
                         small
@@ -260,9 +246,7 @@ export function BallotCountsTable({
               </TD>
               <TD>
                 <strong data-testid="total-ballot-count">
-                  {format.count(
-                    totalBallotCountInternal + totalBallotCountManual
-                  )}
+                  {format.count(totalBallotCount)}
                 </strong>
               </TD>
               <TD />
@@ -272,9 +256,6 @@ export function BallotCountsTable({
       );
     }
     case TallyCategory.VotingMethod: {
-      const resultsByVotingMethod =
-        fullElectionTally?.resultsByCategory.get(TallyCategory.VotingMethod) ||
-        {};
       return (
         <Table>
           <tbody>
@@ -286,20 +267,11 @@ export function BallotCountsTable({
               <TD as="th">Report</TD>
             </tr>
             {Object.values(VotingMethod).map((votingMethod) => {
-              const internalVotingMethodBallotsCount =
-                resultsByVotingMethod[votingMethod]?.numberOfBallotsCounted ??
-                0;
-              const manualVotingMethodBallotsCount =
-                votingMethod === fullElectionManualTally?.votingMethod
-                  ? fullElectionManualTally.overallTally.numberOfBallotsCounted
-                  : 0;
-              const votingMethodBallotsCount =
-                internalVotingMethodBallotsCount +
-                manualVotingMethodBallotsCount;
-              if (
-                votingMethod === VotingMethod.Unknown &&
-                votingMethodBallotsCount === 0
-              ) {
+              const cardCounts = cardCountsByCategory.find(
+                (cc) => cc.votingMethod === votingMethod
+              );
+              const ballotCount = cardCounts ? getBallotCount(cardCounts) : 0;
+              if (votingMethod === VotingMethod.Unknown && ballotCount === 0) {
                 return null;
               }
               const label = getLabelForVotingMethod(votingMethod);
@@ -308,7 +280,7 @@ export function BallotCountsTable({
                   <TD narrow nowrap>
                     {label}
                   </TD>
-                  <TD>{format.count(votingMethodBallotsCount)}</TD>
+                  <TD>{format.count(ballotCount)}</TD>
                   <TD>
                     <LinkButton
                       small
@@ -327,11 +299,7 @@ export function BallotCountsTable({
                 <strong>Total Ballot Count</strong>
               </TD>
               <TD>
-                <strong>
-                  {format.count(
-                    totalBallotCountInternal + totalBallotCountManual
-                  )}
-                </strong>
+                <strong>{format.count(totalBallotCount)}</strong>
               </TD>
               <TD />
             </tr>
@@ -380,17 +348,13 @@ export function BallotCountsTable({
                 </tr>
               );
             })}
-            {fullElectionManualTally ? (
+            {totalManualBallotCount ? (
               <tr data-testid="table-row" key="manual-data">
                 <TD narrow nowrap data-testid="batch-manual">
                   Manually Entered Results
                 </TD>
                 <TD />
-                <TD>
-                  {format.count(
-                    fullElectionManualTally.overallTally.numberOfBallotsCounted
-                  )}
-                </TD>
+                <TD>{format.count(totalManualBallotCount)}</TD>
                 <TD />
               </tr>
             ) : null}
@@ -400,11 +364,7 @@ export function BallotCountsTable({
               </TD>
               <TD />
               <TD>
-                <strong>
-                  {format.count(
-                    totalBallotCountInternal + totalBallotCountManual
-                  )}
-                </strong>
+                <strong>{format.count(totalBallotCount)}</strong>
               </TD>
               <TD>
                 <ExportBatchTallyResultsButton />
