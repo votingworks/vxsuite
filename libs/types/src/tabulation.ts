@@ -128,6 +128,7 @@ export type GroupOf<T> = T & GroupSpecifier;
 export type Grouped<T> = Record<GroupKey, GroupOf<T>>;
 
 export type GroupedElectionResults = Grouped<ElectionResults>;
+export type GroupedCardCounts = Grouped<CardCounts>;
 
 /**
  * Simplified representation of votes on a scanned ballot for tabulation
@@ -148,3 +149,7 @@ export type CastVoteRecord = {
 export type ManualElectionResults = Omit<ElectionResults, 'cardCounts'> & {
   ballotCount: number;
 };
+
+export type GroupedManualBallotCounts = Grouped<{
+  ballotCount: number;
+}>;

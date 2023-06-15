@@ -6,6 +6,7 @@ import { Store } from '../store';
 import {
   isFilterCompatibleWithManualResults,
   isGroupByCompatibleWithManualResults,
+  tabulateManualBallotCounts,
   tabulateManualResults,
 } from './manual_results';
 import { ManualResultsFilter, ManualResultsGroupBy } from '../types';
@@ -48,7 +49,7 @@ test('isGroupByCompatibleWithManualResults', () => {
   ).toEqual(true);
 });
 
-describe('queryManualResults', () => {
+describe('tabulateManualResults & tabulateManualBallotCounts', () => {
   test('on incompatible filter', () => {
     const store = Store.memoryStore();
     const electionId = store.addElection(
@@ -67,15 +68,23 @@ describe('queryManualResults', () => {
 
   test('on incompatible group by', () => {
     const store = Store.memoryStore();
-    const electionId = store.addElection(
-      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-    );
+    const { electionData, election } =
+      electionMinimalExhaustiveSampleFixtures.electionDefinition;
+    const electionId = store.addElection(electionData);
     store.setCurrentElectionId(electionId);
 
     expect(
       tabulateManualResults({
         electionId,
         store,
+        groupBy: { groupByBatch: true },
+      }).err()
+    ).toEqual({ type: 'incompatible-group-by' });
+
+    expect(
+      tabulateManualBallotCounts({
+        election,
+        manualResultsMetadataRecords: [],
         groupBy: { groupByBatch: true },
       }).err()
     ).toEqual({ type: 'incompatible-group-by' });
@@ -303,6 +312,30 @@ describe('queryManualResults', () => {
         expect(result.ok()[groupKey]).toEqual({
           ...groupSpecifier,
           ...getSimpleManualResultsFixture(ballotCount),
+        });
+      }
+
+      expect(Object.values(result.ok())).toHaveLength(
+        Object.values(expected).length
+      );
+    }
+
+    for (const { groupBy, expected } of testCases.filter(
+      (testCase) => testCase.filter === undefined
+    )) {
+      const result = tabulateManualBallotCounts({
+        election,
+        manualResultsMetadataRecords: store.getManualResultsMetadata({
+          electionId,
+        }),
+        groupBy,
+      });
+      assert(result.isOk());
+
+      for (const [groupKey, ballotCount, groupSpecifier] of expected) {
+        expect(result.ok()[groupKey]).toEqual({
+          ...groupSpecifier,
+          ballotCount,
         });
       }
 

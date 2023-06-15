@@ -64,6 +64,13 @@ export function getEmptyCandidateContestResults(
   };
 }
 
+export function getEmptyCardCounts(): Tabulation.CardCounts {
+  return {
+    bmd: 0,
+    hmpb: [],
+  };
+}
+
 /**
  * Generate an empty {@link Tabulation.ElectionResults} with empty tallies for
  * all contests in the election.
@@ -85,10 +92,7 @@ export function getEmptyElectionResults(
 
   return {
     contestResults,
-    cardCounts: {
-      bmd: 0,
-      hmpb: [],
-    },
+    cardCounts: getEmptyCardCounts(),
   };
 }
 
