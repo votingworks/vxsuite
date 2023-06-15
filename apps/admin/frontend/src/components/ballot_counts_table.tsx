@@ -2,11 +2,7 @@ import React, { useContext } from 'react';
 import { format, getBallotCount } from '@votingworks/utils';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { LinkButton, Table, TD } from '@votingworks/ui';
-import {
-  TallyCategory,
-  VotingMethod,
-  getLabelForVotingMethod,
-} from '@votingworks/types';
+import { Tabulation, TallyCategory } from '@votingworks/types';
 
 import { getPartiesWithPrimaryElections } from '../utils/election';
 
@@ -14,7 +10,11 @@ import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
 import { ExportBatchTallyResultsButton } from './export_batch_tally_results_button';
 import { routerPaths } from '../router_paths';
-import { getCardCounts, getScannerBatches } from '../api';
+import {
+  getCardCounts,
+  getManualResultsMetadata,
+  getScannerBatches,
+} from '../api';
 
 export interface Props {
   breakdownCategory: TallyCategory;
@@ -37,22 +37,35 @@ export function BallotCountsTable({
     },
   });
   const scannerBatchesQuery = getScannerBatches.useQuery();
+  const manualResultsMetadataQuery = getManualResultsMetadata.useQuery();
 
-  if (!cardCountsQuery.isSuccess || !scannerBatchesQuery.isSuccess) {
+  if (
+    !cardCountsQuery.isSuccess ||
+    !scannerBatchesQuery.isSuccess ||
+    !manualResultsMetadataQuery.isSuccess
+  ) {
     return <Loading />;
   }
 
   const cardCountsByCategory = cardCountsQuery.data;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
 
-  const totalBallotCount = cardCountsByCategory.reduce(
+  // depending on the category, combinedCategoryBallotCount may or may not include manual
+  // counts. specifically, it is not included for batch and scanner categories.
+  const combinedCategoryBallotCount = cardCountsByCategory.reduce(
     (total, cardCounts) => total + getBallotCount(cardCounts),
     0
   );
-  const totalManualBallotCount = cardCountsByCategory.reduce(
-    (total, cardCounts) => total + (cardCounts.manual ?? 0),
+  const totalManualBallotCount = manualResultsMetadataQuery.data.reduce(
+    (total, metadata) => total + metadata.ballotCount,
     0
   );
+
+  const totalBallotCount =
+    breakdownCategory === TallyCategory.Batch ||
+    breakdownCategory === TallyCategory.Scanner
+      ? combinedCategoryBallotCount + totalManualBallotCount
+      : combinedCategoryBallotCount;
 
   switch (breakdownCategory) {
     case TallyCategory.Precinct: {
@@ -185,9 +198,6 @@ export function BallotCountsTable({
     }
     case TallyCategory.Party: {
       const partiesForPrimaries = getPartiesWithPrimaryElections(election);
-      if (partiesForPrimaries.length === 0) {
-        return null;
-      }
 
       return (
         <Table>
@@ -245,6 +255,7 @@ export function BallotCountsTable({
       );
     }
     case TallyCategory.VotingMethod: {
+      const votingMethods: Tabulation.VotingMethod[] = ['absentee', 'precinct'];
       return (
         <Table>
           <tbody>
@@ -255,15 +266,14 @@ export function BallotCountsTable({
               <TD as="th">Ballot Count</TD>
               <TD as="th">Report</TD>
             </tr>
-            {Object.values(VotingMethod).map((votingMethod) => {
+            {votingMethods.map((votingMethod) => {
               const cardCounts = cardCountsByCategory.find(
                 (cc) => cc.votingMethod === votingMethod
               );
               const ballotCount = cardCounts ? getBallotCount(cardCounts) : 0;
-              if (votingMethod === VotingMethod.Unknown && ballotCount === 0) {
-                return null;
-              }
-              const label = getLabelForVotingMethod(votingMethod);
+
+              const label =
+                votingMethod === 'absentee' ? 'Absentee' : 'Precinct';
               return (
                 <tr key={votingMethod} data-testid="table-row">
                   <TD narrow nowrap>
