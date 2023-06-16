@@ -6,6 +6,7 @@ import { LogoMark } from '../logo_mark';
 import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestResultsTable } from './contest_results_table';
 import { Prose } from '../prose';
+import { TallyReportCardCounts } from './tally_report_card_counts';
 
 export interface AdminTallyReportProps {
   title: string;
@@ -28,6 +29,13 @@ export function AdminTallyReport({
   manualElectionResults,
   generatedAtTime = new Date(),
 }: AdminTallyReportProps): JSX.Element {
+  const cardCounts = manualElectionResults
+    ? {
+        ...scannedElectionResults.cardCounts,
+        manual: manualElectionResults.ballotCount,
+      }
+    : scannedElectionResults.cardCounts;
+
   return (
     <TallyReport key={key} data-testid={key}>
       <ReportSection>
@@ -41,6 +49,7 @@ export function AdminTallyReport({
           />
         </Prose>
         <TallyReportColumns>
+          <TallyReportCardCounts cardCounts={cardCounts} />
           {contests.map((contest) => {
             const scannedContestResults =
               scannedElectionResults.contestResults[contest.id];

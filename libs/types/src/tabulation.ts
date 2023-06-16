@@ -112,7 +112,7 @@ export interface GroupBy {
  */
 export interface CardCounts {
   bmd: number;
-  hmpb: number[];
+  hmpb: Array<number | undefined>;
   manual?: number;
 }
 

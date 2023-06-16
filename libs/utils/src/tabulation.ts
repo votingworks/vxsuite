@@ -458,6 +458,17 @@ export function getBallotCount(cardCounts: Tabulation.CardCounts): number {
 }
 
 /**
+ * Counts the number of sheets that have been scanned based on the card counts.
+ * Simply ignores the manual count.
+ */
+export function getSheetCount(cardCounts: Tabulation.CardCounts): number {
+  return (
+    cardCounts.bmd +
+    cardCounts.hmpb.reduce((acc: number, count) => acc + (count ?? 0), 0)
+  );
+}
+
+/**
  * Combines contest results for yes/no contests. If an empty list is passed,
  * returns empty (all zero) contest results.
  */

@@ -35,6 +35,7 @@ import {
   getGroupKey,
   getGroupSpecifierFromGroupKey,
   groupMapToGroupList,
+  getSheetCount,
 } from './tabulation';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from './filenames';
 import {
@@ -443,6 +444,34 @@ test('getBallotCount', () => {
       manual: 7,
     })
   ).toEqual(22);
+});
+
+test('getSheetCount', () => {
+  expect(
+    getSheetCount({
+      bmd: 3,
+      hmpb: [20],
+    })
+  ).toEqual(23);
+  expect(
+    getSheetCount({
+      bmd: 3,
+      hmpb: [20, 35],
+    })
+  ).toEqual(58);
+  expect(
+    getSheetCount({
+      bmd: 3,
+      hmpb: [20, undefined, 1] as number[],
+    })
+  ).toEqual(24);
+  expect(
+    getSheetCount({
+      bmd: 3,
+      hmpb: [20],
+      manual: 56,
+    })
+  ).toEqual(23);
 });
 
 test('isGroupByEmpty', () => {
