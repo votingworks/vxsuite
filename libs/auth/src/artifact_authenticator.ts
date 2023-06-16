@@ -26,6 +26,7 @@ import {
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
 } from './openssl';
+import { runCommand } from './shell';
 
 /**
  * A machine-exported artifact whose authenticity we want to be able to verify
@@ -59,6 +60,7 @@ export interface ArtifactAuthenticatorApi {
  * The implementation of the artifact authenticator API
  */
 export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
+  private readonly isFileOnRemovableDevice: (filePath: string) => boolean;
   private readonly signingMachineCertPath: string;
   private readonly signingMachinePrivateKey: FileKey | TpmKey;
   private readonly vxCertAuthorityCertPath: string;
@@ -68,6 +70,10 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
     /* istanbul ignore next */
     input: ArtifactAuthenticatorConfig = constructArtifactAuthenticatorConfig()
   ) {
+    this.isFileOnRemovableDevice =
+      input.isFileOnRemovableDeviceOverride ??
+      /* istanbul ignore next */ ((filePath: string) =>
+        path.normalize(filePath).startsWith('/media/'));
     this.signingMachineCertPath = input.signingMachineCertPath;
     this.signingMachinePrivateKey = input.signingMachinePrivateKey;
     this.vxCertAuthorityCertPath = input.vxCertAuthorityCertPath;
@@ -83,13 +89,23 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
     artifact: Artifact,
     signatureFileDirectory: string = path.dirname(artifact.path)
   ): Promise<void> {
+    const signatureFilePath = this.constructSignatureFilePath(
+      artifact,
+      signatureFileDirectory
+    );
     const artifactSignatureBundle = await this.constructArtifactSignatureBundle(
       artifact
     );
     await fs.writeFile(
-      this.constructSignatureFilePath(artifact, signatureFileDirectory),
+      signatureFilePath,
       this.serializeArtifactSignatureBundle(artifactSignatureBundle)
     );
+
+    // If writing to a USB drive (or any removable device), ensure that data is flushed to the
+    // device before it's removed
+    if (this.isFileOnRemovableDevice(signatureFilePath)) {
+      await runCommand(['sync', '-f', signatureFilePath]);
+    }
   }
 
   /**
@@ -101,8 +117,9 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
     artifact: Artifact
   ): Promise<Result<void, Error>> {
     try {
+      const signatureFilePath = this.constructSignatureFilePath(artifact);
       const artifactSignatureBundle = this.deserializeArtifactSignatureBundle(
-        await fs.readFile(this.constructSignatureFilePath(artifact))
+        await fs.readFile(signatureFilePath)
       );
       await this.authenticateArtifactUsingArtifactSignatureBundle(
         artifact,

@@ -151,7 +151,7 @@ export class JavaCard implements Card {
   private readonly cardReader: CardReader;
   // See TestJavaCard in test/utils.ts to understand why this is protected instead of private
   protected cardStatus: CardStatus;
-  private readonly customChallengeGenerator?: () => string;
+  private readonly generateChallenge: () => string;
   private readonly vxCertAuthorityCertPath: string;
 
   constructor(
@@ -161,7 +161,10 @@ export class JavaCard implements Card {
   ) {
     this.cardProgrammingConfig = input.cardProgrammingConfig;
     this.cardStatus = { status: 'no_card' };
-    this.customChallengeGenerator = input.customChallengeGenerator;
+    this.generateChallenge =
+      input.generateChallengeOverride ??
+      /* istanbul ignore next */ (() =>
+        `VotingWorks/${new Date().toISOString()}/${uuid()}`);
     this.vxCertAuthorityCertPath = input.vxCertAuthorityCertPath;
 
     this.cardReader = new CardReader({
@@ -546,9 +549,7 @@ export class JavaCard implements Card {
     }
 
     // Have the private key sign a "challenge"
-    const challenge = this.customChallengeGenerator
-      ? this.customChallengeGenerator()
-      : /* istanbul ignore next */ `VotingWorks/${new Date().toISOString()}/${uuid()}`;
+    const challenge = this.generateChallenge();
     const challengeHash = Buffer.from(sha256(challenge), 'hex');
     const generalAuthenticateResponse = await this.cardReader.transmit(
       new CardCommand({

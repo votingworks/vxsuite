@@ -6,6 +6,7 @@ import { err, ok } from '@votingworks/basics';
 import { getTestFilePath } from '../test/utils';
 import { Artifact, ArtifactAuthenticator } from './artifact_authenticator';
 import { ArtifactAuthenticatorConfig } from './config';
+import * as shell from './shell';
 
 let tempDirectoryPath: string;
 let tempFile1Path: string;
@@ -26,6 +27,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  jest.restoreAllMocks(); // Clear spies
   fs.rmSync(tempDirectoryPath, { recursive: true });
 });
 
@@ -166,3 +168,23 @@ test.each<{
     );
   }
 );
+
+test('Writing signature file to a USB drive', async () => {
+  const mockUsbDriveMountPoint = path.join(tempDirectoryPath, 'usb-drive');
+  fs.mkdirSync(mockUsbDriveMountPoint);
+  jest.spyOn(shell, 'runCommand');
+
+  await new ArtifactAuthenticator({
+    ...vxScanTestConfig,
+    isFileOnRemovableDeviceOverride: (filePath: string) =>
+      filePath.startsWith(mockUsbDriveMountPoint),
+  }).writeSignatureFile(
+    { type: 'cast_vote_records', path: tempDirectoryPath },
+    mockUsbDriveMountPoint
+  );
+  expect(shell.runCommand).toHaveBeenCalledWith([
+    'sync',
+    '-f',
+    expect.stringMatching(new RegExp(`^${mockUsbDriveMountPoint}`)),
+  ]);
+});
