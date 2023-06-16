@@ -1,4 +1,5 @@
 import fs from 'fs';
+import fsPromises from 'fs/promises';
 import path from 'path';
 import { dirSync } from 'tmp';
 import { err, ok } from '@votingworks/basics';
@@ -26,6 +27,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  jest.restoreAllMocks(); // Clear spies
   fs.rmSync(tempDirectoryPath, { recursive: true });
 });
 
@@ -166,3 +168,24 @@ test.each<{
     );
   }
 );
+
+test('Writing signature file to a USB drive', async () => {
+  // Mock writeFile since we don't want this test to actually write to /media
+  jest
+    .spyOn(fsPromises, 'writeFile')
+    .mockImplementationOnce(() => Promise.resolve());
+  const customDataFlusher = jest.fn();
+
+  await new ArtifactAuthenticator({
+    ...vxScanTestConfig,
+    customDataFlusher,
+  }).writeSignatureFile(
+    { type: 'cast_vote_records', path: tempDirectoryPath },
+    '/media/usb-drive'
+  );
+  expect(customDataFlusher).toHaveBeenCalledTimes(1);
+  expect(customDataFlusher).toHaveBeenNthCalledWith(
+    1,
+    `/media/usb-drive/${path.basename(tempDirectoryPath)}.vxsig`
+  );
+});
