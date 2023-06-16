@@ -26,6 +26,7 @@ import {
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
 } from './openssl';
+import { runCommand } from './shell';
 
 /**
  * A machine-exported artifact whose authenticity we want to be able to verify
@@ -55,10 +56,16 @@ export interface ArtifactAuthenticatorApi {
   ): Promise<Result<void, Error>>;
 }
 
+/* istanbul ignore next */
+async function flushData(filePath: string): Promise<void> {
+  await runCommand(['sync', '-f', filePath]);
+}
+
 /**
  * The implementation of the artifact authenticator API
  */
 export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
+  private readonly flushData: (filePath: string) => Promise<void>;
   private readonly signingMachineCertPath: string;
   private readonly signingMachinePrivateKey: FileKey | TpmKey;
   private readonly vxCertAuthorityCertPath: string;
@@ -68,6 +75,7 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
     /* istanbul ignore next */
     input: ArtifactAuthenticatorConfig = constructArtifactAuthenticatorConfig()
   ) {
+    this.flushData = input.customDataFlusher ?? flushData;
     this.signingMachineCertPath = input.signingMachineCertPath;
     this.signingMachinePrivateKey = input.signingMachinePrivateKey;
     this.vxCertAuthorityCertPath = input.vxCertAuthorityCertPath;
@@ -83,13 +91,23 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
     artifact: Artifact,
     signatureFileDirectory: string = path.dirname(artifact.path)
   ): Promise<void> {
+    const signatureFilePath = this.constructSignatureFilePath(
+      artifact,
+      signatureFileDirectory
+    );
     const artifactSignatureBundle = await this.constructArtifactSignatureBundle(
       artifact
     );
     await fs.writeFile(
-      this.constructSignatureFilePath(artifact, signatureFileDirectory),
+      signatureFilePath,
       this.serializeArtifactSignatureBundle(artifactSignatureBundle)
     );
+
+    // If writing to a USB drive (or any removable device), ensure that data is flushed to the
+    // device before it's removed
+    if (path.normalize(signatureFilePath).startsWith('/media/')) {
+      await this.flushData(signatureFilePath);
+    }
   }
 
   /**
@@ -101,8 +119,9 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
     artifact: Artifact
   ): Promise<Result<void, Error>> {
     try {
+      const signatureFilePath = this.constructSignatureFilePath(artifact);
       const artifactSignatureBundle = this.deserializeArtifactSignatureBundle(
-        await fs.readFile(this.constructSignatureFilePath(artifact))
+        await fs.readFile(signatureFilePath)
       );
       await this.authenticateArtifactUsingArtifactSignatureBundle(
         artifact,
