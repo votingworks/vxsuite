@@ -92,12 +92,12 @@ const electionManagerUser = fakeElectionManagerUser({ electionHash });
 const pollWorkerUser = fakePollWorkerUser({ electionHash });
 
 const mockChallenge = 'VotingWorks';
-function customChallengeGenerator(): string {
+function generateChallengeOverride(): string {
   return mockChallenge;
 }
 
 const config: JavaCardConfig = {
-  customChallengeGenerator,
+  generateChallengeOverride,
   vxCertAuthorityCertPath: getTestFilePath({
     fileType: 'vx-cert-authority-cert.pem',
   }),
@@ -331,7 +331,7 @@ function mockCardPutDataRequest(dataObjectId: Buffer, data: Buffer): void {
 
 test('Non-ready card statuses', async () => {
   const javaCard = new JavaCard({
-    customChallengeGenerator,
+    generateChallengeOverride,
     vxCertAuthorityCertPath: getTestFilePath({
       fileType: 'vx-cert-authority-cert.pem',
     }),
@@ -573,7 +573,7 @@ test.each<{
     expectedCardDetails,
   }) => {
     const javaCard = new JavaCard({
-      customChallengeGenerator,
+      generateChallengeOverride,
       vxCertAuthorityCertPath: getTestFilePath({
         setId: vxCertAuthorityCert,
         fileType: 'vx-cert-authority-cert.pem',

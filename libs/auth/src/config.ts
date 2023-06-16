@@ -59,7 +59,7 @@ export interface JavaCardConfig {
   vxCertAuthorityCertPath: string;
 
   /** Only tests should provide this param, to make challenge generation non-random */
-  customChallengeGenerator?: () => string;
+  generateChallengeOverride?: () => string;
 }
 
 /**
@@ -91,8 +91,8 @@ export interface ArtifactAuthenticatorConfig {
   signingMachinePrivateKey: FileKey | TpmKey;
   vxCertAuthorityCertPath: string;
 
-  /** Only tests should provide this param, to simplify mocking */
-  customDataFlusher?: (filePath: string) => Promise<void>;
+  /** Only tests should provide this param */
+  isFileOnRemovableDeviceOverride?: (filePath: string) => boolean;
 }
 
 /**

@@ -1,5 +1,4 @@
 import fs from 'fs';
-import fsPromises from 'fs/promises';
 import path from 'path';
 import { dirSync } from 'tmp';
 import { err, ok } from '@votingworks/basics';
@@ -7,6 +6,7 @@ import { err, ok } from '@votingworks/basics';
 import { getTestFilePath } from '../test/utils';
 import { Artifact, ArtifactAuthenticator } from './artifact_authenticator';
 import { ArtifactAuthenticatorConfig } from './config';
+import * as shell from './shell';
 
 let tempDirectoryPath: string;
 let tempFile1Path: string;
@@ -170,22 +170,21 @@ test.each<{
 );
 
 test('Writing signature file to a USB drive', async () => {
-  // Mock writeFile since we don't want this test to actually write to /media
-  jest
-    .spyOn(fsPromises, 'writeFile')
-    .mockImplementationOnce(() => Promise.resolve());
-  const customDataFlusher = jest.fn();
+  const mockUsbDriveMountPoint = path.join(tempDirectoryPath, 'usb-drive');
+  fs.mkdirSync(mockUsbDriveMountPoint);
+  jest.spyOn(shell, 'runCommand');
 
   await new ArtifactAuthenticator({
     ...vxScanTestConfig,
-    customDataFlusher,
+    isFileOnRemovableDeviceOverride: (filePath: string) =>
+      filePath.startsWith(mockUsbDriveMountPoint),
   }).writeSignatureFile(
     { type: 'cast_vote_records', path: tempDirectoryPath },
-    '/media/usb-drive'
+    mockUsbDriveMountPoint
   );
-  expect(customDataFlusher).toHaveBeenCalledTimes(1);
-  expect(customDataFlusher).toHaveBeenNthCalledWith(
-    1,
-    `/media/usb-drive/${path.basename(tempDirectoryPath)}.vxsig`
-  );
+  expect(shell.runCommand).toHaveBeenCalledWith([
+    'sync',
+    '-f',
+    expect.stringMatching(new RegExp(`^${mockUsbDriveMountPoint}`)),
+  ]);
 });

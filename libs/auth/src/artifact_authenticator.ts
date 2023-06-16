@@ -56,16 +56,11 @@ export interface ArtifactAuthenticatorApi {
   ): Promise<Result<void, Error>>;
 }
 
-/* istanbul ignore next */
-async function flushData(filePath: string): Promise<void> {
-  await runCommand(['sync', '-f', filePath]);
-}
-
 /**
  * The implementation of the artifact authenticator API
  */
 export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
-  private readonly flushData: (filePath: string) => Promise<void>;
+  private readonly isFileOnRemovableDevice: (filePath: string) => boolean;
   private readonly signingMachineCertPath: string;
   private readonly signingMachinePrivateKey: FileKey | TpmKey;
   private readonly vxCertAuthorityCertPath: string;
@@ -75,7 +70,10 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
     /* istanbul ignore next */
     input: ArtifactAuthenticatorConfig = constructArtifactAuthenticatorConfig()
   ) {
-    this.flushData = input.customDataFlusher ?? flushData;
+    this.isFileOnRemovableDevice =
+      input.isFileOnRemovableDeviceOverride ??
+      /* istanbul ignore next */ ((filePath: string) =>
+        path.normalize(filePath).startsWith('/media/'));
     this.signingMachineCertPath = input.signingMachineCertPath;
     this.signingMachinePrivateKey = input.signingMachinePrivateKey;
     this.vxCertAuthorityCertPath = input.vxCertAuthorityCertPath;
@@ -105,8 +103,8 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
 
     // If writing to a USB drive (or any removable device), ensure that data is flushed to the
     // device before it's removed
-    if (path.normalize(signatureFilePath).startsWith('/media/')) {
-      await this.flushData(signatureFilePath);
+    if (this.isFileOnRemovableDevice(signatureFilePath)) {
+      await runCommand(['sync', '-f', signatureFilePath]);
     }
   }
 

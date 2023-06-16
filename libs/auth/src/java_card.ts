@@ -141,11 +141,6 @@ export const GENERIC_STORAGE_SPACE = {
   ],
 } as const;
 
-/* istanbul ignore next */
-function generateChallenge(): string {
-  return `VotingWorks/${new Date().toISOString()}/${uuid()}`;
-}
-
 /**
  * An implementation of the card API that uses a Java Card running our fork of the OpenFIPS201
  * applet (https://github.com/votingworks/openfips201) and X.509 certs. The implementation takes
@@ -167,8 +162,9 @@ export class JavaCard implements Card {
     this.cardProgrammingConfig = input.cardProgrammingConfig;
     this.cardStatus = { status: 'no_card' };
     this.generateChallenge =
-      input.customChallengeGenerator ??
-      /* istanbul ignore next */ generateChallenge;
+      input.generateChallengeOverride ??
+      /* istanbul ignore next */ (() =>
+        `VotingWorks/${new Date().toISOString()}/${uuid()}`);
     this.vxCertAuthorityCertPath = input.vxCertAuthorityCertPath;
 
     this.cardReader = new CardReader({
