@@ -741,3 +741,21 @@ export function mergeManualWriteInTallies(
     contestResults: newElectionContestResults,
   };
 }
+
+export function mergeTabulationGroups<T, U, V>(
+  groupedT: Tabulation.Grouped<T>,
+  groupedU: Tabulation.Grouped<U>,
+  merge: (
+    t?: Tabulation.GroupOf<T>,
+    u?: Tabulation.GroupOf<U>
+  ) => Tabulation.GroupOf<V>
+): Tabulation.Grouped<V> {
+  const merged: Tabulation.Grouped<V> = {};
+  const allGroupKeys = [
+    ...new Set([...Object.keys(groupedT), ...Object.keys(groupedU)]),
+  ];
+  for (const groupKey of allGroupKeys) {
+    merged[groupKey] = merge(groupedT[groupKey], groupedU[groupKey]);
+  }
+  return merged;
+}

@@ -31,6 +31,7 @@ import {
   convertManualElectionResults,
   combineElectionResults,
   mergeManualWriteInTallies,
+  mergeTabulationGroups,
 } from './tabulation';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from './filenames';
 import {
@@ -1125,4 +1126,47 @@ test('mergeManualWriteInTallies', () => {
       },
     })
   );
+});
+
+test('mergeTabulationGroups', () => {
+  const revenues: Tabulation.Grouped<{ count: number }> = {
+    a: {
+      count: 5,
+    },
+    b: {
+      count: 10,
+    },
+    c: {
+      count: 15,
+    },
+    e: {
+      count: 20,
+    },
+  };
+
+  const expenses: Tabulation.Grouped<{ count: number }> = {
+    b: {
+      count: 7,
+    },
+    c: {
+      count: 14,
+    },
+    d: {
+      count: 21,
+    },
+  };
+
+  expect(
+    mergeTabulationGroups(
+      revenues,
+      expenses,
+      (revenue, expense) => (revenue?.count ?? 0) - (expense?.count ?? 0)
+    )
+  ).toEqual({
+    a: 5,
+    b: 3,
+    c: 1,
+    d: -21,
+    e: 20,
+  });
 });

@@ -6,6 +6,7 @@ import {
   getEmptyCardCounts,
   getGroupKey,
   isGroupByEmpty,
+  mergeTabulationGroups,
 } from '@votingworks/utils';
 import { CardTally } from '../types';
 import { Store } from '../store';
@@ -128,21 +129,14 @@ export function tabulateFullCardCounts({
 
   const groupedManualBallotCounts = tabulateManualBallotCountsResult.ok();
 
-  const groupedFullCardCounts: Tabulation.GroupedCardCounts = {};
-
-  const allKeys = [
-    ...new Set([
-      ...Object.keys(groupedScannedCardCounts),
-      ...Object.keys(groupedManualBallotCounts),
-    ]),
-  ];
-
-  for (const key of allKeys) {
-    groupedFullCardCounts[key] = {
-      ...(groupedScannedCardCounts[key] ?? getEmptyCardCounts()),
-      manual: groupedManualBallotCounts[key]?.ballotCount ?? 0,
-    };
-  }
-
-  return groupedFullCardCounts;
+  return mergeTabulationGroups(
+    groupedScannedCardCounts,
+    groupedManualBallotCounts,
+    (scannedCardCounts, manualBallotCount) => {
+      return {
+        ...(scannedCardCounts ?? getEmptyCardCounts()),
+        manual: manualBallotCount?.ballotCount ?? 0,
+      };
+    }
+  );
 }
