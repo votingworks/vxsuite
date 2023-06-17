@@ -785,16 +785,16 @@ export function buildElectionResultsFixture({
 }
 
 /**
- * Combine all specific write-ins entered for manual results into a single
+ * Combine all specific write-ins for specific candidates into a single
  * generic write-in tally.
  */
-export function mergeManualWriteInTallies(
-  manualResults: Tabulation.ManualElectionResults
-): Tabulation.ManualElectionResults {
+export function mergeWriteInTallies<
+  T extends Pick<Tabulation.ElectionResults, 'contestResults'>
+>(anyResults: T): T {
   const newElectionContestResults: Tabulation.ManualElectionResults['contestResults'] =
     {};
 
-  for (const contestResults of Object.values(manualResults.contestResults)) {
+  for (const contestResults of Object.values(anyResults.contestResults)) {
     if (contestResults.contestType === 'yesno') {
       newElectionContestResults[contestResults.contestId] = contestResults;
       continue;
@@ -825,7 +825,8 @@ export function mergeManualWriteInTallies(
   }
 
   return {
-    ...manualResults,
+    // eslint-disable-next-line vx/gts-spread-like-types
+    ...anyResults,
     contestResults: newElectionContestResults,
   };
 }

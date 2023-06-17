@@ -2,17 +2,19 @@ import { Id, Tabulation } from '@votingworks/types';
 import {
   combineElectionResults,
   convertManualElectionResults,
-  mergeManualWriteInTallies,
+  getEmptyElectionResults,
+  mergeWriteInTallies,
   mergeTabulationGroupMaps,
   tabulateCastVoteRecords as tabulateFilteredCastVoteRecords,
 } from '@votingworks/utils';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, mapObject } from '@votingworks/basics';
 import { Store } from '../store';
 import {
   modifyElectionResultsWithWriteInSummary,
   tabulateWriteInTallies,
 } from './write_ins';
 import { tabulateManualResults } from './manual_results';
+import { TallyReportResults } from '../types';
 
 /**
  * Tabulate cast vote records with no write-in adjudication information.
@@ -121,9 +123,7 @@ export function tabulateElectionResults({
               );
             } else {
               resultsToCombine.push(
-                convertManualElectionResults(
-                  mergeManualWriteInTallies(manualResults)
-                )
+                convertManualElectionResults(mergeWriteInTallies(manualResults))
               );
             }
           }
@@ -137,4 +137,63 @@ export function tabulateElectionResults({
   }
 
   return groupedElectionResults;
+}
+
+/**
+ * Tabulates grouped tally reports for an election. This includes scanned results
+ * adjusted with write-in adjudication data (but combining all unofficial write-ins)
+ * and manual results separately.
+ */
+export function tabulateTallyReportResults({
+  electionId,
+  store,
+  filter = {},
+  groupBy = {},
+}: {
+  electionId: Id;
+  store: Store;
+  filter?: Tabulation.Filter;
+  groupBy?: Tabulation.GroupBy;
+}): Tabulation.GroupMap<TallyReportResults> {
+  const {
+    electionDefinition: { election },
+  } = assertDefined(store.getElection(electionId));
+
+  const groupedScannedResults = mapObject(
+    tabulateElectionResults({
+      electionId,
+      store,
+      filter,
+      groupBy,
+      includeWriteInAdjudicationResults: true,
+      includeManualResults: false,
+    }),
+    mergeWriteInTallies
+  );
+  const manualResultsTabulationResult = tabulateManualResults({
+    electionId,
+    store,
+    filter,
+    groupBy,
+  });
+
+  if (manualResultsTabulationResult.isErr()) {
+    return mapObject(groupedScannedResults, (scannedResults) => ({
+      scannedResults,
+    }));
+  }
+
+  return mergeTabulationGroupMaps(
+    groupedScannedResults,
+    manualResultsTabulationResult.ok(),
+    (scannedResults, manualResults) => {
+      return {
+        scannedResults:
+          scannedResults ?? getEmptyElectionResults(election, true),
+        manualResults: manualResults
+          ? mergeWriteInTallies(manualResults)
+          : undefined,
+      };
+    }
+  );
 }

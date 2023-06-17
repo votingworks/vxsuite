@@ -30,7 +30,7 @@ import {
   combineCardCounts,
   convertManualElectionResults,
   combineElectionResults,
-  mergeManualWriteInTallies,
+  mergeWriteInTallies,
   mergeTabulationGroupMaps,
   getGroupKey,
   getGroupSpecifierFromGroupKey,
@@ -1110,7 +1110,7 @@ test('mergeManualWriteInTallies', () => {
   const { election } = electionMinimalExhaustiveSampleDefinition;
 
   expect(
-    mergeManualWriteInTallies(
+    mergeWriteInTallies(
       buildManualResultsFixture({
         election,
         ballotCount: 7,
