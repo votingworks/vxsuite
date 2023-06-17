@@ -232,98 +232,92 @@ test('tabulateWriteInTallies', () => {
   const testCases: Array<{
     filter?: Tabulation.Filter;
     groupBy?: Tabulation.GroupBy;
-    expected: Array<
-      [
-        groupKey: Tabulation.GroupKey,
-        tally: number,
-        groupSpecifier: Tabulation.GroupSpecifier
-      ]
-    >;
+    expected: Array<[groupKey: Tabulation.GroupKey, tally: number]>;
   }> = [
     // no filter case
     {
-      expected: [['root', 83, {}]],
+      expected: [['root', 83]],
     },
     // each filter case
     {
       filter: { precinctIds: ['precinct-2'] },
-      expected: [['root', 55, {}]],
+      expected: [['root', 55]],
     },
     {
       filter: { scannerIds: ['scanner-2'] },
-      expected: [['root', 21, {}]],
+      expected: [['root', 21]],
     },
     {
       filter: { batchIds: ['batch-2-1', 'batch-3-1'] },
-      expected: [['root', 43, {}]],
+      expected: [['root', 43]],
     },
     {
       filter: { votingMethods: ['precinct'] },
-      expected: [['root', 68, {}]],
+      expected: [['root', 68]],
     },
     {
       filter: { ballotStyleIds: ['1M'] },
-      expected: [['root', 45, {}]],
+      expected: [['root', 45]],
     },
     {
       filter: { partyIds: ['0'] },
-      expected: [['root', 45, {}]],
+      expected: [['root', 45]],
     },
     // empty filter case
     {
       filter: { partyIds: [] },
-      expected: [['root', 0, {}]],
+      expected: [['root', 0]],
     },
     // trivial filter case
     {
       filter: { partyIds: ['0', '1'] },
-      expected: [['root', 83, {}]],
+      expected: [['root', 83]],
     },
     // each group case
     {
       groupBy: { groupByBallotStyle: true },
       expected: [
-        ['root&1M', 45, { ballotStyleId: '1M' }],
-        ['root&2F', 38, { ballotStyleId: '2F' }],
+        ['root&ballotStyleId=1M', 45],
+        ['root&ballotStyleId=2F', 38],
       ],
     },
     {
       groupBy: { groupByParty: true },
       expected: [
-        ['root&0', 45, { partyId: '0' }],
-        ['root&1', 38, { partyId: '1' }],
+        ['root&partyId=0', 45],
+        ['root&partyId=1', 38],
       ],
     },
     {
       groupBy: { groupByBatch: true },
       expected: [
-        ['root&batch-1-1', 11, { batchId: 'batch-1-1' }],
-        ['root&batch-1-2', 17, { batchId: 'batch-1-2' }],
-        ['root&batch-2-1', 9, { batchId: 'batch-2-1' }],
-        ['root&batch-2-2', 12, { batchId: 'batch-2-2' }],
-        ['root&batch-3-1', 34, { batchId: 'batch-3-1' }],
+        ['root&batchId=batch-1-1', 11],
+        ['root&batchId=batch-1-2', 17],
+        ['root&batchId=batch-2-1', 9],
+        ['root&batchId=batch-2-2', 12],
+        ['root&batchId=batch-3-1', 34],
       ],
     },
     {
       groupBy: { groupByScanner: true },
       expected: [
-        ['root&scanner-1', 28, { scannerId: 'scanner-1' }],
-        ['root&scanner-2', 21, { scannerId: 'scanner-2' }],
-        ['root&scanner-3', 34, { scannerId: 'scanner-3' }],
+        ['root&scannerId=scanner-1', 28],
+        ['root&scannerId=scanner-2', 21],
+        ['root&scannerId=scanner-3', 34],
       ],
     },
     {
       groupBy: { groupByPrecinct: true },
       expected: [
-        ['root&precinct-1', 28, { precinctId: 'precinct-1' }],
-        ['root&precinct-2', 55, { precinctId: 'precinct-2' }],
+        ['root&precinctId=precinct-1', 28],
+        ['root&precinctId=precinct-2', 55],
       ],
     },
     {
       groupBy: { groupByVotingMethod: true },
       expected: [
-        ['root&precinct', 68, { votingMethod: 'precinct' }],
-        ['root&absentee', 15, { votingMethod: 'absentee' }],
+        ['root&votingMethod=precinct', 68],
+        ['root&votingMethod=absentee', 15],
       ],
     },
   ];
@@ -336,11 +330,10 @@ test('tabulateWriteInTallies', () => {
       groupBy,
     });
 
-    for (const [groupKey, tally, groupSpecifier] of expected) {
-      expect(groupedWriteInSummaries[groupKey]).toEqual({
-        ...getMockElectionWriteInSummary(tally),
-        ...groupSpecifier,
-      });
+    for (const [groupKey, tally] of expected) {
+      expect(groupedWriteInSummaries[groupKey]).toEqual(
+        getMockElectionWriteInSummary(tally)
+      );
     }
 
     expect(Object.values(groupedWriteInSummaries)).toHaveLength(

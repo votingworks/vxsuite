@@ -163,7 +163,7 @@ export function tabulateWriteInTallies({
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-}): Tabulation.Grouped<ElectionWriteInSummary> {
+}): Tabulation.GroupMap<ElectionWriteInSummary> {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
@@ -175,10 +175,8 @@ export function tabulateWriteInTallies({
     groupBy,
   });
 
-  const groupedElectionWriteInSummaries: Record<
-    string,
-    ElectionWriteInSummary
-  > = {};
+  const electionWriteInSummaryGroupMap: Record<string, ElectionWriteInSummary> =
+    {};
 
   // optimized special case, when the results do not need to be grouped
   if (!groupBy || isGroupByEmpty(groupBy)) {
@@ -189,28 +187,25 @@ export function tabulateWriteInTallies({
         electionWriteInSummary,
       });
     }
-    groupedElectionWriteInSummaries[GROUP_KEY_ROOT] = electionWriteInSummary;
-    return groupedElectionWriteInSummaries;
+    electionWriteInSummaryGroupMap[GROUP_KEY_ROOT] = electionWriteInSummary;
+    return electionWriteInSummaryGroupMap;
   }
 
   // general case, grouping results by specified group by clause
   for (const writeInTally of writeInTallies) {
     const groupKey = getGroupKey(writeInTally, groupBy);
 
-    const existingSummary = groupedElectionWriteInSummaries[groupKey];
-    const summary = existingSummary ?? {
-      ...getEmptyElectionWriteInSummary(election),
-      ...extractGroupSpecifier(writeInTally),
-    };
+    const existingSummary = electionWriteInSummaryGroupMap[groupKey];
+    const summary = existingSummary ?? getEmptyElectionWriteInSummary(election);
 
-    groupedElectionWriteInSummaries[groupKey] =
+    electionWriteInSummaryGroupMap[groupKey] =
       addWriteInTallyToElectionWriteInSummary({
         writeInTally,
         electionWriteInSummary: summary,
       });
   }
 
-  return groupedElectionWriteInSummaries;
+  return electionWriteInSummaryGroupMap;
 }
 
 /**

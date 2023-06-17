@@ -2,9 +2,8 @@ import { Id, Tabulation } from '@votingworks/types';
 import {
   combineElectionResults,
   convertManualElectionResults,
-  extractGroupSpecifier,
   mergeManualWriteInTallies,
-  mergeTabulationGroups,
+  mergeTabulationGroupMaps,
   tabulateCastVoteRecords as tabulateFilteredCastVoteRecords,
 } from '@votingworks/utils';
 import { assert, assertDefined } from '@votingworks/basics';
@@ -28,7 +27,7 @@ export function tabulateCastVoteRecords({
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-}): Tabulation.GroupedElectionResults {
+}): Tabulation.ElectionResultsGroupMap {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
@@ -57,7 +56,7 @@ export function tabulateElectionResults({
   groupBy?: Tabulation.GroupBy;
   includeWriteInAdjudicationResults?: boolean;
   includeManualResults?: boolean;
-}): Tabulation.GroupedElectionResults {
+}): Tabulation.ElectionResultsGroupMap {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
@@ -80,19 +79,16 @@ export function tabulateElectionResults({
       groupBy,
     });
 
-    groupedElectionResults = mergeTabulationGroups(
+    groupedElectionResults = mergeTabulationGroupMaps(
       groupedElectionResults,
       groupedWriteInSummaries,
       (electionResults, writeInSummary) => {
         assert(electionResults); // results must exist if there is write-in data
         return writeInSummary
-          ? {
-              ...electionResults, // maintain group specifier
-              ...modifyElectionResultsWithWriteInSummary(
-                electionResults,
-                writeInSummary
-              ),
-            }
+          ? modifyElectionResultsWithWriteInSummary(
+              electionResults,
+              writeInSummary
+            )
           : electionResults;
       }
     );
@@ -110,7 +106,7 @@ export function tabulateElectionResults({
     // ignore manual results if the tabulation is not successful
     if (queryResult.isOk()) {
       const groupedManualResults = queryResult.ok();
-      groupedElectionResults = mergeTabulationGroups(
+      groupedElectionResults = mergeTabulationGroupMaps(
         groupedElectionResults,
         groupedManualResults,
         (scannedResults, manualResults) => {
@@ -131,16 +127,10 @@ export function tabulateElectionResults({
               );
             }
           }
-          const eitherResults = manualResults || scannedResults;
-          assert(eitherResults);
-          const groupSpecifier = extractGroupSpecifier(eitherResults);
-          return {
-            ...groupSpecifier,
-            ...combineElectionResults({
-              election,
-              allElectionResults: resultsToCombine,
-            }),
-          };
+          return combineElectionResults({
+            election,
+            allElectionResults: resultsToCombine,
+          });
         }
       );
     }

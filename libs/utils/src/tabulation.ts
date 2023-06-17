@@ -1,4 +1,4 @@
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   BallotStyleId,
   CandidateContest,
@@ -250,16 +250,41 @@ function getCastVoteRecordGroupSpecifier(
   };
 }
 
-const GROUP_KEY_SEPARATOR = '&';
 export const GROUP_KEY_ROOT: Tabulation.GroupKey = 'root';
+const GROUP_KEY_PART_TYPES = [
+  'ballotStyleId',
+  'batchId',
+  'partyId',
+  'precinctId',
+  'scannerId',
+  'votingMethod',
+] as const;
+type GroupKeyPartType = typeof GROUP_KEY_PART_TYPES[number];
 
-function escapeGroupKeyPart(groupKeyPart: string): string {
-  return groupKeyPart.replaceAll('\\', '\\\\').replaceAll('&', '\\&');
+function escapeGroupKeyValue(groupKeyValue: string): string {
+  return groupKeyValue
+    .replaceAll('\\', '\\\\')
+    .replaceAll('&', '\\&')
+    .replaceAll('=', '\\=');
+}
+
+function unescapeGroupKeyValue(groupKeyValue: string): string {
+  return groupKeyValue
+    .replaceAll('\\=', '=')
+    .replaceAll('\\&', '&')
+    .replaceAll('\\\\', '\\');
+}
+
+function getGroupKeyPart(key: GroupKeyPartType, value?: string): string {
+  assert(value !== undefined);
+  return `${key}=${escapeGroupKeyValue(value)}`;
 }
 
 /**
  * Based on a group's attributes, defines a key which is used to
- * lookup and identify grouped election results.
+ * look up and uniquely identify tabulation objects within a grouping.
+ *
+ * Adds key parts in alphabetical order for consistency.
  */
 export function getGroupKey(
   groupSpecifier: Tabulation.GroupSpecifier,
@@ -267,30 +292,76 @@ export function getGroupKey(
 ): Tabulation.GroupKey {
   const keyParts: string[] = [GROUP_KEY_ROOT];
   if (groupBy.groupByBallotStyle) {
-    keyParts.push(assertDefined(groupSpecifier.ballotStyleId));
-  }
-
-  if (groupBy.groupByParty) {
-    keyParts.push(assertDefined(groupSpecifier.partyId));
+    keyParts.push(
+      getGroupKeyPart('ballotStyleId', groupSpecifier.ballotStyleId)
+    );
   }
 
   if (groupBy.groupByBatch) {
-    keyParts.push(assertDefined(groupSpecifier.batchId));
+    keyParts.push(getGroupKeyPart('batchId', groupSpecifier.batchId));
   }
 
-  if (groupBy.groupByScanner) {
-    keyParts.push(assertDefined(groupSpecifier.scannerId));
+  if (groupBy.groupByParty) {
+    keyParts.push(getGroupKeyPart('partyId', groupSpecifier.partyId));
   }
 
   if (groupBy.groupByPrecinct) {
-    keyParts.push(assertDefined(groupSpecifier.precinctId));
+    keyParts.push(getGroupKeyPart('precinctId', groupSpecifier.precinctId));
+  }
+
+  if (groupBy.groupByScanner) {
+    keyParts.push(getGroupKeyPart('scannerId', groupSpecifier.scannerId));
   }
 
   if (groupBy.groupByVotingMethod) {
-    keyParts.push(assertDefined(groupSpecifier.votingMethod));
+    keyParts.push(getGroupKeyPart('votingMethod', groupSpecifier.votingMethod));
   }
 
-  return keyParts.map(escapeGroupKeyPart).join(GROUP_KEY_SEPARATOR);
+  return keyParts.join('&');
+}
+
+export function getGroupSpecifierFromGroupKey(
+  groupKey: Tabulation.GroupKey
+): Tabulation.GroupSpecifier {
+  const parts = groupKey.split(/(?<!\\)&/);
+  const groupSpecifier: Tabulation.GroupSpecifier = {};
+  for (const part of parts) {
+    if (part === GROUP_KEY_ROOT) {
+      continue;
+    }
+
+    const [key, escapedValue] = part.split(/(?<!\\)=/) as [
+      GroupKeyPartType,
+      string
+    ];
+    const value = unescapeGroupKeyValue(escapedValue);
+    switch (key) {
+      case 'ballotStyleId':
+        groupSpecifier.ballotStyleId = unescapeGroupKeyValue(value);
+        break;
+      case 'partyId':
+        groupSpecifier.partyId = unescapeGroupKeyValue(value);
+        break;
+      case 'batchId':
+        groupSpecifier.batchId = unescapeGroupKeyValue(value);
+        break;
+      case 'scannerId':
+        groupSpecifier.scannerId = unescapeGroupKeyValue(value);
+        break;
+      case 'precinctId':
+        groupSpecifier.precinctId = unescapeGroupKeyValue(value);
+        break;
+      case 'votingMethod':
+        groupSpecifier.votingMethod = unescapeGroupKeyValue(
+          value
+        ) as Tabulation.VotingMethod;
+        break;
+      /* c8 ignore next 2 */
+      default:
+        throwIllegalValue(key);
+    }
+  }
+  return groupSpecifier;
 }
 
 /**
@@ -311,6 +382,25 @@ export function extractGroupSpecifier(
 }
 
 /**
+ * Convert a {@link Tabulation.GroupMap} to its corresponding {@link Tabulation.GroupList}.
+ * The map format is better for tabulation operations while the list format is easier
+ * preferable for most consumers.
+ */
+export function groupMapToGroupList<T>(
+  groupMap: Tabulation.GroupMap<T>
+): Tabulation.GroupList<T> {
+  const list: Tabulation.GroupList<T> = [];
+  for (const [groupKey, group] of Object.entries(groupMap)) {
+    list.push({
+      ...getGroupSpecifierFromGroupKey(groupKey),
+      // eslint-disable-next-line vx/gts-spread-like-types
+      ...group,
+    });
+  }
+  return list;
+}
+
+/**
  * Tabulates iterable cast vote records into election results, grouped by
  * the attributes specified {@link Tabulation.GroupBy} parameter.
  */
@@ -322,8 +412,8 @@ export function tabulateCastVoteRecords({
   cvrs: Iterable<Tabulation.CastVoteRecord>;
   election: Election;
   groupBy?: Tabulation.GroupBy;
-}): Tabulation.GroupedElectionResults {
-  const groupedElectionResults: Tabulation.GroupedElectionResults = {};
+}): Tabulation.ElectionResultsGroupMap {
+  const groupedElectionResults: Tabulation.ElectionResultsGroupMap = {};
 
   // optimized special case, when the results do not need to be grouped
   if (!groupBy || isGroupByEmpty(groupBy)) {
@@ -348,10 +438,8 @@ export function tabulateCastVoteRecords({
     if (existingElectionResult) {
       addCastVoteRecordToElectionResult(existingElectionResult, cvr);
     } else {
-      const electionResult: Tabulation.ElectionResults = {
-        ...groupSpecifier,
-        ...getEmptyElectionResults(election),
-      };
+      const electionResult: Tabulation.ElectionResults =
+        getEmptyElectionResults(election);
       addCastVoteRecordToElectionResult(electionResult, cvr);
       groupedElectionResults[groupKey] = electionResult;
     }
@@ -742,15 +830,12 @@ export function mergeManualWriteInTallies(
   };
 }
 
-export function mergeTabulationGroups<T, U, V>(
-  groupedT: Tabulation.Grouped<T>,
-  groupedU: Tabulation.Grouped<U>,
-  merge: (
-    t?: Tabulation.GroupOf<T>,
-    u?: Tabulation.GroupOf<U>
-  ) => Tabulation.GroupOf<V>
-): Tabulation.Grouped<V> {
-  const merged: Tabulation.Grouped<V> = {};
+export function mergeTabulationGroupMaps<T, U, V>(
+  groupedT: Tabulation.GroupMap<T>,
+  groupedU: Tabulation.GroupMap<U>,
+  merge: (t?: T, u?: U) => V
+): Tabulation.GroupMap<V> {
+  const merged: Tabulation.GroupMap<V> = {};
   const allGroupKeys = [
     ...new Set([...Object.keys(groupedT), ...Object.keys(groupedU)]),
   ];

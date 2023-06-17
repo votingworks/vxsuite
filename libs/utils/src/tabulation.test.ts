@@ -31,7 +31,10 @@ import {
   convertManualElectionResults,
   combineElectionResults,
   mergeManualWriteInTallies,
-  mergeTabulationGroups,
+  mergeTabulationGroupMaps,
+  getGroupKey,
+  getGroupSpecifierFromGroupKey,
+  groupMapToGroupList,
 } from './tabulation';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from './filenames';
 import {
@@ -467,6 +470,96 @@ test('getBallotStyleIdPartyIdLookup', () => {
   ).toEqual({});
 });
 
+test('mapping from group keys to and from group specifiers', () => {
+  function maintainsGroupSpecifier(groupSpecifier: GroupSpecifier) {
+    const groupBy: Tabulation.GroupBy = {
+      groupByBallotStyle: groupSpecifier.ballotStyleId !== undefined,
+      groupByBatch: groupSpecifier.batchId !== undefined,
+      groupByParty: groupSpecifier.partyId !== undefined,
+      groupByPrecinct: groupSpecifier.precinctId !== undefined,
+      groupByScanner: groupSpecifier.scannerId !== undefined,
+      groupByVotingMethod: groupSpecifier.votingMethod !== undefined,
+    };
+    expect(
+      getGroupSpecifierFromGroupKey(getGroupKey(groupSpecifier, groupBy))
+    ).toEqual(groupSpecifier);
+  }
+
+  // no attributes
+  maintainsGroupSpecifier({});
+
+  // simple group specifiers, one attribute
+  maintainsGroupSpecifier({ ballotStyleId: '1M' });
+  maintainsGroupSpecifier({ batchId: 'batch-1' });
+  maintainsGroupSpecifier({ partyId: '0' });
+  maintainsGroupSpecifier({ precinctId: 'precinct-1' });
+  maintainsGroupSpecifier({ scannerId: 'scanner-1' });
+  maintainsGroupSpecifier({ votingMethod: 'absentee' });
+
+  // composite group specifiers, multiple attributes
+  maintainsGroupSpecifier({
+    ballotStyleId: '1M',
+    partyId: '0',
+    votingMethod: 'absentee',
+  });
+
+  maintainsGroupSpecifier({
+    batchId: 'batch-1',
+    scannerId: 'scanner-1',
+    precinctId: 'precinct-1',
+  });
+
+  // with escaped characters
+  expect(
+    getGroupKey(
+      { ballotStyleId: '=\\1M&', batchId: 'batch-1' },
+      { groupByBatch: true, groupByBallotStyle: true }
+    )
+  ).toEqual('root&ballotStyleId=\\=\\\\1M\\&&batchId=batch-1');
+
+  maintainsGroupSpecifier({ ballotStyleId: '=\\1M&', batchId: 'batch-1' });
+});
+
+test('groupMapToGroupList', () => {
+  expect(
+    groupMapToGroupList({
+      'root&ballotStyleId=1M&batchId=batch-1': {
+        ballotCount: 1,
+      },
+      'root&ballotStyleId=1M&batchId=batch-2': {
+        ballotCount: 2,
+      },
+      'root&ballotStyleId=2F&batchId=batch-1': {
+        ballotCount: 3,
+      },
+      'root&ballotStyleId=2F&batchId=batch-2': {
+        ballotCount: 4,
+      },
+    })
+  ).toEqual([
+    {
+      ballotCount: 1,
+      ballotStyleId: '1M',
+      batchId: 'batch-1',
+    },
+    {
+      ballotCount: 2,
+      ballotStyleId: '1M',
+      batchId: 'batch-2',
+    },
+    {
+      ballotCount: 3,
+      ballotStyleId: '2F',
+      batchId: 'batch-1',
+    },
+    {
+      ballotCount: 4,
+      ballotStyleId: '2F',
+      batchId: 'batch-2',
+    },
+  ]);
+});
+
 type ObjectWithGroupSpecifier = { something: 'something' } & GroupSpecifier;
 
 test('extractGroupSpecifier', () => {
@@ -664,20 +757,15 @@ describe('tabulateCastVoteRecords', () => {
       },
     });
 
-    // should be two result groups of equal size, one for each ballot style
+    // should be two result groups of equal size, one for each ballot style'
+    expect(Object.keys(resultsByBallotStyle)).toMatchObject(
+      expect.arrayContaining(['root&ballotStyleId=1M', 'root&ballotStyleId=2F'])
+    );
     expect(
       Object.values(resultsByBallotStyle).map((results) =>
         getBallotCount(results.cardCounts)
       )
     ).toEqual([56, 56]);
-
-    // group keys should match specifiers
-    expect(extractGroupSpecifier(resultsByBallotStyle['root&1M']!)).toEqual({
-      ballotStyleId: '1M',
-    });
-    expect(extractGroupSpecifier(resultsByBallotStyle['root&2F']!)).toEqual({
-      ballotStyleId: '2F',
-    });
 
     const resultsByParty = tabulateCastVoteRecords({
       cvrs,
@@ -688,27 +776,23 @@ describe('tabulateCastVoteRecords', () => {
     });
 
     // should be two result groups of equal size, one for each party
+    expect(Object.keys(resultsByParty)).toMatchObject(
+      expect.arrayContaining(['root&partyId=0', 'root&partyId=1'])
+    );
     expect(
       Object.values(resultsByParty).map((results) =>
         getBallotCount(results.cardCounts)
       )
     ).toEqual([56, 56]);
 
-    expect(extractGroupSpecifier(resultsByParty['root&0']!)).toEqual({
-      partyId: '0',
-    });
-    expect(extractGroupSpecifier(resultsByParty['root&1']!)).toEqual({
-      partyId: '1',
-    });
-
     // for the current election, results by party and ballot style should be identical
     // save for the identifiers
-    expect(resultsByBallotStyle['root&1M']?.contestResults).toEqual(
-      resultsByParty['root&0']?.contestResults
-    );
-    expect(resultsByBallotStyle['root&2F']?.contestResults).toEqual(
-      resultsByParty['root&1']?.contestResults
-    );
+    expect(
+      resultsByBallotStyle['root&ballotStyleId=1M']?.contestResults
+    ).toEqual(resultsByParty['root&partyId=0']?.contestResults);
+    expect(
+      resultsByBallotStyle['root&ballotStyleId=2F']?.contestResults
+    ).toEqual(resultsByParty['root&partyId=1']?.contestResults);
   });
 
   test('by batch and scanner', () => {
@@ -722,11 +806,8 @@ describe('tabulateCastVoteRecords', () => {
       },
     });
     expect(Object.values(resultsByBatchAndScanner)).toHaveLength(1);
-    const results = Object.values(resultsByBatchAndScanner)[0]!;
-    expect(extractGroupSpecifier(results)).toEqual({
-      batchId: expect.anything(),
-      scannerId: expect.anything(),
-    });
+    const results =
+      resultsByBatchAndScanner['root&batchId=9822c71014&scannerId=VX-00-000']!;
     expect(results).toMatchObject(ungroupedResults);
   });
 
@@ -747,39 +828,14 @@ describe('tabulateCastVoteRecords', () => {
       )
     ).toEqual([28, 28, 28, 28]);
 
-    // group keys should match group specifiers
-    expect(
-      extractGroupSpecifier(
-        resultsByMethodAndPrecinct['root&precinct-1&precinct']!
-      )
-    ).toEqual({
-      precinctId: 'precinct-1',
-      votingMethod: 'precinct',
-    });
-    expect(
-      extractGroupSpecifier(
-        resultsByMethodAndPrecinct['root&precinct-1&absentee']!
-      )
-    ).toEqual({
-      precinctId: 'precinct-1',
-      votingMethod: 'absentee',
-    });
-    expect(
-      extractGroupSpecifier(
-        resultsByMethodAndPrecinct['root&precinct-2&precinct']!
-      )
-    ).toEqual({
-      precinctId: 'precinct-2',
-      votingMethod: 'precinct',
-    });
-    expect(
-      extractGroupSpecifier(
-        resultsByMethodAndPrecinct['root&precinct-2&absentee']!
-      )
-    ).toEqual({
-      precinctId: 'precinct-2',
-      votingMethod: 'absentee',
-    });
+    expect(Object.keys(resultsByMethodAndPrecinct)).toMatchObject(
+      expect.arrayContaining([
+        'root&precinctId=precinct-1&votingMethod=precinct',
+        'root&precinctId=precinct-1&votingMethod=absentee',
+        'root&precinctId=precinct-2&votingMethod=precinct',
+        'root&precinctId=precinct-2&votingMethod=absentee',
+      ])
+    );
 
     // all results should be identical
     const resultsAsArray = Object.values(resultsByMethodAndPrecinct);
@@ -1129,7 +1185,7 @@ test('mergeManualWriteInTallies', () => {
 });
 
 test('mergeTabulationGroups', () => {
-  const revenues: Tabulation.Grouped<{ count: number }> = {
+  const revenues: Tabulation.GroupMap<{ count: number }> = {
     a: {
       count: 5,
     },
@@ -1144,7 +1200,7 @@ test('mergeTabulationGroups', () => {
     },
   };
 
-  const expenses: Tabulation.Grouped<{ count: number }> = {
+  const expenses: Tabulation.GroupMap<{ count: number }> = {
     b: {
       count: 7,
     },
@@ -1157,7 +1213,7 @@ test('mergeTabulationGroups', () => {
   };
 
   expect(
-    mergeTabulationGroups(
+    mergeTabulationGroupMaps(
       revenues,
       expenses,
       (revenue, expense) => (revenue?.count ?? 0) - (expense?.count ?? 0)

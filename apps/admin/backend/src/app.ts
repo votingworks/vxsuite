@@ -35,6 +35,7 @@ import {
   BALLOT_PACKAGE_FOLDER,
   CAST_VOTE_RECORD_REPORT_FILENAME,
   generateFilenameForBallotExportPackage,
+  groupMapToGroupList,
   isIntegrationTest,
   parseCastVoteRecordReportDirectoryName,
 } from '@votingworks/utils';
@@ -692,7 +693,7 @@ function buildApi({
       groupBy: Tabulation.GroupBy;
     }): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
-      return Object.values(
+      return groupMapToGroupList(
         tabulateFullCardCounts({
           electionId,
           store,
