@@ -27,14 +27,14 @@ function InlineSvgImage(props: SvgImageProps): JSX.Element {
   return <svg {...props} dangerouslySetInnerHTML={{ __html: imageContents }} />;
 }
 
-function SvgAnyElement(props: AnyElement): JSX.Element {
+function AnyElement(props: AnyElement): JSX.Element {
   switch (props.type) {
     case 'Rectangle': {
       const { children, ...rest } = props;
       return (
         <SvgRectangle {...rest}>
           {children?.map((child, index) => (
-            <SvgAnyElement key={index} {...child} />
+            <AnyElement key={index} {...child} />
           ))}
         </SvgRectangle>
       );
@@ -52,7 +52,7 @@ function renderPageToSvg(page: Page, width: number, height: number): string {
   const pageElement = (
     <SvgPage {...page} width={width} height={height}>
       {page.children.map((child, index) => (
-        <SvgAnyElement key={index} {...child} />
+        <AnyElement key={index} {...child} />
       ))}
     </SvgPage>
   );
