@@ -1,299 +1,340 @@
-/* eslint-disable react/destructuring-assignment */
-/* eslint-disable @typescript-eslint/no-use-before-define */
-/* eslint-disable react/no-array-index-key */
 import './polyfills';
-import { AppBase } from '@votingworks/ui';
-import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { throwIllegalValue } from '@votingworks/basics';
+import React, { FormEvent } from 'react';
 import {
-  AnyElement,
-  Box,
-  Color,
-  Document,
-  Ellipse,
-  GridDimensions,
-  Page,
-  Rectangle,
-} from './document_types';
-import { SvgBox, SvgEllipse, SvgPage, SvgRectangle } from './document_svg';
-import { allBubbleBallotCyclingTestDeck } from './all_bubble_ballots';
+  AppBase,
+  Button,
+  Font,
+  H1,
+  H2,
+  LabelledText,
+  LinkButton,
+  Main,
+  P,
+  Screen,
+  Table,
+  TD,
+  TH,
+} from '@votingworks/ui';
+import {
+  BrowserRouter,
+  Redirect,
+  Route,
+  Switch,
+  useParams,
+  Link,
+} from 'react-router-dom';
+import fileDownload from 'js-file-download';
+import { QueryClientProvider } from '@tanstack/react-query';
+import {
+  ElectionDefinition,
+  getBallotStyle,
+  getDisplayElectionHash,
+  getPrecinctById,
+} from '@votingworks/types';
+import styled, { useTheme } from 'styled-components';
+import { formatShortDate } from '@votingworks/utils';
+import { DateTime } from 'luxon';
+import { assertDefined } from '@votingworks/basics';
+import { FileInputButton } from './file_input_button';
+import {
+  ApiClientContext,
+  createApiClient,
+  createQueryClient,
+  exportAllBallots,
+  exportBallotDefinition,
+  getElection,
+  setElection,
+} from './api';
+import { BallotViewer } from './ballot_viewer';
 
-function replaceAtIndex<T>(array: T[], index: number, value: T): T[] {
-  return [...array.slice(0, index), value, ...array.slice(index + 1)];
-}
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
 
-function randomColor(): Color {
-  return `hsl(${Math.random() * 360}, 100%, 50%)`;
-}
+const Column = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 
-interface BaseObjectProps<T extends AnyElement> {
-  element: T;
-  setElement: (element: T) => void;
-}
+const ElectionInfoContainer = styled(Row)`
+  align-items: center;
+  gap: 1rem;
+  justify-content: start;
+`;
 
-function RectangleObject({ element, setElement }: BaseObjectProps<Rectangle>) {
+function ElectionInfo({
+  electionDefinition,
+}: {
+  electionDefinition: ElectionDefinition;
+}): JSX.Element {
+  const { election } = electionDefinition;
+  const { title, date, county, state } = election;
+  const electionDate = formatShortDate(DateTime.fromISO(date));
+
+  const electionInfoLabel = (
+    <React.Fragment>
+      <Font noWrap>{county.name},</Font> <Font noWrap>{state}</Font>
+    </React.Fragment>
+  );
+
+  const electionInfo = (
+    <div>
+      <LabelledText labelPosition="bottom" label={electionInfoLabel}>
+        <Font weight="bold">{title}</Font> — <Font noWrap>{electionDate}</Font>
+      </LabelledText>
+    </div>
+  );
+
+  const electionIdInfo = (
+    <div>
+      <LabelledText label="Election ID">
+        <Font weight="bold">{getDisplayElectionHash(electionDefinition)}</Font>
+      </LabelledText>
+    </div>
+  );
+
   return (
-    <g
-      onClick={() => {
-        setElement({
-          ...element,
-          fill: randomColor(),
-        });
-      }}
-    >
-      <SvgRectangle {...element} />
-    </g>
+    <ElectionInfoContainer>
+      {electionInfo}
+      {electionIdInfo}
+    </ElectionInfoContainer>
   );
 }
 
-function EllipseObject({ element, setElement }: BaseObjectProps<Ellipse>) {
+function Header(): JSX.Element {
+  const theme = useTheme();
   return (
-    <g
-      onClick={() => {
-        setElement({
-          ...element,
-          fill: randomColor(),
-        });
+    <Row
+      style={{
+        justifyContent: 'space-between',
+        background: theme.colors.foreground,
+        color: theme.colors.background,
+        padding: '0.6rem 1rem',
+        alignItems: 'center',
       }}
     >
-      <SvgEllipse {...element} />
-    </g>
+      <H1 style={{ marginBottom: 0 }}>
+        <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+          VxDesign
+        </Link>
+      </H1>
+    </Row>
   );
 }
 
-function BoxObject({ element, setElement }: BaseObjectProps<Box>) {
-  return (
-    <g
-      onClick={() => {
-        setElement({
-          ...element,
-          fill: randomColor(),
-        });
-      }}
-    >
-      <SvgBox {...element}>
-        {element.children?.map((child, index) => (
-          <AnyElementObject
-            key={index}
-            element={child}
-            setElement={(newChild) => {
-              setElement({
-                ...element,
-                children:
-                  element.children &&
-                  replaceAtIndex(element.children, index, newChild),
-              });
-            }}
-          />
-        ))}
-      </SvgBox>
-    </g>
-  );
-}
+function LoadElectionScreen(): JSX.Element {
+  const setElectionMutation = setElection.useMutation();
 
-function AnyElementObject(props: {
-  element: AnyElement;
-  setElement: (element: AnyElement) => void;
-}) {
-  switch (props.element.type) {
-    case 'Rectangle':
-      return <RectangleObject {...(props as BaseObjectProps<Rectangle>)} />;
-    case 'Ellipse':
-      return <EllipseObject {...(props as BaseObjectProps<Ellipse>)} />;
-    case 'Box':
-      return <BoxObject {...(props as BaseObjectProps<Box>)} />;
-    default:
-      return throwIllegalValue(props.element);
+  async function onSelectElectionFile(event: FormEvent<HTMLInputElement>) {
+    const input = event.currentTarget;
+    const files = Array.from(input.files || []);
+    const file = files[0];
+    const contents = await file.text();
+    setElectionMutation.mutate({ electionData: contents });
   }
-}
 
-function GridLines({
-  grid,
-  width,
-  height,
-}: {
-  grid: GridDimensions;
-  width: number;
-  height: number;
-}) {
-  const rowGap = height / (grid.rows + 1);
-  const columnGap = width / (grid.columns + 1);
-  const rowLines = Array.from({ length: grid.rows }).map((_, row) => (
-    <line
-      key={row}
-      x1={0}
-      y1={(row + 1) * rowGap}
-      x2={width}
-      y2={(row + 1) * rowGap}
-      stroke="red"
-      strokeWidth={1.5}
-      strokeDasharray="5 5"
-    />
-  ));
-  const columnLines = Array.from({ length: grid.columns }).map((_, column) => (
-    <line
-      key={column}
-      x1={(column + 1) * columnGap}
-      y1={0}
-      x2={(column + 1) * columnGap}
-      y2={height}
-      stroke="red"
-      strokeWidth={1.5}
-      strokeDasharray="5 5"
-    />
-  ));
   return (
-    <g>
-      {rowLines}
-      {columnLines}
-    </g>
+    <Screen>
+      <Main centerChild>
+        <H1>VxDesign</H1>
+        <P>Load an election to begin</P>
+        <FileInputButton
+          accept=".json"
+          onChange={onSelectElectionFile}
+          disabled={setElectionMutation.isLoading}
+          buttonProps={{ variant: 'primary' }}
+        >
+          Select Election
+        </FileInputButton>
+      </Main>
+    </Screen>
   );
 }
 
-const PAGE_GAP = 100;
+function HomeScreen(): JSX.Element | null {
+  const getElectionQuery = getElection.useQuery();
+  const setElectionMutation = setElection.useMutation();
+  const exportAllBallotsMutation = exportAllBallots.useMutation();
+  const exportBallotDefinitionMutation = exportBallotDefinition.useMutation();
 
-function PageObject({
-  x,
-  y,
-  width,
-  height,
-  grid,
-  page,
-  setPage,
-}: {
-  x: number;
-  y: number;
-  grid: GridDimensions;
-  width: number;
-  height: number;
-  page: Page;
-  setPage: (page: Page) => void;
-}) {
+  if (!getElectionQuery.isSuccess) {
+    return null; // Initial loading state
+  }
+
+  const electionDefinition = getElectionQuery.data;
+
+  if (!electionDefinition) {
+    return <LoadElectionScreen />;
+  }
+
+  const { election } = electionDefinition;
+  const ballots = election.ballotStyles.flatMap((ballotStyle) =>
+    ballotStyle.precincts.map((precinctId) => ({
+      precinct: assertDefined(getPrecinctById({ election, precinctId })),
+      ballotStyle,
+    }))
+  );
+
+  function onPressClearElection() {
+    setElectionMutation.mutate({ electionData: undefined });
+  }
+
+  function onPressExportAllBallots() {
+    exportAllBallotsMutation.mutate(undefined, {
+      onSuccess: (zipContents) => {
+        fileDownload(zipContents, 'ballots.zip');
+      },
+    });
+  }
+
+  function onPressExportBallotDefinition() {
+    exportBallotDefinitionMutation.mutate(undefined, {
+      onSuccess: (ballotDefinition) => {
+        fileDownload(
+          JSON.stringify(ballotDefinition),
+          'ballot-definition.json'
+        );
+      },
+    });
+  }
+
   return (
-    <SvgPage {...{ x, y, width, height, ...page }}>
-      {page.children.map((element, index) => (
-        <AnyElementObject
-          key={index}
-          element={element}
-          setElement={(newElement) => {
-            setPage({
-              ...page,
-              children: replaceAtIndex(page.children, index, newElement),
-            });
-          }}
+    <Screen>
+      <Header />
+      <Main padded>
+        <Column style={{ gap: '2rem' }}>
+          <section>
+            <H2>Election</H2>
+            <Row style={{ gap: '1rem' }}>
+              <ElectionInfo electionDefinition={electionDefinition} />
+              <Button
+                onPress={onPressClearElection}
+                variant="danger"
+                disabled={setElectionMutation.isLoading}
+              >
+                Clear Election
+              </Button>
+            </Row>
+          </section>
+          <section style={{ maxWidth: '40rem' }}>
+            <H2>Ballots</H2>
+            <Table>
+              <thead>
+                <tr>
+                  <TH>Precinct</TH>
+                  <TH>Ballot Style</TH>
+                  <TH />
+                </tr>
+              </thead>
+              <tbody>
+                {ballots.map(({ ballotStyle, precinct }) => (
+                  <tr key={ballotStyle.id + precinct.id}>
+                    <TD>{precinct.name}</TD>
+                    <TD>{ballotStyle.id}</TD>
+                    <TD>
+                      <LinkButton
+                        to={`/ballot/${precinct.id}/${ballotStyle.id}`}
+                      >
+                        View Ballot
+                      </LinkButton>{' '}
+                    </TD>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </section>
+          <section>
+            <H2>Export</H2>
+            <P>
+              <Button
+                variant="primary"
+                onPress={onPressExportAllBallots}
+                disabled={exportAllBallotsMutation.isLoading}
+              >
+                Export All Ballots
+              </Button>
+            </P>
+            <P>
+              <Button
+                variant="primary"
+                onPress={onPressExportBallotDefinition}
+                disabled={exportBallotDefinitionMutation.isLoading}
+              >
+                Export Ballot Definition
+              </Button>
+            </P>
+            <P>
+              <Button
+                disabled
+                onPress={() => {
+                  // TODO
+                }}
+              >
+                Export L&A Test Deck
+              </Button>
+            </P>
+          </section>
+        </Column>
+      </Main>
+    </Screen>
+  );
+}
+
+function BallotScreen(): JSX.Element | null {
+  const getElectionQuery = getElection.useQuery();
+  const { precinctId, ballotStyleId } = useParams<{
+    precinctId: string;
+    ballotStyleId: string;
+  }>();
+
+  if (!getElectionQuery.isSuccess) {
+    return null; // Initial loading state
+  }
+
+  const electionDefinition = getElectionQuery.data;
+  if (!electionDefinition) {
+    return <Redirect to="/" />;
+  }
+
+  const { election } = electionDefinition;
+
+  const precinct = getPrecinctById({ election, precinctId });
+  const ballotStyle = getBallotStyle({ election, ballotStyleId });
+  if (!(precinct && ballotStyle)) {
+    return <Redirect to="/" />;
+  }
+
+  return (
+    <Screen>
+      <Header />
+      <Main>
+        <BallotViewer
+          election={election}
+          precinct={precinct}
+          ballotStyle={ballotStyle}
         />
-      ))}
-      <GridLines {...{ grid, width, height }} />
-    </SvgPage>
-  );
-}
-
-function DocumentSvg({
-  dimensions,
-  document,
-  setDocument,
-}: {
-  dimensions: { width: number; height: number };
-  document: Document;
-  setDocument: (document: Document) => void;
-}) {
-  const [zoom, setZoom] = useState(0.2);
-  const [panOffset, setPanOffset] = useState({ x: -100, y: -100 });
-  const dragStartPosition = useRef<{ x: number; y: number } | null>(null);
-
-  const { width, height, grid, pages } = document;
-
-  // Temporary optimization: memoize the pages so that we don't rerender them
-  // when changing pan/zoom
-  const pagesElements = useMemo(
-    () =>
-      pages.map((page, index) => (
-        <PageObject
-          x={index % 2 === 0 ? 0 : width + PAGE_GAP}
-          y={Math.floor(index / 2) * (height + PAGE_GAP)}
-          grid={grid}
-          width={width}
-          height={height}
-          page={page}
-          setPage={(newPage) =>
-            setDocument({
-              ...document,
-              pages: replaceAtIndex(pages, index, newPage),
-            })
-          }
-          key={index}
-        />
-      )),
-    [width, height, grid, pages, document, setDocument]
-  );
-  return (
-    <svg
-      width={dimensions.width}
-      height={dimensions.height}
-      viewBox={`${panOffset.x} ${panOffset.y} ${dimensions.width / zoom} ${
-        dimensions.height / zoom
-      }`}
-      onMouseDown={(event) => {
-        if (event.button === 0 && !dragStartPosition.current) {
-          dragStartPosition.current = {
-            x: panOffset.x + event.clientX / zoom,
-            y: panOffset.y + event.clientY / zoom,
-          };
-        }
-      }}
-      onMouseMove={(event) => {
-        if (dragStartPosition.current) {
-          setPanOffset({
-            x: dragStartPosition.current.x - event.clientX / zoom,
-            y: dragStartPosition.current.y - event.clientY / zoom,
-          });
-        }
-      }}
-      onMouseUp={() => {
-        dragStartPosition.current = null;
-      }}
-      onMouseLeave={() => {
-        dragStartPosition.current = null;
-      }}
-      onWheel={(event) => {
-        if (event.metaKey) {
-          setZoom((prevZoom) => prevZoom * (1 - event.deltaY / 1000));
-        } else {
-          setPanOffset((prevPanOffset) => ({
-            x: prevPanOffset.x + event.deltaX / zoom,
-            y: prevPanOffset.y + event.deltaY / zoom,
-          }));
-        }
-      }}
-    >
-      {pagesElements}
-    </svg>
+      </Main>
+    </Screen>
   );
 }
 
 export function App(): JSX.Element {
-  const [document, setDocument] = useState(allBubbleBallotCyclingTestDeck);
-
-  const [dimensions, setDimensions] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
-
-  useEffect(() => {
-    function callback() {
-      setDimensions({ width: window.innerWidth, height: window.innerHeight });
-    }
-    window.addEventListener('resize', callback);
-    return () => window.removeEventListener('resize', callback);
-  }, []);
-
   return (
     <AppBase>
-      <DocumentSvg
-        dimensions={dimensions}
-        document={document}
-        setDocument={setDocument}
-      />
+      <ApiClientContext.Provider value={createApiClient()}>
+        <QueryClientProvider client={createQueryClient()}>
+          <BrowserRouter>
+            <Switch>
+              <Route path="/" exact component={HomeScreen} />
+              <Route
+                path="/ballot/:precinctId/:ballotStyleId"
+                component={BallotScreen}
+              />
+            </Switch>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ApiClientContext.Provider>
     </AppBase>
   );
 }
