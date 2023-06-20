@@ -6,10 +6,16 @@ import React, {
   useMemo,
 } from 'react';
 import { useHistory } from 'react-router-dom';
-import styled from 'styled-components';
 
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { Button, Prose, useMountedState } from '@votingworks/ui';
+import {
+  Button,
+  Font,
+  Icons,
+  P,
+  Prose,
+  useMountedState,
+} from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
 import type { ConfigureResult } from '@votingworks/admin-backend';
@@ -31,21 +37,6 @@ import { HorizontalRule } from '../components/horizontal_rule';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { configure, setSystemSettings } from '../api';
-
-const Loaded = styled.p`
-  line-height: 2.5rem;
-  color: rgb(0, 128, 0);
-  &::before {
-    content: '✓ ';
-  }
-`;
-const Invalid = styled.p`
-  line-height: 2.5rem;
-  color: rgb(128, 0, 0);
-  &::before {
-    content: '✘ ';
-  }
-`;
 
 interface InputFile {
   name: string;
@@ -314,12 +305,17 @@ export function UnconfiguredScreen(): JSX.Element {
         title={`Convert from ${client?.getDisplayName()} files`}
       >
         <Prose textCenter>
-          <p> Select the following files from a USB drive, etc.</p>
+          <P> Select the following files from a USB drive, etc.</P>
           {inputConversionFiles.map((file) =>
             file.path ? (
-              <Loaded key={file.name}>{`Loaded ${file.name}`}</Loaded>
+              <P key={file.name}>
+                <Font color="success">
+                  <Icons.Checkbox />
+                </Font>{' '}
+                Loaded {file.name}
+              </P>
             ) : (
-              <p key={file.name}>
+              <P key={file.name}>
                 <FileInputButton
                   accept={file.accept}
                   buttonProps={{
@@ -330,27 +326,26 @@ export function UnconfiguredScreen(): JSX.Element {
                 >
                   {file.name}
                 </FileInputButton>
-              </p>
+              </P>
             )
           )}
-          <p>
+          <P>
             <Button
               disabled={
                 !someFilesExist(inputConversionFiles) &&
                 !vxElectionFileIsInvalid
               }
-              small
               onPress={resetUploadFiles}
             >
               Reset Files
             </Button>
-          </p>
+          </P>
           <HorizontalRule />
-          <p>
-            <Button small onPress={resetUploadFilesAndGoBack}>
+          <P>
+            <Button variant="previous" onPress={resetUploadFilesAndGoBack}>
               Back
             </Button>
-          </p>
+          </P>
         </Prose>
       </NavigationScreen>
     );
@@ -359,47 +354,52 @@ export function UnconfiguredScreen(): JSX.Element {
   return (
     <NavigationScreen centerChild title="Configure VxAdmin">
       <Prose textCenter>
-        <p>How would you like to start?</p>
+        <P>How would you like to start?</P>
         {vxElectionFileIsInvalid && (
-          <Invalid>Invalid Vx Election Definition file.</Invalid>
+          <P>
+            <Font color="danger">
+              <Icons.Danger />
+            </Font>{' '}
+            Invalid Vx Election Definition file.
+          </P>
         )}
         {systemSettingsFileIsInvalid && (
-          <Invalid>Invalid System Settings file.</Invalid>
+          <P>
+            <Font color="danger">
+              <Icons.Danger />
+            </Font>{' '}
+            Invalid System Settings file.
+          </P>
         )}
-        <p>
+        <P>
           <FileInputButton
             accept=".json,application/json"
             onChange={handleVxElectionFile}
           >
             Select Existing Election Definition File
           </FileInputButton>
-        </p>
-        <HorizontalRule>or</HorizontalRule>
-        <p>
+        </P>
+        <P>
           <FileInputButton
             accept=".zip,application/zip"
             onChange={handleSetupPackageFile}
           >
             Select Existing Setup Package Zip File
           </FileInputButton>
-        </p>
+        </P>
 
-        {client && inputConversionFiles.length > 0 && (
-          <React.Fragment>
-            <HorizontalRule>or</HorizontalRule>
-            {!isUsingConverter && (
-              <Button onPress={() => setIsUsingConverter(true)}>
-                Convert from {client.getDisplayName()} files
-              </Button>
-            )}
-          </React.Fragment>
+        {client && inputConversionFiles.length > 0 && !isUsingConverter && (
+          <P>
+            <Button onPress={() => setIsUsingConverter(true)}>
+              Convert from {client.getDisplayName()} files
+            </Button>
+          </P>
         )}
-        <HorizontalRule>or</HorizontalRule>
-        <p>
+        <P>
           <Button onPress={loadDemoElection}>
             Load Demo Election Definition
           </Button>
-        </p>
+        </P>
       </Prose>
     </NavigationScreen>
   );
