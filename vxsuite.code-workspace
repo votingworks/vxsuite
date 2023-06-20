@@ -25,8 +25,16 @@
       "path": "apps/central-scan/integration-testing"
     },
     {
+      "name": "apps/design/backend",
+      "path": "apps/design/backend"
+    },
+    {
       "name": "apps/design/frontend",
       "path": "apps/design/frontend"
+    },
+    {
+      "name": "apps/design/shared",
+      "path": "apps/design/shared"
     },
     {
       "name": "apps/mark/backend",
