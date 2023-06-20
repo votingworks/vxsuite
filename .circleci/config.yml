@@ -169,6 +169,29 @@ jobs:
       - store_artifacts:
           path: apps/central-scan/integration-testing/cypress/videos/
 
+  # @votingworks/design-backend
+  test-apps-design-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/design/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/design/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/design/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/design/backend/reports/
+
   # @votingworks/design-frontend
   test-apps-design-frontend:
     executor: nodejs
@@ -191,6 +214,29 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/design/frontend/reports/
+
+  # @votingworks/design-shared
+  test-apps-design-shared:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/design/shared build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/design/shared lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/design/shared test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/design/shared/reports/
 
   # @votingworks/mark-scan-backend
   test-apps-mark-scan-backend:
@@ -1162,7 +1208,9 @@ workflows:
       - test-apps-central-scan-backend
       - test-apps-central-scan-frontend
       - test-apps-central-scan-integration-testing
+      - test-apps-design-backend
       - test-apps-design-frontend
+      - test-apps-design-shared
       - test-apps-mark-scan-backend
       - test-apps-mark-scan-frontend
       - test-apps-mark-scan-integration-testing
