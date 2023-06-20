@@ -7,112 +7,24 @@ import {
   GridLayout,
   Side,
 } from '@votingworks/types';
-import { Document, GridDimensions, Rectangle } from './document_types';
-import { encodeMetadata } from './encode_metadata';
-
-function range(start: number, end: number): number[] {
-  return Array.from({ length: end - start }, (_, i) => i + start);
-}
-
-const grid: GridDimensions = {
-  rows: 41,
-  columns: 34,
-};
-
-const documentWidth = 1700;
-const documentHeight = 2200;
+import {
+  Bubble,
+  Document,
+  DOCUMENT_HEIGHT,
+  DOCUMENT_WIDTH,
+  GRID,
+  range,
+  TimingMarkGrid,
+} from '@votingworks/design-shared';
 
 interface AllBubbleBallotOptions {
   fillBubble: (page: number, row: number, column: number) => boolean;
 }
 
 function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
-  const columnGap = documentWidth / (grid.columns + 1);
-  const rowGap = documentHeight / (grid.rows + 1);
-
-  function TimingMark({
-    row,
-    column,
-  }: {
-    row: number;
-    column: number;
-  }): Rectangle {
-    const markWidth = 37.5;
-    const markHeight = 12.5;
-    return {
-      type: 'Rectangle',
-      x: (column + 1) * columnGap - markWidth / 2,
-      y: (row + 1) * rowGap - markHeight / 2,
-      width: markWidth,
-      height: markHeight,
-      fill: 'black',
-    };
-  }
-
-  function timingMarks(page: number) {
-    const cardMetadata = encodeMetadata(1);
-    const pageMetadata =
-      page % 2 === 1
-        ? cardMetadata.frontTimingMarks
-        : cardMetadata.backTimingMarks;
-    return [
-      // Top
-      range(0, grid.columns).map((column) =>
-        TimingMark({
-          row: 0,
-          column,
-        })
-      ),
-      // Bottom
-      [...pageMetadata.entries()]
-        .filter(([, bit]) => bit === 1)
-        .map(([column]) =>
-          TimingMark({
-            row: grid.rows - 1,
-            column,
-          })
-        ),
-      // Left
-      range(0, grid.rows).map((row) =>
-        TimingMark({
-          row,
-          column: 0,
-        })
-      ),
-      // Right
-      range(0, grid.rows).map((row) =>
-        TimingMark({ row, column: grid.columns - 1 })
-      ),
-    ].flat();
-  }
-
-  function Bubble({
-    row,
-    column,
-    isFilled,
-  }: {
-    row: number;
-    column: number;
-    isFilled: boolean;
-  }): Rectangle {
-    const bubbleWidth = 40;
-    const bubbleHeight = 26;
-    return {
-      type: 'Rectangle',
-      x: (column + 1) * columnGap - bubbleWidth / 2,
-      y: (row + 1) * rowGap - bubbleHeight / 2,
-      width: bubbleWidth,
-      height: bubbleHeight,
-      borderRadius: 13,
-      stroke: 'black',
-      strokeWidth: 2,
-      fill: isFilled ? 'black' : 'none',
-    };
-  }
-
   function bubbles(page: number) {
-    return range(1, grid.rows - 1).flatMap((row) =>
-      range(1, grid.columns - 1).map((column) =>
+    return range(1, GRID.rows - 1).flatMap((row) =>
+      range(1, GRID.columns - 1).map((column) =>
         Bubble({
           row,
           column,
@@ -123,12 +35,11 @@ function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
   }
 
   return {
-    width: documentWidth,
-    height: documentHeight,
-    grid,
+    width: DOCUMENT_WIDTH,
+    height: DOCUMENT_HEIGHT,
     pages: [
-      { children: [...timingMarks(1), ...bubbles(1)] },
-      { children: [...timingMarks(2), ...bubbles(2)] },
+      { children: [TimingMarkGrid({ pageNumber: 1 }), ...bubbles(1)] },
+      { children: [TimingMarkGrid({ pageNumber: 2 }), ...bubbles(2)] },
     ],
   };
 }
@@ -142,8 +53,8 @@ function createElection(): Election {
   }
 
   const gridPositions = range(1, 3).flatMap((page) =>
-    range(1, grid.rows - 1).flatMap((row) =>
-      range(1, grid.columns - 1).map((column) => ({
+    range(1, GRID.rows - 1).flatMap((row) =>
+      range(1, GRID.columns - 1).map((column) => ({
         page,
         row,
         column,
@@ -174,8 +85,8 @@ function createElection(): Election {
     {
       precinctId,
       ballotStyleId,
-      columns: grid.columns,
-      rows: grid.rows,
+      columns: GRID.columns,
+      rows: GRID.rows,
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,
@@ -184,8 +95,8 @@ function createElection(): Election {
       },
       gridPositions: (['front', 'back'] as Side[]).flatMap((side) => {
         const page = side === 'front' ? 1 : 2;
-        return range(1, grid.rows - 1).flatMap((row) =>
-          range(1, grid.columns - 1).map((column) => ({
+        return range(1, GRID.rows - 1).flatMap((row) =>
+          range(1, GRID.columns - 1).map((column) => ({
             type: 'option',
             side,
             column,
@@ -249,9 +160,8 @@ export const allBubbleBallotFilledBallot = createBallotCard({
   fillBubble: () => true,
 });
 export const allBubbleBallotCyclingTestDeck: Document = {
-  width: documentWidth,
-  height: documentHeight,
-  grid,
+  width: DOCUMENT_WIDTH,
+  height: DOCUMENT_HEIGHT,
   pages: range(0, 6).flatMap(
     (card) =>
       createBallotCard({

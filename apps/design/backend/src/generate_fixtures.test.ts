@@ -45,9 +45,11 @@ test('fixtures are up to date - run `pnpm generate-fixtures` if this test fails'
     // For now, skip PDF comparison on CI because it doesn't seem to work.
     if (!process.env.CI) {
       const pdfTmpFile = tmp.fileSync();
-      const pdfStream = fs.createWriteStream(pdfTmpFile.name);
-      renderDocumentToPdf(testBallotDocument, pdfStream);
-      await finished(pdfStream);
+      const fileStream = fs.createWriteStream(pdfTmpFile.name);
+      const pdf = renderDocumentToPdf(testBallotDocument);
+      pdf.pipe(fileStream);
+      pdf.end();
+      await finished(fileStream);
 
       expect(normalizePdf(savedPdf)).toEqual(
         normalizePdf(fs.readFileSync(pdfTmpFile.name, 'utf8'))

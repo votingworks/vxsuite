@@ -1,31 +1,48 @@
-/* eslint-disable react/no-array-index-key -- static rendering, order never changes */
 import React from 'react';
 import ReactDomServer from 'react-dom/server';
 import { throwIllegalValue } from '@votingworks/basics';
-import fs from 'fs';
+import fs, { readFileSync } from 'fs';
 import PdfDocument from 'pdfkit';
 import SvgToPdf from 'svg-to-pdfkit';
 import { safeParseJson } from '@votingworks/types';
-import { SvgBox, SvgEllipse, SvgPage, SvgRectangle } from './document_svg';
-import { Document, AnyElement, Page } from './document_types';
+import {
+  SvgPage,
+  SvgRectangle,
+  SvgTextBox,
+  Document,
+  AnyElement,
+  Page,
+  SvgImageProps,
+} from '@votingworks/design-shared';
+import { join } from 'path';
+
+const ASSETS_DIR = join(__dirname, '../assets');
+
+// SVG-to-PDFKit doesn't support embedded SVGs, so we hack around it by
+// inlining the SVG contents.
+function InlineSvgImage(props: SvgImageProps): JSX.Element {
+  const imageContents = readFileSync(join(ASSETS_DIR, props.href)).toString(
+    'utf8'
+  );
+  return <svg {...props} dangerouslySetInnerHTML={{ __html: imageContents }} />;
+}
 
 function SvgAnyElement(props: AnyElement): JSX.Element {
-  // eslint-disable-next-line react/destructuring-assignment
   switch (props.type) {
-    case 'Rectangle':
-      return <SvgRectangle {...props} />;
-    case 'Ellipse':
-      return <SvgEllipse {...props} />;
-    case 'Box': {
+    case 'Rectangle': {
       const { children, ...rest } = props;
       return (
-        <SvgBox {...rest}>
+        <SvgRectangle {...rest}>
           {children?.map((child, index) => (
             <SvgAnyElement key={index} {...child} />
           ))}
-        </SvgBox>
+        </SvgRectangle>
       );
     }
+    case 'TextBox':
+      return <SvgTextBox {...props} />;
+    case 'Image':
+      return <InlineSvgImage {...props} />;
     default:
       throwIllegalValue(props);
   }
@@ -46,10 +63,7 @@ function renderPageToSvg(page: Page, width: number, height: number): string {
   return pageSvgString.replace(/^<svg width="\d*" height="\d*"/, '<svg');
 }
 
-export function renderDocumentToPdf(
-  document: Document,
-  outStream: NodeJS.WritableStream
-): void {
+export function renderDocumentToPdf(document: Document): PDFKit.PDFDocument {
   const svgPages = document.pages.map((page) =>
     renderPageToSvg(page, document.width, document.height)
   );
@@ -65,8 +79,7 @@ export function renderDocumentToPdf(
     SvgToPdf(pdf, svgPage, 0, 0);
   }
 
-  pdf.pipe(outStream);
-  pdf.end();
+  return pdf;
 }
 
 export function main(): void {
@@ -83,8 +96,11 @@ export function main(): void {
   const ballotDocument = safeParseJson(ballotDocumentJson).assertOk(
     'Invalid ballot document JSON'
   );
-  renderDocumentToPdf(
-    ballotDocument as Document,
-    fs.createWriteStream(outputPdfPath)
-  );
+  const startTime = process.hrtime.bigint();
+  const pdf = renderDocumentToPdf(ballotDocument as Document);
+  pdf.pipe(fs.createWriteStream(outputPdfPath));
+  pdf.end();
+  const endTime = process.hrtime.bigint();
+  // eslint-disable-next-line no-console
+  console.log(`Rendered ballot in ${(endTime - startTime) / BigInt(1e6)}ms`);
 }
