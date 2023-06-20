@@ -73,6 +73,14 @@ export default defineConfig(async (env) => {
 
     plugins: [react()],
 
+    // Configure the Vite dev server to proxy API requests to the dev backend server
+    server: {
+      proxy: {
+        '/api': 'http://localhost:3002',
+      },
+      port: 3000,
+    },
+
     // Pass some environment variables to the client in `import.meta.env`.
     envPrefix,
   };

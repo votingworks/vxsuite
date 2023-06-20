@@ -10,7 +10,6 @@
   "scripts": {
     "build": "pnpm type-check && vite build",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "generate-fixtures": "./bin/generate-fixtures",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
     "pre-commit": "lint-staged",
@@ -52,37 +51,43 @@
     "extends": "react-app"
   },
   "dependencies": {
+    "@tanstack/react-query": "^4.22.0",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/design-shared": "workspace:*",
+    "@votingworks/grout": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
+    "@votingworks/utils": "workspace:*",
     "buffer": "^6.0.3",
+    "debug": "^4.3.4",
     "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
     "esbuild": "^0.14.29",
     "esbuild-runner": "^2.2.1",
+    "js-file-download": "^0.4.12",
+    "luxon": "^3.0.0",
     "normalize.css": "^8.0.1",
     "path": "^0.12.7",
-    "pdfkit": "^0.13.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-router-dom": "^5.2.0",
     "styled-components": "^5.2.3",
-    "svg-to-pdfkit": "^0.1.8",
     "typescript": "4.6.3"
   },
   "devDependencies": {
     "@codemod/parser": "^1.0.6",
+    "@types/debug": "^4.1.8",
     "@types/jest": "^24.0.0",
-    "@types/pdfkit": "^0.12.9",
+    "@types/luxon": "^3.0.0",
     "@types/react": "17.0.39",
     "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.1.5",
     "@types/styled-components": "^5.1.9",
-    "@types/svg-to-pdfkit": "^0.1.0",
     "@types/tmp": "^0.2.3",
     "@typescript-eslint/eslint-plugin": "5.37.0",
     "@typescript-eslint/parser": "5.37.0",
     "@vitejs/plugin-react": "^1.3.2",
+    "@votingworks/design-backend": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
     "eslint": "8.23.1",
     "eslint-config-airbnb": "^19.0.4",
@@ -117,5 +122,11 @@
     "ts-jest": "^26.5.6",
     "vite": "^2.9.12"
   },
-  "packageManager": "pnpm@8.1.0"
+  "packageManager": "pnpm@8.1.0",
+  "vx": {
+    "isBundled": true,
+    "services": [
+      "../backend"
+    ]
+  }
 }
