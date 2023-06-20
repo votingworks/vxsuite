@@ -1,5 +1,6 @@
 import { Tabulation } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
+import { groupMapToGroupList } from '@votingworks/utils';
 import {
   SemsExportableContestTally,
   SemsExportableTallies,
@@ -42,10 +43,11 @@ function convertElectionResultsToSemsExportableTally(
  * Formats election results grouped by precinct to the format required by the SEMS converter.
  */
 export function getSemsExportableTallies(
-  electionResultsByPrecinct: Tabulation.GroupedElectionResults
+  electionResultsByPrecinct: Tabulation.ElectionResultsGroupMap
 ): SemsExportableTallies {
   const talliesByPrecinct: SemsExportableTallies['talliesByPrecinct'] = {};
-  for (const electionResults of Object.values(electionResultsByPrecinct)) {
+  const electionResultsList = groupMapToGroupList(electionResultsByPrecinct);
+  for (const electionResults of electionResultsList) {
     assert(electionResults.precinctId !== undefined);
     const { precinctId } = electionResults;
     talliesByPrecinct[precinctId] =

@@ -8,7 +8,10 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { getEmptyElectionResults } from '@votingworks/utils';
+import {
+  getEmptyElectionResults,
+  groupMapToGroupList,
+} from '@votingworks/utils';
 import { Readable } from 'stream';
 import { WriteInCandidateRecord } from '../types';
 
@@ -58,14 +61,17 @@ function* generateRows({
   election,
   writeInCandidates,
 }: {
-  electionResultsByPrecinctAndVotingMethod: Tabulation.GroupedElectionResults;
+  electionResultsByPrecinctAndVotingMethod: Tabulation.ElectionResultsGroupMap;
   election: Election;
   writeInCandidates: WriteInCandidateRecord[];
 }): Generator<string> {
+  const electionResultsList = groupMapToGroupList(
+    electionResultsByPrecinctAndVotingMethod
+  );
   for (const precinct of election.precincts) {
     for (const votingMethod of INCLUDED_VOTING_METHODS) {
       const electionResults =
-        Object.values(electionResultsByPrecinctAndVotingMethod).find(
+        electionResultsList.find(
           (er) =>
             er.precinctId === precinct.id && er.votingMethod === votingMethod
         ) || getEmptyElectionResults(election);
@@ -171,7 +177,7 @@ export function generateResultsCsv({
   election,
   writeInCandidates,
 }: {
-  electionResultsByPrecinctAndVotingMethod: Tabulation.GroupedElectionResults;
+  electionResultsByPrecinctAndVotingMethod: Tabulation.ElectionResultsGroupMap;
   election: Election;
   writeInCandidates: WriteInCandidateRecord[];
 }): NodeJS.ReadableStream {

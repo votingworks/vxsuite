@@ -49,9 +49,8 @@ export function aggregateManualResults({
   election: Election;
   manualResultsRecords: Iterable<ManualResultsRecord>;
   groupBy?: ManualResultsGroupBy;
-}): Tabulation.Grouped<Tabulation.ManualElectionResults> {
-  const groupedManualResults: Tabulation.Grouped<Tabulation.ManualElectionResults> =
-    {};
+}): Tabulation.ManualResultsGroupMap {
+  const manualResultsGroupMap: Tabulation.ManualResultsGroupMap = {};
 
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
@@ -62,24 +61,18 @@ export function aggregateManualResults({
       ballotStyleIdPartyIdLookup
     );
     const groupKey = getGroupKey(groupSpecifier, groupBy);
-    const existingGroup = groupedManualResults[groupKey];
+    const existingGroup = manualResultsGroupMap[groupKey];
     if (existingGroup) {
-      groupedManualResults[groupKey] = {
-        ...groupSpecifier,
-        ...combineManualElectionResults({
-          election,
-          allManualResults: [existingGroup, manualResultsRecord.manualResults],
-        }),
-      };
+      manualResultsGroupMap[groupKey] = combineManualElectionResults({
+        election,
+        allManualResults: [existingGroup, manualResultsRecord.manualResults],
+      });
     } else {
-      groupedManualResults[groupKey] = {
-        ...groupSpecifier,
-        ...manualResultsRecord.manualResults,
-      };
+      manualResultsGroupMap[groupKey] = manualResultsRecord.manualResults;
     }
   }
 
-  return groupedManualResults;
+  return manualResultsGroupMap;
 }
 
 /**
@@ -117,10 +110,7 @@ export function tabulateManualResults({
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-}): Result<
-  Tabulation.Grouped<Tabulation.ManualElectionResults>,
-  GetManualResultsError
-> {
+}): Result<Tabulation.ManualResultsGroupMap, GetManualResultsError> {
   if (!isFilterCompatibleWithManualResults(filter)) {
     return err({ type: 'incompatible-filter' });
   }
@@ -159,12 +149,12 @@ export function tabulateManualBallotCounts({
   election: Election;
   manualResultsMetadataRecords: Iterable<ManualResultsMetadataRecord>;
   groupBy?: Tabulation.GroupBy;
-}): Result<Tabulation.GroupedManualBallotCounts, GetManualResultsError> {
+}): Result<Tabulation.ManualBallotCountsGroupMap, GetManualResultsError> {
   if (!isGroupByCompatibleWithManualResults(groupBy)) {
     return err({ type: 'incompatible-group-by' });
   }
 
-  const groupedManualBallotCounts: Tabulation.GroupedManualBallotCounts = {};
+  const manualBallotCountGroupMap: Tabulation.ManualBallotCountsGroupMap = {};
 
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
@@ -176,13 +166,10 @@ export function tabulateManualBallotCounts({
     );
     const groupKey = getGroupKey(groupSpecifier, groupBy);
 
-    groupedManualBallotCounts[groupKey] = {
-      ...groupSpecifier,
-      ballotCount:
-        (groupedManualBallotCounts[groupKey]?.ballotCount ?? 0) +
-        manualResultsMetadataRecord.ballotCount,
-    };
+    manualBallotCountGroupMap[groupKey] =
+      (manualBallotCountGroupMap[groupKey] ?? 0) +
+      manualResultsMetadataRecord.ballotCount;
   }
 
-  return ok(groupedManualBallotCounts);
+  return ok(manualBallotCountGroupMap);
 }

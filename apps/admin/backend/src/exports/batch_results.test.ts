@@ -7,69 +7,63 @@ import { ScannerBatch } from '../types';
 
 test('generateBatchResultsFile', async () => {
   const { election } = electionMinimalExhaustiveSampleDefinition;
-  const batchGroupedResults: Tabulation.GroupedElectionResults = {
-    'root&batch-1': {
-      batchId: 'batch-1',
-      ...buildElectionResultsFixture({
-        election,
-        cardCounts: {
-          hmpb: [30, 29],
-          bmd: 5,
-        },
-        contestResultsSummaries: {
-          'zoo-council-mammal': {
-            type: 'candidate',
-            ballots: 35,
-            undervotes: 2,
-            overvotes: 3,
-            officialOptionTallies: {
-              lion: 25,
-              [writeInCandidate.id]: 5,
-            },
-          },
-          fishing: {
-            type: 'yesno',
-            ballots: 34,
-            undervotes: 1,
-            overvotes: 3,
-            yesTally: 25,
-            noTally: 5,
+  const batchGroupedResults: Tabulation.ElectionResultsGroupMap = {
+    'root&batchId=batch-1': buildElectionResultsFixture({
+      election,
+      cardCounts: {
+        hmpb: [30, 29],
+        bmd: 5,
+      },
+      contestResultsSummaries: {
+        'zoo-council-mammal': {
+          type: 'candidate',
+          ballots: 35,
+          undervotes: 2,
+          overvotes: 3,
+          officialOptionTallies: {
+            lion: 25,
+            [writeInCandidate.id]: 5,
           },
         },
-        includeGenericWriteIn: true,
-      }),
-    },
-    'root&batch-2': {
-      batchId: 'batch-2',
-      ...buildElectionResultsFixture({
-        election,
-        cardCounts: {
-          hmpb: [29, 29],
-          bmd: 1,
+        fishing: {
+          type: 'yesno',
+          ballots: 34,
+          undervotes: 1,
+          overvotes: 3,
+          yesTally: 25,
+          noTally: 5,
         },
-        contestResultsSummaries: {
-          'zoo-council-mammal': {
-            type: 'candidate',
-            ballots: 30,
-            undervotes: 1,
-            overvotes: 3,
-            officialOptionTallies: {
-              lion: 20,
-              [writeInCandidate.id]: 6,
-            },
-          },
-          fishing: {
-            type: 'yesno',
-            ballots: 30,
-            undervotes: 1,
-            overvotes: 5,
-            yesTally: 20,
-            noTally: 4,
+      },
+      includeGenericWriteIn: true,
+    }),
+    'root&batchId=batch-2': buildElectionResultsFixture({
+      election,
+      cardCounts: {
+        hmpb: [29, 29],
+        bmd: 1,
+      },
+      contestResultsSummaries: {
+        'zoo-council-mammal': {
+          type: 'candidate',
+          ballots: 30,
+          undervotes: 1,
+          overvotes: 3,
+          officialOptionTallies: {
+            lion: 20,
+            [writeInCandidate.id]: 6,
           },
         },
-        includeGenericWriteIn: true,
-      }),
-    },
+        fishing: {
+          type: 'yesno',
+          ballots: 30,
+          undervotes: 1,
+          overvotes: 5,
+          yesTally: 20,
+          noTally: 4,
+        },
+      },
+      includeGenericWriteIn: true,
+    }),
   };
 
   const allBatchMetadata: ScannerBatch[] = [

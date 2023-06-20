@@ -516,3 +516,11 @@ export interface CardTally {
   card: Tabulation.Card;
   tally: number;
 }
+
+/**
+ * Results that inform a tally report.
+ */
+export interface TallyReportResults {
+  scannedResults: Tabulation.ElectionResults;
+  manualResults?: Tabulation.ManualElectionResults;
+}

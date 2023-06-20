@@ -35,6 +35,7 @@ import {
   BALLOT_PACKAGE_FOLDER,
   CAST_VOTE_RECORD_REPORT_FILENAME,
   generateFilenameForBallotExportPackage,
+  groupMapToGroupList,
   isIntegrationTest,
   parseCastVoteRecordReportDirectoryName,
 } from '@votingworks/utils';
@@ -54,6 +55,7 @@ import {
   SemsExportableTallies,
   ServerFullElectionManualTally,
   SetSystemSettingsResult,
+  TallyReportResults,
   WriteInAdjudicationAction,
   WriteInAdjudicationStatus,
   WriteInCandidateRecord,
@@ -78,7 +80,10 @@ import {
 import { addFileToZipStream } from './util/zip';
 import { exportFile } from './util/export_file';
 import { generateBatchResultsFile } from './exports/batch_results';
-import { tabulateElectionResults } from './tabulation/full_results';
+import {
+  tabulateElectionResults,
+  tabulateTallyReportResults,
+} from './tabulation/full_results';
 import { getSemsExportableTallies } from './exports/sems_tallies';
 import { generateResultsCsv } from './exports/csv_results';
 import { tabulateFullCardCounts } from './tabulation/card_counts';
@@ -692,10 +697,27 @@ function buildApi({
       groupBy: Tabulation.GroupBy;
     }): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
-      return Object.values(
+      return groupMapToGroupList(
         tabulateFullCardCounts({
           electionId,
           store,
+          groupBy: input.groupBy,
+        })
+      );
+    },
+
+    getResultsForTallyReports(
+      input: {
+        filter?: Tabulation.Filter;
+        groupBy?: Tabulation.GroupBy;
+      } = {}
+    ): Tabulation.GroupList<TallyReportResults> {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      return groupMapToGroupList(
+        tabulateTallyReportResults({
+          electionId,
+          store,
+          filter: input.filter,
           groupBy: input.groupBy,
         })
       );

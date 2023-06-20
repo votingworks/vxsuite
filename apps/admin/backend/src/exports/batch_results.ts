@@ -1,7 +1,7 @@
 import { Election, Tabulation, writeInCandidate } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { Readable } from 'stream';
-import { getBallotCount } from '@votingworks/utils';
+import { getBallotCount, groupMapToGroupList } from '@votingworks/utils';
 // eslint-disable-next-line import/no-unresolved
 import { stringify } from 'csv-stringify/sync';
 import { ScannerBatch } from '../types';
@@ -99,9 +99,10 @@ export function generateBatchResultsFile({
   allBatchMetadata,
 }: {
   election: Election;
-  batchGroupedResults: Tabulation.GroupedElectionResults;
+  batchGroupedResults: Tabulation.ElectionResultsGroupMap;
   allBatchMetadata: ScannerBatch[];
 }): NodeJS.ReadableStream {
+  const electionResultsList = groupMapToGroupList(batchGroupedResults);
   const batchMetadataLookup: Record<string, ScannerBatch> = {};
   for (const batchMetadata of allBatchMetadata) {
     batchMetadataLookup[batchMetadata.batchId] = batchMetadata;
@@ -110,7 +111,7 @@ export function generateBatchResultsFile({
   function* generateBatchResultsFileRows() {
     yield generateHeaderRow(election);
 
-    for (const batchResults of Object.values(batchGroupedResults)) {
+    for (const batchResults of electionResultsList) {
       // expect batch results to be grouped by batchId
       assert(batchResults.batchId !== undefined);
 

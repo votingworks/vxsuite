@@ -2,17 +2,19 @@ import { Id, Tabulation } from '@votingworks/types';
 import {
   combineElectionResults,
   convertManualElectionResults,
-  extractGroupSpecifier,
-  mergeManualWriteInTallies,
+  getEmptyElectionResults,
+  mergeWriteInTallies,
+  mergeTabulationGroupMaps,
   tabulateCastVoteRecords as tabulateFilteredCastVoteRecords,
 } from '@votingworks/utils';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, mapObject } from '@votingworks/basics';
 import { Store } from '../store';
 import {
   modifyElectionResultsWithWriteInSummary,
   tabulateWriteInTallies,
 } from './write_ins';
 import { tabulateManualResults } from './manual_results';
+import { TallyReportResults } from '../types';
 
 /**
  * Tabulate cast vote records with no write-in adjudication information.
@@ -27,7 +29,7 @@ export function tabulateCastVoteRecords({
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-}): Tabulation.GroupedElectionResults {
+}): Tabulation.ElectionResultsGroupMap {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
@@ -56,13 +58,13 @@ export function tabulateElectionResults({
   groupBy?: Tabulation.GroupBy;
   includeWriteInAdjudicationResults?: boolean;
   includeManualResults?: boolean;
-}): Tabulation.GroupedElectionResults {
+}): Tabulation.ElectionResultsGroupMap {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
 
   // basic cast vote record tally with bucketed write-in counts
-  const groupedElectionResults = tabulateCastVoteRecords({
+  let groupedElectionResults = tabulateCastVoteRecords({
     electionId,
     store,
     filter,
@@ -79,20 +81,19 @@ export function tabulateElectionResults({
       groupBy,
     });
 
-    for (const [groupKey, electionResults] of Object.entries(
-      groupedElectionResults
-    )) {
-      const writeInSummary = groupedWriteInSummaries[groupKey];
-      if (writeInSummary) {
-        groupedElectionResults[groupKey] = {
-          ...electionResults, // maintain group specifier
-          ...modifyElectionResultsWithWriteInSummary(
-            electionResults,
-            writeInSummary
-          ),
-        };
+    groupedElectionResults = mergeTabulationGroupMaps(
+      groupedElectionResults,
+      groupedWriteInSummaries,
+      (electionResults, writeInSummary) => {
+        assert(electionResults); // results must exist if there is write-in data
+        return writeInSummary
+          ? modifyElectionResultsWithWriteInSummary(
+              electionResults,
+              writeInSummary
+            )
+          : electionResults;
       }
-    }
+    );
   }
 
   // include manual results if specified
@@ -107,47 +108,92 @@ export function tabulateElectionResults({
     // ignore manual results if the tabulation is not successful
     if (queryResult.isOk()) {
       const groupedManualResults = queryResult.ok();
-      // unlike the write-in summaries, it's possible that manual results exist
-      // where cast vote record election results do not
-      const allGroupKeys = [
-        ...new Set([
-          ...Object.keys(groupedElectionResults),
-          ...Object.keys(groupedManualResults),
-        ]),
-      ];
-      for (const groupKey of allGroupKeys) {
-        const resultsToCombine: Tabulation.ElectionResults[] = [];
-        const scannedResults = groupedElectionResults[groupKey];
-        if (scannedResults) {
-          resultsToCombine.push(scannedResults);
-        }
-        const manualResults = groupedManualResults[groupKey];
-        if (manualResults) {
-          if (includeWriteInAdjudicationResults) {
-            resultsToCombine.push(convertManualElectionResults(manualResults));
-          } else {
-            resultsToCombine.push(
-              convertManualElectionResults(
-                mergeManualWriteInTallies(manualResults)
-              )
-            );
+      groupedElectionResults = mergeTabulationGroupMaps(
+        groupedElectionResults,
+        groupedManualResults,
+        (scannedResults, manualResults) => {
+          const resultsToCombine: Tabulation.ElectionResults[] = [];
+          if (scannedResults) {
+            resultsToCombine.push(scannedResults);
           }
-        }
-
-        const someResults = manualResults || scannedResults;
-        assert(someResults);
-        const groupSpecifier = extractGroupSpecifier(someResults);
-
-        groupedElectionResults[groupKey] = {
-          ...groupSpecifier,
-          ...combineElectionResults({
+          if (manualResults) {
+            if (includeWriteInAdjudicationResults) {
+              resultsToCombine.push(
+                convertManualElectionResults(manualResults)
+              );
+            } else {
+              resultsToCombine.push(
+                convertManualElectionResults(mergeWriteInTallies(manualResults))
+              );
+            }
+          }
+          return combineElectionResults({
             election,
             allElectionResults: resultsToCombine,
-          }),
-        };
-      }
+          });
+        }
+      );
     }
   }
 
   return groupedElectionResults;
+}
+
+/**
+ * Tabulates grouped tally reports for an election. This includes scanned results
+ * adjusted with write-in adjudication data (but combining all unofficial write-ins)
+ * and manual results separately.
+ */
+export function tabulateTallyReportResults({
+  electionId,
+  store,
+  filter = {},
+  groupBy = {},
+}: {
+  electionId: Id;
+  store: Store;
+  filter?: Tabulation.Filter;
+  groupBy?: Tabulation.GroupBy;
+}): Tabulation.GroupMap<TallyReportResults> {
+  const {
+    electionDefinition: { election },
+  } = assertDefined(store.getElection(electionId));
+
+  const groupedScannedResults = mapObject(
+    tabulateElectionResults({
+      electionId,
+      store,
+      filter,
+      groupBy,
+      includeWriteInAdjudicationResults: true,
+      includeManualResults: false,
+    }),
+    mergeWriteInTallies
+  );
+  const manualResultsTabulationResult = tabulateManualResults({
+    electionId,
+    store,
+    filter,
+    groupBy,
+  });
+
+  if (manualResultsTabulationResult.isErr()) {
+    return mapObject(groupedScannedResults, (scannedResults) => ({
+      scannedResults,
+    }));
+  }
+
+  return mergeTabulationGroupMaps(
+    groupedScannedResults,
+    manualResultsTabulationResult.ok(),
+    (scannedResults, manualResults) => {
+      return {
+        scannedResults:
+          scannedResults ?? getEmptyElectionResults(election, true),
+        manualResults: manualResults
+          ? mergeWriteInTallies(manualResults)
+          : undefined,
+      };
+    }
+  );
 }

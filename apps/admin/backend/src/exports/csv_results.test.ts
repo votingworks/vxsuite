@@ -8,12 +8,10 @@ import { WriteInCandidateRecord } from '../types';
 test('generateResultsCsv', async () => {
   const { election } =
     electionMinimalExhaustiveSampleFixtures.electionDefinition;
-  const electionResultsByPrecinctAndVotingMethod: Tabulation.GroupedElectionResults =
+  const electionResultsByPrecinctAndVotingMethod: Tabulation.ElectionResultsGroupMap =
     {
-      'root&precinct-1&absentee': {
-        precinctId: 'precinct-1',
-        votingMethod: 'absentee',
-        ...buildElectionResultsFixture({
+      'root&precinctId=precinct-1&votingMethod=absentee':
+        buildElectionResultsFixture({
           election,
           includeGenericWriteIn: true,
           cardCounts: {
@@ -39,11 +37,9 @@ test('generateResultsCsv', async () => {
             },
           },
         }),
-      },
-      'root&precinct-2&precinct': {
-        precinctId: 'precinct-2',
-        votingMethod: 'precinct',
-        ...buildElectionResultsFixture({
+
+      'root&precinctId=precinct-2&votingMethod=precinct':
+        buildElectionResultsFixture({
           election,
           includeGenericWriteIn: true,
           cardCounts: {
@@ -61,7 +57,6 @@ test('generateResultsCsv', async () => {
             },
           },
         }),
-      },
     };
 
   const writeInCandidates: WriteInCandidateRecord[] = [

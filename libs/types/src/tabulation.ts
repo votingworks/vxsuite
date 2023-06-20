@@ -81,8 +81,10 @@ export type Card = { type: 'bmd' } | { type: 'hmpb'; sheetNumber: number };
  * In situations where we're generating grouped results, specifiers can be
  * included in {@link ElectionResults} to indicate what it is a grouping of.
  */
-export type GroupSpecifier = Partial<CastVoteRecordAttributes> & {
-  readonly partyId?: Id;
+export type GroupSpecifier = Partial<{
+  -readonly [K in keyof CastVoteRecordAttributes]: CastVoteRecordAttributes[K];
+}> & {
+  partyId?: Id;
 };
 
 /**
@@ -124,11 +126,22 @@ export interface ElectionResults {
 }
 
 export type GroupKey = string;
-export type GroupOf<T> = T & GroupSpecifier;
-export type Grouped<T> = Record<GroupKey, GroupOf<T>>;
+/**
+ * Simply a map of keys to some values relevant to tabulation. The keys contain encoded
+ * metadata about the group, defined in `libs/utils`. The consumer can convert the
+ * {@link GroupMap} to a {@link GroupList}.
+ */
+export type GroupMap<T> = Record<GroupKey, T>;
 
-export type GroupedElectionResults = Grouped<ElectionResults>;
-export type GroupedCardCounts = Grouped<CardCounts>;
+export type GroupOf<T> = T & GroupSpecifier;
+/**
+ * A {@link GroupList} is a list of objects relevant to tabulation with metadata
+ * as part of each object identifying the group.
+ */
+export type GroupList<T> = Array<GroupOf<T>>;
+
+export type ElectionResultsGroupMap = GroupMap<ElectionResults>;
+export type ElectionResultsGroupList = GroupList<ElectionResults>;
 
 /**
  * Simplified representation of votes on a scanned ballot for tabulation
@@ -149,7 +162,7 @@ export type CastVoteRecord = {
 export type ManualElectionResults = Omit<ElectionResults, 'cardCounts'> & {
   ballotCount: number;
 };
+export type ManualResultsGroupMap = GroupMap<ManualElectionResults>;
+export type ManualResultsGroupList = GroupList<ManualElectionResults>;
 
-export type GroupedManualBallotCounts = Grouped<{
-  ballotCount: number;
-}>;
+export type ManualBallotCountsGroupMap = GroupMap<number>;

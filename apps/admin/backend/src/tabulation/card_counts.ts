@@ -2,10 +2,10 @@ import { Id, Tabulation } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import {
   GROUP_KEY_ROOT,
-  extractGroupSpecifier,
   getEmptyCardCounts,
   getGroupKey,
   isGroupByEmpty,
+  mergeTabulationGroupMaps,
 } from '@votingworks/utils';
 import { CardTally } from '../types';
 import { Store } from '../store';
@@ -47,7 +47,7 @@ export function tabulateScannedCardCounts({
   electionId: Id;
   store: Store;
   groupBy?: Tabulation.GroupBy;
-}): Tabulation.GroupedCardCounts {
+}): Tabulation.GroupMap<Tabulation.CardCounts> {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
@@ -58,7 +58,7 @@ export function tabulateScannedCardCounts({
     groupBy,
   });
 
-  const groupedCardCounts: Tabulation.GroupedCardCounts = {};
+  const cardCountsGroupMap: Tabulation.GroupMap<Tabulation.CardCounts> = {};
 
   // optimized special case, when the results do not need to be grouped
   if (!groupBy || isGroupByEmpty(groupBy)) {
@@ -69,27 +69,24 @@ export function tabulateScannedCardCounts({
         cardTally,
       });
     }
-    groupedCardCounts[GROUP_KEY_ROOT] = cardCounts;
-    return groupedCardCounts;
+    cardCountsGroupMap[GROUP_KEY_ROOT] = cardCounts;
+    return cardCountsGroupMap;
   }
 
   // general case, grouping results by specified group by clause
   for (const cardTally of cardTallies) {
     const groupKey = getGroupKey(cardTally, groupBy);
 
-    const existingCardCounts = groupedCardCounts[groupKey];
-    const cardCounts = existingCardCounts ?? {
-      ...getEmptyCardCounts(),
-      ...extractGroupSpecifier(cardTally),
-    };
+    const existingCardCounts = cardCountsGroupMap[groupKey];
+    const cardCounts = existingCardCounts ?? getEmptyCardCounts();
 
-    groupedCardCounts[groupKey] = addCardTallyToCardCounts({
+    cardCountsGroupMap[groupKey] = addCardTallyToCardCounts({
       cardCounts,
       cardTally,
     });
   }
 
-  return groupedCardCounts;
+  return cardCountsGroupMap;
 }
 
 /**
@@ -104,7 +101,7 @@ export function tabulateFullCardCounts({
   electionId: Id;
   store: Store;
   groupBy?: Tabulation.GroupBy;
-}): Tabulation.GroupedCardCounts {
+}): Tabulation.GroupMap<Tabulation.CardCounts> {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
@@ -128,21 +125,14 @@ export function tabulateFullCardCounts({
 
   const groupedManualBallotCounts = tabulateManualBallotCountsResult.ok();
 
-  const groupedFullCardCounts: Tabulation.GroupedCardCounts = {};
-
-  const allKeys = [
-    ...new Set([
-      ...Object.keys(groupedScannedCardCounts),
-      ...Object.keys(groupedManualBallotCounts),
-    ]),
-  ];
-
-  for (const key of allKeys) {
-    groupedFullCardCounts[key] = {
-      ...(groupedScannedCardCounts[key] ?? getEmptyCardCounts()),
-      manual: groupedManualBallotCounts[key]?.ballotCount ?? 0,
-    };
-  }
-
-  return groupedFullCardCounts;
+  return mergeTabulationGroupMaps(
+    groupedScannedCardCounts,
+    groupedManualBallotCounts,
+    (scannedCardCounts, manualBallotCount) => {
+      return {
+        ...(scannedCardCounts ?? getEmptyCardCounts()),
+        manual: manualBallotCount ?? 0,
+      };
+    }
+  );
 }
