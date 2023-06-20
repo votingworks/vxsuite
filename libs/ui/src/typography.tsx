@@ -19,6 +19,7 @@ export interface FontProps {
   id?: string;
   italic?: boolean;
   noWrap?: boolean;
+  style?: React.CSSProperties;
   weight?: keyof SizeTheme['fontWeight'];
 }
 
