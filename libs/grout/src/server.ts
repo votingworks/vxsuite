@@ -120,7 +120,12 @@ export function buildRouter(
   express: typeof Express
 ): Express.Router {
   const router = express.Router();
-  router.use(express.text({ type: 'application/json' }));
+  router.use(
+    express.text({
+      type: 'application/json',
+      limit: '10mb', // Allow large-ish payloads like election definitions
+    })
+  );
 
   for (const [methodName, method] of Object.entries<AnyRpcMethod>(api)) {
     const path = `/${methodName}`;
