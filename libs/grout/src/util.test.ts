@@ -96,6 +96,9 @@ test('isPlainObject', () => {
   expect(isPlainObject('')).toEqual(false);
   expect(isPlainObject([])).toEqual(false);
   expect(isPlainObject(() => 0)).toEqual(false);
+
+  // an object with a distinct null prototype is still a plain object
+  expect(isPlainObject(Object.create(Object.create(null)))).toEqual(true);
 });
 
 test('isFunction', () => {

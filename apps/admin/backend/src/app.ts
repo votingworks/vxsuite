@@ -684,13 +684,9 @@ function buildApi({
     },
 
     getManualResultsMetadata(): ManualResultsMetadataRecord[] {
-      return store
-        .getManualResultsMetadata({
-          electionId: loadCurrentElectionIdOrThrow(workspace),
-        })
-        .map((record) => ({ ...record }));
-      // TODO: grout is having trouble serializing records from the store
-      // without destructuring them. need to investigate
+      return store.getManualResultsMetadata({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+      });
     },
 
     getCardCounts(input: {
@@ -724,11 +720,7 @@ function buildApi({
     },
 
     getScannerBatches(): ScannerBatch[] {
-      return store
-        .getScannerBatches(loadCurrentElectionIdOrThrow(workspace))
-        .map((record) => ({ ...record }));
-      // TODO: grout is having trouble serializing records from the store
-      // without destructuring them. need to investigate;
+      return store.getScannerBatches(loadCurrentElectionIdOrThrow(workspace));
     },
 
     async exportBatchResults(input: {
