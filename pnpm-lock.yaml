@@ -1520,20 +1520,201 @@ importers:
         specifier: 4.6.3
         version: 4.6.3
 
-  apps/design/frontend:
+  apps/design/backend:
     dependencies:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
+      '@votingworks/db':
+        specifier: workspace:*
+        version: link:../../../libs/db
+      '@votingworks/design-shared':
+        specifier: workspace:^0.1.0
+        version: link:../shared
+      '@votingworks/grout':
+        specifier: workspace:*
+        version: link:../../../libs/grout
+      '@votingworks/types':
+        specifier: workspace:*
+        version: link:../../../libs/types
+      '@votingworks/utils':
+        specifier: workspace:*
+        version: link:../../../libs/utils
+      better-sqlite3:
+        specifier: ^7.5.0
+        version: 7.5.3
+      debug:
+        specifier: ^4.3.1
+        version: 4.3.4(supports-color@8.1.1)
+      dotenv:
+        specifier: ^16.0.2
+        version: 16.0.2
+      dotenv-expand:
+        specifier: ^9.0.0
+        version: 9.0.0
+      express:
+        specifier: ^4.18.0
+        version: 4.18.2(supports-color@6.1.0)
+      fs-extra:
+        specifier: ^9.0.1
+        version: 9.1.0
+      jszip:
+        specifier: ^3.9.1
+        version: 3.9.1
+      pdfkit:
+        specifier: ^0.13.0
+        version: 0.13.0
+      react:
+        specifier: 17.0.1
+        version: 17.0.1
+      react-dom:
+        specifier: 17.0.1
+        version: 17.0.1(react@17.0.1)
+      svg-to-pdfkit:
+        specifier: ^0.1.8
+        version: 0.1.8
+      uuid:
+        specifier: ^8.3.2
+        version: 8.3.2
+      zod:
+        specifier: 3.14.4
+        version: 3.14.4
+    devDependencies:
+      '@jest/types':
+        specifier: ^29.0.0
+        version: 29.5.0
+      '@types/better-sqlite3':
+        specifier: ^7.4.3
+        version: 7.6.3
+      '@types/debug':
+        specifier: ^4.1.5
+        version: 4.1.8
+      '@types/express':
+        specifier: ^4.17.13
+        version: 4.17.14
+      '@types/fs-extra':
+        specifier: ^9.0.6
+        version: 9.0.13
+      '@types/jest':
+        specifier: ^27.0.3
+        version: 27.4.1
+      '@types/node':
+        specifier: 16.18.23
+        version: 16.18.23
+      '@types/pdfkit':
+        specifier: ^0.12.9
+        version: 0.12.9
+      '@types/react':
+        specifier: 17.0.39
+        version: 17.0.39
+      '@types/react-dom':
+        specifier: ^17.0.0
+        version: 17.0.13
+      '@types/svg-to-pdfkit':
+        specifier: ^0.1.0
+        version: 0.1.0
+      '@types/tmp':
+        specifier: ^0.2.3
+        version: 0.2.3
+      '@types/uuid':
+        specifier: ^8.3.0
+        version: 8.3.4
+      '@typescript-eslint/eslint-plugin':
+        specifier: 5.37.0
+        version: 5.37.0(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)(typescript@4.6.3)
+      '@typescript-eslint/parser':
+        specifier: 5.37.0
+        version: 5.37.0(eslint@8.23.1)(typescript@4.6.3)
+      esbuild:
+        specifier: ^0.14.29
+        version: 0.14.42
+      esbuild-runner:
+        specifier: ^2.2.1
+        version: 2.2.2(esbuild@0.14.42)
+      eslint:
+        specifier: 8.23.1
+        version: 8.23.1
+      eslint-config-prettier:
+        specifier: ^8.5.0
+        version: 8.6.0(eslint@8.23.1)
+      eslint-import-resolver-node:
+        specifier: ^0.3.4
+        version: 0.3.7
+      eslint-plugin-import:
+        specifier: ^2.26.0
+        version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
+      eslint-plugin-jest:
+        specifier: ^26.1.5
+        version: 26.6.0(@typescript-eslint/eslint-plugin@5.37.0)(eslint@8.23.1)(jest@29.5.0)(typescript@4.6.3)
+      eslint-plugin-prettier:
+        specifier: ^4.2.1
+        version: 4.2.1(eslint-config-prettier@8.6.0)(eslint@8.23.1)(prettier@2.6.2)
+      eslint-plugin-vx:
+        specifier: workspace:*
+        version: link:../../../libs/eslint-plugin-vx
+      is-ci-cli:
+        specifier: ^2.1.2
+        version: 2.2.0
+      jest:
+        specifier: ^29.4.1
+        version: 29.5.0(@types/node@16.18.23)
+      jest-junit:
+        specifier: ^15.0.0
+        version: 15.0.0
+      jest-watch-typeahead:
+        specifier: ^2.2.2
+        version: 2.2.2(jest@29.5.0)
+      lint-staged:
+        specifier: ^10.5.3
+        version: 10.5.4
+      nodemon:
+        specifier: ^2.0.20
+        version: 2.0.20
+      prettier:
+        specifier: 2.6.2
+        version: 2.6.2
+      sort-package-json:
+        specifier: ^1.50.0
+        version: 1.53.1
+      tmp:
+        specifier: ^0.2.1
+        version: 0.2.1
+      ts-jest:
+        specifier: 29.0.5
+        version: 29.0.5(@babel/core@7.12.3)(@jest/types@29.5.0)(esbuild@0.14.42)(jest@29.5.0)(typescript@4.6.3)
+      typescript:
+        specifier: 4.6.3
+        version: 4.6.3
+
+  apps/design/frontend:
+    dependencies:
+      '@tanstack/react-query':
+        specifier: ^4.22.0
+        version: 4.22.0(react-dom@17.0.1)(react@17.0.1)
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../../../libs/basics
+      '@votingworks/design-shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@votingworks/grout':
+        specifier: workspace:*
+        version: link:../../../libs/grout
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
       '@votingworks/ui':
         specifier: workspace:*
         version: link:../../../libs/ui
+      '@votingworks/utils':
+        specifier: workspace:*
+        version: link:../../../libs/utils
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
+      debug:
+        specifier: ^4.3.4
+        version: 4.3.4(supports-color@8.1.1)
       dotenv:
         specifier: 8.2.0
         version: 8.2.0
@@ -1546,15 +1727,18 @@ importers:
       esbuild-runner:
         specifier: ^2.2.1
         version: 2.2.2(esbuild@0.14.42)
+      js-file-download:
+        specifier: ^0.4.12
+        version: 0.4.12
+      luxon:
+        specifier: ^3.0.0
+        version: 3.3.0
       normalize.css:
         specifier: ^8.0.1
         version: 8.0.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
-      pdfkit:
-        specifier: ^0.13.0
-        version: 0.13.0
       react:
         specifier: 17.0.1
         version: 17.0.1
@@ -1567,9 +1751,6 @@ importers:
       styled-components:
         specifier: ^5.2.3
         version: 5.2.3(react-dom@17.0.1)(react-is@18.2.0)(react@17.0.1)
-      svg-to-pdfkit:
-        specifier: ^0.1.8
-        version: 0.1.8
       typescript:
         specifier: 4.6.3
         version: 4.6.3
@@ -1577,12 +1758,15 @@ importers:
       '@codemod/parser':
         specifier: ^1.0.6
         version: 1.2.1
+      '@types/debug':
+        specifier: ^4.1.8
+        version: 4.1.8
       '@types/jest':
         specifier: ^24.0.0
         version: 24.9.1
-      '@types/pdfkit':
-        specifier: ^0.12.9
-        version: 0.12.9
+      '@types/luxon':
+        specifier: ^3.0.0
+        version: 3.2.0
       '@types/react':
         specifier: 17.0.39
         version: 17.0.39
@@ -1595,9 +1779,6 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.9
         version: 5.1.9
-      '@types/svg-to-pdfkit':
-        specifier: ^0.1.0
-        version: 0.1.0
       '@types/tmp':
         specifier: ^0.2.3
         version: 0.2.3
@@ -1610,6 +1791,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^1.3.2
         version: 1.3.2
+      '@votingworks/design-backend':
+        specifier: workspace:*
+        version: link:../backend
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../../../libs/monorepo-utils
@@ -1709,6 +1893,133 @@ importers:
       vite:
         specifier: ^2.9.12
         version: 2.9.13
+
+  apps/design/shared:
+    dependencies:
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../../../libs/basics
+      '@votingworks/types':
+        specifier: workspace:^1.0.0
+        version: link:../../../libs/types
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
+      debug:
+        specifier: ^4.3.4
+        version: 4.3.4(supports-color@8.1.1)
+      dotenv:
+        specifier: 8.2.0
+        version: 8.2.0
+      dotenv-expand:
+        specifier: 5.1.0
+        version: 5.1.0
+      esbuild:
+        specifier: ^0.14.29
+        version: 0.14.42
+      esbuild-runner:
+        specifier: ^2.2.1
+        version: 2.2.2(esbuild@0.14.42)
+      path:
+        specifier: ^0.12.7
+        version: 0.12.7
+      react:
+        specifier: 17.0.1
+        version: 17.0.1
+      react-dom:
+        specifier: 17.0.1
+        version: 17.0.1(react@17.0.1)
+      typescript:
+        specifier: 4.6.3
+        version: 4.6.3
+    devDependencies:
+      '@codemod/parser':
+        specifier: ^1.0.6
+        version: 1.2.1
+      '@types/debug':
+        specifier: ^4.1.8
+        version: 4.1.8
+      '@types/jest':
+        specifier: ^24.0.0
+        version: 24.0.11
+      '@types/react':
+        specifier: 17.0.39
+        version: 17.0.39
+      '@types/react-dom':
+        specifier: ^17.0.0
+        version: 17.0.13
+      '@typescript-eslint/eslint-plugin':
+        specifier: 5.37.0
+        version: 5.37.0(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)(typescript@4.6.3)
+      '@typescript-eslint/parser':
+        specifier: 5.37.0
+        version: 5.37.0(eslint@8.23.1)(typescript@4.6.3)
+      '@votingworks/monorepo-utils':
+        specifier: workspace:*
+        version: link:../../../libs/monorepo-utils
+      eslint:
+        specifier: 8.23.1
+        version: 8.23.1
+      eslint-config-airbnb:
+        specifier: ^19.0.4
+        version: 19.0.4(eslint-plugin-import@2.27.5)(eslint-plugin-jsx-a11y@6.6.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.31.8)(eslint@8.23.1)
+      eslint-config-prettier:
+        specifier: ^8.5.0
+        version: 8.6.0(eslint@8.23.1)
+      eslint-config-react-app:
+        specifier: ^7.0.1
+        version: 7.0.1(@babel/plugin-syntax-flow@7.18.6)(@babel/plugin-transform-react-jsx@7.20.13)(eslint@8.23.1)(jest@26.6.3)(typescript@4.6.3)
+      eslint-import-resolver-node:
+        specifier: ^0.3.4
+        version: 0.3.7
+      eslint-plugin-flowtype:
+        specifier: ^5.2.0
+        version: 5.2.0(eslint@8.23.1)
+      eslint-plugin-import:
+        specifier: ^2.26.0
+        version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
+      eslint-plugin-jest:
+        specifier: ^27.2.1
+        version: 27.2.1(@typescript-eslint/eslint-plugin@5.37.0)(eslint@8.23.1)(jest@26.6.3)(typescript@4.6.3)
+      eslint-plugin-jsx-a11y:
+        specifier: ^6.6.1
+        version: 6.6.1(eslint@8.23.1)
+      eslint-plugin-prettier:
+        specifier: ^4.2.1
+        version: 4.2.1(eslint-config-prettier@8.6.0)(eslint@8.23.1)(prettier@2.6.2)
+      eslint-plugin-react:
+        specifier: ^7.31.8
+        version: 7.31.8(eslint@8.23.1)
+      eslint-plugin-react-hooks:
+        specifier: ^4.6.0
+        version: 4.6.0(eslint@8.23.1)
+      eslint-plugin-vx:
+        specifier: workspace:*
+        version: link:../../../libs/eslint-plugin-vx
+      is-ci-cli:
+        specifier: ^2.2.0
+        version: 2.2.0
+      jest:
+        specifier: ^26.6.0
+        version: 26.6.3
+      jest-junit:
+        specifier: ^14.0.1
+        version: 14.0.1
+      jest-watch-typeahead:
+        specifier: 0.6.4
+        version: 0.6.4(jest@26.6.3)
+      lint-staged:
+        specifier: ^10.5.4
+        version: 10.5.4
+      prettier:
+        specifier: 2.6.2
+        version: 2.6.2
+      sort-package-json:
+        specifier: ^1.50.0
+        version: 1.53.1
+      ts-jest:
+        specifier: ^26.5.6
+        version: 26.5.6(jest@26.6.3)(typescript@4.6.3)
 
   apps/mark-scan/backend:
     dependencies:
@@ -13444,6 +13755,12 @@ packages:
     dependencies:
       '@types/ms': 0.7.31
 
+  /@types/debug@4.1.8:
+    resolution: {integrity: sha512-/vPO1EPOs306Cvhwv7KfVfYvOJqA/S/AXjaHQiJboCZzcNDb+TIJFN9/2C9DZ//ijSKWioNyUxD792QmDJ+HKQ==}
+    dependencies:
+      '@types/ms': 0.7.31
+    dev: true
+
   /@types/deep-eql@4.0.0:
     resolution: {integrity: sha512-UkfTYLA64vGUyR4ez8ybIC01wtilS/ydOqKL1fSHOvnX1sVm1sI5btr7Q+bqpdaPGD+QNhOgBXq1HGjO+99e1A==}
     dev: false
@@ -13595,13 +13912,11 @@ packages:
     deprecated: This is a stub types definition. jest-diff provides its own type definitions, so you do not need this installed.
     dependencies:
       jest-diff: 27.5.1
-    dev: false
 
   /@types/jest@24.0.11:
     resolution: {integrity: sha512-2kLuPC5FDnWIDvaJBzsGTBQaBbnDweznicvK7UGYzlIJP4RJR2a4A/ByLUXEyEgag6jz8eHdlWExGDtH3EYUXQ==}
     dependencies:
       '@types/jest-diff': 24.3.0
-    dev: false
 
   /@types/jest@24.9.1:
     resolution: {integrity: sha512-Fb38HkXSVA4L8fGKEZ6le5bB8r6MRWlOCZbVuWZcmOMSCd2wCYOwN1ibj8daIoV9naq7aaOZjrLCoCMptKU/4Q==}
@@ -20536,7 +20851,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.20.6
       aria-query: 4.2.2
-      array-includes: 3.1.5
+      array-includes: 3.1.6
       ast-types-flow: 0.0.7
       axe-core: 4.4.3
       axobject-query: 2.2.0
@@ -25032,18 +25347,6 @@ packages:
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
     dependencies:
       '@jest/types': 28.1.3
-      '@types/node': 16.18.23
-      chalk: 4.1.2
-      ci-info: 3.3.2
-      graceful-fs: 4.2.10
-      picomatch: 2.3.1
-    dev: true
-
-  /jest-util@29.4.3:
-    resolution: {integrity: sha512-ToSGORAz4SSSoqxDSylWX8JzkOQR7zoBtNRsA7e+1WUX5F8jrOwaNpuh1YfJHJKDHXLHmObv5eOjejUd+/Ws+Q==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    dependencies:
-      '@jest/types': 29.5.0
       '@types/node': 16.18.23
       chalk: 4.1.2
       ci-info: 3.3.2
@@ -31993,11 +32296,11 @@ packages:
       esbuild: 0.14.25
       fast-json-stable-stringify: 2.1.0
       jest: 29.4.3(@types/node@16.18.23)
-      jest-util: 29.4.3
+      jest-util: 29.5.0
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
-      semver: 7.3.7
+      semver: 7.3.2
       typescript: 4.6.3
       yargs-parser: 21.1.1
     dev: true
@@ -32029,11 +32332,11 @@ packages:
       esbuild: 0.14.42
       fast-json-stable-stringify: 2.1.0
       jest: 29.5.0(@types/node@16.18.23)
-      jest-util: 29.4.3
+      jest-util: 29.5.0
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
-      semver: 7.3.7
+      semver: 7.3.2
       typescript: 4.6.3
       yargs-parser: 21.1.1
     dev: true
@@ -32065,11 +32368,11 @@ packages:
       esbuild: 0.17.11
       fast-json-stable-stringify: 2.1.0
       jest: 29.5.0(@types/node@16.18.23)
-      jest-util: 29.4.3
+      jest-util: 29.5.0
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
-      semver: 7.3.7
+      semver: 7.3.2
       typescript: 4.6.3
       yargs-parser: 21.1.1
     dev: true
