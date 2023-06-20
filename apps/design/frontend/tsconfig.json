@@ -16,8 +16,12 @@
   },
   "include": ["src"],
   "references": [
+    { "path": "../backend/tsconfig.build.json" },
+    { "path": "../shared/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },
+    { "path": "../../../libs/grout/tsconfig.build.json" },
     { "path": "../../../libs/types/tsconfig.build.json" },
-    { "path": "../../../libs/ui/tsconfig.build.json" }
+    { "path": "../../../libs/ui/tsconfig.build.json" },
+    { "path": "../../../libs/utils/tsconfig.build.json" }
   ]
 }
