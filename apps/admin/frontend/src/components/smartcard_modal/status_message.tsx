@@ -2,12 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { UserRole } from '@votingworks/types';
-import { Loading, Modal, Text } from '@votingworks/ui';
+import { Font, Icons, Loading, Modal, P } from '@votingworks/ui';
 import { hyphenatePin } from '@votingworks/utils';
 
 import { userRoleToReadableString } from './user_roles';
 
-const TextLarge = styled(Text)`
+const TextLarge = styled(P)`
   font-size: 1.5em;
 `;
 
@@ -76,15 +76,22 @@ export function SuccessOrErrorStatusMessage({
         throwIllegalValue(action);
       }
     }
-    return <Text error>{text} Please try again.</Text>;
+    return (
+      <P>
+        <Font color="danger">
+          <Icons.Danger />
+        </Font>{' '}
+        {text} Please try again.
+      </P>
+    );
   }
 
   if (action === 'Program') {
     return (
-      <TextLarge success>
+      <TextLarge color="success">
         {newPin ? (
           <React.Fragment>
-            New card PIN is <strong>{hyphenatePin(newPin)}</strong>.
+            New card PIN is <Font weight="bold">{hyphenatePin(newPin)}</Font>.
           </React.Fragment>
         ) : (
           <React.Fragment>New card created.</React.Fragment>
@@ -96,17 +103,17 @@ export function SuccessOrErrorStatusMessage({
   if (action === 'PinReset') {
     assert(newPin !== undefined);
     return (
-      <TextLarge success>
-        New card PIN is <strong>{hyphenatePin(newPin)}</strong>.
+      <TextLarge color="success">
+        New card PIN is <Font weight="bold">{hyphenatePin(newPin)}</Font>.
       </TextLarge>
     );
   }
 
   if (action === 'Unprogram') {
     return (
-      <Text success>
+      <P color="success">
         {actionRoleReadableString} card has been unprogrammed.
-      </Text>
+      </P>
     );
   }
 
