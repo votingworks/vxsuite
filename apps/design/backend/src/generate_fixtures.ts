@@ -22,30 +22,33 @@ export function main(): void {
     join(fixturesDir, 'all-bubble-ballot-cycling-test-deck-document.json'),
     JSON.stringify(allBubbleBallotCyclingTestDeck, null, 2)
   );
-  renderDocumentToPdf(
-    allBubbleBallotCyclingTestDeck,
+  const testDeckPdf = renderDocumentToPdf(allBubbleBallotCyclingTestDeck);
+  testDeckPdf.pipe(
     fs.createWriteStream(
       join(fixturesDir, 'all-bubble-ballot-cycling-test-deck.pdf')
     )
   );
+  testDeckPdf.end();
 
   fs.writeFileSync(
     join(fixturesDir, 'all-bubble-ballot-blank-ballot-document.json'),
     JSON.stringify(allBubbleBallotBlankBallot, null, 2)
   );
-  renderDocumentToPdf(
-    allBubbleBallotBlankBallot,
+  const blankBallotPdf = renderDocumentToPdf(allBubbleBallotBlankBallot);
+  blankBallotPdf.pipe(
     fs.createWriteStream(
       join(fixturesDir, 'all-bubble-ballot-blank-ballot.pdf')
     )
   );
+  blankBallotPdf.end();
 
   fs.writeFileSync(
     join(fixturesDir, 'all-bubble-ballot-filled-card-document.json'),
     JSON.stringify(allBubbleBallotFilledBallot, null, 2)
   );
-  renderDocumentToPdf(
-    allBubbleBallotFilledBallot,
+  const filledBallotPdf = renderDocumentToPdf(allBubbleBallotFilledBallot);
+  filledBallotPdf.pipe(
     fs.createWriteStream(join(fixturesDir, 'all-bubble-ballot-filled-card.pdf'))
   );
+  filledBallotPdf.end();
 }
