@@ -23,8 +23,8 @@ interface AllBubbleBallotOptions {
 
 function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
   function bubbles(page: number) {
-    return range(1, GRID.rows - 1).flatMap((row) =>
-      range(1, GRID.columns - 1).map((column) =>
+    return range(2, GRID.rows).flatMap((row) =>
+      range(2, GRID.columns).map((column) =>
         Bubble({
           row,
           column,
