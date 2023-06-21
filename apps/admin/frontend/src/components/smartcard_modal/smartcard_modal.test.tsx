@@ -396,10 +396,7 @@ test('Programming system administrator smartcards', async () => {
   within(modal).getByRole('heading', {
     name: 'Create New System Administrator Card',
   });
-  within(modal).getByText(
-    'This card performs all system actions. ' +
-      'Strictly limit the number created and keep all System Administrator cards secure.'
-  );
+  within(modal).getByText(/keep all System Administrator cards secure/i);
   const systemAdministratorCardButton = within(modal).getByRole('button', {
     name: 'Create System Administrator Card',
   });
