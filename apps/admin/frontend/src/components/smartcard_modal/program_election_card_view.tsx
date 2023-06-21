@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { assert } from '@votingworks/basics';
-import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
+import { Button, Font, H1, P } from '@votingworks/ui';
 
 import { programCard } from '../../api';
 import { AppContext } from '../../contexts/app_context';
@@ -78,20 +78,19 @@ export function ProgramElectionCardView({
     <React.Fragment>
       {isSmartcardActionComplete(actionStatus) && (
         <StatusMessageContainer>
-          <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
+          <Font align="center">
             <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
-          </Prose>
+          </Font>
         </StatusMessageContainer>
       )}
 
-      <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
-        <h1>Create New Election Card</h1>
+      <Font align="center">
+        <H1>Create New Election Card</H1>
         {electionDefinition ? (
           <React.Fragment>
-            <p>{electionToDisplayString(electionDefinition.election)}</p>
+            <P>{electionToDisplayString(electionDefinition.election)}</P>
 
-            <HorizontalRule />
-            <p>
+            <P>
               <Button
                 disabled={!electionDefinition}
                 onPress={programElectionManagerCard}
@@ -105,21 +104,17 @@ export function ProgramElectionCardView({
               >
                 Poll Worker Card
               </Button>
-            </p>
-            <HorizontalRule />
+            </P>
 
-            <p>Remove card to cancel.</p>
+            <P>Remove card to cancel.</P>
           </React.Fragment>
         ) : (
           <React.Fragment>
-            <HorizontalRule />
-            <p>An election must be defined before cards can be created.</p>
-            <HorizontalRule />
-
-            <p>Remove card to leave this screen.</p>
+            <P>An election must be defined before cards can be created.</P>
+            <P>Remove card to leave this screen.</P>
           </React.Fragment>
         )}
-      </Prose>
+      </Font>
     </React.Fragment>
   );
 }
