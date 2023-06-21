@@ -1,4 +1,3 @@
-import { ColorMode } from '@votingworks/types';
 import { AppBase } from '@votingworks/ui';
 import {
   getHardware,
@@ -12,6 +11,9 @@ import { LogSource, Logger } from '@votingworks/logging';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 
+/* Copied from old App.css */
+const PRINT_FONT_SIZE_PX = 14;
+
 export type Props = Partial<AppRootProps>;
 
 export function App({
@@ -21,19 +23,13 @@ export function App({
   logger = new Logger(LogSource.VxAdminFrontend, window.kiosk),
   generateBallotId,
 }: Props): JSX.Element {
-  // Copied from old App.css
-  const baseFontSizePx = 20;
-  const printFontSizePx = 14;
-
-  // TODO: Default to medium contrast and vary based on user selection.
-  const colorMode: ColorMode = 'legacy';
-
   return (
     <BrowserRouter>
       <AppBase
-        defaultColorMode={colorMode}
-        legacyBaseFontSizePx={baseFontSizePx}
-        legacyPrintFontSizePx={printFontSizePx}
+        defaultColorMode="contrastMedium"
+        defaultSizeMode="s"
+        screenType="lenovoThinkpad15"
+        legacyPrintFontSizePx={PRINT_FONT_SIZE_PX}
       >
         <AppRoot
           printer={printer}
