@@ -15,6 +15,7 @@ import {
 import {
   assert,
   assertDefined,
+  deferred,
   err,
   ok,
   Optional,
@@ -29,7 +30,13 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { createReadStream, existsSync, promises as fs, Stats } from 'fs';
+import {
+  createReadStream,
+  createWriteStream,
+  existsSync,
+  promises as fs,
+  Stats,
+} from 'fs';
 import { basename, dirname, join } from 'path';
 import {
   BALLOT_PACKAGE_FOLDER,
@@ -184,20 +191,10 @@ function buildApi({
     async saveBallotPackageToUsb(): Promise<BallotPackageExportResult> {
       await logger.log(LogEventId.SaveBallotPackageInit, 'election_manager');
 
-      const ballotPackageZipStream = new ZipStream();
       const electionDefinition = getCurrentElectionDefinition(workspace);
       assert(electionDefinition !== undefined);
       const systemSettings =
         store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
-      await addFileToZipStream(ballotPackageZipStream, {
-        path: 'election.json',
-        contents: electionDefinition.electionData,
-      });
-      await addFileToZipStream(ballotPackageZipStream, {
-        path: 'systemSettings.json',
-        contents: JSON.stringify(systemSettings, null, 2),
-      });
-      ballotPackageZipStream.finalize();
 
       const tempDirectory = dirSync().name;
       try {
@@ -209,10 +206,24 @@ function buildApi({
           tempDirectory,
           ballotPackageFileName
         );
-        await fs.writeFile(
-          tempDirectoryBallotPackageFilePath,
-          ballotPackageZipStream
+
+        const ballotPackageZipStream = new ZipStream();
+        const ballotPackageZipPromise = deferred<void>();
+        ballotPackageZipStream.on('error', ballotPackageZipPromise.reject);
+        ballotPackageZipStream.on('end', ballotPackageZipPromise.resolve);
+        ballotPackageZipStream.pipe(
+          createWriteStream(tempDirectoryBallotPackageFilePath)
         );
+        await addFileToZipStream(ballotPackageZipStream, {
+          path: 'election.json',
+          contents: electionDefinition.electionData,
+        });
+        await addFileToZipStream(ballotPackageZipStream, {
+          path: 'systemSettings.json',
+          contents: JSON.stringify(systemSettings, null, 2),
+        });
+        ballotPackageZipStream.finish();
+        await ballotPackageZipPromise.promise;
 
         const usbMountPoint = (await usb.getUsbDrives())[0]?.mountPoint;
         if (!usbMountPoint) {
