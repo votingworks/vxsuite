@@ -80,15 +80,9 @@ export const PPI = 72;
 export const DOCUMENT_WIDTH = 8.5 * PPI;
 export const DOCUMENT_HEIGHT = 11 * PPI;
 
-const NUM_CONTEST_COLUMNS = 3;
-const GUTTER_WIDTH = 1;
-const CONTEST_COLUMN_WIDTH = 10;
 export const GRID: GridDimensions = {
   rows: 41,
-  columns:
-    3 + // Timing marks
-    CONTEST_COLUMN_WIDTH * NUM_CONTEST_COLUMNS +
-    GUTTER_WIDTH * (NUM_CONTEST_COLUMNS - 1),
+  columns: 34,
 };
 const HEADER_ROW_HEIGHT = 4.5;
 const INSTRUCTIONS_ROW_HEIGHT = 3.5;
@@ -98,6 +92,8 @@ const FOOTER_ROW_HEIGHT = 2;
 const TIMING_MARKS_ROW_HEIGHT = 1.5; // Includes margin
 const CONTENT_AREA_ROW_HEIGHT = GRID.rows - TIMING_MARKS_ROW_HEIGHT * 2 + 1;
 const CONTENT_AREA_COLUMN_WIDTH = GRID.columns - 3;
+const GUTTER_WIDTH = 0.5;
+const CONTEST_COLUMN_WIDTH = 9.5;
 
 export const COLUMN_GAP = DOCUMENT_WIDTH / (GRID.columns + 1);
 export const ROW_GAP = DOCUMENT_HEIGHT / (GRID.rows + 1);
@@ -330,7 +326,7 @@ function HeaderAndInstructions({
       },
       {
         type: 'TextBox',
-        ...gridPosition({ row: 1.1, column: 13.5 }),
+        ...gridPosition({ row: 1.1, column: 13 }),
         width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
         height: gridHeight(INSTRUCTIONS_ROW_HEIGHT - 1),
         textLines: ['To Vote for a Write-In:'],
@@ -339,7 +335,7 @@ function HeaderAndInstructions({
       },
       {
         type: 'TextBox',
-        ...gridPosition({ row: 1.7, column: 13.5 }),
+        ...gridPosition({ row: 1.7, column: 13 }),
         width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
         height: gridHeight(INSTRUCTIONS_ROW_HEIGHT - 1),
         textLines: [
@@ -351,7 +347,7 @@ function HeaderAndInstructions({
       },
       {
         type: 'Image',
-        ...gridPosition({ row: 1.1, column: 26.5 }),
+        ...gridPosition({ row: 1.1, column: 25.5 }),
         width: gridWidth(5),
         height: gridHeight(1.5),
         href: '/images/instructions-write-in.svg',
@@ -380,7 +376,7 @@ function Footer({
   const continueVoting: AnyElement[] = [
     {
       type: 'TextBox',
-      ...gridPosition({ row: 0.5, column: 16.5 }),
+      ...gridPosition({ row: 0.5, column: 16 }),
       width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
       height: gridHeight(FOOTER_ROW_HEIGHT - 1),
       textLines: ['Turn ballot over and continue voting'],
@@ -388,7 +384,7 @@ function Footer({
     },
     {
       type: 'Image',
-      ...gridPosition({ row: 0.25, column: 30 }),
+      ...gridPosition({ row: 0.25, column: 29 }),
       width: gridWidth(1.5),
       height: gridHeight(1.5),
       href: '/images/arrow-right-circle.svg',
@@ -398,7 +394,7 @@ function Footer({
   const ballotComplete: AnyElement[] = [
     {
       type: 'TextBox',
-      ...gridPosition({ row: 0.5, column: 20 }),
+      ...gridPosition({ row: 0.5, column: 19.5 }),
       width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
       height: gridHeight(FOOTER_ROW_HEIGHT - 1),
       textLines: ['You have completed this ballot.'],
@@ -485,14 +481,17 @@ function Contest({
 }): [Rectangle, GridPosition[]] {
   assert(contest.type === 'candidate');
 
-  const titleLines = textWrap(
-    contest.title,
-    gridWidth(CONTEST_COLUMN_WIDTH - 0.5)
-  );
+  // Temp hack until we can change the timing mark grid dimensions: expand the
+  // last column to fill the page
+  const width =
+    gridColumn > 20
+      ? CONTENT_AREA_COLUMN_WIDTH - 2 * (CONTEST_COLUMN_WIDTH + GUTTER_WIDTH)
+      : CONTEST_COLUMN_WIDTH;
+  const titleLines = textWrap(contest.title, gridWidth(width - 0.5));
   const titleTextBox: TextBox = {
     type: 'TextBox',
     ...gridPosition({ row: 0.5, column: 0.5 }),
-    width: gridWidth(CONTEST_COLUMN_WIDTH - 1),
+    width: gridWidth(width - 1),
     height: gridHeight(titleLines.length),
     textLines: titleLines,
     ...FontStyles.H3,
@@ -502,14 +501,14 @@ function Contest({
   const heading: Rectangle = {
     type: 'Rectangle',
     ...gridPosition({ row: 0, column: 0 }),
-    width: gridWidth(CONTEST_COLUMN_WIDTH),
+    width: gridWidth(width),
     height: gridHeight(headingRowHeight),
     children: [
       // Thicker top border
       {
         type: 'Rectangle',
         ...gridPosition({ row: 0, column: 0 }),
-        width: gridWidth(CONTEST_COLUMN_WIDTH),
+        width: gridWidth(width),
         height: 2,
         fill: 'black',
       },
@@ -522,7 +521,7 @@ function Contest({
           titleTextBox.y +
           titleLines.length * FontStyles.H3.lineHeight +
           gridHeight(0.25),
-        width: gridWidth(CONTEST_COLUMN_WIDTH - 1),
+        width: gridWidth(width - 1),
         height: gridHeight(1),
         textLines: [
           contest.seats === 1
@@ -547,7 +546,7 @@ function Contest({
         row: optionRow,
         column: 0,
       }),
-      width: gridWidth(CONTEST_COLUMN_WIDTH),
+      width: gridWidth(width),
       height: gridHeight(optionRowHeight),
       // fill: 'rgb(0, 255, 0, 0.2)',
       children: [
@@ -555,7 +554,7 @@ function Contest({
         {
           type: 'TextBox',
           ...gridPosition({ row: 0.6, column: 1.75 }),
-          width: gridWidth(CONTEST_COLUMN_WIDTH - 1),
+          width: gridWidth(width - 1),
           height: gridHeight(1),
           textLines: [candidate.name],
           ...FontStyles.BODY,
@@ -564,7 +563,7 @@ function Contest({
         {
           type: 'TextBox',
           ...gridPosition({ row: 1.3, column: 1.75 }),
-          width: gridWidth(CONTEST_COLUMN_WIDTH - 1),
+          width: gridWidth(width - 1),
           height: gridHeight(1),
           textLines: [getCandidatePartiesDescription(election, candidate)],
           ...FontStyles.BODY,
@@ -594,21 +593,21 @@ function Contest({
           row: optionRow,
           column: 0,
         }),
-        width: gridWidth(CONTEST_COLUMN_WIDTH),
+        width: gridWidth(width),
         height: gridHeight(writeInRowHeight),
         children: [
           Bubble({ row: 1, column: 1, isFilled: false }),
           {
             type: 'Rectangle', // Line?
             ...gridPosition({ row: 1.25, column: 1.75 }),
-            width: gridWidth(CONTEST_COLUMN_WIDTH - 2.5),
+            width: gridWidth(width - 2.5),
             height: 1,
             fill: 'black',
           },
           {
             type: 'TextBox',
             ...gridPosition({ row: 1.3, column: 1.75 }),
-            width: gridWidth(CONTEST_COLUMN_WIDTH - 2.5),
+            width: gridWidth(width - 2.5),
             height: gridHeight(1),
             textLines: ['write-in'],
             ...FontStyles.SMALL,
@@ -638,7 +637,7 @@ function Contest({
     {
       type: 'Rectangle',
       ...gridPosition({ row, column: 0 }),
-      width: gridWidth(CONTEST_COLUMN_WIDTH),
+      width: gridWidth(width),
       height: contestHeight,
       stroke: 'black',
       strokeWidth: 0.5,

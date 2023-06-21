@@ -5,12 +5,20 @@
   "ballotStyles": [
     {
       "id": "card-number-1",
-      "districts": ["test-district"],
-      "precincts": ["test-precinct"]
+      "districts": [
+        "test-district"
+      ],
+      "precincts": [
+        "test-precinct"
+      ]
     }
   ],
-  "centralScanAdjudicationReasons": ["Overvote"],
-  "precinctScanAdjudicationReasons": ["Overvote"],
+  "centralScanAdjudicationReasons": [
+    "Overvote"
+  ],
+  "precinctScanAdjudicationReasons": [
+    "Overvote"
+  ],
   "contests": [
     {
       "id": "test-contest-page-1",
