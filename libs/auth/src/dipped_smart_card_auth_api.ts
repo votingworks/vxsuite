@@ -32,7 +32,7 @@ export interface DippedSmartCardAuthApi {
     machineState: DippedSmartCardAuthMachineState,
     input:
       | { userRole: SystemAdministratorUser['role'] }
-      | { userRole: ElectionManagerUser['role']; electionData: string }
+      | { userRole: ElectionManagerUser['role'] }
       | { userRole: PollWorkerUser['role'] }
   ): Promise<Result<{ pin?: string }, Error>>;
   unprogramCard(

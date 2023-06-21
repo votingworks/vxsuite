@@ -28,10 +28,8 @@ export function mockSystemAdministratorCardInsertion(): void {
 }
 
 export function mockElectionManagerCardInsertion({
-  electionData,
   electionHash,
 }: {
-  electionData: string;
   electionHash: string;
 }): void {
   mockCardCypress({
@@ -45,7 +43,6 @@ export function mockElectionManagerCardInsertion({
         },
       },
     },
-    data: Buffer.from(electionData, 'utf-8'),
     pin: PIN,
   });
 }

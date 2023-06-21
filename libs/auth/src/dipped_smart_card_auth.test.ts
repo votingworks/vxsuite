@@ -67,7 +67,7 @@ afterEach(() => {
 
 const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
-const { electionData, electionHash } = electionSampleDefinition;
+const { electionHash } = electionSampleDefinition;
 const otherElectionHash = electionSample2Definition.electionHash;
 const defaultConfig: DippedSmartCardAuthConfig = {};
 const defaultMachineState: DippedSmartCardAuthMachineState = {
@@ -688,11 +688,10 @@ test.each<{
   {
     description: 'election manager cards',
     machineState: defaultMachineState,
-    input: { userRole: 'election_manager', electionData },
+    input: { userRole: 'election_manager' },
     expectedCardProgramInput: {
       user: { role: 'election_manager', jurisdiction, electionHash },
       pin,
-      electionData,
     },
     expectedProgramResult: ok({ pin }),
     cardDetailsAfterProgramming: {

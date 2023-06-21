@@ -4,7 +4,7 @@ import { extractErrorMessage } from '@votingworks/basics';
 import { createCertHelper, parseCreateCertInput } from '../openssl';
 
 /**
- * An intermediate component of createCert in ./openssl.ts, needed for permissions purposes. See
+ * An intermediate component of createCert in src/openssl.ts, needed for permissions purposes. See
  * createCert for more context.
  */
 export async function main(): Promise<void> {

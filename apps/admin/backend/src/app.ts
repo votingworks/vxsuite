@@ -162,17 +162,7 @@ function buildApi({
     programCard(input: {
       userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
     }) {
-      const machineState = constructAuthMachineState(workspace);
-      if (input.userRole === 'election_manager') {
-        const electionDefinition = getCurrentElectionDefinition(workspace);
-        assert(electionDefinition !== undefined);
-        const { electionData } = electionDefinition;
-        return auth.programCard(machineState, {
-          userRole: 'election_manager',
-          electionData,
-        });
-      }
-      return auth.programCard(machineState, {
+      return auth.programCard(constructAuthMachineState(workspace), {
         userRole: input.userRole,
       });
     },

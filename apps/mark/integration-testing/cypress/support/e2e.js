@@ -44,7 +44,6 @@ function insertElectionManagerCard() {
         },
       },
     },
-    data: Buffer.from(electionData, 'utf-8'),
     pin: PIN,
   });
 }

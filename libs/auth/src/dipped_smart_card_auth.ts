@@ -244,7 +244,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     machineState: DippedSmartCardAuthMachineState,
     input:
       | { userRole: 'system_administrator' }
-      | { userRole: 'election_manager'; electionData: string }
+      | { userRole: 'election_manager' }
       | { userRole: 'poll_worker' }
   ): Promise<Result<{ pin?: string }, Error>> {
     await this.logger.log(
@@ -333,7 +333,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     machineState: DippedSmartCardAuthMachineState,
     input:
       | { userRole: 'system_administrator' }
-      | { userRole: 'election_manager'; electionData: string }
+      | { userRole: 'election_manager' }
       | { userRole: 'poll_worker' }
   ): Promise<string | undefined> {
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
@@ -361,7 +361,6 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         await this.card.program({
           user: { role: 'election_manager', jurisdiction, electionHash },
           pin,
-          electionData: input.electionData,
         });
         return pin;
       }

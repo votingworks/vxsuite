@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer';
 import * as fs from 'fs';
 import { sha256 } from 'js-sha256';
 import yargs from 'yargs/yargs';
@@ -25,7 +24,6 @@ type CardType = typeof CARD_TYPES[number];
 
 interface MockCardInput {
   cardType: CardType;
-  electionData?: string;
   electionHash?: string;
 }
 
@@ -86,7 +84,6 @@ async function parseCommandLineArgs(): Promise<MockCardInput> {
     throw new Error(`Must specify card type\n\n${helpMessage}`);
   }
 
-  let electionData: Optional<string>;
   let electionHash: Optional<string>;
   if (['election-manager', 'poll-worker'].includes(args.cardType)) {
     if (!args.electionDefinition) {
@@ -94,7 +91,9 @@ async function parseCommandLineArgs(): Promise<MockCardInput> {
         `Must specify election definition for election manager and poll worker cards\n\n${helpMessage}`
       );
     }
-    electionData = fs.readFileSync(args.electionDefinition).toString('utf-8');
+    const electionData = fs
+      .readFileSync(args.electionDefinition)
+      .toString('utf-8');
     if (!safeParseElection(electionData).isOk()) {
       throw new Error(
         `${args.electionDefinition} isn't a valid election definition`
@@ -105,16 +104,11 @@ async function parseCommandLineArgs(): Promise<MockCardInput> {
 
   return {
     cardType: args.cardType,
-    electionData,
     electionHash,
   };
 }
 
-function mockCardWrapper({
-  cardType,
-  electionData,
-  electionHash,
-}: MockCardInput) {
+function mockCardWrapper({ cardType, electionHash }: MockCardInput) {
   switch (cardType) {
     case 'system-administrator': {
       mockCard({
@@ -133,7 +127,6 @@ function mockCardWrapper({
     }
     case 'election-manager': {
       assert(electionHash !== undefined);
-      assert(electionData !== undefined);
       mockCard({
         cardStatus: {
           status: 'ready',
@@ -145,7 +138,6 @@ function mockCardWrapper({
             },
           },
         },
-        data: Buffer.from(electionData, 'utf-8'),
         pin: '000000',
       });
       break;
