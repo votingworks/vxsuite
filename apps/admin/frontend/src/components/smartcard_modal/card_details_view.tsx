@@ -1,14 +1,7 @@
 import React, { useContext } from 'react';
-import styled from 'styled-components';
 import { assert } from '@votingworks/basics';
 import { ElectionDefinition, User } from '@votingworks/types';
-import {
-  Button,
-  fontSizeTheme,
-  HorizontalRule,
-  Prose,
-  Text,
-} from '@votingworks/ui';
+import { Button, Font, H1, P } from '@votingworks/ui';
 
 import {
   getSystemSettings,
@@ -23,10 +16,6 @@ import {
   SuccessOrErrorStatusMessage,
 } from './status_message';
 import { userRoleToReadableString } from './user_roles';
-
-const StatusMessageContainer = styled.div`
-  margin-bottom: 2.5em;
-`;
 
 function checkDoesCardElectionHashMatchMachineElectionHash(
   programmedUser: User,
@@ -135,18 +124,14 @@ export function CardDetailsView({
   if (actionStatus?.status === 'Success') {
     bodyContent = (
       <React.Fragment>
-        <HorizontalRule />
         <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
-        <HorizontalRule />
-
-        <Text bold>Remove card to continue.</Text>
+        <P weight="bold">Remove card to continue.</P>
       </React.Fragment>
     );
   } else if (possibleActions.size > 0) {
     bodyContent = (
       <React.Fragment>
-        <HorizontalRule />
-        <p>
+        <P>
           {possibleActions.has('PinReset') && (
             <Button onPress={resetCardPin}>Reset Card PIN</Button>
           )}{' '}
@@ -162,41 +147,35 @@ export function CardDetailsView({
               Unprogram Card
             </Button>
           )}
-        </p>
-        <HorizontalRule />
+        </P>
 
-        <p>Remove card to cancel.</p>
+        <P>Remove card to cancel.</P>
       </React.Fragment>
     );
   } else if (!electionDefinition) {
     bodyContent = (
       <React.Fragment>
-        <HorizontalRule />
-        <p>An election must be defined before cards can be created.</p>
-        <HorizontalRule />
-
-        <p>Remove card to leave this screen.</p>
+        <P>An election must be defined before cards can be created.</P>
+        <P>Remove card to leave this screen.</P>
       </React.Fragment>
     );
   } else {
-    bodyContent = <p>Remove card to leave this screen.</p>;
+    bodyContent = <P>Remove card to leave this screen.</P>;
   }
 
   return (
     <React.Fragment>
       {actionStatus?.status === 'Error' && (
-        <StatusMessageContainer>
-          <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
-            <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
-          </Prose>
-        </StatusMessageContainer>
+        <P align="center">
+          <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
+        </P>
       )}
 
-      <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
-        <h1>{userRoleToReadableString(role)} Card</h1>
-        {role !== 'system_administrator' && <p>{electionDisplayString}</p>}
+      <Font align="center">
+        <H1>{userRoleToReadableString(role)} Card</H1>
+        {role !== 'system_administrator' && <P>{electionDisplayString}</P>}
         {bodyContent}
-      </Prose>
+      </Font>
     </React.Fragment>
   );
 }
