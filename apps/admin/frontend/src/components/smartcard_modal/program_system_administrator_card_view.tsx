@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
+import { Button, Font, fontSizeTheme, H1, P, Prose } from '@votingworks/ui';
 
 import { programCard } from '../../api';
 import {
@@ -55,23 +55,23 @@ export function ProgramSystemAdministratorCardView({
         </StatusMessageContainer>
       )}
 
-      <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
-        <h1>Create New System Administrator Card</h1>
-        <p>
-          This card performs all system actions. Strictly limit the number
-          created and keep all System Administrator cards secure.
-        </p>
+      <Font align="center">
+        <H1>Create New System Administrator Card</H1>
+        <P>
+          This card performs all system actions.
+          <br />
+          Strictly limit the number created and keep all System Administrator
+          cards secure.
+        </P>
 
-        <HorizontalRule />
-        <p>
+        <P>
           <Button onPress={programSystemAdministratorCard}>
             Create System Administrator Card
           </Button>
-        </p>
-        <HorizontalRule />
+        </P>
 
-        <p>Remove card to cancel.</p>
-      </Prose>
+        <P>Remove card to cancel.</P>
+      </Font>
     </React.Fragment>
   );
 }
