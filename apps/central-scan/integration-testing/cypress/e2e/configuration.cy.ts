@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer';
 import { sha256 } from 'js-sha256';
 import { methodUrl } from '@votingworks/grout';
 import { TEST_JURISDICTION } from '@votingworks/types';
@@ -17,7 +16,6 @@ function mockCardCypress(mockFileContents: MockFileContents): void {
 function mockElectionManagerCard() {
   cy.readFile('cypress/fixtures/election.json', null).then(
     (electionBytes: Uint8Array) => {
-      const electionData = Buffer.from(electionBytes);
       const electionHash = sha256(electionBytes);
       mockCardCypress({
         cardStatus: {
@@ -30,7 +28,6 @@ function mockElectionManagerCard() {
             },
           },
         },
-        data: electionData,
         pin: PIN,
       });
     }
