@@ -254,7 +254,7 @@ export class JavaCard implements Card {
   async program(
     input:
       | { user: SystemAdministratorUser; pin: string }
-      | { user: ElectionManagerUser; pin: string; electionData: string }
+      | { user: ElectionManagerUser; pin: string }
       | { user: PollWorkerUser; pin?: string }
   ): Promise<void> {
     assert(
@@ -320,10 +320,6 @@ export class JavaCard implements Card {
       VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID,
       vxAdminCertAuthorityCert
     );
-
-    if ('electionData' in input) {
-      await this.writeData(Buffer.from(input.electionData, 'utf-8'));
-    }
 
     this.cardStatus = { status: 'ready', cardDetails };
   }

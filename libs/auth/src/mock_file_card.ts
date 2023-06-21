@@ -157,7 +157,7 @@ export class MockFileCard implements Card {
   program(
     input:
       | { user: SystemAdministratorUser; pin: string }
-      | { user: ElectionManagerUser; pin: string; electionData: string }
+      | { user: ElectionManagerUser; pin: string }
       | { user: PollWorkerUser; pin?: string }
   ): Promise<void> {
     const { user, pin } = input;
@@ -175,13 +175,11 @@ export class MockFileCard implements Card {
         break;
       }
       case 'election_manager': {
-        assert('electionData' in input);
         writeToMockFile({
           cardStatus: {
             status: 'ready',
             cardDetails: { user },
           },
-          data: Buffer.from(input.electionData, 'utf-8'),
           pin,
         });
         break;

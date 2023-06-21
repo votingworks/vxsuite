@@ -16,7 +16,7 @@ import {
   serializeMockFileContents,
 } from './mock_file_card';
 
-const { electionData, electionHash } = electionSampleDefinition;
+const { electionHash } = electionSampleDefinition;
 const pin = '123456';
 const wrongPin = '234567';
 
@@ -47,7 +47,7 @@ test.each<MockFileContents>([
         user: electionManagerUser,
       },
     },
-    data: Buffer.from(electionData, 'utf-8'),
+    data: undefined,
     pin,
   },
   {
@@ -108,7 +108,6 @@ test('MockFileCard basic mocking', async () => {
         user: electionManagerUser,
       },
     },
-    data: Buffer.from(electionData, 'utf-8'),
     pin,
   });
   expect(await card.getCardStatus()).toEqual({
@@ -212,7 +211,7 @@ test('MockFileCard programming', async () => {
     cardDetails: undefined,
   });
 
-  await card.program({ user: electionManagerUser, pin, electionData });
+  await card.program({ user: electionManagerUser, pin });
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
     cardDetails: {
@@ -220,14 +219,12 @@ test('MockFileCard programming', async () => {
     },
   });
   expect(await card.checkPin(pin)).toEqual({ response: 'correct' });
-  expect((await card.readData()).toString('utf-8')).toEqual(electionData);
 
   await card.unprogram();
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
     cardDetails: undefined,
   });
-  expect(await card.readData()).toEqual(Buffer.from([]));
 
   await card.program({ user: pollWorkerUser });
   expect(await card.getCardStatus()).toEqual({
