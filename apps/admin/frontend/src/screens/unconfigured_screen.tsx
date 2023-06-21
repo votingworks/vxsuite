@@ -8,14 +8,7 @@ import React, {
 import { useHistory } from 'react-router-dom';
 
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import {
-  Button,
-  Font,
-  Icons,
-  P,
-  Prose,
-  useMountedState,
-} from '@votingworks/ui';
+import { Button, Font, Icons, P, useMountedState } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
 import type { ConfigureResult } from '@votingworks/admin-backend';
@@ -304,7 +297,7 @@ export function UnconfiguredScreen(): JSX.Element {
         centerChild
         title={`Convert from ${client?.getDisplayName()} files`}
       >
-        <Prose textCenter>
+        <Font align="center">
           <P> Select the following files from a USB drive, etc.</P>
           {inputConversionFiles.map((file) =>
             file.path ? (
@@ -346,14 +339,14 @@ export function UnconfiguredScreen(): JSX.Element {
               Back
             </Button>
           </P>
-        </Prose>
+        </Font>
       </NavigationScreen>
     );
   }
 
   return (
     <NavigationScreen centerChild title="Configure VxAdmin">
-      <Prose textCenter>
+      <Font align="center">
         <P>How would you like to start?</P>
         {vxElectionFileIsInvalid && (
           <P>
@@ -400,7 +393,7 @@ export function UnconfiguredScreen(): JSX.Element {
             Load Demo Election Definition
           </Button>
         </P>
-      </Prose>
+      </Font>
     </NavigationScreen>
   );
 }
