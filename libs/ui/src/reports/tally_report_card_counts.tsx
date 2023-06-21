@@ -4,16 +4,30 @@ import styled from 'styled-components';
 import { Tabulation } from '@votingworks/types';
 
 import { format, getBallotCount } from '@votingworks/utils';
-import { Table, TD, TH } from '../table';
+import { TD, TH } from '../table';
 
 const CardCountTable = styled.div`
   margin-bottom: 1em;
   border: 1px solid rgb(194, 200, 203);
   border-width: 0 1px;
   break-inside: avoid;
+  table {
+    width: 100%;
+  }
+  th,
+  td {
+    border-top: 1px solid rgb(194, 200, 203);
+    border-bottom: 1px solid rgb(194, 200, 203);
+  }
   th {
     background: #e8e8e8;
-    font-size: 0.9rem;
+    padding: 0.15rem 0.15rem;
+    text-align: left;
+    font-size: 0.5rem;
+  }
+  td {
+    padding: 0.1rem 0.15rem;
+    font-weight: 400;
   }
 `;
 
@@ -66,10 +80,11 @@ export function TallyReportCardCounts({
 }: TallyReportCardCountsProps): JSX.Element | null {
   return (
     <CardCountTable>
-      <Table data-testid="voting-method-table">
+      <table data-testid="voting-method-table">
         <tbody>
           <tr>
-            <TH colSpan={2}>Ballot Counts</TH>
+            <TH>Ballot Counts</TH>
+            <TH />
           </tr>
           {getHmpbRows({ hmpbCounts: cardCounts.hmpb })}
           <tr data-testid="bmd">
@@ -91,7 +106,7 @@ export function TallyReportCardCounts({
             </TD>
           </tr>
         </tbody>
-      </Table>
+      </table>
     </CardCountTable>
   );
 }
