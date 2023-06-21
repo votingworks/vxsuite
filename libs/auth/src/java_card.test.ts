@@ -85,8 +85,7 @@ afterEach(() => {
   mockCardReader.transmit.assertComplete();
 });
 
-const { electionData, electionHash } =
-  electionFamousNames2021Fixtures.electionDefinition;
+const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
 const systemAdministratorUser = fakeSystemAdministratorUser();
 const electionManagerUser = fakeElectionManagerUser({ electionHash });
 const pollWorkerUser = fakePollWorkerUser({ electionHash });
@@ -727,7 +726,6 @@ test.each<{
   expectedCardType: CardType;
   expectedCertSubject: string;
   expectedExpiryInDays: number;
-  isElectionDataWriteExpected: boolean;
   expectedCardDetailsAfterProgramming: CardDetails;
 }>([
   {
@@ -743,7 +741,6 @@ test.each<{
       `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=system-administrator/',
     expectedExpiryInDays: 365 * 5,
-    isElectionDataWriteExpected: false,
     expectedCardDetailsAfterProgramming: {
       user: systemAdministratorUser,
     },
@@ -753,7 +750,6 @@ test.each<{
     programInput: {
       user: electionManagerUser,
       pin: '123456',
-      electionData,
     },
     expectedCardType: 'election-manager',
     expectedCertSubject:
@@ -763,7 +759,6 @@ test.each<{
       '/1.3.6.1.4.1.59817.3=election-manager' +
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),
-    isElectionDataWriteExpected: true,
     expectedCardDetailsAfterProgramming: {
       user: electionManagerUser,
     },
@@ -781,7 +776,6 @@ test.each<{
       '/1.3.6.1.4.1.59817.3=poll-worker' +
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),
-    isElectionDataWriteExpected: false,
     expectedCardDetailsAfterProgramming: {
       user: pollWorkerUser,
       hasPin: false,
@@ -801,7 +795,6 @@ test.each<{
       '/1.3.6.1.4.1.59817.3=poll-worker-with-pin' +
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),
-    isElectionDataWriteExpected: false,
     expectedCardDetailsAfterProgramming: {
       user: pollWorkerUser,
       hasPin: true,
@@ -814,7 +807,6 @@ test.each<{
     expectedCardType,
     expectedCertSubject,
     expectedExpiryInDays,
-    isElectionDataWriteExpected,
     expectedCardDetailsAfterProgramming,
   }) => {
     const javaCard = new JavaCard(configWithCardProgrammingConfig);
@@ -847,16 +839,6 @@ test.each<{
         fileType: 'vx-admin-cert-authority-cert.der',
       })
     );
-    if (isElectionDataWriteExpected) {
-      mockCardAppletSelectionRequest();
-      mockCardPutDataRequest(
-        GENERIC_STORAGE_SPACE.OBJECT_IDS[0],
-        Buffer.from(electionData, 'utf-8')
-      );
-      for (const objectId of GENERIC_STORAGE_SPACE.OBJECT_IDS.slice(1)) {
-        mockCardPutDataRequest(objectId, Buffer.from([]));
-      }
-    }
 
     await javaCard.program(programInput);
     expect(createCert).toHaveBeenCalledTimes(1);

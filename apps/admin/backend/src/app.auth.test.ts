@@ -10,7 +10,7 @@ beforeEach(() => {
 
 const jurisdiction = TEST_JURISDICTION;
 const { electionDefinition } = electionFamousNames2021Fixtures;
-const { electionData, electionHash } = electionDefinition;
+const { electionHash } = electionDefinition;
 
 test('getAuthStatus', async () => {
   const { apiClient, auth } = buildTestEnvironment();
@@ -84,7 +84,15 @@ test('programCard', async () => {
   expect(auth.programCard).toHaveBeenNthCalledWith(
     2,
     { electionHash, jurisdiction },
-    { userRole: 'election_manager', electionData }
+    { userRole: 'election_manager' }
+  );
+
+  void (await apiClient.programCard({ userRole: 'poll_worker' }));
+  expect(auth.programCard).toHaveBeenCalledTimes(3);
+  expect(auth.programCard).toHaveBeenNthCalledWith(
+    3,
+    { electionHash, jurisdiction },
+    { userRole: 'poll_worker' }
   );
 });
 
