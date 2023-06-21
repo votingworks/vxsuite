@@ -108,7 +108,6 @@ test('MockFileCard basic mocking', async () => {
         user: electionManagerUser,
       },
     },
-    data: undefined,
     pin,
   });
   expect(await card.getCardStatus()).toEqual({
