@@ -28,7 +28,7 @@ function getHmpbRows({
 }): JSX.Element {
   const rows: JSX.Element[] = [
     <tr key="hmpb" data-testid="hmpb">
-      <TD colSpan={2}>Hand Marked</TD>
+      <TD nowrap>Hand Marked</TD>
       <TD textAlign="right">{format.count(hmpbCounts[0] ?? 0)}</TD>
     </tr>,
   ];
@@ -45,13 +45,12 @@ function getHmpbRows({
     const key = `hmpb-${sheetNumber}`;
     rows.push(
       <tr key={key} data-testid={key}>
-        <TD narrow nowrap>
+        <TD nowrap>
           <SheetCount>Sheet {sheetNumber}</SheetCount>
         </TD>
-        <TD textAlign="left">
+        <TD textAlign="right">
           {format.count(hmpbCounts[sheetNumber - 1] ?? 0)}
         </TD>
-        <TD />
       </tr>
     );
   }
@@ -70,21 +69,21 @@ export function TallyReportCardCounts({
       <Table data-testid="voting-method-table">
         <tbody>
           <tr>
-            <TH colSpan={3}>Ballot Counts</TH>
+            <TH colSpan={2}>Ballot Counts</TH>
           </tr>
           {getHmpbRows({ hmpbCounts: cardCounts.hmpb })}
           <tr data-testid="bmd">
-            <TD colSpan={2}>Machine Marked</TD>
+            <TD>Machine Marked</TD>
             <TD textAlign="right">{format.count(cardCounts.bmd)}</TD>
           </tr>
           {cardCounts.manual && (
             <tr data-testid="manual">
-              <TD colSpan={2}>Manually Entered</TD>
+              <TD>Manually Entered</TD>
               <TD textAlign="right">{format.count(cardCounts.manual)}</TD>
             </tr>
           )}
           <tr data-testid="total-ballots">
-            <TD colSpan={2}>
+            <TD>
               <strong>Total</strong>
             </TD>
             <TD textAlign="right">
