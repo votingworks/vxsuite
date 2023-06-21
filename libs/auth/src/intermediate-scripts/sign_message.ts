@@ -7,7 +7,7 @@ import {
 } from '../openssl';
 
 /**
- * An intermediate component of signMessage in ./openssl.ts, needed for permissions purposes. See
+ * An intermediate component of signMessage in src/openssl.ts, needed for permissions purposes. See
  * signMessage for more context.
  */
 export async function main(): Promise<void> {
