@@ -184,6 +184,12 @@ export function createApiMock() {
         .expectCallWith()
         .resolves(result);
     },
+
+    expectUpdateSessionExpiry(sessionExpiresAt: Date): void {
+      mockApiClient.updateSessionExpiry
+        .expectCallWith({ sessionExpiresAt })
+        .resolves();
+    },
   };
 }
 

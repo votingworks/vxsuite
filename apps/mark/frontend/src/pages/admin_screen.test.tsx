@@ -51,6 +51,9 @@ afterEach(() => {
 });
 
 function renderScreen(props: Partial<AdminScreenProps> = {}) {
+  apiMock.setAuthStatusElectionManagerLoggedIn(
+    props.electionDefinition ?? asElectionDefinition(election)
+  );
   return render(
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
       <QueryClientProvider client={createQueryClient()}>
@@ -84,7 +87,7 @@ test('renders date and time settings modal', async () => {
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM UTC';
-  screen.getByText(startDate);
+  await screen.findByText(startDate);
 
   // Open Modal and change date
   fireEvent.click(screen.getByText('Update Date and Time'));
@@ -97,6 +100,7 @@ test('renders date and time settings modal', async () => {
   fireEvent.change(selectYear, { target: { value: optionYear } });
 
   // Save Date and Timezone
+  apiMock.expectUpdateSessionExpiry(new Date('2025-10-31T12:00:00.000Z'));
   // eslint-disable-next-line @typescript-eslint/require-await
   await act(async () => {
     fireEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
@@ -111,11 +115,11 @@ test('renders date and time settings modal', async () => {
   screen.getByText(startDate);
 });
 
-test('can switch the precinct', () => {
+test('can switch the precinct', async () => {
   const updateAppPrecinct = jest.fn();
   renderScreen({ updateAppPrecinct });
 
-  const precinctSelect = screen.getByLabelText('Precinct');
+  const precinctSelect = await screen.findByLabelText('Precinct');
   const allPrecinctsOption =
     within(precinctSelect).getByText<HTMLOptionElement>('All Precincts');
   fireEvent.change(precinctSelect, {
@@ -124,10 +128,10 @@ test('can switch the precinct', () => {
   expect(updateAppPrecinct).toHaveBeenCalledWith(ALL_PRECINCTS_SELECTION);
 });
 
-test('precinct change disabled if polls closed', () => {
+test('precinct change disabled if polls closed', async () => {
   renderScreen({ pollsState: 'polls_closed_final' });
 
-  const precinctSelect = screen.getByLabelText('Precinct');
+  const precinctSelect = await screen.findByLabelText('Precinct');
   expect(precinctSelect).toBeDisabled();
 });
 

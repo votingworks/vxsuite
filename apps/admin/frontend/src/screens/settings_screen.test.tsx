@@ -1,21 +1,32 @@
 import MockDate from 'mockdate';
 import React from 'react';
 import userEvent from '@testing-library/user-event';
-import { fakeKiosk } from '@votingworks/test-utils';
+import {
+  fakeKiosk,
+  fakeSessionExpiresAt,
+  fakeSystemAdministratorUser,
+} from '@votingworks/test-utils';
+import { DippedSmartCardAuth } from '@votingworks/types';
 import { screen, waitFor, within } from '../../test/react_testing_library';
-
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { SettingsScreen } from './settings_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let apiMock: ApiMock;
+let systemAdministratorAuth: DippedSmartCardAuth.SystemAdministratorLoggedIn;
 
 beforeEach(() => {
   MockDate.set('2022-06-22T00:00:00.000Z');
   mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   apiMock = createApiMock();
+  systemAdministratorAuth = {
+    status: 'logged_in',
+    user: fakeSystemAdministratorUser(),
+    sessionExpiresAt: fakeSessionExpiresAt(),
+    programmableCard: { status: 'no_card' },
+  };
 });
 
 afterEach(() => {
@@ -23,7 +34,10 @@ afterEach(() => {
 });
 
 test('Setting current date and time', async () => {
-  renderInAppContext(<SettingsScreen />, { apiMock });
+  renderInAppContext(<SettingsScreen />, {
+    apiMock,
+    auth: systemAdministratorAuth,
+  });
 
   screen.getByRole('heading', { name: 'Current Date and Time' });
   const startDateTime = 'Wed, Jun 22, 2022, 12:00 AM UTC';
@@ -36,6 +50,7 @@ test('Setting current date and time', async () => {
   const modal = screen.getByRole('alertdialog');
   within(modal).getByText('Wed, Jun 22, 2022, 12:00 AM');
   userEvent.selectOptions(within(modal).getByTestId('selectYear'), '2023');
+  apiMock.expectUpdateSessionExpiry(new Date('2023-06-22T12:00:00.000Z'));
   userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
   await waitFor(() => {
     expect(mockKiosk.setClock).toHaveBeenCalledWith({
@@ -50,7 +65,10 @@ test('Setting current date and time', async () => {
 });
 
 test('Rebooting from USB', async () => {
-  renderInAppContext(<SettingsScreen />, { apiMock });
+  renderInAppContext(<SettingsScreen />, {
+    apiMock,
+    auth: systemAdministratorAuth,
+  });
 
   screen.getByRole('heading', { name: 'Software Update' });
 
@@ -62,7 +80,10 @@ test('Rebooting from USB', async () => {
 });
 
 test('Rebooting to BIOS', () => {
-  renderInAppContext(<SettingsScreen />, { apiMock });
+  renderInAppContext(<SettingsScreen />, {
+    apiMock,
+    auth: systemAdministratorAuth,
+  });
 
   screen.getByRole('heading', { name: 'Software Update' });
 

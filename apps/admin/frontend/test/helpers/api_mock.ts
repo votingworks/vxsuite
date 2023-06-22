@@ -355,6 +355,12 @@ export function createApiMock(
     expectGetScannerBatches(result: ScannerBatch[]) {
       apiClient.getScannerBatches.expectCallWith().resolves(result);
     },
+
+    expectUpdateSessionExpiry(sessionExpiresAt: Date) {
+      apiClient.updateSessionExpiry
+        .expectCallWith({ sessionExpiresAt })
+        .resolves();
+    },
   };
 }
 

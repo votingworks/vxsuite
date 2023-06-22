@@ -48,6 +48,9 @@ afterEach(() => {
 function renderScreen(
   props: Partial<ElectionManagerScreenProps> = {}
 ): RenderResult {
+  apiMock.authenticateAsElectionManager(
+    props.electionDefinition ?? electionSampleDefinition
+  );
   return render(
     provideApi(
       apiMock,
@@ -85,6 +88,7 @@ test('renders date and time settings modal', async () => {
   userEvent.selectOptions(selectYear, optionYear);
 
   // Save Date and Timezone
+  apiMock.expectUpdateSessionExpiry(new Date('2025-10-31T12:00:00.000Z'));
   // eslint-disable-next-line @typescript-eslint/require-await
   await act(async () => {
     userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));

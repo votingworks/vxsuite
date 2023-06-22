@@ -180,6 +180,12 @@ export function createApiMock() {
         .expectCallWith()
         .resolves(supportsUltrasonic);
     },
+
+    expectUpdateSessionExpiry(sessionExpiresAt: Date): void {
+      mockApiClient.updateSessionExpiry
+        .expectCallWith({ sessionExpiresAt })
+        .resolves();
+    },
   };
 }
 
