@@ -1,6 +1,8 @@
 import React from 'react';
 import { Color, Image, Page, Rectangle, TextBox } from './document_types';
 
+export const FONT_FAMILY = 'HelveticaNeue';
+
 interface SvgRectangleProps extends Omit<Rectangle, 'type' | 'children'> {
   children?: React.ReactNode;
 }
@@ -90,6 +92,7 @@ export function SvgPage({
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
+      fontFamily={FONT_FAMILY}
     >
       <rect
         width={width}
