@@ -112,8 +112,22 @@ export function convertMarksToAdjudicationInfo(
 ): AdjudicationInfo {
   const markThresholds =
     options.markThresholds ?? electionDefinition.election.markThresholds;
-  const enabledReasons = options.adjudicationReasons ?? [];
   assert(markThresholds, 'markThresholds must be defined');
+
+  const enabledReasons = options.adjudicationReasons ?? [];
+  // If there are no enabled reasons, we short circuit. This is a temporary fix
+  // to support our all-bubble test ballots, which have one contest that spans
+  // multiple pages. The code below assumes that a contest is only on one page,
+  // and throws an assertion error if it's not. With the all-bubble test
+  // ballots, we don't use the adjudication info anyway, so it's fine to ignore.
+  if (enabledReasons.length === 0) {
+    return {
+      requiresAdjudication: false,
+      enabledReasonInfos: [],
+      enabledReasons,
+      ignoredReasonInfos: [], // This isn't used anywhere, so we can return a dummy value
+    };
+  }
 
   const contests = electionDefinition.election.contests.filter((c) =>
     marks.some(([{ contestId }]) => contestId === c.id)
