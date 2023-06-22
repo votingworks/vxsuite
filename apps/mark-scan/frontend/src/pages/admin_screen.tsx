@@ -29,6 +29,7 @@ import { makeAsync } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import { ScreenReader } from '../config/types';
+import { logOut } from '../api';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -60,6 +61,7 @@ export function AdminScreen({
   usbDrive,
 }: AdminScreenProps): JSX.Element {
   const { election } = electionDefinition;
+  const logOutMutation = logOut.useMutation();
 
   // Disable the audiotrack when in admin mode
   useEffect(() => {
@@ -144,7 +146,17 @@ export function AdminScreen({
             </Caption>
           </P>
           <P>
-            <SetClockButton>Update Date and Time</SetClockButton>
+            <SetClockButton
+              logOut={async () => {
+                try {
+                  await logOutMutation.mutateAsync();
+                } catch {
+                  // Handled by default query client error handling
+                }
+              }}
+            >
+              Update Date and Time
+            </SetClockButton>
           </P>
           <H6 as="h2">Configuration</H6>
           <P>

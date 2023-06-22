@@ -10,16 +10,26 @@ import {
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 import { FormatUsbButton } from '../components/format_usb_modal';
+import { logOut } from '../api';
 
 export function SettingsScreen(): JSX.Element {
   const { logger, usbDrive } = useContext(AppContext);
+  const logOutMutation = logOut.useMutation();
 
   return (
     <NavigationScreen title="Settings">
       <Prose maxWidth={false}>
         <h2>Current Date and Time</h2>
         <p>
-          <SetClockButton>
+          <SetClockButton
+            logOut={async () => {
+              try {
+                await logOutMutation.mutateAsync();
+              } catch {
+                // Handled by default query client error handling
+              }
+            }}
+          >
             <CurrentDateAndTime />
           </SetClockButton>
         </p>
