@@ -575,8 +575,8 @@ function Contest({
       type: 'option',
       side,
       contestId: contest.id,
-      column: gridColumn + 1,
-      row: gridRow + optionRow + 1,
+      column: gridColumn,
+      row: gridRow + optionRow,
       optionId: candidate.id,
     });
   }
@@ -619,8 +619,8 @@ function Contest({
         type: 'write-in',
         side,
         contestId: contest.id,
-        column: gridColumn + 1,
-        row: gridRow + optionRow + 1,
+        column: gridColumn,
+        row: gridRow + optionRow,
         writeInIndex,
       });
     }
