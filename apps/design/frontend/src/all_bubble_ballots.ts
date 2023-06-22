@@ -162,18 +162,23 @@ function createElectionDefinition({
     return `card-number-${sheet}`;
   }
 
-  const contest: CandidateContest = {
-    id: 'test-contest',
-    type: 'candidate',
-    title: 'Test Contest',
-    districtId,
-    candidates: gridPositions.map(({ page, row, column }) => ({
-      id: candidateId(page, row, column),
-      name: `Test Candidate - Page ${page}, Row ${row}, Column ${column}`,
-    })),
-    allowWriteIns: false,
-    seats: gridPositions.length,
-  };
+  const contests: CandidateContest[] = range(1, pages + 1).map((page) => {
+    const pageGridPositions = gridPositions.filter(
+      (position) => position.page === page
+    );
+    return {
+      id: `test-contest-page-${page}`,
+      type: 'candidate',
+      title: `Test Contest - Page ${page}`,
+      districtId,
+      candidates: pageGridPositions.map(({ row, column }) => ({
+        id: candidateId(page, row, column),
+        name: `Test Candidate - Page ${page}, Row ${row}, Column ${column}`,
+      })),
+      allowWriteIns: false,
+      seats: pageGridPositions.length,
+    };
+  });
 
   const gridLayouts: GridLayout[] = sheets.map((sheet) => ({
     precinctId,
@@ -186,22 +191,19 @@ function createElectionDefinition({
       right: 1,
       top: 1,
     },
-    gridPositions: (['front', 'back'] as Side[]).flatMap((side) =>
-      range(1, grid.rows - 1).flatMap((row) =>
+    gridPositions: (['front', 'back'] as Side[]).flatMap((side) => {
+      const page = sheet * 2 - (side === 'front' ? 1 : 0);
+      return range(1, grid.rows - 1).flatMap((row) =>
         range(1, grid.columns - 1).map((column) => ({
           type: 'option',
           side,
           column,
           row,
-          contestId: contest.id,
-          optionId: candidateId(
-            sheet * 2 - (side === 'front' ? 1 : 0),
-            row,
-            column
-          ),
+          contestId: contests[page - 1].id,
+          optionId: candidateId(page, row, column),
         }))
-      )
-    ),
+      );
+    }),
   }));
 
   return {
@@ -214,7 +216,7 @@ function createElectionDefinition({
       precincts: [precinctId],
     })),
     centralScanAdjudicationReasons: [],
-    contests: [contest],
+    contests,
     county: {
       id: 'test-county',
       name: 'Test County',
