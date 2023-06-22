@@ -59,7 +59,7 @@ function renderScreen(
         scannedBallotCount={0}
         pollsState="polls_closed_initial"
         isLiveMode
-        hasPrinterAttached={false}
+        printerInfo={undefined}
         logger={fakeLogger()}
         {...props}
       />

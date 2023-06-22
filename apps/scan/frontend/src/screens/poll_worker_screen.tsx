@@ -113,7 +113,7 @@ export interface PollWorkerScreenProps {
   scannedBallotCount: number;
   pollsState: PollsState;
   isLiveMode: boolean;
-  hasPrinterAttached: boolean;
+  printerInfo?: KioskBrowser.PrinterInfo;
   logger: Logger;
 }
 
@@ -131,7 +131,7 @@ export function PollWorkerScreen({
   scannedBallotCount,
   pollsState,
   isLiveMode,
-  hasPrinterAttached: printerFromProps,
+  printerInfo,
   logger,
 }: PollWorkerScreenProps): JSX.Element {
   const setPollsStateMutation = setPollsState.useMutation();
@@ -152,7 +152,7 @@ export function PollWorkerScreen({
     isShowingBallotsAlreadyScannedScreen,
     setIsShowingBallotsAlreadyScannedScreen,
   ] = useState(false);
-  const hasPrinterAttached = printerFromProps || !window.kiosk;
+  const hasPrinterAttached = Boolean(printerInfo) || !window.kiosk;
   const { election } = electionDefinition;
   const saveScannerReportDataToCardMutation =
     saveScannerReportDataToCardBase.useMutation();
@@ -589,6 +589,9 @@ export function PollWorkerScreen({
           <H1>{pollsTransitionCompleteText}</H1>
           {hasPrinterAttached ? (
             <Prose themeDeprecated={fontSizeTheme.medium}>
+              {printerInfo?.name === 'PJ-822' && (
+                <P>Insert paper into the printer to print the report.</P>
+              )}
               <P>
                 <Button onPress={reprintReport}>
                   Print Additional {getPollsReportTitle(currentPollsTransition)}

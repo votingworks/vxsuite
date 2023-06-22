@@ -241,7 +241,7 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
         precinctSelection={precinctSelection}
         scannedBallotCount={scannerStatus.ballotsCounted}
         pollsState={pollsState}
-        hasPrinterAttached={!!printerInfo}
+        printerInfo={printerInfo}
         isLiveMode={!isTestMode}
         logger={logger}
       />
