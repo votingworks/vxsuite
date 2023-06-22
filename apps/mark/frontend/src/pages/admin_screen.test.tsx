@@ -97,6 +97,7 @@ test('renders date and time settings modal', async () => {
   fireEvent.change(selectYear, { target: { value: optionYear } });
 
   // Save Date and Timezone
+  apiMock.expectLogOut();
   // eslint-disable-next-line @typescript-eslint/require-await
   await act(async () => {
     fireEvent.click(within(screen.getByTestId('modal')).getByText('Save'));

@@ -184,6 +184,10 @@ export function createApiMock() {
         .expectCallWith()
         .resolves(result);
     },
+
+    expectLogOut() {
+      mockApiClient.logOut.expectCallWith().resolves();
+    },
   };
 }
 

@@ -287,6 +287,7 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
   userEvent.selectOptions(selectYear, '2025');
 
   // Save date
+  mockApiClient.logOut.expectCallWith().resolves();
   userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
   await waitFor(() => {
     expect(window.kiosk?.setClock).toHaveBeenCalledWith({
