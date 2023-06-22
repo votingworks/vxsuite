@@ -2,7 +2,7 @@ import React from 'react';
 import MockDate from 'mockdate';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library';
 
 import { PrecinctScannerBallotCountReport } from './precinct_scanner_ballot_count_report';
 

@@ -13,7 +13,7 @@ import {
   compressTally,
 } from '@votingworks/utils';
 import { fakeKiosk, mockOf } from '@votingworks/test-utils';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library';
 
 import {
   getSignedQuickResultsReportingUrl,

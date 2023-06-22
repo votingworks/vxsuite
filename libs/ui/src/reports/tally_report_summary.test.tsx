@@ -8,7 +8,7 @@ import {
 import {
   render,
   getByText as domGetByText,
-} from '../test/react_testing_library';
+} from '../../test/react_testing_library';
 
 import { TallyReportSummary } from './tally_report_summary';
 

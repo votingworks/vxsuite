@@ -8,7 +8,7 @@ import {
   electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
 import { PartyId } from '@votingworks/types';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 
 const pollsTransitionedTime = new Date('2022-10-31T16:23:00.000Z').getTime();

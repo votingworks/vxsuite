@@ -15,7 +15,7 @@ import {
 import { DateTime } from 'luxon';
 import React from 'react';
 import styled from 'styled-components';
-import { LogoMark } from './logo_mark';
+import { LogoMark } from '../logo_mark';
 
 const Header = styled.div`
   & h1 {

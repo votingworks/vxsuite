@@ -7,11 +7,11 @@ import { format, formatFullDateTimeZone } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import React from 'react';
 import styled from 'styled-components';
-import { LogoMark } from './logo_mark';
-import { Prose } from './prose';
+import { LogoMark } from '../logo_mark';
+import { Prose } from '../prose';
 import { ReportSection } from './tally_report';
-import { Text } from './text';
-import { QrCode } from './qrcode';
+import { Text } from '../text';
+import { QrCode } from '../qrcode';
 
 interface SignedQuickResultsReportingUrlProps {
   electionDefinition: ElectionDefinition;

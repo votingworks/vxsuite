@@ -7,9 +7,9 @@ import {
   getContestDistrictName,
 } from '@votingworks/types';
 
-import { Table, TD } from './table';
-import { Prose } from './prose';
-import { Text } from './text';
+import { Table, TD } from '../table';
+import { Prose } from '../prose';
+import { Text } from '../text';
 
 interface ContestProps {
   dim?: boolean;

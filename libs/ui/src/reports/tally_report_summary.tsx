@@ -9,7 +9,7 @@ import {
 } from '@votingworks/types';
 
 import { canDistinguishVotingMethods, format } from '@votingworks/utils';
-import { Table, TD } from './table';
+import { Table, TD } from '../table';
 
 const BallotSummary = styled.div`
   margin-bottom: 1em;

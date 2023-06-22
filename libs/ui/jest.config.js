@@ -8,6 +8,7 @@ module.exports = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   coveragePathIgnorePatterns: [
+    'src/reports/index.ts',
     '.*\\.stories\\.ts',
     '.*\\.stories\\.tsx',
     // Purely presentational components:
