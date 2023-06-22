@@ -154,16 +154,7 @@ export function ElectionManagerScreen({
 
   const dateTimeButton = (
     <P>
-      <SetClockButton
-        large
-        logOut={async () => {
-          try {
-            await logOutMutation.mutateAsync();
-          } catch {
-            // Handled by default query client error handling
-          }
-        }}
-      >
+      <SetClockButton large logOut={() => logOutMutation.mutate()}>
         <span role="img" aria-label="Clock">
           🕓
         </span>{' '}

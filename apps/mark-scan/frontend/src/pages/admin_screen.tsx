@@ -146,15 +146,7 @@ export function AdminScreen({
             </Caption>
           </P>
           <P>
-            <SetClockButton
-              logOut={async () => {
-                try {
-                  await logOutMutation.mutateAsync();
-                } catch {
-                  // Handled by default query client error handling
-                }
-              }}
-            >
+            <SetClockButton logOut={() => logOutMutation.mutate()}>
               Update Date and Time
             </SetClockButton>
           </P>

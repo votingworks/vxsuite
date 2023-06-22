@@ -155,15 +155,7 @@ export function AdminActionsScreen({
               machineConfig={machineConfig}
             />
             <p>
-              <SetClockButton
-                logOut={async () => {
-                  try {
-                    await logOutMutation.mutateAsync();
-                  } catch {
-                    // Handled by default query client error handling
-                  }
-                }}
-              >
+              <SetClockButton logOut={() => logOutMutation.mutate()}>
                 Update Date and Time
               </SetClockButton>
             </p>

@@ -21,15 +21,7 @@ export function SettingsScreen(): JSX.Element {
       <Prose maxWidth={false}>
         <h2>Current Date and Time</h2>
         <p>
-          <SetClockButton
-            logOut={async () => {
-              try {
-                await logOutMutation.mutateAsync();
-              } catch {
-                // Handled by default query client error handling
-              }
-            }}
-          >
+          <SetClockButton logOut={() => logOutMutation.mutate()}>
             <CurrentDateAndTime />
           </SetClockButton>
         </p>
