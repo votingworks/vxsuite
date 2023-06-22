@@ -180,6 +180,10 @@ export function createApiMock() {
         .expectCallWith()
         .resolves(supportsUltrasonic);
     },
+
+    expectLogOut() {
+      mockApiClient.logOut.expectCallWith().resolves();
+    },
   };
 }
 

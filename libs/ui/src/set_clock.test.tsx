@@ -247,7 +247,10 @@ describe('SetClockButton', () => {
   });
 
   test('renders date and time settings modal when clicked', async () => {
-    render(<SetClockButton>Update Date and Time</SetClockButton>);
+    const logOut = jest.fn();
+    render(
+      <SetClockButton logOut={logOut}>Update Date and Time</SetClockButton>
+    );
 
     // Open Modal and change date
     fireEvent.click(screen.getByText('Update Date and Time'));
@@ -371,6 +374,7 @@ describe('SetClockButton', () => {
       IANAZone: 'America/Los_Angeles',
       isoDatetime: '2020-10-21T11:00:00.000-07:00',
     });
+    expect(logOut).toHaveBeenCalledTimes(1);
   });
 });
 
