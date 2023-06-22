@@ -399,7 +399,7 @@ export function PollWorkerScreen({
       await printReport(
         pollsTransition,
         timePollsTransitioned,
-        DEFAULT_NUMBER_POLL_REPORT_COPIES
+        printerInfo?.name === 'PJ-822' ? 1 : DEFAULT_NUMBER_POLL_REPORT_COPIES
       );
     } else {
       await exportReportDataToCard(pollsTransition, timePollsTransitioned);
