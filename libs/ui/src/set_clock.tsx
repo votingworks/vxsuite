@@ -281,23 +281,45 @@ export function PickDateTimeModal({
   );
 }
 
-type SetClockButtonProps = Omit<ButtonProps, 'onPress'>;
+type SetClockButtonProps = Omit<ButtonProps, 'onPress'> & {
+  sessionExpiresAt: Date;
+  updateSessionExpiry: (sessionExpiresAt: Date) => Promise<void>;
+};
 
 export function SetClockButton(props: SetClockButtonProps): JSX.Element {
+  const { sessionExpiresAt, updateSessionExpiry, ...buttonProps } = props;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingClock, setIsSettingClock] = useState(false);
   const systemDate = useNow();
 
-  async function setClock(date: DateTime) {
+  async function setClock(dateTime: DateTime) {
     setIsSettingClock(true);
     try {
       if (window.kiosk) {
+        // Updating the clock also necessitates updating the session expiry
+        const timeChange = dateTime.diff(DateTime.now());
+        const updatedSessionExpiresAt = DateTime.fromJSDate(sessionExpiresAt)
+          .plus(timeChange)
+          .toJSDate();
+
+        // If the new clock time is in the future, update the session expiry *before* updating the
+        // time to avoid getting automatically logged out
+        if (timeChange.as('milliseconds') > 0) {
+          await updateSessionExpiry(updatedSessionExpiresAt);
+        }
+
         await window.kiosk.setClock({
-          isoDatetime: date.toISO(),
+          isoDatetime: dateTime.toISO(),
           // TODO: Rename to `ianaZone` in kiosk-browser and update here.
           // eslint-disable-next-line vx/gts-identifiers
-          IANAZone: date.zoneName,
+          IANAZone: dateTime.zoneName,
         });
+
+        // If the new clock time is in the past, update the session expiry *after* updating the
+        // time to avoid getting automatically logged out
+        if (timeChange.as('milliseconds') < 0) {
+          await updateSessionExpiry(updatedSessionExpiresAt);
+        }
       }
       setIsModalOpen(false);
     } finally {
@@ -307,7 +329,7 @@ export function SetClockButton(props: SetClockButtonProps): JSX.Element {
 
   return (
     <React.Fragment>
-      <Button {...props} onPress={() => setIsModalOpen(true)} />
+      <Button {...buttonProps} onPress={() => setIsModalOpen(true)} />
       {isModalOpen && (
         <PickDateTimeModal
           disabled={isSettingClock}
