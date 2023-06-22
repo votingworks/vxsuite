@@ -173,12 +173,14 @@ function TimingMark({
 
 export function TimingMarkGrid({
   pageNumber,
+  ballotStyleIndex,
+  precinctIndex,
 }: {
   pageNumber: number;
+  ballotStyleIndex: number;
+  precinctIndex: number;
 }): AnyElement {
-  // Ballot styles are `card-number-{sheetNumber}`
-  const ballotStyleIndex = Math.ceil(pageNumber / 2);
-  const sheetMetadata = encodeMetadata(ballotStyleIndex);
+  const sheetMetadata = encodeMetadata(ballotStyleIndex, precinctIndex);
   const pageMetadata =
     pageNumber % 2 === 1
       ? sheetMetadata.frontTimingMarks
@@ -759,6 +761,12 @@ function layOutBallotHelper(
   precinct: Precinct,
   ballotStyle: BallotStyle
 ) {
+  const ballotStyleIndex = election.ballotStyles.findIndex(
+    (bs) => bs.id === ballotStyle.id
+  );
+  const precinctIndex = election.precincts.findIndex(
+    (p) => p.id === precinct.id
+  );
   const contests = getContests({ election, ballotStyle }).filter(
     // TODO: support ballot measures
     (contest) => contest.type === 'candidate'
@@ -798,7 +806,7 @@ function layOutBallotHelper(
     contestsLeftToLayOut = restContests;
     pages.push({
       children: [
-        TimingMarkGrid({ pageNumber }),
+        TimingMarkGrid({ pageNumber, ballotStyleIndex, precinctIndex }),
         headerAndInstructions,
         contestColumns,
       ].filter((child): child is AnyElement => child !== null),

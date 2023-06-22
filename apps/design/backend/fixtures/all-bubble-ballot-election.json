@@ -4,21 +4,13 @@
   },
   "ballotStyles": [
     {
-      "id": "card-number-1",
-      "districts": [
-        "test-district"
-      ],
-      "precincts": [
-        "test-precinct"
-      ]
+      "id": "sheet-1",
+      "districts": ["test-district"],
+      "precincts": ["test-precinct"]
     }
   ],
-  "centralScanAdjudicationReasons": [
-    "Overvote"
-  ],
-  "precinctScanAdjudicationReasons": [
-    "Overvote"
-  ],
+  "centralScanAdjudicationReasons": ["Overvote"],
+  "precinctScanAdjudicationReasons": ["Overvote"],
   "contests": [
     {
       "id": "test-contest-page-1",
@@ -155,10 +147,6 @@
           "name": "Page 1, Row 1, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-1-column-33",
-          "name": "Page 1, Row 1, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-2-column-1",
           "name": "Page 1, Row 2, Column 1"
         },
@@ -285,10 +273,6 @@
         {
           "id": "test-candidate-page-1-row-2-column-32",
           "name": "Page 1, Row 2, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-2-column-33",
-          "name": "Page 1, Row 2, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-3-column-1",
@@ -419,10 +403,6 @@
           "name": "Page 1, Row 3, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-3-column-33",
-          "name": "Page 1, Row 3, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-4-column-1",
           "name": "Page 1, Row 4, Column 1"
         },
@@ -549,10 +529,6 @@
         {
           "id": "test-candidate-page-1-row-4-column-32",
           "name": "Page 1, Row 4, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-4-column-33",
-          "name": "Page 1, Row 4, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-5-column-1",
@@ -683,10 +659,6 @@
           "name": "Page 1, Row 5, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-5-column-33",
-          "name": "Page 1, Row 5, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-6-column-1",
           "name": "Page 1, Row 6, Column 1"
         },
@@ -813,10 +785,6 @@
         {
           "id": "test-candidate-page-1-row-6-column-32",
           "name": "Page 1, Row 6, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-6-column-33",
-          "name": "Page 1, Row 6, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-7-column-1",
@@ -947,10 +915,6 @@
           "name": "Page 1, Row 7, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-7-column-33",
-          "name": "Page 1, Row 7, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-8-column-1",
           "name": "Page 1, Row 8, Column 1"
         },
@@ -1077,10 +1041,6 @@
         {
           "id": "test-candidate-page-1-row-8-column-32",
           "name": "Page 1, Row 8, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-8-column-33",
-          "name": "Page 1, Row 8, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-9-column-1",
@@ -1211,10 +1171,6 @@
           "name": "Page 1, Row 9, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-9-column-33",
-          "name": "Page 1, Row 9, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-10-column-1",
           "name": "Page 1, Row 10, Column 1"
         },
@@ -1341,10 +1297,6 @@
         {
           "id": "test-candidate-page-1-row-10-column-32",
           "name": "Page 1, Row 10, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-10-column-33",
-          "name": "Page 1, Row 10, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-11-column-1",
@@ -1475,10 +1427,6 @@
           "name": "Page 1, Row 11, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-11-column-33",
-          "name": "Page 1, Row 11, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-12-column-1",
           "name": "Page 1, Row 12, Column 1"
         },
@@ -1605,10 +1553,6 @@
         {
           "id": "test-candidate-page-1-row-12-column-32",
           "name": "Page 1, Row 12, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-12-column-33",
-          "name": "Page 1, Row 12, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-13-column-1",
@@ -1739,10 +1683,6 @@
           "name": "Page 1, Row 13, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-13-column-33",
-          "name": "Page 1, Row 13, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-14-column-1",
           "name": "Page 1, Row 14, Column 1"
         },
@@ -1869,10 +1809,6 @@
         {
           "id": "test-candidate-page-1-row-14-column-32",
           "name": "Page 1, Row 14, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-14-column-33",
-          "name": "Page 1, Row 14, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-15-column-1",
@@ -2003,10 +1939,6 @@
           "name": "Page 1, Row 15, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-15-column-33",
-          "name": "Page 1, Row 15, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-16-column-1",
           "name": "Page 1, Row 16, Column 1"
         },
@@ -2133,10 +2065,6 @@
         {
           "id": "test-candidate-page-1-row-16-column-32",
           "name": "Page 1, Row 16, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-16-column-33",
-          "name": "Page 1, Row 16, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-17-column-1",
@@ -2267,10 +2195,6 @@
           "name": "Page 1, Row 17, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-17-column-33",
-          "name": "Page 1, Row 17, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-18-column-1",
           "name": "Page 1, Row 18, Column 1"
         },
@@ -2397,10 +2321,6 @@
         {
           "id": "test-candidate-page-1-row-18-column-32",
           "name": "Page 1, Row 18, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-18-column-33",
-          "name": "Page 1, Row 18, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-19-column-1",
@@ -2531,10 +2451,6 @@
           "name": "Page 1, Row 19, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-19-column-33",
-          "name": "Page 1, Row 19, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-20-column-1",
           "name": "Page 1, Row 20, Column 1"
         },
@@ -2661,10 +2577,6 @@
         {
           "id": "test-candidate-page-1-row-20-column-32",
           "name": "Page 1, Row 20, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-20-column-33",
-          "name": "Page 1, Row 20, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-21-column-1",
@@ -2795,10 +2707,6 @@
           "name": "Page 1, Row 21, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-21-column-33",
-          "name": "Page 1, Row 21, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-22-column-1",
           "name": "Page 1, Row 22, Column 1"
         },
@@ -2925,10 +2833,6 @@
         {
           "id": "test-candidate-page-1-row-22-column-32",
           "name": "Page 1, Row 22, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-22-column-33",
-          "name": "Page 1, Row 22, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-23-column-1",
@@ -3059,10 +2963,6 @@
           "name": "Page 1, Row 23, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-23-column-33",
-          "name": "Page 1, Row 23, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-24-column-1",
           "name": "Page 1, Row 24, Column 1"
         },
@@ -3189,10 +3089,6 @@
         {
           "id": "test-candidate-page-1-row-24-column-32",
           "name": "Page 1, Row 24, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-24-column-33",
-          "name": "Page 1, Row 24, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-25-column-1",
@@ -3323,10 +3219,6 @@
           "name": "Page 1, Row 25, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-25-column-33",
-          "name": "Page 1, Row 25, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-26-column-1",
           "name": "Page 1, Row 26, Column 1"
         },
@@ -3453,10 +3345,6 @@
         {
           "id": "test-candidate-page-1-row-26-column-32",
           "name": "Page 1, Row 26, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-26-column-33",
-          "name": "Page 1, Row 26, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-27-column-1",
@@ -3587,10 +3475,6 @@
           "name": "Page 1, Row 27, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-27-column-33",
-          "name": "Page 1, Row 27, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-28-column-1",
           "name": "Page 1, Row 28, Column 1"
         },
@@ -3717,10 +3601,6 @@
         {
           "id": "test-candidate-page-1-row-28-column-32",
           "name": "Page 1, Row 28, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-28-column-33",
-          "name": "Page 1, Row 28, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-29-column-1",
@@ -3851,10 +3731,6 @@
           "name": "Page 1, Row 29, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-29-column-33",
-          "name": "Page 1, Row 29, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-30-column-1",
           "name": "Page 1, Row 30, Column 1"
         },
@@ -3981,10 +3857,6 @@
         {
           "id": "test-candidate-page-1-row-30-column-32",
           "name": "Page 1, Row 30, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-30-column-33",
-          "name": "Page 1, Row 30, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-31-column-1",
@@ -4115,10 +3987,6 @@
           "name": "Page 1, Row 31, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-31-column-33",
-          "name": "Page 1, Row 31, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-32-column-1",
           "name": "Page 1, Row 32, Column 1"
         },
@@ -4245,10 +4113,6 @@
         {
           "id": "test-candidate-page-1-row-32-column-32",
           "name": "Page 1, Row 32, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-32-column-33",
-          "name": "Page 1, Row 32, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-33-column-1",
@@ -4379,10 +4243,6 @@
           "name": "Page 1, Row 33, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-33-column-33",
-          "name": "Page 1, Row 33, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-34-column-1",
           "name": "Page 1, Row 34, Column 1"
         },
@@ -4509,10 +4369,6 @@
         {
           "id": "test-candidate-page-1-row-34-column-32",
           "name": "Page 1, Row 34, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-34-column-33",
-          "name": "Page 1, Row 34, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-35-column-1",
@@ -4643,10 +4499,6 @@
           "name": "Page 1, Row 35, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-35-column-33",
-          "name": "Page 1, Row 35, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-36-column-1",
           "name": "Page 1, Row 36, Column 1"
         },
@@ -4773,10 +4625,6 @@
         {
           "id": "test-candidate-page-1-row-36-column-32",
           "name": "Page 1, Row 36, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-36-column-33",
-          "name": "Page 1, Row 36, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-37-column-1",
@@ -4907,10 +4755,6 @@
           "name": "Page 1, Row 37, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-37-column-33",
-          "name": "Page 1, Row 37, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-38-column-1",
           "name": "Page 1, Row 38, Column 1"
         },
@@ -5039,10 +4883,6 @@
           "name": "Page 1, Row 38, Column 32"
         },
         {
-          "id": "test-candidate-page-1-row-38-column-33",
-          "name": "Page 1, Row 38, Column 33"
-        },
-        {
           "id": "test-candidate-page-1-row-39-column-1",
           "name": "Page 1, Row 39, Column 1"
         },
@@ -5169,14 +5009,10 @@
         {
           "id": "test-candidate-page-1-row-39-column-32",
           "name": "Page 1, Row 39, Column 32"
-        },
-        {
-          "id": "test-candidate-page-1-row-39-column-33",
-          "name": "Page 1, Row 39, Column 33"
         }
       ],
       "allowWriteIns": false,
-      "seats": 1287
+      "seats": 1248
     },
     {
       "id": "test-contest-page-2",
@@ -5313,10 +5149,6 @@
           "name": "Page 2, Row 1, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-1-column-33",
-          "name": "Page 2, Row 1, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-2-column-1",
           "name": "Page 2, Row 2, Column 1"
         },
@@ -5443,10 +5275,6 @@
         {
           "id": "test-candidate-page-2-row-2-column-32",
           "name": "Page 2, Row 2, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-2-column-33",
-          "name": "Page 2, Row 2, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-3-column-1",
@@ -5577,10 +5405,6 @@
           "name": "Page 2, Row 3, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-3-column-33",
-          "name": "Page 2, Row 3, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-4-column-1",
           "name": "Page 2, Row 4, Column 1"
         },
@@ -5707,10 +5531,6 @@
         {
           "id": "test-candidate-page-2-row-4-column-32",
           "name": "Page 2, Row 4, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-4-column-33",
-          "name": "Page 2, Row 4, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-5-column-1",
@@ -5841,10 +5661,6 @@
           "name": "Page 2, Row 5, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-5-column-33",
-          "name": "Page 2, Row 5, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-6-column-1",
           "name": "Page 2, Row 6, Column 1"
         },
@@ -5971,10 +5787,6 @@
         {
           "id": "test-candidate-page-2-row-6-column-32",
           "name": "Page 2, Row 6, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-6-column-33",
-          "name": "Page 2, Row 6, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-7-column-1",
@@ -6105,10 +5917,6 @@
           "name": "Page 2, Row 7, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-7-column-33",
-          "name": "Page 2, Row 7, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-8-column-1",
           "name": "Page 2, Row 8, Column 1"
         },
@@ -6235,10 +6043,6 @@
         {
           "id": "test-candidate-page-2-row-8-column-32",
           "name": "Page 2, Row 8, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-8-column-33",
-          "name": "Page 2, Row 8, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-9-column-1",
@@ -6369,10 +6173,6 @@
           "name": "Page 2, Row 9, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-9-column-33",
-          "name": "Page 2, Row 9, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-10-column-1",
           "name": "Page 2, Row 10, Column 1"
         },
@@ -6499,10 +6299,6 @@
         {
           "id": "test-candidate-page-2-row-10-column-32",
           "name": "Page 2, Row 10, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-10-column-33",
-          "name": "Page 2, Row 10, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-11-column-1",
@@ -6633,10 +6429,6 @@
           "name": "Page 2, Row 11, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-11-column-33",
-          "name": "Page 2, Row 11, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-12-column-1",
           "name": "Page 2, Row 12, Column 1"
         },
@@ -6763,10 +6555,6 @@
         {
           "id": "test-candidate-page-2-row-12-column-32",
           "name": "Page 2, Row 12, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-12-column-33",
-          "name": "Page 2, Row 12, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-13-column-1",
@@ -6897,10 +6685,6 @@
           "name": "Page 2, Row 13, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-13-column-33",
-          "name": "Page 2, Row 13, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-14-column-1",
           "name": "Page 2, Row 14, Column 1"
         },
@@ -7027,10 +6811,6 @@
         {
           "id": "test-candidate-page-2-row-14-column-32",
           "name": "Page 2, Row 14, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-14-column-33",
-          "name": "Page 2, Row 14, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-15-column-1",
@@ -7161,10 +6941,6 @@
           "name": "Page 2, Row 15, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-15-column-33",
-          "name": "Page 2, Row 15, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-16-column-1",
           "name": "Page 2, Row 16, Column 1"
         },
@@ -7291,10 +7067,6 @@
         {
           "id": "test-candidate-page-2-row-16-column-32",
           "name": "Page 2, Row 16, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-16-column-33",
-          "name": "Page 2, Row 16, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-17-column-1",
@@ -7425,10 +7197,6 @@
           "name": "Page 2, Row 17, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-17-column-33",
-          "name": "Page 2, Row 17, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-18-column-1",
           "name": "Page 2, Row 18, Column 1"
         },
@@ -7555,10 +7323,6 @@
         {
           "id": "test-candidate-page-2-row-18-column-32",
           "name": "Page 2, Row 18, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-18-column-33",
-          "name": "Page 2, Row 18, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-19-column-1",
@@ -7689,10 +7453,6 @@
           "name": "Page 2, Row 19, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-19-column-33",
-          "name": "Page 2, Row 19, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-20-column-1",
           "name": "Page 2, Row 20, Column 1"
         },
@@ -7819,10 +7579,6 @@
         {
           "id": "test-candidate-page-2-row-20-column-32",
           "name": "Page 2, Row 20, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-20-column-33",
-          "name": "Page 2, Row 20, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-21-column-1",
@@ -7953,10 +7709,6 @@
           "name": "Page 2, Row 21, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-21-column-33",
-          "name": "Page 2, Row 21, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-22-column-1",
           "name": "Page 2, Row 22, Column 1"
         },
@@ -8083,10 +7835,6 @@
         {
           "id": "test-candidate-page-2-row-22-column-32",
           "name": "Page 2, Row 22, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-22-column-33",
-          "name": "Page 2, Row 22, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-23-column-1",
@@ -8217,10 +7965,6 @@
           "name": "Page 2, Row 23, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-23-column-33",
-          "name": "Page 2, Row 23, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-24-column-1",
           "name": "Page 2, Row 24, Column 1"
         },
@@ -8347,10 +8091,6 @@
         {
           "id": "test-candidate-page-2-row-24-column-32",
           "name": "Page 2, Row 24, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-24-column-33",
-          "name": "Page 2, Row 24, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-25-column-1",
@@ -8481,10 +8221,6 @@
           "name": "Page 2, Row 25, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-25-column-33",
-          "name": "Page 2, Row 25, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-26-column-1",
           "name": "Page 2, Row 26, Column 1"
         },
@@ -8611,10 +8347,6 @@
         {
           "id": "test-candidate-page-2-row-26-column-32",
           "name": "Page 2, Row 26, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-26-column-33",
-          "name": "Page 2, Row 26, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-27-column-1",
@@ -8745,10 +8477,6 @@
           "name": "Page 2, Row 27, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-27-column-33",
-          "name": "Page 2, Row 27, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-28-column-1",
           "name": "Page 2, Row 28, Column 1"
         },
@@ -8875,10 +8603,6 @@
         {
           "id": "test-candidate-page-2-row-28-column-32",
           "name": "Page 2, Row 28, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-28-column-33",
-          "name": "Page 2, Row 28, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-29-column-1",
@@ -9009,10 +8733,6 @@
           "name": "Page 2, Row 29, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-29-column-33",
-          "name": "Page 2, Row 29, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-30-column-1",
           "name": "Page 2, Row 30, Column 1"
         },
@@ -9139,10 +8859,6 @@
         {
           "id": "test-candidate-page-2-row-30-column-32",
           "name": "Page 2, Row 30, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-30-column-33",
-          "name": "Page 2, Row 30, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-31-column-1",
@@ -9273,10 +8989,6 @@
           "name": "Page 2, Row 31, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-31-column-33",
-          "name": "Page 2, Row 31, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-32-column-1",
           "name": "Page 2, Row 32, Column 1"
         },
@@ -9403,10 +9115,6 @@
         {
           "id": "test-candidate-page-2-row-32-column-32",
           "name": "Page 2, Row 32, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-32-column-33",
-          "name": "Page 2, Row 32, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-33-column-1",
@@ -9537,10 +9245,6 @@
           "name": "Page 2, Row 33, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-33-column-33",
-          "name": "Page 2, Row 33, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-34-column-1",
           "name": "Page 2, Row 34, Column 1"
         },
@@ -9667,10 +9371,6 @@
         {
           "id": "test-candidate-page-2-row-34-column-32",
           "name": "Page 2, Row 34, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-34-column-33",
-          "name": "Page 2, Row 34, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-35-column-1",
@@ -9801,10 +9501,6 @@
           "name": "Page 2, Row 35, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-35-column-33",
-          "name": "Page 2, Row 35, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-36-column-1",
           "name": "Page 2, Row 36, Column 1"
         },
@@ -9931,10 +9627,6 @@
         {
           "id": "test-candidate-page-2-row-36-column-32",
           "name": "Page 2, Row 36, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-36-column-33",
-          "name": "Page 2, Row 36, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-37-column-1",
@@ -10065,10 +9757,6 @@
           "name": "Page 2, Row 37, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-37-column-33",
-          "name": "Page 2, Row 37, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-38-column-1",
           "name": "Page 2, Row 38, Column 1"
         },
@@ -10197,10 +9885,6 @@
           "name": "Page 2, Row 38, Column 32"
         },
         {
-          "id": "test-candidate-page-2-row-38-column-33",
-          "name": "Page 2, Row 38, Column 33"
-        },
-        {
           "id": "test-candidate-page-2-row-39-column-1",
           "name": "Page 2, Row 39, Column 1"
         },
@@ -10327,14 +10011,10 @@
         {
           "id": "test-candidate-page-2-row-39-column-32",
           "name": "Page 2, Row 39, Column 32"
-        },
-        {
-          "id": "test-candidate-page-2-row-39-column-33",
-          "name": "Page 2, Row 39, Column 33"
         }
       ],
       "allowWriteIns": false,
-      "seats": 1287
+      "seats": 1248
     }
   ],
   "county": {
@@ -10351,8 +10031,8 @@
   "gridLayouts": [
     {
       "precinctId": "test-precinct",
-      "ballotStyleId": "card-number-1",
-      "columns": 35,
+      "ballotStyleId": "sheet-1",
+      "columns": 34,
       "rows": 41,
       "optionBoundsFromTargetMark": {
         "bottom": 1,
@@ -10620,14 +10300,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 1,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-1-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 2,
           "contestId": "test-contest-page-1",
@@ -10880,14 +10552,6 @@
           "row": 2,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-2-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 2,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-2-column-33"
         },
         {
           "type": "option",
@@ -11148,14 +10812,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 3,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-3-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 4,
           "contestId": "test-contest-page-1",
@@ -11408,14 +11064,6 @@
           "row": 4,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-4-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 4,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-4-column-33"
         },
         {
           "type": "option",
@@ -11676,14 +11324,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 5,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-5-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 6,
           "contestId": "test-contest-page-1",
@@ -11936,14 +11576,6 @@
           "row": 6,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-6-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 6,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-6-column-33"
         },
         {
           "type": "option",
@@ -12204,14 +11836,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 7,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-7-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 8,
           "contestId": "test-contest-page-1",
@@ -12464,14 +12088,6 @@
           "row": 8,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-8-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 8,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-8-column-33"
         },
         {
           "type": "option",
@@ -12732,14 +12348,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 9,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-9-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 10,
           "contestId": "test-contest-page-1",
@@ -12992,14 +12600,6 @@
           "row": 10,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-10-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 10,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-10-column-33"
         },
         {
           "type": "option",
@@ -13260,14 +12860,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 11,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-11-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 12,
           "contestId": "test-contest-page-1",
@@ -13520,14 +13112,6 @@
           "row": 12,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-12-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 12,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-12-column-33"
         },
         {
           "type": "option",
@@ -13788,14 +13372,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 13,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-13-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 14,
           "contestId": "test-contest-page-1",
@@ -14048,14 +13624,6 @@
           "row": 14,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-14-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 14,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-14-column-33"
         },
         {
           "type": "option",
@@ -14316,14 +13884,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 15,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-15-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 16,
           "contestId": "test-contest-page-1",
@@ -14576,14 +14136,6 @@
           "row": 16,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-16-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 16,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-16-column-33"
         },
         {
           "type": "option",
@@ -14844,14 +14396,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 17,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-17-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 18,
           "contestId": "test-contest-page-1",
@@ -15104,14 +14648,6 @@
           "row": 18,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-18-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 18,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-18-column-33"
         },
         {
           "type": "option",
@@ -15372,14 +14908,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 19,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-19-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 20,
           "contestId": "test-contest-page-1",
@@ -15632,14 +15160,6 @@
           "row": 20,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-20-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 20,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-20-column-33"
         },
         {
           "type": "option",
@@ -15900,14 +15420,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 21,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-21-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 22,
           "contestId": "test-contest-page-1",
@@ -16160,14 +15672,6 @@
           "row": 22,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-22-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 22,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-22-column-33"
         },
         {
           "type": "option",
@@ -16428,14 +15932,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 23,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-23-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 24,
           "contestId": "test-contest-page-1",
@@ -16688,14 +16184,6 @@
           "row": 24,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-24-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 24,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-24-column-33"
         },
         {
           "type": "option",
@@ -16956,14 +16444,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 25,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-25-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 26,
           "contestId": "test-contest-page-1",
@@ -17216,14 +16696,6 @@
           "row": 26,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-26-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 26,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-26-column-33"
         },
         {
           "type": "option",
@@ -17484,14 +16956,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 27,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-27-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 28,
           "contestId": "test-contest-page-1",
@@ -17744,14 +17208,6 @@
           "row": 28,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-28-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 28,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-28-column-33"
         },
         {
           "type": "option",
@@ -18012,14 +17468,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 29,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-29-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 30,
           "contestId": "test-contest-page-1",
@@ -18272,14 +17720,6 @@
           "row": 30,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-30-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 30,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-30-column-33"
         },
         {
           "type": "option",
@@ -18540,14 +17980,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 31,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-31-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 32,
           "contestId": "test-contest-page-1",
@@ -18800,14 +18232,6 @@
           "row": 32,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-32-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 32,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-32-column-33"
         },
         {
           "type": "option",
@@ -19068,14 +18492,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 33,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-33-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 34,
           "contestId": "test-contest-page-1",
@@ -19328,14 +18744,6 @@
           "row": 34,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-34-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 34,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-34-column-33"
         },
         {
           "type": "option",
@@ -19596,14 +19004,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 35,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-35-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 36,
           "contestId": "test-contest-page-1",
@@ -19856,14 +19256,6 @@
           "row": 36,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-36-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 36,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-36-column-33"
         },
         {
           "type": "option",
@@ -20124,14 +19516,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 37,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-37-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 38,
           "contestId": "test-contest-page-1",
@@ -20388,14 +19772,6 @@
         {
           "type": "option",
           "side": "front",
-          "column": 33,
-          "row": 38,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-38-column-33"
-        },
-        {
-          "type": "option",
-          "side": "front",
           "column": 1,
           "row": 39,
           "contestId": "test-contest-page-1",
@@ -20648,14 +20024,6 @@
           "row": 39,
           "contestId": "test-contest-page-1",
           "optionId": "test-candidate-page-1-row-39-column-32"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 33,
-          "row": 39,
-          "contestId": "test-contest-page-1",
-          "optionId": "test-candidate-page-1-row-39-column-33"
         },
         {
           "type": "option",
@@ -20916,14 +20284,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 1,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-1-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 2,
           "contestId": "test-contest-page-2",
@@ -21176,14 +20536,6 @@
           "row": 2,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-2-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 2,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-2-column-33"
         },
         {
           "type": "option",
@@ -21444,14 +20796,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 3,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-3-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 4,
           "contestId": "test-contest-page-2",
@@ -21704,14 +21048,6 @@
           "row": 4,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-4-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 4,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-4-column-33"
         },
         {
           "type": "option",
@@ -21972,14 +21308,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 5,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-5-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 6,
           "contestId": "test-contest-page-2",
@@ -22232,14 +21560,6 @@
           "row": 6,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-6-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 6,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-6-column-33"
         },
         {
           "type": "option",
@@ -22500,14 +21820,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 7,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-7-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 8,
           "contestId": "test-contest-page-2",
@@ -22760,14 +22072,6 @@
           "row": 8,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-8-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 8,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-8-column-33"
         },
         {
           "type": "option",
@@ -23028,14 +22332,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 9,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-9-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 10,
           "contestId": "test-contest-page-2",
@@ -23288,14 +22584,6 @@
           "row": 10,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-10-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 10,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-10-column-33"
         },
         {
           "type": "option",
@@ -23556,14 +22844,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 11,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-11-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 12,
           "contestId": "test-contest-page-2",
@@ -23816,14 +23096,6 @@
           "row": 12,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-12-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 12,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-12-column-33"
         },
         {
           "type": "option",
@@ -24084,14 +23356,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 13,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-13-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 14,
           "contestId": "test-contest-page-2",
@@ -24344,14 +23608,6 @@
           "row": 14,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-14-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 14,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-14-column-33"
         },
         {
           "type": "option",
@@ -24612,14 +23868,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 15,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-15-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 16,
           "contestId": "test-contest-page-2",
@@ -24872,14 +24120,6 @@
           "row": 16,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-16-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 16,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-16-column-33"
         },
         {
           "type": "option",
@@ -25140,14 +24380,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 17,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-17-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 18,
           "contestId": "test-contest-page-2",
@@ -25400,14 +24632,6 @@
           "row": 18,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-18-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 18,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-18-column-33"
         },
         {
           "type": "option",
@@ -25668,14 +24892,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 19,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-19-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 20,
           "contestId": "test-contest-page-2",
@@ -25928,14 +25144,6 @@
           "row": 20,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-20-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 20,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-20-column-33"
         },
         {
           "type": "option",
@@ -26196,14 +25404,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 21,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-21-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 22,
           "contestId": "test-contest-page-2",
@@ -26456,14 +25656,6 @@
           "row": 22,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-22-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 22,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-22-column-33"
         },
         {
           "type": "option",
@@ -26724,14 +25916,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 23,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-23-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 24,
           "contestId": "test-contest-page-2",
@@ -26984,14 +26168,6 @@
           "row": 24,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-24-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 24,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-24-column-33"
         },
         {
           "type": "option",
@@ -27252,14 +26428,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 25,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-25-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 26,
           "contestId": "test-contest-page-2",
@@ -27512,14 +26680,6 @@
           "row": 26,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-26-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 26,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-26-column-33"
         },
         {
           "type": "option",
@@ -27780,14 +26940,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 27,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-27-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 28,
           "contestId": "test-contest-page-2",
@@ -28040,14 +27192,6 @@
           "row": 28,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-28-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 28,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-28-column-33"
         },
         {
           "type": "option",
@@ -28308,14 +27452,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 29,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-29-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 30,
           "contestId": "test-contest-page-2",
@@ -28568,14 +27704,6 @@
           "row": 30,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-30-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 30,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-30-column-33"
         },
         {
           "type": "option",
@@ -28836,14 +27964,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 31,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-31-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 32,
           "contestId": "test-contest-page-2",
@@ -29096,14 +28216,6 @@
           "row": 32,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-32-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 32,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-32-column-33"
         },
         {
           "type": "option",
@@ -29364,14 +28476,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 33,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-33-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 34,
           "contestId": "test-contest-page-2",
@@ -29624,14 +28728,6 @@
           "row": 34,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-34-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 34,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-34-column-33"
         },
         {
           "type": "option",
@@ -29892,14 +28988,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 35,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-35-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 36,
           "contestId": "test-contest-page-2",
@@ -30152,14 +29240,6 @@
           "row": 36,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-36-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 36,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-36-column-33"
         },
         {
           "type": "option",
@@ -30420,14 +29500,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 37,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-37-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 38,
           "contestId": "test-contest-page-2",
@@ -30684,14 +29756,6 @@
         {
           "type": "option",
           "side": "back",
-          "column": 33,
-          "row": 38,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-38-column-33"
-        },
-        {
-          "type": "option",
-          "side": "back",
           "column": 1,
           "row": 39,
           "contestId": "test-contest-page-2",
@@ -30944,14 +30008,6 @@
           "row": 39,
           "contestId": "test-contest-page-2",
           "optionId": "test-candidate-page-2-row-39-column-32"
-        },
-        {
-          "type": "option",
-          "side": "back",
-          "column": 33,
-          "row": 39,
-          "contestId": "test-contest-page-2",
-          "optionId": "test-candidate-page-2-row-39-column-33"
         }
       ]
     }

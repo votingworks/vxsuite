@@ -34,12 +34,24 @@ function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
     );
   }
 
+  const ballotStyleIndex = 0;
+  const precinctIndex = 0;
   return {
     width: DOCUMENT_WIDTH,
     height: DOCUMENT_HEIGHT,
     pages: [
-      { children: [TimingMarkGrid({ pageNumber: 1 }), ...bubbles(1)] },
-      { children: [TimingMarkGrid({ pageNumber: 2 }), ...bubbles(2)] },
+      {
+        children: [
+          TimingMarkGrid({ pageNumber: 1, ballotStyleIndex, precinctIndex }),
+          ...bubbles(1),
+        ],
+      },
+      {
+        children: [
+          TimingMarkGrid({ pageNumber: 2, ballotStyleIndex, precinctIndex }),
+          ...bubbles(2),
+        ],
+      },
     ],
   };
 }
@@ -61,7 +73,7 @@ function createElection(): Election {
       }))
     )
   );
-  const ballotStyleId = 'card-number-1';
+  const ballotStyleId = 'sheet-1';
 
   const contests: CandidateContest[] = range(1, 3).map((page) => {
     const pageGridPositions = gridPositions.filter(

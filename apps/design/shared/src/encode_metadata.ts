@@ -15,9 +15,10 @@ function numberToBitsRtl(num: number, bitLength: number): Bit[] {
  * Encodes ballot metadata as the bottom row of timing marks on a ballot.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function encodeMetadata(ballotStyleIndex: number) {
-  const ballotStyleId = `card-number-${ballotStyleIndex}`;
-
+export function encodeMetadata(
+  ballotStyleIndex: number,
+  precinctIndex: number
+) {
   const frontMetadataWithoutChecksum = {
     /**
      * Mod 4 check sum from bits 0-1 (2 bits).
@@ -31,7 +32,7 @@ export function encodeMetadata(ballotStyleIndex: number) {
 
     /** Batch or precinct number from bits 2-14 (13 bits). */
     batchOrPrecinctNumber: {
-      value: 0, // Unused, arbitrary
+      value: precinctIndex,
       bitLength: 13,
     },
 
@@ -108,7 +109,6 @@ export function encodeMetadata(ballotStyleIndex: number) {
   const frontTimingMarks: Bit[] = [1, ...frontBits.reverse(), 1];
   const backTimingMarks: Bit[] = [1, ...backBits.reverse(), 1];
   return {
-    ballotStyleId,
     frontTimingMarks,
     backTimingMarks,
   };
