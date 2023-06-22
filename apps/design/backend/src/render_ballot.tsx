@@ -17,6 +17,10 @@ import {
 import { join } from 'path';
 
 const ASSETS_DIR = join(__dirname, '../assets');
+// These font names need to be exactly of the pattern FontName[-Bold] in order
+// for svg-to-pdfkit to find them (see https://github.com/alafr/SVG-to-PDFKit#fonts).
+// We set fontFamily = HelveticaNeue in the SvgPage component in document_svg.tsx.
+const FONTS = ['HelveticaNeue', 'HelveticaNeue-Bold'];
 
 // SVG-to-PDFKit doesn't support embedded SVGs, so we hack around it by
 // inlining the SVG contents.
@@ -73,6 +77,9 @@ export function renderDocumentToPdf(document: Document): PDFKit.PDFDocument {
     size: 'letter',
     autoFirstPage: false,
   });
+  for (const font of FONTS) {
+    pdf.registerFont(font, join(ASSETS_DIR, `fonts/${font}.woff`));
+  }
 
   for (const svgPage of svgPages) {
     pdf.addPage();
