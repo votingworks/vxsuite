@@ -25,10 +25,12 @@ import {
   PollsState,
   PrecinctSelection,
 } from '@votingworks/types';
-import { makeAsync } from '@votingworks/utils';
+import { isElectionManagerAuth, makeAsync } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/mark-backend';
+import { assert } from '@votingworks/basics';
 import { ScreenReader } from '../config/types';
+import { getAuthStatus, updateSessionExpiry } from '../api';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -58,8 +60,10 @@ export function AdminScreen({
   pollsState,
   logger,
   usbDrive,
-}: AdminScreenProps): JSX.Element {
+}: AdminScreenProps): JSX.Element | null {
   const { election } = electionDefinition;
+  const authStatusQuery = getAuthStatus.useQuery();
+  const updateSessionExpiryMutation = updateSessionExpiry.useMutation();
 
   // Disable the audiotrack when in admin mode
   useEffect(() => {
@@ -67,6 +71,12 @@ export function AdminScreen({
     screenReader.mute();
     return () => screenReader.toggleMuted(initialMuted);
   }, [screenReader]);
+
+  if (!authStatusQuery.isSuccess) {
+    return null;
+  }
+  const authStatus = authStatusQuery.data;
+  assert(isElectionManagerAuth(authStatus));
 
   return (
     <Screen>
@@ -144,7 +154,20 @@ export function AdminScreen({
             </Caption>
           </P>
           <P>
-            <SetClockButton>Update Date and Time</SetClockButton>
+            <SetClockButton
+              sessionExpiresAt={authStatus.sessionExpiresAt}
+              updateSessionExpiry={async (sessionExpiresAt: Date) => {
+                try {
+                  await updateSessionExpiryMutation.mutateAsync({
+                    sessionExpiresAt,
+                  });
+                } catch {
+                  // Handled by default query client error handling
+                }
+              }}
+            >
+              Update Date and Time
+            </SetClockButton>
           </P>
           <H6 as="h2">Configuration</H6>
           <P>

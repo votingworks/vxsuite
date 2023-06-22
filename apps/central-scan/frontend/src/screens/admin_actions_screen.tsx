@@ -20,7 +20,7 @@ import { Prose } from '../components/prose';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { AppContext } from '../contexts/app_context';
-import { logOut } from '../api';
+import { logOut, updateSessionExpiry } from '../api';
 
 export interface AdminActionScreenProps {
   unconfigureServer: () => Promise<void>;
@@ -54,6 +54,7 @@ export function AdminActionsScreen({
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
   const logOutMutation = logOut.useMutation();
+  const updateSessionExpiryMutation = updateSessionExpiry.useMutation();
   const [isConfirmingUnconfigure, setIsConfirmingUnconfigure] = useState(false);
   const [isDoubleConfirmingUnconfigure, setIsDoubleConfirmingUnconfigure] =
     useState(false);
@@ -155,7 +156,20 @@ export function AdminActionsScreen({
               machineConfig={machineConfig}
             />
             <p>
-              <SetClockButton>Update Date and Time</SetClockButton>
+              <SetClockButton
+                sessionExpiresAt={auth.sessionExpiresAt}
+                updateSessionExpiry={async (sessionExpiresAt: Date) => {
+                  try {
+                    await updateSessionExpiryMutation.mutateAsync({
+                      sessionExpiresAt,
+                    });
+                  } catch {
+                    // Handled by default query client error handling
+                  }
+                }}
+              >
+                Update Date and Time
+              </SetClockButton>
             </p>
             <p>
               <Button

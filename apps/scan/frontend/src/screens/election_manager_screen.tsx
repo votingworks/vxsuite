@@ -17,12 +17,15 @@ import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
 import { Logger, LogSource } from '@votingworks/logging';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { isElectionManagerAuth } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { Screen } from '../components/layout';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import {
   ejectUsbDrive,
+  getAuthStatus,
   getConfig,
   setIsSoundMuted,
   setIsUltrasonicDisabled,
@@ -30,6 +33,7 @@ import {
   setTestMode,
   supportsUltrasonic,
   unconfigureElection,
+  updateSessionExpiry,
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
 
@@ -52,12 +56,14 @@ export function ElectionManagerScreen({
 }: ElectionManagerScreenProps): JSX.Element | null {
   const supportsUltrasonicQuery = supportsUltrasonic.useQuery();
   const configQuery = getConfig.useQuery();
+  const authStatusQuery = getAuthStatus.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const setIsUltrasonicDisabledMutation = setIsUltrasonicDisabled.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
+  const updateSessionExpiryMutation = updateSessionExpiry.useMutation();
 
   const [
     isShowingToggleTestModeWarningModal,
@@ -72,7 +78,9 @@ export function ElectionManagerScreen({
     useState(false);
   const [isUnconfiguring, setIsUnconfiguring] = useState(false);
 
-  if (!configQuery.isSuccess) return null;
+  if (!configQuery.isSuccess || !authStatusQuery.isSuccess) {
+    return null;
+  }
 
   const { election } = electionDefinition;
   const {
@@ -83,6 +91,8 @@ export function ElectionManagerScreen({
     markThresholdOverrides,
     pollsState,
   } = configQuery.data;
+  const authStatus = authStatusQuery.data;
+  assert(isElectionManagerAuth(authStatus));
 
   function handleTogglingTestMode() {
     if (!isTestMode && !scannerStatus.canUnconfigure) {
@@ -152,7 +162,19 @@ export function ElectionManagerScreen({
 
   const dateTimeButton = (
     <P>
-      <SetClockButton large>
+      <SetClockButton
+        large
+        sessionExpiresAt={authStatus.sessionExpiresAt}
+        updateSessionExpiry={async (sessionExpiresAt: Date) => {
+          try {
+            await updateSessionExpiryMutation.mutateAsync({
+              sessionExpiresAt,
+            });
+          } catch {
+            // Handled by default query client error handling
+          }
+        }}
+      >
         <span role="img" aria-label="Clock">
           🕓
         </span>{' '}
