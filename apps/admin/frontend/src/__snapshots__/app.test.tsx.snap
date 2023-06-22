@@ -198,14 +198,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   }
 }
 
-@media (min-width:1024px) {
-
-}
-
-@media (min-width:1440px) {
-
-}
-
 @media print {
 
 }
@@ -1654,14 +1646,6 @@ exports[`L&A (logic and accuracy) flow 2`] = `
 
 }
 
-@media (min-width:1024px) {
-
-}
-
-@media (min-width:1440px) {
-
-}
-
 @media print {
 
 }
@@ -2929,14 +2913,6 @@ exports[`L&A (logic and accuracy) flow 3`] = `
 }
 
 @media print {
-
-}
-
-@media (min-width:1024px) {
-
-}
-
-@media (min-width:1440px) {
 
 }
 
