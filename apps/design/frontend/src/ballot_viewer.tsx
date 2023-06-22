@@ -280,6 +280,11 @@ export function BallotViewer({
               {precinct.name}
             </LabelledText>
           </P>
+          <P>
+            <LabelledText label={<Font weight="bold">Ballot Style</Font>}>
+              {ballotStyle.id}
+            </LabelledText>
+          </P>
           <H3>Grid</H3>
           <P>
             {GRID.columns} columns x {GRID.rows} rows

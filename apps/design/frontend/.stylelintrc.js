@@ -17,7 +17,7 @@ module.exports = {
   rules: {
     'selector-max-id': 1,
     'selector-max-universal': 1,
-    'order/properties-order': 'off',
-    'color-named': 'off',
+    'order/properties-order': null,
+    'color-named': null,
   },
 };

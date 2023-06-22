@@ -403,7 +403,23 @@ pub fn interpret_ballot_card(
 
     let ballot_style_id = match &front_grid.metadata {
         BallotPageMetadata::Front(metadata) => {
-            BallotStyleId::from(format!("card-number-{}", metadata.card_number))
+            // If the election is using "card-number-{n}" ballot style IDs, use
+            // the card number in the metadata to create that ballot style ID.
+            if options
+                .election
+                .ballot_styles
+                .iter()
+                .all(|ballot_style| ballot_style.id.to_string().starts_with("card-number-"))
+            {
+                BallotStyleId::from(format!("card-number-{}", metadata.card_number))
+            }
+            // If not, use the card number in the metadata as an index into the
+            // list of ballot styles.
+            else {
+                options.election.ballot_styles[metadata.card_number as usize]
+                    .id
+                    .clone()
+            }
         }
         BallotPageMetadata::Back(_) => unreachable!(),
     };
