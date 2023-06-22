@@ -155,7 +155,9 @@ export function AdminActionsScreen({
               machineConfig={machineConfig}
             />
             <p>
-              <SetClockButton>Update Date and Time</SetClockButton>
+              <SetClockButton logOut={() => logOutMutation.mutate()}>
+                Update Date and Time
+              </SetClockButton>
             </p>
             <p>
               <Button

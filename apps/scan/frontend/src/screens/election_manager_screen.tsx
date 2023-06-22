@@ -24,6 +24,7 @@ import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal'
 import {
   ejectUsbDrive,
   getConfig,
+  logOut,
   setIsSoundMuted,
   setIsUltrasonicDisabled,
   setPrecinctSelection,
@@ -58,6 +59,7 @@ export function ElectionManagerScreen({
   const setIsUltrasonicDisabledMutation = setIsUltrasonicDisabled.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
+  const logOutMutation = logOut.useMutation();
 
   const [
     isShowingToggleTestModeWarningModal,
@@ -152,7 +154,7 @@ export function ElectionManagerScreen({
 
   const dateTimeButton = (
     <P>
-      <SetClockButton large>
+      <SetClockButton large logOut={() => logOutMutation.mutate()}>
         <span role="img" aria-label="Clock">
           🕓
         </span>{' '}

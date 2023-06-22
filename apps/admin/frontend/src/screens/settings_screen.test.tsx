@@ -36,6 +36,7 @@ test('Setting current date and time', async () => {
   const modal = screen.getByRole('alertdialog');
   within(modal).getByText('Wed, Jun 22, 2022, 12:00 AM');
   userEvent.selectOptions(within(modal).getByTestId('selectYear'), '2023');
+  apiMock.expectLogOut();
   userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
   await waitFor(() => {
     expect(mockKiosk.setClock).toHaveBeenCalledWith({
@@ -44,9 +45,6 @@ test('Setting current date and time', async () => {
       IANAZone: 'UTC',
     });
   });
-
-  // Date and time are reset to system time after save to kiosk-browser
-  screen.getByText(startDateTime);
 });
 
 test('Rebooting from USB', async () => {

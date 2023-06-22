@@ -16,7 +16,8 @@ import { Modal } from './modal';
 import { InputGroup } from './input_group';
 import { Button, ButtonProps } from './button';
 import { useNow } from './hooks/use_now';
-import { H1, P } from './typography';
+import { Font, H1, P } from './typography';
+import { Icons } from './icons';
 
 export const MIN_YEAR = 2020;
 export const MAX_YEAR = 2030;
@@ -264,6 +265,12 @@ export function PickDateTimeModal({
                 </Select>
               </InputGroup>
             </P>
+            <P>
+              <Font color="warning">
+                <Icons.Warning />
+              </Font>{' '}
+              You will have to reauthenticate after changing the clock.
+            </P>
           </div>
         </Prose>
       }
@@ -281,9 +288,14 @@ export function PickDateTimeModal({
   );
 }
 
-type SetClockButtonProps = Omit<ButtonProps, 'onPress'>;
+type SetClockButtonProps = Omit<ButtonProps, 'onPress'> & {
+  logOut: () => void;
+};
 
-export function SetClockButton(props: SetClockButtonProps): JSX.Element {
+export function SetClockButton({
+  logOut,
+  ...buttonProps
+}: SetClockButtonProps): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingClock, setIsSettingClock] = useState(false);
   const systemDate = useNow();
@@ -303,11 +315,12 @@ export function SetClockButton(props: SetClockButtonProps): JSX.Element {
     } finally {
       setIsSettingClock(false);
     }
+    logOut();
   }
 
   return (
     <React.Fragment>
-      <Button {...props} onPress={() => setIsModalOpen(true)} />
+      <Button {...buttonProps} onPress={() => setIsModalOpen(true)} />
       {isModalOpen && (
         <PickDateTimeModal
           disabled={isSettingClock}
