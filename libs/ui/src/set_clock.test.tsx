@@ -2,13 +2,19 @@ import { DateTime } from 'luxon';
 import MockDate from 'mockdate';
 import React from 'react';
 import fc from 'fast-check';
-import { arbitraryDateTime, fakeKiosk } from '@votingworks/test-utils';
+import {
+  arbitraryDateTime,
+  fakeKiosk,
+  fakeSessionExpiresAt,
+} from '@votingworks/test-utils';
 import { act } from '@testing-library/react-hooks';
+import userEvent from '@testing-library/user-event';
 import {
   cleanup,
   fireEvent,
   render,
   screen,
+  waitFor,
   within,
 } from '../test/react_testing_library';
 import {
@@ -236,18 +242,26 @@ describe('PickDateTimeModal', () => {
 });
 
 describe('SetClockButton', () => {
-  beforeAll(() => {
+  beforeEach(() => {
     jest.useFakeTimers();
     MockDate.set('2020-10-31T00:00:00.000Z');
     window.kiosk = fakeKiosk();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     window.kiosk = undefined;
   });
 
   test('renders date and time settings modal when clicked', async () => {
-    render(<SetClockButton>Update Date and Time</SetClockButton>);
+    const updateSessionExpiry = jest.fn();
+    render(
+      <SetClockButton
+        sessionExpiresAt={fakeSessionExpiresAt()}
+        updateSessionExpiry={updateSessionExpiry}
+      >
+        Update Date and Time
+      </SetClockButton>
+    );
 
     // Open Modal and change date
     fireEvent.click(screen.getByText('Update Date and Time'));
@@ -371,6 +385,60 @@ describe('SetClockButton', () => {
       IANAZone: 'America/Los_Angeles',
       isoDatetime: '2020-10-21T11:00:00.000-07:00',
     });
+  });
+
+  test('updates session expiry when time is moved forward', async () => {
+    const sessionExpiresAt = fakeSessionExpiresAt();
+    const updateSessionExpiry = jest.fn();
+    render(
+      <SetClockButton
+        sessionExpiresAt={sessionExpiresAt}
+        updateSessionExpiry={updateSessionExpiry}
+      >
+        Update Date and Time
+      </SetClockButton>
+    );
+
+    userEvent.click(
+      screen.getByRole('button', { name: 'Update Date and Time' })
+    );
+    const modal = screen.getByRole('alertdialog');
+    within(modal).getByText('Sat, Oct 31, 2020, 12:00 AM');
+    userEvent.selectOptions(within(modal).getByTestId('selectYear'), '2023');
+    userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(modal).not.toBeInTheDocument());
+    expect(updateSessionExpiry).toHaveBeenCalledTimes(1);
+    expect(updateSessionExpiry).toHaveBeenNthCalledWith(
+      1,
+      new Date('2023-10-31T12:00:00.000Z')
+    );
+  });
+
+  test('updates session expiry when time is moved backward', async () => {
+    const sessionExpiresAt = fakeSessionExpiresAt();
+    const updateSessionExpiry = jest.fn();
+    render(
+      <SetClockButton
+        sessionExpiresAt={sessionExpiresAt}
+        updateSessionExpiry={updateSessionExpiry}
+      >
+        Update Date and Time
+      </SetClockButton>
+    );
+
+    userEvent.click(
+      screen.getByRole('button', { name: 'Update Date and Time' })
+    );
+    const modal = screen.getByRole('alertdialog');
+    within(modal).getByText('Sat, Oct 31, 2020, 12:00 AM');
+    userEvent.selectOptions(within(modal).getByTestId('selectMonth'), 'Jan');
+    userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(modal).not.toBeInTheDocument());
+    expect(updateSessionExpiry).toHaveBeenCalledTimes(1);
+    expect(updateSessionExpiry).toHaveBeenNthCalledWith(
+      1,
+      new Date('2020-01-31T12:00:00.000Z')
+    );
   });
 });
 
