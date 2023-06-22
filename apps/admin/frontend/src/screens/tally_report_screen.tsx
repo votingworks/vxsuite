@@ -13,14 +13,17 @@ import {
 } from '@votingworks/types';
 import {
   Button,
+  Caption,
+  Font,
+  H2,
+  Icons,
   LinkButton,
   Modal,
+  P,
   printElement,
   printElementToPdf,
-  Prose,
   TallyReportMetadata,
   TallyReportPreview,
-  Text,
 } from '@votingworks/ui';
 import { UseQueryResult } from '@tanstack/react-query';
 import type { WriteInAdjudicatedTally } from '@votingworks/admin-backend';
@@ -238,9 +241,7 @@ export function TallyReportScreen(): JSX.Element {
   if (isTabulationRunning) {
     return (
       <NavigationScreen centerChild title="Building Tabulation Report...">
-        <Prose textCenter>
-          <p>This may take a few seconds.</p>
-        </Prose>
+        <P>This may take a few seconds.</P>
       </NavigationScreen>
     );
   }
@@ -254,48 +255,44 @@ export function TallyReportScreen(): JSX.Element {
   return (
     <React.Fragment>
       <NavigationScreen title={reportDisplayTitle}>
-        <Prose>
-          <TallyReportMetadata
-            generatedAtTime={generatedAtTime}
-            election={election}
-          />
-          <p>
-            <PrintButton variant="primary" print={printTallyReport}>
-              Print Report
-            </PrintButton>{' '}
-            {window.kiosk && (
-              <Button onPress={() => setIsSaveModalOpen(true)}>
-                Save Report as PDF
-              </Button>
-            )}
-          </p>
-          {location.pathname === routerPaths.tallyFullReport && (
-            <p>
-              <Button
-                disabled={
-                  !castVoteRecordFileModeQuery.isSuccess ||
-                  castVoteRecordFileModeQuery.data === 'unlocked' ||
-                  isOfficialResults
-                }
-                onPress={openMarkOfficialModal}
-              >
-                Mark Tally Results as Official
-              </Button>
-            </p>
+        <TallyReportMetadata
+          generatedAtTime={generatedAtTime}
+          election={election}
+        />
+        <P>
+          <PrintButton variant="primary" print={printTallyReport}>
+            Print Report
+          </PrintButton>{' '}
+          {window.kiosk && (
+            <Button onPress={() => setIsSaveModalOpen(true)}>
+              Save Report as PDF
+            </Button>
           )}
-          <p>
-            <LinkButton small to={routerPaths.reports}>
-              Back to Reports
-            </LinkButton>
-          </p>
-          <React.Fragment>
-            <h2>Report Preview</h2>
-            <Text italic small>
-              <strong>Note:</strong> Printed reports may be paginated to more
-              than one piece of paper.
-            </Text>
-          </React.Fragment>
-        </Prose>
+        </P>
+        {location.pathname === routerPaths.tallyFullReport && (
+          <P>
+            <Button
+              disabled={
+                !castVoteRecordFileModeQuery.isSuccess ||
+                castVoteRecordFileModeQuery.data === 'unlocked' ||
+                isOfficialResults
+              }
+              onPress={openMarkOfficialModal}
+            >
+              Mark Tally Results as Official
+            </Button>
+          </P>
+        )}
+        <P>
+          <LinkButton small to={routerPaths.reports}>
+            Back to Reports
+          </LinkButton>
+        </P>
+        <H2>Report Preview</H2>
+        <Caption>
+          <Icons.Info /> <Font weight="bold">Note:</Font> Printed reports may be
+          paginated to more than one piece of paper.
+        </Caption>
         <TallyReportPreview data-testid="report-preview">
           {tallyReport}
         </TallyReportPreview>
@@ -310,16 +307,15 @@ export function TallyReportScreen(): JSX.Element {
       )}
       {isMarkOfficialModalOpen && (
         <Modal
-          centerContent
           title="Mark Unofficial Tally Results as Official Tally Results?"
           content={
-            <Prose textCenter>
-              <p>
+            <React.Fragment>
+              <P>
                 Have all CVR files been loaded? Once results are marked as
                 official, no additional CVR files can be loaded.
-              </p>
-              <p>Have all unofficial tally reports been reviewed?</p>
-            </Prose>
+              </P>
+              <P>Have all unofficial tally reports been reviewed?</P>
+            </React.Fragment>
           }
           actions={
             <React.Fragment>
