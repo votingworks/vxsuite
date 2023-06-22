@@ -61,6 +61,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import styled from 'styled-components';
+import pluralize from 'pluralize';
 import { ScreenMainCenterChild, Screen } from '../components/layout';
 
 import { LiveCheckModal } from '../components/live_check_modal';
@@ -74,6 +75,7 @@ import {
 } from '../api';
 import { MachineConfig } from '../config/types';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
+import { getPageCount } from '../utils/get_page_count';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
@@ -148,6 +150,8 @@ export function PollWorkerScreen({
     ReadonlyMap<string, Tally>
   >(new Map());
   const [isShowingLiveCheck, setIsShowingLiveCheck] = useState(false);
+  // The number of pages in the report to print, only populates if report prints
+  const [numReportPages, setNumReportPages] = useState<number>();
   const [
     isShowingBallotsAlreadyScannedScreen,
     setIsShowingBallotsAlreadyScannedScreen,
@@ -389,6 +393,8 @@ export function PollWorkerScreen({
       sides: 'one-sided',
       copies,
     });
+
+    setNumReportPages(await getPageCount(report));
   }
 
   async function dispatchReport(
@@ -590,7 +596,16 @@ export function PollWorkerScreen({
           {hasPrinterAttached ? (
             <Prose themeDeprecated={fontSizeTheme.medium}>
               {printerInfo?.name === 'PJ-822' && (
-                <P>Insert paper into the printer to print the report.</P>
+                <P>
+                  Insert{' '}
+                  {numReportPages
+                    ? `${numReportPages} ${pluralize(
+                        'sheet',
+                        numReportPages
+                      )} of paper`
+                    : 'paper'}{' '}
+                  into the printer to print the report.
+                </P>
               )}
               <P>
                 <Button onPress={reprintReport}>
