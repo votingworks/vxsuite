@@ -1,5 +1,5 @@
 import React from 'react';
-import { LinkButton, Prose } from '@votingworks/ui';
+import { Caption, H4, Icons, LinkButton, P } from '@votingworks/ui';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
@@ -13,7 +13,7 @@ export function LogicAndAccuracyScreen(): JSX.Element {
   function renderScreen(content?: React.ReactNode) {
     return (
       <NavigationScreen title="L&A Testing Documents">
-        <Prose>{content}</Prose>
+        {content}
       </NavigationScreen>
     );
   }
@@ -24,48 +24,57 @@ export function LogicAndAccuracyScreen(): JSX.Element {
 
   if (castVoteRecordFileModeQuery.data === 'official') {
     return renderScreen(
-      <p>
+      <P>
         L&A testing documents are not available after official election CVRs
         have been loaded.
-      </p>
+      </P>
     );
   }
 
   return renderScreen(
     <React.Fragment>
-      <p>
+      <P>
         Print the following reports and ballot packages in preparation for L&A
         testing.
-      </p>
-      <h2>1. Unofficial Full Election Tally Report</h2>
-      <p>
-        Print the Full Election Tally Report to document that no votes have been
-        tallied before L&A testing begins.
-      </p>
-      <p>
-        <em>
-          Go to the Reports tab and select the “Unofficial Full Election Tally
-          Report” button at the top of the page to print the report.
-        </em>
-      </p>
-      <h2>2. Precinct L&A Packages</h2>
-      <p>
-        Each Precinct L&A Package contains marked test ballots, unmarked test
-        ballots, and a tally report with expected results.
-      </p>
-      <p>
-        <LinkButton to={routerPaths.testDecks}>
-          List Precinct L&A Packages
-        </LinkButton>
-      </p>
-      <h2>3. Test Deck Tally Report for All Precincts</h2>
-      <p>
-        This report has the results that are expected after scanning all the
-        test ballots.
-      </p>
-      <p>
-        <FullTestDeckTallyReportButton />
-      </p>
+      </P>
+      <ol>
+        <H4 as="h2">
+          <li>Unofficial Full Election Tally Report</li>
+        </H4>
+        <P>
+          Print the Full Election Tally Report to document that no votes have
+          been tallied before L&A testing begins.
+        </P>
+        <P>
+          <Caption>
+            <Icons.Info /> Go to the Reports tab and select the “Unofficial Full
+            Election Tally Report” button at the top of the page to print the
+            report.
+          </Caption>
+        </P>
+        <H4 as="h2">
+          <li>Precinct L&A Packages</li>
+        </H4>
+        <P>
+          Each Precinct L&A Package contains marked test ballots, unmarked test
+          ballots, and a tally report with expected results.
+        </P>
+        <P>
+          <LinkButton to={routerPaths.testDecks}>
+            List Precinct L&A Packages
+          </LinkButton>
+        </P>
+        <H4 as="h2">
+          <li>Test Deck Tally Report for All Precincts</li>
+        </H4>
+        <P>
+          This report has the results that are expected after scanning all the
+          test ballots.
+        </P>
+        <P>
+          <FullTestDeckTallyReportButton />
+        </P>
+      </ol>
     </React.Fragment>
   );
 }
