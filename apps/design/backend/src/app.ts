@@ -8,7 +8,7 @@ import {
   getPrecinctById,
   GridLayout,
   Precinct,
-  safeParseElection,
+  safeParseElectionDefinition,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import { assert, assertDefined, ok, Result } from '@votingworks/basics';
@@ -50,10 +50,12 @@ function buildApi({ store }: { store: Store }) {
 
     setElection(input: { electionData?: string }): Result<void, Error> {
       if (input.electionData) {
-        const parseResult = safeParseElection(input.electionData);
+        const parseResult = safeParseElectionDefinition(input.electionData);
         if (parseResult.isErr()) return parseResult;
+        store.setElection(parseResult.ok());
+      } else {
+        store.setElection(undefined);
       }
-      store.setElection(input.electionData);
       return ok();
     },
 
