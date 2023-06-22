@@ -45,12 +45,12 @@ export class Store {
   /**
    * Sets the current election definition.
    */
-  setElection(electionData?: string): void {
+  setElection(electionDefinition?: ElectionDefinition): void {
     this.client.run('delete from election');
-    if (electionData) {
+    if (electionDefinition) {
       this.client.run(
         'insert into election (election_data) values (?)',
-        electionData
+        electionDefinition.electionData
       );
     }
   }
