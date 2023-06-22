@@ -15,18 +15,20 @@ import {
   useCancelablePromise,
   Modal,
   Prose,
-  HorizontalRule,
   printElement,
   printElementWhenReady,
   printElementToPdfWhenReady,
+  P,
+  H6,
+  Font,
 } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 
+import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
-import { ButtonList } from '../components/button_list';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { HandMarkedPaperBallot } from '../components/hand_marked_paper_ballot';
@@ -55,6 +57,20 @@ interface PrecinctTallyReportProps {
   election: Election;
   precinctId: PrecinctId;
 }
+
+const ButtonsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
+`;
+
+const ButtonRow = styled.div`
+  display: grid;
+  grid-auto-rows: 1fr;
+  grid-gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
+  grid-template-columns: 1fr 1fr;
+  width: 80%;
+`;
 
 function PrecinctTallyReport({
   election,
@@ -187,13 +203,13 @@ function PrintingModal({
         title="Change Paper"
         content={
           <Prose textCenter>
-            <p>
+            <P>
               Load printer with{' '}
-              <strong>
+              <Font weight="bold">
                 {getBallotLayoutPageSizeReadableString(election)}-size paper
-              </strong>
+              </Font>
               .
-            </p>
+            </P>
           </Prose>
         }
         actions={
@@ -212,25 +228,25 @@ function PrintingModal({
       centerContent
       content={
         <Prose textCenter>
-          <p>
+          <P>
             <Loading as="strong" wrapInProse={false}>
               {`Printing L&A Package for ${currentPrecinct.name}`}
             </Loading>
-          </p>
+          </P>
           {printIndex.precinctIds.length > 1 && (
-            <p>
+            <P>
               This is package {printIndex.precinctIndex + 1} of{' '}
               {printIndex.precinctIds.length}.
-            </p>
+            </P>
           )}
           {getBallotLayoutPageSize(election) !== BallotPaperSize.Letter && (
-            <p>
+            <P>
               {printIndex.phase === 'PrintingNonLetter'
                 ? `Currently printing ${getBallotLayoutPageSizeReadableString(
                     election
                   )}-size pages.`
                 : 'Currently printing letter-size pages.'}
-            </p>
+            </P>
           )}
         </Prose>
       }
@@ -529,48 +545,54 @@ export function PrintTestDeckScreen(): JSX.Element {
         />
       )}
       <NavigationScreen title={pageTitle}>
-        <Prose maxWidth={false}>
-          <p>
-            Print the L&A Packages for all precincts, or for a specific
-            precinct, by selecting a button below.
-          </p>
-          <HorizontalRule />
-          <p>Each Precinct L&A Package prints:</p>
-          <ol>
+        <P>
+          Print the L&A Packages for all precincts, or for a specific precinct,
+          by selecting a button below.
+        </P>
+        <H6 as="h2">Each Precinct L&A Package prints:</H6>
+        <ol>
+          <P>
             <li>
               A Precinct Tally Report — the expected results of the precinct.
             </li>
+          </P>
+          <P>
             <li>Pre-voted VxMark test ballots.</li>
+          </P>
+          <P>
             <li>Pre-voted hand-marked test ballots.</li>
+          </P>
+          <P>
             <li>
               Two blank hand-marked test ballots — one remains blank, one is
               hand-marked by an election official to replace a pre-voted
               hand-marked test ballot.
             </li>
+          </P>
+          <P>
             <li>One overvoted hand-marked test ballot.</li>
-          </ol>
-          <HorizontalRule />
-          <ButtonList>
+          </P>
+        </ol>
+        <ButtonsContainer>
+          <ButtonRow>
             <PrintButton
               print={() =>
                 printLetterComponentsOfLogicAndAccuracyPackage('all')
               }
               useDefaultProgressModal={false}
-              fullWidth
+              variant="primary"
             >
-              <strong>Print Packages for All Precincts</strong>
+              Print Packages for All Precincts
             </PrintButton>
             {window.kiosk && (
               <Button
                 onPress={() => onClickSaveLogicAndAccuracyPackageToPdf('all')}
-                fullWidth
               >
                 Save Packages for All Precincts as PDF
               </Button>
             )}
-          </ButtonList>
-          <HorizontalRule />
-          <ButtonList>
+          </ButtonRow>
+          <React.Fragment>
             {[...election.precincts]
               .sort((a, b) =>
                 a.name.localeCompare(b.name, undefined, {
@@ -578,13 +600,12 @@ export function PrintTestDeckScreen(): JSX.Element {
                 })
               )
               .map((p) => (
-                <React.Fragment key={p.id}>
+                <ButtonRow key={p.id}>
                   <PrintButton
                     print={() =>
                       printLetterComponentsOfLogicAndAccuracyPackage(p.id)
                     }
                     useDefaultProgressModal={false}
-                    fullWidth
                   >
                     Print {p.name}
                   </PrintButton>
@@ -593,16 +614,14 @@ export function PrintTestDeckScreen(): JSX.Element {
                       onPress={() =>
                         onClickSaveLogicAndAccuracyPackageToPdf(p.id)
                       }
-                      fullWidth
                     >
                       Save {p.name} to PDF
                     </Button>
                   )}
-                  <p />
-                </React.Fragment>
+                </ButtonRow>
               ))}
-          </ButtonList>
-        </Prose>
+          </React.Fragment>
+        </ButtonsContainer>
       </NavigationScreen>
       {isSaveModalOpen && (
         <SaveFrontendFileModal

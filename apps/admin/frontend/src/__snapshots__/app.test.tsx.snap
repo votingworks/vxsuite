@@ -193,8 +193,8 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 }
 
 @media print {
-  .c0 {
-    font-size: 12px;
+  .c6 {
+    border-top: 1px solid rgb(194,200,203);
   }
 }
 
@@ -248,7 +248,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         <h1>
           Test Deck
            Precinct Tally Report for:
-           
+
           District 5
         </h1>
         <h2>
@@ -256,15 +256,15 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         </h2>
         <p>
           Wednesday, August 26, 2020
-          , 
+          ,
           Choctaw County
-          , 
+          ,
           State of Mississippi
           <br />
           <span
             class="c3"
           >
-            This report was created on 
+            This report was created on
             Tuesday, November 3, 2020 at 10:22:00 PM UTC
             .
           </span>
@@ -357,19 +357,19 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                 8 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -442,7 +442,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               United States
             </p>
             <h3>
-              Senate 
+              Senate
             </h3>
             <p
               class="c3"
@@ -453,19 +453,19 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                 8 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -549,19 +549,19 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                 8 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -633,19 +633,19 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                 8 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -717,19 +717,19 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                 0 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -785,19 +785,19 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                 0 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -863,19 +863,19 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                 0 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -931,19 +931,19 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                 0 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -1009,19 +1009,19 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                 8 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -1093,19 +1093,19 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                 8 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -1166,19 +1166,19 @@ House Concurrent Resolution No. 47
                 8 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -1239,19 +1239,19 @@ House Bill 1796 - Flag Referendum
                 8 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -1311,19 +1311,19 @@ House Bill 1796 - Flag Referendum
                 8 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -1383,19 +1383,19 @@ House Bill 1796 - Flag Referendum
                 8 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -1713,15 +1713,15 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           Unofficial TEST Ballot
         </h2>
         <h3>
-          
-           
+
+
           Mock General Election Choctaw 2020
         </h3>
         <p>
           August 26, 2020
           <br />
           Choctaw County
-          , 
+          ,
           State of Mississippi
         </p>
       </div>
@@ -1802,7 +1802,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
               >
                 Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
               </span>
-               
+
               / Democrat
             </p>
           </div>
@@ -1814,7 +1814,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
             class="c3 c10"
           >
             <h3>
-              Senate 
+              Senate
             </h3>
             <p
               class="c11"
@@ -1824,7 +1824,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
               >
                 Mike Espy
               </span>
-               
+
               / Democrat
             </p>
           </div>
@@ -1846,7 +1846,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
               >
                 Antonia Eliason
               </span>
-               
+
               / Democrat
             </p>
           </div>
@@ -1868,7 +1868,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
               >
                 Josiah Dennis Coleman
               </span>
-               
+
               / Nonpartisan
             </p>
           </div>
@@ -1890,7 +1890,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
               >
                 Ouida A Loper
               </span>
-               
+
               / Independent
             </p>
           </div>
@@ -1912,7 +1912,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
               >
                 Michael D Thomas
               </span>
-               
+
             </p>
           </div>
         </div>
@@ -2011,15 +2011,15 @@ House Bill 1796 - Flag Referendum
           Unofficial TEST Ballot
         </h2>
         <h3>
-          
-           
+
+
           Mock General Election Choctaw 2020
         </h3>
         <p>
           August 26, 2020
           <br />
           Choctaw County
-          , 
+          ,
           State of Mississippi
         </p>
       </div>
@@ -2100,7 +2100,7 @@ House Bill 1796 - Flag Referendum
               >
                 Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
               </span>
-               
+
               / Republican
             </p>
           </div>
@@ -2112,7 +2112,7 @@ House Bill 1796 - Flag Referendum
             class="c3 c10"
           >
             <h3>
-              Senate 
+              Senate
             </h3>
             <p
               class="c11"
@@ -2122,7 +2122,7 @@ House Bill 1796 - Flag Referendum
               >
                 Cindy Hyde-Smith
               </span>
-               
+
               / Republican
             </p>
           </div>
@@ -2144,7 +2144,7 @@ House Bill 1796 - Flag Referendum
               >
                 Trent Kelly
               </span>
-               
+
               / Republican
             </p>
           </div>
@@ -2166,7 +2166,7 @@ House Bill 1796 - Flag Referendum
               >
                 Percy L. Lynchard
               </span>
-               
+
               / Nonpartisan
             </p>
           </div>
@@ -2188,7 +2188,7 @@ House Bill 1796 - Flag Referendum
               >
                 Wayne McLeod
               </span>
-               
+
             </p>
           </div>
         </div>
@@ -2209,7 +2209,7 @@ House Bill 1796 - Flag Referendum
               >
                 WRITE-IN
               </span>
-               
+
               (write-in)
             </p>
           </div>
@@ -2309,15 +2309,15 @@ House Bill 1796 - Flag Referendum
           Unofficial TEST Ballot
         </h2>
         <h3>
-          
-           
+
+
           Mock General Election Choctaw 2020
         </h3>
         <p>
           August 26, 2020
           <br />
           Choctaw County
-          , 
+          ,
           State of Mississippi
         </p>
       </div>
@@ -2398,7 +2398,7 @@ House Bill 1796 - Flag Referendum
               >
                 Presidential Electors for Phil Collins for President and Bill Parker for Vice President
               </span>
-               
+
               / Independent
             </p>
           </div>
@@ -2410,7 +2410,7 @@ House Bill 1796 - Flag Referendum
             class="c3 c10"
           >
             <h3>
-              Senate 
+              Senate
             </h3>
             <p
               class="c11"
@@ -2420,7 +2420,7 @@ House Bill 1796 - Flag Referendum
               >
                 Jimmy Edwards
               </span>
-               
+
               / Libertarian
             </p>
           </div>
@@ -2442,7 +2442,7 @@ House Bill 1796 - Flag Referendum
               >
                 WRITE-IN
               </span>
-               
+
               (write-in)
             </p>
           </div>
@@ -2464,7 +2464,7 @@ House Bill 1796 - Flag Referendum
               >
                 WRITE-IN
               </span>
-               
+
               (write-in)
             </p>
           </div>
@@ -2486,7 +2486,7 @@ House Bill 1796 - Flag Referendum
               >
                 WRITE-IN
               </span>
-               
+
               (write-in)
             </p>
           </div>
@@ -2508,7 +2508,7 @@ House Bill 1796 - Flag Referendum
               >
                 Michael D Thomas
               </span>
-               
+
             </p>
           </div>
         </div>
@@ -2607,15 +2607,15 @@ House Bill 1796 - Flag Referendum
           Unofficial TEST Ballot
         </h2>
         <h3>
-          
-           
+
+
           Mock General Election Choctaw 2020
         </h3>
         <p>
           August 26, 2020
           <br />
           Choctaw County
-          , 
+          ,
           State of Mississippi
         </p>
       </div>
@@ -2696,7 +2696,7 @@ House Bill 1796 - Flag Referendum
               >
                 WRITE-IN
               </span>
-               
+
               (write-in)
             </p>
           </div>
@@ -2708,7 +2708,7 @@ House Bill 1796 - Flag Referendum
             class="c3 c10"
           >
             <h3>
-              Senate 
+              Senate
             </h3>
             <p
               class="c11"
@@ -2718,7 +2718,7 @@ House Bill 1796 - Flag Referendum
               >
                 WRITE-IN
               </span>
-               
+
               (write-in)
             </p>
           </div>
@@ -2740,7 +2740,7 @@ House Bill 1796 - Flag Referendum
               >
                 Antonia Eliason
               </span>
-               
+
               / Democrat
             </p>
           </div>
@@ -2762,7 +2762,7 @@ House Bill 1796 - Flag Referendum
               >
                 Josiah Dennis Coleman
               </span>
-               
+
               / Nonpartisan
             </p>
           </div>
@@ -2784,7 +2784,7 @@ House Bill 1796 - Flag Referendum
               >
                 Ouida A Loper
               </span>
-               
+
               / Independent
             </p>
           </div>
@@ -2806,7 +2806,7 @@ House Bill 1796 - Flag Referendum
               >
                 WRITE-IN
               </span>
-               
+
               (write-in)
             </p>
           </div>
@@ -2970,23 +2970,23 @@ exports[`L&A (logic and accuracy) flow 3`] = `
       Mocked HMPB
     </h1>
     <p>
-      Election: 
+      Election:
       Mock General Election Choctaw 2020
     </p>
     <p>
-      Ballot Style: 
+      Ballot Style:
       5
     </p>
     <p>
-      Precinct: 
+      Precinct:
       District 5
     </p>
     <p>
-      Absentee: 
+      Absentee:
       false
     </p>
     <p>
-      Ballot Mode: 
+      Ballot Mode:
       test
     </p>
   </div>
@@ -2995,23 +2995,23 @@ exports[`L&A (logic and accuracy) flow 3`] = `
       Mocked HMPB
     </h1>
     <p>
-      Election: 
+      Election:
       Mock General Election Choctaw 2020
     </p>
     <p>
-      Ballot Style: 
+      Ballot Style:
       5
     </p>
     <p>
-      Precinct: 
+      Precinct:
       District 5
     </p>
     <p>
-      Absentee: 
+      Absentee:
       false
     </p>
     <p>
-      Ballot Mode: 
+      Ballot Mode:
       test
     </p>
   </div>
@@ -3020,23 +3020,23 @@ exports[`L&A (logic and accuracy) flow 3`] = `
       Mocked HMPB
     </h1>
     <p>
-      Election: 
+      Election:
       Mock General Election Choctaw 2020
     </p>
     <p>
-      Ballot Style: 
+      Ballot Style:
       5
     </p>
     <p>
-      Precinct: 
+      Precinct:
       District 5
     </p>
     <p>
-      Absentee: 
+      Absentee:
       false
     </p>
     <p>
-      Ballot Mode: 
+      Ballot Mode:
       test
     </p>
   </div>
@@ -3045,23 +3045,23 @@ exports[`L&A (logic and accuracy) flow 3`] = `
       Mocked HMPB
     </h1>
     <p>
-      Election: 
+      Election:
       Mock General Election Choctaw 2020
     </p>
     <p>
-      Ballot Style: 
+      Ballot Style:
       5
     </p>
     <p>
-      Precinct: 
+      Precinct:
       District 5
     </p>
     <p>
-      Absentee: 
+      Absentee:
       false
     </p>
     <p>
-      Ballot Mode: 
+      Ballot Mode:
       test
     </p>
   </div>
@@ -3070,23 +3070,23 @@ exports[`L&A (logic and accuracy) flow 3`] = `
       Mocked HMPB
     </h1>
     <p>
-      Election: 
+      Election:
       Mock General Election Choctaw 2020
     </p>
     <p>
-      Ballot Style: 
+      Ballot Style:
       5
     </p>
     <p>
-      Precinct: 
+      Precinct:
       District 5
     </p>
     <p>
-      Absentee: 
+      Absentee:
       false
     </p>
     <p>
-      Ballot Mode: 
+      Ballot Mode:
       test
     </p>
   </div>
@@ -3095,23 +3095,23 @@ exports[`L&A (logic and accuracy) flow 3`] = `
       Mocked HMPB
     </h1>
     <p>
-      Election: 
+      Election:
       Mock General Election Choctaw 2020
     </p>
     <p>
-      Ballot Style: 
+      Ballot Style:
       5
     </p>
     <p>
-      Precinct: 
+      Precinct:
       District 5
     </p>
     <p>
-      Absentee: 
+      Absentee:
       false
     </p>
     <p>
-      Ballot Mode: 
+      Ballot Mode:
       test
     </p>
   </div>
@@ -3120,23 +3120,23 @@ exports[`L&A (logic and accuracy) flow 3`] = `
       Mocked HMPB
     </h1>
     <p>
-      Election: 
+      Election:
       Mock General Election Choctaw 2020
     </p>
     <p>
-      Ballot Style: 
+      Ballot Style:
       5
     </p>
     <p>
-      Precinct: 
+      Precinct:
       District 5
     </p>
     <p>
-      Absentee: 
+      Absentee:
       false
     </p>
     <p>
-      Ballot Mode: 
+      Ballot Mode:
       test
     </p>
   </div>
@@ -3363,21 +3363,21 @@ exports[`tabulating CVRs 1`] = `
       >
         <h1>
           Official
-           
+
           Mock General Election Choctaw 2020
            Tally Report
         </h1>
         <p>
           Wednesday, August 26, 2020
-          , 
+          ,
           Choctaw County
-          , 
+          ,
           State of Mississippi
           <br />
           <span
             class="c3"
           >
-            This report was created on 
+            This report was created on
             Tuesday, November 3, 2020 at 10:22:00 PM UTC
             .
           </span>
@@ -3470,19 +3470,19 @@ exports[`tabulating CVRs 1`] = `
                 100 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 1 overvote
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 7 undervotes
               </span>
             </p>
@@ -3555,7 +3555,7 @@ exports[`tabulating CVRs 1`] = `
               United States
             </p>
             <h3>
-              Senate 
+              Senate
             </h3>
             <p
               class="c3"
@@ -3566,19 +3566,19 @@ exports[`tabulating CVRs 1`] = `
                 100 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 4 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 4 undervotes
               </span>
             </p>
@@ -3662,19 +3662,19 @@ exports[`tabulating CVRs 1`] = `
                 100 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 3 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 5 undervotes
               </span>
             </p>
@@ -3746,19 +3746,19 @@ exports[`tabulating CVRs 1`] = `
                 100 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 5 undervotes
               </span>
             </p>
@@ -3830,19 +3830,19 @@ exports[`tabulating CVRs 1`] = `
                 18 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 1 undervote
               </span>
             </p>
@@ -3902,19 +3902,19 @@ exports[`tabulating CVRs 1`] = `
                 15 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 1 undervote
               </span>
             </p>
@@ -3986,19 +3986,19 @@ exports[`tabulating CVRs 1`] = `
                 23 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 1 undervote
               </span>
             </p>
@@ -4058,19 +4058,19 @@ exports[`tabulating CVRs 1`] = `
                 25 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 1 overvote
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -4142,19 +4142,19 @@ exports[`tabulating CVRs 1`] = `
                 19 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 2 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 2 undervotes
               </span>
             </p>
@@ -4226,19 +4226,19 @@ exports[`tabulating CVRs 1`] = `
                 19 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 0 undervotes
               </span>
             </p>
@@ -4299,19 +4299,19 @@ House Concurrent Resolution No. 47
                 100 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 2 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 5 undervotes
               </span>
             </p>
@@ -4372,19 +4372,19 @@ House Bill 1796 - Flag Referendum
                 100 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 3 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 2 undervotes
               </span>
             </p>
@@ -4444,19 +4444,19 @@ House Bill 1796 - Flag Referendum
                 100 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 3 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 4 undervotes
               </span>
             </p>
@@ -4516,19 +4516,19 @@ House Bill 1796 - Flag Referendum
                 100 ballots
                  cast /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 4 overvotes
                  /
               </span>
-               
+
               <span
                 class="c9"
               >
-                 
+
                 6 undervotes
               </span>
             </p>
