@@ -10,9 +10,11 @@ import {
 } from '@votingworks/utils';
 import {
   Button,
-  Prose,
   useCancelablePromise,
   LinkButton,
+  H2,
+  P,
+  Font,
 } from '@votingworks/ui';
 import { TallyCategory } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
@@ -131,21 +133,21 @@ export function ReportsScreen(): JSX.Element {
   if (!isTabulationRunning) {
     const resultTables = (
       <React.Fragment>
-        <h2>Tally Report by Precinct</h2>
+        <H2>Tally Report by Precinct</H2>
         <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
         {canDistinguishVotingMethods(election) && (
           <React.Fragment>
-            <h2>Tally Report by Voting Method</h2>
+            <H2>Tally Report by Voting Method</H2>
             <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
           </React.Fragment>
         )}
         {partiesForPrimaries.length > 0 && (
           <React.Fragment>
-            <h2>Tally Report by Party</h2>
+            <H2>Tally Report by Party</H2>
             <BallotCountsTable breakdownCategory={TallyCategory.Party} />
           </React.Fragment>
         )}
-        <h2>Tally Report by Scanner</h2>
+        <H2>Tally Report by Scanner</H2>
         <Button small onPress={toggleShowingBatchResults}>
           {isShowingBatchResults
             ? 'Show Results by Scanner'
@@ -166,15 +168,15 @@ export function ReportsScreen(): JSX.Element {
 
   const fileMode = castVoteRecordFileModeQuery.data;
   const ballotCountSummaryText = (
-    <p>
-      <strong>
+    <P>
+      <Font weight="bold">
         {format.count(totalBallotCount)}
         {fileMode === 'unlocked' ? ' ' : ` ${fileMode} `}
         {pluralize('ballot', totalBallotCount, false)}
-      </strong>{' '}
-      have been counted for <strong>{electionDefinition.election.title}</strong>
-      .
-    </p>
+      </Font>{' '}
+      have been counted for{' '}
+      <Font weight="bold">{electionDefinition.election.title}</Font>.
+    </P>
   );
 
   // saving results is enabled once a cast vote record file is loaded
@@ -185,33 +187,31 @@ export function ReportsScreen(): JSX.Element {
   return (
     <React.Fragment>
       <NavigationScreen title="Election Reports">
-        <Prose maxWidth={false}>
-          {ballotCountSummaryText}
-          <p>
-            <LinkButton primary to={routerPaths.tallyFullReport}>
-              {statusPrefix} Full Election Tally Report
-            </LinkButton>{' '}
-            {converterName !== '' && (
-              <React.Fragment>
-                <Button
-                  onPress={() => setIsExportResultsModalOpen(true)}
-                  disabled={
-                    !canSaveResults || !semsExportableTalliesQuery.isSuccess
-                  }
-                >
-                  Save {converterName} Results
-                </Button>{' '}
-              </React.Fragment>
-            )}
-            <SaveResultsButton disabled={!canSaveResults} />
-          </p>
-          <p>
-            <LinkButton to={routerPaths.tallyWriteInReport}>
-              {statusPrefix} Write-In Tally Report
-            </LinkButton>
-          </p>
-          {tallyResultsInfo}
-        </Prose>
+        {ballotCountSummaryText}
+        <P>
+          <LinkButton primary to={routerPaths.tallyFullReport}>
+            {statusPrefix} Full Election Tally Report
+          </LinkButton>{' '}
+          {converterName !== '' && (
+            <React.Fragment>
+              <Button
+                onPress={() => setIsExportResultsModalOpen(true)}
+                disabled={
+                  !canSaveResults || !semsExportableTalliesQuery.isSuccess
+                }
+              >
+                Save {converterName} Results
+              </Button>{' '}
+            </React.Fragment>
+          )}
+          <SaveResultsButton disabled={!canSaveResults} />
+        </P>
+        <P>
+          <LinkButton to={routerPaths.tallyWriteInReport}>
+            {statusPrefix} Write-In Tally Report
+          </LinkButton>
+        </P>
+        {tallyResultsInfo}
       </NavigationScreen>
       {isExportResultsModalOpen && (
         <SaveFrontendFileModal
