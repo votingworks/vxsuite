@@ -3265,10 +3265,6 @@ exports[`tabulating CVRs 1`] = `
 
 }
 
-@media print {
-
-}
-
 @media (min-width:480px) {
 
 }
