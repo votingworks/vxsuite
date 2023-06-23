@@ -21,7 +21,11 @@ import {
   safeParse,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { isElectionManagerAuth } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  isElectionManagerAuth,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
@@ -393,6 +397,9 @@ export function buildCentralScannerApp({
           store.getCurrentMarkThresholds()?.definite ??
           DefaultMarkThresholds.definite,
         artifactAuthenticator,
+        disableOriginalSnapshots: isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
+        ),
       },
       usb.getUsbDrives
     );
