@@ -501,8 +501,10 @@ export function AppRoot({
       ) {
         const result = await configureMutation.mutateAsync();
         const electionDefinitionFromResult = result.ok();
-        assert(electionDefinitionFromResult !== undefined);
-        updateElectionDefinition(electionDefinitionFromResult);
+        // an `err` Result from this mutation is handled by UnconfiguredElectionScreen
+        if (electionDefinitionFromResult) {
+          updateElectionDefinition(electionDefinitionFromResult);
+        }
       }
     }
 

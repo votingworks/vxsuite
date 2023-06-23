@@ -12,7 +12,7 @@ import {
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
-import { typedAs, sleep, ok } from '@votingworks/basics';
+import { typedAs, sleep, ok, err } from '@votingworks/basics';
 import { Scan } from '@votingworks/api';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -330,13 +330,8 @@ test('configuring election from usb ballot package works end to end', async () =
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   expectConfigureFromBallotPackageOnUsbDrive();
 
-  fetchMock.get('/central-scanner/config/election', electionSampleDefinition, {
-    overwriteRoutes: true,
-  });
-
   await act(async () => {
-    await sleep(500);
-    getByText('Successfully Configured');
+    await waitFor(() => getByText('Successfully Configured'));
   });
 
   fireEvent.click(getByText('Close'));
@@ -370,6 +365,56 @@ test('configuring election from usb ballot package works end to end', async () =
   await act(async () => {
     await sleep(1000);
     getByText('Insert a USB drive containing a ballot package.');
+  });
+});
+
+test('failed configuration from USB results in an error screen', async () => {
+  mockApiClient.getTestMode.expectCallWith().resolves(true);
+  const getMarkThresholdOverridesResponse: Scan.GetMarkThresholdOverridesConfigResponse =
+    {
+      status: 'ok',
+    };
+  fetchMock
+    .get('/central-scanner/config/election', { body: 'null' })
+    .get('/central-scanner/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesResponse,
+    })
+    .patchOnce('/central-scanner/config/election', {
+      body: '{"status": "ok"}',
+      status: 200,
+    });
+
+  const mockKiosk = fakeKiosk();
+  window.kiosk = mockKiosk;
+
+  const hardware = MemoryHardware.buildStandard();
+  const { getByText } = render(
+    <App apiClient={mockApiClient} hardware={hardware} />
+  );
+  await authenticateAsElectionManager(
+    electionSampleDefinition,
+    'VxCentralScan is Not Configured',
+    'VxCentralScan is Not Configured'
+  );
+
+  // Insert USB drive
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+
+  // If there are more unexpected calls to these endpoints, the app may be
+  // reattempting configuration in a loop
+  mockApiClient.configureFromBallotPackageOnUsbDrive
+    .expectCallWith()
+    .resolves(err('election_hash_mismatch'));
+  mockApiClient.getSystemSettings
+    .expectCallWith()
+    .resolves(DEFAULT_SYSTEM_SETTINGS);
+
+  await act(async () => {
+    await waitFor(() =>
+      getByText(
+        'The most recent ballot package found is for a different election.'
+      )
+    );
   });
 });
 
