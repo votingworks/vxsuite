@@ -163,12 +163,11 @@ function snapshotHasValidContestReferences(
     );
     if (!electionContest) return err('invalid-contest');
 
+    const validContestOptions = new Set(
+      getValidContestOptions(electionContest)
+    );
     for (const cvrContestSelection of cvrContest.CVRContestSelection) {
-      if (
-        !getValidContestOptions(electionContest).includes(
-          cvrContestSelection.ContestSelectionId
-        )
-      ) {
+      if (!validContestOptions.has(cvrContestSelection.ContestSelectionId)) {
         return err('invalid-contest-option');
       }
     }
