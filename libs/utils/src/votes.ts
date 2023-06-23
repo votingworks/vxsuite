@@ -1,5 +1,6 @@
 import {
   assert,
+  assertDefined,
   find,
   Optional,
   throwIllegalValue,
@@ -44,6 +45,22 @@ import {
 
 const MISSING_BATCH_ID = 'missing-batch-id';
 
+export type CandidateLookup = Record<ContestId, Record<CandidateId, Candidate>>;
+
+function buildCandidateLookup(election: Election): CandidateLookup {
+  const lookup: CandidateLookup = {};
+  for (const contest of election.contests) {
+    if (contest.type === 'candidate') {
+      const contestLookup: Record<CandidateId, Candidate> = {};
+      for (const candidate of contest.candidates) {
+        contestLookup[candidate.id] = candidate;
+      }
+      lookup[contest.id] = contestLookup;
+    }
+  }
+  return lookup;
+}
+
 export function getSingleYesNoVote(vote?: YesNoVote): YesOrNo | undefined {
   if (vote?.length === 1) {
     return vote[0];
@@ -62,9 +79,11 @@ export function normalizeWriteInId(candidateId: CandidateId): string {
 export function buildVoteFromCvr({
   election,
   cvr,
+  candidateLookup,
 }: {
   election: Election;
   cvr: CastVoteRecord;
+  candidateLookup?: CandidateLookup;
 }): VotesDict {
   const vote: VotesDict = {};
   const mutableCvr: CastVoteRecord = { ...cvr };
@@ -84,12 +103,19 @@ export function buildVoteFromCvr({
       case 'candidate': {
         vote[contest.id] = (mutableCvr[contest.id] as string[])
           .map((candidateId) => normalizeWriteInId(candidateId))
-          .map((candidateId) =>
-            find(
-              [writeInCandidate, ...contest.candidates],
-              (c) => c.id === candidateId
-            )
-          );
+          .map((candidateId) => {
+            if (candidateId === writeInCandidate.id) {
+              return writeInCandidate;
+            }
+
+            if (candidateLookup) {
+              return assertDefined(
+                assertDefined(candidateLookup[contest.id])[candidateId]
+              );
+            }
+
+            return find(contest.candidates, (c) => c.id === candidateId);
+          });
         break;
       }
 
@@ -224,23 +250,22 @@ export function calculateTallyForCastVoteRecords(
 ): Tally {
   const allVotes: VotesDict[] = [];
   const ballotCountsByVotingMethod: Dictionary<number> = {};
+  const candidateLookup = buildCandidateLookup(election);
   for (const votingMethod of Object.values(VotingMethod)) {
     ballotCountsByVotingMethod[votingMethod] = 0;
   }
   for (const CVR of castVoteRecords) {
-    const vote = buildVoteFromCvr({ election, cvr: CVR });
+    const vote = buildVoteFromCvr({ election, cvr: CVR, candidateLookup });
     const votingMethod = getVotingMethodForCastVoteRecord(CVR);
     const count = ballotCountsByVotingMethod[votingMethod];
     assert(typeof count !== 'undefined');
     ballotCountsByVotingMethod[votingMethod] = count + 1;
     allVotes.push(vote);
   }
-
   const overallTally = tallyVotesByContest({
     election,
     votes: allVotes,
   });
-
   return {
     contestTallies: overallTally,
     castVoteRecords: new Set(castVoteRecords),
