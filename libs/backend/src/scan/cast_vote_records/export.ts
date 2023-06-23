@@ -100,6 +100,7 @@ interface GetCastVoteRecordGeneratorParams {
   definiteMarkThreshold: number;
   resultSheetGenerator: Generator<ResultSheet>;
   reportContext: ReportContext;
+  disableOriginalSnapshots?: boolean;
 }
 
 /**
@@ -118,6 +119,7 @@ function* getCastVoteRecordGenerator({
   definiteMarkThreshold,
   resultSheetGenerator,
   reportContext,
+  disableOriginalSnapshots,
 }: GetCastVoteRecordGeneratorParams): Generator<CVR.CVR> {
   const { electionHash, election } = electionDefinition;
   const electionOptionPositionMap = buildElectionOptionPositionMap(election);
@@ -181,6 +183,7 @@ function* getCastVoteRecordGenerator({
       indexInBatch,
       ballotMarkingMode: 'hand',
       definiteMarkThreshold,
+      disableOriginalSnapshots,
       pages: [
         {
           interpretation: front,
@@ -210,6 +213,7 @@ interface BuildCastVoteRecordReportMetadataParams
   extends GetCastVoteRecordGeneratorParams {
   isTestMode: boolean;
   batchInfo: BatchInfo[];
+  disableOriginalSnapshots?: boolean;
 }
 
 /**
@@ -224,6 +228,7 @@ export function getCastVoteRecordReportStream({
   resultSheetGenerator,
   batchInfo,
   reportContext,
+  disableOriginalSnapshots,
 }: BuildCastVoteRecordReportMetadataParams): NodeJS.ReadableStream {
   const { electionHash, election } = electionDefinition;
   const electionId = electionHash;
@@ -234,6 +239,7 @@ export function getCastVoteRecordReportStream({
     definiteMarkThreshold,
     resultSheetGenerator,
     reportContext,
+    disableOriginalSnapshots,
   });
 
   const castVoteRecordReportMetadata = buildCastVoteRecordReportMetadata({
@@ -301,6 +307,7 @@ interface ExportCastVoteRecordReportToUsbDriveParams
   ballotsCounted: number;
   getResultSheetGenerator: () => Generator<ResultSheet>;
   artifactAuthenticator: ArtifactAuthenticatorApi;
+  disableOriginalSnapshots?: boolean;
 }
 
 /**
@@ -320,6 +327,7 @@ async function exportCastVoteRecordReportToUsbDriveHelper(
     definiteMarkThreshold,
     batchInfo,
     artifactAuthenticator,
+    disableOriginalSnapshots,
   }: ExportCastVoteRecordReportToUsbDriveParams,
   getUsbDrives: () => Promise<UsbDrive[]>,
   tempDirectory: string
@@ -353,6 +361,7 @@ async function exportCastVoteRecordReportToUsbDriveHelper(
     definiteMarkThreshold,
     batchInfo,
     reportContext: 'report-only',
+    disableOriginalSnapshots,
   });
 
   // it's possible the report generation throws an error due to an invalid

@@ -473,6 +473,7 @@ type BuildCastVoteRecordParams = {
         interpretation: InterpretedHmpbPage;
         imageFileUri?: string;
       }>;
+      disableOriginalSnapshots?: boolean;
     }
 );
 
@@ -547,7 +548,7 @@ export function buildCastVoteRecord({
     };
   }
 
-  const { pages, definiteMarkThreshold } = rest;
+  const { pages, definiteMarkThreshold, disableOriginalSnapshots } = rest;
 
   // The larger page number should be an even number which, divided by two,
   // yields the sheet number
@@ -563,56 +564,60 @@ export function buildCastVoteRecord({
     getWriteInCount(pages[0].interpretation.votes) +
     getWriteInCount(pages[1].interpretation.votes);
 
+  const modifiedSnapshot: CVR.CVRSnapshot = {
+    '@type': 'CVR.CVRSnapshot',
+    '@id': `${castVoteRecordId}-modified`,
+    Type: CVR.CVRType.Modified,
+    CVRContest: [
+      ...buildCVRContestsFromVotes({
+        contests: getContestsForBallotPage({
+          ballotPageMetadata: pages[0].interpretation.metadata,
+          election,
+        }),
+        votes: pages[0].interpretation.votes,
+        options: {
+          ballotMarkingMode: 'hand',
+          imageFileUri: pages[0].imageFileUri,
+        },
+        electionOptionPositionMap,
+      }),
+      ...buildCVRContestsFromVotes({
+        contests: getContestsForBallotPage({
+          ballotPageMetadata: pages[1].interpretation.metadata,
+          election,
+        }),
+        votes: pages[1].interpretation.votes,
+        options: {
+          ballotMarkingMode: 'hand',
+          imageFileUri: pages[1].imageFileUri,
+        },
+        electionOptionPositionMap,
+      }),
+    ],
+    vxWriteIns: writeInCount,
+  };
+
   // CVR for hand-marked paper ballots, has both "original" snapshot with
   // scores for all marks and "modified" snapshot with contest rules applied.
   return {
     ...cvrMetadata,
     BallotSheetId: sheetNumber, // VVSG 2.0 1.1.5-G.5
     CurrentSnapshotId: `${castVoteRecordId}-modified`,
-    CVRSnapshot: [
-      {
-        '@type': 'CVR.CVRSnapshot',
-        '@id': `${castVoteRecordId}-modified`,
-        Type: CVR.CVRType.Modified,
-        CVRContest: [
-          ...buildCVRContestsFromVotes({
-            contests: getContestsForBallotPage({
-              ballotPageMetadata: pages[0].interpretation.metadata,
-              election,
-            }),
-            votes: pages[0].interpretation.votes,
-            options: {
-              ballotMarkingMode: 'hand',
-              imageFileUri: pages[0].imageFileUri,
-            },
-            electionOptionPositionMap,
-          }),
-          ...buildCVRContestsFromVotes({
-            contests: getContestsForBallotPage({
-              ballotPageMetadata: pages[1].interpretation.metadata,
-              election,
-            }),
-            votes: pages[1].interpretation.votes,
-            options: {
-              ballotMarkingMode: 'hand',
-              imageFileUri: pages[1].imageFileUri,
-            },
+    CVRSnapshot: disableOriginalSnapshots
+      ? [modifiedSnapshot]
+      : [
+          modifiedSnapshot,
+          buildOriginalSnapshot({
+            castVoteRecordId,
+            marks: [
+              ...pages[0].interpretation.markInfo.marks,
+              ...pages[1].interpretation.markInfo.marks,
+            ],
+            definiteMarkThreshold,
+            election,
             electionOptionPositionMap,
           }),
         ],
-        vxWriteIns: writeInCount,
-      },
-      buildOriginalSnapshot({
-        castVoteRecordId,
-        marks: [
-          ...pages[0].interpretation.markInfo.marks,
-          ...pages[1].interpretation.markInfo.marks,
-        ],
-        definiteMarkThreshold,
-        election,
-        electionOptionPositionMap,
-      }),
-    ],
     BallotImage: hasImageFileUris
       ? pages.map((page) =>
           page.imageFileUri
