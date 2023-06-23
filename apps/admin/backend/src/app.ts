@@ -418,11 +418,7 @@ function buildApi({
         return [];
       }
 
-      return store
-        .getCastVoteRecordEntries(currentElectionId)
-        .map(
-          (entry) => safeParseJson(entry.data).unsafeUnwrap() as CastVoteRecord
-        );
+      return [...store.getDeprecatedCastVoteRecords(currentElectionId)];
     },
 
     async addCastVoteRecordFile(input: {
