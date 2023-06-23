@@ -41,7 +41,6 @@ import {
   getOfficialCandidateNameLookup,
 } from '@votingworks/utils';
 import {
-  CastVoteRecordFileEntryRecord,
   CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
   CvrFileMode,
@@ -806,49 +805,41 @@ export class Store {
   }
 
   /**
-   * Gets all CVR entries for an election.
+   * @deprecated Gets all CVR entries for an election.
    */
-  getCastVoteRecordEntries(electionId: Id): CastVoteRecordFileEntryRecord[] {
+  *getDeprecatedCastVoteRecords(electionId: Id): Generator<CastVoteRecord> {
     const fileMode = this.getCurrentCvrFileModeForElection(electionId);
     if (fileMode === 'unlocked') return [];
     const isTestMode = fileMode === 'test';
 
-    const entries = this.client.all(
+    for (const entry of this.client.each(
       `
-        select
-          cvrs.id as id,
-          cvrs.ballot_id as ballotId,
-          cvrs.ballot_style_id as ballotStyleId,
-          cvrs.ballot_type as ballotType,
-          cvrs.batch_id as batchId,
-          scanner_batches.label as batchLabel,
-          scanner_batches.scanner_id as scannerId,
-          cvrs.precinct_id as precinctId,
-          cvrs.sheet_number as sheetNumber,
-          cvrs.votes as votes,
-          datetime(cvrs.created_at, 'localtime') as createdAt
-        from
-          cvrs inner join scanner_batches on cvrs.batch_id = scanner_batches.id
-        where cvrs.election_id = ?
-        order by cvrs.created_at asc
-      `,
+    select
+      cvrs.id as id,
+      cvrs.ballot_style_id as ballotStyleId,
+      cvrs.ballot_type as ballotType,
+      cvrs.batch_id as batchId,
+      scanner_batches.label as batchLabel,
+      scanner_batches.scanner_id as scannerId,
+      cvrs.precinct_id as precinctId,
+      cvrs.votes as votes    
+    from
+      cvrs inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+    where cvrs.election_id = ?
+    order by cvrs.created_at asc
+  `,
       electionId
-    ) as Array<{
+    ) as Iterable<{
       id: Id;
-      ballotId: string;
       ballotStyleId: string;
       ballotType: string;
       batchId: string;
       batchLabel: string;
       precinctId: string;
       scannerId: string;
-      sheetNumber: number | null;
       votes: string;
-      createdAt: Iso8601Timestamp;
-    }>;
-
-    return entries.map((entry) => {
-      const castVoteRecordLegacyMetadata: CastVoteRecord = {
+    }>) {
+      yield {
         _precinctId: entry.precinctId,
         _scannerId: entry.scannerId,
         _batchId: entry.batchId,
@@ -858,18 +849,9 @@ export class Store {
           entry.ballotType as CVR.vxBallotType
         ),
         _testBallot: isTestMode,
+        ...JSON.parse(entry.votes),
       };
-      return {
-        id: entry.id,
-        ballotId: entry.ballotId,
-        electionId,
-        data: JSON.stringify({
-          ...castVoteRecordLegacyMetadata,
-          ...JSON.parse(entry.votes),
-        }),
-        createdAt: convertSqliteTimestampToIso8601(entry.createdAt),
-      };
-    });
+    }
   }
 
   private getTabulationFilterAsSql(
