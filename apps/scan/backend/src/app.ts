@@ -11,9 +11,11 @@ import {
   SinglePrecinctSelection,
 } from '@votingworks/types';
 import {
+  BooleanEnvironmentVariableName,
   ScannerReportData,
   ScannerReportDataSchema,
   isElectionManagerAuth,
+  isFeatureFlagEnabled,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import express, { Application } from 'express';
@@ -275,6 +277,9 @@ function buildApi(
             store.getCurrentMarkThresholds()?.definite ??
             DefaultMarkThresholds.definite,
           artifactAuthenticator,
+          disableOriginalSnapshots: isFeatureFlagEnabled(
+            BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
+          ),
         },
         // TODO Convert exportCastVoteRecordReportToUsbDrive to use libs/usb-drive
         async () => {
