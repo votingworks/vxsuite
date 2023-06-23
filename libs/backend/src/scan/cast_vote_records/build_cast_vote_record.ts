@@ -1,4 +1,10 @@
-import { assert, find, iter, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  find,
+  iter,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   AnyContest,
   BallotId,
@@ -24,6 +30,10 @@ import {
 import { getMarkStatus } from '@votingworks/utils';
 
 import { getContestsForBallotPage } from './page_layouts';
+import {
+  ContestOptionPositionMap,
+  ElectionOptionPositionMap,
+} from './option_map';
 
 /**
  * Converts from the ballot type enumeration to a test representation used
@@ -154,10 +164,12 @@ type CVRContestRequiredBallotPageOptions =
 
 function buildCVRCandidateContest({
   contest,
+  contestOptionPositionMap,
   vote,
   options,
 }: {
   contest: CandidateContest;
+  contestOptionPositionMap?: ContestOptionPositionMap;
   vote: CandidateVote;
   options: CVRContestRequiredBallotPageOptions;
 }): CVR.CVRContest {
@@ -222,7 +234,9 @@ function buildCVRCandidateContest({
         '@type': 'CVR.CVRContestSelection',
         ContestSelectionId: candidate.id,
         // include position on the ballot per VVSG 2.0 1.1.5-C.2
-        OptionPosition: getOptionPosition({ contest, optionId: candidate.id }),
+        OptionPosition: contestOptionPositionMap
+          ? contestOptionPositionMap[candidate.id]
+          : getOptionPosition({ contest, optionId: candidate.id }),
         Status: overvoted
           ? [CVR.ContestSelectionStatus.InvalidatedRules]
           : isWriteIn
@@ -277,10 +291,12 @@ function buildCVRCandidateContest({
 export function buildCVRContestsFromVotes({
   votes,
   contests,
+  electionOptionPositionMap,
   options,
 }: {
   votes: VotesDict;
   contests: Contests;
+  electionOptionPositionMap?: ElectionOptionPositionMap;
   options: CVRContestRequiredBallotPageOptions;
 }): CVR.CVRContest[] {
   const cvrContests: CVR.CVRContest[] = [];
@@ -303,6 +319,9 @@ export function buildCVRContestsFromVotes({
         cvrContests.push(
           buildCVRCandidateContest({
             contest,
+            contestOptionPositionMap: electionOptionPositionMap
+              ? electionOptionPositionMap[contest.id]
+              : undefined,
             vote: vote as CandidateVote,
             options,
           })
@@ -334,11 +353,13 @@ function buildOriginalSnapshot({
   marks,
   definiteMarkThreshold,
   election,
+  electionOptionPositionMap,
 }: {
   castVoteRecordId: string;
   marks: BallotMark[];
   definiteMarkThreshold: number;
   election: Election;
+  electionOptionPositionMap?: ElectionOptionPositionMap;
 }): CVR.CVRSnapshot {
   const marksByContest = iter(marks).toMap((mark) => mark.contestId);
 
@@ -354,13 +375,17 @@ function buildOriginalSnapshot({
           '@type': 'CVR.CVRContestSelection',
           ContestSelectionId: mark.optionId,
           // include position on the ballot per VVSG 2.0 1.1.5-C.2
-          OptionPosition: getOptionPosition({
-            optionId: mark.optionId,
-            contest: find(
-              election.contests,
-              (contest) => contest.id === mark.contestId
-            ),
-          }),
+          OptionPosition: electionOptionPositionMap
+            ? assertDefined(electionOptionPositionMap[mark.contestId])[
+                mark.optionId
+              ]
+            : getOptionPosition({
+                optionId: mark.optionId,
+                contest: find(
+                  election.contests,
+                  (contest) => contest.id === mark.contestId
+                ),
+              }),
           SelectionPosition: [
             {
               '@type': 'CVR.SelectionPosition',
@@ -434,6 +459,7 @@ type BuildCastVoteRecordParams = {
   scannerId: string;
   castVoteRecordId: BallotId;
   batchId: string;
+  electionOptionPositionMap?: ElectionOptionPositionMap;
   indexInBatch?: number;
 } & (
   | {
@@ -460,6 +486,7 @@ export function buildCastVoteRecord({
   castVoteRecordId,
   batchId,
   indexInBatch,
+  electionOptionPositionMap,
   ...rest
 }: BuildCastVoteRecordParams): CVR.CVR {
   const ballotMetadata =
@@ -512,6 +539,7 @@ export function buildCastVoteRecord({
             options: {
               ballotMarkingMode: 'machine',
             },
+            electionOptionPositionMap,
           }),
           vxWriteIns: writeInCount,
         },
@@ -557,6 +585,7 @@ export function buildCastVoteRecord({
               ballotMarkingMode: 'hand',
               imageFileUri: pages[0].imageFileUri,
             },
+            electionOptionPositionMap,
           }),
           ...buildCVRContestsFromVotes({
             contests: getContestsForBallotPage({
@@ -568,6 +597,7 @@ export function buildCastVoteRecord({
               ballotMarkingMode: 'hand',
               imageFileUri: pages[1].imageFileUri,
             },
+            electionOptionPositionMap,
           }),
         ],
         vxWriteIns: writeInCount,
@@ -580,6 +610,7 @@ export function buildCastVoteRecord({
         ],
         definiteMarkThreshold,
         election,
+        electionOptionPositionMap,
       }),
     ],
     BallotImage: hasImageFileUris

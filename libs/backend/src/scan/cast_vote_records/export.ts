@@ -35,6 +35,7 @@ import {
 } from '../../get_usb_drives';
 import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../globals';
 import { buildCastVoteRecordReportMetadata } from './build_report_metadata';
+import { buildElectionOptionPositionMap } from './option_map';
 
 /**
  * Properties of each sheet that are needed to generate a cast vote record
@@ -119,6 +120,7 @@ function* getCastVoteRecordGenerator({
   reportContext,
 }: GetCastVoteRecordGeneratorParams): Generator<CVR.CVR> {
   const { electionHash, election } = electionDefinition;
+  const electionOptionPositionMap = buildElectionOptionPositionMap(election);
   const electionId = electionHash;
   const scannerId = VX_MACHINE_ID;
 
@@ -157,6 +159,7 @@ function* getCastVoteRecordGenerator({
         indexInBatch,
         ballotMarkingMode: 'machine',
         interpretation: canonicalizedSheet.interpretation,
+        electionOptionPositionMap,
       });
 
       continue;
@@ -198,6 +201,7 @@ function* getCastVoteRecordGenerator({
           }),
         },
       ],
+      electionOptionPositionMap,
     });
   }
 }
