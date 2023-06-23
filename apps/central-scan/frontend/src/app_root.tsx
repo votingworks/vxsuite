@@ -476,10 +476,24 @@ export function AppRoot({
     }
   }, [electionJustLoaded, usbDrive.status]);
 
+  // We check configureMutation's status and stop configuration attempts after a failed attempt.
+  // This prevents the app from looping with continued failed configurations.
+  // If the user ejects the USB drive, we reset configureMutation's status so configuration
+  // may be attempted when a new or modified USB drive is inserted.
+  useEffect(() => {
+    if (
+      (configureMutation.isError || configureMutation?.data?.err) &&
+      usbDrive.status === 'ejected'
+    ) {
+      configureMutation.reset();
+    }
+  }, [usbDrive.status, configureMutation]);
+
   useEffect(() => {
     async function configure() {
       if (
         !configureMutation.isLoading &&
+        !configureMutation?.data?.err() &&
         !electionDefinition &&
         authStatusQuery.data &&
         isElectionManagerAuth(authStatusQuery.data) &&
@@ -723,6 +737,10 @@ export function AppRoot({
           <Button small onPress={() => logOutMutation.mutate()}>
             Lock Machine
           </Button>
+          <UsbControllerButton
+            usbDriveStatus={usbDrive.status}
+            usbDriveEject={() => usbDrive.eject(userRole)}
+          />
         </MainNav>
         <Main centerChild>
           <UnconfiguredElectionScreen
