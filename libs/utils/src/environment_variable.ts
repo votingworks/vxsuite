@@ -34,7 +34,7 @@ export enum BooleanEnvironmentVariableName {
   // Skips authentication (i.e. signature verification) of cast vote records on import
   SKIP_CAST_VOTE_RECORDS_AUTHENTICATION = 'REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION',
   // Disables exporting original snapshots with CVRs
-  DISABLE_CVR_ORIGINAL_SNAPSHOTS = 'REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION',
+  DISABLE_CVR_ORIGINAL_SNAPSHOTS = 'REACT_APP_VX_DISABLE_CVR_ORIGINAL_SNAPSHOTS',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
