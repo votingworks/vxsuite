@@ -89,7 +89,7 @@ export function TallyScreen(): JSX.Element | null {
     !manualTallyMetadataQuery.isSuccess
   ) {
     return (
-      <NavigationScreen title="Cast Vote Record (CVR) Management">
+      <NavigationScreen title="Tally">
         <Loading isFullscreen />
       </NavigationScreen>
     );
@@ -129,7 +129,8 @@ export function TallyScreen(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <NavigationScreen title="Cast Vote Record (CVR) Management">
+      <NavigationScreen title="Tally">
+        <H2>Cast Vote Record (CVR) Management</H2>
         {fileModeText && <P>{fileModeText}</P>}
         {isOfficialResults && (
           <Button
