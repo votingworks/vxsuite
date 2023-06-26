@@ -121,9 +121,7 @@ export function BallotCountsTable({
                 <LinkButton
                   variant="primary"
                   small
-                  to={routerPaths.tallyPrecinctReport({
-                    precinctId: 'all',
-                  })}
+                  to={routerPaths.tallyAllPrecinctsReport}
                 >
                   {statusPrefix} Tally Reports for All Precincts
                 </LinkButton>

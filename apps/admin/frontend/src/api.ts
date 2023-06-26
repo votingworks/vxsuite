@@ -354,7 +354,7 @@ export const getSemsExportableTallies = {
 type GetCardCountsInput = QueryInput<'getCardCounts'>;
 export const getCardCounts = {
   queryKey(input?: GetCardCountsInput): QueryKey {
-    return ['getCardCounts', input];
+    return input ? ['getCardCounts', input] : ['getCardCounts'];
   },
   useQuery(input: GetCardCountsInput = { groupBy: {} }) {
     const apiClient = useApiClient();
@@ -372,6 +372,21 @@ export const getScannerBatches = {
   },
 } as const;
 
+type GetResultsForTallyReports = QueryInput<'getResultsForTallyReports'>;
+export const getResultsForTallyReports = {
+  queryKey(input?: GetResultsForTallyReports): QueryKey {
+    return input
+      ? ['getResultsForTallyReports', input]
+      : ['getResultsForTallyReports'];
+  },
+  useQuery(input: GetResultsForTallyReports) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getResultsForTallyReports(input)
+    );
+  },
+} as const;
+
 // Grouped Invalidations
 
 function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
@@ -382,6 +397,7 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getSemsExportableTallies.queryKey()),
     queryClient.invalidateQueries(getCardCounts.queryKey()),
     queryClient.invalidateQueries(getScannerBatches.queryKey()),
+    queryClient.invalidateQueries(getResultsForTallyReports.queryKey()),
   ]);
 }
 

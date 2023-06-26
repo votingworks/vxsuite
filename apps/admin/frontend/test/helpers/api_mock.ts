@@ -15,6 +15,7 @@ import type {
   WriteInAdjudicatedTally,
   SemsExportableTallies,
   ScannerBatch,
+  TallyReportResults,
 } from '@votingworks/admin-backend';
 import { collections, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -354,6 +355,18 @@ export function createApiMock(
 
     expectGetScannerBatches(result: ScannerBatch[]) {
       apiClient.getScannerBatches.expectCallWith().resolves(result);
+    },
+
+    expectGetResultsForTallyReports(
+      input: {
+        filter?: Tabulation.Filter;
+        groupBy?: Tabulation.GroupBy;
+      },
+      results: Array<Tabulation.GroupOf<TallyReportResults>>
+    ) {
+      apiClient.getResultsForTallyReports
+        .expectCallWith(input)
+        .resolves(results);
     },
   };
 }
