@@ -20,6 +20,9 @@ export const TallyReport = styled.div`
   @media print {
     font-size: 12px;
   }
+  @page {
+    size: letter portrait;
+  }
 `;
 
 export const TallyReportPreview = styled.div`
