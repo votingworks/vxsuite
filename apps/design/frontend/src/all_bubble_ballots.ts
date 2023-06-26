@@ -7,7 +7,7 @@ import {
   GridLayout,
   Side,
 } from '@votingworks/types';
-import { Document, GridDimensions, Page, Rectangle } from './document_types';
+import { Document, GridDimensions, Rectangle } from './document_types';
 import { encodeMetadata } from './encode_metadata';
 
 function range(start: number, end: number): number[] {
@@ -26,9 +26,7 @@ interface AllBubbleBallotOptions {
   fillBubble: (page: number, row: number, column: number) => boolean;
 }
 
-function createBallotCard({
-  fillBubble,
-}: AllBubbleBallotOptions): [Page, Page] {
+function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
   const columnGap = documentWidth / (grid.columns + 1);
   const rowGap = documentHeight / (grid.rows + 1);
 
@@ -124,10 +122,15 @@ function createBallotCard({
     );
   }
 
-  return [
-    { children: [...timingMarks(1), ...bubbles(1)] },
-    { children: [...timingMarks(2), ...bubbles(2)] },
-  ];
+  return {
+    width: documentWidth,
+    height: documentHeight,
+    grid,
+    pages: [
+      { children: [...timingMarks(1), ...bubbles(1)] },
+      { children: [...timingMarks(2), ...bubbles(2)] },
+    ],
+  };
 }
 
 function createElection(): Election {
@@ -238,29 +241,21 @@ function createElection(): Election {
   };
 }
 
-function createTestDeck(): Document {
-  const blankBallotCard = createBallotCard({
-    fillBubble: () => false,
-  });
-  const filledBallotCard = createBallotCard({
-    fillBubble: () => true,
-  });
-  const cyclingBallotCards = range(0, 6).map((card) =>
-    createBallotCard({
-      fillBubble: (_page, row, column) => (row - column - card) % 6 === 0,
-    })
-  );
-  return {
-    width: documentWidth,
-    height: documentHeight,
-    grid,
-    pages: [
-      ...blankBallotCard,
-      ...filledBallotCard,
-      ...cyclingBallotCards.flat(),
-    ],
-  };
-}
-
 export const allBubbleBallotElection = createElection();
-export const allBubbleBallotTestDeck = createTestDeck();
+export const allBubbleBallotBlankBallot = createBallotCard({
+  fillBubble: () => false,
+});
+export const allBubbleBallotFilledBallot = createBallotCard({
+  fillBubble: () => true,
+});
+export const allBubbleBallotCyclingTestDeck: Document = {
+  width: documentWidth,
+  height: documentHeight,
+  grid,
+  pages: range(0, 6).flatMap(
+    (card) =>
+      createBallotCard({
+        fillBubble: (_page, row, column) => (row - column - card) % 6 === 0,
+      }).pages
+  ),
+};
