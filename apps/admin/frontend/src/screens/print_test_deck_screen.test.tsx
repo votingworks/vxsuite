@@ -96,7 +96,7 @@ test('Printing L&A package for one precinct', async () => {
 
   await screen.findByText('Printing L&A Package for District 5');
   await expectPrint((printedElement, printOptions) => {
-    printedElement.getByText('Test Deck Precinct Tally Report for: District 5');
+    printedElement.getByText('Test Deck Precinct Tally Report for District 5');
     expect(printOptions).toMatchObject({ sides: 'one-sided' });
   });
   await waitFor(() =>
@@ -175,7 +175,7 @@ test('Printing L&A packages for all precincts', async () => {
     await screen.findByText(`This is package ${i + 1} of 13.`);
     await expectPrint((printedElement, printOptions) => {
       printedElement.getByText(
-        `Test Deck Precinct Tally Report for: ${precinct}`
+        `Test Deck Precinct Tally Report for ${precinct}`
       );
       expect(printOptions).toMatchObject({ sides: 'one-sided' });
     });
@@ -253,7 +253,7 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
   await screen.findByText('Printing L&A Package for District 5');
   await screen.findByText('Currently printing letter-size pages.');
   await expectPrint((printedElement, printOptions) => {
-    printedElement.getByText('Test Deck Precinct Tally Report for: District 5');
+    printedElement.getByText('Test Deck Precinct Tally Report for District 5');
     expect(printOptions).toMatchObject({ sides: 'one-sided' });
   });
   await waitFor(() =>
@@ -347,7 +347,7 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
     await screen.findByText('Currently printing letter-size pages.');
     await expectPrint((printedElement, printOptions) => {
       printedElement.getByText(
-        `Test Deck Precinct Tally Report for: ${precinct}`
+        `Test Deck Precinct Tally Report for ${precinct}`
       );
       expect(printOptions).toMatchObject({ sides: 'one-sided' });
     });

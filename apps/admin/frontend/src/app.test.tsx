@@ -39,7 +39,6 @@ import { expectReportsScreenCardCountQueries } from '../test/helpers/api_expect_
 import { mockCastVoteRecordFileRecord } from '../test/api_mock_data';
 
 jest.mock('./components/hand_marked_paper_ballot');
-jest.mock('./utils/pdf_to_images');
 jest.mock('@votingworks/ballot-encoder', () => {
   return {
     ...jest.requireActual('@votingworks/ballot-encoder'),
@@ -325,7 +324,7 @@ test('L&A (logic and accuracy) flow', async () => {
 
   await screen.findByText('Printing');
   const expectedTallies: { [tally: string]: number } = {
-    '104': 10,
+    '104': 12,
     '52': 12,
     '24': 6,
     '12': 4,
