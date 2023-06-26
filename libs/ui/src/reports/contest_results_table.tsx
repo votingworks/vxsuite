@@ -161,7 +161,7 @@ export function ContestResultsTable({
         <tr className="metadata header" key={`${contest.id}-header`}>
           <th> </th>
           <th>scanned</th>
-          <th>manual</th>
+          <th data-testid="contest-manual-results">manual</th>
           <th>
             <strong>total</strong>
           </th>
@@ -250,8 +250,8 @@ export function ContestResultsTable({
   }
 
   return (
-    <Contest key={`div-${contest.id}`}>
-      <Prose maxWidth={false} data-testid={`results-table-${contest.id}`}>
+    <Contest data-testid={`results-table-${contest.id}`}>
+      <Prose maxWidth={false}>
         <Text small>{getContestDistrictName(election, contest)}</Text>
         <h3>
           {contest.title}

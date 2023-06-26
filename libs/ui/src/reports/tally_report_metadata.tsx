@@ -8,7 +8,7 @@ import { Text } from '../text';
 
 interface Props {
   election: Election;
-  generatedAtTime: Date;
+  generatedAtTime?: Date;
   footer?: JSX.Element;
 }
 
@@ -25,7 +25,9 @@ export function TallyReportMetadata({
       {electionDate}, {election.county.name}, {election.state}
       <br />
       <Text small as="span">
-        This report was created on {generatedAt}.
+        {generatedAtTime
+          ? `This report was created on ${generatedAt}.`
+          : 'Generating report...'}
       </Text>
       {footer}
     </p>

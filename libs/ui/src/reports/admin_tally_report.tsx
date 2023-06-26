@@ -11,7 +11,7 @@ import { TallyReportCardCounts } from './tally_report_card_counts';
 export interface AdminTallyReportProps {
   title: string;
   subtitle?: string;
-  key?: string;
+  testId?: string;
   election: Election;
   contests: Contests;
   scannedElectionResults: Tabulation.ElectionResults;
@@ -22,7 +22,7 @@ export interface AdminTallyReportProps {
 export function AdminTallyReport({
   title,
   subtitle,
-  key,
+  testId,
   election,
   contests,
   scannedElectionResults,
@@ -37,7 +37,7 @@ export function AdminTallyReport({
     : scannedElectionResults.cardCounts;
 
   return (
-    <TallyReport key={key} data-testid={key}>
+    <TallyReport data-testid={testId}>
       <ReportSection>
         <LogoMark />
         <Prose maxWidth={false}>
