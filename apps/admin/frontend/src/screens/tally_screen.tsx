@@ -3,7 +3,16 @@ import moment from 'moment';
 
 import { format, isElectionManagerAuth } from '@votingworks/utils';
 import { assert, find, throwIllegalValue, unique } from '@votingworks/basics';
-import { Button, Prose, Table, TD, Text, LinkButton } from '@votingworks/ui';
+import {
+  Button,
+  Table,
+  TD,
+  LinkButton,
+  H2,
+  P,
+  Icons,
+  Caption,
+} from '@votingworks/ui';
 import { ResultsFileType } from '../config/types';
 
 import { AppContext } from '../contexts/app_context';
@@ -80,7 +89,7 @@ export function TallyScreen(): JSX.Element | null {
     !manualTallyMetadataQuery.isSuccess
   ) {
     return (
-      <NavigationScreen title="Cast Vote Record (CVR) Management">
+      <NavigationScreen title="Tally">
         <Loading isFullscreen />
       </NavigationScreen>
     );
@@ -120,144 +129,139 @@ export function TallyScreen(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <NavigationScreen title="Cast Vote Record (CVR) Management">
-        <Prose maxWidth={false}>
-          {fileModeText && <Text>{fileModeText}</Text>}
-          {isOfficialResults && (
-            <Button
-              variant="danger"
-              disabled={!hasAnyFiles}
-              onPress={() => beginConfirmRemoveFiles(ResultsFileType.All)}
-            >
-              Clear All Tallies and Results
-            </Button>
-          )}
+      <NavigationScreen title="Tally">
+        <H2>Cast Vote Record (CVR) Management</H2>
+        {fileModeText && <P>{fileModeText}</P>}
+        {isOfficialResults && (
+          <Button
+            variant="danger"
+            disabled={!hasAnyFiles}
+            onPress={() => beginConfirmRemoveFiles(ResultsFileType.All)}
+          >
+            Clear All Tallies and Results
+          </Button>
+        )}
 
-          <p>
-            <Button
-              variant="primary"
-              disabled={isOfficialResults}
-              onPress={() => setIsImportCvrModalOpen(true)}
-            >
-              Load CVR Files
-            </Button>{' '}
-            <Button
-              disabled={fileMode === 'unlocked' || isOfficialResults}
-              onPress={() =>
-                beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
-              }
-            >
-              Remove CVR Files
-            </Button>
-          </p>
-          <Table data-testid="loaded-file-table">
-            <tbody>
-              {hasAnyFiles ? (
-                <React.Fragment>
-                  <tr>
-                    <TD as="th" narrow nowrap textAlign="right">
-                      #
-                    </TD>
-                    <TD as="th" narrow nowrap>
-                      Created At
-                    </TD>
-                    <TD as="th" nowrap>
-                      CVR Count
-                    </TD>
-                    <TD as="th" narrow nowrap>
-                      Source
-                    </TD>
-                    <TD as="th" nowrap>
-                      Precinct
-                    </TD>
-                  </tr>
-                  {castVoteRecordFileList.map(
-                    (
-                      {
-                        filename,
-                        exportTimestamp,
-                        numCvrsImported,
-                        scannerIds,
-                        precinctIds,
-                      },
-                      cvrFileIndex
-                    ) => (
-                      <tr key={filename}>
-                        <TD narrow nowrap textAlign="right">
-                          {cvrFileIndex + 1}.
-                        </TD>
-                        <TD narrow nowrap>
-                          {moment(exportTimestamp).format(
-                            'MM/DD/YYYY hh:mm:ss A'
-                          )}
-                        </TD>
-                        <TD nowrap>{format.count(numCvrsImported)} </TD>
-                        <TD narrow nowrap>
-                          {scannerIds.join(', ')}
-                        </TD>
-                        <TD>{getPrecinctNames(precinctIds)}</TD>
-                      </tr>
-                    )
-                  )}
-                  {hasManualTally ? (
-                    <tr key="manual-data">
-                      <TD />
-                      <TD narrow nowrap>
-                        {moment(manualTallyFirstAdded).format(TIME_FORMAT)}
-                      </TD>
-                      <TD narrow>
-                        {format.count(manualTallyTotalBallotCount)}
-                      </TD>
-                      <TD narrow nowrap>
-                        Manually Entered Results
-                      </TD>
-                      <TD>{getPrecinctNames(manualTallyPrecinctIds)}</TD>
-                    </tr>
-                  ) : null}
-                  <tr>
-                    <TD />
-                    <TD as="th" narrow nowrap>
-                      Total CVRs Count
-                    </TD>
-                    <TD as="th" narrow data-testid="total-cvr-count">
-                      {format.count(
-                        castVoteRecordFileList.reduce(
-                          (prev, curr) => prev + curr.numCvrsImported,
-                          0
-                        ) + manualTallyTotalBallotCount
-                      )}
-                    </TD>
-                    <TD />
-                    <TD as="th" />
-                  </tr>
-                </React.Fragment>
-              ) : (
+        <P>
+          <Button
+            variant="primary"
+            disabled={isOfficialResults}
+            onPress={() => setIsImportCvrModalOpen(true)}
+          >
+            Load CVR Files
+          </Button>{' '}
+          <Button
+            disabled={fileMode === 'unlocked' || isOfficialResults}
+            onPress={() =>
+              beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
+            }
+          >
+            Remove CVR Files
+          </Button>
+        </P>
+        <Table data-testid="loaded-file-table">
+          <tbody>
+            {hasAnyFiles ? (
+              <React.Fragment>
                 <tr>
-                  <TD colSpan={3}>
-                    <em>No CVR files loaded.</em>
+                  <TD as="th" narrow nowrap textAlign="right">
+                    #
+                  </TD>
+                  <TD as="th" narrow nowrap>
+                    Created At
+                  </TD>
+                  <TD as="th" nowrap>
+                    CVR Count
+                  </TD>
+                  <TD as="th" narrow nowrap>
+                    Source
+                  </TD>
+                  <TD as="th" nowrap>
+                    Precinct
                   </TD>
                 </tr>
-              )}
-            </tbody>
-          </Table>
-          <h2>Manually Entered Results</h2>
-          <p>
-            <LinkButton
-              to={routerPaths.manualDataSummary}
-              disabled={isOfficialResults}
-            >
-              {hasManualTally
-                ? 'Edit Manually Entered Results'
-                : 'Add Manually Entered Results'}
-            </LinkButton>{' '}
-            <Button
-              disabled={!hasManualTally || isOfficialResults}
-              onPress={() => setIsConfirmingRemoveAllManualTallies(true)}
-            >
-              Remove Manually Entered Results
-            </Button>
-          </p>
-        </Prose>
+                {castVoteRecordFileList.map(
+                  (
+                    {
+                      filename,
+                      exportTimestamp,
+                      numCvrsImported,
+                      scannerIds,
+                      precinctIds,
+                    },
+                    cvrFileIndex
+                  ) => (
+                    <tr key={filename}>
+                      <TD narrow nowrap textAlign="right">
+                        {cvrFileIndex + 1}.
+                      </TD>
+                      <TD narrow nowrap>
+                        {moment(exportTimestamp).format(
+                          'MM/DD/YYYY hh:mm:ss A'
+                        )}
+                      </TD>
+                      <TD nowrap>{format.count(numCvrsImported)} </TD>
+                      <TD narrow nowrap>
+                        {scannerIds.join(', ')}
+                      </TD>
+                      <TD>{getPrecinctNames(precinctIds)}</TD>
+                    </tr>
+                  )
+                )}
+                {hasManualTally ? (
+                  <tr key="manual-data">
+                    <TD />
+                    <TD narrow nowrap>
+                      {moment(manualTallyFirstAdded).format(TIME_FORMAT)}
+                    </TD>
+                    <TD narrow>{format.count(manualTallyTotalBallotCount)}</TD>
+                    <TD narrow nowrap>
+                      Manually Entered Results
+                    </TD>
+                    <TD>{getPrecinctNames(manualTallyPrecinctIds)}</TD>
+                  </tr>
+                ) : null}
+                <tr>
+                  <TD />
+                  <TD as="th" narrow nowrap>
+                    Total CVRs Count
+                  </TD>
+                  <TD as="th" narrow data-testid="total-cvr-count">
+                    {format.count(
+                      castVoteRecordFileList.reduce(
+                        (prev, curr) => prev + curr.numCvrsImported,
+                        0
+                      ) + manualTallyTotalBallotCount
+                    )}
+                  </TD>
+                  <TD />
+                  <TD as="th" />
+                </tr>
+              </React.Fragment>
+            ) : (
+              <Caption>
+                <Icons.Info /> No CVR files loaded.
+              </Caption>
+            )}
+          </tbody>
+        </Table>
+        <H2>Manually Entered Results</H2>
+        <P>
+          <LinkButton
+            to={routerPaths.manualDataSummary}
+            disabled={isOfficialResults}
+          >
+            {hasManualTally
+              ? 'Edit Manually Entered Results'
+              : 'Add Manually Entered Results'}
+          </LinkButton>{' '}
+          <Button
+            disabled={!hasManualTally || isOfficialResults}
+            onPress={() => setIsConfirmingRemoveAllManualTallies(true)}
+          >
+            Remove Manually Entered Results
+          </Button>
+        </P>
       </NavigationScreen>
       {confirmingRemoveFileType && (
         <ConfirmRemovingFileModal
