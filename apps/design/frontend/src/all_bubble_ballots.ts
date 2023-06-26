@@ -52,13 +52,11 @@ function createBallotCard({
   }
 
   function timingMarks(page: number) {
-    // Ballot styles are `card-number-{sheetNumber}`
-    const ballotStyleIndex = Math.ceil(page / 2);
-    const sheetMetadata = encodeMetadata(ballotStyleIndex);
+    const cardMetadata = encodeMetadata(1);
     const pageMetadata =
       page % 2 === 1
-        ? sheetMetadata.frontTimingMarks
-        : sheetMetadata.backTimingMarks;
+        ? cardMetadata.frontTimingMarks
+        : cardMetadata.backTimingMarks;
     return [
       // Top
       range(0, grid.columns).map((column) =>
