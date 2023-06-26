@@ -8,7 +8,7 @@ import {
 
 export function main(): void {
   const fixturesDir = join(__dirname, '../fixtures');
-  fs.rmdirSync(fixturesDir, { recursive: true });
+  fs.rmSync(fixturesDir, { recursive: true });
   fs.mkdirSync(fixturesDir, { recursive: true });
   fs.writeFileSync(
     join(fixturesDir, 'all-bubble-ballot-test-deck-document.json'),

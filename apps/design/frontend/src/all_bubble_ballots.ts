@@ -245,17 +245,11 @@ function createTestDeck(): Document {
   const filledBallotCard = createBallotCard({
     fillBubble: () => true,
   });
-  const cyclingBallotCard1 = createBallotCard({
-    fillBubble: (page, row, column) => (row - column - page + 1) % 6 === 0,
-  });
-  const cyclingBallotCard2 = createBallotCard({
-    fillBubble: (page, row, column) =>
-      (row - column - (page + 2) + 1) % 6 === 0,
-  });
-  const cyclingBallotCard3 = createBallotCard({
-    fillBubble: (page, row, column) =>
-      (row - column - (page + 4) + 1) % 6 === 0,
-  });
+  const cyclingBallotCards = range(0, 6).map((card) =>
+    createBallotCard({
+      fillBubble: (page, row, column) => (row - column - card) % 6 === 0,
+    })
+  );
   return {
     width: documentWidth,
     height: documentHeight,
@@ -263,9 +257,7 @@ function createTestDeck(): Document {
     pages: [
       ...blankBallotCard,
       ...filledBallotCard,
-      ...cyclingBallotCard1,
-      ...cyclingBallotCard2,
-      ...cyclingBallotCard3,
+      ...cyclingBallotCards.flat(),
     ],
   };
 }
