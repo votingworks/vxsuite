@@ -135,13 +135,12 @@ function createBallotCard({
 function createElection(): Election {
   const districtId = 'test-district' as DistrictId;
   const precinctId = 'test-precinct';
-  const pages = 2;
 
   function candidateId(page: number, row: number, column: number) {
     return `test-candidate-page-${page}-row-${row}-column-${column}`;
   }
 
-  const gridPositions = range(1, pages + 1).flatMap((page) =>
+  const gridPositions = range(1, 3).flatMap((page) =>
     range(1, grid.rows - 1).flatMap((row) =>
       range(1, grid.columns - 1).map((column) => ({
         page,
@@ -150,12 +149,9 @@ function createElection(): Election {
       }))
     )
   );
-  const sheets = range(1, Math.ceil(pages / 2) + 1);
-  function ballotStyleIdForSheet(sheet: number) {
-    return `card-number-${sheet}`;
-  }
+  const ballotStyleId = 'card-number-1';
 
-  const contests: CandidateContest[] = range(1, pages + 1).map((page) => {
+  const contests: CandidateContest[] = range(1, 3).map((page) => {
     const pageGridPositions = gridPositions.filter(
       (position) => position.page === page
     );
@@ -173,41 +169,45 @@ function createElection(): Election {
     };
   });
 
-  const gridLayouts: GridLayout[] = sheets.map((sheet) => ({
-    precinctId,
-    ballotStyleId: ballotStyleIdForSheet(sheet),
-    columns: grid.columns,
-    rows: grid.rows,
-    optionBoundsFromTargetMark: {
-      bottom: 1,
-      left: 1,
-      right: 1,
-      top: 1,
+  const gridLayouts: GridLayout[] = [
+    {
+      precinctId,
+      ballotStyleId,
+      columns: grid.columns,
+      rows: grid.rows,
+      optionBoundsFromTargetMark: {
+        bottom: 1,
+        left: 1,
+        right: 1,
+        top: 1,
+      },
+      gridPositions: (['front', 'back'] as Side[]).flatMap((side) => {
+        const page = side === 'front' ? 1 : 2;
+        return range(1, grid.rows - 1).flatMap((row) =>
+          range(1, grid.columns - 1).map((column) => ({
+            type: 'option',
+            side,
+            column,
+            row,
+            contestId: contests[page - 1].id,
+            optionId: candidateId(page, row, column),
+          }))
+        );
+      }),
     },
-    gridPositions: (['front', 'back'] as Side[]).flatMap((side) => {
-      const page = sheet * 2 - (side === 'front' ? 1 : 0);
-      return range(1, grid.rows - 1).flatMap((row) =>
-        range(1, grid.columns - 1).map((column) => ({
-          type: 'option',
-          side,
-          column,
-          row,
-          contestId: contests[page - 1].id,
-          optionId: candidateId(page, row, column),
-        }))
-      );
-    }),
-  }));
+  ];
 
   return {
     ballotLayout: {
       paperSize: BallotPaperSize.Letter,
     },
-    ballotStyles: sheets.map((ballotStyleId) => ({
-      id: ballotStyleIdForSheet(ballotStyleId),
-      districts: [districtId],
-      precincts: [precinctId],
-    })),
+    ballotStyles: [
+      {
+        id: ballotStyleId,
+        districts: [districtId],
+        precincts: [precinctId],
+      },
+    ],
     centralScanAdjudicationReasons: [AdjudicationReason.Overvote],
     precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
     contests,
@@ -249,7 +249,7 @@ function createTestDeck(): Document {
   });
   const cyclingBallotCards = range(0, 6).map((card) =>
     createBallotCard({
-      fillBubble: (page, row, column) => (row - column - card) % 6 === 0,
+      fillBubble: (_page, row, column) => (row - column - card) % 6 === 0,
     })
   );
   return {
