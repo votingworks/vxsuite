@@ -76,14 +76,23 @@ function PrecinctTallyReport({
   election,
   precinctId,
 }: PrecinctTallyReportProps): JSX.Element {
-  const ballots = generateTestDeckBallots({ election, precinctId });
-
   // Precinct test deck tallies should be twice that of a single test
   // deck because it counts scanning 2 test decks (BMD + HMPB)
   return (
     <TestDeckTallyReport
       election={election}
-      testDeckBallots={[...ballots, ...ballots]}
+      testDeckBallots={[
+        ...generateTestDeckBallots({
+          election,
+          precinctId,
+          markingMethod: 'hand',
+        }),
+        ...generateTestDeckBallots({
+          election,
+          precinctId,
+          markingMethod: 'machine',
+        }),
+      ]}
       precinctId={precinctId}
     />
   );
@@ -101,7 +110,11 @@ function getBmdPaperBallots({
   generateBallotId,
 }: BmdPaperBallotsProps): JSX.Element[] {
   const { election } = electionDefinition;
-  const ballots = generateTestDeckBallots({ election, precinctId });
+  const ballots = generateTestDeckBallots({
+    election,
+    precinctId,
+    markingMethod: 'machine',
+  });
 
   return ballots.map((ballot, i) => (
     <BmdPaperBallot
@@ -124,7 +137,7 @@ function generateHandMarkedPaperBallots({
   precinctId: PrecinctId;
 }) {
   const ballots = [
-    ...generateTestDeckBallots({ election, precinctId }),
+    ...generateTestDeckBallots({ election, precinctId, markingMethod: 'hand' }),
     ...generateBlankBallots({ election, precinctId, numBlanks: 2 }),
   ];
   const overvoteBallot = generateOvervoteBallot({ election, precinctId });

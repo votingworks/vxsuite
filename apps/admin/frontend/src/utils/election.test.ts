@@ -165,6 +165,7 @@ describe('generateTestDeckBallots', () => {
     const ballots = generateTestDeckBallots({
       election: electionSample,
       precinctId: '23',
+      markingMethod: 'hand',
     });
     const votes = ballots.map((b) => b.votes);
     const ballotStyle = getBallotStyle({
