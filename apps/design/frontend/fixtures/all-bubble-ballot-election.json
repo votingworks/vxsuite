@@ -9,7 +9,8 @@
       "precincts": ["test-precinct"]
     }
   ],
-  "centralScanAdjudicationReasons": [],
+  "centralScanAdjudicationReasons": ["Overvote"],
+  "precinctScanAdjudicationReasons": ["Overvote"],
   "contests": [
     {
       "id": "test-contest-page-1",
@@ -30016,7 +30017,6 @@
     "definite": 0.07
   },
   "parties": [],
-  "precinctScanAdjudicationReasons": [],
   "precincts": [
     {
       "id": "test-precinct",
@@ -30024,5 +30024,6 @@
     }
   ],
   "state": "Test State",
-  "title": "Test Election - All Bubble Ballot"
+  "title": "Test Election - All Bubble Ballot",
+  "sealUrl": "/seals/state-of-hamilton-official-seal.svg"
 }
