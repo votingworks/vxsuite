@@ -388,9 +388,7 @@ test('failed configuration from USB results in an error screen', async () => {
   window.kiosk = mockKiosk;
 
   const hardware = MemoryHardware.buildStandard();
-  const { getByText } = render(
-    <App apiClient={mockApiClient} hardware={hardware} />
-  );
+  render(<App apiClient={mockApiClient} hardware={hardware} />);
   await authenticateAsElectionManager(
     electionSampleDefinition,
     'VxCentralScan is Not Configured',
@@ -409,13 +407,9 @@ test('failed configuration from USB results in an error screen', async () => {
     .expectCallWith()
     .resolves(DEFAULT_SYSTEM_SETTINGS);
 
-  await act(async () => {
-    await waitFor(() =>
-      getByText(
-        'The most recent ballot package found is for a different election.'
-      )
-    );
-  });
+  await screen.findByText(
+    'The most recent ballot package found is for a different election.'
+  );
 });
 
 test('authentication works', async () => {
