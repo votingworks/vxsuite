@@ -482,7 +482,7 @@ export function AppRoot({
   // may be attempted when a new or modified USB drive is inserted.
   useEffect(() => {
     if (
-      (configureMutation.isError || configureMutation?.data?.err) &&
+      (configureMutation.isError || configureMutation?.data?.err()) &&
       usbDrive.status === 'ejected'
     ) {
       configureMutation.reset();
