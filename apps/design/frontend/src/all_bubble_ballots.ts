@@ -6,7 +6,7 @@ import {
   GridLayout,
   Side,
 } from '@votingworks/types';
-import { Document, GridDimensions, Rectangle } from './document_types';
+import { Document, GridDimensions, Page, Rectangle } from './document_types';
 import { encodeMetadata } from './encode_metadata';
 
 function range(start: number, end: number): number[] {
@@ -18,18 +18,16 @@ const grid: GridDimensions = {
   columns: 34,
 };
 
+const documentWidth = 1700;
+const documentHeight = 2200;
+
 interface AllBubbleBallotOptions {
-  title: string;
-  pages: number;
   fillBubble: (page: number, row: number, column: number) => boolean;
 }
 
-function createDocument({
-  pages,
+function createBallotCard({
   fillBubble,
-}: AllBubbleBallotOptions): Document {
-  const documentWidth = 1700;
-  const documentHeight = 2200;
+}: AllBubbleBallotOptions): [Page, Page] {
   const columnGap = documentWidth / (grid.columns + 1);
   const rowGap = documentHeight / (grid.rows + 1);
 
@@ -127,22 +125,16 @@ function createDocument({
     );
   }
 
-  return {
-    width: documentWidth,
-    height: documentHeight,
-    grid,
-    pages: range(1, pages + 1).map((page) => ({
-      children: [...timingMarks(page), ...bubbles(page)],
-    })),
-  };
+  return [
+    { children: [...timingMarks(1), ...bubbles(1)] },
+    { children: [...timingMarks(2), ...bubbles(2)] },
+  ];
 }
 
-function createElectionDefinition({
-  title,
-  pages,
-}: AllBubbleBallotOptions): Election {
+function createElection(): Election {
   const districtId = 'test-district' as DistrictId;
   const precinctId = 'test-precinct';
+  const pages = 2;
 
   function candidateId(page: number, row: number, column: number) {
     return `test-candidate-page-${page}-row-${row}-column-${column}`;
@@ -173,7 +165,7 @@ function createElectionDefinition({
       districtId,
       candidates: pageGridPositions.map(({ row, column }) => ({
         id: candidateId(page, row, column),
-        name: `Test Candidate - Page ${page}, Row ${row}, Column ${column}`,
+        name: `Page ${page}, Row ${row}, Column ${column}`,
       })),
       allowWriteIns: false,
       seats: pageGridPositions.length,
@@ -242,34 +234,41 @@ function createElectionDefinition({
       },
     ],
     state: 'Test State',
-    title,
+    title: 'Test Election - All Bubble Ballot',
   };
 }
 
-function createAllBubbleBallot(options: AllBubbleBallotOptions): {
-  ballotDocument: Document;
-  election: Election;
-} {
-  return {
-    ballotDocument: createDocument(options),
-    election: createElectionDefinition(options),
-  };
-}
-
-export const allBubbleBallots = {
-  cycling: createAllBubbleBallot({
-    pages: 6,
-    fillBubble: (page, row, column) => (row - column - page + 1) % 6 === 0,
-    title: 'Test Election - Cycling All Bubble Ballot',
-  }),
-  blank: createAllBubbleBallot({
-    pages: 2,
+function createTestDeck(): Document {
+  const blankBallotCard = createBallotCard({
     fillBubble: () => false,
-    title: 'Test Election - Blank All Bubble Ballot',
-  }),
-  filled: createAllBubbleBallot({
-    pages: 2,
+  });
+  const filledBallotCard = createBallotCard({
     fillBubble: () => true,
-    title: 'Test Election - Filled All Bubble Ballot',
-  }),
-} as const;
+  });
+  const cyclingBallotCard1 = createBallotCard({
+    fillBubble: (page, row, column) => (row - column - page + 1) % 6 === 0,
+  });
+  const cyclingBallotCard2 = createBallotCard({
+    fillBubble: (page, row, column) =>
+      (row - column - (page + 2) + 1) % 6 === 0,
+  });
+  const cyclingBallotCard3 = createBallotCard({
+    fillBubble: (page, row, column) =>
+      (row - column - (page + 4) + 1) % 6 === 0,
+  });
+  return {
+    width: documentWidth,
+    height: documentHeight,
+    grid,
+    pages: [
+      ...blankBallotCard,
+      ...filledBallotCard,
+      ...cyclingBallotCard1,
+      ...cyclingBallotCard2,
+      ...cyclingBallotCard3,
+    ],
+  };
+}
+
+export const allBubbleBallotElection = createElection();
+export const allBubbleBallotTestDeck = createTestDeck();
