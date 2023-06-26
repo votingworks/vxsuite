@@ -8,10 +8,12 @@ import {
   ModalWidth,
   Table,
   TD,
-  Prose,
   Button,
   ElectronFile,
   useExternalStateChangeListener,
+  WithScrollButtons,
+  P,
+  Font,
 } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
@@ -52,8 +54,11 @@ const LabelText = styled.span`
   font-weight: 500;
 `;
 
-const TestMode = styled.span`
-  color: #ff8c00;
+const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  overflow: hidden;
 `;
 
 type ModalState =
@@ -146,13 +151,11 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       <Modal
         title="Error"
         content={
-          <Prose>
-            <p>
-              There was an error reading the contents of{' '}
-              <strong>{currentState.filename}</strong>:{' '}
-              {currentState.errorMessage}
-            </p>
-          </Prose>
+          <P>
+            There was an error reading the contents of{' '}
+            <Font weight="bold">{currentState.filename}</Font>:{' '}
+            {currentState.errorMessage}
+          </P>
         }
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
@@ -165,12 +168,10 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       <Modal
         title="Duplicate File"
         content={
-          <Prose>
-            <p>
-              The selected file was ignored as a duplicate of a previously
-              loaded file.
-            </p>
-          </Prose>
+          <P>
+            The selected file was ignored as a duplicate of a previously loaded
+            file.
+          </P>
         }
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
@@ -183,17 +184,15 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       <Modal
         title={`${currentState.result.newlyAdded} new CVRs Loaded`}
         content={
-          <Prose>
-            {currentState.result.alreadyPresent > 0 && (
-              <p>
-                Of the{' '}
-                {currentState.result.newlyAdded +
-                  currentState.result.alreadyPresent}{' '}
-                total CVRs in this file, {currentState.result.alreadyPresent}{' '}
-                were previously loaded.
-              </p>
-            )}
-          </Prose>
+          currentState.result.alreadyPresent > 0 && (
+            <P>
+              Of the{' '}
+              {currentState.result.newlyAdded +
+                currentState.result.alreadyPresent}{' '}
+              total CVRs in this file, {currentState.result.alreadyPresent} were
+              previously loaded.
+            </P>
+          )
         }
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
@@ -231,13 +230,11 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       <Modal
         title="No USB Drive Detected"
         content={
-          <Prose>
-            <p>
-              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              Please insert a USB drive in order to load CVR files from the
-              scanner.
-            </p>
-          </Prose>
+          <P>
+            <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
+            Please insert a USB drive in order to load CVR files from the
+            scanner.
+          </P>
         }
         onOverlayClick={onClose}
         actions={
@@ -285,7 +282,11 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
           {!fileModeLocked && (
             <td>
               <LabelText>
-                {isTestModeResults ? <TestMode>Test</TestMode> : 'Official'}
+                {isTestModeResults ? (
+                  <Font color="warning">Test</Font>
+                ) : (
+                  <Font color="success">Official</Font>
+                )}
               </LabelText>
             </td>
           )}
@@ -294,7 +295,6 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
               onPress={importSelectedFile}
               value={file}
               disabled={!canImport}
-              small
               variant="primary"
             >
               {canImport ? 'Load' : 'Loaded'}
@@ -345,25 +345,25 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
         modalWidth={ModalWidth.Wide}
         title={`Load ${headerModeText} CVR Files`}
         content={
-          <React.Fragment>
-            <Prose maxWidth={false}>
-              <p>{instructionalText}</p>
-            </Prose>
+          <Content>
+            <P>{instructionalText}</P>
             {fileTableRows.length > 0 && (
-              <CvrFileTable>
-                <thead>
-                  <tr>
-                    <th>Saved At</th>
-                    <th>Scanner ID</th>
-                    <th>CVR Count</th>
-                    {!fileModeLocked && <th>Ballot Type</th>}
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>{fileTableRows}</tbody>
-              </CvrFileTable>
+              <WithScrollButtons>
+                <CvrFileTable>
+                  <thead>
+                    <tr>
+                      <th>Saved At</th>
+                      <th>Scanner ID</th>
+                      <th>CVR Count</th>
+                      {!fileModeLocked && <th>Ballot Type</th>}
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>{fileTableRows}</tbody>
+                </CvrFileTable>
+              </WithScrollButtons>
             )}
-          </React.Fragment>
+          </Content>
         }
         onOverlayClick={onClose}
         actions={

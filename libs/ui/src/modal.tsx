@@ -38,6 +38,7 @@ const ReactModalContent = styled('div')<ReactModalContentInterface>`
       p.fullscreen ? '0' : `${p.theme.sizes.bordersRem.medium}rem`}
     solid ${(p) => p.theme.colors.foreground};
   width: 100%;
+  max-height: 100%;
   overflow: auto;
   font-size: ${({ themeDeprecated }) => themeDeprecated?.fontSize};
   -webkit-overflow-scrolling: touch;
