@@ -1,4 +1,5 @@
 import {
+  AdjudicationReason,
   BallotPaperSize,
   CandidateContest,
   DistrictId,
@@ -207,7 +208,8 @@ function createElection(): Election {
       districts: [districtId],
       precincts: [precinctId],
     })),
-    centralScanAdjudicationReasons: [],
+    centralScanAdjudicationReasons: [AdjudicationReason.Overvote],
+    precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
     contests,
     county: {
       id: 'test-county',
@@ -226,7 +228,6 @@ function createElection(): Election {
       definite: 0.07,
     },
     parties: [],
-    precinctScanAdjudicationReasons: [],
     precincts: [
       {
         id: precinctId,
@@ -235,6 +236,7 @@ function createElection(): Election {
     ],
     state: 'Test State',
     title: 'Test Election - All Bubble Ballot',
+    sealUrl: '/seals/state-of-hamilton-official-seal.svg',
   };
 }
 
