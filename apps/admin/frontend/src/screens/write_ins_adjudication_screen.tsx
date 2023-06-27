@@ -71,6 +71,8 @@ const ContestTitleContainer = styled.div`
 const ContestTitle = styled(H2)`
   display: flex;
   flex-direction: column;
+  font-size: 1.2rem;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
 
   /*
    * Override heading styling.
@@ -89,7 +91,7 @@ const AdjudicationNav = styled.div`
 const BallotViews = styled.div`
   background: ${(p) => p.theme.colors.foreground};
   padding: 0 0.5rem;
-  width: 62.5vw;
+  width: 75vw;
 `;
 
 const AdjudicationControls = styled.div`
@@ -105,9 +107,8 @@ const AdjudicationForm = styled.div`
 
 const TranscribedButtons = styled.div`
   display: grid;
-  grid-auto-rows: 1fr;
   grid-gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
 
   &:not(:last-child) {
     margin-bottom: 0.5rem;
