@@ -44,6 +44,8 @@ export function main({ stdout }: IO): void {
     'pnpm-lock.yaml',
     'pnpm-workspace.yaml',
     '.pnpmfile.cjs',
+    'Cargo.toml',
+    'Cargo.lock',
   ]) {
     fs.copyFileSync(join(WORKSPACE_ROOT, file), join(outRoot, basename(file)));
   }
