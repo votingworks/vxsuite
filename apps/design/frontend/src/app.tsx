@@ -16,7 +16,7 @@ import {
   Rectangle,
 } from './document_types';
 import { SvgBox, SvgEllipse, SvgPage, SvgRectangle } from './document_svg';
-import { allBubbleBallots } from './all_bubble_ballots';
+import { allBubbleBallotCyclingTestDeck } from './all_bubble_ballots';
 
 function replaceAtIndex<T>(array: T[], index: number, value: T): T[] {
   return [...array.slice(0, index), value, ...array.slice(index + 1)];
@@ -272,9 +272,7 @@ function DocumentSvg({
 }
 
 export function App(): JSX.Element {
-  const [document, setDocument] = useState(
-    allBubbleBallots.cycling.ballotDocument
-  );
+  const [document, setDocument] = useState(allBubbleBallotCyclingTestDeck);
 
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,

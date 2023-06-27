@@ -2,7 +2,12 @@ import { join } from 'path';
 import * as fs from 'fs';
 import { finished } from 'stream/promises';
 import tmp from 'tmp';
-import { allBubbleBallots } from './all_bubble_ballots';
+import {
+  allBubbleBallotBlankBallot,
+  allBubbleBallotCyclingTestDeck,
+  allBubbleBallotElection,
+  allBubbleBallotFilledBallot,
+} from './all_bubble_ballots';
 import { renderDocumentToPdf } from './render_ballot';
 
 function normalizePdf(pdf: string): string {
@@ -11,21 +16,29 @@ function normalizePdf(pdf: string): string {
 
 test('fixtures are up to date - run `pnpm generate-fixtures` if this test fails', async () => {
   const fixturesDir = join(__dirname, '../fixtures');
-  for (const [name, ballot] of Object.entries(allBubbleBallots)) {
-    const savedDocument = fs.readFileSync(
-      join(fixturesDir, name, 'ballot-document.json'),
-      'utf8'
-    );
-    expect(JSON.parse(savedDocument)).toEqual(ballot.ballotDocument);
 
-    const savedElection = fs.readFileSync(
-      join(fixturesDir, name, 'election.json'),
+  const savedElection = fs.readFileSync(
+    join(fixturesDir, 'all-bubble-ballot-election.json'),
+    'utf8'
+  );
+  expect(JSON.parse(savedElection)).toEqual(allBubbleBallotElection);
+
+  const testBallots = {
+    'cycling-test-deck': allBubbleBallotCyclingTestDeck,
+    'blank-ballot': allBubbleBallotBlankBallot,
+    'filled-card': allBubbleBallotFilledBallot,
+  } as const;
+  for (const [testBallotName, testBallotDocument] of Object.entries(
+    testBallots
+  )) {
+    const savedDocument = fs.readFileSync(
+      join(fixturesDir, `all-bubble-ballot-${testBallotName}-document.json`),
       'utf8'
     );
-    expect(JSON.parse(savedElection)).toEqual(ballot.election);
+    expect(JSON.parse(savedDocument)).toEqual(testBallotDocument);
 
     const savedPdf = fs.readFileSync(
-      join(fixturesDir, name, 'ballot.pdf'),
+      join(fixturesDir, `all-bubble-ballot-${testBallotName}.pdf`),
       'utf8'
     );
 
@@ -33,7 +46,7 @@ test('fixtures are up to date - run `pnpm generate-fixtures` if this test fails'
     if (!process.env.CI) {
       const pdfTmpFile = tmp.fileSync();
       const pdfStream = fs.createWriteStream(pdfTmpFile.name);
-      renderDocumentToPdf(ballot.ballotDocument, pdfStream);
+      renderDocumentToPdf(testBallotDocument, pdfStream);
       await finished(pdfStream);
 
       expect(normalizePdf(savedPdf)).toEqual(
