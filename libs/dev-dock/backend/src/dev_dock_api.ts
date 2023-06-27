@@ -49,7 +49,7 @@ async function clearUsbDrive(): Promise<void> {
   await execFile('sudo', [
     join(MOCK_USB_SCRIPT_DIRECTORY, 'initialize.sh'),
     '-s',
-    '100',
+    '1000', // 1GB
   ]);
 }
 
