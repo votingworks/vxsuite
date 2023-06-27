@@ -8,12 +8,12 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Prose } from './prose';
 import { Loading } from './loading';
 import { TextInput } from './text_input';
+import { setMarkThresholdOverrides } from '../api';
 
 export interface Props {
   onClose: () => void;
   markThresholds?: MarkThresholds;
   markThresholdOverrides?: MarkThresholds;
-  setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
 }
 
 const ThresholdColumns = styled.div`
@@ -41,8 +41,10 @@ export function SetMarkThresholdsModal({
   onClose,
   markThresholds,
   markThresholdOverrides,
-  setMarkThresholdOverrides,
 }: Props): JSX.Element {
+  const setMarkThresholdOverridesMutation =
+    setMarkThresholdOverrides.useMutation();
+
   const [currentState, setCurrentState] = useState<ModalState>(
     markThresholdOverrides === undefined
       ? ModalState.CONFIRM_INTENT
@@ -61,7 +63,7 @@ export function SetMarkThresholdsModal({
     defaultMarginalThreshold.toString()
   );
 
-  async function overrideThresholds(definite: string, marginal: string) {
+  function overrideThresholds(definite: string, marginal: string) {
     setCurrentState(ModalState.SAVING);
     try {
       // eslint-disable-next-line vx/gts-safe-number-parse
@@ -78,9 +80,11 @@ export function SetMarkThresholdsModal({
           `Inputted marginal threshold invalid: ${marginal}. Please enter a number from 0 to 1.`
         );
       }
-      await setMarkThresholdOverrides({
-        definite: definiteFloat,
-        marginal: marginalFloat,
+      setMarkThresholdOverridesMutation.mutate({
+        markThresholdOverrides: {
+          definite: definiteFloat,
+          marginal: marginalFloat,
+        },
       });
       onClose();
     } catch (error) {
@@ -90,16 +94,10 @@ export function SetMarkThresholdsModal({
     }
   }
 
-  async function resetThresholds() {
+  function resetThresholds() {
     setCurrentState(ModalState.SAVING);
-    try {
-      await setMarkThresholdOverrides(undefined);
-      onClose();
-    } catch (error) {
-      assert(error instanceof Error);
-      setCurrentState(ModalState.ERROR);
-      setErrorMessage(`Error setting thresholds: ${error.message}`);
-    }
+    setMarkThresholdOverridesMutation.mutate({});
+    onClose();
   }
 
   switch (currentState) {

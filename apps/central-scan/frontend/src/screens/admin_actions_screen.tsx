@@ -1,5 +1,5 @@
-import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
-import React, { useCallback, useEffect, useState, useContext } from 'react';
+import { ElectionDefinition } from '@votingworks/types';
+import React, { useCallback, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import { assert, Result } from '@votingworks/basics';
 import {
@@ -15,64 +15,80 @@ import {
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { Scan } from '@votingworks/api';
+import { useHistory } from 'react-router-dom';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { AppContext } from '../contexts/app_context';
-import { logOut } from '../api';
+import {
+  getMarkThresholdOverrides,
+  logOut,
+  unconfigure,
+  zeroScanningData,
+} from '../api';
 
 export interface AdminActionScreenProps {
-  unconfigureServer: () => Promise<void>;
-  zeroData: () => Promise<void>;
   backup: () => Promise<Result<string[], Scan.BackupError | Error>>;
   hasBatches: boolean;
   isTestMode: boolean;
-  isTogglingTestMode: boolean;
   canUnconfigure: boolean;
-  toggleTestMode: () => Promise<void>;
-  setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
-  markThresholds?: MarkThresholds;
   electionDefinition: ElectionDefinition;
 }
 
 export function AdminActionsScreen({
-  unconfigureServer,
-  zeroData,
   backup,
   hasBatches,
   isTestMode,
-  isTogglingTestMode,
-  toggleTestMode,
   canUnconfigure,
-  setMarkThresholdOverrides,
-  markThresholds,
   electionDefinition,
 }: AdminActionScreenProps): JSX.Element {
+  const history = useHistory();
   const { logger, auth, usbDriveStatus, usbDriveEject, machineConfig } =
     useContext(AppContext);
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
   const logOutMutation = logOut.useMutation();
-  const [isConfirmingUnconfigure, setIsConfirmingUnconfigure] = useState(false);
-  const [isDoubleConfirmingUnconfigure, setIsDoubleConfirmingUnconfigure] =
-    useState(false);
-  const [isFactoryResetting, setIsFactoryResetting] = useState(false);
-  const [isDeletingBallotData, setIsDeletingBallotData] = useState(false);
+  const unconfigureMutation = unconfigure.useMutation();
+  const zeroScanningDataMutation = zeroScanningData.useMutation();
+  const markThresholdOverridesQuery = getMarkThresholdOverrides.useQuery();
+
+  function redirectToDashboard() {
+    history.replace('/');
+  }
+
+  const [unconfigureFlowState, setUnconfigureFlowState] = useState<
+    'initial-confirmation' | 'double-confirmation' | 'unconfiguring'
+  >();
+  function resetUnconfigureFlow() {
+    setUnconfigureFlowState(undefined);
+  }
+  function doUnconfigure() {
+    setUnconfigureFlowState('unconfiguring');
+    usbDriveEject(userRole);
+    unconfigureMutation.mutate(
+      { ignoreBackupRequirement: false },
+      {
+        onSuccess: redirectToDashboard,
+      }
+    );
+  }
+
+  const [deleteBallotDataFlowState, setDeleteBallotDataFlowState] = useState<
+    'confirmation' | 'deleting'
+  >();
+  function resetDeleteBallotDataFlow() {
+    setDeleteBallotDataFlowState(undefined);
+  }
+  function deleteBallotData() {
+    setDeleteBallotDataFlowState('deleting');
+    zeroScanningDataMutation.mutate(undefined, {
+      onSuccess: redirectToDashboard,
+    });
+  }
+
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [backupError, setBackupError] = useState('');
-  function toggleIsConfirmingUnconfigure() {
-    setIsConfirmingUnconfigure((s) => !s);
-  }
-  function toggleIsDoubleConfirmingUnconfigure() {
-    setIsDoubleConfirmingUnconfigure((s) => !s);
-  }
-  const [isConfirmingZero, setIsConfirmingZero] = useState(false);
-  const [isSetMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
-    useState(false);
-  function toggleIsConfirmingZero() {
-    return setIsConfirmingZero((s) => !s);
-  }
   const exportBackup = useCallback(async () => {
     setBackupError('');
     setIsBackingUp(true);
@@ -94,28 +110,10 @@ export function AdminActionsScreen({
     setIsBackingUp(false);
   }, [backup, logger, userRole]);
 
-  const deleteBallotData = useCallback(async () => {
-    toggleIsConfirmingZero();
-    setIsDeletingBallotData(true);
-    await zeroData();
-    setIsDeletingBallotData(false);
-  }, [zeroData]);
+  const [isSetMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
+    useState(false);
 
-  useEffect(() => {
-    if (isFactoryResetting) {
-      let isMounted = true;
-      void (async () => {
-        usbDriveEject(userRole);
-        await unconfigureServer();
-        if (isMounted) {
-          setIsFactoryResetting(false);
-        }
-      })();
-      return () => {
-        isMounted = false;
-      };
-    }
-  }, [isFactoryResetting, unconfigureServer, usbDriveEject, userRole]);
+  const markThresholdOverrides = markThresholdOverridesQuery.data ?? undefined;
 
   return (
     <React.Fragment>
@@ -126,8 +124,6 @@ export function AdminActionsScreen({
             <p>
               <ToggleTestModeButton
                 isTestMode={isTestMode}
-                isTogglingTestMode={isTogglingTestMode}
-                toggleTestMode={toggleTestMode}
                 canUnconfigure={canUnconfigure}
               />
             </p>
@@ -136,9 +132,9 @@ export function AdminActionsScreen({
                 onPress={() => setIsMarkThresholdModalOpen(true)}
                 disabled={hasBatches}
               >
-                {markThresholds === undefined
-                  ? 'Override Mark Thresholds'
-                  : 'Reset Mark Thresholds'}
+                {markThresholdOverrides
+                  ? 'Reset Mark Thresholds'
+                  : 'Override Mark Thresholds'}
               </Button>
             </p>
             {backupError && <p style={{ color: 'red' }}>{backupError}</p>}
@@ -163,7 +159,7 @@ export function AdminActionsScreen({
               <Button
                 variant="danger"
                 disabled={!hasBatches || (!isTestMode && !canUnconfigure)}
-                onPress={toggleIsConfirmingZero}
+                onPress={() => setDeleteBallotDataFlowState('confirmation')}
               >
                 Delete Ballot Data
               </Button>
@@ -173,7 +169,7 @@ export function AdminActionsScreen({
               <Button
                 variant="danger"
                 disabled={!canUnconfigure && !isTestMode}
-                onPress={toggleIsConfirmingUnconfigure}
+                onPress={() => setUnconfigureFlowState('initial-confirmation')}
               >
                 Delete Election Data from VxCentralScan
               </Button>{' '}
@@ -198,7 +194,7 @@ export function AdminActionsScreen({
           </LinkButton>
         </MainNav>
       </Screen>
-      {isConfirmingZero && (
+      {deleteBallotDataFlowState === 'confirmation' && (
         <Modal
           centerContent
           content={
@@ -213,16 +209,16 @@ export function AdminActionsScreen({
           }
           actions={
             <React.Fragment>
-              <Button onPress={toggleIsConfirmingZero}>Cancel</Button>
+              <Button onPress={resetDeleteBallotDataFlow}>Cancel</Button>
               <Button variant="danger" onPress={deleteBallotData}>
                 Yes, Delete Ballot Data
               </Button>
             </React.Fragment>
           }
-          onOverlayClick={toggleIsConfirmingZero}
+          onOverlayClick={resetDeleteBallotDataFlow}
         />
       )}
-      {isConfirmingUnconfigure && (
+      {unconfigureFlowState === 'initial-confirmation' && (
         <Modal
           centerContent
           content={
@@ -241,20 +237,17 @@ export function AdminActionsScreen({
             <React.Fragment>
               <Button
                 variant="danger"
-                onPress={() => {
-                  toggleIsConfirmingUnconfigure();
-                  setIsDoubleConfirmingUnconfigure(true);
-                }}
+                onPress={() => setUnconfigureFlowState('double-confirmation')}
               >
                 Yes, Delete Election Data
               </Button>
-              <Button onPress={toggleIsConfirmingUnconfigure}>Cancel</Button>
+              <Button onPress={resetUnconfigureFlow}>Cancel</Button>
             </React.Fragment>
           }
-          onOverlayClick={toggleIsConfirmingUnconfigure}
+          onOverlayClick={resetUnconfigureFlow}
         />
       )}
-      {isDoubleConfirmingUnconfigure && (
+      {unconfigureFlowState === 'double-confirmation' && (
         <Modal
           centerContent
           content={
@@ -265,30 +258,22 @@ export function AdminActionsScreen({
           }
           actions={
             <React.Fragment>
-              <Button
-                variant="danger"
-                onPress={() => {
-                  toggleIsDoubleConfirmingUnconfigure();
-                  setIsFactoryResetting(true);
-                }}
-              >
+              <Button variant="danger" onPress={doUnconfigure}>
                 I am sure. Delete all election data.
               </Button>
-              <Button onPress={toggleIsDoubleConfirmingUnconfigure}>
-                Cancel
-              </Button>
+              <Button onPress={resetUnconfigureFlow}>Cancel</Button>
             </React.Fragment>
           }
-          onOverlayClick={toggleIsDoubleConfirmingUnconfigure}
+          onOverlayClick={resetUnconfigureFlow}
         />
       )}
-      {isFactoryResetting && (
+      {unconfigureFlowState === 'unconfiguring' && (
         <Modal
           centerContent
           content={<Loading>Deleting election data</Loading>}
         />
       )}
-      {isDeletingBallotData && (
+      {deleteBallotDataFlowState === 'deleting' && (
         <Modal
           centerContent
           content={<Loading>Deleting ballot data</Loading>}
@@ -296,9 +281,8 @@ export function AdminActionsScreen({
       )}
       {isSetMarkThresholdModalOpen && (
         <SetMarkThresholdsModal
-          setMarkThresholdOverrides={setMarkThresholdOverrides}
           markThresholds={electionDefinition.election.markThresholds}
-          markThresholdOverrides={markThresholds}
+          markThresholdOverrides={markThresholdOverrides}
           onClose={() => setIsMarkThresholdModalOpen(false)}
         />
       )}
