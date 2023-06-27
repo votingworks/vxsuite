@@ -5,12 +5,8 @@
   "ballotStyles": [
     {
       "id": "card-number-1",
-      "districts": [
-        "test-district"
-      ],
-      "precincts": [
-        "test-precinct"
-      ]
+      "districts": ["test-district"],
+      "precincts": ["test-precinct"]
     }
   ],
   "centralScanAdjudicationReasons": ["Overvote"],
@@ -152,7 +148,7 @@
         },
         {
           "id": "test-candidate-page-1-row-1-column-33",
-          "name": "Test Candidate - Page 1, Row 1, Column 33"
+          "name": "Page 1, Row 1, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-2-column-1",
@@ -284,7 +280,7 @@
         },
         {
           "id": "test-candidate-page-1-row-2-column-33",
-          "name": "Test Candidate - Page 1, Row 2, Column 33"
+          "name": "Page 1, Row 2, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-3-column-1",
@@ -416,7 +412,7 @@
         },
         {
           "id": "test-candidate-page-1-row-3-column-33",
-          "name": "Test Candidate - Page 1, Row 3, Column 33"
+          "name": "Page 1, Row 3, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-4-column-1",
@@ -548,7 +544,7 @@
         },
         {
           "id": "test-candidate-page-1-row-4-column-33",
-          "name": "Test Candidate - Page 1, Row 4, Column 33"
+          "name": "Page 1, Row 4, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-5-column-1",
@@ -680,7 +676,7 @@
         },
         {
           "id": "test-candidate-page-1-row-5-column-33",
-          "name": "Test Candidate - Page 1, Row 5, Column 33"
+          "name": "Page 1, Row 5, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-6-column-1",
@@ -812,7 +808,7 @@
         },
         {
           "id": "test-candidate-page-1-row-6-column-33",
-          "name": "Test Candidate - Page 1, Row 6, Column 33"
+          "name": "Page 1, Row 6, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-7-column-1",
@@ -944,7 +940,7 @@
         },
         {
           "id": "test-candidate-page-1-row-7-column-33",
-          "name": "Test Candidate - Page 1, Row 7, Column 33"
+          "name": "Page 1, Row 7, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-8-column-1",
@@ -1076,7 +1072,7 @@
         },
         {
           "id": "test-candidate-page-1-row-8-column-33",
-          "name": "Test Candidate - Page 1, Row 8, Column 33"
+          "name": "Page 1, Row 8, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-9-column-1",
@@ -1208,7 +1204,7 @@
         },
         {
           "id": "test-candidate-page-1-row-9-column-33",
-          "name": "Test Candidate - Page 1, Row 9, Column 33"
+          "name": "Page 1, Row 9, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-10-column-1",
@@ -1340,7 +1336,7 @@
         },
         {
           "id": "test-candidate-page-1-row-10-column-33",
-          "name": "Test Candidate - Page 1, Row 10, Column 33"
+          "name": "Page 1, Row 10, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-11-column-1",
@@ -1472,7 +1468,7 @@
         },
         {
           "id": "test-candidate-page-1-row-11-column-33",
-          "name": "Test Candidate - Page 1, Row 11, Column 33"
+          "name": "Page 1, Row 11, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-12-column-1",
@@ -1604,7 +1600,7 @@
         },
         {
           "id": "test-candidate-page-1-row-12-column-33",
-          "name": "Test Candidate - Page 1, Row 12, Column 33"
+          "name": "Page 1, Row 12, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-13-column-1",
@@ -1736,7 +1732,7 @@
         },
         {
           "id": "test-candidate-page-1-row-13-column-33",
-          "name": "Test Candidate - Page 1, Row 13, Column 33"
+          "name": "Page 1, Row 13, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-14-column-1",
@@ -1868,7 +1864,7 @@
         },
         {
           "id": "test-candidate-page-1-row-14-column-33",
-          "name": "Test Candidate - Page 1, Row 14, Column 33"
+          "name": "Page 1, Row 14, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-15-column-1",
@@ -2000,7 +1996,7 @@
         },
         {
           "id": "test-candidate-page-1-row-15-column-33",
-          "name": "Test Candidate - Page 1, Row 15, Column 33"
+          "name": "Page 1, Row 15, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-16-column-1",
@@ -2132,7 +2128,7 @@
         },
         {
           "id": "test-candidate-page-1-row-16-column-33",
-          "name": "Test Candidate - Page 1, Row 16, Column 33"
+          "name": "Page 1, Row 16, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-17-column-1",
@@ -2264,7 +2260,7 @@
         },
         {
           "id": "test-candidate-page-1-row-17-column-33",
-          "name": "Test Candidate - Page 1, Row 17, Column 33"
+          "name": "Page 1, Row 17, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-18-column-1",
@@ -2396,7 +2392,7 @@
         },
         {
           "id": "test-candidate-page-1-row-18-column-33",
-          "name": "Test Candidate - Page 1, Row 18, Column 33"
+          "name": "Page 1, Row 18, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-19-column-1",
@@ -2528,7 +2524,7 @@
         },
         {
           "id": "test-candidate-page-1-row-19-column-33",
-          "name": "Test Candidate - Page 1, Row 19, Column 33"
+          "name": "Page 1, Row 19, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-20-column-1",
@@ -2660,7 +2656,7 @@
         },
         {
           "id": "test-candidate-page-1-row-20-column-33",
-          "name": "Test Candidate - Page 1, Row 20, Column 33"
+          "name": "Page 1, Row 20, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-21-column-1",
@@ -2792,7 +2788,7 @@
         },
         {
           "id": "test-candidate-page-1-row-21-column-33",
-          "name": "Test Candidate - Page 1, Row 21, Column 33"
+          "name": "Page 1, Row 21, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-22-column-1",
@@ -2924,7 +2920,7 @@
         },
         {
           "id": "test-candidate-page-1-row-22-column-33",
-          "name": "Test Candidate - Page 1, Row 22, Column 33"
+          "name": "Page 1, Row 22, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-23-column-1",
@@ -3056,7 +3052,7 @@
         },
         {
           "id": "test-candidate-page-1-row-23-column-33",
-          "name": "Test Candidate - Page 1, Row 23, Column 33"
+          "name": "Page 1, Row 23, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-24-column-1",
@@ -3188,7 +3184,7 @@
         },
         {
           "id": "test-candidate-page-1-row-24-column-33",
-          "name": "Test Candidate - Page 1, Row 24, Column 33"
+          "name": "Page 1, Row 24, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-25-column-1",
@@ -3320,7 +3316,7 @@
         },
         {
           "id": "test-candidate-page-1-row-25-column-33",
-          "name": "Test Candidate - Page 1, Row 25, Column 33"
+          "name": "Page 1, Row 25, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-26-column-1",
@@ -3452,7 +3448,7 @@
         },
         {
           "id": "test-candidate-page-1-row-26-column-33",
-          "name": "Test Candidate - Page 1, Row 26, Column 33"
+          "name": "Page 1, Row 26, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-27-column-1",
@@ -3584,7 +3580,7 @@
         },
         {
           "id": "test-candidate-page-1-row-27-column-33",
-          "name": "Test Candidate - Page 1, Row 27, Column 33"
+          "name": "Page 1, Row 27, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-28-column-1",
@@ -3716,7 +3712,7 @@
         },
         {
           "id": "test-candidate-page-1-row-28-column-33",
-          "name": "Test Candidate - Page 1, Row 28, Column 33"
+          "name": "Page 1, Row 28, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-29-column-1",
@@ -3848,7 +3844,7 @@
         },
         {
           "id": "test-candidate-page-1-row-29-column-33",
-          "name": "Test Candidate - Page 1, Row 29, Column 33"
+          "name": "Page 1, Row 29, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-30-column-1",
@@ -3980,7 +3976,7 @@
         },
         {
           "id": "test-candidate-page-1-row-30-column-33",
-          "name": "Test Candidate - Page 1, Row 30, Column 33"
+          "name": "Page 1, Row 30, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-31-column-1",
@@ -4112,7 +4108,7 @@
         },
         {
           "id": "test-candidate-page-1-row-31-column-33",
-          "name": "Test Candidate - Page 1, Row 31, Column 33"
+          "name": "Page 1, Row 31, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-32-column-1",
@@ -4244,7 +4240,7 @@
         },
         {
           "id": "test-candidate-page-1-row-32-column-33",
-          "name": "Test Candidate - Page 1, Row 32, Column 33"
+          "name": "Page 1, Row 32, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-33-column-1",
@@ -4376,7 +4372,7 @@
         },
         {
           "id": "test-candidate-page-1-row-33-column-33",
-          "name": "Test Candidate - Page 1, Row 33, Column 33"
+          "name": "Page 1, Row 33, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-34-column-1",
@@ -4508,7 +4504,7 @@
         },
         {
           "id": "test-candidate-page-1-row-34-column-33",
-          "name": "Test Candidate - Page 1, Row 34, Column 33"
+          "name": "Page 1, Row 34, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-35-column-1",
@@ -4640,7 +4636,7 @@
         },
         {
           "id": "test-candidate-page-1-row-35-column-33",
-          "name": "Test Candidate - Page 1, Row 35, Column 33"
+          "name": "Page 1, Row 35, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-36-column-1",
@@ -4772,7 +4768,7 @@
         },
         {
           "id": "test-candidate-page-1-row-36-column-33",
-          "name": "Test Candidate - Page 1, Row 36, Column 33"
+          "name": "Page 1, Row 36, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-37-column-1",
@@ -4904,7 +4900,7 @@
         },
         {
           "id": "test-candidate-page-1-row-37-column-33",
-          "name": "Test Candidate - Page 1, Row 37, Column 33"
+          "name": "Page 1, Row 37, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-38-column-1",
@@ -5036,7 +5032,7 @@
         },
         {
           "id": "test-candidate-page-1-row-38-column-33",
-          "name": "Test Candidate - Page 1, Row 38, Column 33"
+          "name": "Page 1, Row 38, Column 33"
         },
         {
           "id": "test-candidate-page-1-row-39-column-1",
@@ -5164,15 +5160,11 @@
         },
         {
           "id": "test-candidate-page-1-row-39-column-32",
-<<<<<<< HEAD:apps/design/backend/fixtures/all-bubble-ballot-election.json
           "name": "Page 1, Row 39, Column 32"
-=======
-          "name": "Test Candidate - Page 1, Row 39, Column 32"
         },
         {
           "id": "test-candidate-page-1-row-39-column-33",
-          "name": "Test Candidate - Page 1, Row 39, Column 33"
->>>>>>> 86ed2bfb3 (Adapt all bubble ballot fixtures):apps/design/backend/fixtures/filled/election.json
+          "name": "Page 1, Row 39, Column 33"
         }
       ],
       "allowWriteIns": false,
@@ -5314,7 +5306,7 @@
         },
         {
           "id": "test-candidate-page-2-row-1-column-33",
-          "name": "Test Candidate - Page 2, Row 1, Column 33"
+          "name": "Page 2, Row 1, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-2-column-1",
@@ -5446,7 +5438,7 @@
         },
         {
           "id": "test-candidate-page-2-row-2-column-33",
-          "name": "Test Candidate - Page 2, Row 2, Column 33"
+          "name": "Page 2, Row 2, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-3-column-1",
@@ -5578,7 +5570,7 @@
         },
         {
           "id": "test-candidate-page-2-row-3-column-33",
-          "name": "Test Candidate - Page 2, Row 3, Column 33"
+          "name": "Page 2, Row 3, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-4-column-1",
@@ -5710,7 +5702,7 @@
         },
         {
           "id": "test-candidate-page-2-row-4-column-33",
-          "name": "Test Candidate - Page 2, Row 4, Column 33"
+          "name": "Page 2, Row 4, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-5-column-1",
@@ -5842,7 +5834,7 @@
         },
         {
           "id": "test-candidate-page-2-row-5-column-33",
-          "name": "Test Candidate - Page 2, Row 5, Column 33"
+          "name": "Page 2, Row 5, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-6-column-1",
@@ -5974,7 +5966,7 @@
         },
         {
           "id": "test-candidate-page-2-row-6-column-33",
-          "name": "Test Candidate - Page 2, Row 6, Column 33"
+          "name": "Page 2, Row 6, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-7-column-1",
@@ -6106,7 +6098,7 @@
         },
         {
           "id": "test-candidate-page-2-row-7-column-33",
-          "name": "Test Candidate - Page 2, Row 7, Column 33"
+          "name": "Page 2, Row 7, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-8-column-1",
@@ -6238,7 +6230,7 @@
         },
         {
           "id": "test-candidate-page-2-row-8-column-33",
-          "name": "Test Candidate - Page 2, Row 8, Column 33"
+          "name": "Page 2, Row 8, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-9-column-1",
@@ -6370,7 +6362,7 @@
         },
         {
           "id": "test-candidate-page-2-row-9-column-33",
-          "name": "Test Candidate - Page 2, Row 9, Column 33"
+          "name": "Page 2, Row 9, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-10-column-1",
@@ -6502,7 +6494,7 @@
         },
         {
           "id": "test-candidate-page-2-row-10-column-33",
-          "name": "Test Candidate - Page 2, Row 10, Column 33"
+          "name": "Page 2, Row 10, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-11-column-1",
@@ -6634,7 +6626,7 @@
         },
         {
           "id": "test-candidate-page-2-row-11-column-33",
-          "name": "Test Candidate - Page 2, Row 11, Column 33"
+          "name": "Page 2, Row 11, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-12-column-1",
@@ -6766,7 +6758,7 @@
         },
         {
           "id": "test-candidate-page-2-row-12-column-33",
-          "name": "Test Candidate - Page 2, Row 12, Column 33"
+          "name": "Page 2, Row 12, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-13-column-1",
@@ -6898,7 +6890,7 @@
         },
         {
           "id": "test-candidate-page-2-row-13-column-33",
-          "name": "Test Candidate - Page 2, Row 13, Column 33"
+          "name": "Page 2, Row 13, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-14-column-1",
@@ -7030,7 +7022,7 @@
         },
         {
           "id": "test-candidate-page-2-row-14-column-33",
-          "name": "Test Candidate - Page 2, Row 14, Column 33"
+          "name": "Page 2, Row 14, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-15-column-1",
@@ -7162,7 +7154,7 @@
         },
         {
           "id": "test-candidate-page-2-row-15-column-33",
-          "name": "Test Candidate - Page 2, Row 15, Column 33"
+          "name": "Page 2, Row 15, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-16-column-1",
@@ -7294,7 +7286,7 @@
         },
         {
           "id": "test-candidate-page-2-row-16-column-33",
-          "name": "Test Candidate - Page 2, Row 16, Column 33"
+          "name": "Page 2, Row 16, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-17-column-1",
@@ -7426,7 +7418,7 @@
         },
         {
           "id": "test-candidate-page-2-row-17-column-33",
-          "name": "Test Candidate - Page 2, Row 17, Column 33"
+          "name": "Page 2, Row 17, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-18-column-1",
@@ -7558,7 +7550,7 @@
         },
         {
           "id": "test-candidate-page-2-row-18-column-33",
-          "name": "Test Candidate - Page 2, Row 18, Column 33"
+          "name": "Page 2, Row 18, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-19-column-1",
@@ -7690,7 +7682,7 @@
         },
         {
           "id": "test-candidate-page-2-row-19-column-33",
-          "name": "Test Candidate - Page 2, Row 19, Column 33"
+          "name": "Page 2, Row 19, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-20-column-1",
@@ -7822,7 +7814,7 @@
         },
         {
           "id": "test-candidate-page-2-row-20-column-33",
-          "name": "Test Candidate - Page 2, Row 20, Column 33"
+          "name": "Page 2, Row 20, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-21-column-1",
@@ -7954,7 +7946,7 @@
         },
         {
           "id": "test-candidate-page-2-row-21-column-33",
-          "name": "Test Candidate - Page 2, Row 21, Column 33"
+          "name": "Page 2, Row 21, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-22-column-1",
@@ -8086,7 +8078,7 @@
         },
         {
           "id": "test-candidate-page-2-row-22-column-33",
-          "name": "Test Candidate - Page 2, Row 22, Column 33"
+          "name": "Page 2, Row 22, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-23-column-1",
@@ -8218,7 +8210,7 @@
         },
         {
           "id": "test-candidate-page-2-row-23-column-33",
-          "name": "Test Candidate - Page 2, Row 23, Column 33"
+          "name": "Page 2, Row 23, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-24-column-1",
@@ -8350,7 +8342,7 @@
         },
         {
           "id": "test-candidate-page-2-row-24-column-33",
-          "name": "Test Candidate - Page 2, Row 24, Column 33"
+          "name": "Page 2, Row 24, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-25-column-1",
@@ -8482,7 +8474,7 @@
         },
         {
           "id": "test-candidate-page-2-row-25-column-33",
-          "name": "Test Candidate - Page 2, Row 25, Column 33"
+          "name": "Page 2, Row 25, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-26-column-1",
@@ -8614,7 +8606,7 @@
         },
         {
           "id": "test-candidate-page-2-row-26-column-33",
-          "name": "Test Candidate - Page 2, Row 26, Column 33"
+          "name": "Page 2, Row 26, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-27-column-1",
@@ -8746,7 +8738,7 @@
         },
         {
           "id": "test-candidate-page-2-row-27-column-33",
-          "name": "Test Candidate - Page 2, Row 27, Column 33"
+          "name": "Page 2, Row 27, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-28-column-1",
@@ -8878,7 +8870,7 @@
         },
         {
           "id": "test-candidate-page-2-row-28-column-33",
-          "name": "Test Candidate - Page 2, Row 28, Column 33"
+          "name": "Page 2, Row 28, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-29-column-1",
@@ -9010,7 +9002,7 @@
         },
         {
           "id": "test-candidate-page-2-row-29-column-33",
-          "name": "Test Candidate - Page 2, Row 29, Column 33"
+          "name": "Page 2, Row 29, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-30-column-1",
@@ -9142,7 +9134,7 @@
         },
         {
           "id": "test-candidate-page-2-row-30-column-33",
-          "name": "Test Candidate - Page 2, Row 30, Column 33"
+          "name": "Page 2, Row 30, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-31-column-1",
@@ -9274,7 +9266,7 @@
         },
         {
           "id": "test-candidate-page-2-row-31-column-33",
-          "name": "Test Candidate - Page 2, Row 31, Column 33"
+          "name": "Page 2, Row 31, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-32-column-1",
@@ -9406,7 +9398,7 @@
         },
         {
           "id": "test-candidate-page-2-row-32-column-33",
-          "name": "Test Candidate - Page 2, Row 32, Column 33"
+          "name": "Page 2, Row 32, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-33-column-1",
@@ -9538,7 +9530,7 @@
         },
         {
           "id": "test-candidate-page-2-row-33-column-33",
-          "name": "Test Candidate - Page 2, Row 33, Column 33"
+          "name": "Page 2, Row 33, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-34-column-1",
@@ -9670,7 +9662,7 @@
         },
         {
           "id": "test-candidate-page-2-row-34-column-33",
-          "name": "Test Candidate - Page 2, Row 34, Column 33"
+          "name": "Page 2, Row 34, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-35-column-1",
@@ -9802,7 +9794,7 @@
         },
         {
           "id": "test-candidate-page-2-row-35-column-33",
-          "name": "Test Candidate - Page 2, Row 35, Column 33"
+          "name": "Page 2, Row 35, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-36-column-1",
@@ -9934,7 +9926,7 @@
         },
         {
           "id": "test-candidate-page-2-row-36-column-33",
-          "name": "Test Candidate - Page 2, Row 36, Column 33"
+          "name": "Page 2, Row 36, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-37-column-1",
@@ -10066,7 +10058,7 @@
         },
         {
           "id": "test-candidate-page-2-row-37-column-33",
-          "name": "Test Candidate - Page 2, Row 37, Column 33"
+          "name": "Page 2, Row 37, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-38-column-1",
@@ -10198,7 +10190,7 @@
         },
         {
           "id": "test-candidate-page-2-row-38-column-33",
-          "name": "Test Candidate - Page 2, Row 38, Column 33"
+          "name": "Page 2, Row 38, Column 33"
         },
         {
           "id": "test-candidate-page-2-row-39-column-1",
@@ -10326,15 +10318,11 @@
         },
         {
           "id": "test-candidate-page-2-row-39-column-32",
-<<<<<<< HEAD:apps/design/backend/fixtures/all-bubble-ballot-election.json
           "name": "Page 2, Row 39, Column 32"
-=======
-          "name": "Test Candidate - Page 2, Row 39, Column 32"
         },
         {
           "id": "test-candidate-page-2-row-39-column-33",
-          "name": "Test Candidate - Page 2, Row 39, Column 33"
->>>>>>> 86ed2bfb3 (Adapt all bubble ballot fixtures):apps/design/backend/fixtures/filled/election.json
+          "name": "Page 2, Row 39, Column 33"
         }
       ],
       "allowWriteIns": false,
@@ -30972,11 +30960,6 @@
     }
   ],
   "state": "Test State",
-<<<<<<< HEAD:apps/design/backend/fixtures/all-bubble-ballot-election.json
   "title": "Test Election - All Bubble Ballot",
   "sealUrl": "/seals/state-of-hamilton-official-seal.svg"
 }
-=======
-  "title": "Test Election - Filled All Bubble Ballot"
-}
->>>>>>> 86ed2bfb3 (Adapt all bubble ballot fixtures):apps/design/backend/fixtures/filled/election.json
