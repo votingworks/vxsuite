@@ -1,0 +1,10 @@
+node_modules
+dev-workspace/
+*~
+*.log
+coverage/
+.DS_Store
+debug-dump*.zip
+/*.png
+/*.jpeg
+/*.jpg

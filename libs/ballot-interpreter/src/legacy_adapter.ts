@@ -22,7 +22,6 @@ import {
   MarkInfo,
   MarkStatus,
   MarkThresholds,
-  PrecinctId,
   Rect,
   VotesDict,
 } from '@votingworks/types';
@@ -209,17 +208,33 @@ function buildInterpretedHmpbPageMetadata(
   frontMetadata: BallotPageMetadataFront,
   side: 'front' | 'back'
 ): HmpbBallotPageMetadata {
-  const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
-  const ballotStyle = getBallotStyle({
-    election: electionDefinition.election,
-    ballotStyleId,
-  });
-  assert(ballotStyle, `ballot style ${ballotStyleId} not found`);
-  assert(ballotStyle.precincts.length === 1, 'expected exactly one precinct');
+  const { election } = electionDefinition;
+  const isUsingCardNumberBallotStyles = election.ballotStyles.every(({ id }) =>
+    id.startsWith('card-number-')
+  );
+  const ballotStyle =
+    // If the election is using "card-number-{n}" ballot style IDs, use
+    // the card number in the metadata to create that ballot style ID.
+    isUsingCardNumberBallotStyles
+      ? getBallotStyle({
+          election,
+          ballotStyleId: `card-number-${frontMetadata.cardNumber}`,
+        })
+      : // If not, use the card number in the metadata as an index into the
+        // list of ballot styles.
+        election.ballotStyles[frontMetadata.cardNumber];
+  assert(ballotStyle, `Ballot style ${frontMetadata.cardNumber} not found`);
+  const precinctId = isUsingCardNumberBallotStyles
+    ? ballotStyle.precincts[0]
+    : election.precincts[frontMetadata.batchOrPrecinctNumber]?.id;
+  assert(
+    precinctId !== undefined,
+    `Precinct ${frontMetadata.batchOrPrecinctNumber} not found`
+  );
 
   return {
-    ballotStyleId,
-    precinctId: ballotStyle.precincts[0] as PrecinctId,
+    ballotStyleId: ballotStyle.id,
+    precinctId,
     ballotType: BallotType.Standard,
     electionHash: electionDefinition.electionHash,
     isTestMode: options.testMode,

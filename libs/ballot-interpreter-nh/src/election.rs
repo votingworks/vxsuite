@@ -20,8 +20,15 @@ idtype!(PrecinctId);
 #[serde(rename_all = "camelCase")]
 pub struct Election {
     pub title: String,
+    pub ballot_styles: Vec<BallotStyle>,
     pub grid_layouts: Vec<GridLayout>,
     pub mark_thresholds: Option<MarkThresholds>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BallotStyle {
+    pub id: BallotStyleId,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
