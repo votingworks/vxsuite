@@ -1529,7 +1529,7 @@ importers:
         specifier: workspace:*
         version: link:../../../libs/db
       '@votingworks/design-shared':
-        specifier: workspace:^0.1.0
+        specifier: workspace:*
         version: link:../shared
       '@votingworks/grout':
         specifier: workspace:*
@@ -1625,6 +1625,15 @@ importers:
       '@typescript-eslint/parser':
         specifier: 5.37.0
         version: 5.37.0(eslint@8.23.1)(typescript@4.6.3)
+      '@votingworks/ballot-interpreter':
+        specifier: workspace:*
+        version: link:../../../libs/ballot-interpreter
+      '@votingworks/fixtures':
+        specifier: workspace:*
+        version: link:../../../libs/fixtures
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../../../libs/image-utils
       esbuild:
         specifier: ^0.14.29
         version: 0.14.42
