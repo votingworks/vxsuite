@@ -278,7 +278,7 @@ test('adjudication', async () => {
   );
   apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
   apiMock.expectGetWriteInTallies([]);
-  userEvent.click(await screen.findButton('Add New Write-In Candidate'));
+  userEvent.click(await screen.findButton(/Add New Write-In Candidate/i));
   userEvent.type(
     await screen.findByPlaceholderText('Candidate Name'),
     'Dark Helmet'
@@ -310,7 +310,7 @@ test('adjudication', async () => {
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
   apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
   apiMock.expectGetWriteInTallies([]);
-  userEvent.click(await screen.findButton('Mark Write-In Invalid'));
+  userEvent.click(await screen.findButton(/Mark Write-In Invalid/i));
   await waitFor(async () =>
     expect(await screen.findButton('Next')).toHaveFocus()
   );
