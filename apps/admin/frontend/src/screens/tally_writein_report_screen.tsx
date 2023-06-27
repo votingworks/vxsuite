@@ -9,14 +9,16 @@ import { assert, find } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
 import {
-  Prose,
   TallyReportPreview,
   TallyReportMetadata,
-  Text,
   Button,
   printElement,
   printElementToPdf,
   LinkButton,
+  P,
+  Caption,
+  Font,
+  H2,
 } from '@votingworks/ui';
 import { UseQueryResult } from '@tanstack/react-query';
 import type { WriteInAdjudicatedTally } from '@votingworks/admin-backend';
@@ -215,9 +217,7 @@ export function TallyWriteInReportScreen(): JSX.Element {
   if (isTabulationRunning || !screenAdjudicatedWriteInCounts) {
     return (
       <NavigationScreen centerChild title="Building Tabulation Report...">
-        <Prose>
-          <p>This may take a few seconds.</p>
-        </Prose>
+        <P>This may take a few seconds.</P>
       </NavigationScreen>
     );
   }
@@ -228,15 +228,16 @@ export function TallyWriteInReportScreen(): JSX.Element {
 
   return (
     <React.Fragment>
-      <NavigationScreen title={reportDisplayTitle}>
-        <Prose>
+      <NavigationScreen title="Election Reports">
+        <div>
+          <H2>{reportDisplayTitle}</H2>
           {!isReportEmpty ? (
             <React.Fragment>
               <TallyReportMetadata
                 generatedAtTime={generatedAtTime}
                 election={election}
               />
-              <p>
+              <P>
                 <PrintButton print={printWriteInTallyReport} variant="primary">
                   Print Report
                 </PrintButton>{' '}
@@ -245,31 +246,31 @@ export function TallyWriteInReportScreen(): JSX.Element {
                     Save Report as PDF
                   </Button>
                 )}
-              </p>
+              </P>
             </React.Fragment>
           ) : (
-            <p>
+            <P>
               The Write-In Tally Report is currently empty because there are no
               write-in votes adjudicated to non-official candidates. Write-in
               votes adjudicated to official candidates are included in the Full
               Election Tally Report and not this report.
-            </p>
+            </P>
           )}
-          <p>
+          <P>
             <LinkButton small to={routerPaths.reports}>
               Back to Reports
             </LinkButton>
-          </p>
+          </P>
           {!isReportEmpty && (
             <React.Fragment>
-              <h2>Report Preview</h2>
-              <Text italic small>
-                <strong>Note:</strong> Printed reports may be paginated to more
-                than one piece of paper.
-              </Text>
+              <H2>Report Preview</H2>
+              <Caption>
+                <Font weight="bold">Note:</Font> Printed reports may be
+                paginated to more than one piece of paper.
+              </Caption>
             </React.Fragment>
           )}
-        </Prose>
+        </div>
         <TallyReportPreview data-testid="report-preview">
           {writeInTallyReport}
         </TallyReportPreview>
