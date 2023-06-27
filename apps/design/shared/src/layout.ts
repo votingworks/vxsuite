@@ -484,7 +484,7 @@ function Contest({
   assert(contest.type === 'candidate');
 
   // Temp hack until we can change the timing mark grid dimensions: expand the
-  // last column to fill the page
+  // last contest column to fill the page
   const width =
     gridColumn > 20
       ? CONTENT_AREA_COLUMN_WIDTH - 2 * (CONTEST_COLUMN_WIDTH + GUTTER_WIDTH)
