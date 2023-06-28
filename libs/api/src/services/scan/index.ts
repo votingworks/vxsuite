@@ -9,12 +9,8 @@ import {
   BatchInfo,
   BatchInfoSchema,
   Contest,
-  ElectionDefinition,
-  ElectionDefinitionSchema,
   ElectionHash,
   IdSchema,
-  MarkThresholds,
-  MarkThresholdsSchema,
 } from '@votingworks/types';
 import * as z from 'zod';
 import {
@@ -50,95 +46,6 @@ export type GetScanStatusResponse = ScanStatus;
  */
 export const GetScanStatusResponseSchema: z.ZodSchema<GetScanStatusResponse> =
   ScanStatusSchema;
-
-/**
- * @url /config/election
- * @method GET
- */
-export type GetElectionConfigResponse = ElectionDefinition | null | string;
-
-/**
- * @url /config/election
- * @method GET
- */
-export const GetElectionConfigResponseSchema: z.ZodSchema<GetElectionConfigResponse> =
-  z.union([ElectionDefinitionSchema, z.null(), z.string()]);
-
-/**
- * @url /config/election
- * @method DELETE
- */
-export type DeleteElectionConfigResponse = OkResponse | ErrorsResponse;
-
-/**
- * @url /config/election
- * @method DELETE
- */
-export const DeleteElectionConfigResponseSchema: z.ZodSchema<DeleteElectionConfigResponse> =
-  OkResponseSchema;
-
-/**
- * @url /config/markThresholdOverrides
- * @method GET
- */
-export type GetMarkThresholdOverridesConfigResponse = OkResponse<{
-  markThresholdOverrides?: MarkThresholds;
-}>;
-
-/**
- * @url /config/markThresholdOverrides
- * @method GET
- */
-export const GetMarkThresholdOverridesConfigResponseSchema: z.ZodSchema<GetMarkThresholdOverridesConfigResponse> =
-  z.object({
-    status: z.literal('ok'),
-    markThresholdOverrides: z.optional(MarkThresholdsSchema),
-  });
-
-/**
- * @url /config/markThresholdOverrides
- * @method DELETE
- */
-export type DeleteMarkThresholdOverridesConfigResponse = OkResponse;
-
-/**
- * @url /config/markThresholdOverrides
- * @method DELETE
- */
-export const DeleteMarkThresholdOverridesConfigResponseSchema =
-  OkResponseSchema;
-
-/**
- * @url /config/markThresholdOverrides
- * @method PATCH
- */
-export interface PatchMarkThresholdOverridesConfigRequest {
-  markThresholdOverrides?: MarkThresholds;
-}
-
-/**
- * @url /config/markThresholdOverrides
- * @method PATCH
- */
-export const PatchMarkThresholdOverridesConfigRequestSchema: z.ZodSchema<PatchMarkThresholdOverridesConfigRequest> =
-  z.object({
-    markThresholdOverrides: z.optional(MarkThresholdsSchema),
-  });
-
-/**
- * @url /config/markThresholdOverrides
- * @method PATCH
- */
-export type PatchMarkThresholdOverridesConfigResponse =
-  | OkResponse
-  | ErrorsResponse;
-
-/**
- * @url /config/markThresholdOverrides
- * @method PATCH
- */
-export const PatchMarkThresholdOverridesConfigResponseSchema: z.ZodSchema<PatchMarkThresholdOverridesConfigResponse> =
-  z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
  * @url /scan/scanBatch
@@ -335,34 +242,6 @@ export const BackupToUsbResponseSchema: z.ZodSchema<BackupToUsbResponse> =
       errors: z.array(BackupErrorSchema),
     }),
   ]);
-
-/**
- * This is `never` because there is no request data.
- *
- * @url /scan/zero
- * @method POST
- */
-export type ZeroRequest = never;
-
-/**
- * This is `never` because there is no request data.
- *
- * @url /scan/zero
- * @method POST
- */
-export const ZeroRequestSchema: z.ZodSchema<ZeroRequest> = z.never();
-
-/**
- * @url /scan/zero
- * @method POST
- */
-export type ZeroResponse = OkResponse | ErrorsResponse;
-
-/**
- * @url /scan/zero
- * @method POST
- */
-export const ZeroResponseSchema: z.ZodSchema<ZeroResponse> = OkResponseSchema;
 
 /**
  * @url /scan/hmpb/review/next-sheet
