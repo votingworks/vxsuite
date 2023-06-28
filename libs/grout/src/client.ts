@@ -1,4 +1,5 @@
 import fetch from 'cross-fetch';
+import { deferredQueue, typedAs } from '@votingworks/basics';
 import { deserialize, serialize } from './serialization';
 import { AnyApi, AnyRpcMethod, inferApiMethods } from './server';
 import { rootDebug } from './debug';
@@ -19,7 +20,19 @@ export type Client<Api extends AnyApi> = {
   [Method in keyof inferApiMethods<Api>]: AsyncRpcMethod<
     inferApiMethods<Api>[Method]
   >;
+} & {
+  [Method in Extract<
+    keyof inferApiMethods<Api>,
+    string
+  > as WatchMethodForGetter<Method>]: (options?: {
+    interval?: number;
+  }) => Promise<
+    Subscription<Awaited<ReturnType<inferApiMethods<Api>[Method]>>>
+  >;
 };
+
+type WatchMethodForGetter<Method extends string> =
+  Method extends `get${infer M}` ? `watch${M}` : never;
 
 /**
  * Options for creating a Grout RPC client.
@@ -43,6 +56,16 @@ export function methodUrl(methodName: string, baseUrl: string): string {
  * An unexpected error from the server (e.g. a crash or runtime exception).
  */
 export class ServerError extends Error {}
+
+/**
+ * A subscription to a Grout SSE method that can be cancelled.
+ */
+export interface Subscription<T> extends AsyncIterable<T> {
+  /**
+   * Cancels the subscription.
+   */
+  unsubscribe(): void;
+}
 
 /**
  * Creates a Grout RPC client based on the type of an API definition. You should
@@ -75,6 +98,60 @@ export function createClient<Api extends AnyApi>(
         debug(`Call: ${methodName}(${inputJson})`);
 
         try {
+          const watchMatch = /^watch([A-Z].*)/.exec(methodName);
+          if (watchMatch) {
+            const url = methodUrl(`get${watchMatch[1]}`, options.baseUrl);
+            const queryParams = new URLSearchParams();
+            if (input && typeof input === 'object' && 'interval' in input) {
+              queryParams.set(
+                'interval',
+                `${(input as { interval: number }).interval}`
+              );
+            }
+            const eventSource = new EventSource(`${url}?${queryParams}`);
+            const queue = deferredQueue();
+
+            eventSource.onmessage = (event) => {
+              if (!event.isTrusted) {
+                queue.reject(
+                  new ServerError(
+                    `Received untrusted event from ${url}. This is likely a bug in the server.`
+                  )
+                );
+                return;
+              }
+
+              debug(`Event: ${event.data}`);
+              const data = deserialize(event.data);
+              queue.resolve(data);
+            };
+
+            eventSource.onerror = (event) => {
+              queue.reject(new ServerError(`${event}`));
+            };
+
+            return typedAs<Subscription<unknown>>({
+              [Symbol.asyncIterator]() {
+                return {
+                  next: async () =>
+                    eventSource.readyState === EventSource.CLOSED
+                      ? {
+                          done: true,
+                          value: undefined,
+                        }
+                      : {
+                          done: false,
+                          value: await queue.get(),
+                        },
+                };
+              },
+
+              unsubscribe() {
+                eventSource.close();
+              },
+            });
+          }
+
           const url = methodUrl(methodName, options.baseUrl);
           const response = await fetch(url, {
             method: 'POST',

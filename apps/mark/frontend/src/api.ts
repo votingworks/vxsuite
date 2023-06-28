@@ -1,5 +1,5 @@
 import type { Api } from '@votingworks/mark-backend';
-import React from 'react';
+import React, { useEffect } from 'react';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -12,6 +12,7 @@ import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
+import { InsertedSmartCardAuth } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -71,9 +72,29 @@ export const getAuthStatus = {
     return ['getAuthStatus'];
   },
   useQuery() {
+    const queryClient = useQueryClient();
     const apiClient = useApiClient();
+
+    useEffect(() => {
+      let subscription: grout.Subscription<InsertedSmartCardAuth.AuthStatus>;
+
+      async function listen() {
+        subscription = await apiClient.watchAuthStatus({
+          interval: AUTH_STATUS_POLLING_INTERVAL_MS,
+        });
+
+        for await (const authStatus of subscription) {
+          queryClient.setQueryData(getAuthStatus.queryKey(), authStatus);
+        }
+      }
+
+      void listen();
+
+      return () => subscription.unsubscribe();
+    }, [apiClient, queryClient]);
+
     return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
-      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+      // refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
     });
   },
 } as const;

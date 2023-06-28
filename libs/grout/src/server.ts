@@ -88,6 +88,154 @@ export function createApi<Methods extends AnyMethods>(
  */
 export class GroutError extends Error {}
 
+function createRpcHandler(
+  api: AnyApi,
+  path: string,
+  methodName: string,
+  method: AnyRpcMethod,
+  router: Express.Router
+): void {
+  debug(`Registering RPC handler: ${path}`);
+
+  // All routes use the POST method. This doesn't quite follow the traditional
+  // semantics of HTTP, since there may or may not be a side-effect. But it's
+  // better to err on the side of possible side-effects (as opposed to use GET).
+  // We don't try to use the correct HTTP method because that would require
+  // some way to annotate RPC methods with the appropriate method, which is
+  // more complexity for little practical gain.
+  router.post(path, async (request, response) => {
+    try {
+      debug(`[${methodName}] RPC Call: input=${request.body}`);
+      if (!isString(request.body)) {
+        throw new GroutError(
+          'Request body was parsed as something other than a string.' +
+            " Make sure you haven't added any other body parsers upstream" +
+            ' of the Grout router - e.g. app.use(express.json()).' +
+            ` Body: ${JSON.stringify(request.body)}`
+        );
+      }
+
+      const input = deserialize(request.body);
+
+      if (!(isObject(input) || input === undefined)) {
+        throw new GroutError(
+          'Grout methods must be called with an object or undefined as the sole argument.' +
+            ` The argument received was: ${JSON.stringify(input)}`
+        );
+      }
+
+      const result = await method(input);
+      const jsonResult = serialize(result);
+      debug(`[${methodName}] RPC Result: ${jsonResult}`);
+
+      response.set('Content-type', 'application/json');
+      response.status(200).send(jsonResult);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      debug(`[${methodName}] RPC Error: ${message}`);
+      // eslint-disable-next-line no-console
+      console.error(error); // To aid debugging, log the full error with stack trace
+      response.status(500).json({ message });
+    }
+  });
+}
+
+function parseIntOrDefault(value: string | undefined, defaultValue: number) {
+  if (value === undefined) {
+    return defaultValue;
+  }
+
+  // eslint-disable-next-line vx/gts-safe-number-parse
+  const parsed = parseInt(value, 10);
+  if (Number.isNaN(parsed)) {
+    return defaultValue;
+  }
+
+  return parsed;
+}
+
+function createSseHandler(
+  api: AnyApi,
+  path: string,
+  methodName: string,
+  method: () => unknown,
+  router: Express.Router
+): void {
+  debug(`Registering SSE handler: ${path}`);
+
+  // We also register a GET route for each method. This allows us to use
+  // Server-Sent Events (SSE) to stream updates from the server to the client.
+  router.get(path, (request, response) => {
+    try {
+      if (!request.accepts('text/event-stream')) {
+        response.status(406).send('Not Acceptable');
+        return;
+      }
+
+      debug(`[${methodName}] SSE Subscribe`);
+
+      response.set({
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      });
+
+      const interval = parseIntOrDefault(
+        request.query['interval'] as string,
+        1000
+      );
+
+      // We need to send a dummy event to start the stream. This is required
+      // by the SSE protocol, and also allows the client to detect if the
+      // connection is lost.
+      response.write('event: dummy\ndata: {}\n\n');
+
+      let timeout: NodeJS.Timeout | undefined;
+      let lastValue: string | undefined;
+
+      // eslint-disable-next-line no-inner-declarations
+      async function tick() {
+        try {
+          timeout = undefined;
+          const value = serialize(await method());
+          if (lastValue !== value) {
+            response.write(`data: ${value}\n\n`);
+            lastValue = value;
+          }
+
+          // We use setTimeout rather than setInterval so that we don't send
+          // updates if the client is slow to receive them. This is important
+          // to ensure that the client doesn't get overwhelmed with updates.
+          timeout = setTimeout(tick, interval);
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          debug(`[${methodName}] SSE Error: ${message}`);
+          // eslint-disable-next-line no-console
+          console.error(error); // To aid debugging, log the full error with stack trace
+          response.end(
+            `event: error\ndata: ${JSON.stringify({ message })}\n\n`
+          );
+        }
+      }
+
+      request.on('close', () => {
+        debug(`[${methodName}] SSE Unsubscribe`);
+        clearTimeout(timeout);
+        response.end();
+      });
+
+      void tick();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      debug(`Error: ${message}`);
+      // eslint-disable-next-line no-console
+      console.error(error); // To aid debugging, log the full error with stack trace
+      response.status(500).json({ message });
+    }
+  });
+}
+
 /**
  * Creates an express Router with a route handler for each RPC method in a Grout
  * API. This allows you to easily mount the Grout API within a larger Express
@@ -129,49 +277,10 @@ export function buildRouter(
 
   for (const [methodName, method] of Object.entries<AnyRpcMethod>(api)) {
     const path = `/${methodName}`;
-    debug(`Registering route: ${path}`);
-
-    // All routes use the POST method. This doesn't quite follow the traditional
-    // semantics of HTTP, since there may or may not be a side-effect. But it's
-    // better to err on the side of possible side-effects (as opposed to use GET).
-    // We don't try to use the correct HTTP method because that would require
-    // some way to annotate RPC methods with the appropriate method, which is
-    // more complexity for little practical gain.
-    router.post(path, async (request, response) => {
-      try {
-        debug(`Call: ${methodName}(${request.body})`);
-        if (!isString(request.body)) {
-          throw new GroutError(
-            'Request body was parsed as something other than a string.' +
-              " Make sure you haven't added any other body parsers upstream" +
-              ' of the Grout router - e.g. app.use(express.json()).' +
-              ` Body: ${JSON.stringify(request.body)}`
-          );
-        }
-
-        const input = deserialize(request.body);
-
-        if (!(isObject(input) || input === undefined)) {
-          throw new GroutError(
-            'Grout methods must be called with an object or undefined as the sole argument.' +
-              ` The argument received was: ${JSON.stringify(input)}`
-          );
-        }
-
-        const result = await method(input);
-        const jsonResult = serialize(result);
-        debug(`Result: ${jsonResult}`);
-
-        response.set('Content-type', 'application/json');
-        response.status(200).send(jsonResult);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        debug(`Error: ${message}`);
-        // eslint-disable-next-line no-console
-        console.error(error); // To aid debugging, log the full error with stack trace
-        response.status(500).json({ message });
-      }
-    });
+    createRpcHandler(api, path, methodName, method, router);
+    if (method.length === 0) {
+      createSseHandler(api, path, methodName, method as () => unknown, router);
+    }
   }
 
   return router;
