@@ -186,9 +186,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 }
 
 @media print {
+  .c6 th {
+    font-size: 0.75rem;
+  }
+}
+
+@media print {
   .c6 {
     border-top: 1px solid rgb(194,200,203);
-    font-size: 0.75rem;
   }
 }
 
@@ -1670,6 +1675,10 @@ exports[`L&A (logic and accuracy) flow 2`] = `
 
 }
 
+@media print {
+
+}
+
 <div>
   <div
     aria-hidden="true"
@@ -2940,6 +2949,10 @@ exports[`L&A (logic and accuracy) flow 3`] = `
 
 }
 
+@media print {
+
+}
+
 <div>
   <div>
     <h1>
@@ -3281,9 +3294,14 @@ exports[`tabulating CVRs 1`] = `
 }
 
 @media print {
+  .c6 th {
+    font-size: 0.75rem;
+  }
+}
+
+@media print {
   .c6 {
     border-top: 1px solid rgb(194,200,203);
-    font-size: 0.75rem;
   }
 }
 
