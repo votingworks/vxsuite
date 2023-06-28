@@ -56,7 +56,9 @@ describe('BSD and services/Scan', () => {
   beforeEach(() => {
     logOut();
     // Unconfigure services/scan
-    cy.request('DELETE', '/central-scanner/config/election');
+    cy.request('POST', methodUrl('unconfigure', 'http://localhost:3000/api'), {
+      ignoreBackupRequirement: true,
+    });
     mockElectionManagerCard();
     cy.visit('/');
     enterPin();
