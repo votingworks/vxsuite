@@ -284,7 +284,7 @@ test('configuring election from usb ballot package works end to end', async () =
   });
 
   fireEvent.click(getByText('Close'));
-  getByText('No ballots have been scanned.');
+  await screen.findByText('No ballots have been scanned.');
 
   getByText('General Election');
   getByText(/Franklin County,/);

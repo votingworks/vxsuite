@@ -70,8 +70,6 @@ export function AppRoot({
   hardware,
   logger,
 }: AppRootProps): JSX.Element | null {
-  const [configureSuccessScreenClosed, setConfigureSuccessScreenClosed] =
-    useState(false);
   const [status, setStatus] = useState<Scan.GetScanStatusResponse>({
     canUnconfigure: true,
     batches: [],
@@ -336,19 +334,7 @@ export function AppRoot({
     void updateStatus();
   }, [updateStatus]);
 
-  // close the configure success screen if the USB drive is ejected
-  const wasJustConfigured = !!configureMutation.data;
-  useEffect(() => {
-    if (
-      wasJustConfigured &&
-      !configureSuccessScreenClosed &&
-      usbDrive.status === 'ejected'
-    ) {
-      setConfigureSuccessScreenClosed(false);
-    }
-  }, [configureSuccessScreenClosed, usbDrive.status, wasJustConfigured]);
-
-  // auto-configure from USB drive
+  // try auto-configuring from USB drive
   useEffect(() => {
     if (
       electionDefinitionQuery.isSuccess &&
@@ -356,7 +342,7 @@ export function AppRoot({
       authStatusQuery.data &&
       isElectionManagerAuth(authStatusQuery.data) &&
       usbDrive.status === 'mounted' &&
-      !configureMutation.isLoading
+      configureMutation.isIdle
     ) {
       configureMutation.mutate();
     }
@@ -367,6 +353,13 @@ export function AppRoot({
     electionDefinitionQuery.isSuccess,
     electionDefinitionQuery.data,
   ]);
+
+  // reset the configuration mutation whenever USB is removed
+  useEffect(() => {
+    if (usbDrive.status !== 'mounted' && !configureMutation.isIdle) {
+      configureMutation.reset();
+    }
+  }, [configureMutation, usbDrive.status]);
 
   if (
     !authStatusQuery.isSuccess ||
@@ -472,11 +465,7 @@ export function AppRoot({
   }
 
   if (electionDefinition) {
-    if (
-      wasJustConfigured &&
-      configureMutation.data.isOk() &&
-      !configureSuccessScreenClosed
-    ) {
+    if (configureMutation.isSuccess && configureMutation.data.isOk()) {
       return (
         <AppContext.Provider value={currentContext}>
           <Screen>
@@ -487,7 +476,7 @@ export function AppRoot({
                   <Text>You may now eject the USB drive.</Text>
                 </Prose>
                 <Buttons>
-                  <Button onPress={() => setConfigureSuccessScreenClosed(true)}>
+                  <Button onPress={() => configureMutation.reset()}>
                     Close
                   </Button>
                   <UsbControllerButton
