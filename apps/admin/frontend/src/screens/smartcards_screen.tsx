@@ -1,14 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { assert } from '@votingworks/basics';
-import { LinkButton, Prose } from '@votingworks/ui';
+import { LinkButton, P } from '@votingworks/ui';
 import { useParams } from 'react-router-dom';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
 import { SmartcardsScreenProps, SmartcardType } from '../config/types';
 
-const Body = styled(Prose)`
+const Body = styled.div`
   flex-grow: 1;
 `;
 
@@ -31,8 +31,8 @@ export function SmartcardsScreen(): JSX.Element {
           : 'System Administrator Cards'
       }
     >
-      <Body maxWidth={false}>
-        <p>Insert a smartcard to:</p>
+      <Body>
+        <P>Insert a smartcard to:</P>
         <ul>
           <li>View card details.</li>
           <li>

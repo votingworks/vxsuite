@@ -14,7 +14,6 @@ import {
   Button,
   useCancelablePromise,
   Modal,
-  Prose,
   printElement,
   printElementWhenReady,
   printElementToPdfWhenReady,
@@ -215,15 +214,13 @@ function PrintingModal({
         centerContent
         title="Change Paper"
         content={
-          <Prose textCenter>
-            <P>
-              Load printer with{' '}
-              <Font weight="bold">
-                {getBallotLayoutPageSizeReadableString(election)}-size paper
-              </Font>
-              .
-            </P>
-          </Prose>
+          <P>
+            Load printer with{' '}
+            <Font weight="bold">
+              {getBallotLayoutPageSizeReadableString(election)}-size paper
+            </Font>
+            .
+          </P>
         }
         actions={
           <Button onPress={() => advancePrinting(printIndex)} variant="primary">
@@ -240,9 +237,9 @@ function PrintingModal({
     <Modal
       centerContent
       content={
-        <Prose textCenter>
-          <P>
-            <Loading as="strong" wrapInProse={false}>
+        <React.Fragment>
+          <P weight="bold">
+            <Loading as="span">
               {`Printing L&A Package for ${currentPrecinct.name}`}
             </Loading>
           </P>
@@ -261,7 +258,7 @@ function PrintingModal({
                 : 'Currently printing letter-size pages.'}
             </P>
           )}
-        </Prose>
+        </React.Fragment>
       }
     />
   );

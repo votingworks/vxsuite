@@ -1,7 +1,7 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { Button, Modal, Prose } from '@votingworks/ui';
+import { Button, Modal, P } from '@votingworks/ui';
 import { routerPaths } from '../router_paths';
 import { unconfigure } from '../api';
 
@@ -25,10 +25,10 @@ export function RemoveElectionModal({ onClose }: Props): JSX.Element {
     <Modal
       centerContent
       content={
-        <Prose textCenter>
-          <p>Do you want to remove the current election definition?</p>
-          <p>All data will be removed from this app.</p>
-        </Prose>
+        <React.Fragment>
+          <P>Do you want to remove the current election definition?</P>
+          <P>All data will be removed from this app.</P>
+        </React.Fragment>
       }
       onOverlayClick={onClose}
       actions={

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { ProgressEllipsis, Prose } from '@votingworks/ui';
+import { ProgressEllipsis } from '@votingworks/ui';
 
 const Fullscreen = styled.div`
   display: flex;
@@ -14,14 +14,12 @@ interface Props {
   children?: string | string[];
   isFullscreen?: boolean;
   as?: keyof JSX.IntrinsicElements;
-  wrapInProse?: boolean;
 }
 
 export function Loading({
   as = 'h1',
   children = 'Loading',
   isFullscreen = false,
-  wrapInProse = true,
 }: Props): JSX.Element {
   let content = (
     <ProgressEllipsis
@@ -31,9 +29,6 @@ export function Loading({
       {children}
     </ProgressEllipsis>
   );
-  if (wrapInProse) {
-    content = <Prose>{content}</Prose>;
-  }
   if (isFullscreen) {
     content = <Fullscreen>{content}</Fullscreen>;
   }

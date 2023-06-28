@@ -5,7 +5,7 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { Button, Modal, Prose, UsbControllerButton } from '@votingworks/ui';
+import { Button, Modal, P, UsbControllerButton } from '@votingworks/ui';
 import { BallotPackageExportError } from '@votingworks/types';
 
 import { saveBallotPackageToUsb as saveBallotPackageToUsbBase } from '../api';
@@ -67,13 +67,11 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
           actions = <Button onPress={closeModal}>Cancel</Button>;
           title = 'No USB Drive Detected';
           mainContent = (
-            <Prose>
-              <p>
-                <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-                Please insert a USB drive in order to save the ballot
-                configuration.
-              </p>
-            </Prose>
+            <P>
+              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
+              Please insert a USB drive in order to save the ballot
+              configuration.
+            </P>
           );
           break;
         case 'ejecting':
@@ -96,13 +94,11 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
           );
           title = 'Save Ballot Package';
           mainContent = (
-            <Prose>
-              <p>
-                <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />A
-                zip archive will automatically be saved to the default location
-                on the mounted USB drive.
-              </p>
-            </Prose>
+            <P>
+              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />A
+              zip archive will automatically be saved to the default location on
+              the mounted USB drive.
+            </P>
           );
           break;
         }
@@ -119,11 +115,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         </Button>
       );
       title = 'Saving…';
-      mainContent = (
-        <Prose>
-          <p>Closing zip file.</p>
-        </Prose>
-      );
+      mainContent = <P>Closing zip file.</P>;
       break;
     }
 
@@ -145,12 +137,10 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       }
       title = 'Ballot Package Saved';
       mainContent = (
-        <Prose>
-          <p>
-            You may now eject the USB drive. Use the saved ballot package on
-            this USB drive to configure VxScan or VxCentralScan.
-          </p>
-        </Prose>
+        <P>
+          You may now eject the USB drive. Use the saved ballot package on this
+          USB drive to configure VxScan or VxCentralScan.
+        </P>
       );
       break;
     }
@@ -158,11 +148,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     case 'error': {
       actions = <Button onPress={closeModal}>Close</Button>;
       title = 'Failed to Save Ballot Package';
-      mainContent = (
-        <Prose>
-          <p>An error occurred: {ErrorMessages[saveState.error]}.</p>
-        </Prose>
-      );
+      mainContent = <P>An error occurred: {ErrorMessages[saveState.error]}.</P>;
       break;
     }
 
