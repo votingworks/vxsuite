@@ -100,11 +100,9 @@ function buildApi({
       const userRole = await getUserRole();
       const { testMode } = input;
       await logger.log(LogEventId.TogglingTestMode, userRole, {
-        message: `Toggling to ${
-          input.testMode ? 'Test' : 'Official'
-        } Ballot Mode...`,
+        message: `Toggling to ${testMode ? 'Test' : 'Official'} Ballot Mode...`,
       });
-      importer.setTestMode(input.testMode);
+      importer.setTestMode(testMode);
       await logger.log(LogEventId.ToggledTestMode, userRole, {
         disposition: 'success',
         message: `Successfully toggled to ${
