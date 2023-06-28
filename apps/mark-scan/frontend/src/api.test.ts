@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react-hooks';
-import { useApiClient } from './api';
+import { useRpcApiClient } from './api';
 
 test('useApiClient', () => {
-  const { result } = renderHook(() => useApiClient());
+  const { result } = renderHook(() => useRpcApiClient());
   expect(result.error && result.error.message).toEqual(
     'ApiClientContext.Provider not found'
   );

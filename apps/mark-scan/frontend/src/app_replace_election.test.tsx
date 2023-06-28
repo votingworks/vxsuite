@@ -48,7 +48,7 @@ test('app renders a notice when election hash on card does not match that of mac
     <App
       hardware={hardware}
       storage={storage}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );

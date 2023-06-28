@@ -219,7 +219,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
     <App
       hardware={hardware}
       storage={storage}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );

@@ -44,7 +44,7 @@ it('gamepad controls work', async () => {
     <App
       hardware={hardware}
       storage={storage}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );

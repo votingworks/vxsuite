@@ -23,10 +23,13 @@ import { getUsEnglishVoice } from './utils/voices';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { FocusManager } from './components/focus_manager';
 import {
-  ApiClient,
-  ApiClientContext,
-  createApiClient,
+  RpcApiClient,
+  RpcApiClientContext,
+  StreamApiClientContext,
+  createRpcApiClient,
   createQueryClient,
+  createStreamApiClient,
+  StreamApiClient,
 } from './api';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 
@@ -44,7 +47,8 @@ export interface Props {
   screenReader?: ScreenReader;
   reload?: VoidFunction;
   logger?: AppRootProps['logger'];
-  apiClient?: ApiClient;
+  rpcApiClient?: RpcApiClient;
+  streamApiClient?: StreamApiClient;
   queryClient?: QueryClient;
 }
 
@@ -58,7 +62,8 @@ export function App({
   hardware = getHardware(),
   reload = () => window.location.reload(),
   logger = new Logger(LogSource.VxMarkScanFrontend, window.kiosk),
-  /* istanbul ignore next */ apiClient = createApiClient(),
+  /* istanbul ignore next */ rpcApiClient = createRpcApiClient(),
+  /* istanbul ignore next */ streamApiClient = createStreamApiClient(),
   queryClient = createQueryClient(),
 }: Props): JSX.Element {
   screenReader.mute();
@@ -147,18 +152,20 @@ export function App({
             onClickCapture={onClick}
             onFocusCapture={onFocus}
           >
-            <ApiClientContext.Provider value={apiClient}>
-              <QueryClientProvider client={queryClient}>
-                <AppRoot
-                  hardware={hardware}
-                  storage={storage}
-                  screenReader={screenReader}
-                  reload={reload}
-                  logger={logger}
-                />
-                <SessionTimeLimitTracker />
-              </QueryClientProvider>
-            </ApiClientContext.Provider>
+            <RpcApiClientContext.Provider value={rpcApiClient}>
+              <StreamApiClientContext.Provider value={streamApiClient}>
+                <QueryClientProvider client={queryClient}>
+                  <AppRoot
+                    hardware={hardware}
+                    storage={storage}
+                    screenReader={screenReader}
+                    reload={reload}
+                    logger={logger}
+                  />
+                  <SessionTimeLimitTracker />
+                </QueryClientProvider>
+              </StreamApiClientContext.Provider>
+            </RpcApiClientContext.Provider>
           </FocusManager>
         </ErrorBoundary>
       </BrowserRouter>

@@ -50,7 +50,7 @@ it('Single Seat Contest', async () => {
 
   render(
     <App
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       hardware={hardware}
       storage={storage}
       reload={jest.fn()}

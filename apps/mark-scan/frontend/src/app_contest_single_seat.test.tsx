@@ -43,7 +43,7 @@ it('Single Seat Contest', async () => {
       hardware={hardware}
       storage={storage}
       reload={jest.fn()}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
     />
   );
   await advanceTimersAndPromises();

@@ -68,7 +68,7 @@ it('Single Seat Contest with Write In', async () => {
     <App
       hardware={hardware}
       storage={storage}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );

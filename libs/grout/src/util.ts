@@ -44,6 +44,20 @@ export function isAsyncGeneratorFunction(
   );
 }
 
+export function isIteratorResult(
+  value: unknown
+): value is IteratorResult<unknown> {
+  if (isObject(value)) {
+    const iteratorResult = value as { done: boolean; value?: unknown };
+
+    if (typeof iteratorResult.done === 'boolean') {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /**
  * Errors that are intended to catch misuse of Grout during development, rather
  * than runtime issues in production.

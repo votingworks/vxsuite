@@ -28,7 +28,7 @@ import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { fakeDevices } from '../../test/helpers/fake_devices';
 import { AriaScreenReader } from '../utils/ScreenReader';
 import { fakeTts } from '../../test/helpers/fake_tts';
-import { ApiClientContext, createQueryClient } from '../api';
+import { RpcApiClientContext, createQueryClient } from '../api';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 const electionSampleWithSeal = electionSampleDefinition.election;
@@ -62,7 +62,7 @@ function renderScreen(
   electionDefinition: ElectionDefinition = electionSampleDefinition
 ) {
   return render(
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+    <RpcApiClientContext.Provider value={apiMock.mockApiClient}>
       <QueryClientProvider client={createQueryClient()}>
         <PollWorkerScreen
           pollWorkerAuth={pollWorkerAuth}
@@ -85,7 +85,7 @@ function renderScreen(
           {...props}
         />
       </QueryClientProvider>
-    </ApiClientContext.Provider>
+    </RpcApiClientContext.Provider>
   );
 }
 

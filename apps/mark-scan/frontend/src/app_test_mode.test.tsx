@@ -42,7 +42,7 @@ it('Prompts to change from test mode to live mode on election day', async () => 
   });
   render(
     <App
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       hardware={hardware}
       storage={storage}
     />

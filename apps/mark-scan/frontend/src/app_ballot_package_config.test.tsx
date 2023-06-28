@@ -36,7 +36,7 @@ test('renders an error if ballot package config endpoint returns an error', asyn
       storage={new MemoryStorage()}
       reload={jest.fn()}
       logger={fakeLogger()}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
     />
   );
 

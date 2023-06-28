@@ -15,7 +15,7 @@ import {
 import { AriaScreenReader } from '../utils/ScreenReader';
 import { fakeTts } from '../../test/helpers/fake_tts';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { ApiClientContext, createQueryClient } from '../api';
+import { RpcApiClientContext, createQueryClient } from '../api';
 
 const machineElectionDefinition = electionSampleDefinition;
 const authElectionHash = primaryElectionSampleDefinition.electionHash.slice(
@@ -36,7 +36,7 @@ afterEach(() => {
 
 function renderScreen(props: Partial<ReplaceElectionScreenProps> = {}) {
   return render(
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+    <RpcApiClientContext.Provider value={apiMock.mockApiClient}>
       <QueryClientProvider client={createQueryClient()}>
         <ReplaceElectionScreen
           ballotsPrintedCount={0}
@@ -50,7 +50,7 @@ function renderScreen(props: Partial<ReplaceElectionScreenProps> = {}) {
           {...props}
         />
       </QueryClientProvider>
-    </ApiClientContext.Provider>
+    </RpcApiClientContext.Provider>
   );
 }
 

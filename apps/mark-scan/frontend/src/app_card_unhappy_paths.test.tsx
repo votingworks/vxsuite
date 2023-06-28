@@ -44,7 +44,7 @@ test('Poll worker card with invalid scanner report data is treated like card wit
     <App
       hardware={hardware}
       storage={storage}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );
@@ -78,7 +78,7 @@ test('Shows card backwards screen when card connection error occurs', async () =
     <App
       hardware={hardware}
       storage={storage}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );

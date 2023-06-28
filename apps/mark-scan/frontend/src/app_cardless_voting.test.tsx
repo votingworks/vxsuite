@@ -52,7 +52,7 @@ test('Cardless Voting Flow', async () => {
   render(
     <App
       hardware={hardware}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       storage={storage}
       reload={jest.fn()}
     />
@@ -273,7 +273,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
     <App
       hardware={hardware}
       storage={storage}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );
@@ -357,7 +357,7 @@ test('poll worker must select a precinct first', async () => {
   render(
     <App
       hardware={hardware}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       storage={storage}
       reload={jest.fn()}
     />

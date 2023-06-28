@@ -55,7 +55,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
     <App
       hardware={hardware}
       storage={storage}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );
@@ -82,7 +82,7 @@ test('Voter idle timeout', async () => {
   await setStateInStorage(storage);
   render(
     <App
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       hardware={hardware}
       storage={storage}
     />

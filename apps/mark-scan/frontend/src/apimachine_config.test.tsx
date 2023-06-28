@@ -39,7 +39,7 @@ test('machineConfig is fetched from api client by default', async () => {
     <App
       storage={storage}
       reload={jest.fn()}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
     />
   );
   await advanceTimersAndPromises();

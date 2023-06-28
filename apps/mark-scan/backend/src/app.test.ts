@@ -31,9 +31,9 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { configureApp, createApp } from '../test/app_helpers';
-import { Api } from './app';
+import { RpcApi } from './app';
 
-let apiClient: grout.Client<Api>;
+let apiClient: grout.Client<RpcApi>;
 let mockAuth: InsertedSmartCardAuthApi;
 let mockUsb: MockUsb;
 let server: Server;

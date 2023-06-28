@@ -70,7 +70,7 @@ test('MarkAndPrint end-to-end flow', async () => {
       storage={storage}
       reload={reload}
       logger={logger}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
     />
   );
   await advanceTimersAndPromises();

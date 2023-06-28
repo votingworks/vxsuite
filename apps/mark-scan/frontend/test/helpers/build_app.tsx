@@ -34,7 +34,7 @@ export function buildApp(apiMock: ReturnType<typeof createApiMock>): {
         storage={storage}
         reload={reload}
         logger={logger}
-        apiClient={apiMock.mockApiClient}
+        rpcApiClient={apiMock.mockApiClient}
         screenReader={screenReader}
       />
     );

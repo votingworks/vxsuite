@@ -38,7 +38,7 @@ export function deferred<T>(): Deferred<T> {
 /**
  * An asynchronous FIFO queue.
  */
-class DeferredQueue<T> {
+export class DeferredQueue<T> {
   private readonly deferredGets: Array<Deferred<T>> = [];
   private readonly settlements: Array<PromiseSettledResult<T>> = [];
   private settleAllWith?: PromiseSettledResult<T>;

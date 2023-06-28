@@ -58,7 +58,7 @@ it('Displays error boundary if the api returns an unexpected error', async () =>
       <App
         hardware={hardware}
         storage={storage}
-        apiClient={apiMock.mockApiClient}
+        rpcApiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );
@@ -71,7 +71,7 @@ it('prevents context menus from appearing', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App rpcApiClient={apiMock.mockApiClient} reload={jest.fn()} />);
 
   const { oncontextmenu } = window;
 
@@ -93,7 +93,7 @@ it('uses kiosk storage when in kiosk-browser', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   window.kiosk = kiosk;
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App rpcApiClient={apiMock.mockApiClient} reload={jest.fn()} />);
   await advanceTimersAndPromises();
   expect(kiosk.storage.get).toHaveBeenCalled();
   delete window.kiosk;
@@ -108,7 +108,9 @@ it('changes screen reader settings based on keyboard inputs', async () => {
   jest.spyOn(screenReader, 'toggle');
   jest.spyOn(screenReader, 'changeVolume');
 
-  render(<App screenReader={screenReader} apiClient={apiMock.mockApiClient} />);
+  render(
+    <App screenReader={screenReader} rpcApiClient={apiMock.mockApiClient} />
+  );
 
   await advanceTimersAndPromises();
 
@@ -155,7 +157,7 @@ it('uses window.location.reload by default', async () => {
   render(
     <App
       hardware={hardware}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       storage={storage}
     />
   );

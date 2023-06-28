@@ -1,5 +1,5 @@
-import type { Api } from '@votingworks/mark-scan-backend';
-import React from 'react';
+import type { RpcApi, StreamApi } from '@votingworks/mark-scan-backend';
+import React, { useEffect } from 'react';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -8,25 +8,40 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import {
-  AUTH_STATUS_POLLING_INTERVAL_MS,
-  QUERY_CLIENT_DEFAULT_OPTIONS,
-} from '@votingworks/ui';
+import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@votingworks/ui';
+import { InsertedSmartCardAuth } from '@votingworks/types';
 
-export type ApiClient = grout.Client<Api>;
+export type RpcApiClient = grout.RpcClient<RpcApi>;
+export type StreamApiClient = grout.StreamClient<StreamApi>;
 
-export function createApiClient(): ApiClient {
-  return grout.createClient<Api>({ baseUrl: '/api' });
+export function createRpcApiClient(): RpcApiClient {
+  return grout.createRpcClient<RpcApi>({ baseUrl: '/api' });
 }
 
-export const ApiClientContext = React.createContext<ApiClient | undefined>(
-  undefined
-);
+export function createStreamApiClient(): StreamApiClient {
+  return grout.createStreamClient<StreamApi>({ baseUrl: '/api' });
+}
 
-export function useApiClient(): ApiClient {
-  const apiClient = React.useContext(ApiClientContext);
+export const RpcApiClientContext = React.createContext<
+  RpcApiClient | undefined
+>(undefined);
+
+export const StreamApiClientContext = React.createContext<
+  StreamApiClient | undefined
+>(undefined);
+
+export function useRpcApiClient(): RpcApiClient {
+  const apiClient = React.useContext(RpcApiClientContext);
   if (!apiClient) {
-    throw new Error('ApiClientContext.Provider not found');
+    throw new Error('RpcApiClientContext.Provider not found');
+  }
+  return apiClient;
+}
+
+export function useStreamApiClient(): StreamApiClient {
+  const apiClient = React.useContext(StreamApiClientContext);
+  if (!apiClient) {
+    throw new Error('StreamApiClientContext.Provider not found');
   }
   return apiClient;
 }
@@ -40,7 +55,7 @@ export const getMachineConfig = {
     return ['getMachineConfig'];
   },
   useQuery() {
-    const apiClient = useApiClient();
+    const apiClient = useRpcApiClient();
     return useQuery(this.queryKey(), () => apiClient.getMachineConfig());
   },
 } as const;
@@ -50,7 +65,7 @@ export const getElectionDefinition = {
     return ['getElectionDefinition'];
   },
   useQuery() {
-    const apiClient = useApiClient();
+    const apiClient = useRpcApiClient();
     return useQuery(this.queryKey(), () => apiClient.getElectionDefinition());
   },
 } as const;
@@ -61,7 +76,7 @@ export const getSystemSettings = {
     return ['getSystemSettings'];
   },
   useQuery() {
-    const apiClient = useApiClient();
+    const apiClient = useRpcApiClient();
     return useQuery(this.queryKey(), () => apiClient.getSystemSettings());
   },
 } as const;
@@ -71,9 +86,32 @@ export const getAuthStatus = {
     return ['getAuthStatus'];
   },
   useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
-      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+    const rpcApiClient = useRpcApiClient();
+    const streamApiClient = useStreamApiClient();
+    const queryClient = useQueryClient();
+
+    useEffect(() => {
+      let authStatusSubscription:
+        | grout.Subscription<InsertedSmartCardAuth.AuthStatus>
+        | undefined;
+
+      async function poll() {
+        authStatusSubscription = streamApiClient.watchAuthStatus();
+        for await (const authStatus of authStatusSubscription) {
+          queryClient.setQueryData(getAuthStatus.queryKey(), authStatus);
+        }
+      }
+
+      void poll();
+
+      return () => {
+        authStatusSubscription?.unsubscribe();
+      };
+    }, [queryClient, streamApiClient]);
+
+    return useQuery(this.queryKey(), () => rpcApiClient.getAuthStatus(), {
+      // refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+      staleTime: Infinity,
     });
   },
 } as const;
@@ -83,7 +121,7 @@ export const getScannerReportDataFromCard = {
     return ['getScannerReportDataFromCard'];
   },
   useQuery() {
-    const apiClient = useApiClient();
+    const apiClient = useRpcApiClient();
     return useQuery(
       this.queryKey(),
       () => apiClient.readScannerReportDataFromCard(),
@@ -96,7 +134,7 @@ export const getScannerReportDataFromCard = {
 
 export const checkPin = {
   useMutation() {
-    const apiClient = useApiClient();
+    const apiClient = useRpcApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.checkPin, {
       async onSuccess() {
@@ -111,7 +149,7 @@ export const checkPin = {
 /* istanbul ignore next */
 export const logOut = {
   useMutation() {
-    const apiClient = useApiClient();
+    const apiClient = useRpcApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.logOut, {
       async onSuccess() {
@@ -126,7 +164,7 @@ export const logOut = {
 /* istanbul ignore next */
 export const updateSessionExpiry = {
   useMutation() {
-    const apiClient = useApiClient();
+    const apiClient = useRpcApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateSessionExpiry, {
       async onSuccess() {
@@ -140,7 +178,7 @@ export const updateSessionExpiry = {
 
 export const startCardlessVoterSession = {
   useMutation() {
-    const apiClient = useApiClient();
+    const apiClient = useRpcApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.startCardlessVoterSession, {
       async onSuccess() {
@@ -154,7 +192,7 @@ export const startCardlessVoterSession = {
 
 export const endCardlessVoterSession = {
   useMutation() {
-    const apiClient = useApiClient();
+    const apiClient = useRpcApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.endCardlessVoterSession, {
       async onSuccess() {
@@ -168,7 +206,7 @@ export const endCardlessVoterSession = {
 
 export const clearScannerReportDataFromCard = {
   useMutation() {
-    const apiClient = useApiClient();
+    const apiClient = useRpcApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.clearScannerReportDataFromCard, {
       async onSuccess() {
@@ -184,7 +222,7 @@ export const clearScannerReportDataFromCard = {
 
 export const configureBallotPackageFromUsb = {
   useMutation() {
-    const apiClient = useApiClient();
+    const apiClient = useRpcApiClient();
     const queryClient = useQueryClient();
     return useMutation(() => apiClient.configureBallotPackageFromUsb(), {
       async onSuccess() {
@@ -197,7 +235,7 @@ export const configureBallotPackageFromUsb = {
 
 export const unconfigureMachine = {
   useMutation() {
-    const apiClient = useApiClient();
+    const apiClient = useRpcApiClient();
     const queryClient = useQueryClient();
     return useMutation(() => apiClient.unconfigureMachine(), {
       async onSuccess() {

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
-import type { Api, MachineConfig } from '@votingworks/mark-scan-backend';
+import type { RpcApi, MachineConfig } from '@votingworks/mark-scan-backend';
 import { QueryClientProvider } from '@tanstack/react-query';
 import {
   BallotPackageConfigurationError,
@@ -21,7 +21,7 @@ import {
 } from '@votingworks/test-utils';
 import { err, ok, Optional, Result } from '@votingworks/basics';
 import { ScannerReportData } from '@votingworks/utils';
-import { ApiClientContext, createQueryClient } from '../../src/api';
+import { RpcApiClientContext, createQueryClient } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';
 
 interface CardlessVoterUserParams {
@@ -29,14 +29,14 @@ interface CardlessVoterUserParams {
   precinctId: PrecinctId;
 }
 
-type MockApiClient = Omit<MockClient<Api>, 'getAuthStatus'> & {
+type MockApiClient = Omit<MockClient<RpcApi>, 'getAuthStatus'> & {
   // Because this is polled so frequently, we opt for a standard jest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getAuthStatus: jest.Mock;
 };
 
 function createMockApiClient(): MockApiClient {
-  const mockApiClient = createMockClient<Api>();
+  const mockApiClient = createMockClient<RpcApi>();
   // For some reason, using an object spread to override the getAuthStatus method breaks the rest
   // of the mockApiClient, so we override like this instead
   (mockApiClient.getAuthStatus as unknown as jest.Mock) = jest.fn(() =>
@@ -198,10 +198,10 @@ export function provideApi(
   children: React.ReactNode
 ): JSX.Element {
   return (
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+    <RpcApiClientContext.Provider value={apiMock.mockApiClient}>
       <QueryClientProvider client={createQueryClient()}>
         {children}
       </QueryClientProvider>
-    </ApiClientContext.Provider>
+    </RpcApiClientContext.Provider>
   );
 }

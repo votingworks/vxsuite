@@ -39,6 +39,30 @@ export type AnyStreamApi = StreamApi<AnyStreamMethods>;
 export type inferStreamApiMethods<SomeApi extends AnyStreamApi> =
   SomeApi extends StreamApi<infer Methods> ? Methods : never;
 
+/**
+ * Creates a Grout stream API definition from a dictionary of methods.
+ *
+ * Example:
+ *
+ * ```ts
+ *  const api = createStreamApi({
+ *    async *watchStatus(): AsyncGenerator<string> {
+ *      while (true) {
+ *        yield 'OK';
+ *      }
+ *    },
+ *  });
+ * ```
+ */
+export function createStreamApi<Methods extends AnyStreamMethods>(
+  methods: Methods
+): StreamApi<Methods> {
+  // Currently, we don't to actually need to do anything with the methods. By
+  // calling createStreamApi, we're able to infer their type into TMethods, which
+  // the client can use.
+  return methods;
+}
+
 function createStreamHandler(
   path: string,
   methodName: string,

@@ -6,7 +6,7 @@ import * as server from './server';
 import { MARK_WORKSPACE, NODE_ENV, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 
-export type { Api } from './app';
+export type { RpcApi, StreamApi } from './app';
 export * from './types';
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use

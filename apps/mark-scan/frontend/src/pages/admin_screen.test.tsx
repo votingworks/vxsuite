@@ -31,7 +31,7 @@ import {
   AriaScreenReader,
   SpeechSynthesisTextToSpeech,
 } from '../utils/ScreenReader';
-import { ApiClientContext, createQueryClient } from '../api';
+import { RpcApiClientContext, createQueryClient } from '../api';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 MockDate.set('2020-10-31T00:00:00.000Z');
@@ -52,7 +52,7 @@ afterEach(() => {
 
 function renderScreen(props: Partial<AdminScreenProps> = {}) {
   return render(
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+    <RpcApiClientContext.Provider value={apiMock.mockApiClient}>
       <QueryClientProvider client={createQueryClient()}>
         <AdminScreen
           appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
@@ -72,7 +72,7 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
           {...props}
         />
       </QueryClientProvider>
-    </ApiClientContext.Provider>
+    </RpcApiClientContext.Provider>
   );
 }
 

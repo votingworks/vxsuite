@@ -1,7 +1,7 @@
-import { deferredQueue, typedAs } from '@votingworks/basics';
+import { DeferredQueue, deferredQueue, typedAs } from '@votingworks/basics';
 import { rootDebug } from '../debug';
 import { deserialize } from '../serialization';
-import { GroutError, ServerError, isObject } from '../util';
+import { GroutError, ServerError, isIteratorResult } from '../util';
 import { AnyStreamApi, AnyStreamMethod, inferStreamApiMethods } from './server';
 
 const debug = rootDebug.extend('stream:client');
@@ -35,13 +35,20 @@ export type StreamClient<Api extends AnyStreamApi> = {
 };
 
 /**
- * Options for creating a Grout RPC client.
- *  - baseUrl: The base URL for the API, e.g. "/api" or
- *  "http://localhost:1234/api". This must include any path prefix for the API
- *  (e.g. /api in this example).
+ * Options for creating a Grout stream client.
  */
 export interface StreamClientOptions {
+  /**
+   * The base URL for the API, e.g. "/api" or
+   * "http://localhost:1234/api". This must include any path prefix for the API
+   * (e.g. /api in this example).
+   */
   baseUrl: string;
+
+  /**
+   * A factory function for creating EventSource objects.
+   */
+  eventSourceFactory?: (url: string) => EventSource;
 }
 
 /**
@@ -52,16 +59,71 @@ export function streamMethodUrl(methodName: string, baseUrl: string): string {
   return `${base}${methodName}`;
 }
 
-function isIteratorResult(value: unknown): value is IteratorResult<unknown> {
-  if (isObject(value)) {
-    const iteratorResult = value as { done: boolean; value?: unknown };
+function defaultEventSourceFactory(url: string): EventSource {
+  return new EventSource(url);
+}
 
-    if (typeof iteratorResult.done === 'boolean') {
-      return true;
+function createSubscriptionForUrl(
+  url: string,
+  eventSourceFactory: (url: string) => EventSource
+): Subscription<unknown> {
+  // each subscriber gets its own queue
+  const queues: Array<DeferredQueue<IteratorResult<unknown>>> = [];
+
+  // create the event source and set up event handlers
+  const eventSource = eventSourceFactory(url);
+
+  eventSource.onmessage = (event) => {
+    if (!event.isTrusted) {
+      for (const queue of queues) {
+        queue.reject(
+          new ServerError(
+            `received untrusted event from ${url}; this is likely a bug in the server`
+          )
+        );
+      }
+      return;
     }
-  }
 
-  return false;
+    const data = deserialize(event.data);
+    debug(`Event: ${data}`);
+
+    if (!isIteratorResult(data)) {
+      for (const queue of queues) {
+        queue.reject(
+          new ServerError(`received invalid event from ${url}: ${data}`)
+        );
+      }
+      return;
+    }
+
+    // resolve all the queues with the event data
+    for (const queue of queues) {
+      queue.resolve(data);
+    }
+
+    // if the event is done, close the event source and clear the queues
+    if (data.done) {
+      queues.length = 0;
+      eventSource.close();
+    }
+  };
+
+  eventSource.onerror = (event) => {
+    for (const queue of queues) {
+      queue.reject(new ServerError(`${event}`));
+    }
+  };
+
+  return typedAs<Subscription<unknown>>({
+    [Symbol.asyncIterator]() {
+      // we got a new subscriber, so create a new queue for it
+      const queue = deferredQueue<IteratorResult<unknown>>();
+      queues.push(queue);
+      return { next: () => queue.get() };
+    },
+    unsubscribe: () => eventSource.close(),
+  });
 }
 
 /**
@@ -85,67 +147,43 @@ function isIteratorResult(value: unknown): value is IteratorResult<unknown> {
  * case of an unexpected server error.
  */
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
-export function createStreamClient<Api extends AnyStreamApi>(
-  options: StreamClientOptions
-): StreamClient<Api> {
+export function createStreamClient<Api extends AnyStreamApi>({
+  baseUrl,
+  eventSourceFactory = defaultEventSourceFactory,
+}: StreamClientOptions): StreamClient<Api> {
+  const subscriptionsByMethod = new Map<string, Subscription<unknown>>();
+
   // We use a Proxy to create a client object that fakes the type of the API but
   // dynamically converts method calls into HTTP requests. When accessing
   // client.doSomething(), the variable methodName will be "doSomething" -
   // that's the magic of the Proxy!
   return new Proxy({} as unknown as StreamClient<Api>, {
     get(_target, methodName: string) {
-      return () => {
-        if (arguments.length !== 0) {
-          throw new GroutError(
-            `Stream methods do not accept arguments. Received ${arguments.length} arguments.`
-          );
+      return (input?: unknown) => {
+        if (typeof input !== 'undefined') {
+          throw new GroutError('stream methods do not accept arguments');
         }
 
         debug(`Call: ${methodName}()`);
 
         try {
-          const url = streamMethodUrl(methodName, options.baseUrl);
-          const eventSource = new EventSource(url);
-          const queue = deferredQueue<IteratorResult<unknown>>();
+          const url = streamMethodUrl(methodName, baseUrl);
+          const existingSubscription = subscriptionsByMethod.get(url);
 
-          eventSource.onmessage = (event) => {
-            if (!event.isTrusted) {
-              queue.reject(
-                new ServerError(
-                  `Received untrusted event from ${url}. This is likely a bug in the server.`
-                )
-              );
-              return;
-            }
+          if (existingSubscription) {
+            return existingSubscription;
+          }
 
-            const data = deserialize(event.data);
-            debug(`Event: ${data}`);
+          const subscription = createSubscriptionForUrl(
+            url,
+            eventSourceFactory
+          );
 
-            if (!isIteratorResult(data)) {
-              queue.reject(
-                new ServerError(`Received invalid event from ${url}: ${data}`)
-              );
-              return;
-            }
-
-            if (data.done) {
-              eventSource.close();
-            }
-
-            queue.resolve(data);
-          };
-
-          eventSource.onerror = (event) => {
-            queue.reject(new ServerError(`${event}`));
-          };
-
-          return typedAs<Subscription<unknown>>({
-            [Symbol.asyncIterator]: () => ({ next: () => queue.get() }),
-            unsubscribe: () => eventSource.close(),
-          });
+          subscriptionsByMethod.set(url, subscription);
+          return subscription;
         } catch (error) {
           throw new ServerError(
-            `Failed to connect to ${methodName}() at ${options.baseUrl}: ${error}`
+            `failed to connect to ${methodName}() at ${baseUrl}: ${error}`
           );
         }
       };

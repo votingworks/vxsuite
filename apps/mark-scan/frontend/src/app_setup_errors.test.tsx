@@ -52,7 +52,7 @@ describe('Displays setup warning messages and errors screens', () => {
       <App
         hardware={hardware}
         storage={storage}
-        apiClient={apiMock.mockApiClient}
+        rpcApiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );
@@ -95,7 +95,7 @@ describe('Displays setup warning messages and errors screens', () => {
       <App
         hardware={hardware}
         storage={storage}
-        apiClient={apiMock.mockApiClient}
+        rpcApiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );
@@ -131,7 +131,7 @@ describe('Displays setup warning messages and errors screens', () => {
       <App
         hardware={hardware}
         storage={storage}
-        apiClient={apiMock.mockApiClient}
+        rpcApiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );
@@ -165,7 +165,7 @@ describe('Displays setup warning messages and errors screens', () => {
       <App
         hardware={hardware}
         storage={storage}
-        apiClient={apiMock.mockApiClient}
+        rpcApiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );
@@ -197,7 +197,7 @@ describe('Displays setup warning messages and errors screens', () => {
       <App
         hardware={hardware}
         storage={storage}
-        apiClient={apiMock.mockApiClient}
+        rpcApiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
     );

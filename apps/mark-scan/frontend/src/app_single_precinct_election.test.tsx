@@ -39,7 +39,7 @@ test('loading election with a single precinct automatically sets precinct', asyn
     <App
       hardware={hardware}
       storage={storage}
-      apiClient={apiMock.mockApiClient}
+      rpcApiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );

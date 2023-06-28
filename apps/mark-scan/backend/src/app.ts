@@ -5,7 +5,7 @@ import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { assert, err, ok, Optional, Result } from '@votingworks/basics';
+import { assert, err, ok, Optional, Result, sleep } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   BallotPackageConfigurationError,
@@ -15,6 +15,7 @@ import {
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
+  InsertedSmartCardAuth,
 } from '@votingworks/types';
 import {
   ScannerReportData,
@@ -26,6 +27,7 @@ import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
+import { isDeepStrictEqual } from 'util';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 
@@ -42,14 +44,14 @@ function constructAuthMachineState(
   };
 }
 
-function buildApi(
+function buildRpcApi(
   auth: InsertedSmartCardAuthApi,
   artifactAuthenticator: ArtifactAuthenticatorApi,
   usb: Usb,
   logger: Logger,
   workspace: Workspace
 ) {
-  return grout.createApi({
+  return grout.createRpcApi({
     getMachineConfig,
 
     getAuthStatus() {
@@ -179,7 +181,28 @@ function buildApi(
   });
 }
 
-export type Api = ReturnType<typeof buildApi>;
+export type RpcApi = ReturnType<typeof buildRpcApi>;
+
+function buildStreamApi(auth: InsertedSmartCardAuthApi, workspace: Workspace) {
+  return grout.createStreamApi({
+    async *watchAuthStatus() {
+      let lastAuthStatus: InsertedSmartCardAuth.AuthStatus | undefined;
+
+      while (true) {
+        const authStatus = await auth.getAuthStatus(
+          constructAuthMachineState(workspace)
+        );
+        if (!isDeepStrictEqual(authStatus, lastAuthStatus)) {
+          yield authStatus;
+          lastAuthStatus = authStatus;
+        }
+        await sleep(100);
+      }
+    },
+  });
+}
+
+export type StreamApi = ReturnType<typeof buildStreamApi>;
 
 export function buildApp(
   auth: InsertedSmartCardAuthApi,
@@ -189,8 +212,16 @@ export function buildApp(
   usb: Usb
 ): Application {
   const app: Application = express();
-  const api = buildApi(auth, artifactAuthenticator, usb, logger, workspace);
-  app.use('/api', grout.buildRouter(api, express));
+  const rpcApi = buildRpcApi(
+    auth,
+    artifactAuthenticator,
+    usb,
+    logger,
+    workspace
+  );
+  app.use('/api', grout.buildRpcRouter(rpcApi, express));
+  const streamApi = buildStreamApi(auth, workspace);
+  app.use('/api', grout.buildStreamRouter(streamApi, express));
   useDevDockRouter(app, express);
   return app;
 }
