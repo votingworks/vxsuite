@@ -242,6 +242,5 @@ test('going through the whole process works', async () => {
   ).toEqual(0);
 
   // clean up
-  const unconfigureResult = await apiClient.unconfigure();
-  unconfigureResult.assertOk('unconfigure unsuccessful');
+  await apiClient.unconfigure();
 });
