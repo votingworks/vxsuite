@@ -47,7 +47,7 @@ export function ToggleTestModeButton({
     <React.Fragment>
       <Button
         onPress={() => setFlowState('confirmation')}
-        disabled={!canUnconfigure && !isTestMode}
+        disabled={!canUnconfigure}
       >
         {isTestMode
           ? 'Toggle to Official Ballot Mode'

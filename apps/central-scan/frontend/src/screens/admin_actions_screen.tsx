@@ -158,7 +158,7 @@ export function AdminActionsScreen({
             <p>
               <Button
                 variant="danger"
-                disabled={!hasBatches || (!isTestMode && !canUnconfigure)}
+                disabled={!canUnconfigure}
                 onPress={() => setDeleteBallotDataFlowState('confirmation')}
               >
                 Delete Ballot Data
@@ -168,7 +168,7 @@ export function AdminActionsScreen({
             <p>
               <Button
                 variant="danger"
-                disabled={!canUnconfigure && !isTestMode}
+                disabled={!canUnconfigure}
                 onPress={() => setUnconfigureFlowState('initial-confirmation')}
               >
                 Delete Election Data from VxCentralScan
