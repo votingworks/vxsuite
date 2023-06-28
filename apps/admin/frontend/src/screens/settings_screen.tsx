@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 import {
   CurrentDateAndTime,
-  Prose,
+  H2,
+  P,
   RebootFromUsbButton,
   RebootToBiosButton,
   SetClockButton,
@@ -18,24 +19,19 @@ export function SettingsScreen(): JSX.Element {
 
   return (
     <NavigationScreen title="Settings">
-      <Prose maxWidth={false}>
-        <h2>Current Date and Time</h2>
-        <p>
-          <SetClockButton logOut={() => logOutMutation.mutate()}>
-            <CurrentDateAndTime />
-          </SetClockButton>
-        </p>
-        <h2>USB Formatting</h2>
-        <FormatUsbButton />
-        <h2>Software Update</h2>
-        <p>
-          <RebootFromUsbButton
-            logger={logger}
-            usbDriveStatus={usbDrive.status}
-          />{' '}
-          or <RebootToBiosButton logger={logger} />
-        </p>
-      </Prose>
+      <H2>Current Date and Time</H2>
+      <P>
+        <SetClockButton logOut={() => logOutMutation.mutate()}>
+          <CurrentDateAndTime />
+        </SetClockButton>
+      </P>
+      <H2>USB Formatting</H2>
+      <FormatUsbButton />
+      <H2>Software Update</H2>
+      <P>
+        <RebootFromUsbButton logger={logger} usbDriveStatus={usbDrive.status} />{' '}
+        or <RebootToBiosButton logger={logger} />
+      </P>
     </NavigationScreen>
   );
 }
