@@ -204,13 +204,13 @@ test('clearing scanning data', async () => {
     expect(store.getBallotsCounted()).toEqual(1);
 
     await suppressingConsoleOutput(async () => {
-      await expect(apiClient.zeroScanningData()).rejects.toThrow();
+      await expect(apiClient.clearBallotData()).rejects.toThrow();
     });
     expect(store.getBallotsCounted()).toEqual(1);
 
     // should succeed once we mock a backup
     store.setScannerBackedUp(true);
-    await apiClient.zeroScanningData();
+    await apiClient.clearBallotData();
     expect(store.getBallotsCounted()).toEqual(0);
     expect(logger.log).toHaveBeenNthCalledWith(
       5,

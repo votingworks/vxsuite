@@ -238,7 +238,7 @@ function buildApi({
       importer.setMarkThresholdOverrides(input.markThresholdOverrides);
     },
 
-    async zeroScanningData(): Promise<void> {
+    async clearBallotData(): Promise<void> {
       const userRole = await getUserRole();
       const currentNumberOfBallots = store.getBallotsCounted();
 

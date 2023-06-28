@@ -142,7 +142,7 @@ test('clicking "Delete Ballot Data" calls progress', async () => {
   userEvent.click(screen.getButton('Delete Ballot Data'));
 
   // confirmation
-  mockApiClient.zeroScanningData.expectCallWith().resolves();
+  mockApiClient.clearBallotData.expectCallWith().resolves();
   screen.getByText('Delete All Scanned Ballot Data?');
   userEvent.click(await screen.findButton('Yes, Delete Ballot Data'));
 

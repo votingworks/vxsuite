@@ -25,7 +25,7 @@ import {
   getMarkThresholdOverrides,
   logOut,
   unconfigure,
-  zeroScanningData,
+  clearBallotData,
 } from '../api';
 
 export interface AdminActionScreenProps {
@@ -50,7 +50,7 @@ export function AdminActionsScreen({
   const userRole = auth.user.role;
   const logOutMutation = logOut.useMutation();
   const unconfigureMutation = unconfigure.useMutation();
-  const zeroScanningDataMutation = zeroScanningData.useMutation();
+  const clearBallotDataMutation = clearBallotData.useMutation();
   const markThresholdOverridesQuery = getMarkThresholdOverrides.useQuery();
 
   function redirectToDashboard() {
@@ -82,7 +82,7 @@ export function AdminActionsScreen({
   }
   function deleteBallotData() {
     setDeleteBallotDataFlowState('deleting');
-    zeroScanningDataMutation.mutate(undefined, {
+    clearBallotDataMutation.mutate(undefined, {
       onSuccess: redirectToDashboard,
     });
   }

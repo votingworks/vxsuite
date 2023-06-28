@@ -174,10 +174,10 @@ export const unconfigure = {
   },
 } as const;
 
-export const zeroScanningData = {
+export const clearBallotData = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.zeroScanningData);
+    return useMutation(apiClient.clearBallotData);
   },
 } as const;
 
