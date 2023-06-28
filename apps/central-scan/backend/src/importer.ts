@@ -370,7 +370,7 @@ export class Importer {
    * Get the imported batches and current election info, if any.
    */
   getStatus(): Scan.ScanStatus {
-    const electionDefinition = this.getElectionDefinition();
+    const electionDefinition = this.workspace.store.getElectionDefinition();
     const canUnconfigure = this.workspace.store.getCanUnconfigure();
     const batches = this.workspace.store.batchStatus();
     const adjudication = this.workspace.store.adjudicationStatus();
