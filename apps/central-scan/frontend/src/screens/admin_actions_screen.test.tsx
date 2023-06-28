@@ -132,7 +132,7 @@ test('clicking "Delete Election Data from VxCentralScan" calls backend', async (
   expect(history.location.pathname).toEqual('/');
 });
 
-test('clicking "Delete Ballot Data" calls progress', async () => {
+test('clicking "Delete Ballot Data" calls backend', async () => {
   mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
 
   const history = createMemoryHistory({ initialEntries: ['/admin'] });
