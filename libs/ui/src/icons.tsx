@@ -27,6 +27,7 @@ import {
   faChevronCircleUp,
   faChevronCircleDown,
   faChevronRight,
+  faSquarePlus,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -58,6 +59,10 @@ function FaIcon(props: InnerProps): JSX.Element {
  * colors.
  */
 export const Icons = {
+  Add(): JSX.Element {
+    return <FaIcon type={faSquarePlus} />;
+  },
+
   Backspace(): JSX.Element {
     return <FaIcon type={faDeleteLeft} />;
   },

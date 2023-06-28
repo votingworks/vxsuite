@@ -1,3 +1,4 @@
+/* stylelint-disable order/properties-order */
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -13,13 +14,14 @@ import {
   Button,
   Main,
   Screen,
-  Text,
-  Prose,
-  HorizontalRule,
   Icons,
   Modal,
   P,
   Font,
+  Caption,
+  LabelledText,
+  H2,
+  H4,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -38,66 +40,82 @@ import {
 } from '../api';
 import { normalizeWriteInName } from '../utils/write_ins';
 
+const AdjudicationScreen = styled(Screen)`
+  /* Matches the focus style applied in libs/ui/global_styles.tsx, which are
+   * disabled by default in VxAdmin and enabled on the touch-only VxSuite
+   * machines.
+   * TODO: We should probably figure out a more consistent approach to
+   * enabling/disabling focus outlines across a single app, instead of
+   * conditionally enabling on certain pages.
+   */
+  & *:focus {
+    outline: ${(p) => p.theme.colors.accentPrimary} dashed
+      ${(p) => p.theme.sizes.bordersRem.medium}rem;
+  }
+`;
+
+const AdjudicationHeader = styled.div`
+  align-items: center;
+  border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.foreground};
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem;
+`;
+
+const ContestTitleContainer = styled.div`
+  display: flex;
+  flex-grow: 1;
+`;
+
+const ContestTitle = styled(H2)`
+  display: flex;
+  flex-direction: column;
+  font-size: 1.2rem;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
+
+  /*
+   * Override heading styling.
+   * TODO: Update shared heading components to omit margins when heading is the
+   * last/only child in its container.
+   */
+  margin: 0 !important; /* stylelint-disable-line declaration-no-important */
+`;
+
+const AdjudicationNav = styled.div`
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+`;
+
 const BallotViews = styled.div`
-  flex: 3;
-  background: #455a64;
+  background: ${(p) => p.theme.colors.foreground};
   padding: 0 0.5rem;
+  width: 75vw;
 `;
 
 const AdjudicationControls = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
-  border-left: 1px solid #cccccc;
-  button:focus {
-    outline: 1px dashed #000000;
-  }
-`;
-
-const AdjudicationPagination = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #cccccc;
-  background: #ffffff;
-  width: 100%;
-  padding: 0.5rem 1rem;
-  button {
-    flex: 1;
-  }
-  p {
-    flex: 2;
-    margin: 0;
-  }
-`;
-
-const AdjudicationHeader = styled.div`
-  border-bottom: 1px solid #cccccc;
-  background: #ffffff;
-  width: 100%;
-  padding: 0.5rem 1rem;
-  p + h2 {
-    margin-top: 0;
-  }
-`;
-
-const AdjudicationId = styled.p`
-  float: right;
-  text-align: right;
-  & > strong {
-    font-size: 1.5em;
-  }
 `;
 
 const AdjudicationForm = styled.div`
   overflow: scroll;
-  padding: 1rem;
+  padding: 0.5rem;
 `;
 
 const TranscribedButtons = styled.div`
-  margin-bottom: -0.5rem;
-  button {
-    margin: 0 0.5rem 0.5rem 0;
+  display: grid;
+  grid-gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
+  grid-template-columns: 1fr;
+
+  &:not(:last-child) {
+    margin-bottom: 0.5rem;
+  }
+
+  & button {
+    text-align: left;
   }
 `;
 
@@ -266,7 +284,7 @@ function DoubleVoteAlertModal({
             <br />
             If the ballot contest does indeed contain a double vote, you can
             invalidate this write-in by selecting{' '}
-            <Font italic>Mark Write-In Invalid</Font>.
+            <Font weight="bold">Mark Write-In Invalid</Font>.
           </P>
         );
       case 'adjudicated-official-candidate':
@@ -281,7 +299,7 @@ function DoubleVoteAlertModal({
             <br />
             If the ballot contest does indeed contain a double vote, you can
             invalidate this write-in by selecting{' '}
-            <Font italic>Mark Write-In Invalid</Font>.
+            <Font weight="bold">Mark Write-In Invalid</Font>.
           </P>
         );
       /* istanbul ignore next */
@@ -520,19 +538,19 @@ export function WriteInsAdjudicationScreen({
   }
 
   return (
-    <Screen>
+    <AdjudicationScreen>
       <ScreenHeader
         title="Write-In Adjudication"
         actions={
           <React.Fragment>
-            <Text as="span">
+            <span>
               {areAllWriteInsAdjudicated
                 ? 'No further write-ins to transcribe for this contest.'
                 : `${format.count(adjudicationsLeft)} ${pluralize(
                     'write-in',
                     adjudicationsLeft
                   )} to adjudicate.`}
-            </Text>
+            </span>
             <Button
               small
               variant={areAllWriteInsAdjudicated ? 'primary' : 'regular'}
@@ -543,6 +561,51 @@ export function WriteInsAdjudicationScreen({
           </React.Fragment>
         }
       />
+      <AdjudicationHeader>
+        <ContestTitleContainer>
+          <ContestTitle>
+            <Caption>{getContestDistrictName(election, contest)}</Caption>
+            <span>
+              {contest.title}
+              {contest.partyId &&
+                ` (${getPartyAbbreviationByPartyId({
+                  partyId: contest.partyId,
+                  election,
+                })})`}
+            </span>
+          </ContestTitle>
+        </ContestTitleContainer>
+        <LabelledText label="Ballot ID">
+          <Font weight="bold">
+            {currentWriteIn.castVoteRecordId.substring(0, 4)}
+          </Font>
+        </LabelledText>
+        <LabelledText label="Adjudication ID">
+          <Font weight="bold">{currentWriteIn.id.substring(0, 4)}</Font>
+        </LabelledText>
+        <AdjudicationNav>
+          <Button
+            disabled={offset === 0}
+            onPress={goPrevious}
+            variant="previous"
+          >
+            Previous
+          </Button>
+          <Caption weight="semiBold">
+            {format.count(offset + 1)} of {format.count(writeIns.length)}
+          </Caption>
+          <Button
+            ref={nextButton}
+            variant={
+              currentWriteIn.status === 'adjudicated' ? 'next' : 'nextSecondary'
+            }
+            disabled={isLastAdjudication}
+            onPress={goNext}
+          >
+            Next
+          </Button>
+        </AdjudicationNav>
+      </AdjudicationHeader>
       <Main flexRow data-testid={`transcribe:${currentWriteIn.id}`}>
         <BallotViews>
           {writeInDetailView && (
@@ -555,51 +618,9 @@ export function WriteInsAdjudicationScreen({
           )}
         </BallotViews>
         <AdjudicationControls>
-          <AdjudicationPagination>
-            <Button disabled={offset === 0} onPress={goPrevious}>
-              Previous
-            </Button>
-            <Text center>
-              {format.count(offset + 1)} of {format.count(writeIns.length)}
-            </Text>
-            <Button
-              ref={nextButton}
-              variant={
-                currentWriteIn.status === 'adjudicated' ? 'primary' : 'regular'
-              }
-              disabled={isLastAdjudication}
-              onPress={goNext}
-            >
-              Next
-            </Button>
-          </AdjudicationPagination>
-          <AdjudicationHeader>
-            <Prose compact>
-              <AdjudicationId>
-                Ballot ID
-                <br />
-                <strong>
-                  {currentWriteIn.castVoteRecordId.substring(0, 4)}
-                </strong>
-                <br />
-                Adjudication ID
-                <br />
-                <strong>{currentWriteIn.id.substring(0, 4)}</strong>
-              </AdjudicationId>
-              <Text>{getContestDistrictName(election, contest)}</Text>
-              <h2>
-                {contest.title}
-                {contest.partyId &&
-                  ` (${getPartyAbbreviationByPartyId({
-                    partyId: contest.partyId,
-                    election,
-                  })})`}
-              </h2>
-            </Prose>
-          </AdjudicationHeader>
           <AdjudicationForm>
-            <Prose>
-              <p>Official Candidates</p>
+            <div>
+              <H4 as="h3">Official Candidates</H4>
               <TranscribedButtons>
                 {officialCandidates.map((candidate, i) => {
                   const isCurrentAdjudication =
@@ -623,8 +644,7 @@ export function WriteInsAdjudicationScreen({
                   );
                 })}
               </TranscribedButtons>
-              <HorizontalRule color="#cccccc" />
-              <p>Write-In Candidates</p>
+              <H4 as="h3">Write-In Candidates</H4>
               <TranscribedButtons>
                 {writeInCandidates.map((candidate) => {
                   const isCurrentAdjudication =
@@ -647,7 +667,7 @@ export function WriteInsAdjudicationScreen({
                   );
                 })}
               </TranscribedButtons>
-              <p>
+              <P>
                 {showNewWriteInCandidateForm ? (
                   <InlineForm as="span">
                     <TextInput
@@ -678,11 +698,10 @@ export function WriteInsAdjudicationScreen({
                   </InlineForm>
                 ) : (
                   <Button onPress={() => setShowNewWriteInCandidateForm(true)}>
-                    Add New Write-In Candidate
+                    <Icons.Add /> Add new write-in candidate
                   </Button>
                 )}
-              </p>
-              <HorizontalRule color="#cccccc" />
+              </P>
               <Button
                 onPress={async () => {
                   if (!currentWriteInMarkedInvalid) {
@@ -692,9 +711,9 @@ export function WriteInsAdjudicationScreen({
                 variant={currentWriteInMarkedInvalid ? 'secondary' : 'regular'}
                 disabled={!isWriteInDetailViewFresh}
               >
-                Mark Write-In Invalid
+                <Icons.DangerX /> Mark write-in invalid
               </Button>
-            </Prose>
+            </div>
           </AdjudicationForm>
         </AdjudicationControls>
         {doubleVoteAlert && (
@@ -704,6 +723,6 @@ export function WriteInsAdjudicationScreen({
           />
         )}
       </Main>
-    </Screen>
+    </AdjudicationScreen>
   );
 }
