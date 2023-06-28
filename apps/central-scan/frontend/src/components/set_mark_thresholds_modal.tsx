@@ -80,13 +80,17 @@ export function SetMarkThresholdsModal({
           `Inputted marginal threshold invalid: ${marginal}. Please enter a number from 0 to 1.`
         );
       }
-      setMarkThresholdOverridesMutation.mutate({
-        markThresholdOverrides: {
-          definite: definiteFloat,
-          marginal: marginalFloat,
+      setMarkThresholdOverridesMutation.mutate(
+        {
+          markThresholdOverrides: {
+            definite: definiteFloat,
+            marginal: marginalFloat,
+          },
         },
-      });
-      onClose();
+        {
+          onSuccess: onClose,
+        }
+      );
     } catch (error) {
       assert(error instanceof Error);
       setCurrentState(ModalState.ERROR);
