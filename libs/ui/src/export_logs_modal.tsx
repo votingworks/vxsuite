@@ -20,11 +20,11 @@ import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { assert, sleep, throwIllegalValue } from '@votingworks/basics';
 import { Button } from './button';
 import { Modal } from './modal';
-import { Prose } from './prose';
 
 import { Loading } from './loading';
 import { UsbDriveStatus } from './hooks/use_usb_drive';
 import { UsbImage } from './graphics';
+import { Font, P } from './typography';
 
 export interface ExportLogsModalProps {
   usbDriveStatus: UsbDriveStatus;
@@ -167,12 +167,8 @@ export function ExportLogsModal({
   if (currentState === ModalState.Error) {
     return (
       <Modal
-        content={
-          <Prose>
-            <h1>Failed to Save Logs</h1>
-            <p>Failed to save log file. {errorMessage}</p>
-          </Prose>
-        }
+        title="Failed to Save Logs"
+        content={<P>Failed to save log file. {errorMessage}</P>}
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
       />
@@ -182,19 +178,17 @@ export function ExportLogsModal({
   if (currentState === ModalState.Done) {
     return (
       <Modal
+        title="Logs Saved"
         content={
-          <Prose>
-            <h1>Logs Saved</h1>
-            <p>
-              Log file successfully saved{' '}
-              {savedFilename !== '' && (
-                <span>
-                  as <strong>{savedFilename}</strong>
-                </span>
-              )}{' '}
-              on the inserted USB drive.
-            </p>
-          </Prose>
+          <P>
+            Log file successfully saved{' '}
+            {savedFilename !== '' && (
+              <span>
+                as <Font weight="bold">{savedFilename}</Font>
+              </span>
+            )}{' '}
+            on the inserted USB drive.
+          </P>
         }
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
@@ -224,12 +218,8 @@ export function ExportLogsModal({
   if (!window.kiosk || !foundLogFile) {
     return (
       <Modal
-        content={
-          <Prose>
-            <h1>No Log File Present</h1>
-            <p>No log file detected on device.</p>
-          </Prose>
-        }
+        title="No Log File Present"
+        content={<P>No log file detected on device.</P>}
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
       />
@@ -244,15 +234,13 @@ export function ExportLogsModal({
       // on the machine for internal debugging use
       return (
         <Modal
+          title="No USB Drive Detected"
           content={
-            <Prose>
-              <h1>No USB Drive Detected</h1>
-              <p>
-                <UsbImage />
-                Please insert a USB drive where you would like the save the log
-                file.
-              </p>
-            </Prose>
+            <P>
+              <UsbImage />
+              Please insert a USB drive where you would like the save the log
+              file.
+            </P>
           }
           onOverlayClick={onClose}
           actions={
@@ -280,14 +268,12 @@ export function ExportLogsModal({
     case 'mounted': {
       return (
         <Modal
+          title="Save Logs"
           content={
-            <Prose>
-              <h1>Save Logs</h1>
-              <p>
-                Save the log file as <strong>{defaultFilename}</strong> directly
-                on the inserted USB drive?
-              </p>
-            </Prose>
+            <P>
+              Save the log file as <Font weight="bold">{defaultFilename}</Font>{' '}
+              directly on the inserted USB drive?
+            </P>
           }
           onOverlayClick={onClose}
           actions={
@@ -346,9 +332,9 @@ export function ExportLogsButtonRow(
   sharedProps: ExportLogsButtonRowProps
 ): JSX.Element {
   return (
-    <p>
+    <P>
       <ExportLogsButton logFileType={LogFileType.Raw} {...sharedProps} />{' '}
       <ExportLogsButton logFileType={LogFileType.Cdf} {...sharedProps} />
-    </p>
+    </P>
   );
 }
