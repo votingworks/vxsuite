@@ -107,7 +107,7 @@ export interface PixelPoint {
   y: number;
 }
 
-function gridPosition({ row, column }: GridPoint): PixelPoint {
+export function gridPosition({ row, column }: GridPoint): PixelPoint {
   return {
     x: column * COLUMN_GAP,
     y: row * ROW_GAP,
