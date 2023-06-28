@@ -129,9 +129,9 @@ export async function withApp(
     });
     mockUsbDrive.assertComplete();
   } finally {
-    const { promise, resolve, reject } = deferred<void>();
-    server.close((error) => (error ? reject(error) : resolve()));
-    await promise;
+    await new Promise<void>((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()));
+    });
     workspace.reset();
   }
 }

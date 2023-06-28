@@ -9,7 +9,6 @@ import {
 } from '@votingworks/auth';
 import { dirSync } from 'tmp';
 import getPort from 'get-port';
-import { deferred } from '@votingworks/basics';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
 import { MockScanner, makeMockScanner } from '../util/mocks';
 import { Importer } from '../../src/importer';
@@ -76,9 +75,9 @@ export async function withApp(
       server,
     });
   } finally {
-    const { promise, resolve, reject } = deferred<void>();
-    server.close((error) => (error ? reject(error) : resolve()));
-    await promise;
+    await new Promise<void>((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()));
+    });
     workspace.reset();
   }
 }
