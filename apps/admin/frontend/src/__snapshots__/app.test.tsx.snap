@@ -30,7 +30,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 
 .c6 th {
   border-top: 1px solid rgb(194,200,203);
-  font-size: 0.75rem;
 }
 
 .c7 {
@@ -189,6 +188,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 @media print {
   .c6 {
     border-top: 1px solid rgb(194,200,203);
+    font-size: 0.75rem;
   }
 }
 
@@ -3149,7 +3149,6 @@ exports[`tabulating CVRs 1`] = `
 
 .c6 th {
   border-top: 1px solid rgb(194,200,203);
-  font-size: 0.75rem;
 }
 
 .c7 {
@@ -3284,6 +3283,7 @@ exports[`tabulating CVRs 1`] = `
 @media print {
   .c6 {
     border-top: 1px solid rgb(194,200,203);
+    font-size: 0.75rem;
   }
 }
 

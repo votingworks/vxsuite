@@ -1,7 +1,7 @@
 import React, { useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { Button, Modal, Prose, Table, TD, Text, TH } from '@votingworks/ui';
+import { Button, Font, Icons, P, Table, TD, TH } from '@votingworks/ui';
 import {
   CandidateContest,
   getContestDistrictName,
@@ -21,10 +21,6 @@ const ContentWrapper = styled.div`
   button {
     min-width: 9rem;
   }
-`;
-
-const ResultsFinalizedNotice = styled.p`
-  color: rgb(71, 167, 75);
 `;
 
 export function WriteInsScreen(): JSX.Element {
@@ -63,10 +59,19 @@ export function WriteInsScreen(): JSX.Element {
   if (!election) {
     return (
       <NavigationScreen title="Write-In Adjudication">
-        <Prose>
-          <p>Election must be defined.</p>
-        </Prose>
+        <P>Election must be defined.</P>
       </NavigationScreen>
+    );
+  }
+
+  if (contestBeingAdjudicated) {
+    return (
+      <WriteInsAdjudicationScreen
+        key={contestBeingAdjudicated?.id}
+        election={election}
+        contest={contestBeingAdjudicated}
+        onClose={() => setContestBeingAdjudicated(undefined)}
+      />
     );
   }
 
@@ -79,9 +84,10 @@ export function WriteInsScreen(): JSX.Element {
   function renderHeaderText() {
     if (isOfficialResults) {
       return (
-        <ResultsFinalizedNotice>
-          Tally results have been finalized. No further changes may be made.
-        </ResultsFinalizedNotice>
+        <P>
+          <Icons.Info /> Tally results have been finalized. No further changes
+          may be made.
+        </P>
       );
     }
 
@@ -90,9 +96,9 @@ export function WriteInsScreen(): JSX.Element {
       castVoteRecordFilesQuery.data.length === 0
     ) {
       return (
-        <p>
-          <em>Load CVRs to begin adjudicating write-in votes.</em>
-        </p>
+        <P>
+          <Icons.Info /> Load CVRs to begin adjudicating write-in votes.
+        </P>
       );
     }
 
@@ -102,7 +108,7 @@ export function WriteInsScreen(): JSX.Element {
   return (
     <NavigationScreen title="Write-In Adjudication">
       <ContentWrapper>
-        <Prose maxWidth={false}>
+        <div>
           {renderHeaderText()}
           <Table>
             <thead>
@@ -126,27 +132,25 @@ export function WriteInsScreen(): JSX.Element {
                 return (
                   <tr key={contest.id}>
                     <TD nowrap>
-                      <Text as="span" muted={!hasWriteIns}>
+                      <Font weight={hasWriteIns ? 'semiBold' : 'light'}>
                         {getContestDistrictName(election, contest)},{' '}
-                        <strong>{contest.title}</strong>
-                      </Text>
+                        {contest.title}
+                      </Font>
                     </TD>
                     {isPrimaryElection && (
                       <TD nowrap>
-                        <Text as="span" muted={!hasWriteIns}>
+                        <Font weight={hasWriteIns ? 'semiBold' : 'light'}>
                           {contest.partyId &&
                             `(${getPartyAbbreviationByPartyId({
                               partyId: contest.partyId,
                               election,
                             })})`}
-                        </Text>
+                        </Font>
                       </TD>
                     )}
                     <TD nowrap textAlign="center">
                       {!hasWriteIns ? (
-                        <Text as="span" muted>
-                          –
-                        </Text>
+                        <Font weight="light">–</Font>
                       ) : (
                         <Button
                           disabled={isOfficialResults}
@@ -161,9 +165,7 @@ export function WriteInsScreen(): JSX.Element {
                     </TD>
                     <TD nowrap textAlign="center">
                       {!hasWriteIns ? (
-                        <Text as="span" muted>
-                          –
-                        </Text>
+                        <Font weight="light">–</Font>
                       ) : (
                         format.count(completedCount)
                       )}
@@ -173,21 +175,8 @@ export function WriteInsScreen(): JSX.Element {
               })}
             </tbody>
           </Table>
-        </Prose>
+        </div>
       </ContentWrapper>
-      {contestBeingAdjudicated && (
-        <Modal
-          content={
-            <WriteInsAdjudicationScreen
-              key={contestBeingAdjudicated?.id}
-              election={election}
-              contest={contestBeingAdjudicated}
-              onClose={() => setContestBeingAdjudicated(undefined)}
-            />
-          }
-          fullscreen
-        />
-      )}
     </NavigationScreen>
   );
 }
