@@ -1,4 +1,3 @@
-import { AppBase } from '@votingworks/ui';
 import {
   getHardware,
   getPrinter,
@@ -11,9 +10,6 @@ import { LogSource, Logger } from '@votingworks/logging';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 
-/* Copied from old App.css */
-const PRINT_FONT_SIZE_PX = 14;
-
 export type Props = Partial<AppRootProps>;
 
 export function App({
@@ -25,21 +21,14 @@ export function App({
 }: Props): JSX.Element {
   return (
     <BrowserRouter>
-      <AppBase
-        defaultColorMode="contrastMedium"
-        defaultSizeMode="s"
-        screenType="lenovoThinkpad15"
-        legacyPrintFontSizePx={PRINT_FONT_SIZE_PX}
-      >
-        <AppRoot
-          printer={printer}
-          hardware={hardware}
-          converter={converter}
-          generateBallotId={generateBallotId}
-          logger={logger}
-        />
-        <SessionTimeLimitTracker />
-      </AppBase>
+      <AppRoot
+        printer={printer}
+        hardware={hardware}
+        converter={converter}
+        generateBallotId={generateBallotId}
+        logger={logger}
+      />
+      <SessionTimeLimitTracker />
     </BrowserRouter>
   );
 }

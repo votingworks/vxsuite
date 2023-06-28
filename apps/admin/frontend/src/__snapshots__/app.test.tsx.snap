@@ -215,18 +215,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 
 }
 
-@media print {
-
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
 <div>
   <div
     class="c0"
@@ -1667,18 +1655,6 @@ exports[`L&A (logic and accuracy) flow 2`] = `
 
 }
 
-@media print {
-
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
 <div>
   <div
     aria-hidden="true"
@@ -2941,18 +2917,6 @@ exports[`L&A (logic and accuracy) flow 3`] = `
 
 }
 
-@media print {
-
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
 <div>
   <div>
     <h1>
@@ -3309,18 +3273,6 @@ exports[`tabulating CVRs 1`] = `
   .c0 {
     font-size: 12px;
   }
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
-@media print {
-
 }
 
 @media print {
