@@ -307,7 +307,7 @@ test('configuring election from usb ballot package works end to end', async () =
 
   mockApiClient.unconfigure
     .expectCallWith({ ignoreBackupRequirement: false })
-    .resolves(ok());
+    .resolves();
   mockApiClient.getElectionDefinition.expectCallWith().resolves(null);
   mockApiClient.getSystemSettings
     .expectCallWith()
@@ -441,7 +441,7 @@ test('system administrator can log in and unconfigure machine', async () => {
 
   mockApiClient.unconfigure
     .expectCallWith({ ignoreBackupRequirement: true })
-    .resolves(ok());
+    .resolves();
   mockApiClient.getElectionDefinition.expectCallWith().resolves(null);
   mockApiClient.getSystemSettings
     .expectCallWith()

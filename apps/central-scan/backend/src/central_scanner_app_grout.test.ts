@@ -11,8 +11,8 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
-import { assert } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { withApp } from '../test/helpers/setup_app';
 import { DefaultMarkThresholds } from './store';
 
@@ -151,27 +151,14 @@ test('unconfigure', async () => {
     store.finishBatch({ batchId });
     expect(store.getBallotsCounted()).toEqual(1);
 
-    const expectedErrorMessage =
-      'Unable to unconfigure the machine while it has data that has not been backed up.';
-    const errorUnconfigureResult = await apiClient.unconfigure();
-    const error = errorUnconfigureResult.err();
-    assert(error);
-    expect(error.message).toEqual(expectedErrorMessage);
-    expect(logger.log).toHaveBeenLastCalledWith(
-      LogEventId.ElectionUnconfigured,
-      'unknown',
-      {
-        disposition: 'failure',
-        message: expectedErrorMessage,
-        result: 'Machine remains configured and data unchanged.',
-      }
-    );
+    await suppressingConsoleOutput(async () => {
+      await expect(apiClient.unconfigure()).rejects.toThrow();
+    });
     expect(store.getBallotsCounted()).toEqual(1);
 
-    // should succeed since there has been a backup
+    // should succeed once we mock a backup
     store.setScannerBackedUp(true);
-    const unconfigureResult = await apiClient.unconfigure();
-    expect(unconfigureResult.isOk()).toEqual(true);
+    await apiClient.unconfigure();
     expect(store.getBallotsCounted()).toEqual(0);
     expect(logger.log).toHaveBeenLastCalledWith(
       LogEventId.ElectionUnconfigured,
@@ -197,10 +184,9 @@ test('unconfigure w/ ignoreBackupRequirement', async () => {
     store.finishBatch({ batchId });
     expect(store.getBallotsCounted()).toEqual(1);
 
-    const unconfigureResult = await apiClient.unconfigure({
+    await apiClient.unconfigure({
       ignoreBackupRequirement: true,
     });
-    expect(unconfigureResult.isOk()).toEqual(true);
     expect(store.getBallotsCounted()).toEqual(0);
   });
 });
@@ -217,30 +203,17 @@ test('clearing scanning data', async () => {
     store.finishBatch({ batchId });
     expect(store.getBallotsCounted()).toEqual(1);
 
-    const expectedErrorMessage =
-      'Unable to clear scanning data while it has not been backed up.';
-    const errorZeroResult = await apiClient.zeroScanningData();
-    const error = errorZeroResult.err();
-    assert(error);
-    expect(error.message).toEqual(expectedErrorMessage);
-    expect(logger.log).toHaveBeenLastCalledWith(
-      LogEventId.ClearedBallotData,
-      'unknown',
-      {
-        disposition: 'failure',
-        message: expectedErrorMessage,
-        result: 'Ballot data not cleared.',
-      }
-    );
+    await suppressingConsoleOutput(async () => {
+      await expect(apiClient.zeroScanningData()).rejects.toThrow();
+    });
     expect(store.getBallotsCounted()).toEqual(1);
 
-    // should succeed since there has been a backup
+    // should succeed once we mock a backup
     store.setScannerBackedUp(true);
-    const zeroResult = await apiClient.zeroScanningData();
-    expect(zeroResult.isOk()).toEqual(true);
+    await apiClient.zeroScanningData();
     expect(store.getBallotsCounted()).toEqual(0);
     expect(logger.log).toHaveBeenNthCalledWith(
-      6,
+      5,
       LogEventId.ClearingBallotData,
       'unknown',
       {
@@ -249,7 +222,7 @@ test('clearing scanning data', async () => {
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
-      7,
+      6,
       LogEventId.ClearedBallotData,
       'unknown',
       {

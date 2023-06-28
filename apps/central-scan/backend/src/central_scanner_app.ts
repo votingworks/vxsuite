@@ -4,7 +4,7 @@ import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { Result, assert, err, ok } from '@votingworks/basics';
+import { Result, assert, ok } from '@votingworks/basics';
 import {
   exportCastVoteRecordReportToUsbDrive,
   Exporter,
@@ -216,32 +216,18 @@ function buildApi({
       input: {
         ignoreBackupRequirement?: boolean;
       } = {}
-    ): Promise<Result<void, Error>> {
+    ): Promise<void> {
       const userRole = await getUserRole();
 
-      if (
-        !store.getCanUnconfigure() &&
-        !input.ignoreBackupRequirement // a backup is required by default
-      ) {
-        const message =
-          'Unable to unconfigure the machine while it has data that has not been backed up.';
-        await logger.log(LogEventId.ElectionUnconfigured, userRole, {
-          disposition: 'failure',
-          message,
-          result: 'Machine remains configured and data unchanged.',
-        });
-        return err(new Error(message));
-      }
+      // frontend should only allow this call if the machine can be unconfigured
+      assert(store.getCanUnconfigure() || input.ignoreBackupRequirement);
 
       importer.unconfigure();
-
       await logger.log(LogEventId.ElectionUnconfigured, userRole, {
         disposition: 'success',
         message:
           'User successfully unconfigured the machine to remove the current election and all current ballot data.',
       });
-
-      return ok();
     },
 
     getMarkThresholdOverrides(): MarkThresholds | null {
@@ -254,20 +240,12 @@ function buildApi({
       importer.setMarkThresholdOverrides(input.markThresholdOverrides);
     },
 
-    async zeroScanningData(): Promise<Result<void, Error>> {
+    async zeroScanningData(): Promise<void> {
       const userRole = await getUserRole();
       const currentNumberOfBallots = store.getBallotsCounted();
 
-      if (!store.getCanUnconfigure()) {
-        const message =
-          'Unable to clear scanning data while it has not been backed up.';
-        await logger.log(LogEventId.ClearedBallotData, userRole, {
-          disposition: 'failure',
-          message,
-          result: 'Ballot data not cleared.',
-        });
-        return err(new Error(message));
-      }
+      // frontend should only allow this call if the machine can be unconfigured
+      assert(store.getCanUnconfigure());
 
       await logger.log(LogEventId.ClearingBallotData, userRole, {
         message: `Removing all ballot data, clearing ${currentNumberOfBallots} ballots...`,
@@ -278,7 +256,6 @@ function buildApi({
         disposition: 'success',
         message: 'Successfully cleared all ballot data.',
       });
-      return ok();
     },
   });
 }

@@ -119,7 +119,7 @@ test('clicking "Delete Election Data from VxCentralScan" calls backend', async (
   // second confirmation
   mockApiClient.unconfigure
     .expectCallWith({ ignoreBackupRequirement: false })
-    .resolves(ok());
+    .resolves();
   screen.getByText('Are you sure?');
   userEvent.click(
     await screen.findButton('I am sure. Delete all election data.')
@@ -142,7 +142,7 @@ test('clicking "Delete Ballot Data" calls progress', async () => {
   userEvent.click(screen.getButton('Delete Ballot Data'));
 
   // confirmation
-  mockApiClient.zeroScanningData.expectCallWith().resolves(ok());
+  mockApiClient.zeroScanningData.expectCallWith().resolves();
   screen.getByText('Delete All Scanned Ballot Data?');
   userEvent.click(await screen.findButton('Yes, Delete Ballot Data'));
 
