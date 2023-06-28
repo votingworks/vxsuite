@@ -27,7 +27,10 @@ export const Table = styled.table<TableProps>`
   }
   & th {
     border-top: 1px solid ${tableBorderColor};
-    font-size: 0.75rem;
+
+    @media print {
+      font-size: 0.75rem;
+    }
   }
   @media print {
     border-top: 1px solid ${tableBorderColor};
