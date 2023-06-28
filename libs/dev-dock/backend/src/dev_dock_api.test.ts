@@ -42,7 +42,7 @@ function setup() {
   server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/dock`;
-  const apiClient = grout.createClient<Api>({ baseUrl });
+  const apiClient = grout.createRpcClient<Api>({ baseUrl });
   return { apiClient };
 }
 

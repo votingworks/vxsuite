@@ -26,7 +26,7 @@ import { Api, buildApp } from '../src/app';
 import { createWorkspace } from '../src/util/workspace';
 
 interface MockAppContents {
-  apiClient: grout.Client<Api>;
+  apiClient: grout.RpcClient<Api>;
   app: Application;
   mockAuth: InsertedSmartCardAuthApi;
   mockArtifactAuthenticator: ArtifactAuthenticatorApi;
@@ -53,7 +53,7 @@ export function createApp(): MockAppContents {
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
 
-  const apiClient = grout.createClient<Api>({ baseUrl });
+  const apiClient = grout.createRpcClient<Api>({ baseUrl });
 
   return {
     apiClient,
@@ -66,7 +66,7 @@ export function createApp(): MockAppContents {
 }
 
 export async function configureApp(
-  apiClient: grout.Client<Api>,
+  apiClient: grout.RpcClient<Api>,
   mockAuth: InsertedSmartCardAuthApi,
   mockUsb: MockUsb
 ): Promise<void> {

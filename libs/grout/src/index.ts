@@ -1,4 +1,4 @@
 /* istanbul ignore file */
-export * from './client';
-export * from './server';
+export * from './rpc';
+export * from './stream';
 export * from './serialization';

@@ -25,7 +25,7 @@ import {
 import { UsbDriveIcon } from './usb_drive_icon';
 import { Colors } from './colors';
 
-export type ApiClient = grout.Client<Api>;
+export type ApiClient = grout.RpcClient<Api>;
 
 export const ApiClientContext = React.createContext<ApiClient | undefined>(
   undefined
@@ -546,7 +546,7 @@ function DevDock() {
  * on.
  */
 function DevDockWrapper({
-  apiClient = grout.createClient<Api>({ baseUrl: '/dock' }),
+  apiClient = grout.createRpcClient<Api>({ baseUrl: '/dock' }),
 }: {
   apiClient?: ApiClient;
 }): JSX.Element | null {

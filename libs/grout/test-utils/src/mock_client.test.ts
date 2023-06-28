@@ -1,9 +1,9 @@
 import { MockFunction } from '@votingworks/test-utils';
 import { expectTypeOf } from 'expect-type';
-import { createApi, createClient } from '@votingworks/grout';
+import { createRpcApi, createRpcClient } from '@votingworks/grout';
 import { createMockClient } from './mock_client';
 
-const api = createApi({
+const api = createRpcApi({
   add(input: { num1: number; num2: number }): number {
     return input.num1 + input.num2;
   },
@@ -24,7 +24,7 @@ test('creates a mock client', () => {
   >();
   // A mock client can pass as a real client
   expectTypeOf(mockClient).toMatchTypeOf(
-    createClient<typeof api>({ baseUrl: '' })
+    createRpcClient<typeof api>({ baseUrl: '' })
   );
 });
 

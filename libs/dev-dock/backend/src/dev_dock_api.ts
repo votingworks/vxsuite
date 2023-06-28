@@ -72,7 +72,7 @@ function readDevDockFileContents(devDockFilePath: string): DevDockFileContents {
 }
 
 function buildApi(devDockFilePath: string) {
-  return grout.createApi({
+  return grout.createRpcApi({
     setElection(input: { path: string }): void {
       const electionData = fs.readFileSync(
         electionPathToAbsolute(input.path),
@@ -174,6 +174,6 @@ export function useDevDockRouter(
     });
   }
 
-  const dockRouter = grout.buildRouter(api, express);
+  const dockRouter = grout.buildRpcRouter(api, express);
   app.use('/dock', dockRouter);
 }

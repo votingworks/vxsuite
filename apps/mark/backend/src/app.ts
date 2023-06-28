@@ -5,7 +5,7 @@ import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { assert, err, ok, Optional, Result } from '@votingworks/basics';
+import { assert, err, ok, Optional, Result, sleep } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   BallotPackageConfigurationError,
@@ -15,6 +15,7 @@ import {
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
+  InsertedSmartCardAuth,
 } from '@votingworks/types';
 import {
   ScannerReportData,
@@ -26,6 +27,7 @@ import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
+import { isDeepStrictEqual } from 'util';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 
@@ -49,11 +51,26 @@ function buildApi(
   logger: Logger,
   workspace: Workspace
 ) {
-  return grout.createApi({
+  return grout.createRpcApi({
     getMachineConfig,
 
     getAuthStatus() {
       return auth.getAuthStatus(constructAuthMachineState(workspace));
+    },
+
+    async *watchAuthStatus() {
+      let lastAuthStatus: InsertedSmartCardAuth.AuthStatus | undefined;
+
+      for (;;) {
+        const authStatus = await auth.getAuthStatus(
+          constructAuthMachineState(workspace)
+        );
+        if (!isDeepStrictEqual(authStatus, lastAuthStatus)) {
+          yield authStatus;
+          lastAuthStatus = authStatus;
+        }
+        await sleep(100 /* AUTH_STATUS_POLLING_INTERVAL_MS */);
+      }
     },
 
     checkPin(input: { pin: string }) {
@@ -190,7 +207,7 @@ export function buildApp(
 ): Application {
   const app: Application = express();
   const api = buildApi(auth, artifactAuthenticator, usb, logger, workspace);
-  app.use('/api', grout.buildRouter(api, express));
+  app.use('/api', grout.buildRpcRouter(api, express));
   useDevDockRouter(app, express);
   return app;
 }

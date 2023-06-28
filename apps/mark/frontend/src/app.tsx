@@ -23,7 +23,7 @@ import { getUsEnglishVoice } from './utils/voices';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { FocusManager } from './components/focus_manager';
 import {
-  ApiClient,
+  RpcClient,
   ApiClientContext,
   createApiClient,
   createQueryClient,
@@ -44,7 +44,7 @@ export interface Props {
   screenReader?: ScreenReader;
   reload?: VoidFunction;
   logger?: AppRootProps['logger'];
-  apiClient?: ApiClient;
+  apiClient?: RpcClient;
   queryClient?: QueryClient;
 }
 

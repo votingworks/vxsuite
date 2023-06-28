@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 /* eslint-disable vx/gts-jsdoc */
 
 export function isBoolean(value: unknown): value is boolean {
@@ -34,3 +35,22 @@ export function isFunction(
 ): value is (...args: unknown[]) => unknown {
   return typeof value === 'function';
 }
+
+export function isAsyncGeneratorFunction(
+  fn: unknown
+): fn is () => AsyncGenerator<unknown> {
+  return (
+    typeof fn === 'function' && fn.constructor.name === 'AsyncGeneratorFunction'
+  );
+}
+
+/**
+ * Errors that are intended to catch misuse of Grout during development, rather
+ * than runtime issues in production.
+ */
+export class GroutError extends Error {}
+
+/**
+ * An unexpected error from the server (e.g. a crash or runtime exception).
+ */
+export class ServerError extends Error {}

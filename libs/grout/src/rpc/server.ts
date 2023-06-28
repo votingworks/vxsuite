@@ -1,9 +1,14 @@
 import type Express from 'express';
-import { rootDebug } from './debug';
-import { serialize, deserialize } from './serialization';
-import { isObject, isString } from './util';
+import { rootDebug } from '../debug';
+import { serialize, deserialize } from '../serialization';
+import {
+  GroutError,
+  isAsyncGeneratorFunction,
+  isObject,
+  isString,
+} from '../util';
 
-const debug = rootDebug.extend('server');
+const debug = rootDebug.extend('rpc:server');
 
 /**
  * A Grout RPC method.
@@ -36,60 +41,51 @@ export type AnyRpcMethod = (input: any) => any;
 //   with a list of arguments.
 
 /**
- * Base type for any method dictionary passed to createApi.
+ * Base type for any method dictionary passed to createRpcApi.
  */
-export interface AnyMethods {
+export interface AnyRpcMethods {
   [methodName: string]: AnyRpcMethod;
 }
 
 /**
- * Type for a specific API definition returned by createApi.
+ * Type for a specific RPC API definition returned by createApi.
  */
-export type Api<Methods extends AnyMethods> = Methods;
+export type RpcApi<Methods extends AnyRpcMethods> = Methods;
 
 /**
- * Base type for any API definition.
+ * Base type for any RPC API definition.
  */
-export type AnyApi = Api<AnyMethods>;
+export type AnyRpcApi = RpcApi<AnyRpcMethods>;
 
 /**
  * Helper to extract the method types from an API definition type
  */
-export type inferApiMethods<SomeApi extends AnyApi> = SomeApi extends Api<
-  infer Methods
->
-  ? Methods
-  : never;
+export type inferRpcApiMethods<SomeApi extends AnyRpcApi> =
+  SomeApi extends RpcApi<infer Methods> ? Methods : never;
 
 /**
- * Creates a Grout API definition from a dictionary of methods.
+ * Creates a Grout RPC API definition from a dictionary of methods.
  *
  * Example:
  *
- *  const api = createApi({
+ * ```ts
+ *  const api = createRpcApi({
  *    async sayHello({ name }: { name: string }): Promise<string> {
  *      return `Hello, ${name}!`;
  *    },
  *  })
- *
+ * ```
  */
-export function createApi<Methods extends AnyMethods>(
+export function createRpcApi<Methods extends AnyRpcMethods>(
   methods: Methods
-): Api<Methods> {
+): RpcApi<Methods> {
   // Currently, we don't to actually need to do anything with the methods. By
-  // calling createApi, we're able to infer their type into TMethods, which the
-  // client can use.
+  // calling createRpcApi, we're able to infer their type into TMethods, which
+  // the client can use.
   return methods;
 }
 
-/**
- * Errors that are intended to catch misuse of Grout during development, rather
- * than runtime issues in production.
- */
-export class GroutError extends Error {}
-
 function createRpcHandler(
-  api: AnyApi,
   path: string,
   methodName: string,
   method: AnyRpcMethod,
@@ -140,110 +136,16 @@ function createRpcHandler(
   });
 }
 
-function parseIntOrDefault(value: string | undefined, defaultValue: number) {
-  if (value === undefined) {
-    return defaultValue;
-  }
-
-  // eslint-disable-next-line vx/gts-safe-number-parse
-  const parsed = parseInt(value, 10);
-  if (Number.isNaN(parsed)) {
-    return defaultValue;
-  }
-
-  return parsed;
-}
-
-function createSseHandler(
-  api: AnyApi,
-  path: string,
-  methodName: string,
-  method: () => unknown,
-  router: Express.Router
-): void {
-  debug(`Registering SSE handler: ${path}`);
-
-  // We also register a GET route for each method. This allows us to use
-  // Server-Sent Events (SSE) to stream updates from the server to the client.
-  router.get(path, (request, response) => {
-    try {
-      if (!request.accepts('text/event-stream')) {
-        response.status(406).send('Not Acceptable');
-        return;
-      }
-
-      debug(`[${methodName}] SSE Subscribe`);
-
-      response.set({
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        Connection: 'keep-alive',
-      });
-
-      const interval = parseIntOrDefault(
-        request.query['interval'] as string,
-        1000
-      );
-
-      // We need to send a dummy event to start the stream. This is required
-      // by the SSE protocol, and also allows the client to detect if the
-      // connection is lost.
-      response.write('event: dummy\ndata: {}\n\n');
-
-      let timeout: NodeJS.Timeout | undefined;
-      let lastValue: string | undefined;
-
-      // eslint-disable-next-line no-inner-declarations
-      async function tick() {
-        try {
-          timeout = undefined;
-          const value = serialize(await method());
-          if (lastValue !== value) {
-            response.write(`data: ${value}\n\n`);
-            lastValue = value;
-          }
-
-          // We use setTimeout rather than setInterval so that we don't send
-          // updates if the client is slow to receive them. This is important
-          // to ensure that the client doesn't get overwhelmed with updates.
-          timeout = setTimeout(tick, interval);
-        } catch (error) {
-          const message =
-            error instanceof Error ? error.message : String(error);
-          debug(`[${methodName}] SSE Error: ${message}`);
-          // eslint-disable-next-line no-console
-          console.error(error); // To aid debugging, log the full error with stack trace
-          response.end(
-            `event: error\ndata: ${JSON.stringify({ message })}\n\n`
-          );
-        }
-      }
-
-      request.on('close', () => {
-        debug(`[${methodName}] SSE Unsubscribe`);
-        clearTimeout(timeout);
-        response.end();
-      });
-
-      void tick();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      debug(`Error: ${message}`);
-      // eslint-disable-next-line no-console
-      console.error(error); // To aid debugging, log the full error with stack trace
-      response.status(500).json({ message });
-    }
-  });
-}
-
 /**
  * Creates an express Router with a route handler for each RPC method in a Grout
  * API. This allows you to easily mount the Grout API within a larger Express
  * app like so:
  *
- *  const api = createApi({ ... methods ... });
+ * ```ts
+ *  const api = createRpcApi({ ... methods ... });
  *  const app = express();
- *  app.use('/api', buildRouter(api, express));
+ *  app.use('/api', buildRpcRouter(api, express));
+ * ```
  *
  * All routes will use the POST HTTP method with a JSON body (for RPC input) and
  * return a JSON response (for RPC output), using Grout's serialization format
@@ -259,8 +161,8 @@ function createSseHandler(
  * ensures that consumers of the method will be forced to handle that error case
  * explicitly.
  */
-export function buildRouter(
-  api: AnyApi,
+export function buildRpcRouter(
+  api: AnyRpcApi,
   // We take the Express module as an argument so that Grout doesn't depend on
   // Express directly. This allows client packages to use Grout without having
   // to install Express, and also makes sure we're using the exact same version
@@ -277,10 +179,14 @@ export function buildRouter(
 
   for (const [methodName, method] of Object.entries<AnyRpcMethod>(api)) {
     const path = `/${methodName}`;
-    createRpcHandler(api, path, methodName, method, router);
-    if (method.length === 0) {
-      createSseHandler(api, path, methodName, method as () => unknown, router);
+    if (isAsyncGeneratorFunction(method)) {
+      throw new GroutError(
+        `Async generator functions are not supported for RPC methods. Use buildStreamRouter instead. ` +
+          `Method: ${methodName}`
+      );
     }
+
+    createRpcHandler(path, methodName, method, router);
   }
 
   return router;

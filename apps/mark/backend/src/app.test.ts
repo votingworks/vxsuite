@@ -33,7 +33,7 @@ import {
 import { configureApp, createApp } from '../test/app_helpers';
 import { Api } from './app';
 
-let apiClient: grout.Client<Api>;
+let apiClient: grout.RpcClient<Api>;
 let mockAuth: InsertedSmartCardAuthApi;
 let mockUsb: MockUsb;
 let server: Server;

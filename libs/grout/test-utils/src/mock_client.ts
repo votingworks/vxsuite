@@ -4,13 +4,13 @@ import {
   MockFunctionError,
 } from '@votingworks/test-utils';
 import {
-  AnyApi,
-  AnyMethods,
+  AnyRpcApi,
+  AnyRpcMethods,
   AsyncRpcMethod,
-  inferApiMethods,
+  inferRpcApiMethods,
 } from '@votingworks/grout';
 
-type MockMethods<Methods extends AnyMethods> = {
+type MockMethods<Methods extends AnyRpcMethods> = {
   [Method in keyof Methods]: MockFunction<AsyncRpcMethod<Methods[Method]>>;
 };
 
@@ -21,7 +21,9 @@ interface MockHelpers {
 /**
  * A mock Grout client with methods that are all MockFunctions.
  */
-export type MockClient<Api extends AnyApi> = MockMethods<inferApiMethods<Api>> &
+export type MockClient<Api extends AnyRpcApi> = MockMethods<
+  inferRpcApiMethods<Api>
+> &
   MockHelpers;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -61,7 +63,7 @@ function createSafeMockMethod(methodName: string): AnyMockFunction {
  * handling.
  */
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
-export function createMockClient<Api extends AnyApi>(options?: {
+export function createMockClient<Api extends AnyRpcApi>(options?: {
   catchUnexpectedErrors: boolean;
 }): MockClient<Api> {
   const mockMethods: Record<string, AnyMockFunction> = {};

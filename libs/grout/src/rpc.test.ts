@@ -1,16 +1,20 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable @typescript-eslint/require-await */
-import { AddressInfo } from 'net';
-import express from 'express';
 import { err, ok, Result } from '@votingworks/basics';
 import { expectTypeOf } from 'expect-type';
-import { createClient } from './client';
-import { AnyApi, buildRouter, createApi } from './server';
+import express from 'express';
+import { AddressInfo } from 'net';
+import {
+  AnyRpcApi,
+  buildRpcRouter,
+  createRpcApi,
+  createRpcClient,
+} from './rpc';
 
-function createTestApp(api: AnyApi) {
+function createTestApp(api: AnyRpcApi) {
   const app = express();
 
-  app.use('/api', buildRouter(api, express));
+  app.use('/api', buildRpcRouter(api, express));
 
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
@@ -28,7 +32,7 @@ test('registers Express routes for an API', async () => {
     people: [],
   };
 
-  const api = createApi({
+  const api = createRpcApi({
     async getAllPeople(): Promise<Person[]> {
       return store.people;
     },
@@ -46,7 +50,7 @@ test('registers Express routes for an API', async () => {
   });
 
   const { server, baseUrl } = createTestApp(api);
-  const client = createClient<typeof api>({ baseUrl });
+  const client = createRpcClient<typeof api>({ baseUrl });
 
   expectTypeOf(client).toEqualTypeOf<{
     getAllPeople(): Promise<Person[]>;
@@ -84,7 +88,7 @@ test('registers Express routes for an API', async () => {
 
 test('sends a 500 for unexpected errors', async () => {
   const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-  const api = createApi({
+  const api = createRpcApi({
     async getStuff(): Promise<number> {
       throw new Error('Unexpected error');
     },
@@ -95,7 +99,7 @@ test('sends a 500 for unexpected errors', async () => {
   });
 
   const { server, baseUrl } = createTestApp(api);
-  const client = createClient<typeof api>({ baseUrl });
+  const client = createRpcClient<typeof api>({ baseUrl });
 
   await expect(client.getStuff()).rejects.toThrow('Unexpected error');
   await expect(client.doStuff()).rejects.toThrow('Not even an Error');
@@ -108,7 +112,7 @@ test('sends a 500 for unexpected errors', async () => {
 });
 
 test('works with the Result type', async () => {
-  const api = createApi({
+  const api = createRpcApi({
     async getStuff(input: {
       shouldFail: boolean;
     }): Promise<Result<number, Error>> {
@@ -120,7 +124,7 @@ test('works with the Result type', async () => {
   });
 
   const { server, baseUrl } = createTestApp(api);
-  const client = createClient<typeof api>({ baseUrl });
+  const client = createRpcClient<typeof api>({ baseUrl });
 
   await expect(client.getStuff({ shouldFail: false })).resolves.toEqual(ok(42));
   await expect(client.getStuff({ shouldFail: true })).resolves.toEqual(
@@ -131,7 +135,7 @@ test('works with the Result type', async () => {
 
 test('errors if RPC method doesnt have the correct signature', async () => {
   // We can catch the wrong number of arguments at compile time
-  createApi({
+  createRpcApi({
     // @ts-expect-error `add` method does not match AnyRpcMethod signature
     async add(input1: number, input2: number): Promise<number> {
       return input1 + input2;
@@ -139,7 +143,7 @@ test('errors if RPC method doesnt have the correct signature', async () => {
   });
 
   // We can catch the wrong output (not a Promise) at compile time
-  createApi({
+  createRpcApi({
     // @ts-expect-error `add` method does not match AnyRpcMethod signature
     async add(input: { num1: number; num2: number }): number {
       return input.num1 + input.num2;
@@ -148,13 +152,13 @@ test('errors if RPC method doesnt have the correct signature', async () => {
 
   // We can't catch the wrong input type (not an object) at compile time, so we
   // have to do it at runtime
-  const api = createApi({
+  const api = createRpcApi({
     async sqrt(input: number): Promise<number> {
       return Math.sqrt(input);
     },
   });
   const { baseUrl, server } = createTestApp(api);
-  const client = createClient<typeof api>({ baseUrl });
+  const client = createRpcClient<typeof api>({ baseUrl });
   await expect(client.sqrt(4)).rejects.toThrow(
     'Grout methods must be called with an object or undefined as the sole argument. The argument received was: 4'
   );
@@ -162,7 +166,7 @@ test('errors if RPC method doesnt have the correct signature', async () => {
 });
 
 test('errors if app has upstream body-parsing middleware', async () => {
-  const api = createApi({
+  const api = createRpcApi({
     async getStuff(): Promise<number> {
       return 42;
     },
@@ -170,12 +174,12 @@ test('errors if app has upstream body-parsing middleware', async () => {
 
   const app = express();
   app.use(express.json());
-  app.use('/api', buildRouter(api, express));
+  app.use('/api', buildRpcRouter(api, express));
 
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
-  const client = createClient<typeof api>({ baseUrl });
+  const client = createRpcClient<typeof api>({ baseUrl });
 
   await expect(client.getStuff()).rejects.toThrow(
     'Request body was parsed as something other than a string. Make sure you haven\'t added any other body parsers upstream of the Grout router - e.g. app.use(express.json()). Body: {"__grout_type":"undefined","__grout_value":"undefined"}'
@@ -184,13 +188,13 @@ test('errors if app has upstream body-parsing middleware', async () => {
 });
 
 test('client accepts baseUrl with a trailing slash', async () => {
-  const api = createApi({
+  const api = createRpcApi({
     async getStuff(): Promise<number> {
       return 42;
     },
   });
   const { server, baseUrl } = createTestApp(api);
-  const client = createClient<typeof api>({
+  const client = createRpcClient<typeof api>({
     baseUrl: `${baseUrl}/`,
   });
   expect(await client.getStuff()).toEqual(42);
@@ -198,13 +202,13 @@ test('client accepts baseUrl with a trailing slash', async () => {
 });
 
 test('client errors on incorrect baseUrl', async () => {
-  const api = createApi({
+  const api = createRpcApi({
     async getStuff(): Promise<number> {
       return 42;
     },
   });
   const { server, baseUrl } = createTestApp(api);
-  const client = createClient<typeof api>({
+  const client = createRpcClient<typeof api>({
     baseUrl: `${baseUrl}wrong`,
   });
   await expect(client.getStuff()).rejects.toThrow(
@@ -214,7 +218,7 @@ test('client errors on incorrect baseUrl', async () => {
 });
 
 test('client errors if response is not JSON', async () => {
-  const api = createApi({
+  const api = createRpcApi({
     async getStuff(): Promise<number> {
       return 42;
     },
@@ -236,7 +240,7 @@ test('client errors if response is not JSON', async () => {
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
-  const client = createClient<typeof api>({ baseUrl });
+  const client = createRpcClient<typeof api>({ baseUrl });
 
   await expect(client.getStuff()).rejects.toThrow(
     `Response content type is not JSON for ${baseUrl}/getStuff`
@@ -248,7 +252,7 @@ test('client errors if response is not JSON', async () => {
 });
 
 test('client handles non-JSON error responses', async () => {
-  const api = createApi({
+  const api = createRpcApi({
     async getStuff(): Promise<number> {
       return 42;
     },
@@ -262,13 +266,13 @@ test('client handles non-JSON error responses', async () => {
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
-  const client = createClient<typeof api>({ baseUrl });
+  const client = createRpcClient<typeof api>({ baseUrl });
   await expect(client.getStuff()).rejects.toThrow('invalid json response body');
   server.close();
 });
 
 test('client handles other server errors', async () => {
-  const api = createApi({
+  const api = createRpcApi({
     async getStuff(): Promise<number> {
       return 42;
     },
@@ -280,7 +284,7 @@ test('client handles other server errors', async () => {
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
-  const client = createClient<typeof api>({ baseUrl });
+  const client = createRpcClient<typeof api>({ baseUrl });
   await expect(client.getStuff()).rejects.toThrow(
     `Got 500 for ${baseUrl}/getStuff`
   );

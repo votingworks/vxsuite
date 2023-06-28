@@ -14,17 +14,17 @@ import {
 } from '@votingworks/ui';
 import { InsertedSmartCardAuth } from '@votingworks/types';
 
-export type ApiClient = grout.Client<Api>;
+export type RpcClient = grout.RpcClient<Api>;
 
-export function createApiClient(): ApiClient {
-  return grout.createClient<Api>({ baseUrl: '/api' });
+export function createApiClient(): RpcClient {
+  return grout.createRpcClient<Api>({ baseUrl: '/api' });
 }
 
-export const ApiClientContext = React.createContext<ApiClient | undefined>(
+export const ApiClientContext = React.createContext<RpcClient | undefined>(
   undefined
 );
 
-export function useApiClient(): ApiClient {
+export function useApiClient(): RpcClient {
   const apiClient = React.useContext(ApiClientContext);
   if (!apiClient) {
     throw new Error('ApiClientContext.Provider not found');
@@ -79,7 +79,7 @@ export const getAuthStatus = {
       let subscription: grout.Subscription<InsertedSmartCardAuth.AuthStatus>;
 
       async function listen() {
-        subscription = await apiClient.watchAuthStatus({
+        subscription = apiClient.watchAuthStatus({
           interval: AUTH_STATUS_POLLING_INTERVAL_MS,
         });
 
