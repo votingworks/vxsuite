@@ -27,6 +27,7 @@ export function UnconfiguredElectionScreenWrapper({
       configureMutation.mutate();
     }
   });
+
   const error = configureMutation.data?.err();
 
   return (
