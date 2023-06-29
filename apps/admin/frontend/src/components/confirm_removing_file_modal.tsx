@@ -2,7 +2,7 @@ import React from 'react';
 import pluralize from 'pluralize';
 
 import { throwIllegalValue } from '@votingworks/basics';
-import { Modal, Prose, Button } from '@votingworks/ui';
+import { Modal, Button, P } from '@votingworks/ui';
 import { ResultsFileType } from '../config/types';
 import { getCastVoteRecordFiles, getManualResultsMetadata } from '../api';
 
@@ -39,11 +39,11 @@ export function ConfirmRemovingFileModal({
       fileTypeName = 'CVR Files';
       mainContent = (
         <React.Fragment>
-          <p>
+          <P>
             Do you want to remove the {fileList.length} loaded CVR{' '}
             {pluralize('files', fileList.length)}?
-          </p>
-          <p>All reports will be unavailable without CVR data.</p>
+          </P>
+          <P>All reports will be unavailable without CVR data.</P>
         </React.Fragment>
       );
       break;
@@ -54,12 +54,12 @@ export function ConfirmRemovingFileModal({
       const fileList = castVoteRecordFilesQuery.data;
       mainContent = (
         <React.Fragment>
-          <p>
+          <P>
             Do you want to remove the {fileList.length} loaded CVR{' '}
             {pluralize('files', fileList.length)}
             {hasManualData && ' and the manually entered data'}?
-          </p>
-          <p>All reports will be unavailable without CVR data.</p>
+          </P>
+          <P>All reports will be unavailable without CVR data.</P>
         </React.Fragment>
       );
       break;
@@ -71,7 +71,7 @@ export function ConfirmRemovingFileModal({
   return (
     <Modal
       centerContent
-      content={<Prose textCenter>{mainContent}</Prose>}
+      content={mainContent}
       actions={
         <React.Fragment>
           <Button variant="danger" onPress={() => onConfirm(fileType)}>

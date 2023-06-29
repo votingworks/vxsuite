@@ -5,6 +5,7 @@ import {
   StyledButtonProps,
   Modal,
   useCancelablePromise,
+  P,
 } from '@votingworks/ui';
 import { sleep } from '@votingworks/basics';
 import { Loading } from './loading';
@@ -32,9 +33,9 @@ function PrinterNotConnectedModal({
       }
       content={
         isNotConnected ? (
-          <p>Please connect the printer.</p>
+          <P>Please connect the printer.</P>
         ) : (
-          <p>You may continue printing.</p>
+          <P>You may continue printing.</P>
         )
       }
       actions={

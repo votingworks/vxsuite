@@ -9,7 +9,7 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 
-import { Button, Modal, UsbControllerButton, Prose } from '@votingworks/ui';
+import { Button, Modal, UsbControllerButton, P, Font } from '@votingworks/ui';
 
 import { LogEventId } from '@votingworks/logging';
 import { PromiseOr } from '@votingworks/types';
@@ -156,9 +156,9 @@ export function SaveFrontendFileModal({
       <Modal
         title={`Failed to Save ${title}`}
         content={
-          <p>
+          <P>
             Failed to save {fileName}. {errorMessage}
-          </p>
+          </P>
         }
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
@@ -185,19 +185,19 @@ export function SaveFrontendFileModal({
       <Modal
         title={`${title} Saved`}
         content={
-          <Prose>
-            {promptToEjectUsb && <p>You may now eject the USB drive.</p>}
-            <p>
+          <React.Fragment>
+            {promptToEjectUsb && <P>You may now eject the USB drive.</P>}
+            <P>
               {fileName.charAt(0).toUpperCase() + fileName.slice(1)}{' '}
               successfully saved{' '}
               {savedFilename !== '' && (
                 <span>
-                  as <strong>{savedFilename}</strong>
+                  as <Font weight="bold">{savedFilename}</Font>
                 </span>
               )}{' '}
               on the inserted USB drive.
-            </p>
-          </Prose>
+            </P>
+          </React.Fragment>
         }
         onOverlayClick={onClose}
         actions={actions}
@@ -223,18 +223,16 @@ export function SaveFrontendFileModal({
         <Modal
           title="No USB Drive Detected"
           content={
-            <Prose>
-              <p>
-                <UsbImage
-                  src="/assets/usb-drive.svg"
-                  alt="Insert USB Image"
-                  // hidden feature to save with file dialog by double-clicking
-                  onDoubleClick={() => exportResults(true)}
-                />
-                Please insert a USB drive where you would like the save the{' '}
-                {fileName}.
-              </p>
-            </Prose>
+            <P>
+              <UsbImage
+                src="/assets/usb-drive.svg"
+                alt="Insert USB Image"
+                // hidden feature to save with file dialog by double-clicking
+                onDoubleClick={() => exportResults(true)}
+              />
+              Please insert a USB drive where you would like the save the{' '}
+              {fileName}.
+            </P>
           }
           onOverlayClick={onClose}
           actions={
@@ -266,12 +264,11 @@ export function SaveFrontendFileModal({
         <Modal
           title={`Save ${title}`}
           content={
-            <Prose>
-              <p>
-                Save the {fileName} as <strong>{defaultFilename}</strong> on the
-                inserted USB drive?
-              </p>
-            </Prose>
+            <P>
+              Save the {fileName} as{' '}
+              <Font weight="bold">{defaultFilename}</Font> on the inserted USB
+              drive?
+            </P>
           }
           onOverlayClick={onClose}
           actions={

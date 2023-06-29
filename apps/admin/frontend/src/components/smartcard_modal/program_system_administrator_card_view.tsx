@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Button, Font, fontSizeTheme, H1, P, Prose } from '@votingworks/ui';
+import { Button, Font, H1, P } from '@votingworks/ui';
 
 import { programCard } from '../../api';
 import {
@@ -49,9 +49,9 @@ export function ProgramSystemAdministratorCardView({
     <React.Fragment>
       {isSmartcardActionComplete(actionStatus) && (
         <StatusMessageContainer>
-          <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
+          <Font align="center">
             <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
-          </Prose>
+          </Font>
         </StatusMessageContainer>
       )}
 
