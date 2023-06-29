@@ -6,6 +6,7 @@ import {
 import { assert, find, typedAs } from '@votingworks/basics';
 import {
   CVR,
+  Election,
   Tabulation,
   safeParse,
   writeInCandidate,
@@ -36,6 +37,8 @@ import {
   getGroupSpecifierFromGroupKey,
   groupMapToGroupList,
   getSheetCount,
+  getRelevantContests,
+  combineFilterAndGroupSpecifier,
 } from './tabulation';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from './filenames';
 import {
@@ -1253,5 +1256,145 @@ test('mergeTabulationGroups', () => {
     c: 1,
     d: -21,
     e: 20,
+  });
+});
+
+test('getRelevantContests', () => {
+  const { election } = electionMinimalExhaustiveSampleDefinition;
+
+  expect(getRelevantContests({ election })).toEqual(election.contests);
+  expect(getRelevantContests({ election, filter: {} })).toEqual(
+    election.contests
+  );
+
+  // irrelevant filters
+  expect(
+    getRelevantContests({
+      election,
+      filter: {
+        batchIds: ['batch-1'],
+        scannerIds: ['scanner-1'],
+        votingMethods: ['precinct'],
+      },
+    })
+  ).toEqual(election.contests);
+
+  // relevant filters
+  expect(
+    getRelevantContests({
+      election,
+      filter: {
+        ballotStyleIds: ['1M'],
+      },
+    }).map((c) => c.id)
+  ).toEqual([
+    'best-animal-mammal',
+    'zoo-council-mammal',
+    'new-zoo-either',
+    'new-zoo-pick',
+    'fishing',
+  ]);
+
+  expect(
+    getRelevantContests({
+      election,
+      filter: {
+        partyIds: ['0'],
+      },
+    }).map((c) => c.id)
+  ).toEqual([
+    'best-animal-mammal',
+    'zoo-council-mammal',
+    'new-zoo-either',
+    'new-zoo-pick',
+    'fishing',
+  ]);
+
+  // to test the precinct filtering, for which we don't have a appropriate fixture
+  const modifiedElection: Election = {
+    ...election,
+    ballotStyles: election.ballotStyles.map((bs) => {
+      if (bs.id === '1M') return bs;
+      return {
+        ...bs,
+        precincts: ['precinct-2'],
+      };
+    }),
+  };
+  expect(
+    getRelevantContests({
+      election: modifiedElection,
+      filter: {
+        precinctIds: ['precinct-1'],
+      },
+    }).map((c) => c.id)
+  ).toEqual([
+    'best-animal-mammal',
+    'zoo-council-mammal',
+    'new-zoo-either',
+    'new-zoo-pick',
+    'fishing',
+  ]);
+
+  // an intersection which excludes all possible ballots
+  expect(
+    getRelevantContests({
+      election,
+      filter: {
+        ballotStyleIds: ['2F'],
+        partyIds: ['0'],
+      },
+    }).map((c) => c.id)
+  ).toEqual([]);
+
+  // an intersection which is trivial
+  expect(
+    getRelevantContests({
+      election,
+      filter: {
+        ballotStyleIds: ['1M'],
+        precinctIds: ['precinct-1'],
+        partyIds: ['0'],
+      },
+    }).map((c) => c.id)
+  ).toEqual([
+    'best-animal-mammal',
+    'zoo-council-mammal',
+    'new-zoo-either',
+    'new-zoo-pick',
+    'fishing',
+  ]);
+});
+
+test('combineFilterAndGroupSpecifier', () => {
+  expect(
+    combineFilterAndGroupSpecifier(
+      {
+        precinctIds: ['precinct-1'],
+      },
+      {}
+    )
+  ).toEqual({
+    precinctIds: ['precinct-1'],
+  });
+  expect(
+    combineFilterAndGroupSpecifier(
+      {},
+      {
+        precinctId: 'precinct-1',
+        ballotStyleId: '1M',
+        partyId: '0',
+        votingMethod: 'precinct',
+        batchId: 'batch-1',
+        scannerId: 'scanner-1',
+      }
+    )
+  ).toEqual({
+    precinctIds: ['precinct-1'],
+    ballotStyleIds: ['1M'],
+    partyIds: ['0'],
+    votingMethods: ['precinct'],
+    batchIds: ['batch-1'],
+    scannerIds: ['scanner-1'],
   });
 });

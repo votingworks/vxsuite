@@ -5,7 +5,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   font-size: 0.8em;
 }
 
-.c9 {
+.c10 {
   white-space: nowrap;
 }
 
@@ -15,116 +15,16 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   height: 0.25in;
 }
 
-.c6 {
-  border-color: rgb(194,200,203);
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-}
-
-.c6 th,
-.c6 td {
-  border-bottom: 1px solid rgb(194,200,203);
-  padding: 0.25rem 0.5rem;
-}
-
-.c6 th {
-  border-top: 1px solid rgb(194,200,203);
-}
-
 .c7 {
-  text-align: right;
+  white-space: nowrap;
 }
 
 .c8 {
-  margin: 1rem 0;
-  page-break-inside: avoid;
-}
-
-.c8 p:first-child {
-  margin-bottom: 0;
-}
-
-.c8 h3 {
-  margin-top: 0;
-  margin-bottom: 0.5em;
-}
-
-.c8 h3 + p {
-  margin-top: -0.8em;
-  margin-bottom: 0.25em;
-}
-
-.c8 h3 + table {
-  margin-top: -0.5em;
-}
-
-.c11 {
-  margin: 1rem 0;
-  color: #cccccc;
-  page-break-inside: avoid;
-}
-
-.c11 p:first-child {
-  margin-bottom: 0;
-}
-
-.c11 h3 {
-  margin-top: 0;
-  margin-bottom: 0.5em;
-}
-
-.c11 h3 + p {
-  margin-top: -0.8em;
-  margin-bottom: 0.25em;
-}
-
-.c11 h3 + table {
-  margin-top: -0.5em;
-}
-
-.c10 {
-  width: 100%;
-  height: 1px;
-  border-collapse: collapse;
-}
-
-.c10 tr {
-  border-top: 1px solid rgb(194,200,203);
-  border-bottom: 1px solid rgb(194,200,203);
-  height: 100%;
-}
-
-.c10 tr.metadata {
-  font-size: 0.75em;
-}
-
-.c10 tr.metadata.metadatarow {
-  border-bottom: 1px solid #e6e6e6;
-}
-
-.c10 td {
-  width: 1%;
-  height: 100%;
-  padding: 0.1rem 0.25rem;
-  padding-right: 0;
   text-align: right;
-  white-space: no-wrap;
 }
 
-.c10 th {
-  padding: 0 0.5rem;
-  text-align: right;
-  font-weight: 400;
-}
-
-.c10 th:first-child {
-  padding-left: 0.1rem;
-  text-align: left;
-}
-
-.c10 th:not(:first-child) {
-  padding-right: 0;
+.c6 {
+  white-space: nowrap;
 }
 
 .c1 {
@@ -147,6 +47,73 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   font-size: 12px;
 }
 
+.c9 {
+  margin: 1rem 0;
+  page-break-inside: avoid;
+}
+
+.c9 p:first-child {
+  margin-bottom: 0;
+}
+
+.c9 h3 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+
+.c9 h3 + p {
+  margin-top: -0.8em;
+  margin-bottom: 0.25em;
+}
+
+.c9 h3 + table {
+  margin-top: -0.5em;
+}
+
+.c11 {
+  width: 100%;
+  height: 1px;
+  border-collapse: collapse;
+}
+
+.c11 tr {
+  border-top: 1px solid rgb(194,200,203);
+  border-bottom: 1px solid rgb(194,200,203);
+  height: 100%;
+}
+
+.c11 tr.metadata {
+  font-size: 0.75em;
+}
+
+.c11 tr.metadata.metadatarow {
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.c11 td {
+  width: 1%;
+  height: 100%;
+  padding: 0.1rem 0.25rem;
+  padding-right: 0;
+  text-align: right;
+  white-space: no-wrap;
+}
+
+.c11 th {
+  padding: 0 0.5rem;
+  text-align: right;
+  font-weight: 400;
+}
+
+.c11 th:first-child {
+  padding-left: 0.1rem;
+  text-align: left;
+}
+
+.c11 th:not(:first-child) {
+  padding-right: 0;
+}
+
 .c5 {
   margin-bottom: 1em;
   border: 1px solid rgb(194,200,203);
@@ -155,10 +122,26 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   break-inside: avoid;
 }
 
-.c5 h3 {
-  margin: 0;
-  background: rgb(194,200,203);
-  padding: 0.25rem 0.5rem;
+.c5 table {
+  width: 100%;
+}
+
+.c5 th,
+.c5 td {
+  border-top: 1px solid rgb(194,200,203);
+  border-bottom: 1px solid rgb(194,200,203);
+}
+
+.c5 th {
+  background: #e8e8e8;
+  padding: 0.15rem 0.15rem;
+  text-align: left;
+  font-size: 0.5rem;
+}
+
+.c5 td {
+  padding: 0.1rem 0.15rem;
+  font-weight: 400;
 }
 
 @media print {
@@ -183,18 +166,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 
 @media print {
 
-}
-
-@media print {
-  .c6 th {
-    font-size: 0.75rem;
-  }
-}
-
-@media print {
-  .c6 {
-    border-top: 1px solid rgb(194,200,203);
-  }
 }
 
 @media print {
@@ -218,6 +189,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 <div>
   <div
     class="c0"
+    data-testid="test-deck-tally-report"
   >
     <section
       class="c1"
@@ -231,10 +203,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         class=""
       >
         <h1>
-          Test Deck
-           Precinct Tally Report for:
-           
-          District 5
+          Test Deck Precinct Tally Report for District 5
         </h1>
         <h2>
           Mock General Election Choctaw 2020
@@ -249,9 +218,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           <span
             class="c3"
           >
-            This report was created on 
-            Tuesday, November 3, 2020 at 10:22:00 PM UTC
-            .
+            This report was created on Tuesday, November 3, 2020 at 10:22:00 PM UTC.
           </span>
         </p>
       </div>
@@ -261,54 +228,61 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         <div
           class="c5"
         >
-          <h3>
-            Ballots by Voting Method
-          </h3>
           <table
-            class="c6"
             data-testid="voting-method-table"
           >
             <tbody>
+              <tr>
+                <th
+                  class="c6"
+                >
+                  Ballot Counts
+                </th>
+                <th
+                  class="c6"
+                />
+              </tr>
               <tr
-                data-testid="absentee"
+                data-testid="hmpb"
+              >
+                <td
+                  class="c7"
+                >
+                  Hand Marked
+                </td>
+                <td
+                  class="c8"
+                >
+                  4
+                </td>
+              </tr>
+              <tr
+                data-testid="bmd"
               >
                 <td
                   class=""
                 >
-                  Absentee
+                  Machine Marked
                 </td>
                 <td
-                  class="c7"
+                  class="c8"
                 >
-                  0
+                  4
                 </td>
               </tr>
               <tr
-                data-testid="standard"
-              >
-                <td
-                  class=""
-                >
-                  Precinct
-                </td>
-                <td
-                  class="c7"
-                >
-                  8
-                </td>
-              </tr>
-              <tr
-                data-testid="total"
+                data-testid="total-ballots"
               >
                 <td
                   class=""
                 >
                   <strong>
-                    Total Ballots Cast
+                    Total
                   </strong>
                 </td>
                 <td
-                  class="c7"
+                  class="c8"
+                  data-testid="total-ballot-count"
                 >
                   <strong>
                     8
@@ -319,11 +293,11 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </table>
         </div>
         <div
-          class="c8"
+          class="c9"
+          data-testid="results-table-775020876"
         >
           <div
             class=""
-            data-testid="results-table-775020876"
           >
             <p
               class="c3"
@@ -337,14 +311,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               class="c3"
             >
               <span
-                class="c9"
+                class="c10"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 overvotes
@@ -352,14 +326,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c10"
+              class="c11"
             >
               <tbody>
                 <tr
@@ -415,11 +389,11 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="c8"
+          class="c9"
+          data-testid="results-table-775020877"
         >
           <div
             class=""
-            data-testid="results-table-775020877"
           >
             <p
               class="c3"
@@ -433,14 +407,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               class="c3"
             >
               <span
-                class="c9"
+                class="c10"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 overvotes
@@ -448,14 +422,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c10"
+              class="c11"
             >
               <tbody>
                 <tr
@@ -511,11 +485,11 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="c8"
+          class="c9"
+          data-testid="results-table-775020872"
         >
           <div
             class=""
-            data-testid="results-table-775020872"
           >
             <p
               class="c3"
@@ -529,14 +503,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               class="c3"
             >
               <span
-                class="c9"
+                class="c10"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 overvotes
@@ -544,14 +518,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c10"
+              class="c11"
             >
               <tbody>
                 <tr
@@ -595,11 +569,11 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="c8"
+          class="c9"
+          data-testid="results-table-775020870"
         >
           <div
             class=""
-            data-testid="results-table-775020870"
           >
             <p
               class="c3"
@@ -613,14 +587,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               class="c3"
             >
               <span
-                class="c9"
+                class="c10"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 overvotes
@@ -628,14 +602,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c10"
+              class="c11"
             >
               <tbody>
                 <tr
@@ -679,303 +653,11 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="c11"
+          class="c9"
+          data-testid="results-table-775020903"
         >
           <div
             class=""
-            data-testid="results-table-775020899"
-          >
-            <p
-              class="c3"
-            >
-              Election Commissioner 01
-            </p>
-            <h3>
-              Election Commissioner  01
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                0 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="775020899-775032015"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Glynda Chaney Fulce
-                  </th>
-                  <td />
-                </tr>
-                <tr
-                  data-testid="775020899-write-in"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td />
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c11"
-        >
-          <div
-            class=""
-            data-testid="results-table-775020900"
-          >
-            <p
-              class="c3"
-            >
-              Election Commissioner 02
-            </p>
-            <h3>
-              Election Commissioner 02
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                0 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="775020900-775032016"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Charles Beck
-                  </th>
-                  <td />
-                </tr>
-                <tr
-                  data-testid="775020900-775032017"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Sharon Brooks
-                  </th>
-                  <td />
-                </tr>
-                <tr
-                  data-testid="775020900-write-in"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td />
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c11"
-        >
-          <div
-            class=""
-            data-testid="results-table-775020901"
-          >
-            <p
-              class="c3"
-            >
-              Election Commissioner 03
-            </p>
-            <h3>
-              Election Commissioner 03
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                0 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="775020901-775032018"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Dorothy Anderson
-                  </th>
-                  <td />
-                </tr>
-                <tr
-                  data-testid="775020901-write-in"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td />
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c11"
-        >
-          <div
-            class=""
-            data-testid="results-table-775020902"
-          >
-            <p
-              class="c3"
-            >
-              Election Commissioner 04
-            </p>
-            <h3>
-              Election Commissioner 04
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                0 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="775020902-775032019"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Willie Mae Guillory
-                  </th>
-                  <td />
-                </tr>
-                <tr
-                  data-testid="775020902-775032020"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Lewis Wright
-                  </th>
-                  <td />
-                </tr>
-                <tr
-                  data-testid="775020902-write-in"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td />
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-775020903"
           >
             <p
               class="c3"
@@ -989,14 +671,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               class="c3"
             >
               <span
-                class="c9"
+                class="c10"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 overvotes
@@ -1004,14 +686,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c10"
+              class="c11"
             >
               <tbody>
                 <tr
@@ -1055,11 +737,11 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="c8"
+          class="c9"
+          data-testid="results-table-775020904"
         >
           <div
             class=""
-            data-testid="results-table-775020904"
           >
             <p
               class="c3"
@@ -1073,14 +755,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               class="c3"
             >
               <span
-                class="c9"
+                class="c10"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 overvotes
@@ -1088,14 +770,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c10"
+              class="c11"
             >
               <tbody>
                 <tr
@@ -1127,11 +809,11 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="c8"
+          class="c9"
+          data-testid="results-table-750000017"
         >
           <div
             class=""
-            data-testid="results-table-750000017"
           >
             <p
               class="c3"
@@ -1146,14 +828,14 @@ House Concurrent Resolution No. 47
               class="c3"
             >
               <span
-                class="c9"
+                class="c10"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 overvotes
@@ -1161,14 +843,14 @@ House Concurrent Resolution No. 47
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c10"
+              class="c11"
             >
               <tbody>
                 <tr
@@ -1200,11 +882,11 @@ House Concurrent Resolution No. 47
           </div>
         </div>
         <div
-          class="c8"
+          class="c9"
+          data-testid="results-table-750000018"
         >
           <div
             class=""
-            data-testid="results-table-750000018"
           >
             <p
               class="c3"
@@ -1219,14 +901,14 @@ House Bill 1796 - Flag Referendum
               class="c3"
             >
               <span
-                class="c9"
+                class="c10"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 overvotes
@@ -1234,14 +916,14 @@ House Bill 1796 - Flag Referendum
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c10"
+              class="c11"
             >
               <tbody>
                 <tr
@@ -1273,11 +955,11 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="c8"
+          class="c9"
+          data-testid="results-table-750000015"
         >
           <div
             class=""
-            data-testid="results-table-750000015"
           >
             <p
               class="c3"
@@ -1291,14 +973,14 @@ House Bill 1796 - Flag Referendum
               class="c3"
             >
               <span
-                class="c9"
+                class="c10"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 overvotes
@@ -1306,14 +988,14 @@ House Bill 1796 - Flag Referendum
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c10"
+              class="c11"
             >
               <tbody>
                 <tr
@@ -1345,11 +1027,11 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="c8"
+          class="c9"
+          data-testid="results-table-750000016"
         >
           <div
             class=""
-            data-testid="results-table-750000016"
           >
             <p
               class="c3"
@@ -1363,14 +1045,14 @@ House Bill 1796 - Flag Referendum
               class="c3"
             >
               <span
-                class="c9"
+                class="c10"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 overvotes
@@ -1378,14 +1060,14 @@ House Bill 1796 - Flag Referendum
               </span>
                
               <span
-                class="c9"
+                class="c10"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c10"
+              class="c11"
             >
               <tbody>
                 <tr
@@ -1624,14 +1306,6 @@ exports[`L&A (logic and accuracy) flow 2`] = `
 }
 
 @media (min-width:480px) {
-
-}
-
-@media print {
-
-}
-
-@media print {
 
 }
 
@@ -2909,14 +2583,6 @@ exports[`L&A (logic and accuracy) flow 3`] = `
 
 }
 
-@media print {
-
-}
-
-@media print {
-
-}
-
 <div>
   <div>
     <h1>
@@ -3092,1422 +2758,6 @@ exports[`L&A (logic and accuracy) flow 3`] = `
       Ballot Mode: 
       test
     </p>
-  </div>
-</div>
-`;
-
-exports[`tabulating CVRs 1`] = `
-.c3 {
-  font-size: 0.8em;
-}
-
-.c9 {
-  white-space: nowrap;
-}
-
-.c2 {
-  float: right;
-  margin: 0 0 1em 2em;
-  height: 0.25in;
-}
-
-.c6 {
-  border-color: rgb(194,200,203);
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-}
-
-.c6 th,
-.c6 td {
-  border-bottom: 1px solid rgb(194,200,203);
-  padding: 0.25rem 0.5rem;
-}
-
-.c6 th {
-  border-top: 1px solid rgb(194,200,203);
-}
-
-.c7 {
-  text-align: right;
-}
-
-.c8 {
-  margin: 1rem 0;
-  page-break-inside: avoid;
-}
-
-.c8 p:first-child {
-  margin-bottom: 0;
-}
-
-.c8 h3 {
-  margin-top: 0;
-  margin-bottom: 0.5em;
-}
-
-.c8 h3 + p {
-  margin-top: -0.8em;
-  margin-bottom: 0.25em;
-}
-
-.c8 h3 + table {
-  margin-top: -0.5em;
-}
-
-.c10 {
-  width: 100%;
-  height: 1px;
-  border-collapse: collapse;
-}
-
-.c10 tr {
-  border-top: 1px solid rgb(194,200,203);
-  border-bottom: 1px solid rgb(194,200,203);
-  height: 100%;
-}
-
-.c10 tr.metadata {
-  font-size: 0.75em;
-}
-
-.c10 tr.metadata.metadatarow {
-  border-bottom: 1px solid #e6e6e6;
-}
-
-.c10 td {
-  width: 1%;
-  height: 100%;
-  padding: 0.1rem 0.25rem;
-  padding-right: 0;
-  text-align: right;
-  white-space: no-wrap;
-}
-
-.c10 th {
-  padding: 0 0.5rem;
-  text-align: right;
-  font-weight: 400;
-}
-
-.c10 th:first-child {
-  padding-left: 0.1rem;
-  text-align: left;
-}
-
-.c10 th:not(:first-child) {
-  padding-right: 0;
-}
-
-.c1 {
-  page-break-before: always;
-}
-
-.c4 {
-  -webkit-columns: 3;
-  columns: 3;
-  -webkit-column-gap: 0.3in;
-  column-gap: 0.3in;
-  margin-top: 1rem;
-}
-
-.c4 > div {
-  margin-top: 0;
-}
-
-.c0 {
-  font-size: 12px;
-}
-
-.c5 {
-  margin-bottom: 1em;
-  border: 1px solid rgb(194,200,203);
-  border-width: 0 1px;
-  -webkit-break-inside: avoid;
-  break-inside: avoid;
-}
-
-.c5 h3 {
-  margin: 0;
-  background: rgb(194,200,203);
-  padding: 0.25rem 0.5rem;
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
-@media (min-width:480px) {
-
-}
-
-@media print {
-
-}
-
-@media (min-width:480px) {
-
-}
-
-@media print {
-
-}
-
-@media print {
-  .c6 th {
-    font-size: 0.75rem;
-  }
-}
-
-@media print {
-  .c6 {
-    border-top: 1px solid rgb(194,200,203);
-  }
-}
-
-@media print {
-  .c0 {
-    font-size: 12px;
-  }
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
-<div>
-  <div
-    class="c0"
-  >
-    <section
-      class="c1"
-      data-testid="election-full-tally-report"
-    >
-      <img
-        alt="VotingWorks logo"
-        class="c2"
-        src="/votingworks-wordmark-black.svg"
-      />
-      <div
-        class=""
-      >
-        <h1>
-          Official
-           
-          Mock General Election Choctaw 2020
-           Tally Report
-        </h1>
-        <p>
-          Wednesday, August 26, 2020
-          , 
-          Choctaw County
-          , 
-          State of Mississippi
-          <br />
-          <span
-            class="c3"
-          >
-            This report was created on 
-            Tuesday, November 3, 2020 at 10:22:00 PM UTC
-            .
-          </span>
-        </p>
-      </div>
-      <div
-        class="c4"
-      >
-        <div
-          class="c5"
-        >
-          <h3>
-            Ballots by Voting Method
-          </h3>
-          <table
-            class="c6"
-            data-testid="voting-method-table"
-          >
-            <tbody>
-              <tr
-                data-testid="absentee"
-              >
-                <td
-                  class=""
-                >
-                  Absentee
-                </td>
-                <td
-                  class="c7"
-                >
-                  50
-                </td>
-              </tr>
-              <tr
-                data-testid="standard"
-              >
-                <td
-                  class=""
-                >
-                  Precinct
-                </td>
-                <td
-                  class="c7"
-                >
-                  50
-                </td>
-              </tr>
-              <tr
-                data-testid="total"
-              >
-                <td
-                  class=""
-                >
-                  <strong>
-                    Total Ballots Cast
-                  </strong>
-                </td>
-                <td
-                  class="c7"
-                >
-                  <strong>
-                    100
-                  </strong>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-775020876"
-          >
-            <p
-              class="c3"
-            >
-              United States
-            </p>
-            <h3>
-              President
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                100 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                1 overvote
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                7 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="775020876-775031988"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
-                  </th>
-                  <td>
-                    27
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020876-775031987"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
-                  </th>
-                  <td>
-                    36
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020876-775031989"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Presidential Electors for Phil Collins for President and Bill Parker for Vice President
-                  </th>
-                  <td>
-                    29
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020876-write-in"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    0
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-775020877"
-          >
-            <p
-              class="c3"
-            >
-              United States
-            </p>
-            <h3>
-              Senate 
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                100 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                4 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                4 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="775020877-775031985"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Mike Espy
-                  </th>
-                  <td>
-                    29
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020877-775031986"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Cindy Hyde-Smith
-                  </th>
-                  <td>
-                    35
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020877-775031990"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Jimmy Edwards
-                  </th>
-                  <td>
-                    28
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020877-write-in"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    0
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-775020872"
-          >
-            <p
-              class="c3"
-            >
-              US House Of Representatives
-            </p>
-            <h3>
-              1st Congressional District
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                100 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                3 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                5 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="775020872-775031978"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Antonia Eliason
-                  </th>
-                  <td>
-                    46
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020872-775031979"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Trent Kelly
-                  </th>
-                  <td>
-                    46
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020872-write-in"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    0
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-775020870"
-          >
-            <p
-              class="c3"
-            >
-              Northern District
-            </p>
-            <h3>
-              Supreme Court District 3(Northern) Position 3
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                100 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                5 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="775020870-775031976"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Josiah Dennis Coleman
-                  </th>
-                  <td>
-                    37
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020870-775031993"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Percy L. Lynchard
-                  </th>
-                  <td>
-                    58
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020870-write-in"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    0
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-775020899"
-          >
-            <p
-              class="c3"
-            >
-              Election Commissioner 01
-            </p>
-            <h3>
-              Election Commissioner  01
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                18 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                1 undervote
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="775020899-775032015"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Glynda Chaney Fulce
-                  </th>
-                  <td>
-                    17
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020899-write-in"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    0
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-775020900"
-          >
-            <p
-              class="c3"
-            >
-              Election Commissioner 02
-            </p>
-            <h3>
-              Election Commissioner 02
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                15 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                1 undervote
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="775020900-775032016"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Charles Beck
-                  </th>
-                  <td>
-                    5
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020900-775032017"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Sharon Brooks
-                  </th>
-                  <td>
-                    9
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020900-write-in"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    0
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-775020901"
-          >
-            <p
-              class="c3"
-            >
-              Election Commissioner 03
-            </p>
-            <h3>
-              Election Commissioner 03
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                23 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                1 undervote
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="775020901-775032018"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Dorothy Anderson
-                  </th>
-                  <td>
-                    22
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020901-write-in"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    0
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-775020902"
-          >
-            <p
-              class="c3"
-            >
-              Election Commissioner 04
-            </p>
-            <h3>
-              Election Commissioner 04
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                25 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                1 overvote
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="775020902-775032019"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Willie Mae Guillory
-                  </th>
-                  <td>
-                    10
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020902-775032020"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Lewis Wright
-                  </th>
-                  <td>
-                    14
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020902-write-in"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    0
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-775020903"
-          >
-            <p
-              class="c3"
-            >
-              Election Commissioner 05
-            </p>
-            <h3>
-              Election Commissioner 05
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                19 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                2 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                2 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="775020903-775032021"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Ouida A Loper
-                  </th>
-                  <td>
-                    9
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020903-775032022"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Wayne McLeod
-                  </th>
-                  <td>
-                    6
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020903-write-in"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    0
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-775020904"
-          >
-            <p
-              class="c3"
-            >
-              School Board District 5
-            </p>
-            <h3>
-              School Board 05
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                19 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="775020904-775032023"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Michael D Thomas
-                  </th>
-                  <td>
-                    19
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020904-write-in"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    0
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-750000017"
-          >
-            <p
-              class="c3"
-            >
-              State Of Mississippi
-            </p>
-            <h3>
-              Ballot Measure 2
-House Concurrent Resolution No. 47
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                100 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                2 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                5 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="750000017-yes"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Yes
-                  </th>
-                  <td>
-                    40
-                  </td>
-                </tr>
-                <tr
-                  data-testid="750000017-no"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    No
-                  </th>
-                  <td>
-                    53
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-750000018"
-          >
-            <p
-              class="c3"
-            >
-              State Of Mississippi
-            </p>
-            <h3>
-              Ballot Measure 3
-House Bill 1796 - Flag Referendum
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                100 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                3 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                2 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="750000018-yes"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Yes
-                  </th>
-                  <td>
-                    43
-                  </td>
-                </tr>
-                <tr
-                  data-testid="750000018-no"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    No
-                  </th>
-                  <td>
-                    52
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-750000015"
-          >
-            <p
-              class="c3"
-            >
-              State Of Mississippi
-            </p>
-            <h3>
-              Ballot Measure 1
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                100 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                3 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                4 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="750000015-yes"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Yes
-                  </th>
-                  <td>
-                    39
-                  </td>
-                </tr>
-                <tr
-                  data-testid="750000015-no"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    No
-                  </th>
-                  <td>
-                    54
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div
-          class="c8"
-        >
-          <div
-            class=""
-            data-testid="results-table-750000016"
-          >
-            <p
-              class="c3"
-            >
-              State Of Mississippi
-            </p>
-            <h3>
-              Ballot Measure 1
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c9"
-              >
-                100 ballots
-                 cast /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                4 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c9"
-              >
-                 
-                6 undervotes
-              </span>
-            </p>
-            <table
-              class="c10"
-            >
-              <tbody>
-                <tr
-                  data-testid="750000016-yes"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    Yes
-                  </th>
-                  <td>
-                    40
-                  </td>
-                </tr>
-                <tr
-                  data-testid="750000016-no"
-                >
-                  <th
-                    colspan="3"
-                  >
-                    No
-                  </th>
-                  <td>
-                    50
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
   </div>
 </div>
 `;

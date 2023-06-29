@@ -17,6 +17,7 @@ import { assert, find } from '@votingworks/basics';
 export interface TestDeckBallot {
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
+  markingMethod: 'hand' | 'machine';
   votes: VotesDict;
 }
 
@@ -92,11 +93,13 @@ const yesOrNo: YesNoVote[] = [['yes'], ['no']];
 interface GenerateTestDeckParams {
   election: Election;
   precinctId?: PrecinctId;
+  markingMethod: TestDeckBallot['markingMethod'];
 }
 
 export function generateTestDeckBallots({
   election,
   precinctId,
+  markingMethod,
 }: GenerateTestDeckParams): TestDeckBallot[] {
   const precincts: string[] = precinctId
     ? [precinctId]
@@ -138,6 +141,7 @@ export function generateTestDeckBallots({
         ballots.push({
           ballotStyleId: ballotStyle.id,
           precinctId: currentPrecinctId,
+          markingMethod,
           votes,
         });
       }
@@ -167,6 +171,7 @@ export function generateBlankBallots({
       ballots.push({
         ballotStyleId: blankBallotStyle.id,
         precinctId,
+        markingMethod: 'hand',
         votes: {},
       });
     }
@@ -215,6 +220,7 @@ export function generateOvervoteBallot({
         return {
           ballotStyleId: ballotStyle.id,
           precinctId,
+          markingMethod: 'hand',
           votes,
         };
       }
@@ -228,6 +234,7 @@ export function generateOvervoteBallot({
       return {
         ballotStyleId: ballotStyle.id,
         precinctId,
+        markingMethod: 'hand',
         votes,
       };
     }

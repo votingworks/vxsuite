@@ -20,17 +20,29 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
   assert(electionDefinition);
   const { election } = electionDefinition;
 
-  const ballots = generateTestDeckBallots({ election });
+  const hmpbBallots = generateTestDeckBallots({
+    election,
+    markingMethod: 'hand',
+  });
+  const bmdBallots = generateTestDeckBallots({
+    election,
+    markingMethod: 'machine',
+  });
   // Full test deck tallies should be 4 times that of a single test deck because
   // it counts scanning 2 test decks (BMD + HMPB) twice (VxScan + VxCentralScan)
   const fullTestDeckTallyReport = useMemo(
     () => (
       <TestDeckTallyReport
         election={election}
-        testDeckBallots={[...ballots, ...ballots, ...ballots, ...ballots]}
+        testDeckBallots={[
+          ...hmpbBallots,
+          ...hmpbBallots,
+          ...bmdBallots,
+          ...bmdBallots,
+        ]}
       />
     ),
-    [election, ballots]
+    [election, hmpbBallots, bmdBallots]
   );
 
   const printFullTestDeckTallyReport = useCallback(async () => {

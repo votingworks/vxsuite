@@ -4,26 +4,16 @@ import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { screen } from '@testing-library/react';
 
-import { computeFullElectionTally } from '@votingworks/utils';
 import type { WriteInAdjudicatedTally } from '@votingworks/admin-backend';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 import { TallyWriteInReportScreen } from './tally_writein_report_screen';
-import { fileDataToCastVoteRecords } from '../../test/util/cast_vote_records';
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let logger: Logger;
 let apiMock: ApiMock;
 
-const { electionDefinition, legacyCvrData } =
-  electionMinimalExhaustiveSampleFixtures;
-
-async function getFullElectionTally() {
-  return computeFullElectionTally(
-    electionDefinition.election,
-    new Set(await fileDataToCastVoteRecords(legacyCvrData, electionDefinition))
-  );
-}
+const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
 
 const nonOfficialAdjudicationSummaryMammal: WriteInAdjudicatedTally = {
   status: 'adjudicated',
@@ -68,11 +58,10 @@ afterAll(() => {
   apiMock.assertComplete();
 });
 
-test('when no adjudications', async () => {
+test('when no adjudications', () => {
   apiMock.expectGetWriteInTalliesAdjudicated([]);
   renderInAppContext(<TallyWriteInReportScreen />, {
     electionDefinition,
-    fullElectionTally: await getFullElectionTally(),
     logger,
     apiMock,
   });
@@ -90,7 +79,6 @@ test('with contest from one party adjudicated', async () => {
   ]);
   renderInAppContext(<TallyWriteInReportScreen />, {
     electionDefinition,
-    fullElectionTally: await getFullElectionTally(),
     logger,
     apiMock,
   });
@@ -120,7 +108,6 @@ test('with contest from multiple parties adjudicated', async () => {
   ]);
   renderInAppContext(<TallyWriteInReportScreen />, {
     electionDefinition,
-    fullElectionTally: await getFullElectionTally(),
     logger,
     apiMock,
   });
@@ -146,7 +133,6 @@ test('ignores adjudications for official candidates', async () => {
   ]);
   renderInAppContext(<TallyWriteInReportScreen />, {
     electionDefinition,
-    fullElectionTally: await getFullElectionTally(),
     logger,
     apiMock,
   });

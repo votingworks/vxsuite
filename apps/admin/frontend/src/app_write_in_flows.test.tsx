@@ -13,7 +13,6 @@ import {
 import { screen, within } from '../test/react_testing_library';
 import { ApiMock, createApiMock } from '../test/helpers/api_mock';
 import { buildApp } from '../test/helpers/build_app';
-import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
 import { VxFiles } from './lib/converters';
 import { getMockWriteInCandidate } from '../test/api_mock_data';
 import { expectReportsScreenCardCountQueries } from '../test/helpers/api_expect_helpers';
@@ -60,18 +59,12 @@ afterEach(() => {
 });
 
 test('manually added write-in results appears in reports', async () => {
-  const { electionDefinition, legacyPartial1CvrFile } =
-    electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { election } = electionDefinition;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetCastVoteRecords(
-    await fileDataToCastVoteRecords(
-      legacyPartial1CvrFile.asText(),
-      electionDefinition
-    )
-  );
+  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCastVoteRecordFileMode('test');
   apiMock.expectGetWriteInTalliesAdjudicated([
     nonOfficialAdjudicationSummaryMammal,
@@ -126,39 +119,6 @@ test('manually added write-in results appears in reports', async () => {
   renderApp();
   await apiMock.authenticateAsElectionManager(electionDefinition);
 
-  // check that results are appropriately incorporated into the main report
-  userEvent.click(screen.getByText('Reports'));
-  userEvent.click(screen.getByText('Unofficial Full Election Tally Report'));
-  const mainReportPreview = await screen.findByTestId('report-preview');
-  within(mainReportPreview).getByText(
-    'Unofficial Mammal Party Example Primary Election Tally Report'
-  );
-  const zooCouncilMammal = within(mainReportPreview).getByTestId(
-    'results-table-zoo-council-mammal'
-  );
-  const zooCouncilFish = within(mainReportPreview).getByTestId(
-    'results-table-aquarium-council-fish'
-  );
-  // added write-in candidates should not appear in the report
-  expect(
-    within(zooCouncilMammal).queryByText(/Chimera/)
-  ).not.toBeInTheDocument();
-  expect(
-    within(zooCouncilMammal).queryByText(/Rapidash/)
-  ).not.toBeInTheDocument();
-  expect(
-    within(zooCouncilFish).queryByText(/Relicanth/)
-  ).not.toBeInTheDocument();
-  // check totals are correct
-  within(zooCouncilMammal).getByText(
-    hasTextAcrossElements('Ballots Cast1018109')
-  );
-  within(zooCouncilMammal).getByText(hasTextAcrossElements('Zebra58361'));
-  within(zooCouncilMammal).getByText(hasTextAcrossElements('Kangaroo42345'));
-  within(zooCouncilMammal).getByText(hasTextAcrossElements('Write-In421456'));
-  within(zooCouncilFish).getByText(hasTextAcrossElements('Ballots Cast077'));
-  within(zooCouncilFish).getByText(hasTextAcrossElements('Write-In01414'));
-
   // check that results are appropriately incorporated into scatter report
   userEvent.click(screen.getByText('Reports'));
   userEvent.click(screen.getByText('Unofficial Write-In Tally Report'));
@@ -172,7 +132,7 @@ test('manually added write-in results appears in reports', async () => {
   const zooCouncilFish2 = within(writeInReportPreview).getByTestId(
     'results-table-aquarium-council-fish'
   );
-  within(zooCouncilMammal2).getByText(hasTextAcrossElements('Chimera10'));
+  within(zooCouncilMammal2).getByText(hasTextAcrossElements('Chimera9'));
   within(zooCouncilMammal2).getByText(hasTextAcrossElements('Rapidash5'));
   within(zooCouncilFish2).getByText(hasTextAcrossElements('Relicanth14'));
 });

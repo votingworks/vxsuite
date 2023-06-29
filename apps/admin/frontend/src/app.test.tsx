@@ -2,12 +2,10 @@ import MockDate from 'mockdate';
 import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
 import {
-  electionWithMsEitherNeitherFixtures,
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleFixtures,
-  electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 import { typedAs } from '@votingworks/basics';
 import {
@@ -23,12 +21,7 @@ import {
 } from '@votingworks/test-utils';
 import { VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
-import {
-  convertTalliesByPrecinctToFullManualTally,
-  getEmptyManualTalliesByPrecinct,
-  buildSpecificManualTally,
-  getEmptyCardCounts,
-} from '@votingworks/utils';
+import { convertTalliesByPrecinctToFullManualTally } from '@votingworks/utils';
 import {
   fireEvent,
   screen,
@@ -41,19 +34,11 @@ import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
 import { VxFiles } from './lib/converters';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/api_mock';
-import {
-  expectReportsScreenCardCountQueries,
-  mockBallotCountsTableGroupBy,
-} from '../test/helpers/api_expect_helpers';
+import { expectReportsScreenCardCountQueries } from '../test/helpers/api_expect_helpers';
 
 import { mockCastVoteRecordFileRecord } from '../test/api_mock_data';
-import { fileDataToCastVoteRecords } from '../test/util/cast_vote_records';
-
-const EITHER_NEITHER_CVR_DATA =
-  electionWithMsEitherNeitherFixtures.legacyCvrData;
 
 jest.mock('./components/hand_marked_paper_ballot');
-jest.mock('./utils/pdf_to_images');
 jest.mock('@votingworks/ballot-encoder', () => {
   return {
     ...jest.requireActual('@votingworks/ballot-encoder'),
@@ -339,7 +324,7 @@ test('L&A (logic and accuracy) flow', async () => {
 
   await screen.findByText('Printing');
   const expectedTallies: { [tally: string]: number } = {
-    '104': 10,
+    '104': 12,
     '52': 12,
     '24': 6,
     '12': 4,
@@ -371,7 +356,10 @@ test('marking results as official', async () => {
   });
   apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFileMode('official');
-  apiMock.expectGetWriteInTalliesAdjudicated([]);
+  apiMock.expectGetResultsForTallyReports(
+    { filter: {}, groupBy: { groupByParty: true } },
+    []
+  );
   apiMock.expectGetScannerBatches([]);
   apiMock.expectGetManualResultsMetadata([]);
   expectReportsScreenCardCountQueries({ apiMock, isPrimary: true });
@@ -387,7 +375,7 @@ test('marking results as official', async () => {
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
     isOfficialResults: true,
-  });
+  }); // check refetch
   await waitFor(() => {
     expect(screen.getButton('Mark Tally Results as Official')).toBeEnabled();
   });
@@ -400,184 +388,12 @@ test('marking results as official', async () => {
   await screen.findByText('Official Example Primary Election Tally Report');
 });
 
-test('tabulating CVRs', async () => {
-  const electionDefinition = eitherNeitherElectionDefinition;
-  const { renderApp, logger } = buildApp(apiMock, 'ms-sems');
-  apiMock.expectGetCastVoteRecords(
-    await fileDataToCastVoteRecords(EITHER_NEITHER_CVR_DATA, electionDefinition)
-  );
-  apiMock.expectGetCurrentElectionMetadata({
-    electionDefinition,
-    isOfficialResults: true,
-  });
-  apiMock.expectGetFullElectionManualTally();
-  apiMock.expectGetCastVoteRecordFileMode('official');
-  apiMock.expectGetWriteInTalliesAdjudicated([]);
-  apiMock.expectGetSemsExportableTallies({ talliesByPrecinct: {} });
-  const { getByText, getAllByText, getByTestId } = renderApp();
-
-  await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
-
-  expectReportsScreenCardCountQueries({
-    apiMock,
-    isPrimary: false,
-  });
-  apiMock.expectGetManualResultsMetadata([]);
-  apiMock.expectGetScannerBatches([
-    // need to mock scanner batches to get link button to batch report
-    {
-      electionId: 'election-id',
-      batchId: '2',
-      label: 'Batch 2',
-      scannerId: 'scanner-id',
-    },
-  ]);
-  fireEvent.click(getByText('Reports'));
-  fireEvent.click(getByText('Official Full Election Tally Report'));
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.TallyReportPreviewed,
-    expect.any(String),
-    expect.anything()
-  );
-
-  // Report title should be rendered 2 times - app and preview
-  await waitFor(() => {
-    expect(
-      getAllByText('Official Mock General Election Choctaw 2020 Tally Report')
-        .length
-    ).toEqual(2);
-  });
-
-  userEvent.click(screen.getByText('Print Report'));
-  await screen.findByText('Printing');
-  // Snapshot printed report to detect changes in results or formatting
-  await expectPrintToMatchSnapshot();
-
-  fireEvent.click(getByText('Reports'));
-  apiMock.expectGetCardCounts(
-    mockBallotCountsTableGroupBy({ groupByBatch: true }),
-    [
-      // need to mock batch card count to get link button to batch report
-      {
-        batchId: '2',
-        ...getEmptyCardCounts(),
-      },
-    ]
-  );
-  fireEvent.click(getByText('Show Results by Batch and Scanner'));
-  await screen.findByText('Official Batch 2 Tally Report');
-  fireEvent.click(getByText('Official Batch 2 Tally Report'));
-  getByText('Official Batch Tally Report for Batch 2 (Scanner: scanner-1)');
-  const reportPreview = getByTestId('report-preview');
-  const totalRow = within(reportPreview).getByTestId('total');
-  expect(totalRow).toHaveTextContent('4');
-
-  fireEvent.click(getByText('Back to Reports'));
-
-  await waitFor(() => {
-    fireEvent.click(getByText('Official Tally Reports for All Precincts'));
-  });
-
-  getByText(
-    'Official Mock General Election Choctaw 2020 Tally Reports for All Precincts'
-  );
-  // Test that each precinct has a tally report generated in the preview
-  for (const p of eitherNeitherElectionDefinition.election.precincts) {
-    getByText(`Official Precinct Tally Report for: ${p.name}`);
-  }
-  // The election title is written once for each precinct the preview, and in
-  // the footer of the page
-  expect(getAllByText('Mock General Election Choctaw 2020').length).toEqual(
-    eitherNeitherElectionDefinition.election.precincts.length + 1
-  );
-});
-
-test('manual tally data appears in reporting', async () => {
-  const electionDefinition = electionWithMsEitherNeitherDefinition;
-  const { election } = electionDefinition;
-  const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords(
-    await fileDataToCastVoteRecords(EITHER_NEITHER_CVR_DATA, electionDefinition)
-  );
-  apiMock.expectGetCurrentElectionMetadata({
-    electionDefinition,
-    isOfficialResults: false,
-  });
-
-  apiMock.expectGetCastVoteRecordFileMode('test');
-  apiMock.expectGetWriteInTalliesAdjudicated([]);
-
-  const district5ManualTally = buildSpecificManualTally(election, 100, {
-    '775020876': {
-      undervotes: 12,
-      overvotes: 8,
-      ballots: 100,
-      officialOptionTallies: {
-        '775031988': 32,
-        '775031987': 28,
-        '775031989': 20,
-      },
-    },
-  });
-  const talliesByPrecinct = getEmptyManualTalliesByPrecinct(election);
-  talliesByPrecinct['6522'] = district5ManualTally;
-  apiMock.expectGetFullElectionManualTally(
-    convertTalliesByPrecinctToFullManualTally(
-      talliesByPrecinct,
-      eitherNeitherElectionDefinition.election,
-      VotingMethod.Precinct,
-      new Date()
-    )
-  );
-  expectReportsScreenCardCountQueries({
-    apiMock,
-    isPrimary: false,
-  });
-  apiMock.expectGetScannerBatches([]);
-  apiMock.expectGetManualResultsMetadata([]);
-
-  renderApp();
-
-  await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
-
-  userEvent.click(screen.getByText('Reports'));
-  userEvent.click(screen.getByText('Unofficial Full Election Tally Report'));
-  // Report title should be rendered 2 times - app and preview
-  expect(
-    screen.getAllByText(
-      'Unofficial Mock General Election Choctaw 2020 Tally Report'
-    ).length
-  ).toEqual(2);
-
-  const reportPreview = screen.getByTestId('report-preview');
-  within(reportPreview).getByText(
-    'Unofficial Mock General Election Choctaw 2020 Tally Report'
-  );
-  const absenteeRow = within(reportPreview).getByTestId('absentee');
-  within(absenteeRow).getByText('Absentee');
-  within(absenteeRow).getByText('50');
-
-  const precinctRow = within(reportPreview).getByTestId('standard');
-  within(precinctRow).getByText('Precinct');
-  within(precinctRow).getByText('150');
-
-  const totalRow = within(reportPreview).getByTestId('total');
-  within(totalRow).getByText('Total Ballots Cast');
-  within(totalRow).getByText('200');
-});
-
 test('removing election resets cvr and manual data files', async () => {
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  const manualTally = convertTalliesByPrecinctToFullManualTally(
-    { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
-    eitherNeitherElectionDefinition.election,
-    VotingMethod.Absentee,
-    new Date()
-  );
-  apiMock.expectGetFullElectionManualTally(manualTally);
+  apiMock.expectGetFullElectionManualTally();
 
   const { getByText } = renderApp();
 
@@ -871,17 +687,13 @@ test('election manager cannot auth onto machine with different election hash', a
 });
 
 test('primary election flow', async () => {
-  const { electionDefinition, legacyCvrData } =
-    electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { renderApp } = buildApp(apiMock);
 
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetCastVoteRecords(
-    await fileDataToCastVoteRecords(legacyCvrData, electionDefinition)
-  );
+  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFileMode('test');
-  apiMock.expectGetWriteInTalliesAdjudicated([]);
 
   renderApp();
   await apiMock.authenticateAsElectionManager(electionDefinition);
@@ -900,47 +712,6 @@ test('primary election flow', async () => {
       'Test Deck Example Primary Election Nonpartisan Contests Tally Report'
     );
   });
-
-  // Check that nonpartisan races are separated in non party-specific reports
-  expectReportsScreenCardCountQueries({
-    apiMock,
-    isPrimary: true,
-  });
-  apiMock.expectGetScannerBatches([]);
-  apiMock.expectGetManualResultsMetadata([]);
-  userEvent.click(screen.getByText('Reports'));
-  userEvent.click(screen.getByText('Unofficial Full Election Tally Report'));
-  const pages = screen.getAllByTestId('election-full-tally-report');
-  expect(pages).toHaveLength(3);
-  within(pages[0]).getByText(
-    'Unofficial Mammal Party Example Primary Election Tally Report'
-  );
-  within(pages[1]).getByText(
-    'Unofficial Fish Party Example Primary Election Tally Report'
-  );
-  within(pages[2]).getByText(
-    'Unofficial Example Primary Election Nonpartisan Contests Tally Report'
-  );
-  within(
-    within(pages[2]).getByText('Total Ballots Cast').closest('tr')!
-  ).getByText('3,000');
-
-  // Check that nonpartisan races are broken out in party-specific reports
-  userEvent.click(screen.getByText('Reports'));
-  userEvent.click(
-    await screen.findByText('Unofficial Fish Party Tally Report')
-  );
-  const partyReportPages = screen.getAllByTestId('election-full-tally-report');
-  expect(partyReportPages).toHaveLength(2);
-  within(partyReportPages[0]).getByText(
-    'Unofficial Fish Party Example Primary Election Tally Report'
-  );
-  within(partyReportPages[1]).getByText(
-    'Unofficial Example Primary Election Nonpartisan Contests Tally Report'
-  );
-  within(
-    within(partyReportPages[1]).getByText('Total Ballots Cast').closest('tr')!
-  ).getByText('1,510');
 });
 
 test('usb formatting flows', async () => {

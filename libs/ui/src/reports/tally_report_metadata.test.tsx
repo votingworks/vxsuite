@@ -28,3 +28,10 @@ test('Renders report metadata', () => {
     /This report was created on Tuesday, November 3, 2020 at 10:22:00 PM UTC/
   );
 });
+
+test('while generating', () => {
+  const { getByText } = render(
+    <TallyReportMetadata election={electionWithMsEitherNeither} />
+  );
+  getByText(/Generating report/);
+});

@@ -70,7 +70,7 @@ const scannedElectionResults = buildElectionResultsFixture({
 const batchReportArgs: AdminTallyReportProps = {
   title: 'Official Batch Tally Report for Batch 1',
   subtitle: election.title,
-  key: 'batch-1',
+  testId: 'tally-report',
   election,
   contests,
   scannedElectionResults,
@@ -109,7 +109,7 @@ const manualElectionResults = buildManualResultsFixture({
 const ballotStyleManualReportArgs: AdminTallyReportProps = {
   title: 'TEST Ballot Style Tally Report for Ballot Style 2F',
   subtitle: election.title,
-  key: 'batch-1',
+  testId: 'tally-report',
   election,
   contests: getContests({
     election,

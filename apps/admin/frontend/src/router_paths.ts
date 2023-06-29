@@ -29,19 +29,20 @@ export const routerPaths = {
     `/tally/manual-data-entry/${ballotStyleId}/${votingMethod}/${precinctId}`,
   reports: '/reports',
   tally: '/tally',
+  tallyFullReport: '/reports/tally-reports/full',
   tallyPrecinctReport: ({ precinctId }: PrecinctReportScreenProps): string =>
     `/reports/tally-reports/precincts/${precinctId}`,
-  tallyPartyReport: ({ partyId }: PartyReportScreenProps): string =>
-    `/reports/tally-reports/parties/${partyId}`,
+  tallyAllPrecinctsReport: `/reports/tally-reports/all-precincts`,
   tallyVotingMethodReport: ({
     votingMethod,
   }: VotingMethodReportScreenProps): string =>
     `/reports/tally-reports/votingmethods/${votingMethod}`,
+  tallyPartyReport: ({ partyId }: PartyReportScreenProps): string =>
+    `/reports/tally-reports/parties/${partyId}`,
   tallyScannerReport: ({ scannerId }: ScannerReportScreenProps): string =>
     `/reports/tally-reports/scanners/${scannerId}`,
   tallyBatchReport: ({ batchId }: BatchReportScreenProps): string =>
     `/reports/tally-reports/batches/${batchId}`,
-  tallyFullReport: '/reports/tally-reports/full',
   tallyWriteInReport: '/reports/tally-reports/writein',
   logicAndAccuracy: '/logic-and-accuracy',
   testDecks: '/logic-and-accuracy/test-decks',

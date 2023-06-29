@@ -91,7 +91,7 @@ export function TallyReportCardCounts({
             <TD>Machine Marked</TD>
             <TD textAlign="right">{format.count(cardCounts.bmd)}</TD>
           </tr>
-          {cardCounts.manual && (
+          {cardCounts.manual !== undefined && cardCounts.manual > 0 && (
             <tr data-testid="manual">
               <TD>Manually Entered</TD>
               <TD textAlign="right">{format.count(cardCounts.manual)}</TD>
@@ -101,7 +101,7 @@ export function TallyReportCardCounts({
             <TD>
               <strong>Total</strong>
             </TD>
-            <TD textAlign="right">
+            <TD textAlign="right" data-testid="total-ballot-count">
               <strong>{format.count(getBallotCount(cardCounts))}</strong>
             </TD>
           </tr>
