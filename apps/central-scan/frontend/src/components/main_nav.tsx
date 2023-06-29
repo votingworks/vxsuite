@@ -15,7 +15,9 @@ const NavWrapper = styled('div')<NavProps>`
     isTestMode &&
     'linear-gradient( 135deg, #ff8c00 21.43%, #333333 21.43%, #333333 50%, #ff8c00 50%, #ff8c00 71.43%, #333333 71.43%, #333333 100% ) '};
   background-size: ${({ isTestMode }) => isTestMode && '98.99px 98.99px'};
-  background-color: ${({ isTestMode }) => !isTestMode && '#455a64'};
+  background-color: ${(p) => !p.isTestMode && p.theme.colors.background};
+  border-bottom: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
+    ${(p) => p.theme.colors.foreground};
   order: -1;
 `;
 
@@ -31,7 +33,7 @@ const Brand = styled.div`
   display: inline-block;
   margin: 0.75rem 1rem;
   white-space: nowrap;
-  color: #ffffff;
+  color: ${(p) => p.theme.colors.foreground};
   font-size: 1.3rem;
   font-weight: 600;
   & span {
@@ -59,10 +61,6 @@ const TestMode = styled.span`
   text-align: center;
 `;
 
-const SessionTimeLimitTimerWrapper = styled.span`
-  color: #ffffff;
-`;
-
 interface Props extends NavProps {
   children?: React.ReactNode;
 }
@@ -81,9 +79,7 @@ export function MainNav({ children, isTestMode = false }: Props): JSX.Element {
         </Brand>
         {isTestMode && <TestMode>Machine is in Test Ballot Mode</TestMode>}
         <NavButtons>
-          <SessionTimeLimitTimerWrapper>
-            <SessionTimeLimitTimer authStatus={authStatusQuery.data} />
-          </SessionTimeLimitTimerWrapper>
+          <SessionTimeLimitTimer authStatus={authStatusQuery.data} />
           {children}
         </NavButtons>
       </Nav>
