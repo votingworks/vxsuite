@@ -1,4 +1,3 @@
-import React from 'react';
 import MockDate from 'mockdate';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { computeTallyWithPrecomputedCategories } from '@votingworks/utils';
 import { ManualTally, TallyCategory } from '@votingworks/types';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';

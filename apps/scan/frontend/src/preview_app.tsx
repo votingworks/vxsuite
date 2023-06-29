@@ -7,7 +7,6 @@ import {
   electionWithMsEitherNeitherDefinition,
   primaryElectionSampleDefinition,
 } from '@votingworks/fixtures';
-import React from 'react';
 import { PreviewDashboard } from './preview_dashboard';
 import * as CardErrorScreen from './screens/card_error_screen';
 import * as ElectionManagerScreen from './screens/election_manager_screen';

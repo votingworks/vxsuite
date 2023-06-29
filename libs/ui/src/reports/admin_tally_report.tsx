@@ -1,4 +1,3 @@
-import React from 'react';
 import { Contests, Election, Tabulation } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { ReportSection, TallyReport, TallyReportColumns } from './tally_report';

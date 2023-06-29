@@ -1,4 +1,3 @@
-import React from 'react';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';

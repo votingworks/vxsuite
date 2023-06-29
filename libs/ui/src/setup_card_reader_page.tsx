@@ -1,4 +1,3 @@
-import React from 'react';
 import { Main } from './main';
 import { Prose } from './prose';
 import { Screen } from './screen';

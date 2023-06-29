@@ -1,7 +1,6 @@
 import { Scan } from '@votingworks/api';
 import { AdjudicationStatus } from '@votingworks/types';
 import { createMemoryHistory } from 'history';
-import React from 'react';
 import { Router } from 'react-router-dom';
 import { render } from '../../test/react_testing_library';
 import { DashboardScreen } from './dashboard_screen';

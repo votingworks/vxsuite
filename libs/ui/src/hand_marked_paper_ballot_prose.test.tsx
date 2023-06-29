@@ -1,4 +1,3 @@
-import React from 'react';
 import { render } from '../test/react_testing_library';
 
 import { HandMarkedPaperBallotProse } from './hand_marked_paper_ballot_prose';

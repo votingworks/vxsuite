@@ -1,6 +1,5 @@
 import { MemoryHardware, NullPrinter } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
-import React from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { LogSource, Logger } from '@votingworks/logging';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { electionMinimalExhaustiveSample } from '@votingworks/fixtures';
 import { YesNoContest as YesNoContestInterface } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';

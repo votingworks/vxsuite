@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { InvalidCardScreen as SharedInvalidCardScreen } from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 

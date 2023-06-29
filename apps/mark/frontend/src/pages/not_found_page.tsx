@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { Button, Main, Screen, Prose, H1, P } from '@votingworks/ui';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { electionWithMsEitherNeither } from '@votingworks/fixtures';
 import { find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';

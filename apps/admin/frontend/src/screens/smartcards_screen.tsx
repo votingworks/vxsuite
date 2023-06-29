@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components';
 import { assert } from '@votingworks/basics';
 import { LinkButton, P } from '@votingworks/ui';

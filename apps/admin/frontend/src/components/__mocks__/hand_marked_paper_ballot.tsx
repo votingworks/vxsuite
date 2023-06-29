@@ -1,5 +1,5 @@
 import { getPrecinctById } from '@votingworks/types';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { HandMarkedPaperBallotProps } from '../hand_marked_paper_ballot';
 
 export function HandMarkedPaperBallot({

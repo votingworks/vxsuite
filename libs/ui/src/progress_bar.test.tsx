@@ -1,4 +1,3 @@
-import React from 'react';
 import { render } from '../test/react_testing_library';
 
 import { ProgressBar } from './progress_bar';

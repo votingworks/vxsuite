@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components';
 import { ProgressEllipsis } from './progress_ellipsis';
 import { Prose } from './prose';

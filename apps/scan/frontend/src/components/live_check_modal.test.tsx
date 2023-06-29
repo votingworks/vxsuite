@@ -1,5 +1,3 @@
-import React from 'react';
-
 import MockDate from 'mockdate';
 
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';

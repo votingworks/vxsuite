@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { fireEvent, render, screen } from '../../test/react_testing_library';
 import { App } from '../app';

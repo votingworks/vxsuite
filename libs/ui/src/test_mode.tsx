@@ -1,4 +1,3 @@
-import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { H1 } from './typography';
 import { makeTheme } from './themes/make_theme';

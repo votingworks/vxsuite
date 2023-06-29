@@ -1,5 +1,4 @@
 /* stylelint-disable order/properties-order, value-keyword-case */
-import React from 'react';
 import styled, { css, keyframes } from 'styled-components';
 
 import { Svg } from './svg';

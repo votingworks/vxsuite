@@ -1,5 +1,4 @@
 import MockDate from 'mockdate';
-import React from 'react';
 
 import { act, render, screen } from '@testing-library/react';
 import { hasTextAcrossElements } from '@votingworks/test-utils';

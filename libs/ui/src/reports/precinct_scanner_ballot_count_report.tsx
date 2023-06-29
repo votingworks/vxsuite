@@ -10,7 +10,6 @@ import {
   getPollsTransitionDestinationState,
 } from '@votingworks/utils';
 import { DateTime } from 'luxon';
-import React from 'react';
 import styled from 'styled-components';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 import { Prose } from '../prose';

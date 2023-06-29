@@ -1,5 +1,4 @@
 import { CenteredLargeProse, H1, LoadingAnimation, P } from '@votingworks/ui';
-import React from 'react';
 import { ScreenMainCenterChild } from '../components/layout';
 
 export function ScanProcessingScreen(): JSX.Element {

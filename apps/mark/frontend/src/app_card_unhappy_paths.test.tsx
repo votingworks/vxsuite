@@ -1,4 +1,3 @@
-import React from 'react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';

@@ -9,7 +9,6 @@ import {
   fakeKiosk,
   fakeUsbDrive,
 } from '@votingworks/test-utils';
-import React from 'react';
 import { mockUsbDrive } from '@votingworks/ui';
 import { screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';

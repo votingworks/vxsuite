@@ -1,4 +1,3 @@
-import React from 'react';
 import { getHardware } from '@votingworks/utils';
 import { BrowserRouter } from 'react-router-dom';
 import { Logger, LogSource } from '@votingworks/logging';

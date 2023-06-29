@@ -1,5 +1,4 @@
 import { BallotPackageConfigurationError } from '@votingworks/types';
-import React from 'react';
 import { render, screen } from '../test/react_testing_library';
 
 import { UnconfiguredElectionScreen } from './unconfigured_election_screen';

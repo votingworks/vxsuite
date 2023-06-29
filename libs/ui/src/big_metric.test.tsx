@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { render, screen } from '../test/react_testing_library';
 import { BigMetric } from './big_metric';
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { SessionTimeLimitTracker as SessionTimeLimitTrackerBase } from '@votingworks/ui';
 
 import { getAuthStatus, getConfig, logOut, updateSessionExpiry } from '../api';

@@ -4,7 +4,6 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import MockDate from 'mockdate';
-import React from 'react';
 import { mocked } from 'ts-jest/utils';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';

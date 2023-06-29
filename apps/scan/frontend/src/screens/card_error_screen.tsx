@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { CenteredLargeProse, H1, P, RotateCardImage } from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 

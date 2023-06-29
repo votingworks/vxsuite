@@ -1,5 +1,4 @@
 /* stylelint-disable order/properties-order */
-import React from 'react';
 import styled, { DefaultTheme } from 'styled-components';
 
 const SvgContainer = styled.svg`

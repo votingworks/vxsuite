@@ -1,4 +1,3 @@
-import React from 'react';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import {
   buildElectionResultsFixture,

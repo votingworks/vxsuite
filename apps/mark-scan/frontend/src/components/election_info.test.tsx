@@ -1,4 +1,3 @@
-import React from 'react';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';

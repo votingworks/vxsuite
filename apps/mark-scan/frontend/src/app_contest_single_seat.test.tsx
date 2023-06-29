@@ -1,4 +1,3 @@
-import React from 'react';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';

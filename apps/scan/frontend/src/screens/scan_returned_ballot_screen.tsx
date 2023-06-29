@@ -1,4 +1,3 @@
-import React from 'react';
 import { Caption, CenteredLargeProse, H1 } from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 

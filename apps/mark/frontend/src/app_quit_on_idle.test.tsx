@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 

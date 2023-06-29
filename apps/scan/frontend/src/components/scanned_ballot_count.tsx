@@ -1,4 +1,3 @@
-import React from 'react';
 import { BigMetric } from '@votingworks/ui';
 import styled from 'styled-components';
 

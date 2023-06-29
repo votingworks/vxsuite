@@ -1,5 +1,5 @@
 /* stylelint-disable order/properties-order, value-keyword-case, order/order */
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import ReactModal from 'react-modal';
 import styled from 'styled-components';
 import { rgba } from 'polished';

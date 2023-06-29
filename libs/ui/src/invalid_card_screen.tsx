@@ -1,4 +1,3 @@
-import React from 'react';
 import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
 
 import { fontSizeTheme } from './themes';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { fakeKiosk } from '@votingworks/test-utils';
 
 import { ElectronFile, UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
 import { electionMinimalExhaustiveSampleSinglePrecinctDefinition } from '@votingworks/fixtures';
 import { getDisplayElectionHash } from '@votingworks/types';

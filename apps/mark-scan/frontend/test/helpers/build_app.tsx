@@ -1,6 +1,5 @@
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
-import React from 'react';
 import { render, RenderResult } from '../react_testing_library';
 import { App } from '../../src/app';
 import { ScreenReader, TextToSpeech } from '../../src/config/types';

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { render, screen } from '../test/react_testing_library';
 import { LabelledText } from './labelled_text';
 

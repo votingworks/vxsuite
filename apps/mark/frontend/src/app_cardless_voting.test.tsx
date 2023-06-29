@@ -1,4 +1,3 @@
-import React from 'react';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { FakeKiosk, expectPrint, fakeKiosk } from '@votingworks/test-utils';
 import { electionSampleDefinition } from '@votingworks/fixtures';

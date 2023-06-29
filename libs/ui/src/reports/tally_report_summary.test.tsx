@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { Tally, VotingMethod } from '@votingworks/types';
 import {
   electionSampleDefinition,

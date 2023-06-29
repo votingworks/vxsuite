@@ -1,4 +1,3 @@
-import React from 'react';
 import { electionSample } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import {

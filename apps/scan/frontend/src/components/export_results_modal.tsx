@@ -10,7 +10,7 @@ import {
   P,
 } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
-// eslint-disable-next-line vx/gts-no-import-export-type
+
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   ejectUsbDrive,

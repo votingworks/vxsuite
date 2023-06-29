@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { expectPrint } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';

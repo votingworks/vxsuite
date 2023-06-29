@@ -1,4 +1,3 @@
-import React from 'react';
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
 import {
   electionSample2Definition,

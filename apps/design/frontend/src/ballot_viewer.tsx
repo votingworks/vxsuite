@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import React, { useRef, useState, useMemo, useCallback } from 'react';
+import { useRef, useState, useMemo, useCallback } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
 import { BallotStyle, Election, Precinct } from '@votingworks/types';
 import styled from 'styled-components';

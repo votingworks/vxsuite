@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { MemoryStorage } from '@votingworks/utils';
 import { advanceTimersAndPromises } from '@votingworks/test-utils';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';

@@ -1,7 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { sleep } from '@votingworks/basics';
-import React from 'react';
 import type {
   WriteInCandidateRecord,
   WriteInRecordPending,

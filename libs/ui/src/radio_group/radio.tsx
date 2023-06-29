@@ -1,5 +1,5 @@
 /* stylelint-disable order/properties-order, value-keyword-case */
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import styled, { css } from 'styled-components';
 
 import { OptionProps, RadioGroupOptionId } from './types';

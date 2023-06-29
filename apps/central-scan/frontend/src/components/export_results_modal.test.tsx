@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import fetchMock from 'fetch-mock';

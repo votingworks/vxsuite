@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { Election } from '@votingworks/types';
 
 import { format } from '@votingworks/utils';
