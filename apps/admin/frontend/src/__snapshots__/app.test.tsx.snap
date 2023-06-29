@@ -15,23 +15,8 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   height: 0.25in;
 }
 
-<<<<<<< HEAD
-.c6 {
-  border-color: rgb(194,200,203);
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-}
-
-.c6 th,
-.c6 td {
-  border-bottom: 1px solid rgb(194,200,203);
-  padding: 0.25rem 0.5rem;
-}
-
-.c6 th {
-  border-top: 1px solid rgb(194,200,203);
-  font-size: 0.75rem;
+.c7 {
+  white-space: nowrap;
 }
 
 .c8 {
@@ -184,14 +169,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 }
 
 @media print {
-  .c6 {
-    border-top: 1px solid rgb(194,200,203);
-  }
-}
-
-@media print {
-=======
->>>>>>> d90ad1e5a (admin/frontend - test decks, adjust tests)
   .c0 {
     font-size: 12px;
   }
@@ -1352,21 +1329,6 @@ exports[`L&A (logic and accuracy) flow 2`] = `
 
 }
 
-@media print {
-
-}
-
-@media print {
-
-}
-
-<<<<<<< HEAD
-=======
-@media print {
-
-}
-
->>>>>>> d90ad1e5a (admin/frontend - test decks, adjust tests)
 <div>
   <div
     aria-hidden="true"
@@ -2621,21 +2583,6 @@ exports[`L&A (logic and accuracy) flow 3`] = `
 
 }
 
-@media print {
-
-}
-
-@media print {
-
-}
-
-<<<<<<< HEAD
-=======
-@media print {
-
-}
-
->>>>>>> d90ad1e5a (admin/frontend - test decks, adjust tests)
 <div>
   <div>
     <h1>
