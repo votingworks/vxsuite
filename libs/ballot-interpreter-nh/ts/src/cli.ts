@@ -359,7 +359,6 @@ async function interpretWorkspace(
           )
           .all()
   ) as Array<{ id: string; frontPath: string; backPath: string }>;
-  console.log(sheets);
 
   /**
    * Look for the ballot images where the database says they are, and if not
