@@ -298,24 +298,6 @@ export type WriteInAdjudicatedTally =
 export type WriteInTally = WriteInPendingTally | WriteInAdjudicatedTally;
 
 /**
- * The write-in summary for a specific contest including the number of total
- * write-ins, pending write-ins, invalid write-ins, and write-ins adjudicated
- * for each candidate.
- */
-export interface ContestWriteInSummary {
-  contestId: ContestId;
-  totalTally: number;
-  pendingTally: number;
-  invalidTally: number;
-  candidateTallies: Record<Id, Tabulation.CandidateTally>;
-}
-
-/** */
-export interface ElectionWriteInSummary {
-  contestWriteInSummaries: Record<ContestId, ContestWriteInSummary>;
-}
-
-/**
  * Information necessary to adjudicate a write-in for an official candidate.
  */
 export interface WriteInAdjudicationActionOfficialCandidate {

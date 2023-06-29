@@ -11,7 +11,6 @@ import {
   tabulateWriteInTallies,
   modifyElectionResultsWithWriteInSummary,
 } from './write_ins';
-import { ContestWriteInSummary, ElectionWriteInSummary } from '../types';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
@@ -101,7 +100,7 @@ test('convertContestWriteInSummaryToWriteInTallies', () => {
   );
 });
 
-const mockZooCouncilMammalSummary: ContestWriteInSummary = {
+const mockZooCouncilMammalSummary: Tabulation.ContestWriteInSummary = {
   totalTally: 32,
   contestId: 'zoo-council-mammal',
   pendingTally: 11,
@@ -122,7 +121,7 @@ const mockZooCouncilMammalSummary: ContestWriteInSummary = {
   },
 };
 
-const mockAquariumCouncilFishSummary: ContestWriteInSummary = {
+const mockAquariumCouncilFishSummary: Tabulation.ContestWriteInSummary = {
   totalTally: 28,
   contestId: 'aquarium-council-fish',
   pendingTally: 4,
@@ -218,7 +217,7 @@ test('tabulateWriteInTallies', () => {
   // because we're only testing filtering
   function getMockElectionWriteInSummary(
     pendingTally: number
-  ): ElectionWriteInSummary {
+  ): Tabulation.ElectionWriteInSummary {
     const electionWriteInSummary = getEmptyElectionWriteInSummary(election);
     const contestWriteInSummary =
       getEmptyContestWriteInSummary('zoo-council-mammal');

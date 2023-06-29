@@ -6,11 +6,7 @@ import {
   isGroupByEmpty,
 } from '@votingworks/utils';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import {
-  ContestWriteInSummary,
-  ElectionWriteInSummary,
-  WriteInTally,
-} from '../types';
+import { WriteInTally } from '../types';
 import { Store } from '../store';
 
 /**
@@ -18,7 +14,7 @@ import { Store } from '../store';
  */
 export function getEmptyContestWriteInSummary(
   contestId: ContestId
-): ContestWriteInSummary {
+): Tabulation.ContestWriteInSummary {
   return {
     contestId,
     totalTally: 0,
@@ -34,8 +30,8 @@ export function getEmptyContestWriteInSummary(
  */
 export function getEmptyElectionWriteInSummary(
   election: Election
-): ElectionWriteInSummary {
-  const electionWriteInSummary: ElectionWriteInSummary = {
+): Tabulation.ElectionWriteInSummary {
+  const electionWriteInSummary: Tabulation.ElectionWriteInSummary = {
     contestWriteInSummaries: {},
   };
   for (const contest of election.contests) {
@@ -53,7 +49,7 @@ export function getEmptyElectionWriteInSummary(
  * that would be retrieved from the store. For testing purposes only.
  */
 export function convertContestWriteInSummaryToWriteInTallies(
-  contestWriteInSummary: Tabulation.GroupOf<ContestWriteInSummary>
+  contestWriteInSummary: Tabulation.GroupOf<Tabulation.ContestWriteInSummary>
 ): Array<Tabulation.GroupOf<WriteInTally>> {
   const writeInTallies: Array<Tabulation.GroupOf<WriteInTally>> = [];
   const groupSpecifier = extractGroupSpecifier(contestWriteInSummary);
@@ -98,7 +94,7 @@ export function convertContestWriteInSummaryToWriteInTallies(
 }
 
 /**
- * Adds a {@link WriteInTally} into a {@link ElectionWriteInSummary}. Modifies
+ * Adds a {@link WriteInTally} into a {@link Tabulation.ElectionWriteInSummary}. Modifies
  * the summary in place! Do not export. Write-in tallies of the same type (e.g.)
  * invalid, pending, or for a specific candidate do not accumulate, they simply
  * overwrite existing values. This is because we only expect one of each type
@@ -108,9 +104,9 @@ function addWriteInTallyToElectionWriteInSummary({
   writeInTally,
   electionWriteInSummary,
 }: {
-  electionWriteInSummary: ElectionWriteInSummary;
+  electionWriteInSummary: Tabulation.ElectionWriteInSummary;
   writeInTally: WriteInTally;
-}): ElectionWriteInSummary {
+}): Tabulation.ElectionWriteInSummary {
   const contestWriteInSummary =
     electionWriteInSummary.contestWriteInSummaries[writeInTally.contestId];
   assert(contestWriteInSummary);
@@ -163,7 +159,7 @@ export function tabulateWriteInTallies({
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-}): Tabulation.GroupMap<ElectionWriteInSummary> {
+}): Tabulation.GroupMap<Tabulation.ElectionWriteInSummary> {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
@@ -175,7 +171,7 @@ export function tabulateWriteInTallies({
     groupBy,
   });
 
-  const electionWriteInSummaryGroupMap: Record<string, ElectionWriteInSummary> =
+  const electionWriteInSummaryGroupMap: Tabulation.GroupMap<Tabulation.ElectionWriteInSummary> =
     {};
 
   // optimized special case, when the results do not need to be grouped
@@ -218,7 +214,7 @@ export function tabulateWriteInTallies({
  */
 export function modifyElectionResultsWithWriteInSummary(
   results: Tabulation.ElectionResults,
-  writeInSummary: ElectionWriteInSummary
+  writeInSummary: Tabulation.ElectionWriteInSummary
 ): Tabulation.ElectionResults {
   const modifiedElectionResults: Tabulation.ElectionResults = {
     ...results,
