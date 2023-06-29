@@ -389,9 +389,6 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
-      '@zip.js/zip.js':
-        specifier: ^2.4.12
-        version: 2.4.12
       array-unique:
         specifier: ^0.3.2
         version: 0.3.2
@@ -14916,10 +14913,6 @@ packages:
       esbuild: 0.16.17
       tslib: 2.4.0
     dev: true
-
-  /@zip.js/zip.js@2.4.12:
-    resolution: {integrity: sha512-Y9VTILBi067CUNyaCTeLXxAVbB547EdUfAJZndfpnqYm8r2blVmHAqvggPYw2p89rTCvJAhDXlGkY4cv0+JYmA==}
-    dev: false
 
   /abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
