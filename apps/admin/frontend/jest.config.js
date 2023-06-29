@@ -1,15 +1,5 @@
 const shared = require('../../../jest.config.shared');
 
-const nodeModulesNeedingTransform = [
-  // `@zip.js/zip.js` uses ES modules and `import.meta.url`, but Babel does not
-  // transform anything in `node_modules` by default.
-  '@zip.js/zip.js'
-];
-
-function regexEscape(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 /**
  * @type {import('@jest/types').Config.InitialOptions}
  */
@@ -64,9 +54,7 @@ module.exports = {
       '<rootDir>/config/jest/fileTransform.js',
   },
   transformIgnorePatterns: [
-    `[/\\\\]node_modules[/\\\\](?!\\.pnpm|${nodeModulesNeedingTransform
-      .map(regexEscape)
-      .join('|')}).+\\.(js|jsx|mjs|cjs|ts|tsx)$`,
+    `[/\\\\]node_modules[/\\\\](?!\\.pnpm).+\\.(js|jsx|mjs|cjs|ts|tsx)$`,
     '^.+\\.module\\.(css|sass|scss)$',
   ],
   watchPlugins: [
