@@ -2,8 +2,7 @@ import React from 'react';
 import { getHardware } from '@votingworks/utils';
 import { BrowserRouter } from 'react-router-dom';
 import { Logger, LogSource } from '@votingworks/logging';
-import { ColorMode } from '@votingworks/types';
-import { AppBase, ErrorBoundary, Prose, Text } from '@votingworks/ui';
+import { AppBase, ErrorBoundary, H1, P } from '@votingworks/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppRoot, AppRootProps } from './app_root';
 import {
@@ -27,34 +26,29 @@ export function App({
   apiClient = createApiClient(),
   queryClient = createQueryClient(),
 }: Props): JSX.Element {
-  // Copied from old App.css
-  const baseFontSizePx = 24;
-
-  // TODO: Default to medium contrast and vary based on user selection.
-  const colorMode: ColorMode = 'legacy';
-
   return (
     <BrowserRouter>
-      <ErrorBoundary
-        errorMessage={
-          <Prose textCenter>
-            <h1>Something went wrong</h1>
-            <Text>Please restart the machine.</Text>
-          </Prose>
-        }
+      <AppBase
+        defaultColorMode="contrastMedium"
+        defaultSizeMode="s"
+        screenType="lenovoThinkpad15"
       >
-        <ApiClientContext.Provider value={apiClient}>
-          <QueryClientProvider client={queryClient}>
-            <AppBase
-              defaultColorMode={colorMode}
-              legacyBaseFontSizePx={baseFontSizePx}
-            >
+        <ErrorBoundary
+          errorMessage={
+            <React.Fragment>
+              <H1>Something went wrong</H1>
+              <P>Please restart the machine.</P>
+            </React.Fragment>
+          }
+        >
+          <ApiClientContext.Provider value={apiClient}>
+            <QueryClientProvider client={queryClient}>
               <AppRoot hardware={hardware} logger={logger} />
               <SessionTimeLimitTracker />
-            </AppBase>
-          </QueryClientProvider>
-        </ApiClientContext.Provider>
-      </ErrorBoundary>
+            </QueryClientProvider>
+          </ApiClientContext.Provider>
+        </ErrorBoundary>
+      </AppBase>
     </BrowserRouter>
   );
 }
