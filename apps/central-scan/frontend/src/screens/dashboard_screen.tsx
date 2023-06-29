@@ -1,21 +1,14 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import pluralize from 'pluralize';
 
 import { Scan } from '@votingworks/api';
 
-import { Button } from '@votingworks/ui';
+import { Button, Font, H1, Icons, P, TD, Table } from '@votingworks/ui';
 import { BatchInfo } from '@votingworks/types';
-import { Prose } from '../components/prose';
-import { Table, TD } from '../components/table';
 import { DeleteBatchModal } from '../components/delete_batch_modal';
 
 pluralize.addIrregularRule('requires', 'require');
 pluralize.addIrregularRule('has', 'have');
-
-const Scanning = styled.em`
-  color: rgb(71, 167, 75);
-`;
 
 function z2(number: number) {
   return number.toString().padStart(2, '0');
@@ -42,25 +35,18 @@ export function DashboardScreen({ isScanning, status }: Props): JSX.Element {
 
   return (
     <React.Fragment>
-      <Prose maxWidth={false}>
-        <h1>Scanned Ballot Batches</h1>
+      <H1>Scanned Ballot Batches</H1>
+      <div>
         {batchCount ? (
           <React.Fragment>
-            <p>
-              {ballotCount === 1 ? (
-                <React.Fragment>
-                  A total of <strong>1 ballot</strong> has been scanned in{' '}
-                  <strong>{pluralize('batch', batchCount, true)}</strong>.
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  A total of{' '}
-                  <strong>{pluralize('ballot', ballotCount, true)}</strong> have
-                  been scanned in{' '}
-                  <strong>{pluralize('batch', batchCount, true)}</strong>.
-                </React.Fragment>
-              )}
-            </p>
+            <P>
+              A total of{' '}
+              <Font weight="bold">
+                {pluralize('ballot', ballotCount, true)}
+              </Font>{' '}
+              {ballotCount === 1 ? 'has' : 'have'} been scanned in{' '}
+              <Font weight="bold">{pluralize('batch', batchCount, true)}</Font>.
+            </P>
             <Table>
               <thead>
                 <tr>
@@ -76,21 +62,18 @@ export function DashboardScreen({ isScanning, status }: Props): JSX.Element {
                   <tr key={batch.id}>
                     <td>{batch.label}</td>
                     <td>{batch.count}</td>
-                    <TD nowrap>
-                      <small>{shortDateTime(batch.startedAt)}</small>
-                    </TD>
+                    <TD nowrap>{shortDateTime(batch.startedAt)}</TD>
                     <TD nowrap>
                       {isScanning && !batch.endedAt ? (
-                        <Scanning>Scanning…</Scanning>
+                        <Font color="success" weight="bold">
+                          <Icons.Loading /> Scanning…
+                        </Font>
                       ) : batch.endedAt ? (
-                        <small>{shortDateTime(batch.endedAt)}</small>
+                        shortDateTime(batch.endedAt)
                       ) : null}
                     </TD>
                     <TD narrow>
-                      <Button
-                        small
-                        onPress={() => setPendingDeleteBatch(batch)}
-                      >
+                      <Button onPress={() => setPendingDeleteBatch(batch)}>
                         Delete
                       </Button>
                     </TD>
@@ -100,9 +83,9 @@ export function DashboardScreen({ isScanning, status }: Props): JSX.Element {
             </Table>
           </React.Fragment>
         ) : (
-          <p>No ballots have been scanned.</p>
+          <P>No ballots have been scanned.</P>
         )}
-      </Prose>
+      </div>
       {pendingDeleteBatch && (
         <DeleteBatchModal
           batchId={pendingDeleteBatch.id}

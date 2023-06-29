@@ -28,6 +28,7 @@ import {
   faChevronCircleDown,
   faChevronRight,
   faSquarePlus,
+  faSpinner,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -38,6 +39,8 @@ import { Font, FontProps } from './typography';
 import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info';
 
 interface InnerProps {
+  pulse?: boolean;
+  spin?: boolean;
   type: IconDefinition;
 }
 
@@ -48,9 +51,9 @@ const StyledSvgIcon = styled.svg`
 `;
 
 function FaIcon(props: InnerProps): JSX.Element {
-  const { type } = props;
+  const { pulse, spin, type } = props;
 
-  return <FontAwesomeIcon icon={type} />;
+  return <FontAwesomeIcon icon={type} spin={spin} pulse={pulse} />;
 }
 
 /**
@@ -127,6 +130,10 @@ export const Icons = {
 
   Info(): JSX.Element {
     return <FaIcon type={faInfoCircle} />;
+  },
+
+  Loading(): JSX.Element {
+    return <FaIcon type={faSpinner} pulse spin />;
   },
 
   Next(): JSX.Element {
