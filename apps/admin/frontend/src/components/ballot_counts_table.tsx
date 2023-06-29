@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { format, getBallotCount } from '@votingworks/utils';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { LinkButton, Table, TD } from '@votingworks/ui';

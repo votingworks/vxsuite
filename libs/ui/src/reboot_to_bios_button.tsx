@@ -1,6 +1,6 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from './button';
 import { Loading } from './loading';
 import { Modal } from './modal';

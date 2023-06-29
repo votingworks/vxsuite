@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { Main, Screen, Prose, H1, P } from '@votingworks/ui';
 
 export function SetupPrinterPage(): JSX.Element {

@@ -1,5 +1,5 @@
 import { ElectionInfoBar, Main, Screen, H1, P } from '@votingworks/ui';
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
 

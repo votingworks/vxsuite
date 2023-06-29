@@ -1,4 +1,3 @@
-import React from 'react';
 import { Router, StaticRouter } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 

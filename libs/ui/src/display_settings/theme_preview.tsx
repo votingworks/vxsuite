@@ -1,5 +1,4 @@
 /* stylelint-disable order/properties-order */
-import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 
 import { ColorMode, SizeMode } from '@votingworks/types';

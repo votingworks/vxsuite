@@ -1,4 +1,3 @@
-import React from 'react';
 import { FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
 
 import { Screen } from '../components/layout';

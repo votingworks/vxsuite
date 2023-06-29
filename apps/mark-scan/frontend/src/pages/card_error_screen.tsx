@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { Main, Screen, Prose, RotateCardImage, H1, P } from '@votingworks/ui';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';

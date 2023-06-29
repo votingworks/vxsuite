@@ -1,4 +1,3 @@
-import React from 'react';
 import MockDate from 'mockdate';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';

@@ -1,4 +1,3 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { sleep } from '@votingworks/basics';
 import { render, screen, waitFor, within } from '../test/react_testing_library';

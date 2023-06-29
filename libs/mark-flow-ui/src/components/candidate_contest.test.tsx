@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { CandidateContest as CandidateContestInterface } from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 

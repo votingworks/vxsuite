@@ -1,5 +1,4 @@
 import { QRCodeSVG } from 'qrcode.react';
-import React from 'react';
 import styled from 'styled-components';
 
 const ResponsiveSvgWrapper = styled.div`

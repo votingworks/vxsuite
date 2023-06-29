@@ -5,7 +5,6 @@ import {
   StandardPollsTransition,
   Tally,
 } from '@votingworks/types';
-import React from 'react';
 import { ContestTally } from './contest_tally';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 import {

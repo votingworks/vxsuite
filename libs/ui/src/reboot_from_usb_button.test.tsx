@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { fakeKiosk } from '@votingworks/test-utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { fireEvent, render, screen } from '../test/react_testing_library';

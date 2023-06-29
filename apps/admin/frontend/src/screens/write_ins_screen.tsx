@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { Button, Font, Icons, P, Table, TD, TH } from '@votingworks/ui';

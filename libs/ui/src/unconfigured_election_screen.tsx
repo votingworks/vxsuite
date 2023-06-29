@@ -1,4 +1,3 @@
-import React from 'react';
 import { BallotPackageConfigurationError } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import { UsbDriveStatus } from './hooks/use_usb_drive';

@@ -1,5 +1,4 @@
 /* stylelint-disable order/properties-order */
-import React from 'react';
 import styled from 'styled-components';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

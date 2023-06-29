@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { Main, Screen, CenteredLargeProse, H1, P } from '@votingworks/ui';
 
 interface Props {

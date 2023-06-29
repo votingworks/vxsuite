@@ -6,7 +6,6 @@ import {
 } from '@votingworks/utils';
 
 import fetchMock from 'fetch-mock';
-import * as React from 'react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { fireEvent, screen, waitFor } from '../test/react_testing_library';

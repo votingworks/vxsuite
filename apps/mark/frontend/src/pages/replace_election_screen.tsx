@@ -14,7 +14,7 @@ import { formatLongDate } from '@votingworks/utils';
 import type { MachineConfig } from '@votingworks/mark-backend';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { ScreenReader } from '../config/types';
 
 export interface ReplaceElectionScreenProps {

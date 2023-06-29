@@ -6,7 +6,6 @@ import {
   fakeKiosk,
   fakeUsbDrive,
 } from '@votingworks/test-utils';
-import React from 'react';
 import { render, screen, waitFor } from '../../test/react_testing_library';
 import { UsbControllerButton } from '../usbcontroller_button';
 import {

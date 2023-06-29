@@ -7,7 +7,6 @@ import {
 import { Scan } from '@votingworks/api';
 import { typedAs } from '@votingworks/basics';
 import fetchMock from 'fetch-mock';
-import React from 'react';
 import { act } from 'react-dom/test-utils';
 import userEvent from '@testing-library/user-event';
 import {

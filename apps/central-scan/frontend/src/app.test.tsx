@@ -1,5 +1,4 @@
 import fetchMock from 'fetch-mock';
-import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {

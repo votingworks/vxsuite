@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Font, H1, Main, P, Prose, Screen } from '@votingworks/ui';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';

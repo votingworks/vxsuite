@@ -5,7 +5,6 @@ import {
   fakeKiosk,
   fakeUsbDrive,
 } from '@votingworks/test-utils';
-import React from 'react';
 import { UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { err } from '@votingworks/basics';

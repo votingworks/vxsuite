@@ -1,5 +1,4 @@
 /* stylelint-disable order/properties-order */
-import React from 'react';
 import styled, { DefaultTheme } from 'styled-components';
 import { Button } from './button';
 import { Icons } from './icons';

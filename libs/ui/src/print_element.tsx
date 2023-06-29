@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import ReactDom from 'react-dom';
 import styled from 'styled-components';
 

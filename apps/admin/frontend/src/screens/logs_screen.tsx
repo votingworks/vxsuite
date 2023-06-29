@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { ExportLogsButtonRow } from '@votingworks/ui';
 
 import { AppContext } from '../contexts/app_context';

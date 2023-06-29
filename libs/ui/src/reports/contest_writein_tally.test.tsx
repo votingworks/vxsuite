@@ -1,4 +1,3 @@
-import React from 'react';
 import { ContestId, Election } from '@votingworks/types';
 import { electionSample2Fixtures } from '@votingworks/fixtures';
 import { render, screen, within } from '../../test/react_testing_library';

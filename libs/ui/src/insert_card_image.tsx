@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { Svg } from './svg';
 
 export function InsertCardImage(): JSX.Element {

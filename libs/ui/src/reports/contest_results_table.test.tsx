@@ -1,4 +1,3 @@
-import React from 'react';
 import { buildContestResultsFixture } from '@votingworks/utils';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';

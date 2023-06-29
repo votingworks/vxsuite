@@ -1,4 +1,3 @@
-import React from 'react';
 import { fakeLogger } from '@votingworks/logging';
 import { screen } from '../../test/react_testing_library';
 

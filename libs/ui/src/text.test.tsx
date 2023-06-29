@@ -1,4 +1,3 @@
-import React from 'react';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../test/react_testing_library';
 

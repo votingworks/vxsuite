@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { Main, Screen, Prose, H1, P } from '@votingworks/ui';
 

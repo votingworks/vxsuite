@@ -1,4 +1,3 @@
-import React from 'react';
 import { fakeKiosk } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../test/react_testing_library';

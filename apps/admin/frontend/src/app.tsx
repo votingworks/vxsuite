@@ -3,7 +3,6 @@ import {
   getPrinter,
   getConverterClientType,
 } from '@votingworks/utils';
-import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import './App.css';
 import { LogSource, Logger } from '@votingworks/logging';

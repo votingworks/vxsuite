@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 
 import { assert } from '@votingworks/basics';
 import { P } from '@votingworks/ui';

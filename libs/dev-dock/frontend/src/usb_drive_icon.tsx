@@ -1,4 +1,3 @@
-import React from 'react';
 import { Colors } from './colors';
 
 export function UsbDriveIcon({

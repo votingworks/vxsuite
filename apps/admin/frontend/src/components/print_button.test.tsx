@@ -1,4 +1,3 @@
-import React from 'react';
 import { advancePromises, fakeKiosk } from '@votingworks/test-utils';
 
 import userEvent from '@testing-library/user-event';

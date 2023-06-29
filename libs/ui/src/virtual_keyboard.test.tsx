@@ -1,4 +1,3 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library';
 import { VirtualKeyboard } from './virtual_keyboard';

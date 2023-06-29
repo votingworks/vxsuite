@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { Caption, H2 } from '@votingworks/ui';
 import styled from 'styled-components';
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { DefaultTheme } from 'styled-components';
 import { render } from '../../test/react_testing_library';
 import { useCurrentTheme } from './use_current_theme';

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { Button, ButtonVariant } from './button';
 import { UsbDriveStatus } from './hooks/use_usb_drive';
 

@@ -7,7 +7,6 @@ import {
 } from '@votingworks/test-utils';
 import { err, ok, deferred } from '@votingworks/basics';
 import MockDate from 'mockdate';
-import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { createMemoryHistory } from 'history';
 import { screen, waitFor, within } from '../../test/react_testing_library';

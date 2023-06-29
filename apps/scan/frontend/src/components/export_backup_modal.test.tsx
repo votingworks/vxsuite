@@ -1,7 +1,6 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { err, ok } from '@votingworks/basics';
-// eslint-disable-next-line vx/gts-no-import-export-type
+
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { render, screen } from '../../test/react_testing_library';
 import {

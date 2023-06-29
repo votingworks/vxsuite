@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { FakeKiosk, fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { fakeLogger } from '@votingworks/logging';
 import { electionSampleDefinition } from '@votingworks/fixtures';

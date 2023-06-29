@@ -1,4 +1,3 @@
-import React from 'react';
 import { screen, waitFor } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 

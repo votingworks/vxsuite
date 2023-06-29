@@ -1,4 +1,3 @@
-import React from 'react';
 import { electionMinimalExhaustiveSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 import { CandidateContest } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';

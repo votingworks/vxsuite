@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { Main, NoWrap, Screen, Prose, H1, P } from '@votingworks/ui';
 
 export function SetupPowerPage(): JSX.Element {

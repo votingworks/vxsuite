@@ -1,4 +1,3 @@
-import React from 'react';
 import { Caption, FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 import type {

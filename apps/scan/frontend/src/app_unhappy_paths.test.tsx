@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import React from 'react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   advanceTimersAndPromises,

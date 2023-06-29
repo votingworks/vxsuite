@@ -1,5 +1,4 @@
 /* stylelint-disable order/properties-order */
-import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
 export interface TouchTextInputProps {

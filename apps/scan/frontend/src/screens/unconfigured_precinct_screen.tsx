@@ -1,4 +1,3 @@
-import React from 'react';
 import { CenteredLargeProse, H1, P } from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 

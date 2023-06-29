@@ -1,5 +1,4 @@
 /* stylelint-disable order/properties-order, value-keyword-case */
-import React from 'react';
 import styled from 'styled-components';
 
 import { ButtonProps, buttonStyles } from '../button';

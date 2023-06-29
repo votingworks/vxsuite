@@ -1,4 +1,3 @@
-import React from 'react';
 import { electionMinimalExhaustiveSample } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,

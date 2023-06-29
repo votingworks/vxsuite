@@ -1,4 +1,3 @@
-import React from 'react';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
 import { fakeLogger, Logger } from '@votingworks/logging';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { Printer, ConverterClientType } from '@votingworks/types';
 import {

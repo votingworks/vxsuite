@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { electionSample } from '@votingworks/fixtures';
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';

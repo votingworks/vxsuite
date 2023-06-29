@@ -7,7 +7,7 @@ import {
   Prose,
   UsbControllerButton,
 } from '@votingworks/ui';
-// eslint-disable-next-line vx/gts-no-import-export-type
+
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import React, { useState } from 'react';
 import styled from 'styled-components';

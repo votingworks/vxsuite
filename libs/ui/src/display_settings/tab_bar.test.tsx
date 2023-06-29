@@ -1,4 +1,3 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../../test/react_testing_library';
 import { TabBar } from './tab_bar';
