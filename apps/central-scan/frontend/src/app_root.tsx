@@ -1,11 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Route, Switch, useHistory } from 'react-router-dom';
-import {
-  ElectionDefinition,
-  MarkThresholds,
-  safeParseJson,
-} from '@votingworks/types';
-import styled from 'styled-components';
+import { Route, Switch } from 'react-router-dom';
+import { safeParseJson } from '@votingworks/types';
 
 import { Scan } from '@votingworks/api';
 import {
@@ -16,23 +11,20 @@ import {
 import {
   ElectionInfoBar,
   Main,
-  Prose,
   UnlockMachineScreen,
   InvalidCardScreen,
   RemoveCardScreen,
   Screen,
   SetupCardReaderPage,
   SystemAdministratorScreenContents,
-  Text,
   UsbControllerButton,
   useDevices,
   useUsbDrive,
   LinkButton,
   Button,
-  UnconfiguredElectionScreen,
 } from '@votingworks/ui';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { assert, Optional, Result, ok, err } from '@votingworks/basics';
+import { assert, Result, ok, err } from '@votingworks/basics';
 import { MachineConfig } from './config/types';
 import { AppContext, AppContextInterface } from './contexts/app_context';
 
@@ -43,7 +35,6 @@ import { DashboardScreen } from './screens/dashboard_screen';
 import { BallotEjectScreen } from './screens/ballot_eject_screen';
 import { AdminActionsScreen } from './screens/admin_actions_screen';
 
-import * as config from './api/config';
 import { MainNav } from './components/main_nav';
 
 import { ExportResultsModal } from './components/export_results_modal';
@@ -51,19 +42,13 @@ import { machineConfigProvider } from './util/machine_config';
 import { MachineLockedScreen } from './screens/machine_locked_screen';
 import {
   checkPin,
-  configureFromBallotPackageOnUsbDrive,
   getAuthStatus,
+  getElectionDefinition,
   getTestMode,
   logOut,
-  setTestMode,
+  unconfigure,
 } from './api';
-
-const Buttons = styled.div`
-  padding: 10px 0;
-  & * {
-    margin-right: 10px;
-  }
-`;
+import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper';
 
 export interface AppRootProps {
   hardware: Hardware;
@@ -74,12 +59,6 @@ export function AppRoot({
   hardware,
   logger,
 }: AppRootProps): JSX.Element | null {
-  const history = useHistory();
-  const [isConfigLoaded, setIsConfigLoaded] = useState(false);
-  const [electionDefinition, setElectionDefinition] =
-    useState<ElectionDefinition>();
-  const [electionJustLoaded, setElectionJustLoaded] = useState(false);
-  const [isTogglingTestMode, setTogglingTestMode] = useState(false);
   const [status, setStatus] = useState<Scan.GetScanStatusResponse>({
     canUnconfigure: true,
     batches: [],
@@ -112,12 +91,11 @@ export function AppRoot({
 
   const getTestModeQuery = getTestMode.useQuery();
   const isTestMode = getTestModeQuery.data ?? false;
-  const setTestModeMutation = setTestMode.useMutation();
+
+  const electionDefinitionQuery = getElectionDefinition.useQuery();
+  const unconfigureMutation = unconfigure.useMutation();
 
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);
-
-  const [markThresholds, setMarkThresholds] =
-    useState<Optional<MarkThresholds>>();
 
   const { adjudication } = status;
 
@@ -125,45 +103,6 @@ export function AppRoot({
   const [currentScanningBatchId, setCurrentScanningBatchId] =
     useState<string>();
   const [lastScannedSheetIdx, setLastScannedSheetIdx] = useState(0);
-  const configureMutation = configureFromBallotPackageOnUsbDrive.useMutation();
-
-  const refreshConfig = useCallback(async () => {
-    setElectionDefinition(await config.getElectionDefinition());
-    setMarkThresholds(await config.getMarkThresholdOverrides());
-    await logger.log(LogEventId.ScannerConfigReloaded, userRole, {
-      message:
-        'Loaded election, test mode, and mark threshold information from the scanner service.',
-      disposition: 'success',
-    });
-  }, [logger, userRole]);
-
-  const updateElectionDefinition = useCallback(
-    (e: ElectionDefinition) => {
-      setElectionDefinition(e);
-      void logger.log(LogEventId.ElectionConfigured, userRole, {
-        message: `Machine configured for election with hash: ${e.electionHash}`,
-        disposition: 'success',
-        electionHash: e.electionHash,
-      });
-      setElectionJustLoaded(true);
-    },
-    [setElectionJustLoaded, setElectionDefinition, logger, userRole]
-  );
-
-  useEffect(() => {
-    async function initialize() {
-      try {
-        await refreshConfig();
-        setIsConfigLoaded(true);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error('failed to initialize:', e);
-        window.setTimeout(initialize, 1000);
-      }
-    }
-
-    void initialize();
-  }, [refreshConfig]);
 
   useEffect(() => {
     async function initialize() {
@@ -256,28 +195,9 @@ export function AppRoot({
     }
   }, [setStatus]);
 
-  const unconfigureServer = useCallback(
-    async (options: { ignoreBackupRequirement?: boolean } = {}) => {
-      try {
-        await config.deleteElection(options);
-        await refreshConfig();
-        await logger.log(LogEventId.ElectionUnconfigured, userRole, {
-          disposition: 'success',
-          message:
-            'User successfully unconfigured the machine to remove the current election and all current ballot data.',
-        });
-        history.replace('/');
-      } catch (error) {
-        console.log('failed unconfigureServer()', error); // eslint-disable-line no-console
-        await logger.log(LogEventId.ElectionUnconfigured, userRole, {
-          disposition: 'failure',
-          message: 'Error in unconfiguring the current election on the machine',
-          result: 'Election not changed.',
-        });
-      }
-    },
-    [history, refreshConfig, logger, userRole]
-  );
+  const systemAdministratorUnconfigure = useCallback(() => {
+    unconfigureMutation.mutate({ ignoreBackupRequirement: true });
+  }, [unconfigureMutation]);
 
   const scanBatch = useCallback(async () => {
     setIsScanning(true);
@@ -366,37 +286,6 @@ export function AppRoot({
     [logger, userRole]
   );
 
-  const zeroData = useCallback(async () => {
-    try {
-      await logger.log(LogEventId.ClearingBallotData, userRole, {
-        message: `Removing all ballot data, clearing ${currentNumberOfBallots} ballots.`,
-        currentNumberOfBallots,
-      });
-      safeParseJson(
-        await (
-          await fetch('/central-scanner/scan/zero', {
-            method: 'post',
-          })
-        ).text(),
-        Scan.ZeroResponseSchema
-      ).unsafeUnwrap();
-      await refreshConfig();
-      await logger.log(LogEventId.ClearedBallotData, userRole, {
-        disposition: 'success',
-        message: 'Successfully cleared all ballot data.',
-      });
-      history.replace('/');
-    } catch (error) {
-      assert(error instanceof Error);
-      console.log('failed zeroData()', error); // eslint-disable-line no-console
-      await logger.log(LogEventId.ClearedBallotData, userRole, {
-        disposition: 'failure',
-        message: `Error clearing ballot data: ${error.message}`,
-        result: 'Ballot data not cleared.',
-      });
-    }
-  }, [history, logger, userRole, currentNumberOfBallots, refreshConfig]);
-
   const backup = useCallback(async (): Promise<
     Result<string[], Scan.BackupError | Error>
   > => {
@@ -418,97 +307,37 @@ export function AppRoot({
     return result.status === 'ok' ? ok(result.paths) : err(result.errors[0]);
   }, []);
 
-  const toggleTestMode = useCallback(async () => {
-    try {
-      setTogglingTestMode(true);
-      await logger.log(LogEventId.TogglingTestMode, userRole, {
-        message: `Toggling to ${
-          isTestMode ? 'Official' : 'Test'
-        } Ballot Mode...`,
-      });
-      await setTestModeMutation.mutateAsync({ testMode: !isTestMode });
-      await logger.log(LogEventId.ToggledTestMode, userRole, {
-        disposition: 'success',
-        message: `Successfully toggled to ${
-          isTestMode ? 'Official' : 'Test'
-        } Ballot Mode`,
-      });
-      history.replace('/');
-    } catch (error) {
-      assert(error instanceof Error);
-      await logger.log(LogEventId.ToggledTestMode, userRole, {
-        disposition: 'failure',
-        message: `Error toggling to ${
-          isTestMode ? 'Official' : 'Test'
-        } Ballot Mode: ${error.message}`,
-        result: 'Mode not changed, user shown error.',
-      });
-    } finally {
-      setTogglingTestMode(false);
-    }
-  }, [logger, userRole, isTestMode, setTestModeMutation, history]);
-
-  const setMarkThresholdOverrides = useCallback(
-    async (markThresholdOverrides?: MarkThresholds) => {
-      await config.setMarkThresholdOverrides(markThresholdOverrides);
-      await refreshConfig();
-      history.replace('/');
-    },
-    [history, refreshConfig]
-  );
-
+  // poll for scanning status on an interval if configured
   useInterval(
     useCallback(async () => {
-      if (electionDefinition) {
+      if (electionDefinitionQuery.data) {
         await updateStatus();
       }
-    }, [electionDefinition, updateStatus]),
+    }, [electionDefinitionQuery.data, updateStatus]),
     1000
   );
 
+  // initial scanning status check
   useEffect(() => {
     void updateStatus();
   }, [updateStatus]);
 
-  useEffect(() => {
-    if (electionJustLoaded && usbDrive.status === 'ejected') {
-      setElectionJustLoaded(false);
-    }
-  }, [electionJustLoaded, usbDrive.status]);
-
-  useEffect(() => {
-    async function configure() {
-      if (
-        !configureMutation.isLoading &&
-        !electionDefinition &&
-        authStatusQuery.data &&
-        isElectionManagerAuth(authStatusQuery.data) &&
-        usbDrive.status === 'mounted'
-      ) {
-        const result = await configureMutation.mutateAsync();
-        const electionDefinitionFromResult = result.ok();
-        assert(electionDefinitionFromResult !== undefined);
-        updateElectionDefinition(electionDefinitionFromResult);
-      }
-    }
-
-    void configure();
-  }, [
-    configureMutation,
-    authStatusQuery.data,
-    electionDefinition,
-    updateElectionDefinition,
-    usbDrive,
-  ]);
-
-  if (!authStatusQuery.isSuccess) {
-    return null;
+  if (
+    !authStatusQuery.isSuccess ||
+    !electionDefinitionQuery.isSuccess ||
+    !getTestModeQuery.isSuccess
+  ) {
+    return (
+      <Screen>
+        <Main padded centerChild>
+          <h1>Loading Configuration...</h1>
+        </Main>
+      </Screen>
+    );
   }
   const authStatus = authStatusQuery.data;
+  const electionDefinition = electionDefinitionQuery.data ?? undefined;
 
-  if (!cardReader) {
-    return <SetupCardReaderPage usePollWorkerLanguage={false} />;
-  }
   const currentContext: AppContextInterface = {
     usbDriveStatus: usbDrive.status,
     usbDriveEject: usbDrive.eject,
@@ -517,6 +346,10 @@ export function AppRoot({
     logger,
     auth: authStatus,
   };
+
+  if (!cardReader) {
+    return <SetupCardReaderPage usePollWorkerLanguage={false} />;
+  }
 
   if (authStatus.status === 'logged_out') {
     if (authStatus.reason === 'machine_locked') {
@@ -569,7 +402,7 @@ export function AppRoot({
               </React.Fragment>
             }
             unconfigureMachine={() =>
-              unconfigureServer({ ignoreBackupRequirement: true })
+              Promise.resolve(systemAdministratorUnconfigure())
             }
             isMachineConfigured={Boolean(electionDefinition)}
             usbDriveStatus={usbDrive.status}
@@ -592,155 +425,94 @@ export function AppRoot({
     );
   }
 
-  if (electionDefinition) {
-    if (electionJustLoaded) {
-      return (
-        <AppContext.Provider value={currentContext}>
-          <Screen>
-            <Main padded centerChild>
-              <div>
-                <Prose>
-                  <h1>Successfully Configured</h1>
-                  <Text>You may now eject the USB drive.</Text>
-                </Prose>
-                <Buttons>
-                  <Button onPress={() => setElectionJustLoaded(false)}>
-                    Close
-                  </Button>
-                  <UsbControllerButton
-                    small={false}
-                    primary
-                    usbDriveStatus={usbDrive.status}
-                    usbDriveEject={() => usbDrive.eject(userRole)}
-                  />
-                </Buttons>
-              </div>
-            </Main>
-            <MainNav isTestMode={false}>
-              <Button small onPress={() => logOutMutation.mutate()}>
-                Lock Machine
-              </Button>
-            </MainNav>
-          </Screen>
-        </AppContext.Provider>
-      );
-    }
-    if (adjudication.remaining > 0 && !isScanning) {
-      return (
-        <AppContext.Provider value={currentContext}>
-          <BallotEjectScreen
-            continueScanning={continueScanning}
-            isTestMode={isTestMode}
-          />
-        </AppContext.Provider>
-      );
-    }
+  if (!electionDefinition) {
+    return (
+      <UnconfiguredElectionScreenWrapper
+        usbDriveStatus={usbDrive.status}
+        isElectionManagerAuth={isElectionManagerAuth(authStatus)}
+      />
+    );
+  }
 
-    let exportButtonTitle;
-    if (adjudication.remaining > 0) {
-      exportButtonTitle =
-        'You cannot save results until all ballots have been adjudicated.';
-    } else if (status.batches.length === 0) {
-      exportButtonTitle =
-        'You cannot save results until you have scanned at least 1 ballot.';
-    }
-
+  if (adjudication.remaining > 0 && !isScanning) {
     return (
       <AppContext.Provider value={currentContext}>
-        <Switch>
-          <Route path="/admin">
-            <AdminActionsScreen
-              unconfigureServer={unconfigureServer}
-              zeroData={zeroData}
-              backup={backup}
-              hasBatches={status.batches.length > 0}
-              isTestMode={isTestMode}
-              toggleTestMode={toggleTestMode}
-              canUnconfigure={status.canUnconfigure}
-              setMarkThresholdOverrides={setMarkThresholdOverrides}
-              markThresholds={markThresholds}
-              isTogglingTestMode={isTogglingTestMode}
-              electionDefinition={electionDefinition}
-            />
-          </Route>
-          <Route path="/">
-            <Screen>
-              <Main padded>
-                <DashboardScreen isScanning={isScanning} status={status} />
-              </Main>
-              <MainNav isTestMode={isTestMode}>
-                <UsbControllerButton
-                  usbDriveStatus={usbDrive.status}
-                  usbDriveEject={() => usbDrive.eject(userRole)}
-                />
-                <Button small onPress={() => logOutMutation.mutate()}>
-                  Lock Machine
-                </Button>
-                <LinkButton small to="/admin">
-                  Admin
-                </LinkButton>
-                <Button
-                  small
-                  onPress={() => setIsExportingCvrs(true)}
-                  disabled={
-                    adjudication.remaining > 0 || status.batches.length === 0
-                  }
-                  nonAccessibleTitle={exportButtonTitle}
-                >
-                  Save CVRs
-                </Button>
-                <ScanButton
-                  onPress={scanBatch}
-                  disabled={isScanning}
-                  isScannerAttached={!!batchScanner}
-                />
-              </MainNav>
-              <ElectionInfoBar
-                mode="admin"
-                electionDefinition={electionDefinition}
-                codeVersion={machineConfig.codeVersion}
-                machineId={machineConfig.machineId}
-              />
-            </Screen>
-            {isExportingCvrs && (
-              <ExportResultsModal
-                onClose={() => setIsExportingCvrs(false)}
-                numberOfBallots={currentNumberOfBallots}
-              />
-            )}
-          </Route>
-        </Switch>
+        <BallotEjectScreen
+          continueScanning={continueScanning}
+          isTestMode={isTestMode}
+        />
       </AppContext.Provider>
     );
   }
 
-  // isConfigLoaded just indicates that `initialize` has been run; it doesn't guarantee
-  // election definition is loaded
-  if (isConfigLoaded) {
-    return (
-      <Screen>
-        <MainNav>
-          <Button small onPress={() => logOutMutation.mutate()}>
-            Lock Machine
-          </Button>
-        </MainNav>
-        <Main centerChild>
-          <UnconfiguredElectionScreen
-            usbDriveStatus={usbDrive.status}
-            isElectionManagerAuth={isElectionManagerAuth(authStatus)}
-            backendConfigError={configureMutation.data?.err()}
-            machineName="VxCentralScan"
-          />
-        </Main>
-      </Screen>
-    );
+  let exportButtonTitle;
+  if (adjudication.remaining > 0) {
+    exportButtonTitle =
+      'You cannot save results until all ballots have been adjudicated.';
+  } else if (status.batches.length === 0) {
+    exportButtonTitle =
+      'You cannot save results until you have scanned at least 1 ballot.';
   }
 
   return (
-    <Screen>
-      <Main padded centerChild>
-        <h1>Loading Configuration...</h1>
-      </Main>
-    </Screen>
+    <AppContext.Provider value={currentContext}>
+      <Switch>
+        <Route path="/admin">
+          <AdminActionsScreen
+            backup={backup}
+            hasBatches={status.batches.length > 0}
+            isTestMode={isTestMode}
+            canUnconfigure={status.canUnconfigure}
+            electionDefinition={electionDefinition}
+          />
+        </Route>
+        <Route path="/">
+          <Screen>
+            <Main padded>
+              <DashboardScreen isScanning={isScanning} status={status} />
+            </Main>
+            <MainNav isTestMode={isTestMode}>
+              <UsbControllerButton
+                usbDriveStatus={usbDrive.status}
+                usbDriveEject={() => usbDrive.eject(userRole)}
+              />
+              <Button small onPress={() => logOutMutation.mutate()}>
+                Lock Machine
+              </Button>
+              <LinkButton small to="/admin">
+                Admin
+              </LinkButton>
+              <Button
+                small
+                onPress={() => setIsExportingCvrs(true)}
+                disabled={
+                  adjudication.remaining > 0 || status.batches.length === 0
+                }
+                nonAccessibleTitle={exportButtonTitle}
+              >
+                Save CVRs
+              </Button>
+              <ScanButton
+                onPress={scanBatch}
+                disabled={isScanning}
+                isScannerAttached={!!batchScanner}
+              />
+            </MainNav>
+            <ElectionInfoBar
+              mode="admin"
+              electionDefinition={electionDefinition}
+              codeVersion={machineConfig.codeVersion}
+              machineId={machineConfig.machineId}
+            />
+          </Screen>
+          {isExportingCvrs && (
+            <ExportResultsModal
+              onClose={() => setIsExportingCvrs(false)}
+              numberOfBallots={currentNumberOfBallots}
+            />
+          )}
+        </Route>
+      </Switch>
+    </AppContext.Provider>
   );
 }

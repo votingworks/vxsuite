@@ -20,6 +20,7 @@ import {
   SystemSettings,
   safeParse,
   TEST_JURISDICTION,
+  MarkThresholds,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -95,8 +96,19 @@ function buildApi({
       return store.getTestMode();
     },
 
-    setTestMode(input: { testMode: boolean }) {
-      return store.setTestMode(input.testMode);
+    async setTestMode(input: { testMode: boolean }) {
+      const userRole = await getUserRole();
+      const { testMode } = input;
+      await logger.log(LogEventId.TogglingTestMode, userRole, {
+        message: `Toggling to ${testMode ? 'Test' : 'Official'} Ballot Mode...`,
+      });
+      importer.setTestMode(testMode);
+      await logger.log(LogEventId.ToggledTestMode, userRole, {
+        disposition: 'success',
+        message: `Successfully toggled to ${
+          testMode ? 'Test' : 'Official'
+        } Ballot Mode`,
+      });
     },
 
     updateSessionExpiry(input: { sessionExpiresAt: Date }) {
@@ -180,11 +192,68 @@ function buildApi({
       importer.configure(electionDefinition, authStatus.user.jurisdiction);
       store.setSystemSettings(systemSettings);
 
+      const userRole = await getUserRole();
+      await logger.log(LogEventId.ElectionConfigured, userRole, {
+        message: `Machine configured for election with hash: ${electionDefinition.electionHash}`,
+        disposition: 'success',
+        electionHash: electionDefinition.electionHash,
+      });
+
       return ok(electionDefinition);
     },
 
     getSystemSettings(): SystemSettings {
       return workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
+    },
+
+    getElectionDefinition(): ElectionDefinition | null {
+      return store.getElectionDefinition() || null;
+    },
+
+    async unconfigure(
+      input: {
+        ignoreBackupRequirement?: boolean;
+      } = {}
+    ): Promise<void> {
+      const userRole = await getUserRole();
+
+      // frontend should only allow this call if the machine can be unconfigured
+      assert(store.getCanUnconfigure() || input.ignoreBackupRequirement);
+
+      importer.unconfigure();
+      await logger.log(LogEventId.ElectionUnconfigured, userRole, {
+        disposition: 'success',
+        message:
+          'User successfully unconfigured the machine to remove the current election and all current ballot data.',
+      });
+    },
+
+    getMarkThresholdOverrides(): MarkThresholds | null {
+      return store.getMarkThresholdOverrides() ?? null;
+    },
+
+    setMarkThresholdOverrides(input: {
+      markThresholdOverrides?: MarkThresholds;
+    }) {
+      importer.setMarkThresholdOverrides(input.markThresholdOverrides);
+    },
+
+    async clearBallotData(): Promise<void> {
+      const userRole = await getUserRole();
+      const currentNumberOfBallots = store.getBallotsCounted();
+
+      // frontend should only allow this call if the machine can be unconfigured
+      assert(store.getCanUnconfigure());
+
+      await logger.log(LogEventId.ClearingBallotData, userRole, {
+        message: `Removing all ballot data, clearing ${currentNumberOfBallots} ballots...`,
+        currentNumberOfBallots,
+      });
+      importer.doZero();
+      await logger.log(LogEventId.ClearedBallotData, userRole, {
+        disposition: 'success',
+        message: 'Successfully cleared all ballot data.',
+      });
     },
   });
 }
@@ -228,91 +297,6 @@ export function buildCentralScannerApp({
   );
   deprecatedApiRouter.use(express.urlencoded({ extended: false }));
 
-  deprecatedApiRouter.get<NoParams, Scan.GetElectionConfigResponse>(
-    '/central-scanner/config/election',
-    (request, response) => {
-      const electionDefinition = store.getElectionDefinition();
-
-      if (request.accepts('application/octet-stream')) {
-        if (electionDefinition) {
-          response
-            .header('content-type', 'application/octet-stream')
-            .send(electionDefinition.electionData);
-        } else {
-          response.status(404).end();
-        }
-      } else {
-        response.json(electionDefinition ?? null);
-      }
-    }
-  );
-
-  deprecatedApiRouter.delete<NoParams, Scan.DeleteElectionConfigResponse>(
-    '/central-scanner/config/election',
-    (request, response) => {
-      if (
-        !store.getCanUnconfigure() &&
-        request.query['ignoreBackupRequirement'] !== 'true' // A backup is required by default
-      ) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'no-backup',
-              message:
-                'cannot unconfigure an election that has not been backed up',
-            },
-          ],
-        });
-        return;
-      }
-
-      importer.unconfigure();
-      response.json({ status: 'ok' });
-    }
-  );
-
-  deprecatedApiRouter.get<
-    NoParams,
-    Scan.GetMarkThresholdOverridesConfigResponse
-  >('/central-scanner/config/markThresholdOverrides', (_request, response) => {
-    const markThresholdOverrides = store.getMarkThresholdOverrides();
-    response.json({ status: 'ok', markThresholdOverrides });
-  });
-
-  deprecatedApiRouter.delete<
-    NoParams,
-    Scan.DeleteMarkThresholdOverridesConfigResponse
-  >('/central-scanner/config/markThresholdOverrides', (_request, response) => {
-    importer.setMarkThresholdOverrides(undefined);
-    response.json({ status: 'ok' });
-  });
-
-  deprecatedApiRouter.patch<
-    NoParams,
-    Scan.PatchMarkThresholdOverridesConfigResponse,
-    Scan.PatchMarkThresholdOverridesConfigRequest
-  >('/central-scanner/config/markThresholdOverrides', (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchMarkThresholdOverridesConfigRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    importer.setMarkThresholdOverrides(
-      bodyParseResult.ok().markThresholdOverrides
-    );
-    response.json({ status: 'ok' });
-  });
-
   deprecatedApiRouter.post<
     NoParams,
     Scan.ScanBatchResponse,
@@ -321,11 +305,11 @@ export function buildCentralScannerApp({
     try {
       const batchId = await importer.startImport();
       response.json({ status: 'ok', batchId });
-    } catch (err) {
-      assert(err instanceof Error);
+    } catch (error) {
+      assert(error instanceof Error);
       response.json({
         status: 'error',
-        errors: [{ type: 'scan-error', message: err.message }],
+        errors: [{ type: 'scan-error', message: error.message }],
       });
     }
   });
@@ -503,28 +487,6 @@ export function buildCentralScannerApp({
       } else {
         response.status(404).end();
       }
-    }
-  );
-
-  deprecatedApiRouter.post<NoParams, Scan.ZeroResponse, Scan.ZeroRequest>(
-    '/central-scanner/scan/zero',
-    (_request, response) => {
-      if (!store.getCanUnconfigure()) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'no-backup',
-              message:
-                'cannot unconfigure an election that has not been backed up',
-            },
-          ],
-        });
-        return;
-      }
-
-      importer.doZero();
-      response.json({ status: 'ok' });
     }
   );
 

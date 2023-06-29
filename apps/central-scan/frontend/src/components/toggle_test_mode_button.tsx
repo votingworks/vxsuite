@@ -1,12 +1,12 @@
 import { Button, Modal } from '@votingworks/ui';
 import React, { useCallback, useRef, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Prose } from './prose';
+import { setTestMode } from '../api';
 
 export interface Props {
   canUnconfigure: boolean;
   isTestMode: boolean;
-  isTogglingTestMode: boolean;
-  toggleTestMode(): void;
 }
 
 /**
@@ -15,19 +15,30 @@ export interface Props {
 export function ToggleTestModeButton({
   canUnconfigure,
   isTestMode,
-  isTogglingTestMode,
-  toggleTestMode,
 }: Props): JSX.Element {
-  const [isConfirming, setIsConfirming] = useState(isTogglingTestMode);
+  const history = useHistory();
+  const setTestModeMutation = setTestMode.useMutation();
+
+  const [flowState, setFlowState] = useState<
+    'none' | 'confirmation' | 'toggling'
+  >('none');
+  function resetFlowState() {
+    setFlowState('none');
+  }
+
+  function toggleTestMode() {
+    setFlowState('toggling');
+    setTestModeMutation.mutate(
+      { testMode: !isTestMode },
+      {
+        onSuccess: () => {
+          history.replace('/');
+        },
+      }
+    );
+  }
+
   const defaultButtonRef = useRef<Button>(null);
-
-  const toggleIsConfirming = useCallback(() => {
-    /* istanbul ignore else - just catches the case of clicking the overlay when toggling */
-    if (!isTogglingTestMode) {
-      setIsConfirming((prev) => !prev);
-    }
-  }, [isTogglingTestMode, setIsConfirming]);
-
   const focusDefaultButton = useCallback(() => {
     defaultButtonRef.current?.focus();
   }, []);
@@ -35,59 +46,62 @@ export function ToggleTestModeButton({
   return (
     <React.Fragment>
       <Button
-        onPress={toggleIsConfirming}
-        disabled={
-          (!canUnconfigure && !isTestMode) || isTogglingTestMode || isConfirming
-        }
+        onPress={() => setFlowState('confirmation')}
+        disabled={!canUnconfigure}
       >
-        {isTogglingTestMode
-          ? 'Toggling…'
-          : isTestMode
+        {isTestMode
           ? 'Toggle to Official Ballot Mode'
           : 'Toggle to Test Ballot Mode'}
       </Button>
-      {isConfirming && (
+      {flowState === 'confirmation' && (
         <Modal
           centerContent
           content={
             <Prose textCenter>
               <h1>
-                {isTogglingTestMode
-                  ? isTestMode
-                    ? 'Toggling to Official Ballot Mode'
-                    : 'Toggling to Test Ballot Mode'
-                  : isTestMode
+                {isTestMode
                   ? 'Toggle to Official Ballot Mode'
                   : 'Toggle to Test Ballot Mode'}
               </h1>
               <p>
-                {isTogglingTestMode
-                  ? 'Zeroing out scanned ballots and reloading…'
-                  : `Toggling to ${
-                      isTestMode ? 'Official' : 'Test'
-                    } Ballot Mode will zero out your scanned ballots. Are you sure?`}
+                {`Toggling to ${
+                  isTestMode ? 'Official' : 'Test'
+                } Ballot Mode will zero out your scanned ballots. Are you sure?`}
               </p>
             </Prose>
           }
           actions={
-            !isTogglingTestMode && (
-              <React.Fragment>
-                <Button
-                  data-testid="confirm-toggle"
-                  ref={defaultButtonRef}
-                  variant="primary"
-                  onPress={toggleTestMode}
-                >
-                  {isTestMode
-                    ? 'Toggle to Official Ballot Mode'
-                    : 'Toggle to Test Ballot Mode'}
-                </Button>
-                <Button onPress={toggleIsConfirming}>Cancel</Button>
-              </React.Fragment>
-            )
+            <React.Fragment>
+              <Button
+                data-testid="confirm-toggle"
+                ref={defaultButtonRef}
+                variant="primary"
+                onPress={toggleTestMode}
+              >
+                {isTestMode
+                  ? 'Toggle to Official Ballot Mode'
+                  : 'Toggle to Test Ballot Mode'}
+              </Button>
+              <Button onPress={resetFlowState}>Cancel</Button>
+            </React.Fragment>
           }
-          onOverlayClick={toggleIsConfirming}
+          onOverlayClick={resetFlowState}
           onAfterOpen={focusDefaultButton}
+        />
+      )}
+      {flowState === 'toggling' && (
+        <Modal
+          centerContent
+          content={
+            <Prose textCenter>
+              <h1>
+                {isTestMode
+                  ? 'Toggling to Official Ballot Mode'
+                  : 'Toggling to Test Ballot Mode'}
+              </h1>
+              <p>Zeroing out scanned ballots and reloading…</p>
+            </Prose>
+          }
         />
       )}
     </React.Fragment>

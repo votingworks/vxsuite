@@ -242,5 +242,5 @@ test('going through the whole process works', async () => {
   ).toEqual(0);
 
   // clean up
-  await request(app).delete('/central-scanner/config/election');
+  await apiClient.unconfigure();
 });

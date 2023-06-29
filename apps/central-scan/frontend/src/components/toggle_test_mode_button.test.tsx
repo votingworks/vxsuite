@@ -1,147 +1,78 @@
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { render, screen } from '../../test/react_testing_library';
+import { createMemoryHistory } from 'history';
+import { Router } from 'react-router-dom';
+import { render, screen, within } from '../../test/react_testing_library';
 import { ToggleTestModeButton } from './toggle_test_mode_button';
+import { MockApiClient, createMockApiClient, provideApi } from '../../test/api';
 
-test('shows a button to toggle to live mode when in test mode', () => {
-  render(
-    <ToggleTestModeButton
-      canUnconfigure={false}
-      isTestMode
-      isTogglingTestMode={false}
-      toggleTestMode={jest.fn()}
-    />
-  );
+let mockApiClient: MockApiClient;
 
-  screen.getByText('Toggle to Official Ballot Mode');
+beforeEach(() => {
+  jest.restoreAllMocks();
+  mockApiClient = createMockApiClient();
 });
 
-test('shows a button to toggle to test mode when in live mode', () => {
-  render(
-    <ToggleTestModeButton
-      canUnconfigure
-      isTestMode={false}
-      isTogglingTestMode={false}
-      toggleTestMode={jest.fn()}
-    />
-  );
-
-  screen.getByText('Toggle to Test Ballot Mode');
+afterEach(() => {
+  mockApiClient.assertComplete();
 });
+
+function renderButton(
+  props: Partial<React.ComponentProps<typeof ToggleTestModeButton>> = {},
+  history = createMemoryHistory()
+) {
+  render(
+    provideApi(
+      mockApiClient,
+      <Router history={history}>
+        <ToggleTestModeButton canUnconfigure isTestMode {...props} />
+      </Router>
+    )
+  );
+}
 
 test('shows a disabled button when in live mode but the machine cannot be unconfigured', () => {
-  render(
-    <ToggleTestModeButton
-      canUnconfigure={false}
-      isTestMode={false}
-      isTogglingTestMode={false}
-      toggleTestMode={jest.fn()}
-    />
-  );
+  renderButton({ canUnconfigure: false, isTestMode: false });
 
   expect(screen.getButton('Toggle to Test Ballot Mode')).toBeDisabled();
 });
 
-test('shows a disabled button with "Toggling" when toggling', () => {
-  render(
-    <ToggleTestModeButton
-      canUnconfigure
-      isTestMode
-      isTogglingTestMode
-      toggleTestMode={jest.fn()}
-    />
-  );
+test('toggling to official mode', async () => {
+  const history = createMemoryHistory({ initialEntries: ['/admin'] });
+  renderButton({ canUnconfigure: true, isTestMode: true }, history);
 
-  expect(
-    screen.getButton('Toggling…', { useSparinglyIncludeHidden: true })
-  ).toBeDisabled();
-});
-
-test('calls the callback on confirmation', () => {
-  const toggleTestMode = jest.fn();
-  render(
-    <ToggleTestModeButton
-      canUnconfigure
-      isTestMode
-      isTogglingTestMode={false}
-      toggleTestMode={toggleTestMode}
-    />
-  );
-
-  // Click the button.
   userEvent.click(screen.getButton('Toggle to Official Ballot Mode'));
-
-  // Then click the confirmation button inside the modal.
-  const confirmButton = screen.getButton('Toggle to Official Ballot Mode');
-  expect(toggleTestMode).not.toHaveBeenCalled();
-  userEvent.click(confirmButton);
-  expect(toggleTestMode).toHaveBeenCalled();
-});
-
-test('toggle modal shows "official ballot mode" when toggling away from test ballot mode', () => {
-  const toggleTestMode = jest.fn();
-  render(
-    <ToggleTestModeButton
-      canUnconfigure
-      isTestMode
-      isTogglingTestMode={false}
-      toggleTestMode={toggleTestMode}
-    />
-  );
-
-  // Click the button.
-  userEvent.click(screen.getByText('Toggle to Official Ballot Mode'));
-
-  screen.getByText(
+  const modal = screen.getByRole('alertdialog');
+  within(modal).getByRole('heading', {
+    name: 'Toggle to Official Ballot Mode',
+  });
+  within(modal).getByText(
     'Toggling to Official Ballot Mode will zero out your scanned ballots. Are you sure?'
   );
+
+  expect(history.location.pathname).toEqual('/admin');
+  mockApiClient.setTestMode.expectCallWith({ testMode: false }).resolves();
+  userEvent.click(within(modal).getButton('Toggle to Official Ballot Mode'));
+  await screen.findByText('Toggling to Official Ballot Mode');
+  expect(history.location.pathname).toEqual('/');
 });
 
-test('toggle modal shows "test ballot mode" when toggling away from official ballot mode', () => {
-  const toggleTestMode = jest.fn();
-  render(
-    <ToggleTestModeButton
-      canUnconfigure
-      isTestMode={false}
-      isTogglingTestMode={false}
-      toggleTestMode={toggleTestMode}
-    />
-  );
+test('toggling to test mode', async () => {
+  const history = createMemoryHistory({ initialEntries: ['/admin'] });
+  renderButton({ canUnconfigure: true, isTestMode: false }, history);
 
-  // Click the button.
-  userEvent.click(screen.getByText('Toggle to Test Ballot Mode'));
-
-  screen.getByText(
+  userEvent.click(screen.getButton('Toggle to Test Ballot Mode'));
+  const modal = screen.getByRole('alertdialog');
+  within(modal).getByRole('heading', {
+    name: 'Toggle to Test Ballot Mode',
+  });
+  within(modal).getByText(
     'Toggling to Test Ballot Mode will zero out your scanned ballots. Are you sure?'
   );
-});
 
-test('shows a modal when toggling to official ballot mode is in progress', () => {
-  const toggleTestMode = jest.fn();
-  render(
-    <ToggleTestModeButton
-      canUnconfigure
-      isTestMode
-      isTogglingTestMode
-      toggleTestMode={toggleTestMode}
-    />
-  );
-
-  screen.getByText('Toggling to Official Ballot Mode');
-  screen.getByText('Zeroing out scanned ballots and reloading…');
-});
-
-test('shows a modal when toggling to test ballot mode is in progress', () => {
-  const toggleTestMode = jest.fn();
-  render(
-    <ToggleTestModeButton
-      canUnconfigure
-      isTestMode={false}
-      isTogglingTestMode
-      toggleTestMode={toggleTestMode}
-    />
-  );
-
-  screen.getByText('Toggling to Test Ballot Mode');
-  screen.getByText('Zeroing out scanned ballots and reloading…');
+  expect(history.location.pathname).toEqual('/admin');
+  mockApiClient.setTestMode.expectCallWith({ testMode: true }).resolves();
+  userEvent.click(within(modal).getButton('Toggle to Test Ballot Mode'));
+  await screen.findByText('Toggling to Test Ballot Mode');
+  expect(history.location.pathname).toEqual('/');
 });

@@ -35,6 +35,8 @@ export function createQueryClient(): QueryClient {
   return new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS });
 }
 
+// Queries
+
 export const getAuthStatus = {
   queryKey(): QueryKey {
     return ['getAuthStatus'];
@@ -57,6 +59,40 @@ export const getTestMode = {
   },
 } as const;
 
+export const getSystemSettings = {
+  queryKey(): QueryKey {
+    return ['getSystemSettings'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getSystemSettings());
+  },
+} as const;
+
+export const getElectionDefinition = {
+  queryKey(): QueryKey {
+    return ['getElectionDefinition'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getElectionDefinition());
+  },
+} as const;
+
+export const getMarkThresholdOverrides = {
+  queryKey(): QueryKey {
+    return ['getMarkThresholdOverrides'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getMarkThresholdOverrides()
+    );
+  },
+} as const;
+
+// Mutations
+
 export const setTestMode = {
   useMutation() {
     const apiClient = useApiClient();
@@ -66,16 +102,6 @@ export const setTestMode = {
         await queryClient.invalidateQueries(getTestMode.queryKey());
       },
     });
-  },
-} as const;
-
-export const getSystemSettings = {
-  queryKey(): QueryKey {
-    return ['getSystemSettings'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getSystemSettings());
   },
 } as const;
 
@@ -117,14 +143,7 @@ export const updateSessionExpiry = {
 export const deleteBatch = {
   useMutation() {
     const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.deleteBatch, {
-      async onSuccess() {
-        // Because we poll auth status with high frequency, this invalidation isn't strictly
-        // necessary
-        await queryClient.invalidateQueries(getAuthStatus.queryKey());
-      },
-    });
+    return useMutation(apiClient.deleteBatch);
   },
 } as const;
 
@@ -135,6 +154,42 @@ export const configureFromBallotPackageOnUsbDrive = {
     return useMutation(apiClient.configureFromBallotPackageOnUsbDrive, {
       async onSuccess() {
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
+        await queryClient.invalidateQueries(getElectionDefinition.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const unconfigure = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.unconfigure, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getTestMode.queryKey());
+        await queryClient.invalidateQueries(getSystemSettings.queryKey());
+        await queryClient.invalidateQueries(getElectionDefinition.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const clearBallotData = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.clearBallotData);
+  },
+} as const;
+
+export const setMarkThresholdOverrides = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setMarkThresholdOverrides, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getMarkThresholdOverrides.queryKey()
+        );
       },
     });
   },

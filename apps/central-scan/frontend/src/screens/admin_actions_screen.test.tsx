@@ -9,12 +9,8 @@ import { err, ok, deferred } from '@votingworks/basics';
 import MockDate from 'mockdate';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import {
-  fireEvent,
-  screen,
-  waitFor,
-  within,
-} from '../../test/react_testing_library';
+import { createMemoryHistory } from 'history';
+import { screen, waitFor, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import {
   AdminActionScreenProps,
@@ -46,27 +42,26 @@ afterEach(() => {
 type BackupFn = AdminActionScreenProps['backup'];
 type BackupResult = BackupFn extends () => Promise<infer R> ? R : never;
 
-function renderScreen(props: Partial<AdminActionScreenProps> = {}) {
+function renderScreen(
+  props: Partial<AdminActionScreenProps> = {},
+  history = createMemoryHistory()
+) {
   return renderInAppContext(
     <AdminActionsScreen
       hasBatches={false}
-      unconfigureServer={jest.fn()}
-      zeroData={jest.fn()}
       backup={jest.fn()}
       canUnconfigure={false}
       isTestMode={false}
-      isTogglingTestMode={false}
-      toggleTestMode={jest.fn()}
-      setMarkThresholdOverrides={jest.fn()}
-      markThresholds={undefined}
       electionDefinition={testElectionDefinition}
       {...props}
     />,
-    { apiClient: mockApiClient }
+    { apiClient: mockApiClient, history }
   );
 }
 
 test('clicking "Save Backup" shows progress', async () => {
+  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
+
   const backup = jest.fn<ReturnType<BackupFn>, Parameters<BackupFn>>();
   renderScreen({ backup });
 
@@ -95,108 +90,72 @@ test('clicking "Save Backup" shows progress', async () => {
 });
 
 test('"Delete Ballot Data" and Delete Election Data from VxCentralScan" disabled when canUnconfigure is falsy', () => {
-  const unconfigureServer = jest.fn();
-  const zeroData = jest.fn();
+  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
+
   renderScreen({
-    unconfigureServer,
-    zeroData,
-    hasBatches: true,
+    canUnconfigure: false,
   });
 
-  // Clicking the disabled "Delete Election Data" button should do nothing
-  const unconfigureButton = screen.getByText(
-    'Delete Election Data from VxCentralScan'
-  );
-  unconfigureButton.click();
-  expect(unconfigureServer).not.toHaveBeenCalled();
-  expect(screen.queryByText('Delete all election data?')).toBeNull();
+  expect(
+    screen.getButton('Delete Election Data from VxCentralScan')
+  ).toBeDisabled();
 
-  // Clicking the disabled "Delete Ballot Data" button should do nothing
-  const deleteBallotsButton = screen.getByText('Delete Ballot Data');
-  deleteBallotsButton.click();
-  expect(zeroData).not.toHaveBeenCalled();
-  expect(screen.queryByText('Delete All Scanned Ballot Data?')).toBeNull();
+  expect(screen.getButton('Delete Ballot Data')).toBeDisabled();
 });
 
-test('"Delete Ballot Data" and Delete Election Data from VxCentralScan" enabled in test mode even if data not backed up', () => {
-  renderScreen({ hasBatches: true, isTestMode: true });
+test('clicking "Delete Election Data from VxCentralScan" calls backend', async () => {
+  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
 
-  // Clicking the disabled "Delete Election Data" button should bring up a confirmation modal
-  const unconfigureButton = screen.getByText(
-    'Delete Election Data from VxCentralScan'
-  );
-  unconfigureButton.click();
+  const history = createMemoryHistory({ initialEntries: ['/admin'] });
+  renderScreen({ canUnconfigure: true }, history);
+
+  // initial button
+  userEvent.click(screen.getButton('Delete Election Data from VxCentralScan'));
+
+  // first confirmation
   screen.getByText('Delete all election data?');
+  userEvent.click(await screen.findButton('Yes, Delete Election Data'));
 
-  // Clicking the disabled "Delete Ballot Data" button should bring up a confirmation modal
-  const deleteBallotsButton = screen.getByText('Delete Ballot Data');
-  deleteBallotsButton.click();
-  screen.getByText('Delete All Scanned Ballot Data?');
-});
-
-test('clicking "Delete Election Data from VxCentralScan" shows progress', async () => {
-  const unconfigureServer = jest.fn();
-  renderScreen({ unconfigureServer, canUnconfigure: true });
-
-  const { promise, resolve } = deferred<void>();
-  unconfigureServer.mockReturnValueOnce(promise);
-
-  // Click to reset.
-  expect(unconfigureServer).not.toHaveBeenCalled();
-  const resetButton = screen.getByText(
-    'Delete Election Data from VxCentralScan'
-  );
-  resetButton.click();
-
-  // Confirm reset.
-  expect(unconfigureServer).not.toHaveBeenCalled();
-  screen.getByText('Delete all election data?');
-  const confirmResetButton = await waitFor(() =>
-    screen.getByText('Yes, Delete Election Data')
-  );
-  confirmResetButton.click();
+  // second confirmation
+  mockApiClient.unconfigure
+    .expectCallWith({ ignoreBackupRequirement: false })
+    .resolves();
   screen.getByText('Are you sure?');
-  const doubleConfirmResetButton = await waitFor(() =>
-    screen.getByText('I am sure. Delete all election data.')
+  userEvent.click(
+    await screen.findButton('I am sure. Delete all election data.')
   );
-  doubleConfirmResetButton.click();
-  expect(unconfigureServer).toHaveBeenCalledTimes(1);
 
-  // Verify progress message is shown.
-  await waitFor(() => screen.getByText('Deleting election data'));
+  // progress message
+  await screen.findByText('Deleting election data');
 
-  // Trigger reset finished, verify back to initial screen.
-  resolve();
-  await waitFor(() => !screen.getByText('Deleting election data'));
+  // we are redirected to the dashboard
+  expect(history.location.pathname).toEqual('/');
 });
 
-test('clicking "Delete Ballot Data" shows progress', async () => {
-  const zeroData = jest.fn();
-  renderScreen({ zeroData, hasBatches: true, canUnconfigure: true });
+test('clicking "Delete Ballot Data" calls backend', async () => {
+  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
 
-  const { promise, resolve } = deferred<void>();
-  zeroData.mockReturnValueOnce(promise);
+  const history = createMemoryHistory({ initialEntries: ['/admin'] });
+  renderScreen({ canUnconfigure: true }, history);
 
-  expect(zeroData).not.toHaveBeenCalled();
-  fireEvent.click(screen.getByText('Delete Ballot Data'));
+  // initial button
+  userEvent.click(screen.getButton('Delete Ballot Data'));
 
-  expect(zeroData).not.toHaveBeenCalled();
-  await screen.findByText('Delete All Scanned Ballot Data?');
-  fireEvent.click(screen.getByText('Yes, Delete Ballot Data'));
-  expect(zeroData).toHaveBeenCalledTimes(1);
+  // confirmation
+  mockApiClient.clearBallotData.expectCallWith().resolves();
+  screen.getByText('Delete All Scanned Ballot Data?');
+  userEvent.click(await screen.findButton('Yes, Delete Ballot Data'));
 
-  // Verify progress message is shown.
+  // progress message
   await screen.findByText('Deleting ballot data');
 
-  resolve();
-  // Trigger delete finished, verify back to initial screen.
-  // eslint-disable-next-line @typescript-eslint/require-await
-  await waitFor(async () => {
-    expect(screen.queryAllByText('Deleting ballot data')).toHaveLength(0);
-  });
+  // we are redirected to the dashboard
+  expect(history.location.pathname).toEqual('/');
 });
 
 test('backup error shows message', async () => {
+  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
+
   const backup = jest.fn<ReturnType<BackupFn>, Parameters<BackupFn>>();
   renderScreen({ backup });
 
@@ -220,13 +179,11 @@ test('backup error shows message', async () => {
   });
 });
 
-test('override mark thresholds button shows when there are no overrides', () => {
-  const backup = jest.fn();
-
+test('override mark thresholds button shows when there are no overrides', async () => {
   const testCases = [
     {
       hasBatches: true,
-      markThresholds: undefined,
+      markThresholds: null,
       expectedText: 'Override Mark Thresholds',
       expectButtonDisabled: true,
     },
@@ -238,7 +195,7 @@ test('override mark thresholds button shows when there are no overrides', () => 
     },
     {
       hasBatches: false,
-      markThresholds: undefined,
+      markThresholds: null,
       expectedText: 'Override Mark Thresholds',
       expectButtonDisabled: false,
     },
@@ -251,22 +208,23 @@ test('override mark thresholds button shows when there are no overrides', () => 
   ];
 
   for (const testCase of testCases) {
-    const { getByText, unmount } = renderScreen({
-      backup,
+    mockApiClient.getMarkThresholdOverrides
+      .expectCallWith()
+      .resolves(testCase.markThresholds);
+    const { unmount } = renderScreen({
       hasBatches: testCase.hasBatches,
-      markThresholds: testCase.markThresholds,
     });
-    getByText(testCase.expectedText);
-    expect(
-      getByText(testCase.expectedText)
-        .closest('button')!
-        .hasAttribute('disabled')
-    ).toEqual(testCase.expectButtonDisabled);
+    const button = await screen.findButton(testCase.expectedText);
+    expect(button.hasAttribute('disabled')).toEqual(
+      testCase.expectButtonDisabled
+    );
     unmount();
   }
 });
 
 test('clicking "Update Date and Time" shows modal to set clock', async () => {
+  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
+
   MockDate.set('2020-10-31T00:00:00.000Z');
   window.kiosk = fakeKiosk();
 
