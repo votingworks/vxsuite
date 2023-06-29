@@ -278,12 +278,6 @@ test('configuring election from usb ballot package works end to end', async () =
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   expectConfigureFromBallotPackageOnUsbDrive();
 
-  await act(async () => {
-    await sleep(500);
-    getByText('Successfully Configured');
-  });
-
-  fireEvent.click(getByText('Close'));
   await screen.findByText('No ballots have been scanned.');
 
   getByText('General Election');
