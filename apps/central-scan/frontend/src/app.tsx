@@ -1,4 +1,5 @@
 import { getHardware } from '@votingworks/utils';
+import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { Logger, LogSource } from '@votingworks/logging';
 import { AppBase, ErrorBoundary, H1, P } from '@votingworks/ui';
