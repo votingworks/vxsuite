@@ -182,16 +182,13 @@ export function AdminActionsScreen({
               >
                 <Icons.Delete /> Delete Election Data from VxCentralScan
               </Button>{' '}
-              {!canUnconfigure && !isTestMode && (
-                <React.Fragment>
-                  <br />
-                  <Font color="warning">
-                    <Icons.Warning /> You must &quot;Save Backup&quot; before
-                    you may delete election data.
-                  </Font>
-                </React.Fragment>
-              )}
             </ButtonRow>
+            {!canUnconfigure && !isTestMode && (
+              <Font color="warning">
+                <Icons.Warning /> You must &quot;Save Backup&quot; before you
+                may delete election data.
+              </Font>
+            )}
           </div>
         </Main>
         <MainNav isTestMode={isTestMode}>
@@ -255,7 +252,7 @@ export function AdminActionsScreen({
       {unconfigureFlowState === 'double-confirmation' && (
         <Modal
           title="Are you sure?"
-          content={<P>This can not be undone.</P>}
+          content={<P>This cannot be undone.</P>}
           actions={
             <React.Fragment>
               <Button variant="danger" onPress={doUnconfigure}>
