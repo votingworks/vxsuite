@@ -4,6 +4,7 @@ import { assert } from '@votingworks/basics';
 import { Tabulation } from '@votingworks/types';
 import { Store } from '../store';
 import {
+  extractWriteInSummary,
   isFilterCompatibleWithManualResults,
   isGroupByCompatibleWithManualResults,
   tabulateManualBallotCounts,
@@ -301,5 +302,68 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
         Object.values(expected).length
       );
     }
+  });
+});
+
+test('extractManualWriteInSummary', () => {
+  const { election } = electionMinimalExhaustiveSampleFixtures;
+  expect(
+    extractWriteInSummary({
+      election,
+      manualResults: buildManualResultsFixture({
+        election,
+        ballotCount: 25,
+        contestResultsSummaries: {
+          'zoo-council-mammal': {
+            type: 'candidate',
+            ballots: 25,
+            officialOptionTallies: {
+              lion: 10,
+              zebra: 5,
+            },
+            writeInOptionTallies: {
+              somebody: {
+                name: 'Somebody',
+                tally: 3,
+              },
+              anybody: {
+                name: 'Anybody',
+                tally: 7,
+              },
+            },
+          },
+        },
+      }),
+    })
+  ).toEqual({
+    contestWriteInSummaries: {
+      'aquarium-council-fish': {
+        candidateTallies: {},
+        contestId: 'aquarium-council-fish',
+        invalidTally: 0,
+        pendingTally: 0,
+        totalTally: 0,
+      },
+      'zoo-council-mammal': {
+        candidateTallies: {
+          anybody: {
+            id: 'anybody',
+            isWriteIn: true,
+            name: 'Anybody',
+            tally: 7,
+          },
+          somebody: {
+            id: 'somebody',
+            isWriteIn: true,
+            name: 'Somebody',
+            tally: 3,
+          },
+        },
+        contestId: 'zoo-council-mammal',
+        invalidTally: 0,
+        pendingTally: 0,
+        totalTally: 10,
+      },
+    },
   });
 });

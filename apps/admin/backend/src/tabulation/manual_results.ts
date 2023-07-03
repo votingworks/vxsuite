@@ -5,7 +5,7 @@ import {
   getBallotStyleIdPartyIdLookup,
   getGroupKey,
 } from '@votingworks/utils';
-import { Result, assertDefined, err, ok } from '@votingworks/basics';
+import { Result, assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
   ManualResultsFilter,
   ManualResultsGroupBy,
@@ -172,4 +172,52 @@ export function tabulateManualBallotCounts({
   }
 
   return ok(manualBallotCountGroupMap);
+}
+
+/**
+ * Extract write-in candidate tallies from manual results in the form of
+ * {@link Tabulation.ElectionWriteInSummary}. It's not possible to extract
+ * pending, invalid, total, or official candidate tallies because those are
+ * not specified by the user.
+ */
+export function extractWriteInSummary({
+  election,
+  manualResults,
+}: {
+  election: Election;
+  manualResults: Tabulation.ManualElectionResults;
+}): Tabulation.ElectionWriteInSummary {
+  const electionManualWriteInSummary: Tabulation.ElectionWriteInSummary = {
+    contestWriteInSummaries: {},
+  };
+
+  const writeInContests = election.contests.filter(
+    (c) => c.type === 'candidate' && c.allowWriteIns
+  );
+  for (const contest of writeInContests) {
+    const writeInCandidateTallies: Tabulation.ContestWriteInSummary['candidateTallies'] =
+      {};
+
+    const contestResults = manualResults.contestResults[contest.id];
+    let totalTally = 0;
+    if (contestResults) {
+      assert(contestResults.contestType === 'candidate');
+      for (const candidateTally of Object.values(contestResults.tallies)) {
+        if (candidateTally.isWriteIn) {
+          writeInCandidateTallies[candidateTally.id] = candidateTally;
+          totalTally += candidateTally.tally;
+        }
+      }
+    }
+
+    electionManualWriteInSummary.contestWriteInSummaries[contest.id] = {
+      contestId: contest.id,
+      totalTally,
+      pendingTally: 0,
+      invalidTally: 0,
+      candidateTallies: writeInCandidateTallies,
+    };
+  }
+
+  return electionManualWriteInSummary;
 }

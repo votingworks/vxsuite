@@ -94,6 +94,7 @@ import {
 import { getSemsExportableTallies } from './exports/sems_tallies';
 import { generateResultsCsv } from './exports/csv_results';
 import { tabulateFullCardCounts } from './tabulation/card_counts';
+import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -804,6 +805,14 @@ function buildApi({
       );
 
       return exportFileResult;
+    },
+
+    getElectionWriteInSummary(): Tabulation.ElectionWriteInSummary {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      return getOverallElectionWriteInSummary({
+        electionId,
+        store,
+      });
     },
   });
 }
