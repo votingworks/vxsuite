@@ -1,13 +1,15 @@
+import React from 'react';
 import { electionSample } from '@votingworks/fixtures';
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
+import { assert } from '@votingworks/basics';
 import {
   render,
   fireEvent,
-  getByText as domGetByText,
   waitFor,
   screen,
+  within,
 } from '../../test/react_testing_library';
 
 import { SetMarkThresholdsModal } from './set_mark_thresholds_modal';
@@ -59,13 +61,18 @@ test('renders reset modal when overrides are set', async () => {
     markThresholdOverrides: { definite: 0.32, marginal: 0.24 },
   });
   screen.getByText('Reset Mark Thresholds');
-  const currentThresholds = screen.getByText('Current Thresholds');
-  domGetByText(currentThresholds, /Definite: 0.32/);
-  domGetByText(currentThresholds, /Marginal: 0.24/);
 
-  const defaultThresholds = screen.getByText('Default Thresholds');
-  domGetByText(defaultThresholds, /Definite: 0.25/);
-  domGetByText(defaultThresholds, /Marginal: 0.17/);
+  const currentThresholdsSection =
+    screen.getByText('Current Thresholds').parentElement;
+  assert(currentThresholdsSection);
+  within(currentThresholdsSection).getByText(/Definite: 0.32/);
+  within(currentThresholdsSection).getByText(/Marginal: 0.24/);
+
+  const defaultThresholdsSection =
+    screen.getByText('Default Thresholds').parentElement;
+  assert(defaultThresholdsSection);
+  within(defaultThresholdsSection).getByText(/Definite: 0.25/);
+  within(defaultThresholdsSection).getByText(/Marginal: 0.17/);
 
   userEvent.click(screen.getButton('Close'));
   expect(onClose).toHaveBeenCalled();
