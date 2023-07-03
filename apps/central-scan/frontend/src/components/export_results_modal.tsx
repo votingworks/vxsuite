@@ -1,13 +1,12 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 
-import { Button, Modal, UsbControllerButton } from '@votingworks/ui';
+import { Button, Modal, P, UsbControllerButton } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 
 import { LogEventId } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
-import { Prose } from './prose';
 import { Loading } from './loading';
 import { exportCastVoteRecords } from '../api/config';
 
@@ -75,12 +74,8 @@ export function ExportResultsModal({
   if (currentState === ModalState.ERROR) {
     return (
       <Modal
-        content={
-          <Prose>
-            <h1>Failed to Save CVRs</h1>
-            <p>{errorMessage}</p>
-          </Prose>
-        }
+        title="Failed to Save CVRs"
+        content={<P>{errorMessage}</P>}
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
       />
@@ -91,14 +86,12 @@ export function ExportResultsModal({
     if (usbDriveStatus === 'ejected') {
       return (
         <Modal
+          title="CVRs Saved"
           content={
-            <Prose>
-              <h1>CVRs Saved</h1>
-              <p>
-                USB drive successfully ejected, you may now take it to VxAdmin
-                for tabulation.
-              </p>
-            </Prose>
+            <P>
+              USB drive successfully ejected, you may now take it to VxAdmin for
+              tabulation.
+            </P>
           }
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Close</Button>}
@@ -107,14 +100,12 @@ export function ExportResultsModal({
     }
     return (
       <Modal
+        title="CVRs Saved"
         content={
-          <Prose>
-            <h1>CVRs Saved</h1>
-            <p>
-              CVR file saved successfully! You may now eject the USB drive and
-              take it to VxAdmin for tabulation.
-            </p>
-          </Prose>
+          <P>
+            CVR file saved successfully! You may now eject the USB drive and
+            take it to VxAdmin for tabulation.
+          </P>
         }
         onOverlayClick={onClose}
         actions={
@@ -148,14 +139,12 @@ export function ExportResultsModal({
       // on the machine for internal debugging use
       return (
         <Modal
+          title="No USB Drive Detected"
           content={
-            <Prose>
-              <h1>No USB Drive Detected</h1>
-              <p>
-                <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-                Please insert a USB drive in order to save CVRs.
-              </p>
-            </Prose>
+            <P>
+              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
+              Please insert a USB drive in order to save CVRs.
+            </P>
           }
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Cancel</Button>}
@@ -173,12 +162,12 @@ export function ExportResultsModal({
     case 'mounted':
       return (
         <Modal
+          title="Save CVRs"
           content={
-            <Prose>
-              <h1>Save CVRs</h1>
+            <React.Fragment>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              <p>A CVR file will be saved to the mounted USB drive.</p>
-            </Prose>
+              <P>A CVR file will be saved to the mounted USB drive.</P>
+            </React.Fragment>
           }
           onOverlayClick={onClose}
           actions={
