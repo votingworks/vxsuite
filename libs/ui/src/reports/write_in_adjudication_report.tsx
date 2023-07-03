@@ -8,7 +8,6 @@ import styled, { ThemeProvider } from 'styled-components';
 import { unique } from '@votingworks/basics';
 import { ReportSection, TallyReport, TallyReportColumns } from './tally_report';
 import { LogoMark } from '../logo_mark';
-import { Prose } from '../prose';
 import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestWriteInSummaryTable } from './contest_write_in_summary_table';
 import { makeTheme } from '../themes/make_theme';
@@ -83,15 +82,13 @@ export function WriteInAdjudicationReport({
               data-testid={`write-in-tally-report-${sectionKey}`}
             >
               <LogoMark />
-              <Prose maxWidth={false}>
-                <h1>
-                  {statusPrefix} {electionTitle} Write-In Adjudication Report
-                </h1>
-                <TallyReportMetadata
-                  generatedAtTime={generatedAtTime}
-                  election={election}
-                />
-              </Prose>
+              <h1>
+                {statusPrefix} {electionTitle} Write-In Adjudication Report
+              </h1>
+              <TallyReportMetadata
+                generatedAtTime={generatedAtTime}
+                election={election}
+              />
               <TallyReportColumns>
                 {nonZeroWriteInContests.map((contest) => (
                   <ContestWriteInSummaryTable
