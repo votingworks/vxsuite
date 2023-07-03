@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { MarkThresholds } from '@votingworks/types';
-import { Button, Modal, Text } from '@votingworks/ui';
+import { Button, H6, Modal, P } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { Prose } from './prose';
 import { Loading } from './loading';
 import { TextInput } from './text_input';
 import { setMarkThresholdOverrides } from '../api';
@@ -22,6 +21,12 @@ const ThresholdColumns = styled.div`
   > div {
     flex: 1;
   }
+`;
+
+const Inputs = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 `;
 
 enum ModalState {
@@ -110,12 +115,8 @@ export function SetMarkThresholdsModal({
     case ModalState.ERROR:
       return (
         <Modal
-          content={
-            <Prose>
-              <h1>Error</h1>
-              <p>{errorMessage}</p>
-            </Prose>
-          }
+          title="Error"
+          content={<P>{errorMessage}</P>}
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Close</Button>}
         />
@@ -123,15 +124,13 @@ export function SetMarkThresholdsModal({
     case ModalState.CONFIRM_INTENT:
       return (
         <Modal
+          title="Override Mark Thresholds"
           content={
-            <Prose>
-              <h1>Override Mark Thresholds</h1>
-              <p>
-                WARNING: Do not proceed unless you have been instructed to do so
-                by a member of VotingWorks staff. Changing mark thresholds will
-                impact the performance of your scanner.
-              </p>
-            </Prose>
+            <P>
+              WARNING: Do not proceed unless you have been instructed to do so
+              by a member of VotingWorks staff. Changing mark thresholds will
+              impact the performance of your scanner.
+            </P>
           }
           onOverlayClick={onClose}
           actions={
@@ -153,26 +152,34 @@ export function SetMarkThresholdsModal({
     case ModalState.SET_THRESHOLDS:
       return (
         <Modal
+          title="Override Mark Thresholds"
           content={
-            <Prose>
-              <h1>Override Mark Thresholds</h1>
-              <Text>Definite:</Text>
-              <TextInput
-                data-testid="definite-text-input"
-                value={definiteThreshold}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setDefiniteThreshold(e.target.value)
-                }
-              />
-              <Text>Marginal:</Text>
-              <TextInput
-                data-testid="marginal-text-input"
-                value={marginalThreshold}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setMarginalThreshold(e.target.value)
-                }
-              />
-            </Prose>
+            <Inputs>
+              {/* This eslint rule is failing to detect `TextInput` as an `input` element. */}
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+              <label>
+                <H6 as="h2">Definite:</H6>
+                <TextInput
+                  data-testid="definite-text-input"
+                  value={definiteThreshold}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setDefiniteThreshold(e.target.value)
+                  }
+                />
+              </label>
+              {/* This eslint rule is failing to detect `TextInput` as an `input` element. */}
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+              <label>
+                <H6 as="h2">Marginal:</H6>
+                <TextInput
+                  data-testid="marginal-text-input"
+                  value={marginalThreshold}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setMarginalThreshold(e.target.value)
+                  }
+                />
+              </label>
+            </Inputs>
           }
           onOverlayClick={onClose}
           actions={
@@ -194,29 +201,29 @@ export function SetMarkThresholdsModal({
       assert(markThresholdOverrides);
       return (
         <Modal
+          title="Reset Mark Thresholds"
           content={
-            <Prose>
-              <h1>Reset Mark Thresholds</h1>
-              <p>Reset thresholds to the election defaults?</p>
+            <React.Fragment>
+              <P>Reset thresholds to the election defaults?</P>
               <ThresholdColumns>
                 <div>
-                  Current Thresholds
-                  <Text small>
+                  <H6 as="h2">Current Thresholds</H6>
+                  <P>
                     Definite: {markThresholdOverrides.definite}
                     <br />
                     Marginal: {markThresholdOverrides.marginal}
-                  </Text>
+                  </P>
                 </div>
                 <div>
-                  Default Thresholds
-                  <Text small>
+                  <H6 as="h2">Default Thresholds</H6>
+                  <P>
                     Definite: {defaultMarkThresholds.definite}
                     <br />
                     Marginal: {defaultMarkThresholds.marginal}
-                  </Text>
+                  </P>
                 </div>
               </ThresholdColumns>
-            </Prose>
+            </React.Fragment>
           }
           onOverlayClick={onClose}
           actions={
