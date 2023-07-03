@@ -5,19 +5,22 @@ import { assert, Result } from '@votingworks/basics';
 import {
   Button,
   ExportLogsButtonRow,
+  Font,
+  H1,
+  Icons,
   LinkButton,
   Loading,
   Main,
   Modal,
+  P,
   Screen,
   SetClockButton,
-  Text,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { Scan } from '@votingworks/api';
 import { useHistory } from 'react-router-dom';
+import styled from 'styled-components';
 import { MainNav } from '../components/main_nav';
-import { Prose } from '../components/prose';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { AppContext } from '../contexts/app_context';
@@ -27,6 +30,12 @@ import {
   unconfigure,
   clearBallotData,
 } from '../api';
+
+const ButtonRow = styled.div`
+  &:not(:last-child) {
+    margin-bottom: 1rem;
+  }
+`;
 
 export interface AdminActionScreenProps {
   backup: () => Promise<Result<string[], Scan.BackupError | Error>>;
@@ -119,15 +128,15 @@ export function AdminActionsScreen({
     <React.Fragment>
       <Screen>
         <Main padded>
-          <Prose>
-            <h1>Admin Actions</h1>
-            <p>
+          <div>
+            <H1>Admin Actions</H1>
+            <ButtonRow>
               <ToggleTestModeButton
                 isTestMode={isTestMode}
                 canUnconfigure={canUnconfigure}
               />
-            </p>
-            <p>
+            </ButtonRow>
+            <ButtonRow>
               <Button
                 onPress={() => setIsMarkThresholdModalOpen(true)}
                 disabled={hasBatches}
@@ -136,54 +145,54 @@ export function AdminActionsScreen({
                   ? 'Reset Mark Thresholds'
                   : 'Override Mark Thresholds'}
               </Button>
-            </p>
-            {backupError && <p style={{ color: 'red' }}>{backupError}</p>}
-            <p>
+            </ButtonRow>
+            {backupError && <P style={{ color: 'red' }}>{backupError}</P>}
+            <ButtonRow>
               <Button onPress={exportBackup} disabled={isBackingUp}>
                 {isBackingUp ? 'Saving…' : 'Save Backup'}
               </Button>
-            </p>
-            <ExportLogsButtonRow
-              electionDefinition={electionDefinition}
-              usbDriveStatus={usbDriveStatus}
-              auth={auth}
-              logger={logger}
-              machineConfig={machineConfig}
-            />
-            <p>
+            </ButtonRow>
+            <ButtonRow>
+              <ExportLogsButtonRow
+                electionDefinition={electionDefinition}
+                usbDriveStatus={usbDriveStatus}
+                auth={auth}
+                logger={logger}
+                machineConfig={machineConfig}
+              />
+            </ButtonRow>
+            <ButtonRow>
               <SetClockButton logOut={() => logOutMutation.mutate()}>
                 Update Date and Time
               </SetClockButton>
-            </p>
-            <p>
+            </ButtonRow>
+            <ButtonRow>
               <Button
-                variant="danger"
                 disabled={!canUnconfigure}
                 onPress={() => setDeleteBallotDataFlowState('confirmation')}
               >
-                Delete Ballot Data
+                <Icons.Delete /> Delete Ballot Data
               </Button>
-            </p>
+            </ButtonRow>
 
-            <p>
+            <ButtonRow>
               <Button
-                variant="danger"
                 disabled={!canUnconfigure}
                 onPress={() => setUnconfigureFlowState('initial-confirmation')}
               >
-                Delete Election Data from VxCentralScan
+                <Icons.Delete /> Delete Election Data from VxCentralScan
               </Button>{' '}
               {!canUnconfigure && !isTestMode && (
                 <React.Fragment>
                   <br />
-                  <Text as="span" warning warningIcon>
-                    You must &quot;Save Backup&quot; before you may delete
-                    election data.
-                  </Text>
+                  <Font color="warning">
+                    <Icons.Warning /> You must &quot;Save Backup&quot; before
+                    you may delete election data.
+                  </Font>
                 </React.Fragment>
               )}
-            </p>
-          </Prose>
+            </ButtonRow>
+          </div>
         </Main>
         <MainNav isTestMode={isTestMode}>
           <Button small onPress={() => logOutMutation.mutate()}>
@@ -196,16 +205,13 @@ export function AdminActionsScreen({
       </Screen>
       {deleteBallotDataFlowState === 'confirmation' && (
         <Modal
-          centerContent
+          title="Delete All Scanned Ballot Data?"
           content={
-            <Prose textCenter>
-              <h1>Delete All Scanned Ballot Data?</h1>
-              <p>
-                This will permanently delete all scanned ballot data and reset
-                the scanner to only be configured with the current election,
-                with the default mark thresholds.
-              </p>
-            </Prose>
+            <P>
+              This will permanently delete all scanned ballot data and reset the
+              scanner to only be configured with the current election, with the
+              default mark thresholds.
+            </P>
           }
           actions={
             <React.Fragment>
@@ -220,18 +226,17 @@ export function AdminActionsScreen({
       )}
       {unconfigureFlowState === 'initial-confirmation' && (
         <Modal
-          centerContent
+          title="Delete all election data?"
           content={
-            <Prose textCenter>
-              <h1>Delete all election data?</h1>
-              <p>
+            <React.Fragment>
+              <P>
                 This will delete the election configuration and all the scanned
                 ballot data from VxCentralScan.
-              </p>
+              </P>
               {usbDriveStatus === 'mounted' && (
-                <p>It will also eject the USB drive.</p>
+                <P>It will also eject the USB drive.</P>
               )}
-            </Prose>
+            </React.Fragment>
           }
           actions={
             <React.Fragment>
@@ -249,13 +254,8 @@ export function AdminActionsScreen({
       )}
       {unconfigureFlowState === 'double-confirmation' && (
         <Modal
-          centerContent
-          content={
-            <Prose textCenter>
-              <h1>Are you sure?</h1>
-              <p>This can not be undone.</p>
-            </Prose>
-          }
+          title="Are you sure?"
+          content={<P>This can not be undone.</P>}
           actions={
             <React.Fragment>
               <Button variant="danger" onPress={doUnconfigure}>
