@@ -190,16 +190,6 @@ export const getCastVoteRecordFiles = {
   },
 } as const;
 
-export const getCastVoteRecords = {
-  queryKey(): QueryKey {
-    return ['getCastVoteRecords'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getCastVoteRecords());
-  },
-} as const;
-
 export const getCastVoteRecordFileMode = {
   queryKey(): QueryKey {
     return ['getCastVoteRecordFileMode'];
@@ -300,18 +290,6 @@ export const getSystemSettings = {
   },
 } as const;
 
-export const getFullElectionManualTally = {
-  queryKey(): QueryKey {
-    return ['getFullElectionManualTally'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () =>
-      apiClient.getFullElectionManualTally()
-    );
-  },
-} as const;
-
 type GetManualResultsInput = QueryInput<'getManualResults'>;
 export const getManualResults = {
   queryKey(input?: GetManualResultsInput): QueryKey {
@@ -405,7 +383,6 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
   return Promise.all([
     queryClient.invalidateQueries(getCastVoteRecordFileMode.queryKey()),
     queryClient.invalidateQueries(getCastVoteRecordFiles.queryKey()),
-    queryClient.invalidateQueries(getCastVoteRecords.queryKey()),
     queryClient.invalidateQueries(getSemsExportableTallies.queryKey()),
     queryClient.invalidateQueries(getCardCounts.queryKey()),
     queryClient.invalidateQueries(getScannerBatches.queryKey()),
@@ -426,7 +403,6 @@ function invalidateWriteInQueries(queryClient: QueryClient) {
 function invalidateManualResultsQueries(queryClient: QueryClient) {
   return Promise.all([
     queryClient.invalidateQueries(getManualResults.queryKey()),
-    queryClient.invalidateQueries(getFullElectionManualTally.queryKey()),
     queryClient.invalidateQueries(getManualResultsMetadata.queryKey()),
     queryClient.invalidateQueries(getSemsExportableTallies.queryKey()),
     queryClient.invalidateQueries(getCardCounts.queryKey()),

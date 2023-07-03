@@ -23,7 +23,6 @@ import { assert } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 import { MsSemsConverterClient } from '../lib/converters/ms_sems_converter_client';
 
-import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
 import { BallotCountsTable } from '../components/ballot_counts_table';
@@ -47,7 +46,6 @@ export function ReportsScreen(): JSX.Element {
     electionDefinition,
     converter,
     isOfficialResults,
-    isTabulationRunning,
     configuredAt,
     logger,
     auth,
@@ -129,42 +127,37 @@ export function ReportsScreen(): JSX.Element {
     userRole,
   ]);
 
-  let tallyResultsInfo = <Loading>Tabulating Results…</Loading>;
-  if (!isTabulationRunning) {
-    const resultTables = (
-      <React.Fragment>
-        <H2>Tally Report by Precinct</H2>
-        <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
-        {canDistinguishVotingMethods(election) && (
-          <React.Fragment>
-            <H2>Tally Report by Voting Method</H2>
-            <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
-          </React.Fragment>
-        )}
-        {partiesForPrimaries.length > 0 && (
-          <React.Fragment>
-            <H2>Tally Report by Party</H2>
-            <BallotCountsTable breakdownCategory={TallyCategory.Party} />
-          </React.Fragment>
-        )}
-        <H2>Tally Report by Scanner</H2>
-        <Button small onPress={toggleShowingBatchResults}>
-          {isShowingBatchResults
-            ? 'Show Results by Scanner'
-            : 'Show Results by Batch and Scanner'}
-        </Button>
-        <br />
-        <br />
-        {isShowingBatchResults ? (
-          <BallotCountsTable breakdownCategory={TallyCategory.Batch} />
-        ) : (
-          <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
-        )}
-      </React.Fragment>
-    );
-
-    tallyResultsInfo = resultTables;
-  }
+  const tallyResultsInfo = (
+    <React.Fragment>
+      <H2>Tally Report by Precinct</H2>
+      <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
+      {canDistinguishVotingMethods(election) && (
+        <React.Fragment>
+          <H2>Tally Report by Voting Method</H2>
+          <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
+        </React.Fragment>
+      )}
+      {partiesForPrimaries.length > 0 && (
+        <React.Fragment>
+          <H2>Tally Report by Party</H2>
+          <BallotCountsTable breakdownCategory={TallyCategory.Party} />
+        </React.Fragment>
+      )}
+      <H2>Tally Report by Scanner</H2>
+      <Button small onPress={toggleShowingBatchResults}>
+        {isShowingBatchResults
+          ? 'Show Results by Scanner'
+          : 'Show Results by Batch and Scanner'}
+      </Button>
+      <br />
+      <br />
+      {isShowingBatchResults ? (
+        <BallotCountsTable breakdownCategory={TallyCategory.Batch} />
+      ) : (
+        <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
+      )}
+    </React.Fragment>
+  );
 
   const fileMode = castVoteRecordFileModeQuery.data;
   const ballotCountSummaryText = (

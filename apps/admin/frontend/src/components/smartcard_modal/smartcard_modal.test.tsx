@@ -38,8 +38,6 @@ beforeEach(() => {
   });
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetCastVoteRecords([]);
-  apiMock.expectGetFullElectionManualTally();
 
   fetchMock.reset();
   fetchMock.get(

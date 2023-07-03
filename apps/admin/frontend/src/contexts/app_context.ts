@@ -3,11 +3,9 @@ import {
   ConverterClientType,
   DippedSmartCardAuth,
   ElectionDefinition,
-  FullElectionTally,
-  FullElectionManualTally,
   Printer,
 } from '@votingworks/types';
-import { NullPrinter, getEmptyFullElectionTally } from '@votingworks/utils';
+import { NullPrinter } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/ui';
 import type { MachineConfig } from '@votingworks/admin-backend';
@@ -20,11 +18,7 @@ export interface AppContextInterface {
   isOfficialResults: boolean;
   printer: Printer;
   usbDrive: UsbDrive;
-  fullElectionTally: FullElectionTally;
-  fullElectionManualTally?: FullElectionManualTally;
   generateBallotId: () => string;
-  isTabulationRunning: boolean;
-  setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>;
   auth: DippedSmartCardAuth.AuthStatus;
   machineConfig: MachineConfig;
   hasCardReaderAttached: boolean;
@@ -43,10 +37,7 @@ const appContext: AppContextInterface = {
     eject: async () => undefined,
     format: async () => undefined,
   },
-  fullElectionTally: getEmptyFullElectionTally(),
   generateBallotId: () => '',
-  isTabulationRunning: false,
-  setIsTabulationRunning: () => undefined,
   auth: DippedSmartCardAuth.DEFAULT_AUTH_STATUS,
   machineConfig: {
     machineId: '0000',
