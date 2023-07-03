@@ -17,8 +17,7 @@ test('no votes', async () => {
       generateBallotId={() => 'CHhgYxfN5GeqnK8KaVOt1w'}
       isLiveMode={false}
       votes={{}}
-      updateTally={jest.fn()}
-      resetBallot={jest.fn()}
+      onPrintStarted={jest.fn()}
     />
   );
   await expectPrintToMatchSnapshot();
@@ -47,8 +46,7 @@ test('with votes', async () => {
         }
       )}
       isLiveMode={false}
-      updateTally={jest.fn()}
-      resetBallot={jest.fn()}
+      onPrintStarted={jest.fn()}
     />
   );
   await expectPrintToMatchSnapshot();
@@ -64,8 +62,7 @@ test('without votes and inline seal', async () => {
       generateBallotId={() => 'CHhgYxfN5GeqnK8KaVOt1w'}
       isLiveMode={false}
       votes={{}}
-      updateTally={jest.fn()}
-      resetBallot={jest.fn()}
+      onPrintStarted={jest.fn()}
     />
   );
   await expectPrintToMatchSnapshot();
@@ -81,8 +78,7 @@ test('without votes and no seal', async () => {
       generateBallotId={() => 'CHhgYxfN5GeqnK8KaVOt1w'}
       isLiveMode={false}
       votes={{}}
-      updateTally={jest.fn()}
-      resetBallot={jest.fn()}
+      onPrintStarted={jest.fn()}
     />
   );
   await expectPrintToMatchSnapshot();
