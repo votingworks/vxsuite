@@ -368,6 +368,12 @@ export function createApiMock(
         .expectCallWith(input)
         .resolves(results);
     },
+
+    expectGetElectionWriteInSummary(
+      summary: Tabulation.ElectionWriteInSummary
+    ) {
+      apiClient.getElectionWriteInSummary.expectCallWith().resolves(summary);
+    },
   };
 }
 

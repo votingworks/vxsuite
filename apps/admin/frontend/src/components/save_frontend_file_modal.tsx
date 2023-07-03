@@ -24,6 +24,7 @@ export const UsbImage = styled.img`
 
 export enum FileType {
   TallyReport = 'TallyReport',
+  WriteInAdjudicationReport = 'WriteInAdjudicationReport',
   LogicAndAccuracyPackage = 'LogicAndAccuracyPackage',
   TestDeckTallyReport = 'TestDeckTallyReport',
   Ballot = 'Ballot',
@@ -85,6 +86,12 @@ export function SaveFrontendFileModal({
     case FileType.Results:
       title = 'Results';
       fileName = 'election results';
+      break;
+    case FileType.WriteInAdjudicationReport:
+      title = `${
+        isOfficialResults ? 'Official' : 'Unofficial'
+      } Write-In Adjudication Report`;
+      fileName = 'write-in adjudication report';
       break;
     default:
       throwIllegalValue(fileType);

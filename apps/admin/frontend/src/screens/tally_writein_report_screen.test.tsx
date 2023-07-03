@@ -1,45 +1,22 @@
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import {
+  expectPrint,
+  fakeKiosk,
+  fakePrinterInfo,
+} from '@votingworks/test-utils';
 import { fakeLogger, Logger } from '@votingworks/logging';
-import { screen } from '@testing-library/react';
 
-import type { WriteInAdjudicatedTally } from '@votingworks/admin-backend';
+import userEvent from '@testing-library/user-event';
+import { createMemoryHistory } from 'history';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 import { TallyWriteInReportScreen } from './tally_writein_report_screen';
+import { screen, within } from '../../test/react_testing_library';
+import { routerPaths } from '../router_paths';
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let logger: Logger;
 let apiMock: ApiMock;
-
-const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
-
-const nonOfficialAdjudicationSummaryMammal: WriteInAdjudicatedTally = {
-  status: 'adjudicated',
-  adjudicationType: 'write-in-candidate',
-  contestId: 'zoo-council-mammal',
-  tally: 1,
-  candidateName: 'Chimera',
-  candidateId: 'uuid',
-};
-
-const nonOfficialAdjudicationSummaryFish: WriteInAdjudicatedTally = {
-  status: 'adjudicated',
-  adjudicationType: 'write-in-candidate',
-  contestId: 'aquarium-council-fish',
-  tally: 1,
-  candidateName: 'Loch Ness',
-  candidateId: 'uuid',
-};
-
-const officialAdjudicationSummaryFish: WriteInAdjudicatedTally = {
-  status: 'adjudicated',
-  adjudicationType: 'official-candidate',
-  contestId: 'aquarium-council-fish',
-  tally: 1,
-  candidateName: 'Loch Ness',
-  candidateId: 'Loch Ness',
-};
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -57,99 +34,60 @@ afterAll(() => {
   apiMock.assertComplete();
 });
 
-test('when no adjudications', () => {
-  apiMock.expectGetWriteInTalliesAdjudicated([]);
+test('renders provided data', async () => {
+  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  apiMock.expectGetElectionWriteInSummary({
+    contestWriteInSummaries: {
+      'Sheriff-4243fe0b': {
+        contestId: 'Sheriff-4243fe0b',
+        totalTally: 50,
+        pendingTally: 10,
+        invalidTally: 5,
+        candidateTallies: {
+          'Edward-Randolph-bf4c848a': {
+            id: 'Edward-Randolph-bf4c848a',
+            name: 'Edward Randolph',
+            tally: 20,
+          },
+          rando: {
+            id: 'rando',
+            name: 'Random Write-In',
+            tally: 15,
+            isWriteIn: true,
+          },
+        },
+      },
+    },
+  });
+  const history = createMemoryHistory();
   renderInAppContext(<TallyWriteInReportScreen />, {
     electionDefinition,
     logger,
     apiMock,
+    history,
   });
 
-  screen.getByText(
-    /there are no write-in votes adjudicated to non-official candidates/
-  );
-  expect(screen.queryByText('Report Preview')).not.toBeInTheDocument();
-  expect(screen.queryByText('Print Report')).not.toBeInTheDocument();
-});
-
-test('with contest from one party adjudicated', async () => {
-  apiMock.expectGetWriteInTalliesAdjudicated([
-    nonOfficialAdjudicationSummaryMammal,
-  ]);
-  renderInAppContext(<TallyWriteInReportScreen />, {
-    electionDefinition,
-    logger,
-    apiMock,
-  });
-
-  // should show a report, but only for the party with the adjudicated contest
   await screen.findByText('Report Preview');
-
-  screen.getByText('Print Report');
-  screen.getByText(
-    'Unofficial Mammal Party Example Primary Election Write-In Tally Report'
+  const report = screen.getByTestId('write-in-tally-report');
+  within(report).getByText(
+    'Unofficial General Election Write-In Adjudication Report'
   );
-  screen.getByTestId('results-table-zoo-council-mammal');
   expect(
-    screen.queryByText(
-      'Unofficial Fish Party Example Primary Election Write-In Tally Report'
-    )
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByTestId('results-table-aquarium-council-fish')
-  ).not.toBeInTheDocument();
-});
+    within(report).getByText('Random Write-In').closest('tr')!
+  ).toHaveTextContent('15');
 
-test('with contest from multiple parties adjudicated', async () => {
-  apiMock.expectGetWriteInTalliesAdjudicated([
-    nonOfficialAdjudicationSummaryMammal,
-    nonOfficialAdjudicationSummaryFish,
-  ]);
-  renderInAppContext(<TallyWriteInReportScreen />, {
-    electionDefinition,
-    logger,
-    apiMock,
+  userEvent.click(screen.getByText('Print Report'));
+  await expectPrint((printed) => {
+    printed.getByText(
+      'Unofficial General Election Write-In Adjudication Report'
+    );
+    expect(
+      printed.getByText('Random Write-In').closest('tr')!
+    ).toHaveTextContent('15');
   });
 
-  // should show a reports for both parties
-  await screen.findByText('Report Preview');
+  screen.getByText('Save Report as PDF');
 
-  screen.getByText('Print Report');
-  screen.getByText(
-    'Unofficial Mammal Party Example Primary Election Write-In Tally Report'
-  );
-  screen.getByTestId('results-table-zoo-council-mammal');
-  screen.getByText(
-    'Unofficial Fish Party Example Primary Election Write-In Tally Report'
-  );
-  screen.getByTestId('results-table-aquarium-council-fish');
-});
-
-test('ignores adjudications for official candidates', async () => {
-  apiMock.expectGetWriteInTalliesAdjudicated([
-    nonOfficialAdjudicationSummaryMammal,
-    officialAdjudicationSummaryFish,
-  ]);
-  renderInAppContext(<TallyWriteInReportScreen />, {
-    electionDefinition,
-    logger,
-    apiMock,
-  });
-
-  // should show a report, but only for the party with contest adjudicated for non-official candidates
-  await screen.findByText('Report Preview');
-
-  screen.getByText('Print Report');
-  screen.getByText(
-    'Unofficial Mammal Party Example Primary Election Write-In Tally Report'
-  );
-  screen.getByTestId('results-table-zoo-council-mammal');
-  expect(
-    screen.queryByText(
-      'Unofficial Fish Party Example Primary Election Write-In Tally Report'
-    )
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByTestId('results-table-aquarium-council-fish')
-  ).not.toBeInTheDocument();
+  userEvent.click(screen.getByText('Back to Reports'));
+  expect(history.location.pathname).toEqual(routerPaths.reports);
 });

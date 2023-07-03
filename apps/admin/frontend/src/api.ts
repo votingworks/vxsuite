@@ -387,6 +387,18 @@ export const getResultsForTallyReports = {
   },
 } as const;
 
+export const getElectionWriteInSummary = {
+  queryKey(): QueryKey {
+    return ['getElectionWriteInSummary'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getElectionWriteInSummary()
+    );
+  },
+} as const;
+
 // Grouped Invalidations
 
 function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
@@ -398,6 +410,7 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getCardCounts.queryKey()),
     queryClient.invalidateQueries(getScannerBatches.queryKey()),
     queryClient.invalidateQueries(getResultsForTallyReports.queryKey()),
+    queryClient.invalidateQueries(getElectionWriteInSummary.queryKey()),
   ]);
 }
 
@@ -406,6 +419,7 @@ function invalidateWriteInQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getWriteIns.queryKey()),
     queryClient.invalidateQueries(getWriteInTallies.queryKey()),
     queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
+    queryClient.invalidateQueries(getElectionWriteInSummary.queryKey()),
   ]);
 }
 
@@ -416,6 +430,7 @@ function invalidateManualResultsQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getManualResultsMetadata.queryKey()),
     queryClient.invalidateQueries(getSemsExportableTallies.queryKey()),
     queryClient.invalidateQueries(getCardCounts.queryKey()),
+    queryClient.invalidateQueries(getElectionWriteInSummary.queryKey()),
   ]);
 }
 
