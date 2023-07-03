@@ -1,5 +1,4 @@
 export * from './contest_tally';
-export * from './contest_writein_tally';
 export * from './precinct_scanner_ballot_count_report';
 export * from './precinct_scanner_tally_qrcode';
 export * from './precinct_scanner_tally_report';
@@ -8,3 +7,4 @@ export * from './tally_report_metadata';
 export * from './tally_report_summary';
 export * from './tally_report';
 export * from './admin_tally_report';
+export * from './write_in_adjudication_report';

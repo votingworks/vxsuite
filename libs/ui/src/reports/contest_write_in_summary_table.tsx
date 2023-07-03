@@ -1,0 +1,179 @@
+import styled from 'styled-components';
+
+import {
+  Election,
+  getContestDistrictName,
+  Tabulation,
+} from '@votingworks/types';
+
+import { find } from '@votingworks/basics';
+import pluralize from 'pluralize';
+import React from 'react';
+import { tableBorderColor, TD, TH } from '../table';
+import { Font, FontProps } from '../typography';
+import { NoWrap, Text } from '../text';
+
+const Contest = styled.div`
+  margin: 1rem 0;
+  page-break-inside: avoid;
+  p:first-child {
+    margin: 0;
+  }
+  h3 {
+    margin-top: 0;
+    margin-bottom: 0.5em;
+    & + p {
+      margin-top: -0.5em;
+      margin-bottom: 0.25em;
+    }
+    & + table {
+      margin-top: -0.5em;
+    }
+  }
+`;
+
+const ContestTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  & tr {
+    border-top: 1px solid ${tableBorderColor};
+    border-bottom: 1px solid ${tableBorderColor};
+  }
+  & td {
+    padding: 0.1rem;
+    padding-right: 0;
+  }
+  & th {
+    padding: 0.1rem;
+    text-align: left;
+    font-weight: 400;
+  }
+  & th.indent {
+    padding-left: 1rem;
+  }
+`;
+
+interface Props {
+  election: Election;
+  contestWriteInSummary: Tabulation.ContestWriteInSummary;
+}
+
+function TallyRow({
+  label,
+  tally,
+  weight,
+  indent,
+}: {
+  label: string;
+  tally?: number;
+  weight?: FontProps['weight'];
+  indent?: boolean;
+}): JSX.Element {
+  return (
+    <tr>
+      <TH
+        className={indent ? 'indent' : undefined}
+        colSpan={tally === undefined ? 2 : 1}
+      >
+        <Font weight={weight}>{label}</Font>
+      </TH>
+      {tally !== undefined && (
+        <TD narrow textAlign="right">
+          {tally}
+        </TD>
+      )}
+    </tr>
+  );
+}
+
+export function ContestWriteInSummaryTable({
+  election,
+  contestWriteInSummary,
+}: Props): JSX.Element {
+  const contest = find(
+    election.contests,
+    (c) => c.id === contestWriteInSummary.contestId
+  );
+
+  const candidateTallies = Object.values(
+    contestWriteInSummary.candidateTallies
+  ).filter((c) => c.tally > 0);
+  const officialCandidateTallies = candidateTallies.filter((c) => !c.isWriteIn);
+  const writeInCandidateTallies = candidateTallies.filter((c) => c.isWriteIn);
+
+  const rows: JSX.Element[] = [];
+
+  if (officialCandidateTallies.length > 0) {
+    rows.push(
+      <TallyRow
+        key="official-candidate-header"
+        label="Official Candidates"
+        weight="semiBold"
+      />
+    );
+    for (const officialCandidateTally of officialCandidateTallies) {
+      rows.push(
+        <TallyRow
+          key={officialCandidateTally.id}
+          label={officialCandidateTally.name}
+          tally={officialCandidateTally.tally}
+          indent
+        />
+      );
+    }
+  }
+
+  if (writeInCandidateTallies.length > 0) {
+    rows.push(
+      <TallyRow
+        key="write-in-candidate-header"
+        label="Write-In Candidates"
+        weight="semiBold"
+      />
+    );
+    for (const writeInCandidateTally of writeInCandidateTallies) {
+      rows.push(
+        <TallyRow
+          key={writeInCandidateTally.id}
+          label={writeInCandidateTally.name}
+          tally={writeInCandidateTally.tally}
+          indent
+        />
+      );
+    }
+  }
+
+  if (contestWriteInSummary.invalidTally) {
+    rows.push(
+      <TallyRow
+        key="invalid"
+        label="Invalid"
+        tally={contestWriteInSummary.invalidTally}
+        weight="semiBold"
+      />
+    );
+  }
+
+  return (
+    <Contest data-testid={`results-table-${contest.id}`}>
+      <p>{getContestDistrictName(election, contest)}</p>
+      <h3>{contest.title}</h3>
+      <Text small>
+        <React.Fragment>
+          <NoWrap>
+            {pluralize(
+              'total write-ins',
+              contestWriteInSummary.totalTally,
+              true
+            )}{' '}
+            /
+          </NoWrap>
+          <NoWrap> {contestWriteInSummary.pendingTally} not adjudicated</NoWrap>
+        </React.Fragment>
+      </Text>
+      <ContestTable>
+        <tbody>{rows}</tbody>
+      </ContestTable>
+    </Contest>
+  );
+}
