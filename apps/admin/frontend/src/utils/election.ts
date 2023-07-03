@@ -36,28 +36,6 @@ const superBallotStyleId = 'vx-super-ballot';
 export function isSuperBallotStyle(ballotStyleId: BallotStyleId): boolean {
   return ballotStyleId === superBallotStyleId;
 }
-export function getContestsForPrecinct(
-  election: Election,
-  precinctId: PrecinctId
-): AnyContest[] {
-  const precinct = election.precincts.find((p) => p.id === precinctId);
-  if (precinct === undefined) {
-    return [];
-  }
-  const precinctBallotStyles = election.ballotStyles.filter((bs) =>
-    bs.precincts.includes(precinct.id)
-  );
-
-  return election.contests.filter((c) => {
-    const districts = precinctBallotStyles
-      .filter((bs) => {
-        const contestPartyId = c.type === 'candidate' ? c.partyId : undefined;
-        return bs.partyId === contestPartyId;
-      })
-      .flatMap((bs) => bs.districts);
-    return districts.includes(c.districtId);
-  });
-}
 
 export function numBallotPositions(contest: AnyContest): number {
   if (contest.type === 'candidate') {
