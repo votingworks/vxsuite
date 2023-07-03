@@ -1,4 +1,4 @@
-import { Button, Modal, Prose, Text } from '@votingworks/ui';
+import { Button, Modal, P } from '@votingworks/ui';
 import React from 'react';
 import * as api from '../api';
 
@@ -24,16 +24,15 @@ export function DeleteBatchModal({
 
   return (
     <Modal
-      centerContent
       onOverlayClick={onClose}
+      title={`Delete ‘${batchLabel}’?`}
       content={
-        <Prose textCenter>
-          <h1>Delete ‘{batchLabel}’?</h1>
-          <p>This action cannot be undone.</p>
+        <React.Fragment>
+          <P>This action cannot be undone.</P>
           {deleteBatchMutation.error && (
-            <Text error>{`${deleteBatchMutation.error}`}</Text>
+            <P color="danger">{`${deleteBatchMutation.error}`}</P>
           )}
-        </Prose>
+        </React.Fragment>
       }
       actions={
         <React.Fragment>
