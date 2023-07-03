@@ -11,21 +11,23 @@ import { LogoMark } from '../logo_mark';
 import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestWriteInSummaryTable } from './contest_write_in_summary_table';
 import { makeTheme } from '../themes/make_theme';
+import { tableBorderColor } from '../table';
 
 const ZeroList = styled.div`
   break-inside: avoid;
   h3 {
     margin-bottom: 0.2rem;
+    border-bottom: 1px solid ${tableBorderColor};
+    padding-bottom: 0.1rem;
   }
   ul {
     margin: 0;
-    margin-left: 1rem;
+    margin-left: 0.1rem;
     padding-left: 0;
     list-style: none;
   }
   li {
     margin: 0.3rem 0;
-    font-style: italic;
   }
 `;
 
@@ -101,7 +103,7 @@ export function WriteInAdjudicationReport({
                 ))}
                 {zeroWriteInContests.length > 0 && (
                   <ZeroList>
-                    <h3>Contests With No Write-Ins</h3>
+                    <h3>Contests With Zero Write-Ins</h3>
                     <ul>
                       {zeroWriteInContests.map((contest) => (
                         <li key={contest.id}>{contest.title}</li>

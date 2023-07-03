@@ -1,5 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionMinimalExhaustiveSampleDefinition,
+} from '@votingworks/fixtures';
 import { TallyReportPreview } from './tally_report';
 import {
   WriteInAdjudicationReport,
@@ -34,7 +37,135 @@ const meta: Meta<typeof WriteInTallyReportPreview> = {
   },
 };
 
-const exampleReportArgs: WriteInAdjudicationReportProps = {
+const generalReportArgs: WriteInAdjudicationReportProps = {
+  election: electionFamousNames2021Fixtures.election,
+  isOfficialResults: false,
+  generatedAtTime: new Date('2020-11-03T12:00:00.000Z'),
+  electionWriteInSummary: {
+    contestWriteInSummaries: {
+      mayor: {
+        contestId: 'mayor',
+        totalTally: 40,
+        pendingTally: 16,
+        invalidTally: 2,
+        candidateTallies: {
+          'sherlock-holmes': {
+            id: 'sherlock-holmes',
+            name: 'Sherlock Holmes',
+            tally: 17,
+          },
+          'thomas-edison': {
+            id: 'thomas-edison',
+            name: 'Thomas Edison',
+            tally: 5,
+          },
+        },
+      },
+      attorney: {
+        contestId: 'attorney',
+        totalTally: 50,
+        pendingTally: 1,
+        invalidTally: 9,
+        candidateTallies: {
+          'john-snow': {
+            id: 'john-snow',
+            name: 'John Snow',
+            tally: 17,
+          },
+          'mark-twain': {
+            id: 'mark-twain',
+            name: 'Mark Twain',
+            tally: 14,
+          },
+          'pooh-beer': {
+            id: 'pooh-beer',
+            name: 'Pooh Beer',
+            tally: 9,
+            isWriteIn: true,
+          },
+        },
+      },
+      'public-works-director': {
+        contestId: 'public-works-director',
+        totalTally: 50,
+        pendingTally: 50,
+        invalidTally: 0,
+        candidateTallies: {},
+      },
+      'chief-of-police': {
+        contestId: 'chief-of-police',
+        totalTally: 50,
+        pendingTally: 5,
+        invalidTally: 32,
+        candidateTallies: {
+          grimace: {
+            id: 'grimace',
+            name: 'Grimace',
+            tally: 8,
+            isWriteIn: true,
+          },
+          hamburglar: {
+            id: 'hamburglar',
+            name: 'Hamburglar',
+            tally: 5,
+            isWriteIn: true,
+          },
+        },
+      },
+      'parks-and-recreation-director': {
+        contestId: 'parks-and-recreation-director',
+        totalTally: 50,
+        pendingTally: 0,
+        invalidTally: 0,
+        candidateTallies: {
+          'james-bond': {
+            id: 'james-bond',
+            name: 'James Bond',
+            tally: 17,
+            isWriteIn: true,
+          },
+          'james-kirk': {
+            id: 'james-kirk',
+            name: 'James Kirk',
+            tally: 33,
+            isWriteIn: true,
+          },
+        },
+      },
+      'city-council': {
+        contestId: 'city-council',
+        totalTally: 300,
+        pendingTally: 180,
+        invalidTally: 10,
+        candidateTallies: {
+          'indiana-jones': {
+            id: 'indiana-jones',
+            name: 'Indiana Jones',
+            tally: 20,
+          },
+          spock: {
+            id: 'spock',
+            name: 'Spock',
+            tally: 50,
+            isWriteIn: true,
+          },
+          'luke-skywalker': {
+            id: 'luke-skywalker',
+            name: 'Luke Skywalker',
+            tally: 40,
+            isWriteIn: true,
+          },
+        },
+      },
+    },
+  },
+};
+
+export const GeneralReport: Story = {
+  args: generalReportArgs,
+};
+
+const primaryReportArgs: WriteInAdjudicationReportProps = {
   election,
   isOfficialResults: true,
   generatedAtTime: new Date('2020-11-03T12:00:00.000Z'),
@@ -93,11 +224,11 @@ const exampleReportArgs: WriteInAdjudicationReportProps = {
   },
 };
 
-export const ExampleReport: Story = {
-  args: exampleReportArgs,
+export const PrimaryReport: Story = {
+  args: primaryReportArgs,
 };
 
-export const EmptyReport: Story = {
+export const EmptyPrimaryReport: Story = {
   args: {
     election,
     isOfficialResults: true,

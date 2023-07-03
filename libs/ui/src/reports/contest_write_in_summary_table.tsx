@@ -39,6 +39,9 @@ const ContestTable = styled.table`
     border-top: 1px solid ${tableBorderColor};
     border-bottom: 1px solid ${tableBorderColor};
   }
+  & tr.empty-row {
+    border-bottom: none;
+  }
   & td {
     padding: 0.1rem;
     padding-right: 0;
@@ -172,7 +175,15 @@ export function ContestWriteInSummaryTable({
         </React.Fragment>
       </Text>
       <ContestTable>
-        <tbody>{rows}</tbody>
+        <tbody>
+          {rows.length > 0 ? (
+            rows
+          ) : (
+            <tr className="empty-row">
+              <th />
+            </tr>
+          )}
+        </tbody>
       </ContestTable>
     </Contest>
   );

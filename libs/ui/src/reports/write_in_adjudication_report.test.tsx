@@ -68,7 +68,7 @@ test('primary', () => {
 
   // should just list that the contest has no write-ins
   const zeroList = within(fishSection)
-    .getByText('Contests With No Write-Ins')
+    .getByText('Contests With Zero Write-Ins')
     .closest('div')!;
   within(zeroList).getByText('Zoo Council');
   expect(within(fishSection).queryAllByTestId(/results-table/)).toHaveLength(0);
@@ -98,7 +98,7 @@ test('general', () => {
 
   // all contests are in the no contest list
   const zeroList = screen
-    .getByText('Contests With No Write-Ins')
+    .getByText('Contests With Zero Write-Ins')
     .closest('div')!;
   for (const contest of election.contests) {
     within(zeroList).getByText(contest.title);
