@@ -17,7 +17,6 @@ import {
   BallotId,
   BallotPageLayout,
   BallotPageLayoutSchema,
-  CastVoteRecord,
   ContestId,
   ContestOptionId,
   CVR,
@@ -68,7 +67,6 @@ import {
   ManualResultsStoreFilter,
   CardTally,
 } from './types';
-import { cvrBallotTypeToLegacyBallotType } from './util/cvrs';
 import { replacePartyIdFilter } from './tabulation/utils';
 
 /**
@@ -802,56 +800,6 @@ export class Store {
         precinctIds: [...parsedResult.precinctIds].sort(),
         scannerIds: [...parsedResult.scannerIds].sort(),
       }));
-  }
-
-  /**
-   * @deprecated Gets all CVR entries for an election.
-   */
-  *getDeprecatedCastVoteRecords(electionId: Id): Generator<CastVoteRecord> {
-    const fileMode = this.getCurrentCvrFileModeForElection(electionId);
-    if (fileMode === 'unlocked') return [];
-    const isTestMode = fileMode === 'test';
-
-    for (const entry of this.client.each(
-      `
-    select
-      cvrs.id as id,
-      cvrs.ballot_style_id as ballotStyleId,
-      cvrs.ballot_type as ballotType,
-      cvrs.batch_id as batchId,
-      scanner_batches.label as batchLabel,
-      scanner_batches.scanner_id as scannerId,
-      cvrs.precinct_id as precinctId,
-      cvrs.votes as votes    
-    from
-      cvrs inner join scanner_batches on cvrs.batch_id = scanner_batches.id
-    where cvrs.election_id = ?
-    order by cvrs.created_at asc
-  `,
-      electionId
-    ) as Iterable<{
-      id: Id;
-      ballotStyleId: string;
-      ballotType: string;
-      batchId: string;
-      batchLabel: string;
-      precinctId: string;
-      scannerId: string;
-      votes: string;
-    }>) {
-      yield {
-        _precinctId: entry.precinctId,
-        _scannerId: entry.scannerId,
-        _batchId: entry.batchId,
-        _batchLabel: entry.batchLabel,
-        _ballotStyleId: entry.ballotStyleId,
-        _ballotType: cvrBallotTypeToLegacyBallotType(
-          entry.ballotType as CVR.vxBallotType
-        ),
-        _testBallot: isTestMode,
-        ...JSON.parse(entry.votes),
-      };
-    }
   }
 
   private getTabulationFilterAsSql(
