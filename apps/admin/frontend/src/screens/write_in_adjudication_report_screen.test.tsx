@@ -10,7 +10,7 @@ import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
-import { TallyWriteInReportScreen } from './tally_writein_report_screen';
+import { TallyWriteInReportScreen } from './write_in_adjudication_report_screen';
 import { screen, within } from '../../test/react_testing_library';
 import { routerPaths } from '../router_paths';
 
