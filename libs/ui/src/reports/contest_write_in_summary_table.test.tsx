@@ -83,3 +83,29 @@ test('renders write-in candidates', () => {
   expect(screen.queryByText('Official Candidates')).not.toBeInTheDocument();
   expect(screen.queryByText('Invalid')).not.toBeInTheDocument();
 });
+
+test('renders headers only if none adjudicated', () => {
+  const { election } = electionMinimalExhaustiveSampleDefinition;
+  render(
+    <ContestWriteInSummaryTable
+      election={election}
+      contestWriteInSummary={{
+        contestId: 'zoo-council-mammal',
+        totalTally: 40,
+        pendingTally: 40,
+        invalidTally: 0,
+        candidateTallies: {},
+      }}
+    />
+  );
+
+  screen.getByRole('heading', { name: 'Zoo Council' });
+  screen.getByText('District 1');
+  screen.getByText(
+    hasTextAcrossElements('40 total write-ins / 40 not adjudicated')
+  );
+
+  expect(screen.queryByText('Official Candidates')).not.toBeInTheDocument();
+  expect(screen.queryByText('Write-In Candidates')).not.toBeInTheDocument();
+  expect(screen.queryByText('Invalid')).not.toBeInTheDocument();
+});
