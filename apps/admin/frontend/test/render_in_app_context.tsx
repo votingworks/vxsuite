@@ -5,18 +5,11 @@ import { Router } from 'react-router-dom';
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import {
   ElectionDefinition,
-  FullElectionTally,
-  FullElectionManualTally,
   Printer,
-  VotingMethod,
   DippedSmartCardAuth,
   ConverterClientType,
 } from '@votingworks/types';
-import {
-  NullPrinter,
-  getEmptyFullElectionTally,
-  randomBallotId,
-} from '@votingworks/utils';
+import { NullPrinter, randomBallotId } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -45,16 +38,7 @@ interface RenderInAppContextParams {
   isOfficialResults?: boolean;
   printer?: Printer;
   usbDrive?: UsbDrive;
-  fullElectionTally?: FullElectionTally;
   generateBallotId?: () => string;
-  isTabulationRunning?: boolean;
-  setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>;
-  updateManualTally?: (
-    newManualTally: FullElectionManualTally
-  ) => Promise<void>;
-  manualTallyVotingMethod?: VotingMethod;
-  setManualTallyVotingMethod?: (votingMethod: VotingMethod) => void;
-  fullElectionManualTally?: FullElectionManualTally;
   auth?: DippedSmartCardAuth.AuthStatus;
   machineConfig?: MachineConfig;
   hasCardReaderAttached?: boolean;
@@ -99,11 +83,7 @@ export function renderInAppContext(
     converter = undefined,
     printer = new NullPrinter(),
     usbDrive = mockUsbDrive(),
-    fullElectionTally = getEmptyFullElectionTally(),
     generateBallotId = randomBallotId,
-    isTabulationRunning = false,
-    setIsTabulationRunning = jest.fn(),
-    fullElectionManualTally = undefined,
     auth = electionDefinition === 'NONE'
       ? {
           status: 'logged_in',
@@ -139,11 +119,7 @@ export function renderInAppContext(
         converter,
         printer,
         usbDrive,
-        fullElectionTally,
         generateBallotId,
-        isTabulationRunning,
-        setIsTabulationRunning,
-        fullElectionManualTally,
         auth,
         machineConfig,
         hasCardReaderAttached,

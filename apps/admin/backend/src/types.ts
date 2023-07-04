@@ -14,9 +14,7 @@ import {
   CandidateIdSchema,
   YesNoVoteSchema,
   ContestIdSchema,
-  FullElectionManualTally,
   Dictionary,
-  ManualTally,
   PrecinctId,
   BallotStyleId,
   Tabulation,
@@ -386,18 +384,6 @@ export const DatabaseSerializedCastVoteRecordVotesSchema: z.ZodSchema<DatabaseSe
     ContestIdSchema,
     z.union([z.array(CandidateIdSchema), YesNoVoteSchema])
   );
-
-/**
- * @deprecated The {@link FullElectionManualTally} object is not serializable
- * by `grout` so we have an alternative on the server side, and convert on the
- * frontend.
- */
-export type ServerFullElectionManualTally = Omit<
-  FullElectionManualTally,
-  'resultsByCategory'
-> & {
-  resultsByCategory: Dictionary<Dictionary<ManualTally>>;
-};
 
 /**
  * Ballot types for which we allow adding manual results.

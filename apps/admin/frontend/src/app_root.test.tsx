@@ -27,8 +27,6 @@ test('renders without crashing', async () => {
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
-  apiMock.expectGetCastVoteRecords([]);
-  apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetMachineConfig();
   renderRootElement(
     <BrowserRouter>

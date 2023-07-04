@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { Optional } from '@votingworks/basics';
 import { CastVoteRecord } from './cast_vote_record';
 import { Candidate, AnyContest } from './election';
 import { Dictionary } from './generic';
@@ -60,19 +59,6 @@ export enum VotingMethod {
   Precinct = 'standard',
   Unknown = 'unknown',
 }
-
-export interface FullElectionManualTally {
-  readonly overallTally: ManualTally;
-  readonly resultsByCategory: ReadonlyMap<
-    TallyCategory,
-    Dictionary<ManualTally>
-  >;
-  readonly votingMethod: VotingMethod;
-  readonly timestampCreated: Date;
-}
-
-export type OptionalManualTally = Optional<ManualTally>;
-export type OptionalFullElectionManualTally = Optional<FullElectionManualTally>;
 
 const nonnegativeInteger = z.number().nonnegative().int();
 

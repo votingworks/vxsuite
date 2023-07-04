@@ -1,16 +1,7 @@
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 
-import {
-  BallotStyleId,
-  PrecinctId,
-  Tabulation,
-  TallyCategory,
-  VotingMethod,
-} from '@votingworks/types';
-import {
-  buildManualResultsFixture,
-  buildSpecificManualTally,
-} from '@votingworks/utils';
+import { BallotStyleId, PrecinctId, Tabulation } from '@votingworks/types';
+import { buildManualResultsFixture } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
@@ -106,7 +97,6 @@ test('manual results flow (official candidates only)', async () => {
   });
 
   // check there is initially no manual results data
-  expect(await apiClient.getFullElectionManualTally()).toBeNull();
   expect(await apiClient.getManualResultsMetadata()).toEqual([]);
   expect(
     await apiClient.getManualResults({
@@ -167,81 +157,6 @@ test('manual results flow (official candidates only)', async () => {
     );
   }
 
-  // check overall tally
-  const fullElectionManualTally = await apiClient.getFullElectionManualTally();
-  assert(fullElectionManualTally);
-  expect(fullElectionManualTally.votingMethod).toEqual(VotingMethod.Precinct);
-  expect(fullElectionManualTally.overallTally).toEqual(
-    buildSpecificManualTally(election, 40, {
-      'best-animal-mammal': {
-        overvotes: 1,
-        undervotes: 1,
-        ballots: 20,
-        officialOptionTallies: {
-          horse: 6,
-          otter: 6,
-          fox: 6,
-        },
-      },
-      'best-animal-fish': {
-        overvotes: 1,
-        undervotes: 1,
-        ballots: 20,
-        officialOptionTallies: {
-          seahorse: 9,
-          salmon: 9,
-        },
-      },
-    })
-  );
-
-  // check tallies by precinct
-  expect(
-    fullElectionManualTally.resultsByCategory[TallyCategory.Precinct]?.[
-      'precinct-1'
-    ]
-  ).toEqual(
-    buildSpecificManualTally(election, 20, {
-      'best-animal-mammal': {
-        overvotes: 1,
-        undervotes: 0,
-        ballots: 10,
-        officialOptionTallies: {
-          horse: 4,
-          otter: 3,
-          fox: 2,
-        },
-      },
-      'best-animal-fish': {
-        overvotes: 1,
-        undervotes: 0,
-        ballots: 10,
-        officialOptionTallies: {
-          seahorse: 4,
-          salmon: 5,
-        },
-      },
-    })
-  );
-
-  // check tallies by party
-  expect(
-    fullElectionManualTally.resultsByCategory[TallyCategory.Party]?.['0']
-  ).toEqual(
-    buildSpecificManualTally(election, 20, {
-      'best-animal-mammal': {
-        overvotes: 1,
-        undervotes: 1,
-        ballots: 20,
-        officialOptionTallies: {
-          horse: 6,
-          otter: 6,
-          fox: 6,
-        },
-      },
-    })
-  );
-
   // check retrieving individual tally
   const manualResultsRecord = await apiClient.getManualResults({
     precinctId: 'precinct-1',
@@ -279,7 +194,6 @@ test('manual results flow (official candidates only)', async () => {
   // delete all manual tallies
   await apiClient.deleteAllManualResults();
   expect(await apiClient.getManualResultsMetadata()).toHaveLength(0);
-  expect(await apiClient.getFullElectionManualTally()).toBeNull();
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.ManualTallyDataRemoved,
     'election_manager',
@@ -334,17 +248,29 @@ test('ignores write-ins with zero votes', async () => {
 
   // check results after setting a tally with a zero write-in candidate
   expect(await apiClient.getWriteInCandidates()).toHaveLength(0);
-  const fullElectionManualTally = await apiClient.getFullElectionManualTally();
-  expect(fullElectionManualTally!.overallTally).toEqual(
-    buildSpecificManualTally(election, 10, {
-      'best-animal-mammal': {
-        overvotes: 1,
-        undervotes: 0,
-        ballots: 10,
-        officialOptionTallies: {
-          horse: 4,
-          otter: 3,
-          fox: 2,
+  expect(
+    (
+      await apiClient.getManualResults({
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        ballotStyleId: '1M',
+      })
+    )?.manualResults
+  ).toEqual(
+    buildManualResultsFixture({
+      election,
+      ballotCount: 10,
+      contestResultsSummaries: {
+        'best-animal-mammal': {
+          type: 'candidate',
+          overvotes: 1,
+          undervotes: 0,
+          ballots: 10,
+          officialOptionTallies: {
+            horse: 4,
+            otter: 3,
+            fox: 2,
+          },
         },
       },
     })
@@ -358,8 +284,7 @@ test('adds temp write-in candidates', async () => {
 
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  // initially no full election tally or write-in candidates
-  expect(await apiClient.getFullElectionManualTally()).toBeNull();
+  // initially no write-in candidates
   expect(await apiClient.getWriteInCandidates()).toHaveLength(0);
 
   const manualResultsWithTempWriteIn = buildManualResultsFixture({
@@ -397,25 +322,33 @@ test('adds temp write-in candidates', async () => {
   expect(writeInCandidates).toHaveLength(1);
   const writeInCandidateId = writeInCandidates[0]!.id;
 
-  const fullElectionManualTally = await apiClient.getFullElectionManualTally();
-  expect(fullElectionManualTally!.overallTally).toEqual(
-    buildSpecificManualTally(election, 10, {
-      'best-animal-mammal': {
-        overvotes: 1,
-        undervotes: 0,
-        ballots: 10,
-        officialOptionTallies: {
-          horse: 4,
-          otter: 3,
-          fox: 2,
-        },
-        writeInOptionTallies: {
-          [writeInCandidateId]: {
-            count: 1,
-            candidate: {
-              id: writeInCandidateId,
+  expect(
+    (
+      await apiClient.getManualResults({
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        ballotStyleId: '1M',
+      })
+    )?.manualResults
+  ).toEqual(
+    buildManualResultsFixture({
+      election,
+      ballotCount: 10,
+      contestResultsSummaries: {
+        'best-animal-mammal': {
+          type: 'candidate',
+          overvotes: 1,
+          undervotes: 0,
+          ballots: 10,
+          officialOptionTallies: {
+            horse: 4,
+            otter: 3,
+            fox: 2,
+          },
+          writeInOptionTallies: {
+            [writeInCandidateId]: {
+              tally: 1,
               name: 'Bob',
-              isWriteIn: true,
             },
           },
         },
@@ -431,7 +364,6 @@ test('removes write-in candidates not referenced anymore', async () => {
 
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  expect(await apiClient.getFullElectionManualTally()).toBeNull();
   expect(await apiClient.getWriteInCandidates()).toHaveLength(0);
 
   await apiClient.addWriteInCandidate({
@@ -465,7 +397,6 @@ test('removes write-in candidates not referenced anymore', async () => {
       },
     },
   });
-
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
     votingMethod: 'precinct',
@@ -473,31 +404,15 @@ test('removes write-in candidates not referenced anymore', async () => {
     manualResults: manualResultsWithExistingWriteIn,
   });
   expect(await apiClient.getWriteInCandidates()).toHaveLength(1);
-  const fullElectionManualTally = await apiClient.getFullElectionManualTally();
-  expect(fullElectionManualTally!.overallTally).toEqual(
-    buildSpecificManualTally(election, 10, {
-      'best-animal-mammal': {
-        overvotes: 1,
-        undervotes: 0,
-        ballots: 10,
-        officialOptionTallies: {
-          horse: 4,
-          otter: 3,
-          fox: 2,
-        },
-        writeInOptionTallies: {
-          [writeInCandidateId]: {
-            count: 1,
-            candidate: {
-              id: writeInCandidateId,
-              name: 'Chimera',
-              isWriteIn: true,
-            },
-          },
-        },
-      },
-    })
-  );
+  expect(
+    (
+      await apiClient.getManualResults({
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        ballotStyleId: '1M',
+      })
+    )?.manualResults
+  ).toEqual(manualResultsWithExistingWriteIn);
 
   const manualResultsWithWriteInRemoved = buildManualResultsFixture({
     election,
@@ -516,7 +431,6 @@ test('removes write-in candidates not referenced anymore', async () => {
       },
     },
   });
-
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
     votingMethod: 'precinct',
@@ -524,18 +438,13 @@ test('removes write-in candidates not referenced anymore', async () => {
     manualResults: manualResultsWithWriteInRemoved,
   });
   expect(await apiClient.getWriteInCandidates()).toHaveLength(0);
-  expect((await apiClient.getFullElectionManualTally())!.overallTally).toEqual(
-    buildSpecificManualTally(election, 10, {
-      'best-animal-mammal': {
-        overvotes: 1,
-        undervotes: 0,
-        ballots: 10,
-        officialOptionTallies: {
-          horse: 4,
-          otter: 3,
-          fox: 2,
-        },
-      },
-    })
-  );
+  expect(
+    (
+      await apiClient.getManualResults({
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        ballotStyleId: '1M',
+      })
+    )?.manualResults
+  ).toEqual(manualResultsWithWriteInRemoved);
 });

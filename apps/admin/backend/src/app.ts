@@ -1,7 +1,6 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPackageExportResult,
-  CastVoteRecord,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
@@ -60,7 +59,6 @@ import {
   ManualResultsRecord,
   ScannerBatch,
   SemsExportableTallies,
-  ServerFullElectionManualTally,
   SetSystemSettingsResult,
   TallyReportResults,
   WriteInAdjudicationAction,
@@ -80,10 +78,7 @@ import {
 import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
 import { getWriteInDetailView } from './util/write_ins';
-import {
-  buildFullElectionManualTallyFromStore,
-  handleEnteredWriteInCandidateData,
-} from './util/manual_results';
+import { handleEnteredWriteInCandidateData } from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
 import { exportFile } from './util/export_file';
 import { generateBatchResultsFile } from './exports/batch_results';
@@ -409,19 +404,6 @@ function buildApi({
       return store.getCvrFiles(loadCurrentElectionIdOrThrow(workspace));
     },
 
-    // TODO(https://github.com/votingworks/vxsuite/issues/2613): This endpoint
-    // can be removed once we've moved tally computation to the server - it's
-    // currently only used as a stopgap while we migrate all app state to the
-    // server.
-    getCastVoteRecords(): CastVoteRecord[] {
-      const currentElectionId = store.getCurrentElectionId();
-      if (!currentElectionId) {
-        return [];
-      }
-
-      return [...store.getDeprecatedCastVoteRecords(currentElectionId)];
-    },
-
     async addCastVoteRecordFile(input: {
       path: string;
     }): Promise<
@@ -549,8 +531,6 @@ function buildApi({
       store.adjudicateWriteIn(input);
     },
 
-    // frontend only using with status "adjudicated". this could be a more
-    // targeted query if the other status filters are determined unnecessary
     getWriteInTallies(
       input: {
         contestId?: ContestId;
@@ -661,13 +641,6 @@ function buildApi({
       );
     },
 
-    getFullElectionManualTally(): ServerFullElectionManualTally | null {
-      const electionId = store.getCurrentElectionId();
-      if (!electionId) return null;
-
-      return buildFullElectionManualTallyFromStore(store, electionId) || null;
-    },
-
     getManualResults(
       input: ManualResultsIdentifier
     ): ManualResultsRecord | null {
@@ -687,9 +660,11 @@ function buildApi({
       });
     },
 
-    getCardCounts(input: {
-      groupBy: Tabulation.GroupBy;
-    }): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {
+    getCardCounts(
+      input: {
+        groupBy?: Tabulation.GroupBy;
+      } = {}
+    ): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       return groupMapToGroupList(
         tabulateFullCardCounts({

@@ -32,8 +32,6 @@ import {
   ALL_PARTY_FILTER,
   buildVoteFromCvr,
   calculateTallyForCastVoteRecords,
-  castVoteRecordHasWriteIns,
-  castVoteRecordVotes,
   computeTallyWithPrecomputedCategories,
   filterTalliesByParams,
   filterTallyContestsByParty,
@@ -1194,80 +1192,6 @@ test('getPartyIdForCvr', () => {
   expect(
     getPartyIdForCvr({ ...cvr, _ballotStyleId: 'notaballotstyle' }, election)
   ).toEqual(undefined);
-});
-
-test('castVoteRecordVotes with no votes', () => {
-  expect([
-    ...castVoteRecordVotes({
-      _ballotStyleId: '1',
-      _ballotType: 'standard',
-      _precinctId: '1',
-      _scannerId: '1',
-      _testBallot: false,
-      _batchId: '1',
-      _batchLabel: '1',
-    }),
-  ]).toEqual([]);
-});
-
-test('castVoteRecordVotes with votes', () => {
-  expect([
-    ...castVoteRecordVotes({
-      _ballotStyleId: '1',
-      _ballotType: 'standard',
-      _precinctId: '1',
-      _scannerId: '1',
-      _testBallot: false,
-      _batchId: '1',
-      _batchLabel: '1',
-      mayor: ['mickey'],
-    }),
-  ]).toEqual([['mayor', ['mickey']]]);
-});
-
-test('castVoteRecordHasWriteIns with no votes', () => {
-  expect(
-    castVoteRecordHasWriteIns({
-      _ballotStyleId: '1',
-      _ballotType: 'standard',
-      _precinctId: '1',
-      _scannerId: '1',
-      _testBallot: false,
-      _batchId: '1',
-      _batchLabel: '1',
-    })
-  ).toEqual(false);
-});
-
-test('castVoteRecordHasWriteIns with non-write-in votes', () => {
-  expect(
-    castVoteRecordHasWriteIns({
-      _ballotStyleId: '1',
-      _ballotType: 'standard',
-      _precinctId: '1',
-      _scannerId: '1',
-      _testBallot: false,
-      _batchId: '1',
-      _batchLabel: '1',
-      mayor: ['mickey'],
-    })
-  ).toEqual(false);
-});
-
-test('castVoteRecordHasWriteIns with write-in votes', () => {
-  expect(
-    castVoteRecordHasWriteIns({
-      _ballotStyleId: '1',
-      _ballotType: 'standard',
-      _precinctId: '1',
-      _scannerId: '1',
-      _testBallot: false,
-      _batchId: '1',
-      _batchLabel: '1',
-      mayor: ['mickey'],
-      council: ['donald', 'write-in-0'],
-    })
-  ).toEqual(true);
 });
 
 const ballotTargetMarkBase: Pick<

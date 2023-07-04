@@ -49,7 +49,6 @@ test('managing the current election', async () => {
   mockSystemAdministratorAuth(auth);
 
   expect(await apiClient.getCurrentElectionMetadata()).toBeNull();
-  expect(await apiClient.getCastVoteRecords()).toHaveLength(0);
 
   // try configuring with malformed election data
   const badConfigureResult = await apiClient.configure({ electionData: '{}' });

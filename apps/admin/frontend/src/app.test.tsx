@@ -19,9 +19,7 @@ import {
   fakeSessionExpiresAt,
   fakeUsbDrive,
 } from '@votingworks/test-utils';
-import { VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
-import { convertTalliesByPrecinctToFullManualTally } from '@votingworks/utils';
 import {
   fireEvent,
   screen,
@@ -101,9 +99,7 @@ afterEach(() => {
 test('configuring with a demo election definition', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
-  apiMock.expectGetFullElectionManualTally();
 
   const { getByText } = renderApp();
 
@@ -132,9 +128,7 @@ test('configuring with a demo election definition', async () => {
 
   // remove the election
   apiMock.expectUnconfigure();
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
-  apiMock.expectGetFullElectionManualTally();
   fireEvent.click(getByText('Remove'));
   fireEvent.click(getByText('Remove Election Definition'));
 
@@ -156,9 +150,7 @@ test('configuring with a demo election definition', async () => {
 test('authentication works', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
   const { renderApp, hardware } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetFullElectionManualTally();
   renderApp();
 
   await screen.findByText('VxAdmin is Locked');
@@ -247,11 +239,9 @@ test('authentication works', async () => {
 test('L&A (logic and accuracy) flow', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
   const { renderApp, logger } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
   });
-  apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
 
   renderApp();
@@ -350,11 +340,9 @@ test('L&A (logic and accuracy) flow', async () => {
 test('marking results as official', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
   });
-  apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetResultsForTallyReports(
     { filter: {}, groupBy: { groupByParty: true } },
@@ -391,9 +379,7 @@ test('marking results as official', async () => {
 test('removing election resets cvr and manual data files', async () => {
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetFullElectionManualTally();
 
   const { getByText } = renderApp();
 
@@ -406,8 +392,6 @@ test('removing election resets cvr and manual data files', async () => {
   apiMock.expectUnconfigure();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata(null);
-  apiMock.expectGetCastVoteRecords([]);
-  apiMock.expectGetFullElectionManualTally();
   fireEvent.click(getByText('Definition'));
   fireEvent.click(getByText('Remove Election'));
   fireEvent.click(getByText('Remove Election Definition'));
@@ -416,7 +400,6 @@ test('removing election resets cvr and manual data files', async () => {
 test('clearing results', async () => {
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
     isOfficialResults: true,
@@ -426,13 +409,6 @@ test('clearing results', async () => {
   ]);
   apiMock.expectGetCastVoteRecordFileMode('test');
 
-  const manualTally = convertTalliesByPrecinctToFullManualTally(
-    { 'precinct-1': { contestTallies: {}, numberOfBallotsCounted: 100 } },
-    eitherNeitherElectionDefinition.election,
-    VotingMethod.Precinct,
-    new Date()
-  );
-  apiMock.expectGetFullElectionManualTally(manualTally);
   apiMock.expectGetManualResultsMetadata([
     {
       ballotStyleId: '1M',
@@ -459,10 +435,8 @@ test('clearing results', async () => {
   ).toBeDisabled();
 
   apiMock.expectDeleteAllManualResults();
-  apiMock.expectGetFullElectionManualTally();
 
   apiMock.expectClearCastVoteRecordFiles();
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
@@ -496,9 +470,7 @@ test('can not view or print ballots', async () => {
   const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
 
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetFullElectionManualTally();
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
@@ -516,11 +488,9 @@ test('can not view or print ballots', async () => {
 test('election manager UI has expected nav', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
-  apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetManualResultsMetadata([]);
   expectReportsScreenCardCountQueries({
     apiMock,
@@ -550,9 +520,7 @@ test('election manager UI has expected nav', async () => {
 test('system administrator UI has expected nav', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetFullElectionManualTally();
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
@@ -569,9 +537,7 @@ test('system administrator UI has expected nav', async () => {
 
 test('system administrator UI has expected nav when no election', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
-  apiMock.expectGetFullElectionManualTally();
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
@@ -605,9 +571,7 @@ test('system administrator UI has expected nav when no election', async () => {
 
   // Remove the election definition and verify that those same tabs disappear
   apiMock.expectUnconfigure();
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
-  apiMock.expectGetFullElectionManualTally();
   userEvent.click(screen.getByText('Remove Election'));
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(
@@ -624,9 +588,7 @@ test('system administrator UI has expected nav when no election', async () => {
 test('system administrator Smartcards screen navigation', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetFullElectionManualTally();
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
@@ -643,9 +605,7 @@ test('system administrator Smartcards screen navigation', async () => {
 
 test('election manager cannot auth onto unconfigured machine', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata(null);
-  apiMock.expectGetFullElectionManualTally();
   renderApp();
 
   await screen.findByText('VxAdmin is Locked');
@@ -665,9 +625,7 @@ test('election manager cannot auth onto unconfigured machine', async () => {
 test('election manager cannot auth onto machine with different election hash', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetFullElectionManualTally();
   renderApp();
 
   await screen.findByText('VxAdmin is Locked');
@@ -691,8 +649,6 @@ test('primary election flow', async () => {
   const { renderApp } = buildApp(apiMock);
 
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetCastVoteRecords([]);
-  apiMock.expectGetFullElectionManualTally();
   apiMock.expectGetCastVoteRecordFileMode('test');
 
   renderApp();
@@ -721,9 +677,7 @@ test('usb formatting flows', async () => {
   });
 
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCastVoteRecords([]);
   apiMock.expectGetCurrentElectionMetadata();
-  apiMock.expectGetFullElectionManualTally();
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
