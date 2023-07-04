@@ -14,7 +14,7 @@ import {
   Font,
   H2,
   WriteInAdjudicationReport,
-  Icons,
+  ReportPreviewLoading,
 } from '@votingworks/ui';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 import { AppContext } from '../contexts/app_context';
@@ -114,22 +114,21 @@ export function TallyWriteInReportScreen(): JSX.Element {
             Back to Reports
           </LinkButton>
         </P>
-        {report ? (
-          <React.Fragment>
-            <H2>Report Preview</H2>
-            <Caption>
-              <Font weight="bold">Note:</Font> Printed reports may be paginated
-              to more than one piece of paper.
-            </Caption>
+
+        <React.Fragment>
+          <H2>Report Preview</H2>
+          <Caption>
+            <Font weight="bold">Note:</Font> Printed reports may be paginated to
+            more than one piece of paper.
+          </Caption>
+          {report ? (
             <TallyReportPreview data-testid="report-preview">
               {report}
             </TallyReportPreview>
-          </React.Fragment>
-        ) : (
-          <H2>
-            <Icons.Loading /> Generating Report
-          </H2>
-        )}
+          ) : (
+            <ReportPreviewLoading />
+          )}
+        </React.Fragment>
       </NavigationScreen>
       {isSaveModalOpen && (
         <SaveFrontendFileModal

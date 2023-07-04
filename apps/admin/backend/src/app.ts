@@ -20,6 +20,7 @@ import {
   ok,
   Optional,
   Result,
+  sleep,
 } from '@votingworks/basics';
 import express, { Application } from 'express';
 import {
@@ -807,7 +808,8 @@ function buildApi({
       return exportFileResult;
     },
 
-    getElectionWriteInSummary(): Tabulation.ElectionWriteInSummary {
+    async getElectionWriteInSummary(): Promise<Tabulation.ElectionWriteInSummary> {
+      await sleep(5 * 1000);
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       return getOverallElectionWriteInSummary({
         electionId,
