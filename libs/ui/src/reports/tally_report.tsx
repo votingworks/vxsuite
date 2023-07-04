@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { Icons } from '../icons';
+import { H3 } from '../typography';
 
 export const ReportSection = styled.section`
   page-break-before: always;
@@ -42,3 +44,23 @@ export const PrintableContainer = styled.div`
     display: none;
   }
 `;
+
+const ReportPreviewLoadingWrapper = styled.section`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+  background: #ffffff;
+  width: 8in;
+  height: 5.5in;
+`;
+
+export function ReportPreviewLoading(): JSX.Element {
+  return (
+    <ReportPreviewLoadingWrapper>
+      <H3>
+        <Icons.Loading /> Generating Report
+      </H3>
+    </ReportPreviewLoadingWrapper>
+  );
+}

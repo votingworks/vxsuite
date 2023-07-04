@@ -17,7 +17,7 @@ import type {
   ScannerBatch,
   TallyReportResults,
 } from '@votingworks/admin-backend';
-import { collections, ok } from '@votingworks/basics';
+import { ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
   fakeElectionManagerUser,
@@ -26,11 +26,9 @@ import {
 } from '@votingworks/test-utils';
 import {
   BallotPackageExportResult,
-  CastVoteRecord,
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
   ElectionDefinition,
-  FullElectionManualTally,
   Rect,
   SystemSettings,
   Tabulation,
@@ -150,10 +148,6 @@ export function createApiMock(
             }
           : null
       );
-    },
-
-    expectGetCastVoteRecords(castVoteRecords: CastVoteRecord[]) {
-      apiClient.getCastVoteRecords.expectCallWith().resolves(castVoteRecords);
     },
 
     expectConfigure(electionData: string) {
@@ -308,28 +302,6 @@ export function createApiMock(
       apiClient.getManualResultsMetadata.expectCallWith().resolves(records);
     },
 
-    expectGetFullElectionManualTally(
-      fullElectionManualTally?: FullElectionManualTally
-    ) {
-      apiClient.getFullElectionManualTally.expectCallWith().resolves(
-        fullElectionManualTally
-          ? {
-              ...fullElectionManualTally,
-              resultsByCategory: collections.reduce(
-                fullElectionManualTally.resultsByCategory,
-                (dictionary, indexedTallies, indexKey) => {
-                  return {
-                    ...dictionary,
-                    [indexKey]: indexedTallies,
-                  };
-                },
-                {}
-              ),
-            }
-          : null
-      );
-    },
-
     expectSaveBallotPackageToUsb(result: BallotPackageExportResult = ok()) {
       apiClient.saveBallotPackageToUsb.expectCallWith().resolves(result);
     },
@@ -367,6 +339,12 @@ export function createApiMock(
       apiClient.getResultsForTallyReports
         .expectCallWith(input)
         .resolves(results);
+    },
+
+    expectGetElectionWriteInSummary(
+      summary: Tabulation.ElectionWriteInSummary
+    ) {
+      apiClient.getElectionWriteInSummary.expectCallWith().resolves(summary);
     },
   };
 }

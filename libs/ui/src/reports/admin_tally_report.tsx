@@ -1,11 +1,12 @@
 import { Contests, Election, Tabulation } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
+import { ThemeProvider } from 'styled-components';
 import { ReportSection, TallyReport, TallyReportColumns } from './tally_report';
 import { LogoMark } from '../logo_mark';
 import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestResultsTable } from './contest_results_table';
-import { Prose } from '../prose';
 import { TallyReportCardCounts } from './tally_report_card_counts';
+import { makeTheme } from '../themes/make_theme';
 
 export interface AdminTallyReportProps {
   title: string;
@@ -36,40 +37,40 @@ export function AdminTallyReport({
     : scannedElectionResults.cardCounts;
 
   return (
-    <TallyReport data-testid={testId}>
-      <ReportSection>
-        <LogoMark />
-        <Prose maxWidth={false}>
+    <ThemeProvider theme={makeTheme({ sizeMode: 's' })}>
+      <TallyReport data-testid={testId}>
+        <ReportSection>
+          <LogoMark />
           <h1>{title}</h1>
           {subtitle && <h2>{subtitle}</h2>}
           <TallyReportMetadata
             generatedAtTime={generatedAtTime}
             election={election}
           />
-        </Prose>
-        <TallyReportColumns>
-          <TallyReportCardCounts cardCounts={cardCounts} />
-          {contests.map((contest) => {
-            const scannedContestResults =
-              scannedElectionResults.contestResults[contest.id];
-            assert(
-              scannedContestResults,
-              `missing scanned results for contest ${contest.id}`
-            );
-            const manualContestResults =
-              manualElectionResults?.contestResults[contest.id];
-            return (
-              <ContestResultsTable
-                key={contest.id}
-                election={election}
-                contest={contest}
-                scannedContestResults={scannedContestResults}
-                manualContestResults={manualContestResults}
-              />
-            );
-          })}
-        </TallyReportColumns>
-      </ReportSection>
-    </TallyReport>
+          <TallyReportColumns>
+            <TallyReportCardCounts cardCounts={cardCounts} />
+            {contests.map((contest) => {
+              const scannedContestResults =
+                scannedElectionResults.contestResults[contest.id];
+              assert(
+                scannedContestResults,
+                `missing scanned results for contest ${contest.id}`
+              );
+              const manualContestResults =
+                manualElectionResults?.contestResults[contest.id];
+              return (
+                <ContestResultsTable
+                  key={contest.id}
+                  election={election}
+                  contest={contest}
+                  scannedContestResults={scannedContestResults}
+                  manualContestResults={manualContestResults}
+                />
+              );
+            })}
+          </TallyReportColumns>
+        </ReportSection>
+      </TallyReport>
+    </ThemeProvider>
   );
 }

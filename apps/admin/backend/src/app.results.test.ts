@@ -359,3 +359,159 @@ test('tally report data - grouped report & manual data', async () => {
     precinctTallyReport.scannedResults
   );
 });
+
+test('election write-in adjudication summary', async () => {
+  const { electionDefinition, castVoteRecordReport } =
+    electionGridLayoutNewHampshireAmherstFixtures;
+  const { election } = electionDefinition;
+
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+  const loadFileResult = await apiClient.addCastVoteRecordFile({
+    path: castVoteRecordReport.asDirectoryPath(),
+  });
+  loadFileResult.assertOk('load file failed');
+
+  const writeInContestId =
+    'State-Representatives-Hillsborough-District-34-b1012d38';
+
+  // initially, all pending
+  expect(
+    (await apiClient.getElectionWriteInSummary()).contestWriteInSummaries[
+      writeInContestId
+    ]
+  ).toEqual({
+    candidateTallies: {},
+    contestId: 'State-Representatives-Hillsborough-District-34-b1012d38',
+    invalidTally: 0,
+    pendingTally: 56,
+    totalTally: 56,
+  });
+
+  const writeIns = await apiClient.getWriteIns({
+    contestId: writeInContestId,
+  });
+
+  const unofficialCandidate1 = await apiClient.addWriteInCandidate({
+    contestId: writeInContestId,
+    name: 'Unofficial Candidate 1',
+  });
+
+  // generate some adjudication information
+  for (const [i, writeIn] of writeIns.entries()) {
+    if (i < 24) {
+      await apiClient.adjudicateWriteIn({
+        writeInId: writeIn.id,
+        type: 'write-in-candidate',
+        candidateId: unofficialCandidate1.id,
+      });
+    } else if (i < 48) {
+      await apiClient.adjudicateWriteIn({
+        writeInId: writeIn.id,
+        type: 'official-candidate',
+        candidateId: 'Obadiah-Carrigan-5c95145a',
+      });
+    } else {
+      await apiClient.adjudicateWriteIn({
+        writeInId: writeIn.id,
+        type: 'invalid',
+      });
+    }
+  }
+
+  // with scanned adjudication data
+  expect(
+    (await apiClient.getElectionWriteInSummary()).contestWriteInSummaries[
+      writeInContestId
+    ]
+  ).toEqual({
+    candidateTallies: {
+      [unofficialCandidate1.id]: {
+        id: unofficialCandidate1.id,
+        isWriteIn: true,
+        name: 'Unofficial Candidate 1',
+        tally: 24,
+      },
+      'Obadiah-Carrigan-5c95145a': {
+        id: 'Obadiah-Carrigan-5c95145a',
+        isWriteIn: false,
+        name: 'Obadiah Carrigan',
+        tally: 24,
+      },
+    },
+    contestId: 'State-Representatives-Hillsborough-District-34-b1012d38',
+    invalidTally: 8,
+    pendingTally: 0,
+    totalTally: 56,
+  });
+
+  // add manual data
+  const unofficialCandidate2 = await apiClient.addWriteInCandidate({
+    contestId: writeInContestId,
+    name: 'Unofficial Candidate 2',
+  });
+  await apiClient.setManualResults({
+    ballotStyleId: 'card-number-3',
+    votingMethod: 'precinct',
+    precinctId: 'town-id-00701-precinct-id-',
+    manualResults: buildManualResultsFixture({
+      election,
+      ballotCount: 25,
+      contestResultsSummaries: {
+        [writeInContestId]: {
+          type: 'candidate',
+          ballots: 25,
+          overvotes: 3,
+          undervotes: 2,
+          writeInOptionTallies: {
+            [unofficialCandidate1.id]: {
+              name: 'Unofficial Candidate 1',
+              tally: 5,
+            },
+            [unofficialCandidate2.id]: {
+              name: 'Unofficial Candidate 2',
+              tally: 4,
+            },
+          },
+          officialOptionTallies: {
+            'Obadiah-Carrigan-5c95145a': 11,
+          },
+        },
+      },
+    }),
+  });
+
+  // now with manual data
+  expect(
+    (await apiClient.getElectionWriteInSummary()).contestWriteInSummaries[
+      writeInContestId
+    ]
+  ).toEqual({
+    candidateTallies: {
+      'Obadiah-Carrigan-5c95145a': {
+        id: 'Obadiah-Carrigan-5c95145a',
+        isWriteIn: false,
+        name: 'Obadiah Carrigan',
+        tally: 24, // official candidate tallies should be unaffected by manual results
+      },
+      [unofficialCandidate2.id]: {
+        id: unofficialCandidate2.id,
+        isWriteIn: true,
+        name: 'Unofficial Candidate 2',
+        tally: 4, // includes manual tallies for write-in candidates
+      },
+      [unofficialCandidate1.id]: {
+        id: unofficialCandidate1.id,
+        isWriteIn: true,
+        name: 'Unofficial Candidate 1',
+        tally: 29, // includes manual tallies for write-in candidates
+      },
+    },
+    contestId: 'State-Representatives-Hillsborough-District-34-b1012d38',
+    invalidTally: 8,
+    pendingTally: 0,
+    totalTally: 65, // total should now include manual tally subtotal
+  });
+});

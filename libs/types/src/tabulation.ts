@@ -166,3 +166,23 @@ export type ManualResultsGroupMap = GroupMap<ManualElectionResults>;
 export type ManualResultsGroupList = GroupList<ManualElectionResults>;
 
 export type ManualBallotCountsGroupMap = GroupMap<number>;
+
+/**
+ * The write-in summary for a specific contest including the number of total
+ * write-ins, pending write-ins, invalid write-ins, and write-ins adjudicated
+ * for each candidate.
+ */
+export interface ContestWriteInSummary {
+  contestId: ContestId;
+  totalTally: number;
+  pendingTally: number;
+  invalidTally: number;
+  candidateTallies: Record<Id, CandidateTally>;
+}
+
+/**
+ * All write-in summaries for an election, keyed by contest ID.
+ */
+export interface ElectionWriteInSummary {
+  contestWriteInSummaries: Record<ContestId, ContestWriteInSummary>;
+}

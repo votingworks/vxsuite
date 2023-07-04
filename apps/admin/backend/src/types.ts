@@ -14,9 +14,7 @@ import {
   CandidateIdSchema,
   YesNoVoteSchema,
   ContestIdSchema,
-  FullElectionManualTally,
   Dictionary,
-  ManualTally,
   PrecinctId,
   BallotStyleId,
   Tabulation,
@@ -298,24 +296,6 @@ export type WriteInAdjudicatedTally =
 export type WriteInTally = WriteInPendingTally | WriteInAdjudicatedTally;
 
 /**
- * The write-in summary for a specific contest including the number of total
- * write-ins, pending write-ins, invalid write-ins, and write-ins adjudicated
- * for each candidate.
- */
-export interface ContestWriteInSummary {
-  contestId: ContestId;
-  totalTally: number;
-  pendingTally: number;
-  invalidTally: number;
-  candidateTallies: Record<Id, Tabulation.CandidateTally>;
-}
-
-/** */
-export interface ElectionWriteInSummary {
-  contestWriteInSummaries: Record<ContestId, ContestWriteInSummary>;
-}
-
-/**
  * Information necessary to adjudicate a write-in for an official candidate.
  */
 export interface WriteInAdjudicationActionOfficialCandidate {
@@ -404,18 +384,6 @@ export const DatabaseSerializedCastVoteRecordVotesSchema: z.ZodSchema<DatabaseSe
     ContestIdSchema,
     z.union([z.array(CandidateIdSchema), YesNoVoteSchema])
   );
-
-/**
- * @deprecated The {@link FullElectionManualTally} object is not serializable
- * by `grout` so we have an alternative on the server side, and convert on the
- * frontend.
- */
-export type ServerFullElectionManualTally = Omit<
-  FullElectionManualTally,
-  'resultsByCategory'
-> & {
-  resultsByCategory: Dictionary<Dictionary<ManualTally>>;
-};
 
 /**
  * Ballot types for which we allow adding manual results.

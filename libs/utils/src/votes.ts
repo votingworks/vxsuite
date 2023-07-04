@@ -15,7 +15,6 @@ import {
   CandidateVote,
   CastVoteRecord,
   ContestId,
-  ContestOptionId,
   ContestOptionTally,
   Contests,
   ContestTally,
@@ -634,67 +633,6 @@ export function filterTalliesByParams(
     }
   }
   return filterContests(calculateTallyForCastVoteRecords(election, cvrFiles));
-}
-
-/**
- * Enumerates the votes per contest in a CVR.
- *
- * @example
- *
- *   const cvr: CastVoteRecord = {
- *     _ballotId: 'ballot-id',
- *     _ballotStyleId: 'ballot-style-id',
- *     _ballotType: 'standard',
- *     _precinctId: 'precinct-id',
- *     _testBallot: false,
- *     _scannerId: 'scanner-id',
- *     _batchId: 'batch-id',
- *     _batchLabel: 'batch-label',
- *     mayor: ['seldon'],
- *     'city-council': ['hugo', 'golan'],
- *     'measure-1': ['yes'],
- *   };
- *
- *   for (const [contestId, votes] of castVoteRecordVotes(cvr)) {
- *     console.log(`${contestId}: ${votes.join(', ')}`);
- *   }
- *
- *   // Output:
- *   // mayor: seldon
- *   // city-council: hugo, golan
- *   // measure-1: yes
- */
-export function* castVoteRecordVotes(
-  castVoteRecord: CastVoteRecord
-): Generator<[contestId: ContestId, vote: ContestOptionId[]]> {
-  for (const [contestId, votes] of Object.entries(castVoteRecord)) {
-    if (contestId.startsWith('_')) {
-      continue;
-    }
-
-    if (Array.isArray(votes)) {
-      yield [contestId, votes as ContestOptionId[]];
-    }
-  }
-}
-
-/**
- * Determines whether a cast vote record vote is a write-in vote.
- */
-export function castVoteRecordVoteIsWriteIn(vote: ContestOptionId): boolean {
-  return vote.startsWith('write-in');
-}
-
-/**
- * Determines whether a cast vote record has any write-in votes.
- */
-export function castVoteRecordHasWriteIns(cvr: CastVoteRecord): boolean {
-  for (const [, votes] of castVoteRecordVotes(cvr)) {
-    if (votes.some((vote) => castVoteRecordVoteIsWriteIn(vote))) {
-      return true;
-    }
-  }
-  return false;
 }
 
 type MarkThresholdsOptionalMarginal = Omit<MarkThresholds, 'marginal'> &

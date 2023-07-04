@@ -1,4 +1,10 @@
-import { ContestId, Election, Id, Tabulation } from '@votingworks/types';
+import {
+  AnyContest,
+  ContestId,
+  Election,
+  Id,
+  Tabulation,
+} from '@votingworks/types';
 import {
   GROUP_KEY_ROOT,
   extractGroupSpecifier,
@@ -6,19 +12,16 @@ import {
   isGroupByEmpty,
 } from '@votingworks/utils';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import {
-  ContestWriteInSummary,
-  ElectionWriteInSummary,
-  WriteInTally,
-} from '../types';
+import { WriteInTally } from '../types';
 import { Store } from '../store';
+import { extractWriteInSummary, tabulateManualResults } from './manual_results';
 
 /**
  * Creates an empty contest write-in summary.
  */
 export function getEmptyContestWriteInSummary(
   contestId: ContestId
-): ContestWriteInSummary {
+): Tabulation.ContestWriteInSummary {
   return {
     contestId,
     totalTally: 0,
@@ -34,8 +37,8 @@ export function getEmptyContestWriteInSummary(
  */
 export function getEmptyElectionWriteInSummary(
   election: Election
-): ElectionWriteInSummary {
-  const electionWriteInSummary: ElectionWriteInSummary = {
+): Tabulation.ElectionWriteInSummary {
+  const electionWriteInSummary: Tabulation.ElectionWriteInSummary = {
     contestWriteInSummaries: {},
   };
   for (const contest of election.contests) {
@@ -53,7 +56,7 @@ export function getEmptyElectionWriteInSummary(
  * that would be retrieved from the store. For testing purposes only.
  */
 export function convertContestWriteInSummaryToWriteInTallies(
-  contestWriteInSummary: Tabulation.GroupOf<ContestWriteInSummary>
+  contestWriteInSummary: Tabulation.GroupOf<Tabulation.ContestWriteInSummary>
 ): Array<Tabulation.GroupOf<WriteInTally>> {
   const writeInTallies: Array<Tabulation.GroupOf<WriteInTally>> = [];
   const groupSpecifier = extractGroupSpecifier(contestWriteInSummary);
@@ -98,7 +101,7 @@ export function convertContestWriteInSummaryToWriteInTallies(
 }
 
 /**
- * Adds a {@link WriteInTally} into a {@link ElectionWriteInSummary}. Modifies
+ * Adds a {@link WriteInTally} into a {@link Tabulation.ElectionWriteInSummary}. Modifies
  * the summary in place! Do not export. Write-in tallies of the same type (e.g.)
  * invalid, pending, or for a specific candidate do not accumulate, they simply
  * overwrite existing values. This is because we only expect one of each type
@@ -108,9 +111,9 @@ function addWriteInTallyToElectionWriteInSummary({
   writeInTally,
   electionWriteInSummary,
 }: {
-  electionWriteInSummary: ElectionWriteInSummary;
+  electionWriteInSummary: Tabulation.ElectionWriteInSummary;
   writeInTally: WriteInTally;
-}): ElectionWriteInSummary {
+}): Tabulation.ElectionWriteInSummary {
   const contestWriteInSummary =
     electionWriteInSummary.contestWriteInSummaries[writeInTally.contestId];
   assert(contestWriteInSummary);
@@ -163,7 +166,7 @@ export function tabulateWriteInTallies({
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-}): Tabulation.GroupMap<ElectionWriteInSummary> {
+}): Tabulation.GroupMap<Tabulation.ElectionWriteInSummary> {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
@@ -175,7 +178,7 @@ export function tabulateWriteInTallies({
     groupBy,
   });
 
-  const electionWriteInSummaryGroupMap: Record<string, ElectionWriteInSummary> =
+  const electionWriteInSummaryGroupMap: Tabulation.GroupMap<Tabulation.ElectionWriteInSummary> =
     {};
 
   // optimized special case, when the results do not need to be grouped
@@ -218,7 +221,7 @@ export function tabulateWriteInTallies({
  */
 export function modifyElectionResultsWithWriteInSummary(
   results: Tabulation.ElectionResults,
-  writeInSummary: ElectionWriteInSummary
+  writeInSummary: Tabulation.ElectionWriteInSummary
 ): Tabulation.ElectionResults {
   const modifiedElectionResults: Tabulation.ElectionResults = {
     ...results,
@@ -290,4 +293,116 @@ export function modifyElectionResultsWithWriteInSummary(
   }
 
   return modifiedElectionResults;
+}
+
+function combineContestWriteInSummaries(
+  summaryA: Tabulation.ContestWriteInSummary,
+  summaryB: Tabulation.ContestWriteInSummary,
+  contest: AnyContest
+): Tabulation.ContestWriteInSummary {
+  const combinedCandidateTallies: Tabulation.ContestWriteInSummary['candidateTallies'] =
+    {};
+
+  const allCandidateIds = [
+    ...new Set([
+      ...Object.keys(summaryA.candidateTallies),
+      ...Object.keys(summaryB.candidateTallies),
+    ]),
+  ];
+  for (const candidateId of allCandidateIds) {
+    const candidateTallyA = summaryA.candidateTallies[candidateId];
+    const candidateTallyB = summaryB.candidateTallies[candidateId];
+    const candidateTallyMetadata = candidateTallyA || candidateTallyB;
+    assert(candidateTallyMetadata);
+    combinedCandidateTallies[candidateId] = {
+      ...candidateTallyMetadata,
+      tally: (candidateTallyA?.tally ?? 0) + (candidateTallyB?.tally ?? 0),
+    };
+  }
+
+  return {
+    contestId: contest.id,
+    pendingTally: summaryA.pendingTally + summaryB.pendingTally,
+    invalidTally: summaryA.invalidTally + summaryB.invalidTally,
+    totalTally: summaryA.totalTally + summaryB.totalTally,
+    candidateTallies: combinedCandidateTallies,
+  };
+}
+
+/**
+ * Merge two election write-in summaries.
+ */
+export function combineElectionWriteInSummaries(
+  summaryA: Tabulation.ElectionWriteInSummary,
+  summaryB: Tabulation.ElectionWriteInSummary,
+  election: Election
+): Tabulation.ElectionWriteInSummary {
+  const combinedSummary: Tabulation.ElectionWriteInSummary = {
+    contestWriteInSummaries: {},
+  };
+
+  const writeInContests = election.contests.filter(
+    (c) => c.type === 'candidate' && c.allowWriteIns
+  );
+
+  for (const contest of writeInContests) {
+    const contestSummaryA = summaryA.contestWriteInSummaries[contest.id];
+    const contestSummaryB = summaryB.contestWriteInSummaries[contest.id];
+
+    if (contestSummaryA && contestSummaryB) {
+      combinedSummary.contestWriteInSummaries[contest.id] =
+        combineContestWriteInSummaries(
+          contestSummaryA,
+          contestSummaryB,
+          contest
+        );
+    } else if (contestSummaryA) {
+      combinedSummary.contestWriteInSummaries[contest.id] = contestSummaryA;
+    } else if (contestSummaryB) {
+      combinedSummary.contestWriteInSummaries[contest.id] = contestSummaryB;
+    }
+  }
+
+  return combinedSummary;
+}
+
+/**
+ * Get the overall election write-in summary, including write-in candidate tallies
+ * from manual results if applicable.
+ */
+export function getOverallElectionWriteInSummary({
+  electionId,
+  store,
+}: {
+  electionId: Id;
+  store: Store;
+}): Tabulation.ElectionWriteInSummary {
+  const {
+    electionDefinition: { election },
+  } = assertDefined(store.getElection(electionId));
+
+  const scannedElectionWriteInSummary =
+    Object.values(
+      tabulateWriteInTallies({
+        electionId,
+        store,
+      })
+    )[0] || getEmptyElectionWriteInSummary(election);
+
+  const overallManualResults = Object.values(
+    tabulateManualResults({ electionId, store }).unsafeUnwrap()
+  )[0];
+
+  if (!overallManualResults) return scannedElectionWriteInSummary;
+
+  const overallManualWriteInSummary = extractWriteInSummary({
+    election,
+    manualResults: overallManualResults,
+  });
+
+  return combineElectionWriteInSummaries(
+    scannedElectionWriteInSummary,
+    overallManualWriteInSummary,
+    election
+  );
 }

@@ -30,7 +30,7 @@ import {
   FullElectionTallyReportScreen,
   AllPrecinctsTallyReportScreen,
 } from '../screens/tally_report_screen';
-import { TallyWriteInReportScreen } from '../screens/tally_writein_report_screen';
+import { TallyWriteInReportScreen } from '../screens/write_in_adjudication_report_screen';
 import { DefinitionViewerScreen } from '../screens/definition_viewer_screen';
 import { ManualDataSummaryScreen } from '../screens/manual_data_summary_screen';
 import { ManualDataEntryScreen } from '../screens/manual_data_entry_screen';

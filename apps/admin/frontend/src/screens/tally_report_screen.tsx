@@ -14,6 +14,7 @@ import {
   P,
   printElement,
   printElementToPdf,
+  ReportPreviewLoading,
   TallyReportMetadata,
   TallyReportPreview,
 } from '@votingworks/ui';
@@ -173,9 +174,13 @@ function BaseTallyReportScreen({
           <Icons.Info /> <Font weight="bold">Note:</Font> Printed reports may be
           paginated to more than one piece of paper.
         </Caption>
-        <TallyReportPreview data-testid="report-preview">
-          {report ?? <Loading>Generating Report</Loading>}
-        </TallyReportPreview>
+        {report ? (
+          <TallyReportPreview data-testid="report-preview">
+            {report}
+          </TallyReportPreview>
+        ) : (
+          <ReportPreviewLoading />
+        )}
       </NavigationScreen>
       {isSaveModalOpen && (
         <SaveFrontendFileModal

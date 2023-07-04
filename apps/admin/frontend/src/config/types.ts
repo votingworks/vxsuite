@@ -1,17 +1,12 @@
 import {
   BallotStyleId,
-  CastVoteRecord,
   Dictionary,
   PartyId,
   PrecinctId,
   PromiseOr,
 } from '@votingworks/types';
-import { Optional, throwIllegalValue } from '@votingworks/basics';
-import { z } from 'zod';
-import type {
-  BallotMode,
-  ManualResultsVotingMethod,
-} from '@votingworks/admin-backend';
+import { Optional } from '@votingworks/basics';
+import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 
 // Events
 export type InputEventFunction = (
@@ -20,46 +15,6 @@ export type InputEventFunction = (
 export type TextareaEventFunction = (
   event: React.FormEvent<HTMLTextAreaElement>
 ) => PromiseOr<void>;
-
-export const PrintableBallotType = {
-  Absentee: 'absentee',
-  Precinct: 'standard',
-} as const;
-export type PrintableBallotType =
-  typeof PrintableBallotType[keyof typeof PrintableBallotType];
-
-export const PrintableBallotTypeSchema = z.union([
-  z.literal('absentee'),
-  z.literal('standard'),
-]);
-
-export function ballotModeToReadableString(ballotMode: BallotMode): string {
-  switch (ballotMode) {
-    case 'draft': {
-      return 'Draft';
-    }
-    case 'official': {
-      return 'Official';
-    }
-    case 'sample': {
-      return 'Sample';
-    }
-    case 'test': {
-      return 'Test';
-    }
-    /* istanbul ignore next: Compile-time check for completeness */
-    default: {
-      throwIllegalValue(ballotMode);
-    }
-  }
-}
-
-export interface PrintOptions extends KioskBrowser.PrintOptions {
-  sides: KioskBrowser.PrintSides;
-}
-export interface Printer {
-  print(options: PrintOptions): Promise<void>;
-}
 
 // Router Props
 export interface PrecinctReportScreenProps {
@@ -87,21 +42,10 @@ export interface SmartcardsScreenProps {
 }
 
 export enum ResultsFileType {
-  // eslint-disable-next-line @typescript-eslint/no-shadow
   CastVoteRecord = 'cvr',
   All = 'all',
 }
-export type OptionalFile = Optional<File>;
 
-export interface CastVoteRecordFile {
-  readonly name: string;
-  readonly importedCvrCount: number;
-  readonly duplicatedCvrCount: number;
-  readonly scannerIds: readonly string[];
-  readonly precinctIds: readonly PrecinctId[];
-  readonly allCastVoteRecords: readonly CastVoteRecord[];
-  readonly exportTimestamp: Date;
-}
 export interface CastVoteRecordFilePreprocessedData {
   readonly name: string;
   readonly path: string;

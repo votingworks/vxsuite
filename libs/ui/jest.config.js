@@ -24,6 +24,7 @@ module.exports = {
     'src/touch_text_input.tsx',
     'src/verify_ballot_image.tsx',
     'src/voter_contest_summary.tsx',
+    'src/reports/tally_report.tsx'
   ],
   transform: {
     '^.+\\.css$': '<rootDir>/config/jest/cssTransform.js',
