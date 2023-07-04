@@ -5,8 +5,92 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   font-size: 0.8em;
 }
 
-.c10 {
+.c11 {
   white-space: nowrap;
+}
+
+.c10 {
+  line-height: 1.2;
+}
+
+.c10 p {
+  font-size: 1em;
+}
+
+.c10 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c10 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c10 h3 {
+  font-size: 1.17em;
+}
+
+.c10 h4 {
+  font-size: 1em;
+}
+
+.c10 h5 {
+  font-size: 0.9em;
+}
+
+.c10 h3,
+.c10 h4,
+.c10 h5,
+.c10 p,
+.c10 ol,
+.c10 ul,
+.c10 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c10 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c10 h1 + p,
+.c10 h2 + p,
+.c10 h1 + ol,
+.c10 h2 + ol,
+.c10 h1 + ul,
+.c10 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c10 h3 + p,
+.c10 h4 + p,
+.c10 h5 + p,
+.c10 h3 + ol,
+.c10 h4 + ol,
+.c10 h5 + ol,
+.c10 h3 + ul,
+.c10 h4 + ul,
+.c10 h5 + ul {
+  margin-top: -1em;
+}
+
+.c10 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c10 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c10 dl {
+  margin: 1em 0;
+}
+
+.c10 hr {
+  border: 0;
+  border-top: 0.1em solid #666666;
 }
 
 .c2 {
@@ -70,27 +154,27 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   margin-top: -0.5em;
 }
 
-.c11 {
+.c12 {
   width: 100%;
   height: 1px;
   border-collapse: collapse;
 }
 
-.c11 tr {
+.c12 tr {
   border-top: 1px solid rgb(194,200,203);
   border-bottom: 1px solid rgb(194,200,203);
   height: 100%;
 }
 
-.c11 tr.metadata {
+.c12 tr.metadata {
   font-size: 0.75em;
 }
 
-.c11 tr.metadata.metadatarow {
+.c12 tr.metadata.metadatarow {
   border-bottom: 1px solid #e6e6e6;
 }
 
-.c11 td {
+.c12 td {
   width: 1%;
   height: 100%;
   padding: 0.1rem 0.25rem;
@@ -99,18 +183,18 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   white-space: no-wrap;
 }
 
-.c11 th {
+.c12 th {
   padding: 0 0.5rem;
   text-align: right;
   font-weight: 400;
 }
 
-.c11 th:first-child {
+.c12 th:first-child {
   padding-left: 0.1rem;
   text-align: left;
 }
 
-.c11 th:not(:first-child) {
+.c12 th:not(:first-child) {
   padding-right: 0;
 }
 
@@ -199,29 +283,25 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         class="c2"
         src="/votingworks-wordmark-black.svg"
       />
-      <div
-        class=""
-      >
-        <h1>
-          Test Deck Precinct Tally Report for District 5
-        </h1>
-        <h2>
-          Mock General Election Choctaw 2020
-        </h2>
-        <p>
-          Wednesday, August 26, 2020
-          , 
-          Choctaw County
-          , 
-          State of Mississippi
-          <br />
-          <span
-            class="c3"
-          >
-            This report was created on Tuesday, November 3, 2020 at 10:22:00 PM UTC.
-          </span>
-        </p>
-      </div>
+      <h1>
+        Test Deck Precinct Tally Report for District 5
+      </h1>
+      <h2>
+        Mock General Election Choctaw 2020
+      </h2>
+      <p>
+        Wednesday, August 26, 2020
+        , 
+        Choctaw County
+        , 
+        State of Mississippi
+        <br />
+        <span
+          class="c3"
+        >
+          This report was created on Tuesday, November 3, 2020 at 10:22:00 PM UTC.
+        </span>
+      </p>
       <div
         class="c4"
       >
@@ -297,7 +377,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           data-testid="results-table-775020876"
         >
           <div
-            class=""
+            class="c10"
           >
             <p
               class="c3"
@@ -311,14 +391,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               class="c3"
             >
               <span
-                class="c10"
+                class="c11"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 overvotes
@@ -326,14 +406,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c11"
+              class="c12"
             >
               <tbody>
                 <tr
@@ -393,7 +473,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           data-testid="results-table-775020877"
         >
           <div
-            class=""
+            class="c10"
           >
             <p
               class="c3"
@@ -407,14 +487,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               class="c3"
             >
               <span
-                class="c10"
+                class="c11"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 overvotes
@@ -422,14 +502,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c11"
+              class="c12"
             >
               <tbody>
                 <tr
@@ -489,7 +569,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           data-testid="results-table-775020872"
         >
           <div
-            class=""
+            class="c10"
           >
             <p
               class="c3"
@@ -503,14 +583,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               class="c3"
             >
               <span
-                class="c10"
+                class="c11"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 overvotes
@@ -518,14 +598,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c11"
+              class="c12"
             >
               <tbody>
                 <tr
@@ -573,7 +653,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           data-testid="results-table-775020870"
         >
           <div
-            class=""
+            class="c10"
           >
             <p
               class="c3"
@@ -587,14 +667,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               class="c3"
             >
               <span
-                class="c10"
+                class="c11"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 overvotes
@@ -602,14 +682,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c11"
+              class="c12"
             >
               <tbody>
                 <tr
@@ -657,7 +737,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           data-testid="results-table-775020903"
         >
           <div
-            class=""
+            class="c10"
           >
             <p
               class="c3"
@@ -671,14 +751,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               class="c3"
             >
               <span
-                class="c10"
+                class="c11"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 overvotes
@@ -686,14 +766,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c11"
+              class="c12"
             >
               <tbody>
                 <tr
@@ -741,7 +821,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           data-testid="results-table-775020904"
         >
           <div
-            class=""
+            class="c10"
           >
             <p
               class="c3"
@@ -755,14 +835,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               class="c3"
             >
               <span
-                class="c10"
+                class="c11"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 overvotes
@@ -770,14 +850,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c11"
+              class="c12"
             >
               <tbody>
                 <tr
@@ -813,7 +893,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           data-testid="results-table-750000017"
         >
           <div
-            class=""
+            class="c10"
           >
             <p
               class="c3"
@@ -828,14 +908,14 @@ House Concurrent Resolution No. 47
               class="c3"
             >
               <span
-                class="c10"
+                class="c11"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 overvotes
@@ -843,14 +923,14 @@ House Concurrent Resolution No. 47
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c11"
+              class="c12"
             >
               <tbody>
                 <tr
@@ -886,7 +966,7 @@ House Concurrent Resolution No. 47
           data-testid="results-table-750000018"
         >
           <div
-            class=""
+            class="c10"
           >
             <p
               class="c3"
@@ -901,14 +981,14 @@ House Bill 1796 - Flag Referendum
               class="c3"
             >
               <span
-                class="c10"
+                class="c11"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 overvotes
@@ -916,14 +996,14 @@ House Bill 1796 - Flag Referendum
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c11"
+              class="c12"
             >
               <tbody>
                 <tr
@@ -959,7 +1039,7 @@ House Bill 1796 - Flag Referendum
           data-testid="results-table-750000015"
         >
           <div
-            class=""
+            class="c10"
           >
             <p
               class="c3"
@@ -973,14 +1053,14 @@ House Bill 1796 - Flag Referendum
               class="c3"
             >
               <span
-                class="c10"
+                class="c11"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 overvotes
@@ -988,14 +1068,14 @@ House Bill 1796 - Flag Referendum
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c11"
+              class="c12"
             >
               <tbody>
                 <tr
@@ -1031,7 +1111,7 @@ House Bill 1796 - Flag Referendum
           data-testid="results-table-750000016"
         >
           <div
-            class=""
+            class="c10"
           >
             <p
               class="c3"
@@ -1045,14 +1125,14 @@ House Bill 1796 - Flag Referendum
               class="c3"
             >
               <span
-                class="c10"
+                class="c11"
               >
                 8 ballots
                  cast /
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 overvotes
@@ -1060,14 +1140,14 @@ House Bill 1796 - Flag Referendum
               </span>
                
               <span
-                class="c10"
+                class="c11"
               >
                  
                 0 undervotes
               </span>
             </p>
             <table
-              class="c11"
+              class="c12"
             >
               <tbody>
                 <tr

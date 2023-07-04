@@ -67,8 +67,8 @@ test('renders provided data', async () => {
     history,
   });
 
-  await screen.findByText('Report Preview');
-  const report = screen.getByTestId('write-in-tally-report');
+  screen.getByText('Report Preview');
+  const report = await screen.findByTestId('write-in-tally-report');
   within(report).getByText(
     'Unofficial General Election Write-In Adjudication Report'
   );
