@@ -1,10 +1,4 @@
-import {
-  ElectionInfoBar,
-  fontSizeTheme,
-  Main,
-  Prose,
-  Screen,
-} from '@votingworks/ui';
+import { ElectionInfoBar, Font, H1, Main, P, Screen } from '@votingworks/ui';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
@@ -24,23 +18,19 @@ export function MachineLockedScreen(): JSX.Element {
       <Main padded centerChild>
         <div>
           <LockedImage src="/locked.svg" alt="Locked Icon" />
-          <Prose
-            textCenter
-            themeDeprecated={fontSizeTheme.medium}
-            maxWidth={false}
-          >
+          <Font align="center">
             {electionDefinition ? (
               <React.Fragment>
-                <h1>VxCentralScan is Locked</h1>
-                <p>Insert Election Manager card to unlock.</p>
+                <H1>VxCentralScan is Locked</H1>
+                <P>Insert Election Manager card to unlock.</P>
               </React.Fragment>
             ) : (
               <React.Fragment>
-                <h1>VxCentralScan is Not Configured</h1>
-                <p>Insert Election Manager card to configure.</p>
+                <H1>VxCentralScan is Not Configured</H1>
+                <P>Insert Election Manager card to configure.</P>
               </React.Fragment>
             )}
-          </Prose>
+          </Font>
         </div>
       </Main>
       {electionDefinition && (

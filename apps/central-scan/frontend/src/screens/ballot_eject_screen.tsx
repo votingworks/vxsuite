@@ -9,11 +9,13 @@ import { Scan } from '@votingworks/api';
 import { assert } from '@votingworks/basics';
 import {
   Button,
+  Caption,
   ElectionInfoBar,
+  H4,
   Main,
   Modal,
+  P,
   Screen,
-  Text,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -21,7 +23,6 @@ import styled from 'styled-components';
 import { fetchNextBallotSheetToReview } from '../api/hmpb';
 import { BallotSheetImage } from '../components/ballot_sheet_image';
 import { MainNav } from '../components/main_nav';
-import { Prose } from '../components/prose';
 import { AppContext } from '../contexts/app_context';
 
 const MainChildFlexRow = styled.div`
@@ -313,8 +314,8 @@ export function BallotEjectScreen({
         <MainNav />
         <Main>
           <MainChildFlexRow>
-            <Prose maxWidth={false}>
-              <h1>
+            <div>
+              <H4 as="h1">
                 <span style={{ fontSize: '2em' }}>
                   {isInvalidTestModeSheet
                     ? isTestMode
@@ -332,28 +333,28 @@ export function BallotEjectScreen({
                     ? 'Undervote'
                     : 'Unknown Reason'}
                 </span>
-              </h1>
+              </H4>
               {isOvervotedSheet ? (
-                <p>
+                <P>
                   The last scanned ballot was not tabulated because an overvote
                   was detected.
-                </p>
+                </P>
               ) : isBlankSheet ? (
-                <p>
+                <P>
                   The last scanned ballot was not tabulated because no votes
                   were detected.
-                </p>
+                </P>
               ) : isUndervotedSheet ? (
-                <p>
+                <P>
                   The last scanned ballot was not tabulated because an undervote
                   was detected.
-                </p>
+                </P>
               ) : (
-                <p>The last scanned ballot was not tabulated.</p>
+                <P>The last scanned ballot was not tabulated.</P>
               )}
               {allowBallotDuplication ? (
                 <React.Fragment>
-                  <p>
+                  <P>
                     <Button
                       fullWidth
                       variant="primary"
@@ -361,8 +362,8 @@ export function BallotEjectScreen({
                     >
                       Remove to Adjudicate
                     </Button>
-                  </p>
-                  <p>
+                  </P>
+                  <P>
                     <Button
                       fullWidth
                       variant="primary"
@@ -370,36 +371,36 @@ export function BallotEjectScreen({
                     >
                       Tabulate As Is
                     </Button>
-                  </p>
+                  </P>
                 </React.Fragment>
               ) : isInvalidTestModeSheet ? (
                 isTestMode ? (
-                  <p>Remove the OFFICIAL ballot before continuing.</p>
+                  <P>Remove the OFFICIAL ballot before continuing.</P>
                 ) : (
-                  <p>Remove the TEST ballot before continuing.</p>
+                  <P>Remove the TEST ballot before continuing.</P>
                 )
               ) : isInvalidElectionHashSheet ? (
                 <React.Fragment>
-                  <p>
+                  <P>
                     The scanned ballot does not match the election this scanner
                     is configured for. Remove the invalid ballot before
                     continuing.
-                  </p>
-                  <Text small>
+                  </P>
+                  <Caption>
                     Ballot Election Hash: {actualElectionHash?.slice(0, 10)}
-                  </Text>
+                  </Caption>
                 </React.Fragment>
               ) : (
                 // Unreadable
                 <React.Fragment>
-                  <p>
+                  <P>
                     There was a problem reading the ballot. Remove ballot and
                     reload in the scanner to try again.
-                  </p>
-                  <p>
+                  </P>
+                  <P>
                     If the error persists remove ballot and create a duplicate
                     ballot for the Resolution Board to review.
-                  </p>
+                  </P>
                 </React.Fragment>
               )}
               {!allowBallotDuplication && (
@@ -411,7 +412,7 @@ export function BallotEjectScreen({
                   The ballot has been removed
                 </Button>
               )}
-            </Prose>
+            </div>
             <RectoVerso>
               <BallotSheetImage
                 imageUrl={reviewInfo.interpreted.front.image.url}
@@ -439,12 +440,9 @@ export function BallotEjectScreen({
       </Screen>
       {ballotState === 'removeBallot' && (
         <Modal
-          centerContent
+          title="Remove the Ballot"
           content={
-            <Prose textCenter>
-              <h1>Remove the Ballot</h1>
-              <p>Remove the ballot and provide it to the resolution board.</p>
-            </Prose>
+            <P>Remove the ballot and provide it to the resolution board.</P>
           }
           actions={
             <React.Fragment>
@@ -462,12 +460,9 @@ export function BallotEjectScreen({
       )}
       {ballotState === 'acceptBallot' && (
         <Modal
-          centerContent
+          title="Tabulate Ballot As Is?"
           content={
-            <Prose textCenter>
-              <h1>Tabulate Ballot As Is?</h1>
-              <p>Please confirm you wish to tabulate this ballot as is.</p>
-            </Prose>
+            <P>Please confirm you wish to tabulate this ballot as is.</P>
           }
           actions={
             <React.Fragment>

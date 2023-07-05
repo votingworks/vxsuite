@@ -1,7 +1,6 @@
-import { Button, Modal } from '@votingworks/ui';
+import { Button, Modal, P } from '@votingworks/ui';
 import React, { useCallback, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Prose } from './prose';
 import { setTestMode } from '../api';
 
 export interface Props {
@@ -55,20 +54,17 @@ export function ToggleTestModeButton({
       </Button>
       {flowState === 'confirmation' && (
         <Modal
-          centerContent
+          title={
+            isTestMode
+              ? 'Toggle to Official Ballot Mode'
+              : 'Toggle to Test Ballot Mode'
+          }
           content={
-            <Prose textCenter>
-              <h1>
-                {isTestMode
-                  ? 'Toggle to Official Ballot Mode'
-                  : 'Toggle to Test Ballot Mode'}
-              </h1>
-              <p>
-                {`Toggling to ${
-                  isTestMode ? 'Official' : 'Test'
-                } Ballot Mode will zero out your scanned ballots. Are you sure?`}
-              </p>
-            </Prose>
+            <P>
+              {`Toggling to ${
+                isTestMode ? 'Official' : 'Test'
+              } Ballot Mode will zero out your scanned ballots. Are you sure?`}
+            </P>
           }
           actions={
             <React.Fragment>
@@ -91,17 +87,12 @@ export function ToggleTestModeButton({
       )}
       {flowState === 'toggling' && (
         <Modal
-          centerContent
-          content={
-            <Prose textCenter>
-              <h1>
-                {isTestMode
-                  ? 'Toggling to Official Ballot Mode'
-                  : 'Toggling to Test Ballot Mode'}
-              </h1>
-              <p>Zeroing out scanned ballots and reloading…</p>
-            </Prose>
+          title={
+            isTestMode
+              ? 'Toggling to Official Ballot Mode'
+              : 'Toggling to Test Ballot Mode'
           }
+          content={<P>Zeroing out scanned ballots and reloading…</P>}
         />
       )}
     </React.Fragment>
