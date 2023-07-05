@@ -184,6 +184,17 @@ export function createApiMock() {
     expectLogOut() {
       mockApiClient.logOut.expectCallWith().resolves();
     },
+
+    expectGenerateLiveCheckQrCodeValue() {
+      mockApiClient.generateLiveCheckQrCodeValue.expectCallWith().resolves({
+        qrCodeValue: 'qrCodeValue',
+        signatureInputs: {
+          machineId: 'machineId',
+          date: new Date(),
+          electionHashPrefix: 'electionHashPrefix',
+        },
+      });
+    },
   };
 }
 
