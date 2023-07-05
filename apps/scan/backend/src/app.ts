@@ -30,6 +30,7 @@ import {
   ArtifactAuthenticatorApi,
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
+  LiveCheck,
 } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { backupToUsbDrive } from './backup';
@@ -88,6 +89,15 @@ function buildApi(
         constructAuthMachineState(workspace),
         input
       );
+    },
+
+    generateLiveCheckQrCodeValue() {
+      const { machineId } = getMachineConfig();
+      const electionDefinition = workspace.store.getElectionDefinition();
+      return new LiveCheck().generateQrCodeValue({
+        machineId,
+        electionHash: electionDefinition?.electionHash,
+      });
     },
 
     async getUsbDriveStatus(): Promise<UsbDriveStatus> {

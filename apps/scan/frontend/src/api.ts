@@ -105,6 +105,20 @@ export const updateSessionExpiry = {
   },
 } as const;
 
+export const generateLiveCheckQrCodeValue = {
+  queryKey(): QueryKey {
+    return ['generateLiveCheckQrCodeValue'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.generateLiveCheckQrCodeValue(),
+      { cacheTime: 0 } // Always generate a fresh QR code value
+    );
+  },
+} as const;
+
 export const getConfig = {
   queryKey(): QueryKey {
     return ['getConfig'];

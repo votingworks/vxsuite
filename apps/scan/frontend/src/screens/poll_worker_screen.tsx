@@ -62,9 +62,6 @@ import {
 } from '@votingworks/basics';
 import styled from 'styled-components';
 import { ScreenMainCenterChild, Screen } from '../components/layout';
-
-import { LiveCheckModal } from '../components/live_check_modal';
-
 import { rootDebug } from '../utils/debug';
 import {
   exportCastVoteRecordsToUsbDrive,
@@ -74,6 +71,7 @@ import {
 } from '../api';
 import { MachineConfig } from '../config/types';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
+import { LiveCheckButton } from '../components/live_check_button';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
@@ -147,7 +145,6 @@ export function PollWorkerScreen({
   const [currentSubTallies, setCurrentSubTallies] = useState<
     ReadonlyMap<string, Tally>
   >(new Map());
-  const [isShowingLiveCheck, setIsShowingLiveCheck] = useState(false);
   const [
     isShowingBallotsAlreadyScannedScreen,
     setIsShowingBallotsAlreadyScannedScreen,
@@ -625,7 +622,7 @@ export function PollWorkerScreen({
     <React.Fragment>
       <PowerDownButton logger={logger} userRole="poll_worker" />
       {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
-        <Button onPress={() => setIsShowingLiveCheck(true)}>Live Check</Button>
+        <LiveCheckButton />
       )}
     </React.Fragment>
   );
@@ -693,13 +690,6 @@ export function PollWorkerScreen({
         <H1>Poll Worker Actions</H1>
         {content}
       </Prose>
-      {isShowingLiveCheck && (
-        <LiveCheckModal
-          machineConfig={machineConfig}
-          electionDefinition={electionDefinition}
-          onClose={() => setIsShowingLiveCheck(false)}
-        />
-      )}
     </ScreenMainCenterChild>
   );
 }
