@@ -78,6 +78,7 @@ describe('shows Livecheck button only when enabled', () => {
     userEvent.click(await screen.findByText('No'));
     expect(screen.queryByText('Live Check')).toBeTruthy();
 
+    apiMock.expectGenerateLiveCheckQrCodeValue();
     userEvent.click(screen.getByText('Live Check'));
     await screen.findByText('Done');
   });

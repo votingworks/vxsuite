@@ -1,5 +1,4 @@
 import { Buffer } from 'buffer';
-import CombinedStream from 'combined-stream';
 import { createReadStream } from 'fs';
 import fs from 'fs/promises';
 import { sha256 } from 'js-sha256';
@@ -27,6 +26,7 @@ import {
   verifySignature,
 } from './openssl';
 import { runCommand } from './shell';
+import { constructPrefixedMessage } from './signatures';
 
 /**
  * A machine-exported artifact whose authenticity we want to be able to verify
@@ -230,24 +230,22 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
   }
 
   private async constructMessage(artifact: Artifact): Promise<Stream> {
-    const message = CombinedStream.create();
-
-    const messageFormatVersion = Buffer.from('1', 'utf-8');
-    const separator = Buffer.from('//', 'utf-8');
-    const fileType = Buffer.from(artifact.type, 'utf-8');
-    message.append(
-      Buffer.concat([messageFormatVersion, separator, fileType, separator])
-    );
-
-    if (artifact.type === 'cast_vote_records') {
-      const directoryContents = await this.hashDirectoryContents(artifact.path);
-      message.append(directoryContents);
-    } else {
-      const fileContents = createReadStream(artifact.path);
-      message.append(fileContents);
+    switch (artifact.type) {
+      case 'ballot_package': {
+        const fileContents = createReadStream(artifact.path);
+        return constructPrefixedMessage(artifact.type, fileContents);
+      }
+      case 'cast_vote_records': {
+        const directoryContents = await this.hashDirectoryContents(
+          artifact.path
+        );
+        return constructPrefixedMessage(artifact.type, directoryContents);
+      }
+      /* istanbul ignore next: Compile-time check for completeness */
+      default: {
+        throwIllegalValue(artifact.type);
+      }
     }
-
-    return message;
   }
 
   private async signMessage(message: Stream): Promise<Buffer> {

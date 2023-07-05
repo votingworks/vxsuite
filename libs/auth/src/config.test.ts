@@ -5,7 +5,9 @@ import {
   ArtifactAuthenticatorConfig,
   constructArtifactAuthenticatorConfig,
   constructJavaCardConfig,
+  constructLiveCheckConfig,
   JavaCardConfig,
+  LiveCheckConfig,
 } from './config';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
@@ -302,5 +304,124 @@ test.each<{
     );
 
     expect(constructArtifactAuthenticatorConfig()).toEqual(expectedOutput);
+  }
+);
+
+test.each<{
+  nodeEnv: NodeJS.ProcessEnv['NODE_ENV'];
+  isVxDev?: true;
+  isIntegrationTest?: true;
+  machineType: NonNullable<NodeJS.ProcessEnv['VX_MACHINE_TYPE']>;
+  expectedOutput: LiveCheckConfig;
+}>([
+  {
+    nodeEnv: 'development',
+    machineType: 'admin',
+    expectedOutput: {
+      machineCertPath: expect.stringContaining(
+        '/certs/dev/vx-admin-cert-authority-cert.pem'
+      ),
+      machinePrivateKey: {
+        source: 'file',
+        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
+      },
+    },
+  },
+  {
+    nodeEnv: 'development',
+    machineType: 'scan',
+    expectedOutput: {
+      machineCertPath: expect.stringContaining('/certs/dev/vx-scan-cert.pem'),
+      machinePrivateKey: {
+        source: 'file',
+        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
+      },
+    },
+  },
+  {
+    nodeEnv: 'production',
+    machineType: 'admin',
+    expectedOutput: {
+      machineCertPath: '/vx/config/vx-admin-cert-authority-cert.pem',
+      machinePrivateKey: { source: 'tpm' },
+    },
+  },
+  {
+    nodeEnv: 'production',
+    machineType: 'scan',
+    expectedOutput: {
+      machineCertPath: '/vx/config/vx-scan-cert.pem',
+      machinePrivateKey: { source: 'tpm' },
+    },
+  },
+  {
+    nodeEnv: 'production',
+    isVxDev: true,
+    machineType: 'admin',
+    expectedOutput: {
+      machineCertPath: expect.stringContaining(
+        '/certs/dev/vx-admin-cert-authority-cert.pem'
+      ),
+      machinePrivateKey: {
+        source: 'file',
+        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
+      },
+    },
+  },
+  {
+    nodeEnv: 'production',
+    isVxDev: true,
+    machineType: 'scan',
+    expectedOutput: {
+      machineCertPath: expect.stringContaining('/certs/dev/vx-scan-cert.pem'),
+      machinePrivateKey: {
+        source: 'file',
+        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
+      },
+    },
+  },
+  {
+    nodeEnv: 'production',
+    isIntegrationTest: true,
+    machineType: 'admin',
+    expectedOutput: {
+      machineCertPath: expect.stringContaining(
+        '/certs/dev/vx-admin-cert-authority-cert.pem'
+      ),
+      machinePrivateKey: {
+        source: 'file',
+        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
+      },
+    },
+  },
+  {
+    nodeEnv: 'production',
+    isIntegrationTest: true,
+    machineType: 'scan',
+    expectedOutput: {
+      machineCertPath: expect.stringContaining('/certs/dev/vx-scan-cert.pem'),
+      machinePrivateKey: {
+        source: 'file',
+        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
+      },
+    },
+  },
+])(
+  'constructLiveCheckConfig - nodeEnv = $nodeEnv, isVxDev = $isVxDev, isIntegrationTest = $isIntegrationTest, machineType = $machineType',
+  ({
+    nodeEnv,
+    isVxDev: isVxDevResult,
+    isIntegrationTest: isIntegrationTestResult,
+    machineType,
+    expectedOutput,
+  }) => {
+    (process.env.NODE_ENV as string) = nodeEnv;
+    (process.env.VX_MACHINE_TYPE as string) = machineType;
+    mockOf(isVxDev).mockImplementation(() => isVxDevResult ?? false);
+    mockOf(isIntegrationTest).mockImplementation(
+      () => isIntegrationTestResult ?? false
+    );
+
+    expect(constructLiveCheckConfig()).toEqual(expectedOutput);
   }
 );

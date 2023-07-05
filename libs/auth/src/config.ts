@@ -106,3 +106,22 @@ export function constructArtifactAuthenticatorConfig(): ArtifactAuthenticatorCon
     vxCertAuthorityCertPath: getVxCertAuthorityCertPath(),
   };
 }
+
+/**
+ * Config params for a Live Check instance
+ */
+export interface LiveCheckConfig {
+  machineCertPath: string;
+  machinePrivateKey: FileKey | TpmKey;
+}
+
+/**
+ * Constructs a Live Check config given relevant env vars
+ */
+export function constructLiveCheckConfig(): LiveCheckConfig {
+  const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
+  return {
+    machineCertPath: certPath,
+    machinePrivateKey: privateKey,
+  };
+}

@@ -17,6 +17,10 @@ import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
 import { Logger, LogSource } from '@votingworks/logging';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { Screen } from '../components/layout';
@@ -33,6 +37,7 @@ import {
   unconfigureElection,
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
+import { LiveCheckButton } from '../components/live_check_button';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
@@ -270,6 +275,9 @@ export function ElectionManagerScreen({
                 {doubleSheetDetectionToggle}
                 {dateTimeButton}
                 {audioMuteToggle}
+                {isFeatureFlagEnabled(
+                  BooleanEnvironmentVariableName.LIVECHECK
+                ) && <LiveCheckButton />}
               </React.Fragment>
             ),
           },

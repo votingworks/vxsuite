@@ -1,7 +1,8 @@
 import { Buffer } from 'buffer';
+import { Readable } from 'stream';
 import { TEST_JURISDICTION } from '@votingworks/types';
 
-import { createReadStreamFromBuffer, getTestFilePath } from '../test/utils';
+import { getTestFilePath } from '../test/utils';
 import {
   CERT_EXPIRY_IN_DAYS,
   constructMachineCertSubject,
@@ -63,12 +64,12 @@ test('signMessage end-to-end', async () => {
 
   const message = Buffer.from('abcd', 'utf-8');
   const messageSignature = await signMessage({
-    message: createReadStreamFromBuffer(message),
+    message: Readable.from(message),
     signingPrivateKey: { source: 'file', path: vxScanPrivateKeyPath },
   });
   const vxScanPublicKey = await extractPublicKeyFromCert(vxScanCertPath);
   await verifySignature({
-    message: createReadStreamFromBuffer(message),
+    message: Readable.from(message),
     messageSignature,
     publicKey: vxScanPublicKey,
   });
