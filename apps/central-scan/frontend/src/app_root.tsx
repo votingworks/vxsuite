@@ -22,6 +22,7 @@ import {
   useUsbDrive,
   LinkButton,
   Button,
+  H1,
 } from '@votingworks/ui';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { assert, Result, ok, err } from '@votingworks/basics';
@@ -330,7 +331,7 @@ export function AppRoot({
     return (
       <Screen>
         <Main padded centerChild>
-          <h1>Loading Configuration...</h1>
+          <H1>Loading Configuration...</H1>
         </Main>
       </Screen>
     );
