@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import {
   BmdPaperBallot,
@@ -17,7 +17,6 @@ import {
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
-import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 
 export const printingMessageTimeoutSeconds = 5;
 
@@ -28,8 +27,7 @@ export interface PrintPageProps {
   isLiveMode: boolean;
   votes: VotesDict;
   generateBallotId: () => string;
-  updateTally: () => void;
-  resetBallot: (showPostVotingInstructions?: boolean) => void;
+  onPrintStarted?: () => void;
 }
 
 export function PrintPage({
@@ -39,10 +37,8 @@ export function PrintPage({
   isLiveMode,
   votes,
   generateBallotId,
-  updateTally,
-  resetBallot,
+  onPrintStarted,
 }: PrintPageProps): JSX.Element {
-  const printerTimer = useRef(0);
   const printLock = useLock();
 
   const printBallot = useCallback(async () => {
@@ -59,10 +55,7 @@ export function PrintPage({
       />,
       { sides: 'one-sided' }
     );
-    updateTally();
-    printerTimer.current = window.setTimeout(() => {
-      resetBallot(true);
-    }, BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
+    onPrintStarted?.();
   }, [
     printLock,
     ballotStyleId,
@@ -71,20 +64,12 @@ export function PrintPage({
     isLiveMode,
     precinctId,
     votes,
-    updateTally,
-    resetBallot,
+    onPrintStarted,
   ]);
 
   useEffect(() => {
     void printBallot();
   }, [printBallot]);
-
-  // Make sure we clean up any pending timeout on unmount
-  useEffect(() => {
-    return () => {
-      clearTimeout(printerTimer.current);
-    };
-  }, []);
 
   return (
     <Screen white>
