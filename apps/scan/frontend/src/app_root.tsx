@@ -11,6 +11,8 @@ import {
   isSystemAdministratorAuth,
   isElectionManagerAuth,
   isPollWorkerAuth,
+  isFeatureFlagEnabled,
+  BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 
@@ -44,6 +46,7 @@ import {
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
 import { LoginPromptScreen } from './screens/login_prompt_screen';
+import { LiveCheckButton } from './components/live_check_button';
 
 export interface Props {
   hardware: Hardware;
@@ -166,6 +169,11 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
           }
           isMachineConfigured={Boolean(electionDefinition)}
           usbDriveStatus={legacyUsbDriveStatus(usbDrive)}
+          additionalButtons={
+            isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) ? (
+              <LiveCheckButton />
+            ) : undefined
+          }
         />
       </ScreenMainCenterChild>
     );

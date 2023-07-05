@@ -54,6 +54,10 @@ const ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = _.compact([
     BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
   ) && { label: 'Write-Ins', routerPath: routerPaths.writeIns },
   { label: 'Reports', routerPath: routerPaths.reports },
+  isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && {
+    label: 'System',
+    routerPath: routerPaths.system,
+  },
 ]);
 
 const NO_BALLOT_GENERATION_HIDDEN_PATHS: ReadonlySet<string> = new Set([

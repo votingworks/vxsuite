@@ -47,13 +47,18 @@ export function LiveCheckModal({
               <QrCode value={qrCodeValue} />
             </QrCodeContainer>
             <Details>
-              <Caption>Machine ID: {signatureInputs.machineId}</Caption>
+              <Caption>
+                <strong>Machine ID:</strong> {signatureInputs.machineId}
+              </Caption>
               {signatureInputs.electionHashPrefix && (
                 <Caption>
-                  Election ID: {signatureInputs.electionHashPrefix}
+                  <strong>Election ID:</strong>{' '}
+                  {signatureInputs.electionHashPrefix}
                 </Caption>
               )}
-              <Caption>Date: {signatureInputs.date.toLocaleString()}</Caption>
+              <Caption>
+                <strong>Date:</strong> {signatureInputs.date.toLocaleString()}
+              </Caption>
             </Details>
           </Content>
         </React.Fragment>
