@@ -37,7 +37,6 @@
     "@votingworks/auth": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
-    "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",

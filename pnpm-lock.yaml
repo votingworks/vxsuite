@@ -4092,9 +4092,6 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
-      '@votingworks/image-utils':
-        specifier: workspace:*
-        version: link:../image-utils
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../logging
