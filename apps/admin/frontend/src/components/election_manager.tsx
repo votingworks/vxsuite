@@ -41,6 +41,7 @@ import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
 import { SettingsScreen } from '../screens/settings_screen';
 import { LogsScreen } from '../screens/logs_screen';
 import { ReportsScreen } from '../screens/reports_screen';
+import { ElectionManagerSystemScreen } from '../screens/election_manager_system_screen';
 import { SmartcardTypeRegExPattern } from '../config/types';
 import { SmartcardModal } from './smartcard_modal';
 import { checkPin } from '../api';
@@ -223,6 +224,9 @@ export function ElectionManager(): JSX.Element {
       )}
       <Route exact path={[routerPaths.testDecks]}>
         <PrintTestDeckScreen />
+      </Route>
+      <Route exact path={routerPaths.system}>
+        <ElectionManagerSystemScreen />
       </Route>
       <Redirect to={routerPaths.ballotsList} />
     </Switch>

@@ -49,4 +49,5 @@ export const routerPaths = {
   writeIns: '/write-ins',
   settings: '/settings',
   logs: '/logs',
+  system: '/system',
 } as const;
