@@ -159,92 +159,88 @@ export function TallyScreen(): JSX.Element | null {
             Remove CVR Files
           </Button>
         </P>
-        <Table data-testid="loaded-file-table">
-          <tbody>
-            {hasAnyFiles ? (
-              <React.Fragment>
-                <tr>
-                  <TD as="th" narrow nowrap textAlign="right">
-                    #
-                  </TD>
-                  <TD as="th" narrow nowrap>
-                    Created At
-                  </TD>
-                  <TD as="th" nowrap>
-                    CVR Count
-                  </TD>
-                  <TD as="th" narrow nowrap>
-                    Source
-                  </TD>
-                  <TD as="th" nowrap>
-                    Precinct
-                  </TD>
-                </tr>
-                {castVoteRecordFileList.map(
-                  (
-                    {
-                      filename,
-                      exportTimestamp,
-                      numCvrsImported,
-                      scannerIds,
-                      precinctIds,
-                    },
-                    cvrFileIndex
-                  ) => (
-                    <tr key={filename}>
-                      <TD narrow nowrap textAlign="right">
-                        {cvrFileIndex + 1}.
-                      </TD>
-                      <TD narrow nowrap>
-                        {moment(exportTimestamp).format(
-                          'MM/DD/YYYY hh:mm:ss A'
-                        )}
-                      </TD>
-                      <TD nowrap>{format.count(numCvrsImported)} </TD>
-                      <TD narrow nowrap>
-                        {scannerIds.join(', ')}
-                      </TD>
-                      <TD>{getPrecinctNames(precinctIds)}</TD>
-                    </tr>
-                  )
-                )}
-                {hasManualTally ? (
-                  <tr key="manual-data">
-                    <TD />
-                    <TD narrow nowrap>
-                      {moment(manualTallyFirstAdded).format(TIME_FORMAT)}
+        {hasAnyFiles ? (
+          <Table data-testid="loaded-file-table">
+            <tbody>
+              <tr>
+                <TD as="th" narrow nowrap textAlign="right">
+                  #
+                </TD>
+                <TD as="th" narrow nowrap>
+                  Created At
+                </TD>
+                <TD as="th" nowrap>
+                  CVR Count
+                </TD>
+                <TD as="th" narrow nowrap>
+                  Source
+                </TD>
+                <TD as="th" nowrap>
+                  Precinct
+                </TD>
+              </tr>
+              {castVoteRecordFileList.map(
+                (
+                  {
+                    filename,
+                    exportTimestamp,
+                    numCvrsImported,
+                    scannerIds,
+                    precinctIds,
+                  },
+                  cvrFileIndex
+                ) => (
+                  <tr key={filename}>
+                    <TD narrow nowrap textAlign="right">
+                      {cvrFileIndex + 1}.
                     </TD>
-                    <TD narrow>{format.count(manualTallyTotalBallotCount)}</TD>
                     <TD narrow nowrap>
-                      Manually Entered Results
+                      {moment(exportTimestamp).format('MM/DD/YYYY hh:mm:ss A')}
                     </TD>
-                    <TD>{getPrecinctNames(manualTallyPrecinctIds)}</TD>
+                    <TD nowrap>{format.count(numCvrsImported)} </TD>
+                    <TD narrow nowrap>
+                      {scannerIds.join(', ')}
+                    </TD>
+                    <TD>{getPrecinctNames(precinctIds)}</TD>
                   </tr>
-                ) : null}
-                <tr>
+                )
+              )}
+              {hasManualTally ? (
+                <tr key="manual-data">
                   <TD />
-                  <TD as="th" narrow nowrap>
-                    Total CVRs Count
+                  <TD narrow nowrap>
+                    {moment(manualTallyFirstAdded).format(TIME_FORMAT)}
                   </TD>
-                  <TD as="th" narrow data-testid="total-cvr-count">
-                    {format.count(
-                      castVoteRecordFileList.reduce(
-                        (prev, curr) => prev + curr.numCvrsImported,
-                        0
-                      ) + manualTallyTotalBallotCount
-                    )}
+                  <TD narrow>{format.count(manualTallyTotalBallotCount)}</TD>
+                  <TD narrow nowrap>
+                    Manually Entered Results
                   </TD>
-                  <TD />
-                  <TD as="th" />
+                  <TD>{getPrecinctNames(manualTallyPrecinctIds)}</TD>
                 </tr>
-              </React.Fragment>
-            ) : (
-              <Caption>
-                <Icons.Info /> No CVR files loaded.
-              </Caption>
-            )}
-          </tbody>
-        </Table>
+              ) : null}
+              <tr>
+                <TD />
+                <TD as="th" narrow nowrap>
+                  Total CVRs Count
+                </TD>
+                <TD as="th" narrow data-testid="total-cvr-count">
+                  {format.count(
+                    castVoteRecordFileList.reduce(
+                      (prev, curr) => prev + curr.numCvrsImported,
+                      0
+                    ) + manualTallyTotalBallotCount
+                  )}
+                </TD>
+                <TD />
+                <TD as="th" />
+              </tr>
+            </tbody>
+          </Table>
+        ) : (
+          <Caption>
+            <Icons.Info /> No CVR files loaded.
+          </Caption>
+        )}
         <H2>Manually Entered Results</H2>
         <P>
           <LinkButton
