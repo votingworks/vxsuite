@@ -23,6 +23,7 @@ interface Props {
   resetPollsToPaused?: () => Promise<void>;
   isMachineConfigured: boolean;
   usbDriveStatus: UsbDriveStatus;
+  additionalButtons?: React.ReactNode;
 }
 
 const ButtonGrid = styled.div`
@@ -49,6 +50,7 @@ export function SystemAdministratorScreenContents({
   resetPollsToPaused,
   isMachineConfigured,
   usbDriveStatus,
+  additionalButtons,
 }: Props): JSX.Element {
   return (
     <Main padded centerChild>
@@ -75,6 +77,7 @@ export function SystemAdministratorScreenContents({
             unconfigureMachine={unconfigureMachine}
             isMachineConfigured={isMachineConfigured}
           />
+          {additionalButtons}
           {isVxDev() && (
             <Button onPress={() => window.kiosk?.quit()}>Quit</Button>
           )}
