@@ -26,6 +26,7 @@ import {
   DippedSmartCardAuthMachineState,
   DEV_JURISDICTION,
   ArtifactAuthenticatorApi,
+  LiveCheck,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
@@ -178,6 +179,17 @@ function buildApi({
     unprogramCard() {
       return auth.unprogramCard(constructAuthMachineState(workspace));
     },
+
+    /* c8 ignore start */
+    generateLiveCheckQrCodeValue() {
+      const { machineId } = getMachineConfig();
+      const electionDefinition = getCurrentElectionDefinition(workspace);
+      return new LiveCheck().generateQrCodeValue({
+        machineId,
+        electionHash: electionDefinition?.electionHash,
+      });
+    },
+    /* c8 ignore stop */
 
     async saveBallotPackageToUsb(): Promise<BallotPackageExportResult> {
       await logger.log(LogEventId.SaveBallotPackageInit, 'election_manager');

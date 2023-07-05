@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import {
   CurrentDateAndTime,
   H2,
@@ -7,11 +7,16 @@ import {
   RebootToBiosButton,
   SetClockButton,
 } from '@votingworks/ui';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 import { FormatUsbButton } from '../components/format_usb_modal';
 import { logOut } from '../api';
+import { LiveCheckButton } from '../components/live_check_button';
 
 export function SettingsScreen(): JSX.Element {
   const { logger, usbDrive } = useContext(AppContext);
@@ -32,6 +37,14 @@ export function SettingsScreen(): JSX.Element {
         <RebootFromUsbButton logger={logger} usbDriveStatus={usbDrive.status} />{' '}
         or <RebootToBiosButton logger={logger} />
       </P>
+      {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
+        <React.Fragment>
+          <H2>Live Check</H2>
+          <P>
+            <LiveCheckButton />
+          </P>
+        </React.Fragment>
+      )}
     </NavigationScreen>
   );
 }
