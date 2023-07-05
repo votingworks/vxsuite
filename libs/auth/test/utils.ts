@@ -1,6 +1,4 @@
 /* eslint-disable max-classes-per-file */
-import { Buffer } from 'buffer';
-import { Readable } from 'stream';
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
 
 import { Card, CardStatus } from '../src/card';
@@ -20,16 +18,6 @@ export function numericArray(input: {
   value?: number;
 }): number[] {
   return Array.from<number>({ length: input.length }).fill(input.value ?? 0);
-}
-
-/**
- * Creates a read stream from a buffer
- */
-export function createReadStreamFromBuffer(buffer: Buffer): Readable {
-  const readStream = new Readable();
-  readStream.push(buffer);
-  readStream.push(null);
-  return readStream;
 }
 
 /**

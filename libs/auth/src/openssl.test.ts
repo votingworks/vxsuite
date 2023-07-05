@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { spawn } from 'child_process';
 import fs from 'fs/promises';
-import { Writable } from 'stream';
+import { Readable, Writable } from 'stream';
 import { fileSync } from 'tmp';
 import {
   fakeChildProcess as newMockChildProcess,
@@ -9,7 +9,6 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 
-import { createReadStreamFromBuffer } from '../test/utils';
 import {
   createCert,
   createCertGivenCertSigningRequest,
@@ -619,7 +618,7 @@ test.each<{
     mockChildProcess.emit('close', successExitCode);
   });
 
-  const message = createReadStreamFromBuffer(Buffer.from('abcd', 'utf-8'));
+  const message = Readable.from('abcd');
   jest.spyOn(message, 'pipe');
 
   const messageSignature = await signMessage({
