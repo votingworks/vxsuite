@@ -122,7 +122,7 @@ export function getBooleanEnvVarConfig(
     case BooleanEnvironmentVariableName.LIVECHECK:
       return {
         name,
-        allowInProduction: false,
+        allowInProduction: true,
         autoEnableInDevelopment: true,
       };
     case BooleanEnvironmentVariableName.DISALLOW_CASTING_OVERVOTES:
