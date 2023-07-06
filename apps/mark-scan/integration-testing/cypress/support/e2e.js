@@ -89,7 +89,18 @@ function configureWithSampleDefinitionAndSystemSettings() {
   );
 }
 
+function fakeLoadPaper() {
+  cy.intercept('POST', 'http://localhost:3000/api/getPaperHandlerState', {
+    statusCode: 200,
+    headers: {
+      'Content-type': 'application/json'
+    },
+    body: { data: 'paper_loaded' }
+  })
+}
+
 beforeEach(() => {
+  fakeLoadPaper();
   endCardlessVoterSession();
   configureWithSampleDefinitionAndSystemSettings();
 
