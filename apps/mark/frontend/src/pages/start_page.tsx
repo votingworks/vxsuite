@@ -1,46 +1,47 @@
 /* stylelint-disable order/properties-order */
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import React, { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
-import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
-import {
-  Main,
-  Screen,
-  Prose,
-  Button,
-  H1,
-  P,
-  Icons,
-  H6,
-  Font,
-} from '@votingworks/ui';
+import { Screen, Button, P, Icons } from '@votingworks/ui';
 
-import pluralize from 'pluralize';
 import { assert } from '@votingworks/basics';
 import { BallotContext } from '../contexts/ballot_context';
 
 import { Wobble } from '../components/animations';
 import { ElectionInfo } from '../components/election_info';
-import { Sidebar } from '../components/sidebar';
-import { screenOrientation } from '../lib/screen_orientation';
 import { DisplaySettingsButton } from '../components/display_settings_button';
 
-const SidebarSpacer = styled.div`
-  height: 90px;
-`;
-
-const Footer = styled.div`
-  border-top: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
-    ${(p) => p.theme.colors.foreground};
+const Body = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 1rem;
+  justify-content: center;
   padding: 0.5rem;
 `;
 
-const FooterContent = styled.nav`
+const ElectionInfoContainer = styled.div`
+  @media (orientation: portrait) {
+    text-align: center;
+  }
+`;
+
+const StartVotingButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const Footer = styled.div`
   align-items: center;
+  border-top: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
+    ${(p) => p.theme.colors.foreground};
   display: flex;
   gap: 1rem;
   justify-content: center;
+  padding: 0.5rem;
 `;
 
 const LargeButtonText = styled.span`
@@ -55,7 +56,6 @@ export function StartPage(): JSX.Element {
     ballotStyleId,
     contests,
     electionDefinition,
-    machineConfig,
     precinctId,
     forceSaveVote,
   } = useContext(BallotContext);
@@ -72,14 +72,6 @@ export function StartPage(): JSX.Element {
     'ballotStyleId is required to render StartPage'
   );
   const audioFocus = useRef<HTMLDivElement>(null);
-  const { isLandscape, isPortrait } = screenOrientation(machineConfig);
-  const { election } = electionDefinition;
-  const { title } = election;
-  const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
-    election,
-    ballotStyleId,
-  });
-
   function onStart() {
     forceSaveVote();
     history.push('/contests/0');
@@ -90,23 +82,10 @@ export function StartPage(): JSX.Element {
     audioFocus.current?.click();
   }, []);
 
-  const settingsContainer = (
-    <React.Fragment>
-      <H6 align="center" as="h2">
-        <Font>Voter Settings</Font>
-      </H6>
-      <FooterContent>
-        <DisplaySettingsButton />
-      </FooterContent>
-    </React.Fragment>
-  );
-
   const startVotingButton = (
-    <Wobble as="p">
+    <Wobble>
       <Button
-        large
         variant="primary"
-        fullWidth={isLandscape}
         onPress={onStart}
         id="next"
         aria-label="Press the right button to advance to the first contest."
@@ -119,34 +98,19 @@ export function StartPage(): JSX.Element {
   );
 
   return (
-    <Screen navRight={isLandscape} ref={audioFocus}>
-      <Main centerChild padded>
-        {isPortrait ? (
-          <React.Fragment>
-            <ElectionInfo
-              electionDefinition={electionDefinition}
-              ballotStyleId={ballotStyleId}
-              precinctSelection={singlePrecinctSelectionFor(precinctId)}
-              ariaHidden={false}
-              contestCount={contests.length}
-            />
-            {startVotingButton}
-          </React.Fragment>
-        ) : (
-          <Prose textCenter>
-            <H1 aria-label={`${partyPrimaryAdjective} ${title}.`}>
-              {partyPrimaryAdjective} {title}
-            </H1>
-            <hr />
-            <P>
-              <span>
-                Your ballot has{' '}
-                <strong>{pluralize('contest', contests.length, true)}</strong>.
-              </span>
-            </P>
-            {settingsContainer}
-          </Prose>
-        )}
+    <Screen ref={audioFocus}>
+      <Body>
+        <ElectionInfoContainer>
+          <ElectionInfo
+            electionDefinition={electionDefinition}
+            ballotStyleId={ballotStyleId}
+            precinctSelection={singlePrecinctSelectionFor(precinctId)}
+            contestCount={contests.length}
+          />
+        </ElectionInfoContainer>
+        <StartVotingButtonContainer>
+          {startVotingButton}
+        </StartVotingButtonContainer>
         <P className="screen-reader-only">
           When voting with the text-to-speech audio, use the accessible
           controller to navigate your ballot. To navigate through the contests,
@@ -154,26 +118,10 @@ export function StartPage(): JSX.Element {
           use the up and down buttons. To select or unselect a contest choice as
           your vote, use the select button.
         </P>
-      </Main>
-      {isPortrait ? (
-        <Footer>{settingsContainer}</Footer>
-      ) : (
-        <Sidebar
-          footer={
-            <ElectionInfo
-              electionDefinition={electionDefinition}
-              ballotStyleId={ballotStyleId}
-              precinctSelection={singlePrecinctSelectionFor(precinctId)}
-              horizontal
-            />
-          }
-        >
-          <Prose>
-            <SidebarSpacer />
-            {startVotingButton}
-          </Prose>
-        </Sidebar>
-      )}
+      </Body>
+      <Footer>
+        <DisplaySettingsButton />
+      </Footer>
     </Screen>
   );
 }
