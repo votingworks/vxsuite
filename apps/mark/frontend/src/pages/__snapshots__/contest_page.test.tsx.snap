@@ -182,25 +182,6 @@ exports[`Renders ContestPage 1`] = `
 }
 
 .c26 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25em;
-  box-sizing: border-box;
-  background: #d3d3d3;
-  padding: 1em 1.75em;
-  text-align: center;
-  line-height: 1.25;
-  color: #000000;
-  font-size: 1.25em;
-  touch-action: manipulation;
-}
-
-.c26:hover,
-.c26:active {
-  outline: none;
-}
-
-.c27 {
   display: none;
 }
 
@@ -398,7 +379,7 @@ exports[`Renders ContestPage 1`] = `
   flex-grow: 1;
 }
 
-.c28 {
+.c27 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -822,12 +803,12 @@ exports[`Renders ContestPage 1`] = `
     >
       <button
         aria-label="previous contest"
-        class="c26"
+        class="c14"
         id="previous"
         type="button"
       >
         <span
-          class="c27"
+          class="c26"
         >
           <svg
             aria-hidden="true"
@@ -859,7 +840,7 @@ exports[`Renders ContestPage 1`] = `
           class="c16"
         >
           <span
-            class="c28"
+            class="c27"
           >
             <svg
               aria-hidden="true"
@@ -889,7 +870,7 @@ exports[`Renders ContestPage 1`] = `
         type="button"
       >
         <span
-          class="c27"
+          class="c26"
         >
           <svg
             aria-hidden="true"
@@ -919,14 +900,14 @@ exports[`Renders ContestPage 1`] = `
 `;
 
 exports[`Renders ContestPage in Landscape orientation 1`] = `
-.c25 {
+.c3 {
   font-size: 1em;
   font-weight: 600;
   line-height: 1.2;
   margin: 0;
 }
 
-.c5 {
+.c8 {
   font-size: 1em;
   font-weight: 500;
   line-height: 1.2;
@@ -934,14 +915,14 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   font-size: 0.75em;
 }
 
-.c7 {
+.c10 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
   font-size: 0.75em;
 }
 
-.c21 {
+.c24 {
   font-size: 1em;
   font-weight: 400;
   line-height: 1.2;
@@ -949,7 +930,16 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   font-size: 0.75em;
 }
 
-.c19 {
+.c2 {
+  font-size: 1em;
+  line-height: 1.2;
+  margin: 0;
+  text-align: right;
+  font-size: 1rem;
+  margin-bottom: 0.5em;
+}
+
+.c22 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
@@ -957,16 +947,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   margin-bottom: 0.5em;
 }
 
-.c24 {
-  font-size: 1em;
-  line-height: 1.2;
-  margin: 0;
-  text-align: center;
-  font-size: 1rem;
-  margin-bottom: 0.5em;
-}
-
-.c4 {
+.c7 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
@@ -977,223 +958,111 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   font-weight: 600;
 }
 
-.c4:not(:first-child) {
+.c7:not(:first-child) {
   margin-top: 1.25em;
 }
 
-.c4 + h1,
-.c4 + h2,
-.c4 + h3,
-.c4 + h4,
-.c4 + h5,
-.c4 + h6 {
+.c7 + h1,
+.c7 + h2,
+.c7 + h3,
+.c7 + h4,
+.c7 + h5,
+.c7 + h6 {
   margin-top: 0 !important;
 }
 
-.c34 {
-  font-size: 1em;
-  line-height: 1.2;
-  margin: 0;
-  font-weight: 500;
-  line-height: 1.08;
-  margin-bottom: 0.3em;
-  font-size: 0.9rem;
-}
-
-.c34:not(:first-child) {
-  margin-top: 1.25em;
-}
-
-.c34 + h1,
-.c34 + h2,
-.c34 + h3,
-.c34 + h4,
-.c34 + h5,
-.c34 + h6 {
-  margin-top: 0 !important;
-}
-
-.c35 {
-  white-space: nowrap;
-}
-
-.c3 {
+.c6 {
   max-width: 66ch;
   line-height: 1.2;
 }
 
-.c3 p {
+.c6 p {
   font-size: 1em;
 }
 
-.c3 h1 {
+.c6 h1 {
   margin: 2em 0 1em;
   line-height: 1.1;
   font-size: 1.5em;
 }
 
-.c3 h2 {
+.c6 h2 {
   margin: 1.5em 0 0.75em;
   font-size: 1.25em;
 }
 
-.c3 h3 {
+.c6 h3 {
   font-size: 1.17em;
 }
 
-.c3 h4 {
+.c6 h4 {
   font-size: 1em;
 }
 
-.c3 h5 {
+.c6 h5 {
   font-size: 0.9em;
 }
 
-.c3 h3,
-.c3 h4,
-.c3 h5,
-.c3 p,
-.c3 ol,
-.c3 ul,
-.c3 hr {
+.c6 h3,
+.c6 h4,
+.c6 h5,
+.c6 p,
+.c6 ol,
+.c6 ul,
+.c6 hr {
   margin-top: 1em;
   margin-bottom: 1em;
 }
 
-.c3 h1 + h2 {
+.c6 h1 + h2 {
   margin-top: -0.75em;
 }
 
-.c3 h1 + p,
-.c3 h2 + p,
-.c3 h1 + ol,
-.c3 h2 + ol,
-.c3 h1 + ul,
-.c3 h2 + ul {
+.c6 h1 + p,
+.c6 h2 + p,
+.c6 h1 + ol,
+.c6 h2 + ol,
+.c6 h1 + ul,
+.c6 h2 + ul {
   margin-top: -0.75em;
 }
 
-.c3 h3 + p,
-.c3 h4 + p,
-.c3 h5 + p,
-.c3 h3 + ol,
-.c3 h4 + ol,
-.c3 h5 + ol,
-.c3 h3 + ul,
-.c3 h4 + ul,
-.c3 h5 + ul {
+.c6 h3 + p,
+.c6 h4 + p,
+.c6 h5 + p,
+.c6 h3 + ol,
+.c6 h4 + ol,
+.c6 h5 + ol,
+.c6 h3 + ul,
+.c6 h4 + ul,
+.c6 h5 + ul {
   margin-top: -1em;
 }
 
-.c3 > :not(.ignore-prose):first-child {
+.c6 > :not(.ignore-prose):first-child {
   margin-top: 0;
 }
 
-.c3 > :not(.ignore-prose):last-child {
+.c6 > :not(.ignore-prose):last-child {
   margin-bottom: 0;
 }
 
-.c3 dl {
+.c6 dl {
   margin: 1em 0;
 }
 
-.c3 hr {
+.c6 hr {
   border: 0;
   border-top: 0.1em solid #666666;
 }
 
-.c33 {
-  max-width: 66ch;
-  line-height: 1.2;
-}
-
-.c33 p {
-  font-size: 1em;
-}
-
-.c33 h1 {
-  margin: 2em 0 1em;
-  line-height: 1.1;
-  font-size: 1.5em;
-}
-
-.c33 h2 {
-  margin: 1.5em 0 0.75em;
-  font-size: 1.25em;
-}
-
-.c33 h3 {
-  font-size: 1.17em;
-}
-
-.c33 h4 {
-  font-size: 1em;
-}
-
-.c33 h5 {
-  font-size: 0.9em;
-}
-
-.c33 h3,
-.c33 h4,
-.c33 h5,
-.c33 p,
-.c33 ol,
-.c33 ul,
-.c33 hr {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.c33 h1 + h2 {
-  margin-top: -0.75em;
-}
-
-.c33 h1 + p,
-.c33 h2 + p,
-.c33 h1 + ol,
-.c33 h2 + ol,
-.c33 h1 + ul,
-.c33 h2 + ul {
-  margin-top: -0.75em;
-}
-
-.c33 h3 + p,
-.c33 h4 + p,
-.c33 h5 + p,
-.c33 h3 + ol,
-.c33 h4 + ol,
-.c33 h5 + ol,
-.c33 h3 + ul,
-.c33 h4 + ul,
-.c33 h5 + ul {
-  margin-top: 0;
-}
-
-.c33 > :not(.ignore-prose):first-child {
-  margin-top: 0;
-}
-
-.c33 > :not(.ignore-prose):last-child {
-  margin-bottom: 0;
-}
-
-.c33 dl {
-  margin: 1em 0;
-}
-
-.c33 hr {
-  border: 0;
-  border-top: 0.1em solid #666666;
-}
-
-.c17 {
+.c20 {
   fill: currentColor;
   height: 1em;
   width: 1em;
 }
 
-.c11 {
+.c14 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -1206,8 +1075,8 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   touch-action: manipulation;
 }
 
-.c11:hover,
-.c11:active {
+.c14:hover,
+.c14:active {
   outline: none;
 }
 
@@ -1215,7 +1084,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   display: none;
 }
 
-.c13 {
+.c16 {
   display: inline-block;
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
@@ -1226,7 +1095,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   flex-shrink: 1;
 }
 
-.c16 {
+.c19 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -1246,13 +1115,13 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   width: 1.75em;
 }
 
-.c16 > * {
+.c19 > * {
   opacity: 0;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c12 {
+.c15 {
   border: 0.05rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -1266,11 +1135,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   width: 100%;
 }
 
-.c12:active {
+.c15:active {
   border: 0.05rem solid #47a74b;
 }
 
-.c14 {
+.c17 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -1285,7 +1154,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   gap: 0.5rem;
 }
 
-.c15 {
+.c18 {
   -webkit-box-flex: 0;
   -webkit-flex-grow: 0;
   -ms-flex-positive: 0;
@@ -1295,7 +1164,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   flex-shrink: 0;
 }
 
-.c18 {
+.c21 {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
@@ -1303,7 +1172,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   line-height: 1;
 }
 
-.c20 {
+.c23 {
   line-height: inherit;
   margin-bottom: 0;
 }
@@ -1313,13 +1182,13 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: row;
-  -ms-flex-direction: row;
-  flex-direction: row;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   height: 100%;
 }
 
-.c1 {
+.c4 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -1333,15 +1202,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   overflow: auto;
 }
 
-.c32 {
-  height: 100%;
-  max-height: 250px;
-  max-width: 250px;
-  position: relative;
-  width: 100%;
-}
-
-.c8 {
+.c11 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -1351,7 +1212,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   position: relative;
 }
 
-.c9 {
+.c12 {
   -webkit-align-items: stretch;
   -webkit-box-align: stretch;
   -ms-flex-align: stretch;
@@ -1376,87 +1237,22 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   padding-bottom: 0;
 }
 
-.c2 {
+.c5 {
   padding: 0.25rem 0.5rem 0.5rem;
 }
 
-.c10 {
+.c13 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.5rem;
 }
 
-.c6 {
+.c9 {
   display: block;
   margin-bottom: 0;
 }
 
-.c30 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  margin: 1.5rem 1rem 0;
-}
-
-.c31 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: row;
-  -ms-flex-direction: row;
-  flex-direction: row;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  margin: auto;
-}
-
-.c31 div:first-child {
-  margin-right: 1rem;
-  min-width: 5rem;
-}
-
-.c22 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex: 0 1;
-  -ms-flex: 0 1;
-  flex: 0 1;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  background-color: #333333;
-  color: #ffffff;
-}
-
-.c23 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  padding: 1rem;
-}
-
-.c23 p > button {
-  width: 100%;
-}
-
-.c27 {
-  margin: 1rem;
-}
-
-.c28 {
+.c25 {
   -webkit-align-items: stretch;
   -webkit-box-align: stretch;
   -ms-flex-align: stretch;
@@ -1475,14 +1271,14 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   padding: 0.5rem;
 }
 
-.c28 > *:not(:first-child):not(:last-child) {
+.c25 > *:not(:first-child):not(:last-child) {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
   flex-grow: 1;
 }
 
-.c29 {
+.c27 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -1500,6 +1296,10 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   justify-content: center;
   gap: 0.5rem;
   text-align: left;
+}
+
+.c1 {
+  padding: 0 0.5rem;
 }
 
 @media print {
@@ -1524,30 +1324,51 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   <div
     class="c0"
   >
-    <main
+    <div
       class="c1"
     >
-      <div
+      <p
         class="c2"
+      >
+        Contest 
+        <span
+          class="c3"
+        >
+          1
+        </span>
+         of
+         
+        <span
+          class="c3"
+        >
+          21
+        </span>
+      </p>
+    </div>
+    <main
+      class="c4"
+    >
+      <div
+        class="c5"
         id="contest-header"
       >
         <div
-          class="c3"
+          class="c6"
           id="audiofocus"
         >
           <h1
             aria-label="District 1 President and Vice-President."
-            class="c4"
+            class="c7"
           >
             <span
-              class="c5 c6"
+              class="c8 c9"
             >
               District 1
             </span>
             President and Vice-President
           </h1>
           <span
-            class="c7"
+            class="c10"
           >
             Vote for 
             1
@@ -1562,38 +1383,38 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
         </div>
       </div>
       <div
-        class="c8"
+        class="c11"
       >
         <div
-          class="c9"
+          class="c12"
         >
           <div
             aria-multiselectable="true"
-            class="c10"
+            class="c13"
             role="listbox"
           >
             <button
               aria-label=" Joseph Barchi and Joseph Hallaren, Federalist."
               aria-selected="false"
-              class="c11 c12"
+              class="c14 c15"
               role="option"
               type="button"
             >
               <span
-                class="c13"
+                class="c16"
               >
                 <span
-                  class="c14"
+                  class="c17"
                 >
                   <span
-                    class="c15"
+                    class="c18"
                   >
                     <span
-                      class="c16"
+                      class="c19"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c17"
+                        class="c20"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -1606,15 +1427,15 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c18"
+                    class="c21"
                   >
                     <p
-                      class="c19 c20"
+                      class="c22 c23"
                     >
                       Joseph Barchi and Joseph Hallaren
                     </p>
                     <span
-                      class="c21"
+                      class="c24"
                     >
                       Federalist
                     </span>
@@ -1625,25 +1446,25 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
             <button
               aria-label=" Adam Cramer and Greg Vuocolo, People's."
               aria-selected="false"
-              class="c11 c12"
+              class="c14 c15"
               role="option"
               type="button"
             >
               <span
-                class="c13"
+                class="c16"
               >
                 <span
-                  class="c14"
+                  class="c17"
                 >
                   <span
-                    class="c15"
+                    class="c18"
                   >
                     <span
-                      class="c16"
+                      class="c19"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c17"
+                        class="c20"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -1656,15 +1477,15 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c18"
+                    class="c21"
                   >
                     <p
-                      class="c19 c20"
+                      class="c22 c23"
                     >
                       Adam Cramer and Greg Vuocolo
                     </p>
                     <span
-                      class="c21"
+                      class="c24"
                     >
                       People's
                     </span>
@@ -1675,25 +1496,25 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
             <button
               aria-label=" Daniel Court and Amy Blumhardt, Liberty."
               aria-selected="false"
-              class="c11 c12"
+              class="c14 c15"
               role="option"
               type="button"
             >
               <span
-                class="c13"
+                class="c16"
               >
                 <span
-                  class="c14"
+                  class="c17"
                 >
                   <span
-                    class="c15"
+                    class="c18"
                   >
                     <span
-                      class="c16"
+                      class="c19"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c17"
+                        class="c20"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -1706,15 +1527,15 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c18"
+                    class="c21"
                   >
                     <p
-                      class="c19 c20"
+                      class="c22 c23"
                     >
                       Daniel Court and Amy Blumhardt
                     </p>
                     <span
-                      class="c21"
+                      class="c24"
                     >
                       Liberty
                     </span>
@@ -1725,25 +1546,25 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
             <button
               aria-label=" Alvin Boone and James Lian, Constitution."
               aria-selected="false"
-              class="c11 c12"
+              class="c14 c15"
               role="option"
               type="button"
             >
               <span
-                class="c13"
+                class="c16"
               >
                 <span
-                  class="c14"
+                  class="c17"
                 >
                   <span
-                    class="c15"
+                    class="c18"
                   >
                     <span
-                      class="c16"
+                      class="c19"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c17"
+                        class="c20"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -1756,15 +1577,15 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c18"
+                    class="c21"
                   >
                     <p
-                      class="c19 c20"
+                      class="c22 c23"
                     >
                       Alvin Boone and James Lian
                     </p>
                     <span
-                      class="c21"
+                      class="c24"
                     >
                       Constitution
                     </span>
@@ -1775,25 +1596,25 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
             <button
               aria-label=" Ashley Hildebrand-McDougall and James Garritty, Whig."
               aria-selected="false"
-              class="c11 c12"
+              class="c14 c15"
               role="option"
               type="button"
             >
               <span
-                class="c13"
+                class="c16"
               >
                 <span
-                  class="c14"
+                  class="c17"
                 >
                   <span
-                    class="c15"
+                    class="c18"
                   >
                     <span
-                      class="c16"
+                      class="c19"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c17"
+                        class="c20"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -1806,15 +1627,15 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c18"
+                    class="c21"
                   >
                     <p
-                      class="c19 c20"
+                      class="c22 c23"
                     >
                       Ashley Hildebrand-McDougall and James Garritty
                     </p>
                     <span
-                      class="c21"
+                      class="c24"
                     >
                       Whig
                     </span>
@@ -1825,25 +1646,25 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
             <button
               aria-label=" Martin Patterson and Clay Lariviere, Labor."
               aria-selected="false"
-              class="c11 c12"
+              class="c14 c15"
               role="option"
               type="button"
             >
               <span
-                class="c13"
+                class="c16"
               >
                 <span
-                  class="c14"
+                  class="c17"
                 >
                   <span
-                    class="c15"
+                    class="c18"
                   >
                     <span
-                      class="c16"
+                      class="c19"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c17"
+                        class="c20"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -1856,15 +1677,15 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c18"
+                    class="c21"
                   >
                     <p
-                      class="c19 c20"
+                      class="c22 c23"
                     >
                       Martin Patterson and Clay Lariviere
                     </p>
                     <span
-                      class="c21"
+                      class="c24"
                     >
                       Labor
                     </span>
@@ -1877,204 +1698,101 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
       </div>
     </main>
     <nav
-      class="c22"
+      class="c25"
     >
-      <div
-        class="c23"
+      <button
+        aria-label="previous contest"
+        class="c14"
+        id="previous"
+        type="button"
       >
-        <div
-          class="c3"
+        <span
+          class="c26"
         >
-          <p
-            class="c24"
+          <svg
+            aria-hidden="true"
+            class="svg-inline--fa fa-circle-left "
+            data-icon="circle-left"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            Contest 
-            <span
-              class="c25"
-            >
-              1
-            </span>
-             of
-             
-            <span
-              class="c25"
-            >
-              21
-            </span>
-          </p>
-          <p
-            class="c19"
-          >
-            <button
-              aria-label="next contest"
-              class="c11"
-              id="next"
-              type="button"
-            >
-              <span
-                class="c26"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="svg-inline--fa fa-circle-right "
-                  data-icon="circle-right"
-                  data-prefix="fas"
-                  focusable="false"
-                  role="img"
-                  viewBox="0 0 512 512"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM294.6 135.1l99.9 107.1c3.5 3.8 5.5 8.7 5.5 13.8s-2 10.1-5.5 13.8L294.6 376.9c-4.2 4.5-10.1 7.1-16.3 7.1C266 384 256 374 256 361.7l0-57.7-96 0c-17.7 0-32-14.3-32-32l0-32c0-17.7 14.3-32 32-32l96 0 0-57.7c0-12.3 10-22.3 22.3-22.3c6.2 0 12.1 2.6 16.3 7.1z"
-                    fill="currentColor"
-                  />
-                </svg>
-              </span>
-              <span
-                class="c13"
-              >
-                Next
-              </span>
-            </button>
-          </p>
-          <p
-            class="c19"
-          >
-            <button
-              aria-label="previous contest"
-              class="c11"
-              id="previous"
-              type="button"
-            >
-              <span
-                class="c26"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="svg-inline--fa fa-circle-left "
-                  data-icon="circle-left"
-                  data-prefix="fas"
-                  focusable="false"
-                  role="img"
-                  viewBox="0 0 512 512"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M512 256A256 256 0 1 0 0 256a256 256 0 1 0 512 0zM217.4 376.9L117.5 269.8c-3.5-3.8-5.5-8.7-5.5-13.8s2-10.1 5.5-13.8l99.9-107.1c4.2-4.5 10.1-7.1 16.3-7.1c12.3 0 22.3 10 22.3 22.3l0 57.7 96 0c17.7 0 32 14.3 32 32l0 32c0 17.7-14.3 32-32 32l-96 0 0 57.7c0 12.3-10 22.3-22.3 22.3c-6.2 0-12.1-2.6-16.3-7.1z"
-                    fill="currentColor"
-                  />
-                </svg>
-              </span>
-              <span
-                class="c13"
-              >
-                Back
-              </span>
-            </button>
-          </p>
-        </div>
-      </div>
-      <div
-        class="c27"
-      >
-        <nav
-          class="c28"
-        >
-          <button
-            class="c11"
-            type="button"
-          >
-            <span
-              class="c13"
-            >
-              <span
-                class="c29"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="svg-inline--fa fa-display "
-                  data-icon="display"
-                  data-prefix="fas"
-                  focusable="false"
-                  role="img"
-                  viewBox="0 0 576 512"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V352H64V64H512z"
-                    fill="currentColor"
-                  />
-                </svg>
-                <span>
-                  Color/Size
-                </span>
-              </span>
-            </span>
-          </button>
-        </nav>
-        <div
-          aria-hidden="true"
-          class="c30"
-          data-testid="election-info"
-        >
-          <div
-            class="c31"
-          >
-            <div
-              aria-hidden="true"
-              class="c32"
+            <path
+              d="M512 256A256 256 0 1 0 0 256a256 256 0 1 0 512 0zM217.4 376.9L117.5 269.8c-3.5-3.8-5.5-8.7-5.5-13.8s2-10.1 5.5-13.8l99.9-107.1c4.2-4.5 10.1-7.1 16.3-7.1c12.3 0 22.3 10 22.3 22.3l0 57.7 96 0c17.7 0 32 14.3 32 32l0 32c0 17.7-14.3 32-32 32l-96 0 0 57.7c0 12.3-10 22.3-22.3 22.3c-6.2 0-12.1-2.6-16.3-7.1z"
+              fill="currentColor"
             />
-            <div
-              class="c33"
+          </svg>
+        </span>
+        <span
+          class="c16"
+        >
+          Back
+        </span>
+      </button>
+      <button
+        class="c14"
+        type="button"
+      >
+        <span
+          class="c16"
+        >
+          <span
+            class="c27"
+          >
+            <svg
+              aria-hidden="true"
+              class="svg-inline--fa fa-display "
+              data-icon="display"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 576 512"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <h5
-                aria-label=" General Election."
-                class="c34"
-              >
-                 General Election
-              </h5>
-              <p
-                class="c19"
-              >
-                <span
-                  class="c7"
-                >
-                  November 3, 2020
-                  <br />
-                  <span
-                    class="c35"
-                  >
-                    Franklin County
-                    ,
-                  </span>
-                   
-                  <span
-                    class="c35"
-                  >
-                    State of Hamilton
-                  </span>
-                </span>
-              </p>
-              <span
-                class="c7"
-              >
-                <span
-                  class="c35"
-                >
-                  Center Springfield
-                  , 
-                </span>
-                <span
-                  class="c35"
-                >
-                  ballot style 
-                  12
-                </span>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+              <path
+                d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V352H64V64H512z"
+                fill="currentColor"
+              />
+            </svg>
+            <span>
+              Color/Size
+            </span>
+          </span>
+        </span>
+      </button>
+      <button
+        aria-label="next contest"
+        class="c14"
+        id="next"
+        type="button"
+      >
+        <span
+          class="c26"
+        >
+          <svg
+            aria-hidden="true"
+            class="svg-inline--fa fa-circle-right "
+            data-icon="circle-right"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM294.6 135.1l99.9 107.1c3.5 3.8 5.5 8.7 5.5 13.8s-2 10.1-5.5 13.8L294.6 376.9c-4.2 4.5-10.1 7.1-16.3 7.1C266 384 256 374 256 361.7l0-57.7-96 0c-17.7 0-32-14.3-32-32l0-32c0-17.7 14.3-32 32-32l96 0 0-57.7c0-12.3 10-22.3 22.3-22.3c6.2 0 12.1 2.6 16.3 7.1z"
+              fill="currentColor"
+            />
+          </svg>
+        </span>
+        <span
+          class="c16"
+        >
+          Next
+        </span>
+      </button>
     </nav>
   </div>
 </div>
