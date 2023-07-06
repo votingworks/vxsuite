@@ -12,6 +12,7 @@ import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
+import { STATE_MACHINE_POLLING_INTERVAL_MS } from './constants';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -74,6 +75,18 @@ export const getAuthStatus = {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
       refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+    });
+  },
+} as const;
+
+export const getStateMachineState = {
+  queryKey(): QueryKey {
+    return ['getStateMachineState'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getPaperHandlerState(), {
+      refetchInterval: STATE_MACHINE_POLLING_INTERVAL_MS,
     });
   },
 } as const;
@@ -203,6 +216,30 @@ export const unconfigureMachine = {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionDefinition.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const parkPaper = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(() => apiClient.parkPaper(), {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStateMachineState.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const printBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.printBallot, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStateMachineState.queryKey());
       },
     });
   },
