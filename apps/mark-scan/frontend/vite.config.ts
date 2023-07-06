@@ -84,6 +84,10 @@ export default defineConfig((env) => {
       },
     ],
 
+    server: {
+      hmr: false,
+    },
+
     // Pass some environment variables to the client in `import.meta.env`.
     envPrefix,
   };
