@@ -315,6 +315,8 @@ export function SetClockButton({
     } finally {
       setIsSettingClock(false);
     }
+    // Log out after setting the clock to ensure that there are no unintended interactions with
+    // session time limits, most notably to ensure that limits can't be bypassed
     logOut();
   }
 
