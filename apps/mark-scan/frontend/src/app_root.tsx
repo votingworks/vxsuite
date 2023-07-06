@@ -34,7 +34,6 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   SetupCardReaderPage,
   useDevices,
-  usePrevious,
   useUsbDrive,
   UnlockMachineScreen,
   useQueryChangeListener,
@@ -51,6 +50,7 @@ import {
   getAuthStatus,
   getElectionDefinition,
   getMachineConfig,
+  getStateMachineState,
   startCardlessVoterSession,
   unconfigureMachine,
 } from './api';
@@ -65,7 +65,6 @@ import {
 import { AdminScreen } from './pages/admin_screen';
 import { InsertCardScreen } from './pages/insert_card_screen';
 import { PollWorkerScreen } from './pages/poll_worker_screen';
-import { SetupPrinterPage } from './pages/setup_printer_page';
 import { SetupPowerPage } from './pages/setup_power_page';
 import { UnconfiguredScreen } from './pages/unconfigured_screen';
 import { WrongElectionScreen } from './pages/wrong_election_screen';
@@ -74,6 +73,7 @@ import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
+import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
 
 interface UserState {
   votes?: VotesDict;
@@ -278,20 +278,18 @@ export function AppRoot({
   const machineConfigQuery = getMachineConfig.useQuery();
 
   const devices = useDevices({ hardware, logger });
-  const {
-    cardReader,
-    printer: printerInfo,
-    accessibleController,
-    computer,
-  } = devices;
+  const { cardReader, accessibleController, computer } = devices;
   const usbDrive = useUsbDrive({ logger });
-  const hasPrinterAttached = printerInfo !== undefined;
-  const previousHasPrinterAttached = usePrevious(hasPrinterAttached);
 
   const authStatusQuery = getAuthStatus.useQuery();
   const authStatus = authStatusQuery.isSuccess
     ? authStatusQuery.data
     : InsertedSmartCardAuth.DEFAULT_AUTH_STATUS;
+
+  const getStateMachineStateQuery = getStateMachineState.useQuery();
+  const stateMachineState = getStateMachineStateQuery.isSuccess
+    ? getStateMachineStateQuery.data
+    : 'no_hardware';
 
   const checkPinMutation = checkPin.useMutation();
   const startCardlessVoterSessionMutation =
@@ -515,16 +513,6 @@ export function AppRoot({
     }
   }, [endCardlessVoterSessionMutation]);
 
-  // Handle Hardware Observer Subscription
-  useEffect(() => {
-    function resetBallotOnPrinterDetach() {
-      if (previousHasPrinterAttached && !hasPrinterAttached) {
-        resetBallot();
-      }
-    }
-    void resetBallotOnPrinterDetach();
-  }, [previousHasPrinterAttached, hasPrinterAttached, resetBallot]);
-
   // Handle Keyboard Input
   useEffect(() => {
     document.documentElement.setAttribute(
@@ -594,13 +582,20 @@ export function AppRoot({
     initializedFromStorage,
   ]);
 
-  if (!machineConfigQuery.isSuccess || !authStatusQuery.isSuccess) {
+  if (
+    !machineConfigQuery.isSuccess ||
+    !authStatusQuery.isSuccess ||
+    !getStateMachineStateQuery.isSuccess
+  ) {
     return null;
   }
   const machineConfig = machineConfigQuery.data;
 
   if (!cardReader) {
     return <SetupCardReaderPage />;
+  }
+  if (stateMachineState === 'no_hardware') {
+    return <NoPaperHandlerPage />;
   }
   if (
     authStatus.status === 'logged_out' &&
@@ -689,9 +684,6 @@ export function AppRoot({
     );
   }
   if (optionalElectionDefinition && appPrecinct) {
-    if (!hasPrinterAttached) {
-      return <SetupPrinterPage />;
-    }
     if (
       authStatus.status === 'logged_out' &&
       authStatus.reason === 'poll_worker_wrong_election'
@@ -773,6 +765,7 @@ export function AppRoot({
       </IdleTimerProvider>
     );
   }
+
   return (
     <UnconfiguredScreen
       hasElectionDefinition={Boolean(optionalElectionDefinition)}
