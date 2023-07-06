@@ -9,6 +9,7 @@ import { Application } from 'express';
 import { AddressInfo } from 'net';
 import { fakeLogger } from '@votingworks/logging';
 import tmp from 'tmp';
+import os from 'os';
 import {
   MockUsb,
   createBallotPackageZipArchive,
@@ -40,13 +41,17 @@ export function createApp(): MockAppContents {
   const logger = fakeLogger();
   const workspace = createWorkspace(tmp.dirSync().name);
   const mockUsb = createMockUsb();
+  // Default mount dir used by `tmp` lib in MockUsb
+  const mountDir = os.tmpdir();
 
   const app = buildApp(
     mockAuth,
     mockArtifactAuthenticator,
     logger,
     workspace,
-    mockUsb.mock
+    mockUsb.mock,
+    undefined,
+    mountDir
   );
 
   const server = app.listen();
