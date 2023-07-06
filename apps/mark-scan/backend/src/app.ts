@@ -28,6 +28,10 @@ import { electionSampleDefinition } from '@votingworks/fixtures';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
+import { PaperHandlerStateMachine } from './custom-paper-handler/state_machine';
+import { SimpleServerStatus } from './custom-paper-handler/types';
+
+const defaultMediaMountDir = '/media';
 
 function constructAuthMachineState(
   workspace: Workspace
@@ -47,7 +51,11 @@ function buildApi(
   artifactAuthenticator: ArtifactAuthenticatorApi,
   usb: Usb,
   logger: Logger,
-  workspace: Workspace
+  workspace: Workspace,
+  stateMachine?: PaperHandlerStateMachine,
+  // mark-scan hardware boots off a USB drive so we need to differentiate between USBs.
+  // Allow overriding for tests
+  dataUsbMountPrefix = defaultMediaMountDir
 ) {
   return grout.createApi({
     getMachineConfig,
@@ -122,8 +130,19 @@ function buildApi(
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
-      const [usbDrive] = await usb.getUsbDrives();
-      assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
+      const usbDrives = await usb.getUsbDrives();
+      // mark-scan hardware boots off a USB drive so we need to find the media drive
+      const mountPoints: string[] = [];
+      const usbDrive = usbDrives.find((drive) => {
+        mountPoints.push(drive.mountPoint || '<none>');
+        return drive.mountPoint?.indexOf(dataUsbMountPrefix) === 0;
+      });
+      assert(
+        usbDrive !== undefined,
+        `No USB drive mounted to ${dataUsbMountPrefix}. Got mount points: ${JSON.stringify(
+          mountPoints
+        )}`
+      );
 
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
@@ -176,6 +195,38 @@ function buildApi(
 
       return await auth.clearCardData(machineState);
     },
+
+    async getPaperHandlerState(): Promise<SimpleServerStatus> {
+      if (!stateMachine) {
+        return 'no_hardware';
+      }
+
+      return stateMachine.getSimpleStatus();
+    },
+
+    async parkPaper(): Promise<SimpleServerStatus> {
+      if (!stateMachine) {
+        return 'no_hardware';
+      }
+
+      await stateMachine.parkPaper();
+      return stateMachine.getSimpleStatus();
+    },
+
+    // prints and presents a completed ballot
+    async printBallot(input: {
+      // Uint8Array is not serializable as JSON, so we serialize to number[] and deserialize below
+      pdfData: number[];
+    }): Promise<SimpleServerStatus> {
+      if (!stateMachine) {
+        return 'no_hardware';
+      }
+
+      const deserialized: Uint8Array = new Uint8Array(input.pdfData);
+      await stateMachine.printBallot(deserialized);
+      await stateMachine.presentPaper();
+      return stateMachine.getSimpleStatus();
+    },
   });
 }
 
@@ -186,10 +237,20 @@ export function buildApp(
   artifactAuthenticator: ArtifactAuthenticatorApi,
   logger: Logger,
   workspace: Workspace,
-  usb: Usb
+  usb: Usb,
+  stateMachine?: PaperHandlerStateMachine,
+  dataUsbMountPrefix?: string
 ): Application {
   const app: Application = express();
-  const api = buildApi(auth, artifactAuthenticator, usb, logger, workspace);
+  const api = buildApi(
+    auth,
+    artifactAuthenticator,
+    usb,
+    logger,
+    workspace,
+    stateMachine,
+    dataUsbMountPrefix
+  );
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;

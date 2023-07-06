@@ -5,9 +5,11 @@ import * as dotenvExpand from 'dotenv-expand';
 import * as server from './server';
 import { MARK_WORKSPACE, NODE_ENV, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
+import { getPaperHandlerStateMachine } from './custom-paper-handler/state_machine';
 
 export type { Api } from './app';
 export * from './types';
+export * from './custom-paper-handler';
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 const dotEnvPath = '.env';
@@ -53,7 +55,8 @@ async function resolveWorkspace(): Promise<Workspace> {
 
 async function main(): Promise<number> {
   const workspace = await resolveWorkspace();
-  server.start({ port: PORT, logger, workspace });
+  const stateMachine = await getPaperHandlerStateMachine();
+  server.start({ port: PORT, logger, workspace, stateMachine });
   return 0;
 }
 
