@@ -62,7 +62,7 @@ function expectAllPrintsAsserted(message: string) {
     }
     resetExpectPrint();
     resetExpectPrintToPdf();
-    throw new ExpectPrintError(`${message}. Culrpit: ${culprits}`);
+    throw new ExpectPrintError(`${message}. Culprit: ${culprits.join(', ')}`);
   }
 }
 

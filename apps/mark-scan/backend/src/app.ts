@@ -135,7 +135,7 @@ function buildApi(
       const mountPoints: string[] = [];
       const usbDrive = usbDrives.find((drive) => {
         mountPoints.push(drive.mountPoint || '<none>');
-        return drive.mountPoint?.indexOf(dataUsbMountPrefix) === 0;
+        return drive.mountPoint?.startsWith(dataUsbMountPrefix);
       });
       assert(
         usbDrive !== undefined,

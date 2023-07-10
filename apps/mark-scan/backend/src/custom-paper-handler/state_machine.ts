@@ -106,7 +106,7 @@ export class PaperHandlerStateMachine {
         }
         break;
       default:
-      // do nothing
+        throwIllegalValue(this.status);
     }
     return this.status;
   }
@@ -116,12 +116,12 @@ export class PaperHandlerStateMachine {
   }
 
   async logStatus(): Promise<void> {
-    debug(JSON.stringify(await this.driver.getPaperHandlerStatus(), null, 2));
+    debug('%O', await this.driver.getPaperHandlerStatus());
   }
 
   /**
    * Parks paper inside the handler. If there is no paper to park, returns
-   * negative acknowledgement.If paper already parked, does nothing and returns
+   * negative acknowledgement. If paper already parked, does nothing and returns
    * positive acknowledgement. When parked, parkSensor should be true.
    */
   async parkPaper(): Promise<void> {
