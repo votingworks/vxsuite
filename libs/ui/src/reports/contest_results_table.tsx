@@ -14,7 +14,6 @@ import {
 } from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
 
-import { Prose } from '../prose';
 import { Text, NoWrap } from '../text';
 import { tableBorderColor } from '../table';
 
@@ -264,49 +263,47 @@ export function ContestResultsTable({
 
   return (
     <Contest data-testid={`results-table-${contest.id}`}>
-      <Prose maxWidth={false}>
-        <Text small>{getContestDistrictName(election, contest)}</Text>
-        <h3>
-          {contest.title}
-          {contest.type === 'candidate' && contest.seats > 1 && (
-            <React.Fragment>
-              {' '}
-              <Text as="span" noWrap small>
-                ({contest.seats} seats)
-              </Text>
-            </React.Fragment>
-          )}
-        </h3>
-        {!hasManualResults && (
-          <Text small>
-            <NoWrap>
-              {`${format.count(scannedContestResults.ballots)} ${pluralize(
-                'ballots',
-                scannedContestResults.ballots
-              )}`}{' '}
-              cast /
-            </NoWrap>{' '}
-            <NoWrap>
-              {' '}
-              {`${format.count(scannedContestResults.overvotes)} ${pluralize(
-                'overvotes',
-                scannedContestResults.overvotes
-              )}`}{' '}
-              /
-            </NoWrap>{' '}
-            <NoWrap>
-              {' '}
-              {`${format.count(scannedContestResults.undervotes)} ${pluralize(
-                'undervotes',
-                scannedContestResults.undervotes
-              )}`}
-            </NoWrap>
-          </Text>
+      <Text small>{getContestDistrictName(election, contest)}</Text>
+      <h3>
+        {contest.title}
+        {contest.type === 'candidate' && contest.seats > 1 && (
+          <React.Fragment>
+            {' '}
+            <Text as="span" noWrap small>
+              ({contest.seats} seats)
+            </Text>
+          </React.Fragment>
         )}
-        <ContestTable>
-          <tbody>{contestTableRows}</tbody>
-        </ContestTable>
-      </Prose>
+      </h3>
+      {!hasManualResults && (
+        <Text small>
+          <NoWrap>
+            {`${format.count(scannedContestResults.ballots)} ${pluralize(
+              'ballots',
+              scannedContestResults.ballots
+            )}`}{' '}
+            cast /
+          </NoWrap>{' '}
+          <NoWrap>
+            {' '}
+            {`${format.count(scannedContestResults.overvotes)} ${pluralize(
+              'overvotes',
+              scannedContestResults.overvotes
+            )}`}{' '}
+            /
+          </NoWrap>{' '}
+          <NoWrap>
+            {' '}
+            {`${format.count(scannedContestResults.undervotes)} ${pluralize(
+              'undervotes',
+              scannedContestResults.undervotes
+            )}`}
+          </NoWrap>
+        </Text>
+      )}
+      <ContestTable>
+        <tbody>{contestTableRows}</tbody>
+      </ContestTable>
     </Contest>
   );
 }
