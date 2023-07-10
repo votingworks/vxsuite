@@ -23,7 +23,7 @@ const CardCountTable = styled.div`
     background: #e8e8e8;
     padding: 0.15rem 0.15rem;
     text-align: left;
-    font-size: 0.5rem;
+    font-size: 0.4rem;
   }
   td {
     padding: 0.1rem 0.15rem;
