@@ -2,6 +2,7 @@ import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleDefinition,
 } from '@votingworks/fixtures';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen, within } from '../../test/react_testing_library';
 import { WriteInAdjudicationReport } from './write_in_adjudication_report';
 
@@ -66,12 +67,15 @@ test('primary', () => {
     'Official Fish Party Example Primary Election Write-In Adjudication Report'
   );
 
-  // should just list that the contest has no write-ins
-  const zeroList = within(fishSection)
-    .getByText('Contests With Zero Write-Ins')
+  // should just one empty contest
+  const zooCouncilFish = within(fishSection)
+    .getByTestId('results-table-aquarium-council-fish')
     .closest('div')!;
-  within(zeroList).getByText('Zoo Council');
-  expect(within(fishSection).queryAllByTestId(/results-table/)).toHaveLength(0);
+  within(zooCouncilFish).getByText('Zoo Council');
+  within(zooCouncilFish).getByText(
+    hasTextAcrossElements('0 total write-ins / 0 not adjudicated')
+  );
+  expect(within(fishSection).queryAllByTestId(/results-table/)).toHaveLength(1);
 
   // no other sections
   expect(screen.getAllByTestId(/write-in-tally-report-/)).toHaveLength(2);
@@ -96,11 +100,16 @@ test('general', () => {
   screen.getByTestId('write-in-tally-report-none');
   expect(screen.getAllByTestId(/write-in-tally-report-/)).toHaveLength(1);
 
-  // all contests are in the no contest list
-  const zeroList = screen
-    .getByText('Contests With Zero Write-Ins')
-    .closest('div')!;
+  // all contests should be listed with 0 write-ins
+  expect(screen.queryAllByTestId(/results-table/)).toHaveLength(
+    election.contests.length
+  );
+
   for (const contest of election.contests) {
-    within(zeroList).getByText(contest.title);
+    const contestTable = screen.getByTestId(`results-table-${contest.id}`);
+    within(contestTable).getByText(contest.title);
+    within(contestTable).getByText(
+      hasTextAcrossElements('0 total write-ins / 0 not adjudicated')
+    );
   }
 });
