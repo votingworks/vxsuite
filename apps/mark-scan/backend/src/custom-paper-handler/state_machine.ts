@@ -10,7 +10,6 @@ import {
   chunkBinaryBitmap,
   ImageConversionOptions,
   imageDataToBinaryBitmap,
-  Uint8,
 } from '@votingworks/custom-paper-handler';
 import { SimpleServerStatus, SimpleStatus } from './types';
 
@@ -182,24 +181,23 @@ export class PaperHandlerStateMachine {
   async scanAndSave(pathOut: string): Promise<void> {
     await this.driver.setScanDirection('backward');
     const grayscaleResult = await this.driver.scan();
-    const colorResult = new Uint8Array(grayscaleResult.byteLength * 4);
-    for (let i = 0; i < grayscaleResult.byteLength; i += 1) {
-      colorResult.set(
-        [
-          grayscaleResult.at(i) as Uint8,
-          grayscaleResult.at(i) as Uint8,
-          grayscaleResult.at(i) as Uint8,
-          255,
-        ],
-        i * 4
-      );
-    }
-    const imageData = createImageData(
-      Uint8ClampedArray.from(colorResult),
-      1728,
-      grayscaleResult.byteLength / 1728
+    const grayscaleData = grayscaleResult.data;
+    const colorResult = createImageData(
+      grayscaleResult.width,
+      grayscaleResult.height
     );
-    await writeImageData(pathOut, imageData);
+    const colorData = new Uint32Array(
+      colorResult.data.buffer,
+      colorResult.data.byteOffset,
+      colorResult.data.byteLength
+    );
+    for (let i = 0; i < grayscaleData.byteLength; i += 1) {
+      const luminance = grayscaleData[i];
+      colorData[i] =
+        // eslint-disable-next-line no-bitwise
+        (luminance << 24) | (luminance << 16) | (luminance << 8) | 255;
+    }
+    await writeImageData(pathOut, colorResult);
   }
 
   async printBallot(
