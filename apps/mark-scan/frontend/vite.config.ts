@@ -72,6 +72,10 @@ export default defineConfig((env) => {
       ],
     },
 
+    server: {
+      hmr: false
+    },
+
     plugins: [
       react(),
 

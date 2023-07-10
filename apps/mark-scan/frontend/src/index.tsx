@@ -23,15 +23,6 @@ const screenReader = new AriaScreenReader(
     : new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice))
 );
 
-// Disable hot reloading because VxMarkScan hardware lacks resources to support it
-// https://vitejs.dev/guide/api-hmr.html#required-conditional-guard
-if (import.meta.hot) {
-  // https://vitejs.dev/guide/api-hmr.html#hot-invalidate-message-string
-  import.meta.hot.accept(() => {
-    import.meta.hot?.invalidate();
-  });
-}
-
 if (readerEnabled) {
   screenReader.unmute();
 } else {
