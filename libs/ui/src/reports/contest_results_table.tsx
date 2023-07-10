@@ -60,7 +60,7 @@ const ContestTable = styled.table`
     white-space: no-wrap;
   }
   & th {
-    padding: 0 0.5rem;
+    padding: 0 0.2rem;
     text-align: right;
     font-weight: 400;
     &:first-child {
