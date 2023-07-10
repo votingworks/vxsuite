@@ -134,7 +134,7 @@ const generalReportArgs: WriteInAdjudicationReportProps = {
       },
       'city-council': {
         contestId: 'city-council',
-        totalTally: 1000000000,
+        totalTally: 4500,
         pendingTally: 1500,
         invalidTally: 100,
         candidateTallies: {
