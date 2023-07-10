@@ -409,25 +409,43 @@ export function groupMapToGroupList<T>(
 }
 
 /**
+ * Yield to the event loop during long-running tabulation operations.
+ */
+export async function yieldToEventLoop(): Promise<void> {
+  await new Promise((resolve) => {
+    setImmediate(resolve);
+  });
+}
+
+/**
  * Tabulates iterable cast vote records into election results, grouped by
  * the attributes specified {@link Tabulation.GroupBy} parameter.
  */
-export function tabulateCastVoteRecords({
+export async function tabulateCastVoteRecords({
   election,
   cvrs,
   groupBy,
+  yieldToEventLoopEvery = 0,
 }: {
   cvrs: Iterable<Tabulation.CastVoteRecord>;
   election: Election;
   groupBy?: Tabulation.GroupBy;
-}): Tabulation.ElectionResultsGroupMap {
+  yieldToEventLoopEvery?: number;
+}): Promise<Tabulation.ElectionResultsGroupMap> {
   const groupedElectionResults: Tabulation.ElectionResultsGroupMap = {};
 
   // optimized special case, when the results do not need to be grouped
   if (!groupBy || isGroupByEmpty(groupBy)) {
     const electionResults = getEmptyElectionResults(election);
+
+    let i = 0;
     for (const cvr of cvrs) {
       addCastVoteRecordToElectionResult(electionResults, cvr);
+
+      i += 1;
+      if (yieldToEventLoopEvery && i % yieldToEventLoopEvery === 0) {
+        await yieldToEventLoop();
+      }
     }
     groupedElectionResults[GROUP_KEY_ROOT] = electionResults;
     return groupedElectionResults;
@@ -435,6 +453,7 @@ export function tabulateCastVoteRecords({
 
   // general case, grouping results by specified group by clause
   const partyIdLookup = getBallotStyleIdPartyIdLookup(election);
+  let i = 0;
   for (const cvr of cvrs) {
     const groupSpecifier = getCastVoteRecordGroupSpecifier(
       cvr,
@@ -450,6 +469,11 @@ export function tabulateCastVoteRecords({
         getEmptyElectionResults(election);
       addCastVoteRecordToElectionResult(electionResult, cvr);
       groupedElectionResults[groupKey] = electionResult;
+    }
+
+    i += 1;
+    if (yieldToEventLoopEvery && i % yieldToEventLoopEvery === 0) {
+      await yieldToEventLoop();
     }
   }
 

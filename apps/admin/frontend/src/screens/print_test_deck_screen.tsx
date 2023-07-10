@@ -6,6 +6,7 @@ import {
   ElementWithCallback,
   getPrecinctById,
   PrecinctId,
+  Tabulation,
 } from '@votingworks/types';
 import { assert, sleep } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
@@ -27,6 +28,7 @@ import {
 } from '@votingworks/utils';
 
 import styled from 'styled-components';
+import type { TallyReportResults } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
@@ -36,6 +38,7 @@ import {
   generateTestDeckBallots,
   generateBlankBallots,
   generateOvervoteBallot,
+  generateResultsFromTestDeckBallots,
 } from '../utils/election';
 import {
   getBallotLayoutPageSize,
@@ -54,6 +57,7 @@ export const LAST_PRINT_JOB_SLEEP_MS = 5000;
 
 interface PrecinctTallyReportProps {
   election: Election;
+  tallyReportResults: Tabulation.GroupList<TallyReportResults>;
   precinctId: PrecinctId;
 }
 
@@ -71,8 +75,33 @@ const ButtonRow = styled.div`
   width: 80%;
 `;
 
+async function generateResultsForPrecinctTallyReport({
+  election,
+  precinctId,
+}: {
+  election: Election;
+  precinctId: PrecinctId;
+}): Promise<Tabulation.GroupList<TallyReportResults>> {
+  return generateResultsFromTestDeckBallots({
+    election,
+    testDeckBallots: [
+      ...generateTestDeckBallots({
+        election,
+        precinctId,
+        markingMethod: 'hand',
+      }),
+      ...generateTestDeckBallots({
+        election,
+        precinctId,
+        markingMethod: 'machine',
+      }),
+    ],
+  });
+}
+
 function PrecinctTallyReport({
   election,
+  tallyReportResults,
   precinctId,
 }: PrecinctTallyReportProps): JSX.Element {
   // Precinct test deck tallies should be twice that of a single test
@@ -80,18 +109,7 @@ function PrecinctTallyReport({
   return (
     <TestDeckTallyReport
       election={election}
-      testDeckBallots={[
-        ...generateTestDeckBallots({
-          election,
-          precinctId,
-          markingMethod: 'hand',
-        }),
-        ...generateTestDeckBallots({
-          election,
-          precinctId,
-          markingMethod: 'machine',
-        }),
-      ]}
+      tallyReportResults={tallyReportResults}
       precinctId={precinctId}
     />
   );
@@ -304,9 +322,16 @@ export function PrintTestDeckScreen(): JSX.Element {
       const parties = new Set(election.ballotStyles.map((bs) => bs.partyId));
       const numParties = Math.max(parties.size, 1);
 
-      await printElement(PrecinctTallyReport({ election, precinctId }), {
-        sides: 'one-sided',
+      const tallyReportResults = await generateResultsForPrecinctTallyReport({
+        election,
+        precinctId,
       });
+      await printElement(
+        PrecinctTallyReport({ election, tallyReportResults, precinctId }),
+        {
+          sides: 'one-sided',
+        }
+      );
       await logger.log(LogEventId.TestDeckTallyReportPrinted, userRole, {
         disposition: 'success',
         message: `Test deck tally report printed as part of L&A package for precinct ID: ${precinctId}`,
@@ -446,14 +471,21 @@ export function PrintTestDeckScreen(): JSX.Element {
   );
 
   const renderLogicAndAccuracyPackageToPdfForSinglePrecinct = useCallback(
-    (
+    async (
       precinctId: PrecinctId,
       handMarkedPaperBallotCallbacks: ElementWithCallback[],
       onRendered: () => void
-    ): JSX.Element => {
+    ): Promise<JSX.Element> => {
       return (
         <React.Fragment key={precinctId}>
-          {PrecinctTallyReport({ election, precinctId })}
+          {PrecinctTallyReport({
+            election,
+            precinctId,
+            tallyReportResults: await generateResultsForPrecinctTallyReport({
+              election,
+              precinctId,
+            }),
+          })}
           {getBmdPaperBallots({
             electionDefinition,
             precinctId,

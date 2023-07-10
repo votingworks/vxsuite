@@ -11,8 +11,16 @@ import {
   PrecinctId,
   WriteInCandidate,
   YesNoVote,
+  Tabulation,
+  CandidateVote,
+  electionHasPrimaryContest,
 } from '@votingworks/types';
-import { assert, find } from '@votingworks/basics';
+import { assert, find, mapObject } from '@votingworks/basics';
+import type { TallyReportResults } from '@votingworks/admin-backend';
+import {
+  groupMapToGroupList,
+  tabulateCastVoteRecords,
+} from '@votingworks/utils';
 
 export interface TestDeckBallot {
   ballotStyleId: BallotStyleId;
@@ -218,4 +226,60 @@ export function generateOvervoteBallot({
     }
   }
   return undefined;
+}
+
+export function testDeckBallotToCastVoteRecord(
+  testDeckBallot: TestDeckBallot
+): Tabulation.CastVoteRecord {
+  const votes: Tabulation.CastVoteRecord['votes'] = {};
+
+  for (const [contestId, vote] of Object.entries(testDeckBallot.votes)) {
+    if (vote) {
+      if (typeof vote[0] === 'string') {
+        // yes no vote
+        const yesNoVote = vote as YesNoVote;
+        votes[contestId] = [...yesNoVote];
+      } else {
+        // candidate vote
+        const candidates = vote as CandidateVote;
+        votes[contestId] = candidates.map((c) => c.id);
+      }
+    }
+  }
+
+  return {
+    votes,
+    precinctId: testDeckBallot.precinctId,
+    ballotStyleId: testDeckBallot.ballotStyleId,
+    votingMethod: 'precinct',
+    scannerId: 'test-deck',
+    batchId: 'test-deck',
+    card:
+      testDeckBallot.markingMethod === 'machine'
+        ? { type: 'bmd' }
+        : { type: 'hmpb', sheetNumber: 1 },
+  };
+}
+
+export async function generateResultsFromTestDeckBallots({
+  election,
+  testDeckBallots,
+}: {
+  election: Election;
+  testDeckBallots: TestDeckBallot[];
+}): Promise<Tabulation.GroupList<TallyReportResults>> {
+  return groupMapToGroupList(
+    mapObject(
+      await tabulateCastVoteRecords({
+        election,
+        cvrs: testDeckBallots.map((testDeckBallot) =>
+          testDeckBallotToCastVoteRecord(testDeckBallot)
+        ),
+        groupBy: electionHasPrimaryContest(election)
+          ? { groupByParty: true }
+          : undefined,
+      }),
+      (scannedResults) => ({ scannedResults })
+    )
+  );
 }

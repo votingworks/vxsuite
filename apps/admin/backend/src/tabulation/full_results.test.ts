@@ -44,7 +44,7 @@ afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
-test('tabulateCastVoteRecords', () => {
+test('tabulateCastVoteRecords', async () => {
   const store = Store.memoryStore();
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { election, electionData } = electionDefinition;
@@ -234,7 +234,7 @@ test('tabulateCastVoteRecords', () => {
   ];
 
   for (const { filter, groupBy, expected } of testCases) {
-    const groupedWriteInSummaries = tabulateCastVoteRecords({
+    const groupedWriteInSummaries = await tabulateCastVoteRecords({
       electionId,
       store,
       filter,
@@ -278,10 +278,12 @@ test('tabulateElectionResults - write-in handling', async () => {
   /*   Without WIA Data    
   /*  ******************* */
 
-  const overallResultsNoWiaData = tabulateElectionResults({
-    electionId,
-    store,
-  })[GROUP_KEY_ROOT];
+  const overallResultsNoWiaData = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+    })
+  )[GROUP_KEY_ROOT];
   assert(overallResultsNoWiaData);
 
   const partialExpectedResultsNoWiaData = buildElectionResultsFixture({
@@ -371,17 +373,21 @@ test('tabulateElectionResults - write-in handling', async () => {
 
   // if we don't specify we need the WIA data, results are the same
   expect(
-    tabulateElectionResults({
-      electionId,
-      store,
-    })[GROUP_KEY_ROOT]
+    (
+      await tabulateElectionResults({
+        electionId,
+        store,
+      })
+    )[GROUP_KEY_ROOT]
   ).toEqual(overallResultsNoWiaData);
 
-  const overallResultsScreenWiaData = tabulateElectionResults({
-    electionId,
-    store,
-    includeWriteInAdjudicationResults: true,
-  })[GROUP_KEY_ROOT];
+  const overallResultsScreenWiaData = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+      includeWriteInAdjudicationResults: true,
+    })
+  )[GROUP_KEY_ROOT];
   assert(overallResultsScreenWiaData);
 
   const partialExpectedResultsScreenWiaData = buildElectionResultsFixture({
@@ -470,12 +476,14 @@ test('tabulateElectionResults - write-in handling', async () => {
     }),
   });
 
-  const overallResultsScreenAndManualWiaData = tabulateElectionResults({
-    electionId,
-    store,
-    includeWriteInAdjudicationResults: true,
-    includeManualResults: true,
-  })[GROUP_KEY_ROOT];
+  const overallResultsScreenAndManualWiaData = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+      includeWriteInAdjudicationResults: true,
+      includeManualResults: true,
+    })
+  )[GROUP_KEY_ROOT];
   assert(overallResultsScreenAndManualWiaData);
 
   const partialExpectedResultsScreenAndManualWiaData =
@@ -537,11 +545,13 @@ test('tabulateElectionResults - write-in handling', async () => {
   /*   With Screen + Manual WIA Data, Without Detail    
   /*  *********************************************** */
 
-  const overallResultsScreenAndManualNoWiaDetail = tabulateElectionResults({
-    electionId,
-    store,
-    includeManualResults: true,
-  })[GROUP_KEY_ROOT];
+  const overallResultsScreenAndManualNoWiaDetail = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+      includeManualResults: true,
+    })
+  )[GROUP_KEY_ROOT];
   assert(overallResultsScreenAndManualNoWiaDetail);
 
   const partialExpectedResultsScreenAndManualNoWiaDetail =
@@ -617,12 +627,14 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   }
 
   // check absentee results, should have received half of the adjudicated as invalid write-ins
-  const absenteeResults = tabulateElectionResults({
-    electionId,
-    store,
-    filter: { votingMethods: ['absentee'] },
-    includeWriteInAdjudicationResults: true,
-  })[GROUP_KEY_ROOT];
+  const absenteeResults = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+      filter: { votingMethods: ['absentee'] },
+      includeWriteInAdjudicationResults: true,
+    })
+  )[GROUP_KEY_ROOT];
   assert(absenteeResults);
 
   const partialExpectedResults = buildElectionResultsFixture({
@@ -658,12 +670,14 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   );
 
   // precinct results should match
-  const precinctResults = tabulateElectionResults({
-    electionId,
-    store,
-    filter: { votingMethods: ['precinct'] },
-    includeWriteInAdjudicationResults: true,
-  })[GROUP_KEY_ROOT];
+  const precinctResults = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+      filter: { votingMethods: ['precinct'] },
+      includeWriteInAdjudicationResults: true,
+    })
+  )[GROUP_KEY_ROOT];
   assert(precinctResults);
 
   expect(precinctResults.cardCounts).toEqual(partialExpectedResults.cardCounts);
@@ -672,7 +686,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   );
 
   // results grouped by voting method should match, with group specifiers
-  const groupedResults = tabulateElectionResults({
+  const groupedResults = await tabulateElectionResults({
     electionId,
     store,
     groupBy: { groupByVotingMethod: true },
@@ -720,13 +734,15 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   });
 
   // check absentee results again, should now have manual results added
-  const absenteeResultsWithManual = tabulateElectionResults({
-    electionId,
-    store,
-    filter: { votingMethods: ['absentee'] },
-    includeWriteInAdjudicationResults: true,
-    includeManualResults: true,
-  })[GROUP_KEY_ROOT];
+  const absenteeResultsWithManual = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+      filter: { votingMethods: ['absentee'] },
+      includeWriteInAdjudicationResults: true,
+      includeManualResults: true,
+    })
+  )[GROUP_KEY_ROOT];
   assert(absenteeResultsWithManual);
 
   const partialExpectedResultsWithManual = buildElectionResultsFixture({
@@ -765,13 +781,15 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   );
 
   // check precinct results again, should be the same
-  const precinctResultsWithManual = tabulateElectionResults({
-    electionId,
-    store,
-    filter: { votingMethods: ['precinct'] },
-    includeWriteInAdjudicationResults: true,
-    includeManualResults: true,
-  })[GROUP_KEY_ROOT];
+  const precinctResultsWithManual = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+      filter: { votingMethods: ['precinct'] },
+      includeWriteInAdjudicationResults: true,
+      includeManualResults: true,
+    })
+  )[GROUP_KEY_ROOT];
   assert(precinctResultsWithManual);
 
   expect(precinctResultsWithManual.cardCounts).toEqual({

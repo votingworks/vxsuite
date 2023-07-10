@@ -29,7 +29,7 @@ export function tabulateCastVoteRecords({
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-}): Tabulation.ElectionResultsGroupMap {
+}): Promise<Tabulation.ElectionResultsGroupMap> {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
@@ -38,13 +38,14 @@ export function tabulateCastVoteRecords({
     cvrs: store.getCastVoteRecords({ electionId, election, filter }),
     election,
     groupBy,
+    yieldToEventLoopEvery: 1000,
   });
 }
 
 /**
  * Tabulate election results including all scanned and adjudicated information.
  */
-export function tabulateElectionResults({
+export async function tabulateElectionResults({
   electionId,
   store,
   filter = {},
@@ -58,13 +59,13 @@ export function tabulateElectionResults({
   groupBy?: Tabulation.GroupBy;
   includeWriteInAdjudicationResults?: boolean;
   includeManualResults?: boolean;
-}): Tabulation.ElectionResultsGroupMap {
+}): Promise<Tabulation.ElectionResultsGroupMap> {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
 
   // basic cast vote record tally with bucketed write-in counts
-  let groupedElectionResults = tabulateCastVoteRecords({
+  let groupedElectionResults = await tabulateCastVoteRecords({
     electionId,
     store,
     filter,
@@ -144,7 +145,7 @@ export function tabulateElectionResults({
  * adjusted with write-in adjudication data (but combining all unofficial write-ins)
  * and manual results separately.
  */
-export function tabulateTallyReportResults({
+export async function tabulateTallyReportResults({
   electionId,
   store,
   filter = {},
@@ -154,13 +155,13 @@ export function tabulateTallyReportResults({
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-}): Tabulation.GroupMap<TallyReportResults> {
+}): Promise<Tabulation.GroupMap<TallyReportResults>> {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
 
   const groupedScannedResults = mapObject(
-    tabulateElectionResults({
+    await tabulateElectionResults({
       electionId,
       store,
       filter,
