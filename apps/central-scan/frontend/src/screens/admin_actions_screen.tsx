@@ -29,6 +29,7 @@ import {
   logOut,
   unconfigure,
   clearBallotData,
+  switchToAdmin,
 } from '../api';
 
 const ButtonRow = styled.div`
@@ -61,6 +62,7 @@ export function AdminActionsScreen({
   const unconfigureMutation = unconfigure.useMutation();
   const clearBallotDataMutation = clearBallotData.useMutation();
   const markThresholdOverridesQuery = getMarkThresholdOverrides.useQuery();
+  const switchToAdminMutation = switchToAdmin.useMutation();
 
   function redirectToDashboard() {
     history.replace('/');
@@ -189,6 +191,17 @@ export function AdminActionsScreen({
                 may delete election data.
               </Font>
             )}
+
+            <ButtonRow>
+              <Button
+                onPress={() => {
+                  switchToAdminMutation.mutate();
+                  window.kiosk?.quit();
+                }}
+              >
+                Switch to VxAdmin
+              </Button>{' '}
+            </ButtonRow>
           </div>
         </Main>
         <MainNav isTestMode={isTestMode}>

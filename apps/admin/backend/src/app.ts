@@ -1,3 +1,4 @@
+import { exec } from 'child_process';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPackageExportResult,
@@ -800,6 +801,10 @@ function buildApi({
         electionId,
         store,
       });
+    },
+
+    switchToCentralScan(): void {
+      exec('touch /tmp/SWITCH_TO_CENTRALSCAN');
     },
   });
 }
