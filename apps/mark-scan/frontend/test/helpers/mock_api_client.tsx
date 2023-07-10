@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Buffer } from 'buffer';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type { Api, MachineConfig } from '@votingworks/mark-scan-backend';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -177,7 +178,7 @@ export function createApiMock() {
       mockApiClient.parkPaper.expectCallWith().resolves('paper_parked');
     },
 
-    expectPrintBallot(pdfData: number[] = []): void {
+    expectPrintBallot(pdfData: Buffer = Buffer.from([])): void {
       mockApiClient.printBallot
         .expectCallWith({ pdfData })
         .resolves('ballot_printed');

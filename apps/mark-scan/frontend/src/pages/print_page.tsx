@@ -4,6 +4,7 @@ import { assert } from '@votingworks/basics';
 import { PrintOptions } from '@votingworks/types';
 import { printElementToPdf } from '@votingworks/ui';
 import makeDebug from 'debug';
+import { Buffer } from 'buffer';
 import { BallotContext } from '../contexts/ballot_context';
 import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { printBallot } from '../api';
@@ -32,7 +33,7 @@ export function PrintPage(): JSX.Element {
     debug(`Ignoring print options with keys: ${Object.keys(options)}`);
     const pdfData = await printElementToPdf(element);
     debug(`got pdf data length ${pdfData.byteLength}`);
-    printBallotMutation.mutate({ pdfData: Array.from(pdfData) });
+    printBallotMutation.mutate({ pdfData: Buffer.from(pdfData.buffer) });
   }
 
   const printerTimer = useRef(0);

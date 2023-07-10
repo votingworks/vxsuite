@@ -1,5 +1,5 @@
 import makeDebug from 'debug';
-import { assert, Optional } from '@votingworks/basics';
+import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import { createImageData } from 'canvas';
@@ -14,12 +14,7 @@ import {
 } from '@votingworks/custom-paper-handler';
 import { SimpleServerStatus, SimpleStatus } from './types';
 
-const serverDebug = makeDebug('custom-paper-handler:machine');
-
-function debug(message: string) {
-  serverDebug(message);
-  console.log(message);
-}
+const debug = makeDebug('mark-scan:state-machine');
 
 function isPaperInInput(paperHandlerStatus: PaperHandlerStatus): boolean {
   return (
@@ -95,6 +90,10 @@ export class PaperHandlerStateMachine {
           this.status = 'no_paper';
         }
         break;
+      case 'paper_parked':
+        // Nothing to do - frontend triggers status change. This will change soon so not
+        // worth centralizing machine logic
+        break;
       case 'printing_ballot':
         if (!isPaperInScanner(paperHandlerStatus)) {
           this.status = 'ballot_printed';
@@ -104,6 +103,9 @@ export class PaperHandlerStateMachine {
         if (!isPaperAnywhere(paperHandlerStatus)) {
           this.status = 'no_paper';
         }
+        break;
+      case 'ballot_printed':
+        // Unimplemented
         break;
       default:
         throwIllegalValue(this.status);

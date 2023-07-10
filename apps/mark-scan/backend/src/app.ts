@@ -7,6 +7,7 @@ import {
 } from '@votingworks/auth';
 import { assert, err, ok, Optional, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
+import { Buffer } from 'buffer';
 import {
   BallotPackageConfigurationError,
   BallotStyleId,
@@ -215,16 +216,12 @@ function buildApi(
     },
 
     // prints and presents a completed ballot
-    async printBallot(input: {
-      // Uint8Array is not serializable as JSON, so we serialize to number[] and deserialize below
-      pdfData: number[];
-    }): Promise<SimpleServerStatus> {
+    async printBallot(input: { pdfData: Buffer }): Promise<SimpleServerStatus> {
       if (!stateMachine) {
         return 'no_hardware';
       }
 
-      const deserialized: Uint8Array = new Uint8Array(input.pdfData);
-      await stateMachine.printBallot(deserialized);
+      await stateMachine.printBallot(input.pdfData);
       await stateMachine.presentPaper();
       return stateMachine.getSimpleStatus();
     },
