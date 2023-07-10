@@ -48,7 +48,7 @@ const ContestTable = styled.table`
   & tr.metadata {
     font-size: 0.75em;
   }
-  & tr.metadata.metadatarow {
+  & tr.metadata.last-metadata {
     border-bottom: 1px solid #e6e6e6;
   }
   & td {
@@ -129,7 +129,7 @@ function ContestMetadataRow({
   isLast?: boolean;
 }): JSX.Element {
   return (
-    <tr className={`metadata ${isLast ? '' : 'metadatarow'}`}>
+    <tr className={`metadata ${isLast ? '' : 'last-metadata'}`}>
       <th>
         <em>{label}</em>
       </th>
