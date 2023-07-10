@@ -1,3 +1,4 @@
+import { exec } from 'child_process';
 import { Scan } from '@votingworks/api';
 import {
   ArtifactAuthenticatorApi,
@@ -254,6 +255,10 @@ function buildApi({
         disposition: 'success',
         message: 'Successfully cleared all ballot data.',
       });
+    },
+
+    switchToAdmin(): void {
+      exec('touch /tmp/SWITCH_TO_ADMIN');
     },
   });
 }

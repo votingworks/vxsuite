@@ -593,3 +593,10 @@ export const exportResultsCsv = {
     return useMutation(apiClient.exportResultsCsv);
   },
 } as const;
+
+export const switchToCentralScan = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.switchToCentralScan);
+  },
+} as const;

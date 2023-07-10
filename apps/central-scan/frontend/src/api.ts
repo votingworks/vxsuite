@@ -194,3 +194,10 @@ export const setMarkThresholdOverrides = {
     });
   },
 } as const;
+
+export const switchToAdmin = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.switchToAdmin);
+  },
+} as const;
