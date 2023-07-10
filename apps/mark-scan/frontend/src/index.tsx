@@ -23,13 +23,13 @@ const screenReader = new AriaScreenReader(
     : new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice))
 );
 
-// @ts-expect-error `hot` prop does not exist on ImportMeta, but we explicity check for it
-// so we can disable hot reloading for limited hardware
+// Disable hot reloading because VxMarkScan hardware lacks resources to support it
 // https://vitejs.dev/guide/api-hmr.html#required-conditional-guard
 if (import.meta.hot) {
-  // @ts-expect-error Disable hot reloading
   // https://vitejs.dev/guide/api-hmr.html#hot-invalidate-message-string
-  import.meta.hot.accept(() => import.meta.hot.invalidate());
+  import.meta.hot.accept(() => {
+    import.meta.hot?.invalidate();
+  });
 }
 
 if (readerEnabled) {
