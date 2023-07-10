@@ -174,3 +174,30 @@ test('candidates contests show number of seats and/or write-in candidate if rele
   within(zooCouncil).getByText('(3 seats)');
   within(zooCouncil).getByText(hasTextAcrossElements('Write-In0'));
 });
+
+test('numbers are formatted with commas when necessary', () => {
+  render(
+    <ContestResultsTable
+      election={election}
+      contest={yesNoContest}
+      scannedContestResults={buildContestResultsFixture({
+        contest: yesNoContest,
+        contestResultsSummary: {
+          type: 'yesno',
+          ballots: 6000,
+          overvotes: 1000,
+          undervotes: 1500,
+          yesTally: 3000,
+          noTally: 500,
+        },
+      })}
+    />
+  );
+  const fishing = screen.getByTestId('results-table-fishing');
+  within(fishing).getByText('Ballot Measure 3');
+  within(fishing).getByText(hasTextAcrossElements(/6,000 ballots cast/));
+  within(fishing).getByText(hasTextAcrossElements(/1,000 overvotes/));
+  within(fishing).getByText(hasTextAcrossElements(/1,500 undervotes/));
+  within(fishing).getByText(hasTextAcrossElements('Yes3,000'));
+  within(fishing).getByText(hasTextAcrossElements('No500'));
+});
