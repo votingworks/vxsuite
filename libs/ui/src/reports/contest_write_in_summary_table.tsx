@@ -8,7 +8,7 @@ import {
 
 import { find } from '@votingworks/basics';
 import pluralize from 'pluralize';
-import React from 'react';
+import { format } from '@votingworks/utils';
 import { tableBorderColor, TD, TH } from '../table';
 import { Font, FontProps } from '../typography';
 import { NoWrap, Text } from '../text';
@@ -82,7 +82,7 @@ function TallyRow({
       </TH>
       {tally !== undefined && (
         <TD narrow textAlign="right">
-          {tally}
+          {format.count(tally)}
         </TD>
       )}
     </tr>
@@ -162,17 +162,16 @@ export function ContestWriteInSummaryTable({
       <p>{getContestDistrictName(election, contest)}</p>
       <h3>{contest.title}</h3>
       <Text small>
-        <React.Fragment>
-          <NoWrap>
-            {pluralize(
-              'total write-ins',
-              contestWriteInSummary.totalTally,
-              true
-            )}{' '}
-            /
-          </NoWrap>
-          <NoWrap> {contestWriteInSummary.pendingTally} not adjudicated</NoWrap>
-        </React.Fragment>
+        <NoWrap>
+          {`${format.count(contestWriteInSummary.totalTally)} ${pluralize(
+            'total write-ins',
+            contestWriteInSummary.totalTally
+          )}`}{' '}
+          /
+        </NoWrap>{' '}
+        <NoWrap>
+          {format.count(contestWriteInSummary.pendingTally)} not adjudicated
+        </NoWrap>
       </Text>
       <ContestTable>
         <tbody>

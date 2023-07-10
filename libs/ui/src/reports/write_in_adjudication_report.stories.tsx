@@ -134,25 +134,25 @@ const generalReportArgs: WriteInAdjudicationReportProps = {
       },
       'city-council': {
         contestId: 'city-council',
-        totalTally: 300,
-        pendingTally: 180,
-        invalidTally: 10,
+        totalTally: 1000000000,
+        pendingTally: 1500,
+        invalidTally: 100,
         candidateTallies: {
           'indiana-jones': {
             id: 'indiana-jones',
             name: 'Indiana Jones',
-            tally: 20,
+            tally: 1900,
           },
           spock: {
             id: 'spock',
             name: 'Spock',
-            tally: 50,
+            tally: 700,
             isWriteIn: true,
           },
           'luke-skywalker': {
             id: 'luke-skywalker',
             name: 'Luke Skywalker',
-            tally: 40,
+            tally: 300,
             isWriteIn: true,
           },
         },

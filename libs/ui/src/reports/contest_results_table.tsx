@@ -8,7 +8,10 @@ import {
   Tabulation,
   AnyContest,
 } from '@votingworks/types';
-import { getContestVoteOptionsForCandidateContest } from '@votingworks/utils';
+import {
+  getContestVoteOptionsForCandidateContest,
+  format,
+} from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
 
 import { Prose } from '../prose';
@@ -92,12 +95,16 @@ function ContestOptionRow({
     return (
       <tr data-testid={testId}>
         <th>{optionLabel}</th>
-        <td>{scannedTally}</td>
+        <td>{format.count(scannedTally)}</td>
         <td>
-          {manualTally === 0 ? <Muted>{manualTally}</Muted> : manualTally}
+          {manualTally === 0 ? (
+            <Muted>{format.count(manualTally)}</Muted>
+          ) : (
+            format.count(manualTally)
+          )}
         </td>
         <td>
-          <strong>{scannedTally + manualTally}</strong>
+          <strong>{format.count(scannedTally + manualTally)}</strong>
         </td>
       </tr>
     );
@@ -106,7 +113,7 @@ function ContestOptionRow({
   return (
     <tr data-testid={testId}>
       <th colSpan={3}>{optionLabel}</th>
-      <td>{scannedTally}</td>
+      <td>{format.count(scannedTally)}</td>
     </tr>
   );
 }
@@ -127,10 +134,16 @@ function ContestMetadataRow({
       <th>
         <em>{label}</em>
       </th>
-      <td>{scannedTally}</td>
-      <td>{manualTally === 0 ? <Muted>{manualTally}</Muted> : manualTally}</td>
+      <td>{format.count(scannedTally)}</td>
       <td>
-        <strong>{scannedTally + manualTally}</strong>
+        {manualTally === 0 ? (
+          <Muted>{format.count(manualTally)}</Muted>
+        ) : (
+          format.count(manualTally)
+        )}
+      </td>
+      <td>
+        <strong>{format.count(scannedTally + manualTally)}</strong>
       </td>
     </tr>
   );
@@ -267,15 +280,26 @@ export function ContestResultsTable({
         {!hasManualResults && (
           <Text small>
             <NoWrap>
-              {pluralize('ballots', scannedContestResults.ballots, true)} cast /
+              {`${format.count(scannedContestResults.ballots)} ${pluralize(
+                'ballots',
+                scannedContestResults.ballots
+              )}`}{' '}
+              cast /
             </NoWrap>{' '}
             <NoWrap>
               {' '}
-              {pluralize('overvotes', scannedContestResults.overvotes, true)} /
+              {`${format.count(scannedContestResults.overvotes)} ${pluralize(
+                'overvotes',
+                scannedContestResults.overvotes
+              )}`}{' '}
+              /
             </NoWrap>{' '}
             <NoWrap>
               {' '}
-              {pluralize('undervotes', scannedContestResults.undervotes, true)}
+              {`${format.count(scannedContestResults.undervotes)} ${pluralize(
+                'undervotes',
+                scannedContestResults.undervotes
+              )}`}
             </NoWrap>
           </Text>
         )}
