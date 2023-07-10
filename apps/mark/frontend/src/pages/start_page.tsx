@@ -1,7 +1,6 @@
 /* stylelint-disable order/properties-order */
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import React, { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { Screen, Button, P, Icons } from '@votingworks/ui';
