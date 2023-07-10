@@ -5,92 +5,8 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   font-size: 0.8em;
 }
 
-.c11 {
-  white-space: nowrap;
-}
-
 .c10 {
-  line-height: 1.2;
-}
-
-.c10 p {
-  font-size: 1em;
-}
-
-.c10 h1 {
-  margin: 2em 0 1em;
-  line-height: 1.1;
-  font-size: 1.5em;
-}
-
-.c10 h2 {
-  margin: 1.5em 0 0.75em;
-  font-size: 1.25em;
-}
-
-.c10 h3 {
-  font-size: 1.17em;
-}
-
-.c10 h4 {
-  font-size: 1em;
-}
-
-.c10 h5 {
-  font-size: 0.9em;
-}
-
-.c10 h3,
-.c10 h4,
-.c10 h5,
-.c10 p,
-.c10 ol,
-.c10 ul,
-.c10 hr {
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
-.c10 h1 + h2 {
-  margin-top: -0.75em;
-}
-
-.c10 h1 + p,
-.c10 h2 + p,
-.c10 h1 + ol,
-.c10 h2 + ol,
-.c10 h1 + ul,
-.c10 h2 + ul {
-  margin-top: -0.75em;
-}
-
-.c10 h3 + p,
-.c10 h4 + p,
-.c10 h5 + p,
-.c10 h3 + ol,
-.c10 h4 + ol,
-.c10 h5 + ol,
-.c10 h3 + ul,
-.c10 h4 + ul,
-.c10 h5 + ul {
-  margin-top: -1em;
-}
-
-.c10 > :not(.ignore-prose):first-child {
-  margin-top: 0;
-}
-
-.c10 > :not(.ignore-prose):last-child {
-  margin-bottom: 0;
-}
-
-.c10 dl {
-  margin: 1em 0;
-}
-
-.c10 hr {
-  border: 0;
-  border-top: 0.1em solid #666666;
+  white-space: nowrap;
 }
 
 .c2 {
@@ -154,27 +70,27 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   margin-top: -0.5em;
 }
 
-.c12 {
+.c11 {
   width: 100%;
   height: 1px;
   border-collapse: collapse;
 }
 
-.c12 tr {
+.c11 tr {
   border-top: 1px solid rgb(194,200,203);
   border-bottom: 1px solid rgb(194,200,203);
   height: 100%;
 }
 
-.c12 tr.metadata {
+.c11 tr.metadata {
   font-size: 0.75em;
 }
 
-.c12 tr.metadata.metadatarow {
+.c11 tr.metadata.last-metadata {
   border-bottom: 1px solid #e6e6e6;
 }
 
-.c12 td {
+.c11 td {
   width: 1%;
   height: 100%;
   padding: 0.1rem 0.25rem;
@@ -183,18 +99,18 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   white-space: no-wrap;
 }
 
-.c12 th {
-  padding: 0 0.5rem;
+.c11 th {
+  padding: 0 0.2rem;
   text-align: right;
   font-weight: 400;
 }
 
-.c12 th:first-child {
+.c11 th:first-child {
   padding-left: 0.1rem;
   text-align: left;
 }
 
-.c12 th:not(:first-child) {
+.c11 th:not(:first-child) {
   padding-right: 0;
 }
 
@@ -220,7 +136,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   background: #e8e8e8;
   padding: 0.15rem 0.15rem;
   text-align: left;
-  font-size: 0.5rem;
+  font-size: 0.4rem;
 }
 
 .c5 td {
@@ -376,807 +292,787 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           class="c9"
           data-testid="results-table-775020876"
         >
-          <div
-            class="c10"
+          <p
+            class="c3"
           >
-            <p
-              class="c3"
+            United States
+          </p>
+          <h3>
+            President
+          </h3>
+          <p
+            class="c3"
+          >
+            <span
+              class="c10"
             >
-              United States
-            </p>
-            <h3>
-              President
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c11"
-              >
-                8 ballots
-                 cast /
-              </span>
+              8 ballots
                
-              <span
-                class="c11"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c11"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c12"
+              cast /
+            </span>
+             
+            <span
+              class="c10"
             >
-              <tbody>
-                <tr
-                  data-testid="775020876-775031988"
+               
+              0 overvotes
+               
+              /
+            </span>
+             
+            <span
+              class="c10"
+            >
+               
+              0 undervotes
+            </span>
+          </p>
+          <table
+            class="c11"
+          >
+            <tbody>
+              <tr
+                data-testid="775020876-775031988"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
-                  </th>
-                  <td>
-                    2
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020876-775031987"
+                  Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
+                </th>
+                <td>
+                  2
+                </td>
+              </tr>
+              <tr
+                data-testid="775020876-775031987"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
-                  </th>
-                  <td>
-                    2
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020876-775031989"
+                  Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
+                </th>
+                <td>
+                  2
+                </td>
+              </tr>
+              <tr
+                data-testid="775020876-775031989"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Presidential Electors for Phil Collins for President and Bill Parker for Vice President
-                  </th>
-                  <td>
-                    2
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020876-write-in"
+                  Presidential Electors for Phil Collins for President and Bill Parker for Vice President
+                </th>
+                <td>
+                  2
+                </td>
+              </tr>
+              <tr
+                data-testid="775020876-write-in"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    2
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  Write-In
+                </th>
+                <td>
+                  2
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div
           class="c9"
           data-testid="results-table-775020877"
         >
-          <div
-            class="c10"
+          <p
+            class="c3"
           >
-            <p
-              class="c3"
+            United States
+          </p>
+          <h3>
+            Senate 
+          </h3>
+          <p
+            class="c3"
+          >
+            <span
+              class="c10"
             >
-              United States
-            </p>
-            <h3>
-              Senate 
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c11"
-              >
-                8 ballots
-                 cast /
-              </span>
+              8 ballots
                
-              <span
-                class="c11"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c11"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c12"
+              cast /
+            </span>
+             
+            <span
+              class="c10"
             >
-              <tbody>
-                <tr
-                  data-testid="775020877-775031985"
+               
+              0 overvotes
+               
+              /
+            </span>
+             
+            <span
+              class="c10"
+            >
+               
+              0 undervotes
+            </span>
+          </p>
+          <table
+            class="c11"
+          >
+            <tbody>
+              <tr
+                data-testid="775020877-775031985"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Mike Espy
-                  </th>
-                  <td>
-                    2
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020877-775031986"
+                  Mike Espy
+                </th>
+                <td>
+                  2
+                </td>
+              </tr>
+              <tr
+                data-testid="775020877-775031986"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Cindy Hyde-Smith
-                  </th>
-                  <td>
-                    2
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020877-775031990"
+                  Cindy Hyde-Smith
+                </th>
+                <td>
+                  2
+                </td>
+              </tr>
+              <tr
+                data-testid="775020877-775031990"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Jimmy Edwards
-                  </th>
-                  <td>
-                    2
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020877-write-in"
+                  Jimmy Edwards
+                </th>
+                <td>
+                  2
+                </td>
+              </tr>
+              <tr
+                data-testid="775020877-write-in"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    2
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  Write-In
+                </th>
+                <td>
+                  2
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div
           class="c9"
           data-testid="results-table-775020872"
         >
-          <div
-            class="c10"
+          <p
+            class="c3"
           >
-            <p
-              class="c3"
+            US House Of Representatives
+          </p>
+          <h3>
+            1st Congressional District
+          </h3>
+          <p
+            class="c3"
+          >
+            <span
+              class="c10"
             >
-              US House Of Representatives
-            </p>
-            <h3>
-              1st Congressional District
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c11"
-              >
-                8 ballots
-                 cast /
-              </span>
+              8 ballots
                
-              <span
-                class="c11"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c11"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c12"
+              cast /
+            </span>
+             
+            <span
+              class="c10"
             >
-              <tbody>
-                <tr
-                  data-testid="775020872-775031978"
+               
+              0 overvotes
+               
+              /
+            </span>
+             
+            <span
+              class="c10"
+            >
+               
+              0 undervotes
+            </span>
+          </p>
+          <table
+            class="c11"
+          >
+            <tbody>
+              <tr
+                data-testid="775020872-775031978"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Antonia Eliason
-                  </th>
-                  <td>
-                    4
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020872-775031979"
+                  Antonia Eliason
+                </th>
+                <td>
+                  4
+                </td>
+              </tr>
+              <tr
+                data-testid="775020872-775031979"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Trent Kelly
-                  </th>
-                  <td>
-                    2
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020872-write-in"
+                  Trent Kelly
+                </th>
+                <td>
+                  2
+                </td>
+              </tr>
+              <tr
+                data-testid="775020872-write-in"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    2
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  Write-In
+                </th>
+                <td>
+                  2
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div
           class="c9"
           data-testid="results-table-775020870"
         >
-          <div
-            class="c10"
+          <p
+            class="c3"
           >
-            <p
-              class="c3"
+            Northern District
+          </p>
+          <h3>
+            Supreme Court District 3(Northern) Position 3
+          </h3>
+          <p
+            class="c3"
+          >
+            <span
+              class="c10"
             >
-              Northern District
-            </p>
-            <h3>
-              Supreme Court District 3(Northern) Position 3
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c11"
-              >
-                8 ballots
-                 cast /
-              </span>
+              8 ballots
                
-              <span
-                class="c11"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c11"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c12"
+              cast /
+            </span>
+             
+            <span
+              class="c10"
             >
-              <tbody>
-                <tr
-                  data-testid="775020870-775031976"
+               
+              0 overvotes
+               
+              /
+            </span>
+             
+            <span
+              class="c10"
+            >
+               
+              0 undervotes
+            </span>
+          </p>
+          <table
+            class="c11"
+          >
+            <tbody>
+              <tr
+                data-testid="775020870-775031976"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Josiah Dennis Coleman
-                  </th>
-                  <td>
-                    4
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020870-775031993"
+                  Josiah Dennis Coleman
+                </th>
+                <td>
+                  4
+                </td>
+              </tr>
+              <tr
+                data-testid="775020870-775031993"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Percy L. Lynchard
-                  </th>
-                  <td>
-                    2
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020870-write-in"
+                  Percy L. Lynchard
+                </th>
+                <td>
+                  2
+                </td>
+              </tr>
+              <tr
+                data-testid="775020870-write-in"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    2
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  Write-In
+                </th>
+                <td>
+                  2
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div
           class="c9"
           data-testid="results-table-775020903"
         >
-          <div
-            class="c10"
+          <p
+            class="c3"
           >
-            <p
-              class="c3"
+            Election Commissioner 05
+          </p>
+          <h3>
+            Election Commissioner 05
+          </h3>
+          <p
+            class="c3"
+          >
+            <span
+              class="c10"
             >
-              Election Commissioner 05
-            </p>
-            <h3>
-              Election Commissioner 05
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c11"
-              >
-                8 ballots
-                 cast /
-              </span>
+              8 ballots
                
-              <span
-                class="c11"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c11"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c12"
+              cast /
+            </span>
+             
+            <span
+              class="c10"
             >
-              <tbody>
-                <tr
-                  data-testid="775020903-775032021"
+               
+              0 overvotes
+               
+              /
+            </span>
+             
+            <span
+              class="c10"
+            >
+               
+              0 undervotes
+            </span>
+          </p>
+          <table
+            class="c11"
+          >
+            <tbody>
+              <tr
+                data-testid="775020903-775032021"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Ouida A Loper
-                  </th>
-                  <td>
-                    4
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020903-775032022"
+                  Ouida A Loper
+                </th>
+                <td>
+                  4
+                </td>
+              </tr>
+              <tr
+                data-testid="775020903-775032022"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Wayne McLeod
-                  </th>
-                  <td>
-                    2
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020903-write-in"
+                  Wayne McLeod
+                </th>
+                <td>
+                  2
+                </td>
+              </tr>
+              <tr
+                data-testid="775020903-write-in"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    2
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  Write-In
+                </th>
+                <td>
+                  2
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div
           class="c9"
           data-testid="results-table-775020904"
         >
-          <div
-            class="c10"
+          <p
+            class="c3"
           >
-            <p
-              class="c3"
+            School Board District 5
+          </p>
+          <h3>
+            School Board 05
+          </h3>
+          <p
+            class="c3"
+          >
+            <span
+              class="c10"
             >
-              School Board District 5
-            </p>
-            <h3>
-              School Board 05
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c11"
-              >
-                8 ballots
-                 cast /
-              </span>
+              8 ballots
                
-              <span
-                class="c11"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c11"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c12"
+              cast /
+            </span>
+             
+            <span
+              class="c10"
             >
-              <tbody>
-                <tr
-                  data-testid="775020904-775032023"
+               
+              0 overvotes
+               
+              /
+            </span>
+             
+            <span
+              class="c10"
+            >
+               
+              0 undervotes
+            </span>
+          </p>
+          <table
+            class="c11"
+          >
+            <tbody>
+              <tr
+                data-testid="775020904-775032023"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Michael D Thomas
-                  </th>
-                  <td>
-                    4
-                  </td>
-                </tr>
-                <tr
-                  data-testid="775020904-write-in"
+                  Michael D Thomas
+                </th>
+                <td>
+                  4
+                </td>
+              </tr>
+              <tr
+                data-testid="775020904-write-in"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Write-In
-                  </th>
-                  <td>
-                    4
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  Write-In
+                </th>
+                <td>
+                  4
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div
           class="c9"
           data-testid="results-table-750000017"
         >
-          <div
-            class="c10"
+          <p
+            class="c3"
           >
-            <p
-              class="c3"
-            >
-              State Of Mississippi
-            </p>
-            <h3>
-              Ballot Measure 2
+            State Of Mississippi
+          </p>
+          <h3>
+            Ballot Measure 2
 House Concurrent Resolution No. 47
-            </h3>
-            <p
-              class="c3"
+          </h3>
+          <p
+            class="c3"
+          >
+            <span
+              class="c10"
             >
-              <span
-                class="c11"
-              >
-                8 ballots
-                 cast /
-              </span>
+              8 ballots
                
-              <span
-                class="c11"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c11"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c12"
+              cast /
+            </span>
+             
+            <span
+              class="c10"
             >
-              <tbody>
-                <tr
-                  data-testid="750000017-yes"
+               
+              0 overvotes
+               
+              /
+            </span>
+             
+            <span
+              class="c10"
+            >
+               
+              0 undervotes
+            </span>
+          </p>
+          <table
+            class="c11"
+          >
+            <tbody>
+              <tr
+                data-testid="750000017-yes"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Yes
-                  </th>
-                  <td>
-                    4
-                  </td>
-                </tr>
-                <tr
-                  data-testid="750000017-no"
+                  Yes
+                </th>
+                <td>
+                  4
+                </td>
+              </tr>
+              <tr
+                data-testid="750000017-no"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    No
-                  </th>
-                  <td>
-                    4
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  No
+                </th>
+                <td>
+                  4
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div
           class="c9"
           data-testid="results-table-750000018"
         >
-          <div
-            class="c10"
+          <p
+            class="c3"
           >
-            <p
-              class="c3"
-            >
-              State Of Mississippi
-            </p>
-            <h3>
-              Ballot Measure 3
+            State Of Mississippi
+          </p>
+          <h3>
+            Ballot Measure 3
 House Bill 1796 - Flag Referendum
-            </h3>
-            <p
-              class="c3"
+          </h3>
+          <p
+            class="c3"
+          >
+            <span
+              class="c10"
             >
-              <span
-                class="c11"
-              >
-                8 ballots
-                 cast /
-              </span>
+              8 ballots
                
-              <span
-                class="c11"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c11"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c12"
+              cast /
+            </span>
+             
+            <span
+              class="c10"
             >
-              <tbody>
-                <tr
-                  data-testid="750000018-yes"
+               
+              0 overvotes
+               
+              /
+            </span>
+             
+            <span
+              class="c10"
+            >
+               
+              0 undervotes
+            </span>
+          </p>
+          <table
+            class="c11"
+          >
+            <tbody>
+              <tr
+                data-testid="750000018-yes"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Yes
-                  </th>
-                  <td>
-                    4
-                  </td>
-                </tr>
-                <tr
-                  data-testid="750000018-no"
+                  Yes
+                </th>
+                <td>
+                  4
+                </td>
+              </tr>
+              <tr
+                data-testid="750000018-no"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    No
-                  </th>
-                  <td>
-                    4
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  No
+                </th>
+                <td>
+                  4
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div
           class="c9"
           data-testid="results-table-750000015"
         >
-          <div
-            class="c10"
+          <p
+            class="c3"
           >
-            <p
-              class="c3"
+            State Of Mississippi
+          </p>
+          <h3>
+            Ballot Measure 1
+          </h3>
+          <p
+            class="c3"
+          >
+            <span
+              class="c10"
             >
-              State Of Mississippi
-            </p>
-            <h3>
-              Ballot Measure 1
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c11"
-              >
-                8 ballots
-                 cast /
-              </span>
+              8 ballots
                
-              <span
-                class="c11"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c11"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c12"
+              cast /
+            </span>
+             
+            <span
+              class="c10"
             >
-              <tbody>
-                <tr
-                  data-testid="750000015-yes"
+               
+              0 overvotes
+               
+              /
+            </span>
+             
+            <span
+              class="c10"
+            >
+               
+              0 undervotes
+            </span>
+          </p>
+          <table
+            class="c11"
+          >
+            <tbody>
+              <tr
+                data-testid="750000015-yes"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Yes
-                  </th>
-                  <td>
-                    4
-                  </td>
-                </tr>
-                <tr
-                  data-testid="750000015-no"
+                  Yes
+                </th>
+                <td>
+                  4
+                </td>
+              </tr>
+              <tr
+                data-testid="750000015-no"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    No
-                  </th>
-                  <td>
-                    4
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  No
+                </th>
+                <td>
+                  4
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div
           class="c9"
           data-testid="results-table-750000016"
         >
-          <div
-            class="c10"
+          <p
+            class="c3"
           >
-            <p
-              class="c3"
+            State Of Mississippi
+          </p>
+          <h3>
+            Ballot Measure 1
+          </h3>
+          <p
+            class="c3"
+          >
+            <span
+              class="c10"
             >
-              State Of Mississippi
-            </p>
-            <h3>
-              Ballot Measure 1
-            </h3>
-            <p
-              class="c3"
-            >
-              <span
-                class="c11"
-              >
-                8 ballots
-                 cast /
-              </span>
+              8 ballots
                
-              <span
-                class="c11"
-              >
-                 
-                0 overvotes
-                 /
-              </span>
-               
-              <span
-                class="c11"
-              >
-                 
-                0 undervotes
-              </span>
-            </p>
-            <table
-              class="c12"
+              cast /
+            </span>
+             
+            <span
+              class="c10"
             >
-              <tbody>
-                <tr
-                  data-testid="750000016-yes"
+               
+              0 overvotes
+               
+              /
+            </span>
+             
+            <span
+              class="c10"
+            >
+               
+              0 undervotes
+            </span>
+          </p>
+          <table
+            class="c11"
+          >
+            <tbody>
+              <tr
+                data-testid="750000016-yes"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    Yes
-                  </th>
-                  <td>
-                    4
-                  </td>
-                </tr>
-                <tr
-                  data-testid="750000016-no"
+                  Yes
+                </th>
+                <td>
+                  4
+                </td>
+              </tr>
+              <tr
+                data-testid="750000016-no"
+              >
+                <th
+                  colspan="3"
                 >
-                  <th
-                    colspan="3"
-                  >
-                    No
-                  </th>
-                  <td>
-                    4
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  No
+                </th>
+                <td>
+                  4
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
