@@ -1,4 +1,11 @@
-import { assert, iter, ok, Result, wrapException } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  iter,
+  ok,
+  Result,
+  wrapException,
+} from '@votingworks/basics';
 import {
   AnyContest,
   BallotStyle,
@@ -27,36 +34,44 @@ import { encodeMetadata } from './encode_metadata';
 
 const debug = makeDebug('layout');
 
-const FontWeight = {
+const FontWeights = {
   NORMAL: 400,
   SEMIBOLD: 500,
   BOLD: 700,
 } as const;
 
+type FontWeight = typeof FontWeights[keyof typeof FontWeights];
+
+interface FontStyle {
+  fontSize: number;
+  fontWeight: FontWeight;
+  lineHeight: number;
+}
+
 const FontStyles = {
   H1: {
     fontSize: 20,
-    fontWeight: FontWeight.BOLD,
+    fontWeight: FontWeights.BOLD,
     lineHeight: 20,
   },
   H2: {
     fontSize: 16,
-    fontWeight: FontWeight.BOLD,
+    fontWeight: FontWeights.BOLD,
     lineHeight: 16,
   },
   H3: {
     fontSize: 13,
-    fontWeight: FontWeight.BOLD,
+    fontWeight: FontWeights.BOLD,
     lineHeight: 13,
   },
   BODY: {
     fontSize: 10,
-    fontWeight: FontWeight.NORMAL,
+    fontWeight: FontWeights.NORMAL,
     lineHeight: 10,
   },
   SMALL: {
     fontSize: 9,
-    fontWeight: FontWeight.NORMAL,
+    fontWeight: FontWeights.NORMAL,
     lineHeight: 9,
   },
 } as const;
@@ -65,10 +80,30 @@ export function range(start: number, end: number): number[] {
   return Array.from({ length: end - start }, (_, i) => i + start);
 }
 
-// TODO: actual text wrapping implementation
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function textWrap(text: string, width: number): string[] {
-  return [text];
+// TODO more accurate text measurement
+function characterWidth(character: string, fontStyle: FontStyle): number {
+  return fontStyle.fontSize * 0.5;
+}
+
+function textWidth(text: string, fontStyle: FontStyle): number {
+  return iter(text.split('').map((c) => characterWidth(c, fontStyle))).sum();
+}
+
+function textWrap(text: string, fontStyle: FontStyle, width: number): string[] {
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+  for (const word of words) {
+    const extendedLine = [currentLine, word].join(' ');
+    if (textWidth(extendedLine, fontStyle) <= width) {
+      currentLine = extendedLine;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  lines.push(currentLine);
+  return lines;
 }
 
 export interface GridDimensions {
@@ -94,6 +129,8 @@ const CONTENT_AREA_ROW_HEIGHT = GRID.rows - TIMING_MARKS_ROW_HEIGHT * 2 + 1;
 const CONTENT_AREA_COLUMN_WIDTH = GRID.columns - 3;
 const GUTTER_WIDTH = 0.5;
 const CONTEST_COLUMN_WIDTH = 9.5;
+const MAX_CONTEST_ROW_HEIGHT =
+  CONTENT_AREA_ROW_HEIGHT - (FOOTER_ROW_HEIGHT + 1);
 
 export const COLUMN_GAP = DOCUMENT_WIDTH / (GRID.columns + 1);
 export const ROW_GAP = DOCUMENT_HEIGHT / (GRID.rows + 1);
@@ -262,7 +299,7 @@ function HeaderAndInstructions({
           }).format(new Date(election.date)),
         ],
         ...FontStyles.H3,
-        fontWeight: FontWeight.NORMAL,
+        fontWeight: FontWeights.NORMAL,
       },
       {
         type: 'Image',
@@ -306,7 +343,7 @@ function HeaderAndInstructions({
         height: gridHeight(INSTRUCTIONS_ROW_HEIGHT - 1),
         textLines: ['To Vote:'],
         ...FontStyles.SMALL,
-        fontWeight: FontWeight.BOLD,
+        fontWeight: FontWeights.BOLD,
       },
       {
         type: 'TextBox',
@@ -333,7 +370,7 @@ function HeaderAndInstructions({
         height: gridHeight(INSTRUCTIONS_ROW_HEIGHT - 1),
         textLines: ['To Vote for a Write-In:'],
         ...FontStyles.SMALL,
-        fontWeight: FontWeight.BOLD,
+        fontWeight: FontWeights.BOLD,
       },
       {
         type: 'TextBox',
@@ -466,7 +503,7 @@ function Footer({
   };
 }
 
-function Contest({
+function CandidateContest({
   election,
   contest,
   row,
@@ -489,7 +526,11 @@ function Contest({
     gridColumn > 20
       ? CONTENT_AREA_COLUMN_WIDTH - 2 * (CONTEST_COLUMN_WIDTH + GUTTER_WIDTH)
       : CONTEST_COLUMN_WIDTH;
-  const titleLines = textWrap(contest.title, gridWidth(width - 0.5));
+  const titleLines = textWrap(
+    contest.title,
+    FontStyles.H3,
+    gridWidth(width - 0.5)
+  );
   const titleTextBox: TextBox = {
     type: 'TextBox',
     ...gridPosition({ row: 0.5, column: 0.5 }),
@@ -560,7 +601,7 @@ function Contest({
           height: gridHeight(1),
           textLines: [candidate.name],
           ...FontStyles.BODY,
-          fontWeight: FontWeight.BOLD,
+          fontWeight: FontWeights.BOLD,
         },
         {
           type: 'TextBox',
@@ -649,19 +690,160 @@ function Contest({
   ];
 }
 
+function BallotMeasure({
+  contest,
+  row,
+  gridRow,
+  gridColumn,
+  pageNumber,
+}: {
+  election: Election;
+  contest: AnyContest;
+  row: number;
+  gridRow: number;
+  gridColumn: number;
+  pageNumber: number;
+}): [Rectangle, GridPosition[]] {
+  assert(contest.type === 'yesno');
+
+  // Temp hack until we can change the timing mark grid dimensions: expand the
+  // last contest column to fill the page
+  const width = CONTENT_AREA_COLUMN_WIDTH;
+  const titleLines = textWrap(
+    contest.title,
+    FontStyles.H3,
+    gridWidth(width - 0.5)
+  );
+  const titleTextBox: TextBox = {
+    type: 'TextBox',
+    ...gridPosition({ row: 0.5, column: 0.5 }),
+    width: gridWidth(width - 1),
+    height: gridHeight(titleLines.length),
+    textLines: titleLines,
+    ...FontStyles.H3,
+  };
+
+  const descriptionLines = textWrap(
+    contest.description,
+    FontStyles.BODY,
+    gridWidth(width)
+  );
+
+  const headingRowHeight =
+    titleLines.length +
+    yToRow(descriptionLines.length * FontStyles.BODY.lineHeight) +
+    0.5;
+  const heading: Rectangle = {
+    type: 'Rectangle',
+    ...gridPosition({ row: 0, column: 0 }),
+    width: gridWidth(width),
+    height: gridHeight(headingRowHeight),
+    children: [
+      // Thicker top border
+      {
+        type: 'Rectangle',
+        ...gridPosition({ row: 0, column: 0 }),
+        width: gridWidth(width),
+        height: 2,
+        fill: 'black',
+      },
+      titleTextBox,
+      {
+        type: 'TextBox',
+        // y coord will be set below
+        ...gridPosition({ row: 0, column: 0.5 }),
+        y:
+          titleTextBox.y +
+          titleLines.length * FontStyles.H3.lineHeight +
+          gridHeight(0.25),
+        width: gridWidth(width - 1),
+        // TODO: better support for text height with descenders
+        height: descriptionLines.length * FontStyles.BODY.lineHeight + 5,
+        textLines: descriptionLines,
+        ...FontStyles.BODY,
+      },
+    ],
+  };
+
+  const optionPostions: GridPosition[] = [];
+  const side = pageNumber % 2 === 1 ? 'front' : 'back';
+
+  const choices = [
+    { id: 'yes', label: 'Yes' },
+    { id: 'no', label: 'No' },
+  ];
+
+  const optionRowHeight = 1;
+  const options: Rectangle[] = [];
+  for (const [index, choice] of choices.entries()) {
+    const optionRow = headingRowHeight + index * optionRowHeight;
+    options.push({
+      type: 'Rectangle',
+      ...gridPosition({
+        row: optionRow,
+        column: 0,
+      }),
+      width: gridWidth(width),
+      height: gridHeight(optionRowHeight),
+      // fill: 'rgb(0, 255, 0, 0.2)',
+      children: [
+        Bubble({ row: 1, column: 1, isFilled: false }),
+        {
+          type: 'TextBox',
+          ...gridPosition({ row: 0.65, column: 1.75 }),
+          width: gridWidth(width - 1),
+          height: gridHeight(1),
+          textLines: [choice.label],
+          ...FontStyles.BODY,
+          fontWeight: FontWeights.BOLD,
+        },
+      ],
+    });
+
+    optionPostions.push({
+      type: 'option',
+      side,
+      contestId: contest.id,
+      column: gridColumn,
+      row: gridRow + optionRow,
+      optionId: choice.id,
+    });
+  }
+
+  const contestHeight =
+    heading.height +
+    iter(options)
+      .map((option) => option.height)
+      .sum() +
+    gridHeight(1);
+
+  return [
+    {
+      type: 'Rectangle',
+      ...gridPosition({ row, column: 0 }),
+      width: gridWidth(width),
+      height: contestHeight,
+      stroke: 'black',
+      strokeWidth: 0.5,
+      children: [heading, ...options],
+    },
+    optionPostions,
+  ];
+}
+
 function ThreeColumnContests({
   election,
   contests,
   gridRow,
   gridColumn,
-  columnRowHeight,
+  heightAvailable,
   pageNumber,
 }: {
   election: Election;
   contests: Contests;
   gridColumn: number;
   gridRow: number;
-  columnRowHeight: number;
+  heightAvailable: number;
   pageNumber: number;
 }): [Rectangle, AnyContest[], GridPosition[]] {
   function fillColumn(
@@ -673,7 +855,7 @@ function ThreeColumnContests({
     const contestPositions: GridPosition[] = [];
     debug(`Filling column with ${contests.length} possible contests`);
     const CONTEST_ROW_MARGIN = 0.5;
-    const maxHeight = gridHeight(columnRowHeight - CONTEST_ROW_MARGIN * 2);
+    const maxHeight = gridHeight(heightAvailable - CONTEST_ROW_MARGIN * 2);
     let heightUsed = 0;
     let contestIndex = 0;
     const columnContests = [];
@@ -681,7 +863,7 @@ function ThreeColumnContests({
       const contest = contests[contestIndex];
       debug(`Attempting to fit contest ${contest.title}`);
       const row = yToRow(heightUsed) + (contestIndex + 1) * CONTEST_ROW_MARGIN;
-      const [contestElement, optionPostions] = Contest({
+      const [contestElement, optionPostions] = CandidateContest({
         election,
         contest,
         row,
@@ -689,9 +871,9 @@ function ThreeColumnContests({
         gridColumn,
         pageNumber,
       });
-      if (contestElement.height > maxHeight) {
+      if (contestElement.height > gridHeight(MAX_CONTEST_ROW_HEIGHT)) {
         throw new Error(
-          `Contest "${contest.title}" is too tall to fit in one column.`
+          `Contest "${contest.title}" is too tall to fit on page.`
         );
       }
       if (heightUsed + contestElement.height > maxHeight) {
@@ -728,7 +910,7 @@ function ThreeColumnContests({
     type: 'Rectangle',
     ...gridPosition({ row: gridRow, column: 2 }),
     width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
-    height: gridHeight(columnRowHeight),
+    height: gridHeight(heightAvailable),
     children: [column1Contests, column2Contests, column3Contests].map(
       (columnContests, columnIndex) => ({
         type: 'Rectangle',
@@ -737,7 +919,7 @@ function ThreeColumnContests({
           column: (CONTEST_COLUMN_WIDTH + GUTTER_WIDTH) * columnIndex,
         }),
         width: gridWidth(CONTEST_COLUMN_WIDTH),
-        height: gridHeight(columnRowHeight),
+        height: gridHeight(heightAvailable),
         // fill: 'rgb(255, 0, 0, 0.2)',
         children: columnContests,
       })
@@ -749,6 +931,65 @@ function ThreeColumnContests({
     restContests3,
     [...column1Positions, ...column2Positions, ...column3Positions],
   ];
+}
+
+function SingleColumnContests({
+  election,
+  contests,
+  gridRow,
+  gridColumn,
+  heightAvailable,
+  pageNumber,
+}: {
+  election: Election;
+  contests: Contests;
+  gridColumn: number;
+  gridRow: number;
+  heightAvailable: number;
+  pageNumber: number;
+}): [Rectangle, AnyContest[], GridPosition[]] {
+  const contestPositions: GridPosition[] = [];
+  debug(`Filling single column with ${contests.length} possible contests`);
+  const CONTEST_ROW_MARGIN = 0.5;
+  const maxHeight = gridHeight(heightAvailable - CONTEST_ROW_MARGIN * 2);
+  let heightUsed = 0;
+  let contestIndex = 0;
+  const columnContests = [];
+  while (heightUsed < maxHeight && contestIndex < contests.length) {
+    const contest = contests[contestIndex];
+    debug(`Attempting to fit contest ${contest.title}`);
+    const row = yToRow(heightUsed) + (contestIndex + 1) * CONTEST_ROW_MARGIN;
+    const [contestElement, optionPostions] = BallotMeasure({
+      election,
+      contest,
+      row,
+      gridRow: gridRow + row,
+      gridColumn,
+      pageNumber,
+    });
+    if (contestElement.height > gridHeight(MAX_CONTEST_ROW_HEIGHT)) {
+      throw new Error(`Contest "${contest.title}" is too tall to fit on page.`);
+    }
+    if (heightUsed + contestElement.height > maxHeight) {
+      debug('Not enough room for contest, ending single column.');
+      break;
+    }
+    debug('Contest fits, adding to single column.');
+    columnContests.push(contestElement);
+    heightUsed += contestElement.height;
+    contestIndex += 1;
+
+    contestPositions.push(...optionPostions);
+  }
+
+  const contestColumn: Rectangle = {
+    type: 'Rectangle',
+    ...gridPosition({ row: gridRow, column: 2 }),
+    width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
+    height: gridHeight(heightAvailable),
+    children: columnContests,
+  };
+  return [contestColumn, contests.slice(contestIndex), contestPositions];
 }
 
 export interface BallotLayout {
@@ -767,18 +1008,21 @@ function layOutBallotHelper(
   const precinctIndex = election.precincts.findIndex(
     (p) => p.id === precinct.id
   );
-  const contests = getContests({ election, ballotStyle }).filter(
-    // TODO: support ballot measures
-    (contest) => contest.type === 'candidate'
-  );
+  // For now, just one section for candidate contests, one for ballot measures.
+  // TODO support arbitrarily defined sections
+  const contestSections: Array<AnyContest[]> = iter(
+    getContests({ election, ballotStyle })
+  )
+    .partition((contest) => contest.type === 'candidate')
+    .filter((section) => section.length > 0);
 
-  let contestsLeftToLayOut = contests;
+  let contestSectionsLeftToLayOut = contestSections;
   const pages: Page[] = [];
   const gridPositions: GridPosition[] = [];
-  while (contestsLeftToLayOut.length > 0 && pages.length < 3) {
+  while (contestSectionsLeftToLayOut.length > 0) {
     const pageNumber = pages.length + 1;
     debug(
-      `Laying out page ${pageNumber}, ${contestsLeftToLayOut.length} contests left`
+      `Laying out page ${pageNumber}, ${contestSectionsLeftToLayOut.length} contest sections left`
     );
     const headerAndInstructions = HeaderAndInstructions({
       election,
@@ -787,32 +1031,52 @@ function layOutBallotHelper(
     const headerAndInstructionsRowHeight = headerAndInstructions
       ? HEADER_AND_INSTRUCTIONS_ROW_HEIGHT
       : 0;
-    const columnRowHeight =
+    const contestsRowHeight =
       CONTENT_AREA_ROW_HEIGHT -
       headerAndInstructionsRowHeight -
       (FOOTER_ROW_HEIGHT + 1);
-    const [contestColumns, restContests, contestPositions] =
-      ThreeColumnContests({
-        election,
-        contests: contestsLeftToLayOut,
-        columnRowHeight,
-        gridRow: TIMING_MARKS_ROW_HEIGHT + headerAndInstructionsRowHeight,
-        gridColumn: 2,
-        pageNumber,
-      });
-    debug(
-      `Layed out ${contestsLeftToLayOut.length - restContests.length} contests`
-    );
-    contestsLeftToLayOut = restContests;
+
+    let heightUsed = 0;
+    const contestObjects: Rectangle[] = [];
+    while (
+      heightUsed < gridHeight(contestsRowHeight) &&
+      contestSectionsLeftToLayOut.length > 0
+    ) {
+      const contestSection = assertDefined(contestSectionsLeftToLayOut.shift());
+      const ContestsComponent =
+        contestSection[0].type === 'candidate'
+          ? ThreeColumnContests
+          : SingleColumnContests;
+      const [contestColumns, restContests, contestPositions] =
+        ContestsComponent({
+          election,
+          contests: contestSection,
+          heightAvailable: contestsRowHeight,
+          gridRow: TIMING_MARKS_ROW_HEIGHT + headerAndInstructionsRowHeight,
+          gridColumn: 2,
+          pageNumber,
+        });
+      if (restContests.length > 0) {
+        contestSectionsLeftToLayOut = [
+          restContests,
+          ...contestSectionsLeftToLayOut,
+        ];
+      }
+      debug(
+        `Layed out ${contestSection.length - restContests.length} contests`
+      );
+      contestObjects.push(contestColumns);
+      heightUsed += contestColumns.height;
+      gridPositions.push(...contestPositions);
+    }
+
     pages.push({
       children: [
         TimingMarkGrid({ pageNumber, ballotStyleIndex, precinctIndex }),
         headerAndInstructions,
-        contestColumns,
+        ...contestObjects,
       ].filter((child): child is AnyElement => child !== null),
     });
-
-    gridPositions.push(...contestPositions);
   }
 
   // Add footers once we know how many total pages there are.
