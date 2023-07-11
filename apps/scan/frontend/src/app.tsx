@@ -23,6 +23,7 @@ import { ScanAppBase } from './scan_app_base';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 import { Paths } from './constants';
 import { DisplaySettingsScreen } from './screens/display_settings_screen';
+import { DisplaySettingsManager } from './components/display_settings_manager';
 
 export interface AppProps {
   hardware?: AppRootProps['hardware'];
@@ -62,6 +63,7 @@ export function App({
                 <AppRoot hardware={hardware} logger={logger} />
               </Route>
               <SessionTimeLimitTracker />
+              <DisplaySettingsManager />
             </QueryClientProvider>
           </ApiClientContext.Provider>
         </ErrorBoundary>

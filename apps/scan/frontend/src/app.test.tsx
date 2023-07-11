@@ -12,6 +12,7 @@ import {
   expectPrint,
   generateCvr,
   fakeSystemAdministratorUser,
+  mockOf,
 } from '@votingworks/test-utils';
 import {
   electionSampleDefinition,
@@ -38,6 +39,14 @@ import {
   statusNoPaper,
 } from '../test/helpers/mock_api_client';
 import { App, AppProps } from './app';
+import { DisplaySettingsManager } from './components/display_settings_manager';
+
+jest.mock(
+  './components/display_settings_manager',
+  (): typeof import('./components/display_settings_manager') => ({
+    DisplaySettingsManager: jest.fn(),
+  })
+);
 
 let apiMock: ApiMock;
 
@@ -88,10 +97,14 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.removeCard(); // Set a default auth state of no card inserted.
+
+  mockOf(DisplaySettingsManager).mockReturnValue(null);
 });
 
 afterEach(() => {
   apiMock.mockApiClient.assertComplete();
+
+  mockOf(DisplaySettingsManager).mockReset();
 });
 
 test('shows setup card reader screen when there is no card reader', async () => {
@@ -1041,4 +1054,15 @@ test('replace ballot bag flow', async () => {
   );
   await advanceTimersAndPromises(1);
   await screen.findByText('Ballot Bag Full');
+});
+
+test('renders DisplaySettingsManager', async () => {
+  apiMock.expectGetConfig({ pollsState: 'polls_open' });
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+
+  renderApp();
+  await screen.findByText(/insert your ballot/i);
+
+  expect(mockOf(DisplaySettingsManager)).toBeCalled();
 });
