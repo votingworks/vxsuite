@@ -7,7 +7,9 @@ install-dependencies:
 install-dev-dependencies:
 	python3.9 -m pipenv install --dev
 
-build: install-dependencies
+build: 
+
+build_deprecated: install-dependencies
 
 bootstrap: install build install-dev-dependencies
 
