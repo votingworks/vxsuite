@@ -2,6 +2,8 @@ export * as definitionXml from './definition.xml';
 export { election, electionDefinition } from './election.json';
 export * as electionJson from './election.json';
 export * as scanMarkedFront from './scan-marked-front.jpeg';
+export * as scanMarkedFrontUnmarkedWriteIns from './scan-marked-front-unmarked-write-ins.jpeg';
+export * as scanMarkedBackUnmarkedWriteIns from './scan-marked-back-unmarked-write-ins.jpeg';
 export * as scanMarkedBack from './scan-marked-back.jpeg';
 export * as scanMarkedOvervoteFront from './scan-marked-overvote-front.jpeg';
 export * as scanMarkedOvervoteBack from './scan-marked-overvote-back.jpeg';

@@ -26,7 +26,8 @@ export function interpret(
   ballotImageSourceSideA: string | ImageData,
   ballotImageSourceSideB: string | ImageData,
   debugBasePathSideA?: string,
-  debugBasePathSideB?: string
+  debugBasePathSideB?: string,
+  options?: { scoreWriteIns?: boolean }
 ): BridgeInterpretResult;
 
 /**

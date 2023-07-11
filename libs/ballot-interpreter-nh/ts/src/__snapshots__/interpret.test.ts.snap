@@ -18,6 +18,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 455,
           "width": 352,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 8,
+          "side": "front",
+        },
         "optionId": "Josiah-Bartlett-1bb99985",
       },
       {
@@ -26,6 +31,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "left": 722,
           "top": 455,
           "width": 351,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 8,
+          "side": "front",
         },
         "optionId": "Hannah-Dustin-ab4ef7c8",
       },
@@ -36,6 +46,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 455,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 26,
+          "row": 8,
+          "side": "front",
+        },
         "optionId": "John-Spencer-9ffb5970",
       },
       {
@@ -44,6 +59,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "left": 1372,
           "top": 455,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 8,
+          "side": "front",
         },
         "optionId": "write-in-0",
       },
@@ -65,6 +85,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 606,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 11,
+          "side": "front",
+        },
         "optionId": "John-Langdon-5951c8e1",
       },
       {
@@ -74,6 +99,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 606,
           "width": 350,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 11,
+          "side": "front",
+        },
         "optionId": "William-Preston-3778fcd5",
       },
       {
@@ -82,6 +112,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "left": 1372,
           "top": 606,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 11,
+          "side": "front",
         },
         "optionId": "write-in-0",
       },
@@ -103,6 +138,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 757,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 14,
+          "side": "front",
+        },
         "optionId": "Jeremiah-Smith-469560c9",
       },
       {
@@ -111,6 +151,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "left": 723,
           "top": 757,
           "width": 351,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 14,
+          "side": "front",
         },
         "optionId": "Nicholas-Gilman-1791aed7",
       },
@@ -121,6 +166,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 757,
           "width": 352,
         },
+        "gridLocation": {
+          "column": 26,
+          "row": 14,
+          "side": "front",
+        },
         "optionId": "Richard-Coote-b9095636",
       },
       {
@@ -129,6 +179,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "left": 1372,
           "top": 757,
           "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 14,
+          "side": "front",
         },
         "optionId": "write-in-0",
       },
@@ -150,6 +205,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 909,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 17,
+          "side": "front",
+        },
         "optionId": "Anne-Waldron-ee0cbc85",
       },
       {
@@ -159,6 +219,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 908,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 17,
+          "side": "front",
+        },
         "optionId": "Daniel-Webster-13f77b2d",
       },
       {
@@ -167,6 +232,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "left": 1373,
           "top": 908,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 17,
+          "side": "front",
         },
         "optionId": "write-in-0",
       },
@@ -188,6 +258,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 1059,
           "width": 352,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 20,
+          "side": "front",
+        },
         "optionId": "James-Poole-db5ef4bd",
       },
       {
@@ -197,6 +272,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 1059,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 20,
+          "side": "front",
+        },
         "optionId": "Matthew-Thornton-f66fec5e",
       },
       {
@@ -205,6 +285,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "left": 1373,
           "top": 1058,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 20,
+          "side": "front",
         },
         "optionId": "write-in-0",
       },
@@ -226,6 +311,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 1261,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 24,
+          "side": "front",
+        },
         "optionId": "Obadiah-Carrigan-5c95145a",
       },
       {
@@ -234,6 +324,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "left": 374,
           "top": 1361,
           "width": 351,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 26,
+          "side": "front",
         },
         "optionId": "Mary-Baker-Eddy-350785d5",
       },
@@ -244,6 +339,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 1462,
           "width": 352,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 28,
+          "side": "front",
+        },
         "optionId": "Samuel-Bell-17973275",
       },
       {
@@ -252,6 +352,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "left": 724,
           "top": 1210,
           "width": 351,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 23,
+          "side": "front",
         },
         "optionId": "Samuel-Livermore-f927fef1",
       },
@@ -262,6 +367,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 1310,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 25,
+          "side": "front",
+        },
         "optionId": "Elijah-Miller-a52e6988",
       },
       {
@@ -270,6 +380,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "left": 724,
           "top": 1411,
           "width": 351,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 27,
+          "side": "front",
         },
         "optionId": "Isaac-Hill-d6c9deeb",
       },
@@ -280,6 +395,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 1260,
           "width": 352,
         },
+        "gridLocation": {
+          "column": 26,
+          "row": 24,
+          "side": "front",
+        },
         "optionId": "Abigail-Bartlett-4e46c9d4",
       },
       {
@@ -288,6 +408,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "left": 1074,
           "top": 1360,
           "width": 351,
+        },
+        "gridLocation": {
+          "column": 26,
+          "row": 26,
+          "side": "front",
         },
         "optionId": "Jacob-Freese-b5146505",
       },
@@ -298,6 +423,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 1209,
           "width": 302,
         },
+        "gridLocation": {
+          "column": 32,
+          "row": 23,
+          "side": "front",
+        },
         "optionId": "write-in-0",
       },
       {
@@ -307,6 +437,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 1310,
           "width": 301,
         },
+        "gridLocation": {
+          "column": 32,
+          "row": 25,
+          "side": "front",
+        },
         "optionId": "write-in-1",
       },
       {
@@ -315,6 +450,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "left": 1374,
           "top": 1410,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 27,
+          "side": "front",
         },
         "optionId": "write-in-2",
       },
@@ -336,6 +476,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 1663,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 32,
+          "side": "front",
+        },
         "optionId": "Abeil-Foster-ded38e36",
       },
       {
@@ -344,6 +489,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "left": 725,
           "top": 1662,
           "width": 351,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 32,
+          "side": "front",
         },
         "optionId": "Charles-H-Hersey-096286a4",
       },
@@ -354,6 +504,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "top": 1661,
           "width": 352,
         },
+        "gridLocation": {
+          "column": 26,
+          "row": 32,
+          "side": "front",
+        },
         "optionId": "William-Lovejoy-fde3c2df",
       },
       {
@@ -362,6 +517,11 @@ exports[`interpret \`ImageData\` objects 1`] = `
           "left": 1374,
           "top": 1661,
           "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 32,
+          "side": "front",
         },
         "optionId": "write-in-0",
       },
@@ -388,6 +548,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "top": 253,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 4,
+          "side": "back",
+        },
         "optionId": "Edward-Randolph-bf4c848a",
       },
       {
@@ -397,6 +562,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "top": 253,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 4,
+          "side": "back",
+        },
         "optionId": "Edward-Randolph-bf4c848a",
       },
       {
@@ -405,6 +575,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "left": 1382,
           "top": 253,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 4,
+          "side": "back",
         },
         "optionId": "write-in-0",
       },
@@ -426,6 +601,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "top": 405,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 7,
+          "side": "back",
+        },
         "optionId": "Ezra-Bartlett-8f95223c",
       },
       {
@@ -435,6 +615,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "top": 405,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 7,
+          "side": "back",
+        },
         "optionId": "Mary-Woolson-dc0b854a",
       },
       {
@@ -443,6 +628,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "left": 1382,
           "top": 405,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 7,
+          "side": "back",
         },
         "optionId": "write-in-0",
       },
@@ -464,6 +654,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "top": 555,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 10,
+          "side": "back",
+        },
         "optionId": "John-Smith-ef61a579",
       },
       {
@@ -473,6 +668,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "top": 555,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 10,
+          "side": "back",
+        },
         "optionId": "Jane-Jones-9caa141f",
       },
       {
@@ -481,6 +681,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "left": 1382,
           "top": 556,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 10,
+          "side": "back",
         },
         "optionId": "write-in-0",
       },
@@ -502,6 +707,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "top": 707,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 13,
+          "side": "back",
+        },
         "optionId": "John-Mann-b56bbdd3",
       },
       {
@@ -511,6 +721,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "top": 707,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 13,
+          "side": "back",
+        },
         "optionId": "Ellen-A-Stileman-14408737",
       },
       {
@@ -519,6 +734,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "left": 1382,
           "top": 707,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 13,
+          "side": "back",
         },
         "optionId": "write-in-0",
       },
@@ -540,6 +760,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "top": 857,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 16,
+          "side": "back",
+        },
         "optionId": "Nathaniel-Parker-56a06c29",
       },
       {
@@ -549,6 +774,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "top": 857,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 16,
+          "side": "back",
+        },
         "optionId": "Claire-Cutts-07a436e7",
       },
       {
@@ -557,6 +787,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "left": 1381,
           "top": 858,
           "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 16,
+          "side": "back",
         },
         "optionId": "write-in-0",
       },
@@ -578,6 +813,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "top": 1008,
           "width": 352,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 19,
+          "side": "back",
+        },
         "optionId": "Ichabod-Goodwin-55e8de1f",
       },
       {
@@ -587,6 +827,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "top": 1008,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 19,
+          "side": "back",
+        },
         "optionId": "Valbe-Cady-ba3af3af",
       },
       {
@@ -595,6 +840,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "left": 1381,
           "top": 1009,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 19,
+          "side": "back",
         },
         "optionId": "write-in-0",
       },
@@ -616,6 +866,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "top": 1260,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 26,
+          "row": 24,
+          "side": "back",
+        },
         "optionId": "yes",
       },
       {
@@ -624,6 +879,11 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "left": 1381,
           "top": 1261,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 24,
+          "side": "back",
         },
         "optionId": "no",
       },
@@ -650,6 +910,11 @@ exports[`interpret images from paths 1`] = `
           "top": 455,
           "width": 352,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 8,
+          "side": "front",
+        },
         "optionId": "Josiah-Bartlett-1bb99985",
       },
       {
@@ -658,6 +923,11 @@ exports[`interpret images from paths 1`] = `
           "left": 722,
           "top": 455,
           "width": 351,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 8,
+          "side": "front",
         },
         "optionId": "Hannah-Dustin-ab4ef7c8",
       },
@@ -668,6 +938,11 @@ exports[`interpret images from paths 1`] = `
           "top": 455,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 26,
+          "row": 8,
+          "side": "front",
+        },
         "optionId": "John-Spencer-9ffb5970",
       },
       {
@@ -676,6 +951,11 @@ exports[`interpret images from paths 1`] = `
           "left": 1372,
           "top": 455,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 8,
+          "side": "front",
         },
         "optionId": "write-in-0",
       },
@@ -697,6 +977,11 @@ exports[`interpret images from paths 1`] = `
           "top": 606,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 11,
+          "side": "front",
+        },
         "optionId": "John-Langdon-5951c8e1",
       },
       {
@@ -706,6 +991,11 @@ exports[`interpret images from paths 1`] = `
           "top": 606,
           "width": 350,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 11,
+          "side": "front",
+        },
         "optionId": "William-Preston-3778fcd5",
       },
       {
@@ -714,6 +1004,11 @@ exports[`interpret images from paths 1`] = `
           "left": 1372,
           "top": 606,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 11,
+          "side": "front",
         },
         "optionId": "write-in-0",
       },
@@ -735,6 +1030,11 @@ exports[`interpret images from paths 1`] = `
           "top": 757,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 14,
+          "side": "front",
+        },
         "optionId": "Jeremiah-Smith-469560c9",
       },
       {
@@ -743,6 +1043,11 @@ exports[`interpret images from paths 1`] = `
           "left": 723,
           "top": 757,
           "width": 351,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 14,
+          "side": "front",
         },
         "optionId": "Nicholas-Gilman-1791aed7",
       },
@@ -753,6 +1058,11 @@ exports[`interpret images from paths 1`] = `
           "top": 757,
           "width": 352,
         },
+        "gridLocation": {
+          "column": 26,
+          "row": 14,
+          "side": "front",
+        },
         "optionId": "Richard-Coote-b9095636",
       },
       {
@@ -761,6 +1071,11 @@ exports[`interpret images from paths 1`] = `
           "left": 1372,
           "top": 757,
           "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 14,
+          "side": "front",
         },
         "optionId": "write-in-0",
       },
@@ -782,6 +1097,11 @@ exports[`interpret images from paths 1`] = `
           "top": 909,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 17,
+          "side": "front",
+        },
         "optionId": "Anne-Waldron-ee0cbc85",
       },
       {
@@ -791,6 +1111,11 @@ exports[`interpret images from paths 1`] = `
           "top": 908,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 17,
+          "side": "front",
+        },
         "optionId": "Daniel-Webster-13f77b2d",
       },
       {
@@ -799,6 +1124,11 @@ exports[`interpret images from paths 1`] = `
           "left": 1373,
           "top": 908,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 17,
+          "side": "front",
         },
         "optionId": "write-in-0",
       },
@@ -820,6 +1150,11 @@ exports[`interpret images from paths 1`] = `
           "top": 1059,
           "width": 352,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 20,
+          "side": "front",
+        },
         "optionId": "James-Poole-db5ef4bd",
       },
       {
@@ -829,6 +1164,11 @@ exports[`interpret images from paths 1`] = `
           "top": 1059,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 20,
+          "side": "front",
+        },
         "optionId": "Matthew-Thornton-f66fec5e",
       },
       {
@@ -837,6 +1177,11 @@ exports[`interpret images from paths 1`] = `
           "left": 1373,
           "top": 1058,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 20,
+          "side": "front",
         },
         "optionId": "write-in-0",
       },
@@ -858,6 +1203,11 @@ exports[`interpret images from paths 1`] = `
           "top": 1261,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 24,
+          "side": "front",
+        },
         "optionId": "Obadiah-Carrigan-5c95145a",
       },
       {
@@ -866,6 +1216,11 @@ exports[`interpret images from paths 1`] = `
           "left": 374,
           "top": 1361,
           "width": 351,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 26,
+          "side": "front",
         },
         "optionId": "Mary-Baker-Eddy-350785d5",
       },
@@ -876,6 +1231,11 @@ exports[`interpret images from paths 1`] = `
           "top": 1462,
           "width": 352,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 28,
+          "side": "front",
+        },
         "optionId": "Samuel-Bell-17973275",
       },
       {
@@ -884,6 +1244,11 @@ exports[`interpret images from paths 1`] = `
           "left": 724,
           "top": 1210,
           "width": 351,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 23,
+          "side": "front",
         },
         "optionId": "Samuel-Livermore-f927fef1",
       },
@@ -894,6 +1259,11 @@ exports[`interpret images from paths 1`] = `
           "top": 1310,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 25,
+          "side": "front",
+        },
         "optionId": "Elijah-Miller-a52e6988",
       },
       {
@@ -902,6 +1272,11 @@ exports[`interpret images from paths 1`] = `
           "left": 724,
           "top": 1411,
           "width": 351,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 27,
+          "side": "front",
         },
         "optionId": "Isaac-Hill-d6c9deeb",
       },
@@ -912,6 +1287,11 @@ exports[`interpret images from paths 1`] = `
           "top": 1260,
           "width": 352,
         },
+        "gridLocation": {
+          "column": 26,
+          "row": 24,
+          "side": "front",
+        },
         "optionId": "Abigail-Bartlett-4e46c9d4",
       },
       {
@@ -920,6 +1300,11 @@ exports[`interpret images from paths 1`] = `
           "left": 1074,
           "top": 1360,
           "width": 351,
+        },
+        "gridLocation": {
+          "column": 26,
+          "row": 26,
+          "side": "front",
         },
         "optionId": "Jacob-Freese-b5146505",
       },
@@ -930,6 +1315,11 @@ exports[`interpret images from paths 1`] = `
           "top": 1209,
           "width": 302,
         },
+        "gridLocation": {
+          "column": 32,
+          "row": 23,
+          "side": "front",
+        },
         "optionId": "write-in-0",
       },
       {
@@ -939,6 +1329,11 @@ exports[`interpret images from paths 1`] = `
           "top": 1310,
           "width": 301,
         },
+        "gridLocation": {
+          "column": 32,
+          "row": 25,
+          "side": "front",
+        },
         "optionId": "write-in-1",
       },
       {
@@ -947,6 +1342,11 @@ exports[`interpret images from paths 1`] = `
           "left": 1374,
           "top": 1410,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 27,
+          "side": "front",
         },
         "optionId": "write-in-2",
       },
@@ -968,6 +1368,11 @@ exports[`interpret images from paths 1`] = `
           "top": 1663,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 32,
+          "side": "front",
+        },
         "optionId": "Abeil-Foster-ded38e36",
       },
       {
@@ -976,6 +1381,11 @@ exports[`interpret images from paths 1`] = `
           "left": 725,
           "top": 1662,
           "width": 351,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 32,
+          "side": "front",
         },
         "optionId": "Charles-H-Hersey-096286a4",
       },
@@ -986,6 +1396,11 @@ exports[`interpret images from paths 1`] = `
           "top": 1661,
           "width": 352,
         },
+        "gridLocation": {
+          "column": 26,
+          "row": 32,
+          "side": "front",
+        },
         "optionId": "William-Lovejoy-fde3c2df",
       },
       {
@@ -994,6 +1409,11 @@ exports[`interpret images from paths 1`] = `
           "left": 1374,
           "top": 1661,
           "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 32,
+          "side": "front",
         },
         "optionId": "write-in-0",
       },
@@ -1020,6 +1440,11 @@ exports[`interpret images from paths 2`] = `
           "top": 253,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 4,
+          "side": "back",
+        },
         "optionId": "Edward-Randolph-bf4c848a",
       },
       {
@@ -1029,6 +1454,11 @@ exports[`interpret images from paths 2`] = `
           "top": 253,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 4,
+          "side": "back",
+        },
         "optionId": "Edward-Randolph-bf4c848a",
       },
       {
@@ -1037,6 +1467,11 @@ exports[`interpret images from paths 2`] = `
           "left": 1382,
           "top": 253,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 4,
+          "side": "back",
         },
         "optionId": "write-in-0",
       },
@@ -1058,6 +1493,11 @@ exports[`interpret images from paths 2`] = `
           "top": 405,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 7,
+          "side": "back",
+        },
         "optionId": "Ezra-Bartlett-8f95223c",
       },
       {
@@ -1067,6 +1507,11 @@ exports[`interpret images from paths 2`] = `
           "top": 405,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 7,
+          "side": "back",
+        },
         "optionId": "Mary-Woolson-dc0b854a",
       },
       {
@@ -1075,6 +1520,11 @@ exports[`interpret images from paths 2`] = `
           "left": 1382,
           "top": 405,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 7,
+          "side": "back",
         },
         "optionId": "write-in-0",
       },
@@ -1096,6 +1546,11 @@ exports[`interpret images from paths 2`] = `
           "top": 555,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 10,
+          "side": "back",
+        },
         "optionId": "John-Smith-ef61a579",
       },
       {
@@ -1105,6 +1560,11 @@ exports[`interpret images from paths 2`] = `
           "top": 555,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 10,
+          "side": "back",
+        },
         "optionId": "Jane-Jones-9caa141f",
       },
       {
@@ -1113,6 +1573,11 @@ exports[`interpret images from paths 2`] = `
           "left": 1382,
           "top": 556,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 10,
+          "side": "back",
         },
         "optionId": "write-in-0",
       },
@@ -1134,6 +1599,11 @@ exports[`interpret images from paths 2`] = `
           "top": 707,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 13,
+          "side": "back",
+        },
         "optionId": "John-Mann-b56bbdd3",
       },
       {
@@ -1143,6 +1613,11 @@ exports[`interpret images from paths 2`] = `
           "top": 707,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 13,
+          "side": "back",
+        },
         "optionId": "Ellen-A-Stileman-14408737",
       },
       {
@@ -1151,6 +1626,11 @@ exports[`interpret images from paths 2`] = `
           "left": 1382,
           "top": 707,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 13,
+          "side": "back",
         },
         "optionId": "write-in-0",
       },
@@ -1172,6 +1652,11 @@ exports[`interpret images from paths 2`] = `
           "top": 857,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 16,
+          "side": "back",
+        },
         "optionId": "Nathaniel-Parker-56a06c29",
       },
       {
@@ -1181,6 +1666,11 @@ exports[`interpret images from paths 2`] = `
           "top": 857,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 16,
+          "side": "back",
+        },
         "optionId": "Claire-Cutts-07a436e7",
       },
       {
@@ -1189,6 +1679,11 @@ exports[`interpret images from paths 2`] = `
           "left": 1381,
           "top": 858,
           "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 16,
+          "side": "back",
         },
         "optionId": "write-in-0",
       },
@@ -1210,6 +1705,11 @@ exports[`interpret images from paths 2`] = `
           "top": 1008,
           "width": 352,
         },
+        "gridLocation": {
+          "column": 12,
+          "row": 19,
+          "side": "back",
+        },
         "optionId": "Ichabod-Goodwin-55e8de1f",
       },
       {
@@ -1219,6 +1719,11 @@ exports[`interpret images from paths 2`] = `
           "top": 1008,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 19,
+          "row": 19,
+          "side": "back",
+        },
         "optionId": "Valbe-Cady-ba3af3af",
       },
       {
@@ -1227,6 +1732,11 @@ exports[`interpret images from paths 2`] = `
           "left": 1381,
           "top": 1009,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 19,
+          "side": "back",
         },
         "optionId": "write-in-0",
       },
@@ -1248,6 +1758,11 @@ exports[`interpret images from paths 2`] = `
           "top": 1260,
           "width": 351,
         },
+        "gridLocation": {
+          "column": 26,
+          "row": 24,
+          "side": "back",
+        },
         "optionId": "yes",
       },
       {
@@ -1256,6 +1771,11 @@ exports[`interpret images from paths 2`] = `
           "left": 1381,
           "top": 1261,
           "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 24,
+          "side": "back",
         },
         "optionId": "no",
       },

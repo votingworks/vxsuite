@@ -95,6 +95,7 @@ export interface InterpretedBallotCard {
 export interface InterpretedBallotPage {
   grid: TimingMarkGrid;
   marks: ScoredBubbleMarks;
+  writeIns: ScoredPositionArea[];
   normalizedImage: ImageData;
   contestLayouts: InterpretedContestLayout[];
 }
@@ -114,8 +115,15 @@ export interface InterpretedContestLayout {
 
 /** An array of optional marks and their corresponding grid positions. */
 export type ScoredBubbleMarks = Array<
-  [GridPosition, Optional<ScoredBubbleMark>]
+  [gridPosition: GridPosition, scoredBubbleMark: Optional<ScoredBubbleMark>]
 >;
+
+/** A region of a ballot position that has a computed score. */
+export interface ScoredPositionArea {
+  gridPosition: GridPosition;
+  bounds: Rect;
+  score: UnitIntervalScore;
+}
 
 /**
  * Represents a grid of timing marks and provides access to the expected
@@ -299,13 +307,13 @@ export interface ScoredBubbleMark {
    * is the highest value found when looking around `expectedBounds` for the
    * bubble. 100% is a perfect match.
    */
-  matchScore: BubbleMarkScore;
+  matchScore: UnitIntervalScore;
 
   /**
    * The score for the fill of the bubble at `matchedBounds`. 100% is
    * perfectly filled.
    */
-  fillScore: BubbleMarkScore;
+  fillScore: UnitIntervalScore;
 
   /**
    * The expected bounds of the bubble mark in the scanned source image.
@@ -328,7 +336,7 @@ export interface ScoredBubbleMark {
 export type UnitIntervalValue = f32;
 
 /** Alias used for an bubble mark's score values. */
-export type BubbleMarkScore = UnitIntervalValue;
+export type UnitIntervalScore = UnitIntervalValue;
 
 /** Coordinates specifying a timing mark intersection on the ballot card. */
 export interface GridLocation {

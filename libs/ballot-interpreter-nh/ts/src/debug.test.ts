@@ -36,7 +36,8 @@ test('no debug', () => {
     'a.jpeg',
     'b.jpeg',
     undefined,
-    undefined
+    undefined,
+    expect.any(Object)
   );
 });
 
@@ -58,7 +59,8 @@ test('empty debug paths', () => {
     frontImageData,
     backImageData,
     undefined,
-    undefined
+    undefined,
+    expect.any(Object)
   );
 });
 
@@ -79,7 +81,8 @@ test('undefined debug paths', () => {
     frontImageData,
     backImageData,
     undefined,
-    undefined
+    undefined,
+    expect.any(Object)
   );
 });
 
@@ -100,7 +103,8 @@ test('debug with image paths', () => {
     'a.jpeg',
     'b.jpeg',
     'a.jpeg',
-    'b.jpeg'
+    'b.jpeg',
+    expect.any(Object)
   );
 });
 
@@ -121,6 +125,7 @@ test('debug with image data', () => {
     frontImageData,
     backImageData,
     'a.jpeg',
-    'b.jpeg'
+    'b.jpeg',
+    expect.any(Object)
   );
 });

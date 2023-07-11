@@ -12,31 +12,32 @@ use crate::{
     election::{GridLayout, GridLocation, GridPosition, UnitIntervalValue},
     geometry::{PixelPosition, PixelUnit, Point, Rect, SubPixelUnit},
     image_utils::{diff, ratio, BLACK, WHITE},
+    layout::InterpretedContestLayout,
     timing_marks::TimingMarkGrid,
 };
 
 #[derive(Clone, Serialize)]
-pub struct BubbleMarkScore(pub UnitIntervalValue);
+pub struct UnitIntervalScore(pub UnitIntervalValue);
 
-impl Display for BubbleMarkScore {
+impl Display for UnitIntervalScore {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         write!(f, "{:.2}%", self.0 * 100.0)
     }
 }
 
-impl core::fmt::Debug for BubbleMarkScore {
+impl core::fmt::Debug for UnitIntervalScore {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         write!(f, "{:.2}%", self.0 * 100.0)
     }
 }
 
-impl PartialEq for BubbleMarkScore {
+impl PartialEq for UnitIntervalScore {
     fn eq(&self, other: &Self) -> bool {
         self.0.eq(&other.0)
     }
 }
 
-impl PartialOrd for BubbleMarkScore {
+impl PartialOrd for UnitIntervalScore {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         self.0.partial_cmp(&other.0)
     }
@@ -52,11 +53,11 @@ pub struct ScoredBubbleMark {
     /// The score for the match between the source image and the template. This
     /// is the highest value found when looking around `expected_bounds` for the
     /// bubble. 100% is a perfect match.
-    pub match_score: BubbleMarkScore,
+    pub match_score: UnitIntervalScore,
 
     /// The score for the fill of the bubble at `matched_bounds`. 100% is
     /// perfectly filled.
-    pub fill_score: BubbleMarkScore,
+    pub fill_score: UnitIntervalScore,
 
     /// The expected bounds of the bubble mark in the scanned source image.
     pub expected_bounds: Rect,
@@ -175,7 +176,7 @@ pub fn score_bubble_mark(
     let width = bubble_template.width();
     let height = bubble_template.height();
     let expected_bounds = Rect::new(left as PixelPosition, top as PixelPosition, width, height);
-    let mut best_match_score = BubbleMarkScore(UnitIntervalValue::NEG_INFINITY);
+    let mut best_match_score = UnitIntervalScore(UnitIntervalValue::NEG_INFINITY);
     let mut best_match_bounds: Option<Rect> = None;
     let mut best_match_diff: Option<GrayImage> = None;
 
@@ -201,7 +202,7 @@ pub fn score_bubble_mark(
             let cropped_and_thresholded = imageproc::contrast::threshold(&cropped, threshold);
 
             let match_diff = diff(&cropped_and_thresholded, bubble_template);
-            let match_score = BubbleMarkScore(ratio(&match_diff, WHITE));
+            let match_score = UnitIntervalScore(ratio(&match_diff, WHITE));
 
             if match_score > best_match_score {
                 best_match_score = match_score;
@@ -224,7 +225,7 @@ pub fn score_bubble_mark(
         .to_image();
     let binarized_source_image = imageproc::contrast::threshold(&source_image, threshold);
     let diff_image = diff(bubble_template, &binarized_source_image);
-    let fill_score = BubbleMarkScore(ratio(&diff_image, BLACK));
+    let fill_score = UnitIntervalScore(ratio(&diff_image, BLACK));
 
     Some(ScoredBubbleMark {
         location: *location,
@@ -236,5 +237,105 @@ pub fn score_bubble_mark(
         binarized_source_image,
         match_diff_image: best_match_diff,
         fill_diff_image: diff_image,
+    })
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScoredPositionArea {
+    pub grid_position: GridPosition,
+    pub bounds: Rect,
+    pub score: UnitIntervalScore,
+}
+
+pub type ScoredPositionAreas = Vec<ScoredPositionArea>;
+
+/// Computes scores for all the write-in areas in a scanned ballot image. This could
+/// be used to determine which write-in areas are most likely to contain a write-in
+/// vote even if the bubble is not filled in.
+pub fn score_write_in_areas(
+    img: &GrayImage,
+    grid_layout: &GridLayout,
+    contest_layouts: &[InterpretedContestLayout],
+    scored_bubble_marks: &ScoredBubbleMarks,
+    debug: &ImageDebugWriter,
+) -> Vec<ScoredPositionArea> {
+    let threshold = otsu_level(img);
+
+    let scored_write_in_areas = grid_layout
+        .write_in_positions()
+        .iter()
+        .filter_map(|grid_position| {
+            let (_, scored_bubble_mark) =
+                scored_bubble_marks
+                    .iter()
+                    .find(|(location, scored_bubble_mark)| {
+                        scored_bubble_mark.is_some()
+                            && location.location() == grid_position.location()
+                    })?;
+            let scored_bubble_mark = scored_bubble_mark.as_ref()?;
+            score_write_in_area(
+                img,
+                grid_position,
+                scored_bubble_mark.matched_bounds,
+                contest_layouts,
+                threshold,
+            )
+        })
+        .collect();
+
+    debug.write("scored_write_in_areas", |canvas| {
+        debug::draw_scored_write_in_areas(canvas, &scored_write_in_areas);
+    });
+
+    scored_write_in_areas
+}
+
+fn score_write_in_area(
+    img: &GrayImage,
+    grid_position: &GridPosition,
+    scored_bubble_mark_bounds: Rect,
+    contest_layouts: &[InterpretedContestLayout],
+    threshold: u8,
+) -> Option<ScoredPositionArea> {
+    let GridPosition::WriteIn { side, column, row, .. } = *grid_position else {
+        return None;
+    };
+    let contest_layout = contest_layouts
+        .iter()
+        .find(|contest_layout| contest_layout.contest_id == grid_position.contest_id())?;
+    let write_in_layout = contest_layout.options.iter().find(|option| {
+        option.grid_location.side == side
+            && option.grid_location.column == column
+            && option.grid_location.row == row
+    })?;
+    let write_in_layout_width = write_in_layout.bounds.width();
+
+    // 75% of the width of the write-in crop area and 2x the height of the
+    // bubble turned out to work pretty well with the NH state ballot layout.
+    // For now we're not trying to be more general than that.
+    let width = write_in_layout_width * 3 / 4;
+    let height = scored_bubble_mark_bounds.height() * 2;
+    let bounds = Rect::new(
+        scored_bubble_mark_bounds.left() - width as i32,
+        scored_bubble_mark_bounds.bottom() - height as i32,
+        width,
+        height,
+    );
+    let cropped = img
+        .view(
+            bounds.left() as PixelUnit,
+            bounds.top() as PixelUnit,
+            bounds.width(),
+            bounds.height(),
+        )
+        .to_image();
+    let cropped_and_thresholded = imageproc::contrast::threshold(&cropped, threshold);
+    let score = UnitIntervalScore(ratio(&cropped_and_thresholded, BLACK));
+
+    Some(ScoredPositionArea {
+        grid_position: grid_position.clone(),
+        bounds,
+        score,
     })
 }
