@@ -10,6 +10,7 @@ import {
   chunkBinaryBitmap,
   ImageConversionOptions,
   imageDataToBinaryBitmap,
+  VERTICAL_DOTS_IN_CHUNK,
 } from '@votingworks/custom-paper-handler';
 import { SimpleServerStatus, SimpleStatus } from './types';
 
@@ -238,7 +239,7 @@ export class PaperHandlerStateMachine {
     for (const customChunkedBitmap of customChunkedBitmaps) {
       debug(`printing chunk ${i}`);
       if (customChunkedBitmap.empty) {
-        dotsSkipped += 24;
+        dotsSkipped += VERTICAL_DOTS_IN_CHUNK;
       } else {
         if (dotsSkipped) {
           await this.driver.setRelativeVerticalPrintPosition(dotsSkipped * 2); // assuming default vertical units, 1 / 408 units

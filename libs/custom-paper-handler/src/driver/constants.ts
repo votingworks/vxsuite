@@ -18,11 +18,13 @@ export const OK_CONTINUE: Uint8 = 0x00;
 export const OK_NO_MORE_DATA: Uint8 = 0xff;
 
 export enum PrintModeDotDensity {
-  SINGLE_DOT_8 = 0,
-  DOUBLE_DOT_8 = 1,
   SINGLE_DOT_24 = 32,
   DOUBLE_DOT_24 = 33,
 }
+// Both supported values for PrintModeDotDensity have 24 dots in the vertical direction.
+// See command manual page 84: 0x1B 0x2A "Select image print mode"
+// This const should be extended if adding support for 8 dot density.
+export const VERTICAL_DOTS_IN_CHUNK = 24;
 
 /**
  * Maximum width the device can print, in dots
