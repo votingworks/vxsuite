@@ -840,8 +840,8 @@ function layOutBallotHelper(
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,
-        right: 1,
-        top: 1,
+        right: 9,
+        top: 2,
       },
       gridPositions,
     },
