@@ -831,6 +831,157 @@ function BallotMeasure({
   ];
 }
 
+interface ElementWithHeight {
+  height: number;
+}
+
+type Column = ElementWithHeight[];
+
+/**
+ * Lay out elements with fixed heights in columns, with the following constraints:
+ * - No more than `numColumns` columns
+ * - Each column must be no taller than `maxColumnHeight`
+ * - Element order must be preserved when filling columns
+ * - If not all of the elements fit, fit as many as possible and then return the
+ * leftover elements
+ * - If all of the elements fit, try to shorten the columns as much as possible
+ * - If there are multiple ways to shorten the columns, choose the one that
+ * looks the most balanced
+ */
+export function layoutInColumns({
+  elements,
+  numColumns,
+  maxColumnHeight,
+}: {
+  elements: ElementWithHeight[];
+  numColumns: number;
+  maxColumnHeight: number;
+}): {
+  columns: Column[];
+  leftoverElements: ElementWithHeight[];
+} {
+  function emptyColumns(): Column[] {
+    return range(0, numColumns).map(() => []);
+  }
+
+  function columnHeight(column: Column): number {
+    return iter(column)
+      .map((e) => e.height)
+      .sum();
+  }
+
+  function isColumnOverflowing(column: Column): boolean {
+    return columnHeight(column) > maxColumnHeight;
+  }
+
+  // First, try a greedy approach of filling columns to the max height
+  const greedyColumns: Column[] = emptyColumns();
+  let currentColumnIndex = 0;
+  let elementIndex = 0;
+  while (elementIndex < elements.length && currentColumnIndex < numColumns) {
+    const element = elements[elementIndex];
+    if (
+      isColumnOverflowing(greedyColumns[currentColumnIndex].concat([element]))
+    ) {
+      currentColumnIndex += 1;
+    } else {
+      greedyColumns[currentColumnIndex].push(element);
+      elementIndex += 1;
+    }
+  }
+  const leftoverElements = elements.slice(elementIndex);
+
+  // If the greedy approach didn't use up all the elements, then we won't be
+  // able to shorten the columns, so we're done.
+  if (leftoverElements.length > 0) {
+    return {
+      columns: greedyColumns,
+      leftoverElements,
+    };
+  }
+
+  // Otherwise, let's try to shorten the columns as much as possible while still
+  // fitting all the elements.
+
+  // Recursively generates all possible ways to fill the columns with the given elements
+  function possibleColumns(
+    columnsSoFar: Column[],
+    elementsLeft: ElementWithHeight[]
+  ): Array<Column[]> {
+    if (elementsLeft.length === 0) {
+      return [columnsSoFar];
+    }
+
+    const [nextElement, ...restElements] = elementsLeft;
+
+    const results: Array<Column[]> = [];
+
+    // If there's a current column being filled, try adding the next element to it
+    const lastNonEmptyColumnIndex = columnsSoFar.findIndex(
+      (column) => column.length > 0
+    );
+    if (lastNonEmptyColumnIndex !== -1) {
+      const newColumns = [...columnsSoFar];
+      newColumns[lastNonEmptyColumnIndex] = [
+        ...newColumns[lastNonEmptyColumnIndex],
+        nextElement,
+      ];
+      if (!isColumnOverflowing(newColumns[lastNonEmptyColumnIndex])) {
+        results.push(...possibleColumns(newColumns, restElements));
+      }
+    }
+
+    // Also try adding the next element to a new column
+    const firstEmptyColumnIndex = columnsSoFar.findIndex(
+      (column) => column.length === 0
+    );
+    if (firstEmptyColumnIndex !== -1) {
+      const newColumns = [...columnsSoFar];
+      newColumns[firstEmptyColumnIndex] = [nextElement];
+      if (!isColumnOverflowing(newColumns[firstEmptyColumnIndex])) {
+        results.push(...possibleColumns(newColumns, restElements));
+      }
+    }
+
+    return results;
+  }
+
+  const allPossibleColumns = possibleColumns(emptyColumns(), elements);
+  function heightOfTallestColumn(columns: Column[]): number {
+    return Math.max(...columns.map((column) => columnHeight(column)));
+  }
+
+  // Find the sets of columns with the shortest overall height
+  const minimizedColumnsHeight = heightOfTallestColumn(
+    assertDefined(
+      iter(allPossibleColumns).min(
+        (columns1, columns2) =>
+          heightOfTallestColumn(columns1) - heightOfTallestColumn(columns2)
+      )
+    )
+  );
+  const allColumnsWithMinimizedColumnsHeight = allPossibleColumns.filter(
+    (columns) => heightOfTallestColumn(columns) === minimizedColumnsHeight
+  );
+
+  // Now take the one that looks the most balanced
+  function distance(numbers: number[]): number {
+    return Math.max(...numbers) - Math.min(...numbers);
+  }
+  const mostBalancedColumns = assertDefined(
+    iter(allColumnsWithMinimizedColumnsHeight).min(
+      (columns1, columns2) =>
+        distance(columns1.map((c) => c.length)) -
+        distance(columns2.map((c) => c.length))
+    )
+  );
+
+  return {
+    columns: mostBalancedColumns,
+    leftoverElements: [],
+  };
+}
+
 function ThreeColumnContests({
   election,
   contests,
