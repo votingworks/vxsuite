@@ -52,6 +52,15 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     let side_b_image_or_path = get_image_data_or_path_from_arg(&mut cx, 2)?;
     let debug_side_a_base = get_path_from_arg_opt(&mut cx, 3);
     let debug_side_b_base = get_path_from_arg_opt(&mut cx, 4);
+    let options = match cx.argument_opt(5) {
+        Some(arg) => arg.downcast::<JsObject, _>(&mut cx).or_throw(&mut cx)?,
+        None => cx.empty_object(),
+    };
+
+    let score_write_ins = options
+        .get::<JsBoolean, _, _>(&mut cx, "scoreWriteIns")
+        .ok()
+        .map_or(false, |b| b.value(&mut cx));
 
     let side_a_label = side_a_image_or_path.as_label_or(SIDE_A_LABEL);
     let side_b_label = side_b_image_or_path.as_label_or(SIDE_B_LABEL);
@@ -84,6 +93,7 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
             bubble_template,
             debug_side_a_base,
             debug_side_b_base,
+            score_write_ins,
         },
     );
 

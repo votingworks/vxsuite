@@ -25,7 +25,9 @@ use crate::layout::InterpretedContestLayout;
 use crate::metadata::BallotPageMetadata;
 use crate::metadata::BallotPageMetadataError;
 use crate::scoring::score_bubble_marks_from_grid_layout;
+use crate::scoring::score_write_in_areas;
 use crate::scoring::ScoredBubbleMarks;
+use crate::scoring::ScoredPositionAreas;
 use crate::timing_marks::find_timing_mark_grid;
 use crate::timing_marks::TimingMarkGrid;
 
@@ -35,6 +37,7 @@ pub struct Options {
     pub bubble_template: GrayImage,
     pub debug_side_a_base: Option<PathBuf>,
     pub debug_side_b_base: Option<PathBuf>,
+    pub score_write_ins: bool,
 }
 
 pub struct BallotImage {
@@ -66,6 +69,7 @@ pub struct NormalizedImageBuffer {
 pub struct InterpretedBallotPage {
     pub grid: TimingMarkGrid,
     pub marks: ScoredBubbleMarks,
+    pub write_ins: ScoredPositionAreas,
     #[serde(skip_serializing)] // `normalized_image` is returned separately.
     pub normalized_image: GrayImage,
     pub contest_layouts: Vec<InterpretedContestLayout>,
@@ -471,16 +475,43 @@ pub fn interpret_ballot_card(
             },
         )?;
 
+    let (front_write_in_area_scores, back_write_in_area_scores) = if !options.score_write_ins {
+        (vec![], vec![])
+    } else {
+        rayon::join(
+            || {
+                score_write_in_areas(
+                    &front_image,
+                    grid_layout,
+                    &front_contest_layouts,
+                    &front_scored_bubble_marks,
+                    &front_debug,
+                )
+            },
+            || {
+                score_write_in_areas(
+                    &back_image,
+                    grid_layout,
+                    &back_contest_layouts,
+                    &back_scored_bubble_marks,
+                    &back_debug,
+                )
+            },
+        )
+    };
+
     Ok(InterpretedBallotCard {
         front: InterpretedBallotPage {
             grid: front_grid,
             marks: front_scored_bubble_marks,
+            write_ins: front_write_in_area_scores,
             normalized_image: front_image,
             contest_layouts: front_contest_layouts,
         },
         back: InterpretedBallotPage {
             grid: back_grid,
             marks: back_scored_bubble_marks,
+            write_ins: back_write_in_area_scores,
             normalized_image: back_image,
             contest_layouts: back_contest_layouts,
         },
@@ -538,6 +569,7 @@ mod test {
                     debug_side_b_base: None,
                     bubble_template: bubble_template.clone(),
                     election: election.clone(),
+                    score_write_ins: true,
                 },
             )
             .unwrap();

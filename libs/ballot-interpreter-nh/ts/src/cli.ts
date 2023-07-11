@@ -36,8 +36,9 @@ function usage(out: NodeJS.WritableStream): void {
   );
   out.write(`\n`);
   out.write(chalk.bold(`Options:\n`));
-  out.write('  -h, --help   Show this help text.\n');
-  out.write(`  -j, --json   Output JSON instead of human-readable text.\n`);
+  out.write('  -h, --help       Show this help text.\n');
+  out.write('  -w, --write-ins  Score write-in areas.\n');
+  out.write(`  -j, --json       Output JSON instead of human-readable text.\n`);
   out.write(
     `  -d, --debug  Output debug information (images alongside inputs).\n`
   );
@@ -185,11 +186,13 @@ async function interpretFiles(
   {
     stdout,
     stderr,
+    scoreWriteIns = false,
     json = false,
     debug = false,
   }: {
     stdout: NodeJS.WritableStream;
     stderr: NodeJS.WritableStream;
+    scoreWriteIns?: boolean;
     json?: boolean;
     debug?: boolean;
   }
@@ -219,7 +222,7 @@ async function interpretFiles(
   const result = interpret(
     electionDefinition,
     [ballotPathSideA, ballotPathSideB],
-    { debug }
+    { scoreWriteIns, debug }
   );
 
   if (result.isErr()) {
@@ -232,9 +235,10 @@ async function interpretFiles(
     return 1;
   }
 
+  const interpreted = result.ok();
+
   if (json) {
-    const normalizedImagePaths = await writeNormalizedImages(result.ok());
-    const interpreted = result.ok();
+    const normalizedImagePaths = await writeNormalizedImages(interpreted);
     await writeIterToStream(
       jsonStream(
         {
@@ -256,7 +260,7 @@ async function interpretFiles(
     prettyPrintInterpretation({
       electionDefinition,
       paths: [ballotPathSideA, ballotPathSideB],
-      interpretedBallotCard: result.ok(),
+      interpretedBallotCard: interpreted,
       stdout,
     });
   }
@@ -272,10 +276,10 @@ function tryReadElectionFromElectionTable(
       db
         .prepare('SELECT election_data as electionData FROM election LIMIT 1')
         .get() as Optional<{ electionData: string }>
-    )?.electionData;
+    )?.electionData?.toString();
 
     return electionData
-      ? safeParseElectionDefinition(electionData).ok()
+      ? { electionData, election: JSON.parse(electionData), electionHash: '' }
       : undefined;
   } catch {
     return undefined;
@@ -317,12 +321,14 @@ async function interpretWorkspace(
     stdout,
     stderr,
     sheetIds,
+    scoreWriteIns = false,
     json = false,
     debug = false,
   }: {
     stdout: NodeJS.WriteStream;
     stderr: NodeJS.WriteStream;
     sheetIds: Iterable<string>;
+    scoreWriteIns?: boolean;
     json?: boolean;
     debug?: boolean;
   }
@@ -350,12 +356,12 @@ async function interpretWorkspace(
     sheetIdsArray.length
       ? db
           .prepare(
-            'SELECT id, front_image_path as frontPath, back_image_path as backPath FROM sheets WHERE id IN ?'
+            'SELECT id, front_normalized_filename as frontPath, back_normalized_filename as backPath FROM sheets WHERE id IN ?'
           )
           .all(sheetIdsArray)
       : db
           .prepare(
-            'SELECT id, front_image_path as frontPath, back_image_path as backPath FROM sheets'
+            'SELECT id, front_normalized_filename as frontPath, back_normalized_filename as backPath FROM sheets'
           )
           .all()
   ) as Array<{ id: string; frontPath: string; backPath: string }>;
@@ -416,7 +422,7 @@ async function interpretWorkspace(
     const exitCode = await interpretFiles(
       electionDefinition,
       correctionResult.ok(),
-      { stdout, stderr, json, debug }
+      { stdout, stderr, scoreWriteIns, json, debug }
     );
 
     count += 1;
@@ -444,6 +450,7 @@ export async function main(args: string[]): Promise<number> {
   let electionDefinitionPath: string | undefined;
   let ballotPathSideA: string | undefined;
   let ballotPathSideB: string | undefined;
+  let scoreWriteIns: boolean | undefined;
   let json = false;
   let debug = false;
 
@@ -451,6 +458,11 @@ export async function main(args: string[]): Promise<number> {
     if (arg === '-h' || arg === '--help') {
       usage(stdout);
       return 0;
+    }
+
+    if (arg === '-w' || arg === '--write-ins') {
+      scoreWriteIns = true;
+      continue;
     }
 
     if (arg === '-j' || arg === '--json') {
@@ -501,6 +513,7 @@ export async function main(args: string[]): Promise<number> {
       stdout,
       stderr,
       json,
+      scoreWriteIns,
       debug,
     });
   }
@@ -509,7 +522,7 @@ export async function main(args: string[]): Promise<number> {
     return await interpretFiles(
       electionDefinitionPath,
       [ballotPathSideA, ballotPathSideB],
-      { stdout, stderr, json, debug }
+      { stdout, stderr, scoreWriteIns, json, debug }
     );
   }
 

@@ -16,7 +16,7 @@ use crate::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RAINBOW, RED,
         WHITE_RGB,
     },
-    scoring::ScoredBubbleMark,
+    scoring::{ScoredBubbleMark, ScoredPositionAreas},
     timing_marks::{Partial, TimingMarkGrid},
 };
 
@@ -476,6 +476,59 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
                 matched_bubble_color,
             );
         }
+    }
+}
+
+pub fn draw_scored_write_in_areas(
+    canvas: &mut RgbImage,
+    scored_write_in_areas: &ScoredPositionAreas,
+) {
+    let font = &monospace_font();
+    let font_scale = 20.0;
+    let scale = Scale::uniform(font_scale);
+
+    draw_legend(
+        canvas,
+        &vec![
+            (DARK_GREEN, "Write-In Area Bounds"),
+            (ORANGE, "Write-In Area Score (100% = completely filled)"),
+        ],
+    );
+
+    for scored_write_in_area in scored_write_in_areas {
+        let mut option_text = scored_write_in_area.grid_position.to_string();
+        option_text.truncate(25);
+
+        let (option_text_width, option_text_height) = text_size(scale, font, option_text.as_str());
+
+        let score_text = scored_write_in_area.score.to_string();
+        let (score_text_width, score_text_height) = text_size(scale, font, score_text.as_str());
+
+        draw_text_with_background_mut(
+            canvas,
+            &option_text,
+            scored_write_in_area.bounds.left() - option_text_width - 5,
+            (scored_write_in_area.bounds.top() + scored_write_in_area.bounds.bottom()) / 2
+                - (option_text_height / 2),
+            scale,
+            font,
+            DARK_GREEN,
+            WHITE_RGB,
+        );
+
+        draw_text_with_background_mut(
+            canvas,
+            &score_text,
+            (scored_write_in_area.bounds.left() + scored_write_in_area.bounds.right()) / 2
+                - (score_text_width / 2),
+            scored_write_in_area.bounds.top() - 5 - score_text_height,
+            scale,
+            font,
+            ORANGE,
+            WHITE_RGB,
+        );
+
+        draw_hollow_rect_mut(canvas, scored_write_in_area.bounds.into(), DARK_GREEN);
     }
 }
 

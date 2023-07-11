@@ -690,4 +690,287 @@ test('interpret images from paths', async () => {
       },
     ]
   `);
+
+  // no write ins scored by default
+  expect(front.writeIns).toHaveLength(0);
+  expect(back.writeIns).toHaveLength(0);
+});
+
+test('score write in areas', async () => {
+  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const ballotImages: SheetOf<ImageData> = [
+    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asImageData(),
+    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asImageData(),
+  ];
+
+  const result = interpret(electionDefinition, ballotImages, {
+    scoreWriteIns: true,
+  });
+  expect(result).toEqual(ok(expect.anything()));
+
+  const { front, back } = result.unsafeUnwrap();
+
+  expect(front.writeIns).toMatchInlineSnapshot(`
+    [
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1377,
+          "top": 465,
+          "width": 225,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "Governor-061a401b",
+          "row": 8,
+          "side": "front",
+          "type": "write-in",
+          "writeInIndex": 0,
+        },
+        "score": 0,
+      },
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1378,
+          "top": 616,
+          "width": 225,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "United-States-Senator-d3f1c75b",
+          "row": 11,
+          "side": "front",
+          "type": "write-in",
+          "writeInIndex": 0,
+        },
+        "score": 0,
+      },
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1377,
+          "top": 767,
+          "width": 226,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "Representative-in-Congress-24683b44",
+          "row": 14,
+          "side": "front",
+          "type": "write-in",
+          "writeInIndex": 0,
+        },
+        "score": 0,
+      },
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1380,
+          "top": 918,
+          "width": 225,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "Executive-Councilor-bb22557f",
+          "row": 17,
+          "side": "front",
+          "type": "write-in",
+          "writeInIndex": 0,
+        },
+        "score": 0.11111111,
+      },
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1379,
+          "top": 1069,
+          "width": 225,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "State-Senator-391381f8",
+          "row": 20,
+          "side": "front",
+          "type": "write-in",
+          "writeInIndex": 0,
+        },
+        "score": 0,
+      },
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1378,
+          "top": 1219,
+          "width": 226,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "row": 23,
+          "side": "front",
+          "type": "write-in",
+          "writeInIndex": 0,
+        },
+        "score": 0,
+      },
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1379,
+          "top": 1320,
+          "width": 225,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "row": 25,
+          "side": "front",
+          "type": "write-in",
+          "writeInIndex": 1,
+        },
+        "score": 0.018547008,
+      },
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1379,
+          "top": 1420,
+          "width": 225,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "row": 27,
+          "side": "front",
+          "type": "write-in",
+          "writeInIndex": 2,
+        },
+        "score": 0.023076924,
+      },
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1379,
+          "top": 1670,
+          "width": 226,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+          "row": 32,
+          "side": "front",
+          "type": "write-in",
+          "writeInIndex": 0,
+        },
+        "score": 0,
+      },
+    ]
+  `);
+  expect(back.writeIns).toMatchInlineSnapshot(`
+    [
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1387,
+          "top": 263,
+          "width": 225,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "Sheriff-4243fe0b",
+          "row": 4,
+          "side": "back",
+          "type": "write-in",
+          "writeInIndex": 0,
+        },
+        "score": 0.0056410255,
+      },
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1387,
+          "top": 415,
+          "width": 225,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "County-Attorney-133f910f",
+          "row": 7,
+          "side": "back",
+          "type": "write-in",
+          "writeInIndex": 0,
+        },
+        "score": 0,
+      },
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1390,
+          "top": 566,
+          "width": 225,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "County-Treasurer-87d25a31",
+          "row": 10,
+          "side": "back",
+          "type": "write-in",
+          "writeInIndex": 0,
+        },
+        "score": 0.10205128,
+      },
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1387,
+          "top": 718,
+          "width": 225,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "Register-of-Deeds-a1278df2",
+          "row": 13,
+          "side": "back",
+          "type": "write-in",
+          "writeInIndex": 0,
+        },
+        "score": 0,
+      },
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1386,
+          "top": 868,
+          "width": 226,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "Register-of-Probate-a4117da8",
+          "row": 16,
+          "side": "back",
+          "type": "write-in",
+          "writeInIndex": 0,
+        },
+        "score": 0.027825052,
+      },
+      {
+        "bounds": {
+          "height": 52,
+          "left": 1385,
+          "top": 1020,
+          "width": 225,
+        },
+        "gridPosition": {
+          "column": 32,
+          "contestId": "County-Commissioner-d6feed25",
+          "row": 19,
+          "side": "back",
+          "type": "write-in",
+          "writeInIndex": 0,
+        },
+        "score": 0.08529914,
+      },
+    ]
+  `);
 });

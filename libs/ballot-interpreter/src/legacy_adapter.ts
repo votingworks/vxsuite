@@ -18,6 +18,7 @@ import {
   Corners,
   ElectionDefinition,
   getBallotStyle,
+  GridPosition,
   HmpbBallotPageMetadata,
   MarkInfo,
   MarkStatus,
@@ -39,6 +40,7 @@ import {
   InterpretedContestLayout,
   InterpretedContestOptionLayout,
   ScoredBubbleMarks,
+  ScoredPositionArea,
 } from '@votingworks/ballot-interpreter-nh';
 import type {
   InterpretFileResult,
@@ -50,7 +52,9 @@ type OkType<T> = T extends Ok<infer U> ? U : never;
 
 function convertNewHampshireNextMarkToSharedMark(
   contests: Contests,
-  [gridPosition, scoredMark]: ScoredBubbleMarks[number]
+  markThresholds: MarkThresholds,
+  [gridPosition, scoredMark]: ScoredBubbleMarks[number],
+  scoredWriteInArea?: ScoredPositionArea
 ): BallotTargetMark {
   assert(scoredMark, 'scoredMark must be defined');
 
@@ -77,9 +81,23 @@ function convertNewHampshireNextMarkToSharedMark(
   };
 
   if (option.type === 'candidate' || option.type === 'yesno') {
+    const score =
+      // use the mark fill score if the bubble is filled in enough
+      scoredMark.fillScore >= markThresholds.definite
+        ? scoredMark.fillScore
+        : // or, if there's enough text in the write-in area, score that at 100%
+        scoredWriteInArea &&
+          typeof markThresholds.writeInTextArea === 'number' &&
+          scoredWriteInArea.score >= markThresholds.writeInTextArea
+        ? 1
+        : // otherwise, just leave the mark fill score alone
+          scoredMark.fillScore;
+    if (scoredWriteInArea) {
+      console.log({ scoredMark, scoredWriteInArea, score });
+    }
     const ballotTargetMarkBase: Omit<BallotTargetMark, 'type' | 'optionId'> = {
       contestId: option.contestId,
-      score: scoredMark.fillScore,
+      score,
       bounds,
       scoredOffset: {
         x: scoredMark.matchedBounds.left - scoredMark.expectedBounds.left,
@@ -173,15 +191,36 @@ export function convertMarksToAdjudicationInfo(
   };
 }
 
+function findScoredWriteInAreaForGridPosition(
+  scoredWriteInAreas: ScoredPositionArea[],
+  gridPosition: GridPosition
+): ScoredPositionArea | undefined {
+  return gridPosition.type === 'write-in'
+    ? scoredWriteInAreas.find(
+        (w) =>
+          w.gridPosition.type === 'write-in' &&
+          w.gridPosition.contestId === gridPosition.contestId &&
+          w.gridPosition.writeInIndex === gridPosition.writeInIndex
+      )
+    : undefined;
+}
+
 function convertMarksToMarkInfo(
   contests: Contests,
+  markThresholds: MarkThresholds,
   geometry: Geometry,
-  marks: ScoredBubbleMarks
+  marks: ScoredBubbleMarks,
+  writeIns: ScoredPositionArea[]
 ): MarkInfo {
   const markInfo: MarkInfo = {
     ballotSize: geometry.canvasSize,
     marks: marks.map((mark) =>
-      convertNewHampshireNextMarkToSharedMark(contests, mark)
+      convertNewHampshireNextMarkToSharedMark(
+        contests,
+        markThresholds,
+        mark,
+        findScoredWriteInAreaForGridPosition(writeIns, mark[0])
+      )
     ),
   };
 
@@ -191,13 +230,19 @@ function convertMarksToMarkInfo(
 function convertMarksToVotes(
   contests: Contests,
   markThresholds: MarkThresholds,
-  marks: ScoredBubbleMarks
+  marks: ScoredBubbleMarks,
+  writeIns: ScoredPositionArea[]
 ): VotesDict {
   return convertMarksToVotesDict(
     contests,
     markThresholds,
     iter(marks).map((scoredOvalMark) =>
-      convertNewHampshireNextMarkToSharedMark(contests, scoredOvalMark)
+      convertNewHampshireNextMarkToSharedMark(
+        contests,
+        markThresholds,
+        scoredOvalMark,
+        findScoredWriteInAreaForGridPosition(writeIns, scoredOvalMark[0])
+      )
     )
   );
 }
@@ -325,8 +370,10 @@ function convertNextInterpretedBallotPage(
       metadata,
       markInfo: convertMarksToMarkInfo(
         electionDefinition.election.contests,
+        markThresholds,
         interpretation.grid.geometry,
-        interpretation.marks
+        interpretation.marks,
+        interpretation.writeIns
       ),
       adjudicationInfo: convertMarksToAdjudicationInfo(
         electionDefinition,
@@ -336,7 +383,8 @@ function convertNextInterpretedBallotPage(
       votes: convertMarksToVotes(
         electionDefinition.election.contests,
         markThresholds,
-        interpretation.marks
+        interpretation.marks,
+        interpretation.writeIns
       ),
       layout: {
         pageSize: interpretation.grid.geometry.canvasSize,
