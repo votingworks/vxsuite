@@ -16,8 +16,7 @@ let lastPrintedElementWithCallback: Optional<ElementWithCallback>;
 let lastPrintOptions: Optional<PrintOptions>;
 let errorOnNextPrint: Optional<Error>;
 
-let lastPdfPrintedElement: Optional<JSX.Element>;
-let lastPdfPrintOptions: Optional<PrintOptions>;
+let lastPdfPrintCommand: Optional<JSX.Element>;
 
 /**
  * Clears the state of this module i.e. data about what was last printed.
@@ -31,8 +30,7 @@ export function resetExpectPrint(): void {
 }
 
 export function resetExpectPrintToPdf(): void {
-  lastPdfPrintedElement = undefined;
-  lastPdfPrintOptions = undefined;
+  lastPdfPrintCommand = undefined;
 }
 
 /**
@@ -48,7 +46,7 @@ function expectAllPrintsAsserted(message: string) {
   if (
     lastPrintedElement ||
     lastPrintedElementWithCallback ||
-    lastPdfPrintedElement
+    lastPdfPrintCommand
   ) {
     const culprits = [];
     if (lastPrintedElement) {
@@ -57,8 +55,8 @@ function expectAllPrintsAsserted(message: string) {
     if (lastPrintedElementWithCallback) {
       culprits.push('lastPrintedElementWithCallback');
     }
-    if (lastPdfPrintedElement) {
-      culprits.push('lastPdfPrintedElement');
+    if (lastPdfPrintCommand) {
+      culprits.push('lastPdfPrintCommand');
     }
     resetExpectPrint();
     resetExpectPrintToPdf();
@@ -86,8 +84,7 @@ export function fakePrintElement(
 }
 
 export function fakePrintElementToPdf(
-  element: JSX.Element,
-  printOptions: PrintOptions
+  element: JSX.Element
 ): Promise<Uint8Array> {
   expectAllPrintsAsserted(
     'You have not made any assertions against the last PDF print before another PDF print within a test.'
@@ -96,8 +93,7 @@ export function fakePrintElementToPdf(
   // errorOnNextPrint unsupported. If adding support, consider whether errorOnNextPrint should
   // be shared with the physical printing mock or if there should be a separate one for PDF printing.
 
-  lastPdfPrintedElement = element;
-  lastPdfPrintOptions = printOptions;
+  lastPdfPrintCommand = element;
   return Promise.resolve(new Uint8Array(0));
 }
 
@@ -169,13 +165,13 @@ function inspectPrintedElement(inspect: InspectPrintFunction): void {
  * @param inspect method which runs queries against the render result
  */
 function inspectPdfPrintedElement(inspect: InspectPrintFunction): void {
-  assert(lastPdfPrintedElement);
-  const renderResult = render(lastPdfPrintedElement, {
+  assert(lastPdfPrintCommand);
+  const renderResult = render(lastPdfPrintCommand, {
     baseElement: getPrintRoot(),
   });
 
   try {
-    inspect(renderResult, lastPdfPrintOptions);
+    inspect(renderResult);
   } finally {
     renderResult.unmount();
   }
@@ -252,7 +248,7 @@ export async function expectPrintToPdf(
   inspect?: InspectPrintFunction
 ): Promise<void> {
   await waitFor(() => {
-    if (!lastPdfPrintedElement) {
+    if (!lastPdfPrintCommand) {
       throw new ExpectPrintError(
         'There have either been no prints to PDF or all prints to PDF have already been asserted against.'
       );
@@ -261,7 +257,7 @@ export async function expectPrintToPdf(
 
   try {
     if (inspect) {
-      if (lastPdfPrintedElement) {
+      if (lastPdfPrintCommand) {
         inspectPdfPrintedElement(inspect);
       }
     }
