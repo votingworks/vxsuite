@@ -500,7 +500,7 @@ export function buildCastVoteRecord({
     election,
   })?.partyId;
 
-  const cvrMetadata = {
+  const cvrMetadata: Omit<CVR.CVR, 'CVRSnapshot' | 'CurrentSnapshotId'> = {
     '@type': 'CVR.CVR',
     BallotStyleId: ballotMetadata.ballotStyleId,
     BallotStyleUnitId: ballotMetadata.precinctId, // VVSG 2.0 1.1.5-G.3
@@ -511,7 +511,7 @@ export function buildCastVoteRecord({
     BatchSequenceId: indexInBatch, // VVSG 2.0 1.1.5-G.7
     UniqueId: castVoteRecordId,
     vxBallotType: toCdfBallotType(ballotMetadata.ballotType),
-  } as const;
+  };
 
   // CVR for machine-marked ballot, only has "original" snapshot because the
   // restrictions of the ballot marking device already applied basic contest rules.
