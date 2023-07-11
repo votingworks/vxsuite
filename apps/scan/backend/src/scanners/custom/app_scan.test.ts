@@ -28,7 +28,6 @@ import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
 import {
   configureApp,
   expectStatus,
-  mockInterpretation,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import { SheetInterpretation } from '../../types';
@@ -318,55 +317,7 @@ test('blank sheet ballot rejected', async () => {
   );
 });
 
-test('scan fails and retries', async () => {
-  await withApp(
-    {},
-    async ({
-      apiClient,
-      interpreter,
-      logger,
-      mockScanner,
-      mockUsbDrive,
-      mockAuth,
-    }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
-
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
-      const interpretation: SheetInterpretation = {
-        type: 'ValidSheet',
-      };
-      mockInterpretation(interpreter, interpretation);
-
-      mockScanner.scan
-        .mockResolvedValueOnce(err(ErrorCode.NoDocumentToBeScanned))
-        .mockResolvedValueOnce(ok(await ballotImages.completeBmd()));
-      await apiClient.scanBallot();
-      await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.getStatus
-        .mockResolvedValueOnce(ok(mocks.MOCK_READY_TO_SCAN))
-        .mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
-      await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
-        interpretation,
-      });
-
-      // Make sure the underlying error got logged correctly
-      expect(logger.log).toHaveBeenCalledWith(
-        'scanner-state-machine-transition',
-        'system',
-        {
-          message: 'Context updated',
-          changedFields: expect.stringMatching(/{"error":18}/),
-        },
-        expect.any(Function)
-      );
-    }
-  );
-});
-
-test('scan fails repeatedly and eventually gives up', async () => {
+test('scan fail immediately gives up', async () => {
   await withApp(
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
@@ -375,18 +326,66 @@ test('scan fails repeatedly and eventually gives up', async () => {
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-      const scanSpy = jest.spyOn(mockScanner, 'scan');
       mockScanner.scan.mockResolvedValue(err(ErrorCode.NoDocumentToBeScanned));
       await apiClient.scanBallot();
-      for (let i = 0; i < MAX_FAILED_SCAN_ATTEMPTS; i += 1) {
-        await waitForExpect(() => {
-          expect(scanSpy).toHaveBeenCalledTimes(i + 1);
-        });
-        await expectStatus(apiClient, { state: 'scanning' });
-      }
       await waitForStatus(apiClient, {
         state: 'rejected',
         error: 'scanning_failed',
+      });
+    }
+  );
+});
+
+test('unexpected interpretation error retries and eventually fails', async () => {
+  await withApp(
+    {},
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, interpreter }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+      await waitForStatus(apiClient, { state: 'ready_to_scan' });
+
+      let didScan = false;
+      let didInterpret = false;
+      mockScanner.getStatus.mockImplementation(() => {
+        if (!didScan || didInterpret) {
+          return Promise.resolve(ok(mocks.MOCK_READY_TO_SCAN));
+        }
+        return Promise.resolve(ok(mocks.MOCK_READY_TO_EJECT));
+      });
+      mockScanner.scan.mockImplementation(async () => {
+        didScan = true;
+        return Promise.resolve(ok(await ballotImages.blankSheet()));
+      });
+      const interpretSpy = jest
+        .spyOn(interpreter, 'interpret')
+        .mockImplementation(() => {
+          didInterpret = true;
+          throw new Error('unexpected dims');
+        });
+      await apiClient.scanBallot();
+      for (let i = 0; i < MAX_FAILED_SCAN_ATTEMPTS; i += 1) {
+        await waitForExpect(() => {
+          expect(interpretSpy).toHaveBeenCalledTimes(i + 1);
+        });
+        await waitForExpect(async () => {
+          await expectStatus(apiClient, { state: 'ready_to_scan' });
+        });
+        didScan = false;
+        didInterpret = false;
+        await apiClient.scanBallot();
+        await waitForExpect(async () => {
+          await expectStatus(apiClient, { state: 'scanning' });
+        });
+      }
+      await waitForExpect(() => {
+        expect(interpretSpy).toHaveBeenCalledTimes(
+          MAX_FAILED_SCAN_ATTEMPTS + 1
+        );
+      });
+      await waitForStatus(apiClient, {
+        state: 'rejected',
+        error: 'client_error',
       });
     }
   );
