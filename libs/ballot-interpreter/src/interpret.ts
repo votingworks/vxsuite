@@ -102,10 +102,8 @@ function interpretAndConvertNhHmpbResult(
 ): SheetOf<InterpretFileResult> {
   const result = interpretNhHmpbBallotSheet(electionDefinition, sheet, {
     scoreWriteIns:
-      typeof (
-        electionDefinition.election.markThresholds?.writeInTextArea ??
-        options.markThresholds?.writeInTextArea
-      ) === 'number',
+      (electionDefinition.election.markThresholds?.writeInTextArea ??
+        options.markThresholds?.writeInTextArea) !== undefined,
   });
   return validateInterpretResults(
     convertNhInterpretResultToLegacyResult(

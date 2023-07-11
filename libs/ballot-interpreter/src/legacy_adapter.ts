@@ -92,9 +92,6 @@ function convertNewHampshireNextMarkToSharedMark(
         ? 1
         : // otherwise, just leave the mark fill score alone
           scoredMark.fillScore;
-    if (scoredWriteInArea) {
-      console.log({ scoredMark, scoredWriteInArea, score });
-    }
     const ballotTargetMarkBase: Omit<BallotTargetMark, 'type' | 'optionId'> = {
       contestId: option.contestId,
       score,

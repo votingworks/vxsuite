@@ -279,7 +279,7 @@ function tryReadElectionFromElectionTable(
     )?.electionData?.toString();
 
     return electionData
-      ? { electionData, election: JSON.parse(electionData), electionHash: '' }
+      ? safeParseElectionDefinition(electionData).ok()
       : undefined;
   } catch {
     return undefined;
