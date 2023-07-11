@@ -1,4 +1,3 @@
-import React from 'react';
 import { H1, P, Button } from '@votingworks/ui';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';

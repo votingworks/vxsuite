@@ -1,4 +1,3 @@
-import React from 'react';
 import { useParams } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
 import { getPrecinctById, getBallotStyle } from '@votingworks/types';

@@ -1,4 +1,3 @@
-import React from 'react';
 import './polyfills';
 import { AppBase } from '@votingworks/ui';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';

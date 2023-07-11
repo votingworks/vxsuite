@@ -1,7 +1,7 @@
 import { Result } from '@votingworks/basics';
 import { Id } from '@votingworks/types';
 import { H1, P, Icons, LinkButton, Button } from '@votingworks/ui';
-import React, { FormEvent } from 'react';
+import { FormEvent } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { listElections, createElection } from './api';

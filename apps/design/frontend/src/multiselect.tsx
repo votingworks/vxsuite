@@ -1,6 +1,5 @@
 import { Color } from '@votingworks/types';
 import { Icons } from '@votingworks/ui';
-import React from 'react';
 import styled from 'styled-components';
 
 interface Option {

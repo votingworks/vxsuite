@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from '@votingworks/ui';
 import styled from 'styled-components';
 import { useHistory, useLocation } from 'react-router-dom';

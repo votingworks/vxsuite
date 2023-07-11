@@ -1,4 +1,3 @@
-import React from 'react';
 import { H1, Table, TH, TD, LinkButton, P } from '@votingworks/ui';
 import { Route, Switch, useParams } from 'react-router-dom';
 import { find } from '@votingworks/basics';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { H1, H2, Button } from '@votingworks/ui';
 import { useParams } from 'react-router-dom';
 import { AdjudicationReason, Election, Id } from '@votingworks/types';
