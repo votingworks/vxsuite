@@ -16,6 +16,7 @@ import {
   Font,
 } from '@votingworks/ui';
 import {
+  format,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
@@ -182,15 +183,20 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   if (currentState.state === 'success') {
     return (
       <Modal
-        title={`${currentState.result.newlyAdded} new CVRs Loaded`}
+        title={`${format.count(
+          currentState.result.newlyAdded
+        )} new CVRs Loaded`}
         content={
           currentState.result.alreadyPresent > 0 && (
             <P>
               Of the{' '}
-              {currentState.result.newlyAdded +
-                currentState.result.alreadyPresent}{' '}
-              total CVRs in this file, {currentState.result.alreadyPresent} were
-              previously loaded.
+              {format.count(
+                currentState.result.newlyAdded +
+                  currentState.result.alreadyPresent
+              )}{' '}
+              total CVRs in this file,{' '}
+              {format.count(currentState.result.alreadyPresent)} were previously
+              loaded.
             </P>
           )
         }

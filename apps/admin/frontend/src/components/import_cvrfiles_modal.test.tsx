@@ -25,7 +25,7 @@ const LIVE_FILE1 = 'machine_0002__10_ballots__2020-12-09_15-59-32.jsonl';
 
 const mockCastVoteRecordImportInfo: CvrFileImportInfo = {
   wasExistingFile: false,
-  newlyAdded: 0,
+  newlyAdded: 1000,
   alreadyPresent: 0,
   exportedTimestamp: new Date().toISOString(),
   fileMode: 'test',
@@ -157,7 +157,7 @@ describe('when USB is properly mounted', () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
     apiMock.expectGetCastVoteRecordFiles([]);
 
-    await screen.findByText('0 new CVRs Loaded');
+    await screen.findByText('1,000 new CVRs Loaded');
 
     delete window.kiosk;
   });
@@ -208,7 +208,7 @@ describe('when USB is properly mounted', () => {
 
     userEvent.click(domGetByText(tableRows[0], 'Load'));
     await screen.findByText('Loading');
-    await screen.findByText('0 new CVRs Loaded');
+    await screen.findByText('1,000 new CVRs Loaded');
   });
 
   test('locks to test mode when in test mode & shows previously loaded files as loaded', async () => {
