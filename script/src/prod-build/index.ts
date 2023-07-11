@@ -17,7 +17,7 @@ import { rmrf } from './utils/rmrf';
 
 export function main({ stdout }: IO): void {
   // Ensure pipenv places the virtualenv in the project.
-  process.env.PIPENV_VENV_IN_PROJECT = '1';
+  process.env.PIPENV_VENV_IN_PROJECT = '0';
 
   const root = getDependencyGraph(process.cwd(), PackageType.Frontend);
   stdout.write(`ℹ️ Building ${root.path} for production\n`);
