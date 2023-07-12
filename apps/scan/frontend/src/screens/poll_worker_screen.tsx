@@ -61,6 +61,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import styled from 'styled-components';
+import pluralize from 'pluralize';
 import { ScreenMainCenterChild, Screen } from '../components/layout';
 import { rootDebug } from '../utils/debug';
 import {
@@ -72,8 +73,14 @@ import {
 import { MachineConfig } from '../config/types';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import { LiveCheckButton } from '../components/live_check_button';
+import { getPageCount } from '../utils/get_page_count';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
+
+/* istanbul ignore next - prototype */
+function isBrotherThermalPrinter(printerInfo?: KioskBrowser.PrinterInfo) {
+  return printerInfo?.name === 'PJ-822' || printerInfo?.name === 'PJ-823';
+}
 
 type PollWorkerFlowState =
   | 'open_polls_prompt'
@@ -145,6 +152,7 @@ export function PollWorkerScreen({
   const [currentSubTallies, setCurrentSubTallies] = useState<
     ReadonlyMap<string, Tally>
   >(new Map());
+  const [numReportPages, setNumReportPages] = useState<number>();
   const [
     isShowingBallotsAlreadyScannedScreen,
     setIsShowingBallotsAlreadyScannedScreen,
@@ -386,6 +394,11 @@ export function PollWorkerScreen({
       sides: 'one-sided',
       copies,
     });
+
+    /* istanbul ignore next - prototype */
+    if (isBrotherThermalPrinter(printerInfo)) {
+      setNumReportPages(await getPageCount(report));
+    }
   }
 
   async function dispatchReport(
@@ -396,7 +409,10 @@ export function PollWorkerScreen({
       await printReport(
         pollsTransition,
         timePollsTransitioned,
-        printerInfo?.name === 'PJ-822' ? 1 : DEFAULT_NUMBER_POLL_REPORT_COPIES
+        /* istanbul ignore next - prototype */
+        isBrotherThermalPrinter(printerInfo)
+          ? 1
+          : DEFAULT_NUMBER_POLL_REPORT_COPIES
       );
     } else {
       await exportReportDataToCard(pollsTransition, timePollsTransitioned);
@@ -586,8 +602,18 @@ export function PollWorkerScreen({
           <H1>{pollsTransitionCompleteText}</H1>
           {hasPrinterAttached ? (
             <Prose themeDeprecated={fontSizeTheme.medium}>
-              {printerInfo?.name === 'PJ-822' && (
-                <P>Insert paper into the printer to print the report.</P>
+              {/* istanbul ignore next - prototype */}
+              {isBrotherThermalPrinter(printerInfo) && (
+                <P>
+                  Insert{' '}
+                  {numReportPages
+                    ? `${numReportPages} ${pluralize(
+                        'sheet',
+                        numReportPages
+                      )} of paper`
+                    : 'paper'}{' '}
+                  into the printer to print the report.
+                </P>
               )}
               <P>
                 <Button onPress={reprintReport}>
