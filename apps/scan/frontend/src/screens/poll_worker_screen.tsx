@@ -77,6 +77,10 @@ import { getPageCount } from '../utils/get_page_count';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
+function isBrotherThermalPrinter(printerInfo?: KioskBrowser.PrinterInfo) {
+  return printerInfo?.name === 'PJ-822' || printerInfo?.name === 'PJ-823';
+}
+
 type PollWorkerFlowState =
   | 'open_polls_prompt'
   | 'close_polls_prompt'
@@ -390,7 +394,7 @@ export function PollWorkerScreen({
       copies,
     });
 
-    if (printerInfo?.name === 'PJ-822') {
+    if (isBrotherThermalPrinter(printerInfo)) {
       setNumReportPages(await getPageCount(report));
     }
   }
@@ -403,7 +407,9 @@ export function PollWorkerScreen({
       await printReport(
         pollsTransition,
         timePollsTransitioned,
-        printerInfo?.name === 'PJ-822' ? 1 : DEFAULT_NUMBER_POLL_REPORT_COPIES
+        isBrotherThermalPrinter(printerInfo)
+          ? 1
+          : DEFAULT_NUMBER_POLL_REPORT_COPIES
       );
     } else {
       await exportReportDataToCard(pollsTransition, timePollsTransitioned);
@@ -593,7 +599,7 @@ export function PollWorkerScreen({
           <H1>{pollsTransitionCompleteText}</H1>
           {hasPrinterAttached ? (
             <Prose themeDeprecated={fontSizeTheme.medium}>
-              {printerInfo?.name === 'PJ-822' && (
+              {isBrotherThermalPrinter(printerInfo) && (
                 <P>
                   Insert{' '}
                   {numReportPages
