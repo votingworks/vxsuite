@@ -72,8 +72,13 @@ export default defineConfig((env) => {
       ],
     },
 
+    // When env var is set, disable hot reloading. We support this option because VxMarkScan
+    // hardware has limited resources and hot reloading can cause poor performance during development
     server: {
-      hmr: false
+      hmr:
+        // Values are not parsed to booleans in this file
+        rootDotenvValues['REACT_APP_VX_DISABLE_MARKSCAN_HOT_RELOAD'] === 'TRUE'
+        ? false : undefined
     },
 
     plugins: [

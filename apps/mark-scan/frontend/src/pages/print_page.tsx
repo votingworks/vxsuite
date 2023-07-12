@@ -33,7 +33,7 @@ export function PrintPage(): JSX.Element {
     debug(`Ignoring print options with keys: ${Object.keys(options)}`);
     const pdfData = await printElementToPdf(element);
     debug(`got pdf data length ${pdfData.byteLength}`);
-    printBallotMutation.mutate({ pdfData: Buffer.from(pdfData.buffer) });
+    printBallotMutation.mutate({ pdfData: Buffer.from(pdfData) });
   }
 
   const printerTimer = useRef(0);

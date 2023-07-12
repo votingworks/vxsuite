@@ -35,6 +35,8 @@ export enum BooleanEnvironmentVariableName {
   SKIP_CAST_VOTE_RECORDS_AUTHENTICATION = 'REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION',
   // Disables exporting original snapshots with CVRs
   DISABLE_CVR_ORIGINAL_SNAPSHOTS = 'REACT_APP_VX_DISABLE_CVR_ORIGINAL_SNAPSHOTS',
+  // Disables hot reloading for VxMarkScan. Helps reduce performance problems when developing on VxMarkScan's low-resource hardware.
+  DISABLE_MARKSCAN_HOT_RELOAD = 'REACT_APP_VX_DISABLE_MARKSCAN_HOT_RELOAD',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -89,6 +91,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION;
     case BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS:
       return process.env.REACT_APP_VX_DISABLE_CVR_ORIGINAL_SNAPSHOTS;
+    case BooleanEnvironmentVariableName.DISABLE_MARKSCAN_HOT_RELOAD:
+      return process.env.REACT_APP_VX_DISABLE_MARKSCAN_HOT_RELOAD;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
     /* c8 ignore next 2 */
@@ -184,6 +188,13 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: true,
         autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.DISABLE_MARKSCAN_HOT_RELOAD:
+      return {
+        name,
+        allowInProduction: false,
+        // Can change this to false when development on dev machines is supported
+        autoEnableInDevelopment: true,
       };
     /* c8 ignore next 2 */
     default:

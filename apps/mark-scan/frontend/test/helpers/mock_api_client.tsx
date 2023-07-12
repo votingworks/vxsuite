@@ -178,7 +178,7 @@ export function createApiMock() {
       mockApiClient.parkPaper.expectCallWith().resolves('paper_parked');
     },
 
-    expectPrintBallot(pdfData: Buffer = Buffer.from([])): void {
+    expectPrintBallot(pdfData = Buffer.of()): void {
       mockApiClient.printBallot
         .expectCallWith({ pdfData })
         .resolves('ballot_printed');

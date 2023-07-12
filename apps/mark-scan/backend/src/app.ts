@@ -141,9 +141,7 @@ function buildApi(
         .join(', ');
       assert(
         usbDrive !== undefined,
-        `No USB drive mounted to ${dataUsbMountPrefix}. Got mount points: ${JSON.stringify(
-          mountPoints
-        )}`
+        `No USB drive mounted to ${dataUsbMountPrefix}. Got mount points: ${mountPoints}`
       );
 
       const ballotPackageResult = await readBallotPackageFromUsb(
