@@ -238,7 +238,7 @@ export async function expectPrint(
 }
 
 /**
- * Asserts that a print to PDF took place. Curently only printElementToPdf is supported;
+ * Asserts that a print to PDF took place. Currently only printElementToPdf is supported;
  * printElementToPdfWhenReady is unsupported. Renders the PDF printed element and allows
  * assertions against its content.
  *
