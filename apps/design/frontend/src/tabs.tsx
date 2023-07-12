@@ -14,19 +14,14 @@ interface TabBarProps {
 
 const TabRow = styled(Row)`
   gap: 0.5rem;
-  border-bottom: 2px solid ${({ theme }) => theme.colors.accentPrimary};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.foreground};
 `;
 
-const TabButton = styled(Button)`
+const TabButton = styled(Button)<{ isActive: boolean }>`
   min-width: 8rem;
-  text-align: left;
   border-radius: 0.25rem 0.25rem 0 0;
   border-bottom-width: 0;
-  span {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+  background: ${({ isActive }) => (isActive ? '' : 'none')};
 `;
 
 export function TabBar({ tabs }: TabBarProps): JSX.Element {
@@ -39,7 +34,7 @@ export function TabBar({ tabs }: TabBarProps): JSX.Element {
         return (
           <TabButton
             key={tab.path}
-            variant={isActive ? 'primary' : undefined}
+            isActive={isActive}
             onPress={() => history.push(tab.path)}
           >
             {tab.label}

@@ -24,9 +24,11 @@ const Option = styled.label<{ isSelected: boolean; disabled: boolean }>`
   padding: 0.5rem 1rem;
   background: ${(p) =>
     p.isSelected
-      ? p.theme.colors.accentPrimary
-      : Color.LEGACY_BUTTON_BACKGROUND};
-  color: ${(p) => (p.isSelected ? 'white' : 'currentColor')};
+      ? p.disabled
+        ? Color.LEGACY_BUTTON_BACKGROUND
+        : p.theme.colors.accentPrimary
+      : 'none'};
+  color: ${(p) => (p.isSelected && !p.disabled ? 'white' : 'currentColor')};
   border-radius: 0.25rem;
   cursor: ${(p) => (p.disabled ? 'default' : 'pointer')};
   input {

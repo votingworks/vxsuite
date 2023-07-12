@@ -114,14 +114,14 @@ function ElectionInfoForm({
             onPress={onSaveButtonPress}
             disabled={updateElectionMutation.isLoading}
           >
-            Save
+            <Icons.Checkmark /> Save
           </Button>
         </FormActionsRow>
       ) : (
         <React.Fragment>
           <FormActionsRow>
             <Button variant="primary" onPress={() => setIsEditing(true)}>
-              Edit
+              <Icons.Edit /> Edit
             </Button>
           </FormActionsRow>
           <FormActionsRow style={{ marginTop: '1rem' }}>

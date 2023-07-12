@@ -30,6 +30,12 @@ const LeftNavBar = styled.nav`
   }
 `;
 
+const NavLinkButton = styled(LinkButton)<{ isActive: boolean }>`
+  background: ${({ isActive }) => (isActive ? '' : 'none')};
+  color: ${({ theme, isActive }) =>
+    isActive ? theme.colors.foreground : theme.colors.background};
+`;
+
 function AppLogo(): JSX.Element {
   const theme = useTheme();
   return (
@@ -84,17 +90,21 @@ export function ElectionNavScreen({
             const isActive = path === currentRoute.url;
             return (
               <li key={path}>
-                <LinkButton
-                  to={path}
-                  variant={isActive ? 'primary' : undefined}
-                >
+                <NavLinkButton to={path} isActive={isActive}>
                   {label}
                   {isActive && <Icons.RightChevron />}
-                </LinkButton>
+                </NavLinkButton>
               </li>
             );
           })}
-          <li style={{ padding: '1rem' }}>
+          <li
+            style={{
+              padding: '1rem',
+              borderTop: `1px solid ${theme.colors.background}`,
+              marginTop: '0.5rem',
+              paddingTop: '1.5rem',
+            }}
+          >
             <Link
               to="/"
               style={{

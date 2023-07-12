@@ -31,6 +31,9 @@ export const Input = styled.input`
   border-radius: 0.25rem;
   width: 100%;
   max-width: 18rem;
+  &:disabled {
+    background: transparent;
+  }
 `;
 
 export function FormField({

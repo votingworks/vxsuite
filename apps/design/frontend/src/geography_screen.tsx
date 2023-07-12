@@ -220,7 +220,7 @@ function DistrictForm({
           onPress={onSavePress}
           disabled={updateElectionMutation.isLoading}
         >
-          Save
+          <Icons.Checkmark /> Save
         </Button>
       </FormActionsRow>
       {districtId && (
@@ -614,7 +614,7 @@ function PrecinctForm({
           onPress={onSavePress}
           disabled={updatePrecinctsMutation.isLoading}
         >
-          Save
+          <Icons.Checkmark /> Save
         </Button>
       </FormActionsRow>
       {precinctId && (

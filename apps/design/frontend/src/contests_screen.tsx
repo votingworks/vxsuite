@@ -491,7 +491,7 @@ function ContestForm({
           variant="primary"
           disabled={updateElectionMutation.isLoading}
         >
-          Save
+          <Icons.Checkmark /> Save
         </Button>
       </FormActionsRow>
       {contestId && (
@@ -741,7 +741,7 @@ function PartyForm({
           variant="primary"
           disabled={updateElectionMutation.isLoading}
         >
-          Save
+          <Icons.Checkmark /> Save
         </Button>
       </FormActionsRow>
       {partyId && (
