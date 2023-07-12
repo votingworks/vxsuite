@@ -42,6 +42,7 @@ import {
   FullScreenIconWrapper,
   H3,
   H6,
+  Text,
 } from '@votingworks/ui';
 
 import {
@@ -74,7 +75,9 @@ import { DiagnosticsScreen } from './diagnostics_screen';
 import {
   clearScannerReportDataFromCard,
   getScannerReportDataFromCard,
+  getStateMachineState,
 } from '../api';
+import { LoadPaperPage } from './load_paper_page';
 
 function parseScannerReportTallyData(
   scannerTallyReportData: ScannerTallyReportData,
@@ -499,6 +502,9 @@ export function PollWorkerScreen({
   const [scannerReportDataToBePrinted, setScannerReportDataToBePrinted] =
     useState<ScannerReportData>();
 
+  const getStateMachineStateQuery = getStateMachineState.useQuery();
+  const stateMachineState = getStateMachineStateQuery.data;
+
   /**
    * We populate a scannerReportDataToBePrinted state value and don't use
    * scannerReportDataFromCardQuery directly to control the scanner report modal because:
@@ -569,7 +575,7 @@ export function PollWorkerScreen({
     return (
       <Screen white>
         <Main centerChild>
-          <Prose textCenter>
+          <Text center>
             <H1
               aria-label={`Ballot style ${pollWorkerAuth.cardlessVoterUser.ballotStyleId} has been activated.`}
             >
@@ -583,13 +589,16 @@ export function PollWorkerScreen({
                 Reset Ballot
               </Button>
             </P>
-          </Prose>
+          </Text>
         </Main>
       </Screen>
     );
   }
 
   if (pollWorkerAuth.cardlessVoterUser) {
+    if (stateMachineState !== 'paper_parked') {
+      return <LoadPaperPage />;
+    }
     const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
     const precinct = find(election.precincts, (p) => p.id === precinctId);
 
@@ -603,6 +612,7 @@ export function PollWorkerScreen({
             <H2 as="h1" align="center">
               {`Voting Session Active: ${ballotStyleId} at ${precinct.name}`}
             </H2>
+            <p>Paper has been loaded.</p>
             <ol>
               <li>
                 <P>

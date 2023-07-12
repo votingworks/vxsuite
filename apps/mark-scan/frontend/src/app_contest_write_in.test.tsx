@@ -1,6 +1,6 @@
-import { expectPrint } from '@votingworks/test-utils';
-import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import { expectPrintToPdf, fakeKiosk } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
+import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
 import {
   fireEvent,
   render,
@@ -23,6 +23,7 @@ import {
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
+let kiosk = fakeKiosk();
 
 /**
  * HACK: The modal library we're using applies an `aria-hidden` attribute
@@ -43,6 +44,8 @@ async function hackActuallyCleanUpReactModal() {
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  kiosk = fakeKiosk();
+  window.kiosk = kiosk;
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
@@ -167,10 +170,11 @@ it('Single Seat Contest with Write In', async () => {
   expect(screen.getByText(/\(write-in\)/)).toBeTruthy();
 
   // Print Screen
+  apiMock.expectPrintBallot();
   fireEvent.click(screen.getByText(/Print My ballot/i));
   advanceTimers();
   screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrint((printedElement) => {
+  await expectPrintToPdf((printedElement) => {
     expect(printedElement.getByText('Official Ballot')).toBeTruthy();
     expect(printedElement.getByText('(write-in)')).toBeTruthy();
   });

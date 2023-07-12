@@ -17,6 +17,7 @@ import {
 import { getUsbDrives, Usb } from '@votingworks/backend';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
+import { PaperHandlerStateMachine } from './custom-paper-handler/state_machine';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
@@ -24,6 +25,8 @@ export interface StartOptions {
   logger: Logger;
   port: number | string;
   workspace: Workspace;
+  // Allow undefined state machine to fail gracefully if no connection to paper handler
+  stateMachine?: PaperHandlerStateMachine;
 }
 
 /**
@@ -35,6 +38,7 @@ export function start({
   logger,
   port,
   workspace,
+  stateMachine,
 }: StartOptions): Server {
   /* istanbul ignore next */
   const resolvedAuth =
@@ -62,7 +66,8 @@ export function start({
     resolvedArtifactAuthenticator,
     logger,
     workspace,
-    usb
+    usb,
+    stateMachine
   );
 
   return app.listen(

@@ -1,29 +1,20 @@
 import makeDebug from 'debug';
-import { assert, Optional } from '@votingworks/basics';
+import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
-import { PrintScan } from '@votingworks/api';
 import { createImageData } from 'canvas';
-import {
-  chunkBinaryBitmap,
-  ImageConversionOptions,
-  imageDataToBinaryBitmap,
-} from './printing';
 import {
   getPaperHandlerDriver,
   PaperHandlerDriver,
   PaperHandlerStatus,
-} from './driver/driver';
-import { Uint8 } from './bits';
+  chunkBinaryBitmap,
+  ImageConversionOptions,
+  imageDataToBinaryBitmap,
+  VERTICAL_DOTS_IN_CHUNK,
+} from '@votingworks/custom-paper-handler';
+import { SimpleServerStatus, SimpleStatus } from './types';
 
-const serverDebug = makeDebug('paper-handler:machine');
-
-function debug(message: string) {
-  serverDebug(message);
-  console.log(message);
-}
-
-// const LOAD_PAPER_TIMEOUT_MS = 3000;
+const debug = makeDebug('mark-scan:state-machine');
 
 function isPaperInInput(paperHandlerStatus: PaperHandlerStatus): boolean {
   return (
@@ -61,8 +52,8 @@ function isPaperAnywhere(paperHandlerStatus: PaperHandlerStatus): boolean {
   );
 }
 
-export class PaperHandlerMachine {
-  private status: PrintScan.SimpleStatus = 'no_paper';
+export class PaperHandlerStateMachine {
+  private status: SimpleStatus = 'no_paper';
   private lastActionInitiatedTime = 0;
 
   constructor(private readonly driver: PaperHandlerDriver) {}
@@ -77,7 +68,7 @@ export class PaperHandlerMachine {
   }
 
   // Hacky "state machine"
-  async getSimpleStatus(): Promise<PrintScan.SimpleServerStatus> {
+  async getSimpleStatus(): Promise<SimpleServerStatus> {
     // detailed sensor state
     const paperHandlerStatus = await this.driver.getPaperHandlerStatus();
 
@@ -99,6 +90,10 @@ export class PaperHandlerMachine {
           this.status = 'no_paper';
         }
         break;
+      case 'paper_parked':
+        // Nothing to do - frontend triggers status change. This will change soon so not
+        // worth centralizing machine logic
+        break;
       case 'printing_ballot':
         if (!isPaperInScanner(paperHandlerStatus)) {
           this.status = 'ballot_printed';
@@ -109,8 +104,11 @@ export class PaperHandlerMachine {
           this.status = 'no_paper';
         }
         break;
+      case 'ballot_printed':
+        // Unimplemented
+        break;
       default:
-      // do nothing
+        throwIllegalValue(this.status);
     }
     return this.status;
   }
@@ -120,22 +118,16 @@ export class PaperHandlerMachine {
   }
 
   async logStatus(): Promise<void> {
-    debug(JSON.stringify(await this.driver.getPaperHandlerStatus(), null, 2));
+    debug('%O', await this.driver.getPaperHandlerStatus());
   }
 
   /**
    * Parks paper inside the handler. If there is no paper to park, returns
-   * negative acknowledgement.If paper already parked, does nothing and returns
+   * negative acknowledgement. If paper already parked, does nothing and returns
    * positive acknowledgement. When parked, parkSensor should be true.
    */
   async parkPaper(): Promise<void> {
-    // if ((await this.getSimpleStatus()) !== 'paper_loaded') {
-    //   // this is not a restriction of the hardware, just of the prototype state.
-    //   // can park as long as paper is in the handler (but not if it was never loaded)
-    //   throw new Error('can only park from loaded state');
-    // }
     debug('+parkPaper');
-    console.log(await this.driver.getPaperHandlerStatus());
     this.status = 'parking_paper';
     this.lastActionInitiatedTime = Date.now();
     await this.driver.parkPaper();
@@ -190,35 +182,29 @@ export class PaperHandlerMachine {
   async scanAndSave(pathOut: string): Promise<void> {
     await this.driver.setScanDirection('backward');
     const grayscaleResult = await this.driver.scan();
-    const colorResult = new Uint8Array(grayscaleResult.byteLength * 4);
-    for (let i = 0; i < grayscaleResult.byteLength; i += 1) {
-      colorResult.set(
-        [
-          grayscaleResult.at(i) as Uint8,
-          grayscaleResult.at(i) as Uint8,
-          grayscaleResult.at(i) as Uint8,
-          255,
-        ],
-        i * 4
-      );
-    }
-    const imageData = createImageData(
-      Uint8ClampedArray.from(colorResult),
-      1728,
-      grayscaleResult.byteLength / 1728
+    const grayscaleData = grayscaleResult.data;
+    const colorResult = createImageData(
+      grayscaleResult.width,
+      grayscaleResult.height
     );
-    await writeImageData(pathOut, imageData);
+    const colorData = new Uint32Array(
+      colorResult.data.buffer,
+      colorResult.data.byteOffset,
+      colorResult.data.byteLength
+    );
+    for (let i = 0; i < grayscaleData.byteLength; i += 1) {
+      const luminance = grayscaleData[i];
+      colorData[i] =
+        // eslint-disable-next-line no-bitwise
+        (luminance << 24) | (luminance << 16) | (luminance << 8) | 255;
+    }
+    await writeImageData(pathOut, colorResult);
   }
 
   async printBallot(
     pdfData: Uint8Array,
     options: Partial<ImageConversionOptions> = {}
   ): Promise<void> {
-    if ((await this.getSimpleStatus()) !== 'paper_parked') {
-      // You can begin print from loading state as well, but not for demo
-      // throw new Error('no parked paper to print on');
-    }
-
     this.status = 'printing_ballot';
     const enablePrintPromise = this.enablePrint();
 
@@ -227,16 +213,13 @@ export class PaperHandlerMachine {
     for await (const { page, pageCount } of pdfToImages(Buffer.from(pdfData), {
       scale: 200 / 72,
     })) {
-      assert(pageCount === 1);
+      assert(pageCount === 1, `Unexpected page count ${pageCount}`);
       pages.push(page);
     }
     const page = pages[0];
-    assert(page);
+    assert(page, 'Unexpected undefined page');
     debug(`pdf to image took ${Date.now() - time} ms`);
     time = Date.now();
-    // For prototype we expect image to have the same number of dots as the printer width.
-    // This is likely a requirement long term but we should have guarantees upstream.
-    assert(page.width === 1600);
 
     const ballotBinaryBitmap = imageDataToBinaryBitmap(page, options);
     debug(`bitmap width: ${ballotBinaryBitmap.width}`);
@@ -256,7 +239,7 @@ export class PaperHandlerMachine {
     for (const customChunkedBitmap of customChunkedBitmaps) {
       debug(`printing chunk ${i}`);
       if (customChunkedBitmap.empty) {
-        dotsSkipped += 24;
+        dotsSkipped += VERTICAL_DOTS_IN_CHUNK;
       } else {
         if (dotsSkipped) {
           await this.driver.setRelativeVerticalPrintPosition(dotsSkipped * 2); // assuming default vertical units, 1 / 408 units
@@ -270,13 +253,15 @@ export class PaperHandlerMachine {
   }
 }
 
-export async function getPaperHandlerMachine(): Promise<
-  Optional<PaperHandlerMachine>
+export async function getPaperHandlerStateMachine(): Promise<
+  Optional<PaperHandlerStateMachine>
 > {
   const paperHandlerDriver = await getPaperHandlerDriver();
   if (!paperHandlerDriver) return;
 
-  const paperHandlerMachine = new PaperHandlerMachine(paperHandlerDriver);
-  await paperHandlerMachine.setDefaults();
-  return paperHandlerMachine;
+  const paperHandlerStateMachine = new PaperHandlerStateMachine(
+    paperHandlerDriver
+  );
+  await paperHandlerStateMachine.setDefaults();
+  return paperHandlerStateMachine;
 }

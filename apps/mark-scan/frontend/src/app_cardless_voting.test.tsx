@@ -1,5 +1,9 @@
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
-import { FakeKiosk, expectPrint, fakeKiosk } from '@votingworks/test-utils';
+import {
+  FakeKiosk,
+  expectPrintToPdf,
+  fakeKiosk,
+} from '@votingworks/test-utils';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import {
@@ -39,6 +43,13 @@ afterEach(() => {
 });
 
 jest.setTimeout(15000);
+
+async function mockLoadPaper() {
+  apiMock.expectParkPaper();
+  const loadButton = await screen.findByText('Press to Load');
+  userEvent.click(loadButton);
+  apiMock.setPaperHandlerState('paper_parked');
+}
 
 test('Cardless Voting Flow', async () => {
   const electionDefinition = electionSampleDefinition;
@@ -133,9 +144,13 @@ test('Cardless Voting Flow', async () => {
   });
   screen.getByText(/(12)/);
 
+  // Poll Worker loads paper
+  await mockLoadPaper();
+
   // Poll Worker deactivates ballot style
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
-  userEvent.click(await screen.findByText('Deactivate Voting Session'));
+  const deactivateButton = await screen.findByText('Deactivate Voting Session');
+  userEvent.click(deactivateButton);
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     isScannerReportDataReadExpected: false,
   });
@@ -231,9 +246,10 @@ test('Cardless Voting Flow', async () => {
   }
 
   // Advance to print ballot
+  apiMock.expectPrintBallot();
   fireEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrint();
+  await expectPrintToPdf();
 
   // Reset ballot
   await advanceTimersAndPromises();
@@ -298,6 +314,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
       precinctId: '23',
     },
   });
+  await mockLoadPaper();
   await screen.findByText('Voting Session Active: 12 at Center Springfield');
 
   // Poll Worker removes their card
@@ -323,9 +340,10 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   }
 
   // Advance to print ballot
+  apiMock.expectPrintBallot();
   fireEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrint();
+  await expectPrintToPdf();
 
   // Reset ballot
   await advanceTimersAndPromises();
@@ -438,6 +456,7 @@ test('poll worker must select a precinct first', async () => {
       precinctId: '23',
     },
   });
+  await mockLoadPaper();
   await screen.findByText('Voting Session Active: 12 at Center Springfield');
 
   // Poll Worker deactivates ballot style
@@ -546,9 +565,10 @@ test('poll worker must select a precinct first', async () => {
   }
 
   // Advance to print ballot
+  apiMock.expectPrintBallot();
   fireEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrint();
+  await expectPrintToPdf();
 
   // Reset ballot
   await advanceTimersAndPromises();

@@ -4,7 +4,6 @@ import {
   BATTERY_POLLING_INTERVAL,
   LOW_BATTERY_THRESHOLD,
 } from '@votingworks/ui';
-import { electionSampleDefinition } from '@votingworks/fixtures';
 import { act, render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
@@ -12,7 +11,6 @@ import { App } from './app';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import {
-  electionDefinition,
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
@@ -154,38 +152,6 @@ describe('Displays setup warning messages and errors screens', () => {
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
   });
 
-  it('Admin screen trumps "No Printer Detected" error', async () => {
-    apiMock.expectGetMachineConfig();
-    const storage = new MemoryStorage();
-    const hardware = MemoryHardware.buildStandard();
-    await setElectionInStorage(storage, electionDefinition);
-    await setStateInStorage(storage);
-    render(
-      <App
-        hardware={hardware}
-        storage={storage}
-        apiClient={apiMock.mockApiClient}
-        reload={jest.fn()}
-      />
-    );
-
-    await advanceTimersAndPromises();
-    screen.getByText('Insert Card');
-
-    // Disconnect Printer
-    act(() => {
-      hardware.setPrinterConnected(false);
-    });
-    await advanceTimersAndPromises();
-    screen.getByText('No Printer Detected');
-
-    // Insert election manager card
-    apiMock.setAuthStatusElectionManagerLoggedIn(electionSampleDefinition);
-
-    // expect to see election manager screen
-    await screen.findByText('Election Manager Actions');
-  });
-
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
     apiMock.expectGetMachineConfig();
     const storage = new MemoryStorage();
@@ -247,5 +213,26 @@ describe('Displays setup warning messages and errors screens', () => {
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
     screen.getByText(insertCardScreenText);
     await advanceTimersAndPromises();
+  });
+
+  it('displays paper handler connection error if no paper handler', async () => {
+    apiMock.setPaperHandlerState('no_hardware');
+    apiMock.expectGetMachineConfig();
+    const storage = new MemoryStorage();
+    const hardware = MemoryHardware.buildStandard();
+    await setElectionInStorage(storage);
+    await setStateInStorage(storage);
+
+    render(
+      <App
+        hardware={hardware}
+        storage={storage}
+        apiClient={apiMock.mockApiClient}
+        reload={jest.fn()}
+      />
+    );
+
+    await advanceTimersAndPromises();
+    screen.getByText('No Connection to Printer-Scanner');
   });
 });

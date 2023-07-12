@@ -4,6 +4,7 @@ import {
   expectPrint,
   fakeElectionManagerUser,
   fakeKiosk,
+  expectPrintToPdf,
 } from '@votingworks/test-utils';
 import {
   MemoryStorage,
@@ -15,7 +16,6 @@ import { getContestDistrictName } from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ok } from '@votingworks/basics';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
-import * as GLOBALS from './config/globals';
 
 import { App } from './app';
 
@@ -29,7 +29,10 @@ import {
   measure102Contest,
   voterContests,
 } from '../test/helpers/election';
-import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
+import {
+  BALLOT_PRINTING_TIMEOUT_SECONDS,
+  REPORT_PRINTING_TIMEOUT_SECONDS,
+} from './config/globals';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { configureFromUsbThenRemove } from '../test/helpers/ballot_package';
 
@@ -48,7 +51,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(20000);
+jest.setTimeout(25000);
 
 test('MarkAndPrint end-to-end flow', async () => {
   const logger = fakeLogger();
@@ -277,12 +280,13 @@ test('MarkAndPrint end-to-end flow', async () => {
   screen.getByText('You may still vote for 2 more candidates.');
 
   // Print Screen
+  apiMock.expectPrintBallot();
   userEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrint();
+  await expectPrintToPdf();
 
   // Expire timeout for display of "Printing Ballot" screen
-  await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
+  await advanceTimersAndPromises(BALLOT_PRINTING_TIMEOUT_SECONDS);
 
   screen.getByText('You’re Almost Done');
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();

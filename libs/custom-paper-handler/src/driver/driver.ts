@@ -12,6 +12,7 @@ import {
   padding,
   uint8,
 } from '@votingworks/message-coder';
+import { createImageData } from '@votingworks/image-utils';
 import {
   assertNumberIsInRangeInclusive,
   assertUint16,
@@ -471,7 +472,7 @@ export class PaperHandlerDriver {
     return this.syncScannerConfig();
   }
 
-  async scan(): Promise<Uint8Array> {
+  async scan(): Promise<ImageData> {
     await this.genericLock.acquire();
     await this.transferOutGeneric(ScanCommand, undefined);
     debug('STARTING SCAN');
@@ -519,7 +520,10 @@ export class PaperHandlerDriver {
     }
     this.genericLock.release();
     debug('ALL BLOCKS RECEIVED');
-    return Buffer.concat(imageData);
+    return createImageData(
+      Uint8ClampedArray.from(Buffer.concat(imageData)),
+      1728
+    );
   }
 
   /**

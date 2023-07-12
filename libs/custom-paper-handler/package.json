@@ -27,7 +27,6 @@
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "buffer": "^6.0.3",
-    "canvas": "2.9.1",
     "debug": "^4.3.4",
     "usb": "^2.6.0",
     "wait-for-expect": "^3.0.2"

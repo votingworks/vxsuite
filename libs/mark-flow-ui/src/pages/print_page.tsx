@@ -4,7 +4,7 @@ import {
   BmdPaperBallot,
   H1,
   Main,
-  printElement,
+  printElement as DefaultPrintElement,
   Prose,
   Screen,
   useLock,
@@ -15,6 +15,7 @@ import {
   BallotStyleId,
   ElectionDefinition,
   PrecinctId,
+  PrintOptions,
   VotesDict,
 } from '@votingworks/types';
 
@@ -28,6 +29,10 @@ export interface PrintPageProps {
   votes: VotesDict;
   generateBallotId: () => string;
   onPrintStarted?: () => void;
+  printElement?: (
+    element: JSX.Element,
+    printOptions: PrintOptions
+  ) => Promise<void>;
 }
 
 export function PrintPage({
@@ -38,6 +43,7 @@ export function PrintPage({
   votes,
   generateBallotId,
   onPrintStarted,
+  printElement = DefaultPrintElement,
 }: PrintPageProps): JSX.Element {
   const printLock = useLock();
 
@@ -65,6 +71,7 @@ export function PrintPage({
     precinctId,
     votes,
     onPrintStarted,
+    printElement,
   ]);
 
   useEffect(() => {

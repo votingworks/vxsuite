@@ -7,6 +7,7 @@ import { TextDecoder, TextEncoder } from 'util';
 import {
   expectTestToEndWithAllPrintsAsserted,
   fakePrintElement,
+  fakePrintElementToPdf,
   fakePrintElementWhenReady,
 } from '@votingworks/test-utils';
 import { configure } from '../test/react_testing_library';
@@ -19,6 +20,7 @@ jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
     ...original,
     printElementWhenReady: fakePrintElementWhenReady,
     printElement: fakePrintElement,
+    printElementToPdf: fakePrintElementToPdf,
   };
 });
 

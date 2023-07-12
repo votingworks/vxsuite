@@ -274,7 +274,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^26.6.3
-        version: 26.6.3
+        version: 26.6.3(canvas@2.9.1)
       jest-junit:
         specifier: ^14.0.1
         version: 14.0.1
@@ -1355,7 +1355,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^26.6.0
-        version: 26.6.3
+        version: 26.6.3(canvas@2.9.1)
       jest-environment-jsdom-sixteen:
         specifier: ^1.0.3
         version: 1.0.3(canvas@2.9.1)
@@ -1853,7 +1853,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^26.6.0
-        version: 26.6.3
+        version: 26.6.3(canvas@2.9.1)
       jest-environment-jsdom-sixteen:
         specifier: ^1.0.3
         version: 1.0.3(canvas@2.9.1)
@@ -2013,7 +2013,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^26.6.0
-        version: 26.6.3
+        version: 26.6.3(canvas@2.9.1)
       jest-junit:
         specifier: ^14.0.1
         version: 14.0.1
@@ -2044,6 +2044,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
+      '@votingworks/custom-paper-handler':
+        specifier: workspace:*
+        version: link:../../../libs/custom-paper-handler
       '@votingworks/db':
         specifier: workspace:*
         version: link:../../../libs/db
@@ -2056,6 +2059,9 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../../../libs/image-utils
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
@@ -2065,6 +2071,9 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
+      canvas:
+        specifier: 2.9.1
+        version: 2.9.1
       debug:
         specifier: ^4.3.4
         version: 4.3.4(supports-color@8.1.1)
@@ -2158,7 +2167,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^26.6.3
-        version: 26.6.3
+        version: 26.6.3(canvas@2.9.1)
       jest-junit:
         specifier: ^14.0.1
         version: 14.0.1
@@ -2270,6 +2279,9 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
+      canvas:
+        specifier: 2.9.1
+        version: 2.9.1
       css-loader:
         specifier: 4.3.0
         version: 4.3.0(webpack@4.44.2)
@@ -2776,7 +2788,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^26.6.3
-        version: 26.6.3
+        version: 26.6.3(canvas@2.9.1)
       jest-junit:
         specifier: ^14.0.1
         version: 14.0.1
@@ -3704,7 +3716,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^26.6.0
-        version: 26.6.3
+        version: 26.6.3(canvas@2.9.1)
       jest-environment-jsdom-sixteen:
         specifier: ^1.0.3
         version: 1.0.3(canvas@2.9.1)
@@ -4997,9 +5009,6 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      canvas:
-        specifier: 2.9.1
-        version: 2.9.1
       debug:
         specifier: ^4.3.4
         version: 4.3.4(supports-color@8.1.1)
@@ -20548,7 +20557,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 5.37.0(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)(typescript@4.6.3)
       '@typescript-eslint/experimental-utils': 5.37.0(eslint@8.23.1)(typescript@4.6.3)
       eslint: 8.23.1
-      jest: 26.6.3
+      jest: 26.6.3(canvas@2.9.1)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -20768,7 +20777,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 5.37.0(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)(typescript@4.6.3)
       '@typescript-eslint/utils': 5.49.0(eslint@8.23.1)(typescript@4.6.3)
       eslint: 8.23.1
-      jest: 26.6.3
+      jest: 26.6.3(canvas@2.9.1)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -20878,7 +20887,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 5.37.0(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)(typescript@4.6.3)
       '@typescript-eslint/utils': 5.49.0(eslint@8.23.1)(typescript@4.6.3)
       eslint: 8.23.1
-      jest: 26.6.3
+      jest: 26.6.3(canvas@2.9.1)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -25559,7 +25568,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
-      jest: 26.6.3
+      jest: 26.6.3(canvas@2.9.1)
       jest-regex-util: 27.5.1
       jest-watcher: 27.5.1
       slash: 3.0.0
@@ -25671,7 +25680,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
-      jest: 26.6.3
+      jest: 26.6.3(canvas@2.9.1)
       jest-regex-util: 27.5.1
       jest-watcher: 27.5.1
       slash: 3.0.0
@@ -25904,7 +25913,7 @@ packages:
       - utf-8-validate
     dev: true
 
-  /jest@26.6.3:
+  /jest@26.6.3(canvas@2.9.1):
     resolution: {integrity: sha512-lGS5PXGAzR4RF7V5+XObhqz2KZIDUA1yD0DG6pBVmy10eh0ZIXQImRuzocsI/N2XZ1GrLFwTS27In2i2jlpq1Q==}
     engines: {node: '>= 10.14.2'}
     hasBin: true
@@ -32009,7 +32018,7 @@ packages:
       bs-logger: 0.2.6
       buffer-from: 1.1.2
       fast-json-stable-stringify: 2.1.0
-      jest: 26.6.3
+      jest: 26.6.3(canvas@2.9.1)
       jest-util: 26.6.2
       json5: 2.2.3
       lodash: 4.17.21

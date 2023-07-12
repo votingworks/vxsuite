@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Buffer } from 'buffer';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type { Api, MachineConfig } from '@votingworks/mark-scan-backend';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -21,6 +22,7 @@ import {
 } from '@votingworks/test-utils';
 import { err, ok, Optional, Result } from '@votingworks/basics';
 import { ScannerReportData } from '@votingworks/utils';
+import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';
 
@@ -30,9 +32,10 @@ interface CardlessVoterUserParams {
 }
 
 type MockApiClient = Omit<MockClient<Api>, 'getAuthStatus'> & {
-  // Because this is polled so frequently, we opt for a standard jest mock instead of a
+  // Because these are polled so frequently, we opt for a standard jest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getAuthStatus: jest.Mock;
+  getPaperHandlerState: jest.Mock;
 };
 
 function createMockApiClient(): MockApiClient {
@@ -42,6 +45,10 @@ function createMockApiClient(): MockApiClient {
   (mockApiClient.getAuthStatus as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
   );
+  (mockApiClient.getPaperHandlerState as unknown as jest.Mock) = jest.fn(() =>
+    Promise.resolve('no_paper')
+  );
+
   return mockApiClient as unknown as MockApiClient;
 }
 
@@ -56,6 +63,12 @@ export function createApiMock() {
   function setAuthStatus(authStatus: InsertedSmartCardAuth.AuthStatus): void {
     mockApiClient.getAuthStatus.mockImplementation(() =>
       Promise.resolve(authStatus)
+    );
+  }
+
+  function setPaperHandlerState(state: SimpleServerStatus): void {
+    mockApiClient.getPaperHandlerState.mockImplementation(() =>
+      Promise.resolve(state)
     );
   }
 
@@ -160,6 +173,18 @@ export function createApiMock() {
     expectUnconfigureMachine(): void {
       mockApiClient.unconfigureMachine.expectCallWith().resolves();
     },
+
+    expectParkPaper(): void {
+      mockApiClient.parkPaper.expectCallWith().resolves('paper_parked');
+    },
+
+    expectPrintBallot(pdfData = Buffer.of()): void {
+      mockApiClient.printBallot
+        .expectCallWith({ pdfData })
+        .resolves('ballot_printed');
+    },
+
+    setPaperHandlerState,
 
     expectConfigureBallotPackageFromUsb(
       electionDefinition: ElectionDefinition
