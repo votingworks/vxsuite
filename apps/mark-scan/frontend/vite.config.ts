@@ -76,7 +76,6 @@ export default defineConfig((env) => {
     // hardware has limited resources and hot reloading can cause poor performance during development
     server: {
       hmr:
-        // Values are not parsed to booleans in this file
         process.env.DISABLE_MARKSCAN_HOT_RELOAD === 'true'
         ? false : undefined
     },
