@@ -32,12 +32,13 @@ import { stripQuotes } from '../utils/strip_quotes';
 import { UpdateVoteFunction } from '../config/types';
 
 import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
-import { ContentHeader, ChoicesGrid } from './contest_screen_layout';
-import { ContestTitle } from './contest_title';
+import { ChoicesGrid } from './contest_screen_layout';
+import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 
 const WriteInModalContent = styled.div``;
 
 interface Props {
+  breadcrumbs?: BreadcrumbMetadata;
   election: Election;
   contest: CandidateContestInterface;
   vote: CandidateVote;
@@ -53,6 +54,7 @@ function normalizeCandidateName(name: string) {
 }
 
 export function CandidateContest({
+  breadcrumbs,
   election,
   contest,
   vote,
@@ -187,26 +189,27 @@ export function CandidateContest({
   return (
     <React.Fragment>
       <Main flexColumn>
-        <ContentHeader id="contest-header">
-          <Prose id="audiofocus">
-            <ContestTitle districtName={districtName} title={contest.title} />
-            <Caption>
-              Vote for {contest.seats}.{' '}
-              {vote.length === contest.seats && (
-                <Font weight="bold">You have selected {contest.seats}.</Font>
-              )}
-              {vote.length < contest.seats && vote.length !== 0 && (
-                <Font weight="bold">
-                  You may select {contest.seats - vote.length} more.
-                </Font>
-              )}
-              <span className="screen-reader-only">
-                To navigate through the contest choices, use the down button. To
-                move to the next contest, use the right button.
-              </span>
-            </Caption>
-          </Prose>
-        </ContentHeader>
+        <ContestHeader
+          breadcrumbs={breadcrumbs}
+          districtName={districtName}
+          title={contest.title}
+        >
+          <Caption>
+            Vote for {contest.seats}.{' '}
+            {vote.length === contest.seats && (
+              <Font weight="bold">You have selected {contest.seats}.</Font>
+            )}
+            {vote.length < contest.seats && vote.length !== 0 && (
+              <Font weight="bold">
+                You may select {contest.seats - vote.length} more.
+              </Font>
+            )}
+            <span className="screen-reader-only">
+              To navigate through the contest choices, use the down button. To
+              move to the next contest, use the right button.
+            </span>
+          </Caption>
+        </ContestHeader>
         <WithScrollButtons>
           <ChoicesGrid>
             {contest.candidates.map((candidate) => {

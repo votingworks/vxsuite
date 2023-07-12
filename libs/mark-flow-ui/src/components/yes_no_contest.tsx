@@ -23,14 +23,11 @@ import { getSingleYesNoVote } from '@votingworks/utils';
 import { Optional } from '@votingworks/basics';
 import { UpdateVoteFunction } from '../config/types';
 
-import {
-  ContentHeader,
-  ContestFooter,
-  ChoicesGrid,
-} from './contest_screen_layout';
-import { ContestTitle } from './contest_title';
+import { ContestFooter, ChoicesGrid } from './contest_screen_layout';
+import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 
 interface Props {
+  breadcrumbs?: BreadcrumbMetadata;
   election: Election;
   contest: YesNoContestInterface;
   vote?: YesNoVote;
@@ -38,6 +35,7 @@ interface Props {
 }
 
 export function YesNoContest({
+  breadcrumbs,
   election,
   contest,
   vote,
@@ -76,19 +74,20 @@ export function YesNoContest({
   return (
     <React.Fragment>
       <Main flexColumn>
-        <ContentHeader id="contest-header">
-          <Prose id="audiofocus">
-            <ContestTitle districtName={districtName} title={contest.title} />
-            <Caption>
-              Vote <strong>Yes</strong> or <strong>No</strong>.
-              <span className="screen-reader-only">
-                {contest.description}
-                To navigate through the contest choices, use the down button. To
-                move to the next contest, use the right button.
-              </span>
-            </Caption>
-          </Prose>
-        </ContentHeader>
+        <ContestHeader
+          breadcrumbs={breadcrumbs}
+          districtName={districtName}
+          title={contest.title}
+        >
+          <Caption>
+            Vote <strong>Yes</strong> or <strong>No</strong>.
+            <span className="screen-reader-only">
+              {contest.description}
+              To navigate through the contest choices, use the down button. To
+              move to the next contest, use the right button.
+            </span>
+          </Caption>
+        </ContestHeader>
         <WithScrollButtons>
           <Caption>
             <Pre>{contest.description}</Pre>
