@@ -77,6 +77,7 @@ import { getPageCount } from '../utils/get_page_count';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
+/* istanbul ignore next - prototype */
 function isBrotherThermalPrinter(printerInfo?: KioskBrowser.PrinterInfo) {
   return printerInfo?.name === 'PJ-822' || printerInfo?.name === 'PJ-823';
 }
@@ -394,6 +395,7 @@ export function PollWorkerScreen({
       copies,
     });
 
+    /* istanbul ignore next - prototype */
     if (isBrotherThermalPrinter(printerInfo)) {
       setNumReportPages(await getPageCount(report));
     }
@@ -407,6 +409,7 @@ export function PollWorkerScreen({
       await printReport(
         pollsTransition,
         timePollsTransitioned,
+        /* istanbul ignore next - prototype */
         isBrotherThermalPrinter(printerInfo)
           ? 1
           : DEFAULT_NUMBER_POLL_REPORT_COPIES
@@ -599,6 +602,7 @@ export function PollWorkerScreen({
           <H1>{pollsTransitionCompleteText}</H1>
           {hasPrinterAttached ? (
             <Prose themeDeprecated={fontSizeTheme.medium}>
+              {/* istanbul ignore next - prototype */}
               {isBrotherThermalPrinter(printerInfo) && (
                 <P>
                   Insert{' '}
