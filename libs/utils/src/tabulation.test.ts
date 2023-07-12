@@ -632,9 +632,9 @@ describe('tabulateCastVoteRecords', () => {
     electionMinimalExhaustiveSampleFixtures.castVoteRecordReport.asDirectoryPath()
   );
 
-  test('without grouping', () => {
+  test('without grouping', async () => {
     // empty election
-    const emptyResults = tabulateCastVoteRecords({ cvrs: [], election });
+    const emptyResults = await tabulateCastVoteRecords({ cvrs: [], election });
     expect(Object.values(emptyResults)).toHaveLength(1);
     expect(emptyResults[GROUP_KEY_ROOT]).toEqual(
       getEmptyElectionResults(election)
@@ -648,55 +648,57 @@ describe('tabulateCastVoteRecords', () => {
       scannerId: 'scanner-1',
     } as const;
 
-    const electionResult = tabulateCastVoteRecords({
-      cvrs: [
-        {
-          card: { type: 'bmd' },
-          votes: {
-            'best-animal-mammal': ['fox'],
-            'zoo-council-mammal': ['elephant', 'lion', 'write-in-0'],
-            'new-zoo-either': ['yes'],
-            'new-zoo-pick': ['no'],
-            fishing: ['yes'],
+    const electionResult = (
+      await tabulateCastVoteRecords({
+        cvrs: [
+          {
+            card: { type: 'bmd' },
+            votes: {
+              'best-animal-mammal': ['fox'],
+              'zoo-council-mammal': ['elephant', 'lion', 'write-in-0'],
+              'new-zoo-either': ['yes'],
+              'new-zoo-pick': ['no'],
+              fishing: ['yes'],
+            },
+            ...someMetadata,
           },
-          ...someMetadata,
-        },
-        {
-          card: { type: 'hmpb', sheetNumber: 1 },
-          votes: {
-            'best-animal-mammal': ['fox', 'horse'],
-            'zoo-council-mammal': ['elephant', 'lion', 'zebra', 'kangaroo'],
-            'new-zoo-either': ['yes', 'no'],
-            'new-zoo-pick': ['yes', 'no'],
-            fishing: ['yes', 'no'],
+          {
+            card: { type: 'hmpb', sheetNumber: 1 },
+            votes: {
+              'best-animal-mammal': ['fox', 'horse'],
+              'zoo-council-mammal': ['elephant', 'lion', 'zebra', 'kangaroo'],
+              'new-zoo-either': ['yes', 'no'],
+              'new-zoo-pick': ['yes', 'no'],
+              fishing: ['yes', 'no'],
+            },
+            ...someMetadata,
           },
-          ...someMetadata,
-        },
-        {
-          card: { type: 'hmpb', sheetNumber: 1 },
-          votes: {
-            'best-animal-fish': ['seahorse'],
-            'aquarium-council-fish': ['manta-ray', 'pufferfish'],
-            'new-zoo-either': ['no'],
-            'new-zoo-pick': ['yes'],
-            fishing: ['yes'],
+          {
+            card: { type: 'hmpb', sheetNumber: 1 },
+            votes: {
+              'best-animal-fish': ['seahorse'],
+              'aquarium-council-fish': ['manta-ray', 'pufferfish'],
+              'new-zoo-either': ['no'],
+              'new-zoo-pick': ['yes'],
+              fishing: ['yes'],
+            },
+            ...someMetadata,
           },
-          ...someMetadata,
-        },
-        {
-          card: { type: 'bmd' },
-          votes: {
-            'best-animal-fish': [],
-            'aquarium-council-fish': ['manta-ray'],
-            'new-zoo-either': [],
-            'new-zoo-pick': [],
-            fishing: [],
+          {
+            card: { type: 'bmd' },
+            votes: {
+              'best-animal-fish': [],
+              'aquarium-council-fish': ['manta-ray'],
+              'new-zoo-either': [],
+              'new-zoo-pick': [],
+              fishing: [],
+            },
+            ...someMetadata,
           },
-          ...someMetadata,
-        },
-      ],
-      election,
-    })[GROUP_KEY_ROOT];
+        ],
+        election,
+      })
+    )[GROUP_KEY_ROOT];
 
     assert(electionResult);
     expect(electionResult).toEqual(
@@ -774,14 +776,8 @@ describe('tabulateCastVoteRecords', () => {
     );
   });
 
-  // use ungrouped results, verified in last test, to compare against for grouped results
-  const ungroupedResults = tabulateCastVoteRecords({ cvrs, election })[
-    GROUP_KEY_ROOT
-  ];
-  assert(ungroupedResults);
-
-  test('by ballot style or party', () => {
-    const resultsByBallotStyle = tabulateCastVoteRecords({
+  test('by ballot style or party', async () => {
+    const resultsByBallotStyle = await tabulateCastVoteRecords({
       cvrs,
       election,
       groupBy: {
@@ -799,7 +795,7 @@ describe('tabulateCastVoteRecords', () => {
       )
     ).toEqual([56, 56]);
 
-    const resultsByParty = tabulateCastVoteRecords({
+    const resultsByParty = await tabulateCastVoteRecords({
       cvrs,
       election,
       groupBy: {
@@ -827,9 +823,9 @@ describe('tabulateCastVoteRecords', () => {
     ).toEqual(resultsByParty['root&partyId=1']?.contestResults);
   });
 
-  test('by batch and scanner', () => {
+  test('by batch and scanner', async () => {
     // dataset only has one batch and one scanner, so the grouping is trivial
-    const resultsByBatchAndScanner = tabulateCastVoteRecords({
+    const resultsByBatchAndScanner = await tabulateCastVoteRecords({
       cvrs,
       election,
       groupBy: {
@@ -840,11 +836,15 @@ describe('tabulateCastVoteRecords', () => {
     expect(Object.values(resultsByBatchAndScanner)).toHaveLength(1);
     const results =
       resultsByBatchAndScanner['root&batchId=9822c71014&scannerId=VX-00-000']!;
-    expect(results).toMatchObject(ungroupedResults);
+
+    // use ungrouped results, verified in previous test, to compare against for grouped results
+    expect(results).toMatchObject(
+      (await tabulateCastVoteRecords({ cvrs, election }))[GROUP_KEY_ROOT]!
+    );
   });
 
-  test('by voting method and precinct', () => {
-    const resultsByMethodAndPrecinct = tabulateCastVoteRecords({
+  test('by voting method and precinct', async () => {
+    const resultsByMethodAndPrecinct = await tabulateCastVoteRecords({
       cvrs,
       election,
       groupBy: {

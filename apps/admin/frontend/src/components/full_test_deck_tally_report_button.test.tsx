@@ -10,7 +10,7 @@ import {
   fakeUsbDrive,
 } from '@votingworks/test-utils';
 import { mockUsbDrive } from '@votingworks/ui';
-import { screen, within } from '../../test/react_testing_library';
+import { screen, waitFor, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { FullTestDeckTallyReportButton } from './full_test_deck_tally_report_button';
 
@@ -79,6 +79,11 @@ test('renders SaveFileToUsb component for saving PDF', async () => {
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
     usbDrive,
   });
+  await waitFor(() => {
+    expect(
+      screen.getByText('Save Full Test Deck Tally Report as PDF')
+    ).toBeEnabled();
+  });
   userEvent.click(screen.getByText('Save Full Test Deck Tally Report as PDF'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Test Deck Tally Report');
@@ -89,6 +94,11 @@ test('closes SaveFileToUsb modal', async () => {
   renderInAppContext(<FullTestDeckTallyReportButton />, {
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
     usbDrive,
+  });
+  await waitFor(() => {
+    expect(
+      screen.getByText('Save Full Test Deck Tally Report as PDF')
+    ).toBeEnabled();
   });
   userEvent.click(screen.getByText('Save Full Test Deck Tally Report as PDF'));
   const modal = await screen.findByRole('alertdialog');

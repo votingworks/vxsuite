@@ -310,6 +310,9 @@ test('L&A (logic and accuracy) flow', async () => {
 
   // Test printing full test deck tally
   userEvent.click(screen.getByText('L&A'));
+  await waitFor(() => {
+    expect(screen.getByText('Print Full Test Deck Tally Report')).toBeEnabled();
+  });
   userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));
 
   await screen.findByText('Printing');

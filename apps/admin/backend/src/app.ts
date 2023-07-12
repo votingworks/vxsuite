@@ -687,15 +687,15 @@ function buildApi({
       );
     },
 
-    getResultsForTallyReports(
+    async getResultsForTallyReports(
       input: {
         filter?: Tabulation.Filter;
         groupBy?: Tabulation.GroupBy;
       } = {}
-    ): Tabulation.GroupList<TallyReportResults> {
+    ): Promise<Tabulation.GroupList<TallyReportResults>> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       return groupMapToGroupList(
-        tabulateTallyReportResults({
+        await tabulateTallyReportResults({
           electionId,
           store,
           filter: input.filter,
@@ -720,7 +720,7 @@ function buildApi({
         path: input.path,
         data: generateBatchResultsFile({
           election,
-          batchGroupedResults: tabulateElectionResults({
+          batchGroupedResults: await tabulateElectionResults({
             electionId,
             store,
             groupBy: { groupByBatch: true },
@@ -744,11 +744,11 @@ function buildApi({
       return exportFileResult;
     },
 
-    getSemsExportableTallies(): SemsExportableTallies {
+    async getSemsExportableTallies(): Promise<SemsExportableTallies> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
 
       return getSemsExportableTallies(
-        tabulateElectionResults({
+        await tabulateElectionResults({
           electionId,
           store,
           groupBy: { groupByPrecinct: true },
@@ -768,13 +768,14 @@ function buildApi({
         path: input.path,
         data: generateResultsCsv({
           election,
-          electionResultsByPrecinctAndVotingMethod: tabulateElectionResults({
-            electionId,
-            store,
-            groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
-            includeManualResults: true,
-            includeWriteInAdjudicationResults: true,
-          }),
+          electionResultsByPrecinctAndVotingMethod:
+            await tabulateElectionResults({
+              electionId,
+              store,
+              groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
+              includeManualResults: true,
+              includeWriteInAdjudicationResults: true,
+            }),
           writeInCandidates: store.getWriteInCandidates({ electionId }),
         }),
       });
