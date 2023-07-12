@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`changing votes 1`] = `
-.c4 {
+.c3 {
   font-size: 1em;
   font-weight: 500;
   line-height: 1.2;
@@ -9,14 +9,14 @@ exports[`changing votes 1`] = `
   font-size: 0.75em;
 }
 
-.c6 {
+.c5 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
   font-size: 0.75em;
 }
 
-.c20 {
+.c19 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
@@ -24,7 +24,7 @@ exports[`changing votes 1`] = `
   margin-bottom: 0.5em;
 }
 
-.c9 {
+.c8 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
@@ -35,7 +35,7 @@ exports[`changing votes 1`] = `
   white-space: pre-wrap;
 }
 
-.c3 {
+.c4 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
@@ -46,111 +46,26 @@ exports[`changing votes 1`] = `
   font-weight: 600;
 }
 
-.c3:not(:first-child) {
+.c4:not(:first-child) {
   margin-top: 1.25em;
 }
 
-.c3 + h1,
-.c3 + h2,
-.c3 + h3,
-.c3 + h4,
-.c3 + h5,
-.c3 + h6 {
+.c4 + h1,
+.c4 + h2,
+.c4 + h3,
+.c4 + h4,
+.c4 + h5,
+.c4 + h6 {
   margin-top: 0 !important;
 }
 
-.c2 {
-  max-width: 66ch;
-  line-height: 1.2;
-}
-
-.c2 p {
-  font-size: 1em;
-}
-
-.c2 h1 {
-  margin: 2em 0 1em;
-  line-height: 1.1;
-  font-size: 1.5em;
-}
-
-.c2 h2 {
-  margin: 1.5em 0 0.75em;
-  font-size: 1.25em;
-}
-
-.c2 h3 {
-  font-size: 1.17em;
-}
-
-.c2 h4 {
-  font-size: 1em;
-}
-
-.c2 h5 {
-  font-size: 0.9em;
-}
-
-.c2 h3,
-.c2 h4,
-.c2 h5,
-.c2 p,
-.c2 ol,
-.c2 ul,
-.c2 hr {
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
-.c2 h1 + h2 {
-  margin-top: -0.75em;
-}
-
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h1 + ol,
-.c2 h2 + ol,
-.c2 h1 + ul,
-.c2 h2 + ul {
-  margin-top: -0.75em;
-}
-
-.c2 h3 + p,
-.c2 h4 + p,
-.c2 h5 + p,
-.c2 h3 + ol,
-.c2 h4 + ol,
-.c2 h5 + ol,
-.c2 h3 + ul,
-.c2 h4 + ul,
-.c2 h5 + ul {
-  margin-top: -1em;
-}
-
-.c2 > :not(.ignore-prose):first-child {
-  margin-top: 0;
-}
-
-.c2 > :not(.ignore-prose):last-child {
-  margin-bottom: 0;
-}
-
-.c2 dl {
-  margin: 1em 0;
-}
-
-.c2 hr {
-  border: 0;
-  border-top: 0.1em solid #666666;
-}
-
-.c18 {
+.c17 {
   fill: currentColor;
   height: 1em;
   width: 1em;
 }
 
-.c12 {
+.c11 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -163,12 +78,12 @@ exports[`changing votes 1`] = `
   touch-action: manipulation;
 }
 
-.c12:hover,
-.c12:active {
+.c11:hover,
+.c11:active {
   outline: none;
 }
 
-.c22 {
+.c21 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -181,12 +96,12 @@ exports[`changing votes 1`] = `
   touch-action: manipulation;
 }
 
-.c22:hover,
-.c22:active {
+.c21:hover,
+.c21:active {
   outline: none;
 }
 
-.c14 {
+.c13 {
   display: inline-block;
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
@@ -197,7 +112,7 @@ exports[`changing votes 1`] = `
   flex-shrink: 1;
 }
 
-.c17 {
+.c16 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -218,13 +133,13 @@ exports[`changing votes 1`] = `
   border: 0.15rem solid currentColor;
 }
 
-.c17 > * {
+.c16 > * {
   opacity: 1;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c24 {
+.c23 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -244,13 +159,13 @@ exports[`changing votes 1`] = `
   width: 1.75em;
 }
 
-.c24 > * {
+.c23 > * {
   opacity: 0;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c13 {
+.c12 {
   border: 0.05rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -265,11 +180,11 @@ exports[`changing votes 1`] = `
   border: 0.05rem solid #47a74b;
 }
 
-.c13:active {
+.c12:active {
   border: 0.05rem solid #47a74b;
 }
 
-.c23 {
+.c22 {
   border: 0.05rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -283,11 +198,11 @@ exports[`changing votes 1`] = `
   width: 100%;
 }
 
-.c23:active {
+.c22:active {
   border: 0.05rem solid #47a74b;
 }
 
-.c15 {
+.c14 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -302,7 +217,7 @@ exports[`changing votes 1`] = `
   gap: 0.5rem;
 }
 
-.c16 {
+.c15 {
   -webkit-box-flex: 0;
   -webkit-flex-grow: 0;
   -ms-flex-positive: 0;
@@ -312,7 +227,7 @@ exports[`changing votes 1`] = `
   flex-shrink: 0;
 }
 
-.c19 {
+.c18 {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
@@ -320,7 +235,7 @@ exports[`changing votes 1`] = `
   line-height: 1;
 }
 
-.c21 {
+.c20 {
   line-height: inherit;
   margin-bottom: 0;
 }
@@ -339,7 +254,7 @@ exports[`changing votes 1`] = `
   overflow: auto;
 }
 
-.c7 {
+.c6 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -349,7 +264,7 @@ exports[`changing votes 1`] = `
   position: relative;
 }
 
-.c8 {
+.c7 {
   -webkit-align-items: stretch;
   -webkit-box-align: stretch;
   -ms-flex-align: stretch;
@@ -374,25 +289,32 @@ exports[`changing votes 1`] = `
   padding-bottom: 0;
 }
 
-.c1 {
-  padding: 0.25rem 0.5rem 0.5rem;
-}
-
-.c10 {
+.c9 {
   margin: 0 auto;
   width: 100%;
   padding: 0.5rem;
 }
 
-.c11 {
+.c10 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.5rem;
 }
 
-.c5 {
-  display: block;
-  margin-bottom: 0;
+.c1 {
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+
+.c2 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 0.5rem;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
 }
 
 @media print {
@@ -416,22 +338,26 @@ exports[`changing votes 1`] = `
       id="contest-header"
     >
       <div
-        class="c2"
         id="audiofocus"
       >
-        <h1
-          aria-label="District 1 Ballot Measure 3."
-          class="c3"
+        <div
+          class="c2"
         >
           <span
-            class="c4 c5"
+            class="c3"
           >
             District 1
           </span>
-          Ballot Measure 3
-        </h1>
+        </div>
+        <div>
+          <h1
+            class="c4"
+          >
+            Ballot Measure 3
+          </h1>
+        </div>
         <span
-          class="c6"
+          class="c5"
         >
           Vote 
           <strong>
@@ -452,16 +378,16 @@ exports[`changing votes 1`] = `
       </div>
     </div>
     <div
-      class="c7"
+      class="c6"
     >
       <div
-        class="c8"
+        class="c7"
       >
         <span
-          class="c6"
+          class="c5"
         >
           <pre
-            class="c9"
+            class="c8"
           >
             Should fishing be banned in all city owned lakes and rivers?
           </pre>
@@ -469,36 +395,36 @@ exports[`changing votes 1`] = `
       </div>
     </div>
     <div
-      class="c10"
+      class="c9"
     >
       <div
         aria-multiselectable="true"
-        class="c11"
+        class="c10"
         data-testid="contest-choices"
         role="listbox"
       >
         <button
           aria-label="Selected, Yes on Ballot Measure 3"
           aria-selected="true"
-          class="c12 c13"
+          class="c11 c12"
           role="option"
           type="button"
         >
           <span
-            class="c14"
+            class="c13"
           >
             <span
-              class="c15"
+              class="c14"
             >
               <span
-                class="c16"
+                class="c15"
               >
                 <span
-                  class="c17"
+                  class="c16"
                 >
                   <svg
                     aria-hidden="true"
-                    class="c18"
+                    class="c17"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -511,10 +437,10 @@ exports[`changing votes 1`] = `
                 </span>
               </span>
               <span
-                class="c19"
+                class="c18"
               >
                 <p
-                  class="c20 c21"
+                  class="c19 c20"
                 >
                   Yes
                 </p>
@@ -525,25 +451,25 @@ exports[`changing votes 1`] = `
         <button
           aria-label=" No on Ballot Measure 3"
           aria-selected="false"
-          class="c22 c23"
+          class="c21 c22"
           role="option"
           type="button"
         >
           <span
-            class="c14"
+            class="c13"
           >
             <span
-              class="c15"
+              class="c14"
             >
               <span
-                class="c16"
+                class="c15"
               >
                 <span
-                  class="c24"
+                  class="c23"
                 >
                   <svg
                     aria-hidden="true"
-                    class="c18"
+                    class="c17"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -556,10 +482,10 @@ exports[`changing votes 1`] = `
                 </span>
               </span>
               <span
-                class="c19"
+                class="c18"
               >
                 <p
-                  class="c20 c21"
+                  class="c19 c20"
                 >
                   No
                 </p>
@@ -574,7 +500,7 @@ exports[`changing votes 1`] = `
 `;
 
 exports[`voting for both yes and no 1`] = `
-.c4 {
+.c3 {
   font-size: 1em;
   font-weight: 500;
   line-height: 1.2;
@@ -582,14 +508,14 @@ exports[`voting for both yes and no 1`] = `
   font-size: 0.75em;
 }
 
-.c6 {
+.c5 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
   font-size: 0.75em;
 }
 
-.c20 {
+.c19 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
@@ -597,7 +523,7 @@ exports[`voting for both yes and no 1`] = `
   margin-bottom: 0.5em;
 }
 
-.c9 {
+.c8 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
@@ -608,7 +534,7 @@ exports[`voting for both yes and no 1`] = `
   white-space: pre-wrap;
 }
 
-.c3 {
+.c4 {
   font-size: 1em;
   line-height: 1.2;
   margin: 0;
@@ -619,111 +545,26 @@ exports[`voting for both yes and no 1`] = `
   font-weight: 600;
 }
 
-.c3:not(:first-child) {
+.c4:not(:first-child) {
   margin-top: 1.25em;
 }
 
-.c3 + h1,
-.c3 + h2,
-.c3 + h3,
-.c3 + h4,
-.c3 + h5,
-.c3 + h6 {
+.c4 + h1,
+.c4 + h2,
+.c4 + h3,
+.c4 + h4,
+.c4 + h5,
+.c4 + h6 {
   margin-top: 0 !important;
 }
 
-.c2 {
-  max-width: 66ch;
-  line-height: 1.2;
-}
-
-.c2 p {
-  font-size: 1em;
-}
-
-.c2 h1 {
-  margin: 2em 0 1em;
-  line-height: 1.1;
-  font-size: 1.5em;
-}
-
-.c2 h2 {
-  margin: 1.5em 0 0.75em;
-  font-size: 1.25em;
-}
-
-.c2 h3 {
-  font-size: 1.17em;
-}
-
-.c2 h4 {
-  font-size: 1em;
-}
-
-.c2 h5 {
-  font-size: 0.9em;
-}
-
-.c2 h3,
-.c2 h4,
-.c2 h5,
-.c2 p,
-.c2 ol,
-.c2 ul,
-.c2 hr {
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
-.c2 h1 + h2 {
-  margin-top: -0.75em;
-}
-
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h1 + ol,
-.c2 h2 + ol,
-.c2 h1 + ul,
-.c2 h2 + ul {
-  margin-top: -0.75em;
-}
-
-.c2 h3 + p,
-.c2 h4 + p,
-.c2 h5 + p,
-.c2 h3 + ol,
-.c2 h4 + ol,
-.c2 h5 + ol,
-.c2 h3 + ul,
-.c2 h4 + ul,
-.c2 h5 + ul {
-  margin-top: -1em;
-}
-
-.c2 > :not(.ignore-prose):first-child {
-  margin-top: 0;
-}
-
-.c2 > :not(.ignore-prose):last-child {
-  margin-bottom: 0;
-}
-
-.c2 dl {
-  margin: 1em 0;
-}
-
-.c2 hr {
-  border: 0;
-  border-top: 0.1em solid #666666;
-}
-
-.c18 {
+.c17 {
   fill: currentColor;
   height: 1em;
   width: 1em;
 }
 
-.c12 {
+.c11 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -736,12 +577,12 @@ exports[`voting for both yes and no 1`] = `
   touch-action: manipulation;
 }
 
-.c12:hover,
-.c12:active {
+.c11:hover,
+.c11:active {
   outline: none;
 }
 
-.c14 {
+.c13 {
   display: inline-block;
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
@@ -752,7 +593,7 @@ exports[`voting for both yes and no 1`] = `
   flex-shrink: 1;
 }
 
-.c17 {
+.c16 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -772,13 +613,13 @@ exports[`voting for both yes and no 1`] = `
   width: 1.75em;
 }
 
-.c17 > * {
+.c16 > * {
   opacity: 0;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c13 {
+.c12 {
   border: 0.05rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -792,11 +633,11 @@ exports[`voting for both yes and no 1`] = `
   width: 100%;
 }
 
-.c13:active {
+.c12:active {
   border: 0.05rem solid #47a74b;
 }
 
-.c15 {
+.c14 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -811,7 +652,7 @@ exports[`voting for both yes and no 1`] = `
   gap: 0.5rem;
 }
 
-.c16 {
+.c15 {
   -webkit-box-flex: 0;
   -webkit-flex-grow: 0;
   -ms-flex-positive: 0;
@@ -821,7 +662,7 @@ exports[`voting for both yes and no 1`] = `
   flex-shrink: 0;
 }
 
-.c19 {
+.c18 {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
@@ -829,7 +670,7 @@ exports[`voting for both yes and no 1`] = `
   line-height: 1;
 }
 
-.c21 {
+.c20 {
   line-height: inherit;
   margin-bottom: 0;
 }
@@ -848,7 +689,7 @@ exports[`voting for both yes and no 1`] = `
   overflow: auto;
 }
 
-.c7 {
+.c6 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -858,7 +699,7 @@ exports[`voting for both yes and no 1`] = `
   position: relative;
 }
 
-.c8 {
+.c7 {
   -webkit-align-items: stretch;
   -webkit-box-align: stretch;
   -ms-flex-align: stretch;
@@ -883,25 +724,32 @@ exports[`voting for both yes and no 1`] = `
   padding-bottom: 0;
 }
 
-.c1 {
-  padding: 0.25rem 0.5rem 0.5rem;
-}
-
-.c10 {
+.c9 {
   margin: 0 auto;
   width: 100%;
   padding: 0.5rem;
 }
 
-.c11 {
+.c10 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.5rem;
 }
 
-.c5 {
-  display: block;
-  margin-bottom: 0;
+.c1 {
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+
+.c2 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 0.5rem;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
 }
 
 @media print {
@@ -925,22 +773,26 @@ exports[`voting for both yes and no 1`] = `
       id="contest-header"
     >
       <div
-        class="c2"
         id="audiofocus"
       >
-        <h1
-          aria-label="District 1 Ballot Measure 3."
-          class="c3"
+        <div
+          class="c2"
         >
           <span
-            class="c4 c5"
+            class="c3"
           >
             District 1
           </span>
-          Ballot Measure 3
-        </h1>
+        </div>
+        <div>
+          <h1
+            class="c4"
+          >
+            Ballot Measure 3
+          </h1>
+        </div>
         <span
-          class="c6"
+          class="c5"
         >
           Vote 
           <strong>
@@ -961,16 +813,16 @@ exports[`voting for both yes and no 1`] = `
       </div>
     </div>
     <div
-      class="c7"
+      class="c6"
     >
       <div
-        class="c8"
+        class="c7"
       >
         <span
-          class="c6"
+          class="c5"
         >
           <pre
-            class="c9"
+            class="c8"
           >
             Should fishing be banned in all city owned lakes and rivers?
           </pre>
@@ -978,36 +830,36 @@ exports[`voting for both yes and no 1`] = `
       </div>
     </div>
     <div
-      class="c10"
+      class="c9"
     >
       <div
         aria-multiselectable="true"
-        class="c11"
+        class="c10"
         data-testid="contest-choices"
         role="listbox"
       >
         <button
           aria-label=" Yes on Ballot Measure 3"
           aria-selected="false"
-          class="c12 c13"
+          class="c11 c12"
           role="option"
           type="button"
         >
           <span
-            class="c14"
+            class="c13"
           >
             <span
-              class="c15"
+              class="c14"
             >
               <span
-                class="c16"
+                class="c15"
               >
                 <span
-                  class="c17"
+                  class="c16"
                 >
                   <svg
                     aria-hidden="true"
-                    class="c18"
+                    class="c17"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -1020,10 +872,10 @@ exports[`voting for both yes and no 1`] = `
                 </span>
               </span>
               <span
-                class="c19"
+                class="c18"
               >
                 <p
-                  class="c20 c21"
+                  class="c19 c20"
                 >
                   Yes
                 </p>
@@ -1034,25 +886,25 @@ exports[`voting for both yes and no 1`] = `
         <button
           aria-label=" No on Ballot Measure 3"
           aria-selected="false"
-          class="c12 c13"
+          class="c11 c12"
           role="option"
           type="button"
         >
           <span
-            class="c14"
+            class="c13"
           >
             <span
-              class="c15"
+              class="c14"
             >
               <span
-                class="c16"
+                class="c15"
               >
                 <span
-                  class="c17"
+                  class="c16"
                 >
                   <svg
                     aria-hidden="true"
-                    class="c18"
+                    class="c17"
                     height="100"
                     role="img"
                     viewBox="0 0 100 100"
@@ -1065,10 +917,10 @@ exports[`voting for both yes and no 1`] = `
                 </span>
               </span>
               <span
-                class="c19"
+                class="c18"
               >
                 <p
-                  class="c20 c21"
+                  class="c19 c20"
                 >
                   No
                 </p>

@@ -1,10 +1,9 @@
 import { CandidateVote } from '@votingworks/types';
-import { Screen, P, Font, LinkButton } from '@votingworks/ui';
+import { Screen, LinkButton } from '@votingworks/ui';
 import React, { useContext } from 'react';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { useHistory, useParams } from 'react-router-dom';
 import { Contest as MarkFlowContest } from '@votingworks/mark-flow-ui';
-import styled from 'styled-components';
 import { BallotContext } from '../contexts/ballot_context';
 import { ButtonFooter } from '../components/button_footer';
 import { DisplaySettingsButton } from '../components/display_settings_button';
@@ -12,10 +11,6 @@ import { DisplaySettingsButton } from '../components/display_settings_button';
 interface ContestParams {
   contestNumber: string;
 }
-
-const Breadcrumbs = styled.div`
-  padding: 0 0.5rem;
-`;
 
 export function ContestPage(): JSX.Element {
   const { contestNumber } = useParams<ContestParams>();
@@ -103,13 +98,11 @@ export function ContestPage(): JSX.Element {
 
   return (
     <Screen>
-      <Breadcrumbs>
-        <P align="right">
-          Contest <Font weight="bold">{ballotContestNumber}</Font> of{' '}
-          <Font weight="bold">{ballotContestsLength}</Font>
-        </P>
-      </Breadcrumbs>
       <MarkFlowContest
+        breadcrumbs={{
+          ballotContestCount: ballotContestsLength,
+          contestNumber: ballotContestNumber,
+        }}
         election={electionDefinition.election}
         contest={contest}
         votes={votes}

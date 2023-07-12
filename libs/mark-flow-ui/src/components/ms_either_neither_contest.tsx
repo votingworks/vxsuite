@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import {
   ContestChoiceButton,
   Main,
-  Prose,
   Caption,
   Pre,
   WithScrollButtons,
@@ -16,8 +15,7 @@ import {
   getContestDistrictName,
   MsEitherNeitherContest as MsEitherNeitherContestInterface,
 } from '../utils/ms_either_neither_contests';
-import { ContentHeader } from './contest_screen_layout';
-import { ContestTitle } from './contest_title';
+import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 
 const ChoicesGrid = styled.div`
   display: grid;
@@ -47,6 +45,7 @@ const Divider = styled.div`
 `;
 
 interface Props {
+  breadcrumbs?: BreadcrumbMetadata;
   election: Election;
   contest: MsEitherNeitherContestInterface;
   eitherNeitherContestVote?: YesNoVote;
@@ -55,6 +54,7 @@ interface Props {
 }
 
 export function MsEitherNeitherContest({
+  breadcrumbs,
   election,
   contest,
   eitherNeitherContestVote,
@@ -113,45 +113,46 @@ export function MsEitherNeitherContest({
 
   return (
     <Main flexColumn>
-      <ContentHeader>
-        <Prose>
-          <ContestTitle districtName={districtName} title={contest.title} />
-          <Caption>
-            {eitherNeitherVote && pickOneVote ? (
-              <span>
-                You have selected {eitherLabel} and your preferred measure.
-              </span>
-            ) : eitherNeitherVote && !pickOneVote ? (
-              <span>
-                You have selected {eitherLabel}.{' '}
-                {eitherNeitherVote === 'yes' ? (
-                  <strong>Now select your preferred measure.</strong>
-                ) : (
-                  <strong>
-                    You may additionally select your preferred measure.
-                  </strong>
-                )}
-              </span>
-            ) : !eitherNeitherVote && pickOneVote ? (
-              <span>
-                You have selected your preferred measure.{' '}
-                <strong>
-                  Now vote {forEither} or {againstBoth}.
-                </strong>
-              </span>
-            ) : (
-              <span>
-                First vote {forEither} or {againstBoth}. Then select your
-                preferred measure.
-              </span>
-            )}
-            <span className="screen-reader-only">
-              To navigate through the contest choices, use the down button. To
-              move to the next contest, use the right button.
+      <ContestHeader
+        breadcrumbs={breadcrumbs}
+        districtName={districtName}
+        title={contest.title}
+      >
+        <Caption>
+          {eitherNeitherVote && pickOneVote ? (
+            <span>
+              You have selected {eitherLabel} and your preferred measure.
             </span>
-          </Caption>
-        </Prose>
-      </ContentHeader>
+          ) : eitherNeitherVote && !pickOneVote ? (
+            <span>
+              You have selected {eitherLabel}.{' '}
+              {eitherNeitherVote === 'yes' ? (
+                <strong>Now select your preferred measure.</strong>
+              ) : (
+                <strong>
+                  You may additionally select your preferred measure.
+                </strong>
+              )}
+            </span>
+          ) : !eitherNeitherVote && pickOneVote ? (
+            <span>
+              You have selected your preferred measure.{' '}
+              <strong>
+                Now vote {forEither} or {againstBoth}.
+              </strong>
+            </span>
+          ) : (
+            <span>
+              First vote {forEither} or {againstBoth}. Then select your
+              preferred measure.
+            </span>
+          )}
+          <span className="screen-reader-only">
+            To navigate through the contest choices, use the down button. To
+            move to the next contest, use the right button.
+          </span>
+        </Caption>
+      </ContestHeader>
       <WithScrollButtons>
         <Caption>
           <Pre>{contest.description}</Pre>
