@@ -1,14 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Single Seat Contest 1`] = `
-.c4 {
+.c7 {
   font-size: 1em;
   font-weight: 600;
   line-height: 1.15;
   margin: 0;
 }
 
-.c25 {
+.c23 {
   font-size: 1em;
   font-weight: 300;
   line-height: 1.15;
@@ -16,14 +16,22 @@ exports[`Single Seat Contest 1`] = `
   font-size: 0.75rem;
 }
 
-.c11 {
+.c9 {
   font-size: 1em;
   line-height: 1.15;
   margin: 0;
   font-size: 0.75rem;
 }
 
-.c9 {
+.c6 {
+  font-size: 1em;
+  line-height: 1.15;
+  margin: 0;
+  white-space: nowrap;
+  font-size: 0.75rem;
+}
+
+.c5 {
   font-size: 1em;
   font-weight: 500;
   line-height: 1.15;
@@ -31,19 +39,10 @@ exports[`Single Seat Contest 1`] = `
   font-size: 0.75rem;
 }
 
-.c23 {
+.c21 {
   font-size: 1em;
   line-height: 1.15;
   margin: 0;
-  font-size: 1rem;
-  margin-bottom: 0.5em;
-}
-
-.c3 {
-  font-size: 1em;
-  line-height: 1.15;
-  margin: 0;
-  text-align: right;
   font-size: 1rem;
   margin-bottom: 0.5em;
 }
@@ -72,17 +71,13 @@ exports[`Single Seat Contest 1`] = `
   margin-top: 0 !important;
 }
 
-.c7 {
-  max-width: 66ch;
-}
-
-.c21 {
+.c19 {
   fill: currentColor;
   height: 1em;
   width: 1em;
 }
 
-.c26 {
+.c24 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -134,27 +129,27 @@ exports[`Single Seat Contest 1`] = `
   transition-property: background,border,box-shadow,color;
 }
 
-.c26:hover,
-.c26:active {
+.c24:hover,
+.c24:active {
   outline: none;
 }
 
-.c26:hover,
-.c26:active {
+.c24:hover,
+.c24:active {
   outline: none;
 }
 
-.c26:active {
+.c24:active {
   box-shadow: inset 0 0 0 0.15rem #222222;
 }
 
-.c26[disabled] {
+.c24[disabled] {
   border: 0.15rem dashed #222222;
   box-shadow: none;
   cursor: not-allowed;
 }
 
-.c30 {
+.c28 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -207,27 +202,27 @@ exports[`Single Seat Contest 1`] = `
   transition-property: background,border,box-shadow,color;
 }
 
-.c30:hover,
-.c30:active {
+.c28:hover,
+.c28:active {
   outline: none;
 }
 
-.c30:hover,
-.c30:active {
+.c28:hover,
+.c28:active {
   outline: none;
 }
 
-.c30:active {
+.c28:active {
   box-shadow: inset 0 0 0 0.15rem #222222;
 }
 
-.c30[disabled] {
+.c28[disabled] {
   border: 0.15rem dashed #222222;
   box-shadow: none;
   cursor: not-allowed;
 }
 
-.c15 {
+.c13 {
   display: inline-block;
   border: none;
   border-radius: 0.25em;
@@ -279,31 +274,31 @@ exports[`Single Seat Contest 1`] = `
   transition-property: background,border,box-shadow,color;
 }
 
-.c15:hover,
-.c15:active {
+.c13:hover,
+.c13:active {
   outline: none;
 }
 
-.c15:hover,
-.c15:active {
+.c13:hover,
+.c13:active {
   outline: none;
 }
 
-.c15:active {
+.c13:active {
   box-shadow: inset 0 0 0 0.15rem #fafafa;
 }
 
-.c15[disabled] {
+.c13[disabled] {
   border: 0.15rem dashed #222222;
   box-shadow: none;
   cursor: not-allowed;
 }
 
-.c31 {
+.c29 {
   display: inline-block;
 }
 
-.c17 {
+.c15 {
   display: inline-block;
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
@@ -314,7 +309,7 @@ exports[`Single Seat Contest 1`] = `
   flex-shrink: 1;
 }
 
-.c28 {
+.c26 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -334,13 +329,13 @@ exports[`Single Seat Contest 1`] = `
   width: 1.75em;
 }
 
-.c28 > * {
+.c26 > * {
   opacity: 0;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c20 {
+.c18 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -361,13 +356,13 @@ exports[`Single Seat Contest 1`] = `
   border: 0.15rem solid currentColor;
 }
 
-.c20 > * {
+.c18 > * {
   opacity: 1;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c27 {
+.c25 {
   border: 0.055rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -381,30 +376,30 @@ exports[`Single Seat Contest 1`] = `
   width: 100%;
 }
 
-.c27:active {
+.c25:active {
+  border: 0.055rem solid #00437d;
+}
+
+.c14 {
+  border: 0.055rem solid currentColor;
+  -webkit-box-pack: start;
+  -webkit-justify-content: start;
+  -ms-flex-pack: start;
+  justify-content: start;
+  min-width: -webkit-min-content;
+  min-width: -moz-min-content;
+  min-width: min-content;
+  padding: 0.5rem 0.5rem;
+  text-align: left;
+  width: 100%;
+  border: 0.055rem solid #00437d;
+}
+
+.c14:active {
   border: 0.055rem solid #00437d;
 }
 
 .c16 {
-  border: 0.055rem solid currentColor;
-  -webkit-box-pack: start;
-  -webkit-justify-content: start;
-  -ms-flex-pack: start;
-  justify-content: start;
-  min-width: -webkit-min-content;
-  min-width: -moz-min-content;
-  min-width: min-content;
-  padding: 0.5rem 0.5rem;
-  text-align: left;
-  width: 100%;
-  border: 0.055rem solid #00437d;
-}
-
-.c16:active {
-  border: 0.055rem solid #00437d;
-}
-
-.c18 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -419,7 +414,7 @@ exports[`Single Seat Contest 1`] = `
   gap: 0.5rem;
 }
 
-.c19 {
+.c17 {
   -webkit-box-flex: 0;
   -webkit-flex-grow: 0;
   -ms-flex-positive: 0;
@@ -429,7 +424,7 @@ exports[`Single Seat Contest 1`] = `
   flex-shrink: 0;
 }
 
-.c22 {
+.c20 {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
@@ -437,7 +432,7 @@ exports[`Single Seat Contest 1`] = `
   line-height: 1;
 }
 
-.c24 {
+.c22 {
   line-height: inherit;
   margin-bottom: 0;
 }
@@ -453,7 +448,7 @@ exports[`Single Seat Contest 1`] = `
   height: 100%;
 }
 
-.c5 {
+.c2 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -467,7 +462,7 @@ exports[`Single Seat Contest 1`] = `
   overflow: auto;
 }
 
-.c12 {
+.c10 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -477,7 +472,7 @@ exports[`Single Seat Contest 1`] = `
   position: relative;
 }
 
-.c13 {
+.c11 {
   -webkit-align-items: stretch;
   -webkit-box-align: stretch;
   -ms-flex-align: stretch;
@@ -502,22 +497,29 @@ exports[`Single Seat Contest 1`] = `
   padding-bottom: 0;
 }
 
-.c6 {
-  padding: 0.25rem 0.5rem 0.5rem;
-}
-
-.c14 {
+.c12 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.5rem;
 }
 
-.c10 {
-  display: block;
-  margin-bottom: 0;
+.c3 {
+  padding: 0.25rem 0.5rem 0.5rem;
 }
 
-.c29 {
+.c4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 0.5rem;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+}
+
+.c27 {
   -webkit-align-items: stretch;
   -webkit-box-align: stretch;
   -ms-flex-align: stretch;
@@ -536,14 +538,14 @@ exports[`Single Seat Contest 1`] = `
   padding: 0.5rem;
 }
 
-.c29 > *:not(:first-child):not(:last-child) {
+.c27 > *:not(:first-child):not(:last-child) {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
   flex-grow: 1;
 }
 
-.c32 {
+.c30 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -561,10 +563,6 @@ exports[`Single Seat Contest 1`] = `
   justify-content: center;
   gap: 0.5rem;
   text-align: left;
-}
-
-.c2 {
-  padding: 0 0.5rem;
 }
 
 .c0 {
@@ -632,58 +630,58 @@ exports[`Single Seat Contest 1`] = `
   <div
     class="c1"
   >
-    <div
+    <main
       class="c2"
     >
-      <p
-        class="c3"
-      >
-        Contest 
-        <span
-          class="c4"
-        >
-          9
-        </span>
-         of
-         
-        <span
-          class="c4"
-        >
-          20
-        </span>
-      </p>
-    </div>
-    <main
-      class="c5"
-    >
       <div
-        class="c6"
+        class="c3"
         id="contest-header"
       >
         <div
-          class="c7"
           id="audiofocus"
         >
-          <h1
-            aria-label="District 2 County Commissioners."
-            class="c8"
+          <div
+            class="c4"
           >
             <span
-              class="c9 c10"
+              class="c5"
             >
               District 2
             </span>
-            County Commissioners
-          </h1>
+            <span
+              class="c6"
+            >
+              Contest 
+              <span
+                class="c7"
+              >
+                9
+              </span>
+               of
+               
+              <span
+                class="c7"
+              >
+                20
+              </span>
+            </span>
+          </div>
+          <div>
+            <h1
+              class="c8"
+            >
+              County Commissioners
+            </h1>
+          </div>
           <span
-            class="c11"
+            class="c9"
           >
             Vote for 
             4
             .
              
             <span
-              class="c4"
+              class="c7"
             >
               You have selected 
               4
@@ -698,38 +696,38 @@ exports[`Single Seat Contest 1`] = `
         </div>
       </div>
       <div
-        class="c12"
+        class="c10"
       >
         <div
-          class="c13"
+          class="c11"
         >
           <div
             aria-multiselectable="true"
-            class="c14"
+            class="c12"
             role="listbox"
           >
             <button
               aria-label="Selected, Camille Argent, Federalist."
               aria-selected="true"
-              class="c15 c16"
+              class="c13 c14"
               role="option"
               type="button"
             >
               <span
-                class="c17"
+                class="c15"
               >
                 <span
-                  class="c18"
+                  class="c16"
                 >
                   <span
-                    class="c19"
+                    class="c17"
                   >
                     <span
-                      class="c20"
+                      class="c18"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c21"
+                        class="c19"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -742,15 +740,15 @@ exports[`Single Seat Contest 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c22"
+                    class="c20"
                   >
                     <p
-                      class="c23 c24"
+                      class="c21 c22"
                     >
                       Camille Argent
                     </p>
                     <span
-                      class="c25"
+                      class="c23"
                     >
                       Federalist
                     </span>
@@ -761,25 +759,25 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Selected, Chloe Witherspoon-Smithson, Federalist."
               aria-selected="true"
-              class="c15 c16"
+              class="c13 c14"
               role="option"
               type="button"
             >
               <span
-                class="c17"
+                class="c15"
               >
                 <span
-                  class="c18"
+                  class="c16"
                 >
                   <span
-                    class="c19"
+                    class="c17"
                   >
                     <span
-                      class="c20"
+                      class="c18"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c21"
+                        class="c19"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -792,15 +790,15 @@ exports[`Single Seat Contest 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c22"
+                    class="c20"
                   >
                     <p
-                      class="c23 c24"
+                      class="c21 c22"
                     >
                       Chloe Witherspoon-Smithson
                     </p>
                     <span
-                      class="c25"
+                      class="c23"
                     >
                       Federalist
                     </span>
@@ -811,25 +809,25 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Selected, Clayton Bainbridge, Federalist."
               aria-selected="true"
-              class="c15 c16"
+              class="c13 c14"
               role="option"
               type="button"
             >
               <span
-                class="c17"
+                class="c15"
               >
                 <span
-                  class="c18"
+                  class="c16"
                 >
                   <span
-                    class="c19"
+                    class="c17"
                   >
                     <span
-                      class="c20"
+                      class="c18"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c21"
+                        class="c19"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -842,15 +840,15 @@ exports[`Single Seat Contest 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c22"
+                    class="c20"
                   >
                     <p
-                      class="c23 c24"
+                      class="c21 c22"
                     >
                       Clayton Bainbridge
                     </p>
                     <span
-                      class="c25"
+                      class="c23"
                     >
                       Federalist
                     </span>
@@ -861,25 +859,25 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label="Selected, Charlene Hennessey, People’s."
               aria-selected="true"
-              class="c15 c16"
+              class="c13 c14"
               role="option"
               type="button"
             >
               <span
-                class="c17"
+                class="c15"
               >
                 <span
-                  class="c18"
+                  class="c16"
                 >
                   <span
-                    class="c19"
+                    class="c17"
                   >
                     <span
-                      class="c20"
+                      class="c18"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c21"
+                        class="c19"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -892,15 +890,15 @@ exports[`Single Seat Contest 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c22"
+                    class="c20"
                   >
                     <p
-                      class="c23 c24"
+                      class="c21 c22"
                     >
                       Charlene Hennessey
                     </p>
                     <span
-                      class="c25"
+                      class="c23"
                     >
                       People’s
                     </span>
@@ -911,25 +909,25 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label=" Eric Savoy, People’s."
               aria-selected="false"
-              class="c26 c27"
+              class="c24 c25"
               role="option"
               type="button"
             >
               <span
-                class="c17"
+                class="c15"
               >
                 <span
-                  class="c18"
+                  class="c16"
                 >
                   <span
-                    class="c19"
+                    class="c17"
                   >
                     <span
-                      class="c28"
+                      class="c26"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c21"
+                        class="c19"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -942,15 +940,15 @@ exports[`Single Seat Contest 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c22"
+                    class="c20"
                   >
                     <p
-                      class="c23 c24"
+                      class="c21 c22"
                     >
                       Eric Savoy
                     </p>
                     <span
-                      class="c25"
+                      class="c23"
                     >
                       People’s
                     </span>
@@ -961,25 +959,25 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label=" Susan Tawa, People’s."
               aria-selected="false"
-              class="c26 c27"
+              class="c24 c25"
               role="option"
               type="button"
             >
               <span
-                class="c17"
+                class="c15"
               >
                 <span
-                  class="c18"
+                  class="c16"
                 >
                   <span
-                    class="c19"
+                    class="c17"
                   >
                     <span
-                      class="c28"
+                      class="c26"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c21"
+                        class="c19"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -992,15 +990,15 @@ exports[`Single Seat Contest 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c22"
+                    class="c20"
                   >
                     <p
-                      class="c23 c24"
+                      class="c21 c22"
                     >
                       Susan Tawa
                     </p>
                     <span
-                      class="c25"
+                      class="c23"
                     >
                       People’s
                     </span>
@@ -1011,25 +1009,25 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label=" Mary Tawa, People’s."
               aria-selected="false"
-              class="c26 c27"
+              class="c24 c25"
               role="option"
               type="button"
             >
               <span
-                class="c17"
+                class="c15"
               >
                 <span
-                  class="c18"
+                  class="c16"
                 >
                   <span
-                    class="c19"
+                    class="c17"
                   >
                     <span
-                      class="c28"
+                      class="c26"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c21"
+                        class="c19"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -1042,15 +1040,15 @@ exports[`Single Seat Contest 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c22"
+                    class="c20"
                   >
                     <p
-                      class="c23 c24"
+                      class="c21 c22"
                     >
                       Mary Tawa
                     </p>
                     <span
-                      class="c25"
+                      class="c23"
                     >
                       People’s
                     </span>
@@ -1061,25 +1059,25 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label=" Damian Rangel, Liberty."
               aria-selected="false"
-              class="c26 c27"
+              class="c24 c25"
               role="option"
               type="button"
             >
               <span
-                class="c17"
+                class="c15"
               >
                 <span
-                  class="c18"
+                  class="c16"
                 >
                   <span
-                    class="c19"
+                    class="c17"
                   >
                     <span
-                      class="c28"
+                      class="c26"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c21"
+                        class="c19"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -1092,15 +1090,15 @@ exports[`Single Seat Contest 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c22"
+                    class="c20"
                   >
                     <p
-                      class="c23 c24"
+                      class="c21 c22"
                     >
                       Damian Rangel
                     </p>
                     <span
-                      class="c25"
+                      class="c23"
                     >
                       Liberty
                     </span>
@@ -1111,25 +1109,25 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label=" Valarie Altman, Constitution."
               aria-selected="false"
-              class="c26 c27"
+              class="c24 c25"
               role="option"
               type="button"
             >
               <span
-                class="c17"
+                class="c15"
               >
                 <span
-                  class="c18"
+                  class="c16"
                 >
                   <span
-                    class="c19"
+                    class="c17"
                   >
                     <span
-                      class="c28"
+                      class="c26"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c21"
+                        class="c19"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -1142,15 +1140,15 @@ exports[`Single Seat Contest 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c22"
+                    class="c20"
                   >
                     <p
-                      class="c23 c24"
+                      class="c21 c22"
                     >
                       Valarie Altman
                     </p>
                     <span
-                      class="c25"
+                      class="c23"
                     >
                       Constitution
                     </span>
@@ -1161,25 +1159,25 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label=" Helen Moore, Constitution."
               aria-selected="false"
-              class="c26 c27"
+              class="c24 c25"
               role="option"
               type="button"
             >
               <span
-                class="c17"
+                class="c15"
               >
                 <span
-                  class="c18"
+                  class="c16"
                 >
                   <span
-                    class="c19"
+                    class="c17"
                   >
                     <span
-                      class="c28"
+                      class="c26"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c21"
+                        class="c19"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -1192,15 +1190,15 @@ exports[`Single Seat Contest 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c22"
+                    class="c20"
                   >
                     <p
-                      class="c23 c24"
+                      class="c21 c22"
                     >
                       Helen Moore
                     </p>
                     <span
-                      class="c25"
+                      class="c23"
                     >
                       Constitution
                     </span>
@@ -1211,25 +1209,25 @@ exports[`Single Seat Contest 1`] = `
             <button
               aria-label=" Martin Schreiner, Independent."
               aria-selected="false"
-              class="c26 c27"
+              class="c24 c25"
               role="option"
               type="button"
             >
               <span
-                class="c17"
+                class="c15"
               >
                 <span
-                  class="c18"
+                  class="c16"
                 >
                   <span
-                    class="c19"
+                    class="c17"
                   >
                     <span
-                      class="c28"
+                      class="c26"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c21"
+                        class="c19"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -1242,15 +1240,15 @@ exports[`Single Seat Contest 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c22"
+                    class="c20"
                   >
                     <p
-                      class="c23 c24"
+                      class="c21 c22"
                     >
                       Martin Schreiner
                     </p>
                     <span
-                      class="c25"
+                      class="c23"
                     >
                       Independent
                     </span>
@@ -1260,25 +1258,25 @@ exports[`Single Seat Contest 1`] = `
             </button>
             <button
               aria-selected="false"
-              class="c26 c27"
+              class="c24 c25"
               role="option"
               type="button"
             >
               <span
-                class="c17"
+                class="c15"
               >
                 <span
-                  class="c18"
+                  class="c16"
                 >
                   <span
-                    class="c19"
+                    class="c17"
                   >
                     <span
-                      class="c28"
+                      class="c26"
                     >
                       <svg
                         aria-hidden="true"
-                        class="c21"
+                        class="c19"
                         height="100"
                         role="img"
                         viewBox="0 0 100 100"
@@ -1291,10 +1289,10 @@ exports[`Single Seat Contest 1`] = `
                     </span>
                   </span>
                   <span
-                    class="c22"
+                    class="c20"
                   >
                     <p
-                      class="c23 c24"
+                      class="c21 c22"
                     >
                       <span>
                         <svg
@@ -1324,16 +1322,16 @@ exports[`Single Seat Contest 1`] = `
       </div>
     </main>
     <nav
-      class="c29"
+      class="c27"
     >
       <button
         aria-label="previous contest"
-        class="c30"
+        class="c28"
         id="previous"
         type="button"
       >
         <span
-          class="c31"
+          class="c29"
         >
           <svg
             aria-hidden="true"
@@ -1352,20 +1350,20 @@ exports[`Single Seat Contest 1`] = `
           </svg>
         </span>
         <span
-          class="c17"
+          class="c15"
         >
           Back
         </span>
       </button>
       <button
-        class="c26"
+        class="c24"
         type="button"
       >
         <span
-          class="c17"
+          class="c15"
         >
           <span
-            class="c32"
+            class="c30"
           >
             <svg
               aria-hidden="true"
@@ -1390,12 +1388,12 @@ exports[`Single Seat Contest 1`] = `
       </button>
       <button
         aria-label="next contest"
-        class="c15"
+        class="c13"
         id="next"
         type="button"
       >
         <span
-          class="c31"
+          class="c29"
         >
           <svg
             aria-hidden="true"
@@ -1414,7 +1412,7 @@ exports[`Single Seat Contest 1`] = `
           </svg>
         </span>
         <span
-          class="c17"
+          class="c15"
         >
           Next
         </span>
