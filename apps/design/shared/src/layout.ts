@@ -129,8 +129,9 @@ const CONTENT_AREA_ROW_HEIGHT = GRID.rows - TIMING_MARKS_ROW_HEIGHT * 2 + 1;
 const CONTENT_AREA_COLUMN_WIDTH = GRID.columns - 3;
 const GUTTER_WIDTH = 0.5;
 const CONTEST_COLUMN_WIDTH = 9.5;
+const CONTEST_ROW_MARGIN = 0.5;
 const MAX_CONTEST_ROW_HEIGHT =
-  CONTENT_AREA_ROW_HEIGHT - (FOOTER_ROW_HEIGHT + 1);
+  CONTENT_AREA_ROW_HEIGHT - CONTEST_ROW_MARGIN * 2 - FOOTER_ROW_HEIGHT;
 
 export const COLUMN_GAP = DOCUMENT_WIDTH / (GRID.columns + 1);
 export const ROW_GAP = DOCUMENT_HEIGHT / (GRID.rows + 1);
@@ -412,13 +413,18 @@ function Footer({
   pageNumber: number;
   totalPages: number;
 }): Rectangle {
+  const isFront = pageNumber % 2 === 1;
   const continueVoting: AnyElement[] = [
     {
       type: 'TextBox',
-      ...gridPosition({ row: 0.5, column: 16 }),
+      ...gridPosition({ row: 0.5, column: isFront ? 16 : 18 }),
       width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
       height: gridHeight(FOOTER_ROW_HEIGHT - 1),
-      textLines: ['Turn ballot over and continue voting'],
+      textLines: [
+        isFront
+          ? 'Turn ballot over and continue voting'
+          : 'Continue voting on next ballot',
+      ],
       ...FontStyles.H3,
     },
     {
@@ -433,15 +439,14 @@ function Footer({
   const ballotComplete: AnyElement[] = [
     {
       type: 'TextBox',
-      ...gridPosition({ row: 0.5, column: 19.5 }),
+      ...gridPosition({ row: 0.5, column: 20.5 }),
       width: gridWidth(CONTENT_AREA_COLUMN_WIDTH - 1),
       height: gridHeight(FOOTER_ROW_HEIGHT - 1),
-      textLines: ['You have completed this ballot.'],
+      textLines: ['You have completed voting.'],
       ...FontStyles.H3,
     },
   ];
 
-  // TODO handle multiple sheets
   const endOfPageInstruction =
     pageNumber === totalPages ? ballotComplete : continueVoting;
 
@@ -599,6 +604,7 @@ function CandidateContest({
           ...gridPosition({ row: 0.6, column: 1.75 }),
           width: gridWidth(width - 1),
           height: gridHeight(1),
+          // TODO wrap candidate.name
           textLines: [candidate.name],
           ...FontStyles.BODY,
           fontWeight: FontWeights.BOLD,
@@ -731,8 +737,7 @@ function BallotMeasure({
 
   const headingRowHeight =
     titleLines.length +
-    yToRow(descriptionLines.length * FontStyles.BODY.lineHeight) +
-    0.5;
+    Math.ceil(yToRow(descriptionLines.length * FontStyles.BODY.lineHeight));
   const heading: Rectangle = {
     type: 'Rectangle',
     ...gridPosition({ row: 0, column: 0 }),
@@ -815,7 +820,7 @@ function BallotMeasure({
     iter(options)
       .map((option) => option.height)
       .sum() +
-    gridHeight(1);
+    gridHeight(1.5);
 
   return [
     {
@@ -831,11 +836,37 @@ function BallotMeasure({
   ];
 }
 
+function findLastIndex<T>(arr: T[], keyFn: (item: T) => boolean): number {
+  for (let i = arr.length - 1; i >= 0; i -= 1) {
+    if (keyFn(arr[i])) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+/**
+ * Builds a comparator that compares two items by multiple scoring functions.
+ * If the first scoring function returns a tie, uses the second scoring function
+ * as a tiebreaker, and so on.
+ */
+function compareByScores<T>(scoringFns: Array<(item: T) => number>) {
+  return (a: T, b: T): number => {
+    for (const scoringFn of scoringFns) {
+      const diff = scoringFn(a) - scoringFn(b);
+      if (diff !== 0) {
+        return diff;
+      }
+    }
+    return 0;
+  };
+}
+
 interface ElementWithHeight {
   height: number;
 }
 
-type Column = ElementWithHeight[];
+type Column<Element extends ElementWithHeight> = Element[];
 
 /**
  * Lay out elements with fixed heights in columns, with the following constraints:
@@ -848,34 +879,39 @@ type Column = ElementWithHeight[];
  * - If there are multiple ways to shorten the columns, choose the one that
  * looks the most balanced
  */
-export function layoutInColumns({
+export function layOutInColumns<Element extends ElementWithHeight>({
   elements,
   numColumns,
   maxColumnHeight,
 }: {
-  elements: ElementWithHeight[];
+  elements: Element[];
   numColumns: number;
   maxColumnHeight: number;
 }): {
-  columns: Column[];
-  leftoverElements: ElementWithHeight[];
+  columns: Array<Column<Element>>;
+  height: number;
+  leftoverElements: Element[];
 } {
-  function emptyColumns(): Column[] {
+  function emptyColumns(): Array<Column<Element>> {
     return range(0, numColumns).map(() => []);
   }
 
-  function columnHeight(column: Column): number {
+  function columnHeight(column: Column<Element>): number {
     return iter(column)
       .map((e) => e.height)
       .sum();
   }
 
-  function isColumnOverflowing(column: Column): boolean {
+  function isColumnOverflowing(column: Column<Element>): boolean {
     return columnHeight(column) > maxColumnHeight;
   }
 
+  function heightOfTallestColumn(columns: Array<Column<Element>>): number {
+    return Math.max(...columns.map((column) => columnHeight(column)));
+  }
+
   // First, try a greedy approach of filling columns to the max height
-  const greedyColumns: Column[] = emptyColumns();
+  const greedyColumns: Array<Column<Element>> = emptyColumns();
   let currentColumnIndex = 0;
   let elementIndex = 0;
   while (elementIndex < elements.length && currentColumnIndex < numColumns) {
@@ -896,6 +932,7 @@ export function layoutInColumns({
   if (leftoverElements.length > 0) {
     return {
       columns: greedyColumns,
+      height: heightOfTallestColumn(greedyColumns),
       leftoverElements,
     };
   }
@@ -905,19 +942,20 @@ export function layoutInColumns({
 
   // Recursively generates all possible ways to fill the columns with the given elements
   function possibleColumns(
-    columnsSoFar: Column[],
-    elementsLeft: ElementWithHeight[]
-  ): Array<Column[]> {
+    columnsSoFar: Array<Column<Element>>,
+    elementsLeft: Element[]
+  ): Array<Array<Column<Element>>> {
     if (elementsLeft.length === 0) {
       return [columnsSoFar];
     }
 
     const [nextElement, ...restElements] = elementsLeft;
 
-    const results: Array<Column[]> = [];
+    const results: Array<Array<Column<Element>>> = [];
 
     // If there's a current column being filled, try adding the next element to it
-    const lastNonEmptyColumnIndex = columnsSoFar.findIndex(
+    const lastNonEmptyColumnIndex = findLastIndex(
+      columnsSoFar,
       (column) => column.length > 0
     );
     if (lastNonEmptyColumnIndex !== -1) {
@@ -947,200 +985,124 @@ export function layoutInColumns({
   }
 
   const allPossibleColumns = possibleColumns(emptyColumns(), elements);
-  function heightOfTallestColumn(columns: Column[]): number {
-    return Math.max(...columns.map((column) => columnHeight(column)));
-  }
+  assert(allPossibleColumns.length > 0);
 
-  // Find the sets of columns with the shortest overall height
-  const minimizedColumnsHeight = heightOfTallestColumn(
-    assertDefined(
-      iter(allPossibleColumns).min(
-        (columns1, columns2) =>
-          heightOfTallestColumn(columns1) - heightOfTallestColumn(columns2)
-      )
-    )
-  );
-  const allColumnsWithMinimizedColumnsHeight = allPossibleColumns.filter(
-    (columns) => heightOfTallestColumn(columns) === minimizedColumnsHeight
-  );
-
-  // Now take the one that looks the most balanced
-  function distance(numbers: number[]): number {
+  function spread(numbers: number[]): number {
     return Math.max(...numbers) - Math.min(...numbers);
   }
-  const mostBalancedColumns = assertDefined(
-    iter(allColumnsWithMinimizedColumnsHeight).min(
-      (columns1, columns2) =>
-        distance(columns1.map((c) => c.length)) -
-        distance(columns2.map((c) => c.length))
+  const bestColumns = assertDefined(
+    iter(allPossibleColumns).min(
+      compareByScores([
+        // Shortest overall height
+        (columns) => heightOfTallestColumn(columns),
+        // Least difference in height among columns
+        (columns) => spread(columns.map((c) => columnHeight(c))),
+        // Least gaps (empty columns in the middle)
+        (columns) => {
+          return columns.findIndex((column) => column.length === 0);
+        },
+      ])
     )
   );
-
   return {
-    columns: mostBalancedColumns,
+    columns: bestColumns,
+    height: heightOfTallestColumn(bestColumns),
     leftoverElements: [],
   };
 }
 
-function ThreeColumnContests({
+function ContestColumn({
   election,
   contests,
+  width,
   gridRow,
   gridColumn,
-  heightAvailable,
   pageNumber,
 }: {
   election: Election;
   contests: Contests;
-  gridColumn: number;
+  width: number;
   gridRow: number;
-  heightAvailable: number;
-  pageNumber: number;
-}): [Rectangle, AnyContest[], GridPosition[]] {
-  function fillColumn(
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    contests: Contests,
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    gridColumn: number
-  ): [Rectangle[], AnyContest[], GridPosition[]] {
-    const contestPositions: GridPosition[] = [];
-    debug(`Filling column with ${contests.length} possible contests`);
-    const CONTEST_ROW_MARGIN = 0.5;
-    const maxHeight = gridHeight(heightAvailable - CONTEST_ROW_MARGIN * 2);
-    let heightUsed = 0;
-    let contestIndex = 0;
-    const columnContests = [];
-    while (heightUsed < maxHeight && contestIndex < contests.length) {
-      const contest = contests[contestIndex];
-      debug(`Attempting to fit contest ${contest.title}`);
-      const row = yToRow(heightUsed) + (contestIndex + 1) * CONTEST_ROW_MARGIN;
-      const [contestElement, optionPostions] = CandidateContest({
-        election,
-        contest,
-        row,
-        gridRow: gridRow + row,
-        gridColumn,
-        pageNumber,
-      });
-      if (contestElement.height > gridHeight(MAX_CONTEST_ROW_HEIGHT)) {
-        throw new Error(
-          `Contest "${contest.title}" is too tall to fit on page.`
-        );
-      }
-      if (heightUsed + contestElement.height > maxHeight) {
-        debug('Not enough room for contest, ending column.');
-        break;
-      }
-      debug('Contest fits, adding to column.');
-      columnContests.push(contestElement);
-      heightUsed += contestElement.height;
-      contestIndex += 1;
-
-      contestPositions.push(...optionPostions);
-    }
-    return [columnContests, contests.slice(contestIndex), contestPositions];
-  }
-
-  const [column1Contests, restContests1, column1Positions] = fillColumn(
-    contests,
-    gridColumn
-  );
-  debug('Column 1 contests:', contests.length - restContests1.length);
-  const [column2Contests, restContests2, column2Positions] = fillColumn(
-    restContests1,
-    gridColumn + CONTEST_COLUMN_WIDTH + GUTTER_WIDTH
-  );
-  debug('Column 2 contests:', restContests1.length - restContests2.length);
-  const [column3Contests, restContests3, column3Positions] = fillColumn(
-    restContests2,
-    gridColumn + (CONTEST_COLUMN_WIDTH + GUTTER_WIDTH) * 2
-  );
-  debug('Column 3 contests:', restContests2.length - restContests3.length);
-
-  const contestColumns: Rectangle = {
-    type: 'Rectangle',
-    ...gridPosition({ row: gridRow, column: 2 }),
-    width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
-    height: gridHeight(heightAvailable),
-    children: [column1Contests, column2Contests, column3Contests].map(
-      (columnContests, columnIndex) => ({
-        type: 'Rectangle',
-        ...gridPosition({
-          row: 0,
-          column: (CONTEST_COLUMN_WIDTH + GUTTER_WIDTH) * columnIndex,
-        }),
-        width: gridWidth(CONTEST_COLUMN_WIDTH),
-        height: gridHeight(heightAvailable),
-        // fill: 'rgb(255, 0, 0, 0.2)',
-        children: columnContests,
-      })
-    ),
-  };
-
-  return [
-    contestColumns,
-    restContests3,
-    [...column1Positions, ...column2Positions, ...column3Positions],
-  ];
-}
-
-function SingleColumnContests({
-  election,
-  contests,
-  gridRow,
-  gridColumn,
-  heightAvailable,
-  pageNumber,
-}: {
-  election: Election;
-  contests: Contests;
   gridColumn: number;
-  gridRow: number;
-  heightAvailable: number;
   pageNumber: number;
-}): [Rectangle, AnyContest[], GridPosition[]] {
+}): [Rectangle, GridPosition[]] {
   const contestPositions: GridPosition[] = [];
-  debug(`Filling single column with ${contests.length} possible contests`);
-  const CONTEST_ROW_MARGIN = 0.5;
-  const maxHeight = gridHeight(heightAvailable - CONTEST_ROW_MARGIN * 2);
-  let heightUsed = 0;
-  let contestIndex = 0;
-  const columnContests = [];
-  while (heightUsed < maxHeight && contestIndex < contests.length) {
-    const contest = contests[contestIndex];
-    debug(`Attempting to fit contest ${contest.title}`);
-    const row = yToRow(heightUsed) + (contestIndex + 1) * CONTEST_ROW_MARGIN;
-    const [contestElement, optionPostions] = BallotMeasure({
+  const contestRectangles: Rectangle[] = [];
+  let lastContestRow = 0;
+
+  for (const contest of contests) {
+    const ContestComponent =
+      contest.type === 'candidate' ? CandidateContest : BallotMeasure;
+    const [contestRectangle, optionPostions] = ContestComponent({
       election,
       contest,
-      row,
-      gridRow: gridRow + row,
+      row: lastContestRow + CONTEST_ROW_MARGIN,
+      gridRow: gridRow + lastContestRow + CONTEST_ROW_MARGIN,
       gridColumn,
       pageNumber,
     });
-    if (contestElement.height > gridHeight(MAX_CONTEST_ROW_HEIGHT)) {
-      throw new Error(`Contest "${contest.title}" is too tall to fit on page.`);
-    }
-    if (heightUsed + contestElement.height > maxHeight) {
-      debug('Not enough room for contest, ending single column.');
-      break;
-    }
-    debug('Contest fits, adding to single column.');
-    columnContests.push(contestElement);
-    heightUsed += contestElement.height;
-    contestIndex += 1;
-
+    lastContestRow += yToRow(contestRectangle.height) + CONTEST_ROW_MARGIN;
+    contestRectangles.push(contestRectangle);
     contestPositions.push(...optionPostions);
   }
 
-  const contestColumn: Rectangle = {
+  const column: Rectangle = {
     type: 'Rectangle',
-    ...gridPosition({ row: gridRow, column: 2 }),
-    width: gridWidth(CONTENT_AREA_COLUMN_WIDTH),
-    height: gridHeight(heightAvailable),
-    children: columnContests,
+    ...gridPosition({ row: gridRow, column: gridColumn }),
+    width,
+    height: gridHeight(lastContestRow),
+    children: contestRectangles,
   };
-  return [contestColumn, contests.slice(contestIndex), contestPositions];
+
+  return [column, contestPositions];
+}
+
+function ContestSection({
+  election,
+  contestColumns,
+  height,
+  gridRow,
+  gridColumn,
+  pageNumber,
+}: {
+  election: Election;
+  contestColumns: Contests[];
+  height: number;
+  gridRow: number;
+  gridColumn: number;
+  pageNumber: number;
+}): [Rectangle, GridPosition[]] {
+  const columnPositions: GridPosition[] = [];
+  const columnRectangles: Rectangle[] = [];
+  let lastColumnColumn = 0;
+  const columnWidth =
+    contestColumns.length === 3
+      ? CONTEST_COLUMN_WIDTH
+      : CONTENT_AREA_COLUMN_WIDTH;
+
+  for (const contestColumn of contestColumns) {
+    const [columnRectangle, contestPositions] = ContestColumn({
+      election,
+      contests: contestColumn,
+      width: gridWidth(columnWidth),
+      gridRow,
+      gridColumn: gridColumn + lastColumnColumn,
+      pageNumber,
+    });
+    columnRectangles.push(columnRectangle);
+    columnPositions.push(...contestPositions);
+    lastColumnColumn += columnWidth + GUTTER_WIDTH;
+  }
+
+  const section: Rectangle = {
+    type: 'Rectangle',
+    ...gridPosition({ row: 0, column: 0 }),
+    width: gridWidth(lastColumnColumn - GUTTER_WIDTH),
+    height,
+    children: columnRectangles,
+  };
+
+  return [section, columnPositions];
 }
 
 export interface BallotLayout {
@@ -1161,9 +1123,11 @@ function layOutBallotHelper(
   );
   // For now, just one section for candidate contests, one for ballot measures.
   // TODO support arbitrarily defined sections
-  const contestSections: Array<AnyContest[]> = iter(
-    getContests({ election, ballotStyle })
-  )
+  const contests = getContests({ election, ballotStyle });
+  if (contests.length === 0) {
+    throw new Error('No contests assigned to this precinct.');
+  }
+  const contestSections: Array<AnyContest[]> = iter(contests)
     .partition((contest) => contest.type === 'candidate')
     .filter((section) => section.length > 0);
 
@@ -1184,41 +1148,94 @@ function layOutBallotHelper(
       : 0;
     const contestsRowHeight =
       CONTENT_AREA_ROW_HEIGHT -
+      CONTEST_ROW_MARGIN * 2 -
       headerAndInstructionsRowHeight -
-      (FOOTER_ROW_HEIGHT + 1);
+      FOOTER_ROW_HEIGHT;
 
     let heightUsed = 0;
-    const contestObjects: Rectangle[] = [];
+    const contestObjects: AnyElement[] = [];
     while (
       heightUsed < gridHeight(contestsRowHeight) &&
       contestSectionsLeftToLayOut.length > 0
     ) {
       const contestSection = assertDefined(contestSectionsLeftToLayOut.shift());
-      const ContestsComponent =
-        contestSection[0].type === 'candidate'
-          ? ThreeColumnContests
-          : SingleColumnContests;
-      const [contestColumns, restContests, contestPositions] =
-        ContestsComponent({
+      // Lay out contests just to get their heights
+      const contestsWithHeights = contestSection.map((contest) => {
+        const ContestComponent =
+          contest.type === 'candidate' ? CandidateContest : BallotMeasure;
+        const [{ height }] = ContestComponent({
           election,
-          contests: contestSection,
-          heightAvailable: contestsRowHeight,
-          gridRow: TIMING_MARKS_ROW_HEIGHT + headerAndInstructionsRowHeight,
-          gridColumn: 2,
-          pageNumber,
+          contest,
+          row: 0,
+          gridRow: 0,
+          gridColumn: 0,
+          pageNumber: 0,
         });
-      if (restContests.length > 0) {
+        if (height > gridHeight(MAX_CONTEST_ROW_HEIGHT)) {
+          throw new Error(`Contest ${contest.id} is too tall to fit on a page`);
+        }
+        return {
+          contest,
+          height: height + gridHeight(CONTEST_ROW_MARGIN),
+        };
+      });
+
+      const { columns, height, leftoverElements } = layOutInColumns({
+        elements: contestsWithHeights,
+        numColumns: contestSection[0].type === 'candidate' ? 3 : 1,
+        maxColumnHeight: gridHeight(contestsRowHeight) - heightUsed,
+      });
+
+      // Put leftover elements back on the front of the queue
+      if (leftoverElements.length > 0) {
         contestSectionsLeftToLayOut = [
-          restContests,
+          leftoverElements.map(({ contest }) => contest),
           ...contestSectionsLeftToLayOut,
         ];
       }
+
+      // If there wasn't enough room left for any contests, go to the next page
+      if (height === 0) {
+        break;
+      }
+
+      const [sectionRectangle, sectionPositions] = ContestSection({
+        election,
+        contestColumns: columns.map((column) =>
+          column.map(({ contest }) => contest)
+        ),
+        height,
+        gridRow:
+          TIMING_MARKS_ROW_HEIGHT +
+          headerAndInstructionsRowHeight +
+          yToRow(heightUsed),
+        gridColumn: 2,
+        pageNumber,
+      });
+
       debug(
-        `Layed out ${contestSection.length - restContests.length} contests`
+        `Layed out ${contestSection.length - leftoverElements.length} contests`
       );
-      contestObjects.push(contestColumns);
-      heightUsed += contestColumns.height;
-      gridPositions.push(...contestPositions);
+      contestObjects.push(sectionRectangle);
+      heightUsed += height;
+      gridPositions.push(...sectionPositions);
+    }
+
+    if (contestObjects.length === 0) {
+      contestObjects.push({
+        type: 'TextBox',
+        ...gridPosition({
+          row:
+            TIMING_MARKS_ROW_HEIGHT +
+            headerAndInstructionsRowHeight +
+            contestsRowHeight / 2,
+          column: GRID.columns / 2 - 7,
+        }),
+        width: gridWidth(15),
+        height: gridHeight(2),
+        textLines: ['This page intentionally left blank.'],
+        ...FontStyles.H2,
+      });
     }
 
     pages.push({
