@@ -3,15 +3,7 @@ import { useRef, useState, useMemo, useCallback } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
 import { BallotStyle, Election, Precinct } from '@votingworks/types';
 import styled from 'styled-components';
-import {
-  Button,
-  Font,
-  H3,
-  Icons,
-  LabelledText,
-  LinkButton,
-  P,
-} from '@votingworks/ui';
+import { Button, H1, H3, P } from '@votingworks/ui';
 import {
   AnyElement,
   Document,
@@ -25,7 +17,10 @@ import {
   layOutBallot,
 } from '@votingworks/design-shared';
 import fileDownload from 'js-file-download';
+import { useParams } from 'react-router-dom';
 import { exportBallot } from './api';
+import { ElectionIdParams, routes } from './routes';
+import { Breadcrumbs } from './layout';
 
 function SvgAnyElement({ element }: { element: AnyElement }) {
   switch (element.type) {
@@ -200,11 +195,17 @@ const Controls = styled.div`
   display: flex;
   flex-direction: column;
   min-width: 15rem;
-  background-color: white;
+  background: ${({ theme }) => theme.colors.foreground};
+  color: ${({ theme }) => theme.colors.background};
   height: 100%;
   padding: 1rem;
   gap: 1rem;
   justify-items: stretch;
+
+  /* Override link color for inverted background */
+  section a {
+    color: ${({ theme }) => theme.colors.background};
+  }
 `;
 
 const ErrorMessage = styled.div`
@@ -225,6 +226,8 @@ export function BallotViewer({
   precinct: Precinct;
   ballotStyle: BallotStyle;
 }): JSX.Element | null {
+  const { electionId } = useParams<ElectionIdParams>();
+  const ballotRoutes = routes.election(electionId).ballots;
   const exportBallotMutation = exportBallot.useMutation();
   const [showGridLines, setShowGridLines] = useState(false);
 
@@ -253,6 +256,7 @@ export function BallotViewer({
   function onExportPress() {
     exportBallotMutation.mutate(
       {
+        electionId,
         precinctId: precinct.id,
         ballotStyleId: ballotStyle.id,
       },
@@ -268,23 +272,20 @@ export function BallotViewer({
   }
 
   return (
-    <div style={{ display: 'flex', height: '100%' }}>
+    <div style={{ display: 'flex', height: '100%', width: '100%' }}>
       <Controls>
-        <LinkButton to="/">
-          <Icons.Previous /> Back
-        </LinkButton>
         <section>
-          <H3>Ballot</H3>
-          <P>
-            <LabelledText label={<Font weight="bold">Precinct</Font>}>
-              {precinct.name}
-            </LabelledText>
-          </P>
-          <P>
-            <LabelledText label={<Font weight="bold">Ballot Style</Font>}>
-              {ballotStyle.id}
-            </LabelledText>
-          </P>
+          <Breadcrumbs
+            routes={[
+              ballotRoutes.root,
+              ballotRoutes.viewBallot(ballotStyle.id, precinct.id),
+            ]}
+          />
+          <H1>View Ballot</H1>
+          <H3>Ballot Style</H3>
+          <P>{ballotStyle.id}</P>
+          <H3>Precinct</H3>
+          <P>{precinct.name}</P>
           <H3>Grid</H3>
           <P>
             {GRID.columns} columns x {GRID.rows} rows

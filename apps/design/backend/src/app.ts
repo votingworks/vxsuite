@@ -1,21 +1,39 @@
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'buffer';
 import {
-  BallotStyle,
+  BallotStyle as VxBallotStyle,
   Election,
-  ElectionDefinition,
   getBallotStyle,
   getPrecinctById,
   GridLayout,
-  Precinct,
-  safeParseElectionDefinition,
+  Id,
+  Precinct as VxPrecinct,
+  safeParseElection,
 } from '@votingworks/types';
 import express, { Application } from 'express';
-import { assert, assertDefined, ok, Result } from '@votingworks/basics';
+import { assertDefined, ok, Result } from '@votingworks/basics';
 import { layOutBallot } from '@votingworks/design-shared';
 import JsZip from 'jszip';
-import { Store } from './store';
+import { ElectionRecord, Precinct, Store } from './store';
 import { renderDocumentToPdf } from './render_ballot';
+
+function createBlankElection(): Election {
+  return {
+    title: '',
+    date: '',
+    state: '',
+    county: {
+      id: '',
+      name: '',
+    },
+    sealUrl: '',
+    districts: [],
+    precincts: [],
+    contests: [],
+    parties: [],
+    ballotStyles: [],
+  };
+}
 
 function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -28,8 +46,8 @@ function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
 
 function exportBallotToPdf(
   election: Election,
-  precinct: Precinct,
-  ballotStyle: BallotStyle
+  precinct: VxPrecinct,
+  ballotStyle: VxBallotStyle
 ) {
   const ballotResult = layOutBallot(election, precinct, ballotStyle);
   if (ballotResult.isErr()) {
@@ -44,25 +62,45 @@ function exportBallotToPdf(
 
 function buildApi({ store }: { store: Store }) {
   return grout.createApi({
-    getElection(): ElectionDefinition | null {
-      return store.getElection() ?? null;
+    listElections(): ElectionRecord[] {
+      return store.listElections();
     },
 
-    setElection(input: { electionData?: string }): Result<void, Error> {
+    getElection(input: { electionId: Id }): ElectionRecord {
+      return store.getElection(input.electionId);
+    },
+
+    createElection(input: { electionData?: string }): Result<Id, Error> {
+      let election: Election;
       if (input.electionData) {
-        const parseResult = safeParseElectionDefinition(input.electionData);
+        const parseResult = safeParseElection(input.electionData);
         if (parseResult.isErr()) return parseResult;
-        store.setElection(parseResult.ok());
+        election = parseResult.ok();
       } else {
-        store.setElection(undefined);
+        election = createBlankElection();
       }
-      return ok();
+      return ok(store.createElection(election));
     },
 
-    async exportAllBallots(): Promise<Buffer> {
-      const electionDefinition = store.getElection();
-      assert(electionDefinition !== undefined);
-      const { election } = electionDefinition;
+    updateElection(input: { electionId: Id; election: Election }): void {
+      const { election } = store.getElection(input.electionId);
+      // TODO validate election
+      store.updateElection(input.electionId, {
+        ...election,
+        ...input.election,
+      });
+    },
+
+    updatePrecincts(input: { electionId: Id; precincts: Precinct[] }): void {
+      store.updatePrecincts(input.electionId, input.precincts);
+    },
+
+    deleteElection(input: { electionId: Id }): void {
+      store.deleteElection(input.electionId);
+    },
+
+    async exportAllBallots(input: { electionId: Id }): Promise<Buffer> {
+      const { election } = store.getElection(input.electionId);
 
       const zip = new JsZip();
 
@@ -84,12 +122,11 @@ function buildApi({ store }: { store: Store }) {
     },
 
     async exportBallot(input: {
+      electionId: Id;
       precinctId: string;
       ballotStyleId: string;
     }): Promise<Buffer> {
-      const electionDefinition = store.getElection();
-      assert(electionDefinition !== undefined);
-      const { election } = electionDefinition;
+      const { election } = store.getElection(input.electionId);
       const precinct = getPrecinctById({
         election,
         precinctId: input.precinctId,
@@ -107,10 +144,8 @@ function buildApi({ store }: { store: Store }) {
       return streamToBuffer(pdf);
     },
 
-    exportBallotDefinition(): Election {
-      const electionDefinition = store.getElection();
-      assert(electionDefinition !== undefined);
-      const { election } = electionDefinition;
+    exportBallotDefinition(input: { electionId: Id }): Election {
+      const { election } = store.getElection(input.electionId);
 
       const gridLayouts: GridLayout[] = [];
       for (const ballotStyle of election.ballotStyles) {

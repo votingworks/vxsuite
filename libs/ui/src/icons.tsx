@@ -26,12 +26,14 @@ import {
   faChevronCircleUp,
   faChevronCircleDown,
   faChevronRight,
+  faChevronLeft,
   faSquarePlus,
   faSpinner,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
   faPauseCircle,
+  faSquare,
 } from '@fortawesome/free-regular-svg-icons';
 
 import { Font, FontProps } from './typography';
@@ -151,8 +153,16 @@ export const Icons = {
     return <FaIcon type={faChevronRight} />;
   },
 
+  LeftChevron(): JSX.Element {
+    return <FaIcon type={faChevronLeft} />;
+  },
+
   Save(): JSX.Element {
     return <FaIcon type={faFloppyDisk} />;
+  },
+
+  Square(): JSX.Element {
+    return <FaIcon type={faSquare} />;
   },
 
   Settings(): JSX.Element {

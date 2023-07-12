@@ -1,4 +1,4 @@
-import React, { FormEvent, RefObject } from 'react';
+import { ChangeEvent, FormEvent, RefObject } from 'react';
 import styled from 'styled-components';
 
 import { LabelButton, ButtonProps } from '@votingworks/ui';
@@ -26,7 +26,7 @@ interface Props {
   name?: string;
   multiple?: boolean;
   children: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   innerRef?: RefObject<HTMLInputElement>;
 }
 
