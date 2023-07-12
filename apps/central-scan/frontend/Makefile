@@ -5,7 +5,7 @@ FORCE:
 install:
 
 build: FORCE
-	pnpm install && pnpm build
+	pnpm install && pnpm --dir ../../../libs/ballot-interpreter-nh build && pnpm build	
 
 bootstrap: install build
 

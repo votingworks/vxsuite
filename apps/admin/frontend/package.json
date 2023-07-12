@@ -224,7 +224,6 @@
   "vx": {
     "isBundled": true,
     "services": [
-      "../../../services/converter-ms-sems",
       "../backend"
     ]
   }
