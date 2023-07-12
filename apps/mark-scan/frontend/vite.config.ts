@@ -77,7 +77,7 @@ export default defineConfig((env) => {
     server: {
       hmr:
         // Values are not parsed to booleans in this file
-        rootDotenvValues['REACT_APP_VX_DISABLE_MARKSCAN_HOT_RELOAD'] === 'TRUE'
+        process.env.DISABLE_MARKSCAN_HOT_RELOAD === 'true'
         ? false : undefined
     },
 

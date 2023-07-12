@@ -11,6 +11,13 @@ then run BMD like so:
 pnpm start
 ```
 
+To run without hot reloading (eg. if developing on resource-constrainted
+hardware):
+
+```sh
+DISABLE_MARKSCAN_HOT_RELOAD=true pnpm start
+```
+
 The server will be available at http://localhost:3000/.
 
 ## Testing

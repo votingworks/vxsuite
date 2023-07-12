@@ -18,6 +18,5 @@ declare namespace NodeJS {
     REACT_APP_VX_DISABLE_CVR_ORIGINAL_SNAPSHOTS?: string;
     REACT_APP_VX_USE_MOCK_CARDS?: string;
     REACT_APP_VX_CONVERTER?: string;
-    REACT_APP_VX_DISABLE_MARKSCAN_HOT_RELOAD?: string;
   }
 }
