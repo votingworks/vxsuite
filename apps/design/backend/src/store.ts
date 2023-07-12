@@ -34,7 +34,7 @@ export interface PrecinctWithSplits {
   splits: PrecinctSplit[];
 }
 export interface PrecinctSplit {
-  id: PrecinctId;
+  id: Id;
   name: string;
   districtIds: DistrictId[];
 }
@@ -44,7 +44,7 @@ export function hasSplits(precinct: Precinct): precinct is PrecinctWithSplits {
   return 'splits' in precinct && precinct.splits !== undefined;
 }
 
-// We also create a new type for a ballot style, that can reference precints and
+// We also create a new type for a ballot style, that can reference precincts and
 // splits. We generate ballot styles on demand, so it won't be stored in the db.
 export interface BallotStyle {
   id: BallotStyleId;
@@ -79,6 +79,10 @@ function convertVxfPrecincts(election: Election) {
   });
 }
 
+/**
+ * Groups items by a key function. Uses deepEqual to compare keys in order to support
+ * complex key types. For simpler key types, a Map would suffice.
+ */
 function groupBy<T, K>(items: T[], keyFn: (item: T) => K): Array<[K, T[]]> {
   const groups: Array<[K, T[]]> = [];
   for (const item of items) {
