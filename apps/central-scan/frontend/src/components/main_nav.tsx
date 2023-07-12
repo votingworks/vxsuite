@@ -77,7 +77,7 @@ export function MainNav({ children, isTestMode = false }: Props): JSX.Element {
           </MakeName>
           <ModelName>VxCentralScan</ModelName>
         </Brand>
-        {isTestMode && <TestMode>Machine is in Test Ballot Mode</TestMode>}
+        {isTestMode && <TestMode>Test Mode</TestMode>}
         <NavButtons>
           <SessionTimeLimitTimer authStatus={authStatusQuery.data} />
           {children}
