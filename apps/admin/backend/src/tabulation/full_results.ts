@@ -38,7 +38,6 @@ export function tabulateCastVoteRecords({
     cvrs: store.getCastVoteRecords({ electionId, election, filter }),
     election,
     groupBy,
-    yieldToEventLoopEvery: 1000,
   });
 }
 

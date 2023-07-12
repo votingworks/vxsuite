@@ -417,6 +417,8 @@ export async function yieldToEventLoop(): Promise<void> {
   });
 }
 
+const YIELD_TO_EVENT_LOOP_EVERY_N_CVRS = 1000;
+
 /**
  * Tabulates iterable cast vote records into election results, grouped by
  * the attributes specified {@link Tabulation.GroupBy} parameter.
@@ -425,12 +427,10 @@ export async function tabulateCastVoteRecords({
   election,
   cvrs,
   groupBy,
-  yieldToEventLoopEvery = 0,
 }: {
   cvrs: Iterable<Tabulation.CastVoteRecord>;
   election: Election;
   groupBy?: Tabulation.GroupBy;
-  yieldToEventLoopEvery?: number;
 }): Promise<Tabulation.ElectionResultsGroupMap> {
   const groupedElectionResults: Tabulation.ElectionResultsGroupMap = {};
 
@@ -443,7 +443,7 @@ export async function tabulateCastVoteRecords({
       addCastVoteRecordToElectionResult(electionResults, cvr);
 
       i += 1;
-      if (yieldToEventLoopEvery && i % yieldToEventLoopEvery === 0) {
+      if (i % YIELD_TO_EVENT_LOOP_EVERY_N_CVRS === 0) {
         await yieldToEventLoop();
       }
     }
@@ -472,7 +472,7 @@ export async function tabulateCastVoteRecords({
     }
 
     i += 1;
-    if (yieldToEventLoopEvery && i % yieldToEventLoopEvery === 0) {
+    if (i % YIELD_TO_EVENT_LOOP_EVERY_N_CVRS === 0) {
       await yieldToEventLoop();
     }
   }
