@@ -1,12 +1,96 @@
-import { H1, Table, TH, TD, LinkButton, P } from '@votingworks/ui';
+import {
+  H1,
+  Table,
+  TH,
+  TD,
+  LinkButton,
+  P,
+  H2,
+  Icons,
+  Button,
+} from '@votingworks/ui';
 import { Route, Switch, useParams } from 'react-router-dom';
 import { find } from '@votingworks/basics';
-import { getElection } from './api';
-import { NestedTr } from './layout';
+import {
+  BallotLayout,
+  BallotPaperSize,
+  BallotTargetMarkPosition,
+  Election,
+} from '@votingworks/types';
+import { useState } from 'react';
+import { getElection, updateElection } from './api';
+import { Form, FormActionsRow, FormField, NestedTr } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './geography_screen';
 import { BallotScreen } from './ballot_screen';
+import { SegmentedControl } from './segmented_control';
+
+const defaultBallotLayout: Required<BallotLayout> = {
+  targetMarkPosition: BallotTargetMarkPosition.Left,
+  paperSize: BallotPaperSize.Letter,
+  layoutDensity: 1,
+};
+
+function BallotDesignForm({
+  electionId,
+  savedElection,
+}: {
+  electionId: string;
+  savedElection: Election;
+}): JSX.Element {
+  const [isEditing, setIsEditing] = useState(false);
+  const [ballotLayout, setBallotLayout] = useState<Required<BallotLayout>>({
+    ...defaultBallotLayout,
+    ...(savedElection.ballotLayout ?? {}),
+  });
+  const updateElectionMutation = updateElection.useMutation();
+
+  function onSavePress() {
+    updateElectionMutation.mutate(
+      {
+        electionId,
+        election: {
+          ...savedElection,
+          ballotLayout,
+        },
+      },
+      { onSuccess: () => setIsEditing(false) }
+    );
+  }
+
+  return (
+    <Form>
+      <FormField label="Bubble Position">
+        <SegmentedControl
+          options={[
+            { value: BallotTargetMarkPosition.Left, label: 'Left' },
+            { value: BallotTargetMarkPosition.Right, label: 'Right' },
+          ]}
+          value={ballotLayout.targetMarkPosition}
+          onChange={(targetMarkPosition) =>
+            setBallotLayout({ ...ballotLayout, targetMarkPosition })
+          }
+          disabled={!isEditing}
+        />
+      </FormField>
+      {isEditing ? (
+        <FormActionsRow>
+          <Button onPress={() => setIsEditing(false)}>Cancel</Button>
+          <Button onPress={onSavePress} variant="primary">
+            <Icons.Checkmark /> Save
+          </Button>
+        </FormActionsRow>
+      ) : (
+        <FormActionsRow>
+          <Button onPress={() => setIsEditing(true)} variant="primary">
+            <Icons.Edit /> Edit
+          </Button>
+        </FormActionsRow>
+      )}
+    </Form>
+  );
+}
 
 function BallotsListScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -16,7 +100,7 @@ function BallotsListScreen(): JSX.Element | null {
     return null; // Initial loading state
   }
 
-  const { precincts, ballotStyles } = getElectionQuery.data;
+  const { election, precincts, ballotStyles } = getElectionQuery.data;
   const ballotRoutes = routes.election(electionId).ballots;
 
   return (
@@ -98,6 +182,8 @@ function BallotsListScreen(): JSX.Element | null {
           })}
         </tbody>
       </Table>
+      <H2>Ballot Layout</H2>
+      <BallotDesignForm electionId={electionId} savedElection={election} />
     </ElectionNavScreen>
   );
 }

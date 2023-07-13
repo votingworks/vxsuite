@@ -9,6 +9,7 @@ import {
 import {
   AnyContest,
   BallotStyle,
+  BallotTargetMarkPosition,
   Contests,
   Election,
   getCandidatePartiesDescription,
@@ -162,6 +163,10 @@ function gridHeight(gridUnits: number): number {
 
 function yToRow(y: number): number {
   return Math.round((y / ROW_GAP) * 10) / 10;
+}
+
+function xToColumn(x: number): number {
+  return Math.round((x / COLUMN_GAP) * 10) / 10;
 }
 
 export function Bubble({
@@ -525,12 +530,17 @@ function CandidateContest({
 }): [Rectangle, GridPosition[]] {
   assert(contest.type === 'candidate');
 
+  const bubblePosition =
+    election.ballotLayout?.targetMarkPosition ?? BallotTargetMarkPosition.Left;
   // Temp hack until we can change the timing mark grid dimensions: expand the
   // last contest column to fill the page
-  const width =
-    gridColumn > 20
-      ? CONTENT_AREA_COLUMN_WIDTH - 2 * (CONTEST_COLUMN_WIDTH + GUTTER_WIDTH)
-      : CONTEST_COLUMN_WIDTH;
+  const width = (
+    bubblePosition === BallotTargetMarkPosition.Left
+      ? gridColumn > 20
+      : gridColumn < 10
+  )
+    ? CONTENT_AREA_COLUMN_WIDTH - 2 * (CONTEST_COLUMN_WIDTH + GUTTER_WIDTH)
+    : CONTEST_COLUMN_WIDTH;
   const titleLines = textWrap(
     contest.title,
     FontStyles.H3,
@@ -598,24 +608,41 @@ function CandidateContest({
       height: gridHeight(optionRowHeight),
       // fill: 'rgb(0, 255, 0, 0.2)',
       children: [
-        Bubble({ row: 1, column: 1, isFilled: false }),
+        Bubble({
+          row: 1,
+          column:
+            bubblePosition === BallotTargetMarkPosition.Left ? 1 : width - 1,
+          isFilled: false,
+        }),
         {
           type: 'TextBox',
-          ...gridPosition({ row: 0.6, column: 1.75 }),
-          width: gridWidth(width - 1),
+          ...gridPosition({
+            row: 0.6,
+            column:
+              bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5,
+          }),
+          width: gridWidth(width - 2.25),
           height: gridHeight(1),
           // TODO wrap candidate.name
           textLines: [candidate.name],
           ...FontStyles.BODY,
           fontWeight: FontWeights.BOLD,
+          align:
+            bubblePosition === BallotTargetMarkPosition.Left ? 'left' : 'right',
         },
         {
           type: 'TextBox',
-          ...gridPosition({ row: 1.3, column: 1.75 }),
-          width: gridWidth(width - 1),
+          ...gridPosition({
+            row: 1.3,
+            column:
+              bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5,
+          }),
+          width: gridWidth(width - 2.25),
           height: gridHeight(1),
           textLines: [getCandidatePartiesDescription(election, candidate)],
           ...FontStyles.BODY,
+          align:
+            bubblePosition === BallotTargetMarkPosition.Left ? 'left' : 'right',
         },
       ],
     });
@@ -645,21 +672,38 @@ function CandidateContest({
         width: gridWidth(width),
         height: gridHeight(writeInRowHeight),
         children: [
-          Bubble({ row: 1, column: 1, isFilled: false }),
+          Bubble({
+            row: 1,
+            column:
+              bubblePosition === BallotTargetMarkPosition.Left ? 1 : width - 1,
+            isFilled: false,
+          }),
           {
             type: 'Rectangle', // Line?
-            ...gridPosition({ row: 1.25, column: 1.75 }),
-            width: gridWidth(width - 2.5),
+            ...gridPosition({
+              row: 1.25,
+              column:
+                bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5,
+            }),
+            width: gridWidth(width - 2.25),
             height: 1,
             fill: 'black',
           },
           {
             type: 'TextBox',
-            ...gridPosition({ row: 1.3, column: 1.75 }),
+            ...gridPosition({
+              row: 1.3,
+              column:
+                bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5,
+            }),
             width: gridWidth(width - 2.5),
             height: gridHeight(1),
             textLines: ['write-in'],
             ...FontStyles.SMALL,
+            align:
+              bubblePosition === BallotTargetMarkPosition.Left
+                ? 'left'
+                : 'right',
           },
         ],
       });
@@ -697,6 +741,7 @@ function CandidateContest({
 }
 
 function BallotMeasure({
+  election,
   contest,
   row,
   gridRow,
@@ -768,8 +813,9 @@ function BallotMeasure({
     ],
   };
 
-  const optionPostions: GridPosition[] = [];
+  const optionPositions: GridPosition[] = [];
   const side = pageNumber % 2 === 1 ? 'front' : 'back';
+  const bubblePosition = election.ballotLayout?.targetMarkPosition ?? 'left';
 
   const choices = [
     { id: 'yes', label: 'Yes' },
@@ -790,20 +836,31 @@ function BallotMeasure({
       height: gridHeight(optionRowHeight),
       // fill: 'rgb(0, 255, 0, 0.2)',
       children: [
-        Bubble({ row: 1, column: 1, isFilled: false }),
+        Bubble({
+          row: 1,
+          column:
+            bubblePosition === BallotTargetMarkPosition.Left ? 1 : width - 1,
+          isFilled: false,
+        }),
         {
           type: 'TextBox',
-          ...gridPosition({ row: 0.65, column: 1.75 }),
-          width: gridWidth(width - 1),
+          ...gridPosition({
+            row: 0.65,
+            column:
+              bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5,
+          }),
+          width: gridWidth(width - 2.25),
           height: gridHeight(1),
           textLines: [choice.label],
           ...FontStyles.BODY,
           fontWeight: FontWeights.BOLD,
+          align:
+            bubblePosition === BallotTargetMarkPosition.Left ? 'left' : 'right',
         },
       ],
     });
 
-    optionPostions.push({
+    optionPositions.push({
       type: 'option',
       side,
       contestId: contest.id,
@@ -830,7 +887,7 @@ function BallotMeasure({
       strokeWidth: 0.5,
       children: [heading, ...options],
     },
-    optionPostions,
+    optionPositions,
   ];
 }
 
@@ -1012,14 +1069,12 @@ export function layOutInColumns<Element extends ElementWithHeight>({
 function ContestColumn({
   election,
   contests,
-  width,
   gridRow,
   gridColumn,
   pageNumber,
 }: {
   election: Election;
   contests: Contests;
-  width: number;
   gridRow: number;
   gridColumn: number;
   pageNumber: number;
@@ -1047,7 +1102,7 @@ function ContestColumn({
   const column: Rectangle = {
     type: 'Rectangle',
     ...gridPosition({ row: gridRow, column: gridColumn }),
-    width,
+    width: contestRectangles[0].width,
     height: gridHeight(lastContestRow),
     children: contestRectangles,
   };
@@ -1077,23 +1132,18 @@ function ContestColumnsChunk({
   const columnPositions: GridPosition[] = [];
   const columnRectangles: Rectangle[] = [];
   let lastColumnColumn = 0;
-  const columnWidth =
-    contestColumns.length === 3
-      ? CONTEST_COLUMN_WIDTH
-      : CONTENT_AREA_COLUMN_WIDTH;
 
   for (const contestColumn of contestColumns) {
     const [columnRectangle, contestPositions] = ContestColumn({
       election,
       contests: contestColumn,
-      width: gridWidth(columnWidth),
       gridRow,
       gridColumn: gridColumn + lastColumnColumn,
       pageNumber,
     });
     columnRectangles.push(columnRectangle);
     columnPositions.push(...contestPositions);
-    lastColumnColumn += columnWidth + GUTTER_WIDTH;
+    lastColumnColumn += xToColumn(columnRectangle.width) + GUTTER_WIDTH;
   }
 
   const section: Rectangle = {

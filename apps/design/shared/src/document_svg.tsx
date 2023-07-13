@@ -41,6 +41,7 @@ export function SvgTextBox({
   height,
   textLines,
   lineHeight,
+  align = 'left',
   ...textProps
 }: SvgTextBoxProps): JSX.Element {
   return (
@@ -49,8 +50,9 @@ export function SvgTextBox({
         <text
           // eslint-disable-next-line react/no-array-index-key
           key={textLine + index}
-          x={0}
+          x={align === 'right' ? width : 0}
           y={(index + 1) * lineHeight}
+          textAnchor={align === 'left' ? 'start' : 'end'}
           {...textProps}
         >
           {textLine}

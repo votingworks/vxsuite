@@ -54,10 +54,13 @@ const StyleOverrides = styled.div`
     cursor: pointer;
   }
   h1 {
-    margin-bottom: 1rem;
+    margin-bottom: 1.2rem;
     &:not(:first-child) {
       margin-top: 1rem;
     }
+  }
+  h2 {
+    margin-bottom: 0.8rem;
   }
   a {
     color: ${({ theme }) => theme.colors.foreground};
