@@ -3,7 +3,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import fs, { readFileSync } from 'fs';
 import PdfDocument from 'pdfkit';
 import SvgToPdf from 'svg-to-pdfkit';
-import { BallotPaperSize, safeParseJson } from '@votingworks/types';
+import { safeParseJson } from '@votingworks/types';
 import {
   SvgPage,
   SvgRectangle,
@@ -13,7 +13,6 @@ import {
   Page,
   SvgImageProps,
   PPI,
-  dimensionsForPaper,
 } from '@votingworks/design-shared';
 import { join } from 'path';
 
@@ -68,22 +67,11 @@ function renderPageToSvg(page: Page, width: number, height: number): string {
   return pageSvgString.replace(/^<svg width="\d*" height="\d*"/, '<svg');
 }
 
-function paperSizeForDocument(document: Document) {
-  const size = [BallotPaperSize.Letter, BallotPaperSize.Legal].find(
-    (paperSize) => {
-      const dimensions = dimensionsForPaper(paperSize);
-      return (
-        dimensions.width * PPI === document.width &&
-        dimensions.height * PPI === document.height
-      );
-    }
-  );
-  if (!size) {
-    throw new Error(
-      `Unsupported ballot dimensions ${document.width}x${document.height}`
-    );
-  }
-  return size;
+/**
+ * Convert document pixel dimensions to Postscript points (1/72 inch).
+ */
+function pixelsToPoints(pixels: number): number {
+  return (pixels / PPI) * 72;
 }
 
 export function renderDocumentToPdf(document: Document): PDFKit.PDFDocument {
@@ -93,7 +81,7 @@ export function renderDocumentToPdf(document: Document): PDFKit.PDFDocument {
 
   const pdf = new PdfDocument({
     layout: 'portrait',
-    size: paperSizeForDocument(document),
+    size: [pixelsToPoints(document.width), pixelsToPoints(document.height)],
     autoFirstPage: false,
   });
   for (const font of FONTS) {

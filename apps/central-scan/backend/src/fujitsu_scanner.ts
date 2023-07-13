@@ -1,4 +1,4 @@
-import { assert, deferredQueue, throwIllegalValue } from '@votingworks/basics';
+import { assert, deferredQueue } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { join } from 'path';
 import { dirSync } from 'tmp';
@@ -89,12 +89,12 @@ export class FujitsuScanner implements BatchScanner {
 
     if (pageSize === BallotPaperSize.Legal) {
       args.push('--page-width', '215.872', '--page-height', '355.6'); // values in millimeters
-    } else if (pageSize === BallotPaperSize.Custom8Point5X17) {
+    } else if (pageSize === BallotPaperSize.Custom17) {
       args.push('--page-width', '215.872', '--page-height', '431.8'); // values in millimeters
     } else if (pageSize === BallotPaperSize.Letter) {
       // this is the default, no changes needed.
     } else {
-      throwIllegalValue(pageSize);
+      throw new Error(`Unsupported page size: ${pageSize}`);
     }
 
     if (this.mode) {

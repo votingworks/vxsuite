@@ -20,7 +20,6 @@ import {
   GridDimensions,
   layOutBallot,
   gridForPaper,
-  dimensionsForPaper,
 } from '@votingworks/design-shared';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
@@ -220,16 +219,14 @@ const ErrorMessage = styled.div`
   justify-content: center;
 `;
 
-function prettyPaperSize(paperSize: BallotPaperSize): string {
-  switch (paperSize) {
-    case BallotPaperSize.Letter:
-      return 'Letter';
-    case BallotPaperSize.Legal:
-      return 'Legal';
-    default:
-      throw new Error(`Unsupported paper size: ${paperSize}`);
-  }
-}
+export const paperSizeLabels: Record<BallotPaperSize, string> = {
+  [BallotPaperSize.Letter]: '8.5 x 11 inches (Letter)',
+  [BallotPaperSize.Legal]: '8.5 x 14 inches (Legal)',
+  [BallotPaperSize.Custom17]: '8.5 x 17 inches',
+  [BallotPaperSize.Custom18]: '8.5 x 18 inches',
+  [BallotPaperSize.Custom21]: '8.5 x 21 inches',
+  [BallotPaperSize.Custom22]: '8.5 x 22 inches',
+};
 
 export function BallotViewer({
   election,
@@ -247,7 +244,6 @@ export function BallotViewer({
 
   const paperSize = election.ballotLayout?.paperSize ?? BallotPaperSize.Letter;
   const grid = gridForPaper(paperSize);
-  const paperDimensions = dimensionsForPaper(paperSize);
 
   const [dimensions, setDimensions] = useState<{
     width: number;
@@ -305,10 +301,7 @@ export function BallotViewer({
           <H3>Precinct</H3>
           <P>{precinct.name}</P>
           <H3>Page Size</H3>
-          <P>
-            {prettyPaperSize(paperSize)} &mdash; {paperDimensions.width} x{' '}
-            {paperDimensions.height} inches
-          </P>
+          <P>{paperSizeLabels[paperSize]}</P>
           <H3>Timing Marks</H3>
           <P>
             {grid.columns} columns x {grid.rows} rows

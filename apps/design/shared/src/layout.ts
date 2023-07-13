@@ -4,6 +4,7 @@ import {
   iter,
   ok,
   Result,
+  throwIllegalValue,
   wrapException,
 } from '@votingworks/basics';
 import {
@@ -124,26 +125,39 @@ export function dimensionsForPaper(paperSize: BallotPaperSize): {
         width: 8.5,
         height: 14,
       };
+    case BallotPaperSize.Custom17:
+      return {
+        width: 8.5,
+        height: 17,
+      };
+    case BallotPaperSize.Custom18:
+      return {
+        width: 8.5,
+        height: 18,
+      };
+    case BallotPaperSize.Custom21:
+      return {
+        width: 8.5,
+        height: 21,
+      };
+    case BallotPaperSize.Custom22:
+      return {
+        width: 8.5,
+        height: 22,
+      };
     default:
-      throw new Error(`Unsupported paper size: ${paperSize}`);
+      throwIllegalValue(paperSize);
   }
 }
 
 export function gridForPaper(paperSize: BallotPaperSize): GridDimensions {
-  switch (paperSize) {
-    case BallotPaperSize.Letter:
-      return {
-        rows: 41,
-        columns: 34,
-      };
-    case BallotPaperSize.Legal:
-      return {
-        rows: 53,
-        columns: 34,
-      };
-    default:
-      throw new Error(`Unsupported paper size: ${paperSize}`);
-  }
+  const columnsPerInch = 4;
+  const rowsPerInch = 4;
+  const dimensions = dimensionsForPaper(paperSize);
+  return {
+    rows: dimensions.height * rowsPerInch - 3,
+    columns: dimensions.width * columnsPerInch,
+  };
 }
 
 export const PPI = 72;

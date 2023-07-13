@@ -332,7 +332,10 @@ export const CountySchema: z.ZodSchema<County> = z.object({
 export enum BallotPaperSize {
   Letter = 'letter',
   Legal = 'legal',
-  Custom8Point5X17 = 'custom8.5x17',
+  Custom17 = 'custom-8.5x17',
+  Custom18 = 'custom-8.5x18',
+  Custom21 = 'custom-8.5x21',
+  Custom22 = 'custom-8.5x22',
 }
 export const BallotPaperSizeSchema: z.ZodSchema<BallotPaperSize> =
   z.nativeEnum(BallotPaperSize);

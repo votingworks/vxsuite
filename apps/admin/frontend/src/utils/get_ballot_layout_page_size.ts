@@ -14,7 +14,10 @@ export function getBallotLayoutPageSizeReadableString(
   > = {
     [BallotPaperSize.Letter]: 'letter',
     [BallotPaperSize.Legal]: 'legal',
-    [BallotPaperSize.Custom8Point5X17]: 'custom 8.5x17',
+    [BallotPaperSize.Custom17]: '8.5 x 17',
+    [BallotPaperSize.Custom18]: '8.5 x 18',
+    [BallotPaperSize.Custom21]: '8.5 x 21',
+    [BallotPaperSize.Custom22]: '8.5 x 22',
   };
   const readableString =
     ballotPaperSizeToReadableStringMapping[getBallotLayoutPageSize(election)];
