@@ -267,7 +267,7 @@ export async function main(
           pageHeightInches = 14;
           break;
 
-        case BallotPaperSize.Custom8Point5X17:
+        case BallotPaperSize.Custom17:
           pageHeightInches = 17;
           break;
 
