@@ -10,9 +10,7 @@ import {
 import {
   Bubble,
   Document,
-  DOCUMENT_HEIGHT,
-  DOCUMENT_WIDTH,
-  GRID,
+  measurements,
   range,
   TimingMarkGrid,
 } from '@votingworks/design-shared';
@@ -20,6 +18,9 @@ import {
 interface AllBubbleBallotOptions {
   fillBubble: (page: number, row: number, column: number) => boolean;
 }
+
+const m = measurements(BallotPaperSize.Letter);
+const { DOCUMENT_HEIGHT, DOCUMENT_WIDTH, GRID } = m;
 
 function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
   function bubbles(page: number) {
@@ -29,6 +30,7 @@ function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
           row,
           column,
           isFilled: fillBubble(page, row, column),
+          m,
         })
       )
     );
@@ -42,13 +44,13 @@ function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
     pages: [
       {
         children: [
-          TimingMarkGrid({ pageNumber: 1, ballotStyleIndex, precinctIndex }),
+          TimingMarkGrid({ pageNumber: 1, ballotStyleIndex, precinctIndex, m }),
           ...bubbles(1),
         ],
       },
       {
         children: [
-          TimingMarkGrid({ pageNumber: 2, ballotStyleIndex, precinctIndex }),
+          TimingMarkGrid({ pageNumber: 2, ballotStyleIndex, precinctIndex, m }),
           ...bubbles(2),
         ],
       },

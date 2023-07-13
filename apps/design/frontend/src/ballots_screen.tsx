@@ -61,6 +61,19 @@ function BallotDesignForm({
 
   return (
     <Form>
+      <FormField label="Paper Size">
+        <SegmentedControl
+          options={[
+            { value: BallotPaperSize.Letter, label: 'Letter' },
+            { value: BallotPaperSize.Legal, label: 'Legal' },
+          ]}
+          value={ballotLayout.paperSize}
+          onChange={(paperSize) =>
+            setBallotLayout({ ...ballotLayout, paperSize })
+          }
+          disabled={!isEditing}
+        />
+      </FormField>
       <FormField label="Bubble Position">
         <SegmentedControl
           options={[
