@@ -50,7 +50,10 @@ export function SvgTextBox({
         <text
           // eslint-disable-next-line react/no-array-index-key
           key={textLine + index}
-          x={align === 'right' ? width : 0}
+          // Adjust x coordinate if textAnchor is 'end' so that the overall
+          // content box location stays the same, since 'end' moves the text to
+          // the other side of the x coordinate.
+          x={align === 'left' ? 0 : width}
           y={(index + 1) * lineHeight}
           textAnchor={align === 'left' ? 'start' : 'end'}
           {...textProps}

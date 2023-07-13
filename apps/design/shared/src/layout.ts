@@ -532,8 +532,10 @@ function CandidateContest({
 
   const bubblePosition =
     election.ballotLayout?.targetMarkPosition ?? BallotTargetMarkPosition.Left;
-  // Temp hack until we can change the timing mark grid dimensions: expand the
-  // last contest column to fill the page
+
+  // Temp hack until we can change the timing mark grid dimensions since they
+  // don't evenly divide into three columns: expand the last contest column (if
+  // bubbles on left) or first contest column (if bubbles on right)
   const width = (
     bubblePosition === BallotTargetMarkPosition.Left
       ? gridColumn > 20
@@ -594,6 +596,13 @@ function CandidateContest({
   const optionPostions: GridPosition[] = [];
   const side = pageNumber % 2 === 1 ? 'front' : 'back';
 
+  const bubbleColumn =
+    bubblePosition === BallotTargetMarkPosition.Left ? 1 : width - 1;
+  const optionLabelColumn =
+    bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5;
+  const optionTextAlign =
+    bubblePosition === BallotTargetMarkPosition.Left ? 'left' : 'right';
+
   const optionRowHeight = 2;
   const options: Rectangle[] = [];
   for (const [index, candidate] of contest.candidates.entries()) {
@@ -610,16 +619,14 @@ function CandidateContest({
       children: [
         Bubble({
           row: 1,
-          column:
-            bubblePosition === BallotTargetMarkPosition.Left ? 1 : width - 1,
+          column: bubbleColumn,
           isFilled: false,
         }),
         {
           type: 'TextBox',
           ...gridPosition({
             row: 0.6,
-            column:
-              bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5,
+            column: optionLabelColumn,
           }),
           width: gridWidth(width - 2.25),
           height: gridHeight(1),
@@ -627,22 +634,19 @@ function CandidateContest({
           textLines: [candidate.name],
           ...FontStyles.BODY,
           fontWeight: FontWeights.BOLD,
-          align:
-            bubblePosition === BallotTargetMarkPosition.Left ? 'left' : 'right',
+          align: optionTextAlign,
         },
         {
           type: 'TextBox',
           ...gridPosition({
             row: 1.3,
-            column:
-              bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5,
+            column: optionLabelColumn,
           }),
           width: gridWidth(width - 2.25),
           height: gridHeight(1),
           textLines: [getCandidatePartiesDescription(election, candidate)],
           ...FontStyles.BODY,
-          align:
-            bubblePosition === BallotTargetMarkPosition.Left ? 'left' : 'right',
+          align: optionTextAlign,
         },
       ],
     });
@@ -651,7 +655,7 @@ function CandidateContest({
       type: 'option',
       side,
       contestId: contest.id,
-      column: gridColumn,
+      column: gridColumn + bubbleColumn - 1,
       row: gridRow + optionRow,
       optionId: candidate.id,
     });
@@ -674,16 +678,14 @@ function CandidateContest({
         children: [
           Bubble({
             row: 1,
-            column:
-              bubblePosition === BallotTargetMarkPosition.Left ? 1 : width - 1,
+            column: bubbleColumn,
             isFilled: false,
           }),
           {
             type: 'Rectangle', // Line?
             ...gridPosition({
               row: 1.25,
-              column:
-                bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5,
+              column: optionLabelColumn,
             }),
             width: gridWidth(width - 2.25),
             height: 1,
@@ -693,17 +695,13 @@ function CandidateContest({
             type: 'TextBox',
             ...gridPosition({
               row: 1.3,
-              column:
-                bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5,
+              column: optionLabelColumn,
             }),
             width: gridWidth(width - 2.5),
             height: gridHeight(1),
             textLines: ['write-in'],
             ...FontStyles.SMALL,
-            align:
-              bubblePosition === BallotTargetMarkPosition.Left
-                ? 'left'
-                : 'right',
+            align: optionTextAlign,
           },
         ],
       });
@@ -712,7 +710,7 @@ function CandidateContest({
         type: 'write-in',
         side,
         contestId: contest.id,
-        column: gridColumn,
+        column: gridColumn + bubbleColumn - 1,
         row: gridRow + optionRow,
         writeInIndex,
       });
@@ -822,6 +820,13 @@ function BallotMeasure({
     { id: 'no', label: 'No' },
   ];
 
+  const bubbleColumn =
+    bubblePosition === BallotTargetMarkPosition.Left ? 1 : width - 1;
+  const optionLabelColumn =
+    bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5;
+  const optionTextAlign =
+    bubblePosition === BallotTargetMarkPosition.Left ? 'left' : 'right';
+
   const optionRowHeight = 1;
   const options: Rectangle[] = [];
   for (const [index, choice] of choices.entries()) {
@@ -838,24 +843,21 @@ function BallotMeasure({
       children: [
         Bubble({
           row: 1,
-          column:
-            bubblePosition === BallotTargetMarkPosition.Left ? 1 : width - 1,
+          column: bubbleColumn,
           isFilled: false,
         }),
         {
           type: 'TextBox',
           ...gridPosition({
             row: 0.65,
-            column:
-              bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5,
+            column: optionLabelColumn,
           }),
           width: gridWidth(width - 2.25),
           height: gridHeight(1),
           textLines: [choice.label],
           ...FontStyles.BODY,
           fontWeight: FontWeights.BOLD,
-          align:
-            bubblePosition === BallotTargetMarkPosition.Left ? 'left' : 'right',
+          align: optionTextAlign,
         },
       ],
     });
@@ -864,7 +866,7 @@ function BallotMeasure({
       type: 'option',
       side,
       contestId: contest.id,
-      column: gridColumn,
+      column: gridColumn + bubbleColumn - 1,
       row: gridRow + optionRow,
       optionId: choice.id,
     });
@@ -1102,7 +1104,7 @@ function ContestColumn({
   const column: Rectangle = {
     type: 'Rectangle',
     ...gridPosition({ row: gridRow, column: gridColumn }),
-    width: contestRectangles[0].width,
+    width: contestRectangles[0]?.width ?? 0,
     height: gridHeight(lastContestRow),
     children: contestRectangles,
   };
