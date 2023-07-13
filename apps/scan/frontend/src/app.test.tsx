@@ -694,7 +694,7 @@ test('with printer: poll worker can open and close polls without scanning any ba
     connectCardReader: true,
     connectPrinter: true,
   });
-  renderApp({ hardware });
+  renderApp({ hardware, precinctReportDestination: 'laser-printer' });
   await screen.findByText('Polls Closed');
 
   // Open Polls Flow

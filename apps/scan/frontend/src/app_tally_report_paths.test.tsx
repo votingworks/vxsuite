@@ -27,6 +27,7 @@ import {
   ContestId,
   Dictionary,
   ElectionDefinition,
+  PrecinctReportDestination,
   PrecinctSelection,
   VotingMethod,
 } from '@votingworks/types';
@@ -35,7 +36,13 @@ import userEvent from '@testing-library/user-event';
 import MockDate from 'mockdate';
 import { fakeLogger } from '@votingworks/logging';
 import { err } from '@votingworks/basics';
-import { render, screen, within } from '../test/react_testing_library';
+import {
+  act,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library';
 import { App } from './app';
 import {
   ApiMock,
@@ -80,7 +87,13 @@ function expectContestResultsInReport(
   }
 }
 
-function renderApp({ connectPrinter }: { connectPrinter: boolean }) {
+function renderApp({
+  connectPrinter,
+  precinctReportDestination,
+}: {
+  connectPrinter: boolean;
+  precinctReportDestination?: PrecinctReportDestination;
+}) {
   const hardware = MemoryHardware.build({
     connectPrinter,
     connectCardReader: true,
@@ -92,6 +105,7 @@ function renderApp({ connectPrinter }: { connectPrinter: boolean }) {
       hardware={hardware}
       logger={logger}
       apiClient={apiMock.mockApiClient}
+      precinctReportDestination={precinctReportDestination}
     />
   );
   return { hardware, logger };
@@ -146,7 +160,10 @@ test('printing: polls open, All Precincts, primary election + check additional r
   const { election } = electionDefinition;
   apiMock.expectGetConfig({ electionDefinition });
   apiMock.expectGetScannerStatus(statusNoPaper);
-  renderApp({ connectPrinter: true });
+  renderApp({
+    connectPrinter: true,
+    precinctReportDestination: 'laser-printer',
+  });
   await screen.findByText('Polls Closed');
 
   // Open the polls
@@ -345,7 +362,10 @@ test('printing: polls closed, primary election, all precincts + quickresults on'
   const { election } = electionDefinition;
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
-  renderApp({ connectPrinter: true });
+  renderApp({
+    connectPrinter: true,
+    precinctReportDestination: 'laser-printer',
+  });
   await screen.findByText(/Insert Your Ballot/i);
 
   // Close the polls
@@ -742,7 +762,10 @@ test('printing: polls closed, primary election, single precinct + check addition
     pollsState: 'polls_open',
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
-  renderApp({ connectPrinter: true });
+  renderApp({
+    connectPrinter: true,
+    precinctReportDestination: 'laser-printer',
+  });
   await screen.findByText(/Insert Your Ballot/i);
 
   // Close the polls
@@ -972,7 +995,10 @@ test('printing: polls closed, general election, all precincts', async () => {
   const electionDefinition = electionSample2Definition;
   apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
-  renderApp({ connectPrinter: true });
+  renderApp({
+    connectPrinter: true,
+    precinctReportDestination: 'laser-printer',
+  });
   await screen.findByText(/Insert Your Ballot/i);
 
   // Close the polls
@@ -1149,7 +1175,10 @@ test('printing: polls closed, general election, single precinct', async () => {
     pollsState: 'polls_open',
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
-  renderApp({ connectPrinter: true });
+  renderApp({
+    connectPrinter: true,
+    precinctReportDestination: 'laser-printer',
+  });
   await screen.findByText(/Insert Your Ballot/i);
 
   // Close the polls
@@ -1266,7 +1295,10 @@ test('printing: polls paused', async () => {
     pollsState: 'polls_open',
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
-  renderApp({ connectPrinter: true });
+  renderApp({
+    connectPrinter: true,
+    precinctReportDestination: 'laser-printer',
+  });
   await screen.findByText(/Insert Your Ballot/i);
 
   // Pause the polls
@@ -1353,7 +1385,10 @@ test('printing: polls unpaused', async () => {
     pollsState: 'polls_paused',
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
-  renderApp({ connectPrinter: true });
+  renderApp({
+    connectPrinter: true,
+    precinctReportDestination: 'laser-printer',
+  });
   await screen.findByText('Polls Paused');
 
   // Unpause the polls
@@ -1436,7 +1471,10 @@ test('printing: polls closed from paused, general election, single precinct', as
     pollsState: 'polls_paused',
   });
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
-  renderApp({ connectPrinter: true });
+  renderApp({
+    connectPrinter: true,
+    precinctReportDestination: 'laser-printer',
+  });
   await screen.findByText('Polls Paused');
 
   // Close the polls
@@ -1559,4 +1597,68 @@ test('saving to card: polls closed from paused, general election, single precinc
       pollsTransition: 'close_polls',
     }),
   });
+});
+
+test('printing: must have printer attached to open polls (thermal printer)', async () => {
+  const electionDefinition = electionSample2Definition;
+  apiMock.expectGetConfig({
+    electionDefinition,
+    precinctSelection: singlePrecinctSelectionFor('23'),
+    pollsState: 'polls_closed_initial',
+  });
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
+  const { hardware } = renderApp({
+    connectPrinter: false,
+    precinctReportDestination: 'thermal-sheet-printer',
+  });
+  await screen.findByText('Polls Closed');
+
+  // Opening the polls should require a printer
+  apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
+  apiMock.authenticateAsPollWorker(electionDefinition);
+  await screen.findByText('Do you want to open the polls?');
+  const openButton = screen.getButton('Yes, Open the Polls');
+  expect(openButton).toBeDisabled();
+  screen.getByText('Attach printer to continue.');
+
+  act(() => {
+    hardware.setPrinterConnected(true);
+  });
+
+  await waitFor(() => expect(openButton).toBeEnabled());
+  expect(
+    screen.queryByText('Attach printer to continue.')
+  ).not.toBeInTheDocument();
+});
+
+test('printing: must have printer attached to close polls (thermal printer)', async () => {
+  const electionDefinition = electionSample2Definition;
+  apiMock.expectGetConfig({
+    electionDefinition,
+    precinctSelection: singlePrecinctSelectionFor('23'),
+    pollsState: 'polls_open',
+  });
+  apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
+  const { hardware } = renderApp({
+    connectPrinter: false,
+    precinctReportDestination: 'thermal-sheet-printer',
+  });
+  await screen.findByText(/Insert Your Ballot/);
+
+  // Opening the polls should require a printer
+  apiMock.expectGetCastVoteRecordsForTally(GENERAL_SINGLE_PRECINCT_CVRS);
+  apiMock.authenticateAsPollWorker(electionDefinition);
+  await screen.findByText('Do you want to close the polls?');
+  const openButton = screen.getButton('Yes, Close the Polls');
+  expect(openButton).toBeDisabled();
+  screen.getByText('Attach printer to continue.');
+
+  act(() => {
+    hardware.setPrinterConnected(true);
+  });
+
+  await waitFor(() => expect(openButton).toBeEnabled());
+  expect(
+    screen.queryByText('Attach printer to continue.')
+  ).not.toBeInTheDocument();
 });

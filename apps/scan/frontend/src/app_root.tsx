@@ -17,6 +17,7 @@ import {
 import { Logger } from '@votingworks/logging';
 
 import { assert } from '@votingworks/basics';
+import { PrecinctReportDestination } from '@votingworks/types';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
@@ -51,9 +52,14 @@ import { LiveCheckButton } from './components/live_check_button';
 export interface Props {
   hardware: Hardware;
   logger: Logger;
+  precinctReportDestination: PrecinctReportDestination;
 }
 
-export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
+export function AppRoot({
+  hardware,
+  logger,
+  precinctReportDestination,
+}: Props): JSX.Element | null {
   const machineConfigQuery = getMachineConfig.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
   const configQuery = getConfig.useQuery();
@@ -252,6 +258,7 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
         printerInfo={printerInfo}
         isLiveMode={!isTestMode}
         logger={logger}
+        precinctReportDestination={precinctReportDestination}
       />
     );
   }
