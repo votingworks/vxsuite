@@ -47,6 +47,7 @@ import {
   PollsTransition,
   ElectionDefinition,
   PrecinctSelection,
+  PrecinctReportDestination,
 } from '@votingworks/types';
 import {
   getLogEventIdForPollsTransition,
@@ -76,11 +77,6 @@ import { LiveCheckButton } from '../components/live_check_button';
 import { getPageCount } from '../utils/get_page_count';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
-
-/* istanbul ignore next - prototype */
-function isBrotherThermalPrinter(printerInfo?: KioskBrowser.PrinterInfo) {
-  return printerInfo?.name === 'PJ-822' || printerInfo?.name === 'PJ-823';
-}
 
 type PollWorkerFlowState =
   | 'open_polls_prompt'
@@ -120,6 +116,7 @@ export interface PollWorkerScreenProps {
   isLiveMode: boolean;
   printerInfo?: KioskBrowser.PrinterInfo;
   logger: Logger;
+  precinctReportDestination: PrecinctReportDestination;
 }
 
 const ButtonGrid = styled.div`
@@ -138,6 +135,7 @@ export function PollWorkerScreen({
   isLiveMode,
   printerInfo,
   logger,
+  precinctReportDestination,
 }: PollWorkerScreenProps): JSX.Element {
   const setPollsStateMutation = setPollsState.useMutation();
   const exportCastVoteRecordsMutation =
@@ -157,7 +155,8 @@ export function PollWorkerScreen({
     isShowingBallotsAlreadyScannedScreen,
     setIsShowingBallotsAlreadyScannedScreen,
   ] = useState(false);
-  const hasPrinterAttached = Boolean(printerInfo) || !window.kiosk;
+  const needsToAttachPrinterToTransitionPolls =
+    precinctReportDestination !== 'smartcard' && !printerInfo && !!window.kiosk;
   const { election } = electionDefinition;
   const saveScannerReportDataToCardMutation =
     saveScannerReportDataToCardBase.useMutation();
@@ -396,7 +395,7 @@ export function PollWorkerScreen({
     });
 
     /* istanbul ignore next - prototype */
-    if (isBrotherThermalPrinter(printerInfo)) {
+    if (precinctReportDestination === 'thermal-sheet-printer') {
       setNumReportPages(await getPageCount(report));
     }
   }
@@ -405,17 +404,17 @@ export function PollWorkerScreen({
     pollsTransition: PollsTransition,
     timePollsTransitioned: number
   ) {
-    if (hasPrinterAttached) {
+    if (precinctReportDestination === 'smartcard') {
+      await exportReportDataToCard(pollsTransition, timePollsTransitioned);
+    } else {
       await printReport(
         pollsTransition,
         timePollsTransitioned,
         /* istanbul ignore next - prototype */
-        isBrotherThermalPrinter(printerInfo)
+        precinctReportDestination === 'thermal-sheet-printer'
           ? 1
           : DEFAULT_NUMBER_POLL_REPORT_COPIES
       );
-    } else {
-      await exportReportDataToCard(pollsTransition, timePollsTransitioned);
     }
   }
 
@@ -522,6 +521,7 @@ export function PollWorkerScreen({
               variant="primary"
               onPress={transitionPolls}
               value={pollsTransition}
+              disabled={needsToAttachPrinterToTransitionPolls}
             >
               {pollsTransition === 'open_polls'
                 ? 'Yes, Open the Polls'
@@ -529,6 +529,9 @@ export function PollWorkerScreen({
             </Button>{' '}
             <Button onPress={showAllPollWorkerActions}>No</Button>
           </P>
+          {needsToAttachPrinterToTransitionPolls && (
+            <P>Attach printer to continue.</P>
+          )}
         </CenteredLargeProse>
       </ScreenMainCenterChild>
     );
@@ -540,11 +543,18 @@ export function PollWorkerScreen({
         <CenteredLargeProse>
           <P>Do you want to close the polls?</P>
           <P>
-            <Button variant="primary" onPress={closePolls}>
+            <Button
+              variant="primary"
+              onPress={closePolls}
+              disabled={needsToAttachPrinterToTransitionPolls}
+            >
               Yes, Close the Polls
             </Button>{' '}
             <Button onPress={showAllPollWorkerActions}>No</Button>
           </P>
+          {needsToAttachPrinterToTransitionPolls && (
+            <P>Attach printer to continue.</P>
+          )}
         </CenteredLargeProse>
       </ScreenMainCenterChild>
     );
@@ -600,10 +610,12 @@ export function PollWorkerScreen({
       <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
           <H1>{pollsTransitionCompleteText}</H1>
-          {hasPrinterAttached ? (
+          {precinctReportDestination === 'smartcard' ? (
+            <P>Insert poll worker card into VxMark to print the report.</P>
+          ) : (
             <Prose themeDeprecated={fontSizeTheme.medium}>
               {/* istanbul ignore next - prototype */}
-              {isBrotherThermalPrinter(printerInfo) && (
+              {precinctReportDestination === 'thermal-sheet-printer' && (
                 <P>
                   Insert{' '}
                   {numReportPages
@@ -616,7 +628,10 @@ export function PollWorkerScreen({
                 </P>
               )}
               <P>
-                <Button onPress={reprintReport}>
+                <Button
+                  onPress={reprintReport}
+                  disabled={needsToAttachPrinterToTransitionPolls}
+                >
                   Print Additional {getPollsReportTitle(currentPollsTransition)}
                 </Button>
               </P>
@@ -625,8 +640,6 @@ export function PollWorkerScreen({
                 reports.
               </P>
             </Prose>
-          ) : (
-            <P>Insert poll worker card into VxMark to print the report.</P>
           )}
         </CenteredLargeProse>
       </ScreenMainCenterChild>

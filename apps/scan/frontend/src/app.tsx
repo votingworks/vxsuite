@@ -1,7 +1,11 @@
 import React from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 
-import { getHardware } from '@votingworks/utils';
+import {
+  StringEnvironmentVariableName,
+  getEnvironmentVariable,
+  getHardware,
+} from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -12,6 +16,8 @@ import {
   Icons,
   P,
 } from '@votingworks/ui';
+import { PrecinctReportDestination } from '@votingworks/types';
+import { Optional } from '@votingworks/basics';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import {
   ApiClient,
@@ -25,11 +31,18 @@ import { Paths } from './constants';
 import { DisplaySettingsScreen } from './screens/display_settings_screen';
 import { DisplaySettingsManager } from './components/display_settings_manager';
 
+const DEFAULT_PRECINCT_REPORT_DESTINATION: PrecinctReportDestination =
+  'smartcard';
+const envPrecinctReportDestination = getEnvironmentVariable(
+  StringEnvironmentVariableName.PRECINCT_REPORT_DESTINATION
+) as Optional<PrecinctReportDestination>;
+
 export interface AppProps {
   hardware?: AppRootProps['hardware'];
   logger?: AppRootProps['logger'];
   apiClient?: ApiClient;
   queryClient?: QueryClient;
+  precinctReportDestination?: PrecinctReportDestination;
 }
 
 export function App({
@@ -37,6 +50,8 @@ export function App({
   logger = new Logger(LogSource.VxScanFrontend, window.kiosk),
   apiClient = createApiClient(),
   queryClient = createQueryClient(),
+  precinctReportDestination = envPrecinctReportDestination ??
+    DEFAULT_PRECINCT_REPORT_DESTINATION,
 }: AppProps): JSX.Element {
   return (
     <ScanAppBase>
@@ -60,7 +75,11 @@ export function App({
                 <DisplaySettingsScreen />
               </Route>
               <Route path={Paths.APP_ROOT} exact>
-                <AppRoot hardware={hardware} logger={logger} />
+                <AppRoot
+                  hardware={hardware}
+                  logger={logger}
+                  precinctReportDestination={precinctReportDestination}
+                />
               </Route>
               <SessionTimeLimitTracker />
               <DisplaySettingsManager />

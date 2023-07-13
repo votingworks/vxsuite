@@ -60,6 +60,7 @@ function renderScreen(
         isLiveMode
         printerInfo={undefined}
         logger={fakeLogger()}
+        precinctReportDestination="smartcard"
         {...props}
       />
     )

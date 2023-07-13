@@ -1,4 +1,7 @@
-import { ConverterClientTypeSchema } from '@votingworks/types';
+import {
+  ConverterClientTypeSchema,
+  PrecinctReportDestinationSchema,
+} from '@votingworks/types';
 import { ZodSchema } from 'zod';
 import { throwIllegalValue } from '@votingworks/basics';
 import { asBoolean } from './as_boolean';
@@ -41,6 +44,8 @@ export enum BooleanEnvironmentVariableName {
 export enum StringEnvironmentVariableName {
   // Converter for input/output files in VxAdmin
   CONVERTER = 'REACT_APP_VX_CONVERTER',
+  // How reports are expected in VxScan,
+  PRECINCT_REPORT_DESTINATION = 'REACT_APP_VX_PRECINCT_REPORT_DESTINATION',
 }
 
 export interface BooleanEnvironmentConfig {
@@ -91,6 +96,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_DISABLE_CVR_ORIGINAL_SNAPSHOTS;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
+    case StringEnvironmentVariableName.PRECINCT_REPORT_DESTINATION:
+      return process.env.REACT_APP_VX_PRECINCT_REPORT_DESTINATION;
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
@@ -200,6 +207,12 @@ export function getStringEnvVarConfig(
         name,
         defaultValue: 'ms-sems',
         zodSchema: ConverterClientTypeSchema,
+      };
+    case StringEnvironmentVariableName.PRECINCT_REPORT_DESTINATION:
+      return {
+        name,
+        defaultValue: 'smartcard',
+        zodSchema: PrecinctReportDestinationSchema,
       };
     /* c8 ignore next 2 */
     default:
