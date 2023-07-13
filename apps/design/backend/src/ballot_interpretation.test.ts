@@ -19,6 +19,7 @@ import {
 import {
   asElectionDefinition,
   electionFamousNames2021Fixtures,
+  electionSample,
 } from '@votingworks/fixtures';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { tmpNameSync } from 'tmp';
@@ -26,6 +27,9 @@ import {
   Candidate,
   CandidateVote,
   Election,
+  getBallotStyle,
+  getContests,
+  getPrecinctById,
   GridLayout,
   Precinct,
   SheetOf,
@@ -206,7 +210,8 @@ function markBallot(
             position.type === 'option' &&
             position.optionId === voteToOptionId(vote)
         );
-        // Add offset to get bubble center
+        // Add offset to get bubble center (since interpreter indexes from
+        // timing marks, while layout indexes from ballot edge)
         const position = gridPosition({
           column: optionPosition.column + 1,
           row: optionPosition.row + 1,
@@ -235,7 +240,7 @@ function markBallot(
   };
 }
 
-describe('Laid out ballots', () => {
+describe('Laid out ballots - Famous Names', () => {
   const { election } = electionFamousNames2021Fixtures;
   const ballotStyle = election.ballotStyles[0];
 
@@ -274,6 +279,93 @@ describe('Laid out ballots', () => {
     const ballotResult = layOutBallot(election, precinct, ballotStyle);
     assert(ballotResult.isOk());
     const { document: ballot, gridLayout } = ballotResult.ok();
+    const markedBallot = markBallot(ballot, gridLayout, votes);
+
+    const [frontResult, backResult] = await interpretBallot({
+      election: { ...election, gridLayouts: [gridLayout] },
+      precinct,
+      ballot: markedBallot,
+    });
+
+    assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
+    assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+    expect(
+      sortVotesDict({
+        ...frontResult.interpretation.votes,
+        ...backResult.interpretation.votes,
+      })
+    ).toEqual(sortVotesDict(votes));
+  });
+});
+
+describe('Laid out ballots - electionSample ', () => {
+  const election: Election = {
+    ...electionSample,
+    // Fill in missing mark thresholds
+    markThresholds: electionFamousNames2021Fixtures.election.markThresholds,
+  };
+  // Has ballot measures
+  const ballotStyle = assertDefined(
+    getBallotStyle({ election, ballotStyleId: '5' })
+  );
+  const precinct = assertDefined(
+    getPrecinctById({ election, precinctId: ballotStyle.precincts[0] })
+  );
+
+  test('Blank ballot interpretation', async () => {
+    const ballotResult = layOutBallot(election, precinct, ballotStyle);
+    assert(ballotResult.isOk());
+    const { document: ballot, gridLayout } = ballotResult.ok();
+    // We only support single-sheet ballots for now
+    ballot.pages = ballot.pages.slice(0, 2);
+
+    const [frontResult, backResult] = await interpretBallot({
+      election: { ...election, gridLayouts: [gridLayout] },
+      precinct,
+      ballot,
+    });
+
+    assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
+    expect(frontResult.interpretation.votes).toEqual({});
+    assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+    expect(backResult.interpretation.votes).toEqual({});
+  });
+
+  test('Marked ballot interpretation', async () => {
+    // Since we currently only support interpreting single-sheet ballots, we can
+    // only evaluate interpreting contests that we know will fit on two pages.
+    const contestsOnFirstSheet = assertDefined(
+      getContests({ election, ballotStyle })
+    ).filter((contest) =>
+      [
+        'president',
+        'representative-district-6',
+        'lieutenant-governor',
+        'state-senator-district-31',
+        'state-assembly-district-54',
+        'county-registrar-of-wills',
+        'judicial-robert-demergue',
+        'question-a',
+        'question-b',
+      ].includes(contest.id)
+    );
+    const votes: VotesDict = Object.fromEntries(
+      contestsOnFirstSheet.map((contest, i) => {
+        if (contest.type === 'candidate') {
+          const candidates = range(0, contest.seats).map(
+            (j) => contest.candidates[(i + j) % contest.candidates.length]
+          );
+          return [contest.id, candidates];
+        }
+        return [contest.id, i % 2 === 0 ? ['yes'] : ['no']];
+      })
+    );
+
+    const ballotResult = layOutBallot(election, precinct, ballotStyle);
+    assert(ballotResult.isOk());
+    const { document: ballot, gridLayout } = ballotResult.ok();
+    // We only support single-sheet ballots for now
+    ballot.pages = ballot.pages.slice(0, 2);
     const markedBallot = markBallot(ballot, gridLayout, votes);
 
     const [frontResult, backResult] = await interpretBallot({
