@@ -16,6 +16,10 @@ export const OmniKeyCardReaderManufacturer = 'HID Global';
 export const OmniKeyCardReaderVendorId = 0x076b;
 export const OmniKeyCardReaderProductId = 0x3031;
 
+// integrated card reader in Dell laptop
+export const BroadcomCardReaderVendorId = 0x0a5c;
+export const BroadcomCardReaderProductId = 0x5843;
+
 /**
  * Determines whether a device is the card reader.
  */
@@ -24,7 +28,9 @@ export function isCardReader(device: KioskBrowser.Device): boolean {
     (device.manufacturer.replace(/_/g, ' ') === OmniKeyCardReaderManufacturer &&
       device.deviceName.replace(/_/g, ' ') === OmniKeyCardReaderDeviceName) ||
     (device.vendorId === OmniKeyCardReaderVendorId &&
-      device.productId === OmniKeyCardReaderProductId)
+      device.productId === OmniKeyCardReaderProductId) ||
+    (device.vendorId === BroadcomCardReaderVendorId &&
+      device.productId === BroadcomCardReaderProductId)
   );
 }
 
