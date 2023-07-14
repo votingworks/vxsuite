@@ -1,7 +1,16 @@
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useMemo } from 'react';
 import styled from 'styled-components';
 
-import { Button, Font, Icons, P, Table, TD, TH } from '@votingworks/ui';
+import {
+  Font,
+  Icons,
+  LinkButton,
+  Loading,
+  P,
+  Table,
+  TD,
+  TH,
+} from '@votingworks/ui';
 import {
   CandidateContest,
   getContestDistrictName,
@@ -12,9 +21,9 @@ import { collections, iter, typedAs } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import type { WriteInAdjudicationStatus } from '@votingworks/admin-backend';
 import { NavigationScreen } from '../components/navigation_screen';
-import { WriteInsAdjudicationScreen } from './write_ins_adjudication_screen';
 import { AppContext } from '../contexts/app_context';
 import { getCastVoteRecordFiles, getWriteInTallies } from '../api';
+import { routerPaths } from '../router_paths';
 
 const ContentWrapper = styled.div`
   display: inline-block;
@@ -23,10 +32,8 @@ const ContentWrapper = styled.div`
   }
 `;
 
-export function WriteInsScreen(): JSX.Element {
+export function WriteInsSummaryScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults } = useContext(AppContext);
-  const [contestBeingAdjudicated, setContestBeingAdjudicated] =
-    useState<CandidateContest>();
 
   const writeInTalliesQuery = getWriteInTallies.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
@@ -64,14 +71,11 @@ export function WriteInsScreen(): JSX.Element {
     );
   }
 
-  if (contestBeingAdjudicated) {
+  if (!writeInTalliesQuery.isSuccess || !castVoteRecordFilesQuery.isSuccess) {
     return (
-      <WriteInsAdjudicationScreen
-        key={contestBeingAdjudicated?.id}
-        election={election}
-        contest={contestBeingAdjudicated}
-        onClose={() => setContestBeingAdjudicated(undefined)}
-      />
+      <NavigationScreen title="Write-In Adjudication">
+        <Loading isFullscreen />
+      </NavigationScreen>
     );
   }
 
@@ -152,15 +156,17 @@ export function WriteInsScreen(): JSX.Element {
                       {!hasWriteIns ? (
                         <Font weight="light">–</Font>
                       ) : (
-                        <Button
+                        <LinkButton
                           disabled={isOfficialResults}
                           variant={adjudicationQueue ? 'primary' : 'regular'}
-                          onPress={() => setContestBeingAdjudicated(contest)}
+                          to={routerPaths.writeInsAdjudication({
+                            contestId: contest.id,
+                          })}
                         >
                           Adjudicate
                           {!!adjudicationQueue &&
                             ` ${format.count(adjudicationQueue)}`}
-                        </Button>
+                        </LinkButton>
                       )}
                     </TD>
                     <TD nowrap textAlign="center">

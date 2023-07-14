@@ -1,11 +1,10 @@
 /* stylelint-disable order/properties-order */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
   Candidate,
   CandidateContest,
-  Election,
   getContestDistrictName,
   getPartyAbbreviationByPartyId,
   Rect,
@@ -22,12 +21,15 @@ import {
   LabelledText,
   H2,
   H4,
+  LinkButton,
+  Loading,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import { useQueryClient } from '@tanstack/react-query';
 import type { WriteInCandidateRecord } from '@votingworks/admin-backend';
+import { useParams } from 'react-router-dom';
 import { ScreenHeader } from '../components/layout/screen_header';
 import { InlineForm, TextInput } from '../components/text_input';
 import {
@@ -39,6 +41,9 @@ import {
   addWriteInCandidate,
 } from '../api';
 import { normalizeWriteInName } from '../utils/write_ins';
+import { AppContext } from '../contexts/app_context';
+import { WriteInsAdjudicationScreenProps } from '../config/types';
+import { routerPaths } from '../router_paths';
 
 const AdjudicationScreen = styled(Screen)`
   /* Matches the focus style applied in libs/ui/global_styles.tsx, which are
@@ -321,17 +326,16 @@ function DoubleVoteAlertModal({
   );
 }
 
-interface Props {
-  contest: CandidateContest;
-  election: Election;
-  onClose: () => void;
-}
+export function WriteInsAdjudicationScreen(): JSX.Element | null {
+  const { contestId } = useParams<WriteInsAdjudicationScreenProps>();
+  const { electionDefinition } = useContext(AppContext);
+  assert(electionDefinition);
+  const { election } = electionDefinition;
+  const contest = find(
+    election.contests,
+    (c) => c.id === contestId
+  ) as CandidateContest;
 
-export function WriteInsAdjudicationScreen({
-  contest,
-  election,
-  onClose,
-}: Props): JSX.Element | null {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
   const writeInsQuery = getWriteIns.useQuery({ contestId: contest.id });
@@ -384,7 +388,19 @@ export function WriteInsAdjudicationScreen({
     !writeInCandidatesQuery.isSuccess ||
     !currentWriteIn
   ) {
-    return null;
+    return (
+      <AdjudicationScreen>
+        <ScreenHeader
+          title="Write-In Adjudication"
+          actions={
+            <LinkButton small variant="regular" to={routerPaths.writeIns}>
+              Back to All Write-Ins
+            </LinkButton>
+          }
+        />
+        <Loading isFullscreen />
+      </AdjudicationScreen>
+    );
   }
 
   const writeInDetailView = writeInDetailViewQuery.data
@@ -551,13 +567,13 @@ export function WriteInsAdjudicationScreen({
                     adjudicationsLeft
                   )} to adjudicate.`}
             </span>
-            <Button
+            <LinkButton
               small
               variant={areAllWriteInsAdjudicated ? 'primary' : 'regular'}
-              onPress={onClose}
+              to={routerPaths.writeIns}
             >
               Back to All Write-Ins
-            </Button>
+            </LinkButton>
           </React.Fragment>
         }
       />
