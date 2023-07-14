@@ -106,11 +106,7 @@ function interpretAndConvertNhHmpbResult(
         options.markThresholds?.writeInTextArea) !== undefined,
   });
   return validateInterpretResults(
-    convertNhInterpretResultToLegacyResult(
-      electionDefinition,
-      options,
-      result
-    ).unsafeUnwrap(),
+    convertNhInterpretResultToLegacyResult(options, result).unsafeUnwrap(),
     { precinctSelection: options.precinctSelection, testMode: options.testMode }
   );
 }

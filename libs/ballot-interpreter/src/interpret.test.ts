@@ -3,7 +3,12 @@ import {
   electionGridLayoutNewHampshireAmherstFixtures,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
-import { InvalidElectionHashPage, SheetOf, mapSheet } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  InvalidElectionHashPage,
+  SheetOf,
+  mapSheet,
+} from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -273,10 +278,18 @@ describe('NH HMPB interpretation', () => {
     fixtures.scanMarkedFrontUnmarkedWriteIns.asFilePath();
   const hmpbBackUnmarkedWriteIns =
     fixtures.scanMarkedBackUnmarkedWriteIns.asFilePath();
+  const hmpbFrontUnmarkedWriteInsOvervote =
+    fixtures.scanMarkedFrontUnmarkedWriteInsOvervote.asFilePath();
+  const hmpbBackUnmarkedWriteInsOvervote =
+    fixtures.scanMarkedBackUnmarkedWriteInsOvervote.asFilePath();
   const validHmpbSheet: SheetOf<string> = [hmpbFront, hmpbBack];
   const validHmpbUnmarkedWriteInsSheet: SheetOf<string> = [
     hmpbFrontUnmarkedWriteIns,
     hmpbBackUnmarkedWriteIns,
+  ];
+  const validHmpbUnmarkedWriteInsOvervoteSheet: SheetOf<string> = [
+    hmpbFrontUnmarkedWriteInsOvervote,
+    hmpbBackUnmarkedWriteInsOvervote,
   ];
 
   test('properly interprets a valid HMPB', async () => {
@@ -358,6 +371,71 @@ describe('NH HMPB interpretation', () => {
         "Register-of-Deeds-a1278df2|write-in-0|0",
         "Register-of-Probate-a4117da8|write-in-0|0",
         "County-Commissioner-d6feed25|write-in-0|1",
+      ]
+    `);
+  });
+
+  test('considers an unmarked write-in combined with a marked option as an overvote', async () => {
+    const interpretationResult = await interpretSheet(
+      {
+        electionDefinition: {
+          ...electionDefinition,
+          election: {
+            ...electionDefinition.election,
+            markThresholds: {
+              ...(electionDefinition.election.markThresholds ?? {
+                marginal: 1,
+                definite: 1,
+              }),
+              writeInTextArea: 0.05,
+            },
+          },
+        },
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+        testMode: true,
+        adjudicationReasons: [AdjudicationReason.Overvote],
+      },
+      validHmpbUnmarkedWriteInsOvervoteSheet
+    );
+
+    const [front, back] = interpretationResult;
+    assert(front.interpretation.type === 'InterpretedHmpbPage');
+    assert(back.interpretation.type === 'InterpretedHmpbPage');
+
+    expect(front.interpretation.adjudicationInfo.enabledReasonInfos)
+      .toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "contestId": "Executive-Councilor-bb22557f",
+          "expected": 1,
+          "optionIds": Array [
+            "Daniel-Webster-13f77b2d",
+            "write-in-0",
+          ],
+          "optionIndexes": Array [
+            1,
+            2,
+          ],
+          "type": "Overvote",
+        },
+      ]
+    `);
+    expect(back.interpretation.adjudicationInfo.enabledReasonInfos)
+      .toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "contestId": "County-Treasurer-87d25a31",
+          "expected": 1,
+          "optionIds": Array [
+            "Jane-Jones-9caa141f",
+            "write-in-0",
+          ],
+          "optionIndexes": Array [
+            1,
+            2,
+          ],
+          "type": "Overvote",
+        },
       ]
     `);
   });
