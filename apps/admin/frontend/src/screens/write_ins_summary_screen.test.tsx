@@ -6,9 +6,10 @@ import type {
   WriteInRecordPending,
   WriteInPendingTally,
 } from '@votingworks/admin-backend';
+import { createMemoryHistory } from 'history';
 import { act, screen, waitFor } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { WriteInsScreen } from './write_ins_screen';
+import { WriteInsSummaryScreen } from './write_ins_summary_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 jest.setTimeout(20000);
@@ -56,7 +57,10 @@ beforeEach(() => {
 test('No CVRs loaded', async () => {
   apiMock.expectGetWriteInTallies([]);
   apiMock.expectGetCastVoteRecordFiles([]);
-  renderInAppContext(<WriteInsScreen />, { electionDefinition, apiMock });
+  renderInAppContext(<WriteInsSummaryScreen />, {
+    electionDefinition,
+    apiMock,
+  });
   await screen.findByText('Load CVRs to begin adjudicating write-in votes.');
   expect(screen.queryAllByRole('button', { name: /Adjudicate/ })).toHaveLength(
     0
@@ -69,7 +73,7 @@ test('Tally results already marked as official', async () => {
     mockWriteInTallyPending('aquarium-council-fish', 5),
   ]);
   apiMock.expectGetCastVoteRecordFiles([]);
-  renderInAppContext(<WriteInsScreen />, {
+  renderInAppContext(<WriteInsSummaryScreen />, {
     electionDefinition,
     isOfficialResults: true,
     apiMock,
@@ -88,13 +92,20 @@ test('CVRs with write-ins loaded', async () => {
     mockWriteInTallyPending('zoo-council-mammal', 3),
   ]);
   apiMock.expectGetCastVoteRecordFiles([]);
-  renderInAppContext(<WriteInsScreen />, {
+  const history = createMemoryHistory();
+  renderInAppContext(<WriteInsSummaryScreen />, {
     electionDefinition,
     apiMock,
+    history,
   });
 
   const adjudicateButton = await screen.findButton('Adjudicate 3');
   expect(adjudicateButton).not.toBeDisabled();
+
+  userEvent.click(adjudicateButton);
+  expect(history.location.pathname).toEqual(
+    '/write-ins/adjudication/zoo-council-mammal'
+  );
 });
 
 test('ballot pagination', async () => {
@@ -103,7 +114,7 @@ test('ballot pagination', async () => {
   apiMock.expectGetWriteInTallies([mockWriteInTallyPending(contestId, 3)]);
   apiMock.expectGetCastVoteRecordFiles([]);
 
-  renderInAppContext(<WriteInsScreen />, {
+  renderInAppContext(<WriteInsSummaryScreen />, {
     electionDefinition,
     apiMock,
   });
@@ -143,7 +154,7 @@ test('adjudication', async () => {
   apiMock.expectGetWriteInTallies([mockWriteInTallyPending(contestId, 2)]);
   apiMock.expectGetCastVoteRecordFiles([]);
 
-  renderInAppContext(<WriteInsScreen />, {
+  renderInAppContext(<WriteInsSummaryScreen />, {
     electionDefinition,
     apiMock,
   });

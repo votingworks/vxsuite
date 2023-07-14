@@ -1,18 +1,21 @@
 import { electionMinimalExhaustiveSampleDefinition as electionDefinition } from '@votingworks/fixtures';
-import { CandidateContest } from '@votingworks/types';
+import { CandidateContest, ContestId } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import {
   WriteInCandidateRecord,
   WriteInDetailView,
   WriteInRecord,
 } from '@votingworks/admin-backend';
+import { Route } from 'react-router-dom';
 import { screen } from '../../test/react_testing_library';
-import { renderInAppContext } from '../../test/render_in_app_context';
+import {
+  RenderInAppContextParams,
+  renderInAppContext,
+} from '../../test/render_in_app_context';
 import { WriteInsAdjudicationScreen } from './write_ins_adjudication_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 const contest = electionDefinition.election.contests[0] as CandidateContest;
-const onClose = jest.fn();
 
 let apiMock: ApiMock;
 
@@ -24,7 +27,20 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-// most testing of this screen in `write_ins_screen.test.tsx`
+function renderScreen(
+  contestId: ContestId,
+  appContextParams: RenderInAppContextParams = {}
+) {
+  return renderInAppContext(
+    <Route path="/write-ins/adjudication/:contestId">
+      <WriteInsAdjudicationScreen />
+    </Route>,
+    {
+      route: `/write-ins/adjudication/${contestId}`,
+      ...appContextParams,
+    }
+  );
+}
 
 test('zoomable ballot image', async () => {
   function fakeWriteInImage(id: string): Partial<WriteInDetailView> {
@@ -73,14 +89,10 @@ test('zoomable ballot image', async () => {
   );
   apiMock.expectGetWriteInCandidates([], contest.id);
 
-  renderInAppContext(
-    <WriteInsAdjudicationScreen
-      election={electionDefinition.election}
-      contest={contest}
-      onClose={onClose}
-    />,
-    { electionDefinition, apiMock }
-  );
+  renderScreen(contest.id, {
+    electionDefinition,
+    apiMock,
+  });
 
   await screen.findByTestId('transcribe:id-174');
   let ballotImage = await screen.findByRole('img', {
@@ -168,14 +180,10 @@ describe('preventing double votes', () => {
     });
     apiMock.expectGetWriteInCandidates([], contest.id);
 
-    renderInAppContext(
-      <WriteInsAdjudicationScreen
-        election={electionDefinition.election}
-        contest={contest}
-        onClose={onClose}
-      />,
-      { electionDefinition, apiMock }
-    );
+    renderScreen(contest.id, {
+      electionDefinition,
+      apiMock,
+    });
 
     await screen.findByRole('img', {
       name: /ballot with write-in/i,
@@ -193,14 +201,10 @@ describe('preventing double votes', () => {
     });
     apiMock.expectGetWriteInCandidates([], contest.id);
 
-    renderInAppContext(
-      <WriteInsAdjudicationScreen
-        election={electionDefinition.election}
-        contest={contest}
-        onClose={onClose}
-      />,
-      { electionDefinition, apiMock }
-    );
+    renderScreen(contest.id, {
+      electionDefinition,
+      apiMock,
+    });
 
     await screen.findByRole('img', {
       name: /ballot with write-in/i,
@@ -224,14 +228,10 @@ describe('preventing double votes', () => {
     });
     apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contest.id);
 
-    renderInAppContext(
-      <WriteInsAdjudicationScreen
-        election={electionDefinition.election}
-        contest={contest}
-        onClose={onClose}
-      />,
-      { electionDefinition, apiMock }
-    );
+    renderScreen(contest.id, {
+      electionDefinition,
+      apiMock,
+    });
 
     await screen.findByRole('img', {
       name: /ballot with write-in/i,
