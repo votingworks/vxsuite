@@ -21,6 +21,7 @@ import {
   P,
   H6,
   Font,
+  ModalWidth,
 } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
@@ -254,6 +255,7 @@ function PrintingModal({
   return (
     <Modal
       centerContent
+      modalWidth={ModalWidth.Wide}
       content={
         <React.Fragment>
           <P weight="bold">

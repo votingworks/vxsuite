@@ -15,6 +15,7 @@ import {
   P,
   useExternalStateChangeListener,
   Font,
+  ModalWidth,
 } from '@votingworks/ui';
 
 import { MutationStatus } from '@tanstack/react-query';
@@ -183,7 +184,13 @@ export function SaveBackendFileModal({
   }
 
   if (saveFileStatus === 'loading') {
-    return <Modal content={<Loading>Saving {fileTypeTitle}</Loading>} />;
+    return (
+      <Modal
+        centerContent
+        modalWidth={ModalWidth.Wide}
+        content={<Loading>Saving {fileTypeTitle}</Loading>}
+      />
+    );
   }
 
   if (saveFileStatus === 'success' && assertDefined(saveFileResult).isOk()) {
