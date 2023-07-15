@@ -326,7 +326,7 @@ function DoubleVoteAlertModal({
   );
 }
 
-export function WriteInsAdjudicationScreen(): JSX.Element | null {
+export function WriteInsAdjudicationScreen(): JSX.Element {
   const { contestId } = useParams<WriteInsAdjudicationScreenProps>();
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
