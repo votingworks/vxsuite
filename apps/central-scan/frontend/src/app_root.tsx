@@ -48,6 +48,7 @@ import {
   getTestMode,
   logOut,
   unconfigure,
+  switchToAdmin,
 } from './api';
 import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper';
 
@@ -95,6 +96,8 @@ export function AppRoot({
 
   const electionDefinitionQuery = getElectionDefinition.useQuery();
   const unconfigureMutation = unconfigure.useMutation();
+
+  const switchToAdminMutation = switchToAdmin.useMutation();
 
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);
 
@@ -417,6 +420,14 @@ export function AppRoot({
             />
           )}
           <MainNav>
+            <Button
+              onPress={() => {
+                switchToAdminMutation.mutate();
+                window.kiosk?.quit();
+              }}
+            >
+              ⇌VxAdmin
+            </Button>{' '}
             <Button small onPress={() => logOutMutation.mutate()}>
               Lock Machine
             </Button>
@@ -473,6 +484,14 @@ export function AppRoot({
               <DashboardScreen isScanning={isScanning} status={status} />
             </Main>
             <MainNav isTestMode={isTestMode}>
+              <Button
+                onPress={() => {
+                  switchToAdminMutation.mutate();
+                  window.kiosk?.quit();
+                }}
+              >
+                ⇌VxAdmin
+              </Button>{' '}
               <UsbControllerButton
                 usbDriveStatus={usbDrive.status}
                 usbDriveEject={() => usbDrive.eject(userRole)}

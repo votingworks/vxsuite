@@ -7,7 +7,11 @@ import {
   useExternalStateChangeListener,
 } from '@votingworks/ui';
 import { MainNav } from '../components/main_nav';
-import { configureFromBallotPackageOnUsbDrive, logOut } from '../api';
+import {
+  configureFromBallotPackageOnUsbDrive,
+  logOut,
+  switchToAdmin,
+} from '../api';
 
 interface Props {
   isElectionManagerAuth: boolean;
@@ -20,6 +24,7 @@ export function UnconfiguredElectionScreenWrapper({
 }: Props): JSX.Element {
   const logOutMutation = logOut.useMutation();
   const configureMutation = configureFromBallotPackageOnUsbDrive.useMutation();
+  const switchToAdminMutation = switchToAdmin.useMutation();
 
   useExternalStateChangeListener(usbDriveStatus, (newUsbDriveStatus) => {
     if (newUsbDriveStatus === 'mounted') {
@@ -32,6 +37,14 @@ export function UnconfiguredElectionScreenWrapper({
   return (
     <Screen>
       <MainNav>
+        <Button
+          onPress={() => {
+            switchToAdminMutation.mutate();
+            window.kiosk?.quit();
+          }}
+        >
+          ⇌VxAdmin
+        </Button>{' '}
         <Button small onPress={() => logOutMutation.mutate()}>
           Lock Machine
         </Button>
