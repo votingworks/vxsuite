@@ -15,6 +15,9 @@ import {
 } from './write_ins';
 import { tabulateManualResults } from './manual_results';
 import { TallyReportResults } from '../types';
+import { rootDebug } from '../util/debug';
+
+const debug = rootDebug.extend('tabulation');
 
 /**
  * Tabulate cast vote records with no write-in adjudication information.
@@ -59,11 +62,12 @@ export async function tabulateElectionResults({
   includeWriteInAdjudicationResults?: boolean;
   includeManualResults?: boolean;
 }): Promise<Tabulation.ElectionResultsGroupMap> {
+  debug('tabulating election results');
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
 
-  // basic cast vote record tally with bucketed write-in counts
+  debug('tabulating CVRs, ignoring write-in adjudication results');
   let groupedElectionResults = await tabulateCastVoteRecords({
     electionId,
     store,
@@ -74,6 +78,7 @@ export async function tabulateElectionResults({
   // replace bucketed write-in counts with write-in adjudication data
   // if specified
   if (includeWriteInAdjudicationResults) {
+    debug('tabulating write-in adjudication results');
     const groupedWriteInSummaries = tabulateWriteInTallies({
       electionId,
       store,
@@ -81,6 +86,7 @@ export async function tabulateElectionResults({
       groupBy,
     });
 
+    debug('merging write-in adjudication results into CVR results');
     groupedElectionResults = mergeTabulationGroupMaps(
       groupedElectionResults,
       groupedWriteInSummaries,
@@ -98,6 +104,7 @@ export async function tabulateElectionResults({
 
   // include manual results if specified
   if (includeManualResults) {
+    debug('tabulating manual results');
     const queryResult = tabulateManualResults({
       electionId,
       store,
@@ -107,6 +114,7 @@ export async function tabulateElectionResults({
 
     // ignore manual results if the tabulation is not successful
     if (queryResult.isOk()) {
+      debug('merging manual results into CVR results');
       const groupedManualResults = queryResult.ok();
       groupedElectionResults = mergeTabulationGroupMaps(
         groupedElectionResults,
@@ -133,9 +141,12 @@ export async function tabulateElectionResults({
           });
         }
       );
+    } else {
+      debug('filter or group by is not compatible with manual results');
     }
   }
 
+  debug('done tabulating election results');
   return groupedElectionResults;
 }
 
@@ -159,6 +170,7 @@ export async function tabulateTallyReportResults({
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
 
+  debug('tabulating scanned election results for tally report');
   const groupedScannedResults = mapObject(
     await tabulateElectionResults({
       electionId,
@@ -170,6 +182,8 @@ export async function tabulateTallyReportResults({
     }),
     mergeWriteInTallies
   );
+
+  debug('tabulating manual election results for tally report');
   const manualResultsTabulationResult = tabulateManualResults({
     electionId,
     store,
@@ -178,6 +192,7 @@ export async function tabulateTallyReportResults({
   });
 
   if (manualResultsTabulationResult.isErr()) {
+    debug('filter or group by is not compatible with manual results');
     return mapObject(groupedScannedResults, (scannedResults) => ({
       scannedResults,
     }));

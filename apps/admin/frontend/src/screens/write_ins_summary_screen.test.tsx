@@ -1,7 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { sleep } from '@votingworks/basics';
-import type { WriteInPendingTally } from '@votingworks/admin-backend';
 import { createMemoryHistory } from 'history';
 import { act, screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
@@ -11,17 +10,6 @@ import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 jest.setTimeout(20000);
 
 const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
-
-function mockWriteInTallyPending(
-  contestId: string,
-  tally: number
-): WriteInPendingTally {
-  return {
-    status: 'pending',
-    contestId,
-    tally,
-  };
-}
 
 let apiMock: ApiMock;
 
@@ -41,7 +29,7 @@ beforeEach(() => {
 });
 
 test('No CVRs loaded', async () => {
-  apiMock.expectGetWriteInTallies([]);
+  apiMock.expectGetWriteInAdjudicationQueueMetadata([]);
   apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<WriteInsSummaryScreen />, {
     electionDefinition,
@@ -54,9 +42,17 @@ test('No CVRs loaded', async () => {
 });
 
 test('Tally results already marked as official', async () => {
-  apiMock.expectGetWriteInTallies([
-    mockWriteInTallyPending('zoo-council-mammal', 3),
-    mockWriteInTallyPending('aquarium-council-fish', 5),
+  apiMock.expectGetWriteInAdjudicationQueueMetadata([
+    {
+      contestId: 'zoo-council-mammal',
+      pendingTally: 3,
+      totalTally: 3,
+    },
+    {
+      contestId: 'zoo-council-mammal',
+      pendingTally: 5,
+      totalTally: 5,
+    },
   ]);
   apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<WriteInsSummaryScreen />, {
@@ -74,8 +70,12 @@ test('Tally results already marked as official', async () => {
 });
 
 test('CVRs with write-ins loaded', async () => {
-  apiMock.expectGetWriteInTallies([
-    mockWriteInTallyPending('zoo-council-mammal', 3),
+  apiMock.expectGetWriteInAdjudicationQueueMetadata([
+    {
+      contestId: 'zoo-council-mammal',
+      pendingTally: 3,
+      totalTally: 3,
+    },
   ]);
   apiMock.expectGetCastVoteRecordFiles([]);
   const history = createMemoryHistory();

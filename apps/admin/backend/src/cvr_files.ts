@@ -55,6 +55,9 @@ import {
 } from './types';
 import { sha256File } from './util/sha256_file';
 import { Usb } from './util/usb';
+import { rootDebug } from './util/debug';
+
+const debug = rootDebug.extend('cvr-files');
 
 /**
  * Gets the metadata, including the path, of cast vote record files found in
@@ -463,6 +466,7 @@ export async function addCastVoteRecordReport({
   exportedTimestamp: Iso8601Timestamp;
   artifactAuthenticator: ArtifactAuthenticatorApi;
 }): Promise<AddCastVoteRecordReportResult> {
+  debug('attempting to add a cast vote record report');
   const electionId = store.getCurrentElectionId();
   assert(electionId !== undefined);
 
@@ -482,6 +486,7 @@ export async function addCastVoteRecordReport({
   ) {
     return err({ type: 'cast-vote-records-authentication-error' });
   }
+  debug('authenticated cast vote record report');
 
   // Check whether this directory looks like a valid report directory
   const directoryValidationResult =
@@ -497,6 +502,7 @@ export async function addCastVoteRecordReport({
     reportDirectoryPath,
     CAST_VOTE_RECORD_REPORT_FILENAME
   );
+  debug('validated cast vote record report directory');
 
   // We are hashing only the JSON report here - perhaps we should hash some
   // structure of the report directory as well or even the images.
@@ -514,6 +520,7 @@ export async function addCastVoteRecordReport({
   }
   const { CVR: unparsedCastVoteRecords, ...reportMetadata } =
     getCastVoteRecordReportImportResult.ok();
+  debug('read cast vote record metadata');
 
   // Ensure the report matches the file mode of previous imports
   const reportFileMode = isTestReport(reportMetadata) ? 'test' : 'official';
@@ -566,6 +573,8 @@ export async function addCastVoteRecordReport({
       sha256Hash,
       scannerIds,
     });
+    debug('added cast vote record file record');
+    debug('importing individual cvrs...');
 
     // Iterate through all the cast vote records
     let castVoteRecordIndex = 0;
@@ -693,6 +702,7 @@ export async function addCastVoteRecordReport({
           // on previous validation
           if (castVoteRecordWriteIn.side) {
             store.addWriteIn({
+              electionId,
               castVoteRecordId: cvrId,
               side: castVoteRecordWriteIn.side,
               contestId: castVoteRecordWriteIn.contestId,
@@ -712,6 +722,7 @@ export async function addCastVoteRecordReport({
 
       castVoteRecordIndex += 1;
     }
+    debug('imported all individual cvrs');
 
     // TODO: Calculate the precinct list before iterating through records, once there is
     // only one geopolitical unit per batch in the future.
@@ -719,6 +730,7 @@ export async function addCastVoteRecordReport({
       id: fileId,
       precinctIds,
     });
+    debug('updated cast vote record file record');
 
     return ok({
       id: fileId,

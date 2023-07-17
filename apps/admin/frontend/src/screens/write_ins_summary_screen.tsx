@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useContext } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -17,12 +17,13 @@ import {
   getPartyAbbreviationByPartyId,
 } from '@votingworks/types';
 
-import { collections, iter, typedAs } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
-import type { WriteInAdjudicationStatus } from '@votingworks/admin-backend';
 import { NavigationScreen } from '../components/navigation_screen';
 import { AppContext } from '../contexts/app_context';
-import { getCastVoteRecordFiles, getWriteInTallies } from '../api';
+import {
+  getCastVoteRecordFiles,
+  getWriteInAdjudicationQueueMetadata,
+} from '../api';
 import { routerPaths } from '../router_paths';
 
 const ContentWrapper = styled.div`
@@ -35,34 +36,11 @@ const ContentWrapper = styled.div`
 export function WriteInsSummaryScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults } = useContext(AppContext);
 
-  const writeInTalliesQuery = getWriteInTallies.useQuery();
+  const writeInAdjudicationQueueMetadataQuery =
+    getWriteInAdjudicationQueueMetadata.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
 
-  // get write-in counts grouped by contest
-  const writeInCountsByContest = useMemo(() => {
-    return collections.map(
-      iter(writeInTalliesQuery.data ?? []).toMap(({ contestId }) => contestId),
-      (writeInSummariesForContest) =>
-        collections.reduce(
-          writeInSummariesForContest,
-          (writeInCountsForContest, writeInTally) => {
-            return {
-              ...writeInCountsForContest,
-              [writeInTally.status]:
-                writeInCountsForContest[writeInTally.status] +
-                writeInTally.tally,
-            };
-          },
-          typedAs<Record<WriteInAdjudicationStatus, number>>({
-            pending: 0,
-            adjudicated: 0,
-          })
-        )
-    );
-  }, [writeInTalliesQuery.data]);
-
   const election = electionDefinition?.election;
-
   if (!election) {
     return (
       <NavigationScreen title="Write-In Adjudication">
@@ -71,7 +49,10 @@ export function WriteInsSummaryScreen(): JSX.Element {
     );
   }
 
-  if (!writeInTalliesQuery.isSuccess || !castVoteRecordFilesQuery.isSuccess) {
+  if (
+    !writeInAdjudicationQueueMetadataQuery.isSuccess ||
+    !castVoteRecordFilesQuery.isSuccess
+  ) {
     return (
       <NavigationScreen title="Write-In Adjudication">
         <Loading isFullscreen />
@@ -125,14 +106,15 @@ export function WriteInsSummaryScreen(): JSX.Element {
             </thead>
             <tbody>
               {contestsWithWriteIns.map((contest) => {
-                const contestWriteInsCount = writeInCountsByContest?.get(
-                  contest.id
-                );
-                const hasWriteIns = !!contestWriteInsCount;
-                const adjudicationQueue =
-                  contestWriteInsCount?.['pending'] ?? 0;
-                const completedCount =
-                  contestWriteInsCount?.['adjudicated'] ?? 0;
+                const contestQueueMetadata =
+                  writeInAdjudicationQueueMetadataQuery.data.find(
+                    (m) => m.contestId === contest.id
+                  );
+                const totalCount = contestQueueMetadata?.totalTally ?? 0;
+                const pendingCount = contestQueueMetadata?.pendingTally ?? 0;
+                const adjudicatedCount = totalCount - pendingCount;
+
+                const hasWriteIns = totalCount > 0;
                 return (
                   <tr key={contest.id}>
                     <TD nowrap>
@@ -158,14 +140,13 @@ export function WriteInsSummaryScreen(): JSX.Element {
                       ) : (
                         <LinkButton
                           disabled={isOfficialResults}
-                          variant={adjudicationQueue ? 'primary' : 'regular'}
+                          variant={pendingCount ? 'primary' : 'regular'}
                           to={routerPaths.writeInsAdjudication({
                             contestId: contest.id,
                           })}
                         >
                           Adjudicate
-                          {!!adjudicationQueue &&
-                            ` ${format.count(adjudicationQueue)}`}
+                          {!!pendingCount && ` ${format.count(pendingCount)}`}
                         </LinkButton>
                       )}
                     </TD>
@@ -173,7 +154,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
                       {!hasWriteIns ? (
                         <Font weight="light">–</Font>
                       ) : (
-                        format.count(completedCount)
+                        format.count(adjudicatedCount)
                       )}
                     </TD>
                   </tr>

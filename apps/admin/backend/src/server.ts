@@ -17,6 +17,9 @@ import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
 import { Usb } from './util/usb';
+import { rootDebug } from './util/debug';
+
+const debug = rootDebug.extend('server');
 
 /**
  * Options for starting the admin service.
@@ -37,6 +40,7 @@ export async function start({
   port = PORT,
   workspace,
 }: Partial<StartOptions>): Promise<Server> {
+  debug('starting server...');
   let resolvedWorkspace = workspace;
   /* c8 ignore start */
   if (!resolvedWorkspace) {

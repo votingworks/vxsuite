@@ -66,8 +66,12 @@ import {
   WriteInPendingTally,
   ManualResultsStoreFilter,
   CardTally,
+  WriteInAdjudicationQueueMetadata,
 } from './types';
 import { replacePartyIdFilter } from './tabulation/utils';
+import { rootDebug } from './util/debug';
+
+const debug = rootDebug.extend('store');
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
@@ -269,16 +273,6 @@ export class Store {
     ) as { currentElectionId: Id } | null;
 
     return settings?.currentElectionId ?? undefined;
-  }
-
-  /**
-   * Returns the current election definition or throws an error if it does
-   * not exist.
-   */
-  getCurrentElectionRecordOrThrow(): ElectionRecord {
-    return assertDefined(
-      this.getElection(assertDefined(this.getCurrentElectionId()))
-    );
   }
 
   /**
@@ -647,11 +641,13 @@ export class Store {
    * Adds a write-in and returns its ID. Used when loading cast vote records.
    */
   addWriteIn({
+    electionId,
     castVoteRecordId,
     side,
     contestId,
     optionId,
   }: {
+    electionId: Id;
     castVoteRecordId: Id;
     side: Side;
     contestId: Id;
@@ -663,15 +659,17 @@ export class Store {
       `
         insert into write_ins (
           id,
+          election_id,
           cvr_id,
           side,
           contest_id,
           option_id
         ) values (
-          ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?
         )
       `,
       id,
+      electionId,
       castVoteRecordId,
       side,
       contestId,
@@ -742,6 +740,7 @@ export class Store {
   }
 
   getCvrFiles(electionId: Id): CastVoteRecordFileRecord[] {
+    debug('querying database for cvr file list');
     const results = this.client.all(
       `
       select
@@ -778,6 +777,7 @@ export class Store {
       sha256Hash: string;
       createdAt: string;
     }>;
+    debug('queried database for cvr file list');
 
     return results
       .map((result) =>
@@ -1195,16 +1195,15 @@ export class Store {
   /**
    * Gets write-in adjudication tallies.
    */
-  getWriteInTallies({
+  getWriteInAdjudicationQueueMetadata({
     electionId,
     contestId,
-    status,
   }: {
     electionId: Id;
     contestId?: ContestId;
-    status?: WriteInAdjudicationStatus;
-  }): WriteInTally[] {
-    const whereParts: string[] = ['cvrs.election_id = ?'];
+  }): WriteInAdjudicationQueueMetadata[] {
+    debug('querying database for write-in queue metadata');
+    const whereParts: string[] = ['write_ins.election_id = ?'];
     const params: Bindable[] = [electionId];
 
     if (contestId) {
@@ -1212,55 +1211,30 @@ export class Store {
       params.push(contestId);
     }
 
-    if (status === 'adjudicated') {
-      whereParts.push(
-        '(write_ins.official_candidate_id is not null or write_ins.write_in_candidate_id is not null or write_ins.is_invalid = 1)'
-      );
-    }
-
-    if (status === 'pending') {
-      whereParts.push('write_ins.official_candidate_id is null');
-      whereParts.push('write_ins.write_in_candidate_id is null');
-      whereParts.push('write_ins.is_invalid = 0');
-    }
-
     const rows = this.client.all(
       `
         select
-          write_ins.contest_id as contestId,
-          write_ins.official_candidate_id as officialCandidateId,
-          write_ins.write_in_candidate_id as writeInCandidateId,
-          write_in_candidates.name as writeInCandidateName,
-          write_ins.is_invalid as isInvalid,
-          count(write_ins.id) as tally
+          contest_id as contestId,
+          count(id) as totalTally,
+          sum(
+            (
+              (case when official_candidate_id is null then 0 else 1 end) +
+              (case when write_in_candidate_id is null then 0 else 1 end) +
+              is_invalid
+            ) = 0
+          ) as pendingTally
         from write_ins
-        inner join
-          cvrs on write_ins.cvr_id = cvrs.id
-        left join
-          write_in_candidates on write_in_candidates.id = write_ins.write_in_candidate_id
         where ${whereParts.join(' and ')}
-        group by 
-          write_ins.contest_id,
-          write_ins.official_candidate_id,
-          write_ins.write_in_candidate_id,
-          write_ins.is_invalid
+        group by contest_id
       `,
       ...params
-    ) as WriteInTallyRow[];
-    if (rows.length === 0) {
-      return [];
-    }
-
-    const {
-      electionDefinition: { election },
-    } = this.getCurrentElectionRecordOrThrow();
-
-    const officialCandidateNameLookup =
-      getOfficialCandidateNameLookup(election);
-
-    return rows.map((row) =>
-      this.formatWriteInTallyRow(row, officialCandidateNameLookup)
-    );
+    ) as Array<{
+      contestId: ContestId;
+      totalTally: number;
+      pendingTally: number;
+    }>;
+    debug('queried database for write-in queue metadata');
+    return rows;
   }
 
   /**
@@ -1384,9 +1358,10 @@ export class Store {
     status?: WriteInAdjudicationStatus;
     limit?: number;
   }): WriteInRecord[] {
+    debug('querying database for write-in records');
     this.assertElectionExists(electionId);
 
-    const whereParts: string[] = ['cvr_files.election_id = ?'];
+    const whereParts: string[] = ['write_ins.election_id = ?'];
     const params: Bindable[] = [electionId];
 
     if (contestId) {
@@ -1430,10 +1405,6 @@ export class Store {
           write_ins.is_invalid as isInvalid,
           datetime(write_ins.adjudicated_at, 'localtime') as adjudicatedAt
         from write_ins
-        inner join
-          cvr_file_entries on write_ins.cvr_id = cvr_file_entries.cvr_id
-        inner join
-          cvr_files on cvr_file_entries.cvr_file_id = cvr_files.id
         where
           ${whereParts.join(' and ')}
         order by
@@ -1452,6 +1423,7 @@ export class Store {
       writeInCandidateId: Id | null;
       adjudicatedAt: Iso8601Timestamp | null;
     }>;
+    debug('queried database for write-in records');
 
     return writeInRows
       .map((row) => {

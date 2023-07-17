@@ -99,6 +99,7 @@ export function addMockCvrFileToStore({
 
         for (const [contestId, optionId] of writeIns) {
           store.addWriteIn({
+            electionId,
             castVoteRecordId: cvrId,
             side: 'front',
             contestId,

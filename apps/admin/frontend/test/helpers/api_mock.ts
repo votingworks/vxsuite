@@ -7,15 +7,13 @@ import type {
   MachineConfig,
   ManualResultsIdentifier,
   ManualResultsMetadataRecord,
-  WriteInAdjudicationStatus,
   WriteInCandidateRecord,
   WriteInDetailView,
   WriteInRecord,
-  WriteInTally,
-  WriteInAdjudicatedTally,
   SemsExportableTallies,
   ScannerBatch,
   TallyReportResults,
+  WriteInAdjudicationQueueMetadata,
 } from '@votingworks/admin-backend';
 import { ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -26,6 +24,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   BallotPackageExportResult,
+  ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
   ElectionDefinition,
@@ -180,29 +179,21 @@ export function createApiMock(
       apiClient.getCastVoteRecordFiles.expectCallWith().resolves(fileRecords);
     },
 
-    expectGetWriteInTallies(
-      writeInTallies: WriteInTally[],
-      status?: WriteInAdjudicationStatus
+    expectGetWriteInAdjudicationQueueMetadata(
+      queueMetadata: WriteInAdjudicationQueueMetadata[],
+      contestId?: ContestId
     ) {
-      if (status) {
-        apiClient.getWriteInTallies
+      if (contestId) {
+        apiClient.getWriteInAdjudicationQueueMetadata
           .expectCallWith({
-            status,
+            contestId,
           })
-          .resolves(writeInTallies);
+          .resolves(queueMetadata);
       } else {
-        apiClient.getWriteInTallies.expectCallWith().resolves(writeInTallies);
+        apiClient.getWriteInAdjudicationQueueMetadata
+          .expectCallWith()
+          .resolves(queueMetadata);
       }
-    },
-
-    expectGetWriteInTalliesAdjudicated(
-      writeInTallies: WriteInAdjudicatedTally[]
-    ) {
-      apiClient.getWriteInTallies
-        .expectCallWith({
-          status: 'adjudicated',
-        })
-        .resolves(writeInTallies);
     },
 
     expectGetWriteIns(writeInRecords: WriteInRecord[], contestId?: string) {
