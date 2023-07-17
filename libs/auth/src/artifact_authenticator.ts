@@ -183,7 +183,8 @@ export class ArtifactAuthenticator implements ArtifactAuthenticatorApi {
       case 'cast_vote_records': {
         assert(
           certDetails.component === 'central-scan' ||
-            certDetails.component === 'scan',
+            certDetails.component === 'scan' ||
+            certDetails.component === 'admin', // temporarily allow component to be admin for combo platter
           'Signing machine cert for CVR file should be a VxCentralScan or VxScan cert'
         );
         break;

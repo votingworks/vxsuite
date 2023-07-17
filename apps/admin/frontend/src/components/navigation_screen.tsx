@@ -18,7 +18,7 @@ import {
 import { DippedSmartCardAuth, Election } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
-import { logOut } from '../api';
+import { logOut, switchToCentralScan } from '../api';
 import { ScreenHeader } from './layout/screen_header';
 import { NavItem, Sidebar } from './layout/sidebar';
 import { MainContent } from './layout/main_content';
@@ -123,6 +123,7 @@ export function NavigationScreen({
   const { electionDefinition, usbDrive, auth } = useContext(AppContext);
   const election = electionDefinition?.election;
   const logOutMutation = logOut.useMutation();
+  const switchToCentralScanMutation = switchToCentralScan.useMutation();
 
   return (
     <Screen>
@@ -136,6 +137,14 @@ export function NavigationScreen({
             {(isSystemAdministratorAuth(auth) ||
               isElectionManagerAuth(auth)) && (
               <React.Fragment>
+                <Button
+                  onPress={() => {
+                    switchToCentralScanMutation.mutate();
+                    window.kiosk?.quit();
+                  }}
+                >
+                  ⇌VxCentralScan
+                </Button>{' '}
                 <Button onPress={() => logOutMutation.mutate()} small>
                   Lock Machine
                 </Button>

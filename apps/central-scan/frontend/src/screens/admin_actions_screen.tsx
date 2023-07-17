@@ -191,20 +191,17 @@ export function AdminActionsScreen({
                 may delete election data.
               </Font>
             )}
-
-            <ButtonRow>
-              <Button
-                onPress={() => {
-                  switchToAdminMutation.mutate();
-                  window.kiosk?.quit();
-                }}
-              >
-                Switch to VxAdmin
-              </Button>{' '}
-            </ButtonRow>
           </div>
         </Main>
         <MainNav isTestMode={isTestMode}>
+          <Button
+            onPress={() => {
+              switchToAdminMutation.mutate();
+              window.kiosk?.quit();
+            }}
+          >
+            ⇌VxAdmin
+          </Button>{' '}
           <Button small onPress={() => logOutMutation.mutate()}>
             Lock Machine
           </Button>
