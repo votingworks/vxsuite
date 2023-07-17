@@ -20,6 +20,7 @@ create table write_in_candidates (
 create table write_ins (
   id varchar(36) primary key,
   cvr_id varchar(36) not null,
+  election_id varchar(36) not null,
   side text not null check (side = 'front' or side = 'back'),
   contest_id text not null,
   option_id text not null,
@@ -28,6 +29,7 @@ create table write_ins (
   is_invalid boolean not null default false,
   adjudicated_at timestamp,
   created_at timestamp not null default current_timestamp,
+  foreign key (election_id) references elections(id),
   foreign key (cvr_id) references cvrs(id)
     on delete cascade,
   foreign key (cvr_id, side) references ballot_images(cvr_id, side),

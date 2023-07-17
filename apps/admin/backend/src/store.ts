@@ -650,11 +650,13 @@ export class Store {
    * Adds a write-in and returns its ID. Used when loading cast vote records.
    */
   addWriteIn({
+    electionId,
     castVoteRecordId,
     side,
     contestId,
     optionId,
   }: {
+    electionId: Id;
     castVoteRecordId: Id;
     side: Side;
     contestId: Id;
@@ -666,15 +668,17 @@ export class Store {
       `
         insert into write_ins (
           id,
+          election_id,
           cvr_id,
           side,
           contest_id,
           option_id
         ) values (
-          ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?
         )
       `,
       id,
+      electionId,
       castVoteRecordId,
       side,
       contestId,
@@ -1210,7 +1214,7 @@ export class Store {
     status?: WriteInAdjudicationStatus;
   }): WriteInTally[] {
     debug('querying database for write-in tallies');
-    const whereParts: string[] = ['cvrs.election_id = ?'];
+    const whereParts: string[] = ['write_ins.election_id = ?'];
     const params: Bindable[] = [electionId];
 
     if (contestId) {
@@ -1240,8 +1244,6 @@ export class Store {
           write_ins.is_invalid as isInvalid,
           count(write_ins.id) as tally
         from write_ins
-        inner join
-          cvrs on write_ins.cvr_id = cvrs.id
         left join
           write_in_candidates on write_in_candidates.id = write_ins.write_in_candidate_id
         where ${whereParts.join(' and ')}
@@ -1394,7 +1396,7 @@ export class Store {
     debug('querying database for write-in records');
     this.assertElectionExists(electionId);
 
-    const whereParts: string[] = ['cvr_files.election_id = ?'];
+    const whereParts: string[] = ['write_ins.election_id = ?'];
     const params: Bindable[] = [electionId];
 
     if (contestId) {
@@ -1438,10 +1440,6 @@ export class Store {
           write_ins.is_invalid as isInvalid,
           datetime(write_ins.adjudicated_at, 'localtime') as adjudicatedAt
         from write_ins
-        inner join
-          cvr_file_entries on write_ins.cvr_id = cvr_file_entries.cvr_id
-        inner join
-          cvr_files on cvr_file_entries.cvr_file_id = cvr_files.id
         where
           ${whereParts.join(' and ')}
         order by

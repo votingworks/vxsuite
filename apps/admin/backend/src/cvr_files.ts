@@ -702,6 +702,7 @@ export async function addCastVoteRecordReport({
           // on previous validation
           if (castVoteRecordWriteIn.side) {
             store.addWriteIn({
+              electionId,
               castVoteRecordId: cvrId,
               side: castVoteRecordWriteIn.side,
               contestId: castVoteRecordWriteIn.contestId,
