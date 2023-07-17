@@ -68,6 +68,9 @@ import {
   CardTally,
 } from './types';
 import { replacePartyIdFilter } from './tabulation/utils';
+import { rootDebug } from './util/debug';
+
+const debug = rootDebug.extend('store');
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
@@ -742,6 +745,7 @@ export class Store {
   }
 
   getCvrFiles(electionId: Id): CastVoteRecordFileRecord[] {
+    debug('querying database for cvr file list');
     const results = this.client.all(
       `
       select
@@ -778,6 +782,7 @@ export class Store {
       sha256Hash: string;
       createdAt: string;
     }>;
+    debug('queried database for cvr file list');
 
     return results
       .map((result) =>
@@ -1204,6 +1209,7 @@ export class Store {
     contestId?: ContestId;
     status?: WriteInAdjudicationStatus;
   }): WriteInTally[] {
+    debug('querying database for write-in tallies');
     const whereParts: string[] = ['cvrs.election_id = ?'];
     const params: Bindable[] = [electionId];
 
@@ -1247,6 +1253,7 @@ export class Store {
       `,
       ...params
     ) as WriteInTallyRow[];
+    debug('queried database for write-in tallies');
     if (rows.length === 0) {
       return [];
     }
@@ -1384,6 +1391,7 @@ export class Store {
     status?: WriteInAdjudicationStatus;
     limit?: number;
   }): WriteInRecord[] {
+    debug('querying database for write-in records');
     this.assertElectionExists(electionId);
 
     const whereParts: string[] = ['cvr_files.election_id = ?'];
@@ -1452,6 +1460,7 @@ export class Store {
       writeInCandidateId: Id | null;
       adjudicatedAt: Iso8601Timestamp | null;
     }>;
+    debug('queried database for write-in records');
 
     return writeInRows
       .map((row) => {
