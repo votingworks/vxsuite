@@ -712,8 +712,6 @@ function BallotMeasure({
 }): [Rectangle, GridPosition[]] {
   assert(contest.type === 'yesno');
 
-  // Temp hack until we can change the timing mark grid dimensions: expand the
-  // last contest column to fill the page
   const width = CONTENT_AREA_COLUMN_WIDTH;
   const titleLines = textWrap(
     contest.title,
@@ -1057,7 +1055,11 @@ function ContestColumn({
   return [column, contestPositions];
 }
 
-function ContestSection({
+/**
+ * A chunk of contest columns that fits within the contests area of a page. E.g.
+ * a chunk of three-column contests, or a chunk of one-column contests.
+ */
+function ContestColumnsChunk({
   election,
   contestColumns,
   height,
@@ -1131,6 +1133,8 @@ function layOutBallotHelper(
     .partition((contest) => contest.type === 'candidate')
     .filter((section) => section.length > 0);
 
+  // Iterate over the contest sections, laying out as many contests as
+  // possible on each page until we run out of contests
   let contestSectionsLeftToLayOut = contestSections;
   const pages: Page[] = [];
   const gridPositions: GridPosition[] = [];
@@ -1152,6 +1156,7 @@ function layOutBallotHelper(
       headerAndInstructionsRowHeight -
       FOOTER_ROW_HEIGHT;
 
+    // Lay out as many contests as possible on the current page
     let heightUsed = 0;
     const contestObjects: AnyElement[] = [];
     while (
@@ -1199,7 +1204,7 @@ function layOutBallotHelper(
         break;
       }
 
-      const [sectionRectangle, sectionPositions] = ContestSection({
+      const [chunkRectangle, chunkPositions] = ContestColumnsChunk({
         election,
         contestColumns: columns.map((column) =>
           column.map(({ contest }) => contest)
@@ -1216,9 +1221,9 @@ function layOutBallotHelper(
       debug(
         `Layed out ${contestSection.length - leftoverElements.length} contests`
       );
-      contestObjects.push(sectionRectangle);
+      contestObjects.push(chunkRectangle);
       heightUsed += height;
-      gridPositions.push(...sectionPositions);
+      gridPositions.push(...chunkPositions);
     }
 
     if (contestObjects.length === 0) {
