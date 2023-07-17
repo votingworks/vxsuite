@@ -19,7 +19,7 @@ interface AllBubbleBallotOptions {
   fillBubble: (page: number, row: number, column: number) => boolean;
 }
 
-const m = measurements(BallotPaperSize.Letter);
+const m = measurements(BallotPaperSize.Letter, 0);
 const { DOCUMENT_HEIGHT, DOCUMENT_WIDTH, GRID } = m;
 
 function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {

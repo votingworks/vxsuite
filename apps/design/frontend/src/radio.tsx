@@ -2,15 +2,15 @@ import { Color } from '@votingworks/types';
 import { Icons } from '@votingworks/ui';
 import styled from 'styled-components';
 
-interface Option {
+interface Option<V> {
   label: string;
-  value: string;
+  value: V;
 }
 
-interface RadioGroupProps {
-  options: Option[];
-  value: string;
-  onChange: (value: string) => void;
+interface RadioGroupProps<V> {
+  options: Array<Option<V>>;
+  value: V;
+  onChange: (value: V) => void;
   disabled?: boolean;
 }
 
@@ -38,12 +38,12 @@ const Option = styled.label<{ isSelected: boolean; disabled: boolean }>`
   }
 `;
 
-export function RadioGroup({
+export function RadioGroup<V extends number | string>({
   options,
   value,
   onChange,
   disabled = false,
-}: RadioGroupProps): JSX.Element {
+}: RadioGroupProps<V>): JSX.Element {
   return (
     <Container>
       {options.map((option) => {
