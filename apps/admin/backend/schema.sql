@@ -18,7 +18,8 @@ create table write_in_candidates (
 );
 
 create table write_ins (
-  id varchar(36) primary key,
+  sequence_id integer primary key autoincrement,
+  id varchar(36) not null unique,
   cvr_id varchar(36) not null,
   election_id varchar(36) not null,
   side text not null check (side = 'front' or side = 'back'),
