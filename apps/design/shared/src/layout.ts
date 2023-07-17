@@ -682,10 +682,31 @@ function CandidateContest({
   const optionTextAlign =
     bubblePosition === BallotTargetMarkPosition.Left ? 'left' : 'right';
 
-  const optionRowHeight = 2;
   const options: Rectangle[] = [];
-  for (const [index, candidate] of contest.candidates.entries()) {
-    const optionRow = headingRowHeight + index * optionRowHeight;
+  let rowHeightUsed = headingRowHeight;
+  for (const candidate of contest.candidates) {
+    const partyText = getCandidatePartiesDescription(election, candidate);
+    const partyTextBox: TextBox | undefined =
+      partyText === ''
+        ? undefined
+        : {
+            type: 'TextBox',
+            ...gridPosition(
+              {
+                row: 1.3,
+                column: optionLabelColumn,
+              },
+              m
+            ),
+            width: gridWidth(width - 2.25, m),
+            height: gridHeight(1, m),
+            textLines: [partyText],
+            ...FontStyles.BODY,
+            align: optionTextAlign,
+          };
+
+    const optionRowHeight = partyTextBox ? 2 : 1;
+    const optionRow = rowHeightUsed;
     options.push({
       type: 'Rectangle',
       ...gridPosition(
@@ -709,7 +730,7 @@ function CandidateContest({
           type: 'TextBox',
           ...gridPosition(
             {
-              row: 0.6,
+              row: partyText ? 0.6 : 0.65,
               column: optionLabelColumn,
             },
             m
@@ -722,24 +743,11 @@ function CandidateContest({
           fontWeight: FontWeights.BOLD,
           align: optionTextAlign,
         },
-        {
-          type: 'TextBox',
-          ...gridPosition(
-            {
-              row: 1.3,
-              column: optionLabelColumn,
-            },
-            m
-          ),
-          width: gridWidth(width - 2.25, m),
-          height: gridHeight(1, m),
-          textLines: [getCandidatePartiesDescription(election, candidate)],
-          ...FontStyles.BODY,
-          align: optionTextAlign,
-        },
+        ...(partyTextBox ? [partyTextBox] : []),
       ],
     });
 
+    rowHeightUsed += optionRowHeight;
     optionPostions.push({
       type: 'option',
       side,
@@ -751,11 +759,9 @@ function CandidateContest({
   }
 
   if (contest.allowWriteIns) {
-    const optionsHeight = options.length * optionRowHeight;
     const writeInRowHeight = 2;
     for (const writeInIndex of range(0, contest.seats)) {
-      const optionRow =
-        headingRowHeight + optionsHeight + writeInIndex * writeInRowHeight;
+      const optionRow = rowHeightUsed;
       options.push({
         type: 'Rectangle',
         ...gridPosition(
@@ -805,6 +811,7 @@ function CandidateContest({
         ],
       });
 
+      rowHeightUsed += writeInRowHeight;
       optionPostions.push({
         type: 'write-in',
         side,
