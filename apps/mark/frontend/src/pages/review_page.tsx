@@ -44,7 +44,7 @@ export function ReviewPage(): JSX.Element {
   const settingsButton = <DisplaySettingsButton />;
 
   return (
-    <Screen>
+    <Screen navRight>
       <Main flexColumn>
         <ContentHeader>
           <Prose id="audiofocus">

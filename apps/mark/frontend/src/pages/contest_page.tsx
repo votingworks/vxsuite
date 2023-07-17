@@ -97,7 +97,7 @@ export function ContestPage(): JSX.Element {
   const settingsButton = <DisplaySettingsButton />;
 
   return (
-    <Screen>
+    <Screen navRight>
       <MarkFlowContest
         breadcrumbs={{
           ballotContestCount: ballotContestsLength,

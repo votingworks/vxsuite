@@ -251,9 +251,9 @@ exports[`Single Seat Contest with Write In 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
   height: 100%;
 }
 
@@ -329,29 +329,10 @@ exports[`Single Seat Contest with Write In 1`] = `
 }
 
 .c24 {
-  -webkit-align-items: stretch;
-  -webkit-box-align: stretch;
-  -ms-flex-align: stretch;
-  align-items: stretch;
-  border-top: 0.25rem solid #222222;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  gap: 0.5rem;
-  -webkit-box-pack: right;
-  -webkit-justify-content: right;
-  -ms-flex-pack: right;
-  justify-content: right;
-  min-height: 4.5rem;
-  padding: 0.5rem;
-}
-
-.c24 > *:not(:first-child):not(:last-child) {
-  -webkit-box-flex: 1;
-  -webkit-flex-grow: 1;
-  -ms-flex-positive: 1;
-  flex-grow: 1;
 }
 
 .c26 {
@@ -399,6 +380,10 @@ exports[`Single Seat Contest with Write In 1`] = `
 }
 
 @media print {
+
+}
+
+@media print {
   .c1 {
     display: none;
   }
@@ -418,6 +403,49 @@ exports[`Single Seat Contest with Write In 1`] = `
 
 @media print {
 
+}
+
+@media (orientation:portrait) {
+  .c24 {
+    -webkit-align-items: stretch;
+    -webkit-box-align: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+    border-top: 0.25rem solid #222222;
+    gap: 0.5rem;
+    -webkit-box-pack: right;
+    -webkit-justify-content: right;
+    -ms-flex-pack: right;
+    justify-content: right;
+    min-height: 4.5rem;
+    padding: 0.5rem;
+  }
+
+  .c24 > *:not(:first-child):not(:last-child) {
+    -webkit-box-flex: 1;
+    -webkit-flex-grow: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+  }
+}
+
+@media (orientation:landscape) {
+  .c24 {
+    border-left: 0.25rem solid #222222;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    gap: 1rem;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    padding: 0.5rem;
+  }
+
+  .c24 > * {
+    min-height: 3rem;
+  }
 }
 
 @media (orientation:portrait) {

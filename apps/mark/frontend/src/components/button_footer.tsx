@@ -1,11 +1,10 @@
-/* stylelint-disable order/properties-order */
-import styled from 'styled-components';
+/* stylelint-disable order/properties-order, value-keyword-case */
+import styled, { css } from 'styled-components';
 
-export const ButtonFooter = styled.nav`
+const portraitStyles = css`
   align-items: stretch;
   border-top: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
     ${(p) => p.theme.colors.foreground};
-  display: flex;
   gap: 0.5rem;
   justify-content: right;
   min-height: 4.5rem;
@@ -15,5 +14,30 @@ export const ButtonFooter = styled.nav`
     &:not(:first-child):not(:last-child) {
       flex-grow: 1;
     }
+  }
+`;
+
+const landscapeStyles = css`
+  border-left: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
+    ${(p) => p.theme.colors.foreground};
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: center;
+  padding: 0.5rem;
+
+  & > * {
+    min-height: 3rem;
+  }
+`;
+
+export const ButtonFooter = styled.nav`
+  display: flex;
+
+  @media (orientation: portrait) {
+    ${portraitStyles}
+  }
+
+  @media (orientation: landscape) {
+    ${landscapeStyles}
   }
 `;
