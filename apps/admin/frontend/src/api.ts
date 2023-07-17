@@ -227,15 +227,18 @@ export const getWriteIns = {
   },
 } as const;
 
-type GetWriteInTalliesInput = QueryInput<'getWriteInTallies'>;
-export const getWriteInTallies = {
-  queryKey(input?: GetWriteInTalliesInput): QueryKey {
-    return input ? ['getWriteInTallies', input] : ['getWriteInTallies'];
+type GetWriteInAdjudicationQueueMetadataInput =
+  QueryInput<'getWriteInAdjudicationQueueMetadata'>;
+export const getWriteInAdjudicationQueueMetadata = {
+  queryKey(input?: GetWriteInAdjudicationQueueMetadataInput): QueryKey {
+    return input
+      ? ['getWriteInAdjudicationQueueMetadata', input]
+      : ['getWriteInAdjudicationQueueMetadata'];
   },
-  useQuery(input?: GetWriteInTalliesInput) {
+  useQuery(input?: GetWriteInAdjudicationQueueMetadataInput) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(input), () =>
-      apiClient.getWriteInTallies(input)
+      apiClient.getWriteInAdjudicationQueueMetadata(input)
     );
   },
 } as const;
@@ -408,7 +411,9 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
 function invalidateWriteInQueries(queryClient: QueryClient) {
   return Promise.all([
     queryClient.invalidateQueries(getWriteIns.queryKey()),
-    queryClient.invalidateQueries(getWriteInTallies.queryKey()),
+    queryClient.invalidateQueries(
+      getWriteInAdjudicationQueueMetadata.queryKey()
+    ),
     queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
     queryClient.invalidateQueries(getElectionWriteInSummary.queryKey()),
   ]);
