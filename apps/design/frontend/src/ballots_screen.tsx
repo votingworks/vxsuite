@@ -26,6 +26,7 @@ import { hasSplits } from './geography_screen';
 import { BallotScreen } from './ballot_screen';
 import { SegmentedControl } from './segmented_control';
 import { paperSizeLabels } from './ballot_viewer';
+import { RadioGroup } from './radio';
 
 const defaultBallotLayout: Required<BallotLayout> = {
   targetMarkPosition: BallotTargetMarkPosition.Left,
@@ -63,17 +64,19 @@ function BallotDesignForm({
   return (
     <Form>
       <FormField label="Paper Size">
-        <SegmentedControl
+        <RadioGroup
           options={Object.entries(paperSizeLabels).map(([value, label]) => ({
-            value: value as BallotPaperSize,
+            value,
             label,
           }))}
           value={ballotLayout.paperSize}
           onChange={(paperSize) =>
-            setBallotLayout({ ...ballotLayout, paperSize })
+            setBallotLayout({
+              ...ballotLayout,
+              paperSize: paperSize as BallotPaperSize,
+            })
           }
           disabled={!isEditing}
-          vertical
         />
       </FormField>
       <FormField label="Bubble Position">

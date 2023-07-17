@@ -34,6 +34,8 @@ import {
   faXmarkCircle,
   faPauseCircle,
   faSquare,
+  faCircle,
+  faCircleDot,
 } from '@fortawesome/free-regular-svg-icons';
 
 import { Font, FontProps } from './typography';
@@ -69,6 +71,14 @@ export const Icons = {
 
   Backspace(): JSX.Element {
     return <FaIcon type={faDeleteLeft} />;
+  },
+
+  Circle(): JSX.Element {
+    return <FaIcon type={faCircle} />;
+  },
+
+  CircleDot(): JSX.Element {
+    return <FaIcon type={faCircleDot} />;
   },
 
   Checkbox(): JSX.Element {
