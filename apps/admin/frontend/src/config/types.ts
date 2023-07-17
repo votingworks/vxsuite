@@ -1,5 +1,6 @@
 import {
   BallotStyleId,
+  ContestId,
   Dictionary,
   PartyId,
   PrecinctId,
@@ -39,6 +40,9 @@ export interface ManualDataEntryScreenProps {
 }
 export interface SmartcardsScreenProps {
   smartcardType: string;
+}
+export interface WriteInsAdjudicationScreenProps {
+  contestId: ContestId;
 }
 
 export enum ResultsFileType {

@@ -29,7 +29,7 @@ import { ApiMock } from './helpers/api_mock';
 export const eitherNeitherElectionDefinition =
   electionWithMsEitherNeitherDefinition;
 
-interface RenderInAppContextParams {
+export interface RenderInAppContextParams {
   route?: string;
   history?: MemoryHistory;
   electionDefinition?: ElectionDefinition | 'NONE';
