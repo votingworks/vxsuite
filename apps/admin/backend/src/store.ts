@@ -276,16 +276,6 @@ export class Store {
   }
 
   /**
-   * Returns the current election definition or throws an error if it does
-   * not exist.
-   */
-  getCurrentElectionRecordOrThrow(): ElectionRecord {
-    return assertDefined(
-      this.getElection(assertDefined(this.getCurrentElectionId()))
-    );
-  }
-
-  /**
    * Creates a system settings record and returns its ID.
    * Note `system_settings` are logical settings that span other machines eg. VxScan.
    * `settings` are local to VxAdmin
