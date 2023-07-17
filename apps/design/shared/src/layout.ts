@@ -1138,7 +1138,7 @@ function layOutBallotHelper(
   let contestSectionsLeftToLayOut = contestSections;
   const pages: Page[] = [];
   const gridPositions: GridPosition[] = [];
-  while (contestSectionsLeftToLayOut.length > 0) {
+  while (contestSectionsLeftToLayOut.length > 0 || pages.length % 2 !== 0) {
     const pageNumber = pages.length + 1;
     debug(
       `Laying out page ${pageNumber}, ${contestSectionsLeftToLayOut.length} contest sections left`
