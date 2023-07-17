@@ -1,7 +1,12 @@
 /* eslint-disable react/no-array-index-key */
 import { useRef, useState, useMemo, useCallback } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
-import { BallotStyle, Election, Precinct } from '@votingworks/types';
+import {
+  BallotPaperSize,
+  BallotStyle,
+  Election,
+  Precinct,
+} from '@votingworks/types';
 import styled from 'styled-components';
 import { Button, H1, H3, P } from '@votingworks/ui';
 import {
@@ -12,9 +17,9 @@ import {
   SvgPage,
   SvgRectangle,
   SvgTextBox,
-  GRID,
   GridDimensions,
   layOutBallot,
+  gridForPaper,
 } from '@votingworks/design-shared';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
@@ -91,24 +96,22 @@ function PageObject({
   y,
   width,
   height,
-  grid,
   page,
-  showGridLines,
+  grid,
 }: {
   x: number;
   y: number;
-  grid: GridDimensions;
   width: number;
   height: number;
   page: Page;
-  showGridLines: boolean;
+  grid?: GridDimensions;
 }) {
   return (
     <SvgPage {...{ x, y, width, height, ...page }}>
       {page.children.map((element, index) => (
         <SvgAnyElement key={index} element={element} />
       ))}
-      {showGridLines && <GridLines {...{ grid, width, height }} />}
+      {grid && <GridLines {...{ grid, width, height }} />}
     </SvgPage>
   );
 }
@@ -116,11 +119,11 @@ function PageObject({
 function DocumentSvg({
   dimensions,
   document,
-  showGridLines,
+  grid,
 }: {
   dimensions: { width: number; height: number };
   document: Document;
-  showGridLines: boolean;
+  grid?: GridDimensions;
 }) {
   const [zoom, setZoom] = useState(0.8);
   const [panOffset, setPanOffset] = useState({ x: -30, y: -30 });
@@ -134,17 +137,16 @@ function DocumentSvg({
     () =>
       pages.map((page, index) => (
         <PageObject
+          key={index}
           x={index % 2 === 0 ? 0 : width + PAGE_GAP}
           y={Math.floor(index / 2) * (height + PAGE_GAP)}
-          grid={GRID}
           width={width}
           height={height}
           page={page}
-          showGridLines={showGridLines}
-          key={index}
+          grid={grid}
         />
       )),
-    [width, height, pages, showGridLines]
+    [width, height, pages, grid]
   );
   return (
     <svg
@@ -217,6 +219,15 @@ const ErrorMessage = styled.div`
   justify-content: center;
 `;
 
+export const paperSizeLabels: Record<BallotPaperSize, string> = {
+  [BallotPaperSize.Letter]: '8.5 x 11 inches (Letter)',
+  [BallotPaperSize.Legal]: '8.5 x 14 inches (Legal)',
+  [BallotPaperSize.Custom17]: '8.5 x 17 inches',
+  [BallotPaperSize.Custom18]: '8.5 x 18 inches',
+  [BallotPaperSize.Custom21]: '8.5 x 21 inches',
+  [BallotPaperSize.Custom22]: '8.5 x 22 inches',
+};
+
 export function BallotViewer({
   election,
   precinct,
@@ -230,6 +241,9 @@ export function BallotViewer({
   const ballotRoutes = routes.election(electionId).ballots;
   const exportBallotMutation = exportBallot.useMutation();
   const [showGridLines, setShowGridLines] = useState(false);
+
+  const paperSize = election.ballotLayout?.paperSize ?? BallotPaperSize.Letter;
+  const grid = gridForPaper(paperSize);
 
   const [dimensions, setDimensions] = useState<{
     width: number;
@@ -286,9 +300,11 @@ export function BallotViewer({
           <P>{ballotStyle.id}</P>
           <H3>Precinct</H3>
           <P>{precinct.name}</P>
-          <H3>Grid</H3>
+          <H3>Page Size</H3>
+          <P>{paperSizeLabels[paperSize]}</P>
+          <H3>Timing Marks</H3>
           <P>
-            {GRID.columns} columns x {GRID.rows} rows
+            {grid.columns} columns x {grid.rows} rows
           </P>
           <P>
             <Button onPress={() => setShowGridLines(!showGridLines)} fullWidth>
@@ -315,7 +331,7 @@ export function BallotViewer({
           <DocumentSvg
             dimensions={dimensions}
             document={ballotResult.ok().document}
-            showGridLines={showGridLines}
+            grid={showGridLines ? grid : undefined}
           />
         )}
       </div>

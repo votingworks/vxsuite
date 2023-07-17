@@ -1,4 +1,5 @@
-import { layOutInColumns } from './layout';
+import { BallotPaperSize } from '@votingworks/types';
+import { gridForPaper, layOutInColumns } from './layout';
 
 test('layoutInColumns', () => {
   const a1 = { id: 'a', height: 1 } as const;
@@ -184,5 +185,17 @@ test('layoutInColumns', () => {
     columns: [[c2], [a1, b1], [d2]],
     height: 2,
     leftoverElements: [],
+  });
+});
+
+test('gridForPaper', () => {
+  // These values are hardcoded in the interpreter, so they should not change.
+  expect(gridForPaper(BallotPaperSize.Letter)).toEqual({
+    rows: 41,
+    columns: 34,
+  });
+  expect(gridForPaper(BallotPaperSize.Legal)).toEqual({
+    rows: 53,
+    columns: 34,
   });
 });

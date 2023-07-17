@@ -12,6 +12,7 @@ import {
   AnyElement,
   Page,
   SvgImageProps,
+  PPI,
 } from '@votingworks/design-shared';
 import { join } from 'path';
 
@@ -66,6 +67,13 @@ function renderPageToSvg(page: Page, width: number, height: number): string {
   return pageSvgString.replace(/^<svg width="\d*" height="\d*"/, '<svg');
 }
 
+/**
+ * Convert document pixel dimensions to Postscript points (1/72 inch).
+ */
+function pixelsToPoints(pixels: number): number {
+  return (pixels / PPI) * 72;
+}
+
 export function renderDocumentToPdf(document: Document): PDFKit.PDFDocument {
   const svgPages = document.pages.map((page) =>
     renderPageToSvg(page, document.width, document.height)
@@ -73,7 +81,7 @@ export function renderDocumentToPdf(document: Document): PDFKit.PDFDocument {
 
   const pdf = new PdfDocument({
     layout: 'portrait',
-    size: 'letter',
+    size: [pixelsToPoints(document.width), pixelsToPoints(document.height)],
     autoFirstPage: false,
   });
   for (const font of FONTS) {

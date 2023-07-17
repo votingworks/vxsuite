@@ -321,13 +321,16 @@ test('supports ballot layout paper size', () => {
         "options": [
           "letter",
           "legal",
-          "custom8.5x17"
+          "custom-8.5x17",
+          "custom-8.5x18",
+          "custom-8.5x21",
+          "custom-8.5x22"
         ],
         "path": [
           "ballotLayout",
           "paperSize"
         ],
-        "message": "Invalid enum value. Expected 'letter' | 'legal' | 'custom8.5x17'"
+        "message": "Invalid enum value. Expected 'letter' | 'legal' | 'custom-8.5x17' | 'custom-8.5x18' | 'custom-8.5x21' | 'custom-8.5x22'"
       }
     ]]
   `);
