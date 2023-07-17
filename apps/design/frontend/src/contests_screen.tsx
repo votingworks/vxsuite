@@ -9,7 +9,6 @@ import {
   H1,
   LinkButton,
   P,
-  SegmentedButton,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -43,6 +42,7 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
+import { SegmentedControl } from './segmented_control';
 
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
@@ -287,9 +287,12 @@ function ContestForm({
         </Select>
       </FormField>
       <FormField label="Type">
-        <SegmentedButton
-          label=""
-          selectedOptionId={contest.type}
+        <SegmentedControl
+          options={[
+            { value: 'candidate', label: 'Candidate Contest' },
+            { value: 'yesno', label: 'Ballot Measure' },
+          ]}
+          value={contest.type}
           onChange={(type) =>
             setContest({
               ...(type === 'candidate'
@@ -299,10 +302,6 @@ function ContestForm({
               districtId: contest.districtId,
             })
           }
-          options={[
-            { id: 'candidate', label: 'Candidate Contest' },
-            { id: 'yesno', label: 'Ballot Measure' },
-          ]}
         />
       </FormField>
 
@@ -339,16 +338,15 @@ function ContestForm({
             />
           </FormField>
           <FormField label="Write-Ins Allowed?">
-            <SegmentedButton
-              label=""
-              selectedOptionId={contest.allowWriteIns ? 'yes' : 'no'}
+            <SegmentedControl
+              options={[
+                { value: 'yes', label: 'Yes' },
+                { value: 'no', label: 'No' },
+              ]}
+              value={contest.allowWriteIns ? 'yes' : 'no'}
               onChange={(value) =>
                 setContest({ ...contest, allowWriteIns: value === 'yes' })
               }
-              options={[
-                { id: 'yes', label: 'Yes' },
-                { id: 'no', label: 'No' },
-              ]}
             />
           </FormField>
           <FormField label="Candidates">

@@ -28,6 +28,7 @@ export interface TextBox extends ElementBase {
   fontSize: number;
   fontWeight: number;
   lineHeight: number;
+  align?: 'left' | 'right';
 }
 
 export interface Image extends ElementBase {
