@@ -9,14 +9,7 @@ import {
 } from '@votingworks/utils';
 import { Rect } from '@votingworks/types';
 import { buildTestEnvironment, configureMachine } from '../test/app';
-import {
-  WriteInDetailView,
-  WriteInAdjudicatedTally,
-  WriteInAdjudicatedInvalidTally,
-  WriteInAdjudicatedOfficialCandidateTally,
-  WriteInAdjudicatedWriteInCandidateTally,
-  WriteInPendingTally,
-} from './types';
+import { WriteInDetailView } from './types';
 
 jest.setTimeout(30_000);
 
@@ -71,7 +64,7 @@ test('getWriteIns', async () => {
   ).toHaveLength(2);
 });
 
-test('getWriteInTallies', async () => {
+test('getWriteInAdjudicationQueueSizes', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition, castVoteRecordReport } =
     electionGridLayoutNewHampshireAmherstFixtures;
@@ -87,19 +80,17 @@ test('getWriteInTallies', async () => {
     (contest) => contest.type === 'candidate' && contest.allowWriteIns
   );
 
-  const allWriteInSummaries = await apiClient.getWriteInTallies();
-  expect(allWriteInSummaries).toHaveLength(contestsWithWriteIns.length);
-  assert(allWriteInSummaries.every((summary) => summary.status === 'pending'));
-
-  expect(await apiClient.getWriteInTallies({ status: 'pending' })).toHaveLength(
-    contestsWithWriteIns.length
+  const allQueueMetadata =
+    await apiClient.getWriteInAdjudicationQueueMetadata();
+  expect(allQueueMetadata).toHaveLength(contestsWithWriteIns.length);
+  assert(
+    allQueueMetadata.every(
+      (metadata) => metadata.totalTally === metadata.pendingTally
+    )
   );
-  expect(
-    await apiClient.getWriteInTallies({ status: 'adjudicated' })
-  ).toHaveLength(0);
 
   expect(
-    await apiClient.getWriteInTallies({
+    await apiClient.getWriteInAdjudicationQueueMetadata({
       contestId: 'Sheriff-4243fe0b',
     })
   ).toHaveLength(1);
@@ -144,23 +135,15 @@ test('e2e write-in adjudication', async () => {
     candidateId: officialCandidateId,
     status: 'adjudicated',
   });
-  expect(await apiClient.getWriteInTallies({ contestId })).toMatchObject(
-    expect.arrayContaining([
-      typedAs<WriteInAdjudicatedOfficialCandidateTally>({
-        contestId,
-        adjudicationType: 'official-candidate',
-        candidateId: officialCandidateId,
-        candidateName: 'Edward Randolph',
-        status: 'adjudicated',
-        tally: 1,
-      }),
-      typedAs<WriteInPendingTally>({
-        contestId,
-        status: 'pending',
-        tally: 1,
-      }),
-    ])
-  );
+  expect(
+    await apiClient.getWriteInAdjudicationQueueMetadata({ contestId })
+  ).toEqual([
+    {
+      contestId,
+      pendingTally: 1,
+      totalTally: 2,
+    },
+  ]);
 
   // write-in A: re-adjudicate as invalid
   await apiClient.adjudicateWriteIn({
@@ -174,21 +157,15 @@ test('e2e write-in adjudication', async () => {
     adjudicationType: 'invalid',
     status: 'adjudicated',
   });
-  expect(await apiClient.getWriteInTallies({ contestId })).toMatchObject(
-    expect.arrayContaining([
-      typedAs<WriteInAdjudicatedInvalidTally>({
-        contestId,
-        adjudicationType: 'invalid',
-        status: 'adjudicated',
-        tally: 1,
-      }),
-      typedAs<WriteInPendingTally>({
-        contestId,
-        status: 'pending',
-        tally: 1,
-      }),
-    ])
-  );
+  expect(
+    await apiClient.getWriteInAdjudicationQueueMetadata({ contestId })
+  ).toEqual([
+    {
+      contestId,
+      pendingTally: 1,
+      totalTally: 2,
+    },
+  ]);
 
   // write-in A: re-adjudicate for the official candidate
   await apiClient.adjudicateWriteIn({
@@ -204,23 +181,15 @@ test('e2e write-in adjudication', async () => {
     candidateId: officialCandidateId,
     status: 'adjudicated',
   });
-  expect(await apiClient.getWriteInTallies({ contestId })).toMatchObject(
-    expect.arrayContaining([
-      typedAs<WriteInAdjudicatedTally>({
-        contestId,
-        adjudicationType: 'official-candidate',
-        candidateId: officialCandidateId,
-        candidateName: 'Edward Randolph',
-        status: 'adjudicated',
-        tally: 1,
-      }),
-      typedAs<WriteInPendingTally>({
-        contestId,
-        status: 'pending',
-        tally: 1,
-      }),
-    ])
-  );
+  expect(
+    await apiClient.getWriteInAdjudicationQueueMetadata({ contestId })
+  ).toEqual([
+    {
+      contestId,
+      pendingTally: 1,
+      totalTally: 2,
+    },
+  ]);
 
   // write-in B: add and adjudicate for a write-in candidate
   expect(await apiClient.getWriteInCandidates()).toMatchObject([]);
@@ -245,26 +214,15 @@ test('e2e write-in adjudication', async () => {
     status: 'adjudicated',
   });
 
-  expect(await apiClient.getWriteInTallies({ contestId })).toMatchObject(
-    expect.arrayContaining([
-      typedAs<WriteInAdjudicatedOfficialCandidateTally>({
-        contestId,
-        adjudicationType: 'official-candidate',
-        candidateId: officialCandidateId,
-        candidateName: 'Edward Randolph',
-        status: 'adjudicated',
-        tally: 1,
-      }),
-      typedAs<WriteInAdjudicatedWriteInCandidateTally>({
-        contestId,
-        adjudicationType: 'write-in-candidate',
-        candidateId: mrPickles!.id,
-        candidateName: 'Mr. Pickles',
-        status: 'adjudicated',
-        tally: 1,
-      }),
-    ])
-  );
+  expect(
+    await apiClient.getWriteInAdjudicationQueueMetadata({ contestId })
+  ).toEqual([
+    {
+      contestId,
+      pendingTally: 0,
+      totalTally: 2,
+    },
+  ]);
 
   // write-in B: re-adjudicate for a different write-in candidate
   await apiClient.addWriteInCandidate({ contestId, name: 'Pickles Jr.' });
@@ -288,26 +246,15 @@ test('e2e write-in adjudication', async () => {
     candidateId: picklesJr!.id,
   });
 
-  expect(await apiClient.getWriteInTallies({ contestId })).toMatchObject(
-    expect.arrayContaining([
-      typedAs<WriteInAdjudicatedOfficialCandidateTally>({
-        contestId,
-        adjudicationType: 'official-candidate',
-        candidateId: officialCandidateId,
-        candidateName: 'Edward Randolph',
-        status: 'adjudicated',
-        tally: 1,
-      }),
-      typedAs<WriteInAdjudicatedWriteInCandidateTally>({
-        contestId,
-        adjudicationType: 'write-in-candidate',
-        candidateId: picklesJr!.id,
-        candidateName: 'Pickles Jr.',
-        status: 'adjudicated',
-        tally: 1,
-      }),
-    ])
-  );
+  expect(
+    await apiClient.getWriteInAdjudicationQueueMetadata({ contestId })
+  ).toEqual([
+    {
+      contestId,
+      pendingTally: 0,
+      totalTally: 2,
+    },
+  ]);
 
   // now that Mr. Pickles has no adjudications, he should have been removed as a write-in candidate
   expect(await apiClient.getWriteInCandidates({ contestId })).toMatchObject([

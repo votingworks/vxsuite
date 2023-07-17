@@ -63,11 +63,11 @@ import {
   SetSystemSettingsResult,
   TallyReportResults,
   WriteInAdjudicationAction,
+  WriteInAdjudicationQueueMetadata,
   WriteInAdjudicationStatus,
   WriteInCandidateRecord,
   WriteInDetailView,
   WriteInRecord,
-  WriteInTally,
 } from './types';
 import { Workspace } from './util/workspace';
 import {
@@ -543,13 +543,13 @@ function buildApi({
       store.adjudicateWriteIn(input);
     },
 
-    getWriteInTallies(
+    getWriteInAdjudicationQueueMetadata(
       input: {
         contestId?: ContestId;
         status?: WriteInAdjudicationStatus;
       } = {}
-    ): WriteInTally[] {
-      return store.getWriteInTallies({
+    ): WriteInAdjudicationQueueMetadata[] {
+      return store.getWriteInAdjudicationQueueMetadata({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
       });

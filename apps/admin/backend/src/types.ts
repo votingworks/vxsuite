@@ -296,6 +296,15 @@ export type WriteInAdjudicatedTally =
 export type WriteInTally = WriteInPendingTally | WriteInAdjudicatedTally;
 
 /**
+ * Description of the write-in adjudication queue size.
+ */
+export interface WriteInAdjudicationQueueMetadata {
+  contestId: ContestId;
+  pendingTally: number;
+  totalTally: number;
+}
+
+/**
  * Information necessary to adjudicate a write-in for an official candidate.
  */
 export interface WriteInAdjudicationActionOfficialCandidate {
