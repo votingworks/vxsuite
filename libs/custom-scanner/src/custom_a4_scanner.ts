@@ -416,9 +416,10 @@ export class CustomA4Scanner implements CustomScanner {
             debug('waiting for motor on and scan in progress timed out');
             void (await this.stopScanInternal());
             return err(ErrorCode.ScannerError);
-          } else {
+          } /* c8 ignore start */ else {
+            /* this branch often does not run during tests in CircleCI */
             debug('still waiting for motor on and scan in progress');
-          }
+          } /* c8 ignore stop */
         } else {
           startNoMoveNoScan = 0;
         }
