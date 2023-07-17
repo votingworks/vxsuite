@@ -1,5 +1,5 @@
 import { CandidateVote } from '@votingworks/types';
-import { Screen, LinkButton } from '@votingworks/ui';
+import { Screen, LinkButton, useScreenInfo } from '@votingworks/ui';
 import React, { useContext } from 'react';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { useHistory, useParams } from 'react-router-dom';
@@ -19,6 +19,8 @@ export function ContestPage(): JSX.Element {
 
   const { contests, electionDefinition, precinctId, updateVote, votes } =
     useContext(BallotContext);
+
+  const screenInfo = useScreenInfo();
 
   // eslint-disable-next-line vx/gts-safe-number-parse
   const currentContestIndex = parseInt(contestNumber, 10);
@@ -97,7 +99,7 @@ export function ContestPage(): JSX.Element {
   const settingsButton = <DisplaySettingsButton />;
 
   return (
-    <Screen navRight>
+    <Screen navRight={!screenInfo.isPortrait}>
       <MarkFlowContest
         breadcrumbs={{
           ballotContestCount: ballotContestsLength,
