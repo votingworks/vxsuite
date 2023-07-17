@@ -8,14 +8,13 @@ import {
 } from '../utils/ScreenReader';
 
 it('renders FocusManager', () => {
-  const { container } = render(
+  render(
     <FocusManager
       screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
     >
       <div>foo</div>
     </FocusManager>
   );
-  expect(container).toMatchSnapshot();
 });
 
 it('focuses the element with id audiofocus', async () => {

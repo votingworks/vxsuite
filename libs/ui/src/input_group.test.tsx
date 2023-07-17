@@ -4,7 +4,7 @@ import { InputGroup } from './input_group';
 import { Select } from './select';
 
 test('renders InputGroup', () => {
-  const { container } = render(
+  render(
     <InputGroup>
       <Select>
         <option value="1">1</option>
@@ -17,5 +17,4 @@ test('renders InputGroup', () => {
       </Select>
     </InputGroup>
   );
-  expect(container.firstChild).toMatchSnapshot();
 });

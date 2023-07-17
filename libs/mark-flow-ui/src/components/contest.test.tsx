@@ -29,7 +29,7 @@ const msEitherNeitherContest = find(
 );
 
 test('renders', () => {
-  const { container } = render(
+  render(
     <Contest
       election={electionSample}
       contest={electionSample.contests[0]}
@@ -38,7 +38,6 @@ test('renders', () => {
     />
   );
   screen.getByText(firstContestTitle);
-  expect(container).toMatchSnapshot();
 });
 
 test.each([

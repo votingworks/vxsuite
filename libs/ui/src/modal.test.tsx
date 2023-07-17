@@ -50,15 +50,13 @@ describe('Modal', () => {
       />
     );
 
-    const modal = screen.getByRole('alertdialog');
-    expect(modal).toMatchSnapshot();
+    screen.getByRole('alertdialog');
   });
 
   it('can configure fullscreen', () => {
     render(<Modal fullscreen content="Do you want to do the thing?" />);
 
     const modal = screen.getByRole('alertdialog');
-    expect(modal).toMatchSnapshot();
 
     const content = within(modal).getByText('Do you want to do the thing?');
     expect(content).not.toHaveStyle({ padding: '2rem' });

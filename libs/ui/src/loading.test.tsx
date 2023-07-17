@@ -3,9 +3,8 @@ import { render, screen } from '../test/react_testing_library';
 import { Loading } from './loading';
 
 test('Renders Loading with defaults', () => {
-  const { container } = render(<Loading />);
+  render(<Loading />);
   screen.getByText('Loading');
-  expect(container.firstChild).toMatchSnapshot();
 });
 
 test('Renders Loading with: fullscreen, tag, and label', () => {

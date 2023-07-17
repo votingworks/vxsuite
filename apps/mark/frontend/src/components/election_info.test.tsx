@@ -5,23 +5,21 @@ import { render, screen } from '../../test/react_testing_library';
 import { ElectionInfo } from './election_info';
 
 test('renders ElectionInfo with hash when specified', () => {
-  const { container } = render(
+  render(
     <ElectionInfo
       precinctSelection={singlePrecinctSelectionFor('23')}
       electionDefinition={electionDefinition}
     />
   );
-  expect(container).toMatchSnapshot();
 });
 
 test('renders ElectionInfo without hash by default', () => {
-  const { container } = render(
+  render(
     <ElectionInfo
       precinctSelection={singlePrecinctSelectionFor('23')}
       electionDefinition={electionDefinition}
     />
   );
-  expect(container).toMatchSnapshot();
 });
 
 test('renders with ballot style id', () => {

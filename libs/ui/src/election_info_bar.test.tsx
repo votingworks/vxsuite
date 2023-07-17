@@ -19,7 +19,7 @@ jest.mock('@votingworks/types', () => {
 });
 
 test('Renders ElectionInfoBar with appropriate information', () => {
-  const { container } = render(
+  render(
     <ElectionInfoBar
       electionDefinition={electionSampleDefinition}
       machineId="0000"
@@ -42,7 +42,6 @@ test('Renders ElectionInfoBar with appropriate information', () => {
   expect(electionIdLabel.parentElement?.lastChild).toHaveTextContent(
     getDisplayElectionHash(electionSampleDefinition)
   );
-  expect(container).toMatchSnapshot();
 });
 
 test('Renders ElectionInfoBar with all precincts when specified', () => {

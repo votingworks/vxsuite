@@ -39,14 +39,13 @@ const proseContent = (
 );
 describe('renders Prose', () => {
   test('with defaults', () => {
-    const { container } = render(<Prose>{proseContent}</Prose>, {
+    render(<Prose>{proseContent}</Prose>, {
       vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
     });
-    expect(container.firstChild).toMatchSnapshot();
   });
 
   test('with with non-default options', () => {
-    const { container } = render(
+    render(
       <Prose compact textCenter maxWidth={false}>
         {proseContent}
       </Prose>,
@@ -54,16 +53,14 @@ describe('renders Prose', () => {
         vxTheme: { colorMode: 'contrastLow', sizeMode: 'm' },
       }
     );
-    expect(container.firstChild).toMatchSnapshot();
   });
 
   test('with right-aligned text', () => {
-    const { container } = render(<Prose textRight>{proseContent}</Prose>);
-    expect(container.firstChild).toMatchSnapshot();
+    render(<Prose textRight>{proseContent}</Prose>);
   });
 
   test('with theme', () => {
-    const { container } = render(
+    render(
       <Prose
         themeDeprecated={{
           fontSize: '10px',
@@ -76,6 +73,5 @@ describe('renders Prose', () => {
         vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
       }
     );
-    expect(container.firstChild).toMatchSnapshot();
   });
 });

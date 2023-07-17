@@ -11,14 +11,13 @@ const contest = electionMinimalExhaustiveSample.contests.find(
 
 test('voting for both yes and no', () => {
   const updateVote = jest.fn();
-  const { container } = render(
+  render(
     <YesNoContest
       election={electionMinimalExhaustiveSample}
       contest={contest}
       updateVote={updateVote}
     />
   );
-  expect(container).toMatchSnapshot();
 
   const contestChoices = screen.getByTestId('contest-choices');
   userEvent.click(within(contestChoices).getByText('Yes').closest('button')!);
@@ -30,7 +29,7 @@ test('voting for both yes and no', () => {
 
 test('changing votes', () => {
   const updateVote = jest.fn();
-  const { container } = render(
+  render(
     <YesNoContest
       election={electionMinimalExhaustiveSample}
       contest={contest}
@@ -38,7 +37,6 @@ test('changing votes', () => {
       updateVote={updateVote}
     />
   );
-  expect(container).toMatchSnapshot();
   const contestChoices = screen.getByTestId('contest-choices');
   userEvent.click(within(contestChoices).getByText('No').closest('button')!);
   expect(

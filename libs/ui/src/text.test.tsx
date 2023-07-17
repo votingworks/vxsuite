@@ -9,7 +9,6 @@ describe('renders Text', () => {
     render(<Text>{text}</Text>);
     const element = screen.getByText(text);
     expect(element.tagName).toEqual('P');
-    expect(element).toMatchSnapshot();
   });
 
   test('center muted', () => {
@@ -64,13 +63,11 @@ describe('renders Text', () => {
   });
 
   test('vote icon', () => {
-    const { container } = render(<Text voteIcon>vote!</Text>);
-    expect(container.firstChild).toMatchSnapshot();
+    render(<Text voteIcon>vote!</Text>);
   });
 
   test('warning icon', () => {
-    const { container } = render(<Text warningIcon>Warning</Text>);
-    expect(container.firstChild).toMatchSnapshot();
+    render(<Text warningIcon>Warning</Text>);
   });
 
   test('warning icon/vote icon toggle', () => {

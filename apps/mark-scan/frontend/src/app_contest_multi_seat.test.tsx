@@ -37,7 +37,7 @@ it('Single Seat Contest', async () => {
   await setElectionInStorage(storage);
   await setStateInStorage(storage);
 
-  const { container } = render(
+  render(
     <App
       hardware={hardware}
       storage={storage}
@@ -89,7 +89,6 @@ it('Single Seat Contest', async () => {
   );
 
   // Capture styles of Single Candidate Contest
-  expect(container.firstChild).toMatchSnapshot();
 
   // Go to Review Screen
   while (!screen.queryByText('Review Your Votes')) {

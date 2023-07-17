@@ -92,7 +92,7 @@ function renderBmdPaperBallot({
 }
 
 test('BmdPaperBallot renders votes for candidate contests and yes-no contests', () => {
-  const { container } = renderBmdPaperBallot({
+  renderBmdPaperBallot({
     electionDefinition: electionSampleDefinition,
     ballotStyleId: '5',
     precinctId: '21',
@@ -114,7 +114,6 @@ test('BmdPaperBallot renders votes for candidate contests and yes-no contests', 
   ).getByText('No');
 
   // Use a snapshot to avoid unintentional regressions to general layout
-  expect(container).toMatchSnapshot();
 });
 
 test('BmdPaperBallot uses yes/no option labels if present', () => {

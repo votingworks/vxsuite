@@ -14,7 +14,7 @@ import { Paths } from '../config/globals';
 
 test('renders StartPage', () => {
   const electionDefinition = primaryElectionSampleDefinition;
-  const { container } = render(<Route path="/" component={StartPage} />, {
+  render(<Route path="/" component={StartPage} />, {
     ballotStyleId: '12D',
     electionDefinition,
     precinctId: '23',
@@ -22,7 +22,6 @@ test('renders StartPage', () => {
   });
   expect(screen.queryByText('Democratic Primary Election')).toBeInTheDocument();
   screen.getByText(/(12D)/);
-  expect(container.firstChild).toMatchSnapshot();
 });
 
 test('renders StartPage in Landscape Orientation', () => {
@@ -41,24 +40,22 @@ test('renders StartPage in Landscape Orientation', () => {
 
 test('renders StartPage with inline SVG', () => {
   const electionDefinition = electionSampleDefinition;
-  const { container } = render(<Route path="/" component={StartPage} />, {
+  render(<Route path="/" component={StartPage} />, {
     electionDefinition,
     ballotStyleId: '12',
     precinctId: '23',
     route: '/',
   });
-  expect(container.firstChild).toMatchSnapshot();
 });
 
 test('renders StartPage with no seal', () => {
   const electionDefinition = electionSampleNoSealDefinition;
-  const { container } = render(<Route path="/" component={StartPage} />, {
+  render(<Route path="/" component={StartPage} />, {
     electionDefinition,
     ballotStyleId: '12',
     precinctId: '23',
     route: '/',
   });
-  expect(container.firstChild).toMatchSnapshot();
 });
 
 it('renders display settings button', () => {

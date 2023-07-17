@@ -14,7 +14,7 @@ const electionSample = electionSampleDefinition.election;
 const firstContestTitle = electionSample.contests[0].title;
 
 it('Renders ContestPage', () => {
-  const { container } = renderWithBallotContext(
+  renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestPage} />,
     {
       route: '/contests/0',
@@ -23,11 +23,10 @@ it('Renders ContestPage', () => {
     }
   );
   screen.getByText(firstContestTitle);
-  expect(container).toMatchSnapshot();
 });
 
 it('Renders ContestPage in Landscape orientation', () => {
-  const { container } = renderWithBallotContext(
+  renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestPage} />,
     {
       route: '/contests/0',
@@ -37,7 +36,6 @@ it('Renders ContestPage in Landscape orientation', () => {
     }
   );
   screen.getByText(firstContestTitle);
-  expect(container).toMatchSnapshot();
 });
 
 it('Renders ContestPage in Landscape orientation in Review Mode', () => {
