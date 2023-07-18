@@ -697,6 +697,13 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     let left_line = &partial_timing_marks.left_rects;
     let right_line = &partial_timing_marks.right_rects;
 
+    let min_left_right_timing_marks = (geometry.grid_size.height as f32 * 0.25).ceil() as usize;
+    if left_line.len() < min_left_right_timing_marks
+        || right_line.len() < min_left_right_timing_marks
+    {
+        return None;
+    }
+
     let mut horizontal_distances = vec![];
     horizontal_distances.append(&mut distances_between_rects(top_line));
     horizontal_distances.append(&mut distances_between_rects(bottom_line));
