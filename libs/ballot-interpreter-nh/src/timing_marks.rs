@@ -403,7 +403,7 @@ pub fn find_timing_mark_shapes(
     let candidate_timing_marks = contours
         .iter()
         .enumerate()
-        .filter_map(|(i, contour)| {
+        .filter_map(|(_i, contour)| {
             if contour.border_type == BorderType::Hole {
                 let contour_bounds = get_contour_bounding_rect(contour).offset(
                     -PixelPosition::from(BORDER_SIZE),
@@ -411,7 +411,6 @@ pub fn find_timing_mark_shapes(
                 );
                 if rect_could_be_timing_mark(geometry, &contour_bounds)
                     && is_contour_rectangular(contour)
-                    && contours.iter().all(|c| c.parent != Some(i))
                 {
                     return Some(contour_bounds);
                 }
