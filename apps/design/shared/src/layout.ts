@@ -53,7 +53,7 @@ export function range(start: number, end: number): number[] {
 // TODO more accurate text measurement
 function characterWidth(character: string, fontStyle: FontStyle): number {
   const isUpperCase = character.toUpperCase() === character;
-  return fontStyle.fontSize * (isUpperCase ? 0.7 : 0.4);
+  return fontStyle.fontSize * (isUpperCase ? 0.68 : 0.43);
 }
 
 function textWidth(text: string, fontStyle: FontStyle): number {
@@ -109,7 +109,7 @@ function TextBlock({
       x: 0,
       y: heightUsed,
       width,
-      height: textHeight(lines, fontStyle),
+      height: textHeight(lines, fontStyle) + fontStyle.lineHeight / 4,
       textLines: lines,
       ...fontStyle,
     });
@@ -197,10 +197,12 @@ export function measurements(paperSize: BallotPaperSize, density: number) {
   const CONTENT_AREA_COLUMN_WIDTH = grid.columns - 3;
   const GUTTER_WIDTH = 0.5;
   const CONTEST_COLUMN_WIDTH = 9.5;
+  const CONTEST_PADDING = [0.5, 0.4, 0.3][density];
   const CONTEST_ROW_MARGIN = 0.5;
   const MAX_CONTEST_ROW_HEIGHT =
     CONTENT_AREA_ROW_HEIGHT - CONTEST_ROW_MARGIN * 2 - FOOTER_ROW_HEIGHT;
   const WRITE_IN_ROW_HEIGHT = [2, 1, 1][density];
+  const BALLOT_MEASURE_OPTION_POSITION = ['block', 'block', 'inline'][density];
 
   const dimensions = dimensionsForPaper(paperSize);
   const DOCUMENT_WIDTH = dimensions.width * PPI;
@@ -247,9 +249,11 @@ export function measurements(paperSize: BallotPaperSize, density: number) {
     CONTENT_AREA_COLUMN_WIDTH,
     GUTTER_WIDTH,
     CONTEST_COLUMN_WIDTH,
+    CONTEST_PADDING,
     CONTEST_ROW_MARGIN,
     MAX_CONTEST_ROW_HEIGHT,
     WRITE_IN_ROW_HEIGHT,
+    BALLOT_MEASURE_OPTION_POSITION,
     DOCUMENT_WIDTH,
     DOCUMENT_HEIGHT,
     COLUMN_GAP,
@@ -680,56 +684,27 @@ function CandidateContest({
     ? m.CONTENT_AREA_COLUMN_WIDTH -
       2 * (m.CONTEST_COLUMN_WIDTH + m.GUTTER_WIDTH)
     : m.CONTEST_COLUMN_WIDTH;
-  const titleLines = textWrap(
-    contest.title,
-    m.FontStyles.H3,
-    gridWidth(width - 1, m)
-  );
-  const titleTextBox: TextBox = {
-    type: 'TextBox',
-    ...gridPosition({ row: 0.5, column: 0.5 }, m),
-    width: gridWidth(width - 1, m),
-    height: gridHeight(titleLines.length, m),
-    textLines: titleLines,
-    ...m.FontStyles.H3,
-  };
 
-  const headingRowHeight =
-    1 + Math.ceil(yToRow(textHeight(titleLines, m.FontStyles.H3), m));
-  const heading: Rectangle = {
-    type: 'Rectangle',
-    ...gridPosition({ row: 0, column: 0 }, m),
+  const heading = TextBlock({
+    ...gridPosition({ row: m.CONTEST_PADDING, column: m.CONTEST_PADDING }, m),
     width: gridWidth(width, m),
-    height: gridHeight(headingRowHeight, m),
-    children: [
-      // Thicker top border
+    textGroups: [
       {
-        type: 'Rectangle',
-        ...gridPosition({ row: 0, column: 0 }, m),
-        width: gridWidth(width, m),
-        height: 2,
-        fill: 'black',
+        text: contest.title,
+        fontStyle: m.FontStyles.H3,
       },
-      titleTextBox,
       {
-        type: 'TextBox',
-        ...gridPosition({ row: 0, column: 0.5 }, m),
-        // TODO: better approach to line spacing
-        y:
-          titleTextBox.y +
-          titleLines.length * m.FontStyles.H3.lineHeight +
-          gridHeight(0.25, m),
-        width: gridWidth(width - 1, m),
-        height: gridHeight(1, m),
-        textLines: [
+        text:
           contest.seats === 1
             ? 'Vote for 1'
             : `Vote for not more than ${contest.seats}`,
-        ],
-        ...m.FontStyles.BODY,
+        fontStyle: m.FontStyles.BODY,
       },
     ],
-  };
+  });
+  const headingRowHeight = Math.round(
+    yToRow(heading.height, m) + m.CONTEST_PADDING
+  );
 
   const optionPostions: GridPosition[] = [];
   const side = pageNumber % 2 === 1 ? 'front' : 'back';
@@ -752,7 +727,7 @@ function CandidateContest({
             type: 'TextBox',
             ...gridPosition(
               {
-                row: 1.3,
+                row: 1 + yToRow(m.FontStyles.BODY.fontSize, m) / 2,
                 column: optionLabelColumn,
               },
               m
@@ -789,7 +764,10 @@ function CandidateContest({
           type: 'TextBox',
           ...gridPosition(
             {
-              row: partyText ? 0.6 : 0.65,
+              row:
+                0.9 -
+                yToRow(m.FontStyles.BODY.fontSize, m) / 2 -
+                (partyText ? 0.1 : 0),
               column: optionLabelColumn,
             },
             m
@@ -848,7 +826,7 @@ function CandidateContest({
               m
             ),
             width: gridWidth(width - 2.25, m),
-            height: 1,
+            height: m.WRITE_IN_ROW_HEIGHT * 0.5,
             fill: 'black',
           },
           {
@@ -882,7 +860,7 @@ function CandidateContest({
   }
 
   const contestHeight =
-    heading.height +
+    gridHeight(headingRowHeight, m) +
     iter(options)
       .map((option) => option.height)
       .sum() +
@@ -899,7 +877,18 @@ function CandidateContest({
       height: contestHeight,
       stroke: 'black',
       strokeWidth: 0.5,
-      children: [heading, ...options],
+      children: [
+        // Thicker top border
+        {
+          type: 'Rectangle',
+          ...gridPosition({ row: 0, column: 0 }, m),
+          width: gridWidth(width, m),
+          height: 2,
+          fill: 'black',
+        },
+        heading,
+        ...options,
+      ],
     },
     optionPostions,
   ];
@@ -925,64 +914,29 @@ function BallotMeasure({
   assert(contest.type === 'yesno');
 
   const width = m.CONTENT_AREA_COLUMN_WIDTH;
-  const titleLines = textWrap(
-    contest.title,
-    m.FontStyles.H3,
-    gridWidth(width - 1, m)
-  );
-  const titleTextBox: TextBox = {
-    type: 'TextBox',
-    ...gridPosition({ row: 0.5, column: 0.5 }, m),
-    width: gridWidth(width - 1, m),
-    height: gridHeight(titleLines.length, m),
-    textLines: titleLines,
-    ...m.FontStyles.H3,
-  };
 
-  const descriptionLines = textWrap(
-    contest.description,
-    m.FontStyles.BODY,
-    gridWidth(width - 1, m)
-  );
-
-  const headingRowHeight = Math.ceil(
-    yToRow(
-      textHeight(titleLines, m.FontStyles.H3) +
-        textHeight(descriptionLines, m.FontStyles.BODY),
+  const heading = TextBlock({
+    ...gridPosition({ row: m.CONTEST_PADDING, column: m.CONTEST_PADDING }, m),
+    width: gridWidth(
+      width -
+        2 * m.CONTEST_PADDING -
+        (m.BALLOT_MEASURE_OPTION_POSITION === 'inline' ? 2 : 0),
       m
-    ) + 0.5
-  );
-  const heading: Rectangle = {
-    type: 'Rectangle',
-    ...gridPosition({ row: 0, column: 0 }, m),
-    width: gridWidth(width, m),
-    height: gridHeight(headingRowHeight, m),
-    children: [
-      // Thicker top border
+    ),
+    textGroups: [
       {
-        type: 'Rectangle',
-        ...gridPosition({ row: 0, column: 0 }, m),
-        width: gridWidth(width, m),
-        height: 2,
-        fill: 'black',
+        text: contest.title,
+        fontStyle: m.FontStyles.H3,
       },
-      titleTextBox,
       {
-        type: 'TextBox',
-        // y coord will be set below
-        ...gridPosition({ row: 0, column: 0.5 }, m),
-        y:
-          titleTextBox.y +
-          titleLines.length * m.FontStyles.H3.lineHeight +
-          gridHeight(0.25, m),
-        width: gridWidth(width - 1, m),
-        // TODO: better support for text height with descenders
-        height: descriptionLines.length * m.FontStyles.BODY.lineHeight + 5,
-        textLines: descriptionLines,
-        ...m.FontStyles.BODY,
+        text: contest.description,
+        fontStyle: m.FontStyles.BODY,
       },
     ],
-  };
+  });
+  const headingRowHeight = Math.round(
+    yToRow(heading.height, m) + m.CONTEST_PADDING
+  );
 
   const optionPositions: GridPosition[] = [];
   const side = pageNumber % 2 === 1 ? 'front' : 'back';
@@ -1003,7 +957,12 @@ function BallotMeasure({
   const optionRowHeight = 1;
   const options: Rectangle[] = [];
   for (const [index, choice] of choices.entries()) {
-    const optionRow = headingRowHeight + index * optionRowHeight;
+    const optionRow =
+      headingRowHeight +
+      index * optionRowHeight -
+      (m.BALLOT_MEASURE_OPTION_POSITION === 'inline'
+        ? Math.ceil(headingRowHeight / 2)
+        : 0);
     options.push({
       type: 'Rectangle',
       ...gridPosition(
@@ -1052,12 +1011,14 @@ function BallotMeasure({
     });
   }
 
-  const contestHeight =
-    heading.height +
+  const optionsHeight =
     iter(options)
       .map((option) => option.height)
-      .sum() +
-    gridHeight(1.5, m);
+      .sum() + gridHeight(1, m);
+  const contestHeight =
+    gridHeight(Math.max(headingRowHeight, yToRow(optionsHeight, m)), m) +
+    (m.BALLOT_MEASURE_OPTION_POSITION === 'inline' ? 0 : optionsHeight) +
+    gridHeight(0.5, m);
 
   return [
     {
@@ -1067,7 +1028,18 @@ function BallotMeasure({
       height: contestHeight,
       stroke: 'black',
       strokeWidth: 0.5,
-      children: [heading, ...options],
+      children: [
+        // Thicker top border
+        {
+          type: 'Rectangle',
+          ...gridPosition({ row: 0, column: 0 }, m),
+          width: gridWidth(width, m),
+          height: 2,
+          fill: 'black',
+        },
+        heading,
+        ...options,
+      ],
     },
     optionPositions,
   ];
