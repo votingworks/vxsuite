@@ -403,7 +403,7 @@ pub fn find_timing_mark_shapes(
     let candidate_timing_marks = contours
         .iter()
         .enumerate()
-        .filter_map(|(i, contour)| {
+        .filter_map(|(_i, contour)| {
             if contour.border_type == BorderType::Hole {
                 let contour_bounds = get_contour_bounding_rect(contour).offset(
                     -PixelPosition::from(BORDER_SIZE),
@@ -411,7 +411,6 @@ pub fn find_timing_mark_shapes(
                 );
                 if rect_could_be_timing_mark(geometry, &contour_bounds)
                     && is_contour_rectangular(contour)
-                    && contours.iter().all(|c| c.parent != Some(i))
                 {
                     return Some(contour_bounds);
                 }
@@ -696,6 +695,13 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     let bottom_line = &partial_timing_marks.bottom_rects;
     let left_line = &partial_timing_marks.left_rects;
     let right_line = &partial_timing_marks.right_rects;
+
+    let min_left_right_timing_marks = (geometry.grid_size.height as f32 * 0.25).ceil() as usize;
+    if left_line.len() < min_left_right_timing_marks
+        || right_line.len() < min_left_right_timing_marks
+    {
+        return None;
+    }
 
     let mut horizontal_distances = vec![];
     horizontal_distances.append(&mut distances_between_rects(top_line));
