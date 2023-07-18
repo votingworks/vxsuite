@@ -88,7 +88,7 @@ const ModalContent = styled('div')<ModalContentInterface>`
   justify-content: ${({ centerContent = false }) =>
     centerContent ? 'center' : undefined};
   overflow: auto;
-  padding: ${({ fullscreen }) => !fullscreen && '1rem'};
+  padding: ${({ fullscreen }) => !fullscreen && '0.5rem 0.75rem'};
 `;
 
 /** Props for {@link Modal}. */

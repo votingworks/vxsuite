@@ -1,3 +1,4 @@
+/* stylelint-disable order/properties-order */
 import camelCase from 'lodash.camelcase';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -23,6 +24,8 @@ import {
   Caption,
   TouchTextInput,
   WithScrollButtons,
+  ModalWidth,
+  useScreenInfo,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -44,6 +47,28 @@ interface Props {
   vote: CandidateVote;
   updateVote: UpdateVoteFunction;
 }
+
+const WriteInModalBody = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+`;
+
+const WriteInForm = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: center;
+  flex-shrink: 1;
+  max-width: 100%;
+`;
+
+const WriteInModalActionsSidebar = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-content: center;
+`;
 
 function findCandidateById(candidates: readonly Candidate[], id: string) {
   return candidates.find((c) => c.id === id);
@@ -70,6 +95,8 @@ export function CandidateContest({
     useState(false);
   const [writeInCandidateName, setWriteInCandidateName] = useState('');
   const [deselectedCandidate, setDeselectedCandidate] = useState('');
+
+  const screenInfo = useScreenInfo();
 
   useEffect(() => {
     if (deselectedCandidate !== '') {
@@ -185,6 +212,19 @@ export function CandidateContest({
   }
 
   const hasReachedMaxSelections = contest.seats === vote.length;
+
+  const modalActions = (
+    <React.Fragment>
+      <Button
+        variant="done"
+        onPress={addWriteInCandidate}
+        disabled={normalizeCandidateName(writeInCandidateName).length === 0}
+      >
+        Accept
+      </Button>
+      <Button onPress={cancelWriteInCandidateModal}>Cancel</Button>
+    </React.Fragment>
+  );
 
   return (
     <React.Fragment>
@@ -335,49 +375,46 @@ export function CandidateContest({
       {writeInCandidateModalIsOpen && (
         <Modal
           ariaLabel=""
+          modalWidth={ModalWidth.Wide}
           title={`Write-In: ${contest.title}`}
           content={
             <WriteInModalContent>
-              <Prose id="modalaudiofocus" maxWidth={false}>
+              <div id="modalaudiofocus">
                 <P>
                   <Caption aria-label="Enter the name of a person who is not on the ballot. Use the up and down buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
                     <Icons.Info /> Enter the name of a person who is{' '}
                     <Font weight="bold">not</Font> on the ballot:
                   </Caption>
                 </P>
-              </Prose>
-              <TouchTextInput value={writeInCandidateName} />
-              <P
-                align="right"
-                color={writeInCharsRemaining ? 'default' : 'warning'}
-              >
-                <Caption>
-                  {writeInCharsRemaining === 0 && <Icons.Warning />}{' '}
-                  {writeInCharsRemaining}{' '}
-                  {pluralize('character', writeInCharsRemaining)} remaining
-                </Caption>
-              </P>
-              <VirtualKeyboard
-                onBackspace={onKeyboardBackspace}
-                onKeyPress={onKeyboardInput}
-                keyDisabled={keyDisabled}
-              />
+              </div>
+              <WriteInModalBody>
+                <WriteInForm>
+                  <TouchTextInput value={writeInCandidateName} />
+                  <P
+                    align="right"
+                    color={writeInCharsRemaining ? 'default' : 'warning'}
+                  >
+                    <Caption>
+                      {writeInCharsRemaining === 0 && <Icons.Warning />}{' '}
+                      {writeInCharsRemaining}{' '}
+                      {pluralize('character', writeInCharsRemaining)} remaining
+                    </Caption>
+                  </P>
+                  <VirtualKeyboard
+                    onBackspace={onKeyboardBackspace}
+                    onKeyPress={onKeyboardInput}
+                    keyDisabled={keyDisabled}
+                  />
+                </WriteInForm>
+                {!screenInfo.isPortrait && (
+                  <WriteInModalActionsSidebar>
+                    {modalActions}
+                  </WriteInModalActionsSidebar>
+                )}
+              </WriteInModalBody>
             </WriteInModalContent>
           }
-          actions={
-            <React.Fragment>
-              <Button
-                variant="done"
-                onPress={addWriteInCandidate}
-                disabled={
-                  normalizeCandidateName(writeInCandidateName).length === 0
-                }
-              >
-                Accept
-              </Button>
-              <Button onPress={cancelWriteInCandidateModal}>Cancel</Button>
-            </React.Fragment>
-          }
+          actions={screenInfo.isPortrait ? modalActions : undefined}
         />
       )}
     </React.Fragment>
