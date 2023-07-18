@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import {
   Candidate,
   CandidateContest,
+  CandidateId,
   getContestDistrictName,
   getPartyAbbreviationByPartyId,
   Rect,
@@ -28,17 +29,22 @@ import { format } from '@votingworks/utils';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import { useQueryClient } from '@tanstack/react-query';
-import type { WriteInCandidateRecord } from '@votingworks/admin-backend';
+import type {
+  WriteInCandidateRecord,
+  WriteInRecordAdjudicatedOfficialCandidate,
+} from '@votingworks/admin-backend';
 import { useParams } from 'react-router-dom';
 import { ScreenHeader } from '../components/layout/screen_header';
 import { InlineForm, TextInput } from '../components/text_input';
 import {
-  getWriteInDetailView,
-  getWriteIns,
+  getWriteInAdjudicationContext,
+  getWriteInAdjudicationQueue,
   getWriteInCandidates,
   adjudicateWriteIn,
   useApiClient,
   addWriteInCandidate,
+  getWriteInAdjudicationQueueMetadata,
+  getWriteInImageView,
 } from '../api';
 import { normalizeWriteInName } from '../utils/write_ins';
 import { AppContext } from '../contexts/app_context';
@@ -338,7 +344,11 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
 
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
-  const writeInsQuery = getWriteIns.useQuery({ contestId: contest.id });
+  const writeInQueueMetadataQuery =
+    getWriteInAdjudicationQueueMetadata.useQuery({ contestId });
+  const writeInQueueQuery = getWriteInAdjudicationQueue.useQuery({
+    contestId: contest.id,
+  });
   const writeInCandidatesQuery = getWriteInCandidates.useQuery({
     contestId: contest.id,
   });
@@ -346,17 +356,22 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
   const addWriteInCandidateMutation = addWriteInCandidate.useMutation();
 
   const [offset, setOffset] = useState(0);
-  const currentWriteIn = writeInsQuery.data
-    ? writeInsQuery.data[offset]
+  const currentWriteInId = writeInQueueQuery.data
+    ? writeInQueueQuery.data[offset]
     : undefined;
-  const writeInDetailViewQuery = getWriteInDetailView.useQuery(
+  const writeInImageViewQuery = getWriteInImageView.useQuery(
     {
-      castVoteRecordId: currentWriteIn?.castVoteRecordId ?? 'no-op',
-      contestId: currentWriteIn?.contestId ?? 'no-op',
-      writeInId: currentWriteIn?.id ?? 'no-op',
+      writeInId: currentWriteInId ?? 'no-op',
     },
-    !!currentWriteIn
+    !!currentWriteInId
   );
+  const writeInAdjudicationContextQuery =
+    getWriteInAdjudicationContext.useQuery(
+      {
+        writeInId: currentWriteInId ?? 'no-op',
+      },
+      !!currentWriteInId
+    );
 
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
   const [showNewWriteInCandidateForm, setShowNewWriteInCandidateForm] =
@@ -367,26 +382,24 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
 
   // prefetch the next write-in image
   useEffect(() => {
-    if (!writeInsQuery.data) return;
-    const nextWriteIn = writeInsQuery.data[offset + 1];
-    if (nextWriteIn) {
+    if (!writeInQueueQuery.data) return;
+    const nextWriteInId = writeInQueueQuery.data[offset + 1];
+    if (nextWriteInId) {
       void queryClient.prefetchQuery({
-        queryKey: getWriteInDetailView.queryKey({
-          castVoteRecordId: nextWriteIn.castVoteRecordId,
-          contestId: nextWriteIn.contestId,
-          writeInId: nextWriteIn.id,
+        queryKey: getWriteInImageView.queryKey({
+          writeInId: nextWriteInId,
         }),
         queryFn: () =>
-          apiClient.getWriteInDetailView({ writeInId: nextWriteIn.id }),
+          apiClient.getWriteInImageView({ writeInId: nextWriteInId }),
       });
     }
-  }, [apiClient, queryClient, writeInsQuery.data, offset]);
+  }, [apiClient, queryClient, writeInQueueQuery.data, offset]);
 
-  // as a modal, we can just return null
   if (
-    !writeInsQuery.isSuccess ||
+    !writeInQueueMetadataQuery.isSuccess ||
+    !writeInQueueQuery.isSuccess ||
     !writeInCandidatesQuery.isSuccess ||
-    !currentWriteIn
+    !currentWriteInId
   ) {
     return (
       <AdjudicationScreen>
@@ -403,20 +416,10 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
     );
   }
 
-  const writeInDetailView = writeInDetailViewQuery.data
-    ? writeInDetailViewQuery.data
-    : undefined;
-
-  const writeIns = writeInsQuery.data;
-  const adjudicationsLeft = writeIns.reduce(
-    (count, writeIn) => (writeIn.status === 'pending' ? count + 1 : count),
-    0
-  );
-  const isLastAdjudication = offset >= writeIns.length - 1;
+  const totalWriteIns = writeInQueueMetadataQuery.data[0].totalTally;
+  const isLastAdjudication = offset >= totalWriteIns - 1;
+  const adjudicationsLeft = writeInQueueMetadataQuery.data[0].pendingTally;
   const areAllWriteInsAdjudicated = adjudicationsLeft === 0;
-  const currentWriteInMarkedInvalid =
-    currentWriteIn.status === 'adjudicated' &&
-    currentWriteIn.adjudicationType === 'invalid';
 
   const officialCandidates = [...contest.candidates]
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -427,6 +430,43 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
     ...officialCandidates.map((c) => normalizeWriteInName(c.name)),
     ...writeInCandidates.map((c) => normalizeWriteInName(c.name)),
   ];
+
+  const writeInImageView = writeInImageViewQuery.data;
+  const writeInAdjudicationContext = writeInAdjudicationContextQuery.data;
+  const currentWriteIn = writeInAdjudicationContext?.writeIn;
+  const currentWriteInMarkedInvalid =
+    currentWriteIn &&
+    currentWriteIn.status === 'adjudicated' &&
+    currentWriteIn.adjudicationType === 'invalid';
+
+  // these IDs cannot be selected because the voter filled in a bubble for the candidate
+  const markedOfficialCandidateIds = writeInAdjudicationContext
+    ? (
+        (writeInAdjudicationContext.cvrVotes[contestId] as CandidateId[]) ?? []
+      ).filter((candidateId) => !candidateId.startsWith('write-in-'))
+    : [];
+  // these IDs cannot be selected because another write-in on this ballot
+  // has already been adjudicated for the same official candidate
+  const writeInAdjudicatedOfficialCandidateIds = writeInAdjudicationContext
+    ? writeInAdjudicationContext.relatedWriteIns
+        .filter(
+          (w): w is WriteInRecordAdjudicatedOfficialCandidate =>
+            w.status === 'adjudicated' &&
+            w.adjudicationType === 'official-candidate'
+        )
+        .map((w) => w.candidateId)
+    : [];
+  // these IDs cannot be selected because another write-in on this ballot
+  // has already been adjudicated for the same write-in candidate
+  const writeInAdjudicatedWriteInCandidateIds = writeInAdjudicationContext
+    ? writeInAdjudicationContext.relatedWriteIns
+        .filter(
+          (w): w is WriteInRecordAdjudicatedOfficialCandidate =>
+            w.status === 'adjudicated' &&
+            w.adjudicationType === 'write-in-candidate'
+        )
+        .map((w) => w.candidateId)
+    : [];
 
   function goPrevious() {
     setOffset((v) => v - 1);
@@ -444,38 +484,19 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
     }, 0);
   }
 
-  const isWriteInDetailViewFresh =
-    writeInDetailViewQuery.isSuccess && !writeInDetailViewQuery.isStale;
-  function invalidateQueriesForRelatedWriteIns() {
-    assert(currentWriteIn);
-    return getWriteInDetailView.invalidateRelatedWriteInDetailViewQueries(
-      queryClient,
-      {
-        castVoteRecordId: currentWriteIn.castVoteRecordId,
-        contestId: currentWriteIn.contestId,
-        writeInId: currentWriteIn.id,
-      }
-    );
-  }
-  async function adjudicateAsOfficialCandidate(
-    officialCandidate: Candidate
-  ): Promise<void> {
-    if (
-      writeInDetailView?.markedOfficialCandidateIds.includes(
-        officialCandidate.id
-      )
-    ) {
+  const isWriteInAdjudicationContextFresh =
+    writeInAdjudicationContextQuery.isSuccess &&
+    !writeInAdjudicationContextQuery.isStale;
+
+  function adjudicateAsOfficialCandidate(officialCandidate: Candidate): void {
+    if (markedOfficialCandidateIds.includes(officialCandidate.id)) {
       setDoubleVoteAlert({
         type: 'marked-official-candidate',
         name: officialCandidate.name,
       });
       return;
     }
-    if (
-      writeInDetailView?.writeInAdjudicatedOfficialCandidateIds.includes(
-        officialCandidate.id
-      )
-    ) {
+    if (writeInAdjudicatedOfficialCandidateIds.includes(officialCandidate.id)) {
       setDoubleVoteAlert({
         type: 'adjudicated-official-candidate',
         name: officialCandidate.name,
@@ -483,51 +504,44 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
       return;
     }
 
-    assert(currentWriteIn);
+    assert(currentWriteInId !== undefined);
     adjudicateWriteInMutation.mutate({
-      writeInId: currentWriteIn.id,
+      writeInId: currentWriteInId,
       type: 'official-candidate',
       candidateId: officialCandidate.id,
     });
-    await invalidateQueriesForRelatedWriteIns();
     focusNext();
   }
-  async function adjudicateAsWriteInCandidate(
+  function adjudicateAsWriteInCandidate(
     writeInCandidate: WriteInCandidateRecord
-  ): Promise<void> {
-    if (
-      writeInDetailView?.writeInAdjudicatedWriteInCandidateIds.includes(
-        writeInCandidate.id
-      )
-    ) {
+  ): void {
+    if (writeInAdjudicatedWriteInCandidateIds.includes(writeInCandidate.id)) {
       setDoubleVoteAlert({
         type: 'adjudicated-write-in-candidate',
         name: writeInCandidate.name,
       });
       return;
     }
-    assert(currentWriteIn);
+    assert(currentWriteInId !== undefined);
     adjudicateWriteInMutation.mutate({
-      writeInId: currentWriteIn.id,
+      writeInId: currentWriteInId,
       type: 'write-in-candidate',
       candidateId: writeInCandidate.id,
     });
-    await invalidateQueriesForRelatedWriteIns();
     focusNext();
   }
-  async function adjudicateAsInvalid(): Promise<void> {
-    assert(currentWriteIn);
+  function adjudicateAsInvalid(): void {
+    assert(currentWriteInId !== undefined);
     adjudicateWriteInMutation.mutate({
-      writeInId: currentWriteIn.id,
+      writeInId: currentWriteInId,
       type: 'invalid',
     });
-    await invalidateQueriesForRelatedWriteIns();
     focusNext();
   }
 
   async function onAddWriteInCandidate() {
     const name = newWriteInCandidateInput.current?.value;
-    assert(currentWriteIn);
+    assert(currentWriteInId !== undefined);
     if (!name) return;
     if (disallowedWriteInCandidateNames.includes(normalizeWriteInName(name))) {
       return;
@@ -538,7 +552,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
         contestId: contest.id,
         name,
       });
-      await adjudicateAsWriteInCandidate(writeInCandidate);
+      adjudicateAsWriteInCandidate(writeInCandidate);
       setShowNewWriteInCandidateForm(false);
     } catch (error) {
       // Handled by default query client error handling
@@ -593,11 +607,11 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
         </ContestTitleContainer>
         <LabelledText label="Ballot ID">
           <Font weight="bold">
-            {currentWriteIn.castVoteRecordId.substring(0, 4)}
+            {writeInImageView ? writeInImageView.cvrId.substring(0, 4) : '-'}
           </Font>
         </LabelledText>
         <LabelledText label="Adjudication ID">
-          <Font weight="bold">{currentWriteIn.id.substring(0, 4)}</Font>
+          <Font weight="bold">{currentWriteInId.substring(0, 4)}</Font>
         </LabelledText>
         <AdjudicationNav>
           <Button
@@ -608,12 +622,14 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
             Previous
           </Button>
           <Caption weight="semiBold">
-            {format.count(offset + 1)} of {format.count(writeIns.length)}
+            {format.count(offset + 1)} of {format.count(totalWriteIns)}
           </Caption>
           <Button
             ref={nextButton}
             variant={
-              currentWriteIn.status === 'adjudicated' ? 'next' : 'nextSecondary'
+              currentWriteIn?.status === 'adjudicated'
+                ? 'next'
+                : 'nextSecondary'
             }
             disabled={isLastAdjudication}
             onPress={goNext}
@@ -622,16 +638,16 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
           </Button>
         </AdjudicationNav>
       </AdjudicationHeader>
-      <Main flexRow data-testid={`transcribe:${currentWriteIn.id}`}>
+      <Main flexRow data-testid={`transcribe:${currentWriteInId}`}>
         <BallotViews>
-          {writeInDetailView && (
+          {writeInImageView ? (
             <BallotImageViewer
-              key={currentWriteIn.id} // Reset zoom state for each write-in
-              imageUrl={writeInDetailView.imageUrl}
-              ballotBounds={writeInDetailView.ballotCoordinates}
-              writeInBounds={writeInDetailView.writeInCoordinates}
+              key={currentWriteInId} // Reset zoom state for each write-in
+              imageUrl={writeInImageView.imageUrl}
+              ballotBounds={writeInImageView.ballotCoordinates}
+              writeInBounds={writeInImageView.writeInCoordinates}
             />
-          )}
+          ) : null}
         </BallotViews>
         <AdjudicationControls>
           <AdjudicationForm>
@@ -640,6 +656,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
               <TranscribedButtons>
                 {officialCandidates.map((candidate, i) => {
                   const isCurrentAdjudication =
+                    currentWriteIn &&
                     currentWriteIn.status === 'adjudicated' &&
                     currentWriteIn.adjudicationType === 'official-candidate' &&
                     currentWriteIn.candidateId === candidate.id;
@@ -648,12 +665,14 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                       key={candidate.id}
                       ref={i === 0 ? firstAdjudicationButton : undefined}
                       variant={isCurrentAdjudication ? 'secondary' : 'regular'}
-                      onPress={async () => {
-                        if (!isCurrentAdjudication) {
-                          await adjudicateAsOfficialCandidate(candidate);
+                      onPress={() => {
+                        if (
+                          isWriteInAdjudicationContextFresh &&
+                          !isCurrentAdjudication
+                        ) {
+                          adjudicateAsOfficialCandidate(candidate);
                         }
                       }}
-                      disabled={!isWriteInDetailViewFresh}
                     >
                       {candidate.name}
                     </Button>
@@ -664,6 +683,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
               <TranscribedButtons>
                 {writeInCandidates.map((candidate) => {
                   const isCurrentAdjudication =
+                    currentWriteIn &&
                     currentWriteIn.status === 'adjudicated' &&
                     currentWriteIn.adjudicationType === 'write-in-candidate' &&
                     currentWriteIn.candidateId === candidate.id;
@@ -671,12 +691,14 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                     <Button
                       key={candidate.id}
                       variant={isCurrentAdjudication ? 'secondary' : 'regular'}
-                      onPress={async () => {
-                        if (!isCurrentAdjudication) {
-                          await adjudicateAsWriteInCandidate(candidate);
+                      onPress={() => {
+                        if (
+                          isWriteInAdjudicationContextFresh &&
+                          !isCurrentAdjudication
+                        ) {
+                          adjudicateAsWriteInCandidate(candidate);
                         }
                       }}
-                      disabled={!isWriteInDetailViewFresh}
                     >
                       {candidate.name}
                     </Button>
@@ -719,13 +741,15 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                 )}
               </P>
               <Button
-                onPress={async () => {
-                  if (!currentWriteInMarkedInvalid) {
-                    await adjudicateAsInvalid();
+                onPress={() => {
+                  if (
+                    isWriteInAdjudicationContextFresh &&
+                    !currentWriteInMarkedInvalid
+                  ) {
+                    adjudicateAsInvalid();
                   }
                 }}
                 variant={currentWriteInMarkedInvalid ? 'secondary' : 'regular'}
-                disabled={!isWriteInDetailViewFresh}
               >
                 <Icons.DangerX /> Mark write-in invalid
               </Button>

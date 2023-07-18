@@ -14,7 +14,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
-import { Id } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -216,14 +215,19 @@ export const getCastVoteRecordFileMode = {
   },
 } as const;
 
-type GetWriteInsInput = QueryInput<'getWriteIns'>;
-export const getWriteIns = {
-  queryKey(input?: GetWriteInsInput): QueryKey {
-    return input ? ['getWriteIns', input] : ['getWriteIns'];
+type GetWriteInAdjudicationQueueInput =
+  QueryInput<'getWriteInAdjudicationQueue'>;
+export const getWriteInAdjudicationQueue = {
+  queryKey(input?: GetWriteInAdjudicationQueueInput): QueryKey {
+    return input
+      ? ['getWriteInAdjudicationQueue', input]
+      : ['getWriteInAdjudicationQueue'];
   },
-  useQuery(input?: GetWriteInsInput) {
+  useQuery(input: GetWriteInAdjudicationQueueInput) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () => apiClient.getWriteIns(input));
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getWriteInAdjudicationQueue(input)
+    );
   },
 } as const;
 
@@ -256,42 +260,37 @@ export const getWriteInCandidates = {
   },
 } as const;
 
-interface GetWriteInDetailViewInput {
-  castVoteRecordId: Id;
-  contestId: Id;
-  writeInId: Id;
-}
-export const getWriteInDetailView = {
-  queryKey(input?: GetWriteInDetailViewInput): QueryKey {
+type GetWriteInImageViewInput = QueryInput<'getWriteInImageView'>;
+export const getWriteInImageView = {
+  queryKey(input?: GetWriteInImageViewInput): QueryKey {
     return input
-      ? [
-          'getWriteInDetailView',
-          input.castVoteRecordId,
-          input.contestId,
-          input.writeInId,
-        ]
-      : ['getWriteInDetailView'];
+      ? ['getWriteInImageView', input.writeInId]
+      : ['getWriteInImageView'];
   },
-  invalidateRelatedWriteInDetailViewQueries(
-    queryClient: QueryClient,
-    { castVoteRecordId, contestId, writeInId }: GetWriteInDetailViewInput
-  ) {
-    return queryClient.invalidateQueries({
-      predicate(query) {
-        return (
-          query.queryKey[0] === 'getWriteInDetailView' &&
-          query.queryKey[1] === castVoteRecordId &&
-          query.queryKey[2] === contestId &&
-          query.queryKey[3] !== writeInId
-        );
-      },
-    });
-  },
-  useQuery(input: GetWriteInDetailViewInput, enabled = true) {
+  useQuery(input: GetWriteInImageViewInput, enabled = true) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
-      () => apiClient.getWriteInDetailView({ writeInId: input.writeInId }),
+      () => apiClient.getWriteInImageView({ writeInId: input.writeInId }),
+      { enabled }
+    );
+  },
+} as const;
+
+type GetWriteInAdjudicationContextInput =
+  QueryInput<'getWriteInAdjudicationContext'>;
+export const getWriteInAdjudicationContext = {
+  queryKey(input?: GetWriteInAdjudicationContextInput): QueryKey {
+    return input
+      ? ['getWriteInAdjudicationContext', input.writeInId]
+      : ['getWriteInAdjudicationContext'];
+  },
+  useQuery(input: GetWriteInAdjudicationContextInput, enabled = true) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      () =>
+        apiClient.getWriteInAdjudicationContext({ writeInId: input.writeInId }),
       { enabled }
     );
   },
@@ -408,15 +407,26 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
   ]);
 }
 
-function invalidateWriteInQueries(queryClient: QueryClient) {
-  return Promise.all([
-    queryClient.invalidateQueries(getWriteIns.queryKey()),
+function invalidateWriteInQueries(
+  queryClient: QueryClient,
+  invalidateQueues = true
+) {
+  const invalidations = [
+    queryClient.invalidateQueries(getWriteInAdjudicationContext.queryKey()),
+    queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
     queryClient.invalidateQueries(
       getWriteInAdjudicationQueueMetadata.queryKey()
     ),
-    queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
     queryClient.invalidateQueries(getElectionWriteInSummary.queryKey()),
-  ]);
+  ];
+
+  if (invalidateQueues) {
+    invalidations.push(
+      queryClient.invalidateQueries(getWriteInAdjudicationQueue.queryKey())
+    );
+  }
+
+  return Promise.all(invalidations);
 }
 
 function invalidateManualResultsQueries(queryClient: QueryClient) {
@@ -489,7 +499,6 @@ export const clearCastVoteRecordFiles = {
         return Promise.all([
           invalidateCastVoteRecordQueries(queryClient),
           invalidateWriteInQueries(queryClient),
-          queryClient.invalidateQueries(getWriteInDetailView.queryKey()),
           queryClient.invalidateQueries(getCurrentElectionMetadata.queryKey()),
         ]);
       },
@@ -567,7 +576,7 @@ export const adjudicateWriteIn = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.adjudicateWriteIn, {
       async onSuccess() {
-        await invalidateWriteInQueries(queryClient);
+        await invalidateWriteInQueries(queryClient, false);
       },
     });
   },
