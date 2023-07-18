@@ -200,12 +200,12 @@ test('precinct / voting method results export - wia and manual data', async () =
   });
 
   // adjudicate write-ins
-  const writeIns = await apiClient.getWriteIns({
+  const writeInIds = await apiClient.getWriteInAdjudicationQueue({
     contestId: candidateContestId,
   });
-  for (const writeIn of writeIns) {
+  for (const writeInId of writeInIds) {
     await apiClient.adjudicateWriteIn({
-      writeInId: writeIn.id,
+      writeInId,
       type: 'invalid',
     });
   }

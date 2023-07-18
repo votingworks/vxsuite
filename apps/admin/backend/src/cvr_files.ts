@@ -520,7 +520,7 @@ export async function addCastVoteRecordReport({
   }
   const { CVR: unparsedCastVoteRecords, ...reportMetadata } =
     getCastVoteRecordReportImportResult.ok();
-  debug('read cast vote record metadata');
+  debug('read cast vote record metadata from file');
 
   // Ensure the report matches the file mode of previous imports
   const reportFileMode = isTestReport(reportMetadata) ? 'test' : 'official';
@@ -573,8 +573,8 @@ export async function addCastVoteRecordReport({
       sha256Hash,
       scannerIds,
     });
-    debug('added cast vote record file record');
-    debug('importing individual cvrs...');
+    debug('added cast vote record file record %s', fileId);
+    debug('begin importing individual cvrs...');
 
     // Iterate through all the cast vote records
     let castVoteRecordIndex = 0;
@@ -722,7 +722,7 @@ export async function addCastVoteRecordReport({
 
       castVoteRecordIndex += 1;
     }
-    debug('imported all individual cvrs');
+    debug('imported all cvrs');
 
     // TODO: Calculate the precinct list before iterating through records, once there is
     // only one geopolitical unit per batch in the future.
@@ -730,7 +730,7 @@ export async function addCastVoteRecordReport({
       id: fileId,
       precinctIds,
     });
-    debug('updated cast vote record file record');
+    debug('updated cast vote record file record %s', fileId);
 
     return ok({
       id: fileId,

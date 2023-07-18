@@ -150,7 +150,7 @@ test('happy path - mock election flow', async () => {
   await expectCastVoteRecordCount(apiClient, 184);
 
   // check write-in records were created
-  expect(await apiClient.getWriteIns()).toHaveLength(80);
+  expect(await apiClient.getWriteInAdjudicationQueue()).toHaveLength(80);
 
   // check scanner batches
   expect(await apiClient.getScannerBatches()).toEqual([
@@ -261,7 +261,7 @@ test('adding a file with BMD cast vote records', async () => {
   await expectCastVoteRecordCount(apiClient, 112);
 
   // check that no write-in records were created
-  expect(await apiClient.getWriteIns()).toHaveLength(0);
+  expect(await apiClient.getWriteInAdjudicationQueue()).toHaveLength(0);
 });
 
 test('adding a duplicate file returns OK to client but logs an error', async () => {

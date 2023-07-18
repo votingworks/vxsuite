@@ -10,10 +10,6 @@ import {
   Iso8601TimestampSchema,
   Rect,
   CandidateId,
-  YesNoVote,
-  CandidateIdSchema,
-  YesNoVoteSchema,
-  ContestIdSchema,
   Dictionary,
   PrecinctId,
   BallotStyleId,
@@ -169,22 +165,21 @@ export interface WriteInCandidateRecord {
   readonly name: string;
 }
 
-/**
- * A write-in that has is not yet adjudicated.
- */
-export interface WriteInRecordPending {
+interface WriteInRecordBase {
   readonly id: Id;
   readonly contestId: ContestId;
   readonly optionId: ContestOptionId;
   readonly castVoteRecordId: Id;
+}
+
+/**
+ * A write-in that is not yet adjudicated.
+ */
+export interface WriteInRecordPending extends WriteInRecordBase {
   readonly status: 'pending';
 }
 
-interface WriteInRecordAdjudicatedBase {
-  readonly id: Id;
-  readonly contestId: ContestId;
-  readonly optionId: ContestOptionId;
-  readonly castVoteRecordId: Id;
+interface WriteInRecordAdjudicatedBase extends WriteInRecordBase {
   readonly status: 'adjudicated';
 }
 
@@ -339,18 +334,30 @@ export type WriteInAdjudicationAction =
   | WriteInAdjudicationActionInvalid;
 
 /**
- * Data required to adjudicate a write-in image in our adjudication interface,
- * including an image URL; the coordinates of the ballot, relevant contest,
- * and relevant contest option; and the votes for the contest in question.
+ * Information necessary to display a write-in on the frontend.
  */
-export interface WriteInDetailView {
+export interface WriteInImageView {
+  readonly writeInId: Id;
+  readonly cvrId: Id;
   readonly imageUrl: string;
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
   readonly writeInCoordinates: Rect;
-  readonly markedOfficialCandidateIds: CandidateId[];
-  readonly writeInAdjudicatedOfficialCandidateIds: CandidateId[];
-  readonly writeInAdjudicatedWriteInCandidateIds: string[];
+}
+
+/**
+ * Information necessary to adjudicate a write-in including the write-in record,
+ * any related write-in records (same ballot and contest), and the CVR votes.
+ */
+export interface WriteInAdjudicationContext {
+  readonly writeIn: WriteInRecord;
+  /**
+   * Related write-ins are write-ins that are on the same ballot and in the same
+   * contest as the primary write-in.
+   */
+  readonly relatedWriteIns: WriteInRecord[];
+  readonly cvrId: Id;
+  readonly cvrVotes: Tabulation.Votes;
 }
 
 /**
@@ -376,23 +383,6 @@ export type CvrFileMode =
   | 'test'
   /** No CVR files imported yet - file mode is not currently locked. */
   | 'unlocked';
-
-/**
- * Votes as they are serialized in the database.
- */
-export type DatabaseSerializedCastVoteRecordVotes = Record<
-  ContestId,
-  CandidateId[] | YesNoVote
->;
-
-/**
- * Schema for {@link DatabaseSerializedCastVoteRecordVotes}.
- */
-export const DatabaseSerializedCastVoteRecordVotesSchema: z.ZodSchema<DatabaseSerializedCastVoteRecordVotes> =
-  z.record(
-    ContestIdSchema,
-    z.union([z.array(CandidateIdSchema), YesNoVoteSchema])
-  );
 
 /**
  * Ballot types for which we allow adding manual results.
