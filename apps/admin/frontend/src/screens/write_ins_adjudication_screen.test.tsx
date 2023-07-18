@@ -1,11 +1,9 @@
 import { electionMinimalExhaustiveSampleDefinition as electionDefinition } from '@votingworks/fixtures';
-import { CandidateContest, ContestId } from '@votingworks/types';
+import { ContestId } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import {
   WriteInCandidateRecord,
-  WriteInDetailView,
-  WriteInRecord,
-  WriteInRecordPending,
+  WriteInImageView,
 } from '@votingworks/admin-backend';
 import { Route } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
@@ -17,17 +15,11 @@ import {
 import { WriteInsAdjudicationScreen } from './write_ins_adjudication_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
-const contest = electionDefinition.election.contests[0] as CandidateContest;
-
-function mockWriteInRecordPending(id: string): WriteInRecordPending {
-  return {
-    id,
-    contestId: 'zoo-council-mammal',
-    optionId: 'write-in-0',
-    castVoteRecordId: 'id',
-    status: 'pending',
-  };
-}
+const mockPartialWriteInIdentifier = {
+  contestId: 'contest-id',
+  optionId: 'write-in-0',
+  castVoteRecordId: 'cast-vote-record-id',
+} as const;
 
 let apiMock: ApiMock;
 
@@ -54,8 +46,30 @@ function renderScreen(
   );
 }
 
+function expectGetQueueMetadata({
+  total,
+  pending,
+  contestId,
+}: {
+  total: number;
+  pending: number;
+  contestId: ContestId;
+}): void {
+  apiMock.expectGetWriteInAdjudicationQueueMetadata(
+    [
+      {
+        totalTally: total,
+        pendingTally: pending,
+        contestId,
+      },
+    ],
+    contestId
+  );
+}
+
 test('zoomable ballot image', async () => {
-  function fakeWriteInImage(id: string): Partial<WriteInDetailView> {
+  const contestId = 'best-animal-mammal';
+  function fakeWriteInImage(id: string): Partial<WriteInImageView> {
     return {
       imageUrl: `fake-image-data-${id}`,
       ballotCoordinates: {
@@ -78,30 +92,17 @@ test('zoomable ballot image', async () => {
       },
     };
   }
-  apiMock.expectGetWriteInDetailView('id-174', fakeWriteInImage('174'));
-  apiMock.expectGetWriteInDetailView('id-175', fakeWriteInImage('175'));
-  apiMock.expectGetWriteIns(
-    [
-      {
-        id: 'id-174',
-        status: 'pending',
-        contestId: contest.id,
-        optionId: 'write-in-0',
-        castVoteRecordId: 'id-174',
-      },
-      {
-        id: 'id-175',
-        status: 'pending',
-        contestId: contest.id,
-        optionId: 'write-in-0',
-        castVoteRecordId: 'id',
-      },
-    ],
-    contest.id
-  );
-  apiMock.expectGetWriteInCandidates([], contest.id);
 
-  renderScreen(contest.id, {
+  apiMock.expectGetWriteInAdjudicationQueue(['id-174', 'id-175'], contestId);
+  apiMock.expectGetFirstPendingWriteInId(contestId, 'id-174');
+  expectGetQueueMetadata({ total: 2, pending: 2, contestId });
+  apiMock.expectGetWriteInCandidates([], contestId);
+  apiMock.expectGetWriteInImageView('id-174', fakeWriteInImage('174'));
+  apiMock.expectGetWriteInAdjudicationContext('id-174');
+  apiMock.expectGetWriteInImageView('id-175', fakeWriteInImage('175'));
+  apiMock.expectGetWriteInAdjudicationContext('id-175');
+
+  renderScreen(contestId, {
     electionDefinition,
     apiMock,
   });
@@ -177,22 +178,20 @@ test('zoomable ballot image', async () => {
 });
 
 describe('preventing double votes', () => {
-  const mockWriteInRecord: WriteInRecord = {
-    id: 'id',
-    status: 'pending',
-    contestId: contest.id,
-    optionId: 'write-in-0',
-    castVoteRecordId: 'id',
-  };
+  const contestId = 'best-animal-mammal';
+  const writeInId = 'id';
 
   test('previous bubble marked official candidates', async () => {
-    apiMock.expectGetWriteIns([mockWriteInRecord], contest.id);
-    apiMock.expectGetWriteInDetailView('id', {
-      markedOfficialCandidateIds: ['fox'],
+    apiMock.expectGetWriteInAdjudicationQueue([writeInId], contestId);
+    apiMock.expectGetFirstPendingWriteInId(contestId, 'id');
+    expectGetQueueMetadata({ total: 1, pending: 1, contestId });
+    apiMock.expectGetWriteInCandidates([], contestId);
+    apiMock.expectGetWriteInImageView(writeInId);
+    apiMock.expectGetWriteInAdjudicationContext(writeInId, {
+      cvrVotes: { [contestId]: ['fox'] },
     });
-    apiMock.expectGetWriteInCandidates([], contest.id);
 
-    renderScreen(contest.id, {
+    renderScreen(contestId, {
       electionDefinition,
       apiMock,
     });
@@ -207,13 +206,26 @@ describe('preventing double votes', () => {
   });
 
   test('previous adjudicated official candidates', async () => {
-    apiMock.expectGetWriteIns([mockWriteInRecord], contest.id);
-    apiMock.expectGetWriteInDetailView('id', {
-      writeInAdjudicatedOfficialCandidateIds: ['fox'],
+    apiMock.expectGetWriteInAdjudicationQueue([writeInId], contestId);
+    apiMock.expectGetFirstPendingWriteInId(contestId, 'id');
+    expectGetQueueMetadata({ total: 1, pending: 1, contestId });
+    apiMock.expectGetWriteInCandidates([], contestId);
+    apiMock.expectGetWriteInImageView(writeInId);
+    apiMock.expectGetWriteInAdjudicationContext('id', {
+      relatedWriteIns: [
+        {
+          id: 'id',
+          status: 'adjudicated',
+          adjudicationType: 'official-candidate',
+          contestId,
+          candidateId: 'fox',
+          optionId: 'write-in-0',
+          castVoteRecordId: 'id',
+        },
+      ],
     });
-    apiMock.expectGetWriteInCandidates([], contest.id);
 
-    renderScreen(contest.id, {
+    renderScreen(contestId, {
       electionDefinition,
       apiMock,
     });
@@ -231,16 +243,30 @@ describe('preventing double votes', () => {
     const mockWriteInCandidate: WriteInCandidateRecord = {
       id: 'puma',
       electionId: 'id',
-      contestId: contest.id,
+      contestId,
       name: 'Puma',
     };
-    apiMock.expectGetWriteIns([mockWriteInRecord], contest.id);
-    apiMock.expectGetWriteInDetailView('id', {
-      writeInAdjudicatedWriteInCandidateIds: ['puma'],
-    });
-    apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contest.id);
 
-    renderScreen(contest.id, {
+    apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
+    apiMock.expectGetWriteInAdjudicationQueue([writeInId], contestId);
+    apiMock.expectGetFirstPendingWriteInId(contestId, 'id');
+    expectGetQueueMetadata({ total: 1, pending: 1, contestId });
+    apiMock.expectGetWriteInImageView(writeInId);
+    apiMock.expectGetWriteInAdjudicationContext('id', {
+      relatedWriteIns: [
+        {
+          id: 'id',
+          status: 'adjudicated',
+          adjudicationType: 'write-in-candidate',
+          contestId,
+          candidateId: mockWriteInCandidate.id,
+          optionId: 'write-in-0',
+          castVoteRecordId: 'id',
+        },
+      ],
+    });
+
+    renderScreen(contestId, {
       electionDefinition,
       apiMock,
     });
@@ -257,12 +283,16 @@ describe('preventing double votes', () => {
 
 test('ballot pagination', async () => {
   const contestId = 'zoo-council-mammal';
-  const mockWriteInRecords = ['0', '1', '2'].map(mockWriteInRecordPending);
-  const pageCount = mockWriteInRecords.length;
-  apiMock.expectGetWriteIns(mockWriteInRecords, contestId);
+  const writeInIds = ['0', '1', '2'];
+  const pageCount = writeInIds.length;
+
+  apiMock.expectGetWriteInAdjudicationQueue(writeInIds, contestId);
+  apiMock.expectGetFirstPendingWriteInId(contestId, '0');
+  expectGetQueueMetadata({ total: 3, pending: 3, contestId });
   apiMock.expectGetWriteInCandidates([], contestId);
-  for (const mockWriteInRecord of mockWriteInRecords) {
-    apiMock.expectGetWriteInDetailView(mockWriteInRecord.id);
+  for (const writeInId of writeInIds) {
+    apiMock.expectGetWriteInImageView(writeInId);
+    apiMock.expectGetWriteInAdjudicationContext(writeInId);
   }
 
   const history = createMemoryHistory();
@@ -295,19 +325,24 @@ test('ballot pagination', async () => {
   }
 });
 
-test('adjudication flow', async () => {
+test('marking adjudications', async () => {
   const contestId = 'zoo-council-mammal';
-  const mockWriteInRecords = ['0', '1'].map(mockWriteInRecordPending);
-  apiMock.expectGetWriteIns(mockWriteInRecords, contestId);
+  const writeInIds = ['0', '1'];
   const mockWriteInCandidate: WriteInCandidateRecord = {
     id: 'lemur',
     name: 'Lemur',
     contestId: 'zoo-council-mammal',
     electionId: 'id',
   };
+
+  apiMock.expectGetWriteInAdjudicationQueue(writeInIds, contestId);
+  apiMock.expectGetFirstPendingWriteInId(contestId, '0');
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
-  apiMock.expectGetWriteInDetailView(mockWriteInRecords[0].id);
-  apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id); // prefetch
+  apiMock.expectGetWriteInImageView(writeInIds[0]);
+  apiMock.expectGetWriteInImageView(writeInIds[1]); // expected image prefetch
+  apiMock.expectGetWriteInAdjudicationContext(writeInIds[0]);
+  expectGetQueueMetadata({ total: 2, pending: 2, contestId });
+
   renderScreen(contestId, {
     electionDefinition,
     apiMock,
@@ -321,33 +356,24 @@ test('adjudication flow', async () => {
   screen.getButton('Lemur');
 
   // adjudicate for official candidate
-  const partialMockAdjudicatedWriteIn = {
-    id: '0',
-    contestId: 'zoo-council-mammal',
-    optionId: 'write-in-0',
-    castVoteRecordId: 'id',
-    status: 'adjudicated',
-  } as const;
   apiMock.apiClient.adjudicateWriteIn
     .expectCallWith({
-      writeInId: mockWriteInRecords[0].id,
+      writeInId: writeInIds[0],
       type: 'official-candidate',
       candidateId: 'zebra',
     })
     .resolves();
-  apiMock.expectGetWriteIns(
-    [
-      {
-        ...partialMockAdjudicatedWriteIn,
-        adjudicationType: 'official-candidate',
-        candidateId: 'zebra',
-      },
-      mockWriteInRecords[1],
-    ],
-    contestId
-  );
+  apiMock.expectGetWriteInAdjudicationContext(writeInIds[0], {
+    writeIn: {
+      id: writeInIds[0],
+      ...mockPartialWriteInIdentifier,
+      status: 'adjudicated',
+      adjudicationType: 'official-candidate',
+      candidateId: 'zebra',
+    },
+  });
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
-  apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
+  expectGetQueueMetadata({ total: 2, pending: 1, contestId });
 
   userEvent.click(screen.getButton('Zebra'));
   await waitFor(async () =>
@@ -361,24 +387,23 @@ test('adjudication flow', async () => {
   // adjudicate for existing write-in candidate
   apiMock.apiClient.adjudicateWriteIn
     .expectCallWith({
-      writeInId: mockWriteInRecords[0].id,
+      writeInId: writeInIds[0],
       type: 'write-in-candidate',
       candidateId: 'lemur',
     })
     .resolves();
-  apiMock.expectGetWriteIns(
-    [
-      {
-        ...partialMockAdjudicatedWriteIn,
-        adjudicationType: 'write-in-candidate',
-        candidateId: 'lemur',
-      },
-      mockWriteInRecords[1],
-    ],
-    contestId
-  );
+  apiMock.expectGetWriteInAdjudicationContext(writeInIds[0], {
+    writeIn: {
+      id: writeInIds[0],
+      ...mockPartialWriteInIdentifier,
+      status: 'adjudicated',
+      adjudicationType: 'write-in-candidate',
+      candidateId: 'lemur',
+    },
+  });
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
-  apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
+  expectGetQueueMetadata({ total: 2, pending: 1, contestId });
+
   userEvent.click(screen.getButton('Lemur'));
   await waitFor(async () =>
     expect(await screen.findButton('Next')).toHaveFocus()
@@ -400,22 +425,11 @@ test('adjudication flow', async () => {
     .resolves(mockNewWriteInCandidateRecord);
   apiMock.apiClient.adjudicateWriteIn
     .expectCallWith({
-      writeInId: mockWriteInRecords[0].id,
+      writeInId: writeInIds[0],
       type: 'write-in-candidate',
       candidateId: 'dh',
     })
     .resolves();
-  apiMock.expectGetWriteIns(
-    [
-      {
-        ...partialMockAdjudicatedWriteIn,
-        adjudicationType: 'official-candidate',
-        candidateId: 'dh',
-      },
-      mockWriteInRecords[1],
-    ],
-    contestId
-  );
   apiMock.expectGetWriteInCandidates(
     [mockWriteInCandidate, mockNewWriteInCandidateRecord],
     contestId
@@ -424,7 +438,16 @@ test('adjudication flow', async () => {
     [mockWriteInCandidate, mockNewWriteInCandidateRecord],
     contestId
   );
-  apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
+  apiMock.expectGetWriteInAdjudicationContext(writeInIds[0], {
+    writeIn: {
+      id: writeInIds[0],
+      ...mockPartialWriteInIdentifier,
+      status: 'adjudicated',
+      adjudicationType: 'write-in-candidate',
+      candidateId: 'dh',
+    },
+  });
+  expectGetQueueMetadata({ total: 2, pending: 1, contestId });
   userEvent.click(await screen.findButton(/Add New Write-In Candidate/i));
   userEvent.type(
     await screen.findByPlaceholderText('Candidate Name'),
@@ -440,25 +463,45 @@ test('adjudication flow', async () => {
   // adjudicate as invalid
   apiMock.apiClient.adjudicateWriteIn
     .expectCallWith({
-      writeInId: mockWriteInRecords[0].id,
+      writeInId: writeInIds[0],
       type: 'invalid',
     })
     .resolves();
-  apiMock.expectGetWriteIns(
-    [
-      {
-        ...partialMockAdjudicatedWriteIn,
-        adjudicationType: 'invalid',
-      },
-      mockWriteInRecords[1],
-    ],
-    contestId
-  );
+  apiMock.expectGetWriteInAdjudicationContext(writeInIds[0], {
+    writeIn: {
+      id: writeInIds[0],
+      ...mockPartialWriteInIdentifier,
+      status: 'adjudicated',
+      adjudicationType: 'invalid',
+    },
+  });
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
-  apiMock.expectGetWriteInDetailView(mockWriteInRecords[1].id);
+  expectGetQueueMetadata({ total: 2, pending: 1, contestId });
   userEvent.click(await screen.findButton(/Mark Write-In Invalid/i));
   await waitFor(async () =>
     expect(await screen.findButton('Next')).toHaveFocus()
   );
   expect(screen.queryByText('Dark Helmet')).not.toBeInTheDocument();
+});
+
+test('jumping to first pending write-in', async () => {
+  const contestId = 'zoo-council-mammal';
+  const writeInIds = ['win0', 'win1', 'win2'];
+
+  apiMock.expectGetWriteInAdjudicationQueue(writeInIds, contestId);
+  apiMock.expectGetFirstPendingWriteInId(contestId, 'win1');
+  expectGetQueueMetadata({ total: 3, pending: 2, contestId });
+  apiMock.expectGetWriteInCandidates([], contestId);
+  // expect fetch for all three images - current, next, previous
+  apiMock.expectGetWriteInImageView('win1');
+  apiMock.expectGetWriteInImageView('win2');
+  apiMock.expectGetWriteInImageView('win0');
+  apiMock.expectGetWriteInAdjudicationContext('win1');
+
+  renderScreen(contestId, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('win1');
 });

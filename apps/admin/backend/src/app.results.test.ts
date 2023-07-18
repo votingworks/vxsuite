@@ -153,28 +153,28 @@ test('tally report data - overall report & write-ins', async () => {
     contestId: writeInContestId,
     name: 'Unofficial Candidate',
   });
-  const writeIns = await apiClient.getWriteIns({
+  const writeInIds = await apiClient.getWriteInAdjudicationQueue({
     contestId: writeInContestId,
   });
-  expect(writeIns).toHaveLength(56);
+  expect(writeInIds).toHaveLength(56);
   const NUM_INVALID = 24;
   const NUM_OFFICIAL = 16;
   const NUM_UNOFFICIAL = 56 - NUM_INVALID - NUM_OFFICIAL;
-  for (const [i, writeIn] of writeIns.entries()) {
+  for (const [i, writeInId] of writeInIds.entries()) {
     if (i < NUM_INVALID) {
       await apiClient.adjudicateWriteIn({
-        writeInId: writeIn.id,
+        writeInId,
         type: 'invalid',
       });
     } else if (i < NUM_INVALID + NUM_OFFICIAL) {
       await apiClient.adjudicateWriteIn({
-        writeInId: writeIn.id,
+        writeInId,
         type: 'official-candidate',
         candidateId: officialCandidateId,
       });
     } else {
       await apiClient.adjudicateWriteIn({
-        writeInId: writeIn.id,
+        writeInId,
         type: 'write-in-candidate',
         candidateId: unofficialCandidate.id,
       });
@@ -239,13 +239,13 @@ test('tally report data - grouped report & manual data', async () => {
     contestId: writeInContestId,
     name: 'Unofficial Candidate',
   });
-  const writeIns = await apiClient.getWriteIns({
+  const writeInIds = await apiClient.getWriteInAdjudicationQueue({
     contestId: writeInContestId,
   });
-  expect(writeIns).toHaveLength(56);
-  for (const writeIn of writeIns) {
+  expect(writeInIds).toHaveLength(56);
+  for (const writeInId of writeInIds) {
     await apiClient.adjudicateWriteIn({
-      writeInId: writeIn.id,
+      writeInId,
       type: 'write-in-candidate',
       candidateId: unofficialCandidate.id,
     });
@@ -390,7 +390,7 @@ test('election write-in adjudication summary', async () => {
     totalTally: 56,
   });
 
-  const writeIns = await apiClient.getWriteIns({
+  const writeInIds = await apiClient.getWriteInAdjudicationQueue({
     contestId: writeInContestId,
   });
 
@@ -400,22 +400,22 @@ test('election write-in adjudication summary', async () => {
   });
 
   // generate some adjudication information
-  for (const [i, writeIn] of writeIns.entries()) {
+  for (const [i, writeInId] of writeInIds.entries()) {
     if (i < 24) {
       await apiClient.adjudicateWriteIn({
-        writeInId: writeIn.id,
+        writeInId,
         type: 'write-in-candidate',
         candidateId: unofficialCandidate1.id,
       });
     } else if (i < 48) {
       await apiClient.adjudicateWriteIn({
-        writeInId: writeIn.id,
+        writeInId,
         type: 'official-candidate',
         candidateId: 'Obadiah-Carrigan-5c95145a',
       });
     } else {
       await apiClient.adjudicateWriteIn({
-        writeInId: writeIn.id,
+        writeInId,
         type: 'invalid',
       });
     }

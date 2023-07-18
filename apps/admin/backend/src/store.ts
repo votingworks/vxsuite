@@ -43,8 +43,6 @@ import {
   CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
   CvrFileMode,
-  DatabaseSerializedCastVoteRecordVotes,
-  DatabaseSerializedCastVoteRecordVotesSchema,
   ElectionRecord,
   ManualResultsIdentifier,
   ManualResultsMetadataRecord,
@@ -680,62 +678,84 @@ export class Store {
   }
 
   /**
-   * Returns the data necessary to display a single write-in.
+   * Returns the write-in image and layout.
    */
-  getWriteInWithDetails(writeInId: Id): {
+  getWriteInImageAndLayout(writeInId: Id): {
     writeInId: Id;
     contestId: ContestId;
     optionId: ContestOptionId;
+    cvrId: Id;
     image: Buffer;
     layout: BallotPageLayout;
-    castVoteRecordId: Id;
-    castVoteRecordVotes: DatabaseSerializedCastVoteRecordVotes;
   } {
-    const writeInWithDetails = this.client.one(
+    const row = this.client.one(
+      `
+          select
+            write_ins.id as writeInId,
+            write_ins.contest_id as contestId,
+            write_ins.option_id as optionId,
+            write_ins.cvr_id as cvrId,
+            ballot_images.image as image,
+            ballot_images.layout as layout
+          from write_ins
+          inner join
+            ballot_images on 
+              write_ins.cvr_id = ballot_images.cvr_id and 
+              write_ins.side = ballot_images.side
+          where write_ins.id = ?
+        `,
+      writeInId
+    ) as {
+      writeInId: Id;
+      contestId: ContestId;
+      optionId: ContestOptionId;
+      cvrId: string;
+      image: Buffer;
+      layout: string;
+    };
+
+    return {
+      ...row,
+      layout: safeParseJson(row.layout, BallotPageLayoutSchema).unsafeUnwrap(),
+    };
+  }
+
+  /**
+   * Returns the write-in ids with votes on the associated CVR.
+   */
+  getWriteInWithVotes(writeInId: Id): {
+    writeInId: Id;
+    contestId: ContestId;
+    optionId: ContestOptionId;
+    cvrId: Id;
+    cvrVotes: Tabulation.Votes;
+  } {
+    const row = this.client.one(
       `
         select
           write_ins.id as writeInId,
           write_ins.contest_id as contestId,
           write_ins.option_id as optionId,
-          ballot_images.image as image,
-          ballot_images.layout as layout,
-          cvrs.votes as castVoteRecordVotes,
-          write_ins.cvr_id as castVoteRecordId
+          cvrs.votes as cvrVotes,
+          write_ins.cvr_id as cvrId
         from write_ins
-        inner join
-          ballot_images on 
-            write_ins.cvr_id = ballot_images.cvr_id and 
-            write_ins.side = ballot_images.side
         inner join
           cvrs on
             write_ins.cvr_id = cvrs.id
         where write_ins.id = ?
       `,
       writeInId
-    ) as
-      | {
-          writeInId: Id;
-          contestId: ContestId;
-          optionId: ContestOptionId;
-          image: Buffer;
-          layout: string;
-          castVoteRecordVotes: string;
-          castVoteRecordId: string;
-        }
-      | undefined;
-
-    assert(writeInWithDetails, 'write-in does not exist');
+    ) as {
+      writeInId: Id;
+      contestId: ContestId;
+      optionId: ContestOptionId;
+      cvrVotes: string;
+      cvrId: string;
+    };
 
     return {
-      ...writeInWithDetails,
-      layout: safeParseJson(
-        writeInWithDetails.layout,
-        BallotPageLayoutSchema
-      ).unsafeUnwrap(),
-      castVoteRecordVotes: safeParseJson(
-        writeInWithDetails.castVoteRecordVotes,
-        DatabaseSerializedCastVoteRecordVotesSchema
-      ).unsafeUnwrap(),
+      ...row,
+      cvrVotes: JSON.parse(row.cvrVotes),
     };
   }
 
@@ -1202,7 +1222,10 @@ export class Store {
     electionId: Id;
     contestId?: ContestId;
   }): WriteInAdjudicationQueueMetadata[] {
-    debug('querying database for write-in queue metadata');
+    debug(
+      'querying database for write-in adjudication queue metadata for contest %s',
+      contestId
+    );
     const whereParts: string[] = ['write_ins.election_id = ?'];
     const params: Bindable[] = [electionId];
 
@@ -1233,7 +1256,7 @@ export class Store {
       totalTally: number;
       pendingTally: number;
     }>;
-    debug('queried database for write-in queue metadata');
+    debug('queried database for write-in adjudication queue metadata');
     return rows;
   }
 
@@ -1471,6 +1494,87 @@ export class Store {
         });
       })
       .filter((writeInRecord) => writeInRecord.status === status || !status);
+  }
+
+  /**
+   * Gets write-in record adjudication queue for a specific contest.
+   */
+  getWriteInAdjudicationQueue({
+    electionId,
+    contestId,
+  }: {
+    electionId: Id;
+    contestId?: ContestId;
+  }): Id[] {
+    this.assertElectionExists(electionId);
+
+    const whereParts: string[] = ['election_id = ?'];
+    const params: Bindable[] = [electionId];
+
+    if (contestId) {
+      whereParts.push('contest_id = ?');
+      params.push(contestId);
+    }
+
+    debug(
+      'querying database for write-in adjudication queue for contest %s',
+      contestId
+    );
+    const rows = this.client.all(
+      `
+        select
+          id
+        from write_ins
+        where
+          ${whereParts.join(' and ')}
+        order by
+          sequence_id
+      `,
+      ...params
+    ) as Array<{ id: Id }>;
+    debug('queried database for write-in adjudication queue');
+
+    return rows.map((r) => r.id);
+  }
+
+  /**
+   * Within a contest adjudication queue provided by `getWriteInAdjudicationQueue`,
+   * gets the id of the first write-in that is pending adjudication.
+   */
+  getFirstPendingWriteInId({
+    electionId,
+    contestId,
+  }: {
+    electionId: Id;
+    contestId: ContestId;
+  }): Optional<Id> {
+    this.assertElectionExists(electionId);
+
+    debug(
+      'querying database for first pending write-in for contest %s',
+      contestId
+    );
+    const row = this.client.one(
+      `
+        select
+          id
+        from write_ins
+        where
+          election_id = ? and
+          contest_id = ? and
+          official_candidate_id is null and
+          write_in_candidate_id is null and
+          is_invalid = 0
+        order by
+          sequence_id
+        limit 1
+      `,
+      electionId,
+      contestId
+    ) as { id: Id } | undefined;
+    debug('queried database for first pending write-in');
+
+    return row?.id;
   }
 
   /**

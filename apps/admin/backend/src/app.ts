@@ -4,6 +4,7 @@ import {
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
+  Id,
   safeParseElectionDefinition,
   safeParseJson,
   SystemSettings,
@@ -66,8 +67,8 @@ import {
   WriteInAdjudicationQueueMetadata,
   WriteInAdjudicationStatus,
   WriteInCandidateRecord,
-  WriteInDetailView,
-  WriteInRecord,
+  WriteInAdjudicationContext,
+  WriteInImageView,
 } from './types';
 import { Workspace } from './util/workspace';
 import {
@@ -78,7 +79,10 @@ import {
 } from './cvr_files';
 import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
-import { getWriteInDetailView } from './util/write_ins';
+import {
+  getWriteInAdjudicationContext,
+  getWriteInImageView,
+} from './util/write_ins';
 import { handleEnteredWriteInCandidateData } from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
 import { exportFile } from './util/export_file';
@@ -526,17 +530,24 @@ function buildApi({
       );
     },
 
-    getWriteIns(
+    getWriteInAdjudicationQueue(
       input: {
         contestId?: ContestId;
-        status?: WriteInAdjudicationStatus;
-        limit?: number;
       } = {}
-    ): WriteInRecord[] {
-      return store.getWriteInRecords({
+    ): Id[] {
+      return store.getWriteInAdjudicationQueue({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
       });
+    },
+
+    getFirstPendingWriteInId(input: { contestId: ContestId }): Id | null {
+      return (
+        store.getFirstPendingWriteInId({
+          electionId: loadCurrentElectionIdOrThrow(workspace),
+          ...input,
+        }) ?? null
+      );
     },
 
     adjudicateWriteIn(input: WriteInAdjudicationAction): void {
@@ -576,10 +587,19 @@ function buildApi({
       });
     },
 
-    async getWriteInDetailView(input: {
+    async getWriteInImageView(input: {
       writeInId: string;
-    }): Promise<WriteInDetailView> {
-      return getWriteInDetailView({
+    }): Promise<WriteInImageView> {
+      return getWriteInImageView({
+        store: workspace.store,
+        writeInId: input.writeInId,
+      });
+    },
+
+    getWriteInAdjudicationContext(input: {
+      writeInId: string;
+    }): WriteInAdjudicationContext {
+      return getWriteInAdjudicationContext({
         store: workspace.store,
         writeInId: input.writeInId,
       });

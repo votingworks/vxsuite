@@ -8,12 +8,12 @@ import type {
   ManualResultsIdentifier,
   ManualResultsMetadataRecord,
   WriteInCandidateRecord,
-  WriteInDetailView,
-  WriteInRecord,
+  WriteInAdjudicationContext,
   SemsExportableTallies,
   ScannerBatch,
   TallyReportResults,
   WriteInAdjudicationQueueMetadata,
+  WriteInImageView,
 } from '@votingworks/admin-backend';
 import { ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -28,6 +28,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
   ElectionDefinition,
+  Id,
   Rect,
   SystemSettings,
   Tabulation,
@@ -196,13 +197,15 @@ export function createApiMock(
       }
     },
 
-    expectGetWriteIns(writeInRecords: WriteInRecord[], contestId?: string) {
+    expectGetWriteInAdjudicationQueue(writeInIds: Id[], contestId?: string) {
       if (contestId) {
-        apiClient.getWriteIns
+        apiClient.getWriteInAdjudicationQueue
           .expectCallWith({ contestId })
-          .resolves(writeInRecords);
+          .resolves(writeInIds);
       } else {
-        apiClient.getWriteIns.expectCallWith().resolves(writeInRecords);
+        apiClient.getWriteInAdjudicationQueue
+          .expectCallWith()
+          .resolves(writeInIds);
       }
     },
 
@@ -230,20 +233,49 @@ export function createApiMock(
         .resolves(writeInCandidateRecord);
     },
 
-    expectGetWriteInDetailView(
+    expectGetWriteInImageView(
       writeInId: string,
-      detailView: Partial<WriteInDetailView> = {}
+      imageView: Partial<WriteInImageView> = {}
     ) {
-      apiClient.getWriteInDetailView.expectCallWith({ writeInId }).resolves({
+      apiClient.getWriteInImageView.expectCallWith({ writeInId }).resolves({
+        writeInId,
+        cvrId: 'id',
         imageUrl: 'WW91IGJlIGdvb2QsIEkgbG92ZSB5b3UuIFNlZSB5b3UgdG9tb3Jyb3cu',
         ballotCoordinates: mockRect,
         contestCoordinates: mockRect,
         writeInCoordinates: mockRect,
-        markedOfficialCandidateIds: [],
-        writeInAdjudicatedOfficialCandidateIds: [],
-        writeInAdjudicatedWriteInCandidateIds: [],
-        ...detailView,
+        ...imageView,
       });
+    },
+
+    expectGetWriteInAdjudicationContext(
+      writeInId: string,
+      adjudicationContext: Partial<WriteInAdjudicationContext> = {}
+    ) {
+      apiClient.getWriteInAdjudicationContext
+        .expectCallWith({ writeInId })
+        .resolves({
+          writeIn: {
+            id: writeInId,
+            contestId: 'id',
+            castVoteRecordId: 'id',
+            optionId: 'id',
+            status: 'pending',
+          },
+          relatedWriteIns: [],
+          cvrId: 'id',
+          cvrVotes: {},
+          ...adjudicationContext,
+        });
+    },
+
+    expectGetFirstPendingWriteInId(
+      contestId: string,
+      writeInId: string | null
+    ) {
+      apiClient.getFirstPendingWriteInId
+        .expectCallWith({ contestId })
+        .resolves(writeInId);
     },
 
     expectMarkResultsOfficial() {
