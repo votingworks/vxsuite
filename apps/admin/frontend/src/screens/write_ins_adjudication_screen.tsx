@@ -9,14 +9,12 @@ import {
   getContestDistrictName,
   getPartyAbbreviationByPartyId,
   Id,
-  Rect,
 } from '@votingworks/types';
 import {
   Button,
   Main,
   Screen,
   Icons,
-  Modal,
   P,
   Font,
   Caption,
@@ -27,7 +25,7 @@ import {
   Loading,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
-import { assert, find, throwIllegalValue } from '@votingworks/basics';
+import { assert, find } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import { useQueryClient } from '@tanstack/react-query';
 import type {
@@ -52,6 +50,11 @@ import { normalizeWriteInName } from '../utils/write_ins';
 import { AppContext } from '../contexts/app_context';
 import { WriteInsAdjudicationScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
+import { BallotImageViewer } from '../components/adjudication_ballot_image_viewer';
+import {
+  DoubleVoteAlert,
+  DoubleVoteAlertModal,
+} from '../components/adjudication_double_vote_alert_modal';
 
 const AdjudicationScreen = styled(Screen)`
   /* Matches the focus style applied in libs/ui/global_styles.tsx, which are
@@ -132,208 +135,6 @@ const TranscribedButtons = styled.div`
   }
 `;
 
-const BallotImageViewerContainer = styled.div`
-  position: relative;
-  height: 100%;
-  overflow: hidden;
-`;
-
-// We zoom in by scaling (setting the width) and then translating to center the
-// write-in on the screen (setting the top/left position).
-const ZoomedInBallotImage = styled.img<{
-  ballotBounds: Rect;
-  writeInBounds: Rect;
-  scale: number;
-}>`
-  position: absolute;
-  top: calc(
-    (
-      50% -
-        ${(props) =>
-          (props.writeInBounds.y + props.writeInBounds.height / 2) *
-          props.scale}px
-    )
-  );
-  left: calc(
-    (
-      50% -
-        ${(props) =>
-          (props.writeInBounds.x + props.writeInBounds.width / 2) *
-          props.scale}px
-    )
-  );
-  width: ${(props) => props.ballotBounds.width * props.scale}px;
-`;
-
-// We want to create a transparent overlay with a centered rectangle cut out of
-// it of the size of the write-in area. There's not a super easy way to do this
-// in CSS. Based on an idea from https://css-tricks.com/cutouts/, I used this
-// tool to design the clipping path, https://bennettfeely.com/clippy/, and then
-// parameterized it with the focus area width and height.
-const WriteInFocusOverlay = styled.div<{
-  focusWidth: number;
-  focusHeight: number;
-}>`
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  background: rgba(0, 0, 0, 0.5);
-  width: 100%;
-  height: 100%;
-  clip-path: polygon(
-    0% 0%,
-    0% 100%,
-    calc(50% - ${(props) => props.focusWidth / 2}px) 100%,
-    calc(50% - ${(props) => props.focusWidth / 2}px)
-      calc(50% - ${(props) => props.focusHeight / 2}px),
-    calc(50% + ${(props) => props.focusWidth / 2}px)
-      calc(50% - ${(props) => props.focusHeight / 2}px),
-    calc(50% + ${(props) => props.focusWidth / 2}px)
-      calc(50% + ${(props) => props.focusHeight / 2}px),
-    calc(50% - ${(props) => props.focusWidth / 2}px)
-      calc(50% + ${(props) => props.focusHeight / 2}px),
-    calc(50% - ${(props) => props.focusWidth / 2}px) 100%,
-    100% 100%,
-    100% 0%
-  );
-`;
-
-// Full-width image with vertical scrolling.
-const ZoomedOutBallotImageContainer = styled.div`
-  height: 100%;
-  overflow-y: scroll;
-  img {
-    width: 100%;
-  }
-`;
-
-const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
-  display: flex;
-  justify-content: flex-end;
-  position: absolute;
-  top: 0;
-  z-index: 2;
-  background: ${(props) => (!props.isZoomedIn ? 'rgba(0, 0, 0, 0.5)' : 'none')};
-  width: 100%;
-  padding: 0.5rem;
-  gap: 0.5rem;
-`;
-
-function BallotImageViewer({
-  imageUrl,
-  ballotBounds,
-  writeInBounds,
-}: {
-  imageUrl: string;
-  ballotBounds: Rect;
-  writeInBounds: Rect;
-}) {
-  const [isZoomedIn, setIsZoomedIn] = useState(true);
-
-  const IMAGE_SCALE = 0.5; // The images are downscaled by 50% during CVR export, this is to adjust for that.
-  const zoomedInScale =
-    (ballotBounds.width / writeInBounds.width) * IMAGE_SCALE;
-
-  return (
-    <BallotImageViewerContainer>
-      <BallotImageViewerControls isZoomedIn={isZoomedIn}>
-        <Button onPress={() => setIsZoomedIn(false)} disabled={!isZoomedIn}>
-          <Icons.ZoomOut /> Zoom Out
-        </Button>
-        <Button onPress={() => setIsZoomedIn(true)} disabled={isZoomedIn}>
-          <Icons.ZoomIn /> Zoom In
-        </Button>
-      </BallotImageViewerControls>
-      {isZoomedIn ? (
-        <React.Fragment>
-          <WriteInFocusOverlay
-            focusWidth={writeInBounds.width * zoomedInScale}
-            focusHeight={writeInBounds.height * zoomedInScale}
-          />
-          <ZoomedInBallotImage
-            src={imageUrl}
-            alt="Ballot with write-in highlighted"
-            ballotBounds={ballotBounds}
-            writeInBounds={writeInBounds}
-            scale={zoomedInScale}
-          />
-        </React.Fragment>
-      ) : (
-        <ZoomedOutBallotImageContainer>
-          <img src={imageUrl} alt="Full ballot" />
-        </ZoomedOutBallotImageContainer>
-      )}
-    </BallotImageViewerContainer>
-  );
-}
-
-interface DoubleVoteAlert {
-  type:
-    | 'marked-official-candidate'
-    | 'adjudicated-write-in-candidate'
-    | 'adjudicated-official-candidate';
-  name: string;
-}
-
-function DoubleVoteAlertModal({
-  doubleVoteAlert,
-  onClose,
-}: {
-  doubleVoteAlert: DoubleVoteAlert;
-  onClose: () => void;
-}) {
-  const { type, name } = doubleVoteAlert;
-  const text = (() => {
-    switch (type) {
-      case 'marked-official-candidate':
-        return (
-          <P>
-            The current ballot contest has a bubble selection marked for{' '}
-            <Font weight="bold">{name}</Font>, so adjudicating the current
-            write-in for <Font weight="bold">{name}</Font> would create a double
-            vote.
-            <br />
-            <br />
-            If the ballot contest does indeed contain a double vote, you can
-            invalidate this write-in by selecting{' '}
-            <Font weight="bold">Mark Write-In Invalid</Font>.
-          </P>
-        );
-      case 'adjudicated-official-candidate':
-      case 'adjudicated-write-in-candidate':
-        return (
-          <P>
-            The current ballot contest has a write-in that has already been
-            adjudicated for <Font weight="bold">{name}</Font>, so the current
-            write-in cannot also be adjudicated for{' '}
-            <Font weight="bold">{name}</Font>.
-            <br />
-            <br />
-            If the ballot contest does indeed contain a double vote, you can
-            invalidate this write-in by selecting{' '}
-            <Font weight="bold">Mark Write-In Invalid</Font>.
-          </P>
-        );
-      /* istanbul ignore next */
-      default:
-        throwIllegalValue(type);
-    }
-  })();
-
-  return (
-    <Modal
-      title="Possible Double Vote Detected"
-      content={text}
-      actions={
-        <Button variant="regular" onPress={onClose}>
-          Cancel
-        </Button>
-      }
-    />
-  );
-}
-
 export function WriteInsAdjudicationScreen(): JSX.Element {
   const { contestId } = useParams<WriteInsAdjudicationScreenProps>();
   const { electionDefinition } = useContext(AppContext);
@@ -382,7 +183,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
       !!currentWriteInId
     );
 
-  // sets the user's position in the adjudication clue to the first pending write-in
+  // sets the user's position in the adjudication queue to the first pending write-in
   useEffect(() => {
     if (
       firstPendingWriteInIdQuery.isSuccess &&
