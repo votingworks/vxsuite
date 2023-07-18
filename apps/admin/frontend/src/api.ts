@@ -231,6 +231,25 @@ export const getWriteInAdjudicationQueue = {
   },
 } as const;
 
+type GetFirstPendingWriteInIdInput = QueryInput<'getFirstPendingWriteInId'>;
+export const getFirstPendingWriteInId = {
+  queryKey(input?: GetFirstPendingWriteInIdInput): QueryKey {
+    return input
+      ? ['getFirstPendingWriteInId', input]
+      : ['getFirstPendingWriteInId'];
+  },
+  useQuery(input: GetFirstPendingWriteInIdInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getFirstPendingWriteInId(input),
+      {
+        cacheTime: 0,
+      }
+    );
+  },
+} as const;
+
 type GetWriteInAdjudicationQueueMetadataInput =
   QueryInput<'getWriteInAdjudicationQueueMetadata'>;
 export const getWriteInAdjudicationQueueMetadata = {

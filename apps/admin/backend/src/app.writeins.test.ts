@@ -501,3 +501,53 @@ test('getWriteInImageView', async () => {
     }
   `);
 });
+
+test('getFirstPendingWriteInId', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const { electionDefinition, castVoteRecordReport } =
+    electionGridLayoutNewHampshireAmherstFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordReport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+
+  const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
+
+  const writeInQueue = await apiClient.getWriteInAdjudicationQueue({
+    contestId,
+  });
+
+  function adjudicateAtIndex(index: number) {
+    return apiClient.adjudicateWriteIn({
+      writeInId: writeInQueue[index]!,
+      type: 'invalid',
+    });
+  }
+
+  expect(await apiClient.getFirstPendingWriteInId({ contestId })).toEqual(
+    writeInQueue[0]
+  );
+
+  await adjudicateAtIndex(0);
+  expect(await apiClient.getFirstPendingWriteInId({ contestId })).toEqual(
+    writeInQueue[1]
+  );
+
+  await adjudicateAtIndex(2);
+  expect(await apiClient.getFirstPendingWriteInId({ contestId })).toEqual(
+    writeInQueue[1]
+  );
+
+  await adjudicateAtIndex(1);
+  expect(await apiClient.getFirstPendingWriteInId({ contestId })).toEqual(
+    writeInQueue[3]
+  );
+
+  for (const [i] of writeInQueue.entries()) {
+    await adjudicateAtIndex(i);
+  }
+  expect(await apiClient.getFirstPendingWriteInId({ contestId })).toEqual(null);
+});

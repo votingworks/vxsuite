@@ -541,6 +541,15 @@ function buildApi({
       });
     },
 
+    getFirstPendingWriteInId(input: { contestId: ContestId }): Id | null {
+      return (
+        store.getFirstPendingWriteInId({
+          electionId: loadCurrentElectionIdOrThrow(workspace),
+          ...input,
+        }) ?? null
+      );
+    },
+
     adjudicateWriteIn(input: WriteInAdjudicationAction): void {
       store.adjudicateWriteIn(input);
     },

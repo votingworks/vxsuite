@@ -269,6 +269,15 @@ export function createApiMock(
         });
     },
 
+    expectGetFirstPendingWriteInId(
+      contestId: string,
+      writeInId: string | null
+    ) {
+      apiClient.getFirstPendingWriteInId
+        .expectCallWith({ contestId })
+        .resolves(writeInId);
+    },
+
     expectMarkResultsOfficial() {
       apiClient.markResultsOfficial.expectCallWith().resolves();
     },

@@ -1517,7 +1517,7 @@ export class Store {
     }
 
     debug(
-      'querying database for write-in adjudication for contest %s',
+      'querying database for write-in adjudication queue for contest %s',
       contestId
     );
     const rows = this.client.all(
@@ -1535,6 +1535,46 @@ export class Store {
     debug('queried database for write-in adjudication queue');
 
     return rows.map((r) => r.id);
+  }
+
+  /**
+   * Within a contest adjudication queue provided by `getWriteInAdjudicationQueue`,
+   * gets the id of the first write-in that is pending adjudication.
+   */
+  getFirstPendingWriteInId({
+    electionId,
+    contestId,
+  }: {
+    electionId: Id;
+    contestId: ContestId;
+  }): Optional<Id> {
+    this.assertElectionExists(electionId);
+
+    debug(
+      'querying database for first pending write-in for contest %s',
+      contestId
+    );
+    const row = this.client.one(
+      `
+        select
+          id
+        from write_ins
+        where
+          election_id = ? and
+          contest_id = ? and
+          official_candidate_id is null and
+          write_in_candidate_id is null and
+          is_invalid = 0
+        order by
+          sequence_id
+        limit 1
+      `,
+      electionId,
+      contestId
+    ) as { id: Id } | undefined;
+    debug('queried database for first pending write-in');
+
+    return row?.id;
   }
 
   /**

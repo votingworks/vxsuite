@@ -94,6 +94,7 @@ test('zoomable ballot image', async () => {
   }
 
   apiMock.expectGetWriteInAdjudicationQueue(['id-174', 'id-175'], contestId);
+  apiMock.expectGetFirstPendingWriteInId(contestId, 'id-174');
   expectGetQueueMetadata({ total: 2, pending: 2, contestId });
   apiMock.expectGetWriteInCandidates([], contestId);
   apiMock.expectGetWriteInImageView('id-174', fakeWriteInImage('174'));
@@ -182,6 +183,7 @@ describe('preventing double votes', () => {
 
   test('previous bubble marked official candidates', async () => {
     apiMock.expectGetWriteInAdjudicationQueue([writeInId], contestId);
+    apiMock.expectGetFirstPendingWriteInId(contestId, 'id');
     expectGetQueueMetadata({ total: 1, pending: 1, contestId });
     apiMock.expectGetWriteInCandidates([], contestId);
     apiMock.expectGetWriteInImageView(writeInId);
@@ -205,6 +207,7 @@ describe('preventing double votes', () => {
 
   test('previous adjudicated official candidates', async () => {
     apiMock.expectGetWriteInAdjudicationQueue([writeInId], contestId);
+    apiMock.expectGetFirstPendingWriteInId(contestId, 'id');
     expectGetQueueMetadata({ total: 1, pending: 1, contestId });
     apiMock.expectGetWriteInCandidates([], contestId);
     apiMock.expectGetWriteInImageView(writeInId);
@@ -246,6 +249,7 @@ describe('preventing double votes', () => {
 
     apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
     apiMock.expectGetWriteInAdjudicationQueue([writeInId], contestId);
+    apiMock.expectGetFirstPendingWriteInId(contestId, 'id');
     expectGetQueueMetadata({ total: 1, pending: 1, contestId });
     apiMock.expectGetWriteInImageView(writeInId);
     apiMock.expectGetWriteInAdjudicationContext('id', {
@@ -283,6 +287,7 @@ test('ballot pagination', async () => {
   const pageCount = writeInIds.length;
 
   apiMock.expectGetWriteInAdjudicationQueue(writeInIds, contestId);
+  apiMock.expectGetFirstPendingWriteInId(contestId, '0');
   expectGetQueueMetadata({ total: 3, pending: 3, contestId });
   apiMock.expectGetWriteInCandidates([], contestId);
   for (const writeInId of writeInIds) {
@@ -331,6 +336,7 @@ test('marking adjudications', async () => {
   };
 
   apiMock.expectGetWriteInAdjudicationQueue(writeInIds, contestId);
+  apiMock.expectGetFirstPendingWriteInId(contestId, '0');
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
   apiMock.expectGetWriteInImageView(writeInIds[0]);
   apiMock.expectGetWriteInImageView(writeInIds[1]); // expected image prefetch
@@ -476,4 +482,26 @@ test('marking adjudications', async () => {
     expect(await screen.findButton('Next')).toHaveFocus()
   );
   expect(screen.queryByText('Dark Helmet')).not.toBeInTheDocument();
+});
+
+test('jumping to first pending write-in', async () => {
+  const contestId = 'zoo-council-mammal';
+  const writeInIds = ['win0', 'win1', 'win2'];
+
+  apiMock.expectGetWriteInAdjudicationQueue(writeInIds, contestId);
+  apiMock.expectGetFirstPendingWriteInId(contestId, 'win1');
+  expectGetQueueMetadata({ total: 3, pending: 2, contestId });
+  apiMock.expectGetWriteInCandidates([], contestId);
+  // expect fetch for all three images - current, next, previous
+  apiMock.expectGetWriteInImageView('win1');
+  apiMock.expectGetWriteInImageView('win2');
+  apiMock.expectGetWriteInImageView('win0');
+  apiMock.expectGetWriteInAdjudicationContext('win1');
+
+  renderScreen(contestId, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('win1');
 });

@@ -8,6 +8,7 @@ import {
   CandidateId,
   getContestDistrictName,
   getPartyAbbreviationByPartyId,
+  Id,
   Rect,
 } from '@votingworks/types';
 import {
@@ -45,6 +46,7 @@ import {
   addWriteInCandidate,
   getWriteInAdjudicationQueueMetadata,
   getWriteInImageView,
+  getFirstPendingWriteInId,
 } from '../api';
 import { normalizeWriteInName } from '../utils/write_ins';
 import { AppContext } from '../contexts/app_context';
@@ -344,21 +346,28 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
 
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
-  const writeInQueueMetadataQuery =
-    getWriteInAdjudicationQueueMetadata.useQuery({ contestId });
+
+  const [offset, setOffset] = useState(0);
   const writeInQueueQuery = getWriteInAdjudicationQueue.useQuery({
     contestId: contest.id,
   });
+  const firstPendingWriteInIdQuery = getFirstPendingWriteInId.useQuery({
+    contestId: contest.id,
+  });
+  const writeInQueueMetadataQuery =
+    getWriteInAdjudicationQueueMetadata.useQuery({ contestId });
+  const [initialOffsetSet, setInitialOffsetSet] = useState(false);
+
+  const adjudicateWriteInMutation = adjudicateWriteIn.useMutation();
+  const addWriteInCandidateMutation = addWriteInCandidate.useMutation();
   const writeInCandidatesQuery = getWriteInCandidates.useQuery({
     contestId: contest.id,
   });
-  const adjudicateWriteInMutation = adjudicateWriteIn.useMutation();
-  const addWriteInCandidateMutation = addWriteInCandidate.useMutation();
 
-  const [offset, setOffset] = useState(0);
-  const currentWriteInId = writeInQueueQuery.data
-    ? writeInQueueQuery.data[offset]
-    : undefined;
+  const currentWriteInId =
+    writeInQueueQuery.data && initialOffsetSet
+      ? writeInQueueQuery.data[offset]
+      : undefined;
   const writeInImageViewQuery = getWriteInImageView.useQuery(
     {
       writeInId: currentWriteInId ?? 'no-op',
@@ -373,6 +382,47 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
       !!currentWriteInId
     );
 
+  // sets the user's position in the adjudication clue to the first pending write-in
+  useEffect(() => {
+    if (
+      firstPendingWriteInIdQuery.isSuccess &&
+      writeInQueueQuery.isSuccess &&
+      !initialOffsetSet
+    ) {
+      const firstPendingWriteInId = firstPendingWriteInIdQuery.data;
+      const writeInQueue = writeInQueueQuery.data;
+      if (firstPendingWriteInId) {
+        setOffset(writeInQueue.indexOf(firstPendingWriteInId));
+      }
+      setInitialOffsetSet(true);
+    }
+  }, [firstPendingWriteInIdQuery, writeInQueueQuery, initialOffsetSet]);
+
+  // prefetch the next and previous write-in image
+  useEffect(() => {
+    if (!writeInQueueQuery.isSuccess || !initialOffsetSet) return;
+
+    function prefetch(writeInId: Id) {
+      // prefetching won't run if the query is already in the cache
+      void queryClient.prefetchQuery({
+        queryKey: getWriteInImageView.queryKey({
+          writeInId,
+        }),
+        queryFn: () => apiClient.getWriteInImageView({ writeInId }),
+      });
+    }
+
+    const nextWriteInId = writeInQueueQuery.data[offset + 1];
+    if (nextWriteInId) {
+      prefetch(nextWriteInId);
+    }
+
+    const previousWriteInId = writeInQueueQuery.data[offset - 1];
+    if (previousWriteInId) {
+      prefetch(previousWriteInId);
+    }
+  }, [apiClient, queryClient, writeInQueueQuery, offset, initialOffsetSet]);
+
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
   const [showNewWriteInCandidateForm, setShowNewWriteInCandidateForm] =
     useState(false);
@@ -380,25 +430,12 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
   const nextButton = useRef<Button>(null);
   const firstAdjudicationButton = useRef<Button>(null);
 
-  // prefetch the next write-in image
-  useEffect(() => {
-    if (!writeInQueueQuery.data) return;
-    const nextWriteInId = writeInQueueQuery.data[offset + 1];
-    if (nextWriteInId) {
-      void queryClient.prefetchQuery({
-        queryKey: getWriteInImageView.queryKey({
-          writeInId: nextWriteInId,
-        }),
-        queryFn: () =>
-          apiClient.getWriteInImageView({ writeInId: nextWriteInId }),
-      });
-    }
-  }, [apiClient, queryClient, writeInQueueQuery.data, offset]);
-
   if (
     !writeInQueueMetadataQuery.isSuccess ||
     !writeInQueueQuery.isSuccess ||
     !writeInCandidatesQuery.isSuccess ||
+    !firstPendingWriteInIdQuery.isSuccess ||
+    !initialOffsetSet ||
     !currentWriteInId
   ) {
     return (
