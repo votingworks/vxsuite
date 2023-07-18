@@ -81,6 +81,51 @@ function textWrap(text: string, fontStyle: FontStyle, width: number): string[] {
   return text.split('\n').flatMap((line) => wrapLine(line, fontStyle, width));
 }
 
+function textHeight(textLines: string[], fontStyle: FontStyle): number {
+  return textLines.length * fontStyle.lineHeight;
+}
+
+function TextBlock({
+  x,
+  y,
+  textGroups,
+  width,
+}: {
+  x: number;
+  y: number;
+  textGroups: Array<{
+    text: string;
+    fontStyle: FontStyle;
+  }>;
+  width: number;
+}): Rectangle {
+  const textBoxes: TextBox[] = [];
+  let heightUsed = 0;
+
+  for (const { text, fontStyle } of textGroups) {
+    const lines = textWrap(text, fontStyle, width);
+    textBoxes.push({
+      type: 'TextBox',
+      x: 0,
+      y: heightUsed,
+      width,
+      height: textHeight(lines, fontStyle),
+      textLines: lines,
+      ...fontStyle,
+    });
+    heightUsed += textHeight(lines, fontStyle) + fontStyle.lineHeight / 4;
+  }
+
+  return {
+    type: 'Rectangle',
+    x,
+    y,
+    width,
+    height: heightUsed,
+    children: textBoxes,
+  };
+}
+
 export interface GridDimensions {
   rows: number;
   columns: number;
@@ -354,6 +399,20 @@ function HeaderAndInstructions({
     return null;
   }
 
+  const titleLines = ['Sample Ballot', election.title];
+  const titleHeight = textHeight(titleLines, m.FontStyles.H1);
+
+  const subtitleLines = [
+    `${election.county.name}, ${election.state}`,
+    Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(new Date(election.date)),
+  ];
+
+  const sealRowHeight = m.HEADER_ROW_HEIGHT - 0.25;
+
   const header: Rectangle = {
     type: 'Rectangle',
     ...gridPosition({ row: 0, column: 0 }, m),
@@ -362,33 +421,29 @@ function HeaderAndInstructions({
     children: [
       {
         type: 'TextBox',
-        ...gridPosition({ row: 0, column: 5.5 }, m),
+        ...gridPosition({ row: 0, column: sealRowHeight + 1.5 }, m),
         width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(3, m),
-        textLines: ['Sample Ballot', election.title],
+        height: titleHeight,
+        textLines: titleLines,
         ...m.FontStyles.H1,
       },
       {
         type: 'TextBox',
-        ...gridPosition({ row: 2.25, column: 5.5 }, m),
+        ...gridPosition(
+          { row: yToRow(titleHeight + 5, m), column: sealRowHeight + 1.5 },
+          m
+        ),
         width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(5, m),
-        textLines: [
-          `${election.county.name}, ${election.state}`,
-          Intl.DateTimeFormat('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric',
-          }).format(new Date(election.date)),
-        ],
+        height: textHeight(subtitleLines, m.FontStyles.H3),
+        textLines: subtitleLines,
         ...m.FontStyles.H3,
         fontWeight: FontWeights.NORMAL,
       },
       {
         type: 'Image',
         ...gridPosition({ row: 0, column: 0.5 }, m),
-        width: gridWidth(4, m),
-        height: gridHeight(4, m),
+        width: gridWidth(sealRowHeight, m),
+        height: gridHeight(sealRowHeight, m),
         href: election.sealUrl ?? '/seals/state-of-hamilton-official-seal.svg',
       },
     ],
@@ -411,65 +466,60 @@ function HeaderAndInstructions({
         height: 2,
         fill: 'black',
       },
-      {
-        type: 'TextBox',
+      TextBlock({
         ...gridPosition({ row: 0.25, column: 0.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.INSTRUCTIONS_ROW_HEIGHT - 1, m),
-        textLines: ['Instructions'],
-        ...m.FontStyles.H3,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 1.1, column: 0.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.INSTRUCTIONS_ROW_HEIGHT - 1, m),
-        textLines: ['To Vote:'],
-        ...m.FontStyles.SMALL,
-        fontWeight: FontWeights.BOLD,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 1.7, column: 0.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.INSTRUCTIONS_ROW_HEIGHT - 1, m),
-        textLines: [
-          'To vote, completely fill in',
-          'the oval next to your choice.',
+        width: gridWidth(7, m),
+        textGroups: [
+          {
+            text: 'Instructions',
+            fontStyle: m.FontStyles.H3,
+          },
+          {
+            text: 'To Vote:',
+            fontStyle: {
+              ...m.FontStyles.SMALL,
+              fontWeight: FontWeights.BOLD,
+            },
+          },
+          {
+            text: 'To vote, completely fill in the oval next to your choice.',
+            fontStyle: m.FontStyles.SMALL,
+          },
         ],
-        ...m.FontStyles.SMALL,
-      },
+      }),
       {
         type: 'Image',
-        ...gridPosition({ row: 1.1, column: 7.5 }, m),
+        ...gridPosition(
+          { row: (m.INSTRUCTIONS_ROW_HEIGHT - 2) / 2, column: 7.5 },
+          m
+        ),
         width: gridWidth(5, m),
         height: gridHeight(2, m),
         href: '/images/instructions-fill-oval.svg',
       },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 1.1, column: 13 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.INSTRUCTIONS_ROW_HEIGHT - 1, m),
-        textLines: ['To Vote for a Write-In:'],
-        ...m.FontStyles.SMALL,
-        fontWeight: FontWeights.BOLD,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 1.7, column: 13 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.INSTRUCTIONS_ROW_HEIGHT - 1, m),
-        textLines: [
-          'To vote for a person whose name is not on the',
-          'ballot, write the person’s name on the "write-in" line',
-          'and completely fill in the oval to the left of the line.',
+      TextBlock({
+        ...gridPosition({ row: 0.5, column: 13 }, m),
+        width: gridWidth(12, m),
+        textGroups: [
+          {
+            text: 'To Vote for a Write-In:',
+            fontStyle: {
+              ...m.FontStyles.SMALL,
+              fontWeight: FontWeights.BOLD,
+            },
+          },
+          {
+            text: 'To vote for a person whose name is not on the ballot, write the person’s name on the "write-in" line and completely fill in the oval to the left of the line.',
+            fontStyle: m.FontStyles.SMALL,
+          },
         ],
-        ...m.FontStyles.SMALL,
-      },
+      }),
       {
         type: 'Image',
-        ...gridPosition({ row: 1.1, column: 25.5 }, m),
+        ...gridPosition(
+          { row: (m.INSTRUCTIONS_ROW_HEIGHT - 1.5) / 2, column: 25.5 },
+          m
+        ),
         width: gridWidth(5, m),
         height: gridHeight(1.5, m),
         href: '/images/instructions-write-in.svg',
@@ -645,7 +695,7 @@ function CandidateContest({
   };
 
   const headingRowHeight =
-    1 + Math.ceil(yToRow(titleLines.length * m.FontStyles.H3.lineHeight, m));
+    1 + Math.ceil(yToRow(textHeight(titleLines, m.FontStyles.H3), m));
   const heading: Rectangle = {
     type: 'Rectangle',
     ...gridPosition({ row: 0, column: 0 }, m),
@@ -895,11 +945,13 @@ function BallotMeasure({
     gridWidth(width - 1, m)
   );
 
-  const headingRowHeight =
-    Math.ceil(yToRow(titleLines.length * m.FontStyles.H3.lineHeight, m)) +
-    Math.ceil(
-      yToRow(descriptionLines.length * m.FontStyles.BODY.lineHeight, m)
-    );
+  const headingRowHeight = Math.ceil(
+    yToRow(
+      textHeight(titleLines, m.FontStyles.H3) +
+        textHeight(descriptionLines, m.FontStyles.BODY),
+      m
+    ) + 0.5
+  );
   const heading: Rectangle = {
     type: 'Rectangle',
     ...gridPosition({ row: 0, column: 0 }, m),
