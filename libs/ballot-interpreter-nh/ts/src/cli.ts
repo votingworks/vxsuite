@@ -356,9 +356,9 @@ async function interpretWorkspace(
     sheetIdsArray.length
       ? db
           .prepare(
-            'SELECT id, front_image_path as frontPath, back_image_path as backPath FROM sheets WHERE id IN ?'
+            'SELECT id, front_image_path as frontPath, back_image_path as backPath FROM sheets WHERE id IN (?)'
           )
-          .all(sheetIdsArray)
+          .all(sheetIdsArray.join(','))
       : db
           .prepare(
             'SELECT id, front_image_path as frontPath, back_image_path as backPath FROM sheets'
