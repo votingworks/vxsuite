@@ -1,4 +1,4 @@
-import { assertDefined, ok, unique } from '@votingworks/basics';
+import { assertDefined, iter, ok, unique } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { Election, ElectionDefinition, SheetOf } from '@votingworks/types';
 import { interpret } from './interpret';
@@ -973,4 +973,29 @@ test('score write in areas', async () => {
       },
     ]
   `);
+});
+
+test('interpret with grainy timing marks', async () => {
+  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const ballotImages: SheetOf<ImageData> = [
+    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedGrainyTimingMarksFront.asImageData(),
+    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedGrainyTimingMarksBack.asImageData(),
+  ];
+
+  const result = interpret(electionDefinition, ballotImages);
+  expect(result).toEqual(ok(expect.anything()));
+
+  const { front, back } = result.unsafeUnwrap();
+  const gridLayout = assertDefined(
+    electionDefinition.election.gridLayouts?.[0]
+  );
+  const [frontPositions, backPositions] = iter(
+    gridLayout.gridPositions
+  ).partition((position) => position.side === 'front');
+  expect(front.marks.map(([, mark]) => mark?.fillScore)).toEqual(
+    frontPositions.map(() => 0)
+  );
+  expect(back.marks.map(([, mark]) => mark?.fillScore)).toEqual(
+    backPositions.map(() => 0)
+  );
 });
