@@ -66,7 +66,7 @@ import {
   CardTally,
   WriteInAdjudicationQueueMetadata,
 } from './types';
-import { isBlankVotes, replacePartyIdFilter } from './tabulation/utils';
+import { isBlankSheet, replacePartyIdFilter } from './tabulation/utils';
 import { rootDebug } from './util/debug';
 
 const debug = rootDebug.extend('store');
@@ -517,7 +517,7 @@ export class Store {
         cvr.precinctId,
         cvrSheetNumber,
         serializedVotes,
-        isBlankVotes(cvr.votes) ? 1 : 0
+        isBlankSheet(cvr.votes) ? 1 : 0
       );
     }
 
