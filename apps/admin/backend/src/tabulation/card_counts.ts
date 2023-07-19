@@ -45,10 +45,12 @@ export function tabulateScannedCardCounts({
   electionId,
   store,
   groupBy,
+  blankBallotsOnly = false,
 }: {
   electionId: Id;
   store: Store;
   groupBy?: Tabulation.GroupBy;
+  blankBallotsOnly?: boolean;
 }): Tabulation.GroupMap<Tabulation.CardCounts> {
   const {
     electionDefinition: { election },
@@ -58,6 +60,7 @@ export function tabulateScannedCardCounts({
     electionId,
     election,
     groupBy,
+    blankBallotsOnly,
   });
 
   const cardCountsGroupMap: Tabulation.GroupMap<Tabulation.CardCounts> = {};
@@ -99,10 +102,12 @@ export function tabulateFullCardCounts({
   electionId,
   store,
   groupBy,
+  blankBallotsOnly = false,
 }: {
   electionId: Id;
   store: Store;
   groupBy?: Tabulation.GroupBy;
+  blankBallotsOnly?: boolean;
 }): Tabulation.GroupMap<Tabulation.CardCounts> {
   const {
     electionDefinition: { election },
@@ -114,6 +119,11 @@ export function tabulateFullCardCounts({
     store,
     groupBy,
   });
+  if (blankBallotsOnly) {
+    // we do not manage manually entered blank ballots within the system
+    return groupedScannedCardCounts;
+  }
+
   const tabulateManualBallotCountsResult = tabulateManualBallotCounts({
     election,
     manualResultsMetadataRecords: store.getManualResultsMetadata({
@@ -121,7 +131,6 @@ export function tabulateFullCardCounts({
     }),
     groupBy,
   });
-
   if (tabulateManualBallotCountsResult.isErr()) {
     debug(
       'tabulated card counts, omitted manual ballot counts due to incompatible group by'
