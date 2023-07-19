@@ -95,6 +95,9 @@ import { getSemsExportableTallies } from './exports/sems_tallies';
 import { generateResultsCsv } from './exports/csv_results';
 import { tabulateFullCardCounts } from './tabulation/card_counts';
 import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
+import { rootDebug } from './util/debug';
+
+const debug = rootDebug.extend('app');
 
 function getCurrentElectionDefinition(
   workspace: Workspace
@@ -587,7 +590,7 @@ function buildApi({
       });
     },
 
-    async getWriteInImageView(input: {
+    getWriteInImageView(input: {
       writeInId: string;
     }): Promise<WriteInImageView> {
       return getWriteInImageView({
@@ -731,6 +734,7 @@ function buildApi({
     async exportBatchResults(input: {
       path: string;
     }): Promise<ExportDataResult> {
+      debug('exporting batch results CSV file');
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       const {
         electionDefinition: { election },
@@ -767,6 +771,7 @@ function buildApi({
     async getSemsExportableTallies(): Promise<SemsExportableTallies> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
 
+      debug('aggregating results for SEMS exportable tallies');
       return getSemsExportableTallies(
         await tabulateElectionResults({
           electionId,
@@ -779,6 +784,7 @@ function buildApi({
     },
 
     async exportResultsCsv(input: { path: string }): Promise<ExportDataResult> {
+      debug('exporting default results CSV file');
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       const {
         electionDefinition: { election },
