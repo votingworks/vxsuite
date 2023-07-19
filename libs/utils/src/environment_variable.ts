@@ -211,7 +211,7 @@ export function getStringEnvVarConfig(
     case StringEnvironmentVariableName.PRECINCT_REPORT_DESTINATION:
       return {
         name,
-        defaultValue: 'smartcard',
+        defaultValue: 'thermal-sheet-printer',
         zodSchema: PrecinctReportDestinationSchema,
       };
     /* c8 ignore next 2 */
