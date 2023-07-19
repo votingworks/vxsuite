@@ -203,7 +203,7 @@ export function ReportsScreen(): JSX.Element {
         </P>
         <P>
           <LinkButton to={routerPaths.tallyWriteInReport}>
-            {statusPrefix} Write-In Tally Report
+            {statusPrefix} Write-In Adjudication Report
           </LinkButton>
         </P>
         {tallyResultsInfo}
