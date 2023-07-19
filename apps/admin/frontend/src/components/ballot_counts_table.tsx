@@ -1,13 +1,12 @@
 import { useContext } from 'react';
 import { format, getBallotCount } from '@votingworks/utils';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
-import { LinkButton, Table, TD } from '@votingworks/ui';
+import { LinkButton, Loading, Table, TD } from '@votingworks/ui';
 import { Tabulation, TallyCategory } from '@votingworks/types';
 
 import { getPartiesWithPrimaryElections } from '../utils/election';
 
 import { AppContext } from '../contexts/app_context';
-import { Loading } from './loading';
 import { ExportBatchTallyResultsButton } from './export_batch_tally_results_button';
 import { routerPaths } from '../router_paths';
 import {
@@ -44,7 +43,7 @@ export function BallotCountsTable({
     !scannerBatchesQuery.isSuccess ||
     !manualResultsMetadataQuery.isSuccess
   ) {
-    return <Loading />;
+    return <Loading isFullscreen as="h2" />;
   }
 
   const cardCountsByCategory = cardCountsQuery.data;
