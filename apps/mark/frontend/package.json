@@ -17,7 +17,7 @@
     "start:core": "pnpm -w run-dev vm-mark --core-only",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=UTC CI=true node scripts/test.js --maxWorkers=7 --env=jest-environment-jsdom-sixteen --coverage --reporters=default --reporters=jest-junit",
+    "test:ci": "TZ=UTC CI=true node scripts/test.js --maxWorkers=6 --env=jest-environment-jsdom-sixteen --coverage --reporters=default --reporters=jest-junit",
     "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false --env=jest-environment-jsdom-sixteen",
     "test:update": "TZ=UTC node scripts/test.js -u  --watchAll=false --env=jest-environment-jsdom-sixteen",
     "test:watch": "TZ=UTC node scripts/test.js --env=jest-environment-jsdom-sixteen",
