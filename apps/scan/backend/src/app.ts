@@ -12,8 +12,6 @@ import {
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
-  ScannerReportData,
-  ScannerReportDataSchema,
   isElectionManagerAuth,
   isFeatureFlagEnabled,
   singlePrecinctSelectionFor,
@@ -25,7 +23,7 @@ import {
   ExportCastVoteRecordReportToUsbDriveError,
   readBallotPackageFromUsb,
 } from '@votingworks/backend';
-import { assert, err, iter, ok, Result } from '@votingworks/basics';
+import { assert, iter, ok, Result } from '@votingworks/basics';
 import {
   ArtifactAuthenticatorApi,
   InsertedSmartCardAuthApi,
@@ -354,24 +352,6 @@ function buildApi(
 
     supportsUltrasonic(): boolean {
       return machine.supportsUltrasonic();
-    },
-
-    async saveScannerReportDataToCard(input: {
-      scannerReportData: ScannerReportData;
-    }): Promise<Result<void, Error>> {
-      const machineState = constructAuthMachineState(workspace);
-      const authStatus = await auth.getAuthStatus(machineState);
-      if (authStatus.status !== 'logged_in') {
-        return err(new Error('User is not logged in'));
-      }
-      if (authStatus.user.role !== 'poll_worker') {
-        return err(new Error('User is not a poll worker'));
-      }
-
-      return await auth.writeCardData(machineState, {
-        data: input.scannerReportData,
-        schema: ScannerReportDataSchema,
-      });
     },
   });
 }

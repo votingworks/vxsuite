@@ -1,27 +1,7 @@
-import {
-  AdjudicationReason,
-  AdjudicationReasonInfo,
-  DEFAULT_SYSTEM_SETTINGS,
-  TEST_JURISDICTION,
-} from '@votingworks/types';
+import { AdjudicationReason, AdjudicationReasonInfo } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
-import { err, ok, Result, sleep, typedAs } from '@votingworks/basics';
-import {
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
-  mockOf,
-} from '@votingworks/test-utils';
-import {
-  electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireAmherstFixtures,
-} from '@votingworks/fixtures';
-import {
-  ALL_PRECINCTS_SELECTION,
-  ReportSourceMachineType,
-  ScannerReportData,
-  ScannerReportDataSchema,
-} from '@votingworks/utils';
+import { err, ok, sleep, typedAs } from '@votingworks/basics';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { Logger } from '@votingworks/logging';
 import { ErrorCode, mocks } from '@votingworks/custom-scanner';
 import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
@@ -71,8 +51,6 @@ function checkLogs(logger: Logger): void {
     expect.any(Function)
   );
 }
-
-const jurisdiction = TEST_JURISDICTION;
 
 test('configure and scan hmpb', async () => {
   await withApp(
@@ -432,57 +410,4 @@ test('scanning time out', async () => {
       );
     }
   );
-});
-
-test('write scanner report data to card', async () => {
-  await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
-    await configureApp(apiClient, mockAuth, mockUsbDrive);
-
-    mockOf(mockAuth.writeCardData).mockResolvedValue(ok());
-
-    const { electionDefinition } = electionFamousNames2021Fixtures;
-    const { electionHash } = electionDefinition;
-    const scannerReportData: ScannerReportData = {
-      ballotCounts: {},
-      isLiveMode: false,
-      machineId: '0000',
-      pollsTransition: 'close_polls',
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      tally: [],
-      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
-      timePollsTransitioned: 0,
-      timeSaved: 0,
-      totalBallotsScanned: 0,
-    };
-    let result: Result<void, Error>;
-
-    mockOf(mockAuth.getAuthStatus).mockResolvedValue({
-      status: 'logged_out',
-      reason: 'no_card',
-    });
-    result = await apiClient.saveScannerReportDataToCard({ scannerReportData });
-    expect(result).toEqual(err(new Error('User is not logged in')));
-
-    mockOf(mockAuth.getAuthStatus).mockResolvedValue({
-      status: 'logged_in',
-      user: fakeElectionManagerUser(electionDefinition),
-      sessionExpiresAt: fakeSessionExpiresAt(),
-    });
-    result = await apiClient.saveScannerReportDataToCard({ scannerReportData });
-    expect(result).toEqual(err(new Error('User is not a poll worker')));
-
-    mockOf(mockAuth.getAuthStatus).mockResolvedValue({
-      status: 'logged_in',
-      user: fakePollWorkerUser(electionDefinition),
-      sessionExpiresAt: fakeSessionExpiresAt(),
-    });
-    result = await apiClient.saveScannerReportDataToCard({ scannerReportData });
-    expect(result).toEqual(ok());
-    expect(mockAuth.writeCardData).toHaveBeenCalledTimes(1);
-    expect(mockAuth.writeCardData).toHaveBeenNthCalledWith(
-      1,
-      { ...DEFAULT_SYSTEM_SETTINGS, electionHash, jurisdiction },
-      { data: scannerReportData, schema: ScannerReportDataSchema }
-    );
-  });
 });
