@@ -10,7 +10,7 @@ import {
   PollsState,
   PrecinctSelection,
 } from '@votingworks/types';
-import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
+import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
   Api,
   MachineConfig,
@@ -51,30 +51,13 @@ export const statusNoPaper: PrecinctScannerStatus = {
   ballotsCounted: 0,
 };
 
-type MockApiClient = Omit<MockClient<Api>, 'saveScannerReportDataToCard'> & {
-  // Because the values passed to this are so complex, we opt for a standard jest mock instead of a
-  // libs/test-utils mock since the latter requires exact input matching and doesn't support
-  // matchers like expect.objectContaining
-  saveScannerReportDataToCard: jest.Mock;
-};
-
-function createMockApiClient(): MockApiClient {
-  const mockApiClient = createMockClient<Api>();
-  // Because mockApiClient uses a Proxy under the hood, we add an explicit field
-  // to the object to override the Proxy implementation.
-  (mockApiClient.saveScannerReportDataToCard as unknown as jest.Mock) = jest.fn(
-    () => Promise.resolve(ok())
-  );
-  return mockApiClient as unknown as MockApiClient;
-}
-
 /**
  * Creates a VxScan specific wrapper around commonly used methods from the Grout
  * mock API client to make it easier to use for our specific test needs
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function createApiMock() {
-  const mockApiClient = createMockApiClient();
+  const mockApiClient = createMockClient<Api>();
 
   function setAuthStatus(authStatus: InsertedSmartCardAuth.AuthStatus): void {
     mockApiClient.getAuthStatus.expectRepeatedCallsWith().resolves(authStatus);

@@ -1,4 +1,9 @@
-import { fakeKiosk, mockOf } from '@votingworks/test-utils';
+import {
+  expectPrint,
+  fakeKiosk,
+  fakePrinterInfo,
+  mockOf,
+} from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
   isFeatureFlagEnabled,
@@ -58,9 +63,9 @@ function renderScreen(
         scannedBallotCount={0}
         pollsState="polls_closed_initial"
         isLiveMode
-        printerInfo={undefined}
+        printerInfo={fakePrinterInfo()}
         logger={fakeLogger()}
-        precinctReportDestination="smartcard"
+        precinctReportDestination="laser-printer"
         {...props}
       />
     )
@@ -114,6 +119,7 @@ describe('transitions from polls closed', () => {
     apiMock.expectGetConfig({ pollsState: 'polls_open' });
     userEvent.click(screen.getByText('Yes, Open the Polls'));
     await screen.findByText('Opening Polls…');
+    await expectPrint();
     await screen.findByText('Polls are open.');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsOpened,
@@ -131,6 +137,7 @@ describe('transitions from polls closed', () => {
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Open Polls'));
     await screen.findByText('Opening Polls…');
+    await expectPrint();
     await screen.findByText('Polls are open.');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsOpened,
@@ -161,6 +168,7 @@ describe('transitions from polls open', () => {
     apiMock.expectGetConfig({ pollsState: 'polls_closed_final' });
     userEvent.click(screen.getByText('Yes, Close the Polls'));
     await screen.findByText('Closing Polls…');
+    await expectPrint();
     await screen.findByText('Polls are closed.');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsClosed,
@@ -179,6 +187,7 @@ describe('transitions from polls open', () => {
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
+    await expectPrint();
     await screen.findByText('Polls are closed.');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsClosed,
@@ -196,6 +205,7 @@ describe('transitions from polls open', () => {
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Pause Voting'));
     await screen.findByText('Pausing Voting…');
+    await expectPrint();
     await screen.findByText('Voting paused.');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.VotingPaused,
@@ -225,6 +235,7 @@ describe('transitions from polls paused', () => {
     apiMock.expectGetConfig({ pollsState: 'polls_open' });
     userEvent.click(screen.getByText('Yes, Resume Voting'));
     await screen.findByText('Resuming Voting…');
+    await expectPrint();
     await screen.findByText('Voting resumed.');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.VotingResumed,
@@ -242,6 +253,7 @@ describe('transitions from polls paused', () => {
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Resume Voting'));
     await screen.findByText('Resuming Voting…');
+    await expectPrint();
     await screen.findByText('Voting resumed.');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.VotingResumed,
@@ -260,6 +272,7 @@ describe('transitions from polls paused', () => {
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
+    await expectPrint();
     await screen.findByText('Polls are closed.');
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.PollsClosed,

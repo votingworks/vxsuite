@@ -2,10 +2,10 @@
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   advanceTimersAndPromises,
+  expectPrint,
   fakeKiosk,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
-import { MemoryHardware } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
 
@@ -19,15 +19,12 @@ import {
   statusNoPaper,
 } from '../test/helpers/mock_api_client';
 import { App, AppProps } from './app';
+import { buildStandardScanHardware } from '../test/helpers/build_app';
 
 let apiMock: ApiMock;
 
 function renderApp(props: Partial<AppProps> = {}) {
-  const hardware = MemoryHardware.build({
-    connectPrinter: false,
-    connectCardReader: true,
-    connectPrecinctScanner: true,
-  });
+  const hardware = buildStandardScanHardware();
   const logger = fakeLogger();
   render(
     <App
@@ -161,7 +158,7 @@ test('show card backwards screen when card connection error occurs', async () =>
 
 test('shows internal wiring message when there is no scanner, but tablet is plugged in', async () => {
   apiMock.expectGetConfig();
-  const hardware = MemoryHardware.buildStandard();
+  const hardware = buildStandardScanHardware();
   hardware.setPrecinctScannerConnected(false);
   hardware.setBatteryDischarging(false);
   apiMock.expectGetScannerStatus({
@@ -175,7 +172,7 @@ test('shows internal wiring message when there is no scanner, but tablet is plug
 
 test('shows power cable message when there is no scanner and tablet is not plugged in', async () => {
   apiMock.expectGetConfig();
-  const hardware = MemoryHardware.buildStandard();
+  const hardware = buildStandardScanHardware();
   hardware.setPrecinctScannerConnected(false);
   hardware.setBatteryDischarging(true);
   apiMock.expectGetScannerStatus({
@@ -193,7 +190,7 @@ test('shows power cable message when there is no scanner and tablet is not plugg
 
 test('shows instructions to restart when the scanner client crashed', async () => {
   apiMock.expectGetConfig({ pollsState: 'polls_open' });
-  const hardware = MemoryHardware.buildStandard();
+  const hardware = buildStandardScanHardware();
   hardware.setPrecinctScannerConnected(false);
   apiMock.expectGetScannerStatus({
     ...statusNoPaper,
@@ -206,8 +203,7 @@ test('shows instructions to restart when the scanner client crashed', async () =
 
 test('App shows warning message to connect to power when disconnected', async () => {
   apiMock.expectGetConfig();
-  const hardware = MemoryHardware.buildStandard();
-  hardware.setPrinterConnected(false);
+  const hardware = buildStandardScanHardware();
   hardware.setBatteryDischarging(true);
   hardware.setBatteryLevel(0.9);
   const kiosk = fakeKiosk();
@@ -234,15 +230,8 @@ test('App shows warning message to connect to power when disconnected', async ()
   apiMock.expectSetPollsState('polls_open');
   apiMock.expectGetConfig({ pollsState: 'polls_open' });
   userEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await expectPrint();
   await screen.findByText('Polls are open.');
-  expect(
-    apiMock.mockApiClient.saveScannerReportDataToCard
-  ).toHaveBeenCalledTimes(1);
-  expect(
-    apiMock.mockApiClient.saveScannerReportDataToCard
-  ).toHaveBeenNthCalledWith(1, {
-    scannerReportData: expect.anything(),
-  });
 
   // Remove pollworker card
   apiMock.removeCard();
