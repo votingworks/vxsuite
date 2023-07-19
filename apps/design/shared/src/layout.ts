@@ -191,7 +191,7 @@ export function measurements(paperSize: BallotPaperSize, density: number) {
   const INSTRUCTIONS_ROW_HEIGHT = [3.5, 3, 2.5][density];
   const HEADER_AND_INSTRUCTIONS_ROW_HEIGHT =
     HEADER_ROW_HEIGHT + INSTRUCTIONS_ROW_HEIGHT;
-  const FOOTER_ROW_HEIGHT = 2;
+  const FOOTER_ROW_HEIGHT = [2, 2, 1.5][density];
   const TIMING_MARKS_ROW_HEIGHT = 1.5; // Includes margin
   const CONTENT_AREA_ROW_HEIGHT = grid.rows - TIMING_MARKS_ROW_HEIGHT * 2 + 1;
   const CONTENT_AREA_COLUMN_WIDTH = grid.columns - 3;
@@ -552,34 +552,69 @@ function Footer({
   m: Measurements;
 }): Rectangle {
   const isFront = pageNumber % 2 === 1;
+  const continueVotingText = isFront
+    ? 'Turn ballot over and continue voting'
+    : 'Continue voting on next ballot';
+  const continueVotingTextWidth = textWidth(
+    continueVotingText,
+    m.FontStyles.H3
+  );
+  const arrowImageHeight = m.FOOTER_ROW_HEIGHT - 0.75;
   const continueVoting: AnyElement[] = [
     {
       type: 'TextBox',
-      ...gridPosition({ row: 0.5, column: isFront ? 16 : 18 }, m),
-      width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-      height: gridHeight(m.FOOTER_ROW_HEIGHT - 1, m),
-      textLines: [
-        isFront
-          ? 'Turn ballot over and continue voting'
-          : 'Continue voting on next ballot',
-      ],
+      ...gridPosition(
+        {
+          row:
+            m.FOOTER_ROW_HEIGHT / 2 -
+            yToRow(m.FontStyles.H3.fontSize + 2, m) / 2,
+          column:
+            m.CONTENT_AREA_COLUMN_WIDTH -
+            xToColumn(continueVotingTextWidth, m) -
+            3,
+        },
+        m
+      ),
+      width: continueVotingTextWidth + 5,
+      height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
+      textLines: [continueVotingText],
       ...m.FontStyles.H3,
+      align: 'right',
     },
     {
       type: 'Image',
-      ...gridPosition({ row: 0.25, column: 29 }, m),
-      width: gridWidth(1.5, m),
-      height: gridHeight(1.5, m),
+      ...gridPosition(
+        { row: (m.FOOTER_ROW_HEIGHT - arrowImageHeight) / 2, column: 29 },
+        m
+      ),
+      width: gridWidth(arrowImageHeight, m),
+      height: gridHeight(arrowImageHeight, m),
       href: '/images/arrow-right-circle.svg',
     },
   ];
 
+  const ballotCompleteText = 'You have completed voting.';
+  const ballotCompleteTextWidth = textWidth(
+    ballotCompleteText,
+    m.FontStyles.H3
+  );
   const ballotComplete: AnyElement[] = [
     {
       type: 'TextBox',
-      ...gridPosition({ row: 0.5, column: 20.5 }, m),
-      width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-      height: gridHeight(m.FOOTER_ROW_HEIGHT - 1, m),
+      ...gridPosition(
+        {
+          row:
+            m.FOOTER_ROW_HEIGHT / 2 -
+            yToRow(m.FontStyles.H3.fontSize + 2, m) / 2,
+          column:
+            m.CONTENT_AREA_COLUMN_WIDTH -
+            xToColumn(ballotCompleteTextWidth, m) -
+            1.5,
+        },
+        m
+      ),
+      width: ballotCompleteTextWidth + 10,
+      height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
       textLines: ['You have completed voting.'],
       ...m.FontStyles.H3,
     },
@@ -614,38 +649,34 @@ function Footer({
         height: 2,
         fill: 'black',
       },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 0.25, column: 0.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.FOOTER_ROW_HEIGHT - 1, m),
-        textLines: ['Page'],
-        ...m.FontStyles.SMALL,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 0.8, column: 0.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.FOOTER_ROW_HEIGHT - 1, m),
-        textLines: [`${pageNumber}/${totalPages}`],
-        ...m.FontStyles.H2,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 0.25, column: 3.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.FOOTER_ROW_HEIGHT - 1, m),
-        textLines: ['Precinct'],
-        ...m.FontStyles.SMALL,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 0.8, column: 3.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.FOOTER_ROW_HEIGHT - 1, m),
-        textLines: [precinct.name],
-        ...m.FontStyles.H2,
-      },
+      TextBlock({
+        ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 0.5 }, m),
+        width: gridWidth(5, m),
+        textGroups: [
+          {
+            text: 'Page',
+            fontStyle: m.FontStyles.SMALL,
+          },
+          {
+            text: `${pageNumber}/${totalPages}`,
+            fontStyle: m.FontStyles.H2,
+          },
+        ],
+      }),
+      TextBlock({
+        ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 3.5 }, m),
+        width: gridWidth(5, m),
+        textGroups: [
+          {
+            text: 'Precinct',
+            fontStyle: m.FontStyles.SMALL,
+          },
+          {
+            text: precinct.name,
+            fontStyle: m.FontStyles.H2,
+          },
+        ],
+      }),
       ...endOfPageInstruction,
     ],
   };
@@ -948,9 +979,13 @@ function BallotMeasure({
   ];
 
   const bubbleColumn =
-    bubblePosition === BallotTargetMarkPosition.Left ? 1 : width - 1;
+    bubblePosition === BallotTargetMarkPosition.Left
+      ? m.BALLOT_MEASURE_OPTION_POSITION === 'inline'
+        ? width - 2
+        : 1
+      : width - 1;
   const optionLabelColumn =
-    bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5;
+    bubblePosition === BallotTargetMarkPosition.Left ? 3.75 : 0;
   const optionTextAlign =
     bubblePosition === BallotTargetMarkPosition.Left ? 'left' : 'right';
 
@@ -968,7 +1003,7 @@ function BallotMeasure({
       ...gridPosition(
         {
           row: optionRow,
-          column: 0,
+          column: bubbleColumn - 3,
         },
         m
       ),
@@ -978,7 +1013,7 @@ function BallotMeasure({
       children: [
         Bubble({
           row: 1,
-          column: bubbleColumn,
+          column: 3,
           isFilled: false,
           m,
         }),
@@ -986,12 +1021,12 @@ function BallotMeasure({
           type: 'TextBox',
           ...gridPosition(
             {
-              row: 0.65,
+              row: 0.7,
               column: optionLabelColumn,
             },
             m
           ),
-          width: gridWidth(width - 2.25, m),
+          width: gridWidth(2.25, m),
           height: gridHeight(1, m),
           textLines: [choice.label],
           ...m.FontStyles.BODY,
