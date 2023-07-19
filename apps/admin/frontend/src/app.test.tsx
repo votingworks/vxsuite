@@ -129,6 +129,7 @@ test('configuring with a demo election definition', async () => {
   // remove the election
   apiMock.expectUnconfigure();
   apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetMachineConfig();
   fireEvent.click(getByText('Remove'));
   fireEvent.click(getByText('Remove Election Definition'));
 
@@ -395,6 +396,7 @@ test('removing election resets cvr and manual data files', async () => {
   apiMock.expectUnconfigure();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetMachineConfig();
   fireEvent.click(getByText('Definition'));
   fireEvent.click(getByText('Remove Election'));
   fireEvent.click(getByText('Remove Election Definition'));
@@ -575,6 +577,7 @@ test('system administrator UI has expected nav when no election', async () => {
   // Remove the election definition and verify that those same tabs disappear
   apiMock.expectUnconfigure();
   apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetMachineConfig();
   userEvent.click(screen.getByText('Remove Election'));
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(
