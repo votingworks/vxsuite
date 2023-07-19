@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
   ElectionDefinition,
   OptionalElectionDefinition,
@@ -37,12 +37,14 @@ import {
   useUsbDrive,
   UnlockMachineScreen,
   useQueryChangeListener,
+  ThemeManagerContext,
 } from '@votingworks/ui';
 
 import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
 import {
   mergeMsEitherNeitherContests,
   CastBallotPage,
+  useDisplaySettingsManager,
 } from '@votingworks/mark-flow-ui';
 import {
   checkPin,
@@ -275,6 +277,8 @@ export function AppRoot({
 
   const history = useHistory();
 
+  const themeManager = React.useContext(ThemeManagerContext);
+
   const machineConfigQuery = getMachineConfig.useQuery();
 
   const devices = useDevices({ hardware, logger });
@@ -366,18 +370,24 @@ export function AppRoot({
         showPostVotingInstructions: newShowPostVotingInstructions,
       });
       history.push('/');
+
+      if (!newShowPostVotingInstructions) {
+        // [VVSG 2.0 7.1-A] Reset to default theme when voter is done marking
+        // their ballot:
+        themeManager.resetThemes();
+      }
     },
-    [history]
+    [history, themeManager]
   );
 
   const hidePostVotingInstructions = useCallback(() => {
     clearTimeout(PostVotingInstructionsTimeout.current);
     endCardlessVoterSessionMutation.mutate(undefined, {
       onSuccess() {
-        dispatchAppState({ type: 'resetBallot' });
+        resetBallot();
       },
     });
-  }, [endCardlessVoterSessionMutation]);
+  }, [endCardlessVoterSessionMutation, resetBallot]);
 
   // Hide Verify and Scan Instructions
   useEffect(() => {
@@ -581,6 +591,8 @@ export function AppRoot({
     storage,
     initializedFromStorage,
   ]);
+
+  useDisplaySettingsManager({ authStatus, votes });
 
   if (
     !machineConfigQuery.isSuccess ||
