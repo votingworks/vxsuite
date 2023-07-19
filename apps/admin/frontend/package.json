@@ -19,7 +19,7 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=UTC node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=7 --env=jest-environment-jsdom-sixteen",
+    "test:ci": "TZ=UTC node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=6 --env=jest-environment-jsdom-sixteen",
     "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false --env=jest-environment-jsdom-sixteen",
     "test:watch": "TZ=UTC node scripts/test.js --env=jest-environment-jsdom-sixteen",
     "type-check": "tsc --build"
