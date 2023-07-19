@@ -1,6 +1,5 @@
 import {
   CoderType,
-  byteArrayWithLengthPrefix,
   literal,
   message,
   padding,
@@ -115,7 +114,7 @@ export const RealTimeExchangeResponseWithoutData = message({
   requestId: uint8(),
   token: literal(TOKEN),
   returnCode: uint8(),
-  optionalBytes: byteArrayWithLengthPrefix(0),
+  optionalBytes: padding(1),
 });
 export type RealTimeExchangeResponseWithoutData = CoderType<
   typeof RealTimeExchangeResponseWithoutData
