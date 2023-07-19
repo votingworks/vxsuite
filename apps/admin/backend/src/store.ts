@@ -66,7 +66,7 @@ import {
   CardTally,
   WriteInAdjudicationQueueMetadata,
 } from './types';
-import { replacePartyIdFilter } from './tabulation/utils';
+import { isBlankVotes, replacePartyIdFilter } from './tabulation/utils';
 import { rootDebug } from './util/debug';
 
 const debug = rootDebug.extend('store');
@@ -502,9 +502,10 @@ export class Store {
           batch_id,
           precinct_id,
           sheet_number,
-          votes
+          votes,
+          is_blank
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
         cvrId,
@@ -515,7 +516,8 @@ export class Store {
         cvr.batchId,
         cvr.precinctId,
         cvrSheetNumber,
-        serializedVotes
+        serializedVotes,
+        isBlankVotes(cvr.votes) ? 1 : 0
       );
     }
 
@@ -936,11 +938,16 @@ export class Store {
     electionId,
     election,
     groupBy = {},
+    blankBallotsOnly = false,
   }: {
     electionId: Id;
     election: Election;
     groupBy?: Tabulation.GroupBy;
+    blankBallotsOnly?: boolean;
   }): Generator<Tabulation.GroupOf<CardTally>> {
+    const whereParts = ['cvrs.election_id = ?'];
+    const params: Bindable[] = [electionId];
+
     const selectParts: string[] = [];
     const groupByParts: string[] = [];
 
@@ -969,6 +976,10 @@ export class Store {
       groupByParts.push('cvrs.ballot_type');
     }
 
+    if (blankBallotsOnly) {
+      whereParts.push('cvrs.is_blank = 1');
+    }
+
     const ballotStylePartyLookup = getBallotStyleIdPartyIdLookup(election);
 
     for (const row of this.client.each(
@@ -980,12 +991,12 @@ export class Store {
           from cvrs
           inner join
             scanner_batches on scanner_batches.id = cvrs.batch_id
-          where cvrs.election_id = ?
+          where ${whereParts.join(' and ')}
           group by
             ${groupByParts.map((line) => `${line},`).join('\n')}
             sheetNumber
         `,
-      electionId
+      ...params
     ) as Iterable<
       Partial<Tabulation.CastVoteRecordAttributes> & {
         sheetNumber: number | null;

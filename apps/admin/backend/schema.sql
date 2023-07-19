@@ -56,6 +56,7 @@ create table cvrs (
   precinct_id text not null,
   sheet_number integer check (sheet_number is null or sheet_number > 0),
   votes text not null,
+  is_blank boolean not null,
   created_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)
     on delete cascade,

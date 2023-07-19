@@ -1,6 +1,7 @@
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { Tabulation } from '@votingworks/types';
-import { GROUP_KEY_ROOT } from '@votingworks/utils';
+import { GROUP_KEY_ROOT, groupMapToGroupList } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import { Store } from '../store';
 import {
   MockCastVoteRecordFile,
@@ -217,4 +218,66 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
     bmd: 5,
     hmpb: [6, 7],
   });
+});
+
+test('tabulateFullCardCounts - blankBallots', () => {
+  const store = Store.memoryStore();
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionData } = electionDefinition;
+  const electionId = store.addElection(electionData);
+  store.setCurrentElectionId(electionId);
+
+  // add some mock cast vote records with one vote each
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleId: '1M',
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: {}, // blank
+      card: { type: 'bmd' },
+      multiplier: 5,
+    },
+    {
+      ballotStyleId: '1M',
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'absentee',
+      votes: { fishing: ['yes'] }, // not blank
+      card: { type: 'bmd' },
+      multiplier: 6,
+    },
+  ];
+  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+
+  const allBallotCounts = groupMapToGroupList(
+    tabulateScannedCardCounts({
+      electionId,
+      store,
+    })
+  );
+
+  expect(allBallotCounts).toEqual([
+    typedAs<Tabulation.CardCounts>({
+      bmd: 11,
+      hmpb: [],
+    }),
+  ]);
+
+  const blankBallotCounts = groupMapToGroupList(
+    tabulateScannedCardCounts({
+      electionId,
+      store,
+      blankBallotsOnly: true,
+    })
+  );
+
+  expect(blankBallotCounts).toEqual([
+    typedAs<Tabulation.CardCounts>({
+      bmd: 5,
+      hmpb: [],
+    }),
+  ]);
 });

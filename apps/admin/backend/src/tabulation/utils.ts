@@ -30,3 +30,10 @@ export function replacePartyIdFilter(
     batchIds: filter.batchIds,
   };
 }
+
+/**
+ * Tests whether CVR votes are empty.
+ */
+export function isBlankVotes(votes: Tabulation.Votes): boolean {
+  return Object.values(votes).every((selections) => selections.length === 0);
+}

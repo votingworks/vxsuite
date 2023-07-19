@@ -587,7 +587,7 @@ function buildApi({
       });
     },
 
-    async getWriteInImageView(input: {
+    getWriteInImageView(input: {
       writeInId: string;
     }): Promise<WriteInImageView> {
       return getWriteInImageView({
@@ -695,6 +695,7 @@ function buildApi({
     getCardCounts(
       input: {
         groupBy?: Tabulation.GroupBy;
+        blankBallotsOnly?: boolean;
       } = {}
     ): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
@@ -702,7 +703,7 @@ function buildApi({
         tabulateFullCardCounts({
           electionId,
           store,
-          groupBy: input.groupBy,
+          ...input,
         })
       );
     },
