@@ -9,8 +9,10 @@ import {
 } from '@votingworks/utils';
 import { CardTally } from '../types';
 import { Store } from '../store';
-
 import { tabulateManualBallotCounts } from './manual_results';
+import { rootDebug } from '../util/debug';
+
+const debug = rootDebug.extend('card-counts');
 
 /**
  * Adds a card tally to a card counts object. Mutates the card counts object
@@ -105,6 +107,7 @@ export function tabulateFullCardCounts({
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
+  debug('tabulating card counts for the following group by: %o', groupBy ?? {});
 
   const groupedScannedCardCounts = tabulateScannedCardCounts({
     electionId,
@@ -120,11 +123,14 @@ export function tabulateFullCardCounts({
   });
 
   if (tabulateManualBallotCountsResult.isErr()) {
+    debug(
+      'tabulated card counts, omitted manual ballot counts due to incompatible group by'
+    );
     return groupedScannedCardCounts;
   }
 
+  debug('tabulated card counts');
   const groupedManualBallotCounts = tabulateManualBallotCountsResult.ok();
-
   return mergeTabulationGroupMaps(
     groupedScannedCardCounts,
     groupedManualBallotCounts,

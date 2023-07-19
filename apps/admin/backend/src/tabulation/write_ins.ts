@@ -15,6 +15,9 @@ import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { WriteInTally } from '../types';
 import { Store } from '../store';
 import { extractWriteInSummary, tabulateManualResults } from './manual_results';
+import { rootDebug } from '../util/debug';
+
+const debug = rootDebug.extend('write-ins-tabulation');
 
 /**
  * Creates an empty contest write-in summary.
@@ -377,6 +380,7 @@ export function getOverallElectionWriteInSummary({
   electionId: Id;
   store: Store;
 }): Tabulation.ElectionWriteInSummary {
+  debug('tabulating overall election write-in summary');
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
@@ -400,6 +404,7 @@ export function getOverallElectionWriteInSummary({
     manualResults: overallManualResults,
   });
 
+  debug('tabulated overall election write-in-summary');
   return combineElectionWriteInSummaries(
     scannedElectionWriteInSummary,
     overallManualWriteInSummary,
