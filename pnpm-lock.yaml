@@ -6950,18 +6950,6 @@ importers:
       '@testing-library/react':
         specifier: ^12.1.5
         version: 12.1.5(react-dom@17.0.1)(react@17.0.1)
-      '@types/dompurify':
-        specifier: ^2.0.3
-        version: 2.3.3
-      '@types/lodash.clonedeep':
-        specifier: ^4.5.7
-        version: 4.5.7
-      '@types/react-modal':
-        specifier: ^3.13.1
-        version: 3.13.1
-      '@types/react-router-dom':
-        specifier: ^5.1.7
-        version: 5.1.7
       '@votingworks/ballot-encoder':
         specifier: workspace:*
         version: link:../ballot-encoder
@@ -7056,6 +7044,9 @@ importers:
       '@types/deep-eql':
         specifier: workspace:*
         version: link:../@types/deep-eql
+      '@types/dompurify':
+        specifier: ^2.0.3
+        version: 2.3.3
       '@types/history':
         specifier: '4'
         version: 4.7.11
@@ -7065,6 +7056,9 @@ importers:
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../@types/kiosk-browser
+      '@types/lodash.clonedeep':
+        specifier: ^4.5.7
+        version: 4.5.7
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -7080,6 +7074,12 @@ importers:
       '@types/react-dom':
         specifier: ^18.0.6
         version: 18.0.6
+      '@types/react-modal':
+        specifier: ^3.13.1
+        version: 3.13.1
+      '@types/react-router-dom':
+        specifier: ^5.1.7
+        version: 5.1.7
       '@types/styled-components':
         specifier: ^5.1.9
         version: 5.1.9
@@ -14068,7 +14068,6 @@ packages:
     resolution: {integrity: sha512-nnVQSgRVuZ/843oAfhA25eRSNzUFcBPk/LOiw5gm8mD9/X7CNcbRkQu/OsjCewO8+VIYfPxUnXvPEVGenw14+w==}
     dependencies:
       '@types/trusted-types': 2.0.2
-    dev: false
 
   /@types/ejs@3.1.1:
     resolution: {integrity: sha512-RQul5wEfY7BjWm0sYY86cmUN/pcXWGyVxWX93DFFJvcrxax5zKlieLwA3T77xJGwNcZW0YW6CYG70p1m8xPFmA==}
@@ -14454,7 +14453,6 @@ packages:
     resolution: {integrity: sha512-iY/gPvTDIy6Z+37l+ibmrY+GTV4KQTHcCyR5FIytm182RQS69G5ps4PH2FxtC7bAQ2QRHXMevsBgck7IQruHNg==}
     dependencies:
       '@types/react': 17.0.39
-    dev: false
 
   /@types/react-router-dom@5.1.7:
     resolution: {integrity: sha512-D5mHD6TbdV/DNHYsnwBTv+y73ei+mMjrkGrla86HthE4/PVvL1J94Bu3qABU+COXzpL23T1EZapVVpwHuBXiUg==}
@@ -14626,7 +14624,6 @@ packages:
 
   /@types/trusted-types@2.0.2:
     resolution: {integrity: sha512-F5DIZ36YVLE+PN+Zwws4kJogq47hNgX3Nx6WyDJ3kcplxyke3XIzB8uK5n/Lpm1HBsbGzd6nmGehL8cPekP+Tg==}
-    dev: false
 
   /@types/uglify-js@3.11.1:
     resolution: {integrity: sha512-7npvPKV+jINLu1SpSYVWG8KvyJBhBa8tmzMMdDoVc2pWUYHN8KIXlPJhjJ4LT97c4dXJA2SHL/q6ADbDriZN+Q==}
