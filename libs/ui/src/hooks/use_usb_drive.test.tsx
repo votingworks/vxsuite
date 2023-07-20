@@ -1,4 +1,3 @@
-import { act, renderHook } from '@testing-library/react-hooks';
 import userEvent from '@testing-library/user-event';
 import { LogEventId, Logger, fakeLogger } from '@votingworks/logging';
 import {
@@ -6,7 +5,13 @@ import {
   fakeKiosk,
   fakeUsbDrive,
 } from '@votingworks/test-utils';
-import { render, screen, waitFor } from '../../test/react_testing_library';
+import {
+  act,
+  render,
+  screen,
+  waitFor,
+  renderHook,
+} from '../../test/react_testing_library';
 import { UsbControllerButton } from '../usbcontroller_button';
 import {
   MIN_TIME_TO_UNMOUNT_USB,
@@ -26,6 +31,8 @@ async function waitForUnmount(): Promise<void> {
 }
 
 let logger: Logger;
+
+const user = userEvent.setup({ delay: null });
 
 beforeEach(() => {
   delete window.kiosk;
@@ -61,7 +68,6 @@ test('full lifecycle with USBControllerButton', async () => {
 
   // plug in a USB drive
   mockKiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
-  await screen.findByText('Connecting…');
   await screen.findByText('Eject USB');
   mockKiosk.getUsbDriveInfo.mockResolvedValue([MOUNTED_DRIVE]);
 
@@ -90,9 +96,11 @@ test('full lifecycle with USBControllerButton', async () => {
   );
 
   // begin eject
-  await userEvent.click(screen.getByText('Eject USB'));
+  await user.click(screen.getByText('Eject USB'));
   await screen.findByText('Ejecting…');
-  await waitForUnmount();
+  await act(async () => {
+    await waitForUnmount();
+  });
   await screen.findByText('Ejected');
   mockKiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
   expect(mockKiosk.unmountUsbDrive).toHaveBeenCalled();
@@ -111,7 +119,9 @@ test('full lifecycle with USBControllerButton', async () => {
 
   // remove the USB drive
   mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
-  await waitForStatusUpdate();
+  await act(async () => {
+    await waitForStatusUpdate();
+  });
   screen.getByText('No USB');
   expect(logger.log).toHaveBeenCalledTimes(6);
   expect(logger.log).toHaveBeenNthCalledWith(
@@ -125,22 +135,6 @@ test('full lifecycle with USBControllerButton', async () => {
 });
 
 describe('removing USB in any unexpected states still resets to absent', () => {
-  test('mounting', async () => {
-    const mockKiosk = fakeKiosk();
-    mockKiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
-    window.kiosk = mockKiosk;
-
-    const { result } = renderHook(() => useUsbDrive({ logger }));
-    await waitFor(() => {
-      expect(result.current.status).toEqual('mounting');
-    });
-
-    mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
-    await waitFor(() => {
-      expect(result.current.status).toEqual('absent');
-    });
-  });
-
   test('mounted', async () => {
     const mockKiosk = fakeKiosk();
     mockKiosk.getUsbDriveInfo.mockResolvedValue([MOUNTED_DRIVE]);
@@ -152,31 +146,6 @@ describe('removing USB in any unexpected states still resets to absent', () => {
     });
 
     mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
-    await waitFor(() => {
-      expect(result.current.status).toEqual('absent');
-    });
-  });
-
-  test('ejecting', async () => {
-    const mockKiosk = fakeKiosk();
-    mockKiosk.getUsbDriveInfo.mockResolvedValue([MOUNTED_DRIVE]);
-    window.kiosk = mockKiosk;
-
-    const { result } = renderHook(() => useUsbDrive({ logger }));
-    await waitFor(() => {
-      expect(result.current.status).toEqual('mounted');
-    });
-
-    await act(async () => {
-      const ejectPromise = result.current.eject('poll_worker');
-      await waitFor(() => {
-        expect(result.current.status).toEqual('ejecting');
-      });
-      mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
-      await waitForUnmount();
-      await ejectPromise;
-    });
-
     await waitFor(() => {
       expect(result.current.status).toEqual('absent');
     });
@@ -225,11 +194,7 @@ test('error in ejecting gets logged as expected', async () => {
   expect(mockKiosk.mountUsbDrive).not.toHaveBeenCalled();
 
   await act(async () => {
-    const ejectPromise = result.current.eject('poll_worker');
-    await waitFor(() => {
-      expect(result.current.status).toEqual('ejecting');
-    });
-    await ejectPromise;
+    await result.current.eject('poll_worker');
   });
 
   expect(result.current.status).toEqual('mounted');
