@@ -19,30 +19,19 @@ import {
   Icons,
 } from '@votingworks/ui';
 import {
-  BallotCountDetails,
   compressTally,
   computeTallyWithPrecomputedCategories,
   BooleanEnvironmentVariableName,
   getSubTalliesByPartyAndPrecinct,
-  getTallyIdentifier,
   isFeatureFlagEnabled,
-  ScannerReportData,
-  ReportSourceMachineType,
   getPollsTransitionDestinationState,
   getPollsReportTitle,
-  ScannerBallotCountReportData,
   isPollsSuspensionTransition,
-  ScannerTallyReportData,
-  ScannerReportDataBase,
 } from '@votingworks/utils';
 import {
-  VotingMethod,
   TallyCategory,
   FullElectionTally,
   Tally,
-  Dictionary,
-  CompressedTally,
-  getPartyIdsInBallotStyles,
   PollsState,
   PollsTransition,
   ElectionDefinition,
@@ -57,7 +46,6 @@ import {
 import {
   assert,
   Optional,
-  Result,
   sleep,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -69,7 +57,6 @@ import {
   exportCastVoteRecordsToUsbDrive,
   getCastVoteRecordsForTally,
   setPollsState,
-  saveScannerReportDataToCard as saveScannerReportDataToCardBase,
 } from '../api';
 import { MachineConfig } from '../config/types';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
@@ -155,26 +142,8 @@ export function PollWorkerScreen({
     isShowingBallotsAlreadyScannedScreen,
     setIsShowingBallotsAlreadyScannedScreen,
   ] = useState(false);
-  const needsToAttachPrinterToTransitionPolls =
-    precinctReportDestination !== 'smartcard' && !printerInfo && !!window.kiosk;
+  const needsToAttachPrinterToTransitionPolls = !printerInfo && !!window.kiosk;
   const { election } = electionDefinition;
-  const saveScannerReportDataToCardMutation =
-    saveScannerReportDataToCardBase.useMutation();
-
-  async function saveScannerReportDataToCard(
-    scannerReportData: ScannerReportData
-  ): Promise<boolean> {
-    let result: Result<void, Error>;
-    try {
-      result = await saveScannerReportDataToCardMutation.mutateAsync({
-        scannerReportData,
-      });
-    } catch {
-      // Handled by default query client error handling
-      return false;
-    }
-    return result.isOk();
-  }
 
   function initialPollWorkerFlowState(): Optional<PollWorkerFlowState> {
     switch (pollsState) {
@@ -199,11 +168,6 @@ export function PollWorkerScreen({
   const currentCompressedTally = useMemo(
     () => currentTally && compressTally(election, currentTally.overallTally),
     [election, currentTally]
-  );
-
-  const parties = useMemo(
-    () => getPartyIdsInBallotStyles(election),
-    [election]
   );
 
   getCastVoteRecordsForTally.useQuery({
@@ -236,107 +200,6 @@ export function PollWorkerScreen({
       setCurrentTally(tally);
     },
   });
-
-  async function exportReportDataToCard(
-    pollsTransition: PollsTransition,
-    timePollsTransitioned: number
-  ) {
-    const reportBasicData: ScannerReportDataBase = {
-      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
-      machineId: machineConfig.machineId,
-      isLiveMode,
-      precinctSelection,
-      totalBallotsScanned: scannedBallotCount,
-      timeSaved: Date.now(),
-      timePollsTransitioned,
-    };
-
-    if (isPollsSuspensionTransition(pollsTransition)) {
-      const ballotCountReportData: ScannerBallotCountReportData = {
-        ...reportBasicData,
-        pollsTransition,
-      };
-      // TODO: Handle when this returns false
-      await saveScannerReportDataToCard(ballotCountReportData);
-      return;
-    }
-
-    assert(currentTally);
-    assert(currentCompressedTally);
-    let compressedTalliesByPrecinct: Dictionary<CompressedTally> = {};
-    // We only need to save tallies by precinct if the precinct scanner is configured for all precincts
-    if (precinctSelection.kind === 'AllPrecincts') {
-      const talliesByPrecinct = currentTally.resultsByCategory.get(
-        TallyCategory.Precinct
-      );
-      assert(talliesByPrecinct);
-      compressedTalliesByPrecinct = Object.keys(talliesByPrecinct).reduce(
-        (input: Dictionary<CompressedTally>, key) => {
-          const tally = talliesByPrecinct[key];
-          assert(tally);
-          return {
-            ...input,
-            [key]: compressTally(election, tally),
-          };
-        },
-        {}
-      );
-    } else {
-      compressedTalliesByPrecinct[precinctSelection.precinctId] = compressTally(
-        election,
-        currentTally.overallTally
-      );
-    }
-
-    const ballotCountBreakdowns = [...currentSubTallies.entries()].reduce<
-      Dictionary<BallotCountDetails>
-    >((input, [key, subTally]) => {
-      const bcDictionary = subTally.ballotCountsByVotingMethod;
-      const newRow: BallotCountDetails = [
-        bcDictionary[VotingMethod.Precinct] ?? 0,
-        bcDictionary[VotingMethod.Absentee] ?? 0,
-      ];
-      return {
-        ...input,
-        [key]: newRow,
-      };
-    }, {});
-    const talliesByParty = currentTally.resultsByCategory.get(
-      TallyCategory.Party
-    );
-    assert(talliesByParty);
-    for (const partyId of parties) {
-      const subTally = partyId
-        ? talliesByParty[partyId]
-        : currentTally.overallTally;
-      assert(subTally);
-      ballotCountBreakdowns[getTallyIdentifier(partyId)] = [
-        subTally.ballotCountsByVotingMethod[VotingMethod.Precinct] ?? 0,
-        subTally.ballotCountsByVotingMethod[VotingMethod.Absentee] ?? 0,
-      ];
-    }
-
-    const tallyReportData: ScannerTallyReportData = {
-      ...reportBasicData,
-      pollsTransition,
-      tally: currentCompressedTally,
-      talliesByPrecinct: compressedTalliesByPrecinct,
-      ballotCounts: ballotCountBreakdowns,
-    };
-
-    const success = await saveScannerReportDataToCard(tallyReportData);
-    if (!success) {
-      debug(
-        'Error saving tally information to card, trying again without precinct-specific data'
-      );
-      // TODO: Handle when this second attempt returns false
-      await saveScannerReportDataToCard({
-        ...tallyReportData,
-        talliesByPrecinct: undefined,
-        timeSaved: Date.now(),
-      });
-    }
-  }
 
   function showAllPollWorkerActions() {
     return setPollWorkerFlowState(undefined);
@@ -400,24 +263,6 @@ export function PollWorkerScreen({
     }
   }
 
-  async function dispatchReport(
-    pollsTransition: PollsTransition,
-    timePollsTransitioned: number
-  ) {
-    if (precinctReportDestination === 'smartcard') {
-      await exportReportDataToCard(pollsTransition, timePollsTransitioned);
-    } else {
-      await printReport(
-        pollsTransition,
-        timePollsTransitioned,
-        /* istanbul ignore next - prototype */
-        precinctReportDestination === 'thermal-sheet-printer'
-          ? 1
-          : DEFAULT_NUMBER_POLL_REPORT_COPIES
-      );
-    }
-  }
-
   async function transitionPolls(pollsTransition: PollsTransition) {
     try {
       // In compliance with VVSG 2.0 1.1.3-B, confirm there are no scanned
@@ -437,7 +282,14 @@ export function PollWorkerScreen({
       const timePollsTransitioned = Date.now();
       setCurrentPollsTransition(pollsTransition);
       setPollWorkerFlowState('polls_transition_processing');
-      await dispatchReport(pollsTransition, timePollsTransitioned);
+      await printReport(
+        pollsTransition,
+        timePollsTransitioned,
+        /* istanbul ignore next - prototype */
+        precinctReportDestination === 'thermal-sheet-printer'
+          ? 1
+          : DEFAULT_NUMBER_POLL_REPORT_COPIES
+      );
       if (pollsTransition === 'close_polls' && scannedBallotCount > 0) {
         (await exportCastVoteRecordsMutation.mutateAsync()).unsafeUnwrap();
       }
@@ -610,37 +462,33 @@ export function PollWorkerScreen({
       <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
           <H1>{pollsTransitionCompleteText}</H1>
-          {precinctReportDestination === 'smartcard' ? (
-            <P>Insert poll worker card into VxMark to print the report.</P>
-          ) : (
-            <Prose themeDeprecated={fontSizeTheme.medium}>
-              {/* istanbul ignore next - prototype */}
-              {precinctReportDestination === 'thermal-sheet-printer' && (
-                <P>
-                  Insert{' '}
-                  {numReportPages
-                    ? `${numReportPages} ${pluralize(
-                        'sheet',
-                        numReportPages
-                      )} of paper`
-                    : 'paper'}{' '}
-                  into the printer to print the report.
-                </P>
-              )}
+          <Prose themeDeprecated={fontSizeTheme.medium}>
+            {/* istanbul ignore next - prototype */}
+            {precinctReportDestination === 'thermal-sheet-printer' && (
               <P>
-                <Button
-                  onPress={reprintReport}
-                  disabled={needsToAttachPrinterToTransitionPolls}
-                >
-                  Print Additional {getPollsReportTitle(currentPollsTransition)}
-                </Button>
+                Insert{' '}
+                {numReportPages
+                  ? `${numReportPages} ${pluralize(
+                      'sheet',
+                      numReportPages
+                    )} of paper`
+                  : 'paper'}{' '}
+                into the printer to print the report.
               </P>
-              <P>
-                Remove the poll worker card if you have printed all necessary
-                reports.
-              </P>
-            </Prose>
-          )}
+            )}
+            <P>
+              <Button
+                onPress={reprintReport}
+                disabled={needsToAttachPrinterToTransitionPolls}
+              >
+                Print Additional {getPollsReportTitle(currentPollsTransition)}
+              </Button>
+            </P>
+            <P>
+              Remove the poll worker card if you have printed all necessary
+              reports.
+            </P>
+          </Prose>
         </CenteredLargeProse>
       </ScreenMainCenterChild>
     );

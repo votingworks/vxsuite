@@ -347,10 +347,3 @@ export const supportsUltrasonic = {
     return useQuery(this.queryKey(), () => apiClient.supportsUltrasonic());
   },
 } as const;
-
-export const saveScannerReportDataToCard = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.saveScannerReportDataToCard);
-  },
-} as const;

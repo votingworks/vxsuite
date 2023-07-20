@@ -32,7 +32,7 @@ import { DisplaySettingsScreen } from './screens/display_settings_screen';
 import { DisplaySettingsManager } from './components/display_settings_manager';
 
 const DEFAULT_PRECINCT_REPORT_DESTINATION: PrecinctReportDestination =
-  'smartcard';
+  'laser-printer';
 const envPrecinctReportDestination = getEnvironmentVariable(
   StringEnvironmentVariableName.PRECINCT_REPORT_DESTINATION
 ) as Optional<PrecinctReportDestination>;

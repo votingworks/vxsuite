@@ -8,13 +8,8 @@ export interface Printer {
 }
 
 export type PrecinctReportDestination =
-  | 'smartcard'
   | 'laser-printer'
   | 'thermal-sheet-printer';
 
 export const PrecinctReportDestinationSchema: z.ZodSchema<PrecinctReportDestination> =
-  z.union([
-    z.literal('smartcard'),
-    z.literal('laser-printer'),
-    z.literal('thermal-sheet-printer'),
-  ]);
+  z.union([z.literal('laser-printer'), z.literal('thermal-sheet-printer')]);
