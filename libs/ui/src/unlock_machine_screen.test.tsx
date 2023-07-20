@@ -6,10 +6,11 @@ import {
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
-import { act } from '@testing-library/react-hooks';
 
-import { render, screen, waitFor } from '../test/react_testing_library';
+import { act, render, screen, waitFor } from '../test/react_testing_library';
 import { UnlockMachineScreen } from './unlock_machine_screen';
+
+const user = userEvent.setup({ delay: null });
 
 beforeEach(() => {
   MockDate.set('2000-01-01T00:00:00Z');
@@ -29,36 +30,36 @@ test('PIN submission', async () => {
 
   screen.getByText('- - - - - -');
 
-  await userEvent.click(screen.getButton('0'));
+  await user.click(screen.getButton('0'));
   screen.getByText('• - - - - -');
 
-  await userEvent.click(screen.getButton('clear'));
+  await user.click(screen.getButton('clear'));
   screen.getByText('- - - - - -');
 
-  await userEvent.click(screen.getButton('0'));
+  await user.click(screen.getButton('0'));
   screen.getByText('• - - - - -');
 
-  await userEvent.click(screen.getButton('1'));
+  await user.click(screen.getButton('1'));
   screen.getByText('• • - - - -');
 
-  await userEvent.click(screen.getButton('2'));
+  await user.click(screen.getButton('2'));
   screen.getByText('• • • - - -');
 
-  await userEvent.click(screen.getButton('3'));
+  await user.click(screen.getButton('3'));
   screen.getByText('• • • • - -');
 
-  await userEvent.click(screen.getButton('4'));
+  await user.click(screen.getButton('4'));
   screen.getByText('• • • • • -');
 
-  await userEvent.click(screen.getButton('backspace'));
+  await user.click(screen.getButton('backspace'));
   screen.getByText('• • • • - -');
 
-  await userEvent.click(screen.getButton('4'));
+  await user.click(screen.getButton('4'));
   screen.getByText('• • • • • -');
 
-  await userEvent.click(screen.getButton('5'));
+  await user.click(screen.getButton('5'));
   await waitFor(() => expect(checkPin).toHaveBeenNthCalledWith(1, '012345'));
-  screen.getByText('- - - - - -');
+  await screen.findByText('- - - - - -');
 });
 
 test('Incorrect PIN', () => {
@@ -112,7 +113,7 @@ test.each<{
     screen.getByText('- - - - - -');
 
     // Ensure number pad entry is ignored
-    await userEvent.click(screen.getButton('0'));
+    await user.click(screen.getButton('0'));
     screen.getByText('- - - - - -');
 
     MockDate.set('2000-01-01T00:00:01Z');

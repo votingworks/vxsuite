@@ -1,4 +1,3 @@
-import { act, renderHook } from '@testing-library/react-hooks';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
 import { fakeMarkerInfo, mockOf } from '@votingworks/test-utils';
 import {
@@ -15,7 +14,8 @@ import {
   OmniKeyCardReaderProductId,
   OmniKeyCardReaderVendorId,
 } from '@votingworks/utils';
-import { BATTERY_POLLING_INTERVAL, Devices, useDevices } from './use_devices';
+import { act, renderHook, waitFor } from '../../test/react_testing_library';
+import { Devices, useDevices } from './use_devices';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -51,10 +51,10 @@ const expectedCardReader: Devices['cardReader'] = {
   vendorId: OmniKeyCardReaderVendorId,
 };
 
-test('can connect printer as expected', async () => {
+test('can connect printer as expected', () => {
   const hardware = new MemoryHardware();
   const logger = fakeLogger();
-  const { result, rerender, waitForNextUpdate } = renderHook(() =>
+  const { result, rerender, unmount } = renderHook(() =>
     useDevices({ hardware, logger })
   );
   expect(result.current).toEqual(emptyDevices);
@@ -119,14 +119,13 @@ test('can connect printer as expected', async () => {
     })
   );
 
-  // Prevent `act` warning.
-  await waitForNextUpdate();
+  unmount();
 });
 
-test('can connect card reader as expected', async () => {
+test('can connect card reader as expected', () => {
   const hardware = new MemoryHardware();
   const logger = fakeLogger();
-  const { result, rerender, waitForNextUpdate } = renderHook(() =>
+  const { result, rerender, unmount } = renderHook(() =>
     useDevices({ hardware, logger })
   );
   expect(result.current).toEqual(emptyDevices);
@@ -159,15 +158,13 @@ test('can connect card reader as expected', async () => {
       vendorId: OmniKeyCardReaderVendorId,
     })
   );
-
-  // Prevent `act` warning.
-  await waitForNextUpdate();
+  unmount();
 });
 
-test('can connect accessible controller as expected', async () => {
+test('can connect accessible controller as expected', () => {
   const hardware = new MemoryHardware();
   const logger = fakeLogger();
-  const { result, rerender, waitForNextUpdate } = renderHook(() =>
+  const { result, rerender, unmount } = renderHook(() =>
     useDevices({ hardware, logger })
   );
   expect(result.current).toEqual(emptyDevices);
@@ -212,15 +209,13 @@ test('can connect accessible controller as expected', async () => {
       vendorId: AccessibleControllerVendorId,
     })
   );
-
-  // Prevent `act` warning.
-  await waitForNextUpdate();
+  unmount();
 });
 
-test('can connect batch scanner as expected', async () => {
+test('can connect batch scanner as expected', () => {
   const hardware = new MemoryHardware();
   const logger = fakeLogger();
-  const { result, rerender, waitForNextUpdate } = renderHook(() =>
+  const { result, rerender, unmount } = renderHook(() =>
     useDevices({ hardware, logger })
   );
   expect(result.current).toEqual(emptyDevices);
@@ -263,12 +258,10 @@ test('can connect batch scanner as expected', async () => {
       vendorId: FujitsuScannerVendorId,
     })
   );
-
-  // Prevent `act` warning.
-  await waitForNextUpdate();
+  unmount();
 });
 
-test('can connect precinct scanner as expected', async () => {
+test('can connect precinct scanner as expected', () => {
   const customDevice: KioskBrowser.Device = {
     productId: CustomA4ScannerProductId,
     vendorId: CustomScannerVendorId,
@@ -280,7 +273,7 @@ test('can connect precinct scanner as expected', async () => {
   };
   const hardware = new MemoryHardware();
   const logger = fakeLogger();
-  const { result, rerender, waitForNextUpdate } = renderHook(() =>
+  const { result, rerender, unmount } = renderHook(() =>
     useDevices({ hardware, logger })
   );
   expect(result.current).toEqual(emptyDevices);
@@ -315,12 +308,10 @@ test('can connect precinct scanner as expected', async () => {
       vendorId: CustomScannerVendorId,
     })
   );
-
-  // Prevent `act` warning.
-  await waitForNextUpdate();
+  unmount();
 });
 
-test('can handle logs for a random device as expected', async () => {
+test('can handle logs for a random device as expected', () => {
   const randomDevice: KioskBrowser.Device = {
     productId: 1234,
     vendorId: 5678,
@@ -332,7 +323,7 @@ test('can handle logs for a random device as expected', async () => {
   };
   const hardware = new MemoryHardware();
   const logger = fakeLogger();
-  const { result, rerender, waitForNextUpdate } = renderHook(() =>
+  const { result, rerender, unmount } = renderHook(() =>
     useDevices({ hardware, logger })
   );
   expect(logger.log).toHaveBeenCalledTimes(0);
@@ -363,61 +354,60 @@ test('can handle logs for a random device as expected', async () => {
       vendorId: 5678,
     })
   );
-
-  // Prevent `act` warning.
-  await waitForNextUpdate();
+  unmount();
 });
 
 test('periodically polls for computer battery status', async () => {
   jest.useFakeTimers();
   const hardware = new MemoryHardware();
   const logger = fakeLogger();
-  const { result, waitForNextUpdate } = renderHook(() =>
+  const { result, unmount } = renderHook(() =>
     useDevices({ hardware, logger })
   );
   expect(result.current).toEqual(emptyDevices);
 
-  await waitForNextUpdate();
-
   // Should immediately load the battery status
-  expect(result.current.computer).toEqual({
-    batteryIsCharging: true,
-    batteryIsLow: false,
-    batteryLevel: 0.8,
+  await waitFor(() => {
+    expect(result.current.computer).toEqual({
+      batteryIsCharging: true,
+      batteryIsLow: false,
+      batteryLevel: 0.8,
+    });
   });
 
   // Change the battery status to low
   act(() => hardware.setBatteryLevel(0.2));
-  jest.advanceTimersByTime(BATTERY_POLLING_INTERVAL);
-  await waitForNextUpdate();
-  expect(result.current.computer).toEqual({
-    batteryIsCharging: true,
-    batteryIsLow: true,
-    batteryLevel: 0.2,
+  await waitFor(() => {
+    expect(result.current.computer).toEqual({
+      batteryIsCharging: true,
+      batteryIsLow: true,
+      batteryLevel: 0.2,
+    });
   });
 
   // Disconnect the charger
   act(() => hardware.setBatteryDischarging(true));
-  jest.advanceTimersByTime(BATTERY_POLLING_INTERVAL);
-  await waitForNextUpdate();
-  expect(result.current.computer).toEqual({
-    batteryIsCharging: false,
-    batteryIsLow: true,
-    batteryLevel: 0.2,
+  await waitFor(() => {
+    expect(result.current.computer).toEqual({
+      batteryIsCharging: false,
+      batteryIsLow: true,
+      batteryLevel: 0.2,
+    });
   });
+
+  unmount();
 });
 
-test('when card reader check is disabled, fake one returned even if no hardware detected.', async () => {
+test('when card reader check is disabled, fake one returned even if no hardware detected.', () => {
   const hardware = new MemoryHardware();
   const logger = fakeLogger();
   mockOf(isFeatureFlagEnabled).mockImplementation(() => true);
 
-  const { result, waitForNextUpdate } = renderHook(() =>
+  const { result, unmount } = renderHook(() =>
     useDevices({ hardware, logger })
   );
 
   expect(result.current.cardReader).toEqual(expectedCardReader);
 
-  // Prevent `act` warning.
-  await waitForNextUpdate();
+  unmount();
 });

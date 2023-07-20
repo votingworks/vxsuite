@@ -62,6 +62,18 @@ exports[`Modal can configure a wider max width 1`] = `
 
 }
 
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
 <div
   aria-label="Alert Modal"
   aria-modal="true"
@@ -132,6 +144,18 @@ exports[`Modal can configure fullscreen 1`] = `
 }
 
 @media (min-width:480px) {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
 
 }
 

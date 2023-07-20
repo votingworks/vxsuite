@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '../../test/react_testing_library';
 import { useLock } from './use_lock';
 
 test('locks and unlocks', () => {

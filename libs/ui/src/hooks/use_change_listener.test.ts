@@ -1,6 +1,6 @@
-import { renderHook } from '@testing-library/react-hooks';
 import { mockFunction } from '@votingworks/test-utils';
 import { UseQueryResult } from '@tanstack/react-query';
+import { renderHook } from '../../test/react_testing_library';
 import {
   useExternalStateChangeListener,
   useQueryChangeListener,
