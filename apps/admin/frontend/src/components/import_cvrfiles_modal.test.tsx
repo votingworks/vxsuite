@@ -1,7 +1,6 @@
 import { fakeKiosk } from '@votingworks/test-utils';
 
 import { ElectronFile, UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
-import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import type {
   CastVoteRecordFileMetadata,
@@ -13,6 +12,7 @@ import {
   getByText as domGetByText,
   getByTestId as domGetByTestId,
   screen,
+  userEvent,
 } from '../../test/react_testing_library';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
@@ -206,8 +206,9 @@ describe('when USB is properly mounted', () => {
     apiMock.expectGetCastVoteRecordFileMode('official');
     apiMock.expectGetCastVoteRecordFiles([]);
 
-    await userEvent.click(domGetByText(tableRows[0], 'Load'));
+    const loadPromise = userEvent.click(domGetByText(tableRows[0], 'Load'));
     await screen.findByText('Loading');
+    await loadPromise;
     await screen.findByText('1,000 new CVRs Loaded');
   });
 

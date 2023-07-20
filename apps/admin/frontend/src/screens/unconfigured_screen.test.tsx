@@ -3,11 +3,10 @@ import {
   electionMinimalExhaustiveSampleFixtures,
   systemSettings,
 } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
 import { zipFile } from '@votingworks/test-utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { screen } from '../../test/react_testing_library';
+import { screen, userEvent } from '../../test/react_testing_library';
 
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 import { UnconfiguredScreen } from './unconfigured_screen';

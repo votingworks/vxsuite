@@ -1,7 +1,11 @@
 import MockDate from 'mockdate';
-import userEvent from '@testing-library/user-event';
 import { fakeKiosk } from '@votingworks/test-utils';
-import { screen, waitFor, within } from '../../test/react_testing_library';
+import {
+  screen,
+  userEvent,
+  waitFor,
+  within,
+} from '../../test/react_testing_library';
 
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { SettingsScreen } from './settings_screen';

@@ -1,6 +1,5 @@
-import userEvent from '@testing-library/user-event';
 import { fakeKiosk } from '@votingworks/test-utils';
-import { screen } from '../../test/react_testing_library';
+import { screen, userEvent } from '../../test/react_testing_library';
 
 import { LogsScreen } from './logs_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';

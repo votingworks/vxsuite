@@ -2,8 +2,7 @@ import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 
-import userEvent from '@testing-library/user-event';
-import { screen, within } from '../../test/react_testing_library';
+import { screen, userEvent, within } from '../../test/react_testing_library';
 import { TallyScreen } from './tally_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';

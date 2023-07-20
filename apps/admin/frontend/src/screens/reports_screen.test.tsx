@@ -1,7 +1,6 @@
 import MockDate from 'mockdate';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
-import userEvent from '@testing-library/user-event';
 import { waitFor } from '@testing-library/react';
 import {
   fakeKiosk,
@@ -14,7 +13,7 @@ import { mockUsbDrive } from '@votingworks/ui';
 import { ReportsScreen } from './reports_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
-import { screen, within } from '../../test/react_testing_library';
+import { screen, userEvent, within } from '../../test/react_testing_library';
 import { VxFiles } from '../lib/converters';
 import {
   expectReportsScreenCardCountQueries,

@@ -1,13 +1,12 @@
 import { electionMinimalExhaustiveSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 import { ContestId } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
 import {
   WriteInCandidateRecord,
   WriteInImageView,
 } from '@votingworks/admin-backend';
 import { Route } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
-import { screen, waitFor } from '../../test/react_testing_library';
+import { screen, userEvent, waitFor } from '../../test/react_testing_library';
 import {
   RenderInAppContextParams,
   renderInAppContext,
@@ -283,11 +282,11 @@ describe('preventing double votes', () => {
 
 test('ballot pagination', async () => {
   const contestId = 'zoo-council-mammal';
-  const writeInIds = ['0', '1', '2'];
+  const writeInIds = ['win0', 'win1', 'win2'];
   const pageCount = writeInIds.length;
 
   apiMock.expectGetWriteInAdjudicationQueue(writeInIds, contestId);
-  apiMock.expectGetFirstPendingWriteInId(contestId, '0');
+  apiMock.expectGetFirstPendingWriteInId(contestId, 'win0');
   expectGetQueueMetadata({ total: 3, pending: 3, contestId });
   apiMock.expectGetWriteInCandidates([], contestId);
   for (const writeInId of writeInIds) {
@@ -305,6 +304,8 @@ test('ballot pagination', async () => {
 
   for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
     await screen.findByText(new RegExp(`${pageNumber} of ${pageCount}`));
+    await screen.findByText(`win${pageNumber - 1}`);
+
     const previousButton = await screen.findButton('Previous');
     if (pageNumber === 1) {
       expect(previousButton).toBeDisabled();
@@ -316,11 +317,11 @@ test('ballot pagination', async () => {
     if (pageNumber === pageCount) {
       expect(nextButton).toBeDisabled();
       const doneButton = await screen.findButton('Back to All Write-Ins');
-      doneButton.click();
+      await userEvent.click(doneButton);
       expect(history.location.pathname).toEqual('/write-ins');
     } else {
       expect(nextButton).not.toBeDisabled();
-      nextButton.click();
+      await userEvent.click(nextButton);
     }
   }
 });

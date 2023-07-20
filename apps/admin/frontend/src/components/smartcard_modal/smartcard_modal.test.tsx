@@ -1,5 +1,4 @@
 import fetchMock from 'fetch-mock';
-import userEvent from '@testing-library/user-event';
 import { err, throwIllegalValue, typedAs } from '@votingworks/basics';
 import {
   electionSample2Definition,
@@ -21,7 +20,12 @@ import {
 
 import { ApiMock, createApiMock } from '../../../test/helpers/api_mock';
 import { buildApp } from '../../../test/helpers/build_app';
-import { screen, waitFor, within } from '../../../test/react_testing_library';
+import {
+  screen,
+  userEvent,
+  waitFor,
+  within,
+} from '../../../test/react_testing_library';
 import { VxFiles } from '../../lib/converters';
 
 const electionDefinition = electionSampleDefinition;
@@ -328,20 +332,24 @@ test('Programming election manager and poll worker smartcards', async () => {
     });
     within(modal).getByText('Remove card to cancel.');
     apiMock.expectProgramCard(role, newPin);
-    switch (role) {
-      case 'election_manager': {
-        await userEvent.click(electionManagerCardButton);
-        break;
+    const buttonToPress = (() => {
+      switch (role) {
+        case 'election_manager': {
+          return electionManagerCardButton;
+          break;
+        }
+        case 'poll_worker': {
+          return pollWorkerCardButton;
+          break;
+        }
+        default: {
+          throwIllegalValue(role);
+        }
       }
-      case 'poll_worker': {
-        await userEvent.click(pollWorkerCardButton);
-        break;
-      }
-      default: {
-        throwIllegalValue(role);
-      }
-    }
+    })();
+    const programCardPromise = userEvent.click(buttonToPress);
     await screen.findByText(/Programming card/);
+    await programCardPromise;
     apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
@@ -380,7 +388,9 @@ test('Programming system administrator smartcards', async () => {
 
   // Programming system administrator smartcards requires being on a specific screen
   await userEvent.click(await screen.findByText('Smartcards'));
-  await userEvent.click(await screen.findByText('Create System Administrator Cards'));
+  await userEvent.click(
+    await screen.findByText('Create System Administrator Cards')
+  );
   await screen.findByRole('heading', { name: 'System Administrator Cards' });
 
   apiMock.setAuthStatus({
@@ -400,8 +410,9 @@ test('Programming system administrator smartcards', async () => {
   });
   within(modal).getByText('Remove card to cancel.');
   apiMock.expectProgramCard('system_administrator', '123456');
-  await userEvent.click(systemAdministratorCardButton);
+  const programCardPromise = userEvent.click(systemAdministratorCardButton);
   await screen.findByText(/Programming card/);
+  await programCardPromise;
   apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
@@ -519,10 +530,11 @@ test('Resetting smartcard PINs', async () => {
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByRole('heading', { name: expectedHeading });
     apiMock.expectProgramCard(programmedUser.role, '123456');
-    await userEvent.click(
+    const resetPinPromise = userEvent.click(
       within(modal).getByRole('button', { name: 'Reset Card PIN' })
     );
     await screen.findByText(/Resetting card PIN/);
+    await resetPinPromise;
     await within(modal).findByText(/New card PIN is /);
     await within(modal).findByText('123-456');
     within(modal).getByText('Remove card to continue.');
@@ -563,10 +575,11 @@ test('Resetting system administrator smartcard PINs when no election definition 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'System Administrator Card' });
   apiMock.expectProgramCard('system_administrator', '123456');
-  await userEvent.click(
+  const resetPinPromise = userEvent.click(
     within(modal).getByRole('button', { name: 'Reset Card PIN' })
   );
   await screen.findByText(/Resetting card PIN/);
+  await resetPinPromise;
   await within(modal).findByText(/New card PIN is /);
   await within(modal).findByText('123-456');
   within(modal).getByText('Remove card to continue.');
@@ -630,10 +643,11 @@ test('Unprogramming smartcards', async () => {
       name: expectedHeadingBeforeUnprogramming,
     });
     apiMock.expectUnprogramCard();
-    await userEvent.click(
+    const unprogramPromise = userEvent.click(
       within(modal).getByRole('button', { name: 'Unprogram Card' })
     );
     await screen.findByText(/Unprogramming card/);
+    await unprogramPromise;
     apiMock.setAuthStatus({
       status: 'logged_in',
       user: fakeSystemAdministratorUser(),
@@ -764,8 +778,11 @@ test('Error handling', async () => {
     });
 
     const modal = await screen.findByRole('alertdialog');
-    await userEvent.click(within(modal).getByRole('button', { name: buttonToPress }));
+    const actionPromise = userEvent.click(
+      within(modal).getByRole('button', { name: buttonToPress })
+    );
     await screen.findByText(new RegExp(expectedProgressText));
+    await actionPromise;
     await within(modal).findByText(expectedErrorText);
 
     apiMock.setAuthStatus({

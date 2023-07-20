@@ -1,11 +1,15 @@
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import userEvent from '@testing-library/user-event';
 import { UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
-import { fireEvent, waitFor } from '../../test/react_testing_library';
+import { act } from 'react-test-renderer';
+import { screen, userEvent, waitFor } from '../../test/react_testing_library';
 import { SaveFrontendFileModal, FileType } from './save_frontend_file_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
+
+beforeEach(() => {
+  jest.useRealTimers();
+});
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
   const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
@@ -30,7 +34,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
   }
 });
 
-test('render no usb found screen when there is not a valid mounted usb drive', () => {
+test('render no usb found screen when there is not a valid mounted usb drive', async () => {
   const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected', 'bad_format'];
 
   for (const status of usbStatuses) {
@@ -52,7 +56,7 @@ test('render no usb found screen when there is not a valid mounted usb drive', (
     );
     getByAltText('Insert USB Image');
 
-    fireEvent.click(getByText('Cancel'));
+    await userEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalled();
 
     unmount();
@@ -86,11 +90,13 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
   getByText(/Save the ballot as/);
   getByText('this-is-a-file-name.pdf');
 
-  fireEvent.click(getByText('Save'));
-  await waitFor(() => getByText(/Saving Ballot/));
+  await userEvent.click(getByText('Save'));
+  await screen.findByText(/Saving Ballot/);
   expect(fileContentFn).toHaveBeenCalled();
-  jest.advanceTimersByTime(2000);
-  await waitFor(() => getByText(/Ballot Saved/));
+  await act(() => {
+    jest.advanceTimersByTime(2000);
+  });
+  await screen.findByText(/Ballot Saved/);
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
@@ -100,7 +106,7 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
     );
   });
 
-  fireEvent.click(getByText('Close'));
+  await userEvent.click(getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
 
   // Does not show eject usb by default
@@ -145,10 +151,12 @@ test('renders save screen when usb is mounted with results filetype and prompts 
   getByText(/Save the election results as/);
   getByText('this-is-a-file-name.pdf');
 
-  fireEvent.click(getByText('Save'));
+  await userEvent.click(getByText('Save'));
   await waitFor(() => getByText(/Saving Results/));
   expect(fileContentFn).toHaveBeenCalled();
-  jest.advanceTimersByTime(2000);
+  await act(() => {
+    jest.advanceTimersByTime(2000);
+  });
   await waitFor(() => getByText(/Results Saved/));
   getByText(/Election results successfully saved/);
   await waitFor(() => {
@@ -160,7 +168,7 @@ test('renders save screen when usb is mounted with results filetype and prompts 
     );
   });
 
-  fireEvent.click(getByText('Close'));
+  await userEvent.click(getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
   getByText('You may now eject the USB drive.');
   getByText('Eject USB');
@@ -185,7 +193,7 @@ test('render export modal with errors when appropriate', async () => {
     .mockRejectedValueOnce(new Error('this-is-an-error'));
 
   const closeFn = jest.fn();
-  const { getByText } = renderInAppContext(
+  renderInAppContext(
     <SaveFrontendFileModal
       onClose={closeFn}
       generateFileContent={fileContentFn}
@@ -197,15 +205,16 @@ test('render export modal with errors when appropriate', async () => {
       logger,
     }
   );
-  getByText('Save Unofficial Tally Report');
+  screen.getByText('Save Unofficial Tally Report');
 
-  fireEvent.click(getByText('Save'));
-  await waitFor(() => getByText(/Saving Unofficial Tally Report/));
-  await waitFor(() => getByText(/Failed to Save Unofficial Tally Report/));
-  getByText(/Failed to save tally report./);
-  getByText(/this-is-an-error/);
+  const savePromise = userEvent.click(screen.getByText('Save'));
+  await screen.findByText(/Saving Unofficial Tally Report/);
+  await savePromise;
+  await screen.findByText(/Failed to Save Unofficial Tally Report/);
+  screen.getByText(/Failed to save tally report./);
+  screen.getByText(/this-is-an-error/);
 
-  fireEvent.click(getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
@@ -240,17 +249,18 @@ test('creates new directory and saves to it, if specified', async () => {
   );
 
   await userEvent.click(getByText('Save'));
-  jest.advanceTimersByTime(2000);
-  await waitFor(() => {
-    expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);
-    expect(mockKiosk.makeDirectory).toHaveBeenCalledWith(
-      '/media/vx/mock-usb-drive/directory',
-      { recursive: true }
-    );
-    expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
-    expect(mockKiosk.writeFile).toHaveBeenCalledWith(
-      '/media/vx/mock-usb-drive/directory/ballot.pdf',
-      'file-content'
-    );
+  await act(() => {
+    jest.advanceTimersByTime(2000);
   });
+
+  expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);
+  expect(mockKiosk.makeDirectory).toHaveBeenCalledWith(
+    '/media/vx/mock-usb-drive/directory',
+    { recursive: true }
+  );
+  expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
+  expect(mockKiosk.writeFile).toHaveBeenCalledWith(
+    '/media/vx/mock-usb-drive/directory/ballot.pdf',
+    'file-content'
+  );
 });

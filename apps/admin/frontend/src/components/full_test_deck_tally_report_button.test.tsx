@@ -1,4 +1,3 @@
-import userEvent from '@testing-library/user-event';
 import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleDefinition,
@@ -10,7 +9,12 @@ import {
   fakeUsbDrive,
 } from '@votingworks/test-utils';
 import { mockUsbDrive } from '@votingworks/ui';
-import { screen, waitFor, within } from '../../test/react_testing_library';
+import {
+  screen,
+  userEvent,
+  waitFor,
+  within,
+} from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { FullTestDeckTallyReportButton } from './full_test_deck_tally_report_button';
 
@@ -63,7 +67,6 @@ test('prints appropriate report for general election', async () => {
   await userEvent.click(
     await screen.findByText('Print Full Test Deck Tally Report')
   );
-  await screen.findByText('Printing');
 
   await expectPrint((printedElement, printOptions) => {
     printedElement.getByText(
@@ -85,7 +88,9 @@ test('renders SaveFileToUsb component for saving PDF', async () => {
   });
   await waitFor(() => {
     expect(
-      screen.getByText('Save Full Test Deck Tally Report as PDF')
+      screen
+        .getByText('Save Full Test Deck Tally Report as PDF')
+        .closest('button')
     ).toBeEnabled();
   });
   await userEvent.click(

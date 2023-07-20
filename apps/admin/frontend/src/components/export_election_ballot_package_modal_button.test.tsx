@@ -6,11 +6,11 @@ import {
   fakeUsbDrive,
 } from '@votingworks/test-utils';
 import { UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
-import userEvent from '@testing-library/user-event';
 import { err } from '@votingworks/basics';
 import {
   fireEvent,
   screen,
+  userEvent,
   waitFor,
   within,
 } from '../../test/react_testing_library';
@@ -64,7 +64,7 @@ test.each<{
         usbDrive: mockUsbDrive(usbStatus),
         apiMock,
       });
-    fireEvent.click(getByText('Save Ballot Package'));
+    await userEvent.click(getByText('Save Ballot Package'));
     await waitFor(() => getByText('No USB Drive Detected'));
     expect(queryAllByAltText('Insert USB Image')).toHaveLength(1);
     expect(queryAllByTestId('modal')).toHaveLength(1);
@@ -74,7 +74,7 @@ test.each<{
       )
     ).toHaveLength(1);
 
-    fireEvent.click(getByText('Cancel'));
+    await userEvent.click(getByText('Cancel'));
     expect(queryAllByTestId('modal')).toHaveLength(0);
   }
 );
@@ -100,7 +100,7 @@ test('Modal renders export confirmation screen when usb detected and manual link
   await userEvent.click(within(modal).getButton('Save'));
   await within(modal).findByText('Ballot Package Saved');
 
-  fireEvent.click(within(modal).getByText('Close'));
+  await userEvent.click(within(modal).getByText('Close'));
   expect(screen.queryAllByTestId('modal')).toHaveLength(0);
 });
 
@@ -116,7 +116,7 @@ test.each<{
         apiMock,
       }
     );
-    fireEvent.click(screen.getButton('Save Ballot Package'));
+    await userEvent.click(screen.getButton('Save Ballot Package'));
     await waitFor(() => getByText('Loading'));
 
     expect(queryAllByTestId('modal')).toHaveLength(1);
@@ -136,7 +136,7 @@ test('Modal renders error message appropriately', async () => {
       logger,
     }
   );
-  fireEvent.click(getByText('Save Ballot Package'));
+  await userEvent.click(getByText('Save Ballot Package'));
   await waitFor(() => getByText('Save'));
 
   apiMock.expectSaveBallotPackageToUsb(err('no_usb_drive'));
@@ -146,7 +146,7 @@ test('Modal renders error message appropriately', async () => {
   expect(queryAllByTestId('modal')).toHaveLength(1);
   expect(queryAllByText(/An error occurred: No USB drive/)).toHaveLength(1);
 
-  fireEvent.click(getByText('Close'));
+  await userEvent.click(getByText('Close'));
   expect(queryAllByTestId('modal')).toHaveLength(0);
 });
 
@@ -157,7 +157,7 @@ test('Modal renders renders loading message while rendering ballots appropriatel
       apiMock,
       usbDrive,
     });
-  fireEvent.click(getByText('Save Ballot Package'));
+  await userEvent.click(getByText('Save Ballot Package'));
   await waitFor(() => getByText('Save'));
   apiMock.expectSaveBallotPackageToUsb();
   await userEvent.click(getByRole('button', { name: /Save/ }));
@@ -172,9 +172,9 @@ test('Modal renders renders loading message while rendering ballots appropriatel
   ).toBeInTheDocument();
 
   expect(queryByText('Eject USB')).toBeInTheDocument();
-  fireEvent.click(getByText('Eject USB'));
+  await userEvent.click(getByText('Eject USB'));
   expect(usbDrive.eject).toHaveBeenCalledTimes(1);
 
-  fireEvent.click(getByText('Close'));
+  await userEvent.click(getByText('Close'));
   expect(queryAllByTestId('modal')).toHaveLength(0);
 });

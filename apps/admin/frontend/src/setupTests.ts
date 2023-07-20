@@ -22,6 +22,10 @@ jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
   };
 });
 
+jest.mock('styled-components', () =>
+  jest.requireActual('styled-components/dist/styled-components.browser.cjs.js')
+);
+
 afterEach(() => {
   expectTestToEndWithAllPrintsAsserted();
 });

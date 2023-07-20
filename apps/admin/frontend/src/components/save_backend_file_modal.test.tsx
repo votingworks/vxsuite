@@ -3,10 +3,9 @@ import {
   fakeKiosk,
   fakeUsbDrive,
 } from '@votingworks/test-utils';
-import userEvent from '@testing-library/user-event';
 import { UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
 import { err, ok } from '@votingworks/basics';
-import { screen, waitFor } from '../../test/react_testing_library';
+import { screen, userEvent, waitFor } from '../../test/react_testing_library';
 import { SaveBackendFileModal } from './save_backend_file_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
 

@@ -2,11 +2,9 @@ import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures
 import { Route } from 'react-router-dom';
 
 import { getBallotStyle, getContests } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import React from 'react';
-import { screen, within } from '../../test/react_testing_library';
+import { screen, userEvent, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ManualDataEntryScreen } from './manual_data_entry_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
@@ -20,8 +18,6 @@ beforeEach(() => {
 afterEach(() => {
   apiMock.assertComplete();
 });
-
-console.log(React.version);
 
 const electionDefinition = electionMinimalExhaustiveSampleDefinition;
 const { election } = electionDefinition;
@@ -80,7 +76,7 @@ const mockValidResults = buildManualResultsFixture({
   },
 });
 
-test.only('displays correct contests for ballot style', async () => {
+test('displays correct contests for ballot style', async () => {
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults({
     ballotStyleId: '1M',

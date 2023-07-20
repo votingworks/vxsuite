@@ -5,6 +5,7 @@ import {
   vxTestingLibraryScreen,
   vxTestingLibraryWithinFn,
 } from '@votingworks/ui';
+import defaultUserEvent from '@testing-library/user-event';
 
 // Re-export all of @testing-library/react for convenience and override
 // with customized VX utils and types, as recommended at
@@ -15,3 +16,8 @@ export { vxTestingLibraryScreen as screen };
 export { vxTestingLibraryWithinFn as within };
 export type { VxRenderOptions as RenderOptions };
 export type { VxRenderResult as RenderResult };
+
+// Override default setup for userEvent
+export * from '@testing-library/user-event';
+const userEvent = defaultUserEvent.setup({ delay: null });
+export { userEvent };
