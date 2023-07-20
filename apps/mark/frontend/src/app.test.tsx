@@ -1,4 +1,8 @@
-import { fakeKiosk, suppressingConsoleOutput } from '@votingworks/test-utils';
+import {
+  fakeKiosk,
+  mockOf,
+  suppressingConsoleOutput,
+} from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
   MemoryHardware,
@@ -7,6 +11,7 @@ import {
 
 import fetchMock from 'fetch-mock';
 import { electionSampleDefinition } from '@votingworks/fixtures';
+import { useDisplaySettingsManager } from '@votingworks/mark-flow-ui';
 import userEvent from '@testing-library/user-event';
 import { fireEvent, screen, waitFor } from '../test/react_testing_library';
 import {
@@ -19,6 +24,15 @@ import { render } from '../test/test_utils';
 import { App } from './app';
 import { AriaScreenReader } from './utils/ScreenReader';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { buildApp } from '../test/helpers/build_app';
+
+jest.mock(
+  '@votingworks/mark-flow-ui',
+  (): typeof import('@votingworks/mark-flow-ui') => ({
+    ...jest.requireActual('@votingworks/mark-flow-ui'),
+    useDisplaySettingsManager: jest.fn(),
+  })
+);
 
 let apiMock: ApiMock;
 
@@ -29,6 +43,7 @@ beforeEach(() => {
 
 afterEach(() => {
   apiMock.mockApiClient.assertComplete();
+  mockOf(useDisplaySettingsManager).mockReset();
 });
 
 it('will throw an error when using default api', async () => {
@@ -124,6 +139,22 @@ it('changes screen reader settings based on keyboard inputs', async () => {
   await waitFor(() => {
     expect(screenReader.changeVolume).toHaveBeenCalledTimes(1);
   });
+});
+
+it('uses display settings management hook', async () => {
+  // window.location.href = '/';
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetElectionDefinition(null);
+
+  const { storage, renderApp } = buildApp(apiMock);
+  await setElectionInStorage(storage);
+  await setStateInStorage(storage);
+  renderApp();
+
+  await advanceTimersAndPromises();
+
+  expect(mockOf(useDisplaySettingsManager)).toBeCalled();
 });
 
 // This test is only really here to provide coverage for the default value for
