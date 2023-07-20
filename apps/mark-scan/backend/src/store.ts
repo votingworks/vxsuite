@@ -2,10 +2,14 @@
 // The durable datastore for configuration info.
 //
 
+import { Optional } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import {
   ElectionDefinition,
+  PrecinctSelection,
+  PrecinctSelectionSchema,
   safeParseElectionDefinition,
+  safeParseJson,
   SystemSettings,
   SystemSettingsDbRow,
 } from '@votingworks/types';
@@ -89,6 +93,49 @@ export class Store {
       | { jurisdiction: string }
       | undefined;
     return electionRow?.jurisdiction;
+  }
+
+  /**
+   * Sets the current precinct `mark-scan` is printing and interpreting ballots for. Set to
+   * `undefined` to accept from all precincts.
+   */
+  setPrecinctSelection(precinctSelection?: PrecinctSelection): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot set precinct selection without an election.');
+    }
+
+    this.client.run(
+      'update election set precinct_selection = ?',
+      precinctSelection ? JSON.stringify(precinctSelection) : null
+    );
+  }
+
+  /**
+   * Gets the current precinct `scan` is accepting ballots for. If set to
+   * `undefined`, ballots from all precincts will be accepted.
+   */
+  getPrecinctSelection(): Optional<PrecinctSelection> {
+    const electionRow = this.client.one(
+      'select precinct_selection as rawPrecinctSelection from election'
+    ) as { rawPrecinctSelection: string } | undefined;
+
+    const rawPrecinctSelection = electionRow?.rawPrecinctSelection;
+
+    if (!rawPrecinctSelection) {
+      // precinct selection is undefined when there is no election
+      return undefined;
+    }
+
+    const precinctSelectionParseResult = safeParseJson(
+      rawPrecinctSelection,
+      PrecinctSelectionSchema
+    );
+
+    if (precinctSelectionParseResult.isErr()) {
+      throw new Error('Unable to parse stored precinct selection.');
+    }
+
+    return precinctSelectionParseResult.ok();
   }
 
   /**

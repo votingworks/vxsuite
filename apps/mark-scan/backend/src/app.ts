@@ -15,6 +15,7 @@ import {
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
+  PrecinctSelection,
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
 
@@ -101,6 +102,16 @@ function buildApi(
 
     getSystemSettings(): SystemSettings {
       return workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
+    },
+
+    setPrecinctSelection(input: {
+      precinctSelection: PrecinctSelection;
+    }): void {
+      workspace.store.setPrecinctSelection(input.precinctSelection);
+    },
+
+    getPrecinctSelection(): Optional<PrecinctSelection> {
+      return workspace.store.getPrecinctSelection();
     },
 
     unconfigureMachine() {
