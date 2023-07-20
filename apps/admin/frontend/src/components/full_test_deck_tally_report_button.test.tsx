@@ -28,7 +28,9 @@ test('prints appropriate reports for primary election', async () => {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
 
-  userEvent.click(await screen.findByText('Print Full Test Deck Tally Report'));
+  await userEvent.click(
+    await screen.findByText('Print Full Test Deck Tally Report')
+  );
   await screen.findByText('Printing');
 
   await expectPrint((printedElement, printOptions) => {
@@ -58,7 +60,9 @@ test('prints appropriate report for general election', async () => {
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
   });
 
-  userEvent.click(await screen.findByText('Print Full Test Deck Tally Report'));
+  await userEvent.click(
+    await screen.findByText('Print Full Test Deck Tally Report')
+  );
   await screen.findByText('Printing');
 
   await expectPrint((printedElement, printOptions) => {
@@ -84,7 +88,9 @@ test('renders SaveFileToUsb component for saving PDF', async () => {
       screen.getByText('Save Full Test Deck Tally Report as PDF')
     ).toBeEnabled();
   });
-  userEvent.click(screen.getByText('Save Full Test Deck Tally Report as PDF'));
+  await userEvent.click(
+    screen.getByText('Save Full Test Deck Tally Report as PDF')
+  );
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Test Deck Tally Report');
 });
@@ -100,9 +106,11 @@ test('closes SaveFileToUsb modal', async () => {
       screen.getByText('Save Full Test Deck Tally Report as PDF')
     ).toBeEnabled();
   });
-  userEvent.click(screen.getByText('Save Full Test Deck Tally Report as PDF'));
+  await userEvent.click(
+    screen.getByText('Save Full Test Deck Tally Report as PDF')
+  );
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Test Deck Tally Report');
-  userEvent.click(screen.getByText('Cancel'));
+  await userEvent.click(screen.getByText('Cancel'));
   expect(screen.queryByRole('alertdialog')).toEqual(null);
 });

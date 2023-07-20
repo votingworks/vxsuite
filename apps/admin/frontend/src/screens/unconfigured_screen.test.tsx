@@ -49,7 +49,7 @@ test('handles an uploaded file', async () => {
   const zipInput = await screen.findByLabelText(
     'Select Existing Setup Package Zip File'
   );
-  userEvent.upload(zipInput, file);
+  await userEvent.upload(zipInput, file);
 
   await screen.findByText('Loading');
   // election_manager (the parent component) handles advancing to the next screen so we
@@ -72,7 +72,7 @@ test('uploads default system settings if loading only an election.json file', as
   const fileInput = await screen.findByLabelText(
     'Select Existing Election Definition File'
   );
-  userEvent.upload(fileInput, file);
+  await userEvent.upload(fileInput, file);
 
   await screen.findByText('Loading');
   // election_manager (the parent component) handles advancing to the next screen so we
@@ -94,7 +94,7 @@ test('uploads default system settings if loading the default election', async ()
   const loadDemoButton = await screen.findByText(
     'Load Demo Election Definition'
   );
-  userEvent.click(loadDemoButton);
+  await userEvent.click(loadDemoButton);
 
   // election_manager (the parent component) handles advancing to the next screen so we
   // just need to test that loading is false and we rerender without the loading screen

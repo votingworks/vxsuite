@@ -86,7 +86,7 @@ test('Modal renders export confirmation screen when usb detected and manual link
     logger,
     apiMock,
   });
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Save Ballot Package' })
   );
   const modal = await screen.findByRole('alertdialog');
@@ -97,7 +97,7 @@ test('Modal renders export confirmation screen when usb detected and manual link
   );
 
   apiMock.expectSaveBallotPackageToUsb();
-  userEvent.click(within(modal).getButton('Save'));
+  await userEvent.click(within(modal).getButton('Save'));
   await within(modal).findByText('Ballot Package Saved');
 
   fireEvent.click(within(modal).getByText('Close'));
@@ -140,7 +140,7 @@ test('Modal renders error message appropriately', async () => {
   await waitFor(() => getByText('Save'));
 
   apiMock.expectSaveBallotPackageToUsb(err('no_usb_drive'));
-  userEvent.click(screen.getButton('Save'));
+  await userEvent.click(screen.getButton('Save'));
 
   await waitFor(() => getByText('Failed to Save Ballot Package'));
   expect(queryAllByTestId('modal')).toHaveLength(1);
@@ -160,7 +160,7 @@ test('Modal renders renders loading message while rendering ballots appropriatel
   fireEvent.click(getByText('Save Ballot Package'));
   await waitFor(() => getByText('Save'));
   apiMock.expectSaveBallotPackageToUsb();
-  userEvent.click(getByRole('button', { name: /Save/ }));
+  await userEvent.click(getByRole('button', { name: /Save/ }));
 
   await waitFor(() => screen.findByText('Ballot Package Saved'));
 

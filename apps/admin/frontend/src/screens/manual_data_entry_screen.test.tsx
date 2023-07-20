@@ -5,6 +5,7 @@ import { getBallotStyle, getContests } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
+import React from 'react';
 import { screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ManualDataEntryScreen } from './manual_data_entry_screen';
@@ -19,6 +20,8 @@ beforeEach(() => {
 afterEach(() => {
   apiMock.assertComplete();
 });
+
+console.log(React.version);
 
 const electionDefinition = electionMinimalExhaustiveSampleDefinition;
 const { election } = electionDefinition;
@@ -77,7 +80,7 @@ const mockValidResults = buildManualResultsFixture({
   },
 });
 
-test('displays correct contests for ballot style', async () => {
+test.only('displays correct contests for ballot style', async () => {
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults({
     ballotStyleId: '1M',
@@ -142,10 +145,13 @@ test('can edit counts, receive validation messages, and save', async () => {
   // Input elements start as 0
   expect(screen.getByTestId(testInputId).closest('input')!.value).toEqual('0');
   // We can not change the input to a non number
-  userEvent.type(screen.getByTestId(testInputId).closest('input')!, 'daylight');
+  await userEvent.type(
+    screen.getByTestId(testInputId).closest('input')!,
+    'daylight'
+  );
   expect(screen.getByTestId(testInputId).closest('input')!.value).toEqual('0');
   // We can change the input to an empty string
-  userEvent.type(
+  await userEvent.type(
     screen.getByTestId(testInputId).closest('input')!,
     '{backspace}'
   );
@@ -157,7 +163,7 @@ test('can edit counts, receive validation messages, and save', async () => {
   screen.getByText('At least one contest above has no results entered');
 
   // while results are incomplete, we should get validation warning
-  userEvent.type(
+  await userEvent.type(
     screen.getByTestId('best-animal-mammal-numBallots-input'),
     '10'
   );
@@ -167,14 +173,23 @@ test('can edit counts, receive validation messages, and save', async () => {
   screen.getByText('At least one contest above has invalid results entered');
 
   // finish entering results for current contest
-  userEvent.type(screen.getByTestId('best-animal-mammal-overvotes-input'), '1');
-  userEvent.type(
+  await userEvent.type(
+    screen.getByTestId('best-animal-mammal-overvotes-input'),
+    '1'
+  );
+  await userEvent.type(
     screen.getByTestId('best-animal-mammal-undervotes-input'),
     '3'
   );
-  userEvent.type(screen.getByTestId('best-animal-mammal-horse-input'), '2');
-  userEvent.type(screen.getByTestId('best-animal-mammal-otter-input'), '2');
-  userEvent.type(screen.getByTestId('best-animal-mammal-fox-input'), '2');
+  await userEvent.type(
+    screen.getByTestId('best-animal-mammal-horse-input'),
+    '2'
+  );
+  await userEvent.type(
+    screen.getByTestId('best-animal-mammal-otter-input'),
+    '2'
+  );
+  await userEvent.type(screen.getByTestId('best-animal-mammal-fox-input'), '2');
 
   // validation should be successful
   within(bestAnimalTable).getByText('Entered results are valid');
@@ -206,7 +221,7 @@ test('can edit counts, receive validation messages, and save', async () => {
   ];
 
   for (const resultToEnter of resultsToEnter) {
-    userEvent.type(
+    await userEvent.type(
       screen.getByTestId(`${resultToEnter[0]}-${resultToEnter[1]}-input`),
       resultToEnter[2]
     );
@@ -220,7 +235,7 @@ test('can edit counts, receive validation messages, and save', async () => {
     votingMethod: 'absentee',
     manualResults: mockValidResults,
   });
-  userEvent.click(screen.getButton('Save Results'));
+  await userEvent.click(screen.getButton('Save Results'));
 });
 
 test('loads pre-existing manual data to edit', async () => {
@@ -307,7 +322,9 @@ test('adding new write-in candidates', async () => {
   const zooCouncilMammal = screen
     .getByTestId('zoo-council-mammal-numBallots-input')
     .closest('table')!;
-  userEvent.click(within(zooCouncilMammal).getButton('Add Write-In Candidate'));
+  await userEvent.click(
+    within(zooCouncilMammal).getButton('Add Write-In Candidate')
+  );
   // Original button should have been replaced
   expect(
     within(zooCouncilMammal).queryByText('Add Write-In Candidate')
@@ -315,25 +332,27 @@ test('adding new write-in candidates', async () => {
   // "Add" button should be disabled without anything entered
   expect(within(zooCouncilMammal).getButton('Add')).toBeDisabled();
   // "Add button should be disabled if an entry is an existing name"
-  userEvent.type(
+  await userEvent.type(
     within(zooCouncilMammal).getByTestId('zoo-council-mammal-write-in-input'),
     'Zebra'
   );
   expect(within(zooCouncilMammal).getButton('Add')).toBeDisabled();
   // Cancel, re-open, and add new
-  userEvent.click(within(zooCouncilMammal).getByText('Cancel'));
-  userEvent.click(within(zooCouncilMammal).getByText('Add Write-In Candidate'));
-  userEvent.type(
+  await userEvent.click(within(zooCouncilMammal).getByText('Cancel'));
+  await userEvent.click(
+    within(zooCouncilMammal).getByText('Add Write-In Candidate')
+  );
+  await userEvent.type(
     within(zooCouncilMammal).getByTestId('zoo-council-mammal-write-in-input'),
     'Mock Candidate'
   );
-  userEvent.click(within(zooCouncilMammal).getByText('Add'));
+  await userEvent.click(within(zooCouncilMammal).getByText('Add'));
   // Button should re-appear, allowing us to add more
   within(zooCouncilMammal).getByText('Add Write-In Candidate');
   await screen.findByText('Mock Candidate (write-in)');
 
   // Can add to new write-in candidate's count
-  userEvent.type(
+  await userEvent.type(
     screen.getByTestId(
       'zoo-council-mammal-temp-write-in-(Mock Candidate)-input'
     ),
@@ -344,14 +363,14 @@ test('adding new write-in candidates', async () => {
   await within(zooCouncilMammal).findByText(
     'Entered results do not match total ballots cast'
   );
-  userEvent.type(
+  await userEvent.type(
     screen.getByTestId('zoo-council-mammal-numBallots-input'),
     '10'
   );
   await within(zooCouncilMammal).findByText('Entered results are valid');
 
   // Can remove our write-in
-  userEvent.click(within(zooCouncilMammal).getByText('Remove'));
+  await userEvent.click(within(zooCouncilMammal).getByText('Remove'));
   expect(
     screen.queryByTestId('temp-write-in-(Mock Candidate)')
   ).not.toBeInTheDocument();
@@ -360,13 +379,15 @@ test('adding new write-in candidates', async () => {
   );
 
   // Add back the candidate and save
-  userEvent.click(within(zooCouncilMammal).getButton('Add Write-In Candidate'));
+  await userEvent.click(
+    within(zooCouncilMammal).getButton('Add Write-In Candidate')
+  );
   // add using key "Enter" shortcut
-  userEvent.type(
+  await userEvent.type(
     within(zooCouncilMammal).getByTestId('zoo-council-mammal-write-in-input'),
     'Mock Candidate{enter}'
   );
-  userEvent.type(
+  await userEvent.type(
     screen.getByTestId(
       'zoo-council-mammal-temp-write-in-(Mock Candidate)-input'
     ),
@@ -398,7 +419,7 @@ test('adding new write-in candidates', async () => {
       },
     }),
   });
-  userEvent.click(screen.getButton('Save Results'));
+  await userEvent.click(screen.getButton('Save Results'));
 });
 
 test('loads existing write-in candidates', async () => {
@@ -461,7 +482,7 @@ test('loads existing write-in candidates', async () => {
   ).toEqual('30');
 
   // Can edit
-  userEvent.type(
+  await userEvent.type(
     screen.getByTestId('zoo-council-mammal-chimera-input'),
     '{backspace}{backspace}0'
   );

@@ -23,23 +23,23 @@ test('Exporting logs', async () => {
   renderInAppContext(<LogsScreen />, { apiMock });
 
   // Log saving is tested fully in src/components/export_logs_modal.test.tsx
-  userEvent.click(screen.getByText('Save Log File'));
+  await userEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('No Log File Present');
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
 
   // Log saving is tested fully in src/components/export_logs_modal.test.tsx
-  userEvent.click(screen.getByText('Save CDF Log File'));
+  await userEvent.click(screen.getByText('Save CDF Log File'));
   await screen.findByText('No Log File Present');
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
 });
 
 test('Exporting logs when no election definition', async () => {
   renderInAppContext(<LogsScreen />, { electionDefinition: 'NONE', apiMock });
 
   // Log saving is tested fully in src/components/export_logs_modal.test.tsx
-  userEvent.click(screen.getByText('Save Log File'));
+  await userEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('No Log File Present');
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
 
   expect(
     screen.getByText('Save CDF Log File').closest('button')

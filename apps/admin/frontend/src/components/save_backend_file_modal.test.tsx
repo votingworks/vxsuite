@@ -22,7 +22,7 @@ afterEach(() => {
   window.kiosk = undefined;
 });
 
-test('render no usb found screen when there is not a valid mounted usb drive', () => {
+test('render no usb found screen when there is not a valid mounted usb drive', async () => {
   const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected', 'bad_format'];
 
   for (const status of usbStatuses) {
@@ -45,7 +45,7 @@ test('render no usb found screen when there is not a valid mounted usb drive', (
     screen.getByText('No USB Drive Detected');
     screen.getByAltText('Insert USB Image');
 
-    userEvent.click(screen.getButton('Cancel'));
+    await userEvent.click(screen.getButton('Cancel'));
     expect(closeFn).toHaveBeenCalled();
 
     unmount();
@@ -82,7 +82,7 @@ test('has development shortcut to export file without USB drive', async () => {
     }
   );
 
-  userEvent.click(screen.getButton('Save As…'));
+  await userEvent.click(screen.getButton('Save As…'));
   expect(mockShowSaveDialog).toHaveBeenCalledWith({
     defaultPath: 'batch-export.csv',
   });
@@ -137,7 +137,7 @@ test('happy usb path - save to default location', async () => {
   );
   await screen.findByText('Save Batch Export');
 
-  userEvent.click(screen.getButton('Save'));
+  await userEvent.click(screen.getButton('Save'));
   await waitFor(() => {
     expect(saveFile).toHaveBeenCalledWith({
       path: '/media/vx/mock-usb-drive/exports/batch-export.csv',
@@ -170,7 +170,7 @@ test('happy usb path - save as', async () => {
   );
   await screen.findByText('Save Batch Export');
 
-  userEvent.click(screen.getButton('Save As…'));
+  await userEvent.click(screen.getButton('Save As…'));
   expect(mockShowSaveDialog).toHaveBeenCalledWith({
     defaultPath: '/media/vx/mock-usb-drive/batch-export.csv',
   });
@@ -212,7 +212,7 @@ test('shows success screen if success and resets mutation on close', async () =>
     />
   );
   screen.getByText('Batch Export Saved');
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   await waitFor(() => {
     expect(resetSaveFileResult).toBeCalled();
   });
@@ -274,7 +274,7 @@ test('can cancel save dialog', async () => {
   );
   await screen.findByText('Save Batch Export');
 
-  userEvent.click(screen.getButton('Save As…'));
+  await userEvent.click(screen.getButton('Save As…'));
   expect(mockShowSaveDialog).toHaveBeenCalledWith({
     defaultPath: '/media/vx/mock-usb-drive/batch-export.csv',
   });

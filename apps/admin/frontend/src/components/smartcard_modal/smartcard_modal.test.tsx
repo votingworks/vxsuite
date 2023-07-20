@@ -330,11 +330,11 @@ test('Programming election manager and poll worker smartcards', async () => {
     apiMock.expectProgramCard(role, newPin);
     switch (role) {
       case 'election_manager': {
-        userEvent.click(electionManagerCardButton);
+        await userEvent.click(electionManagerCardButton);
         break;
       }
       case 'poll_worker': {
-        userEvent.click(pollWorkerCardButton);
+        await userEvent.click(pollWorkerCardButton);
         break;
       }
       default: {
@@ -379,8 +379,8 @@ test('Programming system administrator smartcards', async () => {
   await apiMock.authenticateAsSystemAdministrator();
 
   // Programming system administrator smartcards requires being on a specific screen
-  userEvent.click(await screen.findByText('Smartcards'));
-  userEvent.click(await screen.findByText('Create System Administrator Cards'));
+  await userEvent.click(await screen.findByText('Smartcards'));
+  await userEvent.click(await screen.findByText('Create System Administrator Cards'));
   await screen.findByRole('heading', { name: 'System Administrator Cards' });
 
   apiMock.setAuthStatus({
@@ -400,7 +400,7 @@ test('Programming system administrator smartcards', async () => {
   });
   within(modal).getByText('Remove card to cancel.');
   apiMock.expectProgramCard('system_administrator', '123456');
-  userEvent.click(systemAdministratorCardButton);
+  await userEvent.click(systemAdministratorCardButton);
   await screen.findByText(/Programming card/);
   apiMock.setAuthStatus({
     status: 'logged_in',
@@ -519,7 +519,7 @@ test('Resetting smartcard PINs', async () => {
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByRole('heading', { name: expectedHeading });
     apiMock.expectProgramCard(programmedUser.role, '123456');
-    userEvent.click(
+    await userEvent.click(
       within(modal).getByRole('button', { name: 'Reset Card PIN' })
     );
     await screen.findByText(/Resetting card PIN/);
@@ -563,7 +563,7 @@ test('Resetting system administrator smartcard PINs when no election definition 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'System Administrator Card' });
   apiMock.expectProgramCard('system_administrator', '123456');
-  userEvent.click(
+  await userEvent.click(
     within(modal).getByRole('button', { name: 'Reset Card PIN' })
   );
   await screen.findByText(/Resetting card PIN/);
@@ -630,7 +630,7 @@ test('Unprogramming smartcards', async () => {
       name: expectedHeadingBeforeUnprogramming,
     });
     apiMock.expectUnprogramCard();
-    userEvent.click(
+    await userEvent.click(
       within(modal).getByRole('button', { name: 'Unprogram Card' })
     );
     await screen.findByText(/Unprogramming card/);
@@ -746,13 +746,13 @@ test('Error handling', async () => {
     } = testCase;
 
     if (beginFromSuperAdminCardsScreen) {
-      userEvent.click(screen.getByText('Smartcards'));
-      userEvent.click(
+      await userEvent.click(screen.getByText('Smartcards'));
+      await userEvent.click(
         await screen.findByText('Create System Administrator Cards')
       );
       await screen.findByText('System Administrator Cards');
     } else {
-      userEvent.click(screen.getByText('Smartcards'));
+      await userEvent.click(screen.getByText('Smartcards'));
       await screen.findByText('Election Cards');
     }
 
@@ -764,7 +764,7 @@ test('Error handling', async () => {
     });
 
     const modal = await screen.findByRole('alertdialog');
-    userEvent.click(within(modal).getByRole('button', { name: buttonToPress }));
+    await userEvent.click(within(modal).getByRole('button', { name: buttonToPress }));
     await screen.findByText(new RegExp(expectedProgressText));
     await within(modal).findByText(expectedErrorText);
 

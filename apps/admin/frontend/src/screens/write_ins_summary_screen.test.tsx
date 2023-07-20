@@ -88,7 +88,7 @@ test('CVRs with write-ins loaded', async () => {
   const adjudicateButton = await screen.findButton('Adjudicate 3');
   expect(adjudicateButton).not.toBeDisabled();
 
-  userEvent.click(adjudicateButton);
+  await userEvent.click(adjudicateButton);
   expect(history.location.pathname).toEqual(
     '/write-ins/adjudication/zoo-council-mammal'
   );

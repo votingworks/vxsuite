@@ -29,14 +29,17 @@ test('Setting current date and time', async () => {
   screen.getByText(startDateTime);
 
   // Clock setting is tested fully in libs/ui/src/set_clock.test.tsx
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Wed, Jun 22, 2022, 12:00 AM UTC' })
   );
   const modal = screen.getByRole('alertdialog');
   within(modal).getByText('Wed, Jun 22, 2022, 12:00 AM');
-  userEvent.selectOptions(within(modal).getByTestId('selectYear'), '2023');
+  await userEvent.selectOptions(
+    within(modal).getByTestId('selectYear'),
+    '2023'
+  );
   apiMock.expectLogOut();
-  userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
   await waitFor(() => {
     expect(mockKiosk.setClock).toHaveBeenCalledWith({
       isoDatetime: '2023-06-22T00:00:00.000+00:00',
@@ -52,10 +55,12 @@ test('Rebooting from USB', async () => {
   screen.getByRole('heading', { name: 'Software Update' });
 
   // Rebooting from USB is tested fully in libs/ui/src/reboot_from_usb_button.test.tsx
-  userEvent.click(screen.getByRole('button', { name: 'Reboot from USB' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Reboot from USB' })
+  );
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'No USB Drive Detected' });
-  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
 });
 
 test('Rebooting to BIOS', () => {

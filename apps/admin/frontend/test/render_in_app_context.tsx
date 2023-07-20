@@ -68,7 +68,13 @@ export function renderRootElement(
       <QueryClientProvider client={queryClient}>
         {component}
       </QueryClientProvider>
-    </ApiClientContext.Provider>
+    </ApiClientContext.Provider>,
+    {
+      vxTheme: {
+        colorMode: 'contrastMedium',
+        sizeMode: 's',
+      },
+    }
   );
 }
 

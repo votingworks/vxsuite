@@ -37,7 +37,7 @@ test('navigating back to tally page', async () => {
     }
   );
   await screen.findByText('Total Manual Ballot Count: 0');
-  userEvent.click(screen.getButton('Back to Tally'));
+  await userEvent.click(screen.getButton('Back to Tally'));
   expect(history.location.pathname).toEqual('/tally');
 });
 
@@ -65,23 +65,23 @@ test('initial table without manual tallies & adding a manual tally', async () =>
   expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
 
   const ballotStylePicker = await screen.findByTestId('selectBallotStyle');
-  userEvent.selectOptions(ballotStylePicker, '1M');
+  await userEvent.selectOptions(ballotStylePicker, '1M');
   screen.getByRole('option', { name: '1M', selected: true });
 
   expect(screen.getButton('Add Results')).toBeDisabled();
   expect(screen.getByTestId('selectBallotType')).toBeDisabled();
 
   const precinctPicker = await screen.findByTestId('selectPrecinct');
-  userEvent.selectOptions(precinctPicker, 'Precinct 1');
+  await userEvent.selectOptions(precinctPicker, 'Precinct 1');
   screen.getByRole('option', { name: 'Precinct 1', selected: true });
 
   expect(screen.getButton('Add Results')).toBeDisabled();
 
   const ballotTypePicker = await screen.findByTestId('selectBallotType');
-  userEvent.selectOptions(ballotTypePicker, 'Precinct');
+  await userEvent.selectOptions(ballotTypePicker, 'Precinct');
   screen.getByRole('option', { name: 'Precinct', selected: true });
 
-  userEvent.click(screen.getButton('Add Results'));
+  await userEvent.click(screen.getButton('Add Results'));
   expect(history.location.pathname).toEqual(
     '/tally/manual-data-entry/1M/precinct/precinct-1'
   );
@@ -114,7 +114,7 @@ test('link to edit an existing tally', async () => {
     screen.getButton('Remove All Manually Entered Results')
   ).not.toBeDisabled();
 
-  userEvent.click(screen.getButton('Edit Results'));
+  await userEvent.click(screen.getButton('Edit Results'));
   expect(history.location.pathname).toEqual(
     '/tally/manual-data-entry/1M/precinct/precinct-1'
   );
@@ -140,7 +140,7 @@ test('delete an existing tally', async () => {
     screen.getButton('Remove All Manually Entered Results')
   ).not.toBeDisabled();
 
-  userEvent.click(screen.getButton('Remove Results'));
+  await userEvent.click(screen.getButton('Remove Results'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText(hasTextAcrossElements(/Ballot Style: 1M/));
   within(modal).getByText(hasTextAcrossElements(/Precinct: Precinct 1/));
@@ -153,7 +153,7 @@ test('delete an existing tally', async () => {
     votingMethod: 'precinct',
   });
   apiMock.expectGetManualResultsMetadata([]);
-  userEvent.click(screen.getButton('Remove Manually Entered Results'));
+  await userEvent.click(screen.getButton('Remove Manually Entered Results'));
 });
 
 test('full table & clearing all data', async () => {
@@ -208,12 +208,14 @@ test('full table & clearing all data', async () => {
   expect(screen.getAllButtons('Remove Results')).toHaveLength(4);
 
   // clearing all results
-  userEvent.click(screen.getButton('Remove All Manually Entered Results'));
+  await userEvent.click(
+    screen.getButton('Remove All Manually Entered Results')
+  );
   const modal = await screen.findByRole('alertdialog');
 
   apiMock.expectDeleteAllManualResults();
   apiMock.expectGetManualResultsMetadata([]);
-  userEvent.click(
+  await userEvent.click(
     within(modal).getButton('Remove All Manually Entered Results')
   );
 

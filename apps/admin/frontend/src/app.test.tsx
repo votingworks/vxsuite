@@ -144,7 +144,7 @@ test('configuring with a demo election definition', async () => {
   // You can not save as CDF when there is no election.
   expect(screen.queryAllByText('No Log File Present')).toHaveLength(0);
 
-  userEvent.click(screen.getByText('Definition'));
+  await userEvent.click(screen.getByText('Definition'));
   await screen.findByText('Load Demo Election Definition');
 });
 
@@ -248,11 +248,11 @@ test('L&A (logic and accuracy) flow', async () => {
   renderApp();
   await apiMock.authenticateAsElectionManager(electionDefinition);
 
-  userEvent.click(screen.getByText('L&A'));
+  await userEvent.click(screen.getByText('L&A'));
 
   // Test printing L&A package
-  userEvent.click(await screen.findButton('List Precinct L&A Packages'));
-  userEvent.click(await screen.findButton('Print District 5'));
+  await userEvent.click(await screen.findButton('List Precinct L&A Packages'));
+  await userEvent.click(await screen.findButton('Print District 5'));
 
   // L&A package: Tally report
   await screen.findByText('Printing L&A Package for District 5', {
@@ -310,11 +310,11 @@ test('L&A (logic and accuracy) flow', async () => {
   );
 
   // Test printing full test deck tally
-  userEvent.click(screen.getByText('L&A'));
+  await userEvent.click(screen.getByText('L&A'));
   await waitFor(() => {
     expect(screen.getByText('Print Full Test Deck Tally Report')).toBeEnabled();
   });
-  userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));
+  await userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));
 
   await screen.findByText('Printing');
   const expectedTallies: { [tally: string]: number } = {
@@ -359,8 +359,10 @@ test('marking results as official', async () => {
 
   await apiMock.authenticateAsElectionManager(electionDefinition);
 
-  userEvent.click(screen.getButton('Reports'));
-  userEvent.click(screen.getButton('Unofficial Full Election Tally Report'));
+  await userEvent.click(screen.getButton('Reports'));
+  await userEvent.click(
+    screen.getButton('Unofficial Full Election Tally Report')
+  );
   await screen.findByText('Unofficial Example Primary Election Tally Report');
 
   apiMock.expectMarkResultsOfficial();
@@ -371,8 +373,8 @@ test('marking results as official', async () => {
   await waitFor(() => {
     expect(screen.getButton('Mark Tally Results as Official')).toBeEnabled();
   });
-  userEvent.click(screen.getButton('Mark Tally Results as Official'));
-  userEvent.click(
+  await userEvent.click(screen.getButton('Mark Tally Results as Official'));
+  await userEvent.click(
     within(await screen.findByRole('alertdialog')).getButton(
       'Mark Tally Results as Official'
     )
@@ -505,15 +507,15 @@ test('election manager UI has expected nav', async () => {
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
-  userEvent.click(screen.getByText('L&A'));
+  await userEvent.click(screen.getByText('L&A'));
   await screen.findByRole('heading', { name: 'L&A Testing Documents' });
 
-  userEvent.click(screen.getByText('Tally'));
+  await userEvent.click(screen.getByText('Tally'));
   await screen.findByRole('heading', {
     name: 'Cast Vote Record (CVR) Management',
   });
 
-  userEvent.click(screen.getByText('Reports'));
+  await userEvent.click(screen.getByText('Reports'));
   await screen.findByRole('heading', { name: 'Election Reports' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
@@ -529,13 +531,13 @@ test('system administrator UI has expected nav', async () => {
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
-  userEvent.click(screen.getByText('Definition'));
+  await userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Election Definition' });
-  userEvent.click(screen.getByText('Smartcards'));
+  await userEvent.click(screen.getByText('Smartcards'));
   await screen.findByRole('heading', { name: 'Election Cards' });
-  userEvent.click(screen.getByText('Settings'));
+  await userEvent.click(screen.getByText('Settings'));
   await screen.findByRole('heading', { name: 'Settings' });
-  userEvent.click(screen.getByText('Logs'));
+  await userEvent.click(screen.getByText('Logs'));
   await screen.findByRole('heading', { name: 'Logs' });
   screen.getByRole('button', { name: 'Lock Machine' });
 });
@@ -547,24 +549,24 @@ test('system administrator UI has expected nav when no election', async () => {
 
   await apiMock.authenticateAsSystemAdministrator();
 
-  userEvent.click(screen.getByText('Definition'));
+  await userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
-  userEvent.click(screen.getByText('Settings'));
+  await userEvent.click(screen.getByText('Settings'));
   await screen.findByRole('heading', { name: 'Settings' });
-  userEvent.click(screen.getByText('Logs'));
+  await userEvent.click(screen.getByText('Logs'));
   await screen.findByRole('heading', { name: 'Logs' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
   expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
 
   // Create an election definition and verify that previously hidden tabs appear
-  userEvent.click(screen.getByText('Definition'));
+  await userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
   const { electionDefinition } = electionFamousNames2021Fixtures;
   apiMock.expectConfigure(electionDefinition.electionData);
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Load Demo Election Definition' })
   );
   await waitFor(() =>
@@ -578,9 +580,9 @@ test('system administrator UI has expected nav when no election', async () => {
   apiMock.expectUnconfigure();
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectGetMachineConfig();
-  userEvent.click(screen.getByText('Remove Election'));
+  await userEvent.click(screen.getByText('Remove Election'));
   const modal = await screen.findByRole('alertdialog');
-  userEvent.click(
+  await userEvent.click(
     within(modal).getByRole('button', { name: 'Remove Election Definition' })
   );
   await waitFor(() =>
@@ -599,11 +601,11 @@ test('system administrator Smartcards screen navigation', async () => {
 
   await apiMock.authenticateAsSystemAdministrator();
 
-  userEvent.click(screen.getByText('Smartcards'));
+  await userEvent.click(screen.getByText('Smartcards'));
   await screen.findByRole('heading', { name: 'Election Cards' });
-  userEvent.click(screen.getByText('Create System Administrator Cards'));
+  await userEvent.click(screen.getByText('Create System Administrator Cards'));
   await screen.findByRole('heading', { name: 'System Administrator Cards' });
-  userEvent.click(screen.getByText('Create Election Cards'));
+  await userEvent.click(screen.getByText('Create Election Cards'));
   await screen.findByRole('heading', { name: 'Election Cards' });
 
   // The smartcard modal and smartcard programming flows are tested in smartcard_modal.test.tsx
@@ -661,8 +663,10 @@ test('primary election flow', async () => {
   await apiMock.authenticateAsElectionManager(electionDefinition);
 
   // Confirm "L&A" page prints separate test deck tally reports for non-partisan contests
-  userEvent.click(screen.getByText('L&A'));
-  userEvent.click(await screen.findByText('Print Full Test Deck Tally Report'));
+  await userEvent.click(screen.getByText('L&A'));
+  await userEvent.click(
+    await screen.findByText('Print Full Test Deck Tally Report')
+  );
   await expectPrint((printedElement) => {
     printedElement.getByText(
       'Test Deck Mammal Party Example Primary Election Tally Report'
@@ -689,9 +693,9 @@ test('usb formatting flows', async () => {
   await apiMock.authenticateAsSystemAdministrator();
 
   // navigate to modal
-  userEvent.click(screen.getByText('Settings'));
+  await userEvent.click(screen.getByText('Settings'));
   screen.getByText('USB Formatting');
-  userEvent.click(screen.getByRole('button', { name: 'Format USB' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Format USB' }));
 
   // Because the "No USB Drive Detected" and other modals are distinct in the
   // DOM, we need to continually refresh our reference to the modal
@@ -717,9 +721,13 @@ test('usb formatting flows', async () => {
   // Format USB Drive
   await within(modal).findByText('Format USB Drive');
   within(modal).getByText(/already VotingWorks compatible/);
-  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
+  await userEvent.click(
+    within(modal).getByRole('button', { name: 'Format USB' })
+  );
   await within(modal).findByText('Confirm Format USB Drive');
-  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
+  await userEvent.click(
+    within(modal).getByRole('button', { name: 'Format USB' })
+  );
   mockKiosk.getUsbDriveInfo.mockResolvedValue([
     fakeUsbDrive({ mountPoint: undefined }),
   ]);
@@ -737,9 +745,13 @@ test('usb formatting flows', async () => {
   ]);
   modal = await findModal('Format USB Drive');
   within(modal).getByText(/not VotingWorks compatible/);
-  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
+  await userEvent.click(
+    within(modal).getByRole('button', { name: 'Format USB' })
+  );
   await within(modal).findByText('Confirm Format USB Drive');
-  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
+  await userEvent.click(
+    within(modal).getByRole('button', { name: 'Format USB' })
+  );
   mockKiosk.getUsbDriveInfo.mockResolvedValue([
     fakeUsbDrive({ mountPoint: undefined }),
   ]);
@@ -754,9 +766,13 @@ test('usb formatting flows', async () => {
   mockKiosk.formatUsbDrive.mockRejectedValueOnce(new Error('unable to format'));
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   modal = await findModal('Format USB Drive');
-  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
+  await userEvent.click(
+    within(modal).getByRole('button', { name: 'Format USB' })
+  );
   await within(modal).findByText('Confirm Format USB Drive');
-  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
+  await userEvent.click(
+    within(modal).getByRole('button', { name: 'Format USB' })
+  );
   await within(modal).findByText('Failed to Format USB Drive');
   within(modal).getByText(/unable to format/);
 

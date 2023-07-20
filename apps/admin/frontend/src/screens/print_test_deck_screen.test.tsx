@@ -57,7 +57,7 @@ afterAll(() => {
   apiMock.assertComplete();
 });
 
-test('Saving L&A package for one precinct', () => {
+test('Saving L&A package for one precinct', async () => {
   const usbDrive = mockUsbDrive('mounted');
   renderInAppContext(<PrintTestDeckScreen />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
@@ -66,12 +66,12 @@ test('Saving L&A package for one precinct', () => {
     apiMock,
   });
 
-  userEvent.click(screen.getByText('Save Precinct 1 to PDF'));
+  await userEvent.click(screen.getByText('Save Precinct 1 to PDF'));
   screen.getByText('Save Logic & Accuracy Package');
   screen.getByText('Save');
 });
 
-test('Saving L&A package for all precincts', () => {
+test('Saving L&A package for all precincts', async () => {
   const usbDrive = mockUsbDrive('mounted');
   renderInAppContext(<PrintTestDeckScreen />, {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
@@ -80,7 +80,9 @@ test('Saving L&A package for all precincts', () => {
     apiMock,
   });
 
-  userEvent.click(screen.getByText('Save Packages for All Precincts as PDF'));
+  await userEvent.click(
+    screen.getByText('Save Packages for All Precincts as PDF')
+  );
   screen.getByText('Save Logic & Accuracy Package');
   screen.getByText('Save');
 });
@@ -91,7 +93,7 @@ test('Printing L&A package for one precinct', async () => {
     apiMock,
   });
 
-  userEvent.click(screen.getByText('Print District 5'));
+  await userEvent.click(screen.getByText('Print District 5'));
 
   await screen.findByText('Printing L&A Package for District 5');
   await expectPrint((printedElement, printOptions) => {
@@ -150,7 +152,7 @@ test('Printing L&A packages for all precincts', async () => {
     apiMock,
   });
 
-  userEvent.click(screen.getByText('Print Packages for All Precincts'));
+  await userEvent.click(screen.getByText('Print Packages for All Precincts'));
 
   // Check that the printing modals appear in alphabetical order
   const precinctsInAlphabeticalOrder = [
@@ -247,7 +249,7 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
     apiMock,
   });
 
-  userEvent.click(screen.getByText('Print District 5'));
+  await userEvent.click(screen.getByText('Print District 5'));
 
   await screen.findByText('Printing L&A Package for District 5');
   await screen.findByText('Currently printing letter-size pages.');
@@ -281,7 +283,7 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
   );
   advanceTimers((4 * ONE_SIDED_PAGE_PRINT_TIME_MS) / 1000);
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByText('Legal Paper Loaded, Continue Printing')
   );
 
@@ -321,7 +323,7 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
     apiMock,
   });
 
-  userEvent.click(screen.getByText('Print Packages for All Precincts'));
+  await userEvent.click(screen.getByText('Print Packages for All Precincts'));
 
   // Check that the printing modals appear in alphabetical order
   const precinctsInAlphabeticalOrder = [
@@ -378,7 +380,7 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
     advanceTimers((4 * ONE_SIDED_PAGE_PRINT_TIME_MS) / 1000);
   }
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByText('Legal Paper Loaded, Continue Printing')
   );
 

@@ -239,7 +239,7 @@ test('creates new directory and saves to it, if specified', async () => {
     }
   );
 
-  userEvent.click(getByText('Save'));
+  await userEvent.click(getByText('Save'));
   jest.advanceTimersByTime(2000);
   await waitFor(() => {
     expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);

@@ -125,7 +125,7 @@ test('zoomable ballot image', async () => {
   expect(zoomOutButton).toBeEnabled();
 
   // Zoom out to show the entire ballot
-  userEvent.click(zoomOutButton);
+  await userEvent.click(zoomOutButton);
   ballotImage = screen.getByRole('img', {
     name: /full ballot/i,
   });
@@ -134,21 +134,21 @@ test('zoomable ballot image', async () => {
   expect(zoomOutButton).toBeDisabled();
 
   // Zoom back in
-  userEvent.click(zoomInButton);
+  await userEvent.click(zoomInButton);
   ballotImage = screen.getByRole('img', {
     name: /ballot with write-in/i,
   });
   expect(ballotImage).toHaveStyle({ width: `${expectedZoomedInWidth}px` });
 
   // Zoom back out
-  userEvent.click(zoomOutButton);
+  await userEvent.click(zoomOutButton);
   ballotImage = screen.getByRole('img', {
     name: /full ballot/i,
   });
   expect(ballotImage).toHaveStyle({ width: '100%' });
 
   // When switching to next adjudication, resets to zoomed in
-  userEvent.click(screen.getButton(/Next/));
+  await userEvent.click(screen.getButton(/Next/));
   await screen.findByTestId('transcribe:id-175');
 
   ballotImage = await screen.findByRole('img', {
@@ -162,14 +162,14 @@ test('zoomable ballot image', async () => {
   expect(zoomOutButton).toBeEnabled();
 
   // Zoom out
-  userEvent.click(zoomOutButton);
+  await userEvent.click(zoomOutButton);
   ballotImage = screen.getByRole('img', {
     name: /full ballot/i,
   });
   expect(ballotImage).toHaveStyle({ width: '100%' });
 
   // When switching to previous adjudication, resets to zoomed in
-  userEvent.click(screen.getButton(/Previous/));
+  await userEvent.click(screen.getButton(/Previous/));
   await screen.findByTestId('transcribe:id-174');
   ballotImage = await screen.findByRole('img', {
     name: /ballot with write-in/i,
@@ -200,7 +200,7 @@ describe('preventing double votes', () => {
       name: /ballot with write-in/i,
     });
 
-    userEvent.click(screen.getButton('Fox'));
+    await userEvent.click(screen.getButton('Fox'));
     await screen.findByText('Possible Double Vote Detected');
     screen.getByText(/has a bubble selection marked for/);
   });
@@ -234,7 +234,7 @@ describe('preventing double votes', () => {
       name: /ballot with write-in/i,
     });
 
-    userEvent.click(screen.getButton('Fox'));
+    await userEvent.click(screen.getButton('Fox'));
     await screen.findByText('Possible Double Vote Detected');
     screen.getByText(/has a write-in that has already been adjudicated for/);
   });
@@ -275,7 +275,7 @@ describe('preventing double votes', () => {
       name: /ballot with write-in/i,
     });
 
-    userEvent.click(screen.getButton('Puma'));
+    await userEvent.click(screen.getButton('Puma'));
     await screen.findByText('Possible Double Vote Detected');
     screen.getByText(/has a write-in that has already been adjudicated for/);
   });
@@ -375,13 +375,13 @@ test('marking adjudications', async () => {
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
   expectGetQueueMetadata({ total: 2, pending: 1, contestId });
 
-  userEvent.click(screen.getButton('Zebra'));
+  await userEvent.click(screen.getButton('Zebra'));
   await waitFor(async () =>
     expect(await screen.findButton('Next')).toHaveFocus()
   );
 
   // clicking current selection should be no-op
-  userEvent.click(screen.getButton('Zebra'));
+  await userEvent.click(screen.getButton('Zebra'));
   apiMock.assertComplete();
 
   // adjudicate for existing write-in candidate
@@ -404,13 +404,13 @@ test('marking adjudications', async () => {
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
   expectGetQueueMetadata({ total: 2, pending: 1, contestId });
 
-  userEvent.click(screen.getButton('Lemur'));
+  await userEvent.click(screen.getButton('Lemur'));
   await waitFor(async () =>
     expect(await screen.findButton('Next')).toHaveFocus()
   );
 
   // clicking current selection should be no-op
-  userEvent.click(screen.getButton('Lemur'));
+  await userEvent.click(screen.getButton('Lemur'));
   apiMock.assertComplete();
 
   // adjudicate for a new write-in-candidate
@@ -448,12 +448,12 @@ test('marking adjudications', async () => {
     },
   });
   expectGetQueueMetadata({ total: 2, pending: 1, contestId });
-  userEvent.click(await screen.findButton(/Add New Write-In Candidate/i));
-  userEvent.type(
+  await userEvent.click(await screen.findButton(/Add New Write-In Candidate/i));
+  await userEvent.type(
     await screen.findByPlaceholderText('Candidate Name'),
     'Dark Helmet'
   );
-  userEvent.click(await screen.findByText('Add'));
+  await userEvent.click(await screen.findByText('Add'));
 
   await screen.findButton('Dark Helmet');
   await waitFor(async () =>
@@ -477,7 +477,7 @@ test('marking adjudications', async () => {
   });
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
   expectGetQueueMetadata({ total: 2, pending: 1, contestId });
-  userEvent.click(await screen.findButton(/Mark Write-In Invalid/i));
+  await userEvent.click(await screen.findButton(/Mark Write-In Invalid/i));
   await waitFor(async () =>
     expect(await screen.findButton('Next')).toHaveFocus()
   );

@@ -81,12 +81,12 @@ test('exporting SEMS results', async () => {
   fetchMock.postOnce('/convert/reset', { body: { status: 'ok' } });
 
   await screen.findButton('Save SEMS Results');
-  userEvent.click(screen.getByText('Save SEMS Results'));
+  await userEvent.click(screen.getByText('Save SEMS Results'));
   screen.getByText(
     'votingworks-sems-test-results_sample-county_example-primary-election_2020-11-03_22-22-00.txt'
   );
 
-  userEvent.click(screen.getByText('Save'));
+  await userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Saving/);
   await screen.findByText(/Results Saved/);
   await waitFor(() => {
@@ -130,11 +130,11 @@ test('exporting batch results', async () => {
     mockBallotCountsTableGroupBy({ groupByBatch: true }),
     []
   );
-  userEvent.click(screen.getButton('Show Results by Batch and Scanner'));
+  await userEvent.click(screen.getButton('Show Results by Batch and Scanner'));
   await waitFor(() => {
     expect(screen.getButton('Save Batch Results as CSV')).toBeEnabled();
   });
-  userEvent.click(screen.getButton('Save Batch Results as CSV'));
+  await userEvent.click(screen.getButton('Save Batch Results as CSV'));
   await screen.findByRole('alertdialog');
 
   await screen.findByText('Save Batch Results');
@@ -145,7 +145,7 @@ test('exporting batch results', async () => {
   apiMock.expectExportBatchResults(
     '/media/vx/mock-usb-drive/votingworks-test-batch-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
   );
-  userEvent.click(screen.getByText('Save'));
+  await userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Batch Results Saved/);
 });
 
@@ -171,7 +171,7 @@ test('exporting results csv', async () => {
   await waitFor(() => {
     expect(screen.getButton('Save Results')).toBeEnabled();
   });
-  userEvent.click(screen.getButton('Save Results'));
+  await userEvent.click(screen.getButton('Save Results'));
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Save Results' });
@@ -182,7 +182,7 @@ test('exporting results csv', async () => {
   apiMock.expectExportResultsCsv(
     '/media/vx/mock-usb-drive/votingworks-test-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
   );
-  userEvent.click(within(modal).getButton('Save'));
+  await userEvent.click(within(modal).getButton('Save'));
   await screen.findByText(/Results Saved/);
 });
 

@@ -69,7 +69,7 @@ test('displays manual tally metadata & links to manual data summary page', async
 
   within(screen.getByTestId('total-cvr-count')).getByText('100');
 
-  userEvent.click(screen.getButton('Edit Manually Entered Results'));
+  await userEvent.click(screen.getButton('Edit Manually Entered Results'));
   expect(history.location.pathname).toEqual('/tally/manual-data-summary');
 });
 
@@ -103,19 +103,19 @@ test('can delete manual data', async () => {
     }
   );
   await screen.findByRole('heading', { name: 'Manually Entered Results' });
-  userEvent.click(screen.getButton('Remove Manually Entered Results'));
+  await userEvent.click(screen.getButton('Remove Manually Entered Results'));
 
   // allows canceling the action
   let modal = await screen.findByRole('alertdialog');
-  userEvent.click(within(modal).getButton('Cancel'));
+  await userEvent.click(within(modal).getButton('Cancel'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
   // confirming action causes mutation and refetch
-  userEvent.click(screen.getButton('Remove Manually Entered Results'));
+  await userEvent.click(screen.getButton('Remove Manually Entered Results'));
   modal = await screen.findByRole('alertdialog');
   apiMock.expectDeleteAllManualResults();
   apiMock.expectGetManualResultsMetadata([]);
-  userEvent.click(
+  await userEvent.click(
     within(modal).getButton('Remove All Manually Entered Results')
   );
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();

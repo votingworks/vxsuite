@@ -61,6 +61,8 @@ export function AppBase(props: AppBaseProps): JSX.Element {
     [colorMode, screenType, sizeMode]
   );
 
+  console.log(React.version);
+
   return (
     <ThemeManagerContext.Provider
       value={{

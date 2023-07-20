@@ -87,7 +87,7 @@ test('when USB is not present or valid', async () => {
     );
     await screen.findByText('No USB Drive Detected');
 
-    userEvent.click(screen.getByText('Cancel'));
+    await userEvent.click(screen.getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
     unmount();
   }
@@ -137,7 +137,7 @@ describe('when USB is properly mounted', () => {
       )
     );
 
-    userEvent.click(screen.getByText('Cancel'));
+    await userEvent.click(screen.getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
     apiMock.apiClient.addCastVoteRecordFile
@@ -195,7 +195,7 @@ describe('when USB is properly mounted', () => {
       domGetByText(tableRows[2], 'Load').closest('button')!.disabled
     ).toEqual(false);
 
-    userEvent.click(screen.getByText('Cancel'));
+    await userEvent.click(screen.getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
     apiMock.apiClient.addCastVoteRecordFile
@@ -206,7 +206,7 @@ describe('when USB is properly mounted', () => {
     apiMock.expectGetCastVoteRecordFileMode('official');
     apiMock.expectGetCastVoteRecordFiles([]);
 
-    userEvent.click(domGetByText(tableRows[0], 'Load'));
+    await userEvent.click(domGetByText(tableRows[0], 'Load'));
     await screen.findByText('Loading');
     await screen.findByText('1,000 new CVRs Loaded');
   });
@@ -241,7 +241,7 @@ describe('when USB is properly mounted', () => {
       domGetByText(tableRows[1], 'Load').closest('button')!.disabled
     ).toEqual(false);
 
-    userEvent.click(screen.getByText('Cancel'));
+    await userEvent.click(screen.getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
   });
 

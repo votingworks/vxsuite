@@ -76,7 +76,7 @@ test('renders provided data', async () => {
     within(report).getByText('Random Write-In').closest('tr')!
   ).toHaveTextContent('15');
 
-  userEvent.click(screen.getByText('Print Report'));
+  await userEvent.click(screen.getByText('Print Report'));
   await expectPrint((printed) => {
     printed.getByText(
       'Unofficial General Election Write-In Adjudication Report'
@@ -88,6 +88,6 @@ test('renders provided data', async () => {
 
   screen.getByText('Save Report as PDF');
 
-  userEvent.click(screen.getByText('Back to Reports'));
+  await userEvent.click(screen.getByText('Back to Reports'));
   expect(history.location.pathname).toEqual(routerPaths.reports);
 });

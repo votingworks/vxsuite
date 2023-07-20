@@ -21,7 +21,7 @@ test('happy path flow', async () => {
     hasPrinterAttached: true,
   });
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  userEvent.click(screen.getByRole('button', { name: 'Print' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Print' }));
   within(screen.getByRole('alertdialog')).getByText('Printing');
   expect(mockPrint).toHaveBeenCalledTimes(1);
   jest.advanceTimersByTime(3000);
@@ -36,7 +36,7 @@ test('does not expect a printer attached in browser mode', async () => {
   renderInAppContext(<PrintButton print={mockPrint}>Print</PrintButton>, {
     hasPrinterAttached: false,
   });
-  userEvent.click(screen.getByRole('button', { name: 'Print' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Print' }));
   await waitFor(() => {
     expect(mockPrint).toHaveBeenCalled();
   });
@@ -49,7 +49,7 @@ test('has option to not show the default progress modal', async () => {
       Print
     </PrintButton>
   );
-  userEvent.click(screen.getByRole('button', { name: 'Print' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Print' }));
   expect(mockPrint).toHaveBeenCalled();
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   expect(screen.queryByText('Printing')).not.toBeInTheDocument();
@@ -58,7 +58,7 @@ test('has option to not show the default progress modal', async () => {
   await advancePromises();
 });
 
-test('shows printer not connected warning', () => {
+test('shows printer not connected warning', async () => {
   window.kiosk = fakeKiosk();
   const mockPrint = jest.fn();
   renderInAppContext(
@@ -67,14 +67,14 @@ test('shows printer not connected warning', () => {
     </PrintButton>,
     { hasPrinterAttached: false }
   );
-  userEvent.click(screen.getByRole('button', { name: 'Print' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Print' }));
   const modal = screen.getByRole('alertdialog');
   within(modal).getByText('The printer is not connected.');
   expect(mockPrint).not.toHaveBeenCalled();
   expect(
     within(modal).queryByRole('button', { name: 'Continue' })
   ).toBeDisabled();
-  userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
   delete window.kiosk;
