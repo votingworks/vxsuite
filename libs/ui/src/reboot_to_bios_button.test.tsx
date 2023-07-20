@@ -12,7 +12,7 @@ beforeEach(() => {
 test('renders as expected.', async () => {
   render(<RebootToBiosButton logger={new Logger(LogSource.VxAdminFrontend)} />);
 
-  userEvent.click(screen.getByText('Reboot to BIOS'));
+  await userEvent.click(screen.getByText('Reboot to BIOS'));
   await screen.findByText(/Rebooting/);
   await waitFor(() =>
     expect(window.kiosk!.rebootToBios).toHaveBeenCalledTimes(1)

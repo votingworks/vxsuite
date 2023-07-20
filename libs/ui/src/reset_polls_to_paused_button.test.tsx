@@ -21,11 +21,11 @@ test('component flow', async () => {
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
   // Clicking should show modal
-  userEvent.click(mainButton);
+  await userEvent.click(mainButton);
   screen.getByRole('alertdialog');
 
   // Clicking cancel should close modal
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', {
       name: 'Close',
     })
@@ -33,9 +33,9 @@ test('component flow', async () => {
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
   // Can reset polls
-  userEvent.click(mainButton);
+  await userEvent.click(mainButton);
   const modal = screen.getByRole('alertdialog');
-  userEvent.click(
+  await userEvent.click(
     within(modal).getByRole('button', { name: 'Reset Polls to Paused' })
   );
   await waitFor(() => {

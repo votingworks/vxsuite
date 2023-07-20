@@ -13,17 +13,17 @@ test('renders expected subcomponents', () => {
   screen.getByRole('radiogroup', { name: 'Color Contrast Settings' });
 });
 
-test('changes tab pane on tab bar events', () => {
+test('changes tab pane on tab bar events', async () => {
   render(<DisplaySettings onClose={jest.fn()} />);
 
   screen.getByRole('radiogroup', { name: 'Color Contrast Settings' });
 
-  userEvent.click(screen.getByRole('tab', { name: /size/i }));
+  await userEvent.click(screen.getByRole('tab', { name: /size/i }));
 
   screen.getByRole('radiogroup', { name: 'Text Size Settings' });
 });
 
-test('resets button resets global theme', () => {
+test('resets button resets global theme', async () => {
   let currentTheme: UiTheme | null = null;
 
   function TestComponent(): JSX.Element {
@@ -48,11 +48,11 @@ test('resets button resets global theme', () => {
     })
   );
 
-  userEvent.click(screen.getByRole('tab', { name: /color/i }));
-  userEvent.click(screen.getByRole('radio', { name: /gray text/i }));
+  await userEvent.click(screen.getByRole('tab', { name: /color/i }));
+  await userEvent.click(screen.getByRole('radio', { name: /gray text/i }));
 
-  userEvent.click(screen.getByRole('tab', { name: /size/i }));
-  userEvent.click(screen.getByRole('radio', { name: /small/i }));
+  await userEvent.click(screen.getByRole('tab', { name: /size/i }));
+  await userEvent.click(screen.getByRole('radio', { name: /small/i }));
 
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
@@ -61,7 +61,7 @@ test('resets button resets global theme', () => {
     })
   );
 
-  userEvent.click(screen.getButton('Reset'));
+  await userEvent.click(screen.getButton('Reset'));
 
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
@@ -71,13 +71,13 @@ test('resets button resets global theme', () => {
   );
 });
 
-test('done button fires onClose event', () => {
+test('done button fires onClose event', async () => {
   const onClose = jest.fn();
   render(<DisplaySettings onClose={onClose} />);
 
   expect(onClose).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getButton('Done'));
+  await userEvent.click(screen.getButton('Done'));
 
   expect(onClose).toHaveBeenCalled();
 });

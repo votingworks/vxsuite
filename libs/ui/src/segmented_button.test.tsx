@@ -10,7 +10,7 @@ const TEST_OPTIONS: ReadonlyArray<SegmentedButtonOption<TestOptionId>> = [
   { id: 'c', label: 'Option C', ariaLabel: 'Enable Option C' },
 ];
 
-test('renders all provided options ', () => {
+test('renders all provided options ', async () => {
   const onChange = jest.fn();
 
   render(
@@ -33,17 +33,17 @@ test('renders all provided options ', () => {
   //
   // Verify all option clicks work as expected:
   //
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('option', { name: 'Option A', selected: false })
   );
   expect(onChange).toHaveBeenCalledWith<[TestOptionId]>('a');
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('option', { name: 'Option B', selected: true })
   );
   expect(onChange).toHaveBeenCalledWith<[TestOptionId]>('b');
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('option', { name: 'Enable Option C', selected: false })
   );
   expect(onChange).toHaveBeenCalledWith<[TestOptionId]>('c');

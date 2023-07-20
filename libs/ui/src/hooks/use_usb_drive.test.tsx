@@ -90,7 +90,7 @@ test('full lifecycle with USBControllerButton', async () => {
   );
 
   // begin eject
-  userEvent.click(screen.getByText('Eject USB'));
+  await userEvent.click(screen.getByText('Eject USB'));
   await screen.findByText('Ejecting…');
   await waitForUnmount();
   await screen.findByText('Ejected');

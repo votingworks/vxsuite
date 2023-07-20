@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '../test/react_testing_library';
 
 import { NumberPad } from './number_pad';
 
-test('click all pad buttons', () => {
+test('click all pad buttons', async () => {
   const onPress = jest.fn();
   const onBackspace = jest.fn();
   const onClear = jest.fn();
@@ -15,17 +15,17 @@ test('click all pad buttons', () => {
     />
   );
   for (let digit = 0; digit <= 9; digit += 1) {
-    userEvent.click(screen.getButton(`${digit}`));
+    await userEvent.click(screen.getButton(`${digit}`));
     expect(onPress).toHaveBeenCalledWith(digit);
   }
   expect(onPress).toHaveBeenCalledTimes(10);
 
   const backspaceButton = screen.getButton('backspace');
-  userEvent.click(backspaceButton);
+  await userEvent.click(backspaceButton);
   expect(onBackspace).toHaveBeenCalledTimes(1);
 
   const clearButton = screen.getButton('clear');
-  userEvent.click(clearButton);
+  await userEvent.click(clearButton);
   expect(onClear).toHaveBeenCalledTimes(1);
 });
 

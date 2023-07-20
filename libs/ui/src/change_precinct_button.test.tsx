@@ -39,12 +39,12 @@ test('default mode: set precinct from unset', async () => {
   ).toBeDisabled();
 
   // Try interacting with dropdown without making any selection
-  userEvent.click(dropdown);
+  await userEvent.click(dropdown);
   fireEvent.blur(dropdown);
   expect(updatePrecinctSelection).not.toHaveBeenCalled();
 
   // Updates app state
-  userEvent.selectOptions(dropdown, 'precinct-1');
+  await userEvent.selectOptions(dropdown, 'precinct-1');
   expect(updatePrecinctSelection).toHaveBeenCalledTimes(1);
   expect(updatePrecinctSelection).toHaveBeenCalledWith(
     expect.objectContaining(singlePrecinctSelectionFor('precinct-1'))
@@ -85,7 +85,7 @@ test('default mode: switch precinct', async () => {
   screen.getByRole('option', { name: 'All Precincts', selected: true });
   expect(screen.getByRole('option', { name: 'All Precincts' })).toBeDisabled();
 
-  userEvent.selectOptions(dropdown, 'precinct-2');
+  await userEvent.selectOptions(dropdown, 'precinct-2');
   expect(updatePrecinctSelection).toHaveBeenCalledTimes(1);
   expect(updatePrecinctSelection).toHaveBeenCalledWith(
     expect.objectContaining(singlePrecinctSelectionFor('precinct-2'))
@@ -122,7 +122,7 @@ test('confirmation required mode', async () => {
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
   // Press the button and modal opens
-  userEvent.click(mainButton);
+  await userEvent.click(mainButton);
   screen.getByRole('alertdialog');
 
   // Loads with the initial precinct and confirm, which is disabled as an option
@@ -131,25 +131,28 @@ test('confirmation required mode', async () => {
   expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
 
   // Can select another single precinct, which enables confirmation
-  userEvent.selectOptions(screen.getByTestId('selectPrecinct'), 'precinct-2');
+  await userEvent.selectOptions(
+    screen.getByTestId('selectPrecinct'),
+    'precinct-2'
+  );
   screen.getByRole('option', { name: 'Precinct 2', selected: true });
   expect(screen.getByRole('button', { name: 'Confirm' })).not.toBeDisabled();
   expect(screen.getByRole('option', { name: 'Precinct 1' })).toBeDisabled();
 
   // Can close modal, re-open, and we will be back to default
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  userEvent.click(mainButton);
+  await userEvent.click(mainButton);
   screen.getByRole('option', { name: 'Precinct 1', selected: true });
   expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
 
   // Can select and confirm a precinct
-  userEvent.selectOptions(
+  await userEvent.selectOptions(
     screen.getByTestId('selectPrecinct'),
     ALL_PRECINCTS_OPTION_VALUE
   );
   screen.getByRole('option', { name: 'All Precincts', selected: true });
-  userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });

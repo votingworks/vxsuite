@@ -29,34 +29,34 @@ test('PIN submission', async () => {
 
   screen.getByText('- - - - - -');
 
-  userEvent.click(screen.getButton('0'));
+  await userEvent.click(screen.getButton('0'));
   screen.getByText('• - - - - -');
 
-  userEvent.click(screen.getButton('clear'));
+  await userEvent.click(screen.getButton('clear'));
   screen.getByText('- - - - - -');
 
-  userEvent.click(screen.getButton('0'));
+  await userEvent.click(screen.getButton('0'));
   screen.getByText('• - - - - -');
 
-  userEvent.click(screen.getButton('1'));
+  await userEvent.click(screen.getButton('1'));
   screen.getByText('• • - - - -');
 
-  userEvent.click(screen.getButton('2'));
+  await userEvent.click(screen.getButton('2'));
   screen.getByText('• • • - - -');
 
-  userEvent.click(screen.getButton('3'));
+  await userEvent.click(screen.getButton('3'));
   screen.getByText('• • • • - -');
 
-  userEvent.click(screen.getButton('4'));
+  await userEvent.click(screen.getButton('4'));
   screen.getByText('• • • • • -');
 
-  userEvent.click(screen.getButton('backspace'));
+  await userEvent.click(screen.getButton('backspace'));
   screen.getByText('• • • • - -');
 
-  userEvent.click(screen.getButton('4'));
+  await userEvent.click(screen.getButton('4'));
   screen.getByText('• • • • • -');
 
-  userEvent.click(screen.getButton('5'));
+  await userEvent.click(screen.getButton('5'));
   await waitFor(() => expect(checkPin).toHaveBeenNthCalledWith(1, '012345'));
   screen.getByText('- - - - - -');
 });
@@ -93,7 +93,7 @@ test.each<{
   },
 ])(
   'Lockout - $description',
-  ({ isWrongPinEnteredAtSet, expectedPromptAfterLockoutEnds }) => {
+  async ({ isWrongPinEnteredAtSet, expectedPromptAfterLockoutEnds }) => {
     const checkPin = jest.fn();
     render(
       <UnlockMachineScreen
@@ -112,7 +112,7 @@ test.each<{
     screen.getByText('- - - - - -');
 
     // Ensure number pad entry is ignored
-    userEvent.click(screen.getButton('0'));
+    await userEvent.click(screen.getButton('0'));
     screen.getByText('- - - - - -');
 
     MockDate.set('2000-01-01T00:00:01Z');

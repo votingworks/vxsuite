@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library';
 import { VirtualKeyboard } from './virtual_keyboard';
 
-test('fires key events', () => {
+test('fires key events', async () => {
   const onKeyPress = jest.fn();
   const onBackspace = jest.fn();
 
@@ -23,17 +23,17 @@ test('fires key events', () => {
 
   for (const letter of text) {
     const keyName = specialCharKeyNames[letter] || letter;
-    userEvent.click(screen.getButton(keyName));
+    await userEvent.click(screen.getButton(keyName));
     expect(onKeyPress).lastCalledWith(letter);
   }
 
   expect(onBackspace).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getButton('delete'));
+  await userEvent.click(screen.getButton('delete'));
   expect(onBackspace).toHaveBeenCalled();
 });
 
-test("doesn't fire key events for disabled keys", () => {
+test("doesn't fire key events for disabled keys", async () => {
   const onKeyPress = jest.fn();
   const onBackspace = jest.fn();
 
@@ -45,11 +45,11 @@ test("doesn't fire key events for disabled keys", () => {
     />
   );
 
-  userEvent.click(screen.getButton('M'));
+  await userEvent.click(screen.getButton('M'));
   expect(onKeyPress).not.toHaveBeenCalled();
 });
 
-test('custom keymap', () => {
+test('custom keymap', async () => {
   const onKeyPress = jest.fn();
   const onBackspace = jest.fn();
 
@@ -70,12 +70,12 @@ test('custom keymap', () => {
     />
   );
 
-  userEvent.click(screen.getButton('😅'));
+  await userEvent.click(screen.getButton('😅'));
   expect(onKeyPress).lastCalledWith('😅');
 
-  userEvent.click(screen.getButton('😂'));
+  await userEvent.click(screen.getButton('😂'));
   expect(onKeyPress).lastCalledWith('😂');
 
-  userEvent.click(screen.getButton('magic'));
+  await userEvent.click(screen.getButton('magic'));
   expect(onKeyPress).lastCalledWith('✨');
 });

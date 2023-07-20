@@ -49,7 +49,7 @@ test('renders with specified size options', () => {
   });
 });
 
-test('option selections trigger theme updates', () => {
+test('option selections trigger theme updates', async () => {
   let currentTheme: UiTheme | null = null;
 
   function TestComponent(): JSX.Element {
@@ -79,7 +79,7 @@ test('option selections trigger theme updates', () => {
     })
   );
 
-  userEvent.click(screen.getByRole('radio', { name: /small/i }));
+  await userEvent.click(screen.getByRole('radio', { name: /small/i }));
 
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({

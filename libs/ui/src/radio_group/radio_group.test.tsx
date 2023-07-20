@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../../test/react_testing_library';
 import { RadioGroup } from '.';
 
-test('renders all provided options', () => {
+test('renders all provided options', async () => {
   const onChange = jest.fn();
 
   render(
@@ -29,11 +29,13 @@ test('renders all provided options', () => {
   withinGroup.getByRole('radio', { name: 'Jack of Diamonds', checked: true });
   withinGroup.getByRole('radio', { name: 'Two of Spades', checked: false });
 
-  userEvent.click(withinGroup.getByRole('radio', { name: 'Four of Hearts' }));
+  await userEvent.click(
+    withinGroup.getByRole('radio', { name: 'Four of Hearts' })
+  );
   expect(onChange).toBeCalledWith('hearts-4');
 });
 
-test('a11y for disabled options', () => {
+test('a11y for disabled options', async () => {
   const onChange = jest.fn();
 
   render(
@@ -49,7 +51,7 @@ test('a11y for disabled options', () => {
   );
 
   const disabledOption = screen.getByRole('radio', { name: 'Six of Clubs' });
-  userEvent.click(disabledOption);
+  await userEvent.click(disabledOption);
 
   expect(onChange).not.toHaveBeenCalled();
 });

@@ -17,7 +17,7 @@ test('renders as expected.', async () => {
     />
   );
 
-  userEvent.click(screen.getByText('Power Down'));
+  await userEvent.click(screen.getByText('Power Down'));
   await screen.findByText(/Powering Down/);
   await waitFor(() => expect(window.kiosk!.powerDown).toHaveBeenCalledTimes(1));
 });

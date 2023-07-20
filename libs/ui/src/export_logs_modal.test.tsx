@@ -63,9 +63,9 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
         auth={systemAdministratorAuthStatus}
       />
     );
-    userEvent.click(screen.getByText('Save Log File'));
+    await userEvent.click(screen.getByText('Save Log File'));
     await screen.findByText('Loading');
-    userEvent.click(screen.getByText('Cancel'));
+    await userEvent.click(screen.getByText('Cancel'));
     expect(screen.queryByRole('alertdialog')).toBeFalsy();
     unmount();
   }
@@ -89,7 +89,7 @@ test('renders no log file found when usb is mounted but no log file on machine',
       machineConfig={machineConfig}
     />
   );
-  userEvent.click(screen.getByText('Save Log File'));
+  await userEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('Loading');
   await screen.findByText('No Log File Present');
   expect(logger.log).toHaveBeenCalledWith(
@@ -117,7 +117,7 @@ test('render no usb found screen when there is not a mounted usb drive', async (
         auth={systemAdministratorAuthStatus}
       />
     );
-    userEvent.click(screen.getByText('Save Log File'));
+    await userEvent.click(screen.getByText('Save Log File'));
     await screen.findByText('Loading');
     await screen.findByText('No USB Drive Detected');
     screen.getByText(
@@ -125,7 +125,7 @@ test('render no usb found screen when there is not a mounted usb drive', async (
     );
     screen.getByAltText('Insert USB Image');
 
-    userEvent.click(screen.getByText('Cancel'));
+    await userEvent.click(screen.getByText('Cancel'));
     expect(screen.queryByRole('alertdialog')).toBeFalsy();
 
     unmount();
@@ -156,7 +156,7 @@ test('successful save raw log flow', async () => {
       machineConfig={machineConfig}
     />
   );
-  userEvent.click(screen.getByText('Save Log File'));
+  await userEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('Loading');
   await screen.findByText('Save Logs');
   expect(logger.log).toHaveBeenCalledWith(
@@ -165,7 +165,7 @@ test('successful save raw log flow', async () => {
     expect.objectContaining({ disposition: 'success' })
   );
 
-  userEvent.click(screen.getByText('Save'));
+  await userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Saving Logs/);
   expect(mockKiosk.readFile).toHaveBeenCalled();
   jest.advanceTimersByTime(2001);
@@ -180,7 +180,7 @@ test('successful save raw log flow', async () => {
   });
   expect(logCdfSpy).toHaveBeenCalledTimes(0);
 
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
   expect(screen.queryByRole('alertdialog')).toBeFalsy();
 
   expect(logger.log).toHaveBeenCalledWith(
@@ -217,7 +217,7 @@ test('successful save cdf log file flow', async () => {
       electionDefinition={electionFamousNames2021Fixtures.electionDefinition}
     />
   );
-  userEvent.click(screen.getByText('Save CDF Log File'));
+  await userEvent.click(screen.getByText('Save CDF Log File'));
   await screen.findByText('Loading');
   await screen.findByText('Save Logs');
   expect(logger.log).toHaveBeenCalledWith(
@@ -226,7 +226,7 @@ test('successful save cdf log file flow', async () => {
     expect.objectContaining({ disposition: 'success' })
   );
 
-  userEvent.click(screen.getByText('Save'));
+  await userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Saving Logs/);
   expect(mockKiosk.readFile).toHaveBeenCalled();
   jest.advanceTimersByTime(2001);
@@ -241,7 +241,7 @@ test('successful save cdf log file flow', async () => {
   });
   expect(logger.buildCDFLog).toHaveBeenCalledTimes(1);
 
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
   expect(screen.queryByRole('alertdialog')).toBeFalsy();
 
   expect(logger.log).toHaveBeenCalledWith(
@@ -274,17 +274,17 @@ test('failed export flow', async () => {
       machineConfig={machineConfig}
     />
   );
-  userEvent.click(screen.getByText('Save Log File'));
+  await userEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('Loading');
   await screen.findByText('Save Logs');
 
-  userEvent.click(screen.getByText('Save'));
+  await userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Saving Logs/);
   await screen.findByText(/Failed to Save Logs/);
   screen.getByText(/Failed to save log file./);
   screen.getByText(/this-is-an-error/);
 
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
   expect(screen.queryByRole('alertdialog')).toBeFalsy();
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
@@ -320,8 +320,8 @@ test('successful save to custom location', async () => {
       machineConfig={machineConfig}
     />
   );
-  userEvent.click(screen.getByText('Save Log File'));
-  userEvent.click(await screen.findByText(/Save As/));
+  await userEvent.click(screen.getByText('Save Log File'));
+  await userEvent.click(await screen.findByText(/Save As/));
   await screen.findByText(/Saving Logs/);
   jest.advanceTimersByTime(2001);
   await screen.findByText(/Logs Saved/);
@@ -330,7 +330,7 @@ test('successful save to custom location', async () => {
     expect(fileWriter.end).toHaveBeenCalled();
   });
 
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
   expect(screen.queryByRole('alertdialog')).toBeFalsy();
 
   expect(logger.log).toHaveBeenCalledWith(
@@ -365,12 +365,12 @@ test('failed save to custom location', async () => {
       machineConfig={machineConfig}
     />
   );
-  userEvent.click(screen.getByText('Save Log File'));
-  userEvent.click(await screen.findByText(/Save As/));
+  await userEvent.click(screen.getByText('Save Log File'));
+  await userEvent.click(await screen.findByText(/Save As/));
   await screen.findByText(/Saving Logs/);
   jest.advanceTimersByTime(2001);
   await screen.findByText(/Failed to Save Logs/);
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
   expect(screen.queryByRole('alertdialog')).toBeFalsy();
 
   expect(logger.log).toHaveBeenCalledWith(

@@ -11,13 +11,15 @@ test('renders all available display settings tabs', () => {
   within(tabList).getByRole('tab', { name: 'Text Size', selected: true });
 });
 
-test('fires change event with settings pane id', () => {
+test('fires change event with settings pane id', async () => {
   const onChange = jest.fn();
   render(<TabBar activePaneId="displaySettingsSize" onChange={onChange} />);
 
   expect(onChange).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getByRole('tab', { name: 'Color', selected: false }));
+  await userEvent.click(
+    screen.getByRole('tab', { name: 'Color', selected: false })
+  );
 
   expect(onChange).toHaveBeenCalledWith<[SettingsPaneId]>(
     'displaySettingsColor'

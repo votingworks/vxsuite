@@ -106,7 +106,7 @@ test.each(renderTestCases)(
   }
 );
 
-test('Quit button makes expected call', () => {
+test('Quit button makes expected call', async () => {
   mockOf(isVxDev).mockImplementation(() => true);
   window.kiosk = fakeKiosk();
   const logger = fakeLogger();
@@ -121,11 +121,11 @@ test('Quit button makes expected call', () => {
     />
   );
 
-  userEvent.click(screen.getByRole('button', { name: 'Quit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Quit' }));
   expect(window.kiosk.quit).toBeCalledTimes(1);
 });
 
-test('Quit button does nothing when kiosk is undefined', () => {
+test('Quit button does nothing when kiosk is undefined', async () => {
   mockOf(isVxDev).mockImplementation(() => true);
   window.kiosk = undefined;
   const logger = fakeLogger();
@@ -140,7 +140,7 @@ test('Quit button does nothing when kiosk is undefined', () => {
     />
   );
 
-  userEvent.click(screen.getByRole('button', { name: 'Quit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Quit' }));
 });
 
 test('Reset Polls to Paused button not rendered if not specified', () => {

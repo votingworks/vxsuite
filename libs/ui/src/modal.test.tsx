@@ -78,12 +78,12 @@ describe('Modal', () => {
     });
   });
 
-  it('handles overlay click', () => {
+  it('handles overlay click', async () => {
     const onOverlayClick = jest.fn();
     const { baseElement } = render(
       <Modal content="Content" onOverlayClick={onOverlayClick} />
     );
-    userEvent.click(
+    await userEvent.click(
       baseElement.getElementsByClassName('ReactModal__Overlay')[0]
     );
     expect(onOverlayClick).toHaveBeenCalledTimes(1);
