@@ -118,59 +118,51 @@ test('Resets theme when election official logs in', async () => {
 });
 
 test('Resets theme after successful scan', async () => {
-  // Simulate changing display settings as voter:
-  act(() => {
-    themeManager.setColorMode('contrastHighDark');
-    themeManager.setSizeMode('xl');
-  });
-  expect(currentTheme).toEqual(
-    expect.objectContaining<Partial<DefaultTheme>>({
-      colorMode: 'contrastHighDark',
-      sizeMode: 'xl',
-    })
-  );
-
-  // Should be a no-op if scanner status change doesn't represent session end:
   for (const oldState of PRECINCT_SCANNER_STATES) {
-    apiMock.expectGetScannerStatus(scannerStatus({ state: oldState }));
-    await scannerStatusQuery.refetch();
-    await advanceTimersAndPromises();
-
     for (const newState of PRECINCT_SCANNER_STATES) {
-      if (oldState === 'accepted' && newState === 'no_paper') {
-        continue;
-      }
+      // Set up initial scanner state:
+      apiMock.expectGetScannerStatus(scannerStatus({ state: oldState }));
+      await scannerStatusQuery.refetch();
+      await advanceTimersAndPromises();
 
+      // Simulate initial voter display settings:
+      act(() => {
+        themeManager.setColorMode('contrastHighDark');
+        themeManager.setSizeMode('xl');
+      });
+      expect(currentTheme).toEqual(
+        expect.objectContaining<Partial<DefaultTheme>>({
+          colorMode: 'contrastHighDark',
+          sizeMode: 'xl',
+        })
+      );
+
+      // Simulate scanner state change:
       apiMock.expectGetScannerStatus(scannerStatus({ state: newState }));
       await scannerStatusQuery.refetch();
       await advanceTimersAndPromises();
 
-      await waitFor(() =>
-        expect(currentTheme).toEqual(
-          expect.objectContaining<Partial<DefaultTheme>>({
-            colorMode: 'contrastHighDark',
-            sizeMode: 'xl',
-          })
-        )
-      );
+      if (oldState !== 'no_paper' && newState === 'no_paper') {
+        // Should reset theme when sheet leaves the scanner:
+        await waitFor(() =>
+          expect(currentTheme).toEqual(
+            expect.objectContaining<Partial<DefaultTheme>>({
+              colorMode: 'contrastMedium',
+              sizeMode: 'm',
+            })
+          )
+        );
+      } else {
+        // Should be a no-op for all other scanner state changes:
+        await waitFor(() =>
+          expect(currentTheme).toEqual(
+            expect.objectContaining<Partial<DefaultTheme>>({
+              colorMode: 'contrastHighDark',
+              sizeMode: 'xl',
+            })
+          )
+        );
+      }
     }
   }
-
-  // Should reset theme after successful scan:
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
-  await scannerStatusQuery.refetch();
-  await advanceTimersAndPromises();
-
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'no_paper' }));
-  await scannerStatusQuery.refetch();
-  await advanceTimersAndPromises();
-
-  await waitFor(() =>
-    expect(currentTheme).toEqual(
-      expect.objectContaining<Partial<DefaultTheme>>({
-        colorMode: 'contrastMedium',
-        sizeMode: 'm',
-      })
-    )
-  );
 });
