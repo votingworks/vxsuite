@@ -125,7 +125,6 @@ test('Cardless Voting Flow', async () => {
     .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    isScannerReportDataReadExpected: false,
     cardlessVoterUserParams: {
       ballotStyleId: '12',
       precinctId: '23',
@@ -136,9 +135,7 @@ test('Cardless Voting Flow', async () => {
   // Poll Worker deactivates ballot style
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   userEvent.click(await screen.findByText('Deactivate Voting Session'));
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    isScannerReportDataReadExpected: false,
-  });
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('Select Voter’s Ballot Style');
 
   // Poll Worker reactivates ballot style
@@ -147,7 +144,6 @@ test('Cardless Voting Flow', async () => {
     .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    isScannerReportDataReadExpected: false,
     cardlessVoterUserParams: {
       ballotStyleId: '12',
       precinctId: '23',
@@ -183,9 +179,7 @@ test('Cardless Voting Flow', async () => {
   // Poll Worker resets ballot to remove votes
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   fireEvent.click(screen.getByText('Reset Ballot'));
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    isScannerReportDataReadExpected: false,
-  });
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
   // Back on Poll Worker screen
   await screen.findByText('Select Voter’s Ballot Style');
@@ -196,7 +190,6 @@ test('Cardless Voting Flow', async () => {
     .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    isScannerReportDataReadExpected: false,
     cardlessVoterUserParams: {
       ballotStyleId: '12',
       precinctId: '23',
@@ -292,7 +285,6 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
     within(await screen.findByTestId('ballot-styles')).getByText('12')
   );
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    isScannerReportDataReadExpected: false,
     cardlessVoterUserParams: {
       ballotStyleId: '12',
       precinctId: '23',
@@ -432,7 +424,6 @@ test('poll worker must select a precinct first', async () => {
     .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    isScannerReportDataReadExpected: false,
     cardlessVoterUserParams: {
       ballotStyleId: '12',
       precinctId: '23',
@@ -443,9 +434,7 @@ test('poll worker must select a precinct first', async () => {
   // Poll Worker deactivates ballot style
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   fireEvent.click(screen.getByText('Deactivate Voting Session'));
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    isScannerReportDataReadExpected: false,
-  });
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('2. Select Voter’s Ballot Style');
 
   // Poll Worker reactivates ballot style
@@ -457,7 +446,6 @@ test('poll worker must select a precinct first', async () => {
     .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    isScannerReportDataReadExpected: false,
     cardlessVoterUserParams: {
       ballotStyleId: '12',
       precinctId: '23',
@@ -493,9 +481,7 @@ test('poll worker must select a precinct first', async () => {
   // Poll Worker resets ballot to remove votes
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   fireEvent.click(screen.getByText('Reset Ballot'));
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    isScannerReportDataReadExpected: false,
-  });
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
   // Back on Poll Worker screen
   await screen.findByText('1. Select Voter’s Precinct');
@@ -510,7 +496,6 @@ test('poll worker must select a precinct first', async () => {
     .resolves();
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    isScannerReportDataReadExpected: false,
     cardlessVoterUserParams: {
       ballotStyleId: '12',
       precinctId: '23',

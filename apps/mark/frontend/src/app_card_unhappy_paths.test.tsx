@@ -1,7 +1,6 @@
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
-import { err } from '@votingworks/basics';
 import { render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
@@ -53,9 +52,7 @@ test('Poll worker card with invalid scanner report data is treated like card wit
 
   screen.getByText('Insert Poll Worker card to open.');
 
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition, {
-    scannerReportDataReadResult: err(new Error('Invalid scanner report data')),
-  });
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition);
   await advanceTimersAndPromises();
 
   // Land on pollworker screen
@@ -81,8 +78,7 @@ test('Shows card backwards screen when card connection error occurs', async () =
       reload={jest.fn()}
     />
   );
-  await advanceTimersAndPromises();
-  screen.getByText('Insert Card');
+  await screen.findByText('Insert Card');
 
   apiMock.setAuthStatus({
     status: 'logged_out',
