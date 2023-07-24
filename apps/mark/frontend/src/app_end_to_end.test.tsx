@@ -163,9 +163,9 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Open Polls with Poll Worker Card
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await advanceTimersAndPromises();
   userEvent.click(await screen.findByText('Open Polls'));
-  userEvent.click(screen.getByText('Open Polls on VxMark Now'));
+  const openModal = await screen.findByRole('alertdialog');
+  userEvent.click(within(openModal).getByText('Open Polls'));
   screen.getByText('Select Voter’s Ballot Style');
   // Force refresh
   userEvent.click(screen.getByText('View More Actions'));
@@ -288,7 +288,8 @@ test('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
   userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Close Polls'));
-  userEvent.click(screen.getByText('Close Polls on VxMark Now'));
+  const closeModal = await screen.findByRole('alertdialog');
+  userEvent.click(within(closeModal).getByText('Close Polls'));
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();

@@ -105,9 +105,9 @@ test('Cardless Voting Flow', async () => {
 
   // Open Polls with Poll Worker Card
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await advanceTimersAndPromises();
   userEvent.click(await screen.findByText('Open Polls'));
-  fireEvent.click(screen.getByText('Open Polls on VxMark Now'));
+  const modal = await screen.findByRole('alertdialog');
+  userEvent.click(within(modal).getByText('Open Polls'));
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
@@ -400,9 +400,9 @@ test('poll worker must select a precinct first', async () => {
 
   // Open Polls with Poll Worker Card
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await advanceTimersAndPromises();
   userEvent.click(await screen.findByText('Open Polls'));
-  fireEvent.click(screen.getByText('Open Polls on VxMark Now'));
+  const modal = await screen.findByRole('alertdialog');
+  userEvent.click(within(modal).getByText('Open Polls'));
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();

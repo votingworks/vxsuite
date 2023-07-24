@@ -69,6 +69,10 @@ export function getPollsStateName(state: PollsState): string {
   }
 }
 
+/**
+ * Gets allowable polls transitions from a given polls state. The primary or
+ * expected polls transition is first in the list.
+ */
 export function getPollTransitionsFromState(
   state: PollsState
 ): PollsTransition[] {
