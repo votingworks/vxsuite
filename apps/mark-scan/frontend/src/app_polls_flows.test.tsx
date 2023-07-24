@@ -43,8 +43,9 @@ test('full polls flow', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition);
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   userEvent.click(screen.getByText('Open Polls'));
-  await screen.findByText('No Polls Opened Report on Card');
-  userEvent.click(screen.getByText('Open Polls on VxMarkScan Now'));
+  userEvent.click(
+    within(await screen.findByRole('alertdialog')).getByText('Open Polls')
+  );
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
@@ -59,8 +60,9 @@ test('full polls flow', async () => {
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Pause Voting'));
-  await screen.findByText('No Voting Paused Report on Card');
-  userEvent.click(screen.getByText('Pause Voting on VxMarkScan Now'));
+  userEvent.click(
+    within(await screen.findByRole('alertdialog')).getByText('Pause Voting')
+  );
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Voting Paused');
@@ -74,8 +76,9 @@ test('full polls flow', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition);
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   userEvent.click(screen.getByText('Resume Voting'));
-  await screen.findByText('No Voting Resumed Report on Card');
-  userEvent.click(screen.getByText('Resume Voting on VxMarkScan Now'));
+  userEvent.click(
+    within(await screen.findByRole('alertdialog')).getByText('Resume Voting')
+  );
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
@@ -90,8 +93,9 @@ test('full polls flow', async () => {
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Close Polls'));
-  await screen.findByText('No Polls Closed Report on Card');
-  userEvent.click(screen.getByText('Close Polls on VxMarkScan Now'));
+  userEvent.click(
+    within(await screen.findByRole('alertdialog')).getByText('Close Polls')
+  );
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Polls Closed');
@@ -115,8 +119,9 @@ test('can close from paused', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition);
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   userEvent.click(screen.getByText('Close Polls'));
-  await screen.findByText('No Polls Closed Report on Card');
-  userEvent.click(screen.getByText('Close Polls on VxMarkScan Now'));
+  userEvent.click(
+    within(await screen.findByRole('alertdialog')).getByText('Close Polls')
+  );
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Polls Closed');

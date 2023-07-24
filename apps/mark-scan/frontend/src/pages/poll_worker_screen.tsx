@@ -39,7 +39,6 @@ import {
   Hardware,
   getPollsTransitionDestinationState,
   getPollsStateName,
-  getPollsReportTitle,
   getPollsTransitionAction,
   getPollTransitionsFromState,
 } from '@votingworks/utils';
@@ -67,22 +66,14 @@ const VotingSession = styled.div`
   }
 `;
 
-const UpdatePollsDirectlyActionsSpan = styled.span`
-  display: flex;
-  width: 100%;
-
-  & > * {
-    flex-grow: 1;
-    margin: 0.25rem;
-  }
-`;
-
-function UpdatePollsDirectlyButton({
+function UpdatePollsButton({
   pollsTransition,
   updatePollsState,
+  isPrimaryButton,
 }: {
   pollsTransition: PollsTransition;
   updatePollsState: (pollsState: PollsState) => void;
+  isPrimaryButton: boolean;
 }): JSX.Element {
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
@@ -96,17 +87,16 @@ function UpdatePollsDirectlyButton({
   }
 
   const action = getPollsTransitionAction(pollsTransition);
-  const reportTitle = getPollsReportTitle(pollsTransition);
-  const suggestVxScanText = (() => {
+  const explanationText = (() => {
     switch (pollsTransition) {
       case 'open_polls':
-        return `Open polls on VxScan to save the ${reportTitle.toLowerCase()} before opening polls on VxMarkScan.`;
+        return `After polls are opened, VxMarkScan will be ready for voters to mark and print ballots.`;
       case 'pause_voting':
-        return `Pause voting on VxScan to save the ${reportTitle.toLowerCase()} before pausing voting on VxMarkScan.`;
+        return `After voting is paused, VxMarkScan will no longer allow voters to mark and print ballots until voting is resumed.`;
       case 'resume_voting':
-        return `Resume voting on VxScan to save the ${reportTitle.toLowerCase()} before resuming voting on VxMarkScan.`;
+        return `After voting is resumed, VxMarkScan will be ready for voters to mark and print ballots.`;
       case 'close_polls':
-        return `Close polls on VxScan to save the ${reportTitle.toLowerCase()} before closing polls on VxMarkScan.`;
+        return `After polls are closed, VxMarkScan will no longer allow voters to mark and print ballots. Polls cannot be opened again after being closed.`;
       /* istanbul ignore next */
       default:
         throwIllegalValue(pollsTransition);
@@ -115,25 +105,27 @@ function UpdatePollsDirectlyButton({
 
   return (
     <React.Fragment>
-      <Button onPress={() => setIsConfirmationModalOpen(true)}>{action}</Button>
+      <Button
+        variant={isPrimaryButton ? 'primary' : 'regular'}
+        onPress={() => setIsConfirmationModalOpen(true)}
+      >
+        {action}
+      </Button>
       {isConfirmationModalOpen && (
         <Modal
-          title={`No ${reportTitle} on Card`}
-          centerContent
+          title={`Confirm ${action}`}
           content={
             <Prose id="modalaudiofocus">
-              <P>{suggestVxScanText}</P>
+              <P>{explanationText}</P>
             </Prose>
           }
           actions={
-            <UpdatePollsDirectlyActionsSpan>
-              <Button onPress={confirmUpdate}>
-                {action} on VxMarkScan Now
+            <React.Fragment>
+              <Button variant="primary" onPress={confirmUpdate}>
+                {action}
               </Button>
-              <Button variant="primary" onPress={closeModal}>
-                Cancel
-              </Button>
-            </UpdatePollsDirectlyActionsSpan>
+              <Button onPress={closeModal}>Cancel</Button>
+            </React.Fragment>
           }
           onOverlayClick={closeModal}
         />
@@ -417,14 +409,14 @@ export function PollWorkerScreen({
                 {getPollTransitionsFromState(pollsState).map(
                   (pollsTransition, index) => {
                     return (
-                      <React.Fragment
-                        key={`${pollsTransition}-directly-button`}
-                      >
-                        {index > 0 && ' or '}
-                        <UpdatePollsDirectlyButton
-                          pollsTransition={pollsTransition}
-                          updatePollsState={updatePollsState}
-                        />
+                      <React.Fragment key={`${pollsTransition}-button`}>
+                        <P>
+                          <UpdatePollsButton
+                            pollsTransition={pollsTransition}
+                            updatePollsState={updatePollsState}
+                            isPrimaryButton={index === 0}
+                          />
+                        </P>
                       </React.Fragment>
                     );
                   }

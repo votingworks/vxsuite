@@ -13,7 +13,7 @@ import {
 import userEvent from '@testing-library/user-event';
 
 import { QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, screen } from '../../test/react_testing_library';
+import { fireEvent, screen, within } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
 
@@ -163,15 +163,16 @@ test('requires confirmation to open polls if no report on card', () => {
 
   // Should show the modal and not open/close polls
   expect(updatePollsState).not.toHaveBeenCalled();
-  screen.getByText('No Polls Opened Report on Card');
 
   // Clicking Cancel closes the modal
   fireEvent.click(screen.getByText('Cancel'));
   screen.getByText('Open Polls');
 
-  // Clicking Open Polls on VxMarkScan Now should open/close polls anyway
+  // Clicking Open Polls should open/close polls anyway
   fireEvent.click(screen.getByText('Open Polls'));
-  fireEvent.click(screen.getByText('Open Polls on VxMarkScan Now'));
+  userEvent.click(
+    within(screen.getByRole('alertdialog')).getByText('Open Polls')
+  );
   expect(updatePollsState).toHaveBeenCalled();
 });
 
