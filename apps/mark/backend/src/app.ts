@@ -1,11 +1,10 @@
 import express, { Application } from 'express';
-import { z } from 'zod';
 import {
   ArtifactAuthenticatorApi,
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { assert, err, ok, Optional, Result } from '@votingworks/basics';
+import { assert, ok, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   BallotPackageConfigurationError,
@@ -16,11 +15,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import {
-  ScannerReportData,
-  ScannerReportDataSchema,
-  isElectionManagerAuth,
-} from '@votingworks/utils';
+import { isElectionManagerAuth } from '@votingworks/utils';
 
 import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
@@ -145,36 +140,6 @@ function buildApi(
       workspace.store.setSystemSettings(systemSettings);
 
       return ok(electionDefinition);
-    },
-
-    async readScannerReportDataFromCard(): Promise<
-      Result<Optional<ScannerReportData>, SyntaxError | z.ZodError | Error>
-    > {
-      const machineState = constructAuthMachineState(workspace);
-      const authStatus = await auth.getAuthStatus(machineState);
-      if (authStatus.status !== 'logged_in') {
-        return err(new Error('User is not logged in'));
-      }
-      if (authStatus.user.role !== 'poll_worker') {
-        return err(new Error('User is not a poll worker'));
-      }
-
-      return await auth.readCardData(machineState, {
-        schema: ScannerReportDataSchema,
-      });
-    },
-
-    async clearScannerReportDataFromCard(): Promise<Result<void, Error>> {
-      const machineState = constructAuthMachineState(workspace);
-      const authStatus = await auth.getAuthStatus(machineState);
-      if (authStatus.status !== 'logged_in') {
-        return err(new Error('User is not logged in'));
-      }
-      if (authStatus.user.role !== 'poll_worker') {
-        return err(new Error('User is not a poll worker'));
-      }
-
-      return await auth.clearCardData(machineState);
     },
   });
 }
