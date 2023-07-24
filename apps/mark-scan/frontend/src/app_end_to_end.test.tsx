@@ -1,20 +1,13 @@
 import userEvent from '@testing-library/user-event';
 import {
-  getZeroCompressedTally,
-  expectPrint,
   fakeElectionManagerUser,
   fakeKiosk,
   expectPrintToPdf,
 } from '@votingworks/test-utils';
-import {
-  MemoryStorage,
-  MemoryHardware,
-  ReportSourceMachineType,
-} from '@votingworks/utils';
+import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
 import { getContestDistrictName } from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { ok } from '@votingworks/basics';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 
 import { App } from './app';
@@ -29,10 +22,7 @@ import {
   measure102Contest,
   voterContests,
 } from '../test/helpers/election';
-import {
-  BALLOT_PRINTING_TIMEOUT_SECONDS,
-  REPORT_PRINTING_TIMEOUT_SECONDS,
-} from './config/globals';
+import { BALLOT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { configureFromUsbThenRemove } from '../test/helpers/ballot_package';
 
@@ -200,7 +190,6 @@ test('MarkAndPrint end-to-end flow', async () => {
     .resolves();
   userEvent.click(await screen.findByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    isScannerReportDataReadExpected: false,
     cardlessVoterUserParams: {
       ballotStyleId: '12',
       precinctId: '23',
@@ -306,45 +295,6 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusLoggedOut();
   await advanceTimersAndPromises();
   await screen.findByText('Voting is complete.');
-
-  // Insert pollworker card with precinct scanner tally
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    scannerReportDataReadResult: ok({
-      tally: getZeroCompressedTally(electionDefinition.election),
-      tallyMachineType: ReportSourceMachineType.PRECINCT_SCANNER,
-      machineId: '0002',
-      timeSaved: new Date('2020-10-31').getTime(),
-      timePollsTransitioned: new Date('2020-10-31').getTime(),
-      precinctSelection: {
-        kind: 'SinglePrecinct',
-        precinctId: '23',
-      },
-      totalBallotsScanned: 10,
-      isLiveMode: true,
-      pollsTransition: 'close_polls',
-      ballotCounts: {
-        'undefined--ALL_PRECINCTS': [5, 5],
-        'undefined--23': [5, 5],
-      },
-    }),
-  });
-  await advanceTimersAndPromises();
-  await screen.findByText('Polls Closed Report on Card');
-  apiMock.mockApiClient.clearScannerReportDataFromCard
-    .expectCallWith()
-    .resolves(ok());
-  apiMock.mockApiClient.readScannerReportDataFromCard
-    .expectCallWith()
-    .resolves(ok(undefined));
-  userEvent.click(screen.getByText('Print Report'));
-  await advanceTimersAndPromises();
-  screen.getByText('Printing polls closed report');
-  await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS);
-  await expectPrint();
-  userEvent.click(await screen.findByText('Continue'));
-
-  apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
 
   // Insert System Administrator card
   apiMock.setAuthStatusSystemAdministratorLoggedIn();

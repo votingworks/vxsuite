@@ -91,22 +91,6 @@ export const getStateMachineState = {
   },
 } as const;
 
-export const getScannerReportDataFromCard = {
-  queryKey(): QueryKey {
-    return ['getScannerReportDataFromCard'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.readScannerReportDataFromCard(),
-      // Don't cache this since caching would require invalidation in response to external
-      // circumstances, like card removal
-      { cacheTime: 0, staleTime: 0 }
-    );
-  },
-} as const;
-
 export const checkPin = {
   useMutation() {
     const apiClient = useApiClient();
@@ -174,22 +158,6 @@ export const endCardlessVoterSession = {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
-      },
-    });
-  },
-} as const;
-
-export const clearScannerReportDataFromCard = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.clearScannerReportDataFromCard, {
-      async onSuccess() {
-        // Because we don't cache scanner report data from cards, this invalidation isn't
-        // strictly necessary
-        await queryClient.invalidateQueries(
-          getScannerReportDataFromCard.queryKey()
-        );
       },
     });
   },
