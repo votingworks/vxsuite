@@ -53,7 +53,10 @@ export function range(start: number, end: number): number[] {
 // TODO more accurate text measurement
 function characterWidth(character: string, fontStyle: FontStyle): number {
   const isUpperCase = character.toUpperCase() === character;
-  return fontStyle.fontSize * (isUpperCase ? 0.68 : 0.43);
+  return (
+    fontStyle.fontSize * (isUpperCase ? 0.69 : 0.43) +
+    (fontStyle.fontWeight - 400) / 500
+  );
 }
 
 function textWidth(text: string, fontStyle: FontStyle): number {
@@ -90,6 +93,7 @@ function TextBlock({
   y,
   textGroups,
   width,
+  align,
 }: {
   x: number;
   y: number;
@@ -98,6 +102,7 @@ function TextBlock({
     fontStyle: FontStyle;
   }>;
   width: number;
+  align?: TextBox['align'];
 }): Rectangle {
   const textBoxes: TextBox[] = [];
   let heightUsed = 0;
@@ -112,6 +117,7 @@ function TextBlock({
       height: textHeight(lines, fontStyle) + fontStyle.lineHeight / 4,
       textLines: lines,
       ...fontStyle,
+      align,
     });
     heightUsed += textHeight(lines, fontStyle) + fontStyle.lineHeight / 4;
   }
@@ -404,7 +410,6 @@ function HeaderAndInstructions({
   }
 
   const titleLines = ['Sample Ballot', election.title];
-  const titleHeight = textHeight(titleLines, m.FontStyles.H1);
 
   const subtitleLines = [
     `${election.county.name}, ${election.state}`,
@@ -423,26 +428,20 @@ function HeaderAndInstructions({
     width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH, m),
     height: gridHeight(m.HEADER_ROW_HEIGHT, m),
     children: [
-      {
-        type: 'TextBox',
+      TextBlock({
         ...gridPosition({ row: 0, column: sealRowHeight + 1.5 }, m),
         width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: titleHeight,
-        textLines: titleLines,
-        ...m.FontStyles.H1,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition(
-          { row: yToRow(titleHeight + 5, m), column: sealRowHeight + 1.5 },
-          m
-        ),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: textHeight(subtitleLines, m.FontStyles.H3),
-        textLines: subtitleLines,
-        ...m.FontStyles.H3,
-        fontWeight: FontWeights.NORMAL,
-      },
+        textGroups: [
+          {
+            text: titleLines.join('\n'),
+            fontStyle: m.FontStyles.H1,
+          },
+          {
+            text: subtitleLines.join('\n'),
+            fontStyle: { ...m.FontStyles.H3, fontWeight: FontWeights.NORMAL },
+          },
+        ],
+      }),
       {
         type: 'Image',
         ...gridPosition({ row: 0, column: 0.5 }, m),
@@ -665,7 +664,7 @@ function Footer({
       }),
       TextBlock({
         ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 3.5 }, m),
-        width: gridWidth(10, m),
+        width: gridWidth(12, m),
         textGroups: [
           {
             text: 'Precinct',
@@ -751,27 +750,46 @@ function CandidateContest({
   let rowHeightUsed = headingRowHeight;
   for (const candidate of contest.candidates) {
     const partyText = getCandidatePartiesDescription(election, candidate);
-    const partyTextBox: TextBox | undefined =
-      partyText === ''
-        ? undefined
-        : {
-            type: 'TextBox',
-            ...gridPosition(
-              {
-                row: 1 + yToRow(m.FontStyles.BODY.fontSize, m) / 2,
-                column: optionLabelColumn,
-              },
-              m
-            ),
-            width: gridWidth(width - 2.25, m),
-            height: gridHeight(1, m),
-            textLines: [partyText],
-            ...m.FontStyles.BODY,
-            align: optionTextAlign,
-          };
-
-    const optionRowHeight = partyTextBox ? 2 : 1;
     const optionRow = rowHeightUsed;
+
+    const optionTextBlock = TextBlock({
+      ...gridPosition(
+        {
+          row:
+            0.9 -
+            yToRow(m.FontStyles.BODY.fontSize, m) / 2 -
+            (partyText ? 0.1 : 0),
+          column: optionLabelColumn,
+        },
+        m
+      ),
+      width: gridWidth(width - 2.25, m),
+      textGroups: [
+        {
+          text: candidate.name,
+          fontStyle: { ...m.FontStyles.BODY, fontWeight: FontWeights.BOLD },
+        },
+        ...(partyText === ''
+          ? []
+          : [
+              {
+                text: partyText,
+                fontStyle: {
+                  ...m.FontStyles.BODY,
+                  lineHeight:
+                    m.FontStyles.BODY.lineHeight *
+                    // Temp hack: condense line height even more for density 2
+                    // so the candidate + party can fit into one grid row
+                    (m.FontStyles.BODY.lineHeight === 8 ? 0.8 : 1),
+                },
+              },
+            ]),
+      ],
+      align: optionTextAlign,
+    });
+
+    const optionRowHeight = Math.ceil(yToRow(optionTextBlock.height, m));
+
     options.push({
       type: 'Rectangle',
       ...gridPosition(
@@ -791,27 +809,7 @@ function CandidateContest({
           isFilled: false,
           m,
         }),
-        {
-          type: 'TextBox',
-          ...gridPosition(
-            {
-              row:
-                0.9 -
-                yToRow(m.FontStyles.BODY.fontSize, m) / 2 -
-                (partyText ? 0.1 : 0),
-              column: optionLabelColumn,
-            },
-            m
-          ),
-          width: gridWidth(width - 2.25, m),
-          height: gridHeight(1, m),
-          // TODO wrap candidate.name
-          textLines: [candidate.name],
-          ...m.FontStyles.BODY,
-          fontWeight: FontWeights.BOLD,
-          align: optionTextAlign,
-        },
-        ...(partyTextBox ? [partyTextBox] : []),
+        optionTextBlock,
       ],
     });
 
@@ -1482,6 +1480,8 @@ function layOutBallotHelper(
     }
 
     if (contestObjects.length === 0) {
+      const blankText = 'This page intentionally left blank.';
+      const blankTextWidth = textWidth(blankText, m.FontStyles.H2);
       contestObjects.push({
         type: 'TextBox',
         ...gridPosition(
@@ -1490,13 +1490,13 @@ function layOutBallotHelper(
               m.TIMING_MARKS_ROW_HEIGHT +
               headerAndInstructionsRowHeight +
               contestsRowHeight / 2,
-            column: m.GRID.columns / 2 - 7,
+            column: m.GRID.columns / 2 - yToRow(blankTextWidth, m) / 2,
           },
           m
         ),
-        width: gridWidth(15, m),
+        width: blankTextWidth,
         height: gridHeight(2, m),
-        textLines: ['This page intentionally left blank.'],
+        textLines: [blankText],
         ...m.FontStyles.H2,
       });
     }
