@@ -991,11 +991,11 @@ function BallotMeasure({
   const options: Rectangle[] = [];
   for (const [index, choice] of choices.entries()) {
     const optionRow =
-      headingRowHeight +
-      index * optionRowHeight -
+      headingRowHeight -
       (m.BALLOT_MEASURE_OPTION_POSITION === 'inline'
-        ? Math.ceil(headingRowHeight / 2)
-        : 0);
+        ? Math.ceil((headingRowHeight + 1) / 2)
+        : 0) +
+      index * optionRowHeight;
     options.push({
       type: 'Rectangle',
       ...gridPosition(
