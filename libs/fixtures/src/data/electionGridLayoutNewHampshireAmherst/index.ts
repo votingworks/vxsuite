@@ -21,6 +21,8 @@ export * as scanMarkedTimingMarkHoleFront from './scan-marked-timing-mark-hole-f
 export * as scanMarkedTimingMarkHoleBack from './scan-marked-timing-mark-hole-back.jpeg';
 export * as scanMarkedUnevenCropFront from './scan-marked-uneven-crop-front.jpeg';
 export * as scanMarkedUnevenCropBack from './scan-marked-uneven-crop-back.jpeg';
+export * as scanMarkedGrainyTimingMarksFront from './scan-marked-grainy-timing-marks-front.jpeg';
+export * as scanMarkedGrainyTimingMarksBack from './scan-marked-grainy-timing-marks-back.jpeg';
 export * as scanUnmarkedFront from './scan-unmarked-front.jpeg';
 export * as scanUnmarkedBack from './scan-unmarked-back.jpeg';
 export * as templateFront from './template-front.jpeg';
