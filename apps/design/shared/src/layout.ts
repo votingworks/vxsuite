@@ -665,7 +665,7 @@ function Footer({
       }),
       TextBlock({
         ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 3.5 }, m),
-        width: gridWidth(5, m),
+        width: gridWidth(10, m),
         textGroups: [
           {
             text: 'Precinct',
@@ -718,7 +718,7 @@ function CandidateContest({
 
   const heading = TextBlock({
     ...gridPosition({ row: m.CONTEST_PADDING, column: m.CONTEST_PADDING }, m),
-    width: gridWidth(width, m),
+    width: gridWidth(width - 2 * m.CONTEST_PADDING, m),
     textGroups: [
       {
         text: contest.title,
