@@ -759,7 +759,7 @@ function CandidateContest({
           row:
             0.9 -
             yToRow(m.FontStyles.BODY.fontSize, m) / 2 -
-            (partyText ? 0.1 : 0),
+            (partyText ? 0.15 : 0),
           column: optionLabelColumn,
         },
         m
@@ -781,7 +781,7 @@ function CandidateContest({
                     m.FontStyles.BODY.lineHeight *
                     // Temp hack: condense line height even more for density 2
                     // so the candidate + party can fit into one grid row
-                    (m.FontStyles.BODY.lineHeight === 8 ? 0.8 : 1),
+                    (m.FontStyles.BODY.lineHeight === 8 ? 0.75 : 1),
                 },
               },
             ]),
