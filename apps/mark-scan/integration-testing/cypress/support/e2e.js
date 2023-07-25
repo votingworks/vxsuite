@@ -84,7 +84,10 @@ function endCardlessVoterSession() {
 function configureWithSampleDefinitionAndSystemSettings() {
   cy.request(
     'POST',
-    methodUrl('configureWithSampleBallotPackageForIntegrationTest', 'http://localhost:3000/api'),
+    methodUrl(
+      'configureWithSampleBallotPackageForIntegrationTest',
+      'http://localhost:3000/api'
+    ),
     {}
   );
 }
@@ -93,10 +96,10 @@ function fakeLoadPaper() {
   cy.intercept('POST', '/api/getPaperHandlerState', {
     statusCode: 200,
     headers: {
-      'Content-type': 'application/json'
+      'Content-type': 'application/json',
     },
-    body: { data: 'paper_loaded' }
-  })
+    body: { data: 'paper_loaded' },
+  });
 }
 
 beforeEach(() => {
@@ -121,7 +124,7 @@ beforeEach(() => {
   // Open polls
   insertPollWorkerCard();
   cy.contains('Open Polls').click();
-  cy.contains('Open Polls on VxMarkScan Now').click();
+  cy.get('[data-testid="modal"]').contains('button', 'Open Polls').click();
 
   // Activate ballot
   cy.contains('Center Springfield').click();
