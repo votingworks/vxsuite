@@ -409,17 +409,6 @@ function HeaderAndInstructions({
     return null;
   }
 
-  const titleLines = ['Sample Ballot', election.title];
-
-  const subtitleLines = [
-    `${election.county.name}, ${election.state}`,
-    Intl.DateTimeFormat('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(new Date(election.date)),
-  ];
-
   const sealRowHeight = m.HEADER_ROW_HEIGHT - 0.25;
 
   const header: Rectangle = {
@@ -433,11 +422,23 @@ function HeaderAndInstructions({
         width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
         textGroups: [
           {
-            text: titleLines.join('\n'),
+            text: 'Sample Ballot',
             fontStyle: m.FontStyles.H1,
           },
           {
-            text: subtitleLines.join('\n'),
+            text: election.title,
+            fontStyle: m.FontStyles.H1,
+          },
+          {
+            text: `${election.county.name}, ${election.state}`,
+            fontStyle: { ...m.FontStyles.H3, fontWeight: FontWeights.NORMAL },
+          },
+          {
+            text: Intl.DateTimeFormat('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            }).format(new Date(election.date)),
             fontStyle: { ...m.FontStyles.H3, fontWeight: FontWeights.NORMAL },
           },
         ],
