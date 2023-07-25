@@ -90,13 +90,13 @@ function UpdatePollsButton({
   const explanationText = (() => {
     switch (pollsTransition) {
       case 'open_polls':
-        return `After polls are opened, VxMarkScan will be ready for voters to mark and print ballots.`;
+        return `After polls are opened, voters will be able to mark and cast ballots.`;
       case 'pause_voting':
-        return `After voting is paused, VxMarkScan will no longer allow voters to mark and print ballots until voting is resumed.`;
+        return `After voting is paused, voters will not be able to mark and cast ballots until voting is resumed.`;
       case 'resume_voting':
-        return `After voting is resumed, VxMarkScan will be ready for voters to mark and print ballots.`;
+        return `After voting is resumed, voters will be able to mark and cast ballots.`;
       case 'close_polls':
-        return `After polls are closed, VxMarkScan will no longer allow voters to mark and print ballots. Polls cannot be opened again after being closed.`;
+        return `After polls are closed, voters will no longer be able to mark and cast ballots. Polls cannot be opened again after being closed.`;
       /* istanbul ignore next */
       default:
         throwIllegalValue(pollsTransition);
