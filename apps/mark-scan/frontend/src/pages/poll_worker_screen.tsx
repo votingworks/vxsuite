@@ -409,15 +409,13 @@ export function PollWorkerScreen({
                 {getPollTransitionsFromState(pollsState).map(
                   (pollsTransition, index) => {
                     return (
-                      <React.Fragment key={`${pollsTransition}-button`}>
-                        <P>
-                          <UpdatePollsButton
-                            pollsTransition={pollsTransition}
-                            updatePollsState={updatePollsState}
-                            isPrimaryButton={index === 0}
-                          />
-                        </P>
-                      </React.Fragment>
+                      <P key={`${pollsTransition}-button`}>
+                        <UpdatePollsButton
+                          pollsTransition={pollsTransition}
+                          updatePollsState={updatePollsState}
+                          isPrimaryButton={index === 0}
+                        />
+                      </P>
                     );
                   }
                 )}
