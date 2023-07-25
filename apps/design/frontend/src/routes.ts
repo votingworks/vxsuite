@@ -94,6 +94,14 @@ export const routes = {
           label: 'Ballots',
           path: `${root}/ballots`,
         },
+        ballotStyles: {
+          label: 'Ballot Styles',
+          path: `${root}/ballots/ballot-styles`,
+        },
+        ballotLayout: {
+          label: 'Ballot Layout',
+          path: `${root}/ballots/layout`,
+        },
         viewBallot: (ballotStyleId: string, precinctId: string) => ({
           label: 'View Ballot',
           path: `${root}/ballots/${ballotStyleId}/${precinctId}`,
