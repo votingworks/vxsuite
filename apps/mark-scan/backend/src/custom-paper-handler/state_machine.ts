@@ -1,267 +1,394 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import makeDebug from 'debug';
-import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
-import { Buffer } from 'buffer';
-import { pdfToImages, writeImageData } from '@votingworks/image-utils';
-import { createImageData } from 'canvas';
+import { v4 as uuid } from 'uuid';
 import {
-  getPaperHandlerDriver,
   PaperHandlerDriver,
-  PaperHandlerStatus,
-  chunkBinaryBitmap,
   ImageConversionOptions,
-  imageDataToBinaryBitmap,
-  VERTICAL_DOTS_IN_CHUNK,
+  PaperHandlerStatus,
+  PaperHandlerDriverInterface,
 } from '@votingworks/custom-paper-handler';
-import { SimpleServerStatus, SimpleStatus } from './types';
+import {
+  assign as xassign,
+  BaseActionObject,
+  createMachine,
+  InvokeConfig,
+  StateMachine,
+  StateNodeConfig,
+  interpret,
+  Interpreter,
+  Assigner,
+  PropertyAssigner,
+  ServiceMap,
+  StateSchema,
+} from 'xstate';
+import { switchMap, throwError, timeout, timer } from 'rxjs';
+import { Optional, assert } from '@votingworks/basics';
+import { SheetOf } from '@votingworks/types';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import { Workspace } from '../util/workspace';
+import { SimpleServerStatus } from './types';
+import {
+  PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
+  PAPER_HANDLER_STATUS_POLLING_TIMEOUT_MS,
+} from './constants';
+import {
+  interpretScannedBallots,
+  isPaperInScanner,
+  isPaperReadyToLoad,
+  isPaperInOutput,
+  scanAndSave,
+  setDefaults,
+  printBallot as driverPrintBallot,
+} from './application_driver';
+
+interface Context {
+  workspace: Workspace;
+  driver: PaperHandlerDriver;
+  pollingIntervalMs: number;
+  scannedImagePaths?: SheetOf<string>;
+}
+
+function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
+  return xassign<Context, any>(arg);
+}
+
+type PaperHandlerStatusEvent =
+  | { type: 'NO_PAPER_IN_FRONT' }
+  | { type: 'PAPER_READY_TO_LOAD' }
+  | { type: 'PAPER_INSIDE' }
+  | { type: 'VOTER_INITIATED_PRINT' }
+  | { type: 'BALLOT_PRINTED' }
+  | { type: 'SCANNING' }
+  | { type: 'PAPER_REMOVED' }
+  | { type: 'END' };
 
 const debug = makeDebug('mark-scan:state-machine');
 
-function isPaperInInput(paperHandlerStatus: PaperHandlerStatus): boolean {
-  return (
-    paperHandlerStatus.paperInputLeftInnerSensor ||
-    paperHandlerStatus.paperInputLeftOuterSensor ||
-    paperHandlerStatus.paperInputRightInnerSensor ||
-    paperHandlerStatus.paperInputRightOuterSensor
-  );
-}
-
-function isPaperReadyToLoad(paperHandlerStatus: PaperHandlerStatus): boolean {
-  return (
-    paperHandlerStatus.paperInputLeftInnerSensor &&
-    paperHandlerStatus.paperInputLeftOuterSensor &&
-    paperHandlerStatus.paperInputRightInnerSensor &&
-    paperHandlerStatus.paperInputRightOuterSensor
-  );
-}
-
-function isPaperInScanner(paperHandlerStatus: PaperHandlerStatus): boolean {
-  return (
-    paperHandlerStatus.paperPreCisSensor ||
-    paperHandlerStatus.paperPostCisSensor ||
-    paperHandlerStatus.preHeadSensor ||
-    paperHandlerStatus.paperOutSensor ||
-    paperHandlerStatus.parkSensor ||
-    paperHandlerStatus.paperJam ||
-    paperHandlerStatus.scanInProgress
-  );
-}
-
-function isPaperAnywhere(paperHandlerStatus: PaperHandlerStatus): boolean {
-  return (
-    isPaperInInput(paperHandlerStatus) || isPaperInScanner(paperHandlerStatus)
-  );
-}
-
 export class PaperHandlerStateMachine {
-  private status: SimpleStatus = 'no_paper';
-  private lastActionInitiatedTime = 0;
+  constructor(
+    private readonly driver: PaperHandlerDriver,
+    private readonly machineService: Interpreter<
+      Context,
+      any,
+      PaperHandlerStatusEvent,
+      any,
+      any
+    >
+  ) {}
 
-  constructor(private readonly driver: PaperHandlerDriver) {}
-
-  async setDefaults(): Promise<void> {
-    await this.driver.initializePrinter();
-    debug('initialized printer (0x1B 0x40)');
-    await this.driver.setLineSpacing(0);
-    debug('set line spacing to 0');
-    await this.driver.setPrintingSpeed('slow');
-    debug('set printing speed to slow');
+  stopMachineService(): void {
+    this.machineService.stop();
   }
 
-  // Hacky "state machine"
-  async getSimpleStatus(): Promise<SimpleServerStatus> {
-    // detailed sensor state
-    const paperHandlerStatus = await this.driver.getPaperHandlerStatus();
+  // Leftover wrapper. Keeping this so the interface between API and state machine is the same until
+  // I can get around to migrating it later in the PR
+  getSimpleStatus(): SimpleServerStatus {
+    const { state } = this.machineService;
+    debug(`getSimpleStatus polled. state=${state.value}`);
 
-    switch (this.status) {
-      case 'no_paper':
-        if (isPaperReadyToLoad(paperHandlerStatus)) {
-          this.status = 'paper_ready_to_load';
-        }
-        break;
-      case 'paper_ready_to_load':
-        if (!isPaperReadyToLoad(paperHandlerStatus)) {
-          this.status = 'no_paper';
-        }
-        break;
-      case 'parking_paper':
-        if (paperHandlerStatus.parkSensor) {
-          this.status = 'paper_parked';
-        } else if (Date.now() - this.lastActionInitiatedTime > 10_000) {
-          this.status = 'no_paper';
-        }
-        break;
-      case 'paper_parked':
-        // Nothing to do - frontend triggers status change. This will change soon so not
-        // worth centralizing machine logic
-        break;
-      case 'printing_ballot':
-        if (!isPaperInScanner(paperHandlerStatus)) {
-          this.status = 'ballot_printed';
-        }
-        break;
-      case 'ejecting':
-        if (!isPaperAnywhere(paperHandlerStatus)) {
-          this.status = 'no_paper';
-        }
-        break;
-      case 'ballot_printed':
-        // Unimplemented
-        break;
+    switch (true) {
+      case state.matches('no_paper'):
+        return 'no_paper';
+      case state.matches('loading_paper'):
+        return 'loading_paper';
+      case state.matches('waiting_for_ballot_data'):
+        return 'waiting_for_ballot_data';
+      case state.matches('printing_ballot'):
+        return 'printing_ballot';
+      case state.matches('scanning'):
+        return 'scanning';
+      case state.matches('interpreting'):
+        return 'interpreting';
+      case state.matches('presenting_ballot'):
+        return 'presenting_ballot';
       default:
-        throwIllegalValue(this.status);
+        return 'no_hardware';
     }
-    return this.status;
   }
 
-  resetStatus(): void {
-    this.status = 'no_paper';
-  }
-
-  async logStatus(): Promise<void> {
-    debug('%O', await this.driver.getPaperHandlerStatus());
-  }
-
-  /**
-   * Parks paper inside the handler. If there is no paper to park, returns
-   * negative acknowledgement. If paper already parked, does nothing and returns
-   * positive acknowledgement. When parked, parkSensor should be true.
-   */
-  async parkPaper(): Promise<void> {
-    debug('+parkPaper');
-    this.status = 'parking_paper';
-    this.lastActionInitiatedTime = Date.now();
-    await this.driver.parkPaper();
-    debug('-parkPaper');
-  }
-
-  /**
-   * Moves paper to the front for voter to see, but hangs on to the paper.
-   * Equivalent to "reject hold." How do we differentiate the present paper
-   * state from the state where paper has not been picked up yet?
-   */
-  async presentPaper(): Promise<void> {
-    await this.driver.presentPaper();
-  }
-
-  /**
-   * Ejects out the back. Can eject from loaded or parked state. If there is
-   * no paper to eject, handler will do nothing and return positive acknowledgement.
-   */
-  async eject(): Promise<void> {
-    this.status = 'ejecting';
-    await this.driver.ejectBallot();
-  }
-
-  /**
-   * Ejects out the front. Can eject from loaded or parked state. If there is
-   * no paper to eject, handler will do nothing and return positive acknowledgement.
-   */
-  async ejectPaper(): Promise<void> {
-    this.status = 'ejecting';
-    await this.driver.ejectPaper();
-  }
-
-  /**
-   * Moves paper to print position and moves print head to DOWN position. If
-   * paper is already in an appropriate print position, does not move paper.
-   * E.g. if paper is loaded, it will pull the paper in a few more inches, but
-   * if the paper is parked, it will not move the paper. Printing can start in
-   * a variety of positions.
-   */
-  async enablePrint(): Promise<void> {
-    await this.driver.enablePrint();
-  }
-
-  /**
-   * Moves print head to UP position, does not move paper
-   */
-  async disablePrint(): Promise<void> {
-    await this.driver.disablePrint();
-  }
-
-  async scanAndSave(pathOut: string): Promise<void> {
-    await this.driver.setScanDirection('backward');
-    const grayscaleResult = await this.driver.scan();
-    const grayscaleData = grayscaleResult.data;
-    const colorResult = createImageData(
-      grayscaleResult.width,
-      grayscaleResult.height
-    );
-    const colorData = new Uint32Array(
-      colorResult.data.buffer,
-      colorResult.data.byteOffset,
-      colorResult.data.byteLength
-    );
-    for (let i = 0; i < grayscaleData.byteLength; i += 1) {
-      const luminance = grayscaleData[i];
-      colorData[i] =
-        // eslint-disable-next-line no-bitwise
-        (luminance << 24) | (luminance << 16) | (luminance << 8) | 255;
-    }
-    await writeImageData(pathOut, colorResult);
-  }
-
-  async printBallot(
+  printBallot(
     pdfData: Uint8Array,
     options: Partial<ImageConversionOptions> = {}
   ): Promise<void> {
-    this.status = 'printing_ballot';
-    const enablePrintPromise = this.enablePrint();
+    this.machineService.send({
+      type: 'VOTER_INITIATED_PRINT',
+    });
 
-    let time = Date.now();
-    const pages: ImageData[] = [];
-    for await (const { page, pageCount } of pdfToImages(Buffer.from(pdfData), {
-      scale: 200 / 72,
-    })) {
-      assert(pageCount === 1, `Unexpected page count ${pageCount}`);
-      pages.push(page);
-    }
-    const page = pages[0];
-    assert(page, 'Unexpected undefined page');
-    debug(`pdf to image took ${Date.now() - time} ms`);
-    time = Date.now();
-
-    const ballotBinaryBitmap = imageDataToBinaryBitmap(page, options);
-    debug(`bitmap width: ${ballotBinaryBitmap.width}`);
-    debug(`bitmap height: ${ballotBinaryBitmap.height}`);
-    debug(`image to binary took ${Date.now() - time} ms`);
-    time = Date.now();
-
-    const customChunkedBitmaps = chunkBinaryBitmap(ballotBinaryBitmap);
-    debug(`num chunk rows: ${customChunkedBitmaps.length}`);
-    debug(`binary to chunks took ${Date.now() - time} ms`);
-    time = Date.now();
-
-    await enablePrintPromise;
-    let dotsSkipped = 0;
-    debug(`begin printing ${customChunkedBitmaps.length} chunks`);
-    let i = 0;
-    for (const customChunkedBitmap of customChunkedBitmaps) {
-      debug(`printing chunk ${i}`);
-      if (customChunkedBitmap.empty) {
-        dotsSkipped += VERTICAL_DOTS_IN_CHUNK;
-      } else {
-        if (dotsSkipped) {
-          await this.driver.setRelativeVerticalPrintPosition(dotsSkipped * 2); // assuming default vertical units, 1 / 408 units
-          dotsSkipped = 0;
-        }
-        await this.driver.printChunk(customChunkedBitmap);
-      }
-      i += 1;
-    }
-    debug('done printing ballot');
+    return driverPrintBallot(this.driver, pdfData, options);
   }
 }
 
-export async function getPaperHandlerStateMachine(): Promise<
-  Optional<PaperHandlerStateMachine>
-> {
-  const paperHandlerDriver = await getPaperHandlerDriver();
-  if (!paperHandlerDriver) return;
+function paperHandlerStatusToEvent(
+  paperHandlerStatus: PaperHandlerStatus
+): PaperHandlerStatusEvent {
+  let event: PaperHandlerStatusEvent = { type: 'NO_PAPER_IN_FRONT' };
 
-  const paperHandlerStateMachine = new PaperHandlerStateMachine(
-    paperHandlerDriver
+  if (isPaperInScanner(paperHandlerStatus)) {
+    if (isPaperInOutput(paperHandlerStatus)) {
+      event = { type: 'BALLOT_PRINTED' };
+    } else {
+      event = { type: 'PAPER_INSIDE' };
+    }
+  } else if (isPaperReadyToLoad(paperHandlerStatus)) {
+    event = { type: 'PAPER_READY_TO_LOAD' };
+  }
+  debug(`Emitting event ${event.type}`);
+  return event;
+}
+
+/**
+ * Builds an observable that polls paper status and emits state machine events.
+ * Notes:
+ * Why Observable? This section from the xstate docs matches our use case closely:
+ * https://xstate.js.org/docs/guides/communication.html#invoking-observables
+ * "Observables can be invoked, which is expected to send events (strings or objects) to the parent machine,
+ * yet not receive events (uni-directional). An observable invocation is a function that takes context and
+ * event as arguments and returns an observable stream of events."
+ *
+ *
+ */
+function buildPaperStatusObservable() {
+  return ({ driver, pollingIntervalMs }: Context) => {
+    // `timer` returns an Observable that emits values with `pollingInterval` delay between each event
+    return (
+      timer(0, pollingIntervalMs)
+        // `pipe` forwards the value from the previous function to the next unary function ie. switchMap.
+        // In this case there is no value. The combination of timer(...).pipe() is so we can execute the
+        // function supplied to `switchMap` on the specified interval.
+        .pipe(
+          // `switchMap` returns an Observable that emits events.
+          // Why do we use `switchMap`? Is it because `switchMap` only emits items from the most recent
+          // inner Observable ie. it will only emit the latest PaperHandlerStatusEvent?
+          switchMap(async () => {
+            // Get raw status, map to event, and emit event
+            const paperHandlerStatus = await driver.getPaperHandlerStatus();
+            return paperHandlerStatusToEvent(paperHandlerStatus);
+          }),
+          timeout({
+            each: PAPER_HANDLER_STATUS_POLLING_TIMEOUT_MS,
+            with: () => throwError(() => new Error('paper_status_timed_out')),
+          })
+        )
+    );
+  };
+}
+
+function pollPaperStatus(): InvokeConfig<Context, PaperHandlerStatusEvent> {
+  return {
+    id: 'pollPaperStatus',
+    src: buildPaperStatusObservable(),
+  };
+}
+
+const NoPaperState: StateNodeConfig<
+  Context,
+  any,
+  PaperHandlerStatusEvent,
+  BaseActionObject
+> = {
+  invoke: pollPaperStatus(),
+  on: {
+    PAPER_INSIDE: {
+      // TODO make sure we don't print a ballot twice
+      target: 'waiting_for_ballot_data',
+    },
+    PAPER_READY_TO_LOAD: {
+      target: 'loading_paper',
+    },
+  },
+};
+
+const LoadingPaperState: StateNodeConfig<
+  Context,
+  any,
+  PaperHandlerStatusEvent,
+  BaseActionObject
+> = {
+  invoke: pollPaperStatus(),
+  entry: (context) => {
+    // Paper can trigger sensors before it's actually able to be loaded,
+    // so we wait to decrease chance of failed load
+    setTimeout(async () => {
+      await context.driver.loadPaper();
+      await context.driver.parkPaper();
+    }, 300);
+  },
+  on: {
+    PAPER_INSIDE: {
+      target: 'waiting_for_ballot_data',
+    },
+  },
+};
+
+const WaitingForBallotDataState: StateNodeConfig<
+  Context,
+  any,
+  PaperHandlerStatusEvent,
+  BaseActionObject
+> = {
+  invoke: pollPaperStatus(),
+  on: {
+    VOTER_INITIATED_PRINT: {
+      target: 'printing_ballot',
+    },
+  },
+};
+
+const PrintingBallotState: StateNodeConfig<
+  Context,
+  any,
+  PaperHandlerStatusEvent,
+  BaseActionObject
+> = {
+  invoke: pollPaperStatus(),
+  on: {
+    BALLOT_PRINTED: {
+      target: 'scanning',
+    },
+  },
+};
+
+const ScanningState: StateNodeConfig<
+  Context,
+  any,
+  PaperHandlerStatusEvent,
+  BaseActionObject
+> = {
+  invoke: {
+    id: 'scanAndSave',
+    src: (context) => {
+      return scanAndSave(context.driver);
+    },
+    onDone: {
+      target: 'interpreting',
+      actions: assign({ scannedImagePaths: (_, event) => event.data }),
+    },
+  },
+};
+
+const InterpretingState: StateNodeConfig<
+  Context,
+  any,
+  PaperHandlerStatusEvent,
+  BaseActionObject
+> = {
+  invoke: [
+    { ...pollPaperStatus() },
+    {
+      id: 'interpretScannedBallot',
+      src: (context) => {
+        const { scannedImagePaths, workspace } = context;
+        const { store } = workspace;
+        const electionDefinition = store.getElectionDefinition();
+
+        assert(scannedImagePaths);
+        assert(electionDefinition);
+
+        const sheetId = uuid();
+        const { precincts } = electionDefinition.election;
+        // Hard coded for now because we don't store precinct in backend. This
+        // will be replaced with a store read in a future PR.
+        const precinct = precincts[precincts.length - 1];
+        const precinctSelection = singlePrecinctSelectionFor(precinct.id);
+        const testMode = true;
+        return interpretScannedBallots(
+          electionDefinition,
+          precinctSelection,
+          testMode,
+          scannedImagePaths,
+          sheetId
+        );
+      },
+      onDone: {
+        target: 'presenting_ballot',
+      },
+    },
+  ],
+};
+
+const PresentingBallotState: StateNodeConfig<
+  Context,
+  any,
+  PaperHandlerStatusEvent,
+  BaseActionObject
+> = {
+  entry: async (context) => {
+    await context.driver.presentPaper();
+  },
+};
+
+const FinalState: StateNodeConfig<
+  Context,
+  any,
+  PaperHandlerStatusEvent,
+  BaseActionObject
+> = {
+  type: 'final',
+  entry: () => {
+    debug('Entered ending state');
+  },
+};
+
+export function buildMachine(
+  workspace: Workspace,
+  driver: PaperHandlerDriver,
+  pollingIntervalMs: number
+): StateMachine<
+  Context,
+  StateSchema,
+  PaperHandlerStatusEvent,
+  any,
+  BaseActionObject,
+  ServiceMap
+> {
+  return createMachine({
+    schema: {
+      /* eslint-disable-next-line vx/gts-object-literal-types */
+      context: {} as Context,
+      /* eslint-disable-next-line vx/gts-object-literal-types */
+      events: {} as PaperHandlerStatusEvent,
+    },
+    id: 'bmd',
+    initial: 'no_paper',
+    context: {
+      workspace,
+      driver,
+      pollingIntervalMs,
+    },
+    states: {
+      no_paper: NoPaperState,
+      loading_paper: LoadingPaperState,
+      waiting_for_ballot_data: WaitingForBallotDataState,
+      printing_ballot: PrintingBallotState,
+      scanning: ScanningState,
+      interpreting: InterpretingState,
+      presenting_ballot: PresentingBallotState,
+      final_state: FinalState,
+    },
+  });
+}
+
+export async function getPaperHandlerStateMachine(
+  paperHandlerDriver: PaperHandlerDriverInterface,
+  workspace: Workspace,
+  pollingIntervalMs: number = PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
+): Promise<Optional<PaperHandlerStateMachine>> {
+  const machine = buildMachine(
+    workspace,
+    paperHandlerDriver,
+    pollingIntervalMs
   );
-  await paperHandlerStateMachine.setDefaults();
+  const machineService = interpret(machine)
+    .onTransition((state) => {
+      if (state.changed) {
+        debug(`+state: ${state.value}`);
+      }
+    })
+    .start();
+  const paperHandlerStateMachine = new PaperHandlerStateMachine(
+    paperHandlerDriver,
+    machineService
+  );
+  await setDefaults(paperHandlerDriver);
   return paperHandlerStateMachine;
 }

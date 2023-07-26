@@ -32,10 +32,8 @@ import {
   StateNodeConfig,
   TransitionConfig,
 } from 'xstate';
-import {
-  PrecinctScannerInterpreter,
-  SheetInterpretationWithPages,
-} from '../../interpret';
+import { SheetInterpretationWithPages } from '@votingworks/ballot-interpreter';
+import { PrecinctScannerInterpreter } from '../../interpret';
 import { Store } from '../../store';
 import {
   PrecinctScannerErrorType,

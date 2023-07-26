@@ -12,7 +12,9 @@ import {
   mapSheet,
   MarkThresholds,
   PageInterpretation,
+  PageInterpretationWithFiles,
   PrecinctSelection,
+  SheetInterpretation,
   SheetOf,
 } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION, time } from '@votingworks/utils';
@@ -44,6 +46,15 @@ export interface InterpreterOptions {
   markThresholds?: MarkThresholds;
   adjudicationReasons?: readonly AdjudicationReason[];
 }
+
+/**
+ * An interpretation for one ballot sheet that includes both the interpretation
+ * result for the sheet as a whole and the individual page (i.e. front and back)
+ * interpretations.
+ */
+export type SheetInterpretationWithPages = SheetInterpretation & {
+  pages: SheetOf<PageInterpretationWithFiles>;
+};
 
 /**
  * Validates the interpreter results against the scanning configuration.

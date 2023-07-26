@@ -189,18 +189,6 @@ export const unconfigureMachine = {
   },
 } as const;
 
-export const parkPaper = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(() => apiClient.parkPaper(), {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getStateMachineState.queryKey());
-      },
-    });
-  },
-} as const;
-
 export const printBallot = {
   useMutation() {
     const apiClient = useApiClient();
