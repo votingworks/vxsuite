@@ -46,49 +46,25 @@ interface FontStyle {
   lineHeight: number;
 }
 
-const FontStyles = {
-  H1: {
-    fontSize: 20,
-    fontWeight: FontWeights.BOLD,
-    lineHeight: 20,
-  },
-  H2: {
-    fontSize: 16,
-    fontWeight: FontWeights.BOLD,
-    lineHeight: 16,
-  },
-  H3: {
-    fontSize: 13,
-    fontWeight: FontWeights.BOLD,
-    lineHeight: 13,
-  },
-  BODY: {
-    fontSize: 10,
-    fontWeight: FontWeights.NORMAL,
-    lineHeight: 10,
-  },
-  SMALL: {
-    fontSize: 9,
-    fontWeight: FontWeights.NORMAL,
-    lineHeight: 9,
-  },
-} as const;
-
 export function range(start: number, end: number): number[] {
   return Array.from({ length: end - start }, (_, i) => i + start);
 }
 
 // TODO more accurate text measurement
 function characterWidth(character: string, fontStyle: FontStyle): number {
-  return fontStyle.fontSize * 0.5;
+  const isUpperCase = character.toUpperCase() === character;
+  return (
+    fontStyle.fontSize * (isUpperCase ? 0.69 : 0.43) +
+    (fontStyle.fontWeight - 400) / 500
+  );
 }
 
 function textWidth(text: string, fontStyle: FontStyle): number {
   return iter(text.split('').map((c) => characterWidth(c, fontStyle))).sum();
 }
 
-function textWrap(text: string, fontStyle: FontStyle, width: number): string[] {
-  const words = text.split(' ');
+function wrapLine(line: string, fontStyle: FontStyle, width: number): string[] {
+  const words = line.split(' ');
   const lines: string[] = [];
   let currentLine = '';
   for (const word of words) {
@@ -102,6 +78,58 @@ function textWrap(text: string, fontStyle: FontStyle, width: number): string[] {
   }
   lines.push(currentLine);
   return lines;
+}
+
+function textWrap(text: string, fontStyle: FontStyle, width: number): string[] {
+  return text.split('\n').flatMap((line) => wrapLine(line, fontStyle, width));
+}
+
+function textHeight(textLines: string[], fontStyle: FontStyle): number {
+  return textLines.length * fontStyle.lineHeight;
+}
+
+function TextBlock({
+  x,
+  y,
+  textGroups,
+  width,
+  align,
+}: {
+  x: number;
+  y: number;
+  textGroups: Array<{
+    text: string;
+    fontStyle: FontStyle;
+  }>;
+  width: number;
+  align?: TextBox['align'];
+}): Rectangle {
+  const textBoxes: TextBox[] = [];
+  let heightUsed = 0;
+
+  for (const { text, fontStyle } of textGroups) {
+    const lines = textWrap(text, fontStyle, width);
+    textBoxes.push({
+      type: 'TextBox',
+      x: 0,
+      y: heightUsed,
+      width,
+      height: textHeight(lines, fontStyle) + fontStyle.lineHeight / 4,
+      textLines: lines,
+      ...fontStyle,
+      align,
+    });
+    heightUsed += textHeight(lines, fontStyle) + fontStyle.lineHeight / 4;
+  }
+
+  return {
+    type: 'Rectangle',
+    x,
+    y,
+    width,
+    height: heightUsed,
+    children: textBoxes,
+  };
 }
 
 export interface GridDimensions {
@@ -163,27 +191,58 @@ export function gridForPaper(paperSize: BallotPaperSize): GridDimensions {
 export const PPI = 72;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function measurements(paperSize: BallotPaperSize) {
+export function measurements(paperSize: BallotPaperSize, density: number) {
   const grid = gridForPaper(paperSize);
-  const HEADER_ROW_HEIGHT = 4.5;
-  const INSTRUCTIONS_ROW_HEIGHT = 3.5;
+  const HEADER_ROW_HEIGHT = [4.5, 4, 3.5][density];
+  const INSTRUCTIONS_ROW_HEIGHT = [3.5, 3, 2.5][density];
   const HEADER_AND_INSTRUCTIONS_ROW_HEIGHT =
     HEADER_ROW_HEIGHT + INSTRUCTIONS_ROW_HEIGHT;
-  const FOOTER_ROW_HEIGHT = 2;
+  const FOOTER_ROW_HEIGHT = [2, 2, 1.5][density];
   const TIMING_MARKS_ROW_HEIGHT = 1.5; // Includes margin
   const CONTENT_AREA_ROW_HEIGHT = grid.rows - TIMING_MARKS_ROW_HEIGHT * 2 + 1;
   const CONTENT_AREA_COLUMN_WIDTH = grid.columns - 3;
   const GUTTER_WIDTH = 0.5;
   const CONTEST_COLUMN_WIDTH = 9.5;
+  const CONTEST_PADDING = [0.5, 0.4, 0.3][density];
   const CONTEST_ROW_MARGIN = 0.5;
   const MAX_CONTEST_ROW_HEIGHT =
     CONTENT_AREA_ROW_HEIGHT - CONTEST_ROW_MARGIN * 2 - FOOTER_ROW_HEIGHT;
+  const WRITE_IN_ROW_HEIGHT = [2, 1, 1][density];
+  const BALLOT_MEASURE_OPTION_POSITION = ['block', 'block', 'inline'][density];
 
   const dimensions = dimensionsForPaper(paperSize);
   const DOCUMENT_WIDTH = dimensions.width * PPI;
   const DOCUMENT_HEIGHT = dimensions.height * PPI;
   const COLUMN_GAP = DOCUMENT_WIDTH / (grid.columns + 1);
   const ROW_GAP = DOCUMENT_HEIGHT / (grid.rows + 1);
+
+  const FontStyles = {
+    H1: {
+      fontSize: [20, 18, 16][density],
+      fontWeight: FontWeights.BOLD,
+      lineHeight: [20, 18, 16][density],
+    },
+    H2: {
+      fontSize: [16, 14, 12][density],
+      fontWeight: FontWeights.BOLD,
+      lineHeight: [16, 14, 12][density],
+    },
+    H3: {
+      fontSize: [13, 11, 9][density],
+      fontWeight: FontWeights.BOLD,
+      lineHeight: [13, 11, 9][density],
+    },
+    BODY: {
+      fontSize: [10, 9, 8][density],
+      fontWeight: FontWeights.NORMAL,
+      lineHeight: [10, 9, 8][density],
+    },
+    SMALL: {
+      fontSize: [9, 8, 7][density],
+      fontWeight: FontWeights.NORMAL,
+      lineHeight: [9, 8, 7][density],
+    },
+  } as const;
 
   return {
     GRID: grid,
@@ -196,12 +255,16 @@ export function measurements(paperSize: BallotPaperSize) {
     CONTENT_AREA_COLUMN_WIDTH,
     GUTTER_WIDTH,
     CONTEST_COLUMN_WIDTH,
+    CONTEST_PADDING,
     CONTEST_ROW_MARGIN,
     MAX_CONTEST_ROW_HEIGHT,
+    WRITE_IN_ROW_HEIGHT,
+    BALLOT_MEASURE_OPTION_POSITION,
     DOCUMENT_WIDTH,
     DOCUMENT_HEIGHT,
     COLUMN_GAP,
     ROW_GAP,
+    FontStyles,
   };
 }
 type Measurements = ReturnType<typeof measurements>;
@@ -346,41 +409,45 @@ function HeaderAndInstructions({
     return null;
   }
 
+  const sealRowHeight = m.HEADER_ROW_HEIGHT - 0.25;
+
   const header: Rectangle = {
     type: 'Rectangle',
     ...gridPosition({ row: 0, column: 0 }, m),
     width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH, m),
     height: gridHeight(m.HEADER_ROW_HEIGHT, m),
     children: [
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 0, column: 5.5 }, m),
+      TextBlock({
+        ...gridPosition({ row: 0, column: sealRowHeight + 1.5 }, m),
         width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(3, m),
-        textLines: ['Sample Ballot', election.title],
-        ...FontStyles.H1,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 2.25, column: 5.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(5, m),
-        textLines: [
-          `${election.county.name}, ${election.state}`,
-          Intl.DateTimeFormat('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric',
-          }).format(new Date(election.date)),
+        textGroups: [
+          {
+            text: 'Sample Ballot',
+            fontStyle: m.FontStyles.H1,
+          },
+          {
+            text: election.title,
+            fontStyle: m.FontStyles.H1,
+          },
+          {
+            text: `${election.county.name}, ${election.state}`,
+            fontStyle: { ...m.FontStyles.H3, fontWeight: FontWeights.NORMAL },
+          },
+          {
+            text: Intl.DateTimeFormat('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            }).format(new Date(election.date)),
+            fontStyle: { ...m.FontStyles.H3, fontWeight: FontWeights.NORMAL },
+          },
         ],
-        ...FontStyles.H3,
-        fontWeight: FontWeights.NORMAL,
-      },
+      }),
       {
         type: 'Image',
         ...gridPosition({ row: 0, column: 0.5 }, m),
-        width: gridWidth(4, m),
-        height: gridHeight(4, m),
+        width: gridWidth(sealRowHeight, m),
+        height: gridHeight(sealRowHeight, m),
         href: election.sealUrl ?? '/seals/state-of-hamilton-official-seal.svg',
       },
     ],
@@ -403,65 +470,60 @@ function HeaderAndInstructions({
         height: 2,
         fill: 'black',
       },
-      {
-        type: 'TextBox',
+      TextBlock({
         ...gridPosition({ row: 0.25, column: 0.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.INSTRUCTIONS_ROW_HEIGHT - 1, m),
-        textLines: ['Instructions'],
-        ...FontStyles.H3,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 1.1, column: 0.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.INSTRUCTIONS_ROW_HEIGHT - 1, m),
-        textLines: ['To Vote:'],
-        ...FontStyles.SMALL,
-        fontWeight: FontWeights.BOLD,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 1.7, column: 0.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.INSTRUCTIONS_ROW_HEIGHT - 1, m),
-        textLines: [
-          'To vote, completely fill in',
-          'the oval next to your choice.',
+        width: gridWidth(7, m),
+        textGroups: [
+          {
+            text: 'Instructions',
+            fontStyle: m.FontStyles.H3,
+          },
+          {
+            text: 'To Vote:',
+            fontStyle: {
+              ...m.FontStyles.SMALL,
+              fontWeight: FontWeights.BOLD,
+            },
+          },
+          {
+            text: 'To vote, completely fill in the oval next to your choice.',
+            fontStyle: m.FontStyles.SMALL,
+          },
         ],
-        ...FontStyles.SMALL,
-      },
+      }),
       {
         type: 'Image',
-        ...gridPosition({ row: 1.1, column: 7.5 }, m),
+        ...gridPosition(
+          { row: (m.INSTRUCTIONS_ROW_HEIGHT - 2) / 2, column: 7.5 },
+          m
+        ),
         width: gridWidth(5, m),
         height: gridHeight(2, m),
         href: '/images/instructions-fill-oval.svg',
       },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 1.1, column: 13 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.INSTRUCTIONS_ROW_HEIGHT - 1, m),
-        textLines: ['To Vote for a Write-In:'],
-        ...FontStyles.SMALL,
-        fontWeight: FontWeights.BOLD,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 1.7, column: 13 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.INSTRUCTIONS_ROW_HEIGHT - 1, m),
-        textLines: [
-          'To vote for a person whose name is not on the',
-          'ballot, write the person’s name on the "write-in" line',
-          'and completely fill in the oval to the left of the line.',
+      TextBlock({
+        ...gridPosition({ row: 0.5, column: 13 }, m),
+        width: gridWidth(12, m),
+        textGroups: [
+          {
+            text: 'To Vote for a Write-In:',
+            fontStyle: {
+              ...m.FontStyles.SMALL,
+              fontWeight: FontWeights.BOLD,
+            },
+          },
+          {
+            text: 'To vote for a person whose name is not on the ballot, write the person’s name on the "write-in" line and completely fill in the oval to the left of the line.',
+            fontStyle: m.FontStyles.SMALL,
+          },
         ],
-        ...FontStyles.SMALL,
-      },
+      }),
       {
         type: 'Image',
-        ...gridPosition({ row: 1.1, column: 25.5 }, m),
+        ...gridPosition(
+          { row: (m.INSTRUCTIONS_ROW_HEIGHT - 1.5) / 2, column: 25.5 },
+          m
+        ),
         width: gridWidth(5, m),
         height: gridHeight(1.5, m),
         href: '/images/instructions-write-in.svg',
@@ -490,36 +552,71 @@ function Footer({
   m: Measurements;
 }): Rectangle {
   const isFront = pageNumber % 2 === 1;
+  const continueVotingText = isFront
+    ? 'Turn ballot over and continue voting'
+    : 'Continue voting on next ballot';
+  const continueVotingTextWidth = textWidth(
+    continueVotingText,
+    m.FontStyles.H3
+  );
+  const arrowImageHeight = m.FOOTER_ROW_HEIGHT - 0.75;
   const continueVoting: AnyElement[] = [
     {
       type: 'TextBox',
-      ...gridPosition({ row: 0.5, column: isFront ? 16 : 18 }, m),
-      width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-      height: gridHeight(m.FOOTER_ROW_HEIGHT - 1, m),
-      textLines: [
-        isFront
-          ? 'Turn ballot over and continue voting'
-          : 'Continue voting on next ballot',
-      ],
-      ...FontStyles.H3,
+      ...gridPosition(
+        {
+          row:
+            m.FOOTER_ROW_HEIGHT / 2 -
+            yToRow(m.FontStyles.H3.fontSize + 2, m) / 2,
+          column:
+            m.CONTENT_AREA_COLUMN_WIDTH -
+            xToColumn(continueVotingTextWidth, m) -
+            3,
+        },
+        m
+      ),
+      width: continueVotingTextWidth + 5,
+      height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
+      textLines: [continueVotingText],
+      ...m.FontStyles.H3,
+      align: 'right',
     },
     {
       type: 'Image',
-      ...gridPosition({ row: 0.25, column: 29 }, m),
-      width: gridWidth(1.5, m),
-      height: gridHeight(1.5, m),
+      ...gridPosition(
+        { row: (m.FOOTER_ROW_HEIGHT - arrowImageHeight) / 2, column: 29 },
+        m
+      ),
+      width: gridWidth(arrowImageHeight, m),
+      height: gridHeight(arrowImageHeight, m),
       href: '/images/arrow-right-circle.svg',
     },
   ];
 
+  const ballotCompleteText = 'You have completed voting.';
+  const ballotCompleteTextWidth = textWidth(
+    ballotCompleteText,
+    m.FontStyles.H3
+  );
   const ballotComplete: AnyElement[] = [
     {
       type: 'TextBox',
-      ...gridPosition({ row: 0.5, column: 20.5 }, m),
-      width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-      height: gridHeight(m.FOOTER_ROW_HEIGHT - 1, m),
+      ...gridPosition(
+        {
+          row:
+            m.FOOTER_ROW_HEIGHT / 2 -
+            yToRow(m.FontStyles.H3.fontSize + 2, m) / 2,
+          column:
+            m.CONTENT_AREA_COLUMN_WIDTH -
+            xToColumn(ballotCompleteTextWidth, m) -
+            1.5,
+        },
+        m
+      ),
+      width: ballotCompleteTextWidth + 10,
+      height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
       textLines: ['You have completed voting.'],
-      ...FontStyles.H3,
+      ...m.FontStyles.H3,
     },
   ];
 
@@ -552,38 +649,34 @@ function Footer({
         height: 2,
         fill: 'black',
       },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 0.25, column: 0.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.FOOTER_ROW_HEIGHT - 1, m),
-        textLines: ['Page'],
-        ...FontStyles.SMALL,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 0.8, column: 0.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.FOOTER_ROW_HEIGHT - 1, m),
-        textLines: [`${pageNumber}/${totalPages}`],
-        ...FontStyles.H2,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 0.25, column: 3.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.FOOTER_ROW_HEIGHT - 1, m),
-        textLines: ['Precinct'],
-        ...FontStyles.SMALL,
-      },
-      {
-        type: 'TextBox',
-        ...gridPosition({ row: 0.8, column: 3.5 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
-        height: gridHeight(m.FOOTER_ROW_HEIGHT - 1, m),
-        textLines: [precinct.name],
-        ...FontStyles.H2,
-      },
+      TextBlock({
+        ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 0.5 }, m),
+        width: gridWidth(5, m),
+        textGroups: [
+          {
+            text: 'Page',
+            fontStyle: m.FontStyles.SMALL,
+          },
+          {
+            text: `${pageNumber}/${totalPages}`,
+            fontStyle: m.FontStyles.H2,
+          },
+        ],
+      }),
+      TextBlock({
+        ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 3.5 }, m),
+        width: gridWidth(12, m),
+        textGroups: [
+          {
+            text: 'Precinct',
+            fontStyle: m.FontStyles.SMALL,
+          },
+          {
+            text: precinct.name,
+            fontStyle: m.FontStyles.H2,
+          },
+        ],
+      }),
       ...endOfPageInstruction,
     ],
   };
@@ -622,55 +715,27 @@ function CandidateContest({
     ? m.CONTENT_AREA_COLUMN_WIDTH -
       2 * (m.CONTEST_COLUMN_WIDTH + m.GUTTER_WIDTH)
     : m.CONTEST_COLUMN_WIDTH;
-  const titleLines = textWrap(
-    contest.title,
-    FontStyles.H3,
-    gridWidth(width - 0.5, m)
-  );
-  const titleTextBox: TextBox = {
-    type: 'TextBox',
-    ...gridPosition({ row: 0.5, column: 0.5 }, m),
-    width: gridWidth(width - 1, m),
-    height: gridHeight(titleLines.length, m),
-    textLines: titleLines,
-    ...FontStyles.H3,
-  };
 
-  const headingRowHeight = 1 + titleLines.length;
-  const heading: Rectangle = {
-    type: 'Rectangle',
-    ...gridPosition({ row: 0, column: 0 }, m),
-    width: gridWidth(width, m),
-    height: gridHeight(headingRowHeight, m),
-    children: [
-      // Thicker top border
+  const heading = TextBlock({
+    ...gridPosition({ row: m.CONTEST_PADDING, column: m.CONTEST_PADDING }, m),
+    width: gridWidth(width - 2 * m.CONTEST_PADDING, m),
+    textGroups: [
       {
-        type: 'Rectangle',
-        ...gridPosition({ row: 0, column: 0 }, m),
-        width: gridWidth(width, m),
-        height: 2,
-        fill: 'black',
+        text: contest.title,
+        fontStyle: m.FontStyles.H3,
       },
-      titleTextBox,
       {
-        type: 'TextBox',
-        ...gridPosition({ row: 0, column: 0.5 }, m),
-        // TODO: better approach to line spacing
-        y:
-          titleTextBox.y +
-          titleLines.length * FontStyles.H3.lineHeight +
-          gridHeight(0.25, m),
-        width: gridWidth(width - 1, m),
-        height: gridHeight(1, m),
-        textLines: [
+        text:
           contest.seats === 1
             ? 'Vote for 1'
             : `Vote for not more than ${contest.seats}`,
-        ],
-        ...FontStyles.BODY,
+        fontStyle: m.FontStyles.BODY,
       },
     ],
-  };
+  });
+  const headingRowHeight = Math.round(
+    yToRow(heading.height, m) + m.CONTEST_PADDING
+  );
 
   const optionPostions: GridPosition[] = [];
   const side = pageNumber % 2 === 1 ? 'front' : 'back';
@@ -682,10 +747,50 @@ function CandidateContest({
   const optionTextAlign =
     bubblePosition === BallotTargetMarkPosition.Left ? 'left' : 'right';
 
-  const optionRowHeight = 2;
   const options: Rectangle[] = [];
-  for (const [index, candidate] of contest.candidates.entries()) {
-    const optionRow = headingRowHeight + index * optionRowHeight;
+  let rowHeightUsed = headingRowHeight;
+  for (const candidate of contest.candidates) {
+    const partyText = getCandidatePartiesDescription(election, candidate);
+    const optionRow = rowHeightUsed;
+
+    const optionTextBlock = TextBlock({
+      ...gridPosition(
+        {
+          row:
+            0.9 -
+            yToRow(m.FontStyles.BODY.fontSize, m) / 2 -
+            (partyText ? 0.15 : 0),
+          column: optionLabelColumn,
+        },
+        m
+      ),
+      width: gridWidth(width - 2.25, m),
+      textGroups: [
+        {
+          text: candidate.name,
+          fontStyle: { ...m.FontStyles.BODY, fontWeight: FontWeights.BOLD },
+        },
+        ...(partyText === ''
+          ? []
+          : [
+              {
+                text: partyText,
+                fontStyle: {
+                  ...m.FontStyles.BODY,
+                  lineHeight:
+                    m.FontStyles.BODY.lineHeight *
+                    // Temp hack: condense line height even more for density 2
+                    // so the candidate + party can fit into one grid row
+                    (m.FontStyles.BODY.lineHeight === 8 ? 0.75 : 1),
+                },
+              },
+            ]),
+      ],
+      align: optionTextAlign,
+    });
+
+    const optionRowHeight = Math.ceil(yToRow(optionTextBlock.height, m));
+
     options.push({
       type: 'Rectangle',
       ...gridPosition(
@@ -705,41 +810,11 @@ function CandidateContest({
           isFilled: false,
           m,
         }),
-        {
-          type: 'TextBox',
-          ...gridPosition(
-            {
-              row: 0.6,
-              column: optionLabelColumn,
-            },
-            m
-          ),
-          width: gridWidth(width - 2.25, m),
-          height: gridHeight(1, m),
-          // TODO wrap candidate.name
-          textLines: [candidate.name],
-          ...FontStyles.BODY,
-          fontWeight: FontWeights.BOLD,
-          align: optionTextAlign,
-        },
-        {
-          type: 'TextBox',
-          ...gridPosition(
-            {
-              row: 1.3,
-              column: optionLabelColumn,
-            },
-            m
-          ),
-          width: gridWidth(width - 2.25, m),
-          height: gridHeight(1, m),
-          textLines: [getCandidatePartiesDescription(election, candidate)],
-          ...FontStyles.BODY,
-          align: optionTextAlign,
-        },
+        optionTextBlock,
       ],
     });
 
+    rowHeightUsed += optionRowHeight;
     optionPostions.push({
       type: 'option',
       side,
@@ -751,11 +826,8 @@ function CandidateContest({
   }
 
   if (contest.allowWriteIns) {
-    const optionsHeight = options.length * optionRowHeight;
-    const writeInRowHeight = 2;
     for (const writeInIndex of range(0, contest.seats)) {
-      const optionRow =
-        headingRowHeight + optionsHeight + writeInIndex * writeInRowHeight;
+      const optionRow = rowHeightUsed;
       options.push({
         type: 'Rectangle',
         ...gridPosition(
@@ -766,7 +838,7 @@ function CandidateContest({
           m
         ),
         width: gridWidth(width, m),
-        height: gridHeight(writeInRowHeight, m),
+        height: gridHeight(m.WRITE_IN_ROW_HEIGHT, m),
         children: [
           Bubble({
             row: 1,
@@ -784,7 +856,7 @@ function CandidateContest({
               m
             ),
             width: gridWidth(width - 2.25, m),
-            height: 1,
+            height: m.WRITE_IN_ROW_HEIGHT * 0.5,
             fill: 'black',
           },
           {
@@ -799,12 +871,13 @@ function CandidateContest({
             width: gridWidth(width - 2.5, m),
             height: gridHeight(1, m),
             textLines: ['write-in'],
-            ...FontStyles.SMALL,
+            ...m.FontStyles.SMALL,
             align: optionTextAlign,
           },
         ],
       });
 
+      rowHeightUsed += m.WRITE_IN_ROW_HEIGHT;
       optionPostions.push({
         type: 'write-in',
         side,
@@ -817,11 +890,14 @@ function CandidateContest({
   }
 
   const contestHeight =
-    heading.height +
+    gridHeight(headingRowHeight, m) +
     iter(options)
       .map((option) => option.height)
       .sum() +
-    gridHeight(0.5, m);
+    gridHeight(
+      (2 - m.WRITE_IN_ROW_HEIGHT) * (contest.allowWriteIns ? 1 : 0) + 0.5,
+      m
+    );
 
   return [
     {
@@ -831,7 +907,18 @@ function CandidateContest({
       height: contestHeight,
       stroke: 'black',
       strokeWidth: 0.5,
-      children: [heading, ...options],
+      children: [
+        // Thicker top border
+        {
+          type: 'Rectangle',
+          ...gridPosition({ row: 0, column: 0 }, m),
+          width: gridWidth(width, m),
+          height: 2,
+          fill: 'black',
+        },
+        heading,
+        ...options,
+      ],
     },
     optionPostions,
   ];
@@ -857,60 +944,29 @@ function BallotMeasure({
   assert(contest.type === 'yesno');
 
   const width = m.CONTENT_AREA_COLUMN_WIDTH;
-  const titleLines = textWrap(
-    contest.title,
-    FontStyles.H3,
-    gridWidth(width - 0.5, m)
-  );
-  const titleTextBox: TextBox = {
-    type: 'TextBox',
-    ...gridPosition({ row: 0.5, column: 0.5 }, m),
-    width: gridWidth(width - 1, m),
-    height: gridHeight(titleLines.length, m),
-    textLines: titleLines,
-    ...FontStyles.H3,
-  };
 
-  const descriptionLines = textWrap(
-    contest.description,
-    FontStyles.BODY,
-    gridWidth(width, m)
-  );
-
-  const headingRowHeight =
-    titleLines.length +
-    Math.ceil(yToRow(descriptionLines.length * FontStyles.BODY.lineHeight, m));
-  const heading: Rectangle = {
-    type: 'Rectangle',
-    ...gridPosition({ row: 0, column: 0 }, m),
-    width: gridWidth(width, m),
-    height: gridHeight(headingRowHeight, m),
-    children: [
-      // Thicker top border
+  const heading = TextBlock({
+    ...gridPosition({ row: m.CONTEST_PADDING, column: m.CONTEST_PADDING }, m),
+    width: gridWidth(
+      width -
+        2 * m.CONTEST_PADDING -
+        (m.BALLOT_MEASURE_OPTION_POSITION === 'inline' ? 2 : 0),
+      m
+    ),
+    textGroups: [
       {
-        type: 'Rectangle',
-        ...gridPosition({ row: 0, column: 0 }, m),
-        width: gridWidth(width, m),
-        height: 2,
-        fill: 'black',
+        text: contest.title,
+        fontStyle: m.FontStyles.H3,
       },
-      titleTextBox,
       {
-        type: 'TextBox',
-        // y coord will be set below
-        ...gridPosition({ row: 0, column: 0.5 }, m),
-        y:
-          titleTextBox.y +
-          titleLines.length * FontStyles.H3.lineHeight +
-          gridHeight(0.25, m),
-        width: gridWidth(width - 1, m),
-        // TODO: better support for text height with descenders
-        height: descriptionLines.length * FontStyles.BODY.lineHeight + 5,
-        textLines: descriptionLines,
-        ...FontStyles.BODY,
+        text: contest.description,
+        fontStyle: m.FontStyles.BODY,
       },
     ],
-  };
+  });
+  const headingRowHeight = Math.round(
+    yToRow(heading.height, m) + m.CONTEST_PADDING
+  );
 
   const optionPositions: GridPosition[] = [];
   const side = pageNumber % 2 === 1 ? 'front' : 'back';
@@ -922,22 +978,31 @@ function BallotMeasure({
   ];
 
   const bubbleColumn =
-    bubblePosition === BallotTargetMarkPosition.Left ? 1 : width - 1;
+    bubblePosition === BallotTargetMarkPosition.Left
+      ? m.BALLOT_MEASURE_OPTION_POSITION === 'inline'
+        ? width - 2
+        : 1
+      : width - 1;
   const optionLabelColumn =
-    bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5;
+    bubblePosition === BallotTargetMarkPosition.Left ? 3.75 : 0;
   const optionTextAlign =
     bubblePosition === BallotTargetMarkPosition.Left ? 'left' : 'right';
 
   const optionRowHeight = 1;
   const options: Rectangle[] = [];
   for (const [index, choice] of choices.entries()) {
-    const optionRow = headingRowHeight + index * optionRowHeight;
+    const optionRow =
+      headingRowHeight -
+      (m.BALLOT_MEASURE_OPTION_POSITION === 'inline'
+        ? Math.ceil((headingRowHeight + 1) / 2)
+        : 0) +
+      index * optionRowHeight;
     options.push({
       type: 'Rectangle',
       ...gridPosition(
         {
           row: optionRow,
-          column: 0,
+          column: bubbleColumn - 3,
         },
         m
       ),
@@ -947,7 +1012,7 @@ function BallotMeasure({
       children: [
         Bubble({
           row: 1,
-          column: bubbleColumn,
+          column: 3,
           isFilled: false,
           m,
         }),
@@ -955,15 +1020,15 @@ function BallotMeasure({
           type: 'TextBox',
           ...gridPosition(
             {
-              row: 0.65,
+              row: 0.7,
               column: optionLabelColumn,
             },
             m
           ),
-          width: gridWidth(width - 2.25, m),
+          width: gridWidth(2.25, m),
           height: gridHeight(1, m),
           textLines: [choice.label],
-          ...FontStyles.BODY,
+          ...m.FontStyles.BODY,
           fontWeight: FontWeights.BOLD,
           align: optionTextAlign,
         },
@@ -980,12 +1045,14 @@ function BallotMeasure({
     });
   }
 
-  const contestHeight =
-    heading.height +
+  const optionsHeight =
     iter(options)
       .map((option) => option.height)
-      .sum() +
-    gridHeight(1.5, m);
+      .sum() + gridHeight(1, m);
+  const contestHeight =
+    gridHeight(Math.max(headingRowHeight, yToRow(optionsHeight, m)), m) +
+    (m.BALLOT_MEASURE_OPTION_POSITION === 'inline' ? 0 : optionsHeight) +
+    gridHeight(0.5, m);
 
   return [
     {
@@ -995,7 +1062,18 @@ function BallotMeasure({
       height: contestHeight,
       stroke: 'black',
       strokeWidth: 0.5,
-      children: [heading, ...options],
+      children: [
+        // Thicker top border
+        {
+          type: 'Rectangle',
+          ...gridPosition({ row: 0, column: 0 }, m),
+          width: gridWidth(width, m),
+          height: 2,
+          fill: 'black',
+        },
+        heading,
+        ...options,
+      ],
     },
     optionPositions,
   ];
@@ -1284,7 +1362,9 @@ function layOutBallotHelper(
   ballotStyle: BallotStyle
 ) {
   const paperSize = election.ballotLayout?.paperSize ?? BallotPaperSize.Letter;
-  const m = measurements(paperSize);
+  const density = election.ballotLayout?.layoutDensity ?? 0;
+  assert(density <= 2);
+  const m = measurements(paperSize, density);
 
   const ballotStyleIndex = election.ballotStyles.findIndex(
     (bs) => bs.id === ballotStyle.id
@@ -1348,7 +1428,9 @@ function layOutBallotHelper(
           m,
         });
         if (height > gridHeight(m.MAX_CONTEST_ROW_HEIGHT, m)) {
-          throw new Error(`Contest ${contest.id} is too tall to fit on a page`);
+          throw new Error(
+            `Contest is too tall to fit on a page: ${contest.title} `
+          );
         }
         return {
           contest,
@@ -1399,6 +1481,8 @@ function layOutBallotHelper(
     }
 
     if (contestObjects.length === 0) {
+      const blankText = 'This page intentionally left blank.';
+      const blankTextWidth = textWidth(blankText, m.FontStyles.H2);
       contestObjects.push({
         type: 'TextBox',
         ...gridPosition(
@@ -1407,14 +1491,14 @@ function layOutBallotHelper(
               m.TIMING_MARKS_ROW_HEIGHT +
               headerAndInstructionsRowHeight +
               contestsRowHeight / 2,
-            column: m.GRID.columns / 2 - 7,
+            column: m.GRID.columns / 2 - yToRow(blankTextWidth, m) / 2,
           },
           m
         ),
-        width: gridWidth(15, m),
+        width: blankTextWidth,
         height: gridHeight(2, m),
-        textLines: ['This page intentionally left blank.'],
-        ...FontStyles.H2,
+        textLines: [blankText],
+        ...m.FontStyles.H2,
       });
     }
 

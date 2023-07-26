@@ -31,7 +31,7 @@ import { RadioGroup } from './radio';
 const defaultBallotLayout: Required<BallotLayout> = {
   targetMarkPosition: BallotTargetMarkPosition.Left,
   paperSize: BallotPaperSize.Letter,
-  layoutDensity: 1,
+  layoutDensity: 0,
 };
 
 function BallotDesignForm({
@@ -79,6 +79,21 @@ function BallotDesignForm({
           disabled={!isEditing}
         />
       </FormField>
+      <FormField label="Density">
+        <RadioGroup
+          options={[
+            { value: 0, label: 'Default' },
+            { value: 1, label: 'Medium' },
+            { value: 2, label: 'Condensed' },
+          ]}
+          value={ballotLayout.layoutDensity}
+          onChange={(layoutDensity) =>
+            setBallotLayout({ ...ballotLayout, layoutDensity })
+          }
+          disabled={!isEditing}
+        />
+      </FormField>
+
       <FormField label="Bubble Position">
         <SegmentedControl
           options={[

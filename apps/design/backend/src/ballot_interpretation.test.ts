@@ -193,10 +193,11 @@ function markBallot(
   ballot: Document,
   gridLayout: GridLayout,
   votesToMark: VotesDict,
-  paperSize: BallotPaperSize
+  paperSize: BallotPaperSize,
+  density: number
 ) {
   assert(ballot.pages.length === 2, 'Only two page ballots are supported');
-  const m = measurements(paperSize);
+  const m = measurements(paperSize, density);
   function marksForPage(page: number): AnyElement[] {
     const side = page === 1 ? 'front' : 'back';
     const pagePositions = gridLayout.gridPositions.filter(
@@ -291,7 +292,8 @@ describe('Laid out ballots - Famous Names', () => {
       ballot,
       gridLayout,
       votes,
-      BallotPaperSize.Letter
+      BallotPaperSize.Letter,
+      0
     );
 
     const [frontResult, backResult] = await interpretBallot({
@@ -313,99 +315,108 @@ describe('Laid out ballots - Famous Names', () => {
 
 for (const targetMarkPosition of Object.values(BallotTargetMarkPosition)) {
   for (const paperSize of [BallotPaperSize.Letter, BallotPaperSize.Legal]) {
-    describe(`Laid out ballots - electionSample - bubbles on ${targetMarkPosition} - ${paperSize} paper`, () => {
-      const election: Election = {
-        ...electionSample,
-        ballotLayout: {
-          ...assertDefined(electionSample.ballotLayout),
-          targetMarkPosition,
-          paperSize,
-        },
-        // Fill in missing mark thresholds
-        markThresholds: electionFamousNames2021Fixtures.election.markThresholds,
-      };
-      // Has ballot measures
-      const ballotStyle = assertDefined(
-        getBallotStyle({ election, ballotStyleId: '5' })
-      );
-      const precinct = assertDefined(
-        getPrecinctById({ election, precinctId: ballotStyle.precincts[0] })
-      );
-
-      test(`Blank ballot interpretation`, async () => {
-        const ballotResult = layOutBallot(election, precinct, ballotStyle);
-        assert(ballotResult.isOk());
-        const { document: ballot, gridLayout } = ballotResult.ok();
-        // We only support single-sheet ballots for now
-        ballot.pages = ballot.pages.slice(0, 2);
-
-        const [frontResult, backResult] = await interpretBallot({
-          election: { ...election, gridLayouts: [gridLayout] },
-          precinct,
-          ballot,
-        });
-
-        assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-        expect(frontResult.interpretation.votes).toEqual({});
-        assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-        expect(backResult.interpretation.votes).toEqual({});
-      });
-
-      test(`Marked ballot interpretation`, async () => {
-        // Since we currently only support interpreting single-sheet ballots, we can
-        // only evaluate interpreting contests that we know will fit on two pages.
-        const contestsOnFirstSheet = assertDefined(
-          getContests({ election, ballotStyle })
-        ).filter((contest) =>
-          paperSize === BallotPaperSize.Letter
-            ? [
-                'president',
-                'representative-district-6',
-                'lieutenant-governor',
-                'state-senator-district-31',
-                'state-assembly-district-54',
-                'county-registrar-of-wills',
-                'judicial-robert-demergue',
-                'question-a',
-                'question-b',
-              ].includes(contest.id)
-            : // All contests fit on one legal-size sheet
-              true
+    for (const density of [0, 1, 2]) {
+      describe(`Laid out ballots - electionSample - bubbles on ${targetMarkPosition} - ${paperSize} paper - density ${density}`, () => {
+        const election: Election = {
+          ...electionSample,
+          ballotLayout: {
+            ...assertDefined(electionSample.ballotLayout),
+            targetMarkPosition,
+            paperSize,
+          },
+          // Fill in missing mark thresholds
+          markThresholds:
+            electionFamousNames2021Fixtures.election.markThresholds,
+        };
+        // Has ballot measures
+        const ballotStyle = assertDefined(
+          getBallotStyle({ election, ballotStyleId: '5' })
         );
-        const votes: VotesDict = Object.fromEntries(
-          contestsOnFirstSheet.map((contest, i) => {
-            if (contest.type === 'candidate') {
-              const candidates = range(0, contest.seats).map(
-                (j) => contest.candidates[(i + j) % contest.candidates.length]
-              );
-              return [contest.id, candidates];
-            }
-            return [contest.id, i % 2 === 0 ? ['yes'] : ['no']];
-          })
+        const precinct = assertDefined(
+          getPrecinctById({ election, precinctId: ballotStyle.precincts[0] })
         );
 
-        const ballotResult = layOutBallot(election, precinct, ballotStyle);
-        assert(ballotResult.isOk());
-        const { document: ballot, gridLayout } = ballotResult.ok();
-        // We only support single-sheet ballots for now
-        ballot.pages = ballot.pages.slice(0, 2);
-        const markedBallot = markBallot(ballot, gridLayout, votes, paperSize);
+        test(`Blank ballot interpretation`, async () => {
+          const ballotResult = layOutBallot(election, precinct, ballotStyle);
+          assert(ballotResult.isOk());
+          const { document: ballot, gridLayout } = ballotResult.ok();
+          // We only support single-sheet ballots for now
+          ballot.pages = ballot.pages.slice(0, 2);
 
-        const [frontResult, backResult] = await interpretBallot({
-          election: { ...election, gridLayouts: [gridLayout] },
-          precinct,
-          ballot: markedBallot,
+          const [frontResult, backResult] = await interpretBallot({
+            election: { ...election, gridLayouts: [gridLayout] },
+            precinct,
+            ballot,
+          });
+
+          assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
+          expect(frontResult.interpretation.votes).toEqual({});
+          assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+          expect(backResult.interpretation.votes).toEqual({});
         });
 
-        assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-        assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-        expect(
-          sortVotesDict({
-            ...frontResult.interpretation.votes,
-            ...backResult.interpretation.votes,
-          })
-        ).toEqual(sortVotesDict(votes));
+        test(`Marked ballot interpretation`, async () => {
+          // Since we currently only support interpreting single-sheet ballots, we can
+          // only evaluate interpreting contests that we know will fit on two pages.
+          const contestsOnFirstSheet = assertDefined(
+            getContests({ election, ballotStyle })
+          ).filter((contest) =>
+            paperSize === BallotPaperSize.Letter
+              ? [
+                  'president',
+                  'representative-district-6',
+                  'lieutenant-governor',
+                  'state-senator-district-31',
+                  'state-assembly-district-54',
+                  'county-registrar-of-wills',
+                  'judicial-robert-demergue',
+                  'question-a',
+                  'question-b',
+                ].includes(contest.id)
+              : // All contests fit on one legal-size sheet
+                true
+          );
+          const votes: VotesDict = Object.fromEntries(
+            contestsOnFirstSheet.map((contest, i) => {
+              if (contest.type === 'candidate') {
+                const candidates = range(0, contest.seats).map(
+                  (j) => contest.candidates[(i + j) % contest.candidates.length]
+                );
+                return [contest.id, candidates];
+              }
+              return [contest.id, i % 2 === 0 ? ['yes'] : ['no']];
+            })
+          );
+
+          const ballotResult = layOutBallot(election, precinct, ballotStyle);
+          assert(ballotResult.isOk());
+          const { document: ballot, gridLayout } = ballotResult.ok();
+          // We only support single-sheet ballots for now
+          ballot.pages = ballot.pages.slice(0, 2);
+          const markedBallot = markBallot(
+            ballot,
+            gridLayout,
+            votes,
+            paperSize,
+            density
+          );
+
+          const [frontResult, backResult] = await interpretBallot({
+            election: { ...election, gridLayouts: [gridLayout] },
+            precinct,
+            ballot: markedBallot,
+          });
+
+          assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
+          assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+          expect(
+            sortVotesDict({
+              ...frontResult.interpretation.votes,
+              ...backResult.interpretation.votes,
+            })
+          ).toEqual(sortVotesDict(votes));
+        });
       });
-    });
+    }
   }
 }

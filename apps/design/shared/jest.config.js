@@ -14,5 +14,6 @@ module.exports = {
       lines: 0,
     },
   },
+  coverageProvider: 'v8',
   testEnvironment: 'jsdom',
 };

@@ -391,6 +391,7 @@ function ContestForm({
                         <Input
                           type="text"
                           value={candidate.name}
+                          autoFocus
                           onChange={(e) =>
                             setContest({
                               ...contest,
