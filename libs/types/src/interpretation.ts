@@ -3,6 +3,7 @@ import {
   AdjudicationInfo,
   AdjudicationInfoSchema,
   AdjudicationReason,
+  AdjudicationReasonInfo,
   AdjudicationReasonSchema,
   BallotId,
   BallotIdSchema,
@@ -164,3 +165,23 @@ export const BallotSheetInfoSchema: z.ZodSchema<BallotSheetInfo> = z.object({
   back: BallotPageInfoSchema,
   adjudicationReason: AdjudicationReasonSchema.optional(),
 });
+
+export type InvalidInterpretationReason =
+  | 'invalid_test_mode'
+  | 'invalid_election_hash'
+  | 'invalid_precinct'
+  | 'unreadable'
+  | 'unknown';
+
+export type SheetInterpretation =
+  | {
+      type: 'ValidSheet';
+    }
+  | {
+      type: 'InvalidSheet';
+      reason: InvalidInterpretationReason;
+    }
+  | {
+      type: 'NeedsReviewSheet';
+      reasons: AdjudicationReasonInfo[];
+    };

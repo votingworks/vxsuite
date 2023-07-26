@@ -1,5 +1,8 @@
 import { typedAs } from '@votingworks/basics';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionGridLayoutNewHampshireAmherstFixtures,
+} from '@votingworks/fixtures';
 import {
   HmpbBallotPageMetadata,
   InterpretedHmpbPage,
@@ -22,6 +25,11 @@ const ballotImages = {
     electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath(),
     electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath(),
   ],
+  bmdBallot: [
+    electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
+    // 2nd page is blank
+    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
+  ],
 } as const;
 
 let ballotImagesPath!: string;
@@ -32,6 +40,36 @@ beforeEach(() => {
 
 afterEach(async () => {
   await fs.rm(ballotImagesPath, { recursive: true });
+});
+
+test('configure get/set', () => {
+  const interpreter = createInterpreter();
+  interpreter.configure({
+    electionDefinition:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    ballotImagesPath,
+    testMode: true,
+  });
+  expect(interpreter.isConfigured()).toEqual(true);
+  interpreter.unconfigure();
+  expect(interpreter.isConfigured()).toEqual(false);
+});
+
+test('treats BMD ballot with one blank side as valid', async () => {
+  const interpreter = createInterpreter();
+  interpreter.configure({
+    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    ballotImagesPath,
+    testMode: true,
+  });
+
+  const result = await interpreter.interpret(
+    'foo-sheet-id',
+    ballotImages.bmdBallot
+  );
+  expect(result.ok()?.type).toEqual('ValidSheet');
 });
 
 test('NH interpreter of overvote yields a sheet that needs to be reviewed', async () => {

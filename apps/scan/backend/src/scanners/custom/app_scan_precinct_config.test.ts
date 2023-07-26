@@ -1,6 +1,7 @@
 import { ok } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { SheetInterpretation } from '@votingworks/types';
 import {
   configureApp,
   waitForStatus,
@@ -10,7 +11,6 @@ import {
   simulateScan,
   withApp,
 } from '../../../test/helpers/custom_helpers';
-import { SheetInterpretation } from '../../types';
 
 jest.setTimeout(20_000);
 

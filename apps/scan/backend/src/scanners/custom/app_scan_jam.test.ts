@@ -1,4 +1,4 @@
-import { AdjudicationReason } from '@votingworks/types';
+import { AdjudicationReason, SheetInterpretation } from '@votingworks/types';
 import { ok } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
 import {
@@ -6,7 +6,6 @@ import {
   mockInterpretation,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
-import { SheetInterpretation } from '../../types';
 import {
   ballotImages,
   simulateScan,

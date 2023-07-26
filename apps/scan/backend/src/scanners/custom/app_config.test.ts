@@ -26,14 +26,18 @@ import {
   validateCastVoteRecordReportDirectoryStructure,
 } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { CVR, ElectionDefinition, unsafeParse } from '@votingworks/types';
+import {
+  CVR,
+  ElectionDefinition,
+  SheetInterpretation,
+  unsafeParse,
+} from '@votingworks/types';
 import { CustomScanner, mocks } from '@votingworks/custom-scanner';
 import {
   configureApp,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import { Api } from '../../app';
-import { SheetInterpretation } from '../../types';
 import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);

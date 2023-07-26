@@ -6,13 +6,13 @@ import {
   MarkThresholds,
   PageInterpretationWithFiles,
   PrecinctSelection,
+  SheetInterpretation,
   SheetOf,
 } from '@votingworks/types';
 import { time } from '@votingworks/utils';
 import { err, ok, Optional, Result } from '@votingworks/basics';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
 import { rootDebug } from './util/debug';
-import { SheetInterpretation } from './types';
 
 export interface InterpreterConfig {
   readonly electionDefinition: ElectionDefinition;

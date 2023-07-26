@@ -1,10 +1,10 @@
 import {
-  AdjudicationReasonInfo,
   ElectionDefinition,
   MarkThresholds,
   PageInterpretation,
   PollsState,
   PrecinctSelection,
+  SheetInterpretation,
   SystemSettings,
 } from '@votingworks/types';
 
@@ -45,25 +45,6 @@ export const PRECINCT_SCANNER_STATES = [
 
 export type PrecinctScannerState = typeof PRECINCT_SCANNER_STATES[number];
 
-export type InvalidInterpretationReason =
-  | 'invalid_test_mode'
-  | 'invalid_election_hash'
-  | 'invalid_precinct'
-  | 'unreadable'
-  | 'unknown';
-
-export type SheetInterpretation =
-  | {
-      type: 'ValidSheet';
-    }
-  | {
-      type: 'InvalidSheet';
-      reason: InvalidInterpretationReason;
-    }
-  | {
-      type: 'NeedsReviewSheet';
-      reasons: AdjudicationReasonInfo[];
-    };
 export type PrecinctScannerErrorType =
   | 'paper_status_timed_out'
   | 'scanning_timed_out'
