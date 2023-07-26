@@ -5,11 +5,10 @@ import {
   TD,
   LinkButton,
   P,
-  H2,
   Icons,
   Button,
 } from '@votingworks/ui';
-import { Route, Switch, useParams } from 'react-router-dom';
+import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { find } from '@votingworks/basics';
 import {
   BallotLayout,
@@ -27,6 +26,7 @@ import { BallotScreen } from './ballot_screen';
 import { SegmentedControl } from './segmented_control';
 import { paperSizeLabels } from './ballot_viewer';
 import { RadioGroup } from './radio';
+import { TabBar, TabPanel } from './tabs';
 
 const defaultBallotLayout: Required<BallotLayout> = {
   targetMarkPosition: BallotTargetMarkPosition.Left,
@@ -125,119 +125,162 @@ function BallotDesignForm({
   );
 }
 
-function BallotsListScreen(): JSX.Element | null {
+function BallotStylesTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
 
   if (!getElectionQuery.isSuccess) {
-    return null; // Initial loading state
+    return null;
   }
 
-  const { election, precincts, ballotStyles } = getElectionQuery.data;
+  const { precincts, ballotStyles } = getElectionQuery.data;
   const ballotRoutes = routes.election(electionId).ballots;
 
   return (
-    <ElectionNavScreen electionId={electionId}>
-      <H1>Ballots</H1>
-      {ballotStyles.length === 0 && (
+    <TabPanel>
+      {ballotStyles.length === 0 ? (
         <P>
           VxDesign will create ballot styles for your election once you have
           created districts, precincts, and contests.
         </P>
-      )}
-      <Table style={{ maxWidth: '40rem' }}>
-        <thead>
-          <tr>
-            <TH>Precinct</TH>
-            <TH>Ballot Style</TH>
-            <TH />
-          </tr>
-        </thead>
-        <tbody>
-          {precincts.flatMap((precinct) => {
-            const precinctBallotStyle = ballotStyles.find((ballotStyle) =>
-              ballotStyle.precinctsOrSplits.some(
-                ({ precinctId, splitId }) =>
-                  precinctId === precinct.id && splitId === undefined
-              )
-            );
-            const precinctRow = (
-              <tr key={precinct.id}>
-                <TD>{precinct.name}</TD>
-                <TD>{precinctBallotStyle?.id}</TD>
-                <TD>
-                  {precinctBallotStyle && (
-                    <LinkButton
-                      to={
-                        ballotRoutes.viewBallot(
-                          precinctBallotStyle.id,
-                          precinct.id
-                        ).path
-                      }
-                    >
-                      View Ballot
-                    </LinkButton>
-                  )}
-                </TD>
-              </tr>
-            );
-            if (!hasSplits(precinct)) {
-              return [precinctRow];
-            }
-
-            const splitRows = precinct.splits.map((split) => {
-              const splitBallotStyle = find(ballotStyles, (ballotStyle) =>
+      ) : (
+        <Table style={{ maxWidth: '40rem' }}>
+          <thead>
+            <tr>
+              <TH>Precinct</TH>
+              <TH>Ballot Style</TH>
+              <TH />
+            </tr>
+          </thead>
+          <tbody>
+            {precincts.flatMap((precinct) => {
+              const precinctBallotStyle = ballotStyles.find((ballotStyle) =>
                 ballotStyle.precinctsOrSplits.some(
                   ({ precinctId, splitId }) =>
-                    precinctId === precinct.id && splitId === split.id
+                    precinctId === precinct.id && splitId === undefined
                 )
               );
-              return (
-                <NestedTr key={precinct.id + split.id}>
-                  <TD>{split.name}</TD>
-                  <TD>{splitBallotStyle.id}</TD>
+              const precinctRow = (
+                <tr key={precinct.id}>
+                  <TD>{precinct.name}</TD>
+                  <TD>{precinctBallotStyle?.id}</TD>
                   <TD>
-                    <LinkButton
-                      to={
-                        ballotRoutes.viewBallot(
-                          splitBallotStyle.id,
-                          precinct.id
-                        ).path
-                      }
-                    >
-                      View Ballot
-                    </LinkButton>
+                    {precinctBallotStyle && (
+                      <LinkButton
+                        to={
+                          ballotRoutes.viewBallot(
+                            precinctBallotStyle.id,
+                            precinct.id
+                          ).path
+                        }
+                      >
+                        View Ballot
+                      </LinkButton>
+                    )}
                   </TD>
-                </NestedTr>
+                </tr>
               );
-            });
-            return [precinctRow, ...splitRows];
-          })}
-        </tbody>
-      </Table>
-      <H2>Ballot Layout</H2>
+              if (!hasSplits(precinct)) {
+                return [precinctRow];
+              }
+
+              const splitRows = precinct.splits.map((split) => {
+                const splitBallotStyle = find(ballotStyles, (ballotStyle) =>
+                  ballotStyle.precinctsOrSplits.some(
+                    ({ precinctId, splitId }) =>
+                      precinctId === precinct.id && splitId === split.id
+                  )
+                );
+                return (
+                  <NestedTr key={precinct.id + split.id}>
+                    <TD>{split.name}</TD>
+                    <TD>{splitBallotStyle.id}</TD>
+                    <TD>
+                      <LinkButton
+                        to={
+                          ballotRoutes.viewBallot(
+                            splitBallotStyle.id,
+                            precinct.id
+                          ).path
+                        }
+                      >
+                        View Ballot
+                      </LinkButton>
+                    </TD>
+                  </NestedTr>
+                );
+              });
+              return [precinctRow, ...splitRows];
+            })}
+          </tbody>
+        </Table>
+      )}
+    </TabPanel>
+  );
+}
+
+function BallotLayoutTab(): JSX.Element | null {
+  const { electionId } = useParams<ElectionIdParams>();
+  const getElectionQuery = getElection.useQuery(electionId);
+
+  if (!getElectionQuery.isSuccess) {
+    return null;
+  }
+
+  const { election } = getElectionQuery.data;
+
+  return (
+    <TabPanel>
       <BallotDesignForm electionId={electionId} savedElection={election} />
-    </ElectionNavScreen>
+    </TabPanel>
   );
 }
 
 export function BallotsScreen(): JSX.Element | null {
-  const ballotParamRoutes = electionParamRoutes.ballots;
+  const { electionId } = useParams<ElectionIdParams>();
+  const ballotsParamRoutes = electionParamRoutes.ballots;
+  const ballotsRoutes = routes.election(electionId).ballots;
 
   return (
     <Switch>
       <Route
-        path={ballotParamRoutes.root.path}
-        exact
-        component={BallotsListScreen}
-      />
-      <Route
         path={
-          ballotParamRoutes.viewBallot(':ballotStyleId', ':precinctId').path
+          ballotsParamRoutes.viewBallot(':ballotStyleId', ':precinctId').path
         }
         exact
         component={BallotScreen}
       />
+      <Route path={ballotsParamRoutes.root.path}>
+        <ElectionNavScreen electionId={electionId}>
+          <H1>Ballots</H1>
+          <TabBar
+            tabs={[
+              {
+                label: 'Ballot Styles',
+                path: ballotsRoutes.ballotStyles.path,
+              },
+              {
+                label: 'Ballot Layout',
+                path: ballotsRoutes.ballotLayout.path,
+              },
+            ]}
+          />
+          <Switch>
+            <Route
+              path={ballotsParamRoutes.ballotStyles.path}
+              component={BallotStylesTab}
+            />
+            <Route
+              path={ballotsParamRoutes.ballotLayout.path}
+              component={BallotLayoutTab}
+            />
+            <Redirect
+              from={ballotsParamRoutes.root.path}
+              to={ballotsParamRoutes.ballotStyles.path}
+            />
+          </Switch>
+        </ElectionNavScreen>
+      </Route>
     </Switch>
   );
 }
