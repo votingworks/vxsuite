@@ -44,11 +44,8 @@ afterEach(() => {
 
 jest.setTimeout(15000);
 
-async function mockLoadPaper() {
-  apiMock.expectParkPaper();
-  const loadButton = await screen.findByText('Press to Load');
-  userEvent.click(loadButton);
-  apiMock.setPaperHandlerState('paper_parked');
+function mockLoadPaper() {
+  apiMock.setPaperHandlerState('waiting_for_ballot_data');
 }
 
 test('Cardless Voting Flow', async () => {
@@ -145,8 +142,8 @@ test('Cardless Voting Flow', async () => {
   });
   screen.getByText(/(12)/);
 
-  // Poll Worker loads paper
-  await mockLoadPaper();
+  await screen.findByText('Load Blank Ballot Sheet');
+  mockLoadPaper();
 
   // Poll Worker deactivates ballot style
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
@@ -308,7 +305,10 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
       precinctId: '23',
     },
   });
-  await mockLoadPaper();
+
+  await screen.findByText('Load Blank Ballot Sheet');
+  mockLoadPaper();
+
   await screen.findByText('Voting Session Active: 12 at Center Springfield');
 
   // Poll Worker removes their card
@@ -451,7 +451,10 @@ test('poll worker must select a precinct first', async () => {
       precinctId: '23',
     },
   });
-  await mockLoadPaper();
+
+  await screen.findByText('Load Blank Ballot Sheet');
+  mockLoadPaper();
+
   await screen.findByText('Voting Session Active: 12 at Center Springfield');
 
   // Poll Worker deactivates ballot style

@@ -158,14 +158,10 @@ export function createApiMock() {
       mockApiClient.unconfigureMachine.expectCallWith().resolves();
     },
 
-    expectParkPaper(): void {
-      mockApiClient.parkPaper.expectCallWith().resolves('paper_parked');
-    },
-
     expectPrintBallot(pdfData = Buffer.of()): void {
       mockApiClient.printBallot
         .expectCallWith({ pdfData })
-        .resolves('ballot_printed');
+        .resolves('scanning');
     },
 
     setPaperHandlerState,
