@@ -8,7 +8,7 @@
     "build"
   ],
   "scripts": {
-    "build": "tsc --build tsconfig.build.json",
+    "build": "tsc --build tsconfig.build.json && copyfiles -u 3 src/custom-paper-handler/fixtures/*.jpg build/custom-paper-handler/fixtures",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint .",
@@ -36,8 +36,10 @@
   "dependencies": {
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
+    "@votingworks/ballot-interpreter": "workspace:^",
     "@votingworks/basics": "workspace:*",
     "@votingworks/custom-paper-handler": "workspace:*",
+    "@votingworks/custom-scanner": "workspace:^",
     "@votingworks/db": "workspace:*",
     "@votingworks/dev-dock-backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
@@ -54,7 +56,10 @@
     "fs-extra": "^11.1.1",
     "js-sha256": "^0.9.0",
     "luxon": "^3.0.0",
+    "rxjs": "^7.8.1",
     "tmp": "^0.2.1",
+    "uuid": "^9.0.0",
+    "xstate": "^4.32.1",
     "zod": "3.14.4"
   },
   "devDependencies": {
@@ -66,9 +71,11 @@
     "@types/luxon": "^3.0.0",
     "@types/node": "16.18.23",
     "@types/tmp": "^0.2.3",
+    "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "5.37.0",
     "@typescript-eslint/parser": "5.37.0",
     "@votingworks/test-utils": "workspace:*",
+    "copyfiles": "^2.4.1",
     "esbuild": "^0.14.29",
     "esbuild-runner": "^2.2.1",
     "eslint": "8.23.1",
