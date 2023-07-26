@@ -75,7 +75,6 @@ export function isPaperInScanner(
 export function isPaperInOutput(
   paperHandlerStatus: PaperHandlerStatus
 ): boolean {
-  // Based on experimentation. RequestID + Return Code might be better
   return paperHandlerStatus.ticketPresentInOutput;
 }
 
