@@ -1,15 +1,40 @@
 import { DateTime } from 'luxon';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS, TEST_JURISDICTION } from '@votingworks/types';
+import * as grout from '@votingworks/grout';
 
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { MockUsb } from '@votingworks/backend';
+import { Server } from 'http';
 import { configureApp, createApp } from '../test/app_helpers';
+import { Api } from './app';
+import { PaperHandlerStateMachine } from './custom-paper-handler';
 
 const jurisdiction = TEST_JURISDICTION;
 const { electionDefinition } = electionFamousNames2021Fixtures;
 const { electionHash } = electionDefinition;
 
+let apiClient: grout.Client<Api>;
+let mockAuth: InsertedSmartCardAuthApi;
+let mockUsb: MockUsb;
+let server: Server;
+let stateMachine: PaperHandlerStateMachine;
+
+beforeEach(async () => {
+  const result = await createApp();
+  apiClient = result.apiClient;
+  mockAuth = result.mockAuth;
+  mockUsb = result.mockUsb;
+  server = result.server;
+  stateMachine = result.stateMachine;
+});
+
+afterEach(() => {
+  stateMachine.stopMachineService();
+  server?.close();
+});
+
 test('getAuthStatus', async () => {
-  const { apiClient, mockAuth, mockUsb } = createApp();
   await configureApp(apiClient, mockAuth, mockUsb);
 
   // Gets called once during configuration
@@ -25,7 +50,6 @@ test('getAuthStatus', async () => {
 });
 
 test('checkPin', async () => {
-  const { apiClient, mockAuth, mockUsb } = createApp();
   await configureApp(apiClient, mockAuth, mockUsb);
 
   await apiClient.checkPin({ pin: '123456' });
@@ -38,7 +62,6 @@ test('checkPin', async () => {
 });
 
 test('logOut', async () => {
-  const { apiClient, mockAuth, mockUsb } = createApp();
   await configureApp(apiClient, mockAuth, mockUsb);
 
   await apiClient.logOut();
@@ -51,7 +74,6 @@ test('logOut', async () => {
 });
 
 test('updateSessionExpiry', async () => {
-  const { apiClient, mockAuth, mockUsb } = createApp();
   await configureApp(apiClient, mockAuth, mockUsb);
 
   await apiClient.updateSessionExpiry({
@@ -66,7 +88,6 @@ test('updateSessionExpiry', async () => {
 });
 
 test('startCardlessVoterSession', async () => {
-  const { apiClient, mockAuth, mockUsb } = createApp();
   await configureApp(apiClient, mockAuth, mockUsb);
 
   await apiClient.startCardlessVoterSession({
@@ -82,7 +103,6 @@ test('startCardlessVoterSession', async () => {
 });
 
 test('endCardlessVoterSession', async () => {
-  const { apiClient, mockAuth, mockUsb } = createApp();
   await configureApp(apiClient, mockAuth, mockUsb);
 
   await apiClient.endCardlessVoterSession();
@@ -95,32 +115,24 @@ test('endCardlessVoterSession', async () => {
 });
 
 test('getAuthStatus before election definition has been configured', async () => {
-  const { apiClient, mockAuth } = createApp();
-
   await apiClient.getAuthStatus();
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {});
 });
 
 test('checkPin before election definition has been configured', async () => {
-  const { apiClient, mockAuth } = createApp();
-
   await apiClient.checkPin({ pin: '123456' });
   expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
   expect(mockAuth.checkPin).toHaveBeenNthCalledWith(1, {}, { pin: '123456' });
 });
 
 test('logOut before election definition has been configured', async () => {
-  const { apiClient, mockAuth } = createApp();
-
   await apiClient.logOut();
   expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
   expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {});
 });
 
 test('updateSessionExpiry before election definition has been configured', async () => {
-  const { apiClient, mockAuth } = createApp();
-
   await apiClient.updateSessionExpiry({
     sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
   });
@@ -133,8 +145,6 @@ test('updateSessionExpiry before election definition has been configured', async
 });
 
 test('startCardlessVoterSession before election definition has been configured', async () => {
-  const { apiClient, mockAuth } = createApp();
-
   await apiClient.startCardlessVoterSession({
     ballotStyleId: 'b1',
     precinctId: 'p1',
@@ -148,8 +158,6 @@ test('startCardlessVoterSession before election definition has been configured',
 });
 
 test('endCardlessVoterSession before election definition has been configured', async () => {
-  const { apiClient, mockAuth } = createApp();
-
   await apiClient.endCardlessVoterSession();
   expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(1, {});

@@ -24,17 +24,25 @@ import {
 } from '@votingworks/types';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
+import { PaperHandlerStateMachine } from './custom-paper-handler';
 
 let apiClient: grout.Client<Api>;
 let mockAuth: InsertedSmartCardAuthApi;
 let mockUsb: MockUsb;
 let server: Server;
+let stateMachine: PaperHandlerStateMachine;
 
-beforeEach(() => {
-  ({ apiClient, mockAuth, mockUsb, server } = createApp());
+beforeEach(async () => {
+  const result = await createApp();
+  apiClient = result.apiClient;
+  mockAuth = result.mockAuth;
+  mockUsb = result.mockUsb;
+  server = result.server;
+  stateMachine = result.stateMachine;
 });
 
 afterEach(() => {
+  stateMachine.stopMachineService();
   server?.close();
 });
 
@@ -126,7 +134,7 @@ test('unconfigureMachine deletes system settings and election definition', async
   });
 
   const writeResult = await apiClient.configureBallotPackageFromUsb();
-  assert(writeResult.isOk());
+  assert(writeResult.isOk(), `writeResult not ok: ${writeResult.err()}`);
   await apiClient.unconfigureMachine();
 
   const readResult = await apiClient.getSystemSettings();
