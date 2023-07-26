@@ -1,3 +1,6 @@
+/* eslint-disable vx/gts-no-public-class-fields */
+// public class fields allowed so the driver class can inherit from PaperHandlerDriverInterface,
+// the interface shared by implementation and mock. Interfaces definitionally can't have private properties.
 import { findByIds, WebUSBDevice } from 'usb';
 import makeDebug from 'debug';
 import { assert, Optional, Result, sleep } from '@votingworks/basics';
@@ -6,16 +9,21 @@ import {
   byteArray,
   Coder,
   CoderError,
-  CoderType,
   literal,
   message,
-  padding,
-  uint8,
 } from '@votingworks/message-coder';
-import { createImageData } from '@votingworks/image-utils';
+import { createImageData, writeImageData } from '@votingworks/image-utils';
+import {
+  ImageColorDepthType,
+  ImageFileFormat,
+  ImageFromScanner,
+  ImageResolution,
+  ScanSide,
+} from '@votingworks/custom-scanner';
 import {
   assertNumberIsInRangeInclusive,
   assertUint16,
+  BytesPerUint32,
   Uint16,
   Uint16toUint8,
   Uint8,
@@ -40,10 +48,14 @@ import {
   INT_16_MAX,
   INT_16_MIN,
   OK_CONTINUE,
+  OK_NO_MORE_DATA,
+  PRINTING_DENSITY_CODES,
+  PRINTING_SPEED_CODES,
+  PrintingDensity,
+  PrintingSpeed,
   PrintModeDotDensity,
+  RealTimeRequestIds,
   SCAN_HEADER_LENGTH_BYTES,
-  START_OF_PACKET,
-  TOKEN,
   UINT_16_MAX,
 } from './constants';
 import {
@@ -56,6 +68,8 @@ import {
   GetScannerCapabilityCommand,
   InitializeRequestCommand,
   LoadPaperCommand,
+  PaperHandlerBitmap,
+  PaperHandlerStatus,
   ParkPaperCommand,
   PresentPaperAndHoldCommand,
   PrintAndFeedPaperCommand,
@@ -74,46 +88,16 @@ import {
   SetPrintingSpeedCommand,
   SetRelativePrintPositionCommand,
   SetRelativeVerticalPrintPositionCommand,
+  TransferOutRealTimeRequest,
 } from './coders';
+import { PaperHandlerDriverInterface } from './driver_interface';
+import { MinimalWebUsbDevice } from './minimal_web_usb_device';
 
-const serverDebug = makeDebug('custom-paper-handler:driver');
+const serverDebug = makeDebug('mark-scan:custom-paper-handler:driver');
 
 function debug(msg: string, prefix?: string) {
   const fullMsg = prefix ? `[${prefix}] ${msg}` : msg;
   serverDebug(fullMsg);
-}
-
-const TransferOutRealTimeRequest = message({
-  stx: literal(START_OF_PACKET),
-  requestId: uint8(),
-  token: literal(TOKEN),
-  // Treat "optional data length" byte as padding when no additional data is supplied
-  padding: padding(8),
-});
-type TransferOutRealTimeRequest = CoderType<typeof TransferOutRealTimeRequest>;
-
-export type PaperHandlerStatus = SensorStatusRealTimeExchangeResponse &
-  PrinterStatusRealTimeExchangeResponse;
-
-export type PrintingSpeed = 'slow' | 'normal' | 'fast';
-const PRINTING_SPEED_CODES: Record<PrintingSpeed, Uint8> = {
-  slow: 0,
-  normal: 1,
-  fast: 2,
-};
-
-export type PrintingDensity = '-25%' | '-12.5%' | 'default' | '+12.5%' | '+25%';
-const PRINTING_DENSITY_CODES: Record<PrintingDensity, Uint8> = {
-  '-25%': 0x02,
-  '-12.5%': 0x03,
-  default: 0x04,
-  '+12.5%': 0x05,
-  '+25%': 0x06,
-};
-
-export interface PaperHandlerBitmap {
-  data: Uint8Array;
-  width: number;
 }
 
 // USB Interface Information
@@ -130,13 +114,6 @@ export const PACKET_SIZE = 65536;
 export enum ReturnCodes {
   POSITIVE_ACKNOWLEDGEMENT = 0x06,
   NEGATIVE_ACKNOWLEDGEMENT = 0x15,
-}
-
-export enum RealTimeRequestIds {
-  SCANNER_COMPLETE_STATUS_REQUEST_ID = 0x73,
-  PRINTER_STATUS_REQUEST_ID = 0x64,
-  SCAN_ABORT_REQUEST_ID = 0x43,
-  SCAN_RESET_REQUEST_ID = 0x52,
 }
 
 export async function getPaperHandlerWebDevice(): Promise<
@@ -161,23 +138,12 @@ export async function getPaperHandlerWebDevice(): Promise<
   }
 }
 
-// Not all WebUSbDevice methods are implemented in the mock
-export type MinimalWebUsbDevice = Pick<
-  WebUSBDevice,
-  | 'open'
-  | 'close'
-  | 'transferOut'
-  | 'transferIn'
-  | 'claimInterface'
-  | 'selectConfiguration'
->;
+export class PaperHandlerDriver implements PaperHandlerDriverInterface {
+  readonly genericLock = new Lock();
+  readonly realTimeLock = new Lock();
+  readonly scannerConfig: ScannerConfig = getDefaultConfig();
 
-export class PaperHandlerDriver {
-  private readonly genericLock = new Lock();
-  private readonly realTimeLock = new Lock();
-  private readonly scannerConfig: ScannerConfig = getDefaultConfig();
-
-  constructor(private readonly webDevice: MinimalWebUsbDevice) {}
+  constructor(readonly webDevice: MinimalWebUsbDevice) {}
 
   async connect(): Promise<void> {
     await this.webDevice.open();
@@ -477,53 +443,95 @@ export class PaperHandlerDriver {
     await this.transferOutGeneric(ScanCommand, undefined);
     debug('STARTING SCAN');
     let scanStatus = OK_CONTINUE;
+    let dataBlockBytesReceived = 0;
+    let width = -1;
     const imageData: Uint8Array[] = [];
 
+    // Assumptions:
+    // 1. There's at least 1 data block
+    // 2. Each data block can fit within a single `transferInGeneric` call
     while (scanStatus === OK_CONTINUE) {
       const rawResponse = await this.transferInGeneric();
       assert(rawResponse?.data);
 
       const responseBuffer = rawResponse.data.buffer;
-
       const header = responseBuffer.slice(0, SCAN_HEADER_LENGTH_BYTES);
       const response: ScanResponse = ScanResponse.decode(
         Buffer.from(header)
       ).unsafeUnwrap();
-
       scanStatus = response.returnCode;
       const { sizeX, sizeY } = response;
-      const pixelsPerByte = response.scan <= 5 ? 1 : 8;
-      debug(`sizeX: ${sizeX}, sizeY: ${sizeY}, ppb: ${pixelsPerByte}`);
-
-      const dataBlockByteLength = (sizeX * sizeY) / pixelsPerByte;
-      imageData.push(
-        new Uint8Array(responseBuffer.slice(SCAN_HEADER_LENGTH_BYTES))
-      );
-
-      let dataBlockBytesReceived = responseBuffer.byteLength - 16;
-      debug(
-        `initial ${dataBlockBytesReceived} bytes received. Expecting ${dataBlockByteLength}`
-      );
-
-      while (dataBlockBytesReceived < dataBlockByteLength) {
-        debug(
-          `${dataBlockBytesReceived} bytes received. Expecting ${dataBlockByteLength}`
-        );
-        await sleep(1000);
-        debug('Additional data...');
-        const { data } = await this.transferInGeneric();
-        assert(data);
-        debug(`${data.byteLength}`);
-        imageData.push(new Uint8Array(data.buffer));
-        dataBlockBytesReceived += data.byteLength;
+      // The last sizeX returned by the scan command is 0, so store the first one for use later
+      if (width === -1) {
+        width = sizeX;
       }
+      const pixelsPerByte = response.scan <= 0x05 ? 1 : 8;
+      debug(`sizeX: ${sizeX}, sizeY: ${sizeY}, ppb: ${pixelsPerByte}`);
+      const dataBlockByteLength = (sizeX * sizeY) / pixelsPerByte;
+      const dataBlock = responseBuffer.slice(SCAN_HEADER_LENGTH_BYTES);
+      dataBlockBytesReceived += dataBlock.byteLength;
+      debug(
+        `Expected ${dataBlockByteLength} bytes, got ${dataBlock.byteLength} in this block, ${dataBlockBytesReceived} so far`
+      );
+      imageData.push(new Uint8Array(dataBlock));
     }
+
     this.genericLock.release();
     debug('ALL BLOCKS RECEIVED');
+    if (scanStatus !== OK_NO_MORE_DATA) {
+      throw new Error(
+        `Unhandled scan result status: ${scanStatus
+          .toString(16)
+          .padStart(2, '0')
+          .toUpperCase()}`
+      );
+    }
+    const imageBuf = Buffer.concat(imageData);
     return createImageData(
-      Uint8ClampedArray.from(Buffer.concat(imageData)),
-      1728
+      Uint8ClampedArray.from(imageBuf),
+      // Start scan ticket (0x1c 0x53 0x50 0x53) returns width of data block [Size X]; hardcode this value for now but
+      // we should read it from the response header
+      width,
+      imageBuf.byteLength / width
     );
+  }
+
+  async scanAndSave(pathOut: string): Promise<ImageFromScanner> {
+    await this.setScanDirection('backward');
+    const grayscaleResult = await this.scan();
+    debug(
+      `Received imageData with specs:\nHeight=${grayscaleResult.height}, Width=${grayscaleResult.width}, data byte length=${grayscaleResult.data.byteLength}`
+    );
+    const grayscaleData = grayscaleResult.data;
+    const colorResult = createImageData(
+      grayscaleResult.width,
+      grayscaleResult.height
+    );
+    const colorData = new Uint32Array(
+      colorResult.data.buffer,
+      colorResult.data.byteOffset,
+      // `length` is the length in elements of the Uint32Array, not number of bytes
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/length
+      colorResult.data.byteLength / BytesPerUint32
+    );
+    for (let i = 0; i < grayscaleData.byteLength; i += 1) {
+      const luminance = grayscaleData[i];
+      assert(luminance !== undefined);
+      colorData[i] =
+        (luminance << 24) | (luminance << 16) | (luminance << 8) | 255;
+    }
+    await writeImageData(pathOut, colorResult);
+
+    const imageMetadata: ImageFromScanner = {
+      imageBuffer: Buffer.from(colorResult.data),
+      imageWidth: grayscaleResult.width,
+      imageHeight: grayscaleResult.height,
+      imageDepth: ImageColorDepthType.Color24bpp, // Hardcode for now?
+      imageFormat: ImageFileFormat.Jpeg,
+      scanSide: ScanSide.A,
+      imageResolution: ImageResolution.RESOLUTION_200_DPI, // Confirm this
+    };
+    return imageMetadata;
   }
 
   /**
@@ -659,7 +667,6 @@ export class PaperHandlerDriver {
     });
   }
 
-  // TODO why do these functions accept as input a Uint16 instead of 2 Uint8s?
   async setAbsolutePrintPosition(
     numMotionUnits: Uint16
   ): Promise<USBOutTransferResult> {
@@ -769,15 +776,4 @@ export class PaperHandlerDriver {
       numMotionUnitsToFeedPaper,
     });
   }
-}
-
-export async function getPaperHandlerDriver(): Promise<
-  Optional<PaperHandlerDriver>
-> {
-  const paperHandlerWebDevice = await getPaperHandlerWebDevice();
-  if (!paperHandlerWebDevice) return;
-
-  const paperHandlerDriver = new PaperHandlerDriver(paperHandlerWebDevice);
-  await paperHandlerDriver.connect();
-  return paperHandlerDriver;
 }

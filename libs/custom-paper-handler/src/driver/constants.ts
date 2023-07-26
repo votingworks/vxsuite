@@ -17,6 +17,21 @@ export const START_OF_PACKET: Uint8 = 0x02;
 export const OK_CONTINUE: Uint8 = 0x00;
 export const OK_NO_MORE_DATA: Uint8 = 0xff;
 
+export type PrintingDensity = '-25%' | '-12.5%' | 'default' | '+12.5%' | '+25%';
+export type PrintingSpeed = 'slow' | 'normal' | 'fast';
+export const PRINTING_SPEED_CODES: Record<PrintingSpeed, Uint8> = {
+  slow: 0,
+  normal: 1,
+  fast: 2,
+};
+
+export const PRINTING_DENSITY_CODES: Record<PrintingDensity, Uint8> = {
+  '-25%': 0x02,
+  '-12.5%': 0x03,
+  default: 0x04,
+  '+12.5%': 0x05,
+  '+25%': 0x06,
+};
 export enum PrintModeDotDensity {
   SINGLE_DOT_24 = 32,
   DOUBLE_DOT_24 = 33,
@@ -32,3 +47,10 @@ export const VERTICAL_DOTS_IN_CHUNK = 24;
 export const DEVICE_MAX_WIDTH_DOTS = 1700;
 
 export const SCAN_HEADER_LENGTH_BYTES = 16;
+
+export enum RealTimeRequestIds {
+  SCANNER_COMPLETE_STATUS_REQUEST_ID = 0x73,
+  PRINTER_STATUS_REQUEST_ID = 0x64,
+  SCAN_ABORT_REQUEST_ID = 0x43,
+  SCAN_RESET_REQUEST_ID = 0x52,
+}

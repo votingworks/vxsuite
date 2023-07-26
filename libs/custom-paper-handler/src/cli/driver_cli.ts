@@ -5,10 +5,12 @@ import { pdfToImages } from '@votingworks/image-utils';
 import { Buffer } from 'buffer';
 import { assert, sleep } from '@votingworks/basics';
 import { exit } from 'process';
-import { PaperHandlerDriver, getPaperHandlerDriver } from '../driver/driver';
+import { join } from 'path';
+import { getPaperHandlerDriver } from '../driver/helpers';
 import { ballotFixture } from '../test/fixtures';
 import { chunkBinaryBitmap, imageDataToBinaryBitmap } from '../printing';
 import { DEVICE_MAX_WIDTH_DOTS } from '../driver/constants';
+import { PaperHandlerDriverInterface } from '../driver';
 
 /**
  * Command line interface for interacting with the paper handler driver.
@@ -28,11 +30,21 @@ enum Command {
   PrintSampleBallotShorthand = 'p',
   ResetScan = 'reset-scan',
   Help = 'help',
+  Scan = 'scan',
+  FlushTransferInGeneric = 'flush-in',
 }
 const commandList = Object.values(Command);
 
 function printUsage() {
   console.log(`Valid commands: ${JSON.stringify(commandList)}`);
+}
+
+// It seems commands that fail unexpectedly will result in the scanner pausing transfer-in data.
+// This data is sent to the driver on next command, which is then unable to parse the response
+// because the data is partially from the previous failed command and partially from the newly
+// issued command.
+async function flushTransferInGeneric(driver: PaperHandlerDriverInterface) {
+  await driver.clearGenericInBuffer();
 }
 
 async function outputSampleBallotPdfWidth() {
@@ -51,11 +63,17 @@ async function outputSampleBallotPdfWidth() {
   console.log(`First page of sample ballot is ${page.width} dots`);
 }
 
+async function scan(driver: PaperHandlerDriverInterface): Promise<void> {
+  const dateString = new Date().toISOString();
+  const pathOut = join('/tmp', `ballot-driver-cli-${dateString}.jpg`);
+  await driver.scanAndSave(pathOut);
+}
+
 /**
  * Unsafely prints a ballot from ballot fixtures. Adapted from paper_handler_machine.
  * Precondition: enable-print command has succeeded
  */
-async function printBallot(driver: PaperHandlerDriver): Promise<void> {
+async function printBallot(driver: PaperHandlerDriverInterface): Promise<void> {
   console.time('pdf to image');
   const pages: ImageData[] = [];
   for await (const { page, pageCount } of pdfToImages(
@@ -109,7 +127,7 @@ async function printBallot(driver: PaperHandlerDriver): Promise<void> {
   console.log(`Done printing ballot. ${i} chunks printed.`);
 }
 
-async function setDefaults(driver: PaperHandlerDriver) {
+async function setDefaults(driver: PaperHandlerDriverInterface) {
   await driver.initializePrinter();
   console.log('initialized printer');
   await driver.setLineSpacing(0);
@@ -118,7 +136,10 @@ async function setDefaults(driver: PaperHandlerDriver) {
   console.log('set printing speed to slow');
 }
 
-async function handleCommand(driver: PaperHandlerDriver, command: Command) {
+async function handleCommand(
+  driver: PaperHandlerDriverInterface,
+  command: Command
+) {
   if (command === Command.InitPrinter) {
     console.log('Initializing printer');
     await driver.initializePrinter();
@@ -161,6 +182,10 @@ async function handleCommand(driver: PaperHandlerDriver, command: Command) {
     await setDefaults(driver);
   } else if (command === Command.Help) {
     printUsage();
+  } else if (command === Command.Scan) {
+    await scan(driver);
+  } else if (command === Command.FlushTransferInGeneric) {
+    await flushTransferInGeneric(driver);
   } else {
     throw new Error(`Unhandled command '${command}'`);
   }
@@ -187,6 +212,9 @@ export async function main(): Promise<number> {
   const lines = createInterface(process.stdin);
   if (initialArgs.length > 2 && initialArgs[2] === '--reset') {
     await handleCommand(driver, Command.ResetScan);
+  }
+  if (initialArgs.length > 2 && initialArgs[2] === '--flush') {
+    await handleCommand(driver, Command.FlushTransferInGeneric);
   }
 
   await handleCommand(driver, Command.InitPrinter);

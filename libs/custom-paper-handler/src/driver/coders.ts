@@ -8,7 +8,21 @@ import {
   uint32,
   uint8,
 } from '@votingworks/message-coder';
-import { TOKEN } from './constants';
+import { START_OF_PACKET, TOKEN } from './constants';
+
+export interface PaperHandlerBitmap {
+  data: Uint8Array;
+  width: number;
+}
+
+export const TransferOutRealTimeRequest = message({
+  stx: literal(START_OF_PACKET),
+  requestId: uint8(),
+  token: literal(TOKEN),
+  // Treat "optional data length" byte as padding when no additional data is supplied
+  padding: padding(8),
+});
+type TransferOutRealTimeRequest = CoderType<typeof TransferOutRealTimeRequest>;
 
 /**
  * Response coders
@@ -128,12 +142,27 @@ export const ScanResponse = message({
   returnCode: uint8(),
   cis: uint8(0x00 | 0x01 | 0x02),
   scan: uint8(),
-  sizeX: uint16(),
-  sizeY: uint16(),
+  sizeX: uint16(undefined, { littleEndian: false }),
+  sizeY: uint16(undefined, { littleEndian: false }),
   status: uint16(),
   dummy: padding(32),
 });
 export type ScanResponse = CoderType<typeof ScanResponse>;
+
+export function scanResponseToHexString(r: ScanResponse): string {
+  return JSON.stringify(
+    {
+      returnCode: r.returnCode.toString(16).toUpperCase(),
+      cis: r.returnCode.toString(16).toUpperCase(),
+      scan: r.scan.toString(16).toUpperCase(),
+      sizeX: r.sizeX,
+      sizeY: r.sizeY,
+      status: r.status.toString(16).toUpperCase(),
+    },
+    null,
+    2
+  );
+}
 
 /**
  * Command coders
@@ -285,3 +314,6 @@ export type SetLineSpacingCommand = CoderType<typeof SetLineSpacingCommand>;
 
 export const InitializeRequestCommand = literal(0x1b, 0x40);
 export type InitializeRequestCommand = CoderType<typeof SetLineSpacingCommand>;
+
+export type PaperHandlerStatus = SensorStatusRealTimeExchangeResponse &
+  PrinterStatusRealTimeExchangeResponse;

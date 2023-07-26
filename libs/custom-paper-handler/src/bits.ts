@@ -278,6 +278,11 @@ export type Uint8 =
 export const Uint8Size = 8;
 
 /**
+ * Number of bytes in a `Uint32` value
+ */
+export const BytesPerUint32 = 4;
+
+/**
  * Maximum value of a `Uint8`
  */
 export const Uint8Max: Uint8 = 255;
@@ -346,6 +351,12 @@ export function Uint8ToBinaryArray(value: Uint8): BinaryArray {
     shiftingValue <<= 1;
   }
   return bitArray;
+}
+
+export function arrayBufferToHexString(buffer: ArrayBuffer): string {
+  return [...new Uint8Array(buffer)]
+    .map((x) => x.toString(16).padStart(2, '0').toUpperCase())
+    .join(' ');
 }
 
 const BIT_MULTIPLIERS = [128, 64, 32, 16, 8, 4, 2, 1];
