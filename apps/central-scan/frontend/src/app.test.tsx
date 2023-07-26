@@ -244,7 +244,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
 
   userEvent.click(await screen.findByText('Save CVRs'));
   const modal = await screen.findByRole('alertdialog');
-  userEvent.click(within(modal).getByText('Save'));
+  userEvent.click(await within(modal).findByText('Save'));
   await within(modal).findByText('CVRs Saved');
   userEvent.click(within(modal).getByText('Cancel'));
 
