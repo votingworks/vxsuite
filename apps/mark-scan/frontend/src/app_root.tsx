@@ -76,6 +76,7 @@ import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
 import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
+import { ValidateBallotPage } from './pages/validate_ballot_page';
 
 interface UserState {
   votes?: VotesDict;
@@ -608,6 +609,10 @@ export function AppRoot({
   }
   if (stateMachineState === 'no_hardware') {
     return <NoPaperHandlerPage />;
+  }
+  /* istanbul ignore next - this placeholder page will change */
+  if (stateMachineState === 'presenting_ballot') {
+    return <ValidateBallotPage />;
   }
   if (
     authStatus.status === 'logged_out' &&
