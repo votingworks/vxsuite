@@ -731,6 +731,14 @@ function CandidateContest({
             : `Vote for not more than ${contest.seats}`,
         fontStyle: m.FontStyles.BODY,
       },
+      ...(contest.termDescription
+        ? [
+            {
+              text: contest.termDescription,
+              fontStyle: m.FontStyles.BODY,
+            },
+          ]
+        : []),
     ],
   });
   const headingRowHeight = Math.round(

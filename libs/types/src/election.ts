@@ -178,6 +178,7 @@ export interface CandidateContest extends Contest {
   readonly candidates: readonly Candidate[];
   readonly allowWriteIns: boolean;
   readonly partyId?: PartyId;
+  readonly termDescription?: string;
 }
 export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
   ContestInternalSchema.merge(
@@ -187,6 +188,7 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
       candidates: z.array(CandidateSchema),
       allowWriteIns: z.boolean(),
       partyId: PartyIdSchema.optional(),
+      termDescription: z.string().nonempty().optional(),
     })
   ).superRefine((contest, ctx) => {
     for (const [index, id] of findDuplicateIds(contest.candidates)) {
