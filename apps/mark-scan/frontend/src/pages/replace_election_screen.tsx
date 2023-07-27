@@ -1,4 +1,4 @@
-import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
+import { ElectionDefinition } from '@votingworks/types';
 import {
   ElectionInfoBar,
   H2,
@@ -16,9 +16,9 @@ import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import { useEffect } from 'react';
 import { ScreenReader } from '../config/types';
+import { getPrecinctSelection } from '../api';
 
 export interface ReplaceElectionScreenProps {
-  appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   authElectionHash: string;
   electionDefinition: ElectionDefinition;
@@ -29,7 +29,6 @@ export interface ReplaceElectionScreenProps {
 }
 
 export function ReplaceElectionScreen({
-  appPrecinct,
   ballotsPrintedCount,
   authElectionHash,
   electionDefinition,
@@ -38,6 +37,8 @@ export function ReplaceElectionScreen({
   isLoading,
   isError,
 }: ReplaceElectionScreenProps): JSX.Element {
+  const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
+  const precinctSelection = getPrecinctSelectionQuery.data;
   const { election, electionHash } = electionDefinition;
 
   useEffect(() => {
@@ -132,7 +133,7 @@ export function ReplaceElectionScreen({
           electionDefinition={electionDefinition}
           codeVersion={machineConfig.codeVersion}
           machineId={machineConfig.machineId}
-          precinctSelection={appPrecinct}
+          precinctSelection={precinctSelection}
         />
       )}
     </Screen>

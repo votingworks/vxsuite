@@ -3,11 +3,7 @@ import {
   mockOf,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
-import {
-  ALL_PRECINCTS_SELECTION,
-  MemoryHardware,
-  MemoryStorage,
-} from '@votingworks/utils';
+import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
 
 import fetchMock from 'fetch-mock';
 import { electionSampleDefinition } from '@votingworks/fixtures';
@@ -177,7 +173,6 @@ it('uses window.location.reload by default', async () => {
 
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
-    appPrecinct: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_closed_initial',
   });
 

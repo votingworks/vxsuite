@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import {
   P,
@@ -29,14 +29,12 @@ import { makeAsync } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import { ScreenReader } from '../config/types';
-import { logOut } from '../api';
+import { getPrecinctSelection, logOut, setPrecinctSelection } from '../api';
 
 export interface AdminScreenProps {
-  appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition: ElectionDefinition;
   isLiveMode: boolean;
-  updateAppPrecinct: (appPrecinct: PrecinctSelection) => void;
   toggleLiveMode: VoidFunction;
   unconfigure: () => Promise<void>;
   machineConfig: MachineConfig;
@@ -47,11 +45,9 @@ export interface AdminScreenProps {
 }
 
 export function AdminScreen({
-  appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
   isLiveMode,
-  updateAppPrecinct,
   toggleLiveMode,
   unconfigure,
   machineConfig,
@@ -62,6 +58,18 @@ export function AdminScreen({
 }: AdminScreenProps): JSX.Element {
   const { election } = electionDefinition;
   const logOutMutation = logOut.useMutation();
+  const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
+  const precinctSelection = getPrecinctSelectionQuery.data;
+
+  const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
+  const updatePrecinctSelection = useCallback(
+    (newPrecinctSelection: PrecinctSelection) => {
+      setPrecinctSelectionMutation.mutate({
+        precinctSelection: newPrecinctSelection,
+      });
+    },
+    [setPrecinctSelectionMutation]
+  );
 
   // Disable the audiotrack when in admin mode
   useEffect(() => {
@@ -95,8 +103,8 @@ export function AdminScreen({
               </H6>
               <P>
                 <ChangePrecinctButton
-                  appPrecinctSelection={appPrecinct}
-                  updatePrecinctSelection={makeAsync(updateAppPrecinct)}
+                  appPrecinctSelection={precinctSelection}
+                  updatePrecinctSelection={makeAsync(updatePrecinctSelection)}
                   election={election}
                   mode={
                     pollsState === 'polls_closed_final' ||
@@ -175,7 +183,7 @@ export function AdminScreen({
           electionDefinition={electionDefinition}
           codeVersion={machineConfig.codeVersion}
           machineId={machineConfig.machineId}
-          precinctSelection={appPrecinct}
+          precinctSelection={precinctSelection}
         />
       )}
     </Screen>

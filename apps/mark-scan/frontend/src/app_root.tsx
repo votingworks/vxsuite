@@ -9,7 +9,6 @@ import {
   ContestId,
   PrecinctId,
   BallotStyleId,
-  PrecinctSelection,
   PollsState,
   InsertedSmartCardAuth,
 } from '@votingworks/types';
@@ -20,7 +19,6 @@ import { IdleTimerProvider } from 'react-idle-timer';
 import {
   Storage,
   Hardware,
-  singlePrecinctSelectionFor,
   makeAsync,
   isElectionManagerAuth,
   isCardlessVoterAuth,
@@ -40,7 +38,7 @@ import {
   ThemeManagerContext,
 } from '@votingworks/ui';
 
-import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   mergeMsEitherNeitherContests,
   CastBallotPage,
@@ -52,6 +50,7 @@ import {
   getAuthStatus,
   getElectionDefinition,
   getMachineConfig,
+  getPrecinctSelection,
   getStateMachineState,
   startCardlessVoterSession,
   unconfigureMachine,
@@ -84,7 +83,6 @@ interface UserState {
 }
 
 interface SharedState {
-  appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition: OptionalElectionDefinition;
   isLiveMode: boolean;
@@ -125,7 +123,6 @@ const initialVoterState: Readonly<UserState> = {
 };
 
 const initialSharedState: Readonly<SharedState> = {
-  appPrecinct: undefined,
   ballotsPrintedCount: 0,
   electionDefinition: undefined,
   isLiveMode: false,
@@ -157,7 +154,6 @@ type AppAction =
   | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
   | { type: 'forceSaveVote' }
   | { type: 'resetBallot'; showPostVotingInstructions?: boolean }
-  | { type: 'updateAppPrecinct'; appPrecinct: PrecinctSelection }
   | { type: 'enableLiveMode' }
   | { type: 'toggleLiveMode' }
   | { type: 'updatePollsState'; pollsState: PollsState }
@@ -200,12 +196,6 @@ function appReducer(state: State, action: AppAction): State {
         ...initialVoterState,
         showPostVotingInstructions: action.showPostVotingInstructions,
       };
-    case 'updateAppPrecinct':
-      return {
-        ...state,
-        ...resetTally,
-        appPrecinct: action.appPrecinct,
-      };
     case 'enableLiveMode':
       return {
         ...state,
@@ -232,16 +222,10 @@ function appReducer(state: State, action: AppAction): State {
       };
     }
     case 'updateElectionDefinition': {
-      const { precincts } = action.electionDefinition.election;
-      let defaultPrecinct: Optional<PrecinctSelection>;
-      if (precincts.length === 1) {
-        defaultPrecinct = singlePrecinctSelectionFor(precincts[0].id);
-      }
       return {
         ...state,
         ...initialUserState,
         electionDefinition: action.electionDefinition,
-        appPrecinct: defaultPrecinct,
       };
     }
     case 'initializeAppState':
@@ -266,7 +250,6 @@ export function AppRoot({
   const PostVotingInstructionsTimeout = useRef(0);
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
   const {
-    appPrecinct,
     ballotsPrintedCount,
     electionDefinition: optionalElectionDefinition,
     isLiveMode,
@@ -295,6 +278,9 @@ export function AppRoot({
   const stateMachineState = getStateMachineStateQuery.isSuccess
     ? getStateMachineStateQuery.data
     : 'no_hardware';
+  const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
+  // TODO set default precinct when setting election definition
+  const precinctSelection = getPrecinctSelectionQuery.data;
 
   const checkPinMutation = checkPin.useMutation();
   const startCardlessVoterSessionMutation =
@@ -423,13 +409,6 @@ export function AppRoot({
     dispatchAppState({ type: 'forceSaveVote' });
   }, []);
 
-  const updateAppPrecinct = useCallback((newAppPrecinct: PrecinctSelection) => {
-    dispatchAppState({
-      type: 'updateAppPrecinct',
-      appPrecinct: newAppPrecinct,
-    });
-  }, []);
-
   const enableLiveMode = useCallback(() => {
     dispatchAppState({ type: 'enableLiveMode' });
   }, []);
@@ -550,7 +529,6 @@ export function AppRoot({
         {};
 
       const {
-        appPrecinct: storedAppPrecinct = initialAppState.appPrecinct,
         ballotsPrintedCount:
           storedBallotsPrintedCount = initialAppState.ballotsPrintedCount,
         isLiveMode: storedIsLiveMode = initialAppState.isLiveMode,
@@ -559,7 +537,6 @@ export function AppRoot({
       dispatchAppState({
         type: 'initializeAppState',
         appState: {
-          appPrecinct: storedAppPrecinct,
           ballotsPrintedCount: storedBallotsPrintedCount,
           electionDefinition: storedElectionDefinition,
           isLiveMode: storedIsLiveMode,
@@ -575,7 +552,6 @@ export function AppRoot({
     async function storeAppState() {
       if (initializedFromStorage) {
         await storage.set(stateStorageKey, {
-          appPrecinct,
           ballotsPrintedCount,
           isLiveMode,
           pollsState,
@@ -585,7 +561,6 @@ export function AppRoot({
 
     void storeAppState();
   }, [
-    appPrecinct,
     ballotsPrintedCount,
     isLiveMode,
     pollsState,
@@ -671,7 +646,6 @@ export function AppRoot({
     ) {
       return (
         <ReplaceElectionScreen
-          appPrecinct={appPrecinct}
           ballotsPrintedCount={ballotsPrintedCount}
           authElectionHash={authStatus.user.electionHash}
           electionDefinition={optionalElectionDefinition}
@@ -685,11 +659,9 @@ export function AppRoot({
 
     return (
       <AdminScreen
-        appPrecinct={appPrecinct}
         ballotsPrintedCount={ballotsPrintedCount}
         electionDefinition={optionalElectionDefinition}
         isLiveMode={isLiveMode}
-        updateAppPrecinct={updateAppPrecinct}
         toggleLiveMode={toggleLiveMode}
         unconfigure={unconfigure}
         machineConfig={machineConfig}
@@ -700,7 +672,7 @@ export function AppRoot({
       />
     );
   }
-  if (optionalElectionDefinition && appPrecinct) {
+  if (optionalElectionDefinition && precinctSelection) {
     if (
       authStatus.status === 'logged_out' &&
       authStatus.reason === 'poll_worker_wrong_election'
@@ -713,7 +685,6 @@ export function AppRoot({
           pollWorkerAuth={authStatus}
           activateCardlessVoterSession={activateCardlessBallot}
           resetCardlessVoterSession={resetCardlessBallot}
-          appPrecinct={appPrecinct}
           electionDefinition={optionalElectionDefinition}
           enableLiveMode={enableLiveMode}
           isLiveMode={isLiveMode}
@@ -771,7 +742,6 @@ export function AppRoot({
         timeout={GLOBALS.QUIT_KIOSK_IDLE_SECONDS * 1000}
       >
         <InsertCardScreen
-          appPrecinct={appPrecinct}
           electionDefinition={optionalElectionDefinition}
           showNoAccessibleControllerWarning={!accessibleController}
           showNoChargerAttachedWarning={!computer.batteryIsCharging}
