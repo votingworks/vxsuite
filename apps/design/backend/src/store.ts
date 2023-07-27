@@ -160,7 +160,8 @@ function hydrateElection(row: {
       precincts: ballotStyle.precinctsOrSplits.map((p) => p.precinctId),
       districts: ballotStyle.districtIds,
     })),
-    sealUrl: '/seals/state-of-hamilton-official-seal.svg',
+    sealUrl:
+      rawElection.sealUrl ?? '/seals/state-of-hamilton-official-seal.svg',
   };
   return {
     id: row.id,
