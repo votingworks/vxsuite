@@ -1425,7 +1425,13 @@ function layOutBallotHelper(
           contest,
           row: 0,
           gridRow: 0,
-          gridColumn: 0,
+          gridColumn:
+            // Temp hack: Because we change the width of the first or last
+            // column of candidate contests to fit evenly into three columns
+            // within CandidateContest, we need to trigger the smallest width
+            // option to get the largest possible height of the contest here,
+            // regardless of which column it ends up in.
+            election.ballotLayout?.targetMarkPosition === 'left' ? 0 : 20,
           pageNumber: 0,
           m,
         });
