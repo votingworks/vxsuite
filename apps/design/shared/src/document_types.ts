@@ -20,6 +20,36 @@ export interface Rectangle extends Shape {
   children?: AnyElement[];
 }
 
+export interface TextParagraph {
+  type: 'TextParagraph';
+  children: TextSpan[];
+  lineHeight: number;
+  fontSize: number;
+}
+
+export interface TextSpan {
+  type: 'TextSpan';
+  text: string;
+  fontWeight: number;
+  fontStyle: 'normal' | 'italic';
+  textDecoration: 'none' | 'underline' | 'line-through';
+}
+
+// export interface TextList {
+//   type: 'TextList';
+//   items: TextParagraph[];
+//   bulletType: 'circle' | 'number';
+// }
+
+export type RichText = TextParagraph; // | TextList;
+
+export interface RichTextBox extends ElementBase {
+  type: 'RichTextBox';
+  width: number;
+  height: number;
+  children: RichText[];
+}
+
 export interface TextBox extends ElementBase {
   type: 'TextBox';
   width: number;

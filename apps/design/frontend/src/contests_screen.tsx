@@ -43,6 +43,7 @@ import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
 import { SegmentedControl } from './segmented_control';
+import { RichTextArea } from './rich_text_area';
 
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
@@ -473,11 +474,10 @@ function ContestForm({
 
       {contest.type === 'yesno' && (
         <FormField label="Description">
-          <textarea
-            style={{ width: '100%', height: '10rem' }}
-            value={contest.description}
-            onChange={(e) =>
-              setContest({ ...contest, description: e.target.value })
+          <RichTextArea
+            htmlValue={contest.description}
+            onChange={(htmlValue) =>
+              setContest({ ...contest, description: htmlValue })
             }
           />
         </FormField>

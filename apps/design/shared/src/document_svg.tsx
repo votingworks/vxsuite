@@ -1,5 +1,17 @@
 import React from 'react';
-import { Color, Image, Page, Rectangle, TextBox } from './document_types';
+import { DOMParser } from '@xmldom/xmldom';
+import { throwIllegalValue } from '@votingworks/basics';
+import {
+  Color,
+  Image,
+  Page,
+  Rectangle,
+  RichText,
+  RichTextBox,
+  TextBox,
+  TextParagraph,
+  TextSpan,
+} from './document_types';
 
 export const FONT_FAMILY = 'HelveticaNeue';
 
@@ -28,6 +40,88 @@ export function SvgRectangle({
         {...rectProps}
       />
       {children}
+    </svg>
+  );
+}
+
+type SvgTextSpanProps = Omit<TextSpan, 'type'>;
+
+function SvgTextSpan({
+  text,
+  fontStyle,
+  fontWeight,
+  textDecoration,
+}: SvgTextSpanProps): JSX.Element {
+  return (
+    <tspan
+      fontStyle={fontStyle}
+      fontWeight={fontWeight}
+      textDecoration={textDecoration}
+    >
+      {text}
+    </tspan>
+  );
+}
+
+interface SvgTextParagraphProps {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  children: TextParagraph['children'];
+  fontSize: TextParagraph['fontSize'];
+  lineHeight: TextParagraph['lineHeight'];
+}
+
+export function SvgTextParagraph({
+  x,
+  y,
+  width,
+  height,
+  children,
+  fontSize,
+  lineHeight,
+}: SvgTextParagraphProps): JSX.Element {
+  return (
+    <text x={x} y={y} width={width} height={height} fontSize={fontSize}>
+      {children.map((child, index) => (
+        <SvgTextSpan key={index} {...child} />
+      ))}
+    </text>
+  );
+}
+
+type SvgRichTextBoxProps = Omit<RichTextBox, 'type'>;
+
+export function SvgRichTextBox({
+  x,
+  y,
+  width,
+  height,
+  children,
+}: SvgRichTextBoxProps): JSX.Element {
+  return (
+    <svg x={x} y={y} width={width} height={height}>
+      {children.map((child, index) => {
+        switch (child.type) {
+          case 'TextParagraph':
+            return (
+              <SvgTextParagraph
+                // eslint-disable-next-line react/no-array-index-key
+                key={index}
+                {...child}
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+              />
+            );
+          // case 'TextList':
+          //   return <SvgTextList key={index} {...child} />;
+          default:
+            return throwIllegalValue(child.type);
+        }
+      })}
     </svg>
   );
 }
