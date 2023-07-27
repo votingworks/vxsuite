@@ -35,11 +35,6 @@
       "sort-package-json"
     ]
   },
-  "babel": {
-    "presets": [
-      "react-app"
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -55,11 +50,7 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "resolutions": {
-    "**/@babel/parser": "7.8.4"
-  },
   "dependencies": {
-    "@babel/core": "7.12.3",
     "@rooks/use-interval": "^4.5.0",
     "@tanstack/react-query": "^4.22.0",
     "@testing-library/react-hooks": "^8.0.1",
@@ -82,10 +73,6 @@
     "@votingworks/ui": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "abortcontroller-polyfill": "^1.4.0",
-    "babel-eslint": "^10.1.0",
-    "babel-loader": "8.1.0",
-    "babel-plugin-named-asset-import": "^0.3.7",
-    "babel-preset-react-app": "^10.0.0",
     "buffer": "^6.0.3",
     "canvas": "2.9.1",
     "css-loader": "4.3.0",
@@ -126,7 +113,6 @@
     "use-interval": "^1.2.1"
   },
   "devDependencies": {
-    "@babel/runtime": "^7.18.3",
     "@codemod/parser": "^1.0.7",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.5",
@@ -165,7 +151,6 @@
     "fetch-mock": "^9.5.0",
     "is-ci-cli": "^2.0.0",
     "jest": "26.6.0",
-    "jest-circus": "26.6.0",
     "jest-date-mock": "^1.0.8",
     "jest-environment-jsdom-sixteen": "^1.0.3",
     "jest-fetch-mock": "^3.0.3",
