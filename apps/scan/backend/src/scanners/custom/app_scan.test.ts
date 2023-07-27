@@ -1,9 +1,13 @@
 import { AdjudicationReason, AdjudicationReasonInfo } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
 import { err, ok, sleep, typedAs } from '@votingworks/basics';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionGridLayoutNewHampshireAmherstFixtures,
+} from '@votingworks/fixtures';
 import { Logger } from '@votingworks/logging';
 import { ErrorCode, mocks } from '@votingworks/custom-scanner';
+import { getEmptyElectionResults } from '@votingworks/utils';
 import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
 import {
   configureApp,
@@ -90,10 +94,13 @@ test('configure and scan hmpb', async () => {
       // Test waiting for automatic transition back to no_paper
       await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
 
-      // Check the CVR
-      const cvrs = await apiClient.getCastVoteRecordsForTally();
-      expect(cvrs).toHaveLength(1);
-      // TODO what do we actually want to check about the CVRs to make sure they work?
+      // Check the ballot appears in the results
+      const results = await apiClient.getScannerResultsByParty();
+      expect(results).toHaveLength(1);
+      expect(results[0].cardCounts).toEqual({
+        bmd: 0,
+        hmpb: [1],
+      });
 
       checkLogs(logger);
     }
@@ -143,9 +150,13 @@ test('configure and scan bmd ballot', async () => {
         canUnconfigure: true,
       });
 
-      // Check the CVR
-      const cvrs = await apiClient.getCastVoteRecordsForTally();
-      expect(cvrs).toHaveLength(1);
+      // Check the ballot appears in the results
+      const results = await apiClient.getScannerResultsByParty();
+      expect(results).toHaveLength(1);
+      expect(results[0].cardCounts).toEqual({
+        bmd: 1,
+        hmpb: [],
+      });
 
       checkLogs(logger);
     }
@@ -202,9 +213,14 @@ test('ballot needs review - return', async () => {
         state: 'no_paper',
       });
 
-      // Check the CVR
-      const cvrs = await apiClient.getCastVoteRecordsForTally();
-      expect(cvrs).toHaveLength(0);
+      // Check the results
+      const results = await apiClient.getScannerResultsByParty();
+      expect(results).toHaveLength(1);
+      expect(results[0]).toEqual(
+        getEmptyElectionResults(
+          electionGridLayoutNewHampshireAmherstFixtures.election
+        )
+      );
 
       // Make sure the ballot was still recorded in the db for backup purposes
       expect(Array.from(workspace.store.getSheets())).toHaveLength(1);
@@ -251,9 +267,12 @@ test('invalid ballot rejected', async () => {
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
       await waitForStatus(apiClient, { state: 'no_paper' });
 
-      // Check the CVR
-      const cvrs = await apiClient.getCastVoteRecordsForTally();
-      expect(cvrs).toHaveLength(0);
+      // Check the results
+      const results = await apiClient.getScannerResultsByParty();
+      expect(results).toHaveLength(1);
+      expect(results[0]).toEqual(
+        getEmptyElectionResults(electionFamousNames2021Fixtures.election)
+      );
 
       // Make sure the ballot was still recorded in the db for backup purposes
       expect(Array.from(workspace.store.getSheets())).toHaveLength(1);

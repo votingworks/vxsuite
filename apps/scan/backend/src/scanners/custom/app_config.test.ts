@@ -12,7 +12,7 @@ import {
   convertCastVoteRecordVotesToTabulationVotes,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { assert, err, find, ok, unique } from '@votingworks/basics';
+import { assert, err, find, iter, ok, unique } from '@votingworks/basics';
 import fs from 'fs';
 import { join } from 'path';
 import {
@@ -336,13 +336,25 @@ test('ballot batching', async () => {
       mockAuth,
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
+      const { store } = workspace;
+      function getCvrIds() {
+        return iter(store.forEachResultSheet())
+          .map((r) => r.id)
+          .toArray();
+      }
+      function getBatchIds() {
+        return unique(
+          iter(store.forEachResultSheet())
+            .map((r) => r.batchId)
+            .toArray()
+        );
+      }
 
       // Scan two ballots, which should have the same batch
       await scanBallot(mockScanner, apiClient, 0);
       await scanBallot(mockScanner, apiClient, 1);
-      let cvrs = await apiClient.getCastVoteRecordsForTally();
-      let batchIds = unique(cvrs.map((cvr) => cvr._batchId));
-      expect(cvrs).toHaveLength(2);
+      let batchIds = getBatchIds();
+      expect(getCvrIds()).toHaveLength(2);
       expect(batchIds).toHaveLength(1);
       const batch1Id = batchIds[0];
 
@@ -379,9 +391,8 @@ test('ballot batching', async () => {
       // Confirm there is a new, second batch distinct from the first
       await scanBallot(mockScanner, apiClient, 2);
       await scanBallot(mockScanner, apiClient, 3);
-      cvrs = await apiClient.getCastVoteRecordsForTally();
-      batchIds = unique(cvrs.map((cvr) => cvr._batchId));
-      expect(cvrs).toHaveLength(4);
+      batchIds = getBatchIds();
+      expect(getCvrIds()).toHaveLength(4);
       expect(batchIds).toHaveLength(2);
       const batch2Id = find(batchIds, (batchId) => batchId !== batch1Id);
 
@@ -418,9 +429,8 @@ test('ballot batching', async () => {
       // Confirm there is a third batch, distinct from the second
       await scanBallot(mockScanner, apiClient, 4);
       await scanBallot(mockScanner, apiClient, 5);
-      cvrs = await apiClient.getCastVoteRecordsForTally();
-      batchIds = unique(cvrs.map((cvr) => cvr._batchId));
-      expect(cvrs).toHaveLength(6);
+      batchIds = getBatchIds();
+      expect(getCvrIds()).toHaveLength(6);
       expect(batchIds).toHaveLength(3);
     }
   );
