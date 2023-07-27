@@ -337,6 +337,15 @@ function ContestForm({
               min={1}
             />
           </FormField>
+          <FormField label="Term">
+            <Input
+              type="text"
+              value={contest.termDescription}
+              onChange={(e) =>
+                setContest({ ...contest, termDescription: e.target.value })
+              }
+            />
+          </FormField>
           <FormField label="Write-Ins Allowed?">
             <SegmentedControl
               options={[
