@@ -12,7 +12,7 @@ import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { DippedSmartCardAuth } from '@votingworks/types';
-import { render, screen, waitFor } from '../test/react_testing_library';
+import { act, render, screen, waitFor } from '../test/react_testing_library';
 import { ExportLogsButton, ExportLogsButtonRow } from './export_logs_modal';
 import { UsbDriveStatus } from './hooks/use_usb_drive';
 
@@ -45,6 +45,10 @@ const electionManagerAuthStatus: DippedSmartCardAuth.ElectionManagerLoggedIn = {
   sessionExpiresAt: fakeSessionExpiresAt(),
 };
 
+beforeEach(() => {
+  jest.useRealTimers();
+});
+
 test('renders loading screen when usb drive is mounting or ejecting in export modal', async () => {
   const mockKiosk = fakeKiosk();
   mockKiosk.getFileSystemEntries.mockResolvedValue([
@@ -65,7 +69,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
     );
     userEvent.click(screen.getByText('Save Log File'));
     await screen.findByText('Loading');
-    userEvent.click(screen.getByText('Cancel'));
+    userEvent.click(await screen.findByText('Cancel'));
     expect(screen.queryByRole('alertdialog')).toBeFalsy();
     unmount();
   }
@@ -157,7 +161,10 @@ test('successful save raw log flow', async () => {
     />
   );
   userEvent.click(screen.getByText('Save Log File'));
-  await screen.findByText('Loading');
+  // to suppress act warning from async state updates in useEffect
+  await act(async () => {
+    await screen.findByText('Loading');
+  });
   await screen.findByText('Save Logs');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.SaveLogFileFound,
@@ -168,7 +175,9 @@ test('successful save raw log flow', async () => {
   userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Saving Logs/);
   expect(mockKiosk.readFile).toHaveBeenCalled();
-  jest.advanceTimersByTime(2001);
+  act(() => {
+    jest.advanceTimersByTime(2001);
+  });
   await screen.findByText(/Logs Saved/);
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
@@ -218,7 +227,10 @@ test('successful save cdf log file flow', async () => {
     />
   );
   userEvent.click(screen.getByText('Save CDF Log File'));
-  await screen.findByText('Loading');
+  // to suppress act warning from async state updates in useEffect
+  await act(async () => {
+    await screen.findByText('Loading');
+  });
   await screen.findByText('Save Logs');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.SaveLogFileFound,
@@ -229,7 +241,9 @@ test('successful save cdf log file flow', async () => {
   userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Saving Logs/);
   expect(mockKiosk.readFile).toHaveBeenCalled();
-  jest.advanceTimersByTime(2001);
+  act(() => {
+    jest.advanceTimersByTime(2001);
+  });
   await screen.findByText(/Logs Saved/);
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);

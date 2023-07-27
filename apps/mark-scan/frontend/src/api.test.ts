@@ -1,9 +1,11 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { renderHook } from '../test/react_testing_library';
 import { useApiClient } from './api';
 
 test('useApiClient', () => {
-  const { result } = renderHook(() => useApiClient());
-  expect(result.error && result.error.message).toEqual(
-    'ApiClientContext.Provider not found'
-  );
+  suppressingConsoleOutput(() => {
+    expect(() => {
+      renderHook(() => useApiClient());
+    }).toThrowError('ApiClientContext.Provider not found');
+  });
 });

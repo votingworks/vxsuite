@@ -4,7 +4,12 @@ import {
   BATTERY_POLLING_INTERVAL,
   LOW_BATTERY_THRESHOLD,
 } from '@votingworks/ui';
-import { act, render, screen } from '../test/react_testing_library';
+import {
+  act,
+  render,
+  screen,
+  waitForElementToBeRemoved,
+} from '../test/react_testing_library';
 
 import { App } from './app';
 
@@ -56,12 +61,8 @@ describe('Displays setup warning messages and errors screens', () => {
     const accessibleControllerWarningText =
       'Voting with an accessible controller is not currently available.';
 
-    // Let the initial hardware detection run.
-    await advanceTimersAndPromises();
-    await advanceTimersAndPromises();
-
     // Start on Insert Card screen
-    screen.getByText(insertCardScreenText);
+    await screen.findByText(insertCardScreenText);
     expect(screen.queryByText(accessibleControllerWarningText)).toBeFalsy();
 
     // Disconnect Accessible Controller
@@ -97,11 +98,8 @@ describe('Displays setup warning messages and errors screens', () => {
       />
     );
 
-    // Let the initial hardware detection run.
-    await advanceTimersAndPromises();
-
     // Start on Insert Card screen
-    screen.getByText(insertCardScreenText);
+    await screen.findByText(insertCardScreenText);
 
     // Disconnect Card Reader
     act(() => {
@@ -133,23 +131,21 @@ describe('Displays setup warning messages and errors screens', () => {
       />
     );
 
-    // Let the initial hardware detection run.
-    await advanceTimersAndPromises();
-    screen.getByText('Insert Card');
+    await screen.findByText('Insert Card');
 
     // Disconnect Power
     act(() => {
       hardware.setBatteryDischarging(true);
     });
-    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
-    screen.getByText(noPowerDetectedWarningText);
+    await screen.findByText(noPowerDetectedWarningText);
 
     // Reconnect Power
     act(() => {
       hardware.setBatteryDischarging(false);
     });
-    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
-    expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
+    await waitForElementToBeRemoved(
+      screen.queryByText(noPowerDetectedWarningText)
+    );
   });
 
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
@@ -166,53 +162,45 @@ describe('Displays setup warning messages and errors screens', () => {
         reload={jest.fn()}
       />
     );
-    const getByTextWithMarkup = withMarkup(screen.getByText);
-
-    // Let the initial hardware detection run.
-    await advanceTimersAndPromises();
+    const findByTextWithMarkup = withMarkup(screen.findByText);
 
     // Start on Insert Card screen
-    screen.getByText(insertCardScreenText);
+    await screen.findByText(insertCardScreenText);
 
     // Remove charger and reduce battery level slightly
     act(() => {
       hardware.setBatteryDischarging(true);
       hardware.setBatteryLevel(0.6);
     });
-    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
-    screen.getByText(noPowerDetectedWarningText);
+    await screen.findByText(noPowerDetectedWarningText);
     screen.getByText(insertCardScreenText);
 
     // Battery level drains below low threshold
     act(() => {
       hardware.setBatteryLevel(LOW_BATTERY_THRESHOLD / 2);
     });
-    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
-    getByTextWithMarkup(lowBatteryErrorScreenText);
+    await findByTextWithMarkup(lowBatteryErrorScreenText);
 
     // Attach charger and back on Insert Card screen
     act(() => {
       hardware.setBatteryDischarging(false);
     });
-    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
+    await screen.findByText(insertCardScreenText);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
-    screen.getByText(insertCardScreenText);
 
     // Unplug charger and show warning again
     act(() => {
       hardware.setBatteryDischarging(true);
     });
     await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
-    getByTextWithMarkup(lowBatteryErrorScreenText);
+    await findByTextWithMarkup(lowBatteryErrorScreenText);
 
     // Remove battery, i.e. we're on a desktop
     act(() => {
       hardware.removeBattery();
     });
-    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
+    await screen.findByText(insertCardScreenText);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
-    screen.getByText(insertCardScreenText);
-    await advanceTimersAndPromises();
   });
 
   it('displays paper handler connection error if no paper handler', async () => {
@@ -232,7 +220,6 @@ describe('Displays setup warning messages and errors screens', () => {
       />
     );
 
-    await advanceTimersAndPromises();
-    screen.getByText('No Connection to Printer-Scanner');
+    await screen.findByText('No Connection to Printer-Scanner');
   });
 });

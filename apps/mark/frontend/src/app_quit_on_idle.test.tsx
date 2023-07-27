@@ -59,17 +59,16 @@ test('Insert Card screen idle timeout to quit app', async () => {
     />
   );
 
-  await advanceTimersAndPromises();
-
   // Ensure we're on the Insert Card screen
-  screen.getByText('Insert Card');
+  await screen.findByText('Insert Card');
 
   expect(window.kiosk?.quit).not.toHaveBeenCalled();
 
   // Check that we requested a quit after the idle timer fired.
-  await advanceTimersAndPromises();
   await advanceTimersAndPromises(QUIT_KIOSK_IDLE_SECONDS);
-  expect(window.kiosk?.quit).toHaveBeenCalledTimes(1);
+  await waitFor(() => {
+    expect(window.kiosk?.quit).toHaveBeenCalledTimes(1);
+  });
 });
 
 test('Voter idle timeout', async () => {

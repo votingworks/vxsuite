@@ -82,6 +82,10 @@ test('has development shortcut to export file without USB drive', async () => {
     }
   );
 
+  // TODO: remove when USB status comes from backend. currently, allows
+  // component to set the usb drive path in useEffect
+  await advancePromises();
+
   userEvent.click(screen.getButton('Save As…'));
   expect(mockShowSaveDialog).toHaveBeenCalledWith({
     defaultPath: 'batch-export.csv',
@@ -137,6 +141,10 @@ test('happy usb path - save to default location', async () => {
   );
   await screen.findByText('Save Batch Export');
 
+  // TODO: remove when USB status comes from backend. currently, allows
+  // component to set the usb drive path in useEffect
+  await advancePromises();
+
   userEvent.click(screen.getButton('Save'));
   await waitFor(() => {
     expect(saveFile).toHaveBeenCalledWith({
@@ -169,6 +177,10 @@ test('happy usb path - save as', async () => {
     }
   );
   await screen.findByText('Save Batch Export');
+
+  // TODO: remove when USB status comes from backend. currently, allows
+  // component to set the usb drive path in useEffect
+  await advancePromises();
 
   userEvent.click(screen.getButton('Save As…'));
   expect(mockShowSaveDialog).toHaveBeenCalledWith({
@@ -273,7 +285,9 @@ test('can cancel save dialog', async () => {
     }
   );
   await screen.findByText('Save Batch Export');
-
+  // TODO: remove when USB status comes from backend. currently, allows
+  // component to set the usb drive path in useEffect
+  await advancePromises();
   userEvent.click(screen.getButton('Save As…'));
   expect(mockShowSaveDialog).toHaveBeenCalledWith({
     defaultPath: '/media/vx/mock-usb-drive/batch-export.csv',

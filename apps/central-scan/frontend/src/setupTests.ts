@@ -13,5 +13,9 @@ beforeEach(() => {
   fetchMock.mock();
 });
 
+jest.mock('styled-components', () =>
+  jest.requireActual('styled-components/dist/styled-components.browser.cjs.js')
+);
+
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
 globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder;

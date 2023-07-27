@@ -85,6 +85,5 @@ export async function doFormat(
   if (usbDriveInfo.mountPoint) {
     await window.kiosk.unmountUsbDrive();
   }
-
   await window.kiosk.formatUsbDrive(usbDriveInfo.deviceName, options);
 }

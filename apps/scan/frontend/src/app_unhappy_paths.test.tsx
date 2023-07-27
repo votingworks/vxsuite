@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
-  advanceTimersAndPromises,
   expectPrint,
   fakeKiosk,
   suppressingConsoleOutput,
@@ -12,7 +11,7 @@ import userEvent from '@testing-library/user-event';
 import { ServerError } from '@votingworks/grout';
 import { fakeLogger } from '@votingworks/logging';
 import { PrecinctScannerConfig } from '@votingworks/scan-backend';
-import { act, render, screen } from '../test/react_testing_library';
+import { act, render, screen, waitFor } from '../test/react_testing_library';
 import {
   ApiMock,
   createApiMock,
@@ -220,10 +219,9 @@ test('App shows warning message to connect to power when disconnected', async ()
   act(() => {
     hardware.setBatteryDischarging(false);
   });
-
-  await screen.findByText('Polls Closed');
-  await advanceTimersAndPromises(3);
-  expect(screen.queryByText('No Power Detected.')).toBeNull();
+  await waitFor(() => {
+    expect(screen.queryByText('No Power Detected.')).toBeNull();
+  });
 
   // Open Polls
   apiMock.authenticateAsPollWorker(electionSampleDefinition);

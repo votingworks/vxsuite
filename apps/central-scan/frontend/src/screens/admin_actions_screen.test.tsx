@@ -7,7 +7,6 @@ import {
 } from '@votingworks/test-utils';
 import { err, ok, deferred } from '@votingworks/basics';
 import MockDate from 'mockdate';
-import { act } from 'react-dom/test-utils';
 import { createMemoryHistory } from 'history';
 import { screen, waitFor, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
@@ -67,25 +66,22 @@ test('clicking "Save Backup" shows progress', async () => {
   const { resolve, promise } = deferred<BackupResult>();
   backup.mockReturnValueOnce(promise);
 
-  await act(async () => {
-    // Click to backup, verify we got called.
-    const backupButton = screen.getByText('Save Backup');
-    expect(backup).not.toHaveBeenCalled();
-    backupButton.click();
-    expect(backup).toHaveBeenCalledTimes(1);
+  // Click to backup, verify we got called.
+  const backupButton = screen.getByText('Save Backup');
+  expect(backup).not.toHaveBeenCalled();
+  userEvent.click(backupButton);
+  expect(backup).toHaveBeenCalledTimes(1);
 
-    // Verify progress modal is shown.
-    await waitFor(() => {
-      const modal = screen.getByRole('alertdialog');
-      within(modal).getByText('Saving Backup');
-      screen.getByText('Saving…');
-    });
+  // Verify progress modal is shown. State updates happen in an async useEffect
+  // so we wrap in `act` here to suppress the warning about state updates
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Saving Backup');
+  screen.getByText('Saving…'); // text on the button itself
 
-    // Trigger backup finished, verify back to normal.
-    resolve(ok(['/media/usb-drive-sdb1/backup.zip']));
-    await waitFor(() => screen.getByText('Save Backup'));
-    expect(screen.queryAllByRole('alertdialog').length).toEqual(0);
-  });
+  // Trigger backup finished, verify back to normal.
+  resolve(ok(['/media/usb-drive-sdb1/backup.zip']));
+  await waitFor(() => screen.getByText('Save Backup'));
+  expect(screen.queryAllByRole('alertdialog').length).toEqual(0);
 });
 
 test('"Delete Ballot Data" and Delete Election Data from VxCentralScan" disabled when canUnconfigure is falsy', () => {
@@ -161,21 +157,19 @@ test('backup error shows message', async () => {
   const { resolve, promise } = deferred<BackupResult>();
   backup.mockReturnValueOnce(promise);
 
-  await act(async () => {
-    // Click to backup, verify we got called.
-    const backupButton = screen.getByText('Save Backup');
-    expect(backup).not.toHaveBeenCalled();
-    backupButton.click();
-    expect(backup).toHaveBeenCalledTimes(1);
+  // Click to backup, verify we got called.
+  const backupButton = screen.getByText('Save Backup');
+  expect(backup).not.toHaveBeenCalled();
+  userEvent.click(backupButton);
+  expect(backup).toHaveBeenCalledTimes(1);
 
-    // Verify progress message is shown.
-    await waitFor(() => screen.getByText('Saving…'));
+  // Verify progress message is shown.
+  await screen.findByText('Saving…');
 
-    // Trigger backup error, verify back to normal with error.
-    resolve(err({ type: 'permission-denied', message: 'Permission Denied' }));
-    await waitFor(() => screen.getByText('Save Backup'));
-    await waitFor(() => screen.getByText('Permission Denied'));
-  });
+  // Trigger backup error, verify back to normal with error.
+  resolve(err({ type: 'permission-denied', message: 'Permission Denied' }));
+  await screen.findByText('Save Backup');
+  screen.getByText('Permission Denied');
 });
 
 test('override mark thresholds button shows when there are no overrides', async () => {

@@ -24,6 +24,10 @@ jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
   };
 });
 
+jest.mock('styled-components', () =>
+  jest.requireActual('styled-components/dist/styled-components.browser.cjs.js')
+);
+
 beforeEach(() => {
   // react-gamepad calls this function which does not exist in JSDOM
   globalThis.navigator.getGamepads = jest.fn(() => []);

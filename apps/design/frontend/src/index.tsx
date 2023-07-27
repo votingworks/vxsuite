@@ -1,10 +1,14 @@
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
+import { assert } from '@votingworks/basics';
 import { App } from './app';
 
-ReactDom.render(
+const rootElement = document.getElementById('root');
+assert(rootElement);
+const root = createRoot(rootElement);
+
+root.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+  </React.StrictMode>
 );

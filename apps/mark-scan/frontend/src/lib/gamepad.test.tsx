@@ -1,5 +1,11 @@
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
-import { fireEvent, render, screen } from '../../test/react_testing_library';
+import { Button } from 'react-gamepad';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+} from '../../test/react_testing_library';
 import { App } from '../app';
 
 import { advanceTimersAndPromises } from '../../test/helpers/timers';
@@ -13,8 +19,17 @@ import {
   setStateInStorage,
 } from '../../test/helpers/election';
 
-import { getActiveElement, handleGamepadButtonDown } from './gamepad';
+import {
+  getActiveElement,
+  handleGamepadButtonDown as unwrappedHandleGamepadButtonDown,
+} from './gamepad';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+
+function handleGamepadButtonDown(button: Button) {
+  act(() => {
+    unwrappedHandleGamepadButtonDown(button);
+  });
+}
 
 let apiMock: ApiMock;
 
@@ -59,10 +74,7 @@ it('gamepad controls work', async () => {
 
   // Go to First Contest
   handleGamepadButtonDown('DPadRight');
-  await advanceTimersAndPromises();
-
-  // First Contest Page
-  screen.getByText(contest0.title);
+  await screen.findByText(contest0.title);
 
   // Confirm first contest only has 1 seat
   expect(contest0.seats).toEqual(1);
@@ -96,14 +108,12 @@ it('gamepad controls work', async () => {
 
   // select and unselect
   handleGamepadButtonDown('A');
-  await advanceTimersAndPromises();
-  screen.getByRole('option', {
+  await screen.findByRole('option', {
     name: new RegExp(contest0candidate0.name),
     selected: true,
   });
   handleGamepadButtonDown('A');
-  await advanceTimersAndPromises();
-  screen.getByRole('option', {
+  await screen.findByRole('option', {
     name: new RegExp(contest0candidate0.name),
     selected: false,
   });

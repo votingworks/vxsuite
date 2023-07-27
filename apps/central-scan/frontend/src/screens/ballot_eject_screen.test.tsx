@@ -7,7 +7,6 @@ import {
 import { Scan } from '@votingworks/api';
 import { typedAs } from '@votingworks/basics';
 import fetchMock from 'fetch-mock';
-import { act } from 'react-dom/test-utils';
 import userEvent from '@testing-library/user-event';
 import {
   fakeElectionManagerUser,
@@ -36,8 +35,10 @@ beforeEach(() => {
   });
 });
 
-afterEach(() => {
-  mockApiClient.assertComplete();
+afterEach(async () => {
+  // these tests run quickly and sometimes finish before auth polling kicks in,
+  // so we wait for the auth call to complete to avoid flakiness
+  await waitFor(() => mockApiClient.assertComplete());
 });
 
 test('says the sheet is unreadable if it is', async () => {
@@ -68,11 +69,7 @@ test('says the sheet is unreadable if it is', async () => {
     { apiClient: mockApiClient, logger }
   );
 
-  await act(async () => {
-    await waitFor(() => fetchMock.called);
-  });
-
-  screen.getByText('Unreadable');
+  await screen.findByText('Unreadable');
   screen.getByText('The last scanned ballot was not tabulated.');
   screen.getByText(
     'There was a problem reading the ballot. Remove ballot and reload in the scanner to try again.'
@@ -186,11 +183,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
     { apiClient: mockApiClient, logger }
   );
 
-  await act(async () => {
-    await waitFor(() => fetchMock.called);
-  });
-
-  screen.getByText('Overvote');
+  await screen.findByText('Overvote');
   screen.getByText(
     'The last scanned ballot was not tabulated because an overvote was detected.'
   );
@@ -310,11 +303,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
     { apiClient: mockApiClient, logger }
   );
 
-  await act(async () => {
-    await waitFor(() => fetchMock.called);
-  });
-
-  screen.getByText('Undervote');
+  await screen.findByText('Undervote');
   screen.getByText(
     'The last scanned ballot was not tabulated because an undervote was detected.'
   );
@@ -441,11 +430,7 @@ test('says the ballot sheet is blank if it is', async () => {
     { apiClient: mockApiClient, logger }
   );
 
-  await act(async () => {
-    await waitFor(() => fetchMock.called);
-  });
-
-  screen.getByText('Blank Ballot');
+  await screen.findByText('Blank Ballot');
   screen.getByText(
     'The last scanned ballot was not tabulated because no votes were detected.'
   );
@@ -520,11 +505,7 @@ test('calls out official ballot sheets in test mode', async () => {
     { apiClient: mockApiClient, logger }
   );
 
-  await act(async () => {
-    await waitFor(() => fetchMock.called);
-  });
-
-  screen.getByText('Official Ballot');
+  await screen.findByText('Official Ballot');
   screen.getByText('The last scanned ballot was not tabulated.');
   screen.getByText('Remove the OFFICIAL ballot before continuing.');
   expect(screen.getByRole('button').textContent).toEqual(
@@ -595,11 +576,7 @@ test('calls out test ballot sheets in live mode', async () => {
     { apiClient: mockApiClient, logger }
   );
 
-  await act(async () => {
-    await waitFor(() => fetchMock.called);
-  });
-
-  screen.getByText('Test Ballot');
+  await screen.findByText('Test Ballot');
   screen.getByText('The last scanned ballot was not tabulated.');
   screen.getByText('Remove the TEST ballot before continuing.');
   expect(screen.getByRole('button').textContent).toEqual(
@@ -654,11 +631,7 @@ test('shows invalid election screen when appropriate', async () => {
     { apiClient: mockApiClient, logger }
   );
 
-  await act(async () => {
-    await waitFor(() => fetchMock.called);
-  });
-
-  getByText('Wrong Election');
+  await screen.findByText('Wrong Election');
   getByText('Ballot Election Hash: this-is-a-');
   expect(queryAllByText('Tabulate As Is').length).toEqual(0);
   expect(logger.log).toHaveBeenCalledTimes(1);

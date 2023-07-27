@@ -1,10 +1,10 @@
-import { renderHook } from '@testing-library/react-hooks';
 import { mockFunction } from '@votingworks/test-utils';
 import { UseQueryResult } from '@tanstack/react-query';
 import {
   useExternalStateChangeListener,
   useQueryChangeListener,
 } from './use_change_listener';
+import { renderHook } from '../../test/react_testing_library';
 
 describe('useExternalStateChangeListener', () => {
   test('calls the changeHandler function when the state changes', () => {

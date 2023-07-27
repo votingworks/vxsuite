@@ -249,7 +249,7 @@ export function BallotViewer({
     width: number;
     height: number;
   }>();
-  const measureRef = useCallback((node) => {
+  const measureRef = useCallback((node: HTMLDivElement) => {
     if (node !== null) {
       setDimensions(node.getBoundingClientRect());
     }

@@ -14,14 +14,24 @@ import {
   electionSampleDefinition,
   electionMinimalExhaustiveSampleDefinition,
 } from '@votingworks/fixtures';
-import { AdjudicationReason, getDisplayElectionHash } from '@votingworks/types';
-import { err, ok } from '@votingworks/basics';
+import {
+  AdjudicationReason,
+  BallotPackageConfigurationError,
+  getDisplayElectionHash,
+} from '@votingworks/types';
+import { Result, deferred, err, ok } from '@votingworks/basics';
 
 import type {
   PrecinctScannerConfig,
   SheetInterpretation,
 } from '@votingworks/scan-backend';
-import { waitFor, screen, within, render } from '../test/react_testing_library';
+import {
+  act,
+  waitFor,
+  screen,
+  within,
+  render,
+} from '../test/react_testing_library';
 import {
   BALLOT_BAG_CAPACITY,
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
@@ -149,11 +159,14 @@ test('app can load and configure from a usb stick', async () => {
 
   // Insert a USB with a ballot package
   apiMock.expectGetUsbDriveStatus('mounted');
+  const { promise: configurePromise, resolve: configureResolve } =
+    deferred<Result<void, BallotPackageConfigurationError>>();
   apiMock.mockApiClient.configureFromBallotPackageOnUsbDrive
     .expectCallWith()
-    .resolves(ok());
+    .returns(configurePromise);
   apiMock.expectGetConfig({ electionDefinition: electionSampleDefinition });
   await screen.findByText('Configuring VxScan from USB drive…');
+  configureResolve(ok());
 
   // Select precinct
   await screen.findByText('Election Manager Settings');
@@ -217,30 +230,27 @@ test('election manager and poll worker configuration', async () => {
   // Change mode as Election Manager
   apiMock.authenticateAsElectionManager(electionDefinition);
   await screen.findByText('Election Manager Settings');
-  apiMock.expectGetScannerStatus(statusNoPaper);
+
   apiMock.expectSetTestMode(false);
   config = { ...config, isTestMode: false };
+  apiMock.expectGetConfig(config);
 
   await hackActuallyCleanUpReactModal();
 
-  apiMock.expectGetConfig(config);
   userEvent.click(
     await screen.findByRole('option', {
       name: 'Official Ballot Mode',
       selected: false,
     })
   );
-  await waitFor(() =>
-    screen.findByRole('option', {
-      name: 'Official Ballot Mode',
-      selected: true,
-    })
-  );
+  await screen.findByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: true,
+  });
 
   // Change precinct as Election Manager
   const precinct = electionDefinition.election.precincts[0];
   const precinctSelection = singlePrecinctSelectionFor(precinct.id);
-  apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectSetPrecinct(precinctSelection);
   config = { ...config, precinctSelection };
   apiMock.expectGetConfig(config);
@@ -261,12 +271,10 @@ test('election manager and poll worker configuration', async () => {
   await advanceTimersAndPromises(1);
 
   // Open the polls
-  apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetCastVoteRecordsForTally([]);
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
 
-  apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectSetPollsState('polls_open');
   config = { ...config, pollsState: 'polls_open' };
   apiMock.expectGetConfig(config);
@@ -279,7 +287,6 @@ test('election manager and poll worker configuration', async () => {
   await advanceTimersAndPromises(1);
 
   // Change precinct as Election Manager with polls open
-  apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectSetPrecinct(singlePrecinctSelectionFor('20'));
   config = {
     ...config,
@@ -311,7 +318,6 @@ test('election manager and poll worker configuration', async () => {
   await screen.findByText('South Springfield,');
 
   // Open the polls again
-  apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetCastVoteRecordsForTally([]);
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
@@ -761,7 +767,6 @@ test('open polls, scan ballot, close polls, save results', async () => {
     within(precinct1MammalReport).getByText(hasTextAcrossElements('Horse1'));
   });
 
-  apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.removeCard();
   await screen.findByText('Polls Closed');
 });
@@ -795,7 +800,10 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   apiMock.expectSetPollsState('polls_paused');
   apiMock.expectGetConfig({ pollsState: 'polls_paused' });
   userEvent.click(await screen.findByText('Pause Voting'));
-  await screen.findByText('Pausing Voting…');
+  // avoid `act` warning due state changes after async report printing runs
+  await act(async () => {
+    await screen.findByText('Pausing Voting…');
+  });
   await expectPrint();
   await screen.findByText(
     'Remove the poll worker card if you have printed all necessary reports.'

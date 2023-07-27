@@ -1,5 +1,4 @@
 import fetchMock from 'fetch-mock';
-import { act } from 'react-dom/test-utils';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
@@ -11,7 +10,7 @@ import {
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
-import { typedAs, sleep, ok } from '@votingworks/basics';
+import { typedAs, ok } from '@votingworks/basics';
 import { Scan } from '@votingworks/api';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -19,6 +18,7 @@ import {
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import {
+  act,
   render,
   waitFor,
   within,
@@ -185,24 +185,25 @@ test('clicking Scan Batch will scan a batch', async () => {
   window.alert = mockAlert;
   const hardware = MemoryHardware.buildStandard();
 
-  await act(async () => {
-    const { getByText } = render(
-      <App apiClient={mockApiClient} hardware={hardware} />
-    );
-    await authenticateAsElectionManager(electionSampleDefinition);
-    fireEvent.click(getByText('Scan New Batch'));
-  });
+  render(<App apiClient={mockApiClient} hardware={hardware} />);
+  await authenticateAsElectionManager(electionSampleDefinition);
 
+  // error scan
+  userEvent.click(screen.getButton('Scan New Batch'));
+  await screen.findByText('Scan New Batch'); // wait for button to reset
   expect(mockAlert).toHaveBeenCalled();
   mockAlert.mockClear();
 
+  // successful scan
   fetchMock.postOnce(
     '/central-scanner/scan/scanBatch',
     { body: { status: 'ok', batchId: 'foobar' } },
     { overwriteRoutes: true }
   );
-
+  userEvent.click(screen.getButton('Scan New Batch'));
+  await screen.findByText('Scan New Batch'); // wait for button to reset
   expect(mockAlert).not.toHaveBeenCalled();
+  mockAlert.mockClear();
 });
 
 test('clicking "Save CVRs" shows modal and makes a request to export', async () => {
@@ -227,7 +228,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
     adjudication: { adjudicated: 0, remaining: 0 },
   };
   fetchMock
-    .getOnce(
+    .get(
       '/central-scanner/scan/status',
       { body: scanStatusResponseBody },
       { overwriteRoutes: true }
@@ -242,16 +243,14 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   await authenticateAsElectionManager(electionSampleDefinition);
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
-  await act(async () => {
-    // wait for the config to load
-    await sleep(500);
-
-    userEvent.click(screen.getByText('Save CVRs'));
-    const modal = await screen.findByRole('alertdialog');
-    userEvent.click(within(modal).getByText('Save'));
-    await within(modal).findByText('CVRs Saved');
-    userEvent.click(within(modal).getByText('Cancel'));
-  });
+  // wait for the config to load
+  const saveButton = screen.getButton('Save CVRs');
+  await waitFor(() => expect(saveButton).toBeEnabled());
+  userEvent.click(saveButton);
+  const modal = await screen.findByRole('alertdialog');
+  userEvent.click(await within(modal).findByText('Save'));
+  await within(modal).findByText('CVRs Saved');
+  userEvent.click(within(modal).getByText('Cancel'));
 
   expect(screen.queryByRole('alertdialog')).toEqual(null);
 });
@@ -308,10 +307,7 @@ test('configuring election from usb ballot package works end to end', async () =
   mockApiClient.getTestMode.expectCallWith().resolves(true);
   fireEvent.click(getByText('I am sure. Delete all election data.'));
   getByText('Deleting election data');
-  await act(async () => {
-    await sleep(1000);
-    getByText('Insert a USB drive containing a ballot package.');
-  });
+  await screen.findByText('Insert a USB drive containing a ballot package.');
 });
 
 test('authentication works', async () => {

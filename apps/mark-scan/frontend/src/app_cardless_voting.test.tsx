@@ -68,14 +68,12 @@ test('Cardless Voting Flow', async () => {
     />
   );
   await advanceTimersAndPromises();
-  const getByTextWithMarkup = withMarkup(screen.getByText);
   const findByTextWithMarkup = withMarkup(screen.findByText);
 
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
 
   // Default Unconfigured
-  screen.getByText('VxMarkScan is Not Configured');
+  await screen.findByText('VxMarkScan is Not Configured');
 
   // ---------------
 
@@ -108,7 +106,6 @@ test('Cardless Voting Flow', async () => {
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
   await screen.findByText('Polls Closed');
   screen.getByText('Insert Poll Worker card to open.');
 
@@ -116,22 +113,20 @@ test('Cardless Voting Flow', async () => {
 
   // Open Polls with Poll Worker Card
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await advanceTimersAndPromises();
   userEvent.click(await screen.findByText('Open Polls'));
   userEvent.click(
     within(await screen.findByRole('alertdialog')).getByText('Open Polls')
   );
+  await findByTextWithMarkup('Polls: Open');
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
   await screen.findByText('Insert Card');
 
   // ---------------
 
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await advanceTimersAndPromises();
   await screen.findByText('Select Voter’s Ballot Style');
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
@@ -172,11 +167,10 @@ test('Cardless Voting Flow', async () => {
     ballotStyleId: '12',
     precinctId: '23',
   });
-  await advanceTimersAndPromises();
 
   // Voter Ballot Style is active
+  await findByTextWithMarkup('Your ballot has 20 contests.');
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 20 contests.');
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Voter votes in first contest
@@ -190,7 +184,6 @@ test('Cardless Voting Flow', async () => {
       precinctId: '23',
     },
   });
-  await advanceTimersAndPromises();
   await screen.findByText('Ballot Contains Votes');
 
   // Poll Worker resets ballot to remove votes
@@ -219,19 +212,17 @@ test('Cardless Voting Flow', async () => {
     ballotStyleId: '12',
     precinctId: '23',
   });
-  await advanceTimersAndPromises();
 
   // Voter Ballot Style is active
-  screen.getByText(/(12)/);
   await findByTextWithMarkup('Your ballot has 20 contests.');
+  screen.getByText(/(12)/);
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Voter makes selection in first contest and then advances to review screen
   for (let i = 0; i < voterContests.length; i += 1) {
     const { title } = voterContests[i];
 
-    await advanceTimersAndPromises();
-    screen.getByText(title);
+    await screen.findByText(title);
 
     // Vote for a candidate contest
     if (title === presidentContest.title) {
@@ -373,14 +364,10 @@ test('poll worker must select a precinct first', async () => {
       reload={jest.fn()}
     />
   );
-  await advanceTimersAndPromises();
-  const getByTextWithMarkup = withMarkup(screen.getByText);
   const findByTextWithMarkup = withMarkup(screen.findByText);
 
-  await advanceTimersAndPromises();
-
   // Default Unconfigured
-  screen.getByText('VxMarkScan is Not Configured');
+  await screen.findByText('VxMarkScan is Not Configured');
 
   // ---------------
 
@@ -412,7 +399,6 @@ test('poll worker must select a precinct first', async () => {
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
   await screen.findByText('Polls Closed');
   screen.getByText('Insert Poll Worker card to open.');
 
@@ -420,22 +406,20 @@ test('poll worker must select a precinct first', async () => {
 
   // Open Polls with Poll Worker Card
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await advanceTimersAndPromises();
   userEvent.click(await screen.findByText('Open Polls'));
   userEvent.click(
     within(await screen.findByRole('alertdialog')).getByText('Open Polls')
   );
+  await findByTextWithMarkup('Polls: Open');
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
   await screen.findByText('Insert Card');
 
   // ---------------
 
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await advanceTimersAndPromises();
   await screen.findByText('1. Select Voter’s Precinct');
   fireEvent.click(
     within(screen.getByTestId('precincts')).getByText('Center Springfield')
@@ -461,31 +445,31 @@ test('poll worker must select a precinct first', async () => {
   await screen.findByText('2. Select Voter’s Ballot Style');
 
   // Poll Worker reactivates ballot style
-  fireEvent.click(
+  userEvent.click(
     within(screen.getByTestId('precincts')).getByText('Center Springfield')
   );
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
-  fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
+  userEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
       precinctId: '23',
     },
   });
+  await screen.findByText('Voting Session Active: 12 at Center Springfield');
 
   // Poll Worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
     precinctId: '23',
   });
-  await advanceTimersAndPromises();
 
   // Voter Ballot Style is active
+  await findByTextWithMarkup('Your ballot has 20 contests.');
   screen.getByText(/(12)/);
-  getByTextWithMarkup('Your ballot has 20 contests.');
-  fireEvent.click(screen.getByText('Start Voting'));
+  userEvent.click(screen.getByText('Start Voting'));
 
   // Voter votes in first contest
   fireEvent.click(screen.getByText(presidentContest.candidates[0].name));
@@ -498,7 +482,6 @@ test('poll worker must select a precinct first', async () => {
       precinctId: '23',
     },
   });
-  await advanceTimersAndPromises();
   await screen.findByText('Ballot Contains Votes');
 
   // Poll Worker resets ballot to remove votes
@@ -531,11 +514,10 @@ test('poll worker must select a precinct first', async () => {
     ballotStyleId: '12',
     precinctId: '23',
   });
-  await advanceTimersAndPromises();
 
   // Voter Ballot Style is active
-  screen.getByText(/(12)/);
   await findByTextWithMarkup('Your ballot has 20 contests.');
+  screen.getByText(/(12)/);
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Voter makes selection in first contest and then advances to review screen

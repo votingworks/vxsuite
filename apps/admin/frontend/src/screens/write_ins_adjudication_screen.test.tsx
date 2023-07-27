@@ -316,11 +316,11 @@ test('ballot pagination', async () => {
     if (pageNumber === pageCount) {
       expect(nextButton).toBeDisabled();
       const doneButton = await screen.findButton('Back to All Write-Ins');
-      doneButton.click();
+      userEvent.click(doneButton);
       expect(history.location.pathname).toEqual('/write-ins');
     } else {
       expect(nextButton).not.toBeDisabled();
-      nextButton.click();
+      userEvent.click(nextButton);
     }
   }
 });

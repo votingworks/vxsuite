@@ -317,18 +317,6 @@ exports[`changing votes 1`] = `
   justify-content: space-between;
 }
 
-@media print {
-
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
 <div>
   <main
     class="c0"
@@ -750,18 +738,6 @@ exports[`voting for both yes and no 1`] = `
   -webkit-justify-content: space-between;
   -ms-flex-pack: justify;
   justify-content: space-between;
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
-@media print {
-
 }
 
 <div>

@@ -244,18 +244,6 @@ exports[`renders 1`] = `
   justify-content: space-between;
 }
 
-@media print {
-
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
 <div>
   <main
     class="c0"

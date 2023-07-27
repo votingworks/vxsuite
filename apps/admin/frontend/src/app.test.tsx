@@ -7,10 +7,9 @@ import {
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
-import { typedAs } from '@votingworks/basics';
+import { deferred, typedAs } from '@votingworks/basics';
 import {
   advanceTimers,
-  advanceTimersAndPromises,
   expectPrint,
   expectPrintToMatchSnapshot,
   fakeElectionManagerUser,
@@ -20,6 +19,7 @@ import {
   fakeUsbDrive,
 } from '@votingworks/test-utils';
 import { LogEventId } from '@votingworks/logging';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   fireEvent,
   screen,
@@ -108,6 +108,7 @@ test('configuring with a demo election definition', async () => {
 
   // expecting configure and resulting refetch
   apiMock.expectConfigure(electionDefinition.electionData);
+  apiMock.expectSetSystemSettings(JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   fireEvent.click(screen.getByText('Load Demo Election Definition'));
@@ -130,6 +131,7 @@ test('configuring with a demo election definition', async () => {
   apiMock.expectUnconfigure();
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings();
   fireEvent.click(getByText('Remove'));
   fireEvent.click(getByText('Remove Election Definition'));
 
@@ -311,12 +313,14 @@ test('L&A (logic and accuracy) flow', async () => {
 
   // Test printing full test deck tally
   userEvent.click(screen.getByText('L&A'));
+  const fullTestDeckButton = screen
+    .getByText('Print Full Test Deck Tally Report')
+    .closest('button')!;
   await waitFor(() => {
-    expect(screen.getByText('Print Full Test Deck Tally Report')).toBeEnabled();
+    expect(fullTestDeckButton).toBeEnabled();
   });
-  userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));
+  userEvent.click(fullTestDeckButton);
 
-  await screen.findByText('Printing');
   const expectedTallies: { [tally: string]: number } = {
     '104': 12,
     '52': 12,
@@ -400,6 +404,7 @@ test('removing election resets cvr and manual data files', async () => {
   fireEvent.click(getByText('Definition'));
   fireEvent.click(getByText('Remove Election'));
   fireEvent.click(getByText('Remove Election Definition'));
+  await screen.findByText('Configure VxAdmin');
 });
 
 test('clearing results', async () => {
@@ -562,6 +567,7 @@ test('system administrator UI has expected nav when no election', async () => {
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
   const { electionDefinition } = electionFamousNames2021Fixtures;
   apiMock.expectConfigure(electionDefinition.electionData);
+  apiMock.expectSetSystemSettings(JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   userEvent.click(
@@ -578,6 +584,7 @@ test('system administrator UI has expected nav when no election', async () => {
   apiMock.expectUnconfigure();
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings();
   userEvent.click(screen.getByText('Remove Election'));
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(
@@ -678,9 +685,8 @@ test('primary election flow', async () => {
 
 test('usb formatting flows', async () => {
   mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
-  mockKiosk.formatUsbDrive.mockImplementation(async () => {
-    await advanceTimersAndPromises(1);
-  });
+  const { promise: mountPromise, resolve: mountResolve } = deferred<void>();
+  mockKiosk.mountUsbDrive.mockReturnValueOnce(mountPromise);
 
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata();
@@ -693,74 +699,90 @@ test('usb formatting flows', async () => {
   screen.getByText('USB Formatting');
   userEvent.click(screen.getByRole('button', { name: 'Format USB' }));
 
-  // Because the "No USB Drive Detected" and other modals are distinct in the
-  // DOM, we need to continually refresh our reference to the modal
-  async function findModal(text: string) {
-    return waitFor(() => {
-      const currentModal = screen.getByRole('alertdialog');
-      within(currentModal).getByText(text);
-      return currentModal;
-    });
-  }
-
   // initial prompt to insert USB drive
-  let modal = await findModal('No USB Drive Detected');
+  const initialModal = await screen.findByRole('alertdialog');
+  await within(initialModal).findByText('No USB Drive Detected');
 
   // Inserting a USB drive that already is in VotingWorks format, which should mount
   mockKiosk.getUsbDriveInfo.mockResolvedValue([
     fakeUsbDrive({ mountPoint: undefined }),
   ]);
-  modal = await findModal('Loading');
+  await screen.findByText('Loading');
 
+  mountResolve();
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
-  // Format USB Drive
-  await within(modal).findByText('Format USB Drive');
-  within(modal).getByText(/already VotingWorks compatible/);
-  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
-  await within(modal).findByText('Confirm Format USB Drive');
-  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
+  // // Format USB Drive
+  await screen.findByText('Format USB Drive');
+  const formatModal = screen.getByRole('alertdialog');
+  within(formatModal).getByText(/already VotingWorks compatible/);
+  userEvent.click(
+    within(formatModal).getByRole('button', { name: 'Format USB' })
+  );
+  await within(formatModal).findByText('Confirm Format USB Drive');
+  userEvent.click(
+    within(formatModal).getByRole('button', { name: 'Format USB' })
+  );
   mockKiosk.getUsbDriveInfo.mockResolvedValue([
     fakeUsbDrive({ mountPoint: undefined }),
   ]);
-  await within(modal).findByText('Formatting USB Drive');
-  await within(modal).findByText('USB Drive Formatted');
+
+  // wrapping in `act` due to a state update in an async useEffect in
+  // `useUsbDrive` which fires when we await here
+  await act(async () => {
+    await screen.findByText('Formatting USB Drive');
+  });
+  await screen.findByText('USB Drive Formatted');
   screen.getByText('Ejected');
 
   // Removing USB resets modal
   mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
-  modal = await findModal('No USB Drive Detected');
+  await screen.findByText('No USB Drive Detected');
 
   // Format another USB, this time in an incompatible format
   mockKiosk.getUsbDriveInfo.mockResolvedValue([
     fakeUsbDrive({ mountPoint: undefined, fsType: 'exfat' }),
   ]);
-  modal = await findModal('Format USB Drive');
-  within(modal).getByText(/not VotingWorks compatible/);
-  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
-  await within(modal).findByText('Confirm Format USB Drive');
-  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
+  await screen.findByText('Format USB Drive');
+  const incompatibleModal = screen.getByRole('alertdialog');
+  within(incompatibleModal).getByText(/not VotingWorks compatible/);
+  userEvent.click(
+    within(incompatibleModal).getByRole('button', { name: 'Format USB' })
+  );
+  await within(incompatibleModal).findByText('Confirm Format USB Drive');
+  userEvent.click(
+    within(incompatibleModal).getByRole('button', { name: 'Format USB' })
+  );
   mockKiosk.getUsbDriveInfo.mockResolvedValue([
     fakeUsbDrive({ mountPoint: undefined }),
   ]);
-  await within(modal).findByText('Formatting USB Drive');
-  await within(modal).findByText('USB Drive Formatted');
+  // wrapping in `act` due to a state update in an async useEffect in
+  // `useUsbDrive` which fires when we await here
+  await act(async () => {
+    await screen.findByText('Formatting USB Drive');
+  });
+  await screen.findByText('USB Drive Formatted');
   screen.getByText('Ejected');
 
   // Removing USB resets modal
   mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
-  modal = await findModal('No USB Drive Detected');
+  await screen.findByText('No USB Drive Detected');
   // Error handling
   mockKiosk.formatUsbDrive.mockRejectedValueOnce(new Error('unable to format'));
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
-  modal = await findModal('Format USB Drive');
-  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
-  await within(modal).findByText('Confirm Format USB Drive');
-  userEvent.click(within(modal).getByRole('button', { name: 'Format USB' }));
-  await within(modal).findByText('Failed to Format USB Drive');
-  within(modal).getByText(/unable to format/);
+  await screen.findByText('Format USB Drive');
+  const errorModal = screen.getByRole('alertdialog');
+  userEvent.click(
+    within(errorModal).getByRole('button', { name: 'Format USB' })
+  );
+  await within(errorModal).findByText('Confirm Format USB Drive');
+  userEvent.click(
+    within(errorModal).getByRole('button', { name: 'Format USB' })
+  );
+  await within(errorModal).findByText('Failed to Format USB Drive');
+  within(errorModal).getByText(/unable to format/);
 
   // Removing USB resets modal
   mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
-  modal = await findModal('No USB Drive Detected');
+  await screen.findByText('No USB Drive Detected');
 });
