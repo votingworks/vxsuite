@@ -11,6 +11,7 @@ import { App } from './app';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import {
+  election,
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
@@ -25,6 +26,7 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
 });
 
 afterEach(() => {

@@ -59,7 +59,7 @@ export function AdminScreen({
   const { election } = electionDefinition;
   const logOutMutation = logOut.useMutation();
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
-  const precinctSelection = getPrecinctSelectionQuery.data;
+  const precinctSelection = getPrecinctSelectionQuery?.data?.ok();
 
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const updatePrecinctSelection = useCallback(

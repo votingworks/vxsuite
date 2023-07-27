@@ -32,6 +32,9 @@ test('full polls flow', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelectionResolvesDefault(
+    electionSampleDefinition.election
+  );
   const { renderApp, storage, logger } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
@@ -108,6 +111,9 @@ test('full polls flow', async () => {
 });
 
 test('can close from paused', async () => {
+  apiMock.expectGetPrecinctSelectionResolvesDefault(
+    electionSampleDefinition.election
+  );
   const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_paused' });
@@ -129,6 +135,9 @@ test('can close from paused', async () => {
 });
 
 test('no buttons to change polls from closed final', async () => {
+  apiMock.expectGetPrecinctSelectionResolvesDefault(
+    electionSampleDefinition.election
+  );
   const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
@@ -150,6 +159,9 @@ test('no buttons to change polls from closed final', async () => {
 });
 
 test('can reset polls to paused with system administrator card', async () => {
+  apiMock.expectGetPrecinctSelectionResolvesDefault(
+    electionSampleDefinition.election
+  );
   const { renderApp, storage } = buildApp(apiMock);
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });

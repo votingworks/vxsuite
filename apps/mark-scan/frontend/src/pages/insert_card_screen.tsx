@@ -34,7 +34,7 @@ export function InsertCardScreen({
   showNoAccessibleControllerWarning,
 }: Props): JSX.Element {
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
-  const precinctSelection = getPrecinctSelectionQuery.data;
+  const precinctSelection = getPrecinctSelectionQuery?.data?.ok();
   useEffect(triggerAudioFocus, []);
 
   const mainText = (() => {

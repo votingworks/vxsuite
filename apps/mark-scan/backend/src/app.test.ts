@@ -114,7 +114,7 @@ test('precinct selection can be written/read to/from store', async () => {
   await setUpUsbAndConfigureElection(electionDefinition);
 
   let precinctSelectionFromStore = await apiClient.getPrecinctSelection();
-  expect(precinctSelectionFromStore).toEqual(undefined);
+  expect(precinctSelectionFromStore.unsafeUnwrap()).toEqual(undefined);
 
   const precinct = electionDefinition.election.precincts[0].id;
   const precinctSelection = singlePrecinctSelectionFor(precinct);
@@ -123,7 +123,7 @@ test('precinct selection can be written/read to/from store', async () => {
   });
 
   precinctSelectionFromStore = await apiClient.getPrecinctSelection();
-  expect(precinctSelectionFromStore).toEqual(precinctSelection);
+  expect(precinctSelectionFromStore.unsafeUnwrap()).toEqual(precinctSelection);
 });
 
 test('configureBallotPackageFromUsb reads to and writes from store', async () => {

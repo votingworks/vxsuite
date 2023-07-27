@@ -1,7 +1,6 @@
 import { fakeKiosk } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
-import { electionSampleDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { createMocks as createReactIdleTimerMocks } from 'react-idle-timer';
 import { render, screen, waitFor } from '../test/react_testing_library';
@@ -10,6 +9,7 @@ import { App } from './app';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import {
+  election,
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
@@ -31,6 +31,7 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
 });
 
 afterEach(() => {
@@ -73,11 +74,10 @@ test('Insert Card screen idle timeout to quit app', async () => {
 });
 
 test('Voter idle timeout', async () => {
-  const electionDefinition = electionSampleDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
-  await setElectionInStorage(storage, electionDefinition);
+  await setElectionInStorage(storage);
   await setStateInStorage(storage);
   render(
     <App

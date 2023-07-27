@@ -38,6 +38,9 @@ test('app renders a notice when election hash on card does not match that of mac
   // Set up an already-congfigured election
   apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   apiMock.expectGetElectionDefinition(electionSampleDefinition);
+  apiMock.expectGetPrecinctSelectionResolvesDefault(
+    electionSampleDefinition.election
+  );
 
   // setup with typical election
   await setElectionInStorage(storage);

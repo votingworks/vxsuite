@@ -16,6 +16,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
   PrecinctSelection,
+  AllPrecinctsSelection,
 } from '@votingworks/types';
 import {
   isElectionManagerAuth,
@@ -108,13 +109,13 @@ function buildApi(
     },
 
     setPrecinctSelection(input: {
-      precinctSelection: PrecinctSelection;
+      precinctSelection: PrecinctSelection | AllPrecinctsSelection;
     }): void {
       workspace.store.setPrecinctSelection(input.precinctSelection);
     },
 
-    getPrecinctSelection(): Optional<PrecinctSelection> {
-      return workspace.store.getPrecinctSelection();
+    getPrecinctSelection(): Result<Optional<PrecinctSelection>, Error> {
+      return ok(workspace.store.getPrecinctSelection());
     },
 
     unconfigureMachine() {

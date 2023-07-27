@@ -5,6 +5,7 @@ import { App } from './app';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import {
+  election,
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
@@ -31,6 +32,7 @@ test('Shows card backwards screen when card connection error occurs', async () =
 
   await setElectionInStorage(storage);
   await setStateInStorage(storage);
+  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
 
   render(
     <App

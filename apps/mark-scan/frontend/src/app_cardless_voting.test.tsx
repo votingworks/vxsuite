@@ -1,4 +1,9 @@
-import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import {
+  MemoryStorage,
+  MemoryHardware,
+  singlePrecinctSelectionFor,
+  ALL_PRECINCTS_SELECTION,
+} from '@votingworks/utils';
 import {
   FakeKiosk,
   expectPrintToPdf,
@@ -56,6 +61,7 @@ test('Cardless Voting Flow', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelection();
   render(
     <App
       hardware={hardware}
@@ -92,7 +98,11 @@ test('Cardless Voting Flow', async () => {
     within(precinctSelect).getByText<HTMLOptionElement>(
       'Center Springfield'
     ).value;
+  const precinctSelection = singlePrecinctSelectionFor(precinctId);
+  apiMock.expectSetPrecinctSelection(precinctSelection);
+  apiMock.expectGetPrecinctSelection(precinctSelection);
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
+  await advanceTimersAndPromises();
   within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
 
   fireEvent.click(
@@ -272,6 +282,9 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelection(
+    singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
+  );
 
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage);
@@ -365,6 +378,7 @@ test('poll worker must select a precinct first', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelection(undefined);
   render(
     <App
       hardware={hardware}
@@ -396,7 +410,10 @@ test('poll worker must select a precinct first', async () => {
   const precinctSelect = screen.getByLabelText('Precinct');
   const precinctId =
     within(precinctSelect).getByText<HTMLOptionElement>('All Precincts').value;
+  apiMock.expectSetPrecinctSelection(ALL_PRECINCTS_SELECTION);
+  apiMock.expectGetPrecinctSelection(ALL_PRECINCTS_SELECTION);
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
+  await advanceTimersAndPromises();
   within(screen.getByTestId('electionInfoBar')).getByText(/All Precincts/);
 
   fireEvent.click(

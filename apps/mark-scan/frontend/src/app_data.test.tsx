@@ -28,6 +28,7 @@ afterEach(() => {
 
 describe('loads election', () => {
   it('Machine is not configured by default', async () => {
+    apiMock.expectGetPrecinctSelection();
     const { renderApp } = buildApp(apiMock);
     renderApp();
 
@@ -38,6 +39,7 @@ describe('loads election', () => {
   });
 
   it('from storage', async () => {
+    apiMock.expectGetPrecinctSelectionResolvesDefault(election);
     const { storage, renderApp } = buildApp(apiMock);
     await setElectionInStorage(storage);
     await setStateInStorage(storage);

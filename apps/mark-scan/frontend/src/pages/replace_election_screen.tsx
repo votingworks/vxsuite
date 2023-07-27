@@ -38,7 +38,7 @@ export function ReplaceElectionScreen({
   isError,
 }: ReplaceElectionScreenProps): JSX.Element {
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
-  const precinctSelection = getPrecinctSelectionQuery.data;
+  const precinctSelection = getPrecinctSelectionQuery?.data?.ok();
   const { election, electionHash } = electionDefinition;
 
   useEffect(() => {

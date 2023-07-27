@@ -20,6 +20,7 @@ import {
   measure102Contest,
   setElectionInStorage,
   setStateInStorage,
+  election,
 } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
@@ -45,6 +46,7 @@ it('Single Seat Contest', async () => {
 
   await setElectionInStorage(storage);
   await setStateInStorage(storage);
+  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
   apiMock.expectGetMachineConfig();
 
   render(

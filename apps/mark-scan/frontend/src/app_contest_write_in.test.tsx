@@ -16,6 +16,7 @@ import {
 } from '../test/helpers/timers';
 
 import {
+  election,
   singleSeatContestWithWriteIn,
   setElectionInStorage,
   setStateInStorage,
@@ -64,6 +65,7 @@ it('Single Seat Contest with Write In', async () => {
 
   await setElectionInStorage(storage);
   await setStateInStorage(storage);
+  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
 
   const { container } = render(
     <App

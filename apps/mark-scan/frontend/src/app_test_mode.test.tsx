@@ -35,6 +35,9 @@ it('Prompts to change from test mode to live mode on election day', async () => 
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetPrecinctSelectionResolvesDefault(
+    electionDefinition.election
+  );
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
     isLiveMode: false,
