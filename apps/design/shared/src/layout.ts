@@ -442,6 +442,7 @@ function HeaderAndInstructions({
               month: 'long',
               day: 'numeric',
               year: 'numeric',
+              timeZone: 'UTC',
             }).format(new Date(election.date)),
             fontStyle: { ...m.FontStyles.H3, fontWeight: FontWeights.NORMAL },
           },
