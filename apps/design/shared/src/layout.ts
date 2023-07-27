@@ -424,7 +424,10 @@ function HeaderAndInstructions({
         textGroups: [
           {
             text: 'Sample Ballot',
-            fontStyle: m.FontStyles.H1,
+            fontStyle: {
+              ...m.FontStyles.H1,
+              lineHeight: m.FontStyles.H1.lineHeight * 0.85,
+            },
           },
           {
             text: election.title,
