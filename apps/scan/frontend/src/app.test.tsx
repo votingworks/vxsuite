@@ -1,11 +1,14 @@
-import { singlePrecinctSelectionFor, MemoryHardware } from '@votingworks/utils';
+import {
+  singlePrecinctSelectionFor,
+  MemoryHardware,
+  buildElectionResultsFixture,
+} from '@votingworks/utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import {
   fakeKiosk,
   advanceTimersAndPromises,
   expectPrint,
-  generateCvr,
   fakeSystemAdministratorUser,
   mockOf,
   hasTextAcrossElements,
@@ -199,7 +202,7 @@ test('election manager must set precinct', async () => {
   screen.getByText('Center Springfield,');
 
   // Poll Worker card can be used to open polls now
-  apiMock.expectGetCastVoteRecordsForTally([]);
+  apiMock.expectGetScannerResultsByParty([]);
   apiMock.authenticateAsPollWorker(electionSampleDefinition);
   await screen.findByText('Do you want to open the polls?');
 });
@@ -262,7 +265,7 @@ test('election manager and poll worker configuration', async () => {
 
   // Open the polls
   apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.expectGetCastVoteRecordsForTally([]);
+  apiMock.expectGetScannerResultsByParty([]);
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
 
@@ -312,7 +315,6 @@ test('election manager and poll worker configuration', async () => {
 
   // Open the polls again
   apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.expectGetCastVoteRecordsForTally([]);
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectSetPollsState('polls_open');
@@ -399,6 +401,24 @@ async function scanBallot() {
   expect(screen.getByTestId('ballot-count').textContent).toEqual('1');
 }
 
+const mockMammalPartyResults = buildElectionResultsFixture({
+  election: electionMinimalExhaustiveSampleDefinition.election,
+  cardCounts: {
+    bmd: 1,
+    hmpb: [],
+  },
+  contestResultsSummaries: {
+    'best-animal-mammal': {
+      type: 'candidate',
+      ballots: 1,
+      officialOptionTallies: {
+        horse: 1,
+      },
+    },
+  },
+  includeGenericWriteIn: true,
+});
+
 test('voter can cast a ballot that scans successfully ', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
   apiMock.expectCheckUltrasonicSupported(false);
@@ -423,19 +443,12 @@ test('voter can cast a ballot that scans successfully ', async () => {
 
   // Insert a pollworker card
   apiMock.expectGetScannerStatus(statusBallotCounted);
-  const mockCvrs = [
-    generateCvr(
-      electionDefinition.election,
-      {
-        'best-animal-mammal': ['horse'],
-      },
-      {
-        precinctId: 'precinct-1',
-        ballotStyleId: '1M',
-      }
-    ),
-  ];
-  apiMock.expectGetCastVoteRecordsForTally(mockCvrs);
+  apiMock.expectGetScannerResultsByParty([
+    {
+      partyId: '0',
+      ...mockMammalPartyResults,
+    },
+  ]);
   apiMock.expectExportCastVoteRecordsToUsbDrive();
   apiMock.authenticateAsPollWorker(electionSampleDefinition);
   await screen.findByText('Do you want to close the polls?');
@@ -449,20 +462,13 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await screen.findByText('Closing Polls…');
   await screen.findByText('Polls are closed.');
   await expectPrint((printResult) => {
-    // confirm we have all pages
-    for (const precinct of electionDefinition.election.precincts) {
-      expect(
-        printResult.getAllByText(
-          `TEST Polls Closed Report for ${precinct.name}`
-        )
-      ).toHaveLength(3); // report for each party and a non-partisan report
-    }
+    expect(
+      printResult.getAllByText(`TEST Polls Closed Report for All Precincts`)
+    ).toHaveLength(3); // report for each party and a non-partisan report
 
-    // confirm scanned results are in report
-    const precinct1MammalReport = printResult.getByTestId(
-      'tally-report-0-precinct-1'
-    );
-    within(precinct1MammalReport).getByText(hasTextAcrossElements('Horse1'));
+    // confirm results are in report
+    const mammalReport = printResult.getByTestId('tally-report-0-undefined');
+    within(mammalReport).getByText(hasTextAcrossElements('Horse1'));
   });
 
   // Simulate unmounted usb drive
@@ -623,7 +629,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_scan' }));
   renderApp();
   await screen.findByText('Polls Closed');
-  apiMock.expectGetCastVoteRecordsForTally([]);
+  apiMock.expectGetScannerResultsByParty([]);
   apiMock.authenticateAsPollWorker(electionSampleDefinition);
   await screen.findByText('Do you want to open the polls?');
   // Open Polls
@@ -649,7 +655,7 @@ test('poll worker can open and close polls without scanning any ballots', async 
   await screen.findByText('Polls Closed');
 
   // Open Polls Flow
-  apiMock.expectGetCastVoteRecordsForTally([]);
+  apiMock.expectGetScannerResultsByParty([]);
   apiMock.authenticateAsPollWorker(electionSampleDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectSetPollsState('polls_open');
@@ -670,7 +676,6 @@ test('poll worker can open and close polls without scanning any ballots', async 
   await screen.findByText(/Insert Your Ballot/i);
 
   // Close Polls Flow
-  apiMock.expectGetCastVoteRecordsForTally([]);
   apiMock.authenticateAsPollWorker(electionSampleDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectSetPollsState('polls_closed_final');
@@ -701,7 +706,7 @@ test('open polls, scan ballot, close polls, save results', async () => {
   renderApp();
   await screen.findByText('Polls Closed');
   // Open Polls Flow
-  apiMock.expectGetCastVoteRecordsForTally([]);
+  apiMock.expectGetScannerResultsByParty([]);
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectSetPollsState('polls_open');
@@ -717,19 +722,12 @@ test('open polls, scan ballot, close polls, save results', async () => {
   await scanBallot();
 
   // Close Polls
-  const mockCvrs = [
-    generateCvr(
-      electionDefinition.election,
-      {
-        'best-animal-mammal': ['horse'],
-      },
-      {
-        precinctId: 'precinct-1',
-        ballotStyleId: '1M',
-      }
-    ),
-  ];
-  apiMock.expectGetCastVoteRecordsForTally(mockCvrs);
+  apiMock.expectGetScannerResultsByParty([
+    {
+      partyId: '0',
+      ...mockMammalPartyResults,
+    },
+  ]);
   apiMock.expectExportCastVoteRecordsToUsbDrive();
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
@@ -745,20 +743,13 @@ test('open polls, scan ballot, close polls, save results', async () => {
     'Remove the poll worker card if you have printed all necessary reports.'
   );
   await expectPrint((printResult) => {
-    // confirm we have all pages
-    for (const precinct of electionDefinition.election.precincts) {
-      expect(
-        printResult.getAllByText(
-          `TEST Polls Closed Report for ${precinct.name}`
-        )
-      ).toHaveLength(3); // report for each party and a non-partisan report
-    }
+    expect(
+      printResult.getAllByText(`TEST Polls Closed Report for All Precincts`)
+    ).toHaveLength(3); // report for each party and a non-partisan report
 
     // confirm scanned results are in report
-    const precinct1MammalReport = printResult.getByTestId(
-      'tally-report-0-precinct-1'
-    );
-    within(precinct1MammalReport).getByText(hasTextAcrossElements('Horse1'));
+    const mammalReport = printResult.getByTestId('tally-report-0-undefined');
+    within(mammalReport).getByText(hasTextAcrossElements('Horse1'));
   });
 
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -774,7 +765,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText('Polls Closed');
 
   // Open Polls
-  apiMock.expectGetCastVoteRecordsForTally([]);
+  apiMock.expectGetScannerResultsByParty([]);
   apiMock.authenticateAsPollWorker(electionSampleDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectSetPollsState('polls_open');
@@ -788,7 +779,6 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText(/Insert Your Ballot/i);
 
   // Pause Voting Flow
-  apiMock.expectGetCastVoteRecordsForTally([]);
   apiMock.authenticateAsPollWorker(electionSampleDefinition);
   await screen.findByText('Do you want to close the polls?');
   userEvent.click(await screen.findByText('No'));
@@ -804,7 +794,6 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText('Polls Paused');
 
   // Resume Voting Flow
-  apiMock.expectGetCastVoteRecordsForTally([]);
   apiMock.authenticateAsPollWorker(electionSampleDefinition);
   await screen.findByText('Do you want to resume voting?');
   apiMock.expectSetPollsState('polls_open');
@@ -818,7 +807,6 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText(/Insert Your Ballot/i);
 
   // Close Polls Flow
-  apiMock.expectGetCastVoteRecordsForTally([]);
   apiMock.authenticateAsPollWorker(electionSampleDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectSetPollsState('polls_closed_final');

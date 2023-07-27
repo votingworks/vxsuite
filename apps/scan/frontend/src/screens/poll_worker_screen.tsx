@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 
 import {
   Button,
@@ -20,18 +20,14 @@ import {
 } from '@votingworks/ui';
 import {
   compressTally,
-  computeTallyWithPrecomputedCategories,
   BooleanEnvironmentVariableName,
-  getSubTalliesByPartyAndPrecinct,
   isFeatureFlagEnabled,
   getPollsTransitionDestinationState,
   getPollsReportTitle,
   isPollsSuspensionTransition,
+  combineElectionResults,
 } from '@votingworks/utils';
 import {
-  TallyCategory,
-  FullElectionTally,
-  Tally,
   PollsState,
   PollsTransition,
   ElectionDefinition,
@@ -55,7 +51,7 @@ import { ScreenMainCenterChild, Screen } from '../components/layout';
 import { rootDebug } from '../utils/debug';
 import {
   exportCastVoteRecordsToUsbDrive,
-  getCastVoteRecordsForTally,
+  getScannerResultsByParty,
   setPollsState,
 } from '../api';
 import { MachineConfig } from '../config/types';
@@ -124,26 +120,17 @@ export function PollWorkerScreen({
   logger,
   precinctReportDestination,
 }: PollWorkerScreenProps): JSX.Element {
+  const { election } = electionDefinition;
+  const scannerResultsByPartyQuery = getScannerResultsByParty.useQuery();
   const setPollsStateMutation = setPollsState.useMutation();
   const exportCastVoteRecordsMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
-  // currentTally is the overall tally across parties and precincts
-  const [currentTally, setCurrentTally] = useState<FullElectionTally>();
-  // currentSubTallies are tallies split by both party and precinct. Each
-  // section of the printed precinct tally report represents a subtally. We
-  // don't write all these subtallies to cards for VxMark printing, however.
-  // We write the ballot count details (precinct vs. absentee) and determine
-  // the rest from other subtallies split only by precinct.
-  const [currentSubTallies, setCurrentSubTallies] = useState<
-    ReadonlyMap<string, Tally>
-  >(new Map());
   const [numReportPages, setNumReportPages] = useState<number>();
   const [
     isShowingBallotsAlreadyScannedScreen,
     setIsShowingBallotsAlreadyScannedScreen,
   ] = useState(false);
   const needsToAttachPrinterToTransitionPolls = !printerInfo && !!window.kiosk;
-  const { election } = electionDefinition;
 
   function initialPollWorkerFlowState(): Optional<PollWorkerFlowState> {
     switch (pollsState) {
@@ -165,42 +152,6 @@ export function PollWorkerScreen({
   const [currentPollsTransitionTime, setCurrentPollsTransitionTime] =
     useState<number>();
 
-  const currentCompressedTally = useMemo(
-    () => currentTally && compressTally(election, currentTally.overallTally),
-    [election, currentTally]
-  );
-
-  getCastVoteRecordsForTally.useQuery({
-    onSuccess: (castVoteRecords) => {
-      const tally = computeTallyWithPrecomputedCategories(
-        election,
-        new Set(castVoteRecords),
-        [TallyCategory.Party, TallyCategory.Precinct]
-      );
-      // Get all tallies by precinct and party
-      setCurrentSubTallies(
-        getSubTalliesByPartyAndPrecinct({
-          election,
-          tally,
-          precinctSelection,
-        })
-      );
-      if (castVoteRecords.length !== scannedBallotCount) {
-        debug(
-          `Warning, ballots scanned count from status endpoint (${scannedBallotCount}) does not match number of CVRs (${castVoteRecords.length}) `
-        );
-      }
-      if (
-        tally.overallTally.numberOfBallotsCounted !== castVoteRecords.length
-      ) {
-        debug(
-          `Warning, ballot count from calculated tally (${tally.overallTally.numberOfBallotsCounted}) does not match number of CVRs (${castVoteRecords.length}) `
-        );
-      }
-      setCurrentTally(tally);
-    },
-  });
-
   function showAllPollWorkerActions() {
     return setPollWorkerFlowState(undefined);
   }
@@ -210,11 +161,16 @@ export function PollWorkerScreen({
     timePollsTransitioned: number,
     copies: number
   ) {
-    assert(currentCompressedTally);
-    assert(currentSubTallies);
+    const scannerResultsByParty = scannerResultsByPartyQuery.data;
+    assert(scannerResultsByParty);
+    const combinedScannerResults = combineElectionResults({
+      election,
+      allElectionResults: scannerResultsByParty,
+    });
 
     const report = await (async () => {
       if (isPollsSuspensionTransition(pollsTransition)) {
+        debug('printing ballot count report...');
         return (
           <PrecinctScannerBallotCountReport
             electionDefinition={electionDefinition}
@@ -228,11 +184,16 @@ export function PollWorkerScreen({
         );
       }
 
+      debug('printing tally report...');
+
       const signedQuickResultsReportingUrl =
         await getSignedQuickResultsReportingUrl({
           electionDefinition,
           isLiveMode,
-          compressedTally: currentCompressedTally,
+          compressedTally: compressTally(
+            electionDefinition.election,
+            combinedScannerResults
+          ),
           signingMachineId: machineConfig.machineId,
         });
 
@@ -240,8 +201,7 @@ export function PollWorkerScreen({
         <PrecinctScannerTallyReports
           electionDefinition={electionDefinition}
           precinctSelection={precinctSelection}
-          subTallies={currentSubTallies}
-          hasPrecinctSubTallies
+          electionResultsByParty={scannerResultsByParty}
           pollsTransition={pollsTransition}
           isLiveMode={isLiveMode}
           pollsTransitionedTime={timePollsTransitioned}
@@ -343,7 +303,10 @@ export function PollWorkerScreen({
     setPollWorkerFlowState('polls_transition_complete');
   }
 
-  if (!currentTally) {
+  if (
+    !scannerResultsByPartyQuery.isSuccess ||
+    scannerResultsByPartyQuery.isFetching
+  ) {
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
