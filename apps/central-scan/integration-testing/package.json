@@ -63,12 +63,9 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jest": "^26.1.5",
     "eslint-plugin-jsx-a11y": "^6.6.1",
-    "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "^2.1.2",
-    "jest-environment-jsdom-sixteen": "^1.0.3",
     "lint-staged": "^10.5.4",
-    "prettier": "2.6.2",
     "sort-package-json": "^1.50.0",
     "typescript": "4.6.3"
   },

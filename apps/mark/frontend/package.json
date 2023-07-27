@@ -17,10 +17,10 @@
     "start:core": "pnpm -w run-dev vm-mark --core-only",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=UTC CI=true node scripts/test.js --maxWorkers=6 --env=jest-environment-jsdom-sixteen --coverage --reporters=default --reporters=jest-junit",
-    "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false --env=jest-environment-jsdom-sixteen",
-    "test:update": "TZ=UTC node scripts/test.js -u  --watchAll=false --env=jest-environment-jsdom-sixteen",
-    "test:watch": "TZ=UTC node scripts/test.js --env=jest-environment-jsdom-sixteen",
+    "test:ci": "TZ=UTC CI=true node scripts/test.js --maxWorkers=6 --env=jest-environment-jsdom --coverage --reporters=default --reporters=jest-junit",
+    "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false --env=jest-environment-jsdom",
+    "test:update": "TZ=UTC node scripts/test.js -u  --watchAll=false --env=jest-environment-jsdom",
+    "test:watch": "TZ=UTC node scripts/test.js --env=jest-environment-jsdom",
     "type-check": "tsc --build"
   },
   "lint-staged": {
@@ -33,11 +33,6 @@
     ],
     "package.json": [
       "sort-package-json"
-    ]
-  },
-  "babel": {
-    "presets": [
-      "react-app"
     ]
   },
   "browserslist": {
@@ -55,11 +50,7 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "resolutions": {
-    "**/@babel/parser": "7.8.4"
-  },
   "dependencies": {
-    "@babel/core": "7.12.3",
     "@rooks/use-interval": "^4.5.0",
     "@tanstack/react-query": "^4.22.0",
     "@testing-library/react-hooks": "^8.0.1",
@@ -82,10 +73,6 @@
     "@votingworks/ui": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "abortcontroller-polyfill": "^1.4.0",
-    "babel-eslint": "^10.1.0",
-    "babel-loader": "8.1.0",
-    "babel-plugin-named-asset-import": "^0.3.7",
-    "babel-preset-react-app": "^10.0.0",
     "buffer": "^6.0.3",
     "css-loader": "4.3.0",
     "debug": "^4.3.2",
@@ -125,7 +112,6 @@
     "use-interval": "^1.2.1"
   },
   "devDependencies": {
-    "@babel/runtime": "^7.18.3",
     "@codemod/parser": "^1.0.7",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.5",
@@ -156,7 +142,6 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jest": "^26.1.5",
     "eslint-plugin-jsx-a11y": "^6.6.1",
-    "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.31.8",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-testing-library": "^5.6.4",
@@ -164,9 +149,8 @@
     "fetch-mock": "^9.5.0",
     "is-ci-cli": "^2.0.0",
     "jest": "26.6.0",
-    "jest-circus": "26.6.0",
     "jest-date-mock": "^1.0.8",
-    "jest-environment-jsdom-sixteen": "^1.0.3",
+    "jest-environment-jsdom": "26",
     "jest-fetch-mock": "^3.0.3",
     "jest-junit": "^14.0.1",
     "jest-resolve": "26.6.0",
@@ -174,7 +158,6 @@
     "jest-watch-typeahead": "0.6.1",
     "lint-staged": "^10.2.4",
     "node-fetch": "^2.6.0",
-    "prettier": "2.6.2",
     "react-dev-utils": "^11.0.3",
     "react-refresh": "^0.10.0",
     "sort-package-json": "^1.50.0",
