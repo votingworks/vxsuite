@@ -68,7 +68,8 @@ function wrapLine(line: string, fontStyle: FontStyle, width: number): string[] {
   const lines: string[] = [];
   let currentLine = '';
   for (const word of words) {
-    const extendedLine = [currentLine, word].join(' ');
+    const extendedLine =
+      currentLine.length > 0 ? [currentLine, word].join(' ') : word;
     if (textWidth(extendedLine, fontStyle) <= width) {
       currentLine = extendedLine;
     } else {
