@@ -33,6 +33,7 @@ export function ElectionsScreen(): JSX.Element | null {
     if (result.isOk()) {
       const electionId = result.ok();
       history.push(`/elections/${electionId}`);
+      return;
     }
     // TODO handle error case
     throw result.err();

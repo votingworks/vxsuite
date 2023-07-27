@@ -68,7 +68,8 @@ function wrapLine(line: string, fontStyle: FontStyle, width: number): string[] {
   const lines: string[] = [];
   let currentLine = '';
   for (const word of words) {
-    const extendedLine = [currentLine, word].join(' ');
+    const extendedLine =
+      currentLine.length > 0 ? [currentLine, word].join(' ') : word;
     if (textWidth(extendedLine, fontStyle) <= width) {
       currentLine = extendedLine;
     } else {
@@ -423,7 +424,10 @@ function HeaderAndInstructions({
         textGroups: [
           {
             text: 'Sample Ballot',
-            fontStyle: m.FontStyles.H1,
+            fontStyle: {
+              ...m.FontStyles.H1,
+              lineHeight: m.FontStyles.H1.lineHeight * 0.85,
+            },
           },
           {
             text: election.title,
@@ -902,10 +906,8 @@ function CandidateContest({
     iter(options)
       .map((option) => option.height)
       .sum() +
-    gridHeight(
-      (2 - m.WRITE_IN_ROW_HEIGHT) * (contest.allowWriteIns ? 1 : 0) + 0.5,
-      m
-    );
+    (contest.allowWriteIns ? gridHeight(2 - m.WRITE_IN_ROW_HEIGHT, m) : 0) +
+    gridHeight(0.5, m);
 
   return [
     {
@@ -1431,7 +1433,13 @@ function layOutBallotHelper(
           contest,
           row: 0,
           gridRow: 0,
-          gridColumn: 0,
+          gridColumn:
+            // Temp hack: Because we change the width of the first or last
+            // column of candidate contests to fit evenly into three columns
+            // within CandidateContest, we need to trigger the smallest width
+            // option to get the largest possible height of the contest here,
+            // regardless of which column it ends up in.
+            election.ballotLayout?.targetMarkPosition === 'left' ? 0 : 20,
           pageNumber: 0,
           m,
         });
