@@ -898,10 +898,8 @@ function CandidateContest({
     iter(options)
       .map((option) => option.height)
       .sum() +
-    gridHeight(
-      (2 - m.WRITE_IN_ROW_HEIGHT) * (contest.allowWriteIns ? 1 : 0) + 0.5,
-      m
-    );
+    (contest.allowWriteIns ? gridHeight(2 - m.WRITE_IN_ROW_HEIGHT, m) : 0) +
+    gridHeight(0.5, m);
 
   return [
     {
