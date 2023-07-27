@@ -2,15 +2,7 @@ import {
   electionSample,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
-import {
-  BallotIdSchema,
-  CastVoteRecord,
-  unsafeParse,
-} from '@votingworks/types';
-import {
-  calculateTallyForCastVoteRecords,
-  compressTally,
-} from '@votingworks/utils';
+import { buildElectionResultsFixture, compressTally } from '@votingworks/utils';
 import { fakeKiosk, mockOf } from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library';
 
@@ -25,17 +17,23 @@ afterEach(() => {
 
 const time = new Date(2021, 8, 19, 11, 5).getTime();
 
-const cvr: CastVoteRecord = {
-  _precinctId: electionSample.precincts[0].id,
-  _ballotId: unsafeParse(BallotIdSchema, 'test-123'),
-  _ballotStyleId: electionSample.ballotStyles[0].id,
-  _batchId: 'batch-1',
-  _batchLabel: 'batch-1',
-  _ballotType: 'standard',
-  _testBallot: false,
-  _scannerId: 'DEMO-0000',
-  'county-commissioners': ['argent'],
-};
+const resultsFixture = buildElectionResultsFixture({
+  election: electionSample,
+  cardCounts: {
+    bmd: 1,
+    hmpb: [],
+  },
+  includeGenericWriteIn: true,
+  contestResultsSummaries: {
+    'county-commisioners': {
+      type: 'candidate',
+      ballots: 1,
+      officialOptionTallies: {
+        argent: 1,
+      },
+    },
+  },
+});
 
 describe('getSignedQuickResultsReportingUrl', () => {
   test('correctly formats signed url in live mode', async () => {
@@ -43,11 +41,7 @@ describe('getSignedQuickResultsReportingUrl', () => {
     mockOf(mockKiosk.sign).mockResolvedValue('FAKESIGNATURE');
     window.kiosk = mockKiosk;
 
-    const tally = calculateTallyForCastVoteRecords(
-      electionSample,
-      new Set([cvr])
-    );
-    const compressedTally = compressTally(electionSample, tally);
+    const compressedTally = compressTally(electionSample, resultsFixture);
     await getSignedQuickResultsReportingUrl({
       electionDefinition: electionSampleDefinition,
       isLiveMode: true,
@@ -71,11 +65,7 @@ describe('getSignedQuickResultsReportingUrl', () => {
     mockOf(mockKiosk.sign).mockResolvedValue('FAKESIGNATURE');
     window.kiosk = mockKiosk;
 
-    const tally = calculateTallyForCastVoteRecords(
-      electionSample,
-      new Set([cvr])
-    );
-    const compressedTally = compressTally(electionSample, tally);
+    const compressedTally = compressTally(electionSample, resultsFixture);
     await getSignedQuickResultsReportingUrl({
       electionDefinition: electionSampleDefinition,
       isLiveMode: false,
@@ -95,11 +85,7 @@ describe('getSignedQuickResultsReportingUrl', () => {
   });
 
   test('gives URL without signed component if no kiosk', async () => {
-    const tally = calculateTallyForCastVoteRecords(
-      electionSample,
-      new Set([cvr])
-    );
-    const compressedTally = compressTally(electionSample, tally);
+    const compressedTally = compressTally(electionSample, resultsFixture);
     const signed = await getSignedQuickResultsReportingUrl({
       electionDefinition: electionSampleDefinition,
       isLiveMode: false,

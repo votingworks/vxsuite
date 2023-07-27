@@ -1,14 +1,14 @@
-import { assert } from '@votingworks/basics';
 import {
   ElectionDefinition,
   getPartyIdsWithContests,
   PrecinctSelection,
   StandardPollsTransition,
-  Tally,
+  Tabulation,
 } from '@votingworks/types';
 import {
-  getTallyIdentifier,
-  singlePrecinctSelectionFor,
+  combineElectionResults,
+  getEmptyElectionResults,
+  getRelevantContests,
 } from '@votingworks/utils';
 import React from 'react';
 import { PrecinctScannerTallyQrCode } from './precinct_scanner_tally_qrcode';
@@ -17,8 +17,7 @@ import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
 export interface PrecinctScannerTallyReportsProps {
   electionDefinition: ElectionDefinition;
   precinctSelection: PrecinctSelection;
-  hasPrecinctSubTallies?: boolean;
-  subTallies: ReadonlyMap<string, Tally>;
+  electionResultsByParty: Tabulation.GroupList<Tabulation.ElectionResults>;
   pollsTransition: StandardPollsTransition;
   isLiveMode: boolean;
   pollsTransitionedTime: number;
@@ -28,14 +27,12 @@ export interface PrecinctScannerTallyReportsProps {
 }
 
 /**
- * A tally report for each precinct and party represented in the scanner's
- * results. Additionally, the VxQR code page if applicable.
+ * A tally report for each party. Additionally, the VxQR code page if applicable.
  */
 export function PrecinctScannerTallyReports({
   electionDefinition,
   precinctSelection,
-  hasPrecinctSubTallies,
-  subTallies,
+  electionResultsByParty,
   pollsTransition,
   isLiveMode,
   pollsTransitionedTime,
@@ -44,47 +41,55 @@ export function PrecinctScannerTallyReports({
   totalBallotsScanned,
 }: PrecinctScannerTallyReportsProps): JSX.Element {
   const currentTime = Date.now();
-  const parties = getPartyIdsWithContests(electionDefinition.election);
+  const { election } = electionDefinition;
+  const combinedResults = combineElectionResults({
+    election,
+    allElectionResults: electionResultsByParty,
+  });
+  const partyIds = getPartyIdsWithContests(electionDefinition.election);
+  const allContests = getRelevantContests({
+    election,
+    filter: {
+      precinctIds:
+        precinctSelection.kind === 'SinglePrecinct'
+          ? [precinctSelection.precinctId]
+          : undefined,
+    },
+  });
   const showQuickResults =
     electionDefinition.election.quickResultsReportingUrl &&
     totalBallotsScanned > 0 &&
     pollsTransition === 'close_polls';
 
-  const precinctSelectionList: PrecinctSelection[] =
-    precinctSelection.kind === 'AllPrecincts' && hasPrecinctSubTallies
-      ? electionDefinition.election.precincts.map(({ id }) =>
-          singlePrecinctSelectionFor(id)
-        )
-      : [precinctSelection];
-
   return (
     <React.Fragment>
-      {precinctSelectionList.map((tallyReportPrecinctSelection) =>
-        parties.map((partyId) => {
-          const tallyIdentifier = getTallyIdentifier(
-            partyId,
-            tallyReportPrecinctSelection.kind === 'SinglePrecinct'
-              ? tallyReportPrecinctSelection.precinctId
-              : undefined
-          );
-          const tallyForReport = subTallies.get(tallyIdentifier);
-          assert(tallyForReport);
-          return (
-            <PrecinctScannerTallyReport
-              key={tallyIdentifier}
-              electionDefinition={electionDefinition}
-              tally={tallyForReport}
-              precinctSelection={tallyReportPrecinctSelection}
-              partyId={partyId}
-              pollsTransition={pollsTransition}
-              isLiveMode={isLiveMode}
-              pollsTransitionedTime={pollsTransitionedTime}
-              currentTime={currentTime}
-              precinctScannerMachineId={precinctScannerMachineId}
-            />
-          );
-        })
-      )}
+      {partyIds.map((partyId) => {
+        const electionResults = partyId
+          ? electionResultsByParty.find(
+              (results) => results.partyId === partyId
+            ) || getEmptyElectionResults(electionDefinition.election, true)
+          : combinedResults;
+        const contests = partyId
+          ? allContests.filter(
+              (c) => c.type === 'candidate' && c.partyId === partyId
+            )
+          : allContests.filter((c) => c.type === 'yesno' || !c.partyId);
+        return (
+          <PrecinctScannerTallyReport
+            key={`tally-report-${partyId}`}
+            electionDefinition={electionDefinition}
+            contests={contests}
+            scannedElectionResults={electionResults}
+            precinctSelection={precinctSelection}
+            partyId={partyId}
+            pollsTransition={pollsTransition}
+            isLiveMode={isLiveMode}
+            pollsTransitionedTime={pollsTransitionedTime}
+            currentTime={currentTime}
+            precinctScannerMachineId={precinctScannerMachineId}
+          />
+        );
+      })}
       {showQuickResults && (
         <PrecinctScannerTallyQrCode
           pollsTransitionedTime={pollsTransitionedTime}
