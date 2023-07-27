@@ -39,19 +39,18 @@
     "@votingworks/dev-dock-backend": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "@votingworks/utils": "workspace:*",
-    "styled-components": "^5.2.3"
+    "@votingworks/utils": "workspace:*"
   },
   "devDependencies": {
-    "@tanstack/react-query": "^4.22.0",
+    "@tanstack/react-query": "^4.32.0",
     "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^12.1.5",
-    "@testing-library/user-event": "^13.2.1",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.0.3",
     "@types/node": "16.18.23",
-    "@types/react": "17.0.39",
-    "@types/styled-components": "^5.1.9",
-    "@types/testing-library__jest-dom": "^5.14.3",
+    "@types/react": "^18.2.16",
+    "@types/styled-components": "^5.1.26",
+    "@types/testing-library__jest-dom": "^5.14.9",
     "@typescript-eslint/eslint-plugin": "5.37.0",
     "@typescript-eslint/parser": "5.37.0",
     "@votingworks/auth": "workspace:*",
@@ -66,20 +65,22 @@
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "is-ci-cli": "^2.2.0",
-    "jest": "^27.3.1",
+    "jest": "^27.5.1",
     "jest-junit": "^14.0.1",
-    "jest-watch-typeahead": "^0.6.4",
+    "jest-watch-typeahead": "^0.6.5",
     "lint-staged": "^11.0.0",
     "prettier": "2.6.2",
-    "react": "17.0.1",
+    "react": "18.2.0",
     "sort-package-json": "^1.50.0",
-    "ts-jest": "^27.0.7",
+    "styled-components": "5.3.11",
+    "ts-jest": "^27.1.5",
     "typescript": "4.6.3"
   },
   "peerDependencies": {
     "@tanstack/react-query": "^4.22.0",
     "@tanstack/react-query-devtools": "^4.3.9",
-    "react": "^17.0.1"
+    "react": "18.2.0",
+    "styled-components": "5.3.11"
   },
   "packageManager": "pnpm@8.1.0"
 }

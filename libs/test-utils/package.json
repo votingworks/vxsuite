@@ -33,9 +33,7 @@
     ]
   },
   "dependencies": {
-    "@testing-library/react": "^12.1.5",
-    "@types/deep-eql": "^4.0.0",
-    "@types/node": "16.18.23",
+    "@testing-library/react": "^14.0.0",
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "buffer": "^6.0.3",
@@ -48,10 +46,12 @@
     "zip-stream": "^4.1.0"
   },
   "devDependencies": {
+    "@types/deep-eql": "^4.0.0",
     "@types/jest": "^27.0.3",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
-    "@types/react": "17.0.39",
+    "@types/node": "16.18.23",
+    "@types/react": "^18.2.16",
     "@types/zip-stream": "workspace:*",
     "@typescript-eslint/eslint-plugin": "5.37.0",
     "@typescript-eslint/parser": "5.37.0",
@@ -63,15 +63,15 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "^2.2.0",
-    "jest": "^27.3.1",
+    "jest": "^27.5.1",
     "jest-junit": "^14.0.1",
-    "jest-watch-typeahead": "^0.6.4",
+    "jest-watch-typeahead": "^0.6.5",
     "lint-staged": "^11.0.0",
     "prettier": "2.6.2",
-    "react": "17.0.1",
-    "react-dom": "17.0.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "sort-package-json": "^1.50.0",
-    "ts-jest": "^27.0.7",
+    "ts-jest": "^27.1.5",
     "typescript": "4.6.3"
   },
   "packageManager": "pnpm@8.1.0"
