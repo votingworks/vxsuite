@@ -801,7 +801,10 @@ test('getImageData', async () => {
         );
         expect(onRead).toHaveBeenCalledTimes(1);
       }
-    )
+    ),
+    {
+      seed: 0, // with a random seed, some branches are sporadically missed
+    }
   );
 });
 
