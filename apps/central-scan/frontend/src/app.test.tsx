@@ -149,6 +149,10 @@ test('shows a "test ballot mode" button if the app is in Official Ballot Mode', 
   userEvent.click(screen.getByText('Admin'));
 
   screen.getByText('Toggle to Test Ballot Mode');
+
+  await waitFor(() => {
+    mockApiClient.assertComplete();
+  });
 });
 
 test('shows an "official ballot mode" button if the app is in Test Mode', async () => {
@@ -165,6 +169,10 @@ test('shows an "official ballot mode" button if the app is in Test Mode', async 
   userEvent.click(screen.getByText('Admin'));
 
   screen.getByText('Toggle to Official Ballot Mode');
+
+  await waitFor(() => {
+    mockApiClient.assertComplete();
+  });
 });
 
 test('clicking Scan Batch will scan a batch', async () => {
