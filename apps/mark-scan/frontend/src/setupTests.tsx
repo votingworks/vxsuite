@@ -11,6 +11,7 @@ import {
   fakePrintElementWhenReady,
 } from '@votingworks/test-utils';
 import { configure } from '../test/react_testing_library';
+import './polyfills';
 
 configure({ asyncUtilTimeout: 5_000 });
 
@@ -72,3 +73,5 @@ afterEach(() => {
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
 globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder;
+
+global.setImmediate = jest.useRealTimers as unknown as typeof setImmediate;
