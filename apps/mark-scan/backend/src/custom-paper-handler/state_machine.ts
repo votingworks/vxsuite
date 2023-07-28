@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import makeDebug from 'debug';
-import { v4 as uuid } from 'uuid';
 import {
   PaperHandlerDriver,
   ImageConversionOptions,
@@ -284,7 +283,6 @@ const InterpretingState: StateNodeConfig<
         assert(scannedImagePaths);
         assert(electionDefinition);
 
-        const sheetId = uuid();
         const { precincts } = electionDefinition.election;
         // Hard coded for now because we don't store precinct in backend. This
         // will be replaced with a store read in a future PR.
@@ -295,8 +293,7 @@ const InterpretingState: StateNodeConfig<
           electionDefinition,
           precinctSelection,
           testMode,
-          scannedImagePaths,
-          sheetId
+          scannedImagePaths
         );
       },
       onDone: {

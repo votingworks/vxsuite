@@ -3,9 +3,7 @@ import makeDebug from 'debug';
 import { Buffer } from 'buffer';
 import {
   ElectionDefinition,
-  PageInterpretationWithFiles,
   PrecinctSelection,
-  SheetInterpretation,
   SheetOf,
 } from '@votingworks/types';
 import {
@@ -19,8 +17,8 @@ import {
 import { join } from 'path';
 import { pdfToImages } from '@votingworks/image-utils';
 import {
-  SheetInterpretationWithPages,
-  interpretSheetAndSaveImages,
+  InterpretFileResult,
+  interpretSheet,
 } from '@votingworks/ballot-interpreter';
 import { tmpNameSync } from 'tmp';
 
@@ -157,58 +155,23 @@ export async function scanAndSave(
   return [pathOutFront, blankSheetFixturePath];
 }
 
-function combinePageInterpretationsForSheet(
-  pages: SheetOf<PageInterpretationWithFiles>
-): SheetInterpretation {
-  const [front, back] = pages;
-  const frontType = front.interpretation.type;
-  const backType = back.interpretation.type;
-
-  // mark-scan only support interpretation of single-sided BMD ballots
-  if (
-    (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
-    (backType === 'InterpretedBmdPage' && frontType === 'BlankPage')
-  ) {
-    return { type: 'ValidSheet' };
-  }
-
-  debug(
-    'Unexpected page interpretation: %s front type and %s back type',
-    frontType,
-    backType
-  );
-
-  return {
-    type: 'InvalidSheet',
-    reason: 'unknown',
-  };
-}
-
 export async function interpretScannedBallots(
   electionDefinition: ElectionDefinition,
   precinctSelection: PrecinctSelection,
   testMode: boolean,
-  sheetOfImagePaths: SheetOf<string>,
-  sheetId: string
-): Promise<SheetInterpretationWithPages> {
-  const pageInterpretations = await interpretSheetAndSaveImages(
+  sheetOfImagePaths: SheetOf<string>
+): Promise<SheetOf<InterpretFileResult>> {
+  const interpretation = interpretSheet(
     {
       electionDefinition,
       precinctSelection,
       testMode,
     },
-    sheetOfImagePaths,
-    sheetId,
-    tmpNameSync({ postfix: '.jpeg' })
+    sheetOfImagePaths
   );
-
-  const combinedInterpretation: SheetInterpretationWithPages = {
-    ...combinePageInterpretationsForSheet(pageInterpretations),
-    pages: pageInterpretations,
-  };
 
   // Use JSON.stringify instead of string interpolation because the latter
   // only prints one level deep
-  debug(`interpretation: ${JSON.stringify(combinedInterpretation, null, 2)}`);
-  return combinedInterpretation;
+  debug(`interpretation: ${JSON.stringify(interpretation, null, 2)}`);
+  return interpretation;
 }
