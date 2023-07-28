@@ -8,12 +8,7 @@ import {
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
-import {
-  PrintableContainer,
-  ReportSection,
-  TallyReport,
-  TallyReportColumns,
-} from './tally_report';
+import { ReportSection, TallyReport, TallyReportColumns } from './tally_report';
 import { TallyReportCardCounts } from './tally_report_card_counts';
 import { ContestResultsTable } from './contest_results_table';
 
@@ -55,40 +50,38 @@ export function PrecinctScannerTallyReport({
   const { cardCounts } = scannedElectionResults;
 
   return (
-    <PrintableContainer data-testid={`tally-report-${partyId}-${precinctId}`}>
-      <TallyReport>
-        <ReportSection>
-          <PrecinctScannerReportHeader
-            electionDefinition={electionDefinition}
-            partyId={partyId}
-            precinctSelection={precinctSelection}
-            pollsTransition={pollsTransition}
-            isLiveMode={isLiveMode}
-            pollsTransitionedTime={pollsTransitionedTime}
-            currentTime={currentTime}
-            precinctScannerMachineId={precinctScannerMachineId}
-          />
-          <TallyReportColumns>
-            <TallyReportCardCounts cardCounts={cardCounts} />
-            {contests.map((contest) => {
-              const scannedContestResults =
-                scannedElectionResults.contestResults[contest.id];
-              assert(
-                scannedContestResults,
-                `missing scanned results for contest ${contest.id}`
-              );
-              return (
-                <ContestResultsTable
-                  key={contest.id}
-                  election={election}
-                  contest={contest}
-                  scannedContestResults={scannedContestResults}
-                />
-              );
-            })}
-          </TallyReportColumns>
-        </ReportSection>
-      </TallyReport>
-    </PrintableContainer>
+    <TallyReport data-testid={`tally-report-${partyId}-${precinctId}`}>
+      <ReportSection>
+        <PrecinctScannerReportHeader
+          electionDefinition={electionDefinition}
+          partyId={partyId}
+          precinctSelection={precinctSelection}
+          pollsTransition={pollsTransition}
+          isLiveMode={isLiveMode}
+          pollsTransitionedTime={pollsTransitionedTime}
+          currentTime={currentTime}
+          precinctScannerMachineId={precinctScannerMachineId}
+        />
+        <TallyReportColumns>
+          <TallyReportCardCounts cardCounts={cardCounts} />
+          {contests.map((contest) => {
+            const scannedContestResults =
+              scannedElectionResults.contestResults[contest.id];
+            assert(
+              scannedContestResults,
+              `missing scanned results for contest ${contest.id}`
+            );
+            return (
+              <ContestResultsTable
+                key={contest.id}
+                election={election}
+                contest={contest}
+                scannedContestResults={scannedContestResults}
+              />
+            );
+          })}
+        </TallyReportColumns>
+      </ReportSection>
+    </TallyReport>
   );
 }

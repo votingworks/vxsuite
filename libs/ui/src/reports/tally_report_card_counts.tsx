@@ -21,18 +21,17 @@ const CardCountTable = styled.div`
   }
   th {
     background: #e8e8e8;
-    padding: 0.15rem 0.15rem;
+    padding: 0.375em;
     text-align: left;
-    font-size: 0.4rem;
   }
   td {
-    padding: 0.1rem 0.15rem;
+    padding: 0.25em 0.375em;
     font-weight: 400;
   }
 `;
 
 const SheetCount = styled.span`
-  margin-left: 1rem;
+  margin-left: 2.5em;
 `;
 
 function getHmpbRows({

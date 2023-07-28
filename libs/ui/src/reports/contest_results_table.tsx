@@ -18,7 +18,7 @@ import { Text, NoWrap } from '../text';
 import { tableBorderColor } from '../table';
 
 const Contest = styled.div`
-  margin: 1rem 0;
+  margin: 2.5em 0;
   page-break-inside: avoid;
   p:first-child {
     margin-bottom: 0;
@@ -54,17 +54,17 @@ const ContestTable = styled.table`
   & td {
     width: 1%;
     height: 100%;
-    padding: 0.1rem 0.25rem;
+    padding: 0.25em 0.625em;
     padding-right: 0;
     text-align: right;
     white-space: no-wrap;
   }
   & th {
-    padding: 0 0.2rem;
+    padding: 0 0.5em;
     text-align: right;
     font-weight: 400;
     &:first-child {
-      padding-left: 0.1rem;
+      padding-left: 0.25em;
       text-align: left;
     }
     &:not(:first-child) {

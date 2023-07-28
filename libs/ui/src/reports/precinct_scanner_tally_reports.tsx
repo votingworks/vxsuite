@@ -10,9 +10,10 @@ import {
   getEmptyElectionResults,
   getRelevantContests,
 } from '@votingworks/utils';
-import React from 'react';
+import { ThemeProvider } from 'styled-components';
 import { PrecinctScannerTallyQrCode } from './precinct_scanner_tally_qrcode';
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
+import { TALLY_REPORT_THEME } from './tally_report';
 
 export interface PrecinctScannerTallyReportsProps {
   electionDefinition: ElectionDefinition;
@@ -62,7 +63,7 @@ export function PrecinctScannerTallyReports({
     pollsTransition === 'close_polls';
 
   return (
-    <React.Fragment>
+    <ThemeProvider theme={TALLY_REPORT_THEME}>
       {partyIds.map((partyId) => {
         const electionResults = partyId
           ? electionResultsByParty.find(
@@ -97,6 +98,6 @@ export function PrecinctScannerTallyReports({
           signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
         />
       )}
-    </React.Fragment>
+    </ThemeProvider>
   );
 }

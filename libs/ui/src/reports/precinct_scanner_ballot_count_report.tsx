@@ -10,10 +10,10 @@ import {
   getPollsTransitionDestinationState,
 } from '@votingworks/utils';
 import { DateTime } from 'luxon';
-import styled from 'styled-components';
+import styled, { ThemeProvider } from 'styled-components';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 import { Prose } from '../prose';
-import { PrintableContainer, ReportSection, TallyReport } from './tally_report';
+import { ReportSection, TALLY_REPORT_THEME, TallyReport } from './tally_report';
 
 const Contents = styled(Prose)`
   padding-top: 2em;
@@ -60,8 +60,8 @@ export function PrecinctScannerBallotCountReport({
   const currentTime = Date.now();
 
   return (
-    <PrintableContainer data-testid="ballot-count-report">
-      <TallyReport>
+    <ThemeProvider theme={TALLY_REPORT_THEME}>
+      <TallyReport data-testid="ballot-count-report">
         <ReportSection>
           <PrecinctScannerReportHeader
             electionDefinition={electionDefinition}
@@ -100,6 +100,6 @@ export function PrecinctScannerBallotCountReport({
           </Contents>
         </ReportSection>
       </TallyReport>
-    </PrintableContainer>
+    </ThemeProvider>
   );
 }
