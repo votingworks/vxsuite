@@ -32,6 +32,16 @@ export const PRINTING_DENSITY_CODES: Record<PrintingDensity, Uint8> = {
   '+12.5%': 0x05,
   '+25%': 0x06,
 };
+// Exhaustive list of scan types whose data blocks will be 8 bpp.
+// Manual reference: "Start scan ticket" 0x1C 0x53 0x50 0x53
+export enum ScanTypes8BitsPerPixel {
+  NA = 0x00,
+  RED = 0x01,
+  GREEN = 0x02,
+  BLUE = 0x03,
+  ULTRAVIOLET = 0x04,
+  GRAY = 0x05,
+}
 export enum PrintModeDotDensity {
   SINGLE_DOT_24 = 32,
   DOUBLE_DOT_24 = 33,

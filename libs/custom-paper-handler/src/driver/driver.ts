@@ -56,6 +56,7 @@ import {
   PrintModeDotDensity,
   RealTimeRequestIds,
   SCAN_HEADER_LENGTH_BYTES,
+  ScanTypes8BitsPerPixel,
   UINT_16_MAX,
 } from './constants';
 import {
@@ -470,7 +471,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       if (width === -1) {
         width = sizeX;
       }
-      const pixelsPerByte = response.scan <= 0x05 ? 1 : 8;
+      const pixelsPerByte = response.scan in ScanTypes8BitsPerPixel ? 1 : 8;
       debug(`sizeX: ${sizeX}, sizeY: ${sizeY}, ppb: ${pixelsPerByte}`);
       const dataBlockByteLength = (sizeX * sizeY) / pixelsPerByte;
       const dataBlock = responseBuffer.slice(SCAN_HEADER_LENGTH_BYTES);
