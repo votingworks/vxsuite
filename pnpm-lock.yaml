@@ -645,9 +645,6 @@ importers:
       eslint-plugin-cypress:
         specifier: ^2.12.1
         version: 2.12.1(eslint@8.23.1)
-      eslint-plugin-flowtype:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@8.23.1)
       eslint-plugin-import:
         specifier: ^2.26.0
         version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
@@ -793,9 +790,6 @@ importers:
       eslint-plugin-cypress:
         specifier: ^2.12.1
         version: 2.12.1(eslint@8.23.1)
-      eslint-plugin-flowtype:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@8.23.1)
       eslint-plugin-import:
         specifier: ^2.26.0
         version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
@@ -1390,9 +1384,6 @@ importers:
       eslint-plugin-cypress:
         specifier: ^2.12.1
         version: 2.12.1(eslint@8.23.1)
-      eslint-plugin-flowtype:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@8.23.1)
       eslint-plugin-import:
         specifier: ^2.26.0
         version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
@@ -1719,9 +1710,6 @@ importers:
       eslint-import-resolver-node:
         specifier: ^0.3.4
         version: 0.3.7
-      eslint-plugin-flowtype:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@8.23.1)
       eslint-plugin-import:
         specifier: ^2.26.0
         version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
@@ -1873,9 +1861,6 @@ importers:
       eslint-import-resolver-node:
         specifier: ^0.3.4
         version: 0.3.7
-      eslint-plugin-flowtype:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@8.23.1)
       eslint-plugin-import:
         specifier: ^2.26.0
         version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
@@ -2331,9 +2316,6 @@ importers:
       eslint-import-resolver-node:
         specifier: ^0.3.4
         version: 0.3.7
-      eslint-plugin-flowtype:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@8.23.1)
       eslint-plugin-import:
         specifier: ^2.26.0
         version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
@@ -2479,9 +2461,6 @@ importers:
       eslint-plugin-cypress:
         specifier: ^2.12.1
         version: 2.12.1(eslint@8.23.1)
-      eslint-plugin-flowtype:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@8.23.1)
       eslint-plugin-import:
         specifier: ^2.26.0
         version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
@@ -2910,9 +2889,6 @@ importers:
       eslint-import-resolver-node:
         specifier: ^0.3.4
         version: 0.3.7
-      eslint-plugin-flowtype:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@8.23.1)
       eslint-plugin-import:
         specifier: ^2.26.0
         version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
@@ -3058,9 +3034,6 @@ importers:
       eslint-plugin-cypress:
         specifier: ^2.12.1
         version: 2.12.1(eslint@8.23.1)
-      eslint-plugin-flowtype:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@8.23.1)
       eslint-plugin-import:
         specifier: ^2.26.0
         version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
@@ -3489,9 +3462,6 @@ importers:
       eslint-plugin-cypress:
         specifier: ^2.12.1
         version: 2.12.1(eslint@8.23.1)
-      eslint-plugin-flowtype:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@8.23.1)
       eslint-plugin-import:
         specifier: ^2.26.0
         version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
@@ -6048,9 +6018,6 @@ importers:
       eslint-plugin-cypress:
         specifier: ^2.12.1
         version: 2.12.1(eslint@8.23.1)
-      eslint-plugin-flowtype:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@8.23.1)
       eslint-plugin-import:
         specifier: ^2.26.0
         version: 2.27.5(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
@@ -6768,9 +6735,6 @@ importers:
       eslint-plugin-cypress:
         specifier: ^2.12.1
         version: 2.12.1(eslint@8.23.1)
-      eslint-plugin-flowtype:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@8.23.1)
       eslint-plugin-import:
         specifier: ^2.26.0
         version: 2.26.0(@typescript-eslint/parser@5.37.0)(eslint@8.23.1)
@@ -20196,17 +20160,6 @@ packages:
     dependencies:
       eslint: 8.23.1
       globals: 11.12.0
-
-  /eslint-plugin-flowtype@5.2.0(eslint@8.23.1):
-    resolution: {integrity: sha512-z7ULdTxuhlRJcEe1MVljePXricuPOrsWfScRXFhNzVD5dmTHWjIF57AxD0e7AbEoLSbjSsaA5S+hCg43WvpXJQ==}
-    engines: {node: ^10.12.0 || >=12.0.0}
-    peerDependencies:
-      eslint: ^7.1.0
-    dependencies:
-      eslint: 8.23.1
-      lodash: 4.17.21
-      string-natural-compare: 3.0.1
-    dev: true
 
   /eslint-plugin-flowtype@8.0.3(@babel/plugin-syntax-flow@7.22.5)(@babel/plugin-transform-react-jsx@7.22.5)(eslint@8.23.1):
     resolution: {integrity: sha512-dX8l6qUL6O+fYPtpNRideCFSpmWOUVx5QcaGLVqe/vlDiBSe4vYljDWDETwnyFzpl7By/WVIu6rcrniCgH9BqQ==}
