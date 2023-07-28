@@ -22,7 +22,7 @@ import {
   SheetInterpretationWithPages,
   interpretSheetAndSaveImages,
 } from '@votingworks/ballot-interpreter';
-import { BALLOT_IMAGES_PATH } from './constants';
+import { tmpNameSync } from 'tmp';
 
 const debug = makeDebug('mark-scan:custom-paper-handler:application-driver');
 
@@ -150,9 +150,7 @@ export async function scanAndSave(
   driver: PaperHandlerDriver
 ): Promise<SheetOf<string>> {
   debug('+scanAndSave');
-  const dir = '/tmp';
-  const dateString = new Date().toISOString();
-  const pathOutFront = join(dir, `ballot-statemachine-${dateString}-A.jpg`);
+  const pathOutFront = tmpNameSync({ postfix: '.jpeg' });
   // We can only print to one side from the thermal printer, but the interpret flow expects
   // a SheetOf 2 pages. Use an image of a blank sheet for the 2nd page.
   const blankSheetFixturePath = join(__dirname, 'fixtures', 'blank-sheet.jpg');
@@ -210,7 +208,7 @@ export async function interpretScannedBallots(
     },
     sheetOfImagePaths,
     sheetId,
-    BALLOT_IMAGES_PATH
+    tmpNameSync({ postfix: '.jpeg' })
   );
 
   const combinedInterpretation: SheetInterpretationWithPages = {
