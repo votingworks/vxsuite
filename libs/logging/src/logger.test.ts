@@ -2,7 +2,6 @@
 import { fakeKiosk } from '@votingworks/test-utils';
 import { readFileSync } from 'fs-extra';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
-import MockDate from 'mockdate';
 import { join } from 'path';
 import { safeParseJson, EventLogging } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
@@ -16,7 +15,7 @@ import {
 } from './types';
 import { CLIENT_SIDE_LOG_SOURCES, LogSource } from './log_source';
 
-MockDate.set('2020-07-24T00:00:00.000Z');
+jest.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
 
 test('logger logs server logs as expected', async () => {
   console.log = jest.fn();

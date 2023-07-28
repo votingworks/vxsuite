@@ -1,5 +1,4 @@
 import userEvent from '@testing-library/user-event';
-import MockDate from 'mockdate';
 import { DateTime } from 'luxon';
 import {
   act,
@@ -32,7 +31,7 @@ function renderScreen(
 
 describe('Accessible Controller Diagnostic Screen', () => {
   beforeEach(() => {
-    MockDate.set(now.toISO());
+    jest.useFakeTimers().setSystemTime(new Date(now.toISO()));
   });
 
   it('yields a success result when all steps are completed', async () => {

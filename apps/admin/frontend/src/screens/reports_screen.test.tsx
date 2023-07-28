@@ -1,4 +1,3 @@
-import MockDate from 'mockdate';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
@@ -24,12 +23,13 @@ import {
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  MockDate.set(new Date('2020-11-03T22:22:00'));
+  jest.useFakeTimers().setSystemTime(new Date('2020-11-03T22:22:00'));
   apiMock = createApiMock();
   fetchMock.reset();
 });
 
 afterEach(() => {
+  jest.useRealTimers();
   apiMock.assertComplete();
 });
 

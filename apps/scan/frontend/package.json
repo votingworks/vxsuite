@@ -21,7 +21,7 @@
     "test": "is-ci test:ci test:watch",
     "test:ci": "TZ=UTC node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=6",
     "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false",
-    "test:watch": "TZ=UTC node scripts/test.js --env=jest-environment-jsdom",
+    "test:watch": "TZ=UTC node scripts/test.js",
     "type-check": "tsc --build"
   },
   "lint-staged": {
@@ -74,7 +74,7 @@
     "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
     "http-proxy-middleware": "1.0.6",
-    "mockdate": "^3.0.5",
+    "jest-mock": "27",
     "normalize.css": "^8.0.1",
     "path": "^0.12.7",
     "pdfjs-dist": "2.3.200",

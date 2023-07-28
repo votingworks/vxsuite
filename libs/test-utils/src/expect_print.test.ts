@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { render, screen } from '@testing-library/react';
 import { ElementWithCallback, PrintOptions } from '@votingworks/types';
 import React from 'react';

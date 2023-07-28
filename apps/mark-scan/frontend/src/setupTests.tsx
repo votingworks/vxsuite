@@ -73,5 +73,3 @@ afterEach(() => {
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
 globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder;
-
-global.setImmediate = jest.useRealTimers as unknown as typeof setImmediate;

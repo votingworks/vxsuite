@@ -1,4 +1,3 @@
-import MockDate from 'mockdate';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { render, screen } from '../../test/react_testing_library';
@@ -9,7 +8,7 @@ const pollsTransitionedTime = new Date(2021, 8, 19, 11, 5).getTime();
 const currentTime = new Date(2021, 8, 19, 11, 6).getTime();
 
 test('renders info properly', () => {
-  MockDate.set(currentTime);
+  jest.useFakeTimers().setSystemTime(currentTime);
   render(
     <PrecinctScannerBallotCountReport
       electionDefinition={electionSampleDefinition}

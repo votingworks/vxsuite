@@ -1,5 +1,4 @@
 import userEvent from '@testing-library/user-event';
-import MockDate from 'mockdate';
 import { fakeMarkerInfo } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
 import { MemoryRouter } from 'react-router-dom';
@@ -42,7 +41,7 @@ function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
 }
 
 beforeEach(() => {
-  MockDate.set('2022-03-23T11:23:00.000Z');
+  jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000Z'));
 });
 
 describe('System Diagnostics screen: Computer section', () => {
@@ -235,7 +234,7 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
     screen.getByText('Last tested at 11:23 AM');
 
     // Bonus test - if we start a new test and cancel it, last results should still be shown
-    MockDate.set(new Date());
+    jest.setSystemTime(new Date());
     userEvent.click(screen.getButton('Start Accessible Controller Test'));
     userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
 
