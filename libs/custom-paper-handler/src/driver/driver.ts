@@ -454,14 +454,19 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       const rawResponse = await this.transferInGeneric();
       assert(rawResponse?.data);
 
-      const responseBuffer = rawResponse.data.buffer;
+      const responseBuffer = new Uint8Array(
+        rawResponse.data.buffer,
+        rawResponse.data.byteOffset,
+        rawResponse.data.byteLength
+      );
       const header = responseBuffer.slice(0, SCAN_HEADER_LENGTH_BYTES);
       const response: ScanResponse = ScanResponse.decode(
         Buffer.from(header)
       ).unsafeUnwrap();
       scanStatus = response.returnCode;
       const { sizeX, sizeY } = response;
-      // The last sizeX returned by the scan command is 0, so store the first one for use later
+      // `sizeX` is the width of the current data block. The scan command always returns an empty data block as the last packet,
+      // so we instead store the first `sizeX` value we receive. Note this assumes `sizeX` is the same for all packets 0...(n-1)
       if (width === -1) {
         width = sizeX;
       }
@@ -489,8 +494,6 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     const imageBuf = Buffer.concat(imageData);
     return createImageData(
       Uint8ClampedArray.from(imageBuf),
-      // Start scan ticket (0x1c 0x53 0x50 0x53) returns width of data block [Size X]; hardcode this value for now but
-      // we should read it from the response header
       width,
       imageBuf.byteLength / width
     );
