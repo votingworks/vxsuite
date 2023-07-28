@@ -353,12 +353,6 @@ export function Uint8ToBinaryArray(value: Uint8): BinaryArray {
   return bitArray;
 }
 
-export function arrayBufferToHexString(buffer: ArrayBuffer): string {
-  return [...new Uint8Array(buffer)]
-    .map((x) => x.toString(16).padStart(2, '0').toUpperCase())
-    .join(' ');
-}
-
 const BIT_MULTIPLIERS = [128, 64, 32, 16, 8, 4, 2, 1];
 
 export function bitArrayToByte(bits: BitArray): Uint8 {

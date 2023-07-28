@@ -149,21 +149,6 @@ export const ScanResponse = message({
 });
 export type ScanResponse = CoderType<typeof ScanResponse>;
 
-export function scanResponseToHexString(r: ScanResponse): string {
-  return JSON.stringify(
-    {
-      returnCode: r.returnCode.toString(16).toUpperCase(),
-      cis: r.returnCode.toString(16).toUpperCase(),
-      scan: r.scan.toString(16).toUpperCase(),
-      sizeX: r.sizeX,
-      sizeY: r.sizeY,
-      status: r.status.toString(16).toUpperCase(),
-    },
-    null,
-    2
-  );
-}
-
 /**
  * Command coders
  */
