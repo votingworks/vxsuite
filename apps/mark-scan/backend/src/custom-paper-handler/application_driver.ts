@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { assert, iter } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { Buffer } from 'buffer';
 import {
@@ -104,33 +104,21 @@ export async function printBallot(
   pdfData: Uint8Array,
   options: Partial<ImageConversionOptions> = {}
 ): Promise<void> {
+  debug('+printBallot');
   const enablePrintPromise = driver.enablePrint();
-
-  let time = Date.now();
-  const pages: ImageData[] = [];
-  for await (const { page, pageCount } of pdfToImages(Buffer.from(pdfData), {
-    scale: 200 / 72,
-  })) {
-    assert(pageCount === 1, `Unexpected page count ${pageCount}`);
-    pages.push(page);
-  }
-  const page = pages[0];
-  assert(page, 'Unexpected undefined page');
-  debug(`pdf to image took ${Date.now() - time} ms`);
-  time = Date.now();
+  const pageInfo = await iter(
+    pdfToImages(Buffer.from(pdfData), { scale: 200 / 72 })
+  ).first();
+  assert(
+    pageInfo?.pageCount === 1,
+    `Unexpected page count ${pageInfo?.pageCount ?? 0}`
+  );
+  const { page } = pageInfo;
 
   const ballotBinaryBitmap = imageDataToBinaryBitmap(page, options);
-  debug(`bitmap width: ${ballotBinaryBitmap.width}`);
-  debug(`bitmap height: ${ballotBinaryBitmap.height}`);
-  debug(`image to binary took ${Date.now() - time} ms`);
-  time = Date.now();
-
   const customChunkedBitmaps = chunkBinaryBitmap(ballotBinaryBitmap);
-  debug(`num chunk rows: ${customChunkedBitmaps.length}`);
-  debug(`binary to chunks took ${Date.now() - time} ms`);
 
   await enablePrintPromise;
-  debug('Begin printing');
   let dotsSkipped = 0;
   for (const customChunkedBitmap of customChunkedBitmaps) {
     if (customChunkedBitmap.empty) {
@@ -143,7 +131,10 @@ export async function printBallot(
       await driver.printChunk(customChunkedBitmap);
     }
   }
-  debug('Completed printing %d chunks total', customChunkedBitmaps.length);
+  debug(
+    '-printBallot. Completed printing %d chunks total',
+    customChunkedBitmaps.length
+  );
 }
 
 export async function scanAndSave(
