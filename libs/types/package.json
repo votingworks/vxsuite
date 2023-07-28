@@ -45,7 +45,7 @@
     "zod": "3.14.4"
   },
   "devDependencies": {
-    "@types/jest": "^27.5.2",
+    "@types/jest": "^28.1.8",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
     "@types/node": "16.18.23",
