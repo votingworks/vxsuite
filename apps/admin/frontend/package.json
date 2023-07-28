@@ -180,7 +180,7 @@
     "is-ci-cli": "^2.1.2",
     "jest": "^28.1.3",
     "jest-environment-jsdom": "28",
-    "jest-junit": "^14.0.1",
+    "jest-junit": "^16.0.0",
     "jest-styled-components": "^7.1.1",
     "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "^10.0.7",

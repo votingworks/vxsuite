@@ -47,7 +47,7 @@
     "fast-check": "2.23.2",
     "is-ci-cli": "^2.2.0",
     "jest": "^27.5.1",
-    "jest-junit": "^14.0.1",
+    "jest-junit": "^16.0.0",
     "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "^11.0.0",
     "sort-package-json": "^1.50.0",

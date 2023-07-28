@@ -125,7 +125,7 @@
     "is-ci-cli": "^2.1.2",
     "jest": "^27.5.1",
     "jest-environment-jsdom": "27",
-    "jest-junit": "^14.0.1",
+    "jest-junit": "^16.0.0",
     "jest-styled-components": "^7.1.1",
     "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "^10.5.4",
