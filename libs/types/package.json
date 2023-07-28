@@ -45,7 +45,7 @@
     "zod": "3.14.4"
   },
   "devDependencies": {
-    "@types/jest": "^27.0.3",
+    "@types/jest": "^27.5.2",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
     "@types/node": "16.18.23",
@@ -60,7 +60,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-node": "^0.3.6",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jest": "^26.1.5",
+    "eslint-plugin-jest": "^27.2.3",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "fast-glob": "^3.2.11",
