@@ -20,7 +20,7 @@ export const TransferOutRealTimeRequest = message({
   requestId: uint8(),
   token: literal(TOKEN),
   // Treat "optional data length" byte as padding when no additional data is supplied
-  padding: padding(8),
+  unusedOptionalDataLength: padding(8),
 });
 type TransferOutRealTimeRequest = CoderType<typeof TransferOutRealTimeRequest>;
 
