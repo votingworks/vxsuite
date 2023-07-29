@@ -259,7 +259,7 @@ test('including ballot images', async () => {
       join(outputDirectory.name, 'ballot-images', defaultBatchId)
     )
   ).toMatchInlineSnapshot(`
-    Array [
+    [
       "card-number-3__town-id-00701-precinct-id-__1.jpg",
       "card-number-3__town-id-00701-precinct-id-__2.jpg",
     ]
@@ -271,7 +271,7 @@ test('including ballot images', async () => {
       join(outputDirectory.name, 'ballot-layouts', defaultBatchId)
     )
   ).toMatchInlineSnapshot(`
-    Array [
+    [
       "card-number-3__town-id-00701-precinct-id-__1.layout.json",
       "card-number-3__town-id-00701-precinct-id-__2.layout.json",
     ]

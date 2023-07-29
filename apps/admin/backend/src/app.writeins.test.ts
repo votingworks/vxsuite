@@ -453,7 +453,7 @@ test('getWriteInImageView', async () => {
   };
   expect(contestCoordinatesA).toEqual(expectedContestCoordinates);
   expect(writeInCoordinatesA).toMatchInlineSnapshot(`
-    Object {
+    {
       "height": 140,
       "width": 270,
       "x": 1327,
@@ -493,7 +493,7 @@ test('getWriteInImageView', async () => {
   expect(ballotCoordinatesB).toEqual(expectedBallotCoordinates);
   expect(contestCoordinatesB).toEqual(expectedContestCoordinates);
   expect(writeInCoordinatesB).toMatchInlineSnapshot(`
-    Object {
+    {
       "height": 138,
       "width": 269,
       "x": 1328,

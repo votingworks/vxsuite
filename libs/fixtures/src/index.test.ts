@@ -7,7 +7,7 @@ test('has various election definitions', () => {
       .map(([key]) => key)
       .sort()
   ).toMatchInlineSnapshot(`
-    Array [
+    [
       "electionFamousNames2021Fixtures",
       "electionGridLayoutNewHampshireAmherstFixtures",
       "electionGridLayoutNewHampshireHudsonFixtures",
