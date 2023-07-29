@@ -27,9 +27,10 @@ async function waitForUnmount(): Promise<void> {
 
 let logger: Logger;
 
+jest.useFakeTimers();
+
 beforeEach(() => {
   delete window.kiosk;
-  jest.useFakeTimers('legacy');
   logger = fakeLogger();
 });
 
