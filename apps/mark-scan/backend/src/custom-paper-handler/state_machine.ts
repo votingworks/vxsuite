@@ -155,8 +155,6 @@ function buildPaperStatusObservable() {
         // function supplied to `switchMap` on the specified interval.
         .pipe(
           // `switchMap` returns an Observable that emits events.
-          // Why do we use `switchMap`? Is it because `switchMap` only emits items from the most recent
-          // inner Observable ie. it will only emit the latest PaperHandlerStatusEvent?
           switchMap(async () => {
             // Get raw status, map to event, and emit event
             const paperHandlerStatus = await driver.getPaperHandlerStatus();
