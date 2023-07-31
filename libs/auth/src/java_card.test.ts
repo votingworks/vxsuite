@@ -1041,6 +1041,32 @@ test('Attempting to write too much data', async () => {
   );
 });
 
+//
+// Methods for scripts
+//
+
+test('disconnect', () => {
+  const javaCard = new JavaCard(config);
+
+  mockCardReader.disconnect.expectCallWith().returns();
+  javaCard.disconnect();
+});
+
+test('retrieveCardCert', async () => {
+  const javaCard = new JavaCard(config);
+
+  mockCardAppletSelectionRequest();
+  mockCardCertRetrievalRequest(
+    CARD_VX_CERT.OBJECT_ID,
+    getTestFilePath({
+      fileType: 'card-vx-cert.der',
+      cardType: 'system-administrator',
+    })
+  );
+
+  await javaCard.retrieveCardCert('cardVxCert');
+});
+
 test('createAndStoreCardVxCert', async () => {
   const javaCard = new JavaCard(config);
 
