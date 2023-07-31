@@ -187,10 +187,6 @@ const NoPaperState: StateNodeConfig<
 > = {
   invoke: pollPaperStatus(),
   on: {
-    PAPER_INSIDE: {
-      // TODO make sure we don't print a ballot twice
-      target: 'waiting_for_ballot_data',
-    },
     PAPER_READY_TO_LOAD: {
       target: 'loading_paper',
     },
@@ -225,7 +221,6 @@ const WaitingForBallotDataState: StateNodeConfig<
   PaperHandlerStatusEvent,
   BaseActionObject
 > = {
-  invoke: pollPaperStatus(),
   on: {
     VOTER_INITIATED_PRINT: {
       target: 'printing_ballot',
@@ -271,36 +266,33 @@ const InterpretingState: StateNodeConfig<
   PaperHandlerStatusEvent,
   BaseActionObject
 > = {
-  invoke: [
-    { ...pollPaperStatus() },
-    {
-      id: 'interpretScannedBallot',
-      src: (context) => {
-        const { scannedImagePaths, workspace } = context;
-        const { store } = workspace;
-        const electionDefinition = store.getElectionDefinition();
+  invoke: {
+    id: 'interpretScannedBallot',
+    src: (context) => {
+      const { scannedImagePaths, workspace } = context;
+      const { store } = workspace;
+      const electionDefinition = store.getElectionDefinition();
 
-        assert(scannedImagePaths);
-        assert(electionDefinition);
+      assert(scannedImagePaths);
+      assert(electionDefinition);
 
-        const { precincts } = electionDefinition.election;
-        // Hard coded for now because we don't store precinct in backend. This
-        // will be replaced with a store read in a future PR.
-        const precinct = precincts[precincts.length - 1];
-        const precinctSelection = singlePrecinctSelectionFor(precinct.id);
-        const testMode = true;
-        return interpretScannedBallots(
-          electionDefinition,
-          precinctSelection,
-          testMode,
-          scannedImagePaths
-        );
-      },
-      onDone: {
-        target: 'presenting_ballot',
-      },
+      const { precincts } = electionDefinition.election;
+      // Hard coded for now because we don't store precinct in backend. This
+      // will be replaced with a store read in a future PR.
+      const precinct = precincts[precincts.length - 1];
+      const precinctSelection = singlePrecinctSelectionFor(precinct.id);
+      const testMode = true;
+      return interpretScannedBallots(
+        electionDefinition,
+        precinctSelection,
+        testMode,
+        scannedImagePaths
+      );
     },
-  ],
+    onDone: {
+      target: 'presenting_ballot',
+    },
+  },
 };
 
 const PresentingBallotState: StateNodeConfig<
@@ -311,18 +303,6 @@ const PresentingBallotState: StateNodeConfig<
 > = {
   entry: async (context) => {
     await context.driver.presentPaper();
-  },
-};
-
-const FinalState: StateNodeConfig<
-  Context,
-  any,
-  PaperHandlerStatusEvent,
-  BaseActionObject
-> = {
-  type: 'final',
-  entry: () => {
-    debug('Entered ending state');
   },
 };
 
@@ -360,7 +340,6 @@ export function buildMachine(
       scanning: ScanningState,
       interpreting: InterpretingState,
       presenting_ballot: PresentingBallotState,
-      final_state: FinalState,
     },
   });
 }
