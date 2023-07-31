@@ -45,6 +45,7 @@ import {
 } from './scanner_config';
 import {
   DEVICE_MAX_WIDTH_DOTS,
+  getBitsPerPixelForScanType,
   INT_16_MAX,
   INT_16_MIN,
   OK_CONTINUE,
@@ -56,7 +57,6 @@ import {
   PrintModeDotDensity,
   RealTimeRequestIds,
   SCAN_HEADER_LENGTH_BYTES,
-  ScanTypes8BitsPerPixel,
   UINT_16_MAX,
 } from './constants';
 import {
@@ -144,7 +144,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   readonly realTimeLock = new Lock();
   readonly scannerConfig: ScannerConfig = getDefaultConfig();
 
-  constructor(readonly webDevice: MinimalWebUsbDevice) {}
+  constructor(readonly webDevice: MinimalWebUsbDevice) { }
 
   async connect(): Promise<void> {
     await this.webDevice.open();
@@ -467,11 +467,12 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       scanStatus = response.returnCode;
       const { sizeX, sizeY } = response;
       // `sizeX` is the width of the current data block. The scan command always returns an empty data block as the last packet,
-      // so we instead store the first `sizeX` value we receive. Note this assumes `sizeX` is the same for all packets 0...(n-1)
+      // so the last `sizeX` value received is 0 - not useful. Instead, we store the first `sizeX` value we receive.
+      // Note this assumes `sizeX` is the same for all packets 0...(n-1)
       if (width === -1) {
         width = sizeX;
       }
-      const pixelsPerByte = response.scan in ScanTypes8BitsPerPixel ? 1 : 8;
+      const pixelsPerByte = 8 / getBitsPerPixelForScanType(response.scan);
       debug(`sizeX: ${sizeX}, sizeY: ${sizeY}, ppb: ${pixelsPerByte}`);
       const dataBlockByteLength = (sizeX * sizeY) / pixelsPerByte;
       const dataBlock = responseBuffer.slice(SCAN_HEADER_LENGTH_BYTES);

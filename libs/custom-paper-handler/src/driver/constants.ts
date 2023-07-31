@@ -1,3 +1,4 @@
+import { throwIllegalValue } from '@votingworks/basics';
 import { Uint8 } from '@votingworks/message-coder';
 
 /**
