@@ -21,6 +21,7 @@ import {
   interpretSheet,
 } from '@votingworks/ballot-interpreter';
 import { tmpNameSync } from 'tmp';
+import { PRINT_DPI, SCAN_DPI } from './constants';
 
 const debug = makeDebug('mark-scan:custom-paper-handler:application-driver');
 
@@ -99,13 +100,13 @@ export async function setDefaults(driver: PaperHandlerDriver): Promise<void> {
 
 export async function printBallot(
   driver: PaperHandlerDriver,
-  pdfData: Uint8Array,
+  pdfData: Buffer,
   options: Partial<ImageConversionOptions> = {}
 ): Promise<void> {
   debug('+printBallot');
   const enablePrintPromise = driver.enablePrint();
   const pageInfo = await iter(
-    pdfToImages(Buffer.from(pdfData), { scale: 200 / 72 })
+    pdfToImages(pdfData, { scale: PRINT_DPI / SCAN_DPI })
   ).first();
   assert(
     pageInfo?.pageCount === 1,

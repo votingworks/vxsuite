@@ -171,13 +171,12 @@ function buildApi(
       return stateMachine.getSimpleStatus();
     },
 
-    // prints and presents a completed ballot
-    async printBallot(input: { pdfData: Buffer }): Promise<SimpleServerStatus> {
+    printBallot(input: { pdfData: Buffer }): SimpleServerStatus {
       if (!stateMachine) {
         return 'no_hardware';
       }
 
-      await stateMachine.printBallot(input.pdfData);
+      void stateMachine.printBallot(input.pdfData);
       return stateMachine.getSimpleStatus();
     },
   });

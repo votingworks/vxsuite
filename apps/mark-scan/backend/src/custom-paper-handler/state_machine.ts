@@ -18,6 +18,7 @@ import {
   ServiceMap,
   StateSchema,
 } from 'xstate';
+import { Buffer } from 'buffer';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { Optional, assert } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
@@ -53,7 +54,7 @@ type PaperHandlerStatusEvent =
   | { type: 'NO_PAPER_IN_FRONT' }
   | { type: 'PAPER_READY_TO_LOAD' }
   | { type: 'PAPER_INSIDE' }
-  | { type: 'VOTER_INITIATED_PRINT'; pdfData: Uint8Array }
+  | { type: 'VOTER_INITIATED_PRINT'; pdfData: Buffer }
   | { type: 'PAPER_IN_OUTPUT' }
   | { type: 'SCANNING' }
   | { type: 'PAPER_REMOVED' }
@@ -103,7 +104,7 @@ export class PaperHandlerStateMachine {
     }
   }
 
-  printBallot(pdfData: Uint8Array): void {
+  printBallot(pdfData: Buffer): void {
     this.machineService.send({
       type: 'VOTER_INITIATED_PRINT',
       pdfData,
