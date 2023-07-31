@@ -260,6 +260,28 @@ const ScanningState: StateNodeConfig<
   },
 };
 
+function loadMetadataAndInterpretBallot(context: Context) {
+  const { scannedImagePaths, workspace } = context;
+  const { store } = workspace;
+  const electionDefinition = store.getElectionDefinition();
+
+  assert(scannedImagePaths);
+  assert(electionDefinition);
+
+  const { precincts } = electionDefinition.election;
+  // Hard coded for now because we don't store precinct in backend. This
+  // will be replaced with a store read in a future PR.
+  const precinct = precincts[precincts.length - 1];
+  const precinctSelection = singlePrecinctSelectionFor(precinct.id);
+  const testMode = true;
+  return interpretScannedBallots(
+    electionDefinition,
+    precinctSelection,
+    testMode,
+    scannedImagePaths
+  );
+}
+
 const InterpretingState: StateNodeConfig<
   Context,
   any,
@@ -268,27 +290,7 @@ const InterpretingState: StateNodeConfig<
 > = {
   invoke: {
     id: 'interpretScannedBallot',
-    src: (context) => {
-      const { scannedImagePaths, workspace } = context;
-      const { store } = workspace;
-      const electionDefinition = store.getElectionDefinition();
-
-      assert(scannedImagePaths);
-      assert(electionDefinition);
-
-      const { precincts } = electionDefinition.election;
-      // Hard coded for now because we don't store precinct in backend. This
-      // will be replaced with a store read in a future PR.
-      const precinct = precincts[precincts.length - 1];
-      const precinctSelection = singlePrecinctSelectionFor(precinct.id);
-      const testMode = true;
-      return interpretScannedBallots(
-        electionDefinition,
-        precinctSelection,
-        testMode,
-        scannedImagePaths
-      );
-    },
+    src: loadMetadataAndInterpretBallot,
     onDone: {
       target: 'presenting_ballot',
     },
