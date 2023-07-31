@@ -6,6 +6,7 @@ import { Buffer } from 'buffer';
 import { assert, sleep } from '@votingworks/basics';
 import { exit } from 'process';
 import { join } from 'path';
+import { tmpdir } from 'os';
 import { getPaperHandlerDriver } from '../driver/helpers';
 import { ballotFixture } from '../test/fixtures';
 import { chunkBinaryBitmap, imageDataToBinaryBitmap } from '../printing';
@@ -65,7 +66,7 @@ async function outputSampleBallotPdfWidth() {
 
 async function scan(driver: PaperHandlerDriverInterface): Promise<void> {
   const dateString = new Date().toISOString();
-  const pathOut = join('/tmp', `ballot-driver-cli-${dateString}.jpg`);
+  const pathOut = join(tmpdir(), `ballot-driver-cli-${dateString}.jpg`);
   await driver.scanAndSave(pathOut);
 }
 
