@@ -15,13 +15,10 @@ import {
 } from '@votingworks/utils';
 import waitForExpect from 'wait-for-expect';
 import { MockUsbDrive } from '@votingworks/usb-drive';
+import { PrecinctScannerState } from '@votingworks/types/src/precinct_scanner';
 import { Api } from '../../src/app';
 import { PrecinctScannerInterpreter } from '../../src/interpret';
-import {
-  PrecinctScannerState,
-  PrecinctScannerStatus,
-  SheetInterpretation,
-} from '../../src/types';
+import { PrecinctScannerStatus, SheetInterpretation } from '../../src/types';
 
 export async function expectStatus(
   apiClient: grout.Client<Api>,
