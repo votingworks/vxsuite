@@ -11,6 +11,17 @@
     "type-check": "tsc --build",
     "test": "pnpm lint"
   },
+  "lint-staged": {
+    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+      "prettier --write"
+    ],
+    "*.+(js|jsx|ts|tsx)": [
+      "eslint --quiet --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
+  },
   "dependencies": {
     "esbuild": "^0.17.6",
     "esbuild-esm-loader": "^0.2.3",
@@ -26,11 +37,13 @@
     "@types/node": "16.18.23",
     "@typescript-eslint/eslint-plugin": "5.37.0",
     "@typescript-eslint/parser": "5.37.0",
+    "eslint": "8.23.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-import-resolver-node": "^0.3.6",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-vx": "workspace:*",
+    "lint-staged": "^11.0.0",
     "is-ci-cli": "^2.2.0",
     "prettier": "2.6.2",
     "tsx": "^3.12.6",

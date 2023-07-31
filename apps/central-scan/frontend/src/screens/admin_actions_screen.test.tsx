@@ -6,7 +6,6 @@ import {
   fakeSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { err, ok, deferred } from '@votingworks/basics';
-import MockDate from 'mockdate';
 import { act } from 'react-dom/test-utils';
 import { createMemoryHistory } from 'history';
 import { screen, waitFor, within } from '../../test/react_testing_library';
@@ -224,7 +223,7 @@ test('override mark thresholds button shows when there are no overrides', async 
 test('clicking "Update Date and Time" shows modal to set clock', async () => {
   mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
 
-  MockDate.set('2020-10-31T00:00:00.000Z');
+  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
   window.kiosk = fakeKiosk();
 
   renderScreen();
@@ -253,4 +252,6 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
       IANAZone: 'UTC',
     });
   });
+
+  jest.useRealTimers();
 });

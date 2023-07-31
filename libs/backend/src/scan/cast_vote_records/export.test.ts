@@ -13,10 +13,6 @@ import {
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 import {
-  advanceTo as setDateMock,
-  clear as clearDateMock,
-} from 'jest-date-mock';
-import {
   ArtifactAuthenticatorApi,
   buildMockArtifactAuthenticator,
 } from '@votingworks/auth';
@@ -70,7 +66,7 @@ beforeEach(() => {
 });
 
 test('getCastVoteRecordReportStream', async () => {
-  setDateMock(new Date(2020, 3, 14));
+  jest.useFakeTimers().setSystemTime(new Date(2020, 3, 14));
   function* getResultSheetGenerator(): Generator<ResultSheet> {
     yield {
       id: 'ballot-1',
@@ -109,7 +105,7 @@ test('getCastVoteRecordReportStream', async () => {
   expect(report).toMatchSnapshot();
   expect(report?.CVR).toHaveLength(2);
 
-  clearDateMock();
+  jest.useRealTimers();
 });
 
 test('getCastVoteRecordReportStream results in error when validation fails', async () => {
@@ -235,7 +231,7 @@ const interpretedHmpbPage1WithWriteIn: InterpretedHmpbPage = {
 };
 
 test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
-  setDateMock(new Date(2020, 3, 14));
+  jest.useFakeTimers().setSystemTime(new Date(2020, 3, 14));
   function* getResultSheetGenerator(): Generator<ResultSheet> {
     yield {
       id: 'ballot-1',

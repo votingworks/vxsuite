@@ -6,7 +6,6 @@ import {
 import { fakeLogger } from '@votingworks/logging';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import MockDate from 'mockdate';
 import {
   act,
   render,
@@ -30,8 +29,8 @@ import { fakeUsbDriveStatus } from '../../test/helpers/fake_usb_drive';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  MockDate.set('2020-10-31T00:00:00.000Z');
-  jest.useFakeTimers();
+  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
+
   window.location.href = '/';
   window.kiosk = fakeKiosk();
   apiMock = createApiMock();
@@ -74,7 +73,7 @@ test('renders date and time settings modal', async () => {
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM UTC';
 
   // Open Modal and change date
-  userEvent.click(screen.getByText(startDate));
+  userEvent.click(await screen.findByText(startDate));
 
   within(screen.getByTestId('modal')).getByText('Sat, Oct 31, 2020, 12:00 AM');
 

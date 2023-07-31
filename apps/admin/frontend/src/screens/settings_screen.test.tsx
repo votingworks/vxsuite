@@ -1,4 +1,3 @@
-import MockDate from 'mockdate';
 import userEvent from '@testing-library/user-event';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { screen, waitFor, within } from '../../test/react_testing_library';
@@ -11,13 +10,14 @@ let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  MockDate.set('2022-06-22T00:00:00.000Z');
+  jest.useFakeTimers().setSystemTime(new Date('2022-06-22T00:00:00.000Z'));
   mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   apiMock = createApiMock();
 });
 
 afterEach(() => {
+  jest.useRealTimers();
   apiMock.assertComplete();
 });
 

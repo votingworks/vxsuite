@@ -11,6 +11,7 @@ import {
   fakePrintElementWhenReady,
 } from '@votingworks/test-utils';
 import { configure } from '../test/react_testing_library';
+import './polyfills';
 
 configure({ asyncUtilTimeout: 5_000 });
 

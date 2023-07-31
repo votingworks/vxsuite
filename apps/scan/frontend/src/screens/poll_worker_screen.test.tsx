@@ -8,8 +8,7 @@ import {
   ALL_PRECINCTS_SELECTION,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import MockDate from 'mockdate';
-import { mocked } from 'ts-jest/utils';
+import { mocked } from 'jest-mock';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { electionSampleDefinition } from '@votingworks/fixtures';
@@ -32,7 +31,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   };
 });
 
-MockDate.set('2020-10-31T00:00:00.000Z');
+jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
 
 beforeEach(() => {
   mockOf(isFeatureFlagEnabled).mockImplementation(() => false);

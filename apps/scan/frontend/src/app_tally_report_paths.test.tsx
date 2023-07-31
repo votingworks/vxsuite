@@ -29,7 +29,6 @@ import {
 } from '@votingworks/types';
 
 import userEvent from '@testing-library/user-event';
-import MockDate from 'mockdate';
 import { fakeLogger } from '@votingworks/logging';
 import {
   act,
@@ -934,7 +933,7 @@ test('polls closed, general election, single precinct', async () => {
 });
 
 test('polls paused', async () => {
-  MockDate.set('2022-10-31T16:23:00.000Z');
+  jest.useFakeTimers().setSystemTime(new Date('2022-10-31T16:23:00.000Z'));
   const electionDefinition = electionSample2Definition;
   apiMock.expectGetConfig({
     electionDefinition,
@@ -978,7 +977,7 @@ test('polls paused', async () => {
 });
 
 test('polls unpaused', async () => {
-  MockDate.set('2022-10-31T16:23:00.000Z');
+  jest.useFakeTimers().setSystemTime(new Date('2022-10-31T16:23:00.000Z'));
   const electionDefinition = electionSample2Definition;
   apiMock.expectGetConfig({
     electionDefinition,

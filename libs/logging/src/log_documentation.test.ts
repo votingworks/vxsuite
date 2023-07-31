@@ -1,6 +1,5 @@
 import { EventLogging, safeParseJson } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import MockDate from 'mockdate';
 import * as fs from 'fs';
 import { LogEventId } from './log_event_ids';
 import {
@@ -9,7 +8,7 @@ import {
 } from './log_documentation';
 import { LogSource } from './log_source';
 
-MockDate.set('2020-07-24T00:00:00.000Z');
+jest.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
 
 describe('test cdf documentation generation', () => {
   test('builds expected documentation for VxAdminFrontend', () => {

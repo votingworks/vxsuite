@@ -1,4 +1,3 @@
-import MockDate from 'mockdate';
 import { fakeLogger } from '@votingworks/logging';
 import {
   fakeFileWriter,
@@ -21,7 +20,7 @@ import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  MockDate.set(new Date(2023, 0, 1));
+  jest.useFakeTimers().setSystemTime(new Date(2023, 0, 1));
 
   apiMock = createApiMock();
 
@@ -34,6 +33,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  jest.useRealTimers();
   apiMock.assertComplete();
   delete window.kiosk;
 });

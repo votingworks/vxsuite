@@ -1,5 +1,4 @@
 import { DateTime } from 'luxon';
-import MockDate from 'mockdate';
 import {
   formatFullDateTimeZone,
   formatLongDate,
@@ -110,9 +109,8 @@ test('getDaysInMonth', () => {
 });
 
 test('utcTimestamp', () => {
-  const now = DateTime.fromISO('2022-03-23T11:23:00.000Z');
-  MockDate.set(now.toISO());
+  jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000Z'));
   expect(utcTimestamp()).toEqual(Math.round(DateTime.utc().toSeconds()));
   expect(utcTimestamp()).toMatchInlineSnapshot(`1648034580`);
-  MockDate.reset();
+  jest.useRealTimers();
 });

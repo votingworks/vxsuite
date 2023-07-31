@@ -1,5 +1,4 @@
 import { DateTime } from 'luxon';
-import MockDate from 'mockdate';
 import userEvent from '@testing-library/user-event';
 import {
   fakeSystemAdministratorUser,
@@ -12,8 +11,7 @@ import { render, screen, waitFor } from '../test/react_testing_library';
 import { UnlockMachineScreen } from './unlock_machine_screen';
 
 beforeEach(() => {
-  MockDate.set('2000-01-01T00:00:00Z');
-  jest.useFakeTimers('legacy');
+  jest.useFakeTimers().setSystemTime(new Date('2000-01-01T00:00:00Z'));
 });
 
 const checkingPinAuthStatus: DippedSmartCardAuth.CheckingPin = {
@@ -115,7 +113,6 @@ test.each<{
     userEvent.click(screen.getButton('0'));
     screen.getByText('- - - - - -');
 
-    MockDate.set('2000-01-01T00:00:01Z');
     act(() => {
       jest.advanceTimersByTime(1000);
     });
@@ -123,7 +120,6 @@ test.each<{
       hasTextAcrossElements(/Card locked. Please try again in 00m 59s$/)
     );
 
-    MockDate.set('2000-01-01T00:01:00Z');
     act(() => {
       jest.advanceTimersByTime(59 * 1000);
     });

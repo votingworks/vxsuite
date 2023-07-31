@@ -1,4 +1,3 @@
-import MockDate from 'mockdate';
 import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
 import {
@@ -49,7 +48,7 @@ let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  jest.useFakeTimers().setSystemTime(new Date('2020-11-03T22:22:00'));
 
   Object.defineProperty(window, 'location', {
     writable: true,
@@ -73,7 +72,6 @@ beforeEach(() => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
 
-  MockDate.set(new Date('2020-11-03T22:22:00'));
   fetchMock.reset();
   fetchMock.get(
     '/convert/election/files',
@@ -92,6 +90,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  jest.useRealTimers();
   delete window.kiosk;
   apiMock.assertComplete();
 });

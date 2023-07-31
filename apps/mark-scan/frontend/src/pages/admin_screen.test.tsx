@@ -1,5 +1,3 @@
-import MockDate from 'mockdate';
-
 import {
   asElectionDefinition,
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
@@ -33,12 +31,10 @@ import {
 import { ApiClientContext, createQueryClient } from '../api';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
-MockDate.set('2020-10-31T00:00:00.000Z');
-
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
   window.location.href = '/';
   window.kiosk = fakeKiosk();
   apiMock = createApiMock();
@@ -83,7 +79,7 @@ test('renders date and time settings modal', async () => {
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM UTC';
-  screen.getByText(startDate);
+  await screen.findByText(startDate);
 
   // Open Modal and change date
   fireEvent.click(screen.getByText('Update Date and Time'));
