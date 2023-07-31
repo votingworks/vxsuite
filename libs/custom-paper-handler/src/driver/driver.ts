@@ -144,7 +144,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   readonly realTimeLock = new Lock();
   readonly scannerConfig: ScannerConfig = getDefaultConfig();
 
-  constructor(readonly webDevice: MinimalWebUsbDevice) { }
+  constructor(readonly webDevice: MinimalWebUsbDevice) {}
 
   async connect(): Promise<void> {
     await this.webDevice.open();
