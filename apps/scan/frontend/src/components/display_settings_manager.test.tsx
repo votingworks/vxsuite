@@ -5,8 +5,8 @@ import {
   ThemeManagerContextInterface,
 } from '@votingworks/ui';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { PRECINCT_SCANNER_STATES } from '@votingworks/scan-backend';
 import { advanceTimersAndPromises } from '@votingworks/test-utils';
+import { PRECINCT_SCANNER_STATES } from '@votingworks/types';
 import { act, render, waitFor } from '../../test/react_testing_library';
 import { DisplaySettingsManager } from './display_settings_manager';
 import {
