@@ -194,6 +194,7 @@ export const unconfigureMachine = {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionDefinition.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
+        await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
       },
     });
   },
