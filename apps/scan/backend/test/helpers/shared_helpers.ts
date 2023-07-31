@@ -23,6 +23,7 @@ import { PrecinctScannerInterpreter } from '../../src/interpret';
 import { Api } from '../../src/app';
 import { PrecinctScannerState, PrecinctScannerStatus } from '../../src/types';
 
+
 export async function expectStatus(
   apiClient: grout.Client<Api>,
   expectedStatus: {

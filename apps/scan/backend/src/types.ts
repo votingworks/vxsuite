@@ -7,6 +7,7 @@ import {
   SheetInterpretation,
   SystemSettings,
 } from '@votingworks/types';
+import { PrecinctScannerState } from '@votingworks/types/src/precinct_scanner';
 
 export interface MachineConfig {
   machineId: string;
@@ -19,31 +20,6 @@ export interface PageInterpretationWithAdjudication<
   interpretation: T;
   contestIds?: readonly string[];
 }
-
-export const PRECINCT_SCANNER_STATES = [
-  'connecting',
-  'disconnected',
-  'no_paper',
-  'ready_to_scan',
-  'scanning',
-  'returning_to_rescan',
-  'ready_to_accept',
-  'accepting',
-  'accepted',
-  'needs_review',
-  'accepting_after_review',
-  'returning',
-  'returned',
-  'rejecting',
-  'rejected',
-  'jammed',
-  'both_sides_have_paper',
-  'recovering_from_error',
-  'double_sheet_jammed',
-  'unrecoverable_error',
-] as const;
-
-export type PrecinctScannerState = typeof PRECINCT_SCANNER_STATES[number];
 
 export type PrecinctScannerErrorType =
   | 'paper_status_timed_out'
