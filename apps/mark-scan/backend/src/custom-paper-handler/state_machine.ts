@@ -2,7 +2,6 @@
 import makeDebug from 'debug';
 import {
   PaperHandlerDriver,
-  ImageConversionOptions,
   PaperHandlerStatus,
   PaperHandlerDriverInterface,
 } from '@votingworks/custom-paper-handler';
@@ -54,7 +53,7 @@ type PaperHandlerStatusEvent =
   | { type: 'NO_PAPER_IN_FRONT' }
   | { type: 'PAPER_READY_TO_LOAD' }
   | { type: 'PAPER_INSIDE' }
-  | { type: 'VOTER_INITIATED_PRINT' }
+  | { type: 'VOTER_INITIATED_PRINT'; pdfData: Uint8Array }
   | { type: 'PAPER_IN_OUTPUT' }
   | { type: 'SCANNING' }
   | { type: 'PAPER_REMOVED' }
@@ -104,15 +103,11 @@ export class PaperHandlerStateMachine {
     }
   }
 
-  printBallot(
-    pdfData: Uint8Array,
-    options: Partial<ImageConversionOptions> = {}
-  ): Promise<void> {
+  printBallot(pdfData: Uint8Array): void {
     this.machineService.send({
       type: 'VOTER_INITIATED_PRINT',
+      pdfData,
     });
-
-    return driverPrintBallot(this.driver, pdfData, options);
   }
 }
 
@@ -258,6 +253,16 @@ export function buildMachine(
       },
       printing_ballot: {
         invoke: pollPaperStatus(),
+        entry: (context, event) => {
+          // Need to hint to Typescript that we want the 'VOTER_INITIATED_PRINT' event in our union type of events
+          if ('pdfData' in event) {
+            void driverPrintBallot(context.driver, event.pdfData, {});
+          } else {
+            throw new Error(
+              `printing_ballot entry called by unsupported event type: ${event.type}`
+            );
+          }
+        },
         on: {
           PAPER_IN_OUTPUT: {
             target: 'scanning',
