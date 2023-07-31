@@ -12,7 +12,6 @@ import {
   createMachine,
   InvokeConfig,
   StateMachine,
-  StateNodeConfig,
   interpret,
   Interpreter,
   Assigner,
@@ -179,87 +178,6 @@ function pollPaperStatus(): InvokeConfig<Context, PaperHandlerStatusEvent> {
   };
 }
 
-const NoPaperState: StateNodeConfig<
-  Context,
-  any,
-  PaperHandlerStatusEvent,
-  BaseActionObject
-> = {
-  invoke: pollPaperStatus(),
-  on: {
-    PAPER_READY_TO_LOAD: {
-      target: 'loading_paper',
-    },
-  },
-};
-
-const LoadingPaperState: StateNodeConfig<
-  Context,
-  any,
-  PaperHandlerStatusEvent,
-  BaseActionObject
-> = {
-  invoke: pollPaperStatus(),
-  entry: (context) => {
-    // Paper can trigger sensors before it's actually able to be loaded,
-    // so we wait to decrease chance of failed load
-    setTimeout(async () => {
-      await context.driver.loadPaper();
-      await context.driver.parkPaper();
-    }, 300);
-  },
-  on: {
-    PAPER_INSIDE: {
-      target: 'waiting_for_ballot_data',
-    },
-  },
-};
-
-const WaitingForBallotDataState: StateNodeConfig<
-  Context,
-  any,
-  PaperHandlerStatusEvent,
-  BaseActionObject
-> = {
-  on: {
-    VOTER_INITIATED_PRINT: {
-      target: 'printing_ballot',
-    },
-  },
-};
-
-const PrintingBallotState: StateNodeConfig<
-  Context,
-  any,
-  PaperHandlerStatusEvent,
-  BaseActionObject
-> = {
-  invoke: pollPaperStatus(),
-  on: {
-    PAPER_IN_OUTPUT: {
-      target: 'scanning',
-    },
-  },
-};
-
-const ScanningState: StateNodeConfig<
-  Context,
-  any,
-  PaperHandlerStatusEvent,
-  BaseActionObject
-> = {
-  invoke: {
-    id: 'scanAndSave',
-    src: (context) => {
-      return scanAndSave(context.driver);
-    },
-    onDone: {
-      target: 'interpreting',
-      actions: assign({ scannedImagePaths: (_, event) => event.data }),
-    },
-  },
-};
-
 function loadMetadataAndInterpretBallot(context: Context) {
   const { scannedImagePaths, workspace } = context;
   const { store } = workspace;
@@ -281,32 +199,6 @@ function loadMetadataAndInterpretBallot(context: Context) {
     scannedImagePaths
   );
 }
-
-const InterpretingState: StateNodeConfig<
-  Context,
-  any,
-  PaperHandlerStatusEvent,
-  BaseActionObject
-> = {
-  invoke: {
-    id: 'interpretScannedBallot',
-    src: loadMetadataAndInterpretBallot,
-    onDone: {
-      target: 'presenting_ballot',
-    },
-  },
-};
-
-const PresentingBallotState: StateNodeConfig<
-  Context,
-  any,
-  PaperHandlerStatusEvent,
-  BaseActionObject
-> = {
-  entry: async (context) => {
-    await context.driver.presentPaper();
-  },
-};
 
 export function buildMachine(
   workspace: Workspace,
@@ -335,13 +227,71 @@ export function buildMachine(
       pollingIntervalMs,
     },
     states: {
-      no_paper: NoPaperState,
-      loading_paper: LoadingPaperState,
-      waiting_for_ballot_data: WaitingForBallotDataState,
-      printing_ballot: PrintingBallotState,
-      scanning: ScanningState,
-      interpreting: InterpretingState,
-      presenting_ballot: PresentingBallotState,
+      no_paper: {
+        invoke: pollPaperStatus(),
+        on: {
+          PAPER_READY_TO_LOAD: {
+            target: 'loading_paper',
+          },
+        },
+      },
+      loading_paper: {
+        invoke: pollPaperStatus(),
+        entry: (context) => {
+          // Paper can trigger sensors before it's actually able to be loaded,
+          // so we wait to decrease chance of failed load
+          setTimeout(async () => {
+            await context.driver.loadPaper();
+            await context.driver.parkPaper();
+          }, 300);
+        },
+        on: {
+          PAPER_INSIDE: {
+            target: 'waiting_for_ballot_data',
+          },
+        },
+      },
+      waiting_for_ballot_data: {
+        on: {
+          VOTER_INITIATED_PRINT: {
+            target: 'printing_ballot',
+          },
+        },
+      },
+      printing_ballot: {
+        invoke: pollPaperStatus(),
+        on: {
+          PAPER_IN_OUTPUT: {
+            target: 'scanning',
+          },
+        },
+      },
+      scanning: {
+        invoke: {
+          id: 'scanAndSave',
+          src: (context) => {
+            return scanAndSave(context.driver);
+          },
+          onDone: {
+            target: 'interpreting',
+            actions: assign({ scannedImagePaths: (_, event) => event.data }),
+          },
+        },
+      },
+      interpreting: {
+        invoke: {
+          id: 'interpretScannedBallot',
+          src: loadMetadataAndInterpretBallot,
+          onDone: {
+            target: 'presenting_ballot',
+          },
+        },
+      },
+      presenting_ballot: {
+        entry: async (context) => {
+          await context.driver.presentPaper();
+        },
+      },
     },
   });
 }
