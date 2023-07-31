@@ -11,6 +11,7 @@ import {
 import {
   BallotPackage,
   PrecinctId,
+  PrecinctScannerState,
   SheetInterpretation,
 } from '@votingworks/types';
 import {
@@ -21,8 +22,7 @@ import waitForExpect from 'wait-for-expect';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { PrecinctScannerInterpreter } from '../../src/interpret';
 import { Api } from '../../src/app';
-import { PrecinctScannerState, PrecinctScannerStatus } from '../../src/types';
-
+import { PrecinctScannerStatus } from '../../src/types';
 
 export async function expectStatus(
   apiClient: grout.Client<Api>,
