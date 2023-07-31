@@ -56,7 +56,7 @@ type PaperHandlerStatusEvent =
   | { type: 'PAPER_READY_TO_LOAD' }
   | { type: 'PAPER_INSIDE' }
   | { type: 'VOTER_INITIATED_PRINT' }
-  | { type: 'BALLOT_PRINTED' }
+  | { type: 'PAPER_IN_OUTPUT' }
   | { type: 'SCANNING' }
   | { type: 'PAPER_REMOVED' }
   | { type: 'END' };
@@ -124,7 +124,7 @@ function paperHandlerStatusToEvent(
 
   if (isPaperInScanner(paperHandlerStatus)) {
     if (isPaperInOutput(paperHandlerStatus)) {
-      event = { type: 'BALLOT_PRINTED' };
+      event = { type: 'PAPER_IN_OUTPUT' };
     } else {
       event = { type: 'PAPER_INSIDE' };
     }
@@ -241,7 +241,7 @@ const PrintingBallotState: StateNodeConfig<
 > = {
   invoke: pollPaperStatus(),
   on: {
-    BALLOT_PRINTED: {
+    PAPER_IN_OUTPUT: {
       target: 'scanning',
     },
   },
