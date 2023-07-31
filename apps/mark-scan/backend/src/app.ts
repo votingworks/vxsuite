@@ -17,7 +17,10 @@ import {
   TEST_JURISDICTION,
   PrecinctSelection,
 } from '@votingworks/types';
-import { isElectionManagerAuth } from '@votingworks/utils';
+import {
+  isElectionManagerAuth,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 
 import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
@@ -170,6 +173,13 @@ function buildApi(
         jurisdiction: authStatus.user.jurisdiction,
       });
       workspace.store.setSystemSettings(systemSettings);
+
+      const { precincts } = electionDefinition.election;
+      if (precincts.length === 1) {
+        workspace.store.setPrecinctSelection(
+          singlePrecinctSelectionFor(precincts[0].id)
+        );
+      }
 
       return ok(electionDefinition);
     },

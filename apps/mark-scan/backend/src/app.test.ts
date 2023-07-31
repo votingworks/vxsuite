@@ -1,6 +1,7 @@
 import { assert } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
+  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   electionSampleDefinition,
   systemSettings,
 } from '@votingworks/fixtures';
@@ -24,6 +25,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   safeParseJson,
+  SinglePrecinctSelection,
   SystemSettingsSchema,
 } from '@votingworks/types';
 import { createApp } from '../test/app_helpers';
@@ -136,6 +138,42 @@ test('configureBallotPackageFromUsb reads to and writes from store', async () =>
   );
   const electionDefinitionResult = await apiClient.getElectionDefinition();
   expect(electionDefinitionResult).toEqual(electionDefinition);
+});
+
+test('configureBallotPackageFromUsb automatically writes precinct selection if only 1 option', async () => {
+  const electionDefinition =
+    electionMinimalExhaustiveSampleSinglePrecinctDefinition;
+  assert(
+    electionDefinition.election.precincts.length === 1,
+    'Expected election to have exactly 1 precinct'
+  );
+
+  mockElectionManagerAuth(electionDefinition);
+  await setUpUsbAndConfigureElection(electionDefinition);
+
+  const precinctSelection = (
+    await apiClient.getPrecinctSelection()
+  ).unsafeUnwrap();
+  assert(precinctSelection, 'Expected precinct selection to be defined');
+  expect((precinctSelection as SinglePrecinctSelection).precinctId).toEqual(
+    electionDefinition.election.precincts[0].id
+  );
+});
+
+test('configureBallotPackageFromUsb does not automatically write precinct selection if > 1 option', async () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  assert(
+    electionDefinition.election.precincts.length > 1,
+    'Expected election to have > 1 precinct'
+  );
+
+  mockElectionManagerAuth(electionDefinition);
+  await setUpUsbAndConfigureElection(electionDefinition);
+
+  const precinctSelection = (
+    await apiClient.getPrecinctSelection()
+  ).unsafeUnwrap();
+  expect(precinctSelection).toBeUndefined();
 });
 
 test('unconfigureMachine deletes system settings and election definition', async () => {
