@@ -96,8 +96,7 @@ export class Store {
   }
 
   /**
-   * Sets the current precinct `mark-scan` is printing and interpreting ballots for. Set to
-   * `undefined` to accept from all precincts.
+   * Sets the current precinct `mark-scan` is printing and interpreting ballots for.
    */
   setPrecinctSelection(precinctSelection?: PrecinctSelection): void {
     if (!this.hasElection()) {
