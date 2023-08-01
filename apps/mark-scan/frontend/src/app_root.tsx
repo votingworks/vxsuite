@@ -44,7 +44,6 @@ import {
   CastBallotPage,
   useDisplaySettingsManager,
 } from '@votingworks/mark-flow-ui';
-import makeDebug from 'debug';
 import {
   checkPin,
   endCardlessVoterSession,
@@ -77,8 +76,6 @@ import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
 import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
 import { ValidateBallotPage } from './pages/validate_ballot_page';
-
-const debug = makeDebug('mark-scan');
 
 interface UserState {
   votes?: VotesDict;
@@ -281,7 +278,6 @@ export function AppRoot({
   const stateMachineState = getStateMachineStateQuery.isSuccess
     ? getStateMachineStateQuery.data
     : 'no_hardware';
-  debug('hardware state: %s', stateMachineState);
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
   const precinctSelection = getPrecinctSelectionQuery?.data?.ok();
 
