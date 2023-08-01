@@ -4716,8 +4716,8 @@ importers:
         specifier: ^5.5.3
         version: 5.5.3(react-dom@17.0.1)(react@17.0.1)
       react-modal:
-        specifier: ^3.14.4
-        version: 3.14.4(react-dom@17.0.1)(react@17.0.1)
+        specifier: ^3.16.1
+        version: 3.16.1(react-dom@17.0.1)(react@17.0.1)
       react-router-dom:
         specifier: ^5.2.0
         version: 5.2.0(react@17.0.1)
@@ -5283,8 +5283,8 @@ importers:
         specifier: ^5.5.3
         version: 5.5.3(react-dom@17.0.1)(react@17.0.1)
       react-modal:
-        specifier: ^3.14.4
-        version: 3.14.4(react-dom@17.0.1)(react@17.0.1)
+        specifier: ^3.16.1
+        version: 3.16.1(react-dom@17.0.1)(react@17.0.1)
       react-router-dom:
         specifier: ^5.2.0
         version: 5.2.0(react@17.0.1)
@@ -22395,12 +22395,12 @@ packages:
     resolution: {integrity: sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==}
     dev: false
 
-  /react-modal@3.14.4(react-dom@17.0.1)(react@17.0.1):
-    resolution: {integrity: sha512-8surmulejafYCH9wfUmFyj4UfbSJwjcgbS9gf3oOItu4Hwd6ivJyVBETI0yHRhpJKCLZMUtnhzk76wXTsNL6Qg==}
+  /react-modal@3.16.1(react-dom@17.0.1)(react@17.0.1):
+    resolution: {integrity: sha512-VStHgI3BVcGo7OXczvnJN7yT2TWHJPDXZWyI/a0ssFNhGZWsPmB8cF0z33ewDXq4VfYMO1vXgiv/g8Nj9NDyWg==}
     engines: {node: '>=8'}
     peerDependencies:
-      react: ^0.14.0 || ^15.0.0 || ^16 || ^17
-      react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17
+      react: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
+      react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
     dependencies:
       exenv: 1.2.2
       prop-types: 15.8.1
