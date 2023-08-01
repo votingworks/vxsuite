@@ -12,8 +12,10 @@ import {
   BallotPaperSize,
   BallotStyle,
   BallotTargetMarkPosition,
+  BallotType,
   Contests,
   Election,
+  ElectionDefinition,
   getCandidatePartiesDescription,
   getContests,
   GridLayout,
@@ -28,7 +30,12 @@ import {
   Rectangle,
   TextBox,
 } from './document_types';
-import { encodeMetadata } from './encode_metadata';
+import {
+  encodeMetadata,
+  encodeMetadataInQrCode,
+  QrCodeData,
+} from './encode_metadata';
+import { range } from './util';
 
 const debug = makeDebug('layout');
 
@@ -44,10 +51,6 @@ interface FontStyle {
   fontSize: number;
   fontWeight: FontWeight;
   lineHeight: number;
-}
-
-export function range(start: number, end: number): number[] {
-  return Array.from({ length: end - start }, (_, i) => i + start);
 }
 
 // TODO more accurate text measurement
@@ -545,12 +548,49 @@ function HeaderAndInstructions({
   };
 }
 
+function QrCode({
+  x,
+  y,
+  width,
+  height,
+  qrCodeData,
+}: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  qrCodeData: QrCodeData;
+}): Rectangle {
+  const moduleSize = width / qrCodeData.length + 0.1;
+  return {
+    type: 'Rectangle',
+    x,
+    y,
+    width,
+    height,
+    children: qrCodeData.flatMap((columnData, column) =>
+      columnData.map((bit, row) => ({
+        type: 'Rectangle',
+        x: x + column * moduleSize,
+        y: y + row * moduleSize,
+        width: moduleSize,
+        height: moduleSize,
+        fill: bit === 1 ? 'black' : 'white',
+      }))
+    ),
+  };
+}
+
 function Footer({
+  electionDefinition,
+  ballotStyle,
   precinct,
   pageNumber,
   totalPages,
   m,
 }: {
+  electionDefinition: ElectionDefinition;
+  ballotStyle: BallotStyle;
   precinct: Precinct;
   pageNumber: number;
   totalPages: number;
@@ -575,6 +615,7 @@ function Footer({
             yToRow(m.FontStyles.H3.fontSize + 2, m) / 2,
           column:
             m.CONTENT_AREA_COLUMN_WIDTH -
+            m.FOOTER_ROW_HEIGHT -
             xToColumn(continueVotingTextWidth, m) -
             3,
         },
@@ -589,7 +630,10 @@ function Footer({
     {
       type: 'Image',
       ...gridPosition(
-        { row: (m.FOOTER_ROW_HEIGHT - arrowImageHeight) / 2, column: 29 },
+        {
+          row: (m.FOOTER_ROW_HEIGHT - arrowImageHeight) / 2,
+          column: m.CONTENT_AREA_COLUMN_WIDTH - m.FOOTER_ROW_HEIGHT - 2,
+        },
         m
       ),
       width: gridWidth(arrowImageHeight, m),
@@ -613,8 +657,9 @@ function Footer({
             yToRow(m.FontStyles.H3.fontSize + 2, m) / 2,
           column:
             m.CONTENT_AREA_COLUMN_WIDTH -
+            m.FOOTER_ROW_HEIGHT -
             xToColumn(ballotCompleteTextWidth, m) -
-            1.5,
+            0.5,
         },
         m
       ),
@@ -627,6 +672,16 @@ function Footer({
 
   const endOfPageInstruction =
     pageNumber === totalPages ? ballotComplete : continueVoting;
+
+  const { election, electionHash } = electionDefinition;
+  const qrCodeData = encodeMetadataInQrCode(election, {
+    electionHash,
+    precinctId: precinct.id,
+    ballotStyleId: ballotStyle.id,
+    pageNumber,
+    ballotType: BallotType.Standard,
+    isTestMode: false,
+  });
 
   return {
     type: 'Rectangle',
@@ -642,47 +697,68 @@ function Footer({
     ),
     width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH, m),
     height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
-    fill: '#ededed',
-    stroke: 'black',
-    strokeWidth: 0.5,
     children: [
-      // Thicker top border
+      QrCode({
+        ...gridPosition({ row: 0, column: 0 }, m),
+        width: gridWidth(m.FOOTER_ROW_HEIGHT, m),
+        height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
+        qrCodeData,
+      }),
+      // Inner footer with gray background
       {
         type: 'Rectangle',
-        ...gridPosition({ row: 0, column: 0 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH, m),
-        height: 2,
-        fill: 'black',
+        ...gridPosition({ row: 0, column: m.FOOTER_ROW_HEIGHT + 0.5 }, m),
+        width: gridWidth(
+          m.CONTENT_AREA_COLUMN_WIDTH - m.FOOTER_ROW_HEIGHT - 0.5,
+          m
+        ),
+        height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
+        fill: '#ededed',
+        stroke: 'black',
+        strokeWidth: 0.5,
+        children: [
+          // Thicker top border
+          {
+            type: 'Rectangle',
+            ...gridPosition({ row: 0, column: 0 }, m),
+            width: gridWidth(
+              m.CONTENT_AREA_COLUMN_WIDTH - m.FOOTER_ROW_HEIGHT - 0.5,
+              m
+            ),
+            height: 2,
+            fill: 'black',
+          },
+          TextBlock({
+            ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 0.5 }, m),
+            width: gridWidth(5, m),
+            textGroups: [
+              {
+                text: 'Page',
+                fontStyle: m.FontStyles.SMALL,
+              },
+              {
+                text: `${pageNumber}/${totalPages}`,
+                fontStyle: m.FontStyles.H2,
+              },
+            ],
+          }),
+          TextBlock({
+            ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 3.5 }, m),
+            width: gridWidth(12, m),
+            textGroups: [
+              {
+                text: 'Precinct',
+                fontStyle: m.FontStyles.SMALL,
+              },
+              {
+                text: precinct.name,
+                fontStyle: m.FontStyles.H2,
+              },
+            ],
+          }),
+          ...endOfPageInstruction,
+        ],
       },
-      TextBlock({
-        ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 0.5 }, m),
-        width: gridWidth(5, m),
-        textGroups: [
-          {
-            text: 'Page',
-            fontStyle: m.FontStyles.SMALL,
-          },
-          {
-            text: `${pageNumber}/${totalPages}`,
-            fontStyle: m.FontStyles.H2,
-          },
-        ],
-      }),
-      TextBlock({
-        ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 3.5 }, m),
-        width: gridWidth(12, m),
-        textGroups: [
-          {
-            text: 'Precinct',
-            fontStyle: m.FontStyles.SMALL,
-          },
-          {
-            text: precinct.name,
-            fontStyle: m.FontStyles.H2,
-          },
-        ],
-      }),
-      ...endOfPageInstruction,
     ],
   };
 }
@@ -1368,14 +1444,14 @@ export interface BallotLayout {
 }
 
 function layOutBallotHelper(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   precinct: Precinct,
   ballotStyle: BallotStyle
 ) {
-  const { paperSize } = election.ballotLayout;
-  const density = election.ballotLayout.layoutDensity ?? 0;
-  assert(density <= 2);
-  const m = measurements(paperSize, density);
+  const { election } = electionDefinition;
+  const { paperSize, layoutDensity = 0 } = election.ballotLayout;
+  assert(layoutDensity <= 2);
+  const m = measurements(paperSize, layoutDensity);
 
   const ballotStyleIndex = election.ballotStyles.findIndex(
     (bs) => bs.id === ballotStyle.id
@@ -1532,6 +1608,8 @@ function layOutBallotHelper(
   for (const [pageIndex, page] of pages.entries()) {
     page.children.push(
       Footer({
+        electionDefinition,
+        ballotStyle,
         precinct,
         pageNumber: pageIndex + 1,
         totalPages: pages.length,
@@ -1571,12 +1649,12 @@ function layOutBallotHelper(
  * parameterized.
  */
 export function layOutBallot(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   precinct: Precinct,
   ballotStyle: BallotStyle
 ): Result<BallotLayout, Error> {
   try {
-    return ok(layOutBallotHelper(election, precinct, ballotStyle));
+    return ok(layOutBallotHelper(electionDefinition, precinct, ballotStyle));
   } catch (e) {
     return wrapException(e);
   }

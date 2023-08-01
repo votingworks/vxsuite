@@ -33,8 +33,9 @@
     ]
   },
   "dependencies": {
+    "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",
-    "@votingworks/types": "workspace:^1.0.0",
+    "@votingworks/types": "workspace:*",
     "buffer": "^6.0.3",
     "debug": "^4.3.4",
     "dotenv": "8.2.0",

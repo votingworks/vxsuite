@@ -22,7 +22,7 @@ import {
   encodeBallotInto,
   HexEncoding,
   MAXIMUM_WRITE_IN_LENGTH,
-  Prelude,
+  BmdPrelude,
   WriteInEncoding,
   sliceElectionHash,
   encodeBallotConfigInto,
@@ -39,17 +39,19 @@ test('sliceElectionHash', () => {
 });
 
 test('can detect an encoded ballot', () => {
-  expect(detectRawBytesBmdBallot(Uint8Array.of(...Prelude))).toEqual(true);
+  expect(detectRawBytesBmdBallot(Uint8Array.of(...BmdPrelude))).toEqual(true);
   expect(detectRawBytesBmdBallot(Uint8Array.of())).toEqual(false);
-  expect(detectRawBytesBmdBallot(Uint8Array.of(0, ...Prelude))).toEqual(false);
+  expect(detectRawBytesBmdBallot(Uint8Array.of(0, ...BmdPrelude))).toEqual(
+    false
+  );
   expect(
-    detectRawBytesBmdBallot(Uint8Array.of(...Prelude.slice(0, -2)))
+    detectRawBytesBmdBallot(Uint8Array.of(...BmdPrelude.slice(0, -2)))
   ).toEqual(false);
 
-  expect(isVxBallot(Uint8Array.of(...Prelude))).toEqual(true);
+  expect(isVxBallot(Uint8Array.of(...BmdPrelude))).toEqual(true);
   expect(isVxBallot(Uint8Array.of())).toEqual(false);
-  expect(isVxBallot(Uint8Array.of(0, ...Prelude))).toEqual(false);
-  expect(isVxBallot(Uint8Array.of(...Prelude.slice(0, -2)))).toEqual(false);
+  expect(isVxBallot(Uint8Array.of(0, ...BmdPrelude))).toEqual(false);
+  expect(isVxBallot(Uint8Array.of(...BmdPrelude.slice(0, -2)))).toEqual(false);
 });
 
 test('encodes & decodes with Uint8Array as the standard encoding interface', () => {
