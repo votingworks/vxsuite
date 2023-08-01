@@ -34,139 +34,139 @@ describe('VX BMD interpretation', () => {
     );
     expect(mapSheet(result, ({ interpretation }) => interpretation))
       .toMatchInlineSnapshot(`
-          Array [
-            Object {
-              "ballotId": undefined,
-              "metadata": Object {
-                "ballotStyleId": "1",
-                "ballotType": 0,
-                "electionHash": "b4e07814b46911211ec7",
-                "isTestMode": true,
-                "precinctId": "23",
-              },
-              "type": "InterpretedBmdPage",
-              "votes": Object {
-                "attorney": Array [
-                  Object {
-                    "id": "john-snow",
-                    "name": "John Snow",
-                    "partyIds": Array [
-                      "1",
-                    ],
-                  },
-                ],
-                "board-of-alderman": Array [
-                  Object {
-                    "id": "helen-keller",
-                    "name": "Helen Keller",
-                    "partyIds": Array [
-                      "0",
-                    ],
-                  },
-                  Object {
-                    "id": "steve-jobs",
-                    "name": "Steve Jobs",
-                    "partyIds": Array [
-                      "1",
-                    ],
-                  },
-                  Object {
-                    "id": "nikola-tesla",
-                    "name": "Nikola Tesla",
-                    "partyIds": Array [
-                      "0",
-                    ],
-                  },
-                  Object {
-                    "id": "vincent-van-gogh",
-                    "name": "Vincent Van Gogh",
-                    "partyIds": Array [
-                      "1",
-                    ],
-                  },
-                ],
-                "chief-of-police": Array [
-                  Object {
-                    "id": "natalie-portman",
-                    "name": "Natalie Portman",
-                    "partyIds": Array [
-                      "0",
-                    ],
-                  },
-                ],
-                "city-council": Array [
-                  Object {
-                    "id": "marie-curie",
-                    "name": "Marie Curie",
-                    "partyIds": Array [
-                      "0",
-                    ],
-                  },
-                  Object {
-                    "id": "indiana-jones",
-                    "name": "Indiana Jones",
-                    "partyIds": Array [
-                      "1",
-                    ],
-                  },
-                  Object {
-                    "id": "mona-lisa",
-                    "name": "Mona Lisa",
-                    "partyIds": Array [
-                      "3",
-                    ],
-                  },
-                  Object {
-                    "id": "jackie-chan",
-                    "name": "Jackie Chan",
-                    "partyIds": Array [
-                      "3",
-                    ],
-                  },
-                ],
-                "controller": Array [
-                  Object {
-                    "id": "winston-churchill",
-                    "name": "Winston Churchill",
-                    "partyIds": Array [
-                      "0",
-                    ],
-                  },
-                ],
-                "mayor": Array [
-                  Object {
-                    "id": "sherlock-holmes",
-                    "name": "Sherlock Holmes",
-                    "partyIds": Array [
-                      "0",
-                    ],
-                  },
-                ],
-                "parks-and-recreation-director": Array [
-                  Object {
-                    "id": "charles-darwin",
-                    "name": "Charles Darwin",
-                    "partyIds": Array [
-                      "0",
-                    ],
-                  },
-                ],
-                "public-works-director": Array [
-                  Object {
-                    "id": "benjamin-franklin",
-                    "name": "Benjamin Franklin",
-                    "partyIds": Array [
-                      "0",
-                    ],
-                  },
+      [
+        {
+          "ballotId": undefined,
+          "metadata": {
+            "ballotStyleId": "1",
+            "ballotType": 0,
+            "electionHash": "b4e07814b46911211ec7",
+            "isTestMode": true,
+            "precinctId": "23",
+          },
+          "type": "InterpretedBmdPage",
+          "votes": {
+            "attorney": [
+              {
+                "id": "john-snow",
+                "name": "John Snow",
+                "partyIds": [
+                  "1",
                 ],
               },
-            },
-            Object {
-              "type": "BlankPage",
-            },
-          ]
-      `);
+            ],
+            "board-of-alderman": [
+              {
+                "id": "helen-keller",
+                "name": "Helen Keller",
+                "partyIds": [
+                  "0",
+                ],
+              },
+              {
+                "id": "steve-jobs",
+                "name": "Steve Jobs",
+                "partyIds": [
+                  "1",
+                ],
+              },
+              {
+                "id": "nikola-tesla",
+                "name": "Nikola Tesla",
+                "partyIds": [
+                  "0",
+                ],
+              },
+              {
+                "id": "vincent-van-gogh",
+                "name": "Vincent Van Gogh",
+                "partyIds": [
+                  "1",
+                ],
+              },
+            ],
+            "chief-of-police": [
+              {
+                "id": "natalie-portman",
+                "name": "Natalie Portman",
+                "partyIds": [
+                  "0",
+                ],
+              },
+            ],
+            "city-council": [
+              {
+                "id": "marie-curie",
+                "name": "Marie Curie",
+                "partyIds": [
+                  "0",
+                ],
+              },
+              {
+                "id": "indiana-jones",
+                "name": "Indiana Jones",
+                "partyIds": [
+                  "1",
+                ],
+              },
+              {
+                "id": "mona-lisa",
+                "name": "Mona Lisa",
+                "partyIds": [
+                  "3",
+                ],
+              },
+              {
+                "id": "jackie-chan",
+                "name": "Jackie Chan",
+                "partyIds": [
+                  "3",
+                ],
+              },
+            ],
+            "controller": [
+              {
+                "id": "winston-churchill",
+                "name": "Winston Churchill",
+                "partyIds": [
+                  "0",
+                ],
+              },
+            ],
+            "mayor": [
+              {
+                "id": "sherlock-holmes",
+                "name": "Sherlock Holmes",
+                "partyIds": [
+                  "0",
+                ],
+              },
+            ],
+            "parks-and-recreation-director": [
+              {
+                "id": "charles-darwin",
+                "name": "Charles Darwin",
+                "partyIds": [
+                  "0",
+                ],
+              },
+            ],
+            "public-works-director": [
+              {
+                "id": "benjamin-franklin",
+                "name": "Benjamin Franklin",
+                "partyIds": [
+                  "0",
+                ],
+              },
+            ],
+          },
+        },
+        {
+          "type": "BlankPage",
+        },
+      ]
+    `);
   });
 
   test('properly detects test ballot in live mode', async () => {
@@ -355,7 +355,7 @@ describe('NH HMPB interpretation', () => {
         .filter((m) => m.optionId.startsWith('write-in'))
         .map((m) => [m.contestId, m.optionId, m.score].join('|'))
     ).toMatchInlineSnapshot(`
-      Array [
+      [
         "Governor-061a401b|write-in-0|0",
         "United-States-Senator-d3f1c75b|write-in-0|0",
         "Representative-in-Congress-24683b44|write-in-0|0",
@@ -404,15 +404,15 @@ describe('NH HMPB interpretation', () => {
 
     expect(front.interpretation.adjudicationInfo.enabledReasonInfos)
       .toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "contestId": "Executive-Councilor-bb22557f",
           "expected": 1,
-          "optionIds": Array [
+          "optionIds": [
             "Daniel-Webster-13f77b2d",
             "write-in-0",
           ],
-          "optionIndexes": Array [
+          "optionIndexes": [
             1,
             2,
           ],
@@ -422,15 +422,15 @@ describe('NH HMPB interpretation', () => {
     `);
     expect(back.interpretation.adjudicationInfo.enabledReasonInfos)
       .toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "contestId": "County-Treasurer-87d25a31",
           "expected": 1,
-          "optionIds": Array [
+          "optionIds": [
             "Jane-Jones-9caa141f",
             "write-in-0",
           ],
-          "optionIndexes": Array [
+          "optionIndexes": [
             1,
             2,
           ],

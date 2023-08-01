@@ -96,15 +96,15 @@ describe('buildCVRContestsFromVotes', () => {
     expect(result).toHaveLength(1);
     const cvrContest = result[0];
     expect(cvrContest).toMatchInlineSnapshot(`
-      Object {
+      {
         "@type": "CVR.CVRContest",
-        "CVRContestSelection": Array [
-          Object {
+        "CVRContestSelection": [
+          {
             "@type": "CVR.CVRContestSelection",
             "ContestSelectionId": "yes",
             "OptionPosition": 0,
-            "SelectionPosition": Array [
-              Object {
+            "SelectionPosition": [
+              {
                 "@type": "CVR.SelectionPosition",
                 "HasIndication": "yes",
                 "IsAllocable": "yes",
@@ -206,15 +206,15 @@ describe('buildCVRContestsFromVotes', () => {
     expect(result).toHaveLength(1);
     const cvrContest = result[0];
     expect(cvrContest).toMatchInlineSnapshot(`
-      Object {
+      {
         "@type": "CVR.CVRContest",
-        "CVRContestSelection": Array [
-          Object {
+        "CVRContestSelection": [
+          {
             "@type": "CVR.CVRContestSelection",
             "ContestSelectionId": "zebra",
             "OptionPosition": 0,
-            "SelectionPosition": Array [
-              Object {
+            "SelectionPosition": [
+              {
                 "@type": "CVR.SelectionPosition",
                 "CVRWriteIn": undefined,
                 "HasIndication": "yes",
@@ -225,12 +225,12 @@ describe('buildCVRContestsFromVotes', () => {
             ],
             "Status": undefined,
           },
-          Object {
+          {
             "@type": "CVR.CVRContestSelection",
             "ContestSelectionId": "lion",
             "OptionPosition": 1,
-            "SelectionPosition": Array [
-              Object {
+            "SelectionPosition": [
+              {
                 "@type": "CVR.SelectionPosition",
                 "CVRWriteIn": undefined,
                 "HasIndication": "yes",
@@ -241,12 +241,12 @@ describe('buildCVRContestsFromVotes', () => {
             ],
             "Status": undefined,
           },
-          Object {
+          {
             "@type": "CVR.CVRContestSelection",
             "ContestSelectionId": "kangaroo",
             "OptionPosition": 2,
-            "SelectionPosition": Array [
-              Object {
+            "SelectionPosition": [
+              {
                 "@type": "CVR.SelectionPosition",
                 "CVRWriteIn": undefined,
                 "HasIndication": "yes",
@@ -724,12 +724,12 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
 
   // image references are included
   expect(castVoteRecord.BallotImage).toMatchInlineSnapshot(`
-    Array [
-      Object {
+    [
+      {
         "@type": "CVR.ImageData",
         "Location": "file:ballot-images/front.jpg",
       },
-      Object {
+      {
         "@type": "CVR.ImageData",
       },
     ]

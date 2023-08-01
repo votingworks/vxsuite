@@ -29,7 +29,7 @@ test('-h', async () => {
     stdout: stdio.stdout.toString(),
     stderr: stdio.stderr.toString(),
   }).toMatchInlineSnapshot(`
-    Object {
+    {
       "exitCode": 0,
       "stderr": "",
       "stdout": "usage: res-to-ts [--help] [--check] FILE [… FILE]
@@ -53,7 +53,7 @@ test('--help', async () => {
     stdout: stdio.stdout.toString(),
     stderr: stdio.stderr.toString(),
   }).toMatchInlineSnapshot(`
-    Object {
+    {
       "exitCode": 0,
       "stderr": "",
       "stdout": "usage: res-to-ts [--help] [--check] FILE [… FILE]
@@ -80,7 +80,7 @@ test('invalid option', async () => {
     stdout: stdio.stdout.toString(),
     stderr: stdio.stderr.toString(),
   }).toMatchInlineSnapshot(`
-    Object {
+    {
       "exitCode": 1,
       "stderr": "error: unrecognized option: --invalid
     usage: res-to-ts [--help] [--check] FILE [… FILE]
@@ -108,7 +108,7 @@ test('missing rootDir', async () => {
     stdout: stdio.stdout.toString(),
     stderr: stdio.stderr.toString(),
   }).toMatchInlineSnapshot(`
-    Object {
+    {
       "exitCode": 1,
       "stderr": "error: missing root directory after '--rootDir'
     usage: res-to-ts [--help] [--check] FILE [… FILE]
@@ -136,7 +136,7 @@ test('missing outDir', async () => {
     stdout: stdio.stdout.toString(),
     stderr: stdio.stderr.toString(),
   }).toMatchInlineSnapshot(`
-    Object {
+    {
       "exitCode": 1,
       "stderr": "error: missing output directory after '--outDir'
     usage: res-to-ts [--help] [--check] FILE [… FILE]

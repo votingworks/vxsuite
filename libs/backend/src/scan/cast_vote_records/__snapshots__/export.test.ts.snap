@@ -1,42 +1,42 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`getCastVoteRecordReportStream 1`] = `
-Object {
+{
   "@type": "CVR.CastVoteRecordReport",
-  "CVR": Array [
-    Object {
+  "CVR": [
+    {
       "@type": "CVR.CVR",
       "BallotSheetId": "1",
       "BallotStyleId": "2F",
       "BallotStyleUnitId": "precinct-1",
       "BatchId": "batch-1",
       "BatchSequenceId": 1,
-      "CVRSnapshot": Array [
-        Object {
+      "CVRSnapshot": [
+        {
           "@id": "ballot-1-modified",
           "@type": "CVR.CVRSnapshot",
-          "CVRContest": Array [
-            Object {
+          "CVRContest": [
+            {
               "@type": "CVR.CVRContest",
-              "CVRContestSelection": Array [],
+              "CVRContestSelection": [],
               "ContestId": "best-animal-fish",
               "Overvotes": 0,
-              "Status": Array [
+              "Status": [
                 "not-indicated",
                 "undervoted",
               ],
               "Undervotes": 1,
               "WriteIns": 0,
             },
-            Object {
+            {
               "@type": "CVR.CVRContest",
-              "CVRContestSelection": Array [
-                Object {
+              "CVRContestSelection": [
+                {
                   "@type": "CVR.CVRContestSelection",
                   "ContestSelectionId": "manta-ray",
                   "OptionPosition": 0,
-                  "SelectionPosition": Array [
-                    Object {
+                  "SelectionPosition": [
+                    {
                       "@type": "CVR.SelectionPosition",
                       "HasIndication": "yes",
                       "IsAllocable": "yes",
@@ -47,21 +47,21 @@ Object {
               ],
               "ContestId": "aquarium-council-fish",
               "Overvotes": 0,
-              "Status": Array [
+              "Status": [
                 "undervoted",
               ],
               "Undervotes": 1,
               "WriteIns": 0,
             },
-            Object {
+            {
               "@type": "CVR.CVRContest",
-              "CVRContestSelection": Array [
-                Object {
+              "CVRContestSelection": [
+                {
                   "@type": "CVR.CVRContestSelection",
                   "ContestSelectionId": "no",
                   "OptionPosition": 1,
-                  "SelectionPosition": Array [
-                    Object {
+                  "SelectionPosition": [
+                    {
                       "@type": "CVR.SelectionPosition",
                       "HasIndication": "yes",
                       "IsAllocable": "yes",
@@ -78,22 +78,22 @@ Object {
           "Type": "modified",
           "vxWriteIns": 0,
         },
-        Object {
+        {
           "@id": "ballot-1-original",
           "@type": "CVR.CVRSnapshot",
-          "CVRContest": Array [
-            Object {
+          "CVRContest": [
+            {
               "@type": "CVR.CVRContest",
-              "CVRContestSelection": Array [
-                Object {
+              "CVRContestSelection": [
+                {
                   "@type": "CVR.CVRContestSelection",
                   "ContestSelectionId": "manta-ray",
                   "OptionPosition": 0,
-                  "SelectionPosition": Array [
-                    Object {
+                  "SelectionPosition": [
+                    {
                       "@type": "CVR.SelectionPosition",
                       "HasIndication": "yes",
-                      "MarkMetricValue": Array [
+                      "MarkMetricValue": [
                         "0.16",
                       ],
                       "NumberVotes": 1,
@@ -103,33 +103,33 @@ Object {
               ],
               "ContestId": "aquarium-council-fish",
             },
-            Object {
+            {
               "@type": "CVR.CVRContest",
-              "CVRContestSelection": Array [
-                Object {
+              "CVRContestSelection": [
+                {
                   "@type": "CVR.CVRContestSelection",
                   "ContestSelectionId": "no",
                   "OptionPosition": 1,
-                  "SelectionPosition": Array [
-                    Object {
+                  "SelectionPosition": [
+                    {
                       "@type": "CVR.SelectionPosition",
                       "HasIndication": "yes",
-                      "MarkMetricValue": Array [
+                      "MarkMetricValue": [
                         "0.17",
                       ],
                       "NumberVotes": 1,
                     },
                   ],
                 },
-                Object {
+                {
                   "@type": "CVR.CVRContestSelection",
                   "ContestSelectionId": "yes",
                   "OptionPosition": 0,
-                  "SelectionPosition": Array [
-                    Object {
+                  "SelectionPosition": [
+                    {
                       "@type": "CVR.SelectionPosition",
                       "HasIndication": "no",
-                      "MarkMetricValue": Array [
+                      "MarkMetricValue": [
                         "0.03",
                       ],
                       "NumberVotes": 1,
@@ -146,44 +146,44 @@ Object {
       "CreatingDeviceId": "000",
       "CurrentSnapshotId": "ballot-1-modified",
       "ElectionId": "0000000000",
-      "PartyIds": Array [
+      "PartyIds": [
         "1",
       ],
       "UniqueId": "ballot-1",
       "vxBallotType": "precinct",
     },
-    Object {
+    {
       "@type": "CVR.CVR",
       "BallotStyleId": "2F",
       "BallotStyleUnitId": "precinct-1",
       "BatchId": "batch-1",
       "BatchSequenceId": 2,
-      "CVRSnapshot": Array [
-        Object {
+      "CVRSnapshot": [
+        {
           "@id": "ballot-2-original",
           "@type": "CVR.CVRSnapshot",
-          "CVRContest": Array [
-            Object {
+          "CVRContest": [
+            {
               "@type": "CVR.CVRContest",
-              "CVRContestSelection": Array [],
+              "CVRContestSelection": [],
               "ContestId": "best-animal-fish",
               "Overvotes": 0,
-              "Status": Array [
+              "Status": [
                 "not-indicated",
                 "undervoted",
               ],
               "Undervotes": 1,
               "WriteIns": 0,
             },
-            Object {
+            {
               "@type": "CVR.CVRContest",
-              "CVRContestSelection": Array [
-                Object {
+              "CVRContestSelection": [
+                {
                   "@type": "CVR.CVRContestSelection",
                   "ContestSelectionId": "manta-ray",
                   "OptionPosition": 0,
-                  "SelectionPosition": Array [
-                    Object {
+                  "SelectionPosition": [
+                    {
                       "@type": "CVR.SelectionPosition",
                       "HasIndication": "yes",
                       "IsAllocable": "yes",
@@ -194,43 +194,43 @@ Object {
               ],
               "ContestId": "aquarium-council-fish",
               "Overvotes": 0,
-              "Status": Array [
+              "Status": [
                 "undervoted",
               ],
               "Undervotes": 1,
               "WriteIns": 0,
             },
-            Object {
+            {
               "@type": "CVR.CVRContest",
-              "CVRContestSelection": Array [],
+              "CVRContestSelection": [],
               "ContestId": "new-zoo-either",
               "Overvotes": 0,
-              "Status": Array [
+              "Status": [
                 "undervoted",
                 "not-indicated",
               ],
               "Undervotes": 1,
             },
-            Object {
+            {
               "@type": "CVR.CVRContest",
-              "CVRContestSelection": Array [],
+              "CVRContestSelection": [],
               "ContestId": "new-zoo-pick",
               "Overvotes": 0,
-              "Status": Array [
+              "Status": [
                 "undervoted",
                 "not-indicated",
               ],
               "Undervotes": 1,
             },
-            Object {
+            {
               "@type": "CVR.CVRContest",
-              "CVRContestSelection": Array [
-                Object {
+              "CVRContestSelection": [
+                {
                   "@type": "CVR.CVRContestSelection",
                   "ContestSelectionId": "no",
                   "OptionPosition": 1,
-                  "SelectionPosition": Array [
-                    Object {
+                  "SelectionPosition": [
+                    {
                       "@type": "CVR.SelectionPosition",
                       "HasIndication": "yes",
                       "IsAllocable": "yes",
@@ -251,107 +251,107 @@ Object {
       "CreatingDeviceId": "000",
       "CurrentSnapshotId": "ballot-2-original",
       "ElectionId": "0000000000",
-      "PartyIds": Array [
+      "PartyIds": [
         "1",
       ],
       "UniqueId": "ballot-2",
       "vxBallotType": "precinct",
     },
   ],
-  "Election": Array [
-    Object {
+  "Election": [
+    {
       "@id": "0000000000",
       "@type": "CVR.Election",
-      "Candidate": Array [
-        Object {
+      "Candidate": [
+        {
           "@id": "horse",
           "@type": "CVR.Candidate",
           "Name": "Horse",
         },
-        Object {
+        {
           "@id": "otter",
           "@type": "CVR.Candidate",
           "Name": "Otter",
         },
-        Object {
+        {
           "@id": "fox",
           "@type": "CVR.Candidate",
           "Name": "Fox",
         },
-        Object {
+        {
           "@id": "seahorse",
           "@type": "CVR.Candidate",
           "Name": "Seahorse",
         },
-        Object {
+        {
           "@id": "salmon",
           "@type": "CVR.Candidate",
           "Name": "Salmon",
         },
-        Object {
+        {
           "@id": "zebra",
           "@type": "CVR.Candidate",
           "Name": "Zebra",
         },
-        Object {
+        {
           "@id": "lion",
           "@type": "CVR.Candidate",
           "Name": "Lion",
         },
-        Object {
+        {
           "@id": "kangaroo",
           "@type": "CVR.Candidate",
           "Name": "Kangaroo",
         },
-        Object {
+        {
           "@id": "elephant",
           "@type": "CVR.Candidate",
           "Name": "Elephant",
         },
-        Object {
+        {
           "@id": "manta-ray",
           "@type": "CVR.Candidate",
           "Name": "Manta Ray",
         },
-        Object {
+        {
           "@id": "pufferfish",
           "@type": "CVR.Candidate",
           "Name": "Pufferfish",
         },
-        Object {
+        {
           "@id": "rockfish",
           "@type": "CVR.Candidate",
           "Name": "Rockfish",
         },
-        Object {
+        {
           "@id": "triggerfish",
           "@type": "CVR.Candidate",
           "Name": "Triggerfish",
         },
       ],
-      "Contest": Array [
-        Object {
+      "Contest": [
+        {
           "@id": "best-animal-mammal",
           "@type": "CVR.CandidateContest",
-          "ContestSelection": Array [
-            Object {
+          "ContestSelection": [
+            {
               "@id": "horse",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": Array [
+              "CandidateIds": [
                 "horse",
               ],
             },
-            Object {
+            {
               "@id": "otter",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": Array [
+              "CandidateIds": [
                 "otter",
               ],
             },
-            Object {
+            {
               "@id": "fox",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": Array [
+              "CandidateIds": [
                 "fox",
               ],
             },
@@ -360,21 +360,21 @@ Object {
           "PrimaryPartyId": "0",
           "VotesAllowed": 1,
         },
-        Object {
+        {
           "@id": "best-animal-fish",
           "@type": "CVR.CandidateContest",
-          "ContestSelection": Array [
-            Object {
+          "ContestSelection": [
+            {
               "@id": "seahorse",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": Array [
+              "CandidateIds": [
                 "seahorse",
               ],
             },
-            Object {
+            {
               "@id": "salmon",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": Array [
+              "CandidateIds": [
                 "salmon",
               ],
             },
@@ -383,49 +383,49 @@ Object {
           "PrimaryPartyId": "1",
           "VotesAllowed": 1,
         },
-        Object {
+        {
           "@id": "zoo-council-mammal",
           "@type": "CVR.CandidateContest",
-          "ContestSelection": Array [
-            Object {
+          "ContestSelection": [
+            {
               "@id": "zebra",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": Array [
+              "CandidateIds": [
                 "zebra",
               ],
             },
-            Object {
+            {
               "@id": "lion",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": Array [
+              "CandidateIds": [
                 "lion",
               ],
             },
-            Object {
+            {
               "@id": "kangaroo",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": Array [
+              "CandidateIds": [
                 "kangaroo",
               ],
             },
-            Object {
+            {
               "@id": "elephant",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": Array [
+              "CandidateIds": [
                 "elephant",
               ],
             },
-            Object {
+            {
               "@id": "write-in-0",
               "@type": "CVR.CandidateSelection",
               "IsWriteIn": true,
             },
-            Object {
+            {
               "@id": "write-in-1",
               "@type": "CVR.CandidateSelection",
               "IsWriteIn": true,
             },
-            Object {
+            {
               "@id": "write-in-2",
               "@type": "CVR.CandidateSelection",
               "IsWriteIn": true,
@@ -435,44 +435,44 @@ Object {
           "PrimaryPartyId": "0",
           "VotesAllowed": 3,
         },
-        Object {
+        {
           "@id": "aquarium-council-fish",
           "@type": "CVR.CandidateContest",
-          "ContestSelection": Array [
-            Object {
+          "ContestSelection": [
+            {
               "@id": "manta-ray",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": Array [
+              "CandidateIds": [
                 "manta-ray",
               ],
             },
-            Object {
+            {
               "@id": "pufferfish",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": Array [
+              "CandidateIds": [
                 "pufferfish",
               ],
             },
-            Object {
+            {
               "@id": "rockfish",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": Array [
+              "CandidateIds": [
                 "rockfish",
               ],
             },
-            Object {
+            {
               "@id": "triggerfish",
               "@type": "CVR.CandidateSelection",
-              "CandidateIds": Array [
+              "CandidateIds": [
                 "triggerfish",
               ],
             },
-            Object {
+            {
               "@id": "write-in-0",
               "@type": "CVR.CandidateSelection",
               "IsWriteIn": true,
             },
-            Object {
+            {
               "@id": "write-in-1",
               "@type": "CVR.CandidateSelection",
               "IsWriteIn": true,
@@ -482,16 +482,16 @@ Object {
           "PrimaryPartyId": "1",
           "VotesAllowed": 2,
         },
-        Object {
+        {
           "@id": "new-zoo-either",
           "@type": "CVR.BallotMeasureContest",
-          "ContestSelection": Array [
-            Object {
+          "ContestSelection": [
+            {
               "@id": "yes",
               "@type": "CVR.BallotMeasureSelection",
               "Selection": "yes",
             },
-            Object {
+            {
               "@id": "no",
               "@type": "CVR.BallotMeasureSelection",
               "Selection": "no",
@@ -499,16 +499,16 @@ Object {
           ],
           "Name": "Ballot Measure 1",
         },
-        Object {
+        {
           "@id": "new-zoo-pick",
           "@type": "CVR.BallotMeasureContest",
-          "ContestSelection": Array [
-            Object {
+          "ContestSelection": [
+            {
               "@id": "yes",
               "@type": "CVR.BallotMeasureSelection",
               "Selection": "yes",
             },
-            Object {
+            {
               "@id": "no",
               "@type": "CVR.BallotMeasureSelection",
               "Selection": "no",
@@ -516,16 +516,16 @@ Object {
           ],
           "Name": "Ballot Measure 1",
         },
-        Object {
+        {
           "@id": "fishing",
           "@type": "CVR.BallotMeasureContest",
-          "ContestSelection": Array [
-            Object {
+          "ContestSelection": [
+            {
               "@id": "yes",
               "@type": "CVR.BallotMeasureSelection",
               "Selection": "yes",
             },
-            Object {
+            {
               "@id": "no",
               "@type": "CVR.BallotMeasureSelection",
               "Selection": "no",
@@ -539,54 +539,54 @@ Object {
     },
   ],
   "GeneratedDate": "2020-04-14T00:00:00.000Z",
-  "GpUnit": Array [
-    Object {
+  "GpUnit": [
+    {
       "@id": "precinct-1",
       "@type": "CVR.GpUnit",
       "Name": "Precinct 1",
       "Type": "precinct",
     },
-    Object {
+    {
       "@id": "precinct-2",
       "@type": "CVR.GpUnit",
       "Name": "Precinct 2",
       "Type": "precinct",
     },
-    Object {
+    {
       "@id": "election-county",
       "@type": "CVR.GpUnit",
       "Name": "Sample County",
       "Type": "other",
     },
-    Object {
+    {
       "@id": "election-state",
       "@type": "CVR.GpUnit",
       "Name": "State of Sample",
       "Type": "other",
     },
   ],
-  "Party": Array [
-    Object {
+  "Party": [
+    {
       "@id": "0",
       "@type": "CVR.Party",
       "Abbreviation": "Ma",
       "Name": "Mammal Party",
     },
-    Object {
+    {
       "@id": "1",
       "@type": "CVR.Party",
       "Abbreviation": "F",
       "Name": "Fish Party",
     },
   ],
-  "ReportGeneratingDeviceIds": Array [
+  "ReportGeneratingDeviceIds": [
     "000",
   ],
-  "ReportType": Array [
+  "ReportType": [
     "originating-device-export",
   ],
-  "ReportingDevice": Array [
-    Object {
+  "ReportingDevice": [
+    {
       "@id": "000",
       "@type": "CVR.ReportingDevice",
       "Manufacturer": "VotingWorks",
@@ -594,6 +594,6 @@ Object {
     },
   ],
   "Version": "1.0.0",
-  "vxBatch": Array [],
+  "vxBatch": [],
 }
 `;
