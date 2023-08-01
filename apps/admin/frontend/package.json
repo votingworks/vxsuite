@@ -29,7 +29,7 @@
       "prettier --write"
     ],
     "*.+(js|jsx|ts|tsx)": [
-      "stylelint",
+      "stylelint --quiet --fix",
       "eslint --quiet --fix"
     ],
     "*.css": [

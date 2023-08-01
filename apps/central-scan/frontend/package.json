@@ -25,7 +25,7 @@
   },
   "lint-staged": {
     "*.+(js|jsx|ts|tsx)": [
-      "stylelint",
+      "stylelint --quiet --fix",
       "eslint --quiet --fix"
     ],
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
