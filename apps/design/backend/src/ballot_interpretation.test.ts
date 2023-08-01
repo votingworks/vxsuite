@@ -250,13 +250,17 @@ function markBallot(
 }
 
 describe('Laid out ballots - Famous Names', () => {
-  const { election } = electionFamousNames2021Fixtures;
+  const { electionDefinition, election } = electionFamousNames2021Fixtures;
   const ballotStyle = election.ballotStyles[0];
 
   test('Blank ballot interpretation', async () => {
     const precinct = election.precincts[1];
 
-    const ballotResult = layOutBallot(election, precinct, ballotStyle);
+    const ballotResult = layOutBallot(
+      electionDefinition,
+      precinct,
+      ballotStyle
+    );
     assert(ballotResult.isOk());
     const { document: ballot, gridLayout } = ballotResult.ok();
 
@@ -285,7 +289,11 @@ describe('Laid out ballots - Famous Names', () => {
       })
     );
 
-    const ballotResult = layOutBallot(election, precinct, ballotStyle);
+    const ballotResult = layOutBallot(
+      electionDefinition,
+      precinct,
+      ballotStyle
+    );
     assert(ballotResult.isOk());
     const { document: ballot, gridLayout } = ballotResult.ok();
     const markedBallot = markBallot(
@@ -328,6 +336,7 @@ for (const targetMarkPosition of Object.values(BallotTargetMarkPosition)) {
           markThresholds:
             electionFamousNames2021Fixtures.election.markThresholds,
         };
+        const electionDefinition = asElectionDefinition(election);
         // Has ballot measures
         const ballotStyle = assertDefined(
           getBallotStyle({ election, ballotStyleId: '5' })
@@ -337,7 +346,11 @@ for (const targetMarkPosition of Object.values(BallotTargetMarkPosition)) {
         );
 
         test(`Blank ballot interpretation`, async () => {
-          const ballotResult = layOutBallot(election, precinct, ballotStyle);
+          const ballotResult = layOutBallot(
+            electionDefinition,
+            precinct,
+            ballotStyle
+          );
           assert(ballotResult.isOk());
           const { document: ballot, gridLayout } = ballotResult.ok();
           // We only support single-sheet ballots for now
@@ -388,7 +401,11 @@ for (const targetMarkPosition of Object.values(BallotTargetMarkPosition)) {
             })
           );
 
-          const ballotResult = layOutBallot(election, precinct, ballotStyle);
+          const ballotResult = layOutBallot(
+            electionDefinition,
+            precinct,
+            ballotStyle
+          );
           assert(ballotResult.isOk());
           const { document: ballot, gridLayout } = ballotResult.ok();
           // We only support single-sheet ballots for now

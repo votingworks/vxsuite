@@ -57,9 +57,8 @@ function ContestsTab(): JSX.Element | null {
     return null;
   }
 
-  const {
-    election: { contests, districts, parties },
-  } = getElectionQuery.data;
+  const { electionDefinition } = getElectionQuery.data;
+  const { contests, districts, parties } = electionDefinition.election;
   const contestRoutes = routes.election(electionId).contests.contests;
 
   const filteredContests = contests.filter((contest) => {
@@ -522,7 +521,8 @@ function AddContestForm(): JSX.Element | null {
     return null;
   }
 
-  const { election } = getElectionQuery.data;
+  const { electionDefinition } = getElectionQuery.data;
+  const { election } = electionDefinition;
 
   return (
     <React.Fragment>
@@ -549,7 +549,8 @@ function EditContestForm(): JSX.Element | null {
     return null;
   }
 
-  const { election } = getElectionQuery.data;
+  const { electionDefinition } = getElectionQuery.data;
+  const { election } = electionDefinition;
 
   return (
     <React.Fragment>
@@ -577,9 +578,8 @@ function PartiesTab(): JSX.Element | null {
     return null;
   }
 
-  const {
-    election: { parties },
-  } = getElectionQuery.data;
+  const { electionDefinition } = getElectionQuery.data;
+  const { parties } = electionDefinition.election;
   const partyRoutes = routes.election(electionId).contests.parties;
 
   return (
@@ -772,7 +772,8 @@ function AddPartyForm(): JSX.Element | null {
     return null;
   }
 
-  const { election } = getElectionQuery.data;
+  const { electionDefinition } = getElectionQuery.data;
+  const { election } = electionDefinition;
 
   return (
     <React.Fragment>
@@ -794,7 +795,8 @@ function EditPartyForm(): JSX.Element | null {
     return null;
   }
 
-  const { election } = getElectionQuery.data;
+  const { electionDefinition } = getElectionQuery.data;
+  const { election } = electionDefinition;
 
   return (
     <React.Fragment>

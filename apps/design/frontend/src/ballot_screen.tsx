@@ -17,14 +17,15 @@ export function BallotScreen(): JSX.Element | null {
     return null; // Initial loading state
   }
 
-  const { election } = getElectionQuery.data;
+  const { electionDefinition } = getElectionQuery.data;
+  const { election } = electionDefinition;
   const precinct = getPrecinctById({ election, precinctId });
   const ballotStyle = getBallotStyle({ election, ballotStyleId });
 
   return (
     <Screen>
       <BallotViewer
-        election={election}
+        electionDefinition={electionDefinition}
         precinct={assertDefined(precinct)}
         ballotStyle={assertDefined(ballotStyle)}
       />

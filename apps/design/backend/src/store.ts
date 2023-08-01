@@ -6,13 +6,15 @@ import {
   DistrictId,
   PrecinctId,
   BallotStyleId,
+  ElectionDefinition,
 } from '@votingworks/types';
 import deepEqual from 'deep-eql';
 import { join } from 'path';
+import { sha256 } from 'js-sha256';
 
 export interface ElectionRecord {
   id: Id;
-  election: Election;
+  electionDefinition: ElectionDefinition;
   precincts: Precinct[];
   ballotStyles: BallotStyle[];
   createdAt: Iso8601Timestamp;
@@ -163,9 +165,18 @@ function hydrateElection(row: {
     sealUrl:
       rawElection.sealUrl ?? '/seals/state-of-hamilton-official-seal.svg',
   };
+
+  const electionData = JSON.stringify(election);
+
+  const electionDefinition: ElectionDefinition = {
+    election,
+    electionData,
+    electionHash: sha256(electionData),
+  };
+
   return {
     id: row.id,
-    election,
+    electionDefinition,
     precincts,
     ballotStyles,
     createdAt: convertSqliteTimestampToIso8601(row.createdAt),

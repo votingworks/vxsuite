@@ -3,6 +3,7 @@ import { Buffer } from 'buffer';
 import {
   BallotStyle as VxBallotStyle,
   Election,
+  ElectionDefinition,
   getBallotStyle,
   getPrecinctById,
   GridLayout,
@@ -49,11 +50,11 @@ function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
 }
 
 function exportBallotToPdf(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   precinct: VxPrecinct,
   ballotStyle: VxBallotStyle
 ) {
-  const ballotResult = layOutBallot(election, precinct, ballotStyle);
+  const ballotResult = layOutBallot(electionDefinition, precinct, ballotStyle);
   if (ballotResult.isErr()) {
     throw new Error(
       `Error generating ballot for precinct ${precinct.name}, ballot style ${
@@ -87,7 +88,8 @@ function buildApi({ store }: { store: Store }) {
     },
 
     updateElection(input: { electionId: Id; election: Election }): void {
-      const { election } = store.getElection(input.electionId);
+      const { electionDefinition } = store.getElection(input.electionId);
+      const { election } = electionDefinition;
       // TODO validate election
       store.updateElection(input.electionId, {
         ...election,
@@ -104,7 +106,8 @@ function buildApi({ store }: { store: Store }) {
     },
 
     async exportAllBallots(input: { electionId: Id }): Promise<Buffer> {
-      const { election } = store.getElection(input.electionId);
+      const { electionDefinition } = store.getElection(input.electionId);
+      const { election } = electionDefinition;
 
       const zip = new JsZip();
 
@@ -113,7 +116,11 @@ function buildApi({ store }: { store: Store }) {
           const precinct = assertDefined(
             getPrecinctById({ election, precinctId })
           );
-          const pdf = exportBallotToPdf(election, precinct, ballotStyle);
+          const pdf = exportBallotToPdf(
+            electionDefinition,
+            precinct,
+            ballotStyle
+          );
           const fileName = `ballot-${precinct.name.replace(' ', '_')}-${
             ballotStyle.id
           }.pdf`;
@@ -130,7 +137,8 @@ function buildApi({ store }: { store: Store }) {
       precinctId: string;
       ballotStyleId: string;
     }): Promise<Buffer> {
-      const { election } = store.getElection(input.electionId);
+      const { electionDefinition } = store.getElection(input.electionId);
+      const { election } = electionDefinition;
       const precinct = getPrecinctById({
         election,
         precinctId: input.precinctId,
@@ -140,7 +148,7 @@ function buildApi({ store }: { store: Store }) {
         ballotStyleId: input.ballotStyleId,
       });
       const pdf = exportBallotToPdf(
-        election,
+        electionDefinition,
         assertDefined(precinct),
         assertDefined(ballotStyle)
       );
@@ -149,7 +157,8 @@ function buildApi({ store }: { store: Store }) {
     },
 
     exportBallotDefinition(input: { electionId: Id }): Election {
-      const { election } = store.getElection(input.electionId);
+      const { electionDefinition } = store.getElection(input.electionId);
+      const { election } = electionDefinition;
 
       const gridLayouts: GridLayout[] = [];
       for (const ballotStyle of election.ballotStyles) {
@@ -157,7 +166,11 @@ function buildApi({ store }: { store: Store }) {
           const precinct = assertDefined(
             getPrecinctById({ election, precinctId })
           );
-          const ballotResult = layOutBallot(election, precinct, ballotStyle);
+          const ballotResult = layOutBallot(
+            electionDefinition,
+            precinct,
+            ballotStyle
+          );
           if (ballotResult.isErr()) {
             throw new Error(
               `Error generating ballot for precinct ${
@@ -169,6 +182,12 @@ function buildApi({ store }: { store: Store }) {
         }
       }
 
+      // TODO catch-22: we need the hash of the election definition in the QR
+      // code on the ballot, but we also need to lay out the ballot first to get
+      // the gridLayouts to put in the election definition. Likely will need to
+      // do two passes of laying out the ballot - one to generate the
+      // gridLayouts, then one to actually generate the ballots. Then we'll need
+      // to export these at the same time.
       return { ...election, gridLayouts };
     },
   });

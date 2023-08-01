@@ -4,7 +4,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import {
   BallotPaperSize,
   BallotStyle,
-  Election,
+  ElectionDefinition,
   Precinct,
 } from '@votingworks/types';
 import styled from 'styled-components';
@@ -229,14 +229,15 @@ export const paperSizeLabels: Record<BallotPaperSize, string> = {
 };
 
 export function BallotViewer({
-  election,
+  electionDefinition,
   precinct,
   ballotStyle,
 }: {
-  election: Election;
+  electionDefinition: ElectionDefinition;
   precinct: Precinct;
   ballotStyle: BallotStyle;
 }): JSX.Element | null {
+  const { election } = electionDefinition;
   const { electionId } = useParams<ElectionIdParams>();
   const ballotRoutes = routes.election(electionId).ballots;
   const exportBallotMutation = exportBallot.useMutation();
@@ -255,7 +256,7 @@ export function BallotViewer({
     }
   }, []);
 
-  const ballotResult = layOutBallot(election, precinct, ballotStyle);
+  const ballotResult = layOutBallot(electionDefinition, precinct, ballotStyle);
 
   if (ballotResult.isErr()) {
     // eslint-disable-next-line no-console

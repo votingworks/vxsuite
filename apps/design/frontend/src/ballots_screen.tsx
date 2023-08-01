@@ -227,7 +227,8 @@ function BallotLayoutTab(): JSX.Element | null {
     return null;
   }
 
-  const { election } = getElectionQuery.data;
+  const { electionDefinition } = getElectionQuery.data;
+  const { election } = electionDefinition;
 
   return (
     <TabPanel>
