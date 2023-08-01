@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order, value-keyword-case */
 import styled, { css } from 'styled-components';
 
 const portraitStyles = css`
@@ -11,7 +10,7 @@ const portraitStyles = css`
   padding: 0.5rem;
 
   & > * {
-    &:not(:first-child):not(:last-child) {
+    &:not(:first-child, :last-child) {
       flex-grow: 1;
     }
   }

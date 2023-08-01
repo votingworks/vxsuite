@@ -1,5 +1,3 @@
-/* stylelint-disable selector-class-pattern -- third-party library class naming */
-
 .pagedjs_pages {
   color: #000000; /* Always black for print-media. */
   font-size: 14px;

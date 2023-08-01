@@ -28,6 +28,7 @@ import { routerPaths } from '../router_paths';
 
 const ContentWrapper = styled.div`
   display: inline-block;
+
   button {
     min-width: 9rem;
   }

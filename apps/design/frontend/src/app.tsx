@@ -48,20 +48,25 @@ function ElectionScreens(): JSX.Element {
 const StyleOverrides = styled.div`
   width: 100%;
   height: 100%;
+
   button,
   input[type='checkbox'],
   input[type='radio'] {
     cursor: pointer;
   }
+
   h1 {
     margin-bottom: 1.2rem;
+
     &:not(:first-child) {
       margin-top: 1rem;
     }
   }
+
   h2 {
     margin-bottom: 0.8rem;
   }
+
   a {
     color: ${({ theme }) => theme.colors.foreground};
   }

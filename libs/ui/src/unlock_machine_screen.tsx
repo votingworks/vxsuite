@@ -19,9 +19,11 @@ const NumberPadWrapper = styled.div`
   justify-content: center;
   margin-top: 10px;
   font-size: 1em;
+
   > div {
     width: 400px;
   }
+
   *:focus {
     outline: none;
   }

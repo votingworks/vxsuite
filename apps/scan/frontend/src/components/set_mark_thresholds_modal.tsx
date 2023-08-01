@@ -15,6 +15,7 @@ export interface SetMarkThresholdsModalProps {
 const ThresholdColumns = styled.div`
   display: flex;
   flex-direction: row;
+
   > div {
     flex: 1;
   }

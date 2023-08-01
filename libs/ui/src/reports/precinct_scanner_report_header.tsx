@@ -33,6 +33,7 @@ const Header = styled.div`
 const HeaderData = styled.span`
   margin-right: 1em;
   white-space: nowrap;
+
   &:last-child {
     margin-right: 0;
   }
@@ -40,6 +41,7 @@ const HeaderData = styled.span`
 
 const ReportCertificationSignaturesContainer = styled.div`
   margin-top: 1em;
+
   & > p {
     font-size: 0.95em;
   }
@@ -47,17 +49,20 @@ const ReportCertificationSignaturesContainer = styled.div`
 
 const Signatures = styled.div`
   display: flex;
+
   & > div {
     flex: 1;
     margin-top: 2em;
     margin-right: 0.3in;
-    border-bottom: 1px solid #000000;
+    border-bottom: 1px solid #000;
     padding-bottom: 1px;
+
     &::before {
       font-family: 'Noto Emoji', sans-serif;
       font-size: 1em;
       content: '✖️';
     }
+
     &:last-child {
       margin-right: 0;
     }

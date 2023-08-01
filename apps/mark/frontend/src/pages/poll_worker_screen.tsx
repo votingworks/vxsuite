@@ -52,12 +52,14 @@ import { DiagnosticsScreen } from './diagnostics_screen';
 
 const VotingSession = styled.div`
   margin: 30px 0 60px;
-  border: 2px solid #000000;
+  border: 2px solid #000;
   border-radius: 20px;
   padding: 30px 40px;
+
   & > *:first-child {
     margin-top: 0;
   }
+
   & > *:last-child {
     margin-bottom: 0;
   }

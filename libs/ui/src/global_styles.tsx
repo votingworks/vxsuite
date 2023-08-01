@@ -35,19 +35,17 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
     font-family: 'Vx Helvetica Neue', 'Noto Emoji', 'Helvetica Neue', sans-serif;
     font-size: ${(p) => p.legacyBaseFontSizePx || p.theme.sizes.fontDefault}px;
     font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
-
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
-
     user-select: none;
   }
+
   @media print {
     html {
-      background: #ffffff;
-      color: #000000;
+      background: #fff;
+      color: #000;
 
       /* Adjust printed ballot font-size */
-      /* stylelint-disable-next-line declaration-no-important */
       font-size: ${(p) => p.legacyPrintFontSizePx ?? 16}px !important;
     }
   }
@@ -63,12 +61,14 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
     overflow: ${(p) => (p.enableScroll ? 'auto' : 'hidden')};
     touch-action: none;
   }
+
   @media print {
     html,
     body {
       height: auto;
       overflow: visible;
     }
+
     #root {
       display: none; /* Do not print anything displayed in the app */
     }
@@ -138,7 +138,7 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
 
   /* TODO: Create a component for this instead. */
   .screen-reader-only {
-    position: absolute !important; /* stylelint-disable-line declaration-no-important */
+    position: absolute !important;
     width: 1px;
     height: 1px;
     overflow: hidden;
@@ -150,10 +150,12 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
   .print-only {
     display: none;
   }
+
   @media print {
     .print-only {
       display: block;
     }
+
     .no-print {
       display: none;
     }

@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order, value-keyword-case */
 import { Caption, H1 } from '@votingworks/ui';
 import React from 'react';
 import styled, { css } from 'styled-components';

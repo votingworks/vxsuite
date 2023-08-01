@@ -164,7 +164,7 @@ exports[`Renders ContestPage 1`] = `
   min-width: -webkit-min-content;
   min-width: -moz-min-content;
   min-width: min-content;
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem;
   text-align: left;
   width: 100%;
 }
@@ -312,7 +312,7 @@ exports[`Renders ContestPage 1`] = `
   padding: 0.5rem;
 }
 
-.c23 > *:not(:first-child):not(:last-child) {
+.c23 > *:not(:first-child,:last-child) {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
@@ -985,16 +985,16 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   margin-bottom: 1em;
 }
 
-.c25 h1 + h2 {
-  margin-top: -0.75em;
-}
-
 .c25 h1 + p,
 .c25 h2 + p,
 .c25 h1 + ol,
 .c25 h2 + ol,
 .c25 h1 + ul,
 .c25 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c25 h1 + h2 {
   margin-top: -0.75em;
 }
 
@@ -1024,7 +1024,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 
 .c25 hr {
   border: 0;
-  border-top: 0.1em solid #666666;
+  border-top: 0.1em solid #666;
 }
 
 .c34 {
@@ -1070,16 +1070,16 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   margin-bottom: 0;
 }
 
-.c34 h1 + h2 {
-  margin-top: -0.75em;
-}
-
 .c34 h1 + p,
 .c34 h2 + p,
 .c34 h1 + ol,
 .c34 h2 + ol,
 .c34 h1 + ul,
 .c34 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c34 h1 + h2 {
   margin-top: -0.75em;
 }
 
@@ -1109,7 +1109,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 
 .c34 hr {
   border: 0;
-  border-top: 0.1em solid #666666;
+  border-top: 0.1em solid #666;
 }
 
 .c18 {
@@ -1186,7 +1186,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   min-width: -webkit-min-content;
   min-width: -moz-min-content;
   min-width: min-content;
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem;
   text-align: left;
   width: 100%;
 }
@@ -1362,8 +1362,8 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  background-color: #333333;
-  color: #ffffff;
+  background-color: #333;
+  color: #fff;
 }
 
 .c24 {
@@ -1407,7 +1407,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   padding: 0.5rem;
 }
 
-.c29 > *:not(:first-child):not(:last-child) {
+.c29 > *:not(:first-child,:last-child) {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;

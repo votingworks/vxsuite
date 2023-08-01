@@ -9,6 +9,7 @@ interface Props {
 }
 
 export const Absolute = styled.div<Props>`
+  /* stylelint-disable declaration-block-no-redundant-longhand-properties */
   position: absolute;
   top: ${({ top }) => top && 0};
   right: ${({ right }) => right && 0};

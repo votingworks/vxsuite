@@ -21,12 +21,11 @@ const ChoicesGrid = styled.div`
   display: grid;
   grid-auto-rows: minmax(auto, 1fr);
   grid-gap: 0.5rem;
-  grid-template-areas:
-    'either-neither-label divider pick-one-label'
-    'either-option divider first-option'
-    'neither-option divider second-option';
-  grid-template-columns: 1fr calc(0.5rem + 1px) 1fr;
-  grid-template-rows: auto;
+  grid-template:
+    'either-neither-label divider pick-one-label' auto
+    'either-option divider first-option' auto
+    'neither-option divider second-option' auto
+    / 1fr calc(0.5rem + 1px) 1fr;
   padding: 0.5rem;
 `;
 const GridLabel = styled.div`
@@ -37,6 +36,7 @@ const Divider = styled.div`
   display: flex;
   grid-area: divider;
   justify-content: center;
+
   &::before {
     background: ${(p) => p.theme.colors.foreground};
     width: ${(p) => p.theme.sizes.bordersRem.medium}rem;

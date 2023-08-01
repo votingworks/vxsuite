@@ -47,20 +47,25 @@ const TallyInput = styled(TextInput)`
 export const ContestData = styled.div`
   margin: 2rem 0 3rem;
   width: 50%;
-  p:first-child {
-    margin-bottom: 0;
-  }
+
   h3 {
     margin-top: 0;
     margin-bottom: 0.5em;
+
     & + p {
       margin-top: -0.8em;
       margin-bottom: 0.25em;
     }
+
     & + table {
       margin-top: -0.5em;
     }
   }
+
+  p:first-child {
+    margin-bottom: 0;
+  }
+
   tfoot td {
     border-bottom: unset;
     padding-top: 0.5em;

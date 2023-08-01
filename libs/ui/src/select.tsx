@@ -13,6 +13,7 @@ export type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
 };
 
 const StyledSelect = styled.select<SelectProps>`
+  /* stylelint-disable string-no-newline, unit-no-unknown */
   display: inline-block;
   margin: 0;
   border: none;
@@ -20,7 +21,6 @@ const StyledSelect = styled.select<SelectProps>`
   box-sizing: border-box;
   background-color: ${({ primary }) =>
     (primary && 'rgb(71, 167, 75)') || 'rgb(211, 211, 211)'};
-  /* stylelint-disable-next-line string-no-newline */
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 287.87"><path style="fill:${({
     primary,
   }) =>
@@ -44,8 +44,9 @@ const StyledSelect = styled.select<SelectProps>`
   color: ${({ primary }) => (primary && '#FFFFFF') || 'black'};
   font-size: ${({ large }) => large && '1.25em'};
   appearance: none;
+
   &:disabled {
-    background: #dddddd;
+    background: #ddd;
     color: rgb(170, 170, 170);
   }
 `;

@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import styled, { DefaultTheme } from 'styled-components';
 
 const SvgContainer = styled.svg`

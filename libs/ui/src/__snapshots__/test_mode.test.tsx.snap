@@ -26,8 +26,8 @@ exports[`renders TestMode - VVSG styling 1`] = `
 }
 
 .c0 {
-  border-bottom: 4px solid #333333;
-  background-image: linear-gradient( 135deg, #ff8c00 21.43%, #333333 21.43%, #333333 50%, #ff8c00 50%, #ff8c00 71.43%, #333333 71.43%, #333333 100% );
+  border-bottom: 4px solid #333;
+  background-image: linear-gradient( 135deg, #ff8c00 21.43%, #333 21.43%, #333 50%, #ff8c00 50%, #ff8c00 71.43%, #333 71.43%, #333 100% );
   background-size: 98.99px 98.99px;
   width: 100%;
   font-size: 15.052945967960904px;
@@ -38,7 +38,7 @@ exports[`renders TestMode - VVSG styling 1`] = `
   background: #ff8c00;
   padding: 0.125rem;
   text-align: center;
-  color: #333333;
+  color: #333;
 }
 
 .c2 {
@@ -98,8 +98,8 @@ exports[`renders TestMode - legacy styling 1`] = `
 }
 
 .c0 {
-  border-bottom: 4px solid #333333;
-  background-image: linear-gradient( 135deg, #ff8c00 21.43%, #333333 21.43%, #333333 50%, #ff8c00 50%, #ff8c00 71.43%, #333333 71.43%, #333333 100% );
+  border-bottom: 4px solid #333;
+  background-image: linear-gradient( 135deg, #ff8c00 21.43%, #333 21.43%, #333 50%, #ff8c00 50%, #ff8c00 71.43%, #333 71.43%, #333 100% );
   background-size: 98.99px 98.99px;
   width: 100%;
   font-size: 16px;
@@ -110,7 +110,7 @@ exports[`renders TestMode - legacy styling 1`] = `
   background: #ff8c00;
   padding: 0.125rem;
   text-align: center;
-  color: #333333;
+  color: #333;
 }
 
 .c2 {

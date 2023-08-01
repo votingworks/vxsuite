@@ -14,9 +14,11 @@ export const HiddenFileInput = styled.input`
   width: 0.1px;
   height: 0.1px;
   overflow: hidden;
+
   &:focus + label {
     outline: none;
   }
+
   &:hover + label,
   &:active + label {
     outline: none;

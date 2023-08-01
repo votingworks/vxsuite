@@ -15,8 +15,8 @@ exports[`renders ProgressEllipsis 1`] = `
   vertical-align: bottom;
   text-align: left;
   content: '…';
-  -webkit-animation: loadingEllipsis steps(4,end) 2s infinite;
-  animation: loadingEllipsis steps(4,end) 2s infinite;
+  -webkit-animation: loading-ellipsis steps(4,end) 2s infinite;
+  animation: loading-ellipsis steps(4,end) 2s infinite;
 }
 
 .c0::before {

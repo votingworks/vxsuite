@@ -9,6 +9,7 @@ const LeftNavBar = styled.nav`
   background: ${({ theme }) => theme.colors.foreground};
   padding: 1rem;
   min-width: 11rem;
+
   ul {
     list-style: none;
     height: 100%;
@@ -17,10 +18,13 @@ const LeftNavBar = styled.nav`
     display: flex;
     flex-direction: column;
   }
+
   li {
     margin-bottom: 0.5rem;
+
     button {
       width: 100%;
+
       span {
         display: flex;
         justify-content: space-between;

@@ -17,21 +17,25 @@ import { ReportSection, tallyReportThemeFn, TallyReport } from './tally_report';
 
 const Contents = styled(Prose)`
   padding-top: 2em;
+
   & dd {
     margin: 0 0 1em;
     font-size: 2em;
     font-weight: 600;
   }
+
   & dt {
     font-size: 1.5em;
   }
 
   & .ballot-counts {
     margin-bottom: 2em;
+
     & dd {
       margin-bottom: 0;
       font-size: 6em;
     }
+
     & dt {
       font-size: 3em;
     }

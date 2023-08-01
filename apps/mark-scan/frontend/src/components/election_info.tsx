@@ -14,6 +14,7 @@ import pluralize from 'pluralize';
 
 const VerticalContainer = styled.div`
   display: block;
+
   div:first-child {
     margin: 0 auto 0.5rem;
   }
@@ -29,6 +30,7 @@ const HorizontalContainer = styled.div`
   flex-direction: row;
   align-items: center;
   margin: auto;
+
   div:first-child {
     margin-right: 1rem;
     min-width: 5rem;

@@ -30,9 +30,11 @@ export function usePreviewContext(): PreviewContextValues {
 
 const PreviewColumns = styled.div`
   columns: 2;
+
   @media (orientation: landscape) {
     columns: 3;
   }
+
   & > div {
     margin-bottom: 2rem;
     break-inside: avoid;

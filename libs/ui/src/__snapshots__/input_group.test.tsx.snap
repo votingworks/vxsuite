@@ -27,8 +27,8 @@ exports[`renders InputGroup 1`] = `
 }
 
 .c0 > select {
-  border: 1px solid #333333;
-  background-color: #ffffff;
+  border: 1px solid #333;
+  background-color: #fff;
 }
 
 .c1 {
@@ -52,7 +52,7 @@ exports[`renders InputGroup 1`] = `
 }
 
 .c1:disabled {
-  background: #dddddd;
+  background: #ddd;
   color: rgb(170,170,170);
 }
 

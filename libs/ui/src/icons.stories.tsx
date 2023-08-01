@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import { Meta } from '@storybook/react';
 import styled from 'styled-components';
 

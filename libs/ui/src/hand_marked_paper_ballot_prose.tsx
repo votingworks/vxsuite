@@ -8,6 +8,7 @@ interface Props extends ProseProps {
 
 export const HandMarkedPaperBallotProse = styled(Prose)<Props>`
   line-height: ${({ density }) => (density !== 0 ? '1.1' : '1.3')};
+
   & h3,
   & h4,
   & h5,
@@ -30,6 +31,7 @@ export const HandMarkedPaperBallotProse = styled(Prose)<Props>`
         ? '0.5em'
         : '1em'};
   }
+
   & h3 + p,
   & h4 + p,
   & h5 + p {
@@ -42,8 +44,9 @@ export const HandMarkedPaperBallotProse = styled(Prose)<Props>`
         ? '-0.75em'
         : '-1em'};
   }
+
   & hr {
     border: 0;
-    border-top: 0.1em solid #000000;
+    border-top: 0.1em solid #000;
   }
 `;

@@ -16,41 +16,50 @@ import { NoWrap, Text } from '../text';
 const Contest = styled.div`
   margin: 2.5em 0;
   page-break-inside: avoid;
-  p:first-child {
-    margin: 0;
-  }
+
   h3 {
     margin-top: 0;
     margin-bottom: 0.5em;
+
     & + p {
       margin-top: -0.5em;
       margin-bottom: 0.25em;
     }
+
     & + table {
       margin-top: -0.5em;
     }
+  }
+
+  p:first-child {
+    margin: 0;
   }
 `;
 
 const ContestTable = styled.table`
   width: 100%;
   border-collapse: collapse;
+
   & tr {
     border-top: 1px solid ${tableBorderColor};
     border-bottom: 1px solid ${tableBorderColor};
   }
+
   & tr.empty-row {
     border-bottom: none;
   }
+
   & td {
     padding: 0.2em;
     padding-right: 0;
   }
+
   & th {
     padding: 0.25em;
     text-align: left;
     font-weight: 400;
   }
+
   & th.indent {
     padding-left: 2.5em;
   }

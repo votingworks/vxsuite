@@ -5,6 +5,7 @@ export const ProgressEllipsis = styled.span`
   margin-left: -${ellipsisWidth};
   text-align: center;
   white-space: nowrap;
+
   &::before,
   &::after {
     display: inline-block;
@@ -13,12 +14,14 @@ export const ProgressEllipsis = styled.span`
     vertical-align: bottom;
     text-align: left;
     content: '…';
-    animation: loadingEllipsis steps(4, end) 2s infinite;
+    animation: loading-ellipsis steps(4, end) 2s infinite;
   }
+
   &::before {
     color: transparent;
   }
-  @keyframes loadingEllipsis {
+
+  @keyframes loading-ellipsis {
     to {
       width: ${ellipsisWidth};
     }

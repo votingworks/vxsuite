@@ -26,6 +26,7 @@ const ControlOption = styled(Button)<{
       : 'none'};
   color: ${(p) => (p.isSelected ? 'white' : 'currentColor')};
   text-align: ${(p) => (p.vertical ? 'left' : 'center')};
+
   &:disabled {
     cursor: default;
   }

@@ -78,16 +78,16 @@ exports[`renders NotFoundPage 1`] = `
   margin-bottom: 1em;
 }
 
-.c2 h1 + h2 {
-  margin-top: -0.75em;
-}
-
 .c2 h1 + p,
 .c2 h2 + p,
 .c2 h1 + ol,
 .c2 h2 + ol,
 .c2 h1 + ul,
 .c2 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c2 h1 + h2 {
   margin-top: -0.75em;
 }
 
@@ -117,7 +117,7 @@ exports[`renders NotFoundPage 1`] = `
 
 .c2 hr {
   border: 0;
-  border-top: 0.1em solid #666666;
+  border-top: 0.1em solid #666;
 }
 
 .c5 {

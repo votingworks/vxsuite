@@ -35,14 +35,16 @@ import { Prose } from './prose';
 import { QrCode } from './qrcode';
 
 const Ballot = styled.div`
-  background: #ffffff;
+  background: #fff;
   line-height: 1;
   font-family: 'Vx Helvetica Neue', 'Noto Emoji', 'Helvetica Neue', sans-serif;
   font-size: 16px;
   page-break-after: always;
+
   @media screen {
     display: none;
   }
+
   @page {
     margin: 0.375in;
     size: letter portrait;
@@ -57,17 +59,21 @@ const Header = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  border-bottom: 0.2em solid #000000;
+  border-bottom: 0.2em solid #000;
+
   & > .seal {
     margin: 0.25em 0;
     width: 1in;
   }
+
   & h2 {
     margin-bottom: 0;
   }
+
   & h3 {
     margin-top: 0;
   }
+
   & > .ballot-header-content {
     flex: 4;
     margin: 0 1em;
@@ -79,29 +85,35 @@ const QrCodeContainer = styled.div`
   flex: 3;
   flex-direction: row;
   align-self: flex-end;
-  border: 0.2em solid #000000;
+  border: 0.2em solid #000;
   border-bottom: 0;
   max-width: 50%;
   padding: 0.25em;
+
   & > div:first-child {
     margin-right: 0.25em;
     width: 1.1in;
   }
+
   & > div:last-child {
     display: flex;
     flex: 1;
+
     & > div {
       display: flex;
       flex: 1;
       flex-direction: column;
       align-self: stretch;
       font-size: 0.8em;
+
       & > div {
         margin-bottom: 0.9375em;
       }
+
       & > div:last-child {
         margin-bottom: 0;
       }
+
       & strong {
         font-size: 1.25em;
         word-break: break-word;
@@ -117,7 +129,7 @@ const BallotSelections = styled.div`
   column-gap: 2em;
 `;
 const Contest = styled.div`
-  border-bottom: 0.01em solid #000000;
+  border-bottom: 0.01em solid #000;
   padding: 0.5em 0;
   break-inside: avoid;
   page-break-inside: avoid;

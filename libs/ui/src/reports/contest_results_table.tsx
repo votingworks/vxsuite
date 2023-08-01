@@ -20,19 +20,23 @@ import { tableBorderColor } from '../table';
 const Contest = styled.div`
   margin: 2.5em 0;
   page-break-inside: avoid;
-  p:first-child {
-    margin-bottom: 0;
-  }
+
   h3 {
     margin-top: 0;
     margin-bottom: 0.5em;
+
     & + p {
       margin-top: -0.8em;
       margin-bottom: 0.25em;
     }
+
     & + table {
       margin-top: -0.5em;
     }
+  }
+
+  p:first-child {
+    margin-bottom: 0;
   }
 `;
 
@@ -40,17 +44,21 @@ const ContestTable = styled.table`
   width: 100%;
   height: 1px; /* fake height, allows TallyContainer to stretch to full height */
   border-collapse: collapse;
+
   & tr {
     border-top: 1px solid ${tableBorderColor};
     border-bottom: 1px solid ${tableBorderColor};
     height: 100%;
   }
+
   & tr.metadata {
     font-size: 0.75em;
   }
+
   & tr.metadata.last-metadata {
     border-bottom: 1px solid #e6e6e6;
   }
+
   & td {
     width: 1%;
     height: 100%;
@@ -59,14 +67,17 @@ const ContestTable = styled.table`
     text-align: right;
     white-space: no-wrap;
   }
+
   & th {
     padding: 0 0.5em;
     text-align: right;
     font-weight: 400;
+
     &:first-child {
       padding-left: 0.25em;
       text-align: left;
     }
+
     &:not(:first-child) {
       padding-right: 0;
     }

@@ -42,10 +42,12 @@ const Contest = styled.button`
   padding: 0;
   white-space: normal; /* reset Button default */
   color: inherit;
+
   button& {
     cursor: pointer;
     text-align: left;
   }
+
   &:last-child {
     margin-bottom: 0;
   }

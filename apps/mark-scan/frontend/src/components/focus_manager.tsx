@@ -5,6 +5,7 @@ import { ScreenReader } from '../utils/ScreenReader';
 
 const StyledFocusManager = styled.div`
   height: 100%;
+
   &:focus {
     outline: none;
   }

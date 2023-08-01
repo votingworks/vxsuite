@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import styled from 'styled-components';
 
 import { ScannedBallotCount } from './scanned_ballot_count';
@@ -11,7 +10,7 @@ interface ScreenHeaderProps {
 const Container = styled.div`
   display: flex;
   gap: 0.25rem;
-  padding: 0.25rem 0.25rem;
+  padding: 0.25rem;
   justify-content: space-between;
 `;
 
