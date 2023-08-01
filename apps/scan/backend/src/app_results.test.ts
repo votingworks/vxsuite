@@ -3,9 +3,9 @@ import { find, ok } from '@votingworks/basics';
 import { CustomScanner, mocks } from '@votingworks/custom-scanner';
 import { buildContestResultsFixture } from '@votingworks/utils';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { SheetInterpretation } from '@votingworks/types';
 import { Api } from './app';
 import { configureApp, waitForStatus } from '../test/helpers/shared_helpers';
-import { SheetInterpretation } from './types';
 import { ballotImages, withApp } from '../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
