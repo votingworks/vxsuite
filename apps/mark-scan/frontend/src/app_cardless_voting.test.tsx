@@ -22,6 +22,7 @@ import * as GLOBALS from './config/globals';
 import { App } from './app';
 
 import {
+  election,
   presidentContest,
   setElectionInStorage,
   setStateInStorage,
@@ -102,8 +103,9 @@ test('Cardless Voting Flow', async () => {
   apiMock.expectSetPrecinctSelection(precinctSelection);
   apiMock.expectGetPrecinctSelection(precinctSelection);
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
-  await advanceTimersAndPromises();
-  within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
+  await within(screen.getByTestId('electionInfoBar')).findByText(
+    /Center Springfield/
+  );
 
   fireEvent.click(
     screen.getByRole('option', {
@@ -282,9 +284,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
-  apiMock.expectGetPrecinctSelection(
-    singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
-  );
+  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
 
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage);
@@ -413,8 +413,9 @@ test('poll worker must select a precinct first', async () => {
   apiMock.expectSetPrecinctSelection(ALL_PRECINCTS_SELECTION);
   apiMock.expectGetPrecinctSelection(ALL_PRECINCTS_SELECTION);
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
-  await advanceTimersAndPromises();
-  within(screen.getByTestId('electionInfoBar')).getByText(/All Precincts/);
+  await within(screen.getByTestId('electionInfoBar')).findByText(
+    /All Precincts/
+  );
 
   fireEvent.click(
     screen.getByRole('option', {
