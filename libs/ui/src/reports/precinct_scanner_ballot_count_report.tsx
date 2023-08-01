@@ -13,7 +13,7 @@ import { DateTime } from 'luxon';
 import styled, { ThemeProvider } from 'styled-components';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 import { Prose } from '../prose';
-import { ReportSection, TALLY_REPORT_THEME, TallyReport } from './tally_report';
+import { ReportSection, tallyReportThemeFn, TallyReport } from './tally_report';
 
 const Contents = styled(Prose)`
   padding-top: 2em;
@@ -60,7 +60,7 @@ export function PrecinctScannerBallotCountReport({
   const currentTime = Date.now();
 
   return (
-    <ThemeProvider theme={TALLY_REPORT_THEME}>
+    <ThemeProvider theme={tallyReportThemeFn}>
       <TallyReport data-testid="ballot-count-report">
         <ReportSection>
           <PrecinctScannerReportHeader

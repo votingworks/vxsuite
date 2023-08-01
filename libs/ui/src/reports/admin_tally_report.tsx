@@ -3,7 +3,7 @@ import { assert } from '@votingworks/basics';
 import { ThemeProvider } from 'styled-components';
 import {
   ReportSection,
-  TALLY_REPORT_THEME,
+  tallyReportThemeFn,
   TallyReport,
   TallyReportColumns,
 } from './tally_report';
@@ -41,7 +41,7 @@ export function AdminTallyReport({
     : scannedElectionResults.cardCounts;
 
   return (
-    <ThemeProvider theme={TALLY_REPORT_THEME}>
+    <ThemeProvider theme={tallyReportThemeFn}>
       <TallyReport data-testid={testId}>
         <ReportSection>
           <LogoMark />

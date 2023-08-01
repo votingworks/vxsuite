@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { DefaultTheme } from 'styled-components';
 import { Icons } from '../icons';
 import { H3 } from '../typography';
 import { makeTheme } from '../themes/make_theme';
@@ -38,10 +38,13 @@ export const TallyReportPreview = styled.div`
   }
 `;
 
-export const TALLY_REPORT_THEME = makeTheme({
-  sizeMode: 's',
-  colorMode: 'contrastHighLight',
-});
+export function tallyReportThemeFn(theme?: DefaultTheme): DefaultTheme {
+  return makeTheme({
+    screenType: theme?.screenType,
+    sizeMode: 's',
+    colorMode: 'contrastHighLight',
+  });
+}
 
 const ReportPreviewLoadingWrapper = styled.section`
   display: flex;

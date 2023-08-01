@@ -8,7 +8,7 @@ import { ThemeProvider } from 'styled-components';
 import { unique } from '@votingworks/basics';
 import {
   ReportSection,
-  TALLY_REPORT_THEME,
+  tallyReportThemeFn,
   TallyReport,
   TallyReportColumns,
 } from './tally_report';
@@ -52,7 +52,7 @@ export function WriteInAdjudicationReport({
 
   return (
     // must wrap in theme so it's available in printing environment
-    <ThemeProvider theme={TALLY_REPORT_THEME}>
+    <ThemeProvider theme={tallyReportThemeFn}>
       <TallyReport data-testid="write-in-tally-report">
         {relevantPartyIds.map((partyId) => {
           const party = election.parties.find((p) => p.id === partyId);

@@ -13,7 +13,7 @@ import {
 import { ThemeProvider } from 'styled-components';
 import { PrecinctScannerTallyQrCode } from './precinct_scanner_tally_qrcode';
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
-import { TALLY_REPORT_THEME } from './tally_report';
+import { tallyReportThemeFn } from './tally_report';
 
 export interface PrecinctScannerTallyReportsProps {
   electionDefinition: ElectionDefinition;
@@ -63,7 +63,7 @@ export function PrecinctScannerTallyReports({
     pollsTransition === 'close_polls';
 
   return (
-    <ThemeProvider theme={TALLY_REPORT_THEME}>
+    <ThemeProvider theme={tallyReportThemeFn}>
       {partyIds.map((partyId) => {
         const electionResults = partyId
           ? electionResultsByParty.find(
