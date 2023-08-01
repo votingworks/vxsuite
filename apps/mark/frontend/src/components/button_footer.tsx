@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order, value-keyword-case */
 import styled, { css } from 'styled-components';
 
 const portraitStyles = css`

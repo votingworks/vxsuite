@@ -26,7 +26,6 @@ export const Checkbox = styled.span<Props>`
     font-weight: 700;
     font-size: 0.65em;
     text-align: center;
-    /* stylelint-disable-next-line string-no-newline */
     content: '${({ isSelected, isRemoved, isUnknown }) =>
       isRemoved ? '✕' : isSelected ? '✓' : isUnknown ? '?' : undefined}';
   }

@@ -50,10 +50,10 @@ const tableCellStyles = css<TableCellProps>`
 
 export const TD = styled.td<TableCellProps>`
   white-space: ${({ nowrap }) => (nowrap ? 'nowrap' : undefined)};
-  ${tableCellStyles}/* stylelint-disable-line value-keyword-case */
+  ${tableCellStyles}
 `;
 
 export const TH = styled.th<TableCellProps>`
   white-space: ${({ nowrap }) => (nowrap === false ? undefined : 'nowrap')};
-  ${tableCellStyles}/* stylelint-disable-line value-keyword-case */
+  ${tableCellStyles}
 `;

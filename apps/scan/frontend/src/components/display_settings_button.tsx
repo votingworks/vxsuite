@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import { Button, Icons } from '@votingworks/ui';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';

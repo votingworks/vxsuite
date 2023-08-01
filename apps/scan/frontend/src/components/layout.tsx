@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import React from 'react';
 import {
   Screen as ScreenBase,

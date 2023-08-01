@@ -81,7 +81,6 @@ export const Text = styled('p')<Props>`
     (bold && '600') ?? (light && '300') ?? (normal && '400') ?? undefined};
   font-style: ${({ italic }) => (italic ? 'italic' : undefined)};
   word-break: ${({ wordBreak }) => (wordBreak ? 'break-word' : undefined)};
-  /* stylelint-disable-next-line value-keyword-case, order/properties-order */
   ${({ warningIcon, voteIcon }) => (warningIcon || voteIcon) && iconStyles}
 `;
 

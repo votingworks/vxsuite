@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -95,7 +94,7 @@ const ContestTitle = styled(H2)`
    * TODO: Update shared heading components to omit margins when heading is the
    * last/only child in its container.
    */
-  margin: 0 !important; /* stylelint-disable-line declaration-no-important */
+  margin: 0 !important;
 `;
 
 const AdjudicationNav = styled.div`

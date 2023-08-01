@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order, value-keyword-case */
 import React from 'react';
 import { useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';

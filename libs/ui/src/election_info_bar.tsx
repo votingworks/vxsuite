@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order, value-keyword-case, order/order */
 import React from 'react';
 
 import {

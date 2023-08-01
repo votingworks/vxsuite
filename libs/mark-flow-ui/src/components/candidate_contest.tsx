@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import camelCase from 'lodash.camelcase';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';

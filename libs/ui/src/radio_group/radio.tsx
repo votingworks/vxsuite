@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order, value-keyword-case */
 import { useCallback } from 'react';
 import styled, { css } from 'styled-components';
 

@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import { H1, WithScrollButtons } from '@votingworks/ui';
 import React from 'react';
 import styled from 'styled-components';

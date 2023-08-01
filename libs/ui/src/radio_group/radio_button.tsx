@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order, value-keyword-case */
 import styled from 'styled-components';
 
 import { ButtonProps, buttonStyles } from '../button';

@@ -47,7 +47,6 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
       color: #000000;
 
       /* Adjust printed ballot font-size */
-      /* stylelint-disable-next-line declaration-no-important */
       font-size: ${(p) => p.legacyPrintFontSizePx ?? 16}px !important;
     }
   }
@@ -138,7 +137,7 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
 
   /* TODO: Create a component for this instead. */
   .screen-reader-only {
-    position: absolute !important; /* stylelint-disable-line declaration-no-important */
+    position: absolute !important;
     width: 1px;
     height: 1px;
     overflow: hidden;

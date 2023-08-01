@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order, value-keyword-case, order/order */
 import React, { PureComponent } from 'react';
 
 import styled, { css, DefaultTheme, StyledComponent } from 'styled-components';

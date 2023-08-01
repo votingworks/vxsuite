@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import styled from 'styled-components';
 
 export const ButtonFooter = styled.nav`

@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 /* istanbul ignore file - tested via VxMark cypress tests */
 import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';

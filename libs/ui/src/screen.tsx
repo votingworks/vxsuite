@@ -1,4 +1,3 @@
-/* stylelint-disable value-keyword-case */
 import styled, { css } from 'styled-components';
 import { contrastTheme } from './themes';
 

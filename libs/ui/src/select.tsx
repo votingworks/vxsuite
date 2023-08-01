@@ -20,7 +20,6 @@ const StyledSelect = styled.select<SelectProps>`
   box-sizing: border-box;
   background-color: ${({ primary }) =>
     (primary && 'rgb(71, 167, 75)') || 'rgb(211, 211, 211)'};
-  /* stylelint-disable-next-line string-no-newline */
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 287.87"><path style="fill:${({
     primary,
   }) =>

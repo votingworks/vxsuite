@@ -224,7 +224,6 @@ const OfficialInitials = styled.div`
   margin-right: 0.08in;
   border: 1px solid #000000;
   width: 1in;
-  /* stylelint-disable-next-line selector-class-pattern */
   .pagedjs_left_page & {
     display: flex;
   }
@@ -365,10 +364,10 @@ const StyledColumnFooter = styled.div`
 `;
 const WriteInItem = styled.p`
   position: relative;
-  margin: 0.5em 0 !important; /* stylelint-disable-line declaration-no-important */
+  margin: 0.5em 0 !important;
   page-break-inside: avoid;
   &:last-child {
-    margin-bottom: 0 !important; /* stylelint-disable-line declaration-no-important */
+    margin-bottom: 0 !important;
   }
 `;
 
