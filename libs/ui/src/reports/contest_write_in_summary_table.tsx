@@ -17,10 +17,6 @@ const Contest = styled.div`
   margin: 2.5em 0;
   page-break-inside: avoid;
 
-  p:first-child {
-    margin: 0;
-  }
-
   h3 {
     margin-top: 0;
     margin-bottom: 0.5em;
@@ -33,6 +29,10 @@ const Contest = styled.div`
     & + table {
       margin-top: -0.5em;
     }
+  }
+
+  p:first-child {
+    margin: 0;
   }
 `;
 

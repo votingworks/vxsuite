@@ -19,17 +19,6 @@ export const ButtonBar = styled('nav')<Props>`
     dark ? '#455a64' : 'rgba(0, 0, 0, 0.05)'};
   padding: 0.5rem;
 
-  & > *:first-child {
-    order: ${({ naturalOrder = false }) => (naturalOrder ? undefined : '2')};
-
-    @media (width >= 480px) {
-      margin-right: ${({ naturalOrder = false, separatePrimaryButton }) =>
-        separatePrimaryButton && naturalOrder ? 'auto' : undefined};
-      margin-left: ${({ naturalOrder = false, separatePrimaryButton }) =>
-        separatePrimaryButton && !naturalOrder ? 'auto' : undefined};
-    }
-  }
-
   & > * {
     white-space: nowrap;
     flex: 1;
@@ -38,6 +27,17 @@ export const ButtonBar = styled('nav')<Props>`
     @media (width >= 480px) {
       flex: ${({ separatePrimaryButton }) =>
         separatePrimaryButton ? '0' : undefined};
+    }
+  }
+
+  & > *:first-child {
+    order: ${({ naturalOrder = false }) => (naturalOrder ? undefined : '2')};
+
+    @media (width >= 480px) {
+      margin-right: ${({ naturalOrder = false, separatePrimaryButton }) =>
+        separatePrimaryButton && naturalOrder ? 'auto' : undefined};
+      margin-left: ${({ naturalOrder = false, separatePrimaryButton }) =>
+        separatePrimaryButton && !naturalOrder ? 'auto' : undefined};
     }
   }
 

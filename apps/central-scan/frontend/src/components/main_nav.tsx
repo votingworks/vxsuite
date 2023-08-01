@@ -45,7 +45,6 @@ const MakeName = styled.div`
   font-size: 0.75rem;
   font-weight: 700;
 `;
-const ModelName = styled.div``;
 
 const NavButtons = styled.div`
   margin-right: 1em;
@@ -77,7 +76,7 @@ export function MainNav({ children, isTestMode = false }: Props): JSX.Element {
           <MakeName>
             Voting<span>Works</span>
           </MakeName>
-          <ModelName>VxCentralScan</ModelName>
+          <div>VxCentralScan</div>
         </Brand>
         {isTestMode && <TestMode>Test Mode</TestMode>}
         <NavButtons>

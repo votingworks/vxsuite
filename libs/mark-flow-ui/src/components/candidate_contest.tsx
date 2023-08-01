@@ -37,8 +37,6 @@ import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 import { ChoicesGrid } from './contest_screen_layout';
 import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 
-const WriteInModalContent = styled.div``;
-
 interface Props {
   breadcrumbs?: BreadcrumbMetadata;
   election: Election;
@@ -377,7 +375,7 @@ export function CandidateContest({
           modalWidth={ModalWidth.Wide}
           title={`Write-In: ${contest.title}`}
           content={
-            <WriteInModalContent>
+            <div>
               <div id="modalaudiofocus">
                 <P>
                   <Caption aria-label="Enter the name of a person who is not on the ballot. Use the up and down buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
@@ -411,7 +409,7 @@ export function CandidateContest({
                   </WriteInModalActionsSidebar>
                 )}
               </WriteInModalBody>
-            </WriteInModalContent>
+            </div>
           }
           actions={screenInfo.isPortrait ? modalActions : undefined}
         />

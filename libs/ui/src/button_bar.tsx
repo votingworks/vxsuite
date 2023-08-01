@@ -10,13 +10,13 @@ export const ButtonBar = styled('div')`
   padding: 0.75rem;
   gap: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
 
+  & > * {
+    flex-grow: 1;
+  }
+
   & > *:first-child {
     order: 2;
     min-width: 40%;
-  }
-
-  & > * {
-    flex-grow: 1;
   }
 
   & > *:only-child {

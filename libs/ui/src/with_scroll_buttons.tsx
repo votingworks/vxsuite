@@ -58,7 +58,6 @@ const Controls = styled.div`
  * Allows controls to stay fixed at top and bottom when only one of them is
  * visible (without the need for absolute positioning).
  */
-const ControlsSpacer = styled.div``;
 
 const Control = styled(Button)`
   border-radius: 50%;
@@ -183,7 +182,7 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
                 </ControlLabel>
               </Control>
             )}
-            <ControlsSpacer />
+            <div />
             {canScrollDown && (
               <Control onPress={onScrollDown} variant="primary">
                 <ControlLabel>

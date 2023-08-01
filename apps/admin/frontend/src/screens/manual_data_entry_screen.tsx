@@ -48,10 +48,6 @@ export const ContestData = styled.div`
   margin: 2rem 0 3rem;
   width: 50%;
 
-  p:first-child {
-    margin-bottom: 0;
-  }
-
   h3 {
     margin-top: 0;
     margin-bottom: 0.5em;
@@ -64,6 +60,10 @@ export const ContestData = styled.div`
     & + table {
       margin-top: -0.5em;
     }
+  }
+
+  p:first-child {
+    margin-bottom: 0;
   }
 
   tfoot td {

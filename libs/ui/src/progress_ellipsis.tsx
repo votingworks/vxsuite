@@ -14,14 +14,14 @@ export const ProgressEllipsis = styled.span`
     vertical-align: bottom;
     text-align: left;
     content: '…';
-    animation: loadingEllipsis steps(4, end) 2s infinite;
+    animation: loading-ellipsis steps(4, end) 2s infinite;
   }
 
   &::before {
     color: transparent;
   }
 
-  @keyframes loadingEllipsis {
+  @keyframes loading-ellipsis {
     to {
       width: ${ellipsisWidth};
     }

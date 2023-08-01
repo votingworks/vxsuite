@@ -70,10 +70,6 @@ const legacyStyles = css<ProseProps>`
     margin-bottom: ${({ compact }) => (compact ? '0' : '1em')};
   }
 
-  & h1 + h2 {
-    margin-top: -0.75em;
-  }
-
   & h1,
   & h2 {
     & + p,
@@ -81,6 +77,10 @@ const legacyStyles = css<ProseProps>`
     & + ul {
       margin-top: -0.75em;
     }
+  }
+
+  & h1 + h2 {
+    margin-top: -0.75em;
   }
 
   & h3,
