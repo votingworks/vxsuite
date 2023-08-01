@@ -35,7 +35,7 @@ exports[`renders Text vote icon 1`] = `
   vertical-align: middle;
   text-align: center;
   line-height: 1.1;
-  color: #ffffff;
+  color: #fff;
   font-size: 90%;
   font-weight: 800;
   content: '✓';
@@ -76,7 +76,7 @@ exports[`renders Text warning icon 1`] = `
   vertical-align: middle;
   text-align: center;
   line-height: 1.1;
-  color: #ffffff;
+  color: #fff;
   font-size: 90%;
   font-weight: 800;
   content: '!';

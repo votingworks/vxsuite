@@ -128,16 +128,16 @@ exports[`renders StartPage 1`] = `
   margin-bottom: 1em;
 }
 
-.c5 h1 + h2 {
-  margin-top: -0.75em;
-}
-
 .c5 h1 + p,
 .c5 h2 + p,
 .c5 h1 + ol,
 .c5 h2 + ol,
 .c5 h1 + ul,
 .c5 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c5 h1 + h2 {
   margin-top: -0.75em;
 }
 
@@ -167,7 +167,7 @@ exports[`renders StartPage 1`] = `
 
 .c5 hr {
   border: 0;
-  border-top: 0.1em solid #666666;
+  border-top: 0.1em solid #666;
 }
 
 .c12 {
@@ -636,16 +636,16 @@ exports[`renders StartPage with inline SVG 1`] = `
   margin-bottom: 1em;
 }
 
-.c4 h1 + h2 {
-  margin-top: -0.75em;
-}
-
 .c4 h1 + p,
 .c4 h2 + p,
 .c4 h1 + ol,
 .c4 h2 + ol,
 .c4 h1 + ul,
 .c4 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c4 h1 + h2 {
   margin-top: -0.75em;
 }
 
@@ -675,7 +675,7 @@ exports[`renders StartPage with inline SVG 1`] = `
 
 .c4 hr {
   border: 0;
-  border-top: 0.1em solid #666666;
+  border-top: 0.1em solid #666;
 }
 
 .c11 {
@@ -1298,16 +1298,16 @@ exports[`renders StartPage with no seal 1`] = `
   margin-bottom: 1em;
 }
 
-.c4 h1 + h2 {
-  margin-top: -0.75em;
-}
-
 .c4 h1 + p,
 .c4 h2 + p,
 .c4 h1 + ol,
 .c4 h2 + ol,
 .c4 h1 + ul,
 .c4 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c4 h1 + h2 {
   margin-top: -0.75em;
 }
 
@@ -1337,7 +1337,7 @@ exports[`renders StartPage with no seal 1`] = `
 
 .c4 hr {
   border: 0;
-  border-top: 0.1em solid #666666;
+  border-top: 0.1em solid #666;
 }
 
 .c11 {

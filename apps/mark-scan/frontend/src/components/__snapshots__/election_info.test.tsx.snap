@@ -86,16 +86,16 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
   margin-bottom: 0;
 }
 
-.c3 h1 + h2 {
-  margin-top: -0.75em;
-}
-
 .c3 h1 + p,
 .c3 h2 + p,
 .c3 h1 + ol,
 .c3 h2 + ol,
 .c3 h1 + ul,
 .c3 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c3 h1 + h2 {
   margin-top: -0.75em;
 }
 
@@ -125,7 +125,7 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
 
 .c3 hr {
   border: 0;
-  border-top: 0.1em solid #666666;
+  border-top: 0.1em solid #666;
 }
 
 .c2 {
@@ -485,16 +485,16 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
   margin-bottom: 0;
 }
 
-.c3 h1 + h2 {
-  margin-top: -0.75em;
-}
-
 .c3 h1 + p,
 .c3 h2 + p,
 .c3 h1 + ol,
 .c3 h2 + ol,
 .c3 h1 + ul,
 .c3 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c3 h1 + h2 {
   margin-top: -0.75em;
 }
 
@@ -524,7 +524,7 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
 
 .c3 hr {
   border: 0;
-  border-top: 0.1em solid #666666;
+  border-top: 0.1em solid #666;
 }
 
 .c2 {
@@ -887,16 +887,16 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
   margin-bottom: 1em;
 }
 
-.c2 h1 + h2 {
-  margin-top: -0.75em;
-}
-
 .c2 h1 + p,
 .c2 h2 + p,
 .c2 h1 + ol,
 .c2 h2 + ol,
 .c2 h1 + ul,
 .c2 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c2 h1 + h2 {
   margin-top: -0.75em;
 }
 
@@ -926,7 +926,7 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
 
 .c2 hr {
   border: 0;
-  border-top: 0.1em solid #666666;
+  border-top: 0.1em solid #666;
 }
 
 .c1 {
@@ -1258,16 +1258,16 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
   margin-bottom: 1em;
 }
 
-.c2 h1 + h2 {
-  margin-top: -0.75em;
-}
-
 .c2 h1 + p,
 .c2 h2 + p,
 .c2 h1 + ol,
 .c2 h2 + ol,
 .c2 h1 + ul,
 .c2 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c2 h1 + h2 {
   margin-top: -0.75em;
 }
 
@@ -1297,7 +1297,7 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
 
 .c2 hr {
   border: 0;
-  border-top: 0.1em solid #666666;
+  border-top: 0.1em solid #666;
 }
 
 .c1 {

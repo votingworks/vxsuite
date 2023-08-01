@@ -174,7 +174,7 @@ exports[`changing votes 1`] = `
   min-width: -webkit-min-content;
   min-width: -moz-min-content;
   min-width: min-content;
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem;
   text-align: left;
   width: 100%;
   border: 0.05rem solid #47a74b;
@@ -193,7 +193,7 @@ exports[`changing votes 1`] = `
   min-width: -webkit-min-content;
   min-width: -moz-min-content;
   min-width: min-content;
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem;
   text-align: left;
   width: 100%;
 }
@@ -628,7 +628,7 @@ exports[`voting for both yes and no 1`] = `
   min-width: -webkit-min-content;
   min-width: -moz-min-content;
   min-width: min-content;
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem;
   text-align: left;
   width: 100%;
 }

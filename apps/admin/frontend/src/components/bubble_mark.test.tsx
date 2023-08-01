@@ -5,7 +5,7 @@ import { Bubble } from './bubble_mark';
 test('Mark has border by default', () => {
   const { container } = render(<Bubble />);
   const style = getComputedStyle(container.querySelector('span')!);
-  expect(style.border).toEqual('1pt solid #000000');
+  expect(style.border).toEqual('1pt solid #000');
   expect(style.background).toEqual('');
 });
 

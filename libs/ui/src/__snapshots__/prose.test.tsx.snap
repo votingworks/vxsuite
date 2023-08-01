@@ -44,16 +44,16 @@ exports[`renders Prose with defaults 1`] = `
   margin-bottom: 1em;
 }
 
-.c0 h1 + h2 {
-  margin-top: -0.75em;
-}
-
 .c0 h1 + p,
 .c0 h2 + p,
 .c0 h1 + ol,
 .c0 h2 + ol,
 .c0 h1 + ul,
 .c0 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c0 h1 + h2 {
   margin-top: -0.75em;
 }
 
@@ -83,7 +83,7 @@ exports[`renders Prose with defaults 1`] = `
 
 .c0 hr {
   border: 0;
-  border-top: 0.1em solid #666666;
+  border-top: 0.1em solid #666;
 }
 
 @media print {
@@ -179,16 +179,16 @@ exports[`renders Prose with right-aligned text 1`] = `
   margin-bottom: 1em;
 }
 
-.c0 h1 + h2 {
-  margin-top: -0.75em;
-}
-
 .c0 h1 + p,
 .c0 h2 + p,
 .c0 h1 + ol,
 .c0 h2 + ol,
 .c0 h1 + ul,
 .c0 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c0 h1 + h2 {
   margin-top: -0.75em;
 }
 
@@ -218,7 +218,7 @@ exports[`renders Prose with right-aligned text 1`] = `
 
 .c0 hr {
   border: 0;
-  border-top: 0.1em solid #666666;
+  border-top: 0.1em solid #666;
 }
 
 @media print {
@@ -315,16 +315,16 @@ exports[`renders Prose with theme 1`] = `
   margin-bottom: 1em;
 }
 
-.c0 h1 + h2 {
-  margin-top: -0.75em;
-}
-
 .c0 h1 + p,
 .c0 h2 + p,
 .c0 h1 + ol,
 .c0 h2 + ol,
 .c0 h1 + ul,
 .c0 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c0 h1 + h2 {
   margin-top: -0.75em;
 }
 
@@ -354,7 +354,7 @@ exports[`renders Prose with theme 1`] = `
 
 .c0 hr {
   border: 0;
-  border-top: 0.1em solid #666666;
+  border-top: 0.1em solid #666;
 }
 
 @media print {
