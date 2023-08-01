@@ -1,5 +1,9 @@
 import React, { useEffect } from 'react';
-import { ElectionDefinition, PollsState } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  PollsState,
+  PrecinctSelection,
+} from '@votingworks/types';
 import {
   Main,
   Screen,
@@ -14,7 +18,7 @@ import {
   Font,
 } from '@votingworks/ui';
 
-import { throwIllegalValue } from '@votingworks/basics';
+import { Optional, throwIllegalValue } from '@votingworks/basics';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { getPrecinctSelection } from '../api';
 
@@ -34,7 +38,10 @@ export function InsertCardScreen({
   showNoAccessibleControllerWarning,
 }: Props): JSX.Element {
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
-  const precinctSelection = getPrecinctSelectionQuery.data?.ok();
+  let precinctSelection: Optional<PrecinctSelection>;
+  if (getPrecinctSelectionQuery.data) {
+    precinctSelection = getPrecinctSelectionQuery.data.ok();
+  }
   useEffect(triggerAudioFocus, []);
 
   const mainText = (() => {
