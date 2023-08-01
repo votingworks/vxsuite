@@ -24,7 +24,9 @@ const Container = styled.div`
   padding: 0.25rem 0.5rem 0.75rem;
 `;
 
-const IconContainer = styled.span``;
+const IconContainer = styled.span`
+  /* stylelint-disable no-empty-source */
+`;
 
 interface TabLabelContainerProps {
   active?: boolean;

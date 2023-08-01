@@ -216,6 +216,7 @@ const PageFooter = styled.div`
   z-index: 1;
 `;
 const OfficialInitials = styled.div`
+  /* stylelint-disable selector-class-pattern -- vendor class name */
   display: none;
   align-items: flex-start;
   justify-content: center;
@@ -246,6 +247,7 @@ const PageFooterMain = styled.div`
   }
 `;
 const PageFooterRow = styled.div`
+  /* stylelint-disable no-descending-specificity */
   display: flex;
   flex-direction: row;
   justify-content: space-between;

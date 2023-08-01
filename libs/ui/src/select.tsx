@@ -13,6 +13,7 @@ export type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
 };
 
 const StyledSelect = styled.select<SelectProps>`
+  /* stylelint-disable string-no-newline, unit-no-unknown */
   display: inline-block;
   margin: 0;
   border: none;

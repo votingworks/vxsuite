@@ -16,6 +16,7 @@ const ZoomedInBallotImage = styled.img<{
   writeInBounds: Rect;
   scale: number;
 }>`
+  /* stylelint-disable value-keyword-case */
   position: absolute;
   top: calc(
     (

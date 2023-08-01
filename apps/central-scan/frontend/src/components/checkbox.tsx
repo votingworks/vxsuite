@@ -7,6 +7,7 @@ interface Props {
 }
 
 export const Checkbox = styled.span<Props>`
+  /* stylelint-disable string-no-newline */
   position: relative;
   top: 1px;
   display: inline-block;
