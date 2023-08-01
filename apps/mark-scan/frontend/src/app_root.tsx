@@ -279,7 +279,7 @@ export function AppRoot({
     ? getStateMachineStateQuery.data
     : 'no_hardware';
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
-  const precinctSelection = getPrecinctSelectionQuery?.data?.ok();
+  const precinctSelection = getPrecinctSelectionQuery.data?.ok();
 
   const checkPinMutation = checkPin.useMutation();
   const startCardlessVoterSessionMutation =

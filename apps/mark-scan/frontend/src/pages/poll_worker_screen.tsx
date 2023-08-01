@@ -179,7 +179,7 @@ export function PollWorkerScreen({
   const stateMachineState = getStateMachineStateQuery.data;
 
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
-  const precinctSelection = getPrecinctSelectionQuery?.data?.ok();
+  const precinctSelection = getPrecinctSelectionQuery.data?.ok();
 
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
