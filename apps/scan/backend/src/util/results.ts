@@ -12,7 +12,7 @@ import {
   groupMapToGroupList,
   tabulateCastVoteRecords,
 } from '@votingworks/utils';
-import { assert, iter, throwIllegalValue, typedAs } from '@votingworks/basics';
+import { assert, iter, typedAs } from '@votingworks/basics';
 import { VX_MACHINE_ID } from '@votingworks/backend';
 import { Store } from '../store';
 
@@ -28,21 +28,14 @@ function isHmpbPage(
   return interpretation.type === 'InterpretedHmpbPage';
 }
 
-function ballotTypeToVotingMethod(
-  ballotType: BallotType
-): Tabulation.VotingMethod {
-  switch (ballotType) {
-    case BallotType.Absentee:
-      return 'absentee';
-    case BallotType.Standard:
-      return 'precinct';
-    case BallotType.Provisional:
-      return 'provisional';
-    /* c8 ignore next 2 */
-    default:
-      throwIllegalValue(ballotType);
-  }
-}
+const BALLOT_TYPE_TO_VOTING_METHOD: Record<
+  BallotType,
+  Tabulation.VotingMethod
+> = {
+  [BallotType.Absentee]: 'absentee',
+  [BallotType.Standard]: 'precinct',
+  [BallotType.Provisional]: 'provisional',
+};
 
 function convertVotesDictToTabulationVotes(
   votesDict: VotesDict
@@ -110,9 +103,8 @@ export async function getScannerResults({
         scannerId: VX_MACHINE_ID,
         precinctId: frontInterpretation.metadata.precinctId,
         ballotStyleId: frontInterpretation.metadata.ballotStyleId,
-        votingMethod: ballotTypeToVotingMethod(
-          frontInterpretation.metadata.ballotType
-        ),
+        votingMethod:
+          BALLOT_TYPE_TO_VOTING_METHOD[frontInterpretation.metadata.ballotType],
       });
     }
 
@@ -131,9 +123,8 @@ export async function getScannerResults({
       scannerId: VX_MACHINE_ID,
       precinctId: interpretation.metadata.precinctId,
       ballotStyleId: interpretation.metadata.ballotStyleId,
-      votingMethod: ballotTypeToVotingMethod(
-        interpretation.metadata.ballotType
-      ),
+      votingMethod:
+        BALLOT_TYPE_TO_VOTING_METHOD[interpretation.metadata.ballotType],
     });
   });
 
