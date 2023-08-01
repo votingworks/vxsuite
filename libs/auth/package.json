@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@types/combined-stream": "^1.0.3",
-    "@types/jest": "^27.5.2",
+    "@types/jest": "^28.1.8",
     "@types/luxon": "^3.0.0",
     "@types/node-fetch": "^2.6.0",
     "@types/recursive-readdir": "^2.2.1",
@@ -69,12 +69,12 @@
     "eslint-plugin-vx": "workspace:*",
     "fetch-mock": "^9.11.0",
     "is-ci-cli": "^2.2.0",
-    "jest": "^27.5.1",
+    "jest": "^28.1.3",
     "jest-junit": "^16.0.0",
     "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "^11.0.0",
     "sort-package-json": "^1.50.0",
-    "ts-jest": "^27.1.5",
+    "ts-jest": "^28.0.8",
     "typescript": "4.6.3",
     "wait-for-expect": "^3.0.2"
   },

@@ -52,7 +52,7 @@
   "devDependencies": {
     "@types/debug": "^4.1.7",
     "@types/fast-text-encoding": "^1.0.1",
-    "@types/jest": "^27.5.2",
+    "@types/jest": "^28.1.8",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
     "@types/randombytes": "^2.0.0",

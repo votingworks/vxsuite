@@ -28,9 +28,9 @@ import { fakeUsbDriveStatus } from '../../test/helpers/fake_usb_drive';
 
 let apiMock: ApiMock;
 
-beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
+jest.useFakeTimers();
 
+beforeEach(() => {
   window.location.href = '/';
   window.kiosk = fakeKiosk();
   apiMock = createApiMock();
@@ -61,6 +61,7 @@ function renderScreen(
 }
 
 test('renders date and time settings modal', async () => {
+  jest.setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   renderScreen();

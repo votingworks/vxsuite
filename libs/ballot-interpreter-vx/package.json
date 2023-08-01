@@ -56,7 +56,7 @@
   "devDependencies": {
     "@types/benchmark": "^1.0.33",
     "@types/debug": "^4.1.5",
-    "@types/jest": "^27.5.2",
+    "@types/jest": "^28.1.8",
     "@types/jsfeat": "workspace:*",
     "@types/node": "16.18.23",
     "@types/node-quirc": "workspace:*",
@@ -78,14 +78,14 @@
     "eslint-plugin-react": "^7.31.8",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "^2.2.0",
-    "jest": "^27.5.1",
+    "jest": "^28.1.3",
     "jest-junit": "^16.0.0",
     "jest-watch-typeahead": "^2.2.2",
     "js-sha256": "^0.9.0",
     "lint-staged": "^10.4.2",
     "sort-package-json": "^1.50.0",
     "tmp": "^0.2.1",
-    "ts-jest": "^27.1.5",
+    "ts-jest": "^28.0.8",
     "typescript": "4.6.3"
   },
   "packageManager": "pnpm@8.1.0"

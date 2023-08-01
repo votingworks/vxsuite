@@ -304,10 +304,7 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
   );
 
   // check that file URI does not appear at top-level of CVR for back page
-  expect(report).toHaveProperty(
-    ['CVR', 0, 'BallotImage', 1, 'Location'],
-    undefined
-  );
+  expect(report).not.toHaveProperty(['CVR', 0, 'BallotImage', 1, 'Location']);
 
   // check that file URI appears adjacent to the write-in
   expect(report).toHaveProperty(
