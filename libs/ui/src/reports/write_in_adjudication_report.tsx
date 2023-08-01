@@ -6,11 +6,15 @@ import {
 } from '@votingworks/types';
 import { ThemeProvider } from 'styled-components';
 import { unique } from '@votingworks/basics';
-import { ReportSection, TallyReport, TallyReportColumns } from './tally_report';
+import {
+  ReportSection,
+  tallyReportThemeFn,
+  TallyReport,
+  TallyReportColumns,
+} from './tally_report';
 import { LogoMark } from '../logo_mark';
 import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestWriteInSummaryTable } from './contest_write_in_summary_table';
-import { makeTheme } from '../themes/make_theme';
 
 function getEmptyContestWriteInSummary(
   contest: AnyContest
@@ -48,7 +52,7 @@ export function WriteInAdjudicationReport({
 
   return (
     // must wrap in theme so it's available in printing environment
-    <ThemeProvider theme={makeTheme({ sizeMode: 's' })}>
+    <ThemeProvider theme={tallyReportThemeFn}>
       <TallyReport data-testid="write-in-tally-report">
         {relevantPartyIds.map((partyId) => {
           const party = election.parties.find((p) => p.id === partyId);

@@ -36,7 +36,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   columns: 3;
   -webkit-column-gap: 0.3in;
   column-gap: 0.3in;
-  margin-top: 1rem;
+  margin-top: 1.5em;
 }
 
 .c4 > div {
@@ -47,8 +47,37 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   font-size: 12px;
 }
 
+.c5 {
+  margin-bottom: 1em;
+  border: 1px solid rgb(194,200,203);
+  border-width: 0 1px;
+  -webkit-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.c5 table {
+  width: 100%;
+}
+
+.c5 th,
+.c5 td {
+  border-top: 1px solid rgb(194,200,203);
+  border-bottom: 1px solid rgb(194,200,203);
+}
+
+.c5 th {
+  background: #e8e8e8;
+  padding: 0.375em;
+  text-align: left;
+}
+
+.c5 td {
+  padding: 0.25em 0.375em;
+  font-weight: 400;
+}
+
 .c9 {
-  margin: 1rem 0;
+  margin: 2.5em 0;
   page-break-inside: avoid;
 }
 
@@ -93,55 +122,25 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 .c11 td {
   width: 1%;
   height: 100%;
-  padding: 0.1rem 0.25rem;
+  padding: 0.25em 0.625em;
   padding-right: 0;
   text-align: right;
   white-space: no-wrap;
 }
 
 .c11 th {
-  padding: 0 0.2rem;
+  padding: 0 0.5em;
   text-align: right;
   font-weight: 400;
 }
 
 .c11 th:first-child {
-  padding-left: 0.1rem;
+  padding-left: 0.25em;
   text-align: left;
 }
 
 .c11 th:not(:first-child) {
   padding-right: 0;
-}
-
-.c5 {
-  margin-bottom: 1em;
-  border: 1px solid rgb(194,200,203);
-  border-width: 0 1px;
-  -webkit-break-inside: avoid;
-  break-inside: avoid;
-}
-
-.c5 table {
-  width: 100%;
-}
-
-.c5 th,
-.c5 td {
-  border-top: 1px solid rgb(194,200,203);
-  border-bottom: 1px solid rgb(194,200,203);
-}
-
-.c5 th {
-  background: #e8e8e8;
-  padding: 0.15rem 0.15rem;
-  text-align: left;
-  font-size: 0.4rem;
-}
-
-.c5 td {
-  padding: 0.1rem 0.15rem;
-  font-weight: 400;
 }
 
 @media print {

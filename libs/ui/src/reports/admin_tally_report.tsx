@@ -1,12 +1,16 @@
 import { Contests, Election, Tabulation } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { ThemeProvider } from 'styled-components';
-import { ReportSection, TallyReport, TallyReportColumns } from './tally_report';
+import {
+  ReportSection,
+  tallyReportThemeFn,
+  TallyReport,
+  TallyReportColumns,
+} from './tally_report';
 import { LogoMark } from '../logo_mark';
 import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestResultsTable } from './contest_results_table';
 import { TallyReportCardCounts } from './tally_report_card_counts';
-import { makeTheme } from '../themes/make_theme';
 
 export interface AdminTallyReportProps {
   title: string;
@@ -37,7 +41,7 @@ export function AdminTallyReport({
     : scannedElectionResults.cardCounts;
 
   return (
-    <ThemeProvider theme={makeTheme({ sizeMode: 's' })}>
+    <ThemeProvider theme={tallyReportThemeFn}>
       <TallyReport data-testid={testId}>
         <ReportSection>
           <LogoMark />

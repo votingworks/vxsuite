@@ -51,7 +51,7 @@ afterEach(() => {
 function renderScreen(
   props: Partial<PollWorkerScreenProps> = {}
 ): RenderResult {
-  apiMock.expectGetCastVoteRecordsForTally([]);
+  apiMock.expectGetScannerResultsByParty([]);
   return render(
     provideApi(
       apiMock,

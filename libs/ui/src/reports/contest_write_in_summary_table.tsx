@@ -14,7 +14,7 @@ import { Font, FontProps } from '../typography';
 import { NoWrap, Text } from '../text';
 
 const Contest = styled.div`
-  margin: 1rem 0;
+  margin: 2.5em 0;
   page-break-inside: avoid;
   p:first-child {
     margin: 0;
@@ -43,16 +43,16 @@ const ContestTable = styled.table`
     border-bottom: none;
   }
   & td {
-    padding: 0.1rem;
+    padding: 0.2em;
     padding-right: 0;
   }
   & th {
-    padding: 0.1rem;
+    padding: 0.25em;
     text-align: left;
     font-weight: 400;
   }
   & th.indent {
-    padding-left: 1rem;
+    padding-left: 2.5em;
   }
 `;
 

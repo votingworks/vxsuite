@@ -3,12 +3,12 @@ import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPackageConfigurationError,
-  CastVoteRecord,
   DEFAULT_SYSTEM_SETTINGS,
   MarkThresholds,
   PollsState,
   PrecinctSelection,
   SinglePrecinctSelection,
+  Tabulation,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -23,7 +23,7 @@ import {
   ExportCastVoteRecordReportToUsbDriveError,
   readBallotPackageFromUsb,
 } from '@votingworks/backend';
-import { assert, iter, ok, Result } from '@votingworks/basics';
+import { assert, ok, Result } from '@votingworks/basics';
 import {
   ArtifactAuthenticatorApi,
   InsertedSmartCardAuthApi,
@@ -32,7 +32,6 @@ import {
 } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { backupToUsbDrive } from './backup';
-import { exportCastVoteRecords } from './tally-cvrs/export';
 import { PrecinctScannerInterpreter } from './interpret';
 import {
   PrecinctScannerStateMachine,
@@ -42,6 +41,7 @@ import {
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
 import { DefaultMarkThresholds } from './store';
+import { getScannerResults } from './util/results';
 
 function constructAuthMachineState(
   workspace: Workspace
@@ -98,11 +98,11 @@ function buildApi(
       });
     },
 
-    async getUsbDriveStatus(): Promise<UsbDriveStatus> {
+    getUsbDriveStatus(): Promise<UsbDriveStatus> {
       return usbDrive.status();
     },
 
-    async ejectUsbDrive(): Promise<void> {
+    ejectUsbDrive(): Promise<void> {
       return usbDrive.eject();
     },
 
@@ -303,16 +303,11 @@ function buildApi(
       return exportResult;
     },
 
-    /**
-     * @deprecated We want to eventually build the tally in the backend,
-     * but for now that logic still lives in the frontend.
-     */
-    getCastVoteRecordsForTally(): CastVoteRecord[] {
-      return iter(
-        exportCastVoteRecords({
-          store,
-        })
-      ).toArray();
+    async getScannerResultsByParty(): Promise<
+      Tabulation.GroupList<Tabulation.ElectionResults>
+    > {
+      const results = await getScannerResults({ store, splitByParty: true });
+      return results;
     },
 
     getScannerStatus(): PrecinctScannerStatus {

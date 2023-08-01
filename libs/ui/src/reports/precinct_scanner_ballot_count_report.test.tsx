@@ -25,7 +25,7 @@ test('renders info properly', () => {
   screen.getByText('TEST Voting Paused Report for All Precincts');
   const electionTitle = screen.getByText('General Election:');
   expect(electionTitle.parentElement).toHaveTextContent(
-    'General Election: Tuesday, November 3, 2020, Franklin County, State of Hamilton'
+    'General Election: Nov 3, 2020, Franklin County, State of Hamilton'
   );
   const eventDate = screen.getByText('Voting Paused:');
   expect(eventDate.parentNode).toHaveTextContent(

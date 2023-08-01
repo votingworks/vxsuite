@@ -2,13 +2,13 @@ import React from 'react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
-  CastVoteRecord,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   InsertedSmartCardAuth,
   MarkThresholds,
   PollsState,
   PrecinctSelection,
+  Tabulation,
 } from '@votingworks/types';
 import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
@@ -146,10 +146,10 @@ export function createApiMock() {
       mockApiClient.setPollsState.expectCallWith({ pollsState }).resolves();
     },
 
-    expectGetCastVoteRecordsForTally(castVoteRecords: CastVoteRecord[]): void {
-      mockApiClient.getCastVoteRecordsForTally
-        .expectCallWith()
-        .resolves(castVoteRecords);
+    expectGetScannerResultsByParty(
+      results: Tabulation.GroupList<Tabulation.ElectionResults>
+    ): void {
+      mockApiClient.getScannerResultsByParty.expectCallWith().resolves(results);
     },
 
     expectExportCastVoteRecordsToUsbDrive(): void {

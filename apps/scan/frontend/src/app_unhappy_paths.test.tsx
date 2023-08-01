@@ -210,7 +210,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   window.kiosk = kiosk;
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp({ hardware });
-  apiMock.expectGetCastVoteRecordsForTally([]);
+  apiMock.expectGetScannerResultsByParty([]);
   await screen.findByText('Polls Closed');
   await screen.findByText('No Power Detected.');
   await screen.findByText(

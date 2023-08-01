@@ -1,6 +1,7 @@
-import styled from 'styled-components';
+import styled, { DefaultTheme } from 'styled-components';
 import { Icons } from '../icons';
 import { H3 } from '../typography';
+import { makeTheme } from '../themes/make_theme';
 
 export const ReportSection = styled.section`
   page-break-before: always;
@@ -12,7 +13,7 @@ export const TallyReportTitle = styled.h1`
 export const TallyReportColumns = styled.div`
   columns: 3;
   column-gap: 0.3in;
-  margin-top: 1rem;
+  margin-top: 1.5em;
   & > div {
     margin-top: 0;
   }
@@ -37,13 +38,13 @@ export const TallyReportPreview = styled.div`
   }
 `;
 
-export const PrintableContainer = styled.div`
-  margin: 0;
-  page-break-after: always;
-  @media screen {
-    display: none;
-  }
-`;
+export function tallyReportThemeFn(theme?: DefaultTheme): DefaultTheme {
+  return makeTheme({
+    screenType: theme?.screenType,
+    sizeMode: 's',
+    colorMode: 'contrastHighLight',
+  });
+}
 
 const ReportPreviewLoadingWrapper = styled.section`
   display: flex;
