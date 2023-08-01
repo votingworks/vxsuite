@@ -90,11 +90,12 @@ export async function getScannerResults({
     if (isHmpbPage(frontInterpretation)) {
       assert(isHmpbPage(backInterpretation));
 
-      const sheetNumber =
+      const sheetNumber = Math.round(
         Math.max(
           frontInterpretation.metadata.pageNumber,
           backInterpretation.metadata.pageNumber
-        ) / 2;
+        ) / 2
+      );
 
       return typedAs<Tabulation.CastVoteRecord>({
         votes: convertVotesDictToTabulationVotes({
