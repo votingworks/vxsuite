@@ -16,6 +16,7 @@ const ElectionList = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+
   li {
     button {
       width: 100%;

@@ -13,7 +13,7 @@ interface Props extends StyledProps {
 
 export const Bubble = styled.span<StyledProps>`
   display: inline-block;
-  border: 1pt solid #000000;
+  border: 1pt solid #000;
   border-radius: 100%;
   background: ${({ checked }) => (checked ? '#000000' : undefined)};
   width: 1.5em;
@@ -28,6 +28,7 @@ const Container = styled.span<Props>`
   align-items: flex-start;
   text-align: ${({ position }) =>
     position === BallotTargetMarkPosition.Right ? 'right' : 'left'};
+
   & > span:first-child {
     margin-top: 0.15em;
     margin-right: ${({ position }) =>

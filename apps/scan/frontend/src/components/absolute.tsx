@@ -10,9 +10,6 @@ interface Props {
 
 export const Absolute = styled.div<Props>`
   position: absolute;
-  top: ${({ top }) => top && 0};
-  right: ${({ right }) => right && 0};
-  bottom: ${({ bottom }) => bottom && 0};
-  left: ${({ left }) => left && 0};
+  inset: ${({ top }) => top && 0} ${({ right }) => right && 0} ${({ bottom }) => bottom && 0} ${({ left }) => left && 0};
   padding: ${({ padded }) => padded && '1rem'};
 `;

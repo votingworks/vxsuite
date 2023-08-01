@@ -36,6 +36,7 @@ const Brand = styled.div`
   color: ${(p) => p.theme.colors.foreground};
   font-size: 1.3rem;
   font-weight: 600;
+
   & span {
     font-weight: 400;
   }
@@ -48,6 +49,7 @@ const ModelName = styled.div``;
 
 const NavButtons = styled.div`
   margin-right: 1em;
+
   button {
     margin-left: 0.5em;
   }
@@ -55,7 +57,7 @@ const NavButtons = styled.div`
 const TestMode = styled.span`
   flex: 1;
   background: #ff8c00;
-  color: #333333;
+  color: #333;
   font-size: 2rem;
   font-weight: 900;
   text-align: center;

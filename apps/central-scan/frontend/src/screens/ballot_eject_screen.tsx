@@ -29,12 +29,15 @@ const MainChildFlexRow = styled.div`
   flex: 1;
   display: flex;
   margin-top: 0.5em;
+
   > div {
     margin-right: 1em;
+
     &:first-child {
       flex: 1;
       margin-left: 1em;
     }
+
     &:last-child {
       margin-right: 0;
     }
@@ -43,11 +46,13 @@ const MainChildFlexRow = styled.div`
 
 const RectoVerso = styled.div`
   display: flex;
+
   & > * {
     &:first-child {
       margin-right: 1em;
     }
   }
+
   img {
     max-width: 100%;
     max-height: 82vh;

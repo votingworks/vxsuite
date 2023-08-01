@@ -184,7 +184,7 @@ const AbsenteeHeader = styled.div`
   height: 0.25in;
   text-transform: uppercase;
   letter-spacing: 0.025in;
-  color: #ffffff;
+  color: #fff;
 `;
 const AbsenteeFooter = styled.div`
   display: flex;
@@ -193,17 +193,15 @@ const AbsenteeFooter = styled.div`
   margin-right: 0.08in;
   background: ${ABSENTEE_TINT_COLOR};
   width: 1in;
-  color: #ffffff;
+  color: #fff;
 `;
 const Watermark = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
+
   & > div {
     transform: rotate(305deg);
     color: #eaeaea;
@@ -222,8 +220,9 @@ const OfficialInitials = styled.div`
   align-items: flex-start;
   justify-content: center;
   margin-right: 0.08in;
-  border: 1px solid #000000;
+  border: 1px solid #000;
   width: 1in;
+
   .pagedjs_left_page & {
     display: flex;
   }
@@ -233,13 +232,15 @@ const PageFooterMain = styled.div`
   flex: 1;
   flex-direction: column;
   justify-content: space-between;
-  border-top: 1px solid #000000;
+  border-top: 1px solid #000;
   padding-top: 0.02in;
+
   & > div {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
   }
+
   h2 {
     margin: 0;
   }
@@ -249,23 +250,29 @@ const PageFooterRow = styled.div`
   flex-direction: row;
   justify-content: space-between;
   margin-bottom: 0.05in;
+
   &:last-child {
     margin-bottom: 0;
   }
+
   & > div {
     display: flex;
     flex-direction: row;
     margin: 0 0.05in;
+
     &:first-child {
       margin-left: 0;
     }
+
     &:last-child {
       margin-right: 0;
     }
+
     &:empty {
       flex: 1;
     }
   }
+
   div + h2,
   h2 + div {
     margin-left: 0.05in;
@@ -277,7 +284,7 @@ const PageFooterQrCode = styled.div`
   height: 0.55in;
 `;
 const PageFooterQrCodeOutline = styled(PageFooterQrCode)`
-  border: 1px solid #000000;
+  border: 1px solid #000;
 `;
 const CandidateContestsLayout = styled.div`
   columns: 3;
@@ -294,12 +301,15 @@ const IntroColumn = styled.div`
 `;
 const BallotHeader = styled.div`
   margin-bottom: 2em;
+
   & h2 {
     margin-bottom: 0;
   }
+
   & h3 {
     margin-top: 0;
   }
+
   & > .seal {
     float: right;
     margin: 0 0 0.25em 0.25em;
@@ -308,27 +318,31 @@ const BallotHeader = styled.div`
 `;
 const Instructions = styled.div`
   margin-bottom: 1em;
+
   img {
     float: right;
     margin: 0.05in 0 0.05in 0.05in;
-    background: #ffffff;
+    background: #fff;
     width: 45%;
   }
+
   h4 + p {
     margin-top: -1.3em;
   }
+
   h4:nth-child(2) {
     margin-top: 0;
   }
 `;
 export const StyledContest = styled.div<{ density?: number }>`
   margin-bottom: 1em;
-  border: 0.2em solid #000000;
+  border: 0.2em solid #000;
   border-top-width: 0.3em;
   padding: ${({ density }) =>
     density === 2 ? '0.25em 0.5em' : density === 1 ? '0.5em' : '0.5em 1em 1em'};
   break-inside: avoid;
   page-break-inside: avoid;
+
   p + h3 {
     margin-top: ${({ density }) =>
       density === 1 || density === 2 ? '-0.3em' : '-0.6em'};
@@ -366,6 +380,7 @@ const WriteInItem = styled.p`
   position: relative;
   margin: 0.5em 0 !important;
   page-break-inside: avoid;
+
   &:last-child {
     margin-bottom: 0 !important;
   }
@@ -375,7 +390,7 @@ const WriteInName = styled.span`
   position: absolute;
   top: -5px;
   left: 40%;
-  font-family: 'Edu TAS Beginner', 'Georgia', serif;
+  font-family: 'Edu TAS Beginner', Georgia, serif;
 `;
 
 const CandidateDescription = styled.span<{ isSmall?: boolean }>`

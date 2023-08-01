@@ -21,13 +21,14 @@ export const Form = styled.form`
 `;
 
 export const Input = styled.input`
-  border: 1px solid #cccccc;
-  background: #ffffff;
+  border: 1px solid #ccc;
+  background: #fff;
   padding: 0.35rem 0.5rem;
   line-height: 1.25rem;
   border-radius: 0.25rem;
   width: 100%;
   max-width: 18rem;
+
   &:disabled {
     background: transparent;
   }
@@ -54,6 +55,7 @@ export function FormField({
 
 export const FormActionsRow = styled(Row)`
   gap: 0.5rem;
+
   button {
     min-width: 8rem;
   }

@@ -8,7 +8,7 @@ const Container = styled.span`
   display: block;
   flex: 1;
   margin-top: 1em;
-  border-bottom: 1pt solid #000000;
+  border-bottom: 1pt solid #000;
 `;
 
 export function WriteInLine({ label }: Props): JSX.Element {

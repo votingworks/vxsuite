@@ -43,6 +43,7 @@ const StepInnerContainer = styled.div`
   ol {
     margin-top: 0;
     padding-left: 1em;
+
     li {
       margin-bottom: 1em;
     }

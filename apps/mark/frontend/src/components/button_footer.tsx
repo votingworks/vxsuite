@@ -10,7 +10,7 @@ const portraitStyles = css`
   padding: 0.5rem;
 
   & > * {
-    &:not(:first-child):not(:last-child) {
+    &:not(:first-child, :last-child) {
       flex-grow: 1;
     }
   }

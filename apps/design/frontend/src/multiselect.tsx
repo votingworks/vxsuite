@@ -31,6 +31,7 @@ const Option = styled.label<{ isSelected: boolean; disabled: boolean }>`
   color: ${(p) => (p.isSelected && !p.disabled ? 'white' : 'currentColor')};
   border-radius: 0.25rem;
   cursor: ${(p) => (p.disabled ? 'default' : 'pointer')};
+
   input {
     &:checked {
       background: ${(p) => p.theme.colors.accentPrimary};

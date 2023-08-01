@@ -37,6 +37,7 @@ const Divider = styled.div`
   display: flex;
   grid-area: divider;
   justify-content: center;
+
   &::before {
     background: ${(p) => p.theme.colors.foreground};
     width: ${(p) => p.theme.sizes.bordersRem.medium}rem;

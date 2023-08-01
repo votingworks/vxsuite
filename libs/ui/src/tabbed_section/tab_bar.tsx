@@ -18,9 +18,8 @@ const Container = styled.div`
   border-right: ${(p) => p.theme.sizes.bordersRem.hairline}rem dotted
     ${(p) => p.theme.colors.foreground};
   display: flex;
-  flex-direction: column;
+  flex-flow: column wrap;
   flex-shrink: 1;
-  flex-wrap: wrap;
   gap: 0.5rem;
   padding: 0.25rem 0.5rem 0.75rem;
 `;

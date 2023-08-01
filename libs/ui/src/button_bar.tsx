@@ -18,8 +18,9 @@ export const ButtonBar = styled('div')`
   & > * {
     flex-grow: 1;
   }
+
   & > *:only-child {
-    @media (min-width: 480px) {
+    @media (width >= 480px) {
       flex-grow: initial;
       margin: auto;
       min-width: 33.333%;

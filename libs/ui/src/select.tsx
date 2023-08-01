@@ -43,8 +43,9 @@ const StyledSelect = styled.select<SelectProps>`
   color: ${({ primary }) => (primary && '#FFFFFF') || 'black'};
   font-size: ${({ large }) => large && '1.25em'};
   appearance: none;
+
   &:disabled {
-    background: #dddddd;
+    background: #ddd;
     color: rgb(170, 170, 170);
   }
 `;

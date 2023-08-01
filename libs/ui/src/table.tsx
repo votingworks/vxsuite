@@ -15,6 +15,7 @@ export const Table = styled.table<TableProps>`
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+
   & th,
   & td {
     border-bottom: 1px solid ${tableBorderColor};
@@ -25,6 +26,7 @@ export const Table = styled.table<TableProps>`
         ? '0.25rem 1rem'
         : '0.25rem 0.5rem'};
   }
+
   & th {
     border-top: 1px solid ${tableBorderColor};
 
@@ -32,6 +34,7 @@ export const Table = styled.table<TableProps>`
       font-size: 0.75rem;
     }
   }
+
   @media print {
     border-top: 1px solid ${tableBorderColor};
   }

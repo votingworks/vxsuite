@@ -37,7 +37,7 @@ const OuterContainer = styled(Button)<StyleProps>`
   grid-area: ${(p) => p.gridArea};
   justify-content: start;
   min-width: min-content;
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem;
   text-align: left;
   width: 100%;
 

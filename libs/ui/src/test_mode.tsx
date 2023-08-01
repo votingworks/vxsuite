@@ -3,18 +3,18 @@ import { H1 } from './typography';
 import { makeTheme } from './themes/make_theme';
 
 const TestingModeContainer = styled.div`
-  border-bottom: 4px solid #333333;
+  border-bottom: 4px solid #333;
 
   /* https://stripesgenerator.com/stripe/5302 */
   background-image: linear-gradient(
     135deg,
     #ff8c00 21.43%,
-    #333333 21.43%,
-    #333333 50%,
+    #333 21.43%,
+    #333 50%,
     #ff8c00 50%,
     #ff8c00 71.43%,
-    #333333 71.43%,
-    #333333 100%
+    #333 71.43%,
+    #333 100%
   );
   background-size: 98.99px 98.99px;
   width: 100%;
@@ -25,7 +25,7 @@ const TestingModeContainer = styled.div`
     background: #ff8c00;
     padding: 0.125rem;
     text-align: center;
-    color: #333333;
+    color: #333;
   }
 `;
 

@@ -26,10 +26,7 @@ const ReactModalContent = styled('div')<ReactModalContentInterface>`
   display: flex;
   flex-direction: column;
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   margin: auto;
   outline: none;
   background: ${(p) => p.theme.colors.background};
@@ -41,13 +38,15 @@ const ReactModalContent = styled('div')<ReactModalContentInterface>`
   overflow: auto;
   font-size: ${({ themeDeprecated }) => themeDeprecated?.fontSize};
   -webkit-overflow-scrolling: touch;
-  @media (min-width: 480px) {
+
+  @media (width >= 480px) {
     position: static;
     border-radius: ${({ fullscreen }) => (fullscreen ? '0' : '0.5rem')};
     max-width: ${({ fullscreen, modalWidth = ModalWidth.Standard }) =>
       fullscreen ? '100%' : modalWidth};
     height: ${({ fullscreen }) => (fullscreen ? '100%' : 'auto')};
   }
+
   @media print {
     display: none;
   }
@@ -59,15 +58,14 @@ interface ReactModalOverlayInterface {
 const ReactModalOverlay = styled('div')<ReactModalOverlayInterface>`
   display: flex;
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   z-index: 999; /* Should be above all default UI */
   background: ${(p) => rgba(p.theme.colors.foreground, 0.9)};
-  @media (min-width: 480px) {
+
+  @media (width >= 480px) {
     padding: ${({ fullscreen }) => (fullscreen ? '0' : '0.5rem')};
   }
+
   @media print {
     display: none;
   }

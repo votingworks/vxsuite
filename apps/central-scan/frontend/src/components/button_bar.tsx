@@ -21,7 +21,8 @@ export const ButtonBar = styled('nav')<Props>`
 
   & > *:first-child {
     order: ${({ naturalOrder = false }) => (naturalOrder ? undefined : '2')};
-    @media (min-width: 480px) {
+
+    @media (width >= 480px) {
       margin-right: ${({ naturalOrder = false, separatePrimaryButton }) =>
         separatePrimaryButton && naturalOrder ? 'auto' : undefined};
       margin-left: ${({ naturalOrder = false, separatePrimaryButton }) =>
@@ -33,19 +34,22 @@ export const ButtonBar = styled('nav')<Props>`
     white-space: nowrap;
     flex: 1;
     margin: 0.25rem;
-    @media (min-width: 480px) {
+
+    @media (width >= 480px) {
       flex: ${({ separatePrimaryButton }) =>
         separatePrimaryButton ? '0' : undefined};
     }
   }
+
   & > *:only-child {
-    @media (min-width: 480px) {
+    @media (width >= 480px) {
       flex: ${({ centerOnlyChild = true }) => (centerOnlyChild ? 0 : 1)};
       margin: ${({ centerOnlyChild = true }) =>
         centerOnlyChild ? 'auto' : undefined};
       min-width: 33.333%;
     }
   }
+
   @media print {
     display: none;
   }

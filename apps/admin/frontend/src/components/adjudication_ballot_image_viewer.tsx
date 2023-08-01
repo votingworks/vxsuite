@@ -49,7 +49,7 @@ const WriteInFocusOverlay = styled.div<{
   top: 0;
   left: 0;
   z-index: 1;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 50%);
   width: 100%;
   height: 100%;
   clip-path: polygon(
@@ -74,6 +74,7 @@ const WriteInFocusOverlay = styled.div<{
 const ZoomedOutBallotImageContainer = styled.div`
   height: 100%;
   overflow-y: scroll;
+
   img {
     width: 100%;
   }
