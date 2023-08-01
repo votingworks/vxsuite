@@ -44,6 +44,7 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
   @media print {
     html {
       background: #ffffff;
+      color: #000000;
 
       /* Adjust printed ballot font-size */
       /* stylelint-disable-next-line declaration-no-important */
