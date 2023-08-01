@@ -710,13 +710,13 @@ export class JavaCard implements Card {
    * Disconnects the card so that it can be reconnected to, through a new JavaCard instance
    */
   disconnect(): void {
-    this.cardReader.disconnect();
+    this.cardReader.disconnectCard();
   }
 
   /**
-   * Retrieves the specified card cert. Used by the card detail reading script.
+   * Retrieves the specified cert from the card. Used by the card detail reading script.
    */
-  async retrieveCardCert(
+  async retrieveCertByIdentifier(
     certIdentifier:
       | 'cardVxCert'
       | 'cardVxAdminCert'

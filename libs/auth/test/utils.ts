@@ -35,8 +35,8 @@ export class MockCardReader implements Pick<CardReader, 'transmit'> {
   }
 
   // eslint-disable-next-line vx/gts-no-public-class-fields
-  disconnect: MockFunction<CardReader['disconnect']> =
-    mockFunction<CardReader['disconnect']>('disconnect');
+  disconnectCard: MockFunction<CardReader['disconnectCard']> =
+    mockFunction<CardReader['disconnectCard']>('disconnectCard');
 
   // eslint-disable-next-line vx/gts-no-public-class-fields
   transmit: MockFunction<CardReader['transmit']> =

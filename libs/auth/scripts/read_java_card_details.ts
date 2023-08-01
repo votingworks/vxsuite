@@ -34,7 +34,7 @@ async function readJavaCardDetails(): Promise<ExtendedCardDetails | undefined> {
     }
 
     try {
-      const cardVxCert = await card.retrieveCardCert('cardVxCert');
+      const cardVxCert = await card.retrieveCertByIdentifier('cardVxCert');
       await verifyFirstCertWasSignedBySecondCert(
         cardVxCert,
         vxCertAuthorityCertPath

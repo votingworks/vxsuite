@@ -172,10 +172,10 @@ test('CardReader status changes', () => {
   expect(onReaderStatusChange).toHaveBeenNthCalledWith(6, 'no_card_reader');
 });
 
-test('CardReader disconnect', () => {
+test('CardReader card disconnecting', () => {
   const cardReader = newCardReader('ready');
 
-  cardReader.disconnect();
+  cardReader.disconnectCard();
 
   expect(mockPcscLiteReader.disconnect).toHaveBeenCalledTimes(1);
 });

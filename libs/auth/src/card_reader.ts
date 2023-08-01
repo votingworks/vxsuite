@@ -103,7 +103,7 @@ export class CardReader {
   /**
    * Disconnects the currently connected card, if any
    */
-  disconnect(): void {
+  disconnectCard(): void {
     if (this.reader.status === 'ready') {
       this.reader.disconnect();
     }

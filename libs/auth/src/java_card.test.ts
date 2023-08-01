@@ -1048,11 +1048,12 @@ test('Attempting to write too much data', async () => {
 test('disconnect', () => {
   const javaCard = new JavaCard(config);
 
-  mockCardReader.disconnect.expectCallWith().returns();
+  mockCardReader.disconnectCard.expectCallWith().returns();
+
   javaCard.disconnect();
 });
 
-test('retrieveCardCert', async () => {
+test('retrieveCertByIdentifier', async () => {
   const javaCard = new JavaCard(config);
 
   mockCardAppletSelectionRequest();
@@ -1064,7 +1065,7 @@ test('retrieveCardCert', async () => {
     })
   );
 
-  await javaCard.retrieveCardCert('cardVxCert');
+  await javaCard.retrieveCertByIdentifier('cardVxCert');
 });
 
 test('createAndStoreCardVxCert', async () => {
