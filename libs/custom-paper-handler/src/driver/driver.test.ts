@@ -10,14 +10,18 @@ import {
   REAL_TIME_ENDPOINT_OUT,
   getPaperHandlerWebDevice,
   PaperHandlerDriver,
-  RealTimeRequestIds,
   ReturnCodes,
   GENERIC_ENDPOINT_IN,
-  PaperHandlerBitmap,
 } from './driver';
-import { TOKEN, NULL_CODE, OK_NO_MORE_DATA } from './constants';
+import {
+  TOKEN,
+  NULL_CODE,
+  OK_NO_MORE_DATA,
+  RealTimeRequestIds,
+} from './constants';
 import { setUpMockWebUsbDevice } from './test_utils';
 import {
+  PaperHandlerBitmap,
   PrinterStatusRealTimeExchangeResponse,
   SensorStatusRealTimeExchangeResponse,
 } from './coders';

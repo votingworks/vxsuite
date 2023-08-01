@@ -278,6 +278,11 @@ export type Uint8 =
 export const Uint8Size = 8;
 
 /**
+ * Number of bytes in a `Uint32` value
+ */
+export const BytesPerUint32 = 4;
+
+/**
  * Maximum value of a `Uint8`
  */
 export const Uint8Max: Uint8 = 255;

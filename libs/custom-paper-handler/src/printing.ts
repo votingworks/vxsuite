@@ -1,7 +1,7 @@
 import { assert } from '@votingworks/basics';
 import { BitArray, bitArrayToByte, Uint8Max } from './bits';
-import { PaperHandlerBitmap } from './driver/driver';
 import { DEVICE_MAX_WIDTH_DOTS } from './driver/constants';
+import { PaperHandlerBitmap } from './driver/coders';
 
 export interface BinaryBitmap {
   width: number;

@@ -6,13 +6,16 @@ import {
   MarkThresholds,
   PageInterpretationWithFiles,
   PrecinctSelection,
+  SheetInterpretation,
   SheetOf,
 } from '@votingworks/types';
 import { time } from '@votingworks/utils';
 import { err, ok, Optional, Result } from '@votingworks/basics';
-import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
+import {
+  SheetInterpretationWithPages,
+  interpretSheetAndSaveImages,
+} from '@votingworks/ballot-interpreter';
 import { rootDebug } from './util/debug';
-import { SheetInterpretation } from './types';
 
 export interface InterpreterConfig {
   readonly electionDefinition: ElectionDefinition;
@@ -34,15 +37,6 @@ export interface PrecinctScannerInterpreter {
     sheet: SheetOf<string>
   ): Promise<Result<SheetInterpretationWithPages, Error>>;
 }
-
-/**
- * An interpretation for one ballot sheet that includes both the interpretation
- * result for the sheet as a whole and the individual page (i.e. front and back)
- * interpretations.
- */
-export type SheetInterpretationWithPages = SheetInterpretation & {
-  pages: SheetOf<PageInterpretationWithFiles>;
-};
 
 function combinePageInterpretationsForSheet(
   pages: SheetOf<PageInterpretationWithFiles>

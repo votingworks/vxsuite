@@ -24,8 +24,10 @@ import { electionSampleDefinition } from '@votingworks/fixtures';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
-import { PaperHandlerStateMachine } from './custom-paper-handler/state_machine';
-import { SimpleServerStatus } from './custom-paper-handler/types';
+import {
+  PaperHandlerStateMachine,
+  SimpleServerStatus,
+} from './custom-paper-handler';
 
 const defaultMediaMountDir = '/media';
 
@@ -161,7 +163,7 @@ function buildApi(
       return ok(electionDefinition);
     },
 
-    async getPaperHandlerState(): Promise<SimpleServerStatus> {
+    getPaperHandlerState(): SimpleServerStatus {
       if (!stateMachine) {
         return 'no_hardware';
       }
@@ -169,23 +171,12 @@ function buildApi(
       return stateMachine.getSimpleStatus();
     },
 
-    async parkPaper(): Promise<SimpleServerStatus> {
+    printBallot(input: { pdfData: Buffer }): SimpleServerStatus {
       if (!stateMachine) {
         return 'no_hardware';
       }
 
-      await stateMachine.parkPaper();
-      return stateMachine.getSimpleStatus();
-    },
-
-    // prints and presents a completed ballot
-    async printBallot(input: { pdfData: Buffer }): Promise<SimpleServerStatus> {
-      if (!stateMachine) {
-        return 'no_hardware';
-      }
-
-      await stateMachine.printBallot(input.pdfData);
-      await stateMachine.presentPaper();
+      void stateMachine.printBallot(input.pdfData);
       return stateMachine.getSimpleStatus();
     },
   });

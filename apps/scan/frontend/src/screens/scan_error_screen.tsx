@@ -1,9 +1,7 @@
 import { Caption, FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
-import type {
-  InvalidInterpretationReason,
-  PrecinctScannerErrorType,
-} from '@votingworks/scan-backend';
+import type { PrecinctScannerErrorType } from '@votingworks/scan-backend';
+import { InvalidInterpretationReason } from '@votingworks/types';
 import { Screen } from '../components/layout';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 

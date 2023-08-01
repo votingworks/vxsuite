@@ -17,13 +17,14 @@ import {
   electionSampleDefinition,
   electionMinimalExhaustiveSampleDefinition,
 } from '@votingworks/fixtures';
-import { AdjudicationReason, getDisplayElectionHash } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  SheetInterpretation,
+  getDisplayElectionHash,
+} from '@votingworks/types';
 import { err, ok } from '@votingworks/basics';
 
-import type {
-  PrecinctScannerConfig,
-  SheetInterpretation,
-} from '@votingworks/scan-backend';
+import type { PrecinctScannerConfig } from '@votingworks/scan-backend';
 import { waitFor, screen, within, render } from '../test/react_testing_library';
 import {
   BALLOT_BAG_CAPACITY,

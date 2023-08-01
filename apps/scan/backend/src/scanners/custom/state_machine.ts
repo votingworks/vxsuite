@@ -15,7 +15,7 @@ import {
 } from '@votingworks/custom-scanner';
 import { toRgba, writeImageData } from '@votingworks/image-utils';
 import { LogEventId, Logger, LogLine } from '@votingworks/logging';
-import { Id, mapSheet, SheetOf } from '@votingworks/types';
+import { Id, mapSheet, SheetInterpretation, SheetOf } from '@votingworks/types';
 import { createImageData } from 'canvas';
 import { join } from 'path';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
@@ -32,16 +32,13 @@ import {
   StateNodeConfig,
   TransitionConfig,
 } from 'xstate';
-import {
-  PrecinctScannerInterpreter,
-  SheetInterpretationWithPages,
-} from '../../interpret';
+import { SheetInterpretationWithPages } from '@votingworks/ballot-interpreter';
+import { PrecinctScannerInterpreter } from '../../interpret';
 import { Store } from '../../store';
 import {
   PrecinctScannerErrorType,
   PrecinctScannerMachineStatus,
   PrecinctScannerStateMachine,
-  SheetInterpretation,
 } from '../../types';
 import { rootDebug } from '../../util/debug';
 import { Workspace } from '../../util/workspace';

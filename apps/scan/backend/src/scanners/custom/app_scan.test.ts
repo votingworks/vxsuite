@@ -1,4 +1,8 @@
-import { AdjudicationReason, AdjudicationReasonInfo } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  AdjudicationReasonInfo,
+  SheetInterpretation,
+} from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
 import { err, ok, sleep, typedAs } from '@votingworks/basics';
 import {
@@ -14,7 +18,6 @@ import {
   expectStatus,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
-import { SheetInterpretation } from '../../types';
 import {
   ballotImages,
   simulateScan,

@@ -2,10 +2,12 @@ import { Logger, LogSource, LogEventId } from '@votingworks/logging';
 import fs from 'fs';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
+import { getPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import * as server from './server';
 import { MARK_WORKSPACE, NODE_ENV, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { getPaperHandlerStateMachine } from './custom-paper-handler/state_machine';
+import { DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS } from './custom-paper-handler/constants';
 
 export type { Api } from './app';
 export * from './types';
@@ -55,7 +57,14 @@ async function resolveWorkspace(): Promise<Workspace> {
 
 async function main(): Promise<number> {
   const workspace = await resolveWorkspace();
-  const stateMachine = await getPaperHandlerStateMachine();
+  const paperHandlerDriver = await getPaperHandlerDriver();
+  const stateMachine =
+    paperHandlerDriver &&
+    (await getPaperHandlerStateMachine(
+      paperHandlerDriver,
+      workspace,
+      DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
+    ));
   server.start({ port: PORT, logger, workspace, stateMachine });
   return 0;
 }

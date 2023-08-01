@@ -250,9 +250,10 @@ export function PollWorkerScreen({
   }
 
   if (pollWorkerAuth.cardlessVoterUser) {
-    if (stateMachineState !== 'paper_parked') {
+    if (stateMachineState === 'no_paper') {
       return <LoadPaperPage />;
     }
+
     const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
     const precinct = find(election.precincts, (p) => p.id === precinctId);
 

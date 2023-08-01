@@ -8,17 +8,21 @@ import {
   fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
-import { BallotPackage, PrecinctId } from '@votingworks/types';
+import {
+  BallotPackage,
+  PrecinctId,
+  PrecinctScannerState,
+  SheetInterpretation,
+} from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import waitForExpect from 'wait-for-expect';
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { PrecinctScannerState } from '@votingworks/types/src/precinct_scanner';
-import { Api } from '../../src/app';
 import { PrecinctScannerInterpreter } from '../../src/interpret';
-import { PrecinctScannerStatus, SheetInterpretation } from '../../src/types';
+import { Api } from '../../src/app';
+import { PrecinctScannerStatus } from '../../src/types';
 
 export async function expectStatus(
   apiClient: grout.Client<Api>,

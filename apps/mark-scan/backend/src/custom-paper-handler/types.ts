@@ -2,21 +2,21 @@ import { z } from 'zod';
 
 export type SimpleStatus =
   | 'no_paper'
-  | 'paper_ready_to_load' // Paper is detected in the input area
-  | 'parking_paper'
-  | 'paper_parked'
+  | 'loading_paper'
+  | 'waiting_for_ballot_data'
   | 'printing_ballot'
-  | 'ballot_printed'
-  | 'ejecting';
+  | 'presenting_ballot'
+  | 'scanning'
+  | 'interpreting';
 
 export const SimpleStatusSchema: z.ZodSchema<SimpleStatus> = z.union([
   z.literal('no_paper'),
-  z.literal('paper_ready_to_load'),
-  z.literal('parking_paper'),
-  z.literal('paper_parked'),
+  z.literal('loading_paper'),
+  z.literal('waiting_for_ballot_data'),
+  z.literal('presenting_ballot'),
   z.literal('printing_ballot'),
-  z.literal('ballot_printed'),
-  z.literal('ejecting'),
+  z.literal('scanning'),
+  z.literal('interpreting'),
 ]);
 
 export type SimpleServerStatus = SimpleStatus | 'no_hardware';
