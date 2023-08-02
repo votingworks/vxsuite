@@ -171,16 +171,16 @@ commands:
       # comment will invalidate the cache without changing the behavior.
       - restore_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "pnpm-lock.yaml" }}-{{ .Environment.CIRCLE_JOB }}
+            dotcache-cache-{{ .Environment.CIRCLE_JOB }}-{{checksum 
+            ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
       - run:
           name: Setup Dependencies
           command: |
             cd <<parameters.path>> && pnpm install --filter {.}... --frozen-lockfile && cd -
       - save_cache:
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "pnpm-lock.yaml" }}-{{ .Environment.CIRCLE_JOB }}
+            dotcache-cache-{{ .Environment.CIRCLE_JOB }}-{{checksum 
+            ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - /root/.local/share/pnpm/store/v3
             - /root/.cache/Cypress
