@@ -709,8 +709,8 @@ export class JavaCard implements Card {
   /**
    * Disconnects the card so that it can be reconnected to, through a new JavaCard instance
    */
-  disconnect(): void {
-    this.cardReader.disconnectCard();
+  async disconnect(): Promise<void> {
+    await this.cardReader.disconnectCard();
   }
 
   /**

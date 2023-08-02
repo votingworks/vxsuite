@@ -45,7 +45,7 @@ async function readJavaCardDetails(): Promise<ExtendedCardDetails | undefined> {
     } catch {} /* eslint-disable-line no-empty */
 
     // Disconnect the card so that it can be reconnected to, through a new JavaCard instance
-    card.disconnect();
+    await card.disconnect();
   }
 
   // Card has not been run through initial Java Card configuration script

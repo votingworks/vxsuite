@@ -1045,12 +1045,12 @@ test('Attempting to write too much data', async () => {
 // Methods for scripts
 //
 
-test('disconnect', () => {
+test('disconnect', async () => {
   const javaCard = new JavaCard(config);
 
-  mockCardReader.disconnectCard.expectCallWith().returns();
+  mockCardReader.disconnectCard.expectCallWith().resolves();
 
-  javaCard.disconnect();
+  await javaCard.disconnect();
 });
 
 test('retrieveCertByIdentifier', async () => {
