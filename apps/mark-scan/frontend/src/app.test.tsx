@@ -3,11 +3,7 @@ import {
   mockOf,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
-import {
-  ALL_PRECINCTS_SELECTION,
-  MemoryHardware,
-  MemoryStorage,
-} from '@votingworks/utils';
+import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
 
 import fetchMock from 'fetch-mock';
 import { electionSampleDefinition } from '@votingworks/fixtures';
@@ -65,6 +61,7 @@ it('Displays error boundary if the api returns an unexpected error', async () =>
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetMachineConfigToError();
+  apiMock.expectGetPrecinctSelection();
   const storage = new MemoryStorage();
   const hardware = MemoryHardware.buildStandard();
   await suppressingConsoleOutput(async () => {
@@ -85,6 +82,7 @@ it('prevents context menus from appearing', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelection();
   render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
 
   const { oncontextmenu } = window;
@@ -106,6 +104,7 @@ it('uses kiosk storage when in kiosk-browser', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelection();
   window.kiosk = kiosk;
   render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
   await advanceTimersAndPromises();
@@ -118,6 +117,7 @@ it('changes screen reader settings based on keyboard inputs', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelection();
   const screenReader = new AriaScreenReader(mockTts);
   jest.spyOn(screenReader, 'toggle');
   jest.spyOn(screenReader, 'changeVolume');
@@ -145,6 +145,7 @@ it('uses display settings management hook', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelection();
 
   const { storage, renderApp } = buildApp(apiMock);
   await setElectionInStorage(storage);
@@ -174,10 +175,12 @@ it('uses window.location.reload by default', async () => {
   const electionDefinition = electionSampleDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
+  apiMock.expectGetPrecinctSelectionResolvesDefault(
+    electionDefinition.election
+  );
 
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
-    appPrecinct: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_closed_initial',
   });
 

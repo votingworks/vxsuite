@@ -26,6 +26,7 @@ test('renders an error if ballot package config endpoint returns an error', asyn
     screenOrientation: 'portrait',
   });
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetPrecinctSelection();
   apiMock.expectGetElectionDefinition(null);
   apiMock.setAuthStatusElectionManagerLoggedIn(electionSampleDefinition);
 

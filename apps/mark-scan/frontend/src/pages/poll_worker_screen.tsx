@@ -5,7 +5,6 @@ import {
   BallotStyleId,
   ElectionDefinition,
   PrecinctId,
-  PrecinctSelection,
   PollsState,
   PollsTransition,
   InsertedSmartCardAuth,
@@ -50,7 +49,7 @@ import { ScreenReader } from '../config/types';
 
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
-import { getStateMachineState } from '../api';
+import { getPrecinctSelection, getStateMachineState } from '../api';
 import { LoadPaperPage } from './load_paper_page';
 
 const VotingSession = styled.div`
@@ -143,7 +142,6 @@ export interface PollworkerScreenProps {
     ballotStyleId: BallotStyleId
   ) => void;
   resetCardlessVoterSession: () => void;
-  appPrecinct: PrecinctSelection;
   electionDefinition: ElectionDefinition;
   enableLiveMode: () => void;
   hasVotes: boolean;
@@ -162,7 +160,6 @@ export function PollWorkerScreen({
   pollWorkerAuth,
   activateCardlessVoterSession,
   resetCardlessVoterSession,
-  appPrecinct,
   electionDefinition,
   enableLiveMode,
   isLiveMode,
@@ -183,9 +180,14 @@ export function PollWorkerScreen({
   const getStateMachineStateQuery = getStateMachineState.useQuery();
   const stateMachineState = getStateMachineStateQuery.data;
 
+  const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
+  const precinctSelection = getPrecinctSelectionQuery.data?.ok();
+
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
-      appPrecinct.kind === 'SinglePrecinct' ? appPrecinct.precinctId : undefined
+      precinctSelection?.kind === 'SinglePrecinct'
+        ? precinctSelection.precinctId
+        : undefined
     );
 
   const precinctBallotStyles = selectedCardlessVoterPrecinctId
@@ -335,7 +337,7 @@ export function PollWorkerScreen({
             <React.Fragment>
               <VotingSession>
                 <H4 as="h2">Start a New Voting Session</H4>
-                {appPrecinct.kind === 'AllPrecincts' && (
+                {precinctSelection?.kind === 'AllPrecincts' && (
                   <React.Fragment>
                     <H6 as="h3">1. Select Voter’s Precinct</H6>
                     <ButtonList data-testid="precincts">
@@ -360,8 +362,8 @@ export function PollWorkerScreen({
                   </React.Fragment>
                 )}
                 <H6 as="h3">
-                  {appPrecinct.kind === 'AllPrecincts' ? '2. ' : ''}Select
-                  Voter’s Ballot Style
+                  {precinctSelection?.kind === 'AllPrecincts' ? '2. ' : ''}
+                  Select Voter’s Ballot Style
                 </H6>
                 {selectedCardlessVoterPrecinctId ? (
                   <ButtonList data-testid="ballot-styles">
@@ -468,7 +470,7 @@ export function PollWorkerScreen({
         electionDefinition={electionDefinition}
         codeVersion={machineConfig.codeVersion}
         machineId={machineConfig.machineId}
-        precinctSelection={appPrecinct}
+        precinctSelection={precinctSelection}
       />
     </Screen>
   );

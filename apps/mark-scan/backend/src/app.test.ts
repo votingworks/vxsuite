@@ -1,6 +1,7 @@
 import { assert } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
+  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   electionSampleDefinition,
   systemSettings,
 } from '@votingworks/fixtures';
@@ -11,7 +12,10 @@ import {
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { safeParseSystemSettings } from '@votingworks/utils';
+import {
+  safeParseSystemSettings,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 
 import { Buffer } from 'buffer';
 import { createBallotPackageZipArchive, MockUsb } from '@votingworks/backend';
@@ -19,7 +23,9 @@ import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import {
   DEFAULT_SYSTEM_SETTINGS,
+  ElectionDefinition,
   safeParseJson,
+  SinglePrecinctSelection,
   SystemSettingsSchema,
 } from '@votingworks/types';
 import { createApp } from '../test/app_helpers';
@@ -45,6 +51,36 @@ afterEach(() => {
   stateMachine.stopMachineService();
   server?.close();
 });
+
+async function setUpUsbAndConfigureElection(
+  electionDefinition: ElectionDefinition
+) {
+  const zipBuffer = await createBallotPackageZipArchive({
+    electionDefinition,
+    systemSettings: safeParseJson(
+      systemSettings.asText(),
+      SystemSettingsSchema
+    ).unsafeUnwrap(),
+  });
+  mockUsb.insertUsbDrive({
+    'ballot-packages': {
+      'test-ballot-package.zip': zipBuffer,
+    },
+  });
+
+  const writeResult = await apiClient.configureBallotPackageFromUsb();
+  assert(writeResult.isOk());
+}
+
+function mockElectionManagerAuth(electionDefinition: ElectionDefinition) {
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: fakeElectionManagerUser(electionDefinition),
+      sessionExpiresAt: fakeSessionExpiresAt(),
+    })
+  );
+}
 
 test('uses machine config from env', async () => {
   const originalEnv = process.env;
@@ -72,33 +108,29 @@ test('uses default machine config if not set', async () => {
   });
 });
 
+test('precinct selection can be written/read to/from store', async () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  mockElectionManagerAuth(electionDefinition);
+  await setUpUsbAndConfigureElection(electionDefinition);
+
+  let precinctSelectionFromStore = await apiClient.getPrecinctSelection();
+  expect(precinctSelectionFromStore.unsafeUnwrap()).toEqual(undefined);
+
+  const precinct = electionDefinition.election.precincts[0].id;
+  const precinctSelection = singlePrecinctSelectionFor(precinct);
+  await apiClient.setPrecinctSelection({
+    precinctSelection,
+  });
+
+  precinctSelectionFromStore = await apiClient.getPrecinctSelection();
+  expect(precinctSelectionFromStore.unsafeUnwrap()).toEqual(precinctSelection);
+});
+
 test('configureBallotPackageFromUsb reads to and writes from store', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
 
-  // Mock election manager
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-    Promise.resolve({
-      status: 'logged_in',
-      user: fakeElectionManagerUser(electionDefinition),
-      sessionExpiresAt: fakeSessionExpiresAt(),
-    })
-  );
-
-  const zipBuffer = await createBallotPackageZipArchive({
-    electionDefinition,
-    systemSettings: safeParseJson(
-      systemSettings.asText(),
-      SystemSettingsSchema
-    ).unsafeUnwrap(),
-  });
-  mockUsb.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip': zipBuffer,
-    },
-  });
-
-  const writeResult = await apiClient.configureBallotPackageFromUsb();
-  assert(writeResult.isOk());
+  mockElectionManagerAuth(electionDefinition);
+  await setUpUsbAndConfigureElection(electionDefinition);
 
   const readResult = await apiClient.getSystemSettings();
   expect(readResult).toEqual(
@@ -108,36 +140,56 @@ test('configureBallotPackageFromUsb reads to and writes from store', async () =>
   expect(electionDefinitionResult).toEqual(electionDefinition);
 });
 
+test('configureBallotPackageFromUsb automatically writes precinct selection if only 1 option', async () => {
+  const electionDefinition =
+    electionMinimalExhaustiveSampleSinglePrecinctDefinition;
+  assert(
+    electionDefinition.election.precincts.length === 1,
+    'Expected election to have exactly 1 precinct'
+  );
+
+  mockElectionManagerAuth(electionDefinition);
+  await setUpUsbAndConfigureElection(electionDefinition);
+
+  const precinctSelection = (
+    await apiClient.getPrecinctSelection()
+  ).unsafeUnwrap();
+  assert(precinctSelection, 'Expected precinct selection to be defined');
+  expect((precinctSelection as SinglePrecinctSelection).precinctId).toEqual(
+    electionDefinition.election.precincts[0].id
+  );
+});
+
+test('configureBallotPackageFromUsb does not automatically write precinct selection if > 1 option', async () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  assert(
+    electionDefinition.election.precincts.length > 1,
+    'Expected election to have > 1 precinct'
+  );
+
+  mockElectionManagerAuth(electionDefinition);
+  await setUpUsbAndConfigureElection(electionDefinition);
+
+  const precinctSelection = (
+    await apiClient.getPrecinctSelection()
+  ).unsafeUnwrap();
+  expect(precinctSelection).toBeUndefined();
+});
+
 test('unconfigureMachine deletes system settings and election definition', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
 
-  // Mock election manager
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-    Promise.resolve({
-      status: 'logged_in',
-      user: fakeElectionManagerUser(electionDefinition),
-      sessionExpiresAt: fakeSessionExpiresAt(),
-    })
+  mockElectionManagerAuth(electionDefinition);
+  mockElectionManagerAuth(electionDefinition);
+  let readResult = await apiClient.getSystemSettings();
+  expect(readResult).toEqual(
+    safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
   );
 
-  const zipBuffer = await createBallotPackageZipArchive({
-    electionDefinition,
-    systemSettings: safeParseJson(
-      systemSettings.asText(),
-      SystemSettingsSchema
-    ).unsafeUnwrap(),
-  });
-  mockUsb.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip': zipBuffer,
-    },
-  });
-
-  const writeResult = await apiClient.configureBallotPackageFromUsb();
-  assert(writeResult.isOk(), `writeResult not ok: ${writeResult.err()}`);
+  await setUpUsbAndConfigureElection(electionDefinition);
   await apiClient.unconfigureMachine();
 
-  const readResult = await apiClient.getSystemSettings();
+  readResult = await apiClient.getSystemSettings();
   expect(readResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
   const electionDefinitionResult = await apiClient.getElectionDefinition();
   expect(electionDefinitionResult).toBeNull();

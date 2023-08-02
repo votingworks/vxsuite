@@ -9,6 +9,7 @@ import {
   contest0candidate0,
   contest0candidate1,
   contest1candidate0,
+  election,
   setElectionInStorage,
   setStateInStorage,
 } from '../../test/helpers/election';
@@ -37,6 +38,7 @@ it('gamepad controls work', async () => {
 
   await setElectionInStorage(storage);
   await setStateInStorage(storage);
+  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
 
   render(
     <App

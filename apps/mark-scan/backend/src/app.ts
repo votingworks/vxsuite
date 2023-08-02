@@ -4,7 +4,7 @@ import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { assert, ok, Result } from '@votingworks/basics';
+import { assert, ok, Optional, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'buffer';
 import {
@@ -15,8 +15,13 @@ import {
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
+  PrecinctSelection,
+  AllPrecinctsSelection,
 } from '@votingworks/types';
-import { isElectionManagerAuth } from '@votingworks/utils';
+import {
+  isElectionManagerAuth,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 
 import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
@@ -103,6 +108,16 @@ function buildApi(
       return workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
     },
 
+    setPrecinctSelection(input: {
+      precinctSelection: PrecinctSelection | AllPrecinctsSelection;
+    }): void {
+      workspace.store.setPrecinctSelection(input.precinctSelection);
+    },
+
+    getPrecinctSelection(): Result<Optional<PrecinctSelection>, Error> {
+      return ok(workspace.store.getPrecinctSelection());
+    },
+
     unconfigureMachine() {
       workspace.store.setElectionAndJurisdiction(undefined);
       workspace.store.deleteSystemSettings();
@@ -159,6 +174,13 @@ function buildApi(
         jurisdiction: authStatus.user.jurisdiction,
       });
       workspace.store.setSystemSettings(systemSettings);
+
+      const { precincts } = electionDefinition.election;
+      if (precincts.length === 1) {
+        workspace.store.setPrecinctSelection(
+          singlePrecinctSelectionFor(precincts[0].id)
+        );
+      }
 
       return ok(electionDefinition);
     },

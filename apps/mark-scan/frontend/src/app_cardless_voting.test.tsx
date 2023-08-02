@@ -1,4 +1,9 @@
-import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import {
+  MemoryStorage,
+  MemoryHardware,
+  singlePrecinctSelectionFor,
+  ALL_PRECINCTS_SELECTION,
+} from '@votingworks/utils';
 import {
   FakeKiosk,
   expectPrintToPdf,
@@ -17,6 +22,7 @@ import * as GLOBALS from './config/globals';
 import { App } from './app';
 
 import {
+  election,
   presidentContest,
   setElectionInStorage,
   setStateInStorage,
@@ -56,6 +62,7 @@ test('Cardless Voting Flow', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelection();
   render(
     <App
       hardware={hardware}
@@ -92,8 +99,13 @@ test('Cardless Voting Flow', async () => {
     within(precinctSelect).getByText<HTMLOptionElement>(
       'Center Springfield'
     ).value;
+  const precinctSelection = singlePrecinctSelectionFor(precinctId);
+  apiMock.expectSetPrecinctSelection(precinctSelection);
+  apiMock.expectGetPrecinctSelection(precinctSelection);
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
-  within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
+  await within(screen.getByTestId('electionInfoBar')).findByText(
+    /Center Springfield/
+  );
 
   fireEvent.click(
     screen.getByRole('option', {
@@ -272,6 +284,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
 
   await setElectionInStorage(storage, electionSampleDefinition);
   await setStateInStorage(storage);
@@ -365,6 +378,7 @@ test('poll worker must select a precinct first', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelection(undefined);
   render(
     <App
       hardware={hardware}
@@ -396,8 +410,12 @@ test('poll worker must select a precinct first', async () => {
   const precinctSelect = screen.getByLabelText('Precinct');
   const precinctId =
     within(precinctSelect).getByText<HTMLOptionElement>('All Precincts').value;
+  apiMock.expectSetPrecinctSelection(ALL_PRECINCTS_SELECTION);
+  apiMock.expectGetPrecinctSelection(ALL_PRECINCTS_SELECTION);
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
-  within(screen.getByTestId('electionInfoBar')).getByText(/All Precincts/);
+  await within(screen.getByTestId('electionInfoBar')).findByText(
+    /All Precincts/
+  );
 
   fireEvent.click(
     screen.getByRole('option', {

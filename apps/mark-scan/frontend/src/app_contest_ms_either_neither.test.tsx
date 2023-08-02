@@ -35,6 +35,8 @@ import {
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
+const electionDefinition = electionWithMsEitherNeitherDefinition;
+const { election } = electionDefinition;
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -46,8 +48,6 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-const electionDefinition = electionWithMsEitherNeitherDefinition;
-const { election } = electionDefinition;
 const eitherNeitherContestId = '750000015';
 const pickOneContestId = '750000016';
 const eitherNeitherContest = find(
@@ -211,17 +211,15 @@ test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
 
 test('Can vote on a Mississippi Either Neither Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
-
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelection(singlePrecinctSelectionFor(precinctId));
 
   await setElectionInStorage(storage, electionDefinition);
-  await setStateInStorage(storage, {
-    appPrecinct: singlePrecinctSelectionFor(precinctId),
-  });
+  await setStateInStorage(storage);
 
   render(
     <App
@@ -231,13 +229,13 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
       reload={jest.fn()}
     />
   );
-  await advanceTimersAndPromises();
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '2',
-    precinctId: '6526',
+    precinctId,
   });
+  await advanceTimersAndPromises();
 
   // Go to First Contest
   userEvent.click(await screen.findByText('Start Voting'));

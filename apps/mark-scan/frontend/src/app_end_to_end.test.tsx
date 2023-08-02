@@ -4,10 +4,15 @@ import {
   fakeKiosk,
   expectPrintToPdf,
 } from '@votingworks/test-utils';
-import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import {
+  MemoryStorage,
+  MemoryHardware,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
 import { getContestDistrictName } from '@votingworks/types';
 import { electionSampleDefinition } from '@votingworks/fixtures';
+import { assert } from '@votingworks/basics';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 
 import { App } from './app';
@@ -52,6 +57,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });
+  apiMock.expectGetPrecinctSelection();
   const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);
   const reload = jest.fn();
   apiMock.expectGetSystemSettings();
@@ -125,18 +131,35 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Select precinct
   screen.getByText('State of Hamilton');
+  const precinctName = 'Center Springfield';
+  const precinct = electionDefinition.election.precincts.find(
+    (_precinct) => _precinct.name === precinctName
+  );
+  assert(precinct, `Expected to find a precinct for ${precinctName}`);
+  const precinctSelection = singlePrecinctSelectionFor(precinct.id);
+  // TODO(kevin)
+  // This set operation is called twice with the same value. Not a risk
+  // but we should figure out why when time allows.
+  apiMock.expectSetPrecinctSelectionRepeated(precinctSelection);
+  // Expect one call for each rerender from here
+  apiMock.expectGetPrecinctSelection(precinctSelection);
   userEvent.selectOptions(
     screen.getByLabelText('Precinct'),
-    screen.getByText('Center Springfield')
+    screen.getByText(precinctName)
   );
-  within(screen.getByTestId('electionInfoBar')).getByText(/Center Springfield/);
+  await advanceTimersAndPromises();
+  await within(screen.getByTestId('electionInfoBar')).findByText(
+    /Center Springfield/
+  );
 
+  apiMock.expectGetPrecinctSelection(precinctSelection);
   userEvent.click(
     screen.getByRole('option', {
       name: 'Official Ballot Mode',
       selected: false,
     })
   );
+
   screen.getByRole('option', { name: 'Official Ballot Mode', selected: true });
 
   // Remove card
@@ -316,6 +339,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectUnconfigureMachine();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelection();
   userEvent.click(screen.getByText('Unconfigure Machine'));
   await advanceTimersAndPromises();
 
@@ -350,6 +374,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectUnconfigureMachine();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelection();
   userEvent.click(
     within(modal).getByRole('button', {
       name: 'Yes, Delete Election Data',

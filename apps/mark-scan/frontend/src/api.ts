@@ -56,6 +56,16 @@ export const getElectionDefinition = {
   },
 } as const;
 
+export const getPrecinctSelection = {
+  queryKey(): QueryKey {
+    return ['getPrecinctSelection'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getPrecinctSelection());
+  },
+} as const;
+
 /* istanbul ignore next */
 export const getSystemSettings = {
   queryKey(): QueryKey {
@@ -184,6 +194,7 @@ export const unconfigureMachine = {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionDefinition.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
+        await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
       },
     });
   },
@@ -196,6 +207,18 @@ export const printBallot = {
     return useMutation(apiClient.printBallot, {
       async onSuccess() {
         await queryClient.invalidateQueries(getStateMachineState.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setPrecinctSelection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setPrecinctSelection, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
       },
     });
   },

@@ -5,12 +5,15 @@ import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type { Api, MachineConfig } from '@votingworks/mark-scan-backend';
 import { QueryClientProvider } from '@tanstack/react-query';
 import {
+  AllPrecinctsSelection,
   BallotPackageConfigurationError,
   BallotStyleId,
   DEFAULT_SYSTEM_SETTINGS,
+  Election,
   ElectionDefinition,
   InsertedSmartCardAuth,
   PrecinctId,
+  PrecinctSelection,
   SystemSettings,
 } from '@votingworks/types';
 import {
@@ -20,8 +23,9 @@ import {
   fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { err, ok, Result } from '@votingworks/basics';
+import { assert, err, ok, Result } from '@votingworks/basics';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';
 
@@ -136,6 +140,42 @@ export function createApiMock() {
       mockApiClient.getElectionDefinition
         .expectCallWith()
         .resolves(electionDefinition);
+    },
+
+    /**
+     * Expects a call to getPrecinctSelection. The call will resolve with the first precinct of the given election.
+     * @param election The election to reference when choosing the precinct with which getPrecinctSelection() will resolve.
+     */
+    expectGetPrecinctSelectionResolvesDefault(election: Election) {
+      assert(
+        election?.precincts[0] !== undefined,
+        'Could not mock getPrecinctSelection because the provided election has no precincts'
+      );
+      mockApiClient.getPrecinctSelection
+        .expectCallWith()
+        .resolves(ok(singlePrecinctSelectionFor(election.precincts[0].id)));
+    },
+
+    expectGetPrecinctSelection(precinctSelection?: PrecinctSelection) {
+      mockApiClient.getPrecinctSelection
+        .expectCallWith()
+        .resolves(ok(precinctSelection));
+    },
+
+    expectSetPrecinctSelection(
+      precinctSelection: PrecinctSelection | AllPrecinctsSelection
+    ) {
+      mockApiClient.setPrecinctSelection
+        .expectCallWith({ precinctSelection })
+        .resolves();
+    },
+
+    expectSetPrecinctSelectionRepeated(
+      precinctSelection: PrecinctSelection | AllPrecinctsSelection
+    ) {
+      mockApiClient.setPrecinctSelection
+        .expectRepeatedCallsWith({ precinctSelection })
+        .resolves();
     },
 
     expectGetSystemSettings(

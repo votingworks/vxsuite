@@ -11,6 +11,7 @@ import { fakeLogger } from '@votingworks/logging';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { mockUsbDrive } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
+import { ok } from '@votingworks/basics';
 import {
   act,
   fireEvent,
@@ -18,7 +19,7 @@ import {
   within,
 } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
-import { election, defaultPrecinctId } from '../../test/helpers/election';
+import { election } from '../../test/helpers/election';
 
 import { advanceTimers } from '../../test/helpers/timers';
 
@@ -50,11 +51,9 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
       <QueryClientProvider client={createQueryClient()}>
         <AdminScreen
-          appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
           ballotsPrintedCount={0}
           electionDefinition={asElectionDefinition(election)}
           isLiveMode={false}
-          updateAppPrecinct={jest.fn()}
           toggleLiveMode={jest.fn()}
           unconfigure={jest.fn()}
           machineConfig={fakeMachineConfig({
@@ -72,6 +71,7 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
 }
 
 test('renders date and time settings modal', async () => {
+  apiMock.expectGetPrecinctSelection();
   renderScreen();
 
   advanceTimers();
@@ -107,30 +107,37 @@ test('renders date and time settings modal', async () => {
   screen.getByText(startDate);
 });
 
-test('can switch the precinct', () => {
-  const updateAppPrecinct = jest.fn();
-  renderScreen({ updateAppPrecinct });
+test('can switch the precinct', async () => {
+  const precinctSelection = singlePrecinctSelectionFor(
+    election.precincts[0].id
+  );
+  apiMock.mockApiClient.getPrecinctSelection
+    .expectRepeatedCallsWith()
+    .resolves(ok(precinctSelection));
 
-  const precinctSelect = screen.getByLabelText('Precinct');
+  apiMock.expectSetPrecinctSelection(ALL_PRECINCTS_SELECTION);
+  renderScreen();
+
+  const precinctSelect = await screen.findByLabelText('Precinct');
   const allPrecinctsOption =
     within(precinctSelect).getByText<HTMLOptionElement>('All Precincts');
   fireEvent.change(precinctSelect, {
     target: { value: allPrecinctsOption.value },
   });
-  expect(updateAppPrecinct).toHaveBeenCalledWith(ALL_PRECINCTS_SELECTION);
 });
 
-test('precinct change disabled if polls closed', () => {
+test('precinct change disabled if polls closed', async () => {
+  apiMock.expectGetPrecinctSelection();
   renderScreen({ pollsState: 'polls_closed_final' });
 
-  const precinctSelect = screen.getByLabelText('Precinct');
+  const precinctSelect = await screen.findByLabelText('Precinct');
   expect(precinctSelect).toBeDisabled();
 });
 
 test('precinct selection disabled if single precinct election', async () => {
+  apiMock.expectGetPrecinctSelection();
   renderScreen({
     electionDefinition: electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-    appPrecinct: singlePrecinctSelectionFor('precinct-1'),
   });
 
   await screen.findByText('Election Manager Actions');
@@ -141,14 +148,17 @@ test('precinct selection disabled if single precinct election', async () => {
 });
 
 test('renders a USB controller button', async () => {
+  apiMock.expectGetPrecinctSelection();
   renderScreen({ usbDrive: mockUsbDrive('absent') });
   await screen.findByText('No USB');
 
+  apiMock.expectGetPrecinctSelection();
   renderScreen({ usbDrive: mockUsbDrive('mounted') });
   await screen.findByText('Eject USB');
 });
 
 test('USB button calls eject', async () => {
+  apiMock.expectGetPrecinctSelection();
   const usbDrive = mockUsbDrive('mounted');
 
   renderScreen({ usbDrive });
