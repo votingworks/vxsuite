@@ -22,7 +22,8 @@ function generateTestJobForNodeJsPackage(pkg: PackageInfo): Optional<string[]> {
     `  resource_class: xlarge`,
     `  steps:`,
     ...(hasCypressTests ? [`    - install-cypress-browser`] : []),
-    `    - checkout-and-install`,
+    `    - checkout-and-install:`,
+    `        path: ${pkg.relativePath}`,
     `    - run:`,
     `        name: Build`,
     `        command: |`,
@@ -155,6 +156,10 @@ ${jobIds.map((jobId) => `      - ${jobId}`).join('\n')}
 commands:
   checkout-and-install:
     description: Get the code and install dependencies.
+    parameters:
+      path:
+        type: string
+        default: '.'
     steps:
       - run:
           name: Ensure rust is in the PATH variable
@@ -167,15 +172,15 @@ commands:
       - restore_cache:
           key:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "pnpm-lock.yaml" }}
+            "pnpm-lock.yaml" }}-{{ .Environment.CIRCLE_JOB }}
       - run:
           name: Setup Dependencies
           command: |
-            pnpm install --frozen-lockfile
+            cd <<parameters.path>> && pnpm install --filter {.}... --frozen-lockfile && cd -
       - save_cache:
           key:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "pnpm-lock.yaml" }}
+            "pnpm-lock.yaml" }}-{{ .Environment.CIRCLE_JOB }}
           paths:
             - /root/.local/share/pnpm/store/v3
             - /root/.cache/Cypress

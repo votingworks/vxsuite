@@ -26,7 +26,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/admin/backend
       - run:
           name: Build
           command: |
@@ -49,7 +50,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/admin/frontend
       - run:
           name: Build
           command: |
@@ -73,7 +75,8 @@ jobs:
     resource_class: xlarge
     steps:
       - install-cypress-browser
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/admin/integration-testing
       - run:
           name: Build
           command: |
@@ -100,7 +103,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/central-scan/backend
       - run:
           name: Build
           command: |
@@ -123,7 +127,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/central-scan/frontend
       - run:
           name: Build
           command: |
@@ -147,7 +152,8 @@ jobs:
     resource_class: xlarge
     steps:
       - install-cypress-browser
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/central-scan/integration-testing
       - run:
           name: Build
           command: |
@@ -174,7 +180,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/design/backend
       - run:
           name: Build
           command: |
@@ -197,7 +204,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/design/frontend
       - run:
           name: Build
           command: |
@@ -220,7 +228,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/design/shared
       - run:
           name: Build
           command: |
@@ -243,7 +252,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/mark-scan/backend
       - run:
           name: Build
           command: |
@@ -266,7 +276,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/mark-scan/frontend
       - run:
           name: Build
           command: |
@@ -290,7 +301,8 @@ jobs:
     resource_class: xlarge
     steps:
       - install-cypress-browser
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/mark-scan/integration-testing
       - run:
           name: Build
           command: |
@@ -317,7 +329,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/mark/backend
       - run:
           name: Build
           command: |
@@ -340,7 +353,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/mark/frontend
       - run:
           name: Build
           command: |
@@ -364,7 +378,8 @@ jobs:
     resource_class: xlarge
     steps:
       - install-cypress-browser
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/mark/integration-testing
       - run:
           name: Build
           command: |
@@ -391,7 +406,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/scan/backend
       - run:
           name: Build
           command: |
@@ -414,7 +430,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: apps/scan/frontend
       - run:
           name: Build
           command: |
@@ -437,7 +454,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: codemods
       - run:
           name: Build
           command: |
@@ -460,7 +478,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/api
       - run:
           name: Build
           command: |
@@ -483,7 +502,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/auth
       - run:
           name: Build
           command: |
@@ -506,7 +526,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/backend
       - run:
           name: Build
           command: |
@@ -529,7 +550,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/ballot-encoder
       - run:
           name: Build
           command: |
@@ -552,7 +574,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/ballot-interpreter
       - run:
           name: Build
           command: |
@@ -575,7 +598,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/ballot-interpreter-nh
       - run:
           name: Build
           command: |
@@ -598,7 +622,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/ballot-interpreter-vx
       - run:
           name: Build
           command: |
@@ -621,7 +646,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/basics
       - run:
           name: Build
           command: |
@@ -644,7 +670,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/cdf-schema-builder
       - run:
           name: Build
           command: |
@@ -667,7 +694,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/converter-nh-accuvote
       - run:
           name: Build
           command: |
@@ -690,7 +718,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/custom-paper-handler
       - run:
           name: Build
           command: |
@@ -713,7 +742,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/custom-scanner
       - run:
           name: Build
           command: |
@@ -736,7 +766,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/cvr-fixture-generator
       - run:
           name: Build
           command: |
@@ -759,7 +790,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/db
       - run:
           name: Build
           command: |
@@ -782,7 +814,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/dev-dock/backend
       - run:
           name: Build
           command: |
@@ -805,7 +838,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/dev-dock/frontend
       - run:
           name: Build
           command: |
@@ -828,7 +862,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/eslint-plugin-vx
       - run:
           name: Build
           command: |
@@ -851,7 +886,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/fixtures
       - run:
           name: Build
           command: |
@@ -874,7 +910,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/grout
       - run:
           name: Build
           command: |
@@ -897,7 +934,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/grout/test-utils
       - run:
           name: Build
           command: |
@@ -920,7 +958,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/image-utils
       - run:
           name: Build
           command: |
@@ -943,7 +982,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/logging
       - run:
           name: Build
           command: |
@@ -966,7 +1006,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/mark-flow-ui
       - run:
           name: Build
           command: |
@@ -989,7 +1030,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/message-coder
       - run:
           name: Build
           command: |
@@ -1012,7 +1054,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/monorepo-utils
       - run:
           name: Build
           command: |
@@ -1035,7 +1078,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/res-to-ts
       - run:
           name: Build
           command: |
@@ -1058,7 +1102,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/test-utils
       - run:
           name: Build
           command: |
@@ -1081,7 +1126,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/types
       - run:
           name: Build
           command: |
@@ -1104,7 +1150,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/ui
       - run:
           name: Build
           command: |
@@ -1127,7 +1174,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/usb-drive
       - run:
           name: Build
           command: |
@@ -1150,7 +1198,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/utils
       - run:
           name: Build
           command: |
@@ -1257,6 +1306,10 @@ workflows:
 commands:
   checkout-and-install:
     description: Get the code and install dependencies.
+    parameters:
+      path:
+        type: string
+        default: '.'
     steps:
       - run:
           name: Ensure rust is in the PATH variable
@@ -1269,15 +1322,15 @@ commands:
       - restore_cache:
           key:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "pnpm-lock.yaml" }}
+            "pnpm-lock.yaml" }}-{{ .Environment.CIRCLE_JOB }}
       - run:
           name: Setup Dependencies
           command: |
-            pnpm install --frozen-lockfile
+            cd <<parameters.path>> && pnpm install --filter {.}... --frozen-lockfile && cd -
       - save_cache:
           key:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "pnpm-lock.yaml" }}
+            "pnpm-lock.yaml" }}-{{ .Environment.CIRCLE_JOB }}
           paths:
             - /root/.local/share/pnpm/store/v3
             - /root/.cache/Cypress
