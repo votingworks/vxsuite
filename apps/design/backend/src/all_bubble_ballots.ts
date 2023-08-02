@@ -4,59 +4,21 @@ import {
   CandidateContest,
   DistrictId,
   Election,
+  ElectionDefinition,
   GridLayout,
-  Side,
 } from '@votingworks/types';
 import {
   Bubble,
   Document,
+  Footer,
   measurements,
   range,
   TimingMarkGrid,
 } from '@votingworks/design-shared';
-
-interface AllBubbleBallotOptions {
-  fillBubble: (page: number, row: number, column: number) => boolean;
-}
+import { sha256 } from 'js-sha256';
 
 const m = measurements(BallotPaperSize.Letter, 0);
 const { DOCUMENT_HEIGHT, DOCUMENT_WIDTH, GRID } = m;
-
-function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
-  function bubbles(page: number) {
-    return range(2, GRID.rows).flatMap((row) =>
-      range(2, GRID.columns).map((column) =>
-        Bubble({
-          row,
-          column,
-          isFilled: fillBubble(page, row, column),
-          m,
-        })
-      )
-    );
-  }
-
-  const ballotStyleIndex = 0;
-  const precinctIndex = 0;
-  return {
-    width: DOCUMENT_WIDTH,
-    height: DOCUMENT_HEIGHT,
-    pages: [
-      {
-        children: [
-          TimingMarkGrid({ pageNumber: 1, ballotStyleIndex, precinctIndex, m }),
-          ...bubbles(1),
-        ],
-      },
-      {
-        children: [
-          TimingMarkGrid({ pageNumber: 2, ballotStyleIndex, precinctIndex, m }),
-          ...bubbles(2),
-        ],
-      },
-    ],
-  };
-}
 
 function createElection(): Election {
   const districtId = 'test-district' as DistrictId;
@@ -67,7 +29,7 @@ function createElection(): Election {
   }
 
   const gridPositions = range(1, 3).flatMap((page) =>
-    range(1, GRID.rows - 1).flatMap((row) =>
+    range(1, GRID.rows - m.FOOTER_ROW_HEIGHT - 1).flatMap((row) =>
       range(1, GRID.columns - 1).map((column) => ({
         page,
         row,
@@ -107,19 +69,14 @@ function createElection(): Election {
         right: 1,
         top: 1,
       },
-      gridPositions: (['front', 'back'] as Side[]).flatMap((side) => {
-        const page = side === 'front' ? 1 : 2;
-        return range(1, GRID.rows - 1).flatMap((row) =>
-          range(1, GRID.columns - 1).map((column) => ({
-            type: 'option',
-            side,
-            column,
-            row,
-            contestId: contests[page - 1].id,
-            optionId: candidateId(page, row, column),
-          }))
-        );
-      }),
+      gridPositions: gridPositions.map(({ page, row, column }) => ({
+        type: 'option',
+        side: page % 2 === 1 ? 'front' : 'back',
+        column,
+        row,
+        contestId: contests[page - 1].id,
+        optionId: candidateId(page, row, column),
+      })),
     },
   ];
 
@@ -167,6 +124,69 @@ function createElection(): Election {
 }
 
 export const allBubbleBallotElection = createElection();
+const electionData = JSON.stringify(allBubbleBallotElection);
+export const allBubbleBallotElectionDefinition: ElectionDefinition = {
+  electionData,
+  election: allBubbleBallotElection,
+  electionHash: sha256(electionData),
+};
+
+interface AllBubbleBallotOptions {
+  fillBubble: (page: number, row: number, column: number) => boolean;
+}
+
+function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
+  function bubbles(page: number) {
+    return range(2, GRID.rows - m.FOOTER_ROW_HEIGHT).flatMap((row) =>
+      range(2, GRID.columns).map((column) =>
+        Bubble({
+          row,
+          column,
+          isFilled: fillBubble(page, row, column),
+          m,
+        })
+      )
+    );
+  }
+
+  return {
+    width: DOCUMENT_WIDTH,
+    height: DOCUMENT_HEIGHT,
+    pages: [
+      {
+        children: [
+          TimingMarkGrid({ m }),
+          ...bubbles(1),
+          Footer({
+            electionDefinition: allBubbleBallotElectionDefinition,
+            ballotStyle: allBubbleBallotElection.ballotStyles[0],
+            precinct: allBubbleBallotElection.precincts[0],
+            isTestMode: true,
+            pageNumber: 1,
+            totalPages: 2,
+            m,
+          }),
+        ],
+      },
+      {
+        children: [
+          TimingMarkGrid({ m }),
+          ...bubbles(2),
+          Footer({
+            electionDefinition: allBubbleBallotElectionDefinition,
+            ballotStyle: allBubbleBallotElection.ballotStyles[0],
+            precinct: allBubbleBallotElection.precincts[0],
+            isTestMode: true,
+            pageNumber: 2,
+            totalPages: 2,
+            m,
+          }),
+        ],
+      },
+    ],
+  };
+}
+
 export const allBubbleBallotBlankBallot = createBallotCard({
   fillBubble: () => false,
 });

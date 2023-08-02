@@ -54,7 +54,12 @@ function exportBallotToPdf(
   precinct: VxPrecinct,
   ballotStyle: VxBallotStyle
 ) {
-  const ballotResult = layOutBallot(electionDefinition, precinct, ballotStyle);
+  const ballotResult = layOutBallot({
+    electionDefinition,
+    precinct,
+    ballotStyle,
+    isTestMode: true,
+  });
   if (ballotResult.isErr()) {
     throw new Error(
       `Error generating ballot for precinct ${precinct.name}, ballot style ${
@@ -166,11 +171,12 @@ function buildApi({ store }: { store: Store }) {
           const precinct = assertDefined(
             getPrecinctById({ election, precinctId })
           );
-          const ballotResult = layOutBallot(
+          const ballotResult = layOutBallot({
             electionDefinition,
             precinct,
-            ballotStyle
-          );
+            ballotStyle,
+            isTestMode: true,
+          });
           if (ballotResult.isErr()) {
             throw new Error(
               `Error generating ballot for precinct ${

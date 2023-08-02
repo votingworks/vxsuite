@@ -47,6 +47,8 @@ import {
   allBubbleBallotFilledBallot,
 } from './all_bubble_ballots';
 
+const isTestMode = true;
+
 async function pdfToBuffer(pdf: PDFKit.PDFDocument): Promise<Buffer> {
   const promise = new Promise<Buffer>((resolve, reject) => {
     const chunks: Buffer[] = [];
@@ -256,11 +258,12 @@ describe('Laid out ballots - Famous Names', () => {
   test('Blank ballot interpretation', async () => {
     const precinct = election.precincts[1];
 
-    const ballotResult = layOutBallot(
+    const ballotResult = layOutBallot({
       electionDefinition,
       precinct,
-      ballotStyle
-    );
+      ballotStyle,
+      isTestMode,
+    });
     assert(ballotResult.isOk());
     const { document: ballot, gridLayout } = ballotResult.ok();
 
@@ -289,11 +292,12 @@ describe('Laid out ballots - Famous Names', () => {
       })
     );
 
-    const ballotResult = layOutBallot(
+    const ballotResult = layOutBallot({
       electionDefinition,
       precinct,
-      ballotStyle
-    );
+      ballotStyle,
+      isTestMode,
+    });
     assert(ballotResult.isOk());
     const { document: ballot, gridLayout } = ballotResult.ok();
     const markedBallot = markBallot(
@@ -346,11 +350,12 @@ for (const targetMarkPosition of Object.values(BallotTargetMarkPosition)) {
         );
 
         test(`Blank ballot interpretation`, async () => {
-          const ballotResult = layOutBallot(
+          const ballotResult = layOutBallot({
             electionDefinition,
             precinct,
-            ballotStyle
-          );
+            ballotStyle,
+            isTestMode,
+          });
           assert(ballotResult.isOk());
           const { document: ballot, gridLayout } = ballotResult.ok();
           // We only support single-sheet ballots for now
@@ -401,11 +406,12 @@ for (const targetMarkPosition of Object.values(BallotTargetMarkPosition)) {
             })
           );
 
-          const ballotResult = layOutBallot(
+          const ballotResult = layOutBallot({
             electionDefinition,
             precinct,
-            ballotStyle
-          );
+            ballotStyle,
+            isTestMode,
+          });
           assert(ballotResult.isOk());
           const { document: ballot, gridLayout } = ballotResult.ok();
           // We only support single-sheet ballots for now

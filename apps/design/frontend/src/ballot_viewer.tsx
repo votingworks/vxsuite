@@ -256,7 +256,12 @@ export function BallotViewer({
     }
   }, []);
 
-  const ballotResult = layOutBallot(electionDefinition, precinct, ballotStyle);
+  const ballotResult = layOutBallot({
+    electionDefinition,
+    precinct,
+    ballotStyle,
+    isTestMode: true,
+  });
 
   if (ballotResult.isErr()) {
     // eslint-disable-next-line no-console

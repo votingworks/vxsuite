@@ -30,11 +30,7 @@ import {
   Rectangle,
   TextBox,
 } from './document_types';
-import {
-  encodeMetadata,
-  encodeMetadataInQrCode,
-  QrCodeData,
-} from './encode_metadata';
+import { encodeMetadataInQrCode, QrCodeData } from './encode_metadata';
 import { range } from './util';
 
 const debug = makeDebug('layout');
@@ -357,22 +353,7 @@ function TimingMark({
   };
 }
 
-export function TimingMarkGrid({
-  pageNumber,
-  ballotStyleIndex,
-  precinctIndex,
-  m,
-}: {
-  pageNumber: number;
-  ballotStyleIndex: number;
-  precinctIndex: number;
-  m: Measurements;
-}): AnyElement {
-  const sheetMetadata = encodeMetadata(ballotStyleIndex, precinctIndex);
-  const pageMetadata =
-    pageNumber % 2 === 1
-      ? sheetMetadata.frontTimingMarks
-      : sheetMetadata.backTimingMarks;
+export function TimingMarkGrid({ m }: { m: Measurements }): AnyElement {
   return {
     type: 'Rectangle',
     x: 0,
@@ -385,11 +366,9 @@ export function TimingMarkGrid({
         TimingMark({ row: 1, column, m })
       ),
       // Bottom
-      [...pageMetadata.entries()]
-        .filter(([, bit]) => bit === 1)
-        .map(([column]) =>
-          TimingMark({ row: m.GRID.rows, column: column + 1, m })
-        ),
+      range(1, m.GRID.columns + 1).map((column) =>
+        TimingMark({ row: m.GRID.rows, column, m })
+      ),
       // Left
       range(1, m.GRID.rows + 1).map((row) => TimingMark({ row, column: 1, m })),
       // Right
@@ -581,10 +560,11 @@ function QrCode({
   };
 }
 
-function Footer({
+export function Footer({
   electionDefinition,
   ballotStyle,
   precinct,
+  isTestMode,
   pageNumber,
   totalPages,
   m,
@@ -592,6 +572,7 @@ function Footer({
   electionDefinition: ElectionDefinition;
   ballotStyle: BallotStyle;
   precinct: Precinct;
+  isTestMode: boolean;
   pageNumber: number;
   totalPages: number;
   m: Measurements;
@@ -680,7 +661,7 @@ function Footer({
     ballotStyleId: ballotStyle.id,
     pageNumber,
     ballotType: BallotType.Standard,
-    isTestMode: false,
+    isTestMode,
   });
 
   return {
@@ -1443,22 +1424,24 @@ export interface BallotLayout {
   gridLayout: GridLayout;
 }
 
-function layOutBallotHelper(
-  electionDefinition: ElectionDefinition,
-  precinct: Precinct,
-  ballotStyle: BallotStyle
-) {
+interface LayOutBallotParams {
+  electionDefinition: ElectionDefinition;
+  precinct: Precinct;
+  ballotStyle: BallotStyle;
+  isTestMode: boolean;
+}
+
+function layOutBallotHelper({
+  electionDefinition,
+  ballotStyle,
+  precinct,
+  isTestMode,
+}: LayOutBallotParams) {
   const { election } = electionDefinition;
   const { paperSize, layoutDensity = 0 } = election.ballotLayout;
   assert(layoutDensity <= 2);
   const m = measurements(paperSize, layoutDensity);
 
-  const ballotStyleIndex = election.ballotStyles.findIndex(
-    (bs) => bs.id === ballotStyle.id
-  );
-  const precinctIndex = election.precincts.findIndex(
-    (p) => p.id === precinct.id
-  );
   // For now, just one section for candidate contests, one for ballot measures.
   // TODO support arbitrarily defined sections
   const contests = getContests({ election, ballotStyle });
@@ -1597,7 +1580,7 @@ function layOutBallotHelper(
 
     pages.push({
       children: [
-        TimingMarkGrid({ pageNumber, ballotStyleIndex, precinctIndex, m }),
+        TimingMarkGrid({ m }),
         headerAndInstructions,
         ...contestObjects,
       ].filter((child): child is AnyElement => child !== null),
@@ -1611,6 +1594,7 @@ function layOutBallotHelper(
         electionDefinition,
         ballotStyle,
         precinct,
+        isTestMode,
         pageNumber: pageIndex + 1,
         totalPages: pages.length,
         m,
@@ -1649,12 +1633,10 @@ function layOutBallotHelper(
  * parameterized.
  */
 export function layOutBallot(
-  electionDefinition: ElectionDefinition,
-  precinct: Precinct,
-  ballotStyle: BallotStyle
+  params: LayOutBallotParams
 ): Result<BallotLayout, Error> {
   try {
-    return ok(layOutBallotHelper(electionDefinition, precinct, ballotStyle));
+    return ok(layOutBallotHelper(params));
   } catch (e) {
     return wrapException(e);
   }
