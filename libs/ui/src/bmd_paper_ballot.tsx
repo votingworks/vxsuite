@@ -30,9 +30,10 @@ import {
 
 import { assert } from '@votingworks/basics';
 import { DisplayTextForYesOrNo } from './globals';
-import { NoWrap, Text } from './text';
-import { Prose } from './prose';
+import { NoWrap } from './text';
 import { QrCode } from './qrcode';
+import { Font, H4, H5, H6, P } from './typography';
+import { VxThemeProvider } from './themes/vx_theme_provider';
 
 const Ballot = styled.div`
   background: #fff;
@@ -134,17 +135,25 @@ const Contest = styled.div`
   break-inside: avoid;
   page-break-inside: avoid;
 `;
-const ContestProse = styled(Prose)`
-  & > h3 {
-    font-size: 0.875em;
-    font-weight: 400;
+
+const ContestTitle = styled(H6)`
+  /* stylelint-disable-next-line font-weight-notation */
+  font-weight: normal;
+`;
+
+const VoteLine = styled.span`
+  display: block;
+
+  &:not(:last-child) {
+    margin-bottom: 0.125em;
   }
 `;
+
 function NoSelection({ prefix }: { prefix?: string }): JSX.Element {
   return (
-    <Text italic muted>
-      {prefix}[no selection]
-    </Text>
+    <VoteLine>
+      <Font weight="light">{prefix}[no selection]</Font>
+    </VoteLine>
   );
 }
 
@@ -166,20 +175,20 @@ function CandidateContestResult({
   ) : (
     <React.Fragment>
       {vote.map((candidate) => (
-        <Text key={candidate.id} wordBreak>
-          <Text bold as="span">
-            {candidate.name}
-          </Text>{' '}
+        <VoteLine key={candidate.id}>
+          <Font weight="bold">{candidate.name}</Font>{' '}
           {candidate.partyIds &&
             candidate.partyIds.length > 0 &&
             `/ ${getCandidatePartiesDescription(election, candidate)}`}
           {candidate.isWriteIn && '(write-in)'}
-        </Text>
+        </VoteLine>
       ))}
       {remainingChoices > 0 && (
-        <Text italic muted>
-          [no selection for {remainingChoices} of {contest.seats} choices]
-        </Text>
+        <VoteLine>
+          <Font weight="light">
+            [no selection for {remainingChoices} of {contest.seats} choices]
+          </Font>
+        </VoteLine>
       )}
     </React.Fragment>
   );
@@ -198,9 +207,9 @@ function YesNoContestResult({
   if (!yesNo) return <NoSelection />;
   const option = yesNo === 'yes' ? contest.yesOption : contest.noOption;
   return (
-    <Text bold wordBreak>
-      {option?.label ?? DisplayTextForYesOrNo[yesNo]}
-    </Text>
+    <VoteLine>
+      <Font weight="bold">{option?.label ?? DisplayTextForYesOrNo[yesNo]}</Font>
+    </VoteLine>
   );
 }
 
@@ -212,6 +221,18 @@ interface Props {
   precinctId: PrecinctId;
   votes: VotesDict;
   onRendered?: () => void;
+}
+
+/**
+ * Provides a theme context when rendering for print and overrides any parent
+ * themes appropriately when rendering for screen.
+ */
+function withPrintTheme(ballot: JSX.Element): JSX.Element {
+  return (
+    <VxThemeProvider colorMode="contrastHighLight" sizeMode="s">
+      {ballot}
+    </VxThemeProvider>
+  );
 }
 
 /**
@@ -258,7 +279,7 @@ export function BmdPaperBallot({
     }
   }, [seal, sealUrl, sealLoaded, onRendered]);
 
-  return (
+  return withPrintTheme(
     <Ballot aria-hidden>
       <Header>
         {seal ? (
@@ -282,17 +303,17 @@ export function BmdPaperBallot({
             />
           </div>
         ) : null}
-        <Prose className="ballot-header-content">
-          <h2>{isLiveMode ? 'Official Ballot' : 'Unofficial TEST Ballot'}</h2>
-          <h3>
+        <div className="ballot-header-content">
+          <H4>{isLiveMode ? 'Official Ballot' : 'Unofficial TEST Ballot'}</H4>
+          <H5>
             {partyPrimaryAdjective} {title}
-          </h3>
-          <p>
+          </H5>
+          <P>
             {formatLongDate(DateTime.fromISO(date))}
             <br />
             {county.name}, {state}
-          </p>
-        </Prose>
+          </P>
+        </div>
         <QrCodeContainer>
           <QrCode value={fromByteArray(encodedBallot)} />
           <div>
@@ -317,8 +338,8 @@ export function BmdPaperBallot({
         <BallotSelections>
           {contests.map((contest) => (
             <Contest key={contest.id}>
-              <ContestProse compact>
-                <h3>{contest.title}</h3>
+              <div>
+                <ContestTitle>{contest.title}</ContestTitle>
                 {contest.type === 'candidate' && (
                   <CandidateContestResult
                     contest={contest}
@@ -332,7 +353,7 @@ export function BmdPaperBallot({
                     vote={votes[contest.id] as YesNoVote}
                   />
                 )}
-              </ContestProse>
+              </div>
             </Contest>
           ))}
         </BallotSelections>
