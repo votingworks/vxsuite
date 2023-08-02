@@ -48,7 +48,7 @@
     ]
   },
   "dependencies": {
-    "@tanstack/react-query": "^4.22.0",
+    "@tanstack/react-query": "^4.32.1",
     "@types/jest": "^29.5.3",
     "@types/node": "16.18.23",
     "@types/pluralize": "^0.0.29",
@@ -77,8 +77,8 @@
     "pluralize": "^7.0.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
-    "react-dropzone": "^11.2.1",
-    "react-router-dom": "^5.2.0",
+    "react-dropzone": "^11.7.1",
+    "react-router-dom": "^5.3.4",
     "setimmediate": "^1.0.5",
     "styled-components": "^5.2.1",
     "ts-jest": "^29.1.1",
@@ -95,7 +95,7 @@
     "@types/history": "^4.7.8",
     "@types/kiosk-browser": "workspace:*",
     "@types/pify": "^3.0.2",
-    "@types/react-router-dom": "^5.1.5",
+    "@types/react-router-dom": "^5.3.3",
     "@types/setimmediate": "^1.0.2",
     "@types/testing-library__jest-dom": "^5.14.3",
     "@types/zip-stream": "workspace:*",

@@ -48,7 +48,7 @@
     ]
   },
   "dependencies": {
-    "@tanstack/react-query": "^4.22.0",
+    "@tanstack/react-query": "^4.32.1",
     "@votingworks/basics": "workspace:*",
     "@votingworks/design-shared": "workspace:*",
     "@votingworks/grout": "workspace:*",
@@ -67,7 +67,7 @@
     "path": "^0.12.7",
     "react": "17.0.1",
     "react-dom": "17.0.1",
-    "react-router-dom": "^5.2.0",
+    "react-router-dom": "^5.3.4",
     "styled-components": "^5.2.3"
   },
   "devDependencies": {
@@ -76,7 +76,7 @@
     "@types/luxon": "^3.0.0",
     "@types/react": "17.0.39",
     "@types/react-dom": "^17.0.0",
-    "@types/react-router-dom": "^5.1.5",
+    "@types/react-router-dom": "^5.3.3",
     "@types/styled-components": "^5.1.9",
     "@types/tmp": "^0.2.3",
     "@vitejs/plugin-react": "^1.3.2",
