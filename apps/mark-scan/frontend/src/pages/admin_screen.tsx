@@ -55,12 +55,10 @@ export function AdminScreen({
   pollsState,
   logger,
   usbDrive,
-}: AdminScreenProps): JSX.Element {
+}: AdminScreenProps): JSX.Element | null {
   const { election } = electionDefinition;
   const logOutMutation = logOut.useMutation();
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
-  const precinctSelection = getPrecinctSelectionQuery.data?.ok();
-
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const updatePrecinctSelection = useCallback(
     (newPrecinctSelection: PrecinctSelection) => {
@@ -77,6 +75,11 @@ export function AdminScreen({
     screenReader.mute();
     return () => screenReader.toggleMuted(initialMuted);
   }, [screenReader]);
+
+  if (!getPrecinctSelectionQuery.isSuccess) {
+    return null;
+  }
+  const precinctSelection = getPrecinctSelectionQuery.data.ok();
 
   return (
     <Screen>

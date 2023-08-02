@@ -110,8 +110,7 @@ export class Store {
   }
 
   /**
-   * Gets the current precinct `scan` is accepting ballots for. If set to
-   * `undefined`, ballots from all precincts will be accepted.
+   * Gets the current precinct `scan` is accepting ballots for.
    */
   getPrecinctSelection(): Optional<PrecinctSelection> {
     const electionRow = this.client.one(

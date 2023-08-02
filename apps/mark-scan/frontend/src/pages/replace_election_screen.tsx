@@ -36,9 +36,8 @@ export function ReplaceElectionScreen({
   screenReader,
   isLoading,
   isError,
-}: ReplaceElectionScreenProps): JSX.Element {
+}: ReplaceElectionScreenProps): JSX.Element | null {
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
-  const precinctSelection = getPrecinctSelectionQuery.data?.ok();
   const { election, electionHash } = electionDefinition;
 
   useEffect(() => {
@@ -71,6 +70,11 @@ export function ReplaceElectionScreen({
       </Screen>
     );
   }
+
+  if (!getPrecinctSelectionQuery.isSuccess) {
+    return null;
+  }
+  const precinctSelection = getPrecinctSelectionQuery.data.ok();
 
   return (
     <Screen>

@@ -1,9 +1,5 @@
 import React, { useEffect } from 'react';
-import {
-  ElectionDefinition,
-  PollsState,
-  PrecinctSelection,
-} from '@votingworks/types';
+import { ElectionDefinition, PollsState } from '@votingworks/types';
 import {
   Main,
   Screen,
@@ -18,7 +14,7 @@ import {
   Font,
 } from '@votingworks/ui';
 
-import { Optional, throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue } from '@votingworks/basics';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { getPrecinctSelection } from '../api';
 
@@ -36,12 +32,8 @@ export function InsertCardScreen({
   isLiveMode,
   pollsState,
   showNoAccessibleControllerWarning,
-}: Props): JSX.Element {
+}: Props): JSX.Element | null {
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
-  let precinctSelection: Optional<PrecinctSelection>;
-  if (getPrecinctSelectionQuery.data) {
-    precinctSelection = getPrecinctSelectionQuery.data.ok();
-  }
   useEffect(triggerAudioFocus, []);
 
   const mainText = (() => {
@@ -74,6 +66,11 @@ export function InsertCardScreen({
         throwIllegalValue(pollsState);
     }
   })();
+
+  if (!getPrecinctSelectionQuery.isSuccess) {
+    return null;
+  }
+  const precinctSelection = getPrecinctSelectionQuery.data.ok();
 
   return (
     <Screen white>
