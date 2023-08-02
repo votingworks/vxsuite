@@ -8,6 +8,7 @@ import {
   PollsState,
   PollsTransition,
   InsertedSmartCardAuth,
+  PrecinctSelection,
 } from '@votingworks/types';
 import {
   Button,
@@ -49,7 +50,7 @@ import { ScreenReader } from '../config/types';
 
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
-import { getPrecinctSelection, getStateMachineState } from '../api';
+import { getStateMachineState } from '../api';
 import { LoadPaperPage } from './load_paper_page';
 
 const VotingSession = styled.div`
@@ -154,6 +155,7 @@ export interface PollworkerScreenProps {
   screenReader: ScreenReader;
   updatePollsState: (pollsState: PollsState) => void;
   reload: () => void;
+  precinctSelection?: PrecinctSelection;
 }
 
 export function PollWorkerScreen({
@@ -172,6 +174,7 @@ export function PollWorkerScreen({
   updatePollsState,
   hasVotes,
   reload,
+  precinctSelection,
 }: PollworkerScreenProps): JSX.Element {
   const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
@@ -179,9 +182,6 @@ export function PollWorkerScreen({
 
   const getStateMachineStateQuery = getStateMachineState.useQuery();
   const stateMachineState = getStateMachineStateQuery.data;
-
-  const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
-  const precinctSelection = getPrecinctSelectionQuery.data?.ok();
 
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
