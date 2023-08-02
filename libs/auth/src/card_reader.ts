@@ -20,6 +20,7 @@ export type PcscLite = ReturnType<typeof newPcscLite>;
 
 interface ReaderReady {
   status: 'ready';
+  disconnect: () => Promise<void>;
   transmit: (data: Buffer) => Promise<Buffer>;
 }
 
@@ -75,11 +76,15 @@ export class CardReader {
                 this.updateReader({ status: 'card_error' });
                 return;
               }
+              const disconnectPromisified = promisify(reader.disconnect).bind(
+                reader
+              );
               const transmitPromisified = promisify(reader.transmit).bind(
                 reader
               );
               this.updateReader({
                 status: 'ready',
+                disconnect: disconnectPromisified,
                 transmit: (data: Buffer) =>
                   transmitPromisified(data, MAX_APDU_LENGTH, protocol),
               });
@@ -95,6 +100,15 @@ export class CardReader {
         this.updateReader({ status: 'no_card_reader' });
       });
     });
+  }
+
+  /**
+   * Disconnects the currently connected card, if any
+   */
+  async disconnectCard(): Promise<void> {
+    if (this.reader.status === 'ready') {
+      await this.reader.disconnect();
+    }
   }
 
   /**

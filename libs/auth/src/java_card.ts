@@ -702,9 +702,39 @@ export class JavaCard implements Card {
     );
   }
 
+  //
+  // Methods for scripts
+  //
+
   /**
-   * Creates and stores the card's VotingWorks-issued cert. Only to be used by the initial card
-   * configuration script.
+   * Disconnects the card so that it can be reconnected to, through a new JavaCard instance
+   */
+  async disconnect(): Promise<void> {
+    await this.cardReader.disconnectCard();
+  }
+
+  /**
+   * Retrieves the specified cert from the card. Used by the card detail reading script.
+   */
+  async retrieveCertByIdentifier(
+    certIdentifier:
+      | 'cardVxCert'
+      | 'cardVxAdminCert'
+      | 'vxAdminCertAuthorityCert'
+  ): Promise<Buffer> {
+    await this.selectApplet();
+
+    const certConfigs = {
+      cardVxCert: CARD_VX_CERT,
+      cardVxAdminCert: CARD_VX_ADMIN_CERT,
+      vxAdminCertAuthorityCert: VX_ADMIN_CERT_AUTHORITY_CERT,
+    } as const;
+    return await this.retrieveCert(certConfigs[certIdentifier].OBJECT_ID);
+  }
+
+  /**
+   * Creates and stores the card's VotingWorks-issued cert. Used by the initial card configuration
+   * script.
    */
   async createAndStoreCardVxCert(
     vxPrivateKey: FileKey | TpmKey

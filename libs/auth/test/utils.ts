@@ -29,9 +29,14 @@ export class MockCardReader implements Pick<CardReader, 'transmit'> {
   constructor(input: ConstructorParameters<typeof CardReader>[0]) {
     this.onReaderStatusChange = input.onReaderStatusChange;
   }
+
   setReaderStatus(readerStatus: ReaderStatus): void {
     this.onReaderStatusChange(readerStatus);
   }
+
+  // eslint-disable-next-line vx/gts-no-public-class-fields
+  disconnectCard: MockFunction<CardReader['disconnectCard']> =
+    mockFunction<CardReader['disconnectCard']>('disconnectCard');
 
   // eslint-disable-next-line vx/gts-no-public-class-fields
   transmit: MockFunction<CardReader['transmit']> =

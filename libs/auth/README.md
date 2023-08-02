@@ -52,7 +52,7 @@ development.
 # Install script dependencies
 make install-script-dependencies
 
-# With the relevant env vars set, a card reader connected, and a Java Card in the card reader, run:
+# With the relevant env vars set, a card reader connected, and a Java Card in the card reader
 ./scripts/configure-java-card
 ```
 
@@ -81,7 +81,7 @@ production or development card. Programming a production card requires
 additional production-machine-specific env vars.
 
 ```
-# With the relevant env vars set, a card reader connected, and a Java Card in the card reader, run:
+# With the relevant env vars set, a card reader connected, and a Java Card in the card reader
 ./scripts/program-system-administrator-java-card
 ```
 
@@ -95,6 +95,16 @@ relevant env vars for local development and then calls the base script:
 The initial Java Card configuration script needs to be run before this script
 can be run. This script will remind you if you haven't done so.
 
+### Java Card Detail Reading Script
+
+This script reads Java Card details, namely environment, jurisdiction, user
+role, and election hash.
+
+```
+# With a card reader connected and a Java Card in the card reader
+./scripts/read-java-card-details
+```
+
 ### Production Machine Cert Signing Request Creation Script
 
 This script creates a production machine cert signing request, using the
@@ -103,7 +113,7 @@ create a machine cert. Because the script requires a TPM, it can only be run on
 real hardware.
 
 ```
-# With relevant env vars set
+# With the relevant env vars set
 ./scripts/create-production-machine-cert-signing-request
 ```
 
