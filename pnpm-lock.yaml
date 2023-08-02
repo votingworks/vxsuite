@@ -293,45 +293,6 @@ importers:
       '@tanstack/react-query-devtools':
         specifier: ^4.32.1
         version: 4.32.1(@tanstack/react-query@4.32.1)(react-dom@17.0.1)(react@17.0.1)
-      '@testing-library/react':
-        specifier: ^12.1.5
-        version: 12.1.5(react-dom@17.0.1)(react@17.0.1)
-      '@testing-library/user-event':
-        specifier: ^12.6.0
-        version: 12.8.3(@testing-library/dom@9.3.1)
-      '@types/array-unique':
-        specifier: ^0.3.0
-        version: 0.3.0
-      '@types/dashify':
-        specifier: ^1.0.0
-        version: 1.0.0
-      '@types/dompurify':
-        specifier: ^2.0.3
-        version: 2.3.3
-      '@types/fetch-mock':
-        specifier: ^7.3.2
-        version: 7.3.3
-      '@types/jest':
-        specifier: ^29.5.3
-        version: 29.5.3
-      '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
-      '@types/pluralize':
-        specifier: ^0.0.29
-        version: 0.0.29
-      '@types/react':
-        specifier: 17.0.39
-        version: 17.0.39
-      '@types/react-dom':
-        specifier: ^17.0.0
-        version: 17.0.13
-      '@types/react-router-dom':
-        specifier: ^5.3.3
-        version: 5.3.3
-      '@types/styled-components':
-        specifier: ^5.1.7
-        version: 5.1.9
       '@votingworks/ballot-encoder':
         specifier: workspace:*
         version: link:../../../libs/ballot-encoder
@@ -543,33 +504,72 @@ importers:
       '@testing-library/jest-dom':
         specifier: ^5.16.4
         version: 5.16.4
+      '@testing-library/react':
+        specifier: ^12.1.5
+        version: 12.1.5(react-dom@17.0.1)(react@17.0.1)
       '@testing-library/react-hooks':
         specifier: ^8.0.1
         version: 8.0.1(@types/react@17.0.39)(react-dom@17.0.1)(react-test-renderer@16.14.0)(react@17.0.1)
+      '@testing-library/user-event':
+        specifier: ^12.6.0
+        version: 12.8.3(@testing-library/dom@9.3.1)
+      '@types/array-unique':
+        specifier: ^0.3.0
+        version: 0.3.0
       '@types/base64-js':
         specifier: ^1.3.0
         version: 1.3.0
       '@types/connect':
         specifier: ^3.4.35
         version: 3.4.35
+      '@types/dashify':
+        specifier: ^1.0.0
+        version: 1.0.0
       '@types/debug':
         specifier: ^4.1.6
         version: 4.1.7
+      '@types/dompurify':
+        specifier: ^2.0.3
+        version: 2.3.3
+      '@types/fetch-mock':
+        specifier: ^7.3.2
+        version: 7.3.3
       '@types/history':
         specifier: ^4.7.8
         version: 4.7.11
+      '@types/jest':
+        specifier: ^29.5.3
+        version: 29.5.3
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
       '@types/lodash':
         specifier: ^4.14.168
         version: 4.14.191
+      '@types/node':
+        specifier: 16.18.23
+        version: 16.18.23
+      '@types/pluralize':
+        specifier: ^0.0.29
+        version: 0.0.29
+      '@types/react':
+        specifier: 17.0.39
+        version: 17.0.39
+      '@types/react-dom':
+        specifier: ^17.0.0
+        version: 17.0.13
+      '@types/react-router-dom':
+        specifier: ^5.3.3
+        version: 5.3.3
       '@types/react-test-renderer':
         specifier: ^18.0.0
         version: 18.0.0
       '@types/readable-stream':
         specifier: ^2.3.5
         version: 2.3.9
+      '@types/styled-components':
+        specifier: ^5.1.7
+        version: 5.1.9
       '@types/testing-library__jest-dom':
         specifier: ^5.14.3
         version: 5.14.3
@@ -887,24 +887,6 @@ importers:
       '@tanstack/react-query':
         specifier: ^4.32.1
         version: 4.32.1(react-dom@17.0.1)(react@17.0.1)
-      '@types/jest':
-        specifier: ^29.5.3
-        version: 29.5.3
-      '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
-      '@types/pluralize':
-        specifier: ^0.0.29
-        version: 0.0.29
-      '@types/react':
-        specifier: 17.0.39
-        version: 17.0.39
-      '@types/react-dom':
-        specifier: ^17.0.0
-        version: 17.0.13
-      '@types/styled-components':
-        specifier: ^5.1.7
-        version: 5.1.9
       '@votingworks/api':
         specifier: workspace:*
         version: link:../../../libs/api
@@ -983,9 +965,6 @@ importers:
       styled-components:
         specifier: ^5.2.1
         version: 5.2.3(react-dom@17.0.1)(react-is@18.2.0)(react@17.0.1)
-      ts-jest:
-        specifier: ^29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.6)(jest@29.6.2)(typescript@4.6.3)
       use-interval:
         specifier: ^1.2.1
         version: 1.4.0(react@17.0.1)
@@ -1014,18 +993,36 @@ importers:
       '@types/history':
         specifier: ^4.7.8
         version: 4.7.11
+      '@types/jest':
+        specifier: ^29.5.3
+        version: 29.5.3
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
+      '@types/node':
+        specifier: 16.18.23
+        version: 16.18.23
       '@types/pify':
         specifier: ^3.0.2
         version: 3.0.2
+      '@types/pluralize':
+        specifier: ^0.0.29
+        version: 0.0.29
+      '@types/react':
+        specifier: 17.0.39
+        version: 17.0.39
+      '@types/react-dom':
+        specifier: ^17.0.0
+        version: 17.0.13
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
       '@types/setimmediate':
         specifier: ^1.0.2
         version: 1.0.2
+      '@types/styled-components':
+        specifier: ^5.1.7
+        version: 5.1.9
       '@types/testing-library__jest-dom':
         specifier: ^5.14.3
         version: 5.14.3
@@ -1107,6 +1104,9 @@ importers:
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
+      ts-jest:
+        specifier: ^29.1.1
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.6)(jest@29.6.2)(typescript@4.6.3)
       type-fest:
         specifier: ^0.18.0
         version: 0.18.1
@@ -1706,33 +1706,6 @@ importers:
       '@tanstack/react-query':
         specifier: ^4.32.1
         version: 4.32.1(react-dom@17.0.1)(react@17.0.1)
-      '@testing-library/react-hooks':
-        specifier: ^8.0.1
-        version: 8.0.1(@types/react@17.0.39)(react-dom@17.0.1)(react-test-renderer@16.14.0)(react@17.0.1)
-      '@types/fetch-mock':
-        specifier: ^7.3.2
-        version: 7.3.3
-      '@types/jest':
-        specifier: ^29.5.3
-        version: 29.5.3
-      '@types/lodash.camelcase':
-        specifier: ^4.3.6
-        version: 4.3.6
-      '@types/pluralize':
-        specifier: ^0.0.29
-        version: 0.0.29
-      '@types/react':
-        specifier: 17.0.39
-        version: 17.0.39
-      '@types/react-dom':
-        specifier: ^17.0.0
-        version: 17.0.13
-      '@types/react-router-dom':
-        specifier: ^5.3.3
-        version: 5.3.3
-      '@types/styled-components':
-        specifier: ^5.1.7
-        version: 5.1.9
       '@votingworks/ballot-encoder':
         specifier: workspace:*
         version: link:../../../libs/ballot-encoder
@@ -1881,6 +1854,9 @@ importers:
       '@testing-library/react':
         specifier: ^12.1.5
         version: 12.1.5(react-dom@17.0.1)(react@17.0.1)
+      '@testing-library/react-hooks':
+        specifier: ^8.0.1
+        version: 8.0.1(@types/react@17.0.39)(react-dom@17.0.1)(react-test-renderer@16.14.0)(react@17.0.1)
       '@testing-library/user-event':
         specifier: ^13.5.0
         version: 13.5.0(@testing-library/dom@9.3.1)
@@ -1890,21 +1866,45 @@ importers:
       '@types/debug':
         specifier: ^4.1.6
         version: 4.1.7
+      '@types/fetch-mock':
+        specifier: ^7.3.2
+        version: 7.3.3
       '@types/history':
         specifier: ^4.7.8
         version: 4.7.11
+      '@types/jest':
+        specifier: ^29.5.3
+        version: 29.5.3
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
+      '@types/lodash.camelcase':
+        specifier: ^4.3.6
+        version: 4.3.6
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
+      '@types/pluralize':
+        specifier: ^0.0.29
+        version: 0.0.29
+      '@types/react':
+        specifier: 17.0.39
+        version: 17.0.39
+      '@types/react-dom':
+        specifier: ^17.0.0
+        version: 17.0.13
       '@types/react-gamepad':
         specifier: ^1.0.3
         version: 1.0.3
+      '@types/react-router-dom':
+        specifier: ^5.3.3
+        version: 5.3.3
       '@types/setimmediate':
         specifier: ^1.0.2
         version: 1.0.2
+      '@types/styled-components':
+        specifier: ^5.1.7
+        version: 5.1.9
       '@types/testing-library__jest-dom':
         specifier: ^5.14.3
         version: 5.14.3
@@ -2159,33 +2159,6 @@ importers:
       '@tanstack/react-query':
         specifier: ^4.32.1
         version: 4.32.1(react-dom@17.0.1)(react@17.0.1)
-      '@testing-library/react-hooks':
-        specifier: ^8.0.1
-        version: 8.0.1(@types/react@17.0.39)(react-dom@17.0.1)(react-test-renderer@16.14.0)(react@17.0.1)
-      '@types/fetch-mock':
-        specifier: ^7.3.2
-        version: 7.3.3
-      '@types/jest':
-        specifier: ^29.5.3
-        version: 29.5.3
-      '@types/lodash.camelcase':
-        specifier: ^4.3.6
-        version: 4.3.6
-      '@types/pluralize':
-        specifier: ^0.0.29
-        version: 0.0.29
-      '@types/react':
-        specifier: 17.0.39
-        version: 17.0.39
-      '@types/react-dom':
-        specifier: ^17.0.0
-        version: 17.0.13
-      '@types/react-router-dom':
-        specifier: ^5.3.3
-        version: 5.3.3
-      '@types/styled-components':
-        specifier: ^5.1.7
-        version: 5.1.9
       '@votingworks/ballot-encoder':
         specifier: workspace:*
         version: link:../../../libs/ballot-encoder
@@ -2331,6 +2304,9 @@ importers:
       '@testing-library/react':
         specifier: ^12.1.5
         version: 12.1.5(react-dom@17.0.1)(react@17.0.1)
+      '@testing-library/react-hooks':
+        specifier: ^8.0.1
+        version: 8.0.1(@types/react@17.0.39)(react-dom@17.0.1)(react-test-renderer@16.14.0)(react@17.0.1)
       '@testing-library/user-event':
         specifier: ^13.5.0
         version: 13.5.0(@testing-library/dom@9.3.1)
@@ -2340,21 +2316,45 @@ importers:
       '@types/debug':
         specifier: ^4.1.6
         version: 4.1.7
+      '@types/fetch-mock':
+        specifier: ^7.3.2
+        version: 7.3.3
       '@types/history':
         specifier: ^4.7.8
         version: 4.7.11
+      '@types/jest':
+        specifier: ^29.5.3
+        version: 29.5.3
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
+      '@types/lodash.camelcase':
+        specifier: ^4.3.6
+        version: 4.3.6
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
+      '@types/pluralize':
+        specifier: ^0.0.29
+        version: 0.0.29
+      '@types/react':
+        specifier: 17.0.39
+        version: 17.0.39
+      '@types/react-dom':
+        specifier: ^17.0.0
+        version: 17.0.13
       '@types/react-gamepad':
         specifier: ^1.0.3
         version: 1.0.3
+      '@types/react-router-dom':
+        specifier: ^5.3.3
+        version: 5.3.3
       '@types/setimmediate':
         specifier: ^1.0.2
         version: 1.0.2
+      '@types/styled-components':
+        specifier: ^5.1.7
+        version: 5.1.9
       '@types/testing-library__jest-dom':
         specifier: ^5.14.3
         version: 5.14.3
@@ -2681,27 +2681,6 @@ importers:
       '@tanstack/react-query':
         specifier: ^4.32.1
         version: 4.32.1(react-dom@17.0.1)(react@17.0.1)
-      '@testing-library/jest-dom':
-        specifier: ^5.11.4
-        version: 5.16.4
-      '@testing-library/react':
-        specifier: ^12.1.5
-        version: 12.1.5(react-dom@17.0.1)(react@17.0.1)
-      '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
-      '@types/react':
-        specifier: 17.0.39
-        version: 17.0.39
-      '@types/react-dom':
-        specifier: ^17.0.0
-        version: 17.0.13
-      '@types/react-router-dom':
-        specifier: ^5.3.3
-        version: 5.3.3
-      '@types/styled-components':
-        specifier: ^5.1.9
-        version: 5.1.9
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -2744,9 +2723,6 @@ importers:
       http-proxy-middleware:
         specifier: 1.0.6
         version: 1.0.6(debug@4.3.4)
-      jest-mock:
-        specifier: '27'
-        version: 27.5.1
       normalize.css:
         specifier: ^8.0.1
         version: 8.0.1
@@ -2781,6 +2757,12 @@ importers:
         specifier: 3.14.4
         version: 3.14.4
     devDependencies:
+      '@testing-library/jest-dom':
+        specifier: ^5.11.4
+        version: 5.16.4
+      '@testing-library/react':
+        specifier: ^12.1.5
+        version: 12.1.5(react-dom@17.0.1)(react@17.0.1)
       '@testing-library/user-event':
         specifier: ^12.8.3
         version: 12.8.3(@testing-library/dom@9.3.1)
@@ -2799,15 +2781,30 @@ importers:
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
+      '@types/node':
+        specifier: 16.18.23
+        version: 16.18.23
       '@types/pdfjs-dist':
         specifier: 2.1.3
         version: 2.1.3
       '@types/pluralize':
         specifier: ^0.0.29
         version: 0.0.29
+      '@types/react':
+        specifier: 17.0.39
+        version: 17.0.39
+      '@types/react-dom':
+        specifier: ^17.0.0
+        version: 17.0.13
+      '@types/react-router-dom':
+        specifier: ^5.3.3
+        version: 5.3.3
       '@types/setimmediate':
         specifier: ^1.0.2
         version: 1.0.2
+      '@types/styled-components':
+        specifier: ^5.1.9
+        version: 5.1.9
       '@types/testing-library__jest-dom':
         specifier: ^5.14.3
         version: 5.14.3
@@ -2847,6 +2844,9 @@ importers:
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
+      jest-mock:
+        specifier: '27'
+        version: 27.5.1
       jest-styled-components:
         specifier: ^7.1.1
         version: 7.1.1(styled-components@5.2.3)
@@ -2901,6 +2901,9 @@ importers:
       esbuild-esm-loader:
         specifier: ^0.2.3
         version: 0.2.3(esbuild@0.17.6)
+      minimatch:
+        specifier: ^9.0.3
+        version: 9.0.3
       ts-morph:
         specifier: ^12.2.0
         version: 12.2.0
@@ -2914,6 +2917,9 @@ importers:
       '@types/babel__traverse':
         specifier: ^7.18.3
         version: 7.18.3
+      '@types/minimatch':
+        specifier: ^5.1.2
+        version: 5.1.2
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
@@ -4074,9 +4080,6 @@ importers:
 
   libs/dev-dock/backend:
     dependencies:
-      '@types/express':
-        specifier: ^4.17.14
-        version: 4.17.14
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../auth
@@ -4093,6 +4096,9 @@ importers:
         specifier: workspace:*
         version: link:../../utils
     devDependencies:
+      '@types/express':
+        specifier: ^4.17.14
+        version: 4.17.14
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
@@ -4150,12 +4156,6 @@ importers:
       '@tanstack/react-query-devtools':
         specifier: ^4.3.9
         version: 4.3.9(@tanstack/react-query@4.32.1)(react-dom@17.0.1)(react@17.0.1)
-      '@types/express':
-        specifier: ^4.17.14
-        version: 4.17.14
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../../@types/kiosk-browser
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../basics
@@ -4187,9 +4187,15 @@ importers:
       '@testing-library/user-event':
         specifier: ^13.2.1
         version: 13.5.0(@testing-library/dom@9.3.1)
+      '@types/express':
+        specifier: ^4.17.14
+        version: 4.17.14
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
+      '@types/kiosk-browser':
+        specifier: workspace:*
+        version: link:../../@types/kiosk-browser
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
@@ -4375,12 +4381,6 @@ importers:
 
   libs/grout:
     dependencies:
-      '@types/debug':
-        specifier: ^4.1.7
-        version: 4.1.7
-      '@types/express':
-        specifier: ^4.17.14
-        version: 4.17.14
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -4391,6 +4391,12 @@ importers:
         specifier: ^4.3.4
         version: 4.3.4(supports-color@8.1.1)
     devDependencies:
+      '@types/debug':
+        specifier: ^4.1.7
+        version: 4.1.7
+      '@types/express':
+        specifier: ^4.17.14
+        version: 4.17.14
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
@@ -4546,12 +4552,6 @@ importers:
 
   libs/logging:
     dependencies:
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../@types/kiosk-browser
-      '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -4580,6 +4580,12 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
+      '@types/kiosk-browser':
+        specifier: workspace:*
+        version: link:../@types/kiosk-browser
+      '@types/node':
+        specifier: 16.18.23
+        version: 16.18.23
       '@types/yargs':
         specifier: ^16.0.0
         version: 16.0.4
@@ -4643,21 +4649,6 @@ importers:
       '@fortawesome/react-fontawesome':
         specifier: ^0.2.0
         version: 0.2.0(@fortawesome/fontawesome-svg-core@6.3.0)(react@17.0.1)
-      '@testing-library/react':
-        specifier: ^12.1.5
-        version: 12.1.5(react-dom@17.0.1)(react@17.0.1)
-      '@types/dompurify':
-        specifier: ^2.0.3
-        version: 2.3.3
-      '@types/lodash.clonedeep':
-        specifier: ^4.5.7
-        version: 4.5.7
-      '@types/react-modal':
-        specifier: ^3.13.1
-        version: 3.13.1
-      '@types/react-router-dom':
-        specifier: ^5.3.3
-        version: 5.3.3
       '@votingworks/ballot-encoder':
         specifier: workspace:*
         version: link:../ballot-encoder
@@ -4740,6 +4731,9 @@ importers:
       '@testing-library/jest-dom':
         specifier: ^5.16.4
         version: 5.16.4
+      '@testing-library/react':
+        specifier: ^12.1.5
+        version: 12.1.5(react-dom@17.0.1)(react@17.0.1)
       '@testing-library/react-hooks':
         specifier: ^8.0.0-alpha.1
         version: 8.0.1(@types/react@17.0.39)(react-dom@17.0.1)(react-test-renderer@16.14.0)(react@17.0.1)
@@ -4755,6 +4749,9 @@ importers:
       '@types/deep-eql':
         specifier: workspace:*
         version: link:../@types/deep-eql
+      '@types/dompurify':
+        specifier: ^2.0.3
+        version: 2.3.3
       '@types/history':
         specifier: '4'
         version: 4.7.11
@@ -4767,6 +4764,9 @@ importers:
       '@types/lodash.camelcase':
         specifier: ^4.3.6
         version: 4.3.6
+      '@types/lodash.clonedeep':
+        specifier: ^4.5.7
+        version: 4.5.7
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -4782,6 +4782,12 @@ importers:
       '@types/react-dom':
         specifier: ^18.0.6
         version: 18.0.6
+      '@types/react-modal':
+        specifier: ^3.13.1
+        version: 3.13.1
+      '@types/react-router-dom':
+        specifier: ^5.3.3
+        version: 5.3.3
       '@types/styled-components':
         specifier: ^5.1.9
         version: 5.1.9
@@ -5037,12 +5043,6 @@ importers:
       '@testing-library/react':
         specifier: ^12.1.5
         version: 12.1.5(react-dom@17.0.1)(react@17.0.1)
-      '@types/deep-eql':
-        specifier: ^4.0.0
-        version: 4.0.0
-      '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -5074,6 +5074,9 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
     devDependencies:
+      '@types/deep-eql':
+        specifier: ^4.0.0
+        version: 4.0.0
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
@@ -5083,6 +5086,9 @@ importers:
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
+      '@types/node':
+        specifier: 16.18.23
+        version: 16.18.23
       '@types/react':
         specifier: 17.0.39
         version: 17.0.39
@@ -5219,18 +5225,6 @@ importers:
       '@testing-library/react':
         specifier: ^12.1.5
         version: 12.1.5(react-dom@17.0.1)(react@17.0.1)
-      '@types/dompurify':
-        specifier: ^2.0.3
-        version: 2.3.3
-      '@types/lodash.clonedeep':
-        specifier: ^4.5.7
-        version: 4.5.7
-      '@types/react-modal':
-        specifier: ^3.13.1
-        version: 3.13.1
-      '@types/react-router-dom':
-        specifier: ^5.3.3
-        version: 5.3.3
       '@votingworks/ballot-encoder':
         specifier: workspace:*
         version: link:../ballot-encoder
@@ -5322,6 +5316,9 @@ importers:
       '@types/deep-eql':
         specifier: workspace:*
         version: link:../@types/deep-eql
+      '@types/dompurify':
+        specifier: ^2.0.3
+        version: 2.3.3
       '@types/history':
         specifier: '4'
         version: 4.7.11
@@ -5331,6 +5328,9 @@ importers:
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../@types/kiosk-browser
+      '@types/lodash.clonedeep':
+        specifier: ^4.5.7
+        version: 4.5.7
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -5346,6 +5346,12 @@ importers:
       '@types/react-dom':
         specifier: ^18.0.6
         version: 18.0.6
+      '@types/react-modal':
+        specifier: ^3.13.1
+        version: 3.13.1
+      '@types/react-router-dom':
+        specifier: ^5.3.3
+        version: 5.3.3
       '@types/styled-components':
         specifier: ^5.1.9
         version: 5.1.9
@@ -5500,9 +5506,6 @@ importers:
 
   libs/utils:
     dependencies:
-      '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -5558,6 +5561,9 @@ importers:
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
+      '@types/node':
+        specifier: 16.18.23
+        version: 16.18.23
       '@types/randombytes':
         specifier: ^2.0.0
         version: 2.0.0
@@ -7418,7 +7424,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.22.9
-      '@babel/helper-plugin-utils': 7.22.5
+      '@babel/helper-plugin-utils': 7.20.2
     dev: true
 
   /@babel/plugin-transform-react-jsx-source@7.18.6(@babel/core@7.20.12):
@@ -8250,6 +8256,7 @@ packages:
     cpu: [arm64]
     os: [android]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/android-arm@0.15.10:
@@ -8302,6 +8309,7 @@ packages:
     cpu: [arm]
     os: [android]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/android-x64@0.16.17:
@@ -8345,6 +8353,7 @@ packages:
     cpu: [x64]
     os: [android]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/darwin-arm64@0.16.17:
@@ -8388,6 +8397,7 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/darwin-x64@0.16.17:
@@ -8431,6 +8441,7 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/freebsd-arm64@0.16.17:
@@ -8474,6 +8485,7 @@ packages:
     cpu: [arm64]
     os: [freebsd]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/freebsd-x64@0.16.17:
@@ -8517,6 +8529,7 @@ packages:
     cpu: [x64]
     os: [freebsd]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-arm64@0.16.17:
@@ -8560,6 +8573,7 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-arm@0.16.17:
@@ -8603,6 +8617,7 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-ia32@0.16.17:
@@ -8646,6 +8661,7 @@ packages:
     cpu: [ia32]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-loong64@0.15.10:
@@ -8707,6 +8723,7 @@ packages:
     cpu: [loong64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-mips64el@0.16.17:
@@ -8750,6 +8767,7 @@ packages:
     cpu: [mips64el]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-ppc64@0.16.17:
@@ -8793,6 +8811,7 @@ packages:
     cpu: [ppc64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-riscv64@0.16.17:
@@ -8836,6 +8855,7 @@ packages:
     cpu: [riscv64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-s390x@0.16.17:
@@ -8879,6 +8899,7 @@ packages:
     cpu: [s390x]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-x64@0.16.17:
@@ -8922,6 +8943,7 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/netbsd-x64@0.16.17:
@@ -8965,6 +8987,7 @@ packages:
     cpu: [x64]
     os: [netbsd]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/openbsd-x64@0.16.17:
@@ -9008,6 +9031,7 @@ packages:
     cpu: [x64]
     os: [openbsd]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/sunos-x64@0.16.17:
@@ -9051,6 +9075,7 @@ packages:
     cpu: [x64]
     os: [sunos]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/win32-arm64@0.16.17:
@@ -9094,6 +9119,7 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/win32-ia32@0.16.17:
@@ -9137,6 +9163,7 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/win32-x64@0.16.17:
@@ -9180,6 +9207,7 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@eslint-community/eslint-utils@4.4.0(eslint@8.23.1):
@@ -9548,6 +9576,7 @@ packages:
       '@types/node': 16.18.23
       '@types/yargs': 16.0.5
       chalk: 4.1.2
+    dev: true
 
   /@jest/types@29.6.1:
     resolution: {integrity: sha512-tPKQNMPuXgvdOn2/Lg9HNfUvjYVGolt04Hp03f5hAk878uwOLikN+JzeLY0HcVgKgFl9Hs3EIqpu3WX27XNhnw==}
@@ -10767,6 +10796,7 @@ packages:
       dom-accessibility-api: 0.5.16
       lz-string: 1.5.0
       pretty-format: 27.5.1
+    dev: true
 
   /@testing-library/jest-dom@5.16.4:
     resolution: {integrity: sha512-Gy+IoFutbMQcky0k+bqqumXZ1cTGswLsFqmNLzNdSKkU9KGV2u9oXhukCbbJ9/LRPKiqwxEE8VpV/+YZlfkPUA==}
@@ -10781,6 +10811,7 @@ packages:
       dom-accessibility-api: 0.5.14
       lodash: 4.17.21
       redent: 3.0.0
+    dev: true
 
   /@testing-library/react-hooks@8.0.0-alpha.1(react-dom@17.0.1)(react@17.0.1):
     resolution: {integrity: sha512-YrIrBXQLKcucFuEiSkHEycR7Yk5lOHH8tTxB+km+XdQiN1af0YlblWt+n9Zx6OX1crIN3JNy8hJ7VvdYivriCg==}
@@ -10826,6 +10857,7 @@ packages:
       react-dom: 17.0.1(react@17.0.1)
       react-error-boundary: 3.1.4(react@17.0.1)
       react-test-renderer: 16.14.0(react@17.0.1)
+    dev: true
 
   /@testing-library/react@12.1.5(react-dom@17.0.1)(react@17.0.1):
     resolution: {integrity: sha512-OfTXCJUFgjd/digLUuPxa0+/3ZxsQmE7ub9kcbW/wi96Bh3o/p5vrETcBGfP17NWPGqeYYl5LTRpwyGoMC4ysg==}
@@ -10848,6 +10880,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.20.6
       '@testing-library/dom': 9.3.1
+    dev: true
 
   /@testing-library/user-event@13.2.1(@testing-library/dom@9.3.1):
     resolution: {integrity: sha512-cczlgVl+krjOb3j1625usarNEibI0IFRJrSWX9UsJ1HKYFgCQv9Nb7QAipUDXl3Xdz8NDTsiS78eAkPSxlzTlw==}
@@ -10887,10 +10920,11 @@ packages:
 
   /@types/aria-query@5.0.1:
     resolution: {integrity: sha512-XTIieEY+gvJ39ChLcB4If5zHtPxt3Syj5rgZR+e1ctpmK8NjPf0zFqsz4JpLJT0xla9GFDKjy8Cpu331nrmE1Q==}
+    dev: true
 
   /@types/array-unique@0.3.0:
     resolution: {integrity: sha512-J9HNrHjSt24ubmvyMgsTiE+rvGs2yTeI+luxPa7UF09nrWrBPkQlyVaPB24zXI2wxzypdF6SRAZ1Iza1BFbUew==}
-    dev: false
+    dev: true
 
   /@types/babel__core@7.20.0:
     resolution: {integrity: sha512-+n8dL/9GWblDO0iU6eZAwEIJVr5DWigtle+Q6HLOrh/pdbXOhOtqzq8VPPE2zvNJzSKY4vH/z3iT3tn0A3ypiQ==}
@@ -10964,6 +10998,7 @@ packages:
     dependencies:
       '@types/connect': 3.4.35
       '@types/node': 16.18.23
+    dev: true
 
   /@types/braces@3.0.1:
     resolution: {integrity: sha512-+euflG6ygo4bn0JHtn4pYqcXwRtLvElQ7/nnjDu7iYG56H0+OhCd7d6Ug0IE3WcFpZozBKW2+80FUbv5QGk5AQ==}
@@ -11000,6 +11035,7 @@ packages:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
       '@types/node': 16.18.23
+    dev: true
 
   /@types/cookiejar@2.1.2:
     resolution: {integrity: sha512-t73xJJrvdTjXrn4jLS9VSGRbz0nUY3cl2DMGDU48lKl+HR9dbbjW2A9r3g40VA++mQpy6uuHg33gy7du2BKpog==}
@@ -11007,7 +11043,7 @@ packages:
 
   /@types/dashify@1.0.0:
     resolution: {integrity: sha512-uyYom3SM48jvowobcby+1z3r/sDX+5N8lAdPoNLKYMhF819pNjV6K5g8lAUGrwj80n+P7Qf10GcA9h7aIO2GJw==}
-    dev: false
+    dev: true
 
   /@types/debug@4.1.5:
     resolution: {integrity: sha512-Q1y515GcOdTHgagaVFhHnIFQ38ygs/kmxdNpvpou+raI9UO3YZcHDngBSYKQklcKlvA7iuQlmIKbzvmxcOE9CQ==}
@@ -11017,6 +11053,7 @@ packages:
     resolution: {integrity: sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==}
     dependencies:
       '@types/ms': 0.7.31
+    dev: true
 
   /@types/debug@4.1.8:
     resolution: {integrity: sha512-/vPO1EPOs306Cvhwv7KfVfYvOJqA/S/AXjaHQiJboCZzcNDb+TIJFN9/2C9DZ//ijSKWioNyUxD792QmDJ+HKQ==}
@@ -11026,6 +11063,7 @@ packages:
 
   /@types/deep-eql@4.0.0:
     resolution: {integrity: sha512-UkfTYLA64vGUyR4ez8ybIC01wtilS/ydOqKL1fSHOvnX1sVm1sI5btr7Q+bqpdaPGD+QNhOgBXq1HGjO+99e1A==}
+    dev: true
 
   /@types/detect-port@1.3.2:
     resolution: {integrity: sha512-xxgAGA2SAU4111QefXPSp5eGbDm/hW6zhvYl9IeEPZEry9F4d66QAHm5qpUXjb6IsevZV/7emAEx5MhP6O192g==}
@@ -11039,7 +11077,7 @@ packages:
     resolution: {integrity: sha512-nnVQSgRVuZ/843oAfhA25eRSNzUFcBPk/LOiw5gm8mD9/X7CNcbRkQu/OsjCewO8+VIYfPxUnXvPEVGenw14+w==}
     dependencies:
       '@types/trusted-types': 2.0.2
-    dev: false
+    dev: true
 
   /@types/ejs@3.1.1:
     resolution: {integrity: sha512-RQul5wEfY7BjWm0sYY86cmUN/pcXWGyVxWX93DFFJvcrxax5zKlieLwA3T77xJGwNcZW0YW6CYG70p1m8xPFmA==}
@@ -11074,6 +11112,7 @@ packages:
       '@types/node': 16.18.23
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
+    dev: true
 
   /@types/express@4.17.14:
     resolution: {integrity: sha512-TEbt+vaPFQ+xpxFLFssxUDXj5cWCxZJjIcB7Yg0k0GMHGtgtQgpvx/MUQUeAkNbA9AAGrwkAsoeItdTgS7FMyg==}
@@ -11082,6 +11121,7 @@ packages:
       '@types/express-serve-static-core': 4.17.31
       '@types/qs': 6.9.7
       '@types/serve-static': 1.15.0
+    dev: true
 
   /@types/fast-text-encoding@1.0.1:
     resolution: {integrity: sha512-DRFqoqjXfvuX3f5jIQKAQr/QzuFdNoHOtou0KQ9bzUJOreCciO7T/kFJHgEote7QusmgE1fTxsQSqNvXVR0GBw==}
@@ -11089,6 +11129,7 @@ packages:
 
   /@types/fetch-mock@7.3.3:
     resolution: {integrity: sha512-NLMbBVQh3yx6dMd5CnVxp9ZBhQYuFzWIlRk0kQbgBfyL75u3wtZyUTuFsK9Wb9G3eIw77yja858j1fQAWqM9Og==}
+    dev: true
 
   /@types/find-cache-dir@3.2.1:
     resolution: {integrity: sha512-frsJrz2t/CeGifcu/6uRo4b+SzAwT4NYCVPu1GN8IB9XTzrpPkGuV0tmh9mN+/L0PklAlsC3u5Fxt0ju00LXIw==}
@@ -11110,7 +11151,7 @@ packages:
   /@types/glob@7.2.0:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
     dependencies:
-      '@types/minimatch': 3.0.5
+      '@types/minimatch': 5.1.2
       '@types/node': 16.18.23
     dev: true
 
@@ -11125,12 +11166,14 @@ packages:
 
   /@types/history@4.7.11:
     resolution: {integrity: sha512-qjDJRrmvBMiTx+jyLxvLfJU7UznFuokDv4f3WRuriHKERccVpFU+8XMQUAbDzoiJCsmexxRExQeMwwCdamSKDA==}
+    dev: true
 
   /@types/hoist-non-react-statics@3.3.1:
     resolution: {integrity: sha512-iMIqiko6ooLrTh1joXodJK5X9xeEALT1kM5G3ZLhD3hszxBdIEd5C75U834D9mLcINgD4OyZf5uQXjkuYydWvA==}
     dependencies:
       '@types/react': 17.0.39
       hoist-non-react-statics: 3.3.2
+    dev: true
 
   /@types/http-cache-semantics@4.0.0:
     resolution: {integrity: sha512-c3Xy026kOF7QOTn00hbIllV1dLR9hG9NkSrLQgCVs8NF6sBU+VGWjD3wLPhmh1TYAc7ugCFsvHYMN4VcBN1U1A==}
@@ -11159,6 +11202,7 @@ packages:
     dependencies:
       expect: 29.6.2
       pretty-format: 29.6.2
+    dev: true
 
   /@types/jsdom@16.2.13:
     resolution: {integrity: sha512-8JQCjdeAidptSsOcRWk2iTm9wCcwn9l+kRG6k5bzUacrnm1ezV4forq0kWjUih/tumAeoG+OspOvQEbbRucBTw==}
@@ -11209,14 +11253,17 @@ packages:
     resolution: {integrity: sha512-hd/TEuPd76Jtf1xEq85CHbCqR+iqvs5IOKyrYbiaOg69BRQgPN9XkvLj8Jl8rBp/dfJ2wQ1AVcP8mZmybq7kIg==}
     dependencies:
       '@types/lodash': 4.14.191
+    dev: true
 
   /@types/lodash.clonedeep@4.5.7:
     resolution: {integrity: sha512-ccNqkPptFIXrpVqUECi60/DFxjNKsfoQxSQsgcBJCX/fuX1wgyQieojkcWH/KpE3xzLoWN/2k+ZeGqIN3paSvw==}
     dependencies:
       '@types/lodash': 4.14.191
+    dev: true
 
   /@types/lodash@4.14.191:
     resolution: {integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==}
+    dev: true
 
   /@types/luxon@3.2.0:
     resolution: {integrity: sha512-lGmaGFoaXHuOLXFvuju2bfvZRqxAqkHPx9Y9IQdQABrinJJshJwfNCKV+u7rR3kJbiqfTF/NhOkcxxAFrObyaA==}
@@ -11242,9 +11289,10 @@ packages:
 
   /@types/mime@3.0.1:
     resolution: {integrity: sha512-Y4XFY5VJAuw0FgAqPNd6NNoV44jbq9Bz2L7Rh/J6jLTiHBSBJa9fxqQIvkIld4GsoDOcCbvzOUAbLPsSKKg+uA==}
+    dev: true
 
-  /@types/minimatch@3.0.5:
-    resolution: {integrity: sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==}
+  /@types/minimatch@5.1.2:
+    resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
     dev: true
 
   /@types/minimist@1.2.2:
@@ -11253,6 +11301,7 @@ packages:
 
   /@types/ms@0.7.31:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
+    dev: true
 
   /@types/multer@1.4.7:
     resolution: {integrity: sha512-/SNsDidUFCvqqcWDwxv2feww/yqhNeTRL5CVoL3jU4Goc4kKEL10T7Eye65ZqPNi4HRx8sAEX59pV1aEH7drNA==}
@@ -11273,9 +11322,6 @@ packages:
 
   /@types/node@16.18.23:
     resolution: {integrity: sha512-XAMpaw1s1+6zM+jn2tmw8MyaRDIJfXxqmIQIS0HfoGYPuf7dUWeiUKopwq13KFX9lEp1+THGtlaaYx39Nxr58g==}
-
-  /@types/node@20.4.5:
-    resolution: {integrity: sha512-rt40Nk13II9JwQBdeYqmbn2Q6IVTA5uPhvSO+JVqdXw/6/4glI6oR9ezty/A9Hg5u7JH4OmYmuQ+XvjKm0Datg==}
 
   /@types/normalize-package-data@2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
@@ -11309,6 +11355,7 @@ packages:
 
   /@types/pluralize@0.0.29:
     resolution: {integrity: sha512-BYOID+l2Aco2nBik+iYS4SZX0Lf20KPILP5RGmM1IgzdwNdTs0eebiFriOPcej1sX9mLnSoiNte5zcFxssgpGA==}
+    dev: true
 
   /@types/pretty-hrtime@1.0.1:
     resolution: {integrity: sha512-VjID5MJb1eGKthz2qUerWT8+R4b9N+CHvGCzg9fn4kWZgaF9AhdYikQio3R7wV8YY1NsQKPaCwKz1Yff+aHNUQ==}
@@ -11323,6 +11370,7 @@ packages:
 
   /@types/qs@6.9.7:
     resolution: {integrity: sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==}
+    dev: true
 
   /@types/randombytes@2.0.0:
     resolution: {integrity: sha512-bz8PhAVlwN72vqefzxa14DKNT8jK/mV66CSjwdVQM/k3Th3EPKfUtdMniwZgMedQTFuywAsfjnZsg+pEnltaMA==}
@@ -11332,6 +11380,7 @@ packages:
 
   /@types/range-parser@1.2.4:
     resolution: {integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==}
+    dev: true
 
   /@types/react-dom@17.0.13:
     resolution: {integrity: sha512-wEP+B8hzvy6ORDv1QBhcQia4j6ea4SFIBttHYpXKPFZRviBvknq0FRh3VrIxeXUmsPkwuXVZrVGG7KUVONmXCQ==}
@@ -11354,7 +11403,7 @@ packages:
     resolution: {integrity: sha512-iY/gPvTDIy6Z+37l+ibmrY+GTV4KQTHcCyR5FIytm182RQS69G5ps4PH2FxtC7bAQ2QRHXMevsBgck7IQruHNg==}
     dependencies:
       '@types/react': 17.0.39
-    dev: false
+    dev: true
 
   /@types/react-router-dom@5.3.3:
     resolution: {integrity: sha512-kpqnYK4wcdm5UaWI3fLcELopqLrHgLqNsdpHauzlQktfkHL3npOSwtj1Uz9oKBAzs7lFtVkV8j83voAz2D8fhw==}
@@ -11362,12 +11411,14 @@ packages:
       '@types/history': 4.7.11
       '@types/react': 17.0.39
       '@types/react-router': 5.1.15
+    dev: true
 
   /@types/react-router@5.1.15:
     resolution: {integrity: sha512-z3UlMG/x91SFEVmmvykk9FLTliDvfdIUky4k2rCfXWQ0NKbrP8o9BTCaCTPuYsB8gDkUnUmkcA2vYlm2DR+HAA==}
     dependencies:
       '@types/history': 4.7.11
       '@types/react': 17.0.39
+    dev: true
 
   /@types/react-test-renderer@18.0.0:
     resolution: {integrity: sha512-C7/5FBJ3g3sqUahguGi03O79b8afNeSD6T8/GU50oQrJCU0bVCCGQHaGKUbg2Ce8VQEEqTw8/HiS6lXHHdgkdQ==}
@@ -11429,6 +11480,7 @@ packages:
     dependencies:
       '@types/mime': 3.0.1
       '@types/node': 16.18.23
+    dev: true
 
   /@types/setimmediate@1.0.2:
     resolution: {integrity: sha512-JHonWbepiR1pwiYVz2rOK4mWrhlUcrJQaOSaq4VYlfuhLrPlY1EayGjt0tXemCr8eBdVzvLeYejRCb/0Z/XuiQ==}
@@ -11464,6 +11516,7 @@ packages:
       '@types/hoist-non-react-statics': 3.3.1
       '@types/react': 17.0.39
       csstype: 3.1.0
+    dev: true
 
   /@types/superagent@4.1.10:
     resolution: {integrity: sha512-xAgkb2CMWUMCyVc/3+7iQfOEBE75NvuZeezvmixbUw3nmENf2tCnQkW5yQLTYqvXUQ+R6EXxdqKKbal2zM5V/g==}
@@ -11488,6 +11541,7 @@ packages:
     resolution: {integrity: sha512-oKZe+Mf4ioWlMuzVBaXQ9WDnEm1+umLx0InILg+yvZVBBDmzV5KfZyLrCvadtWcx8+916jLmHafcmqqffl+iIw==}
     dependencies:
       '@types/jest': 29.5.3
+    dev: true
 
   /@types/text-encoding@0.0.35:
     resolution: {integrity: sha512-jfo/A88XIiAweUa8np+1mPbm3h2w0s425YrI8t3wk5QxhH6UI7w517MboNVnGDeMSuoFwA8Rwmklno+FicvV4g==}
@@ -11511,7 +11565,7 @@ packages:
 
   /@types/trusted-types@2.0.2:
     resolution: {integrity: sha512-F5DIZ36YVLE+PN+Zwws4kJogq47hNgX3Nx6WyDJ3kcplxyke3XIzB8uK5n/Lpm1HBsbGzd6nmGehL8cPekP+Tg==}
-    dev: false
+    dev: true
 
   /@types/unist@2.0.3:
     resolution: {integrity: sha512-FvUupuM3rlRsRtCN+fDudtmytGO6iHJuuRKS1Ss0pG5z8oX0diNEw94UEL7hgDbpN94rgaK5R7sWm6RrSkZuAQ==}
@@ -11549,6 +11603,7 @@ packages:
     resolution: {integrity: sha512-AxO/ADJOBFJScHbWhq2xAhlWP24rY4aCEG/NFaMvbT3X2MgRsLjhjQwsn0Zi5zn0LG9jUhCCZMeX9Dkuw6k+vQ==}
     dependencies:
       '@types/yargs-parser': 21.0.0
+    dev: true
 
   /@types/yargs@17.0.12:
     resolution: {integrity: sha512-Nz4MPhecOFArtm81gFQvQqdV7XYCrWKx5uUt6GNHredFHn1i2mtWqXTON7EPXMtNi1qjtjEM/VCHDhcHsAMLXQ==}
@@ -12379,6 +12434,7 @@ packages:
     resolution: {integrity: sha512-R5iJ5lkuHybztUfuOAznmboyjWq8O6sqNqtK7CLOqdydi54VNbORp49mb14KbWgG1QD3JFO9hJdZ+y4KutfdOQ==}
     dependencies:
       deep-equal: 2.2.2
+    dev: true
 
   /arity-n@1.0.4:
     resolution: {integrity: sha512-fExL2kFDC1Q2DUOx3whE/9KoN66IzkY4b4zUHUBFM1ojEYjZZYDcUW3bek/ufGionX9giIKDC5redH2IlGqcQQ==}
@@ -12921,7 +12977,6 @@ packages:
     resolution: {integrity: sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA==}
     dependencies:
       balanced-match: 1.0.2
-    dev: true
 
   /braces@2.3.2:
     resolution: {integrity: sha512-aNdbnj9P8PjdXU4ybaWLK2IF3jc/EoDYbC7AazW6to3TRsfXxscC9UXOB5iDiEQrkyIbWp2SLQda4+QAa7nc3w==}
@@ -13048,6 +13103,7 @@ packages:
     engines: {node: '>= 6'}
     dependencies:
       fast-json-stable-stringify: 2.1.0
+    dev: true
 
   /bser@2.1.1:
     resolution: {integrity: sha512-gQxTNE/GAfIIrmHLUE3oJyp5FO6HRBfhjnw4/wMmA63ZGDJnWBmgY/lyQBpnDUkGmAhbSe39tx2d/iTOAfglwQ==}
@@ -13274,6 +13330,7 @@ packages:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
+    dev: true
 
   /chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -13978,6 +14035,7 @@ packages:
 
   /css.escape@1.5.1:
     resolution: {integrity: sha512-YUifsXXuknHlUsmlgyY0PKzgPOr7/FjCePfHNt0jxm83wHZi44VDMQ7/fGNkjY3/jV1MC+1CmZbaHzugyeRtpg==}
+    dev: true
 
   /css@2.2.4:
     resolution: {integrity: sha512-oUnjmWpy0niI3x/mPL8dVEI1l7MnG3+HHyRPHf+YFSbK+svOhXpmSOcDURUh2aOCgl2grzrOPt1nHLuCVFULLw==}
@@ -13994,6 +14052,7 @@ packages:
       inherits: 2.0.4
       source-map: 0.6.1
       source-map-resolve: 0.6.0
+    dev: true
 
   /cssdb@4.4.0:
     resolution: {integrity: sha512-LsTAR1JPEM9TpGhl/0p3nQecC2LJ0kD8X5YARu1hk/9I1gril5vDtMZyNxcEpxxDj34YNck/ucjuoUd66K03oQ==}
@@ -14337,6 +14396,7 @@ packages:
       which-boxed-primitive: 1.0.2
       which-collection: 1.0.1
       which-typed-array: 1.1.11
+    dev: true
 
   /deep-extend@0.6.0:
     resolution: {integrity: sha512-LOHxIOaPYdHlJRtCQfDIVZtfw/ufM8+rVj649RIHzcm/vGwQRXFt6OPqIFWsm2XEMrNIEtWR64sY1LEKD2vAOA==}
@@ -14528,6 +14588,7 @@ packages:
 
   /dom-accessibility-api@0.5.16:
     resolution: {integrity: sha512-X7BJ2yElsnOJ30pZF4uIIDfBEVgF4XEBxL9Bxhy6dnrm5hkzqmsWHGTiHqRiITNhMyFLyAiWndIJP7Z1NTteDg==}
+    dev: true
 
   /domain-browser@1.2.0:
     resolution: {integrity: sha512-jnjyiM6eRyZl2H+W8Q/zLMA481hzi0eszAaBUzIVnmYVDBbnLxVNnfu1HgEBvCbL+71FrxMl3E6lpKH7Ge3OXA==}
@@ -16496,6 +16557,7 @@ packages:
       '@esbuild/win32-arm64': 0.18.6
       '@esbuild/win32-ia32': 0.18.6
       '@esbuild/win32-x64': 0.18.6
+    dev: true
 
   /escalade@3.1.1:
     resolution: {integrity: sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==}
@@ -17945,7 +18007,7 @@ packages:
       fs.realpath: 1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
-      minimatch: 5.1.0
+      minimatch: 5.1.6
       once: 1.4.0
     dev: true
 
@@ -19252,6 +19314,7 @@ packages:
     dependencies:
       '@jest/types': 27.5.1
       '@types/node': 16.18.23
+    dev: true
 
   /jest-mock@29.6.2:
     resolution: {integrity: sha512-hoSv3lb3byzdKfwqCuT6uTscan471GUECqgNYykg6ob0yiAw3zYc7OrPnI9Qv8Wwoa4lC7AZ9hyS4AiIx5U2zg==}
@@ -19338,7 +19401,7 @@ packages:
       '@jest/test-result': 29.6.2
       '@jest/transform': 29.6.2
       '@jest/types': 29.6.1
-      '@types/node': 20.4.5
+      '@types/node': 16.18.23
       chalk: 4.1.2
       cjs-module-lexer: 1.2.3
       collect-v8-coverage: 1.0.2
@@ -20025,6 +20088,7 @@ packages:
 
   /lodash.memoize@4.1.2:
     resolution: {integrity: sha512-t7j+NzmgnQzTAYXcsHYLgimltOV1MXHtlOWf6GjL9Kj8GK5FInw5JotxvbOs+IvV1/Dzo04/fCGfLVs7aXb4Ag==}
+    dev: true
 
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
@@ -20127,6 +20191,7 @@ packages:
   /lz-string@1.5.0:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
     hasBin: true
+    dev: true
 
   /magic-string@0.25.7:
     resolution: {integrity: sha512-4CrMT5DOHTDk4HYDlzmwu4FVCcIYI8gauveasrdCu2IKIFOJ3f0v/8MDGJCDL9oD2ppz/Av1b0Nj345H9M+XIA==}
@@ -20169,6 +20234,7 @@ packages:
 
   /make-error@1.3.6:
     resolution: {integrity: sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==}
+    dev: true
 
   /makeerror@1.0.12:
     resolution: {integrity: sha512-JmqCvUhmt43madlpFzG4BQzG2Z3m6tvQDNKdClZnO3VbIudJYmxsT0FNJMeiB2+JTSlTQTSbU8QdesVmwJcmLg==}
@@ -20393,6 +20459,7 @@ packages:
   /min-indent@1.0.1:
     resolution: {integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==}
     engines: {node: '>=4'}
+    dev: true
 
   /mini-css-extract-plugin@0.11.3(webpack@5.88.2):
     resolution: {integrity: sha512-n9BA8LonkOkW1/zn+IbLPQmovsL0wMb9yx75fMJQZf2X1Zoec9yTZtyMePcyu19wPkmFbzZZA6fLTotpFhQsOA==}
@@ -20423,19 +20490,19 @@ packages:
     dependencies:
       brace-expansion: 1.1.11
 
-  /minimatch@5.1.0:
-    resolution: {integrity: sha512-9TPBGGak4nHfGZsPBohm9AWg6NoT7QTCehS3BIJABslyZbzxfV78QM2Y6+i741OPZIafFAaiiEMh5OyIrJPgtg==}
-    engines: {node: '>=10'}
-    dependencies:
-      brace-expansion: 2.0.1
-    dev: true
-
   /minimatch@5.1.6:
     resolution: {integrity: sha512-lKwV/1brpG6mBUFHtb7NUmtABCb2WZZmm2wNiOA5hAb8VdCS4B3dtMWyvcoViccwAW/COERjXLt0zP1zXUN26g==}
     engines: {node: '>=10'}
     dependencies:
       brace-expansion: 2.0.1
     dev: true
+
+  /minimatch@9.0.3:
+    resolution: {integrity: sha512-RHiac9mvaRw0x3AYRgDC1CxAP7HTcNrrECeA8YYJeWnpo+2Q5CegtZjaotWTWxDG3UeGA1coE05iH1mPjT/2mg==}
+    engines: {node: '>=16 || 14 >=14.17'}
+    dependencies:
+      brace-expansion: 2.0.1
+    dev: false
 
   /minimist-options@4.1.0:
     resolution: {integrity: sha512-Q4r8ghd80yhO/0j1O3B2BjweX3fiHg9cdOwjJd2J76Q135c+NDxGCqdYKQ1SKBuFfgWbAUzBfvYjPUEeNgqN1A==}
@@ -22357,6 +22424,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.6
       react: 17.0.1
+    dev: true
 
   /react-error-overlay@6.0.11:
     resolution: {integrity: sha512-/6UZ2qgEyH2aqzYZgQPxEnz33NJ2gNsnHA2o5+o4wW9bLM/JYQitNP9xPhsXwC08hMMovfGe/8retsdDsczPRg==}
@@ -22494,6 +22562,7 @@ packages:
       react: 17.0.1
       react-is: 16.13.1
       scheduler: 0.19.1
+    dev: true
 
   /react@17.0.1:
     resolution: {integrity: sha512-lG9c9UuMHdcAexXtigOZLX8exLWkW0Ku29qPRU8uhF2R9BN96dLCt0psvzPLlHc5OWkgymP3qwTRgbnw5BKx3w==}
@@ -22665,6 +22734,7 @@ packages:
     dependencies:
       indent-string: 4.0.0
       strip-indent: 3.0.0
+    dev: true
 
   /redent@4.0.0:
     resolution: {integrity: sha512-tYkDkVVtYkSVhuQ4zBgfvciymHaeuel+zFKXShfDnFP5SyVEP7qo70Rf1jTOTCx3vGNAbnEi/xFkcfQVMIBWag==}
@@ -23078,6 +23148,7 @@ packages:
     dependencies:
       loose-envify: 1.4.0
       object-assign: 4.1.1
+    dev: true
 
   /scheduler@0.20.2:
     resolution: {integrity: sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==}
@@ -23454,6 +23525,7 @@ packages:
     dependencies:
       atob: 2.1.2
       decode-uri-component: 0.2.0
+    dev: true
 
   /source-map-support@0.5.13:
     resolution: {integrity: sha512-SHSKFHadjVA5oR4PPqhtAVdcBWwRYVd6g6cAXnIbRiIwc2EhPrTuKUBdSLvlEKyIP3GCf89fltvcZiP9MMFA1w==}
@@ -23802,6 +23874,7 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       min-indent: 1.0.1
+    dev: true
 
   /strip-indent@4.0.0:
     resolution: {integrity: sha512-mnVSV2l+Zv6BLpSD/8V87CW/y9EmmbYzGCIavsnsI6/nwn26DwffM/yztm30Z/I2DY9wdS3vXVCMnHDgZaVNoA==}
@@ -24585,6 +24658,7 @@ packages:
       semver: 7.5.4
       typescript: 4.6.3
       yargs-parser: 21.1.1
+    dev: true
 
   /ts-morph@12.2.0:
     resolution: {integrity: sha512-WHXLtFDcIRwoqaiu0elAoZ/AmI+SwwDafnPKjgJmdwJ2gRVO0jMKBt88rV2liT/c6MTsXyuWbGFiHe9MRddWJw==}
@@ -25461,6 +25535,7 @@ packages:
       for-each: 0.3.3
       gopd: 1.0.1
       has-tostringtag: 1.0.0
+    dev: true
 
   /which-typed-array@1.1.9:
     resolution: {integrity: sha512-w9c4xkx6mPidwp7180ckYWfMmvxpjlZuIudNtDf4N/tTAUB8VJbX25qZoAsrtGuYNnGw3pa0AXgbGKRB8/EceA==}

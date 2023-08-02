@@ -34,8 +34,6 @@
   },
   "dependencies": {
     "@testing-library/react": "^12.1.5",
-    "@types/deep-eql": "^4.0.0",
-    "@types/node": "16.18.23",
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "buffer": "^6.0.3",
@@ -48,9 +46,11 @@
     "zip-stream": "^4.1.0"
   },
   "devDependencies": {
+    "@types/deep-eql": "^4.0.0",
     "@types/jest": "^29.5.3",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
+    "@types/node": "16.18.23",
     "@types/react": "17.0.39",
     "@types/zip-stream": "workspace:*",
     "eslint-plugin-vx": "workspace:*",

@@ -34,8 +34,6 @@
     ]
   },
   "dependencies": {
-    "@types/kiosk-browser": "workspace:*",
-    "@types/node": "16.18.23",
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
@@ -47,6 +45,8 @@
     "@types/debug": "^4.1.6",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^29.5.3",
+    "@types/kiosk-browser": "workspace:*",
+    "@types/node": "16.18.23",
     "@types/yargs": "^16.0.0",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
